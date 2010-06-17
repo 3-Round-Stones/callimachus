@@ -1,0 +1,30 @@
+Callimachus Project Legal Statements
+
+This project includes source code and/or binary distributions from
+other projects and companies. It is our intent to list each of them here.
+If we forgot to give credit where credit is due, please send electronic
+mail to developer@callimachusproject.org.
+
+This file lists code requirements of this project (in no particular
+order), and provides their licenses and other information to fulfill
+legal requirements. We have attempted to err on the side of
+providing more information than is required by any particular license.
+
+
+I.  Open Source Components
+
+    Source code for Open Source components may be obtained from
+    the URL provided for each project.
+
+    Mulgara Semantic Store
+    Source:   http://mulgara.org/
+    URL:      http://mulgara.org/
+    LICENSE:  Open Software License ("OSL") v. 3.0
+              http://opensource.org/licenses/osl-3.0.php
+
+    OpenRDF Alibaba
+    Source:   http://www.openrdf.org/
+    URL:      http://www.openrdf.org/
+    LICENSE:  BSD
+              http://www.opensource.org/licenses/bsd-license.php
+

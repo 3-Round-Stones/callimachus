@@ -1,0 +1,149 @@
+<project name="project" default="dist" basedir=".">
+	<!-- set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+	<property name="lib" location="lib" />
+	<property name="bin" location="bin" />
+	<property name="tmp" location="tmp" />
+	<property name="webapps" location="webapps" />
+	<property file="src/META-INF/callimachusproject.properties" />
+	<property name="alibaba.url" value="http://downloads.sourceforge.net/project/sesame/AliBabaElmo/2.0-beta1/openrdf-alibaba-2.0-beta1.zip" />
+	<property name="jchardet.url" value="http://downloads.sourceforge.net/project/jchardet/jchardet/1.1/jchardet-1.1.zip" />
+	<property name="jnotify.url" value="http://downloads.sourceforge.net/project/jnotify/jnotify/jnotify-0.93/jnotify-lib-0.93.zip" />
+	<property name="main" value="org.callimachusproject.Server" />
+	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${bin} -Djava.io.tmpdir=${tmp}" />
+
+	<target name="init">
+		<!-- Create the time stamp and build directory -->
+		<tstamp />
+		<mkdir dir="${build}" />
+		<mkdir dir="${tmp}" />
+		<available file="lib" property="lib.present" />
+		<property file="build.properties" />
+	</target>
+
+	<target name="dependencies" unless="lib.present">
+		<mkdir dir="${lib}" />
+		<parallel>
+			<get src="${alibaba.url}" dest="${lib}/openrdf-alibaba.zip" />
+			<get src="${jchardet.url}" dest="${lib}/jchardet.zip" />
+			<get src="${jnotify.url}" dest="${lib}/jnotify.zip" />
+		</parallel>
+		<unzip src="${lib}/openrdf-alibaba.zip" dest="${lib}">
+			<patternset>
+				<include name="lib/*.jar" />
+				<include name="dist/*.jar" />
+			</patternset>
+			<mapper type="flatten" />
+		</unzip>
+		<delete file="${lib}/openrdf-alibaba.zip" />
+		<unzip src="${lib}/jchardet.zip" dest="${lib}">
+			<patternset>
+				<include name="*/dist/lib/*.jar" />
+			</patternset>
+			<mapper type="flatten" />
+		</unzip>
+		<delete file="${lib}/jchardet.zip" />
+		<unzip src="${lib}/jnotify.zip" dest="${lib}">
+			<patternset>
+				<include name="*.jar" />
+			</patternset>
+			<mapper type="flatten" />
+		</unzip>
+		<unzip src="${lib}/jnotify.zip" dest="${bin}">
+			<patternset>
+				<include name="*.so" />
+				<include name="*.dll" />
+				<include name="*.dylib" />
+			</patternset>
+			<mapper type="flatten" />
+		</unzip>
+		<delete file="${lib}/jnotify.zip" />
+	</target>
+
+	<target name="dist-clean" description="clean up everything for a new version" depends="clean">
+		<delete dir="${lib}" />
+		<delete dir="${bin}" />
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the directory trees -->
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+		<delete dir="${tmp}" />
+	</target>
+
+	<target name="compile" depends="init,dependencies" description="compile the source ">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}">
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+		<copy todir="${build}">
+			<fileset dir="${src}" excludes="**/*.java *.sh *.bat logging.properties"/>
+		</copy>
+		<copy todir="${bin}">
+			<fileset dir="${src}" includes="*.sh *.bat logging.properties"/>
+		</copy>
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution">
+		<!-- Create the distribution directory and create the jar -->
+		<mkdir dir="${dist}" />
+		<property name="jar.file" value="${dist}/callimachus-${version}.jar" />
+		<manifestclasspath property="jar.classpath" jarfile="${jar.file}">
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</manifestclasspath>
+		<jar jarfile="${jar.file}">
+			<fileset dir="${build}" />
+			<manifest>
+				<attribute name="Main-Class" value="${main}" />
+				<attribute name="Class-Path" value="${jar.classpath}" />
+			</manifest>
+		</jar>
+		<zip destfile="${dist}/callimachus-${version}.zip">
+			<zipfileset dir="." includes="*.txt" />
+			<zipfileset dir="${bin}" prefix="bin" />
+			<zipfileset dir="${lib}" prefix="lib" />
+			<zipfileset file="${jar.file}" prefix="lib/" />
+			<zipfileset dir="${webapps}/callimachus" prefix="webapps/callimachus" />
+			<zipfileset dir="${webapps}/favicon.ico" prefix="webapps" />
+		</zip>
+	</target>
+
+	<target name="start" depends="compile">
+		<java classname="${main}" fork="true" spawn="true">
+			<jvmarg line="${jvmargs}" />
+			<arg line="${args}" />
+			<classpath>
+				<pathelement location="${build}/" />
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</java>
+	</target>
+
+	<target name="run" depends="compile">
+		<parallel failonany="true">
+			<java classname="${main}" fork="true">
+				<jvmarg line="${jvmargs}" />
+				<arg line="${args}" />
+				<classpath>
+					<pathelement location="${build}/" />
+					<fileset dir="${lib}">
+						<include name="**/*.jar" />
+					</fileset>
+				</classpath>
+			</java>
+		</parallel>
+	</target>
+</project>

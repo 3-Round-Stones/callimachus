@@ -1,0 +1,123 @@
+# 
+#    Copyright (c) 2009-2010 Zepheira LLC, Some rights reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix dc:<http://purl.org/dc/elements/1.1/>.
+@prefix dcterms:<http://purl.org/dc/terms/>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+
+calli:get-copy rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Copyable];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.Reader>];
+	http:operation "copy";
+	http:type "text/html";
+	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	obj:groovy """
+		def template = findCopyTemplate()
+		if (template == null)
+			throw new InternalServerError("Missing Copy Template")
+		return template.calliConstruct('copy', this)
+	""".
+
+calli:pre-copy rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Copyable];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.Reader>];
+	http:operation "pre-copy";
+	http:type "text/html";
+	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	obj:groovy """
+		def template = findCopyTemplate()
+		if (template == null)
+			throw new InternalServerError("Missing Copy Template")
+		return template.calliConstruct('pre-copy', this)
+	""".
+
+calli:post-copy rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Copyable];
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	http:method "POST";
+	http:operation "copy", "pre-copy";
+	http:expect "201-created";
+	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	obj:groovy """
+		def template = findCopyTemplate()
+		if (template == null)
+			throw new InternalServerError("Missing Copy Template")
+		def copy = template.calliCopyResource(this, msg.in, findCopyNamespaces())
+		if (calliCurators) {
+			copy.calliMaintainers.addAll(calliCurators)
+		} else {
+			copy.calliMaintainers.addAll(findScribe(copy))
+		}
+		return copy
+	""".
+
+calli:post-copy-in a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain calli:post-copy;
+	rdfs:range <java:java.io.InputStream>;
+	http:type "application/rdf+xml";
+	obj:name "in".
+
+calli:find-copy-template rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Copyable];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <urn:mimetype:application/xml>];
+	obj:name "findCopyTemplate";
+	obj:sparql """
+		SELECT REDUCED ?template
+		WHERE {
+			$this a [calli:copy ?template] .
+			?template a <urn:mimetype:application/xml>
+		}
+	""".
+
+calli:find-copy-namespace rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Copyable];
+	obj:name "findCopyNamespaces";
+	obj:sparql """
+		SELECT REDUCED ?namespace
+		WHERE { $this a [calli:withNamespace ?namespace] }
+	""".
+
+calli:find-scribe rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Copyable];
+	obj:name "findScribe";
+	obj:sparql """
+		SELECT REDUCED ?scribe
+		WHERE {
+			GRAPH ?graph { $of a ?type }
+			?graph http:authorized ?scribe
+		}
+	""".
+
+calli:find-scribe-of a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain calli:find-scribe;
+	obj:name "of".
+

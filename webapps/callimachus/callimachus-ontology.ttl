@@ -1,0 +1,153 @@
+# 
+#    Copyright (c) 2009-2010 Zepheira LLC, Some rights reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+
+@base <http://callimachusproject.org/rdf/2009/framework>.
+
+################################
+# Ontology
+################################
+
+<> a owl:Ontology.
+
+################################
+# Class
+################################
+
+calli:Alias a owl:Class;
+	rdfs:comment "Temporary Redirect (307)".
+
+calli:Copyable a owl:Class;
+	rdfs:comment "Resources that can be copied to create new resources.".
+
+calli:Deletable a owl:Class;
+	rdfs:comment "Resources that can be removed from the RDF store.".
+
+calli:Editable a owl:Class;
+	rdfs:comment "Resources that can be edited.".
+
+calli:Viewable a owl:Class;
+	rdfs:comment "Resources that can be viewed from a Web browser.".
+
+calli:AuthorizationRealm a owl:Class;
+	rdfs:comment "A realm that authorizes curator, reviewer, or maintainer membership of resources.".
+
+calli:DigestRealm a owl:Class;
+	rdfs:comment "A realm that authenticates HTTP digest credentials.".
+
+calli:Credential a owl:Class;
+	rdfs:comment "A digest credentials with a MD5 algorithm.";
+	rdfs:subClassOf calli:Party.
+
+calli:Group a owl:Class;
+	rdfs:comment "A collection of credentials.";
+	rdfs:subClassOf calli:Party.
+
+calli:Party a owl:Class;
+	rdfs:comment "A credential or group of credentials.".
+
+calli:SPARQLService a owl:Class;
+	rdfs:comment "A resource that can respond to SPARQL queries.".
+
+################################
+# Annotation
+################################
+
+calli:copy a owl:AnnotationProperty;
+	rdfs:comment "The RDFa template used to copy this resource using a Web browser.".
+
+calli:delete a owl:AnnotationProperty;
+	rdfs:comment "The RDFa template used to remove this resource using a Web browser.".
+
+calli:edit a owl:AnnotationProperty;
+	rdfs:comment "The RDFa template used to edit this resource using a Web browser.".
+
+calli:view a owl:AnnotationProperty;
+	rdfs:comment "The RDFa template used to display this resource in a Web browser.".
+
+calli:review a owl:AnnotationProperty;
+	rdfs:comment "The RDFa template used to display this resource's history in a Web browser.".
+
+################################
+# Property
+################################
+
+calli:algorithm a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:comment "A value of 'MD5' indicates this credential is a digest credential.";
+	rdfs:domain calli:Credential;
+	rdfs:range xsd:string.
+
+calli:encoded a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:comment "The MD5 encoded username:realm:password";
+	rdfs:domain calli:Credential;
+	rdfs:range xsd:hexBinary.
+
+calli:name a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:comment "The username for this credential.";
+	rdfs:domain calli:Credential;
+	rdfs:range xsd:string.
+
+calli:credential a owl:ObjectProperty;
+	rdfs:comment "Credential or group of credentials that can be authenticated by this realm.";
+	rdfs:domain calli:DigestRealm;
+	rdfs:range calli:Party.
+
+calli:origin a owl:ObjectProperty;
+	rdfs:comment "Origin of scripts that can be seamlessly authenticated with this realm.";
+	rdfs:domain calli:DigestRealm.
+
+calli:authName a rdf:Property, owl:FunctionalProperty;
+	rdfs:comment "The realm name used in the encoding of its credentials.";
+	rdfs:domain calli:DigestRealm.
+
+calli:scribe a owl:ObjectProperty;
+	rdfs:comment "Credential or group of credentials that can copy this resource remotely.";
+	rdfs:domain calli:Copyable;
+	rdfs:range calli:Party.
+
+calli:curator a owl:ObjectProperty;
+	rdfs:comment "Credential or group of credentials that will maintain any copied resources.";
+	rdfs:domain calli:Copyable;
+	rdfs:range calli:Party.
+
+calli:reviewer a owl:ObjectProperty;
+	rdfs:comment "Credential or group of credentials that can view this resource remotely.";
+	rdfs:domain calli:Viewable;
+	rdfs:range calli:Party.
+
+calli:maintainer a owl:ObjectProperty;
+	rdfs:comment "Credential or group of credentials that can interact with this resource remotely.";
+	rdfs:range calli:Party.
+
+calli:member a owl:ObjectProperty;
+	rdfs:comment "Credential that is part of this group.";
+	rdfs:domain calli:Group;
+	rdfs:range calli:Credential.
+
+calli:soundex a owl:DatatypeProperty;
+	rdfs:comment "A soundex encoding of one of this resource's label or label prefix.";
+	rdfs:range xsd:string.
+
+calli:redirectsTo a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:comment "The target redirection of this alias.";
+	rdfs:domain calli:Alias.
+

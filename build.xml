@@ -115,7 +115,7 @@
 			<zipfileset dir="${lib}" prefix="lib" />
 			<zipfileset file="${jar.file}" prefix="lib/" />
 			<zipfileset dir="${webapps}/callimachus" prefix="webapps/callimachus" />
-			<zipfileset dir="${webapps}/favicon.ico" prefix="webapps" />
+			<zipfileset file="${webapps}/favicon.ico" prefix="webapps" />
 		</zip>
 	</target>
 

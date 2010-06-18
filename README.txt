@@ -1,7 +1,7 @@
 Callimachus Project Installation Instructions
-Version 1.0
-15 December 2009
-http://callimachusproject.org
+Version 0.1
+18 June 2010
+http://callimachusproject.org/
 
 ----------------
 | Introduction |
@@ -27,16 +27,18 @@ installation directory.
 | Installation |
 ----------------
 
-There are two ways to install Callimachus, each of which are
-described below.  Please choose the option which matches your needs.
+Download a release archive from http://callimachusproject.org/ and extract it into a new directory. Execute a callimachus-start script to start the server. The server will server files from the webapps directory that have a known file extension.
 
-----------------------------------------------
-| Option A.  Installing from a JAR Installer |
-----------------------------------------------
+If using a 64bit Linux host, you must create your own libjnotify.so file for the server to read runtime changes in the webapps directory. Instructions for creating your own libjnotify.so file can be found at
+http://jnotify.sourceforge.net/
 
+Files with the extension .ttl, .ttl.gz, .rdf, or .rdf.gz will be loaded as graphs into the RDF store. Any RDF Schema or OWL ontologies will be compiled as defined in AliBaba (http://www.openrdf.org/).
 
----------------------------------------------------
-| Option B.  Installing from a Mercurial Checkout |
----------------------------------------------------
+Classes that are subclasses of calli:Viewable (and other calli-able classes) should use calli annotations, such as calli:view to identify XML/RDFa template files for display actions against individuals of the class. See the callimachus-ontology.ttl file for details.
 
+The calli Realm classes can be used to declare an authorization realms. Use the http:realm annotation to assign a realm to a message type or class. See the callimachus-ontology.ttl file for details on how to declare them in the RDF store.
+
+The end point "/sparql" accepts ready only application/sparql-query or a form and returns the result. The operation "?describe" can be appended to any IRI to receive an RDF bounded description of it. The path prefix "/diverted;" identifies percent encoded RDF IRI resources.
+
+Share your experience or ask questions on the mailing list.
 

@@ -48,8 +48,15 @@ calli:Editable a owl:Class;
 calli:Viewable a owl:Class;
 	rdfs:comment "Resources that can be viewed from a Web browser.".
 
-calli:AuthorizationRealm a owl:Class;
-	rdfs:comment "A realm that authorizes curator, reviewer, or maintainer membership of resources.".
+calli:Reviewable a owl:Class;
+	rdfs:comment "Resources that can be viewed from a Web browser.";
+	rdfs:subClassOf calli:Viewable.
+
+calli:AnybodyRealm a owl:Class;
+	rdfs:comment "A realm that authenticates any agent.".
+
+calli:LocalRealm a owl:Class;
+	rdfs:comment "A realm that only authenticates local agents.".
 
 calli:DigestRealm a owl:Class;
 	rdfs:comment "A realm that authenticates HTTP digest credentials.".
@@ -147,7 +154,11 @@ calli:soundex a owl:DatatypeProperty;
 	rdfs:comment "A soundex encoding of one of this resource's label or label prefix.";
 	rdfs:range xsd:string.
 
-calli:redirectsTo a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:comment "The target redirection of this alias.";
-	rdfs:domain calli:Alias.
+# TODO enable for alibaba-2.0-beta2
+#calli:renamedTo a owl:ObjectProperty, owl:FunctionalProperty;
+#	http:method "GET";
+#	http:type "text/uri-list";
+#	http:expect "301-moved-permantently";
+#	rdfs:comment "The target redirection of this alias.";
+#	rdfs:domain calli:Alias.
 

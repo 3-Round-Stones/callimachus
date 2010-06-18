@@ -113,7 +113,7 @@
 			<zipfileset dir="." includes="*.txt" />
 			<zipfileset dir="${bin}" prefix="bin" />
 			<zipfileset dir="${lib}" prefix="lib" />
-			<zipfileset file="${jar.file}" prefix="lib/" />
+			<zipfileset file="${jar.file}" prefix="lib" />
 			<zipfileset dir="${webapps}/callimachus" prefix="webapps/callimachus" />
 			<zipfileset file="${webapps}/favicon.ico" prefix="webapps" />
 		</zip>

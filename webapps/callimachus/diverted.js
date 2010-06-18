@@ -12,6 +12,8 @@ var diverted = function(url, node) {
                 url = a.href;
             }
         }
+    } else if (url.indexOf(prefix) == 0) {
+    	return url;
     }
     if (url.lastIndexOf('?') > 0) {
         var uri = url.substring(0, url.lastIndexOf('?'));

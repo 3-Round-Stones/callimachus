@@ -1,9 +1,12 @@
 #!/bin/sh
 
-base="$(dirname "${0}")/.."
+bin="$(dirname "${0}")"
+base="$bin/.."
 lib="$base/lib"
-logging="$(dirname "${0}")/logging.properties"
-JVM_ARGS="-mx512m -Djava.util.logging.config.file='$logging'"
+tmp="$base/tmp"
+logging="$bin/logging.properties"
+JVM_ARGS="-server -mx512m -Dfile.encoding=UTF-8"
 CLASSPATH="$lib/$(ls "$lib"|xargs |sed "s; ;:$lib/;g")"
+MAIN="org.callimachusproject.Server"
 
-exec java $JVM_ARGS -cp "$CLASSPATH" org.callimachusproject.Server $*
+exec java -Djava.library.path="$bin" -Djava.io.tmpdir="$tmp" -Djava.util.logging.config.file='$logging' $JVM_ARGS -cp "$CLASSPATH" "$MAIN" $*

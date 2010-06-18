@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -25,6 +26,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
 
 import javax.activation.MimeTypeParseException;
 import javax.activation.MimetypesFileTypeMap;
@@ -213,11 +215,14 @@ public class CallimachusServer {
 	private final class CharsetDetector implements nsICharsetDetectionObserver {
 		private Charset charset;
 
-		public Charset detect(File file) throws IOException {
+		public Charset detect(File file, boolean gzip) throws IOException {
 			boolean ascii = true;
 			nsDetector det = new nsDetector();
 			det.Init(this);
-			FileInputStream in = new FileInputStream(file);
+			InputStream in = new FileInputStream(file);
+			if (gzip) {
+				in = new GZIPInputStream(in);
+			}
 			try {
 				int len;
 				boolean done = false;
@@ -286,6 +291,7 @@ public class CallimachusServer {
 			eos = File.createTempFile("callimachus", "eos");
 			wait = File.createTempFile("callimachus", "wait");
 			eos.delete();
+			wait.delete();
 		}
 
 		public void stop() {
@@ -632,10 +638,9 @@ public class CallimachusServer {
 			String origin, String path, boolean gzip, boolean update) throws IOException,
 			InterruptedException, ExecutionException {
 		long size = file.length();
-		String type = mimetypes.getContentType(file);
-		assert type != null;
+		String type = getContentType(file, gzip);
 		if (type.startsWith("text/") && !type.contains("charset")) {
-			type += ";charset=" + detectCharset(file).name();
+			type += ";charset=" + detectCharset(file, gzip).name();
 		}
 		String since = dateformat.format(new Date(file.lastModified()));
 		BasicHttpEntityEnclosingRequest req;
@@ -658,8 +663,16 @@ public class CallimachusServer {
 		return resp;
 	}
 
-	private Charset detectCharset(File file) throws IOException {
-		return new CharsetDetector().detect(file);
+	private String getContentType(File file, boolean gzip) {
+		String name = file.getName();
+		if (gzip) {
+			name = name.replaceAll(".gz$", "");
+		}
+		return mimetypes.getContentType(name);
+	}
+
+	private Charset detectCharset(File file, boolean gzip) throws IOException {
+		return new CharsetDetector().detect(file, gzip);
 	}
 
 	private void deleteFile(int port, String authorization, String origin,

@@ -34,7 +34,7 @@
 ################################
 
 calli:Alias a owl:Class;
-	rdfs:comment "Temporary Redirect (307)".
+	rdfs:comment "Moved Permantently (301)".
 
 calli:Copyable a owl:Class;
 	rdfs:comment "Resources that can be copied to create new resources.".

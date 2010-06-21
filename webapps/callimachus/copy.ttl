@@ -59,14 +59,9 @@ calli:post-copy rdfs:subClassOf obj:Message;
 		owl:allValuesFrom calli:Copyable];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:method "POST";
 	http:operation "copy", "pre-copy";
 	http:expect "201-created";
-	http:type "message/x-response";
-	obj:imports <java:org.apache.http.ProtocolVersion>;
-	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:groovy """
 		def template = findCopyTemplate()
@@ -78,10 +73,7 @@ calli:post-copy rdfs:subClassOf obj:Message;
 		} else {
 			copy.calliMaintainers.addAll(findScribe(copy))
 		}
-		def ver = new ProtocolVersion("HTTP", 1, 1)
-		def resp = new BasicHttpResponse(ver, 201, "Created")
-		resp.setHeader("Location", copy.toString())
-		return resp
+		return copy
 	""".
 
 calli:post-copy-in a owl:ObjectProperty, owl:FunctionalProperty;

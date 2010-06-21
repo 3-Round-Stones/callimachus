@@ -1,6 +1,6 @@
 // diverted.js
 
-var diverted = function(url, node) {
+function diverted(url, node) {
     var prefix = document.location.protocol + '//' + document.location.host + '/diverted;';
     if (url.indexOf(':') < 0) {
         if (node && node.baseURIObject && node.baseURIObject.resolve) {
@@ -21,20 +21,31 @@ var diverted = function(url, node) {
         return prefix + encodeURIComponent(uri) + qs;
     }
     return prefix + encodeURIComponent(url) + '?view';
-};
+}
 
-var divertLink = function(el) {
-    document.location.href = diverted($(el).attr('href'), el);
-};
+function divertedLinkClicked(e) {
+    e.preventDefault();
+    document.location.href = diverted(this.href, this);
+    return false;
+}
 
-var divertLinks = function() {
-    $('a.diverted[href]').live('click', function(e) {
-        e.preventDefault();
-        divertLink(this);
-        return false;
-    });
-};
+function divertLinks() {
+	var links = document.getElementsByTagName("a")
+	for (var i=0; i<links.length; i++) {
+		var link = links.item(i)
+		var css = link.className
+		if (css && css.match(/\bdiverted\b/)) {
+			if (link.attachEvent) {
+				link.attachEvent("onclick", divertedLinkClicked)
+			} else {
+				link.addEventListener("click", divertedLinkClicked, false)
+			}
+		}
+	}
+}
 
-$(document).ready(function() {
-    divertLinks();
-});
+if (window.attachEvent) {
+	window.attachEvent("onload", divertLinks)
+} else {
+	window.addEventListener("DOMContentLoaded", divertLinks, false)
+}

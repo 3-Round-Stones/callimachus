@@ -154,11 +154,10 @@ calli:soundex a owl:DatatypeProperty;
 	rdfs:comment "A soundex encoding of one of this resource's label or label prefix.";
 	rdfs:range xsd:string.
 
-# TODO enable for alibaba-2.0-beta2
-#calli:renamedTo a owl:ObjectProperty, owl:FunctionalProperty;
-#	http:method "GET";
-#	http:type "text/uri-list";
-#	http:expect "301-moved-permantently";
-#	rdfs:comment "The target redirection of this alias.";
-#	rdfs:domain calli:Alias.
+calli:renamedTo a owl:ObjectProperty, owl:FunctionalProperty;
+	http:method "GET";
+	http:type "text/uri-list";
+	http:expect "301-moved-permantently";
+	rdfs:comment "The canonical resource of this alias.";
+	rdfs:domain calli:Alias.
 

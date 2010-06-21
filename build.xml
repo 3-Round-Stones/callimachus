@@ -8,7 +8,7 @@
 	<property name="tmp" location="tmp" />
 	<property name="webapps" location="webapps" />
 	<property file="src/META-INF/callimachusproject.properties" />
-	<property name="alibaba.url" value="http://downloads.sourceforge.net/project/sesame/AliBabaElmo/2.0-beta1/openrdf-alibaba-2.0-beta1.zip" />
+	<property name="alibaba.url" value="http://downloads.sourceforge.net/project/sesame/AliBabaElmo/2.0-beta2/openrdf-alibaba-2.0-beta2.zip" />
 	<property name="jchardet.url" value="http://downloads.sourceforge.net/project/jchardet/jchardet/1.1/jchardet-1.1.zip" />
 	<property name="jnotify.url" value="http://downloads.sourceforge.net/project/jnotify/jnotify/jnotify-0.93/jnotify-lib-0.93.zip" />
 	<property name="main" value="org.callimachusproject.Server" />

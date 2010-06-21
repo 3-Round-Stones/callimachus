@@ -1,7 +1,6 @@
 Callimachus Project Installation Instructions
-Version 0.1
+
 18 June 2010
-http://callimachusproject.org/
 
 ----------------
 | Introduction |

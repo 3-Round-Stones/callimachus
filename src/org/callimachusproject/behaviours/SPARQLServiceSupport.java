@@ -51,11 +51,16 @@ public abstract class SPARQLServiceSupport implements RDFObject {
 
 	@method("POST")
 	@type("message/x-response")
-	public HttpResponse evaluateSPARQL(@type("application/sparql-query") byte[] in)
-			throws Exception {
+	public HttpResponse evaluateSPARQL(
+			@type("application/sparql-query") byte[] in) throws Exception {
 		if (in == null)
 			throw new BadRequest("Missing query");
-		String qry = new String(in, "UTF-8");
+		return evaluateSPARQL(new String(in, "UTF-8"));
+	}
+
+	public HttpResponse evaluateSPARQL(String qry) throws Exception {
+		if (qry == null)
+			throw new BadRequest("Missing query");
 		try {
 			Class<?> type;
 			String mime;
@@ -68,15 +73,15 @@ public abstract class SPARQLServiceSupport implements RDFObject {
 			if (parsed instanceof ParsedBooleanQuery) {
 				type = Boolean.class;
 				mime = "application/sparql-results+xml";
-				rs = con.prepareBooleanQuery(SPARQL, qry).evaluate();
+				rs = con.prepareBooleanQuery(SPARQL, qry, base).evaluate();
 			} else if (parsed instanceof ParsedGraphQuery) {
 				type = GraphQueryResult.class;
 				mime = "application/rdf+xml";
-				rs = con.prepareGraphQuery(SPARQL, qry).evaluate();
+				rs = con.prepareGraphQuery(SPARQL, qry, base).evaluate();
 			} else if (parsed instanceof ParsedTupleQuery) {
 				type = TupleQueryResult.class;
 				mime = "application/sparql-results+xml";
-				rs = con.prepareTupleQuery(SPARQL, qry).evaluate();
+				rs = con.prepareTupleQuery(SPARQL, qry, base).evaluate();
 			} else {
 				throw new AssertionError("Unknown query type: "
 						+ parsed.getClass());

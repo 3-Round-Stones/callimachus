@@ -281,20 +281,30 @@ function initSetElements(form) {
 			if (window.diverted && list.hasClass("diverted")) {
 				suggest = diverted(suggest, list.get(0))
 			}
-			var onsubmit = "listSearchResults('" + url + "'.replace('{searchTerms}', document.getElementById('" + searchTerms + "').value), '" + name + "')"
+			var onsubmit = "listSearchResults('" + url + "'.replace('{searchTerms}', encodeURIComponent(document.getElementById('" + searchTerms + "').value)), '" + name + "')"
 			var content = "<form action='' target='" + name + "' onsubmit=\"" + onsubmit + ";return false\">"
 				+ "<div class='lookup'>"
 				+ "<a href='#' class='close' onclick=\"$('#"+id+"').qtip('hide');return false\">Х</a>"
 				+ "<a href='#' class='back' onclick=\"frames['" + name + "'].history.back();return false\">«</a>"
 				+ "<input name='q' id='" + searchTerms + "' /></div>"
 				+ "</form><iframe name='" + name + "' frameborder='0' src='" + suggest + "'></iframe>"
-			add.qtip({
-				content: { text: content },
-				show: { when: { event: 'click' } },
-				hide: { when: { event: 'unfocus' } },
-				style: { name: 'blue', padding: 0, width: list.offset().left * 2, tip: 'topMiddle' },
-				position: { corner: { target: 'bottomMiddle', tooltip: 'topMiddle' } }
-			})
+			setTimeout(function() {
+				var width = document.documentElement.clientWidth
+				var offset = add.offset().left
+				var position = 'topMiddle'
+				if (offset < width / 3) {
+					position = 'topLeft'
+				} else if (offset > width * 2 / 3) {
+					position = 'topRight'
+				}
+				add.qtip({
+					content: { text: content },
+					show: { when: { event: 'click' } },
+					hide: { when: { event: 'unfocus' } },
+					style: { name: 'blue', padding: 0, width: {max:width}, tip: true },
+					position: { corner: { target: 'center', tooltip: position } }
+				})
+			}, 500)
 			list.append(add)
 		}
 	})
@@ -353,7 +363,7 @@ function listSearchResults(url, frame) {
 				var li = $("<li/>")
 				var link = $("<a/>")
 				link.attr("href", $(this).attr("about") + "?pre-view")
-				link.append($(this))
+				link.append($(this).text())
 				li.append(link)
 				ul.append(li)
 			})
@@ -507,7 +517,7 @@ function pasteURL(callback) {
 }
 
 function addSetItem(uri, script) {
-	var url = script.attr("data-add").replace("{about}", uri)
+	var url = script.attr("data-add").replace("{about}", encodeURIComponent(uri))
 	get(url, function(data) {
 		var input = data ? $(data) : data
 		if (input && input.is("[about='" + uri + "']")) {
@@ -548,7 +558,7 @@ function getIRIs(iri) {
 }
 
 function addListItem(uri, list) {
-	var url = list.attr("data-member").replace("{about}", uri)
+	var url = list.attr("data-member").replace("{about}", encodeURIComponent(uri))
 	get(url, function(data) {
 		var input = data ? $(data) : data
 		if (input && input.size()) {

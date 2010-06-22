@@ -1,8 +1,9 @@
 @echo off
 
 rem Set the lib dir relative to the batch file's directory
-set LIB_DIR=%~dp0\..\lib
 set BIN_DIR=%~dp0
+set BASE_DIR=%~dp0\..
+set LIB_DIR=%~dp0\..\lib
 set TMP_DIR=%~dp0\..\tmp
 set LOG_CONF=%~dp0\logging.properties
 set MAIN=org.callimachusproject.Server
@@ -46,13 +47,13 @@ goto end
 IF ERRORLEVEL 1 goto java6
 rem use java.ext.dirs hack
 rem echo Using java.ext.dirs to set classpath
-"%JAVA%" -server -mx512m -Dfile.encoding=UTF-8 "-Djava.library.path=%BIN_DIR%" "-Djava.io.tmpdir=%TMP_DIR%" "-Djava.util.logging.config.file=%LOG_CONF%" -Djava.ext.dirs="%LIB_DIR%" %MAIN% %CMD_LINE_ARGS%
+"%JAVA%" -server -mx512m -Dfile.encoding=UTF-8 "-Djava.library.path=%BIN_DIR%" "-Djava.io.tmpdir=%TMP_DIR%" "-Djava.util.logging.config.file=%LOG_CONF%" -Djava.ext.dirs="%LIB_DIR%" %MAIN% -d "%BASE_DIR%" %CMD_LINE_ARGS%
 goto end
 
 :java6
 rem use java 6 wildcard feature
 rem echo Using wildcard to set classpath
-"%JAVA%" -server -mx512m -Dfile.encoding=UTF-8 "-Djava.library.path=%BIN_DIR%" "-Djava.io.tmpdir=%TMP_DIR%" "-Djava.util.logging.config.file=%LOG_CONF%" -cp "%LIB_DIR%\*" %MAIN% %CMD_LINE_ARGS%
+"%JAVA%" -server -mx512m -Dfile.encoding=UTF-8 "-Djava.library.path=%BIN_DIR%" "-Djava.io.tmpdir=%TMP_DIR%" "-Djava.util.logging.config.file=%LOG_CONF%" -cp "%LIB_DIR%\*" %MAIN% -d "%BASE_DIR%" %CMD_LINE_ARGS%
 goto end
 
 :end

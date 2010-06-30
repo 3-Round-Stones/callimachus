@@ -1,6 +1,7 @@
 Callimachus Project Installation Instructions
-
+Version 0.1
 18 June 2010
+http://callimachusproject.org/
 
 ----------------
 | Introduction |
@@ -16,7 +17,7 @@ Please consider joining the mailing lists and participating in the
 online community so we can serve you better.
 
 Version-specific information is contained in the file RELEASENOTES.txt.
-There are no releasenotes for the first release.
+There are no release notes for the first release.
 
 This software is licensed as defined in the accompanying files
 LICENSE.txt and LEGAL.txt.  These files may be found in the
@@ -26,9 +27,15 @@ installation directory.
 | Installation |
 ----------------
 
-Download a release archive from http://callimachusproject.org/ and extract it into a new directory. Execute a callimachus-start script to start the server. The server will server files from the webapps directory that have a known file extension.
+There are two ways to acquire and run Callimachus:  Download the ZIP archive or checkout the Subversion repository.
 
-If using a 64bit Linux host, you must create your own libjnotify.so file for the server to read runtime changes in the webapps directory. Instructions for creating your own libjnotify.so file can be found at
+If you download a ZIP archive of a release from http://callimachusproject.org/, extract it into a new directory. Execute a callimachus-start script located in the bin/ directory to start the server. The server will serve files from the webapps directory that have a known file extension.
+
+If you want to check out the source code, see the directions at:
+  http://code.google.com/p/callimachus/source/checkout
+Once you have the source code checked out, you can execute 'ant run' from a command line in the top directory to run the server.
+
+NB:  If using a 64bit Linux host, you must create your own libjnotify.so file for the server to read runtime changes in the webapps directory. Instructions for creating your own libjnotify.so file can be found at
 http://jnotify.sourceforge.net/
 
 Files with the extension .ttl, .ttl.gz, .rdf, or .rdf.gz will be loaded as graphs into the RDF store. Any RDF Schema or OWL ontologies will be compiled as defined in AliBaba (http://www.openrdf.org/).
@@ -39,5 +46,5 @@ The calli Realm classes can be used to declare an authorization realms. Use the 
 
 The end point "/sparql" accepts ready only application/sparql-query or a form and returns the result. The operation "?describe" can be appended to any IRI to receive an RDF bounded description of it. The path prefix "/diverted;" identifies percent encoded RDF IRI resources.
 
-Share your experience or ask questions on the mailing list.
+Share your experience or ask questions on the mailing list: callimachus-discuss@googlegroups.com.  You can sign up at http://groups.google.com/group/callimachus-discuss.
 

@@ -3,7 +3,7 @@ Callimachus Project Legal Statements
 This project includes source code and/or binary distributions from
 other projects and companies. It is our intent to list each of them here.
 If we forgot to give credit where credit is due, please send electronic
-mail to discuss@callimachusproject.org.
+mail to callimachus-discuss@googlegroups.com.
 
 This file lists code requirements of this project (in no particular
 order), and provides their licenses and other information to fulfill

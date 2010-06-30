@@ -13,6 +13,7 @@
 	<property name="jnotify.url" value="http://downloads.sourceforge.net/project/jnotify/jnotify/jnotify-0.93/jnotify-lib-0.93.zip" />
 	<property name="main" value="org.callimachusproject.Server" />
 	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${bin} -Djava.io.tmpdir=${tmp}" />
+        <property name="args" value="" />
 
 	<target name="init">
 		<!-- Create the time stamp and build directory -->

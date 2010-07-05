@@ -86,7 +86,7 @@ public abstract class ViewSupport implements Template, RDFObject,
 	 */
 	@operation("construct")
 	@type("application/rdf+xml")
-	@cacheControl("must-reevaluate")
+	@cacheControl("no-store")
 	@transform("http://callimachusproject.org/rdf/2009/framework#construct-template")
 	public XMLEventReader calliConstruct(@parameter("mode") String mode,
 			@parameter("element") String element,
@@ -109,7 +109,7 @@ public abstract class ViewSupport implements Template, RDFObject,
 	 */
 	@operation("options")
 	@type("application/rdf+xml")
-	@cacheControl("must-reevaluate")
+	@cacheControl("no-store")
 	@transform("http://callimachusproject.org/rdf/2009/framework#construct-template")
 	public XMLEventReader options(@parameter("mode") String mode,
 			@parameter("element") String element) throws Exception {

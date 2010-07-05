@@ -30,7 +30,6 @@ package org.callimachusproject.traits;
 
 import java.util.Set;
 
-import org.openrdf.http.object.concepts.HTTPFileObject;
 import org.openrdf.http.object.traits.Realm;
 import org.openrdf.repository.object.annotations.iri;
 
@@ -41,8 +40,19 @@ public interface OriginRealm extends Realm {
 	 * an HTTP request.
 	 */
 	@iri("http://callimachusproject.org/rdf/2009/framework#origin")
-	Set<HTTPFileObject> getOrigins();
+	Set<Object> getOrigins();
 
 	@iri("http://callimachusproject.org/rdf/2009/framework#origin")
-	void setOrigins(Set<HTTPFileObject> origins);
+	void setOrigins(Set<Object> origins);
+
+	/**
+	 * Define the protection space. Any URI that has a URI in this
+	 * set as a prefix (after both have been made absolute) may be assumed to
+	 * be in the same protection space.
+	 */
+	@iri("http://callimachusproject.org/rdf/2009/framework#domain")
+	Set<Object> getDomains();
+
+	@iri("http://callimachusproject.org/rdf/2009/framework#domain")
+	void setDomains(Set<?> domains);
 }

@@ -25,13 +25,11 @@
 # RDF Graph
 ################################
 
-calli:NamedGraph a owl:Class.
-
 calli:put-graph rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
-	http:realm calli:graph-realm;
+	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.rio.RDFFormat>;
 	obj:imports calli:NamedGraph;
 	obj:groovy """
@@ -62,7 +60,7 @@ calli:delete-graph rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
-	http:realm calli:graph-realm;
+	http:realm calli:nobody;
 	obj:groovy """
 		objectConnection.removeDesignation(this, NamedGraph.class);
 		objectConnection.clear(getResource());
@@ -76,7 +74,7 @@ calli:put-text-file rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
-	http:realm calli:upload-realm;
+	http:realm calli:nobody;
 	obj:groovy """
 		def type = "urn:mimetype:" + msg.contentType;
 		if (type.contains(";")) {
@@ -114,7 +112,7 @@ calli:delete-text-file rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
-	http:realm calli:upload-realm;
+	http:realm calli:nobody;
 	obj:groovy """
 		delete()
 		objectConnection.removeDesignations(msg.target,
@@ -130,7 +128,7 @@ calli:put-file rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
-	http:realm calli:upload-realm;
+	http:realm calli:nobody;
 	obj:groovy """
 		def type = "urn:mimetype:" + msg.contentType;
 		if (type.contains(";")) {
@@ -170,7 +168,7 @@ calli:delete-file rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
-	http:realm calli:upload-realm;
+	http:realm calli:nobody;
 	obj:groovy """
 		delete()
 		objectConnection.removeDesignations(msg.target,

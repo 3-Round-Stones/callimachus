@@ -82,7 +82,7 @@ calli:find-edit-template rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <urn:mimetype:application/xml>];
 	obj:name "findEditTemplate";
 	obj:sparql """
-		SELECT REDUCED ?template
+		SELECT DISTINCT ?template
 		WHERE {
 			$this a [calli:edit ?template] .
 			?template a <urn:mimetype:application/xml>

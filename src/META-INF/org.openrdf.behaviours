@@ -7,6 +7,7 @@ org.callimachusproject.behaviours.SearchSupport = urn:mimetype:application/xml
 org.callimachusproject.behaviours.ReviewSupport = urn:mimetype:application/xml
 org.callimachusproject.behaviours.SoundexLabelSupport = http://www.w3.org/2000/01/rdf-schema#Resource
 org.callimachusproject.behaviours.AnybodyRealmSupport = http://callimachusproject.org/rdf/2009/framework#AnybodyRealm
+org.callimachusproject.behaviours.NobodyRealmSupport = http://callimachusproject.org/rdf/2009/framework#NobodyRealm
 org.callimachusproject.behaviours.DigestRealmSupport = http://callimachusproject.org/rdf/2009/framework#DigestRealm
 org.callimachusproject.behaviours.LocalRealmSupport = http://callimachusproject.org/rdf/2009/framework#LocalRealm
 org.callimachusproject.behaviours.UniqueCredentialNameTrigger = http://callimachusproject.org/rdf/2009/framework#DigestRealm

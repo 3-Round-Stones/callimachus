@@ -428,7 +428,25 @@ public class RDFaReader extends RDFEventReader {
 
 		public void started() throws RDFParseException {
 			if (isTriplePresent() || (parent != null && parent.isHanging())) {
-				chain();
+				if (!isStartSubject()) {
+					chain();
+				}
+				Node subj = getCurrentSubject();
+				if (parent != null && parent.isHanging()) {
+					List<Node> rel = parent.getRel();
+					if (rel != null) {
+						triple(parent.getCurrentSubject(), rel, subj);
+					}
+				}
+				if (isStartSubject()) {
+					chain();
+				}
+				if (parent != null && parent.isHanging()) {
+					List<Node> rev = parent.getRev();
+					if (rev != null) {
+						triple(subj, rev, parent.getCurrentSubject());
+					}
+				}
 			}
 			if ("base".equals(event.getName().getLocalPart())) {
 				String href = attr("href");
@@ -487,23 +505,10 @@ public class RDFaReader extends RDFEventReader {
 			if (parent != null && !parent.isTriplePresent()) {
 				parent.chain();
 			}
-			Node subj = getCurrentSubject();
-			if (parent != null && parent.isHanging()) {
-				List<Node> rel = parent.getRel();
-				if (rel != null) {
-					triple(parent.getCurrentSubject(), rel, subj);
-				}
-			}
 			if (isStartSubject()) {
 				if (!startedSubject) {
 					startedSubject = true;
-					queue.add(new Subject(true, subj));
-				}
-			}
-			if (parent != null && parent.isHanging()) {
-				List<Node> rev = parent.getRev();
-				if (rev != null) {
-					triple(subj, rev, parent.getCurrentSubject());
+					queue.add(new Subject(true, getCurrentSubject()));
 				}
 			}
 		}

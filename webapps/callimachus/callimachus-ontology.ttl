@@ -33,9 +33,8 @@
 # Class
 ################################
 
-# TODO depends on unreleased version of AliBaba
-#calli:Alias a owl:Class;
-#	rdfs:comment "Moved Permantently (301)".
+calli:Alias a owl:Class;
+	rdfs:comment "Moved Permantently (301)".
 
 calli:Copyable a owl:Class;
 	rdfs:comment "Resources that can be copied to create new resources.".
@@ -53,13 +52,23 @@ calli:Reviewable a owl:Class;
 	rdfs:comment "Resources that can be viewed from a Web browser.";
 	rdfs:subClassOf calli:Viewable.
 
+calli:Realm a owl:Class;
+	rdfs:comment "A realm.".
+
 calli:AnybodyRealm a owl:Class;
+	rdfs:subClassOf calli:Realm;
 	rdfs:comment "A realm that authenticates any agent.".
 
+calli:NobodyRealm a owl:Class;
+	rdfs:subClassOf calli:Realm;
+	rdfs:comment "A realm that forbids all agents.".
+
 calli:LocalRealm a owl:Class;
+	rdfs:subClassOf calli:Realm;
 	rdfs:comment "A realm that only authenticates local agents.".
 
 calli:DigestRealm a owl:Class;
+	rdfs:subClassOf calli:Realm;
 	rdfs:comment "A realm that authenticates HTTP digest credentials.".
 
 calli:Credential a owl:Class;
@@ -72,6 +81,9 @@ calli:Group a owl:Class;
 
 calli:Party a owl:Class;
 	rdfs:comment "A credential or group of credentials.".
+
+calli:NamedGraph a owl:Class;
+	rdfs:comment "Graph in the RDF store that can be retrieved remotely.".
 
 calli:SPARQLService a owl:Class;
 	rdfs:comment "A resource that can respond to SPARQL queries.".
@@ -119,13 +131,17 @@ calli:credential a owl:ObjectProperty;
 	rdfs:domain calli:DigestRealm;
 	rdfs:range calli:Party.
 
-calli:origin a owl:ObjectProperty;
-	rdfs:comment "Origin of scripts that can be seamlessly authenticated with this realm.";
+calli:authName a rdf:Property, owl:FunctionalProperty;
+	rdfs:comment "A string to be displayed to users so they know which username and password to use. This string should contain at least the name of the host performing the authentication and might additionally indicate the collection of users who might have access. This string is used to encode the passwords and changing it will invalidates existing encoded passwords.";
 	rdfs:domain calli:DigestRealm.
 
-calli:authName a rdf:Property, owl:FunctionalProperty;
-	rdfs:comment "The realm name used in the encoding of its credentials.";
-	rdfs:domain calli:DigestRealm.
+calli:origin a rdf:Property;
+	rdfs:comment "Identifies the security contexts that cause user agent scripts to initiate an HTTP request that can be seamlessly authenticated with this realm or '*' for all contexts.";
+	rdfs:domain calli:Realm.
+
+calli:domain a rdf:Property;
+	rdfs:comment "Define the protection space. Any URI that has a URI in this set as a prefix (after both have been made absolute) may be assumed to be in the same protection space.";
+	rdfs:domain calli:Realm.
 
 calli:scribe a owl:ObjectProperty;
 	rdfs:comment "Credential or group of credentials that can copy this resource remotely.";
@@ -155,11 +171,16 @@ calli:soundex a owl:DatatypeProperty;
 	rdfs:comment "A soundex encoding of one of this resource's label or label prefix.";
 	rdfs:range xsd:string.
 
-# TODO depends on unreleased version of AliBaba
-#calli:renamedTo a owl:ObjectProperty, owl:FunctionalProperty;
-#	http:method "GET";
-#	http:type "text/uri-list";
-#	http:expect "301-moved-permantently";
-#	rdfs:comment "The canonical resource of this alias.";
-#	rdfs:domain calli:Alias.
+calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
+	http:method "GET";
+	http:type "text/uri-list";
+	http:expect "301-moved-permantently";
+	rdfs:comment "The canonical IRI for this alias.";
+	rdfs:domain calli:Alias.
+
+################################
+# Individual
+################################
+
+calli:nobody a calli:NobodyRealm.
 

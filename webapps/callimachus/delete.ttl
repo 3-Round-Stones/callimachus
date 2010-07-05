@@ -82,7 +82,7 @@ calli:find-delete-template rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <urn:mimetype:application/xml>];
 	obj:name "findDeleteTemplate";
 	obj:sparql """
-		SELECT REDUCED ?template
+		SELECT DISTINCT ?template
 		WHERE {
 			$this a [calli:delete ?template] .
 			?template a <urn:mimetype:application/xml>

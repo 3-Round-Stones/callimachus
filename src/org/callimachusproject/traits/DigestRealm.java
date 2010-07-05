@@ -28,8 +28,6 @@
  */
 package org.callimachusproject.traits;
 
-import java.util.Set;
-
 import org.openrdf.repository.object.annotations.iri;
 
 public interface DigestRealm extends OriginRealm {
@@ -46,15 +44,4 @@ public interface DigestRealm extends OriginRealm {
 
 	@iri("http://callimachusproject.org/rdf/2009/framework#authName")
 	void setAuthName(Object authName);
-
-	/**
-	 * Define the protection space. Any URI that has a URI in this
-	 * set as a prefix (after both have been made absolute) may be assumed to
-	 * be in the same protection space.
-	 */
-	@iri("http://callimachusproject.org/rdf/2009/framework#domain")
-	Set<Object> getDomains();
-
-	@iri("http://callimachusproject.org/rdf/2009/framework#domain")
-	void setDomains(Set<?> domains);
 }

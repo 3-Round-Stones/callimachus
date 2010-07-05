@@ -6,7 +6,7 @@ If we forgot to give credit where credit is due, please send electronic
 mail to callimachus-discuss@googlegroups.com.
 
 This file lists code requirements of this project (in no particular
-order), and provides their licenses and other information to fulfill
+order), and provides their licenses and other information to fulfil
 legal requirements. We have attempted to err on the side of
 providing more information than is required by any particular license.
 

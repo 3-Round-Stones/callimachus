@@ -35,7 +35,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.binary.Base64;
@@ -47,7 +46,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.traits.DigestRealm;
-import org.openrdf.http.object.concepts.HTTPFileObject;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
@@ -59,7 +57,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates HTTP digest authorization.
  */
-public abstract class DigestRealmSupport implements DigestRealm, RDFObject {
+public abstract class DigestRealmSupport extends OriginRealmSupport implements DigestRealm, RDFObject {
 	private static final String PREFIX = "PREFIX :<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final BasicStatusLine _401 = new BasicStatusLine(
 			new ProtocolVersion("HTTP", 1, 1), 401, "Unauthorized");
@@ -68,33 +66,15 @@ public abstract class DigestRealmSupport implements DigestRealm, RDFObject {
 	private Logger logger = LoggerFactory.getLogger(DigestRealmSupport.class);
 
 	@Override
-	public String allowOrigin() {
-		StringBuilder sb = new StringBuilder();
-		for (HTTPFileObject origin : getOrigins()) {
-			if (sb.length() > 0) {
-				sb.append(", ");
-			}
-			sb.append(origin.toUri());
-		}
-		return sb.toString();
-	}
-
-	@Override
 	public HttpResponse unauthorized() throws IOException {
 		Object realm = getAuthName();
 		if (realm == null)
 			return forbidden();
-		StringBuilder domain = new StringBuilder();
-		for (Object d : getDomains()) {
-			if (domain.length() == 0) {
-				domain.append(", domain=\"");
-			} else {
-				domain.append(" ");
-			}
-			domain.append(d.toString());
-		}
-		if (domain.length() != 0) {
-			domain.append("\"");
+		String domain = protectionDomain();
+		if (domain == null) {
+			domain = "";
+		} else if (domain.length() != 0) {
+			domain = ", domain=\"" + domain + "\"";
 		}
 		String nonce = nextNonce();
 		String type = "text/plain;charset=\"UTF-8\"";
@@ -108,17 +88,6 @@ public abstract class DigestRealmSupport implements DigestRealm, RDFObject {
 		body.setContentType(type);
 		resp.setEntity(body);
 		return resp;
-	}
-
-	@Override
-	public HttpResponse forbidden() throws IOException {
-		return null;
-	}
-
-	@Override
-	public Object authenticateAgent(String method, String via, Set<String> names,
-			String algorithm, byte[] encoded) throws RepositoryException {
-		return null;
 	}
 
 	@Override

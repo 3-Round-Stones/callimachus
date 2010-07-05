@@ -89,7 +89,7 @@ calli:find-copy-template rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <urn:mimetype:application/xml>];
 	obj:name "findCopyTemplate";
 	obj:sparql """
-		SELECT REDUCED ?template
+		SELECT DISTINCT ?template
 		WHERE {
 			$this a [calli:copy ?template] .
 			?template a <urn:mimetype:application/xml>
@@ -101,7 +101,7 @@ calli:find-copy-namespace rdfs:subClassOf obj:Message;
 		owl:allValuesFrom calli:Copyable];
 	obj:name "findCopyNamespaces";
 	obj:sparql """
-		SELECT REDUCED ?namespace
+		SELECT DISTINCT ?namespace
 		WHERE { $this a [calli:withNamespace ?namespace] }
 	""".
 
@@ -110,7 +110,7 @@ calli:find-scribe rdfs:subClassOf obj:Message;
 		owl:allValuesFrom calli:Copyable];
 	obj:name "findScribe";
 	obj:sparql """
-		SELECT REDUCED ?scribe
+		SELECT DISTINCT ?scribe
 		WHERE {
 			GRAPH ?graph { $of a ?type }
 			?graph http:authorized ?scribe

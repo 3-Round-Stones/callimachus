@@ -88,6 +88,8 @@ public class Server {
 				"The existing repository url (relative file: or http:)");
 		options.addOption("d", "dir", true,
 				"Directory used for data storage and retrieval");
+		options.addOption("u", "update", false,
+				"If the server should reload all web resources");
 		options.addOption("trust", false,
 				"Allow all server code to read, write, and execute all files and directories "
 						+ "according to the file system's ACL");
@@ -129,9 +131,11 @@ public class Server {
 			HTTPObjectClient.setInstance(in, 1024);
 			if (line.hasOption("from")) {
 				String from = line.getOptionValue("from");
-				HTTPObjectClient.getInstance().setFrom(from == null ? "" : from);
+				HTTPObjectClient.getInstance()
+						.setFrom(from == null ? "" : from);
 			}
-			CallimachusServer server = new CallimachusServer(repository, dir, webappsDir);
+			CallimachusServer server = new CallimachusServer(repository, dir,
+					webappsDir);
 			if (line.hasOption('p')) {
 				server.setPort(Integer.parseInt(line.getOptionValue('p')));
 			}
@@ -140,6 +144,9 @@ public class Server {
 			}
 			if (line.hasOption('n')) {
 				server.setServerName(line.getOptionValue('n'));
+			}
+			if (line.hasOption('u')) {
+				server.setConditionalRequests(false);
 			}
 			try {
 				JNotify.removeWatch(-1); // load library
@@ -154,7 +161,8 @@ public class Server {
 			Thread.sleep(1000);
 			if (server.isRunning()) {
 				System.out.println(server.getClass().getSimpleName()
-						+ " listening on port " + server.getPort());
+						+ " is listening on port " + server.getPort()
+						+ " for http://" + server.getAuthority() + "/");
 				System.out.println("Repository: " + server.getRepository());
 				System.out.println("Webapps: " + server.getWebappsDir());
 				System.out.println("Authority: " + server.getAuthority());

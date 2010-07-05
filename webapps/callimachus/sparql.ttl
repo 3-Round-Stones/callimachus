@@ -57,3 +57,4 @@ calli:evaluate-get-query a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:range xsd:string;
 	http:parameter "query";
 	obj:name "query".
+

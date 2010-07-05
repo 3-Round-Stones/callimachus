@@ -28,7 +28,7 @@ calli:starting rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "POST";
 	http:operation "starting";
-	http:realm calli:boot-realm;
+	http:realm calli:nobody;
 	obj:java "msg.proceed();".
 
 calli:started rdfs:subClassOf obj:Message;
@@ -38,7 +38,7 @@ calli:started rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "POST";
 	http:operation "started";
-	http:realm calli:boot-realm;
+	http:realm calli:nobody;
 	obj:java "msg.proceed();".
 
 calli:reloading rdfs:subClassOf obj:Message;
@@ -48,7 +48,7 @@ calli:reloading rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "POST";
 	http:operation "reloading";
-	http:realm calli:boot-realm;
+	http:realm calli:nobody;
 	obj:java "msg.proceed();".
 
 calli:reloaded rdfs:subClassOf obj:Message;
@@ -58,7 +58,7 @@ calli:reloaded rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "POST";
 	http:operation "reloaded";
-	http:realm calli:boot-realm;
+	http:realm calli:nobody;
 	obj:java "msg.proceed();".
 
 calli:stopping rdfs:subClassOf obj:Message;
@@ -68,5 +68,5 @@ calli:stopping rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "POST";
 	http:operation "stopping";
-	http:realm calli:boot-realm;
+	http:realm calli:nobody;
 	obj:java "msg.proceed();".

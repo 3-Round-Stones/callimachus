@@ -1,31 +1,13 @@
 package org.callimachusproject.behaviours;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.http.HttpResponse;
-import org.openrdf.http.object.traits.Realm;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 
-public abstract class AnybodyRealmSupport implements Realm, RDFObject {
-
-	@Override
-	public String allowOrigin() {
-		return null;
-	}
-
-	@Override
-	public HttpResponse unauthorized() throws IOException {
-		return null;
-	}
-
-	@Override
-	public HttpResponse forbidden() throws IOException {
-		return null;
-	}
+public abstract class AnybodyRealmSupport extends OriginRealmSupport implements RDFObject {
 
 	@Override
 	public Object authenticateAgent(String method, String via, Set<String> names,

@@ -62,7 +62,7 @@ calli:find-view-template rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <urn:mimetype:application/xml>];
 	obj:name "findViewTemplate";
 	obj:sparql """
-		SELECT REDUCED ?template
+		SELECT DISTINCT ?template
 		WHERE {
 			$this a [calli:view ?template] .
 			?template a <urn:mimetype:application/xml>

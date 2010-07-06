@@ -278,10 +278,12 @@ function initSetElements(form) {
 			add.attr("id", id)
 			add.text("»")
 			var suggest = list.attr("data-suggest")
-			if (window.diverted && list.hasClass("diverted")) {
+			var divert = window.diverted && list.hasClass("diverted")
+			if (divert) {
 				suggest = diverted(suggest, list.get(0))
 			}
-			var onsubmit = "listSearchResults('" + url + "'.replace('{searchTerms}', encodeURIComponent(document.getElementById('" + searchTerms + "').value)), '" + name + "')"
+			var onsubmit = "listSearchResults('" + url + "'.replace('{searchTerms}', encodeURIComponent(document.getElementById('"
+			+ searchTerms + "').value)), '" + name + "', " + (divert ? "true" : "false") + ")"
 			var content = "<form action='' target='" + name + "' onsubmit=\"" + onsubmit + ";return false\">"
 				+ "<div class='lookup'>"
 				+ "<a href='#' class='close' onclick=\"$('#"+id+"').qtip('hide');return false\">Х</a>"
@@ -353,7 +355,7 @@ function createAddRelButtons(form) {
 	})
 }
 
-function listSearchResults(url, frame) {
+function listSearchResults(url, frame, divert) {
 	frames[frame].location.href = "about:blank"
 	get(url, function(data) {
 		if (data) {
@@ -363,6 +365,9 @@ function listSearchResults(url, frame) {
 				var li = $("<li/>")
 				var link = $("<a/>")
 				link.attr("href", $(this).attr("about") + "?pre-view")
+				if (divert && window.divertedLinkClicked) {
+					link.attr("onclick", "window.parent.divertedLinkClicked(event)")
+				}
 				link.append($(this).text())
 				li.append(link)
 				ul.append(li)

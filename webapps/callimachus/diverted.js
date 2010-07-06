@@ -1,32 +1,41 @@
 // diverted.js
 
 function diverted(url, node) {
-    var prefix = document.location.protocol + '//' + document.location.host + '/diverted;';
+	var doc = document
+	if (node && node.ownerDocument) {
+		doc = node.ownerDocument
+	}
+    var prefix = doc.location.protocol + '//' + doc.location.host + '/'
+    var path = 'diverted;'
     if (url.indexOf(':') < 0) {
         if (node && node.baseURIObject && node.baseURIObject.resolve) {
-            url = node.baseURIObject.resolve(url);
+            url = node.baseURIObject.resolve(url)
         } else {
-            var a = document.createElement('a');
-            a.setAttribute('href', url);
+            var a = document.createElement('a')
+            a.setAttribute('href', url)
             if (a.href) {
-                url = a.href;
+                url = a.href
             }
         }
     } else if (url.indexOf(prefix) == 0) {
-    	return url;
+    	return url
     }
     if (url.lastIndexOf('?') > 0) {
-        var uri = url.substring(0, url.lastIndexOf('?'));
-        var qs = url.substring(url.lastIndexOf('?'));
-        return prefix + encodeURIComponent(uri) + qs;
+        var uri = url.substring(0, url.lastIndexOf('?'))
+        var qs = url.substring(url.lastIndexOf('?'))
+        return prefix + path + encodeURIComponent(uri) + qs
     }
-    return prefix + encodeURIComponent(url) + '?view';
+    return prefix + path + encodeURIComponent(url) + '?view'
 }
 
 function divertedLinkClicked(e) {
-    e.preventDefault();
-    document.location.href = diverted(this.href, this);
-    return false;
+    if (!e.target) {
+    	e.target = e.srcElement
+    }
+    e.preventDefault()
+	var doc = e.target.ownerDocument
+    doc.location.href = diverted(e.target.href, e.target)
+    return false
 }
 
 function divertLinks() {

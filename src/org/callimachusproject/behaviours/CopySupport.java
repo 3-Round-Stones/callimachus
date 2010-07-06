@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.callimachusproject.concepts.Template;
 import org.callimachusproject.helpers.SubjectTracker;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.events.Ask;
@@ -34,7 +35,6 @@ import org.callimachusproject.rdfa.events.Union;
 import org.callimachusproject.rdfa.events.Where;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.SPARQLWriter;
-import org.callimachusproject.traits.Template;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;

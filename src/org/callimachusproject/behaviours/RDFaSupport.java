@@ -27,6 +27,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
+import org.callimachusproject.concepts.Template;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.RDFaReader;
@@ -40,7 +41,6 @@ import org.callimachusproject.stream.PipedRDFEventReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.XMLElementReader;
-import org.callimachusproject.traits.Template;
 import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.annotations.operation;
 import org.openrdf.http.object.annotations.parameter;

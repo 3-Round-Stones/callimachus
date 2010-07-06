@@ -30,7 +30,7 @@ package org.callimachusproject.traits;
 
 import org.openrdf.repository.object.annotations.iri;
 
-public interface DigestRealm extends OriginRealm {
+public interface DigestRealm extends Realm {
 
 	/**
 	 * A string to be displayed to users so they know which username and

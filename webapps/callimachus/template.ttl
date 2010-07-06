@@ -26,7 +26,7 @@
 
 calli:construct-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:application/xml>];
+		owl:allValuesFrom calli:Template];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.Reader>];
 	http:type "text/html";

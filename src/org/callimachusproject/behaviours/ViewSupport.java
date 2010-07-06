@@ -26,6 +26,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
+import org.callimachusproject.concepts.Template;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.Triple;
@@ -41,7 +42,6 @@ import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.ReducedTripleReader;
 import org.callimachusproject.stream.SPARQLWriter;
 import org.callimachusproject.stream.TriplePatternStore;
-import org.callimachusproject.traits.Template;
 import org.openrdf.http.object.annotations.cacheControl;
 import org.openrdf.http.object.annotations.operation;
 import org.openrdf.http.object.annotations.parameter;
@@ -73,9 +73,12 @@ public abstract class ViewSupport implements Template, RDFObject,
 	}
 
 	@Override
-	public Reader calliConstruct(String mode, RDFObject target)
+	public Reader calliConstruct(String mode, Object target)
 			throws Exception {
-		String uri = target == null ? null : target.getResource().stringValue();
+		String uri = null;
+		if (target instanceof RDFObject) {
+			uri = ((RDFObject) target).getResource().stringValue();
+		}
 		XMLEventReader data = calliConstructRDF(mode, null, uri);
 		return calliConstructTemplate(mode, null, data);
 	}

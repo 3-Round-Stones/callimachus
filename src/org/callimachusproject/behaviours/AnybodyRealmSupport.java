@@ -7,7 +7,7 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 
-public abstract class AnybodyRealmSupport extends OriginRealmSupport implements RDFObject {
+public abstract class AnybodyRealmSupport extends RealmSupport implements RDFObject {
 
 	@Override
 	public Object authenticateAgent(String method, String via, Set<String> names,

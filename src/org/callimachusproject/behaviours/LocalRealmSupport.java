@@ -9,7 +9,7 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 
-public abstract class LocalRealmSupport extends OriginRealmSupport implements RDFObject {
+public abstract class LocalRealmSupport extends RealmSupport implements RDFObject {
 	private static String PROTOCOL = "1.1";
 	private static String localhost;
 	static {

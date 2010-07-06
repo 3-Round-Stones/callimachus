@@ -79,13 +79,13 @@ calli:find-delete-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Deletable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <urn:mimetype:application/xml>];
+		owl:allValuesFrom calli:Template];
 	obj:name "findDeleteTemplate";
 	obj:sparql """
 		SELECT DISTINCT ?template
 		WHERE {
 			$this a [calli:delete ?template] .
-			?template a <urn:mimetype:application/xml>
+			?template a calli:Template
 		}
 	""".
 

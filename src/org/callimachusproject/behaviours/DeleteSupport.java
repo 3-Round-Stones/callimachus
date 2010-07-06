@@ -20,9 +20,9 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.InputStream;
 
+import org.callimachusproject.concepts.Template;
 import org.callimachusproject.helpers.GraphPatternBuilder;
 import org.callimachusproject.helpers.SubjectTracker;
-import org.callimachusproject.traits.Template;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;

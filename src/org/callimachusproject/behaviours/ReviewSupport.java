@@ -2,6 +2,7 @@ package org.callimachusproject.behaviours;
 
 import java.io.IOException;
 
+import org.callimachusproject.concepts.Template;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.Graph;
@@ -15,7 +16,6 @@ import org.callimachusproject.rdfa.model.Var;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.PipedRDFEventReader;
 import org.callimachusproject.stream.SPARQLWriter;
-import org.callimachusproject.traits.Template;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.sail.auditing.vocabulary.Audit;

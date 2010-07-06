@@ -77,15 +77,6 @@ calli:get-xsl rdfs:subClassOf obj:Message;
 # Binary File
 ################################
 
-calli:get-xml rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:application/xml>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:type "application/xml";
-	obj:groovy "return openInputStream()".
-
 calli:get-png rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:image/png>];
@@ -120,5 +111,18 @@ calli:get-ico rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "image/vnd.microsoft.icon";
+	obj:groovy "return openInputStream()".
+
+################################
+# Template File
+################################
+
+calli:get-template rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Template];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.InputStream>];
+	http:method "GET";
+	http:type "application/xml";
 	obj:groovy "return openInputStream()".
 

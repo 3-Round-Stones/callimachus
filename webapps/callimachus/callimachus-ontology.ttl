@@ -52,6 +52,9 @@ calli:Reviewable a owl:Class;
 	rdfs:comment "Resources that can be viewed from a Web browser.";
 	rdfs:subClassOf calli:Viewable.
 
+calli:Template a owl:Class;
+	rdfs:comment "RDFa template.".
+
 calli:Realm a owl:Class;
 	rdfs:comment "A realm.".
 
@@ -142,6 +145,16 @@ calli:origin a rdf:Property;
 calli:domain a rdf:Property;
 	rdfs:comment "Define the protection space. Any URI that has a URI in this set as a prefix (after both have been made absolute) may be assumed to be in the same protection space.";
 	rdfs:domain calli:Realm.
+
+calli:forbidden a owl:ObjectProperty;
+	rdfs:comment "The RDFa template used when an agent is forbidden from the requested resource.";
+	rdfs:domain calli:Realm;
+	rdfs:range calli:Template.
+
+calli:unauthorized a owl:ObjectProperty;
+	rdfs:comment "The RDFa template used when an agent is aunothorized from the requested resource.";
+	rdfs:domain calli:Realm;
+	rdfs:range calli:Template.
 
 calli:scribe a owl:ObjectProperty;
 	rdfs:comment "Credential or group of credentials that can copy this resource remotely.";

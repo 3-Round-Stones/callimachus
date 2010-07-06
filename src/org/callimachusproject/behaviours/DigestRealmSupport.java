@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates HTTP digest authorization.
  */
-public abstract class DigestRealmSupport extends OriginRealmSupport implements DigestRealm, RDFObject {
+public abstract class DigestRealmSupport extends RealmSupport implements DigestRealm, RDFObject {
 	private static final String PREFIX = "PREFIX :<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final BasicStatusLine _401 = new BasicStatusLine(
 			new ProtocolVersion("HTTP", 1, 1), 401, "Unauthorized");
@@ -77,16 +77,17 @@ public abstract class DigestRealmSupport extends OriginRealmSupport implements D
 			domain = ", domain=\"" + domain + "\"";
 		}
 		String nonce = nextNonce();
-		String type = "text/plain;charset=\"UTF-8\"";
-		HttpResponse resp = new BasicHttpResponse(_401);
+		HttpResponse resp = super.unauthorized();
+		if (resp == null) {
+			resp = new BasicHttpResponse(_401);
+			resp.setHeader("Cache-Control", "no-store");
+			resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
+			resp.setEntity(new StringEntity("Unauthorized", "UTF-8"));
+		}
 		String authenticate = "Digest realm=\"" + realm + "\"" + domain
 				+ ", nonce=\"" + nonce
 				+ "\", algorithm=\"MD5\", qop=\"auth,auth-int\"";
 		resp.setHeader("WWW-Authenticate", authenticate);
-		resp.setHeader("Content-Type", type);
-		StringEntity body = new StringEntity("Unauthorized", "UTF-8");
-		body.setContentType(type);
-		resp.setEntity(body);
 		return resp;
 	}
 

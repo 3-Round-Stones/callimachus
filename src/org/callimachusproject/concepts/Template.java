@@ -14,7 +14,7 @@
    limitations under the License.
 
  */
-package org.callimachusproject.traits;
+package org.callimachusproject.concepts;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -26,14 +26,15 @@ import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.stream.TriplePatternStore;
-import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.object.annotations.iri;
 
+@iri("http://callimachusproject.org/rdf/2009/framework#Template")
 public interface Template {
 
 	/**
 	 * Populates the page with the properties of the target resource.
 	 */
-	Reader calliConstruct(String mode, RDFObject target) throws Exception;
+	Reader calliConstruct(String mode, Object target) throws Exception;
 
 	RDFEventReader openBoundedPatterns(String mode, String about)
 			throws XMLStreamException, IOException, TransformerException;

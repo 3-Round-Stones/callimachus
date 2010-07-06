@@ -58,13 +58,13 @@ calli:find-review-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Reviewable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <urn:mimetype:application/xml>];
+		owl:allValuesFrom calli:Template];
 	obj:name "findReviewTemplate";
 	obj:sparql """
 		SELECT DISTINCT ?template
 		WHERE {
 			$this a [calli:review ?template] .
-			?template a <urn:mimetype:application/xml>
+			?template a calli:Template
 		}
 	""".
 

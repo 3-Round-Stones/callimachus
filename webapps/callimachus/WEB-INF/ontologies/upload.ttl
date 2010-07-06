@@ -75,6 +75,7 @@ calli:put-text-file rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
 	http:realm calli:nobody;
+	obj:imports calli:Template;
 	obj:groovy """
 		def type = "urn:mimetype:" + msg.contentType;
 		if (type.contains(";")) {
@@ -156,14 +157,12 @@ calli:put-file-type a owl:DatatypeProperty; a owl:FunctionalProperty;
 calli:put-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:put-file;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/xml", "image/png", "image/jpeg",
-		"image/gif", "image/vnd.microsoft.icon";
+	http:type "image/png", "image/jpeg", "image/gif", "image/vnd.microsoft.icon";
 	obj:name "body".
 
 calli:delete-file rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom [owl:unionOf (<urn:mimetype:application/xml>
-		<urn:mimetype:image/png> <urn:mimetype:image/jpeg>
+		owl:allValuesFrom [owl:unionOf (<urn:mimetype:image/png> <urn:mimetype:image/jpeg>
 		<urn:mimetype:image/gif> <urn:mimetype:image/vnd.microsoft.icon>)]];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
@@ -172,8 +171,50 @@ calli:delete-file rdfs:subClassOf obj:Message;
 	obj:groovy """
 		delete()
 		objectConnection.removeDesignations(msg.target,
-			"urn:mimetype:application/xml",
 			"urn:mimetype:image/png", "urn:mimetype:image/jpeg",
 			"urn:mimetype:image/gif", "urn:mimetype:image/vnd.microsoft.icon");
+	""".
+
+################################
+# Template File
+################################
+
+calli:put-template rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:allValuesFrom owl:Nothing];
+	http:method "PUT";
+	http:realm calli:nobody;
+	obj:imports calli:Template;
+	obj:groovy """
+		objectConnection.addDesignation(msg.target, Template);
+		int read;
+		byte[] buf = new byte[1024];
+		OutputStream out = openOutputStream();
+		try {
+			while ((read = msg.body.read(buf)) >= 0) {
+				out.write(buf, 0, read);
+			}
+		} finally {
+			out.close();
+		}
+	""".
+
+calli:put-template-body a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:put-template;
+	rdfs:range <java:java.io.InputStream>;
+	http:type "application/xml";
+	obj:name "body".
+
+calli:delete-template rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Template];
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:allValuesFrom owl:Nothing];
+	http:method "DELETE";
+	http:realm calli:nobody;
+	obj:imports calli:Template;
+	obj:groovy """
+		delete()
+		objectConnection.removeDesignation(msg.target, Template);
 	""".
 

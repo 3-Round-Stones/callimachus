@@ -24,6 +24,7 @@ import java.util.List;
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
 
+import org.callimachusproject.concepts.Template;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.events.BuiltInCall;
 import org.callimachusproject.rdfa.events.ConditionalOrExpression;
@@ -40,7 +41,6 @@ import org.callimachusproject.stream.RDFStoreReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.ReducedTripleReader;
 import org.callimachusproject.stream.TriplePatternStore;
-import org.callimachusproject.traits.Template;
 import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.annotations.cacheControl;
 import org.openrdf.http.object.annotations.operation;

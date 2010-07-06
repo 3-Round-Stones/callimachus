@@ -892,6 +892,8 @@ public class CallimachusServer {
 					name = p.substring(idx + 1);
 				}
 				ZipEntry ze = zip.getEntry(entry);
+				if (ze == null)
+					continue;
 				String dest = getPath(ep, name);
 				HttpResponse resp = uploadEntry(zip, ze, dest, conditional);
 				report(resp, path, file.getName() + "!" + entry);

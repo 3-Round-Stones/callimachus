@@ -160,6 +160,7 @@ public class Server {
 			server.start();
 			Thread.sleep(1000);
 			if (server.isRunning()) {
+				System.out.println();
 				System.out.println(server.getClass().getSimpleName()
 						+ " is listening on port " + server.getPort()
 						+ " for http://" + server.getAuthority() + "/");

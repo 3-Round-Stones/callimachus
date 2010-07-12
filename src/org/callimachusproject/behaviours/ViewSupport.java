@@ -19,7 +19,6 @@ package org.callimachusproject.behaviours;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.Set;
 
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
@@ -53,24 +52,11 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.repository.object.annotations.sparql;
 
 public abstract class ViewSupport implements Template, RDFObject,
 		VersionedObject, FileObject {
 	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
-	private static final String EFFECTED_OBJECTS = "PREFIX :<" + NS + ">\n"
-			+ "SELECT ?obj WHERE { ?obj a ?type\n"
-			+ "{ ?type :view $this } UNION { ?type :review $this }\n"
-			+ "UNION { ?type :edit $this } UNION { ?type :copy $this }\n"
-			+ "UNION { ?type :delete $this } }";
 	private static TermFactory tf = TermFactory.newInstance();
-
-	@Override
-	public void touchRevision() {
-		for (VersionedObject obj : findEffectedObject()) {
-			obj.touchRevision();
-		}
-	}
 
 	@Override
 	public Reader calliConstruct(String mode, Object target)
@@ -140,9 +126,6 @@ public abstract class ViewSupport implements Template, RDFObject,
 			IOException {
 		return SPARQLWriter.toSPARQL(query);
 	}
-
-	@sparql(EFFECTED_OBJECTS)
-	protected abstract Set<VersionedObject> findEffectedObject();
 
 	protected abstract Reader calliConstructTemplate(String mode,
 			String element, XMLEventReader rdf) throws Exception;

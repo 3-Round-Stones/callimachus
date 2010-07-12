@@ -82,7 +82,7 @@ public abstract class RDFaSupport implements Template, SoundexTrait,
 			TransformerException, RDFParseException, RepositoryException,
 			MalformedQueryException, QueryEvaluationException {
 		String base = toUri().toASCIIString();
-		return new RDFXMLEventReader(new RDFaReader(base, xslt("view", null)));
+		return new RDFXMLEventReader(new RDFaReader(base, xslt("view", null), toString()));
 	}
 
 	public RDFEventReader openBoundedPatterns(String mode, String about)
@@ -128,7 +128,7 @@ public abstract class RDFaSupport implements Template, SoundexTrait,
 			String about) throws XMLStreamException, IOException,
 			TransformerException {
 		String base = "http://callimachusproject.org/rdf/2009/framework/variables/";
-		RDFEventReader reader = new RDFaReader(base, xslt(mode, element));
+		RDFEventReader reader = new RDFaReader(base, xslt(mode, element), toString());
 		reader = new GraphPatternReader(reader);
 		Base resolver = new Base(getResource().stringValue());
 		if (about == null) {

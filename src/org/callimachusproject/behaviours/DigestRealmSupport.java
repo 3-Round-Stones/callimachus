@@ -30,7 +30,6 @@ package org.callimachusproject.behaviours;
 
 import info.aduna.net.ParsedURI;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
@@ -66,10 +65,10 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 	private Logger logger = LoggerFactory.getLogger(DigestRealmSupport.class);
 
 	@Override
-	public HttpResponse unauthorized() throws IOException {
+	public HttpResponse unauthorized(Object target) throws Exception {
 		Object realm = getAuthName();
 		if (realm == null)
-			return forbidden();
+			return forbidden(target);
 		String domain = protectionDomain();
 		if (domain == null) {
 			domain = "";
@@ -77,7 +76,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 			domain = ", domain=\"" + domain + "\"";
 		}
 		String nonce = nextNonce();
-		HttpResponse resp = super.unauthorized();
+		HttpResponse resp = super.unauthorized(target);
 		if (resp == null) {
 			resp = new BasicHttpResponse(_401);
 			resp.setHeader("Cache-Control", "no-store");

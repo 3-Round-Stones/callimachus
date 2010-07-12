@@ -3,6 +3,7 @@ package org.callimachusproject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,6 +36,7 @@ import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.config.RepositoryConfigSchema;
 import org.openrdf.repository.manager.RepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
+import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -105,58 +107,9 @@ public class Server {
 
 	public static void main(String[] args) {
 		try {
-			CommandLine line = new GnuParser().parse(options, args);
-			if (line.hasOption('h')) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("[options]", options);
-				return;
-			}
-			if (line.hasOption('v')) {
-				System.out.print("Callimachus Project Server/");
-				System.out.println(VERSION);
-				return;
-			}
-			File dir = new File("").getCanonicalFile();
-			File webappsDir = new File(dir, "webapps");
-			if (line.hasOption('d')) {
-				dir = new File(line.getOptionValue('d')).getCanonicalFile();
-				webappsDir = new File(dir, "webapps");
-			}
-			Repository repository = getRepository(line, dir);
-			if (repository.getDataDir() != null) {
-				dir = repository.getDataDir();
-			}
-			File cacheDir = new File(dir, "cache");
-			File in = new File(cacheDir, "client");
-			HTTPObjectClient.setInstance(in, 1024);
-			if (line.hasOption("from")) {
-				String from = line.getOptionValue("from");
-				HTTPObjectClient.getInstance()
-						.setFrom(from == null ? "" : from);
-			}
-			CallimachusServer server = new CallimachusServer(repository, dir,
-					webappsDir);
-			if (line.hasOption('p')) {
-				server.setPort(Integer.parseInt(line.getOptionValue('p')));
-			}
-			if (line.hasOption('a')) {
-				server.setAuthority(line.getOptionValue('a'));
-			}
-			if (line.hasOption('n')) {
-				server.setServerName(line.getOptionValue('n'));
-			}
-			if (line.hasOption('u')) {
-				server.setConditionalRequests(false);
-			}
-			try {
-				JNotify.removeWatch(-1); // load library
-			} catch (UnsatisfiedLinkError e) {
-				System.err.println(e.getMessage());
-			}
-			webappsDir.mkdirs();
-			if (!line.hasOption("trust")) {
-				applyPolicy(line, repository, dir, webappsDir);
-			}
+			Server server = new Server();
+			server.init(args);
+			server.printStatus(System.out);
 			server.start();
 			Thread.sleep(1000);
 			if (server.isRunning()) {
@@ -178,7 +131,116 @@ public class Server {
 		}
 	}
 
-	private static Repository getRepository(CommandLine line, File dir)
+	private CallimachusServer server;
+	private int port = 8080;
+
+	public String getAuthority() {
+		if (server == null)
+			return null;
+		return server.getAuthority();
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public ObjectRepository getRepository() {
+		if (server == null)
+			return null;
+		return server.getRepository();
+	}
+
+	public File getWebappsDir() {
+		if (server == null)
+			return null;
+		return server.getWebappsDir();
+	}
+
+	public void printStatus(PrintStream out) {
+		server.printStatus(out);
+	}
+
+	public void start() throws Exception {
+		server.start();
+	}
+
+	public boolean isRunning() {
+		if (server == null)
+			return false;
+		return server.isRunning();
+	}
+
+	public void stop() throws Exception {
+		if (server != null) {
+			server.stop();
+		}
+	}
+
+	public void destroy() throws Exception {
+		if (server != null) {
+			Repository repository = getRepository();
+			server.destroy();
+			if (repository != null) {
+				repository.shutDown();
+			}
+		}
+	}
+
+	public void init(String[] args) throws Exception {
+		CommandLine line = new GnuParser().parse(options, args);
+		if (line.hasOption('h')) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("[options]", options);
+			return;
+		}
+		if (line.hasOption('v')) {
+			System.out.print("Callimachus Project Server/");
+			System.out.println(VERSION);
+			return;
+		}
+		File dir = new File("").getCanonicalFile();
+		File webappsDir = new File(dir, "webapps");
+		if (line.hasOption('d')) {
+			dir = new File(line.getOptionValue('d')).getCanonicalFile();
+			webappsDir = new File(dir, "webapps");
+		}
+		Repository repository = getRepository(line, dir);
+		if (repository.getDataDir() != null) {
+			dir = repository.getDataDir();
+		}
+		File cacheDir = new File(dir, "cache");
+		File in = new File(cacheDir, "client");
+		HTTPObjectClient.setInstance(in, 1024);
+		if (line.hasOption("from")) {
+			String from = line.getOptionValue("from");
+			HTTPObjectClient.getInstance().setFrom(from == null ? "" : from);
+		}
+		server = new CallimachusServer(repository, dir, webappsDir);
+		if (line.hasOption('p')) {
+			port = Integer.parseInt(line.getOptionValue('p'));
+		}
+		if (line.hasOption('a')) {
+			server.setAuthority(line.getOptionValue('a'));
+		}
+		if (line.hasOption('n')) {
+			server.setServerName(line.getOptionValue('n'));
+		}
+		if (line.hasOption('u')) {
+			server.setConditionalRequests(false);
+		}
+		try {
+			JNotify.removeWatch(-1); // load library
+		} catch (UnsatisfiedLinkError e) {
+			System.err.println(e.getMessage());
+		}
+		webappsDir.mkdirs();
+		if (!line.hasOption("trust")) {
+			applyPolicy(line, repository, dir, webappsDir);
+		}
+		server.listen(port);
+	}
+
+	private Repository getRepository(CommandLine line, File dir)
 			throws RepositoryException, RepositoryConfigException,
 			MalformedURLException, IOException, RDFParseException,
 			RDFHandlerException, GraphUtilException {
@@ -222,8 +284,8 @@ public class Server {
 		return manager.getRepository(id);
 	}
 
-	private static void applyPolicy(CommandLine line, Repository repository,
-			File dir, File webappsDir) {
+	private void applyPolicy(CommandLine line, Repository repository, File dir,
+			File webappsDir) {
 		if (!line.hasOption("trust")) {
 			if (repository.getDataDir() == null) {
 				HTTPObjectPolicy.apply(new String[0], dir, webappsDir);

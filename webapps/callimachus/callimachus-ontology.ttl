@@ -138,12 +138,16 @@ calli:authName a rdf:Property, owl:FunctionalProperty;
 	rdfs:comment "A string to be displayed to users so they know which username and password to use. This string should contain at least the name of the host performing the authentication and might additionally indicate the collection of users who might have access. This string is used to encode the passwords and changing it will invalidates existing encoded passwords.";
 	rdfs:domain calli:DigestRealm.
 
+calli:script a rdf:Property;
+	rdfs:comment "Identifies the security contexts that allow agent scripts to initiate an HTTP request with this realm or '*' for all contexts.";
+	rdfs:domain calli:Realm.
+
 calli:origin a rdf:Property;
-	rdfs:comment "Identifies the security contexts that cause user agent scripts to initiate an HTTP request that can be seamlessly authenticated with this realm or '*' for all contexts.";
+	rdfs:comment "Identifies the security contexts that allow user agent scripts to initiate an HTTP request that can be seamlessly authenticated with this realm or '*' for all contexts.";
 	rdfs:domain calli:Realm.
 
 calli:domain a rdf:Property;
-	rdfs:comment "Define the protection space. Any URI that has a URI in this set as a prefix (after both have been made absolute) may be assumed to be in the same protection space.";
+	rdfs:comment "Define the protection space for this realm to authenticate. Any URI that has a URI in this set as a prefix may be assumed to be in the same protection space.";
 	rdfs:domain calli:Realm.
 
 calli:forbidden a owl:ObjectProperty;

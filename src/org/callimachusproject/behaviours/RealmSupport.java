@@ -1,9 +1,7 @@
 package org.callimachusproject.behaviours;
 
 import java.io.CharArrayWriter;
-import java.io.IOException;
 import java.io.Reader;
-import java.util.Set;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
@@ -12,9 +10,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.concepts.Template;
 import org.callimachusproject.traits.Realm;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.repository.object.exceptions.BehaviourException;
 
 public abstract class RealmSupport implements Realm, RDFObject {
 
@@ -48,31 +44,29 @@ public abstract class RealmSupport implements Realm, RDFObject {
 			}
 			sb.append(origin.toString());
 		}
+		for (Object origin : getCalliScripts()) {
+			if (sb.length() > 0) {
+				sb.append(", ");
+			}
+			sb.append(origin.toString());
+		}
 		if (sb.length() < 1)
 			return null;
 		return sb.toString();
 	}
 
 	@Override
-	// TODO remove in alibaba 2.0-beta3
-	public HttpResponse unauthorized() throws IOException {
-		try {
-			return unauthorized(this);
-		} catch (Exception exc) {
-			throw new BehaviourException(exc);
+	public boolean withAgentCredentials(String origin) {
+		for (Object script : getCalliScripts()) {
+			String ao = script.toString();
+			if (origin.startsWith(ao) || ao.startsWith(origin)
+					&& ao.charAt(origin.length()) == '/')
+				return true;
 		}
+		return false;
 	}
 
 	@Override
-	// TODO remove in alibaba 2.0-beta3
-	public HttpResponse forbidden() throws IOException {
-		try {
-			return forbidden(this);
-		} catch (Exception exc) {
-			throw new BehaviourException(exc);
-		}
-	}
-
 	public HttpResponse unauthorized(Object target) throws Exception {
 		Template unauthorized = getCalliUnauthorized();
 		if (unauthorized == null)
@@ -95,6 +89,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		}
 	}
 
+	@Override
 	public HttpResponse forbidden(Object target) throws Exception {
 		Template forbidden = getCalliForbidden();
 		if (forbidden == null)
@@ -115,13 +110,6 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		} finally {
 			reader.close();
 		}
-	}
-
-	@Override
-	public Object authenticateAgent(String method, String via,
-			Set<String> names, String algorithm, byte[] encoded)
-			throws RepositoryException {
-		return null;
 	}
 
 }

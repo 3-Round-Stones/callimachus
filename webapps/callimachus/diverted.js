@@ -5,6 +5,9 @@ function diverted(url, node) {
 	if (node && node.ownerDocument) {
 		doc = node.ownerDocument
 	}
+	if (doc.defaultView) {
+		doc = doc.defaultView
+	}
     var prefix = doc.location.protocol + '//' + doc.location.host + '/'
     var path = 'diverted;'
     if (url.indexOf(':') < 0) {
@@ -29,12 +32,21 @@ function diverted(url, node) {
 }
 
 function divertedLinkClicked(e) {
-    if (!e.target) {
-    	e.target = e.srcElement
+	var target = e.target
+    if (!target) {
+    	target = e.srcElement
     }
-    e.preventDefault()
-	var doc = e.target.ownerDocument
-    doc.location.href = diverted(e.target.href, e.target)
+	while (target && !target.href) {
+		target = target.parentNode
+	}
+	if (target && target.href && target.ownerDocument) {
+    	e.preventDefault()
+		var doc = target.ownerDocument
+		if (doc.defaultView) {
+			doc = doc.defaultView
+		}
+		doc.location.href = diverted(target.href, target)
+    }
     return false
 }
 

@@ -3,7 +3,6 @@ package org.callimachusproject.behaviours;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
-import java.util.Set;
 
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectFactory;
@@ -20,14 +19,6 @@ public abstract class LocalRealmSupport extends RealmSupport implements RDFObjec
 		}
 	}
 	private static String VIA = PROTOCOL + " " + localhost;
-
-	@Override
-	public Object authenticateAgent(String method, String via, Set<String> names,
-			String algorithm, byte[] encoded) throws RepositoryException {
-		if (via != null && via.endsWith(VIA))
-			return getLocalhost();
-		return null;
-	}
 
 	@Override
 	public Object authenticateRequest(String method, Object resource,

@@ -36,8 +36,20 @@ import org.openrdf.repository.object.annotations.iri;
 public interface Realm extends org.openrdf.http.object.traits.Realm {
 
 	/**
-	 * Identifies the security contexts that caused the user agent to initiate
-	 * an HTTP request.
+	 * Define the protection space for this realm to authenticate. Any URI that
+	 * has a URI in this set as a prefix may be assumed to be in the same
+	 * protection space.
+	 */
+	@iri("http://callimachusproject.org/rdf/2009/framework#domain")
+	Set<Object> getCalliDomains();
+
+	@iri("http://callimachusproject.org/rdf/2009/framework#domain")
+	void setCalliDomains(Set<?> domains);
+
+	/**
+	 * Identifies the security contexts that allow user agent scripts to
+	 * initiate an HTTP request that can be seamlessly authenticated with this
+	 * realm or '*' for all contexts.
 	 */
 	@iri("http://callimachusproject.org/rdf/2009/framework#origin")
 	Set<Object> getCalliOrigins();
@@ -46,15 +58,14 @@ public interface Realm extends org.openrdf.http.object.traits.Realm {
 	void setCalliOrigins(Set<Object> origins);
 
 	/**
-	 * Define the protection space. Any URI that has a URI in this set as a
-	 * prefix (after both have been made absolute) may be assumed to be in the
-	 * same protection space.
+	 * Identifies the security contexts that allow agent scripts to initiate an
+	 * HTTP request with this realm or '*' for all contexts."
 	 */
-	@iri("http://callimachusproject.org/rdf/2009/framework#domain")
-	Set<Object> getCalliDomains();
+	@iri("http://callimachusproject.org/rdf/2009/framework#script")
+	Set<Object> getCalliScripts();
 
-	@iri("http://callimachusproject.org/rdf/2009/framework#domain")
-	void setCalliDomains(Set<?> domains);
+	@iri("http://callimachusproject.org/rdf/2009/framework#script")
+	void setCalliScripts(Set<Object> scripts);
 
 	/**
 	 * The RDFa template used when an agent is forbidden from the requested

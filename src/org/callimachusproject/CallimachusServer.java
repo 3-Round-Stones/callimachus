@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -102,7 +103,6 @@ public class CallimachusServer {
 	private MimetypesFileTypeMap mimetypes;
 	private final DateFormat dateformat;
 	private int reloading;
-	private int reloaded;
 	private String authority;
 	private String basic;
 	private String authorization;
@@ -114,6 +114,7 @@ public class CallimachusServer {
 	private WebAppListener listener;
 	private int port;
 	private boolean conditional = true;
+	private PrintStream out;
 
 	public CallimachusServer(Repository repository, File dataDir, File webapps)
 			throws Exception {
@@ -139,6 +140,10 @@ public class CallimachusServer {
 		server = createServer(dataDir, basic, this.repository);
 	}
 
+	public void printStatus(PrintStream out) {
+		this.out = out;
+	}
+
 	public String getAuthority() {
 		return authority;
 	}
@@ -147,14 +152,6 @@ public class CallimachusServer {
 		this.authority = authority;
 		String prefix = "http://" + authority + IDENTITY_PATH;
 		server.setIdentityPrefix(new String[] { prefix });
-	}
-
-	public int getPort() {
-		return server.getPort();
-	}
-
-	public void setPort(int port) {
-		server.setPort(port);
 	}
 
 	public String getServerName() {
@@ -181,36 +178,30 @@ public class CallimachusServer {
 		this.conditional = conditional;
 	}
 
-	public void start() throws Exception {
-		boolean live = repository.isCompileRepository();
-		port = server.getPort();
+	public void listen(int... ports) throws Exception {
+		assert ports != null && ports.length > 0;
+		this.port = ports[0];
 		if (authority == null) {
-			setAuthority(getAuthority(getPort()));
+			setAuthority(getAuthority(port));
 		}
-		server.start();
 		origin = "http://" + authority + "/";
-		logger.info("Callimachus is binding to {}", origin);
 		byte[] decoded = basic.getBytes();
 		String cred = new String(Base64.encodeBase64(decoded), "8859_1");
 		authorization = "Basic " + cred;
-		InetSocketAddress host;
-		if (authority.contains(":")) {
-			int idx = authority.indexOf(':');
-			int port = Integer.parseInt(authority.substring(idx + 1));
-			host = new InetSocketAddress(authority.substring(0, idx), port);
-		} else {
-			host = new InetSocketAddress(authority, 80);
-		}
+		server.listen(ports);
+	}
+
+	public void start() throws Exception {
+		logger.info("Callimachus is binding to {}", origin);
+		InetSocketAddress host = getAuthorityAddress();
 		HTTPObjectClient.getInstance().setProxy(host, server);
-		starting();
 		boolean empty = false;
-		if (live && (!conditional || (empty = isEmpty(repository)))) {
+		if (!conditional || (empty = isEmpty(repository))) {
 			repository.setCompileRepository(false);
 		}
 		uploadWebapps(conditional && !empty);
-		if (live) {
-			repository.setCompileRepository(true);
-		}
+		repository.setCompileRepository(true);
+		server.start();
 		started();
 		System.gc();
 	}
@@ -220,16 +211,34 @@ public class CallimachusServer {
 	}
 
 	public void stop() throws Exception {
+		stopping();
+		InetSocketAddress host = getAuthorityAddress();
+		HTTPObjectClient.getInstance().removeProxy(host, server);
 		if (listener != null) {
 			listener.stop();
 		}
-		stopping();
 		server.stop();
+	}
+
+	public void destroy() throws Exception {
+		server.destroy();
+	}
+
+	private InetSocketAddress getAuthorityAddress() {
+		InetSocketAddress host;
+		if (authority.contains(":")) {
+			int idx = authority.indexOf(':');
+			int port = Integer.parseInt(authority.substring(idx + 1));
+			host = new InetSocketAddress(authority.substring(0, idx), port);
+		} else {
+			host = new InetSocketAddress(authority, 80);
+		}
+		return host;
 	}
 
 	private void uploadWebapps(boolean conditional) throws IOException,
 			JNotifyException, InterruptedException, ExecutionException {
-		System.out.print("Uploading Webapps");
+		print("Uploading Webapps");
 		try {
 			Thread listenerThread = null;
 			int mask = JNotify.FILE_CREATED | JNotify.FILE_DELETED
@@ -255,7 +264,7 @@ public class CallimachusServer {
 				listener.await();
 			}
 		} finally {
-			System.out.println();
+			println();
 		}
 	}
 
@@ -513,7 +522,6 @@ public class CallimachusServer {
 		} else {
 			ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
 			ObjectRepositoryConfig config = factory.getConfig();
-			config.setCompileRepository(true);
 			if (!jars.isEmpty()) {
 				for (URL jar : jars) {
 					if (jar.toExternalForm().endsWith(".jar")
@@ -704,19 +712,6 @@ public class CallimachusServer {
 		}
 	}
 
-	private void starting() throws GatewayTimeout, IOException,
-			InterruptedException {
-		InetSocketAddress server = new InetSocketAddress(InetAddress
-				.getLocalHost(), port);
-		HttpRequest req = new BasicHttpRequest("POST", NS + "boot?starting");
-		req.setHeader("Authorization", authorization);
-		HttpResponse resp = HTTPObjectClient.getInstance().service(server, req);
-		StatusLine status = resp.getStatusLine();
-		if (status.getStatusCode() != 204) {
-			logger.error(status.getReasonPhrase() + " while starting");
-		}
-	}
-
 	private void started() throws GatewayTimeout, IOException,
 			InterruptedException {
 		InetSocketAddress server = new InetSocketAddress(InetAddress
@@ -732,19 +727,7 @@ public class CallimachusServer {
 
 	private synchronized void reloading() throws GatewayTimeout, IOException,
 			InterruptedException {
-		if (reloading++ == reloaded) {
-			InetSocketAddress server = new InetSocketAddress(InetAddress
-					.getLocalHost(), port);
-			HttpRequest req = new BasicHttpRequest("POST", NS
-					+ "boot?reloading");
-			req.setHeader("Authorization", authorization);
-			HttpResponse resp = HTTPObjectClient.getInstance().service(server,
-					req);
-			StatusLine status = resp.getStatusLine();
-			if (status.getStatusCode() != 204) {
-				logger.error(status.getReasonPhrase() + " while reloading");
-			}
-		}
+		reloading++;
 	}
 
 	private synchronized void reloaded() throws GatewayTimeout, IOException,
@@ -754,7 +737,6 @@ public class CallimachusServer {
 			public void run() {
 				try {
 					if (reloading == loaded) {
-						reloaded = loaded;
 						InetSocketAddress server = new InetSocketAddress(
 								InetAddress.getLocalHost(), port);
 						HttpRequest req = new BasicHttpRequest("POST", NS
@@ -764,7 +746,7 @@ public class CallimachusServer {
 								.service(server, req);
 						StatusLine status = resp.getStatusLine();
 						System.gc();
-						System.out.println();
+						println();
 						if (status.getStatusCode() != 204) {
 							logger.error(status.getReasonPhrase()
 									+ " once reloaded");
@@ -940,17 +922,17 @@ public class CallimachusServer {
 		int status = resp.getStatusLine().getStatusCode();
 		HttpEntity entity = resp.getEntity();
 		if (status == 412) {
-			System.out.print(".");
+			print(".");
 			if (entity != null) {
 				entity.consumeContent();
 			}
 		} else if (status == 204) {
-			System.out.print("^");
+			print("^");
 			if (entity != null) {
 				entity.consumeContent();
 			}
 		} else {
-			System.out.print("!");
+			print("!");
 			logger.error(resp.getStatusLine().getReasonPhrase() + " for "
 					+ filename);
 			if (entity != null) {
@@ -1112,12 +1094,12 @@ public class CallimachusServer {
 		int status = resp.getStatusLine().getStatusCode();
 		HttpEntity entity = resp.getEntity();
 		if (status == 204) {
-			System.out.print("~");
+			print("~");
 			if (entity != null) {
 				entity.consumeContent();
 			}
 		} else if (status != 405) {
-			System.out.print("!");
+			print("!");
 			logger.error(resp.getStatusLine().getReasonPhrase() + " for "
 					+ filename);
 			if (entity != null) {
@@ -1129,6 +1111,18 @@ public class CallimachusServer {
 					entity.consumeContent();
 				}
 			}
+		}
+	}
+
+	private void print(String string) {
+		if (out != null) {
+			out.print(string);
+		}
+	}
+
+	private void println() {
+		if (out != null) {
+			out.println();
 		}
 	}
 

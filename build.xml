@@ -5,14 +5,20 @@
 	<property name="dist" location="dist" />
 	<property name="lib" location="lib" />
 	<property name="bin" location="bin" />
+	<property name="etc" location="etc" />
 	<property name="tmp" location="tmp" />
 	<property name="webapps" location="webapps" />
 	<property file="src/META-INF/callimachusproject.properties" />
+	<property name="alibaba.snapshot" value="2.0-SNAPSHOT" />
 	<property name="alibaba.url" value="http://downloads.sourceforge.net/project/sesame/AliBabaElmo/2.0-beta2/openrdf-alibaba-2.0-beta2.zip" />
 	<property name="jchardet.url" value="http://downloads.sourceforge.net/project/jchardet/jchardet/1.1/jchardet-1.1.zip" />
 	<property name="jnotify.url" value="http://downloads.sourceforge.net/project/jnotify/jnotify/jnotify-0.93/jnotify-lib-0.93.zip" />
+	<property name="daemon.url" value="http://www.apache.org/dist/commons/daemon/binaries/commons-daemon-1.0.2-bin.zip" />
+	<property name="daemon-linux-i386.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-i386.tar.gz" />
+	<property name="daemon-darwin.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
+	<property name="daemon-windows.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
 	<property name="main" value="org.callimachusproject.Server" />
-	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${bin} -Djava.io.tmpdir=${tmp}" />
+	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Djava.io.tmpdir=${tmp}" />
 	<property name="args" value="" />
 
 	<target name="init">
@@ -30,6 +36,10 @@
 			<get src="${alibaba.url}" dest="${lib}/openrdf-alibaba.zip" />
 			<get src="${jchardet.url}" dest="${lib}/jchardet.zip" />
 			<get src="${jnotify.url}" dest="${lib}/jnotify.zip" />
+			<get src="${daemon.url}" dest="${lib}/daemon.zip" />
+			<get src="${daemon-linux-i386.url}" dest="${lib}/daemon-linux-i386.tar.gz" />
+			<get src="${daemon-darwin.url}" dest="${lib}/daemon-darwin.tar.gz" />
+			<get src="${daemon-windows.url}" dest="${lib}/daemon-windows.zip" />
 		</parallel>
 		<unzip src="${lib}/openrdf-alibaba.zip" dest="${lib}">
 			<patternset>
@@ -52,7 +62,7 @@
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<unzip src="${lib}/jnotify.zip" dest="${bin}">
+		<unzip src="${lib}/jnotify.zip" dest="${lib}">
 			<patternset>
 				<include name="*.so" />
 				<include name="*.dll" />
@@ -61,6 +71,59 @@
 			<mapper type="flatten" />
 		</unzip>
 		<delete file="${lib}/jnotify.zip" />
+		<unzip src="${lib}/daemon.zip" dest="${lib}">
+			<patternset>
+				<include name="commons-daemon-1.0.2/commons-daemon-1.0.2.jar" />
+			</patternset>
+			<mapper type="flatten" />
+		</unzip>
+		<delete file="${lib}/daemon.zip" />
+		<untar compression="gzip" src="${lib}/daemon-linux-i386.tar.gz" dest="${bin}">
+			<patternset>
+				<include name="jsvc" />
+			</patternset>
+			<mapper type="glob" from="jsvc" to="jsvc-linux-i386" />
+		</untar>
+		<delete file="${lib}/daemon-linux-i386.tar.gz" />
+		<untar compression="gzip" src="${lib}/daemon-darwin.tar.gz" dest="${bin}">
+			<patternset>
+				<include name="jsvc" />
+			</patternset>
+			<mapper type="glob" from="jsvc" to="jsvc-darwin" />
+		</untar>
+		<delete file="${lib}/daemon-darwin.tar.gz" />
+		<unzip src="${lib}/daemon-windows.zip" dest="${bin}">
+			<patternset>
+				<include name="prunmgr.exe" />
+				<include name="prunsrv.exe" />
+				<include name="amd64/prunsrv.exe" />
+				<include name="ia64/prunsrv.exe" />
+			</patternset>
+			<mapper>
+				<globmapper from="prunmgr.exe" to="prunmgr.exe" />
+				<globmapper from="prunsrv.exe" to="prunsrv-win32.exe" />
+				<globmapper from="amd64/prunsrv.exe" to="prunsrv-amd64.exe" />
+				<globmapper from="ia64/prunsrv.exe" to="prunsrv-ia64.exe" />
+			</mapper>
+		</unzip>
+		<delete file="${lib}/daemon-windows.zip" />
+		<antcall target="alibaba-snapshot" />
+	</target>
+
+	<target name="alibaba-snapshot" if="alibaba.snapshot">
+		<delete dir="${lib}" includes="openrdf-alibaba-*.jar alibaba-*.jar" />
+		<property name="openrdf" value="http://repo.aduna-software.org/maven2/snapshots/org/openrdf/alibaba" />
+		<parallel>
+			<get src="${openrdf}/alibaba-composition-object/${alibaba.snapshot}/alibaba-composition-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-composition-object-${alibaba.snapshot}.jar" />
+			<get src="${openrdf}/alibaba-model/${alibaba.snapshot}/alibaba-model-${alibaba.snapshot}.jar" dest="${lib}/alibaba-model-${alibaba.snapshot}.jar" />
+			<get src="${openrdf}/alibaba-repository-object/${alibaba.snapshot}/alibaba-repository-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-object-${alibaba.snapshot}.jar" />
+			<get src="${openrdf}/alibaba-repository-optimistic/${alibaba.snapshot}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" />
+			<get src="${openrdf}/alibaba-repository-sparql/${alibaba.snapshot}/alibaba-repository-sparql-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-sparql-${alibaba.snapshot}.jar" />
+			<get src="${openrdf}/alibaba-runtime/${alibaba.snapshot}/alibaba-runtime-${alibaba.snapshot}.jar" dest="${lib}/alibaba-runtime-${alibaba.snapshot}.jar" />
+			<get src="${openrdf}/alibaba-sail-auditing/${alibaba.snapshot}/alibaba-sail-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-auditing-${alibaba.snapshot}.jar" />
+			<get src="${openrdf}/alibaba-sail-federation/${alibaba.snapshot}/alibaba-sail-federation-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-federation-${alibaba.snapshot}.jar" />
+			<get src="${openrdf}/alibaba-server-object/${alibaba.snapshot}/alibaba-server-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-server-object-${alibaba.snapshot}.jar" />
+		</parallel>
 	</target>
 
 	<target name="dist-clean" description="clean up everything for a new version" depends="clean">

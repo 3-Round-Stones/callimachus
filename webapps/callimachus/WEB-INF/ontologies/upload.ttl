@@ -103,13 +103,13 @@ calli:put-text-file-type a owl:DatatypeProperty; a owl:FunctionalProperty;
 calli:put-text-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:put-text-file;
 	rdfs:range <java:java.io.Reader>;
-	http:type "text/html", "text/css", "text/javascript", "text/xsl";
+	http:type "text/html", "text/css", "text/javascript", "text/plain";
 	obj:name "body".
 
 calli:delete-text-file rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom [owl:unionOf (<urn:mimetype:text/html> <urn:mimetype:text/css>
-		<urn:mimetype:text/javascript> <urn:mimetype:text/xsl>)]];
+		<urn:mimetype:text/javascript> <urn:mimetype:text/plain>)]];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
@@ -118,7 +118,7 @@ calli:delete-text-file rdfs:subClassOf obj:Message;
 		delete()
 		objectConnection.removeDesignations(msg.target,
 			"urn:mimetype:text/html", "urn:mimetype:text/css",
-			"urn:mimetype:text/javascript", "urn:mimetype:text/xsl");
+			"urn:mimetype:text/javascript", "urn:mimetype:text/plain");
 	""".
 
 ################################
@@ -157,13 +157,13 @@ calli:put-file-type a owl:DatatypeProperty; a owl:FunctionalProperty;
 calli:put-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:put-file;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "image/png", "image/jpeg", "image/gif", "image/vnd.microsoft.icon";
+	http:type "image/png", "image/jpeg", "image/gif", "image/vnd.microsoft.icon", "application/pdf";
 	obj:name "body".
 
 calli:delete-file rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom [owl:unionOf (<urn:mimetype:image/png> <urn:mimetype:image/jpeg>
-		<urn:mimetype:image/gif> <urn:mimetype:image/vnd.microsoft.icon>)]];
+		<urn:mimetype:image/gif> <urn:mimetype:image/vnd.microsoft.icon> <application/pdf>)]];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
@@ -171,8 +171,53 @@ calli:delete-file rdfs:subClassOf obj:Message;
 	obj:groovy """
 		delete()
 		objectConnection.removeDesignations(msg.target,
-			"urn:mimetype:image/png", "urn:mimetype:image/jpeg",
-			"urn:mimetype:image/gif", "urn:mimetype:image/vnd.microsoft.icon");
+			"urn:mimetype:image/png", "urn:mimetype:image/jpeg", "urn:mimetype:image/gif",
+			"urn:mimetype:image/vnd.microsoft.icon", "application/pdf");
+	""".
+
+################################
+# XSL File
+################################
+
+calli:put-xsl rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:allValuesFrom owl:Nothing];
+	http:method "PUT";
+	http:realm calli:nobody;
+	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	obj:groovy """
+		objectConnection.addDesignations(msg.target, "urn:mimetype:text/xsl");
+		int read;
+		byte[] buf = new byte[1024];
+		OutputStream out = openOutputStream();
+		try {
+			while ((read = msg.body.read(buf)) >= 0) {
+				out.write(buf, 0, read);
+			}
+		} finally {
+			out.close();
+		}
+		for (HTTPObjectServer server : HTTPObjectServer.getInstances()) {
+			server.resetCache()
+		}
+	""".
+
+calli:put-xsl-body a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:put-xsl;
+	rdfs:range <java:java.io.InputStream>;
+	http:type "text/xsl";
+	obj:name "body".
+
+calli:delete-xsl rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom <urn:mimetype:text/xsl>];
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:allValuesFrom owl:Nothing];
+	http:method "DELETE";
+	http:realm calli:nobody;
+	obj:groovy """
+		delete()
+		objectConnection.removeDesignations(msg.target, "urn:mimetype:text/xsl");
 	""".
 
 ################################
@@ -185,6 +230,7 @@ calli:put-template rdfs:subClassOf obj:Message;
 	http:method "PUT";
 	http:realm calli:nobody;
 	obj:imports calli:Template;
+	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	obj:groovy """
 		objectConnection.addDesignation(msg.target, Template);
 		int read;
@@ -196,6 +242,9 @@ calli:put-template rdfs:subClassOf obj:Message;
 			}
 		} finally {
 			out.close();
+		}
+		for (HTTPObjectServer server : HTTPObjectServer.getInstances()) {
+			server.resetCache()
 		}
 	""".
 

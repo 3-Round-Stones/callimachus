@@ -68,6 +68,7 @@ public class RDFaReader extends RDFEventReader {
 					"p3pv1", "prev", "collection", "role", "section",
 					"stylesheet", "subsection", "start", "top", "up"));
 	private final XMLEventReader reader;
+	private final String systemId;
 	private Base base;
 	private Reference document;
 	private Tag tag;
@@ -82,8 +83,9 @@ public class RDFaReader extends RDFEventReader {
 	private IRI XMLLITERAL = tf.iri(RDF + "XMLLiteral");
 	private List<Node> TYPE = Arrays.asList((Node) tf.iri(RDF + "type"));
 
-	public RDFaReader(String base, XMLEventReader reader) {
+	public RDFaReader(String base, XMLEventReader reader, String systemId) {
 		this.reader = reader;
+		this.systemId = systemId;
 		this.base = new Base(base);
 		this.document = tf.reference(base, "");
 	}
@@ -98,7 +100,7 @@ public class RDFaReader extends RDFEventReader {
 		try {
 			reader.close();
 		} catch (XMLStreamException e) {
-			throw new RDFParseException(e);
+			throw new RDFParseException(e.getMessage() + " in " + systemId, e);
 		}
 	}
 
@@ -111,9 +113,9 @@ public class RDFaReader extends RDFEventReader {
 			}
 			return queue.remove();
 		} catch (XMLStreamException e) {
-			throw new RDFParseException(e);
+			throw new RDFParseException(e.getMessage() + " in " + systemId, e);
 		} catch (IOException e) {
-			throw new RDFParseException(e);
+			throw new RDFParseException(e.getMessage() + " in " + systemId, e);
 		}
 	}
 

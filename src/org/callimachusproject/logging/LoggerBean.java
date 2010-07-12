@@ -91,12 +91,12 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 	}
 
 	@Override
-	public void startConsole(String prefix) {
+	public void startConsole(String fragment) {
 		boolean found = false;
 		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
-			if (name.startsWith(prefix)) {
+			if (name.contains(fragment)) {
 				Logger logger = Logger.getLogger(name);
 				logger.removeHandler(ch);
 				logger.addHandler(ch);
@@ -117,12 +117,12 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 	}
 
 	@Override
-	public void startNotifications(String prefix) {
+	public void startNotifications(String fragment) {
 		boolean found = false;
 		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
-			if (name.startsWith(prefix)) {
+			if (name.contains(fragment)) {
 				Logger logger = Logger.getLogger(name);
 				logger.removeHandler(nh);
 				logger.addHandler(nh);
@@ -143,12 +143,12 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 	}
 
 	@Override
-	public void logAll(String prefix) {
+	public void logAll(String fragment) {
 		boolean found = false;
 		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
-			if (name.startsWith(prefix)) {
+			if (name.contains(fragment)) {
 				Logger.getLogger(name).setLevel(Level.ALL);
 				found = true;
 			}
@@ -158,12 +158,12 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 	}
 
 	@Override
-	public void logInfo(String prefix) {
+	public void logInfo(String fragment) {
 		boolean found = false;
 		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
 		while (names.hasMoreElements()) {
 			String name = names.nextElement();
-			if (name.startsWith(prefix)) {
+			if (name.contains(fragment)) {
 				Logger.getLogger(name).setLevel(Level.INFO);
 				found = true;
 			}

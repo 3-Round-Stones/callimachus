@@ -57,7 +57,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 
 	@Override
 	public boolean withAgentCredentials(String origin) {
-		for (Object script : getCalliScripts()) {
+		for (Object script : getCalliOrigins()) {
 			String ao = script.toString();
 			if (origin.startsWith(ao) || ao.startsWith(origin)
 					&& ao.charAt(origin.length()) == '/')
@@ -79,10 +79,11 @@ public abstract class RealmSupport implements Realm, RDFObject {
 			while ((read = reader.read(cbuf)) >= 0) {
 				writer.write(cbuf, 0, read);
 			}
+			StringEntity entity = new StringEntity(writer.toString(), "UTF-8");
+			entity.setContentType("text/html;charset=\"UTF-8\"");
 			HttpResponse resp = new BasicHttpResponse(_401);
 			resp.setHeader("Cache-Control", "no-store");
-			resp.setHeader("Content-Type", "text/html;charset=\"UTF-8\"");
-			resp.setEntity(new StringEntity(writer.toString(), "UTF-8"));
+			resp.setEntity(entity);
 			return resp;
 		} finally {
 			reader.close();

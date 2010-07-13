@@ -39,6 +39,15 @@ calli:get-graph rdfs:subClassOf obj:Message;
 
 calli:get-html rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom <urn:mimetype:text/plain>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.Reader>];
+	http:method "GET";
+	http:type "text/plain";
+	obj:groovy "return openReader(false)".
+
+calli:get-html rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:text/html>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.Reader>];
@@ -64,18 +73,18 @@ calli:get-javascript rdfs:subClassOf obj:Message;
 	http:type "text/javascript";
 	obj:groovy "return openReader(false)".
 
+################################
+# Binary File
+################################
+
 calli:get-xsl rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:text/xsl>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
+		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "text/xsl";
-	obj:groovy "return openReader(false)".
-
-################################
-# Binary File
-################################
+	obj:groovy "return openInputStream()".
 
 calli:get-png rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -113,13 +122,18 @@ calli:get-ico rdfs:subClassOf obj:Message;
 	http:type "image/vnd.microsoft.icon";
 	obj:groovy "return openInputStream()".
 
-################################
-# Template File
-################################
+calli:get-template rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom <urn:mimetype:application/pdf>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.InputStream>];
+	http:method "GET";
+	http:type "application/pdf";
+	obj:groovy "return openInputStream()".
 
 calli:get-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Template];
+		owl:allValuesFrom <urn:mimetype:application/xml>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";

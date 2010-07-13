@@ -233,6 +233,7 @@ calli:put-template rdfs:subClassOf obj:Message;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	obj:groovy """
 		objectConnection.addDesignation(msg.target, Template);
+		objectConnection.addDesignations(msg.target, "urn:mimetype:application/xml");
 		int read;
 		byte[] buf = new byte[1024];
 		OutputStream out = openOutputStream();
@@ -259,11 +260,10 @@ calli:delete-template rdfs:subClassOf obj:Message;
 		owl:allValuesFrom calli:Template];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
-	http:method "DELETE";
-	http:realm calli:nobody;
 	obj:imports calli:Template;
 	obj:groovy """
 		delete()
-		objectConnection.removeDesignation(msg.target, Template);
+		objectConnection.removeDesignation(msg.target, Template)
+		objectConnection.removeDesignations(msg.target, "urn:mimetype:application/xml")
 	""".
 

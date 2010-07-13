@@ -173,9 +173,9 @@
 				<attribute name="Class-Path" value="${jar.classpath}" />
 			</manifest>
 		</jar>
-		<zip destfile="${dist}/callimachus.war">
+		<war needxmlfile="false" destfile="${dist}/callimachus.war">
 			<zipfileset dir="${webapps}/callimachus" prefix="" />
-		</zip>
+		</war>
 		<zip destfile="${dist}/callimachus-${version}.zip">
 			<zipfileset dir="." includes="*.txt" />
 			<zipfileset dir="${bin}" prefix="bin" />

@@ -11,6 +11,10 @@ if (document.addEventListener) {
 
 var formRequestCount = 0;
 function initStatus() {
+	$(window).unload(function (event) {
+		$("form[about]").addClass("wait")
+		formRequestCount++
+	})
 	$("form[about]").ajaxSend(function(event, xhr, options){
 		if (!$(this).hasClass("wait")) {
 			$(this).addClass("wait")
@@ -24,6 +28,11 @@ function initStatus() {
 			formRequestCount = 0
 		}
 	})
+}
+
+function showPageLoading() {
+	$("form[about]").addClass("wait")
+	formRequestCount++
 }
 
 function showRequest() {

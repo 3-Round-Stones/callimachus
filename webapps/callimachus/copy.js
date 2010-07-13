@@ -37,6 +37,9 @@ function initForms() {
 					} else {
 						redirect = uri + "?view"
 					}
+					if (window.showPageLoading) {
+						showPageLoading()
+					}
 					if (window.diverted && form.hasClass("diverted")) {
 						location.replace(diverted(redirect, node))
 					} else {

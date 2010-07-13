@@ -39,6 +39,9 @@ function initForms() {
 					if (uri.indexOf('?') > 0) {
 						uri = uri.substring(0, uri.indexOf('?'))
 					}
+					if (window.showPageLoading) {
+						showPageLoading()
+					}
 					if (location.href.indexOf("?pre-") > 0) {
 						location.replace(uri + "?pre-view")
 					} else {

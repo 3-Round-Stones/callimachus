@@ -18,6 +18,7 @@ package org.callimachusproject.behaviours;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +47,7 @@ import org.openrdf.http.object.annotations.operation;
 import org.openrdf.http.object.annotations.parameter;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.InternalServerError;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
@@ -53,8 +55,8 @@ import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.xslt.TransformBuilder;
 import org.openrdf.repository.object.xslt.XSLTransformer;
 
-public abstract class RDFaSupport implements Template, SoundexTrait,
-		RDFObject, FileObject {
+public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
+		FileObject {
 	private static final Pattern TYPE_XSLT = Pattern
 			.compile("\\btype=[\"'](text/xsl|application/xslt+xml)[\"']");
 	private static final Pattern HREF_XSLT = Pattern
@@ -82,7 +84,8 @@ public abstract class RDFaSupport implements Template, SoundexTrait,
 			TransformerException, RDFParseException, RepositoryException,
 			MalformedQueryException, QueryEvaluationException {
 		String base = toUri().toASCIIString();
-		return new RDFXMLEventReader(new RDFaReader(base, xslt("view", null), toString()));
+		return new RDFXMLEventReader(new RDFaReader(base, xslt("view", null),
+				toString()));
 	}
 
 	public RDFEventReader openBoundedPatterns(String mode, String about)
@@ -104,8 +107,8 @@ public abstract class RDFaSupport implements Template, SoundexTrait,
 		return query;
 	}
 
-	public RDFEventReader constructPossibleTriples(
-			TriplePatternStore patterns, TriplePattern pattern) {
+	public RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
+			TriplePattern pattern) {
 		final TriplePattern project = patterns.getProjectedPattern(pattern);
 		RDFEventReader query = patterns.openQueryBySubject(pattern.getObject());
 		if (query == null)
@@ -128,7 +131,8 @@ public abstract class RDFaSupport implements Template, SoundexTrait,
 			String about) throws XMLStreamException, IOException,
 			TransformerException {
 		String base = "http://callimachusproject.org/rdf/2009/framework/variables/";
-		RDFEventReader reader = new RDFaReader(base, xslt(mode, element), toString());
+		RDFEventReader reader = new RDFaReader(base, xslt(mode, element),
+				toString());
 		reader = new GraphPatternReader(reader);
 		Base resolver = new Base(getResource().stringValue());
 		if (about == null) {
@@ -163,7 +167,10 @@ public abstract class RDFaSupport implements Template, SoundexTrait,
 	 */
 	private String readXSLTSource() throws IOException {
 		String href = null;
-		BufferedReader reader = new BufferedReader(openReader(true));
+		Reader source = openReader(true);
+		if (source == null)
+			throw new InternalServerError("Missing Template Body: " + this);
+		BufferedReader reader = new BufferedReader(source);
 		try {
 			String line;
 			while ((line = reader.readLine()) != null) {

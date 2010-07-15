@@ -71,6 +71,8 @@ import org.mozilla.intl.chardet.nsICharsetDetectionObserver;
 import org.openrdf.http.object.HTTPObjectServer;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.GatewayTimeout;
+import org.openrdf.http.object.mxbeans.ConnectionBean;
+import org.openrdf.http.object.mxbeans.HTTPObjectAgentMXBean;
 import org.openrdf.http.object.util.FileUtil;
 import org.openrdf.http.object.util.NamedThreadFactory;
 import org.openrdf.http.object.util.SharedExecutors;
@@ -85,7 +87,7 @@ import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CallimachusServer {
+public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private static final Charset ASCII = Charset.forName("US-ASCII");
 	private static final Charset DEFAULT = Charset.defaultCharset();
 	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
@@ -178,6 +180,78 @@ public class CallimachusServer {
 		this.conditional = conditional;
 	}
 
+	public int getCacheSize() {
+		return server.getCacheSize();
+	}
+
+	public int getCacheCapacity() {
+		return server.getCacheCapacity();
+	}
+
+	public void setCacheCapacity(int capacity) {
+		server.setCacheCapacity(capacity);
+	}
+
+	public String getFrom() {
+		return server.getFrom();
+	}
+
+	public void setFrom(String from) {
+		server.setFrom(from);
+	}
+
+	public String getName() {
+		return server.getName();
+	}
+
+	public void setName(String serverName) {
+		server.setName(serverName);
+	}
+
+	public boolean isCacheAggressive() {
+		return server.isCacheAggressive();
+	}
+
+	public void setCacheAggressive(boolean cacheAggressive) {
+		server.setCacheAggressive(cacheAggressive);
+	}
+
+	public boolean isCacheDisconnected() {
+		return server.isCacheDisconnected();
+	}
+
+	public void setCacheDisconnected(boolean cacheDisconnected) {
+		server.setCacheDisconnected(cacheDisconnected);
+	}
+
+	public boolean isCacheEnabled() {
+		return server.isCacheEnabled();
+	}
+
+	public void setCacheEnabled(boolean cacheEnabled) {
+		server.setCacheEnabled(cacheEnabled);
+	}
+
+	public void invalidateCache() throws IOException, InterruptedException {
+		server.invalidateCache();
+	}
+
+	public void resetCache() throws IOException, InterruptedException {
+		server.resetCache();
+	}
+
+	public ConnectionBean[] getConnections() {
+		return server.getConnections();
+	}
+
+	public void resetConnections() throws IOException {
+		server.resetConnections();
+	}
+
+	public void poke() {
+		server.poke();
+	}
+
 	public void listen(int... ports) throws Exception {
 		assert ports != null && ports.length > 0;
 		this.port = ports[0];
@@ -204,6 +278,10 @@ public class CallimachusServer {
 		server.start();
 		started();
 		System.gc();
+	}
+
+	public String getStatus() {
+		return server.getStatus();
 	}
 
 	public boolean isRunning() {
@@ -376,7 +454,7 @@ public class CallimachusServer {
 		}
 
 		public void fileModified(int wd, String rootPath, String name) {
-			if (name == null || name.contains("/WEB-INF/"))
+			if (name == null || name.contains("/WEB-INF/") || name.contains("/META-INF/"))
 				return;
 			File file = new File(new File(rootPath), name).getAbsoluteFile();
 			if (!isHidden(file)) {
@@ -761,14 +839,19 @@ public class CallimachusServer {
 
 	private void stopping() throws GatewayTimeout, IOException,
 			InterruptedException {
-		InetSocketAddress server = new InetSocketAddress(InetAddress
-				.getLocalHost(), port);
-		HttpRequest req = new BasicHttpRequest("POST", NS + "boot?stopping");
-		req.setHeader("Authorization", authorization);
-		HttpResponse resp = HTTPObjectClient.getInstance().service(server, req);
-		StatusLine status = resp.getStatusLine();
-		if (status.getStatusCode() != 204) {
-			logger.error(status.getReasonPhrase() + " while stopping");
+		try {
+			InetSocketAddress server = new InetSocketAddress(InetAddress
+					.getLocalHost(), port);
+			HttpRequest req = new BasicHttpRequest("POST", NS + "boot?stopping");
+			req.setHeader("Authorization", authorization);
+			HttpResponse resp = HTTPObjectClient.getInstance().service(server,
+					req);
+			StatusLine status = resp.getStatusLine();
+			if (status.getStatusCode() != 204) {
+				logger.error(status.getReasonPhrase() + " while stopping");
+			}
+		} catch (Exception e) {
+			logger.error(e.toString(), e);
 		}
 	}
 
@@ -786,7 +869,7 @@ public class CallimachusServer {
 	private void uploadWebApps(File file, String path, boolean conditional)
 			throws InterruptedException, ExecutionException, IOException {
 		String name = file.getName();
-		if (isHidden(file) || "WEB-INF".equals(name))
+		if (isHidden(file) || "WEB-INF".equals(name) || "META-INF".equals(name))
 			return;
 		boolean gzip = name.endsWith(".gz");
 		if (file.isDirectory()) {
@@ -1133,8 +1216,10 @@ public class CallimachusServer {
 	}
 
 	private boolean isWebResource(String path) {
-		if (path == null || path.contains("/WEB-INF/")
-				|| path.startsWith("WEB-INF/"))
+		if (path == null)
+			return false;
+		if (path.contains("/WEB-INF/") || path.startsWith("WEB-INF/")
+				|| path.contains("/META-INF/") || path.startsWith("META-INF/"))
 			return false;
 		return !isHidden(path);
 	}

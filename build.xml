@@ -6,6 +6,7 @@
 	<property name="lib" location="lib" />
 	<property name="bin" location="bin" />
 	<property name="etc" location="etc" />
+	<property name="log" location="log" />
 	<property name="tmp" location="tmp" />
 	<property name="webapps" location="webapps" />
 	<property file="src/META-INF/callimachusproject.properties" />
@@ -39,7 +40,6 @@
 			<get src="${daemon.url}" dest="${lib}/daemon.zip" />
 			<get src="${daemon-linux-i386.url}" dest="${lib}/daemon-linux-i386.tar.gz" />
 			<get src="${daemon-darwin.url}" dest="${lib}/daemon-darwin.tar.gz" />
-			<get src="${daemon-windows.url}" dest="${lib}/daemon-windows.zip" />
 		</parallel>
 		<unzip src="${lib}/openrdf-alibaba.zip" dest="${lib}">
 			<patternset>
@@ -92,21 +92,6 @@
 			<mapper type="glob" from="jsvc" to="jsvc-darwin" />
 		</untar>
 		<delete file="${lib}/daemon-darwin.tar.gz" />
-		<unzip src="${lib}/daemon-windows.zip" dest="${bin}">
-			<patternset>
-				<include name="prunmgr.exe" />
-				<include name="prunsrv.exe" />
-				<include name="amd64/prunsrv.exe" />
-				<include name="ia64/prunsrv.exe" />
-			</patternset>
-			<mapper>
-				<globmapper from="prunmgr.exe" to="prunmgr.exe" />
-				<globmapper from="prunsrv.exe" to="prunsrv-win32.exe" />
-				<globmapper from="amd64/prunsrv.exe" to="prunsrv-amd64.exe" />
-				<globmapper from="ia64/prunsrv.exe" to="prunsrv-ia64.exe" />
-			</mapper>
-		</unzip>
-		<delete file="${lib}/daemon-windows.zip" />
 		<antcall target="alibaba-snapshot" />
 	</target>
 
@@ -148,10 +133,13 @@
 			</classpath>
 		</javac>
 		<copy todir="${build}">
-			<fileset dir="${src}" excludes="**/*.java *.sh *.bat logging.properties"/>
+			<fileset dir="${src}" excludes="**/*.java *.sh *.bat *.conf logging.properties"/>
 		</copy>
 		<copy todir="${bin}">
-			<fileset dir="${src}" includes="*.sh *.bat logging.properties"/>
+			<fileset dir="${src}" includes="*.sh *.bat"/>
+		</copy>
+		<copy todir="${etc}">
+			<fileset dir="${src}" includes="*.conf logging.properties"/>
 		</copy>
 	</target>
 
@@ -179,6 +167,7 @@
 		<zip destfile="${dist}/callimachus-${version}.zip">
 			<zipfileset dir="." includes="*.txt" />
 			<zipfileset dir="${bin}" prefix="bin" />
+			<zipfileset dir="${etc}" prefix="etc" />
 			<zipfileset dir="${lib}" prefix="lib" />
 			<zipfileset file="${jar.file}" prefix="lib" />
 			<zipfileset file="${dist}/callimachus.war" prefix="webapps" />

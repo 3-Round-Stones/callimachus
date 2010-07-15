@@ -1,17 +1,30 @@
 package org.callimachusproject;
 
+import info.aduna.io.IOUtil;
+
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.rmi.UnmarshalException;
 import java.util.Properties;
 
+import javax.management.JMX;
 import javax.management.MBeanServer;
+import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 
 import net.contentobjects.jnotify.JNotify;
 
@@ -23,6 +36,8 @@ import org.apache.commons.cli.Options;
 import org.callimachusproject.logging.LoggerBean;
 import org.openrdf.http.object.HTTPObjectPolicy;
 import org.openrdf.http.object.client.HTTPObjectClient;
+import org.openrdf.http.object.mxbeans.ConnectionBean;
+import org.openrdf.http.object.mxbeans.HTTPObjectAgentMXBean;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
 import org.openrdf.model.impl.GraphImpl;
@@ -50,7 +65,8 @@ import org.openrdf.rio.helpers.StatementCollector;
  * @author James Leigh
  * 
  */
-public class Server {
+public class Server implements HTTPObjectAgentMXBean {
+	private static final String CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
 	private static final String VERSION_PATH = "/META-INF/callimachusproject.properties";
 	private static final String VERSION;
 	static {
@@ -96,7 +112,9 @@ public class Server {
 				"Allow all server code to read, write, and execute all files and directories "
 						+ "according to the file system's ACL");
 		Option fromOpt = new Option("from", true,
-				"Email address for the human user who controls this server");
+		"Email address for the human user who controls this server");
+		options.addOption("pid", true, "File to store current process id or process id to stop");
+		options.addOption("stop", false, "Use the PID file to shutdown the server");
 		fromOpt.setOptionalArg(true);
 		options.addOption(fromOpt);
 		options.addOption("h", "help", false,
@@ -107,19 +125,38 @@ public class Server {
 
 	public static void main(String[] args) {
 		try {
-			Server server = new Server();
-			server.init(args);
-			server.printStatus(System.out);
-			server.start();
-			Thread.sleep(1000);
-			if (server.isRunning()) {
-				System.out.println();
-				System.out.println(server.getClass().getSimpleName()
-						+ " is listening on port " + server.getPort()
-						+ " for http://" + server.getAuthority() + "/");
-				System.out.println("Repository: " + server.getRepository());
-				System.out.println("Webapps: " + server.getWebappsDir());
-				System.out.println("Authority: " + server.getAuthority());
+			CommandLine line = new GnuParser().parse(options, args);
+			if (line.hasOption("stop")) {
+				if (line.hasOption("pid")) {
+					destroyService(args);
+				} else {
+					System.out.println("Missing required pid option.");
+					System.exit(1);
+				}
+			} else {
+				Server server = new Server();
+				if (line.hasOption("pid")) {
+					MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+					mbs.registerMBean(server, getObjectName());
+					initService(args);
+				}
+				server.init(args);
+				server.printStatus(System.out);
+				server.start();
+				Thread.sleep(1000);
+				if (server.isRunning()) {
+					System.out.println();
+					System.out.println(server.getClass().getSimpleName()
+							+ " is listening on port " + server.getPort()
+							+ " for http://" + server.getAuthority() + "/");
+					System.out.println("Repository: " + server.getRepository());
+					System.out.println("Webapps: " + server.getWebappsDir());
+					System.out.println("Authority: " + server.getAuthority());
+				} else {
+					System.out.println(server.getClass().getSimpleName()
+							+ " could not be started.");
+					System.exit(1);
+				}
 			}
 		} catch (Exception e) {
 			if (e.getMessage() != null) {
@@ -129,6 +166,75 @@ public class Server {
 			}
 			System.exit(1);
 		}
+	}
+
+	private static void initService(String[] args) throws Exception {
+		CommandLine line = new GnuParser().parse(options, args);
+		RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+		String pid = bean.getName().replaceAll("@.*", "");
+		File file = new File(line.getOptionValue("pid"));
+		file.getParentFile().mkdirs();
+		FileWriter writer = new FileWriter(file);
+		try {
+			writer.append(pid);
+		} finally {
+			writer.close();
+		}
+		file.deleteOnExit();
+	}
+
+	private static void destroyService(String[] args) throws Exception {
+		Class<?> VM = Class.forName("com.sun.tools.attach.VirtualMachine");
+		Method attach = VM.getDeclaredMethod("attach", String.class);
+		Method getAgentProperties = VM.getDeclaredMethod("getAgentProperties");
+		Method getSystemProperties = VM
+				.getDeclaredMethod("getSystemProperties");
+		Method loadAgent = VM.getDeclaredMethod("loadAgent", String.class);
+
+		CommandLine line = new GnuParser().parse(options, args);
+		File file = new File(line.getOptionValue("pid"));
+		String pid = IOUtil.readString(file);
+
+		// attach to the target application
+		Object vm = attach.invoke(null, pid);
+
+		// get the connector address
+		Properties properties = (Properties) getAgentProperties.invoke(vm);
+		String connectorAddress = properties.getProperty(CONNECTOR_ADDRESS);
+
+		// no connector address, so we start the JMX agent
+		if (connectorAddress == null) {
+			properties = (Properties) getSystemProperties.invoke(vm);
+			String agent = properties.getProperty("java.home") + File.separator
+					+ "lib" + File.separator + "management-agent.jar";
+			loadAgent.invoke(vm, agent);
+
+			// agent is started, get the connector address
+			properties = (Properties) getAgentProperties.invoke(vm);
+			connectorAddress = properties.getProperty(CONNECTOR_ADDRESS);
+		}
+
+		JMXServiceURL service = new JMXServiceURL(connectorAddress);
+		JMXConnector connector = JMXConnectorFactory.connect(service);
+		MBeanServerConnection mbsc = connector.getMBeanServerConnection();
+		ObjectName objectName = getObjectName();
+		HTTPObjectAgentMXBean server = JMX.newMXBeanProxy(mbsc, objectName,
+				HTTPObjectAgentMXBean.class);
+		try {
+			server.destroy();
+		} catch (UnmarshalException e) {
+			if (!(e.getCause() instanceof EOFException))
+				throw e;
+			// remote JVM has terminated
+		}
+	}
+
+	private static ObjectName getObjectName()
+			throws MalformedObjectNameException {
+		String pkg = Server.class.getPackage().getName();
+		String name = pkg + ":type=" + Server.class.getSimpleName();
+		ObjectName objectName = new ObjectName(name);
+		return objectName;
 	}
 
 	private CallimachusServer server;
@@ -160,8 +266,84 @@ public class Server {
 		server.printStatus(out);
 	}
 
+	public int getCacheCapacity() {
+		return server.getCacheCapacity();
+	}
+
+	public void setCacheCapacity(int capacity) {
+		server.setCacheCapacity(capacity);
+	}
+
+	public int getCacheSize() {
+		return server.getCacheSize();
+	}
+
+	public String getFrom() {
+		return server.getFrom();
+	}
+
+	public void setFrom(String from) {
+		server.setFrom(from);
+	}
+
+	public String getName() {
+		return server.getName();
+	}
+
+	public void setName(String name) {
+		server.setName(name);
+	}
+
+	public void invalidateCache() throws Exception {
+		server.invalidateCache();
+	}
+
+	public boolean isCacheAggressive() {
+		return server.isCacheAggressive();
+	}
+
+	public void setCacheAggressive(boolean cacheAggressive) {
+		server.setCacheAggressive(cacheAggressive);
+	}
+
+	public boolean isCacheDisconnected() {
+		return server.isCacheDisconnected();
+	}
+
+	public void setCacheDisconnected(boolean cacheDisconnected) {
+		server.setCacheDisconnected(cacheDisconnected);
+	}
+
+	public boolean isCacheEnabled() {
+		return server.isCacheEnabled();
+	}
+
+	public void setCacheEnabled(boolean cacheEnabled) {
+		server.setCacheEnabled(cacheEnabled);
+	}
+
+	public void resetCache() throws Exception {
+		server.resetCache();
+	}
+
+	public ConnectionBean[] getConnections() {
+		return server.getConnections();
+	}
+
+	public void resetConnections() throws IOException {
+		server.resetConnections();
+	}
+
+	public void poke() {
+		server.poke();
+	}
+
 	public void start() throws Exception {
 		server.start();
+	}
+
+	public String getStatus() {
+		return server.getStatus();
 	}
 
 	public boolean isRunning() {
@@ -178,11 +360,9 @@ public class Server {
 
 	public void destroy() throws Exception {
 		if (server != null) {
-			Repository repository = getRepository();
+			server.stop();
+			server.getRepository().shutDown();
 			server.destroy();
-			if (repository != null) {
-				repository.shutDown();
-			}
 		}
 	}
 
@@ -191,11 +371,13 @@ public class Server {
 		if (line.hasOption('h')) {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("[options]", options);
+			System.exit(0);
 			return;
 		}
 		if (line.hasOption('v')) {
 			System.out.print("Callimachus Project Server/");
 			System.out.println(VERSION);
+			System.exit(0);
 			return;
 		}
 		File dir = new File("").getCanonicalFile();

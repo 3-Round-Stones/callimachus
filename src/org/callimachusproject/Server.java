@@ -266,7 +266,11 @@ public class Server implements HTTPObjectAgentMXBean {
 		HTTPObjectAgentMXBean server = JMX.newMXBeanProxy(mbsc, objectName,
 				HTTPObjectAgentMXBean.class);
 		try {
-			server.destroy();
+			try {
+				server.stop();
+			} finally {
+				server.destroy();
+			}
 		} catch (UnmarshalException e) {
 			if (!(e.getCause() instanceof EOFException))
 				throw e;
@@ -401,9 +405,6 @@ public class Server implements HTTPObjectAgentMXBean {
 
 	public void destroy() throws Exception {
 		if (server != null) {
-			if (server.isRunning()) {
-				server.stop();
-			}
 			server.getRepository().shutDown();
 			server.destroy();
 		}

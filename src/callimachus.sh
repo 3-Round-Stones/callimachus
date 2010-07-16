@@ -285,7 +285,7 @@ if [ "$1" = "start" ] ; then ################################
     fi
     if [ $SLEEP -eq 0 ]; then
       if [ "`tty`" != "not a tty" ]; then
-        echo "The server is still starting up."
+        echo "The server is still starting up, check log files for possible errors."
       fi
       break
     fi

@@ -37,7 +37,7 @@ calli:get-graph rdfs:subClassOf obj:Message;
 # Text File
 ################################
 
-calli:get-html rdfs:subClassOf obj:Message;
+calli:get-plain rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:text/plain>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -122,7 +122,7 @@ calli:get-ico rdfs:subClassOf obj:Message;
 	http:type "image/vnd.microsoft.icon";
 	obj:groovy "return openInputStream()".
 
-calli:get-template rdfs:subClassOf obj:Message;
+calli:get-pdf rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:application/pdf>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;

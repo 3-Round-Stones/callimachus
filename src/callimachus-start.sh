@@ -1,5 +1,4 @@
 #!/bin/sh
-# callimachus-start.sh
 #
 # Copyright (c) 2010 Zepheira LLC, Some Rights Reserved
 #
@@ -36,10 +35,10 @@ while [ -h "$PRG" ] ; do
 done
  
 PRGDIR=`dirname "$PRG"`
-EXECUTABLE=callimachus.sh
+EXECUTABLE=`basename "$PRG" | sed 's/-[^-]*/.sh/'`
 
 # Check that target executable exists
-if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
+if [ ! -x "$PRGDIR"/"$EXECUTABLE" -o "$PRG" = "$PRGDIR/$EXECUTABLE" ]; then
   echo "Cannot find $PRGDIR/$EXECUTABLE"
   echo "This file is needed to run this program"
   exit 1

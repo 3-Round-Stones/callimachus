@@ -3,7 +3,6 @@ package org.callimachusproject.logging;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Enumeration;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -18,29 +17,6 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 		LoggerMXBean {
 	private Formatter formatter;
 	private Handler nh;
-	private Handler ch;
-
-	private final static class NotificationFormatter extends Formatter {
-		public String format(LogRecord record) {
-			StringBuffer sb = new StringBuffer();
-			String message = formatMessage(record);
-			sb.append(record.getLevel().getLocalizedName());
-			sb.append(": ");
-			sb.append(message);
-			sb.append("\r\n");
-			if (record.getThrown() != null) {
-				try {
-					StringWriter sw = new StringWriter();
-					PrintWriter pw = new PrintWriter(sw);
-					record.getThrown().printStackTrace(pw);
-					pw.close();
-					sb.append(sw.toString());
-				} catch (Exception ex) {
-				}
-			}
-			return sb.toString();
-		}
-	}
 
 	public final class NotificationHandler extends Handler {
 
@@ -81,39 +57,10 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 	}
 
 	public LoggerBean() {
-		formatter = new NotificationFormatter();
+		formatter = new LogMessageFormatter();
 		nh = new NotificationHandler();
 		nh.setFormatter(formatter);
 		nh.setLevel(Level.ALL);
-		ch = new ConsoleHandler();
-		ch.setFormatter(formatter);
-		ch.setLevel(Level.ALL);
-	}
-
-	@Override
-	public void startConsole(String fragment) {
-		boolean found = false;
-		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
-		while (names.hasMoreElements()) {
-			String name = names.nextElement();
-			if (name.contains(fragment)) {
-				Logger logger = Logger.getLogger(name);
-				logger.removeHandler(ch);
-				logger.addHandler(ch);
-				found = true;
-			}
-		}
-		if (!found)
-			throw new IllegalArgumentException("Not such logger");
-	}
-
-	@Override
-	public void stopConsole() {
-		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
-		while (names.hasMoreElements()) {
-			String name = names.nextElement();
-			Logger.getLogger(name).removeHandler(ch);
-		}
 	}
 
 	@Override
@@ -165,6 +112,21 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 			String name = names.nextElement();
 			if (name.contains(fragment)) {
 				Logger.getLogger(name).setLevel(Level.INFO);
+				found = true;
+			}
+		}
+		if (!found)
+			throw new IllegalArgumentException("Not such logger");
+	}
+
+	@Override
+	public void logWarn(String fragment) {
+		boolean found = false;
+		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
+		while (names.hasMoreElements()) {
+			String name = names.nextElement();
+			if (name.contains(fragment)) {
+				Logger.getLogger(name).setLevel(Level.WARNING);
 				found = true;
 			}
 		}

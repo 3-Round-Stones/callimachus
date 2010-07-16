@@ -2,11 +2,13 @@ package org.callimachusproject;
 
 import info.aduna.io.IOUtil;
 
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -58,6 +60,8 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command line tool for launching the server.
@@ -86,7 +90,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		VERSION = version;
 		try {
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-			String name = Server.class.getPackage().getName() + ":type=logger";
+			String name = Server.class.getPackage().getName() + ":type=log";
 			mbs.registerMBean(new LoggerBean(), new ObjectName(name));
 		} catch (Exception e) {
 			// ignore
@@ -112,11 +116,15 @@ public class Server implements HTTPObjectAgentMXBean {
 				"Allow all server code to read, write, and execute all files and directories "
 						+ "according to the file system's ACL");
 		Option fromOpt = new Option("from", true,
-		"Email address for the human user who controls this server");
-		options.addOption("pid", true, "File to store current process id or process id to stop");
-		options.addOption("stop", false, "Use the PID file to shutdown the server");
+				"Email address for the human user who controls this server");
 		fromOpt.setOptionalArg(true);
 		options.addOption(fromOpt);
+		options.addOption("pid", true,
+				"File to store current process id or process id to stop");
+		options.addOption("stop", false,
+				"Use the PID file to shutdown the server");
+		options.addOption("q", "quiet", false,
+				"Don't print status messages to standard output.");
 		options.addOption("h", "help", false,
 				"Print help (this message) and exit");
 		options.addOption("v", "version", false,
@@ -136,15 +144,15 @@ public class Server implements HTTPObjectAgentMXBean {
 			} else {
 				Server server = new Server();
 				if (line.hasOption("pid")) {
-					MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+					MBeanServer mbs = ManagementFactory
+							.getPlatformMBeanServer();
 					mbs.registerMBean(server, getObjectName());
 					initService(args);
 				}
 				server.init(args);
-				server.printStatus(System.out);
 				server.start();
 				Thread.sleep(1000);
-				if (server.isRunning()) {
+				if (server.isRunning() && !line.hasOption('q')) {
 					System.out.println();
 					System.out.println(server.getClass().getSimpleName()
 							+ " is listening on port " + server.getPort()
@@ -152,8 +160,8 @@ public class Server implements HTTPObjectAgentMXBean {
 					System.out.println("Repository: " + server.getRepository());
 					System.out.println("Webapps: " + server.getWebappsDir());
 					System.out.println("Authority: " + server.getAuthority());
-				} else {
-					System.out.println(server.getClass().getSimpleName()
+				} else if (!server.isRunning()) {
+					System.err.println(server.getClass().getSimpleName()
 							+ " could not be started.");
 					System.exit(1);
 				}
@@ -166,6 +174,43 @@ public class Server implements HTTPObjectAgentMXBean {
 			}
 			System.exit(1);
 		}
+	}
+
+	private static void logStdout() {
+		System.setOut(new PrintStream(new OutputStream() {
+			private int ret = "\r".getBytes()[0];
+			private int newline = "\n".getBytes()[0];
+			private Logger logger = LoggerFactory.getLogger("stdout");
+			private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+			public synchronized void write(int b) throws IOException {
+				if (b == ret || b == newline) {
+					if (buffer.size() > 0) {
+						logger.info(buffer.toString());
+						buffer.reset();
+					}
+				} else {
+					buffer.write(b);
+				}
+			}
+		}, true));
+		System.setErr(new PrintStream(new OutputStream() {
+			private int ret = "\r".getBytes()[0];
+			private int newline = "\n".getBytes()[0];
+			private Logger logger = LoggerFactory.getLogger("stderr");
+			private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+			public synchronized void write(int b) throws IOException {
+				if (b == ret || b == newline) {
+					if (buffer.size() > 0) {
+						logger.warn(buffer.toString());
+						buffer.reset();
+					}
+				} else {
+					buffer.write(b);
+				}
+			}
+		}, true));
 	}
 
 	private static void initService(String[] args) throws Exception {
@@ -262,10 +307,6 @@ public class Server implements HTTPObjectAgentMXBean {
 		return server.getWebappsDir();
 	}
 
-	public void printStatus(PrintStream out) {
-		server.printStatus(out);
-	}
-
 	public int getCacheCapacity() {
 		return server.getCacheCapacity();
 	}
@@ -360,7 +401,9 @@ public class Server implements HTTPObjectAgentMXBean {
 
 	public void destroy() throws Exception {
 		if (server != null) {
-			server.stop();
+			if (server.isRunning()) {
+				server.stop();
+			}
 			server.getRepository().shutDown();
 			server.destroy();
 		}
@@ -368,17 +411,22 @@ public class Server implements HTTPObjectAgentMXBean {
 
 	public void init(String[] args) throws Exception {
 		CommandLine line = new GnuParser().parse(options, args);
-		if (line.hasOption('h')) {
+		if (line.hasOption('h') || line.getArgs().length > 0) {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("[options]", options);
 			System.exit(0);
 			return;
-		}
-		if (line.hasOption('v')) {
+		} else if (line.hasOption('v')) {
 			System.out.print("Callimachus Project Server/");
 			System.out.println(VERSION);
 			System.exit(0);
 			return;
+		} else if (line.hasOption('q')) {
+			try {
+				logStdout();
+			} catch (SecurityException e) {
+				// ignore
+			}
 		}
 		File dir = new File("").getCanonicalFile();
 		File webappsDir = new File(dir, "webapps");
@@ -418,6 +466,9 @@ public class Server implements HTTPObjectAgentMXBean {
 		webappsDir.mkdirs();
 		if (!line.hasOption("trust")) {
 			applyPolicy(line, repository, dir, webappsDir);
+		}
+		if (!line.hasOption('q')) {
+			server.printStatus(System.out);
 		}
 		server.listen(port);
 	}

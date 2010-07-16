@@ -1,5 +1,4 @@
 @echo off
-rem callimachus.bat
 rem 
 rem Copyright (c) 2010 Zepheira LLC, Some Rights Reserved
 rem 
@@ -18,37 +17,71 @@ rem
 
 setlocal
 
+set PRG=%0
+rem check if path is quoted
+if "%PRG:~-4,3%" == "bat" (
+  set "PRG=%PRG:~1,-1%"
+)
+rem check if path is absolute
+if not "%PRG:~1,1%" == ":" (
+  set "PRG=%CD%\%PRG%"
+)
+rem determine DIRNAME and BASENAME
+set "DIRNAME=%PRG%"
+set BASENAME=
+:dirname
+if "%DIRNAME:~-1%" NEQ "\" (
+  set "BASENAME=%DIRNAME:~-1%%BASENAME%"
+  set "DIRNAME=%DIRNAME:~0,-1%"
+  goto dirname
+)
+rem strip backslash (\)
+set DIRNAME=%DIRNAME:~0,-1%
+
 rem Guess BASEDIR if not defined
-set "CURRENT_DIR=%cd%"
-if not "%BASEDIR%" == "" goto gotHome
-set "BASEDIR=%CURRENT_DIR%"
-if exist "%BASEDIR%\bin\callimachus.bat" goto okHome
-cd ..
-set "BASEDIR=%cd%"
-cd "%CURRENT_DIR%"
-:gotHome
-if exist "%BASEDIR%\bin\callimachus.bat" goto okHome
+if not "%BASEDIR%" == "" goto okHome
+set "BASEDIR=%DIRNAME%"
+:basedir
+if "%BASEDIR:~-1%" NEQ "\" (
+  set "BASEDIR=%BASEDIR:~0,-1%"
+  goto basedir
+)
+set BASEDIR=%BASEDIR:~0,-1%
+if exist "%BASEDIR%\bin\%BASENAME%" goto okHome
 echo The BASEDIR environment variable is not defined correctly
 echo This environment variable is needed to run this program
 goto end
 :okHome
 
+if not "%NAME%" == "" goto gotName
+set "NAME=%BASENAME%"
+:name
+if "%NAME:~-1%" NEQ "." (
+  set "NAME=%NAME:~0,-1%"
+  goto name
+)
+rem strip period (.)
+set "NAME=%NAME:~0,-1%"
+:gotName
+
 rem Ensure that any user defined CLASSPATH variables are not used on startup.
 set CLASSPATH=
 
+if not "%CONFIG%" == "" goto gotConfigFile
+set "CONFIG=%BASEDIR%/etc/%NAME%.conf"
+:gotConfigFile
+
 rem Get standard environment variables
-if exist "%BASEDIR%\etc\callimachus.conf" goto getConfig
-goto gotConfig
-:getConfig
+if not exist "%CONFIG%" goto okConfig
 setlocal EnableDelayedExpansion
 IF NOT EXIST "%BASEDIR%\tmp" MKDIR "%BASEDIR%\tmp"
-for /f %%i in ('"type "%BASEDIR%\etc\callimachus.conf" | find /V "#""') do (
+for /f %%i in ('find /V "#" "%CONFIG%"') do (
   set "line=set %%i"
-  echo !line!>> "%BASEDIR%\tmp\callimachus-conf.bat"
+  if not "!line:~4,1!" == "-" echo !line!>> "%BASEDIR%\tmp\%NAME%-conf.bat"
 )
-call "%BASEDIR%\tmp\callimachus-conf.bat"
-del "%BASEDIR%\tmp\callimachus-conf.bat"
-:gotConfig
+call "%BASEDIR%\tmp\%NAME%-conf.bat"
+del "%BASEDIR%\tmp\%NAME%-conf.bat"
+:okConfig
 
 rem check for a JDK in the BASEDIR
 for /d %%i in ("%BASEDIR%\jdk*") do set JAVA_HOME=%%i
@@ -70,7 +103,7 @@ set "JAVA=%JAVA_HOME%\bin\java"
 set "JAVAW=%JAVA_HOME%\bin\javaw"
 
 if not "%PID%" == "" goto gotOut
-set "PID=%BASEDIR%\run\callimachus.pid"
+set "PID=%BASEDIR%\run\%NAME%.pid"
 :gotOut
 
 if not "%LIB%" == "" goto gotLib
@@ -85,8 +118,8 @@ if not "%JID%" == "" goto gotTmpdir
 set "JID=%BASEDIR%\run\callimathus.jmx"
 :gotTmpdir
 
-if not "%LOGGING_CONFIG%" == "" goto gotLogging
-set "LOGGING_CONFIG=%BASEDIR%/etc/logging.properties"
+if not "%LOGGING%" == "" goto gotLogging
+set "LOGGING=%BASEDIR%\etc\%NAME%.properties"
 :gotLogging
 
 setlocal ENABLEDELAYEDEXPANSION
@@ -135,7 +168,7 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING_CONFIG%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% -d "%BASEDIR%" -p "%PORT%" -a "%AUTHORITY%" --pid "%PID%" %OPT% %CMD_LINE_ARGS%
+"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% -d "%BASEDIR%" -p "%PORT%" -a "%AUTHORITY%" --pid "%PID%" %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStart
@@ -144,17 +177,24 @@ echo Using PORT:      "%PORT%"
 echo Using AUTHORITY: "%AUTHORITY%"
 echo Using JAVA_HOME: "%JAVA_HOME%"
 
+rem Get remaining command line arguments
+shift
+set CMD_LINE_ARGS=
+:setStartArgs
+if ""%1""=="""" goto doneSetStartArgs
+set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
+shift
+goto setStartArgs
+:doneSetStartArgs
+
 IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-start "callimachus" "%JAVAW%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING_CONFIG%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% -d "%BASEDIR%" -p "%PORT%" -a "%AUTHORITY%" --pid "%PID%" %OPT% %CMD_LINE_ARGS%
+start "%NAME%" "%JAVAW%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% -d "%BASEDIR%" -p "%PORT%" -a "%AUTHORITY%" --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStop
-IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
-IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
-
 rem Execute Java with the applicable properties
 "%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %JAVA_OPTS% %MAINCLASS% --stop --pid "%PID%"
 goto end

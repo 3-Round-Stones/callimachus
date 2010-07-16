@@ -2,10 +2,6 @@ package org.callimachusproject.logging;
 
 public interface LoggerMXBean {
 
-	void startConsole(String prefix);
-
-	void stopConsole();
-
 	void startNotifications(String prefix);
 
 	void stopNotifications();
@@ -13,4 +9,6 @@ public interface LoggerMXBean {
 	void logAll(String prefix);
 
 	void logInfo(String prefix);
+
+	void logWarn(String prefix);
 }

@@ -1,5 +1,4 @@
 #!/bin/sh
-# callimachus.sh
 #
 # Copyright (c) 2010 Zepheira LLC, Some Rights Reserved
 #
@@ -50,8 +49,16 @@ fi
 # Ensure that any user defined CLASSPATH variables are not used on startup.
 CLASSPATH=
 
-if [ -r "$BASEDIR/etc/callimachus.conf" ]; then
-  . "$BASEDIR/etc/callimachus.conf"
+if [ -z "$NAME" ] ; then
+  NAME=`basename "$PRG" | sed 's/\.sh$//'`
+fi
+
+if [ -z "$CONFIG" ] ; then
+  CONFIG="$BASEDIR/etc/$NAME.conf"
+fi
+
+if [ -r "$CONFIG" ]; then
+  . "$CONFIG" 2>/dev/null
 fi
 
 # Check that target executable exists
@@ -141,8 +148,8 @@ if [ -z "$JAVA" ] ; then
   JAVA="$JAVA_HOME/bin/java"
 fi
 
-if [ -z "$OUT" ] ; then
-  OUT="$BASEDIR"/log/callimachus.out
+if [ -z "$PID" ] ; then
+  PID="$BASEDIR/run/$NAME.pid"
 fi
 
 if [ -z "$LIB" ] ; then
@@ -150,16 +157,12 @@ if [ -z "$LIB" ] ; then
 fi
 
 if [ -z "$TMPDIR" ] ; then
-  # Define the java.io.tmpdir to use for Callimachus
+  # Define the java.io.tmpdir to use
   TMPDIR="$BASEDIR"/tmp
 fi
 
-if [ -z "$LOGGING_CONFIG" ] ; then
-  LOGGING_CONFIG="$BASEDIR"/etc/logging.properties
-fi
-
-if [ -z "$PID" ] ; then
-  PID="$BASEDIR/run/callimachus.pid"
+if [ -z "$LOGGING" ] ; then
+  LOGGING="$BASEDIR/etc/$NAME.properties"
 fi
 
 for JAR in `ls -1 "$BASEDIR"/lib/*.jar | xargs -d '\n'` ; do
@@ -173,11 +176,19 @@ if [ -z "$JAVA_OPTS" ] ; then
   JAVA_OPTS="-Xmx512m -Dfile.encoding=UTF-8"
 fi
 
+if [ -z "$DAEMON_USER" ] ; then
+  DAEMON_USER="$SUDO_USER"
+fi
+
+if [ -z "$DAEMON_USER" ] ; then
+  DAEMON_USER="$USER"
+fi
+
 if [ -z "$JSVC_OPTS" ] ; then
-  if [ -z "$CALLIMACHUS_USER" ] ; then
+  if [ -z "$DAEMON_USER" ] ; then
     JSVC_OPTS="-Xmx512m -Dfile.encoding=UTF-8"
   else
-    JSVC_OPTS="-user $CALLIMACHUS_USER -Xmx512m -Dfile.encoding=UTF-8"
+    JSVC_OPTS="-user $DAEMON_USER -Xmx512m -Dfile.encoding=UTF-8"
   fi
 fi
 
@@ -200,11 +211,35 @@ if $cygwin; then
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 fi
 
+if [ ! -z "$DAEMON_USER" ] ; then
+  if [ ! -e "$BASDIR/repositories" ] ; then
+    mkdir "$BASDIR/repositories"
+    chown "$DAEMON_USER" "$BASDIR/repositories"
+    chmod u+s "$BASDIR/repositories"
+  fi
+  if [ ! -e "$BASEDIR/log" ] ; then
+    mkdir "$BASEDIR/log"
+    chown "$DAEMON_USER" "$BASEDIR/log"
+    chmod u+s "$BASEDIR/log"
+  fi
+  if [ ! -e `dirname "$PID"` ] ; then
+    mkdir `dirname "$PID"`
+    chown "$DAEMON_USER" `dirname "$PID"`
+  fi
+fi
+
+mkdir -p `dirname "$PID"`
+if [ ! -e "$BASEDIR/log" ] ; then
+  mkdir "$BASEDIR/log"
+fi
+
+MAINCLASS=org.callimachusproject.Server
+
 if [ "$1" = "start" ] ; then ################################
 
   if [ ! -z "$PID" ]; then
     if [ -f "$PID" ]; then
-      echo "PID file ($PID) found. Is Callimachus still running? Start aborted."
+      echo "PID file ($PID) found. Is the server still running? Start aborted."
       exit 1
     fi
   fi
@@ -216,43 +251,21 @@ if [ "$1" = "start" ] ; then ################################
     echo "Using JAVA_HOME: $JAVA_HOME"
   fi
 
-  if [ ! -z "$CALLIMACHUS_USER" ] ; then
-    if [ ! -e "$BASDIR/repositories" ] ; then
-      mkdir "$BASDIR/repositories"
-      chown "$CALLIMACHUS_USER" "$BASDIR/repositories"
-      chmod u+s "$BASDIR/repositories"
-    fi
-    if [ ! -e "$BASEDIR/log" ] ; then
-      mkdir "$BASEDIR/log"
-      chown "$CALLIMACHUS_USER" "$BASEDIR/log"
-      chmod u+s "$BASEDIR/log"
-    fi
-  fi
-
-  mkdir -p `dirname "$PID"`
-  if [ ! -e `dirname "$OUT"` ] ; then
-    mkdir `dirname "$OUT"`
-  fi
-  echo -n > "$OUT"
-
-  "$EXECUTABLE" -home "$JAVA_HOME" -jvm server -procname callimachus \
+  shift
+  "$EXECUTABLE" -home "$JAVA_HOME" -jvm server -procname "$NAME" \
     -pidfile "$PID" \
-    -outfile "$OUT" -errfile '&1' \
     -Duser.home="$BASEDIR" \
     -Djava.library.path="$LIB" \
     -Djava.io.tmpdir="$TMPDIR" \
-    -Djava.util.logging.config.file="$LOGGING_CONFIG" \
+    -Djava.util.logging.config.file="$LOGGING" \
     -classpath "$CLASSPATH" \
-    $JSVC_OPTS org.callimachusproject.Server -d "$BASEDIR" -p "$PORT" -a "$AUTHORITY" $OPTS
+    $JSVC_OPTS $MAINCLASS -d "$BASEDIR" -p "$PORT" -a "$AUTHORITY" -q $OPTS "$@"
 
   RETURN_VAL=$?
-
   sleep 1
 
-  if [ $? -gt 0 -o ! -f "$PID" ]; then
-    cat "$OUT" 1>&2
-    echo
-    echo "Callimachus did not start. Start aborted."
+  if [ $RETURN_VAL -gt 0 -o ! -f "$PID" ]; then
+    echo "The server did not start, see log files for details. Start aborted."
     exit $RETURN_VAL
   fi
 
@@ -261,9 +274,7 @@ if [ "$1" = "start" ] ; then ################################
   while [ $SLEEP -ge 0 ]; do
     kill -0 $ID >/dev/null 2>&1
     if [ $? -gt 0 ]; then
-      cat "$OUT" 1>&2
-      echo
-      echo "Callimachus is not running. Start aborted."
+      echo "The server is not running, see log files for details. Start aborted."
       exit 1
     fi
     if netstat -ltpn 2>/dev/null |grep -qe "\b$ID\b"; then
@@ -274,7 +285,7 @@ if [ "$1" = "start" ] ; then ################################
     fi
     if [ $SLEEP -eq 0 ]; then
       if [ "`tty`" != "not a tty" ]; then
-        echo "Callimachus is still starting up."
+        echo "The server is still starting up."
       fi
       break
     fi
@@ -297,14 +308,14 @@ elif [ "$1" = "stop" ] ; then ################################
     echo "The PID ($PID) exist, but it cannot be read. Stop aborted."
     exit 1
   else
-    echo "The PID ($PID) does not exist. Is Callimachus running? Stop aborted."
+    echo "The PID ($PID) does not exist. Is the server running? Stop aborted."
     exit 1
   fi
 
   ID=`cat $PID`
 
   "$EXECUTABLE" -home "$JAVA_HOME" -stop \
-    -pidfile "$PID" org.callimachusproject.Server
+    -pidfile "$PID" $MAINCLASS
 
   SLEEP=60
   while [ $SLEEP -ge 0 ]; do 
@@ -331,7 +342,7 @@ elif [ "$1" = "stop" ] ; then ################################
 else ################################
 
   if [ -f "$PID" ]; then
-    echo "PID file ($PID) found. Is Callimachus still running? Run aborted."
+    echo "PID file ($PID) found. Is the server still running? Run aborted."
     exit 1
    fi
 
@@ -342,13 +353,31 @@ else ################################
     echo "Using JAVA_HOME: $JAVA_HOME"
   fi
 
-  exec "$JAVA" -server \
-    -Duser.home="$BASEDIR" \
-    -Djava.library.path="$LIB" \
-    -Djava.io.tmpdir="$TMPDIR" \
-    -Djava.util.logging.config.file="$LOGGING_CONFIG" \
-    -classpath "$CLASSPATH" \
-    $JAVA_OPTS org.callimachusproject.Server -d "$BASEDIR" -p "$PORT" -a "$AUTHORITY" --pid "$PID" $OPTS "$@"
+  if [ "$PORT" -le 1024 -a \( -z "$DAEMON_USER" -o "$DAEMON_USER" != "root" \) ]; then
+    "$EXECUTABLE" -nodetach -home "$JAVA_HOME" -jvm server -procname "$NAME" \
+      -pidfile "$PID" \
+      -Duser.home="$BASEDIR" \
+      -Djava.library.path="$LIB" \
+      -Djava.io.tmpdir="$TMPDIR" \
+      -Djava.util.logging.config.file="$LOGGING" \
+      -classpath "$CLASSPATH" \
+      $JSVC_OPTS $MAINCLASS -d "$BASEDIR" -p "$PORT" -a "$AUTHORITY" -q $OPTS "$@"
 
+    RETURN_VAL=$?
+    sleep 1
+
+    if [ $RETURN_VAL -gt 0 ]; then
+      echo "The server terminated abnormally, see log files for details."
+      exit $RETURN_VAL
+    fi
+  else
+    exec "$JAVA" -server \
+      -Duser.home="$BASEDIR" \
+      -Djava.library.path="$LIB" \
+      -Djava.io.tmpdir="$TMPDIR" \
+      -Djava.util.logging.config.file="$LOGGING" \
+      -classpath "$CLASSPATH" \
+      $JAVA_OPTS $MAINCLASS -d "$BASEDIR" -p "$PORT" -a "$AUTHORITY" --pid "$PID" $OPTS "$@"
+  fi
 fi
 

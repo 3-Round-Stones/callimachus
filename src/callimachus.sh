@@ -39,6 +39,8 @@ PRGDIR=`dirname "$PRG"`
 
 if $darwin; then
   EXECUTABLE="$PRGDIR/jsvc-darwin"
+elif [ `uname -m` = "x86_64" ]; then
+  EXECUTABLE="$PRGDIR/jsvc-linux-x86_64"
 else
   EXECUTABLE="$PRGDIR/jsvc-linux-i386"
 fi
@@ -94,7 +96,8 @@ fi
 # check the base dir for possible java candidates
 if [ -z "$JAVA_HOME" ] && ls "$BASEDIR"/*/bin/javac >/dev/null 2>&1
 then
-  for JAVAC in `ls -1 "$BASEDIR"/*/bin/javac | xargs -d '\n'` ; do
+  JAVAC=`ls -1 "$BASEDIR"/*/bin/javac | head -n 1`
+  if [ -x "$JAVAC" ] ; then
     JAVA_HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
     JAVA="$JAVA_HOME/bin/java"
     if [ -L "$JAVA" ] ; then
@@ -104,7 +107,7 @@ then
     if [ ! -z "$JAVA_HOME" -a ! -L "$JAVA" -a ! -z "$VERSION" -a "$VERSION" -ge "$JAVA_VERSION_INT" ] ; then
       break
     fi
-  done
+  fi
   # verify java instance
   if [ ! -z "$JAVA_HOME" ] ; then
     JAVA="$JAVA_HOME/bin/java"
@@ -115,20 +118,41 @@ then
   fi
 fi
 
-# use 'locate' to search for other possible java candidates
-if [ -z "$JAVA_HOME" ]
-then
-  for JAVAC in `locate bin/javac |grep -e javac$ | xargs -d '\n'` ; do
-    JAVA_HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
+# use 'java_home' to search for other possible java candidate
+if [ -z "$JAVA_HOME" ] ; then
+  if which java_home > /dev/null ; then
+    JAVA_HOME=`java_home`
+  fi
+  # verify java instance
+  if [ ! -z "$JAVA_HOME" ] ; then
     JAVA="$JAVA_HOME/bin/java"
-    if [ -L "$JAVA" ] ; then
-      continue
-    fi
     VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | sed -e 's;\.;0;g'`
-    if [ ! -z "$JAVA_HOME" -a ! -L "$JAVA" -a ! -z "$VERSION" -a "$VERSION" -ge "$JAVA_VERSION_INT" ] ; then
-      break
+    if [ -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
+      JAVA_HOME=
     fi
-  done
+  fi
+fi
+
+# use 'which' to search for other possible java candidate
+if [ -z "$JAVA_HOME" ] ; then
+  JAVAC=`which javac`
+  if [ -x "$JAVAC" ] ; then
+    while [ -h "$JAVAC" ] ; do
+      ls=`ls -ld "$JAVAC"`
+      link=`expr "$ls" : '.*-> \(.*\)$'`
+      if expr "$link" : '/.*' > /dev/null; then
+        JAVAC="$link"
+      else
+        JAVAC=`dirname "$JAVAC"`/"$link"
+      fi
+    done
+    HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
+    if [ -d "$HOME" ] ; then
+      JAVA_HOME="$HOME"
+    else
+      JAVA_HOME=`which javac | awk '{ print substr($1, 1, length($1)-10); }'`
+    fi
+  fi
   # verify java instance
   if [ -z "$JAVA_HOME" ] ; then
     echo "The JAVA_HOME environment variable is not defined"
@@ -137,7 +161,7 @@ then
   fi
   JAVA="$JAVA_HOME/bin/java"
   VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | sed -e 's;\.;0;g'`
-  if [ -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
+  if [ ! -x "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
     echo "The JAVA_HOME environment variable does not point to a $JAVA_VERSION JDK installation"
     echo "JDK $JAVA_VERSION is needed to run this program"
     exit 1
@@ -165,7 +189,7 @@ if [ -z "$LOGGING" ] ; then
   LOGGING="$BASEDIR/etc/$NAME.properties"
 fi
 
-for JAR in `ls -1 "$BASEDIR"/lib/*.jar | xargs -d '\n'` ; do
+for JAR in "$BASEDIR"/lib/*.jar ; do
   if [ ! -z "$CLASSPATH" ] ; then
     CLASSPATH="$CLASSPATH":
   fi
@@ -221,6 +245,11 @@ if [ ! -z "$DAEMON_USER" ] ; then
     mkdir "$BASEDIR/log"
     chown "$DAEMON_USER" "$BASEDIR/log"
     chmod u+s "$BASEDIR/log"
+  fi
+  if [ ! -e "$TMPDIR" ] ; then
+    mkdir "$TMPDIR"
+    chown "$DAEMON_USER" "$TMPDIR"
+    chmod u+s "$TMPDIR"
   fi
   if [ ! -e `dirname "$PID"` ] ; then
     mkdir `dirname "$PID"`

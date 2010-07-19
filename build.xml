@@ -16,6 +16,7 @@
 	<property name="jnotify.url" value="http://downloads.sourceforge.net/project/jnotify/jnotify/jnotify-0.93/jnotify-lib-0.93.zip" />
 	<property name="daemon.url" value="http://www.apache.org/dist/commons/daemon/binaries/commons-daemon-1.0.2-bin.zip" />
 	<property name="daemon-linux-i386.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-i386.tar.gz" />
+	<property name="download-lunix-x86_64.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-x86_64.tar.gz" />
 	<property name="daemon-darwin.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
 	<property name="daemon-windows.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
 	<property name="main" value="org.callimachusproject.Server" />
@@ -39,6 +40,7 @@
 			<get src="${jnotify.url}" dest="${lib}/jnotify.zip" />
 			<get src="${daemon.url}" dest="${lib}/daemon.zip" />
 			<get src="${daemon-linux-i386.url}" dest="${lib}/daemon-linux-i386.tar.gz" />
+			<get src="${download-lunix-x86_64.url}" dest="${lib}/daemon-linux-x86_64.tar.gz" />
 			<get src="${daemon-darwin.url}" dest="${lib}/daemon-darwin.tar.gz" />
 		</parallel>
 		<unzip src="${lib}/openrdf-alibaba.zip" dest="${lib}">
@@ -85,6 +87,13 @@
 			<mapper type="glob" from="jsvc" to="jsvc-linux-i386" />
 		</untar>
 		<delete file="${lib}/daemon-linux-i386.tar.gz" />
+		<untar compression="gzip" src="${lib}/daemon-linux-x86_64.tar.gz" dest="${bin}">
+			<patternset>
+				<include name="jsvc" />
+			</patternset>
+			<mapper type="glob" from="jsvc" to="jsvc-linux-x86_64" />
+		</untar>
+		<delete file="${lib}/daemon-linux-x86_64.tar.gz" />
 		<untar compression="gzip" src="${lib}/daemon-darwin.tar.gz" dest="${bin}">
 			<patternset>
 				<include name="jsvc" />

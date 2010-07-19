@@ -70,6 +70,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Server implements HTTPObjectAgentMXBean {
+	public static final String NAME;
+	private static final String BRAND = "Callimachus Project Server";
 	private static final String CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
 	private static final String VERSION_PATH = "/META-INF/callimachusproject.properties";
 	private static final String VERSION;
@@ -95,6 +97,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		} catch (Exception e) {
 			// ignore
 		}
+		NAME = BRAND + '/' + VERSION;
 	}
 	private static final String REPOSITORY_TEMPLATE = "META-INF/templates/callimachus-config.ttl";
 
@@ -418,7 +421,8 @@ public class Server implements HTTPObjectAgentMXBean {
 			System.exit(0);
 			return;
 		} else if (line.hasOption('v')) {
-			System.out.print("Callimachus Project Server/");
+			System.out.print(NAME);
+			System.out.print("/");
 			System.out.println(VERSION);
 			System.exit(0);
 			return;

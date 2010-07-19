@@ -2,18 +2,13 @@ package org.callimachusproject;
 
 import static java.lang.Integer.toHexString;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
@@ -22,60 +17,25 @@ import java.net.UnknownHostException;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Queue;
 import java.util.Random;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
-import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.activation.MimeTypeParseException;
 import javax.activation.MimetypesFileTypeMap;
 
-import net.contentobjects.jnotify.JNotify;
-import net.contentobjects.jnotify.JNotifyException;
-import net.contentobjects.jnotify.JNotifyListener;
-
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import org.apache.http.message.BasicHttpRequest;
-import org.mozilla.intl.chardet.nsDetector;
-import org.mozilla.intl.chardet.nsICharsetDetectionObserver;
+import org.callimachusproject.webapps.Uploader;
 import org.openrdf.http.object.HTTPObjectServer;
 import org.openrdf.http.object.client.HTTPObjectClient;
-import org.openrdf.http.object.exceptions.GatewayTimeout;
 import org.openrdf.http.object.mxbeans.ConnectionBean;
 import org.openrdf.http.object.mxbeans.HTTPObjectAgentMXBean;
 import org.openrdf.http.object.util.FileUtil;
-import org.openrdf.http.object.util.NamedThreadFactory;
-import org.openrdf.http.object.util.SharedExecutors;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfigException;
@@ -88,44 +48,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CallimachusServer implements HTTPObjectAgentMXBean {
-	private static final Charset ASCII = Charset.forName("US-ASCII");
-	private static final Charset DEFAULT = Charset.defaultCharset();
-	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
-	private static ScheduledExecutorService executor = SharedExecutors
-			.getTimeoutThreadPool();
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
-	/** Date format pattern used to generate the header in RFC 1123 format. */
-	public static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
-	/** The time zone to use in the date header. */
-	public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
-	private static NamedThreadFactory threads = new NamedThreadFactory(
-			"Webaps Listener", true);
-	private Logger logger = LoggerFactory.getLogger(CallimachusServer.class);
-	private MimetypesFileTypeMap mimetypes;
-	private final DateFormat dateformat;
-	private int reloading;
+	Logger logger = LoggerFactory.getLogger(CallimachusServer.class);
+	private Uploader uploader;
 	private String authority;
-	private String basic;
-	private String authorization;
-	private File webappsDir;
-	private File entriesDir;
 	private ObjectRepository repository;
 	private HTTPObjectServer server;
-	private String origin;
-	private WebAppListener listener;
-	private int port;
 	private boolean conditional = true;
-	private PrintStream out;
 
-	public CallimachusServer(Repository repository, File dataDir, File webapps)
+	public CallimachusServer(Repository repository, File webapps, File dataDir)
 			throws Exception {
-		dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
-		dateformat.setTimeZone(GMT);
-		basic = "boot:" + generatePassword();
-		webappsDir = webapps.getCanonicalFile();
-		entriesDir = new File(dataDir, "entries").getCanonicalFile();
-		entriesDir.mkdirs();
+		File webappsDir = webapps.getCanonicalFile();
 		this.repository = importJars(webappsDir, repository);
 		ObjectConnection con = this.repository.getConnection();
 		try {
@@ -135,15 +69,21 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			} catch (SecurityException e) {
 				logger.warn(e.toString(), e);
 			}
-			mimetypes = createMimetypesMap();
+			MimetypesFileTypeMap mimetypes = createMimetypesMap();
+			uploader = new Uploader(mimetypes, dataDir);
+			uploader.setWebappsDir(webappsDir);
 		} finally {
 			con.close();
 		}
+		String basic = "boot:" + generatePassword();
+		byte[] decoded = basic.getBytes();
+		String cred = new String(Base64.encodeBase64(decoded), "8859_1");
+		uploader.setAuthorization("Basic " + cred);
 		server = createServer(dataDir, basic, this.repository);
 	}
 
 	public void printStatus(PrintStream out) {
-		this.out = out;
+		uploader.printStatus(out);
 	}
 
 	public String getAuthority() {
@@ -154,6 +94,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		this.authority = authority;
 		String prefix = "http://" + authority + IDENTITY_PATH;
 		server.setIdentityPrefix(new String[] { prefix });
+		uploader.setProxy(getAuthorityAddress());
 	}
 
 	public String getServerName() {
@@ -165,7 +106,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	}
 
 	public File getWebappsDir() {
-		return webappsDir;
+		return uploader.getWebappsDir();
 	}
 
 	public ObjectRepository getRepository() {
@@ -254,29 +195,25 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	public void listen(int... ports) throws Exception {
 		assert ports != null && ports.length > 0;
-		this.port = ports[0];
 		if (authority == null) {
-			setAuthority(getAuthority(port));
+			setAuthority(getAuthority(ports[0]));
 		}
-		origin = "http://" + authority + "/";
-		byte[] decoded = basic.getBytes();
-		String cred = new String(Base64.encodeBase64(decoded), "8859_1");
-		authorization = "Basic " + cred;
+		uploader.setOrigin("http://" + authority + "/");
 		server.listen(ports);
 	}
 
 	public void start() throws Exception {
-		logger.info("Callimachus is binding to {}", origin);
+		logger.info("Callimachus is binding to {}", uploader.getOrigin());
 		InetSocketAddress host = getAuthorityAddress();
 		HTTPObjectClient.getInstance().setProxy(host, server);
 		boolean empty = false;
 		if (!conditional || (empty = isEmpty(repository))) {
 			repository.setCompileRepository(false);
 		}
-		uploadWebapps(conditional && !empty);
+		uploader.uploadWebapps(conditional && !empty);
 		repository.setCompileRepository(true);
 		server.start();
-		started();
+		uploader.started();
 		System.gc();
 	}
 
@@ -289,12 +226,10 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	}
 
 	public void stop() throws Exception {
-		stopping();
+		uploader.stopping();
 		InetSocketAddress host = getAuthorityAddress();
 		HTTPObjectClient.getInstance().removeProxy(host, server);
-		if (listener != null) {
-			listener.stop();
-		}
+		uploader.stop();
 		server.stop();
 	}
 
@@ -312,221 +247,6 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			host = new InetSocketAddress(authority, 80);
 		}
 		return host;
-	}
-
-	private void uploadWebapps(boolean conditional) throws IOException,
-			JNotifyException, InterruptedException, ExecutionException {
-		print("Uploading Webapps");
-		try {
-			Thread listenerThread = null;
-			int mask = JNotify.FILE_CREATED | JNotify.FILE_DELETED
-					| JNotify.FILE_MODIFIED | JNotify.FILE_RENAMED;
-			try {
-				WebAppListener wal = new WebAppListener();
-				JNotify
-						.addWatch(webappsDir.getCanonicalPath(), mask, true,
-								wal);
-				listenerThread = threads.newThread(wal);
-				listener = wal;
-			} catch (NoClassDefFoundError e) {
-				logger.error(e.getMessage());
-			} catch (UnsatisfiedLinkError e) {
-				logger.error(e.getMessage());
-			}
-			if (!conditional) {
-				deleteMissingFiles();
-			}
-			uploadWebApps(webappsDir, "", conditional);
-			if (listener != null && listenerThread != null) {
-				listenerThread.start();
-				listener.await();
-			}
-		} finally {
-			println();
-		}
-	}
-
-	private final class CharsetDetector implements nsICharsetDetectionObserver {
-		private Charset charset;
-
-		public Charset detect(File file, boolean gzip) throws IOException {
-			InputStream in = new FileInputStream(file);
-			if (gzip) {
-				in = new GZIPInputStream(in);
-			}
-			try {
-				return detect(in);
-			} finally {
-				in.close();
-			}
-		}
-
-		public Charset detect(InputStream in) throws IOException {
-			boolean ascii = true;
-			nsDetector det = new nsDetector();
-			det.Init(this);
-			int len;
-			boolean done = false;
-			byte[] buf = new byte[1024];
-			while ((len = in.read(buf)) >= 0) {
-				// Check if the stream is only ascii.
-				if (ascii) {
-					ascii = det.isAscii(buf, len);
-				}
-				// DoIt if non-ascii and not done yet.
-				if (!ascii && !done) {
-					done = det.DoIt(buf, len, false);
-				}
-			}
-			det.Done();
-			if (charset == null && ascii) {
-				charset = ASCII;
-			} else if (charset == null) {
-				for (String name : det.getProbableCharsets()) {
-					try {
-						if ("nomatch".equals(name))
-							continue;
-						Charset cs = Charset.forName(name);
-						if (charset == null) {
-							charset = cs;
-						}
-						if (DEFAULT.contains(cs))
-							return DEFAULT;
-						if (cs.contains(DEFAULT))
-							return cs;
-					} catch (IllegalCharsetNameException e) {
-						logger.warn(e.toString(), e);
-					} catch (UnsupportedCharsetException e) {
-						logger.warn(e.toString(), e);
-					}
-				}
-			}
-			if (charset == null || DEFAULT.contains(charset))
-				return DEFAULT;
-			return charset;
-		}
-
-		public void Notify(String charset) {
-			if (charset == null) {
-				this.charset = null;
-			} else {
-				try {
-					this.charset = Charset.forName(charset);
-				} catch (IllegalCharsetNameException e) {
-					logger.warn(e.toString(), e);
-				} catch (UnsupportedCharsetException e) {
-					logger.warn(e.toString(), e);
-				}
-			}
-		}
-	}
-
-	private final class WebAppListener implements JNotifyListener, Runnable {
-		private Queue<File> queue = new LinkedList<File>();
-		private File eos, wait;
-
-		public WebAppListener() throws IOException {
-			eos = File.createTempFile("callimachus", "eos");
-			wait = File.createTempFile("callimachus", "wait");
-			eos.delete();
-			wait.delete();
-		}
-
-		public void stop() {
-			synchronized (queue) {
-				queue.add(eos);
-				queue.notifyAll();
-			}
-		}
-
-		public void fileCreated(int wd, String rootPath, String name) {
-			fileModified(wd, rootPath, name);
-		}
-
-		public void fileRenamed(int wd, String rootPath, String oldName,
-				String newName) {
-			fileDeleted(wd, rootPath, oldName);
-			fileModified(wd, rootPath, newName);
-		}
-
-		public void fileDeleted(int wd, String rootPath, String name) {
-			fileModified(wd, rootPath, name);
-		}
-
-		public void fileModified(int wd, String rootPath, String name) {
-			if (name == null || name.contains("/WEB-INF/") || name.contains("/META-INF/"))
-				return;
-			File file = new File(new File(rootPath), name).getAbsoluteFile();
-			if (!isHidden(file)) {
-				add(file);
-			}
-		}
-
-		public void await() throws InterruptedException {
-			synchronized (queue) {
-				while (!queue.isEmpty()) {
-					queue.wait();
-				}
-			}
-		}
-
-		@Override
-		public void run() {
-			File file;
-			while ((file = take()) != null) {
-				try {
-					String path = getWebPath(file);
-					if (file.exists()) {
-						reloading();
-						uploadWebApps(file, path, false);
-						reloaded();
-					} else {
-						reloading();
-						deleteFile(path, file);
-						reloaded();
-					}
-				} catch (Exception e) {
-					logger.error(e.toString());
-				}
-			}
-		}
-
-		private void add(File file) {
-			synchronized (queue) {
-				queue.remove(file);
-				if (queue.isEmpty()) {
-					queue.add(wait);
-				}
-				queue.add(file);
-				queue.notifyAll();
-			}
-		}
-
-		private File take() {
-			File file;
-			synchronized (queue) {
-				while (queue.isEmpty()) {
-					try {
-						queue.wait();
-					} catch (InterruptedException e) {
-						return null;
-					}
-				}
-				file = queue.remove();
-				queue.notifyAll();
-			}
-			if (file.equals(wait)) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					return null;
-				}
-				return take();
-			}
-			if (file.equals(eos))
-				return null;
-			return file;
-		}
 	}
 
 	private boolean isEmpty(ObjectRepository repository)
@@ -560,6 +280,26 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	private String generatePassword() {
 		return Long.toHexString(new Random(System.nanoTime()).nextLong());
+	}
+
+	private MimetypesFileTypeMap createMimetypesMap() {
+		MimetypesFileTypeMap mimetypes = new MimetypesFileTypeMap();
+		for (RDFFormat format : RDFFormat.values()) {
+			boolean extensionPresent = false;
+			StringBuilder sb = new StringBuilder();
+			sb.append(format.getDefaultMIMEType());
+			for (String ext : format.getFileExtensions()) {
+				if ("application/octet-stream".equals(mimetypes
+						.getContentType("file." + ext))) {
+					extensionPresent = true;
+					sb.append(" ").append(ext);
+				}
+			}
+			if (extensionPresent) {
+				mimetypes.addMimeTypes(sb.toString());
+			}
+		}
+		return mimetypes;
 	}
 
 	private HTTPObjectServer createServer(File dir, String basic,
@@ -617,7 +357,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	private List<URL> findJars(File dir, boolean web, boolean inlib, boolean ont,
 			File lib, File ontologies, ArrayList<URL> jars) throws IOException {
-		if (isHidden(dir))
+		if (Uploader.isHidden(dir))
 			return jars;
 		String name = dir.getName();
 		if (dir.isDirectory()) {
@@ -648,7 +388,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 				Enumeration<? extends ZipEntry> entries = zip.entries();
 				while (entries.hasMoreElements()) {
 					ZipEntry entry = entries.nextElement();
-					if (isHidden(entry.getName()))
+					if (Uploader.isHidden(entry.getName()))
 						continue;
 					String path = entry.getName().replace('\\', '/');
 					if (path.endsWith("/"))
@@ -788,445 +528,6 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 				}
 			}
 		}
-	}
-
-	private void started() throws GatewayTimeout, IOException,
-			InterruptedException {
-		InetSocketAddress server = new InetSocketAddress(InetAddress
-				.getLocalHost(), port);
-		HttpRequest req = new BasicHttpRequest("POST", NS + "boot?started");
-		req.setHeader("Authorization", authorization);
-		HttpResponse resp = HTTPObjectClient.getInstance().service(server, req);
-		StatusLine status = resp.getStatusLine();
-		if (status.getStatusCode() != 204) {
-			logger.error(status.getReasonPhrase() + " once started");
-		}
-	}
-
-	private synchronized void reloading() throws GatewayTimeout, IOException,
-			InterruptedException {
-		reloading++;
-	}
-
-	private synchronized void reloaded() throws GatewayTimeout, IOException,
-			InterruptedException {
-		final int loaded = reloading;
-		executor.schedule(new Runnable() {
-			public void run() {
-				try {
-					if (reloading == loaded) {
-						InetSocketAddress server = new InetSocketAddress(
-								InetAddress.getLocalHost(), port);
-						HttpRequest req = new BasicHttpRequest("POST", NS
-								+ "boot?reloaded");
-						req.setHeader("Authorization", authorization);
-						HttpResponse resp = HTTPObjectClient.getInstance()
-								.service(server, req);
-						StatusLine status = resp.getStatusLine();
-						System.gc();
-						println();
-						if (status.getStatusCode() != 204) {
-							logger.error(status.getReasonPhrase()
-									+ " once reloaded");
-						}
-					}
-				} catch (Exception e) {
-					logger.error(e.toString());
-				}
-			}
-		}, 2, TimeUnit.SECONDS);
-	}
-
-	private void stopping() throws GatewayTimeout, IOException,
-			InterruptedException {
-		try {
-			InetSocketAddress server = new InetSocketAddress(InetAddress
-					.getLocalHost(), port);
-			HttpRequest req = new BasicHttpRequest("POST", NS + "boot?stopping");
-			req.setHeader("Authorization", authorization);
-			HttpResponse resp = HTTPObjectClient.getInstance().service(server,
-					req);
-			StatusLine status = resp.getStatusLine();
-			if (status.getStatusCode() != 204) {
-				logger.error(status.getReasonPhrase() + " while stopping");
-			}
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-		}
-	}
-
-	private void deleteMissingFiles() throws IOException, InterruptedException,
-			ExecutionException {
-		for (String entry : getEntries(webappsDir)) {
-			File file = new File(entry);
-			if (!file.exists()) {
-				deleteFile(getWebPath(file), file);
-			}
-		}
-		clearEntries(webappsDir);
-	}
-
-	private void uploadWebApps(File file, String path, boolean conditional)
-			throws InterruptedException, ExecutionException, IOException {
-		String name = file.getName();
-		if (isHidden(file) || "WEB-INF".equals(name) || "META-INF".equals(name))
-			return;
-		boolean gzip = name.endsWith(".gz");
-		if (file.isDirectory()) {
-			for (File f : file.listFiles()) {
-				uploadWebApps(f, getPath(path, f.getName()), conditional);
-			}
-		} else if (file.getName().endsWith(".war")
-				|| file.getName().endsWith(".WAR")) {
-			if (path.endsWith(".war") || path.endsWith(".WAR")) {
-				path = path.substring(0, path.length() - 4);
-			}
-			uploadWarFile(file, path, conditional);
-		} else {
-			HttpResponse resp = upload(file, path, gzip, conditional);
-			addEntries(webappsDir, Collections.singleton(file.getAbsolutePath()));
-			report(resp, path, file.getName());
-		}
-	}
-
-	private HttpResponse upload(File file, String path, boolean gzip,
-			boolean conditional) throws IOException, InterruptedException,
-			ExecutionException {
-		long size = file.length();
-		String type = getContentType(file.getName(), gzip);
-		if (type.startsWith("text/") && !type.contains("charset")) {
-			type += ";charset=" + detectCharset(file, gzip).name();
-		}
-		long modified = file.lastModified();
-		String since = dateformat.format(new Date(modified));
-		BasicHttpEntityEnclosingRequest req;
-		req = new BasicHttpEntityEnclosingRequest("PUT", origin + path);
-		req.setHeader("Authorization", authorization);
-		if (conditional) {
-			req.setHeader("If-Unmodified-Since", since);
-		}
-		req.setHeader("Content-Type", type);
-		req.setHeader("Content-Length", Long.toString(size));
-		if (gzip) {
-			req.setHeader("Content-Encoding", "gzip");
-			logger.debug("{}\tcompressed {}", path, type);
-		} else {
-			logger.debug("{}\t{}", path, type);
-		}
-		req.setEntity(new FileEntity(file, type));
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpResponse resp = client.service(req);
-		if (size != file.length() || modified != file.lastModified()) {
-			HttpEntity entity = resp.getEntity();
-			if (entity != null) {
-				entity.consumeContent();
-			}
-			return upload(file, path, gzip, false);
-		}
-		return resp;
-	}
-
-	private void uploadWarFile(File file, String path, boolean conditional)
-			throws ZipException, IOException, InterruptedException,
-			ExecutionException {
-		ZipFile zip = new ZipFile(file);
-		try {
-			Set<String> names = new HashSet<String>();
-			Enumeration<? extends ZipEntry> entries = zip.entries();
-			while (entries.hasMoreElements()) {
-				String entry = entries.nextElement().getName();
-				if (!isWebResource(entry))
-					continue;
-				names.add(entry);
-			}
-			for (String entry : getEntries(file)) {
-				if (!names.contains(entry)) {
-					deleteWarEntry(file, path, entry);
-				}
-			}
-			setEntries(file, names);
-			for (String entry : names) {
-				String p = entry.replace('\\', '/');
-				if (p.length() < 0 || p.endsWith("/"))
-					continue;
-				String ep = path;
-				String name = entry;
-				int idx = p.lastIndexOf('/');
-				if (idx >= 0) {
-					ep = ep + "/" + p.substring(0, idx);
-					name = p.substring(idx + 1);
-				}
-				ZipEntry ze = zip.getEntry(entry);
-				if (ze == null)
-					continue;
-				String dest = getPath(ep, name);
-				HttpResponse resp = uploadEntry(zip, ze, dest, conditional);
-				report(resp, path, file.getName() + "!" + entry);
-			}
-		} finally {
-			zip.close();
-		}
-	}
-
-	private HttpResponse uploadEntry(ZipFile zip, ZipEntry entry, String path,
-			boolean conditional) throws IOException {
-		long size = entry.getSize();
-		String type = getContentType(entry.getName(), false);
-		if (type.startsWith("text/") && !type.contains("charset")) {
-			InputStream in = zip.getInputStream(entry);
-			try {
-				type += ";charset=" + new CharsetDetector().detect(in).name();
-			} finally {
-				in.close();
-			}
-		}
-		long modified = entry.getTime();
-		String since = dateformat.format(new Date(modified));
-		BasicHttpEntityEnclosingRequest req;
-		req = new BasicHttpEntityEnclosingRequest("PUT", origin + path);
-		req.setHeader("Authorization", authorization);
-		if (conditional) {
-			req.setHeader("If-Unmodified-Since", since);
-		}
-		req.setHeader("Content-Type", type);
-		req.setHeader("Content-Length", Long.toString(size));
-		logger.debug("{}\t{}", path, type);
-		InputStream in = zip.getInputStream(entry);
-		req.setEntity(new InputStreamEntity(in, entry.getSize()));
-		try {
-			return HTTPObjectClient.getInstance().service(req);
-		} finally {
-			in.close();
-		}
-	}
-
-	private void report(HttpResponse resp, String path, String filename)
-			throws IOException {
-		int status = resp.getStatusLine().getStatusCode();
-		HttpEntity entity = resp.getEntity();
-		if (status == 412) {
-			print(".");
-			if (entity != null) {
-				entity.consumeContent();
-			}
-		} else if (status == 204) {
-			print("^");
-			if (entity != null) {
-				entity.consumeContent();
-			}
-		} else {
-			print("!");
-			logger.error(resp.getStatusLine().getReasonPhrase() + " for "
-					+ filename);
-			if (entity != null) {
-				try {
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					entity.writeTo(out);
-					logger.debug(out.toString());
-				} finally {
-					entity.consumeContent();
-				}
-			}
-		}
-	}
-
-	private String getWebPath(File file) throws IOException {
-		String rootPath = webappsDir.getCanonicalPath()
-				+ File.separator;
-		String path = file.getAbsolutePath();
-		if (path.startsWith(rootPath)) {
-			path = path.substring(rootPath.length());
-		}
-		if (path.endsWith("/")) {
-			path = path.substring(0, path.length() - 1);
-		}
-		int idx = path.lastIndexOf('/');
-		if (idx < 0)
-			return getPath("", path);
-		String directory = path.substring(0, idx);
-		String name = path.substring(idx + 1);
-		return getPath(directory, name);
-	}
-
-	private String getPath(String directory, String name) {
-		boolean gzip = name.endsWith(".gz");
-		name = gzip ? name.substring(0, name.length() - 3) : name;
-		if (name.startsWith("index.") && directory.length() == 0)
-			return "";
-		if (name.startsWith("index."))
-			return directory + "/";
-		if (directory.length() == 0)
-			return name.replace(' ', '+');
-		return directory + "/" + name.replace(' ', '+');
-	}
-
-	private MimetypesFileTypeMap createMimetypesMap() {
-		MimetypesFileTypeMap mimetypes = new MimetypesFileTypeMap();
-		for (RDFFormat format : RDFFormat.values()) {
-			boolean extensionPresent = false;
-			StringBuilder sb = new StringBuilder();
-			sb.append(format.getDefaultMIMEType());
-			for (String ext : format.getFileExtensions()) {
-				if ("application/octet-stream".equals(mimetypes
-						.getContentType("file." + ext))) {
-					extensionPresent = true;
-					sb.append(" ").append(ext);
-				}
-			}
-			if (extensionPresent) {
-				mimetypes.addMimeTypes(sb.toString());
-			}
-		}
-		return mimetypes;
-	}
-
-	private String getContentType(String filename, boolean gzip) {
-		if (gzip) {
-			filename = filename.replaceAll(".gz$", "");
-		}
-		return mimetypes.getContentType(filename);
-	}
-
-	private Charset detectCharset(File file, boolean gzip) throws IOException {
-		return new CharsetDetector().detect(file, gzip);
-	}
-
-	private void deleteFile(String path, File file) throws IOException,
-			InterruptedException, ExecutionException {
-		deleteFile(path, file.getName());
-		if (path.endsWith(".war") || path.endsWith(".WAR")) {
-			String wp = path.substring(0, path.length() - 4);
-			for (String entry : getEntries(file)) {
-				deleteWarEntry(file, wp, entry);
-			}
-			clearEntries(file);
-		}
-	}
-
-	private synchronized Collection<String> getEntries(File file) throws IOException {
-		File entriesFile = getEntriesFile(file);
-		Set<String> set = new HashSet<String>();
-		if (entriesFile.exists()) {
-			String line;
-			BufferedReader reader;
-			reader = new BufferedReader(new FileReader(entriesFile));
-			try {
-				while ((line = reader.readLine()) != null) {
-					set.add(line);
-				}
-			} finally {
-				reader.close();
-			}
-		}
-		return set;
-	}
-
-	private synchronized void addEntries(File file, Collection<String> names)
-			throws IOException {
-		Collection<String> entries = getEntries(file);
-		entries.addAll(names);
-		setEntries(file, names);
-	}
-
-	private synchronized void setEntries(File file, Collection<String> names)
-			throws IOException {
-		PrintWriter writer;
-		File entriesFile = getEntriesFile(file);
-		writer = new PrintWriter(new FileWriter(entriesFile));
-		try {
-			for (String line : names) {
-				writer.println(line);
-			}
-		} finally {
-			writer.close();
-		}
-	}
-
-	private synchronized void clearEntries(File file) throws IOException {
-		getEntriesFile(file).delete();
-	}
-
-	private File getEntriesFile(File file) {
-		int code = file.getAbsolutePath().hashCode();
-		String name = file.getName() + toHexString(code) + ".list";
-		File entriesFile = new File(entriesDir, name);
-		return entriesFile;
-	}
-
-	private void deleteWarEntry(File file, String path, String entry)
-			throws IOException, InterruptedException, ExecutionException {
-		String p = entry.replace('\\', '/');
-		if (p.length() > 0 && !p.endsWith("/")) {
-			String ep = path;
-			String name = entry;
-			int idx = p.lastIndexOf('/');
-			if (idx >= 0) {
-				ep = ep + "/" + p.substring(0, idx);
-				name = p.substring(idx + 1);
-			}
-			deleteFile(getPath(ep, name), file.getName() + "!" + entry);
-		}
-	}
-
-	private void deleteFile(String path, String filename) throws IOException,
-			InterruptedException, ExecutionException {
-		BasicHttpRequest req = new BasicHttpRequest("DELETE", origin + path);
-		req.setHeader("Authorization", authorization);
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpResponse resp = client.service(req);
-		int status = resp.getStatusLine().getStatusCode();
-		HttpEntity entity = resp.getEntity();
-		if (status == 204) {
-			print("~");
-			if (entity != null) {
-				entity.consumeContent();
-			}
-		} else if (status != 405) {
-			print("!");
-			logger.error(resp.getStatusLine().getReasonPhrase() + " for "
-					+ filename);
-			if (entity != null) {
-				try {
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					entity.writeTo(out);
-					logger.debug(out.toString());
-				} finally {
-					entity.consumeContent();
-				}
-			}
-		}
-	}
-
-	private void print(String string) {
-		if (out != null) {
-			out.print(string);
-		}
-	}
-
-	private void println() {
-		if (out != null) {
-			out.println();
-		}
-	}
-
-	private boolean isHidden(File file) {
-		return file.isHidden() || file.getName().endsWith("~")
-				|| file.getName().startsWith(".")
-				|| file.getAbsolutePath().contains(File.separator + ".");
-	}
-
-	private boolean isWebResource(String path) {
-		if (path == null)
-			return false;
-		if (path.contains("/WEB-INF/") || path.startsWith("WEB-INF/")
-				|| path.contains("/META-INF/") || path.startsWith("META-INF/"))
-			return false;
-		return !isHidden(path);
-	}
-
-	private boolean isHidden(String path) {
-		return path.endsWith("~") || path.startsWith(".")
-				|| path.contains("/.") || path.contains("\\.");
 	}
 
 }

@@ -163,7 +163,7 @@ calli:put-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
 calli:delete-file rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom [owl:unionOf (<urn:mimetype:image/png> <urn:mimetype:image/jpeg>
-		<urn:mimetype:image/gif> <urn:mimetype:image/vnd.microsoft.icon> <application/pdf>)]];
+		<urn:mimetype:image/gif> <urn:mimetype:image/vnd.microsoft.icon> <urn:mimetype:application/pdf>)]];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
@@ -172,7 +172,7 @@ calli:delete-file rdfs:subClassOf obj:Message;
 		delete()
 		objectConnection.removeDesignations(msg.target,
 			"urn:mimetype:image/png", "urn:mimetype:image/jpeg", "urn:mimetype:image/gif",
-			"urn:mimetype:image/vnd.microsoft.icon", "application/pdf");
+			"urn:mimetype:image/vnd.microsoft.icon", "urn:mimetype:application/pdf");
 	""".
 
 ################################

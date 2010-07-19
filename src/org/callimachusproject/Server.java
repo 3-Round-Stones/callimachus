@@ -446,7 +446,7 @@ public class Server implements HTTPObjectAgentMXBean {
 			String from = line.getOptionValue("from");
 			HTTPObjectClient.getInstance().setFrom(from == null ? "" : from);
 		}
-		server = new CallimachusServer(repository, dir, webappsDir);
+		server = new CallimachusServer(repository, webappsDir, dir);
 		if (line.hasOption('p')) {
 			port = Integer.parseInt(line.getOptionValue('p'));
 		}

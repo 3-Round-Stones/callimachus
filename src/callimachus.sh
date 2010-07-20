@@ -119,10 +119,8 @@ then
 fi
 
 # use 'java_home' to search for other possible java candidate
-if [ -z "$JAVA_HOME" ] ; then
-  if which java_home > /dev/null ; then
-    JAVA_HOME=`java_home`
-  fi
+if [ -z "$JAVA_HOME" -a -x /usr/libexec/java_home ] ; then
+  JAVA_HOME=`/usr/libexec/java_home`
   # verify java instance
   if [ ! -z "$JAVA_HOME" ] ; then
     JAVA="$JAVA_HOME/bin/java"

@@ -42,9 +42,15 @@ Once you have the source code checked out, you can execute 'ant run' from a
 command line in the top directory to run the server.
 
 NB:  If using a 64bit Linux host, you must create your own libjnotify.so file 
-for the server to read runtime changes in the webapps directory. Instructions 
-for creating your own libjnotify.so file can be found at
+for the server to read runtime changes in the webapps directory.
+- a) Download: http://jnotify.cvs.sourceforge.net/viewvc/jnotify/jnotify_linux/
+- b) Edit the paths in jnotify_linux/Release/subdir.mk
+- c) cd jnotify_linux/ && ant && cp bin/output/libjnotify.so ~/$CALLIMACHUS/bin/
+More detailed instructions for creating your own libjnotify.so file can be found at
 http://jnotify.sourceforge.net/
+
+Callimachus may log some FilePermission exceptions. This is due to an issue in 
+the embedded compiler and often has no impact on the run time behaviour.
 
 Files with the extension .ttl, .ttl.gz, .rdf, or .rdf.gz will be loaded as 
 graphs into the RDF store. Any RDF Schema or OWL ontologies will be compiled 

@@ -225,6 +225,14 @@ if [ -z "$AUTHORITY" ] ; then
   fi
 fi
 
+if [ -z "$OPTS" ] ; then
+  if [ "$RESTRICT_IO" = "false" ]; then
+    OPTS="-d \"$BASEDIR\" -p $PORT -a $AUTHORITY --trust"
+  else
+    OPTS="-d \"$BASEDIR\" -p $PORT -a $AUTHORITY"
+  fi
+fi
+
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
@@ -234,10 +242,10 @@ if $cygwin; then
 fi
 
 if [ ! -z "$DAEMON_USER" ] ; then
-  if [ ! -e "$BASDIR/repositories" ] ; then
-    mkdir "$BASDIR/repositories"
-    chown "$DAEMON_USER" "$BASDIR/repositories"
-    chmod u+s "$BASDIR/repositories"
+  if [ ! -e "$BASEDIR/repositories" ] ; then
+    mkdir "$BASEDIR/repositories"
+    chown "$DAEMON_USER" "$BASEDIR/repositories"
+    chmod u+s "$BASEDIR/repositories"
   fi
   if [ ! -e "$BASEDIR/log" ] ; then
     mkdir "$BASEDIR/log"
@@ -286,7 +294,7 @@ if [ "$1" = "start" ] ; then ################################
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
     -classpath "$CLASSPATH" \
-    $JSVC_OPTS $MAINCLASS -d "$BASEDIR" -p "$PORT" -a "$AUTHORITY" -q $OPTS "$@"
+    $JSVC_OPTS $MAINCLASS -q $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 1
@@ -388,7 +396,7 @@ else ################################
       -Djava.io.tmpdir="$TMPDIR" \
       -Djava.util.logging.config.file="$LOGGING" \
       -classpath "$CLASSPATH" \
-      $JSVC_OPTS $MAINCLASS -d "$BASEDIR" -p "$PORT" -a "$AUTHORITY" -q $OPTS "$@"
+      $JSVC_OPTS $MAINCLASS -q $OPTS "$@"
 
     RETURN_VAL=$?
     sleep 1
@@ -404,7 +412,7 @@ else ################################
       -Djava.io.tmpdir="$TMPDIR" \
       -Djava.util.logging.config.file="$LOGGING" \
       -classpath "$CLASSPATH" \
-      $JAVA_OPTS $MAINCLASS -d "$BASEDIR" -p "$PORT" -a "$AUTHORITY" --pid "$PID" $OPTS "$@"
+      $JAVA_OPTS $MAINCLASS --pid "$PID" $OPTS "$@"
   fi
 fi
 

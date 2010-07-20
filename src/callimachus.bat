@@ -143,6 +143,12 @@ if "%PORT%" == "80" goto gotAuthority
 set "AUTHORITY=%AUTHORITY%:%PORT%"
 :gotAuthority
 
+if not "%OPT%" == "" goto gotOpt
+set "OPT=-d "%BASEDIR%" -p %PORT% -a %AUTHORITY%"
+if not "%RESTRICT_IO%" == "false" goto gotOpt
+set "OPT=%OPT% --trust"
+:gotOpt
+
 rem ----- Execute The Requested Command ---------------------------------------
 
 set MAINCLASS=org.callimachusproject.Server
@@ -168,7 +174,7 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% -d "%BASEDIR%" -p "%PORT%" -a "%AUTHORITY%" --pid "%PID%" %OPT% %CMD_LINE_ARGS%
+"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% --pid "%PID%" %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStart
@@ -191,7 +197,7 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-start "%NAME%" "%JAVAW%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% -d "%BASEDIR%" -p "%PORT%" -a "%AUTHORITY%" --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
+start "%NAME%" "%JAVAW%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStop

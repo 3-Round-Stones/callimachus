@@ -45,6 +45,10 @@ for the server to read runtime changes in the webapps directory.
 More detailed instructions for creating your own libjnotify.so file can be found at
 http://jnotify.sourceforge.net/
 
+In some environments, Callimachus may log FilePermission exceptions. This is 
+often due to an issue in the embedded compiler and often has no impact on the 
+run time behaviour of Callimachus.
+
 ----------------
 | Installation |
 ----------------
@@ -61,9 +65,6 @@ If you want to check out the source code, see the directions at:
   http://code.google.com/p/callimachus/source/checkout
 Once you have the source code checked out, you can execute 'ant run' from a 
 command line in the top directory to run the server.
-
-Callimachus may log some FilePermission exceptions. This is often due to an 
-issue in the embedded compiler and often has no impact on the run time behaviour.
 
 Files with the extension .ttl, .ttl.gz, .rdf, or .rdf.gz will be loaded as 
 graphs into the RDF store. Any RDF Schema or OWL ontologies will be compiled 

@@ -2,6 +2,7 @@ package org.callimachusproject.behaviours;
 
 import java.io.CharArrayWriter;
 import java.io.Reader;
+import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
@@ -10,6 +11,8 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.concepts.Template;
 import org.callimachusproject.traits.Realm;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 
 public abstract class RealmSupport implements Realm, RDFObject {
@@ -67,6 +70,22 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	}
 
 	@Override
+	public Object authenticateRequest(String method, Object resource,
+			Map<String, String[]> request) throws RepositoryException {
+		String[] vias = request.get("via");
+		if (vias == null || vias.length < 1)
+			return null;
+		String via = vias[vias.length - 1];
+		assert via != null;
+		ObjectFactory of = getObjectConnection().getObjectFactory();
+		int idx = via.lastIndexOf(' ');
+		if (idx > 0 && idx < via.length() - 1)
+			return of.createObject("dns:" + via.substring(idx + 1));
+		return null;
+	
+	}
+
+	@Override
 	public HttpResponse unauthorized(Object target) throws Exception {
 		Template unauthorized = getCalliUnauthorized();
 		if (unauthorized == null)
@@ -103,10 +122,11 @@ public abstract class RealmSupport implements Realm, RDFObject {
 			while ((read = reader.read(cbuf)) >= 0) {
 				writer.write(cbuf, 0, read);
 			}
+			StringEntity entity = new StringEntity(writer.toString(), "UTF-8");
+			entity.setContentType("text/html;charset=\"UTF-8\"");
 			HttpResponse resp = new BasicHttpResponse(_403);
 			resp.setHeader("Cache-Control", "no-store");
-			resp.setHeader("Content-Type", "text/html;charset=\"UTF-8\"");
-			resp.setEntity(new StringEntity(writer.toString(), "UTF-8"));
+			resp.setEntity(entity);
 			return resp;
 		} finally {
 			reader.close();

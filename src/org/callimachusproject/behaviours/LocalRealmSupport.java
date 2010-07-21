@@ -8,17 +8,13 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 
 public abstract class LocalRealmSupport extends RealmSupport implements RDFObject {
-	private static String PROTOCOL = "1.1";
 	private static String localhost;
-	private static String[] VIA;
+	private static String[] local;
 	static {
 		try {
 			localhost = InetAddress.getLocalHost().getCanonicalHostName();
@@ -27,12 +23,12 @@ public abstract class LocalRealmSupport extends RealmSupport implements RDFObjec
 		}
 		Set<InetAddress> addresses = getAllLocalAddresses();
 		if (addresses.isEmpty()) {
-			VIA = new String[] { PROTOCOL + " " + localhost };
+			local = new String[] { "dns:" + localhost };
 		} else {
-			VIA = new String[addresses.size()];
+			local = new String[addresses.size()];
 			Iterator<InetAddress> iter = addresses.iterator();
-			for (int i = 0; i < VIA.length; i++) {
-				VIA[i] = PROTOCOL + " " + iter.next().getCanonicalHostName();
+			for (int i = 0; i < local.length; i++) {
+				local[i] = "dns:" + iter.next().getCanonicalHostName();
 			}
 		}
 	}
@@ -73,27 +69,14 @@ public abstract class LocalRealmSupport extends RealmSupport implements RDFObjec
 	}
 
 	@Override
-	public Object authenticateRequest(String method, Object resource,
-			Map<String, String[]> request) throws RepositoryException {
-		String[] via = request.get("via");
-		if (via == null || via.length < 1)
-			return null;
-		for (String local : VIA) {
-			if (via[via.length - 1].endsWith(local))
-				return getLocalhost(local);
-		}
-		return null;
-	}
-
-	@Override
 	public boolean authorizeCredential(Object credential, String method,
 			Object resource, String qs) {
-		return true;
-	}
-
-	private RDFObject getLocalhost(String via) {
-		ObjectFactory of = getObjectConnection().getObjectFactory();
-		return of.createObject("dns:" + via.substring(via.indexOf(' ') + 1));
+		String via = credential.toString();
+		for (String uri : local) {
+			if (via.equals(uri))
+				return true;
+		}
+		return false;
 	}
 
 }

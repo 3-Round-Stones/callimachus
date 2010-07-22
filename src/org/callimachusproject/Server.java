@@ -29,6 +29,7 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import net.contentobjects.jnotify.JNotify;
+import net.contentobjects.jnotify.JNotifyException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -386,6 +387,36 @@ public class Server implements HTTPObjectAgentMXBean {
 		server.poke();
 	}
 
+	public void init(String[] args) {
+		try {
+			CommandLine line = new GnuParser().parse(options, args);
+			if (line.hasOption('h') || line.getArgs().length > 0) {
+				HelpFormatter formatter = new HelpFormatter();
+				formatter.printHelp("[options]", options);
+				System.exit(0);
+				return;
+			} else if (line.hasOption('v')) {
+				System.out.println(NAME);
+				System.exit(0);
+				return;
+			} else if (line.hasOption('q')) {
+				try {
+					logStdout();
+				} catch (SecurityException e) {
+					// ignore
+				}
+			}
+			init(line);
+		} catch (Exception e) {
+			if (e.getMessage() != null) {
+				System.err.println(e.getMessage());
+			} else {
+				e.printStackTrace(System.err);
+			}
+			System.exit(2);
+		}
+	}
+
 	public void start() throws Exception {
 		server.start();
 	}
@@ -413,26 +444,10 @@ public class Server implements HTTPObjectAgentMXBean {
 		}
 	}
 
-	public void init(String[] args) throws Exception {
-		CommandLine line = new GnuParser().parse(options, args);
-		if (line.hasOption('h') || line.getArgs().length > 0) {
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("[options]", options);
-			System.exit(0);
-			return;
-		} else if (line.hasOption('v')) {
-			System.out.print(NAME);
-			System.out.print("/");
-			System.out.println(VERSION);
-			System.exit(0);
-			return;
-		} else if (line.hasOption('q')) {
-			try {
-				logStdout();
-			} catch (SecurityException e) {
-				// ignore
-			}
-		}
+	private void init(CommandLine line) throws IOException,
+			RepositoryException, RepositoryConfigException,
+			MalformedURLException, RDFParseException, RDFHandlerException,
+			GraphUtilException, Exception, JNotifyException {
 		File dir = new File("").getCanonicalFile();
 		File webappsDir = new File(dir, "webapps");
 		if (line.hasOption('d')) {

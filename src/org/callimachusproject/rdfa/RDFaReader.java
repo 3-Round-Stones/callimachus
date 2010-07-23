@@ -21,13 +21,11 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventFactory;
@@ -61,12 +59,6 @@ public class RDFaReader extends RDFEventReader {
 	private static final String RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 	private static final String XHV = "http://www.w3.org/1999/xhtml/vocab#";
 	private static final String XHTML = "http://www.w3.org/1999/xhtml";
-	private final static Set<String> reserved = new HashSet<String>(Arrays
-			.asList("alternate", "appendix", "bookmark", "cite", "chapter",
-					"contents", "copyright", "first", "glossary", "help",
-					"icon", "index", "last", "license", "meta", "next",
-					"p3pv1", "prev", "collection", "role", "section",
-					"stylesheet", "subsection", "start", "top", "up"));
 	private final XMLEventReader reader;
 	private final String systemId;
 	private Base base;
@@ -597,8 +589,6 @@ public class RDFaReader extends RDFEventReader {
 			if (value.startsWith("_:") && getNamespaceURI("_") == null)
 				return new BlankNode(value.substring(2));
 			int idx = value.indexOf(":");
-			if (idx < 0 && reserved.contains(value))
-				return tf.iri(XHV + value);
 			if (idx < 0)
 				return null;
 			String prefix = value.substring(0, idx);

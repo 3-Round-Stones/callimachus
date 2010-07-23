@@ -43,7 +43,10 @@ import org.callimachusproject.rdfa.model.Term;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 
 public class RDFXMLEventReader extends XMLEventReaderBase {
-	private static final Pattern ALNUM = Pattern.compile("\\p{Alnum}*$");
+	private static final Pattern LOCAL_PART = Pattern
+			.compile("[a-zA-Z0-9_"
+					+ "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD"
+					+ "\\u00B7\\u0300-\\u036F\\u203F-\\u2040]+$");
 	private static final String RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 	private static final String XML = "http://www.w3.org/XML/1998/namespace";
 	private static final QName ROOT = new QName(RDF, "RDF", "rdf");
@@ -229,7 +232,7 @@ public class RDFXMLEventReader extends XMLEventReaderBase {
 	}
 
 	private int getLocalNameIndex(String uri) throws XMLStreamException {
-		Matcher matcher = ALNUM.matcher(uri);
+		Matcher matcher = LOCAL_PART.matcher(uri);
 		if (matcher.find())
 			return matcher.start();
 		throw new XMLStreamException("No separator character found in IRI: "

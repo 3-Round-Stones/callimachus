@@ -43,8 +43,8 @@ import org.callimachusproject.rdfa.model.VarOrTerm;
 public class GraphPatternReader extends PipedRDFEventReader {
 	private static final Pattern VAR_REGEX = Pattern
 			.compile("[a-zA-Z0-9_"
-					+ "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD\\u10000-\\uEFFFF"
-					+ "\\u00B7\\u0300-\\u036F\\u203F-\\u2040]*");
+					+ "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD"
+					+ "\\u00B7\\u0300-\\u036F\\u203F-\\u2040]+");
 	private static final Pattern WHITE_SPACE = Pattern.compile("\\s*");
 	private static final String v = "http://callimachusproject.org/rdf/2009/framework/variables/?";
 	private Deque<Integer> endOptional = new LinkedList<Integer>();

@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
@@ -53,6 +52,7 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.xslt.TransformBuilder;
+import org.openrdf.repository.object.xslt.XMLEventReaderFactory;
 import org.openrdf.repository.object.xslt.XSLTransformer;
 
 public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
@@ -62,7 +62,7 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 	private static final Pattern HREF_XSLT = Pattern
 			.compile("<?xml-stylesheet\\b[^>]*\\bhref=[\"']([^\"']*)[\"']");
 	private static final Pattern START_ELEMENT = Pattern.compile("<[^\\?]");
-	private static XMLInputFactory factory = XMLInputFactory.newInstance();
+	private static XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
 
 	@operation("xslt")
 	public XMLEventReader xslt(@parameter("mode") String mode,

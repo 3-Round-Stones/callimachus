@@ -31,6 +31,7 @@ calli:get-review rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.Reader>];
 	http:operation "review";
 	http:type "text/html";
+	http:cache-control "no-cache";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:groovy """
 		def template = findReviewTemplate()
@@ -46,6 +47,7 @@ calli:pre-review rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.Reader>];
 	http:operation "pre-review";
 	http:type "text/html";
+	http:cache-control "no-cache";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:groovy """
 		def template = findReviewTemplate()

@@ -20,7 +20,7 @@ function initForms() {
 				var added = readRDF(form)
 				var type = "application/rdf+xml"
 				var data = added.dump({format:"application/rdf+xml",serialize:true})
-				postData(location.href, type, data, function(data, textStatus, xhr) {
+				deleteData(location.href, type, data, function(data, textStatus, xhr) {
 					form.trigger('deleteSuccess.calli');
 					form.remove();
 				})
@@ -57,9 +57,9 @@ function readRDF(form) {
 	return store
 }
 
-function postData(url, type, data, callback) {
+function deleteData(url, type, data, callback) {
 	var xhr = null
-	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, beforeSend: function(xhr){
+	xhr = $.ajax({ type: "DELETE", url: url, contentType: type, data: data, beforeSend: function(xhr){
 		var etag = getEntityTag()
 		if (etag) {
 			xhr.setRequestHeader("If-Match", etag)

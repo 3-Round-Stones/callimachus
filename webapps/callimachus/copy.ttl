@@ -31,6 +31,7 @@ calli:get-copy rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.Reader>];
 	http:operation "copy";
 	http:type "text/html";
+	http:cache-control "no-cache";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:groovy """
 		def template = findCopyTemplate()
@@ -46,6 +47,7 @@ calli:pre-copy rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.Reader>];
 	http:operation "pre-copy";
 	http:type "text/html";
+	http:cache-control "no-cache";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:groovy """
 		def template = findCopyTemplate()

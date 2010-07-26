@@ -34,7 +34,7 @@ function initForms() {
 						+ "\r\n--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
 						+ added.dump({format:"application/rdf+xml",serialize:true})
 						+ "\r\n--" + boundary + "--"
-				postData(location.href, type, data, function(data, textStatus, xhr) {
+				patchData(location.href, type, data, function(data, textStatus, xhr) {
 					var uri = location.href
 					if (uri.indexOf('?') > 0) {
 						uri = uri.substring(0, uri.indexOf('?'))
@@ -107,9 +107,9 @@ function addTriple(triple, store) {
 	return store.size() > size
 }
 
-function postData(url, type, data, callback) {
+function patchData(url, type, data, callback) {
 	var xhr = null
-	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, beforeSend: function(xhr){
+	xhr = $.ajax({ type: "PATCH", url: url, contentType: type, data: data, beforeSend: function(xhr){
 		var etag = getEntityTag()
 		if (etag) {
 			xhr.setRequestHeader("If-Match", etag)

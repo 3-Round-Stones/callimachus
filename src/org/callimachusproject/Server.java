@@ -170,6 +170,10 @@ public class Server implements HTTPObjectAgentMXBean {
 					System.exit(1);
 				}
 			}
+		} catch (ClassNotFoundException e) {
+			System.err.print("Missing jar with: ");
+			System.err.println(e.getMessage());
+			System.exit(1);
 		} catch (Exception e) {
 			if (e.getMessage() != null) {
 				System.err.println(e.getMessage());

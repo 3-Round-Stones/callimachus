@@ -40,7 +40,9 @@ function divertedLinkClicked(e) {
 		target = target.parentNode
 	}
 	if (target && target.href && target.ownerDocument) {
-    	e.preventDefault()
+		if (e.preventDefault) {
+    		e.preventDefault()
+    	}
 		var doc = target.ownerDocument
 		if (doc.defaultView) {
 			doc = doc.defaultView

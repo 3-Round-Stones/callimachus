@@ -27,6 +27,7 @@ public class PlainLiteralImpl extends PlainLiteral {
 	}
 
 	public PlainLiteralImpl(String label, String lang) {
+		assert label != null;
 		this.label = label;
 		this.lang = lang;
 	}

@@ -37,21 +37,29 @@ public class TermFactoryImpl extends TermFactory {
 
 	@Override
 	public CURIE curie(String ns, String reference, String prefix) {
+		if (ns == null || reference == null || prefix == null)
+			throw new IllegalArgumentException();
 		return new CURIEImpl(ns, reference, prefix);
 	}
 
 	@Override
 	public IRI iri(String iri) {
+		if (iri == null)
+			throw new IllegalArgumentException();
 		return new IRIImpl(iri);
 	}
 
 	@Override
 	public PlainLiteral literal(String label, String lang) {
+		if (label == null)
+			throw new IllegalArgumentException();
 		return new PlainLiteralImpl(label, lang);
 	}
 
 	@Override
 	public TypedLiteral literal(String label, IRI datatype) {
+		if (label == null)
+			throw new IllegalArgumentException();
 		if (XMLLiteral.equals(datatype))
 			return new XMLLiteralImpl(label, datatype);
 		return new TypedLiteralImpl(label, datatype);
@@ -59,11 +67,15 @@ public class TermFactoryImpl extends TermFactory {
 
 	@Override
 	public Var var(String name) {
+		if (name == null)
+			throw new IllegalArgumentException();
 		return new VarImpl(name);
 	}
 
 	@Override
 	public Node node(String id) {
+		if (id == null)
+			throw new IllegalArgumentException();
 		return new BlankNode(id);
 	}
 
@@ -74,6 +86,8 @@ public class TermFactoryImpl extends TermFactory {
 
 	@Override
 	public Reference reference(String absolute, String relative) {
+		if (absolute == null || relative == null)
+			throw new IllegalArgumentException();
 		return new ReferenceImpl(absolute, relative);
 	}
 

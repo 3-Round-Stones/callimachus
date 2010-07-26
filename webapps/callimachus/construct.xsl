@@ -37,7 +37,7 @@
 			<xsl:text></xsl:text>
 		</xsl:variable>
 		<xsl:variable name="newscope">
-			<xsl:apply-templates mode="scope-about" select=".">
+			<xsl:apply-templates mode="scope-about" select="$html">
 				<xsl:with-param name="about" select="$about" />
 				<xsl:with-param name="scope" select="$scope" />
 			</xsl:apply-templates>

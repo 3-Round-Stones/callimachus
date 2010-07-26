@@ -23,6 +23,7 @@ public class BlankNode extends VarOrTermBase implements Node {
 	private String id;
 
 	public BlankNode(String id) {
+		assert id != null;
 		this.id = id;
 	}
 

@@ -23,6 +23,8 @@ public class ReferenceImpl extends Reference {
 	private String relative;
 
 	public ReferenceImpl(String absolute, String relative) {
+		assert absolute != null;
+		assert relative != null;
 		this.absolute = absolute;
 		this.relative = relative;
 	}

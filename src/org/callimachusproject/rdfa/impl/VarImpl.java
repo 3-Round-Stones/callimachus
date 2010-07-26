@@ -22,6 +22,7 @@ public class VarImpl extends Var {
 	private String name;
 
 	public VarImpl(String name) {
+		assert name != null;
 		this.name = name;
 	}
 

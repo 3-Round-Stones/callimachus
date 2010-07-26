@@ -24,6 +24,9 @@ public class CURIEImpl extends CURIE {
 	private String prefix;
 
 	public CURIEImpl(String ns, String reference, String prefix) {
+		assert ns != null;
+		assert reference != null;
+		assert prefix != null;
 		this.namespaceURI = ns.endsWith("/") || ns.endsWith("#") ? ns
 				: (ns + "#");
 		this.reference = reference;

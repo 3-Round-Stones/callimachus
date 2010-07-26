@@ -22,6 +22,7 @@ public class IRIImpl extends IRI {
 	private String iri;
 
 	public IRIImpl(String iri) {
+		assert iri != null;
 		this.iri = iri;
 	}
 

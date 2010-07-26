@@ -24,6 +24,8 @@ public class TypedLiteralImpl extends TypedLiteral {
 	private IRI datatype;
 
 	public TypedLiteralImpl(String label, IRI datatype) {
+		assert label != null;
+		assert datatype != null;
 		this.label = label;
 		this.datatype = datatype;
 	}

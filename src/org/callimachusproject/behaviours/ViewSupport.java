@@ -141,10 +141,13 @@ public abstract class ViewSupport implements Template, RDFObject,
 		rdf = new ReducedTripleReader(rdf);
 		if (uri != null) {
 			IRI subj = tf.iri(uri);
-			CURIE etag = tf.curie(NS, "etag", "calli");
-			PlainLiteral obj = tf.literal(getETag(uri));
 			rdf = new About(subj, rdf);
-			rdf = new PrependTriple(new Triple(subj, etag, obj), rdf);
+			String label = getETag(uri);
+			if (label != null) {
+				CURIE etag = tf.curie(NS, "etag", "calli");
+				PlainLiteral obj = tf.literal(label);
+				rdf = new PrependTriple(new Triple(subj, etag, obj), rdf);
+			}
 		}
 		return new RDFXMLEventReader(rdf);
 	}

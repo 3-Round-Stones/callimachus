@@ -475,9 +475,6 @@ function pasteListURL(callback) {
 		}
 		uris.each(function() {
 			var uri = this
-			if (uri.indexOf('?') >= 0) {
-				uri = uri.substring(0, uri.indexOf('?'))
-			}
 			addListItem(uri, script)
 		})
 		return callback(event)
@@ -512,9 +509,6 @@ function pasteURL(callback) {
 		}
 		uris.each(function() {
 			var uri = this
-			if (uri.indexOf('?') >= 0) {
-				uri = uri.substring(0, uri.indexOf('?'))
-			}
 			addSetItem(uri, script)
 		})
 		return callback(event)
@@ -554,11 +548,6 @@ function getIRIs(iri) {
 			return false
 		}
 		return true
-	}).map(function() {
-		if (this.indexOf('?') >= 0) {
-			return this.substring(0, this.indexOf('?'))
-		}
-		return this
 	})
 }
 

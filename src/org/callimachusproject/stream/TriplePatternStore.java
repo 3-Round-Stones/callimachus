@@ -147,6 +147,8 @@ public class TriplePatternStore {
 		StringWriter str = new StringWriter();
 		try {
 			RDFEventReader reader = openQueryReader();
+			if (reader == null)
+				return "CONSTRUCT {}";
 			try {
 				SPARQLWriter writer = new SPARQLWriter(str);
 				while (reader.hasNext()) {

@@ -475,6 +475,12 @@ function pasteListURL(callback) {
 		}
 		uris.each(function() {
 			var uri = this
+			if (uri.indexOf('?view') >= 0) {
+				uri = uri.substring(0, uri.indexOf('?view'))
+			}
+			if (uri.indexOf('?pre-view') >= 0) {
+				uri = uri.substring(0, uri.indexOf('?pre-view'))
+			}
 			addListItem(uri, script)
 		})
 		return callback(event)
@@ -509,6 +515,12 @@ function pasteURL(callback) {
 		}
 		uris.each(function() {
 			var uri = this
+			if (uri.indexOf('?view') >= 0) {
+				uri = uri.substring(0, uri.indexOf('?view'))
+			}
+			if (uri.indexOf('?pre-view') >= 0) {
+				uri = uri.substring(0, uri.indexOf('?pre-view'))
+			}
 			addSetItem(uri, script)
 		})
 		return callback(event)
@@ -548,6 +560,14 @@ function getIRIs(iri) {
 			return false
 		}
 		return true
+	}).map(function() {
+		if (this.indexOf('?view') >= 0) {
+			return this.substring(0, this.indexOf('?view'))
+		}
+		if (this.indexOf('?pre-view') >= 0) {
+			return this.substring(0, this.indexOf('?pre-view'))
+		}
+		return this
 	})
 }
 

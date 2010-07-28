@@ -24,8 +24,10 @@ public class LogMessageFormatter extends Formatter {
 
 	@Override
 	public String getHead(Handler h) {
+		long now = System.currentTimeMillis();
 		StringBuilder sb = new StringBuilder(128);
 		sb.append("#Software: ").append(Server.NAME).append(lineSeparator);
+		appendDateString(sb.append("#Date: "), now).append(lineSeparator);
 		return sb.toString();
 	}
 
@@ -45,8 +47,7 @@ public class LogMessageFormatter extends Formatter {
 			appendDateString(sb.append("#Date: "), now).append(lineSeparator);
 		}
 		sb.append(getTimeString(now)).append('\t');
-		sb.append(message);
-		sb.append(lineSeparator);
+		sb.append(message).append(lineSeparator);
 		if (record.getThrown() != null) {
 			try {
 				StringWriter sw = new StringWriter();

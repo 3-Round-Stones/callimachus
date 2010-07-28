@@ -73,8 +73,9 @@ calli:post-edit rdfs:subClassOf obj:Message;
 			throw new InternalServerError("Missing Edit Template")
 		template.calliEditResource(this, msg.in)
 		def ver = new ProtocolVersion("HTTP", 1, 1)
-		def resp = new BasicHttpResponse(ver, 201, "Patched")
-		resp.setHeader("Location", toString() + "?view")
+		def resp = new BasicHttpResponse(ver, 204, "No Content")
+		resp.addHeader("Location", "$this?view")
+		resp.addHeader("Location", "$this?pre-view")
 		return resp
 	""".
 

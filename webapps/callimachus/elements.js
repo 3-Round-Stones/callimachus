@@ -5,15 +5,9 @@
 
 var rdfnil = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
 
-if (document.addEventListener) {
-	document.addEventListener("DOMContentLoaded", initRDFaForms, false);
-}  else if (window.attachEvent) {
-    window.attachEvent("onload", initRDFaForms);
-}
-
-function initRDFaForms() {
+$(document).ready(function () {
 	initElements($("form[about]"))
-}
+})
 
 function initElements(form) {
 	initInputPropertyElements(form)

@@ -3,11 +3,7 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
-if (document.addEventListener) {
-	document.addEventListener("DOMContentLoaded", initForms, false);
-}  else if (window.attachEvent) {
-    window.attachEvent("onload", initForms);
-}
+$(document).ready(initForms);
 
 function initForms() {
 	$("form[about]").each(function(i, node) {

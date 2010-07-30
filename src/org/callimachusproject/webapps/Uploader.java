@@ -38,8 +38,8 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.GatewayTimeout;
-import org.openrdf.http.object.util.NamedThreadFactory;
-import org.openrdf.http.object.util.SharedExecutors;
+import org.openrdf.http.object.threads.ManagedExecutors;
+import org.openrdf.http.object.threads.NamedThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +57,7 @@ public class Uploader {
 	}
 
 	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
-	private static ScheduledExecutorService executor = SharedExecutors
+	private static ScheduledExecutorService executor = ManagedExecutors
 			.getTimeoutThreadPool();
 	private static NamedThreadFactory threads = new NamedThreadFactory(
 			"Webaps Listener", true);

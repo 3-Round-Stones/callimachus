@@ -31,10 +31,10 @@ import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.codec.binary.Base64;
 import org.callimachusproject.webapps.Uploader;
+import org.openrdf.http.object.ConnectionBean;
+import org.openrdf.http.object.HTTPObjectAgentMXBean;
 import org.openrdf.http.object.HTTPObjectServer;
 import org.openrdf.http.object.client.HTTPObjectClient;
-import org.openrdf.http.object.mxbeans.ConnectionBean;
-import org.openrdf.http.object.mxbeans.HTTPObjectAgentMXBean;
 import org.openrdf.http.object.util.FileUtil;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;

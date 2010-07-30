@@ -89,6 +89,12 @@ public class Uploader {
 		dateformat.setTimeZone(GMT);
 	}
 
+	public String toString() {
+		if (webappsDir != null)
+			return webappsDir.toString();
+		return super.toString();
+	}
+
 	public File getWebappsDir() {
 		return webappsDir;
 	}
@@ -207,6 +213,10 @@ public class Uploader {
 			InterruptedException {
 		final int loaded = reloading;
 		executor.schedule(new Runnable() {
+			public String toString() {
+				return "fire reload event";
+			}
+
 			public void run() {
 				try {
 					if (reloading == loaded) {

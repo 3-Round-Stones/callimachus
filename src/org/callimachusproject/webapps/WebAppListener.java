@@ -24,6 +24,10 @@ public class WebAppListener implements JNotifyListener, Runnable {
 		wait.delete();
 	}
 
+	public String toString() {
+		return "watch for changes to " + uploader;
+	}
+
 	public void stop() {
 		synchronized (queue) {
 			queue.add(eos);

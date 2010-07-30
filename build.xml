@@ -26,7 +26,7 @@
 	<property name="daemon-windows.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
 	<property name="main" value="org.callimachusproject.Server" />
 	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Djava.io.tmpdir=${tmp} -Duser.home=${home}" />
-	<property name="args" value="" />
+	<property name="args" value="-p 8080 -a localhost:8080" />
 
 	<target name="init">
 		<!-- Create the time stamp and build directory -->
@@ -194,6 +194,7 @@
 	</target>
 
 	<target name="start" depends="compile">
+		<mkdir dir="${log}" />
 		<java classname="${main}" fork="true" spawn="true">
 			<jvmarg line="${jvmargs} -Djava.util.logging.config.file=${logging}" />
 			<arg line="${args} -q --pid ${pid}" />

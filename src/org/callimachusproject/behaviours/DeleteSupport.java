@@ -23,9 +23,11 @@ import java.io.InputStream;
 import org.callimachusproject.concepts.Template;
 import org.callimachusproject.helpers.GraphPatternBuilder;
 import org.callimachusproject.helpers.SubjectTracker;
+import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
@@ -38,14 +40,19 @@ public abstract class DeleteSupport implements Template {
 
 	private static class Remover extends RDFHandlerBase {
 		private final ObjectConnection con;
+		private URI soundex;
 
 		private Remover(ObjectConnection con) {
 			this.con = con;
+			soundex = con.getValueFactory().createURI(SoundexTrait.SOUNDEX);
 		}
 
 		public void handleStatement(Statement st) throws RDFHandlerException {
 			try {
 				con.remove(st.getSubject(), st.getPredicate(), st.getObject());
+				if (RDFS.LABEL.equals(st.getPredicate())) {
+					con.remove(st.getSubject(), soundex, null);
+				}
 			} catch (RepositoryException e) {
 				throw new RDFHandlerException(e);
 			}

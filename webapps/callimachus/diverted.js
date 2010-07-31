@@ -1,14 +1,14 @@
 // diverted.js
 
 function diverted(url, node) {
-	var doc = document
-	if (node && node.ownerDocument) {
-		doc = node.ownerDocument
-	}
-	if (doc.defaultView) {
-		doc = doc.defaultView
-	}
-    var prefix = doc.location.protocol + '//' + doc.location.host + '/'
+    var prefix = location.protocol + '//' + location.host + '/'
+    var scripts = document.getElementsByTagName("script")
+    for (var i = 0; i < scripts.length; i++) {
+    	var src = scripts[i].src
+    	if (src && src.indexOf("/diverted.js") == src.length - 12) {
+    		prefix = src.substring(0, src.indexOf('/', src.indexOf("://") + 3) + 1)
+    	} 
+    }
     var path = 'diverted;'
     if (url.indexOf(':') < 0) {
         if (node && node.baseURIObject && node.baseURIObject.resolve) {
@@ -39,16 +39,16 @@ function divertedLinkClicked(e) {
 	while (target && !target.href) {
 		target = target.parentNode
 	}
-	if (target && target.href && target.ownerDocument) {
-		if (e.preventDefault) {
-    		e.preventDefault()
-    	}
-		var doc = target.ownerDocument
-		if (doc.defaultView) {
-			doc = doc.defaultView
-		}
-		doc.location.href = diverted(target.href, target)
-    }
+	if (!target || !target.href || !target.ownerDocument)
+		return true;
+	if (e.preventDefault) {
+		e.preventDefault()
+	}
+	var win = target.ownerDocument
+	if (win.defaultView) {
+		win = win.defaultView
+	}
+	win.location.href = diverted(target.href, target)
     return false
 }
 

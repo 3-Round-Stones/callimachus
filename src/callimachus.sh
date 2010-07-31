@@ -352,7 +352,7 @@ elif [ "$1" = "stop" ] ; then ################################
   "$EXECUTABLE" -home "$JAVA_HOME" -stop \
     -pidfile "$PID" $MAINCLASS
 
-  SLEEP=60
+  SLEEP=120
   while [ $SLEEP -ge 0 ]; do 
     kill -0 $ID >/dev/null 2>&1
     if [ $? -gt 0 ]; then
@@ -362,16 +362,21 @@ elif [ "$1" = "stop" ] ; then ################################
     if [ $SLEEP -gt 0 ]; then
       sleep 1
     fi
-    if [ "$SLEEP" = "30" ]; then
+    if [ "$SLEEP" = "60" ]; then
       kill $ID >/dev/null 2>&1
     fi
     SLEEP=`expr $SLEEP - 1 `
   done
-    
+
   if [ -f "$PID" ]; then
     echo "Killing: $ID"
-    kill -9 $ID
     rm -f $PID
+    kill -9 $ID
+	sleep 5
+    if [ -f "$PID" ]; then
+      "$EXECUTABLE" -home "$JAVA_HOME" -stop \
+        -pidfile "$PID" $MAINCLASS >/dev/null 2>&1
+    fi
   fi
 
 else ################################

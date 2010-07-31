@@ -105,7 +105,7 @@ function addTriple(triple, store) {
 
 function patchData(url, type, data, callback) {
 	var xhr = null
-	xhr = $.ajax({ type: "PATCH", url: url, contentType: type, data: data, beforeSend: function(xhr){
+	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, beforeSend: function(xhr){
 		var etag = getEntityTag()
 		if (etag) {
 			xhr.setRequestHeader("If-Match", etag)

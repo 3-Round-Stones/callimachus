@@ -61,7 +61,7 @@ calli:post-edit rdfs:subClassOf obj:Message;
 		owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	http:method "PATCH";
+	http:method "POST";
 	http:operation "edit", "pre-edit";
 	http:type "message/x-response";
 	obj:imports <java:org.apache.http.ProtocolVersion>;

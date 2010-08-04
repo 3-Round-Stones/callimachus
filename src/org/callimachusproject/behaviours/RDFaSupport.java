@@ -130,8 +130,7 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 	private RDFEventReader openPatternReader(String mode, String element,
 			String about) throws XMLStreamException, IOException,
 			TransformerException {
-		String base = "http://callimachusproject.org/rdf/2009/framework/variables/";
-		RDFEventReader reader = new RDFaReader(base, xslt(mode, element),
+		RDFEventReader reader = new RDFaReader(about, xslt(mode, element),
 				toString());
 		reader = new GraphPatternReader(reader);
 		Base resolver = new Base(getResource().stringValue());

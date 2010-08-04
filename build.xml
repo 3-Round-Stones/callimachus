@@ -190,6 +190,7 @@
 			<zipfileset file="${jar.file}" prefix="lib" />
 			<zipfileset file="${dist}/callimachus.war" prefix="webapps" />
 			<zipfileset file="${webapps}/favicon.ico" prefix="webapps" />
+			<zipfileset file="${webapps}/index.html" prefix="webapps" />
 		</zip>
 	</target>
 

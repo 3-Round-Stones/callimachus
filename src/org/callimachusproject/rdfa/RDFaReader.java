@@ -271,7 +271,7 @@ public class RDFaReader extends RDFEventReader {
 			while (iter.hasNext()) {
 				Namespace ns = (Namespace) iter.next();
 				if (ns.getPrefix().equals(prefix))
-					return ns.getNamespaceURI();
+					return resolve(ns.getNamespaceURI());
 			}
 			if (parent == null && "".equals(prefix))
 				return "http://www.w3.org/1999/xhtml/vocab#";

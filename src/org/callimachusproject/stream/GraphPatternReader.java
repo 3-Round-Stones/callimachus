@@ -46,7 +46,6 @@ public class GraphPatternReader extends PipedRDFEventReader {
 					+ "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD"
 					+ "\\u00B7\\u0300-\\u036F\\u203F-\\u2040]+");
 	private static final Pattern WHITE_SPACE = Pattern.compile("\\s*");
-	private static final String v = "http://callimachusproject.org/rdf/2009/framework/variables/?";
 	private Deque<Integer> endOptional = new LinkedList<Integer>();
 	private ArrayList<VarOrTerm> branch = new ArrayList<VarOrTerm>();
 	private int depth = 0;
@@ -138,9 +137,12 @@ public class GraphPatternReader extends PipedRDFEventReader {
 			return new BlankOrLiteralVar("blank_" + term.stringValue());
 		if (term.isCURIE())
 			return term;
-		if (!term.stringValue().startsWith(v))
+		if (!term.isReference())
 			return term;
-		String name = term.stringValue().substring(v.length());
+		String var = term.asReference().getRelative();
+		if (!var.startsWith("?"))
+			return term;
+		String name = var.substring(1);
 		if (!VAR_REGEX.matcher(name).matches())
 			throw new RDFParseException("Invalid Variable Name: " + name);
 		return tf.var(name);

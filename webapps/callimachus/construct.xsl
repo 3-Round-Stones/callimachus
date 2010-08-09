@@ -21,8 +21,7 @@
 	<xsl:param name="this" />
 	<xsl:param name="mode" select="''" />
 	<xsl:param name="element" select="'/1'" />
-	<xsl:output method="html" omit-xml-declaration="yes"
-		standalone="no" media-type="text/html" />
+	<xsl:output omit-xml-declaration="yes" standalone="no" />
 	<xsl:variable name="profile" select="concat($this, '?xslt&amp;mode=', $mode, '&amp;element=', $element)" />
 	<xsl:variable name="data" select="/" />
 	<xsl:variable name="variables"
@@ -306,7 +305,7 @@
 						</xsl:attribute>
 					</xsl:if>
 					<xsl:if test="1=count(*[@rel or @rev]) and *[(@rel or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]">
-						<xsl:attribute name="data-rel"><xsl:value-of select="*/@rel or */@rev"/></xsl:attribute>
+						<xsl:attribute name="data-rel"><xsl:value-of select="*/@rel"/><xsl:value-of select="*/@rev"/></xsl:attribute>
 						<xsl:attribute name="data-options">
 							<xsl:value-of select="$this" />
 							<xsl:text>?options&amp;mode=</xsl:text>

@@ -209,7 +209,7 @@
 	</target>
 
 	<target name="stop" depends="compile">
-		<java classname="${main}" fork="true">
+		<java classname="${main}" fork="true" resultproperty="ret">
 			<jvmarg line="${jvmargs}" />
 			<arg line="--stop --pid ${pid}" />
 			<classpath>
@@ -220,10 +220,20 @@
 				</fileset>
 			</classpath>
 		</java>
+		<condition property="stopped">
+			<equals arg1="${ret}" arg2="0"/>
+	    </condition>
+		<antcall target="kill" />
+	</target>
+
+	<target name="kill" unless="stopped">
+		<echo>The stop target may not be supported on your platform. You must </echo>
+		<echo>kill the process manually listed in ${pid}. </echo>
+		<echo>Use the run target next time to avoid this message.</echo>
 	</target>
 
 	<target name="run" depends="compile">
-		<java classname="${main}" fork="true">
+		<java classname="${main}" fork="true" failonerror="true">
 			<jvmarg line="${jvmargs}" />
 			<arg line="${args}" />
 			<classpath>

@@ -198,6 +198,10 @@ if [ -z "$JAVA_OPTS" ] ; then
   JAVA_OPTS="-Xmx512m -Dfile.encoding=UTF-8"
 fi
 
+if [ -z "$DAEMON_GROUP" ] ; then
+  DAEMON_GROUP="$SUDO_GID"
+fi
+
 if [ -z "$DAEMON_USER" ] ; then
   DAEMON_USER="$SUDO_USER"
 fi
@@ -241,25 +245,37 @@ if $cygwin; then
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 fi
 
+if [ ! -z "$DAEMON_GROUP" ] ; then
+  umask 002
+fi
+
 if [ ! -z "$DAEMON_USER" ] ; then
   if [ ! -e "$BASEDIR/repositories" ] ; then
     mkdir "$BASEDIR/repositories"
     chown "$DAEMON_USER" "$BASEDIR/repositories"
     chmod u+s "$BASEDIR/repositories"
+    if [ ! -z "$DAEMON_GROUP" ] ; then
+      chown ":$DAEMON_GROUP" "$BASEDIR/repositories"
+      chmod g+rwxs "$BASEDIR/repositories"
+    fi
   fi
   if [ ! -e "$BASEDIR/log" ] ; then
     mkdir "$BASEDIR/log"
     chown "$DAEMON_USER" "$BASEDIR/log"
     chmod u+s "$BASEDIR/log"
+    if [ ! -z "$DAEMON_GROUP" ] ; then
+      chown ":$DAEMON_GROUP" "$BASEDIR/log"
+      chmod g+rwxs "$BASEDIR/log"
+    fi
   fi
   if [ ! -e "$TMPDIR" ] ; then
     mkdir "$TMPDIR"
     chown "$DAEMON_USER" "$TMPDIR"
     chmod u+s "$TMPDIR"
-  fi
-  if [ ! -e `dirname "$PID"` ] ; then
-    mkdir `dirname "$PID"`
-    chown "$DAEMON_USER" `dirname "$PID"`
+    if [ ! -z "$DAEMON_GROUP" ] ; then
+      chown ":$DAEMON_GROUP" "$TMPDIR"
+      chmod g+rwxs "$TMPDIR"
+    fi
   fi
 fi
 

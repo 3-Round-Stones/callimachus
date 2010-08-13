@@ -16,18 +16,22 @@ import org.callimachusproject.Server;
 
 public class LogMessageFormatter extends Formatter {
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
-	private static final String lineSeparator = System
+	private static final String newline = System
 			.getProperty("line.separator");
 	private long nextDateAt;
 	private long minuteExpire;
 	private String minute;
 
+	public LogMessageFormatter() {
+		advanceNextDate(System.currentTimeMillis());
+	}
+
 	@Override
 	public String getHead(Handler h) {
 		long now = System.currentTimeMillis();
 		StringBuilder sb = new StringBuilder(128);
-		sb.append("#Software: ").append(Server.NAME).append(lineSeparator);
-		appendDateString(sb.append("#Date: "), now).append(lineSeparator);
+		sb.append("#Software: ").append(Server.NAME).append(newline);
+		appendDateString(sb.append("#Date: "), now).append(newline);
 		return sb.toString();
 	}
 
@@ -35,7 +39,7 @@ public class LogMessageFormatter extends Formatter {
 	public String getTail(Handler h) {
 		long now = System.currentTimeMillis();
 		StringBuilder sb = new StringBuilder(32);
-		appendDateString(sb.append("#Date: "), now).append(lineSeparator);
+		appendDateString(sb.append("#Date: "), now).append(newline);
 		return sb.toString();
 	}
 
@@ -44,10 +48,10 @@ public class LogMessageFormatter extends Formatter {
 		StringBuilder sb = new StringBuilder(256);
 		String message = formatMessage(record);
 		if (now >= nextDateAt) {
-			appendDateString(sb.append("#Date: "), now).append(lineSeparator);
+			appendDateString(sb.append("#Date: "), now).append(newline);
 		}
 		sb.append(getTimeString(now)).append('\t');
-		sb.append(message).append(lineSeparator);
+		sb.append(message).append(newline);
 		if (record.getThrown() != null) {
 			try {
 				StringWriter sw = new StringWriter();
@@ -61,9 +65,13 @@ public class LogMessageFormatter extends Formatter {
 		return sb.toString();
 	}
 
-	private StringBuilder appendDateString(StringBuilder sb, long now) {
+	private void advanceNextDate(long now) {
 		long m = now / 1000 / 60;
 		nextDateAt = (m + 60 * 24 - 1) / 60 / 24 * 24 * 60 * 60 * 1000;
+	}
+
+	private StringBuilder appendDateString(StringBuilder sb, long now) {
+		advanceNextDate(now);
 		GregorianCalendar cal = new GregorianCalendar(UTC);
 		cal.setTimeInMillis(now);
 		sb.append(cal.get(Calendar.YEAR)).append('-');

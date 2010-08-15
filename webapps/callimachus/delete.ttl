@@ -40,29 +40,13 @@ calli:get-delete rdfs:subClassOf obj:Message;
 		return template.calliConstruct('delete', this)
 	""".
 
-calli:pre-delete rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Deletable];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
-	http:operation "pre-delete";
-	http:type "text/html";
-	http:cache-control "no-cache";
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findDeleteTemplate()
-		if (template == null)
-			throw new InternalServerError("Missing Delete Template")
-		return template.calliConstruct('pre-delete', this)
-	""".
-
 calli:post-delete rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Deletable];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
-	http:operation "delete", "pre-delete";
+	http:operation "delete";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:groovy """
 		def template = findDeleteTemplate()

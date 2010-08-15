@@ -57,13 +57,13 @@ calli:authorize-maintainer owl:equivalentClass calli:authorize-credential;
 			{
 				$subject calli:reviewer $credential
 				FILTER ($method = "GET" || $method = "HEAD")
-				FILTER ($qs = "view" || $qs = "pre-view" || $qs = "review" || $qs = "pre-review" || !bound($qs))
+				FILTER ($qs = "view" || $qs = "review" || !bound($qs))
 			} UNION {
 				$subject calli:scribe $credential
-				FILTER ($qs = "copy" || $qs = "pre-copy")
+				FILTER ($qs = "copy")
 			} UNION {
 				$subject calli:curator $credential
-				FILTER ($qs = "copy" || $qs = "pre-copy")
+				FILTER ($qs = "copy")
 			} UNION {
 				$subject calli:maintainer $credential
 			}
@@ -77,13 +77,13 @@ calli:authorize-member owl:equivalentClass calli:authorize-user;
 			{
 				$subject calli:reviewer ?group
 				FILTER ($method = "GET" || $method = "HEAD")
-				FILTER ($qs = "view" || $qs = "pre-view" || $qs = "review" || $qs = "pre-review" || !bound($qs))
+				FILTER ($qs = "view" || $qs = "review" || !bound($qs))
 			} UNION {
 				$subject calli:scribe ?group
-				FILTER ($qs = "copy" || $qs = "pre-copy")
+				FILTER ($qs = "copy")
 			} UNION {
 				$subject calli:curator ?group
-				FILTER ($qs = "copy" || $qs = "pre-copy")
+				FILTER ($qs = "copy")
 			} UNION {
 				$subject calli:maintainer ?group
 			}

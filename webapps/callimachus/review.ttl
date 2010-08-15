@@ -40,22 +40,6 @@ calli:get-review rdfs:subClassOf obj:Message;
 		return template.calliConstruct('review', this)
 	""".
 
-calli:pre-review rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Reviewable];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
-	http:operation "pre-review";
-	http:type "text/html";
-	http:cache-control "no-cache";
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findReviewTemplate()
-		if (template == null)
-			throw new InternalServerError("Missing Review Template")
-		return template.calliConstruct('pre-review', this)
-	""".
-
 calli:find-review-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Reviewable];

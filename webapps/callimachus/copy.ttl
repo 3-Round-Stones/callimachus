@@ -40,29 +40,13 @@ calli:get-copy rdfs:subClassOf obj:Message;
 		return template.calliConstruct('copy', this)
 	""".
 
-calli:pre-copy rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Copyable];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
-	http:operation "pre-copy";
-	http:type "text/html";
-	http:cache-control "no-cache";
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findCopyTemplate()
-		if (template == null)
-			throw new InternalServerError("Missing Copy Template")
-		return template.calliConstruct('pre-copy', this)
-	""".
-
 calli:post-copy rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Copyable];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	http:method "POST";
-	http:operation "copy", "pre-copy";
+	http:operation "copy";
 	http:expect "201-created";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:groovy """

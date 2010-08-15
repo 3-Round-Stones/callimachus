@@ -38,11 +38,7 @@ function initForms() {
 					if (window.showPageLoading) {
 						showPageLoading()
 					}
-					if (location.href.indexOf("?pre-") > 0) {
-						location.replace(uri + "?pre-view")
-					} else {
-						location.replace(uri + "?view")
-					}
+					location.replace(uri + "?view")
 				})
 			} catch(e) {
 				if (window.showError) {

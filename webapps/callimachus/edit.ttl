@@ -40,29 +40,13 @@ calli:get-edit rdfs:subClassOf obj:Message;
 		return template.calliConstruct('edit', this)
 	""".
 
-calli:pre-edit rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
-	http:operation "pre-edit";
-	http:type "text/html";
-	http:cache-control "no-cache";
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findEditTemplate()
-		if (template == null)
-			throw new InternalServerError("Missing Edit Template")
-		return template.calliConstruct('pre-edit', this)
-	""".
-
 calli:post-edit rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:method "POST";
-	http:operation "edit", "pre-edit";
+	http:operation "edit";
 	http:type "message/x-response";
 	obj:imports <java:org.apache.http.ProtocolVersion>;
 	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
@@ -75,7 +59,6 @@ calli:post-edit rdfs:subClassOf obj:Message;
 		def ver = new ProtocolVersion("HTTP", 1, 1)
 		def resp = new BasicHttpResponse(ver, 204, "No Content")
 		resp.addHeader("Location", "$this?view")
-		resp.addHeader("Location", "$this?pre-view")
 		return resp
 	""".
 

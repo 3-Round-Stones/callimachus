@@ -263,7 +263,7 @@ function initSetElements(form) {
 			this.attachEvent("ondrop", pasteURL(dragleave))
 		}
 		var url = list.attr("data-search")
-		if (url && list.attr("data-suggest")) {
+		if (url && list.attr("data-prompt")) {
 			var id = "lookup" + (++iframe_counter) + "-button"
 			var name = "lookup" + (++iframe_counter) + "-iframe"
 			var searchTerms = "searchTerms" + (++iframe_counter) + "-input"
@@ -271,7 +271,7 @@ function initSetElements(form) {
 			add.attr("class", "add")
 			add.attr("id", id)
 			add.text("»")
-			var suggest = list.attr("data-suggest")
+			var suggest = list.attr("data-prompt")
 			var divert = window.diverted && list.hasClass("diverted")
 			if (divert) {
 				suggest = diverted(suggest, list.get(0))
@@ -358,7 +358,7 @@ function listSearchResults(url, frame, divert) {
 			result.each(function() {
 				var li = $("<li/>")
 				var link = $("<a/>")
-				link.attr("href", $(this).attr("about") + "?pre-view")
+				link.attr("href", $(this).attr("about") + "?view")
 				if (divert && window.divertedLinkClicked) {
 					link.attr("onclick", "window.parent.divertedLinkClicked(event)")
 				}
@@ -472,9 +472,6 @@ function pasteListURL(callback) {
 			if (uri.indexOf('?view') >= 0) {
 				uri = uri.substring(0, uri.indexOf('?view'))
 			}
-			if (uri.indexOf('?pre-view') >= 0) {
-				uri = uri.substring(0, uri.indexOf('?pre-view'))
-			}
 			addListItem(uri, script)
 		})
 		return callback(event)
@@ -511,9 +508,6 @@ function pasteURL(callback) {
 			var uri = this
 			if (uri.indexOf('?view') >= 0) {
 				uri = uri.substring(0, uri.indexOf('?view'))
-			}
-			if (uri.indexOf('?pre-view') >= 0) {
-				uri = uri.substring(0, uri.indexOf('?pre-view'))
 			}
 			addSetItem(uri, script)
 		})
@@ -557,9 +551,6 @@ function getIRIs(iri) {
 	}).map(function() {
 		if (this.indexOf('?view') >= 0) {
 			return this.substring(0, this.indexOf('?view'))
-		}
-		if (this.indexOf('?pre-view') >= 0) {
-			return this.substring(0, this.indexOf('?pre-view'))
 		}
 		return this
 	})

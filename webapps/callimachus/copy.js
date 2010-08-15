@@ -24,12 +24,8 @@ function initForms() {
 					var redirect = xhr.getResponseHeader("Location")
 					if (redirect && redirect.indexOf("?") >= 0) {
 						redirect = redirect
-					} else if (redirect && location.href.indexOf("?pre-") > 0) {
-						redirect = redirect + "?pre-view"
 					} else if (redirect) {
 						redirect = redirect + "?view"
-					} else if (location.href.indexOf("?pre-") > 0) {
-						redirect = uri + "?pre-view"
 					} else {
 						redirect = uri + "?view"
 					}

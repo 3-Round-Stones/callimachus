@@ -182,6 +182,9 @@
 		<war needxmlfile="false" destfile="${dist}/callimachus.war">
 			<zipfileset dir="${webapps}/callimachus" prefix="" />
 		</war>
+		<war needxmlfile="false" destfile="${dist}/layout.war">
+			<zipfileset dir="${webapps}/layout" prefix="" />
+		</war>
 		<zip destfile="${dist}/callimachus-${version}.zip">
 			<zipfileset dir="." includes="*.txt" />
 			<zipfileset dir="${bin}" prefix="bin" />
@@ -189,7 +192,7 @@
 			<zipfileset dir="${lib}" prefix="lib" />
 			<zipfileset file="${jar.file}" prefix="lib" />
 			<zipfileset file="${dist}/callimachus.war" prefix="webapps" />
-			<zipfileset file="${webapps}/favicon.ico" prefix="webapps" />
+			<zipfileset file="${dist}/layout.war" prefix="webapps" />
 			<zipfileset file="${webapps}/index.html" prefix="webapps" />
 		</zip>
 	</target>

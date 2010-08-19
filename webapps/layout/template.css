@@ -82,6 +82,7 @@ body {
 	border-left: 0px;
 	margin: 0px;
 	padding: 0px;
+	padding-bottom: 2ex;
 	width: 16ex;
 	min-height: 150pt;
 	border-top-right-radius: 3pt;

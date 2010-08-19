@@ -2,7 +2,15 @@ package org.callimachusproject.behaviours;
 
 import java.io.CharArrayWriter;
 import java.io.Reader;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
@@ -23,6 +31,51 @@ public abstract class RealmSupport implements Realm, RDFObject {
 			401, "Unauthorized");
 	private static final BasicStatusLine _403 = new BasicStatusLine(HTTP11,
 			403, "Forbidden");
+	private static Set<String> local;
+	static {
+		Set<InetAddress> addresses = getAllLocalAddresses();
+		local = new HashSet<String>(addresses.size() * 3);
+		for (InetAddress addr : addresses) {
+			local.add(addr.getCanonicalHostName());
+			local.add(addr.getHostAddress());
+			local.add(addr.getHostName());
+		}
+	}
+
+	private static Set<InetAddress> getAllLocalAddresses() {
+		Set<InetAddress> result = new HashSet<InetAddress>();
+		try {
+			result.addAll(Arrays.asList(InetAddress.getAllByName(null)));
+		} catch (UnknownHostException e) {
+			// no loop back device
+		}
+		try {
+			InetAddress local = InetAddress.getLocalHost();
+			result.add(local);
+			try {
+				result.addAll(Arrays.asList(InetAddress.getAllByName(local
+						.getCanonicalHostName())));
+			} catch (UnknownHostException e) {
+				// no canonical name
+			}
+		} catch (UnknownHostException e) {
+			// no network
+		}
+		try {
+			Enumeration<NetworkInterface> interfaces;
+			interfaces = NetworkInterface.getNetworkInterfaces();
+			while (interfaces != null && interfaces.hasMoreElements()) {
+				NetworkInterface iface = interfaces.nextElement();
+				Enumeration<InetAddress> addrs = iface.getInetAddresses();
+				while (addrs != null && addrs.hasMoreElements()) {
+					result.add(addrs.nextElement());
+				}
+			}
+		} catch (SocketException e) {
+			// broken network configuration
+		}
+		return result;
+	}
 
 	@Override
 	public String protectionDomain() {
@@ -75,14 +128,13 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		String[] vias = request.get("via");
 		if (vias == null || vias.length < 1)
 			return null;
-		String via = vias[vias.length - 1];
-		assert via != null;
+		String via = findRemoteHost(vias);
 		ObjectFactory of = getObjectConnection().getObjectFactory();
 		int idx = via.lastIndexOf(' ');
 		if (idx > 0 && idx < via.length() - 1)
 			return of.createObject("dns:" + via.substring(idx + 1));
 		return null;
-	
+
 	}
 
 	@Override
@@ -131,6 +183,46 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		} finally {
 			reader.close();
 		}
+	}
+
+	/**
+	 * 
+	 * @param via
+	 *            host with optional port number
+	 * @return true if this host resolves to the local machine
+	 */
+	protected boolean isLocal(String via) {
+		int idx = via.lastIndexOf(':');
+		if (idx > 0 && local.contains(via.substring(0, idx)))
+			return true;
+		if (local.contains(via))
+			return true;
+		return false;
+	}
+
+	/**
+	 * Finds the nearest remote agent or (if no remote hosts) the farthest local
+	 * agent.
+	 * 
+	 * @return the host and optional port number or a pseudonym
+	 */
+	private String findRemoteHost(String[] vias) {
+		String via = null;
+		for (int i = vias.length - 1; i >= 0; i--) {
+			via = vias[i];
+			int idx = via.lastIndexOf(' ');
+			if (idx > 0 && idx < via.length() - 1) {
+				via = via.substring(idx + 1);
+				idx = via.lastIndexOf(' ');
+				if (idx > 0 && idx < via.length()) {
+					via = via.substring(0, idx);
+				}
+			}
+			if (!isLocal(via))
+				break;
+		}
+		assert via != null;
+		return via;
 	}
 
 }

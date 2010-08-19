@@ -5,9 +5,9 @@
 	<xsl:param name="xslt" select="'/template.xsl'" />
 	<xsl:param name="mode" />
 	<xsl:variable name="layout" select="substring-before($xslt, '/template.xsl')" />
-	<xsl:variable name="origin" select="substring-before($xslt, '/' + substring-after(substring-after($xslt, '://'), '/'))" />
+	<xsl:variable name="origin" select="substring-before($xslt, concat('/', substring-after(substring-after($xslt, '://'), '/')))" />
 	<xsl:variable name="callimachus" select="concat($origin, '/callimachus')" />
-	<xsl:variable name="realm" select="concat($origin, '/realm')" />
+	<xsl:variable name="accounts" select="concat($origin, '/accounts')" />
 	<xsl:template match="*">
 		<xsl:copy>
 			<xsl:apply-templates select="@*|*|comment()|text()" />
@@ -37,7 +37,7 @@
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
 			<meta http-equiv="X-UA-Compatible" content="IE=8" />
-			<link rel="icon" href="/layout/favicon.ico" />
+			<link rel="icon" href="{$layout}/favicon.png" />
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<script type="text/javascript" src="{$callimachus}/diverted.js"> </script>
 			<script type="text/javascript" src="{$layout}/prompt.js"> </script>
@@ -66,10 +66,10 @@
 			<xsl:apply-templates select="@*" />
 			<div id="header">
 				<div id="credentials">
-					<a id="credential" href="{$realm}/authority?credential"></a>
-					<a id="login" href="{$realm}/authority?login">Login</a>
+					<a id="credential" href="{$accounts}/authority?credential"></a>
+					<a id="login" href="{$accounts}/authority?login">Login</a>
 					<span class="logout"> | </span>
-					<a class="logout" href="{$realm}/authority?logout">Logout</a>
+					<a class="logout" href="{$accounts}/authority?logout">Logout</a>
 				</div>
 				<div id="logo">
 					<a href="{$origin}/">

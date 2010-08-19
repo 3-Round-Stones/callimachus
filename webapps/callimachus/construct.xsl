@@ -128,8 +128,8 @@
 		<a rel="skos:inScheme" href="?scheme">View Scheme</a>
 	-->
 	<xsl:template
-		match="*[(@rel or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]">
-		<!-- <xsl:comment>*[(@rel or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]</xsl:comment> -->
+		match="*[(@rel and contains(@rel, ':') or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]">
+		<!-- <xsl:comment>*[(@rel and contains(@rel, ':') or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]</xsl:comment> -->
 		<xsl:param name="about" />
 		<xsl:param name="nodeID" />
 		<xsl:param name="scope" />
@@ -162,14 +162,14 @@
 		<div rel="skos:hasTopConcept"> <div about="?concept"
 		typeof="skos:Concept"> <span property="skos:prefLabel"/> </div> </div>
 	-->
-	<xsl:template match="*[(@rel or @rev) and not(@resource or @href)]">
-		<!-- <xsl:comment>*[(@rel or @rev) and not(@resource or @href)]</xsl:comment> -->
+	<xsl:template match="*[(@rel and contains(@rel, ':') or @rev) and not(@resource or @href)]">
+		<!-- <xsl:comment>*[(@rel and contains(@rel, ':') or @rev) and not(@resource or @href)]</xsl:comment> -->
 		<xsl:param name="about" />
 		<xsl:param name="nodeID" />
 		<xsl:param name="scope" />
 		<xsl:variable name="rel">
 			<xsl:choose>
-				<xsl:when test="@rel">
+				<xsl:when test="@rel and contains(@rel, ':')">
 					<xsl:value-of  select="@rel" />
 				</xsl:when>
 				<xsl:otherwise>
@@ -250,7 +250,7 @@
 							<xsl:with-param name="tmode" select="'hanging'" />
 						</xsl:apply-templates>
 					</xsl:when>
-					<xsl:when test=".//@rel or .//@rev or .//@property or .//@typeof">
+					<xsl:when test=".//@rel and contains(.//@rel, ':') or .//@rev or .//@property or .//@typeof">
 						<xsl:apply-templates mode="properties" select=".">
 							<xsl:with-param name="about" select="$about" />
 							<xsl:with-param name="nodeID" select="$nodeID" />
@@ -281,8 +281,8 @@
 					<xsl:with-param name="tmode" select="'hanging'" />
 				</xsl:apply-templates>
 			</xsl:when>
-			<xsl:when test="($about=$target or not($about)) and starts-with(@src, '?') and not(@rel or @rev) and not(contains($scope, concat(@src, '=')))">
-				<!-- <xsl:comment>($about=$target or not($about)) and starts-with(@src, '?') and not(@rel or @rev) and not(contains($scope, concat(@src, '=')))</xsl:comment> -->
+			<xsl:when test="($about=$target or not($about)) and starts-with(@src, '?') and not(@rel and contains(@rel, ':') or @rev) and not(contains($scope, concat(@src, '=')))">
+				<!-- <xsl:comment>($about=$target or not($about)) and starts-with(@src, '?') and not(@rel and contains(@rel, ':') or @rev) and not(contains($scope, concat(@src, '=')))</xsl:comment> -->
 				<xsl:apply-templates mode="properties" select=".">
 					<xsl:with-param name="about" select="$target" />
 					<xsl:with-param name="curie" select="@src" />
@@ -304,7 +304,7 @@
 							<xsl:apply-templates mode="xptr-element" select="*[@property]" />
 						</xsl:attribute>
 					</xsl:if>
-					<xsl:if test="1=count(*[@rel or @rev]) and *[(@rel or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]">
+					<xsl:if test="1=count(*[@rel and contains(@rel, ':') or @rev]) and *[(@rel and contains(@rel, ':') or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]">
 						<xsl:attribute name="data-rel"><xsl:value-of select="*/@rel"/><xsl:value-of select="*/@rev"/></xsl:attribute>
 						<xsl:attribute name="data-options">
 							<xsl:value-of select="$this" />
@@ -318,7 +318,7 @@
 							<xsl:text>?construct&amp;mode=</xsl:text>
 							<xsl:value-of select="$mode" />
 							<xsl:text>&amp;element=</xsl:text>
-							<xsl:apply-templates mode="xptr-element" select="*[@rel or @rev]" />
+							<xsl:apply-templates mode="xptr-element" select="*[@rel and contains(@rel, ':') or @rev]" />
 							<xsl:text>&amp;about={about}</xsl:text>
 						</xsl:attribute>
 					</xsl:if>

@@ -128,12 +128,11 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		String[] vias = request.get("via");
 		if (vias == null || vias.length < 1)
 			return null;
-		String via = findRemoteHost(vias);
+		String host = findRemoteHost(vias);
+		if (host == null)
+			return null;
 		ObjectFactory of = getObjectConnection().getObjectFactory();
-		int idx = via.lastIndexOf(' ');
-		if (idx > 0 && idx < via.length() - 1)
-			return of.createObject("dns:" + via.substring(idx + 1));
-		return null;
+		return of.createObject("dns:" + host);
 
 	}
 
@@ -195,9 +194,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		int idx = via.lastIndexOf(':');
 		if (idx > 0 && local.contains(via.substring(0, idx)))
 			return true;
-		if (local.contains(via))
-			return true;
-		return false;
+		return local.contains(via);
 	}
 
 	/**

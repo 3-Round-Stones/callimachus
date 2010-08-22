@@ -23,11 +23,18 @@ public class TriplePattern extends RDFEvent {
 	private VarOrTerm subject;
 	private VarOrIRI predicate;
 	private VarOrTerm object;
+	private boolean inverse;
 
 	public TriplePattern(VarOrTerm subject, VarOrIRI predicate, VarOrTerm object) {
+		this(subject, predicate, object, false);
+	}
+
+	public TriplePattern(VarOrTerm subject, VarOrIRI predicate,
+			VarOrTerm object, boolean inverse) {
 		this.subject = subject;
 		this.predicate = predicate;
 		this.object = object;
+		this.inverse = inverse;
 	}
 
 	public VarOrTerm getSubject() {
@@ -40,6 +47,10 @@ public class TriplePattern extends RDFEvent {
 
 	public VarOrTerm getObject() {
 		return object;
+	}
+
+	public boolean isInverse() {
+		return inverse;
 	}
 
 	public String toString() {
@@ -58,7 +69,7 @@ public class TriplePattern extends RDFEvent {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof TriplePattern))
+		if (getClass() != obj.getClass())
 			return false;
 		TriplePattern other = (TriplePattern) obj;
 		if (object == null) {
@@ -75,6 +86,8 @@ public class TriplePattern extends RDFEvent {
 			if (other.subject != null)
 				return false;
 		} else if (!subject.equals(other.subject))
+			return false;
+		if (inverse != other.inverse)
 			return false;
 		return true;
 	}

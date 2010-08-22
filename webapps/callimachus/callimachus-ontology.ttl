@@ -78,18 +78,25 @@ calli:Credential a owl:Class;
 	rdfs:comment "A digest credentials with a MD5 algorithm.";
 	rdfs:subClassOf calli:Party.
 
+calli:User a owl:Class;
+	rdfs:comment "Credentials for a person.";
+	rdfs:subClassOf calli:Credential.
+
 calli:Group a owl:Class;
 	rdfs:comment "A collection of credentials.";
 	rdfs:subClassOf calli:Party.
 
 calli:Party a owl:Class;
-	rdfs:comment "A credential or group of credentials.".
+	rdfs:comment "A credential, user or group of credentials.".
 
 calli:NamedGraph a owl:Class;
 	rdfs:comment "Graph in the RDF store that can be retrieved remotely.".
 
 calli:SPARQLService a owl:Class;
-	rdfs:comment "A resource that can respond to SPARQL queries.".
+	rdfs:comment "Resource that can respond to SPARQL queries.".
+
+calli:MailSubmitter a owl:Class;
+	rdfs:comment "Resource capable of cooperating with a mail transfer agent for delivery of the mail".
 
 ################################
 # Annotation
@@ -129,10 +136,15 @@ calli:name a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain calli:Credential;
 	rdfs:range xsd:string.
 
-calli:credential a owl:ObjectProperty;
-	rdfs:comment "Credential or group of credentials that can be authenticated by this realm.";
+calli:email a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:comment "The primary email address for this user.";
+	rdfs:domain calli:User;
+	rdfs:range xsd:string.
+
+calli:authenticates a owl:ObjectProperty;
+	rdfs:comment "Group of credentials that can be authenticated by this realm.";
 	rdfs:domain calli:DigestRealm;
-	rdfs:range calli:Party.
+	rdfs:range calli:Group.
 
 calli:authName a rdf:Property, owl:FunctionalProperty;
 	rdfs:comment "A string to be displayed to users so they know which username and password to use. This string should contain at least the name of the host performing the authentication and might additionally indicate the collection of users who might have access. This string is used to encode the passwords and changing it will invalidates existing encoded passwords.";

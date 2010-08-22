@@ -96,7 +96,7 @@ public class GraphPatternReader extends PipedRDFEventReader {
 			if (optional) {
 				add(new Optional(true));
 			}
-			add(new TriplePattern(s, pred, o));
+			add(new TriplePattern(s, pred, o, triple.isInverse()));
 			if (nested) {
 				branch.ensureCapacity(depth + 1);
 				while (branch.size() <= depth + 1) {

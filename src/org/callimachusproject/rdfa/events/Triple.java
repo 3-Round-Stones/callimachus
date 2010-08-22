@@ -26,6 +26,11 @@ public class Triple extends TriplePattern {
 		super(subject, predicate, object);
 	}
 
+	public Triple(Node subject, IRI predicate, Term object,
+			boolean inverse) {
+		super(subject, predicate, object, inverse);
+	}
+
 	@Override
 	public Node getSubject() {
 		return (Node) super.getSubject();

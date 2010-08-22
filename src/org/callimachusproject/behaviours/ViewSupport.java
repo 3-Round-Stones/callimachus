@@ -46,6 +46,7 @@ import org.openrdf.http.object.annotations.operation;
 import org.openrdf.http.object.annotations.parameter;
 import org.openrdf.http.object.annotations.transform;
 import org.openrdf.http.object.annotations.type;
+import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.traits.VersionedObject;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
@@ -80,6 +81,8 @@ public abstract class ViewSupport implements Template, RDFObject,
 	public XMLEventReader calliConstruct(@parameter("mode") String mode,
 			@parameter("element") String element,
 			@parameter("about") String about) throws Exception {
+		if (about != null && (element == null || element.equals("/1")))
+			throw new BadRequest("Missing element parameter");
 		return calliConstructRDF(mode, element, about);
 	}
 
@@ -137,7 +140,8 @@ public abstract class ViewSupport implements Template, RDFObject,
 		String uri = about == null ? null : toUri().resolve(about).toASCIIString();
 		TriplePatternStore query = readPatternStore(mode, element, uri);
 		ObjectConnection con = getObjectConnection();
-		RDFEventReader rdf = new RDFStoreReader(toSPARQL(query.openQueryReader()), query, con, uri);
+		String sparql = toSPARQL(query.openQueryReader());
+		RDFEventReader rdf = new RDFStoreReader(sparql, query, con, uri);
 		rdf = new ReducedTripleReader(rdf);
 		if (uri != null) {
 			IRI subj = tf.iri(uri);

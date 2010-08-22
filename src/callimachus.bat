@@ -119,8 +119,12 @@ set "JID=%BASEDIR%\run\callimathus.jmx"
 :gotTmpdir
 
 if not "%LOGGING%" == "" goto gotLogging
-set "LOGGING=%BASEDIR%\etc\%NAME%.properties"
+set "LOGGING=%BASEDIR%\etc\logging.properties"
 :gotLogging
+
+if not "%MAIL%" == "" goto gotMail
+set "MAIL=%BASEDIR%\etc\mail.properties"
+:gotMail
 
 setlocal ENABLEDELAYEDEXPANSION
 for /r "%LIB%" %%a IN (*.jar) do set CLASSPATH=!CLASSPATH!;%%a
@@ -174,7 +178,7 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% --pid "%PID%" %OPT% %CMD_LINE_ARGS%
+"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% --pid "%PID%" %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStart
@@ -197,7 +201,7 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-start "%NAME%" "%JAVAW%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
+start "%NAME%" "%JAVAW%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStop

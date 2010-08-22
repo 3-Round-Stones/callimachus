@@ -42,7 +42,7 @@ if $darwin; then
 elif [ `uname -m` = "x86_64" ]; then
   EXECUTABLE="$PRGDIR/jsvc-linux-x86_64"
 else
-  EXECUTABLE="$PRGDIR/jsvc-linux-i386"
+  EXECUTABLE="$PRGDIR/jsvc-linux-i686"
 fi
 
 # Only set BASEDIR if not already set
@@ -184,7 +184,11 @@ if [ -z "$TMPDIR" ] ; then
 fi
 
 if [ -z "$LOGGING" ] ; then
-  LOGGING="$BASEDIR/etc/$NAME.properties"
+  LOGGING="$BASEDIR/etc/logging.properties"
+fi
+
+if [ -z "$MAIL" ] ; then
+  MAIL="$BASEDIR/etc/mail.properties"
 fi
 
 for JAR in "$BASEDIR"/lib/*.jar ; do
@@ -309,6 +313,7 @@ if [ "$1" = "start" ] ; then ################################
     -Djava.library.path="$LIB" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
+    -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
     $JSVC_OPTS $MAINCLASS -q $OPTS "$@"
 
@@ -416,6 +421,7 @@ else ################################
       -Djava.library.path="$LIB" \
       -Djava.io.tmpdir="$TMPDIR" \
       -Djava.util.logging.config.file="$LOGGING" \
+      -Djava.mail.properties="$MAIL" \
       -classpath "$CLASSPATH" \
       $JSVC_OPTS $MAINCLASS -q $OPTS "$@"
 

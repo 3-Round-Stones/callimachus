@@ -19,12 +19,15 @@ package org.callimachusproject.behaviours;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.StartElement;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.concepts.Template;
@@ -70,9 +73,19 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 			IOException, TransformerException {
 		try {
 			XMLEventReader doc = applyXSLT(mode);
-			if (element == null)
+			if (element == null || element.equals("/1"))
 				return doc;
-			return new XMLElementReader(doc, element);
+			if (!element.startsWith("/1/"))
+				throw new BadRequest("Invalid element parameter");
+			String parent = element.substring(0, element.lastIndexOf('/'));
+			String child = "/1" + element.substring(element.lastIndexOf('/'));
+			XMLElementReader xptr = new XMLElementReader(doc, parent);
+			boolean prel = isRelationshipElement(xptr);
+			xptr = new XMLElementReader(xptr, child);
+			boolean crel = isRelationshipElement(xptr);
+			if (!prel && !crel)
+				throw new BadRequest("Invalid element parameter");
+			return xptr;
 		} catch (NumberFormatException e) {
 			throw new BadRequest(e);
 		}
@@ -189,5 +202,29 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 			reader.close();
 		}
 		return href;
+	}
+
+	private boolean isRelationshipElement(XMLElementReader doc)
+			throws XMLStreamException {
+		doc.mark(1024);
+		try {
+			while (doc.hasNext() && !doc.peek().isStartElement()) {
+				doc.next();
+			}
+			if (doc.hasNext()) {
+				StartElement start = doc.nextEvent().asStartElement();
+				Iterator<Attribute> iter = start.getAttributes();
+				while (iter.hasNext()) {
+					String part = iter.next().getName().getLocalPart();
+					if ("rel".equals(part) || "rev".equals(part)
+							|| "property".equals(part)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		} finally {
+			doc.reset();
+		}
 	}
 }

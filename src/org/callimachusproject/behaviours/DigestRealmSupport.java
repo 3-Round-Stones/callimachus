@@ -155,8 +155,8 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 
 	@sparql(PREFIX
 			+ "SELECT ?user ?encoded\n"
-			+ "WHERE { ?user :name $name; :encoded ?encoded; :algorithm \"MD5\"\n"
-			+ "{ $this :credential ?user } UNION { $this :credential [:member ?user] }}")
+			+ "WHERE { ?user :name $name; :encoded ?encoded; :algorithm \"MD5\" .\n"
+			+ "$this :authenticates [:member ?user] }")
 	protected abstract List<Object[]> findDigest(@name("name") String username);
 
 	private Object authenticatedCredential(String method, String md5,

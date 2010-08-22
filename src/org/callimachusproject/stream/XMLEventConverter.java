@@ -17,7 +17,9 @@
 package org.callimachusproject.stream;
 
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayDeque;
 import java.util.NoSuchElementException;
+import java.util.Queue;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -27,6 +29,9 @@ import javax.xml.stream.util.EventReaderDelegate;
 
 public abstract class XMLEventConverter extends EventReaderDelegate {
 	private XMLEvent next;
+	private Queue<XMLEvent> buffer;
+	private boolean reset = true;
+	private int readlimit = 0;
 	private XMLStreamException nextException;
 
 	public XMLEventConverter() {
@@ -35,6 +40,17 @@ public abstract class XMLEventConverter extends EventReaderDelegate {
 
 	public XMLEventConverter(XMLEventReader reader) {
 		super(reader);
+	}
+
+	public void mark(int readlimit) {
+		buffer = new ArrayDeque<XMLEvent>(readlimit + 1);
+		this.readlimit = readlimit;
+		reset = false;
+	}
+
+	public void reset() {
+		reset = true;
+		readlimit = 0;
 	}
 
 	public boolean hasNext() {
@@ -96,10 +112,22 @@ public abstract class XMLEventConverter extends EventReaderDelegate {
 	protected abstract XMLEvent convert(XMLEvent event) throws XMLStreamException;
 
 	private XMLEvent take() throws XMLStreamException {
+		if (reset && buffer != null & !buffer.isEmpty()) {
+			return buffer.poll();
+		}
 		while (super.hasNext()) {
 			XMLEvent result = convert(super.nextEvent());
-			if (result != null)
+			if (result != null) {
+				if (readlimit > 0) {
+					buffer.add(result);
+					if (buffer.size() > readlimit) {
+						reset = true;
+						readlimit = 0;
+						buffer = null;
+					}
+				}
 				return result;
+			}
 		}
 		return null;
 	}

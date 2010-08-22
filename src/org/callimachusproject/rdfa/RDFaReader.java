@@ -429,7 +429,7 @@ public class RDFaReader extends RDFEventReader {
 				if (parent != null && parent.isHanging()) {
 					List<Node> rel = parent.getRel();
 					if (rel != null) {
-						triple(parent.getCurrentSubject(), rel, subj);
+						triple(parent.getCurrentSubject(), rel, subj, false);
 					}
 				}
 				if (isStartSubject()) {
@@ -438,7 +438,7 @@ public class RDFaReader extends RDFEventReader {
 				if (parent != null && parent.isHanging()) {
 					List<Node> rev = parent.getRev();
 					if (rev != null) {
-						triple(subj, rev, parent.getCurrentSubject());
+						triple(subj, rev, parent.getCurrentSubject(), true);
 					}
 				}
 			}
@@ -461,7 +461,7 @@ public class RDFaReader extends RDFEventReader {
 			List<Node> typeof = curies(attr("typeof"));
 			if (typeof != null) {
 				for (Node t : typeof) {
-					triple(subj, TYPE, t);
+					triple(subj, TYPE, t, false);
 				}
 			}
 			Node newSubject = getNewSubject();
@@ -469,28 +469,28 @@ public class RDFaReader extends RDFEventReader {
 			List<Node> rev = getRev();
 			if (parent != null && newSubject != null && isHanging() && empty) {
 				if (rel != null) {
-					triple(parent.getCurrentSubject(), rel, newSubject);
+					triple(parent.getCurrentSubject(), rel, newSubject, false);
 				}
 				if (rev != null) {
-					triple(newSubject, rev, parent.getCurrentSubject());
+					triple(newSubject, rev, parent.getCurrentSubject(), true);
 				}
 			} else if (isHanging() && empty) {
 				Node obj = getBlankNode();
 				if (rel != null) {
-					triple(subj, rel, obj);
+					triple(subj, rel, obj, false);
 				}
 				if (rev != null) {
-					triple(obj, rev, subj);
+					triple(obj, rev, subj, true);
 				}
 			} else if (!isHanging()) {
 				if (rel != null) {
-					triple(subj, rel, getResource());
+					triple(subj, rel, getResource(), false);
 				}
 				if (isStartResource()) {
 					queue.add(new Subject(true, getResource()));
 				}
 				if (rev != null) {
-					triple(getResource(), rev, subj);
+					triple(getResource(), rev, subj, true);
 				}
 			}
 		}
@@ -602,9 +602,9 @@ public class RDFaReader extends RDFEventReader {
 			return tf.curie(namespaceURI, reference, prefix);
 		}
 
-		private void triple(Node subj, List<Node> pred, Node obj) {
+		private void triple(Node subj, List<Node> pred, Node obj, boolean inverse) {
 			for (Node p : pred) {
-				queue.add(new Triple(subj, (IRI) p, obj));
+				queue.add(new Triple(subj, (IRI) p, obj, inverse));
 			}
 		}
 

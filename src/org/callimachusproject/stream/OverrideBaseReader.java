@@ -77,13 +77,13 @@ public class OverrideBaseReader extends PipedRDFEventReader {
 			Node subj = relative(tp.getSubject());
 			IRI pred = relative(tp.getPredicate());
 			Term obj = relative(tp.getObject());
-			add(new Triple(subj, pred, obj));
+			add(new Triple(subj, pred, obj, tp.isInverse()));
 		} else if (event.isTriplePattern()) {
 			TriplePattern tp = event.asTriplePattern();
 			VarOrTerm subj = relative(tp.getSubject());
 			VarOrIRI pred = relative(tp.getPredicate());
 			VarOrTerm obj = relative(tp.getObject());
-			add(new TriplePattern(subj, pred, obj));
+			add(new TriplePattern(subj, pred, obj, tp.isInverse()));
 		} else {
 			add(event);
 		}

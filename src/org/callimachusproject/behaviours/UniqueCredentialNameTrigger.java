@@ -14,7 +14,8 @@ public abstract class UniqueCredentialNameTrigger implements RDFObject {
 	}
 
 	@sparql(PREFIX
-			+ "ASK { $this calli:credential ?credential1; calli:credential ?credential2 .\n"
+			+ "ASK { $this calli:authenticates [calli:member ?credential1];\n"
+			+ " calli:authenticates [calli:member ?credential2] .\n"
 			+ "?credential1 calli:name ?name . ?credential2 calli:name ?name\n"
 			+ "FILTER (?credential1 != ?credential2) }")
 	protected abstract boolean isDuplicateCredentialName();

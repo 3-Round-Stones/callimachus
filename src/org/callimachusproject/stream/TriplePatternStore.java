@@ -125,10 +125,12 @@ public class TriplePatternStore {
 		VarOrTerm subj = tp.getSubject();
 		VarOrIRI pred = tp.getPredicate();
 		VarOrTerm obj = tp.getObject();
-		if (obj.isVar() && !(obj instanceof BlankOrLiteralVar)) {
+		if (tp.isInverse() && subj.isVar() && !(subj instanceof BlankOrLiteralVar)) {
+			pred = tf.iri(v + subj.stringValue());
+		} else if (!tp.isInverse() && obj.isVar() && !(obj instanceof BlankOrLiteralVar)) {
 			pred = tf.iri(v + obj.stringValue());
 		}
-		return new TriplePattern(subj, pred, obj);
+		return new TriplePattern(subj, pred, obj, tp.isInverse());
 	}
 
 	public RDFEventReader openQueryReader() {
@@ -196,22 +198,23 @@ public class TriplePatternStore {
 			if (event.isTriplePattern()) {
 				TriplePattern tp = event.asTriplePattern();
 				VarOrTerm subj = tp.getSubject();
+				VarOrTerm obj = tp.getObject();
 				List<TriplePattern> list = construct.get(subj);
 				if (list == null) {
 					construct.put(subj, list = new LinkedList<TriplePattern>());
 				}
 				if (subj.isVar() && !(subj instanceof BlankOrLiteralVar) && !variables.contains(subj)) {
 					VarOrIRI pred = tf.iri(v + subj.stringValue());
-					VarOrTerm obj = tp.getObject();
-					if (obj.isVar() && !(obj instanceof BlankOrLiteralVar) && variables.contains(obj)) {
+					if (tp.isInverse()) {
 						list.add(new TriplePattern(obj, pred, subj));
 					} else {
 						Reference ref = tf.reference(base.resolve(""), "");
 						list.add(new TriplePattern(ref, pred, subj));
 					}
 					variables.add(subj);
+				} else if (tp.isInverse()) {
+					list.add(new TriplePattern(obj, tp.getPredicate(), subj));
 				}
-				VarOrTerm obj = tp.getObject();
 				if (obj.isVar() && !(obj instanceof BlankOrLiteralVar)) {
 					variables.add(obj);
 				}

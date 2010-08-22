@@ -63,9 +63,10 @@ public class RDFStoreReader extends RDFEventReader {
 		this(sparql, store, con, null);
 	}
 
-	public RDFStoreReader(String sparql, TriplePatternStore store, RepositoryConnection con, String uri)
-			throws RepositoryException, MalformedQueryException,
-			QueryEvaluationException, RDFParseException, IOException {
+	public RDFStoreReader(String sparql, TriplePatternStore store,
+			RepositoryConnection con, String uri) throws RepositoryException,
+			MalformedQueryException, QueryEvaluationException,
+			RDFParseException, IOException {
 		this.patterns = store;
 		this.con = con;
 		IRI rdfRest = tf.iri(RDF + "rest");
@@ -78,10 +79,19 @@ public class RDFStoreReader extends RDFEventReader {
 		if (sparql != null) {
 			GraphQuery q = con.prepareGraphQuery(SPARQL, sparql);
 			if (uri != null && patterns != null) {
-				VarOrTerm subj = patterns.getFirstTriplePattern().getSubject();
-				if (subj.isVar()) {
-					ValueFactory vf = con.getValueFactory();
-					q.setBinding(subj.stringValue(), vf.createURI(uri));
+				TriplePattern tp = patterns.getFirstTriplePattern();
+				if (tp.isInverse()) {
+					VarOrTerm obj = tp.getObject();
+					if (obj.isVar()) {
+						ValueFactory vf = con.getValueFactory();
+						q.setBinding(obj.stringValue(), vf.createURI(uri));
+					}
+				} else if (tp.isInverse()) {
+					VarOrTerm subj = tp.getSubject();
+					if (subj.isVar()) {
+						ValueFactory vf = con.getValueFactory();
+						q.setBinding(subj.stringValue(), vf.createURI(uri));
+					}
 				}
 			}
 			result = new GraphResultReader(q.evaluate());

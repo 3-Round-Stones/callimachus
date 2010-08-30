@@ -16,6 +16,8 @@
  */
 package org.callimachusproject.behaviours;
 
+import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
@@ -39,7 +41,6 @@ import org.callimachusproject.stream.PrependTriple;
 import org.callimachusproject.stream.RDFStoreReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.ReducedTripleReader;
-import org.callimachusproject.stream.SPARQLWriter;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.openrdf.http.object.annotations.cacheControl;
 import org.openrdf.http.object.annotations.operation;
@@ -125,9 +126,10 @@ public abstract class ViewSupport implements Template, RDFObject,
 		return query.getBytes(Charset.forName("UTF-8"));
 	}
 
-	protected String toSPARQL(RDFEventReader query) throws RDFParseException,
-			IOException {
-		return SPARQLWriter.toSPARQL(query);
+	protected RDFEventReader readPatterns(String mode, String element,
+			String about) throws XMLStreamException, IOException,
+			TransformerException {
+		return openPatternReader(mode, element, about);
 	}
 
 	protected abstract Reader calliConstructTemplate(String mode,
@@ -140,8 +142,7 @@ public abstract class ViewSupport implements Template, RDFObject,
 		String uri = about == null ? null : toUri().resolve(about).toASCIIString();
 		TriplePatternStore query = readPatternStore(mode, element, uri);
 		ObjectConnection con = getObjectConnection();
-		String sparql = toSPARQL(query.openQueryReader());
-		RDFEventReader rdf = new RDFStoreReader(sparql, query, con, uri);
+		RDFEventReader rdf = new RDFStoreReader(query, con, uri);
 		rdf = new ReducedTripleReader(rdf);
 		if (uri != null) {
 			IRI subj = tf.iri(uri);
@@ -154,6 +155,20 @@ public abstract class ViewSupport implements Template, RDFObject,
 			}
 		}
 		return new RDFXMLEventReader(rdf);
+	}
+
+	private TriplePatternStore readPatternStore(String mode, String element,
+			String about) throws XMLStreamException, IOException,
+			TransformerException, RDFParseException {
+		String base = toUri().toASCIIString();
+		TriplePatternStore query = new TriplePatternStore(base);
+		RDFEventReader reader = readPatterns(mode, element, about);
+		try {
+			query.consume(reader);
+		} finally {
+			reader.close();
+		}
+		return query;
 	}
 
 	private String getETag(String uri) throws RepositoryException {

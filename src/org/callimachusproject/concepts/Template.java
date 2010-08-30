@@ -23,7 +23,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.rdfa.RDFEventReader;
-import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.openrdf.repository.object.annotations.iri;
@@ -36,13 +35,23 @@ public interface Template {
 	 */
 	Reader calliConstruct(String mode, Object target) throws Exception;
 
+	/**
+	 * Returns only the primary patterns as for the given subject.
+	 * @param about the subject to filter the pattern with.
+	 */
 	RDFEventReader openBoundedPatterns(String mode, String about)
 			throws XMLStreamException, IOException, TransformerException;
 
-	TriplePatternStore readPatternStore(String mode, String element,
+	/**
+	 * Reads the template as a graph pattern.
+	 */
+	RDFEventReader openPatternReader(String mode, String element,
 			String about) throws XMLStreamException, IOException,
-			TransformerException, RDFParseException;
+			TransformerException;
 
+	/**
+	 * Reads only the patterns for the object of the given pattern.
+	 */
 	RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
 			TriplePattern pattern);
 }

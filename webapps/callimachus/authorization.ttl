@@ -48,6 +48,7 @@ calli:authorize-credential-arg4 a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:range xsd:string;
 	obj:name "qs".
 
+# Users can view, review, edit, copy, delete, or any other operations on their user resource
 calli:authorize-self owl:equivalentClass calli:authorize-credential;
 	obj:groovy "return msg.subject == msg.credential || msg.functionalLiteralResponse".
 
@@ -70,7 +71,7 @@ calli:authorize-maintainer owl:equivalentClass calli:authorize-credential;
 		}
 	""".
 
-calli:authorize-member owl:equivalentClass calli:authorize-user;
+calli:authorize-member owl:equivalentClass calli:authorize-credential;
 	obj:sparql """
 		ASK {
 			?group calli:member $credential

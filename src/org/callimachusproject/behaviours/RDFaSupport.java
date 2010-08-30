@@ -37,6 +37,7 @@ import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.rdfa.events.Base;
 import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.TriplePattern;
+import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.BoundedRDFReader;
 import org.callimachusproject.stream.GraphPatternReader;
 import org.callimachusproject.stream.OverrideBaseReader;
@@ -106,26 +107,16 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 		return new BoundedRDFReader(openPatternReader(mode, null, about));
 	}
 
-	public TriplePatternStore readPatternStore(String mode, String element,
-			String about) throws XMLStreamException, IOException,
-			TransformerException, RDFParseException {
-		String base = toUri().toASCIIString();
-		TriplePatternStore query = new TriplePatternStore(base);
-		RDFEventReader reader = openPatternReader(mode, element, about);
-		try {
-			query.consume(reader);
-		} finally {
-			reader.close();
-		}
-		return query;
-	}
-
 	public RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
 			TriplePattern pattern) {
-		final TriplePattern project = patterns.getProjectedPattern(pattern);
-		RDFEventReader query = patterns.openQueryBySubject(pattern.getObject());
+		VarOrTerm subj = pattern.getObject();
+		if (pattern.isInverse()) {
+			subj = pattern.getSubject();
+		}
+		RDFEventReader query = patterns.openQueryBySubject(subj);
 		if (query == null)
 			return null;
+		final TriplePattern project = patterns.getProjectedPattern(pattern);
 		query = new PipedRDFEventReader(query) {
 			private boolean sent;
 
@@ -140,7 +131,7 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 		return query;
 	}
 
-	private RDFEventReader openPatternReader(String mode, String element,
+	public RDFEventReader openPatternReader(String mode, String element,
 			String about) throws XMLStreamException, IOException,
 			TransformerException {
 		RDFEventReader reader = new RDFaReader(about, xslt(mode, element),

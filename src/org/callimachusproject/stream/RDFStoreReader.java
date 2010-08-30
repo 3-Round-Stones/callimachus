@@ -20,9 +20,12 @@ import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,6 +54,7 @@ public class RDFStoreReader extends RDFEventReader {
 	private TermFactory tf = TermFactory.newInstance();
 	private RepositoryConnection con;
 	private TriplePatternStore patterns;
+	private Iterator<? extends RDFEventReader> results;
 	private RDFEventReader result;
 	private Map<VarOrIRI, VarOrTerm> rdfLists = new HashMap<VarOrIRI, VarOrTerm>();
 	private Set<Triple> listQueue = new LinkedHashSet<Triple>();
@@ -60,10 +64,23 @@ public class RDFStoreReader extends RDFEventReader {
 	public RDFStoreReader(String sparql, TriplePatternStore store, RepositoryConnection con)
 			throws RepositoryException, MalformedQueryException,
 			QueryEvaluationException, RDFParseException, IOException {
-		this(sparql, store, con, null);
+		this.patterns = store;
+		this.con = con;
+		IRI rdfRest = tf.iri(RDF + "rest");
+		for (TriplePattern rest : patterns.getPatternsByPredicate(rdfRest)) {
+			VarOrIRI pred = patterns.getProjectedPattern(rest).getPredicate();
+			if (!rest.getSubject().isVar() || !pred.isIRI())
+				continue;
+			rdfLists.put(pred, rest.getSubject());
+		}
+		if (sparql != null) {
+			GraphQuery q = con.prepareGraphQuery(SPARQL, sparql);
+			results = Collections.singleton(new GraphResultReader(q.evaluate())).iterator();
+		}
+	
 	}
 
-	public RDFStoreReader(String sparql, TriplePatternStore store,
+	public RDFStoreReader(TriplePatternStore store,
 			RepositoryConnection con, String uri) throws RepositoryException,
 			MalformedQueryException, QueryEvaluationException,
 			RDFParseException, IOException {
@@ -76,9 +93,10 @@ public class RDFStoreReader extends RDFEventReader {
 				continue;
 			rdfLists.put(pred, rest.getSubject());
 		}
-		if (sparql != null) {
-			GraphQuery q = con.prepareGraphQuery(SPARQL, sparql);
-			if (uri != null && patterns != null) {
+		List<RDFEventReader> list = new ArrayList<RDFEventReader>();
+		for (RDFEventReader query : store.openWellJoinedQueries()) {
+			GraphQuery q = con.prepareGraphQuery(SPARQL, toSPARQL(query));
+			if (uri != null) {
 				TriplePattern tp = patterns.getFirstTriplePattern();
 				if (tp.isInverse()) {
 					VarOrTerm obj = tp.getObject();
@@ -86,7 +104,7 @@ public class RDFStoreReader extends RDFEventReader {
 						ValueFactory vf = con.getValueFactory();
 						q.setBinding(obj.stringValue(), vf.createURI(uri));
 					}
-				} else if (tp.isInverse()) {
+				} else {
 					VarOrTerm subj = tp.getSubject();
 					if (subj.isVar()) {
 						ValueFactory vf = con.getValueFactory();
@@ -94,22 +112,22 @@ public class RDFStoreReader extends RDFEventReader {
 					}
 				}
 			}
-			result = new GraphResultReader(q.evaluate());
+			list.add(new GraphResultReader(q.evaluate()));
 		}
+		results = list.iterator();
 	}
 
 	public String toString() {
-		if (result == null && patterns == null)
-			return super.toString();
-		if (result == null)
-			return patterns.toString();
-		return result.toString();
+		return patterns.toString();
 	}
 
 	@Override
 	public void close() throws RDFParseException {
 		if (result != null) {
 			result.close();
+		}
+		while (results.hasNext()) {
+			results.next().close();
 		}
 	}
 
@@ -119,6 +137,12 @@ public class RDFStoreReader extends RDFEventReader {
 			if (!started) {
 				started = true;
 				return new Document(true);
+			}
+			if (result == null && results.hasNext()) {
+				result = results.next();
+			} else if (result != null && !result.hasNext() && results.hasNext()) {
+				result.close();
+				result = results.next();
 			}
 			if (result != null && result.hasNext()) {
 				RDFEvent next = result.next();
@@ -144,8 +168,6 @@ public class RDFStoreReader extends RDFEventReader {
 				ended = true;
 				return new Document(false);
 			}
-			if (patterns == null)
-				return null;
 			Iterator<Triple> iter = listQueue.iterator();
 			Triple rest = iter.next();
 			iter.remove();

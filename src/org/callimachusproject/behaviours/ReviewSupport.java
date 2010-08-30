@@ -2,6 +2,9 @@ package org.callimachusproject.behaviours;
 
 import java.io.IOException;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerException;
+
 import org.callimachusproject.concepts.Template;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
@@ -15,7 +18,6 @@ import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.rdfa.model.Var;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.PipedRDFEventReader;
-import org.callimachusproject.stream.SPARQLWriter;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.sail.auditing.vocabulary.Audit;
@@ -30,11 +32,10 @@ public abstract class ReviewSupport extends ViewSupport implements Template,
 	private static final String SUBJECT = RDF.SUBJECT.stringValue();
 
 	@Override
-	protected String toSPARQL(RDFEventReader query) throws RDFParseException,
-			IOException {
-		if (query == null)
-			return null;
-		return SPARQLWriter.toSPARQL(new PipedRDFEventReader(query) {
+	protected RDFEventReader readPatterns(String mode, String el,
+			String about) throws XMLStreamException, IOException,
+			TransformerException {
+		return new PipedRDFEventReader(super.readPatterns(mode, el, about)) {
 			TermFactory tf = TermFactory.newInstance();
 			IRI revision = tf.iri(REVISION);
 			IRI contained = tf.iri(CONTAINED);
@@ -78,7 +79,7 @@ public abstract class ReviewSupport extends ViewSupport implements Template,
 					return false;
 				return tp.getObject().isVar();
 			}
-		});
+		};
 	}
 
 }

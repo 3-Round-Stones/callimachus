@@ -107,6 +107,10 @@ public class TriplePatternStore {
 							list = new ArrayList<TriplePattern>());
 				}
 				list.add(tp);
+			} else if (!event.isStartDocument() && !event.isEndDocument()) {
+				for (List<RDFEvent> l : active.values()) {
+					l.add(event);
+				}
 			}
 		}
 	}
@@ -137,6 +141,53 @@ public class TriplePatternStore {
 		if (where.isEmpty())
 			return null;
 		return openQueryReader(where);
+	}
+
+	/**
+	 * If the query starts off with OPIONAL blocks return prefixing OPTIONAL
+	 * blocks as a separate queries. Otherwise just return one query.
+	 */
+	public List<RDFEventReader> openWellJoinedQueries() {
+		if (where.isEmpty())
+			return Collections.emptyList();
+		List<RDFEventReader> list = new ArrayList<RDFEventReader>();
+		List<RDFEvent> main = new ArrayList<RDFEvent>();
+		List<RDFEvent> ignorable = new ArrayList<RDFEvent>();
+		List<RDFEvent> block = null;
+		int level = 0;
+		for (RDFEvent event : where) {
+			if (!main.isEmpty()) {
+				main.add(event);
+			} else if (event.isStartOptional()) {
+				if (level == 0) {
+					block = new ArrayList<RDFEvent>();
+				} else {
+					block.add(event);
+				}
+				level++;
+			} else if (event.isEndOptional()) {
+				level--;
+				if (level == 0) {
+					list.add(openQueryReader(block));
+					block = null;
+				} else {
+					block.add(event);
+				}
+			} else if (level == 0 && event.isStartSubject()
+					|| event.isEndSubject()) {
+				ignorable.add(event);
+			} else if (level == 0) {
+				main.addAll(ignorable);
+				ignorable.clear();
+				main.add(event);
+			} else {
+				block.add(event);
+			}
+		}
+		if (!main.isEmpty()) {
+			list.add(openQueryReader(main));
+		}
+		return list;
 	}
 
 	public RDFEventReader openQueryBySubject(VarOrTerm subj) {

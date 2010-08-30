@@ -18,14 +18,18 @@ package org.callimachusproject.behaviours;
 
 import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.concepts.Template;
 import org.callimachusproject.rdfa.RDFEventReader;
+import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.BuiltInCall;
 import org.callimachusproject.rdfa.events.ConditionalOrExpression;
 import org.callimachusproject.rdfa.events.Expression;
@@ -72,6 +76,20 @@ public abstract class SearchSupport implements Template, SoundexTrait,
 		ObjectConnection con = getObjectConnection();
 		RDFEventReader rdf = new RDFStoreReader(toSPARQL(query), patterns, con);
 		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
+	}
+
+	private TriplePatternStore readPatternStore(String mode, String element,
+			String about) throws XMLStreamException, IOException,
+			TransformerException, RDFParseException {
+		String base = toUri().toASCIIString();
+		TriplePatternStore query = new TriplePatternStore(base);
+		RDFEventReader reader = openPatternReader(mode, element, about);
+		try {
+			query.consume(reader);
+		} finally {
+			reader.close();
+		}
+		return query;
 	}
 
 	private IterableRDFEventReader filterPrefix(TriplePatternStore patterns,

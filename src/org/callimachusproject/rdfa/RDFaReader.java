@@ -79,7 +79,7 @@ public class RDFaReader extends RDFEventReader {
 		this.reader = reader;
 		this.systemId = systemId;
 		this.base = new Base(base == null ? systemId : base);
-		this.document = tf.reference(base, "");
+		this.document = tf.reference(this.base.getBase(), "");
 	}
 
 	public String toString() {

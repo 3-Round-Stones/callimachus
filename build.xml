@@ -21,11 +21,11 @@
 	<property name="mail.url" value="http://mirrors.ibiblio.org/pub/mirrors/maven2/javax/mail/mail/1.4.1/mail-1.4.1.jar" />
 	<property name="jchardet.url" value="http://downloads.sourceforge.net/project/jchardet/jchardet/1.1/jchardet-1.1.zip" />
 	<property name="jnotify.url" value="http://downloads.sourceforge.net/project/jnotify/jnotify/jnotify-0.93/jnotify-lib-0.93.zip" />
-	<property name="daemon.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.3/commons-daemon-1.0.3-bin.zip" />
-	<property name="daemon-linux-i686.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.3/linux/commons-daemon-1.0.3-bin-linux-i686.tar.gz" />
-	<property name="download-lunix-x86_64.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.3/linux/commons-daemon-1.0.3-bin-linux-x86_64.tar.gz" />
-	<property name="daemon-darwin.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.3/darwin/commons-daemon-1.0.3-bin-darwin-universal.tar.gz" />
-	<property name="daemon-windows.url" value="http://www.apache.org/dist/commons/daemon/binaries/1.0.3/windows/commons-daemon-1.0.3-bin-windows.zip" />
+	<property name="daemon.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/commons-daemon-1.0.2-bin.zip" />
+	<property name="daemon-linux-i686.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-i386.tar.gz" />
+	<property name="download-lunix-x86_64.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-x86_64.tar.gz" />
+	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
+	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
 	<property name="main" value="org.callimachusproject.Server" />
 	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Djava.io.tmpdir=${tmp} -Duser.home=${home}" />
 	<property name="args" value="-p 8080 -a localhost:8080" />

@@ -13,7 +13,15 @@ body {
 	margin: 0px;
 }
 
-#credentials {
+a[href] {
+	text-decoration: none;
+}
+
+a[href]:hover {
+	text-decoration: underline;
+}
+
+#credentials-div {
 	float: right;
 	font-size: small;
 	margin-right: 1ex;
@@ -128,6 +136,14 @@ body {
 	color: black;
 }
 
+#search-nav {
+	text-align: center;
+}
+
+#search-nav button[type=submit] {
+	font-weight: bold;
+}
+
 #content {
 	background-color: white;
 	border: 1px solid #3F547F;
@@ -136,6 +152,10 @@ body {
 	margin: 0px 1ex 1ex 17ex;
 	padding: 1ex;
 	min-height: 150pt;
+}
+
+#menu {
+	float: right;
 }
 
 .drag-over {

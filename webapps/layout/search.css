@@ -1,0 +1,29 @@
+/* search.css */
+
+#results {
+	list-style-type: square;
+}
+
+#results * {
+	margin: 0px;
+}
+
+#results li {
+	margin-top: 1ex;
+}
+
+#results img.icon {
+	padding-right: 2pt;
+}
+
+.wiki {
+	padding-left: 16px;
+	line-height: 1em;
+	max-height: 3.1em;
+	overflow: hidden;
+}
+
+.cite {
+	padding-left: 16px;
+	color: #3F547F;
+}

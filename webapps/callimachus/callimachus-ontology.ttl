@@ -172,6 +172,11 @@ calli:unauthorized a owl:ObjectProperty;
 	rdfs:domain calli:Realm;
 	rdfs:range calli:Template.
 
+calli:reviewer a owl:ObjectProperty;
+	rdfs:comment "Credential or group of credentials that can view this resource remotely.";
+	rdfs:domain calli:Viewable;
+	rdfs:range calli:Party.
+
 calli:scribe a owl:ObjectProperty;
 	rdfs:comment "Credential or group of credentials that can copy this resource remotely.";
 	rdfs:domain calli:Copyable;
@@ -182,10 +187,8 @@ calli:curator a owl:ObjectProperty;
 	rdfs:domain calli:Copyable;
 	rdfs:range calli:Party.
 
-calli:reviewer a owl:ObjectProperty;
-	rdfs:comment "Credential or group of credentials that can view this resource remotely.";
-	rdfs:domain calli:Viewable;
-	rdfs:range calli:Party.
+calli:conservator a owl:AnnotationProperty;
+	rdfs:comment "Credential or group of credentials that can maintain individual resources of this class.".
 
 calli:maintainer a owl:ObjectProperty;
 	rdfs:comment "Credential or group of credentials that can interact with this resource remotely.";

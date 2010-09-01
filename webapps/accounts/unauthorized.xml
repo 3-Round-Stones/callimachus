@@ -1,0 +1,39 @@
+<?xml-stylesheet type="text/xsl" href="../layout/template.xsl"?>
+<html>
+	<head>
+		<title>Unauthorized</title>
+		<script>//<![CDATA[
+			function requestPassword(url, email) {
+				var req = new XMLHttpRequest()
+				req.open("POST", url, true)
+				req.setRequestHeader("Content-Type", "text/plain")
+				req.onreadystatechange = function() {
+					if (req.readyState == 4) {
+						if (req.status < 300) {
+							document.getElementById("success").style.display = "block"
+						} else {
+							document.getElementById("error").innerHTML = req.responseText
+						}
+					}
+				}
+				req.send(email)
+			}
+			// ]]>
+		</script>
+	</head>
+	<body>
+		<h1>Forget Your Password?</h1>
+		<p>You can request a new password by providing the e-mail address associated with your account.</p>
+		<form method="POST" action="/accounts/authority?request-password"
+				onsubmit="requestPassword(action, elements['email'].value);return false">
+			<label for="email">Account e-mail address:</label>
+			<input type="text" name="email" id="email" />
+			<button type="submit">Request Password</button>
+		</form>
+		<div id="success" style="display:none">
+			<p>If the email address provided is on file, instructions have been sent.</p>
+			<p>Please follow the instruction sent in the email to proceed.</p>
+		</div>
+		<p id="error"/>
+	</body>
+</html>

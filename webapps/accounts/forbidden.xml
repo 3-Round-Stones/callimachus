@@ -1,0 +1,11 @@
+<?xml-stylesheet type="text/xsl" href="../layout/template.xsl"?>
+<html>
+	<head>
+		<title>Forbidden</title>
+	</head>
+	<body>
+		<h1>Operation Not Permitted</h1>
+		<p>Your account does not have permission to perform this operation on this resource.
+			Please speak with the system's administrator for assistance.</p>
+	</body>
+</html>

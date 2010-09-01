@@ -34,11 +34,3 @@ calli:describe rdfs:subClassOf obj:Message;
 		return null;
 	""".
 
-calli:about rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:allValuesFrom xsd:string];
-	http:title "IRI";
-	http:rel "describedby";
-	http:operation "about";
-	http:type "text/uri-list;q=0.2";
-	obj:java "return getResource().toString();".

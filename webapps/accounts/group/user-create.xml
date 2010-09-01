@@ -1,0 +1,87 @@
+<?xml-stylesheet type="text/xsl" href="../../layout/template.xsl"?>
+<html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	<head>
+		<title property="rdfs:label"/>
+		<link rel="view" title="View" target="_self" href="?view" />
+		<link rel="edit" title="Edit" target="_self" href="?edit" />
+		<link rel="review" title="Review" target="_self" href="?review" />
+		<script>
+			function confirm() {
+				var email = document.getElementById("email-input")
+				var confirm = document.getElementById("confirm-input")
+				if (email.value == confirm.value) {
+					confirm.style.outlineWidth = "0px"
+				} else {
+					confirm.style.outlineWidth = "2px"
+					confirm.style.outlineColor = "red"
+					confirm.style.outlineStyle = "ridge"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<form action="" about="">
+			<div rel="rdf:type" resource="/accounts/user/User" />
+			<fieldset>
+				<legend>Account information</legend>
+				<table>
+					<tbody>
+						<tr>
+							<th>
+								<label for="name-input">Username:</label>
+							</th>
+							<td data-cardinality="1">
+								<input id="name-input" property="calli:name" type="text" 
+									onchange="$(form).attr('about', '../user/' + encodeURI(value).replace('%20','+'))" />
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="email-input">E-Mail address:</label>
+							</th>
+							<td data-cardinality="1">
+								<input id="email-input" property="calli:email" type="text" onchange="confirm()" onkeyup="setTimeout(confirm, 100)" />
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="confirm-input">Confirm address:</label>
+							</th>
+							<td>
+								<input id="confirm-input" type="text" onchange="confirm()" onkeyup="setTimeout(confirm, 100)" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+			<fieldset>
+				<legend>Shared information</legend>
+				<table>
+					<tbody>
+						<tr>
+							<th>
+								<label for="label-input">Common name:</label>
+							</th>
+							<td data-cardinality="1">
+								<input id="label-input" property="rdfs:label" type="text" />
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="comment-textarea">Information:</label>
+							</th>
+							<td data-cardinality="1">
+								<textarea id="comment-textarea" class="auto-expand"
+									property="rdfs:comment"></textarea>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+			<input value="Create" type="submit" />
+		</form>
+	</body>
+</html>

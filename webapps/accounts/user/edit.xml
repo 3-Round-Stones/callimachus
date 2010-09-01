@@ -1,0 +1,117 @@
+<?xml-stylesheet type="text/xsl" href="../../layout/template.xsl"?>
+<html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	<head>
+		<title property="rdfs:label"/>
+		<script src="/accounts/user/md5.js">
+		</script>
+		<script>//<![CDATA[
+			function confirm(id) {
+				var password = document.getElementById(id)
+				var confirm = document.getElementById("confirm-" + id)
+				if (password.value == confirm.value) {
+					confirm.style.outlineWidth = "0px"
+				} else {
+					confirm.style.outlineWidth = "2px"
+					confirm.style.outlineColor = "red"
+					confirm.style.outlineStyle = "ridge"
+				}
+			}
+			function savePassword(value) {
+				var name = document.getElementById("name-span")
+				var realm = document.getElementById("realm-span")
+				name = name.textContent || name.innerText
+				realm = realm.getAttribute("resource") || realm.textContent || realm.innerText
+				var encoded = hex_md5(name + ':' + realm + ':' + value)
+				var span = document.getElementById("encoded-span")
+				span.textContent = encoded
+				span.innerText = encoded
+			}
+			// ]]>
+		</script>
+	</head>
+	<body>
+		<form action="" about="">
+			<fieldset>
+				<legend>Shared information</legend>
+				<table>
+					<tbody>
+						<tr>
+							<th>
+								<label for="label-input">Common name:</label>
+							</th>
+							<td data-cardinality="1">
+								<input id="label-input" property="rdfs:label" type="text" />
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="comment-textarea">General information:</label>
+							</th>
+							<td data-cardinality="1">
+								<textarea id="comment-textarea" class="auto-expand"
+									property="rdfs:comment"></textarea>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+			<fieldset>
+				<legend>Account information</legend>
+				<table>
+					<tbody>
+						<tr>
+							<th>
+								<label for="email-input">E-Mail address:</label>
+							</th>
+							<td data-cardinality="1">
+								<input id="email-input" property="calli:email" type="text" 
+									onchange="confirm('email-input')" 
+									onkeyup="setTimeout(function(){confirm('email-input')}, 100)" />
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="confirm-email-input">Confirm address:</label>
+							</th>
+							<td>
+								<input id="confirm-email-input" type="text" 
+									onchange="confirm('email-input')" 
+									onkeyup="setTimeout(function(){confirm('email-input')}, 100)" />
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="password-input">Change password:</label>
+							</th>
+							<td>
+								<input id="password-input" type="password"
+									onchange="savePassword(value);confirm('password-input')" 
+									onkeyup="setTimeout(function(){confirm('password-input')}, 100)" />
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label for="confirm-password-input">Confirm password:</label>
+							</th>
+							<td>
+								<input id="confirm-password-input" type="password" 
+									onchange="confirm('password-input')" 
+									onkeyup="setTimeout(function(){confirm('password-input')}, 100)" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+			<input value="Delete" type="button" onclick="location.href='?delete'" />
+			<input value="Save" type="submit" />
+			<span style="display:none">
+				<span id="encoded-span" property="calli:encoded" />
+				<span id="name-span" property="calli:name" />
+				<span id="realm-span" resource="/" />
+			</span>
+		</form>
+	</body>
+</html>

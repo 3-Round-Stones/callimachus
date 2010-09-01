@@ -1,0 +1,106 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+# Group curators can create users
+:user-create-authorize owl:equivalentClass calli:authorize-credential;
+	obj:sparql """
+		ASK {
+			$subject a <Group>
+			{
+				$subject calli:scribe $credential
+			} UNION {
+				$subject calli:curator $credential
+			} UNION {
+				$subject calli:scribe [calli:member $credential]
+			} UNION {
+				$subject calli:curator [calli:member $credential]
+			}
+			FILTER ($qs = "user-create")
+		}
+	""".
+
+:get-user-create rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom <Group>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.Reader>];
+	http:operation "user-create";
+	http:type "text/html";
+	http:realm <../authority>;
+	obj:imports <user-create.xml>;
+	obj:groovy """
+		return userCreateXml.calliConstruct('copy', this)
+	""".
+
+:post-user-create rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom <Group>];
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	http:method "POST";
+	http:operation "user-create";
+	http:realm <../authority>;
+	http:expect "201-created";
+	obj:imports <user-create.xml>;
+	obj:imports <../user/mail-password.xml>;
+	obj:imports <../../user/>;
+	obj:imports <../authority>;
+	obj:imports calli:name;
+	obj:imports calli:email;
+	obj:imports <java:org.openrdf.rio.rdfxml.RDFXMLParser>;
+	obj:imports <java:org.openrdf.rio.helpers.StatementCollector>;
+	obj:imports <java:org.openrdf.model.impl.LinkedHashModel>;
+	obj:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+	obj:groovy """
+		def byteArray = msg.bytes.toByteArray()
+		def stream = new ByteArrayInputStream(byteArray)
+		def copy = userCreateXml.calliCopyResource(this, stream, Collections.singleton(user))
+		if (calliCurators) {
+			copy.calliMaintainers.addAll(calliCurators)
+		} else {
+			copy.calliMaintainers.addAll(findScribe(copy))
+		}
+		calliMembers.add(copy)
+		//# copy is empty if no transaction support (HTTPRepository)
+		def model = new LinkedHashModel()
+		def parser = new RDFXMLParser()
+		parser.setRDFHandler(new StatementCollector(model))
+		parser.parse(new ByteArrayInputStream(byteArray), "$this")
+		def id = model.find(null, name.resource, null).objectLiteral().label
+		def addr = model.find(null, email.resource, null).objectLiteral().label
+		//# generate and save a password
+		def password = copy.generatePassword()
+		String token = "${id}:${authority.calliAuthName}:${password}"
+		calliAlgorithm = "MD5"
+		calliEncoded = DigestUtils.md5(token.getBytes("UTF-8"))
+		//# email the password to the email address provided
+		Reader reader = mailPasswordXml.calliConstruct('view', copy)
+		try {
+			CharArrayWriter writer = new CharArrayWriter()
+			int read
+			char[] cbuf = new char[1024]
+			while ((read = reader.read(cbuf)) >= 0) {
+				writer.write(cbuf, 0, read)
+			}
+			String body = writer.toString()
+			body = body.replaceAll("@@USERNAME@@", id)
+			body = body.replaceAll("@@PASSWORD@@", password)
+			copy.sendMessage(body, addr)
+		} finally {
+			reader.close()
+		}
+		return this
+	""".
+
+:post-user-create-byteArray a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :post-user-create;
+	rdfs:range <java:java.io.ByteArrayOutputStream>;
+	http:type "application/rdf+xml";
+	obj:name "bytes".
+

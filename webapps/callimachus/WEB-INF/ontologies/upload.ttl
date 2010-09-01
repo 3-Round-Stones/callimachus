@@ -51,7 +51,7 @@ calli:put-graph-type a owl:DatatypeProperty; a owl:FunctionalProperty;
 calli:put-graph-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:put-graph;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/rdf+xml", "text/turtle", "application/x-turtle";
+	http:type "application/rdf+xml;q=0.1", "text/turtle;q=0.1", "application/x-turtle;q=0.1";
 	obj:name "body".
 
 calli:delete-graph rdfs:subClassOf obj:Message;
@@ -103,7 +103,7 @@ calli:put-text-file-type a owl:DatatypeProperty; a owl:FunctionalProperty;
 calli:put-text-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:put-text-file;
 	rdfs:range <java:java.io.Reader>;
-	http:type "text/html", "text/css", "text/javascript", "text/plain";
+	http:type "text/html;q=0.1", "text/css;q=0.1", "text/javascript;q=0.1", "text/plain;q=0.1";
 	obj:name "body".
 
 calli:delete-text-file rdfs:subClassOf obj:Message;
@@ -157,7 +157,7 @@ calli:put-file-type a owl:DatatypeProperty; a owl:FunctionalProperty;
 calli:put-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:put-file;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "image/png", "image/jpeg", "image/gif", "image/vnd.microsoft.icon", "application/pdf";
+	http:type "image/png;q=0.1", "image/jpeg;q=0.1", "image/gif;q=0.1", "image/vnd.microsoft.icon;q=0.1", "application/pdf;q=0.1";
 	obj:name "body".
 
 calli:delete-file rdfs:subClassOf obj:Message;
@@ -205,7 +205,7 @@ calli:put-xsl rdfs:subClassOf obj:Message;
 calli:put-xsl-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:put-xsl;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "text/xsl";
+	http:type "text/xsl;q=0.1";
 	obj:name "body".
 
 calli:delete-xsl rdfs:subClassOf obj:Message;
@@ -252,7 +252,7 @@ calli:put-template rdfs:subClassOf obj:Message;
 calli:put-template-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:put-template;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/xml";
+	http:type "application/xml;q=0.1";
 	obj:name "body".
 
 calli:delete-template rdfs:subClassOf obj:Message;

@@ -1,0 +1,73 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<local> a calli:LocalRealm;
+	calli:origin <../../>;
+	calli:domain <../../>.
+
+:already-user-setup rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom <Group>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom xsd:boolean];
+	obj:name "isAlreadyUserSetup";
+	obj:sparql """
+		ASK {
+			{
+				?authority calli:authenticates $this, ?other
+				FILTER (?other != $this)
+			} UNION {
+				$this calli:member ?member
+			}
+		}
+	""".
+
+:get-user-setup rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom <Group>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.Reader>];
+	http:operation "user-setup";
+	http:type "text/html";
+	http:realm <local>;
+	obj:imports <user-setup.xml>;
+	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	obj:groovy """
+		if (isAlreadyUserSetup())
+			throw new BadRequest("This service has already been setup")
+		return userSetupXml.calliConstruct('copy', this)
+	""".
+
+:post-user-setup rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom <Group>];
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	http:method "POST";
+	http:operation "user-setup";
+	http:realm <local>;
+	http:expect "201-created";
+	obj:imports <user-setup.xml>;
+	obj:imports <../../user/>;
+	obj:imports <../authority>;
+	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	obj:groovy """
+		if (isAlreadyUserSetup())
+			throw new BadRequest("This service has already been setup")
+		def copy = userSetupXml.calliCopyResource(this, msg.stream, Collections.singleton(user))
+		calliMembers.add(copy)
+		return objectConnection.getObject("$authority?login")
+	""".
+
+:post-user-setup-stream a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :post-user-setup;
+	rdfs:range <java:java.io.InputStream>;
+	http:type "application/rdf+xml";
+	obj:name "stream".
+

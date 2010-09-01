@@ -1,0 +1,88 @@
+<?xml-stylesheet type="text/xsl" href="../../layout/template.xsl"?>
+<html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	<head>
+		<title property="rdfs:label"/>
+		<link rel="view" title="View" target="_self" href="?view" />
+		<link rel="edit" title="Edit" target="_self" href="" />
+		<link rel="review" title="Review" target="_self" href="?review" />
+	</head>
+	<body>
+		<form action="" about="">
+			<fieldset>
+				<legend property="rdfs:label" />
+				<table>
+					<tbody>
+						<tr>
+							<th>
+								<label for="comment-textarea">Description:</label>
+							</th>
+							<td data-cardinality="1">
+								<textarea id="comment-textarea" class="auto-expand"
+									property="rdfs:comment"></textarea>
+							</td>
+							<td>
+								<p class="desc">Wiki text description of the group.</p>
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label>Scribes:</label>
+							</th>
+							<td rel="calli:scribe" data-prompt="?copy">
+								<span about="?scribe">
+									<span rel="rdf:type" resource="/accounts/group/Group" />
+									<span property="rdfs:label"/>
+								</span>
+							</td>
+							<td>
+								<p class="desc">Can invite new users and create empty groups.</p>
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label>Curators:</label>
+							</th>
+							<td rel="calli:curator" data-prompt="?copy">
+								<span about="?curator">
+									<span rel="rdf:type" resource="/accounts/group/Group" />
+									<span property="rdfs:label"/>
+								</span>
+							</td>
+							<td>
+								<p class="desc">Can invite and administrate new users of this group and maintain new groups.</p>
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<label>Maintainers:</label>
+							</th>
+							<td rel="calli:maintainer" data-prompt="?copy">
+								<span about="?maintainer">
+									<span rel="rdf:type" resource="/accounts/group/Group" />
+									<span property="rdfs:label"/>
+								</span>
+							</td>
+							<td>
+								<p class="desc">Can add and remove members and authorization groups, invite new users, and create empty groups.</p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+			<fieldset>
+				<legend>Members</legend>
+				<div rel="calli:member" data-prompt="?user-create" class="sorted">
+					<span about="?member">
+						<span rel="rdf:type" resource="/accounts/user/User" />
+						<span property="rdfs:label" class="asc"/>
+					</span>
+				</div>
+			</fieldset>
+			<button type="button" onclick="location.href='?delete'">Delete</button>
+			<button type="submit">Save</button>
+		</form>
+	</body>
+</html>

@@ -20,6 +20,7 @@
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix dc:<http://purl.org/dc/elements/1.1/>.
 @prefix dcterms:<http://purl.org/dc/terms/>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
 @prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
@@ -91,6 +92,7 @@ calli:find-copy-namespace rdfs:subClassOf obj:Message;
 		WHERE { $this a [calli:withNamespace ?namespace] }
 	""".
 
+# find the user that created $of if it does not have a conservator
 calli:find-scribe rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Copyable];
@@ -98,8 +100,14 @@ calli:find-scribe rdfs:subClassOf obj:Message;
 	obj:sparql """
 		SELECT DISTINCT ?scribe
 		WHERE {
-			GRAPH ?graph { $of a ?type }
-			?graph http:authorized ?scribe
+			{
+				audit:current-trx http:authorized ?scribe
+			} UNION {
+				GRAPH ?graph { $of a ?type }
+				?graph http:authorized ?scribe
+			}
+			OPTIONAL { $of a [calli:conservator ?conservator] }
+			FILTER (!bound(?conservator))
 		}
 	""".
 

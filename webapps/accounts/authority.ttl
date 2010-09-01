@@ -1,0 +1,161 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+################################
+# Realm
+################################
+
+<authority> a calli:DigestRealm;
+	calli:origin <../>;
+	calli:authName <../>;
+	calli:domain <../>;
+	calli:unauthorized <unauthorized.xml>;
+	calli:forbidden <forbidden.xml>.
+
+################################
+# authorize
+################################
+
+# all common modification operations must be authorized
+calli:get-copy http:realm <authority>.
+calli:post-copy http:realm <authority>.
+calli:get-edit http:realm <authority>.
+calli:post-edit http:realm <authority>.
+calli:get-delete http:realm <authority>.
+calli:post-delete http:realm <authority>.
+
+# Transcation operations must be authorized
+audit:Transaction http:realm <authority>.
+
+# transcations are authorized by the subject they modified
+:transaction-view-authorize owl:equivalentClass calli:authorize-credential;
+	obj:sparql """
+		ASK {
+			$subject a audit:Transaction
+			{
+				GRAPH $subject { ?subj ?pred ?obj }
+			} UNION {
+				GRAPH $subject { [rdf:subject ?subj] }
+			} UNION {
+				$subject audit:contained [rdf:subject ?subj]
+			}
+			{
+				?subj calli:reviewer $credential
+			} UNION {
+				?subj calli:maintainer $credential
+			} UNION {
+				?subj calli:reviewer [calli:member $credential]
+			} UNION {
+				?subj calli:maintainer [calli:member $credential]
+			}
+			FILTER ($method = "GET" || $method = "HEAD")
+			FILTER ($qs = "view" || $qs = "describe" || !bound($qs))
+		}
+	""".
+
+################################
+# login
+################################
+
+# A generic URL that requires authorization
+# Available to user when not logged in
+:login rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:DigestRealm];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom calli:Credential];
+	http:operation "login";
+	http:realm <authority>;
+	http:expect "303-see-other";
+	obj:groovy "return findCredential(msg.authorization)".
+
+:login-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :login;
+	rdfs:range xsd:string;
+	http:header "Authorization";
+	obj:name "authorization".
+
+:login-authorize owl:equivalentClass calli:authorize-credential;
+	obj:sparql """
+		ASK {
+			$subject calli:authenticates [calli:member $credential]
+			FILTER ($method = "GET" || $method = "HEAD")
+			FILTER ($subject = <authority>)
+			FILTER ($qs = "login")
+		}
+	""".
+
+################################
+# logout
+################################
+
+# Prompts the browser to login using different credentials
+# Available to user when logged in
+:logout rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:DigestRealm];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	http:operation "logout";
+	http:type "message/x-response";
+	obj:imports <java:org.apache.http.ProtocolVersion>;
+	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
+	obj:groovy """
+		def ver = new ProtocolVersion("HTTP", 1, 1)
+		def resp = new BasicHttpResponse(ver, 303, "See Other")
+		def credential = findCredential(msg.authorization)
+		if (credential == null) {
+			resp.setHeader("Location", "$this?login")
+			return resp
+		}
+		if (msg.from == null) {
+			resp.setHeader("Location", "$this?logout&from=$credential")
+		} else if (msg.from == credential) {
+			return unauthorized(msg.from)
+		} else {
+			resp.setHeader("Location", credential.toString())
+		}
+		return resp
+	""".
+
+:logout-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :logout;
+	rdfs:range xsd:string;
+	http:header "Authorization";
+	obj:name "authorization".
+
+:logout-user a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :logout;
+	rdfs:range calli:Credential;
+	http:parameter "from";
+	http:type "text/uri-list";
+	obj:name "from".
+
+################################
+# authenticated
+################################
+
+# Redirection to the authorized user
+# Used to display the authorized users
+:authenticated rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:DigestRealm];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom calli:Credential];
+	http:operation "authenticated";
+	http:expect "303-see-other";
+	obj:groovy "return findCredential(msg.authorization)".
+
+:authenticated-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :authenticated;
+	rdfs:range xsd:string;
+	http:header "Authorization";
+	obj:name "authorization".
+

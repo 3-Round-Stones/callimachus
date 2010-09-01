@@ -1,0 +1,26 @@
+<?xml-stylesheet type="text/xsl" href="../../layout/template.xsl"?>
+<html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+	<head>
+		<title property="rdfs:label"/>
+	</head>
+	<body>
+		<h1>Are you sure you want to Delete this user?</h1>
+		<form action="" about="">
+			<div rel="rdf:type" resource="/accounts/user/User" />
+			<h1 property="rdfs:label" />
+			<div property="calli:name" />
+			<div property="calli:email" />
+			<p property="rdfs:comment" />
+			<div rel="calli:reviewer" resource="?reviewer" />
+			<div rel="calli:maintainer" resource="?maintainer" />
+			<div rev="calli:member" resource="?group" />
+			<div rev="calli:reviewer" resource="?reviews" />
+			<div rev="calli:scribe" resource="?scribes" />
+			<div rev="calli:curator" resource="?curates" />
+			<div rev="calli:maintainer" resource="?maintains" />
+			<button type="submit">Delete</button>
+		</form>
+	</body>
+</html>

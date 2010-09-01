@@ -1,0 +1,20 @@
+<?xml-stylesheet type="text/xsl" href="../../layout/template.xsl"?>
+<html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+	<head>
+		<title property="rdfs:label"/>
+		<link rel="view" title="View" target="_self" href="" />
+		<link rel="edit" title="Edit" target="_self" href="?edit" />
+		<link rel="review" title="Review" target="_self" href="?review" />
+	</head>
+	<body>
+		<h1><a href="" property="rdfs:label" /></h1>
+		<div class="wiki" property="rdfs:comment" />
+		<ul rel="calli:member" class="sorted">
+			<li about="?member">
+				<a href="?member" property="rdfs:label" class="asc" />
+			</li>
+		</ul>
+	</body>
+</html>

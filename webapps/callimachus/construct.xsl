@@ -45,6 +45,7 @@
 			<xsl:when test="$data/rdf:RDF">
 				<xsl:apply-templates select="$html">
 					<xsl:with-param name="about" select="$about" />
+					<xsl:with-param name="top" select="true()" />
 					<xsl:with-param name="scope" select="$newscope" />
 				</xsl:apply-templates>
 			</xsl:when>
@@ -53,6 +54,7 @@
 					<xsl:apply-templates
 						select="$html/@*|$html/*|$html/text()|$html/comment()">
 						<xsl:with-param name="about" select="$about" />
+						<xsl:with-param name="top" select="true()" />
 						<xsl:with-param name="scope" select="$newscope" />
 					</xsl:apply-templates>
 				</xsl:element>
@@ -63,6 +65,7 @@
 		<!-- <xsl:comment>head</xsl:comment> -->
 		<xsl:param name="about" />
 		<xsl:param name="nodeID" />
+		<xsl:param name="top" />
 		<xsl:param name="scope" />
 		<xsl:variable name="newscope">
 			<xsl:apply-templates mode="scope-about" select=".">
@@ -86,6 +89,7 @@
 			<xsl:apply-templates select="*|text()|comment()">
 				<xsl:with-param name="about" select="$about" />
 				<xsl:with-param name="nodeID" select="$nodeID" />
+				<xsl:with-param name="top" select="$top" />
 				<xsl:with-param name="scope" select="$newscope" />
 			</xsl:apply-templates>
 			<xsl:if test="$etag">
@@ -98,6 +102,7 @@
 		<!-- <xsl:comment>*[@property]</xsl:comment> -->
 		<xsl:param name="about" />
 		<xsl:param name="nodeID" />
+		<xsl:param name="top" />
 		<xsl:param name="scope" />
 		<xsl:variable name="newscope">
 			<xsl:apply-templates mode="scope-about" select=".">
@@ -119,6 +124,7 @@
 		<xsl:apply-templates mode="properties" select=".">
 			<xsl:with-param name="about" select="$about" />
 			<xsl:with-param name="nodeID" select="$nodeID" />
+			<xsl:with-param name="top" select="$top" />
 			<xsl:with-param name="curie" select="@property" />
 			<xsl:with-param name="scope" select="$newscope" />
 			<xsl:with-param name="tmode" select="$tmode" />
@@ -166,6 +172,7 @@
 		<!-- <xsl:comment>*[(@rel and contains(@rel, ':') or @rev) and not(@resource or @href)]</xsl:comment> -->
 		<xsl:param name="about" />
 		<xsl:param name="nodeID" />
+		<xsl:param name="top" />
 		<xsl:param name="scope" />
 		<xsl:variable name="rel">
 			<xsl:choose>
@@ -185,7 +192,7 @@
 			</xsl:apply-templates>
 		</xsl:variable>
 		<xsl:copy>
-			<xsl:if test="$about=$target or not($about)">
+			<xsl:if test="$top">
 				<xsl:if test="1=count(*[@about or @src or @href])">
 					<xsl:attribute name="data-rel"><xsl:value-of
 						select="@rel" /></xsl:attribute>
@@ -270,27 +277,30 @@
 	<xsl:template match="*">
 		<xsl:param name="about" />
 		<xsl:param name="nodeID" />
+		<xsl:param name="top" />
 		<xsl:param name="scope" />
 		<xsl:choose>
-			<xsl:when test="($about=$target or not($about)) and starts-with(@about, '?') and not(contains($scope, concat(@about, '=')))">
-				<!-- <xsl:comment>($about=$target or not($about)) and starts-with(@about, '?') and not(contains($scope, concat(@about, '=')))</xsl:comment> -->
+			<xsl:when test="$top and starts-with(@about, '?') and not(contains($scope, concat(@about, '=')))">
+				<!-- <xsl:comment>$top and starts-with(@about, '?') and not(contains($scope, concat(@about, '=')))</xsl:comment> -->
 				<xsl:apply-templates mode="properties" select=".">
-					<xsl:with-param name="about" select="$target" />
+					<xsl:with-param name="about" select="$about" />
+					<xsl:with-param name="top" select="$top" />
 					<xsl:with-param name="curie" select="@about" />
 					<xsl:with-param name="scope" select="$scope" />
 					<xsl:with-param name="tmode" select="'hanging'" />
 				</xsl:apply-templates>
 			</xsl:when>
-			<xsl:when test="($about=$target or not($about)) and starts-with(@src, '?') and not(@rel and contains(@rel, ':') or @rev) and not(contains($scope, concat(@src, '=')))">
-				<!-- <xsl:comment>($about=$target or not($about)) and starts-with(@src, '?') and not(@rel and contains(@rel, ':') or @rev) and not(contains($scope, concat(@src, '=')))</xsl:comment> -->
+			<xsl:when test="$top and starts-with(@src, '?') and not(@rel and contains(@rel, ':') or @rev) and not(contains($scope, concat(@src, '=')))">
+				<!-- <xsl:comment>$top and starts-with(@src, '?') and not(@rel and contains(@rel, ':') or @rev) and not(contains($scope, concat(@src, '=')))</xsl:comment> -->
 				<xsl:apply-templates mode="properties" select=".">
-					<xsl:with-param name="about" select="$target" />
+					<xsl:with-param name="about" select="$about" />
+					<xsl:with-param name="top" select="$top" />
 					<xsl:with-param name="curie" select="@src" />
 					<xsl:with-param name="scope" select="$scope" />
 					<xsl:with-param name="tmode" select="'hanging'" />
 				</xsl:apply-templates>
 			</xsl:when>
-			<xsl:when test="$about=$target or not($about)">
+			<xsl:when test="$top">
 				<xsl:copy>
 					<xsl:if test="1=count(*/@property)">
 						<xsl:attribute name="data-property">
@@ -325,6 +335,7 @@
 					<xsl:apply-templates select="@*|*|comment()|text()">
 						<xsl:with-param name="about" select="$about" />
 						<xsl:with-param name="nodeID" select="$nodeID" />
+						<xsl:with-param name="top" select="$top" />
 						<xsl:with-param name="scope" select="$scope" />
 					</xsl:apply-templates>
 				</xsl:copy>
@@ -334,6 +345,7 @@
 					<xsl:apply-templates select="@*|*|comment()|text()">
 						<xsl:with-param name="about" select="$about" />
 						<xsl:with-param name="nodeID" select="$nodeID" />
+						<xsl:with-param name="top" select="$top" />
 						<xsl:with-param name="scope" select="$scope" />
 					</xsl:apply-templates>
 				</xsl:copy>
@@ -428,6 +440,7 @@
 		<!-- <xsl:comment>properties</xsl:comment> -->
 		<xsl:param name="about" />
 		<xsl:param name="nodeID" />
+		<xsl:param name="top" />
 		<xsl:param name="curie" />
 		<xsl:param name="scope" />
 		<xsl:param name="tmode" />
@@ -464,6 +477,7 @@
 				<xsl:sort select="." />
 				<xsl:apply-templates mode="rdf" select=".">
 					<xsl:with-param name="tag" select="$tag" />
+					<xsl:with-param name="top" select="$top" />
 					<xsl:with-param name="curie" select="$curie" />
 					<xsl:with-param name="scope" select="$scope" />
 					<xsl:with-param name="tmode" select="$tmode" />
@@ -543,6 +557,7 @@
 	<xsl:template mode="rdf" match="*[@rdf:resource or @rdf:nodeID]">
 		<!-- <xsl:comment>*[@rdf:resource or @rdf:nodeID]</xsl:comment> -->
 		<xsl:param name="tag" />
+		<xsl:param name="top" />
 		<xsl:param name="curie" />
 		<xsl:param name="scope" />
 		<xsl:param name="tmode" />
@@ -558,6 +573,7 @@
 				<xsl:apply-templates select="$tag">
 					<xsl:with-param name="about" select="@rdf:resource" />
 					<xsl:with-param name="nodeID" select="@rdf:nodeID" />
+					<xsl:with-param name="top" select="$top" />
 					<xsl:with-param name="scope" select="$newscope" />
 				</xsl:apply-templates>
 			</xsl:when>

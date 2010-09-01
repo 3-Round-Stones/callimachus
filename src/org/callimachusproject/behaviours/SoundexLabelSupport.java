@@ -29,7 +29,7 @@ public abstract class SoundexLabelSupport implements SoundexTrait {
 	public String asSoundex(String label) {
 		if (label == null || label.length() == 0)
 			return "";
-		String ex = soundex.encode(label);
+		String ex = soundex.encode(clean(label));
 		if (ex == null || ex.length() < 3)
 			return "";
 		return ex.substring(0, 3) + "0";
@@ -63,5 +63,27 @@ public abstract class SoundexLabelSupport implements SoundexTrait {
 			phones.add(phone);
 		}
 		getSoundexes().addAll(phones);
+	}
+
+	/**
+	 * This removes non-english letters.
+	 */
+	private String clean(String str) {
+		if (str == null || str.length() == 0)
+			return str;
+		int len = str.length();
+		char[] chars = new char[len];
+		int count = 0;
+		for (int i = 0; i < len; i++) {
+			char ch = str.charAt(i);
+			if ('A' <= ch && ch <= 'Z') {
+				chars[count++] = ch;
+			} else if ('a' <= ch && ch <= 'z') {
+				chars[count++] = Character.toUpperCase(ch);
+			}
+		}
+		if (count == len)
+			return str.toUpperCase(java.util.Locale.ENGLISH);
+		return new String(chars, 0, count);
 	}
 }

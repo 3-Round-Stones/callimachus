@@ -12,6 +12,7 @@
 	<property name="home" location="." />
 	<property name="pid" location="run/persistent.pid" />
 	<property name="logging" location="etc/logging.properties" />
+	<property name="mail" location="etc/mail.properties" />
 	<property name="tools.jar" location="${java.home}/../lib/tools.jar" />
 	<property file="src/META-INF/callimachusproject.properties" />
 	<property name="alibaba.snapshot" value="2.0-SNAPSHOT" />
@@ -27,7 +28,7 @@
 	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
 	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
 	<property name="main" value="org.callimachusproject.Server" />
-	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Djava.io.tmpdir=${tmp} -Duser.home=${home}" />
+	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Djava.io.tmpdir=${tmp} -Duser.home=${home} -Djava.mail.properties=${mail}" />
 	<property name="args" value="-p 8080 -a localhost:8080" />
 
 	<target name="init">
@@ -188,6 +189,9 @@
 		<war needxmlfile="false" destfile="${dist}/layout.war">
 			<zipfileset dir="${webapps}/layout" prefix="" />
 		</war>
+		<war needxmlfile="false" destfile="${dist}/accounts.war">
+			<zipfileset dir="${webapps}/accounts" prefix="" />
+		</war>
 		<zip destfile="${dist}/callimachus-${version}.zip">
 			<zipfileset dir="." includes="*.txt" />
 			<zipfileset dir="${bin}" prefix="bin" />
@@ -196,7 +200,8 @@
 			<zipfileset file="${jar.file}" prefix="lib" />
 			<zipfileset file="${dist}/callimachus.war" prefix="webapps" />
 			<zipfileset file="${dist}/layout.war" prefix="webapps" />
-			<zipfileset file="${webapps}/index.html" prefix="webapps" />
+			<zipfileset file="${dist}/accounts.war" prefix="webapps" />
+			<zipfileset file="${webapps}/index.xml" prefix="webapps" />
 		</zip>
 	</target>
 

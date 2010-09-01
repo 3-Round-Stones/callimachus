@@ -12,5 +12,6 @@ org.callimachusproject.behaviours.NobodyRealmSupport = http://callimachusproject
 org.callimachusproject.behaviours.DigestRealmSupport = http://callimachusproject.org/rdf/2009/framework#DigestRealm
 org.callimachusproject.behaviours.LocalRealmSupport = http://callimachusproject.org/rdf/2009/framework#LocalRealm
 org.callimachusproject.behaviours.MailSubmitterSupport = http://callimachusproject.org/rdf/2009/framework#MailSubmitter
+org.callimachusproject.behaviours.PasswordGenerator = http://callimachusproject.org/rdf/2009/framework#Credential
 org.callimachusproject.behaviours.UniqueCredentialNameTrigger = http://callimachusproject.org/rdf/2009/framework#DigestRealm
 org.callimachusproject.behaviours.SPARQLServiceSupport = http://callimachusproject.org/rdf/2009/framework#SPARQLService

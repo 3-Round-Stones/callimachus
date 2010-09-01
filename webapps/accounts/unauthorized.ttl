@@ -1,0 +1,55 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+# Sends request for password reset emails
+# Submitted by form in the unauthorized page
+calli:post-request-password rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:DigestRealm];
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:allValuesFrom owl:Nothing];
+	http:method "POST";
+	http:operation "request-password";
+	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	obj:imports calli:User;
+	obj:groovy """
+		if (!msg.email)
+			throw new BadRequest("Missing Email")
+		for (User user : calliFindUsersByEmail(msg.email)) {
+			user.requestPassword()
+		}
+	""".
+
+calli:post-request-password-email a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain calli:post-request-password;
+	rdfs:range xsd:string;
+	http:type "text/plain";
+	obj:name "email".
+
+# Looks up user by email address
+# Used to request password reset
+calli:find-users-by-email rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:DigestRealm];
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:allValuesFrom calli:User];
+	obj:sparql """
+		SELECT REDUCED ?user
+		WHERE {
+			$this calli:authenticates [calli:member ?user].
+			?user calli:email $email
+		}
+	""".
+
+calli:find-users-by-email-arg a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain calli:find-users-by-email;
+	rdfs:range xsd:string;
+	obj:name "email".
+

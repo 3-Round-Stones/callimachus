@@ -14,7 +14,7 @@
 				function parameter(name) {
 					var regex = new RegExp("[\\?&]"+name+"=([^&#]*)")
 					var m = regex.exec(location.href)
-					return m ? decodeURIComponent(m[1]) : null
+					return m ? decodeURIComponent(m[1].replace('+', ' ')) : null
 				}
 				function init() {
 					if (parameter("q")) {

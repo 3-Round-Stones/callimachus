@@ -56,13 +56,13 @@
 		def stmts = objectConnection.getStatements(null, RDFS.LABEL, vf.createLiteral(msg.q));
 		try {
 			if (!stmts.hasNext())
-				return objectConnection.getObject("$this?search&q=${msg.q}");
+				return objectConnection.getObject("$this?search&q=${URLEncoder.encode(msg.q)}");
 			def uri = stmts.next().subject;
 			while (!(uri instanceof org.openrdf.model.URI) && stmts.hasNext()) {
 				uri = stmts.next().subject;
 			}
 			if (!(uri instanceof org.openrdf.model.URI) || stmts.hasNext())
-				return objectConnection.getObject("$this?search&q=${msg.q}");
+				return objectConnection.getObject("$this?search&q=${URLEncoder.encode(msg.q)}");
 			return objectConnection.getObject("$uri");
 		} finally {
 			stmts.close();

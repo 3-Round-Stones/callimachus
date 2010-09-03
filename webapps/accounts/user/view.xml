@@ -4,6 +4,8 @@
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 	<head>
 		<title property="rdfs:label"/>
+		<link rel="view" title="View" target="_self" href="" />
+		<link rel="edit" title="Edit" target="_self" href="?edit" />
 	</head>
 	<body>
 		<h1><a href="" property="rdfs:label" /></h1>

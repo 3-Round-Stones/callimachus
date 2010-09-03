@@ -81,7 +81,7 @@
 					</tbody>
 				</table>
 			</fieldset>
-			<input value="Create" type="submit" />
+			<button type="submit">Invite</button>
 		</form>
 	</body>
 </html>

@@ -172,7 +172,7 @@
 						<div>
 							<button type="submit">Go</button>
 							<button type="button"
-								onclick="form.elements['go'].name='search';form.submit()">Search</button>
+								onclick="form.elements['go'].name='lookup';form.submit()">Lookup</button>
 						</div>
 					</div>
 				</form>

@@ -9,6 +9,7 @@
 				req.setRequestHeader("Content-Type", "text/plain")
 				req.onreadystatechange = function() {
 					if (req.readyState == 4) {
+						document.documentElement.className = ''
 						if (req.status < 300) {
 							document.getElementById("success").style.display = "block"
 						} else {
@@ -17,6 +18,7 @@
 					}
 				}
 				req.send(email)
+				document.documentElement.className = 'wait'
 			}
 			// ]]>
 		</script>

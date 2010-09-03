@@ -26,5 +26,6 @@
 	obj:groovy """
 		def copy = msg.functionalObjectResponse
 		authority.calliAuthenticates.add(copy)
+		return copy
 	""".
 

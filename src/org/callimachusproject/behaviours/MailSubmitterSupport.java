@@ -96,7 +96,7 @@ public abstract class MailSubmitterSupport {
 			message.setContent(multipart);
 		}
 		message.saveChanges();
-		if (properties.contains("mail.transport.protocol")) {
+		if (properties.containsKey("mail.transport.protocol")) {
 			String user = session.getProperty("mail.user");
 			String password = session.getProperty("mail.password");
 			Transport tr = session.getTransport();
@@ -136,7 +136,10 @@ public abstract class MailSubmitterSupport {
 			Attribute a = (Attribute) e.nextElement();
 			int size = a.size();
 			if (size > 0) {
-				return (String) a.get(0);
+				String value = (String) a.get(0);
+				if (value.indexOf(' ') >= 0)
+					return value.substring(value.indexOf(' ') + 1);
+				return value;
 			}
 		}
 		return null;

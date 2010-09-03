@@ -72,13 +72,13 @@
 		def parser = new RDFXMLParser()
 		parser.setRDFHandler(new StatementCollector(model))
 		parser.parse(new ByteArrayInputStream(byteArray), "$this")
-		def id = model.find(null, name.resource, null).objectLiteral().label
-		def addr = model.find(null, email.resource, null).objectLiteral().label
+		def id = model.filter(null, name.resource, null).objectLiteral().label
+		def addr = model.filter(null, email.resource, null).objectLiteral().label
 		//# generate and save a password
 		def password = copy.generatePassword()
 		String token = "${id}:${authority.calliAuthName}:${password}"
-		calliAlgorithm = "MD5"
-		calliEncoded = DigestUtils.md5(token.getBytes("UTF-8"))
+		copy.calliAlgorithm = "MD5"
+		copy.calliEncoded = DigestUtils.md5(token.getBytes("UTF-8"))
 		//# email the password to the email address provided
 		Reader reader = mailPasswordXml.calliConstruct('view', copy)
 		try {

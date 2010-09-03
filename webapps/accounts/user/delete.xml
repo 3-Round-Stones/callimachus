@@ -4,10 +4,18 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 	<head>
 		<title property="rdfs:label"/>
+		<script><![CDATA[
+		function() {
+			$('form[about]').bind('deleteSuccess.calli', function(e) {
+				document.getElementById("success").style.display = "block"
+			});
+		}
+		// ]]>
+		</script>
 	</head>
 	<body>
-		<h1>Are you sure you want to Delete this user?</h1>
 		<form action="" about="">
+			<h1>Are you sure you want to Delete this user?</h1>
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<h1 property="rdfs:label" />
 			<div property="calli:name" />
@@ -20,7 +28,9 @@
 			<div rev="calli:scribe" resource="?scribes" />
 			<div rev="calli:curator" resource="?curates" />
 			<div rev="calli:maintainer" resource="?maintains" />
-			<button type="submit">Delete</button>
+			<button type="button" onclick="location.replace('?view')>No, Cancel</button>
+			<button type="submit">Yes, Delete</button>
 		</form>
+		<p id="success" style="display:none">User has been deleted.</p>
 	</body>
 </html>

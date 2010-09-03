@@ -38,10 +38,19 @@ function changeDateLocale() {
 	for (var i = 0; i < dates.length; i++) {
 		var text = dates[i].textContent || dates[i].innerText
 		try {
-			var iso = text.split('T')
-			var day = iso[0].split('-')
-			var time = iso[1].split(':')
-			var date = new Date(day[0], day[1] - 1, day[2], time[0], time[1])
+	        var timestamp = Date.parse(text)
+	        var minutesOffset = 0
+	        var struct;
+	        if (isNaN(timestamp) && (struct = /(\d{4})-?(\d{2})-?(\d{2})(?:[T ](\d{2}):?(\d{2}):?(\d{2})(?:\.(\d{3,}))?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?))/.exec(text))) {
+	            if (struct[8] !== 'Z') {
+	                minutesOffset = +struct[10] * 60 + (+struct[11]);
+	                if (struct[9] === '+') {
+	                    minutesOffset = 0 - minutesOffset;
+	                }
+	            }
+	            timestamp = Date.UTC(+struct[1], +struct[2] - 1, +struct[3], +struct[4], +struct[5] + minutesOffset, +struct[6], +struct[7].substr(0, 3));
+	        }
+			var date = new Date(timestamp)
 			var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()]
 			var locale = date.getHours() + ':' + date.getMinutes() + ", " + date.getDate() + ' ' + month + ' ' + date.getFullYear()
 			dates[i].textContent = locale
@@ -78,8 +87,8 @@ function sortElements() {
 			if (d1.length && d2.length) {
 				var s1 = d1[0].innerHTML.replace(/\s*<[^>]*>\s*/g, " ")
 				var s2 = d2[0].innerHTML.replace(/\s*<[^>]*>\s*/g, " ")
-				if (s1 < s2) return -1
-				if (s1 > s2) return 1
+				if (s1 > s2) return -1
+				if (s1 < s2) return 1
 			} else {
 				if (d1.length > d2.length) return -1
 				if (d1.length < d2.length) return 1

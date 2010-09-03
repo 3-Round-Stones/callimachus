@@ -9,8 +9,8 @@
 		<link rel="review" title="Review" target="_self" href="?review" />
 	</head>
 	<body>
-		<h1>Are you sure you want to Delete this group?</h1>
 		<form action="" about="">
+			<h1>Are you sure you want to Delete this group?</h1>
 			<div rel="rdf:type" resource="/accounts/group/Group" />
 			<h1 property="rdfs:label" />
 			<p property="rdfs:comment" />
@@ -23,7 +23,8 @@
 			<div rev="calli:scribe" resource="?scribes" />
 			<div rev="calli:curator" resource="?curates" />
 			<div rev="calli:maintainer" resource="?maintains" />
-			<button type="submit">Delete</button>
+			<button type="button" onclick="location.replace('?view')>No, Cancel</button>
+			<button type="submit">Yes, Delete</button>
 		</form>
 	</body>
 </html>

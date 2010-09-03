@@ -81,7 +81,7 @@
 					</span>
 				</div>
 			</fieldset>
-			<button type="button" onclick="location.href='?delete'">Delete</button>
+			<button type="button" onclick="location.replace('?delete')">Delete</button>
 			<button type="submit">Save</button>
 		</form>
 	</body>

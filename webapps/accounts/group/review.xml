@@ -14,7 +14,7 @@
 		<h1 property="rdfs:label" />
 		<ul rel="audit:revision" class="sorted">
 			<li about="?revision" typeof="audit:Transaction">
-				<span property="audit:committedOn" class="desc" />
+				<span property="audit:committedOn" class="desc date-locale" />
 				<span rel="http:authorized">
 					<a href="?user" property="rdfs:label" />
 				</span>

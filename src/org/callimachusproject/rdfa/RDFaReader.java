@@ -431,15 +431,13 @@ public class RDFaReader extends RDFEventReader {
 					if (rel != null) {
 						triple(parent.getCurrentSubject(), rel, subj, false);
 					}
-				}
-				if (isStartSubject()) {
-					chain();
-				}
-				if (parent != null && parent.isHanging()) {
 					List<Node> rev = parent.getRev();
 					if (rev != null) {
 						triple(subj, rev, parent.getCurrentSubject(), true);
 					}
+				}
+				if (isStartSubject()) {
+					chain();
 				}
 			}
 			if ("base".equals(event.getName().getLocalPart())) {
@@ -486,11 +484,11 @@ public class RDFaReader extends RDFEventReader {
 				if (rel != null) {
 					triple(subj, rel, getResource(), false);
 				}
-				if (isStartResource()) {
-					queue.add(new Subject(true, getResource()));
-				}
 				if (rev != null) {
 					triple(getResource(), rev, subj, true);
+				}
+				if (isStartResource()) {
+					queue.add(new Subject(true, getResource()));
 				}
 			}
 		}

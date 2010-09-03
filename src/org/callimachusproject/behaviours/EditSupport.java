@@ -82,7 +82,7 @@ public abstract class EditSupport implements Template {
 			con.prepareGraphQuery(SPARQL, sparql).evaluate(remover);
 			if (remover.isEmpty())
 				throw new BadRequest("Removed Content Not Found");
-			if (!remover.isSubject(resource))
+			if (!remover.isAbout(resource))
 				throw new BadRequest("Wrong Subject");
 		}
 	}
@@ -94,7 +94,7 @@ public abstract class EditSupport implements Template {
 		parser.setValueFactory(con.getValueFactory());
 		parser.setRDFHandler(inserter);
 		parser.parse(in, resource.stringValue());
-		if (!inserter.isEmpty() && !inserter.isSubject(resource))
+		if (!inserter.isEmpty() && !inserter.isAbout(resource))
 			throw new BadRequest("Wrong Subject");
 	}
 

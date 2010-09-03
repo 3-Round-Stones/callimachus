@@ -150,15 +150,12 @@ public class TriplePatternStore {
 	public List<RDFEventReader> openWellJoinedQueries() {
 		if (where.isEmpty())
 			return Collections.emptyList();
-		List<RDFEventReader> list = new ArrayList<RDFEventReader>();
-		List<RDFEvent> main = new ArrayList<RDFEvent>();
-		List<RDFEvent> ignorable = new ArrayList<RDFEvent>();
+		List<List<RDFEvent>> list = new ArrayList<List<RDFEvent>>();
+		List<RDFEvent> top = new ArrayList<RDFEvent>();
 		List<RDFEvent> block = null;
 		int level = 0;
 		for (RDFEvent event : where) {
-			if (!main.isEmpty()) {
-				main.add(event);
-			} else if (event.isStartOptional()) {
+			if (event.isStartOptional()) {
 				if (level == 0) {
 					block = new ArrayList<RDFEvent>();
 				} else {
@@ -168,26 +165,28 @@ public class TriplePatternStore {
 			} else if (event.isEndOptional()) {
 				level--;
 				if (level == 0) {
-					list.add(openQueryReader(block));
+					list.add(block);
 					block = null;
 				} else {
 					block.add(event);
 				}
-			} else if (level == 0 && event.isStartSubject()
-					|| event.isEndSubject()) {
-				ignorable.add(event);
 			} else if (level == 0) {
-				main.addAll(ignorable);
-				ignorable.clear();
-				main.add(event);
+				top.add(event);
 			} else {
 				block.add(event);
 			}
 		}
-		if (!main.isEmpty()) {
-			list.add(openQueryReader(main));
+		if (list.isEmpty() && !top.isEmpty()) {
+			return Collections.singletonList(openQueryReader(top));
 		}
-		return list;
+		List<RDFEventReader> result = new ArrayList<RDFEventReader>(list.size());
+		for (List<RDFEvent> optional : list) {
+			List<RDFEvent> qry = new ArrayList<RDFEvent>(top.size() + optional.size());
+			qry.addAll(top);
+			qry.addAll(optional);
+			result.add(openQueryReader(qry));
+		}
+		return result ;
 	}
 
 	public RDFEventReader openQueryBySubject(VarOrTerm subj) {

@@ -73,19 +73,22 @@ public class GraphPatternReader extends PipedRDFEventReader {
 			add(new Subject(true, subj));
 		} else if (event.isTriple()) {
 			Triple triple = event.asTriple();
-			Node subj = triple.getSubject();
+			Node about = triple.getAbout();
 			IRI pred = triple.getPredicate();
-			Term obj = triple.getObject();
-			VarOrTerm s = getVarOrTerm(subj);
-			VarOrTerm o = getVarOrTerm(obj);
+			Term partner = triple.getPartner();
+			VarOrTerm a = getVarOrTerm(about);
+			VarOrTerm p = getVarOrTerm(partner);
+			VarOrTerm s = getVarOrTerm(triple.getSubject());
+			VarOrTerm o = getVarOrTerm(triple.getObject());
 			RDFEvent peek = peekNext();
-			boolean optional = o.isVar(); 
+			boolean rev = triple.isInverse();
+			boolean optional = p.isVar(); 
 			boolean newSubject = peek.isStartSubject();
-			boolean nested = newSubject && obj.equals(peek.asSubject().getSubject());
-			if (s.isVar() && depth < detached) {
+			boolean nested = newSubject && partner.equals(peek.asSubject().getSubject());
+			if (a.isVar() && depth < detached) {
 				boolean attached = false;
 				for (VarOrTerm parent : branch) {
-					if (subj.equals(parent)) {
+					if (about.equals(parent)) {
 						attached = true;
 					}
 				}
@@ -96,7 +99,7 @@ public class GraphPatternReader extends PipedRDFEventReader {
 			if (optional) {
 				add(new Optional(true));
 			}
-			add(new TriplePattern(s, pred, o, triple.isInverse()));
+			add(new TriplePattern(s, pred, o, rev));
 			if (nested) {
 				branch.ensureCapacity(depth + 1);
 				while (branch.size() <= depth + 1) {

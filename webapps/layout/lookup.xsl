@@ -57,7 +57,7 @@
 			<xsl:if test="not(sparql:binding[@name='icon'])">
 				<img src="/layout/rdf-icon.png" class="icon" />
 			</xsl:if>
-			<a class="diverted">
+			<a>
 				<xsl:if test="sparql:binding[@name='url']">
 					<xsl:attribute name="href">
 						<xsl:value-of select="sparql:binding[@name='url']/*" />

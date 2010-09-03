@@ -83,7 +83,7 @@ public abstract class DeleteSupport implements Template {
 			con.prepareGraphQuery(SPARQL, sparql).evaluate(remover);
 			if (remover.isEmpty())
 				throw new BadRequest("Content has Changed");
-			if (!remover.isSubject(resource))
+			if (!remover.isAbout(resource))
 				throw new BadRequest("Wrong Subject");
 		}
 	}

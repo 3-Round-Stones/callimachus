@@ -151,10 +151,6 @@ public class SPARQLWriter implements Closeable {
 			indent--;
 			indent(indent);
 			writer.append("}\n");
-		} else if (event.isStartSubject()) {
-			indent++;
-		} else if (event.isEndSubject()) {
-			indent--;
 		} else if (event.isTriplePattern()) {
 			TriplePattern tp = event.asTriplePattern();
 			indent(indent);

@@ -107,8 +107,8 @@
 					</tbody>
 				</table>
 			</fieldset>
-			<input value="Delete" type="button" onclick="location.replace('?delete')" />
-			<input value="Save" type="submit" />
+			<button type="button" onclick="location.replace('?delete')">Delete</button>
+			<button type="submit">Save</button>
 			<span style="display:none">
 				<span id="encoded-span" property="calli:encoded" />
 				<span id="name-span" property="calli:name" />

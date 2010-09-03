@@ -46,4 +46,14 @@ public class Triple extends TriplePattern {
 		return (Term) super.getObject();
 	}
 
+	@Override
+	public Node getAbout() {
+		return (Node) super.getAbout();
+	}
+
+	@Override
+	public Term getPartner() {
+		return (Term) super.getPartner();
+	}
+
 }

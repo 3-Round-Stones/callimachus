@@ -53,6 +53,18 @@ public class TriplePattern extends RDFEvent {
 		return inverse;
 	}
 
+	public VarOrTerm getAbout() {
+		if (isInverse())
+			return getObject();
+		return getSubject();
+	}
+
+	public VarOrTerm getPartner() {
+		if (isInverse())
+			return getSubject();
+		return getObject();
+	}
+
 	public String toString() {
 		return subject.toString() + " " + predicate.toString() + " "
 				+ object.toString();

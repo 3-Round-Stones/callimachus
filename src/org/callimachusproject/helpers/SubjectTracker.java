@@ -76,8 +76,8 @@ public class SubjectTracker extends RDFHandlerWrapper {
 		patterns.add(pattern);
 	}
 
-	public boolean isSubject(Resource subject) {
-		return isSingleton() && getSubject().equals(subject);
+	public boolean isAbout(Resource about) {
+		return isSingleton() && getSubject().equals(about);
 	}
 
 	public boolean isEmpty() {
@@ -99,31 +99,35 @@ public class SubjectTracker extends RDFHandlerWrapper {
 	@Override
 	public void handleStatement(Statement st) throws RDFHandlerException {
 		Resource subj = st.getSubject();
-		if (subj.equals(matcher)) {
-			subj = replacement;
-		}
 		URI pred = st.getPredicate();
 		Value obj = st.getObject();
-		if (subj instanceof URI) {
+		if (subj.equals(matcher)) {
+			subj = replacement;
+		} else if (obj.equals(matcher)) {
+			obj = replacement;
+		}
+		Boolean rev = accept(subj, pred, obj);
+		if (rev == null)
+			throw new RDFHandlerException("Invalid triple: " + subj + " "
+					+ pred + " " + obj);
+		if (rev && obj instanceof URI) {
+			subjects.add((URI) obj);
+		} else if (!rev && subj instanceof URI) {
 			subjects.add((URI) subj);
 			if (RDF.TYPE.equals(pred) && obj instanceof URI) {
 				types.add((URI) obj);
 			}
 		}
-		if (!accept(subj, pred, obj))
-			throw new RDFHandlerException("Invalid triple: " + subj + " "
-					+ pred + " " + obj);
 		empty = false;
 		super.handleStatement(new StatementImpl(subj, pred, obj));
 	}
 
-	private boolean accept(Resource subj, URI pred, Value obj) {
+	private Boolean accept(Resource subj, URI pred, Value obj) {
 		if (patterns == null)
-			return true;
+			return false;
 		Term sterm = asTerm(subj);
 		Term pterm = asTerm(pred);
 		Term oterm = asTerm(obj);
-		boolean accepted = false;
 		for (TriplePattern tp : patterns) {
 			if (tp.getSubject().isIRI()) {
 				if (!tp.getSubject().equals(sterm))
@@ -137,9 +141,9 @@ public class SubjectTracker extends RDFHandlerWrapper {
 				if (!tp.getObject().equals(oterm))
 					continue;
 			}
-			accepted = true;
+			return tp.isInverse();
 		}
-		return accepted;
+		return null;
 	}
 
 	private Term asTerm(Value obj) {

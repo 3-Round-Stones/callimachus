@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * SPARQL variable.
+ * 
+ * @author James Leigh
+ *
+ */
 public abstract class Var extends VarOrTermBase implements VarOrIRI {
 
 	@Override

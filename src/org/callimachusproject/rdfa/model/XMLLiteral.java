@@ -19,6 +19,12 @@ package org.callimachusproject.rdfa.model;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 
+/**
+ * RDF XML literal.
+ * 
+ * @author James Leigh
+ *
+ */
 public abstract class XMLLiteral extends TypedLiteral {
 	public abstract XMLEventReader openXMLEventReader() throws XMLStreamException;
 }

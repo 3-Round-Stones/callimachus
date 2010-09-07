@@ -33,6 +33,12 @@ import java.util.Set;
 import org.callimachusproject.concepts.Template;
 import org.openrdf.repository.object.annotations.iri;
 
+/**
+ * Common interface for realms to access properties in the RDF store.
+ * 
+ * @author James Leigh
+ *
+ */
 public interface Realm extends org.openrdf.http.object.traits.Realm {
 
 	/**

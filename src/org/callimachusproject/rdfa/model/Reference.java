@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * Relative IRI.
+ * 
+ * @author James Leigh
+ *
+ */
 public abstract class Reference extends IRI {
 
 	public abstract String getRelative();

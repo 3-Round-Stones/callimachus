@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.events;
 
+/**
+ * SPARQL keyword.
+ * 
+ * @author James Leigh
+ *
+ */
 public class Where extends RDFEvent {
 
 	public Where(boolean start) {

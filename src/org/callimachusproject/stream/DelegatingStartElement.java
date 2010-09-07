@@ -32,6 +32,12 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 
+/**
+ * Wrapper class for {@link StartElement}.
+ * 
+ * @author James Leigh
+ *
+ */
 public class DelegatingStartElement implements StartElement {
 	private StartElement element;
 

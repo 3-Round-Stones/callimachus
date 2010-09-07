@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * International Resource Identifier.
+ * 
+ * @author James Leigh
+ * 
+ */
 public abstract class IRI extends VarOrTermBase implements Node, VarOrIRI {
 
 	public String toString() {

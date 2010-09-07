@@ -30,6 +30,12 @@ package org.callimachusproject.traits;
 
 import org.openrdf.repository.object.annotations.iri;
 
+/**
+ * Interface for digest realms to access the calli:authName property.
+ * 
+ * @author James Leigh
+ *
+ */
 public interface DigestRealm extends Realm {
 
 	/**

@@ -25,6 +25,12 @@ import javax.xml.stream.events.Comment;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.util.EventReaderDelegate;
 
+/**
+ * EventReader filter used to read XML literals.
+ * 
+ * @author James Leigh
+ *
+ */
 public abstract class XMLEventFilter extends EventReaderDelegate {
 	private XMLEvent next;
 	private XMLStreamException nextException;

@@ -30,6 +30,12 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.openrdf.http.object.exceptions.NotImplemented;
 
+/**
+ * Extracts an element from an XML document given the element's xptr.
+ * 
+ * @author James Leigh
+ *
+ */
 public final class XMLElementReader extends XMLEventConverter {
 	private final List<Integer> path;
 	private List<Integer> stack = new LinkedList<Integer>();

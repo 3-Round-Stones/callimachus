@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.events;
 
+/**
+ * SPARQL block.
+ * 
+ * @author James Leigh
+ *
+ */
 public class Group extends RDFEvent {
 
 	public Group(boolean start) {

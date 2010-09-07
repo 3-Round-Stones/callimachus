@@ -18,6 +18,12 @@ package org.callimachusproject.rdfa.events;
 
 import org.callimachusproject.rdfa.model.VarOrTerm;
 
+/**
+ * Groups a collection of events that are about the same subject.
+ * 
+ * @author James Leigh
+ *
+ */
 public class Subject extends RDFEvent {
 	private VarOrTerm subject;
 

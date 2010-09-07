@@ -16,5 +16,11 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * SPARQL variable or IRI.
+ * 
+ * @author James Leigh
+ *
+ */
 public interface VarOrIRI extends VarOrTerm {
 }

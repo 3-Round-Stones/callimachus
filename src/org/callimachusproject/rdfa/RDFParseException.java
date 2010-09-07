@@ -19,6 +19,12 @@ package org.callimachusproject.rdfa;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 
+/**
+ * RDF parse exception.
+ * 
+ * @author James Leigh
+ *
+ */
 public class RDFParseException extends Exception {
 	private static final long serialVersionUID = 8814297372447048808L;
 	protected Location location;

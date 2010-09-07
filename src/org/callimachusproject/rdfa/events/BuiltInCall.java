@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.events;
 
+/**
+ * SPARQL builtin function call.
+ * 
+ * @author James Leigh
+ *
+ */
 public class BuiltInCall extends Filter {
 	private String function;
 

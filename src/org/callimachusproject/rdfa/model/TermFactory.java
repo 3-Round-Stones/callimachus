@@ -18,6 +18,12 @@ package org.callimachusproject.rdfa.model;
 
 import org.callimachusproject.rdfa.impl.TermFactoryImpl;
 
+/**
+ * Factory class for RDF terms.
+ * 
+ * @author James Leigh
+ *
+ */
 public abstract class TermFactory {
 	public static TermFactory newInstance() {
 		return new TermFactoryImpl();

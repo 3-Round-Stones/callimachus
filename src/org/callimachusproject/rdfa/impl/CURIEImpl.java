@@ -18,6 +18,12 @@ package org.callimachusproject.rdfa.impl;
 
 import org.callimachusproject.rdfa.model.CURIE;
 
+/**
+ * Compact Uniform Resource Identifier (CURIE).
+ * 
+ * @author James Leigh
+ *
+ */
 public class CURIEImpl extends CURIE {
 	private String namespaceURI;
 	private String reference;

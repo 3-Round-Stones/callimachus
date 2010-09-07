@@ -18,6 +18,12 @@ package org.callimachusproject.rdfa.events;
 
 import org.callimachusproject.rdfa.model.VarOrTerm;
 
+/**
+ * SPARQL grammer.
+ * 
+ * @author James Leigh
+ *
+ */
 public class Expression extends Filter {
 	private VarOrTerm term;
 

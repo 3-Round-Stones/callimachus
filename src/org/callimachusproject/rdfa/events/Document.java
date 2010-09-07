@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.events;
 
+/**
+ * An RDF document containing RDF data and/or RDF queries.
+ * 
+ * @author James Leigh
+ *
+ */
 public class Document extends RDFEvent {
 
 	public Document(boolean start) {

@@ -26,6 +26,13 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.openrdf.rio.turtle.TurtleUtil;
 
+/**
+ * Collects removed triples to build a SPARQL construct query that can resolve
+ * bnodes.
+ * 
+ * @author James Leigh
+ * 
+ */
 public class GraphPatternBuilder extends RDFHandlerBase {
 	private StringBuilder sb = new StringBuilder();
 	private boolean empty = true;

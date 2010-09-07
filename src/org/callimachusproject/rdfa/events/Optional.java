@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.events;
 
+/**
+ * SPARQL keyword.
+ * 
+ * @author James Leigh
+ *
+ */
 public class Optional extends RDFEvent {
 
 	public Optional(boolean start) {

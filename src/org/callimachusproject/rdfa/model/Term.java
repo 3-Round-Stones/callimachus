@@ -16,5 +16,11 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * RDF term (node or literal).
+ * 
+ * @author James Leigh
+ *
+ */
 public interface Term extends VarOrTerm {
 }

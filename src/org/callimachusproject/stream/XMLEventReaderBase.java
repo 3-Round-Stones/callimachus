@@ -27,6 +27,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Comment;
 import javax.xml.stream.events.XMLEvent;
 
+/**
+ * Provides a {@link Queue} for buffering {@link XMLEventReader} output.
+ * 
+ * @author James Leigh
+ *
+ */
 public abstract class XMLEventReaderBase implements XMLEventReader {
 	private XMLEvent next;
 	private XMLStreamException nextException;

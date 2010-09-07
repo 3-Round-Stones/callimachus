@@ -18,6 +18,12 @@ package org.callimachusproject.rdfa.events;
 
 import info.aduna.net.ParsedURI;
 
+/**
+ * Establishes the base URI of the document.
+ * 
+ * @author James Leigh
+ *
+ */
 public class Base extends RDFEvent {
 	private ParsedURI base;
 

@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * RDF typed literal.
+ * 
+ * @author James Leigh
+ *
+ */
 public abstract class TypedLiteral extends VarOrTermBase implements Literal {
 
 	public abstract IRI getDatatype();

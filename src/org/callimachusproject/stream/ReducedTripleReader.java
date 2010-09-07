@@ -25,6 +25,12 @@ import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.Triple;
 
+/**
+ * Filters out any duplicate triples within a 1024 buffer.
+ * 
+ * @author James Leigh
+ *
+ */
 public class ReducedTripleReader extends PipedRDFEventReader {
 	private Map<Triple, Object> set = new LinkedHashMap<Triple, Object>() {
 		private static final long serialVersionUID = -8926173487624544845L;

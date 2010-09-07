@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.events;
 
+/**
+ * Assigns a namespace to a prefix in the document.
+ * 
+ * @author James Leigh
+ *
+ */
 public class Namespace extends RDFEvent {
 	private String prefix;
 	private String namespaceURI;

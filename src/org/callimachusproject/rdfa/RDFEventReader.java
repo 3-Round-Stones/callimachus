@@ -18,6 +18,12 @@ package org.callimachusproject.rdfa;
 
 import org.callimachusproject.rdfa.events.RDFEvent;
 
+/**
+ * Base class for piped RDF readers.
+ * 
+ * @author James Leigh
+ *
+ */
 public abstract class RDFEventReader {
 	private RDFEvent next;
 

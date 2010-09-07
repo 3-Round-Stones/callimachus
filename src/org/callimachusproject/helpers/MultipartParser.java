@@ -21,6 +21,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Parses multipart inputsteams into multiple inputstream.
+ * 
+ * @author James Leigh
+ *
+ */
 public class MultipartParser {
 	private byte[] boundary = null;
 	private byte[] buffer = null;

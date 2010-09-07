@@ -18,6 +18,12 @@ package org.callimachusproject.rdfa.impl;
 
 import org.callimachusproject.rdfa.model.PlainLiteral;
 
+/**
+ * A string with an optional language.
+ * 
+ * @author James Leigh
+ *
+ */
 public class PlainLiteralImpl extends PlainLiteral {
 	private String label;
 	private String lang;

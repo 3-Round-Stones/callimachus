@@ -26,6 +26,12 @@ import javax.xml.stream.events.XMLEvent;
 import org.callimachusproject.rdfa.model.IRI;
 import org.callimachusproject.rdfa.model.XMLLiteral;
 
+/**
+ * RDF XML literal.
+ * 
+ * @author James Leigh
+ *
+ */
 public class XMLLiteralImpl extends XMLLiteral {
 	private static XMLInputFactory factory = XMLInputFactory.newInstance();
 	private String xml;

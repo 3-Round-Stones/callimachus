@@ -18,6 +18,12 @@ package org.callimachusproject.rdfa.events;
 
 import org.callimachusproject.rdfa.model.VarOrIRI;
 
+/**
+ * SPARQL keyword.
+ * 
+ * @author James Leigh
+ *
+ */
 public class Graph extends RDFEvent {
 	private VarOrIRI graph;
 

@@ -29,6 +29,12 @@ import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.rdfa.model.TypedLiteral;
 import org.callimachusproject.rdfa.model.Var;
 
+/**
+ * Contains factory methods for RDF terms.
+ * 
+ * @author James Leigh
+ *
+ */
 public class TermFactoryImpl extends TermFactory {
 	private static final String prefix = "t"
 			+ Long.toHexString(System.currentTimeMillis()) + "x";

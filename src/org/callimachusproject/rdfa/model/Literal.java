@@ -16,5 +16,11 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * RDF Literal (plain or typed).
+ * 
+ * @author James Leigh
+ *
+ */
 public interface Literal extends Term {
 }

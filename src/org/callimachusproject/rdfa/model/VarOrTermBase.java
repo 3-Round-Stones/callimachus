@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * Common methods for {@link VarOrTerm}.
+ * 
+ * @author James Leigh
+ *
+ */
 public abstract class VarOrTermBase implements VarOrTerm {
 	public boolean isNode() {
 		return this instanceof Node;

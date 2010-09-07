@@ -42,6 +42,12 @@ import org.callimachusproject.rdfa.model.IRI;
 import org.callimachusproject.rdfa.model.Term;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 
+/**
+ * Conerts an RDF document of triples into an RDF/XML document.
+ * 
+ * @author James Leigh
+ *
+ */
 public class RDFXMLEventReader extends XMLEventReaderBase {
 	private static final Pattern LOCAL_PART = Pattern
 			.compile("[a-zA-Z0-9_"

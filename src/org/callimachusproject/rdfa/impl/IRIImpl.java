@@ -18,6 +18,12 @@ package org.callimachusproject.rdfa.impl;
 
 import org.callimachusproject.rdfa.model.IRI;
 
+/**
+ * International Resource Identifier.
+ * 
+ * @author James Leigh
+ *
+ */
 public class IRIImpl extends IRI {
 	private String iri;
 

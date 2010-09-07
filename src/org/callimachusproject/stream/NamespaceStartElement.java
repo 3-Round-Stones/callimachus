@@ -22,6 +22,12 @@ import java.util.Map;
 import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 
+/**
+ * Overrides the namespaces in a {@link StartElement}.
+ * 
+ * @author James Leigh
+ *
+ */
 public class NamespaceStartElement extends DelegatingStartElement {
 	private Map<String, Namespace> namespaces;
 

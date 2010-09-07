@@ -18,6 +18,12 @@ package org.callimachusproject.rdfa.impl;
 
 import org.callimachusproject.rdfa.model.Var;
 
+/**
+ * SPARQL variable.
+ * 
+ * @author James Leigh
+ *
+ */
 public class VarImpl extends Var {
 	private String name;
 

@@ -16,6 +16,13 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * Compact Uniform Resource Identifier (CURIE). Contains a prefix (namespace
+ * map) and local reference.
+ * 
+ * @author James Leigh
+ * 
+ */
 public abstract class CURIE extends IRI {
 
 	public abstract String getNamespaceURI();

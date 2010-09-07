@@ -22,6 +22,12 @@ import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.RDFEvent;
 
+/**
+ * Converts {@link Iterable} into {@link RDFEventReader}.
+ * 
+ * @author James Leigh
+ *
+ */
 public class IterableRDFEventReader extends RDFEventReader {
 	private Iterable<? extends RDFEvent> list;
 	private Iterator<? extends RDFEvent> iter;

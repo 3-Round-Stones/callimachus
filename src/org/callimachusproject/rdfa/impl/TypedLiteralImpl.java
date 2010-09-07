@@ -19,6 +19,12 @@ package org.callimachusproject.rdfa.impl;
 import org.callimachusproject.rdfa.model.IRI;
 import org.callimachusproject.rdfa.model.TypedLiteral;
 
+/**
+ * A value as a string and its datatype.
+ * 
+ * @author James Leigh
+ *
+ */
 public class TypedLiteralImpl extends TypedLiteral {
 	private String label;
 	private IRI datatype;

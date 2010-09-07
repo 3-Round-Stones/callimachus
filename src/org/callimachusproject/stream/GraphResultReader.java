@@ -42,6 +42,12 @@ import org.callimachusproject.rdfa.model.Node;
 import org.callimachusproject.rdfa.model.Term;
 import org.callimachusproject.rdfa.model.TermFactory;
 
+/**
+ * Converts {@link GraphQueryResult} into {@link RDFEventReader}.
+ * 
+ * @author James Leigh
+ *
+ */
 public class GraphResultReader extends RDFEventReader {
 	private TermFactory tf = TermFactory.newInstance();
 	private Queue<RDFEvent> queue = new LinkedList<RDFEvent>();

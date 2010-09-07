@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.events;
 
+/**
+ * SPARQL grammer.
+ * 
+ * @author James Leigh
+ *
+ */
 public class ConditionalOrExpression extends Filter {
 
 }

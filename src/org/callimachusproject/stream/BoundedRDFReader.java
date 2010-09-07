@@ -25,6 +25,12 @@ import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.model.VarOrIRI;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 
+/**
+ * Filters out any triples that are about a nested named resource.
+ * 
+ * @author James Leigh
+ *
+ */
 public class BoundedRDFReader extends PipedRDFEventReader {
 	private static String FIRST = "http://www.w3.org/1999/02/22-rdf-syntax-ns#first";
 	private LinkedList<Queue<RDFEvent>> stack = new LinkedList<Queue<RDFEvent>>();

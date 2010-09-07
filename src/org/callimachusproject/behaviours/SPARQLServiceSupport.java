@@ -42,6 +42,12 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 
+/**
+ * Provides an endpoint to evaluate SPARQL queries on POST.
+ * 
+ * @author James Leigh
+ *
+ */
 public abstract class SPARQLServiceSupport implements RDFObject {
 	private static final ProtocolVersion HTTP11 = new ProtocolVersion("HTTP",
 			1, 1);

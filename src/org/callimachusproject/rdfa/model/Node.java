@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * RDF node (URI or blank).
+ * 
+ * @author James Leigh
+ *
+ */
 public interface Node extends Term {
 
 }

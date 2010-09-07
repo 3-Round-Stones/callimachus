@@ -18,6 +18,12 @@ package org.callimachusproject.rdfa.impl;
 
 import org.callimachusproject.rdfa.model.Reference;
 
+/**
+ * A relative IRI.
+ * 
+ * @author James Leigh
+ *
+ */
 public class ReferenceImpl extends Reference {
 	private String absolute;
 	private String relative;

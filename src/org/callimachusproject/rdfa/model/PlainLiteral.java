@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * RDF plain literal with an optional language.
+ * 
+ * @author James Leigh
+ *
+ */
 public abstract class PlainLiteral extends VarOrTermBase implements Literal {
 
 	public abstract String getLang();

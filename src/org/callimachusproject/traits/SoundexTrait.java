@@ -20,6 +20,12 @@ import java.util.Set;
 
 import org.openrdf.repository.object.annotations.iri;
 
+/**
+ * Interface for resolving label into the calli:soundex triples.
+ * 
+ * @author James Leigh
+ *
+ */
 public interface SoundexTrait {
 	public static String SOUNDEX = "http://callimachusproject.org/rdf/2009/framework#soundex";
 	public static String[] LABELS = {

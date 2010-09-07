@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.model;
 
+/**
+ * SPARQL variable or RDF term.
+ * 
+ * @author James Leigh
+ *
+ */
 public interface VarOrTerm {
 
 	boolean isNode();

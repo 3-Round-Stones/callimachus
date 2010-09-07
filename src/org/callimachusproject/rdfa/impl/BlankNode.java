@@ -19,6 +19,12 @@ package org.callimachusproject.rdfa.impl;
 import org.callimachusproject.rdfa.model.Node;
 import org.callimachusproject.rdfa.model.VarOrTermBase;
 
+/**
+ * RDF blank node.
+ * 
+ * @author James Leigh
+ *
+ */
 public class BlankNode extends VarOrTermBase implements Node {
 	private String id;
 

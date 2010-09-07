@@ -16,6 +16,12 @@
  */
 package org.callimachusproject.rdfa.events;
 
+/**
+ * A basic RDF event that occurs within a document.
+ * 
+ * @author James Leigh
+ *
+ */
 public class RDFEvent {
 	private Boolean start;
 

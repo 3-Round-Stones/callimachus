@@ -47,6 +47,13 @@ import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.rdfxml.RDFXMLParser;
 
+/**
+ * Save the provided RDF/XML triples into the RDF store provided they match the
+ * patterns present in this template.
+ * 
+ * @author James Leigh
+ * 
+ */
 public abstract class CopySupport implements Template {
 	private static final String prefix = "t"
 			+ Long.toHexString(System.currentTimeMillis()) + "x";

@@ -37,12 +37,16 @@ done
  
 PRGDIR=`dirname "$PRG"`
 
+if [ -z "$NAME" ] ; then
+  NAME=`basename "$PRG" | sed 's/\.sh$//'`
+fi
+
 if $darwin; then
-  EXECUTABLE="$PRGDIR/jsvc-darwin"
+  EXECUTABLE="$PRGDIR/$NAME-darwin"
 elif [ `uname -m` = "x86_64" ]; then
-  EXECUTABLE="$PRGDIR/jsvc-linux-x86_64"
+  EXECUTABLE="$PRGDIR/$NAME-linux-x86_64"
 else
-  EXECUTABLE="$PRGDIR/jsvc-linux-i686"
+  EXECUTABLE="$PRGDIR/$NAME-linux-i686"
 fi
 
 # Only set BASEDIR if not already set
@@ -50,10 +54,6 @@ fi
 
 # Ensure that any user defined CLASSPATH variables are not used on startup.
 CLASSPATH=
-
-if [ -z "$NAME" ] ; then
-  NAME=`basename "$PRG" | sed 's/\.sh$//'`
-fi
 
 if [ -z "$CONFIG" ] ; then
   CONFIG="$BASEDIR/etc/$NAME.conf"

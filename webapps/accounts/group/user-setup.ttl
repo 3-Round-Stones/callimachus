@@ -8,8 +8,8 @@
 @prefix :<#>.
 
 <local> a calli:LocalRealm;
-	calli:origin <../../>;
-	calli:domain <../../>.
+	calli:origin </>;
+	calli:domain <../../group/>.
 
 :already-user-setup rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;

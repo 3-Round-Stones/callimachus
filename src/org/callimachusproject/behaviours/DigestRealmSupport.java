@@ -125,6 +125,13 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 		}
 	}
 
+	@Override
+	public boolean authorizeCredential(Object credential, String method,
+			Object resource, String qs) {
+		return credential.equals(resource)
+				|| calliAuthorizeCredential(credential, method, resource, qs);
+	}
+
 	public Object findCredential(String authorization) {
 		if (authorization == null || !authorization.startsWith("Digest"))
 			return null;
@@ -146,6 +153,9 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 			+ "WHERE { ?user :name $name; :encoded ?encoded; :algorithm \"MD5\" .\n"
 			+ "$this :authenticates [:member ?user] }")
 	protected abstract List<Object[]> findDigest(@name("name") String username);
+
+	protected abstract boolean calliAuthorizeCredential(Object credential,
+			String method, Object resource, String qs);
 
 	private Object authenticatedCredential(String method, String md5,
 			Map<String, String> options) throws UnsupportedEncodingException {

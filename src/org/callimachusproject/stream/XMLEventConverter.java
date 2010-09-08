@@ -50,6 +50,8 @@ public abstract class XMLEventConverter extends EventReaderDelegate {
 	}
 
 	public void mark(int readlimit) {
+		if (buffer != null)
+			throw new IllegalStateException("Can only mark once");
 		buffer = new ArrayDeque<XMLEvent>(readlimit + 1);
 		this.readlimit = readlimit;
 		reset = false;

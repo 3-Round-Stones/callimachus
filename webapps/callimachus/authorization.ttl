@@ -28,7 +28,7 @@ calli:authorize-credential rdfs:subClassOf obj:Message;
 		owl:cardinality "1"^^xsd:nonNegativeInteger];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:allValuesFrom xsd:boolean];
-	obj:name "authorizeCredential".
+	obj:name "calliAuthorizeCredential".
 
 calli:authorize-credential-arg1 a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain calli:authorize-credential;
@@ -47,10 +47,6 @@ calli:authorize-credential-arg4 a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain calli:authorize-credential;
 	rdfs:range xsd:string;
 	obj:name "qs".
-
-# Users can view, review, edit, copy, delete, or any other operations on their user resource
-calli:authorize-self owl:equivalentClass calli:authorize-credential;
-	obj:groovy "return msg.subject == msg.credential || msg.functionalLiteralResponse".
 
 calli:authorize-maintainer owl:equivalentClass calli:authorize-credential;
 	obj:sparql """

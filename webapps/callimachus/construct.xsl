@@ -323,14 +323,6 @@
 							<xsl:text>&amp;element=</xsl:text>
 							<xsl:apply-templates mode="xptr-element" select="." />
 						</xsl:attribute>
-						<xsl:attribute name="data-construct">
-							<xsl:value-of select="$this" />
-							<xsl:text>?construct&amp;mode=</xsl:text>
-							<xsl:value-of select="$mode" />
-							<xsl:text>&amp;element=</xsl:text>
-							<xsl:apply-templates mode="xptr-element" select="*[@rel and contains(@rel, ':') or @rev]" />
-							<xsl:text>&amp;about={about}</xsl:text>
-						</xsl:attribute>
 					</xsl:if>
 					<xsl:apply-templates select="@*|*|comment()|text()">
 						<xsl:with-param name="about" select="$about" />

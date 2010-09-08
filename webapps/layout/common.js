@@ -15,9 +15,9 @@ if (window.addEventListener) {
 	window.attachEvent("onload", sortElements)
 	window.attachEvent("onload", findAutoExpandTextArea)
 	window.attachEvent("onresize", findAutoExpandTextArea)
-	window.attachEvent("onchange", targetAutoExpandTextArea)
-	window.attachEvent("onkeyup", targetAutoExpandTextArea)
-	window.attachEvent("onpaste", targetAutoExpandTextArea)
+	document.attachEvent("onchange", targetAutoExpandTextArea)
+	document.attachEvent("onkeyup", targetAutoExpandTextArea)
+	document.attachEvent("onpaste", targetAutoExpandTextArea)
 }
 
 function initWiki() {
@@ -26,8 +26,8 @@ function initWiki() {
 		var wikis = document.querySelectorAll(".wiki")
 		for (var i = 0; i < wikis.length; i++) {
 			var text = wikis[i].textContent || wikis[i].innerText
-			wikis[i].textContent = null
-			wikis[i].innerText = null
+			wikis[i].textContent = ''
+			wikis[i].innerText = ''
 			creole.parse(wikis[i], text)
 		}
 	}
@@ -109,8 +109,10 @@ function findAutoExpandTextArea() {
 }
 
 function targetAutoExpandTextArea(event) {
-	if (event.target.type == "textarea") {
+	if (event.target && event.target.type == "textarea") {
 		expandTextArea(event.target)
+	} else if (event.srcElement && event.srcElement.type == "textarea") {
+		expandTextArea(event.srcElement)
 	}
 }
 
@@ -124,7 +126,7 @@ function expandTextArea(area) {
 	}
 	var maxCols = Math.floor(width / area.offsetWidth * area.cols - 3)
 	var maxRows = Math.floor(height / area.offsetHeight * area.rows - 3)
-	if (maxRows < 2) {
+	if (!maxRows || maxRows < 2) {
 		maxRows = 43
 	}
 	var lines = area.value.split("\n")

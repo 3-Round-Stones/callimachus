@@ -87,11 +87,16 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 				throw new BadRequest("Invalid element parameter");
 			String parent = element.substring(0, element.lastIndexOf('/'));
 			String child = "/1" + element.substring(element.lastIndexOf('/'));
-			XMLElementReader xptr = new XMLElementReader(doc, parent);
-			boolean prel = isRelationshipElement(xptr);
-			xptr = new XMLElementReader(xptr, child);
-			boolean crel = isRelationshipElement(xptr);
-			if (!prel && !crel)
+			XMLElementReader pxptr = new XMLElementReader(doc, parent);
+			boolean prel = isRelationshipElement(pxptr); // data-add(construct) data-member(construct) data-more@rel(template)
+			XMLElementReader xptr = new XMLElementReader(pxptr, child);
+			boolean crel = isRelationshipElement(xptr); // data-search(search) data-more@property(template)
+			xptr = new XMLElementReader(xptr, "/1");
+			xptr.mark(1024);
+			XMLElementReader nxptr = new XMLElementReader(xptr, "/1/1");
+			boolean nrel = isRelationshipElement(nxptr); // data-options(options)
+			xptr.reset();
+			if (!prel && !crel && !nrel)
 				throw new BadRequest("Invalid element parameter");
 			return xptr;
 		} catch (NumberFormatException e) {

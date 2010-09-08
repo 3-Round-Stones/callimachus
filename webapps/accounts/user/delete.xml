@@ -4,6 +4,8 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 	<head>
 		<title property="rdfs:label"/>
+		<link rel="view" title="View" target="_self" href="?view" />
+		<link rel="edit" title="Edit" target="_self" href="" />
 		<script><![CDATA[
 		function() {
 			$('form[about]').bind('deleteSuccess.calli', function(e) {

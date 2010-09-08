@@ -26,8 +26,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.traits;
+package org.callimachusproject.concepts;
 
+import org.callimachusproject.traits.Realm;
 import org.openrdf.repository.object.annotations.iri;
 
 /**
@@ -36,6 +37,7 @@ import org.openrdf.repository.object.annotations.iri;
  * @author James Leigh
  *
  */
+@iri("http://callimachusproject.org/rdf/2009/framework#DigestRealm")
 public interface DigestRealm extends Realm {
 
 	/**

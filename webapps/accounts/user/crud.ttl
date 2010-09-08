@@ -8,10 +8,9 @@
 @prefix :<#>.
 
 <User> rdfs:subClassOf calli:User, calli:MailSubmitter;
-	rdfs:subClassOf calli:Viewable, calli:Reviewable, calli:Editable, calli:Deletable;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Deletable;
 	calli:icon <favicon.png>;
 	calli:view <view.xml>;
-	calli:review <review.xml>;
 	calli:edit <edit.xml>;
 	calli:delete <delete.xml>.
 

@@ -32,7 +32,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.callimachusproject.traits.DigestRealm;
+import org.callimachusproject.concepts.DigestRealm;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;

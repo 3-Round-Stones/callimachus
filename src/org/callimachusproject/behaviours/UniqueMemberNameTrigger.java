@@ -16,30 +16,31 @@
  */
 package org.callimachusproject.behaviours;
 
-import org.callimachusproject.concepts.DigestRealm;
+import org.callimachusproject.concepts.Group;
 import org.openrdf.repository.object.annotations.sparql;
 import org.openrdf.repository.object.annotations.triggeredBy;
 
 /**
- * Ensures calli:name is unique across all groups of this realm when a new group
- * is added.
+ * Ensures calli:name is unique across groups within the same realm when a new
+ * member is added.
  * 
  * @author James Leigh
  * 
  */
-public abstract class UniqueCredentialNameTrigger implements DigestRealm {
+public abstract class UniqueMemberNameTrigger implements Group {
 	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String PREFIX = "PREFIX calli:<" + NS + ">\n";
 
-	@triggeredBy(NS + "authenticates")
-	public void checkCredentialNames() {
-		if (isDuplicateCredentialName())
+	@triggeredBy(NS + "member")
+	public void checkMemberNames() {
+		if (isDuplicateMemberName())
 			throw new IllegalStateException("Username Already Exists");
 	}
 
 	@sparql(PREFIX
-			+ "ASK { $this calli:authenticates [calli:member ?credential1], [calli:member ?credential2] .\n"
+			+ "ASK { ?realm calli:authenticates $this, [calli:member ?credential1].\n"
+			+ "$this calli:member ?credential2 .\n"
 			+ "?credential1 calli:name ?name . ?credential2 calli:name ?name\n"
 			+ "FILTER (?credential1 != ?credential2) }")
-	protected abstract boolean isDuplicateCredentialName();
+	protected abstract boolean isDuplicateMemberName();
 }

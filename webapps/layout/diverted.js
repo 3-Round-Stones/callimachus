@@ -48,7 +48,11 @@ function divertedLinkClicked(e) {
 	if (win.defaultView) {
 		win = win.defaultView
 	}
-	win.location.href = diverted(target.href, target)
+	if (target.className.match(/\breplace\b/)) {
+		win.location.replace(diverted(target.href, target))
+	} else {
+		win.location.href = diverted(target.href, target)
+	}
     return false
 }
 

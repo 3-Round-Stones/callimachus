@@ -62,7 +62,7 @@
 					<xsl:value-of select="concat($scheme, ':')"/>
 					<xsl:value-of select="." />
 				</xsl:when>
-				<xsl:when test="starts-with(., '/') and $origin">
+				<xsl:when test="starts-with(., '/') and not(starts-with(., '//')) and $origin">
 					<xsl:value-of select="$origin"/>
 					<xsl:value-of select="." />
 				</xsl:when>
@@ -81,15 +81,15 @@
 			<meta http-equiv="X-UA-Compatible" content="IE=8" />
 			<link rel="icon" href="{$layout}/favicon.png" />
 			<link rel="stylesheet" href="{$layout}/template.css" />
-			<script type="text/javascript" src="{$callimachus}/diverted.js"> </script>
+			<script type="text/javascript" src="{$layout}/diverted.js"> </script>
 			<script type="text/javascript" src="{$layout}/template.js"> </script>
 			<xsl:if test="contains($mode, 'copy') or contains($mode, 'edit') or contains($mode, 'delete')">
 			<script type="text/javascript" src="{$callimachus}/jquery.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/jquery-ui.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/jquery.qtip.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/jquery.rdfquery.rdfa.js"> </script>
-			<script type="text/javascript" src="{$callimachus}/status.js"> </script>
-			<script type="text/javascript" src="{$callimachus}/elements.js"> </script>
+			<script type="text/javascript" src="{$layout}/status.js"> </script>
+			<script type="text/javascript" src="{$layout}/elements.js"> </script>
 			<xsl:if test="contains($mode, 'copy')">
 			<script type="text/javascript" src="{$callimachus}/copy.js"> </script>
 			</xsl:if>
@@ -110,47 +110,58 @@
 	<xsl:template match="body">
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
+			<div id="nav-side">
+				<div id="logo">
+					<a href="{$origin}/">
+						<img src="{$layout}/logo.png" />
+					</a>
+				</div>
+				<xsl:apply-templates mode="nav" select="document(concat($layout, '/menu'))" />
+			</div>
 			<div id="header">
-				<div id="credentials-div">
+				<form method="GET" action="{$layout}/menu">
 					<a id="login-link" href="{$accounts}/authority?login" style="display:none">Login</a>
 					<span id="authenticated-span" style="display:none">
 						<a id="authenticated-link" href="{$accounts}/authority?authenticated"></a>
 						<span> | </span>
 						<a href="?edit">Settings</a>
 						<span> | </span>
+						<a href="?contributions">Contributions</a>
+						<span> | </span>
 						<a href="{$accounts}/authority?logout">Logout</a>
 					</span>
-				</div>
-				<div id="logo">
-					<a href="{$origin}/">
-						<img src="{$layout}/logo.png" />
-					</a>
-				</div>
-				<ul id="tabs" class="tabs">
-					<xsl:for-each select="/html/head/link[@target='_self']">
-						<xsl:choose>
-							<xsl:when test="@href=''">
-								<li>
-									<span><xsl:value-of select="@title" /></span>
-								</li>
-							</xsl:when>
-							<xsl:when test="@href">
-								<li>
-									<a class="diverted" target="_self">
-										<xsl:apply-templates select="@href"/>
-										<xsl:value-of select="@title" />
-									</a>
-								</li>
-							</xsl:when>
-						</xsl:choose>
-					</xsl:for-each>
-				</ul>
+					<input type="hidden" name="go" />
+					<span id="search-box">
+						<input id="search-box-input" type="text" class="auto-expand" size="10" name="q" title="Lookup resource..." />
+						<button id="search-box-button" type="button" onclick="form.elements['go'].name='lookup';form.submit()">
+							<img src="{$layout}/search.png" />
+						</button>
+					</span>
+				</form>
 			</div>
 
-			<xsl:apply-templates mode="menu" select="document(concat($layout, '/menu'))" />
-
+			<ul id="tabs" class="tabs">
+				<xsl:for-each select="/html/head/link[@target='_self']">
+					<xsl:choose>
+						<xsl:when test="@href=''">
+							<li>
+								<span><xsl:value-of select="@title" /></span>
+							</li>
+						</xsl:when>
+						<xsl:when test="@href">
+							<li>
+								<a class="diverted replace" target="_self">
+									<xsl:apply-templates select="@href"/>
+									<xsl:value-of select="@title" />
+								</a>
+							</li>
+						</xsl:when>
+					</xsl:choose>
+				</xsl:for-each>
+			</ul>
 			<div id="content">
 				<xsl:apply-templates select="*|comment()|text()" />
+				<div id="content-stop" />
 			</div>
 
 			<div id="footer">
@@ -160,44 +171,31 @@
 			</div>
 		</xsl:copy>
 	</xsl:template>
-	<xsl:template mode="menu" match="sparql:sparql">
+	<xsl:template mode="nav" match="sparql:sparql">
 		<ul id="nav">
-			<xsl:apply-templates mode="menu" select="sparql:results/sparql:result[not(sparql:binding/@name='parent')]" />
-			<li>
-				<span>Search</span>
-				<form method="GET" action="{$layout}/menu">
-					<div id="search-nav">
-						<input type="hidden" name="go" />
-						<input type="text" size="10" name="q" />
-						<div>
-							<button type="submit">Go</button>
-							<button type="button"
-								onclick="form.elements['go'].name='lookup';form.submit()">Lookup</button>
-						</div>
-					</div>
-				</form>
-			</li>
+			<xsl:apply-templates mode="nav" select="sparql:results/sparql:result[not(sparql:binding/@name='parent')]" />
 		</ul>
 	</xsl:template>
-	<xsl:template mode="menu" match="sparql:result[not(sparql:binding/@name='link')]">
+	<xsl:template mode="nav" match="sparql:result[not(sparql:binding/@name='link')]">
 		<li>
+			<hr width="75%"/>
 			<span>
 				<xsl:value-of select="sparql:binding[@name='label']/*" />
 			</span>
 			<xsl:variable name="node" select="sparql:binding[@name='item']/*/text()" />
 			<ul>
-				<xsl:apply-templates mode="menu" select="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]" />
+				<xsl:apply-templates mode="nav" select="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]" />
 			</ul>
 		</li>
 	</xsl:template>
-	<xsl:template mode="menu" match="sparql:result[sparql:binding/@name='link']">
+	<xsl:template mode="nav" match="sparql:result[sparql:binding/@name='link']">
 		<li>
 			<a href="{sparql:binding[@name='link']/*}">
 				<xsl:value-of select="sparql:binding[@name='label']/*" />
 			</a>
 			<xsl:variable name="node" select="sparql:binding[@name='item']/*/text()" />
 			<ul>
-				<xsl:apply-templates mode="menu" select="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]" />
+				<xsl:apply-templates mode="nav" select="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]" />
 			</ul>
 		</li>
 	</xsl:template>

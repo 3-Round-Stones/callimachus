@@ -1,0 +1,44 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix :<#>.
+
+:menu-go rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Menu];
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:cardinality 1];
+	http:operation "go";
+	http:expect "302-see-other";
+	http:cache-control "no-store";
+	obj:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	obj:groovy """
+		def vf = objectConnection.valueFactory;
+		def stmts = objectConnection.getStatements(null, RDFS.LABEL, vf.createLiteral(msg.q));
+		try {
+			if (!stmts.hasNext())
+				return objectConnection.getObject("$this?lookup&q=${URLEncoder.encode(msg.q)}");
+			def uri = stmts.next().subject;
+			while (!(uri instanceof org.openrdf.model.URI) && stmts.hasNext()) {
+				uri = stmts.next().subject;
+			}
+			if (!(uri instanceof org.openrdf.model.URI) || stmts.hasNext())
+				return objectConnection.getObject("$this?lookup&q=${URLEncoder.encode(msg.q)}");
+			return objectConnection.getObject("$uri");
+		} finally {
+			stmts.close();
+		}
+	""".
+
+:menu-go-arg a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :menu-go;
+	rdfs:range xsd:string;
+	http:parameter "q";
+	obj:name "q".
+

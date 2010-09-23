@@ -11,9 +11,17 @@ if (window.addEventListener) {
 function hideFluffIfInFrame() {
 	try {
 		if (window.frameElement) {
-			hideSiblings(document.getElementById("content"))
+			printable()
+			var asides = document.querySelectorAll(".aside")
+			for (var i = 0; i < asides.length; i++) {
+				asides[i].parentNode.removeChild(asides[i])
+			}
 		}
 	} catch(e) {}
+}
+
+function printable() {
+	hideSiblings(document.getElementById("content"))
 }
 
 function hideSiblings(node) {

@@ -1,0 +1,51 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix :<#>.
+
+:contributions rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:User];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom obj:TupleResult];
+	http:operation "contributions";
+	http:type "application/sparql-results+xml";
+	http:cache-control "no-store";
+	http:transform :contributions-xsl;
+	obj:sparql """
+		SELECT REDUCED ?label ?comment ?icon ?url ?revision ?modified
+		WHERE {
+			?revision audit:committedOn ?modified; http:authorized $this
+			{
+				GRAPH ?revision { ?url ?p ?o FILTER (?p != audit:contained) }
+			} UNION {
+				?revision audit:contained [rdf:subject ?url]
+			}
+			FILTER (?url != ?revision)
+			FILTER (?url != $this)
+			FILTER (isIRI(?url))
+			OPTIONAL { ?url a [calli:icon ?icon] }
+			OPTIONAL { ?url rdfs:label ?label }
+			OPTIONAL { ?url rdfs:comment ?comment }
+		}
+		ORDER BY desc(?modified) ?url
+		LIMIT 50
+	""".
+
+:contributions-xsl rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.InputStream>];
+	http:type "application/xml";
+	http:transform <template.ttl#template-xsl>;
+	obj:xslt <contributions.xsl>.
+
+:contributions-xsl-input a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :contributions-xsl;
+	rdfs:range <java:java.io.InputStream>.
+

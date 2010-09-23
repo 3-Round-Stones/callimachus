@@ -8,7 +8,7 @@
 		<html>
 			<head>
 				<title>Search Results</title>
-				<link rel="stylesheet" href="/layout/search.css" />
+				<link rel="stylesheet" href="/layout/lookup.css" />
 				<script>
 				// <![CDATA[
 				function parameter(name) {
@@ -27,7 +27,7 @@
 			<body onload="init()">
 				<h1>Search Results</h1>
 				<form method="GET" class="search">
-					<input type="hidden" name="search" />
+					<input type="hidden" name="lookup" />
 					<input type="text" id="q" name="q" size="40" />
 					<button type="submit">Search</button>
 				</form>

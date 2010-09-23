@@ -59,6 +59,7 @@ function createAddPropertyButtons(form) {
 					var input = $(data)
 					add.before(input)
 					input.each(initInputElement)
+					input.find().andSelf().filter(":input:first").focus()
 					updateButtonState(parent, property, minOccurs, maxOccurs)
 				})
 			})
@@ -187,7 +188,7 @@ function loadOptions(script, objects, selected, callback, refresh) {
 				$(options.get()).filter("[resource='" + uri + "']").each(function() {
 					var option = $(this)
 					if (inputs.size()) {
-						inputs.attr(selected, selected)
+						$("input", option).attr(selected, selected)
 					} else {
 						option.attr(selected, selected)
 					}

@@ -9,39 +9,6 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-:menu-go rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Menu];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:cardinality 1];
-	http:operation "go";
-	http:expect "302-see-other";
-	http:cache-control "no-store";
-	obj:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	obj:groovy """
-		def vf = objectConnection.valueFactory;
-		def stmts = objectConnection.getStatements(null, RDFS.LABEL, vf.createLiteral(msg.q));
-		try {
-			if (!stmts.hasNext())
-				return objectConnection.getObject("$this?search&q=${URLEncoder.encode(msg.q)}");
-			def uri = stmts.next().subject;
-			while (!(uri instanceof org.openrdf.model.URI) && stmts.hasNext()) {
-				uri = stmts.next().subject;
-			}
-			if (!(uri instanceof org.openrdf.model.URI) || stmts.hasNext())
-				return objectConnection.getObject("$this?search&q=${URLEncoder.encode(msg.q)}");
-			return objectConnection.getObject("$uri");
-		} finally {
-			stmts.close();
-		}
-	""".
-
-:menu-go-arg a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :menu-go;
-	rdfs:range xsd:string;
-	http:parameter "q";
-	obj:name "q".
-
 :menu-lookup rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Menu];
@@ -71,7 +38,9 @@
 			FILTER (isIRI(?url))
 			OPTIONAL { ?url a [calli:icon ?icon] }
 			OPTIONAL { ?url rdfs:comment ?comment }
-			OPTIONAL { ?url audit:revision [audit:committedOn ?modified] }
+			OPTIONAL { ?url audit:revision ?revision
+				OPTIONAL { ?revision audit:committedOn ?modified }
+			}
 		}
 		ORDER BY ?label ?url ?icon
 		LIMIT 100
@@ -95,19 +64,10 @@
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xml";
-	http:transform :template-xsl;
+	http:transform <template.ttl#template-xsl>;
 	obj:xslt <lookup.xsl>.
 
 :lookup-xsl-input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :lookup-xsl;
-	rdfs:range <java:java.io.InputStream>.
-
-:template-xsl rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.InputStream>];
-	http:type "text/html";
-	obj:xslt <template.xsl>.
-
-:template-xsl-input a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :template-xsl;
 	rdfs:range <java:java.io.InputStream>.
 

@@ -1,4 +1,4 @@
-/* search.css */
+/* lookup.css */
 
 #results {
 	list-style-type: square;
@@ -9,6 +9,7 @@
 }
 
 #results li {
+	list-style: none;
 	margin-top: 1ex;
 }
 

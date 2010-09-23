@@ -325,7 +325,7 @@ if [ "$1" = "start" ] ; then ################################
     exit $RETURN_VAL
   fi
 
-  SLEEP=60
+  SLEEP=120
   ID=`cat $PID`
   while [ $SLEEP -ge 0 ]; do
     kill -0 $ID >/dev/null 2>&1
@@ -373,18 +373,18 @@ elif [ "$1" = "stop" ] ; then ################################
   "$EXECUTABLE" -home "$JAVA_HOME" -stop \
     -pidfile "$PID" $MAINCLASS
 
-  SLEEP=120
+  SLEEP=180
   while [ $SLEEP -ge 0 ]; do 
     kill -0 $ID >/dev/null 2>&1
     if [ $? -gt 0 ]; then
       rm -f $PID
       break
     fi
-    if [ $SLEEP -gt 0 ]; then
-      sleep 1
-    fi
     if [ "$SLEEP" = "60" ]; then
       kill $ID >/dev/null 2>&1
+    fi
+    if [ $SLEEP -gt 0 ]; then
+      sleep 1
     fi
     SLEEP=`expr $SLEEP - 1 `
   done

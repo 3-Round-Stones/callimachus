@@ -20,12 +20,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
@@ -36,8 +33,6 @@ import org.callimachusproject.rdfa.events.Namespace;
 import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.events.Where;
-import org.callimachusproject.rdfa.model.Reference;
-import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.rdfa.model.VarOrIRI;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 
@@ -48,8 +43,6 @@ import org.callimachusproject.rdfa.model.VarOrTerm;
  * @author James Leigh
  */
 public class TriplePatternStore {
-	private static final String v = "http://callimachusproject.org/rdf/2009/framework/variables/?";
-	private TermFactory tf = TermFactory.newInstance();
 	private Base base;
 	private List<Namespace> namespaces = new ArrayList<Namespace>();
 	private List<RDFEvent> where = new LinkedList<RDFEvent>();
@@ -59,6 +52,10 @@ public class TriplePatternStore {
 
 	public TriplePatternStore(String base) {
 		this.base = new Base(base);
+	}
+
+	public String resolve(String relative) {
+		return base.resolve(relative);
 	}
 
 	public void consume(RDFEventReader reader) throws RDFParseException {
@@ -126,15 +123,7 @@ public class TriplePatternStore {
 	}
 
 	public TriplePattern getProjectedPattern(TriplePattern tp) {
-		VarOrTerm subj = tp.getSubject();
-		VarOrIRI pred = tp.getPredicate();
-		VarOrTerm obj = tp.getObject();
-		if (tp.isInverse() && subj.isVar() && !(subj instanceof BlankOrLiteralVar)) {
-			pred = tf.iri(v + subj.stringValue());
-		} else if (!tp.isInverse() && obj.isVar() && !(obj instanceof BlankOrLiteralVar)) {
-			pred = tf.iri(v + obj.stringValue());
-		}
-		return new TriplePattern(subj, pred, obj, tp.isInverse());
+		return tp;
 	}
 
 	public RDFEventReader openQueryReader() {
@@ -215,6 +204,17 @@ public class TriplePatternStore {
 		}
 	}
 
+	protected List<TriplePattern> getConstructPatterns(List<RDFEvent> where) {
+		List<TriplePattern> list = new ArrayList<TriplePattern>(where.size());
+		for (RDFEvent event : where) {
+			if (event.isTriplePattern()) {
+				TriplePattern tp = event.asTriplePattern();
+				list.add(getProjectedPattern(tp));
+			}
+		}
+		return list;
+	}
+
 	private RDFEventReader openQueryReader(List<RDFEvent> where) {
 		List<RDFEvent> list = new ArrayList<RDFEvent>();
 		list.add(new Document(true));
@@ -225,10 +225,8 @@ public class TriplePatternStore {
 			list.add(event);
 		}
 		list.add(new Construct(true));
-		for (List<TriplePattern> patterns : getConstructPatterns(where)) {
-			for (TriplePattern event : patterns) {
-				list.add(event);
-			}
+		for (TriplePattern event : getConstructPatterns(where)) {
+			list.add(event);
 		}
 		list.add(new Construct(false));
 		list.add(new Where(true));
@@ -238,40 +236,6 @@ public class TriplePatternStore {
 		list.add(new Where(false));
 		list.add(new Document(false));
 		return new IterableRDFEventReader(list);
-	}
-
-	private Iterable<List<TriplePattern>> getConstructPatterns(
-			List<RDFEvent> where) {
-		Set<VarOrTerm> variables = new HashSet<VarOrTerm>();
-		Map<VarOrTerm, List<TriplePattern>> construct = new LinkedHashMap<VarOrTerm, List<TriplePattern>>();
-		for (RDFEvent event : where) {
-			if (event.isTriplePattern()) {
-				TriplePattern tp = event.asTriplePattern();
-				VarOrTerm subj = tp.getSubject();
-				VarOrTerm obj = tp.getObject();
-				List<TriplePattern> list = construct.get(subj);
-				if (list == null) {
-					construct.put(subj, list = new LinkedList<TriplePattern>());
-				}
-				if (subj.isVar() && !(subj instanceof BlankOrLiteralVar) && !variables.contains(subj)) {
-					VarOrIRI pred = tf.iri(v + subj.stringValue());
-					if (tp.isInverse()) {
-						list.add(new TriplePattern(obj, pred, subj));
-					} else {
-						Reference ref = tf.reference(base.resolve(""), "");
-						list.add(new TriplePattern(ref, pred, subj));
-					}
-					variables.add(subj);
-				} else if (tp.isInverse()) {
-					list.add(new TriplePattern(obj, tp.getPredicate(), subj));
-				}
-				if (obj.isVar() && !(obj instanceof BlankOrLiteralVar)) {
-					variables.add(obj);
-				}
-				list.add(getProjectedPattern(tp));
-			}
-		}
-		return construct.values();
 	}
 
 }

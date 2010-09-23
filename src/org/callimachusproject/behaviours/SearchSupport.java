@@ -45,6 +45,7 @@ import org.callimachusproject.stream.RDFStoreReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.ReducedTripleReader;
 import org.callimachusproject.stream.TriplePatternStore;
+import org.callimachusproject.stream.TriplePatternVariableStore;
 import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.annotations.cacheControl;
 import org.openrdf.http.object.annotations.operation;
@@ -88,7 +89,7 @@ public abstract class SearchSupport implements Template, SoundexTrait,
 			String about) throws XMLStreamException, IOException,
 			TransformerException, RDFParseException {
 		String base = toUri().toASCIIString();
-		TriplePatternStore query = new TriplePatternStore(base);
+		TriplePatternStore query = new TriplePatternVariableStore(base);
 		RDFEventReader reader = openPatternReader(mode, element, about);
 		try {
 			query.consume(reader);

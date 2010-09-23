@@ -43,6 +43,7 @@ import org.callimachusproject.stream.RDFStoreReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.ReducedTripleReader;
 import org.callimachusproject.stream.TriplePatternStore;
+import org.callimachusproject.stream.TriplePatternVariableStore;
 import org.openrdf.http.object.annotations.cacheControl;
 import org.openrdf.http.object.annotations.operation;
 import org.openrdf.http.object.annotations.parameter;
@@ -128,10 +129,16 @@ public abstract class ViewSupport implements Template, RDFObject,
 	public byte[] query(@parameter("element") String element, @parameter("about") String about)
 			throws XMLStreamException, IOException, TransformerException,
 			RDFParseException {
-		java.net.URI net = about == null ? toUri() : toUri().resolve(about);
-		String uri = net.toASCIIString();
-		String query = readPatternStore("view", element, uri).toString();
-		return query.getBytes(Charset.forName("UTF-8"));
+		String base = toUri().toASCIIString();
+		TriplePatternStore query = new TriplePatternStore(base);
+		String uri = about == null ? query.resolve("") : query.resolve(about);
+		RDFEventReader reader = readPatterns("view", element, uri);
+		try {
+			query.consume(reader);
+		} finally {
+			reader.close();
+		}
+		return query.toString().getBytes(Charset.forName("UTF-8"));
 	}
 
 	protected RDFEventReader readPatterns(String mode, String element,
@@ -169,7 +176,7 @@ public abstract class ViewSupport implements Template, RDFObject,
 			String about) throws XMLStreamException, IOException,
 			TransformerException, RDFParseException {
 		String base = toUri().toASCIIString();
-		TriplePatternStore query = new TriplePatternStore(base);
+		TriplePatternStore query = new TriplePatternVariableStore(base);
 		RDFEventReader reader = readPatterns(mode, element, about);
 		try {
 			query.consume(reader);

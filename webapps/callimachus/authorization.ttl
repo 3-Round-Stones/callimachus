@@ -63,6 +63,7 @@ calli:authorize-maintainer owl:equivalentClass calli:authorize-credential;
 				FILTER ($qs = "copy")
 			} UNION {
 				$subject a [calli:conservator $credential]
+				FILTER ($method = "GET" || $method = "HEAD" || $qs = "edit")
 				FILTER ($qs = "view" || $qs = "review" || $qs = "edit" || !bound($qs))
 			} UNION {
 				$subject calli:maintainer $credential
@@ -86,6 +87,7 @@ calli:authorize-member owl:equivalentClass calli:authorize-credential;
 				FILTER ($qs = "copy")
 			} UNION {
 				$subject a [calli:conservator ?group]
+				FILTER ($method = "GET" || $method = "HEAD" || $qs = "edit")
 				FILTER ($qs = "view" || $qs = "review" || $qs = "edit" || !bound($qs))
 			} UNION {
 				$subject calli:maintainer ?group

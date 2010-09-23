@@ -38,7 +38,11 @@ function initForms() {
 					if (window.showPageLoading) {
 						showPageLoading()
 					}
-					location.replace(uri + "?view")
+					var redirect = uri + "?view"
+					if (form.attr("data-redirect")) {
+						redirect = form.attr("data-redirect")
+					}
+					location.replace(redirect)
 				})
 			} catch(e) {
 				if (window.showError) {

@@ -17,11 +17,12 @@ function initForms() {
 				var type = "application/rdf+xml"
 				var data = added.dump({format:"application/rdf+xml",serialize:true})
 				deleteData(location.href, type, data, function(data, textStatus, xhr) {
-					form.trigger('deleteSuccess.calli');
+					if (form.attr("data-redirect")) {
+						location.replace(form.attr("data-redirect"))
+					}
 					form.remove();
 				})
 			} catch(e) {
-				form.trigger('deleteFailure.calli');
 				if (window.showError) {
 					showError(e.description)
 				}

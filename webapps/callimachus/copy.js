@@ -22,7 +22,9 @@ function initForms() {
 						uri = uri.substring(0, uri.indexOf('?'))
 					}
 					var redirect = xhr.getResponseHeader("Location")
-					if (redirect && redirect.indexOf("?") >= 0) {
+					if (form.attr("data-redirect")) {
+						redirect = form.attr("data-redirect")
+					} else if (redirect && redirect.indexOf("?") >= 0) {
 						redirect = redirect
 					} else if (redirect) {
 						redirect = redirect + "?view"

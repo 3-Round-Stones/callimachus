@@ -295,7 +295,8 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	}
 
 	private String generatePassword() {
-		return Long.toHexString(new Random(System.nanoTime()).nextLong());
+		Random rand = new Random(System.nanoTime());
+		return Long.toHexString(rand.nextLong()) + Long.toHexString(rand.nextLong());
 	}
 
 	private MimetypesFileTypeMap createMimetypesMap() {

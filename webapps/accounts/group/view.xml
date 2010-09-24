@@ -15,7 +15,7 @@
 			<li><a href="?copy">Create a new group</a></li>
 		</ul>
 		<h1><a href="" property="rdfs:label" /></h1>
-		<div class="wiki" property="rdfs:comment" />
+		<pre class="wiki" property="rdfs:comment" />
 		<ul rel="calli:member" class="sorted">
 			<li about="?member">
 				<a href="?member" property="rdfs:label" class="asc" />

@@ -97,7 +97,7 @@
 								<label for="password-input">Change password:</label>
 							</th>
 							<td>
-								<input id="password-input" type="password" class="auto-expand"
+								<input id="password-input" type="password"
 									onchange="savePassword(value);confirm('password-input')" 
 									onkeyup="setTimeout(function(){confirm('password-input')}, 100)" />
 							</td>
@@ -107,7 +107,7 @@
 								<label for="confirm-password-input">Confirm password:</label>
 							</th>
 							<td>
-								<input id="confirm-password-input" type="password" class="auto-expand"
+								<input id="confirm-password-input" type="password"
 									onchange="confirm('password-input')" 
 									onkeyup="setTimeout(function(){confirm('password-input')}, 100)" />
 							</td>

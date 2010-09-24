@@ -1,0 +1,44 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix :<#>.
+
+<menu> a calli:Menu.
+
+:menu-evaluate rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Menu];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom obj:TupleResult];
+	http:rel "alternate";
+	http:operation "evaluate";
+	http:type "application/sparql-results+xml";
+	obj:sparql """
+		SELECT ?parent ?item ?label ?link
+		WHERE {
+			{
+				$this calli:item ?item
+			} UNION {
+				$this calli:item ?parent.
+				?parent calli:item ?item
+			} UNION {
+				$this calli:item [calli:item ?parent].
+				?parent calli:item ?item
+			}
+			?item rdfs:label ?label.
+			OPTIONAL {
+				?item calli:position ?position
+			}
+			OPTIONAL {
+				?item calli:link ?link
+			}
+		}
+		ORDER BY ?position ?label
+	""".
+

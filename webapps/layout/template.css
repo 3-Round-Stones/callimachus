@@ -12,7 +12,10 @@ EEEEEE light gray
 
 body {
 	background-color: #DDDDDD;
-	background: -webkit-gradient(linear, center top, center center, color-stop(0,white), color-stop(1,#DDDDDD));
+	background-repeat: no-repeat;
+	background-image: -moz-linear-gradient(top, white, #DDDDDD, #DDDDDD);
+	background-image: -webkit-gradient(linear, center top, center center, color-stop(0,white), color-stop(1,#DDDDDD));
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#DDDDDD, GradientType=0)";
 	margin: 0px;
 	font-family: sans-serif;
 }
@@ -35,7 +38,7 @@ a[href]:hover {
 	display: inline-block;
 	background-image: -moz-linear-gradient(top, #DDDDDD, white);
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#DDDDDD), to(white));
-	filter: progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=1);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
 	border: thin solid #999FAD;
 	-moz-border-radius: 2pt;
 	border-radius: 2pt;
@@ -47,6 +50,7 @@ a[href]:hover {
 
 #search-box-input {
 	background: transparent;
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
 	border: none !important;
 	margin: 0px;
 	height: 1.5em;
@@ -56,6 +60,7 @@ a[href]:hover {
 
 #search-box-button {
 	background: transparent;
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
 	border: none !important;
 	margin: 0px;
 	height: 1.5em;
@@ -84,9 +89,23 @@ a[href]:hover {
 	list-style: none;
 	width: 10em;
 	margin: 0px;
-	padding: 0px;
-	padding-bottom: 2ex;
+	padding: 0px 1ex;
 	font-size: small;
+	list-style: none;
+}
+
+#nav>li {
+	border-bottom: 1px solid #A8ACB8;
+	padding: 0.5ex;
+}
+
+#nav>li:last-child {
+	border-bottom: none;
+}
+
+.aside ul {
+	list-style: none;
+	padding-left: 1em;
 }
 
 #nav li {
@@ -94,7 +113,6 @@ a[href]:hover {
 }
 
 #nav li span {
-	padding-left: 1ex;
     text-decoration: none;
 	color: #3F547F;
 }
@@ -104,10 +122,6 @@ a[href]:hover {
 	margin: 0px;
 	margin-left: 1ex;
 	padding: 0px;
-}
-
-#nav li a {
-	padding-left: 1ex;
 }
 
 #tabs {
@@ -126,29 +140,25 @@ a[href]:hover {
     text-align: center;
 }
 
-#tabs li a {
-	background: #DDDDDD;
-    border-top: 1px solid #A8ACB8;
-    border-right: 1px solid #A8ACB8;
-    border-left: 1px solid #A8ACB8;
-	border-bottom: 1px solid #A8ACB8;
-	padding: 0px 1ex;
-    text-decoration: none;
-	color: black;
-}
-
-#tabs li span {
+#tabs li a, #tabs li span {
     display: inline-block;
     border-top: 1px solid #A8ACB8;
     border-right: 1px solid #A8ACB8;
     border-left: 1px solid #A8ACB8;
-	border-bottom: 1px solid white;
 	padding: 0px 1ex;
-    background: white;
-    border-bottom: 0;
-    font-weight: bold;
-    text-decoration: none;
 	color: black;
+}
+
+#tabs li a {
+	background: #DDDDDD;
+    border-bottom: 1px solid #A8ACB8;
+    text-decoration: none;
+}
+
+#tabs li span {
+    background: white;
+    border-bottom: 1px solid white;
+    font-weight: bold;
 }
 
 #content {
@@ -190,6 +200,30 @@ a[href]:hover {
 	padding-left: 1em;
 }
 
+.result {
+	list-style-type: square;
+	margin-top: 1ex;
+}
+
+img.icon {
+	padding-right: 2pt;
+}
+
+.summary {
+	line-height: 1em;
+	max-height: 3.1em;
+	overflow: hidden;
+}
+
+.summary * {
+	margin: 0px;
+	padding: 0px;
+}
+
+.cite {
+	color: #3F547F;
+}
+
 .drag-over {
 	cursor: copy;
 	background-color: #DDDDDD !important;
@@ -210,7 +244,7 @@ form {
 input, select, textarea {
 	background-image: -moz-linear-gradient(top, #DDDDDD, white);
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#DDDDDD), to(white));
-	filter: progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=1);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
 	border: thin solid #999FAD;
 	-moz-border-radius: 2pt;
 	border-radius: 2pt;
@@ -219,7 +253,7 @@ input, select, textarea {
 button {
 	background-image: -moz-linear-gradient(top, white, #F58735);
 	background-image: -webkit-gradient(linear, left top, left bottom, from(white), to(#F58735));
-	filter: progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#F58735, GradientType=1);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#F58735, GradientType=0)";
 	border: thin solid #3F547F;
 	-moz-border-radius: 2pt;
 	border-radius: 2pt;

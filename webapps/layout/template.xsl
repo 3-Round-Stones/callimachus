@@ -81,29 +81,29 @@
 			<meta http-equiv="X-UA-Compatible" content="IE=8" />
 			<link rel="icon" href="{$layout}/favicon.png" />
 			<link rel="stylesheet" href="{$layout}/template.css" />
-			<script type="text/javascript" src="{$layout}/diverted.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/diverted.js"> </script>
 			<script type="text/javascript" src="{$layout}/template.js"> </script>
 			<xsl:if test="contains($mode, 'copy') or contains($mode, 'edit') or contains($mode, 'delete')">
-			<script type="text/javascript" src="{$callimachus}/jquery.js"> </script>
-			<script type="text/javascript" src="{$callimachus}/jquery-ui.js"> </script>
-			<script type="text/javascript" src="{$callimachus}/jquery.qtip.js"> </script>
-			<script type="text/javascript" src="{$callimachus}/jquery.rdfquery.rdfa.js"> </script>
-			<script type="text/javascript" src="{$layout}/status.js"> </script>
-			<script type="text/javascript" src="{$layout}/elements.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.qtip.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/status.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/elements.js"> </script>
 			<xsl:if test="contains($mode, 'copy')">
-			<script type="text/javascript" src="{$callimachus}/copy.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/operations/copy.js"> </script>
 			</xsl:if>
 			<xsl:if test="contains($mode, 'edit')">
-			<script type="text/javascript" src="{$callimachus}/edit.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/operations/edit.js"> </script>
 			</xsl:if>
 			<xsl:if test="contains($mode, 'delete')">
-			<script type="text/javascript" src="{$callimachus}/delete.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/operations/delete.js"> </script>
 			</xsl:if>
 			</xsl:if>
-			<xsl:if test="//@class='wiki'">
-			<script type="text/javascript" src="{$layout}/creole.js"> </script>
+			<xsl:if test="//*[@class][contains(@class, 'wiki')]">
+			<script type="text/javascript" src="{$callimachus}/scripts/creole.js"> </script>
 			</xsl:if>
-			<script type="text/javascript" src="{$layout}/common.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/enhancements.js"> </script>
 			<xsl:apply-templates select="*|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
@@ -116,10 +116,10 @@
 						<img src="{$layout}/logo.png" />
 					</a>
 				</div>
-				<xsl:apply-templates mode="nav" select="document(concat($layout, '/menu'))" />
+				<xsl:apply-templates mode="nav" select="document(concat($callimachus, '/menu'))" />
 			</div>
 			<div id="header">
-				<form method="GET" action="{$layout}/menu">
+				<form method="GET" action="{$callimachus}/menu">
 					<a id="login-link" href="{$accounts}/authority?login" style="display:none">Login</a>
 					<span id="authenticated-span" style="display:none">
 						<a id="authenticated-link" href="{$accounts}/authority?authenticated"></a>
@@ -132,7 +132,7 @@
 					</span>
 					<input type="hidden" name="go" />
 					<span id="search-box">
-						<input id="search-box-input" type="text" class="auto-expand" size="10" name="q" title="Lookup resource..." />
+						<input id="search-box-input" type="text" size="10" name="q" title="Lookup..." />
 						<button id="search-box-button" type="button" onclick="form.elements['go'].name='lookup';form.submit()">
 							<img src="{$layout}/search.png" />
 						</button>
@@ -178,7 +178,6 @@
 	</xsl:template>
 	<xsl:template mode="nav" match="sparql:result[not(sparql:binding/@name='link')]">
 		<li>
-			<hr width="75%"/>
 			<span>
 				<xsl:value-of select="sparql:binding[@name='label']/*" />
 			</span>

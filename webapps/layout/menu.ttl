@@ -9,43 +9,12 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-<menu> a calli:Menu;
+</callimachus/menu> a calli:Menu;
 	calli:item [calli:position 1; rdfs:label "Main page"; calli:link </>];
-	calli:item [calli:position 2; rdfs:label "Recent changes"; calli:link <menu?recent-changes>];
-	calli:item [calli:position 3; rdfs:label "Toolbox";
+	calli:item [calli:position 2; rdfs:label "Recent changes"; calli:link </callimachus/menu?recent-changes>];
+	calli:item [calli:position 10; rdfs:label "Toolbox";
 		calli:item [calli:position 1; rdfs:label "What links here"; calli:link "?what-links-here"];
 		calli:item [calli:position 2; rdfs:label "Related changes"; calli:link "?related-changes"];
-		calli:item [calli:position 3; rdfs:label "Printable version"; calli:link "javascript:printable();return false"];
+		calli:item [calli:position 3; rdfs:label "Print this page"; calli:link "javascript:printpage()"];
 		calli:item [calli:position 4; rdfs:label "Permanent link"; calli:link ""]].
-
-:menu-evaluate rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Menu];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom obj:TupleResult];
-	http:rel "alternate";
-	http:operation "evaluate";
-	http:type "application/sparql-results+xml";
-	obj:sparql """
-		SELECT ?parent ?item ?label ?link
-		WHERE {
-			{
-				$this calli:item ?item
-			} UNION {
-				$this calli:item ?parent.
-				?parent calli:item ?item
-			} UNION {
-				$this calli:item [calli:item ?parent].
-				?parent calli:item ?item
-			}
-			?item rdfs:label ?label.
-			OPTIONAL {
-				?item calli:position ?position
-			}
-			OPTIONAL {
-				?item calli:link ?link
-			}
-		}
-		ORDER BY ?position ?label
-	""".
 

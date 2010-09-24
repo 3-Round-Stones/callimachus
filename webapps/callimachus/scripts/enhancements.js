@@ -2,10 +2,11 @@
 
 if (window.addEventListener) {
 	window.addEventListener("DOMContentLoaded", initWiki, false)
-	window.addEventListener("DOMContentLoaded", changeDateLocale, false)
 	window.addEventListener("DOMContentLoaded", sortElements, false)
+	window.addEventListener("DOMContentLoaded", changeDateLocale, false)
 	window.addEventListener("DOMContentLoaded", inputPromptTitle, false)
 	window.addEventListener("DOMContentLoaded", findAutoExpandTextArea, false)
+	window.addEventListener("load", findAutoExpandTextArea, false)
 	window.addEventListener("resize", findAutoExpandTextArea, false)
 	window.addEventListener("change", targetAutoExpandTextArea, false)
 	window.addEventListener("keyup", targetAutoExpandTextArea, false)
@@ -27,10 +28,15 @@ function initWiki() {
 		var creole = new Parse.Simple.Creole();
 		var wikis = document.querySelectorAll(".wiki")
 		for (var i = 0; i < wikis.length; i++) {
-			var text = wikis[i].textContent || wikis[i].innerText
-			wikis[i].textContent = ''
-			wikis[i].innerText = ''
-			creole.parse(wikis[i], text)
+			var text = wikis[i].getAttribute("content") || wikis[i].textContent || wikis[i].innerText
+			var div = document.createElement("div")
+			var attrs = wikis[i].attributes
+			for(var j=attrs.length-1; j>=0; j--) {
+				div.setAttribute(attrs[j].name, attrs[j].value)
+			}
+			div.setAttribute("content", text)
+			wikis[i].parentNode.replaceChild(div, wikis[i])
+			creole.parse(div, text)
 		}
 	}
 }
@@ -39,7 +45,7 @@ function changeDateLocale() {
 	var now = new Date()
 	var dates = document.querySelectorAll(".date-locale")
 	for (var i = 0; i < dates.length; i++) {
-		var text = dates[i].textContent || dates[i].innerText
+		var text = dates[i].getAttribute("content") || dates[i].textContent || dates[i].innerText
 		try {
 	        var timestamp = Date.parse(text)
 	        var minutesOffset = 0
@@ -95,6 +101,7 @@ function changeDateLocale() {
 						locale += ' ' + date.getFullYear()
 					}
 				}
+				dates[i].setAttribute("content", text)
 				dates[i].textContent = locale
 				dates[i].innerText = locale
 			}
@@ -147,7 +154,9 @@ function sortElements() {
 function findAutoExpandTextArea() {
 	var areas = document.querySelectorAll(".auto-expand")
 	for (var i = 0; i < areas.length; i++) {
-		expandTextArea(areas[i])
+		if (areas[i].type == "textarea" || areas[i].type == "text") {
+			expandTextArea(areas[i])
+		}
 	}
 }
 
@@ -161,10 +170,6 @@ function targetAutoExpandTextArea(event) {
 		target = event.target
 	} else if (event.srcElement && event.srcElement.type == "text") {
 		target = event.srcElement
-	} else if (event.target && event.target.type == "password") {
-		target = event.target
-	} else if (event.srcElement && event.srcElement.type == "password") {
-		target = event.srcElement
 	}
 	if (target && target.className.match(/\bauto-expand\b/)) {
 		expandTextArea(target)
@@ -172,29 +177,39 @@ function targetAutoExpandTextArea(event) {
 }
 
 function expandTextArea(area) {
-	var width = document.documentElement.clientWidth
-	var height = window.innerHeight
-	var size = area.cols || area.size
-	var maxCols = Math.floor(width / area.offsetWidth * size - 3)
+	var clientWidth = document.documentElement.clientWidth
+	var clientHeight = window.innerHeight
+	var trail = area
+	while (trail) {
+		clientWidth -= trail.offsetLeft
+		trail = trail.offsetParent
+	}
+	var width = area.cols || area.size
+	var height = area.rows
+	var maxCols = Math.floor(clientWidth / area.offsetWidth * width - 3)
+	var maxRows = Math.floor(clientHeight / area.offsetHeight * height - 3)
 	if (!maxCols || maxCols < 2) {
 		maxCols = 96
 	}
-	var maxRows = Math.floor(height / area.offsetHeight * area.rows - 3)
 	if (!maxRows || maxRows < 2) {
 		maxRows = 43
 	}
 	var lines = area.value.split("\n")
-	var cols = area.type == "textarea" ? 20 : 24
+	var cols = 20
 	var rows = Math.max(1, lines.length)
 	for (var i = 0; i < lines.length; i++) {
-		if (cols < lines[i].length) {
-			cols = lines[i].length
+		var len = lines[i].replace("\t", "        ").length
+		if (cols < len) {
+			cols = len
 		}
-		rows += Math.floor(lines[i].length / maxCols)
+		rows += Math.floor(len / maxCols)
 	}
-	area.size = Math.min(maxCols, cols - Math.floor(cols / 6))
-	area.cols = Math.min(maxCols, cols)
-	area.rows = Math.min(maxRows, rows + 1)
+	if (area.type == "textarea") {
+		area.cols = Math.min(maxCols, cols)
+		area.rows = Math.min(maxRows, rows + 1)
+	} else {
+		area.size = Math.min(maxCols, cols)
+	}
 }
 
 function inputPromptTitle() {

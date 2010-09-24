@@ -11,7 +11,7 @@ if (window.addEventListener) {
 function hideFluffIfInFrame() {
 	try {
 		if (window.frameElement) {
-			printable()
+			hideSiblings(document.getElementById("content"))
 			var asides = document.querySelectorAll(".aside")
 			for (var i = 0; i < asides.length; i++) {
 				asides[i].parentNode.removeChild(asides[i])
@@ -20,8 +20,10 @@ function hideFluffIfInFrame() {
 	} catch(e) {}
 }
 
-function printable() {
+function printpage() {
 	hideSiblings(document.getElementById("content"))
+	print()
+	setTimeout(function(){location.reload()}, 500)
 }
 
 function hideSiblings(node) {

@@ -21,7 +21,6 @@
 		<html>
 			<head>
 				<title>Related Changes</title>
-				<link rel="stylesheet" href="/layout/lookup.css" />
 			</head>
 			<body>
 				<h1>Related Changes</h1>
@@ -47,12 +46,12 @@
 			<h2 class="date-locale"><xsl:value-of select="substring-before(sparql:binding[@name='modified']/*, 'T')" /><xsl:text>T00:00:00</xsl:text></h2>
 		</xsl:if>
 		<ul>
-		<li>
+		<li class="result">
 			<xsl:if test="sparql:binding[@name='icon']">
 				<img src="{sparql:binding[@name='icon']/*}" class="icon" />
 			</xsl:if>
 			<xsl:if test="not(sparql:binding[@name='icon'])">
-				<img src="/layout/rdf-icon.png" class="icon" />
+				<img src="/callimachus/rdf-icon.png" class="icon" />
 			</xsl:if>
 			<a>
 				<xsl:if test="sparql:binding[@name='url']">

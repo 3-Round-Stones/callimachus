@@ -17,6 +17,6 @@
 		</ul>
 		<h1><a href="" property="rdfs:label" /></h1>
 		<p property="calli:name" />
-		<div class="wiki" property="rdfs:comment" />
+		<pre class="wiki" property="rdfs:comment" />
 	</body>
 </html>

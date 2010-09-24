@@ -4,36 +4,28 @@
 	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:param name="xslt" />
 	<xsl:variable name="host" select="substring-before(substring-after($xslt, '://'), '/')" />
+	<xsl:template name="substring-after-last">
+		<xsl:param name="string"/>
+		<xsl:param name="delimiter"/>
+		<xsl:if test="not(contains($string,$delimiter))">
+			<xsl:value-of select="$string"/>
+		</xsl:if>
+		<xsl:if test="contains($string,$delimiter)">
+			<xsl:call-template name="substring-after-last">
+				<xsl:with-param name="string" select="substring-after($string,$delimiter)"/>
+				<xsl:with-param name="delimiter" select="$delimiter"/>
+			</xsl:call-template>
+		</xsl:if>
+	</xsl:template>
 	<xsl:template match="/">
 		<html>
 			<head>
-				<title>Search Results</title>
-				<link rel="stylesheet" href="/layout/lookup.css" />
-				<script>
-				// <![CDATA[
-				function parameter(name) {
-					var regex = new RegExp("[\\?&]"+name+"=([^&#]*)")
-					var m = regex.exec(location.href)
-					return m ? decodeURIComponent(m[1].replace('+', ' ')) : null
-				}
-				function init() {
-					if (parameter("q")) {
-						document.getElementById("q").value = parameter("q")
-					}
-				}
-				// ]]>
-				</script>
+				<title>What Links Here</title>
 			</head>
-			<body onload="init()">
-				<h1>Search Results</h1>
-				<form method="GET" class="search">
-					<input type="hidden" name="lookup" />
-					<input type="text" id="q" name="q" size="40" />
-					<button type="submit">Search</button>
-				</form>
-				<hr />
+			<body>
+				<h1>What Links Here</h1>
 				<xsl:if test="not(/sparql:sparql/sparql:results/sparql:result)">
-					<p>No resources with this label found.</p>
+					<p>No resources link here.</p>
 				</xsl:if>
 				<xsl:if test="/sparql:sparql/sparql:results/sparql:result">
 					<xsl:apply-templates />
@@ -50,12 +42,12 @@
 		</ul>
 	</xsl:template>
 	<xsl:template match="sparql:result">
-		<li>
+		<li class="result">
 			<xsl:if test="sparql:binding[@name='icon']">
 				<img src="{sparql:binding[@name='icon']/*}" class="icon" />
 			</xsl:if>
 			<xsl:if test="not(sparql:binding[@name='icon'])">
-				<img src="/layout/rdf-icon.png" class="icon" />
+				<img src="/callimachus/rdf-icon.png" class="icon" />
 			</xsl:if>
 			<a>
 				<xsl:if test="sparql:binding[@name='url']">
@@ -64,9 +56,15 @@
 					</xsl:attribute>
 				</xsl:if>
 				<xsl:apply-templates select="sparql:binding[@name='label']" />
+				<xsl:if test="not(sparql:binding[@name='label'])">
+					<xsl:call-template name="substring-after-last">
+						<xsl:with-param name="string" select="sparql:binding[@name='url']/*"/>
+						<xsl:with-param name="delimiter" select="'/'"/>
+					</xsl:call-template>
+				</xsl:if>
 			</a>
 			<xsl:if test="sparql:binding[@name='comment']">
-				<div class="wiki">
+				<div class="wiki summary">
 					<xsl:apply-templates select="sparql:binding[@name='comment']" />
 				</div>
 			</xsl:if>

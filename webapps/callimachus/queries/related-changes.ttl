@@ -28,6 +28,7 @@
 			?revision audit:committedOn ?modified; http:authorized ?user
 			FILTER (?url != ?revision)
 			FILTER (?url != ?user)
+			FILTER (?url != $this)
 			FILTER (isIRI(?url))
 			OPTIONAL { ?url a [calli:icon ?icon] }
 			OPTIONAL { ?url rdfs:label ?label }

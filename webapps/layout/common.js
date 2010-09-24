@@ -161,6 +161,10 @@ function targetAutoExpandTextArea(event) {
 		target = event.target
 	} else if (event.srcElement && event.srcElement.type == "text") {
 		target = event.srcElement
+	} else if (event.target && event.target.type == "password") {
+		target = event.target
+	} else if (event.srcElement && event.srcElement.type == "password") {
+		target = event.srcElement
 	}
 	if (target && target.className.match(/\bauto-expand\b/)) {
 		expandTextArea(target)
@@ -180,7 +184,7 @@ function expandTextArea(area) {
 		maxRows = 43
 	}
 	var lines = area.value.split("\n")
-	var cols = area.type == "text" ? 24 : 20
+	var cols = area.type == "textarea" ? 20 : 24
 	var rows = Math.max(1, lines.length)
 	for (var i = 0; i < lines.length; i++) {
 		if (cols < lines[i].length) {

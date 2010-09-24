@@ -53,7 +53,7 @@
 								<label for="label-input">Common name:</label>
 							</th>
 							<td data-cardinality="1">
-								<input id="label-input" property="rdfs:label" type="text" />
+								<input id="label-input" property="rdfs:label" type="text" class="auto-expand" />
 							</td>
 						</tr>
 						<tr>
@@ -77,7 +77,7 @@
 								<label for="email-input">E-Mail address:</label>
 							</th>
 							<td data-cardinality="1">
-								<input id="email-input" property="calli:email" type="text" 
+								<input id="email-input" property="calli:email" type="text" class="auto-expand"
 									onchange="confirm('email-input')" 
 									onkeyup="setTimeout(function(){confirm('email-input')}, 100)" />
 							</td>
@@ -87,7 +87,7 @@
 								<label for="confirm-email-input">Confirm address:</label>
 							</th>
 							<td>
-								<input id="confirm-email-input" type="text" 
+								<input id="confirm-email-input" type="text" class="auto-expand"
 									onchange="confirm('email-input')" 
 									onkeyup="setTimeout(function(){confirm('email-input')}, 100)" />
 							</td>
@@ -97,7 +97,7 @@
 								<label for="password-input">Change password:</label>
 							</th>
 							<td>
-								<input id="password-input" type="password"
+								<input id="password-input" type="password" class="auto-expand"
 									onchange="savePassword(value);confirm('password-input')" 
 									onkeyup="setTimeout(function(){confirm('password-input')}, 100)" />
 							</td>
@@ -107,7 +107,7 @@
 								<label for="confirm-password-input">Confirm password:</label>
 							</th>
 							<td>
-								<input id="confirm-password-input" type="password" 
+								<input id="confirm-password-input" type="password" class="auto-expand"
 									onchange="confirm('password-input')" 
 									onkeyup="setTimeout(function(){confirm('password-input')}, 100)" />
 							</td>

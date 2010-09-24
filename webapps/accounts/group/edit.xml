@@ -10,6 +10,12 @@
 		<link rel="review" title="History" target="_self" href="?review" />
 	</head>
 	<body>
+		<ul class="aside">
+			<li>Use Wiki text to describe the group</li>
+			<li>Scribes can invite new users and create empty groups</li>
+			<li>Curators can invite and administrate new users of this group and maintain new groups</li>
+			<li>Maintainers can add and remove members and authorization groups, invite new users, and create empty groups</li>
+		</ul>
 		<form action="" about="">
 			<fieldset>
 				<legend property="rdfs:label" />
@@ -23,9 +29,6 @@
 								<textarea id="comment-textarea" class="auto-expand"
 									property="rdfs:comment"></textarea>
 							</td>
-							<td>
-								<p class="desc">Wiki text description of the group.</p>
-							</td>
 						</tr>
 						<tr>
 							<th>
@@ -36,9 +39,6 @@
 									<span rel="rdf:type" resource="/accounts/group/Group" />
 									<span property="rdfs:label"/>
 								</span>
-							</td>
-							<td>
-								<p class="desc">Can invite new users and create empty groups.</p>
 							</td>
 						</tr>
 						<tr>
@@ -51,9 +51,6 @@
 									<span property="rdfs:label"/>
 								</span>
 							</td>
-							<td>
-								<p class="desc">Can invite and administrate new users of this group and maintain new groups.</p>
-							</td>
 						</tr>
 						<tr>
 							<th>
@@ -64,9 +61,6 @@
 									<span rel="rdf:type" resource="/accounts/group/Group" />
 									<span property="rdfs:label"/>
 								</span>
-							</td>
-							<td>
-								<p class="desc">Can add and remove members and authorization groups, invite new users, and create empty groups.</p>
 							</td>
 						</tr>
 					</tbody>

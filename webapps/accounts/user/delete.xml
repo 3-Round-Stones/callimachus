@@ -6,17 +6,9 @@
 		<title property="rdfs:label"/>
 		<link rel="view" title="View" target="_self" href="?view" />
 		<link rel="edit" title="Edit" target="_self" href="" />
-		<script><![CDATA[
-		function() {
-			$('form[about]').bind('deleteSuccess.calli', function(e) {
-				document.getElementById("success").style.display = "block"
-			});
-		}
-		// ]]>
-		</script>
 	</head>
 	<body>
-		<form action="" about="">
+		<form action="" about="" data-redirect="/accounts/user/deleted.xml?construct">
 			<h1>Are you sure you want to delete this user?</h1>
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<h1 property="rdfs:label" />

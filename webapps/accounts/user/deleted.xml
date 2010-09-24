@@ -1,0 +1,9 @@
+<?xml-stylesheet type="text/xsl" href="../../layout/template.xsl"?>
+<html>
+	<head>
+		<title>Deleted</title>
+	</head>
+	<body>
+		<p>User has been deleted.</p>
+	</body>
+</html>

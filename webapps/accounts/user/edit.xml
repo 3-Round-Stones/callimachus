@@ -35,6 +35,14 @@
 		</script>
 	</head>
 	<body>
+		<ul class="aside">
+			<li>Shared information is viewable to all authenticated users</li>
+			<li>Enter your full name</li>
+			<li>Provide additional contact information</li>
+			<li>Account information is only accessible to you and administrators</li>
+			<li>Your e-mail address is used to reset your password</li>
+			<li>Your password may be changed at any time</li>
+		</ul>
 		<form action="" about="">
 			<fieldset>
 				<legend>Shared information</legend>

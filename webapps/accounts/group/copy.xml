@@ -10,6 +10,10 @@
 		<link rel="review" title="History" target="_self" href="?review" />
 	</head>
 	<body>
+		<ul class="aside">
+			<li>The group name cannot be changed once created</li>
+			<li>Use Wiki text to describe the group</li>
+		</ul>
 		<form action="" about="">
 			<div rel="rdf:type" resource="/accounts/group/Group" />
 			<table>
@@ -19,7 +23,7 @@
 							<label for="label-input">Name:</label>
 						</th>
 						<td data-cardinality="1">
-							<input id="label-input" property="rdfs:label" type="text"
+							<input id="label-input" property="rdfs:label" type="text" class="auto-expand"
 								onchange="$(form).attr('about', encodeURI(value).replace('%20','+'))" />
 						</td>
 					</tr>

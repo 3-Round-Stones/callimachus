@@ -36,6 +36,11 @@
 		</script>
 	</head>
 	<body>
+		<ul class="aside">
+			<li>The username cannot be changed once the created</li>
+			<li>Provide your full name for identification</li>
+			<li>The password can be changed in a settings link</li>
+		</ul>
 		<form action="" about="">
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<fieldset>
@@ -47,7 +52,7 @@
 								<label for="name-input">Username:</label>
 							</th>
 							<td data-cardinality="1">
-								<input id="name-input" property="calli:name" type="text" 
+								<input id="name-input" property="calli:name" type="text" class="auto-expand"
 									onchange="$(form).attr('about', '../user/' + encodeURI(value).replace('%20','+'))" />
 							</td>
 						</tr>
@@ -56,7 +61,7 @@
 								<label for="label-input">Common name:</label>
 							</th>
 							<td data-cardinality="1">
-								<input id="label-input" property="rdfs:label" type="text" />
+								<input id="label-input" property="rdfs:label" type="text" class="auto-expand" />
 							</td>
 						</tr>
 						<tr>
@@ -64,7 +69,7 @@
 								<label for="password-input">Password:</label>
 							</th>
 							<td>
-								<input id="password-input" type="password"
+								<input id="password-input" type="password" class="auto-expand"
 									onchange="savePassword(value);confirm()"
 									onkeyup="setTimeout(confirm, 100)" />
 							</td>
@@ -74,7 +79,7 @@
 								<label for="confirm-password-input">Confirm password:</label>
 							</th>
 							<td>
-								<input id="confirm-password-input" type="password" 
+								<input id="confirm-password-input" type="password" class="auto-expand"
 									onchange="confirm()" onkeyup="setTimeout(confirm, 100)" />
 							</td>
 						</tr>

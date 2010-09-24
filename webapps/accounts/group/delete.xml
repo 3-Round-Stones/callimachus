@@ -9,7 +9,7 @@
 		<link rel="review" title="History" target="_self" href="?review" />
 	</head>
 	<body>
-		<form action="" about="">
+		<form action="" about="" data-redirect="/accounts/group/list.xml?construct">
 			<h1>Are you sure you want to delete this group?</h1>
 			<div rel="rdf:type" resource="/accounts/group/Group" />
 			<h1 property="rdfs:label" />

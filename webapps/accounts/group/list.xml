@@ -1,0 +1,17 @@
+<?xml-stylesheet type="text/xsl" href="../../layout/template.xsl"?>
+<html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+	<head>
+		<title>Account Groups</title>
+	</head>
+	<body>
+		<h1>Account Groups</h1>
+		<ul>
+			<li about="?group">
+				<span rel="rdf:type" resource="Group" />
+				<a href="?group" property="rdfs:label" />
+			</li>
+		</ul>
+	</body>
+</html>

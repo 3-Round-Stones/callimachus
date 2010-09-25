@@ -77,12 +77,12 @@ a[href]:hover {
 
 #logo {
 	text-align: center;
+    padding-bottom: 2em;
 	width: 10em;
 }
 
 #logo img {
 	border: none;
-    padding-bottom: 2em;
 }
 
 #nav {

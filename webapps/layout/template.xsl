@@ -113,7 +113,9 @@
 			<div id="nav-side">
 				<div id="logo">
 					<a href="{$origin}/">
-						<img src="{$layout}/logo.png" />
+						<img src="{$layout}/logo-left.png" width="60" height="95" />
+						<img src="{$layout}/logo-right.png" width="65" height="95" />
+						<img src="{$layout}/logo-bottom.png" width="125" height="30" />
 					</a>
 				</div>
 				<xsl:apply-templates mode="nav" select="document(concat($callimachus, '/menu'))" />

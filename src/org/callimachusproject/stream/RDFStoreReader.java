@@ -120,7 +120,7 @@ public class RDFStoreReader extends RDFEventReader {
 					}
 				}
 			}
-			list.add(new GraphResultReader(q.evaluate()));
+			list.add(new ReducedTripleReader(new GraphResultReader(q.evaluate())));
 		}
 		results = list.iterator();
 	}

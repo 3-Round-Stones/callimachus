@@ -103,11 +103,6 @@ a[href]:hover {
 	border-bottom: none;
 }
 
-.aside ul {
-	list-style: none;
-	padding-left: 1em;
-}
-
 #nav li {
     display: block;
 }
@@ -198,6 +193,21 @@ a[href]:hover {
 .aside ul {
 	list-style: none;
 	padding-left: 1em;
+}
+
+table.aside {
+	border-spacing: 0px;
+}
+
+table.aside>thead>tr>td, table.aside>thead>tr>th.
+table.aside>tbody>tr>td, table.aside>tbody>tr>th {
+	border-bottom: 1px solid #A8ACB8;
+	padding: 0.5ex;
+}
+
+table.aside>tbody:last-child>tr:last-child>td, 
+table.aside>tbody:last-child>tr:last-child>th {
+	border-bottom: none;
 }
 
 .result {

@@ -18,6 +18,7 @@ package org.callimachusproject.behaviours;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Iterator;
 import java.util.regex.Matcher;
@@ -182,7 +183,7 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 	 */
 	private String readXSLTSource() throws IOException {
 		String href = null;
-		Reader source = openReader(true);
+		Reader source = new InputStreamReader(openInputStream());
 		if (source == null)
 			throw new InternalServerError("Missing Template Body: " + this);
 		BufferedReader reader = new BufferedReader(source);

@@ -37,6 +37,13 @@ public class Base extends RDFEvent {
 		return base.toString();
 	}
 
+	public String getReference() {
+		String fragment = base.getFragment();
+		if (fragment == null)
+			return "";
+		return "#" + fragment;
+	}
+
 	public String resolve(String relative) {
 		if (relative.startsWith("?")) {
 			String iri = base.toString();

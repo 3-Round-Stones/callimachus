@@ -68,7 +68,7 @@ public class TriplePatternVariableStore extends TriplePatternStore {
 					if (tp.isInverse()) {
 						list.add(new TriplePattern(obj, pred, subj));
 					} else {
-						Reference ref = tf.reference(resolve(""), "");
+						Reference ref = tf.reference(resolve(getReference()), getReference());
 						list.add(new TriplePattern(ref, pred, subj));
 					}
 					variables.add(subj);

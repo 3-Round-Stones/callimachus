@@ -85,7 +85,7 @@ public class RDFaReader extends RDFEventReader {
 		this.reader = reader;
 		this.systemId = systemId;
 		this.base = new Base(base == null ? systemId : base);
-		this.document = tf.reference(this.base.getBase(), "");
+		this.document = tf.reference(this.base.getBase(), this.base.getReference());
 	}
 
 	public String toString() {
@@ -216,7 +216,7 @@ public class RDFaReader extends RDFEventReader {
 	private Base base(String base) {
 		String uri = resolve(base);
 		this.base = new Base(uri);
-		this.document = tf.reference(base, "");
+		this.document = tf.reference(base, this.base.getReference());
 		return this.base;
 	}
 

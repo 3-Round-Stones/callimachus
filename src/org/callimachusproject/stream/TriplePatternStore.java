@@ -54,6 +54,10 @@ public class TriplePatternStore {
 		this.base = new Base(base);
 	}
 
+	public String getReference() {
+		return base.getReference();
+	}
+
 	public String resolve(String relative) {
 		return base.resolve(relative);
 	}

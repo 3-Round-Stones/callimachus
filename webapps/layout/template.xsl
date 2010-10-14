@@ -110,14 +110,6 @@
 	<xsl:template match="body">
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
-			<div id="nav-side">
-				<div id="logo">
-					<a href="{$origin}/">
-						<img src="{$layout}/logo.png" width="128" height="128" />
-					</a>
-				</div>
-				<xsl:apply-templates mode="nav" select="document(concat($callimachus, '/menu'))" />
-			</div>
 			<div id="header">
 				<form method="GET" action="{$callimachus}/menu">
 					<a id="login-link" href="{$accounts}/authority?login" style="display:none">Login</a>
@@ -138,6 +130,14 @@
 						</button>
 					</span>
 				</form>
+			</div>
+			<div id="sidebar">
+				<div id="logo">
+					<a href="{$origin}/">
+						<img src="{$layout}/logo.png" width="128" height="128" />
+					</a>
+				</div>
+				<xsl:apply-templates mode="nav" select="document(concat($callimachus, '/menu'))" />
 			</div>
 
 			<ul id="tabs" class="tabs">

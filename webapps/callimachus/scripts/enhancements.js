@@ -26,7 +26,7 @@ if (window.addEventListener) {
 function initWiki() {
 	if (window.Parse) {
 		var creole = new Parse.Simple.Creole();
-		var wikis = document.querySelectorAll(".wiki")
+		var wikis = document.querySelectorAll("pre.wiki")
 		for (var i = 0; i < wikis.length; i++) {
 			var text = wikis[i].getAttribute("content") || wikis[i].textContent || wikis[i].innerText
 			var div = document.createElement("div")
@@ -41,78 +41,11 @@ function initWiki() {
 	}
 }
 
-function changeDateLocale() {
-	var now = new Date()
-	var dates = document.querySelectorAll(".date-locale")
-	for (var i = 0; i < dates.length; i++) {
-		var text = dates[i].getAttribute("content") || dates[i].textContent || dates[i].innerText
-		try {
-	        var timestamp = Date.parse(text)
-	        var minutesOffset = 0
-	        var struct;
-	        if (isNaN(timestamp) && (struct = /(?:(\d{4})-?(\d{2})-?(\d{2}))?(?:[T ]?(\d{2}):?(\d{2}):?(\d{2})(?:\.(\d{3,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?/.exec(text))) {
-	            if (struct[8] !== 'Z' && struct[9]) {
-	                minutesOffset = +struct[10] * 60 + (+struct[11])
-	                if (struct[9] === '+') {
-	                    minutesOffset = 0 - minutesOffset
-	                }
-	            }
-				if (struct[1]) {
-					if (struct[4] || struct[5] || struct[6]) {
-						if (struct[8] || struct[9]) {
-				        	timestamp = Date.UTC(+struct[1], +struct[2] - 1, +struct[3], +struct[4], +struct[5] + minutesOffset, +struct[6], 0)
-						} else {
-				        	timestamp = new Date(+struct[1], +struct[2] - 1, +struct[3], +struct[4], +struct[5], +struct[6], 0).getTime()
-						}
-					} else if (struct[8] || struct[9]) {
-			        	timestamp = Date.UTC(+struct[1], +struct[2] - 1, +struct[3], 0, minutesOffset, 0, 0)
-					} else {
-			        	timestamp = new Date(+struct[1], +struct[2] - 1, +struct[3]).getTime()
-					}
-				} else {
-					if (struct[4] || struct[5] || struct[6]) {
-						if (struct[8] || struct[9]) {
-				        	timestamp = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), +struct[4], +struct[5] + minutesOffset, +struct[6], 0)
-						} else {
-				        	timestamp = new Date(now.getFullYear(), now.getMonth(), now.getDate(), +struct[4], +struct[5], +struct[6], 0).getTime()
-						}
-					} else if (struct[8] || struct[9]) {
-			        	timestamp = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, minutesOffset, 0, 0)
-					} else {
-			        	timestamp = now.getTime()
-					}
-				}
-	        }
-			if (!isNaN(timestamp)) {
-				var date = new Date(timestamp)
-				var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()]
-				var locale = '';
-				if (date.getMinutes() > 10) {
-					locale = date.getHours() + ':' + date.getMinutes()
-				} else if (date.getHours() > 0 || date.getMinutes() > 0) {
-					locale = date.getHours() + ':0' + date.getMinutes()
-				}
-				if (locale == '' || date.getDate() != now.getDate() || date.getMonth() != now.getMonth() || date.getFullYear() != now.getFullYear()) {
-					if (locale) {
-						locale += ", "
-					}
-					locale += date.getDate() + ' ' + month
-					if (date.getFullYear() != now.getFullYear()) {
-						locale += ' ' + date.getFullYear()
-					}
-				}
-				dates[i].setAttribute("content", text)
-				dates[i].textContent = locale
-				dates[i].innerText = locale
-			}
-		} catch (e) { }
-	}
-}
-
 function sortElements() {
 	var elements = document.querySelectorAll(".sorted")
 	for (var e = 0; e < elements.length; e++) {
-		var nodes = elements[e].childNodes
+		var node = elements[e]
+		var nodes = node.childNodes
 		var list = [nodes.length]
 		for (var i = 0; i < nodes.length; i++) {
 			list[i] = nodes[i]
@@ -146,8 +79,83 @@ function sortElements() {
 			return 0
 		})
 		for (var i = 0; i < nodes.length; i++) {
-			elements[e].appendChild(list[i])
+			node.appendChild(list[i])
 		}
+	}
+}
+
+function changeDateLocale() {
+	function parseDateTime(text) {
+        var timestamp = Date.parse(text)
+        var struct;
+        if (isNaN(timestamp) && (struct = /(?:(\d{4})-?(\d{2})-?(\d{2}))?(?:[T ]?(\d{2}):?(\d{2}):?(\d{2})(?:\.(\d{3,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?/.exec(text))) {
+            var minutesOffset = 0
+            if (struct[8] !== 'Z' && struct[9]) {
+                minutesOffset = +struct[10] * 60 + (+struct[11])
+                if (struct[9] === '+') {
+                    minutesOffset = 0 - minutesOffset
+                }
+            }
+			if (struct[1]) {
+				if (struct[4] || struct[5] || struct[6]) {
+					if (struct[8] || struct[9]) {
+			        	timestamp = Date.UTC(+struct[1], +struct[2] - 1, +struct[3], +struct[4], +struct[5] + minutesOffset, +struct[6], 0)
+					} else {
+			        	timestamp = new Date(+struct[1], +struct[2] - 1, +struct[3], +struct[4], +struct[5], +struct[6], 0).getTime()
+					}
+				} else if (struct[8] || struct[9]) {
+		        	timestamp = Date.UTC(+struct[1], +struct[2] - 1, +struct[3], 0, minutesOffset, 0, 0)
+				} else {
+		        	timestamp = new Date(+struct[1], +struct[2] - 1, +struct[3]).getTime()
+				}
+			} else {
+				if (struct[4] || struct[5] || struct[6]) {
+					if (struct[8] || struct[9]) {
+			        	timestamp = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), +struct[4], +struct[5] + minutesOffset, +struct[6], 0)
+					} else {
+			        	timestamp = new Date(now.getFullYear(), now.getMonth(), now.getDate(), +struct[4], +struct[5], +struct[6], 0).getTime()
+					}
+				} else if (struct[8] || struct[9]) {
+		        	timestamp = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, minutesOffset, 0, 0)
+				} else {
+		        	timestamp = now.getTime()
+				}
+			}
+		}
+		return timestamp;
+	}
+	var now = new Date()
+	var dates = document.querySelectorAll(".date-locale")
+	for (var i = 0; i < dates.length; i++) {
+		var text = dates[i].getAttribute("content") || dates[i].textContent || dates[i].innerText
+		try {
+			var timestamp = parseDateTime(text)
+			if (!isNaN(timestamp)) {
+				var date = new Date(timestamp)
+				if ((date.getHours() > 0 || date.getMinutes() > 0) && /^\s*(\d{4})-?(\d{2})-?(\d{2})\s*$/.exec(text)) {
+					date = new Date(parseDateTime(text + "T00:00:00"))
+				}
+				var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()]
+				var locale = '';
+				if (date.getMinutes() > 10) {
+					locale = date.getHours() + ':' + date.getMinutes()
+				} else if (date.getHours() > 0 || date.getMinutes() > 0) {
+					locale = date.getHours() + ':0' + date.getMinutes()
+				}
+				if (locale == '' || date.getDate() != now.getDate() || date.getMonth() != now.getMonth() || date.getFullYear() != now.getFullYear()) {
+					if (locale) {
+						locale += ", "
+					}
+					locale += date.getDate() + ' ' + month
+					if (date.getFullYear() != now.getFullYear()) {
+						locale += ' ' + date.getFullYear()
+					}
+				}
+				dates[i].setAttribute("content", text)
+				dates[i].textContent = locale
+				dates[i].innerText = locale
+			}
+		} catch (e) { }
 	}
 }
 

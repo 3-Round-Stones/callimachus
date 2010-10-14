@@ -131,7 +131,7 @@ public abstract class ViewSupport implements Template, RDFObject,
 			RDFParseException {
 		String base = toUri().toASCIIString();
 		TriplePatternStore query = new TriplePatternStore(base);
-		String uri = about == null ? query.resolve("") : query.resolve(about);
+		String uri = about == null ? query.resolve(query.getReference()) : query.resolve(about);
 		RDFEventReader reader = readPatterns("view", element, uri);
 		try {
 			query.consume(reader);

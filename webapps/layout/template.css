@@ -69,7 +69,7 @@ a[href]:hover {
 	vertical-align: middle;
 }
 
-#nav-side {
+#sidebar {
 	float: left;
 	margin: 0px;
 	padding: 0px;
@@ -120,7 +120,7 @@ a[href]:hover {
 }
 
 #tabs {
-	display: bloack;
+	display: block;
 	list-style: none;
 	margin: 0px 0px -1px 10em;
     padding: 1ex 3pt 0px 0px;

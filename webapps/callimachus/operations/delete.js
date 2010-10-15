@@ -41,7 +41,9 @@ function readRDF(form) {
 	store.triples().each(function(){
 		if (this.subject.type == 'uri'
 				&& this.subject.value.toString() != subj.toString()
-				&& this.object.value.toString() != subj.toString()) {
+				&& this.object.value.toString() != subj.toString()
+				&& this.subject.value.toString().indexOf(subj.toString() + '#') != 0
+				&& this.object.value.toString().indexOf(subj.toString() + '#') != 0) {
 			store.remove(this)
 		} else if (this.subject.type == "bnode") {
 			var orphan = true

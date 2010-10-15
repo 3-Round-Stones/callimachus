@@ -57,7 +57,7 @@ function readRDF(form) {
 	}
 	var store = form.rdf().databank
 	store.triples().each(function(){
-		if (this.subject.type == 'uri' && this.subject.value.toString() != subj.toString()) {
+		if (this.subject.type == 'uri' && this.subject.value.toString() != subj.toString() && this.subject.value.toString().indexOf(subj.toString() + '#') != 0) {
 			store.remove(this)
 		} else if (this.subject.type == "bnode") {
 			var orphan = true

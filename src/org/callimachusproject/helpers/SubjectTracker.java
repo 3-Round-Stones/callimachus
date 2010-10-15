@@ -20,23 +20,23 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.StatementImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.rio.RDFHandler;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.helpers.RDFHandlerWrapper;
-
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.model.Term;
 import org.callimachusproject.rdfa.model.TermFactory;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.impl.StatementImpl;
+import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.rio.RDFHandler;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.helpers.RDFHandlerWrapper;
 
 /**
  * Track what node the triples are about and ensures they match one of the given
@@ -51,6 +51,7 @@ public class SubjectTracker extends RDFHandlerWrapper {
 	private Set<URI> types = new HashSet<URI>();
 	private boolean empty = true;
 	private Resource matcher;
+	private String hash;
 	private Resource replacement;
 	private Set<TriplePattern> patterns;
 
@@ -60,6 +61,9 @@ public class SubjectTracker extends RDFHandlerWrapper {
 
 	public void replace(Resource match, Resource replacement) {
 		this.matcher = match;
+		if (match instanceof URI && !match.stringValue().contains("#")) {
+			this.hash = matcher.stringValue() + "#";
+		}
 		this.replacement = replacement;
 	}
 
@@ -92,11 +96,32 @@ public class SubjectTracker extends RDFHandlerWrapper {
 	}
 
 	public boolean isSingleton() {
-		return subjects.size() == 1;
+		if (subjects.isEmpty())
+			return false;
+		if (subjects.size() == 1)
+			return true;
+		URI about = getSubject();
+		String hash = about.stringValue() + "#";
+		for (URI subj : subjects) {
+			if (subj.equals(about))
+				continue;
+			if (subj.getNamespace().equals(hash))
+				continue;
+			return false;
+		}
+		return true;
 	}
 
 	public URI getSubject() {
-		return subjects.iterator().next();
+		URI about = null;
+		for (URI subj : subjects) {
+			if (about == null) {
+				about = subj;
+			}
+			if (!subj.getNamespace().endsWith("#"))
+				return subj;
+		}
+		return about;
 	}
 
 	public Set<URI> getTypes() {
@@ -112,6 +137,10 @@ public class SubjectTracker extends RDFHandlerWrapper {
 			subj = replacement;
 		} else if (obj.equals(matcher)) {
 			obj = replacement;
+		} else if (subj instanceof URI && ((URI)subj).getNamespace().equals(hash)) {
+			subj = new URIImpl(replacement.stringValue() + "#" + ((URI)subj).getLocalName());
+		} else if (obj instanceof URI && ((URI)obj).getNamespace().equals(hash)) {
+			obj = new URIImpl(replacement.stringValue() + "#" + ((URI)obj).getLocalName());
 		}
 		Boolean rev = accept(subj, pred, obj);
 		if (rev == null)

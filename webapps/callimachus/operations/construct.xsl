@@ -365,7 +365,12 @@
 	<xsl:template match="@href[.='']">
 		<xsl:param name="about" />
 		<xsl:attribute name="{name()}" namespace="{namespace-uri()}">
-			<xsl:value-of select="$about" />
+			<xsl:if test="contains($about, '#')">
+				<xsl:value-of select="substring-before($about, '#')" />
+			</xsl:if>
+			<xsl:if test="not(contains($about, '#'))">
+				<xsl:value-of select="$about" />
+			</xsl:if>
 		</xsl:attribute>
 	</xsl:template>
 	<xsl:template match="@*">

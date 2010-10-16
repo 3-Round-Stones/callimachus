@@ -22,14 +22,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
@@ -95,10 +96,10 @@ public class Uploader {
 	private MimetypesFileTypeMap mimetypes;
 	private InetSocketAddress proxy;
 	private int reloading;
-	private PrintStream out;
 	private File webappsDir;
 	private String authorization;
 	private String origin;
+	private List<UploadListener> listeners = new ArrayList<UploadListener>();
 
 	public Uploader(MimetypesFileTypeMap mimetypes, File dataDir) throws IOException {
 		this.mimetypes = mimetypes;
@@ -141,42 +142,42 @@ public class Uploader {
 		this.proxy = proxy;
 	}
 
+	public void addListener(UploadListener listener) {
+		listeners.add(listener);
+	}
+
+	public void removeListener(UploadListener listener) {
+		listeners.remove(listener);
+	}
+
 	public void stop() {
 		if (listener != null) {
 			listener.stop();
 		}
 	}
 
-	public void printStatus(PrintStream out) {
-		this.out = out;
-	}
-
 	public void uploadWebapps(boolean conditional) throws IOException,
 			JNotifyException, InterruptedException {
-		print("Uploading Webapps");
+		notifyStarting();
+		Thread listenerThread = null;
+		int mask = JNotify.FILE_CREATED | JNotify.FILE_DELETED
+				| JNotify.FILE_MODIFIED | JNotify.FILE_RENAMED;
 		try {
-			Thread listenerThread = null;
-			int mask = JNotify.FILE_CREATED | JNotify.FILE_DELETED
-					| JNotify.FILE_MODIFIED | JNotify.FILE_RENAMED;
-			try {
-				WebAppListener wal = new WebAppListener(this);
-				JNotify.addWatch(webappsDir.getPath(), mask, true, wal);
-				listenerThread = threads.newThread(wal);
-				listener = wal;
-			} catch (NoClassDefFoundError e) {
-				logger.error(e.getMessage());
-			} catch (UnsatisfiedLinkError e) {
-				logger.error(e.getMessage());
-			}
-			conditional = conditional && !deleteMissingFiles();
-			origins.put(webappsDir, singleton(origin));
-			uploadWebApps(webappsDir, "", conditional);
-			if (listener != null && listenerThread != null) {
-				listenerThread.start();
-				listener.await();
-			}
-		} finally {
-			println();
+			WebAppListener wal = new WebAppListener(this);
+			JNotify.addWatch(webappsDir.getPath(), mask, true, wal);
+			listenerThread = threads.newThread(wal);
+			listener = wal;
+		} catch (NoClassDefFoundError e) {
+			logger.error(e.getMessage());
+		} catch (UnsatisfiedLinkError e) {
+			logger.error(e.getMessage());
+		}
+		conditional = conditional && !deleteMissingFiles();
+		origins.put(webappsDir, singleton(origin));
+		uploadWebApps(webappsDir, "", conditional);
+		if (listener != null && listenerThread != null) {
+			listenerThread.start();
+			listener.await();
 		}
 	}
 
@@ -201,6 +202,7 @@ public class Uploader {
 
 	public void started() throws GatewayTimeout, IOException,
 			InterruptedException {
+		notifyStarted();
 		HttpRequest req = new BasicHttpRequest("POST", NS + "boot?started");
 		req.setHeader("Authorization", authorization);
 		HttpResponse resp = HTTPObjectClient.getInstance().service(proxy, req);
@@ -213,6 +215,7 @@ public class Uploader {
 	public void stopping() throws GatewayTimeout, IOException,
 			InterruptedException {
 		try {
+			notifyStopping();
 			HttpRequest req = new BasicHttpRequest("POST", NS + "boot?stopping");
 			req.setHeader("Authorization", authorization);
 			HttpResponse resp = HTTPObjectClient.getInstance().service(proxy,
@@ -242,6 +245,7 @@ public class Uploader {
 			public void run() {
 				try {
 					if (reloading == loaded) {
+						notifyReloading();
 						HttpRequest req = new BasicHttpRequest("POST", NS
 								+ "boot?reloaded");
 						req.setHeader("Authorization", authorization);
@@ -249,7 +253,7 @@ public class Uploader {
 								.service(proxy, req);
 						StatusLine status = resp.getStatusLine();
 						System.gc();
-						println();
+						notifyReloaded();
 						if (status.getStatusCode() != 204) {
 							logger.error(status.getReasonPhrase()
 									+ " once reloaded");
@@ -317,9 +321,10 @@ public class Uploader {
 			}
 			uploadWarFile(file, path, conditional);
 		} else {
-			HttpResponse resp = upload(file, path, gzip, conditional);
+			String url = getOriginFor(file) + path;
+			HttpResponse resp = upload(file, url, gzip, conditional);
 			entries.add(getWebAppsDirFor(file), file.getAbsolutePath());
-			report(resp, path, file.getName());
+			report(resp, url, file.getName());
 		}
 	}
 
@@ -371,7 +376,7 @@ public class Uploader {
 		return modified;
 	}
 
-	private HttpResponse upload(File file, String path, boolean gzip,
+	private HttpResponse upload(File file, String url, boolean gzip,
 			boolean conditional) throws IOException {
 		long size = file.length();
 		String type = getContentType(file.getName(), gzip);
@@ -381,7 +386,8 @@ public class Uploader {
 		long modified = file.lastModified();
 		String since = dateformat.format(new Date(modified));
 		BasicHttpEntityEnclosingRequest req;
-		req = new BasicHttpEntityEnclosingRequest("PUT", getOriginFor(file) + path);
+		notifyUploading(url, type);
+		req = new BasicHttpEntityEnclosingRequest("PUT", url);
 		req.setHeader("Authorization", authorization);
 		if (conditional) {
 			req.setHeader("If-Unmodified-Since", since);
@@ -390,9 +396,9 @@ public class Uploader {
 		req.setHeader("Content-Length", Long.toString(size));
 		if (gzip) {
 			req.setHeader("Content-Encoding", "gzip");
-			logger.debug("{}\tcompressed {}", path, type);
+			logger.debug("{}\tcompressed {}", url, type);
 		} else {
-			logger.debug("{}\t{}", path, type);
+			logger.debug("{}\t{}", url, type);
 		}
 		req.setEntity(new FileEntity(file, type));
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
@@ -402,7 +408,7 @@ public class Uploader {
 			if (entity != null) {
 				entity.consumeContent();
 			}
-			return upload(file, path, gzip, false);
+			return upload(file, url, gzip, false);
 		}
 		return resp;
 	}
@@ -440,15 +446,17 @@ public class Uploader {
 				if (ze == null)
 					continue;
 				String dest = getPath(ep, name);
-				HttpResponse resp = uploadEntry(zip, ze, dest, conditional);
-				report(resp, path, file.getName() + "!" + entry);
+				String origin = getOriginFor(new File(zip.getName()));
+				String url = origin + dest;
+				HttpResponse resp = uploadEntry(zip, ze, url, conditional);
+				report(resp, url, file.getName() + "!" + entry);
 			}
 		} finally {
 			zip.close();
 		}
 	}
 
-	private HttpResponse uploadEntry(ZipFile zip, ZipEntry entry, String path,
+	private HttpResponse uploadEntry(ZipFile zip, ZipEntry entry, String url,
 			boolean conditional) throws IOException {
 		long size = entry.getSize();
 		String type = getContentType(entry.getName(), false);
@@ -461,17 +469,17 @@ public class Uploader {
 			}
 		}
 		long modified = entry.getTime();
-		String origin = getOriginFor(new File(zip.getName()));
 		String since = dateformat.format(new Date(modified));
 		BasicHttpEntityEnclosingRequest req;
-		req = new BasicHttpEntityEnclosingRequest("PUT", origin + path);
+		notifyUploading(url, type);
+		req = new BasicHttpEntityEnclosingRequest("PUT", url);
 		req.setHeader("Authorization", authorization);
 		if (conditional) {
 			req.setHeader("If-Unmodified-Since", since);
 		}
 		req.setHeader("Content-Type", type);
 		req.setHeader("Content-Length", Long.toString(size));
-		logger.debug("{}\t{}", path, type);
+		logger.debug("{}\t{}", url, type);
 		InputStream in = zip.getInputStream(entry);
 		req.setEntity(new InputStreamEntity(in, entry.getSize()));
 		try {
@@ -481,23 +489,24 @@ public class Uploader {
 		}
 	}
 
-	private void report(HttpResponse resp, String path, String filename)
+	private void report(HttpResponse resp, String url, String filename)
 			throws IOException {
-		int status = resp.getStatusLine().getStatusCode();
+		StatusLine line = resp.getStatusLine();
+		int status = line.getStatusCode();
 		HttpEntity entity = resp.getEntity();
 		if (status == 412) {
-			print(".");
+			notifyNotModified(url);
 			if (entity != null) {
 				entity.consumeContent();
 			}
 		} else if (status == 204) {
-			print("^");
+			notifyUploaded(url);
 			if (entity != null) {
 				entity.consumeContent();
 			}
 		} else {
-			print("!");
-			logger.error(resp.getStatusLine().getReasonPhrase() + " for "
+			notifyError(url, status, line.getReasonPhrase());
+			logger.error(line.getReasonPhrase() + " for "
 					+ filename);
 			if (entity != null) {
 				try {
@@ -559,20 +568,22 @@ public class Uploader {
 	}
 
 	private void deleteResource(String url, String filename) throws IOException {
+		notifyRemoving(url);
 		BasicHttpRequest req = new BasicHttpRequest("DELETE", url);
 		req.setHeader("Authorization", authorization);
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		HttpResponse resp = client.service(proxy, req);
-		int status = resp.getStatusLine().getStatusCode();
+		StatusLine line = resp.getStatusLine();
+		int status = line.getStatusCode();
 		HttpEntity entity = resp.getEntity();
 		if (status == 204) {
-			print("~");
+			notifyRemoved(url);
 			if (entity != null) {
 				entity.consumeContent();
 			}
 		} else if (status != 405) {
-			print("!");
-			logger.error(resp.getStatusLine().getReasonPhrase() + " for "
+			notifyError(url, line.getStatusCode(), line.getReasonPhrase());
+			logger.error(line.getReasonPhrase() + " for "
 					+ filename);
 			if (entity != null) {
 				try {
@@ -586,15 +597,69 @@ public class Uploader {
 		}
 	}
 
-	private void print(String string) {
-		if (out != null) {
-			out.print(string);
+	private void notifyStarting() {
+		for (UploadListener listener : listeners) {
+			listener.notifyStarting();
 		}
 	}
 
-	private void println() {
-		if (out != null) {
-			out.println();
+	private void notifyStarted() {
+		for (UploadListener listener : listeners) {
+			listener.notifyStarted();
+		}
+	}
+
+	private void notifyReloading() {
+		for (UploadListener listener : listeners) {
+			listener.notifyReloading();
+		}
+	}
+
+	private void notifyReloaded() {
+		for (UploadListener listener : listeners) {
+			listener.notifyReloaded();
+		}
+	}
+
+	private void notifyStopping() {
+		for (UploadListener listener : listeners) {
+			listener.notifyStopping();
+		}
+	}
+
+	private void notifyUploading(String url, String type) {
+		for (UploadListener listener : listeners) {
+			listener.notifyUploading(url, type);
+		}
+	}
+
+	private void notifyUploaded(String url) {
+		for (UploadListener listener : listeners) {
+			listener.notifyUploaded();
+		}
+	}
+
+	private void notifyNotModified(String url) {
+		for (UploadListener listener : listeners) {
+			listener.notifyNotModified(url);
+		}
+	}
+
+	private void notifyRemoving(String url) {
+		for (UploadListener listener : listeners) {
+			listener.notifyRemoving(url);
+		}
+	}
+
+	private void notifyRemoved(String url) {
+		for (UploadListener listener : listeners) {
+			listener.notifyRemoved(url);
+		}
+	}
+
+	private void notifyError(String url, int code, String reason) {
+		for (UploadListener listener : listeners) {
+			listener.notifyError(url, code, reason);
 		}
 	}
 }

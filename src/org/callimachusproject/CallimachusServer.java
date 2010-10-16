@@ -46,6 +46,8 @@ import javax.activation.MimeTypeParseException;
 import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.codec.binary.Base64;
+import org.callimachusproject.webapps.ConciseListener;
+import org.callimachusproject.webapps.ObjectDatesetListener;
 import org.callimachusproject.webapps.Uploader;
 import org.openrdf.http.object.ConnectionBean;
 import org.openrdf.http.object.HTTPObjectAgentMXBean;
@@ -88,6 +90,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			MimetypesFileTypeMap mimetypes = createMimetypesMap();
 			uploader = new Uploader(mimetypes, dataDir);
 			uploader.setWebappsDir(webappsDir);
+			uploader.addListener(new ObjectDatesetListener(this.repository));
 		} finally {
 			con.close();
 		}
@@ -99,7 +102,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	}
 
 	public void printStatus(PrintStream out) {
-		uploader.printStatus(out);
+		uploader.addListener(new ConciseListener(out));
 	}
 
 	public String getAuthority() {

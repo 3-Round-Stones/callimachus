@@ -139,19 +139,19 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 		Map<String, String> options = parseOptions(string);
 		String username = options.get("username");
 		if (username == null)
-			throw new BadRequest("Missing Username");
+			throw new BadRequest("Missing username");
 		List<Object[]> encodings = findDigest(username);
 		if (encodings.isEmpty()) {
-			logger.info("Name Not Found: {}", username);
+			logger.info("Name not found: {}", username);
 			return null;
 		}
 		return encodings.get(0)[0];
 	}
 
-	@sparql(PREFIX
-			+ "SELECT ?user ?encoded\n"
-			+ "WHERE { ?user :name $name; :encoded ?encoded; :algorithm \"MD5\" .\n"
-			+ "$this :authenticates [:member ?user] }")
+	@sparql(PREFIX + "SELECT ?user ?encoded\n"
+			+ "WHERE { ?user :name $name .\n"
+			+ "$this :authenticates [:member ?user] .\n"
+			+ "OPTIONAL { ?user :encoded ?encoded; :algorithm \"MD5\" } }")
 	protected abstract List<Object[]> findDigest(@name("name") String username);
 
 	protected abstract boolean calliAuthorizeCredential(Object credential,
@@ -173,14 +173,18 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 			ha2 = md5(method + ":" + uri);
 		}
 		if (username == null)
-			throw new BadRequest("Missing Username");
+			throw new BadRequest("Missing username");
 		List<Object[]> encodings = findDigest(username);
 		if (encodings.isEmpty()) {
-			logger.info("Account Not Found: {}", username);
+			logger.info("Account not found: {}", username);
 			return null;
 		}
+		boolean encoding = false;
 		for (Object[] row : encodings) {
 			byte[] a1 = (byte[]) row[1];
+			if (a1 == null)
+				continue;
+			encoding = true;
 			String ha1 = new String(Hex.encodeHex(a1));
 			String legacy = ha1 + ":" + nonce + ":" + ha2;
 			if (md5(legacy).equals(response))
@@ -190,7 +194,9 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 			if (md5(expected).equals(response))
 				return row[0];
 		}
-		logger.info("Passwords Don't Match For: {}", username);
+		if (encoding)
+			logger.info("Passwords don't match for: {}", username);
+		logger.info("Missing password for: {}", username);
 		return null;
 	}
 

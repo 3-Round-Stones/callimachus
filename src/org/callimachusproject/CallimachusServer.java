@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
@@ -234,6 +235,8 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.start();
 		uploader.started();
 		System.gc();
+		long uptime = ManagementFactory.getRuntimeMXBean().getUptime();
+		logger.info("Callimachus started in {} seconds", uptime / 1000.0);
 	}
 
 	public String getStatus() {

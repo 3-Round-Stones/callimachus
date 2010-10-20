@@ -67,6 +67,12 @@ function getCredentials() {
 		} else if (req.readyState == 4) {
 			document.getElementById("login-link").style.display = "inline"
 			document.getElementById("authenticated-span").style.display = "none"
+			var tabs = document.getElementById("tabs").childNodes;
+			for (var i = 0; i < tabs.length; i++) {
+				if (tabs[i].style) {
+					tabs[i].style.display = "none"
+				}
+			}
 		}
 	}
 	req.send(null)

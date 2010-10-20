@@ -33,11 +33,11 @@ calli:get-review rdfs:subClassOf obj:Message;
 	http:type "text/html";
 	http:cache-control "no-cache";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findReviewTemplate()
+	obj:script """
+		var template = findReviewTemplate();
 		if (template == null)
-			throw new InternalServerError("Missing Review Template")
-		return template.calliConstruct('review', this)
+			throw new InternalServerError("Missing Review Template");
+		return template.calliConstruct('review', this);
 	""".
 
 calli:find-review-template rdfs:subClassOf obj:Message;

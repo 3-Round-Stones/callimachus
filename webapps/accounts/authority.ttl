@@ -74,7 +74,7 @@ audit:Transaction http:realm <authority>.
 	http:operation "login";
 	http:realm <authority>;
 	http:expect "303-see-other";
-	obj:groovy "return findCredential(msg.authorization)".
+	obj:script "return findCredential(authorization)".
 
 :login-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :login;
@@ -107,22 +107,22 @@ audit:Transaction http:realm <authority>.
 	http:type "message/x-response";
 	obj:imports <java:org.apache.http.ProtocolVersion>;
 	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
-	obj:groovy """
-		def ver = new ProtocolVersion("HTTP", 1, 1)
-		def resp = new BasicHttpResponse(ver, 303, "See Other")
-		def credential = findCredential(msg.authorization)
+	obj:script """
+		var ver = new ProtocolVersion("HTTP", 1, 1);
+		var resp = new BasicHttpResponse(ver, 303, "See Other");
+		var credential = findCredential(authorization);
 		if (credential == null) {
-			resp.setHeader("Location", "$this?login")
-			return resp
+			resp.setHeader("Location", this + "?login");
+			return resp;
 		}
-		if (msg.from == null) {
-			resp.setHeader("Location", "$this?logout&from=$credential")
-		} else if (msg.from == credential) {
-			return unauthorized(msg.from)
+		if (from == null) {
+			resp.setHeader("Location", this + "?logout&from=" + credential);
+		} else if (from.equals(credential)) {
+			return unauthorized(from);
 		} else {
 			resp.setHeader("Location", credential.toString())
 		}
-		return resp
+		return resp;
 	""".
 
 :logout-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
@@ -151,7 +151,7 @@ audit:Transaction http:realm <authority>.
 		owl:allValuesFrom calli:Credential];
 	http:operation "authenticated";
 	http:expect "303-see-other";
-	obj:groovy "return findCredential(msg.authorization)".
+	obj:script "return findCredential(authorization)".
 
 :authenticated-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :authenticated;

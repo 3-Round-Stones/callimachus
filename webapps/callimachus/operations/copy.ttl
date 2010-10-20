@@ -34,11 +34,11 @@ calli:get-copy rdfs:subClassOf obj:Message;
 	http:type "text/html";
 	http:cache-control "no-cache";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findCopyTemplate()
+	obj:script """
+		var template = findCopyTemplate();
 		if (template == null)
-			throw new InternalServerError("Missing Copy Template")
-		return template.calliConstruct('copy', this)
+			throw new InternalServerError("Missing Copy Template");
+		return template.calliConstruct('copy', this);
 	""".
 
 calli:post-copy rdfs:subClassOf obj:Message;
@@ -50,24 +50,24 @@ calli:post-copy rdfs:subClassOf obj:Message;
 	http:operation "copy";
 	http:expect "201-created";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findCopyTemplate()
+	obj:script """
+		var template = findCopyTemplate();
 		if (template == null)
-			throw new InternalServerError("Missing Copy Template")
-		def copy = template.calliCopyResource(this, msg.in, findCopyNamespaces())
+			throw new InternalServerError("Missing Copy Template");
+		var copy = template.calliCopyResource(this, input, findCopyNamespaces());
 		if (calliCurators) {
-			copy.calliMaintainers.addAll(calliCurators)
+			copy.calliMaintainers.addAll(calliCurators);
 		} else {
-			copy.calliMaintainers.addAll(findScribe(copy))
+			copy.calliMaintainers.addAll(findScribe(copy));
 		}
-		return copy
+		return copy;
 	""".
 
-calli:post-copy-in a owl:ObjectProperty, owl:FunctionalProperty;
+calli:post-copy-input a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain calli:post-copy;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "application/rdf+xml";
-	obj:name "in".
+	obj:name "input".
 
 calli:find-copy-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;

@@ -30,10 +30,10 @@ calli:evaluate-form rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:method "POST";
 	http:type "message/x-response";
-	obj:groovy """
-		if (msg.map == null || !msg.map.containsKey("query"))
+	obj:script """
+		if (map == null || !map.containsKey("query"))
 			throw new org.openrdf.http.object.exceptions.BadRequest("Missing query");
-		return evaluateSPARQL(msg.map.get("query")[0])
+		return evaluateSPARQL(map.get("query")[0]);
 	""".
 
 calli:evaluate-form-map a owl:ObjectProperty, owl:FunctionalProperty;
@@ -50,7 +50,7 @@ calli:evaluate-get rdfs:subClassOf obj:Message;
 	http:method "GET";
 	http:type "message/x-response";
 	http:cache-control "must-reevaluate";
-	obj:groovy "return evaluateSPARQL(msg.query)".
+	obj:script "return evaluateSPARQL(query)".
 
 calli:evaluate-get-query a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain calli:evaluate-get;

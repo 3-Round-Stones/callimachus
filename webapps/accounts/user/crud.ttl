@@ -18,11 +18,10 @@
 # Called in user delete
 :post-user-delete owl:intersectionOf (calli:post-delete
 		[owl:onProperty obj:target; owl:allValuesFrom <User>]);
-	obj:precedes calli:post-delete;
-	obj:groovy """
-		calliAlgorithm = null
-		calliEncoded = null
-		msg.proceed()
+	obj:script """
+		calliAlgorithm = null;
+		calliEncoded = null;
+		proceed();
 	""".
 
 # User operations must be authorized

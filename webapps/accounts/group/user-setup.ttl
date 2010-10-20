@@ -14,8 +14,10 @@
 :already-user-setup rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:allValuesFrom xsd:boolean];
+	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
+		owl:cardinality 1];
 	obj:name "isAlreadyUserSetup";
 	obj:sparql """
 		ASK {
@@ -38,10 +40,10 @@
 	http:realm <local>;
 	obj:imports <user-setup.xml>;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	obj:groovy """
+	obj:script """
 		if (isAlreadyUserSetup())
-			throw new BadRequest("This service has already been setup")
-		return userSetupXml.calliConstruct('copy', this)
+			throw new BadRequest("This service has already been setup");
+		return userSetupXml.calliConstruct('copy', this);
 	""".
 
 :post-user-setup rdfs:subClassOf obj:Message;
@@ -57,12 +59,13 @@
 	obj:imports <../../user/>;
 	obj:imports <../authority>;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	obj:groovy """
+	obj:imports <java:java.util.Collections>;
+	obj:script """
 		if (isAlreadyUserSetup())
-			throw new BadRequest("This service has already been setup")
-		def copy = userSetupXml.calliCopyResource(this, msg.stream, Collections.singleton(user))
-		calliMembers.add(copy)
-		return objectConnection.getObject("$authority?login")
+			throw new BadRequest("This service has already been setup");
+		var copy = userSetupXml.calliCopyResource(this, stream, Collections.singleton(user));
+		calliMembers.add(copy);
+		return objectConnection.getObject(authority + "?login");
 	""".
 
 :post-user-setup-stream a owl:ObjectProperty, owl:FunctionalProperty;

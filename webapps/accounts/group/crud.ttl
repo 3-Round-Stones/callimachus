@@ -21,11 +21,10 @@
 # Called on group create
 :post-group-copy owl:intersectionOf (calli:post-copy
 		[owl:onProperty obj:target; owl:allValuesFrom <Group>]);
-	obj:precedes calli:post-copy;
 	obj:imports <../authority>;
-	obj:groovy """
-		def copy = msg.functionalObjectResponse
-		authority.calliAuthenticates.add(copy)
-		return copy
+	obj:script """
+		var copy = proceed();
+		authority.calliAuthenticates.add(copy);
+		return copy;
 	""".
 

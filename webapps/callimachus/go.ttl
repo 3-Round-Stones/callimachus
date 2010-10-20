@@ -18,19 +18,20 @@
 	http:expect "302-see-other";
 	http:cache-control "no-store";
 	obj:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	obj:groovy """
-		def vf = objectConnection.valueFactory;
-		def stmts = objectConnection.getStatements(null, RDFS.LABEL, vf.createLiteral(msg.q));
+	obj:imports <java:java.net.URLEncoder>;
+	obj:script """
+		var vf = objectConnection.valueFactory;
+		var stmts = objectConnection.getStatements(null, RDFS.LABEL, vf.createLiteral(q), [null]);
 		try {
 			if (!stmts.hasNext())
-				return objectConnection.getObject("$this?lookup&q=${URLEncoder.encode(msg.q)}");
-			def uri = stmts.next().subject;
+				return objectConnection.getObject(this + "?lookup&q=" + URLEncoder.encode(q));
+			var uri = stmts.next().subject;
 			while (!(uri instanceof org.openrdf.model.URI) && stmts.hasNext()) {
 				uri = stmts.next().subject;
 			}
 			if (!(uri instanceof org.openrdf.model.URI) || stmts.hasNext())
-				return objectConnection.getObject("$this?lookup&q=${URLEncoder.encode(msg.q)}");
-			return objectConnection.getObject("$uri");
+				return objectConnection.getObject(this + "?lookup&q=" + URLEncoder.encode(q));
+			return objectConnection.getObject(uri.stringValue());
 		} finally {
 			stmts.close();
 		}

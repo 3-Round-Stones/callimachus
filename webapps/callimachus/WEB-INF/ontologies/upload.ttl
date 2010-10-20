@@ -32,14 +32,14 @@ calli:put-graph rdfs:subClassOf obj:Message;
 	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.rio.RDFFormat>;
 	obj:imports calli:NamedGraph;
-	obj:groovy """
-		String type = msg.contentType;
-		if (type.contains(";")) {
+	obj:script """
+		var type = contentType;
+		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		objectConnection.addDesignation(this, NamedGraph.class);
-		objectConnection.clear(getResource());
-		objectConnection.add(msg.body, toUri().toASCIIString(), RDFFormat.forMIMEType(type), getResource());
+		objectConnection.addDesignation(this, NamedGraph);
+		objectConnection.clear([getResource()]);
+		objectConnection.add(body, this.toString(), RDFFormat.forMIMEType(type), [getResource()]);
 	""".
 
 calli:put-graph-type a owl:DatatypeProperty; a owl:FunctionalProperty;
@@ -61,9 +61,9 @@ calli:delete-graph rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
 	http:realm calli:nobody;
-	obj:groovy """
-		objectConnection.removeDesignation(this, NamedGraph.class);
-		objectConnection.clear(getResource());
+	obj:script """
+		objectConnection.removeDesignation(this, NamedGraph);
+		objectConnection.clear([getResource()]);
 	""".
 
 ################################
@@ -76,17 +76,17 @@ calli:put-text-file rdfs:subClassOf obj:Message;
 	http:method "PUT";
 	http:realm calli:nobody;
 	obj:imports calli:Template;
-	obj:groovy """
-		def type = "urn:mimetype:" + msg.contentType;
-		if (type.contains(";")) {
+	obj:script """
+		var type = "urn:mimetype:" + contentType;
+		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		objectConnection.addDesignations(msg.target, type);
-		int read;
-		char[] cbuf = new char[1024];
-		Writer out = openWriter();
+		objectConnection.addDesignation(this, type);
+		var read;
+		var cbuf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
+		var out = openWriter();
 		try {
-			while ((read = msg.body.read(cbuf)) >= 0) {
+			while ((read = body.read(cbuf)) >= 0) {
 				out.write(cbuf, 0, read);
 			}
 		} finally {
@@ -114,11 +114,11 @@ calli:delete-text-file rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
 	http:realm calli:nobody;
-	obj:groovy """
-		delete()
-		objectConnection.removeDesignations(msg.target,
-			"urn:mimetype:text/html", "urn:mimetype:text/css",
-			"urn:mimetype:text/javascript", "urn:mimetype:text/plain");
+	obj:script """
+		this['delete']();
+		objectConnection.removeDesignations(this,
+			["urn:mimetype:text/html", "urn:mimetype:text/css",
+			"urn:mimetype:text/javascript", "urn:mimetype:text/plain"]);
 	""".
 
 ################################
@@ -130,17 +130,17 @@ calli:put-file rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
 	http:realm calli:nobody;
-	obj:groovy """
-		def type = "urn:mimetype:" + msg.contentType;
-		if (type.contains(";")) {
+	obj:script """
+		var type = "urn:mimetype:" + contentType;
+		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		objectConnection.addDesignations(msg.target, type);
-		int read;
-		byte[] buf = new byte[1024];
-		OutputStream out = openOutputStream();
+		objectConnection.addDesignation(this, type);
+		var read;
+		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+		var out = openOutputStream();
 		try {
-			while ((read = msg.body.read(buf)) >= 0) {
+			while ((read = body.read(buf)) >= 0) {
 				out.write(buf, 0, read);
 			}
 		} finally {
@@ -168,11 +168,11 @@ calli:delete-file rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
 	http:realm calli:nobody;
-	obj:groovy """
-		delete()
-		objectConnection.removeDesignations(msg.target,
-			"urn:mimetype:image/png", "urn:mimetype:image/jpeg", "urn:mimetype:image/gif",
-			"urn:mimetype:image/vnd.microsoft.icon", "urn:mimetype:application/pdf");
+	obj:script """
+		this['delete']();
+		objectConnection.removeDesignations(this,
+			["urn:mimetype:image/png", "urn:mimetype:image/jpeg", "urn:mimetype:image/gif",
+			"urn:mimetype:image/vnd.microsoft.icon", "urn:mimetype:application/pdf"]);
 	""".
 
 ################################
@@ -185,21 +185,19 @@ calli:put-xsl rdfs:subClassOf obj:Message;
 	http:method "PUT";
 	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	obj:groovy """
-		objectConnection.addDesignations(msg.target, "urn:mimetype:text/xsl");
-		int read;
-		byte[] buf = new byte[1024];
-		OutputStream out = openOutputStream();
+	obj:script """
+		objectConnection.addDesignation(this, "urn:mimetype:text/xsl");
+		var read;
+		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+		var out = openOutputStream();
 		try {
-			while ((read = msg.body.read(buf)) >= 0) {
+			while ((read = body.read(buf)) >= 0) {
 				out.write(buf, 0, read);
 			}
 		} finally {
 			out.close();
 		}
-		for (HTTPObjectServer server : HTTPObjectServer.getInstances()) {
-			server.resetCache()
-		}
+		HTTPObjectServer.resetAllCache();
 	""".
 
 calli:put-xsl-body a owl:ObjectProperty; a owl:FunctionalProperty;
@@ -215,9 +213,9 @@ calli:delete-xsl rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
 	http:realm calli:nobody;
-	obj:groovy """
-		delete()
-		objectConnection.removeDesignations(msg.target, "urn:mimetype:text/xsl");
+	obj:script """
+		this['delete']();
+		objectConnection.removeDesignation(this, "urn:mimetype:text/xsl");
 	""".
 
 ################################
@@ -231,22 +229,20 @@ calli:put-template rdfs:subClassOf obj:Message;
 	http:realm calli:nobody;
 	obj:imports calli:Template;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	obj:groovy """
-		objectConnection.addDesignation(msg.target, Template);
-		objectConnection.addDesignations(msg.target, "urn:mimetype:application/xml");
-		int read;
-		byte[] buf = new byte[1024];
-		OutputStream out = openOutputStream();
+	obj:script """
+		objectConnection.addDesignation(this, Template);
+		objectConnection.addDesignation(this, "urn:mimetype:application/xml");
+		var read;
+		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+		var out = openOutputStream();
 		try {
-			while ((read = msg.body.read(buf)) >= 0) {
+			while ((read = body.read(buf)) >= 0) {
 				out.write(buf, 0, read);
 			}
 		} finally {
 			out.close();
 		}
-		for (HTTPObjectServer server : HTTPObjectServer.getInstances()) {
-			server.resetCache()
-		}
+		HTTPObjectServer.resetAllCache();
 	""".
 
 calli:put-template-body a owl:ObjectProperty; a owl:FunctionalProperty;
@@ -261,9 +257,9 @@ calli:delete-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	obj:imports calli:Template;
-	obj:groovy """
-		delete()
-		objectConnection.removeDesignation(msg.target, Template)
-		objectConnection.removeDesignations(msg.target, "urn:mimetype:application/xml")
+	obj:script """
+		this['delete']();
+		objectConnection.removeDesignation(this, Template);
+		objectConnection.removeDesignation(this, "urn:mimetype:application/xml");
 	""".
 

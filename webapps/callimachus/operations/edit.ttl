@@ -33,11 +33,11 @@ calli:get-edit rdfs:subClassOf obj:Message;
 	http:type "text/html";
 	http:cache-control "no-cache";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findEditTemplate()
+	obj:script """
+		var template = findEditTemplate();
 		if (template == null)
-			throw new InternalServerError("Missing Edit Template")
-		return template.calliConstruct('edit', this)
+			throw new InternalServerError("Missing Edit Template");
+		return template.calliConstruct('edit', this);
 	""".
 
 calli:post-edit rdfs:subClassOf obj:Message;
@@ -51,22 +51,22 @@ calli:post-edit rdfs:subClassOf obj:Message;
 	obj:imports <java:org.apache.http.ProtocolVersion>;
 	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findEditTemplate()
+	obj:script """
+		var template = findEditTemplate();
 		if (template == null)
-			throw new InternalServerError("Missing Edit Template")
-		template.calliEditResource(this, msg.in)
-		def ver = new ProtocolVersion("HTTP", 1, 1)
-		def resp = new BasicHttpResponse(ver, 201, "Modified")
-		resp.addHeader("Location", "$this?view")
-		return resp
+			throw new InternalServerError("Missing Edit Template");
+		template.calliEditResource(this, input);
+		var ver = new ProtocolVersion("HTTP", 1, 1);
+		var resp = new BasicHttpResponse(ver, 201, "Modified");
+		resp.addHeader("Location", this + "?view");
+		return resp;
 	""".
 
-calli:post-edit-in a owl:ObjectProperty; a owl:FunctionalProperty;
+calli:post-edit-input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:post-edit;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "multipart/related;type=\"application/rdf+xml\"";
-	obj:name "in".
+	obj:name "input".
 
 calli:find-edit-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;

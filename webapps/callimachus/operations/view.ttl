@@ -33,11 +33,11 @@ calli:get-view rdfs:subClassOf obj:Message;
 	http:operation "view";
 	http:type "text/html";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findViewTemplate()
+	obj:script """
+		var template = findViewTemplate();
 		if (template == null)
-			throw new InternalServerError("Missing View Template")
-		return template.calliConstruct('view', this)
+			throw new InternalServerError("Missing View Template");
+		return template.calliConstruct('view', this);
 	""".
 
 calli:find-view-template rdfs:subClassOf obj:Message;

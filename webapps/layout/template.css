@@ -279,6 +279,12 @@ iframe {
 #footer {
     text-align: right;
     padding-bottom: 25pt;
+	margin-left: 10em;
+}
+
+#footer-lastmod {
+	font-size: small;
+    text-align: left;
 }
 
 #footer img {

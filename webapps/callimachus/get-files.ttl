@@ -44,7 +44,7 @@ calli:get-plain rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.Reader>];
 	http:method "GET";
 	http:type "text/plain";
-	obj:groovy "return openReader(false)".
+	obj:script "return openReader(false)".
 
 calli:get-html rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -53,7 +53,7 @@ calli:get-html rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.Reader>];
 	http:method "GET";
 	http:type "text/html";
-	obj:groovy "return openReader(false)".
+	obj:script "return openReader(false)".
 
 calli:get-css rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -62,7 +62,7 @@ calli:get-css rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.Reader>];
 	http:method "GET";
 	http:type "text/css";
-	obj:groovy "return openReader(false)".
+	obj:script "return openReader(false)".
 
 calli:get-javascript rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -71,7 +71,7 @@ calli:get-javascript rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.Reader>];
 	http:method "GET";
 	http:type "text/javascript";
-	obj:groovy "return openReader(false)".
+	obj:script "return openReader(false)".
 
 ################################
 # Binary File
@@ -84,7 +84,7 @@ calli:get-xsl rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "text/xsl";
-	obj:groovy "return openInputStream()".
+	obj:script "return openInputStream()".
 
 calli:get-png rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -93,7 +93,7 @@ calli:get-png rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "image/png";
-	obj:groovy "return openInputStream()".
+	obj:script "return openInputStream()".
 
 calli:get-jpeg rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -102,7 +102,7 @@ calli:get-jpeg rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "image/jpeg";
-	obj:groovy "return openInputStream()".
+	obj:script "return openInputStream()".
 
 calli:get-gif rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -111,7 +111,7 @@ calli:get-gif rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "image/gif";
-	obj:groovy "return openInputStream()".
+	obj:script "return openInputStream()".
 
 calli:get-ico rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -120,7 +120,7 @@ calli:get-ico rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "image/vnd.microsoft.icon";
-	obj:groovy "return openInputStream()".
+	obj:script "return openInputStream()".
 
 calli:get-pdf rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -129,7 +129,7 @@ calli:get-pdf rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "application/pdf";
-	obj:groovy "return openInputStream()".
+	obj:script "return openInputStream()".
 
 calli:get-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -138,5 +138,5 @@ calli:get-template rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "application/xml";
-	obj:groovy "return openInputStream()".
+	obj:script "return openInputStream()".
 

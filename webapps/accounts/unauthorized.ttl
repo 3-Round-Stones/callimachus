@@ -19,11 +19,12 @@ calli:post-request-password rdfs:subClassOf obj:Message;
 	http:operation "request-password";
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	obj:imports calli:User;
-	obj:groovy """
-		if (!msg.email)
-			throw new BadRequest("Missing Email")
-		for (User user : calliFindUsersByEmail(msg.email)) {
-			user.requestPassword()
+	obj:script """
+		if (!email)
+			throw new BadRequest("Missing Email");
+		var iter = calliFindUsersByEmail(email).iterator();
+		while (iter.hasNext()) {
+			iter.next().requestPassword();
 		}
 	""".
 

@@ -33,11 +33,11 @@ calli:get-delete rdfs:subClassOf obj:Message;
 	http:type "text/html";
 	http:cache-control "no-cache";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findDeleteTemplate()
+	obj:script """
+		var template = findDeleteTemplate();
 		if (template == null)
-			throw new InternalServerError("Missing Delete Template")
-		return template.calliConstruct('delete', this)
+			throw new InternalServerError("Missing Delete Template");
+		return template.calliConstruct('delete', this);
 	""".
 
 calli:post-delete rdfs:subClassOf obj:Message;
@@ -48,18 +48,18 @@ calli:post-delete rdfs:subClassOf obj:Message;
 	http:method "DELETE";
 	http:operation "delete";
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:groovy """
-		def template = findDeleteTemplate()
+	obj:script """
+		var template = findDeleteTemplate();
 		if (template == null)
-			throw new InternalServerError("Missing Delete Template")
-		template.calliDeleteResource(this, msg.in)
+			throw new InternalServerError("Missing Delete Template");
+		template.calliDeleteResource(this, input);
 	""".
 
-calli:post-delete-in a owl:ObjectProperty; a owl:FunctionalProperty;
+calli:post-delete-input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:post-delete;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "application/rdf+xml";
-	obj:name "in".
+	obj:name "input".
 
 calli:find-delete-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;

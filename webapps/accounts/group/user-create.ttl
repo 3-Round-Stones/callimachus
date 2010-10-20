@@ -34,8 +34,8 @@
 	http:type "text/html";
 	http:realm <../authority>;
 	obj:imports <user-create.xml>;
-	obj:groovy """
-		return userCreateXml.calliConstruct('copy', this)
+	obj:script """
+		return userCreateXml.calliConstruct('copy', this);
 	""".
 
 :post-user-create rdfs:subClassOf obj:Message;
@@ -57,45 +57,48 @@
 	obj:imports <java:org.openrdf.rio.helpers.StatementCollector>;
 	obj:imports <java:org.openrdf.model.impl.LinkedHashModel>;
 	obj:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-	obj:groovy """
-		def byteArray = msg.bytes.toByteArray()
-		def stream = new ByteArrayInputStream(byteArray)
-		def copy = userCreateXml.calliCopyResource(this, stream, Collections.singleton(user))
+	obj:imports <java:java.util.Collections>;
+	obj:imports <java:java.io.ByteArrayInputStream>;
+	obj:imports <java:java.io.CharArrayWriter>;
+	obj:script """
+		var byteArray = bytes.toByteArray();
+		var stream = new ByteArrayInputStream(byteArray);
+		var copy = userCreateXml.calliCopyResource(this, stream, Collections.singleton(user));
 		if (calliCurators) {
-			copy.calliMaintainers.addAll(calliCurators)
+			copy.calliMaintainers.addAll(calliCurators);
 		} else {
-			copy.calliMaintainers.addAll(findScribe(copy))
+			copy.calliMaintainers.addAll(findScribe(copy));
 		}
-		calliMembers.add(copy)
+		calliMembers.add(copy);
 		//# copy is empty if no transaction support (HTTPRepository)
-		def model = new LinkedHashModel()
-		def parser = new RDFXMLParser()
-		parser.setRDFHandler(new StatementCollector(model))
-		parser.parse(new ByteArrayInputStream(byteArray), "$this")
-		def id = model.filter(null, name.resource, null).objectLiteral().label
-		def addr = model.filter(null, email.resource, null).objectLiteral().label
+		var model = new LinkedHashModel();
+		var parser = new RDFXMLParser();
+		parser.setRDFHandler(new StatementCollector(model));
+		parser.parse(new ByteArrayInputStream(byteArray), this.toString());
+		var id = model.filter(null, name.resource, null).objectLiteral().label;
+		var addr = model.filter(null, email.resource, null).objectLiteral().label;
 		//# generate and save a password
-		def password = copy.generatePassword()
-		String token = "${id}:${authority.calliAuthName}:${password}"
-		copy.calliAlgorithm = "MD5"
-		copy.calliEncoded = DigestUtils.md5(token.getBytes("UTF-8"))
+		var password = copy.generatePassword();
+		var token = id + ":" + authority.calliAuthName + ":" + password;
+		copy.calliAlgorithm = "MD5";
+		copy.calliEncoded = DigestUtils.md5(token.getBytes("UTF-8"));
 		//# email the password to the email address provided
-		Reader reader = mailPasswordXml.calliConstruct('view', copy)
+		var reader = mailPasswordXml.calliConstruct('view', copy);
 		try {
-			CharArrayWriter writer = new CharArrayWriter()
-			int read
-			char[] cbuf = new char[1024]
+			var writer = new CharArrayWriter();
+			var read;
+			var cbuf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
 			while ((read = reader.read(cbuf)) >= 0) {
-				writer.write(cbuf, 0, read)
+				writer.write(cbuf, 0, read);
 			}
-			String body = writer.toString()
-			body = body.replaceAll("@@USERNAME@@", id)
-			body = body.replaceAll("@@PASSWORD@@", password)
-			copy.sendMessage(body, addr)
+			var body = writer.toString();
+			body = body.replaceAll("@@USERNAME@@", id);
+			body = body.replaceAll("@@PASSWORD@@", password);
+			copy.sendMessage(body, addr);
 		} finally {
-			reader.close()
+			reader.close();
 		}
-		return this
+		return this;
 	""".
 
 :post-user-create-byteArray a owl:ObjectProperty, owl:FunctionalProperty;

@@ -43,7 +43,7 @@
 			<li>Your e-mail address is used to reset your password</li>
 			<li>Your password may be changed at any time</li>
 		</ul>
-		<form action="" about="">
+		<form action="" about="" autocomplete="off">
 			<fieldset>
 				<legend>Shared information</legend>
 				<table>

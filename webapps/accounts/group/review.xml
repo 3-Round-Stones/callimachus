@@ -6,9 +6,6 @@
 	xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
 	<head>
 		<title property="rdfs:label"/>
-		<link rel="view" title="View" target="_self" href="?view" />
-		<link rel="edit" title="Edit" target="_self" href="?edit" />
-		<link rel="review" title="History" target="_self" href="" />
 	</head>
 	<body>
 		<h1 property="rdfs:label" />

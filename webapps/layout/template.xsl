@@ -138,30 +138,47 @@
 			</div>
 
 			<ul id="tabs" class="tabs">
-				<xsl:for-each select="/html/head/link[@target='_self']">
-					<xsl:choose>
-						<xsl:when test="@href=''">
-							<li>
-								<span><xsl:value-of select="@title" /></span>
-							</li>
-						</xsl:when>
-						<xsl:when test="@href">
-							<li>
-								<a class="diverted replace" target="_self">
-									<xsl:apply-templates select="@href"/>
-									<xsl:value-of select="@title" />
-								</a>
-							</li>
-						</xsl:when>
-					</xsl:choose>
-				</xsl:for-each>
+				<xsl:if test="contains($mode, 'view')">
+					<li>
+						<span>View</span>
+					</li>
+					<li>
+						<a class="diverted replace" href="?edit">Edit</a>
+					</li>
+					<li>
+						<a class="diverted replace" href="?history">History</a>
+					</li>
+				</xsl:if>
+				<xsl:if test="contains($mode, 'edit')">
+					<li>
+						<a class="diverted replace" href="?view">View</a>
+					</li>
+					<li>
+						<span>Edit</span>
+					</li>
+					<li>
+						<a class="diverted replace" href="?history">History</a>
+					</li>
+				</xsl:if>
+				<xsl:if test="contains($mode, 'history')">
+					<li>
+						<a class="diverted replace" href="?view">View</a>
+					</li>
+					<li>
+						<a class="diverted replace" href="?edit">Edit</a>
+					</li>
+					<li>
+						<span>History</span>
+					</li>
+				</xsl:if>
 			</ul>
 			<div id="content">
 				<xsl:apply-templates select="*|comment()|text()" />
 				<div id="content-stop" />
 			</div>
 
-			<div id="footer">
+			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
+				<p id="footer-lastmod" rel="audit:revision" resource="?revision">This resource was last modified <span property="audit:committedOn" class="date-locale" />.</p>
 				<a href="http://callimachusproject.org/" title="Callimachus">
 					<img src="{$callimachus}/callimachus-powered.png" alt="Callimachus" />
 				</a>

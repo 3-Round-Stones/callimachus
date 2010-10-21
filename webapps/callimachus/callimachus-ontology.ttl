@@ -48,10 +48,6 @@ calli:Editable a owl:Class;
 calli:Viewable a owl:Class;
 	rdfs:comment "Resources that can be viewed from a Web browser.".
 
-calli:Reviewable a owl:Class;
-	rdfs:comment "Resources that can be viewed from a Web browser.";
-	rdfs:subClassOf calli:Viewable.
-
 calli:Template a owl:Class;
 	rdfs:comment "RDFa template.".
 
@@ -113,9 +109,6 @@ calli:edit a owl:AnnotationProperty;
 
 calli:view a owl:AnnotationProperty;
 	rdfs:comment "The RDFa template used to display this resource in a Web browser.".
-
-calli:review a owl:AnnotationProperty;
-	rdfs:comment "The RDFa template used to display this resource's history in a Web browser.".
 
 ################################
 # Property

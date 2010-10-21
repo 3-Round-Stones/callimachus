@@ -2,7 +2,6 @@
 org.callimachusproject.behaviours.CopySupport
 org.callimachusproject.behaviours.DeleteSupport
 org.callimachusproject.behaviours.EditSupport
-org.callimachusproject.behaviours.ReviewSupport
 org.callimachusproject.behaviours.ViewSupport
 org.callimachusproject.behaviours.RDFaSupport
 org.callimachusproject.behaviours.SearchSupport

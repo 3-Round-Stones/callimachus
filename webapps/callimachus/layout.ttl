@@ -12,9 +12,15 @@
 :template-xsl rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "text/html";
-	obj:xslt </layout/template.xsl>.
+	obj:xslt <../layout/template.xsl>.
 
 :template-xsl-input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :template-xsl;
 	rdfs:range <java:java.io.InputStream>.
+
+:template-xsl-operation a owl:DatatypeProperty; a owl:FunctionalProperty;
+	rdfs:domain :template-xsl;
+	rdfs:range xsd:string;
+	http:parameter "*";
+	obj:name "mode".
 

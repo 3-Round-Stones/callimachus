@@ -5,8 +5,6 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 	<head>
 		<title property="rdfs:label"/>
-		<link rel="view" title="View" target="_self" href="?view" />
-		<link rel="edit" title="Edit" target="_self" href="" />
 		<script src="/accounts/user/md5.js">
 		</script>
 		<script>//<![CDATA[

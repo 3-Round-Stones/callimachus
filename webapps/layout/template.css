@@ -79,6 +79,11 @@ a[href]:hover {
 	text-align: center;
     padding-bottom: 2em;
 	width: 10em;
+	height: 128px;
+	display: block;
+	background-image: url(logo.png);
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
 }
 
 #logo img {

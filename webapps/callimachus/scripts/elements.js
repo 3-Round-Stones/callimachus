@@ -214,10 +214,10 @@ function loadOptions(script, objects, selected, callback, refresh) {
 		options.each(function(i, node) {
 			callback.call(this, i, node)
 		})
+		if (refresh) {
+			setTimeout(refresh, 500)
+		}
 	})
-	if (refresh) {
-		refresh()
-	}
 }
 
 function findType(node, defaultType) {

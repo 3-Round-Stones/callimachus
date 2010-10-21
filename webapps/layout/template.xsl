@@ -81,11 +81,12 @@
 			<meta http-equiv="X-UA-Compatible" content="IE=8" />
 			<link rel="icon" href="{$layout}/favicon.png" />
 			<link rel="stylesheet" href="{$layout}/template.css" />
+			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />	
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js"></script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js"></script>
 			<script type="text/javascript" src="{$callimachus}/scripts/diverted.js"> </script>
 			<script type="text/javascript" src="{$layout}/template.js"> </script>
 			<xsl:if test="contains($mode, 'copy') or contains($mode, 'edit') or contains($mode, 'delete')">
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js"> </script>
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.qtip.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/status.js"> </script>
@@ -132,11 +133,7 @@
 				</form>
 			</div>
 			<div id="sidebar">
-				<div id="logo">
-					<a href="{$origin}/">
-						<img src="{$layout}/logo.png" width="128" height="128" />
-					</a>
-				</div>
+				<a href="{$origin}/" id="logo"></a>
 				<xsl:apply-templates mode="nav" select="document(concat($callimachus, '/menu'))" />
 			</div>
 

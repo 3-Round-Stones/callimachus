@@ -178,7 +178,11 @@
 			</div>
 
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
-				<p id="footer-lastmod" rel="audit:revision" resource="?revision">This resource was last modified <span property="audit:committedOn" class="date-locale" />.</p>
+				<xsl:if test="contains($mode, 'view')">
+					<p id="footer-lastmod" rel="audit:revision" resource="?revision">This resource was last modified
+						<span property="audit:committedOn" class="date-locale" />.
+					</p>
+				</xsl:if>
 				<a href="http://callimachusproject.org/" title="Callimachus">
 					<img src="{$callimachus}/callimachus-powered.png" alt="Callimachus" />
 				</a>

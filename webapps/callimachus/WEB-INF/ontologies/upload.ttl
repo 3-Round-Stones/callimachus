@@ -61,6 +61,7 @@ calli:delete-graph rdfs:subClassOf obj:Message;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
 	http:realm calli:nobody;
+	obj:imports calli:NamedGraph;
 	obj:script """
 		objectConnection.removeDesignation(this, NamedGraph);
 		objectConnection.clear([getResource()]);

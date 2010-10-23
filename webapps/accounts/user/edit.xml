@@ -19,7 +19,8 @@
 					confirm.style.outlineStyle = "ridge"
 				}
 			}
-			function savePassword(value) {
+			function savePassword() {
+				var value = document.getElementById("password-input").value
 				var name = document.getElementById("name-span")
 				var realm = document.getElementById("realm-span")
 				name = name.textContent || name.innerText
@@ -41,7 +42,7 @@
 			<li>Your e-mail address is used to reset your password</li>
 			<li>Your password may be changed at any time</li>
 		</ul>
-		<form action="" about="" autocomplete="off">
+		<form action="" about="" autocomplete="off" onsubmit="savePassword()">
 			<fieldset>
 				<legend>Shared information</legend>
 				<table>
@@ -96,7 +97,7 @@
 							</th>
 							<td>
 								<input id="password-input" type="password"
-									onchange="savePassword(value);confirm('password-input')" 
+									onchange="confirm('password-input')" 
 									onkeyup="setTimeout(function(){confirm('password-input')}, 100)" />
 							</td>
 						</tr>

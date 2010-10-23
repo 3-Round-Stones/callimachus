@@ -19,7 +19,8 @@
 					confirm.style.outlineStyle = "ridge"
 				}
 			}
-			function savePassword(value) {
+			function savePassword() {
+				var value = document.getElementById("password").value
 				var name = document.getElementById("userid").value
 				var realm = document.getElementById("realm-span")
 				realm = realm.getAttribute("resource") || realm.textContent || realm.innerText
@@ -45,7 +46,7 @@
 			<li>Provide your full name for identification</li>
 			<li>The password can be changed in a settings link</li>
 		</ul>
-		<form action="" about="" autocomplete="off">
+		<form action="" about="" autocomplete="off" onsubmit="savePassword()">
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<span style="display:none">
 				<span data-cardinality="1">
@@ -66,7 +67,7 @@
 							</th>
 							<td data-cardinality="1">
 								<input id="userid" name="userid" property="calli:name" type="text" class="auto-expand"
-									onchange="$(form).attr('about', '../user/' + encodeURI(value).replace('%20','+'));savePassword(document.getElementById('password').value)" />
+									onchange="$(form).attr('about', '../user/' + encodeURI(value).replace('%20','+'))" />
 							</td>
 						</tr>
 						<tr>
@@ -83,7 +84,7 @@
 							</th>
 							<td>
 								<input id="password" name="password" type="password"
-									onchange="savePassword(value);confirm()"
+									onchange="confirm()"
 									onkeyup="setTimeout(confirm, 100)" />
 							</td>
 						</tr>

@@ -265,6 +265,10 @@ input, select, textarea {
 	border-radius: 2pt;
 }
 
+ui-datepicker {
+	font-size: small;
+}
+
 button {
 	background-image: -moz-linear-gradient(top, white, #F58735);
 	background-image: -webkit-gradient(linear, left top, left bottom, from(white), to(#F58735));

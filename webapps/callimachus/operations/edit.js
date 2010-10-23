@@ -9,49 +9,54 @@ function initForms() {
 	$("form[about]").each(function(i, node) {
 		var form = $(node)
 		var stored = readRDF(form)
-		form.submit(function(){
-			if (window.showRequest) {
-				showRequest()
-			}
-			try {
-				var revised = readRDF(form)
-				var removed = stored.except(revised)
-				var added = revised.except(stored)
-				removed.triples().each(function(){
-					addBoundedDescription(this, stored, removed, added)
-				})
-				added.triples().each(function(){
-					addBoundedDescription(this, revised, added, removed)
-				})
-				var boundary = "jeseditor-boundary"
-				var type = "multipart/related;boundary=" + boundary + ";type=\"application/rdf+xml\""
-				var data = "--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
-						+ removed.dump({format:"application/rdf+xml",serialize:true})
-						+ "\r\n--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
-						+ added.dump({format:"application/rdf+xml",serialize:true})
-						+ "\r\n--" + boundary + "--"
-				patchData(location.href, type, data, function(data, textStatus, xhr) {
-					var uri = location.href
-					if (uri.indexOf('?') > 0) {
-						uri = uri.substring(0, uri.indexOf('?'))
-					}
-					if (window.showPageLoading) {
-						showPageLoading()
-					}
-					var redirect = uri + "?view"
-					if (form.attr("data-redirect")) {
-						redirect = form.attr("data-redirect")
-					}
-					location.replace(redirect)
-				})
-			} catch(e) {
-				if (window.showError) {
-					showError(e.description)
-				}
-			}
-			return false
+		form.submit(function(event){
+			setTimeout(function() { submitRDFForm(form, stored) }, 100)
+			event.preventDefault()
 		})
 	})
+}
+
+function submitRDFForm(form, stored) {
+	if (window.showRequest) {
+		showRequest()
+	}
+	try {
+		var revised = readRDF(form)
+		var removed = stored.except(revised)
+		var added = revised.except(stored)
+		removed.triples().each(function(){
+			addBoundedDescription(this, stored, removed, added)
+		})
+		added.triples().each(function(){
+			addBoundedDescription(this, revised, added, removed)
+		})
+		var boundary = "jeseditor-boundary"
+		var type = "multipart/related;boundary=" + boundary + ";type=\"application/rdf+xml\""
+		var data = "--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
+				+ removed.dump({format:"application/rdf+xml",serialize:true})
+				+ "\r\n--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
+				+ added.dump({format:"application/rdf+xml",serialize:true})
+				+ "\r\n--" + boundary + "--"
+		patchData(location.href, type, data, function(data, textStatus, xhr) {
+			var uri = location.href
+			if (uri.indexOf('?') > 0) {
+				uri = uri.substring(0, uri.indexOf('?'))
+			}
+			if (window.showPageLoading) {
+				showPageLoading()
+			}
+			var redirect = uri + "?view"
+			if (form.attr("data-redirect")) {
+				redirect = form.attr("data-redirect")
+			}
+			location.replace(redirect)
+		})
+	} catch(e) {
+		if (window.showError) {
+			showError(e.description)
+		}
+	}
+	return false
 }
 
 function readRDF(form) {

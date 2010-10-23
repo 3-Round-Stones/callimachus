@@ -49,8 +49,8 @@
 :post-user-setup rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
+		owl:allValuesFrom xsd:string];
 	http:method "POST";
 	http:operation "user-setup";
 	http:realm <local>;
@@ -65,7 +65,7 @@
 			throw new BadRequest("This service has already been setup");
 		var copy = userSetupXml.calliCopyResource(this, stream, Collections.singleton(user));
 		calliMembers.add(copy);
-		return objectConnection.getObject(authority + "?login");
+		return authority + "?welcome";
 	""".
 
 :post-user-setup-stream a owl:ObjectProperty, owl:FunctionalProperty;

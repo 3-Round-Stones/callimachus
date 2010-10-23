@@ -69,18 +69,18 @@ audit:Transaction http:realm <authority>.
 :login rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:DigestRealm];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom calli:Credential];
+	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
+		owl:allValuesFrom xsd:string];
 	http:operation "login";
 	http:realm <authority>;
 	http:expect "303-see-other";
-	obj:script "return findCredential(authorization)".
+	obj:script "if (referer) return referer".
 
-:login-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
+:login-referer a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :login;
 	rdfs:range xsd:string;
-	http:header "Authorization";
-	obj:name "authorization".
+	http:header "Referer";
+	obj:name "referer".
 
 :login-authorize owl:equivalentClass calli:authorize-credential;
 	obj:sparql """
@@ -88,7 +88,7 @@ audit:Transaction http:realm <authority>.
 			$subject calli:authenticates [calli:member $credential]
 			FILTER ($method = "GET" || $method = "HEAD")
 			FILTER ($subject = <authority>)
-			FILTER ($qs = "login")
+			FILTER ($qs = "login" || $qs = "welcome")
 		}
 	""".
 
@@ -143,7 +143,7 @@ audit:Transaction http:realm <authority>.
 ################################
 
 # Redirection to the authorized user
-# Used to display the authorized users
+# Used to display the currently authorized user
 :authenticated rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:DigestRealm];
@@ -155,6 +155,28 @@ audit:Transaction http:realm <authority>.
 
 :authenticated-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :authenticated;
+	rdfs:range xsd:string;
+	http:header "Authorization";
+	obj:name "authorization".
+
+################################
+# welcome
+################################
+
+# Redirection to the authorized user
+# Used to welcome new users
+:welcome rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:DigestRealm];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom calli:Credential];
+	http:operation "welcome";
+	http:realm <authority>;
+	http:expect "303-see-other";
+	obj:script "return findCredential(authorization)".
+
+:welcome-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :welcome;
 	rdfs:range xsd:string;
 	http:header "Authorization";
 	obj:name "authorization".

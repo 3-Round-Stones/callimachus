@@ -8,28 +8,33 @@ $(document).ready(initForms);
 function initForms() {
 	$("form[about]").each(function(i, node) {
 		var form = $(node)
-		form.submit(function(){
-			if (window.showRequest) {
-				showRequest()
-			}
-			try {
-				var added = readRDF(form)
-				var type = "application/rdf+xml"
-				var data = added.dump({format:"application/rdf+xml",serialize:true})
-				deleteData(location.href, type, data, function(data, textStatus, xhr) {
-					if (form.attr("data-redirect")) {
-						location.replace(form.attr("data-redirect"))
-					}
-					form.remove();
-				})
-			} catch(e) {
-				if (window.showError) {
-					showError(e.description)
-				}
-			}
-			return false
+		form.submit(function(event){
+			setTimeout(function() { submitRDFForm(form) }, 100)
+			event.preventDefault()
 		})
 	})
+}
+
+function submitRDFForm(form) {
+	if (window.showRequest) {
+		showRequest()
+	}
+	try {
+		var added = readRDF(form)
+		var type = "application/rdf+xml"
+		var data = added.dump({format:"application/rdf+xml",serialize:true})
+		deleteData(location.href, type, data, function(data, textStatus, xhr) {
+			if (form.attr("data-redirect")) {
+				location.replace(form.attr("data-redirect"))
+			}
+			form.remove();
+		})
+	} catch(e) {
+		if (window.showError) {
+			showError(e.description)
+		}
+	}
+	return false
 }
 
 function readRDF(form) {

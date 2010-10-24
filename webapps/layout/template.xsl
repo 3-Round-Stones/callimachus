@@ -81,7 +81,7 @@
 			<meta http-equiv="X-UA-Compatible" content="IE=8" />
 			<link rel="icon" href="{$layout}/favicon.png" />
 			<link rel="stylesheet" href="{$layout}/template.css" />
-			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />	
+			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js"></script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js"></script>
 			<script type="text/javascript" src="{$callimachus}/scripts/diverted.js"> </script>
@@ -89,7 +89,7 @@
 			<xsl:if test="contains($mode, 'copy') or contains($mode, 'edit') or contains($mode, 'delete')">
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.qtip.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js"> </script>
-			<script type="text/javascript" src="{$callimachus}/scripts/status.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.validate.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/elements.js"> </script>
 			<xsl:if test="contains($mode, 'copy')">
 			<script type="text/javascript" src="{$callimachus}/operations/copy.js"> </script>
@@ -112,7 +112,7 @@
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
 			<div id="header">
-				<form method="GET" action="{$callimachus}/menu">
+				<form method="GET" action="{$callimachus}/go">
 					<a id="login-link" href="{$accounts}/authority?login" style="display:none">Login</a>
 					<span id="authenticated-span" style="display:none">
 						<a id="authenticated-link" href="{$accounts}/authority?authenticated"></a>
@@ -123,10 +123,9 @@
 						<span> | </span>
 						<a href="{$accounts}/authority?logout">Logout</a>
 					</span>
-					<input type="hidden" name="go" />
 					<span id="search-box">
 						<input id="search-box-input" type="text" size="10" name="q" title="Lookup..." />
-						<button id="search-box-button" type="button" onclick="form.elements['go'].name='lookup';form.submit()">
+						<button id="search-box-button" type="button" onclick="form.action='{$callimachus}/lookup';form.submit()">
 							<img src="{$layout}/search.png" />
 						</button>
 					</span>

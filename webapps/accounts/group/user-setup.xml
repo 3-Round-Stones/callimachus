@@ -5,20 +5,12 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 	<head>
 		<title property="rdfs:label"/>
-		<script src="/accounts/user/md5.js">
+		<link type="text/css" href="/accounts/jquery.validate.password.css" rel="stylesheet" />	
+		<script src="/accounts/jquery.validate.password.js">
+		</script>
+		<script src="/accounts/md5.js">
 		</script>
 		<script>//<![CDATA[
-			function confirm() {
-				var input = document.getElementById("password")
-				var confirm = document.getElementById("confirm-password-input")
-				if (input.value == confirm.value) {
-					confirm.style.outlineWidth = "0px"
-				} else {
-					confirm.style.outlineWidth = "2px"
-					confirm.style.outlineColor = "red"
-					confirm.style.outlineStyle = "ridge"
-				}
-			}
 			function savePassword() {
 				var value = document.getElementById("password").value
 				var name = document.getElementById("userid").value
@@ -83,9 +75,12 @@
 								<label for="password">Password:</label>
 							</th>
 							<td>
-								<input id="password" name="password" type="password"
-									onchange="confirm()"
-									onkeyup="setTimeout(confirm, 100)" />
+								<input id="password" name="password" type="password" />
+								<div class="password-meter">
+									<div class="password-meter-bg">
+										<div class="password-meter-bar"></div>
+									</div>
+								</div>
 							</td>
 						</tr>
 						<tr>
@@ -93,8 +88,7 @@
 								<label for="confirm-password-input">Confirm password:</label>
 							</th>
 							<td>
-								<input id="confirm-password-input" name="confirm-password-input" type="password"
-									onchange="confirm()" onkeyup="setTimeout(confirm, 100)" />
+								<input id="confirm-password-input" name="confirm-password-input" type="password" equalTo="#password" />
 							</td>
 						</tr>
 					</tbody>

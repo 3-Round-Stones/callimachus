@@ -13,8 +13,8 @@ EEEEEE light gray
 body {
 	background-color: #DDDDDD;
 	background-repeat: no-repeat;
-	background-image: -moz-linear-gradient(top, white, #DDDDDD, #DDDDDD);
-	background-image: -webkit-gradient(linear, center top, center center, color-stop(0,white), color-stop(1,#DDDDDD));
+	background-image: -moz-linear-gradient(top, white, #DDDDDD 256px);
+	background-image: -webkit-gradient(linear, center top, center 256, color-stop(0,white), color-stop(1,#DDDDDD));
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#DDDDDD, GradientType=0)";
 	margin: 0px;
 	font-family: sans-serif;
@@ -277,6 +277,15 @@ button {
 	-moz-border-radius: 2pt;
 	border-radius: 2pt;
 }
+
+label.error {
+	color: red;
+	font-style: italic;
+	font-size: x-small;
+	display: block;
+}
+
+input.error { outline: 2px ridge red; }
 
 iframe {
 	border: none;

@@ -2,9 +2,19 @@
 <html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
 		<title property="rdfs:label"/>
+		<script>
+			function saveChangeNote() {
+				var note = document.getElementById('note')
+				if (note.value) {
+					note.setAttribute('property', 'skos:changeNote')
+					note.setAttribute('content', note.value)
+				}
+			}
+		</script>
 	</head>
 	<body>
 		<ul class="aside">
@@ -13,9 +23,9 @@
 			<li>Curators can invite and administrate new users of this group and maintain new groups</li>
 			<li>Maintainers can add and remove members and authorization groups, invite new users, and create empty groups</li>
 		</ul>
-		<form action="" about="">
+		<form action="" about="" onsubmit="saveChangeNote()">
 			<fieldset>
-				<legend property="rdfs:label" />
+				<legend>Group Information</legend>
 				<table>
 					<tbody>
 						<tr>
@@ -71,6 +81,10 @@
 						<span property="rdfs:label" class="asc"/>
 					</span>
 				</div>
+			</fieldset>
+			<fieldset>
+				<legend>Reason:</legend>
+				<input type="text" id="note" maxlength="140" class="auto-expand" />
 			</fieldset>
 			<button type="button" onclick="location.replace('?delete')">Delete</button>
 			<button type="submit">Save</button>

@@ -17,7 +17,7 @@
 	http:cache-control "no-store";
 	http:transform :related-changes-xsl;
 	obj:sparql """
-		SELECT REDUCED ?label ?comment ?icon ?url ?revision ?modified ?user ?name
+		SELECT REDUCED ?label ?note ?icon ?url ?revision ?modified ?user ?name
 		WHERE {
 			$this ?rel ?url .
 			{
@@ -32,8 +32,14 @@
 			FILTER (isIRI(?url))
 			OPTIONAL { ?url a [calli:icon ?icon] }
 			OPTIONAL { ?url rdfs:label ?label }
-			OPTIONAL { ?url rdfs:comment ?comment }
 			OPTIONAL { ?user rdfs:label ?name }
+			OPTIONAL {
+				{
+					GRAPH ?revision { ?url skos:changeNote ?note }
+				} UNION {
+					?revision audit:contained [rdf:subject ?url; rdf:predicate skos:changeNote; rdf:object ?note]
+				}
+			}
 		}
 		ORDER BY desc(?modified) ?url
 		LIMIT 50

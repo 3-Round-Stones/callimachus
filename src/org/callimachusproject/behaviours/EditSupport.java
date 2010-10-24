@@ -24,6 +24,9 @@ import org.callimachusproject.concepts.Template;
 import org.callimachusproject.helpers.GraphPatternBuilder;
 import org.callimachusproject.helpers.MultipartParser;
 import org.callimachusproject.helpers.SubjectTracker;
+import org.callimachusproject.rdfa.events.TriplePattern;
+import org.callimachusproject.rdfa.model.IRI;
+import org.callimachusproject.rdfa.model.TermFactory;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -60,6 +63,8 @@ public abstract class EditSupport implements Template {
 			}
 		}
 	}
+
+	private static final String CHANGE_NOTE = "http://www.w3.org/2004/02/skos/core#changeNote";
 
 	public void calliEditResource(RDFObject target, InputStream in)
 			throws Exception {
@@ -98,11 +103,18 @@ public abstract class EditSupport implements Template {
 			ObjectConnection con) throws Exception {
 		SubjectTracker inserter = createSubjectTracker(resource,
 				new RDFInserter(con));
+		inserter.accept(changeNoteOf(resource));
 		parser.setValueFactory(con.getValueFactory());
 		parser.setRDFHandler(inserter);
 		parser.parse(in, resource.stringValue());
 		if (!inserter.isEmpty() && !inserter.isAbout(resource))
 			throw new BadRequest("Wrong Subject");
+	}
+
+	private TriplePattern changeNoteOf(URI resource) {
+		TermFactory tf = TermFactory.newInstance();
+		IRI subj = tf.iri(resource.stringValue());
+		return new TriplePattern(subj, tf.iri(CHANGE_NOTE), tf.node());
 	}
 
 	private SubjectTracker createSubjectTracker(URI resource,

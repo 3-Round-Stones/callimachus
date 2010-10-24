@@ -295,10 +295,12 @@ public class Server implements HTTPObjectAgentMXBean {
 			} finally {
 				server.destroy();
 			}
+			System.out.println("Callimachus server has stopped");
 		} catch (UnmarshalException e) {
 			if (!(e.getCause() instanceof EOFException))
 				throw e;
 			// remote JVM has terminated
+			System.out.println("Callimachus server has shutdown"); 
 		}
 	}
 

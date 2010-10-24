@@ -17,7 +17,7 @@
 	http:cache-control "no-store";
 	http:transform :history-xsl;
 	obj:sparql """
-		SELECT REDUCED ?label ?revision ?modified ?user ?name
+		SELECT REDUCED ?label ?note ?revision ?modified ?user ?name
 		WHERE {
 			{
 				GRAPH ?revision { $this ?p ?o FILTER (?p != audit:contained) }
@@ -28,6 +28,13 @@
 			FILTER (?user != $this)
 			OPTIONAL { ?user rdfs:label ?name }
 			OPTIONAL { $this rdfs:label ?label }
+			OPTIONAL {
+				{
+					GRAPH ?revision { $this skos:changeNote ?note }
+				} UNION {
+					?revision audit:contained [rdf:subject $this; rdf:predicate skos:changeNote; rdf:object ?note]
+				}
+			}
 		}
 		ORDER BY desc(?modified)
 		LIMIT 50

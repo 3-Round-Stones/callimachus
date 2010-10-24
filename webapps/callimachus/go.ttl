@@ -11,27 +11,28 @@
 
 :menu-go rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Menu];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:cardinality 1];
-	http:operation "go";
+		owl:hasValue <go>];
+	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
+		owl:allValuesFrom xsd:string];
+	http:method "GET";
 	http:expect "302-see-other";
 	http:cache-control "no-store";
 	obj:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	obj:imports <java:java.net.URLEncoder>;
+	obj:imports <lookup>;
 	obj:script """
 		var vf = objectConnection.valueFactory;
-		var stmts = objectConnection.getStatements(null, RDFS.LABEL, vf.createLiteral(q), [null]);
+		var stmts = objectConnection.getStatements(null, RDFS.LABEL, vf.createLiteral(q), []);
 		try {
 			if (!stmts.hasNext())
-				return objectConnection.getObject(this + "?lookup&q=" + URLEncoder.encode(q));
+				return lookup + "?q=" + URLEncoder.encode(q);
 			var uri = stmts.next().subject;
 			while (!(uri instanceof org.openrdf.model.URI) && stmts.hasNext()) {
 				uri = stmts.next().subject;
 			}
 			if (!(uri instanceof org.openrdf.model.URI) || stmts.hasNext())
-				return objectConnection.getObject(this + "?lookup&q=" + URLEncoder.encode(q));
-			return objectConnection.getObject(uri.stringValue());
+				return lookup + "?q=" + URLEncoder.encode(q);
+			return uri.stringValue();
 		} finally {
 			stmts.close();
 		}

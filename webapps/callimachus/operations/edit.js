@@ -9,10 +9,7 @@ function initForms() {
 	$("form[about]").each(function(i, node) {
 		var form = $(node)
 		var stored = readRDF(form)
-		form.submit(function(event){
-			setTimeout(function() { submitRDFForm(form, stored) }, 100)
-			event.preventDefault()
-		})
+		form.validate({submitHandler: function() { submitRDFForm(form, stored)}})
 	})
 }
 

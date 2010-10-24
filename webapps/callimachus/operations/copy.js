@@ -8,14 +8,12 @@ $(document).ready(initForms);
 function initForms() {
 	$("form[about]").each(function(i, node) {
 		var form = $(node)
-		form.submit(function(event){
-			setTimeout(function() { submitRDFForm(form) }, 100)
-			event.preventDefault()
-		})
+		form.validate({submitHandler: submitRDFForm})
 	})
 }
 
 function submitRDFForm(form) {
+	var form = $(form)
 	if (window.showRequest) {
 		showRequest()
 	}

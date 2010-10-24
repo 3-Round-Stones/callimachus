@@ -43,9 +43,12 @@
 	</xsl:template>
 	<xsl:template match="sparql:result">
 		<xsl:if test="not(substring-before(sparql:binding[@name='modified']/*, 'T')=substring-before(preceding-sibling::*[1]/sparql:binding[@name='modified']/*, 'T'))">
+			<xsl:if test="preceding-sibling::*[1]/sparql:binding[@name='modified']/*">
+				<xsl:text disable-output-escaping="yes">&lt;/ul&gt;</xsl:text>
+			</xsl:if>
 			<h2 class="date-locale"><xsl:value-of select="substring-before(sparql:binding[@name='modified']/*, 'T')" /></h2>
+			<xsl:text disable-output-escaping="yes">&lt;ul&gt;</xsl:text>
 		</xsl:if>
-		<ul>
 		<li class="result">
 			<span class="date-locale"><xsl:value-of select="substring-after(sparql:binding[@name='modified']/*, 'T')" /></span>
 			<xsl:text>..</xsl:text>
@@ -60,8 +63,15 @@
 					<xsl:value-of select="sparql:binding[@name='user']/*" />
 				</xsl:if>
 			</a>
+			<xsl:if test="sparql:binding[@name='note']">
+				<xsl:text> (</xsl:text>
+				<xsl:value-of select="sparql:binding[@name='note']/*" />
+				<xsl:text>)</xsl:text>
+			</xsl:if>
 		</li>
-		</ul>
+		<xsl:if test="not(following-sibling::*[1]/sparql:binding[@name='modified']/*)">
+			<xsl:text disable-output-escaping="yes">&lt;/ul&gt;</xsl:text>
+		</xsl:if>
 	</xsl:template>
 	<xsl:template match="sparql:binding">
 		<xsl:apply-templates select="*" />

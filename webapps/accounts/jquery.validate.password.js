@@ -1,9 +1,10 @@
 /*
- * jQuery validate.password plug-in 1.0
+ * jQuery validate.password plug-in 1.0+
  *
  * http://bassistance.de/jquery-plugins/jquery-plugin-validate.password/
  *
  * Copyright (c) 2009 Jörn Zaefferer
+ * Copyright (c) 2006 Steve Moitozo <god at zilla dot us>
  *
  * $Id$
  *
@@ -12,13 +13,6 @@
  *   http://www.gnu.org/licenses/gpl.html
  */
 (function($) {
-	
-	var LOWER = /[a-z]/,
-		UPPER = /[A-Z]/,
-		DIGIT = /[0-9]/,
-		DIGITS = /[0-9].*[0-9]/,
-		SPECIAL = /[^a-zA-Z0-9]/,
-		SAME = /^(.)\1+$/;
 		
 	function rating(rate, message) {
 		return {
@@ -27,29 +21,107 @@
 		};
 	}
 	
-	function uncapitalize(str) {
-		return str.substring(0, 1).toLowerCase() + str.substring(1);
-	}
-	
-	$.validator.passwordRating = function(password, username) {
-		if (!password || password.length < 8)
+	$.validator.passwordRating = function(passwd, username) {
+		if (!passwd || passwd.length < 4)
 			return rating(0, "too-short");
-		if (username && password.toLowerCase().match(username.toLowerCase()))
+		if (username && passwd.toLowerCase().match(username.toLowerCase()))
 			return rating(0, "similar-to-username");
-		if (SAME.test(password))
+
+		var intScore   = 0
+		
+		// PASSWORD LENGTH
+		if (passwd.length<5)                         // length 4 or less
+		{
+			intScore = (intScore+3)
+		}
+		else if (passwd.length>4 && passwd.length<8) // length between 5 and 7
+		{
+			intScore = (intScore+6)
+		}
+		else if (passwd.length>7 && passwd.length<16)// length between 8 and 15
+		{
+			intScore = (intScore+12)
+		}
+		else if (passwd.length>15)                    // length 16 or more
+		{
+			intScore = (intScore+18)
+		}
+		
+		
+		// LETTERS (Not exactly implemented as dictacted above because of my limited understanding of Regex)
+		if (passwd.match(/[a-z]/))                              // [verified] at least one lower case letter
+		{
+			intScore = (intScore+1)
+		}
+		
+		if (passwd.match(/[A-Z]/))                              // [verified] at least one upper case letter
+		{
+			intScore = (intScore+5)
+		}
+		
+		// NUMBERS
+		if (passwd.match(/\d+/))                                 // [verified] at least one number
+		{
+			intScore = (intScore+5)
+		}
+		
+		if (passwd.match(/(.*[0-9].*[0-9].*[0-9])/))             // [verified] at least three numbers
+		{
+			intScore = (intScore+5)
+		}
+		
+		
+		// SPECIAL CHAR
+		if (passwd.match(/.[!,@,#,$,%,^,&,*,?,_,~]/))            // [verified] at least one special character
+		{
+			intScore = (intScore+5)
+		}
+		
+									 // [verified] at least two special characters
+		if (passwd.match(/(.*[!,@,#,$,%,^,&,*,?,_,~].*[!,@,#,$,%,^,&,*,?,_,~])/))
+		{
+			intScore = (intScore+5)
+		}
+	
+		
+		// COMBOS
+		if (passwd.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/))        // [verified] both upper and lower case
+		{
+			intScore = (intScore+2)
+		}
+
+		if (passwd.match(/([a-zA-Z])/) && passwd.match(/([0-9])/)) // [verified] both letters and numbers
+		{
+			intScore = (intScore+2)
+		}
+ 
+									// [verified] letters, numbers, and special characters
+		if (passwd.match(/([a-zA-Z0-9].*[!,@,#,$,%,^,&,*,?,_,~])|([!,@,#,$,%,^,&,*,?,_,~].*[a-zA-Z0-9])/))
+		{
+			intScore = (intScore+2)
+		}
+	
+	
+		if(intScore < 16)
+		{
 			return rating(1, "very-weak");
-		
-		var lower = LOWER.test(password),
-			upper = UPPER.test(uncapitalize(password)),
-			digit = DIGIT.test(password),
-			digits = DIGITS.test(password),
-			special = SPECIAL.test(password);
-		
-		if (lower && upper && digit || lower && digits || upper && digits || special)
-			return rating(4, "strong");
-		if (lower && upper || lower && digit || upper && digit)
+		}
+		else if (intScore > 15 && intScore < 25)
+		{
+			return rating(2, "weak");
+		}
+		else if (intScore > 24 && intScore < 35)
+		{
 			return rating(3, "good");
-		return rating(2, "weak");
+		}
+		else if (intScore > 34 && intScore < 45)
+		{
+			return rating(4, "strong");
+		}
+		else
+		{
+			return rating(5, "stronger");
+		}
 	}
 	
 	$.validator.passwordRating.messages = {
@@ -58,7 +130,8 @@
 		"very-weak": "Very weak",
 		"weak": "Weak",
 		"good": "Good",
-		"strong": "Strong"
+		"strong": "Strong",
+		"stronger": "Stronger"
 	}
 	
 	$.validator.addMethod("password", function(value, element, usernameField) {
@@ -80,8 +153,8 @@
 		.text($.validator.passwordRating.messages[rating.messageKey]);
 		// display process bar instead of error message
 		
-		return rating.rate > 2;
-	}, "&nbsp;");
+		return rating.rate > 0;
+	}, "");
 	// manually add class rule, to make username param optional
 	$.validator.classRuleSettings.password = { password: true };
 	

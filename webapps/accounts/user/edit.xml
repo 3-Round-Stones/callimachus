@@ -43,7 +43,7 @@
 					<tbody>
 						<tr>
 							<th>
-								<label for="label-input">Common name:</label>
+								<label for="label-input">Full name:</label>
 							</th>
 							<td data-cardinality="1">
 								<input id="label-input" property="rdfs:label" type="text" class="auto-expand required" />
@@ -86,8 +86,9 @@
 								<label for="password-input">Change password:</label>
 							</th>
 							<td>
-								<input id="password-input" type="password" class="password" />
+								<input id="password-input" type="password" class="password" onkeyup="$(this).valid()" />
 								<div class="password-meter">
+									<label for="password" class="password-meter-message" />
 									<div class="password-meter-bg">
 										<div class="password-meter-bar"></div>
 									</div>

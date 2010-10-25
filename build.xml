@@ -219,7 +219,7 @@
 		</java>
 	</target>
 
-	<target name="stop" depends="compile">
+	<target name="stop" depends="init">
 		<java classname="${main}" fork="true" resultproperty="ret">
 			<jvmarg line="${jvmargs}" />
 			<arg line="--stop --pid ${pid}" />

@@ -194,9 +194,11 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 			if (md5(expected).equals(response))
 				return row[0];
 		}
-		if (encoding)
+		if (encoding) {
 			logger.info("Passwords don't match for: {}", username);
-		logger.info("Missing password for: {}", username);
+		} else {
+			logger.info("Missing password for: {}", username);
+		}
 		return null;
 	}
 

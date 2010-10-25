@@ -3,6 +3,8 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
+(function($){
+
 $(document).ready(initForms);
 
 function initForms() {
@@ -14,14 +16,12 @@ function initForms() {
 
 function submitRDFForm(form) {
 	var form = $(form)
-	if (window.showRequest) {
-		showRequest()
-	}
+	form.triggerHandler("calli:submit")
 	try {
 		var added = readRDF(form)
 		var type = "application/rdf+xml"
 		var data = added.dump({format:"application/rdf+xml",serialize:true})
-		postData(location.href, type, data, function(data, textStatus, xhr) {
+		postData(form, location.href, type, data, function(data, textStatus, xhr) {
 			var uri = location.href
 			if (uri.indexOf('?') > 0) {
 				uri = uri.substring(0, uri.indexOf('?'))
@@ -36,19 +36,15 @@ function submitRDFForm(form) {
 			} else {
 				redirect = uri + "?view"
 			}
-			if (window.showPageLoading) {
-				showPageLoading()
-			}
-			if (window.diverted && form.hasClass("diverted")) {
-				location.replace(diverted(redirect, node))
+			form.triggerHandler("calli:redirect")
+			if (form.hasClass("diverted")) {
+				location.replace(window.calli.diverted(redirect, node))
 			} else {
 				location.replace(redirect)
 			}
 		})
 	} catch(e) {
-		if (window.showError) {
-			showError(e.description)
-		}
+		form.triggerHandler("calli:error", e.description)
 	}
 	return false
 }
@@ -75,16 +71,15 @@ function readRDF(form) {
 	return store
 }
 
-function postData(url, type, data, callback) {
+function postData(form, url, type, data, callback) {
 	var xhr = null
 	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, success: function(data, textStatus) {
-		if (window.showSuccess) {
-			showSuccess()
-		}
+		form.triggerHandler("calli:ok")
 		callback(data, textStatus, xhr)
 	}, error: function(xhr, textStatus, errorThrown) {
-		if (window.showError) {
-			showError(xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText)
-		}
+		form.triggerHandler("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
+
+})(jQuery)
+

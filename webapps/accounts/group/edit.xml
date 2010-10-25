@@ -83,7 +83,7 @@
 				</div>
 			</fieldset>
 			<fieldset>
-				<legend>Reason:</legend>
+				<legend>Reason</legend>
 				<input type="text" id="note" maxlength="140" class="auto-expand" />
 			</fieldset>
 			<button type="button" onclick="location.replace('?delete')">Delete</button>

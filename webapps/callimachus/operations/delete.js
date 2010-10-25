@@ -3,6 +3,8 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
+(function($){
+
 $(document).ready(initForms);
 
 function initForms() {
@@ -16,23 +18,25 @@ function initForms() {
 }
 
 function submitRDFForm(form) {
-	if (window.showRequest) {
-		showRequest()
-	}
+	form.triggerHandler("calli:submit")
 	try {
 		var added = readRDF(form)
 		var type = "application/rdf+xml"
 		var data = added.dump({format:"application/rdf+xml",serialize:true})
-		deleteData(location.href, type, data, function(data, textStatus, xhr) {
+		deleteData(form, location.href, type, data, function(data, textStatus, xhr) {
 			if (form.attr("data-redirect")) {
-				location.replace(form.attr("data-redirect"))
+				form.triggerHandler("calli:redirect")
+				var redirect = form.attr("data-redirect")
+				if (form.hasClass("diverted")) {
+					location.replace(window.calli.diverted(redirect, node))
+				} else {
+					location.replace(redirect)
+				}
 			}
 			form.remove();
 		})
 	} catch(e) {
-		if (window.showError) {
-			showError(e.description)
-		}
+		form.triggerHandler("calli:error", e.description)
 	}
 	return false
 }
@@ -63,7 +67,7 @@ function readRDF(form) {
 	return store
 }
 
-function deleteData(url, type, data, callback) {
+function deleteData(form, url, type, data, callback) {
 	var xhr = null
 	xhr = $.ajax({ type: "DELETE", url: url, contentType: type, data: data, beforeSend: function(xhr){
 		var etag = getEntityTag()
@@ -71,14 +75,10 @@ function deleteData(url, type, data, callback) {
 			xhr.setRequestHeader("If-Match", etag)
 		}
 	}, success: function(data, textStatus) {
-		if (window.showSuccess) {
-			showSuccess()
-		}
+		form.triggerHandler("calli:ok")
 		callback(data, textStatus, xhr)
 	}, error: function(xhr, textStatus, errorThrown) {
-		if (window.showError) {
-			showError(xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText)
-		}
+		form.triggerHandler("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
 
@@ -91,3 +91,6 @@ function getEntityTag() {
 	})
 	return etag
 }
+
+})(jQuery)
+

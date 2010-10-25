@@ -1,6 +1,9 @@
 // common.js
 
+(function($){
+
 if (window.addEventListener) {
+	window.addEventListener("DOMContentLoaded", divertLinks, false)
 	window.addEventListener("DOMContentLoaded", initWiki, false)
 	window.addEventListener("DOMContentLoaded", sortElements, false)
 	window.addEventListener("DOMContentLoaded", changeDateLocale, false)
@@ -12,6 +15,7 @@ if (window.addEventListener) {
 	window.addEventListener("keyup", targetAutoExpandTextArea, false)
 	window.addEventListener("paste", targetAutoExpandTextArea, false)
 } else {
+	window.attachEvent("onload", divertLinks)
 	window.attachEvent("onload", initWiki)
 	window.attachEvent("onload", changeDateLocale)
 	window.attachEvent("onload", sortElements)
@@ -21,6 +25,81 @@ if (window.addEventListener) {
 	document.attachEvent("onchange", targetAutoExpandTextArea)
 	document.attachEvent("onkeyup", targetAutoExpandTextArea)
 	document.attachEvent("onpaste", targetAutoExpandTextArea)
+}
+
+if (!window.calli) {
+	window.calli = {}
+}
+
+window.calli.diverted = function(url, node) {
+    var prefix = location.protocol + '//' + location.host + '/'
+    var scripts = document.getElementsByTagName("script")
+    for (var i = 0; i < scripts.length; i++) {
+    	var src = scripts[i].src
+    	if (src && src.indexOf("/diverted.js") == src.length - 12) {
+    		prefix = src.substring(0, src.indexOf('/', src.indexOf("://") + 3) + 1)
+    	} 
+    }
+    var path = 'diverted;'
+    if (url.indexOf(':') < 0) {
+        if (node && node.baseURIObject && node.baseURIObject.resolve) {
+            url = node.baseURIObject.resolve(url)
+        } else {
+            var a = document.createElement('a')
+            a.setAttribute('href', url)
+            if (a.href) {
+                url = a.href
+            }
+        }
+    } else if (url.indexOf(prefix) == 0) {
+    	return url
+    }
+    if (url.lastIndexOf('?') > 0) {
+        var uri = url.substring(0, url.lastIndexOf('?'))
+        var qs = url.substring(url.lastIndexOf('?'))
+        return prefix + path + encodeURIComponent(uri) + qs
+    }
+    return prefix + path + encodeURIComponent(url) + '?view'
+}
+
+window.calli.divertedLinkClicked = function(e) {
+	var target = e.target
+    if (!target) {
+    	target = e.srcElement
+    }
+	while (target && !target.href) {
+		target = target.parentNode
+	}
+	if (!target || !target.href || !target.ownerDocument)
+		return true;
+	if (e.preventDefault) {
+		e.preventDefault()
+	}
+	var win = target.ownerDocument
+	if (win.defaultView) {
+		win = win.defaultView
+	}
+	if (target.className.match(/\breplace\b/)) {
+		win.location.replace(window.calli.diverted(target.href, target))
+	} else {
+		win.location.href = window.calli.diverted(target.href, target)
+	}
+    return false
+}
+
+function divertLinks() {
+	var links = document.getElementsByTagName("a")
+	for (var i=0; i<links.length; i++) {
+		var link = links.item(i)
+		var css = link.className
+		if (css && css.match(/\bdiverted\b/)) {
+			if (link.attachEvent) {
+				link.attachEvent("onclick", window.calli.divertedLinkClicked)
+			} else {
+				link.addEventListener("click", window.calli.divertedLinkClicked, false)
+			}
+		}
+	}
 }
 
 function initWiki() {
@@ -253,3 +332,6 @@ function inputPromptTitle() {
 		}
 	}
 }
+
+})(jQuery)
+

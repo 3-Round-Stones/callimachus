@@ -51,11 +51,10 @@
 	obj:imports <../user/mail-password.xml>;
 	obj:imports <../../user/>;
 	obj:imports <../authority>;
-	obj:imports calli:name;
-	obj:imports calli:email;
 	obj:imports <java:org.openrdf.rio.rdfxml.RDFXMLParser>;
 	obj:imports <java:org.openrdf.rio.helpers.StatementCollector>;
 	obj:imports <java:org.openrdf.model.impl.LinkedHashModel>;
+	obj:imports <java:org.openrdf.model.impl.URIImpl>;
 	obj:imports <java:org.apache.commons.codec.digest.DigestUtils>;
 	obj:imports <java:java.util.Collections>;
 	obj:imports <java:java.io.ByteArrayInputStream>;
@@ -75,13 +74,13 @@
 		var parser = new RDFXMLParser();
 		parser.setRDFHandler(new StatementCollector(model));
 		parser.parse(new ByteArrayInputStream(byteArray), this.toString());
-		var id = model.filter(null, name.resource, null).objectLiteral().label;
-		var addr = model.filter(null, email.resource, null).objectLiteral().label;
+		var id = model.filter(null, new URIImpl("http://callimachusproject.org/rdf/2009/framework#name"), null, []).objectLiteral().label;
+		var addr = model.filter(null, new URIImpl("http://callimachusproject.org/rdf/2009/framework#email"), null, []).objectLiteral().label;
 		//# generate and save a password
 		var password = copy.generatePassword();
 		var token = id + ":" + authority.calliAuthName + ":" + password;
 		copy.calliAlgorithm = "MD5";
-		copy.calliEncoded = DigestUtils.md5(token.getBytes("UTF-8"));
+		copy.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));
 		//# email the password to the email address provided
 		var reader = mailPasswordXml.calliConstruct('view', copy);
 		try {

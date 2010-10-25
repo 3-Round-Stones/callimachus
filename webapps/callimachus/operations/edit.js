@@ -3,6 +3,8 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
+(function($){
+
 $(document).ready(initForms);
 
 function initForms() {
@@ -14,9 +16,7 @@ function initForms() {
 }
 
 function submitRDFForm(form, stored) {
-	if (window.showRequest) {
-		showRequest()
-	}
+	form.triggerHandler("calli:submit")
 	try {
 		var revised = readRDF(form)
 		var removed = stored.except(revised)
@@ -34,14 +34,12 @@ function submitRDFForm(form, stored) {
 				+ "\r\n--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
 				+ added.dump({format:"application/rdf+xml",serialize:true})
 				+ "\r\n--" + boundary + "--"
-		patchData(location.href, type, data, function(data, textStatus, xhr) {
+		patchData(form, location.href, type, data, function(data, textStatus, xhr) {
 			var uri = location.href
 			if (uri.indexOf('?') > 0) {
 				uri = uri.substring(0, uri.indexOf('?'))
 			}
-			if (window.showPageLoading) {
-				showPageLoading()
-			}
+			form.triggerHandler("calli:redirect")
 			var redirect = uri + "?view"
 			if (form.attr("data-redirect")) {
 				redirect = form.attr("data-redirect")
@@ -49,9 +47,7 @@ function submitRDFForm(form, stored) {
 			location.replace(redirect)
 		})
 	} catch(e) {
-		if (window.showError) {
-			showError(e.description)
-		}
+		form.triggerHandler("calli:error", e.description)
 	}
 	return false
 }
@@ -105,7 +101,7 @@ function addTriple(triple, store) {
 	return store.size() > size
 }
 
-function patchData(url, type, data, callback) {
+function patchData(form, url, type, data, callback) {
 	var xhr = null
 	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, beforeSend: function(xhr){
 		var etag = getEntityTag()
@@ -113,14 +109,10 @@ function patchData(url, type, data, callback) {
 			xhr.setRequestHeader("If-Match", etag)
 		}
 	}, success: function(data, textStatus) {
-		if (window.showSuccess) {
-			showSuccess()
-		}
+		form.triggerHandler("calli:ok")
 		callback(data, textStatus, xhr)
 	}, error: function(xhr, textStatus, errorThrown) {
-		if (window.showError) {
-			showError(xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText)
-		}
+		form.triggerHandler("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
 
@@ -133,3 +125,6 @@ function getEntityTag() {
 	})
 	return etag
 }
+
+})(jQuery)
+

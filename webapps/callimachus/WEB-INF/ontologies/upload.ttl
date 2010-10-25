@@ -117,7 +117,7 @@ calli:delete-text-file rdfs:subClassOf obj:Message;
 	http:realm calli:nobody;
 	obj:script """
 		this['delete']();
-		objectConnection.removeDesignations(this,
+		objectConnection["removeDesignations(java.lang.Object,java.lang.String[])"](this,
 			["urn:mimetype:text/html", "urn:mimetype:text/css",
 			"urn:mimetype:text/javascript", "urn:mimetype:text/plain"]);
 	""".
@@ -171,7 +171,7 @@ calli:delete-file rdfs:subClassOf obj:Message;
 	http:realm calli:nobody;
 	obj:script """
 		this['delete']();
-		objectConnection.removeDesignations(this,
+		objectConnection["removeDesignations(java.lang.Object,java.lang.String[])"](this,
 			["urn:mimetype:image/png", "urn:mimetype:image/jpeg", "urn:mimetype:image/gif",
 			"urn:mimetype:image/vnd.microsoft.icon", "urn:mimetype:application/pdf"]);
 	""".

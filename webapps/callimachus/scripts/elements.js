@@ -3,6 +3,8 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
+(function($){
+
 var rdfnil = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
 
 $(document).ready(function () {
@@ -17,7 +19,7 @@ function initElements(form) {
 	initOptionElements(form)
 }
 
-function get(url, callback) {
+function get(node, url, callback) {
 	$.ajax({ url: url, success: function(data) {
 		if (window.showSuccess) {
 			showSuccess()
@@ -28,9 +30,7 @@ function get(url, callback) {
 			callback(data)
 		}
 	}, error: function(xhr, textStatus, errorThrown) {
-		if (window.showError) {
-			showError(xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText)
-		}
+		node.trigger("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
 
@@ -55,7 +55,7 @@ function createAddPropertyButtons(form) {
 			add.attr("data-property", property)
 			add.text("»")
 			add.click(function(){
-				get(parent.attr("data-more"), function(data) {
+				get(parent, parent.attr("data-more"), function(data) {
 					var input = $(data)
 					add.before(input)
 					input.each(initInputElement)
@@ -68,7 +68,7 @@ function createAddPropertyButtons(form) {
 		if (minOccurs) {
 			var n = parseInt(minOccurs) - count
 			for (var i=0; i<n; i++) {
-				get(parent.attr("data-more"), function(data) {
+				get(parent, parent.attr("data-more"), function(data) {
 					var input = $(data)
 					if (add) {
 						add.before(input)
@@ -173,7 +173,7 @@ function initOptionElements(form) {
 }
 
 function loadOptions(script, objects, selected, callback, refresh) {
-	get(script.attr("data-options"), function(data) {
+	get(script, script.attr("data-options"), function(data) {
 		var options = $(data).children()
 		var rel = script.attr("data-rel")
 		var inputs = $("input", options)
@@ -273,13 +273,13 @@ function initSetElements(form) {
 			add.attr("id", id)
 			add.text("»")
 			var suggest = list.attr("data-prompt")
-			var divert = window.diverted && list.hasClass("diverted")
+			var divert = list.hasClass("diverted")
 			if (divert) {
-				suggest = diverted(suggest, list.get(0))
+				suggest = window.calli.diverted(suggest, list.get(0))
 			}
-			var onsubmit = "listSearchResults('" + url + "'.replace('{searchTerms}', encodeURIComponent(document.getElementById('"
+			var onsubmit = "window.calli.listSearchResults('" + url + "'.replace('{searchTerms}', encodeURIComponent(document.getElementById('"
 			+ searchTerms + "').value)), '" + name + "', " + (divert ? "true" : "false") + ")"
-			var content = "<form action='' target='" + name + "' onsubmit=\"" + onsubmit + ";return false\">"
+			var content = "<form action='" +  url.replace('{searchTerms}', '') + "' target='" + name + "' onsubmit=\"" + onsubmit + ";return false\">"
 				+ "<div class='lookup'>"
 				+ "<a href='#' class='close' onclick=\"$('#"+id+"').qtip('hide');return false\">Х</a>"
 				+ "<a href='#' class='back' onclick=\"frames['" + name + "'].history.back();return false\">«</a>"
@@ -323,7 +323,7 @@ function createAddRelButtons(form) {
 			add.addClass("add")
 			add.text("»")
 			add.click(function(){
-				get(parent.attr("data-more"), function(data) {
+				get(parent, parent.attr("data-more"), function(data) {
 					var input = $(data)
 					add.before(input)
 					initElements(input)
@@ -335,7 +335,7 @@ function createAddRelButtons(form) {
 		if (minOccurs) {
 			var n = parseInt(minOccurs) - count
 			for (var i=0; i<n; i++) {
-				get(parent.attr("data-more"), function(data) {
+				get(parent, parent.attr("data-more"), function(data) {
 					var input = $(data)
 					if (add) {
 						add.before(input)
@@ -350,9 +350,12 @@ function createAddRelButtons(form) {
 	})
 }
 
-function listSearchResults(url, frame, divert) {
+if (!window.calli) {
+	window.calli = {}
+}
+window.calli.listSearchResults = function(url, frame, divert) {
 	frames[frame].location.href = "about:blank"
-	get(url, function(data) {
+	get($("iframe[name='" + frame + "']"), url, function(data) {
 		if (data) {
 			var result = $(data).children()
 			var ul = $("<ul/>")
@@ -360,8 +363,8 @@ function listSearchResults(url, frame, divert) {
 				var li = $("<li/>")
 				var link = $("<a/>")
 				link.attr("href", $(this).attr("about") + "?view")
-				if (divert && window.divertedLinkClicked) {
-					link.attr("onclick", "window.parent.divertedLinkClicked(event)")
+				if (divert) {
+					link.attr("onclick", "window.parent.calli.divertedLinkClicked(event)")
 				}
 				link.append($(this).text())
 				li.append(link)
@@ -518,7 +521,7 @@ function pasteURL(callback) {
 
 function addSetItem(uri, script) {
 	var url = script.attr("data-add").replace("{about}", encodeURIComponent(uri))
-	get(url, function(data) {
+	get(script, url, function(data) {
 		var input = data ? $(data) : data
 		if (input && input.is("[about='" + uri + "']")) {
 			if (script.children("button.add").size()) {
@@ -527,8 +530,8 @@ function addSetItem(uri, script) {
 				script.append(input)
 			}
 			input.each(initSetElement)
-		} else if (window.showError) {
-			showError("Invalid Relationship")
+		} else {
+			script.trigger("calli:error", "Invalid Relationship")
 		}
 	})
 }
@@ -559,7 +562,7 @@ function getIRIs(iri) {
 
 function addListItem(uri, list) {
 	var url = list.attr("data-member").replace("{about}", encodeURIComponent(uri))
-	get(url, function(data) {
+	get(list, url, function(data) {
 		var input = data ? $(data) : data
 		if (input && input.size()) {
 			var first = $("<div/>")
@@ -570,8 +573,8 @@ function addListItem(uri, list) {
 			list.append(first)
 			input.each(initListElement)
 			updateList(list)
-		} else if (window.showError) {
-			showError("Invalid Relationship")
+		} else {
+			list.trigger("calli:error", "Invalid Relationship")
 		}
 	})
 }
@@ -632,3 +635,6 @@ function textContent(node) {
 		return node.text // IE
 	return null
 }
+
+})(jQuery)
+

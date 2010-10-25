@@ -84,7 +84,6 @@
 			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js"></script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js"></script>
-			<script type="text/javascript" src="{$callimachus}/scripts/diverted.js"> </script>
 			<script type="text/javascript" src="{$layout}/template.js"> </script>
 			<xsl:if test="contains($mode, 'copy') or contains($mode, 'edit') or contains($mode, 'delete')">
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.qtip.js"> </script>
@@ -172,6 +171,10 @@
 				</xsl:if>
 			</ul>
 			<div id="content">
+				<div id="error-widget" class="ui-state-error ui-corner-all" style="padding: 1ex; margin: 1ex; display: none">
+					<div><span class="ui-icon ui-icon-alert" style="margin-right: 0.3em; float: left; "></span>
+					<strong>Alert:</strong><span id="error-message" style="padding: 0px 0.7em"> Sample ui-state-error style.</span></div>
+				</div>
 				<xsl:apply-templates select="*|comment()|text()" />
 				<div id="content-stop" />
 			</div>

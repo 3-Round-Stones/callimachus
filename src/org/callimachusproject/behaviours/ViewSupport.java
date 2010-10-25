@@ -159,7 +159,7 @@ public abstract class ViewSupport implements Template, RDFObject,
 		ObjectConnection con = getObjectConnection();
 		RDFEventReader rdf = new RDFStoreReader(query, con, uri);
 		rdf = new ReducedTripleReader(rdf);
-		if (uri != null) {
+		if (uri != null && element == null) {
 			IRI subj = tf.iri(uri);
 			rdf = new About(subj, rdf);
 			String label = getETag(uri);

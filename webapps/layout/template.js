@@ -1,5 +1,7 @@
 // template.js
 
+(function($){
+
 if (window.addEventListener) {
 	window.addEventListener("DOMContentLoaded", hideFluffIfInFrame, false)
 	window.addEventListener("DOMContentLoaded", getCredentials, false)
@@ -78,66 +80,65 @@ function getCredentials() {
 	req.send(null)
 }
 
-$(document).ready(initStatus);
-
 var formRequestCount = 0;
-function initStatus() {
+$(document).ready(function() {
 	$(window).unload(function (event) {
-		$("form[about]").addClass("wait")
+		$("body").addClass("wait")
 		formRequestCount++
 	})
-	$("form[about]").ajaxSend(function(event, xhr, options){
+	$("body").ajaxSend(function(event, xhr, options){
 		if (!$(this).hasClass("wait")) {
 			$(this).addClass("wait")
 		}
 		formRequestCount++
 	})
-	$("form[about]").ajaxComplete(function(event, xhr, options){
+	$("body").ajaxComplete(function(event, xhr, options){
 		formRequestCount--
 		if (formRequestCount < 1) {
 			$(this).removeClass("wait")
 			formRequestCount = 0
 		}
 	})
-}
-
-function showPageLoading() {
-	$("form[about]").addClass("wait")
-	formRequestCount++
-}
-
-function showRequest() {
-	$("#message").empty();
-	$('#message').trigger('status.calli', []);
-}
-
-function showSuccess() {
-	$("#message").empty();
-	$('#message').trigger('status.calli', []);
-}
-
-function showError(text, detail) {
-	var msg = $("#message")
-	if (msg.size()) {
-		msg.empty()
-		msg.text(text)
-		msg.addClass("error")
-		msg.focus()
-		if (detail && detail.indexOf('<') == 0) {
-			detail = $(detail).text()
+	var forms = $("form[about]")
+	forms.bind("calli:redirect", function() {
+		$("body").addClass("wait")
+		formRequestCount++
+	})
+	forms.bind("calli:submit", function() {
+		$("#error-widget").hide()
+		$("#error-message").empty()
+		$("#error-widget pre").remove()
+	})
+	forms.bind("calli:ok", function() {
+		$("#error-widget").hide()
+		$("#error-message").empty()
+		$("#error-widget pre").remove()
+	})
+	forms.bind("calli:error", function(event, text, detail) {
+		var msg = $("#error-message")
+		if (msg.size()) {
+			msg.empty()
+			msg.text(text)
+			$("#error-widget pre").remove()
+			$("#error-widget").show()
+			msg.focus()
+			if (detail && detail.indexOf('<') == 0) {
+				detail = $(detail).text()
+			}
+			if (detail) {
+				var pre = $("<pre/>")
+				pre.text(detail)
+				pre.hide()
+				$("#error-widget").append(pre)
+				msg.click(function() {
+					pre.toggle()
+				})
+			}
+		} else {
+			alert(text);
 		}
-		if (detail) {
-			var pre = $("<pre/>")
-			pre.text(detail)
-			pre.hide()
-			msg.append(pre)
-			msg.click(function() {
-				pre.toggle()
-			})
-		}
-        msg.trigger('status.calli', [text, detail]);
-	} else {
-		alert(text);
-	}
-}
+	})
+})
+
+})(jQuery)
 

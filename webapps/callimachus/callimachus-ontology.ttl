@@ -88,9 +88,6 @@ calli:Party a owl:Class;
 calli:NamedGraph a owl:Class;
 	rdfs:comment "Graph in the RDF store that can be retrieved remotely.".
 
-calli:SPARQLService a owl:Class;
-	rdfs:comment "Resource that can respond to SPARQL queries.".
-
 calli:MailSubmitter a owl:Class;
 	rdfs:comment "Resource capable of cooperating with a mail transfer agent for delivery of the mail".
 

@@ -1,0 +1,15 @@
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html>
+	<head>
+		<title>SPARQL Query</title>
+	</head>
+	<body>
+		<h1>SPARQL Query</h1>
+		<form action="/sparql" method="POST">
+			<textarea id="query" name="query" class="auto-expand required"></textarea>
+			<div>
+				<button type="submit">Evaluate Query</button>
+			</div>
+		</form>
+	</body>
+</html>

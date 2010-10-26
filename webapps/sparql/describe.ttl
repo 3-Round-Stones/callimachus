@@ -21,13 +21,26 @@
 @prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
-calli:describe rdfs:subClassOf obj:Message;
+calli:describe-rdfxml rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	http:title "RDF Describe";
 	http:rel "describedby";
 	http:operation "describe";
-	http:type "application/rdf+xml;q=0.5", "text/turtle;q=0.5";
+	http:type "application/rdf+xml;q=0.5";
+	obj:java """
+		if (getObjectConnection().hasStatement(getResource(), null, null))
+			return this;
+		return null;
+	""".
+
+calli:describe-turtle rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	http:title "RDF Describe";
+	http:rel "describedby";
+	http:operation "describe";
+	http:type "text/turtle;q=0.5";
 	obj:java """
 		if (getObjectConnection().hasStatement(getResource(), null, null))
 			return this;

@@ -1,0 +1,177 @@
+# 
+#    Copyright (c) 2010 Zepheira LLC, Some rights reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+</sparql> calli:maintainer </group/admin>.
+
+:evaluate-sparql rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	obj:imports <java:org.openrdf.query.QueryLanguage>;
+	obj:imports <java:org.openrdf.query.parser.QueryParserRegistry>;
+	obj:imports <java:org.openrdf.query.parser.ParsedBooleanQuery>;
+	obj:imports <java:org.openrdf.query.parser.ParsedGraphQuery>;
+	obj:imports <java:org.openrdf.query.parser.ParsedTupleQuery>;
+	obj:imports <java:org.openrdf.query.GraphQueryResult>;
+	obj:imports <java:org.openrdf.query.TupleQueryResult>;
+	obj:imports <java:org.apache.http.ProtocolVersion>;
+	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
+	obj:imports <java:org.openrdf.query.MalformedQueryException>;
+	obj:imports <java:org.openrdf.http.object.writers.AggregateWriter>;
+	obj:imports <java:org.openrdf.http.object.model.ReadableHttpEntityChannel>;
+	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	obj:script """
+		if (qry == null)
+			throw new BadRequest("Missing query");
+		try {
+			var mime;
+			var rs;
+			var reg = QueryParserRegistry.getInstance();
+			var parser = reg.get(QueryLanguage.SPARQL).getParser();
+			var base = getResource().stringValue();
+			var parsed = parser.parseQuery(qry, base);
+			var con = getObjectConnection();
+			if (parsed instanceof ParsedBooleanQuery) {
+				mime = "application/sparql-results+xml";
+				rs = con.prepareBooleanQuery(QueryLanguage.SPARQL, qry, base).evaluate();
+			} else if (parsed instanceof ParsedGraphQuery) {
+				mime = "application/rdf+xml";
+				rs = con.prepareGraphQuery(QueryLanguage.SPARQL, qry, base).evaluate();
+			} else if (parsed instanceof ParsedTupleQuery) {
+				mime = "application/sparql-results+xml";
+				rs = con.prepareTupleQuery(QueryLanguage.SPARQL, qry, base).evaluate();
+			} else {
+				throw new InternalServerError("Unknown query type: "
+						+ parsed.getClass());
+			}
+			var http11 = new ProtocolVersion("HTTP", 1, 1);
+			var resp = new BasicHttpResponse(http11, 200, "OK");
+			var of = con.getObjectFactory();
+			var type = rs.getClass();
+			var writer = AggregateWriter.getInstance();
+			var body = writer.write(mime, type, type, of, rs, base, null);
+			resp.setEntity(new ReadableHttpEntityChannel(mime, -1, body));
+			return resp;
+		} catch (e if e.javaException instanceof MalformedQueryException) {
+			throw new BadRequest(e.javaException.toString());
+		} catch (e if e.javaException instanceof java.lang.IllegalArgumentException) {
+			throw new BadRequest("Missing accept header: " + e.javaException.getMessage());
+		}
+	""".
+
+:evaluate-sparql-query a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :evaluate-sparql;
+	rdfs:range xsd:string;
+	obj:name "qry".
+
+# POST application/sparql-query
+:evaluate-post rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	http:method "POST";
+	http:type "message/x-response";
+	http:realm </accounts/authority>;
+	http:transform :sparql-transform;
+	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	obj:script """
+		if (query == null)
+			throw new BadRequest("Missing query body");
+		return evaluateSparql(new java.lang.String(query, "UTF-8"));
+	""".
+
+:evaluate-post-query a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :evaluate-post;
+	rdfs:range xsd:hexBinary;
+	http:type "application/sparql-query";
+	obj:name "query".
+
+# POST application/x-www-form-urlencoded
+:evaluate-form rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	http:method "POST";
+	http:type "message/x-response";
+	http:realm </accounts/authority>;
+	http:transform :sparql-transform;
+	obj:script """
+		if (map == null || !map.containsKey("query"))
+			throw new org.openrdf.http.object.exceptions.BadRequest("Missing query");
+		return evaluateSparql(map.get("query")[0]);
+	""".
+
+:evaluate-form-map a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :evaluate-form;
+	rdfs:range <java:java.util.Map>;
+	http:type "application/x-www-form-urlencoded";
+	obj:name "map".
+
+# GET query parameter
+:evaluate-get rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	http:method "GET";
+	http:type "message/x-response";
+	http:realm </accounts/authority>;
+	http:transform :sparql-transform;
+	http:cache-control "must-reevaluate";
+	obj:script "return evaluateSparql(query)".
+
+:evaluate-get-query a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :evaluate-get;
+	rdfs:range xsd:string;
+	http:parameter "query";
+	obj:name "query".
+
+# Transformers
+:sparql-transform rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.InputStream>];
+	http:type "application/xml";
+	http:transform :sparql-xsl;
+	obj:script "return msg.entity.content".
+
+:sparql-transform-message a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :sparql-transform;
+	rdfs:range <java:org.apache.http.HttpResponse>;
+	http:type "message/x-response";
+	obj:name "msg".
+
+:sparql-xsl rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.InputStream>];
+	http:type "application/xml";
+	http:transform </callimachus/layout.ttl#template-xsl>;
+	obj:xslt <sparql.xsl>.
+
+:sparql-xsl-xml a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :sparql-xsl;
+	rdfs:range <java:java.io.InputStream>;
+	http:type "application/xml".
+

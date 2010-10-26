@@ -86,10 +86,6 @@ a[href]:hover {
 	background-repeat: no-repeat;
 }
 
-#logo img {
-	border: none;
-}
-
 #nav {
 	list-style: none;
 	width: 10em;
@@ -285,7 +281,7 @@ label.error {
 	display: block;
 }
 
-input.error { outline: 2px ridge red; }
+input.error { border: 2px ridge red; }
 
 iframe {
 	border: none;

@@ -14,4 +14,3 @@ org.callimachusproject.behaviours.MailSubmitterSupport = http://callimachusproje
 org.callimachusproject.behaviours.PasswordGenerator = http://callimachusproject.org/rdf/2009/framework#Credential
 org.callimachusproject.behaviours.UniqueCredentialNameTrigger
 org.callimachusproject.behaviours.UniqueMemberNameTrigger
-org.callimachusproject.behaviours.SPARQLServiceSupport = http://callimachusproject.org/rdf/2009/framework#SPARQLService

@@ -10,7 +10,9 @@ $(document).ready(initForms);
 function initForms() {
 	$("form[about]").each(function(i, node) {
 		var form = $(node)
-		form.validate({submitHandler: submitRDFForm})
+		form.bind("calli:form", function() {
+			form.validate({submitHandler: submitRDFForm})
+		})
 	})
 }
 

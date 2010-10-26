@@ -11,7 +11,11 @@ function initForms() {
 	$("form[about]").each(function(i, node) {
 		var form = $(node)
 		var stored = readRDF(form)
-		form.validate({submitHandler: function() { submitRDFForm(form, stored)}})
+		form.bind("calli:form", function() {
+			form.validate({submitHandler: function() {
+				submitRDFForm(form, stored)
+			}})
+		})
 	})
 }
 

@@ -7,6 +7,8 @@
 
 var rdfnil = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
 
+var currentlyLoading = 0;
+
 $(document).ready(function () {
 	initElements($("form[about]"))
 })
@@ -17,20 +19,37 @@ function initElements(form) {
 	initListElements(form)
 	initInputRelElements(form)
 	initOptionElements(form)
+	callReady(form);
+}
+
+function callReady(node) {
+	if (!currentlyLoading) {
+		currentlyLoading++ // don't run this again
+		node.parents("form").triggerHandler("calli:form")
+	}
 }
 
 function get(node, url, callback) {
+	currentlyLoading++
 	$.ajax({ url: url, success: function(data) {
-		if (window.showSuccess) {
-			showSuccess()
-		}
-		if (typeof data == 'string' && data.match(/^\s*$/)) {
-			callback()
-		} else {
-			callback(data)
+		currentlyLoading--
+		node.parents("form").triggerHandler("calli:ok")
+		try {
+			if (typeof data == 'string' && data.match(/^\s*$/)) {
+				callback()
+			} else {
+				callback(data)
+			}
+		} finally {
+			callReady(node)
 		}
 	}, error: function(xhr, textStatus, errorThrown) {
-		node.trigger("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
+		currentlyLoading--
+		try {
+			node.parents("form").triggerHandler("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
+		} finally {
+			callReady(node)
+		}
 	}})
 }
 
@@ -531,7 +550,7 @@ function addSetItem(uri, script) {
 			}
 			input.each(initSetElement)
 		} else {
-			script.trigger("calli:error", "Invalid Relationship")
+			script.parents("form").triggerHandler("calli:error", "Invalid Relationship")
 		}
 	})
 }
@@ -574,7 +593,7 @@ function addListItem(uri, list) {
 			input.each(initListElement)
 			updateList(list)
 		} else {
-			list.trigger("calli:error", "Invalid Relationship")
+			list.parents("form").triggerHandler("calli:error", "Invalid Relationship")
 		}
 	})
 }

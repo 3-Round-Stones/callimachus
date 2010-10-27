@@ -89,7 +89,6 @@
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.qtip.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.validate.js"> </script>
-			<script type="text/javascript" src="{$callimachus}/scripts/elements.js"> </script>
 			<xsl:if test="contains($mode, 'copy')">
 			<script type="text/javascript" src="{$callimachus}/operations/copy.js"> </script>
 			</xsl:if>
@@ -99,6 +98,7 @@
 			<xsl:if test="contains($mode, 'delete')">
 			<script type="text/javascript" src="{$callimachus}/operations/delete.js"> </script>
 			</xsl:if>
+			<script type="text/javascript" src="{$callimachus}/scripts/elements.js"> </script>
 			</xsl:if>
 			<xsl:if test="//*[@class][contains(@class, 'wiki')]">
 			<script type="text/javascript" src="{$callimachus}/scripts/creole.js"> </script>

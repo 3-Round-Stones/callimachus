@@ -36,7 +36,7 @@ window.calli.diverted = function(url, node) {
     var scripts = document.getElementsByTagName("script")
     for (var i = 0; i < scripts.length; i++) {
     	var src = scripts[i].src
-    	if (src && src.indexOf("/diverted.js") == src.length - 12) {
+    	if (src && src.indexOf("/enhancements.js") == src.length - 12) {
     		prefix = src.substring(0, src.indexOf('/', src.indexOf("://") + 3) + 1)
     	} 
     }
@@ -51,15 +51,23 @@ window.calli.diverted = function(url, node) {
                 url = a.href
             }
         }
-    } else if (url.indexOf(prefix) == 0) {
-    	return url
     }
-    if (url.lastIndexOf('?') > 0) {
-        var uri = url.substring(0, url.lastIndexOf('?'))
-        var qs = url.substring(url.lastIndexOf('?'))
-        return prefix + path + encodeURIComponent(uri) + qs
-    }
-    return prefix + path + encodeURIComponent(url) + '?view'
+	if (url.indexOf(prefix) != 0 || url.indexOf('?') > 0 || url.indexOf('#') > 0) {
+		url = prefix + path + encodeURIComponent(url)
+	}
+	if ($(node).hasClass("view"))
+	    return url + '?view'
+	if ($(node).hasClass("copy"))
+	    return url + '?copy'
+	if ($(node).hasClass("edit"))
+	    return url + '?edit'
+	if ($(node).hasClass("delete"))
+	    return url + '?delete'
+	if ($(node).hasClass("history"))
+	    return url + '?history'
+	if ($(node).hasClass("describe"))
+	    return url + '?describe'
+	return url
 }
 
 window.calli.divertedLinkClicked = function(e) {

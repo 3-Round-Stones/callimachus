@@ -113,14 +113,14 @@
 			<div id="header">
 				<form method="GET" action="{$callimachus}/go">
 					<a id="login-link" href="{$accounts}/authority?login" style="display:none">Login</a>
-					<span id="authenticated-span" style="display:none">
+					<span class="authenticated" id="authenticated-links" style="display:none">
 						<a id="authenticated-link" href="{$accounts}/authority?authenticated"></a>
 						<span> | </span>
 						<a href="?edit">Settings</a>
 						<span> | </span>
 						<a href="?contributions">Contributions</a>
 						<span> | </span>
-						<a href="{$accounts}/authority?logout">Logout</a>
+						<a id="logout-link" href="{$accounts}/authority?logout">Logout</a>
 					</span>
 					<span id="search-box">
 						<input id="search-box-input" type="text" size="10" name="q" title="Lookup..." />
@@ -135,35 +135,35 @@
 				<xsl:apply-templates mode="nav" select="document(concat($callimachus, '/menu'))" />
 			</div>
 
-			<ul id="tabs" class="tabs">
+			<ul id="tabs">
 				<xsl:if test="contains($mode, 'view')">
-					<li>
+					<li class="authenticated">
 						<span>View</span>
 					</li>
-					<li>
-						<a class="diverted replace" href="?edit">Edit</a>
+					<li class="authenticated">
+						<a class="diverted replace edit" href="">Edit</a>
 					</li>
-					<li>
-						<a class="diverted replace" href="?history">History</a>
+					<li class="authenticated">
+						<a class="diverted replace history" href="">History</a>
 					</li>
 				</xsl:if>
 				<xsl:if test="contains($mode, 'edit')">
 					<li>
-						<a class="diverted replace" href="?view">View</a>
+						<a class="diverted replace view" href="">View</a>
 					</li>
 					<li>
 						<span>Edit</span>
 					</li>
 					<li>
-						<a class="diverted replace" href="?history">History</a>
+						<a class="diverted replace history" href="">History</a>
 					</li>
 				</xsl:if>
 				<xsl:if test="contains($mode, 'history')">
 					<li>
-						<a class="diverted replace" href="?view">View</a>
+						<a class="diverted replace view" href="">View</a>
 					</li>
 					<li>
-						<a class="diverted replace" href="?edit">Edit</a>
+						<a class="diverted replace edit" href="">Edit</a>
 					</li>
 					<li>
 						<span>History</span>

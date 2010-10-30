@@ -3,6 +3,7 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sparql="http://www.w3.org/2005/sparql-results#">
 	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:param name="xslt" />
+	<xsl:param name="this" />
 	<xsl:variable name="host" select="substring-before(substring-after($xslt, '://'), '/')" />
 	<xsl:template name="substring-after-last">
 		<xsl:param name="string"/>
@@ -20,6 +21,7 @@
 	<xsl:template match="/">
 		<html>
 			<head>
+				<base href="{$this}" />
 				<title><xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='label']/*" /></title>
 			</head>
 			<body>

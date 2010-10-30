@@ -109,17 +109,29 @@ audit:Transaction http:realm <authority>.
 	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
 	obj:script """
 		var ver = new ProtocolVersion("HTTP", 1, 1);
-		var resp = new BasicHttpResponse(ver, 303, "See Other");
-		var credential = findCredential(authorization);
-		if (credential == null) {
-			resp.setHeader("Location", this + "?login");
+		if (!authorization) { //# the browser must send invalid credentials to logout
+			var resp = new BasicHttpResponse(ver, 401, "Unauthorized");
+			var hd = 'Digest realm="' + calliAuthName + '", domain="' + protectionDomain()
+				+ '", nonce="invalid", algorithm="MD5", qop="auth,auth-int"';
+			resp.setHeader('WWW-Authenticate', hd);
 			return resp;
 		}
-		if (from == null) {
+		var resp = new BasicHttpResponse(ver, 303, "See Other");
+		var credential = findCredential(authorization);
+		if (!credential && referer) { //# invalid credentials recieved
+			resp.setHeader("Location", referer);
+			return resp;
+		} else if (!credential) { //# invalid credentials received
+			resp.setHeader("Location", "/");
+			return resp;
+		}
+		if (from == null) { //# valid credentials, still need to logout
 			resp.setHeader("Location", this + "?logout&from=" + credential);
-		} else if (from.equals(credential)) {
+		} else if (from.equals(credential)) { //# no longer accepted
 			return unauthorized(from);
-		} else {
+		} else if (referer) { //# logged in using a different account
+			resp.setHeader("Location", referer)
+		} else { //# logged in using a different account
 			resp.setHeader("Location", credential.toString())
 		}
 		return resp;
@@ -130,6 +142,12 @@ audit:Transaction http:realm <authority>.
 	rdfs:range xsd:string;
 	http:header "Authorization";
 	obj:name "authorization".
+
+:logout-referer a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :logout;
+	rdfs:range xsd:string;
+	http:header "Referer";
+	obj:name "referer".
 
 :logout-user a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :logout;

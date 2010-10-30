@@ -58,23 +58,29 @@ function getCredentials() {
 			var link = document.getElementById("authenticated-link")
 			link.textContent = title
 			link.innerText = title
-			var links = document.getElementById("authenticated-span").getElementsByTagName("a")
+			var links = document.getElementById("authenticated-links").getElementsByTagName("a")
 			for (var i=0; i<links.length; i++) {
 				if (links[i].getAttribute("href").indexOf("?") == 0) {
 					links[i].setAttribute("href", url + links[i].getAttribute("href"))
 				}
 			}
-			document.getElementById("login-link").style.display = "none"
-			document.getElementById("authenticated-span").style.display = "inline"
-		} else if (req.readyState == 4) {
-			document.getElementById("login-link").style.display = "inline"
-			document.getElementById("authenticated-span").style.display = "none"
-			var tabs = document.getElementById("tabs").childNodes;
-			for (var i = 0; i < tabs.length; i++) {
-				if (tabs[i].style) {
-					tabs[i].style.display = "none"
+			$("#login-link").hide()
+			$(".authenticated").show()
+			$("#logout-link").click(function(event) {
+				$.ajax({ type: 'GET', url: this.href,
+					username: 'logout', password: 'nil',
+					complete: function() {
+						document.location = '/'
+					}
+				})
+				if (event.preventDefault) {
+					event.preventDefault()
 				}
-			}
+				return false
+			})
+		} else if (req.readyState == 4) {
+			$("#login-link").show()
+			$(".authenticated").hide()
 		}
 	}
 	req.send(null)

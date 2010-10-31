@@ -46,92 +46,126 @@ function hideSiblings(node) {
 }
 
 function getCredentials() {
-	var auth = document.getElementById("authenticated-link").href
-	var req = new XMLHttpRequest()
-	req.open("GET", auth, true)
-	req.withCredentials = true
-	req.onreadystatechange = function() {
-		if (req.readyState == 4 && req.status==200) {
-			var doc = req.responseText
-			var url = /<base[^>]*href="?([^" >]*)"?[^>"]*>/i.exec(doc)[1]
-			var title = /<title[^>]*>([^<]*)<\/title>/i.exec(doc)[1]
-			var link = document.getElementById("authenticated-link")
-			link.textContent = title
-			link.innerText = title
-			var links = document.getElementById("authenticated-links").getElementsByTagName("a")
-			for (var i=0; i<links.length; i++) {
-				if (links[i].getAttribute("href").indexOf("?") == 0) {
-					links[i].setAttribute("href", url + links[i].getAttribute("href"))
-				}
+	var options = {type: "GET",
+		complete: function(req) {
+			if (req.status < 300 ) {
+				loggedIn(req)
+			} else {
+				loggedOut(req)
 			}
-			$(".authenticated").show()
-			$("#logout-link").click(function(event) {
-				jQuery.ajax({ type: 'GET', url: this.href,
-					username: 'logout', password: 'nil',
-					complete: function() {
-						document.location.reload()
-					}
-				})
-				localStorage.removeItem('login')
-				if (event.preventDefault) {
-					event.preventDefault()
-				}
-				return false
-			}) 
-		} else if (req.readyState == 4) {
-			$(".authenticated").hide()
-			$("#login-link").show()
-			$("#login-link").click(function(event) {
-				if ($("#login-form").is(":hidden")) {
-					$(this).removeClass('ui-corner-all')
-					$(this).addClass('ui-corner-top')
-					$(this).addClass('ui-state-active')
-					$(this).css('padding-bottom', '0.4em')
-					$(this).css('border-bottom-width', '0px')
-					$("#login-form").slideDown()
-					$(this).css('top', '1px')
-					$(this).children(".ui-icon").removeClass('ui-icon-circle-arrow-s')
-					$(this).children(".ui-icon").addClass('ui-icon-circle-arrow-n')
-					$("#login-form input:first").focus()
-				} else {
-					$("#login-overlay").fadeOut()
-					$("#login-form").slideUp()
-					$(this).children(".ui-icon").removeClass('ui-icon-circle-arrow-n')
-					$(this).children(".ui-icon").addClass('ui-icon-circle-arrow-s')
-					$(this).removeClass('ui-corner-top')
-					$(this).removeClass('ui-state-active')
-					$(this).addClass('ui-corner-all')
-					$(this).css('border-bottom-width', null)
-					$(this).css('padding-bottom', '0.2em')
-					$(this).css('top', null)
-					localStorage.removeItem('login')
-				}
-				if (event.preventDefault) {
-					event.preventDefault()
-				}
-				return false
-			})
-			$("#login-form").submit(function() {
-				jQuery.ajax({ type: 'GET', url: $("#login-link").get(0).href,
-					username: this.elements['username'].value,
-					password: this.elements['password'].value,
-					complete: function() {
-						document.location.reload()
-					}
-				})
-				localStorage.setItem('login', this.elements['username'].value)
-				if (event.preventDefault) {
-					event.preventDefault()
-				}
-				return false
-			})
-			if (localStorage.getItem('login')) {
-				$("#login-overlay").fadeIn()
-				$("#login-link").click()
-			}
+		},
+		beforeSend: function(req) {
+			req.withCredentials = true
 		}
 	}
-	req.send(null)
+	var auth = localStorage.getItem('Authorization')
+	if (auth && auth.indexOf("Basic ") == 0) {
+		var up = window.atob(auth.substring("Basic ".length))
+		options.url = document.getElementById("welcome-link").href
+		options.username = up.substring(0, up.indexOf(':'))
+		options.password = up.substring(up.indexOf(':') + 1)
+	} else if (auth && auth.indexOf("Credentials ") == 0) {
+		var up = auth.substring("Credentials ".length)
+		options.url = document.getElementById("welcome-link").href
+		options.username = up.substring(0, up.indexOf(':'))
+		options.password = up.substring(up.indexOf(':') + 1)
+	} else {
+		options.url = document.getElementById("authenticated-link").href
+	}
+	jQuery.ajax(options)
+}
+
+function loggedIn(req) {
+	var doc = req.responseText
+	var url = /<base[^>]*href="?([^" >]*)"?[^>"]*>/i.exec(doc)[1]
+	var title = /<title[^>]*>([^<]*)<\/title>/i.exec(doc)[1]
+	var link = document.getElementById("welcome-link")
+	link.textContent = title
+	link.innerText = title
+	var links = document.getElementById("authenticated-links").getElementsByTagName("a")
+	for (var i=0; i<links.length; i++) {
+		if (links[i].getAttribute("href").indexOf("?") == 0) {
+			links[i].setAttribute("href", url + links[i].getAttribute("href"))
+		}
+	}
+	$(".authenticated").show()
+	$("#logout-link").click(function(event) {
+		jQuery.ajax({ type: 'GET', url: this.href,
+			username: 'logout', password: 'nil',
+			complete: function() {
+				document.location.reload()
+			}
+		})
+		localStorage.removeItem('Authorization')
+		if (event.preventDefault) {
+			event.preventDefault()
+		}
+		return false
+	}) 
+}
+
+function loggedOut() {
+	$(".authenticated").hide()
+	$("#login-link").show()
+	$("#login-link").click(function(event) {
+		if ($("#login-form").is(":hidden")) {
+			$(this).removeClass('ui-corner-all')
+			$(this).addClass('ui-corner-top')
+			$(this).addClass('ui-state-active')
+			$(this).css('padding-bottom', '0.4em')
+			$(this).css('border-bottom-width', '0px')
+			$("#login-form").slideDown()
+			$(this).css('top', '1px')
+			$(this).children(".ui-icon").removeClass('ui-icon-circle-arrow-s')
+			$(this).children(".ui-icon").addClass('ui-icon-circle-arrow-n')
+			$("#login-form input:first").focus()
+		} else {
+			$("#login-overlay").fadeOut()
+			$("#login-form").slideUp()
+			$(this).children(".ui-icon").removeClass('ui-icon-circle-arrow-n')
+			$(this).children(".ui-icon").addClass('ui-icon-circle-arrow-s')
+			$(this).removeClass('ui-corner-top')
+			$(this).removeClass('ui-state-active')
+			$(this).addClass('ui-corner-all')
+			$(this).css('border-bottom-width', null)
+			$(this).css('padding-bottom', '0.2em')
+			$(this).css('top', null)
+			localStorage.removeItem('Authorization')
+		}
+		if (event.preventDefault) {
+			event.preventDefault()
+		}
+		return false
+	})
+	$("#login-form").submit(function(event) {
+		var username = this.elements['username'].value
+		var password = this.elements['password'].value
+		jQuery.ajax({ type: 'GET', url: $("#login-link").get(0).href,
+			username: username,
+			password: password,
+			complete: function() {
+				document.location.reload()
+			}
+		})
+		var auth = "Name " + username
+		if (this.elements['remember'].checked) {
+			auth = username + ":" + password
+			if (window.btoa) {
+				auth = "Basic " + window.btoa(auth)
+			} else {
+				auth = "Credentials " + auth
+			}
+		}
+		localStorage.setItem('Authorization', auth)
+		if (event.preventDefault) {
+			event.preventDefault()
+		}
+		return false
+	})
+	if (localStorage.getItem('Authorization')) {
+		$("#login-overlay").fadeIn()
+		$("#login-link").click()
+	}
 }
 
 var formRequestCount = 0;

@@ -131,8 +131,10 @@
 						<input type="password" id="login-password" name="password" size="15" />
 					</p>
 
-					<p class="login">
+					<p class="remember">
 						<button type="submit">Login</button>
+						<input type="checkbox" id="remember" name="remember" />
+						<label for="remember">Remember me</label>
 					</p>
 
 					<p class="forgot">
@@ -141,6 +143,7 @@
 				</form>
 				<span class="authenticated" id="authenticated-links" style="display:none">
 					<a id="authenticated-link" href="{$accounts}/authority?authenticated"></a>
+					<a id="welcome-link" href="{$accounts}/authority?welcome"></a>
 					<span> | </span>
 					<a href="?edit">Settings</a>
 					<span> | </span>

@@ -20,40 +20,50 @@ function initForms() {
 }
 
 function submitRDFForm(form, stored) {
-	form.triggerHandler("calli:submit")
-	try {
-		var revised = readRDF(form)
-		var removed = stored.except(revised)
-		var added = revised.except(stored)
-		removed.triples().each(function(){
-			addBoundedDescription(this, stored, removed, added)
-		})
-		added.triples().each(function(){
-			addBoundedDescription(this, revised, added, removed)
-		})
-		var boundary = "jeseditor-boundary"
-		var type = "multipart/related;boundary=" + boundary + ";type=\"application/rdf+xml\""
-		var data = "--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
-				+ removed.dump({format:"application/rdf+xml",serialize:true})
-				+ "\r\n--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
-				+ added.dump({format:"application/rdf+xml",serialize:true})
-				+ "\r\n--" + boundary + "--"
-		patchData(form, location.href, type, data, function(data, textStatus, xhr) {
-			var uri = location.href
-			if (uri.indexOf('?') > 0) {
-				uri = uri.substring(0, uri.indexOf('?'))
-			}
-			form.triggerHandler("calli:redirect")
-			var redirect = uri + "?view"
-			if (form.attr("data-redirect")) {
-				redirect = form.attr("data-redirect")
-			}
-			location.replace(redirect)
-		})
-	} catch(e) {
-		form.triggerHandler("calli:error", e.description)
+	var se = jQuery.Event("calli:submit");
+	form.trigger(se)
+	if (!se.isDefaultPrevented()) {
+		try {
+			var revised = readRDF(form)
+			var removed = stored.except(revised)
+			var added = revised.except(stored)
+			removed.triples().each(function(){
+				addBoundedDescription(this, stored, removed, added)
+			})
+			added.triples().each(function(){
+				addBoundedDescription(this, revised, added, removed)
+			})
+			var boundary = "jeseditor-boundary"
+			var type = "multipart/related;boundary=" + boundary + ";type=\"application/rdf+xml\""
+			var data = "--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
+					+ removed.dump({format:"application/rdf+xml",serialize:true})
+					+ "\r\n--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
+					+ added.dump({format:"application/rdf+xml",serialize:true})
+					+ "\r\n--" + boundary + "--"
+			patchData(form, location.href, type, data, function(data, textStatus, xhr) {
+				var redirect = location.href
+				if (redirect.indexOf('?') > 0) {
+					redirect = redirect.substring(0, uri.indexOf('?'))
+				}
+				if (form.attr("data-redirect")) {
+					redirect = form.attr("data-redirect")
+				}
+				var event = jQuery.Event("calli:redirect");
+				if (form.hasClass("diverted")) {
+					event.location = window.calli.diverted(redirect, form.get(0))
+				} else {
+					event.location = redirect
+				}
+				form.trigger(event)
+				if (!event.isDefaultPrevented()) {
+					location.replace(event.location);
+				}
+			})
+		} catch(e) {
+			form.trigger("calli:error", e.description)
+		}
+		return false
 	}
-	return false
 }
 
 function readRDF(form) {
@@ -113,10 +123,10 @@ function patchData(form, url, type, data, callback) {
 			xhr.setRequestHeader("If-Match", etag)
 		}
 	}, success: function(data, textStatus) {
-		form.triggerHandler("calli:ok")
+		form.trigger("calli:ok")
 		callback(data, textStatus, xhr)
 	}, error: function(xhr, textStatus, errorThrown) {
-		form.triggerHandler("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
+		form.trigger("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
 

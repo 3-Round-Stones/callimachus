@@ -18,27 +18,34 @@ function initForms() {
 }
 
 function submitRDFForm(form) {
-	form.triggerHandler("calli:submit")
-	try {
-		var added = readRDF(form)
-		var type = "application/rdf+xml"
-		var data = added.dump({format:"application/rdf+xml",serialize:true})
-		deleteData(form, location.href, type, data, function(data, textStatus, xhr) {
-			if (form.attr("data-redirect")) {
-				form.triggerHandler("calli:redirect")
-				var redirect = form.attr("data-redirect")
-				if (form.hasClass("diverted")) {
-					location.replace(window.calli.diverted(redirect, node))
-				} else {
-					location.replace(redirect)
+	var se = jQuery.Event("calli:submit");
+	form.trigger(se)
+	if (!se.isDefaultPrevented()) {
+		try {
+			var added = readRDF(form)
+			var type = "application/rdf+xml"
+			var data = added.dump({format:"application/rdf+xml",serialize:true})
+			deleteData(form, location.href, type, data, function(data, textStatus, xhr) {
+				if (form.attr("data-redirect")) {
+					var redirect = form.attr("data-redirect")
+					var event = jQuery.Event("calli:redirect");
+					if (form.hasClass("diverted")) {
+						event.location = window.calli.diverted(redirect, form.get(0))
+					} else {
+						event.location = redirect
+					}
+					form.trigger(event)
+					if (!event.isDefaultPrevented()) {
+						location.replace(event.location);
+					}
 				}
-			}
-			form.remove();
-		})
-	} catch(e) {
-		form.triggerHandler("calli:error", e.description)
+				form.remove();
+			})
+		} catch(e) {
+			form.trigger("calli:error", e.description)
+		}
+		return false
 	}
-	return false
 }
 
 function readRDF(form) {
@@ -75,10 +82,10 @@ function deleteData(form, url, type, data, callback) {
 			xhr.setRequestHeader("If-Match", etag)
 		}
 	}, success: function(data, textStatus) {
-		form.triggerHandler("calli:ok")
+		form.trigger("calli:ok")
 		callback(data, textStatus, xhr)
 	}, error: function(xhr, textStatus, errorThrown) {
-		form.triggerHandler("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
+		form.trigger("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
 

@@ -66,7 +66,7 @@ function getCredentials() {
 			}
 			$(".authenticated").show()
 			$("#logout-link").click(function(event) {
-				$.ajax({ type: 'GET', url: this.href,
+				jQuery.ajax({ type: 'GET', url: this.href,
 					username: 'logout', password: 'nil',
 					complete: function() {
 						document.location.reload()
@@ -112,7 +112,7 @@ function getCredentials() {
 				return false
 			})
 			$("#login-form").submit(function() {
-				$.ajax({ type: 'GET', url: $("#login-link").get(0).href,
+				jQuery.ajax({ type: 'GET', url: $("#login-link").get(0).href,
 					username: this.elements['username'].value,
 					password: this.elements['password'].value,
 					complete: function() {

@@ -13,7 +13,7 @@
 		<script>//<![CDATA[
 			function savePassword() {
 				var value = document.getElementById("password").value
-				var name = document.getElementById("userid").value
+				var name = document.getElementById("username").value
 				var realm = document.getElementById("realm-span")
 				realm = realm.getAttribute("resource") || realm.textContent || realm.innerText
 				var encoded = hex_md5(name + ':' + realm + ':' + value)
@@ -29,6 +29,14 @@
 					setTimeout(function() {savePassword(value)}, 500);
 				}
 			}
+			$(document).ready(function() {
+				$("form[about]").bind("calli:redirect", function(event) {
+					jQuery.ajax({ async: false, type: 'GET', url: event.location,
+						username: this.elements['username'].value,
+						password: this.elements['password'].value
+					})
+				})
+			});
 			// ]]>
 		</script>
 	</head>
@@ -55,10 +63,10 @@
 					<tbody>
 						<tr>
 							<th>
-								<label for="userid">Username:</label>
+								<label for="username">Username:</label>
 							</th>
 							<td data-cardinality="1">
-								<input id="userid" name="userid" property="calli:name" type="text" class="auto-expand"
+								<input id="username" name="username" property="calli:name" type="text" class="auto-expand"
 									onchange="$(form).attr('about', '../user/' + encodeURI(value).replace('%20','+'))" />
 							</td>
 						</tr>
@@ -75,7 +83,7 @@
 								<label for="password">Password:</label>
 							</th>
 							<td>
-								<input id="password" name="password" type="password" password="#userid" onkeyup="$(this).valid()" />
+								<input id="password" name="password" type="password" password="#username" onkeyup="$(this).valid()" />
 								<div class="password-meter">
 									<label for="password" class="password-meter-message" />
 									<div class="password-meter-bg">

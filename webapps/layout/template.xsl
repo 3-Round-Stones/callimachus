@@ -111,17 +111,44 @@
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
 			<div id="header">
-				<form method="GET" action="{$callimachus}/go">
-					<a id="login-link" href="{$accounts}/authority?login" style="display:none">Login</a>
-					<span class="authenticated" id="authenticated-links" style="display:none">
-						<a id="authenticated-link" href="{$accounts}/authority?authenticated"></a>
-						<span> | </span>
-						<a href="?edit">Settings</a>
-						<span> | </span>
-						<a href="?contributions">Contributions</a>
-						<span> | </span>
-						<a id="logout-link" href="{$accounts}/authority?logout">Logout</a>
+				<div id="login-overlay" style="display:none" class="ui-widget-overlay"></div>
+				<a class="ui-state-default ui-corner-all" id="login-link" href="{$accounts}/authority?login"
+						style="display:none;padding: .2em 20px .2em 1em;text-decoration: none;position: relative;">
+					<span>Login</span>
+					<span class="ui-icon ui-icon-circle-arrow-s"
+							style="margin: 0 0 0 5px;position: absolute;right: .2em;top: 50%;margin-top: -8px;">
+						<xsl:text> </xsl:text>
 					</span>
+				</a>
+				<form id="login-form" style="display:none;position:absolute;padding: 1em" class="ui-widget-content ui-corner-bottom">
+					<p class="textbox">
+						<label for="username">Username</label>
+						<input type="text" id="login-username" name="username" size="15" />
+					</p>
+
+					<p class="textbox">
+						<label for="password">Password</label>
+						<input type="password" id="login-password" name="password" size="15" />
+					</p>
+
+					<p class="login">
+						<button type="submit">Login</button>
+					</p>
+
+					<p class="forgot">
+						<a href="/accounts/unauthorized.xml">Forgot password or username?</a>
+					</p>
+				</form>
+				<span class="authenticated" id="authenticated-links" style="display:none">
+					<a id="authenticated-link" href="{$accounts}/authority?authenticated"></a>
+					<span> | </span>
+					<a href="?edit">Settings</a>
+					<span> | </span>
+					<a href="?contributions">Contributions</a>
+					<span> | </span>
+					<a id="logout-link" href="{$accounts}/authority?logout">Logout</a>
+				</span>
+				<form method="GET" action="{$callimachus}/go" style="display:inline">
 					<span id="search-box">
 						<input id="search-box-input" type="text" size="10" name="q" title="Lookup..." />
 						<button id="search-box-button" type="button" onclick="form.action='{$callimachus}/lookup';form.submit()">

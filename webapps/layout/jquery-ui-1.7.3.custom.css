@@ -49,7 +49,6 @@
 .ui-widget { font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif; font-size: 1em; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif; font-size: 1em; }
 .ui-widget-content { border: 1px solid #a8acb8; background: #ffffff url(images/ui-bg_flat_100_ffffff_40x100.png) 50% 50% repeat-x; color: #333333; }
-.ui-widget-content a { color: #333333; }
 .ui-widget-header { border: 1px solid #a8acb8; background: #dddddd url(images/ui-bg_highlight-soft_100_dddddd_1x100.png) 50% 50% repeat-x; color: #333333; font-weight: bold; }
 .ui-widget-header a { color: #333333; }
 

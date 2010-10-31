@@ -235,6 +235,10 @@ img.icon {
 	color: #3F547F;
 }
 
+.ui-datepicker {
+	font-size: small;
+}
+
 .drag-over {
 	cursor: copy;
 	background-color: #DDDDDD !important;

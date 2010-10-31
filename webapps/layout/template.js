@@ -64,23 +64,71 @@ function getCredentials() {
 					links[i].setAttribute("href", url + links[i].getAttribute("href"))
 				}
 			}
-			$("#login-link").hide()
 			$(".authenticated").show()
 			$("#logout-link").click(function(event) {
 				$.ajax({ type: 'GET', url: this.href,
 					username: 'logout', password: 'nil',
 					complete: function() {
-						document.location = '/'
+						document.location.reload()
 					}
 				})
+				localStorage.removeItem('login')
+				if (event.preventDefault) {
+					event.preventDefault()
+				}
+				return false
+			}) 
+		} else if (req.readyState == 4) {
+			$(".authenticated").hide()
+			$("#login-link").show()
+			$("#login-link").click(function(event) {
+				if ($("#login-form").is(":hidden")) {
+					$(this).removeClass('ui-corner-all')
+					$(this).addClass('ui-corner-top')
+					$(this).addClass('ui-state-active')
+					$(this).css('padding-bottom', '0.4em')
+					$(this).css('border-bottom-width', '0px')
+					$("#login-form").slideDown()
+					$(this).css('top', '1px')
+					$(this).children(".ui-icon").removeClass('ui-icon-circle-arrow-s')
+					$(this).children(".ui-icon").addClass('ui-icon-circle-arrow-n')
+					$("#login-form input:first").focus()
+				} else {
+					$("#login-overlay").fadeOut()
+					$("#login-form").slideUp()
+					$(this).children(".ui-icon").removeClass('ui-icon-circle-arrow-n')
+					$(this).children(".ui-icon").addClass('ui-icon-circle-arrow-s')
+					$(this).removeClass('ui-corner-top')
+					$(this).removeClass('ui-state-active')
+					$(this).addClass('ui-corner-all')
+					$(this).css('border-bottom-width', null)
+					$(this).css('padding-bottom', '0.2em')
+					$(this).css('top', null)
+					localStorage.removeItem('login')
+				}
 				if (event.preventDefault) {
 					event.preventDefault()
 				}
 				return false
 			})
-		} else if (req.readyState == 4) {
-			$("#login-link").show()
-			$(".authenticated").hide()
+			$("#login-form").submit(function() {
+				$.ajax({ type: 'GET', url: $("#login-link").get(0).href,
+					username: this.elements['username'].value,
+					password: this.elements['password'].value,
+					complete: function() {
+						document.location.reload()
+					}
+				})
+				localStorage.setItem('login', this.elements['username'].value)
+				if (event.preventDefault) {
+					event.preventDefault()
+				}
+				return false
+			})
+			if (localStorage.getItem('login')) {
+				$("#login-overlay").fadeIn()
+				$("#login-link").click()
+			}
 		}
 	}
 	req.send(null)

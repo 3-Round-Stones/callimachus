@@ -22,7 +22,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:describe-rdfxml rdfs:subClassOf obj:Message;
+:describe rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	http:title "RDF Describe";
@@ -35,4 +35,14 @@
 			return this;
 		return null;
 	""".
+
+:get-graph rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:NamedGraph];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom obj:GraphResult];
+	http:method "GET";
+	http:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+	http:transform <sparql.ttl#sparql-xsl>;
+	obj:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
 

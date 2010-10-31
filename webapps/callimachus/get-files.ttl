@@ -22,18 +22,6 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
 ################################
-# RDF Graph
-################################
-
-calli:get-graph rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:NamedGraph];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom obj:GraphResult];
-	http:method "GET";
-	obj:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
-
-################################
 # Text File
 ################################
 

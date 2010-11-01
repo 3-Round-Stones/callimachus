@@ -29,7 +29,7 @@ calli:started rdfs:subClassOf obj:Message;
 	http:method "POST";
 	http:operation "started";
 	http:realm calli:nobody;
-	obj:java "msg.proceed();".
+	obj:script "proceed()".
 
 calli:reloaded rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -39,7 +39,7 @@ calli:reloaded rdfs:subClassOf obj:Message;
 	http:method "POST";
 	http:operation "reloaded";
 	http:realm calli:nobody;
-	obj:java "msg.proceed();".
+	obj:script "proceed()".
 
 calli:stopping rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -49,4 +49,4 @@ calli:stopping rdfs:subClassOf obj:Message;
 	http:method "POST";
 	http:operation "stopping";
 	http:realm calli:nobody;
-	obj:java "msg.proceed();".
+	obj:script "proceed()".

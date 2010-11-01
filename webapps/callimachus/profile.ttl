@@ -1,0 +1,92 @@
+# 
+#    Copyright (c) 2010 James Leigh, Some rights reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+:get-profile rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:hasValue <profile>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
+	http:method "GET";
+	http:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+	http:transform :profile-xsl;
+	obj:imports <java:org.openrdf.model.impl.LinkedHashModel>;
+	obj:script """
+		var vf = objectConnection.valueFactory;
+		var xsd = "http://www.w3.org/2001/XMLSchema#";
+		var rdfa = "http://www.w3.org/ns/rdfa#";
+		var token = vf.createURI(xsd, "NMTOKEN");
+		var anyURI = vf.createURI(xsd, "anyURI");
+		var ns = resource + "#";
+		var namespaces = objectConnection.namespaces.asList();
+		var model = new LinkedHashModel();
+		for (var i = 0; i < namespaces.size(); i++) {
+			var prefix = namespaces.get(i).prefix;
+			var uri = namespaces.get(i).name;
+			var node = vf.createURI(ns, prefix);
+			model.setNamespace(prefix, uri);
+			model.add(node, vf.createURI(rdfa, "prefix"), vf.createLiteral(prefix, token), []);
+			model.add(node, vf.createURI(rdfa, "uri"), vf.createLiteral(uri, anyURI), []);
+		}
+		return model;
+	""".
+
+:post-profile rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <profile>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:hasValue <profile>];
+	http:method "POST";
+	http:expect "303-see-other";
+	obj:script """
+		var iter = form.entrySet().iterator();
+		while (iter.hasNext()) {
+			var entry = iter.next();
+			objectConnection.setNamespace(entry.key, entry.value[0]);
+		}
+		var namespaces = objectConnection.namespaces.asList();
+		for (var i = 0; i < namespaces.size(); i++) {
+			var prefix = namespaces.get(i).prefix;
+			if (!form.containsKey(prefix)) {
+				objectConnection.removeNamespace(prefix);
+			}
+		}
+		return this;
+	""".
+
+:post-profile-form a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :post-profile;
+	rdfs:range <java:java.util.Map>;
+	http:type "application/x-www-form-urlencoded";
+	obj:name "form".
+
+:profile-xsl rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.InputStream>];
+	http:type "application/xml";
+	http:transform </callimachus/layout.ttl#template-xsl>;
+	obj:xslt <profile.xsl>.
+
+:profile-xsl-xml a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :profile-xsl;
+	rdfs:range <java:java.io.InputStream>;
+	http:type "application/xml".
+

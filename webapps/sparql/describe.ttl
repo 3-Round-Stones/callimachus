@@ -31,7 +31,7 @@
 	http:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
 	http:transform <sparql.ttl#sparql-xsl>;
 	obj:script """
-		if (objectConnection.hasStatement(resource, null, null))
+		if (objectConnection.hasStatement(resource, null, null, []))
 			return this;
 		return null;
 	""".

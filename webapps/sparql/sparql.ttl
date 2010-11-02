@@ -46,22 +46,42 @@
 		if (qry == null)
 			throw new BadRequest("Missing query");
 		try {
+			var query;
+			var con = getObjectConnection();
+			if (qry.match(/PREFIX/i)) {
+				query = qry;
+			} else {
+				var sb = new java.lang.StringBuilder();
+				var namespaces = con.namespaces.asList();
+				for (var i = 0; i < namespaces.size(); i++) {
+					var prefix = namespaces.get(i).prefix;
+					var uri = namespaces.get(i).name;
+					if (qry.contains(prefix)) {
+						sb.append("PREFIX ").append(prefix);
+						sb.append(":<").append(uri).append(">\\n");
+					}
+				}
+				query = sb.append(qry).toString();
+			}
 			var mime;
 			var rs;
+			var type;
+			var base = getResource().stringValue();
 			var reg = QueryParserRegistry.getInstance();
 			var parser = reg.get(QueryLanguage.SPARQL).getParser();
-			var base = getResource().stringValue();
-			var parsed = parser.parseQuery(qry, base);
-			var con = getObjectConnection();
+			var parsed = parser.parseQuery(query, base);
 			if (parsed instanceof ParsedBooleanQuery) {
 				mime = "application/sparql-results+xml";
-				rs = con.prepareBooleanQuery(QueryLanguage.SPARQL, qry, base).evaluate();
+				rs = con.prepareBooleanQuery(QueryLanguage.SPARQL, query, base).evaluate();
+				type = java.lang.Boolean.TYPE;
 			} else if (parsed instanceof ParsedGraphQuery) {
 				mime = "application/rdf+xml";
-				rs = con.prepareGraphQuery(QueryLanguage.SPARQL, qry, base).evaluate();
+				rs = con.prepareGraphQuery(QueryLanguage.SPARQL, query, base).evaluate();
+				type = rs.getClass();
 			} else if (parsed instanceof ParsedTupleQuery) {
 				mime = "application/sparql-results+xml";
-				rs = con.prepareTupleQuery(QueryLanguage.SPARQL, qry, base).evaluate();
+				rs = con.prepareTupleQuery(QueryLanguage.SPARQL, query, base).evaluate();
+				type = rs.getClass();
 			} else {
 				throw new InternalServerError("Unknown query type: "
 						+ parsed.getClass());
@@ -69,7 +89,6 @@
 			var http11 = new ProtocolVersion("HTTP", 1, 1);
 			var resp = new BasicHttpResponse(http11, 200, "OK");
 			var of = con.getObjectFactory();
-			var type = rs.getClass();
 			var writer = AggregateWriter.getInstance();
 			var body = writer.write(mime, type, type, of, rs, base, null);
 			resp.setEntity(new ReadableHttpEntityChannel(mime, -1, body));

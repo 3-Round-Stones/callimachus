@@ -521,7 +521,10 @@ public class Server implements HTTPObjectAgentMXBean {
 			RDFHandlerException, GraphUtilException {
 		if (line.hasOption('r')) {
 			String url = line.getOptionValue('r');
-			return RepositoryProvider.getRepository(url);
+			Repository repository = RepositoryProvider.getRepository(url);
+			if (repository == null)
+				throw new RepositoryConfigException("Repository Not Setup at " + url);
+			return repository;
 		}
 		RepositoryManager manager = RepositoryProvider.getRepositoryManager(dir
 				.toURI().toASCIIString());

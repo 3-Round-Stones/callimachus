@@ -13,7 +13,7 @@
 				<h1>RDF Profile</h1>
 				<form method="POST" action="" autocomplete="off">
 					<xsl:apply-templates />
-					<button type="submit">Save</button>
+					<button type="submit" class="authenticated">Save</button>
 				</form>
 			</body>
 		</html>

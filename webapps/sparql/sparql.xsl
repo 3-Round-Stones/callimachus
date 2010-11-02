@@ -85,8 +85,7 @@
 	</xsl:template>
 	<xsl:template match="sparql:sparql">
 		<table id="sparql">
-			<xsl:apply-templates select="sparql:head[1]" />
-			<xsl:apply-templates select="sparql:results" />
+			<xsl:apply-templates select="*" />
 		</table>
 	</xsl:template>
 	<xsl:template match="sparql:head">

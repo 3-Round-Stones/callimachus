@@ -22,6 +22,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+<profile> calli:maintainer <../group/admin>.
+
 :get-profile rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:hasValue <profile>];
@@ -56,6 +58,7 @@
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:hasValue <profile>];
 	http:method "POST";
 	http:expect "303-see-other";
+	http:realm <../accounts/authority>;
 	obj:script """
 		var iter = form.entrySet().iterator();
 		while (iter.hasNext()) {

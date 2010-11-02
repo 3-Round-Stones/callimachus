@@ -8,7 +8,7 @@
 		<form action="/sparql" method="POST">
 			<textarea id="query" name="query" class="auto-expand required"></textarea>
 			<div>
-				<button type="submit">Evaluate Query</button>
+				<button type="submit" class="authenticated">Evaluate Query</button>
 			</div>
 		</form>
 	</body>

@@ -74,6 +74,7 @@ audit:Transaction http:realm <authority>.
 	http:operation "login";
 	http:realm <authority>;
 	http:expect "303-see-other";
+	http:type "text/uri-list";
 	obj:script "if (referer) return referer".
 
 :login-referer a owl:DatatypeProperty, owl:FunctionalProperty;
@@ -169,6 +170,8 @@ audit:Transaction http:realm <authority>.
 		owl:allValuesFrom calli:Credential];
 	http:operation "authenticated";
 	http:expect "303-see-other";
+	http:type "text/uri-list";
+	http:cache-control "max-age:3600";
 	obj:script "return findCredential(authorization)".
 
 :authenticated-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
@@ -191,6 +194,8 @@ audit:Transaction http:realm <authority>.
 	http:operation "welcome";
 	http:realm <authority>;
 	http:expect "303-see-other";
+	http:type "text/uri-list";
+	http:cache-control "max-age:3600";
 	obj:script "return findCredential(authorization)".
 
 :welcome-authorization a owl:DatatypeProperty, owl:FunctionalProperty;

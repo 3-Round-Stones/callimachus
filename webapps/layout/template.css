@@ -126,7 +126,7 @@ a[href]:hover {
 	margin: 0px 0px -1px 10em;
     padding: 1ex 3pt 0px 0px;
 	vertical-align: bottom;
-	min-height: 1.25em;
+	height: 1.25em;
 	line-height: 1.25em;
 	font-size: small;
 }

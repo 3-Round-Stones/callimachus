@@ -113,7 +113,7 @@ function divertLinks() {
 function initWiki() {
 	if (window.Parse) {
 		var creole = new Parse.Simple.Creole();
-		var wikis = document.querySelectorAll("pre.wiki")
+		var wikis = $("pre.wiki")
 		for (var i = 0; i < wikis.length; i++) {
 			var text = wikis[i].getAttribute("content") || wikis[i].textContent || wikis[i].innerText
 			var div = document.createElement("div")
@@ -129,7 +129,7 @@ function initWiki() {
 }
 
 function sortElements() {
-	var elements = document.querySelectorAll(".sorted")
+	var elements = $(".sorted")
 	for (var e = 0; e < elements.length; e++) {
 		var node = elements[e]
 		var nodes = node.childNodes
@@ -141,8 +141,8 @@ function sortElements() {
 			if (a.nodeType < b.nodeType) return -1
 			if (a.nodeType > b.nodeType) return 1
 			if (a.nodeType != 1) return 0
-			var a1 = a.querySelectorAll(".asc")
-			var a2 = b.querySelectorAll(".asc")
+			var a1 = $(a).find(".asc")
+			var a2 = $(b).find(".asc")
 			if (a1.length && a2.length) {
 				var s1 = a1[0].innerHTML.replace(/\s*<[^>]*>\s*/g, " ")
 				var s2 = a2[0].innerHTML.replace(/\s*<[^>]*>\s*/g, " ")
@@ -152,8 +152,8 @@ function sortElements() {
 				if (a1.length > a2.length) return -1
 				if (a1.length < a2.length) return 1
 			}
-			var d1 = a.querySelectorAll(".desc")
-			var d2 = b.querySelectorAll(".desc")
+			var d1 = $(a).find(".desc")
+			var d2 = $(b).find(".desc")
 			if (d1.length && d2.length) {
 				var s1 = d1[0].innerHTML.replace(/\s*<[^>]*>\s*/g, " ")
 				var s2 = d2[0].innerHTML.replace(/\s*<[^>]*>\s*/g, " ")
@@ -212,7 +212,7 @@ function changeDateLocale() {
 		return timestamp;
 	}
 	var now = new Date()
-	var dates = document.querySelectorAll(".date-locale")
+	var dates = $(".date-locale")
 	for (var i = 0; i < dates.length; i++) {
 		var text = dates[i].getAttribute("content") || dates[i].textContent || dates[i].innerText
 		try {
@@ -247,7 +247,7 @@ function changeDateLocale() {
 }
 
 function findAutoExpandTextArea() {
-	var areas = document.querySelectorAll(".auto-expand")
+	var areas = $(".auto-expand")
 	for (var i = 0; i < areas.length; i++) {
 		if (areas[i].type == "textarea" || areas[i].type == "text") {
 			expandTextArea(areas[i])

@@ -78,7 +78,7 @@
 	<xsl:template match="head">
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
-			<meta http-equiv="X-UA-Compatible" content="IE=8" />
+			<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 			<link rel="icon" href="{$layout}/favicon.png" />
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />

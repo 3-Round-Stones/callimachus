@@ -60,19 +60,20 @@ function getCredentials() {
 			} catch (e) {}
 		}
 	}
-	var auth = localStorage.getItem('Authorization')
-	if (auth && auth.indexOf("Basic ") == 0) {
-		var up = window.atob(auth.substring("Basic ".length))
-		options.url = document.getElementById("welcome-link").href
-		options.username = up.substring(0, up.indexOf(':'))
-		options.password = up.substring(up.indexOf(':') + 1)
-	} else if (auth && auth.indexOf("Credentials ") == 0) {
-		var up = auth.substring("Credentials ".length)
-		options.url = document.getElementById("welcome-link").href
-		options.username = up.substring(0, up.indexOf(':'))
-		options.password = up.substring(up.indexOf(':') + 1)
-	} else {
-		options.url = document.getElementById("authenticated-link").href
+	options.url = document.getElementById("authenticated-link").href
+	if (window.localStorage) {
+		var auth = localStorage.getItem('Authorization')
+		if (auth && auth.indexOf("Basic ") == 0) {
+			var up = window.atob(auth.substring("Basic ".length))
+			options.url = document.getElementById("welcome-link").href
+			options.username = up.substring(0, up.indexOf(':'))
+			options.password = up.substring(up.indexOf(':') + 1)
+		} else if (auth && auth.indexOf("Credentials ") == 0) {
+			var up = auth.substring("Credentials ".length)
+			options.url = document.getElementById("welcome-link").href
+			options.username = up.substring(0, up.indexOf(':'))
+			options.password = up.substring(up.indexOf(':') + 1)
+		}
 	}
 	jQuery.ajax(options)
 }
@@ -98,7 +99,9 @@ function loggedIn(req) {
 				document.location.reload()
 			}
 		})
-		localStorage.removeItem('Authorization')
+		if (window.localStorage) {
+			localStorage.removeItem('Authorization')
+		}
 		if (event.preventDefault) {
 			event.preventDefault()
 		}
@@ -134,7 +137,9 @@ function loggedOut() {
 			$(this).css('border-bottom-width', null)
 			$(this).css('padding-bottom', '0.2em')
 			$(this).css('top', null)
-			localStorage.removeItem('Authorization')
+			if (window.localStorage) {
+				localStorage.removeItem('Authorization')
+			}
 		}
 		if (event.preventDefault) {
 			event.preventDefault()
@@ -151,22 +156,24 @@ function loggedOut() {
 				document.location.reload()
 			}
 		})
-		var auth = "Name " + username
-		if (this.elements['remember'].checked) {
-			auth = username + ":" + password
-			if (window.btoa) {
-				auth = "Basic " + window.btoa(auth)
-			} else {
-				auth = "Credentials " + auth
+		if (window.localStorage) {
+			var auth = "Name " + username
+			if (this.elements['remember'].checked) {
+				auth = username + ":" + password
+				if (window.btoa) {
+					auth = "Basic " + window.btoa(auth)
+				} else {
+					auth = "Credentials " + auth
+				}
 			}
+			localStorage.setItem('Authorization', auth)
 		}
-		localStorage.setItem('Authorization', auth)
 		if (event.preventDefault) {
 			event.preventDefault()
 		}
 		return false
 	})
-	if (localStorage.getItem('Authorization')) {
+	if (window.localStorage && localStorage.getItem('Authorization')) {
 		$("#login-overlay").fadeIn()
 		$("#login-link").click()
 	}

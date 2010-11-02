@@ -110,13 +110,14 @@ function loggedOut() {
 	$(".authenticated").hide()
 	$("#login-link").show()
 	$("#login-link").click(function(event) {
-		if ($("#login-form").is(":hidden")) {
+		if ($("#login-form").get(0).style.display == 'none' ) {
 			$(this).removeClass('ui-corner-all')
 			$(this).addClass('ui-corner-top')
 			$(this).addClass('ui-state-active')
 			$(this).css('padding-bottom', '0.4em')
 			$(this).css('border-bottom-width', '0px')
 			$("#login-form").slideDown()
+			$("#login-form").show()
 			$(this).css('top', '1px')
 			$(this).children(".ui-icon").removeClass('ui-icon-circle-arrow-s')
 			$(this).children(".ui-icon").addClass('ui-icon-circle-arrow-n')
@@ -124,6 +125,7 @@ function loggedOut() {
 		} else {
 			$("#login-overlay").fadeOut()
 			$("#login-form").slideUp()
+			$("#login-form").hide()
 			$(this).children(".ui-icon").removeClass('ui-icon-circle-arrow-n')
 			$(this).children(".ui-icon").addClass('ui-icon-circle-arrow-s')
 			$(this).removeClass('ui-corner-top')

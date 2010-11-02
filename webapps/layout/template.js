@@ -55,7 +55,9 @@ function getCredentials() {
 			}
 		},
 		beforeSend: function(req) {
-			req.withCredentials = true
+			try {
+				req.withCredentials = true
+			} catch (e) {}
 		}
 	}
 	var auth = localStorage.getItem('Authorization')

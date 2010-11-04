@@ -15,6 +15,5 @@
 	calli:item [calli:position 10; rdfs:label "Toolbox";
 		calli:item [calli:position 1; rdfs:label "What links here"; calli:link "?what-links-here"];
 		calli:item [calli:position 2; rdfs:label "Related changes"; calli:link "?related-changes"];
-		calli:item [calli:position 3; rdfs:label "Print this page"; calli:link "javascript:printpage()"];
-		calli:item [calli:position 4; rdfs:label "Permanent link"; calli:link ""]].
+		calli:item [calli:position 3; rdfs:label "Print this page"; calli:link "javascript:printpage()"]].
 

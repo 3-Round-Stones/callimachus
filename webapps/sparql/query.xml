@@ -4,6 +4,20 @@
 		<title>SPARQL Query</title>
 	</head>
 	<body>
+		<ul class="aside">
+			<li>Query the database using the SPARQL language.</li>
+			<li>Namespace prefixes are optional and if omitted the default <a href="/callimachus/profile">SPARQL Profile</a> will be used.</li>
+			<li>Additional RDF graphs can be uploaded using the <a href="graph.xml?construct">RDF Graph Interface</a>.</li>
+			<li>To get started try listing some of the different types available in the database.
+<pre>
+SELECT DISTINCT ?type
+WHERE {
+  ?thing a ?type
+}
+ORDER BY ?type
+LIMIT 50
+</pre></li>
+		</ul>
 		<h1>SPARQL Query</h1>
 		<form action="/sparql" method="POST">
 			<textarea id="query" name="query" class="auto-expand required"></textarea>

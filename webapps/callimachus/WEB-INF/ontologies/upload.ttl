@@ -37,7 +37,9 @@ calli:put-graph rdfs:subClassOf obj:Message;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		objectConnection.addDesignation(this, NamedGraph);
+		if (!(this instanceof NamedGraph)) {
+			objectConnection.addDesignation(this, NamedGraph);
+		}
 		objectConnection.clear([getResource()]);
 		objectConnection.add(body, this.toString(), RDFFormat.forMIMEType(type), [getResource()]);
 	""".
@@ -82,6 +84,7 @@ calli:put-text-file rdfs:subClassOf obj:Message;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
+		objectConnection.removeDesignation(this, type);
 		objectConnection.addDesignation(this, type);
 		var read;
 		var cbuf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
@@ -136,6 +139,7 @@ calli:put-file rdfs:subClassOf obj:Message;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
+		objectConnection.removeDesignation(this, type);
 		objectConnection.addDesignation(this, type);
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
@@ -187,6 +191,7 @@ calli:put-xsl rdfs:subClassOf obj:Message;
 	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	obj:script """
+		objectConnection.removeDesignation(this, "urn:mimetype:text/xsl");
 		objectConnection.addDesignation(this, "urn:mimetype:text/xsl");
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
@@ -231,7 +236,10 @@ calli:put-template rdfs:subClassOf obj:Message;
 	obj:imports calli:Template;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	obj:script """
-		objectConnection.addDesignation(this, Template);
+		if (!(this instanceof Template)) {
+			objectConnection.addDesignation(this, Template);
+		}
+		objectConnection.removeDesignation(this, "urn:mimetype:application/xml");
 		objectConnection.addDesignation(this, "urn:mimetype:application/xml");
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);

@@ -48,7 +48,9 @@
 		var file = part.getInputStream();
 		var obj = objectConnection.getObject(uri);
 		objectConnection.clear([vf.createURI(uri)]);
-		objectConnection.addDesignation(obj, NamedGraph);
+		if (!(obj instanceof NamedGraph)) {
+			objectConnection.addDesignation(obj, NamedGraph);
+		}
 		objectConnection.add(file, uri, format, [vf.createURI(uri)]);
 		return uri;
 	""".

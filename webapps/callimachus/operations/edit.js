@@ -43,7 +43,7 @@ function submitRDFForm(form, stored) {
 			patchData(form, location.href, type, data, function(data, textStatus, xhr) {
 				var redirect = location.href
 				if (redirect.indexOf('?') > 0) {
-					redirect = redirect.substring(0, uri.indexOf('?'))
+					redirect = redirect.substring(0, redirect.indexOf('?'))
 				}
 				if (form.attr("data-redirect")) {
 					redirect = form.attr("data-redirect")

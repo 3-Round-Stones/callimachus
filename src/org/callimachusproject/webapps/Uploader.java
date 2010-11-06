@@ -68,6 +68,8 @@ import org.slf4j.LoggerFactory;
  */
 public class Uploader {
 
+	private static final String SUFFIX = "?calli:webapps";
+
 	public static boolean isHidden(File file) {
 		return file.isHidden() || file.getName().endsWith("~")
 				|| file.getName().startsWith(".")
@@ -387,7 +389,7 @@ public class Uploader {
 		String since = dateformat.format(new Date(modified));
 		BasicHttpEntityEnclosingRequest req;
 		notifyUploading(url, type);
-		req = new BasicHttpEntityEnclosingRequest("PUT", url);
+		req = new BasicHttpEntityEnclosingRequest("PUT", url + SUFFIX);
 		req.setHeader("Authorization", authorization);
 		if (conditional) {
 			req.setHeader("If-Unmodified-Since", since);
@@ -472,7 +474,7 @@ public class Uploader {
 		String since = dateformat.format(new Date(modified));
 		BasicHttpEntityEnclosingRequest req;
 		notifyUploading(url, type);
-		req = new BasicHttpEntityEnclosingRequest("PUT", url);
+		req = new BasicHttpEntityEnclosingRequest("PUT", url + SUFFIX);
 		req.setHeader("Authorization", authorization);
 		if (conditional) {
 			req.setHeader("If-Unmodified-Since", since);
@@ -569,7 +571,7 @@ public class Uploader {
 
 	private void deleteResource(String url, String filename) throws IOException {
 		notifyRemoving(url);
-		BasicHttpRequest req = new BasicHttpRequest("DELETE", url);
+		BasicHttpRequest req = new BasicHttpRequest("DELETE", url + SUFFIX);
 		req.setHeader("Authorization", authorization);
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		HttpResponse resp = client.service(proxy, req);

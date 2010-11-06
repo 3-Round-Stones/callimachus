@@ -7,15 +7,13 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Group> rdfs:subClassOf calli:Group, calli:Viewable, calli:Reviewable;
-	rdfs:subClassOf calli:Copyable, calli:Editable, calli:Deletable;
+<Group> rdfs:subClassOf calli:Group, calli:Viewable;
+	rdfs:subClassOf calli:Copyable, calli:Editable;
 	calli:icon <favicon.png>;
 	calli:withNamespace <../../group/>;
 	calli:view <view.xml>;
-	calli:review <review.xml>;
 	calli:copy <copy.xml>;
-	calli:edit <edit.xml>;
-	calli:delete <delete.xml>.
+	calli:edit <edit.xml>.
 
 # Adds new groups to the set of authenticating groups.
 # Called on group create

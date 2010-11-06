@@ -54,17 +54,19 @@ calli:authorize-maintainer owl:equivalentClass calli:authorize-credential;
 			{
 				$subject calli:reviewer $credential
 				FILTER ($method = "GET" || $method = "HEAD")
-				FILTER ($qs = "view" || $qs = "review" || !bound($qs))
+				FILTER ($qs = "view" || $qs = "history" || !bound($qs))
 			} UNION {
 				$subject calli:scribe $credential
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($qs = "copy")
 			} UNION {
 				$subject calli:curator $credential
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($qs = "copy")
 			} UNION {
 				$subject a [calli:conservator $credential]
-				FILTER ($method = "GET" || $method = "HEAD" || $qs = "edit")
-				FILTER ($qs = "view" || $qs = "review" || $qs = "edit" || !bound($qs))
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "edit")
+				FILTER ($qs = "view" || $qs = "history" || $qs = "edit" || !bound($qs))
 			} UNION {
 				$subject calli:maintainer $credential
 			}
@@ -78,17 +80,19 @@ calli:authorize-member owl:equivalentClass calli:authorize-credential;
 			{
 				$subject calli:reviewer ?group
 				FILTER ($method = "GET" || $method = "HEAD")
-				FILTER ($qs = "view" || $qs = "review" || !bound($qs))
+				FILTER ($qs = "view" || $qs = "history" || !bound($qs))
 			} UNION {
 				$subject calli:scribe ?group
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($qs = "copy")
 			} UNION {
 				$subject calli:curator ?group
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($qs = "copy")
 			} UNION {
 				$subject a [calli:conservator ?group]
-				FILTER ($method = "GET" || $method = "HEAD" || $qs = "edit")
-				FILTER ($qs = "view" || $qs = "review" || $qs = "edit" || !bound($qs))
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "edit")
+				FILTER ($qs = "view" || $qs = "history" || $qs = "edit" || !bound($qs))
 			} UNION {
 				$subject calli:maintainer ?group
 			}

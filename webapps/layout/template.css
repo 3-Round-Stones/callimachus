@@ -253,6 +253,10 @@ a.diverted {
 	cursor: alias;
 }
 
+a.replace, a.diverted.replace {
+	cursor: default;
+}
+
 form {
 	margin: 0px;
 }

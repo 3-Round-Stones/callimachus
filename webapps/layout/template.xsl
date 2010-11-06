@@ -85,7 +85,7 @@
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js"></script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js"></script>
 			<script type="text/javascript" src="{$layout}/template.js"> </script>
-			<xsl:if test="contains($mode, 'copy') or contains($mode, 'edit') or contains($mode, 'delete')">
+			<xsl:if test="contains($mode, 'copy') or contains($mode, 'edit') ">
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.qtip.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.validate.js"> </script>
@@ -94,9 +94,6 @@
 			</xsl:if>
 			<xsl:if test="contains($mode, 'edit')">
 			<script type="text/javascript" src="{$callimachus}/operations/edit.js"> </script>
-			</xsl:if>
-			<xsl:if test="contains($mode, 'delete')">
-			<script type="text/javascript" src="{$callimachus}/operations/delete.js"> </script>
 			</xsl:if>
 			<script type="text/javascript" src="{$callimachus}/scripts/elements.js"> </script>
 			</xsl:if>
@@ -174,6 +171,9 @@
 						<a class="diverted replace edit" href="">Edit</a>
 					</li>
 					<li class="authenticated">
+						<a class="diverted replace describe" href="">Describe</a>
+					</li>
+					<li class="authenticated">
 						<a class="diverted replace history" href="">History</a>
 					</li>
 				</xsl:if>
@@ -185,6 +185,23 @@
 						<span>Edit</span>
 					</li>
 					<li>
+						<a class="diverted replace describe" href="">Describe</a>
+					</li>
+					<li>
+						<a class="diverted replace history" href="">History</a>
+					</li>
+				</xsl:if>
+				<xsl:if test="contains($mode, 'describe')">
+					<li>
+						<a class="diverted replace view" href="">View</a>
+					</li>
+					<li>
+						<a class="diverted replace edit" href="">Edit</a>
+					</li>
+					<li>
+						<span>Describe</span>
+					</li>
+					<li>
 						<a class="diverted replace history" href="">History</a>
 					</li>
 				</xsl:if>
@@ -194,6 +211,9 @@
 					</li>
 					<li>
 						<a class="diverted replace edit" href="">Edit</a>
+					</li>
+					<li>
+						<a class="diverted replace describe" href="">Describe</a>
 					</li>
 					<li>
 						<span>History</span>

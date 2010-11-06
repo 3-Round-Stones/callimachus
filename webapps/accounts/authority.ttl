@@ -28,8 +28,8 @@ calli:get-copy http:realm <authority>.
 calli:post-copy http:realm <authority>.
 calli:get-edit http:realm <authority>.
 calli:post-edit http:realm <authority>.
-calli:get-delete http:realm <authority>.
-calli:post-delete http:realm <authority>.
+calli:delete http:realm <authority>.
+calli:describe http:realm <authority>.
 
 # Transcation operations must be authorized
 audit:Transaction http:realm <authority>.

@@ -140,5 +140,22 @@ function getEntityTag() {
 	return etag
 }
 
+if (!window.calli) {
+	window.calli = {};
+}
+window.calli.delete = function() {
+	var xhr = null
+	xhr = $.ajax({ type: "DELETE", url: location.pathname, beforeSend: function(xhr){
+		var etag = getEntityTag()
+		if (etag) {
+			xhr.setRequestHeader("If-Match", etag)
+		}
+	}, success: function(data, textStatus) {
+		history.go(-1) // TODO read a redirect location from page
+	}, error: function(xhr, textStatus, errorThrown) {
+		$("form[about]").trigger("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
+	}})
+}
+
 })(jQuery)
 

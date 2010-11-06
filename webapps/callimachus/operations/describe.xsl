@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 	<xsl:output method="xml" encoding="UTF-8"/>
-	<xsl:param name="xslt" select="'/sparql/sparql.xsl'" />
-	<xsl:variable name="sparql">
+	<xsl:param name="xslt" select="'/callimachus/operations/describe.xsl'" />
+	<xsl:param name="this" />
+	<xsl:variable name="operations">
 		<xsl:call-template name="substring-before-last">
 			<xsl:with-param name="string" select="$xslt"/>
 			<xsl:with-param name="delimiter" select="'/'"/>
 		</xsl:call-template>
 	</xsl:variable>
-	<xsl:variable name="origin">
+	<xsl:variable name="callimachus">
 		<xsl:call-template name="substring-before-last">
-			<xsl:with-param name="string" select="$layout" />
+			<xsl:with-param name="string" select="$operations"/>
 			<xsl:with-param name="delimiter" select="'/'"/>
 		</xsl:call-template>
 	</xsl:variable>
@@ -96,7 +96,7 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
-		<xsl:variable name="profile" select="document(concat($origin, '/callimachus/profile'))//*[@property='rdfa:uri' and @content=$namespace]" />
+		<xsl:variable name="profile" select="document(concat($callimachus, '/profile'))//*[@property='rdfa:uri' and @content=$namespace]" />
 		<xsl:if test="$namespace and $profile">
 			<xsl:value-of select="$profile/../*[@property='rdfa:prefix']" />
 			<xsl:text>:</xsl:text>
@@ -106,8 +106,8 @@
 	<xsl:template match="/">
 		<html>
 			<head>
-				<xsl:if test="/sparql:sparql">
-					<title>SPARQL Results</title>
+				<xsl:if test="$this">
+					<base href="{$this}" />
 				</xsl:if>
 				<xsl:if test="/rdf:RDF">
 					<title>RDF Graph</title>
@@ -119,20 +119,9 @@
 				</style>
 			</head>
 			<body>
-				<xsl:if test="/sparql:sparql">
-					<h1>SPARQL Results</h1>
-				</xsl:if>
-				<xsl:if test="/rdf:RDF">
-					<h1>RDF Graph</h1>
-				</xsl:if>
 				<xsl:choose>
-					<xsl:when test="/sparql:sparql/sparql:boolean">
-						<xsl:apply-templates />
-					</xsl:when>
-					<xsl:when test="/sparql:sparql/sparql:results/sparql:result">
-						<xsl:apply-templates />
-					</xsl:when>
 					<xsl:when test="/rdf:RDF">
+						<h1>RDF Graph</h1>
 						<xsl:apply-templates />
 					</xsl:when>
 					<xsl:otherwise>
@@ -141,72 +130,6 @@
 				</xsl:choose>
 			</body>
 		</html>
-	</xsl:template>
-	<xsl:template match="sparql:sparql">
-		<table id="sparql">
-			<xsl:apply-templates select="*" />
-		</table>
-	</xsl:template>
-	<xsl:template match="sparql:head">
-		<thead id="head">
-			<xsl:apply-templates select="sparql:variable" />
-		</thead>
-	</xsl:template>
-	<xsl:template match="sparql:variable">
-		<th>
-			<xsl:value-of select="@name" />
-		</th>
-	</xsl:template>
-	<xsl:template match="sparql:boolean">
-		<tbody id="boolean">
-			<tr>
-				<td>
-					<xsl:value-of select="text()" />
-				</td>
-			</tr>
-		</tbody>
-	</xsl:template>
-	<xsl:template match="sparql:results">
-		<tbody id="results">
-			<xsl:apply-templates select="sparql:result" />
-		</tbody>
-	</xsl:template>
-	<xsl:template match="sparql:result">
-		<xsl:variable name="current" select="."/> 
-		<tr class="result">
-			<xsl:for-each select="../../sparql:head[1]/sparql:variable">
-				<xsl:variable name="name" select="@name"/> 
-				<td>
-					<xsl:apply-templates select="$current/sparql:binding[@name=$name]" /> 
-				</td>
-			</xsl:for-each>
-		</tr>
-	</xsl:template>
-	<xsl:template match="sparql:binding">
-		<xsl:apply-templates select="*" />
-	</xsl:template>
-	<xsl:template match="sparql:uri">
-		<a href="{text()}" class="uri">
-			<xsl:call-template name="curie">
-				<xsl:with-param name="iri" select="text()"/>
-			</xsl:call-template>
-		</a>
-	</xsl:template>
-	<xsl:template match="sparql:bnode">
-		<a class="bnode" about="_:{text()}" name="{text()}">
-			<xsl:value-of select="text()" />
-		</a>
-	</xsl:template>
-	<xsl:template match="sparql:literal">
-		<span class="literal" title="@datatype" datatype="@datatype">
-			<xsl:value-of select="text()" />
-		</span>
-	</xsl:template>
-	<xsl:template
-		match="sparql:literal[@datatype='http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral']">
-		<span class="literal" datatype="rdf:XMLLiteral">
-			<xsl:value-of disable-output-escaping="yes" select="text()" />
-		</span>
 	</xsl:template>
 	<xsl:template match="rdf:RDF">
 		<div class="graph">

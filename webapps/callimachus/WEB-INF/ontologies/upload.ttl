@@ -25,23 +25,24 @@
 # RDF Graph
 ################################
 
+calli:NamedGraph a owl:Class.
+
 calli:put-graph rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
+	http:operation "calli:webapps";
 	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.rio.RDFFormat>;
 	obj:imports calli:NamedGraph;
 	obj:script """
+		calliWebappsDelete();
 		var type = contentType;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		if (!(this instanceof NamedGraph)) {
-			objectConnection.addDesignation(this, NamedGraph);
-		}
-		objectConnection.clear([getResource()]);
-		objectConnection.add(body, this.toString(), RDFFormat.forMIMEType(type), [getResource()]);
+		objectConnection.addDesignation(this, NamedGraph);
+		objectConnection.add(body, this.toString(), RDFFormat.forMIMEType(type), [resource]);
 	""".
 
 calli:put-graph-type a owl:DatatypeProperty; a owl:FunctionalProperty;
@@ -56,19 +57,6 @@ calli:put-graph-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	http:type "application/rdf+xml;q=0.1", "text/turtle;q=0.1", "application/x-turtle;q=0.1";
 	obj:name "body".
 
-calli:delete-graph rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:NamedGraph];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "DELETE";
-	http:realm calli:nobody;
-	obj:imports calli:NamedGraph;
-	obj:script """
-		objectConnection.removeDesignation(this, NamedGraph);
-		objectConnection.clear([getResource()]);
-	""".
-
 ################################
 # Text File
 ################################
@@ -77,14 +65,15 @@ calli:put-text-file rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
+	http:operation "calli:webapps";
 	http:realm calli:nobody;
 	obj:imports calli:Template;
 	obj:script """
+		calliWebappsDelete();
 		var type = "urn:mimetype:" + contentType;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		objectConnection.removeDesignation(this, type);
 		objectConnection.addDesignation(this, type);
 		var read;
 		var cbuf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
@@ -110,21 +99,6 @@ calli:put-text-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	http:type "text/html;q=0.1", "text/css;q=0.1", "text/javascript;q=0.1", "text/plain;q=0.1";
 	obj:name "body".
 
-calli:delete-text-file rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom [owl:unionOf (<urn:mimetype:text/html> <urn:mimetype:text/css>
-		<urn:mimetype:text/javascript> <urn:mimetype:text/plain>)]];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "DELETE";
-	http:realm calli:nobody;
-	obj:script """
-		this['delete']();
-		objectConnection["removeDesignations(java.lang.Object,java.lang.String[])"](this,
-			["urn:mimetype:text/html", "urn:mimetype:text/css",
-			"urn:mimetype:text/javascript", "urn:mimetype:text/plain"]);
-	""".
-
 ################################
 # Binary File
 ################################
@@ -133,13 +107,14 @@ calli:put-file rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
+	http:operation "calli:webapps";
 	http:realm calli:nobody;
 	obj:script """
+		calliWebappsDelete();
 		var type = "urn:mimetype:" + contentType;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		objectConnection.removeDesignation(this, type);
 		objectConnection.addDesignation(this, type);
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
@@ -165,21 +140,6 @@ calli:put-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	http:type "image/png;q=0.1", "image/jpeg;q=0.1", "image/gif;q=0.1", "image/vnd.microsoft.icon;q=0.1", "application/pdf;q=0.1";
 	obj:name "body".
 
-calli:delete-file rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom [owl:unionOf (<urn:mimetype:image/png> <urn:mimetype:image/jpeg>
-		<urn:mimetype:image/gif> <urn:mimetype:image/vnd.microsoft.icon> <urn:mimetype:application/pdf>)]];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "DELETE";
-	http:realm calli:nobody;
-	obj:script """
-		this['delete']();
-		objectConnection["removeDesignations(java.lang.Object,java.lang.String[])"](this,
-			["urn:mimetype:image/png", "urn:mimetype:image/jpeg", "urn:mimetype:image/gif",
-			"urn:mimetype:image/vnd.microsoft.icon", "urn:mimetype:application/pdf"]);
-	""".
-
 ################################
 # XSL File
 ################################
@@ -188,10 +148,11 @@ calli:put-xsl rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
+	http:operation "calli:webapps";
 	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	obj:script """
-		objectConnection.removeDesignation(this, "urn:mimetype:text/xsl");
+		calliWebappsDelete();
 		objectConnection.addDesignation(this, "urn:mimetype:text/xsl");
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
@@ -212,18 +173,6 @@ calli:put-xsl-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	http:type "text/xsl;q=0.1";
 	obj:name "body".
 
-calli:delete-xsl rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:text/xsl>];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "DELETE";
-	http:realm calli:nobody;
-	obj:script """
-		this['delete']();
-		objectConnection.removeDesignation(this, "urn:mimetype:text/xsl");
-	""".
-
 ################################
 # Template File
 ################################
@@ -232,14 +181,13 @@ calli:put-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
+	http:operation "calli:webapps";
 	http:realm calli:nobody;
 	obj:imports calli:Template;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	obj:script """
-		if (!(this instanceof Template)) {
-			objectConnection.addDesignation(this, Template);
-		}
-		objectConnection.removeDesignation(this, "urn:mimetype:application/xml");
+		calliWebappsDelete();
+		objectConnection.addDesignation(this, Template);
 		objectConnection.addDesignation(this, "urn:mimetype:application/xml");
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
@@ -260,15 +208,39 @@ calli:put-template-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	http:type "application/xml;q=0.1";
 	obj:name "body".
 
-calli:delete-template rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Template];
+################################
+# DELETE
+################################
+
+calli:webapps-delete rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
-	obj:imports calli:Template;
+	http:method "DELETE";
+	http:operation "calli:webapps";
+	http:realm calli:nobody;
+	obj:imports <java:org.openrdf.model.BNode>;
+	obj:imports <java:org.openrdf.model.URI>;
 	obj:script """
-		this['delete']();
-		objectConnection.removeDesignation(this, Template);
-		objectConnection.removeDesignation(this, "urn:mimetype:application/xml");
+		function removeTriples(subject) {
+			var stmts = objectConnection.getStatements(subject, null, null, []);
+			try {
+				while (stmts.hasNext()) {
+					var st = stmts.next();
+					if (st.object instanceof BNode) {
+						removeTriples(st.object);
+					} else if (st.object instanceof URI
+							&& st.object.stringValue().startsWith(subject.stringValue())
+							&& st.object.charAt(subject.stringValue().length()) == "#") {
+						removeTriples(st.object);
+					}
+					objectConnection.remove(st, []);
+				}
+			} finally {
+				stmts.close();
+			}
+		}
+		objectConnection.clear([resource]); //# clear graph
+		removeTriples(resource); //# follow blank and hash references
+		this['delete'](); //# remove document
 	""".
 

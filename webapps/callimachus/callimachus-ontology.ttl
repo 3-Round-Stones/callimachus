@@ -39,9 +39,6 @@ calli:Alias a owl:Class;
 calli:Copyable a owl:Class;
 	rdfs:comment "Resources that can be copied to create new resources.".
 
-calli:Deletable a owl:Class;
-	rdfs:comment "Resources that can be removed from the RDF store.".
-
 calli:Editable a owl:Class;
 	rdfs:comment "Resources that can be edited.".
 
@@ -97,9 +94,6 @@ calli:MailSubmitter a owl:Class;
 
 calli:copy a owl:AnnotationProperty;
 	rdfs:comment "The RDFa template used to copy this resource using a Web browser.".
-
-calli:delete a owl:AnnotationProperty;
-	rdfs:comment "The RDFa template used to remove this resource using a Web browser.".
 
 calli:edit a owl:AnnotationProperty;
 	rdfs:comment "The RDFa template used to edit this resource using a Web browser.".

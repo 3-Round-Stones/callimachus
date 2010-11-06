@@ -20,6 +20,21 @@
 @prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
 @prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+################################
+# RDF Graph
+################################
+
+:get-graph rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:NamedGraph];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom obj:GraphResult];
+	http:method "GET";
+	http:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+	http:transform <operations/describe.ttl#describe-xsl>;
+	obj:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
 
 ################################
 # Text File

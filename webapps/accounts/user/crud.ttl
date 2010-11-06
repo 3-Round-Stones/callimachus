@@ -8,21 +8,10 @@
 @prefix :<#>.
 
 <User> rdfs:subClassOf calli:User, calli:MailSubmitter;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Deletable;
+	rdfs:subClassOf calli:Viewable, calli:Editable;
 	calli:icon <favicon.png>;
 	calli:view <view.xml>;
-	calli:edit <edit.xml>;
-	calli:delete <delete.xml>.
-
-# Removes the user's password.
-# Called in user delete
-:post-user-delete owl:intersectionOf (calli:post-delete
-		[owl:onProperty obj:target; owl:allValuesFrom <User>]);
-	obj:script """
-		calliAlgorithm = null;
-		calliEncoded = null;
-		proceed();
-	""".
+	calli:edit <edit.xml>.
 
 # User operations must be authorized
 <User> http:realm <../authority>.

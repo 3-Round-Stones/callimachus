@@ -226,12 +226,14 @@ calli:webapps-delete rdfs:subClassOf obj:Message;
 			try {
 				while (stmts.hasNext()) {
 					var st = stmts.next();
-					if (st.object instanceof BNode) {
+					if (st.object instanceof BNode && !st.object.equals(subject)) {
 						removeTriples(st.object);
-					} else if (st.object instanceof URI
-							&& st.object.stringValue().startsWith(subject.stringValue())
-							&& st.object.charAt(subject.stringValue().length()) == "#") {
-						removeTriples(st.object);
+					} else if (st.object instanceof URI && !st.object.equals(subject)) {
+						var subj = subject.stringValue();
+						var obj = st.object.stringValue();
+						if (obj.startsWith(subj) && obj.charAt(subj.length()) == "#") {
+							removeTriples(st.object);
+						}
 					}
 					objectConnection.remove(st, []);
 				}

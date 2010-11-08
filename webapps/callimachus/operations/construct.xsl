@@ -19,10 +19,10 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 	<xsl:param name="this" />
-	<xsl:param name="mode" select="''" />
+	<xsl:param name="query" select="''" />
 	<xsl:param name="element" select="'/1'" />
 	<xsl:output omit-xml-declaration="yes" standalone="no" />
-	<xsl:variable name="profile" select="concat($this, '?xslt&amp;mode=', $mode, '&amp;element=', $element)" />
+	<xsl:variable name="profile" select="concat($this, '?xslt&amp;query=', $query, '&amp;element=', $element)" />
 	<xsl:variable name="data" select="/" />
 	<xsl:variable name="variables"
 		select="'http://callimachusproject.org/rdf/2009/framework/variables/?'" />
@@ -80,13 +80,13 @@
 				<xsl:with-param name="nodeID" select="$nodeID" />
 				<xsl:with-param name="scope" select="$newscope" />
 			</xsl:apply-templates>
-			<xsl:if test="$target and not(./*[local-name()='base'])">
+			<xsl:if test="$target">
 				<xsl:element name="base">
 					<xsl:attribute name="href"><xsl:value-of
 						select="$target" /></xsl:attribute>
 				</xsl:element>
 			</xsl:if>
-			<xsl:apply-templates select="*|text()|comment()">
+			<xsl:apply-templates select="*[local-name()!='base']|text()|comment()">
 				<xsl:with-param name="about" select="$about" />
 				<xsl:with-param name="nodeID" select="$nodeID" />
 				<xsl:with-param name="top" select="$top" />
@@ -198,16 +198,16 @@
 						select="@rel" /></xsl:attribute>
 					<xsl:attribute name="data-search">
 						<xsl:value-of select="$this" />
-						<xsl:text>?search&amp;mode=</xsl:text>
-						<xsl:value-of select="$mode" />
+						<xsl:text>?search&amp;query=</xsl:text>
+						<xsl:value-of select="$query" />
 						<xsl:text>&amp;element=</xsl:text>
 						<xsl:apply-templates mode="xptr-element" select="." />
 						<xsl:text>&amp;q={searchTerms}</xsl:text>
 					</xsl:attribute>
 					<xsl:attribute name="data-add">
 						<xsl:value-of select="$this" />
-						<xsl:text>?construct&amp;mode=</xsl:text>
-						<xsl:value-of select="$mode" />
+						<xsl:text>?construct&amp;query=</xsl:text>
+						<xsl:value-of select="$query" />
 						<xsl:text>&amp;element=</xsl:text>
 						<xsl:apply-templates mode="xptr-element" select="*[@about or @src or @href]" />
 						<xsl:text>&amp;about={about}</xsl:text>
@@ -216,8 +216,8 @@
 				<xsl:if test="not(*[@about or @src or @href]) and 1=count(*)">
 					<xsl:attribute name="data-more">
 						<xsl:value-of select="$this" />
-						<xsl:text>?template&amp;mode=</xsl:text>
-						<xsl:value-of select="$mode" />
+						<xsl:text>?template&amp;query=</xsl:text>
+						<xsl:value-of select="$query" />
 						<xsl:text>&amp;element=</xsl:text>
 						<xsl:apply-templates mode="xptr-element" select="*" />
 					</xsl:attribute>
@@ -308,8 +308,8 @@
 						</xsl:attribute>
 						<xsl:attribute name="data-more">
 							<xsl:value-of select="$this" />
-							<xsl:text>?template&amp;mode=</xsl:text>
-							<xsl:value-of select="$mode" />
+							<xsl:text>?template&amp;query=</xsl:text>
+							<xsl:value-of select="$query" />
 							<xsl:text>&amp;element=</xsl:text>
 							<xsl:apply-templates mode="xptr-element" select="*[@property]" />
 						</xsl:attribute>
@@ -318,8 +318,8 @@
 						<xsl:attribute name="data-rel"><xsl:value-of select="*/@rel"/><xsl:value-of select="*/@rev"/></xsl:attribute>
 						<xsl:attribute name="data-options">
 							<xsl:value-of select="$this" />
-							<xsl:text>?options&amp;mode=</xsl:text>
-							<xsl:value-of select="$mode" />
+							<xsl:text>?options&amp;query=</xsl:text>
+							<xsl:value-of select="$query" />
 							<xsl:text>&amp;element=</xsl:text>
 							<xsl:apply-templates mode="xptr-element" select="." />
 						</xsl:attribute>
@@ -604,8 +604,8 @@
 					<xsl:if test="1=count($tag/*[@rel='rdf:first']/*)">
 						<xsl:attribute name="data-member">
 							<xsl:value-of select="$this" />
-							<xsl:text>?construct&amp;mode=</xsl:text>
-							<xsl:value-of select="$mode" />
+							<xsl:text>?construct&amp;query=</xsl:text>
+							<xsl:value-of select="$query" />
 							<xsl:text>&amp;element=</xsl:text>
 							<xsl:apply-templates mode="xptr-element" select="$tag/*[@rel='rdf:first']/*" />
 							<xsl:text>&amp;about={about}</xsl:text>

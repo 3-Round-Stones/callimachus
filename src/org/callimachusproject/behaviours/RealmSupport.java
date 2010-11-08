@@ -163,7 +163,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		Template unauthorized = getCalliUnauthorized();
 		if (unauthorized == null)
 			return null;
-		Reader reader = unauthorized.calliConstruct("unauthorized", target);
+		Reader reader = unauthorized.calliConstruct(target);
 		try {
 			CharArrayWriter writer = new CharArrayWriter();
 			int read;
@@ -187,7 +187,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		Template forbidden = getCalliForbidden();
 		if (forbidden == null)
 			return null;
-		Reader reader = forbidden.calliConstruct("forbidden", target);
+		Reader reader = forbidden.calliConstruct(target);
 		try {
 			CharArrayWriter writer = new CharArrayWriter();
 			int read;

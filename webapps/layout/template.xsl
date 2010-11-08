@@ -3,7 +3,8 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#">
 	<xsl:param name="xslt" select="'/layout/template.xsl'" />
-	<xsl:param name="mode" />
+	<xsl:param name="this" />
+	<xsl:param name="query" />
 	<xsl:variable name="layout">
 		<xsl:call-template name="substring-before-last">
 			<xsl:with-param name="string" select="$xslt"/>
@@ -85,14 +86,14 @@
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js"></script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js"></script>
 			<script type="text/javascript" src="{$layout}/template.js"> </script>
-			<xsl:if test="contains($mode, 'copy') or contains($mode, 'edit') ">
+			<xsl:if test="contains($query, 'copy') or contains($query, 'edit') ">
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.qtip.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.validate.js"> </script>
-			<xsl:if test="contains($mode, 'copy')">
+			<xsl:if test="contains($query, 'copy')">
 			<script type="text/javascript" src="{$callimachus}/operations/copy.js"> </script>
 			</xsl:if>
-			<xsl:if test="contains($mode, 'edit')">
+			<xsl:if test="contains($query, 'edit')">
 			<script type="text/javascript" src="{$callimachus}/operations/edit.js"> </script>
 			</xsl:if>
 			<script type="text/javascript" src="{$callimachus}/scripts/elements.js"> </script>
@@ -101,6 +102,9 @@
 			<script type="text/javascript" src="{$callimachus}/scripts/creole.js"> </script>
 			</xsl:if>
 			<script type="text/javascript" src="{$callimachus}/scripts/enhancements.js"> </script>
+			<xsl:if test="not(base) and $this">
+				<base href="{$this}" />
+			</xsl:if>
 			<xsl:apply-templates select="*|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
@@ -163,7 +167,7 @@
 			</div>
 
 			<ul id="tabs">
-				<xsl:if test="contains($mode, 'view')">
+				<xsl:if test="contains($query, 'view')">
 					<li class="authenticated">
 						<span>View</span>
 					</li>
@@ -177,7 +181,7 @@
 						<a class="diverted replace history" href="">History</a>
 					</li>
 				</xsl:if>
-				<xsl:if test="contains($mode, 'edit')">
+				<xsl:if test="contains($query, 'edit')">
 					<li>
 						<a class="diverted replace view" href="">View</a>
 					</li>
@@ -191,7 +195,7 @@
 						<a class="diverted replace history" href="">History</a>
 					</li>
 				</xsl:if>
-				<xsl:if test="contains($mode, 'describe')">
+				<xsl:if test="contains($query, 'describe')">
 					<li>
 						<a class="diverted replace view" href="">View</a>
 					</li>
@@ -205,7 +209,7 @@
 						<a class="diverted replace history" href="">History</a>
 					</li>
 				</xsl:if>
-				<xsl:if test="contains($mode, 'history')">
+				<xsl:if test="contains($query, 'history')">
 					<li>
 						<a class="diverted replace view" href="">View</a>
 					</li>
@@ -230,7 +234,7 @@
 			</div>
 
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
-				<xsl:if test="contains($mode, 'view')">
+				<xsl:if test="contains($query, 'view')">
 					<p id="footer-lastmod" rel="audit:revision" resource="?revision">This resource was last modified
 						<span property="audit:committedOn" class="date-locale" />.
 					</p>

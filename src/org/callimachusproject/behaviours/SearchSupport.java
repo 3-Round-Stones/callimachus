@@ -72,31 +72,31 @@ public abstract class SearchSupport implements Template, SoundexTrait,
 	@type("application/rdf+xml")
 	@cacheControl("must-reevaluate")
 	@transform("http://callimachusproject.org/rdf/2009/framework#construct-template")
-	public XMLEventReader constructSearch(@parameter("mode") String mode,
+	public XMLEventReader constructSearch(@parameter("query") String query,
 			@parameter("element") String element, @parameter("q") String q)
 			throws Exception {
 		String base = toUri().toASCIIString();
-		TriplePatternStore patterns = readPatternStore(mode, element, base);
+		TriplePatternStore patterns = readPatternStore(query, element, base);
 		TriplePattern pattern = patterns.getFirstTriplePattern();
 		patterns.consume(filterPrefix(patterns, pattern, q));
-		RDFEventReader query = constructPossibleTriples(patterns, pattern);
+		RDFEventReader qry = constructPossibleTriples(patterns, pattern);
 		ObjectConnection con = getObjectConnection();
-		RDFEventReader rdf = new RDFStoreReader(toSPARQL(query), patterns, con);
+		RDFEventReader rdf = new RDFStoreReader(toSPARQL(qry), patterns, con);
 		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
 	}
 
-	private TriplePatternStore readPatternStore(String mode, String element,
+	private TriplePatternStore readPatternStore(String query, String element,
 			String about) throws XMLStreamException, IOException,
 			TransformerException, RDFParseException {
 		String base = toUri().toASCIIString();
-		TriplePatternStore query = new TriplePatternVariableStore(base);
-		RDFEventReader reader = openPatternReader(mode, element, about);
+		TriplePatternStore qry = new TriplePatternVariableStore(base);
+		RDFEventReader reader = openPatternReader(query, element, about);
 		try {
-			query.consume(reader);
+			qry.consume(reader);
 		} finally {
 			reader.close();
 		}
-		return query;
+		return qry;
 	}
 
 	private IterableRDFEventReader filterPrefix(TriplePatternStore patterns,

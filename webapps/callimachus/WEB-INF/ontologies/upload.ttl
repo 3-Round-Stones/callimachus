@@ -27,7 +27,7 @@
 
 calli:NamedGraph a owl:Class.
 
-calli:put-graph rdfs:subClassOf obj:Message;
+calli:put-graph-document rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
@@ -45,14 +45,14 @@ calli:put-graph rdfs:subClassOf obj:Message;
 		objectConnection.add(body, this.toString(), RDFFormat.forMIMEType(type), [resource]);
 	""".
 
-calli:put-graph-type a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-graph;
+calli:put-graph-document-type a owl:DatatypeProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:put-graph-document;
 	rdfs:range xsd:string;
 	http:header "Content-Type";
 	obj:name "contentType".
 
-calli:put-graph-body a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-graph;
+calli:put-graph-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:put-graph-document;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "application/rdf+xml;q=0.1", "text/turtle;q=0.1", "application/x-turtle;q=0.1";
 	obj:name "body".
@@ -61,7 +61,7 @@ calli:put-graph-body a owl:ObjectProperty; a owl:FunctionalProperty;
 # Text File
 ################################
 
-calli:put-text-file rdfs:subClassOf obj:Message;
+calli:put-text-document rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
@@ -87,14 +87,14 @@ calli:put-text-file rdfs:subClassOf obj:Message;
 		}
 	""".
 
-calli:put-text-file-type a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-text-file;
+calli:put-text-document-type a owl:DatatypeProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:put-text-document;
 	rdfs:range xsd:string;
 	http:header "Content-Type";
 	obj:name "contentType".
 
-calli:put-text-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-text-file;
+calli:put-text-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:put-text-document;
 	rdfs:range <java:java.io.Reader>;
 	http:type "text/html;q=0.1", "text/css;q=0.1", "text/javascript;q=0.1", "text/plain;q=0.1";
 	obj:name "body".
@@ -103,7 +103,7 @@ calli:put-text-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
 # Binary File
 ################################
 
-calli:put-file rdfs:subClassOf obj:Message;
+calli:put-binary-document rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
@@ -128,14 +128,14 @@ calli:put-file rdfs:subClassOf obj:Message;
 		}
 	""".
 
-calli:put-file-type a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-file;
+calli:put-binary-document-type a owl:DatatypeProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:put-binary-document;
 	rdfs:range xsd:string;
 	http:header "Content-Type";
 	obj:name "contentType".
 
-calli:put-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-file;
+calli:put-binary-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:put-binary-document;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "image/png;q=0.1", "image/jpeg;q=0.1", "image/gif;q=0.1", "image/vnd.microsoft.icon;q=0.1", "application/pdf;q=0.1";
 	obj:name "body".
@@ -144,7 +144,7 @@ calli:put-file-body a owl:ObjectProperty; a owl:FunctionalProperty;
 # XSL File
 ################################
 
-calli:put-xsl rdfs:subClassOf obj:Message;
+calli:put-xsl-document rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
@@ -167,8 +167,8 @@ calli:put-xsl rdfs:subClassOf obj:Message;
 		HTTPObjectServer.resetAllCache();
 	""".
 
-calli:put-xsl-body a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-xsl;
+calli:put-xsl-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:put-xsl-document;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "text/xsl;q=0.1";
 	obj:name "body".
@@ -177,7 +177,7 @@ calli:put-xsl-body a owl:ObjectProperty; a owl:FunctionalProperty;
 # Template File
 ################################
 
-calli:put-template rdfs:subClassOf obj:Message;
+calli:put-xml-document rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
@@ -202,8 +202,8 @@ calli:put-template rdfs:subClassOf obj:Message;
 		HTTPObjectServer.resetAllCache();
 	""".
 
-calli:put-template-body a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-template;
+calli:put-xml-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:put-xml-document;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "application/xml;q=0.1";
 	obj:name "body".

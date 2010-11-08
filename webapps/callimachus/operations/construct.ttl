@@ -35,8 +35,8 @@ calli:construct-template rdfs:subClassOf obj:Message;
 calli:construct-template-arg1 a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:construct-template;
 	rdfs:range xsd:string;
-	http:parameter "mode";
-	obj:name "mode".
+	http:parameter "query";
+	obj:name "query".
 
 calli:construct-template-arg2 a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:construct-template;

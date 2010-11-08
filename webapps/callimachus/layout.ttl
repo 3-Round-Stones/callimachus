@@ -22,5 +22,5 @@
 	rdfs:domain :template-xsl;
 	rdfs:range xsd:string;
 	http:parameter "*";
-	obj:name "mode".
+	obj:name "query".
 

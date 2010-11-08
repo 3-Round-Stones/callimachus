@@ -35,7 +35,7 @@
 	http:realm <../authority>;
 	obj:imports <user-create.xml>;
 	obj:script """
-		return userCreateXml.calliConstruct('copy', this);
+		return userCreateXml.calliConstruct(this, 'copy');
 	""".
 
 :post-user-create rdfs:subClassOf obj:Message;
@@ -82,7 +82,7 @@
 		copy.calliAlgorithm = "MD5";
 		copy.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));
 		//# email the password to the email address provided
-		var reader = mailPasswordXml.calliConstruct('view', copy);
+		var reader = mailPasswordXml.calliConstruct(copy, 'view');
 		try {
 			var writer = new CharArrayWriter();
 			var read;

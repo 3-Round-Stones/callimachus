@@ -22,7 +22,10 @@ function hideFluffIfInFrame() {
 	} catch(e) {}
 }
 
-function printpage() {
+if (!window.calli) {
+	window.calli = {}
+}
+window.calli.printpage = function() {
 	hideSiblings(document.getElementById("content"))
 	print()
 	setTimeout(function(){location.reload()}, 500)

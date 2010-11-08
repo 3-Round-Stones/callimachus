@@ -1,6 +1,5 @@
 # Copyright (c) 2009-2010 Zepheira LLC, Some Rights Reserved.
 org.callimachusproject.behaviours.CopySupport
-org.callimachusproject.behaviours.DeleteSupport
 org.callimachusproject.behaviours.EditSupport
 org.callimachusproject.behaviours.ViewSupport
 org.callimachusproject.behaviours.RDFaSupport

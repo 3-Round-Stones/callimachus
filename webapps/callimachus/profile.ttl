@@ -31,6 +31,7 @@
 		owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
 	http:method "GET";
 	http:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+	http:cache-control "no-store";
 	http:transform :profile-xsl;
 	obj:imports <java:org.openrdf.model.impl.LinkedHashModel>;
 	obj:script """
@@ -55,7 +56,7 @@
 
 :post-profile rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <profile>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:hasValue <profile>];
+	rdfs:subClassOf [owl:onProperty obj:objectResponse; owl:cardinality 1];
 	http:method "POST";
 	http:expect "303-see-other";
 	http:realm <../accounts/authority>;

@@ -70,14 +70,20 @@ public abstract class ViewSupport implements Template, RDFObject,
 	private static TermFactory tf = TermFactory.newInstance();
 
 	@Override
-	public Reader calliConstruct(String mode, Object target)
+	public Reader calliConstruct(Object target)
+			throws Exception {
+		return calliConstruct(target, null);
+	}
+
+	@Override
+	public Reader calliConstruct(Object target, String query)
 			throws Exception {
 		String uri = null;
 		if (target instanceof RDFObject) {
 			uri = ((RDFObject) target).getResource().stringValue();
 		}
-		XMLEventReader data = calliConstructRDF(mode, null, uri);
-		return calliConstructTemplate(mode, null, data);
+		XMLEventReader data = calliConstructRDF(query, null, uri);
+		return calliConstructTemplate(query, null, data);
 	}
 
 	/**
@@ -88,12 +94,12 @@ public abstract class ViewSupport implements Template, RDFObject,
 	@type("application/rdf+xml")
 	@cacheControl("no-store")
 	@transform("http://callimachusproject.org/rdf/2009/framework#construct-template")
-	public XMLEventReader calliConstruct(@parameter("mode") String mode,
+	public XMLEventReader calliConstruct(@parameter("query") String query,
 			@parameter("element") String element,
 			@parameter("about") String about) throws Exception {
 		if (about != null && (element == null || element.equals("/1")))
 			throw new BadRequest("Missing element parameter");
-		return calliConstructRDF(mode, element, about);
+		return calliConstructRDF(query, element, about);
 	}
 
 	/**
@@ -101,7 +107,7 @@ public abstract class ViewSupport implements Template, RDFObject,
 	 */
 	@operation("template")
 	@transform("http://callimachusproject.org/rdf/2009/framework#construct-template")
-	public XMLEventReader template(@parameter("mode") String mode,
+	public XMLEventReader template(@parameter("query") String query,
 			@parameter("element") String element) throws Exception {
 		return null;
 	}
@@ -113,14 +119,14 @@ public abstract class ViewSupport implements Template, RDFObject,
 	@type("application/rdf+xml")
 	@cacheControl("no-store")
 	@transform("http://callimachusproject.org/rdf/2009/framework#construct-template")
-	public XMLEventReader options(@parameter("mode") String mode,
+	public XMLEventReader options(@parameter("query") String query,
 			@parameter("element") String element) throws Exception {
 		String base = toUri().toASCIIString();
-		TriplePatternStore patterns = readPatternStore(mode, element, base);
+		TriplePatternStore patterns = readPatternStore(query, element, base);
 		TriplePattern pattern = patterns.getFirstTriplePattern();
-		RDFEventReader query = constructPossibleTriples(patterns, pattern);
+		RDFEventReader q = constructPossibleTriples(patterns, pattern);
 		ObjectConnection con = getObjectConnection();
-		RDFEventReader rdf = new RDFStoreReader(toSPARQL(query), patterns, con);
+		RDFEventReader rdf = new RDFStoreReader(toSPARQL(q), patterns, con);
 		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
 	}
 
@@ -141,23 +147,23 @@ public abstract class ViewSupport implements Template, RDFObject,
 		return query.toString().getBytes(Charset.forName("UTF-8"));
 	}
 
-	protected RDFEventReader readPatterns(String mode, String element,
+	protected RDFEventReader readPatterns(String query, String element,
 			String about) throws XMLStreamException, IOException,
 			TransformerException {
-		return openPatternReader(mode, element, about);
+		return openPatternReader(query, element, about);
 	}
 
-	protected abstract Reader calliConstructTemplate(String mode,
+	protected abstract Reader calliConstructTemplate(String query,
 			String element, XMLEventReader rdf) throws Exception;
 
-	private XMLEventReader calliConstructRDF(String mode, String element,
+	private XMLEventReader calliConstructRDF(String query, String element,
 			String about) throws XMLStreamException, IOException,
 			TransformerException, RDFParseException, RepositoryException,
 			MalformedQueryException, QueryEvaluationException {
 		String uri = about == null ? null : toUri().resolve(about).toASCIIString();
-		TriplePatternStore query = readPatternStore(mode, element, uri);
+		TriplePatternStore qry = readPatternStore(query, element, uri);
 		ObjectConnection con = getObjectConnection();
-		RDFEventReader rdf = new RDFStoreReader(query, con, uri);
+		RDFEventReader rdf = new RDFStoreReader(qry, con, uri);
 		rdf = new ReducedTripleReader(rdf);
 		if (uri != null && element == null) {
 			IRI subj = tf.iri(uri);
@@ -172,18 +178,18 @@ public abstract class ViewSupport implements Template, RDFObject,
 		return new RDFXMLEventReader(rdf);
 	}
 
-	private TriplePatternStore readPatternStore(String mode, String element,
+	private TriplePatternStore readPatternStore(String query, String element,
 			String about) throws XMLStreamException, IOException,
 			TransformerException, RDFParseException {
 		String base = toUri().toASCIIString();
-		TriplePatternStore query = new TriplePatternVariableStore(base);
-		RDFEventReader reader = readPatterns(mode, element, about);
+		TriplePatternStore qry = new TriplePatternVariableStore(base);
+		RDFEventReader reader = readPatterns(query, element, about);
 		try {
-			query.consume(reader);
+			qry.consume(reader);
 		} finally {
 			reader.close();
 		}
-		return query;
+		return qry;
 	}
 
 	private String getETag(String uri) throws RepositoryException {

@@ -38,7 +38,7 @@ calli:get-copy rdfs:subClassOf obj:Message;
 		var template = findCopyTemplate();
 		if (template == null)
 			throw new InternalServerError("Missing Copy Template");
-		return template.calliConstruct('copy', this);
+		return template.calliConstruct(this, 'copy');
 	""".
 
 calli:post-copy rdfs:subClassOf obj:Message;

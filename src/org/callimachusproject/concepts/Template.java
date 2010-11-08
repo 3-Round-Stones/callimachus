@@ -39,19 +39,24 @@ public interface Template {
 	/**
 	 * Populates the page with the properties of the target resource.
 	 */
-	Reader calliConstruct(String mode, Object target) throws Exception;
+	Reader calliConstruct(Object target) throws Exception;
+
+	/**
+	 * Populates the page with the properties of the target resource.
+	 */
+	Reader calliConstruct(Object target, String operation) throws Exception;
 
 	/**
 	 * Returns only the primary patterns as for the given subject.
 	 * @param about the subject to filter the pattern with.
 	 */
-	RDFEventReader openBoundedPatterns(String mode, String about)
+	RDFEventReader openBoundedPatterns(String query, String about)
 			throws XMLStreamException, IOException, TransformerException;
 
 	/**
 	 * Reads the template as a graph pattern.
 	 */
-	RDFEventReader openPatternReader(String mode, String element,
+	RDFEventReader openPatternReader(String query, String element,
 			String about) throws XMLStreamException, IOException,
 			TransformerException;
 

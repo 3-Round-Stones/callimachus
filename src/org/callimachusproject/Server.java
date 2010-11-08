@@ -63,6 +63,7 @@ import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.model.util.GraphUtil;
 import org.openrdf.model.util.GraphUtilException;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.repository.DelegatingRepository;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfig;
@@ -71,12 +72,16 @@ import org.openrdf.repository.config.RepositoryConfigSchema;
 import org.openrdf.repository.manager.RepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectRepository;
+import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
+import org.openrdf.sail.Sail;
+import org.openrdf.sail.StackableSail;
+import org.openrdf.sail.auditing.AuditingSail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +92,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Server implements HTTPObjectAgentMXBean {
+	private static final String CHANGE_PATH = "/change/";
 	public static final String NAME;
 	private static final String BRAND = "Callimachus Project Server";
 	private static final String CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
@@ -500,6 +506,10 @@ public class Server implements HTTPObjectAgentMXBean {
 		if (line.hasOption('u')) {
 			server.setConditionalRequests(false);
 		}
+		AuditingSail sail = findAuditingSail(repository);
+		if (sail != null) {
+			sail.setNamespace("http://" + server.getAuthority() + CHANGE_PATH);
+		}
 		try {
 			JNotify.removeWatch(-1); // load library
 		} catch (UnsatisfiedLinkError e) {
@@ -513,6 +523,23 @@ public class Server implements HTTPObjectAgentMXBean {
 			server.printStatus(System.out);
 		}
 		server.listen(port);
+	}
+
+	private AuditingSail findAuditingSail(Repository repository) {
+		if (repository instanceof SailRepository)
+			return findAuditingSail(((SailRepository) repository).getSail());
+		if (repository instanceof DelegatingRepository)
+			return findAuditingSail(((DelegatingRepository) repository)
+					.getDelegate());
+		return null;
+	}
+
+	private AuditingSail findAuditingSail(Sail sail) {
+		if (sail instanceof AuditingSail)
+			return (AuditingSail) sail;
+		if (sail instanceof StackableSail)
+			return findAuditingSail(((StackableSail) sail).getBaseSail());
+		return null;
 	}
 
 	private Repository getRepository(CommandLine line, File dir)

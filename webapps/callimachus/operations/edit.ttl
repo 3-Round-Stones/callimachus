@@ -26,23 +26,23 @@
 
 calli:get-edit rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Editable];
+		owl:allValuesFrom calli:Viewable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.Reader>];
 	http:operation "edit";
 	http:type "text/html";
 	http:cache-control "no-cache";
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	obj:imports <java:org.openrdf.http.object.exceptions.NotFound>;
 	obj:script """
 		var template = findEditTemplate();
 		if (template == null)
-			throw new InternalServerError("Missing Edit Template");
-		return template.calliConstruct('edit', this);
+			throw new NotFound("Missing edit template");
+		return template.calliConstruct(this, 'edit');
 	""".
 
 calli:post-edit rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Editable];
+		owl:allValuesFrom calli:Viewable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:method "POST";
@@ -70,7 +70,7 @@ calli:post-edit-input a owl:ObjectProperty; a owl:FunctionalProperty;
 
 calli:find-edit-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Editable];
+		owl:allValuesFrom calli:Viewable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom calli:Template];
 	obj:name "findEditTemplate";

@@ -69,6 +69,7 @@ import org.slf4j.LoggerFactory;
 public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
+	private static final String ERROR_XSLT_PATH = "/layout/error.xsl";
 	Logger logger = LoggerFactory.getLogger(CallimachusServer.class);
 	private Uploader uploader;
 	private String authority;
@@ -114,6 +115,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		this.authority = authority;
 		String prefix = "http://" + authority + IDENTITY_PATH;
 		server.setIdentityPrefix(new String[] { prefix });
+		server.setErrorXSLT("http://" + authority + ERROR_XSLT_PATH);
 		uploader.setProxy(getAuthorityAddress());
 	}
 

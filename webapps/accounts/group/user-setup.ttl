@@ -43,7 +43,7 @@
 	obj:script """
 		if (isAlreadyUserSetup())
 			throw new BadRequest("This service has already been setup");
-		return userSetupXml.calliConstruct('copy', this);
+		return userSetupXml.calliConstruct(this, 'copy');
 	""".
 
 :post-user-setup rdfs:subClassOf obj:Message;

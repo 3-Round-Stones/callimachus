@@ -77,11 +77,11 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 	private static XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
 
 	@operation("xslt")
-	public XMLEventReader xslt(@parameter("mode") String mode,
+	public XMLEventReader xslt(@parameter("query") String query,
 			@parameter("element") String element) throws XMLStreamException,
 			IOException, TransformerException {
 		try {
-			XMLEventReader doc = applyXSLT(mode);
+			XMLEventReader doc = applyXSLT(query);
 			if (element == null || element.equals("/1"))
 				return doc;
 			if (!element.startsWith("/1/"))
@@ -115,9 +115,9 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 				toString()));
 	}
 
-	public RDFEventReader openBoundedPatterns(String mode, String about)
+	public RDFEventReader openBoundedPatterns(String query, String about)
 			throws XMLStreamException, IOException, TransformerException {
-		return new BoundedRDFReader(openPatternReader(mode, null, about));
+		return new BoundedRDFReader(openPatternReader(query, null, about));
 	}
 
 	public RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
@@ -144,10 +144,10 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 		return query;
 	}
 
-	public RDFEventReader openPatternReader(String mode, String element,
+	public RDFEventReader openPatternReader(String query, String element,
 			String about) throws XMLStreamException, IOException,
 			TransformerException {
-		RDFEventReader reader = new RDFaReader(about, xslt(mode, element),
+		RDFEventReader reader = new RDFaReader(about, xslt(query, element),
 				toString());
 		reader = new GraphPatternReader(reader);
 		Base resolver = new Base(getResource().stringValue());
@@ -160,7 +160,7 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 		return reader;
 	}
 
-	private XMLEventReader applyXSLT(@parameter("mode") String mode)
+	private XMLEventReader applyXSLT(@parameter("query") String query)
 			throws XMLStreamException, IOException, TransformerException {
 		String href = readXSLTSource();
 		if (href == null)
@@ -172,7 +172,7 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 				.toASCIIString());
 		transform = transform.with("this", uri.toASCIIString());
 		transform = transform.with("xslt", xsl);
-		transform = transform.with("mode", mode);
+		transform = transform.with("query", query);
 		return transform.asXMLEventReader();
 	}
 

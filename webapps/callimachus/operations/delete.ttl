@@ -25,6 +25,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
 calli:delete rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";

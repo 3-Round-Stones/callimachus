@@ -26,7 +26,7 @@
 
 calli:get-edit rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Viewable];
+		owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.Reader>];
 	http:operation "edit";
@@ -42,7 +42,7 @@ calli:get-edit rdfs:subClassOf obj:Message;
 
 calli:post-edit rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Viewable];
+		owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:method "POST";
@@ -70,7 +70,7 @@ calli:post-edit-input a owl:ObjectProperty; a owl:FunctionalProperty;
 
 calli:find-edit-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Viewable];
+		owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom calli:Template];
 	obj:name "findEditTemplate";

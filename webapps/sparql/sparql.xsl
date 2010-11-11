@@ -3,6 +3,7 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	<xsl:include href="/callimachus/rdfxml.xsl" />
 	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:param name="this" />
 	<xsl:param name="xslt" select="'/sparql/sparql.xsl'" />
@@ -19,7 +20,6 @@
 		</xsl:call-template>
 	</xsl:variable>
 	<xsl:variable name="profile" select="concat($origin, '/callimachus/profile')" />
-	<xsl:include href="/callimachus/rdfxml.xsl" />
 	<xsl:template match="/">
 		<html>
 			<head>

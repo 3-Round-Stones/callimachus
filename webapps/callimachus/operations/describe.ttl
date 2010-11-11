@@ -39,7 +39,7 @@ calli:describe rdfs:subClassOf obj:Message;
 :describe-xsl rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
-	http:type "application/xml";
+	http:type "application/xml;q=0.5";
 	http:transform <../layout.ttl#template-xsl>;
 	obj:xslt <describe.xsl>.
 

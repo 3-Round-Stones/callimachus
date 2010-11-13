@@ -17,7 +17,7 @@
 	http:cache-control "no-store";
 	http:transform :history-xsl;
 	obj:sparql """
-		SELECT REDUCED ?label ?note ?revision ?modified ?user ?name
+		SELECT REDUCED ?label ?note ?icon ?revision ?modified ?user ?name
 		WHERE {
 			{
 				GRAPH ?revision { $this ?p ?o FILTER (?p != audit:contained) }
@@ -25,6 +25,7 @@
 				?revision audit:contained [rdf:subject $this]
 			}
 			?revision audit:committedOn ?modified; http:authorized ?user
+			OPTIONAL { $this a [calli:icon ?icon] }
 			FILTER (?user != $this)
 			OPTIONAL { ?user rdfs:label ?name }
 			OPTIONAL { $this rdfs:label ?label }
@@ -49,5 +50,6 @@
 
 :history-xsl-input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :history-xsl;
-	rdfs:range <java:java.io.InputStream>.
+	rdfs:range <java:java.io.InputStream>;
+	http:type "application/sparql-results+xml".
 

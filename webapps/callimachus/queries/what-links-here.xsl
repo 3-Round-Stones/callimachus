@@ -114,7 +114,7 @@
 					</span>
 					<xsl:if test="sparql:binding[@name='modified']">
 						<span> - </span>
-						<span class="date-locale">
+						<span class="abbreviated datetime-locale">
 							<xsl:apply-templates select="sparql:binding[@name='modified']" />
 						</span>
 					</xsl:if>

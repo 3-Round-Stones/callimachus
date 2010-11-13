@@ -18,9 +18,8 @@
 			<head>
 				<base href="{$this}" />
 				<title>
-					<xsl:call-template name="substring-after-last">
-						<xsl:with-param name="string" select="$this"/>
-						<xsl:with-param name="delimiter" select="'/'"/>
+					<xsl:call-template name="curie">
+						<xsl:with-param name="iri" select="$this"/>
 					</xsl:call-template>
 				</title>
 				<style>
@@ -31,9 +30,8 @@
 			</head>
 			<body>
 				<h1>
-					<xsl:call-template name="substring-after-last">
-						<xsl:with-param name="string" select="$this"/>
-						<xsl:with-param name="delimiter" select="'/'"/>
+					<xsl:call-template name="curie">
+						<xsl:with-param name="iri" select="$this"/>
 					</xsl:call-template>
 					<xsl:text> Graph</xsl:text>
 				</h1>

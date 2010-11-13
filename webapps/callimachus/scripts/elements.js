@@ -25,7 +25,7 @@ function initElements(form) {
 function callReady(node) {
 	if (!currentlyLoading) {
 		currentlyLoading++ // don't run this again
-		node.parents("form").trigger("calli:form")
+		node.trigger("calli:form")
 	}
 }
 

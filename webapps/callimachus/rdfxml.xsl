@@ -275,7 +275,7 @@
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</xsl:attribute>
-			<a name="{@rdf:nodeID}" class="bnode">
+			<a name="{@rdf:nodeID}" id="{@rdf:nodeID}" class="bnode">
 				<xsl:value-of select="@rdf:nodeID" />
 			</a>
 			<span> a </span>
@@ -313,7 +313,7 @@
 	</xsl:template>
 	<xsl:template match="rdf:Description[@rdf:nodeID]">
 		<div about="_:{@rdf:nodeID}">
-			<a name="{@rdf:nodeID}" class="bnode">
+			<a name="{@rdf:nodeID}" id="{@rdf:nodeID}" class="bnode">
 				<xsl:value-of select="@rdf:nodeID" />
 			</a>
 			<ul>

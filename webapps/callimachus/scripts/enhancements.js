@@ -212,8 +212,9 @@ function changeDateLocale() {
 		return timestamp;
 	}
 	var now = new Date()
-	var dates = $(".date-locale")
+	var dates = $(".datetime-locale, .date-locale, .time-locale")
 	for (var i = 0; i < dates.length; i++) {
+		var node = $(dates[i])
 		var text = dates[i].getAttribute("content") || dates[i].textContent || dates[i].innerText
 		try {
 			var timestamp = parseDateTime(text)
@@ -222,21 +223,33 @@ function changeDateLocale() {
 				if ((date.getHours() > 0 || date.getMinutes() > 0) && /^\s*(\d{4})-?(\d{2})-?(\d{2})\s*$/.exec(text)) {
 					date = new Date(parseDateTime(text + "T00:00:00"))
 				}
-				var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()]
-				var locale = '';
-				if (date.getMinutes() > 10) {
-					locale = date.getHours() + ':' + date.getMinutes()
-				} else if (date.getHours() > 0 || date.getMinutes() > 0) {
-					locale = date.getHours() + ':0' + date.getMinutes()
-				}
-				if (locale == '' || date.getDate() != now.getDate() || date.getMonth() != now.getMonth() || date.getFullYear() != now.getFullYear()) {
-					if (locale) {
-						locale += ", "
+				var locale = ''
+				if (node.is(".abbreviated")) {
+					var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()]
+					if (node.is(".datetime-locale, .time-locale")) {
+						if (date.getMinutes() > 10) {
+							locale = date.getHours() + ':' + date.getMinutes()
+						} else if (date.getHours() > 0 || date.getMinutes() > 0) {
+							locale = date.getHours() + ':0' + date.getMinutes()
+						}
 					}
-					locale += date.getDate() + ' ' + month
-					if (date.getFullYear() != now.getFullYear()) {
-						locale += ' ' + date.getFullYear()
+					if (node.is(".datetime-locale, .date-locale")) {
+						if (locale == '' || date.getDate() != now.getDate() || date.getMonth() != now.getMonth() || date.getFullYear() != now.getFullYear()) {
+							if (locale) {
+								locale += ", "
+							}
+							locale += date.getDate() + ' ' + month
+							if (date.getFullYear() != now.getFullYear()) {
+								locale += ' ' + date.getFullYear()
+							}
+						}
 					}
+				} else if (node.is(".datetime-locale")) {
+					locale = date.toLocaleString()
+				} else if (node.is(".date-locale")) {
+					locale = date.toLocaleDateString()
+				} else if (node.is(".time-locale")) {
+					locale = date.toLocaleTimeString()
 				}
 				dates[i].setAttribute("content", text)
 				dates[i].textContent = locale

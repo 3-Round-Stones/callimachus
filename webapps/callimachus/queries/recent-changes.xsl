@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sparql="http://www.w3.org/2005/sparql-results#">
+	<xsl:include href="../rdfxml.xsl" />
+	<xsl:param name="xslt" select="'/callimachus/queries/recent-changes.xsl'" />
+	<xsl:variable name="queries">
+		<xsl:call-template name="substring-before-last">
+			<xsl:with-param name="string" select="$xslt"/>
+			<xsl:with-param name="delimiter" select="'/'"/>
+		</xsl:call-template>
+	</xsl:variable>
+	<xsl:variable name="callimachus">
+		<xsl:call-template name="substring-before-last">
+			<xsl:with-param name="string" select="$queries"/>
+			<xsl:with-param name="delimiter" select="'/'"/>
+		</xsl:call-template>
+	</xsl:variable>
+	<xsl:variable name="profile" select="concat($callimachus, '/profile')" />
 	<xsl:output method="xml" encoding="UTF-8"/>
-	<xsl:param name="xslt" />
-	<xsl:variable name="host" select="substring-before(substring-after($xslt, '://'), '/')" />
-	<xsl:template name="substring-after-last">
-		<xsl:param name="string"/>
-		<xsl:param name="delimiter"/>
-		<xsl:if test="not(contains($string,$delimiter))">
-			<xsl:value-of select="$string"/>
-		</xsl:if>
-		<xsl:if test="contains($string,$delimiter)">
-			<xsl:call-template name="substring-after-last">
-				<xsl:with-param name="string" select="substring-after($string,$delimiter)"/>
-				<xsl:with-param name="delimiter" select="$delimiter"/>
-			</xsl:call-template>
-		</xsl:if>
-	</xsl:template>
 	<xsl:template match="/">
 		<html>
 			<head>
@@ -46,7 +46,7 @@
 			<xsl:if test="preceding-sibling::*[1]/sparql:binding[@name='modified']/*">
 				<xsl:text disable-output-escaping="yes">&lt;/ul&gt;</xsl:text>
 			</xsl:if>
-			<h2 class="date-locale"><xsl:value-of select="substring-before(sparql:binding[@name='modified']/*, 'T')" /></h2>
+			<h2 class="abbreviated date-locale"><xsl:value-of select="sparql:binding[@name='modified']/*" /></h2>
 			<xsl:text disable-output-escaping="yes">&lt;ul&gt;</xsl:text>
 		</xsl:if>
 		<li class="result">
@@ -64,14 +64,13 @@
 				</xsl:if>
 				<xsl:apply-templates select="sparql:binding[@name='label']/*" />
 				<xsl:if test="not(sparql:binding[@name='label'])">
-					<xsl:call-template name="substring-after-last">
-						<xsl:with-param name="string" select="sparql:binding[@name='url']/*"/>
-						<xsl:with-param name="delimiter" select="'/'"/>
+					<xsl:call-template name="curie">
+						<xsl:with-param name="iri" select="sparql:binding[@name='url']/*"/>
 					</xsl:call-template>
 				</xsl:if>
 			</a>
 			<xsl:text>; </xsl:text>
-			<span class="date-locale"><xsl:value-of select="substring-after(sparql:binding[@name='modified']/*, 'T')" /></span>
+			<a href="{sparql:binding[@name='revision']/*}" class="abbreviated time-locale"><xsl:value-of select="sparql:binding[@name='modified']/*" /></a>
 			<xsl:text>..</xsl:text>
 			<a>
 				<xsl:if test="sparql:binding[@name='user']">

@@ -29,6 +29,7 @@ calli:post-copy http:realm <authority>.
 calli:get-edit http:realm <authority>.
 calli:post-edit http:realm <authority>.
 calli:delete http:realm <authority>.
+calli:post-discussion http:realm <authority>.
 
 # Transcation operations must be authorized
 audit:Transaction http:realm <authority>.

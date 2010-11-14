@@ -67,6 +67,8 @@ window.calli.diverted = function(url, node) {
 	    return url + '?history'
 	if ($(node).hasClass("describe"))
 	    return url + '?describe'
+	if ($(node).hasClass("discussion"))
+	    return url + '?discussion'
 	return url
 }
 
@@ -306,7 +308,7 @@ function expandTextArea(area) {
 	var cols = 20
 	var rows = Math.max(1, lines.length)
 	for (var i = 0; i < lines.length; i++) {
-		var len = lines[i].replace("\t", "        ").length
+		var len = lines[i].replace(/\t/g, "        ").length
 		if (cols < len) {
 			cols = len
 		}

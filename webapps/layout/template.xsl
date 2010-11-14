@@ -175,6 +175,9 @@
 						<a class="diverted replace edit" href="">Edit</a>
 					</li>
 					<li class="authenticated">
+						<a class="diverted replace discussion" href="">Discussion</a>
+					</li>
+					<li class="authenticated">
 						<a class="diverted replace describe" href="">Describe</a>
 					</li>
 					<li class="authenticated">
@@ -187,6 +190,26 @@
 					</li>
 					<li>
 						<span>Edit</span>
+					</li>
+					<li>
+						<a class="diverted replace discussion" href="">Discussion</a>
+					</li>
+					<li>
+						<a class="diverted replace describe" href="">Describe</a>
+					</li>
+					<li>
+						<a class="diverted replace history" href="">History</a>
+					</li>
+				</xsl:if>
+				<xsl:if test="contains($query, 'discussion')">
+					<li>
+						<a class="diverted replace view" href="">View</a>
+					</li>
+					<li>
+						<a class="diverted replace edit" href="">Edit</a>
+					</li>
+					<li>
+						<span>Discussion</span>
 					</li>
 					<li>
 						<a class="diverted replace describe" href="">Describe</a>
@@ -203,6 +226,9 @@
 						<a class="diverted replace edit" href="">Edit</a>
 					</li>
 					<li>
+						<a class="diverted replace discussion" href="">Discussion</a>
+					</li>
+					<li>
 						<span>Describe</span>
 					</li>
 					<li>
@@ -215,6 +241,9 @@
 					</li>
 					<li>
 						<a class="diverted replace edit" href="">Edit</a>
+					</li>
+					<li>
+						<a class="diverted replace discussion" href="">Discussion</a>
 					</li>
 					<li>
 						<a class="diverted replace describe" href="">Describe</a>

@@ -1,0 +1,122 @@
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+	<head>
+		<title property="skos:prefLabel"></title>
+		<script>
+			function saveChangeNote() {
+				var note = document.getElementById('note')
+				if (note.value) {
+					note.setAttribute('property', 'skos:changeNote')
+					note.setAttribute('content', note.value)
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<form about="" typeof="skos:Concept" action="" onsubmit="saveChangeNote()">
+			<div>
+				<table>
+					<tr>
+						<td>
+							<label for="label">Label:</label>
+						</td>
+						<td data-cardinality="1">
+							<input id="label" property="skos:prefLabel" size="40" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="altLabel">Alt Label:</label>
+						</td>
+						<td>
+							<input id="altLabel" property="skos:altLabel" size="40" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>Scheme:</label>
+						</td>
+						<td rel="skos:inScheme" data-prompt="/skos/scheme/list.xml?construct">
+							<span about="?scheme" typeof="skos:ConceptScheme">
+								<span property="skos:prefLabel"></span>
+							</span>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="definition">Definition:</label>
+						</td>
+						<td>
+							<textarea id="definition" class="auto-expand" property="skos:definition" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="example">Example:</label>
+						</td>
+						<td>
+							<textarea id="example" class="auto-expand" property="skos:example" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="historyNote">History Note:</label>
+						</td>
+						<td>
+							<textarea id="historyNote" class="auto-expand" property="skos:historyNote" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="scopeNote">Scope Note:</label>
+						</td>
+						<td>
+							<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>Broader:</label>
+						</td>
+						<td rel="skos:broader">
+							<span about="?broader" typeof="skos:Concept">
+								<span property="skos:prefLabel"></span>
+							</span>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>Related:</label>
+						</td>
+						<td rel="skos:related">
+							<span about="?related" typeof="skos:Concept">
+								<span property="skos:prefLabel"></span>
+							</span>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>Narrower:</label>
+						</td>
+						<td rel="skos:narrower">
+							<span about="?narrower" typeof="skos:Concept">
+								<span property="skos:prefLabel"></span>
+							</span>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>Change note:</label>
+						</td>
+						<td>
+							<input type="text" id="note" maxlength="140" class="auto-expand" />
+						</td>
+					</tr>
+				</table>
+				<button type="submit">Save</button>
+				<button type="button" onclick="if (confirm('Are you sure you want to delete this concept?')) calli.delete()">Delete</button>
+			</div>
+		</form>
+	</body>
+</html>

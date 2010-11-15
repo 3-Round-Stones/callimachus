@@ -5,28 +5,13 @@
 	<xsl:include href="../rdfxml.xsl" />
 	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:param name="this" />
-	<xsl:param name="xslt" select="'/callimachus/operations/describe.xsl'" />
-	<xsl:variable name="operations">
-		<xsl:call-template name="substring-before-last">
-			<xsl:with-param name="string" select="$xslt"/>
-			<xsl:with-param name="delimiter" select="'/'"/>
-		</xsl:call-template>
-	</xsl:variable>
-	<xsl:variable name="callimachus">
-		<xsl:call-template name="substring-before-last">
-			<xsl:with-param name="string" select="$operations"/>
-			<xsl:with-param name="delimiter" select="'/'"/>
-		</xsl:call-template>
-	</xsl:variable>
-	<xsl:variable name="profile" select="concat($callimachus, '/profile')" />
 	<xsl:template match="/rdf:RDF">
 		<html>
 			<head>
 				<base href="{$this}" />
 				<title>
-					<xsl:call-template name="substring-after-last">
-						<xsl:with-param name="string" select="$this"/>
-						<xsl:with-param name="delimiter" select="'/'"/>
+					<xsl:call-template name="iriref">
+						<xsl:with-param name="iri" select="$this"/>
 					</xsl:call-template>
 				</title>
 				<style>
@@ -37,9 +22,8 @@
 			</head>
 			<body>
 				<h1>
-					<xsl:call-template name="substring-after-last">
-						<xsl:with-param name="string" select="$this"/>
-						<xsl:with-param name="delimiter" select="'/'"/>
+					<xsl:call-template name="iriref">
+						<xsl:with-param name="iri" select="$this"/>
 					</xsl:call-template>
 					<xsl:text> Resource</xsl:text>
 				</h1>

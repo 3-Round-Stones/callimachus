@@ -1,21 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sparql="http://www.w3.org/2005/sparql-results#">
-	<xsl:include href="../rdfxml.xsl" />
-	<xsl:param name="xslt" select="'/callimachus/queries/recent-changes.xsl'" />
-	<xsl:variable name="queries">
-		<xsl:call-template name="substring-before-last">
-			<xsl:with-param name="string" select="$xslt"/>
-			<xsl:with-param name="delimiter" select="'/'"/>
-		</xsl:call-template>
-	</xsl:variable>
-	<xsl:variable name="callimachus">
-		<xsl:call-template name="substring-before-last">
-			<xsl:with-param name="string" select="$queries"/>
-			<xsl:with-param name="delimiter" select="'/'"/>
-		</xsl:call-template>
-	</xsl:variable>
-	<xsl:variable name="profile" select="concat($callimachus, '/profile')" />
+	<xsl:include href="../iriref.xsl" />
 	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:template match="/">
 		<html>
@@ -64,7 +50,7 @@
 				</xsl:if>
 				<xsl:apply-templates select="sparql:binding[@name='label']/*" />
 				<xsl:if test="not(sparql:binding[@name='label'])">
-					<xsl:call-template name="curie">
+					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="sparql:binding[@name='url']/*"/>
 					</xsl:call-template>
 				</xsl:if>

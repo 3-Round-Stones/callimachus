@@ -26,7 +26,7 @@
 							</th>
 							<td data-cardinality="1">
 								<input id="name-input" property="calli:name" type="text" class="auto-expand required"
-									onchange="$(form).attr('about', '../user/' + encodeURI(value).replace('%20','+'))" />
+									onchange="$(form).attr('about', '../user/' + encodeURI(value).replace(/%20/g,'+'))" />
 							</td>
 						</tr>
 						<tr>

@@ -2,92 +2,7 @@
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-	<xsl:template name="substring-after-last">
-		<xsl:param name="string"/>
-		<xsl:param name="delimiter"/>
-		<xsl:if test="not(contains(substring($string, 0, string-length($string) - 1),$delimiter))">
-			<xsl:value-of select="$string"/>
-		</xsl:if>
-		<xsl:if test="contains(substring($string, 0, string-length($string) - 1),$delimiter)">
-			<xsl:call-template name="substring-after-last">
-				<xsl:with-param name="string" select="substring-after($string,$delimiter)"/>
-				<xsl:with-param name="delimiter" select="$delimiter"/>
-			</xsl:call-template>
-		</xsl:if>
-	</xsl:template>
-	<xsl:template name="substring-before-last">
-		<xsl:param name="string"/>
-		<xsl:param name="delimiter"/>
-		<xsl:if test="contains($string,$delimiter)">
-			<xsl:value-of select="substring-before($string,$delimiter)"/>
-			<xsl:if test="contains(substring-after($string,$delimiter),$delimiter)">
-				<xsl:value-of select="$delimiter"/>
-				<xsl:call-template name="substring-before-last">
-					<xsl:with-param name="string" select="substring-after($string,$delimiter)"/>
-					<xsl:with-param name="delimiter" select="$delimiter"/>
-				</xsl:call-template>
-			</xsl:if>
-		</xsl:if>
-	</xsl:template>
-	<xsl:template name="curie">
-		<xsl:param name="iri"/>
-		<xsl:variable name="namespace">
-			<xsl:choose>
-				<xsl:when test="contains($iri, '#')">
-					<xsl:call-template name="substring-before-last">
-						<xsl:with-param name="string" select="$iri"/>
-						<xsl:with-param name="delimiter" select="'#'"/>
-					</xsl:call-template>
-					<xsl:text>#</xsl:text>
-				</xsl:when>
-				<xsl:when test="contains($iri, '/')">
-					<xsl:call-template name="substring-before-last">
-						<xsl:with-param name="string" select="$iri"/>
-						<xsl:with-param name="delimiter" select="'/'"/>
-					</xsl:call-template>
-					<xsl:text>/</xsl:text>
-				</xsl:when>
-				<xsl:when test="contains($iri, ':')">
-					<xsl:call-template name="substring-before-last">
-						<xsl:with-param name="string" select="$iri"/>
-						<xsl:with-param name="delimiter" select="':'"/>
-					</xsl:call-template>
-					<xsl:text>:</xsl:text>
-				</xsl:when>
-			</xsl:choose>
-		</xsl:variable>
-		<xsl:variable name="local">
-			<xsl:choose>
-				<xsl:when test="contains($iri, '#')">
-					<xsl:call-template name="substring-after-last">
-						<xsl:with-param name="string" select="$iri"/>
-						<xsl:with-param name="delimiter" select="'#'"/>
-					</xsl:call-template>
-				</xsl:when>
-				<xsl:when test="contains($iri, '/')">
-					<xsl:call-template name="substring-after-last">
-						<xsl:with-param name="string" select="$iri"/>
-						<xsl:with-param name="delimiter" select="'/'"/>
-					</xsl:call-template>
-				</xsl:when>
-				<xsl:when test="contains($iri, ':')">
-					<xsl:call-template name="substring-after-last">
-						<xsl:with-param name="string" select="$iri"/>
-						<xsl:with-param name="delimiter" select="':'"/>
-					</xsl:call-template>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="$iri" />
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>
-		<xsl:variable name="ns" select="document($profile)//*[@property='rdfa:uri' and @content=$namespace]" />
-		<xsl:if test="$namespace and $ns">
-			<xsl:value-of select="$ns/../*[@property='rdfa:prefix']" />
-			<xsl:text>:</xsl:text>
-		</xsl:if>
-		<xsl:value-of select="$local" />
-	</xsl:template>
+	<xsl:include href="iriref.xsl" />
 	<xsl:template match="rdf:RDF">
 		<div class="graph">
 			<xsl:apply-templates select="*" />
@@ -96,14 +11,14 @@
 	<xsl:template match="*">
 		<li>
 			<label class="predicate">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</label>
 			<xsl:text> </xsl:text>
 			<span class="literal">
 				<xsl:attribute name="property">
-					<xsl:call-template name="curie">
+					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 					</xsl:call-template>
 				</xsl:attribute>
@@ -114,14 +29,14 @@
 	<xsl:template match="*[@rdf:nodeID]">
 		<li>
 			<label class="predicate">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</label>
 			<xsl:text> </xsl:text>
 			<a href="#{@rdf:nodeID}" class="uri">
 				<xsl:attribute name="rel">
-					<xsl:call-template name="curie">
+					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 					</xsl:call-template>
 				</xsl:attribute>
@@ -132,18 +47,18 @@
 	<xsl:template match="*[@rdf:resource]">
 		<li>
 			<label class="predicate">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</label>
 			<xsl:text> </xsl:text>
 			<a href="{@rdf:resource}" class="uri">
 				<xsl:attribute name="rel">
-					<xsl:call-template name="curie">
+					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 					</xsl:call-template>
 				</xsl:attribute>
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@rdf:resource"/>
 				</xsl:call-template>
 			</a>
@@ -152,24 +67,24 @@
 	<xsl:template match="*[@rdf:datatype]">
 		<li>
 			<label class="predicate">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</label>
 			<xsl:text> </xsl:text>
 			<span class="literal">
 				<xsl:attribute name="property">
-					<xsl:call-template name="curie">
+					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 					</xsl:call-template>
 				</xsl:attribute>
 				<xsl:attribute name="datatype">
-					<xsl:call-template name="curie">
+					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="@rdf:datatype" />
 					</xsl:call-template>
 				</xsl:attribute>
 				<xsl:attribute name="title">
-					<xsl:call-template name="curie">
+					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="@rdf:datatype" />
 					</xsl:call-template>
 				</xsl:attribute>
@@ -180,14 +95,14 @@
 	<xsl:template match="*[@rdf:parseType='Literal']">
 		<li>
 			<label class="predicate">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</label>
 			<xsl:text> </xsl:text>
 			<span class="literal">
 				<xsl:attribute name="property">
-					<xsl:call-template name="curie">
+					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 					</xsl:call-template>
 				</xsl:attribute>
@@ -198,13 +113,13 @@
 	<xsl:template match="*[@rdf:parseType='Resource']">
 		<li>
 			<label class="predicate">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</label>
 			<ul>
 				<xsl:attribute name="rel">
-					<xsl:call-template name="curie">
+					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 					</xsl:call-template>
 				</xsl:attribute>
@@ -215,7 +130,7 @@
 	<xsl:template match="*[@rdf:parseType='Collection']">
 		<li>
 			<label class="predicate">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</label>
@@ -227,18 +142,18 @@
 	<xsl:template match="*[@rdf:about]">
 		<div about="{@rdf:about}">
 			<xsl:attribute name="typeof">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</xsl:attribute>
 			<a href="{@rdf:about}" class="uri">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@rdf:about"/>
 				</xsl:call-template>
 			</a>
 			<span> a </span>
 			<span>
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</span>
@@ -250,7 +165,7 @@
 	<xsl:template match="*[@rdf:ID]">
 		<div about="#{@rdf:ID}">
 			<xsl:attribute name="typeof">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</xsl:attribute>
@@ -259,7 +174,7 @@
 			</a>
 			<span> a </span>
 			<span>
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</span>
@@ -271,7 +186,7 @@
 	<xsl:template match="*[@rdf:nodeID][*]">
 		<div about="_:{@rdf:nodeID}">
 			<xsl:attribute name="typeof">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</xsl:attribute>
@@ -280,7 +195,7 @@
 			</a>
 			<span> a </span>
 			<span>
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</span>
@@ -292,7 +207,7 @@
 	<xsl:template match="rdf:Description[@rdf:about]">
 		<div about="{@rdf:about}">
 			<a href="{@rdf:about}" class="uri">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@rdf:about"/>
 				</xsl:call-template>
 			</a>

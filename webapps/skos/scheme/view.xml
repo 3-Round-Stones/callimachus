@@ -1,0 +1,16 @@
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+	<head>
+		<title property="skos:prefLabel"></title>
+	</head>
+	<body>
+		<h2>
+			<a property="skos:prefLabel" href=""></a>
+		</h2>
+		<pre property="rdfs:comment" class="wiki"></pre>
+		<div rel="skos:hasTopConcept" resource="?top">
+			<a href="?top" property="skos:prefLabel"></a>
+		</div>
+	</body>
+</html>

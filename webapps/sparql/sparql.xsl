@@ -6,20 +6,6 @@
 	<xsl:include href="/callimachus/rdfxml.xsl" />
 	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:param name="this" />
-	<xsl:param name="xslt" select="'/sparql/sparql.xsl'" />
-	<xsl:variable name="sparql">
-		<xsl:call-template name="substring-before-last">
-			<xsl:with-param name="string" select="$xslt"/>
-			<xsl:with-param name="delimiter" select="'/'"/>
-		</xsl:call-template>
-	</xsl:variable>
-	<xsl:variable name="origin">
-		<xsl:call-template name="substring-before-last">
-			<xsl:with-param name="string" select="$sparql" />
-			<xsl:with-param name="delimiter" select="'/'"/>
-		</xsl:call-template>
-	</xsl:variable>
-	<xsl:variable name="profile" select="concat($origin, '/callimachus/profile')" />
 	<xsl:template match="/">
 		<html>
 			<head>
@@ -82,7 +68,7 @@
 	</xsl:template>
 	<xsl:template match="sparql:uri">
 		<a href="{text()}" class="uri">
-			<xsl:call-template name="curie">
+			<xsl:call-template name="iriref">
 				<xsl:with-param name="iri" select="text()"/>
 			</xsl:call-template>
 		</a>
@@ -95,12 +81,12 @@
 	<xsl:template match="sparql:literal">
 		<span class="literal">
 			<xsl:attribute name="datatype">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@datatype" />
 				</xsl:call-template>
 			</xsl:attribute>
 			<xsl:attribute name="title">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@datatype" />
 				</xsl:call-template>
 			</xsl:attribute>

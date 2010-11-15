@@ -1,0 +1,33 @@
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+	<head>
+		<title>New Concept Scheme</title>
+	</head>
+	<body>
+		<form about="" typeof="skos:ConceptScheme" action="">
+			<div>
+				<table>
+					<tr>
+						<td>
+							<label for="label">Label:</label>
+						</td>
+						<td data-cardinality="1">
+							<input id="label" property="skos:prefLabel" size="40"
+								onchange="$(form).attr('about', '/scheme/' + encodeURI(value).replace(/%20/g,'+'))" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label for="desc">Comment:</label>
+						</td>
+						<td data-cardinality="1">
+							<textarea id="desc" class="auto-expand" property="rdfs:comment" />
+						</td>
+					</tr>
+				</table>
+				<button type="submit">Create</button>
+			</div>
+		</form>
+	</body>
+</html>

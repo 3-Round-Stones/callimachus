@@ -10,5 +10,5 @@
 @prefix :<#>.
 
 </callimachus/menu>
-	calli:item [calli:position 3; rdfs:label "Users and Groups"; calli:link <group/list.xml?construct>].
+	calli:item [calli:position 3; rdfs:label "User Groups"; calli:link <group/list.xml?construct>].
 

@@ -1,0 +1,38 @@
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+	<head>
+		<title property="skos:prefLabel"></title>
+		<style>
+			.broader:before {content:'←'}
+			.narrower:before {content:'→'}
+		</style>
+	</head>
+	<body>
+		<h2>
+			<a property="skos:prefLabel" href=""></a>
+		</h2>
+		<div rel="skos:inScheme">
+			<a about="?scheme" property="skos:prefLabel" href="?scheme"></a>
+		</div>
+		<pre property="skos:definition" class="wiki"></pre>
+		<pre property="skos:example" class="wiki"></pre>
+		<pre property="skos:historyNote" class="wiki"></pre>
+		<pre property="skos:scopeNote" class="wiki"></pre>
+		<div rel="skos:broader">
+			<span about="?broader" class="broader">
+				<a property="skos:prefLabel" href="?broader"></a>
+			</span>
+		</div>
+		<div rel="skos:related">
+			<span about="?related" class="related">
+				<a property="skos:prefLabel" href="?related"></a>
+			</span>
+		</div>
+		<div rel="skos:narrower">
+			<span about="?narrower" class="narrower">
+				<a property="skos:prefLabel" href="?narrower"></a>
+			</span>
+		</div>
+	</body>
+</html>

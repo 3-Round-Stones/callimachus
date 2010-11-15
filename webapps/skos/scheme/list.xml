@@ -1,0 +1,20 @@
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+	<head>
+		<title>Concept Schemes</title>
+	</head>
+	<body>
+		<ul class="aside">
+			<li><a href="template?copy">Create a new Scheme</a></li>
+		</ul>
+		<h2>Concept Schemes</h2>
+		<ul class="results">
+			<li class="result" about="?scheme" typeof="skos:ConceptScheme">
+				<img src="favicon.png" class="icon" />
+				<a href="?scheme" property="skos:prefLabel"/>
+				<pre class="wiki summary" property="rdfs:comment" />
+			</li>
+		</ul>
+	</body>
+</html>

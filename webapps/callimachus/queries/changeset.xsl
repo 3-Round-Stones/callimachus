@@ -1,35 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sparql="http://www.w3.org/2005/sparql-results#" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
-	<xsl:include href="../rdfxml.xsl" />
+	<xsl:include href="../iriref.xsl" />
 	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:param name="this" />
-	<xsl:param name="xslt" select="'/callimachus/queries/changeset.xsl'" />
-	<xsl:variable name="queries">
-		<xsl:call-template name="substring-before-last">
-			<xsl:with-param name="string" select="$xslt"/>
-			<xsl:with-param name="delimiter" select="'/'"/>
-		</xsl:call-template>
-	</xsl:variable>
-	<xsl:variable name="callimachus">
-		<xsl:call-template name="substring-before-last">
-			<xsl:with-param name="string" select="$queries"/>
-			<xsl:with-param name="delimiter" select="'/'"/>
-		</xsl:call-template>
-	</xsl:variable>
-	<xsl:variable name="profile" select="concat($callimachus, '/profile')" />
 	<xsl:variable name="name">
 		<xsl:choose>
 			<xsl:when test="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='name']/*">
 				<xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='name']/*" />
 			</xsl:when>
 			<xsl:when test="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='user']/*">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='user']/*"/>
 				</xsl:call-template>
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="$this"/>
 				</xsl:call-template>
 			</xsl:otherwise>
@@ -83,7 +69,7 @@
 				<xsl:text disable-output-escaping="yes">&lt;/ul&gt;</xsl:text>
 			</xsl:if>
 			<a href="{$subject}">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="$subject"/>
 				</xsl:call-template>
 			</a>
@@ -91,7 +77,7 @@
 		</xsl:if>
 		<li about="{$subject}">
 			<label class="predicate">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="$predicate"/>
 				</xsl:call-template>
 			</label>
@@ -115,11 +101,11 @@
 	<xsl:template match="sparql:uri">
 		<a href="{text()}" class="uri">
 			<xsl:attribute name="rel">
-				<xsl:call-template name="curie">
+				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="text()" />
 				</xsl:call-template>
 			</xsl:attribute>
-			<xsl:call-template name="curie">
+			<xsl:call-template name="iriref">
 				<xsl:with-param name="iri" select="text()"/>
 			</xsl:call-template>
 		</a>

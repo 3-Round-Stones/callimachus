@@ -235,9 +235,12 @@ fi
 
 if [ -z "$OPTS" ] ; then
   if [ "$RESTRICT_IO" = "false" ]; then
-    OPTS="-d \"$BASEDIR\" -p $PORT -a $AUTHORITY --trust"
+    OPTS="--trust"
+  fi
+  if [ -z "$STORE" ]; then
+    OPTS="-d \"$BASEDIR\" -p $PORT -a $AUTHORITY $OPTS"
   else
-    OPTS="-d \"$BASEDIR\" -p $PORT -a $AUTHORITY"
+    OPTS="-d \"$BASEDIR\" -p $PORT -a $AUTHORITY -r \"$STORE\" $OPTS"
   fi
 fi
 

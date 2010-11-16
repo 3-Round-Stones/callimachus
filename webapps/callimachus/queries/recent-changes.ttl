@@ -21,7 +21,11 @@
 	obj:sparql """
 		SELECT REDUCED ?label ?note ?icon ?url ?revision ?modified ?user ?name
 		WHERE {
-			?revision audit:committedOn ?modified; http:authorized ?user
+			?revision audit:committedOn ?modified
+			OPTIONAL { ?revision http:authorized ?user
+				OPTIONAL { ?user skos:prefLabel ?name }
+				OPTIONAL { ?user rdfs:label ?name }
+			}
 			{
 				GRAPH ?revision { ?url ?p ?o FILTER (?p != audit:contained) }
 			} UNION {
@@ -31,8 +35,8 @@
 			FILTER (?url != ?user)
 			FILTER (isIRI(?url))
 			OPTIONAL { ?url a [calli:icon ?icon] }
+			OPTIONAL { ?url skos:prefLabel ?label }
 			OPTIONAL { ?url rdfs:label ?label }
-			OPTIONAL { ?user rdfs:label ?name }
 			OPTIONAL {
 				{
 					GRAPH ?revision { ?url skos:changeNote ?note }

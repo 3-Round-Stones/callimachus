@@ -165,6 +165,7 @@ a[href]:hover {
 	border-right: 0px;
 	margin: 0px 0px 1ex 10em;
 	padding: 1ex;
+	padding-left: 1em;
 	min-height: 150pt;
 	clear: right;
 }
@@ -261,6 +262,10 @@ form {
 	margin: 0px;
 }
 
+label {
+	font-weight: bold;
+}
+
 input, select, textarea {
 	background-image: -moz-linear-gradient(top, #DDDDDD, white);
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#DDDDDD), to(white));
@@ -281,6 +286,10 @@ button {
 	border: thin solid #3F547F;
 	-moz-border-radius: 2pt;
 	border-radius: 2pt;
+}
+
+button.secondary {
+	margin-left: 3ex;
 }
 
 label.error {

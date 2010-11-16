@@ -2,7 +2,7 @@
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-	<xsl:include href="iriref.xsl" />
+	<xsl:import href="iriref.xsl" />
 	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:param name="this" />
 	<xsl:template match="/">

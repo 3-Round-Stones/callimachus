@@ -44,8 +44,9 @@
 		<ul class="aside">
 			<li>The username cannot be changed once the created</li>
 			<li>Provide your full name for identification</li>
-			<li>The password can be changed in a settings link</li>
+			<li>The password can be changed using the settings link</li>
 		</ul>
+		<h1>Initial Setup</h1>
 		<form action="" about="" autocomplete="off" onsubmit="savePassword()">
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<span style="display:none">
@@ -57,52 +58,29 @@
 				</span>
 				<span id="realm-span" resource="/" />
 			</span>
-			<fieldset>
-				<legend>Administrator information</legend>
-				<table>
-					<tbody>
-						<tr>
-							<th>
-								<label for="username">Username:</label>
-							</th>
-							<td data-cardinality="1">
-								<input id="username" name="username" property="calli:name" type="text" class="auto-expand"
-									onchange="$(form).attr('about', '../user/' + encodeURI(value).replace(/%20/g,'+'))" />
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<label for="name">Full name:</label>
-							</th>
-							<td data-cardinality="1">
-								<input id="name" name="name" property="rdfs:label" type="text" class="auto-expand" />
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<label for="password">Password:</label>
-							</th>
-							<td>
-								<input id="password" name="password" type="password" password="#username" onkeyup="$(this).valid()" />
-								<div class="password-meter">
-									<label for="password" class="password-meter-message" />
-									<div class="password-meter-bg">
-										<div class="password-meter-bar"></div>
-									</div>
-								</div>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<label for="confirm-password-input">Confirm password:</label>
-							</th>
-							<td>
-								<input id="confirm-password-input" name="confirm-password-input" type="password" equalTo="#password" />
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</fieldset>
+			<label for="username">Username</label>
+			<div data-cardinality="1">
+				<input id="username" name="username" property="calli:name" type="text" class="auto-expand"
+					onchange="$(form).attr('about', '../user/' + encodeURI(value).replace(/%20/g,'+'))" />
+			</div>
+			<label for="name">Full name</label>
+			<div data-cardinality="1">
+				<input id="name" name="name" property="rdfs:label" type="text" class="auto-expand" />
+			</div>
+			<label for="password">Password</label>
+			<div>
+				<input id="password" name="password" type="password" password="#username" onkeyup="$(this).valid()" />
+				<div class="password-meter">
+					<label for="password" class="password-meter-message" />
+					<div class="password-meter-bg">
+						<div class="password-meter-bar"></div>
+					</div>
+				</div>
+			</div>
+			<label for="confirm-password-input">Confirm password</label>
+			<div>
+				<input id="confirm-password-input" name="confirm-password-input" type="password" equalTo="#password" />
+			</div>
 			<button type="submit">Create</button>
 		</form>
 	</body>

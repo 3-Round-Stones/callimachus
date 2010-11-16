@@ -28,8 +28,10 @@
 		<p>You can request a new password by providing the e-mail address associated with your account.</p>
 		<form method="POST" action="/accounts/authority?request-password"
 				onsubmit="requestPassword(action, elements['email'].value);return false">
-			<label for="email">Account e-mail address:</label>
-			<input type="text" name="email" id="email" />
+			<label for="email">Account e-mail address</label>
+			<div>
+				<input type="text" name="email" id="email" />
+			</div>
 			<button type="submit">Request Password</button>
 		</form>
 		<div id="success" style="display:none">

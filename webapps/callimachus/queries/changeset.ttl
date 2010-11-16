@@ -42,6 +42,7 @@
 				$this audit:committedOn ?modified
 				OPTIONAL {
 					$this http:authorized ?user
+					OPTIONAL { ?user skos:prefLabel ?name }
 					OPTIONAL { ?user rdfs:label ?name }
 				}
 			} UNION {

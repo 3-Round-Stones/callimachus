@@ -86,19 +86,19 @@
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js"></script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js"></script>
 			<script type="text/javascript" src="{$layout}/template.js"> </script>
-			<xsl:if test="contains($query, 'copy') or contains($query, 'edit') ">
+			<xsl:if test="$query='copy' or $query='edit'">
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.qtip.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js"> </script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.validate.js"> </script>
-			<xsl:if test="contains($query, 'copy')">
+			<xsl:if test="$query='copy'">
 			<script type="text/javascript" src="{$callimachus}/operations/copy.js"> </script>
 			</xsl:if>
-			<xsl:if test="contains($query, 'edit')">
+			<xsl:if test="$query='edit'">
 			<script type="text/javascript" src="{$callimachus}/operations/edit.js"> </script>
 			</xsl:if>
 			<script type="text/javascript" src="{$callimachus}/scripts/elements.js"> </script>
 			</xsl:if>
-			<xsl:if test="//*[@class][contains(@class, 'wiki')]">
+			<xsl:if test="//pre[@class][contains(@class, 'wiki')]">
 			<script type="text/javascript" src="{$callimachus}/scripts/creole.js"> </script>
 			</xsl:if>
 			<script type="text/javascript" src="{$callimachus}/scripts/enhancements.js"> </script>
@@ -167,7 +167,7 @@
 			</div>
 
 			<ul id="tabs">
-				<xsl:if test="contains($query, 'view')">
+				<xsl:if test="$query='view'">
 					<li class="authenticated">
 						<span>View</span>
 					</li>
@@ -184,7 +184,7 @@
 						<a class="diverted replace history" href="">History</a>
 					</li>
 				</xsl:if>
-				<xsl:if test="contains($query, 'edit')">
+				<xsl:if test="$query='edit'">
 					<li>
 						<a class="diverted replace view" href="">View</a>
 					</li>
@@ -201,7 +201,7 @@
 						<a class="diverted replace history" href="">History</a>
 					</li>
 				</xsl:if>
-				<xsl:if test="contains($query, 'discussion')">
+				<xsl:if test="$query='discussion'">
 					<li>
 						<a class="diverted replace view" href="">View</a>
 					</li>
@@ -218,7 +218,7 @@
 						<a class="diverted replace history" href="">History</a>
 					</li>
 				</xsl:if>
-				<xsl:if test="contains($query, 'describe')">
+				<xsl:if test="$query='describe'">
 					<li>
 						<a class="diverted replace view" href="">View</a>
 					</li>
@@ -235,7 +235,7 @@
 						<a class="diverted replace history" href="">History</a>
 					</li>
 				</xsl:if>
-				<xsl:if test="contains($query, 'history')">
+				<xsl:if test="$query='history'">
 					<li>
 						<a class="diverted replace view" href="">View</a>
 					</li>
@@ -263,7 +263,7 @@
 			</div>
 
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
-				<xsl:if test="contains($query, 'view')">
+				<xsl:if test="$query='view'">
 					<p id="footer-lastmod" rel="audit:revision" resource="?revision">This resource was last modified
 						<span property="audit:committedOn" class="abbreviated datetime-locale" />.
 					</p>

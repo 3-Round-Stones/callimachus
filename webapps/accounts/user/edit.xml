@@ -36,78 +36,43 @@
 			<li>Your e-mail address is used to reset your password</li>
 			<li>Your password may be changed at any time</li>
 		</ul>
+		<h1 property="rdfs:label" />
 		<form action="" about="" autocomplete="off" onsubmit="savePassword()">
-			<fieldset>
-				<legend>Shared information</legend>
-				<table>
-					<tbody>
-						<tr>
-							<th>
-								<label for="label-input">Full name:</label>
-							</th>
-							<td data-cardinality="1">
-								<input id="label-input" property="rdfs:label" type="text" class="auto-expand required" />
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<label for="comment-textarea">General information:</label>
-							</th>
-							<td data-cardinality="1">
-								<textarea id="comment-textarea" class="auto-expand"
-									property="rdfs:comment"></textarea>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</fieldset>
-			<fieldset>
-				<legend>Account information</legend>
-				<table>
-					<tbody>
-						<tr>
-							<th>
-								<label for="email-input">E-Mail address:</label>
-							</th>
-							<td data-cardinality="1">
-								<input id="email-input" property="calli:email" type="text" class="auto-expand email" />
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<label for="confirm-email-input">Confirm address:</label>
-							</th>
-							<td>
-								<input id="confirm-email-input" type="text" class="auto-expand" equalTo="#email-input" />
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<label for="password-input">Change password:</label>
-							</th>
-							<td>
-								<input id="password-input" type="password" class="password" onkeyup="$(this).valid()" />
-								<div class="password-meter">
-									<label for="password" class="password-meter-message" />
-									<div class="password-meter-bg">
-										<div class="password-meter-bar"></div>
-									</div>
-								</div>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<label for="confirm-password-input">Confirm password:</label>
-							</th>
-							<td>
-								<input id="confirm-password-input" type="password" equalTo="#password-input" />
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</fieldset>
-			<button type="button" onclick="if (confirm('Are you sure you want to delete this user account?')) calli.delete()">Delete</button>
+			<label for="label-input">Full name</label>
+			<div data-cardinality="1">
+				<input id="label-input" property="rdfs:label" type="text" class="auto-expand required" />
+			</div>
+			<label for="comment-textarea">Additional information</label>
+			<div data-cardinality="1">
+				<textarea id="comment-textarea" class="auto-expand"
+					property="rdfs:comment"></textarea>
+			</div>
+			<hr />
+			<label for="email-input">E-mail address</label>
+			<div data-cardinality="1">
+				<input id="email-input" property="calli:email" type="text" class="auto-expand email" />
+			</div>
+			<label for="confirm-email-input">Confirm address</label>
+			<div>
+				<input id="confirm-email-input" type="text" class="auto-expand" equalTo="#email-input" />
+			</div>
+			<hr />
+			<label for="password-input">Change password</label>
+			<div>
+				<input id="password-input" type="password" class="password" onkeyup="$(this).valid()" />
+				<div class="password-meter">
+					<label for="password" class="password-meter-message" />
+					<div class="password-meter-bg">
+						<div class="password-meter-bar"></div>
+					</div>
+				</div>
+			</div>
+			<label for="confirm-password-input">Confirm password</label>
+			<div>
+				<input id="confirm-password-input" type="password" equalTo="#password-input" />
+			</div>
 			<button type="submit">Save</button>
+			<button type="button" class="secondary" onclick="if (confirm('Are you sure you want to delete this user account?')) calli.delete()">Delete</button>
 			<span style="display:none">
 				<span id="encoded-span" property="calli:encoded" />
 				<span id="name-span" property="calli:name" />

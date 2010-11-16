@@ -149,6 +149,9 @@ set "AUTHORITY=%AUTHORITY%:%PORT%"
 
 if not "%OPT%" == "" goto gotOpt
 set "OPT=-d "%BASEDIR%" -p %PORT% -a %AUTHORITY%"
+if "%STORE%" == "" goto gotStore
+set "OPT=%OPT% -r "%STORE%""
+:gotStore
 if not "%RESTRICT_IO%" == "false" goto gotOpt
 set "OPT=%OPT% --trust"
 :gotOpt

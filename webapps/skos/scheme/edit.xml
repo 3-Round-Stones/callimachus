@@ -14,46 +14,36 @@
 		</script>
 	</head>
 	<body>
+		<ul class="aside">
+			<li>Use a recognizable label. Provide clarity in the comment.</li>
+			<li>List the most used or recommended concepts is the list.</li>
+			<li>Ensure all concepts of this scheme point back to this scheme.</li>
+		</ul>
+		<h1 property="skos:prefLabel" />
 		<form about="" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()">
 			<div>
-				<table>
-					<tr>
-						<td>
-							<label for="label">Label:</label>
-						</td>
-						<td data-cardinality="1">
-							<input id="label" property="skos:prefLabel" size="40" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label for="desc">Comment:</label>
-						</td>
-						<td data-cardinality="1">
-							<textarea id="desc" class="auto-expand" property="rdfs:comment" />
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>Top concepts:</label>
-						</td>
-						<td rel="skos:hasTopConcept" data-prompt="/skos/concept/template?copy">
-							<span about="?top" typeof="skos:Concept">
-								<span property="skos:prefLabel"></span>
-							</span>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>Change note:</label>
-						</td>
-						<td>
-							<input type="text" id="note" maxlength="140" class="auto-expand" />
-						</td>
-					</tr>
-				</table>
+				<label for="label">Label</label>
+				<div data-cardinality="1">
+					<input id="label" property="skos:prefLabel" class="required auto-expand" />
+				</div>
+				<label for="desc">Comment</label>
+				<div data-cardinality="1">
+					<textarea id="desc" class="auto-expand" property="rdfs:comment" />
+				</div>
+				<hr />
+				<label>Top concepts</label>
+				<div rel="skos:hasTopConcept" data-prompt="/skos/concept/template?copy">
+					<span about="?top" typeof="skos:Concept">
+						<span property="skos:prefLabel"></span>
+					</span>
+				</div>
+				<hr />
+				<label>Change note</label>
+				<div>
+					<input type="text" id="note" maxlength="140" class="auto-expand" />
+				</div>
 				<button type="submit">Save</button>
-				<button type="button" onclick="if (confirm('Are you sure you want to delete this scheme?')) calli.delete()">Delete</button>
+				<button type="button" class="secondary" onclick="if (confirm('Are you sure you want to delete this scheme?')) calli.delete()">Delete</button>
 			</div>
 		</form>
 	</body>

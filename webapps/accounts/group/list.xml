@@ -3,10 +3,10 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 	<head>
-		<title>Account Groups</title>
+		<title>User Groups</title>
 	</head>
 	<body>
-		<h1>Account Groups</h1>
+		<h1>User Groups</h1>
 		<ul>
 			<li about="?group">
 				<span rel="rdf:type" resource="Group" />

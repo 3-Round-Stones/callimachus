@@ -25,14 +25,15 @@
 			} UNION {
 				?revision audit:contained [rdf:subject ?url]
 			}
-			?revision audit:committedOn ?modified; http:authorized ?user
+			?revision audit:committedOn ?modified
+			OPTIONAL { ?revision http:authorized ?user OPTIONAL { ?user rdfs:label ?name }}
 			FILTER (?url != ?revision)
 			FILTER (?url != ?user)
 			FILTER (?url != $this)
 			FILTER (isIRI(?url))
 			OPTIONAL { ?url a [calli:icon ?icon] }
+			OPTIONAL { ?url skos:prefLabel ?label }
 			OPTIONAL { ?url rdfs:label ?label }
-			OPTIONAL { ?user rdfs:label ?name }
 			OPTIONAL {
 				{
 					GRAPH ?revision { ?url skos:changeNote ?note }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sparql="http://www.w3.org/2005/sparql-results#">
-	<xsl:include href="../iriref.xsl" />
+	<xsl:import href="../iriref.xsl" />
 	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:template match="/">
 		<html>
@@ -69,7 +69,7 @@
 			</xsl:if>
 			<xsl:if test="sparql:binding[@name='url']">
 				<div class="cite">
-					<span class="url">
+					<span class="url" title="{sparql:binding[@name='url']/*}">
 						<xsl:variable name="ref">
 							<xsl:call-template name="iriref">
 								<xsl:with-param name="iri" select="sparql:binding[@name='url']/*" />

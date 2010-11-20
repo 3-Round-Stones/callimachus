@@ -53,8 +53,8 @@ calli:authorize-maintainer owl:equivalentClass calli:authorize-credential;
 		ASK {
 			{
 				$subject calli:reviewer $credential
-				FILTER ($method = "GET" || $method = "HEAD")
-				FILTER ($qs = "view" || $qs = "history" || !bound($qs))
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "discussion")
+				FILTER ($qs = "view" || $qs = "discussion" || $qs = "history" || !bound($qs))
 			} UNION {
 				$subject calli:scribe $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
@@ -65,8 +65,8 @@ calli:authorize-maintainer owl:equivalentClass calli:authorize-credential;
 				FILTER ($qs = "copy")
 			} UNION {
 				$subject a [calli:conservator $credential]
-				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "edit")
-				FILTER ($qs = "view" || $qs = "history" || $qs = "edit" || !bound($qs))
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && ($qs = "edit" || $qs = "discussion"))
+				FILTER ($qs = "view" || $qs = "edit" || $qs = "discussion" || $qs = "history" || !bound($qs))
 			} UNION {
 				$subject calli:maintainer $credential
 			}
@@ -79,8 +79,8 @@ calli:authorize-member owl:equivalentClass calli:authorize-credential;
 			?group calli:member $credential
 			{
 				$subject calli:reviewer ?group
-				FILTER ($method = "GET" || $method = "HEAD")
-				FILTER ($qs = "view" || $qs = "history" || !bound($qs))
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "discussion")
+				FILTER ($qs = "view" || $qs = "discussion" || $qs = "history" || !bound($qs))
 			} UNION {
 				$subject calli:scribe ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
@@ -91,8 +91,8 @@ calli:authorize-member owl:equivalentClass calli:authorize-credential;
 				FILTER ($qs = "copy")
 			} UNION {
 				$subject a [calli:conservator ?group]
-				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "edit")
-				FILTER ($qs = "view" || $qs = "history" || $qs = "edit" || !bound($qs))
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && ($qs = "edit" || $qs = "discussion"))
+				FILTER ($qs = "view" || $qs = "edit" || $qs = "discussion" || $qs = "history" || !bound($qs))
 			} UNION {
 				$subject calli:maintainer ?group
 			}

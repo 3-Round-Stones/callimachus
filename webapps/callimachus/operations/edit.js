@@ -45,15 +45,8 @@ function submitRDFForm(form, stored) {
 				if (redirect.indexOf('?') > 0) {
 					redirect = redirect.substring(0, redirect.indexOf('?'))
 				}
-				if (form.attr("data-redirect")) {
-					redirect = form.attr("data-redirect")
-				}
-				var event = jQuery.Event("calli:redirect");
-				if (form.hasClass("diverted")) {
-					event.location = window.calli.diverted(redirect, form.get(0))
-				} else {
-					event.location = redirect
-				}
+				var event = jQuery.Event("calli:redirect")
+				event.location = redirect + "?view"
 				form.trigger(event)
 				if (!event.isDefaultPrevented()) {
 					location.replace(event.location);

@@ -122,21 +122,17 @@
 					</span>
 				</a>
 				<form id="login-form" style="display:none;position:absolute;padding: 1em" class="ui-widget-content ui-corner-bottom">
-					<p class="textbox">
-						<label for="username">Username</label>
-						<input type="text" id="login-username" name="username" size="15" />
-					</p>
+					<label for="username">Username</label>
+					<div><input type="text" id="login-username" name="username" size="15" /></div>
 
-					<p class="textbox">
-						<label for="password">Password</label>
-						<input type="password" id="login-password" name="password" size="15" />
-					</p>
+					<label for="password">Password</label>
+					<div><input type="password" id="login-password" name="password" size="15" /></div>
 
-					<p class="remember">
+					<div>
 						<button type="submit">Login</button>
 						<input type="checkbox" id="remember" name="remember" />
 						<label for="remember">Remember me</label>
-					</p>
+					</div>
 
 					<p class="forgot">
 						<a href="/accounts/unauthorized.xml">Forgot password or username?</a>
@@ -172,81 +168,81 @@
 						<span>View</span>
 					</li>
 					<li class="authenticated">
-						<a class="diverted replace edit" href="">Edit</a>
+						<a class="replace" data-diverted="?edit" href="">Edit</a>
 					</li>
 					<li class="authenticated">
-						<a class="diverted replace discussion" href="">Discussion</a>
+						<a class="replace" data-diverted="?discussion" href="">Discussion</a>
 					</li>
 					<li class="authenticated">
-						<a class="diverted replace describe" href="">Describe</a>
+						<a class="replace" data-diverted="?describe" href="">Describe</a>
 					</li>
 					<li class="authenticated">
-						<a class="diverted replace history" href="">History</a>
+						<a class="replace" data-diverted="?history" href="">History</a>
 					</li>
 				</xsl:if>
 				<xsl:if test="$query='edit'">
 					<li>
-						<a class="diverted replace view" href="">View</a>
+						<a class="replace" data-diverted="?view" href="">View</a>
 					</li>
 					<li>
 						<span>Edit</span>
 					</li>
 					<li>
-						<a class="diverted replace discussion" href="">Discussion</a>
+						<a class="replace" data-diverted="?discussion" href="">Discussion</a>
 					</li>
 					<li>
-						<a class="diverted replace describe" href="">Describe</a>
+						<a class="replace" data-diverted="?describe" href="">Describe</a>
 					</li>
 					<li>
-						<a class="diverted replace history" href="">History</a>
+						<a class="replace" data-diverted="?history" href="">History</a>
 					</li>
 				</xsl:if>
 				<xsl:if test="$query='discussion'">
 					<li>
-						<a class="diverted replace view" href="">View</a>
+						<a class="replace" data-diverted="?view" href="">View</a>
 					</li>
 					<li>
-						<a class="diverted replace edit" href="">Edit</a>
+						<a class="replace" data-diverted="?edit" href="">Edit</a>
 					</li>
 					<li>
 						<span>Discussion</span>
 					</li>
 					<li>
-						<a class="diverted replace describe" href="">Describe</a>
+						<a class="replace" data-diverted="?describe" href="">Describe</a>
 					</li>
 					<li>
-						<a class="diverted replace history" href="">History</a>
+						<a class="replace" data-diverted="?history" href="">History</a>
 					</li>
 				</xsl:if>
 				<xsl:if test="$query='describe'">
 					<li>
-						<a class="diverted replace view" href="">View</a>
+						<a class="replace" data-diverted="?view" href="">View</a>
 					</li>
 					<li>
-						<a class="diverted replace edit" href="">Edit</a>
+						<a class="replace" data-diverted="?edit" href="">Edit</a>
 					</li>
 					<li>
-						<a class="diverted replace discussion" href="">Discussion</a>
+						<a class="replace" data-diverted="?discussion" href="">Discussion</a>
 					</li>
 					<li>
 						<span>Describe</span>
 					</li>
 					<li>
-						<a class="diverted replace history" href="">History</a>
+						<a class="replace" data-diverted="?history" href="">History</a>
 					</li>
 				</xsl:if>
 				<xsl:if test="$query='history'">
 					<li>
-						<a class="diverted replace view" href="">View</a>
+						<a class="replace" data-diverted="?view" href="">View</a>
 					</li>
 					<li>
-						<a class="diverted replace edit" href="">Edit</a>
+						<a class="replace" data-diverted="?edit" href="">Edit</a>
 					</li>
 					<li>
-						<a class="diverted replace discussion" href="">Discussion</a>
+						<a class="replace" data-diverted="?discussion" href="">Discussion</a>
 					</li>
 					<li>
-						<a class="diverted replace describe" href="">Describe</a>
+						<a class="replace" data-diverted="?describe" href="">Describe</a>
 					</li>
 					<li>
 						<span>History</span>

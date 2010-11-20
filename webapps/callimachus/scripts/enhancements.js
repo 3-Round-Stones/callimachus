@@ -55,20 +55,8 @@ window.calli.diverted = function(url, node) {
 	if (url.indexOf(prefix) != 0 || url.indexOf('?') > 0 || url.indexOf('#') > 0) {
 		url = prefix + path + encodeURIComponent(url)
 	}
-	if ($(node).hasClass("view"))
-	    return url + '?view'
-	if ($(node).hasClass("copy"))
-	    return url + '?copy'
-	if ($(node).hasClass("edit"))
-	    return url + '?edit'
-	if ($(node).hasClass("delete"))
-	    return url + '?delete'
-	if ($(node).hasClass("history"))
-	    return url + '?history'
-	if ($(node).hasClass("describe"))
-	    return url + '?describe'
-	if ($(node).hasClass("discussion"))
-	    return url + '?discussion'
+	if ($(node).attr("data-diverted"))
+	    return url + $(node).attr("data-diverted")
 	return url
 }
 
@@ -98,18 +86,7 @@ window.calli.divertedLinkClicked = function(e) {
 }
 
 function divertLinks() {
-	var links = document.getElementsByTagName("a")
-	for (var i=0; i<links.length; i++) {
-		var link = links.item(i)
-		var css = link.className
-		if (css && css.match(/\bdiverted\b/)) {
-			if (link.attachEvent) {
-				link.attachEvent("onclick", window.calli.divertedLinkClicked)
-			} else {
-				link.addEventListener("click", window.calli.divertedLinkClicked, false)
-			}
-		}
-	}
+	var links = $("a.diverted,a[data-diverted]").click(window.calli.divertedLinkClicked)
 }
 
 function initWiki() {

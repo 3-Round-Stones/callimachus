@@ -26,27 +26,16 @@ function submitRDFForm(form) {
 			var type = "application/rdf+xml"
 			var data = added.dump({format:"application/rdf+xml",serialize:true})
 			postData(form, location.href, type, data, function(data, textStatus, xhr) {
-				var uri = location.href
-				if (uri.indexOf('?') > 0) {
-					uri = uri.substring(0, uri.indexOf('?'))
-				}
 				var redirect = xhr.getResponseHeader("Location")
-				if (form.attr("data-redirect")) {
-					redirect = form.attr("data-redirect")
-				} else if (redirect) {
-					redirect = redirect
-				} else {
-					redirect = uri
-				}
-				var event = jQuery.Event("calli:redirect");
-				if (form.hasClass("diverted")) {
+				var event = jQuery.Event("calli:redirect")
+				if (form.hasClass("diverted") || form.attr("data-diverted")) {
 					event.location = window.calli.diverted(redirect, form.get(0))
 				} else {
 					event.location = redirect
 				}
 				form.trigger(event)
 				if (!event.isDefaultPrevented()) {
-					location.replace(event.location);
+					location.replace(event.location)
 				}
 			})
 		} catch(e) {

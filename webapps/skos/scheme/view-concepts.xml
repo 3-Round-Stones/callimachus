@@ -2,19 +2,19 @@
 <html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title property="skos:prefLabel"></title>
+		<title property="skos:prefLabel"/>
 	</head>
 	<body>
 		<ul class="aside">
-			<li><a href="?view-concepts">View all Concepts</a></li>
 			<li><a href="/skos/concept/template?copy">Create a new Concept</a></li>
 		</ul>
-		<h2>
-			<a property="skos:prefLabel" href=""></a>
-		</h2>
-		<pre property="rdfs:comment" class="wiki"></pre>
-		<div rel="skos:hasTopConcept" resource="?top">
-			<a href="?top" property="skos:prefLabel"></a>
-		</div>
+		<h2>Concepts in Scheme <span property="skos:prefLabel"/></h2>
+		<ul class="results">
+			<li class="result" rev="skos:inScheme" resource="?concept">
+				<img src="/skos/concept/favicon.png" class="icon" />
+				<a href="?concept" property="skos:prefLabel"/>
+				<pre class="wiki summary" property="skos:definition" />
+			</li>
+		</ul>
 	</body>
 </html>

@@ -25,7 +25,8 @@ function initElements(form) {
 function callReady(node) {
 	if (!currentlyLoading) {
 		currentlyLoading++ // don't run this again
-		node.trigger("calli:form")
+		// wait until other onload events have been processed before triggering
+		setTimeout(function() { node.trigger("calli:form") }, 0)
 	}
 }
 

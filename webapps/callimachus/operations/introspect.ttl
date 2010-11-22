@@ -174,7 +174,7 @@ calli:introspect rdfs:subClassOf obj:Message;
 		for (var o = 0; o < operations.length; o++) {
 			out.writeStartElement("li");
 			out.writeStartElement("a");
-			out.writeAttribute("href", "#" + operations[o].getName());
+			out.writeAttribute("href", "?introspect#" + operations[o].getName());
 			out.writeCharacters(operations[o].getName());
 			out.writeEndElement();
 			out.writeEndElement();
@@ -191,7 +191,7 @@ calli:introspect rdfs:subClassOf obj:Message;
 			var method = properties[p].getReadMethod();
 			out.writeStartElement("li");
 			out.writeStartElement("a");
-			out.writeAttribute("href", "#" + name1);
+			out.writeAttribute("href", "?introspect#" + name1);
 			out.writeCharacters(name1);
 			out.writeEndElement();
 			out.writeEndElement();
@@ -206,7 +206,7 @@ calli:introspect rdfs:subClassOf obj:Message;
 		for (var m = 0; m < methods.length; m++) {
 			out.writeStartElement("li");
 			out.writeStartElement("a");
-			out.writeAttribute("href", "#" + methods[m].getName());
+			out.writeAttribute("href", "?introspect#" + methods[m].getName());
 			out.writeCharacters(methods[m].getName());
 			out.writeEndElement();
 			out.writeEndElement();

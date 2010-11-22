@@ -67,11 +67,6 @@
 					<xsl:value-of select="$origin"/>
 					<xsl:value-of select="." />
 				</xsl:when>
-				<xsl:when test="starts-with(., '#') and $query">
-					<xsl:value-of select="'?'" />
-					<xsl:value-of select="$query" />
-					<xsl:value-of select="." />
-				</xsl:when>
 				<xsl:otherwise>
 					<xsl:value-of select="." />
 				</xsl:otherwise>

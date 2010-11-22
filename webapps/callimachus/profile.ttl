@@ -25,8 +25,7 @@
 <profile> calli:maintainer <../group/admin>.
 
 :get-profile rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:hasValue <profile>];
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <profile>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
 	http:method "GET";
@@ -83,6 +82,7 @@
 	obj:name "form".
 
 :profile-xsl rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <profile>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xml";

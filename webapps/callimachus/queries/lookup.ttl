@@ -10,8 +10,7 @@
 @prefix :<#>.
 
 :menu-lookup rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:hasValue <../lookup>];
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../lookup>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom obj:TupleResult];
 	http:method "GET";
@@ -61,6 +60,7 @@
 	obj:name "regex".
 
 :lookup-xsl rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../lookup>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xml";

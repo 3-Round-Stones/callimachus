@@ -33,6 +33,8 @@
 	obj:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
 
 :graph-xsl rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:NamedGraph];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xml";

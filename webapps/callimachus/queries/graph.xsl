@@ -238,6 +238,9 @@
 	<xsl:template match="rdf:Description[@rdf:about]">
 		<div about="{@rdf:about}">
 			<a href="{@rdf:about}" class="uri">
+				<xsl:if test="substring-before(@rdf:about, '#')=$this">
+					<xsl:attribute name="name" select="substring-after(@rdf:about, '#')" />
+				</xsl:if>
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@rdf:about"/>
 				</xsl:call-template>
@@ -249,7 +252,7 @@
 	</xsl:template>
 	<xsl:template match="rdf:Description[@rdf:ID]">
 		<div about="#{@rdf:ID}">
-			<a href="#{@rdf:ID}" class="uri">
+			<a href="#{@rdf:ID}" class="uri" name="{@rdf:ID}">
 				<xsl:value-of select="@rdf:ID"/>
 			</a>
 			<ul>

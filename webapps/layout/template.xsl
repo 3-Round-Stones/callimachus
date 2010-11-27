@@ -83,6 +83,7 @@
 			<link rel="icon" href="{$layout}/favicon.png" />
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
+			<xsl:apply-templates select="*[local-name()='link' or local-name()='style']" />
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js"></script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js"></script>
 			<script type="text/javascript" src="{$layout}/template.js"> </script>
@@ -105,7 +106,7 @@
 			<xsl:if test="not(base) and $this">
 				<base href="{$this}" />
 			</xsl:if>
-			<xsl:apply-templates select="*|text()|comment()" />
+			<xsl:apply-templates select="*[local-name()!='link' and local-name()!='style']|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
 	<xsl:template match="body">
@@ -152,7 +153,7 @@
 					<span id="search-box">
 						<input id="search-box-input" type="text" size="10" name="q" title="Lookup..." />
 						<button id="search-box-button" type="button" onclick="form.action='{$callimachus}/lookup';form.submit()">
-							<img src="{$layout}/search.png" />
+							<img src="{$layout}/search.png" width="12" height="13" />
 						</button>
 					</span>
 				</form>
@@ -265,7 +266,7 @@
 					</p>
 				</xsl:if>
 				<a href="http://callimachusproject.org/" title="Callimachus">
-					<img src="{$callimachus}/callimachus-powered.png" alt="Callimachus" />
+					<img src="{$callimachus}/callimachus-powered.png" alt="Callimachus" width="98" height="35" />
 				</a>
 			</div>
 		</xsl:copy>

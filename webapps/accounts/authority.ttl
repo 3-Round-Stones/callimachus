@@ -20,55 +20,13 @@
 	calli:forbidden <forbidden.xml>.
 
 ################################
-# authorize
-################################
-
-# all common modification operations must be authorized
-calli:get-copy http:realm <authority>.
-calli:post-copy http:realm <authority>.
-calli:get-edit http:realm <authority>.
-calli:post-edit http:realm <authority>.
-calli:delete http:realm <authority>.
-calli:post-discussion http:realm <authority>.
-
-# Transcation operations must be authorized
-audit:Transaction http:realm <authority>.
-
-# transcations are authorized by the subject they modified
-:transaction-view-authorize owl:equivalentClass calli:authorize-credential;
-	obj:sparql """
-		ASK {
-			$subject a audit:Transaction
-			{
-				GRAPH $subject { ?subj ?pred ?obj }
-			} UNION {
-				GRAPH $subject { [rdf:subject ?subj] }
-			} UNION {
-				$subject audit:contained [rdf:subject ?subj]
-			}
-			{
-				?subj calli:reviewer $credential
-			} UNION {
-				?subj calli:maintainer $credential
-			} UNION {
-				?subj calli:reviewer [calli:member $credential]
-			} UNION {
-				?subj calli:maintainer [calli:member $credential]
-			}
-			FILTER ($method = "GET" || $method = "HEAD")
-			FILTER ($qs = "view" || $qs = "describe" || !bound($qs))
-		}
-	""".
-
-################################
 # login
 ################################
 
 # A generic URL that requires authorization
 # Available to user when not logged in
 :login rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:DigestRealm];
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <authority>];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:allValuesFrom xsd:string];
 	http:operation "login";
@@ -83,16 +41,6 @@ audit:Transaction http:realm <authority>.
 	http:header "Referer";
 	obj:name "referer".
 
-:login-authorize owl:equivalentClass calli:authorize-credential;
-	obj:sparql """
-		ASK {
-			$subject calli:authenticates [calli:member $credential]
-			FILTER ($method = "GET" || $method = "HEAD")
-			FILTER ($subject = <authority>)
-			FILTER ($qs = "login" || $qs = "welcome")
-		}
-	""".
-
 ################################
 # logout
 ################################
@@ -100,8 +48,7 @@ audit:Transaction http:realm <authority>.
 # Prompts the browser to login using different credentials
 # Available to user when logged in
 :logout rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:DigestRealm];
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <authority>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:operation "logout";
@@ -164,8 +111,7 @@ audit:Transaction http:realm <authority>.
 # Redirection to the authorized user
 # Used to display the currently authorized user
 :authenticated rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:DigestRealm];
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <authority>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom calli:Credential];
 	http:operation "authenticated";
@@ -187,8 +133,7 @@ audit:Transaction http:realm <authority>.
 # Redirection to the authorized user
 # Used to welcome new users
 :welcome rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:DigestRealm];
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <authority>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom calli:Credential];
 	http:operation "welcome";

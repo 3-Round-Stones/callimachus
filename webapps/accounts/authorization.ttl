@@ -19,36 +19,48 @@
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
 @prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
 
-calli:authorize-credential rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:DigestRealm];
+# all common modification operations must be authorized
+calli:get-copy http:realm <authority>.
+calli:post-copy http:realm <authority>.
+calli:get-edit http:realm <authority>.
+calli:post-edit http:realm <authority>.
+calli:delete http:realm <authority>.
+calli:post-discussion http:realm <authority>.
+
+# Transcation operations must be authorized
+audit:Transaction http:realm <authority>.
+
+:authorize-credential rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <authority>];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:cardinality "1"^^xsd:nonNegativeInteger];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:allValuesFrom xsd:boolean];
 	obj:name "calliAuthorizeCredential".
 
-calli:authorize-credential-arg1 a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain calli:authorize-credential;
+:authorize-credential-arg1 a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :authorize-credential;
 	obj:name "credential".
 
-calli:authorize-credential-arg2 a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain calli:authorize-credential;
+:authorize-credential-arg2 a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :authorize-credential;
 	rdfs:range xsd:string;
 	obj:name "method".
 
-calli:authorize-credential-arg3 a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain calli:authorize-credential;
+:authorize-credential-arg3 a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :authorize-credential;
 	obj:name "subject".
 
-calli:authorize-credential-arg4 a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain calli:authorize-credential;
+:authorize-credential-arg4 a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :authorize-credential;
 	rdfs:range xsd:string;
 	obj:name "qs".
 
-calli:authorize-maintainer owl:equivalentClass calli:authorize-credential;
+:authorize-maintainer owl:equivalentClass :authorize-credential;
 	obj:sparql """
 		ASK {
 			{
@@ -73,7 +85,7 @@ calli:authorize-maintainer owl:equivalentClass calli:authorize-credential;
 		}
 	""".
 
-calli:authorize-member owl:equivalentClass calli:authorize-credential;
+:authorize-member owl:equivalentClass :authorize-credential;
 	obj:sparql """
 		ASK {
 			?group calli:member $credential
@@ -96,6 +108,43 @@ calli:authorize-member owl:equivalentClass calli:authorize-credential;
 			} UNION {
 				$subject calli:maintainer ?group
 			}
+		}
+	""".
+
+# anybody with credentials can login and are welcome
+:login-authorize owl:equivalentClass :authorize-credential;
+	obj:sparql """
+		ASK {
+			$subject calli:authenticates [calli:member $credential]
+			FILTER ($method = "GET" || $method = "HEAD")
+			FILTER ($subject = <authority>)
+			FILTER ($qs = "login" || $qs = "welcome")
+		}
+	""".
+
+# transcations are authorized by the subject they modified
+:transaction-view-authorize owl:equivalentClass :authorize-credential;
+	obj:sparql """
+		ASK {
+			$subject a audit:Transaction
+			{
+				GRAPH $subject { ?subj ?pred ?obj }
+			} UNION {
+				GRAPH $subject { [rdf:subject ?subj] }
+			} UNION {
+				$subject audit:contained [rdf:subject ?subj]
+			}
+			{
+				?subj calli:reviewer $credential
+			} UNION {
+				?subj calli:maintainer $credential
+			} UNION {
+				?subj calli:reviewer [calli:member $credential]
+			} UNION {
+				?subj calli:maintainer [calli:member $credential]
+			}
+			FILTER ($method = "GET" || $method = "HEAD")
+			FILTER ($qs = "view" || $qs = "describe" || !bound($qs))
 		}
 	""".
 

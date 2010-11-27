@@ -38,7 +38,7 @@
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xml";
-	http:transform <layout.ttl#template-xsl>;
+	http:transform <../layout.ttl#template-xsl>;
 	obj:xslt <graph.xsl>.
 
 :graph-xsl-xml a owl:ObjectProperty, owl:FunctionalProperty;

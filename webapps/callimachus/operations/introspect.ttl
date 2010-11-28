@@ -57,9 +57,100 @@ calli:introspect rdfs:subClassOf obj:Message;
 			out.writeEndElement();
 		}
 
+		function printOperation(name1, method) {
+			var type = method.getGenericReturnType();
+			printName(name1, method);
+			var accept = null;
+			var parameters = [];
+			var headers = [];
+			var panns = method.getParameterAnnotations();
+			for (var i = 0; i < panns.length; i++) {
+				var obj = {};
+				for (var j = 0; j < panns[i].length; j++) {
+					if (panns[i][j].annotationType().equals(iri)) {
+						obj.href = panns[i][j].value();
+					} else if (panns[i][j].annotationType().equals(org.openrdf.repository.object.annotations.name)) {
+						obj.pname = panns[i][j].value()[0];
+					} else if (panns[i][j].annotationType().equals(org.openrdf.http.object.annotations.type)) {
+						obj.title = panns[i][j].value().join(", ");
+					} else if (panns[i][j].annotationType().equals(org.openrdf.http.object.annotations.parameter)) {
+						obj.parameter = panns[i][j].value()[0];
+					} else if (panns[i][j].annotationType().equals(org.openrdf.http.object.annotations.header)) {
+						obj.header = panns[i][j].value()[0];
+					}
+				}
+				if (obj.parameter && obj.parameter != "*") {
+					parameters.push(obj);
+				} else if (obj.header) {
+					headers.push(obj);
+				} else {
+					accept = obj.title;
+				}
+			}
+			if (parameters.length && method.isAnnotationPresent(org.openrdf.http.object.annotations.operation)) {
+				out.writeCharacters("&");
+			} else if (parameters.length) {
+				out.writeCharacters("?");
+			}
+			for (var i = 0; i < parameters.length; i++) {
+				if (i > 0) {
+					out.writeCharacters("&");
+				}
+				out.writeCharacters(parameters[i].parameter);
+				out.writeCharacters("=");
+				out.writeStartElement("a");
+				if (parameters[i].href) {
+					out.writeAttribute("href", parameters[i].href);
+				}
+				if (parameters[i].title) {
+					out.writeAttribute("title", parameters[i].title);
+				}
+				out.writeCharacters("{");
+				if (parameters[i].pname) {
+					out.writeCharacters(parameters[i].pname);
+				} else if (parameters[i].href) {
+					out.writeCharacters(parameters[i].href.replaceAll(".*[:/#](?=[^:/#]*$)", ""));
+				} else {
+					out.writeCharacters("arg" + (i + 1));
+				}
+				out.writeCharacters("}");
+				out.writeEndElement();
+			}
+			for (var i = 0; i < headers.length; i++) {
+				out.writeCharacters(" ");
+				out.writeCharacters(headers[i].header);
+				out.writeCharacters(": ");
+				out.writeStartElement("a");
+				if (headers[i].href) {
+					out.writeAttribute("href", headers[i].href);
+				}
+				if (headers[i].title) {
+					out.writeAttribute("title", headers[i].title);
+				}
+				out.writeCharacters("{");
+				if (headers[i].pname) {
+					out.writeCharacters(headers[i].pname);
+				} else if (headers[i].href) {
+					out.writeCharacters(headers[i].href.replaceAll(".*[:/#](?=[^:/#]*$)", ""));
+				} else {
+					out.writeCharacters("arg" + (i + 1));
+				}
+				out.writeCharacters("}");
+				out.writeEndElement();
+			}
+			out.writeStartElement("ul");
+			if (accept) {
+				printValue("accept", accept);
+			}
+			if (method.isAnnotationPresent(org.openrdf.http.object.annotations.type)) {
+				printValue("response type", method.getAnnotation(org.openrdf.http.object.annotations.type).value().join(", "));
+			}
+			out.writeEndElement();
+		}
+
 		function printProperty(pname, method) {
 			var type = method.getGenericReturnType();
-			var value = method.invoke(this, []);
+			var value = method.invoke(target, []);
 			printName(pname, method);
 			out.writeStartElement("ul");
 			printValue("return type", type);
@@ -67,8 +158,7 @@ calli:introspect rdfs:subClassOf obj:Message;
 			out.writeEndElement();
 		}
 
-		function printMethod(method) {
-			var name1 = method.getName();
+		function printMethod(name1, method) {
 			var type = method.getGenericReturnType();
 			printName(name1, method);
 			out.writeCharacters("(");
@@ -133,10 +223,22 @@ calli:introspect rdfs:subClassOf obj:Message;
 			var m = methods[i].getMethod();
 			if (m.isAnnotationPresent(org.openrdf.http.object.annotations.method)
 					|| m.isAnnotationPresent(org.openrdf.http.object.annotations.operation)) {
-				operations.push(methods[i]);
+				var name1 = "";
+				if (m.isAnnotationPresent(org.openrdf.http.object.annotations.method)) {
+					name1 = m.getAnnotation(org.openrdf.http.object.annotations.method).value()[0];
+				}
+				if (m.isAnnotationPresent(org.openrdf.http.object.annotations.operation)) {
+					name1 += "?" + m.getAnnotation(org.openrdf.http.object.annotations.operation).value()[0];
+				}
+				operations.push({operation: name1, method: m});
 				methods.splice(i, 1);
 			}
 		}
+		operations.sort(function(a,b){
+			if (a.operation < b.operation) return -1;
+			if (a.operation > b.operation) return 1;
+			return 0;
+		});
 		for (var p = properties.length - 1; p >= 0; p--) {
 			var read = properties[p].getReadMethod();
 			var write = properties[p].getWriteMethod();
@@ -174,8 +276,8 @@ calli:introspect rdfs:subClassOf obj:Message;
 		for (var o = 0; o < operations.length; o++) {
 			out.writeStartElement("li");
 			out.writeStartElement("a");
-			out.writeAttribute("href", "?introspect#" + operations[o].getName());
-			out.writeCharacters(operations[o].getName());
+			out.writeAttribute("href", "?introspect#" + operations[o].operation);
+			out.writeCharacters(operations[o].operation);
 			out.writeEndElement();
 			out.writeEndElement();
 		}
@@ -218,7 +320,7 @@ calli:introspect rdfs:subClassOf obj:Message;
 		out.writeStartElement("ul");
 		for (var o = 0; o < operations.length; o++) {
 			out.writeStartElement("li");
-			printMethod.call(this, operations[o].getMethod());
+			printOperation(operations[o].operation, operations[o].method);
 			out.writeEndElement();
 		}
 		out.writeEndElement();
@@ -228,7 +330,7 @@ calli:introspect rdfs:subClassOf obj:Message;
 			var name1 = properties[p].getName();
 			var method = properties[p].getReadMethod();
 			out.writeStartElement("li");
-			printProperty.call(this, name1, method);
+			printProperty(name1, method);
 			out.writeEndElement();
 		}
 		out.writeEndElement();
@@ -236,7 +338,7 @@ calli:introspect rdfs:subClassOf obj:Message;
 		out.writeStartElement("ul");
 		for (var m = 0; m < methods.length; m++) {
 			out.writeStartElement("li");
-			printMethod.call(this, methods[m].getMethod());
+			printMethod(methods[m].getName(), methods[m].getMethod());
 			out.writeEndElement();
 		}
 		out.writeEndElement();

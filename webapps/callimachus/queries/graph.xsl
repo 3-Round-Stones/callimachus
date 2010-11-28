@@ -2,7 +2,7 @@
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-	<xsl:import href="iriref.xsl" />
+	<xsl:import href="../iriref.xsl" />
 	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:param name="this" />
 	<xsl:template match="/">
@@ -239,7 +239,7 @@
 		<div about="{@rdf:about}">
 			<a href="{@rdf:about}" class="uri">
 				<xsl:if test="substring-before(@rdf:about, '#')=$this">
-					<xsl:attribute name="name" select="substring-after(@rdf:about, '#')" />
+					<xsl:attribute name="name"><xsl:value-of select="substring-after(@rdf:about, '#')" /></xsl:attribute>
 				</xsl:if>
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@rdf:about"/>

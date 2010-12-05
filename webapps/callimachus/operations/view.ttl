@@ -32,25 +32,42 @@ calli:get-view rdfs:subClassOf obj:Message;
 	http:rel "alternate";
 	http:operation "view";
 	http:type "text/html";
-	obj:imports <java:org.openrdf.http.object.exceptions.NotFound>;
+	obj:imports calli:Template;
+	obj:imports <java:org.callimachusproject.annotations.view>;
+	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:script """
-		var template = findViewTemplate();
-		if (template == null)
-			throw new NotFound("Missing view template");
-		return template.calliConstruct(this, 'view');
-	""".
-
-calli:find-view-template rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Viewable];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom calli:Template];
-	obj:name "findViewTemplate";
-	obj:sparql """
-		SELECT DISTINCT ?template
-		WHERE {
-			$this a [calli:view ?template] .
-			?template a calli:Template
+		function findAnnotatedClass(klass, ann) {
+			if (klass.isAnnotationPresent(ann)) {
+				return klass;
+			}
+			var result;
+			if (klass.getSuperclass()) {
+				result = findAnnotatedClass(klass.getSuperclass(), ann);
+			}
+			var interfaces = klass.getInterfaces();
+			for (var i = interfaces.length; i--;) {
+				var face = findAnnotatedClass(interfaces[i], ann);
+				if (face) {
+					if (result && !result.isAssignableFrom(face)) {
+						throw new InternalServerError("Conflicting templates for "
+							+ result.simpleName +  " and " + face.simpleName);
+					} else {
+						result = face;
+					}
+				}
+			}
+			return result;
 		}
+		var annotated = findAnnotatedClass(this.getClass(), view);
+		if (annotated) {
+			var uri = annotated.getAnnotation(view).value();
+			if (uri.length != 1)
+				throw new InternalServerError("Multiple templates for " + annotated.simpleName);
+			var template = objectConnection.getObject(Template, uri[0]);
+			if (template instanceof Template)
+				return template.calliConstruct(this, 'view');
+			throw new InternalServerError("Missing template");
+		}
+		throw new InternalServerError("No template");
 	""".
 

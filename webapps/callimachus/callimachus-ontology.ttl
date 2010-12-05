@@ -92,14 +92,17 @@ calli:MailSubmitter a owl:Class;
 # Annotation
 ################################
 
+calli:conservator a owl:AnnotationProperty;
+	rdfs:comment "Credential or group of credentials that can maintain individual resources of this class.".
+
 calli:copy a owl:AnnotationProperty;
-	rdfs:comment "The RDFa template used to copy this resource using a Web browser.".
+	rdfs:comment "The RDFa template used to copy individual resources of this class using a Web browser.".
 
 calli:edit a owl:AnnotationProperty;
-	rdfs:comment "The RDFa template used to edit this resource using a Web browser.".
+	rdfs:comment "The RDFa template used to edit individual resources of this class using a Web browser.".
 
 calli:view a owl:AnnotationProperty;
-	rdfs:comment "The RDFa template used to display this resource in a Web browser.".
+	rdfs:comment "The RDFa template used to display individual resources of this class in a Web browser.".
 
 ################################
 # Property
@@ -170,9 +173,6 @@ calli:curator a owl:ObjectProperty;
 	rdfs:comment "Credential or group of credentials that will maintain any copied resources.";
 	rdfs:domain calli:Copyable;
 	rdfs:range calli:Party.
-
-calli:conservator a owl:AnnotationProperty;
-	rdfs:comment "Credential or group of credentials that can maintain individual resources of this class.".
 
 calli:maintainer a owl:ObjectProperty;
 	rdfs:comment "Credential or group of credentials that can interact with this resource remotely.";

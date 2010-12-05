@@ -90,9 +90,6 @@
 					<xsl:with-param name="iri" select="@rdf:resource"/>
 				</xsl:call-template>
 			</a>
-			<xsl:text> (</xsl:text>
-			<a href="{@rdf:resource}" data-diverted="?describe">discribe</a>
-			<xsl:text>) </xsl:text>
 		</li>
 	</xsl:template>
 	<xsl:template match="*[@rdf:datatype]">

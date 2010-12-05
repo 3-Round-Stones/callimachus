@@ -32,12 +32,8 @@ calli:get-edit rdfs:subClassOf obj:Message;
 	http:operation "edit";
 	http:type "text/html";
 	http:cache-control "no-cache";
-	obj:imports <java:org.openrdf.http.object.exceptions.NotFound>;
 	obj:script """
-		var template = findEditTemplate();
-		if (template == null)
-			throw new NotFound("Missing edit template");
-		return template.calliConstruct(this, 'edit');
+		return findEditTemplate().calliConstruct(this, 'edit');
 	""".
 
 calli:post-edit rdfs:subClassOf obj:Message;
@@ -50,11 +46,8 @@ calli:post-edit rdfs:subClassOf obj:Message;
 	http:type "message/x-response";
 	obj:imports <java:org.apache.http.ProtocolVersion>;
 	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:script """
 		var template = findEditTemplate();
-		if (template == null)
-			throw new InternalServerError("Missing Edit Template");
 		template.calliEditResource(this, input);
 		var ver = new ProtocolVersion("HTTP", 1, 1);
 		var resp = new BasicHttpResponse(ver, 201, "Modified");
@@ -74,11 +67,42 @@ calli:find-edit-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom calli:Template];
 	obj:name "findEditTemplate";
-	obj:sparql """
-		SELECT DISTINCT ?template
-		WHERE {
-			$this a [calli:edit ?template] .
-			?template a calli:Template
+	obj:imports calli:Template;
+	obj:imports <java:org.callimachusproject.annotations.edit>;
+	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	obj:script """
+		function findAnnotatedClass(klass, ann) {
+			if (klass.isAnnotationPresent(ann)) {
+				return klass;
+			}
+			var result;
+			if (klass.getSuperclass()) {
+				result = findAnnotatedClass(klass.getSuperclass(), ann);
+			}
+			var interfaces = klass.getInterfaces();
+			for (var i = interfaces.length; i--;) {
+				var face = findAnnotatedClass(interfaces[i], ann);
+				if (face) {
+					if (result && !result.isAssignableFrom(face)) {
+						throw new InternalServerError("Conflicting templates for "
+							+ result.simpleName +  " and " + face.simpleName);
+					} else {
+						result = face;
+					}
+				}
+			}
+			return result;
 		}
+		var annotated = findAnnotatedClass(this.getClass(), edit);
+		if (annotated) {
+			var uri = annotated.getAnnotation(edit).value();
+			if (uri.length != 1)
+				throw new InternalServerError("Multiple templates for " + annotated.simpleName);
+			var template = objectConnection.getObject(Template, uri[0]);
+			if (template instanceof Template)
+				return template;
+			throw new InternalServerError("Missing template");
+		}
+		throw new InternalServerError("No template");
 	""".
 

@@ -120,7 +120,7 @@ calli:get-pdf rdfs:subClassOf obj:Message;
 	http:type "application/pdf";
 	obj:script "return openInputStream()".
 
-calli:get-template rdfs:subClassOf obj:Message;
+calli:get-xml rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:application/xml>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;

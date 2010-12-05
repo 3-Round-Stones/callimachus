@@ -2,12 +2,41 @@
 
 (function($){
 
+var options = {type: "GET",
+	complete: function(req) {
+		if (req.status < 300 ) {
+			loggedIn(req)
+		} else {
+			loggedOut(req)
+		}
+	},
+	beforeSend: function(req) {
+		try {
+			req.withCredentials = true
+		} catch (e) {}
+	}
+}
+options.url = "/accounts/authority?authenticated"
+if (window.localStorage) {
+	var auth = localStorage.getItem('Authorization')
+	if (auth && auth.indexOf("Basic ") == 0) {
+		var up = window.atob(auth.substring("Basic ".length))
+		options.url = "/accounts/authority?welcome"
+		options.username = up.substring(0, up.indexOf(':'))
+		options.password = up.substring(up.indexOf(':') + 1)
+	} else if (auth && auth.indexOf("Credentials ") == 0) {
+		var up = auth.substring("Credentials ".length)
+		options.url = "/accounts/authority?welcome"
+		options.username = up.substring(0, up.indexOf(':'))
+		options.password = up.substring(up.indexOf(':') + 1)
+	}
+}
+jQuery.ajax(options)
+
 if (window.addEventListener) {
 	window.addEventListener("DOMContentLoaded", hideFluffIfInFrame, false)
-	window.addEventListener("DOMContentLoaded", getCredentials, false)
 } else {
 	window.attachEvent("onload", hideFluffIfInFrame)
-	window.attachEvent("onload", getCredentials)
 }
 
 function hideFluffIfInFrame() {
@@ -46,39 +75,6 @@ function hideSiblings(node) {
 		node.style.border = "none"
 		node.style.margin = "0px"
 	}
-}
-
-function getCredentials() {
-	var options = {type: "GET",
-		complete: function(req) {
-			if (req.status < 300 ) {
-				loggedIn(req)
-			} else {
-				loggedOut(req)
-			}
-		},
-		beforeSend: function(req) {
-			try {
-				req.withCredentials = true
-			} catch (e) {}
-		}
-	}
-	options.url = document.getElementById("authenticated-link").href
-	if (window.localStorage) {
-		var auth = localStorage.getItem('Authorization')
-		if (auth && auth.indexOf("Basic ") == 0) {
-			var up = window.atob(auth.substring("Basic ".length))
-			options.url = document.getElementById("welcome-link").href
-			options.username = up.substring(0, up.indexOf(':'))
-			options.password = up.substring(up.indexOf(':') + 1)
-		} else if (auth && auth.indexOf("Credentials ") == 0) {
-			var up = auth.substring("Credentials ".length)
-			options.url = document.getElementById("welcome-link").href
-			options.username = up.substring(0, up.indexOf(':'))
-			options.password = up.substring(up.indexOf(':') + 1)
-		}
-	}
-	jQuery.ajax(options)
 }
 
 function loggedIn(req) {

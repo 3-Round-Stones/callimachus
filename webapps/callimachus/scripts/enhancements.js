@@ -206,10 +206,20 @@ function changeDateLocale() {
 				if (node.is(".abbreviated")) {
 					var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()]
 					if (node.is(".datetime-locale, .time-locale")) {
-						if (date.getMinutes() > 10) {
-							locale = date.getHours() + ':' + date.getMinutes()
+						var minutes;
+						if (date.getMinutes() >= 10) {
+							minutes = ':' + date.getMinutes()
 						} else if (date.getHours() > 0 || date.getMinutes() > 0) {
-							locale = date.getHours() + ':0' + date.getMinutes()
+							minutes = ':0' + date.getMinutes()
+						}
+						if (date.getHours() > 12) {
+							locale = (date.getHours() - 12) + minutes + " pm"
+						} else if (date.getHours() == 12) {
+							locale = "12" + minutes + " pm"
+						} else if (date.getHours() > 0) {
+							locale = date.getHours() + minutes + " am"
+						} else if (minutes) {
+							locale = "12" + minutes + " am"
 						}
 					}
 					if (node.is(".datetime-locale, .date-locale")) {

@@ -23,7 +23,11 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-# all common modification operations must be authorized
+################################
+# Authentication
+################################
+
+# all common modification operations must be authenticated
 calli:get-copy http:realm <authority>.
 calli:post-copy http:realm <authority>.
 calli:get-edit http:realm <authority>.
@@ -31,8 +35,12 @@ calli:post-edit http:realm <authority>.
 calli:delete http:realm <authority>.
 calli:post-discussion http:realm <authority>.
 
-# Transcation operations must be authorized
+# Transcation operations must be authenticated
 audit:Transaction http:realm <authority>.
+
+################################
+# Authorization
+################################
 
 :authorize-credential rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <authority>];
@@ -66,7 +74,8 @@ audit:Transaction http:realm <authority>.
 			{
 				$subject calli:reviewer $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "discussion")
-				FILTER ($qs = "view" || $qs = "discussion" || $qs = "history" || !bound($qs))
+				FILTER (!bound($qs) || $qs = "view" || $qs = "discussion" || $qs = "history"
+					|| $qs = "what-links-here" || $qs = "related-changes")
 			} UNION {
 				$subject calli:scribe $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
@@ -75,10 +84,6 @@ audit:Transaction http:realm <authority>.
 				$subject calli:curator $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($qs = "copy")
-			} UNION {
-				$subject a [calli:conservator $credential]
-				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && ($qs = "edit" || $qs = "discussion"))
-				FILTER ($qs = "view" || $qs = "edit" || $qs = "discussion" || $qs = "history" || !bound($qs))
 			} UNION {
 				$subject calli:maintainer $credential
 			}
@@ -92,7 +97,8 @@ audit:Transaction http:realm <authority>.
 			{
 				$subject calli:reviewer ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "discussion")
-				FILTER ($qs = "view" || $qs = "discussion" || $qs = "history" || !bound($qs))
+				FILTER (!bound($qs) || $qs = "view" || $qs = "discussion" || $qs = "history"
+					|| $qs = "what-links-here" || $qs = "related-changes")
 			} UNION {
 				$subject calli:scribe ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
@@ -102,16 +108,58 @@ audit:Transaction http:realm <authority>.
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($qs = "copy")
 			} UNION {
-				$subject a [calli:conservator ?group]
-				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && ($qs = "edit" || $qs = "discussion"))
-				FILTER ($qs = "view" || $qs = "edit" || $qs = "discussion" || $qs = "history" || !bound($qs))
-			} UNION {
 				$subject calli:maintainer ?group
 			}
 		}
 	""".
 
-# anybody with credentials can login and are welcome
+:authorize-conservator owl:equivalentClass :authorize-credential;
+	obj:imports calli:Group;
+	obj:imports <java:org.callimachusproject.annotations.conservator>;
+	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	obj:script """
+		function findAnnotatedClass(klass, ann) {
+			if (klass.isAnnotationPresent(ann)) {
+				return [klass];
+			}
+			var result = [];
+			if (klass.getSuperclass()) {
+				result = findAnnotatedClass(klass.getSuperclass(), ann);
+			}
+			var interfaces = klass.getInterfaces();
+			for (var i = interfaces.length; i--;) {
+				var face = findAnnotatedClass(interfaces[i], ann);
+				for (var f = face.length; f--;) {
+					for (var r = result.length; r--;) {
+						if (result[r].isAssignableFrom(face[f])) {
+							result.splice(r, 1); //# annotation overridden
+						}
+					}
+					result.push(face[f]);
+				}
+			}
+			return result;
+		}
+		if (method == "GET" || method == "HEAD" || method == "POST" && (qs == "edit" || qs == "discussion")) {
+			if (qs == null || qs == "view" || qs == "edit" || qs == "discussion" || qs == "describe" || qs == "history"
+						|| qs == "what-links-here" || qs == "related-changes" || qs == "introspect") {
+				var annotated = findAnnotatedClass(subject.getClass(), conservator);
+				for (var a = annotated.length; a--;) {
+					var uri = annotated[a].getAnnotation(conservator).value();
+					for (var u = uri.length; u--;) {
+						if (credential.resource.stringValue().equals(uri[u]))
+							return true;
+						var group = objectConnection.objectFactory.createObject(uri[u], Group);
+						if (group.calliMembers.contains(credential))
+							return true;
+					}
+				}
+			}
+		}
+		return proceed();
+	""".
+
+# anybody with credentials can login and is welcome
 :login-authorize owl:equivalentClass :authorize-credential;
 	obj:sparql """
 		ASK {
@@ -143,8 +191,8 @@ audit:Transaction http:realm <authority>.
 			} UNION {
 				?subj calli:maintainer [calli:member $credential]
 			}
-			FILTER ($method = "GET" || $method = "HEAD")
-			FILTER ($qs = "view" || $qs = "describe" || !bound($qs))
+			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "discussion")
+			FILTER ($qs = "view" || $qs = "describe" || $qs = "discussion" || !bound($qs))
 		}
 	""".
 

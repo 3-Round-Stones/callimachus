@@ -33,12 +33,8 @@ calli:get-copy rdfs:subClassOf obj:Message;
 	http:operation "copy";
 	http:type "text/html";
 	http:cache-control "no-cache";
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:script """
-		var template = findCopyTemplate();
-		if (template == null)
-			throw new InternalServerError("Missing Copy Template");
-		return template.calliConstruct(this, 'copy');
+		return findCopyTemplate().calliConstruct(this, 'copy');
 	""".
 
 calli:post-copy rdfs:subClassOf obj:Message;
@@ -49,14 +45,12 @@ calli:post-copy rdfs:subClassOf obj:Message;
 	http:method "POST";
 	http:operation "copy";
 	http:expect "201-created";
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:script """
 		var template = findCopyTemplate();
-		if (template == null)
-			throw new InternalServerError("Missing Copy Template");
 		var copy = template.calliCopyResource(this, input, findCopyNamespaces());
 		if (calliCurators) {
 			copy.calliMaintainers.addAll(calliCurators);
+			copy.calliCurators.addAll(calliCurators);
 		} else {
 			copy.calliMaintainers.addAll(findScribe(copy));
 		}
@@ -75,12 +69,43 @@ calli:find-copy-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom calli:Template];
 	obj:name "findCopyTemplate";
-	obj:sparql """
-		SELECT DISTINCT ?template
-		WHERE {
-			$this a [calli:copy ?template] .
-			?template a calli:Template
+	obj:imports calli:Template;
+	obj:imports <java:org.callimachusproject.annotations.copy>;
+	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	obj:script """
+		function findAnnotatedClass(klass, ann) {
+			if (klass.isAnnotationPresent(ann)) {
+				return klass;
+			}
+			var result;
+			if (klass.getSuperclass()) {
+				result = findAnnotatedClass(klass.getSuperclass(), ann);
+			}
+			var interfaces = klass.getInterfaces();
+			for (var i = interfaces.length; i--;) {
+				var face = findAnnotatedClass(interfaces[i], ann);
+				if (face) {
+					if (result && !result.isAssignableFrom(face)) {
+						throw new InternalServerError("Conflicting templates for "
+							+ result.simpleName +  " and " + face.simpleName);
+					} else {
+						result = face;
+					}
+				}
+			}
+			return result;
 		}
+		var annotated = findAnnotatedClass(this.getClass(), copy);
+		if (annotated) {
+			var uri = annotated.getAnnotation(copy).value();
+			if (uri.length != 1)
+				throw new InternalServerError("Multiple templates for " + annotated.simpleName);
+			var template = objectConnection.getObject(Template, uri[0]);
+			if (template instanceof Template)
+				return template;
+			throw new InternalServerError("Missing template");
+		}
+		throw new InternalServerError("No template");
 	""".
 
 calli:find-copy-namespace rdfs:subClassOf obj:Message;

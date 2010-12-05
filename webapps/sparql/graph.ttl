@@ -41,7 +41,7 @@
 		var ds = new ByteArrayDataSource(input, "multipart/form-data");
 		var part = new MimeMultipart(ds).getBodyPart(0);
 		var fileName = part.fileName;
-		var local = URLEncoder.encode(fileName, "UTF-8").replace(/%20/g, "+");
+		var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+");
 		var uri = toUri().resolve("/graph/") + local;
 		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
 		var vf = objectConnection.getValueFactory();
@@ -52,7 +52,7 @@
 			objectConnection.addDesignation(obj, NamedGraph);
 		}
 		objectConnection.add(file, uri, format, [vf.createURI(uri)]);
-		return uri;
+		return uri; //# FIXME this might be too big of a graph for the browser
 	""".
 
 :upload-rdf-graph-input a owl:DatatypeProperty, owl:FunctionalProperty;

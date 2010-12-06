@@ -2,13 +2,13 @@
 <html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title property="skos:prefLabel"></title>
+		<title about="?this" property="skos:prefLabel"></title>
 		<style>
 			.broader:before {content:'←'}
 			.narrower:before {content:'→'}
 		</style>
 	</head>
-	<body>
+	<body about="?this">
 		<h2>
 			<a property="skos:prefLabel" href=""></a>
 		</h2>

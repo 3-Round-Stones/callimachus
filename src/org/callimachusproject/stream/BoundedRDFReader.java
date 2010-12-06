@@ -44,7 +44,7 @@ public class BoundedRDFReader extends PipedRDFEventReader {
 	protected void process(RDFEvent next) throws RDFParseException {
 		if (next.isStartSubject()) {
 			VarOrTerm subj = next.asSubject().getSubject();
-			if (subj.isVar() && !(subj instanceof BlankOrLiteralVar)) {
+			if (extarnalVar(subj)) {
 				stack.addLast(new LinkedList<RDFEvent>());
 			}
 		}
@@ -67,12 +67,20 @@ public class BoundedRDFReader extends PipedRDFEventReader {
 		}
 		if (next.isEndSubject()) {
 			VarOrTerm subj = next.asSubject().getSubject();
-			if (subj.isVar() && !(subj instanceof BlankOrLiteralVar)) {
+			if (extarnalVar(subj)) {
 				stack.removeLast();
 				if (bound > stack.size()) {
 					bound = stack.size();
 				}
 			}
 		}
+	}
+
+	private boolean extarnalVar(VarOrTerm subj) {
+		if (subj instanceof BlankOrLiteralVar)
+			return false;
+		if (subj.isVar() && !"this".equals(subj.stringValue()))
+			return true;
+		return false;
 	}
 }

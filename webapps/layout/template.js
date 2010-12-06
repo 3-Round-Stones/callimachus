@@ -79,7 +79,7 @@ function hideSiblings(node) {
 
 function loggedIn(req) {
 	var doc = req.responseText
-	var url = /<base[^>]*href="?([^" >]*)"?[^>"]*>/i.exec(doc)[1]
+	var url = /about="([^" >]*)"/i.exec(doc)[1]
 	var title = /<title[^>]*>([^<]*)<\/title>/i.exec(doc)[1]
 	var link = document.getElementById("welcome-link")
 	link.textContent = title

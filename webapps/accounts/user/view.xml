@@ -3,9 +3,9 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 	<head>
-		<title property="rdfs:label"/>
+		<title about="?this" property="rdfs:label"/>
 	</head>
-	<body>
+	<body about="?this">
 		<ul class="aside">
 			<li><a href="?contributions">Contributions</a></li>
 			<li><span>Group memberships</span>

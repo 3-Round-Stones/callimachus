@@ -11,7 +11,7 @@
 			<li>The definition, example, and scope can be provide to clarify usage and meaning.</li>
 		</ul>
 		<h1>New Concept</h1>
-		<form about="" typeof="skos:Concept" action="">
+		<form about="?this" typeof="skos:Concept" action="">
 			<div>
 				<label for="label">Label</label>
 				<div data-cardinality="1">

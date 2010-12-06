@@ -2,7 +2,7 @@
 <html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title property="skos:prefLabel"></title>
+		<title about="?this" property="skos:prefLabel"></title>
 		<script>
 			function saveChangeNote() {
 				var note = document.getElementById('note')
@@ -13,7 +13,7 @@
 			}
 		</script>
 	</head>
-	<body>
+	<body about="?this">
 		<ul class="aside">
 			<li>The primary label should be recognizable.</li>
 			<li>Other labels can be provide to assist concept lookup.</li>
@@ -22,7 +22,7 @@
 			<li>Links to other related concepts may also be provided.</li>
 		</ul>
 		<h1 property="skos:prefLabel" />
-		<form about="" typeof="skos:Concept" action="" onsubmit="saveChangeNote()">
+		<form about="?this" typeof="skos:Concept" action="" onsubmit="saveChangeNote()">
 			<div>
 				<label for="label">Label</label>
 				<div data-cardinality="1">

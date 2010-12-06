@@ -5,7 +5,7 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title property="rdfs:label"/>
+		<title about="?this" property="rdfs:label"/>
 		<script>
 			function saveChangeNote() {
 				var note = document.getElementById('note')
@@ -16,7 +16,7 @@
 			}
 		</script>
 	</head>
-	<body>
+	<body about="?this">
 		<ul class="aside">
 			<li>Use Wiki text to describe the group</li>
 			<li>Scribes can invite new users and create empty groups</li>
@@ -24,7 +24,7 @@
 			<li>Maintainers can add and remove members and authorization groups, invite new users, and create empty groups</li>
 		</ul>
 		<h1><span property="rdfs:label" /> Group</h1>
-		<form action="" about="" onsubmit="saveChangeNote()">
+		<form action="" about="?this" onsubmit="saveChangeNote()">
 			<div>
 				<label for="comment-textarea">Description</label>
 				<div data-cardinality="1">

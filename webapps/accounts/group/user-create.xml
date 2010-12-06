@@ -4,7 +4,7 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 	<head>
-		<title property="rdfs:label"/>
+		<title>Invite a New User</title>
 	</head>
 	<body>
 		<ul class="aside">
@@ -14,7 +14,7 @@
 			<li>Provide the user's full name</li>
 			<li>Provide any additional contact information or affiliation information</li>
 		</ul>
-		<form action="" about="">
+		<form action="" about="?this">
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<label for="name-input">Username</label>
 			<div data-cardinality="1">

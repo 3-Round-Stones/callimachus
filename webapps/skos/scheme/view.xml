@@ -2,9 +2,9 @@
 <html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title property="skos:prefLabel"></title>
+		<title about="?this" property="skos:prefLabel"></title>
 	</head>
-	<body>
+	<body about="?this">
 		<ul class="aside">
 			<li><a href="?view-concepts">View all Concepts</a></li>
 			<li><a href="/skos/concept/template?copy">Create a new Concept</a></li>

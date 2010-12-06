@@ -4,6 +4,7 @@
 
 if (window.addEventListener) {
 	window.addEventListener("DOMContentLoaded", divertLinks, false)
+	window.addEventListener("DOMContentLoaded", replaceLinks, false)
 	window.addEventListener("DOMContentLoaded", initWiki, false)
 	window.addEventListener("DOMContentLoaded", sortElements, false)
 	window.addEventListener("DOMContentLoaded", changeDateLocale, false)
@@ -16,6 +17,7 @@ if (window.addEventListener) {
 	window.addEventListener("paste", targetAutoExpandTextArea, false)
 } else {
 	window.attachEvent("onload", divertLinks)
+	window.attachEvent("onload", replaceLinks)
 	window.attachEvent("onload", initWiki)
 	window.attachEvent("onload", changeDateLocale)
 	window.attachEvent("onload", sortElements)
@@ -33,13 +35,6 @@ if (!window.calli) {
 
 window.calli.diverted = function(url, node) {
     var prefix = location.protocol + '//' + location.host + '/'
-    var scripts = document.getElementsByTagName("script")
-    for (var i = 0; i < scripts.length; i++) {
-    	var src = scripts[i].src
-    	if (src && src.indexOf("/enhancements.js") == src.length - 12) {
-    		prefix = src.substring(0, src.indexOf('/', src.indexOf("://") + 3) + 1)
-    	} 
-    }
     var path = 'diverted;'
     if (url.indexOf(':') < 0) {
         if (node && node.baseURIObject && node.baseURIObject.resolve) {
@@ -87,6 +82,31 @@ window.calli.divertedLinkClicked = function(e) {
 
 function divertLinks() {
 	var links = $("a.diverted,a[data-diverted]").click(window.calli.divertedLinkClicked)
+}
+
+function replaceLinkClicked(e) {
+	var target = e.target
+    if (!target) {
+    	target = e.srcElement
+    }
+	while (target && !target.href) {
+		target = target.parentNode
+	}
+	if (!target || !target.href || !target.ownerDocument)
+		return true;
+	if (e.preventDefault) {
+		e.preventDefault()
+	}
+	var win = target.ownerDocument
+	if (win.defaultView) {
+		win = win.defaultView
+	}
+	win.location.replace(target.href)
+    return false
+}
+
+function replaceLinks() {
+	var links = $("a.replace:not(a.diverted):not(a[data-diverted])").click(replaceLinkClicked)
 }
 
 function initWiki() {

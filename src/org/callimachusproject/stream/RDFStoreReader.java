@@ -105,18 +105,19 @@ public class RDFStoreReader extends RDFEventReader {
 		for (RDFEventReader query : store.openWellJoinedQueries()) {
 			GraphQuery q = con.prepareGraphQuery(SPARQL, toSPARQL(query));
 			if (uri != null) {
+				ValueFactory vf = con.getValueFactory();
+				URI self = vf.createURI(uri);
+				q.setBinding("this", self);
 				TriplePattern tp = patterns.getFirstTriplePattern();
 				if (tp.isInverse()) {
 					VarOrTerm obj = tp.getObject();
 					if (obj.isVar()) {
-						ValueFactory vf = con.getValueFactory();
-						q.setBinding(obj.stringValue(), vf.createURI(uri));
+						q.setBinding(obj.stringValue(), self);
 					}
 				} else {
 					VarOrTerm subj = tp.getSubject();
 					if (subj.isVar()) {
-						ValueFactory vf = con.getValueFactory();
-						q.setBinding(subj.stringValue(), vf.createURI(uri));
+						q.setBinding(subj.stringValue(), self);
 					}
 				}
 			}

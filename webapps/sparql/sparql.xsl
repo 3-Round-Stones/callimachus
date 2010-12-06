@@ -9,7 +9,6 @@
 	<xsl:template match="/">
 		<html>
 			<head>
-				<base href="{$this}" />
 				<title>SPARQL Results</title>
 				<style>
 					.uri, .bnode, .literal { font-size: large; }

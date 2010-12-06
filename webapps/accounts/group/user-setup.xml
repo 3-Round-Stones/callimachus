@@ -4,7 +4,7 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 	<head>
-		<title property="rdfs:label"/>
+		<title>Administrator Account</title>
 		<link type="text/css" href="/accounts/jquery.validate.password.css" rel="stylesheet" />	
 		<script src="/accounts/jquery.validate.password.js">
 		</script>
@@ -47,7 +47,7 @@
 			<li>The password can be changed using the settings link</li>
 		</ul>
 		<h1>Initial Setup</h1>
-		<form action="" about="" autocomplete="off" onsubmit="savePassword()">
+		<form action="" about="?this" autocomplete="off" onsubmit="savePassword()">
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<span style="display:none">
 				<span data-cardinality="1">

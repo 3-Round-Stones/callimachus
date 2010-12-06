@@ -33,7 +33,9 @@
 		<xsl:variable name="html" select="document($profile)/*" />
 		<xsl:variable name="about" select="$target" />
 		<xsl:variable name="scope">
-			<xsl:text></xsl:text>
+			<xsl:text>?this=</xsl:text>
+			<xsl:value-of select="$about" />
+			<xsl:text>&#xA;</xsl:text>
 		</xsl:variable>
 		<xsl:variable name="newscope">
 			<xsl:apply-templates mode="scope-about" select="$html">
@@ -80,11 +82,13 @@
 				<xsl:with-param name="nodeID" select="$nodeID" />
 				<xsl:with-param name="scope" select="$newscope" />
 			</xsl:apply-templates>
-			<xsl:if test="$target">
+			<xsl:if test="$target and ..//*[@property and not(ancestor-or-self::*/@about)]">
+				<!-- included for backwards compatibility with Callimachus 0.4 TODO remove in 0.6 -->
 				<xsl:element name="base">
 					<xsl:attribute name="href"><xsl:value-of
 						select="$target" /></xsl:attribute>
 				</xsl:element>
+				<script>setTimeout(function(){throw('Missing about="?this" in body');},0);</script>
 			</xsl:if>
 			<xsl:apply-templates select="*[local-name()!='base']|text()|comment()">
 				<xsl:with-param name="about" select="$about" />

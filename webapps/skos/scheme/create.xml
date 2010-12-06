@@ -11,7 +11,7 @@
 			<li>Provide a comment describing this scheme for clarity.</li>
 		</ul>
 		<h1>New Concept Scheme</h1>
-		<form about="" typeof="skos:ConceptScheme" action="">
+		<form about="?this" typeof="skos:ConceptScheme" action="">
 			<div>
 				<label for="label">Label</label>
 				<div data-cardinality="1">

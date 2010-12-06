@@ -2,7 +2,7 @@
 <html xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title property="skos:prefLabel"></title>
+		<title about="?this" property="skos:prefLabel"></title>
 		<script>
 			function saveChangeNote() {
 				var note = document.getElementById('note')
@@ -13,14 +13,14 @@
 			}
 		</script>
 	</head>
-	<body>
+	<body about="?this">
 		<ul class="aside">
 			<li>Use a recognizable label. Provide clarity in the comment.</li>
 			<li>List the most used or recommended concepts is the list.</li>
 			<li>Ensure all concepts of this scheme point back to this scheme.</li>
 		</ul>
 		<h1 property="skos:prefLabel" />
-		<form about="" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()">
+		<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()">
 			<div>
 				<label for="label">Label</label>
 				<div data-cardinality="1">

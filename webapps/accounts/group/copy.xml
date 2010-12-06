@@ -12,7 +12,7 @@
 			<li>Use Wiki text to describe the group</li>
 		</ul>
 		<h1>New Group</h1>
-		<form action="" about="">
+		<form action="" about="?this">
 			<div rel="rdf:type" resource="/accounts/group/Group" />
 			<label for="label-input">Name</label>
 			<div data-cardinality="1">

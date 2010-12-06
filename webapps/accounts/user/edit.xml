@@ -4,7 +4,7 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 	<head>
-		<title property="rdfs:label"/>
+		<title about="?this" property="rdfs:label"/>
 		<link type="text/css" href="/accounts/jquery.validate.password.css" rel="stylesheet" />	
 		<script src="/accounts/jquery.validate.password.js">
 		</script>
@@ -27,7 +27,7 @@
 			// ]]>
 		</script>
 	</head>
-	<body>
+	<body about="?this">
 		<ul class="aside">
 			<li>Shared information is viewable to all authenticated users</li>
 			<li>Enter your full name</li>
@@ -37,7 +37,7 @@
 			<li>Your password may be changed at any time</li>
 		</ul>
 		<h1 property="rdfs:label" />
-		<form action="" about="" autocomplete="off" onsubmit="savePassword()">
+		<form action="" about="?this" autocomplete="off" onsubmit="savePassword()">
 			<label for="label-input">Full name</label>
 			<div data-cardinality="1">
 				<input id="label-input" property="rdfs:label" type="text" class="auto-expand required" />

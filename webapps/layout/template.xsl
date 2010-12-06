@@ -49,29 +49,7 @@
 		</xsl:copy>
 	</xsl:template>
 	<xsl:template match="@*">
-		<xsl:attribute name="{name()}">
-			<xsl:choose>
-				<xsl:when test="starts-with(., '/callimachus/') and $callimachus">
-					<xsl:value-of select="$callimachus"/>
-					<xsl:value-of select="substring-after(., '/callimachus')" />
-				</xsl:when>
-				<xsl:when test="starts-with(., '/layout/') and $layout">
-					<xsl:value-of select="$layout"/>
-					<xsl:value-of select="substring-after(., '/layout')" />
-				</xsl:when>
-				<xsl:when test="starts-with(., '//') and $scheme">
-					<xsl:value-of select="concat($scheme, ':')"/>
-					<xsl:value-of select="." />
-				</xsl:when>
-				<xsl:when test="starts-with(., '/') and not(starts-with(., '//')) and $origin">
-					<xsl:value-of select="$origin"/>
-					<xsl:value-of select="." />
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="." />
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:attribute>
+		<xsl:copy />
 	</xsl:template>
 	<xsl:template match="comment()">
 		<xsl:copy />
@@ -103,9 +81,6 @@
 			<script type="text/javascript" src="{$callimachus}/scripts/creole.js"> </script>
 			</xsl:if>
 			<script type="text/javascript" src="{$callimachus}/scripts/enhancements.js"> </script>
-			<xsl:if test="not(base) and $this">
-				<base href="{$this}" />
-			</xsl:if>
 			<xsl:apply-templates select="*[local-name()!='link' and local-name()!='style']|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
@@ -169,81 +144,81 @@
 						<span>View</span>
 					</li>
 					<li class="authenticated">
-						<a class="replace" data-diverted="?edit" href="">Edit</a>
+						<a class="replace" href="?edit">Edit</a>
 					</li>
 					<li class="authenticated">
-						<a class="replace" data-diverted="?discussion" href="">Discussion</a>
+						<a class="replace" href="?discussion">Discussion</a>
 					</li>
 					<li class="authenticated">
-						<a class="replace" data-diverted="?describe" href="">Describe</a>
+						<a class="replace" href="?describe">Describe</a>
 					</li>
 					<li class="authenticated">
-						<a class="replace" data-diverted="?history" href="">History</a>
+						<a class="replace" href="?history">History</a>
 					</li>
 				</xsl:if>
 				<xsl:if test="$query='edit'">
 					<li>
-						<a class="replace" data-diverted="?view" href="">View</a>
+						<a class="replace" href="?view">View</a>
 					</li>
 					<li>
 						<span>Edit</span>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?discussion" href="">Discussion</a>
+						<a class="replace" href="?discussion">Discussion</a>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?describe" href="">Describe</a>
+						<a class="replace" href="?describe">Describe</a>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?history" href="">History</a>
+						<a class="replace" href="?history">History</a>
 					</li>
 				</xsl:if>
 				<xsl:if test="$query='discussion'">
 					<li>
-						<a class="replace" data-diverted="?view" href="">View</a>
+						<a class="replace" href="?view">View</a>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?edit" href="">Edit</a>
+						<a class="replace" href="?edit">Edit</a>
 					</li>
 					<li>
 						<span>Discussion</span>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?describe" href="">Describe</a>
+						<a class="replace" href="?describe">Describe</a>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?history" href="">History</a>
+						<a class="replace" href="?history">History</a>
 					</li>
 				</xsl:if>
 				<xsl:if test="$query='describe'">
 					<li>
-						<a class="replace" data-diverted="?view" href="">View</a>
+						<a class="replace" href="?view">View</a>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?edit" href="">Edit</a>
+						<a class="replace" href="?edit">Edit</a>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?discussion" href="">Discussion</a>
+						<a class="replace" href="?discussion">Discussion</a>
 					</li>
 					<li>
 						<span>Describe</span>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?history" href="">History</a>
+						<a class="replace" href="?history">History</a>
 					</li>
 				</xsl:if>
 				<xsl:if test="$query='history'">
 					<li>
-						<a class="replace" data-diverted="?view" href="">View</a>
+						<a class="replace" href="?view">View</a>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?edit" href="">Edit</a>
+						<a class="replace" href="?edit">Edit</a>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?discussion" href="">Discussion</a>
+						<a class="replace" href="?discussion">Discussion</a>
 					</li>
 					<li>
-						<a class="replace" data-diverted="?describe" href="">Describe</a>
+						<a class="replace" href="?describe">Describe</a>
 					</li>
 					<li>
 						<span>History</span>

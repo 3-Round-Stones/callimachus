@@ -7,7 +7,6 @@
 	<xsl:template match="/">
 		<html>
 			<head>
-				<base href="{$this}" />
 				<title><xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='label']/*" /></title>
 			</head>
 			<body>

@@ -8,7 +8,6 @@
 	<xsl:template match="/">
 		<html>
 			<head>
-				<base href="{$this}" />
 				<title>
 					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="$this"/>

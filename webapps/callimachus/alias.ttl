@@ -1,0 +1,58 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix :<#>.
+
+calli:GetAliasResponse rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Alias];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	http:method "GET";
+	http:type "message/x-response";
+	obj:imports <java:org.apache.http.ProtocolVersion>;
+	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
+	obj:imports <java:org.openrdf.http.object.client.HTTPObjectClient>;
+	obj:imports <java:org.apache.http.message.BasicHttpRequest>;
+	obj:script """
+		var http11 = new ProtocolVersion("HTTP", 1, 1);
+		if (calliCopyOf) {
+			var client = HTTPObjectClient.getInstance();
+			var req = new BasicHttpRequest("GET", calliCopyOf.toString());
+			var resp = client.service(req);
+			var copy = new BasicHttpResponse(http11, 203, "Non-Authoritative Information");
+			copy.setHeaders(resp.getAllHeaders());
+			copy.removeHeaders("Vary");
+			copy.removeHeaders("Access-Control-Allow-Origin");
+			copy.removeHeaders("Last-Modified");
+			copy.removeHeaders("Cache-Control");
+			copy.removeHeaders("Content-Version");
+			copy.removeHeaders("ETag");
+			copy.removeHeaders("Transfer-Encoding");
+			copy.removeHeaders("Content-Encoding");
+			copy.removeHeaders("Connection");
+			copy.removeHeaders("Content-Location");
+			copy.removeHeaders("Link");
+			copy.removeHeaders("Date");
+			if (resp.containsHeader("Server")) {
+				copy.removeHeaders("Server");
+				copy.addHeader("Via", resp.getFirstHeader("Server").getValue());
+			}
+			copy.addHeader("Content-Location", calliCopyOf.toString());
+			copy.setEntity(resp.getEntity());
+			return copy;
+		} else if (calliAliasOf) {
+			var resp = new BasicHttpResponse(http11, 301, "Moved Permanently");
+			resp.addHeader("Location", calliAliasOf.toString());
+			return resp;
+		} else {
+			return null;
+		}
+	""".
+

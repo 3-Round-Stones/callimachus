@@ -560,10 +560,6 @@ public class Uploader {
 	private String getPath(String directory, String name) {
 		boolean gzip = name.endsWith(".gz");
 		name = gzip ? name.substring(0, name.length() - 3) : name;
-		if (name.startsWith("index.") && directory.length() == 0)
-			return "";
-		if (name.startsWith("index."))
-			return directory + "/";
 		if (directory.length() == 0)
 			return name.replace(' ', '+');
 		return directory + "/" + name.replace(' ', '+');

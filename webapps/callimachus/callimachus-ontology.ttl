@@ -34,7 +34,7 @@
 ################################
 
 calli:Alias a owl:Class;
-	rdfs:comment "Moved Permanently (301)".
+	rdfs:comment "".
 
 calli:Copyable a owl:Class;
 	rdfs:comment "Resources that can be copied to create new resources.".
@@ -187,11 +187,12 @@ calli:soundex a owl:DatatypeProperty;
 	rdfs:comment "A soundex encoding of one of this resource's label or label prefix.";
 	rdfs:range xsd:string.
 
+calli:copyOf a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:comment "The authoritative canonical URL of which this alias is a copy of.";
+	rdfs:domain calli:Alias.
+
 calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
-	http:method "GET";
-	http:type "text/uri-list";
-	http:expect "301-moved-permanently";
-	rdfs:comment "The canonical IRI for this alias.";
+	rdfs:comment "The canonical URL for this alias.";
 	rdfs:domain calli:Alias.
 
 ################################

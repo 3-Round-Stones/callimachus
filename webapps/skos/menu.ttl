@@ -24,4 +24,4 @@
 @prefix :<#>.
 
 </callimachus/menu>
-	calli:item [calli:position 4; rdfs:label "Concept schemes"; calli:link <scheme/list.xml?construct>].
+	calli:item [calli:position 4; rdfs:label "Concept schemes"; calli:link <scheme/list.xhtml?construct>].

@@ -208,6 +208,37 @@ calli:put-xml-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
 	http:type "application/xml;q=0.1";
 	obj:name "body".
 
+calli:put-xhtml-document rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:allValuesFrom owl:Nothing];
+	http:method "PUT";
+	http:operation "calli:webapps";
+	http:realm calli:nobody;
+	obj:imports calli:Template;
+	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	obj:script """
+		calliWebappsDelete();
+		objectConnection.addDesignation(this, Template);
+		objectConnection.addDesignation(this, "urn:mimetype:application/xhtml+xml");
+		var read;
+		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+		var out = openOutputStream();
+		try {
+			while ((read = body.read(buf)) >= 0) {
+				out.write(buf, 0, read);
+			}
+		} finally {
+			out.close();
+		}
+		HTTPObjectServer.resetAllCache();
+	""".
+
+calli:put-xhtml-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:put-xhtml-document;
+	rdfs:range <java:java.io.InputStream>;
+	http:type "application/xhtml+xml;q=0.1";
+	obj:name "body".
+
 ################################
 # DELETE
 ################################

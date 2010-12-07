@@ -87,7 +87,7 @@
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xml";
 	http:transform </callimachus/layout.ttl#template-xsl>;
-	obj:xslt <profile.xsl>.
+	obj:xslt <profile.xhtml>.
 
 :profile-xsl-xml a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :profile-xsl;

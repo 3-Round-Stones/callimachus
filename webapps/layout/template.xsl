@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	xmlns:sparql="http://www.w3.org/2005/sparql-results#">
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xhtml="http://www.w3.org/1999/xhtml"
+	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
+	exclude-result-prefixes="xhtml sparql">
+	<xsl:output method="xml" />
 	<xsl:param name="xslt" select="'/layout/template.xsl'" />
 	<xsl:param name="this" />
 	<xsl:param name="query" />
@@ -54,10 +58,11 @@
 	<xsl:template match="comment()">
 		<xsl:copy />
 	</xsl:template>
-	<xsl:template match="head">
+
+	<!-- head -->
+	<xsl:template match="head|xhtml:head">
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
-			<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 			<link rel="icon" href="{$layout}/favicon.png" />
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
@@ -77,14 +82,16 @@
 			</xsl:if>
 			<script type="text/javascript" src="{$callimachus}/scripts/elements.js"> </script>
 			</xsl:if>
-			<xsl:if test="//pre[@class][contains(@class, 'wiki')]">
+			<xsl:if test="//*[local-name()='pre'][@class][contains(@class, 'wiki')]">
 			<script type="text/javascript" src="{$callimachus}/scripts/creole.js"> </script>
 			</xsl:if>
 			<script type="text/javascript" src="{$callimachus}/scripts/enhancements.js"> </script>
 			<xsl:apply-templates select="*[local-name()!='link' and local-name()!='style']|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
-	<xsl:template match="body">
+
+	<!-- body -->
+	<xsl:template match="body|xhtml:body">
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
 			<div id="header">
@@ -246,6 +253,8 @@
 			</div>
 		</xsl:copy>
 	</xsl:template>
+
+	<!-- menu -->
 	<xsl:template mode="nav" match="sparql:sparql">
 		<ul id="nav">
 			<xsl:apply-templates mode="nav" select="sparql:results/sparql:result[not(sparql:binding/@name='parent')]" />

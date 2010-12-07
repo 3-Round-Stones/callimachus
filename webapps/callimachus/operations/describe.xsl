@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xhtml="http://www.w3.org/1999/xhtml"
+	exclude-result-prefixes="xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 	<xsl:import href="../iriref.xsl" />
-	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:param name="this" />
 	<xsl:template match="/rdf:RDF">
 		<html>

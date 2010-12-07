@@ -34,16 +34,17 @@
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <Group>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
+		owl:allValuesFrom <java:java.io.InputStream>];
 	http:operation "user-setup";
-	http:type "text/html";
+	http:type "application/xhtml+xml";
+	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
 	http:realm <local>;
-	obj:imports <user-setup.xml>;
+	obj:imports <user-setup.xhtml>;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	obj:script """
 		if (isAlreadyUserSetup())
 			throw new BadRequest("This service has already been setup");
-		return userSetupXml.calliConstruct(this, 'copy');
+		return userSetupXhtml.calliConstruct(this, 'copy');
 	""".
 
 :post-user-setup rdfs:subClassOf obj:Message;
@@ -55,7 +56,7 @@
 	http:operation "user-setup";
 	http:realm <local>;
 	http:expect "201-created";
-	obj:imports <user-setup.xml>;
+	obj:imports <user-setup.xhtml>;
 	obj:imports <../../user/>;
 	obj:imports <../authority>;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
@@ -63,7 +64,7 @@
 	obj:script """
 		if (isAlreadyUserSetup())
 			throw new BadRequest("This service has already been setup");
-		var copy = userSetupXml.calliCopyResource(this, stream, Collections.singleton(user));
+		var copy = userSetupXhtml.calliCopyResource(this, stream, Collections.singleton(user));
 		calliMembers.add(copy);
 		return authority + "?welcome";
 	""".

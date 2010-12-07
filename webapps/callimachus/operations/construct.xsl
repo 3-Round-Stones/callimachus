@@ -16,12 +16,15 @@
 -->
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xhtml="http://www.w3.org/1999/xhtml"
+	exclude-result-prefixes="xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 	<xsl:param name="this" />
 	<xsl:param name="query" select="''" />
 	<xsl:param name="element" select="'/1'" />
-	<xsl:output omit-xml-declaration="yes" standalone="no" />
+	<xsl:output method="xml" omit-xml-declaration="yes" standalone="no" />
 	<xsl:variable name="profile" select="concat($this, '?xslt&amp;query=', $query, '&amp;element=', $element)" />
 	<xsl:variable name="data" select="/" />
 	<xsl:variable name="variables"
@@ -364,18 +367,6 @@
 			</xsl:attribute>
 		</xsl:when>
 		</xsl:choose>
-	</xsl:template>
-	<!-- <a href="">This Entity</a> -->
-	<xsl:template match="@href[.='']">
-		<xsl:param name="about" />
-		<xsl:attribute name="{name()}" namespace="{namespace-uri()}">
-			<xsl:if test="contains($about, '#')">
-				<xsl:value-of select="substring-before($about, '#')" />
-			</xsl:if>
-			<xsl:if test="not(contains($about, '#'))">
-				<xsl:value-of select="$about" />
-			</xsl:if>
-		</xsl:attribute>
 	</xsl:template>
 	<xsl:template match="@*">
 		<xsl:attribute name="{name()}" namespace="{namespace-uri()}">

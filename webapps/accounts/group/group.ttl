@@ -11,9 +11,9 @@
 	rdfs:subClassOf calli:Copyable, calli:Editable;
 	calli:icon <favicon.png>;
 	calli:withNamespace <../../group/>;
-	calli:view <view.xml>;
-	calli:copy <copy.xml>;
-	calli:edit <edit.xml>.
+	calli:view <view.xhtml>;
+	calli:copy <copy.xhtml>;
+	calli:edit <edit.xhtml>.
 
 # Adds new groups to the set of authenticating groups.
 # Called on group create

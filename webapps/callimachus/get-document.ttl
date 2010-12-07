@@ -129,3 +129,12 @@ calli:get-xml rdfs:subClassOf obj:Message;
 	http:type "application/xml";
 	obj:script "return openInputStream()".
 
+calli:get-xhtml rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom <urn:mimetype:application/xhtml+xml>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.InputStream>];
+	http:method "GET";
+	http:type "application/xhtml+xml";
+	obj:script "return openInputStream()".
+

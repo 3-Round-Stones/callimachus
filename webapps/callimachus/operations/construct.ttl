@@ -24,25 +24,51 @@
 @prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
+calli:ConstructHTML rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom calli:Template];
+	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
+		owl:allValuesFrom xsd:string];
+	http:type "text/html";
+	obj:script """
+		var reader = xhtmlToHtmlXsl(calliConstruct(object));
+		try {
+			var writer = new java.io.CharArrayWriter();
+			var read;
+			var cbuf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
+			while ((read = reader.read(cbuf)) >= 0) {
+				writer.write(cbuf, 0, read);
+			}
+			return writer.toString();
+		} finally {
+			reader.close();
+		}
+	""".
+
+calli:ConstructHTML-object a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:ConstructHTML;
+	obj:name "object".
+
 calli:construct-template rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Template];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
-	http:type "text/html";
+		owl:allValuesFrom <java:java.io.InputStream>];
+	http:type "application/xhtml+xml";
+	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
 	obj:xslt <construct.xsl>.
 
 calli:construct-template-arg1 a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:construct-template;
 	rdfs:range xsd:string;
-	http:parameter "query";
-	obj:name "query".
+	http:parameter "element";
+	obj:name "element".
 
 calli:construct-template-arg2 a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:construct-template;
 	rdfs:range xsd:string;
-	http:parameter "element";
-	obj:name "element".
+	http:parameter "query";
+	obj:name "query".
 
 calli:construct-template-arg3 a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:construct-template;

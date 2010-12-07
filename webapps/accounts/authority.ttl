@@ -16,8 +16,8 @@
 	calli:origin <../>;
 	calli:authName <../>;
 	calli:domain <../>;
-	calli:unauthorized <unauthorized.xml>;
-	calli:forbidden <forbidden.xml>.
+	calli:unauthorized <unauthorized.xhtml>;
+	calli:forbidden <forbidden.xhtml>.
 
 ################################
 # login

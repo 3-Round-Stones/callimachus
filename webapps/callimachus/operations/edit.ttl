@@ -28,9 +28,10 @@ calli:get-edit rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
+		owl:allValuesFrom <java:java.io.InputStream>];
 	http:operation "edit";
-	http:type "text/html";
+	http:type "application/xhtml+xml";
+	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
 	http:cache-control "no-cache";
 	obj:script """
 		return findEditTemplate().calliConstruct(this, 'edit');

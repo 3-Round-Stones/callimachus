@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
-	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sparql="http://www.w3.org/2005/sparql-results#" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xhtml="http://www.w3.org/1999/xhtml"
+	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
+	exclude-result-prefixes="xhtml sparql">
 	<xsl:import href="../iriref.xsl" />
-	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:param name="this" />
 	<xsl:variable name="name">
 		<xsl:choose>

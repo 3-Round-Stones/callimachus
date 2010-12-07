@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml" version="1.0"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
+	xmlns:rdfa="http://www.w3.org/ns/rdfa#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<head>
+	<title>RDF Profile</title>
+</head>
+<body>
+	<h1>RDF Profile</h1>
+	<form method="POST" action="" autocomplete="off">
+		<table class="graph">
+			<thead>
+				<tr><th>Prefix</th><th>URI</th></tr>
+			</thead>
+			<tbody class="sorted">
+				<xsl:for-each select="rdf:RDF/rdf:Description">
+					<tr about="{@rdf:about}">
+						<td property="rdfa:prefix" class="asc">
+							<xsl:value-of select="rdfa:prefix" />
+						</td>
+						<td property="rdfa:uri" content="{rdfa:uri/text()}">
+							<input type="text" name="{rdfa:prefix}" value="{rdfa:uri/text()}" class="auto-expand" />
+							<span class="ui-icon ui-icon-close" style="display:inline-block;vertical-align:middle"
+								 onclick="$(this).parents('tr:first').remove()">
+								<xsl:text> </xsl:text>
+							</span>
+						</td>				
+					</tr>
+				</xsl:for-each>
+			</tbody>
+			<tbody>
+				<tr>
+					<td>
+						<input type="text" size="8" onchange="$('#new-uri').attr('name', value)" />
+					</td>
+					<td>
+						<input type="text" id="new-uri" class="auto-expand" />
+						<span class="ui-icon ui-icon-close" style="display:inline-block;vertical-align:middle"
+							 onclick="$(this).parents('tr:first').remove()">
+							<xsl:text> </xsl:text>
+						</span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<button type="submit" class="authenticated">Save</button>
+	</form>
+</body>
+</html>

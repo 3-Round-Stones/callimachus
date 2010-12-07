@@ -25,8 +25,8 @@
 
 skos:ConceptScheme rdfs:subClassOf calli:Viewable, calli:Editable;
 	calli:icon <favicon.png>;
-	calli:view <view.xml>;
-	calli:edit <edit.xml>.
+	calli:view <view.xhtml>;
+	calli:edit <edit.xhtml>.
 
 <template> a <ConceptSchemeTemplate>;
 	calli:curator </group/admin>.

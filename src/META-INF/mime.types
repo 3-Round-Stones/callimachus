@@ -65,6 +65,7 @@ application/vnd.openxmlformats-officedocument.spreadsheetml.template xltx
 application/vnd.openxmlformats-officedocument.wordprocessingml.document docx
 application/vnd.openxmlformats-officedocument.wordprocessingml.template dotx
 application/zip zip
+application/xhtml+xml xhtml
 application/xml xml
 audio/basic au
 audio/basic snd

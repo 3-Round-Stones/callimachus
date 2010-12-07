@@ -10,8 +10,8 @@
 <User> rdfs:subClassOf calli:User, calli:MailSubmitter;
 	rdfs:subClassOf calli:Viewable, calli:Editable;
 	calli:icon <favicon.png>;
-	calli:view <view.xml>;
-	calli:edit <edit.xml>.
+	calli:view <view.xhtml>;
+	calli:edit <edit.xhtml>.
 
 # User operations must be authorized
 <User> http:realm <../authority>.

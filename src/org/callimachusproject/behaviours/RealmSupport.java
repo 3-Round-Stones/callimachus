@@ -16,8 +16,6 @@
  */
 package org.callimachusproject.behaviours;
 
-import java.io.CharArrayWriter;
-import java.io.Reader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -163,23 +161,13 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		Template unauthorized = getCalliUnauthorized();
 		if (unauthorized == null)
 			return null;
-		Reader reader = unauthorized.calliConstruct(target);
-		try {
-			CharArrayWriter writer = new CharArrayWriter();
-			int read;
-			char[] cbuf = new char[1024];
-			while ((read = reader.read(cbuf)) >= 0) {
-				writer.write(cbuf, 0, read);
-			}
-			StringEntity entity = new StringEntity(writer.toString(), "UTF-8");
-			entity.setContentType("text/html;charset=\"UTF-8\"");
-			HttpResponse resp = new BasicHttpResponse(_401);
-			resp.setHeader("Cache-Control", "no-store");
-			resp.setEntity(entity);
-			return resp;
-		} finally {
-			reader.close();
-		}
+		String html = unauthorized.calliConstructHTML(target);
+		StringEntity entity = new StringEntity(html, "UTF-8");
+		entity.setContentType("text/html;charset=\"UTF-8\"");
+		HttpResponse resp = new BasicHttpResponse(_401);
+		resp.setHeader("Cache-Control", "no-store");
+		resp.setEntity(entity);
+		return resp;
 	}
 
 	@Override
@@ -187,23 +175,13 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		Template forbidden = getCalliForbidden();
 		if (forbidden == null)
 			return null;
-		Reader reader = forbidden.calliConstruct(target);
-		try {
-			CharArrayWriter writer = new CharArrayWriter();
-			int read;
-			char[] cbuf = new char[1024];
-			while ((read = reader.read(cbuf)) >= 0) {
-				writer.write(cbuf, 0, read);
-			}
-			StringEntity entity = new StringEntity(writer.toString(), "UTF-8");
-			entity.setContentType("text/html;charset=\"UTF-8\"");
-			HttpResponse resp = new BasicHttpResponse(_403);
-			resp.setHeader("Cache-Control", "no-store");
-			resp.setEntity(entity);
-			return resp;
-		} finally {
-			reader.close();
-		}
+		String html = forbidden.calliConstructHTML(target);
+		StringEntity entity = new StringEntity(html, "UTF-8");
+		entity.setContentType("text/html;charset=\"UTF-8\"");
+		HttpResponse resp = new BasicHttpResponse(_403);
+		resp.setHeader("Cache-Control", "no-store");
+		resp.setEntity(entity);
+		return resp;
 	}
 
 	/**

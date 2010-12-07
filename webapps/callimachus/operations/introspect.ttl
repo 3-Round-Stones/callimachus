@@ -26,7 +26,7 @@ calli:introspect rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
 	http:operation "introspect";
-	http:type "application/xml";
+	http:type "application/xhtml+xml";
 	http:transform <../layout.ttl#template-xsl>;
 	obj:imports <java:javax.xml.stream.XMLOutputFactory>;
 	obj:imports <java:org.openrdf.repository.object.annotations.iri>;
@@ -256,6 +256,7 @@ calli:introspect rdfs:subClassOf obj:Message;
 
 		out.writeStartDocument();
 		out.writeStartElement("html");
+		out.setDefaultNamespace("http://www.w3.org/1999/xhtml");
 		out.writeStartElement("head");
 		out.writeStartElement("title");
 		out.writeCharacters(this.resource.localName + " Introspection");

@@ -25,8 +25,10 @@
 
 :view-concepts rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:allValuesFrom skos:ConceptScheme];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.Reader>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.InputStream>];
 	http:operation "view-concepts";
+	http:type "application/xhtml+xml";
+	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
 	http:cache-control "no-store";
-	obj:imports <view-concepts.xml>;
-	obj:script "return viewConceptsXml.calliConstruct(this)".
+	obj:imports <view-concepts.xhtml>;
+	obj:script "return viewConceptsXhtml.calliConstruct(this)".

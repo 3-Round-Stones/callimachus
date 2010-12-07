@@ -20,7 +20,7 @@ package org.callimachusproject.behaviours;
 import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 
 import javax.tools.FileObject;
@@ -70,20 +70,20 @@ public abstract class ViewSupport implements Template, RDFObject,
 	private static TermFactory tf = TermFactory.newInstance();
 
 	@Override
-	public Reader calliConstruct(Object target)
+	public InputStream calliConstruct(Object target)
 			throws Exception {
 		return calliConstruct(target, null);
 	}
 
 	@Override
-	public Reader calliConstruct(Object target, String query)
+	public InputStream calliConstruct(Object target, String query)
 			throws Exception {
 		String uri = null;
 		if (target instanceof RDFObject) {
 			uri = ((RDFObject) target).getResource().stringValue();
 		}
 		XMLEventReader data = calliConstructRDF(query, null, uri);
-		return calliConstructTemplate(query, null, data);
+		return calliConstructTemplate(null, query, data);
 	}
 
 	/**
@@ -153,8 +153,8 @@ public abstract class ViewSupport implements Template, RDFObject,
 		return openPatternReader(query, element, about);
 	}
 
-	protected abstract Reader calliConstructTemplate(String query,
-			String element, XMLEventReader rdf) throws Exception;
+	protected abstract InputStream calliConstructTemplate(String element,
+			String query, XMLEventReader rdf) throws Exception;
 
 	private XMLEventReader calliConstructRDF(String query, String element,
 			String about) throws XMLStreamException, IOException,

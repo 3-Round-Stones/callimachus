@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xhtml="http://www.w3.org/1999/xhtml"
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
+	exclude-result-prefixes="xhtml sparql"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 	<xsl:import href="/callimachus/iriref.xsl" />
-	<xsl:output method="xml" encoding="UTF-8"/>
 	<xsl:param name="this" />
 	<xsl:template match="/">
 		<html>

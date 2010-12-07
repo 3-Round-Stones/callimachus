@@ -10,5 +10,5 @@
 @prefix :<#>.
 
 </callimachus/menu>
-	calli:item [calli:position 5; rdfs:label "SPARQL query"; calli:link </sparql/query.xml?construct>].
+	calli:item [calli:position 5; rdfs:label "SPARQL query"; calli:link </sparql/query.xhtml?construct>].
 

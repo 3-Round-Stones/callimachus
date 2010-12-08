@@ -93,7 +93,7 @@ public abstract class ViewSupport implements Template, RDFObject,
 	@operation("construct")
 	@type("application/rdf+xml")
 	@cacheControl("no-store")
-	@transform("http://callimachusproject.org/rdf/2009/framework#construct-template")
+	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
 	public XMLEventReader calliConstruct(@parameter("query") String query,
 			@parameter("element") String element,
 			@parameter("about") String about) throws Exception {
@@ -106,7 +106,7 @@ public abstract class ViewSupport implements Template, RDFObject,
 	 * Extracts an element from the template (without variables).
 	 */
 	@operation("template")
-	@transform("http://callimachusproject.org/rdf/2009/framework#construct-template")
+	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
 	public XMLEventReader template(@parameter("query") String query,
 			@parameter("element") String element) throws Exception {
 		return null;
@@ -118,7 +118,7 @@ public abstract class ViewSupport implements Template, RDFObject,
 	@operation("options")
 	@type("application/rdf+xml")
 	@cacheControl("no-store")
-	@transform("http://callimachusproject.org/rdf/2009/framework#construct-template")
+	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
 	public XMLEventReader options(@parameter("query") String query,
 			@parameter("element") String element) throws Exception {
 		String base = toUri().toASCIIString();

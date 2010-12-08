@@ -36,7 +36,7 @@ calli:post-request-password-email a owl:DatatypeProperty, owl:FunctionalProperty
 
 # Looks up user by email address
 # Used to request password reset
-calli:find-users-by-email rdfs:subClassOf obj:Message;
+calli:FindUsersByEmail rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:DigestRealm];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
@@ -49,8 +49,8 @@ calli:find-users-by-email rdfs:subClassOf obj:Message;
 		}
 	""".
 
-calli:find-users-by-email-arg a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain calli:find-users-by-email;
+calli:findUsersByEmailArg a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain calli:FindUsersByEmail;
 	rdfs:range xsd:string;
 	obj:name "email".
 

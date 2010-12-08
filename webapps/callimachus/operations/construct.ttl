@@ -31,7 +31,7 @@ calli:ConstructHTML rdfs:subClassOf obj:Message;
 		owl:allValuesFrom xsd:string];
 	http:type "text/html";
 	obj:script """
-		var reader = xhtmlToHtmlXsl(calliConstruct(object));
+		var reader = xhtml_to_html_xsl(calliConstruct(object));
 		try {
 			var writer = new java.io.CharArrayWriter();
 			var read;
@@ -49,7 +49,7 @@ calli:ConstructHTML-object a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:ConstructHTML;
 	obj:name "object".
 
-calli:construct-template rdfs:subClassOf obj:Message;
+calli:ConstructTemplate rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Template];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -59,19 +59,19 @@ calli:construct-template rdfs:subClassOf obj:Message;
 	obj:xslt <construct.xsl>.
 
 calli:construct-template-arg1 a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:construct-template;
+	rdfs:domain calli:ConstructTemplate;
 	rdfs:range xsd:string;
 	http:parameter "element";
 	obj:name "element".
 
 calli:construct-template-arg2 a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:construct-template;
+	rdfs:domain calli:ConstructTemplate;
 	rdfs:range xsd:string;
 	http:parameter "query";
 	obj:name "query".
 
 calli:construct-template-arg3 a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:construct-template;
+	rdfs:domain calli:ConstructTemplate;
 	rdfs:range <java:javax.xml.stream.XMLEventReader>;
 	http:type "application/rdf+xml".
 

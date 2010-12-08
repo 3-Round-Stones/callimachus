@@ -71,7 +71,7 @@ public abstract class SearchSupport implements Template, SoundexTrait,
 	@operation("search")
 	@type("application/rdf+xml")
 	@cacheControl("must-reevaluate")
-	@transform("http://callimachusproject.org/rdf/2009/framework#construct-template")
+	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
 	public XMLEventReader constructSearch(@parameter("query") String query,
 			@parameter("element") String element, @parameter("q") String q)
 			throws Exception {

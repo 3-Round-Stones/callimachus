@@ -90,7 +90,7 @@ public abstract class CopySupport implements Template {
 						replace(source.getResource(), replacement);
 						subject = replacement;
 					} else if (isResourceAlreadyPresent(con, about)) {
-						throw new RDFHandlerException("Subject Already Exists");
+						throw new RDFHandlerException("Resource Already Exists");
 					}
 					accept(openBoundedPatterns("copy", subject.stringValue()));
 				}

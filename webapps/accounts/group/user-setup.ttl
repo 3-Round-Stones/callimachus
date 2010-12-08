@@ -44,7 +44,7 @@
 	obj:script """
 		if (isAlreadyUserSetup())
 			throw new BadRequest("This service has already been setup");
-		return userSetupXhtml.calliConstruct(this, 'copy');
+		return user_setup_xhtml.calliConstruct(this, 'copy');
 	""".
 
 :post-user-setup rdfs:subClassOf obj:Message;
@@ -64,7 +64,7 @@
 	obj:script """
 		if (isAlreadyUserSetup())
 			throw new BadRequest("This service has already been setup");
-		var copy = userSetupXhtml.calliCopyResource(this, stream, Collections.singleton(user));
+		var copy = user_setup_xhtml.calliCopyResource(this, stream, Collections.singleton(user));
 		calliMembers.add(copy);
 		return authority + "?welcome";
 	""".

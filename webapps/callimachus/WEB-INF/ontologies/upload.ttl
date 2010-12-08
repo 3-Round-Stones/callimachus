@@ -243,7 +243,7 @@ calli:put-xhtml-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
 # DELETE
 ################################
 
-calli:webapps-delete rdfs:subClassOf obj:Message;
+calli:WebappsDelete rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";

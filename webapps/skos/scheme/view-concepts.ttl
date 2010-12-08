@@ -31,4 +31,4 @@
 	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
 	http:cache-control "no-store";
 	obj:imports <view-concepts.xhtml>;
-	obj:script "return viewConceptsXhtml.calliConstruct(this)".
+	obj:script "return view_concepts_xhtml.calliConstruct(this)".

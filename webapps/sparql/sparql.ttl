@@ -24,7 +24,7 @@
 
 </sparql> calli:maintainer </group/admin>.
 
-:evaluate-sparql rdfs:subClassOf obj:Message;
+:EvaluateSparql rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
@@ -100,8 +100,8 @@
 		}
 	""".
 
-:evaluate-sparql-query a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :evaluate-sparql;
+:qry a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :EvaluateSparql;
 	rdfs:range xsd:string;
 	obj:name "qry".
 
@@ -118,7 +118,7 @@
 	obj:script """
 		if (query == null)
 			throw new BadRequest("Missing query body");
-		return evaluateSparql(new java.lang.String(query, "UTF-8"));
+		return EvaluateSparql(new java.lang.String(query, "UTF-8"));
 	""".
 
 :evaluate-post-query a owl:DatatypeProperty, owl:FunctionalProperty;
@@ -139,7 +139,7 @@
 	obj:script """
 		if (map == null || !map.containsKey("query"))
 			throw new org.openrdf.http.object.exceptions.BadRequest("Missing query");
-		return evaluateSparql(map.get("query")[0]);
+		return EvaluateSparql(map.get("query")[0]);
 	""".
 
 :evaluate-form-map a owl:ObjectProperty, owl:FunctionalProperty;
@@ -158,7 +158,7 @@
 	http:realm </accounts/authority>;
 	http:transform :sparql-transform;
 	http:cache-control "must-reevaluate";
-	obj:script "return evaluateSparql(query)".
+	obj:script "return EvaluateSparql(query)".
 
 :evaluate-get-query a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :evaluate-get;

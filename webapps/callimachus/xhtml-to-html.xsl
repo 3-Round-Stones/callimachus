@@ -4,14 +4,14 @@
 
 	<xsl:template match="html|xhtml:html">
 		<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;&#xA;</xsl:text>
-		<xsl:element name="{local-name()}">
+		<xsl:copy>
 			<xsl:if test="@xml:lang and not(@lang)">
 				<xsl:attribute name="lang">
 					<xsl:value-of select="@xml:lang" />
 				</xsl:attribute>
 			</xsl:if>
 			<xsl:apply-templates select="@*[name() != 'xml:lang']|*|comment()|text()"/>
-		</xsl:element>
+		</xsl:copy>
 	</xsl:template>
 
 	<!-- strip xml:space attributes -->

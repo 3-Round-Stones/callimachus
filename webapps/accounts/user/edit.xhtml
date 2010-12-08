@@ -16,9 +16,8 @@
 			function savePassword() {
 				var value = document.getElementById("password-input").value
 				var name = document.getElementById("name-span")
-				var realm = document.getElementById("realm-span")
+				var realm = document.getElementById("realm-link").href
 				name = name.textContent || name.innerText
-				realm = realm.getAttribute("resource") || realm.textContent || realm.innerText
 				if (value) {
 					var encoded = hex_md5(name + ':' + realm + ':' + value)
 					var span = document.getElementById("encoded-span")
@@ -78,7 +77,7 @@
 			<span style="display:none">
 				<span id="encoded-span" property="calli:encoded" />
 				<span id="name-span" property="calli:name" />
-				<span id="realm-span" resource="/" />
+				<a id="realm-link" href="/" />
 			</span>
 		</form>
 	</body>

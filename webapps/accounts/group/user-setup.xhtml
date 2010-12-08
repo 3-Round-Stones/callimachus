@@ -16,8 +16,7 @@
 			function savePassword() {
 				var value = document.getElementById("password").value
 				var name = document.getElementById("username").value
-				var realm = document.getElementById("realm-span")
-				realm = realm.getAttribute("resource") || realm.textContent || realm.innerText
+				var realm = document.getElementById("realm-link").href
 				var encoded = hex_md5(name + ':' + realm + ':' + value)
 				var input = document.getElementById("algorithm-input")
 				if (input) {
@@ -58,7 +57,7 @@
 				<span data-cardinality="1">
 					<input id="algorithm-input" name="algorithm-input" type="hidden" property="calli:algorithm" />
 				</span>
-				<span id="realm-span" resource="/" />
+				<a id="realm-link" href="/" />
 			</span>
 			<label for="username">Username</label>
 			<div data-cardinality="1">

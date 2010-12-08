@@ -61,17 +61,36 @@
 	obj:imports <../authority>;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	obj:imports <java:java.util.Collections>;
+	obj:imports <java:org.openrdf.rio.rdfxml.RDFXMLParser>;
+	obj:imports <java:org.openrdf.rio.helpers.StatementCollector>;
+	obj:imports <java:org.openrdf.model.impl.LinkedHashModel>;
+	obj:imports <java:org.openrdf.model.impl.URIImpl>;
+	obj:imports <java:java.io.ByteArrayInputStream>;
 	obj:script """
 		if (isAlreadyUserSetup())
 			throw new BadRequest("This service has already been setup");
+		var byteArray = bytes.toByteArray();
+		var stream = new ByteArrayInputStream(byteArray);
 		var copy = user_setup_xhtml.calliCopyResource(this, stream, Collections.singleton(user));
 		calliMembers.add(copy);
+		//# copy is empty if no transaction support (HTTPRepository)
+		var model = new LinkedHashModel();
+		var parser = new RDFXMLParser();
+		parser.setRDFHandler(new StatementCollector(model));
+		parser.parse(new ByteArrayInputStream(byteArray), this.toString());
+		var ns = "http://callimachusproject.org/rdf/2009/framework#";
+		var algorithm = model.filter(null, new URIImpl(ns + "algorithm"), null, []).objectLiteral().label;
+		var encoded = model.filter(null, new URIImpl(ns + "encoded"), null, []).objectLiteral().label;
+		if (algorithm != "MD5")
+			throw new BadRequest("Unsupported algorithm");
+		if (encoded.length < 32)
+			throw new BadRequest("Invalid MD5 sum");
 		return authority + "?welcome";
 	""".
 
-:post-user-setup-stream a owl:ObjectProperty, owl:FunctionalProperty;
+:post-user-setup-bytes a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :post-user-setup;
-	rdfs:range <java:java.io.InputStream>;
+	rdfs:range <java:java.io.ByteArrayOutputStream>;
 	http:type "application/rdf+xml";
-	obj:name "stream".
+	obj:name "bytes".
 

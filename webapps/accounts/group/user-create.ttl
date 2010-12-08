@@ -59,7 +59,6 @@
 	obj:imports <java:org.apache.commons.codec.digest.DigestUtils>;
 	obj:imports <java:java.util.Collections>;
 	obj:imports <java:java.io.ByteArrayInputStream>;
-	obj:imports <java:java.io.CharArrayWriter>;
 	obj:script """
 		var byteArray = bytes.toByteArray();
 		var stream = new ByteArrayInputStream(byteArray);

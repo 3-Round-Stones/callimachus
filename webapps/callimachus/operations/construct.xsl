@@ -24,7 +24,7 @@
 	<xsl:param name="this" />
 	<xsl:param name="query" select="''" />
 	<xsl:param name="element" select="'/1'" />
-	<xsl:output method="xml" omit-xml-declaration="yes" standalone="no" />
+	<xsl:output method="xml" />
 	<xsl:variable name="profile" select="concat($this, '?xslt&amp;query=', $query, '&amp;element=', $element)" />
 	<xsl:variable name="data" select="/" />
 	<xsl:variable name="variables"
@@ -66,7 +66,7 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
-	<xsl:template match="head">
+	<xsl:template match="head|xhtml:head">
 		<!-- <xsl:comment>head</xsl:comment> -->
 		<xsl:param name="about" />
 		<xsl:param name="nodeID" />

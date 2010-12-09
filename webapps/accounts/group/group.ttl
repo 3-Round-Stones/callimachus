@@ -19,10 +19,10 @@
 # Called on group create
 :post-group-copy owl:intersectionOf (calli:post-copy
 		[owl:onProperty obj:target; owl:allValuesFrom <Group>]);
-	obj:imports <../authority>;
+	obj:imports </accounts>;
 	obj:script """
 		var copy = proceed();
-		authority.calliAuthenticates.add(copy);
+		accounts.calliAuthenticates.add(copy);
 		return copy;
 	""".
 

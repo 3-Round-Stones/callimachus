@@ -14,7 +14,7 @@
 	calli:edit <edit.xhtml>.
 
 # User operations must be authorized
-<User> http:realm <../authority>.
+<User> http:realm </accounts>.
 
 # any authenticated user can view any other user
 :user-view-authorize owl:equivalentClass calli:authorize-credential;

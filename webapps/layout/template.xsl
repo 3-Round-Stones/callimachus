@@ -96,7 +96,7 @@
 			<xsl:apply-templates select="@*" />
 			<div id="header">
 				<div id="login-overlay" style="display:none" class="ui-widget-overlay"></div>
-				<a class="ui-state-default ui-corner-all" id="login-link" href="{$accounts}/authority?login"
+				<a class="ui-state-default ui-corner-all" id="login-link" href="{$accounts}?login"
 						style="display:none;padding: .2em 20px .2em 1em;text-decoration: none;position: relative;">
 					<span>Login</span>
 					<span class="ui-icon ui-icon-circle-arrow-s"
@@ -122,14 +122,14 @@
 					</p>
 				</form>
 				<span class="authenticated" id="authenticated-links" style="display:none">
-					<a id="authenticated-link" href="{$accounts}/authority?authenticated"></a>
-					<a id="welcome-link" href="{$accounts}/authority?welcome"></a>
+					<a id="authenticated-link" href="{$accounts}?authenticated"></a>
+					<a id="welcome-link" href="{$accounts}?welcome"></a>
 					<span> | </span>
 					<a href="?edit">Settings</a>
 					<span> | </span>
 					<a href="?contributions">Contributions</a>
 					<span> | </span>
-					<a id="logout-link" href="{$accounts}/authority?logout">Logout</a>
+					<a id="logout-link" href="{$accounts}?logout">Logout</a>
 				</span>
 				<form method="GET" action="{$callimachus}/go" style="display:inline">
 					<span id="search-box">
@@ -248,7 +248,7 @@
 					</p>
 				</xsl:if>
 				<a href="http://callimachusproject.org/" title="Callimachus">
-					<img src="{$callimachus}/callimachus-powered.png" alt="Callimachus" width="98" height="35" />
+					<img src="{$callimachus}/images/callimachus-powered.png" alt="Callimachus" width="98" height="35" />
 				</a>
 			</div>
 		</xsl:copy>

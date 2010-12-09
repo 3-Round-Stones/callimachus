@@ -16,17 +16,17 @@ var options = {type: "GET",
 		} catch (e) {}
 	}
 }
-options.url = "/accounts/authority?authenticated"
+options.url = "/accounts?authenticated"
 if (window.localStorage) {
 	var auth = localStorage.getItem('Authorization')
 	if (auth && auth.indexOf("Basic ") == 0) {
 		var up = window.atob(auth.substring("Basic ".length))
-		options.url = "/accounts/authority?welcome"
+		options.url = "/accounts?welcome"
 		options.username = up.substring(0, up.indexOf(':'))
 		options.password = up.substring(up.indexOf(':') + 1)
 	} else if (auth && auth.indexOf("Credentials ") == 0) {
 		var up = auth.substring("Credentials ".length)
-		options.url = "/accounts/authority?welcome"
+		options.url = "/accounts?welcome"
 		options.username = up.substring(0, up.indexOf(':'))
 		options.password = up.substring(up.indexOf(':') + 1)
 	}

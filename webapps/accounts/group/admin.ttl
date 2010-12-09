@@ -7,7 +7,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<../authority> calli:authenticates <../../group/admin>.
+</accounts> calli:authenticates <../../group/admin>.
 
 <../../group/admin> a <Group>;
 	rdfs:label "admin";

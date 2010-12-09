@@ -28,22 +28,22 @@
 ################################
 
 # all common modification operations must be authenticated
-calli:get-copy http:realm <authority>.
-calli:post-copy http:realm <authority>.
-calli:get-edit http:realm <authority>.
-calli:post-edit http:realm <authority>.
-calli:delete http:realm <authority>.
-calli:post-discussion http:realm <authority>.
+calli:get-copy http:realm </accounts>.
+calli:post-copy http:realm </accounts>.
+calli:get-edit http:realm </accounts>.
+calli:post-edit http:realm </accounts>.
+calli:delete http:realm </accounts>.
+calli:post-discussion http:realm </accounts>.
 
 # Transcation operations must be authenticated
-audit:Transaction http:realm <authority>.
+audit:Transaction http:realm </accounts>.
 
 ################################
 # Authorization
 ################################
 
 :authorize-credential rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <authority>];
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:cardinality "1"^^xsd:nonNegativeInteger];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
@@ -165,7 +165,7 @@ audit:Transaction http:realm <authority>.
 		ASK {
 			$subject calli:authenticates [calli:member $credential]
 			FILTER ($method = "GET" || $method = "HEAD")
-			FILTER ($subject = <authority>)
+			FILTER ($subject = </accounts>)
 			FILTER ($qs = "login" || $qs = "welcome")
 		}
 	""".

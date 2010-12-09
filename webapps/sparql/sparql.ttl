@@ -112,7 +112,7 @@
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:method "POST";
 	http:type "message/x-response";
-	http:realm </accounts/authority>;
+	http:realm </accounts>;
 	http:transform :sparql-transform;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	obj:script """
@@ -134,7 +134,7 @@
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:method "POST";
 	http:type "message/x-response";
-	http:realm </accounts/authority>;
+	http:realm </accounts>;
 	http:transform :sparql-transform;
 	obj:script """
 		if (map == null || !map.containsKey("query"))
@@ -155,7 +155,7 @@
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:method "GET";
 	http:type "message/x-response";
-	http:realm </accounts/authority>;
+	http:realm </accounts>;
 	http:transform :sparql-transform;
 	http:cache-control "must-reevaluate";
 	obj:script "return EvaluateSparql(query)".

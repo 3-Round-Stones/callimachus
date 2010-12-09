@@ -9,7 +9,7 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-<menu> a calli:Menu.
+<../menu> a calli:Menu.
 
 :menu-evaluate rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;

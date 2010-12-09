@@ -22,16 +22,16 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<graph> calli:maintainer </group/admin>.
+</graph> calli:maintainer </group/admin>.
 
 :upload-rdf-graph rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <graph>];
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </graph>];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:allValuesFrom xsd:string];
 	http:method "POST";
 	http:expect "303-see-also";
 	http:type "text/uri-list";
-	http:realm </accounts/authority>;
+	http:realm </accounts>;
 	obj:imports calli:NamedGraph;
 	obj:imports <java:java.net.URLEncoder>;
 	obj:imports <java:org.openrdf.rio.RDFFormat>;

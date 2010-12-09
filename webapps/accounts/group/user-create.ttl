@@ -33,7 +33,7 @@
 	http:operation "user-create";
 	http:type "application/xhtml+xml";
 	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
-	http:realm <../authority>;
+	http:realm </accounts>;
 	obj:imports <user-create.xhtml>;
 	obj:script """
 		return user_create_xhtml.calliConstruct(this, 'copy');
@@ -46,12 +46,12 @@
 		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	http:method "POST";
 	http:operation "user-create";
-	http:realm <../authority>;
+	http:realm </accounts>;
 	http:expect "201-created";
 	obj:imports <user-create.xhtml>;
 	obj:imports <../user/mail-password.xhtml>;
 	obj:imports <../../user/>;
-	obj:imports <../authority>;
+	obj:imports </accounts>;
 	obj:imports <java:org.openrdf.rio.rdfxml.RDFXMLParser>;
 	obj:imports <java:org.openrdf.rio.helpers.StatementCollector>;
 	obj:imports <java:org.openrdf.model.impl.LinkedHashModel>;
@@ -78,7 +78,7 @@
 		var addr = model.filter(null, new URIImpl("http://callimachusproject.org/rdf/2009/framework#email"), null, []).objectLiteral().label;
 		//# generate and save a password
 		var password = copy.generatePassword();
-		var token = id + ":" + authority.calliAuthName + ":" + password;
+		var token = id + ":" + accounts.calliAuthName + ":" + password;
 		copy.calliAlgorithm = "MD5";
 		copy.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));
 		//# email the password to the email address provided

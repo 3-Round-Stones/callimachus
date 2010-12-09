@@ -22,7 +22,7 @@
 	obj:sparql """
 		ASK {
 			{
-				?authority calli:authenticates $this, ?other
+				?accounts calli:authenticates $this, ?other
 				FILTER (?other != $this)
 			} UNION {
 				$this calli:member ?member
@@ -58,7 +58,7 @@
 	http:expect "201-created";
 	obj:imports <user-setup.xhtml>;
 	obj:imports <../../user/>;
-	obj:imports <../authority>;
+	obj:imports </accounts>;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	obj:imports <java:java.util.Collections>;
 	obj:imports <java:org.openrdf.rio.rdfxml.RDFXMLParser>;
@@ -85,7 +85,7 @@
 			throw new BadRequest("Unsupported algorithm");
 		if (encoded.length < 32)
 			throw new BadRequest("Invalid MD5 sum");
-		return authority + "?welcome";
+		return accounts + "?welcome";
 	""".
 
 :post-user-setup-bytes a owl:ObjectProperty, owl:FunctionalProperty;

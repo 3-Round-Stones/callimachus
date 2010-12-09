@@ -22,10 +22,10 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<profile> calli:maintainer <../group/admin>.
+<../profile> calli:maintainer <../group/admin>.
 
 :get-profile rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <profile>];
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../profile>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
 	http:method "GET";
@@ -54,11 +54,11 @@
 	""".
 
 :post-profile rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <profile>];
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../profile>];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse; owl:cardinality 1];
 	http:method "POST";
 	http:expect "303-see-other";
-	http:realm <../accounts/authority>;
+	http:realm </accounts>;
 	obj:script """
 		var iter = form.entrySet().iterator();
 		while (iter.hasNext()) {
@@ -82,7 +82,7 @@
 	obj:name "form".
 
 :profile-xsl rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <profile>];
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../profile>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xml";

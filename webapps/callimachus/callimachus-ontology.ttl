@@ -95,6 +95,9 @@ calli:MailSubmitter a owl:Class;
 calli:conservator a owl:AnnotationProperty;
 	rdfs:comment "Credential or group of credentials that can maintain individual resources of this class.".
 
+calli:reviewer a owl:AnnotationProperty;
+	rdfs:comment "Credential or group of credentials that can view individual resources of this class.".
+
 calli:copy a owl:AnnotationProperty;
 	rdfs:comment "The RDFa template used to copy individual resources of this class using a Web browser.".
 
@@ -158,11 +161,6 @@ calli:unauthorized a owl:ObjectProperty;
 	rdfs:comment "The RDFa template used when an agent is aunothorized from the requested resource.";
 	rdfs:domain calli:Realm;
 	rdfs:range calli:Template.
-
-calli:reviewer a owl:ObjectProperty;
-	rdfs:comment "Credential or group of credentials that can view this resource remotely.";
-	rdfs:domain calli:Viewable;
-	rdfs:range calli:Party.
 
 calli:scribe a owl:ObjectProperty;
 	rdfs:comment "Credential or group of credentials that can copy this resource remotely.";

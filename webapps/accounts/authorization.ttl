@@ -72,11 +72,6 @@ audit:Transaction http:realm </accounts>.
 	obj:sparql """
 		ASK {
 			{
-				$subject calli:reviewer $credential
-				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "discussion")
-				FILTER (!bound($qs) || $qs = "view" || $qs = "discussion" || $qs = "history"
-					|| $qs = "what-links-here" || $qs = "related-changes")
-			} UNION {
 				$subject calli:scribe $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($qs = "copy")
@@ -95,11 +90,6 @@ audit:Transaction http:realm </accounts>.
 		ASK {
 			?group calli:member $credential
 			{
-				$subject calli:reviewer ?group
-				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "discussion")
-				FILTER (!bound($qs) || $qs = "view" || $qs = "discussion" || $qs = "history"
-					|| $qs = "what-links-here" || $qs = "related-changes")
-			} UNION {
 				$subject calli:scribe ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($qs = "copy")
@@ -146,6 +136,52 @@ audit:Transaction http:realm </accounts>.
 				var annotated = findAnnotatedClass(subject.getClass(), conservator);
 				for (var a = annotated.length; a--;) {
 					var uri = annotated[a].getAnnotation(conservator).value();
+					for (var u = uri.length; u--;) {
+						if (credential.resource.stringValue().equals(uri[u]))
+							return true;
+						var group = objectConnection.objectFactory.createObject(uri[u], Group);
+						if (group.calliMembers.contains(credential))
+							return true;
+					}
+				}
+			}
+		}
+		return proceed();
+	""".
+
+:authorize-reviewer owl:equivalentClass :authorize-credential;
+	obj:imports calli:Group;
+	obj:imports <java:org.callimachusproject.annotations.reviewer>;
+	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	obj:script """
+		function findAnnotatedClass(klass, ann) {
+			if (klass.isAnnotationPresent(ann)) {
+				return [klass];
+			}
+			var result = [];
+			if (klass.getSuperclass()) {
+				result = findAnnotatedClass(klass.getSuperclass(), ann);
+			}
+			var interfaces = klass.getInterfaces();
+			for (var i = interfaces.length; i--;) {
+				var face = findAnnotatedClass(interfaces[i], ann);
+				for (var f = face.length; f--;) {
+					for (var r = result.length; r--;) {
+						if (result[r].isAssignableFrom(face[f])) {
+							result.splice(r, 1); //# annotation overridden
+						}
+					}
+					result.push(face[f]);
+				}
+			}
+			return result;
+		}
+		if (method == "GET" || method == "HEAD" || method == "POST" && qs == "discussion") {
+			if (qs == null || qs == "view" || qs == "discussion" || qs == "describe" || qs == "history"
+						|| qs == "what-links-here" || qs == "related-changes" || qs == "introspect") {
+				var annotated = findAnnotatedClass(subject.getClass(), reviewer);
+				for (var a = annotated.length; a--;) {
+					var uri = annotated[a].getAnnotation(reviewer).value();
 					for (var u = uri.length; u--;) {
 						if (credential.resource.stringValue().equals(uri[u]))
 							return true;

@@ -118,7 +118,7 @@
 					</div>
 
 					<p class="forgot">
-						<a href="/accounts/unauthorized.xml">Forgot password or username?</a>
+						<a href="/accounts/unauthorized.xhtml">Forgot password or username?</a>
 					</p>
 				</form>
 				<span class="authenticated" id="authenticated-links" style="display:none">

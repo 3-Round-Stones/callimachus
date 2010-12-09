@@ -209,7 +209,8 @@
 			<zipfileset file="${dist}/accounts.war" prefix="webapps" />
 			<zipfileset file="${dist}/sparql.war" prefix="webapps" />
 			<zipfileset file="${dist}/skos.war" prefix="webapps" />
-			<zipfileset file="${webapps}/index.xml" prefix="webapps" />
+			<zipfileset file="${webapps}/index.xhtml" prefix="webapps" />
+			<zipfileset file="${webapps}/index.ttl" prefix="webapps" />
 		</zip>
 	</target>
 

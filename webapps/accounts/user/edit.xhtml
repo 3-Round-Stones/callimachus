@@ -73,7 +73,7 @@
 				<input id="confirm-password-input" type="password" equalTo="#password-input" />
 			</div>
 			<button type="submit">Save</button>
-			<button type="button" class="secondary" onclick="if (confirm('Are you sure you want to delete this user account?')) calli.delete()">Delete</button>
+			<button type="button" class="secondary" onclick="if (confirm('Are you sure you want to delete this user account?')) calli.deleteResource()">Delete</button>
 			<span style="display:none">
 				<span id="encoded-span" property="calli:encoded" />
 				<span id="name-span" property="calli:name" />

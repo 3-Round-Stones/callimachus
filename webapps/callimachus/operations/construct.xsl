@@ -85,7 +85,7 @@
 				<xsl:with-param name="nodeID" select="$nodeID" />
 				<xsl:with-param name="scope" select="$newscope" />
 			</xsl:apply-templates>
-			<xsl:if test="$target and ..//*[@property and not(ancestor-or-self::*/@about)]">
+			<xsl:if test="$target and ..//*[@property and (not(ancestor-or-self::*/@about) or ancestor-or-self::*/@about='')]">
 				<!-- included for backwards compatibility with Callimachus 0.4 TODO remove in 0.6 -->
 				<xsl:element name="base">
 					<xsl:attribute name="href"><xsl:value-of

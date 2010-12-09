@@ -46,12 +46,15 @@ calli:post-copy rdfs:subClassOf obj:Message;
 	http:method "POST";
 	http:operation "copy";
 	http:expect "201-created";
+	obj:imports calli:Copyable;
 	obj:script """
 		var template = findCopyTemplate();
 		var copy = template.calliCopyResource(this, input, findCopyNamespaces());
 		if (calliCurators) {
 			copy.calliMaintainers.addAll(calliCurators);
-			copy.calliCurators.addAll(calliCurators);
+			if (copy instanceof Copyable) {
+				copy.calliCurators.addAll(calliCurators);
+			}
 		} else {
 			copy.calliMaintainers.addAll(findScribe(copy));
 		}

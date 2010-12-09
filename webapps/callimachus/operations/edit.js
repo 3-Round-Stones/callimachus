@@ -136,7 +136,7 @@ function getEntityTag() {
 if (!window.calli) {
 	window.calli = {};
 }
-window.calli.delete = function() {
+window.calli.deleteResource = function() {
 	var xhr = null
 	xhr = $.ajax({ type: "DELETE", url: location.pathname, beforeSend: function(xhr){
 		var etag = getEntityTag()

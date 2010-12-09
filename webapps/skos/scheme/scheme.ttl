@@ -32,4 +32,4 @@ skos:ConceptScheme rdfs:subClassOf calli:Viewable, calli:Editable;
 	calli:curator </group/admin>.
 
 <ConceptSchemeTemplate> rdfs:subClassOf calli:Copyable;
-	calli:copy <create.xml>.
+	calli:copy <create.xhtml>.

@@ -33,7 +33,7 @@
 					<input id="altLabel" property="skos:altLabel" class="auto-expand" />
 				</div>
 				<label>Scheme</label>
-				<div rel="skos:inScheme" data-prompt="/skos/scheme/list.xml?construct">
+				<div rel="skos:inScheme" data-prompt="/skos/scheme/list.xhtml?construct">
 					<span about="?scheme" typeof="skos:ConceptScheme">
 						<span property="skos:prefLabel"></span>
 					</span>
@@ -79,7 +79,7 @@
 					<input type="text" id="note" maxlength="140" class="auto-expand" />
 				</div>
 				<button type="submit">Save</button>
-				<button type="button" class="secondary" onclick="if (confirm('Are you sure you want to delete this concept?')) calli.delete()">Delete</button>
+				<button type="button" class="secondary" onclick="if (confirm('Are you sure you want to delete this concept?')) calli.deleteResource()">Delete</button>
 			</div>
 		</form>
 	</body>

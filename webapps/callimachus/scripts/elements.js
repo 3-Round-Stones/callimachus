@@ -26,7 +26,7 @@ function callReady(node) {
 	if (!currentlyLoading) {
 		currentlyLoading++ // don't run this again
 		// wait until other onload events have been processed before triggering
-		setTimeout(function() { node.trigger("calli:form") }, 0)
+		setTimeout(function() { node.trigger("calliForm") }, 0)
 	}
 }
 
@@ -34,7 +34,7 @@ function get(node, url, callback) {
 	currentlyLoading++
 	$.ajax({ url: url, success: function(data) {
 		currentlyLoading--
-		node.parents("form").trigger("calli:ok")
+		node.parents("form").trigger("calliOk")
 		try {
 			if (typeof data == 'string' && data.match(/^\s*$/)) {
 				callback()
@@ -47,7 +47,7 @@ function get(node, url, callback) {
 	}, error: function(xhr, textStatus, errorThrown) {
 		currentlyLoading--
 		try {
-			node.parents("form").trigger("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
+			node.parents("form").trigger("calliError", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 		} finally {
 			callReady(node)
 		}
@@ -551,7 +551,7 @@ function addSetItem(uri, script) {
 			}
 			input.each(initSetElement)
 		} else {
-			script.parents("form").trigger("calli:error", "Invalid Relationship")
+			script.parents("form").trigger("calliError", "Invalid Relationship")
 		}
 	})
 }
@@ -594,7 +594,7 @@ function addListItem(uri, list) {
 			input.each(initListElement)
 			updateList(list)
 		} else {
-			list.parents("form").trigger("calli:error", "Invalid Relationship")
+			list.parents("form").trigger("calliError", "Invalid Relationship")
 		}
 	})
 }

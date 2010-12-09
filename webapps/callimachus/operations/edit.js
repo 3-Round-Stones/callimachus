@@ -11,7 +11,7 @@ function initForms() {
 	$("form[about]").each(function(i, node) {
 		var form = $(node)
 		var stored = readRDF(form)
-		form.bind("calli:form", function() {
+		form.bind("calliForm", function() {
 			form.validate({submitHandler: function() {
 				submitRDFForm(form, stored)
 			}})
@@ -20,7 +20,7 @@ function initForms() {
 }
 
 function submitRDFForm(form, stored) {
-	var se = jQuery.Event("calli:submit");
+	var se = jQuery.Event("calliSubmit");
 	form.trigger(se)
 	if (!se.isDefaultPrevented()) {
 		try {
@@ -45,7 +45,7 @@ function submitRDFForm(form, stored) {
 				if (redirect.indexOf('?') > 0) {
 					redirect = redirect.substring(0, redirect.indexOf('?'))
 				}
-				var event = jQuery.Event("calli:redirect")
+				var event = jQuery.Event("calliRedirect")
 				event.location = redirect + "?view"
 				form.trigger(event)
 				if (!event.isDefaultPrevented()) {
@@ -53,7 +53,7 @@ function submitRDFForm(form, stored) {
 				}
 			})
 		} catch(e) {
-			form.trigger("calli:error", e.description)
+			form.trigger("calliError", e.description)
 		}
 		return false
 	}
@@ -116,10 +116,10 @@ function patchData(form, url, type, data, callback) {
 			xhr.setRequestHeader("If-Match", etag)
 		}
 	}, success: function(data, textStatus) {
-		form.trigger("calli:ok")
+		form.trigger("calliOk")
 		callback(data, textStatus, xhr)
 	}, error: function(xhr, textStatus, errorThrown) {
-		form.trigger("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
+		form.trigger("calliError", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
 
@@ -146,7 +146,7 @@ window.calli.deleteResource = function() {
 	}, success: function(data, textStatus) {
 		history.go(-1) // TODO read a redirect location from page
 	}, error: function(xhr, textStatus, errorThrown) {
-		$("form[about]").trigger("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
+		$("form[about]").trigger("calliError", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
 

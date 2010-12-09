@@ -5,9 +5,9 @@
 var options = {type: "GET",
 	complete: function(req) {
 		if (req.status < 300 ) {
-			loggedIn(req)
+			$(document).ready(function(){loggedIn(req)})
 		} else {
-			loggedOut(req)
+			$(document).ready(loggedOut)
 		}
 	},
 	beforeSend: function(req) {
@@ -33,57 +33,11 @@ if (window.localStorage) {
 }
 jQuery.ajax(options)
 
-if (window.addEventListener) {
-	window.addEventListener("DOMContentLoaded", hideFluffIfInFrame, false)
-} else {
-	window.attachEvent("onload", hideFluffIfInFrame)
-}
-
-function hideFluffIfInFrame() {
-	try {
-		if (window.frameElement) {
-			hideSiblings(document.getElementById("content"))
-			var asides = document.querySelectorAll(".aside")
-			for (var i = 0; i < asides.length; i++) {
-				asides[i].parentNode.removeChild(asides[i])
-			}
-		}
-	} catch(e) {}
-}
-
-if (!window.calli) {
-	window.calli = {}
-}
-window.calli.printpage = function() {
-	hideSiblings(document.getElementById("content"))
-	print()
-	setTimeout(function(){location.reload()}, 500)
-}
-
-function hideSiblings(node) {
-	if (node && node.parentNode) {
-		hideSiblings(node.parentNode)
-		var siblings = node.parentNode.childNodes
-		var i = siblings.length
-		while (i--) {
-			if (siblings[i].nodeType == 1 && siblings[i] != node) {
-				siblings[i].style.display = "none"
-			} else if (siblings[i].nodeType == 3 || siblings[i].nodeType == 4) {
-				node.parentNode.removeChild(siblings[i])
-			}
-		}
-		node.style.border = "none"
-		node.style.margin = "0px"
-	}
-}
-
 function loggedIn(req) {
 	var doc = req.responseText
 	var url = /about="([^" >]*)"/i.exec(doc)[1]
 	var title = /<title[^>]*>([^<]*)<\/title>/i.exec(doc)[1]
-	var link = document.getElementById("welcome-link")
-	link.textContent = title
-	link.innerText = title
+	$("#welcome-link").text(title)
 	var links = document.getElementById("authenticated-links").getElementsByTagName("a")
 	for (var i=0; i<links.length; i++) {
 		if (links[i].getAttribute("href").indexOf("?") == 0) {
@@ -178,6 +132,50 @@ function loggedOut() {
 	}
 }
 
+if (window.addEventListener) {
+	window.addEventListener("DOMContentLoaded", hideFluffIfInFrame, false)
+} else {
+	window.attachEvent("onload", hideFluffIfInFrame)
+}
+
+function hideFluffIfInFrame() {
+	try {
+		if (window.frameElement) {
+			hideSiblings(document.getElementById("content"))
+			var asides = document.querySelectorAll(".aside")
+			for (var i = 0; i < asides.length; i++) {
+				asides[i].parentNode.removeChild(asides[i])
+			}
+		}
+	} catch(e) {}
+}
+
+if (!window.calli) {
+	window.calli = {}
+}
+window.calli.printpage = function() {
+	hideSiblings(document.getElementById("content"))
+	print()
+	setTimeout(function(){location.reload()}, 500)
+}
+
+function hideSiblings(node) {
+	if (node && node.parentNode) {
+		hideSiblings(node.parentNode)
+		var siblings = node.parentNode.childNodes
+		var i = siblings.length
+		while (i--) {
+			if (siblings[i].nodeType == 1 && siblings[i] != node) {
+				siblings[i].style.display = "none"
+			} else if (siblings[i].nodeType == 3 || siblings[i].nodeType == 4) {
+				node.parentNode.removeChild(siblings[i])
+			}
+		}
+		node.style.border = "none"
+		node.style.margin = "0px"
+	}
+}
+
 var formRequestCount = 0;
 $(document).ready(function() {
 	$(window).unload(function (event) {
@@ -198,21 +196,21 @@ $(document).ready(function() {
 		}
 	})
 	var forms = $("form[about]")
-	forms.bind("calli:redirect", function() {
+	forms.bind("calliRedirect", function() {
 		$("body").addClass("wait")
 		formRequestCount++
 	})
-	forms.bind("calli:submit", function() {
+	forms.bind("calliSubmit", function() {
 		$("#error-widget").hide()
 		$("#error-message").empty()
 		$("#error-widget pre").remove()
 	})
-	forms.bind("calli:ok", function() {
+	forms.bind("calliOk", function() {
 		$("#error-widget").hide()
 		$("#error-message").empty()
 		$("#error-widget pre").remove()
 	})
-	forms.bind("calli:error", function(event, text, detail) {
+	forms.bind("calliError", function(event, text, detail) {
 		var msg = $("#error-message")
 		if (msg.size()) {
 			msg.empty()

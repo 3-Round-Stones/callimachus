@@ -10,7 +10,7 @@ $(document).ready(initForms);
 function initForms() {
 	$("form[about]").each(function(i, node) {
 		var form = $(node)
-		form.bind("calli:form", function() {
+		form.bind("calliForm", function() {
 			form.validate({submitHandler: submitRDFForm})
 		})
 	})
@@ -18,7 +18,7 @@ function initForms() {
 
 function submitRDFForm(form) {
 	var form = $(form)
-	var se = jQuery.Event("calli:submit");
+	var se = jQuery.Event("calliSubmit");
 	form.trigger(se)
 	if (!se.isDefaultPrevented()) {
 		try {
@@ -27,7 +27,7 @@ function submitRDFForm(form) {
 			var data = added.dump({format:"application/rdf+xml",serialize:true})
 			postData(form, location.href, type, data, function(data, textStatus, xhr) {
 				var redirect = xhr.getResponseHeader("Location")
-				var event = jQuery.Event("calli:redirect")
+				var event = jQuery.Event("calliRedirect")
 				if (form.hasClass("diverted") || form.attr("data-diverted")) {
 					event.location = window.calli.diverted(redirect, form.get(0))
 				} else {
@@ -39,7 +39,7 @@ function submitRDFForm(form) {
 				}
 			})
 		} catch(e) {
-			form.trigger("calli:error", e.description)
+			form.trigger("calliError", e.description)
 		}
 		return false
 	}
@@ -70,10 +70,10 @@ function readRDF(form) {
 function postData(form, url, type, data, callback) {
 	var xhr = null
 	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, success: function(data, textStatus) {
-		form.trigger("calli:ok")
+		form.trigger("calliOk")
 		callback(data, textStatus, xhr)
 	}, error: function(xhr, textStatus, errorThrown) {
-		form.trigger("calli:error", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
+		form.trigger("calliError", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
 

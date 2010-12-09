@@ -31,7 +31,7 @@
 				}
 			}
 			$(document).ready(function() {
-				$("form[about]").bind("calli:redirect", function(event) {
+				$("form[about]").bind("calliRedirect", function(event) {
 					jQuery.ajax({ async: false, type: 'GET', url: event.location,
 						username: this.elements['username'].value,
 						password: this.elements['password'].value

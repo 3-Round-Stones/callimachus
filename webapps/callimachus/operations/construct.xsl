@@ -357,21 +357,17 @@
 		<xsl:param name="scope" />
 		<xsl:choose>
 		<xsl:when test="contains($scope, concat(., '=')) and not(contains($scope, concat(., '=&#xA;')))">
-			<xsl:attribute name="{name()}" namespace="{namespace-uri()}">
+			<xsl:attribute name="{local-name()}">
 				<xsl:value-of select="substring-before(substring-after($scope, concat(., '=')), '&#xA;')" />
 			</xsl:attribute>
 		</xsl:when>
 		<xsl:when test="not(contains($scope, concat(., '=')))">
-			<xsl:attribute name="{name()}" namespace="{namespace-uri()}">
-				<xsl:value-of select="." />
-			</xsl:attribute>
+			<xsl:copy />
 		</xsl:when>
 		</xsl:choose>
 	</xsl:template>
 	<xsl:template match="@*">
-		<xsl:attribute name="{name()}" namespace="{namespace-uri()}">
-			<xsl:value-of select="." />
-		</xsl:attribute>
+		<xsl:copy />
 	</xsl:template>
 	<xsl:template match="comment()">
 		<xsl:copy />
@@ -635,15 +631,13 @@
 		</xsl:element>
 	</xsl:template>
 	<xsl:template mode="copy" match="@*">
-		<xsl:attribute name="{name()}" namespace="{namespace-uri()}">
-			<xsl:value-of select="." />
-		</xsl:attribute>
+		<xsl:copy/>
 	</xsl:template>
 	<xsl:template mode="copy" match="comment()">
-		<xsl:comment><xsl:value-of select="." /></xsl:comment>
+		<xsl:copy/>
 	</xsl:template>
 	<xsl:template mode="copy" match="text()">
-		<xsl:value-of select="."/>
+		<xsl:copy/>
 	</xsl:template>
 	<!-- xptr-element -->
 	<xsl:template mode="xptr-element" match="/*">

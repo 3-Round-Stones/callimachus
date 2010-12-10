@@ -141,10 +141,8 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 		if (username == null)
 			throw new BadRequest("Missing username");
 		List<Object[]> encodings = findDigest(username);
-		if (encodings.isEmpty()) {
-			logger.info("Name not found: {}", username);
+		if (encodings.isEmpty())
 			return null;
-		}
 		return encodings.get(0)[0];
 	}
 

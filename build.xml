@@ -10,7 +10,7 @@
 	<property name="tmp" location="tmp" />
 	<property name="webapps" location="webapps" />
 	<property name="home" location="." />
-	<property name="pid" location="run/persistent.pid" />
+	<property name="pid" location="run/callimachus.pid" />
 	<property name="logging" location="etc/logging.properties" />
 	<property name="mail" location="etc/mail.properties" />
 	<property name="tools.jar" location="${java.home}/../lib/tools.jar" />

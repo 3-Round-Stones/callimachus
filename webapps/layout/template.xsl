@@ -52,10 +52,8 @@
 			<xsl:apply-templates select="@*|*|comment()|text()" />
 		</xsl:copy>
 	</xsl:template>
-	<xsl:template match="@*">
-		<xsl:copy />
-	</xsl:template>
-	<xsl:template match="comment()">
+
+	<xsl:template match="@*|comment()">
 		<xsl:copy />
 	</xsl:template>
 

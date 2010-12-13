@@ -2,6 +2,16 @@
 		version="1.0" exclude-result-prefixes="xhtml">
 	<xsl:output method="html" />
 
+	<xsl:template match="*">
+		<xsl:copy>
+			<xsl:apply-templates select="@*|*|comment()|text()" />
+		</xsl:copy>
+	</xsl:template>
+
+	<xsl:template match="@*|comment()">
+		<xsl:copy />
+	</xsl:template>
+
 	<xsl:template match="html|xhtml:html">
 		<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;&#xA;</xsl:text>
 		<xsl:copy>
@@ -23,12 +33,6 @@
 	<!-- strip meta charset -->
 	<xsl:template match = 'xhtml:meta[translate(@http-equiv,"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") = "content-type" ]' />
 
-	<xsl:template match="@*|comment()|text()|*">
-		<xsl:copy>
-			<xsl:apply-templates select="@*|*|comment()|text()"/>
-		</xsl:copy>
-	</xsl:template>
-
 	<xsl:template match="xhtml:*">
 		<xsl:element name="{local-name()}">
 			<xsl:if test="@xml:lang and not(@lang)">
@@ -40,7 +44,7 @@
 		</xsl:element>
 	</xsl:template>
 
-	<xsl:template match="title|textarea|script|style|iframe|noembed|noframes">
+	<xsl:template match="title|script|style|iframe|noembed|noframes">
 		<!-- Some XSLT engines may not output HTML and this can help an HTML parser parse XML. -->
 		<xsl:element name="{local-name()}">
 			<xsl:apply-templates select="@*|*|comment()|text()"/>
@@ -50,7 +54,7 @@
 		</xsl:element>
 	</xsl:template>
 
-	<xsl:template match="xhtml:title|xhtml:textarea|xhtml:script|xhtml:style|xhtml:iframe|xhtml:noembed|xhtml:noframes">
+	<xsl:template match="xhtml:title|xhtml:script|xhtml:style|xhtml:iframe|xhtml:noembed|xhtml:noframes">
 		<!-- Some XSLT engines may not output HTML and this can help an HTML parser parse XML. -->
 		<xsl:element name="{local-name()}">
 			<xsl:apply-templates select="@*|*|comment()|text()"/>

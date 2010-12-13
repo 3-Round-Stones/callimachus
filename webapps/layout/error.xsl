@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xhtml="http://www.w3.org/1999/xhtml"
-		version="1.0" exclude-result-prefixes="xhtml">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xhtml="http://www.w3.org/1999/xhtml" exclude-result-prefixes="xhtml">
+
 	<xsl:import href="/layout/template.xsl" />
+
 	<xsl:output method="html" />
 
 	<xsl:template match="html|xhtml:html">
@@ -15,4 +16,45 @@
 			<xsl:apply-templates select="@*[name() != 'xml:lang']|*|comment()|text()"/>
 		</xsl:copy>
 	</xsl:template>
+
+	<!-- strip xml:space attributes -->
+	<xsl:template match = '@xml:space' />
+
+	<!-- strip all processing instructions -->
+	<xsl:template match = 'processing-instruction()' />
+
+	<!-- strip meta charset -->
+	<xsl:template match = 'xhtml:meta[translate(@http-equiv,"ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz") = "content-type" ]' />
+
+	<xsl:template match="xhtml:*">
+		<xsl:element name="{local-name()}">
+			<xsl:if test="@xml:lang and not(@lang)">
+				<xsl:attribute name="lang">
+					<xsl:value-of select="@xml:lang" />
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:apply-templates select="@*[name() != 'xml:lang']|*|comment()|text()"/>
+		</xsl:element>
+	</xsl:template>
+
+	<xsl:template match="title|script|style|iframe|noembed|noframes">
+		<!-- Some XSLT engines may not output HTML and this can help an HTML parser parse XML. -->
+		<xsl:element name="{local-name()}">
+			<xsl:apply-templates select="@*|*|comment()|text()"/>
+			<xsl:if test="not(text())">
+				<xsl:text> </xsl:text>
+			</xsl:if>
+		</xsl:element>
+	</xsl:template>
+
+	<xsl:template match="xhtml:title|xhtml:script|xhtml:style|xhtml:iframe|xhtml:noembed|xhtml:noframes">
+		<!-- Some XSLT engines may not output HTML and this can help an HTML parser parse XHTML. -->
+		<xsl:element name="{local-name()}">
+			<xsl:apply-templates select="@*|*|comment()|text()"/>
+			<xsl:if test="not(text())">
+				<xsl:text> </xsl:text>
+			</xsl:if>
+		</xsl:element>
+	</xsl:template>
+
 </xsl:stylesheet>

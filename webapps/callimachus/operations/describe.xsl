@@ -5,7 +5,7 @@
 	xmlns:xhtml="http://www.w3.org/1999/xhtml"
 	exclude-result-prefixes="xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-	<xsl:import href="../iriref.xsl" />
+	<xsl:import href="../util/iriref.xsl" />
 	<xsl:param name="this" />
 	<xsl:template match="/rdf:RDF">
 		<html>

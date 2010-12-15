@@ -5,7 +5,7 @@
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:xhtml="http://www.w3.org/1999/xhtml"
 	exclude-result-prefixes="xhtml">
-	<xsl:import href="../iriref.xsl" />
+	<xsl:import href="../util/iriref.xsl" />
 	<xsl:param name="this" />
 	<xsl:template match="/">
 		<html>

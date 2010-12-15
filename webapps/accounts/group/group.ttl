@@ -26,3 +26,13 @@
 		return copy;
 	""".
 
+# Removes old groups from the set of authenticating groups.
+# Called on group delete
+:post-group-delete owl:intersectionOf (calli:delete
+		[owl:onProperty obj:target; owl:allValuesFrom <Group>]);
+	obj:imports </accounts>;
+	obj:script """
+		accounts.calliAuthenticates.remove(this);
+		proceed();
+	""".
+

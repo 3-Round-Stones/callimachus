@@ -41,12 +41,16 @@ function submitRDFForm(form, stored) {
 					+ added.dump({format:"application/rdf+xml",serialize:true})
 					+ "\r\n--" + boundary + "--"
 			patchData(form, location.href, type, data, function(data, textStatus, xhr) {
-				var redirect = location.href
-				if (redirect.indexOf('?') > 0) {
-					redirect = redirect.substring(0, redirect.indexOf('?'))
+				var redirect = xhr.getResponseHeader("Location")
+				if (!redirect) {
+					redirect = location.href
+					if (redirect.indexOf('?') > 0) {
+						redirect = redirect.substring(0, redirect.indexOf('?'))
+					}
+					redirect = redirect + "?view"
 				}
 				var event = jQuery.Event("calliRedirect")
-				event.location = redirect + "?view"
+				event.location = redirect
 				form.trigger(event)
 				if (!event.isDefaultPrevented()) {
 					location.replace(event.location);

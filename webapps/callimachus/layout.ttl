@@ -29,7 +29,7 @@
 :xhtml-to-html-xsl rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.Reader>];
 	http:type "text/html";
-	obj:xslt <xhtml-to-html.xsl>.
+	obj:xslt <util/xhtml-to-html.xsl>.
 
 :xhtml-xsl-input a owl:ObjectProperty; a owl:FunctionalProperty;
 	http:type "application/xhtml+xml";

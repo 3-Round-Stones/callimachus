@@ -150,11 +150,16 @@ calli:introspect rdfs:subClassOf obj:Message;
 
 		function printProperty(pname, method) {
 			var type = method.getGenericReturnType();
-			var value = method.invoke(target, []);
 			printName(pname, method);
 			out.writeStartElement("ul");
 			printValue("return type", type);
-			printValue("has value", value);
+			try {
+				var value = method.invoke(target, []);
+				printValue("has value", value);
+			} catch (e) {
+				var value = method.invoke(target, []);
+				printValue("has error", e);
+			}
 			out.writeEndElement();
 		}
 

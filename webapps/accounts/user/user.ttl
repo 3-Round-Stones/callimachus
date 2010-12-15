@@ -26,3 +26,9 @@
 		}
 	""".
 
+:UserDeleted owl:intersectionOf (calli:delete [owl:onProperty obj:target; owl:allValuesFrom <User>]);
+	obj:imports calli:member;
+	obj:script """
+		objectConnection.remove(null, member.resource, this.resource, []);
+		proceed();
+	""".

@@ -46,10 +46,11 @@ function loggedIn(req) {
 	}
 	$(".authenticated").show()
 	$("#logout-link").click(function(event) {
-		jQuery.ajax({ type: 'GET', url: this.href,
+		var href = this.href
+		jQuery.ajax({ type: 'GET', url: href,
 			username: 'logout', password: 'nil',
 			complete: function() {
-				document.location.reload()
+				document.location = href
 			}
 		})
 		if (window.localStorage) {

@@ -25,6 +25,37 @@
 					span.innerText = encoded
 				}
 			}
+			$(document).ready(function() {
+				var credential = null
+				jQuery.ajax({type: "GET",  url: "/accounts?authenticated",
+					complete: function(req) {
+						if (req.status < 300 ) {
+							var doc = req.responseText
+							credential = /about="([^" >]*)"/i.exec(doc)[1]
+						}
+					},
+					beforeSend: function(req) {
+						try {
+							req.withCredentials = true
+						} catch (e) {}
+					}
+				})
+				$("form[about]").bind("calliRedirect", function(event) {
+					if (document.getElementById("password-input").value) {
+						var uri = $("form[about]").attr("about");
+						if (credential && credential == uri) {
+							// user changed their password and may need to be loggout gracefully
+							event.preventDefault();
+							jQuery.ajax({ type: 'GET', url: "/accounts?logout",
+								username: 'logout', password: 'nil',
+								complete: function() {
+									document.location = "/"
+								}
+							})
+						}
+					}
+				})
+			})
 			// ]]>
 		</script>
 	</head>

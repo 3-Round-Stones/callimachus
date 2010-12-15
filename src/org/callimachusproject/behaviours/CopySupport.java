@@ -23,7 +23,6 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.callimachusproject.concepts.Template;
 import org.callimachusproject.helpers.SubjectTracker;
@@ -55,9 +54,6 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  * 
  */
 public abstract class CopySupport implements Template {
-	private static final String prefix = "t"
-			+ Long.toHexString(System.currentTimeMillis()) + "x";
-	private static final AtomicLong seq = new AtomicLong(0);
 
 	public RDFObject calliCopyResource(final RDFObject source, InputStream in,
 			final Set<?> namespaces) throws Exception {
@@ -86,9 +82,7 @@ public abstract class CopySupport implements Template {
 					Resource subject = st.getSubject();
 					String about = subject.stringValue();
 					if (subject.equals(source.getResource())) {
-						URI replacement = vf.createURI(nextId(namespaces));
-						replace(source.getResource(), replacement);
-						subject = replacement;
+						throw new RDFHandlerException("Target resource URI not provided");
 					} else if (isResourceAlreadyPresent(con, about)) {
 						throw new RDFHandlerException("Resource Already Exists");
 					}
@@ -191,20 +185,5 @@ public abstract class CopySupport implements Template {
 		} finally {
 			reader.close();
 		}
-	}
-
-	private String nextId(Set<?> namespaces) throws RDFHandlerException {
-		if (namespaces != null) {
-			Iterator<?> iter = namespaces.iterator();
-			try {
-				while (iter.hasNext()) {
-					String ns = iter.next().toString();
-					return ns + prefix + seq.getAndIncrement();
-				}
-			} finally {
-				ObjectConnection.close(iter);
-			}
-		}
-		throw new RDFHandlerException("Invalid Subject Identifier");
 	}
 }

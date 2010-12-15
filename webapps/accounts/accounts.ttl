@@ -66,10 +66,7 @@
 		}
 		var resp = new BasicHttpResponse(ver, 303, "See Other");
 		var credential = findCredential(authorization);
-		if (!credential && referer) { //# invalid credentials recieved
-			resp.setHeader("Location", referer);
-			return resp;
-		} else if (!credential) { //# invalid credentials received
+		if (!credential) { //# invalid credentials received
 			resp.setHeader("Location", "/");
 			return resp;
 		}
@@ -77,8 +74,6 @@
 			resp.setHeader("Location", this + "?logout&from=" + credential);
 		} else if (from.equals(credential)) { //# no longer accepted
 			return unauthorized(from);
-		} else if (referer) { //# logged in using a different account
-			resp.setHeader("Location", referer)
 		} else { //# logged in using a different account
 			resp.setHeader("Location", credential.toString())
 		}
@@ -90,12 +85,6 @@
 	rdfs:range xsd:string;
 	http:header "Authorization";
 	obj:name "authorization".
-
-:logout-referer a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :logout;
-	rdfs:range xsd:string;
-	http:header "Referer";
-	obj:name "referer".
 
 :logout-user a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :logout;

@@ -67,7 +67,11 @@ public class LogMessageFormatter extends Formatter {
 		StringBuilder sb = new StringBuilder(256);
 		String message = formatMessage(record);
 		if (now >= nextDateAt) {
-			appendDateString(sb.append("#Date: "), now).append(newline);
+			synchronized (this) {
+				if (now >= nextDateAt) {
+					appendDateString(sb.append("#Date: "), now).append(newline);
+				}
+			}
 		}
 		sb.append(getTimeString(now)).append('\t');
 		sb.append(message).append(newline);

@@ -21,6 +21,7 @@
 				if (value) {
 					var encoded = hex_md5(name + ':' + realm + ':' + value)
 					var span = document.getElementById("encoded-span")
+					span.setAttribute("datatype", "xsd:hexBinary")
 					span.textContent = encoded
 					span.innerText = encoded
 				}

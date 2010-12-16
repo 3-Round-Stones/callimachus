@@ -104,7 +104,7 @@
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom calli:Credential];
 	http:operation "authenticated";
-	http:expect "303-see-other";
+	http:expect "302-found";
 	http:type "text/uri-list";
 	http:cache-control "max-age:3600";
 	obj:script "return findCredential(authorization)".
@@ -127,7 +127,7 @@
 		owl:allValuesFrom calli:Credential];
 	http:operation "welcome";
 	http:realm </accounts>;
-	http:expect "303-see-other";
+	http:expect "302-found";
 	http:type "text/uri-list";
 	http:cache-control "max-age:3600";
 	obj:script "return findCredential(authorization)".

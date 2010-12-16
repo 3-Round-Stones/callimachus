@@ -16,6 +16,8 @@
       sr:sailImpl [
          sail:sailType "openrdf:AuditingSail" ;
          audit:archiving true ;
+         audit:minimumRecentTransactions 100 ;
+         audit:maximumRecentTransactions 1000 ;
          sail:delegate [
             sail:sailType "openrdf:NativeStore" ;
             ns:tripleIndexes "spoc,posc"

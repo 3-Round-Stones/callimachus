@@ -21,7 +21,7 @@
 	obj:sparql """
 		SELECT REDUCED ?label ?note ?icon ?url ?revision ?modified ?user ?name
 		WHERE {
-			?revision audit:committedOn ?modified
+			?revision a audit:RecentTransaction; audit:committedOn ?modified
 			OPTIONAL { ?revision http:authorized ?user
 				OPTIONAL { ?user skos:prefLabel ?name }
 				OPTIONAL { ?user rdfs:label ?name }
@@ -46,7 +46,7 @@
 			}
 		}
 		ORDER BY desc(?modified) ?url
-		LIMIT 50
+		LIMIT 100
 	""".
 
 :recent-changes-xsl rdfs:subClassOf obj:Message;

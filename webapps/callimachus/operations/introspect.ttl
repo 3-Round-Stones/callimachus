@@ -157,8 +157,7 @@ calli:introspect rdfs:subClassOf obj:Message;
 				var value = method.invoke(target, []);
 				printValue("has value", value);
 			} catch (e) {
-				var value = method.invoke(target, []);
-				printValue("has error", e);
+				printValue("has error", e.javaException.message);
 			}
 			out.writeEndElement();
 		}

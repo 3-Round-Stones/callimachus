@@ -28,13 +28,17 @@ import java.util.Random;
  */
 public class PasswordGenerator {
 	private static final Random rnd = new SecureRandom();
-	private static final int LENGTH_MIN = 8;
-	private static final int LENGTH_MAX = 16;
-	private static final char[] CHAR_POOL = { 'a', 'b', 'c', 'd', 'e', 'f',
-			'g', 'h', 'k', 'm', 'n', 'p', 'q', 'r', 't', 'u', 'w', 'x', 'y',
-			'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'L', 'M', 'N', 'P', 'R',
-			'S', 'T', 'Z', '2', '3', '4', '5', '6', '7', '8', '9', '!', '^',
-			'*', '-', '_', '=', '.', '~', '[', ']', ';', ',' };
+	private static final int LENGTH_MIN = 7;
+	private static final int LENGTH_MAX = 12;
+	private static final char[] CHAR_POOL = {
+			'a', 'a', 'b', 'c', 'd', 'e', 'e', 'e',
+			'e', 'f', 'g', 'h', 'h', 'i', 'i', 'k',
+			'm', 'n', 'n', 'o', 'o', 'p', 'q', 'r',
+			's', 's', 't', 't', 'u', 'w', 'x', 'y',
+			'A', 'B', 'C', 'D', 'E', 'F', 'H', 'I',
+			'L', 'M', 'N', 'O', 'P', 'S', 'T', 'W',
+			'2', '3', '4', '5', '6', '7', '8', '9', 
+			'!', '^', '*', '-', '.', '~', ']', ';' };
 
 	public String generatePassword() {
 		int length = LENGTH_MIN + rnd.nextInt(LENGTH_MAX - LENGTH_MIN + 1);
@@ -43,5 +47,9 @@ public class PasswordGenerator {
 			sb.append(CHAR_POOL[rnd.nextInt(CHAR_POOL.length)]);
 		}
 		return sb.toString();
+	}
+
+	public static void main(String[] args) {
+		System.out.println(new PasswordGenerator().generatePassword());
 	}
 }

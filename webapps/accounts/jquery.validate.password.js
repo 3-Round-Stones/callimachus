@@ -24,7 +24,7 @@
 	$.validator.passwordRating = function(passwd, username) {
 		if (!passwd || passwd.length < 4)
 			return rating(0, "too-short");
-		if (username && passwd.toLowerCase().match(username.toLowerCase()))
+		if (username && (passwd.toLowerCase().match(username.toLowerCase()) || username.toLowerCase().match(passwd.toLowerCase()) ))
 			return rating(0, "similar-to-username");
 
 		var intScore   = 0
@@ -72,13 +72,13 @@
 		
 		
 		// SPECIAL CHAR
-		if (passwd.match(/.[!,@,#,$,%,^,&,*,?,_,~]/))            // [verified] at least one special character
+		if (passwd.match(/.[^a-zA-Z0-9]/))            // [verified] at least one special character
 		{
 			intScore = (intScore+5)
 		}
 		
 									 // [verified] at least two special characters
-		if (passwd.match(/(.*[!,@,#,$,%,^,&,*,?,_,~].*[!,@,#,$,%,^,&,*,?,_,~])/))
+		if (passwd.match(/(.*[^a-zA-Z0-9].*[^a-zA-Z0-9])/))
 		{
 			intScore = (intScore+5)
 		}
@@ -96,7 +96,7 @@
 		}
  
 									// [verified] letters, numbers, and special characters
-		if (passwd.match(/([a-zA-Z0-9].*[!,@,#,$,%,^,&,*,?,_,~])|([!,@,#,$,%,^,&,*,?,_,~].*[a-zA-Z0-9])/))
+		if (passwd.match(/([a-zA-Z0-9].*[^a-zA-Z0-9])|([^a-zA-Z0-9].*[a-zA-Z0-9])/))
 		{
 			intScore = (intScore+2)
 		}
@@ -114,13 +114,9 @@
 		{
 			return rating(3, "good");
 		}
-		else if (intScore > 34 && intScore < 45)
-		{
-			return rating(4, "strong");
-		}
 		else
 		{
-			return rating(5, "stronger");
+			return rating(4, "strong");
 		}
 	}
 	
@@ -130,8 +126,7 @@
 		"very-weak": "Very weak",
 		"weak": "Weak",
 		"good": "Good",
-		"strong": "Strong",
-		"stronger": "Stronger"
+		"strong": "Strong"
 	}
 	
 	$.validator.addMethod("password", function(value, element, usernameField) {

@@ -32,6 +32,7 @@ calli:get-view rdfs:subClassOf obj:Message;
 	http:rel "alternate";
 	http:operation "view";
 	http:type "application/xhtml+xml";
+	http:cache-control "must-revalidate";
 	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
 	obj:imports calli:Template;
 	obj:imports <java:org.callimachusproject.annotations.view>;

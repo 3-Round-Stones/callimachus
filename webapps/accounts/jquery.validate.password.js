@@ -24,99 +24,31 @@
 	$.validator.passwordRating = function(passwd, username) {
 		if (!passwd || passwd.length < 4)
 			return rating(0, "too-short");
-		if (username && (passwd.toLowerCase().match(username.toLowerCase()) || username.toLowerCase().match(passwd.toLowerCase()) ))
-			return rating(0, "similar-to-username");
-
-		var intScore   = 0
-		
-		// PASSWORD LENGTH
-		if (passwd.length<5)                         // length 4 or less
-		{
-			intScore = (intScore+3)
+		if (username && passwd.length <= username.length * 2) {
+			var p = passwd.toLowerCase();
+			var u = username.toLowerCase();
+			if (p.match(u) || u.match(p))
+				return rating(0, "similar-to-username");
 		}
-		else if (passwd.length>4 && passwd.length<8) // length between 5 and 7
-		{
-			intScore = (intScore+6)
-		}
-		else if (passwd.length>7 && passwd.length<16)// length between 8 and 15
-		{
-			intScore = (intScore+12)
-		}
-		else if (passwd.length>15)                    // length 16 or more
-		{
-			intScore = (intScore+18)
-		}
-		
-		
-		// LETTERS (Not exactly implemented as dictacted above because of my limited understanding of Regex)
-		if (passwd.match(/[a-z]/))                              // [verified] at least one lower case letter
-		{
-			intScore = (intScore+1)
-		}
-		
-		if (passwd.match(/[A-Z]/))                              // [verified] at least one upper case letter
-		{
-			intScore = (intScore+5)
-		}
-		
-		// NUMBERS
-		if (passwd.match(/\d+/))                                 // [verified] at least one number
-		{
-			intScore = (intScore+5)
-		}
-		
-		if (passwd.match(/(.*[0-9].*[0-9].*[0-9])/))             // [verified] at least three numbers
-		{
-			intScore = (intScore+5)
-		}
-		
-		
-		// SPECIAL CHAR
-		if (passwd.match(/.[^a-zA-Z0-9]/))            // [verified] at least one special character
-		{
-			intScore = (intScore+5)
-		}
-		
-									 // [verified] at least two special characters
-		if (passwd.match(/(.*[^a-zA-Z0-9].*[^a-zA-Z0-9])/))
-		{
-			intScore = (intScore+5)
-		}
-	
-		
-		// COMBOS
-		if (passwd.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/))        // [verified] both upper and lower case
-		{
-			intScore = (intScore+2)
-		}
-
-		if (passwd.match(/([a-zA-Z])/) && passwd.match(/([0-9])/)) // [verified] both letters and numbers
-		{
-			intScore = (intScore+2)
-		}
- 
-									// [verified] letters, numbers, and special characters
-		if (passwd.match(/([a-zA-Z0-9].*[^a-zA-Z0-9])|([^a-zA-Z0-9].*[a-zA-Z0-9])/))
-		{
-			intScore = (intScore+2)
-		}
-	
-	
-		if(intScore < 16)
-		{
-			return rating(1, "very-weak");
-		}
-		else if (intScore > 15 && intScore < 25)
-		{
-			return rating(2, "weak");
-		}
-		else if (intScore > 24 && intScore < 35)
-		{
-			return rating(3, "good");
-		}
-		else
-		{
+		var lower = passwd.match(/[a-z]/);
+		var upper = passwd.match(/.[A-Z]./);
+		var numeric = passwd.match(/[0-9]/);
+		var special = passwd.match(/[!@#$%\^\&*\(\)\-_+=]/);
+		var other = passwd.match(/[^a-zA-Z0-9!@#$%\^\&*\(\)\-_+=]/);
+		if(passwd.length > 14) {
 			return rating(4, "strong");
+		} else if (passwd.length > 8 && lower && upper && numeric && special && other) {
+			return rating(4, "strong");
+		} else if (passwd.length > 9) {
+			return rating(3, "good");
+		} else if (passwd.length > 5 && (lower || upper) && (numeric || special || other)) {
+			return rating(3, "good");
+		} else if (passwd.length > 5) {
+			return rating(2, "weak");
+		} else if ((lower || upper) && (numeric || special || other)) {
+			return rating(2, "weak");
+		} else {
+			return rating(1, "very-weak");
 		}
 	}
 	

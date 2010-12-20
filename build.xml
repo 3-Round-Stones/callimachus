@@ -147,7 +147,7 @@
 
 	<target name="compile" depends="init,dependencies" description="compile the source ">
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}">
+		<javac srcdir="${src}" destdir="${build}" debug="true" debuglevel="lines,source">
 			<classpath>
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />

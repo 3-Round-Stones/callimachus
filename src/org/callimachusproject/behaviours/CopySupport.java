@@ -81,10 +81,10 @@ public abstract class CopySupport implements Template {
 				private void init(Statement st) throws Exception {
 					Resource subject = st.getSubject();
 					String about = subject.stringValue();
-					if (subject.equals(source.getResource())) {
-						throw new RDFHandlerException("Target resource URI not provided");
-					} else if (isResourceAlreadyPresent(con, about)) {
+					if (isResourceAlreadyPresent(con, about)) {
 						throw new RDFHandlerException("Resource Already Exists");
+					} else if (subject.equals(source.getResource())) {
+						throw new RDFHandlerException("Target resource URI not provided");
 					}
 					accept(openBoundedPatterns("copy", subject.stringValue()));
 				}
@@ -160,7 +160,9 @@ public abstract class CopySupport implements Template {
 					writer.write(next);
 				} else if (next.isTriplePattern()) {
 					VarOrTerm subj = next.asTriplePattern().getSubject();
-					if (subj.isIRI() && subj.stringValue().equals(about)) {
+					if (subj.isIRI() && subj.stringValue().equals(about)
+							|| subj.isVar()
+							&& subj.stringValue().equals("this")) {
 						if (empty) {
 							empty = false;
 							writer.write(new Ask());

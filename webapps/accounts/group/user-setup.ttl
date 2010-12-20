@@ -11,22 +11,26 @@
 	calli:origin </>;
 	calli:domain <../../group/>.
 
-:already-user-setup rdfs:subClassOf obj:Message;
+:HasNoMaintainer rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <Group>];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:allValuesFrom xsd:boolean];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:cardinality 1];
-	obj:name "isAlreadyUserSetup";
 	obj:sparql """
 		ASK {
-			{
-				?accounts calli:authenticates $this, ?other
-				FILTER (?other != $this)
-			} UNION {
-				$this calli:member ?member
-			}
+			# this group is maintained by its members
+			$this calli:maintainer $this
+
+			# there are no members to maintain this
+			OPTIONAL { $this calli:member ?member } FILTER (!bound(?member))
+
+			# there is no user assigned to maintain this
+			OPTIONAL { $this calli:maintainer [calli:name ?user] } FILTER (!bound(?user))
+
+			# there is no member of another group that can maintain this
+			OPTIONAL { $this calli:maintainer [calli:member ?adimn] } FILTER (!bound(?admin))
 		}
 	""".
 
@@ -42,7 +46,7 @@
 	obj:imports <user-setup.xhtml>;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	obj:script """
-		if (isAlreadyUserSetup())
+		if (!this.HasNoMaintainer())
 			throw new BadRequest("This service has already been setup");
 		return user_setup_xhtml.calliConstruct(this, 'copy');
 	""".
@@ -67,7 +71,7 @@
 	obj:imports <java:org.openrdf.model.impl.URIImpl>;
 	obj:imports <java:java.io.ByteArrayInputStream>;
 	obj:script """
-		if (isAlreadyUserSetup())
+		if (!this.HasNoMaintainer())
 			throw new BadRequest("This service has already been setup");
 		var byteArray = bytes.toByteArray();
 		var stream = new ByteArrayInputStream(byteArray);

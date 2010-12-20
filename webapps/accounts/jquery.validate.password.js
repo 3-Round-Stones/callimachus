@@ -31,7 +31,7 @@
 				return rating(0, "similar-to-username");
 		}
 		var lower = passwd.match(/[a-z]/);
-		var upper = passwd.match(/.[A-Z]./);
+		var upper = passwd.match(/.[A-Z]/);
 		var numeric = passwd.match(/[0-9]/);
 		var special = passwd.match(/[!@#$%\^\&*\(\)\-_+=]/);
 		var other = passwd.match(/[^a-zA-Z0-9!@#$%\^\&*\(\)\-_+=]/);
@@ -39,17 +39,18 @@
 			return rating(4, "strong");
 		} else if (passwd.length > 8 && lower && upper && numeric && special && other) {
 			return rating(4, "strong");
-		} else if (passwd.length > 9) {
+		}
+		if (passwd.length > 9) {
 			return rating(3, "good");
 		} else if (passwd.length > 5 && (lower || upper) && (numeric || special || other)) {
 			return rating(3, "good");
-		} else if (passwd.length > 5) {
+		}
+		if (passwd.length > 5) {
 			return rating(2, "weak");
 		} else if ((lower || upper) && (numeric || special || other)) {
 			return rating(2, "weak");
-		} else {
-			return rating(1, "very-weak");
 		}
+		return rating(1, "very-weak");
 	}
 	
 	$.validator.passwordRating.messages = {

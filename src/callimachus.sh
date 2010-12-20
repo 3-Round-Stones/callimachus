@@ -99,21 +99,13 @@ then
   JAVAC=`ls -1 "$BASEDIR"/*/bin/javac | head -n 1`
   if [ -x "$JAVAC" ] ; then
     JAVA_HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
-    JAVA="$JAVA_HOME/bin/java"
-    if [ -L "$JAVA" ] ; then
-      continue
-    fi
-    VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | sed -e 's;\.;0;g'`
-    if [ ! -z "$JAVA_HOME" -a ! -L "$JAVA" -a ! -z "$VERSION" -a "$VERSION" -ge "$JAVA_VERSION_INT" ] ; then
-      break
-    fi
-  fi
-  # verify java instance
-  if [ ! -z "$JAVA_HOME" ] ; then
-    JAVA="$JAVA_HOME/bin/java"
-    VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | sed -e 's;\.;0;g'`
-    if [ -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
-      JAVA_HOME=
+    # verify java instance
+    if [ ! -z "$JAVA_HOME" ] ; then
+      JAVA="$JAVA_HOME/bin/java"
+      VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | sed -e 's;\.;0;g'`
+      if [ -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
+        JAVA_HOME=
+      fi
     fi
   fi
 fi
@@ -154,16 +146,28 @@ if [ -z "$JAVA_HOME" ] ; then
   # verify java instance
   if [ -z "$JAVA_HOME" ] ; then
     echo "The JAVA_HOME environment variable is not defined"
-    echo "This environment variable is needed to run this program"
+    echo "This environment variable is needed to run this server"
     exit 1
   fi
   JAVA="$JAVA_HOME/bin/java"
   VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | sed -e 's;\.;0;g'`
   if [ ! -x "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
     echo "The JAVA_HOME environment variable does not point to a $JAVA_VERSION JDK installation"
-    echo "JDK $JAVA_VERSION is needed to run this program"
+    echo "JDK $JAVA_VERSION is needed to run this server"
     exit 1
   fi
+fi
+
+if [ ! -x "$JAVA_HOME/bin/jrunscript" ]; then
+    echo "The JAVA_HOME environment variable does not point to a JDK installation with scripting support"
+    echo "JDK jrunscript is needed to run this server"
+    exit 1
+fi
+
+if ! "$JAVA_HOME/bin/jrunscript" -q 2>&1 |grep ECMAScript >/dev/null; then
+    echo "The JAVA_HOME environment variable does not point to a JDK installation with ECMAScript support"
+    echo "JDK with ECMAScript support is needed to run this server"
+    exit 1
 fi
 
 if [ -z "$JAVA" ] ; then
@@ -215,11 +219,7 @@ if [ -z "$DAEMON_USER" ] ; then
 fi
 
 if [ -z "$JSVC_OPTS" ] ; then
-  if [ -z "$DAEMON_USER" ] ; then
-    JSVC_OPTS="-Xmx512m -Dfile.encoding=UTF-8"
-  else
-    JSVC_OPTS="-user $DAEMON_USER -Xmx512m -Dfile.encoding=UTF-8"
-  fi
+  JSVC_OPTS="-Xmx512m -Dfile.encoding=UTF-8"
 fi
 
 if [ -z "$PORT" ] ; then
@@ -234,7 +234,7 @@ if [ -z "$AUTHORITY" ] ; then
 fi
 
 if [ -z "$OPTS" ] ; then
-  if [ "$RESTRICT_IO" = "false" ]; then
+  if [ "$RESTRICT_FS" = "false" ]; then
     OPTS="--trust"
   fi
   if [ -z "$STORE" ]; then
@@ -318,6 +318,7 @@ if [ "$1" = "start" ] ; then ################################
     -Djava.util.logging.config.file="$LOGGING" \
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
+    -user $DAEMON_USER \
     $JSVC_OPTS $MAINCLASS -q $OPTS "$@"
 
   RETURN_VAL=$?
@@ -426,6 +427,7 @@ else ################################
       -Djava.util.logging.config.file="$LOGGING" \
       -Djava.mail.properties="$MAIL" \
       -classpath "$CLASSPATH" \
+      -user $DAEMON_USER \
       $JSVC_OPTS $MAINCLASS -q $OPTS "$@"
 
     RETURN_VAL=$?

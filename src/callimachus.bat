@@ -49,7 +49,7 @@ if "%BASEDIR:~-1%" NEQ "\" (
 set BASEDIR=%BASEDIR:~0,-1%
 if exist "%BASEDIR%\bin\%BASENAME%" goto okHome
 echo The BASEDIR environment variable is not defined correctly
-echo This environment variable is needed to run this program
+echo This environment variable is needed to run this server
 goto end
 :okHome
 
@@ -95,7 +95,7 @@ for /f "tokens=2*" %%i in ('%Cmd% ^| find "JavaHome"') do set JAVA_HOME=%%j
 rem Make sure prerequisite environment variable is set
 if not "%JAVA_HOME%" == "" goto gotJdkHome
 echo The JAVA_HOME environment variable is not defined
-echo The JAVA_HOME environment variable is needed to run this program
+echo The JAVA_HOME environment variable is needed to run this server
 goto exit
 :gotJdkHome
 
@@ -152,7 +152,7 @@ set "OPT=-d "%BASEDIR%" -p %PORT% -a %AUTHORITY%"
 if "%STORE%" == "" goto gotStore
 set "OPT=%OPT% -r "%STORE%""
 :gotStore
-if not "%RESTRICT_IO%" == "false" goto gotOpt
+if not "%RESTRICT_FS%" == "false" goto gotOpt
 set "OPT=%OPT% --trust"
 :gotOpt
 

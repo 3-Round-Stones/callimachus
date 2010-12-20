@@ -13,8 +13,9 @@ if (window.addEventListener) {
 	window.addEventListener("load", findAutoExpandTextArea, false)
 	window.addEventListener("resize", findAutoExpandTextArea, false)
 	window.addEventListener("change", targetAutoExpandTextArea, false)
-	window.addEventListener("keyup", targetAutoExpandTextArea, false)
-	window.addEventListener("paste", targetAutoExpandTextArea, false)
+	window.addEventListener("keypress", targetAutoExpandTextArea, false)
+	window.addEventListener("input", targetAutoExpandTextArea, false)
+	document.addEventListener("paste", targetAutoExpandTextArea, false)
 } else {
 	window.attachEvent("onload", divertLinks)
 	window.attachEvent("onload", replaceLinks)
@@ -25,7 +26,7 @@ if (window.addEventListener) {
 	window.attachEvent("onload", findAutoExpandTextArea)
 	window.attachEvent("onresize", findAutoExpandTextArea)
 	document.attachEvent("onchange", targetAutoExpandTextArea)
-	document.attachEvent("onkeyup", targetAutoExpandTextArea)
+	document.attachEvent("onkeypress", targetAutoExpandTextArea)
 	document.attachEvent("onpaste", targetAutoExpandTextArea)
 }
 
@@ -275,6 +276,7 @@ function findAutoExpandTextArea() {
 			expandTextArea(areas[i])
 		}
 	}
+	$(areas).bind("paste", targetAutoExpandTextArea)
 }
 
 function targetAutoExpandTextArea(event) {
@@ -289,22 +291,27 @@ function targetAutoExpandTextArea(event) {
 		target = event.srcElement
 	}
 	if (target && target.className.match(/\bauto-expand\b/)) {
-		expandTextArea(target)
+		setTimeout(function(){expandTextArea(target)}, 0)
 	}
 }
 
 function expandTextArea(area) {
-	var clientWidth = document.documentElement.clientWidth
-	var clientHeight = window.innerHeight
-	var trail = area
-	while (trail) {
-		clientWidth -= trail.offsetLeft
-		trail = trail.offsetParent
-	}
+	var asideLeft = document.documentElement.clientWidth
+	$(".aside").filter(function(){
+		var top = $(this).offset().top
+		var parent = $(area).offsetParent()
+		return parent.offset().top < top + $(this).height() && parent.offset().top + parent.height() > top
+	}).each(function() {
+		if ($(this).offset().left < asideLeft) {
+			asideLeft = $(this).offset().left
+		}
+	})
+	var contentWidth = asideLeft - $(area).offset().left
+	var innerHeight = window.innerHeight || document.documentElement.clientHeight
 	var width = area.cols || area.size
 	var height = area.rows
-	var maxCols = Math.floor(clientWidth / area.offsetWidth * width - 3)
-	var maxRows = Math.floor(clientHeight / area.offsetHeight * height - 3)
+	var maxCols = Math.floor(contentWidth / area.offsetWidth * width - 3)
+	var maxRows = Math.floor(innerHeight / area.offsetHeight * height - 3)
 	if (!maxCols || maxCols < 2) {
 		maxCols = 96
 	}
@@ -316,8 +323,8 @@ function expandTextArea(area) {
 	var rows = Math.max(1, lines.length)
 	for (var i = 0; i < lines.length; i++) {
 		var len = lines[i].replace(/\t/g, "        ").length
-		if (cols < len) {
-			cols = len
+		if (cols < len + 1) {
+			cols = len + 1
 		}
 		rows += Math.floor(len / maxCols)
 	}

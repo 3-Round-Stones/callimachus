@@ -203,7 +203,7 @@ for JAR in "$BASEDIR"/lib/*.jar ; do
 done
 
 if [ -z "$JAVA_OPTS" ] ; then
-  JAVA_OPTS="-Xmx512m -Dfile.encoding=UTF-8"
+  JAVA_OPTS="-Xmx512m"
 fi
 
 if [ -z "$DAEMON_GROUP" ] ; then
@@ -219,7 +219,7 @@ if [ -z "$DAEMON_USER" ] ; then
 fi
 
 if [ -z "$JSVC_OPTS" ] ; then
-  JSVC_OPTS="-Xmx512m -Dfile.encoding=UTF-8"
+  JSVC_OPTS="-Xmx512m"
 fi
 
 if [ -z "$PORT" ] ; then

@@ -29,14 +29,14 @@
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:allValuesFrom xsd:string];
 	http:method "POST";
-	http:expect "303-see-also";
-	http:type "text/uri-list";
+	http:type "text/html";
 	http:realm </accounts>;
 	obj:imports calli:NamedGraph;
 	obj:imports <java:java.net.URLEncoder>;
 	obj:imports <java:org.openrdf.rio.RDFFormat>;
 	obj:imports <java:javax.mail.util.ByteArrayDataSource>;
 	obj:imports <java:javax.mail.internet.MimeMultipart>;
+	obj:imports </sparql/uploaded.xhtml>;
 	obj:script """
 		var ds = new ByteArrayDataSource(input, "multipart/form-data");
 		var part = new MimeMultipart(ds).getBodyPart(0);
@@ -52,7 +52,7 @@
 			objectConnection.addDesignation(obj, NamedGraph);
 		}
 		objectConnection.add(file, uri, format, [vf.createURI(uri)]);
-		return uri; //# FIXME this might be too big of a graph for the browser
+		return uploaded_xhtml.calliConstructHTML(obj);
 	""".
 
 :upload-rdf-graph-input a owl:DatatypeProperty, owl:FunctionalProperty;

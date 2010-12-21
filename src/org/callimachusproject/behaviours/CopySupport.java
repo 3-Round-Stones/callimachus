@@ -39,6 +39,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.query.BooleanQuery;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
@@ -183,7 +184,10 @@ public abstract class CopySupport implements Template {
 			if (empty)
 				return false;
 			String qry = str.toString();
-			return con.prepareBooleanQuery(SPARQL, qry).evaluate();
+			ValueFactory vf = con.getValueFactory();
+			BooleanQuery query = con.prepareBooleanQuery(SPARQL, qry);
+			query.setBinding("this", vf.createURI(about));
+			return query.evaluate();
 		} finally {
 			reader.close();
 		}

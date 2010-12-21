@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>RDF Graph</title>
+		<script>
+			$(document).ready(function(){
+				$("#graph-link").text($("#graph-link").attr("href"))
+			})
+		</script>
+	</head>
+	<body>
+		<ul class="aside">
+			<li>Additional RDF graphs can be uploaded using the <a href="graph.xhtml?construct">RDF Graph Interface</a>.</li>
+		</ul>
+		<p>The graph has been uploaded to <a id="graph-link" href="?this">this server</a>.</p>
+	</body>
+</html>

@@ -130,12 +130,8 @@ setlocal ENABLEDELAYEDEXPANSION
 for /r "%LIB%" %%a IN (*.jar) do set CLASSPATH=!CLASSPATH!;%%a
 
 if not "%JAVA_OPTS%" == "" goto gotJavaOpts
-set "JAVA_OPTS=-Xmx512m -Dfile.encoding=UTF-8"
+set "JAVA_OPTS=-Xmx512m"
 :gotJavaOpts
-
-if not "%PRUNSRV_JVM_OPTS%" == "" goto gotPrunsrvJvmOpts
-set "PRUNSRV_JVM_OPTS=-Dfile.encoding=UTF-8"
-:gotPrunsrvJvmOpts
 
 if not "%PORT%" == "" goto gotPort
 set "PORT=8080"

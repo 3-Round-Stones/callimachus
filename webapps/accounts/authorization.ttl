@@ -54,18 +54,22 @@ audit:Transaction http:realm </accounts>.
 		owl:allValuesFrom xsd:boolean].
 
 :credential a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :AuthorizeCredential.
+	rdfs:domain :AuthorizeCredential;
+	obj:name "credential".
 
 :method a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :AuthorizeCredential;
-	rdfs:range xsd:string.
+	rdfs:range xsd:string;
+	obj:name "method".
 
 :object a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :AuthorizeCredential.
+	rdfs:domain :AuthorizeCredential;
+	obj:name "object".
 
 :query a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :AuthorizeCredential;
-	rdfs:range xsd:string.
+	rdfs:range xsd:string;
+	obj:name "query".
 
 # users associated with the object are authorized
 :authorize-maintainer owl:equivalentClass :AuthorizeCredential;

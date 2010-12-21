@@ -9,29 +9,28 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-:template-xsl rdfs:subClassOf obj:Message;
+:TransformLayout rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xhtml+xml";
 	http:transform :xhtml-to-html-xsl;
 	obj:xslt <../layout/template.xsl>.
 
-:template-xsl-input a owl:ObjectProperty; a owl:FunctionalProperty;
+:input a owl:ObjectProperty; a owl:FunctionalProperty;
 	http:type "application/xhtml+xml";
-	rdfs:domain :template-xsl;
+	rdfs:domain :TransformLayout;
 	rdfs:range <java:java.io.InputStream>.
 
-:template-xsl-operation a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain :template-xsl;
+:query a owl:DatatypeProperty; a owl:FunctionalProperty;
+	rdfs:domain :TransformLayout;
 	rdfs:range xsd:string;
-	http:parameter "*";
-	obj:name "query".
+	http:parameter "*".
 
 :xhtml-to-html-xsl rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.Reader>];
 	http:type "text/html";
 	obj:xslt <util/xhtml-to-html.xsl>.
 
-:xhtml-xsl-input a owl:ObjectProperty; a owl:FunctionalProperty;
+:xhtml a owl:ObjectProperty; a owl:FunctionalProperty;
 	http:type "application/xhtml+xml";
 	rdfs:domain :xhtml-to-html-xsl;
 	rdfs:range <java:java.io.InputStream>.

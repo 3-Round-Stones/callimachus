@@ -7,24 +7,6 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-# Group curators can create users
-:user-create-authorize owl:equivalentClass calli:authorize-credential;
-	obj:sparql """
-		ASK {
-			$subject a <Group>
-			{
-				$subject calli:scribe $credential
-			} UNION {
-				$subject calli:curator $credential
-			} UNION {
-				$subject calli:scribe [calli:member $credential]
-			} UNION {
-				$subject calli:curator [calli:member $credential]
-			}
-			FILTER ($qs = "user-create")
-		}
-	""".
-
 :get-user-create rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <Group>];

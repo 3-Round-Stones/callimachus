@@ -27,7 +27,7 @@ calli:introspect rdfs:subClassOf obj:Message;
 		owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
 	http:operation "introspect";
 	http:type "application/xhtml+xml";
-	http:transform <../layout.ttl#template-xsl>;
+	http:transform <../layout.ttl#TransformLayout>;
 	obj:imports <java:javax.xml.stream.XMLOutputFactory>;
 	obj:imports <java:org.openrdf.repository.object.annotations.iri>;
 	obj:script """

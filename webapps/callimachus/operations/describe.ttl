@@ -40,7 +40,7 @@ calli:describe rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xml;q=0.5";
-	http:transform <../layout.ttl#template-xsl>;
+	http:transform <../layout.ttl#TransformLayout>;
 	obj:xslt <describe.xsl>.
 
 :describe-xsl-xml a owl:ObjectProperty, owl:FunctionalProperty;

@@ -38,37 +38,37 @@ calli:post-discussion http:realm </accounts>.
 # Transcation operations must be authenticated
 audit:Transaction http:realm </accounts>.
 
+# User operations must be authorized
+</accounts/user/User> http:realm </accounts>.
+
 ################################
 # Authorization
 ################################
 
-:authorize-credential rdfs:subClassOf obj:Message;
+# interface method used by DigestRealmSupport
+:AuthorizeCredential rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:cardinality "1"^^xsd:nonNegativeInteger];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:allValuesFrom xsd:boolean];
-	obj:name "calliAuthorizeCredential".
+		owl:allValuesFrom xsd:boolean].
 
-:authorize-credential-arg1 a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :authorize-credential;
-	obj:name "credential".
+:credential a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :AuthorizeCredential.
 
-:authorize-credential-arg2 a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :authorize-credential;
-	rdfs:range xsd:string;
-	obj:name "method".
+:method a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :AuthorizeCredential;
+	rdfs:range xsd:string.
 
-:authorize-credential-arg3 a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :authorize-credential;
-	obj:name "subject".
+:qs a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :AuthorizeCredential;
+	rdfs:range xsd:string.
 
-:authorize-credential-arg4 a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :authorize-credential;
-	rdfs:range xsd:string;
-	obj:name "qs".
+:subject a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :AuthorizeCredential.
 
-:authorize-maintainer owl:equivalentClass :authorize-credential;
+# users associated with the subject are authorized
+:authorize-maintainer owl:equivalentClass :AuthorizeCredential;
 	obj:sparql """
 		ASK {
 			{
@@ -85,7 +85,8 @@ audit:Transaction http:realm </accounts>.
 		}
 	""".
 
-:authorize-member owl:equivalentClass :authorize-credential;
+# members of groups associated with the subject are authorized
+:authorize-member owl:equivalentClass :AuthorizeCredential;
 	obj:sparql """
 		ASK {
 			?group calli:member $credential
@@ -103,7 +104,8 @@ audit:Transaction http:realm </accounts>.
 		}
 	""".
 
-:authorize-conservator owl:equivalentClass :authorize-credential;
+# users or groups associated as conservator of a class of the subject are authorized
+:authorize-conservator owl:equivalentClass :AuthorizeCredential;
 	obj:imports calli:Group;
 	obj:imports <java:org.callimachusproject.annotations.conservator>;
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
@@ -149,7 +151,8 @@ audit:Transaction http:realm </accounts>.
 		return proceed();
 	""".
 
-:authorize-reviewer owl:equivalentClass :authorize-credential;
+# users or groups associated as reviewer of a class of the subject are authorized
+:authorize-reviewer owl:equivalentClass :AuthorizeCredential;
 	obj:imports calli:Group;
 	obj:imports <java:org.callimachusproject.annotations.reviewer>;
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
@@ -196,7 +199,7 @@ audit:Transaction http:realm </accounts>.
 	""".
 
 # anybody with credentials can login and is welcome
-:login-authorize owl:equivalentClass :authorize-credential;
+:login-authorize owl:equivalentClass :AuthorizeCredential;
 	obj:sparql """
 		ASK {
 			$subject calli:authenticates [calli:member $credential]
@@ -207,7 +210,8 @@ audit:Transaction http:realm </accounts>.
 	""".
 
 # transcations are authorized by the subject they modified
-:transaction-view-authorize owl:equivalentClass :authorize-credential;
+# TODO change to use obj:script and call AuthorizeCredential with each subject in transaction
+:transaction-view-authorize owl:equivalentClass :AuthorizeCredential;
 	obj:sparql """
 		ASK {
 			$subject a audit:Transaction
@@ -229,6 +233,34 @@ audit:Transaction http:realm </accounts>.
 			}
 			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "discussion")
 			FILTER ($qs = "view" || $qs = "describe" || $qs = "discussion" || !bound($qs))
+		}
+	""".
+
+# any authenticated user can view any other user
+:user-view-authorize owl:equivalentClass :AuthorizeCredential;
+	obj:sparql """
+		ASK {
+			$subject a </accounts/user/User>
+			FILTER ($method = "GET" || $method = "HEAD")
+			FILTER ($qs = "view" || !bound($qs))
+		}
+	""".
+
+# Group curators can create users
+:user-create-authorize owl:equivalentClass :AuthorizeCredential;
+	obj:sparql """
+		ASK {
+			$subject a </accounts/group/Group>
+			{
+				$subject calli:scribe $credential
+			} UNION {
+				$subject calli:curator $credential
+			} UNION {
+				$subject calli:scribe [calli:member $credential]
+			} UNION {
+				$subject calli:curator [calli:member $credential]
+			}
+			FILTER ($qs = "user-create")
 		}
 	""".
 

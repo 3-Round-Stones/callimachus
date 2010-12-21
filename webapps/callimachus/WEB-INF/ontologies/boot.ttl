@@ -21,7 +21,7 @@
 @prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
-calli:started rdfs:subClassOf obj:Message;
+calli:Started rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom [owl:oneOf (calli:boot)]];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
@@ -31,7 +31,7 @@ calli:started rdfs:subClassOf obj:Message;
 	http:realm calli:nobody;
 	obj:script "proceed()".
 
-calli:reloaded rdfs:subClassOf obj:Message;
+calli:Reloaded rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom [owl:oneOf (calli:boot)]];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
@@ -41,7 +41,7 @@ calli:reloaded rdfs:subClassOf obj:Message;
 	http:realm calli:nobody;
 	obj:script "proceed()".
 
-calli:stopping rdfs:subClassOf obj:Message;
+calli:Stopping rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom [owl:oneOf (calli:boot)]];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;

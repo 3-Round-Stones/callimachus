@@ -58,7 +58,7 @@ calli:post-discussion-form a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xml";
-	http:transform <../layout.ttl#template-xsl>;
+	http:transform <../layout.ttl#TransformLayout>;
 	obj:xslt <discussion.xhtml>.
 
 :discussion-xsl-input a owl:ObjectProperty; a owl:FunctionalProperty;

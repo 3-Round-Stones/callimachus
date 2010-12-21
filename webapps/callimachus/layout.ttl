@@ -13,7 +13,7 @@
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xhtml+xml";
 	http:transform :xhtml-to-html-xsl;
-	obj:xslt <../layout/template.xsl>.
+	obj:xslt </layout/template.xsl>.
 
 :input a owl:ObjectProperty; a owl:FunctionalProperty;
 	http:type "application/xhtml+xml";
@@ -23,7 +23,8 @@
 :query a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformLayout;
 	rdfs:range xsd:string;
-	http:parameter "*".
+	http:parameter "*";
+	obj:name "query".
 
 :xhtml-to-html-xsl rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.Reader>];

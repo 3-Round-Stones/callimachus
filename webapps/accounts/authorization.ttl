@@ -60,51 +60,51 @@ audit:Transaction http:realm </accounts>.
 	rdfs:domain :AuthorizeCredential;
 	rdfs:range xsd:string.
 
-:qs a owl:DatatypeProperty, owl:FunctionalProperty;
+:object a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :AuthorizeCredential.
+
+:query a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :AuthorizeCredential;
 	rdfs:range xsd:string.
 
-:subject a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :AuthorizeCredential.
-
-# users associated with the subject are authorized
+# users associated with the object are authorized
 :authorize-maintainer owl:equivalentClass :AuthorizeCredential;
 	obj:sparql """
 		ASK {
 			{
-				$subject calli:scribe $credential
+				$object calli:scribe $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ($qs = "copy")
+				FILTER ($query = "copy")
 			} UNION {
-				$subject calli:curator $credential
+				$object calli:curator $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ($qs = "copy")
+				FILTER ($query = "copy")
 			} UNION {
-				$subject calli:maintainer $credential
+				$object calli:maintainer $credential
 			}
 		}
 	""".
 
-# members of groups associated with the subject are authorized
+# members of groups associated with the object are authorized
 :authorize-member owl:equivalentClass :AuthorizeCredential;
 	obj:sparql """
 		ASK {
 			?group calli:member $credential
 			{
-				$subject calli:scribe ?group
+				$object calli:scribe ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ($qs = "copy")
+				FILTER ($query = "copy")
 			} UNION {
-				$subject calli:curator ?group
+				$object calli:curator ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ($qs = "copy")
+				FILTER ($query = "copy")
 			} UNION {
-				$subject calli:maintainer ?group
+				$object calli:maintainer ?group
 			}
 		}
 	""".
 
-# users or groups associated as conservator of a class of the subject are authorized
+# users or groups associated as conservator of a class of the object are authorized
 :authorize-conservator owl:equivalentClass :AuthorizeCredential;
 	obj:imports calli:Group;
 	obj:imports <java:org.callimachusproject.annotations.conservator>;
@@ -132,10 +132,10 @@ audit:Transaction http:realm </accounts>.
 			}
 			return result;
 		}
-		if (method == "GET" || method == "HEAD" || method == "POST" && (qs == "edit" || qs == "discussion")) {
-			if (qs == null || qs == "view" || qs == "edit" || qs == "discussion" || qs == "describe" || qs == "history"
-						|| qs == "what-links-here" || qs == "related-changes" || qs == "introspect") {
-				var annotated = findAnnotatedClass(subject.getClass(), conservator);
+		if (method == "GET" || method == "HEAD" || method == "POST" && (query == "edit" || query == "discussion")) {
+			if (query == null || query == "view" || query == "edit" || query == "discussion" || query == "describe" || query == "history"
+						|| query == "what-links-here" || query == "related-changes" || query == "introspect") {
+				var annotated = findAnnotatedClass(object.getClass(), conservator);
 				for (var a = annotated.length; a--;) {
 					var uri = annotated[a].getAnnotation(conservator).value();
 					for (var u = uri.length; u--;) {
@@ -151,7 +151,7 @@ audit:Transaction http:realm </accounts>.
 		return proceed();
 	""".
 
-# users or groups associated as reviewer of a class of the subject are authorized
+# users or groups associated as reviewer of a class of the object are authorized
 :authorize-reviewer owl:equivalentClass :AuthorizeCredential;
 	obj:imports calli:Group;
 	obj:imports <java:org.callimachusproject.annotations.reviewer>;
@@ -179,10 +179,10 @@ audit:Transaction http:realm </accounts>.
 			}
 			return result;
 		}
-		if (method == "GET" || method == "HEAD" || method == "POST" && qs == "discussion") {
-			if (qs == null || qs == "view" || qs == "discussion" || qs == "describe" || qs == "history"
-						|| qs == "what-links-here" || qs == "related-changes" || qs == "introspect") {
-				var annotated = findAnnotatedClass(subject.getClass(), reviewer);
+		if (method == "GET" || method == "HEAD" || method == "POST" && query == "discussion") {
+			if (query == null || query == "view" || query == "discussion" || query == "describe" || query == "history"
+						|| query == "what-links-here" || query == "related-changes" || query == "introspect") {
+				var annotated = findAnnotatedClass(object.getClass(), reviewer);
 				for (var a = annotated.length; a--;) {
 					var uri = annotated[a].getAnnotation(reviewer).value();
 					for (var u = uri.length; u--;) {
@@ -202,25 +202,25 @@ audit:Transaction http:realm </accounts>.
 :login-authorize owl:equivalentClass :AuthorizeCredential;
 	obj:sparql """
 		ASK {
-			$subject calli:authenticates [calli:member $credential]
+			$object calli:authenticates [calli:member $credential]
 			FILTER ($method = "GET" || $method = "HEAD")
-			FILTER ($subject = </accounts>)
-			FILTER ($qs = "login" || $qs = "welcome")
+			FILTER ($object = </accounts>)
+			FILTER ($query = "login" || $query = "welcome")
 		}
 	""".
 
-# transcations are authorized by the subject they modified
-# TODO change to use obj:script and call AuthorizeCredential with each subject in transaction
+# transcations are authorized by the object they modified
+# TODO change to use obj:script and call AuthorizeCredential with each object in transaction
 :transaction-view-authorize owl:equivalentClass :AuthorizeCredential;
 	obj:sparql """
 		ASK {
-			$subject a audit:Transaction
+			$object a audit:Transaction
 			{
-				GRAPH $subject { ?subj ?pred ?obj }
+				GRAPH $object { ?subj ?pred ?obj }
 			} UNION {
-				GRAPH $subject { [rdf:subject ?subj] }
+				GRAPH $object { [rdf:subject ?subj] }
 			} UNION {
-				$subject audit:contained [rdf:subject ?subj]
+				$object audit:contained [rdf:subject ?subj]
 			}
 			{
 				?subj calli:reviewer $credential
@@ -231,8 +231,8 @@ audit:Transaction http:realm </accounts>.
 			} UNION {
 				?subj calli:maintainer [calli:member $credential]
 			}
-			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $qs = "discussion")
-			FILTER ($qs = "view" || $qs = "describe" || $qs = "discussion" || !bound($qs))
+			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $query = "discussion")
+			FILTER ($query = "view" || $query = "describe" || $query = "discussion" || !bound($query))
 		}
 	""".
 
@@ -240,9 +240,9 @@ audit:Transaction http:realm </accounts>.
 :user-view-authorize owl:equivalentClass :AuthorizeCredential;
 	obj:sparql """
 		ASK {
-			$subject a </accounts/user/User>
+			$object a </accounts/user/User>
 			FILTER ($method = "GET" || $method = "HEAD")
-			FILTER ($qs = "view" || !bound($qs))
+			FILTER ($query = "view" || !bound($query))
 		}
 	""".
 
@@ -250,17 +250,17 @@ audit:Transaction http:realm </accounts>.
 :user-create-authorize owl:equivalentClass :AuthorizeCredential;
 	obj:sparql """
 		ASK {
-			$subject a </accounts/group/Group>
+			$object a </accounts/group/Group>
 			{
-				$subject calli:scribe $credential
+				$object calli:scribe $credential
 			} UNION {
-				$subject calli:curator $credential
+				$object calli:curator $credential
 			} UNION {
-				$subject calli:scribe [calli:member $credential]
+				$object calli:scribe [calli:member $credential]
 			} UNION {
-				$subject calli:curator [calli:member $credential]
+				$object calli:curator [calli:member $credential]
 			}
-			FILTER ($qs = "user-create")
+			FILTER ($query = "user-create")
 		}
 	""".
 

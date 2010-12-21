@@ -129,7 +129,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 	public boolean authorizeCredential(Object credential, String method,
 			Object resource, String qs) {
 		return credential.equals(resource)
-				|| AuthorizeCredential(credential, method, qs, resource);
+				|| AuthorizeCredential(credential, method, resource, qs);
 	}
 
 	public Object findCredential(String authorization) {
@@ -153,7 +153,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 	protected abstract List<Object[]> findDigest(@name("name") String username);
 
 	protected abstract boolean AuthorizeCredential(Object credential,
-			String method, String qs, Object subject);
+			String method, Object object, String query);
 
 	private Object authenticatedCredential(String method, String md5,
 			Map<String, String> options) throws UnsupportedEncodingException {

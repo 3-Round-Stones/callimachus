@@ -30,7 +30,9 @@ calli:introspect rdfs:subClassOf obj:Message;
 	http:transform <../layout.ttl#TransformLayout>;
 	obj:imports <java:javax.xml.stream.XMLOutputFactory>;
 	obj:imports <java:org.openrdf.repository.object.annotations.iri>;
+	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:script """
+	try {
 		var stream = new java.io.ByteArrayOutputStream();
 		var out = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
 
@@ -344,9 +346,32 @@ calli:introspect rdfs:subClassOf obj:Message;
 			out.writeEndElement();
 		}
 		out.writeEndElement();
+
 		out.writeEndElement();
 		out.writeEndElement();
 		out.writeEndDocument();
 		return stream;
+	} catch (e) {
+		var stream = new java.io.ByteArrayOutputStream();
+		var out = XMLOutputFactory.newInstance().createXMLStreamWriter(stream);
+		out.writeStartDocument();
+		out.writeStartElement("html");
+		out.setDefaultNamespace("http://www.w3.org/1999/xhtml");
+		out.writeStartElement("head");
+		out.writeStartElement("title");
+		out.writeCharacters(this.resource.localName + " Introspection");
+		out.writeEndElement();
+		out.writeEndElement();
+		out.writeStartElement("body");
+
+		out.writeStartElement("h1");
+		out.writeCharacters("Introspect is not supported on this system at this time");
+		out.writeEndElement();
+
+		out.writeEndElement();
+		out.writeEndElement();
+		out.writeEndDocument();
+		return stream;
+	}
 	""".
 

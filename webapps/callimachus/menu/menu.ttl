@@ -20,7 +20,7 @@
 	http:operation "evaluate";
 	http:type "application/sparql-results+xml";
 	obj:sparql """
-		SELECT ?parent ?item ?label ?link
+		SELECT DISTINCT ?parent ?item ?label ?link
 		WHERE {
 			{
 				$this calli:item ?item

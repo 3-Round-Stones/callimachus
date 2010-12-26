@@ -219,7 +219,7 @@ if [ -z "$DAEMON_USER" ] ; then
 fi
 
 if [ -z "$JSVC_OPTS" ] ; then
-  JSVC_OPTS="-Xmx512m"
+  JSVC_OPTS="$JAVA_OPTS"
 fi
 
 if [ -z "$PORT" ] ; then

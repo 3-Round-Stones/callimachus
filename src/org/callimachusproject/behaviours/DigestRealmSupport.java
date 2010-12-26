@@ -223,6 +223,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 
 	private Map<String, String> parseOptions(String options) {
 		Map<String, String> result = new HashMap<String, String>();
+		// FIXME the URI might have a comma in it
 		for (String keyvalue : options.split("\\s*,\\s*")) {
 			int idx = keyvalue.indexOf('=');
 			if (idx < 0)

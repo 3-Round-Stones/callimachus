@@ -52,6 +52,7 @@
 			objectConnection.addDesignation(obj, NamedGraph);
 		}
 		objectConnection.add(file, uri, format, [vf.createURI(uri)]);
+		objectConnection.commit();
 		return uploaded_xhtml.calliConstructHTML(obj);
 	""".
 

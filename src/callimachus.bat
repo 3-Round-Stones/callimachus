@@ -75,8 +75,8 @@ rem Get standard environment variables
 if not exist "%CONFIG%" goto okConfig
 setlocal EnableDelayedExpansion
 IF NOT EXIST "%BASEDIR%\tmp" MKDIR "%BASEDIR%\tmp"
-for /f %%i in ('find /V "#" "%CONFIG%"') do (
-  set "line=set %%i"
+for /f "tokens=1,* delims==" %%i in ('find /V "#" "%CONFIG%"') do (
+  set "line=set %%i=%%~j"
   if not "!line:~4,1!" == "-" echo !line!>> "%BASEDIR%\tmp\%NAME%-conf.bat"
 )
 call "%BASEDIR%\tmp\%NAME%-conf.bat"
@@ -148,7 +148,7 @@ set "OPT=-d "%BASEDIR%" -p %PORT% -a %AUTHORITY%"
 if "%STORE%" == "" goto gotStore
 set "OPT=%OPT% -r "%STORE%""
 :gotStore
-if not "%RESTRICT_FS%" == "false" goto gotOpt
+if not "%SECURITY_MANAGER%" == "false" goto gotOpt
 set "OPT=%OPT% --trust"
 :gotOpt
 

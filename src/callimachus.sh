@@ -234,7 +234,7 @@ if [ -z "$AUTHORITY" ] ; then
 fi
 
 if [ -z "$OPTS" ] ; then
-  if [ "$RESTRICT_FS" = "false" ]; then
+  if [ "$SECURITY_MANAGER" = "false" ]; then
     OPTS="--trust"
   fi
   if [ -z "$STORE" ]; then
@@ -337,7 +337,7 @@ if [ "$1" = "start" ] ; then ################################
       echo "The server is not running, see log files for details. Start aborted."
       exit 1
     fi
-    if netstat -ltpn 2>/dev/null |grep -qe "\b$ID\b"; then
+    if netstat -ltpn 2>/dev/null |grep -e ":$PORT\b" |grep -qe "\b$ID\b"; then
       break
     fi
     if [ $SLEEP -gt 0 ]; then

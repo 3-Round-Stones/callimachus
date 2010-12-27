@@ -205,7 +205,7 @@ goto end
 
 :doStop
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %JAVA_OPTS% %MAINCLASS% --stop --pid "%PID%"
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MAINCLASS% --stop --pid "%PID%"
 goto end
 
 :end

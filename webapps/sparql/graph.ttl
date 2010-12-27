@@ -53,6 +53,7 @@
 		}
 		objectConnection.add(file, uri, format, [vf.createURI(uri)]);
 		objectConnection.commit();
+		java.lang.System.gc();
 		return uploaded_xhtml.calliConstructHTML(obj);
 	""".
 

@@ -16,27 +16,24 @@
 		owl:allValuesFrom obj:TupleResult];
 	http:method "GET";
 	http:type "application/sparql-results+xml";
-	http:cache-control "no-store";
+	http:cache-control "must-reevaluate,max-age=60";
 	http:transform :recent-changes-xsl;
 	obj:sparql """
-		SELECT REDUCED ?label ?note ?icon ?url ?revision ?modified ?user ?name
+		SELECT DISTINCT ?label ?note ?icon ?url ?revision ?modified ?user ?name
 		WHERE {
-			?revision a audit:RecentTransaction; audit:committedOn ?modified
-			OPTIONAL { ?revision http:authorized ?user
-				OPTIONAL { ?user skos:prefLabel ?name }
-				OPTIONAL { ?user rdfs:label ?name }
-			}
+			?revision a audit:RecentTransaction; http:authorized ?user; audit:committedOn ?modified
 			{
 				GRAPH ?revision { ?url ?p ?o FILTER (?p != audit:contained) }
 			} UNION {
 				?revision audit:contained [rdf:subject ?url]
 			}
+			?user rdfs:label ?name
 			FILTER (?url != ?revision)
 			FILTER (?url != ?user)
 			FILTER (isIRI(?url))
-			OPTIONAL { ?url a [calli:icon ?icon] }
 			OPTIONAL { ?url skos:prefLabel ?label }
 			OPTIONAL { ?url rdfs:label ?label }
+			OPTIONAL { ?url a [calli:icon ?icon] }
 			OPTIONAL {
 				{
 					GRAPH ?revision { ?url skos:changeNote ?note }

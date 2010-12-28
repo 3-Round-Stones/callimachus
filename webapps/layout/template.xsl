@@ -144,8 +144,8 @@
 			</div>
 
 			<xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history'">
-				<ul id="tabs" class="authenticated">
-					<li>
+				<ul id="tabs">
+					<li class="authenticated">
 						<xsl:if test="$query='view'">
 							<span>View</span>
 						</xsl:if>
@@ -153,7 +153,7 @@
 							<a class="replace" href="?view">View</a>
 						</xsl:if>
 					</li>
-					<li>
+					<li class="authenticated">
 						<xsl:if test="$query='edit'">
 							<span>Edit</span>
 						</xsl:if>
@@ -161,7 +161,7 @@
 							<a class="replace" href="?edit">Edit</a>
 						</xsl:if>
 					</li>
-					<li>
+					<li class="authenticated">
 						<xsl:if test="$query='discussion'">
 							<span>Discussion</span>
 						</xsl:if>
@@ -169,7 +169,7 @@
 							<a class="replace" href="?discussion">Discussion</a>
 						</xsl:if>
 					</li>
-					<li>
+					<li class="authenticated">
 						<xsl:if test="$query='describe'">
 							<span>Describe</span>
 						</xsl:if>
@@ -177,7 +177,7 @@
 							<a class="replace" href="?describe">Describe</a>
 						</xsl:if>
 					</li>
-					<li>
+					<li class="authenticated">
 						<xsl:if test="$query='history'">
 							<span>History</span>
 						</xsl:if>

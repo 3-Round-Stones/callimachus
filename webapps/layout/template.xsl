@@ -65,25 +65,25 @@
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
 			<xsl:apply-templates select="*[local-name()='link' or local-name()='style']" />
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js"></script>
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js"></script>
-			<script type="text/javascript" src="{$layout}/template.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js">;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js">;</script>
+			<script type="text/javascript" src="{$layout}/template.js">;</script>
 			<xsl:if test="$query='copy' or $query='edit'">
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.qtip.js"> </script>
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js"> </script>
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.validate.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.qtip.js">;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js">;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.validate.js">;</script>
 			<xsl:if test="$query='copy'">
-			<script type="text/javascript" src="{$callimachus}/operations/copy.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/operations/copy.js">;</script>
 			</xsl:if>
 			<xsl:if test="$query='edit'">
-			<script type="text/javascript" src="{$callimachus}/operations/edit.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/operations/edit.js">;</script>
 			</xsl:if>
-			<script type="text/javascript" src="{$callimachus}/scripts/elements.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/elements.js">;</script>
 			</xsl:if>
 			<xsl:if test="//*[local-name()='pre'][@class][contains(@class, 'wiki')]">
-			<script type="text/javascript" src="{$callimachus}/scripts/creole.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/creole.js">;</script>
 			</xsl:if>
-			<script type="text/javascript" src="{$callimachus}/scripts/enhancements.js"> </script>
+			<script type="text/javascript" src="{$callimachus}/scripts/enhancements.js">;</script>
 			<xsl:apply-templates select="*[local-name()!='link' and local-name()!='style']|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
@@ -93,7 +93,7 @@
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
 			<div id="header">
-				<div id="login-overlay" style="display:none" class="ui-widget-overlay"></div>
+				<div id="login-overlay" style="display:none" class="ui-widget-overlay">&#160;</div>
 				<a class="ui-state-default ui-corner-all" id="login-link" href="{$accounts}?login"
 						style="display:none;padding: .2em 20px .2em 1em;text-decoration: none;position: relative;">
 					<span>Login</span>
@@ -139,104 +139,61 @@
 				</form>
 			</div>
 			<div id="sidebar">
-				<a href="{$origin}/" id="logo"></a>
-				<xsl:apply-templates mode="nav" select="document(concat($callimachus, '/menu'))" />
+				<a href="{$origin}/" id="logo">&#160;</a>
+				<xsl:apply-templates mode="menu" select="document(concat($callimachus, '/menu'))" />
 			</div>
 
-			<ul id="tabs">
-				<xsl:if test="$query='view'">
-					<li class="authenticated">
-						<span>View</span>
-					</li>
-					<li class="authenticated">
-						<a class="replace" href="?edit">Edit</a>
-					</li>
-					<li class="authenticated">
-						<a class="replace" href="?discussion">Discussion</a>
-					</li>
-					<li class="authenticated">
-						<a class="replace" href="?describe">Describe</a>
-					</li>
-					<li class="authenticated">
-						<a class="replace" href="?history">History</a>
-					</li>
-				</xsl:if>
-				<xsl:if test="$query='edit'">
+			<xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history'">
+				<ul id="tabs" class="authenticated">
 					<li>
-						<a class="replace" href="?view">View</a>
+						<xsl:if test="$query='view'">
+							<span>View</span>
+						</xsl:if>
+						<xsl:if test="not($query='view')">
+							<a class="replace" href="?view">View</a>
+						</xsl:if>
 					</li>
 					<li>
-						<span>Edit</span>
+						<xsl:if test="$query='edit'">
+							<span>Edit</span>
+						</xsl:if>
+						<xsl:if test="not($query='edit')">
+							<a class="replace" href="?edit">Edit</a>
+						</xsl:if>
 					</li>
 					<li>
-						<a class="replace" href="?discussion">Discussion</a>
+						<xsl:if test="$query='discussion'">
+							<span>Discussion</span>
+						</xsl:if>
+						<xsl:if test="not($query='discussion')">
+							<a class="replace" href="?discussion">Discussion</a>
+						</xsl:if>
 					</li>
 					<li>
-						<a class="replace" href="?describe">Describe</a>
+						<xsl:if test="$query='describe'">
+							<span>Describe</span>
+						</xsl:if>
+						<xsl:if test="not($query='describe')">
+							<a class="replace" href="?describe">Describe</a>
+						</xsl:if>
 					</li>
 					<li>
-						<a class="replace" href="?history">History</a>
+						<xsl:if test="$query='history'">
+							<span>History</span>
+						</xsl:if>
+						<xsl:if test="not($query='history')">
+							<a class="replace" href="?history">History</a>
+						</xsl:if>
 					</li>
-				</xsl:if>
-				<xsl:if test="$query='discussion'">
-					<li>
-						<a class="replace" href="?view">View</a>
-					</li>
-					<li>
-						<a class="replace" href="?edit">Edit</a>
-					</li>
-					<li>
-						<span>Discussion</span>
-					</li>
-					<li>
-						<a class="replace" href="?describe">Describe</a>
-					</li>
-					<li>
-						<a class="replace" href="?history">History</a>
-					</li>
-				</xsl:if>
-				<xsl:if test="$query='describe'">
-					<li>
-						<a class="replace" href="?view">View</a>
-					</li>
-					<li>
-						<a class="replace" href="?edit">Edit</a>
-					</li>
-					<li>
-						<a class="replace" href="?discussion">Discussion</a>
-					</li>
-					<li>
-						<span>Describe</span>
-					</li>
-					<li>
-						<a class="replace" href="?history">History</a>
-					</li>
-				</xsl:if>
-				<xsl:if test="$query='history'">
-					<li>
-						<a class="replace" href="?view">View</a>
-					</li>
-					<li>
-						<a class="replace" href="?edit">Edit</a>
-					</li>
-					<li>
-						<a class="replace" href="?discussion">Discussion</a>
-					</li>
-					<li>
-						<a class="replace" href="?describe">Describe</a>
-					</li>
-					<li>
-						<span>History</span>
-					</li>
-				</xsl:if>
-			</ul>
+				</ul>
+			</xsl:if>
 			<div id="content">
 				<div id="error-widget" class="ui-state-error ui-corner-all" style="padding: 1ex; margin: 1ex; display: none">
 					<div><span class="ui-icon ui-icon-alert" style="margin-right: 0.3em; float: left; "></span>
 					<strong>Alert:</strong><span id="error-message" style="padding: 0px 0.7em"> Sample ui-state-error style.</span></div>
 				</div>
 				<xsl:apply-templates select="*|comment()|text()" />
-				<div id="content-stop" />
+				<div id="content-stop">&#160;</div>
 			</div>
 
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
@@ -253,31 +210,35 @@
 	</xsl:template>
 
 	<!-- menu -->
-	<xsl:template mode="nav" match="sparql:sparql">
+	<xsl:template mode="menu" match="sparql:sparql">
 		<ul id="nav">
-			<xsl:apply-templates mode="nav" select="sparql:results/sparql:result[not(sparql:binding/@name='parent')]" />
+			<xsl:apply-templates mode="menu" select="sparql:results/sparql:result[not(sparql:binding/@name='parent')]" />
 		</ul>
 	</xsl:template>
-	<xsl:template mode="nav" match="sparql:result[not(sparql:binding/@name='link')]">
+	<xsl:template mode="menu" match="sparql:result[not(sparql:binding/@name='link')]">
 		<li>
 			<span>
 				<xsl:value-of select="sparql:binding[@name='label']/*" />
 			</span>
 			<xsl:variable name="node" select="sparql:binding[@name='item']/*/text()" />
-			<ul>
-				<xsl:apply-templates mode="nav" select="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]" />
-			</ul>
+			<xsl:if test="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]">
+				<ul>
+					<xsl:apply-templates mode="menu" select="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]" />
+				</ul>
+			</xsl:if>
 		</li>
 	</xsl:template>
-	<xsl:template mode="nav" match="sparql:result[sparql:binding/@name='link']">
+	<xsl:template mode="menu" match="sparql:result[sparql:binding/@name='link']">
 		<li>
 			<a href="{sparql:binding[@name='link']/*}">
 				<xsl:value-of select="sparql:binding[@name='label']/*" />
 			</a>
 			<xsl:variable name="node" select="sparql:binding[@name='item']/*/text()" />
-			<ul>
-				<xsl:apply-templates mode="nav" select="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]" />
-			</ul>
+			<xsl:if test="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]">
+				<ul>
+					<xsl:apply-templates mode="menu" select="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]" />
+				</ul>
+			</xsl:if>
 		</li>
 	</xsl:template>
 </xsl:stylesheet>

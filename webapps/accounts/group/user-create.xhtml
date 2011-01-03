@@ -21,7 +21,7 @@
 			<label for="name-input">Username</label>
 			<div data-cardinality="1">
 				<input id="name-input" property="calli:name" type="text" class="auto-expand required"
-					onchange="$(form).attr('about', '../user/' + encodeURI(value).replace(/%20/g,'+'))" />
+					onchange="$(form).attr('about', '../user/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
 			</div>
 			<label for="email-input">E-mail address</label>
 			<div data-cardinality="1">

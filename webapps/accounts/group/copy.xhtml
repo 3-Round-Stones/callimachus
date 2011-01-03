@@ -19,7 +19,7 @@
 			<label for="label-input">Name</label>
 			<div data-cardinality="1">
 				<input id="label-input" property="rdfs:label" type="text" class="auto-expand required"
-					onchange="$(form).attr('about', encodeURI(value).replace(/%20/g,'+'))" />
+					onchange="$(form).attr('about', encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
 			</div>
 			<label for="comment-textarea">Description</label>
 			<div data-cardinality="1">

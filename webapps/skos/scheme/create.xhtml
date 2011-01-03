@@ -14,17 +14,18 @@
 		</ul>
 		<h1>New Concept Scheme</h1>
 		<form about="?this" typeof="skos:ConceptScheme" action="">
+			<label for="label">Label</label>
+			<div data-cardinality="1">
+				<input id="label" property="skos:prefLabel" class="required auto-expand"
+					onchange="$(form).attr('about', '/scheme/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
+			</div>
+			<label for="desc">Comment</label>
+			<div data-cardinality="1">
+				<textarea id="desc" class="auto-expand" property="rdfs:comment" />
+			</div>
 			<div>
-				<label for="label">Label</label>
-				<div data-cardinality="1">
-					<input id="label" property="skos:prefLabel" class="required auto-expand"
-						onchange="$(form).attr('about', '/scheme/' + encodeURI(value).replace(/%20/g,'+'))" />
-				</div>
-				<label for="desc">Comment</label>
-				<div data-cardinality="1">
-					<textarea id="desc" class="auto-expand" property="rdfs:comment" />
-				</div>
 				<button type="submit">Create</button>
+				<button type="button" onclick="history.back()">Cancel</button>
 			</div>
 		</form>
 	</body>

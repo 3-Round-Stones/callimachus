@@ -22,8 +22,9 @@ LIMIT 50
 		<h1>SPARQL Query</h1>
 		<form action="/sparql" method="POST">
 			<textarea id="query" name="query" class="auto-expand required"></textarea>
-			<div>
-				<button type="submit" class="authenticated">Evaluate Query</button>
+			<div class="authenticated">
+				<button type="submit">Evaluate Query</button>
+				<button type="button" onclick="history.back()">Cancel</button>
 			</div>
 		</form>
 	</body>

@@ -14,34 +14,34 @@
 		</ul>
 		<h1>New Concept</h1>
 		<form about="?this" typeof="skos:Concept" action="">
+			<label for="label">Label</label>
+			<div data-cardinality="1">
+				<input id="label" property="skos:prefLabel" class="auto-expand"
+					onchange="$(form).attr('about', '/concept/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
+			</div>
+			<label for="altLabel">Alternate label</label>
 			<div>
-				<label for="label">Label</label>
-				<div data-cardinality="1">
-					<input id="label" property="skos:prefLabel" class="auto-expand"
-						onchange="$(form).attr('about', '/concept/' + encodeURI(value).replace(/%20/g,'+'))" />
-				</div>
-				<label for="altLabel">Alternate label</label>
-				<div>
-					<input id="altLabel" property="skos:altLabel" class="auto-expand" />
-				</div>
-				<label>Scheme</label>
-				<div rel="skos:inScheme" data-prompt="/skos/scheme/list.xhtml?construct">
-					<span about="?scheme" typeof="skos:ConceptScheme">
-						<span property="skos:prefLabel"></span>
-					</span>
-				</div>
-				<label for="definition">Definition</label>
-				<div>
-					<textarea id="definition" class="auto-expand" property="skos:definition" />
-				</div>
-				<label for="example">Example</label>
-				<div>
-					<textarea id="example" class="auto-expand" property="skos:example" />
-				</div>
-				<label for="scopeNote">Scope Note</label>
-				<div>
-					<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
-				</div>
+				<input id="altLabel" property="skos:altLabel" class="auto-expand" />
+			</div>
+			<label>Scheme</label>
+			<div rel="skos:inScheme" data-prompt="/skos/scheme/list.xhtml?construct">
+				<span about="?scheme" typeof="skos:ConceptScheme">
+					<span property="skos:prefLabel"></span>
+				</span>
+			</div>
+			<label for="definition">Definition</label>
+			<div>
+				<textarea id="definition" class="auto-expand" property="skos:definition" />
+			</div>
+			<label for="example">Example</label>
+			<div>
+				<textarea id="example" class="auto-expand" property="skos:example" />
+			</div>
+			<label for="scopeNote">Scope Note</label>
+			<div>
+				<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
+			</div>
+			<div>
 				<button type="submit">Create</button>
 			</div>
 		</form>

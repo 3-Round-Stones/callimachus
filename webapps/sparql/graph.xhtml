@@ -12,8 +12,9 @@
 		<h1>RDF Graph</h1>
 		<form action="/graph" method="POST" enctype="multipart/form-data">
 			<input type="file" id="graph" name="graph" />
-			<div>
-				<button type="submit" class="authenticated">Upload Graph</button>
+			<div class="authenticated">
+				<button type="submit">Upload Graph</button>
+				<button type="button" onclick="history.back()">Cancel</button>
 			</div>
 		</form>
 	</body>

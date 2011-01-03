@@ -279,17 +279,13 @@ ui-datepicker {
 	font-size: small;
 }
 
-button {
+button[type=submit] {
 	background-image: -moz-linear-gradient(top, white, #F58735);
 	background-image: -webkit-gradient(linear, left top, left bottom, from(white), to(#F58735));
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#F58735, GradientType=0)";
 	border: thin solid #3F547F;
 	-moz-border-radius: 2pt;
 	border-radius: 2pt;
-}
-
-button.secondary {
-	margin-left: 3ex;
 }
 
 label.error {
@@ -304,7 +300,7 @@ input.error { border: 2px ridge red; }
 iframe {
 	border: none;
 	width: 300pt;
-	height: 150pt;
+	height: 162pt;
 	background-color: white;
 }
 

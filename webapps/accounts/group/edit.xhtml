@@ -27,48 +27,49 @@
 		</ul>
 		<h1><span property="rdfs:label" /> Group</h1>
 		<form action="" about="?this" onsubmit="saveChangeNote()">
+			<label for="comment-textarea">Description</label>
+			<div data-cardinality="1">
+				<textarea id="comment-textarea" class="auto-expand"
+					property="rdfs:comment"></textarea>
+			</div>
+			<label>Scribes</label>
+			<div rel="calli:scribe" data-prompt="?copy">
+				<span about="?scribe">
+					<span rel="rdf:type" resource="/accounts/group/Group" />
+					<span property="rdfs:label"/>
+				</span>
+			</div>
+			<label>Curators</label>
+			<div rel="calli:curator" data-prompt="?copy">
+				<span about="?curator">
+					<span rel="rdf:type" resource="/accounts/group/Group" />
+					<span property="rdfs:label"/>
+				</span>
+			</div>
+			<label>Maintainers</label>
+			<div rel="calli:maintainer" data-prompt="?copy">
+				<span about="?maintainer">
+					<span rel="rdf:type" resource="/accounts/group/Group" />
+					<span property="rdfs:label"/>
+				</span>
+			</div>
+			<hr />
+			<label>Members</label>
+			<div rel="calli:member" data-prompt="?user-create" class="sorted">
+				<span about="?member">
+					<span rel="rdf:type" resource="/accounts/user/User" />
+					<span property="rdfs:label" class="asc"/>
+				</span>
+			</div>
+			<hr />
+			<label>Change summary</label>
 			<div>
-				<label for="comment-textarea">Description</label>
-				<div data-cardinality="1">
-					<textarea id="comment-textarea" class="auto-expand"
-						property="rdfs:comment"></textarea>
-				</div>
-				<label>Scribes</label>
-				<div rel="calli:scribe" data-prompt="?copy">
-					<span about="?scribe">
-						<span rel="rdf:type" resource="/accounts/group/Group" />
-						<span property="rdfs:label"/>
-					</span>
-				</div>
-				<label>Curators</label>
-				<div rel="calli:curator" data-prompt="?copy">
-					<span about="?curator">
-						<span rel="rdf:type" resource="/accounts/group/Group" />
-						<span property="rdfs:label"/>
-					</span>
-				</div>
-				<label>Maintainers</label>
-				<div rel="calli:maintainer" data-prompt="?copy">
-					<span about="?maintainer">
-						<span rel="rdf:type" resource="/accounts/group/Group" />
-						<span property="rdfs:label"/>
-					</span>
-				</div>
-				<hr />
-				<label>Members</label>
-				<div rel="calli:member" data-prompt="?user-create" class="sorted">
-					<span about="?member">
-						<span rel="rdf:type" resource="/accounts/user/User" />
-						<span property="rdfs:label" class="asc"/>
-					</span>
-				</div>
-				<hr />
-				<label>Change summary</label>
-				<div>
-					<input type="text" id="note" maxlength="140" class="auto-expand" />
-				</div>
+				<input type="text" id="note" maxlength="140" class="auto-expand" />
+			</div>
+			<div>
 				<button type="submit">Save</button>
-				<button type="button" class="secondary" onclick="if (confirm('Are you sure you want to delete this group?')) calli.deleteResource()">Delete</button>
+				<button type="button" onclick="location.replace('?view')">Cancel</button>
+				<button type="button" onclick="if (confirm('Are you sure you want to delete this group?')) calli.deleteResource()">Delete</button>
 			</div>
 		</form>
 	</body>

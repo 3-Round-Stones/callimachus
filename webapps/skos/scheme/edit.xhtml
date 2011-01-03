@@ -23,29 +23,30 @@
 		</ul>
 		<h1 property="skos:prefLabel" />
 		<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()">
+			<label for="label">Label</label>
+			<div data-cardinality="1">
+				<input id="label" property="skos:prefLabel" class="required auto-expand" />
+			</div>
+			<label for="desc">Comment</label>
+			<div data-cardinality="1">
+				<textarea id="desc" class="auto-expand" property="rdfs:comment" />
+			</div>
+			<hr />
+			<label>Top concepts</label>
+			<div rel="skos:hasTopConcept" data-prompt="/skos/concept/template?copy">
+				<span about="?top" typeof="skos:Concept">
+					<span property="skos:prefLabel"></span>
+				</span>
+			</div>
+			<hr />
+			<label>Change note</label>
 			<div>
-				<label for="label">Label</label>
-				<div data-cardinality="1">
-					<input id="label" property="skos:prefLabel" class="required auto-expand" />
-				</div>
-				<label for="desc">Comment</label>
-				<div data-cardinality="1">
-					<textarea id="desc" class="auto-expand" property="rdfs:comment" />
-				</div>
-				<hr />
-				<label>Top concepts</label>
-				<div rel="skos:hasTopConcept" data-prompt="/skos/concept/template?copy">
-					<span about="?top" typeof="skos:Concept">
-						<span property="skos:prefLabel"></span>
-					</span>
-				</div>
-				<hr />
-				<label>Change note</label>
-				<div>
-					<input type="text" id="note" maxlength="140" class="auto-expand" />
-				</div>
+				<input type="text" id="note" maxlength="140" class="auto-expand" />
+			</div>
+			<div>
 				<button type="submit">Save</button>
-				<button type="button" class="secondary" onclick="if (confirm('Are you sure you want to delete this scheme?')) calli.deleteResource()">Delete</button>
+				<button type="button" onclick="location.replace('?view')">Cancel</button>
+				<button type="button" onclick="if (confirm('Are you sure you want to delete this scheme?')) calli.deleteResource()">Delete</button>
 			</div>
 		</form>
 	</body>

@@ -25,63 +25,64 @@
 		</ul>
 		<h1 property="skos:prefLabel" />
 		<form about="?this" typeof="skos:Concept" action="" onsubmit="saveChangeNote()">
+			<label for="label">Label</label>
+			<div data-cardinality="1">
+				<input id="label" property="skos:prefLabel" class="auto-expand" />
+			</div>
+			<label for="altLabel">Alternate label</label>
 			<div>
-				<label for="label">Label</label>
-				<div data-cardinality="1">
-					<input id="label" property="skos:prefLabel" class="auto-expand" />
-				</div>
-				<label for="altLabel">Alternate label</label>
-				<div>
-					<input id="altLabel" property="skos:altLabel" class="auto-expand" />
-				</div>
-				<label>Scheme</label>
-				<div rel="skos:inScheme" data-prompt="/skos/scheme/list.xhtml?construct">
-					<span about="?scheme" typeof="skos:ConceptScheme">
-						<span property="skos:prefLabel"></span>
-					</span>
-				</div>
-				<label for="definition">Definition</label>
-				<div>
-					<textarea id="definition" class="auto-expand" property="skos:definition" />
-				</div>
-				<label for="example">Example</label>
-				<div>
-					<textarea id="example" class="auto-expand" property="skos:example" />
-				</div>
-				<label for="historyNote">History Note</label>
-				<div>
-					<textarea id="historyNote" class="auto-expand" property="skos:historyNote" />
-				</div>
-				<label for="scopeNote">Scope Note</label>
-				<div>
-					<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
-				</div>
-				<hr />
-				<label>Broader</label>
-				<div rel="skos:broader" style="min-height: 1em">
-					<span about="?broader" typeof="skos:Concept">
-						<span property="skos:prefLabel"></span>
-					</span>
-				</div>
-				<label>Related</label>
-				<div rel="skos:related" style="min-height: 1em">
-					<span about="?related" typeof="skos:Concept">
-						<span property="skos:prefLabel"></span>
-					</span>
-				</div>
-				<label>Narrower</label>
-				<div rel="skos:narrower" style="min-height: 1em">
-					<span about="?narrower" typeof="skos:Concept">
-						<span property="skos:prefLabel"></span>
-					</span>
-				</div>
-				<hr />
-				<label>Change note</label>
-				<div>
-					<input type="text" id="note" maxlength="140" class="auto-expand" />
-				</div>
+				<input id="altLabel" property="skos:altLabel" class="auto-expand" />
+			</div>
+			<label>Scheme</label>
+			<div rel="skos:inScheme" data-prompt="/skos/scheme/list.xhtml?construct">
+				<span about="?scheme" typeof="skos:ConceptScheme">
+					<span property="skos:prefLabel"></span>
+				</span>
+			</div>
+			<label for="definition">Definition</label>
+			<div>
+				<textarea id="definition" class="auto-expand" property="skos:definition" />
+			</div>
+			<label for="example">Example</label>
+			<div>
+				<textarea id="example" class="auto-expand" property="skos:example" />
+			</div>
+			<label for="historyNote">History Note</label>
+			<div>
+				<textarea id="historyNote" class="auto-expand" property="skos:historyNote" />
+			</div>
+			<label for="scopeNote">Scope Note</label>
+			<div>
+				<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
+			</div>
+			<hr />
+			<label>Broader</label>
+			<div rel="skos:broader" style="min-height: 1em">
+				<span about="?broader" typeof="skos:Concept">
+					<span property="skos:prefLabel"></span>
+				</span>
+			</div>
+			<label>Related</label>
+			<div rel="skos:related" style="min-height: 1em">
+				<span about="?related" typeof="skos:Concept">
+					<span property="skos:prefLabel"></span>
+				</span>
+			</div>
+			<label>Narrower</label>
+			<div rel="skos:narrower" style="min-height: 1em">
+				<span about="?narrower" typeof="skos:Concept">
+					<span property="skos:prefLabel"></span>
+				</span>
+			</div>
+			<hr />
+			<label>Change note</label>
+			<div>
+				<input type="text" id="note" maxlength="140" class="auto-expand" />
+			</div>
+			<div>
 				<button type="submit">Save</button>
-				<button type="button" class="secondary" onclick="if (confirm('Are you sure you want to delete this concept?')) calli.deleteResource()">Delete</button>
+				<button type="button" onclick="location.replace('?view')">Cancel</button>
+				<button type="button" onclick="if (confirm('Are you sure you want to delete this concept?')) calli.deleteResource()">Delete</button>
 			</div>
 		</form>
 	</body>

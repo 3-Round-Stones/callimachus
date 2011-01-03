@@ -49,7 +49,10 @@
 			<div class="post ui-widget-content ui-corner-bottom">
 				<form action="?discussion" method="POST">
 					<textarea class="auto-expand" name="note"></textarea>
-					<div><button type="submit">Send</button><button type="clear">Discard</button></div>
+					<div>
+						<button type="submit">Send</button>
+						<button type="button" onclick="location.replace('?view')">Cancel</button>
+					</div>
 				</form>
 			</div>
 		</li>

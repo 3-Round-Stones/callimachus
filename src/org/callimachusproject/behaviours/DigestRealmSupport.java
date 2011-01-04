@@ -53,10 +53,10 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 	private Logger logger = LoggerFactory.getLogger(DigestRealmSupport.class);
 
 	@Override
-	public HttpResponse unauthorized(Object target) throws Exception {
+	public HttpResponse unauthorized(Object target, String query) throws Exception {
 		Object realm = getAuthName();
 		if (realm == null)
-			return forbidden(target);
+			return forbidden(target, query);
 		String domain = protectionDomain();
 		if (domain == null) {
 			domain = "";
@@ -64,7 +64,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 			domain = ", domain=\"" + domain + "\"";
 		}
 		String nonce = nextNonce();
-		HttpResponse resp = super.unauthorized(target);
+		HttpResponse resp = super.unauthorized(target, query);
 		if (resp == null) {
 			resp = new BasicHttpResponse(_401);
 			resp.setHeader("Cache-Control", "no-store");

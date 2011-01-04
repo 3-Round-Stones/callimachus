@@ -39,20 +39,21 @@ public interface Template {
 	/**
 	 * Populates the page with the properties of the target resource.
 	 */
+	String calliConstructHTML(Object target) throws Exception;
+
+	/**
+	 * Populates the page with the properties of the target resource.
+	 */
 	@iri("http://callimachusproject.org/rdf/2009/framework#ConstructHTML")
 	String calliConstructHTML(
-			@iri("http://callimachusproject.org/rdf/2009/framework#ConstructHTML-object") Object target)
+			@iri("http://callimachusproject.org/rdf/2009/framework#ConstructHTML-object") Object target,
+			@iri("http://callimachusproject.org/rdf/2009/framework#ConstructHTML-query") String query)
 			throws Exception;
 
 	/**
 	 * Populates the page with the properties of the target resource.
 	 */
-	InputStream calliConstruct(Object target) throws Exception;
-
-	/**
-	 * Populates the page with the properties of the target resource.
-	 */
-	InputStream calliConstruct(Object target, String operation) throws Exception;
+	InputStream calliConstruct(Object target, String query) throws Exception;
 
 	/**
 	 * Returns only the primary patterns as for the given subject.

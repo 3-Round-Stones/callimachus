@@ -70,9 +70,8 @@ public abstract class ViewSupport implements Template, RDFObject,
 	private static TermFactory tf = TermFactory.newInstance();
 
 	@Override
-	public InputStream calliConstruct(Object target)
-			throws Exception {
-		return calliConstruct(target, null);
+	public String calliConstructHTML(Object target) throws Exception {
+		return calliConstructHTML(target, null);
 	}
 
 	@Override

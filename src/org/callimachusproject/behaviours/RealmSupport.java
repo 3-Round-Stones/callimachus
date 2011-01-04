@@ -157,11 +157,12 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	}
 
 	@Override
-	public HttpResponse unauthorized(Object target) throws Exception {
+	public HttpResponse unauthorized(Object target, String query)
+			throws Exception {
 		Template unauthorized = getCalliUnauthorized();
 		if (unauthorized == null)
 			return null;
-		String html = unauthorized.calliConstructHTML(target);
+		String html = unauthorized.calliConstructHTML(target, query);
 		StringEntity entity = new StringEntity(html, "UTF-8");
 		entity.setContentType("text/html;charset=\"UTF-8\"");
 		HttpResponse resp = new BasicHttpResponse(_401);
@@ -171,11 +172,11 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	}
 
 	@Override
-	public HttpResponse forbidden(Object target) throws Exception {
+	public HttpResponse forbidden(Object target, String query) throws Exception {
 		Template forbidden = getCalliForbidden();
 		if (forbidden == null)
 			return null;
-		String html = forbidden.calliConstructHTML(target);
+		String html = forbidden.calliConstructHTML(target, query);
 		StringEntity entity = new StringEntity(html, "UTF-8");
 		entity.setContentType("text/html;charset=\"UTF-8\"");
 		HttpResponse resp = new BasicHttpResponse(_403);

@@ -46,7 +46,6 @@ import net.contentobjects.jnotify.JNotify;
 import net.contentobjects.jnotify.JNotifyException;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.FileEntity;
@@ -81,7 +80,6 @@ public class Uploader {
 				|| path.contains("/.") || path.contains("\\.");
 	}
 
-	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
 	private static ScheduledExecutorService executor = ManagedExecutors
 			.getTimeoutThreadPool();
 	private static NamedThreadFactory threads = new NamedThreadFactory(
@@ -205,35 +203,17 @@ public class Uploader {
 	public void started() throws GatewayTimeout, IOException,
 			InterruptedException {
 		notifyStarted();
-		HttpRequest req = new BasicHttpRequest("POST", NS + "boot?started");
-		req.setHeader("Authorization", authorization);
-		HttpResponse resp = HTTPObjectClient.getInstance().service(proxy, req);
-		StatusLine status = resp.getStatusLine();
-		if (status.getStatusCode() != 204) {
-			logger.error(status.getReasonPhrase() + " once started");
-		}
 	}
 
 	public void stopping() throws GatewayTimeout, IOException,
 			InterruptedException {
-		try {
-			notifyStopping();
-			HttpRequest req = new BasicHttpRequest("POST", NS + "boot?stopping");
-			req.setHeader("Authorization", authorization);
-			HttpResponse resp = HTTPObjectClient.getInstance().service(proxy,
-					req);
-			StatusLine status = resp.getStatusLine();
-			if (status.getStatusCode() != 204) {
-				logger.error(status.getReasonPhrase() + " while stopping");
-			}
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-		}
+		notifyStopping();
 	}
 
 	public synchronized void reloading() throws GatewayTimeout, IOException,
 			InterruptedException {
 		reloading++;
+		notifyReloading();
 	}
 
 	public synchronized void reloaded() throws GatewayTimeout, IOException,
@@ -247,19 +227,7 @@ public class Uploader {
 			public void run() {
 				try {
 					if (reloading == loaded) {
-						notifyReloading();
-						HttpRequest req = new BasicHttpRequest("POST", NS
-								+ "boot?reloaded");
-						req.setHeader("Authorization", authorization);
-						HttpResponse resp = HTTPObjectClient.getInstance()
-								.service(proxy, req);
-						StatusLine status = resp.getStatusLine();
-						System.gc();
 						notifyReloaded();
-						if (status.getStatusCode() != 204) {
-							logger.error(status.getReasonPhrase()
-									+ " once reloaded");
-						}
 					}
 				} catch (Exception e) {
 					logger.error(e.toString());
@@ -597,67 +565,111 @@ public class Uploader {
 
 	private void notifyStarting() {
 		for (UploadListener listener : listeners) {
-			listener.notifyStarting();
+			try {
+				listener.notifyStarting();
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+			}
 		}
 	}
 
 	private void notifyStarted() {
 		for (UploadListener listener : listeners) {
-			listener.notifyStarted();
+			try {
+				listener.notifyStarted();
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+			}
 		}
 	}
 
 	private void notifyReloading() {
 		for (UploadListener listener : listeners) {
-			listener.notifyReloading();
+			try {
+				listener.notifyReloading();
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+			}
 		}
 	}
 
 	private void notifyReloaded() {
 		for (UploadListener listener : listeners) {
-			listener.notifyReloaded();
+			try {
+				listener.notifyReloaded();
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+			}
 		}
 	}
 
 	private void notifyStopping() {
 		for (UploadListener listener : listeners) {
-			listener.notifyStopping();
+			try {
+				listener.notifyStopping();
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+			}
 		}
 	}
 
 	private void notifyUploading(String url, String type) {
 		for (UploadListener listener : listeners) {
-			listener.notifyUploading(url, type);
+			try {
+				listener.notifyUploading(url, type);
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+			}
 		}
 	}
 
 	private void notifyUploaded(String url) {
 		for (UploadListener listener : listeners) {
-			listener.notifyUploaded();
+			try {
+				listener.notifyUploaded();
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+			}
 		}
 	}
 
 	private void notifyNotModified(String url) {
 		for (UploadListener listener : listeners) {
-			listener.notifyNotModified(url);
+			try {
+				listener.notifyNotModified(url);
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+			}
 		}
 	}
 
 	private void notifyRemoving(String url) {
 		for (UploadListener listener : listeners) {
-			listener.notifyRemoving(url);
+			try {
+				listener.notifyRemoving(url);
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+			}
 		}
 	}
 
 	private void notifyRemoved(String url) {
 		for (UploadListener listener : listeners) {
-			listener.notifyRemoved(url);
+			try {
+				listener.notifyRemoved(url);
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+			}
 		}
 	}
 
 	private void notifyError(String url, int code, String reason) {
 		for (UploadListener listener : listeners) {
-			listener.notifyError(url, code, reason);
+			try {
+				listener.notifyError(url, code, reason);
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+			}
 		}
 	}
 }

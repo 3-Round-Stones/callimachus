@@ -47,6 +47,7 @@ import javax.activation.MimeTypeParseException;
 import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.codec.binary.Base64;
+import org.callimachusproject.webapps.BootListener;
 import org.callimachusproject.webapps.ConciseListener;
 import org.callimachusproject.webapps.ObjectDatesetListener;
 import org.callimachusproject.webapps.Uploader;
@@ -76,6 +77,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private ObjectRepository repository;
 	private HTTPObjectServer server;
 	private boolean conditional = true;
+	private BootListener boot;
 
 	public CallimachusServer(Repository repository, File webapps, File dataDir)
 			throws Exception {
@@ -100,6 +102,8 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		byte[] decoded = basic.getBytes();
 		String cred = new String(Base64.encodeBase64(decoded), "8859_1");
 		uploader.setAuthorization("Basic " + cred);
+		uploader.addListener(boot = new BootListener());
+		boot.setAuthorization("Basic " + cred);
 		server = createServer(dataDir, basic, this.repository);
 	}
 
@@ -117,6 +121,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.setIdentityPrefix(new String[] { prefix });
 		server.setErrorXSLT("http://" + authority + ERROR_XSLT_PATH);
 		uploader.setProxy(getAuthorityAddress());
+		boot.setProxy(getAuthorityAddress());
 	}
 
 	public String getServerName() {

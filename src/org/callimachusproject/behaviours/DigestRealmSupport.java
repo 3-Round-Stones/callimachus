@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
@@ -44,7 +46,10 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates HTTP digest authorization.
  */
-public abstract class DigestRealmSupport extends RealmSupport implements DigestRealm, RDFObject {
+public abstract class DigestRealmSupport extends RealmSupport implements
+		DigestRealm, RDFObject {
+	private static final Pattern HEADER_REGEX = Pattern
+			.compile("\\b(\\w*)=(?:\"((?:[^\"]|\"\")*)\"|([^,\"]*))\\s*(?:,\\s*|$)");
 	private static final String PREFIX = "PREFIX :<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final BasicStatusLine _401 = new BasicStatusLine(
 			new ProtocolVersion("HTTP", 1, 1), 401, "Unauthorized");
@@ -53,7 +58,8 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 	private Logger logger = LoggerFactory.getLogger(DigestRealmSupport.class);
 
 	@Override
-	public HttpResponse unauthorized(Object target, String query) throws Exception {
+	public HttpResponse unauthorized(Object target, String query)
+			throws Exception {
 		Object realm = getAuthName();
 		if (realm == null)
 			return forbidden(target, query);
@@ -84,7 +90,8 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 		String url = map.get("request-target")[0];
 		String[] md5 = map.get("content-md5");
 		String[] auth = map.get("authorization");
-		if (auth == null || auth.length != 1 || auth[0] == null || !auth[0].startsWith("Digest"))
+		if (auth == null || auth.length != 1 || auth[0] == null
+				|| !auth[0].startsWith("Digest"))
 			return null;
 		try {
 			String string = auth[0].substring("Digest ".length());
@@ -221,25 +228,24 @@ public abstract class DigestRealmSupport extends RealmSupport implements DigestR
 		return new String(Hex.encodeHex(DigestUtils.md5(a2)));
 	}
 
+	/**
+	 * 
+	 * @param options
+	 *            username="Mufasa", realm="testrealm@host.com",
+	 *            nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093",
+	 *            uri="/dir/index.html", qop=auth, nc=00000001,
+	 *            cnonce="0a4f113b",
+	 *            response="6629fae49393a05397450978507c4ef1",
+	 *            opaque="5ccc069c403ebaf9f0171e9517f40e41"
+	 */
 	private Map<String, String> parseOptions(String options) {
 		Map<String, String> result = new HashMap<String, String>();
-		// FIXME the URI might have a comma in it
-		for (String keyvalue : options.split("\\s*,\\s*")) {
-			int idx = keyvalue.indexOf('=');
-			if (idx < 0)
-				return null;
-			String key = keyvalue.substring(0, idx);
-			if (idx == keyvalue.length() - 1) {
-				result.put(key, "");
-			} else if (keyvalue.charAt(idx + 1) == '"') {
-				int eq = keyvalue.lastIndexOf('"');
-				if (eq <= idx + 2)
-					return null;
-				String value = keyvalue.substring(idx + 2, eq);
-				result.put(key, value);
+		Matcher m = HEADER_REGEX.matcher(options);
+		while (m.find()) {
+			if (m.group(3) == null) {
+				result.put(m.group(1), m.group(2));
 			} else {
-				String value = keyvalue.substring(idx + 1);
-				result.put(key, value);
+				result.put(m.group(1), m.group(3));
 			}
 		}
 		return result;

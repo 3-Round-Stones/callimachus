@@ -39,7 +39,7 @@ function submitRDFForm(form) {
 				}
 			})
 		} catch(e) {
-			form.trigger("calliError", e.description)
+			form.trigger("calliError", e.description ? e.description : e)
 		}
 		return false
 	}

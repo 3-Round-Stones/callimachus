@@ -211,17 +211,21 @@ $(document).ready(function() {
 		$("#error-message").empty()
 		$("#error-widget pre").remove()
 	})
-	forms.bind("calliError", function(event, text, detail) {
+	forms.bind("calliError", function(event, status, detail) {
+		if (detail && detail.indexOf('<') == 0) {
+			var html = $(detail);
+			if (html.filter("title").length) {
+				status = html.filter("title").text();
+				detail = html.find("pre").text();
+			}
+		}
 		var msg = $("#error-message")
 		if (msg.size()) {
 			msg.empty()
-			msg.text(text)
+			msg.text(status)
 			$("#error-widget pre").remove()
 			$("#error-widget").show()
 			msg.focus()
-			if (detail && detail.indexOf('<') == 0) {
-				detail = $(detail).text()
-			}
 			if (detail) {
 				var pre = $("<pre/>")
 				pre.text(detail)
@@ -232,7 +236,7 @@ $(document).ready(function() {
 				})
 			}
 		} else {
-			alert(text);
+			alert(status);
 		}
 	})
 })

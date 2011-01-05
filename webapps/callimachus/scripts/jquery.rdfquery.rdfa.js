@@ -3559,7 +3559,7 @@
       } else {
         m = literalRegex.exec(value);
         if (m !== null) {
-          this.value = (m[2] || m[4]).replace(/\\"/g, '"');
+          this.value = (m[2] || m[4]).replace(/\\"/g, '"').replace(/\\\\/g, "\\");
           if (m[9]) {
             datatype = $.rdf.resource(m[9], opts);
             $.extend(this, $.typedValue(this.value, datatype.value));
@@ -3991,7 +3991,7 @@
             }
           } else if (content !== undefined) {
             if (lang === undefined) {
-              object = $.rdf.literal('"' + content + '"');
+              object = $.rdf.literal('"' + content.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"');
             } else {
               object = $.rdf.literal(content, { lang: lang });
             }
@@ -3999,7 +3999,7 @@
                      datatype === '') {
             lang = getLang(this, context);
             if (lang === undefined) {
-              object = $.rdf.literal('"' + this.text() + '"');
+              object = $.rdf.literal('"' + this.text().replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"');
             } else {
               object = $.rdf.literal(this.text(), { lang: lang });
             }

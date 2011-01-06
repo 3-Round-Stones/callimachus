@@ -12,7 +12,10 @@
 # Realm
 ################################
 
-</accounts> a calli:DigestRealm;
+<Accounts> rdfs:subClassOf calli:DigestRealm, calli:Viewable;
+	calli:view <view.xhtml>.
+
+</accounts> a <Accounts>;
 	calli:origin <../>;
 	calli:authName <../>;
 	calli:domain <../>;

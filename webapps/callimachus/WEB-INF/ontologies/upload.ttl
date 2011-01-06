@@ -39,7 +39,7 @@ calli:NamedGraph a owl:Class.
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
-	http:operation "calli:webapps";
+	http:operation "calliwebapps";
 	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.rio.RDFFormat>;
 	obj:imports calli:NamedGraph;
@@ -66,7 +66,7 @@ calli:NamedGraph a owl:Class.
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
-	http:operation "calli:webapps";
+	http:operation "calliwebapps";
 	http:realm calli:nobody;
 	obj:imports calli:Template;
 	obj:script """
@@ -101,7 +101,7 @@ calli:NamedGraph a owl:Class.
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
-	http:operation "calli:webapps";
+	http:operation "calliwebapps";
 	http:realm calli:nobody;
 	obj:script """
 		this.calliDeleteWebResource();
@@ -135,7 +135,7 @@ calli:NamedGraph a owl:Class.
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
-	http:operation "calli:webapps";
+	http:operation "calliwebapps";
 	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	obj:script """
@@ -167,7 +167,7 @@ calli:NamedGraph a owl:Class.
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
-	http:operation "calli:webapps";
+	http:operation "calliwebapps";
 	http:realm calli:nobody;
 	obj:imports calli:Template;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
@@ -197,7 +197,7 @@ calli:NamedGraph a owl:Class.
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
-	http:operation "calli:webapps";
+	http:operation "calliwebapps";
 	http:realm calli:nobody;
 	obj:imports calli:Template;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
@@ -231,7 +231,7 @@ calli:DeleteWebResource rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
-	http:operation "calli:webapps";
+	http:operation "calliwebapps";
 	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.model.BNode>;
 	obj:imports <java:org.openrdf.model.URI>;

@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Uploader {
 
-	private static final String SUFFIX = "?calli:webapps";
+	private static final String SUFFIX = "?calliwebapps";
 
 	public static boolean isHidden(File file) {
 		return file.isHidden() || file.getName().endsWith("~")

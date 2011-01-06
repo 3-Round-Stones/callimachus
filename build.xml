@@ -7,7 +7,6 @@
 	<property name="bin" location="bin" />
 	<property name="etc" location="etc" />
 	<property name="log" location="log" />
-	<property name="tmp" location="tmp" />
 	<property name="webapps" location="webapps" />
 	<property name="home" location="." />
 	<property name="pid" location="run/callimachus.pid" />
@@ -28,14 +27,13 @@
 	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
 	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
 	<property name="main" value="org.callimachusproject.Server" />
-	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Djava.io.tmpdir=${tmp} -Duser.home=${home} -Djava.mail.properties=${mail}" />
+	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
 	<property name="args" value="-p 8080 -a localhost:8080" />
 
 	<target name="init">
 		<!-- Create the time stamp and build directory -->
 		<tstamp />
 		<mkdir dir="${build}" />
-		<mkdir dir="${tmp}" />
 		<available file="lib" property="lib.present" />
 		<property file="build.properties" />
 	</target>
@@ -142,7 +140,6 @@
 		<!-- Delete the directory trees -->
 		<delete dir="${build}" />
 		<delete dir="${dist}" />
-		<delete dir="${tmp}" />
 	</target>
 
 	<target name="compile" depends="init,dependencies" description="compile the source ">

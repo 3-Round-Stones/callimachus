@@ -116,7 +116,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 	obj:script """
 		if (method == "GET" || method == "HEAD" || method == "POST" && (query == "edit" || query == "discussion")) {
 			if (query == null || query == "view" || query == "edit" || query == "discussion" || query == "describe" || query == "history"
-						|| query == "what-links-here" || query == "related-changes" || query == "introspect") {
+						|| query == "whatlinkshere" || query == "related-changes" || query == "introspect") {
 				var annotated = this.FindAnnotatedClass(conservator, object.getClass());
 				for (var a = annotated.length; a--;) {
 					var uri = annotated[a].getAnnotation(conservator).value();
@@ -141,7 +141,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 	obj:script """
 		if (method == "GET" || method == "HEAD" || method == "POST" && query == "discussion") {
 			if (query == null || query == "view" || query == "discussion" || query == "describe" || query == "history"
-						|| query == "what-links-here" || query == "related-changes" || query == "introspect") {
+						|| query == "whatlinkshere" || query == "related-changes" || query == "introspect") {
 				var annotated = this.FindAnnotatedClass(reviewer, object.getClass());
 				for (var a = annotated.length; a--;) {
 					var uri = annotated[a].getAnnotation(reviewer).value();
@@ -217,7 +217,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 :AuthorizeUserCreate owl:equivalentClass :AuthorizeCredential;
 	obj:imports </accounts/group/Group>;
 	obj:script """
-		if (query == "user-create" && object instanceof Group)
+		if (query == "usercreate" && object instanceof Group)
 			return this.AuthorizeCredential(credential, method, object, "copy");
 		return proceed()
 	""".
@@ -230,7 +230,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 			return true;
 		if (method == "GET" || method == "HEAD" || method == "POST" && query == "discussion") {
 			if (query == null || query == "view" || query == "discussion" || query == "describe" || query == "history"
-						|| query == "what-links-here" || query == "related-changes" || query == "introspect") {
+						|| query == "whatlinkshere" || query == "related-changes" || query == "introspect") {
 				if (object instanceof Transaction) {
 					var iter = this.ListSubjectsOfTransaction(object).iterator();
 					while (iter.hasNext()) {

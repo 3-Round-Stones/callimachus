@@ -16,7 +16,7 @@
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "POST";
-	http:operation "request-password";
+	http:operation "requestpassword";
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	obj:imports calli:User;
 	obj:script """

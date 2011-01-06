@@ -23,21 +23,23 @@
 @prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
 @prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
 
-calli:get-edit rdfs:subClassOf obj:Message;
+:GetEditPage rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
+	http:method "GET";
 	http:operation "edit";
 	http:type "application/xhtml+xml";
-	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
+	http:transform </callimachus/layout.ttl#TransformXhtml>;
 	http:cache-control "no-cache";
 	obj:script """
-		return findEditTemplate().calliConstruct(this, 'edit');
+		return this.FindEditTemplate().calliConstruct(this, 'edit');
 	""".
 
-calli:post-edit rdfs:subClassOf obj:Message;
+:PostEdit rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -48,7 +50,7 @@ calli:post-edit rdfs:subClassOf obj:Message;
 	obj:imports <java:org.apache.http.ProtocolVersion>;
 	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
 	obj:script """
-		var template = findEditTemplate();
+		var template = this.FindEditTemplate();
 		template.calliEditResource(this, input);
 		var ver = new ProtocolVersion("HTTP", 1, 1);
 		var resp = new BasicHttpResponse(ver, 201, "Modified");
@@ -56,13 +58,12 @@ calli:post-edit rdfs:subClassOf obj:Message;
 		return resp;
 	""".
 
-calli:post-edit-input a owl:ObjectProperty; a owl:FunctionalProperty;
+:input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:post-edit;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "multipart/related;type=\"application/rdf+xml\"";
-	obj:name "input".
+	http:type "multipart/related;type=\"application/rdf+xml\"".
 
-calli:find-edit-template rdfs:subClassOf obj:Message;
+:FindEditTemplate rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -99,7 +100,7 @@ calli:find-edit-template rdfs:subClassOf obj:Message;
 			var uri = annotated.getAnnotation(edit).value();
 			if (uri.length != 1)
 				throw new InternalServerError("Multiple templates for " + annotated.simpleName);
-			var template = objectConnection.getObject(Template, uri[0]);
+			var template = this.objectConnection.getObject(Template, uri[0]);
 			if (template instanceof Template)
 				return template;
 			throw new InternalServerError("Missing template");

@@ -25,32 +25,40 @@
 
 # A generic URL that requires authorization
 # Available to user when not logged in
-:login rdfs:subClassOf obj:Message;
+:GetLogin rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:allValuesFrom xsd:string];
+	http:method "GET";
 	http:operation "login";
 	http:realm </accounts>;
 	http:expect "303-see-other";
 	http:type "text/uri-list";
 	obj:script "if (referer) return referer".
 
-:login-referer a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :login;
+:referer a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :GetLogin;
 	rdfs:range xsd:string;
-	http:header "Referer";
-	obj:name "referer".
+	http:header "Referer".
 
 ################################
 # logout
 ################################
 
+:GetAuthorization rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>].
+
+:authorization a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :GetAuthorization;
+	rdfs:range xsd:string;
+	http:header "Authorization".
+
 # Prompts the browser to login using different credentials
 # Available to user when logged in
-:logout rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>];
+:GetLogout rdfs:subClassOf :GetAuthorization;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	http:method "GET";
 	http:operation "logout";
 	http:type "message/x-response";
 	obj:imports <java:org.apache.http.ProtocolVersion>;
@@ -80,18 +88,11 @@
 		return resp;
 	""".
 
-:logout-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :logout;
-	rdfs:range xsd:string;
-	http:header "Authorization";
-	obj:name "authorization".
-
-:logout-user a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :logout;
+:from a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :GetLogout;
 	rdfs:range calli:Credential;
 	http:parameter "from";
-	http:type "text/uri-list";
-	obj:name "from".
+	http:type "text/uri-list".
 
 ################################
 # authenticated
@@ -99,21 +100,15 @@
 
 # Redirection to the authorized user
 # Used to display the currently authorized user
-:authenticated rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>];
+:GetAuthenticated rdfs:subClassOf :GetAuthorization;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom calli:Credential];
+	http:method "GET";
 	http:operation "authenticated";
 	http:expect "302-found";
 	http:type "text/uri-list";
 	http:cache-control "max-age:3600";
 	obj:script "return findCredential(authorization)".
-
-:authenticated-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :authenticated;
-	rdfs:range xsd:string;
-	http:header "Authorization";
-	obj:name "authorization".
 
 ################################
 # welcome
@@ -121,20 +116,14 @@
 
 # Redirection to the authorized user
 # Used to welcome new users
-:welcome rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>];
+:GetWelcomePage rdfs:subClassOf :GetAuthorization;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom calli:Credential];
+	http:method "GET";
 	http:operation "welcome";
 	http:realm </accounts>;
 	http:expect "302-found";
 	http:type "text/uri-list";
 	http:cache-control "max-age:3600";
 	obj:script "return findCredential(authorization)".
-
-:welcome-authorization a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :welcome;
-	rdfs:range xsd:string;
-	http:header "Authorization";
-	obj:name "authorization".
 

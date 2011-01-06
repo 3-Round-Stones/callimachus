@@ -23,9 +23,10 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:view-concepts rdfs:subClassOf obj:Message;
+:GetConcepts rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:allValuesFrom skos:ConceptScheme];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse; owl:allValuesFrom xsd:string];
+	http:method "GET";
 	http:operation "view-concepts";
 	http:type "text/html";
 	http:cache-control "no-store";

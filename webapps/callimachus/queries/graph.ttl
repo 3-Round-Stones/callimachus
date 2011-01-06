@@ -22,17 +22,17 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:get-graph rdfs:subClassOf obj:Message;
+:GetGraph rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:NamedGraph];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom obj:GraphResult];
 	http:method "GET";
 	http:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
-	http:transform :graph-xsl;
+	http:transform :TransformGraph;
 	obj:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
 
-:graph-xsl rdfs:subClassOf obj:Message;
+:TransformGraph rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:NamedGraph];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -41,8 +41,8 @@
 	http:transform <../layout.ttl#TransformLayout>;
 	obj:xslt <graph.xsl>.
 
-:graph-xsl-xml a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :graph-xsl;
+:inputStream a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :TransformGraph;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "application/xml".
 

@@ -9,7 +9,7 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-calli:GetAliasResponse rdfs:subClassOf obj:Message;
+:GetAliasResponse rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Alias];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;

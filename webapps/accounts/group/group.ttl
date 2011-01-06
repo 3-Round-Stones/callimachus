@@ -17,7 +17,7 @@
 
 # Adds new groups to the set of authenticating groups.
 # Called on group create
-:post-group-copy owl:intersectionOf (calli:post-copy
+:PostGroupCopy owl:intersectionOf (</callimachus/operations/copy.ttl#PostCopy>
 		[owl:onProperty obj:target; owl:allValuesFrom <Group>]);
 	obj:imports </accounts>;
 	obj:script """
@@ -28,7 +28,7 @@
 
 # Removes old groups from the set of authenticating groups.
 # Called on group delete
-:post-group-delete owl:intersectionOf (calli:delete
+:PostGroupDelete owl:intersectionOf (</callimachus/operations/delete.ttl#Delete>
 		[owl:onProperty obj:target; owl:allValuesFrom <Group>]);
 	obj:imports </accounts>;
 	obj:script """

@@ -36,7 +36,7 @@ jQuery.ajax(options)
 function loggedIn(req) {
 	var doc = req.responseText
 	var url = /about="([^" >]*)"/i.exec(doc)[1]
-	var title = /<title[^>]*>([^<]*)<\/title>/i.exec(doc)[1]
+	var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc)[1]
 	$("#welcome-link").text(title)
 	var links = document.getElementById("authenticated-links").getElementsByTagName("a")
 	for (var i=0; i<links.length; i++) {

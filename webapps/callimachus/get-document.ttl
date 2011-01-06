@@ -26,7 +26,7 @@
 # Text File
 ################################
 
-calli:get-plain rdfs:subClassOf obj:Message;
+:GetPlain rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:text/plain>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -35,7 +35,7 @@ calli:get-plain rdfs:subClassOf obj:Message;
 	http:type "text/plain";
 	obj:script "return openReader(false)".
 
-calli:get-html rdfs:subClassOf obj:Message;
+:GetHtml rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:text/html>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -44,7 +44,7 @@ calli:get-html rdfs:subClassOf obj:Message;
 	http:type "text/html";
 	obj:script "return openReader(false)".
 
-calli:get-css rdfs:subClassOf obj:Message;
+:GetCss rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:text/css>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -53,7 +53,7 @@ calli:get-css rdfs:subClassOf obj:Message;
 	http:type "text/css";
 	obj:script "return openReader(false)".
 
-calli:get-javascript rdfs:subClassOf obj:Message;
+:GetJavascript rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:text/javascript>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -66,7 +66,7 @@ calli:get-javascript rdfs:subClassOf obj:Message;
 # Binary File
 ################################
 
-calli:get-xsl rdfs:subClassOf obj:Message;
+:GetXsl rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:text/xsl>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -75,7 +75,7 @@ calli:get-xsl rdfs:subClassOf obj:Message;
 	http:type "text/xsl";
 	obj:script "return openInputStream()".
 
-calli:get-png rdfs:subClassOf obj:Message;
+:GetPng rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:image/png>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -84,7 +84,7 @@ calli:get-png rdfs:subClassOf obj:Message;
 	http:type "image/png";
 	obj:script "return openInputStream()".
 
-calli:get-jpeg rdfs:subClassOf obj:Message;
+:GetJpeg rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:image/jpeg>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -93,7 +93,7 @@ calli:get-jpeg rdfs:subClassOf obj:Message;
 	http:type "image/jpeg";
 	obj:script "return openInputStream()".
 
-calli:get-gif rdfs:subClassOf obj:Message;
+:GetGif rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:image/gif>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -102,7 +102,7 @@ calli:get-gif rdfs:subClassOf obj:Message;
 	http:type "image/gif";
 	obj:script "return openInputStream()".
 
-calli:get-ico rdfs:subClassOf obj:Message;
+:GetIco rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:image/vnd.microsoft.icon>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -111,7 +111,7 @@ calli:get-ico rdfs:subClassOf obj:Message;
 	http:type "image/vnd.microsoft.icon";
 	obj:script "return openInputStream()".
 
-calli:get-pdf rdfs:subClassOf obj:Message;
+:GetPdf rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:application/pdf>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -120,7 +120,7 @@ calli:get-pdf rdfs:subClassOf obj:Message;
 	http:type "application/pdf";
 	obj:script "return openInputStream()".
 
-calli:get-xml rdfs:subClassOf obj:Message;
+:GetXml rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:application/xml>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -129,7 +129,7 @@ calli:get-xml rdfs:subClassOf obj:Message;
 	http:type "application/xml";
 	obj:script "return openInputStream()".
 
-calli:get-xhtml rdfs:subClassOf obj:Message;
+:GetXhtml rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:application/xhtml+xml>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;

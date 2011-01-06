@@ -24,7 +24,7 @@
 
 </graph> calli:maintainer </group/admin>.
 
-:upload-rdf-graph rdfs:subClassOf obj:Message;
+:PostRdfGraph rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </graph>];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:allValuesFrom xsd:string];
@@ -44,22 +44,21 @@
 		var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+");
 		var uri = toUri().resolve("/graph/") + local;
 		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
-		var vf = objectConnection.getValueFactory();
+		var vf = this.objectConnection.getValueFactory();
 		var file = part.getInputStream();
-		var obj = objectConnection.getObject(uri);
-		objectConnection.clear([vf.createURI(uri)]);
+		var obj = this.objectConnection.getObject(uri);
+		this.objectConnection.clear([vf.createURI(uri)]);
 		if (!(obj instanceof NamedGraph)) {
-			objectConnection.addDesignation(obj, NamedGraph);
+			this.objectConnection.addDesignation(obj, NamedGraph);
 		}
-		objectConnection.add(file, uri, format, [vf.createURI(uri)]);
-		objectConnection.commit();
+		this.objectConnection.add(file, uri, format, [vf.createURI(uri)]);
+		this.objectConnection.commit();
 		java.lang.System.gc();
 		return uploaded_xhtml.calliConstructHTML(obj);
 	""".
 
-:upload-rdf-graph-input a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :upload-rdf-graph;
+:input a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :PostRdfGraph;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "multipart/form-data";
-	obj:name "input".
+	http:type "multipart/form-data".
 

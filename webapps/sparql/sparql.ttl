@@ -102,18 +102,17 @@
 
 :qry a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :EvaluateSparql;
-	rdfs:range xsd:string;
-	obj:name "qry".
+	rdfs:range xsd:string.
 
 # POST application/sparql-query
-:evaluate-post rdfs:subClassOf obj:Message;
+:PostQuery rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:method "POST";
 	http:type "message/x-response";
 	http:realm </accounts>;
-	http:transform :sparql-transform;
+	http:transform :TransformResult;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	obj:script """
 		if (query == null)
@@ -121,67 +120,63 @@
 		return EvaluateSparql(new java.lang.String(query, "UTF-8"));
 	""".
 
-:evaluate-post-query a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :evaluate-post;
+:query a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :PostQuery;
 	rdfs:range xsd:hexBinary;
-	http:type "application/sparql-query";
-	obj:name "query".
+	http:type "application/sparql-query".
 
 # POST application/x-www-form-urlencoded
-:evaluate-form rdfs:subClassOf obj:Message;
+:PostForm rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:method "POST";
 	http:type "message/x-response";
 	http:realm </accounts>;
-	http:transform :sparql-transform;
+	http:transform :TransformResult;
 	obj:script """
 		if (map == null || !map.containsKey("query"))
 			throw new org.openrdf.http.object.exceptions.BadRequest("Missing query");
 		return EvaluateSparql(map.get("query")[0]);
 	""".
 
-:evaluate-form-map a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :evaluate-form;
+:map a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :PostForm;
 	rdfs:range <java:java.util.Map>;
-	http:type "application/x-www-form-urlencoded";
-	obj:name "map".
+	http:type "application/x-www-form-urlencoded".
 
 # GET query parameter
-:evaluate-get rdfs:subClassOf obj:Message;
+:GetQueryResult rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	http:method "GET";
 	http:type "message/x-response";
 	http:realm </accounts>;
-	http:transform :sparql-transform;
+	http:transform :TransformResult;
 	http:cache-control "must-reevaluate";
-	obj:script "return EvaluateSparql(query)".
+	obj:script "return EvaluateSparql(queryStr)".
 
-:evaluate-get-query a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :evaluate-get;
+:queryStr a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :GetQueryResult;
 	rdfs:range xsd:string;
-	http:parameter "query";
-	obj:name "query".
+	http:parameter "query".
 
 # Transformers
-:sparql-transform rdfs:subClassOf obj:Message;
+:TransformResult rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xml";
-	http:transform :sparql-xsl;
+	http:transform :TransformXml;
 	obj:script "return msg.entity.content".
 
-:sparql-transform-message a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :sparql-transform;
+:msg a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :TransformResult;
 	rdfs:range <java:org.apache.http.HttpResponse>;
-	http:type "message/x-response";
-	obj:name "msg".
+	http:type "message/x-response".
 
-:sparql-xsl rdfs:subClassOf obj:Message;
+:TransformXml rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </sparql>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
@@ -189,8 +184,8 @@
 	http:transform </callimachus/layout.ttl#TransformLayout>;
 	obj:xslt <sparql.xsl>.
 
-:sparql-xsl-xml a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :sparql-xsl;
+:inputStream a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :TransformXml;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "application/xml".
 

@@ -24,21 +24,23 @@
 @prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
 @prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
 
-calli:get-copy rdfs:subClassOf obj:Message;
+:GetCopyPage rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Copyable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
+	http:method "GET";
 	http:operation "copy";
 	http:type "application/xhtml+xml";
-	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
+	http:transform </callimachus/layout.ttl#TransformXhtml>;
 	http:cache-control "no-cache";
 	obj:script """
-		return findCopyTemplate().calliConstruct(this, 'copy');
+		return this.FindCopyTemplate().calliConstruct(this, 'copy');
 	""".
 
-calli:post-copy rdfs:subClassOf obj:Message;
+:PostCopy rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Copyable];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
@@ -48,26 +50,25 @@ calli:post-copy rdfs:subClassOf obj:Message;
 	http:expect "201-created";
 	obj:imports calli:Copyable;
 	obj:script """
-		var template = findCopyTemplate();
-		var copy = template.calliCopyResource(this, input, findCopyNamespaces());
+		var template = this.FindCopyTemplate();
+		var copy = template.calliCopyResource(this, input, this.FindCopyNamespaces());
 		if (calliCurators) {
 			copy.calliMaintainers.addAll(calliCurators);
 			if (copy instanceof Copyable) {
 				copy.calliCurators.addAll(calliCurators);
 			}
 		} else {
-			copy.calliMaintainers.addAll(findScribe(copy));
+			copy.calliMaintainers.addAll(this.FindScribe(copy));
 		}
 		return copy;
 	""".
 
-calli:post-copy-input a owl:ObjectProperty, owl:FunctionalProperty;
+:input a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain calli:post-copy;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/rdf+xml";
-	obj:name "input".
+	http:type "application/rdf+xml".
 
-calli:find-copy-template rdfs:subClassOf obj:Message;
+:FindCopyTemplate rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Copyable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -104,7 +105,7 @@ calli:find-copy-template rdfs:subClassOf obj:Message;
 			var uri = annotated.getAnnotation(copy).value();
 			if (uri.length != 1)
 				throw new InternalServerError("Multiple templates for " + annotated.simpleName);
-			var template = objectConnection.getObject(Template, uri[0]);
+			var template = this.objectConnection.getObject(Template, uri[0]);
 			if (template instanceof Template)
 				return template;
 			throw new InternalServerError("Missing template");
@@ -112,7 +113,7 @@ calli:find-copy-template rdfs:subClassOf obj:Message;
 		throw new InternalServerError("No template");
 	""".
 
-calli:find-copy-namespace rdfs:subClassOf obj:Message;
+:FindCopyNamespace rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Copyable];
 	obj:name "findCopyNamespaces";
@@ -122,7 +123,7 @@ calli:find-copy-namespace rdfs:subClassOf obj:Message;
 	""".
 
 # find the user that created $of if it does not have a conservator
-calli:find-scribe rdfs:subClassOf obj:Message;
+:FindScribe rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Copyable];
 	obj:name "findScribe";
@@ -140,7 +141,6 @@ calli:find-scribe rdfs:subClassOf obj:Message;
 		}
 	""".
 
-calli:find-scribe-of a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain calli:find-scribe;
-	obj:name "of".
+:of a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain calli:FindScribe.
 

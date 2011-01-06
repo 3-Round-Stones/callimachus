@@ -7,21 +7,22 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:get-user-create rdfs:subClassOf obj:Message;
+:GetUserCreate rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <Group>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
+	http:method "GET";
 	http:operation "user-create";
 	http:type "application/xhtml+xml";
-	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
+	http:transform </callimachus/layout.ttl#TransformXhtml>;
 	http:realm </accounts>;
 	obj:imports <user-create.xhtml>;
 	obj:script """
 		return user_create_xhtml.calliConstruct(this, 'copy');
 	""".
 
-:post-user-create rdfs:subClassOf obj:Message;
+:PostUserCreate rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <Group>];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
@@ -71,9 +72,8 @@
 		return this;
 	""".
 
-:post-user-create-byteArray a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :post-user-create;
+:bytes a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :PostUserCreate;
 	rdfs:range <java:java.io.ByteArrayOutputStream>;
-	http:type "application/rdf+xml";
-	obj:name "bytes".
+	http:type "application/rdf+xml".
 

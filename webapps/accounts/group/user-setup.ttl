@@ -34,14 +34,15 @@
 		}
 	""".
 
-:get-user-setup rdfs:subClassOf obj:Message;
+:GetUserSetup rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <Group>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
+	http:method "GET";
 	http:operation "user-setup";
 	http:type "application/xhtml+xml";
-	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
+	http:transform </callimachus/layout.ttl#TransformXhtml>;
 	http:realm <local>;
 	obj:imports <user-setup.xhtml>;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
@@ -51,7 +52,7 @@
 		return user_setup_xhtml.calliConstruct(this, 'copy');
 	""".
 
-:post-user-setup rdfs:subClassOf obj:Message;
+:PostUserSetup rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <Group>];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
@@ -92,9 +93,8 @@
 		return accounts + "?welcome";
 	""".
 
-:post-user-setup-bytes a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :post-user-setup;
+:bytes a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :PostUserSetup;
 	rdfs:range <java:java.io.ByteArrayOutputStream>;
-	http:type "application/rdf+xml";
-	obj:name "bytes".
+	http:type "application/rdf+xml".
 

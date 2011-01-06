@@ -10,7 +10,7 @@
 
 # Sends request for password reset emails
 # Submitted by form in the unauthorized page
-calli:post-request-password rdfs:subClassOf obj:Message;
+:PostRequestPassword rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:hasValue </accounts>];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
@@ -22,21 +22,20 @@ calli:post-request-password rdfs:subClassOf obj:Message;
 	obj:script """
 		if (!email)
 			throw new BadRequest("Missing Email");
-		var iter = calliFindUsersByEmail(email).iterator();
+		var iter = FindUsersByEmail(email).iterator();
 		while (iter.hasNext()) {
 			iter.next().requestPassword();
 		}
 	""".
 
-calli:post-request-password-email a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain calli:post-request-password;
+:email a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :PostRequestPassword;
 	rdfs:range xsd:string;
-	http:type "text/plain";
-	obj:name "email".
+	http:type "text/plain".
 
 # Looks up user by email address
 # Used to request password reset
-calli:FindUsersByEmail rdfs:subClassOf obj:Message;
+:FindUsersByEmail rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:DigestRealm];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
@@ -49,8 +48,8 @@ calli:FindUsersByEmail rdfs:subClassOf obj:Message;
 		}
 	""".
 
-calli:findUsersByEmailArg a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain calli:FindUsersByEmail;
+:email a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :FindUsersByEmail;
 	rdfs:range xsd:string;
 	obj:name "email".
 

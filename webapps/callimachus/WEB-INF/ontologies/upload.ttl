@@ -20,6 +20,14 @@
 @prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
 @prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+:PutContentType rdfs:subClassOf obj:Message.
+
+:contentType a owl:DatatypeProperty; a owl:FunctionalProperty;
+	rdfs:domain :PutContentType;
+	rdfs:range xsd:string;
+	http:header "Content-Type".
 
 ################################
 # RDF Graph
@@ -27,7 +35,7 @@
 
 calli:NamedGraph a owl:Class.
 
-calli:put-graph-document rdfs:subClassOf obj:Message;
+:PutGraphDocument rdfs:subClassOf :PutContentType;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
@@ -36,32 +44,25 @@ calli:put-graph-document rdfs:subClassOf obj:Message;
 	obj:imports <java:org.openrdf.rio.RDFFormat>;
 	obj:imports calli:NamedGraph;
 	obj:script """
-		calliWebappsDelete();
+		this.calliDeleteWebResource();
 		var type = contentType;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		objectConnection.addDesignation(this, NamedGraph);
-		objectConnection.add(body, this.toString(), RDFFormat.forMIMEType(type), [resource]);
+		this.objectConnection.addDesignation(this, NamedGraph);
+		this.objectConnection.add(rdfStream, this.toString(), RDFFormat.forMIMEType(type), [resource]);
 	""".
 
-calli:put-graph-document-type a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-graph-document;
-	rdfs:range xsd:string;
-	http:header "Content-Type";
-	obj:name "contentType".
-
-calli:put-graph-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-graph-document;
+:rdfStream a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PutGraphDocument;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/rdf+xml;q=0.1", "text/turtle;q=0.1", "application/x-turtle;q=0.1";
-	obj:name "body".
+	http:type "application/rdf+xml;q=0.1", "text/turtle;q=0.1", "application/x-turtle;q=0.1".
 
 ################################
 # Text File
 ################################
 
-calli:put-text-document rdfs:subClassOf obj:Message;
+:PutTextDocument rdfs:subClassOf :PutContentType;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
@@ -69,17 +70,17 @@ calli:put-text-document rdfs:subClassOf obj:Message;
 	http:realm calli:nobody;
 	obj:imports calli:Template;
 	obj:script """
-		calliWebappsDelete();
+		this.calliDeleteWebResource();
 		var type = "urn:mimetype:" + contentType;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		objectConnection.addDesignation(this, type);
+		this.objectConnection.addDesignation(this, type);
 		var read;
 		var cbuf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
-		var out = openWriter();
+		var out = this.openWriter();
 		try {
-			while ((read = body.read(cbuf)) >= 0) {
+			while ((read = textReader.read(cbuf)) >= 0) {
 				out.write(cbuf, 0, read);
 			}
 		} finally {
@@ -87,40 +88,33 @@ calli:put-text-document rdfs:subClassOf obj:Message;
 		}
 	""".
 
-calli:put-text-document-type a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-text-document;
-	rdfs:range xsd:string;
-	http:header "Content-Type";
-	obj:name "contentType".
-
-calli:put-text-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-text-document;
+:textReader a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PutTextDocument;
 	rdfs:range <java:java.io.Reader>;
-	http:type "text/html;q=0.1", "text/css;q=0.1", "text/javascript;q=0.1", "text/plain;q=0.1";
-	obj:name "body".
+	http:type "text/html;q=0.1", "text/css;q=0.1", "text/javascript;q=0.1", "text/plain;q=0.1".
 
 ################################
 # Binary File
 ################################
 
-calli:put-binary-document rdfs:subClassOf obj:Message;
+:PutBinaryDocument rdfs:subClassOf :PutContentType;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
 	http:operation "calli:webapps";
 	http:realm calli:nobody;
 	obj:script """
-		calliWebappsDelete();
+		this.calliDeleteWebResource();
 		var type = "urn:mimetype:" + contentType;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		objectConnection.addDesignation(this, type);
+		this.objectConnection.addDesignation(this, type);
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var out = openOutputStream();
+		var out = this.openOutputStream();
 		try {
-			while ((read = body.read(buf)) >= 0) {
+			while ((read = binaryStream.read(buf)) >= 0) {
 				out.write(buf, 0, read);
 			}
 		} finally {
@@ -128,23 +122,16 @@ calli:put-binary-document rdfs:subClassOf obj:Message;
 		}
 	""".
 
-calli:put-binary-document-type a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-binary-document;
-	rdfs:range xsd:string;
-	http:header "Content-Type";
-	obj:name "contentType".
-
-calli:put-binary-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-binary-document;
+:binaryStream a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PutBinaryDocument;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "image/png;q=0.1", "image/jpeg;q=0.1", "image/gif;q=0.1", "image/vnd.microsoft.icon;q=0.1", "application/pdf;q=0.1";
-	obj:name "body".
+	http:type "image/png;q=0.1", "image/jpeg;q=0.1", "image/gif;q=0.1", "image/vnd.microsoft.icon;q=0.1", "application/pdf;q=0.1".
 
 ################################
 # XSL File
 ################################
 
-calli:put-xsl-document rdfs:subClassOf obj:Message;
+:PutXslDocument rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
@@ -152,13 +139,13 @@ calli:put-xsl-document rdfs:subClassOf obj:Message;
 	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	obj:script """
-		calliWebappsDelete();
-		objectConnection.addDesignation(this, "urn:mimetype:text/xsl");
+		this.calliDeleteWebResource();
+		this.objectConnection.addDesignation(this, "urn:mimetype:text/xsl");
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var out = openOutputStream();
+		var out = this.openOutputStream();
 		try {
-			while ((read = body.read(buf)) >= 0) {
+			while ((read = xslStream.read(buf)) >= 0) {
 				out.write(buf, 0, read);
 			}
 		} finally {
@@ -167,17 +154,16 @@ calli:put-xsl-document rdfs:subClassOf obj:Message;
 		HTTPObjectServer.resetAllCache();
 	""".
 
-calli:put-xsl-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-xsl-document;
+:xslStream a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PutXslDocument;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "text/xsl;q=0.1";
-	obj:name "body".
+	http:type "text/xsl;q=0.1".
 
 ################################
 # Template File
 ################################
 
-calli:put-xml-document rdfs:subClassOf obj:Message;
+:PutXmlDocument rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
@@ -186,14 +172,14 @@ calli:put-xml-document rdfs:subClassOf obj:Message;
 	obj:imports calli:Template;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	obj:script """
-		calliWebappsDelete();
-		objectConnection.addDesignation(this, Template);
-		objectConnection.addDesignation(this, "urn:mimetype:application/xml");
+		this.calliDeleteWebResource();
+		this.objectConnection.addDesignation(this, Template);
+		this.objectConnection.addDesignation(this, "urn:mimetype:application/xml");
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var out = openOutputStream();
+		var out = this.openOutputStream();
 		try {
-			while ((read = body.read(buf)) >= 0) {
+			while ((read = xmlStream.read(buf)) >= 0) {
 				out.write(buf, 0, read);
 			}
 		} finally {
@@ -202,13 +188,12 @@ calli:put-xml-document rdfs:subClassOf obj:Message;
 		HTTPObjectServer.resetAllCache();
 	""".
 
-calli:put-xml-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-xml-document;
+:xmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PutXmlDocument;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/xml;q=0.1";
-	obj:name "body".
+	http:type "application/xml;q=0.1".
 
-calli:put-xhtml-document rdfs:subClassOf obj:Message;
+:PutXhtmlDocument rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
@@ -217,14 +202,14 @@ calli:put-xhtml-document rdfs:subClassOf obj:Message;
 	obj:imports calli:Template;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	obj:script """
-		calliWebappsDelete();
-		objectConnection.addDesignation(this, Template);
-		objectConnection.addDesignation(this, "urn:mimetype:application/xhtml+xml");
+		this.calliDeleteWebResource();
+		this.objectConnection.addDesignation(this, Template);
+		this.objectConnection.addDesignation(this, "urn:mimetype:application/xhtml+xml");
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var out = openOutputStream();
+		var out = this.openOutputStream();
 		try {
-			while ((read = body.read(buf)) >= 0) {
+			while ((read = xhtmlStream.read(buf)) >= 0) {
 				out.write(buf, 0, read);
 			}
 		} finally {
@@ -233,17 +218,16 @@ calli:put-xhtml-document rdfs:subClassOf obj:Message;
 		HTTPObjectServer.resetAllCache();
 	""".
 
-calli:put-xhtml-document-body a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:put-xhtml-document;
+:xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PutXhtmlDocument;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/xhtml+xml;q=0.1";
-	obj:name "body".
+	http:type "application/xhtml+xml;q=0.1".
 
 ################################
 # DELETE
 ################################
 
-calli:WebappsDelete rdfs:subClassOf obj:Message;
+calli:DeleteWebResource rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
@@ -252,8 +236,9 @@ calli:WebappsDelete rdfs:subClassOf obj:Message;
 	obj:imports <java:org.openrdf.model.BNode>;
 	obj:imports <java:org.openrdf.model.URI>;
 	obj:script """
+		var con = this.objectConnection;
 		function removeTriples(subject) {
-			var stmts = objectConnection.getStatements(subject, null, null, []);
+			var stmts = con.getStatements(subject, null, null, []);
 			try {
 				while (stmts.hasNext()) {
 					var st = stmts.next();
@@ -266,14 +251,14 @@ calli:WebappsDelete rdfs:subClassOf obj:Message;
 							removeTriples(st.object);
 						}
 					}
-					objectConnection.remove(st, []);
+					con.remove(st, []);
 				}
 			} finally {
 				stmts.close();
 			}
 		}
-		objectConnection.clear([resource]); //# clear graph
-		removeTriples(resource); //# follow blank and hash references
+		con.clear([this.resource]); //# clear graph
+		removeTriples(this.resource); //# follow blank and hash references
 		this['delete'](); //# remove document
 	""".
 

@@ -12,7 +12,7 @@
 :TransformLayout rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xhtml+xml";
-	http:transform :xhtml-to-html-xsl;
+	http:transform :TransformXhtml;
 	obj:xslt </layout/template.xsl>.
 
 :input a owl:ObjectProperty; a owl:FunctionalProperty;
@@ -26,13 +26,13 @@
 	http:parameter "*";
 	obj:name "query".
 
-:xhtml-to-html-xsl rdfs:subClassOf obj:Message;
+:TransformXhtml rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.Reader>];
 	http:type "text/html";
 	obj:xslt <util/xhtml-to-html.xsl>.
 
 :xhtml a owl:ObjectProperty; a owl:FunctionalProperty;
 	http:type "application/xhtml+xml";
-	rdfs:domain :xhtml-to-html-xsl;
+	rdfs:domain :TransformXhtml;
 	rdfs:range <java:java.io.InputStream>.
 

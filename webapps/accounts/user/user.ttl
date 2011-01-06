@@ -13,9 +13,10 @@
 	calli:view <view.xhtml>;
 	calli:edit <edit.xhtml>.
 
-:UserDeleted owl:intersectionOf (calli:delete [owl:onProperty obj:target; owl:allValuesFrom <User>]);
+:UserDeleted owl:intersectionOf (</callimachus/operations/delete.ttl#Delete>
+		[owl:onProperty obj:target; owl:allValuesFrom <User>]);
 	obj:imports calli:member;
 	obj:script """
-		objectConnection.remove(null, member.resource, this.resource, []);
+		this.objectConnection.remove(null, member.resource, this.resource, []);
 		proceed();
 	""".

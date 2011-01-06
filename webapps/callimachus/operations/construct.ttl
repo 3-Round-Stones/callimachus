@@ -31,7 +31,7 @@ calli:ConstructHTML rdfs:subClassOf obj:Message;
 		owl:allValuesFrom xsd:string];
 	http:type "text/html";
 	obj:script """
-		var reader = xhtml_to_html_xsl(calliConstruct(object, query));
+		var reader = this.TransformXhtml(calliConstruct(object, query));
 		try {
 			var writer = new java.io.CharArrayWriter();
 			var read;
@@ -60,7 +60,7 @@ calli:ConstructTemplate rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:type "application/xhtml+xml";
-	http:transform </callimachus/layout.ttl#xhtml-to-html-xsl>;
+	http:transform </callimachus/layout.ttl#TransformXhtml>;
 	obj:xslt <construct.xsl>.
 
 calli:construct-template-arg1 a owl:DatatypeProperty; a owl:FunctionalProperty;

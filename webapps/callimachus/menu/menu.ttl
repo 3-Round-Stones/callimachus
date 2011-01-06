@@ -11,12 +11,13 @@
 
 <../menu> a calli:Menu.
 
-:menu-evaluate rdfs:subClassOf obj:Message;
+:GetMenuItems rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Menu];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom obj:TupleResult];
 	http:rel "alternate";
+	http:method "GET";
 	http:operation "evaluate";
 	http:type "application/sparql-results+xml";
 	obj:sparql """

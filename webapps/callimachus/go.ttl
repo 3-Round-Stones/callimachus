@@ -9,7 +9,7 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-:menu-go rdfs:subClassOf obj:Message;
+:LookupAndGo rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:hasValue <go>];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
@@ -21,8 +21,8 @@
 	obj:imports <java:java.net.URLEncoder>;
 	obj:imports <lookup>;
 	obj:script """
-		var vf = objectConnection.valueFactory;
-		var stmts = objectConnection.getStatements(null, RDFS.LABEL, vf.createLiteral(q), []);
+		var vf = this.objectConnection.valueFactory;
+		var stmts = this.objectConnection.getStatements(null, RDFS.LABEL, vf.createLiteral(q), []);
 		try {
 			if (!stmts.hasNext())
 				return lookup + "?q=" + URLEncoder.encode(q);
@@ -38,9 +38,8 @@
 		}
 	""".
 
-:menu-go-arg a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :menu-go;
+:q a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :LookupAndGo;
 	rdfs:range xsd:string;
-	http:parameter "q";
-	obj:name "q".
+	http:parameter "q".
 

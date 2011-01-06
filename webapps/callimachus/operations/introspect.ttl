@@ -22,9 +22,10 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-calli:introspect rdfs:subClassOf obj:Message;
+:GetIntrospect rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+	http:method "GET";
 	http:operation "introspect";
 	http:type "application/xhtml+xml";
 	http:transform <../layout.ttl#TransformLayout>;

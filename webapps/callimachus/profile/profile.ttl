@@ -24,23 +24,23 @@
 
 <../profile> calli:maintainer <../group/admin>.
 
-:get-profile rdfs:subClassOf obj:Message;
+:GetProfile rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../profile>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
 	http:method "GET";
 	http:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
 	http:cache-control "no-store";
-	http:transform :profile-xsl;
+	http:transform :TransformProfile;
 	obj:imports <java:org.openrdf.model.impl.LinkedHashModel>;
 	obj:script """
-		var vf = objectConnection.valueFactory;
+		var vf = this.objectConnection.valueFactory;
 		var xsd = "http://www.w3.org/2001/XMLSchema#";
 		var rdfa = "http://www.w3.org/ns/rdfa#";
 		var token = vf.createURI(xsd, "NMTOKEN");
 		var anyURI = vf.createURI(xsd, "anyURI");
-		var ns = resource + "#";
-		var namespaces = objectConnection.namespaces.asList();
+		var ns = this.resource + "#";
+		var namespaces = this.objectConnection.namespaces.asList();
 		var model = new LinkedHashModel();
 		for (var i = 0; i < namespaces.size(); i++) {
 			var prefix = namespaces.get(i).prefix;
@@ -53,7 +53,7 @@
 		return model;
 	""".
 
-:post-profile rdfs:subClassOf obj:Message;
+:PostProfile rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../profile>];
 	rdfs:subClassOf [owl:onProperty obj:objectResponse; owl:cardinality 1];
 	http:method "POST";
@@ -63,25 +63,24 @@
 		var iter = form.entrySet().iterator();
 		while (iter.hasNext()) {
 			var entry = iter.next();
-			objectConnection.setNamespace(entry.key, entry.value[0]);
+			this.objectConnection.setNamespace(entry.key, entry.value[0]);
 		}
-		var namespaces = objectConnection.namespaces.asList();
+		var namespaces = this.objectConnection.namespaces.asList();
 		for (var i = 0; i < namespaces.size(); i++) {
 			var prefix = namespaces.get(i).prefix;
 			if (!form.containsKey(prefix)) {
-				objectConnection.removeNamespace(prefix);
+				this.objectConnection.removeNamespace(prefix);
 			}
 		}
 		return this;
 	""".
 
-:post-profile-form a owl:ObjectProperty, owl:FunctionalProperty;
+:form a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :post-profile;
 	rdfs:range <java:java.util.Map>;
-	http:type "application/x-www-form-urlencoded";
-	obj:name "form".
+	http:type "application/x-www-form-urlencoded".
 
-:profile-xsl rdfs:subClassOf obj:Message;
+:TransformProfile rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../profile>];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom <java:java.io.InputStream>];
@@ -89,8 +88,8 @@
 	http:transform </callimachus/layout.ttl#TransformLayout>;
 	obj:xslt <profile.xhtml>.
 
-:profile-xsl-xml a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :profile-xsl;
+:inputStream a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :TransformProfile;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "application/rdf+xml".
 

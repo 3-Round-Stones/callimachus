@@ -64,7 +64,7 @@
 	""".
 
 :input a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain calli:post-copy;
+	rdfs:domain :PostCopy;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "application/rdf+xml".
 
@@ -73,7 +73,6 @@
 		owl:allValuesFrom calli:Copyable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom calli:Template];
-	obj:name "findCopyTemplate";
 	obj:imports calli:Template;
 	obj:imports <java:org.callimachusproject.annotations.copy>;
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
@@ -113,10 +112,9 @@
 		throw new InternalServerError("No template");
 	""".
 
-:FindCopyNamespace rdfs:subClassOf obj:Message;
+:FindCopyNamespaces rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Copyable];
-	obj:name "findCopyNamespaces";
 	obj:sparql """
 		SELECT DISTINCT ?namespace
 		WHERE { $this a [calli:withNamespace ?namespace] }
@@ -126,7 +124,6 @@
 :FindScribe rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom calli:Copyable];
-	obj:name "findScribe";
 	obj:sparql """
 		SELECT DISTINCT ?scribe
 		WHERE {
@@ -142,5 +139,6 @@
 	""".
 
 :of a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain calli:FindScribe.
+	rdfs:domain :FindScribe;
+	obj:name "of".
 

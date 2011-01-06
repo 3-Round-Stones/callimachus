@@ -18,13 +18,27 @@
 	http:method "POST";
 	http:operation "requestpassword";
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	obj:imports calli:User;
+	obj:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+	obj:imports <user/mail-request-password.xhtml>;
+	obj:imports <java:java.io.CharArrayWriter>;
+	obj:imports <java:java.util.Random>;
+	obj:imports <java:java.lang.Integer>;
+	obj:imports <java:java.lang.System>;
 	obj:script """
 		if (!email)
 			throw new BadRequest("Missing Email");
 		var iter = FindUsersByEmail(email).iterator();
 		while (iter.hasNext()) {
-			iter.next().requestPassword();
+			var user = iter.next();
+			var ha1 = DigestUtils.md5Hex(user.calliEncoded);
+			var nonce = Integer.toHexString(new Random(System.nanoTime()).nextInt());
+			var ha2 = DigestUtils.md5Hex(user.toString());
+			var token = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
+			var qs = "?resetpassword&amp;nonce=" + nonce + "&amp;token=" + token;
+			var body = mail_request_password_xhtml.calliConstructHTML(user);
+			body = body.replaceAll("\\\\?resetpassword", user + "?resetpassword");
+			body = body.replaceAll("\\\\?resetpassword", qs);
+			user.sendMessage(body, user.calliEmail);
 		}
 	""".
 

@@ -69,7 +69,6 @@
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js">;</script>
 			<script type="text/javascript" src="{$layout}/template.js">;</script>
 			<xsl:if test="$query='copy' or $query='edit'">
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.qtip.js">;</script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js">;</script>
 			<script type="text/javascript" src="{$callimachus}/scripts/jquery.validate.js">;</script>
 			<xsl:if test="$query='copy'">

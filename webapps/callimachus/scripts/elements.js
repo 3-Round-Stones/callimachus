@@ -299,30 +299,24 @@ function initSetElements(form) {
 			}
 			var onsubmit = "window.calli.listSearchResults('" + url + "'.replace('{searchTerms}', encodeURIComponent(document.getElementById('"
 			+ searchTerms + "').value)), '" + name + "', " + (divert ? "true" : "false") + ")"
-			var content = "<form action='" +  url.replace('{searchTerms}', '') + "' target='" + name + "' onsubmit=\"" + onsubmit + ";return false\">"
+			var form = "<form action='" +  url.replace('{searchTerms}', '') + "' target='" + name + "' onsubmit=\"" + onsubmit + ";return false\">"
 				+ "<div class='lookup'>"
-				+ "<a href='#' class='close' onclick=\"$('#"+id+"').qtip('hide');return false\">Х</a>"
-				+ "<a href='#' class='back' onclick=\"frames['" + name + "'].history.back();return false\">«</a>"
 				+ "<input name='q' id='" + searchTerms + "' /></div>"
-				+ "</form><iframe name='" + name + "' frameborder='0' src='" + suggest + "'></iframe>"
-			setTimeout(function() {
-				var width = document.documentElement.clientWidth
-				var offset = add.offset().left
-				var position = 'topMiddle'
-				if (offset < width / 3) {
-					position = 'topLeft'
-				} else if (offset > width * 2 / 3) {
-					position = 'topRight'
-				}
-				add.qtip({
-					content: { text: content },
-					show: { when: { event: 'click' } },
-					hide: { when: { event: 'unfocus' } },
-					style: { name: 'blue', padding: 0, width: {max:width}, tip: true },
-					position: { corner: { target: 'center', tooltip: position } }
-				})
-			}, 500)
+				+ "</form>"
+			var iframe = "<iframe name='" + name + "' frameborder='0' src='" + suggest + "'></iframe>"
 			list.append(add)
+		    add.click(function(e) {
+		        var dialog = $(iframe).dialog({
+		            title: form,
+		            autoOpen: true,
+		            modal: false,
+		            resizable: true,
+		            autoResize: true
+		        });
+				// make room for scrollbars
+				dialog.width(dialog.width() - 20);
+				dialog.height(dialog.height() - 20);
+		    });
 		}
 	})
 }

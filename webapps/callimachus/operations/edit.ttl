@@ -59,7 +59,7 @@
 	""".
 
 :input a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:post-edit;
+	rdfs:domain :PostEdit;
 	rdfs:range <java:java.io.InputStream>;
 	http:type "multipart/related;type=\"application/rdf+xml\"".
 
@@ -68,7 +68,6 @@
 		owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
 		owl:allValuesFrom calli:Template];
-	obj:name "findEditTemplate";
 	obj:imports calli:Template;
 	obj:imports <java:org.callimachusproject.annotations.edit>;
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;

@@ -301,21 +301,28 @@ function initSetElements(form) {
 			+ searchTerms + "').value)), '" + name + "', " + (divert ? "true" : "false") + ")"
 			var form = "<form action='" +  url.replace('{searchTerms}', '') + "' target='" + name + "' onsubmit=\"" + onsubmit + ";return false\">"
 				+ "<div class='lookup'>"
-				+ "<input name='q' id='" + searchTerms + "' /></div>"
+				+ "<input name='q' title='Lookup..' id='" + searchTerms + "' /></div>"
 				+ "</form>"
-			var iframe = "<iframe name='" + name + "' frameborder='0' src='" + suggest + "'></iframe>"
+			var iframe = "<iframe name='" + name + "' frameborder='0' src='about:blank'></iframe>"
 			list.append(add)
+	        var dialog = $(iframe).dialog({
+	            title: form,
+	            autoOpen: false,
+	            modal: false,
+	            resizable: true,
+	            autoResize: true,
+				height: window.innerHeight/2 || document.documentElement.clientHeight/2
+	        })
+			var first = true
 		    add.click(function(e) {
-		        var dialog = $(iframe).dialog({
-		            title: form,
-		            autoOpen: true,
-		            modal: false,
-		            resizable: true,
-		            autoResize: true
-		        });
-				// make room for scrollbars
-				dialog.width(dialog.width() - 20);
-				dialog.height(dialog.height() - 20);
+				dialog = dialog.dialog("open")
+				if (first) {
+					first = false;
+					// make room for scrollbars
+					dialog.width(dialog.width() - 20)
+					dialog.height(dialog.height() - 20)
+				}
+				window.frames[name].location = suggest
 		    });
 		}
 	})

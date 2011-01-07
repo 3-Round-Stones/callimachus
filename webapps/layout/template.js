@@ -174,6 +174,7 @@ function hideSiblings(node) {
 		}
 		node.style.border = "none"
 		node.style.margin = "0px"
+		node.style.background = "inherit"
 	}
 }
 

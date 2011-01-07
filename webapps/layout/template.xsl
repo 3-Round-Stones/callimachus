@@ -65,24 +65,24 @@
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
 			<xsl:apply-templates select="*[local-name()='link' or local-name()='style']" />
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js">;</script>
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js">;</script>
-			<script type="text/javascript" src="{$layout}/template.js">;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js">&#160;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js">&#160;</script>
+			<script type="text/javascript" src="{$layout}/template.js">&#160;</script>
 			<xsl:if test="$query='copy' or $query='edit'">
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js">;</script>
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.validate.js">;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js">&#160;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/jquery.validate.js">&#160;</script>
 			<xsl:if test="$query='copy'">
-			<script type="text/javascript" src="{$callimachus}/operations/copy.js">;</script>
+			<script type="text/javascript" src="{$callimachus}/operations/copy.js">&#160;</script>
 			</xsl:if>
 			<xsl:if test="$query='edit'">
-			<script type="text/javascript" src="{$callimachus}/operations/edit.js">;</script>
+			<script type="text/javascript" src="{$callimachus}/operations/edit.js">&#160;</script>
 			</xsl:if>
-			<script type="text/javascript" src="{$callimachus}/scripts/elements.js">;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/elements.js">&#160;</script>
 			</xsl:if>
 			<xsl:if test="//*[local-name()='pre'][@class][contains(@class, 'wiki')]">
-			<script type="text/javascript" src="{$callimachus}/scripts/creole.js">;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/creole.js">&#160;</script>
 			</xsl:if>
-			<script type="text/javascript" src="{$callimachus}/scripts/enhancements.js">;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/enhancements.js">&#160;</script>
 			<xsl:apply-templates select="*[local-name()!='link' and local-name()!='style']|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>

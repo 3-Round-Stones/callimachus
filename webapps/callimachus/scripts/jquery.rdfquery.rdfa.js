@@ -663,9 +663,9 @@
     /** @ignore */
     value: function (v) {
       if (v === '-INF') {
-        return -1 / 0;
+        return -Infinity;
       } else if (v === 'INF' || v === '+INF') {
-        return 1 / 0;
+        return Infinity;
       } else {
         return parseFloat(v);
       }

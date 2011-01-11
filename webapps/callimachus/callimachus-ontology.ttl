@@ -88,6 +88,9 @@ calli:NamedGraph a owl:Class;
 calli:MailSubmitter a owl:Class;
 	rdfs:comment "Resource capable of cooperating with a mail transfer agent for delivery of the mail".
 
+calli:ScriptBundle rdfs:subClassOf rdf:Seq;
+	rdfs:comment "A collection of JavaScript files that are downloaded and compressed together.".
+
 ################################
 # Annotation
 ################################
@@ -193,8 +196,13 @@ calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:comment "The canonical URL for this alias.";
 	rdfs:domain calli:Alias.
 
+calli:minified a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:comment "Level of minification that should be applied to this bundle. Zero represents no minification. One represents minimal minification.";
+	rdfs:domain calli:ScriptBundle;
+	rdfs:range xsd:integer.
+
 ################################
-# Individual
+# Thing
 ################################
 
 calli:nobody a calli:NobodyRealm.

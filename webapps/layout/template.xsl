@@ -65,24 +65,16 @@
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
 			<xsl:apply-templates select="*[local-name()='link' or local-name()='style']" />
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.js">&#160;</script>
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery-ui.js">&#160;</script>
-			<script type="text/javascript" src="{$layout}/template.js">&#160;</script>
+			<script type="text/javascript" src="{$layout}/web_bundle?source">&#160;</script>
 			<xsl:if test="$query='copy' or $query='edit'">
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.rdfquery.rdfa.js">&#160;</script>
-			<script type="text/javascript" src="{$callimachus}/scripts/jquery.validate.js">&#160;</script>
+			<script type="text/javascript" src="{$layout}/form_bundle?source">&#160;</script>
+			</xsl:if>
 			<xsl:if test="$query='copy'">
 			<script type="text/javascript" src="{$callimachus}/operations/copy.js">&#160;</script>
 			</xsl:if>
 			<xsl:if test="$query='edit'">
 			<script type="text/javascript" src="{$callimachus}/operations/edit.js">&#160;</script>
 			</xsl:if>
-			<script type="text/javascript" src="{$callimachus}/scripts/elements.js">&#160;</script>
-			</xsl:if>
-			<xsl:if test="//*[local-name()='pre'][@class][contains(@class, 'wiki')]">
-			<script type="text/javascript" src="{$callimachus}/scripts/creole.js">&#160;</script>
-			</xsl:if>
-			<script type="text/javascript" src="{$callimachus}/scripts/enhancements.js">&#160;</script>
 			<xsl:apply-templates select="*[local-name()!='link' and local-name()!='style']|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
@@ -139,7 +131,7 @@
 			</div>
 			<div id="sidebar">
 				<a href="{$origin}/" id="logo">&#160;</a>
-				<xsl:apply-templates mode="menu" select="document(concat($callimachus, '/menu'))" />
+				<xsl:apply-templates mode="menu" select="document(concat($callimachus, '/menu?evaluate'))" />
 			</div>
 
 			<xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history'">

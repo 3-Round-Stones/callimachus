@@ -31,7 +31,7 @@ if (window.localStorage) {
 		options.password = up.substring(up.indexOf(':') + 1)
 	}
 }
-jQuery.ajax(options)
+window.jQuery.ajax(options)
 
 function loggedIn(req) {
 	var doc = req.responseText
@@ -47,7 +47,7 @@ function loggedIn(req) {
 	$(".authenticated").show()
 	$("#logout-link").click(function(event) {
 		var href = this.href
-		jQuery.ajax({ type: 'GET', url: href,
+		window.jQuery.ajax({ type: 'GET', url: href,
 			username: 'logout', password: 'nil',
 			complete: function() {
 				document.location = href
@@ -103,7 +103,7 @@ function loggedOut() {
 	$("#login-form").submit(function(event) {
 		var username = this.elements['username'].value
 		var password = this.elements['password'].value
-		jQuery.ajax({ type: 'GET', url: $("#login-link").get(0).href,
+		window.jQuery.ajax({ type: 'GET', url: $("#login-link").get(0).href,
 			username: username,
 			password: password,
 			complete: function() {
@@ -242,5 +242,5 @@ $(document).ready(function() {
 	})
 })
 
-})(jQuery)
+})(window.jQuery)
 

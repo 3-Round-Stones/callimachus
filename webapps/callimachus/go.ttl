@@ -20,22 +20,30 @@
 	obj:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	obj:imports <java:java.net.URLEncoder>;
 	obj:imports <lookup>;
+	obj:imports </diverted>;
 	obj:script """
+		try {
+			if (q.indexOf(":") > 0) {
+				if (java.net.URI.create(q).isAbsolute())
+					return diverted.toString() + ";" + URLEncoder.encode(q);
+			}
+		} catch (e) {
+		}
 		var vf = this.objectConnection.valueFactory;
 		var stmts = this.objectConnection.getStatements(null, RDFS.LABEL, vf.createLiteral(q), []);
 		try {
-			if (!stmts.hasNext())
-				return lookup + "?q=" + URLEncoder.encode(q);
-			var uri = stmts.next().subject;
-			while (!(uri instanceof org.openrdf.model.URI) && stmts.hasNext()) {
-				uri = stmts.next().subject;
+			if (stmts.hasNext()) {
+				var uri = stmts.next().subject;
+				while (!(uri instanceof org.openrdf.model.URI) && stmts.hasNext()) {
+					uri = stmts.next().subject;
+				}
+				if (uri instanceof org.openrdf.model.URI && !stmts.hasNext())
+					return uri.stringValue();
 			}
-			if (!(uri instanceof org.openrdf.model.URI) || stmts.hasNext())
-				return lookup + "?q=" + URLEncoder.encode(q);
-			return uri.stringValue();
 		} finally {
 			stmts.close();
 		}
+		return lookup + "?q=" + URLEncoder.encode(q);
 	""".
 
 :q a owl:DatatypeProperty, owl:FunctionalProperty;

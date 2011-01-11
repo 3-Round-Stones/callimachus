@@ -370,5 +370,5 @@ function inputPromptTitle() {
 	}
 }
 
-})(jQuery)
+})(window.jQuery)
 

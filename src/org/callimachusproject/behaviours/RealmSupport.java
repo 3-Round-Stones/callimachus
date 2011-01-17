@@ -118,13 +118,10 @@ public abstract class RealmSupport implements Realm, RDFObject {
 			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			sb.append(origin.toString());
-		}
-		for (Object origin : getCalliScripts()) {
-			if (sb.length() > 0) {
-				sb.append(", ");
-			}
-			sb.append(origin.toString());
+			String str = origin.toString();
+			if (str.equals("*"))
+				return str;
+			sb.append(str);
 		}
 		if (sb.length() < 1)
 			return null;
@@ -135,6 +132,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	public boolean withAgentCredentials(String origin) {
 		for (Object script : getCalliOrigins()) {
 			String ao = script.toString();
+			// must be explicitly listed ('*' does not qualify)
 			if (origin.startsWith(ao) || ao.startsWith(origin)
 					&& ao.charAt(origin.length()) == '/')
 				return true;

@@ -56,8 +56,13 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 		return compiler.toSource();
 	}
 
-	@sparql("SELECT ?script\n"
-			+ "WHERE { $this ?li ?script FILTER (regex(str(?li), \"#_\\\\d+$\")) }")
+	@sparql("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+			+ "SELECT DISTINCT ?script\n"
+			+ "WHERE { {$this ?one ?script FILTER (regex(str(?one), \"#_\\\\d$\"))}\n"
+			+ "UNION {$this ?two ?script FILTER (regex(str(?two), \"#_\\\\d\\\\d$\"))}\n"
+			+ "UNION {$this ?three ?script FILTER (regex(str(?three), \"#_\\\\d\\\\d\\\\d+$\"))}\n"
+			+ "UNION {?member rdfs:member ?script FILTER (?member = $this)}\n"
+			+ "} ORDER BY ?member ?three ?two ?one")
 	protected abstract List<?> getCalliScriptsAsList();
 
 	private boolean isMinificationDisabled() {
@@ -74,8 +79,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 		return CompilationLevel.ADVANCED_OPTIMIZATIONS;
 	}
 
-	private String getJavaScriptCode(String url)
-			throws IOException {
+	private String getJavaScriptCode(String url) throws IOException {
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		Reader reader = openJavaScriptReader(url, 10, client);
 		try {
@@ -91,8 +95,8 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 		}
 	}
 
-	private Reader openJavaScriptReader(String url, int max, HTTPObjectClient client)
-			throws IOException {
+	private Reader openJavaScriptReader(String url, int max,
+			HTTPObjectClient client) throws IOException {
 		BasicHttpRequest req = new BasicHttpRequest("GET", url);
 		req.addHeader("Accept", "text/javascript;charset=UTF-8");
 		HttpResponse resp = client.service(req);

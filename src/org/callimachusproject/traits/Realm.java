@@ -55,23 +55,13 @@ public interface Realm extends org.openrdf.http.object.traits.Realm {
 	/**
 	 * Identifies the security contexts that allow user agent scripts to
 	 * initiate an HTTP request that can be seamlessly authenticated with this
-	 * realm or '*' for all contexts.
+	 * realm. Include '*' to allow all other contexts without agent credentials.
 	 */
 	@iri("http://callimachusproject.org/rdf/2009/framework#origin")
 	Set<Object> getCalliOrigins();
 
 	@iri("http://callimachusproject.org/rdf/2009/framework#origin")
 	void setCalliOrigins(Set<Object> origins);
-
-	/**
-	 * Identifies the security contexts that allow agent scripts to initiate an
-	 * HTTP request with this realm or '*' for all contexts."
-	 */
-	@iri("http://callimachusproject.org/rdf/2009/framework#script")
-	Set<Object> getCalliScripts();
-
-	@iri("http://callimachusproject.org/rdf/2009/framework#script")
-	void setCalliScripts(Set<Object> scripts);
 
 	/**
 	 * The RDFa template used when an agent is forbidden from the requested

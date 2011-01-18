@@ -175,6 +175,7 @@ a[href]:hover {
 }
 
 .aside {
+	clear: right;
 	float: right;
 	width: 16em;
 	background-color: #EEEEEE;

@@ -36,7 +36,6 @@
 	http:operation "login";
 	http:realm </accounts>;
 	http:expect "303-see-other";
-	http:type "text/uri-list";
 	obj:script "if (referer) return referer".
 
 :referer a owl:DatatypeProperty, owl:FunctionalProperty;
@@ -109,7 +108,6 @@
 	http:method "GET";
 	http:operation "authenticated";
 	http:expect "302-found";
-	http:type "text/uri-list";
 	http:cache-control "max-age:3600";
 	obj:script "return findCredential(authorization)".
 
@@ -126,7 +124,6 @@
 	http:operation "welcome";
 	http:realm </accounts>;
 	http:expect "302-found";
-	http:type "text/uri-list";
 	http:cache-control "max-age:3600";
 	obj:script "return findCredential(authorization)".
 

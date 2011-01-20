@@ -40,6 +40,7 @@
 	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
 	obj:imports <java:org.openrdf.query.MalformedQueryException>;
 	obj:imports <java:org.openrdf.http.object.writers.AggregateWriter>;
+	obj:imports <java:org.openrdf.http.object.util.MessageType>;
 	obj:imports <java:org.openrdf.http.object.model.ReadableHttpEntityChannel>;
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:script """
@@ -88,9 +89,8 @@
 			}
 			var http11 = new ProtocolVersion("HTTP", 1, 1);
 			var resp = new BasicHttpResponse(http11, 200, "OK");
-			var of = con.getObjectFactory();
 			var writer = AggregateWriter.getInstance();
-			var body = writer.write(mime, type, type, of, rs, base, null);
+			var body = writer.write(new MessageType(mime, type, type, con), rs, base, null);
 			resp.setEntity(new ReadableHttpEntityChannel(mime, -1, body));
 			return resp;
 		} catch (e if e.javaException instanceof MalformedQueryException) {

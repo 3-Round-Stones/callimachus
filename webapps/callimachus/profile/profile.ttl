@@ -55,7 +55,7 @@
 
 :PostProfile rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../profile>];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse; owl:cardinality 1];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:hasValue <../profile>];
 	http:method "POST";
 	http:expect "303-see-other";
 	http:realm </accounts>;
@@ -76,7 +76,7 @@
 	""".
 
 :form a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :post-profile;
+	rdfs:domain :PostProfile;
 	rdfs:range <java:java.util.Map>;
 	http:type "application/x-www-form-urlencoded".
 

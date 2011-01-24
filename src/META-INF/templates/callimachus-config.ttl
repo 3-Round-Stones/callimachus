@@ -15,7 +15,8 @@
       rep:repositoryType "openrdf:OptimisticRepository" ;
       sr:sailImpl [
          sail:sailType "openrdf:AuditingSail" ;
-         audit:archiving true ;
+         audit:archiving false ;
+         audit:maximumArchiveTriples 100 ;
          audit:minimumRecentTransactions 100 ;
          audit:maximumRecentTransactions 1000 ;
          sail:delegate [

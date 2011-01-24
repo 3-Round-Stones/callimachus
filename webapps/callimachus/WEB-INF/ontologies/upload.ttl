@@ -102,6 +102,7 @@ calli:NamedGraph a owl:Class.
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
 	http:operation "calliwebapps";
+	http:cache-control "cache-range";
 	http:realm calli:nobody;
 	obj:script """
 		this.calliDeleteWebResource();
@@ -136,6 +137,7 @@ calli:NamedGraph a owl:Class.
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
 	http:operation "calliwebapps";
+	http:cache-control "cache-range";
 	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	obj:script """
@@ -168,6 +170,7 @@ calli:NamedGraph a owl:Class.
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
 	http:operation "calliwebapps";
+	http:cache-control "cache-range";
 	http:realm calli:nobody;
 	obj:imports calli:Template;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
@@ -198,6 +201,7 @@ calli:NamedGraph a owl:Class.
 		owl:allValuesFrom owl:Nothing];
 	http:method "PUT";
 	http:operation "calliwebapps";
+	http:cache-control "cache-range";
 	http:realm calli:nobody;
 	obj:imports calli:Template;
 	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;

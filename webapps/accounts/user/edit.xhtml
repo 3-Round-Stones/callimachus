@@ -62,12 +62,17 @@
 	</head>
 	<body about="?this">
 		<ul class="aside">
-			<li>Shared information is viewable to all authenticated users</li>
 			<li>Enter your full name</li>
-			<li>Provide additional contact information</li>
-			<li>Account information is only accessible to you and administrators</li>
+			<li>Additional information is to provide additional contact information and is viewable to all authenticated users</li>
 			<li>Your e-mail address is used to reset your password</li>
-			<li>Your password may be changed at any time</li>
+			<li><label>Choosing a good password</label>
+				<ul>
+					<li>Don't give your password to colleagues, friends, or family members, even when asked.</li>
+					<li>Don't choose passwords that relate to you as a person.</li>
+					<li>Don't use your last name, your wife's name, the name of your cat, the date of birth, your favourite flower etc.</li>
+					<li>Don't use single word passwords, use complex multiple word pass phrases.</li>
+				</ul>
+			</li>
 		</ul>
 		<h1 property="rdfs:label" />
 		<form action="" about="?this" autocomplete="off" onsubmit="savePassword()">
@@ -100,7 +105,7 @@
 					</div>
 				</div>
 			</div>
-			<label for="confirm-password-input">Confirm password</label>
+			<label for="confirm-password-input">Confirm new password</label>
 			<div>
 				<input id="confirm-password-input" type="password" equalTo="#password-input" />
 			</div>

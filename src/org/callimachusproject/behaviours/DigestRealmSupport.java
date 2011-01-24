@@ -55,6 +55,8 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 			new ProtocolVersion("HTTP", 1, 1), 401, "Unauthorized");
 	private static final int MAX_NONCE_AGE = 12;
 	private static final TimeUnit MAX_NONCE_AGE_UNIT = TimeUnit.HOURS;
+	private static long resetAttempts;
+	private static final Map<String,Integer> failedAttempts = new HashMap<String, Integer>();
 	private Logger logger = LoggerFactory.getLogger(DigestRealmSupport.class);
 
 	@Override
@@ -182,6 +184,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 		List<Object[]> encodings = findDigest(username);
 		if (encodings.isEmpty()) {
 			logger.info("Account not found: {}", username);
+			failedAttempt(null);
 			return null;
 		}
 		boolean encoding = false;
@@ -201,10 +204,41 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 		}
 		if (encoding) {
 			logger.info("Passwords don't match for: {}", username);
+			failedAttempt(username);
 		} else {
 			logger.info("Missing password for: {}", username);
+			failedAttempt(null);
 		}
 		return null;
+	}
+
+	private void failedAttempt(String username) {
+		synchronized (failedAttempts) {
+			long now = System.currentTimeMillis();
+			if (resetAttempts < now) {
+				failedAttempts.clear();
+				resetAttempts = now + 60 * 60 * 1000;
+			}
+			try {
+				if (username == null) {
+					Thread.sleep(1000);
+				} else {
+					Integer count = failedAttempts.get(username);
+					if (count == null) {
+						failedAttempts.put(username, 1);
+						Thread.sleep(1000);
+					} else if (count > 10) {
+						failedAttempts.put(username, count + 1);
+						Thread.sleep(count * 1000);
+					} else {
+						failedAttempts.put(username, count + 1);
+						Thread.sleep(1000);
+					}
+				}
+			} catch (InterruptedException e) {
+				// continue
+			}
+		}
 	}
 
 	private String nextNonce() {

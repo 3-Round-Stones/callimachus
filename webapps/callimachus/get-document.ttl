@@ -73,6 +73,7 @@
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "text/xsl";
+	http:cache-control "cache-range";
 	obj:script "return openInputStream()".
 
 :GetPng rdfs:subClassOf obj:Message;
@@ -82,6 +83,7 @@
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "image/png";
+	http:cache-control "cache-range";
 	obj:script "return openInputStream()".
 
 :GetJpeg rdfs:subClassOf obj:Message;
@@ -91,6 +93,7 @@
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "image/jpeg";
+	http:cache-control "cache-range";
 	obj:script "return openInputStream()".
 
 :GetGif rdfs:subClassOf obj:Message;
@@ -100,6 +103,7 @@
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "image/gif";
+	http:cache-control "cache-range";
 	obj:script "return openInputStream()".
 
 :GetIco rdfs:subClassOf obj:Message;
@@ -109,6 +113,7 @@
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "image/vnd.microsoft.icon";
+	http:cache-control "cache-range";
 	obj:script "return openInputStream()".
 
 :GetPdf rdfs:subClassOf obj:Message;
@@ -118,6 +123,7 @@
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "application/pdf";
+	http:cache-control "cache-range";
 	obj:script "return openInputStream()".
 
 :GetXml rdfs:subClassOf obj:Message;
@@ -127,6 +133,7 @@
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "application/xml";
+	http:cache-control "cache-range";
 	obj:script "return openInputStream()".
 
 :GetXhtml rdfs:subClassOf obj:Message;
@@ -136,5 +143,6 @@
 		owl:allValuesFrom <java:java.io.InputStream>];
 	http:method "GET";
 	http:type "application/xhtml+xml";
+	http:cache-control "cache-range";
 	obj:script "return openInputStream()".
 

@@ -195,7 +195,6 @@ a[href]:hover {
 }
 
 .aside ul {
-	list-style: none;
 	padding-left: 1em;
 }
 
@@ -238,7 +237,7 @@ img.icon {
 	color: #3F547F;
 }
 
-.ui-datepicker {
+div.ui-datepicker {
 	font-size: small;
 }
 
@@ -274,10 +273,6 @@ input, select, textarea {
 	border: thin solid #999FAD;
 	-moz-border-radius: 2pt;
 	border-radius: 2pt;
-}
-
-ui-datepicker {
-	font-size: small;
 }
 
 button[type=submit] {

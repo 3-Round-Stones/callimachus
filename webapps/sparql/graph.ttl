@@ -34,12 +34,9 @@
 	obj:imports calli:NamedGraph;
 	obj:imports <java:java.net.URLEncoder>;
 	obj:imports <java:org.openrdf.rio.RDFFormat>;
-	obj:imports <java:javax.mail.util.ByteArrayDataSource>;
-	obj:imports <java:javax.mail.internet.MimeMultipart>;
 	obj:imports </sparql/uploaded.xhtml>;
 	obj:script """
-		var ds = new ByteArrayDataSource(input, "multipart/form-data");
-		var part = new MimeMultipart(ds).getBodyPart(0);
+		var part = multipart.getBodyPart(0);
 		var fileName = part.fileName;
 		var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+");
 		var uri = toUri().resolve("/graph/") + local;
@@ -57,8 +54,8 @@
 		return uploaded_xhtml.calliConstructHTML(obj);
 	""".
 
-:input a owl:DatatypeProperty, owl:FunctionalProperty;
+:multipart a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :PostRdfGraph;
-	rdfs:range <java:java.io.InputStream>;
+	rdfs:range <java:javax.mail.internet.MimeMultipart>;
 	http:type "multipart/form-data".
 

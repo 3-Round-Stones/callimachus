@@ -21,6 +21,7 @@ import info.aduna.io.IOUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +34,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.rmi.UnmarshalException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.management.JMX;
@@ -45,7 +48,6 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import net.contentobjects.jnotify.JNotify;
-import net.contentobjects.jnotify.JNotifyException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -472,10 +474,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		}
 	}
 
-	private void init(CommandLine line) throws IOException,
-			RepositoryException, RepositoryConfigException,
-			MalformedURLException, RDFParseException, RDFHandlerException,
-			GraphUtilException, Exception, JNotifyException {
+	private void init(CommandLine line) throws Exception {
 		File dir = new File("").getCanonicalFile();
 		File webappsDir = new File(dir, "webapps");
 		if (line.hasOption('d')) {
@@ -590,16 +589,101 @@ public class Server implements HTTPObjectAgentMXBean {
 	}
 
 	private void applyPolicy(CommandLine line, Repository repository, File dir,
-			File webappsDir) {
+			File webappsDir) throws IOException {
 		if (!line.hasOption("trust")) {
-			if (repository.getDataDir() == null) {
-				HTTPObjectPolicy.apply(new String[0], dir, webappsDir);
-			} else {
-				File repositoriesDir = repository.getDataDir().getParentFile();
-				HTTPObjectPolicy.apply(new String[0], repositoriesDir, dir,
-						webappsDir);
+			List<File> directories = new ArrayList<File>();
+			directories.addAll(getLoggingDirectories());
+			directories.add(dir);
+			directories.add(webappsDir);
+			if (repository.getDataDir() != null) {
+				directories.add(repository.getDataDir().getParentFile());
 			}
+			File[] write = directories.toArray(new File[directories.size()]);
+			HTTPObjectPolicy.apply(new String[0], write);
 		}
 	}
+
+	private List<File> getLoggingDirectories() throws IOException {
+		List<File> directories = new ArrayList<File>();
+        String fname = System.getProperty("java.util.logging.config.file");
+        if (fname == null) {
+            fname = System.getProperty("java.home");
+            if (fname == null) {
+                throw new Error("Can't find java.home ??");
+            }
+            File f = new File(fname, "lib");
+            f = new File(f, "logging.properties");
+            fname = f.getCanonicalPath();
+        }
+        InputStream in = new FileInputStream(fname);
+        try {
+        	Properties properties = new Properties();
+			properties.load(in);
+    		String handlers = properties.getProperty("handlers");
+			for (String logger : handlers.split("[\\s,]+")) {
+    			String pattern = properties.getProperty(logger + ".pattern");
+    			if (pattern != null) {
+    				directories.add(getLogPatternDirectory(pattern));
+    			}
+    		}
+    		return directories;
+        } finally {
+            in.close();
+        }
+	}
+
+	/**
+     * Transform the pattern to the valid directory name, replacing any patterns.
+     */
+    private File getLogPatternDirectory(String pattern) {
+        String tempPath = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
+        boolean tempPathHasSepEnd = (tempPath == null ? false : tempPath
+                .endsWith(File.separator));
+
+        String homePath = System.getProperty("user.home"); //$NON-NLS-1$
+        boolean homePathHasSepEnd = (homePath == null ? false : homePath
+                .endsWith(File.separator));
+
+        StringBuilder sb = new StringBuilder();
+        pattern = pattern.replace('/', File.separatorChar);
+
+        int cur = 0;
+        int next = 0;
+        char[] value = pattern.toCharArray();
+        while ((next = pattern.indexOf('%', cur)) >= 0) {
+            if (++next < pattern.length()) {
+                switch (value[next]) {
+                    case 't':
+                        /*
+                         * we should probably try to do something cute here like
+                         * lookahead for adjacent '/'
+                         */
+                        sb.append(value, cur, next - cur - 1).append(tempPath);
+                        if (!tempPathHasSepEnd) {
+                            sb.append(File.separator);
+                        }
+                        break;
+                    case 'h':
+                        sb.append(value, cur, next - cur - 1).append(homePath);
+                        if (!homePathHasSepEnd) {
+                            sb.append(File.separator);
+                        }
+                        break;
+                    case '%':
+                        sb.append(value, cur, next - cur - 1).append('%');
+                        break;
+                    default:
+                        sb.append(value, cur, next - cur - 1);
+                        return new File(sb.substring(0, sb.lastIndexOf(File.separator)));
+                }
+                cur = ++next;
+            } else {
+                // fail silently
+            }
+        }
+
+        sb.append(value, cur, value.length - cur);
+        return new File(sb.substring(0, sb.lastIndexOf(File.separator)));
+    }
 
 }

@@ -66,11 +66,9 @@
 			<div>
 				<input type="text" id="note" maxlength="140" class="auto-expand" />
 			</div>
-			<div>
-				<button type="submit">Save</button>
-				<button type="button" onclick="location.replace('?view')">Cancel</button>
-				<button type="button" onclick="if (confirm('Are you sure you want to delete this group?')) calli.deleteResource()">Delete</button>
-			</div>
+			<button id="submit" type="submit">Save</button>
+			<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+			<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this group?')) calli.deleteResource()">Delete</button>
 		</form>
 	</body>
 </html>

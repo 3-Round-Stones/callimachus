@@ -60,25 +60,25 @@
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<span style="display:none">
 				<span data-cardinality="1">
-					<input id="encoded-input" name="encoded-input" type="hidden" property="calli:encoded" />
+					<input id="encoded-input" type="hidden" property="calli:encoded" />
 				</span>
 				<span data-cardinality="1">
-					<input id="algorithm-input" name="algorithm-input" type="hidden" property="calli:algorithm" />
+					<input id="algorithm-input" type="hidden" property="calli:algorithm" />
 				</span>
 				<a id="realm-link" href="/" />
 			</span>
 			<label for="username">Username</label>
 			<div data-cardinality="1">
-				<input id="username" name="username" property="calli:name" type="text" class="auto-expand"
+				<input id="username" property="calli:name" type="text" class="auto-expand"
 					onchange="$(form).attr('about', '../user/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
 			</div>
 			<label for="name">Full name</label>
 			<div data-cardinality="1">
-				<input id="name" name="name" property="rdfs:label" type="text" class="required auto-expand" />
+				<input id="name" property="rdfs:label" type="text" class="required auto-expand" />
 			</div>
 			<label for="password">Password</label>
 			<div>
-				<input id="password" name="password" type="password" password="#username" onkeyup="$(this).valid()" />
+				<input id="password" type="password" password="#username" onkeyup="$(this).valid()" />
 				<div class="password-meter">
 					<label for="password" class="password-meter-message" />
 					<div class="password-meter-bg">
@@ -86,14 +86,12 @@
 					</div>
 				</div>
 			</div>
-			<label for="confirm-password-input">Confirm password</label>
+			<label for="confirm-password">Confirm password</label>
 			<div>
-				<input id="confirm-password-input" name="confirm-password-input" type="password" equalTo="#password" />
+				<input id="confirm-password" type="password" equalTo="#password" />
 			</div>
-			<div>
-				<button type="submit">Create</button>
-				<button type="button" onclick="location.replace('/')">Cancel</button>
-			</div>
+			<button id="submit" type="submit">Create</button>
+			<button id="cancel" type="button" onclick="location.replace('/')">Cancel</button>
 		</form>
 	</body>
 </html>

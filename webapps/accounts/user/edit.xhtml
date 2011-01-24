@@ -85,14 +85,9 @@
 				<textarea id="comment-textarea" class="auto-expand"
 					property="rdfs:comment"></textarea>
 			</div>
-			<hr />
 			<label for="email-input">E-mail address</label>
 			<div data-cardinality="1">
 				<input id="email-input" property="calli:email" type="text" class="auto-expand email" />
-			</div>
-			<label for="confirm-email-input">Confirm address</label>
-			<div>
-				<input id="confirm-email-input" type="text" class="auto-expand" equalTo="#email-input" />
 			</div>
 			<hr />
 			<label for="password-input">New password</label>
@@ -105,15 +100,10 @@
 					</div>
 				</div>
 			</div>
-			<label for="confirm-password-input">Confirm new password</label>
-			<div>
-				<input id="confirm-password-input" type="password" equalTo="#password-input" />
-			</div>
-			<div>
-				<button type="submit">Save</button>
-				<button type="button" onclick="location.replace('?view')">Cancel</button>
-				<button type="button" onclick="if (confirm('Are you sure you want to delete this user account?')) calli.deleteResource()">Delete</button>
-			</div>
+			<hr />
+			<button id="submit" type="submit">Save</button>
+			<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+			<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this user account?')) calli.deleteResource()">Delete</button>
 			<span style="display:none">
 				<span id="encoded-span" property="calli:encoded" />
 				<span id="name-span" property="calli:name" />

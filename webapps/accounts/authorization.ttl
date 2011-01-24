@@ -38,9 +38,6 @@
 # Transcation operations must be authenticated
 audit:Transaction a owl:Class; http:realm </accounts>.
 
-# User operations must be authorized
-</accounts/user/User> http:realm </accounts>.
-
 ################################
 # Authorization
 ################################

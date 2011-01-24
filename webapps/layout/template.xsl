@@ -87,7 +87,7 @@
 				<div id="login-overlay" style="display:none" class="ui-widget-overlay">&#160;</div>
 				<a class="ui-state-default ui-corner-all" id="login-link" href="{$accounts}?login"
 						style="display:none;padding: .2em 20px .2em 1em;text-decoration: none;position: relative;">
-					<span>Login</span>
+					Login
 					<span class="ui-icon ui-icon-circle-arrow-s"
 							style="margin: 0 0 0 5px;position: absolute;right: .2em;top: 50%;margin-top: -8px;">
 						<xsl:text> </xsl:text>
@@ -114,9 +114,9 @@
 					<a id="authenticated-link" href="{$accounts}?authenticated"></a>
 					<a id="welcome-link" href="{$accounts}?welcome"></a>
 					<span> | </span>
-					<a href="?edit">Settings</a>
+					<a href="{$accounts}?settings">Settings</a>
 					<span> | </span>
-					<a href="?contributions">Contributions</a>
+					<a href="{$accounts}?contributions">Contributions</a>
 					<span> | </span>
 					<a id="logout-link" href="{$accounts}?logout">Logout</a>
 				</span>

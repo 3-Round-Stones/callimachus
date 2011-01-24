@@ -2,48 +2,54 @@
 
 (function($){
 
-var options = {type: "GET",
-	complete: function(req) {
-		if (req.status < 300 ) {
-			$(document).ready(function(){loggedIn(req)})
-		} else {
-			$(document).ready(loggedOut)
+if (window.sessionStorage && sessionStorage.getItem("Profile")) {
+	$(document).ready(function(){loggedIn(sessionStorage.getItem("Profile"))})
+} else {
+	var options = {type: "GET",
+		complete: function(req) {
+			if (req.status < 300 ) {
+				$(document).ready(function(){
+					var doc = req.responseText
+					var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc)
+					if (title) {
+						if (window.sessionStorage) {
+							sessionStorage.setItem("Profile", title[1])
+						}
+						loggedIn(title[1])
+					} else {
+						loggedIn("Profile")
+					}
+				})
+			} else {
+				$(document).ready(loggedOut)
+			}
+		},
+		beforeSend: function(req) {
+			try {
+				req.withCredentials = true
+			} catch (e) {}
 		}
-	},
-	beforeSend: function(req) {
-		try {
-			req.withCredentials = true
-		} catch (e) {}
 	}
-}
-options.url = "/accounts?authenticated"
-if (window.localStorage) {
-	var auth = localStorage.getItem('Authorization')
-	if (auth && auth.indexOf("Basic ") == 0) {
-		var up = window.atob(auth.substring("Basic ".length))
-		options.url = "/accounts?welcome"
-		options.username = up.substring(0, up.indexOf(':'))
-		options.password = up.substring(up.indexOf(':') + 1)
-	} else if (auth && auth.indexOf("Credentials ") == 0) {
-		var up = auth.substring("Credentials ".length)
-		options.url = "/accounts?welcome"
-		options.username = up.substring(0, up.indexOf(':'))
-		options.password = up.substring(up.indexOf(':') + 1)
+	options.url = "/accounts?authenticated"
+	if (window.localStorage) {
+		var auth = localStorage.getItem('Authorization')
+		if (auth && auth.indexOf("Basic ") == 0) {
+			var up = window.atob(auth.substring("Basic ".length))
+			options.url = "/accounts?welcome"
+			options.username = up.substring(0, up.indexOf(':'))
+			options.password = up.substring(up.indexOf(':') + 1)
+		} else if (auth && auth.indexOf("Credentials ") == 0) {
+			var up = auth.substring("Credentials ".length)
+			options.url = "/accounts?welcome"
+			options.username = up.substring(0, up.indexOf(':'))
+			options.password = up.substring(up.indexOf(':') + 1)
+		}
 	}
+	window.jQuery.ajax(options)
 }
-window.jQuery.ajax(options)
 
-function loggedIn(req) {
-	var doc = req.responseText
-	var url = /about="([^" >]*)"/i.exec(doc)[1]
-	var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc)[1]
+function loggedIn(title) {
 	$("#welcome-link").text(title)
-	var links = document.getElementById("authenticated-links").getElementsByTagName("a")
-	for (var i=0; i<links.length; i++) {
-		if (links[i].getAttribute("href").indexOf("?") == 0) {
-			links[i].setAttribute("href", url + links[i].getAttribute("href"))
-		}
-	}
 	$(".authenticated").show()
 	$("#logout-link").click(function(event) {
 		var href = this.href
@@ -55,6 +61,9 @@ function loggedIn(req) {
 		})
 		if (window.localStorage) {
 			localStorage.removeItem('Authorization')
+		}
+		if (window.sessionStorage) {
+			sessionStorage.removeItem('Profile')
 		}
 		if (event.preventDefault) {
 			event.preventDefault()

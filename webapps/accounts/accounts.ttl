@@ -83,7 +83,7 @@
 		if (from == null) { //# valid credentials, still need to logout
 			resp.setHeader("Location", this + "?logout&from=" + credential);
 		} else if (from.equals(credential)) { //# no longer accepted
-			return unauthorized(from);
+			return unauthorized(from, null);
 		} else { //# logged in using a different account
 			resp.setHeader("Location", credential.toString())
 		}
@@ -118,12 +118,23 @@
 # Redirection to the authorized user
 # Used to welcome new users
 :GetWelcomePage rdfs:subClassOf :GetAuthorization;
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom calli:Credential];
+	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
+		owl:allValuesFrom xsd:string];
 	http:method "GET";
-	http:operation "welcome";
+	http:operation "welcome", "settings", "contributions";
 	http:realm </accounts>;
 	http:expect "302-found";
 	http:cache-control "max-age:3600";
-	obj:script "return findCredential(authorization)".
+	obj:script """
+		if ("settings" == query)
+			return findCredential(authorization) + "?settings";
+		if ("contributions" == query)
+			return findCredential(authorization) + "?contributions";
+		return findCredential(authorization);
+	""".
+
+:query a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :GetWelcomePage;
+	rdfs:range xsd:string;
+	http:parameter "*".
 

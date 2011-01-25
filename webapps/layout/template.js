@@ -197,7 +197,7 @@ $(document).ready(function() {
 					formRequestCount = 0
 					$("body").removeClass("wait")
 				}
-			}, 100)
+			}, 500)
 		}
 	}
 	setTimeout(removeWait, 0)

@@ -48,11 +48,11 @@
 			</div>
 			<div class="post ui-widget-content ui-corner-bottom">
 				<form action="?discussion" method="POST">
-					<textarea class="auto-expand" name="note"></textarea>
 					<div>
-						<button type="submit">Send</button>
-						<button type="button" onclick="location.replace('?view')">Cancel</button>
+						<textarea class="auto-expand" name="note"></textarea>
 					</div>
+					<button id="submit" type="submit">Send</button>
+					<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
 				</form>
 			</div>
 		</li>

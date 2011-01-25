@@ -22,14 +22,14 @@
 			<li>Ensure all concepts of this scheme point back to this scheme.</li>
 		</ul>
 		<h1 property="skos:prefLabel" />
-		<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()">
+		<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()" data-redirect="/skos/scheme/list.xhtml?construct">
 			<label for="label">Label</label>
 			<div data-cardinality="1">
 				<input id="label" property="skos:prefLabel" class="required auto-expand" />
 			</div>
-			<label for="desc">Comment</label>
+			<label for="comment">Comment</label>
 			<div data-cardinality="1">
-				<textarea id="desc" class="auto-expand" property="rdfs:comment" />
+				<textarea id="comment" class="auto-expand" property="rdfs:comment" />
 			</div>
 			<hr />
 			<label>Top concepts</label>
@@ -43,11 +43,9 @@
 			<div>
 				<input type="text" id="note" maxlength="140" class="auto-expand" />
 			</div>
-			<div>
-				<button type="submit">Save</button>
-				<button type="button" onclick="location.replace('?view')">Cancel</button>
-				<button type="button" onclick="if (confirm('Are you sure you want to delete this scheme?')) calli.deleteResource()">Delete</button>
-			</div>
+			<button id="submit" type="submit">Save</button>
+			<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+			<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this scheme?')) calli.deleteResource()">Delete</button>
 		</form>
 	</body>
 </html>

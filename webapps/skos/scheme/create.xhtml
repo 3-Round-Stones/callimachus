@@ -19,14 +19,12 @@
 				<input id="label" property="skos:prefLabel" class="required auto-expand"
 					onchange="$(form).attr('about', '/scheme/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
 			</div>
-			<label for="desc">Comment</label>
+			<label for="comment">Comment</label>
 			<div data-cardinality="1">
-				<textarea id="desc" class="auto-expand" property="rdfs:comment" />
+				<textarea id="comment" class="auto-expand" property="rdfs:comment" />
 			</div>
-			<div>
-				<button type="submit">Create</button>
-				<button type="button" onclick="history.back()">Cancel</button>
-			</div>
+			<button id="submit" type="submit">Create</button>
+			<button id="cancel" type="button" onclick="history.back()">Cancel</button>
 		</form>
 	</body>
 </html>

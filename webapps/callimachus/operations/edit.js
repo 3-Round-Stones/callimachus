@@ -152,7 +152,11 @@ window.calli.deleteResource = function() {
 		event.location = form.attr("data-redirect")
 		form.trigger(event)
 		if (!event.isDefaultPrevented()) {
-			location.replace(event.location)
+			if (event.location) {
+				location.replace(event.location)
+			} else {
+				history.go(-1)
+			}
 		}
 	}, error: function(xhr, textStatus, errorThrown) {
 		form.trigger("calliError", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])

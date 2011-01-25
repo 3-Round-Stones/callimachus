@@ -141,16 +141,21 @@ if (!window.calli) {
 	window.calli = {};
 }
 window.calli.deleteResource = function() {
-	var xhr = null
-	xhr = $.ajax({ type: "DELETE", url: location.pathname, beforeSend: function(xhr){
+	var form = $("form[about]");
+	var xhr = $.ajax({ type: "DELETE", url: location.pathname, beforeSend: function(xhr){
 		var etag = getEntityTag()
 		if (etag) {
 			xhr.setRequestHeader("If-Match", etag)
 		}
 	}, success: function(data, textStatus) {
-		history.go(-1) // TODO read a redirect location from page
+		var event = jQuery.Event("calliRedirect")
+		event.location = form.attr("data-redirect")
+		form.trigger(event)
+		if (!event.isDefaultPrevented()) {
+			location.replace(event.location)
+		}
 	}, error: function(xhr, textStatus, errorThrown) {
-		$("form[about]").trigger("calliError", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
+		form.trigger("calliError", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
 

@@ -187,24 +187,30 @@ function hideSiblings(node) {
 	}
 }
 
-var formRequestCount = 0;
+var formRequestCount = 1;
 $(document).ready(function() {
+	function removeWait() {
+		formRequestCount--
+		if (formRequestCount < 1) {
+			setTimeout(function() {
+				if (formRequestCount < 1) {
+					$("body").removeClass("wait")
+					formRequestCount = 0
+				}
+			}, 0)
+		}
+	}
+	setTimeout(removeWait, 0)
 	$(window).unload(function (event) {
 		$("body").addClass("wait")
 		formRequestCount++
 	})
 	$("body").ajaxSend(function(event, xhr, options){
-		if (!$(this).hasClass("wait")) {
-			$(this).addClass("wait")
-		}
+		$("body").addClass("wait")
 		formRequestCount++
 	})
 	$("body").ajaxComplete(function(event, xhr, options){
-		formRequestCount--
-		if (formRequestCount < 1) {
-			$(this).removeClass("wait")
-			formRequestCount = 0
-		}
+		setTimeout(removeWait, 0)
 	})
 	var forms = $("form[about]")
 	forms.bind("calliRedirect", function() {

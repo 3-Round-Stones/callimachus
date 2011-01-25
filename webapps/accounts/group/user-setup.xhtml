@@ -32,6 +32,13 @@
 			}
 			$(document).ready(function() {
 				$("form[about]").bind("calliRedirect", function(event) {
+					// remove bogus data
+					if (window.sessionStorage) {
+						sessionStorage.removeItem('Profile')
+					}
+					if (window.localStorage) {
+						localStorage.removeItem('Authorization')
+					}
 					jQuery.ajax({ async: false, type: 'GET', url: event.location,
 						username: this.elements['username'].value,
 						password: this.elements['password'].value
@@ -85,10 +92,6 @@
 						<div class="password-meter-bar"></div>
 					</div>
 				</div>
-			</div>
-			<label for="confirm-password">Confirm password</label>
-			<div>
-				<input id="confirm-password" type="password" equalTo="#password" />
 			</div>
 			<button id="submit" type="submit">Create</button>
 			<button id="cancel" type="button" onclick="location.replace('/')">Cancel</button>

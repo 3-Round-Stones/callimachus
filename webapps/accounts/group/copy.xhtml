@@ -16,19 +16,17 @@
 		<h1>New Group</h1>
 		<form action="" about="?this">
 			<div rel="rdf:type" resource="/accounts/group/Group" />
-			<label for="label-input">Name</label>
+			<label for="label">Name</label>
 			<div data-cardinality="1">
-				<input id="label-input" property="rdfs:label" type="text" class="auto-expand required"
+				<input id="label" property="rdfs:label" type="text" class="auto-expand required"
 					onchange="$(form).attr('about', encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
 			</div>
-			<label for="comment-textarea">Description</label>
+			<label for="comment">Description</label>
 			<div data-cardinality="1">
-				<textarea id="comment-textarea" class="auto-expand"
+				<textarea id="comment" class="auto-expand"
 					property="rdfs:comment"></textarea>
 			</div>
-			<div>
-				<button type="submit">Create</button>
-			</div>
+			<button id="submit" type="submit">Create</button>
 		</form>
 	</body>
 </html>

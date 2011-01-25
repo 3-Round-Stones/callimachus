@@ -82,7 +82,13 @@
 	<!-- body -->
 	<xsl:template match="body|xhtml:body">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" />
+			<xsl:attribute name="class">
+				<xsl:value-of select="'wait'" />
+				<xsl:if test="@class">
+					<xsl:value-of select="concat(' ', @class)" />
+				</xsl:if>
+			</xsl:attribute>
+			<xsl:apply-templates select="@*[name() != 'class']" />
 			<div id="header">
 				<div id="login-overlay" style="display:none" class="ui-widget-overlay">&#160;</div>
 				<a class="ui-state-default ui-corner-all" id="login-link" href="{$accounts}?login"

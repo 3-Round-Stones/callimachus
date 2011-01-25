@@ -42,11 +42,18 @@
 					}
 				})
 				$("form[about]").bind("calliRedirect", function(event) {
-					if (document.getElementById("password-input").value) {
-						var uri = $("form[about]").attr("about");
-						if (credential && credential == uri) {
-							// user changed their password and may need to be loggout gracefully
+					var uri = $("form[about]").attr("about");
+					if (credential && credential == uri) {
+						if (window.sessionStorage) {
+							// user may have changed their name or deleted themselves
+							sessionStorage.removeItem('Profile')
+						}
+						if (document.getElementById("password-input").value || !event.location) {
+							// user changed their password or deleted themselves and needs to be loggout gracefully
 							event.preventDefault();
+							if (window.localStorage) {
+								localStorage.removeItem('Authorization')
+							}
 							jQuery.ajax({ type: 'GET', url: "/accounts?logout",
 								username: 'logout', password: 'nil',
 								complete: function() {
@@ -75,7 +82,7 @@
 			</li>
 		</ul>
 		<h1 property="rdfs:label" />
-		<form action="" about="?this" autocomplete="off" onsubmit="savePassword()">
+		<form action="" about="?this" autocomplete="off" onsubmit="savePassword()" data-redirect="/accounts">
 			<label for="label-input">Full name</label>
 			<div data-cardinality="1">
 				<input id="label-input" property="rdfs:label" type="text" class="auto-expand required" />

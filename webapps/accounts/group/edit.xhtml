@@ -26,10 +26,10 @@
 			<li>Maintainers can add and remove members and authorization groups, invite new users, and create empty groups</li>
 		</ul>
 		<h1><span property="rdfs:label" /> Group</h1>
-		<form action="" about="?this" onsubmit="saveChangeNote()">
-			<label for="comment-textarea">Description</label>
+		<form action="" about="?this" onsubmit="saveChangeNote()" data-redirect="/accounts">
+			<label for="comment">Description</label>
 			<div data-cardinality="1">
-				<textarea id="comment-textarea" class="auto-expand"
+				<textarea id="comment" class="auto-expand"
 					property="rdfs:comment"></textarea>
 			</div>
 			<label>Scribes</label>
@@ -62,7 +62,7 @@
 				</span>
 			</div>
 			<hr />
-			<label>Change summary</label>
+			<label for="note">Change summary</label>
 			<div>
 				<input type="text" id="note" maxlength="140" class="auto-expand" />
 			</div>

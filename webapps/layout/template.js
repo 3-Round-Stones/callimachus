@@ -56,7 +56,7 @@ function loggedIn(title) {
 		window.jQuery.ajax({ type: 'GET', url: href,
 			username: 'logout', password: 'nil',
 			complete: function() {
-				document.location = href
+				location = href
 			}
 		})
 		if (window.localStorage) {
@@ -116,7 +116,7 @@ function loggedOut() {
 			username: username,
 			password: password,
 			complete: function() {
-				document.location.reload()
+				location.reload()
 			}
 		})
 		if (window.localStorage) {
@@ -194,10 +194,10 @@ $(document).ready(function() {
 		if (formRequestCount < 1) {
 			setTimeout(function() {
 				if (formRequestCount < 1) {
-					$("body").removeClass("wait")
 					formRequestCount = 0
+					$("body").removeClass("wait")
 				}
-			}, 0)
+			}, 100)
 		}
 	}
 	setTimeout(removeWait, 0)
@@ -206,16 +206,16 @@ $(document).ready(function() {
 		formRequestCount++
 	})
 	$("body").ajaxSend(function(event, xhr, options){
-		$("body").addClass("wait")
 		formRequestCount++
+		$("body").addClass("wait")
 	})
 	$("body").ajaxComplete(function(event, xhr, options){
 		setTimeout(removeWait, 0)
 	})
 	var forms = $("form[about]")
 	forms.bind("calliRedirect", function() {
-		$("body").addClass("wait")
 		formRequestCount++
+		$("body").addClass("wait")
 	})
 	forms.bind("calliSubmit", function() {
 		$("#error-widget").hide()

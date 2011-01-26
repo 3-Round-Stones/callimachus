@@ -188,12 +188,14 @@ function hideSiblings(node) {
 }
 
 var formRequestCount = 1;
+var lastWait = 0;
 $(document).ready(function() {
 	function removeWait() {
 		formRequestCount--
 		if (formRequestCount < 1) {
+			var myWait = ++lastWait
 			setTimeout(function() {
-				if (formRequestCount < 1) {
+				if (myWait == lastWait && formRequestCount < 1) {
 					formRequestCount = 0
 					$("body").removeClass("wait")
 				}

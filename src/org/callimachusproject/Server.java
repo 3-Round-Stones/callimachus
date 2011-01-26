@@ -623,7 +623,9 @@ public class Server implements HTTPObjectAgentMXBean {
 			for (String logger : handlers.split("[\\s,]+")) {
     			String pattern = properties.getProperty(logger + ".pattern");
     			if (pattern != null) {
-    				directories.add(getLogPatternDirectory(pattern));
+    				File dir = getLogPatternDirectory(pattern);
+    				dir.mkdirs();
+					directories.add(dir);
     			}
     		}
     		return directories;

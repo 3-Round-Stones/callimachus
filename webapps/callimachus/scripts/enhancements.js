@@ -30,6 +30,19 @@ if (window.addEventListener) {
 	document.attachEvent("onpaste", targetAutoExpandTextArea)
 }
 
+/** Store the previous page about a different resource */
+if (window.sessionStorage) {
+	var here = ' ' + location.href
+	if (here.indexOf('?') >= 0) {
+		here = here.substring(0, here.indexOf('?'))
+	}
+	var referrer = document.referrer
+	var prev = sessionStorage.getItem("Previous")
+	if (referrer && !(prev && prev.indexOf(here) > 0)) {
+		sessionStorage.setItem("Previous", referrer + here)
+	}
+}
+
 if (!window.calli) {
 	window.calli = {}
 }
@@ -107,7 +120,7 @@ function replaceLinkClicked(e) {
 }
 
 function replaceLinks() {
-	var links = $("a.replace:not(a.diverted):not(a[data-diverted])").click(replaceLinkClicked)
+	var links = $("a.replace").filter(function(){return !$(this).hasClass("diverted") && !$(this).attr("data-diverted")}).click(replaceLinkClicked)
 }
 
 function initWiki() {

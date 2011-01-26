@@ -4,16 +4,16 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://localhost:8080/" />
-<title>delete-concept</title>
+<title>delete-narrower</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">delete-concept</td></tr>
+<tr><td rowspan="1" colspan="3">delete-narrower</td></tr>
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/</td>
+	<td>/concept/user+management?view</td>
 	<td></td>
 </tr>
 <tr>
@@ -29,6 +29,11 @@
 <tr>
 	<td>clickAndWait</td>
 	<td>link=Accounts Module</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=User management</td>
 	<td></td>
 </tr>
 <tr>
@@ -68,9 +73,10 @@
 </tr>
 <tr>
 	<td>verifyTextNotPresent</td>
-	<td>Accounts Module</td>
+	<td>User management</td>
 	<td></td>
 </tr>
+
 </tbody></table>
 </body>
 </html>

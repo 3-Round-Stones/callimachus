@@ -5,6 +5,11 @@
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
 		<title>New Concept</title>
+		<script>
+			$(document).ready(function() {
+				$('#inscheme').append($('#scheme', parent.document).clone())
+			});
+		</script>
 	</head>
 	<body>
 		<ul class="aside">
@@ -12,35 +17,55 @@
 			<li>Other labels can be provide to assist concept lookup.</li>
 			<li>The definition, example, and scope can be provide to clarify usage and meaning.</li>
 		</ul>
-		<h1>New Concept</h1>
 		<form about="?this" typeof="skos:Concept" action="">
-			<label for="label">Label</label>
-			<div data-cardinality="1">
-				<input id="label" property="skos:prefLabel" class="auto-expand"
-					onchange="$(form).attr('about', '/concept/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
-			</div>
-			<label for="altLabel">Alternate label</label>
-			<div>
-				<input id="altLabel" property="skos:altLabel" class="auto-expand" />
-			</div>
-			<label>Scheme</label>
-			<div rel="skos:inScheme" data-prompt="/skos/scheme/list.xhtml?construct">
-				<span about="?scheme" typeof="skos:ConceptScheme">
-					<span property="skos:prefLabel"></span>
+			<h1>
+				<span id="inscheme" rel="skos:inScheme">
+					<span about="?scheme" property="skos:prefLabel" />
 				</span>
-			</div>
-			<label for="definition">Definition</label>
-			<div>
-				<textarea id="definition" class="auto-expand" property="skos:definition" />
-			</div>
-			<label for="example">Example</label>
-			<div>
-				<textarea id="example" class="auto-expand" property="skos:example" />
-			</div>
-			<label for="scopeNote">Scope Note</label>
-			<div>
-				<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
-			</div>
+				<span> Concept</span>
+			</h1>
+			<table><tr>
+			<td style="vertical-align:top">
+				<label for="label">Label</label>
+				<div data-cardinality="1">
+					<input id="label" property="skos:prefLabel" class="auto-expand"
+					onchange="$(form).attr('about', '/concept/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
+				</div>
+			</td>
+			<td style="vertical-align:top">
+				<label for="altLabel">Alternate label</label>
+				<div>
+					<input id="altLabel" property="skos:altLabel" class="auto-expand" />
+				</div>
+			</td>
+			</tr></table>
+			<table><tr>
+			<td style="vertical-align:top">
+				<label for="definition">Definition</label>
+				<div data-cardinality="1">
+					<textarea id="definition" class="auto-expand" property="skos:definition" />
+				</div>
+			</td>
+			<td style="vertical-align:top">
+				<label for="example">Example</label>
+				<div data-cardinality="1">
+					<textarea id="example" class="auto-expand" property="skos:example" />
+				</div>
+			</td>
+			</tr><tr>
+			<td style="vertical-align:top">
+				<label for="scopeNote">Scope Note</label>
+				<div data-cardinality="1">
+					<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
+				</div>
+			</td>
+			<td style="vertical-align:top">
+				<label for="historyNote">History Note</label>
+				<div data-cardinality="1">
+					<textarea id="historyNote" class="auto-expand" property="skos:historyNote" />
+				</div>
+			</td>
+			</tr></table>
 			<button id="submit" type="submit">Create</button>
 		</form>
 	</body>

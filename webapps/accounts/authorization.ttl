@@ -196,7 +196,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 			$object calli:authenticates [calli:member $credential]
 			FILTER ($method = "GET" || $method = "HEAD")
 			FILTER ($object = </accounts>)
-			FILTER ($query = "login" || $query = "welcome")
+			FILTER ($query = "login" || $query = "welcome" || $query = "settings" || $query = "contributions")
 		}
 	""".
 
@@ -223,8 +223,9 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 :AuthorizeTransactionView owl:equivalentClass :AuthorizeCredential;
 	obj:imports audit:Transaction;
 	obj:script """
-		if (proceed())
+		if (proceed().booleanValue()) {
 			return true;
+		}
 		if (method == "GET" || method == "HEAD" || method == "POST" && query == "discussion") {
 			if (query == null || query == "view" || query == "discussion" || query == "describe" || query == "history"
 						|| query == "whatlinkshere" || query == "relatedchanges" || query == "introspect") {

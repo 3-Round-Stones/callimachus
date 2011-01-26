@@ -45,8 +45,8 @@ for the server to read runtime changes in the webapps directory.
 More detailed instructions for creating your own libjnotify.so file can be found at
 http://jnotify.sourceforge.net/
 
-In some environments, Callimachus may log FilePermission exceptions. This is 
-often due to an issue in the embedded compiler and if so has no impact on the 
+In some environments, Callimachus may log "An exception has occurred in the compiler...FilePermission" exceptions. This is 
+often due to an issue in the embedded Java compiler and if so has no impact on the 
 run time behaviour of Callimachus.
 
 ----------------

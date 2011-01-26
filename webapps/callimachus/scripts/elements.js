@@ -303,25 +303,20 @@ function initSetElements(form) {
 				+ "<div class='lookup'>"
 				+ "<input name='q' title='Lookup..' id='" + searchTerms + "' /></div>"
 				+ "</form>"
-			var iframe = "<iframe name='" + name + "' frameborder='0' src='about:blank'></iframe>"
+			var iframe = $("<iframe id='" + name + "' name='" + name + "' frameborder='0' src='about:blank' data-button='" + id + "'></iframe>")
 			list.append(add)
-	        var dialog = $(iframe).dialog({
+			list.attr("data-dialog", name)
+	        var dialog = iframe.dialog({
 	            title: form,
 	            autoOpen: false,
 	            modal: false,
 	            resizable: true,
 	            autoResize: true,
-				height: window.innerHeight/2 || document.documentElement.clientHeight/2
+				width: 320,
+				height: 480
 	        })
-			var first = true
 		    add.click(function(e) {
 				dialog = dialog.dialog("open")
-				if (first) {
-					first = false;
-					// make room for scrollbars
-					dialog.width(dialog.width() - 20)
-					dialog.height(dialog.height() - 20)
-				}
 				window.frames[name].location = suggest
 		    });
 		}
@@ -397,6 +392,16 @@ window.calli.listSearchResults = function(url, frame, divert) {
 			doc.close()
 		}
 	})
+}
+window.calli.resourceCreated = function(uri, iframe) {
+	setTimeout(function() {
+		var list = $('#' + $(iframe).attr("data-button")).parent()
+		if (list.attr("data-add")) {
+			addSetItem(uri, list)
+		} else if (list.attr("data-member")) {
+			addListItem(uri, list)
+		}
+	}, 0)
 }
 
 function initListElements(form) {
@@ -551,6 +556,9 @@ function addSetItem(uri, script) {
 				script.append(input)
 			}
 			input.each(initSetElement)
+			if (script.attr("data-dialog")) {
+				$('#' + script.attr("data-dialog")).dialog('close')
+			}
 		} else {
 			script.parents("form").trigger("calliError", "Invalid Relationship")
 		}
@@ -594,6 +602,9 @@ function addListItem(uri, list) {
 			list.append(first)
 			input.each(initListElement)
 			updateList(list)
+			if (script.attr("data-dialog")) {
+				$('#' + script.attr("data-dialog")).dialog('close')
+			}
 		} else {
 			list.parents("form").trigger("calliError", "Invalid Relationship")
 		}

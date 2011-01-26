@@ -150,6 +150,20 @@ window.calli.deleteResource = function() {
 	}, success: function(data, textStatus) {
 		var event = jQuery.Event("calliRedirect")
 		event.location = form.attr("data-redirect")
+		if (form.hasClass("diverted")) {
+			event.location = window.calli.diverted(event.location, form.get(0))
+		}
+		if (!event.location) {
+			if (window.sessionStorage) {
+				var previous = sessionStorage.getItem("Previous")
+				if (previous) {
+					event.location = previous.substring(0, previous.indexOf(' '))
+				}
+			}
+		}
+		if (!event.location) {
+			event.location = document.referrer
+		}
 		form.trigger(event)
 		if (!event.isDefaultPrevented()) {
 			if (event.location) {

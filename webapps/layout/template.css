@@ -262,9 +262,12 @@ form {
 	margin: 0px;
 }
 
-label {
+form label {
 	margin-top: 1ex;
 	display: block;
+}
+
+label {
 	font-weight: bold;
 }
 
@@ -291,14 +294,11 @@ label.error {
 	font-style: italic;
 	font-size: x-small;
 	display: block;
+	border: 2px ridge red;
 }
-
-input.error { border: 2px ridge red; }
 
 iframe {
 	border: none;
-	width: 300pt;
-	height: 162pt;
 	background-color: white;
 }
 

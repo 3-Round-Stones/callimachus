@@ -17,6 +17,11 @@
 	</head>
 	<body about="?this">
 		<ul class="aside">
+			<li rel="skos:inScheme" data-prompt="/skos/scheme/list.xhtml?construct">
+				<span id="scheme" about="?scheme" typeof="skos:ConceptScheme">
+					<span property="skos:prefLabel"></span>
+				</span>
+			</li>
 			<li>The primary label should be recognizable.</li>
 			<li>Other labels can be provide to assist concept lookup.</li>
 			<li>Be sure to include the scheme this concept belongs to.</li>
@@ -25,56 +30,73 @@
 		</ul>
 		<h1 property="skos:prefLabel" />
 		<form about="?this" typeof="skos:Concept" action="" onsubmit="saveChangeNote()">
-			<label for="label">Label</label>
-			<div data-cardinality="1">
-				<input id="label" property="skos:prefLabel" class="auto-expand" />
-			</div>
-			<label for="altLabel">Alternate label</label>
-			<div>
-				<input id="altLabel" property="skos:altLabel" class="auto-expand" />
-			</div>
-			<label>Scheme</label>
-			<div rel="skos:inScheme" data-prompt="/skos/scheme/list.xhtml?construct">
-				<span about="?scheme" typeof="skos:ConceptScheme">
-					<span property="skos:prefLabel"></span>
-				</span>
-			</div>
-			<label for="definition">Definition</label>
-			<div>
-				<textarea id="definition" class="auto-expand" property="skos:definition" />
-			</div>
-			<label for="example">Example</label>
-			<div>
-				<textarea id="example" class="auto-expand" property="skos:example" />
-			</div>
-			<label for="historyNote">History Note</label>
-			<div>
-				<textarea id="historyNote" class="auto-expand" property="skos:historyNote" />
-			</div>
-			<label for="scopeNote">Scope Note</label>
-			<div>
-				<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
-			</div>
+			<table><tr>
+			<td style="vertical-align:top">
+				<label for="label">Label</label>
+				<div data-cardinality="1">
+					<input id="label" property="skos:prefLabel" class="auto-expand" />
+				</div>
+			</td>
+			<td style="vertical-align:top">
+				<label for="altLabel">Alternate label</label>
+				<div>
+					<input id="altLabel" property="skos:altLabel" class="auto-expand" />
+				</div>
+			</td>
+			</tr></table>
+			<table><tr>
+			<td style="vertical-align:top">
+				<label for="definition">Definition</label>
+				<div data-cardinality="1">
+					<textarea id="definition" class="auto-expand" property="skos:definition" />
+				</div>
+			</td>
+			<td style="vertical-align:top">
+				<label for="example">Example</label>
+				<div data-cardinality="1">
+					<textarea id="example" class="auto-expand" property="skos:example" />
+				</div>
+			</td>
+			</tr><tr>
+			<td style="vertical-align:top">
+				<label for="scopeNote">Scope Note</label>
+				<div data-cardinality="1">
+					<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
+				</div>
+			</td>
+			<td style="vertical-align:top">
+				<label for="historyNote">History Note</label>
+				<div data-cardinality="1">
+					<textarea id="historyNote" class="auto-expand" property="skos:historyNote" />
+				</div>
+			</td>
+			</tr></table>
 			<hr />
-			<label>Broader</label>
-			<div rel="skos:broader" data-prompt="about:blank" style="min-height: 1em">
-				<span about="?broader" typeof="skos:Concept">
-					<span property="skos:prefLabel"></span>
-				</span>
+			<div style="float:left;margin:1ex">
+				<label>Broader</label>
+				<div rel="skos:broader" data-prompt="/skos/concept/template?copy" style="min-height: 1em">
+					<span about="?broader" typeof="skos:Concept">
+						<span property="skos:prefLabel"></span>
+					</span>
+				</div>
 			</div>
-			<label>Related</label>
-			<div rel="skos:related" data-prompt="about:blank" style="min-height: 1em">
-				<span about="?related" typeof="skos:Concept">
-					<span property="skos:prefLabel"></span>
-				</span>
+			<div style="float:left;margin:1ex">
+				<label>Related</label>
+				<div rel="skos:related" data-prompt="/skos/concept/template?copy" style="min-height: 1em">
+					<span about="?related" typeof="skos:Concept">
+						<span property="skos:prefLabel"></span>
+					</span>
+				</div>
 			</div>
-			<label>Narrower</label>
-			<div rel="skos:narrower" data-prompt="about:blank" style="min-height: 1em">
-				<span about="?narrower" typeof="skos:Concept">
-					<span property="skos:prefLabel"></span>
-				</span>
+			<div style="float:left;margin:1ex">
+				<label>Narrower</label>
+				<div rel="skos:narrower" data-prompt="/skos/concept/template?copy" style="min-height: 1em">
+					<span about="?narrower" typeof="skos:Concept">
+						<span property="skos:prefLabel"></span>
+					</span>
+				</div>
 			</div>
-			<hr />
+			<hr style="clear:left" />
 			<label for="note">Change note</label>
 			<div>
 				<input type="text" id="note" maxlength="140" class="auto-expand" />

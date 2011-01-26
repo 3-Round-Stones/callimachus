@@ -32,6 +32,7 @@
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
 	obj:script """
+		this.objectConnection.remove(null, null, this.resource, []);
 		this.calliDeleteWebResource();
 	""".
 

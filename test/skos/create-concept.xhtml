@@ -28,7 +28,22 @@
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=Create a new Concept</td>
+	<td>link=Edit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForNotEval</td>
+	<td>window.document.body.className</td>
+	<td>*wait*</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>lookup1-button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>lookup2-iframe</td>
 	<td></td>
 </tr>
 <tr>
@@ -57,11 +72,45 @@
 	<td></td>
 </tr>
 <tr>
+	<td>selectFrame</td>
+	<td>relative=up</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>note</td>
+	<td>added accounts</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextNotPresent</td>
+	<td>Alert</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextNotPresent</td>
+	<td>Exception</td>
+	<td></td>
+</tr>
+<tr>
 	<td>verifyTextPresent</td>
 	<td>Accounts Module</td>
 	<td></td>
 </tr>
-
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Accounts Module</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Callimachus modules</td>
+	<td></td>
+</tr>
 </tbody></table>
 </body>
 </html>

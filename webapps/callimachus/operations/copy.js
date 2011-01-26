@@ -26,6 +26,12 @@ function submitRDFForm(form) {
 			var type = "application/rdf+xml"
 			var data = added.dump({format:"application/rdf+xml",serialize:true})
 			postData(form, location.href, type, data, function(data, textStatus, xhr) {
+				try {
+					if (window.parent && parent.calli && window.frameElement) {
+						var subj = $.uri.base().resolve($(form).attr("about"))
+						parent.calli.resourceCreated(subj.toString(), window.frameElement)
+					}
+				} catch (e) {}
 				var redirect = xhr.getResponseHeader("Location")
 				var event = jQuery.Event("calliRedirect")
 				if (form.hasClass("diverted") || form.attr("data-diverted")) {

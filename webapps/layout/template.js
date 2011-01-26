@@ -197,7 +197,7 @@ $(document).ready(function() {
 					formRequestCount = 0
 					$("body").removeClass("wait")
 				}
-			}, 500)
+			}, 500) // give browser a chance to draw the page
 		}
 	}
 	setTimeout(removeWait, 0)

@@ -11,6 +11,7 @@ var currentlyLoading = 0;
 
 $(document).ready(function () {
 	initElements($("form[about]"))
+	callReady($("form[about]"))
 })
 
 function initElements(form) {
@@ -19,7 +20,6 @@ function initElements(form) {
 	initListElements(form)
 	initInputRelElements(form)
 	initOptionElements(form)
-	callReady(form);
 }
 
 function callReady(node) {
@@ -42,14 +42,14 @@ function get(node, url, callback) {
 				callback(data)
 			}
 		} finally {
-			callReady(node)
+			callReady(node.parents("form"))
 		}
 	}, error: function(xhr, textStatus, errorThrown) {
 		currentlyLoading--
 		try {
 			node.parents("form").trigger("calliError", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 		} finally {
-			callReady(node)
+			callReady(node.parents("form"))
 		}
 	}})
 }
@@ -80,7 +80,7 @@ function createAddPropertyButtons(form) {
 					add.before(input)
 					input.each(initInputElement)
 					input.find().andSelf().filter(":input:first").focus()
-					updateButtonState(parent, property, minOccurs, maxOccurs)
+					updateButtonState(parent)
 				})
 			})
 			parent.append(add)
@@ -96,11 +96,11 @@ function createAddPropertyButtons(form) {
 						parent.append(input)
 					}
 					input.each(initInputElement)
-					updateButtonState(parent, property, minOccurs, maxOccurs)
+					updateButtonState(parent)
 				})
 			}
 		}
-		updateButtonState(parent, property, minOccurs, maxOccurs)
+		updateButtonState(parent)
 	})
 }
 
@@ -120,10 +120,6 @@ function initInputElement() {
 	})
 	input.change()
 	var parent = input.parent()
-	var minOccurs = parent.attr("data-min-cardinality")
-	var maxOccurs = parent.attr("data-max-cardinality")
-	minOccurs = minOccurs ? minOccurs : parent.attr("data-cardinality")
-	maxOccurs = maxOccurs ? maxOccurs : parent.attr("data-cardinality")
 	var remove = $('<button type="button"/>')
 	remove.addClass("remove")
 	remove.attr("data-property", property)
@@ -131,14 +127,24 @@ function initInputElement() {
 	remove.click(function(){
 		input.remove()
 		remove.remove()
-		updateButtonState(parent, property, minOccurs, maxOccurs)
+		updateButtonState(parent)
 	})
 	input.after(remove)
+	updateButtonState(parent)
 }
 
-function updateButtonState(context, property, minOccurs, maxOccurs) {
-	var add = context.children("button[class='add'][data-property='" + property + "']")
-	var buttons = context.children("button[class='remove'][data-property='" + property + "']")
+function updateButtonState(context) {
+	var minOccurs = context.attr("data-min-cardinality")
+	var maxOccurs = context.attr("data-max-cardinality")
+	minOccurs = minOccurs ? minOccurs : context.attr("data-cardinality")
+	maxOccurs = maxOccurs ? maxOccurs : context.attr("data-cardinality")
+	var add = context.children("button[class='add']")
+	var buttons
+	if (context.attr("rel")) {
+		buttons = context.children().children("button[class='remove']")
+	} else {
+		buttons = context.children("button[class='remove']")
+	}
 	if (buttons.size() <= minOccurs) {
 		buttons.hide()
 	} else {
@@ -162,7 +168,7 @@ function initInputRelElements(form) {
 }
 
 function initOptionElements(form) {
-	$("select").each(function(i, node) {
+	$("select", form).each(function(i, node) {
 		var select = $(node)
 		var script = select.is("[data-options]") ? select : select.children("[data-options]")
 		var rel = script.attr("data-rel")
@@ -170,20 +176,28 @@ function initOptionElements(form) {
 			select.change(function(){
 				$("option:selected", this).each(function(i, option){
 					var $option = $(option)
-					$option.attr("rel", rel)
 					$option.removeAttr("about")
+					$option.attr("rel", rel)
+					$option.attr("resource", $option.attr("data-resource"))
 				})
 				$("option:not(:selected)", this).each(function(i, option){
 					var $option = $(option)
 					$option.removeAttr("rel")
-					$option.attr("about", $option.attr("resource"))
+					$option.removeAttr("resource")
+					$option.attr("about", $option.attr("data-resource"))
 				})
 			})
 			var objects = $("[resource]", select)
 			script.each(function() {
 				var optgroup = $(this)
 				loadOptions(optgroup, objects, "selected", function() {
-					optgroup.append($(this))
+					var option = $(this)
+					option.attr("data-resource", option.attr("resource"))
+					if (!option.attr("rel") && option.attr("resource")) {
+						option.removeAttr("resource")
+						option.attr("about", option.attr("data-resource"))
+					}
+					optgroup.append(option)
 				}, function() {
 					select.change()
 				})
@@ -220,12 +234,21 @@ function loadOptions(script, objects, selected, callback, refresh) {
 		if (inputs.size()) {
 			options.each(function() {
 				var option = $(this)
+				option.attr("data-resource", option.attr("resource"))
+				if (!option.attr("rel") && option.attr("resource")) {
+					option.removeAttr("resource")
+					option.attr("about", option.attr("data-resource"))
+				}
 				$("input", option).change(function(){
 					if ($(this).is(':checked') && !option.attr("rel")) {
-						options.attr("rel", rel)
+						option.removeAttr("about")
+						option.attr("rel", rel)
+						option.attr("resource", option.attr("data-resource"))
 						$("[resource] input", script).change()
 					} else if (!$(this).is(':checked') && option.attr("rel")) {
+						option.attr("about", option.attr("data-resource"))
 						option.removeAttr("rel")
+						option.removeAttr("resource")
 						$("[resource] input", script).change()
 					}
 				})
@@ -344,6 +367,7 @@ function createAddRelButtons(form) {
 					add.before(input)
 					initElements(input)
 					input.each(initSetElement)
+					updateButtonState(parent)
 				})
 			})
 			parent.append(add)
@@ -360,9 +384,11 @@ function createAddRelButtons(form) {
 					}
 					initElements(input)
 					input.each(initSetElement)
+					updateButtonState(parent)
 				})
 			}
 		}
+		updateButtonState(parent)
 	})
 }
 
@@ -620,6 +646,7 @@ function initSetElement() {
 		var list = row.parent()
 		row.remove()
 		remove.remove()
+		updateButtonState(row)
 	})
 	if (this.tagName.toLowerCase() == "tr") {
 		var cell = $("<td/>")

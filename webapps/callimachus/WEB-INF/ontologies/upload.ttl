@@ -239,6 +239,7 @@ calli:DeleteWebResource rdfs:subClassOf obj:Message;
 	http:realm calli:nobody;
 	obj:imports <java:org.openrdf.model.BNode>;
 	obj:imports <java:org.openrdf.model.URI>;
+	obj:imports <java:javax.tools.FileObject>;
 	obj:script """
 		var con = this.objectConnection;
 		function removeTriples(subject) {
@@ -263,6 +264,8 @@ calli:DeleteWebResource rdfs:subClassOf obj:Message;
 		}
 		con.clear([this.resource]); //# clear graph
 		removeTriples(this.resource); //# follow blank and hash references
-		this['delete'](); //# remove document
+		if (this instanceof FileObject) {
+			this['delete'](); //# remove document
+		}
 	""".
 

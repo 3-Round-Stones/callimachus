@@ -268,6 +268,7 @@
 						<xsl:apply-templates mode="properties" select=".">
 							<xsl:with-param name="about" select="$about" />
 							<xsl:with-param name="nodeID" select="$nodeID" />
+							<xsl:with-param name="top" select="." /><!-- only bnodes carryover -->
 							<xsl:with-param name="curie" select="$rel" />
 							<xsl:with-param name="scope" select="$newscope" />
 							<xsl:with-param name="tmode" select="'hanging'" />
@@ -308,6 +309,13 @@
 				</xsl:apply-templates>
 			</xsl:when>
 			<xsl:when test="$top">
+				<xsl:if test="1=count(*/@property)">
+					<!-- <xsl:comment>1=count(*/@property)</xsl:comment> -->
+				</xsl:if>
+				<xsl:if test="1=count(*[@rel or @rev]) and *[(@rel and contains(@rel, ':') or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]">
+					<!-- <xsl:comment>1=count(*[@rel or @rev]) and *[(@rel and contains(@rel, ':') or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]</xsl:comment> -->
+				</xsl:if>
+				<!-- <xsl:comment>copy</xsl:comment> -->
 				<xsl:copy>
 					<xsl:if test="1=count(*/@property)">
 						<xsl:attribute name="data-property">
@@ -321,7 +329,7 @@
 							<xsl:apply-templates mode="xptr-element" select="*[@property]" />
 						</xsl:attribute>
 					</xsl:if>
-					<xsl:if test="1=count(*[@rel and contains(@rel, ':') or @rev]) and *[(@rel and contains(@rel, ':') or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]">
+					<xsl:if test="1=count(*[@rel or @rev]) and *[(@rel and contains(@rel, ':') or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]">
 						<xsl:attribute name="data-rel"><xsl:value-of select="*/@rel"/><xsl:value-of select="*/@rev"/></xsl:attribute>
 						<xsl:attribute name="data-options">
 							<xsl:value-of select="$this" />
@@ -340,6 +348,7 @@
 				</xsl:copy>
 			</xsl:when>
 			<xsl:otherwise>
+				<!-- <xsl:comment>otherwise</xsl:comment> -->
 				<xsl:copy>
 					<xsl:apply-templates select="@*|*|comment()|text()">
 						<xsl:with-param name="about" select="$about" />
@@ -463,9 +472,14 @@
 			<xsl:for-each select="/rdf:RDF/rdf:Description[@rdf:about=$about or @rdf:nodeID=$nodeID]/*[local-name()=$localname and namespace-uri()=$ns]">
 				<xsl:sort select="@rdf:resource" />
 				<xsl:sort select="." />
+				<xsl:variable name="newtop">
+					<xsl:if test="$top and not($top=$tag and @rdf:resource)">
+						<xsl:value-of select="true()" />
+					</xsl:if>
+				</xsl:variable>
 				<xsl:apply-templates mode="rdf" select=".">
 					<xsl:with-param name="tag" select="$tag" />
-					<xsl:with-param name="top" select="$top" />
+					<xsl:with-param name="top" select="$newtop" />
 					<xsl:with-param name="curie" select="$curie" />
 					<xsl:with-param name="scope" select="$scope" />
 					<xsl:with-param name="tmode" select="$tmode" />

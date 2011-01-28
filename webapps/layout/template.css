@@ -294,7 +294,6 @@ label.error {
 	font-style: italic;
 	font-size: x-small;
 	display: block;
-	border: 2px ridge red;
 }
 
 iframe {

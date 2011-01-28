@@ -69,7 +69,7 @@
 		// get username for comparison, if specified
 			username = $(typeof usernameField != "boolean" ? usernameField : []);
 			
-		var rating = $.validator.passwordRating(password, username.val());
+		var rating = $.validator.passwordRating(password, username.val() || username.text());
 		// update message for this field
 		
 		var meter = $(".password-meter", element.form);

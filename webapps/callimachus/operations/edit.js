@@ -141,8 +141,12 @@ if (!window.calli) {
 	window.calli = {};
 }
 window.calli.deleteResource = function() {
-	var form = $("form[about]");
-	var xhr = $.ajax({ type: "DELETE", url: location.pathname, beforeSend: function(xhr){
+	var form = $("form[about]")
+	var url = location.href
+	if (url.indexOf('?') > 0) {
+		url = url.substring(0, url.indexOf('?'))
+	}
+	var xhr = $.ajax({ type: "DELETE", url: url, beforeSend: function(xhr){
 		var etag = getEntityTag()
 		if (etag) {
 			xhr.setRequestHeader("If-Match", etag)

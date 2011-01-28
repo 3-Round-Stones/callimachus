@@ -22,7 +22,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<../profile> calli:maintainer <../group/admin>.
+<../profile> calli:maintainer </group/admin>.
 
 :GetProfile rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../profile>];

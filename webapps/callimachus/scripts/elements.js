@@ -309,8 +309,6 @@ function initSetElements(form) {
 		var url = list.attr("data-search")
 		if (url && list.attr("data-prompt")) {
 			var id = "lookup" + (++iframe_counter) + "-button"
-			var name = "lookup" + (++iframe_counter) + "-iframe"
-			var searchTerms = "searchTerms" + (++iframe_counter) + "-input"
 			var add = $('<button type="button"/>')
 			add.attr("class", "add")
 			add.attr("id", id)
@@ -320,25 +318,29 @@ function initSetElements(form) {
 			if (divert) {
 				suggest = window.calli.diverted(suggest, list.get(0))
 			}
-			var onsubmit = "window.calli.listSearchResults('" + url + "'.replace('{searchTerms}', encodeURIComponent(document.getElementById('"
-			+ searchTerms + "').value)), '" + name + "', " + (divert ? "true" : "false") + ")"
-			var form = "<form action='" +  url.replace('{searchTerms}', '') + "' target='" + name + "' onsubmit=\"" + onsubmit + ";return false\">"
-				+ "<div class='lookup'>"
-				+ "<input name='q' title='Lookup..' id='" + searchTerms + "' /></div>"
-				+ "</form>"
-			var iframe = $("<iframe id='" + name + "' name='" + name + "' frameborder='0' src='about:blank' data-button='" + id + "'></iframe>")
 			list.append(add)
-			list.attr("data-dialog", name)
-	        var dialog = iframe.dialog({
-	            title: form,
-	            autoOpen: false,
-	            modal: false,
-	            resizable: true,
-	            autoResize: true,
-				width: 320,
-				height: 480
-	        })
 		    add.click(function(e) {
+				var count = ++iframe_counter
+				var name = "lookup" + count + "-iframe"
+				var searchTerms = "searchTerms" + count + "-input"
+				var onsubmit = "window.calli.listSearchResults('" + url + "'.replace('{searchTerms}', encodeURIComponent(document.getElementById('"
+					+ searchTerms + "').value)), '" + name + "', " + (divert ? "true" : "false") + ")"
+				var form = "<form action='" +  url.replace('{searchTerms}', '') 
+					+ "' target='" + name + "' onsubmit=\"" + onsubmit + ";return false\">"
+					+ "<div class='lookup'>"
+					+ "<input name='q' title='Lookup..' id='" + searchTerms + "' /></div>"
+					+ "</form>"
+				list.attr("data-dialog", name)
+				var iframe = $("<iframe id='" + name + "' name='" + name + "' frameborder='0' src='about:blank' data-button='" + id + "'></iframe>")
+			    var dialog = iframe.dialog({
+			        title: form,
+			        autoOpen: false,
+			        modal: false,
+			        resizable: true,
+			        autoResize: true,
+					width: 320,
+					height: 480
+			    })
 				dialog = dialog.dialog("open")
 				window.frames[name].location = suggest
 		    });

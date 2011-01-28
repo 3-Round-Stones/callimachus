@@ -229,7 +229,7 @@ $(document).ready(function() {
 		$("#error-message").empty()
 		$("#error-widget pre").remove()
 	})
-	forms.bind("calliError", function(event, status, detail) {
+	forms.bind("calliError", function(event, status, detail, link) {
 		if (detail && detail.indexOf('<') == 0) {
 			var html = $(detail);
 			if (html.filter("title").length) {
@@ -240,7 +240,14 @@ $(document).ready(function() {
 		var msg = $("#error-message")
 		if (msg.size()) {
 			msg.empty()
-			msg.text(status)
+			if (link) {
+				if (status.indexOf('.') < 0) {
+					msg.text(status + '.')
+				}
+				msg.append("<a href='" + link + "' style='font-style:italic;text-decoration:underline;margin-left:1ex'>View resource</a>")
+			} else {
+				msg.text(status)
+			}
 			$("#error-widget pre").remove()
 			$("#error-widget").show()
 			msg.focus()

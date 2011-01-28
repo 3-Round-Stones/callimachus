@@ -262,13 +262,17 @@ form {
 	margin: 0px;
 }
 
-form label {
-	margin-top: 1ex;
-	display: block;
-}
-
 label {
 	font-weight: bold;
+}
+
+label span {
+	font-weight: normal;
+}
+
+form label[for], label[form] {
+	margin-top: 1ex;
+	display: block;
 }
 
 input, select, textarea {

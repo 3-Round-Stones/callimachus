@@ -35,6 +35,7 @@ import org.callimachusproject.rdfa.events.Where;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.SPARQLWriter;
 import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.Conflict;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -83,7 +84,7 @@ public abstract class CopySupport implements Template {
 					Resource subject = st.getSubject();
 					String about = subject.stringValue();
 					if (isResourceAlreadyPresent(con, about)) {
-						throw new RDFHandlerException("Resource Already Exists");
+						throw new Conflict("Resource Already Exists");
 					} else if (subject.equals(source.getResource())) {
 						throw new RDFHandlerException("Target resource URI not provided");
 					}

@@ -29,7 +29,7 @@
 			<li>Links to other related concepts may also be provided.</li>
 		</ul>
 		<h1 property="skos:prefLabel" />
-		<form about="?this" typeof="skos:Concept" action="" onsubmit="saveChangeNote()">
+		<form id="form" about="?this" typeof="skos:Concept" action="" onsubmit="saveChangeNote()">
 			<table><tr>
 			<td style="vertical-align:top">
 				<label for="label">Label</label>
@@ -73,7 +73,7 @@
 			</tr></table>
 			<hr />
 			<div style="float:left;margin:1ex">
-				<label>Broader</label>
+				<label form="form">Broader</label>
 				<div rel="skos:broader" data-prompt="/skos/concept/template?copy" style="min-height: 1em">
 					<span about="?broader" typeof="skos:Concept">
 						<span property="skos:prefLabel"></span>
@@ -81,7 +81,7 @@
 				</div>
 			</div>
 			<div style="float:left;margin:1ex">
-				<label>Related</label>
+				<label form="form">Related</label>
 				<div rel="skos:related" data-prompt="/skos/concept/template?copy" style="min-height: 1em">
 					<span about="?related" typeof="skos:Concept">
 						<span property="skos:prefLabel"></span>
@@ -89,7 +89,7 @@
 				</div>
 			</div>
 			<div style="float:left;margin:1ex">
-				<label>Narrower</label>
+				<label form="form">Narrower</label>
 				<div rel="skos:narrower" data-prompt="/skos/concept/template?copy" style="min-height: 1em">
 					<span about="?narrower" typeof="skos:Concept">
 						<span property="skos:prefLabel"></span>

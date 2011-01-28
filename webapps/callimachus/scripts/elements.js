@@ -306,6 +306,7 @@ function initSetElements(form) {
 			this.attachEvent("ondragleave", dragleave)
 			this.attachEvent("ondrop", pasteURL(dragleave))
 		}
+		list.prepend("<div style='font-style:italic;font-size:small'>Drag resource(s) here</div>")
 		var url = list.attr("data-search")
 		if (url && list.attr("data-prompt")) {
 			var id = "lookup" + (++iframe_counter) + "-button"
@@ -527,7 +528,16 @@ function pasteListURL(callback) {
 		}
 		uris.each(function() {
 			var uri = this
-			if (uri.indexOf('?view') >= 0) {
+			if (uri.indexOf('/diverted;') >= 0) {
+				uri = uri.substring(uri.indexOf('/diverted;') + '/diverted;'.length)
+				if (uri.indexOf('?') >= 0) {
+					uri = uri.substring(0, uri.indexOf('?'))
+				}
+				if (uri.indexOf('#') >= 0) {
+					uri = uri.substring(0, uri.indexOf('#'))
+				}
+				uri = decodeURIComponent(uri)
+			} else if (uri.indexOf('?view') >= 0) {
 				uri = uri.substring(0, uri.indexOf('?view'))
 			}
 			addListItem(uri, script)
@@ -564,7 +574,16 @@ function pasteURL(callback) {
 		}
 		uris.each(function() {
 			var uri = this
-			if (uri.indexOf('?view') >= 0) {
+			if (uri.indexOf('/diverted;') >= 0) {
+				uri = uri.substring(uri.indexOf('/diverted;') + '/diverted;'.length)
+				if (uri.indexOf('?') >= 0) {
+					uri = uri.substring(0, uri.indexOf('?'))
+				}
+				if (uri.indexOf('#') >= 0) {
+					uri = uri.substring(0, uri.indexOf('#'))
+				}
+				uri = decodeURIComponent(uri)
+			} else if (uri.indexOf('?view') >= 0) {
 				uri = uri.substring(0, uri.indexOf('?view'))
 			}
 			addSetItem(uri, script)

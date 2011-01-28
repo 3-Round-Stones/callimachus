@@ -26,27 +26,27 @@
 			<li>Maintainers can add and remove members and authorization groups, invite new users, and create empty groups</li>
 		</ul>
 		<h1><span property="rdfs:label" /> Group</h1>
-		<form action="" about="?this" onsubmit="saveChangeNote()" data-redirect="/accounts">
+		<form id="form" action="" about="?this" onsubmit="saveChangeNote()" data-redirect="/accounts">
 			<label for="comment">Description</label>
 			<div data-cardinality="1">
 				<textarea id="comment" class="auto-expand"
 					property="rdfs:comment"></textarea>
 			</div>
-			<label>Scribes</label>
+			<label form="form">Scribes</label>
 			<div rel="calli:scribe" data-prompt="?copy">
 				<span about="?scribe">
 					<span rel="rdf:type" resource="/accounts/group/Group" />
 					<span property="rdfs:label"/>
 				</span>
 			</div>
-			<label>Curators</label>
+			<label form="form">Curators</label>
 			<div rel="calli:curator" data-prompt="?copy">
 				<span about="?curator">
 					<span rel="rdf:type" resource="/accounts/group/Group" />
 					<span property="rdfs:label"/>
 				</span>
 			</div>
-			<label>Maintainers</label>
+			<label form="form">Maintainers</label>
 			<div rel="calli:maintainer" data-prompt="?copy">
 				<span about="?maintainer">
 					<span rel="rdf:type" resource="/accounts/group/Group" />
@@ -54,7 +54,7 @@
 				</span>
 			</div>
 			<hr />
-			<label>Members</label>
+			<label form="form">Members</label>
 			<div rel="calli:member" data-prompt="?usercreate" class="sorted">
 				<span about="?member">
 					<span rel="rdf:type" resource="/accounts/user/User" />

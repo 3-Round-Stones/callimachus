@@ -1,6 +1,7 @@
 @echo off
 rem 
-rem Copyright (c) 2010 Zepheira LLC, Some Rights Reserved
+rem Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
+rem Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
 rem 
 rem Licensed under the Apache License, Version 2.0 (the "License");
 rem you may not use this file except in compliance with the License.

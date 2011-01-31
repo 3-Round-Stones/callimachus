@@ -18,6 +18,8 @@ if (window.addEventListener) {
 	document.attachEvent("onpaste", targetAutoExpandTextArea)
 }
 
+$(document).bind("DOMNodeInserted", findAutoExpandTextArea)
+
 function findAutoExpandTextArea() {
 	var areas = $(".auto-expand")
 	for (var i = 0; i < areas.length; i++) {
@@ -25,6 +27,7 @@ function findAutoExpandTextArea() {
 			expandTextArea(areas[i])
 		}
 	}
+	$(areas).unbind("paste", targetAutoExpandTextArea)
 	$(areas).bind("paste", targetAutoExpandTextArea)
 }
 

@@ -2,16 +2,24 @@
 
 (function($){
 
-if (window.addEventListener) {
-	window.addEventListener("DOMContentLoaded", divertLinks, false)
-	window.addEventListener("DOMContentLoaded", replaceLinks, false)
-} else {
-	window.attachEvent("onload", divertLinks)
-	window.attachEvent("onload", replaceLinks)
-}
-
 if (!window.calli) {
 	window.calli = {}
+}
+
+$(document).ready(handle)
+$(document).bind("DOMNodeInserted", handle);
+
+function handle(event) {
+	$("a.diverted,a[data-diverted]", event.target).click(window.calli.divertedLinkClicked)
+	$("a.replace", event.target).filter(function(){
+		return !$(this).hasClass("diverted") && !$(this).attr("data-diverted")
+	}).click(replaceLinkClicked)
+	if ($(event.target).is("a.diverted,a[data-diverted],a.replace")) {
+		$(event.target).click(window.calli.divertedLinkClicked)
+		$(event.target).filter(function(){
+			return !$(this).hasClass("diverted") && !$(this).attr("data-diverted")
+		}).click(replaceLinkClicked)
+	}
 }
 
 window.calli.diverted = function(url, node) {
@@ -61,10 +69,6 @@ window.calli.divertedLinkClicked = function(e) {
     return false
 }
 
-function divertLinks() {
-	var links = $("a.diverted,a[data-diverted]").click(window.calli.divertedLinkClicked)
-}
-
 function replaceLinkClicked(e) {
 	var target = e.target
     if (!target) {
@@ -84,10 +88,6 @@ function replaceLinkClicked(e) {
 	}
 	win.location.replace(target.href)
     return false
-}
-
-function replaceLinks() {
-	var links = $("a.replace").filter(function(){return !$(this).hasClass("diverted") && !$(this).attr("data-diverted")}).click(replaceLinkClicked)
 }
 
 })(window.jQuery)

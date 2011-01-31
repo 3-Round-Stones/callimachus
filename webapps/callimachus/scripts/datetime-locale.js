@@ -2,10 +2,44 @@
 
 (function($){
 
-if (window.addEventListener) {
-	window.addEventListener("DOMContentLoaded", changeDateLocale, false)
-} else {
-	window.attachEvent("onload", changeDateLocale)
+$(document).ready(handle)
+$(document).bind("DOMNodeInserted", handle);
+
+function handle(event) {
+	var now = new Date()
+	$(".datetime-locale, .date-locale, .time-locale", event.target).each(function(i, node) {
+		changeDateLocale(node, now)
+	})
+	if ($(event.target).is(".datetime-locale, .date-locale, .time-locale")) {
+		changeDateLocale(event.target, now)
+	}
+}
+
+function changeDateLocale(node, now) {
+	var node = $(node)
+	var text = node.attr("content") || node.text()
+	try {
+		var timestamp = parseDateTime(text, now)
+		if (!isNaN(timestamp)) {
+			var date = new Date(timestamp)
+			if ((date.getHours() > 0 || date.getMinutes() > 0) && /^\s*(\d{4})-?(\d{2})-?(\d{2})\s*$/.exec(text)) {
+				date = new Date(parseDateTime(text + "T00:00:00"))
+			}
+			var locale = ''
+			if (node.is(".abbreviated")) {
+				locale = abbreviated(date, node)
+			} else if (node.is(".datetime-locale")) {
+				locale = date.toLocaleString()
+			} else if (node.is(".date-locale")) {
+				locale = date.toLocaleDateString()
+			} else if (node.is(".time-locale")) {
+				locale = date.toLocaleTimeString()
+			}
+			dates[i].setAttribute("content", text)
+			dates[i].textContent = locale
+			dates[i].innerText = locale
+		}
+	} catch (e) { }
 }
 
 function parseDateTime(text, now) {
@@ -78,37 +112,6 @@ function abbreviated(date, node) {
 		}
 	}
 	return locale
-}
-
-function changeDateLocale() {
-	var now = new Date()
-	var dates = $(".datetime-locale, .date-locale, .time-locale")
-	for (var i = 0; i < dates.length; i++) {
-		var node = $(dates[i])
-		var text = dates[i].getAttribute("content") || dates[i].textContent || dates[i].innerText
-		try {
-			var timestamp = parseDateTime(text, now)
-			if (!isNaN(timestamp)) {
-				var date = new Date(timestamp)
-				if ((date.getHours() > 0 || date.getMinutes() > 0) && /^\s*(\d{4})-?(\d{2})-?(\d{2})\s*$/.exec(text)) {
-					date = new Date(parseDateTime(text + "T00:00:00"))
-				}
-				var locale = ''
-				if (node.is(".abbreviated")) {
-					locale = abbreviated(date, node)
-				} else if (node.is(".datetime-locale")) {
-					locale = date.toLocaleString()
-				} else if (node.is(".date-locale")) {
-					locale = date.toLocaleDateString()
-				} else if (node.is(".time-locale")) {
-					locale = date.toLocaleTimeString()
-				}
-				dates[i].setAttribute("content", text)
-				dates[i].textContent = locale
-				dates[i].innerText = locale
-			}
-		} catch (e) { }
-	}
 }
 
 })(window.jQuery)

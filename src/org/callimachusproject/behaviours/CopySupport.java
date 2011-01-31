@@ -125,7 +125,7 @@ public abstract class CopySupport implements Template {
 					String ns = iter.next().toString();
 					if (uri.length() > ns.length() && uri.startsWith(ns)) {
 						String local = uri.substring(ns.length());
-						if (local.length() == 1) {
+						if (local.length() < 2) {
 							char l = local.charAt(0);
 							if (l != '/' && l != '#' && l != ':') {
 								found = true;

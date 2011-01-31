@@ -27,34 +27,33 @@ function initInputPromptTitle(input, title) {
 	if (!id) {
 		id = 'input-' + (++counter);
 	}
-	var promptSpan = document.createElement("span");
-	promptSpan.setAttribute("style", "position: absolute; font-style: italic; color: #aaa; margin: 0.2em 0 0 0.5em; cursor: text;");
-	promptSpan.setAttribute('id', id + '-prompt');
-	promptSpan.setAttribute("title", title);
-	promptSpan.textContent = title;
-	promptSpan.innerText = title;
-	promptSpan.onmouseover = function() {
-		promptSpan.style.display = "none";
-	}
-	promptSpan.onclick = function() {
-		promptSpan.style.display = "none";
+	var promptSpan = $("<span/>");
+	promptSpan.attr("style", "position: absolute; line-height:1.75em; font-size: smaller; font-style: italic; color: #aaa; margin: 0.2em 0 0 0.5em; cursor: text;");
+	promptSpan.attr('id', id + '-prompt');
+	promptSpan.attr("title", title);
+	promptSpan.text(title);
+	promptSpan.bind('mouseover', function() {
+		promptSpan.css('display', "none");
+	});
+	promptSpan.bind('click', function() {
+		promptSpan.css('display', "none");
 		input.focus();
-	}
+	});
 	if(input.value != '') {
-		promptSpan.style.display = "none";
+		promptSpan.css('display', "none");
 	}
-	input.parentNode.insertBefore(promptSpan, input);
+	input.parentNode.insertBefore(promptSpan[0], input);
 	input.onfocus = function() {
-		promptSpan.style.display = "none";
+		promptSpan.css('display', "none");
 	}
 	input.onblur = function() {
 		if(input.value == '') {
-			promptSpan.style.display = "inline";
+			promptSpan.css('display', "inline");
 		}
 	}
 	input.onmouseout = function() {
 		if(input.value == '' && input!=document.activeElement) {
-			promptSpan.style.display = "inline";
+			promptSpan.css('display', "inline");
 		}
 	}
 }

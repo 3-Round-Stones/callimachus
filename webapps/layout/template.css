@@ -43,6 +43,7 @@ a[href]:hover {
 	-moz-border-radius: 2pt;
 	border-radius: 2pt;
 	height: 1.75em;
+	line-height: 1.75em;
 	margin: 1px;
 	padding: 0px;
 	margin-left: 1ex;

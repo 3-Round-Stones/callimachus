@@ -27,7 +27,7 @@
 			<div style="float:left;margin:1ex">
 				<label for="label">Label</label>
 				<div data-cardinality="1">
-					<input id="label" property="skos:prefLabel" class="auto-expand"
+					<input id="label" property="skos:prefLabel" class="auto-expand required"
 				onchange="$(form).attr('about', '/concept/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
 				</div>
 			</div>

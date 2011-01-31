@@ -12,9 +12,9 @@
 <web_bundle> a calli:ScriptBundle;
 	rdf:_1 <jquery.js>;
 	rdf:_2 <jquery-ui.js>;
-	rdf:_3 <creole.js>;
-	rdf:_4 <referrer.js>;
-	rdf:_5 <divert.js>;
+	rdf:_3 <referrer.js>;
+	rdf:_4 <divert.js>;
+	rdf:_5 <creole.js>;
 	rdf:_6 <wiki.js>;
 	rdf:_7 <sorted.js>;
 	rdf:_8 <datetime-locale.js>;
@@ -24,5 +24,6 @@
 <form_bundle> a calli:ScriptBundle;
 	rdf:_1 <jquery.rdfquery.rdfa.js>;
 	rdf:_2 <jquery.validate.js>;
-	rdf:_3 <elements.js>.
+	rdf:_3 <double-button.js>;
+	rdf:_4 <elements.js>.
 

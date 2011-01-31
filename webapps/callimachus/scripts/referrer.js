@@ -4,16 +4,16 @@
 
 /** Store the previous page about a different resource */
 if (window.sessionStorage) {
-	var here = ' ' + location.href
+	var here = ' ' + location.href;
 	if (here.indexOf('?') >= 0) {
-		here = here.substring(0, here.indexOf('?'))
+		here = here.substring(0, here.indexOf('?'));
 	}
-	var referrer = document.referrer
-	var prev = sessionStorage.getItem("Previous")
+	var referrer = document.referrer;
+	var prev = sessionStorage.getItem("Previous");
 	if (referrer && !(prev && prev.indexOf(here) > 0)) {
-		sessionStorage.setItem("Previous", referrer + here)
+		sessionStorage.setItem("Previous", referrer + here);
 	}
 }
 
-})(window.jQuery)
+})(window.jQuery);
 

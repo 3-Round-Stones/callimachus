@@ -22,7 +22,7 @@
 			<li>Ensure all concepts of this scheme point back to this scheme.</li>
 		</ul>
 		<h1><span id="scheme" about="?this" property="skos:prefLabel" /></h1>
-		<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()" data-redirect="/skos/scheme/list.xhtml?construct">
+		<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()" data-redirect="/skos/scheme-list.xhtml?construct">
 			<label for="label">Label</label>
 			<div data-cardinality="1">
 				<input id="label" property="skos:prefLabel" class="required auto-expand" />
@@ -33,7 +33,7 @@
 			</div>
 			<hr />
 			<label form="form">Top concepts</label>
-			<div rel="skos:hasTopConcept" data-prompt="/skos/concept/template?copy">
+			<div rel="skos:hasTopConcept" data-prompt="/skos/concept_template?copy">
 				<span about="?top" typeof="skos:Concept">
 					<span property="skos:prefLabel"></span>
 				</span>

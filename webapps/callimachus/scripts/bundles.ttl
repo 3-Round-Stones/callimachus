@@ -1,0 +1,28 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix :<#>.
+
+<web_bundle> a calli:ScriptBundle;
+	rdf:_1 <jquery.js>;
+	rdf:_2 <jquery-ui.js>;
+	rdf:_3 <creole.js>;
+	rdf:_4 <referrer.js>;
+	rdf:_5 <divert.js>;
+	rdf:_6 <wiki.js>;
+	rdf:_7 <sorted.js>;
+	rdf:_8 <datetime-locale.js>;
+	rdf:_9 <auto-expand.js>;
+	rdf:_10 <input-title.js>.
+
+<form_bundle> a calli:ScriptBundle;
+	rdf:_1 <jquery.rdfquery.rdfa.js>;
+	rdf:_2 <jquery.validate.js>;
+	rdf:_3 <elements.js>.
+

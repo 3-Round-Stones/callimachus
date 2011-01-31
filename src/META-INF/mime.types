@@ -66,6 +66,7 @@ application/vnd.openxmlformats-officedocument.wordprocessingml.document docx
 application/vnd.openxmlformats-officedocument.wordprocessingml.template dotx
 application/zip zip
 application/xhtml+xml xhtml
+application/xhtml+xml xht
 application/xml xml
 audio/basic au
 audio/basic snd
@@ -81,6 +82,7 @@ image/png png
 image/tiff tif
 image/tiff tiff
 image/vnd.microsoft.icon ico
+text/cache-manifest manifest
 text/calendar ics
 text/css css
 text/csv csv
@@ -90,6 +92,7 @@ text/html stm
 text/javascript js
 text/plain txt
 text/richtext rtx
+text/html-sandboxed sandboxed
 text/tab-separated-values tsv
 text/uri-list uri
 text/uri-list uris

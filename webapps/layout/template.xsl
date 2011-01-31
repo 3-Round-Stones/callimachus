@@ -65,9 +65,9 @@
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
 			<xsl:apply-templates select="*[local-name()='link' or local-name()='style']" />
-			<script type="text/javascript" src="{$layout}/web_bundle?source">&#160;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/web_bundle?source">&#160;</script>
 			<xsl:if test="$query='copy' or $query='edit'">
-			<script type="text/javascript" src="{$layout}/form_bundle?source">&#160;</script>
+			<script type="text/javascript" src="{$callimachus}/scripts/form_bundle?source">&#160;</script>
 			</xsl:if>
 			<xsl:if test="$query='copy'">
 			<script type="text/javascript" src="{$callimachus}/operations/copy.js">&#160;</script>

@@ -36,7 +36,7 @@
 </callimachus/operations/delete.ttl#Delete> http:realm </accounts>.
 </callimachus/queries/discussion.ttl#PostDiscussion> http:realm </accounts>.
 
-# Transcation operations must be authenticated
+# Transaction operations must be authenticated
 audit:Transaction a owl:Class; http:realm </accounts>.
 
 ################################
@@ -255,12 +255,13 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 			} UNION {
 				$transaction audit:contained [rdf:subject ?subj]
 			}
-			OPTIONAL { ?subj a ?transaction FILTER(?transaction = audit:Transaction) }
-			FILTER (!bound(?transaction))
+			OPTIONAL { ?subj a ?trans FILTER(?trans = audit:Transaction) }
+			FILTER (!bound(?trans))
 		}
 	""".
 
 :transaction a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :ListSubjectsOfTransaction;
-	rdfs:range audit:Transaction.
+	rdfs:range audit:Transaction;
+	obj:name "transaction".
 

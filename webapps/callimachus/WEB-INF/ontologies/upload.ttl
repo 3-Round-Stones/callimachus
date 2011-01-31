@@ -92,7 +92,8 @@ calli:NamedGraph a owl:Class.
 :textReader a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutTextDocument;
 	rdfs:range <java:java.io.Reader>;
-	http:type "text/html;q=0.1", "text/css;q=0.1", "text/javascript;q=0.1", "text/plain;q=0.1".
+	http:type "text/html;q=0.1", "text/html-sandboxed;q=0.1", "text/cache-manifest;q=0.1",
+		"text/css;q=0.1", "text/javascript;q=0.1", "text/plain;q=0.1".
 
 ################################
 # Binary File

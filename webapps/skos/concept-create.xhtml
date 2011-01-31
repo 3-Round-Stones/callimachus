@@ -3,70 +3,70 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
-	<head>
-		<title>New Concept</title>
-		<script>
-			$(document).ready(function() {
-				$('#inscheme').append($('#scheme', parent.document).clone())
-			});
-		</script>
-	</head>
-	<body>
-		<ul class="aside">
-			<li>The initial label is use to construct the resource URI.</li>
-			<li>Other labels can be provide to assist concept lookup.</li>
-			<li>The definition, example, and scope can be provide to clarify usage and meaning.</li>
-		</ul>
-		<form about="?this" typeof="skos:Concept" action="">
-			<h1>
-				<span id="inscheme" rel="skos:inScheme">
-					<span about="?scheme" property="skos:prefLabel" />
-				</span>
-				<span> Concept</span>
-			</h1>
-			<table><tr>
-			<td style="vertical-align:top">
+<head>
+	<title>New Concept</title>
+	<script>
+		$(document).ready(function() {
+			$('#inscheme').append($('#scheme', parent.document).clone())
+		});
+	</script>
+</head>
+<body>
+	<ul class="aside">
+		<li>The initial label is use to construct the resource URI.</li>
+		<li>Other labels can be provide to assist concept lookup.</li>
+		<li>The definition, example, and scope can be provide to clarify usage and meaning.</li>
+	</ul>
+	<form about="?this" typeof="skos:Concept" action="">
+		<h1>
+			<span id="inscheme" rel="skos:inScheme">
+				<span about="?scheme" property="skos:prefLabel" />
+			</span>
+		</h1>
+		<div style="overflow:auto">
+			<div style="float:left;margin:1ex">
 				<label for="label">Label</label>
 				<div data-cardinality="1">
 					<input id="label" property="skos:prefLabel" class="auto-expand"
-					onchange="$(form).attr('about', '/concept/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
+				onchange="$(form).attr('about', '/concept/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
 				</div>
-			</td>
-			<td style="vertical-align:top">
+			</div>
+			<div style="float:left;margin:1ex">
 				<label for="altLabel">Alternate label</label>
 				<div>
 					<input id="altLabel" property="skos:altLabel" class="auto-expand" />
 				</div>
-			</td>
-			</tr></table>
-			<table><tr>
-			<td style="vertical-align:top">
+			</div>
+		</div>
+		<div style="overflow:auto">
+			<div style="float:left;margin:1ex">
 				<label for="definition">Definition</label>
 				<div data-cardinality="1">
 					<textarea id="definition" class="auto-expand" property="skos:definition" />
 				</div>
-			</td>
-			<td style="vertical-align:top">
+			</div>
+			<div style="float:left;margin:1ex">
 				<label for="example">Example</label>
 				<div data-cardinality="1">
 					<textarea id="example" class="auto-expand" property="skos:example" />
 				</div>
-			</td>
-			</tr><tr>
-			<td style="vertical-align:top">
+			</div>
+		</div>
+		<div style="overflow:auto">
+			<div style="float:left;margin:1ex">
 				<label for="scopeNote">Scope</label>
 				<div data-cardinality="1">
 					<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
 				</div>
-			</td>
-			<td style="vertical-align:top">
+			</div>
+			<div style="float:left;margin:1ex">
 				<label for="historyNote">History</label>
 				<div data-cardinality="1">
 					<textarea id="historyNote" class="auto-expand" property="skos:historyNote" />
 				</div>
-			</td>
-			</tr></table>
-			<button id="submit" type="submit">Create</button>
-		</form>
-	</body>
+			</div>
+		</div>
+		<button id="submit" type="submit">Create</button>
+	</form>
+</body>
 </html>

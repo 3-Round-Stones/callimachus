@@ -23,6 +23,20 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+</callimachus/menu>
+	calli:item [calli:position 4; rdfs:label "Concept schemes"; calli:link <scheme-list.xhtml?construct>].
+
+skos:ConceptScheme rdfs:subClassOf calli:Viewable, calli:Editable;
+	calli:icon <scheme.png>;
+	calli:view <scheme.xhtml>;
+	calli:edit <scheme-edit.xhtml>.
+
+<scheme_template> a <ConceptSchemeTemplate>;
+	calli:curator </group/admin>.
+
+<ConceptSchemeTemplate> rdfs:subClassOf calli:Copyable;
+	calli:copy <scheme-create.xhtml>.
+
 :GetConcepts rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:allValuesFrom skos:ConceptScheme];
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse; owl:allValuesFrom xsd:string];
@@ -30,5 +44,32 @@
 	http:operation "viewconcepts";
 	http:type "text/html";
 	http:cache-control "no-store";
-	obj:imports <view-concepts.xhtml>;
-	obj:script "return view_concepts_xhtml.calliConstructHTML(this)".
+	obj:imports <concept-list.xhtml>;
+	obj:script "return concept_list_xhtml.calliConstructHTML(this)".
+
+skos:Concept rdfs:subClassOf calli:Viewable, calli:Editable;
+	calli:icon <concept.png>;
+	calli:view <concept.xhtml>;
+	calli:edit <concept-edit.xhtml>.
+
+<concept_template> a <ConceptTemplate>;
+	calli:curator </group/admin>.
+
+<ConceptTemplate> rdfs:subClassOf calli:Copyable;
+	calli:copy <concept-create.xhtml>.
+
+:TouchRelated owl:intersectionOf (</callimachus/operations/edit.ttl#PostEdit>
+	[owl:onProperty obj:target; owl:allValuesFrom skos:Concept]);
+	obj:script """
+		var ret = proceed();
+		var iter = this.skosNarrowers.iterator();
+		while (iter.hasNext()) {
+			iter.next().touchRevision();
+		}
+		iter = this.skosRelated.iterator();
+		while (iter.hasNext()) {
+			iter.next().touchRevision();
+		}
+		return ret;
+	""".
+

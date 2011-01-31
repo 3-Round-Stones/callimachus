@@ -45,6 +45,24 @@
 	http:type "text/html";
 	obj:script "return openReader(false)".
 
+:GetHtmlSandboxed rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom <urn:mimetype:text/html-sandboxed>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.Reader>];
+	http:method "GET";
+	http:type "text/html-sandboxed";
+	obj:script "return openReader(false)".
+
+:GetCacheManifest rdfs:subClassOf obj:Message;
+	rdfs:subClassOf [owl:onProperty obj:target;
+		owl:allValuesFrom <urn:mimetype:text/cache-manifest>];
+	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
+		owl:allValuesFrom <java:java.io.Reader>];
+	http:method "GET";
+	http:type "text/cache-manifest";
+	obj:script "return openReader(false)".
+
 :GetCss rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <urn:mimetype:text/css>];

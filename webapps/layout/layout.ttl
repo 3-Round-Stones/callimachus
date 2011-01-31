@@ -9,15 +9,15 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-<web_bundle> a calli:ScriptBundle;
-	rdf:_1 </callimachus/scripts/jquery.js>;
-	rdf:_2 </callimachus/scripts/jquery-ui.js>;
-	rdf:_3 <template.js>;
-	rdf:_4 </callimachus/scripts/creole.js>;
-	rdf:_5 </callimachus/scripts/enhancements.js>.
+</callimachus/scripts/web_bundle> a calli:ScriptBundle;
+	rdfs:member <template.js>.
 
-<form_bundle> a calli:ScriptBundle;
-	rdf:_1 </callimachus/scripts/jquery.rdfquery.rdfa.js>;
-	rdf:_2 </callimachus/scripts/jquery.validate.js>;
-	rdf:_3 </callimachus/scripts/elements.js>.
+</callimachus/menu> a calli:Menu;
+	calli:item [calli:position 1; rdfs:label "Main page"; calli:link </>];
+	calli:item [calli:position 2; rdfs:label "Recent changes"; calli:link </callimachus/changes>];
+	calli:item [calli:position 10; rdfs:label "Toolbox";
+		calli:item [calli:position 1; rdfs:label "What links here"; calli:link "?whatlinkshere"];
+		calli:item [calli:position 2; rdfs:label "Related changes"; calli:link "?relatedchanges"];
+		calli:item [calli:position 3; rdfs:label "Introspect resource"; calli:link "?introspect"];
+		calli:item [calli:position 4; rdfs:label "Print this page"; calli:link "javascript:calli.printpage()"]].
 

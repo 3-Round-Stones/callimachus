@@ -72,8 +72,6 @@ a[href]:hover {
 
 #sidebar {
 	float: left;
-	margin: 0px;
-	padding: 0px;
 }
 
 #logo {
@@ -124,15 +122,15 @@ a[href]:hover {
 #tabs {
 	display: block;
 	list-style: none;
-	margin: 0px 0px -1px 10em;
+	margin: 0px 0px -1px 0px;
     padding: 1ex 3pt 0px 0px;
 	vertical-align: bottom;
-	min-height: 1.25em;
-	line-height: 1.25em;
-	font-size: small;
+	min-height: 1em;
+	line-height: 1em;
 }
 
 #tabs li {
+	font-size: small;
     display: inline;
     text-align: center;
 }
@@ -164,20 +162,18 @@ a[href]:hover {
 	border-left: 1px solid #A8ACB8;
 	border-bottom: 1px solid #A8ACB8;
 	border-right: 0px;
-	margin: 0px 0px 1ex 10em;
+	margin: 0px 0px 1ex 0px;
 	padding: 1ex;
 	padding-left: 1em;
-	min-height: 150pt;
 	clear: right;
 }
 
 #content-stop {
 	clear: both;
+	line-height: 0px;
 }
 
 .aside {
-	clear: right;
-	float: right;
 	width: 16em;
 	background-color: #EEEEEE;
 	border: 1px solid #A8ACB8;
@@ -203,7 +199,7 @@ table.aside {
 	border-spacing: 0px;
 }
 
-table.aside>thead>tr>td, table.aside>thead>tr>th.
+table.aside>thead>tr>td, table.aside>thead>tr>th,
 table.aside>tbody>tr>td, table.aside>tbody>tr>th {
 	border-bottom: 1px solid #A8ACB8;
 	padding: 0.5ex;
@@ -309,12 +305,12 @@ iframe {
 #footer {
     text-align: right;
     padding-bottom: 25pt;
-	margin-left: 10em;
 }
 
 #footer-lastmod {
 	font-size: small;
     text-align: left;
+	float: left;
 }
 
 #footer img {
@@ -322,4 +318,57 @@ iframe {
 	vertical-align: top;
 	border: none;
 }
+
+@media all and (min-width:480px) {
+	.aside {
+		clear: right;
+		float: right;
+	}
+}
+
+@media screen and (min-width:640px) {
+	#sidebar {
+		float: none;
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		margin: 0px;
+		padding: 0px;
+	}
+	#tabs {
+		margin-left: 10em;
+	}
+	#content {
+		margin-left: 10em;
+		min-height: 150pt;
+	}
+	#footer {
+		margin-left: 10em;
+	}
+} /* end screen */
+
+@media print {
+	#sidebar {
+		display: none;
+	}
+	#header {
+		display: none;
+	}
+	#tabs {
+		display: none;
+	}
+	.aside {
+		clear: right;
+		float: right;
+	}
+	#content {
+		border: none;
+	}
+	body {
+		background: inherit;
+	}
+	button {
+		display: none;
+	}
+} /* end print */
 

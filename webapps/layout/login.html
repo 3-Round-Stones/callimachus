@@ -1,0 +1,22 @@
+<html>
+<head><title>Login Form</title></head>
+<body>
+	<form id="login-form" style="padding: 1em" class="ui-widget-content ui-corner-bottom">
+		<label for="username">Username</label>
+		<div><input type="text" id="login-username" name="username" size="15" /></div>
+
+		<label for="password">Password</label>
+		<div><input type="password" id="login-password" name="password" size="15" /></div>
+
+		<div>
+			<button type="submit">Login</button>
+			<input type="checkbox" id="remember" name="remember" />
+			<label for="remember">Remember me</label>
+		</div>
+
+		<p class="forgot">
+			<a href="/accounts/unauthorized.xhtml?construct">Forgot password or username?</a>
+		</p>
+	</form>
+</body>
+</html>

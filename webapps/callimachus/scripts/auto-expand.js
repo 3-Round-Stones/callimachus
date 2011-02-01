@@ -8,7 +8,7 @@ $(window).bind('change', findAutoExpandTextArea);
 $(window).bind('keypress', findAutoExpandTextArea);
 $(window).bind('input', findAutoExpandTextArea);
 $(document).bind('paste', findAutoExpandTextArea);
-$(document).bind("DOMNodeInserted", findAutoExpandTextArea);
+$(document).bind("DOMNodeInsertedIntoDocument", findAutoExpandTextArea);
 
 function findAutoExpandTextArea(event) {
 	var areas = $(".auto-expand", event.target);

@@ -3,7 +3,7 @@
 (function($){
 
 $(document).ready(handle);
-$(document).bind("DOMNodeInserted", handle);
+$(document).bind("DOMNodeInsertedIntoDocument", handle);
 
 function handle(event) {
 	var now = new Date();
@@ -17,29 +17,26 @@ function handle(event) {
 
 function changeDateLocale(node, now) {
 	var node = $(node);
-	var text = node.attr("content") || node.text();
-	try {
+	if (!node.attr("content")) {
+		var text = node.text();
 		var timestamp = parseDateTime(text, now);
 		if (!isNaN(timestamp)) {
+			node.attr("content", text);
 			var date = new Date(timestamp);
 			if ((date.getHours() > 0 || date.getMinutes() > 0) && /^\s*(\d{4})-?(\d{2})-?(\d{2})\s*$/.exec(text)) {
 				date = new Date(parseDateTime(text + "T00:00:00"));
 			}
-			var locale = '';
 			if (node.is(".abbreviated")) {
-				locale = abbreviated(date, node);
+				node.text(abbreviated(date, node, now));
 			} else if (node.is(".datetime-locale")) {
-				locale = date.toLocaleString();
+				node.text(date.toLocaleString());
 			} else if (node.is(".date-locale")) {
-				locale = date.toLocaleDateString();
+				node.text(date.toLocaleDateString());
 			} else if (node.is(".time-locale")) {
-				locale = date.toLocaleTimeString();
+				node.text(date.toLocaleTimeString());
 			}
-			dates[i].setAttribute("content", text);
-			dates[i].textContent = locale;
-			dates[i].innerText = locale;
 		}
-	} catch (e) { }
+	}
 }
 
 function parseDateTime(text, now) {
@@ -80,7 +77,7 @@ function parseDateTime(text, now) {
 	return timestamp;
 }
 
-function abbreviated(date, node) {
+function abbreviated(date, node, now) {
 	var locale = '';
 	if (node.is(".datetime-locale, .time-locale")) {
 		var minutes;

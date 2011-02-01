@@ -62,6 +62,7 @@
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
 			<link rel="icon" href="{$layout}/favicon.png" />
+			<meta name="viewport" content="width=device-width;initial-scale=1.0;maximum-scale=1.0;user-scalable=0;"/>
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
 			<xsl:apply-templates select="*[local-name()='link' or local-name()='style']" />
@@ -90,7 +91,6 @@
 			</xsl:attribute>
 			<xsl:apply-templates select="@*[name() != 'class']" />
 			<div id="header">
-				<div id="login-overlay" style="display:none" class="ui-widget-overlay">&#160;</div>
 				<a class="ui-state-default ui-corner-all" id="login-link" href="{$accounts}?login"
 						style="display:none;padding: .2em 20px .2em 1em;text-decoration: none;position: relative;">
 					Login
@@ -99,23 +99,6 @@
 						<xsl:text> </xsl:text>
 					</span>
 				</a>
-				<form id="login-form" style="display:none;position:absolute;padding: 1em" class="ui-widget-content ui-corner-bottom">
-					<label for="username">Username</label>
-					<div><input type="text" id="login-username" name="username" size="15" /></div>
-
-					<label for="password">Password</label>
-					<div><input type="password" id="login-password" name="password" size="15" /></div>
-
-					<div>
-						<button type="submit">Login</button>
-						<input type="checkbox" id="remember" name="remember" />
-						<label for="remember">Remember me</label>
-					</div>
-
-					<p class="forgot">
-						<a href="/accounts/unauthorized.xhtml?construct">Forgot password or username?</a>
-					</p>
-				</form>
 				<span class="authenticated" id="authenticated-links" style="display:none">
 					<a id="authenticated-link" href="{$accounts}?authenticated"></a>
 					<a id="welcome-link" href="{$accounts}?welcome"></a>
@@ -134,10 +117,6 @@
 						</button>
 					</span>
 				</form>
-			</div>
-			<div id="sidebar">
-				<a href="{$origin}/" id="logo">&#160;</a>
-				<xsl:apply-templates mode="menu" select="document(concat($callimachus, '/menu?evaluate'))" />
 			</div>
 
 			<xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history'">
@@ -163,7 +142,7 @@
 							<span>Discussion</span>
 						</xsl:if>
 						<xsl:if test="not($query='discussion')">
-							<a class="replace" href="?discussion">Discussion</a>
+							<a class="replace" href="?discussion" id="discussion-tab">Discussion</a>
 						</xsl:if>
 					</li>
 					<li class="authenticated">
@@ -184,6 +163,7 @@
 					</li>
 				</ul>
 			</xsl:if>
+
 			<div id="content">
 				<div id="error-widget" class="ui-state-error ui-corner-all" style="padding: 1ex; margin: 1ex; display: none">
 					<div><span class="ui-icon ui-icon-alert" style="margin-right: 0.3em; float: left; "></span>
@@ -191,6 +171,11 @@
 				</div>
 				<xsl:apply-templates select="*|comment()|text()" />
 				<div id="content-stop">&#160;</div>
+			</div>
+
+			<div id="sidebar">
+				<a href="{$origin}/" id="logo">&#160;</a>
+				<xsl:apply-templates mode="menu" select="document(concat($callimachus, '/menu?evaluate'))" />
 			</div>
 
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">

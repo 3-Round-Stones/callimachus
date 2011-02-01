@@ -3,7 +3,7 @@
 (function($){
 
 $(document).ready(handle);
-$(document).bind("DOMNodeInserted", handle);
+$(document).bind("DOMNodeInsertedIntoDocument", handle);
 
 function handle(event) {
 	$("input[title]", event.target).each(function(i, input) {

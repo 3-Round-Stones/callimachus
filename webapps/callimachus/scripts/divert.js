@@ -7,7 +7,7 @@ if (!window.calli) {
 }
 
 $(document).ready(handle);
-$(document).bind("DOMNodeInserted", handle);
+$(document).bind("DOMNodeInsertedIntoDocument", handle);
 
 function handle(event) {
 	$("a.diverted,a[data-diverted]", event.target).click(window.calli.divertedLinkClicked);
@@ -61,10 +61,11 @@ window.calli.divertedLinkClicked = function(e) {
 	if (win.defaultView) {
 		win = win.defaultView;
 	}
+	var url = window.calli.diverted(target.href, target);
 	if (target.className.match(/\breplace\b/)) {
-		win.location.replace(window.calli.diverted(target.href, target));
+		win.setTimeout(function() { win.location.replace(url); }, 0);
 	} else {
-		win.location.href = window.calli.diverted(target.href, target);
+		win.setTimeout(function() { win.location.href = url; }, 0);
 	}
     return false;
 }

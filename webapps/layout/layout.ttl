@@ -9,8 +9,11 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-</callimachus/scripts/web_bundle> a calli:ScriptBundle;
-	rdfs:member <template.js>.
+</callimachus/scripts/web_bundle> a calli:ScriptBundle; calli:minified 0 ;
+	rdfs:member <login-status.js>;
+	rdfs:member <wait.js>;
+	rdfs:member <iframe.js>;
+	rdfs:member <discussion.js>.
 
 </callimachus/menu> a calli:Menu;
 	calli:item [calli:position 1; rdfs:label "Main page"; calli:link </>];
@@ -19,5 +22,5 @@
 		calli:item [calli:position 1; rdfs:label "What links here"; calli:link "?whatlinkshere"];
 		calli:item [calli:position 2; rdfs:label "Related changes"; calli:link "?relatedchanges"];
 		calli:item [calli:position 3; rdfs:label "Introspect resource"; calli:link "?introspect"];
-		calli:item [calli:position 4; rdfs:label "Print this page"; calli:link "javascript:calli.printpage()"]].
+		calli:item [calli:position 4; rdfs:label "Print this page"; calli:link "javascript:print()"]].
 

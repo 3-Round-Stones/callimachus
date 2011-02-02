@@ -170,7 +170,6 @@
 					<strong>Alert:</strong><span id="error-message" style="padding: 0px 0.7em"> Sample ui-state-error style.</span></div>
 				</div>
 				<xsl:apply-templates select="*|comment()|text()" />
-				<div id="content-stop">&#160;</div>
 			</div>
 
 			<div id="sidebar">

@@ -48,8 +48,8 @@ function submitRDFForm(form) {
 		} catch(e) {
 			form.trigger("calliError", e.description ? e.description : e)
 		}
-		return false
 	}
+	return false
 }
 
 function readRDF(form) {

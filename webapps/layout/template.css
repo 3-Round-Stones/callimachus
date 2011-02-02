@@ -168,11 +168,6 @@ a[href]:hover {
 	clear: right;
 }
 
-#content-stop {
-	clear: both;
-	line-height: 0px;
-}
-
 .aside {
 	width: 16em;
 	background-color: #EEEEEE;

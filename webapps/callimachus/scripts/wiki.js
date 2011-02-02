@@ -5,7 +5,7 @@
 var creole = new Parse.Simple.Creole();
 
 $(document).ready(handle);
-$(document).bind("DOMNodeInsertedIntoDocument", handle);
+$(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
 	$("pre.wiki", event.target).each(function(i, node) {

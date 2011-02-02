@@ -10,11 +10,11 @@ $(document).ready(initForms);
 
 function initForms() {
 	$("form[about]").each(function(i, node) {
-		var form = $(node)
-		var stored = readRDF(form)
+		var form = $(node);
+		var stored = readRDF(form);
 		form.bind("calliForm", function() {
 			form.validate({submitHandler: function() {
-				submitRDFForm(form, stored)
+				return submitRDFForm(form, stored);
 			}})
 		})
 	})
@@ -22,46 +22,46 @@ function initForms() {
 
 function submitRDFForm(form, stored) {
 	var se = jQuery.Event("calliSubmit");
-	form.trigger(se)
+	form.trigger(se);
 	if (!se.isDefaultPrevented()) {
 		try {
-			var revised = readRDF(form)
-			var removed = stored.except(revised)
-			var added = revised.except(stored)
+			var revised = readRDF(form);
+			var removed = stored.except(revised);
+			var added = revised.except(stored);
 			removed.triples().each(function(){
-				addBoundedDescription(this, stored, removed, added)
+				addBoundedDescription(this, stored, removed, added);
 			})
 			added.triples().each(function(){
-				addBoundedDescription(this, revised, added, removed)
+				addBoundedDescription(this, revised, added, removed);
 			})
-			var boundary = "jeseditor-boundary"
-			var type = "multipart/related;boundary=" + boundary + ";type=\"application/rdf+xml\""
+			var boundary = "jeseditor-boundary";
+			var type = "multipart/related;boundary=" + boundary + ";type=\"application/rdf+xml\"";
 			var data = "--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
 					+ removed.dump({format:"application/rdf+xml",serialize:true})
 					+ "\r\n--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
 					+ added.dump({format:"application/rdf+xml",serialize:true})
-					+ "\r\n--" + boundary + "--"
+					+ "\r\n--" + boundary + "--";
 			patchData(form, location.href, type, data, function(data, textStatus, xhr) {
-				var redirect = xhr.getResponseHeader("Location")
+				var redirect = xhr.getResponseHeader("Location");
 				if (!redirect) {
-					redirect = location.href
+					redirect = location.href;
 					if (redirect.indexOf('?') > 0) {
-						redirect = redirect.substring(0, redirect.indexOf('?'))
+						redirect = redirect.substring(0, redirect.indexOf('?'));
 					}
-					redirect = redirect + "?view"
+					redirect = redirect + "?view";
 				}
-				var event = jQuery.Event("calliRedirect")
-				event.location = redirect
-				form.trigger(event)
+				var event = jQuery.Event("calliRedirect");
+				event.location = redirect;
+				form.trigger(event);
 				if (!event.isDefaultPrevented()) {
 					location.replace(event.location);
 				}
 			})
 		} catch(e) {
-			form.trigger("calliError", e.description ? e.description : e)
+			form.trigger("calliError", e.description ? e.description : e);
 		}
-		return false
 	}
+	return false
 }
 
 function readRDF(form) {
@@ -130,7 +130,7 @@ function patchData(form, url, type, data, callback) {
 
 function getEntityTag() {
 	var etag = null
-	$("head>meta").each(function(){
+	$("head>meta[http-equiv]").each(function(){
 		if (this.attributes['http-equiv'].value == 'etag') {
 			etag = this.attributes['content'].value
 		}

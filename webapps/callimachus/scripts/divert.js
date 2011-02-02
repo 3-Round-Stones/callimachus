@@ -7,7 +7,7 @@ if (!window.calli) {
 }
 
 $(document).ready(handle);
-$(document).bind("DOMNodeInsertedIntoDocument", handle);
+$(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
 	$("a.diverted,a[data-diverted]", event.target).click(window.calli.divertedLinkClicked);

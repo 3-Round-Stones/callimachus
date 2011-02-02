@@ -3,7 +3,7 @@
 (function($){
 
 $(document).ready(handle);
-$(document).bind("DOMNodeInsertedIntoDocument", handle);
+$(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
 	$("input[title]", event.target).each(function(i, input) {
@@ -43,6 +43,7 @@ function initInputPromptTitle(input, title) {
 		promptSpan.css('display', "none");
 	}
 	input.parentNode.insertBefore(promptSpan[0], input);
+	input.removeAttribute("title");
 	input.onfocus = function() {
 		promptSpan.css('display', "none");
 	}

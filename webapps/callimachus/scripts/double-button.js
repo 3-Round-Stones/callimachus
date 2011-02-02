@@ -3,7 +3,7 @@
 (function($){
 
 $(document).ready(handle);
-$(document).bind("DOMNodeInsertedIntoDocument", handle);
+$(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
 	$("button", event.target).click(flashButton);

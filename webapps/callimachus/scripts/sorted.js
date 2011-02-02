@@ -3,7 +3,6 @@
 (function($){
 
 $(document).ready(handle);
-$(document).bind("DOMNodeInsertedIntoDocument", handle);
 
 function handle(event) {
 	$(".sorted", event.target).each(function(i, node) {

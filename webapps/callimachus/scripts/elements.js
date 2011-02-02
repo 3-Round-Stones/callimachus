@@ -6,14 +6,14 @@
 
 (function($){
 
-var rdfnil = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+var rdfnil = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil";
 
 var currentlyLoading = 0;
 
 $(document).ready(function () {
 	initElements($("form[about]"))
 	callReady($("form[about]"))
-})
+});
 
 function initElements(form) {
 	initInputPropertyElements(form)
@@ -278,7 +278,7 @@ function findType(node, defaultType) {
 	return defaultType
 }
 
-var iframe_counter = 0
+var iframe_counter = 0;
 
 function initSetElements(form) {
 	createAddRelButtons(form)
@@ -397,7 +397,7 @@ function createAddRelButtons(form) {
 }
 
 if (!window.calli) {
-	window.calli = {}
+	window.calli = {};
 }
 window.calli.listSearchResults = function(url, frame, divert) {
 	frames[frame].location.href = "about:blank"
@@ -422,7 +422,7 @@ window.calli.listSearchResults = function(url, frame, divert) {
 			doc.close()
 		}
 	})
-}
+};
 window.calli.resourceCreated = function(uri, iframe) {
 	setTimeout(function() {
 		var list = $('#' + $(iframe).attr("data-button")).parent()
@@ -432,7 +432,7 @@ window.calli.resourceCreated = function(uri, iframe) {
 			addListItem(uri, list)
 		}
 	}, 0)
-}
+};
 
 function initListElements(form) {
 	var lists = $("[data-member]", form)
@@ -717,5 +717,5 @@ function textContent(node) {
 	return null
 }
 
-})(jQuery)
+})(jQuery);
 

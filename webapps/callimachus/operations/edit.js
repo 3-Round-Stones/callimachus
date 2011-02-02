@@ -25,6 +25,7 @@ function submitRDFForm(form, stored) {
 	form.trigger(se);
 	if (!se.isDefaultPrevented()) {
 		try {
+			form.find("input").change(); // IE may not have called onchange before onsubmit
 			var revised = readRDF(form);
 			var removed = stored.except(revised);
 			var added = revised.except(stored);

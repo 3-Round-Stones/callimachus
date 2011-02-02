@@ -320,31 +320,52 @@ function initSetElements(form) {
 			if (divert) {
 				suggest = window.calli.diverted(suggest, list.get(0))
 			}
-			list.append(add)
+			list.append(add);
+			var count = ++iframe_counter;
+			var name = "lookup" + count + "-iframe";
+			var searchTerms = "searchTerms" + count + "-input";
+			var form = $("<form action='" +  url.replace('{searchTerms}', '') 
+				+ "' target='" + name + "'>"
+				+ "<div class='lookup'>"
+				+ "<input name='q' title='Lookup..' id='" + searchTerms + "' /></div>"
+				+ "</form>");
+			form.submit(function(event) {
+				var searchUrl = url.replace('{searchTerms}', encodeURIComponent(document.getElementById(searchTerms).value));
+				listSearchResults(searchUrl, name , divert);
+				return stopPropagation(event);
+			});
+			list.attr("data-dialog", name);
+			var title = '';
+			if (list.attr("id")) {
+				title = $("label[for='" + list.attr("id") + "']").text();
+			}
+			var iframe = $("<iframe id='" + name + "' name='" + name + "' frameborder='0' src='about:blank' data-button='" + id + "'></iframe>");
 		    add.click(function(e) {
-				var count = ++iframe_counter
-				var name = "lookup" + count + "-iframe"
-				var searchTerms = "searchTerms" + count + "-input"
-				var onsubmit = "window.calli.listSearchResults('" + url + "'.replace('{searchTerms}', encodeURIComponent(document.getElementById('"
-					+ searchTerms + "').value)), '" + name + "', " + (divert ? "true" : "false") + ")"
-				var form = "<form action='" +  url.replace('{searchTerms}', '') 
-					+ "' target='" + name + "' onsubmit=\"" + onsubmit + ";return false\">"
-					+ "<div class='lookup'>"
-					+ "<input name='q' title='Lookup..' id='" + searchTerms + "' /></div>"
-					+ "</form>"
-				list.attr("data-dialog", name)
-				var iframe = $("<iframe id='" + name + "' name='" + name + "' frameborder='0' src='about:blank' data-button='" + id + "'></iframe>")
 			    var dialog = iframe.dialog({
-			        title: form,
+			        title: title,
 			        autoOpen: false,
 			        modal: false,
+			        draggable: true,
 			        resizable: true,
 			        autoResize: true,
 					width: 320,
 					height: 480
-			    })
-				dialog = dialog.dialog("open")
-				window.frames[name].location = suggest
+			    });
+				iframe.bind("dialogclose", function(event, ui) {
+					dialog.dialog("destroy");
+				});
+				dialog.dialog("open");
+				var dialogTitle = iframe.parents(".ui-dialog").find(".ui-dialog-title");
+				var bottom = dialogTitle.height() + dialogTitle.offset().top - iframe.parent().offset().top;
+				var left = dialogTitle.width() + dialogTitle.offset().left - iframe.parent().offset().left;
+				form.css('position', "absolute");
+				form.css('top', bottom - dialogTitle.height());
+				form.css('left', left + 10);
+				iframe.before(form);
+				form.css('top', Math.max(bottom - dialogTitle.height() /2 - form.height()/2, bottom - form.height()));
+				var maxLeft = iframe.parent().width() - form.width() - 30; // close button = 19px
+				form.css('left', Math.min(maxLeft, left + 10));
+				window.frames[name].location = suggest;
 		    });
 		}
 	})
@@ -374,7 +395,27 @@ function createAddRelButtons(form) {
 					updateButtonState(parent)
 				})
 			})
-			parent.append(add)
+			if (this.tagName.toLowerCase() == "table") {
+				var cell = $("<td/>");
+				cell.append(add);
+				var row = $("<tr/>");
+				row.append(cell);
+				var tbody = $("<tbody/>");
+				tbody.append(row);
+				parent.append(tbody);
+			} else if (this.tagName.toLowerCase() == "tbody") {
+				var cell = $("<td/>");
+				cell.append(add);
+				var row = $("<tr/>");
+				row.append(cell);
+				parent.append(row);
+			} else if (this.tagName.toLowerCase() == "tr") {
+				var cell = $("<td/>");
+				cell.append(add);
+				parent.append(cell);
+			} else {
+				parent.append(add);
+			}
 		}
 		if (minOccurs) {
 			var n = parseInt(minOccurs) - count
@@ -396,10 +437,7 @@ function createAddRelButtons(form) {
 	})
 }
 
-if (!window.calli) {
-	window.calli = {};
-}
-window.calli.listSearchResults = function(url, frame, divert) {
+function listSearchResults(url, frame, divert) {
 	frames[frame].location.href = "about:blank"
 	get($("iframe[name='" + frame + "']"), url, function(data) {
 		if (data) {
@@ -423,6 +461,11 @@ window.calli.listSearchResults = function(url, frame, divert) {
 		}
 	})
 };
+
+if (!window.calli) {
+	window.calli = {};
+}
+
 window.calli.resourceCreated = function(uri, iframe) {
 	setTimeout(function() {
 		var list = $('#' + $(iframe).attr("data-button")).parent()

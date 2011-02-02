@@ -31,14 +31,14 @@
 				<textarea id="comment" class="auto-expand" property="rdfs:comment" />
 			</div>
 			<hr />
-			<label form="form">Top concepts</label>
-			<div rel="skos:hasTopConcept" data-prompt="/skos/concept_template?copy">
+			<label for="topConcept">Top concepts</label>
+			<div id="topConcept" rel="skos:hasTopConcept" data-prompt="/skos/concept_template?copy">
 				<span about="?top" typeof="skos:Concept">
 					<span property="skos:prefLabel"></span>
 				</span>
 			</div>
 			<hr />
-			<label form="form">Change note</label>
+			<label for="note">Change note</label>
 			<div>
 				<input type="text" id="note" maxlength="140" class="auto-expand" />
 			</div>

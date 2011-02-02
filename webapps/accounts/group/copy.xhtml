@@ -14,12 +14,12 @@
 			<li>Use Wiki text to describe the group</li>
 		</ul>
 		<h1>New Group</h1>
-		<form action="" about="?this">
+		<form id="form" action="" about="?this"
+				onsubmit="$(this).attr('about', '/group/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
 			<div rel="rdf:type" resource="/accounts/group/Group" />
 			<label for="label">Name</label>
 			<div data-cardinality="1">
-				<input id="label" property="rdfs:label" type="text" class="auto-expand required"
-					onchange="$(form).attr('about', encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
+				<input id="label" property="rdfs:label" type="text" class="auto-expand required" />
 			</div>
 			<label for="comment">Description</label>
 			<div data-cardinality="1">

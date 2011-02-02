@@ -63,9 +63,9 @@ window.calli.divertedLinkClicked = function(e) {
 	}
 	var url = window.calli.diverted(target.href, target);
 	if (target.className.match(/\breplace\b/)) {
-		win.setTimeout(function() { win.location.replace(url); }, 0);
+		setTimeout(function() { win.location.replace(url); }, 0);
 	} else {
-		win.setTimeout(function() { win.location.href = url; }, 0);
+		setTimeout(function() { win.location.href = url; }, 0);
 	}
     return false;
 }

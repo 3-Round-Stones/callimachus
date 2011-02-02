@@ -63,7 +63,8 @@
 			</li>
 		</ul>
 		<h1>Initial Setup</h1>
-		<form action="" about="?this" autocomplete="off" onsubmit="savePassword()">
+		<form id="form" action="" about="?this" autocomplete="off"
+				onsubmit="savePassword();$(this).attr('about', '/user/' + encodeURI($('#name').val()).replace(/%20/g,'+').toLowerCase())">
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<span style="display:none">
 				<span data-cardinality="1">
@@ -76,8 +77,7 @@
 			</span>
 			<label for="username">Username</label>
 			<div data-cardinality="1">
-				<input id="username" property="calli:name" type="text" class="auto-expand"
-					onchange="$(form).attr('about', '../user/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
+				<input id="username" property="calli:name" type="text" class="auto-expand" />
 			</div>
 			<label for="name">Full name</label>
 			<div data-cardinality="1">

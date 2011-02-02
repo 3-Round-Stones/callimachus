@@ -17,7 +17,8 @@
 		<li>Other labels can be provide to assist concept lookup.</li>
 		<li>The definition, example, and scope can be provide to clarify usage and meaning.</li>
 	</ul>
-	<form about="?this" typeof="skos:Concept" action="">
+	<form id="form" about="?this" typeof="skos:Concept" action=""
+			onsubmit="$(this).attr('about', '/concept/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
 		<h1>
 			<span id="inscheme" rel="skos:inScheme">
 				<span about="?scheme" property="skos:prefLabel" />
@@ -27,8 +28,7 @@
 			<div style="float:left;margin:1ex">
 				<label for="label">Label</label>
 				<div data-cardinality="1">
-					<input id="label" property="skos:prefLabel" class="auto-expand required"
-				onchange="$(form).attr('about', '/concept/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
+					<input id="label" property="skos:prefLabel" class="auto-expand required" />
 				</div>
 			</div>
 			<div style="float:left;margin:1ex">

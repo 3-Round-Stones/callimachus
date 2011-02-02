@@ -15,12 +15,12 @@
 			<li>Provide the user's full name</li>
 			<li>Provide any additional contact information or affiliation information</li>
 		</ul>
-		<form action="" about="?this">
+		<form id="form" action="" about="?this"
+				onsubmit="$(this).attr('about', '/user/' + encodeURI($('#name').val()).replace(/%20/g,'+').toLowerCase())">
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<label for="name">Username</label>
 			<div data-cardinality="1">
-				<input id="name" property="calli:name" type="text" class="auto-expand required"
-					onchange="$(form).attr('about', '../user/' + encodeURI(value).replace(/%20/g,'+').toLowerCase())" />
+				<input id="name" property="calli:name" type="text" class="auto-expand required" />
 			</div>
 			<label for="email">E-mail address</label>
 			<div data-cardinality="1">

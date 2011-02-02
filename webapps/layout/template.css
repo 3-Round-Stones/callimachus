@@ -49,6 +49,11 @@ a[href]:hover {
 	margin-left: 1ex;
 }
 
+#search-box span {
+	font-size: small !important;
+	line-height: 1.5em !important;
+}
+
 #search-box-input {
 	background: transparent;
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
@@ -72,6 +77,8 @@ a[href]:hover {
 
 #sidebar {
 	float: left;
+	margin: 0px;
+	padding: 0px;
 }
 
 #logo {
@@ -170,6 +177,7 @@ a[href]:hover {
 }
 
 .aside {
+	clear: right;
 	width: 16em;
 	background-color: #EEEEEE;
 	border: 1px solid #A8ACB8;
@@ -317,10 +325,9 @@ iframe {
 
 @media all and (min-width:480px) {
 	.aside {
-		clear: right;
 		float: right;
 	}
-}
+} /* end all */
 
 @media screen and (min-width:640px) {
 	#sidebar {
@@ -328,43 +335,28 @@ iframe {
 		position: absolute;
 		top: 0px;
 		left: 0px;
-		margin: 0px;
-		padding: 0px;
 	}
-	#tabs {
+	#tabs, #content, #footer {
 		margin-left: 10em;
 	}
 	#content {
-		margin-left: 10em;
 		min-height: 320px;
-	}
-	#footer {
-		margin-left: 10em;
 	}
 } /* end screen */
 
 @media print {
-	#sidebar {
-		display: none;
-	}
-	#header {
-		display: none;
-	}
-	#tabs {
+	#sidebar, #header, #tabs, button {
 		display: none;
 	}
 	.aside {
-		clear: right;
 		float: right;
 	}
 	#content {
 		border: none;
 	}
 	body {
+		font-family: serif;
 		background: inherit;
-	}
-	button {
-		display: none;
 	}
 } /* end print */
 

@@ -1,0 +1,17 @@
+/* ie8.css */
+
+.aside {
+	float: right;
+}
+#sidebar {
+	float: none;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+#tabs, #content, #footer {
+	margin-left: 10em;
+}
+#content {
+	min-height: 320px;
+}

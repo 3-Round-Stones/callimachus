@@ -32,30 +32,30 @@
 				<textarea id="comment" class="auto-expand"
 					property="rdfs:comment"></textarea>
 			</div>
-			<label form="form">Scribes</label>
-			<div rel="calli:scribe" data-prompt="?copy">
+			<label for="scribe">Scribes</label>
+			<div id="scribe" rel="calli:scribe" data-prompt="?copy">
 				<span about="?scribe">
 					<span rel="rdf:type" resource="/accounts/group/Group" />
 					<span property="rdfs:label"/>
 				</span>
 			</div>
-			<label form="form">Curators</label>
-			<div rel="calli:curator" data-prompt="?copy">
+			<label for="curator">Curators</label>
+			<div id="curator" rel="calli:curator" data-prompt="?copy">
 				<span about="?curator">
 					<span rel="rdf:type" resource="/accounts/group/Group" />
 					<span property="rdfs:label"/>
 				</span>
 			</div>
-			<label form="form">Maintainers</label>
-			<div rel="calli:maintainer" data-prompt="?copy">
+			<label for="maintainer">Maintainers</label>
+			<div id="maintainer" rel="calli:maintainer" data-prompt="?copy">
 				<span about="?maintainer">
 					<span rel="rdf:type" resource="/accounts/group/Group" />
 					<span property="rdfs:label"/>
 				</span>
 			</div>
 			<hr />
-			<label form="form">Members</label>
-			<div rel="calli:member" data-prompt="?usercreate" class="sorted">
+			<label for="member">Members</label>
+			<div id="member" rel="calli:member" data-prompt="?usercreate" class="sorted">
 				<span about="?member">
 					<span rel="rdf:type" resource="/accounts/user/User" />
 					<span property="rdfs:label" class="asc"/>

@@ -23,6 +23,7 @@ function submitRDFForm(form) {
 	form.trigger(se)
 	if (!se.isDefaultPrevented()) {
 		try {
+			form.find("input").change(); // IE may not have called onchange before onsubmit
 			var added = readRDF(form)
 			var type = "application/rdf+xml"
 			var data = added.dump({format:"application/rdf+xml",serialize:true})

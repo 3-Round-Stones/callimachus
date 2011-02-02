@@ -133,10 +133,14 @@ function loggedOut() {
 function submitLoginForm(event) {
 	var username = this.elements['username'].value;
 	var password = this.elements['password'].value;
-	window.jQuery.ajax({ type: 'GET', url: $("#login-link").get(0).href,
+	window.jQuery.ajax({ type: 'GET', url: "/accounts?welcome",
 		username: username,
 		password: password,
-		complete: function() {
+		success: function(data) {
+			if (window.sessionStorage) {
+				var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(data);
+				sessionStorage.setItem("Profile", title[1]);
+			}
 			location.reload();
 		}
 	})

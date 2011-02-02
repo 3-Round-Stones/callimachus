@@ -157,6 +157,7 @@ a[href]:hover {
 }
 
 #content {
+	overflow: auto;
 	background-color: white;
 	border-top: 1px solid #A8ACB8;
 	border-left: 1px solid #A8ACB8;
@@ -335,7 +336,7 @@ iframe {
 	}
 	#content {
 		margin-left: 10em;
-		min-height: 150pt;
+		min-height: 320px;
 	}
 	#footer {
 		margin-left: 10em;

@@ -21,7 +21,7 @@ $(document).ajaxComplete(function(event, xhr, options){
 
 $(document).ready(function() {
 	setTimeout(removeWait, 0);
-	$("form[about]").bind("calliRedirect", function() {
+	$(document).bind("calliRedirect", function() {
 		formRequestCount++;
 		$("body").addClass("wait");
 	});

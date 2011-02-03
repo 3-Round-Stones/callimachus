@@ -22,9 +22,9 @@
 				var realm = $("#realm-link")[0].href;
 				var value = $("#password").val();
 				var encoded = hex_md5(name + ':' + realm + ':' + value);
-				var data = {'name': name, 'label': label, 'algorithm': 'MD5', 'encoded': encoded};
-				var xhr = jQuery.ajax({type: 'POST', url: form.action, data: data,
-					success: function(data, textStatus) {
+				var data = {name: name, label: label, algorithm: 'MD5', encoded: encoded};
+				try {
+					var xhr = jQuery.post(location.href, data, function(data, textStatus) {
 						// remove bogus data
 						if (window.sessionStorage) {
 							sessionStorage.removeItem('Profile');
@@ -44,8 +44,11 @@
 								location.replace(url);
 							}
 						});
-					}
-				});
+					});
+				} catch (e) {
+					$(form).trigger("calliError", e.description ? e.description : e);
+					return false;
+				}
 				return false;
 			}
 			// ]]>
@@ -69,8 +72,6 @@
 		<form id="form" method="POST" action="" autocomplete="off" >
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<span style="display:none">
-				<input id="encoded" type="hidden" name="encoded" />
-				<input id="algorithm" type="hidden" name="algorithm" value="MD5" />
 				<a id="realm-link" href="/" />
 			</span>
 			<label for="name">Username</label>

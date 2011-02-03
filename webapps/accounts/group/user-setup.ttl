@@ -71,13 +71,21 @@
 	obj:script """
 		if (!this.HasNoMaintainer())
 			throw new BadRequest("This service has already been setup");
+		if (!form.get("label"))
+			throw new BadRequest("Missing label");
+		if (!form.get("name"))
+			throw new BadRequest("Missing name");
+		if (!form.get("algorithm"))
+			throw new BadRequest("Missing algorithm");
+		if (!form.get("encoded"))
+			throw new BadRequest("Missing encoded");
 		var label = form.get("label")[0];
 		var username = form.get("name")[0];
 		var algorithm = form.get("algorithm")[0];
 		var encoded = form.get("encoded")[0];
 		if (algorithm != "MD5")
 			throw new BadRequest("Unsupported algorithm");
-		if (encoded.length < 32)
+		if (!encoded || encoded.length() < 32)
 			throw new BadRequest("Invalid MD5 sum");
 		var decoded = Hex.decodeHex(encoded.toCharArray());
 		var uri = user + URLEncoder.encode(username).replaceAll("%20", "+").toLowerCase();

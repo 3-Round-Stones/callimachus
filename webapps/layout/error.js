@@ -11,53 +11,57 @@ $(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
 });
 
 $(document).ready(function() {
-	var forms = $("form[about]");
-	forms.bind("calliSubmit", function() {
+	$(document).bind("calliSubmit", function() {
 		$("#error-widget").hide();
 		$("#error-message").empty();
 		$("#error-widget pre").remove();
 	});
-	forms.bind("calliOk", function() {
+	$(document).bind("calliOk", function() {
 		$("#error-widget").hide();
 		$("#error-message").empty();
 		$("#error-widget pre").remove();
 	});
-	forms.bind("calliError", showError);
+	$(document).bind("calliError", showError);
 });
 
-function showError(event, status, detail, link) {
-	if (detail && detail.indexOf('<') == 0) {
-		var html = $(detail);
-		if (html.filter("title").size()) {
-			status = html.filter("title").text();
-			detail = html.find("pre").text();
-		}
-	}
-	var msg = $("#error-message");
-	if (msg.size()) {
-		msg.empty();
-		if (link) {
-			if (status.indexOf('.') < 0) {
-				msg.text(status + '.');
+function showError(event, error, detail, link) {
+	try {
+		var status = '' + error;
+		if (detail && detail.indexOf('<') == 0) {
+			var html = $(detail);
+			if (html.filter("title").size()) {
+				status = html.filter("title").text();
+				detail = html.find("pre").text();
 			}
-			msg.append("<a href='" + link + "' style='font-style:italic;text-decoration:underline;margin-left:1ex'>View resource</a>");
+		}
+		var msg = $("#error-message");
+		if (msg.size()) {
+			msg.empty();
+			if (link) {
+				if (status.indexOf('.') < 0) {
+					msg.text(status + '.');
+				}
+				msg.append("<a href='" + link + "' style='font-style:italic;text-decoration:underline;margin-left:1ex'>View resource</a>");
+			} else {
+				msg.text(status);
+			}
+			$("#error-widget pre").remove();
+			$("#error-widget").show();
+			scroll(0,0);
+			if (detail) {
+				var pre = $("<pre/>");
+				pre.text(detail);
+				pre.hide();
+				$("#error-widget").append(pre);
+				msg.click(function() {
+					pre.toggle();
+				});
+			}
 		} else {
-			msg.text(status);
+			alert(status);
 		}
-		$("#error-widget pre").remove();
-		$("#error-widget").show();
-		scroll(0,0);
-		if (detail) {
-			var pre = $("<pre/>");
-			pre.text(detail);
-			pre.hide();
-			$("#error-widget").append(pre);
-			msg.click(function() {
-				pre.toggle();
-			});
-		}
-	} else {
-		alert(status);
+	} catch (e) {
+		alert(error);
 	}
 }
 

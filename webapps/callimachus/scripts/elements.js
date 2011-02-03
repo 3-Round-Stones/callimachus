@@ -191,15 +191,22 @@ function initOptionElements(form) {
 			var objects = $("[resource]", select)
 			script.each(function() {
 				var optgroup = $(this)
-				loadOptions(optgroup, objects, "selected", function() {
+				loadOptions(optgroup, objects, "selected", function(i) {
 					var option = $(this)
+					optgroup.append(option)
 					option.attr("data-resource", option.attr("resource"))
 					if (!option.attr("rel") && option.attr("resource")) {
 						option.removeAttr("resource")
 						option.attr("about", option.attr("data-resource"))
 					}
-					optgroup.append(option)
 				}, function() {
+					if (objects.size() == 1) {
+						for (var i=0; i<node.options.length; i++) {
+							if (node.options[i].getAttribute("rel")) {
+								node.selectedIndex = i;
+							}
+						}
+					}
 					select.change()
 				})
 			})

@@ -9,7 +9,7 @@
 
 <local> a calli:LocalRealm;
 	calli:origin </>;
-	calli:domain <../../group/>.
+	calli:domain </group/>.
 
 :HasNoMaintainer rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
@@ -61,40 +61,40 @@
 	http:operation "usersetup";
 	http:realm <local>;
 	http:expect "201-created";
-	obj:imports <user-setup.xhtml>;
-	obj:imports <../../user/>;
+	obj:imports </user/>;
+	obj:imports <../user/User>;
 	obj:imports </accounts>;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	obj:imports <java:java.util.Collections>;
-	obj:imports <java:org.openrdf.rio.rdfxml.RDFXMLParser>;
-	obj:imports <java:org.openrdf.rio.helpers.StatementCollector>;
-	obj:imports <java:org.openrdf.model.impl.LinkedHashModel>;
-	obj:imports <java:org.openrdf.model.impl.URIImpl>;
-	obj:imports <java:java.io.ByteArrayInputStream>;
+	obj:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+	obj:imports <java:org.apache.commons.codec.binary.Hex>;
+	obj:imports <java:java.net.URLEncoder>;
 	obj:script """
 		if (!this.HasNoMaintainer())
 			throw new BadRequest("This service has already been setup");
-		var byteArray = bytes.toByteArray();
-		var stream = new ByteArrayInputStream(byteArray);
-		var copy = user_setup_xhtml.calliCopyResource(this, stream, Collections.singleton(user));
-		calliMembers.add(copy);
-		//# copy is empty if no transaction support (HTTPRepository)
-		var model = new LinkedHashModel();
-		var parser = new RDFXMLParser();
-		parser.setRDFHandler(new StatementCollector(model));
-		parser.parse(new ByteArrayInputStream(byteArray), this.toString());
-		var ns = "http://callimachusproject.org/rdf/2009/framework#";
-		var algorithm = model.filter(null, new URIImpl(ns + "algorithm"), null, []).objectLiteral().label;
-		var encoded = model.filter(null, new URIImpl(ns + "encoded"), null, []).objectLiteral().label;
+		var label = form.get("label")[0];
+		var username = form.get("name")[0];
+		var algorithm = form.get("algorithm")[0];
+		var encoded = form.get("encoded")[0];
 		if (algorithm != "MD5")
 			throw new BadRequest("Unsupported algorithm");
 		if (encoded.length < 32)
 			throw new BadRequest("Invalid MD5 sum");
-		return accounts + "?welcome";
+		var decoded = Hex.decodeHex(encoded.toCharArray());
+		var uri = user + URLEncoder.encode(username).replaceAll("%20", "+").toLowerCase();
+		var user = objectConnection.getObject(uri);
+		if (user instanceof User)
+			throw new Conflict("User already exists");
+		user = objectConnection.addDesignation(user, User);
+		user.calliName = username;
+		user.calliAlgorithm = algorithm;
+		user.calliEncoded = decoded;
+		user.rdfsLabels.add(label);
+		this.calliMembers.add(user);
+		return uri;
 	""".
 
-:bytes a owl:ObjectProperty, owl:FunctionalProperty;
+:form a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostUserSetup;
-	rdfs:range <java:java.io.ByteArrayOutputStream>;
-	http:type "application/rdf+xml".
+	rdfs:range <java:java.util.Map>;
+	http:type "application/x-www-form-urlencoded".
 

@@ -124,8 +124,6 @@ function patchData(form, url, type, data, callback) {
 	}, success: function(data, textStatus) {
 		form.trigger("calliOk")
 		callback(data, textStatus, xhr)
-	}, error: function(xhr, textStatus, errorThrown) {
-		form.trigger("calliError", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
 
@@ -178,8 +176,6 @@ window.calli.deleteResource = function() {
 				history.go(-1)
 			}
 		}
-	}, error: function(xhr, textStatus, errorThrown) {
-		form.trigger("calliError", [xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus, xhr.responseText])
 	}})
 }
 

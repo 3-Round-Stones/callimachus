@@ -13,7 +13,7 @@ $(document).bind("DOMNodeInserted", findAutoExpandTextArea);
 function findAutoExpandTextArea(event) {
 	var areas = $(".auto-expand", event.target);
 	if ($(event.target).is(".auto-expand")) {
-		areas.add(event.target);
+		areas = areas.add(event.target);
 	}
 	for (var i = 0; i < areas.length; i++) {
 		if (areas[i].type == "textarea" || areas[i].type == "text") {

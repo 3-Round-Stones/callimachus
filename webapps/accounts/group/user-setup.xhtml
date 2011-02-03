@@ -13,38 +13,41 @@
 		<script src="/accounts/md5.js">
 		</script>
 		<script>//<![CDATA[
-			function savePassword() {
-				var value = document.getElementById("password").value
-				var name = document.getElementById("username").value
-				var realm = document.getElementById("realm-link").href
-				var encoded = hex_md5(name + ':' + realm + ':' + value)
-				var input = document.getElementById("algorithm-input")
-				if (input) {
-					input.setAttribute("property", "calli:algorithm")
-					input.setAttribute("content", "MD5")
-					input = document.getElementById("encoded-input")
-					input.setAttribute("property", "calli:encoded")
-					input.setAttribute("content", encoded)
-					input.setAttribute("datatype", "xsd:hexBinary")
-				} else {
-					setTimeout(function() {savePassword(value)}, 500);
-				}
-			}
 			$(document).ready(function() {
-				$("form[about]").bind("calliRedirect", function(event) {
-					// remove bogus data
-					if (window.sessionStorage) {
-						sessionStorage.removeItem('Profile')
-					}
-					if (window.localStorage) {
-						localStorage.removeItem('Authorization')
-					}
-					jQuery.ajax({ async: false, type: 'GET', url: event.location,
-						username: this.elements['username'].value,
-						password: this.elements['password'].value
-					})
-				})
+				$("#form").validate({submitHandler: userSetup});
 			});
+			function userSetup(form) {
+				var label = $("#label").val();
+				var name = $("#name").val();
+				var realm = $("#realm-link")[0].href;
+				var value = $("#password").val();
+				var encoded = hex_md5(name + ':' + realm + ':' + value);
+				var data = {'name': name, 'label': label, 'algorithm': 'MD5', 'encoded': encoded};
+				var xhr = jQuery.ajax({type: 'POST', url: form.action, data: data,
+					success: function(data, textStatus) {
+						// remove bogus data
+						if (window.sessionStorage) {
+							sessionStorage.removeItem('Profile');
+						}
+						if (window.localStorage) {
+							localStorage.removeItem('Authorization');
+						}
+						var url = xhr.getResponseHeader('Location');
+						xhr = jQuery.ajax({type: 'GET', url: url,
+							username: name,
+							password: value,
+							success: function(data, textStatus) {
+								if (window.sessionStorage) {
+									var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(xhr.responseText);
+									sessionStorage.setItem('Profile', title[1]);
+								}
+								location.replace(url);
+							}
+						});
+					}
+				});
+				return false;
+			}
 			// ]]>
 		</script>
 	</head>
@@ -63,25 +66,20 @@
 			</li>
 		</ul>
 		<h1>Initial Setup</h1>
-		<form id="form" action="" about="?this" autocomplete="off"
-				onsubmit="savePassword();$(this).attr('about', '/user/' + encodeURI($('#name').val()).replace(/%20/g,'+').toLowerCase())">
+		<form id="form" method="POST" action="" autocomplete="off" >
 			<div rel="rdf:type" resource="/accounts/user/User" />
 			<span style="display:none">
-				<span data-cardinality="1">
-					<input id="encoded-input" type="hidden" property="calli:encoded" />
-				</span>
-				<span data-cardinality="1">
-					<input id="algorithm-input" type="hidden" property="calli:algorithm" />
-				</span>
+				<input id="encoded" type="hidden" name="encoded" />
+				<input id="algorithm" type="hidden" name="algorithm" value="MD5" />
 				<a id="realm-link" href="/" />
 			</span>
-			<label for="username">Username</label>
+			<label for="name">Username</label>
 			<div data-cardinality="1">
-				<input id="username" property="calli:name" type="text" class="auto-expand" />
+				<input id="name" name="name" type="text" class="required auto-expand" />
 			</div>
-			<label for="name">Full name</label>
+			<label for="label">Full name</label>
 			<div data-cardinality="1">
-				<input id="name" property="rdfs:label" type="text" class="required auto-expand" />
+				<input id="label" name="label" type="text" class="required auto-expand" />
 			</div>
 			<label for="password">Password</label>
 			<div>

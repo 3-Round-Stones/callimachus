@@ -358,13 +358,13 @@ function initSetElements(form) {
 				iframe.before(form);
 				form.submit(function(event) {
 					var searchUrl = url.replace('{searchTerms}', encodeURIComponent(document.getElementById(searchTerms).value));
-					listSearchResults(searchUrl, name , divert);
+					listSearchResults(searchUrl, iframe.get(0), divert);
 					return stopPropagation(event);
 				});
 				form.css('top', Math.max(bottom - dialogTitle.height() /2 - form.height()/2, bottom - form.height()));
 				var maxLeft = iframe.parent().width() - form.width() - 30; // close button = 19px
 				form.css('left', Math.min(maxLeft, left + 10));
-				window.frames[name].location = suggest;
+				iframe.get(0).src = suggest;
 		    });
 		}
 	})
@@ -436,29 +436,29 @@ function createAddRelButtons(form) {
 	})
 }
 
-function listSearchResults(url, frame, divert) {
-	frames[frame].location.href = "about:blank"
-	get($("iframe[name='" + frame + "']"), url, function(data) {
+function listSearchResults(url, iframe, divert) {
+	iframe.src = "about:blank";
+	get($(iframe), url, function(data) {
 		if (data) {
-			var result = $(data).children()
-			var ul = $("<ul/>")
+			var result = $(data).children();
+			var ul = $("<ul/>");
 			result.each(function() {
-				var li = $("<li/>")
-				var link = $("<a/>")
-				link.attr("href", $(this).attr("about") + "?view")
+				var li = $("<li/>");
+				var link = $("<a/>");
+				link.attr("href", $(this).attr("about") + "?view");
 				if (divert) {
-					link.attr("onclick", "window.parent.calli.divertedLinkClicked(event)")
+					link.attr("onclick", "window.parent.calli.divertedLinkClicked(event)");
 				}
-				link.append($(this).text())
-				li.append(link)
-				ul.append(li)
+				link.append($(this).text());
+				li.append(link);
+				ul.append(li);
 			})
-			var doc = frames[frame].document
-			doc.open()
-			doc.write("<ul>" + ul.html() + "</ul>")
-			doc.close()
+            var doc = iframe.contentWindow.document;
+			doc.open();
+			doc.write("<ul>" + ul.html() + "</ul>");
+			doc.close();
 		}
-	})
+	});
 };
 
 if (!window.calli) {

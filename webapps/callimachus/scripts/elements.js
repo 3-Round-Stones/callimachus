@@ -324,16 +324,10 @@ function initSetElements(form) {
 			var count = ++iframe_counter;
 			var name = "lookup" + count + "-iframe";
 			var searchTerms = "searchTerms" + count + "-input";
-			var form = $("<form action='" +  url.replace('{searchTerms}', '') 
-				+ "' target='" + name + "'>"
+			var form = $("<form>"
 				+ "<div class='lookup'>"
 				+ "<input name='q' title='Lookup..' id='" + searchTerms + "' /></div>"
 				+ "</form>");
-			form.submit(function(event) {
-				var searchUrl = url.replace('{searchTerms}', encodeURIComponent(document.getElementById(searchTerms).value));
-				listSearchResults(searchUrl, name , divert);
-				return stopPropagation(event);
-			});
 			list.attr("data-dialog", name);
 			var title = '';
 			if (list.attr("id")) {
@@ -362,6 +356,11 @@ function initSetElements(form) {
 				form.css('top', bottom - dialogTitle.height());
 				form.css('left', left + 10);
 				iframe.before(form);
+				form.submit(function(event) {
+					var searchUrl = url.replace('{searchTerms}', encodeURIComponent(document.getElementById(searchTerms).value));
+					listSearchResults(searchUrl, name , divert);
+					return stopPropagation(event);
+				});
 				form.css('top', Math.max(bottom - dialogTitle.height() /2 - form.height()/2, bottom - form.height()));
 				var maxLeft = iframe.parent().width() - form.width() - 30; // close button = 19px
 				form.css('left', Math.min(maxLeft, left + 10));

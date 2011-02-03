@@ -14,8 +14,10 @@ function handle(event) {
 	$("a.replace", event.target).filter(function(){
 		return !$(this).hasClass("diverted") && !$(this).attr("data-diverted");
 	}).click(replaceLinkClicked);
-	if ($(event.target).is("a.diverted,a[data-diverted],a.replace")) {
+	if ($(event.target).is("a.diverted,a[data-diverted]")) {
 		$(event.target).click(window.calli.divertedLinkClicked);
+	}
+	if ($(event.target).is("a.replace")) {
 		$(event.target).filter(function(){
 			return !$(this).hasClass("diverted") && !$(this).attr("data-diverted");
 		}).click(replaceLinkClicked);

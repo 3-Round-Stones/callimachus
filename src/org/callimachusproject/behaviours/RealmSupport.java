@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.behaviours;
 
+import info.aduna.net.ParsedURI;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -27,6 +29,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.StringEntity;
@@ -156,12 +159,21 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	}
 
 	@Override
-	public HttpResponse unauthorized(Object target, String query)
-			throws Exception {
+	public HttpMessage authenticationInfo(String method, Object resource,
+			Map<String, String[]> request) {
+		return null;
+	}
+
+	@Override
+	public HttpResponse unauthorized(String method, Object resource,
+			Map<String, String[]> request) throws Exception {
 		Template unauthorized = getCalliUnauthorized();
 		if (unauthorized == null)
 			return null;
-		String html = unauthorized.calliConstructHTML(target, query);
+		String url = request.get("request-target")[0];
+		ParsedURI parsed = new ParsedURI(url);
+		String query = parsed.getQuery();
+		String html = unauthorized.calliConstructHTML(resource, query);
 		StringEntity entity = new StringEntity(html, "UTF-8");
 		entity.setContentType("text/html;charset=\"UTF-8\"");
 		HttpResponse resp = new BasicHttpResponse(_401);
@@ -171,11 +183,15 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	}
 
 	@Override
-	public HttpResponse forbidden(Object target, String query) throws Exception {
+	public HttpResponse forbidden(String method, Object resource,
+			Map<String, String[]> request) throws Exception {
 		Template forbidden = getCalliForbidden();
 		if (forbidden == null)
 			return null;
-		String html = forbidden.calliConstructHTML(target, query);
+		String url = request.get("request-target")[0];
+		ParsedURI parsed = new ParsedURI(url);
+		String query = parsed.getQuery();
+		String html = forbidden.calliConstructHTML(resource, query);
 		StringEntity entity = new StringEntity(html, "UTF-8");
 		entity.setContentType("text/html;charset=\"UTF-8\"");
 		HttpResponse resp = new BasicHttpResponse(_403);

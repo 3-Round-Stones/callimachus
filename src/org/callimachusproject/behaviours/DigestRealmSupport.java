@@ -21,15 +21,17 @@ import info.aduna.net.ParsedURI;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.StringEntity;
@@ -37,6 +39,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.concepts.DigestRealm;
 import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.traits.VersionedObject;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.annotations.name;
@@ -54,36 +57,107 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 	private static final String PREFIX = "PREFIX :<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final BasicStatusLine _401 = new BasicStatusLine(
 			new ProtocolVersion("HTTP", 1, 1), 401, "Unauthorized");
-	private static final int MAX_NONCE_AGE = 12;
-	private static final TimeUnit MAX_NONCE_AGE_UNIT = TimeUnit.HOURS;
+	private static final BasicStatusLine _204 = new BasicStatusLine(
+			new ProtocolVersion("HTTP", 1, 1), 401, "No Content");
+	private static final int MAX_NONCE_AGE = 15000;
+	private static final int MAX_ENTRIES = 2048;
 	private static long resetAttempts;
-	private static final Map<String,Integer> failedAttempts = new HashMap<String, Integer>();
+	private static final Map<String, Integer> failedAttempts = new HashMap<String, Integer>();
+	private static final Map<String, String> DIGEST_OPTS = new HashMap<String, String>();
+	private static final Map<Map<String, String>, Object> replay = new LinkedHashMap<Map<String, String>, Object>() {
+		private static final long serialVersionUID = -6673793531014489904L;
+
+		protected boolean removeEldestEntry(
+				Entry<Map<String, String>, Object> eldest) {
+			return size() > MAX_ENTRIES;
+		}
+	};
+	static {
+		DIGEST_OPTS.put("realm", null);
+		DIGEST_OPTS.put("nonce", null);
+		DIGEST_OPTS.put("username", null);
+		DIGEST_OPTS.put("uri", null);
+		DIGEST_OPTS.put("qop", null);
+		DIGEST_OPTS.put("cnonce", null);
+		DIGEST_OPTS.put("nc", null);
+		DIGEST_OPTS.put("response", null);
+	}
 	private Logger logger = LoggerFactory.getLogger(DigestRealmSupport.class);
 
 	@Override
-	public HttpResponse unauthorized(Object target, String query)
-			throws Exception {
+	public HttpResponse unauthorized(String method, Object resource,
+			Map<String, String[]> request) throws Exception {
 		Object realm = getAuthName();
 		if (realm == null)
-			return forbidden(target, query);
+			return forbidden(method, resource, request);
 		String domain = protectionDomain();
 		if (domain == null) {
 			domain = "";
 		} else if (domain.length() != 0) {
 			domain = ", domain=\"" + domain + "\"";
 		}
-		String nonce = nextNonce();
-		HttpResponse resp = super.unauthorized(target, query);
+		String nonce = nextNonce(resource, request.get("via"));
+		String authenticate = "Digest realm=\"" + realm + "\"" + domain
+				+ ", nonce=\"" + nonce
+				+ "\", algorithm=\"MD5\", qop=\"auth,auth-int\"";
+		String[] auth = request.get("authorization");
+		if (auth != null && auth.length == 1 && auth[0] != null
+				&& auth[0].startsWith("Digest")) {
+			String string = auth[0].substring("Digest ".length());
+			Map<String, String> options = parseOptions(string);
+			if (!verify(options.get("nonce"), resource, request.get("via"))) {
+				authenticate += ",stale=true";
+				HttpResponse resp = new BasicHttpResponse(_401);
+				resp.setHeader("Cache-Control", "no-store");
+				resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
+				resp.setEntity(new StringEntity("Stale authorization header", "UTF-8"));
+				resp.setHeader("WWW-Authenticate", authenticate);
+				return resp;
+			}
+		}
+		HttpResponse resp = super.unauthorized(method, resource, request);
 		if (resp == null) {
 			resp = new BasicHttpResponse(_401);
 			resp.setHeader("Cache-Control", "no-store");
 			resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
 			resp.setEntity(new StringEntity("Unauthorized", "UTF-8"));
 		}
-		String authenticate = "Digest realm=\"" + realm + "\"" + domain
-				+ ", nonce=\"" + nonce
-				+ "\", algorithm=\"MD5\", qop=\"auth,auth-int\"";
 		resp.setHeader("WWW-Authenticate", authenticate);
+		return resp;
+	}
+
+	@Override
+	public HttpMessage authenticationInfo(String method, Object resource,
+			Map<String, String[]> request) {
+		HttpMessage resp = super.authenticationInfo(method, resource, request);
+		String[] auth = request.get("authorization");
+		if (auth == null || auth.length != 1 || auth[0] == null
+				|| !auth[0].startsWith("Digest"))
+			return resp;
+		String string = auth[0].substring("Digest ".length());
+		Map<String, String> options = parseOptions(string);
+		String cnonce = options.get("cnonce");
+		String nc = options.get("nc");
+		String uri = options.get("uri");
+		String nonce = options.get("nonce");
+		String username = options.get("username");
+		String ha2 = md5(":" + uri);
+		List<Object[]> encodings = findDigest(username);
+		for (Object[] row : encodings) {
+			byte[] a1 = (byte[]) row[1];
+			if (a1 == null)
+				continue;
+			String ha1 = new String(Hex.encodeHex(a1));
+			String rspauth = md5(ha1 + ":" + nonce + ":" + nc + ":" + cnonce
+					+ ":auth:" + ha2);
+			if (resp == null) {
+				resp = new BasicHttpResponse(_204);
+			}
+			String authenticate = "qop=auth,cnonce=\"" + cnonce + "\",nc=" + nc
+					+ ",rspauth=\"" + rspauth + "\"";
+			resp.setHeader("Authentication-Info", authenticate);
+			break;
+		}
 		return resp;
 	}
 
@@ -118,13 +192,11 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 				logger.info("Bad authorization on {} using {}", url, auth[0]);
 				throw new BadRequest("Bad Authorization");
 			}
-			if (!verify(options.get("nonce"))) {
-				logger.info("Invalid Authorization");
-				return null;
-			}
 			String qop = options.get("qop");
 			if ("auth-int".equals(qop) && (md5 == null || md5.length != 1))
 				throw new BadRequest("Missing content-md5");
+			if (!verify(options.get("nonce"), resource, map.get("via")))
+				return null;
 			String md50 = md5 == null ? null : md5[0];
 			return authenticatedCredential(method, md50, options);
 		} catch (BadRequest e) {
@@ -188,6 +260,17 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 			failedAttempt(null);
 			return null;
 		}
+		if (qop != null) {
+			boolean replayed;
+			synchronized (replay) {
+				replayed = replay.put(options, Boolean.TRUE) != null;
+			}
+			if (replayed) {
+				logger.info("Request replayed using: {}", username);
+				failedAttempt(username);
+				return null;
+			}
+		}
 		boolean encoding = false;
 		for (Object[] row : encodings) {
 			byte[] a1 = (byte[]) row[1];
@@ -196,7 +279,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 			encoding = true;
 			String ha1 = new String(Hex.encodeHex(a1));
 			String legacy = ha1 + ":" + nonce + ":" + ha2;
-			if (md5(legacy).equals(response))
+			if (qop == null && md5(legacy).equals(response))
 				return row[0];
 			String expected = ha1 + ":" + nonce + ":" + options.get("nc") + ":"
 					+ options.get("cnonce") + ":" + qop + ":" + ha2;
@@ -242,17 +325,47 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 		}
 	}
 
-	private String nextNonce() {
-		return Long.toString(System.currentTimeMillis(), Character.MAX_RADIX);
+	private String nextNonce(Object resource, String[] key) {
+		String ip = hash(key);
+		String revision = "";
+		if (resource instanceof VersionedObject) {
+			revision = ((VersionedObject) resource).revision();
+		}
+		long now = System.currentTimeMillis();
+		String time = Long.toString(now, Character.MAX_RADIX);
+		return time + ":" + revision + ":" + ip;
 	}
 
-	private boolean verify(String nonce) {
+	private String hash(String[] key) {
+		long code = 0;
+		if (key != null) {
+			for (String str : key) {
+				code = code * 31 + str.hashCode();
+			}
+		}
+		return Long.toString(code, Character.MAX_RADIX);
+	}
+
+	private boolean verify(String nonce, Object resource, String[] key) {
 		if (nonce == null)
 			return false;
 		try {
-			Long time = Long.valueOf(nonce, Character.MAX_RADIX);
-			long age = System.currentTimeMillis() - time;
-			return age < MAX_NONCE_AGE_UNIT.toMillis(MAX_NONCE_AGE);
+			int first = nonce.indexOf(':');
+			int last = nonce.lastIndexOf(':');
+			if (first < 0 || last < 0)
+				return false;
+			if (!hash(key).equals(nonce.substring(last + 1)))
+				return false;
+			String revision = nonce.substring(first + 1, last);
+			if (resource instanceof VersionedObject) {
+				String rev = ((VersionedObject) resource).revision();
+				if (!revision.equals(rev))
+					return false;
+			}
+			String time = nonce.substring(0, first);
+			Long ms = Long.valueOf(time, Character.MAX_RADIX);
+			long age = System.currentTimeMillis() - ms;
+			return age < MAX_NONCE_AGE;
 		} catch (NumberFormatException e) {
 			logger.debug(e.toString(), e);
 			return false;
@@ -270,17 +383,19 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 	 *            nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093",
 	 *            uri="/dir/index.html", qop=auth, nc=00000001,
 	 *            cnonce="0a4f113b",
-	 *            response="6629fae49393a05397450978507c4ef1",
-	 *            opaque="5ccc069c403ebaf9f0171e9517f40e41"
+	 *            response="6629fae49393a05397450978507c4ef1"
 	 */
 	private Map<String, String> parseOptions(String options) {
-		Map<String, String> result = new HashMap<String, String>();
+		Map<String, String> result = new HashMap<String, String>(DIGEST_OPTS);
 		Matcher m = HEADER_REGEX.matcher(options);
 		while (m.find()) {
-			if (m.group(3) == null) {
-				result.put(m.group(1), m.group(2));
-			} else {
-				result.put(m.group(1), m.group(3));
+			String key = m.group(1);
+			if (result.containsKey(key)) {
+				if (m.group(3) == null) {
+					result.put(key, m.group(2));
+				} else {
+					result.put(key, m.group(3));
+				}
 			}
 		}
 		return result;

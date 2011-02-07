@@ -75,21 +75,21 @@ a[href]:hover {
 	vertical-align: middle;
 }
 
-#sidebar {
-	float: left;
-	margin: 0px;
-	padding: 0px;
-}
-
 #logo {
+	float: left;
 	text-align: center;
-    padding-bottom: 2em;
 	width: 10em;
-	height: 128px;
+	height: 10em;
 	display: block;
 	background-image: url(logo.png);
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
+}
+
+#sidebar {
+	float: left;
+	margin: 0px;
+	padding: 0px;
 }
 
 #nav {
@@ -214,6 +214,10 @@ table.aside>tbody:last-child>tr:last-child>th {
 	border-bottom: none;
 }
 
+pre {
+	white-space: pre-wrap;
+}
+
 .result {
 	list-style-type: square;
 	margin-top: 1ex;
@@ -251,7 +255,7 @@ body.wait, body.wait * {
 	cursor: wait;
 }
 
-a.diverted {
+a.diverted, a[data-diverted] {
 	cursor: alias;
 }
 
@@ -323,29 +327,35 @@ iframe {
 	border: none;
 }
 
-@media all and (min-width:480px) {
+@media all and (min-width:32em) {
 	.aside {
 		float: right;
 	}
 } /* end all */
 
-@media screen and (min-width:640px) {
-	#sidebar {
+@media screen and (min-width:42em) {
+	#logo {
 		float: none;
 		position: absolute;
 		top: 0px;
+		left: 0px;
+	}
+	#sidebar {
+		float: none;
+		position: absolute;
+		top: 10em;
 		left: 0px;
 	}
 	#tabs, #content, #footer {
 		margin-left: 10em;
 	}
 	#content {
-		min-height: 320px;
+		min-height: 30em;
 	}
 } /* end screen */
 
 @media print {
-	#sidebar, #header, #tabs, button {
+	#logo, #sidebar, #header, #tabs, button {
 		display: none;
 	}
 	.aside {

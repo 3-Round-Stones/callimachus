@@ -53,11 +53,11 @@
 			for (var i = interfaces.length; i--;) {
 				var face = findAnnotatedClass(interfaces[i], ann);
 				if (face) {
-					if (result && !result.isAssignableFrom(face)) {
+					if (!result || result.isAssignableFrom(face)) {
+						result = face;
+					} else if (!face.isAssignableFrom(result)) {
 						throw new InternalServerError("Conflicting templates for "
 							+ result.simpleName +  " and " + face.simpleName);
-					} else {
-						result = face;
 					}
 				}
 			}

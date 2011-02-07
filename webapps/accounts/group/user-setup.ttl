@@ -52,6 +52,8 @@
 		return user_setup_xhtml.calliConstruct(this, 'copy');
 	""".
 
+rdfs:label a rdf:Property.
+
 :PostUserSetup rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <Group>];

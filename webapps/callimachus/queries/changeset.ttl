@@ -70,7 +70,7 @@
 						rdf:object ?object
 					]
 				}
-				?added audit:committedOn ?asof
+				OPTIONAL { ?added audit:committedOn ?asof }
 				FILTER (?added = $this || ?removed = $this)
 			}
 		}

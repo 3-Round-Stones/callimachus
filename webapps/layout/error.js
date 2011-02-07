@@ -28,10 +28,10 @@ function showError(event, error, detail, link) {
 	try {
 		var status = '' + error;
 		if (detail && detail.indexOf('<') == 0) {
-			var html = $(detail);
-			if (html.filter("title").size()) {
-				status = html.filter("title").text();
-				detail = html.find("pre").text();
+			var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(detail);
+			if (title && title[1]) {
+				status = title[1];
+				detail = $(detail).find("pre").text();
 			}
 		}
 		var msg = $("#error-message");

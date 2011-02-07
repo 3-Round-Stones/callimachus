@@ -3,15 +3,21 @@
 .aside {
 	float: right;
 }
-#sidebar {
+#logo {
 	float: none;
 	position: absolute;
 	top: 0px;
+	left: 0px;
+}
+#sidebar {
+	float: none;
+	position: absolute;
+	top: 10em;
 	left: 0px;
 }
 #tabs, #content, #footer {
 	margin-left: 10em;
 }
 #content {
-	min-height: 320px;
+	min-height: 30em;
 }

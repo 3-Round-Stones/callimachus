@@ -10,12 +10,10 @@
 @prefix :<#>.
 
 </callimachus/scripts/web_bundle> a calli:ScriptBundle;
-	rdfs:member <login-status.js>;
+	rdfs:member <login.js>;
 	rdfs:member <wait.js>;
 	rdfs:member <iframe.js>;
-	rdfs:member <discussion.js>.
-
-</callimachus/scripts/form_bundle> a calli:ScriptBundle;
+	rdfs:member <discussion.js>;
 	rdfs:member <error.js>.
 
 </callimachus/menu> a calli:Menu;

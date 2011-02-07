@@ -257,7 +257,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 		List<Object[]> encodings = findDigest(username);
 		if (encodings.isEmpty()) {
 			logger.info("Account not found: {}", username);
-			failedAttempt(null);
+			failedAttempt(username);
 			return null;
 		}
 		if (qop != null) {
@@ -266,7 +266,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 				replayed = replay.put(options, Boolean.TRUE) != null;
 			}
 			if (replayed) {
-				logger.info("Request replayed using: {}", username);
+				logger.info("Request replayed {}", options);
 				failedAttempt(username);
 				return null;
 			}
@@ -291,7 +291,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 			failedAttempt(username);
 		} else {
 			logger.info("Missing password for: {}", username);
-			failedAttempt(null);
+			failedAttempt(username);
 		}
 		return null;
 	}
@@ -304,16 +304,16 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 				resetAttempts = now + 60 * 60 * 1000;
 			}
 			try {
-				if (username == null) {
+				if (username == null || "logout".equals(username)) {
 					Thread.sleep(1000);
 				} else {
 					Integer count = failedAttempts.get(username);
 					if (count == null) {
 						failedAttempts.put(username, 1);
 						Thread.sleep(1000);
-					} else if (count > 10) {
+					} else if (count > 100) {
 						failedAttempts.put(username, count + 1);
-						Thread.sleep(count * 1000);
+						Thread.sleep(10000);
 					} else {
 						failedAttempts.put(username, count + 1);
 						Thread.sleep(1000);

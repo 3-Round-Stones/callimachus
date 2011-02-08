@@ -17,19 +17,22 @@
  */
 package org.callimachusproject.behaviours;
 
+import java.util.Map;
+
 import org.openrdf.repository.object.RDFObject;
 
 /**
  * Permits only local TCP connections from accessing this realm.
- *   
+ * 
  * @author James Leigh
- *
+ * 
  */
-public abstract class LocalRealmSupport extends RealmSupport implements RDFObject {
+public abstract class LocalRealmSupport extends RealmSupport implements
+		RDFObject {
 
 	@Override
 	public boolean authorizeCredential(Object credential, String method,
-			Object resource, String qs) {
+			Object resource, Map<String, String[]> map) {
 		String via = credential.toString();
 		if (via.startsWith("dns:")) {
 			return isLocal(via.substring("dns:".length()));

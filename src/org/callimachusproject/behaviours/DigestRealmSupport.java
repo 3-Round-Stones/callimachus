@@ -52,8 +52,8 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class DigestRealmSupport extends RealmSupport implements
 		DigestRealm, RDFObject {
-	private static final Pattern HEADER_REGEX = Pattern
-			.compile("\\b(\\w*)=(?:\"((?:[^\"]|\"\")*)\"|([^,\"]*))\\s*(?:,\\s*|$)");
+	private static final Pattern TOKENS_REGEX = Pattern
+			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"((?:[^\"]|\"\")*)\"|([^,\"]*)))?\\s*,?");
 	private static final String PREFIX = "PREFIX :<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final BasicStatusLine _401 = new BasicStatusLine(
 			new ProtocolVersion("HTTP", 1, 1), 401, "Unauthorized");
@@ -209,9 +209,12 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 
 	@Override
 	public boolean authorizeCredential(Object credential, String method,
-			Object resource, String qs) {
+			Object resource, Map<String, String[]> map) {
+		String url = map.get("request-target")[0];
+		ParsedURI parsed = new ParsedURI(url);
+		String query = parsed.getQuery();
 		return credential.equals(resource)
-				|| AuthorizeCredential(credential, method, resource, qs);
+				|| AuthorizeCredential(credential, method, resource, query);
 	}
 
 	public Object findCredential(String authorization) {
@@ -387,13 +390,13 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 	 */
 	private Map<String, String> parseOptions(String options) {
 		Map<String, String> result = new HashMap<String, String>(DIGEST_OPTS);
-		Matcher m = HEADER_REGEX.matcher(options);
+		Matcher m = TOKENS_REGEX.matcher(options);
 		while (m.find()) {
 			String key = m.group(1);
 			if (result.containsKey(key)) {
-				if (m.group(3) == null) {
+				if (m.group(2) != null) {
 					result.put(key, m.group(2));
-				} else {
+				} else if (m.group(3) != null){
 					result.put(key, m.group(3));
 				}
 			}

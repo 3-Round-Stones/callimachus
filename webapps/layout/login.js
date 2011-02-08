@@ -35,14 +35,27 @@ $(document).ready(function(){
 				$("#login-link").click();
 			}
 		}
-		// didn't login using the login form; is this page protected?
-		var xhr = jQuery.ajax({type: 'HEAD', url: location.href,
+		// hasn't logged in using the login form; is this page protected?
+		var xhr = jQuery.ajax({type: 'GET', url: location.href,
 			beforeSend: withCredentials,
 			success: function() {
 				if (xhr.getResponseHeader("Authentication-Info")) { 
-					jQuery.ajax({type: "GET", url: "/accounts?login",
+					jQuery.ajax({type: "HEAD", url: "/accounts?login",
 						beforeSend: withCredentials,
 						success: showProfile
+					});
+				} else if (!xhr.getAllResponseHeaders()) { // Opera sends empty response; try again w/o cache
+					xhr = jQuery.ajax({type: 'GET', url: location.href,
+						headers: {'Cache-Control': "no-cache"},
+						beforeSend: withCredentials,
+						success: function() {
+							if (xhr.getResponseHeader("Authentication-Info")) { 
+								jQuery.ajax({type: "GET", url: "/accounts?login",
+									beforeSend: withCredentials,
+									success: showProfile
+								});
+							}
+						}
 					});
 				}
 			}

@@ -35,7 +35,7 @@
 	http:header "Authorization".
 
 # Redirection to the authorized user
-# Used to welcome new users
+# Used to login
 :GetLoginPage rdfs:subClassOf :GetAuthorization;
 	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
 		owl:allValuesFrom xsd:string];
@@ -61,7 +61,7 @@
 # logout
 ################################
 
-# Prompts the browser to login using different credentials
+# Prompts the browser to login using bogus credentials (to forget legitimate onces)
 # Available to user when logged in
 :GetLogout rdfs:subClassOf :GetAuthorization;
 	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
@@ -73,18 +73,16 @@
 	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
 	obj:script """
 		var ver = new ProtocolVersion("HTTP", 1, 1);
-		if (authorization) { //# browser sent credentials
-			var credential = findCredential(authorization);
-			if (!credential) { //# invalid credentials received
-				var resp = new BasicHttpResponse(ver, 303, "See Other");
-				resp.setHeader("Location", "/");
-				return resp;
-			}
+		if (authorization && authorization.contains('username="logout"')) {
+			//# bogus credentials received
+			var resp = new BasicHttpResponse(ver, 303, "See Other");
+			resp.setHeader("Location", "/");
+			return resp;
 		}
 		//# the browser must send invalid credentials to logout
 		var resp = new BasicHttpResponse(ver, 401, "Unauthorized");
-		var hd = 'Digest realm="' + calliAuthName + '", domain="' + protectionDomain()
-			+ '", nonce="invalid", algorithm="MD5", qop="auth,auth-int"';
+		var hd = 'Digest realm="' + this.calliAuthName + '", domain="'
+			+ this.protectionDomain() + '", nonce="logout", algorithm="MD5", qop="auth"';
 		resp.setHeader('WWW-Authenticate', hd);
 		return resp;
 	""".

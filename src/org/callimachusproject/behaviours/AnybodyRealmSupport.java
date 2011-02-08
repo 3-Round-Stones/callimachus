@@ -17,19 +17,22 @@
  */
 package org.callimachusproject.behaviours;
 
+import java.util.Map;
+
 import org.openrdf.repository.object.RDFObject;
 
 /**
  * Permits any client in this realm and records the external host name.
  * 
  * @author James Leigh
- *
+ * 
  */
-public abstract class AnybodyRealmSupport extends RealmSupport implements RDFObject {
+public abstract class AnybodyRealmSupport extends RealmSupport implements
+		RDFObject {
 
 	@Override
 	public boolean authorizeCredential(Object credential, String method,
-			Object resource, String qs) {
+			Object resource, Map<String, String[]> map) {
 		return true;
 	}
 

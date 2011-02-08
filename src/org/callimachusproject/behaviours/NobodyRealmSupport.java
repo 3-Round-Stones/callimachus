@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.behaviours;
 
+import java.util.Map;
+
 /**
  * Rejects all authorisation attempts to this realm. Only the boot credentials
  * may access resource exclusively protected by this realm.
@@ -28,7 +30,7 @@ public abstract class NobodyRealmSupport extends RealmSupport {
 
 	@Override
 	public boolean authorizeCredential(Object credential, String method,
-			Object resource, String qs) {
+			Object resource, Map<String, String[]> map) {
 		return false;
 	}
 

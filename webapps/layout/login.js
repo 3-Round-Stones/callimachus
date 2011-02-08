@@ -147,26 +147,31 @@ function login(event) {
 }
 
 function submitLoginForm(event) {
-	var username = this.elements['username'].value;
-	var password = this.elements['password'].value;
-	window.jQuery.ajax({ type: 'GET', url: "/accounts?login",
-		username: username, password: password,
-		success: function(doc) {
-			showProfile(doc);
-			location.reload(false);
-		}
-	})
-	if (window.localStorage) {
-		var auth = "Name " + username;
-		if (this.elements['remember'].checked) {
-			auth = username + ":" + password;
-			if (window.btoa) {
-				auth = "Basic " + window.btoa(auth);
-			} else {
-				auth = "Credentials " + auth;
+	try {
+		var username = this.elements['username'].value;
+		var password = this.elements['password'].value;
+		var remember = this.elements['remember'].checked;
+		window.jQuery.ajax({ type: 'GET', url: "/accounts?login",
+			username: username, password: password,
+			success: function(doc) {
+				showProfile(doc);
+				if (window.localStorage) {
+					var auth = "Name " + username;
+					if (remember) {
+						auth = username + ":" + password;
+						if (window.btoa) {
+							auth = "Basic " + window.btoa(auth);
+						} else {
+							auth = "Credentials " + auth;
+						}
+					}
+					localStorage.setItem('Authorization', auth);
+				}
+				location.reload(false);
 			}
-		}
-		localStorage.setItem('Authorization', auth);
+		});
+	} catch (e) {
+		$(event.target).trigger("calliError", e.description ? e.description : e);
 	}
 	if (event.preventDefault) {
 		event.preventDefault();

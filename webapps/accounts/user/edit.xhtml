@@ -14,56 +14,69 @@
 		</script>
 		<script>//<![CDATA[
 			function savePassword() {
-				var value = document.getElementById("password").value
-				var name = document.getElementById("name-span")
-				var realm = document.getElementById("realm-link").href
-				name = name.textContent || name.innerText
+				var value = $("#password").val();
+				var name = $("#name-span").text();
+				var realm = document.getElementById("realm-link").href;
 				if (value) {
-					var encoded = hex_md5(name + ':' + realm + ':' + value)
-					var span = document.getElementById("encoded-span")
-					span.setAttribute("datatype", "xsd:hexBinary")
-					span.textContent = encoded
-					span.innerText = encoded
+					var encoded = hex_md5(name + ':' + realm + ':' + value);
+					var span = $("#encoded-span");
+					span.attr("datatype", "xsd:hexBinary");
+					span.text(encoded);
 				}
+				return true;
 			}
 			$(document).ready(function() {
-				var credential = null
-				jQuery.ajax({type: "GET",  url: "/accounts?authenticated",
-					complete: function(req) {
-						if (req.status < 300 ) {
-							var doc = req.responseText
-							credential = /about="([^" >]*)"/i.exec(doc)[1]
-						}
-					},
+				var uri = $("form[about]").attr("about");
+				var credential = null;
+				jQuery.ajax({type: "GET",  url: "/accounts?login",
 					beforeSend: function(req) {
 						try {
-							req.withCredentials = true
+							req.withCredentials = true;
 						} catch (e) {}
+					},
+					success: function(doc) {
+						credential = /about="([^" >]*)"/i.exec(doc)[1];
 					}
-				})
-				$("form[about]").bind("calliRedirect", function(event) {
-					var uri = $("form[about]").attr("about");
+				});
+				var deleted = false;
+				$(document).bind("calliDelete", function(event) {
 					if (credential && credential == uri) {
+						// need to log user out gracefully now that they deleted themselves
+						if (window.localStorage) {
+							localStorage.removeItem('Authorization');
+						}
 						if (window.sessionStorage) {
-							// user may have changed their name or deleted themselves
-							sessionStorage.removeItem('Profile')
+							sessionStorage.removeItem('Profile');
 						}
-						if (document.getElementById("password").value || !event.location) {
-							// user changed their password or deleted themselves and needs to be loggout gracefully
-							event.preventDefault();
-							if (window.localStorage) {
-								localStorage.removeItem('Authorization')
-							}
-							jQuery.ajax({ type: 'GET', url: "/accounts?logout",
-								username: 'logout', password: 'nil',
-								complete: function() {
-									window.location = "/"
-								}
-							})
-						}
+						return deleted = true;
 					}
-				})
-			})
+				});
+				$(document).bind("calliRedirect", function(event) {
+					if (!deleted && credential && credential == uri) {
+						if ($("#password").val()) {
+							// need to log user out gracefully since they changed their password
+							if (window.localStorage) {
+								localStorage.removeItem('Authorization');
+							}
+							if (window.sessionStorage) {
+								sessionStorage.removeItem('Profile');
+							}
+							event.preventDefault();
+							var xhr = jQuery.ajax({ type: 'GET', url: "/accounts?logout",
+								username: 'logout', password: 'nil',
+								success: function() {
+									window.location = "/";
+								}
+							});
+							return false;
+						} else if (window.sessionStorage) {
+							// user may have changed their name
+							sessionStorage.setItem('Profile', $('#label').val());
+						}
+						return true;
+					}
+				});
+			});
 			// ]]>
 		</script>
 	</head>

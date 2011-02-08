@@ -3,10 +3,18 @@
 (function($){
 
 $(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
-	if (xhr && xhr.status >= 400 && xhr.status != 404 && xhr.status != 409) {
+	if (xhr && xhr.status >= 400 && xhr.status != 409) {
 		showError(event, xhr.statusText, xhr.responseText)
 	} else if (thrownError) {
 		showError(event, thrownError);
+	}
+});
+
+$(document).ajaxSuccess(function(event, xhr, ajaxOptions){
+	if (xhr && xhr.status >= 200 && xhr.status < 300) {
+		$("#error-widget").hide();
+		$("#error-message").empty();
+		$("#error-widget pre").remove();
 	}
 });
 

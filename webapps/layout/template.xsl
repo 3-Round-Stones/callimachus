@@ -100,9 +100,8 @@
 						<xsl:text> </xsl:text>
 					</span>
 				</a>
-				<span class="authenticated" id="authenticated-links" style="display:none">
-					<a id="authenticated-link" href="{$accounts}?authenticated"></a>
-					<a id="welcome-link" href="{$accounts}?welcome"></a>
+				<span class="authenticated" style="display:none">
+					<a id="profile-link" href="{$accounts}?login">Profile</a>
 					<span> | </span>
 					<a href="{$accounts}?settings">Settings</a>
 					<span> | </span>

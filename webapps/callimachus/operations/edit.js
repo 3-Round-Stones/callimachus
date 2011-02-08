@@ -43,19 +43,23 @@ function submitRDFForm(form, stored) {
 					+ added.dump({format:"application/rdf+xml",serialize:true})
 					+ "\r\n--" + boundary + "--";
 			patchData(form, location.href, type, data, function(data, textStatus, xhr) {
-				var redirect = xhr.getResponseHeader("Location");
-				if (!redirect) {
-					redirect = location.href;
-					if (redirect.indexOf('?') > 0) {
-						redirect = redirect.substring(0, redirect.indexOf('?'));
+				try {
+					var redirect = xhr.getResponseHeader("Location");
+					if (!redirect) {
+						redirect = location.href;
+						if (redirect.indexOf('?') > 0) {
+							redirect = redirect.substring(0, redirect.indexOf('?'));
+						}
+						redirect = redirect + "?view";
 					}
-					redirect = redirect + "?view";
-				}
-				var event = jQuery.Event("calliRedirect");
-				event.location = redirect;
-				form.trigger(event);
-				if (!event.isDefaultPrevented()) {
-					location.replace(event.location);
+					var event = jQuery.Event("calliRedirect");
+					event.location = redirect;
+					form.trigger(event);
+					if (!event.isDefaultPrevented()) {
+						location.replace(event.location);
+					}
+				} catch(e) {
+					form.trigger("calliError", e.description ? e.description : e);
 				}
 			})
 		} catch(e) {
@@ -141,42 +145,54 @@ if (!window.calli) {
 	window.calli = {};
 }
 window.calli.deleteResource = function() {
-	var form = $("form[about]")
-	var url = location.href
-	if (url.indexOf('?') > 0) {
-		url = url.substring(0, url.indexOf('?'))
-	}
-	var xhr = $.ajax({ type: "DELETE", url: url, beforeSend: function(xhr){
-		var etag = getEntityTag()
-		if (etag) {
-			xhr.setRequestHeader("If-Match", etag)
-		}
-	}, success: function(data, textStatus) {
-		var event = jQuery.Event("calliRedirect")
-		event.location = form.attr("data-redirect")
-		if (form.hasClass("diverted")) {
-			event.location = window.calli.diverted(event.location, form.get(0))
-		}
-		if (!event.location) {
-			if (window.sessionStorage) {
-				var previous = sessionStorage.getItem("Previous")
-				if (previous) {
-					event.location = previous.substring(0, previous.indexOf(' '))
+	var form = $("form[about]");
+	try {
+		var de = jQuery.Event("calliDelete");
+		form.trigger(de);
+		if (!de.isDefaultPrevented()) {
+			var url = location.href
+			if (url.indexOf('?') > 0) {
+				url = url.substring(0, url.indexOf('?'))
+			}
+			var xhr = $.ajax({ type: "DELETE", url: url, beforeSend: function(xhr){
+				var etag = getEntityTag()
+				if (etag) {
+					xhr.setRequestHeader("If-Match", etag)
 				}
-			}
+			}, success: function(data, textStatus) {
+				try {
+					var event = jQuery.Event("calliRedirect")
+					event.location = form.attr("data-redirect")
+					if (form.hasClass("diverted")) {
+						event.location = window.calli.diverted(event.location, form.get(0))
+					}
+					if (!event.location) {
+						if (window.sessionStorage) {
+							var previous = sessionStorage.getItem("Previous")
+							if (previous) {
+								event.location = previous.substring(0, previous.indexOf(' '))
+							}
+						}
+					}
+					if (!event.location) {
+						event.location = document.referrer
+					}
+					form.trigger(event)
+					if (!event.isDefaultPrevented()) {
+						if (event.location) {
+							location.replace(event.location)
+						} else {
+							history.go(-1)
+						}
+					}
+				} catch(e) {
+					form.trigger("calliError", e.description ? e.description : e);
+				}
+			}})
 		}
-		if (!event.location) {
-			event.location = document.referrer
-		}
-		form.trigger(event)
-		if (!event.isDefaultPrevented()) {
-			if (event.location) {
-				location.replace(event.location)
-			} else {
-				history.go(-1)
-			}
-		}
-	}})
+	} catch(e) {
+		form.trigger("calliError", e.description ? e.description : e);
+	}
 }
 
 })(jQuery)

@@ -19,37 +19,41 @@ function initForms() {
 
 function submitRDFForm(form) {
 	var form = $(form);
-	var se = jQuery.Event("calliSubmit");
-	form.trigger(se);
-	if (!se.isDefaultPrevented()) {
-		try {
+	try {
+		var se = jQuery.Event("calliSubmit");
+		form.trigger(se);
+		if (!se.isDefaultPrevented()) {
 			form.find("input").change(); // IE may not have called onchange before onsubmit
 			var added = readRDF(form);
 			var type = "application/rdf+xml";
 			var data = added.dump({format:"application/rdf+xml",serialize:true});
 			postData(form, location.href, type, data, function(data, textStatus, xhr) {
 				try {
-					if (window.parent && parent.calli && window.frameElement) {
-						var subj = $.uri.base().resolve($(form).attr("about"));
-						parent.calli.resourceCreated(subj.toString(), window.frameElement);
+					try {
+						if (window.parent && parent.calli && window.frameElement) {
+							var subj = $.uri.base().resolve($(form).attr("about"));
+							parent.calli.resourceCreated(subj.toString(), window.frameElement);
+						}
+					} catch (e) {}
+					var redirect = xhr.getResponseHeader("Location");
+					var event = jQuery.Event("calliRedirect");
+					if (form.hasClass("diverted") || form.attr("data-diverted")) {
+						event.location = window.calli.diverted(redirect, form.get(0));
+					} else {
+						event.location = redirect;
 					}
-				} catch (e) {}
-				var redirect = xhr.getResponseHeader("Location");
-				var event = jQuery.Event("calliRedirect");
-				if (form.hasClass("diverted") || form.attr("data-diverted")) {
-					event.location = window.calli.diverted(redirect, form.get(0));
-				} else {
-					event.location = redirect;
-				}
-				event.location = event.location  + "?view";
-				form.trigger(event);
-				if (!event.isDefaultPrevented()) {
-					location.replace(event.location);
+					event.location = event.location  + "?view";
+					form.trigger(event);
+					if (!event.isDefaultPrevented()) {
+						location.replace(event.location);
+					}
+				} catch(e) {
+					form.trigger("calliError", e.description ? e.description : e);
 				}
 			})
-		} catch(e) {
-			form.trigger("calliError", e.description ? e.description : e);
 		}
+	} catch(e) {
+		form.trigger("calliError", e.description ? e.description : e);
 	}
 	return false;
 }

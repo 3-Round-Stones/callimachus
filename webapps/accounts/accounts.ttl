@@ -26,27 +26,6 @@
 # login
 ################################
 
-# A generic URL that requires authorization
-# Available to user when not logged in
-:GetLogin rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>];
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:allValuesFrom xsd:string];
-	http:method "GET";
-	http:operation "login";
-	http:realm </accounts>;
-	http:expect "303-see-other";
-	obj:script "if (referer) return referer".
-
-:referer a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :GetLogin;
-	rdfs:range xsd:string;
-	http:header "Referer".
-
-################################
-# logout
-################################
-
 :GetAuthorization rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>].
 
@@ -54,6 +33,33 @@
 	rdfs:domain :GetAuthorization;
 	rdfs:range xsd:string;
 	http:header "Authorization".
+
+# Redirection to the authorized user
+# Used to welcome new users
+:GetLoginPage rdfs:subClassOf :GetAuthorization;
+	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
+		owl:allValuesFrom xsd:string];
+	http:method "GET";
+	http:operation "login", "settings", "contributions";
+	http:realm </accounts>;
+	http:expect "302-found";
+	http:cache-control "max-age:3600";
+	obj:script """
+		if ("settings" == query)
+			return findCredential(authorization) + "?edit";
+		if ("contributions" == query)
+			return findCredential(authorization) + "?contributions";
+		return findCredential(authorization).toString();
+	""".
+
+:query a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :GetLoginPage;
+	rdfs:range xsd:string;
+	http:parameter "*".
+
+################################
+# logout
+################################
 
 # Prompts the browser to login using different credentials
 # Available to user when logged in
@@ -95,46 +101,4 @@
 	rdfs:range calli:Credential;
 	http:parameter "from";
 	http:type "text/uri-list".
-
-################################
-# authenticated
-################################
-
-# Redirection to the authorized user
-# Used to display the currently authorized user
-:GetAuthenticated rdfs:subClassOf :GetAuthorization;
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom calli:Credential];
-	http:method "GET";
-	http:operation "authenticated";
-	http:expect "302-found";
-	http:cache-control "max-age:3600";
-	obj:script "return findCredential(authorization)".
-
-################################
-# welcome
-################################
-
-# Redirection to the authorized user
-# Used to welcome new users
-:GetWelcomePage rdfs:subClassOf :GetAuthorization;
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:allValuesFrom xsd:string];
-	http:method "GET";
-	http:operation "welcome", "settings", "contributions";
-	http:realm </accounts>;
-	http:expect "302-found";
-	http:cache-control "max-age:3600";
-	obj:script """
-		if ("settings" == query)
-			return findCredential(authorization) + "?edit";
-		if ("contributions" == query)
-			return findCredential(authorization) + "?contributions";
-		return findCredential(authorization).toString();
-	""".
-
-:query a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :GetWelcomePage;
-	rdfs:range xsd:string;
-	http:parameter "*".
 

@@ -26,5 +26,6 @@
 	rdf:_1 <jquery.rdfquery.rdfa.js>;
 	rdf:_2 <jquery.validate.js>;
 	rdf:_3 <double-button.js>;
-	rdf:_4 <elements.js>.
+	rdf:_4 <elements.js>;
+	rdf:_5 <focus.js>.
 

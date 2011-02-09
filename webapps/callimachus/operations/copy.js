@@ -33,6 +33,7 @@ function submitRDFForm(form) {
 						if (window.parent && parent.calli && window.frameElement) {
 							var subj = $.uri.base().resolve($(form).attr("about"));
 							parent.calli.resourceCreated(subj.toString(), window.frameElement);
+							return;
 						}
 					} catch (e) {}
 					var redirect = xhr.getResponseHeader("Location");

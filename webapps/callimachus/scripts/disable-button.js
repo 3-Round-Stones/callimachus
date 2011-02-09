@@ -1,4 +1,4 @@
-// double-button.js
+// disabled-button.js
 
 (function($){
 
@@ -20,6 +20,10 @@ function flashButton(event) {
 			setTimeout(function() {
 				button.removeAttr('disabled');
 			}, 5000);
+			button.focus(function() {
+				button.removeAttr('disabled');
+				return true;
+			});
 		}
 	}, 0); // yield
 	return true;

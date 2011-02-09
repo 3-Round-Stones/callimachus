@@ -354,7 +354,6 @@ function initSetElements(form) {
 			    });
 				iframe.bind("dialogclose", function(event, ui) {
 					dialog.dialog("destroy");
-					add.removeAttr('disabled');
 					add.focus();
 				});
 				dialog.dialog("open");

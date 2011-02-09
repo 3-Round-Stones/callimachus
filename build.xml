@@ -7,6 +7,7 @@
 	<property name="bin" location="bin" />
 	<property name="etc" location="etc" />
 	<property name="log" location="log" />
+	<property name="downloads" location="tmp" />
 	<property name="webapps" location="webapps" />
 	<property name="home" location="." />
 	<property name="pid" location="run/callimachus.pid" />
@@ -41,46 +42,47 @@
 
 	<target name="dependencies" unless="lib.present">
 		<mkdir dir="${lib}" />
+		<mkdir dir="${downloads}" />
 		<parallel>
-			<get src="${alibaba.url}" dest="${lib}/openrdf-alibaba.zip" />
-			<get src="${jchardet.url}" dest="${lib}/jchardet.zip" />
-			<get src="${closure.url}" dest="${lib}/closure.zip" />
-			<get src="${jnotify.url}" dest="${lib}/jnotify.zip" />
-			<get src="${daemon.url}" dest="${lib}/daemon.zip" />
-			<get src="${daemon-linux-i686.url}" dest="${lib}/daemon-linux-i686.tar.gz" />
-			<get src="${download-lunix-x86_64.url}" dest="${lib}/daemon-linux-x86_64.tar.gz" />
-			<get src="${daemon-darwin.url}" dest="${lib}/daemon-darwin.tar.gz" />
+			<get src="${alibaba.url}" dest="${downloads}/openrdf-alibaba.zip" />
+			<get src="${jchardet.url}" dest="${downloads}/jchardet.zip" />
+			<get src="${closure.url}" dest="${downloads}/closure.zip" />
+			<get src="${jnotify.url}" dest="${downloads}/jnotify.zip" />
+			<get src="${daemon.url}" dest="${downloads}/daemon.zip" />
+			<get src="${daemon-linux-i686.url}" dest="${downloads}/daemon-linux-i686.tar.gz" />
+			<get src="${download-lunix-x86_64.url}" dest="${downloads}/daemon-linux-x86_64.tar.gz" />
+			<get src="${daemon-darwin.url}" dest="${downloads}/daemon-darwin.tar.gz" />
 			<get src="${mail.url}" dest="${lib}/${mail.jar}" />
 		</parallel>
-		<unzip src="${lib}/openrdf-alibaba.zip" dest="${lib}">
+		<unzip src="${downloads}/openrdf-alibaba.zip" dest="${lib}">
 			<patternset>
 				<include name="lib/*.jar" />
 				<include name="dist/*.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${lib}/openrdf-alibaba.zip" />
-		<unzip src="${lib}/jchardet.zip" dest="${lib}">
+		<delete file="${downloads}/openrdf-alibaba.zip" />
+		<unzip src="${downloads}/jchardet.zip" dest="${lib}">
 			<patternset>
 				<include name="*/dist/lib/*.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${lib}/jchardet.zip" />
-		<unzip src="${lib}/closure.zip" dest="${lib}">
+		<delete file="${downloads}/jchardet.zip" />
+		<unzip src="${downloads}/closure.zip" dest="${lib}">
 			<patternset>
 				<include name="*.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${lib}/closure.zip" />
-		<unzip src="${lib}/jnotify.zip" dest="${lib}">
+		<delete file="${downloads}/closure.zip" />
+		<unzip src="${downloads}/jnotify.zip" dest="${lib}">
 			<patternset>
 				<include name="*.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<unzip src="${lib}/jnotify.zip" dest="${lib}">
+		<unzip src="${downloads}/jnotify.zip" dest="${lib}">
 			<patternset>
 				<include name="*.so" />
 				<include name="*.dll" />
@@ -88,35 +90,37 @@
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${lib}/jnotify.zip" />
-		<unzip src="${lib}/daemon.zip" dest="${lib}">
+		<delete file="${downloads}/jnotify.zip" />
+		<unzip src="${downloads}/daemon.zip" dest="${lib}">
 			<patternset>
 				<include name="commons-daemon-*/commons-daemon-*.jar" />
+				<exclude name="commons-daemon-*/commons-daemon-*-sources.jar" />
+				<exclude name="commons-daemon-*/commons-daemon-*-javadoc.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
-		<delete file="${lib}/daemon.zip" />
-		<untar compression="gzip" src="${lib}/daemon-linux-i686.tar.gz" dest="${bin}">
+		<delete file="${downloads}/daemon.zip" />
+		<untar compression="gzip" src="${downloads}/daemon-linux-i686.tar.gz" dest="${bin}">
 			<patternset>
 				<include name="jsvc" />
 			</patternset>
 			<mapper type="glob" from="jsvc" to="callimachus-linux-i686" />
 		</untar>
-		<delete file="${lib}/daemon-linux-i686.tar.gz" />
-		<untar compression="gzip" src="${lib}/daemon-linux-x86_64.tar.gz" dest="${bin}">
+		<delete file="${downloads}/daemon-linux-i686.tar.gz" />
+		<untar compression="gzip" src="${downloads}/daemon-linux-x86_64.tar.gz" dest="${bin}">
 			<patternset>
 				<include name="jsvc" />
 			</patternset>
 			<mapper type="glob" from="jsvc" to="callimachus-linux-x86_64" />
 		</untar>
-		<delete file="${lib}/daemon-linux-x86_64.tar.gz" />
-		<untar compression="gzip" src="${lib}/daemon-darwin.tar.gz" dest="${bin}">
+		<delete file="${downloads}/daemon-linux-x86_64.tar.gz" />
+		<untar compression="gzip" src="${downloads}/daemon-darwin.tar.gz" dest="${bin}">
 			<patternset>
 				<include name="jsvc" />
 			</patternset>
 			<mapper type="glob" from="jsvc" to="callimachus-darwin" />
 		</untar>
-		<delete file="${lib}/daemon-darwin.tar.gz" />
+		<delete file="${downloads}/daemon-darwin.tar.gz" />
 		<antcall target="alibaba-snapshot" />
 	</target>
 

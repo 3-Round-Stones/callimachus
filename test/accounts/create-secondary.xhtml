@@ -23,12 +23,32 @@
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>link=admin</td>
+	<td>link=Edit</td>
 	<td></td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
-	<td>link=Create a new group</td>
+	<td>waitForNotEval</td>
+	<td>window.document.body.className</td>
+	<td>*wait*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>lookup1-button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForEval</td>
+	<td>window.frames[0].name</td>
+	<td>lookup2-iframe</td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>lookup2-iframe</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>30000</td>
 	<td></td>
 </tr>
 <tr>
@@ -57,11 +77,30 @@
 	<td></td>
 </tr>
 <tr>
-	<td>waitForTitle</td>
+	<td>selectFrame</td>
+	<td>relative=up</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextNotPresent</td>
+	<td>Alert</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextNotPresent</td>
+	<td>Exception</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
 	<td>secondary</td>
 	<td></td>
 </tr>
-
 </tbody></table>
 </body>
 </html>

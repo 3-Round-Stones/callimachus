@@ -33,7 +33,9 @@ $(document).ready(function(){
 					}
 					localStorage.setItem('Authorization', auth);
 				}
-				if (!event.isDefaultPrevented()) {
+				if (!event.isDefaultPrevented() && event.location) {
+					location = event.location;
+				} else if (!event.isDefaultPrevented() && event.location) {
 					location.reload(false);
 				}
 			}

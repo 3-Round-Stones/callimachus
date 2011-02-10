@@ -27,7 +27,8 @@
 					var xhr = jQuery.post(location.href, data, function(data, textStatus) {
 						var event = jQuery.Event("calliLogin");
 						event.username = name;
-						event.password = password;
+						event.password = value;
+						event.location = "/";
 						$(document).trigger(event);
 					});
 				} catch (e) {

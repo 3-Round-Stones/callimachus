@@ -30,6 +30,7 @@
 
 </group/admin> a <Group>;
 	rdfs:label "admin";
+	calli:curator </group/admin>; # maintainer of invited users
 	calli:maintainer </group/admin>.
 
 </callimachus/menu>
@@ -51,7 +52,7 @@
 # Group
 ################################
 
-<Group> rdfs:subClassOf calli:Group, calli:Viewable,calli:Editable;
+<Group> rdfs:subClassOf calli:Group, calli:Viewable,calli:Editable, calli:Copyable;
 	http:realm </accounts>; # Group operations must be authorized
 	calli:icon <group-favicon.png>;
 	calli:view <group.xhtml>;

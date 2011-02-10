@@ -54,10 +54,10 @@
 	obj:script """
 		var template = this.FindCopyTemplate();
 		var copy = template.calliCopyResource(this, input, this.FindCopyNamespaces());
-		if (calliCurators) {
-			copy.calliMaintainers.addAll(calliCurators);
+		if (this.calliCurators.size()) {
+			copy.calliMaintainers.addAll(this.calliCurators);
 			if (copy instanceof Copyable) {
-				copy.calliCurators.addAll(calliCurators);
+				copy.calliCurators.addAll(this.calliCurators);
 			}
 		} else {
 			copy.calliMaintainers.addAll(this.FindScribe(copy));

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="../../layout/template.xsl"?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -41,40 +41,20 @@
 				var deleted = false;
 				$(document).bind("calliDelete", function(event) {
 					if (credential && credential == uri) {
-						// need to log user out gracefully now that they deleted themselves
-						if (window.localStorage) {
-							localStorage.removeItem('Authorization');
-						}
-						if (window.sessionStorage) {
-							sessionStorage.removeItem('Profile');
-						}
-						return deleted = true;
+						deleted = true;
 					}
+					return true;
 				});
 				$(document).bind("calliRedirect", function(event) {
-					if (!deleted && credential && credential == uri) {
-						if ($("#password").val()) {
-							// need to log user out gracefully since they changed their password
-							if (window.localStorage) {
-								localStorage.removeItem('Authorization');
-							}
-							if (window.sessionStorage) {
-								sessionStorage.removeItem('Profile');
-							}
+					if (credential && credential == uri) {
+						if (deleted || $("#password").val()) {
+							// need to log user out gracefully since they changed their password or deleted themselves
+							$(document).trigger(jQuery.Event("calliLogout"));
 							event.preventDefault();
-							var xhr = jQuery.ajax({ type: 'GET', url: "/accounts?logout",
-								username: 'logout', password: 'nil',
-								success: function() {
-									window.location = "/";
-								}
-							});
 							return false;
-						} else if (window.sessionStorage) {
-							// user may have changed their name
-							sessionStorage.setItem('Profile', $('#label').val());
 						}
-						return true;
 					}
+					return true;
 				});
 			});
 			// ]]>

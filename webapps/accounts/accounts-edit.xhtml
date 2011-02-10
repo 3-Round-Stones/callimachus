@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+<head>
+	<title>User Groups</title>
+</head>
+<body about="?this">
+	<h1>User Groups</h1>
+	<form about="?this">
+		<label for="group">Authenticating groups</label>
+		<ul id="group" rel="calli:authenticates" data-prompt="/accounts?copy">
+			<li about="?group" rel="rdf:type" resource="/accounts/Group" property="rdfs:label" />
+		</ul>
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+	</form>
+</body>
+</html>

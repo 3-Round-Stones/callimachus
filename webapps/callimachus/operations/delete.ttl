@@ -33,7 +33,19 @@
 		owl:allValuesFrom owl:Nothing];
 	http:method "DELETE";
 	obj:script """
-		this.objectConnection.remove(null, null, this.resource, []);
+		var con = this.objectConnection;
+		var stmts = con.getStatements(null, null, this.resource, []);
+		try {
+			while (stmts.hasNext()) {
+				var st = stmts.next();
+				if (st.predicate.stringValue() != "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject"
+						&& st.predicate.stringValue() != "http://www.w3.org/1999/02/22-rdf-syntax-ns#object") {
+					con.remove(st, []);
+				}
+			}
+		} finally {
+			stmts.close();
+		}
 		this.calliDeleteWebResource();
 	""".
 

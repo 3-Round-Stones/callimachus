@@ -19,7 +19,7 @@
 	http:operation "requestpassword";
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	obj:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-	obj:imports <user/mail-request-password.xhtml>;
+	obj:imports <mail-request-password.xhtml>;
 	obj:imports <java:java.io.CharArrayWriter>;
 	obj:imports <java:java.util.Random>;
 	obj:imports <java:java.lang.Integer>;

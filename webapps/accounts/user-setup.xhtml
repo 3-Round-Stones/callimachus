@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="../../layout/template.xsl"?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -25,25 +25,10 @@
 				var data = {name: name, label: label, algorithm: 'MD5', encoded: encoded};
 				try {
 					var xhr = jQuery.post(location.href, data, function(data, textStatus) {
-						// remove bogus data
-						if (window.sessionStorage) {
-							sessionStorage.removeItem('Profile');
-						}
-						if (window.localStorage) {
-							localStorage.removeItem('Authorization');
-						}
-						var url = xhr.getResponseHeader('Location');
-						xhr = jQuery.ajax({type: 'GET', url: url,
-							username: name,
-							password: value,
-							success: function(data, textStatus) {
-								if (window.sessionStorage) {
-									var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(xhr.responseText);
-									sessionStorage.setItem('Profile', title[1]);
-								}
-								location.replace(url);
-							}
-						});
+						var event = jQuery.Event("calliLogin");
+						event.username = name;
+						event.password = password;
+						$(document).trigger(event);
 					});
 				} catch (e) {
 					$(form).trigger("calliError", e.description ? e.description : e);
@@ -70,7 +55,7 @@
 		</ul>
 		<h1>Initial Setup</h1>
 		<form id="form" method="POST" action="" autocomplete="off" >
-			<div rel="rdf:type" resource="/accounts/user/User" />
+			<div rel="rdf:type" resource="/accounts/User" />
 			<span style="display:none">
 				<a id="realm-link" href="/" />
 			</span>

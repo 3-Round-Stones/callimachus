@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="../../layout/template.xsl"?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -17,7 +17,7 @@
 		</ul>
 		<form id="form" action="" about="?this"
 				onsubmit="$(this).attr('about', '/user/' + encodeURI($('#name').val()).replace(/%20/g,'+').toLowerCase())">
-			<div rel="rdf:type" resource="/accounts/user/User" />
+			<div rel="rdf:type" resource="/accounts/User" />
 			<label for="name">Username</label>
 			<div data-cardinality="1">
 				<input id="name" property="calli:name" type="text" class="auto-expand required" />

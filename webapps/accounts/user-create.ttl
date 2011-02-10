@@ -32,8 +32,8 @@
 	http:realm </accounts>;
 	http:expect "201-created";
 	obj:imports <user-create.xhtml>;
-	obj:imports <../user/mail-password.xhtml>;
-	obj:imports <../../user/>;
+	obj:imports <mail-password.xhtml>;
+	obj:imports </user/>;
 	obj:imports </accounts>;
 	obj:imports <java:org.openrdf.rio.rdfxml.RDFXMLParser>;
 	obj:imports <java:org.openrdf.rio.helpers.StatementCollector>;

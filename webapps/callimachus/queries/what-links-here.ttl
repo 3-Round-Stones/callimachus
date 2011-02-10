@@ -20,7 +20,9 @@
 	obj:sparql """
 		SELECT DISTINCT ?label ?comment ?icon ?url ?modified
 		WHERE {
-			?url ?rel $this
+			{ ?url ?rel $this }
+			UNION { ?bnode ?rel $this FILTER (!isIRI(?bnode))
+				OPTIONAL { ?url ?rel2 ?bnode } }
 			FILTER (isIRI(?url))
 			FILTER (?rel != http:authorized)
 			OPTIONAL { ?url a [calli:icon ?icon] }

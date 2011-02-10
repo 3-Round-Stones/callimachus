@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="../../layout/template.xsl"?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -35,21 +35,21 @@
 			<label for="scribe">Scribes</label>
 			<div id="scribe" rel="calli:scribe" data-prompt="?copy">
 				<span about="?scribe">
-					<span rel="rdf:type" resource="/accounts/group/Group" />
+					<span rel="rdf:type" resource="/accounts/Group" />
 					<span property="rdfs:label"/>
 				</span>
 			</div>
 			<label for="curator">Curators</label>
 			<div id="curator" rel="calli:curator" data-prompt="?copy">
 				<span about="?curator">
-					<span rel="rdf:type" resource="/accounts/group/Group" />
+					<span rel="rdf:type" resource="/accounts/Group" />
 					<span property="rdfs:label"/>
 				</span>
 			</div>
 			<label for="maintainer">Maintainers</label>
 			<div id="maintainer" rel="calli:maintainer" data-prompt="?copy">
 				<span about="?maintainer">
-					<span rel="rdf:type" resource="/accounts/group/Group" />
+					<span rel="rdf:type" resource="/accounts/Group" />
 					<span property="rdfs:label"/>
 				</span>
 			</div>
@@ -57,7 +57,7 @@
 			<label for="member">Members</label>
 			<div id="member" rel="calli:member" data-prompt="?usercreate" class="sorted">
 				<span about="?member">
-					<span rel="rdf:type" resource="/accounts/user/User" />
+					<span rel="rdf:type" resource="/accounts/User" />
 					<span property="rdfs:label" class="asc"/>
 				</span>
 			</div>

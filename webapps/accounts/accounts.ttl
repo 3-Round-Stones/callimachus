@@ -6,21 +6,56 @@
 @prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix accounts:</accounts/>.
 @prefix :<#>.
 
 ################################
 # Realm
 ################################
 
-<Accounts> rdfs:subClassOf calli:DigestRealm, calli:Viewable;
-	calli:view <view.xhtml>.
+<Accounts> rdfs:subClassOf calli:DigestRealm, calli:Viewable, calli:Editable, calli:Copyable;
+	calli:view <accounts.xhtml>;
+	calli:edit <accounts-edit.xhtml>;
+	calli:copy <group-create.xhtml>;
+	calli:withNamespace </group/>.
 
 </accounts> a <Accounts>;
-	calli:origin <../>;
-	calli:authName <../>;
-	calli:domain <../>;
+	calli:origin </>;
+	calli:authName </>;
+	calli:domain </>;
 	calli:unauthorized <unauthorized.xhtml>;
-	calli:forbidden <forbidden.xhtml>.
+	calli:forbidden <forbidden.xhtml>;
+	calli:authenticates </group/admin>;
+	calli:maintainer </group/admin>.
+
+</group/admin> a <Group>;
+	rdfs:label "admin";
+	calli:maintainer </group/admin>.
+
+</callimachus/menu>
+	calli:item [calli:position 3; rdfs:label "User groups"; calli:link </accounts>].
+
+################################
+# User
+################################
+
+<User> rdfs:subClassOf calli:User, calli:MailSubmitter;
+	rdfs:subClassOf calli:Viewable, calli:Editable;
+	http:realm </accounts>; # User operations must be authorized
+	calli:icon <user-favicon.png>;
+	calli:withNamespace </user/>;
+	calli:view <user.xhtml>;
+	calli:edit <user-edit.xhtml>.
+
+################################
+# Group
+################################
+
+<Group> rdfs:subClassOf calli:Group, calli:Viewable,calli:Editable;
+	http:realm </accounts>; # Group operations must be authorized
+	calli:icon <group-favicon.png>;
+	calli:view <group.xhtml>;
+	calli:edit <group-edit.xhtml>.
 
 ################################
 # login

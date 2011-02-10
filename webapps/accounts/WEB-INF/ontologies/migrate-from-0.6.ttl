@@ -1,0 +1,72 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
+@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+:MigrateUsers owl:equivalentClass calli:Started;
+	obj:imports <java:org.openrdf.model.vocabulary>;
+	obj:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var User = vf.createURI(calli, "User");
+		var subclass = con.getStatements(null, RDFS.SUBCLASSOF, User, true, []);
+		try {
+			while (subclass.hasNext()) {
+				var MyUser = subclass.next().subject;
+				if (MyUser.stringValue().contains("/accounts/User")
+						&& !con.hasStatement(null, RDF.TYPE, MyUser, true, [])) {
+					var MyOldUser = vf.createURI(MyUser.stringValue().replace("/accounts/User", "/accounts/user/User"));
+					var stmts = con.getStatements(null, RDF.TYPE, MyOldUser, true, []);
+					try {
+						while (stmts.hasNext()) {
+							var user = stmts.next().subject;
+							java.lang.System.err.println("Migrating " + user);
+							con.add(user, RDF.TYPE, MyUser, []);
+						}
+					} finally {
+						stmts.close();
+					}
+				}
+			}
+		} finally {
+			subclass.close();
+		}
+	""".
+
+:MigrateGroups owl:equivalentClass calli:Started;
+	obj:imports <java:org.openrdf.model.vocabulary>;
+	obj:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var Group = vf.createURI(calli, "Group");
+		var subclass = con.getStatements(null, RDFS.SUBCLASSOF, Group, true, []);
+		try {
+			while (subclass.hasNext()) {
+				var MyGroup = subclass.next().subject;
+				if (MyGroup.stringValue().contains("/accounts/Group")
+						&& !con.hasStatement(null, RDF.TYPE, MyGroup, true, [])) {
+					var MyOldGroup = vf.createURI(MyGroup.stringValue().replace("/accounts/Group", "/accounts/group/Group"));
+					var stmts = con.getStatements(null, RDF.TYPE, MyOldGroup, true, []);
+					try {
+						while (stmts.hasNext()) {
+							var group = stmts.next().subject;
+							java.lang.System.err.println("Migrating " + group);
+							con.add(group, RDF.TYPE, MyGroup, []);
+						}
+					} finally {
+						stmts.close();
+					}
+				}
+			}
+		} finally {
+			subclass.close();
+		}
+	""".
+

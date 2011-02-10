@@ -3,36 +3,150 @@
 (function($){
 
 $(document).ready(function(){
-	if (window.sessionStorage && sessionStorage.getItem("Profile")) {
+	$("#profile-link").text('');
+	$(document).bind("calliLogin", function(event) {
+		// remove bogus data
+		if (window.sessionStorage) {
+			sessionStorage.removeItem('Name');
+			localStorage.removeItem('Authorization');
+		}
+		var options = {type: "GET", url: "/accounts?login",
+			success: function(doc) {
+				var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc);
+				if (title) {
+					if (window.sessionStorage) {
+						// now logged in
+						sessionStorage.setItem("Name", title[1]);
+						localStorage.setItem("Name", title[1]);
+					}
+					loggedIn(title[1]);
+				}
+				if (window.localStorage) {
+					var auth = "User " + event.username;
+					if (event.remember) {
+						auth = event.username + ":" + event.password;
+						if (window.btoa) {
+							auth = "Basic " + window.btoa(auth);
+						} else {
+							auth = "Credentials " + auth;
+						}
+					}
+					localStorage.setItem('Authorization', auth);
+				}
+				if (!event.isDefaultPrevented()) {
+					location.reload(false);
+				}
+			}
+		};
+		if (event.username) {
+			options.username = event.username;
+		}
+		if (event.password) {
+			options.password = event.password;
+		} else {
+			options.beforeSend = withCredentials;
+		}
+		jQuery.ajax(options);
+	});
+
+	$(document).bind("calliLogout", function(event) {
+		if (window.sessionStorage) {
+			sessionStorage.removeItem('Name');
+			localStorage.removeItem('Authorization');
+			localStorage.removeItem('NotLoginCount');
+			localStorage.removeItem('LoginCount');
+			localStorage.removeItem('Name');
+		}
+		window.jQuery.ajax({ type: 'GET', url: "/accounts?logout",
+			username: 'logout', password: 'nil',
+			success: function(data) {
+				location = "/";
+			}
+		});
+	});
+
+	// IE8 doesn't support event.key
+	var oldName = localStorage.getItem('Name');
+	var oldNotLoginCount = localStorage.getItem('NotLoginCount');
+	var oldLoginCount = localStorage.getItem('LoginCount');
+	$(window).bind('storage', handleStorageEvent);
+	$(document).bind('storage', handleStorageEvent); // IE
+	function handleStorageEvent(e) {
+		var newName = localStorage.getItem('Name');
+		var newNotLoginCount = localStorage.getItem('NotLoginCount');
+		var newLoginCount = localStorage.getItem('LoginCount');
+		if (newName != oldName) {
+			oldName = newName;
+			var currently = $("#profile-link").text();
+			if (currently && !newName) {
+				// now logged out
+				sessionStorage.removeItem('Name');
+				loggedOut();
+				location = "/";
+			} else if (!currently && newName) {
+				// now logged in
+				sessionStorage.setItem("Name", newName);
+				loggedIn(newName);
+			}
+		}
+		if (newNotLoginCount != oldNotLoginCount) {
+			oldNotLoginCount = newNotLoginCount;
+			var currently = $("#profile-link").text();
+			if (currently && newNotLoginCount) {
+				// a window is not sure if we are logged in
+				localStorage.setItem("Name", currently);
+				var count = localStorage.getItem('LoginCount');
+				localStorage.setItem('LoginCount', count ? parseInt(count) + 1 : 1);
+			} 
+		}
+		if (newLoginCount != oldLoginCount) {
+			oldLoginCount = newLoginCount;
+			var currently = $("#profile-link").text();
+			if (!currently && newLoginCount) {
+				// another window says we are logged in
+				var value = localStorage.getItem("Name");
+				sessionStorage.setItem("Name", value);
+				loggedIn(value);
+			} 
+		}
+		return true;
+	}
+
+	if (window.sessionStorage && sessionStorage.getItem("Name")) {
 		// logged in already
-		loggedIn(sessionStorage.getItem("Profile"));
+		loggedIn(sessionStorage.getItem("Name"));
 	} else {
-		$(".authenticated").hide();
-		$("#login-link").show();
-		$("#login-link").click(login);
+		loggedOut();
 		if (window.localStorage && localStorage.getItem('Authorization')) {
 			// was logged in previously
-			var options = {type: "GET", url: "/accounts?login",
-				success: showProfile
-			};
 			var auth = localStorage.getItem('Authorization');
 			if (auth && auth.indexOf("Basic ") == 0) {
 				// remember me Firefox, Chrome, Safari
 				var up = window.atob(auth.substring("Basic ".length));
-				options.username = up.substring(0, up.indexOf(':'));
-				options.password = up.substring(up.indexOf(':') + 1);
-				window.jQuery.ajax(options);
+				var event = jQuery.Event("calliLogin");
+				event.preventDefault(); // don't reload page
+				event.username = up.substring(0, up.indexOf(':'));
+				event.password = up.substring(up.indexOf(':') + 1);
+				$(document).trigger(event);
 				return;
 			} else if (auth && auth.indexOf("Credentials ") == 0) {
 				// remember me IE
 				var up = auth.substring("Credentials ".length);
-				options.username = up.substring(0, up.indexOf(':'));
-				options.password = up.substring(up.indexOf(':') + 1);
-				window.jQuery.ajax(options);
+				var event = jQuery.Event("calliLogin");
+				event.preventDefault(); // don't reload page
+				event.username = up.substring(0, up.indexOf(':'));
+				event.password = up.substring(up.indexOf(':') + 1);
+				$(document).trigger(event);
 				return;
-			} else if (auth && auth.indexOf("Name ") == 0) {
+			} else if (localStorage.getItem('Name')) {
 				// was logged in before, prompt to log back in
-				$("#login-link").click();
+				var count = localStorage.getItem('NotLoginCount');
+				localStorage.setItem('NotLoginCount', count ? parseInt(count) + 1 : 1);
+				setTimeout(function() {
+					if ($("#login-link").is(":visible")) {
+						$("#login-link").click();
+					}
+				}, 0); // check if already logged in
 			}
 		}
 		// hasn't logged in using the login form; is this page protected?
@@ -40,20 +154,18 @@ $(document).ready(function(){
 			beforeSend: withCredentials,
 			success: function() {
 				if (xhr.getResponseHeader("Authentication-Info")) { 
-					jQuery.ajax({type: "HEAD", url: "/accounts?login",
-						beforeSend: withCredentials,
-						success: showProfile
-					});
+					var event = jQuery.Event("calliLogin");
+					event.preventDefault(); // don't reload page
+					$(document).trigger(event);
 				} else if (!xhr.getAllResponseHeaders()) { // Opera sends empty response; try again w/o cache
 					xhr = jQuery.ajax({type: 'GET', url: location.href,
 						headers: {'Cache-Control': "no-cache"},
 						beforeSend: withCredentials,
 						success: function() {
-							if (xhr.getResponseHeader("Authentication-Info")) { 
-								jQuery.ajax({type: "GET", url: "/accounts?login",
-									beforeSend: withCredentials,
-									success: showProfile
-								});
+							if (xhr.getResponseHeader("Authentication-Info")) {
+								var event = jQuery.Event("calliLogin");
+								event.preventDefault(); // don't reload page
+								$(document).trigger(event);
 							}
 						}
 					});
@@ -63,49 +175,24 @@ $(document).ready(function(){
 	}
 });
 
-function withCredentials(req) {
-	try {
-		req.withCredentials = true;
-	} catch (e) {}
-}
-
-function showProfile(doc) {
-	var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc);
-	if (title) {
-		if (window.sessionStorage) {
-			// now logged in
-			sessionStorage.setItem("Profile", title[1]);
-		}
-		loggedIn(title[1]);
-	} else { // Firefox may cache response without body
-		loggedIn("Profile");
-	}
-}
-
 function loggedIn(title) {
 	$("#login-form").hide();
 	$("#login-link").hide();
 	$("#profile-link").text(title);
 	$(".authenticated").show();
 	$("#logout-link").click(function(event) {
-		var href = this.href;
-		window.jQuery.ajax({ type: 'GET', url: href,
-			username: 'logout', password: 'nil',
-			success: function() {
-				location = href;
-			}
-		})
-		if (window.localStorage) {
-			localStorage.removeItem('Authorization');
-		}
-		if (window.sessionStorage) {
-			sessionStorage.removeItem('Profile');
-		}
+		$(document).trigger(jQuery.Event("calliLogout"));
 		if (event.preventDefault) {
 			event.preventDefault();
 		}
 		return false;
 	}) 
+}
+
+function loggedOut() {
+	$(".authenticated").hide();
+	$("#login-link").show();
+	$("#login-link").click(login);
 }
 
 function login(event) {
@@ -143,12 +230,14 @@ function login(event) {
 		} else {
 			window.jQuery.ajax({ type: 'GET', url: "/layout/login.html",
 				success: function(data) {
-					var form = $(data).find("#login-form").andSelf().filter("#login-form");
-					form.css('position', "absolute");
-					form.css('display', "none");
-					link.after(form);
-					form.submit(submitLoginForm);
-					showForm(form);
+					if ($("#login-link").is(":visible")) {
+						var form = $(data).find("#login-form").andSelf().filter("#login-form");
+						form.css('position', "absolute");
+						form.css('display', "none");
+						link.after(form);
+						form.submit(submitLoginForm);
+						showForm(form);
+					}
 				}
 			})
 		}
@@ -161,28 +250,11 @@ function login(event) {
 
 function submitLoginForm(event) {
 	try {
-		var username = this.elements['username'].value;
-		var password = this.elements['password'].value;
-		var remember = this.elements['remember'].checked;
-		window.jQuery.ajax({ type: 'GET', url: "/accounts?login",
-			username: username, password: password,
-			success: function(doc) {
-				showProfile(doc);
-				if (window.localStorage) {
-					var auth = "Name " + username;
-					if (remember) {
-						auth = username + ":" + password;
-						if (window.btoa) {
-							auth = "Basic " + window.btoa(auth);
-						} else {
-							auth = "Credentials " + auth;
-						}
-					}
-					localStorage.setItem('Authorization', auth);
-				}
-				location.reload(false);
-			}
-		});
+		var event = jQuery.Event("calliLogin");
+		event.username = this.elements['username'].value;
+		event.password = this.elements['password'].value;
+		event.remember = this.elements['remember'].checked;
+		$(document).trigger(event);
 	} catch (e) {
 		$(event.target).trigger("calliError", e.description ? e.description : e);
 	}
@@ -190,6 +262,12 @@ function submitLoginForm(event) {
 		event.preventDefault();
 	}
 	return false;
+}
+
+function withCredentials(req) {
+	try {
+		req.withCredentials = true;
+	} catch (e) {}
 }
 
 })(window.jQuery);

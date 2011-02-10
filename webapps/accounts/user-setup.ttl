@@ -7,7 +7,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<local> a calli:LocalRealm;
+:local a calli:LocalRealm;
 	calli:origin </>;
 	calli:domain </group/>.
 
@@ -20,7 +20,7 @@
 		owl:cardinality 1];
 	obj:sparql """
 		ASK {
-			# this group is maintained by its members
+			# this group is maintained by its members, but
 			$this calli:maintainer $this
 
 			# there are no members to maintain this
@@ -43,7 +43,7 @@
 	http:operation "usersetup";
 	http:type "application/xhtml+xml";
 	http:transform </callimachus/layout.ttl#TransformXhtml>;
-	http:realm <local>;
+	http:realm :local;
 	obj:imports <user-setup.xhtml>;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	obj:script """
@@ -61,10 +61,10 @@ rdfs:label a rdf:Property.
 		owl:allValuesFrom xsd:string];
 	http:method "POST";
 	http:operation "usersetup";
-	http:realm <local>;
+	http:realm :local;
 	http:expect "201-created";
 	obj:imports </user/>;
-	obj:imports <../user/User>;
+	obj:imports <User>;
 	obj:imports </accounts>;
 	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	obj:imports <java:org.openrdf.http.object.exceptions.Conflict>;

@@ -648,7 +648,7 @@ function addSetItem(uri, script) {
 	var url = script.attr("data-add").replace("{about}", encodeURIComponent(uri))
 	get(script, url, function(data) {
 		var input = data ? $(data) : data
-		if (input && input.is("[about='" + uri + "']")) {
+		if (input && input.is("[about='" + uri + "']") && input.text().match(/\W/)) {
 			if (script.children("button.add").size()) {
 				script.children("button.add").before(input)
 			} else {
@@ -659,7 +659,7 @@ function addSetItem(uri, script) {
 				$('#' + script.attr("data-dialog")).dialog('close')
 			}
 		} else {
-			script.parents("form").trigger("calliError", "Invalid Relationship")
+			script.trigger("calliError", "Invalid Relationship")
 		}
 	})
 }

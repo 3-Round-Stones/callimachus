@@ -12,11 +12,7 @@ function handle(event) {
 	}
 	links.each(function() {
 		if (this.href.indexOf("/diverted;") < 0) {
-			if (this.getAttribute("data-diverted")) {
-				this.href = window.calli.diverted(this.href, this) + this.getAttribute("data-diverted");
-			} else {
-				this.href = window.calli.diverted(this.href, this);
-			}
+			this.href = window.calli.diverted(this.href, this);
 		}
 	});
 }

@@ -93,7 +93,7 @@ calli:NamedGraph a owl:Class.
 	rdfs:domain :PutTextDocument;
 	rdfs:range <java:java.io.Reader>;
 	http:type "text/html;q=0.1", "text/html-sandboxed;q=0.1", "text/cache-manifest;q=0.1",
-		"text/css;q=0.1", "text/javascript;q=0.1", "text/plain;q=0.1".
+		"text/css;q=0.1", "text/plain;q=0.1".
 
 :PutJavaScriptDocument rdfs:subClassOf :PutContentType;
 	rdfs:subClassOf [owl:onProperty obj:objectResponse;
@@ -117,7 +117,6 @@ calli:NamedGraph a owl:Class.
 		} finally {
 			out.close();
 		}
-		var vf = con.valueFactory;
 		var bundles = con.getStatements(null, null, this.resource, true, []);
 		try {
 			while (bundles.hasNext()) {

@@ -4,7 +4,7 @@
 
 $(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
 	if (xhr && xhr.status >= 400 && xhr.status != 409) {
-		showError(event, xhr.statusText, xhr.responseText)
+		showError(event, xhr.statusText, xhr.responseText);
 	} else if (thrownError) {
 		showError(event, thrownError);
 	}
@@ -33,6 +33,7 @@ $(document).ready(function() {
 });
 
 function showError(event, error, detail, link) {
+	setTimeout(function() {
 	try {
 		var status = '' + error;
 		if (detail && detail.indexOf('<') == 0) {
@@ -71,6 +72,7 @@ function showError(event, error, detail, link) {
 	} catch (e) {
 		alert(error);
 	}
+	}, 0);
 }
 
 })(window.jQuery);

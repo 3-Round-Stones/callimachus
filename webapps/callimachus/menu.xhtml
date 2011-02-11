@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title>Main Menu</title>
+</head>
+<body about="?this">
+	<label property="rdfs:label" />
+	<a rel="calli:link" href="?link0">(link)</a>
+	<ol rel="calli:item" class="sorted">
+		<li about="?first">
+			<span class="asc" property="calli:position" style="display:none" />
+			<label property="rdfs:label" />
+			<a rel="calli:link" href="?link1">(link)</a>
+			<ol rel="calli:item" class="sorted">
+				<li about="?second">
+					<span class="asc" property="calli:position" style="display:none" />
+					<label property="rdfs:label" />
+					<a rel="calli:link" href="?link2">(link)</a>
+					<ol rel="calli:item" class="sorted">
+						<li about="?third">
+							<span class="asc" property="calli:position" style="display:none" />
+							<label property="rdfs:label" />
+							<a rel="calli:link" href="?link3">(link)</a>
+						</li>
+					</ol>
+				</li>
+			</ol>
+		</li>
+	</ol>
+</body>
+</html>

@@ -16,7 +16,7 @@
 	rdfs:member <discussion.js>;
 	rdfs:member <error.js>.
 
-</callimachus/menu> a calli:Menu;
+</callimachus/menu>
 	calli:item [calli:position 1; rdfs:label "Main page"; calli:link </>];
 	calli:item [calli:position 2; rdfs:label "Recent changes"; calli:link </callimachus/changes>];
 	calli:item [calli:position 10; rdfs:label "Toolbox";

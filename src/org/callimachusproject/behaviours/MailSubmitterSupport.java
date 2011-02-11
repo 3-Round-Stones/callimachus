@@ -28,23 +28,23 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.Message.RecipientType;
-import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
+import org.callimachusproject.concepts.User;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.exceptions.NotImplemented;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides methods to send emails to a configured SMTP server using the
@@ -53,29 +53,19 @@ import org.openrdf.http.object.exceptions.NotImplemented;
  * @author James Leigh
  * 
  */
-public abstract class MailSubmitterSupport {
+public abstract class MailSubmitterSupport implements User {
 	private static final Pattern HTML_TITLE = Pattern
 			.compile("<title>\\s*([^<]*)\\s*<.title>");
+	private final Logger logger = LoggerFactory
+			.getLogger(MailSubmitterSupport.class);
 
-	public void sendMessage(String html, String recipient)
-			throws IOException, MessagingException, NamingException {
+	public void sendMessage(String html, String recipient) throws IOException,
+			MessagingException, NamingException {
 		sendMessage(html, Collections.singleton(recipient));
 	}
 
 	public void sendMessage(String html, Set<String> recipients)
 			throws IOException, MessagingException, NamingException {
-		sendMessage(html, null, null, recipients);
-	}
-
-	public void sendMessage(String html, InputStream in, String mime,
-			String recipient) throws IOException, MessagingException,
-			NamingException {
-		sendMessage(html, in, mime, Collections.singleton(recipient));
-	}
-
-	public void sendMessage(String html, InputStream in, String mime,
-			Set<String> recipients) throws IOException, MessagingException,
-			NamingException {
 		if (recipients == null || recipients.isEmpty())
 			throw new BadRequest("Missing to paramenter");
 		Properties properties = new Properties();
@@ -90,26 +80,48 @@ public abstract class MailSubmitterSupport {
 		}
 		Session session = Session.getInstance(properties);
 		MimeMessage message = new MimeMessage(session);
-		message.setFrom();
 		message.setSentDate(new Date());
+		String fromEmail = getCalliEmail();
+		boolean fromSelf = false;
 		if (recipients.size() == 1) {
 			String to = recipients.iterator().next();
 			message.addRecipients(RecipientType.TO, to);
+			if (fromEmail != null) {
+				fromSelf |= to.contains(fromEmail);
+			}
 		} else {
 			for (String to : recipients) {
 				message.addRecipients(RecipientType.BCC, to);
+				if (fromEmail != null) {
+					fromSelf |= to.contains(fromEmail);
+				}
 			}
+		}
+		if (fromEmail == null || fromSelf) {
+			message.setFrom();
+		} else {
+			String fromUser = getCalliFullName() + " <" + fromEmail + ">";
+			message.setFrom(new InternetAddress(fromUser));
 		}
 		Matcher m = HTML_TITLE.matcher(html);
 		if (m.find()) {
 			message.setSubject(m.group(1));
+		} else if (!html.startsWith("<")) {
+			message.setSubject(html.substring(0, html.indexOf('\n')));
 		}
-		if (in == null) {
+		if (html.startsWith("<")) {
 			message.setText(html, "UTF-8", "html");
 		} else {
+			message.setText(html.substring(html.indexOf('\n') + 1));
+		}
+		/*
 			MimeMultipart multipart = new MimeMultipart();
 			MimeBodyPart part1 = new MimeBodyPart();
-			part1.setText(html, "UTF-8", "html");
+			if (html.startsWith("<")) {
+				part1.setText(html, "UTF-8", "html");
+			} else {
+				part1.setText(html.substring(html.indexOf('\n') + 1));
+			}
 			multipart.addBodyPart(part1);
 			MimeBodyPart part2 = new MimeBodyPart();
 			ByteArrayDataSource source = new ByteArrayDataSource(in, mime);
@@ -117,7 +129,7 @@ public abstract class MailSubmitterSupport {
 			part2.setDisposition("inline");
 			multipart.addBodyPart(part2);
 			message.setContent(multipart);
-		}
+		*/
 		message.saveChanges();
 		if (properties.containsKey("mail.transport.protocol")) {
 			String user = session.getProperty("mail.user");
@@ -140,12 +152,14 @@ public abstract class MailSubmitterSupport {
 				try {
 					tr.connect(host, 25, null, null);
 					tr.sendMessage(message, message.getAllRecipients());
-					return;
+					break;
 				} finally {
 					tr.close();
 				}
 			}
 		}
+		logger.info("Sent e-mail {} {} {}", new Object[] { recipients,
+				message.getSubject(), message.getMessageID() });
 	}
 
 	private String findMailServer(String domain) throws NamingException {

@@ -7,6 +7,9 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 	<head>
 		<title>Invite a New User</title>
+		<script>jQuery(function($){
+			$('#message').val($('#message').val() + ' ' + location.protocol + '//' + location.host + '/')
+		});</script>
 	</head>
 	<body>
 		<ul class="aside">
@@ -14,26 +17,40 @@
 			<li>E-mail address is used to send an invite password and possibly reset the password</li>
 			<li>Provide the user's full name</li>
 			<li>Provide any additional contact information or affiliation information</li>
+			<li>You can customize the message sent in the email here</li>
 		</ul>
-		<form id="form" action="" about="?this"
-				onsubmit="$(this).attr('about', '/user/' + encodeURI($('#name').val()).replace(/%20/g,'+').toLowerCase())">
-			<div rel="rdf:type" resource="/accounts/User" />
+		<form id="form" method="POST" action="" autocomplete="off">
 			<label for="name">Username</label>
-			<div data-cardinality="1">
-				<input id="name" property="calli:name" type="text" class="auto-expand required" />
+			<div>
+				<input id="name" name="name" type="text" class="auto-expand required"
+					onchange="$('#message').val($('#message').val().replace(/username is (\w*)/, 'username is ' + value))" />
 			</div>
 			<label for="email">E-mail address</label>
-			<div data-cardinality="1">
-				<input id="email" property="calli:email" type="text" class="auto-expand required" />
+			<div>
+				<input id="email" name="email" type="text" class="auto-expand required" />
 			</div>
 			<label for="label">Full name</label>
-			<div data-cardinality="1">
-				<input id="label" property="rdfs:label" type="text" class="auto-expand required" />
+			<div>
+				<input id="label" name="label" type="text" class="auto-expand required"
+					onchange="$('#message').val($('#message').val().replace(/Hi[^,]*,/, 'Hi ' + value + ','))" />
 			</div>
 			<label for="comment">Additional information</label>
-			<div data-cardinality="1">
-				<textarea id="comment" class="auto-expand"
-					property="rdfs:comment"></textarea>
+			<div>
+				<textarea id="comment" class="auto-expand" name="comment"></textarea>
+			</div>
+			<label for="subject">Welcome subject</label>
+			<div>
+				<input id="subject" name="subject" type="text" class="auto-expand required" value="You have a new account" />
+			</div>
+			<label for="message">Welcome message</label>
+			<div>
+				<textarea id="message" class="auto-expand" name="message">Hi,
+
+You have a new account.
+
+Your username is  and your password is "@@PASSWORD@@" (without quotes).
+
+You can sign in at:</textarea>
 			</div>
 			<button id="submit" type="submit">Invite</button>
 		</form>

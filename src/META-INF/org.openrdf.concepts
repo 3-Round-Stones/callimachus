@@ -5,3 +5,4 @@ org.callimachusproject.concepts.DigestRealm
 org.callimachusproject.concepts.Group
 org.callimachusproject.concepts.ScriptBundle
 org.callimachusproject.concepts.Template
+org.callimachusproject.concepts.User

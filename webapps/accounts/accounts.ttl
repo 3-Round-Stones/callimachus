@@ -82,10 +82,10 @@
 	http:cache-control "max-age:3600";
 	obj:script """
 		if ("settings" == query)
-			return findCredential(authorization) + "?edit";
+			return this.findCredential(authorization) + "?edit";
 		if ("contributions" == query)
-			return findCredential(authorization) + "?contributions";
-		return findCredential(authorization).toString();
+			return this.findCredential(authorization) + "?contributions";
+		return this.findCredential(authorization).toString();
 	""".
 
 :query a owl:DatatypeProperty, owl:FunctionalProperty;

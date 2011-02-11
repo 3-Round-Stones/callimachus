@@ -22,6 +22,9 @@
 		return user_create_xhtml.calliConstruct(this, 'copy');
 	""".
 
+rdfs:label a rdf:Property.
+rdfs:comment a rdf:Property.
+
 :PostUserCreate rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target;
 		owl:allValuesFrom <Group>];
@@ -30,50 +33,66 @@
 	http:method "POST";
 	http:operation "usercreate";
 	http:realm </accounts>;
-	http:expect "201-created";
-	obj:imports <user-create.xhtml>;
-	obj:imports <mail-password.xhtml>;
+	http:expect "303-see-other";
+	obj:imports <User>;
 	obj:imports </user/>;
 	obj:imports </accounts>;
-	obj:imports <java:org.openrdf.rio.rdfxml.RDFXMLParser>;
-	obj:imports <java:org.openrdf.rio.helpers.StatementCollector>;
-	obj:imports <java:org.openrdf.model.impl.LinkedHashModel>;
-	obj:imports <java:org.openrdf.model.impl.URIImpl>;
+	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	obj:imports <java:org.openrdf.http.object.exceptions.Conflict>;
 	obj:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-	obj:imports <java:java.util.Collections>;
-	obj:imports <java:java.io.ByteArrayInputStream>;
+	obj:imports <java:java.net.URLEncoder>;
 	obj:script """
-		var byteArray = bytes.toByteArray();
-		var stream = new ByteArrayInputStream(byteArray);
-		var copy = user_create_xhtml.calliCopyResource(this, stream, Collections.singleton(user));
-		if (calliCurators) {
-			copy.calliMaintainers.addAll(calliCurators);
-		} else {
-			copy.calliMaintainers.addAll(findScribe(copy));
+		if (!form.get("label"))
+			throw new BadRequest("Missing label");
+		if (!form.get("name"))
+			throw new BadRequest("Missing name");
+		if (!form.get("email"))
+			throw new BadRequest("Missing email");
+		if (!form.get("subject"))
+			throw new BadRequest("Missing subject");
+		if (!form.get("message"))
+			throw new BadRequest("Missing message");
+		//# read form
+		var label = form.get("label")[0];
+		var username = form.get("name")[0];
+		var email = form.get("email")[0];
+		var subject = form.get("subject")[0];
+		var body = form.get("message")[0];
+		//# assign id
+		var uri = user + URLEncoder.encode(username).replaceAll("%20", "+").toLowerCase();
+		var user = objectConnection.getObject(uri);
+		if (user instanceof User)
+			throw new Conflict("User already exists");
+		user = objectConnection.addDesignation(user, User);
+		user.calliName = username;
+		user.calliEmail = email;
+		user.rdfsLabels.add(label);
+		this.calliMembers.add(user);
+		if (this.calliCurators.size()) {
+			user.calliMaintainers.addAll(this.calliCurators);
 		}
-		calliMembers.add(copy);
-		//# copy is empty if no transaction support (HTTPRepository)
-		var model = new LinkedHashModel();
-		var parser = new RDFXMLParser();
-		parser.setRDFHandler(new StatementCollector(model));
-		parser.parse(new ByteArrayInputStream(byteArray), this.toString());
-		var id = model.filter(null, new URIImpl("http://callimachusproject.org/rdf/2009/framework#name"), null, []).objectLiteral().label;
-		var addr = model.filter(null, new URIImpl("http://callimachusproject.org/rdf/2009/framework#email"), null, []).objectLiteral().label;
+		if (form.get("comment")) {
+			user.rdfsComments.add(form.get("comment")[0]);
+		}
 		//# generate and save a password
-		var password = copy.generatePassword();
-		var token = id + ":" + accounts.calliAuthName + ":" + password;
-		copy.calliAlgorithm = "MD5";
-		copy.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));
+		var password = user.generatePassword();
+		var token = username + ":" + accounts.calliAuthName + ":" + password;
+		user.calliAlgorithm = "MD5";
+		user.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));
 		//# email the password to the email address provided
-		var body = mail_password_xhtml.calliConstructHTML(copy);
-		body = body.replaceAll("@@USERNAME@@", id);
+		var fromUser = accounts.findCredential(authorization);
 		body = body.replaceAll("@@PASSWORD@@", password);
-		copy.sendMessage(body, addr);
+		fromUser.sendMessage(subject + '\\n' + body, label + " <" + email + ">");
 		return this;
 	""".
 
-:bytes a owl:ObjectProperty, owl:FunctionalProperty;
+:form a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostUserCreate;
-	rdfs:range <java:java.io.ByteArrayOutputStream>;
-	http:type "application/rdf+xml".
+	rdfs:range <java:java.util.Map>;
+	http:type "application/x-www-form-urlencoded".
+
+:authorization a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :PostUserCreate;
+	rdfs:range xsd:string;
+	http:header "Authorization".
 

@@ -86,9 +86,6 @@ calli:Party a owl:Class;
 calli:NamedGraph a owl:Class;
 	rdfs:comment "Graph in the RDF store that can be retrieved remotely.".
 
-calli:MailSubmitter a owl:Class;
-	rdfs:comment "Resource capable of cooperating with a mail transfer agent for delivery of the mail".
-
 calli:ScriptBundle rdfs:subClassOf rdf:Seq;
 	rdfs:comment "A collection of JavaScript files that are downloaded and compressed together.".
 

@@ -10,7 +10,7 @@ org.callimachusproject.behaviours.AnybodyRealmSupport = http://callimachusprojec
 org.callimachusproject.behaviours.NobodyRealmSupport = http://callimachusproject.org/rdf/2009/framework#NobodyRealm
 org.callimachusproject.behaviours.DigestRealmSupport
 org.callimachusproject.behaviours.LocalRealmSupport = http://callimachusproject.org/rdf/2009/framework#LocalRealm
-org.callimachusproject.behaviours.MailSubmitterSupport = http://callimachusproject.org/rdf/2009/framework#MailSubmitter
+org.callimachusproject.behaviours.MailSubmitterSupport
 org.callimachusproject.behaviours.PasswordGenerator = http://callimachusproject.org/rdf/2009/framework#Credential
 org.callimachusproject.behaviours.ScriptBundleSupport
 org.callimachusproject.behaviours.UniqueCredentialNameTrigger

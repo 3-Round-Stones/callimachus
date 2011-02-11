@@ -19,13 +19,13 @@
 	rdf:_7 <sorted.js>;
 	rdf:_8 <datetime-locale.js>;
 	rdf:_9 <auto-expand.js>;
-	rdf:_10 <input-title.js>.
+	rdf:_10 <disable-button.js>;
+	rdf:_11 <input-title.js>.
 
 # IE8 can't handle any more than 1 minification for these scripts
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;
 	rdf:_1 <jquery.rdfquery.rdfa.js>;
 	rdf:_2 <jquery.validate.js>;
-	rdf:_3 <disable-button.js>;
-	rdf:_4 <elements.js>;
-	rdf:_5 <focus.js>.
+	rdf:_3 <elements.js>;
+	rdf:_4 <focus.js>.
 

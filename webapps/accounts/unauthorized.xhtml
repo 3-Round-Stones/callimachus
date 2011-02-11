@@ -1,47 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<title>Wrong Username and Password Combination</title>
-		<script>//<![CDATA[
-			function requestPassword(url, email) {
-				var req = new XMLHttpRequest()
-				req.open("POST", url, true)
-				req.setRequestHeader("Content-Type", "text/plain")
-				req.onreadystatechange = function() {
-					if (req.readyState == 4) {
-						document.documentElement.className = ''
-						if (req.status < 300) {
-							document.getElementById("success").style.display = "block"
-						} else {
-							document.getElementById("error").innerHTML = req.responseText
-						}
-					}
-				}
-				req.send(email)
-				document.documentElement.className = 'wait'
-			}
-			// ]]>
-		</script>
-	</head>
-	<body>
-		<h1>Forget Your Password?</h1>
-		<p>You can request a new password by providing the e-mail address associated with your account.</p>
-		<form method="POST" action="/accounts?requestpassword"
-				onsubmit="requestPassword(action, elements['email'].value);return false">
-			<label for="email">Account e-mail address</label>
-			<div>
-				<input type="text" name="email" id="email" />
-			</div>
-			<div>
-				<button type="submit">Request Password</button>
-				<button type="button" onclick="history.back()">Cancel</button>
-			</div>
-		</form>
-		<div id="success" style="display:none">
-			<p>If the email address provided is on file, instructions have been sent.</p>
-			<p>Please follow the instruction sent in the email to proceed.</p>
-		</div>
-		<p id="error"/>
-	</body>
+<head>
+	<title>Wrong Username and Password Combination</title>
+</head>
+<body>
+	<h1>Wrong Username and Password Combination</h1>
+	<p>You can <a href="/accounts?forgotpassword">request a new password</a> or reload this page to try again.</p>
+</body>
 </html>

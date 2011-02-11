@@ -108,7 +108,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 
 # users or groups associated as conservator of a class of the object are authorized
 :AuthorizeConservator owl:equivalentClass :AuthorizeCredential;
-	obj:imports </accounts/group/Group>;
+	obj:imports </accounts/Group>;
 	obj:imports <java:org.callimachusproject.annotations.conservator>;
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:script """
@@ -133,7 +133,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 
 # users or groups associated as reviewer of a class of the object are authorized
 :AuthorizeReviewer owl:equivalentClass :AuthorizeCredential;
-	obj:imports </accounts/group/Group>;
+	obj:imports </accounts/Group>;
 	obj:imports <java:org.callimachusproject.annotations.reviewer>;
 	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	obj:script """
@@ -205,7 +205,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 :AuthorizeUserView owl:equivalentClass :AuthorizeCredential;
 	obj:sparql """
 		ASK {
-			$object a </accounts/user/User>
+			$object a </accounts/User>
 			FILTER ($method = "GET" || $method = "HEAD")
 			FILTER ($query = "view" || !bound($query))
 		}
@@ -213,7 +213,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 
 # Group curators can create users if they can also create groups
 :AuthorizeUserCreate owl:equivalentClass :AuthorizeCredential;
-	obj:imports </accounts/group/Group>;
+	obj:imports </accounts/Group>;
 	obj:script """
 		if (query == "usercreate" && object instanceof Group)
 			return this.AuthorizeCredential(credential, method, object, "copy");

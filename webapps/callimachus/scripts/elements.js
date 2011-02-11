@@ -453,9 +453,10 @@ function listSearchResults(url, iframe, divert) {
 			result.each(function() {
 				var li = $("<li/>");
 				var link = $("<a/>");
-				link.attr("href", $(this).attr("about") + "?view");
 				if (divert) {
-					link.attr("onclick", "window.parent.calli.divertedLinkClicked(event)");
+					link.attr("href", window.calli.diverted($(this).attr("about") + "?view", iframe));
+				} else {
+					link.attr("href", $(this).attr("about") + "?view");
 				}
 				link.append($(this).text());
 				li.append(link);

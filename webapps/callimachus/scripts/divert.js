@@ -2,18 +2,27 @@
 
 (function($){
 
-if (!window.calli) {
-	window.calli = {};
-}
-
 $(document).ready(handle);
 $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
-	$("a.diverted,a[data-diverted]", event.target).click(window.calli.divertedLinkClicked);
+	var links = $("a.diverted,a[data-diverted]", event.target);
 	if ($(event.target).is("a.diverted,a[data-diverted]")) {
-		$(event.target).click(window.calli.divertedLinkClicked);
+		links = links.add(event.target);
 	}
+	links.each(function() {
+		if (this.href.indexOf("/diverted;") < 0) {
+			if (this.getAttribute("data-diverted")) {
+				this.href = window.calli.diverted(this.href, this) + this.getAttribute("data-diverted");
+			} else {
+				this.href = window.calli.diverted(this.href, this);
+			}
+		}
+	});
+}
+
+if (!window.calli) {
+	window.calli = {};
 }
 
 window.calli.diverted = function(url, node) {
@@ -36,32 +45,6 @@ window.calli.diverted = function(url, node) {
 	if ($(node).attr("data-diverted"))
 	    return url + $(node).attr("data-diverted");
 	return url
-}
-
-window.calli.divertedLinkClicked = function(e) {
-	var target = e.target;
-    if (!target) {
-    	target = e.srcElement;
-    }
-	while (target && !target.href) {
-		target = target.parentNode;
-	}
-	if (!target || !target.href || !target.ownerDocument)
-		return true;
-	if (e.preventDefault) {
-		e.preventDefault();
-	}
-	var win = target.ownerDocument;
-	if (win.defaultView) {
-		win = win.defaultView;
-	}
-	var url = window.calli.diverted(target.href, target);
-	if (target.className.match(/\breplace\b/)) {
-		setTimeout(function() { win.location.replace(url); }, 0);
-	} else {
-		setTimeout(function() { win.location.href = url; }, 0);
-	}
-    return false;
 }
 
 })(window.jQuery);

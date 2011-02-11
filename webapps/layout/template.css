@@ -134,33 +134,27 @@ a[href]:hover {
 	vertical-align: bottom;
 	min-height: 1em;
 	line-height: 1em;
+	cursor: default;
 }
 
 #tabs li {
 	font-size: small;
-    display: inline;
     text-align: center;
-}
-
-#tabs li a, #tabs li span {
     display: inline-block;
     border-top: 1px solid #A8ACB8;
     border-right: 1px solid #A8ACB8;
     border-left: 1px solid #A8ACB8;
 	padding: 0px 1ex;
 	color: black;
-}
-
-#tabs li a {
-	background: #DDDDDD;
-    border-bottom: 1px solid #A8ACB8;
-    text-decoration: none;
-}
-
-#tabs li span {
     background: white;
     border-bottom: 1px solid white;
     font-weight: bold;
+}
+
+#tabs li[onclick] {
+	background: #DDDDDD;
+    border-bottom: 1px solid #A8ACB8;
+    font-weight: normal;
 }
 
 #content {
@@ -257,10 +251,6 @@ body.wait, body.wait * {
 
 a.diverted, a[data-diverted] {
 	cursor: alias;
-}
-
-a.replace, a.diverted.replace {
-	cursor: default;
 }
 
 form {

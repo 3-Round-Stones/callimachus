@@ -121,45 +121,35 @@
 
 			<xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history'">
 				<ul id="tabs">
-					<li class="authenticated">
-						<xsl:if test="$query='view'">
-							<span>View</span>
-						</xsl:if>
+					<li id="view-tab" class="authenticated">
 						<xsl:if test="not($query='view')">
-							<a class="replace" href="?view">View</a>
+							<xsl:attribute name="onclick">location.replace('?view')</xsl:attribute>
 						</xsl:if>
+						<xsl:text>View</xsl:text>
 					</li>
-					<li class="authenticated">
-						<xsl:if test="$query='edit'">
-							<span>Edit</span>
-						</xsl:if>
+					<li id="edit-tab" class="authenticated">
 						<xsl:if test="not($query='edit')">
-							<a class="replace" href="?edit">Edit</a>
+							<xsl:attribute name="onclick">location.replace('?edit')</xsl:attribute>
 						</xsl:if>
+						<xsl:text>Edit</xsl:text>
 					</li>
-					<li class="authenticated">
-						<xsl:if test="$query='discussion'">
-							<span>Discussion</span>
-						</xsl:if>
+					<li id="discussion-tab" class="authenticated">
 						<xsl:if test="not($query='discussion')">
-							<a class="replace" href="?discussion" id="discussion-tab">Discussion</a>
+							<xsl:attribute name="onclick">location.replace('?discussion')</xsl:attribute>
 						</xsl:if>
+						<xsl:text>Discussion</xsl:text>
 					</li>
-					<li class="authenticated">
-						<xsl:if test="$query='describe'">
-							<span>Describe</span>
-						</xsl:if>
+					<li id="describe-tab" class="authenticated">
 						<xsl:if test="not($query='describe')">
-							<a class="replace" href="?describe">Describe</a>
+							<xsl:attribute name="onclick">location.replace('?describe')</xsl:attribute>
 						</xsl:if>
+						<xsl:text>Describe</xsl:text>
 					</li>
-					<li class="authenticated">
-						<xsl:if test="$query='history'">
-							<span>History</span>
-						</xsl:if>
+					<li id="history-tab" class="authenticated">
 						<xsl:if test="not($query='history')">
-							<a class="replace" href="?history">History</a>
+							<xsl:attribute name="onclick">location.replace('?history')</xsl:attribute>
 						</xsl:if>
+						<xsl:text>History</xsl:text>
 					</li>
 				</ul>
 			</xsl:if>

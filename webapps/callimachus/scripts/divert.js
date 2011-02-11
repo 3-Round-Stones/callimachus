@@ -11,16 +11,8 @@ $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
 	$("a.diverted,a[data-diverted]", event.target).click(window.calli.divertedLinkClicked);
-	$("a.replace", event.target).filter(function(){
-		return !$(this).hasClass("diverted") && !$(this).attr("data-diverted");
-	}).click(replaceLinkClicked);
 	if ($(event.target).is("a.diverted,a[data-diverted]")) {
 		$(event.target).click(window.calli.divertedLinkClicked);
-	}
-	if ($(event.target).is("a.replace")) {
-		$(event.target).filter(function(){
-			return !$(this).hasClass("diverted") && !$(this).attr("data-diverted");
-		}).click(replaceLinkClicked);
 	}
 }
 
@@ -69,27 +61,6 @@ window.calli.divertedLinkClicked = function(e) {
 	} else {
 		setTimeout(function() { win.location.href = url; }, 0);
 	}
-    return false;
-}
-
-function replaceLinkClicked(e) {
-	var target = e.target;
-    if (!target) {
-    	target = e.srcElement;
-    }
-	while (target && !target.href) {
-		target = target.parentNode;
-	}
-	if (!target || !target.href || !target.ownerDocument)
-		return true;
-	if (e.preventDefault) {
-		e.preventDefault();
-	}
-	var win = target.ownerDocument;
-	if (win.defaultView) {
-		win = win.defaultView;
-	}
-	win.location.replace(target.href);
     return false;
 }
 

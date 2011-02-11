@@ -95,6 +95,47 @@ calli:NamedGraph a owl:Class.
 	http:type "text/html;q=0.1", "text/html-sandboxed;q=0.1", "text/cache-manifest;q=0.1",
 		"text/css;q=0.1", "text/javascript;q=0.1", "text/plain;q=0.1".
 
+:PutJavaScriptDocument rdfs:subClassOf :PutContentType;
+	rdfs:subClassOf [owl:onProperty obj:objectResponse;
+		owl:allValuesFrom owl:Nothing];
+	http:method "PUT";
+	http:operation "calliwebapps";
+	http:realm calli:nobody;
+	obj:imports calli:Template;
+	obj:script """
+		this.calliDeleteWebResource();
+		var con = this.objectConnection;
+		var type = "urn:mimetype:text/javascript";
+		con.addDesignation(this, type);
+		var read;
+		var cbuf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
+		var out = this.openWriter();
+		try {
+			while ((read = jsReader.read(cbuf)) >= 0) {
+				out.write(cbuf, 0, read);
+			}
+		} finally {
+			out.close();
+		}
+		var vf = con.valueFactory;
+		var bundles = con.getStatements(null, null, this.resource, true, []);
+		try {
+			while (bundles.hasNext()) {
+				var bundle = bundles.next().subject;
+				if (bundle.stringValue().contains(":")) {
+					con.getObject(bundle).touchRevision();
+				}
+			}
+		} finally {
+			bundles.close();
+		}
+	""".
+
+:jsReader a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PutJavaScriptDocument;
+	rdfs:range <java:java.io.Reader>;
+	http:type "text/javascript;q=0.1".
+
 ################################
 # Binary File
 ################################

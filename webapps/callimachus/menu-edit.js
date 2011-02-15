@@ -16,9 +16,9 @@ jQuery(function($){
 	});
 
 	$('#form *').live('keydown', function(event) {
-		var sel = getSelection();
-		if (sel) {
-			var li = $(sel.focusNode);
+		var focus = getFocusNode();
+		if (focus) {
+			var li = $(focus);
 			if (!li.is("li")) {
 				li = li.parents("li:first");
 			}
@@ -38,6 +38,12 @@ jQuery(function($){
 		}
 		return true;
 	});
+
+	function getFocusNode() {
+		if (window.getSelection)
+			return window.getSelection().focusNode;
+		return document.selection.createRange().parentElement();
+	}
 
 	function parseItem(position, node) {
 		var item = $(node);
@@ -126,16 +132,18 @@ jQuery(function($){
 		} else if (list.size() && children.size()) {
 			list.prepend(children);
 		}
-		var sel = getSelection();
-		if (prev.size()) {
-			var range = document.createRange();
-			range.setStartAfter(prev[0]);
-			sel.removeAllRanges();
-			sel.addRange(range);
-		} else if (parent.size()) {
-			var range = document.createRange();
-			range.setStartAfter(parent[0]);
-			sel.removeAllRanges();
+		if (document.createRange) {
+			var sel = getSelection();
+			if (prev.size()) {
+				var range = document.createRange();
+				range.setStartAfter(prev[0]);
+				sel.removeAllRanges();
+				sel.addRange(range);
+			} else if (parent.size()) {
+				var range = document.createRange();
+				range.setStartAfter(parent[0]);
+				sel.removeAllRanges();
+			}
 		}
 	}
 
@@ -149,11 +157,13 @@ jQuery(function($){
 			}
 			li.remove();
 			ol.append(li);
-			var range = document.createRange();
-			range.setStartBefore(li[0]);
-			var sel = getSelection();
-			sel.removeAllRanges();
-			sel.addRange(range);
+			if (document.createRange) {
+				var range = document.createRange();
+				range.setStartBefore(li[0]);
+				var sel = getSelection();
+				sel.removeAllRanges();
+				sel.addRange(range);
+			}
 		}
 	}
 
@@ -162,11 +172,13 @@ jQuery(function($){
 			var parent = li.parent("ol").parent("li");
 			li.remove();
 			parent.after(li);
-			var range = document.createRange();
-			range.setStartBefore(li[0]);
-			var sel = getSelection();
-			sel.removeAllRanges();
-			sel.addRange(range);
+			if (document.createRange) {
+				var range = document.createRange();
+				range.setStartBefore(li[0]);
+				var sel = getSelection();
+				sel.removeAllRanges();
+				sel.addRange(range);
+			}
 		}
 	}
 

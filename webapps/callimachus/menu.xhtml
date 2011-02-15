@@ -6,22 +6,29 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title>Main Menu</title>
+	<script>
+		jQuery(function($){
+			$('a[rel]').each(function() {
+				var label = $(this).siblings("label");
+				$(this).text($(label).text());
+				label.remove();
+			});
+		});
+	</script>
 </head>
 <body about="?this">
-	<label property="rdfs:label" />
-	<a rel="calli:link" href="?link0">(link)</a>
 	<ol rel="calli:item" class="sorted">
-		<li about="?first">
+		<li typeof="">
 			<span class="asc" property="calli:position" style="display:none" />
 			<label property="rdfs:label" />
 			<a rel="calli:link" href="?link1">(link)</a>
 			<ol rel="calli:item" class="sorted">
-				<li about="?second">
+				<li typeof="">
 					<span class="asc" property="calli:position" style="display:none" />
 					<label property="rdfs:label" />
 					<a rel="calli:link" href="?link2">(link)</a>
 					<ol rel="calli:item" class="sorted">
-						<li about="?third">
+						<li typeof="">
 							<span class="asc" property="calli:position" style="display:none" />
 							<label property="rdfs:label" />
 							<a rel="calli:link" href="?link3">(link)</a>

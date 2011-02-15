@@ -34,7 +34,7 @@
 	calli:maintainer </group/admin>.
 
 </callimachus/menu>
-	calli:item [calli:position 3; rdfs:label "User groups"; calli:link </accounts>].
+	calli:item [calli:position 4; rdfs:label "User groups"; calli:link </accounts>].
 
 ################################
 # User

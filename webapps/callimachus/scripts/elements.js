@@ -380,15 +380,16 @@ function initSetElements(form) {
 
 function createAddRelButtons(form) {
 	$("[data-more][rel]", form).each(function() {
-		var parent = $(this)
-		var property = parent.attr("rel")
-		var minOccurs = parent.attr("data-min-cardinality")
-		var maxOccurs = parent.attr("data-max-cardinality")
-		minOccurs = minOccurs ? minOccurs : parent.attr("data-cardinality")
-		maxOccurs = maxOccurs ? maxOccurs : parent.attr("data-cardinality")
-		var count = parent.children().size()
+		var parent = $(this);
+		var property = parent.attr("rel");
+		var editable = parent.is("*[contenteditable]") || parent.parents("*[contenteditable]").size();
+		var minOccurs = parent.attr("data-min-cardinality");
+		var maxOccurs = parent.attr("data-max-cardinality");
+		minOccurs = minOccurs ? minOccurs : parent.attr("data-cardinality");
+		maxOccurs = maxOccurs ? maxOccurs : parent.attr("data-cardinality");
+		var count = parent.children().size();
 		var add = false;
-		if (!maxOccurs || !minOccurs || parseInt(minOccurs) != parseInt(maxOccurs)) {
+		if (!editable && (!maxOccurs || !minOccurs || parseInt(minOccurs) != parseInt(maxOccurs))) {
 			parent.children().each(initSetElement)
 			add = $('<button type="button"/>')
 			add.addClass("add")
@@ -712,21 +713,23 @@ function addListItem(uri, list) {
 
 function initSetElement() {
 	var row = $(this)
-	var remove = $('<button type="button"/>')
-	remove.addClass("remove")
-	remove.text("×")
-	remove.click(function(){
-		var list = row.parent()
-		row.remove()
-		remove.remove()
-		updateButtonState(row)
-	})
-	if (this.tagName.toLowerCase() == "tr") {
-		var cell = $("<td/>")
-		cell.append(remove)
-		row.append(cell)
-	} else {
-		row.append(remove)
+	if (!row.parents("*[contenteditable]").size()) {
+		var remove = $('<button type="button"/>')
+		remove.addClass("remove")
+		remove.text("×")
+		remove.click(function(){
+			var list = row.parent()
+			row.remove()
+			remove.remove()
+			updateButtonState(row)
+		})
+		if (this.tagName.toLowerCase() == "tr") {
+			var cell = $("<td/>")
+			cell.append(remove)
+			row.append(cell)
+		} else {
+			row.append(remove)
+		}
 	}
 }
 

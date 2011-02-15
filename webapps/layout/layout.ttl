@@ -19,9 +19,10 @@
 </callimachus/menu>
 	calli:item [calli:position 1; rdfs:label "Main page"; calli:link </>];
 	calli:item [calli:position 2; rdfs:label "Recent changes"; calli:link </callimachus/changes>];
+	calli:item [calli:position 3; rdfs:label "Site map"; calli:link </callimachus/menu>];
 	calli:item [calli:position 10; rdfs:label "Toolbox";
-		calli:item [calli:position 1; rdfs:label "What links here"; calli:link "?whatlinkshere"];
-		calli:item [calli:position 2; rdfs:label "Related changes"; calli:link "?relatedchanges"];
-		calli:item [calli:position 3; rdfs:label "Introspect resource"; calli:link "?introspect"];
-		calli:item [calli:position 4; rdfs:label "Print this page"; calli:link "javascript:print()"]].
+		calli:item [calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>];
+		calli:item [calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>];
+		calli:item [calli:position 3; rdfs:label "Introspect resource"; calli:link <javascript:location='?introspect'>];
+		calli:item [calli:position 4; rdfs:label "Print this page"; calli:link <javascript:print()>]].
 

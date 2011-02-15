@@ -64,7 +64,7 @@ public class RDFStoreReader extends RDFEventReader {
 	private TermFactory tf = TermFactory.newInstance();
 	private RepositoryConnection con;
 	private TriplePatternStore patterns;
-	private Iterator<? extends RDFEventReader> results;
+	private final Iterator<? extends RDFEventReader> results;
 	private RDFEventReader result;
 	private Map<VarOrIRI, VarOrTerm> rdfLists = new HashMap<VarOrIRI, VarOrTerm>();
 	private Set<Triple> listQueue = new LinkedHashSet<Triple>();
@@ -83,7 +83,10 @@ public class RDFStoreReader extends RDFEventReader {
 				continue;
 			rdfLists.put(pred, rest.getSubject());
 		}
-		if (sparql != null) {
+		if (sparql == null) {
+			Set<RDFEventReader> empty = Collections.emptySet();
+			results = empty.iterator();
+		} else {
 			GraphQuery q = con.prepareGraphQuery(SPARQL, sparql);
 			results = Collections.singleton(new GraphResultReader(q.evaluate())).iterator();
 		}

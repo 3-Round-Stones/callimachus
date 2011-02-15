@@ -38,6 +38,13 @@ $(document).ready(function(){
 				} else if (!event.isDefaultPrevented() && event.location) {
 					location.reload(false);
 				}
+			},
+			error: function(xhr, textStatus, errorThrown) {
+				// Safari don't support spaces in ajax passwords
+				if (xhr && xhr.status == 0) {
+					// bring up browser login dialog
+					location = "/accounts?login";
+				}
 			}
 		};
 		if (event.username) {
@@ -48,7 +55,13 @@ $(document).ready(function(){
 		} else {
 			options.beforeSend = withCredentials;
 		}
-		jQuery.ajax(options);
+		try {
+			jQuery.ajax(options);
+		} catch (e) {
+			// Opera don't support spaces in ajax passwords
+			// bring up browser login dialog
+			location = "/accounts?login";
+		}
 	});
 
 	$(document).bind("calliLogout", function(event) {

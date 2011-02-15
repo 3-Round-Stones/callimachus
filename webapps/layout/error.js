@@ -7,6 +7,8 @@ $(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
 		showError(event, xhr.statusText, xhr.responseText);
 	} else if (thrownError) {
 		showError(event, thrownError);
+	} else if (xhr && xhr.status < 100) {
+		showError(event, "Could not connect to server, please try again later");
 	}
 });
 

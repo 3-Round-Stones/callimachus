@@ -18,8 +18,12 @@
 
 </callimachus/menu>
 	calli:item [calli:position 1; rdfs:label "Main page"; calli:link </>];
-	calli:item [calli:position 2; rdfs:label "Recent changes"; calli:link </callimachus/changes>];
-	calli:item [calli:position 3; rdfs:label "Site map"; calli:link </callimachus/menu>];
+	calli:item [calli:position 2; rdfs:label "Contents"; calli:link </callimachus/menu>];
+	calli:item [calli:position 3; rdfs:label "Recent changes"; calli:link </callimachus/changes>];
+	calli:item [calli:position 9; rdfs:label "Administration";
+		calli:item [calli:position 1; rdfs:label "User groups"; calli:link </accounts>];
+		calli:item [calli:position 2; rdfs:label "Concept schemes"; calli:link </skos/scheme-list.xhtml?construct>];
+		calli:item [calli:position 3; rdfs:label "SPARQL query"; calli:link </sparql/query.xhtml?construct>]];
 	calli:item [calli:position 10; rdfs:label "Toolbox";
 		calli:item [calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>];
 		calli:item [calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>];

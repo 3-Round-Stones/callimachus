@@ -12,113 +12,14 @@
 			font-size: small;
 		}
 	</style>
-	<script> <![CDATA[
-		jQuery(function($){
-			$('span[rel]').each(function() {
-				$(this).text($(this).attr('resource'));
-			});
-
-			$('#form *').live('keydown', function(event) {
-				if (event.keyCode == 9 && window.getSelection) { // TAB
-					var sel = getSelection();
-					if (sel) {
-						var li = $(sel.focusNode).parents("li:first");
-						if (li.prev().size()) {
-							var ol = li.prev().children("ol");
-							if (!ol.size()) {
-								ol = $("<ol/>");
-								ol.attr('rel', 'calli:item');
-								li.prev().append(ol);
-							}
-							li.remove();
-							ol.append(li);
-							var range = document.createRange();
-							range.setStartBefore(li[0]);
-							sel.removeAllRanges();
-							sel.addRange(range);
-						}
-						event.preventDefault();
-						return false;
-					}
-				}
-				return true;
-			});
-
-			$('#form').submit(function() {
-				$('#form>ol>li').each(parseItem);
-				return true;
-			});
-
-			function parseItem(position, node) {
-				var item = $(node);
-				var text = '';
-				var url = '';
-				var nodes = item[0].childNodes;
-				for (var i = 0; i<nodes.length; i++) {
-					var node = nodes[i];
-					if (node.nodeName == "OL")
-						break;
-					if (node.nodeType == Node.TEXT_NODE) {
-						text += node.data + ' ';
-					} else if (node.nodeType == Node.ELEMENT_NODE && $(node).is(":visible")) {
-						text += $(node).text() + ' ';
-					}
-				}
-				var m = text.match(/^\s*(.*)\s+(\w+:\S+)\s*$/);
-				if (m) {
-					text = m[1];
-					url = m[2];
-				} else {
-					text = text.match(/^\s*(.*)\s*$/)[1];
-				}
-				var span = item.children("span[property]");
-				var label = item.children("label");
-				var link = item.children("span[rel]");
-				var ol = item.children("ol");
-				var trail = item.children("ol~button");
-				if (!item.attr("typeof")) {
-					item.attr("typeof", "");
-				}
-				if (text && (label.text() != text || link.attr("resource") != url)) {
-					if (!span.size()) {
-						span = $("<span/>");
-					}
-					span.attr('property', 'calli:position');
-					span.attr('datatype', 'xsd:integer');
-					span.attr('content', position);
-					if (!label.size()) {
-						label = $("<label/>");
-					}
-					label.attr('property', 'rdfs:label');
-					label.text(text);
-					if (url) {
-						if (!link.size()) {
-							link = $("<span/>");
-						}
-						link.attr('rel', 'calli:link');
-						link.attr('resource', url);
-						link.text(url);
-					} else {
-						link.remove();
-					}
-					if (!ol.size()) {
-						ol = $("<ol/>");
-					}
-					ol.attr('rel', 'calli:item');
-					item.empty();
-					item.append(span);
-					item.append(label);
-					item.append(" ");
-					item.append(link);
-					item.append(ol);
-					item.append(trail);
-				}
-				ol.children("li").each(parseItem);
-			}
-		}); // ]]>
-	</script>
+	<script type="text/javascript" src="menu-edit.js"> </script>
 </head>
 <body about="?this">
+	<ul class="aside">
+		<li>Click on the menu entry you want to edit.</li>
+		<li>Use ENTER and TAB key to create a new entry.</li>
+		<li>Use SPACE to separate a label from a full URL.</li>
+	</ul>
 	<form id='form' about="?this">
 		<ol rel="calli:item" class="sorted" contenteditable="true">
 			<li typeof="">
@@ -135,6 +36,13 @@
 								<span class="asc" property="calli:position" style="display:none" />
 								<label property="rdfs:label" />
 								<span rel="calli:link" resource="?link3" />
+								<ol rel="calli:item" class="sorted">
+									<li typeof="">
+										<span class="asc" property="calli:position" style="display:none" />
+										<label property="rdfs:label" />
+										<span rel="calli:link" resource="?link4" />
+									</li>
+								</ol>
 							</li>
 						</ol>
 					</li>

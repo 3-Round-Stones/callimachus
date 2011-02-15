@@ -33,9 +33,6 @@
 	calli:curator </group/admin>; # maintainer of invited users
 	calli:maintainer </group/admin>.
 
-</callimachus/menu>
-	calli:item [calli:position 4; rdfs:label "User groups"; calli:link </accounts>].
-
 ################################
 # User
 ################################

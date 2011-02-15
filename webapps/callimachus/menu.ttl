@@ -26,16 +26,12 @@
 	http:operation "evaluate";
 	http:type "application/sparql-results+xml";
 	obj:sparql """
-		SELECT DISTINCT ?parent ?item ?label ?link
+		SELECT DISTINCT ?heading ?label ?link
 		WHERE {
 			{
 				$this calli:item ?item
 			} UNION {
-				$this calli:item ?parent.
-				?parent calli:item ?item
-			} UNION {
-				$this calli:item [calli:item ?parent].
-				?parent calli:item ?item
+				$this calli:item [rdfs:label ?heading; calli:item ?item]
 			}
 			?item rdfs:label ?label.
 			OPTIONAL {

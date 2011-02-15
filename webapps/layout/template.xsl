@@ -183,31 +183,25 @@
 	<!-- menu -->
 	<xsl:template mode="menu" match="sparql:sparql">
 		<ul id="nav">
-			<xsl:apply-templates mode="menu" select="sparql:results/sparql:result[not(sparql:binding/@name='parent')]" />
+			<xsl:apply-templates mode="menu" select="sparql:results/sparql:result[not(sparql:binding/@name='heading')]" />
 		</ul>
 	</xsl:template>
-	<xsl:template mode="menu" match="sparql:result[not(sparql:binding/@name='link')]">
+	<xsl:template mode="menu" match="sparql:result">
+		<xsl:variable name="label" select="sparql:binding[@name='label']/*/text()" />
 		<li>
-			<span>
-				<xsl:value-of select="sparql:binding[@name='label']/*" />
-			</span>
-			<xsl:variable name="node" select="sparql:binding[@name='item']/*/text()" />
-			<xsl:if test="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]">
-				<ul>
-					<xsl:apply-templates mode="menu" select="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]" />
-				</ul>
+			<xsl:if test="sparql:binding/@name='link'">
+				<a href="{sparql:binding[@name='link']/*}">
+					<xsl:value-of select="$label" />
+				</a>
 			</xsl:if>
-		</li>
-	</xsl:template>
-	<xsl:template mode="menu" match="sparql:result[sparql:binding/@name='link']">
-		<li>
-			<a href="{sparql:binding[@name='link']/*}">
-				<xsl:value-of select="sparql:binding[@name='label']/*" />
-			</a>
-			<xsl:variable name="node" select="sparql:binding[@name='item']/*/text()" />
-			<xsl:if test="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]">
+			<xsl:if test="not(sparql:binding/@name='link')">
+				<span>
+					<xsl:value-of select="$label" />
+				</span>
+			</xsl:if>
+			<xsl:if test="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]">
 				<ul>
-					<xsl:apply-templates mode="menu" select="../sparql:result[sparql:binding[@name='parent']/*/text()=$node]" />
+					<xsl:apply-templates mode="menu" select="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]" />
 				</ul>
 			</xsl:if>
 		</li>

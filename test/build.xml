@@ -1,0 +1,76 @@
+<project name="test" default="test" basedir="..">
+	<property name="testlib" location="test/lib" />
+	<property name="rep" location="repositories" />
+	<property name="test" location="test" />
+
+	<property name="selenium.url" value="http://selenium.googlecode.com/files/selenium-server-standalone-2.0b2.jar" />
+	<property name="selenium.server.jar" location="${testlib}/selenium-server-standalone.jar" />
+	<property name="selenium.server.port" value="4444" />
+	<property name="selenium.base.url" value="http://localhost:8080/" />
+	<property name="selenium.browser.firefox" value="*firefox" />
+	<property name="selenium.browser.explorer" value="*iexploreproxy" />
+	<property name="selenium.browser.chrome" value="*googlechrome" />
+	<property name="selenium.browser.safari" value="*safari" />
+
+	<target name="test-init">
+		<mkdir dir="${testlib}" />
+		<available file="${selenium.server.jar}" property="selenium.present" />
+	</target>
+
+	<target name="test-clean" description="clean up the test lib">
+		<delete dir="${testlib}" />
+	</target>
+
+	<target name="test-dependencies" depends="test-init" unless="selenium.present">
+		<get src="${selenium.url}" dest="${selenium.server.jar}" />
+	</target>
+
+	<macrodef name="test" description="Run test-suite with a given browser">
+		<attribute name="suite" />
+		<attribute name="browser" />
+		<attribute name="results" />
+		<sequential>
+			<delete dir="${rep}" />
+			<echo>Starting Callimachus server</echo>
+			<ant target="start" />
+			<waitfor maxwait="10" maxwaitunit="minute" checkevery="10000">
+				<http url="${selenium.base.url}"/>
+			</waitfor>
+			<echo>Starting Selenium server</echo>
+			<java jar="${selenium.server.jar}" fork="true">
+				<arg line="-port ${selenium.server.port}" />
+				<arg line="-htmlsuite &quot;@{browser}&quot;" />
+				<arg line="&quot;${selenium.base.url}&quot;" />
+				<arg line="&quot;@{suite}&quot;" />
+				<arg line="&quot;@{results}&quot;" />
+			</java>
+			<waitfor maxwait="5" maxwaitunit="minute" checkevery="10000">
+				<not><socket server="localhost" port="${selenium.server.port}"/></not>
+			</waitfor>
+			<echo>Shutting down Callimachus server</echo>
+			<ant target="stop" />
+		</sequential>
+	</macrodef>
+
+	<target name="test-accounts-firefox" depends="test-dependencies" description="Run accounts test suite">
+		<test suite="${test}/accounts/accounts.xhtml" browser="${selenium.browser.firefox}" 
+			results="${test}/accounts/test-result-firefox.html" />
+	</target>
+
+	<target name="test-accounts-explorer" depends="test-dependencies" description="Run accounts test suite">
+		<test suite="${test}/accounts-html/accounts.html" browser="${selenium.browser.explorer}" 
+			results="${test}/accounts-html/test-result-explorer.html" />
+	</target>
+
+	<target name="test-accounts-chrome" depends="test-dependencies" description="Run accounts test suite">
+		<test suite="${test}/accounts/accounts.xhtml" browser="${selenium.browser.chrome}" 
+			results="${test}/accounts/test-result-chrome.html" />
+	</target>
+
+	<target name="test-skos-firefox" depends="test-dependencies" description="Run skos test suite">
+		<test suite="${test}/skos/skos.xhtml" browser="${selenium.browser.firefox}" 
+			results="${test}/skos/test-result-firefox.html" />
+	</target>
+
+</project>
+

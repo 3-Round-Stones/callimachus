@@ -16,6 +16,46 @@ Subversion
 Mozilla Firefox
 Internet Explorer
 
+Configuring the Integration Server
+From the Hudson Dashboard : Manage Hudson > Configure System
+
+JDK 
+Name: JDK1.6
+JAVA_HOME: C:\Program Files\Java\jdk1.6.0_23
+
+Ant
+Name: Ant1.8.2
+ANT_HOME: C:\Program Files\apache-ant-1.8.2
+
+Subversion
+Subversion Workspace Version: 1.6
+C:\Program Files\Subversion\bin
+
+Create a new Job
+Configuration:
+Project Name: Callimachus
+
+Source Code Management
+Select Subversion
+Select 'Use Update'
+
+Build Triggers
+Select 'Poll SCM'
+Schedule: @hourly
+
+Build
+Add Ant build steps:
+
+Ant Version: Ant1.8.2
+Targets: compile
+
+Ant Version: Ant 1.8.2
+(click 'Advanced')
+Targets: test-accounts-firefox
+Build File: test/build.xml
+
+etc. e.g. Also for 'test-accounts-explorer', 'test-skos-firefox', ...
+
 Starting the Integration Server
 
 cd c:\Program Files\Hudson-1.396

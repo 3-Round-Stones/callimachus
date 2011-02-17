@@ -68,7 +68,7 @@
 	</target>
 
 	<target name="test-skos-firefox" depends="test-dependencies" description="Run skos test suite">
-		<test suite="${test}/skos/skos.xhtml" browser="${selenium.browser.firefox}" 
+		<test suite="${test}/skos/skos.html" browser="${selenium.browser.firefox}" 
 			results="${test}/skos/test-result-firefox.html" />
 	</target>
 

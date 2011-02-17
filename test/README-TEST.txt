@@ -1,6 +1,8 @@
 Build Server
 
-The aim of the build server is to automate testing under various browsers. This installation uses the Hudson Continuous Integration Server in conjunction with Ant build scripts to automate the build and test phases. The Integration server periodicaly polls the subversion code repository to check for updates; if the source has been revised the local copy is updated, built and then tested. Test reports are written to the respective test directories.
+The aim of the build server is to automate testing under various browsers. This installation uses the Hudson Continuous Integration Server in conjunction with Ant build scripts to automate the build and test phases. The Integration server periodicaly polls the subversion code repository to check for updates; if the source has been revised the local copy is updated, built and then tested. 
+
+Test reports are written to the respective test directories. To view test reports click on the 'Callimachus' project on the Hudson dashboard, then open 'Workspace'> 'callimachus' > 'test'. Open the relevant test folder (e.g. 'accounts') then click on the name (not 'view') of the appropriate test results (e.g. test-result-firefox.html).
 
 Ports used:
 8000	Hudson Integration server

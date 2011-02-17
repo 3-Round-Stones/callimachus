@@ -16,7 +16,16 @@ Subversion
 Mozilla Firefox
 Internet Explorer
 
+Starting the Integration Server
+Before you start the server create a workspace directory in c:\Workspace
+
+cd c:\Program Files\Hudson-1.396
+java -jar hudson.war --httpPort=8000
+
+
 Configuring the Integration Server
+
+Open the Hudson Dashboard at http://localhost:8000
 From the Hudson Dashboard : Manage Hudson > Configure System
 
 JDK 
@@ -35,8 +44,16 @@ Create a new Job
 Configuration:
 Project Name: Callimachus
 
+Advanced Project Options:
+(click Advanced)
+Check 'Use Custom Workspace'
+Directory: C:\Workspace
+
 Source Code Management
 Select Subversion
+Repository URL: https://callimachus.googlecode.com/svn/trunk
+Local module: callimachus
+
 Select 'Use Update'
 
 Build Triggers
@@ -56,10 +73,6 @@ Build File: test/build.xml
 
 etc. e.g. Also for 'test-accounts-explorer', 'test-skos-firefox', ...
 
-Starting the Integration Server
-
-cd c:\Program Files\Hudson-1.396
-java -jar hudson.war --httpPort=8000
 
 Ant
 The ant scripts may be run independently of the integration server. The Callimachus compile and server start/stop scripts are defined in the main build.xml file. The test folder includes a build.xml file containing additional test scripts.

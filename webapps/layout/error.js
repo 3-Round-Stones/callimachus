@@ -2,12 +2,17 @@
 
 (function($){
 
+var unloading = false;
+$(window).bind('beforeunload', function() {
+	unloading = true;
+});
+
 $(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
 	if (xhr && xhr.status >= 400 && xhr.status != 409) {
 		showError(event, xhr.statusText, xhr.responseText);
 	} else if (thrownError) {
 		showError(event, thrownError);
-	} else if (xhr && xhr.status < 100) {
+	} else if (xhr && xhr.status < 100 && !unloading) {
 		showError(event, "Could not connect to server, please try again later");
 	}
 });

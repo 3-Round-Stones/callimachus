@@ -5,7 +5,7 @@ The aim of the build server is to automate testing under various browsers. This 
 Test reports are written to the respective test directories. To view test reports click on the 'Callimachus' project on the Hudson dashboard, then open 'Workspace'> 'callimachus' > 'test'. Open the relevant test folder (e.g. 'accounts') then click on the name (not 'view') of the appropriate test results (e.g. test-result-firefox.html).
 
 Ports used:
-8000	Hudson Integration server
+80	Hudson Integration server
 8080	Callimachus server
 4444	Selenium (Remote Control) server
 
@@ -22,7 +22,7 @@ Starting the Integration Server
 Before you start the server create a workspace directory in c:\Workspace
 
 cd c:\Program Files\Hudson-1.396
-java -jar hudson.war --httpPort=8000
+java -jar hudson.war --httpPort=80
 
 
 Configuring the Integration Server

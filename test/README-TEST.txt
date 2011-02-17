@@ -8,11 +8,11 @@ Ports used:
 4444	Selenium (Remote Control) server
 
 Dependencies:
-Hudson Continous Integration server 1.396
+Hudson Continous Integration server 1.396 <http://hudson-ci.org/>
 Callimachus
 Java JDK 1.6
-Apache Ant 1.8.2
-Subversion
+Apache Ant 1.8.2 <http://ant.apache.org/>
+Subversion <http://subversion.tigris.org/>
 Mozilla Firefox
 Internet Explorer
 

@@ -330,13 +330,19 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 
 	private String nextNonce(Object resource, String[] key) {
 		String ip = hash(key);
-		String revision = "";
-		if (resource instanceof VersionedObject) {
-			revision = ((VersionedObject) resource).revision();
-		}
+		String revision = getRevisionOf(resource);
 		long now = System.currentTimeMillis();
 		String time = Long.toString(now, Character.MAX_RADIX);
 		return time + ":" + revision + ":" + ip;
+	}
+
+	private String getRevisionOf(Object resource) {
+		if (resource instanceof VersionedObject) {
+			String revision = ((VersionedObject) resource).revision();
+			if (revision != null)
+				return revision;
+		}
+		return "";
 	}
 
 	private String hash(String[] key) {
@@ -360,11 +366,8 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 			if (!hash(key).equals(nonce.substring(last + 1)))
 				return false;
 			String revision = nonce.substring(first + 1, last);
-			if (resource instanceof VersionedObject) {
-				String rev = ((VersionedObject) resource).revision();
-				if (!revision.equals(rev))
-					return false;
-			}
+			if (!revision.equals(getRevisionOf(resource)))
+				return false;
 			String time = nonce.substring(0, first);
 			Long ms = Long.valueOf(time, Character.MAX_RADIX);
 			long age = System.currentTimeMillis() - ms;

@@ -28,7 +28,7 @@
 			?revision audit:committedOn ?modified
 			OPTIONAL { ?revision http:authorized ?user OPTIONAL { ?user rdfs:label ?name } }
 			OPTIONAL { $this a [calli:icon ?icon] }
-			FILTER (?user != $this)
+			FILTER (!bound(?user) || ?user != $this)
 			OPTIONAL { $this skos:prefLabel ?label }
 			OPTIONAL { $this rdfs:label ?label }
 			OPTIONAL {

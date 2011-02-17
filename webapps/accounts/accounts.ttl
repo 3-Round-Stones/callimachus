@@ -26,6 +26,7 @@
 	calli:unauthorized <unauthorized.xhtml>;
 	calli:forbidden <forbidden.xhtml>;
 	calli:authenticates </group/admin>;
+	calli:curator </group/admin>;
 	calli:maintainer </group/admin>.
 
 </group/admin> a <Group>;

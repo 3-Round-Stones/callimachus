@@ -649,7 +649,7 @@ function addSetItem(uri, script) {
 	var url = script.attr("data-add").replace("{about}", encodeURIComponent(uri))
 	get(script, url, function(data) {
 		var input = data ? $(data) : data
-		if (input && input.is("[about='" + uri + "']") && input.text().match(/\W/)) {
+		if (input && input.is("[about='" + uri + "']") && input.text().match(/\w/)) {
 			if (script.children("button.add").size()) {
 				script.children("button.add").before(input)
 			} else {

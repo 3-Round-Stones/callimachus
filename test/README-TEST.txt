@@ -24,7 +24,7 @@ Starting the Integration Server
 Before you start the server create a workspace directory in c:\Workspace
 
 cd c:\Program Files\Hudson-1.396
-java -jar hudson.war --httpPort=80
+java -Dmail.smtp.starttls.enable="true" -jar hudson.war --httpPort=80
 
 
 Configuring the Integration Server
@@ -90,4 +90,8 @@ ant test-accounts-firefox
 ant test-accounts-explorer
 ant test-accounts-chrome
 ant test-skos-firefox
+
+Alternatively, a test may be run providing explicit parameters for suite, browser, and results on the command line:
+
+ant -Dsuite=c:\callimachus\test\directory\directory.html -Dbrowser=*firefox -Dresults=c:\callimachus\test\directory\test-results-firefox.html test
 

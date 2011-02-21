@@ -25,7 +25,7 @@
 		<get src="${selenium.url}" dest="${selenium.server.jar}" />
 	</target>
 
-	<macrodef name="test" description="Run test-suite with a given browser">
+	<macrodef name="test-macro" description="Run test-suite with a given browser">
 		<attribute name="suite" />
 		<attribute name="browser" />
 		<attribute name="results" />
@@ -53,23 +53,27 @@
 	</macrodef>
 
 	<target name="test-accounts-firefox" depends="test-dependencies" description="Run accounts test suite">
-		<test suite="${test}/accounts/accounts.html" browser="${selenium.browser.firefox}" 
+		<test-macro suite="${test}/accounts/accounts.html" browser="${selenium.browser.firefox}" 
 			results="${test}/accounts/test-result-firefox.html" />
 	</target>
 
 	<target name="test-accounts-explorer" depends="test-dependencies" description="Run accounts test suite">
-		<test suite="${test}/accounts/accounts.html" browser="${selenium.browser.explorer}" 
+		<test-macro suite="${test}/accounts/accounts.html" browser="${selenium.browser.explorer}" 
 			results="${test}/accounts/test-result-explorer.html" />
 	</target>
 
 	<target name="test-accounts-chrome" depends="test-dependencies" description="Run accounts test suite">
-		<test suite="${test}/accounts/accounts.html" browser="${selenium.browser.chrome}" 
+		<test-macro suite="${test}/accounts/accounts.html" browser="${selenium.browser.chrome}" 
 			results="${test}/accounts/test-result-chrome.html" />
 	</target>
 
 	<target name="test-skos-firefox" depends="test-dependencies" description="Run skos test suite">
-		<test suite="${test}/skos/skos.html" browser="${selenium.browser.firefox}" 
+		<test-macro suite="${test}/skos/skos.html" browser="${selenium.browser.firefox}" 
 			results="${test}/skos/test-result-firefox.html" />
+	</target>
+
+	<target name="test" depends="test-dependencies" description="Run test suite">
+		<test-macro suite="${suite}" browser="${browser}" results="${results}" />
 	</target>
 
 </project>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
 	<title>Image</title>
 </head>
-	<body about="?this">
-		<div><a href="?this"><img src="?this" /></a></div>
-		<span property="rdfs:label"></span>
-	</body>
+<body about="?this">
+	<h1><a href="?this" property="rdfs:label" /></h1>
+	<img src="?this" style="max-width:100%;display:block" />
+</body>
 </html>

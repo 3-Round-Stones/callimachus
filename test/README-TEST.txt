@@ -80,7 +80,7 @@ etc. e.g. Also for 'test-accounts-explorer', 'test-skos-firefox', ...
 
 Ant
 ---
-The ant scripts may be run independently of the integration server (though not concurrently). The Callimachus compile and server start/stop scripts are defined in the main build.xml file. The test folder includes a build.xml file containing additional test scripts.
+The ant scripts may be run independently of the integration server. The Callimachus compile and server start/stop scripts are defined in the main build.xml file. The test folder includes a build.xml file containing additional test scripts.
 
 The test scripts download the necessary selenium dependencies (ant test-dependencies) that downloads the required selenium libraries to test/lib. It then removes any existing repositories and starts Callimachus. Once Callimachus has started it starts the Selenium (Remote Control) Server and points it to the appropriate test suite. Each subdirectory within test defines its own test suite. A test suite is defined in HTML (note that Internet Explorer prevents the use of the XHTML suffix) as used by the Selenium IDE. The test results are placed in these subdirectories; each browser type will produce separate results (e.g. test-results-firefox.html).
 

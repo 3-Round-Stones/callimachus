@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+<head>
+	<title>Upload Image</title>
+</head>
+	<body>
+		<h1>Upload Image</h1>
+		<form method="POST" action="/image" enctype="multipart/form-data">
+			<label for="file">Image file</label>
+			<input type="file" id="image" name="image" />
+			<label for="caption">Caption</label>
+			<input type="text" id="caption" name="caption" />
+			<div class="authenticated">
+				<br/>
+				<button type="submit">Upload Image</button>
+			</div>
+		</form>
+	</body>
+</html>

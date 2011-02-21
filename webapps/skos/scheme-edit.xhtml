@@ -2,7 +2,8 @@
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 	<head>
 		<title about="?this" property="skos:prefLabel"></title>
 		<script>
@@ -35,6 +36,13 @@
 			<div id="topConcept" rel="skos:hasTopConcept" data-prompt="/skos/concept_template?copy">
 				<span about="?top" typeof="skos:Concept">
 					<span property="skos:prefLabel"></span>
+				</span>
+			</div>
+			<hr />
+			<label for="image">Image</label>
+			<div id="image" rel="foaf:depiction" data-prompt="/callimachus/image-create.xhtml?construct">
+				<span about="?image" typeof="foaf:Image">
+					<span property="rdfs:label"></span>
 				</span>
 			</div>
 			<hr />

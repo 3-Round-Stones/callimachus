@@ -93,5 +93,5 @@ ant test-skos-firefox
 
 Alternatively, a test may be run providing explicit parameters for suite, browser, and results on the command line:
 
-ant -Dsuite=c:\callimachus\test\directory\directory.html -Dbrowser=*firefox -Dresults=c:\callimachus\test\directory\test-results-firefox.html test
+ant -Dsuite=/callimachus/test/directory/directory.html -Dbrowser=*firefox -Dresults=/callimachus/test/directory/test-result-firefox.html test
 

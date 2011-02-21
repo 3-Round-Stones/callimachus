@@ -224,7 +224,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 :AuthorizeTransactionView owl:equivalentClass :AuthorizeCredential;
 	obj:imports audit:Transaction;
 	obj:script """
-		if (proceed().booleanValue()) {
+		if (proceed()) {
 			return true;
 		}
 		if (method == "GET" || method == "HEAD" || method == "POST" && query == "discussion") {

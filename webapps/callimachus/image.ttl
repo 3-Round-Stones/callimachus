@@ -27,8 +27,8 @@
 
 </image> calli:maintainer </group/admin>.
 
-<Image> rdfs:subClassOf foaf:Image, calli:Viewable;
-	calli:view <image.xhtml>.
+<Image> rdfs:subClassOf foaf:Image, calli:Viewable, calli:Editable ;
+	calli:view <image.xhtml> ; calli:edit <image-edit.xhtml> .
 
 :PostImage rdfs:subClassOf obj:Message;
 	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </image> ];

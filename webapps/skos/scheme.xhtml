@@ -5,18 +5,31 @@
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 	<head>
-		<title about="?this" property="skos:prefLabel"></title>
+		<title about="?this" property="skos:prefLabel" />
+		<style type="text/css">img { border-style:none; }</style>
+      <script type="text/javascript"><![CDATA[
+         $(document).ready(function(){
+				$('.depiction > a').each(function() {
+					$(this).attr('href',$(this).attr('href')+'?view')
+				});
+         });
+      ]]></script>
 	</head>
 	<body about="?this">
 		<ul class="aside">
 			<li><a href="?viewconcepts">View all Concepts</a></li>
 		</ul>
 		<h2>
-			<a property="skos:prefLabel" href="?this"></a>
+			<span id="scheme-image" class="depiction" rel="foaf:depiction" resource="?scheme_image">
+				<a href="?scheme_image"><img src="?scheme_image" /></a>
+			</span><a property="skos:prefLabel" href="?this"></a>
 		</h2>
 		<pre property="rdfs:comment" class="wiki"></pre>
+		<hr/>
 		<div rel="skos:hasTopConcept" resource="?top">
-			<a href="?top" property="skos:prefLabel"></a>
+			<span class="depiction" rel="foaf:depiction" resource="?concept_image">
+				<a href="?concept_image"><img src="?concept_image" /></a>
+			</span><a href="?top" property="skos:prefLabel"></a>
 		</div>
 	</body>
 </html>

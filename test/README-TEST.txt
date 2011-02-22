@@ -5,12 +5,14 @@ The aim of the build server is to automate testing under various browsers. This 
 Test reports are written to the respective test directories. To view test reports click on the 'Callimachus' project on the Hudson dashboard, then open 'Workspace'> 'callimachus' > 'test'. Open the relevant test folder (e.g. 'accounts') then click on the name (not 'view') of the appropriate test results (e.g. test-result-firefox.html).
 
 Ports used:
+25	James mail server
 80	Hudson Integration server
-8080	Callimachus server
 4444	Selenium (Remote Control) server
+8080	Callimachus server
 
 Dependencies:
 Hudson Continous Integration server 1.396 <http://hudson-ci.org/>
+Apache James Mail Server <http://james.apache.org/>
 Java JDK 1.6
 Apache Ant 1.8.2 <http://ant.apache.org/>
 Subversion <http://subversion.tigris.org/>
@@ -18,6 +20,13 @@ Mozilla Firefox
 Internet Explorer
 
 Callimachus and selenium-server-standalone-2.0b2.jar are installed during the build process.
+
+Starting the Mail Server
+------------------------
+The ant test scripts update callimachus/etc/mail.properties to point to a local mail server. This should be running in the background:
+
+cd /Program Files/james/2.3.2/bin
+run.bat
 
 Starting the Integration Server
 -------------------------------

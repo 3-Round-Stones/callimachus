@@ -49,6 +49,7 @@
 		var multipart = new MimeMultipart(ds);
 		var img = multipart.getBodyPart(0) ;
 		var caption = multipart.getBodyPart(1).content ;
+		if (caption=="") throw new BadRequest("missing caption") ;
 
 		//# image resource
 		var local = ("" + URLEncoder.encode(img.fileName, "UTF-8")).replace(/%20/g, "+") ;

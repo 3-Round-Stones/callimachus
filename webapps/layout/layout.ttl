@@ -30,7 +30,3 @@
 		calli:item [calli:position 3; rdfs:label "Introspect resource"; calli:link <javascript:location='?introspect'>];
 		calli:item [calli:position 4; rdfs:label "Print this page"; calli:link <javascript:print()>]].
 
-calli:Logo a owl:Class;
-	rdfs:comment "Singleton class representing the main logo".
-
-</layout/logo.png> a calli:Logo.

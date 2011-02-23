@@ -2,10 +2,11 @@
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 	<head>
-		<title about="?this" property="skos:prefLabel" />
+		<title about="?this" property="skos:prefLabel"></title>
 		<style>
 			.broader:before {content:'←'}
 			.narrower:before {content:'→'}
@@ -21,55 +22,38 @@
 	</head>
 	<body about="?this">
 		<h2>
-			<span id="concept-image" rel="foaf:depiction" resource="?concept_image">
-				<a href="?concept_image" class="view"><img src="?concept_image" class="icon" /></a>
-			</span><a property="skos:prefLabel" href="?this"></a>
+			<a property="skos:prefLabel" href="?this"></a>
 		</h2>
-		<label for="scheme">Scheme:</label>
+		<div id="image" rel="foaf:depiction" resource="?image">
+			<a href="?image" class="view"><img src="?image" style="max-width:100%;display:block" /></a>
+			<p property="rdfs:label" />
+		</div>
 		<div rel="skos:inScheme">
-			<span id="scheme-image" rel="foaf:depiction" resource="?scheme_image">
-				<a href="?scheme_image" class="view"><img src="?scheme_image" class="icon" /></a>
-			</span><a id="scheme" about="?scheme" property="skos:prefLabel" href="?scheme"></a>
+			<a about="?scheme" property="skos:prefLabel" href="?scheme"></a>
 		</div>
 		<pre property="skos:definition" class="wiki"></pre>
 		<pre property="skos:example" class="wiki"></pre>
 		<pre property="skos:historyNote" class="wiki"></pre>
-		<pre property="skos:scopeNote" class="wiki"></pre><br/>
-		<label for="broader">Broader:</label>
-		<div id="broader" rev="skos:narrower">
+		<pre property="skos:scopeNote" class="wiki"></pre>
+		<div rev="skos:narrower">
 			<span about="?broader" class="broader">
-				<span id="broader-image" rel="foaf:depiction" resource="?broader_image">
-					<a href="?broader_image" class="view"><img src="?broader_image" class="icon" /></a>
-				</span><a property="skos:prefLabel" href="?broader"></a>
+				<a property="skos:prefLabel" href="?broader"></a>
 			</span>
 		</div>
-		<br/>
-		<label for="narrower">Narrower:</label>
-		<div id="narrower" rel="skos:narrower">
-			<span about="?narrower" class="narrower">
-				<span id="narrower-image" rel="foaf:depiction" resource="?narrower_image">
-					<a href="?narrower_image" class="view"><img src="?narrower_image" class="icon"/></a>
-				</span><a property="skos:prefLabel" href="?narrower"></a>
-			</span>
-		</div>
-		<br/>
-		<label for="related">Related:</label>
-		<div id="related" rel="skos:related">
+		<div rel="skos:related">
 			<span about="?related" class="related">
-				<span id="related-image" rel="foaf:depiction" resource="?related_image">
-					<a href="?related_image" class="view"><img src="?related_image" class="icon" /></a>
-				</span><a property="skos:prefLabel" href="?related"></a>
+				<a property="skos:prefLabel" href="?related"></a>
 			</span>
 		</div>
-		<!--div rev="skos:related">
-			<span about="?related" class="related">
+		<div rev="skos:related">
+			<span about="?revated" class="related">
 				<a property="skos:prefLabel" href="?revated"></a>
 			</span>
-		</div-->
-		<!--div rel="skos:narrower">
+		</div>
+		<div rel="skos:narrower">
 			<span about="?narrower" class="narrower">
 				<a property="skos:prefLabel" href="?narrower"></a>
 			</span>
-		</div-->
+		</div>
 	</body>
 </html>

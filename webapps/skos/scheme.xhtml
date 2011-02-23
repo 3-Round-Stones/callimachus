@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 	<head>
@@ -20,16 +21,15 @@
 			<li><a href="?viewconcepts">View all Concepts</a></li>
 		</ul>
 		<h2>
-			<span id="scheme-image" rel="foaf:depiction" resource="?scheme_image">
-				<a href="?scheme_image" class="view"><img src="?scheme_image" class="icon" /></a>
-			</span><a property="skos:prefLabel" href="?this"></a>
+			<a property="skos:prefLabel" href="?this" />
 		</h2>
+		<div id="image" rel="foaf:depiction" resource="?image">
+			<a href="?image" class="view"><img src="?image" style="max-width:100%;display:block" /></a>
+			<p property="rdfs:label" />
+		</div>
 		<pre property="rdfs:comment" class="wiki"></pre>
-		<hr/>
 		<div rel="skos:hasTopConcept" resource="?top">
-			<span rel="foaf:depiction" resource="?concept_image">
-				<a href="?concept_image" class="view"><img src="?concept_image" class="icon"/></a>
-			</span><a href="?top" property="skos:prefLabel"></a>
+			<a href="?top" property="skos:prefLabel"></a>
 		</div>
 	</body>
 </html>

@@ -2,29 +2,14 @@
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-	xmlns:foaf="http://xmlns.com/foaf/0.1/">
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
 		<title about="?this" property="skos:prefLabel"/>
-		<style type="text/css">img { border-style:none; }</style>
-      <script type="text/javascript"><![CDATA[
-         $(document).ready(function(){
-				$('span + img').each(function() {
-					$(this).hide() ;
-				});
-				$('.view').each(function() {
-					$(this).attr('href',$(this).attr('href')+'?view')
-				});
-         });
-      ]]></script>
 	</head>
 	<body about="?this">
 		<h2>Concepts in Scheme <span property="skos:prefLabel"/></h2>
 		<ul class="results">
 			<li class="result" rev="skos:inScheme" resource="?concept">
-				<span id="image" rel="foaf:depiction" resource="?image">
-					<a href="?image" class="view"><img src="?image" class="icon" /></a>
-				</span>
 				<img src="/skos/concept.png" class="icon" />
 				<a href="?concept" property="skos:prefLabel"/>
 				<pre class="wiki summary" property="skos:definition" />

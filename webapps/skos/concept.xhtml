@@ -13,7 +13,7 @@
 		</style>
       <script type="text/javascript"><![CDATA[
          $(document).ready(function(){
-				$('.depiction > a').each(function() {
+				$('.view').each(function() {
 					$(this).attr('href',$(this).attr('href')+'?view')
 				});
          });
@@ -21,14 +21,14 @@
 	</head>
 	<body about="?this">
 		<h2>
-			<span id="concept-image" rel="foaf:depiction" resource="?concept_image" class="depiction">
-				<a href="?concept_image"><img src="?concept_image" /></a>
+			<span id="concept-image" rel="foaf:depiction" resource="?concept_image">
+				<a href="?concept_image" class="view"><img src="?concept_image" class="icon" /></a>
 			</span><a property="skos:prefLabel" href="?this"></a>
 		</h2>
 		<label for="scheme">Scheme:</label>
 		<div rel="skos:inScheme">
-			<span id="scheme-image" rel="foaf:depiction" resource="?scheme_image" class="depiction">
-				<a href="?scheme_image"><img src="?scheme_image" /></a>
+			<span id="scheme-image" rel="foaf:depiction" resource="?scheme_image">
+				<a href="?scheme_image" class="view"><img src="?scheme_image" class="icon" /></a>
 			</span><a id="scheme" about="?scheme" property="skos:prefLabel" href="?scheme"></a>
 		</div>
 		<pre property="skos:definition" class="wiki"></pre>
@@ -38,8 +38,8 @@
 		<label for="broader">Broader:</label>
 		<div id="broader" rev="skos:narrower">
 			<span about="?broader" class="broader">
-				<span id="broader-image" rel="foaf:depiction" resource="?broader_image" class="depiction">
-					<a href="?broader_image"><img src="?broader_image" /></a>
+				<span id="broader-image" rel="foaf:depiction" resource="?broader_image">
+					<a href="?broader_image" class="view"><img src="?broader_image" class="icon" /></a>
 				</span><a property="skos:prefLabel" href="?broader"></a>
 			</span>
 		</div>
@@ -47,8 +47,8 @@
 		<label for="narrower">Narrower:</label>
 		<div id="narrower" rel="skos:narrower">
 			<span about="?narrower" class="narrower">
-				<span id="narrower-image" rel="foaf:depiction" resource="?narrower_image" class="depiction">
-					<a href="?narrower_image"><img src="?narrower_image" /></a>
+				<span id="narrower-image" rel="foaf:depiction" resource="?narrower_image">
+					<a href="?narrower_image" class="view"><img src="?narrower_image" class="icon"/></a>
 				</span><a property="skos:prefLabel" href="?narrower"></a>
 			</span>
 		</div>
@@ -56,8 +56,8 @@
 		<label for="related">Related:</label>
 		<div id="related" rel="skos:related">
 			<span about="?related" class="related">
-				<span id="related-image" rel="foaf:depiction" resource="?related_image" class="depiction">
-					<a href="?related_image"><img src="?related_image" /></a>
+				<span id="related-image" rel="foaf:depiction" resource="?related_image">
+					<a href="?related_image" class="view"><img src="?related_image" class="icon" /></a>
 				</span><a property="skos:prefLabel" href="?related"></a>
 			</span>
 		</div>

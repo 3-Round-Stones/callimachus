@@ -2,9 +2,21 @@
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 	<head>
 		<title>Concept Schemes</title>
+		<style type="text/css">img { border-style:none; }</style>
+      <script type="text/javascript"><![CDATA[
+         $(document).ready(function(){
+				$('span + img').each(function() {
+					$(this).hide() ;
+				});
+				$('.view').each(function() {
+					$(this).attr('href',$(this).attr('href')+'?view')
+				});
+         });
+      ]]></script>
 	</head>
 	<body>
 		<ul class="aside">
@@ -13,6 +25,9 @@
 		<h2>Concept Schemes</h2>
 		<ul class="results">
 			<li class="result" about="?scheme" typeof="skos:ConceptScheme">
+				<span id="image" rel="foaf:depiction" resource="?image">
+					<a href="?image" class="view"><img src="?image" class="icon" /></a>
+				</span>
 				<img src="scheme.png" class="icon" />
 				<a href="?scheme" property="skos:prefLabel"/>
 				<pre class="wiki summary" property="rdfs:comment" />

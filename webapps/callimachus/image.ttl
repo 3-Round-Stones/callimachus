@@ -49,7 +49,6 @@
 		var multipart = new MimeMultipart(ds);
 		var img = multipart.getBodyPart(0) ;
 		var caption = multipart.getBodyPart(1).content ;
-		if (caption=="") throw new BadRequest("missing caption") ;
 
 		//# image resource
 		var local = ("" + URLEncoder.encode(img.fileName, "UTF-8")).replace(/%20/g, "+") ;
@@ -66,8 +65,11 @@
 		if (!type.startsWith("image/")) throw new BadRequest(type) ;
 		obj = this.objectConnection.addDesignation(obj, "urn:mimetype:" + type) ;
 
+		//# add the image label
+		obj.rdfsLabels.add(local) ;
+
 		//# add the image caption
-		obj.rdfsLabels.add(caption);
+		if (caption!="") obj.rdfsComments.add(caption);
 
 		this.objectConnection.commit();
 

@@ -33,34 +33,36 @@
 				<span property="rdfs:label"/>
 			</span>
 		</div>
-		<ol rel="calli:item" class="sorted texarea" contenteditable="true">
-			<li typeof="">
-				<span class="asc" property="calli:position" style="display:none"/>
-				<label property="rdfs:label" />
-				<span rel="calli:link" resource="?link1" />
-				<ol rel="calli:item" class="sorted">
-					<li typeof="">
-						<span class="asc" property="calli:position" style="display:none" />
-						<label property="rdfs:label" />
-						<span rel="calli:link" resource="?link2" />
-						<ol rel="calli:item" class="sorted">
-							<li typeof="">
-								<span class="asc" property="calli:position" style="display:none" />
-								<label property="rdfs:label" />
-								<span rel="calli:link" resource="?link3" />
-								<ol rel="calli:item" class="sorted">
-									<li typeof="">
-										<span class="asc" property="calli:position" style="display:none" />
-										<label property="rdfs:label" />
-										<span rel="calli:link" resource="?link4" />
-									</li>
-								</ol>
-							</li>
-						</ol>
-					</li>
-				</ol>
-			</li>
-		</ol>
+		<div>
+			<ol rel="calli:item" class="sorted textarea" contenteditable="true">
+				<li typeof="">
+					<span class="asc" property="calli:position" style="display:none"/>
+					<label property="rdfs:label" />
+					<span rel="calli:link" resource="?link1" />
+					<ol rel="calli:item" class="sorted">
+						<li typeof="">
+							<span class="asc" property="calli:position" style="display:none" />
+							<label property="rdfs:label" />
+							<span rel="calli:link" resource="?link2" />
+							<ol rel="calli:item" class="sorted">
+								<li typeof="">
+									<span class="asc" property="calli:position" style="display:none" />
+									<label property="rdfs:label" />
+									<span rel="calli:link" resource="?link3" />
+									<ol rel="calli:item" class="sorted">
+										<li typeof="">
+											<span class="asc" property="calli:position" style="display:none" />
+											<label property="rdfs:label" />
+											<span rel="calli:link" resource="?link4" />
+										</li>
+									</ol>
+								</li>
+							</ol>
+						</li>
+					</ol>
+				</li>
+			</ol>
+		</div>
 		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="history.replace('?view')">Cancel</button>
 	</form>

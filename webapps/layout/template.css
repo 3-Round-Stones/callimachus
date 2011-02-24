@@ -270,22 +270,29 @@ form label[for], label[form] {
 	display: block;
 }
 
-input, select, textarea {
-	background-image: -moz-linear-gradient(top, #DDDDDD, white);
-	background-image: -webkit-gradient(linear, left top, left bottom, from(#DDDDDD), to(white));
+input, select, textarea, .textarea {
+	background-image: -moz-linear-gradient(top, #DDDDDD, white, white);
+	background-image: -webkit-gradient(linear, left top, left center, from(#DDDDDD), to(white));
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
 	border: thin solid #999FAD;
-	-moz-border-radius: 2pt;
-	border-radius: 2pt;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	display: inline-block;
+}
+
+button {
+	background-image: -moz-linear-gradient(top, #EEE, #EEE, #DDD);
+	background-image: -webkit-gradient(linear, left center, left bottom, from(#EEE), to(#DDD));
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#EEE, endColorstr=#DDD, GradientType=0)";
+	border: thin solid #3F547F;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
 }
 
 button[type=submit] {
 	background-image: -moz-linear-gradient(top, white, #F58735);
 	background-image: -webkit-gradient(linear, left top, left bottom, from(white), to(#F58735));
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#F58735, GradientType=0)";
-	border: thin solid #3F547F;
-	-moz-border-radius: 2pt;
-	border-radius: 2pt;
 }
 
 label.error {

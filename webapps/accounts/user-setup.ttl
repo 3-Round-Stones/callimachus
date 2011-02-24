@@ -12,8 +12,8 @@
 
 :HasNoMaintainer rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:boolean];
-	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:cardinality 1];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
 	msg:sparql  """
 		ASK {
 			# this group is maintained by its members, but
@@ -32,7 +32,7 @@
 
 :GetUserSetup rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "usersetup";
 	msg:type "application/xhtml+xml";
@@ -50,7 +50,7 @@ rdfs:label a rdf:Property.
 
 :PostUserSetup rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "POST";
 	msg:query "usersetup";
 	msg:realm :local;

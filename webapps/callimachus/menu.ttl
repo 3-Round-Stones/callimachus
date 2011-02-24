@@ -14,16 +14,23 @@
 
 <menu> a <Menu>; calli:maintainer </group/admin>.
 
-</callimachus/menu/sampleapps> a <Menu>.
+calli:logo a owl:ObjectProperty;
+	msg:method "GET"; msg:query "logo"; msg:expect "302-see-other".
+
+calli:favicon a owl:ObjectProperty;
+	msg:method "GET"; msg:query "favicon"; msg:expect "302-see-other".
+
+calli:link a owl:ObjectProperty;
+	msg:method "GET"; msg:query "link"; msg:expect "302-see-other".
 
 :GetMenuItems rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "evaluate";
 	msg:type "application/sparql-results+xml";
 	msg:sparql  """
-		SELECT DISTINCT ?heading ?label ?link
+		SELECT DISTINCT ?logo ?favicon ?heading ?label ?link
 		WHERE {
 			{
 				$this calli:item ?item

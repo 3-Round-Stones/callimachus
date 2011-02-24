@@ -45,8 +45,8 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 # interface method used by DigestRealmSupport
 :AuthorizeCredential rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];
-	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:cardinality "1"^^xsd:nonNegativeInteger];
-	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:boolean].
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean].
 
 :credential a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :AuthorizeCredential.
@@ -151,7 +151,7 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 
 :FindAnnotatedClass rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:cardinality 1];
 	msg:script """
 		if (klass.isAnnotationPresent(ann)) {
 			return [klass];

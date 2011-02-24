@@ -10,7 +10,7 @@
 
 :GetAliasResponse rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Alias];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "GET";
 	msg:type "message/x-response";
 	msg:imports <java:org.apache.http.ProtocolVersion>;

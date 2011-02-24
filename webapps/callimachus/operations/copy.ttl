@@ -28,7 +28,7 @@
 
 :GetCopyPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "copy";
 	msg:type "application/xhtml+xml";
@@ -40,7 +40,7 @@
 
 :PostCopy rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	msg:method "POST";
 	msg:query "copy";
 	msg:expect "201-created";
@@ -67,7 +67,7 @@
 
 :FindCopyTemplate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom calli:Template];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Template];
 	msg:imports calli:Template;
 	msg:imports <java:org.callimachusproject.annotations.copy>;
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;

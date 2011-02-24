@@ -10,7 +10,7 @@
 
 :LookupAndGo rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <go>];
-	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET";
 	msg:expect "302-see-other";
 	msg:header "cache-control:no-store";

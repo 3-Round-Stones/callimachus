@@ -23,17 +23,17 @@
 	<form id='form' about="?this">
 		<label for="logo-image">Logo</label>
 		<div id="logo-image" rel="calli:logo" data-prompt="/callimachus/image-create.xhtml?construct">
-			<span about="?image">
-				<span rel="rdf:type" resource="/callimachus/Image" property="rdfs:label"/>
+			<span about="?logo">
+				<span property="rdfs:label"/>
 			</span>
 		</div>
 		<label for="favicon-image">Favicon</label>
 		<div id="favicon-image" rel="calli:favicon" data-prompt="/callimachus/image-create.xhtml?construct">
-			<span about="?image">
-				<span rel="rdf:type" resource="/callimachus/Image" property="rdfs:label"/>
+			<span about="?favicon">
+				<span property="rdfs:label"/>
 			</span>
 		</div>
-		<ol rel="calli:item" class="sorted" contenteditable="true">
+		<ol rel="calli:item" class="sorted texarea" contenteditable="true">
 			<li typeof="">
 				<span class="asc" property="calli:position" style="display:none"/>
 				<label property="rdfs:label" />

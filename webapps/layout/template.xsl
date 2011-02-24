@@ -61,7 +61,7 @@
 	<xsl:template match="head|xhtml:head">
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
-			<link rel="icon" href="{$layout}/favicon.png" />
+			<link rel="icon" href="{$callimachus}/menu?favicon" />
 			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1"/>
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
@@ -121,31 +121,31 @@
 
 			<xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history'">
 				<ul id="tabs">
-					<li id="view-tab" class="authenticated">
+					<li id="view-tab" class="authenticated" tabindex="1">
 						<xsl:if test="not($query='view')">
 							<xsl:attribute name="onclick">location.replace('?view')</xsl:attribute>
 						</xsl:if>
 						<xsl:text>View</xsl:text>
 					</li>
-					<li id="edit-tab" class="authenticated">
+					<li id="edit-tab" class="authenticated" tabindex="2">
 						<xsl:if test="not($query='edit')">
 							<xsl:attribute name="onclick">location.replace('?edit')</xsl:attribute>
 						</xsl:if>
 						<xsl:text>Edit</xsl:text>
 					</li>
-					<li id="discussion-tab" class="authenticated">
+					<li id="discussion-tab" class="authenticated" tabindex="3">
 						<xsl:if test="not($query='discussion')">
 							<xsl:attribute name="onclick">location.replace('?discussion')</xsl:attribute>
 						</xsl:if>
 						<xsl:text>Discussion</xsl:text>
 					</li>
-					<li id="describe-tab" class="authenticated">
+					<li id="describe-tab" class="authenticated" tabindex="4">
 						<xsl:if test="not($query='describe')">
 							<xsl:attribute name="onclick">location.replace('?describe')</xsl:attribute>
 						</xsl:if>
 						<xsl:text>Describe</xsl:text>
 					</li>
-					<li id="history-tab" class="authenticated">
+					<li id="history-tab" class="authenticated" tabindex="5">
 						<xsl:if test="not($query='history')">
 							<xsl:attribute name="onclick">location.replace('?history')</xsl:attribute>
 						</xsl:if>
@@ -165,7 +165,7 @@
 			<div id="sidebar">
 				<xsl:apply-templates mode="menu" select="document(concat($callimachus, '/menu?evaluate'))" />
 			</div>
-			<a href="{$origin}/" id="logo">&#160;</a>
+			<a href="{$callimachus}/menu?link" id="logo">&#160;</a>
 
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
 				<xsl:if test="$query='view'">

@@ -9,7 +9,7 @@
 @prefix :<#>.
 
 :TransformLayout rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xhtml+xml";
 	msg:transform :TransformXhtml;
 	msg:xslt </layout/template.xsl>.
@@ -25,7 +25,7 @@
 	rdfs:range <java:java.io.InputStream>.
 
 :TransformXhtml rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.Reader>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
 	msg:type "text/html";
 	msg:xslt <util/xhtml-to-html.xsl>.
 

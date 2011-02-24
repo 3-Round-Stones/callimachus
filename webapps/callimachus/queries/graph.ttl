@@ -23,7 +23,7 @@
 
 :GetGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
 	msg:method "GET";
 	msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
 	msg:transform :TransformGraph;
@@ -31,7 +31,7 @@
 
 :TransformGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform <../layout.ttl#TransformLayout>;
 	msg:xslt <graph.xsl>.

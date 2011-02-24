@@ -68,7 +68,7 @@ calli:DigestRealm a owl:Class;
 	rdfs:comment "A realm that authenticates HTTP digest credentials.".
 
 calli:Credential a owl:Class;
-	rdfs:comment "A digest credentials with a MD5 algorithm.";
+	rdfs:comment "A digest credential with a MD5 algorithm.";
 	rdfs:subClassOf calli:Party.
 
 calli:User a owl:Class;
@@ -81,6 +81,9 @@ calli:Group a owl:Class;
 
 calli:Party a owl:Class;
 	rdfs:comment "A credential, user or group of credentials.".
+
+calli:Menu a owl:Class;
+	rdfs:comment "A hierarchical menu of human-readable links.".
 
 calli:NamedGraph a owl:Class;
 	rdfs:comment "Graph in the RDF store that can be retrieved remotely.".
@@ -188,6 +191,28 @@ calli:copyOf a owl:ObjectProperty, owl:FunctionalProperty;
 calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:comment "The canonical URL for this alias.";
 	rdfs:domain calli:Alias.
+
+calli:logo a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:comment "The logo image that should be shown with this menu.";
+	rdfs:domain calli:Menu.
+
+calli:favicon a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:comment "A small logo image that should be shown with this menu.";
+	rdfs:domain calli:Menu.
+
+calli:item a owl:ObjectProperty;
+	rdfs:comment "A small logo that should be shown with this menu.";
+	rdfs:domain calli:Menu;
+	rdfs:range calli:Menu.
+
+calli:position a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:comment "The position this menu entry should be placed.";
+	rdfs:domain calli:Menu;
+	rdfs:range xsd:integer.
+
+calli:link a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:comment "The target of this menu entry.";
+	rdfs:domain calli:Menu.
 
 calli:minified a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:comment "Level of minification that should be applied to this bundle. Zero represents no minification. One represents minimal minification.";

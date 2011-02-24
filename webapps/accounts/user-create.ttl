@@ -8,7 +8,7 @@
 
 :GetUserCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "usercreate";
 	msg:type "application/xhtml+xml";
@@ -24,7 +24,7 @@ rdfs:comment a rdf:Property.
 
 :PostUserCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	msg:method "POST";
 	msg:query "usercreate";
 	msg:realm </accounts>;

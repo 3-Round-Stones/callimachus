@@ -9,7 +9,7 @@
 @prefix :<#>.
 
 :GetDiscussion rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "discussion";
 	msg:type "application/sparql-results+xml";
@@ -33,7 +33,7 @@
 	""".
 
 :PostDiscussion rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "POST";
 	msg:query "discussion";
 	msg:expect "303-see-other";
@@ -51,7 +51,7 @@
 	msg:type "application/x-www-form-urlencoded";.
 
 :TransformDiscussion rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform <../layout.ttl#TransformLayout>;
 	msg:xslt <discussion.xhtml>.

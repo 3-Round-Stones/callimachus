@@ -10,7 +10,7 @@
 
 :RecentChanges rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../changes>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:type "application/sparql-results+xml";
 	msg:header "cache-control:must-reevaluate,max-age=60";
@@ -44,7 +44,7 @@
 	""".
 
 :TransformRecentChanges rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform <../layout.ttl#TransformLayout>;
 	msg:xslt <recent-changes.xsl>.

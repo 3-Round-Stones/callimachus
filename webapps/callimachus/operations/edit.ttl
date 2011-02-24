@@ -27,7 +27,7 @@
 
 :GetEditPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "edit";
 	msg:type "application/xhtml+xml";
@@ -39,7 +39,7 @@
 
 :PostEdit rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "POST";
 	msg:query "edit";
 	msg:type "message/x-response";
@@ -61,7 +61,7 @@
 
 :FindEditTemplate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom calli:Template];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Template];
 	msg:imports calli:Template;
 	msg:imports <java:org.callimachusproject.annotations.edit>;
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;

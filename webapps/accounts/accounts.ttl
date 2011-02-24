@@ -70,7 +70,7 @@
 # Redirection to the authorized user
 # Used to login
 :GetLoginPage rdfs:subClassOf :GetAuthorization;
-	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET";
 	msg:query "login", "settings", "contributions";
 	msg:realm </accounts>;
@@ -96,7 +96,7 @@
 # Prompts the browser to login using bogus credentials (to forget legitimate onces)
 # Available to user when logged in
 :GetLogout rdfs:subClassOf :GetAuthorization;
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "GET";
 	msg:query "logout";
 	msg:type "message/x-response";

@@ -31,7 +31,7 @@
 
 :PostImage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </image> ];
-	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "POST" ;
 	msg:expect "303-see-also" ;
 	msg:type "text/uri-list";
@@ -89,7 +89,7 @@
 
 :PutImage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Image> ];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT" ;
 	msg:realm :local ;
 	msg:script """

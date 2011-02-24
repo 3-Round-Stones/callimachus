@@ -27,7 +27,7 @@
 
 calli:ConstructHTML rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Template];
-	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:type "text/html";
 	msg:script """
 		var reader = this.TransformXhtml(this.calliConstruct(calliObjecthtml, calliQueryhtml));
@@ -53,7 +53,7 @@ calli:queryhtml a owl:DatatypeProperty; a owl:FunctionalProperty;
 
 calli:ConstructTemplate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Template];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
 	msg:xslt <construct.xsl>.

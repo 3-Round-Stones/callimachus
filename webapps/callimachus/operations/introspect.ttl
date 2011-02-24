@@ -23,7 +23,7 @@
 @prefix :<#>.
 
 :GetIntrospect rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
 	msg:method "GET";
 	msg:query "introspect";
 	msg:type "application/xhtml+xml";

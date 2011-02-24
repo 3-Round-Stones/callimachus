@@ -9,7 +9,7 @@
 @prefix :<#>.
 
 :GetHistory rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "history";
 	msg:type "application/sparql-results+xml";
@@ -42,7 +42,7 @@
 	""".
 
 :TransformHistory rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform <../layout.ttl#TransformLayout>;
 	msg:xslt <history.xsl>.

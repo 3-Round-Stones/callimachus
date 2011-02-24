@@ -26,7 +26,7 @@
 
 :EvaluateSparql rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
 	msg:imports <java:org.openrdf.query.parser.QueryParserRegistry>;
@@ -106,7 +106,7 @@
 # POST application/sparql-query
 :PostQuery rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "POST";
 	msg:type "message/x-response";
 	msg:realm </accounts>;
@@ -126,7 +126,7 @@
 # POST application/x-www-form-urlencoded
 :PostForm rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "POST";
 	msg:type "message/x-response";
 	msg:realm </accounts>;
@@ -145,7 +145,7 @@
 # GET query parameter
 :GetQueryResult rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "GET";
 	msg:type "message/x-response";
 	msg:realm </accounts>;
@@ -161,7 +161,7 @@
 # Transformers
 :TransformResult rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform :TransformXml;
 	msg:script "return msg.entity.content".
@@ -173,7 +173,7 @@
 
 :TransformXml rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform </callimachus/layout.ttl#TransformLayout>;
 	msg:xslt <sparql.xsl>.

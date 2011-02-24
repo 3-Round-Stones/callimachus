@@ -23,7 +23,7 @@
 @prefix :<#>.
 
 :GetDescription rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:object; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	msg:title "RDF Describe";
 	msg:rel "describedby";
 	msg:method "GET";
@@ -37,7 +37,7 @@
 	""".
 
 :TransformDescription rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xhtml+xml";
 	msg:transform <../layout.ttl#TransformLayout>;
 	msg:xslt <describe.xsl>.

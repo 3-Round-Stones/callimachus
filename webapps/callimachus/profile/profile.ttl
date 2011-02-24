@@ -25,7 +25,7 @@
 
 :GetProfile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../profile>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
 	msg:method "GET";
 	msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
 	msg:header "cache-control:no-store";
@@ -53,7 +53,7 @@
 
 :PostProfile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../profile>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:hasValue <../profile>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:hasValue <../profile>];
 	msg:method "POST";
 	msg:expect "303-see-other";
 	msg:realm </accounts>;
@@ -80,7 +80,7 @@
 
 :TransformProfile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../profile>];
-	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformLayout>;
 	msg:xslt <profile.xhtml>.

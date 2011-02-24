@@ -36,7 +36,7 @@ skos:ConceptScheme rdfs:subClassOf calli:Viewable, calli:Editable;
 
 :GetConcepts rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom skos:ConceptScheme];
-	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET";
 	msg:query "viewconcepts";
 	msg:type "text/html";

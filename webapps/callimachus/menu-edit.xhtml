@@ -20,16 +20,17 @@
 		<li>Use ENTER and TAB key to create a new entry.</li>
 		<li>Use SPACE to separate a label from a full URL.</li>
 	</ul>
-	<!--form id="update-logo" method="post" action="?updatelogo">
-		<div rel="calli:logo" resource="?logo">
-			<img src="?logo" style="max-width:100%;display:block" />
-			<button type="submit">Update Logo</button>
-		</div>
-   </form-->
 	<form id='form' about="?this">
-		<div rel="calli:logo" data-prompt="/callimachus/icon-create.xhtml?construct">
-			<span about="?icon">
-				<img src="?icon" style="max-width:100%;display:block" />
+		<label for="logo-image">Logo</label>
+		<div id="logo-image" rel="calli:logo" data-prompt="/callimachus/image-create.xhtml?construct">
+			<span about="?image">
+				<span rel="rdf:type" resource="/callimachus/Image" property="rdfs:label"/>
+			</span>
+		</div>
+		<label for="favicon-image">Favicon</label>
+		<div id="favicon-image" rel="calli:favicon" data-prompt="/callimachus/image-create.xhtml?construct">
+			<span about="?image">
+				<span rel="rdf:type" resource="/callimachus/Image" property="rdfs:label"/>
 			</span>
 		</div>
 		<ol rel="calli:item" class="sorted" contenteditable="true">

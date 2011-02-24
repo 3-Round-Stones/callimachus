@@ -15,7 +15,8 @@
 	rdfs:member <discussion.js>;
 	rdfs:member <error.js>.
 
-</callimachus/menu> calli:logo </layout/logo.png> ;
+</callimachus/menu> 
+	calli:logo <logo.png> ; calli:favicon <favicon.png> ;
 	calli:item [calli:position 1; rdfs:label "Main page"; calli:link </>];
 	calli:item [calli:position 2; rdfs:label "Contents"; calli:link </callimachus/menu>];
 	calli:item [calli:position 3; rdfs:label "Recent changes"; calli:link </callimachus/changes>];
@@ -29,3 +30,5 @@
 		calli:item [calli:position 3; rdfs:label "Introspect resource"; calli:link <javascript:location='?introspect'>];
 		calli:item [calli:position 4; rdfs:label "Print this page"; calli:link <javascript:print()>]].
 
+<logo.png> a calli:Image ; rdfs:label "logo.png" .
+<favicon.png> a calli:Image ; rdfs:label "favicon.png" .

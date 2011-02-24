@@ -21,18 +21,15 @@
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix dc:<http://purl.org/dc/elements/1.1/>.
 @prefix dcterms:<http://purl.org/dc/terms/>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:Delete rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "DELETE";
-	obj:script """
+:Delete rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "DELETE";
+	msg:script """
 		var con = this.objectConnection;
 		var stmts = con.getStatements(null, null, this.resource, []);
 		try {

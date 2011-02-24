@@ -21,26 +21,23 @@
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix dc:<http://purl.org/dc/elements/1.1/>.
 @prefix dcterms:<http://purl.org/dc/terms/>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:GetViewPage rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Viewable];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:rel "alternate";
-	http:method "GET";
-	http:operation "view";
-	http:type "application/xhtml+xml";
-	http:cache-control "must-revalidate";
-	http:transform </callimachus/layout.ttl#TransformXhtml>;
-	obj:imports calli:Template;
-	obj:imports <java:org.callimachusproject.annotations.view>;
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:script """
+:GetViewPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Viewable];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:rel "alternate";
+	msg:method "GET";
+	msg:query "view";
+	msg:type "application/xhtml+xml";
+	msg:header "cache-control:must-revalidate";
+	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:imports calli:Template;
+	msg:imports <java:org.callimachusproject.annotations.view>;
+	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:script """
 		function findAnnotatedClass(klass, ann) {
 			if (klass.isAnnotationPresent(ann)) {
 				return klass;

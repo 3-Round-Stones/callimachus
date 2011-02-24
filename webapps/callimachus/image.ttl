@@ -17,8 +17,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
@@ -30,20 +29,20 @@
 <Image> rdfs:subClassOf foaf:Image, calli:Viewable, calli:Editable ;
 	calli:view <image.xhtml> ; calli:edit <image-edit.xhtml> .
 
-:PostImage rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </image> ];
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse; owl:allValuesFrom xsd:string];
-	http:method "POST" ;
-	http:expect "303-see-also" ;
-	http:type "text/uri-list";
-	http:realm </accounts> ;
-	obj:imports <java:java.net.URLEncoder>;
-	obj:imports <java:javax.mail.util.ByteArrayDataSource>;
-	obj:imports <java:javax.mail.internet.MimeMultipart>;
-	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	obj:imports <java:org.openrdf.http.object.exceptions.Conflict>;
-	obj:imports <Image> ;
-	obj:script """
+:PostImage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </image> ];
+	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	msg:method "POST" ;
+	msg:expect "303-see-also" ;
+	msg:type "text/uri-list";
+	msg:realm </accounts> ;
+	msg:imports <java:java.net.URLEncoder>;
+	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
+	msg:imports <java:javax.mail.internet.MimeMultipart>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+	msg:imports <Image> ;
+	msg:script """
 		//# image and caption input (see below)
 		var ds = new ByteArrayDataSource(input, "multipart/form-data") ;
 		var multipart = new MimeMultipart(ds);
@@ -83,17 +82,18 @@
 :input a owl:DatatypeProperty, owl:FunctionalProperty ;
 	rdfs:domain :PostImage ;
 	rdfs:range <java:java.io.InputStream> ;
-	http:type "multipart/form-data".
+	msg:type "multipart/form-data".
 
 :local a calli:LocalRealm;
 	calli:domain </image/>.
 
-:PutImage rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:allValuesFrom <Image> ];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse; owl:allValuesFrom owl:Nothing];
-	http:method "PUT" ;
-	http:realm :local ;
-	obj:script """
+:PutImage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Image> ];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT" ;
+	msg:realm :local ;
+	msg:script """
+		this.calliMaintainers.addAll(this.FindContributors());
 		var out = this.openOutputStream() ;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
 		var read;
@@ -109,5 +109,16 @@
 :imageStream a owl:DatatypeProperty, owl:FunctionalProperty ;
 	rdfs:domain :PutImage ;
 	rdfs:range <java:java.io.InputStream> ;
-	http:type "application/octet-stream" .
+	msg:type "application/octet-stream" .
+
+# find the user that created $ths if it does not have a conservator
+:FindContributors rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Image>];
+	msg:sparql  """
+		SELECT DISTINCT ?scribe
+		WHERE {
+			GRAPH ?graph { $this a ?type }
+			?graph audit:contributor ?scribe
+		}
+	""".
 

@@ -49,9 +49,8 @@ import org.callimachusproject.stream.ReducedTripleReader;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.TriplePatternVariableStore;
 import org.callimachusproject.traits.SoundexTrait;
-import org.openrdf.http.object.annotations.cacheControl;
-import org.openrdf.http.object.annotations.operation;
-import org.openrdf.http.object.annotations.parameter;
+import org.openrdf.http.object.annotations.header;
+import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.transform;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.repository.object.ObjectConnection;
@@ -70,12 +69,12 @@ public abstract class SearchSupport implements Template, SoundexTrait,
 	/**
 	 * Returns an HTML page listing suggested resources for the given element.
 	 */
-	@operation("search")
+	@query("search")
 	@type("application/rdf+xml")
-	@cacheControl("must-reevaluate")
+	@header("cache-control:must-reevaluate")
 	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
-	public XMLEventReader constructSearch(@parameter("query") String query,
-			@parameter("element") String element, @parameter("q") String q)
+	public XMLEventReader constructSearch(@query("query") String query,
+			@query("element") String element, @query("q") String q)
 			throws Exception {
 		String base = toUri().toASCIIString();
 		TriplePatternStore patterns = readPatternStore(query, element, base);

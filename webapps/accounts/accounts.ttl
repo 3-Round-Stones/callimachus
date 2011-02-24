@@ -2,8 +2,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix accounts:</accounts/>.
@@ -40,7 +39,7 @@
 
 <User> rdfs:subClassOf calli:User, calli:MailSubmitter;
 	rdfs:subClassOf calli:Viewable, calli:Editable;
-	http:realm </accounts>; # User operations must be authorized
+	msg:realm </accounts>; # User operations must be authorized
 	calli:icon <user-favicon.png>;
 	calli:withNamespace </user/>;
 	calli:view <user.xhtml>;
@@ -51,7 +50,7 @@
 ################################
 
 <Group> rdfs:subClassOf calli:Group, calli:Viewable,calli:Editable, calli:Copyable;
-	http:realm </accounts>; # Group operations must be authorized
+	msg:realm </accounts>; # Group operations must be authorized
 	calli:icon <group-favicon.png>;
 	calli:view <group.xhtml>;
 	calli:edit <group-edit.xhtml>.
@@ -60,25 +59,24 @@
 # login
 ################################
 
-:GetAuthorization rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>].
+:GetAuthorization rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>].
 
 :authorization a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :GetAuthorization;
 	rdfs:range xsd:string;
-	http:header "Authorization".
+	msg:header "Authorization".
 
 # Redirection to the authorized user
 # Used to login
 :GetLoginPage rdfs:subClassOf :GetAuthorization;
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:allValuesFrom xsd:string];
-	http:method "GET";
-	http:operation "login", "settings", "contributions";
-	http:realm </accounts>;
-	http:expect "302-found";
-	http:cache-control "max-age:3600";
-	obj:script """
+	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	msg:method "GET";
+	msg:query "login", "settings", "contributions";
+	msg:realm </accounts>;
+	msg:expect "302-found";
+	msg:header "cache-control:max-age:3600";
+	msg:script """
 		if ("settings" == query)
 			return this.findCredential(authorization) + "?edit";
 		if ("contributions" == query)
@@ -89,7 +87,7 @@
 :query a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :GetLoginPage;
 	rdfs:range xsd:string;
-	http:parameter "*".
+	msg:query "*".
 
 ################################
 # logout
@@ -98,14 +96,13 @@
 # Prompts the browser to login using bogus credentials (to forget legitimate onces)
 # Available to user when logged in
 :GetLogout rdfs:subClassOf :GetAuthorization;
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	http:method "GET";
-	http:operation "logout";
-	http:type "message/x-response";
-	obj:imports <java:org.apache.http.ProtocolVersion>;
-	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
-	obj:script """
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	msg:method "GET";
+	msg:query "logout";
+	msg:type "message/x-response";
+	msg:imports <java:org.apache.http.ProtocolVersion>;
+	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+	msg:script """
 		var ver = new ProtocolVersion("HTTP", 1, 1);
 		if (authorization && authorization.contains('username="logout"')) {
 			//# bogus credentials received

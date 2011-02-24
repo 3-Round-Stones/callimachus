@@ -18,8 +18,7 @@
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
@@ -35,15 +34,15 @@ skos:ConceptScheme rdfs:subClassOf calli:Viewable, calli:Editable;
 	calli:copy <scheme-create.xhtml>;
 	calli:withNamespace </scheme/>.
 
-:GetConcepts rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:allValuesFrom skos:ConceptScheme];
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse; owl:allValuesFrom xsd:string];
-	http:method "GET";
-	http:operation "viewconcepts";
-	http:type "text/html";
-	http:cache-control "no-store";
-	obj:imports <concept-list.xhtml>;
-	obj:script "return concept_list_xhtml.calliConstructHTML(this)".
+:GetConcepts rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom skos:ConceptScheme];
+	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	msg:method "GET";
+	msg:query "viewconcepts";
+	msg:type "text/html";
+	msg:header "cache-control:no-store";
+	msg:imports <concept-list.xhtml>;
+	msg:script "return concept_list_xhtml.calliConstructHTML(this)".
 
 skos:Concept rdfs:subClassOf calli:Viewable, calli:Editable;
 	calli:icon <concept.png>;
@@ -58,8 +57,8 @@ skos:Concept rdfs:subClassOf calli:Viewable, calli:Editable;
 	calli:withNamespace </concept/>.
 
 :TouchRelated owl:intersectionOf (</callimachus/operations/edit.ttl#PostEdit>
-	[owl:onProperty obj:target; owl:allValuesFrom skos:Concept]);
-	obj:script """
+	[owl:onProperty msg:target; owl:allValuesFrom skos:Concept]);
+	msg:script """
 		var ret = proceed();
 		var iter = this.skosNarrowers.iterator();
 		while (iter.hasNext()) {

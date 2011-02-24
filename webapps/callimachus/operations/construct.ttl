@@ -21,18 +21,16 @@
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix dc:<http://purl.org/dc/elements/1.1/>.
 @prefix dcterms:<http://purl.org/dc/terms/>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
 
-calli:ConstructHTML rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Template];
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:allValuesFrom xsd:string];
-	http:type "text/html";
-	obj:script """
-		var reader = this.TransformXhtml(calliConstruct(object, query));
+calli:ConstructHTML rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Template];
+	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	msg:type "text/html";
+	msg:script """
+		var reader = this.TransformXhtml(this.calliConstruct(calliObjecthtml, calliQueryhtml));
 		try {
 			var writer = new java.io.CharArrayWriter();
 			var read;
@@ -46,38 +44,32 @@ calli:ConstructHTML rdfs:subClassOf obj:Message;
 		}
 	""".
 
-calli:ConstructHTML-object a owl:ObjectProperty; a owl:FunctionalProperty;
+calli:objecthtml a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain calli:ConstructHTML.
+
+calli:queryhtml a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:ConstructHTML;
-	obj:name "object".
+	rdfs:range xsd:string.
 
-calli:ConstructHTML-query a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain calli:ConstructHTML;
-	rdfs:range xsd:string;
-	obj:name "query".
+calli:ConstructTemplate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Template];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:xslt <construct.xsl>.
 
-calli:ConstructTemplate rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Template];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:type "application/xhtml+xml";
-	http:transform </callimachus/layout.ttl#TransformXhtml>;
-	obj:xslt <construct.xsl>.
-
-calli:construct-template-arg1 a owl:DatatypeProperty; a owl:FunctionalProperty;
+:element a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:ConstructTemplate;
 	rdfs:range xsd:string;
-	http:parameter "element";
-	obj:name "element".
+	msg:query "element".
 
-calli:construct-template-arg2 a owl:DatatypeProperty; a owl:FunctionalProperty;
+:query a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:ConstructTemplate;
 	rdfs:range xsd:string;
-	http:parameter "query";
-	obj:name "query".
+	msg:query "query".
 
-calli:construct-template-arg3 a owl:ObjectProperty; a owl:FunctionalProperty;
+:xml a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain calli:ConstructTemplate;
 	rdfs:range <java:javax.xml.stream.XMLEventReader>;
-	http:type "application/rdf+xml".
+	msg:type "application/rdf+xml".
 

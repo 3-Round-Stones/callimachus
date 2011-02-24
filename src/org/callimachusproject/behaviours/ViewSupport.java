@@ -46,9 +46,8 @@ import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.ReducedTripleReader;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.TriplePatternVariableStore;
-import org.openrdf.http.object.annotations.cacheControl;
-import org.openrdf.http.object.annotations.operation;
-import org.openrdf.http.object.annotations.parameter;
+import org.openrdf.http.object.annotations.header;
+import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.transform;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.http.object.exceptions.BadRequest;
@@ -91,13 +90,13 @@ public abstract class ViewSupport implements Template, RDFObject,
 	 * Extracts an element from the template (without variables) and populates
 	 * the element with the properties of the about resource.
 	 */
-	@operation("construct")
+	@query("construct")
 	@type("application/rdf+xml")
-	@cacheControl("no-store")
+	@header("cache-control:no-store")
 	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
-	public XMLEventReader calliConstruct(@parameter("query") String query,
-			@parameter("element") String element,
-			@parameter("about") String about) throws Exception {
+	public XMLEventReader calliConstruct(@query("query") String query,
+			@query("element") String element,
+			@query("about") String about) throws Exception {
 		if (about != null && (element == null || element.equals("/1")))
 			throw new BadRequest("Missing element parameter");
 		return calliConstructRDF(query, element, about);
@@ -106,22 +105,22 @@ public abstract class ViewSupport implements Template, RDFObject,
 	/**
 	 * Extracts an element from the template (without variables).
 	 */
-	@operation("template")
+	@query("template")
 	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
-	public XMLEventReader template(@parameter("query") String query,
-			@parameter("element") String element) throws Exception {
+	public XMLEventReader template(@query("query") String query,
+			@query("element") String element) throws Exception {
 		return null;
 	}
 
 	/**
 	 * Returns the given element with all known possible children.
 	 */
-	@operation("options")
+	@query("options")
 	@type("application/rdf+xml")
-	@cacheControl("no-store")
+	@header("cache-control:no-store")
 	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
-	public XMLEventReader options(@parameter("query") String query,
-			@parameter("element") String element) throws Exception {
+	public XMLEventReader options(@query("query") String query,
+			@query("element") String element) throws Exception {
 		String base = toUri().toASCIIString();
 		TriplePatternStore patterns = readPatternStore(query, element, base);
 		TriplePattern pattern = patterns.getFirstTriplePattern();
@@ -131,9 +130,9 @@ public abstract class ViewSupport implements Template, RDFObject,
 		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
 	}
 
-	@operation("query")
+	@query("query")
 	@type("application/sparql-query")
-	public byte[] query(@parameter("element") String element, @parameter("about") String about)
+	public byte[] query(@query("element") String element, @query("about") String about)
 			throws XMLStreamException, IOException, TransformerException,
 			RDFParseException {
 		String base = toUri().toASCIIString();
@@ -196,6 +195,6 @@ public abstract class ViewSupport implements Template, RDFObject,
 	private String getETag(String uri) throws RepositoryException {
 		ObjectConnection con = getObjectConnection();
 		VersionedObject target = (VersionedObject) con.getObject(uri);
-		return target.revisionTag(0);
+		return "W/" + '"' + target.revision() + '"';
 	}
 }

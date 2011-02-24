@@ -18,19 +18,17 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:GetIntrospect rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
-	http:method "GET";
-	http:operation "introspect";
-	http:type "application/xhtml+xml";
-	http:transform <../layout.ttl#TransformLayout>;
-	obj:script """
+:GetIntrospect rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+	msg:method "GET";
+	msg:query "introspect";
+	msg:type "application/xhtml+xml";
+	msg:transform <../layout.ttl#TransformLayout>;
+	msg:script """
 		return calliIntrospect(this);
 	""".
 

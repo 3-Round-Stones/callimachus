@@ -17,27 +17,25 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
 </graph> calli:maintainer </group/admin>.
 
-:PostRdfGraph rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </graph>];
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:allValuesFrom xsd:string];
-	http:method "POST";
-	http:type "text/html";
-	http:realm </accounts>;
-	obj:imports calli:NamedGraph;
-	obj:imports <java:java.net.URLEncoder>;
-	obj:imports <java:org.openrdf.rio.RDFFormat>;
-	obj:imports <java:javax.mail.util.ByteArrayDataSource>;
-	obj:imports <java:javax.mail.internet.MimeMultipart>;
-	obj:imports </sparql/uploaded.xhtml>;
-	obj:script """
+:PostRdfGraph rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </graph>];
+	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	msg:method "POST";
+	msg:type "text/html";
+	msg:realm </accounts>;
+	msg:imports calli:NamedGraph;
+	msg:imports <java:java.net.URLEncoder>;
+	msg:imports <java:org.openrdf.rio.RDFFormat>;
+	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
+	msg:imports <java:javax.mail.internet.MimeMultipart>;
+	msg:imports </sparql/uploaded.xhtml>;
+	msg:script """
 		var ds = new ByteArrayDataSource(input, "multipart/form-data");
 		var part = new MimeMultipart(ds).getBodyPart(0);
 		var fileName = part.fileName;
@@ -60,5 +58,5 @@
 :input a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :PostRdfGraph;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "multipart/form-data".
+	msg:type "multipart/form-data".
 

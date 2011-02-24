@@ -3,8 +3,7 @@
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
@@ -17,15 +16,13 @@
 
 </callimachus/menu/sampleapps> a <Menu>.
 
-:GetMenuItems rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <Menu>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom obj:TupleResult];
-	http:method "GET";
-	http:operation "evaluate";
-	http:type "application/sparql-results+xml";
-	obj:sparql """
+:GetMenuItems rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "evaluate";
+	msg:type "application/sparql-results+xml";
+	msg:sparql  """
 		SELECT DISTINCT ?heading ?label ?link
 		WHERE {
 			{
@@ -45,7 +42,7 @@
 	""".
 
 :PostEditMenu owl:intersectionOf (</callimachus/operations/edit.ttl#PostEdit>
-		[owl:onProperty obj:target; owl:allValuesFrom <Menu>]);
-	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	obj:script "HTTPObjectServer.resetAllCache(); return proceed();".
+		[owl:onProperty msg:target; owl:allValuesFrom <Menu>]);
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
 

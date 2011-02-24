@@ -22,36 +22,31 @@
 @prefix dc:<http://purl.org/dc/elements/1.1/>.
 @prefix dcterms:<http://purl.org/dc/terms/>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:GetCopyPage rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Copyable];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:operation "copy";
-	http:type "application/xhtml+xml";
-	http:transform </callimachus/layout.ttl#TransformXhtml>;
-	http:cache-control "no-cache";
-	obj:script """
+:GetCopyPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "copy";
+	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:header "cache-control:no-cache";
+	msg:script """
 		return this.FindCopyTemplate().calliConstruct(this, 'copy');
 	""".
 
-:PostCopy rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Copyable];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
-	http:method "POST";
-	http:operation "copy";
-	http:expect "201-created";
-	http:type "text/uri-list";
-	obj:imports calli:Copyable;
-	obj:script """
+:PostCopy rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	msg:method "POST";
+	msg:query "copy";
+	msg:expect "201-created";
+	msg:type "text/uri-list";
+	msg:imports calli:Copyable;
+	msg:script """
 		var template = this.FindCopyTemplate();
 		var copy = template.calliCopyResource(this, input, this.FindCopyNamespaces());
 		if (this.calliCurators.size()) {
@@ -68,17 +63,15 @@
 :input a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostCopy;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/rdf+xml".
+	msg:type "application/rdf+xml".
 
-:FindCopyTemplate rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Copyable];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom calli:Template];
-	obj:imports calli:Template;
-	obj:imports <java:org.callimachusproject.annotations.copy>;
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:script """
+:FindCopyTemplate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom calli:Template];
+	msg:imports calli:Template;
+	msg:imports <java:org.callimachusproject.annotations.copy>;
+	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:script """
 		function findAnnotatedClass(klass, ann) {
 			if (klass.isAnnotationPresent(ann)) {
 				return klass;
@@ -114,26 +107,24 @@
 		throw new InternalServerError("No template");
 	""".
 
-:FindCopyNamespaces rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Copyable];
-	obj:sparql """
+:FindCopyNamespaces rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
+	msg:sparql  """
 		SELECT DISTINCT ?namespace
 		WHERE { $this a [calli:withNamespace ?namespace] }
 	""".
 
 # find the user that created $of if it does not have a conservator
-:FindScribe rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Copyable];
-	obj:sparql """
+:FindScribe rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
+	msg:sparql  """
 		SELECT DISTINCT ?scribe
 		WHERE {
 			{
-				audit:current-trx http:authorized ?scribe
+				audit:current-trx audit:contributor ?scribe
 			} UNION {
 				GRAPH ?graph { $of a ?type }
-				?graph http:authorized ?scribe
+				?graph audit:contributor ?scribe
 			}
 			OPTIONAL { $of a [calli:conservator ?conservator] }
 			FILTER (!bound(?conservator))
@@ -141,6 +132,5 @@
 	""".
 
 :of a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :FindScribe;
-	obj:name "of".
+	rdfs:domain :FindScribe.
 

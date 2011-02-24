@@ -3,25 +3,22 @@
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-:LookupAndGo rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:hasValue <go>];
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:allValuesFrom xsd:string];
-	http:method "GET";
-	http:expect "302-see-other";
-	http:cache-control "no-store";
-	obj:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	obj:imports <java:java.net.URLEncoder>;
-	obj:imports <lookup>;
-	obj:imports </diverted>;
-	obj:script """
+:LookupAndGo rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <go>];
+	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	msg:method "GET";
+	msg:expect "302-see-other";
+	msg:header "cache-control:no-store";
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLEncoder>;
+	msg:imports <lookup>;
+	msg:imports </diverted>;
+	msg:script """
 		try {
 			if (q.indexOf(":") > 0) {
 				if (java.net.URI.create(q).isAbsolute())
@@ -49,5 +46,5 @@
 :q a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :LookupAndGo;
 	rdfs:range xsd:string;
-	http:parameter "q".
+	msg:query "q".
 

@@ -18,8 +18,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
@@ -29,49 +28,43 @@
 ################################
 
 # all common modification operations must be authenticated
-</callimachus/operations/copy.ttl#GetCopyPage> http:realm </accounts>.
-</callimachus/operations/copy.ttl#PostCopy> http:realm </accounts>.
-</callimachus/operations/edit.ttl#GetEditPage> http:realm </accounts>.
-</callimachus/operations/edit.ttl#PostEdit> http:realm </accounts>.
-</callimachus/operations/delete.ttl#Delete> http:realm </accounts>.
-</callimachus/queries/discussion.ttl#PostDiscussion> http:realm </accounts>.
+</callimachus/operations/copy.ttl#GetCopyPage> msg:realm </accounts>.
+</callimachus/operations/copy.ttl#PostCopy> msg:realm </accounts>.
+</callimachus/operations/edit.ttl#GetEditPage> msg:realm </accounts>.
+</callimachus/operations/edit.ttl#PostEdit> msg:realm </accounts>.
+</callimachus/operations/delete.ttl#Delete> msg:realm </accounts>.
+</callimachus/queries/discussion.ttl#PostDiscussion> msg:realm </accounts>.
 
 # Transaction operations must be authenticated
-audit:Transaction a owl:Class; http:realm </accounts>.
+audit:Transaction a owl:Class; msg:realm </accounts>.
 
 ################################
 # Authorization
 ################################
 
 # interface method used by DigestRealmSupport
-:AuthorizeCredential rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>];
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:cardinality "1"^^xsd:nonNegativeInteger];
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:allValuesFrom xsd:boolean].
+:AuthorizeCredential rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];
+	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:cardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:boolean].
 
 :credential a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :AuthorizeCredential;
-	obj:name "credential".
+	rdfs:domain :AuthorizeCredential.
 
 :method a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :AuthorizeCredential;
-	rdfs:range xsd:string;
-	obj:name "method".
+	rdfs:range xsd:string;.
 
 :object a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :AuthorizeCredential;
-	obj:name "object".
+	rdfs:domain :AuthorizeCredential.
 
 :query a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :AuthorizeCredential;
-	rdfs:range xsd:string;
-	obj:name "query".
+	rdfs:range xsd:string.
 
 # users associated with the object are authorized
 :AuthorizeMaintainer owl:equivalentClass :AuthorizeCredential;
-	obj:sparql """
+	msg:sparql  """
 		ASK {
 			{
 				$object calli:scribe $credential
@@ -89,7 +82,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 
 # members of groups associated with the object are authorized
 :AuthorizeMember owl:equivalentClass :AuthorizeCredential;
-	obj:sparql """
+	msg:sparql  """
 		ASK {
 			?group calli:member $credential
 			{
@@ -108,10 +101,10 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 
 # users or groups associated as conservator of a class of the object are authorized
 :AuthorizeConservator owl:equivalentClass :AuthorizeCredential;
-	obj:imports </accounts/Group>;
-	obj:imports <java:org.callimachusproject.annotations.conservator>;
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:script """
+	msg:imports </accounts/Group>;
+	msg:imports <java:org.callimachusproject.annotations.conservator>;
+	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:script """
 		if (method == "GET" || method == "HEAD" || method == "POST" && (query == "edit" || query == "discussion")) {
 			if (query == null || query == "view" || query == "edit" || query == "discussion" || query == "describe" || query == "history"
 						|| query == "whatlinkshere" || query == "relatedchanges" || query == "introspect") {
@@ -133,10 +126,10 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 
 # users or groups associated as reviewer of a class of the object are authorized
 :AuthorizeReviewer owl:equivalentClass :AuthorizeCredential;
-	obj:imports </accounts/Group>;
-	obj:imports <java:org.callimachusproject.annotations.reviewer>;
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:script """
+	msg:imports </accounts/Group>;
+	msg:imports <java:org.callimachusproject.annotations.reviewer>;
+	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:script """
 		if (method == "GET" || method == "HEAD" || method == "POST" && query == "discussion") {
 			if (query == null || query == "view" || query == "discussion" || query == "describe" || query == "history"
 						|| query == "whatlinkshere" || query == "relatedchanges" || query == "introspect") {
@@ -156,10 +149,10 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 		return proceed();
 	""".
 
-:FindAnnotatedClass rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse; owl:cardinality 1];
-	obj:script """
+:FindAnnotatedClass rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
+	msg:script """
 		if (klass.isAnnotationPresent(ann)) {
 			return [klass];
 		}
@@ -192,7 +185,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage owl:equivalentClass :AuthorizeCredential;
-	obj:sparql """
+	msg:sparql  """
 		ASK {
 			$object calli:authenticates [calli:member $credential]
 			FILTER ($method = "GET" || $method = "HEAD")
@@ -203,7 +196,7 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 
 # any authenticated user can view any other user
 :AuthorizeUserView owl:equivalentClass :AuthorizeCredential;
-	obj:sparql """
+	msg:sparql  """
 		ASK {
 			$object a </accounts/User>
 			FILTER ($method = "GET" || $method = "HEAD")
@@ -213,8 +206,8 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 
 # Group curators can create users if they can also create groups
 :AuthorizeUserCreate owl:equivalentClass :AuthorizeCredential;
-	obj:imports </accounts/Group>;
-	obj:script """
+	msg:imports </accounts/Group>;
+	msg:script """
 		if (query == "usercreate" && object instanceof Group)
 			return this.AuthorizeCredential(credential, method, object, "copy");
 		return proceed()
@@ -222,8 +215,8 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 
 # transcations are authorized by the object they modified
 :AuthorizeTransactionView owl:equivalentClass :AuthorizeCredential;
-	obj:imports audit:Transaction;
-	obj:script """
+	msg:imports audit:Transaction;
+	msg:script """
 		if (proceed()) {
 			return true;
 		}
@@ -242,9 +235,9 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 		return false;
 	""".
 
-:ListSubjectsOfTransaction rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue </accounts>];
-	obj:sparql """
+:ListSubjectsOfTransaction rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];
+	msg:sparql  """
 		SELECT DISTINCT ?subj
 		WHERE {
 			$transaction a audit:Transaction
@@ -262,6 +255,5 @@ audit:Transaction a owl:Class; http:realm </accounts>.
 
 :transaction a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :ListSubjectsOfTransaction;
-	rdfs:range audit:Transaction;
-	obj:name "transaction".
+	rdfs:range audit:Transaction.
 

@@ -3,25 +3,22 @@
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-:RecentChanges rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:hasValue <../changes>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom obj:TupleResult];
-	http:method "GET";
-	http:type "application/sparql-results+xml";
-	http:cache-control "must-reevaluate,max-age=60";
-	http:transform :TransformRecentChanges;
-	obj:sparql """
+:RecentChanges rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../changes>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "application/sparql-results+xml";
+	msg:header "cache-control:must-reevaluate,max-age=60";
+	msg:transform :TransformRecentChanges;
+	msg:sparql  """
 		SELECT DISTINCT ?label ?note ?icon ?url ?revision ?modified ?user ?name
 		WHERE {
-			?revision a audit:RecentTransaction; http:authorized ?user; audit:committedOn ?modified
+			?revision a audit:RecentTransaction; audit:contributor ?user; audit:committedOn ?modified
 			{
 				GRAPH ?revision { ?url ?p ?o FILTER (?p != audit:contained) }
 			} UNION {
@@ -46,12 +43,11 @@
 		LIMIT 100
 	""".
 
-:TransformRecentChanges rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:type "application/xml";
-	http:transform <../layout.ttl#TransformLayout>;
-	obj:xslt <recent-changes.xsl>.
+:TransformRecentChanges rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:type "application/xml";
+	msg:transform <../layout.ttl#TransformLayout>;
+	msg:xslt <recent-changes.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformRecentChanges;

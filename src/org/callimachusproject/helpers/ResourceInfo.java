@@ -25,8 +25,7 @@ import java.util.TreeSet;
 
 import org.openrdf.http.object.annotations.header;
 import org.openrdf.http.object.annotations.method;
-import org.openrdf.http.object.annotations.operation;
-import org.openrdf.http.object.annotations.parameter;
+import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.repository.object.annotations.iri;
 import org.openrdf.repository.object.annotations.name;
@@ -74,13 +73,13 @@ public class ResourceInfo {
 
 		public String getRemoteName() {
 			if (isAnnotationPresent(method.class)
-					&& isAnnotationPresent(operation.class)) {
+					&& isAnnotationPresent(query.class)) {
 				return join(getAnnotation(method.class).value(), "/") + " ?"
-						+ join(getAnnotation(operation.class).value(), "&");
+						+ join(getAnnotation(query.class).value(), "&");
 			} else if (isAnnotationPresent(method.class)) {
 				return join(getAnnotation(method.class).value(), "/");
-			} else if (isAnnotationPresent(operation.class)) {
-				return "?" + join(getAnnotation(operation.class).value(), "&");
+			} else if (isAnnotationPresent(query.class)) {
+				return "?" + join(getAnnotation(query.class).value(), "&");
 			}
 			return getName();
 		}
@@ -198,8 +197,8 @@ public class ResourceInfo {
 		}
 
 		public String getQuery() {
-			if (isAnnotationPresent(parameter.class)) {
-				return join(getAnnotation(parameter.class).value(), ", ");
+			if (isAnnotationPresent(query.class)) {
+				return join(getAnnotation(query.class).value(), ", ");
 			}
 			return null;
 		}
@@ -320,7 +319,7 @@ public class ResourceInfo {
 		while (iter.hasNext()) {
 			Method m = iter.next().getMethod();
 			if (!m.isAnnotationPresent(method.class)
-					&& !m.isAnnotationPresent(operation.class)) {
+					&& !m.isAnnotationPresent(query.class)) {
 				iter.remove();
 			}
 		}

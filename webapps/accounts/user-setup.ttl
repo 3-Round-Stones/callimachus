@@ -2,8 +2,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
@@ -11,14 +10,11 @@
 	calli:origin </>;
 	calli:domain </group/>.
 
-:HasNoMaintainer rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:allValuesFrom xsd:boolean];
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:cardinality 1];
-	obj:sparql """
+:HasNoMaintainer rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
+	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:boolean];
+	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:cardinality 1];
+	msg:sparql  """
 		ASK {
 			# this group is maintained by its members, but
 			$this calli:maintainer $this
@@ -34,19 +30,17 @@
 		}
 	""".
 
-:GetUserSetup rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:operation "usersetup";
-	http:type "application/xhtml+xml";
-	http:transform </callimachus/layout.ttl#TransformXhtml>;
-	http:realm :local;
-	obj:imports <user-setup.xhtml>;
-	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	obj:script """
+:GetUserSetup rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "usersetup";
+	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:realm :local;
+	msg:imports <user-setup.xhtml>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:script """
 		if (!this.HasNoMaintainer())
 			throw new BadRequest("This service has already been setup");
 		return user_setup_xhtml.calliConstruct(this, 'copy');
@@ -54,23 +48,21 @@
 
 rdfs:label a rdf:Property.
 
-:PostUserSetup rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty obj:functionalLiteralResponse;
-		owl:allValuesFrom xsd:string];
-	http:method "POST";
-	http:operation "usersetup";
-	http:realm :local;
-	http:expect "201-created";
-	obj:imports </user/>;
-	obj:imports <User>;
-	obj:imports </accounts>;
-	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	obj:imports <java:org.openrdf.http.object.exceptions.Conflict>;
-	obj:imports <java:org.apache.commons.codec.binary.Hex>;
-	obj:imports <java:java.net.URLEncoder>;
-	obj:script """
+:PostUserSetup rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
+	rdfs:subClassOf [owl:onProperty msg:literalFunctional; owl:allValuesFrom xsd:string];
+	msg:method "POST";
+	msg:query "usersetup";
+	msg:realm :local;
+	msg:expect "201-created";
+	msg:imports </user/>;
+	msg:imports <User>;
+	msg:imports </accounts>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+	msg:imports <java:org.apache.commons.codec.binary.Hex>;
+	msg:imports <java:java.net.URLEncoder>;
+	msg:script """
 		if (!this.HasNoMaintainer())
 			throw new BadRequest("This service has already been setup");
 		if (!form.get("label"))
@@ -91,10 +83,10 @@ rdfs:label a rdf:Property.
 			throw new BadRequest("Invalid MD5 sum");
 		var decoded = Hex.decodeHex(encoded.toCharArray());
 		var uri = user + URLEncoder.encode(username).replaceAll("%20", "+").toLowerCase();
-		var user = objectConnection.getObject(uri);
+		var user = this.objectConnection.getObject(uri);
 		if (user instanceof User)
 			throw new Conflict("User already exists");
-		user = objectConnection.addDesignation(user, User);
+		user = this.objectConnection.addDesignation(user, User);
 		user.calliName = username;
 		user.calliAlgorithm = algorithm;
 		user.calliEncoded = decoded;
@@ -106,5 +98,5 @@ rdfs:label a rdf:Property.
 :form a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostUserSetup;
 	rdfs:range <java:java.util.Map>;
-	http:type "application/x-www-form-urlencoded".
+	msg:type "application/x-www-form-urlencoded".
 

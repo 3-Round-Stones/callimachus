@@ -18,35 +18,32 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:GetDescription rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
-	http:title "RDF Describe";
-	http:rel "describedby";
-	http:method "GET";
-	http:operation "describe";
-	http:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
-	http:transform :TransformDescription;
-	obj:script """
-		if (objectConnection.hasStatement(resource, null, null, []))
+:GetDescription rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	msg:title "RDF Describe";
+	msg:rel "describedby";
+	msg:method "GET";
+	msg:query "describe";
+	msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+	msg:transform :TransformDescription;
+	msg:script """
+		if (this.objectConnection.hasStatement(this.resource, null, null, []))
 			return this;
 		return null;
 	""".
 
-:TransformDescription rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:type "application/xhtml+xml";
-	http:transform <../layout.ttl#TransformLayout>;
-	obj:xslt <describe.xsl>.
+:TransformDescription rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:type "application/xhtml+xml";
+	msg:transform <../layout.ttl#TransformLayout>;
+	msg:xslt <describe.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :TransformDescription;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/rdf+xml".
+	msg:type "application/rdf+xml".
 

@@ -3,36 +3,34 @@
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-:TransformLayout rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.InputStream>];
-	http:type "application/xhtml+xml";
-	http:transform :TransformXhtml;
-	obj:xslt </layout/template.xsl>.
-
-:input a owl:ObjectProperty; a owl:FunctionalProperty;
-	http:type "application/xhtml+xml";
-	rdfs:domain :TransformLayout;
-	rdfs:range <java:java.io.InputStream>.
+:TransformLayout rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:type "application/xhtml+xml";
+	msg:transform :TransformXhtml;
+	msg:xslt </layout/template.xsl>.
 
 :query a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformLayout;
 	rdfs:range xsd:string;
-	http:parameter "*";
-	obj:name "query".
+	msg:query "*".
 
-:TransformXhtml rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:allValuesFrom <java:java.io.Reader>];
-	http:type "text/html";
-	obj:xslt <util/xhtml-to-html.xsl>.
+:xml a owl:ObjectProperty; a owl:FunctionalProperty;
+	msg:type "application/xhtml+xml";
+	rdfs:domain :TransformLayout;
+	rdfs:range <java:java.io.InputStream>.
+
+:TransformXhtml rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.Reader>];
+	msg:type "text/html";
+	msg:xslt <util/xhtml-to-html.xsl>.
 
 :xhtml a owl:ObjectProperty; a owl:FunctionalProperty;
-	http:type "application/xhtml+xml";
+	msg:type "application/xhtml+xml";
 	rdfs:domain :TransformXhtml;
 	rdfs:range <java:java.io.InputStream>.
 

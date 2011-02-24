@@ -13,7 +13,7 @@ import org.callimachusproject.helpers.XHTMLInfoWriter;
 import org.callimachusproject.helpers.ResourceInfo.MethodInfo;
 import org.callimachusproject.helpers.ResourceInfo.ParameterInfo;
 import org.callimachusproject.helpers.ResourceInfo.PropertyInfo;
-import org.openrdf.http.object.annotations.operation;
+import org.openrdf.http.object.annotations.query;
 import org.openrdf.model.URI;
 import org.openrdf.repository.object.RDFObject;
 
@@ -153,7 +153,7 @@ public class IntrospectSupport {
 				accept = params[i].getType();
 			}
 		}
-		if (!parameters.isEmpty() && info.getMethod().isAnnotationPresent(operation.class)) {
+		if (!parameters.isEmpty() && info.getMethod().isAnnotationPresent(query.class)) {
 			out.writeCharacters("&");
 		} else if (!parameters.isEmpty()) {
 			out.writeCharacters("?");

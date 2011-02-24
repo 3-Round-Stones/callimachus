@@ -20,29 +20,26 @@
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix dc:<http://purl.org/dc/elements/1.1/>.
 @prefix dcterms:<http://purl.org/dc/terms/>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-:GetChangesetView rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom audit:Transaction];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom obj:TupleResult];
-	http:method "GET";
-	http:operation "view";
-	http:rel "alternate";
-	http:type "application/sparql-results+xml";
-	http:transform :TransformChangesetView;
-	obj:sparql """
+:GetChangesetView rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom audit:Transaction];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "view";
+	msg:rel "alternate";
+	msg:type "application/sparql-results+xml";
+	msg:transform :TransformChangesetView;
+	msg:sparql  """
 		SELECT REDUCED ?modified ?user ?name ?previous ?subsequent ?removed ?added ?subject ?predicate ?object
 		WHERE {
 			{
 				$this audit:committedOn ?modified
 				OPTIONAL {
-					$this http:authorized ?user
+					$this audit:contributor ?user
 					OPTIONAL { ?user skos:prefLabel ?name }
 					OPTIONAL { ?user rdfs:label ?name }
 				}
@@ -77,17 +74,15 @@
 		ORDER BY ?subject ?predicate ?asof ?object
 	""".
 
-:TransformChangesetView rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom audit:Transaction];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:type "application/xml";
-	http:transform <../layout.ttl#TransformLayout>;
-	obj:xslt <changeset.xsl>.
+:TransformChangesetView rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom audit:Transaction];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:type "application/xml";
+	msg:transform <../layout.ttl#TransformLayout>;
+	msg:xslt <changeset.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformChangesetView;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/sparql-results+xml".
+	msg:type "application/sparql-results+xml".
 

@@ -21,36 +21,31 @@
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix dc:<http://purl.org/dc/elements/1.1/>.
 @prefix dcterms:<http://purl.org/dc/terms/>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:GetEditPage rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:operation "edit";
-	http:type "application/xhtml+xml";
-	http:transform </callimachus/layout.ttl#TransformXhtml>;
-	http:cache-control "no-cache";
-	obj:script """
+:GetEditPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "edit";
+	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:header "cache-control:no-cache";
+	msg:script """
 		return this.FindEditTemplate().calliConstruct(this, 'edit');
 	""".
 
-:PostEdit rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	http:method "POST";
-	http:operation "edit";
-	http:type "message/x-response";
-	obj:imports <java:org.apache.http.ProtocolVersion>;
-	obj:imports <java:org.apache.http.message.BasicHttpResponse>;
-	obj:script """
+:PostEdit rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	msg:method "POST";
+	msg:query "edit";
+	msg:type "message/x-response";
+	msg:imports <java:org.apache.http.ProtocolVersion>;
+	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+	msg:script """
 		var template = this.FindEditTemplate();
 		template.calliEditResource(this, input);
 		var ver = new ProtocolVersion("HTTP", 1, 1);
@@ -62,17 +57,15 @@
 :input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PostEdit;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "multipart/related;type=\"application/rdf+xml\"".
+	msg:type "multipart/related;type=\"application/rdf+xml\"".
 
-:FindEditTemplate rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom calli:Template];
-	obj:imports calli:Template;
-	obj:imports <java:org.callimachusproject.annotations.edit>;
-	obj:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	obj:script """
+:FindEditTemplate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom calli:Template];
+	msg:imports calli:Template;
+	msg:imports <java:org.callimachusproject.annotations.edit>;
+	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:script """
 		function findAnnotatedClass(klass, ann) {
 			if (klass.isAnnotationPresent(ann)) {
 				return klass;

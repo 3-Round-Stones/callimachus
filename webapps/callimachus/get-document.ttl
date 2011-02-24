@@ -18,8 +18,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
@@ -27,141 +26,113 @@
 # Text File
 ################################
 
-:GetPlain rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:text/plain>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
-	http:method "GET";
-	http:type "text/plain";
-	obj:script "return openReader(false)".
+:GetPlain rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:text/plain>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.Reader>];
+	msg:method "GET";
+	msg:type "text/plain";
+	msg:script "return this.openReader(false)".
 
-:GetHtml rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:text/html>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
-	http:method "GET";
-	http:type "text/html";
-	obj:script "return openReader(false)".
+:GetHtml rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:text/html>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.Reader>];
+	msg:method "GET";
+	msg:type "text/html";
+	msg:script "return this.openReader(false)".
 
-:GetHtmlSandboxed rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:text/html-sandboxed>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
-	http:method "GET";
-	http:type "text/html-sandboxed";
-	obj:script "return openReader(false)".
+:GetHtmlSandboxed rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:text/html-sandboxed>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.Reader>];
+	msg:method "GET";
+	msg:type "text/html-sandboxed";
+	msg:script "return this.openReader(false)".
 
-:GetCacheManifest rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:text/cache-manifest>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
-	http:method "GET";
-	http:type "text/cache-manifest";
-	obj:script "return openReader(false)".
+:GetCacheManifest rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:text/cache-manifest>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.Reader>];
+	msg:method "GET";
+	msg:type "text/cache-manifest";
+	msg:script "return this.openReader(false)".
 
-:GetCss rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:text/css>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
-	http:method "GET";
-	http:type "text/css";
-	obj:script "return openReader(false)".
+:GetCss rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:text/css>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.Reader>];
+	msg:method "GET";
+	msg:type "text/css";
+	msg:script "return this.openReader(false)".
 
-:GetJavascript rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:text/javascript>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.Reader>];
-	http:method "GET";
-	http:type "text/javascript";
-	obj:script "return openReader(false)".
+:GetJavascript rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:text/javascript>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.Reader>];
+	msg:method "GET";
+	msg:type "text/javascript";
+	msg:script "return this.openReader(false)".
 
 ################################
 # Binary File
 ################################
 
-:GetXsl rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:text/xsl>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:type "text/xsl";
-	http:cache-control "cache-range";
-	obj:script "return openInputStream()".
+:GetXsl rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:text/xsl>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "text/xsl";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
 
-:GetPng rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:image/png>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:type "image/png";
-	http:cache-control "cache-range";
-	obj:script "return openInputStream()".
+:GetPng rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:image/png>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "image/png";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
 
-:GetJpeg rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:image/jpeg>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:type "image/jpeg";
-	http:cache-control "cache-range";
-	obj:script "return openInputStream()".
+:GetJpeg rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:image/jpeg>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "image/jpeg";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
 
-:GetGif rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:image/gif>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:type "image/gif";
-	http:cache-control "cache-range";
-	obj:script "return openInputStream()".
+:GetGif rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:image/gif>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "image/gif";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
 
-:GetIco rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:image/vnd.microsoft.icon>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:type "image/vnd.microsoft.icon";
-	http:cache-control "cache-range";
-	obj:script "return openInputStream()".
+:GetIco rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:image/vnd.microsoft.icon>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "image/vnd.microsoft.icon";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
 
-:GetPdf rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:application/pdf>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:type "application/pdf";
-	http:cache-control "cache-range";
-	obj:script "return openInputStream()".
+:GetPdf rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:application/pdf>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "application/pdf";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
 
-:GetXml rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:application/xml>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:type "application/xml";
-	http:cache-control "cache-range";
-	obj:script "return openInputStream()".
+:GetXml rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:application/xml>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "application/xml";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
 
-:GetXhtml rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <urn:mimetype:application/xhtml+xml>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:type "application/xhtml+xml";
-	http:cache-control "cache-range";
-	obj:script "return openInputStream()".
+:GetXhtml rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:application/xhtml+xml>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "application/xhtml+xml";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
 

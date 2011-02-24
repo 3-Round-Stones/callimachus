@@ -2,46 +2,41 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:GetUserCreate rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:method "GET";
-	http:operation "usercreate";
-	http:type "application/xhtml+xml";
-	http:transform </callimachus/layout.ttl#TransformXhtml>;
-	http:realm </accounts>;
-	obj:imports <user-create.xhtml>;
-	obj:script """
+:GetUserCreate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "usercreate";
+	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:realm </accounts>;
+	msg:imports <user-create.xhtml>;
+	msg:script """
 		return user_create_xhtml.calliConstruct(this, 'copy');
 	""".
 
 rdfs:label a rdf:Property.
 rdfs:comment a rdf:Property.
 
-:PostUserCreate rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target;
-		owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:maxCardinality "1"^^xsd:nonNegativeInteger];
-	http:method "POST";
-	http:operation "usercreate";
-	http:realm </accounts>;
-	http:expect "303-see-other";
-	obj:imports <User>;
-	obj:imports </user/>;
-	obj:imports </accounts>;
-	obj:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	obj:imports <java:org.openrdf.http.object.exceptions.Conflict>;
-	obj:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-	obj:imports <java:java.net.URLEncoder>;
-	obj:script """
+:PostUserCreate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	msg:method "POST";
+	msg:query "usercreate";
+	msg:realm </accounts>;
+	msg:expect "303-see-other";
+	msg:imports <User>;
+	msg:imports </user/>;
+	msg:imports </accounts>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+	msg:imports <java:java.net.URLEncoder>;
+	msg:script """
 		if (!form.get("label"))
 			throw new BadRequest("Missing label");
 		if (!form.get("name"))
@@ -60,10 +55,10 @@ rdfs:comment a rdf:Property.
 		var body = form.get("message")[0];
 		//# assign id
 		var uri = user + URLEncoder.encode(username).replaceAll("%20", "+").toLowerCase();
-		var user = objectConnection.getObject(uri);
+		var user = this.objectConnection.getObject(uri);
 		if (user instanceof User)
 			throw new Conflict("User already exists");
-		user = objectConnection.addDesignation(user, User);
+		user = this.objectConnection.addDesignation(user, User);
 		user.calliName = username;
 		user.calliEmail = email;
 		user.rdfsLabels.add(label);
@@ -89,10 +84,10 @@ rdfs:comment a rdf:Property.
 :form a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostUserCreate;
 	rdfs:range <java:java.util.Map>;
-	http:type "application/x-www-form-urlencoded".
+	msg:type "application/x-www-form-urlencoded".
 
 :authorization a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :PostUserCreate;
 	rdfs:range xsd:string;
-	http:header "Authorization".
+	msg:header "Authorization".
 

@@ -48,8 +48,8 @@ import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.XMLElementReader;
 import org.callimachusproject.traits.SoundexTrait;
-import org.openrdf.http.object.annotations.operation;
 import org.openrdf.http.object.annotations.parameter;
+import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.exceptions.InternalServerError;
@@ -77,9 +77,9 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 	private static final Pattern START_ELEMENT = Pattern.compile("<[^\\?]");
 	private static XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
 
-	@operation("xslt")
-	public XMLEventReader xslt(@parameter("query") String query,
-			@parameter("element") String element) throws XMLStreamException,
+	@query("xslt")
+	public XMLEventReader xslt(@query("query") String query,
+			@query("element") String element) throws XMLStreamException,
 			IOException, TransformerException {
 		try {
 			XMLEventReader doc = applyXSLT(query);
@@ -106,7 +106,7 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 		}
 	}
 
-	@operation("rdfa-triples")
+	@query("rdfa-triples")
 	@type("application/rdf+xml")
 	public XMLEventReader parseRDFa() throws XMLStreamException, IOException,
 			TransformerException, RDFParseException, RepositoryException,

@@ -2,15 +2,14 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
 :MigrateUsers owl:equivalentClass calli:Started;
-	obj:imports <java:org.openrdf.model.vocabulary>;
-	obj:script """
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
 		var calli = "http://callimachusproject.org/rdf/2009/framework#";
@@ -40,8 +39,8 @@
 	""".
 
 :MigrateGroups owl:equivalentClass calli:Started;
-	obj:imports <java:org.openrdf.model.vocabulary>;
-	obj:script """
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
 		var calli = "http://callimachusproject.org/rdf/2009/framework#";

@@ -48,8 +48,8 @@ public interface Template {
 	 */
 	@iri("http://callimachusproject.org/rdf/2009/framework#ConstructHTML")
 	String calliConstructHTML(
-			@iri("http://callimachusproject.org/rdf/2009/framework#ConstructHTML-object") Object target,
-			@iri("http://callimachusproject.org/rdf/2009/framework#ConstructHTML-query") String query)
+			@iri("http://callimachusproject.org/rdf/2009/framework#objecthtml") Object target,
+			@iri("http://callimachusproject.org/rdf/2009/framework#queryhtml") String query)
 			throws Exception;
 
 	/**

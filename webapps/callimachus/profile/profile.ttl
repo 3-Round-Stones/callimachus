@@ -17,23 +17,21 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
 <../profile> calli:maintainer </group/admin>.
 
-:GetProfile rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../profile>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
-	http:method "GET";
-	http:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
-	http:cache-control "no-store";
-	http:transform :TransformProfile;
-	obj:imports <java:org.openrdf.model.impl.LinkedHashModel>;
-	obj:script """
+:GetProfile rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../profile>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
+	msg:method "GET";
+	msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+	msg:header "cache-control:no-store";
+	msg:transform :TransformProfile;
+	msg:imports <java:org.openrdf.model.impl.LinkedHashModel>;
+	msg:script """
 		var vf = this.objectConnection.valueFactory;
 		var xsd = "http://www.w3.org/2001/XMLSchema#";
 		var rdfa = "http://www.w3.org/ns/rdfa#";
@@ -53,13 +51,13 @@
 		return model;
 	""".
 
-:PostProfile rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../profile>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse; owl:hasValue <../profile>];
-	http:method "POST";
-	http:expect "303-see-other";
-	http:realm </accounts>;
-	obj:script """
+:PostProfile rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../profile>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:hasValue <../profile>];
+	msg:method "POST";
+	msg:expect "303-see-other";
+	msg:realm </accounts>;
+	msg:script """
 		var iter = form.entrySet().iterator();
 		while (iter.hasNext()) {
 			var entry = iter.next();
@@ -78,18 +76,17 @@
 :form a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostProfile;
 	rdfs:range <java:java.util.Map>;
-	http:type "application/x-www-form-urlencoded".
+	msg:type "application/x-www-form-urlencoded".
 
-:TransformProfile rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:target; owl:hasValue <../profile>];
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:type "application/xhtml+xml";
-	http:transform </callimachus/layout.ttl#TransformLayout>;
-	obj:xslt <profile.xhtml>.
+:TransformProfile rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../profile>];
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/layout.ttl#TransformLayout>;
+	msg:xslt <profile.xhtml>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :TransformProfile;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/rdf+xml".
+	msg:type "application/rdf+xml".
 

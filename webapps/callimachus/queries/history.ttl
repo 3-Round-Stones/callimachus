@@ -3,21 +3,19 @@
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-:GetHistory rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom obj:TupleResult];
-	http:method "GET";
-	http:operation "history";
-	http:type "application/sparql-results+xml";
-	http:cache-control "no-store";
-	http:transform :TransformHistory;
-	obj:sparql """
+:GetHistory rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "history";
+	msg:type "application/sparql-results+xml";
+	msg:header "cache-control:no-store";
+	msg:transform :TransformHistory;
+	msg:sparql  """
 		SELECT REDUCED ?label ?note ?icon ?revision ?modified ?user ?name
 		WHERE {
 			{
@@ -26,7 +24,7 @@
 				?revision audit:contained [rdf:subject $this]
 			}
 			?revision audit:committedOn ?modified
-			OPTIONAL { ?revision http:authorized ?user OPTIONAL { ?user rdfs:label ?name } }
+			OPTIONAL { ?revision audit:contributor ?user OPTIONAL { ?user rdfs:label ?name } }
 			OPTIONAL { $this a [calli:icon ?icon] }
 			FILTER (!bound(?user) || ?user != $this)
 			OPTIONAL { $this skos:prefLabel ?label }
@@ -43,15 +41,14 @@
 		LIMIT 50
 	""".
 
-:TransformHistory rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:functionalObjectResponse;
-		owl:allValuesFrom <java:java.io.InputStream>];
-	http:type "application/xml";
-	http:transform <../layout.ttl#TransformLayout>;
-	obj:xslt <history.xsl>.
+:TransformHistory rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:objectFunctional; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:type "application/xml";
+	msg:transform <../layout.ttl#TransformLayout>;
+	msg:xslt <history.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformHistory;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/sparql-results+xml".
+	msg:type "application/sparql-results+xml".
 

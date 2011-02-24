@@ -18,17 +18,16 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix obj:<http://www.openrdf.org/rdf/2009/object#>.
-@prefix http:<http://www.openrdf.org/rdf/2009/httpobject#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:PutContentType rdfs:subClassOf obj:Message.
+:PutContentType rdfs:subClassOf msg:Message.
 
 :contentType a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutContentType;
 	rdfs:range xsd:string;
-	http:header "Content-Type".
+	msg:header "Content-Type".
 
 ################################
 # RDF Graph
@@ -37,40 +36,38 @@
 calli:NamedGraph a owl:Class.
 
 :PutGraphDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "PUT";
-	http:operation "calliwebapps";
-	http:realm calli:nobody;
-	obj:imports <java:org.openrdf.rio.RDFFormat>;
-	obj:imports calli:NamedGraph;
-	obj:script """
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:query "calliwebapps";
+	msg:realm calli:nobody;
+	msg:imports <java:org.openrdf.rio.RDFFormat>;
+	msg:imports calli:NamedGraph;
+	msg:script """
 		this.calliDeleteWebResource();
 		var type = contentType;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
 		this.objectConnection.addDesignation(this, NamedGraph);
-		this.objectConnection.add(rdfStream, this.toString(), RDFFormat.forMIMEType(type), [resource]);
+		this.objectConnection.add(rdfStream, this.toString(), RDFFormat.forMIMEType(type), [this.resource]);
 	""".
 
 :rdfStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutGraphDocument;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/rdf+xml;q=0.1", "text/turtle;q=0.1", "application/x-turtle;q=0.1".
+	msg:type "application/rdf+xml;q=0.1", "text/turtle;q=0.1", "application/x-turtle;q=0.1".
 
 ################################
 # Text File
 ################################
 
 :PutTextDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "PUT";
-	http:operation "calliwebapps";
-	http:realm calli:nobody;
-	obj:imports calli:Template;
-	obj:script """
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:query "calliwebapps";
+	msg:realm calli:nobody;
+	msg:imports calli:Template;
+	msg:script """
 		this.calliDeleteWebResource();
 		var type = "urn:mimetype:" + contentType;
 		if (type.indexOf(';') > 0) {
@@ -92,17 +89,16 @@ calli:NamedGraph a owl:Class.
 :textReader a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutTextDocument;
 	rdfs:range <java:java.io.Reader>;
-	http:type "text/html;q=0.1", "text/html-sandboxed;q=0.1", "text/cache-manifest;q=0.1",
+	msg:type "text/html;q=0.1", "text/html-sandboxed;q=0.1", "text/cache-manifest;q=0.1",
 		"text/css;q=0.1", "text/plain;q=0.1".
 
 :PutJavaScriptDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "PUT";
-	http:operation "calliwebapps";
-	http:realm calli:nobody;
-	obj:imports calli:Template;
-	obj:script """
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:query "calliwebapps";
+	msg:realm calli:nobody;
+	msg:imports calli:Template;
+	msg:script """
 		this.calliDeleteWebResource();
 		var con = this.objectConnection;
 		var type = "urn:mimetype:text/javascript";
@@ -133,20 +129,19 @@ calli:NamedGraph a owl:Class.
 :jsReader a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutJavaScriptDocument;
 	rdfs:range <java:java.io.Reader>;
-	http:type "text/javascript;q=0.1".
+	msg:type "text/javascript;q=0.1".
 
 ################################
 # Binary File
 ################################
 
 :PutBinaryDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "PUT";
-	http:operation "calliwebapps";
-	http:cache-control "cache-range";
-	http:realm calli:nobody;
-	obj:script """
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:query "calliwebapps";
+	msg:header "cache-control:cache-range";
+	msg:realm calli:nobody;
+	msg:script """
 		this.calliDeleteWebResource();
 		var type = "urn:mimetype:" + contentType;
 		if (type.indexOf(';') > 0) {
@@ -168,21 +163,20 @@ calli:NamedGraph a owl:Class.
 :binaryStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutBinaryDocument;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "image/png;q=0.1", "image/jpeg;q=0.1", "image/gif;q=0.1", "image/vnd.microsoft.icon;q=0.1", "application/pdf;q=0.1".
+	msg:type "image/png;q=0.1", "image/jpeg;q=0.1", "image/gif;q=0.1", "image/vnd.microsoft.icon;q=0.1", "application/pdf;q=0.1".
 
 ################################
 # XSL File
 ################################
 
-:PutXslDocument rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "PUT";
-	http:operation "calliwebapps";
-	http:cache-control "cache-range";
-	http:realm calli:nobody;
-	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	obj:script """
+:PutXslDocument rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:query "calliwebapps";
+	msg:header "cache-control:cache-range";
+	msg:realm calli:nobody;
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:script """
 		this.calliDeleteWebResource();
 		this.objectConnection.addDesignation(this, "urn:mimetype:text/xsl");
 		var read;
@@ -201,22 +195,21 @@ calli:NamedGraph a owl:Class.
 :xslStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutXslDocument;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "text/xsl;q=0.1".
+	msg:type "text/xsl;q=0.1".
 
 ################################
 # Template File
 ################################
 
-:PutXmlDocument rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "PUT";
-	http:operation "calliwebapps";
-	http:cache-control "cache-range";
-	http:realm calli:nobody;
-	obj:imports calli:Template;
-	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	obj:script """
+:PutXmlDocument rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:query "calliwebapps";
+	msg:header "cache-control:cache-range";
+	msg:realm calli:nobody;
+	msg:imports calli:Template;
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:script """
 		this.calliDeleteWebResource();
 		this.objectConnection.addDesignation(this, Template);
 		this.objectConnection.addDesignation(this, "urn:mimetype:application/xml");
@@ -236,18 +229,17 @@ calli:NamedGraph a owl:Class.
 :xmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutXmlDocument;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/xml;q=0.1".
+	msg:type "application/xml;q=0.1".
 
-:PutXhtmlDocument rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "PUT";
-	http:operation "calliwebapps";
-	http:cache-control "cache-range";
-	http:realm calli:nobody;
-	obj:imports calli:Template;
-	obj:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	obj:script """
+:PutXhtmlDocument rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:query "calliwebapps";
+	msg:header "cache-control:cache-range";
+	msg:realm calli:nobody;
+	msg:imports calli:Template;
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:script """
 		this.calliDeleteWebResource();
 		this.objectConnection.addDesignation(this, Template);
 		this.objectConnection.addDesignation(this, "urn:mimetype:application/xhtml+xml");
@@ -267,22 +259,21 @@ calli:NamedGraph a owl:Class.
 :xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutXhtmlDocument;
 	rdfs:range <java:java.io.InputStream>;
-	http:type "application/xhtml+xml;q=0.1".
+	msg:type "application/xhtml+xml;q=0.1".
 
 ################################
 # DELETE
 ################################
 
-calli:DeleteWebResource rdfs:subClassOf obj:Message;
-	rdfs:subClassOf [owl:onProperty obj:objectResponse;
-		owl:allValuesFrom owl:Nothing];
-	http:method "DELETE";
-	http:operation "calliwebapps";
-	http:realm calli:nobody;
-	obj:imports <java:org.openrdf.model.BNode>;
-	obj:imports <java:org.openrdf.model.URI>;
-	obj:imports <java:javax.tools.FileObject>;
-	obj:script """
+calli:DeleteWebResource rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "DELETE";
+	msg:query "calliwebapps";
+	msg:realm calli:nobody;
+	msg:imports <java:org.openrdf.model.BNode>;
+	msg:imports <java:org.openrdf.model.URI>;
+	msg:imports <java:javax.tools.FileObject>;
+	msg:script """
 		var con = this.objectConnection;
 		function removeTriples(subject) {
 			var stmts = con.getStatements(subject, null, null, []);

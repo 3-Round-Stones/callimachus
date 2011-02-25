@@ -29,6 +29,6 @@
 	msg:type "application/xhtml+xml";
 	msg:transform <../layout.ttl#TransformLayout>;
 	msg:script """
-		return calliIntrospect(this);
+		return this.calliIntrospect(this);
 	""".
 

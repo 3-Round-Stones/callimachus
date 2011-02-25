@@ -3,20 +3,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 	<head>
 		<title about="?this" property="rdfs:label" />
-		<script type="text/javascript"><![CDATA[
-		$(document).ready(function(){
-			$('.url').each(function(){
-				$(this).text($(this).parent().attr('href'));
-			});
-		});
-		]]></script>
 	</head>
 	<body about="?this">
 		<div>
 			<p><a href="?this" property="rdfs:label" /></p>
-			<img src="?this" style="max-width:100%;max-height:75%;display:block" />
+			<a href="?this"><img src="?this" style="max-width:100%;max-height:75%;display:block" /></a>
 			<p property="rdfs:comment" />
-			<!--p><a href="?this"><span property="rdfs:comment" /><br/><span class="url"/></a></p-->
 		</div>
 	</body>
 </html>

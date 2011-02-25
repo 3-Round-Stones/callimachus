@@ -21,10 +21,10 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<../profile> calli:maintainer </group/admin>.
+<profile> calli:maintainer </group/admin>.
 
 :GetProfile rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../profile>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <profile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
 	msg:method "GET";
 	msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
@@ -52,8 +52,8 @@
 	""".
 
 :PostProfile rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../profile>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:hasValue <../profile>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <profile>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:hasValue <profile>];
 	msg:method "POST";
 	msg:expect "303-see-other";
 	msg:realm </accounts>;
@@ -79,7 +79,7 @@
 	msg:type "application/x-www-form-urlencoded".
 
 :TransformProfile rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../profile>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <profile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformLayout>;

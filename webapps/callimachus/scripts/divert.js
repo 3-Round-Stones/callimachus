@@ -11,8 +11,12 @@ function handle(event) {
 		links = links.add(event.target);
 	}
 	links.each(function() {
+		this.href = window.calli.diverted(this.href, this);
+		$(this).removeAttr("data-diverted");
 		if (this.href.indexOf("/diverted;") < 0) {
-			this.href = window.calli.diverted(this.href, this);
+			$(this).removeClass("diverted");
+		} else {
+			$(this).addClass("diverted");
 		}
 	});
 }
@@ -38,8 +42,10 @@ window.calli.diverted = function(url, node) {
 	if (url.indexOf(prefix) != 0 || url.indexOf('?') > 0 || url.indexOf('#') > 0) {
 		url = prefix + path + encodeURIComponent(url);
 	}
-	if ($(node).attr("data-diverted"))
-	    return url + $(node).attr("data-diverted");
+	var query = $(node).attr("data-diverted");
+	if (query) {
+	    url = url + query;
+	}
 	return url
 }
 

@@ -3,7 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 	<head>
 		<title about="?this" property="rdfs:label"/>
 	</head>
@@ -16,6 +17,10 @@
 			</ul></li>
 		</ul>
 		<h1><a href="?this" property="rdfs:label" /></h1>
+		<div id="img" rel="foaf:img" resource="?img" style="float:left;margin: 0px 1ex 1ex 0px">
+			<a href="?img" class="view"><img src="?img" style="max-width:100%" /></a>
+			<p property="rdfs:comment" />
+		</div>
 		<p property="calli:name" />
 		<pre class="wiki" property="rdfs:comment" />
 	</body>

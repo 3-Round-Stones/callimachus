@@ -4,111 +4,118 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
-	<head>
-		<title about="?this" property="rdfs:label"/>
-		<link type="text/css" href="/accounts/jquery.validate.password.css" rel="stylesheet" />	
-		<script src="/accounts/jquery.validate.password.js">
-		</script>
-		<script src="/accounts/md5.js">
-		</script>
-		<script>//<![CDATA[
-			function savePassword() {
-				var value = $("#password").val();
-				var name = $("#name-span").text();
-				var realm = document.getElementById("realm-link").href;
-				if (value) {
-					var encoded = hex_md5(name + ':' + realm + ':' + value);
-					var span = $("#encoded-span");
-					span.attr("datatype", "xsd:hexBinary");
-					span.text(encoded);
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<head>
+	<title about="?this" property="rdfs:label"/>
+	<link type="text/css" href="/accounts/jquery.validate.password.css" rel="stylesheet" />	
+	<script src="/accounts/jquery.validate.password.js">
+	</script>
+	<script src="/accounts/md5.js">
+	</script>
+	<script>//<![CDATA[
+		function savePassword() {
+			var value = $("#password").val();
+			var name = $("#name-span").text();
+			var realm = document.getElementById("realm-link").href;
+			if (value) {
+				var encoded = hex_md5(name + ':' + realm + ':' + value);
+				var span = $("#encoded-span");
+				span.attr("datatype", "xsd:hexBinary");
+				span.text(encoded);
+			}
+			return true;
+		}
+		$(document).ready(function() {
+			var uri = $("form[about]").attr("about");
+			var credential = null;
+			jQuery.ajax({type: "GET",  url: "/accounts?login",
+				beforeSend: function(req) {
+					try {
+						req.withCredentials = true;
+					} catch (e) {}
+				},
+				success: function(doc) {
+					credential = /about="([^" >]*)"/i.exec(doc)[1];
+				}
+			});
+			var deleted = false;
+			$(document).bind("calliDelete", function(event) {
+				if (credential && credential == uri) {
+					deleted = true;
 				}
 				return true;
-			}
-			$(document).ready(function() {
-				var uri = $("form[about]").attr("about");
-				var credential = null;
-				jQuery.ajax({type: "GET",  url: "/accounts?login",
-					beforeSend: function(req) {
-						try {
-							req.withCredentials = true;
-						} catch (e) {}
-					},
-					success: function(doc) {
-						credential = /about="([^" >]*)"/i.exec(doc)[1];
-					}
-				});
-				var deleted = false;
-				$(document).bind("calliDelete", function(event) {
-					if (credential && credential == uri) {
-						deleted = true;
-					}
-					return true;
-				});
-				$(document).bind("calliRedirect", function(event) {
-					if (credential && credential == uri) {
-						if (deleted || $("#password").val()) {
-							// need to log user out gracefully since they changed their password or deleted themselves
-							$(document).trigger(jQuery.Event("calliLogout"));
-							event.preventDefault();
-							return false;
-						}
-					}
-					return true;
-				});
 			});
-			// ]]>
-		</script>
-	</head>
-	<body about="?this">
-		<ul class="aside">
-			<li>Enter your full name</li>
-			<li>Additional information is to provide additional contact information and is viewable to all authenticated users</li>
-			<li>Your e-mail address is used to reset your password</li>
-			<li><label>Choosing a good password</label>
-				<ul>
-					<li>Never share your password to colleagues, friends, or family members, even when asked.</li>
-					<li>Don't choose passwords that relate to you as a person.</li>
-					<li>Don't use your last name, your wife's name, the name of your cat, the date of birth, your favourite flower etc.</li>
-					<li>Use complex multiple word pass phrases, never a single word.</li>
-				</ul>
-			</li>
-		</ul>
-		<h1 property="rdfs:label" />
-		<form action="" about="?this" autocomplete="off" onsubmit="savePassword()">
-			<label for="label">Full name</label>
-			<div data-cardinality="1">
-				<input id="label" property="rdfs:label" type="text" class="auto-expand required" />
-			</div>
-			<label for="comment">Additional information</label>
-			<div data-cardinality="1">
-				<textarea id="comment" class="auto-expand"
-					property="rdfs:comment"></textarea>
-			</div>
-			<label for="email">E-mail address</label>
-			<div data-cardinality="1">
-				<input id="email" property="calli:email" type="text" class="auto-expand email" />
-			</div>
-			<hr />
-			<label for="password">New password</label>
-			<div>
-				<input id="password" type="password" password="#name-span" class="password" onkeyup="$(this).valid()" />
-				<div class="password-meter">
-					<label for="password" class="password-meter-message" />
-					<div class="password-meter-bg">
-						<div class="password-meter-bar"></div>
-					</div>
+			$(document).bind("calliRedirect", function(event) {
+				if (credential && credential == uri) {
+					if (deleted || $("#password").val()) {
+						// need to log user out gracefully since they changed their password or deleted themselves
+						$(document).trigger(jQuery.Event("calliLogout"));
+						event.preventDefault();
+						return false;
+					}
+				}
+				return true;
+			});
+		});
+		// ]]>
+	</script>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li>Enter your full name</li>
+		<li>Additional information is to provide additional contact information and is viewable to all authenticated users</li>
+		<li>Your e-mail address is used to reset your password</li>
+		<li><label>Choosing a good password</label>
+			<ul>
+				<li>Never share your password to colleagues, friends, or family members, even when asked.</li>
+				<li>Don't choose passwords that relate to you as a person.</li>
+				<li>Don't use your last name, your wife's name, the name of your cat, the date of birth, your favourite flower etc.</li>
+				<li>Use complex multiple word pass phrases, never a single word.</li>
+			</ul>
+		</li>
+	</ul>
+	<h1 property="rdfs:label" />
+	<form action="" about="?this" autocomplete="off" onsubmit="savePassword()">
+		<label for="label">Full name</label>
+		<div data-cardinality="1">
+			<input id="label" property="rdfs:label" type="text" class="auto-expand required" />
+		</div>
+		<label for="comment">Additional information</label>
+		<div data-cardinality="1">
+			<textarea id="comment" class="auto-expand"
+				property="rdfs:comment"></textarea>
+		</div>
+		<label for="img">Photo</label>
+	 	<div id="img" rel="foaf:img" data-prompt="/image">
+			<span about="?img">
+				<span rel="rdf:type" resource="/callimachus/Image" property="rdfs:label"></span>
+			</span>
+		</div>
+		<label for="email">E-mail address</label>
+		<div data-cardinality="1">
+			<input id="email" property="calli:email" type="text" class="auto-expand email" />
+		</div>
+		<hr />
+		<label for="password">New password</label>
+		<div>
+			<input id="password" type="password" password="#name-span" class="password" onkeyup="$(this).valid()" />
+			<div class="password-meter">
+				<label for="password" class="password-meter-message" />
+				<div class="password-meter-bg">
+					<div class="password-meter-bar"></div>
 				</div>
 			</div>
-			<hr />
-			<button id="submit" type="submit">Save</button>
-			<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-			<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this user account?')) calli.deleteResource()">Delete</button>
-			<span style="display:none">
-				<span id="encoded-span" property="calli:encoded" />
-				<span id="name-span" property="calli:name" />
-				<a id="realm-link" href="/" />
-			</span>
-		</form>
-	</body>
+		</div>
+		<hr />
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this user account?')) calli.deleteResource()">Delete</button>
+		<span style="display:none">
+			<span id="encoded-span" property="calli:encoded" />
+			<span id="name-span" property="calli:name" />
+			<a id="realm-link" href="/" />
+		</span>
+	</form>
+</body>
 </html>

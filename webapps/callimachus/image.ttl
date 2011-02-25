@@ -24,7 +24,9 @@
 @prefix callimachus:<.>.
 @prefix :<#>.
 
-</image> calli:maintainer </group/admin>.
+</image> a calli:Alias;
+	calli:copyOf <image-create.xhtml?construct>;
+	calli:maintainer </group/admin>.
 
 <Image> rdfs:subClassOf foaf:Image, calli:Viewable, calli:Editable ;
 	calli:view <image.xhtml> ; calli:edit <image-edit.xhtml> .
@@ -65,7 +67,7 @@
 		obj = this.objectConnection.addDesignation(obj, "urn:mimetype:" + type) ;
 
 		//# add the image label
-		obj.rdfsLabels.add(local) ;
+		obj.rdfsLabels.add(img.fileName) ;
 
 		//# add the image caption
 		if (caption!="") obj.rdfsComments.add(caption);

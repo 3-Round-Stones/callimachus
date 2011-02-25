@@ -23,6 +23,12 @@
 			var client = HTTPObjectClient.getInstance();
 			var req = new BasicHttpRequest("GET", this.calliCopyOf.toString());
 			var resp = client.service(req);
+			var code = resp.statusLine.statusCode;
+			if (code != 200 && code != 203) {
+				var resp = new BasicHttpResponse(http11, 301, "Moved Permanently");
+				resp.addHeader("Location", this.calliCopyOf.toString());
+				return resp;
+			}
 			var copy = new BasicHttpResponse(http11, 203, "Non-Authoritative Information");
 			copy.setHeaders(resp.getAllHeaders());
 			copy.removeHeaders("Vary");

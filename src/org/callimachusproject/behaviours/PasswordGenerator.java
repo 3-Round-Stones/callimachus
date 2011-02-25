@@ -346,7 +346,7 @@ public class PasswordGenerator {
 		StringBuilder sb = new StringBuilder();
 		while (sb.length() < length) {
 			if (sb.length() > 0) {
-				sb.append(' ');
+				sb.append('-');
 			}
 			sb.append(WORD_POOL[rnd.nextInt(WORD_POOL.length)]);
 		}

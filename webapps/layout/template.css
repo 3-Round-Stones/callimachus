@@ -36,8 +36,8 @@ a[href]:hover {
 
 #search-box {
 	display: inline-block;
-	background-image: -moz-linear-gradient(top, #DDDDDD, white);
-	background-image: -webkit-gradient(linear, left top, left bottom, from(#DDDDDD), to(white));
+	background-image: -moz-linear-gradient(top, #DDDDDD, white, white);
+	background-image: -webkit-gradient(linear, left top, left center, from(#DDDDDD), to(white));
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
 	border: thin solid #999FAD;
 	-moz-border-radius: 2pt;

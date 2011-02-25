@@ -55,7 +55,7 @@
 		var local = ("" + URLEncoder.encode(img.fileName, "UTF-8")).replace(/%20/g, "+") ;
 		var uri = this.toUri().resolve("/image/") + local ;
 		var obj = this.objectConnection.getObject(uri) ;
-		if (obj instanceof Image) throw new Conflict("Image Exists: "+uri) ;
+		if (obj instanceof Image) throw new Conflict("Image already exists: " + uri) ;
 
 		//# designate as <Image> and the relevant mimetype
 		obj = this.objectConnection.addDesignation(obj, Image) ;

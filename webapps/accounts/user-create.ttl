@@ -57,7 +57,7 @@ rdfs:comment a rdf:Property.
 		var uri = user + URLEncoder.encode(username).replaceAll("%20", "+").toLowerCase();
 		var user = this.objectConnection.getObject(uri);
 		if (user instanceof User)
-			throw new Conflict("User already exists");
+			throw new Conflict("User already exists: " + user);
 		user = this.objectConnection.addDesignation(user, User);
 		user.calliName = username;
 		user.calliEmail = email;

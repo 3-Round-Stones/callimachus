@@ -85,7 +85,7 @@ public abstract class CopySupport implements Template {
 					Resource subject = st.getSubject();
 					String about = subject.stringValue();
 					if (isResourceAlreadyPresent(con, about)) {
-						throw new Conflict("Resource Already Exists");
+						throw new Conflict("Resource already exists: " + about);
 					} else if (subject.equals(source.getResource())) {
 						throw new RDFHandlerException("Target resource URI not provided");
 					}

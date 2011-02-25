@@ -8,7 +8,7 @@ $(window).bind('beforeunload', function() {
 });
 
 $(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
-	if (xhr && xhr.status >= 400 && xhr.status != 409) {
+	if (xhr && xhr.status >= 400) {
 		showError(event, xhr.statusText, xhr.responseText);
 	} else if (thrownError) {
 		showError(event, thrownError);
@@ -39,28 +39,18 @@ $(document).ready(function() {
 	$(document).bind("calliError", showError);
 });
 
-function showError(event, error, detail, link) {
+function showError(event, error, detail) {
 	setTimeout(function() {
 	try {
 		var status = '' + error;
 		if (detail && detail.indexOf('<') == 0) {
-			var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(detail);
-			if (title && title[1]) {
-				status = title[1];
-				detail = $(detail).find("pre").text();
-			}
+			status = $(detail).find("h1").html();
+			detail = $(detail).find("pre").text();
 		}
 		var msg = $("#error-message");
 		if (msg.size()) {
 			msg.empty();
-			if (link) {
-				if (status.indexOf('.') < 0) {
-					msg.text(status + '.');
-				}
-				msg.append("<a href='" + link + "' style='font-style:italic;text-decoration:underline;margin-left:1ex'>View resource</a>");
-			} else {
-				msg.text(status);
-			}
+			msg.append(status);
 			$("#error-widget pre").remove();
 			$("#error-widget").show();
 			scroll(0,0);

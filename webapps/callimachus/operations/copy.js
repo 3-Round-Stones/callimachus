@@ -86,17 +86,6 @@ function postData(form, url, type, data, callback) {
 	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, success: function(data, textStatus) {
 		form.trigger("calliOk")
 		callback(data, textStatus, xhr)
-	}, error: function(xhr, textStatus, errorThrown) {
-		var status = xhr.statusText ? xhr.statusText : errorThrown ? errorThrown : textStatus
-		if (xhr.status == 409) { // Resource already exists
-			var link = form.attr("about")
-			if (form.hasClass("diverted") || form.attr("data-diverted")) {
-				link = window.calli.diverted(link, form.get(0))
-			}
-			form.trigger("calliError", [status, xhr.responseText, link])
-		} else {
-			form.trigger("calliError", [status, xhr.responseText])
-		}
 	}})
 }
 

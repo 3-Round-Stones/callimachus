@@ -8,13 +8,6 @@
 	<head>
 		<title about="?this" property="skos:prefLabel" />
 		<style type="text/css">img { border-style:none; }</style>
-      <script type="text/javascript"><![CDATA[
-         $(document).ready(function(){
-				$('.view').each(function() {
-					$(this).attr('href',$(this).attr('href')+'?view')
-				});
-         });
-      ]]></script>
 	</head>
 	<body about="?this">
 		<ul class="aside">
@@ -24,7 +17,7 @@
 			<a property="skos:prefLabel" href="?this" />
 		</h2>
 		<div id="image" rel="foaf:depiction" resource="?image">
-			<a href="?image" class="view"><img src="?image" style="max-width:50%;float:right" /></a>
+			<a href="?image" data-diverted="?view"><img src="?image" style="max-width:50%;float:right" /></a>
 			<p property="rdfs:comment" />
 		</div>
 		<pre property="rdfs:comment" class="wiki"></pre>

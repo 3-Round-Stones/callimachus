@@ -65,6 +65,8 @@ jQuery(function($){
 			if (m) {
 				text = m[1];
 				url = m[2];
+			} else if (item.find("a").size()) {
+				url = item.find("a")[0].href;
 			}
 			if (span.text() != '' + position || label.text() != text || link.attr("resource") != url) {
 				setLabelLink(item, position, text, url);

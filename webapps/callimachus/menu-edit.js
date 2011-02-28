@@ -4,14 +4,14 @@ jQuery(function($){
 	$('span[rel]').each(function() {
 		$(this).text($(this).attr('resource'));
 	});
-	$('#form>ol>li').each(parseItem);
+	$('#items>li').each(parseItem);
 	$('#form').bind('cut paste', function() {
-		setTimeout(function() {$('#form>ol>li').each(parseItem);}, 0);
+		setTimeout(function() {$('#items>li').each(parseItem);}, 0);
 		return true;
 	});
 
 	$('#form').submit(function() {
-		$('#form>ol>li').each(parseItem);
+		$('#items>li').each(parseItem);
 		return true;
 	});
 

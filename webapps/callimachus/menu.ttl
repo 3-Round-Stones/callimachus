@@ -20,9 +20,6 @@ calli:logo a owl:ObjectProperty;
 calli:favicon a owl:ObjectProperty;
 	msg:method "GET"; msg:query "favicon"; msg:expect "302-see-other".
 
-calli:link a owl:ObjectProperty;
-	msg:method "GET"; msg:query "link"; msg:expect "302-see-other".
-
 :GetMenuItems rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];

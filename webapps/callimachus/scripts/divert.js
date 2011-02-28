@@ -11,12 +11,19 @@ function handle(event) {
 		links = links.add(event.target);
 	}
 	links.each(function() {
-		this.href = window.calli.diverted(this.href, this);
-		$(this).removeAttr("data-diverted");
+		var href = window.calli.diverted(this.href, this);
+		var link = $(this);
+		if (this.href != href) {
+			if (!link.attr("resource")) {
+				link.attr("resource", link.attr("href"));
+			}
+			this.href = href;
+		}
+		link.removeAttr("data-diverted");
 		if (this.href.indexOf("/diverted;") < 0) {
-			$(this).removeClass("diverted");
+			link.removeClass("diverted");
 		} else {
-			$(this).addClass("diverted");
+			link.addClass("diverted");
 		}
 	});
 }
@@ -27,19 +34,19 @@ if (!window.calli) {
 
 window.calli.diverted = function(url, node) {
     var prefix = location.protocol + '//' + location.host + '/';
-    var path = 'diverted;';
-    if (url.indexOf(':') < 0) {
-        if (node && node.baseURIObject && node.baseURIObject.resolve) {
-            url = node.baseURIObject.resolve(url);
-        } else {
-            var a = document.createElement('a');
-            a.setAttribute('href', url);
-            if (a.href) {
-                url = a.href;
-            }
-        }
-    }
-	if (url.indexOf(prefix) != 0 || url.indexOf('?') > 0 || url.indexOf('#') > 0) {
+	if (url.indexOf(prefix) != 0 && url.indexOf(':') > 0 || url.indexOf('?') > 0 || url.indexOf('#') > 0) {
+		if (url.indexOf(':') < 0) {
+		    if (node && node.baseURIObject && node.baseURIObject.resolve) {
+		        url = node.baseURIObject.resolve(url);
+		    } else {
+		        var a = document.createElement('a');
+		        a.setAttribute('href', url);
+		        if (a.href) {
+		            url = a.href;
+		        }
+		    }
+		}
+    	var path = 'diverted;';
 		url = prefix + path + encodeURIComponent(url);
 	}
 	var query = $(node).attr("data-diverted");

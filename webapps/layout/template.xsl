@@ -165,7 +165,7 @@
 			<div id="sidebar">
 				<xsl:apply-templates mode="menu" select="document(concat($callimachus, '/menu?evaluate'))" />
 			</div>
-			<a href="{$callimachus}/menu?link" id="logo">&#160;</a>
+			<a href="{$origin}/" id="logo">&#160;</a>
 
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
 				<xsl:if test="$query='view'">

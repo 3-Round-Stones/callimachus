@@ -323,6 +323,10 @@ iframe {
 	.aside {
 		float: right;
 	}
+
+	a img {
+		border: none; /* IE may hide img */
+	}
 } /* end all */
 
 @media screen and (min-width:42em) {

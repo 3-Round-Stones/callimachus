@@ -60,10 +60,15 @@
 		//# designate as <Image> and the relevant mimetype
 		obj = this.objectConnection.addDesignation(obj, Image) ;
 		var type = img.contentType;
-		if (type.indexOf(';') > 0) {
-			type = type.substring(0, type.indexOf(';'));
+		if (type == "image/pjpeg") { //# IE
+			type = "image/jpeg";
 		}
-		if (!type.startsWith("image/")) throw new BadRequest(type) ;
+		if (type == "image/x-png") { //# IE
+			type = "image/png";
+		}
+		if (type != "image/png" && type != "image/jpeg" && type != "image/gif" && type != "image/vnd.microsoft.icon") {
+			throw new BadRequest("Unsupported format: " + type);
+		}
 		obj = this.objectConnection.addDesignation(obj, "urn:mimetype:" + type) ;
 
 		//# add the image label

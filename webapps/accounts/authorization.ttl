@@ -190,7 +190,7 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 			$object calli:authenticates [calli:member $credential]
 			FILTER ($method = "GET" || $method = "HEAD")
 			FILTER ($object = </accounts>)
-			FILTER ($query = "login" || $query = "welcome" || $query = "settings" || $query = "contributions")
+			FILTER ($query = "login" || $query = "settings" || $query = "contributions")
 		}
 	""".
 
@@ -200,7 +200,7 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 		ASK {
 			$object a </accounts/User>
 			FILTER ($method = "GET" || $method = "HEAD")
-			FILTER ($query = "view" || !bound($query))
+			FILTER (!bound($query) || $query = "view" || $query = "discussion")
 		}
 	""".
 
@@ -210,7 +210,7 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 	msg:script """
 		if (query == "usercreate" && object instanceof Group)
 			return this.AuthorizeCredential(credential, method, object, "copy");
-		return proceed()
+		return proceed();
 	""".
 
 # transcations are authorized by the object they modified

@@ -134,6 +134,7 @@ a[href]:hover {
 	vertical-align: bottom;
 	min-height: 1em;
 	line-height: 1em;
+	cursor: default;
 }
 
 #tabs li {

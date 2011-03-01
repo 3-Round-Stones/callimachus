@@ -27,7 +27,7 @@ calli:favicon a owl:ObjectProperty;
 	msg:query "evaluate";
 	msg:type "application/sparql-results+xml";
 	msg:sparql  """
-		SELECT DISTINCT ?logo ?favicon ?heading ?label ?link
+		SELECT DISTINCT ?heading ?label ?link
 		WHERE {
 			{
 				$this calli:item ?item

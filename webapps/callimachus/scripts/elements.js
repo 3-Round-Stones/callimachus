@@ -56,8 +56,8 @@ function get(node, url, callback) {
 }
 
 function initInputPropertyElements(form) {
-	$(":input[property]", form).each(initInputElement)
 	createAddPropertyButtons(form)
+	$(":input[property]", form).each(initInputElement)
 }
 
 function createAddPropertyButtons(form) {

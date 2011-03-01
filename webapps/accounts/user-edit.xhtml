@@ -81,16 +81,16 @@
 		<div data-cardinality="1">
 			<input id="label" property="rdfs:label" type="text" class="auto-expand required" />
 		</div>
-		<label for="comment">Additional information</label>
-		<div data-cardinality="1">
-			<textarea id="comment" class="auto-expand"
-				property="rdfs:comment"></textarea>
-		</div>
 		<label for="img">Photo</label>
 	 	<div id="img" rel="foaf:depiction" data-prompt="/image">
 			<span about="?img">
 				<span rel="rdf:type" resource="/callimachus/Image" property="rdfs:label"></span>
 			</span>
+		</div>
+		<label for="comment">Additional information</label>
+		<div data-cardinality="1">
+			<textarea id="comment" class="auto-expand"
+				property="rdfs:comment"></textarea>
 		</div>
 		<label for="email">E-mail address</label>
 		<div data-cardinality="1">

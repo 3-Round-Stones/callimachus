@@ -4,9 +4,9 @@
 
 $(document).ready(findAutoExpandTextArea);
 $(window).bind('resize', findAutoExpandTextArea);
-$(window).bind('change', findAutoExpandTextArea);
-$(window).bind('keypress', findAutoExpandTextArea);
-$(window).bind('input', findAutoExpandTextArea);
+$(document).bind('change', findAutoExpandTextArea);
+$(document).bind('keypress', findAutoExpandTextArea);
+$(document).bind('input', findAutoExpandTextArea);
 $(document).bind('paste', findAutoExpandTextArea);
 $(document).bind("DOMNodeInserted", findAutoExpandTextArea);
 

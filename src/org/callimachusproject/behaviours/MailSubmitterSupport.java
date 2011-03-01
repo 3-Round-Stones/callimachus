@@ -144,7 +144,7 @@ public abstract class MailSubmitterSupport implements User {
 		} else {
 			properties.setProperty("mail.transport.protocol", "smtp");
 			for (String to : recipients) {
-				String domain = to.substring(to.indexOf('@') + 1);
+				String domain = extractDomain(to);
 				String host = findMailServer(domain);
 				if (host == null)
 					throw new NotImplemented("No Mail Server Configured");
@@ -160,6 +160,12 @@ public abstract class MailSubmitterSupport implements User {
 		}
 		logger.info("Sent e-mail {} {} {}", new Object[] { recipients,
 				message.getSubject(), message.getMessageID() });
+	}
+
+	private String extractDomain(String to) {
+		if (to.indexOf('>') < 0)
+			return to.substring(to.indexOf('@') + 1);
+		return to.substring(to.indexOf('@') + 1, to.indexOf('>'));
 	}
 
 	private String findMailServer(String domain) throws NamingException {

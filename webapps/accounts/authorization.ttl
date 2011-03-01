@@ -226,8 +226,8 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 				if (object instanceof Transaction) {
 					var iter = this.ListSubjectsOfTransaction(object).iterator();
 					while (iter.hasNext()) {
-						if (this.AuthorizeCredential(credential, "GET", iter.next(), null))
-							return true;
+						if (this.AuthorizeCredential(credential, "GET", iter.next(), "describe"))
+							return true; //# if they can view the RDF of the resource they can view its transactions
 					}
 				}
 			}

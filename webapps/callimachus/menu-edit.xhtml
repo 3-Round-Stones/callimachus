@@ -17,7 +17,8 @@
 <body about="?this">
 	<ul class="aside">
 		<li>Click on the menu entry you want to edit.</li>
-		<li>Use ENTER and TAB key to create a new entry.</li>
+		<li>Use ENTER key to create a new entry at the start or end of a line.</li>
+		<li>Use TAB key to indent, or shift-TAB to outdent.</li>
 		<li>Use SPACE to separate a label from a full URL.</li>
 	</ul>
 	<form id='form' about="?this">
@@ -37,7 +38,7 @@
 			<ol id="items" rel="calli:item" class="sorted textarea" contenteditable="true">
 				<li typeof="">
 					<span class="asc" property="calli:position" style="display:none"/>
-					<label property="rdfs:label" />
+					<label property="rdfs:label"/>
 					<span rel="calli:link" resource="?link1" />
 					<ol rel="calli:item" class="sorted">
 						<li typeof="">

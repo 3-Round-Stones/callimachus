@@ -26,7 +26,7 @@ jQuery(function($){
 				removeItem(li);
 				event.preventDefault();
 				return false;
-			} else if (event.keyCode == 9 && event.shiftKey) { // TAB
+			} else if (event.keyCode == 9 && event.shiftKey) { // shift-TAB
 				unindent(li);
 				event.preventDefault();
 				return false;
@@ -37,6 +37,10 @@ jQuery(function($){
 			}
 		}
 		return true;
+	});
+
+	$('#form *').blur(function() {
+		$('#items>li').each(parseItem);
 	});
 
 	function getFocusNode() {

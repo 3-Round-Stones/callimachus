@@ -10,7 +10,7 @@
 	<property name="selenium.browser.firefox" value="*firefox" />
 	<property name="selenium.browser.explorer" value="*iexploreproxy" />
 	<property name="selenium.browser.chrome" value="*googlechrome" />
-	<property name="selenium.browser.safari" value="*safari" />
+	<property name="selenium.browser.safari" value="*safariproxy" />
 
 	<target name="test-init">
 		<mkdir dir="${testlib}" />
@@ -75,6 +75,11 @@ mail.password = root
 	<target name="test-accounts-chrome" depends="test-dependencies" description="Run accounts test suite">
 		<test-macro suite="${test}/accounts/accounts.html" browser="${selenium.browser.chrome}" 
 			results="${test}/accounts/test-result-chrome.html" />
+	</target>
+
+	<target name="test-accounts-safari" depends="test-dependencies" description="Run accounts test suite">
+		<test-macro suite="${test}/accounts/accounts.html" browser="${selenium.browser.safari}" 
+			results="${test}/accounts/test-result-safari.html" />
 	</target>
 
 	<target name="test-skos-firefox" depends="test-dependencies" description="Run skos test suite">

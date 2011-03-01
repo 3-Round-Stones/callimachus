@@ -24,9 +24,19 @@ Callimachus and selenium-server-standalone-2.0b2.jar are installed during the bu
 Starting the Mail Server
 ------------------------
 The ant test scripts update callimachus/etc/mail.properties to point to a local mail server. This should be running in the background:
+As Administrator:
 
-cd /Program Files/james/2.3.2/bin
+cd /Program Files/james-2.3.2/bin
 run.bat
+OR sudo bin/run.sh
+
+The mail server can be stopped with a CTL-C. Once the mail server has been run once, a configuration file may be found in:
+JAMES_HOME/apps/james/SAR-INF/config.xml
+
+This should be modified to :
+
+To drop incoming messages find the line <processor name="root"> and append the following mailet:
+<mailet match="All" class="Null"/>
 
 Starting the Integration Server
 -------------------------------

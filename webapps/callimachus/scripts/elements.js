@@ -446,27 +446,33 @@ function createAddRelButtons(form) {
 }
 
 function listSearchResults(url, iframe, divert) {
-	iframe.src = "about:blank";
 	get($(iframe), url, function(data) {
 		if (data) {
 			var result = $(data).children();
 			var ul = $("<ul/>");
 			result.each(function() {
-				var li = $("<li/>");
-				var link = $("<a/>");
-				if (divert) {
-					link.attr("href", window.calli.diverted($(this).attr("about") + "?view", iframe));
-				} else {
-					link.attr("href", $(this).attr("about") + "?view");
+				var about = $(this).attr("about");
+				if (about && about.indexOf('[') < 0) {
+					var li = $("<li/>");
+					var link = $("<a/>");
+					if (divert) {
+						link.attr("href", window.calli.diverted(about + "?view", iframe));
+					} else {
+						link.attr("href", about + "?view");
+					}
+					link.append($(this).text());
+					li.append(link);
+					ul.append(li);
 				}
-				link.append($(this).text());
-				li.append(link);
-				ul.append(li);
-			})
-            var doc = iframe.contentWindow.document;
-			doc.open();
-			doc.write("<ul>" + ul.html() + "</ul>");
-			doc.close();
+			});
+			var html = ul.html();
+			if (html) {
+				iframe.src = "about:blank";
+	            var doc = iframe.contentWindow.document;
+				doc.open();
+				doc.write("<ul>" + html + "</ul>");
+				doc.close();
+			}
 		}
 	});
 };

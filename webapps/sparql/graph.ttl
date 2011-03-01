@@ -40,7 +40,7 @@
 		var part = new MimeMultipart(ds).getBodyPart(0);
 		var fileName = part.fileName;
 		var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+");
-		var uri = toUri().resolve("/graph/") + local;
+		var uri = this.toUri().resolve("/graph/") + local;
 		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
 		var vf = this.objectConnection.getValueFactory();
 		var file = part.getInputStream();

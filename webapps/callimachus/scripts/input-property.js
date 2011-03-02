@@ -14,99 +14,99 @@ $(document).ready(function () {
 
 function createAddPropertyButtons(form) {
 	$("[data-more][data-property]", form).each(function() {
-		var parent = $(this)
-		var property = parent.attr("data-property")
-		var minOccurs = parent.attr("data-min-cardinality")
-		var maxOccurs = parent.attr("data-max-cardinality")
-		minOccurs = minOccurs ? minOccurs : parent.attr("data-cardinality")
-		maxOccurs = maxOccurs ? maxOccurs : parent.attr("data-cardinality")
-		var count = parent.children("[property='" + property + "']").size()
+		var parent = $(this);
+		var property = parent.attr("data-property");
+		var minOccurs = parent.attr("data-min-cardinality");
+		var maxOccurs = parent.attr("data-max-cardinality");
+		minOccurs = minOccurs ? minOccurs : parent.attr("data-cardinality");
+		maxOccurs = maxOccurs ? maxOccurs : parent.attr("data-cardinality");
+		var count = parent.children("[property='" + property + "']").size();
 		var add = false;
 		if (!maxOccurs || !minOccurs || parseInt(minOccurs) != parseInt(maxOccurs)) {
-			add = $('<button type="button"/>')
-			add.addClass("add")
-			add.attr("data-property", property)
-			add.text("»")
+			add = $('<button type="button"/>');
+			add.addClass("add");
+			add.attr("data-property", property);
+			add.text("»");
 			add.click(function(){
 				jQuery.get(parent.attr("data-more"), function(data) {
-					var input = $(data)
-					add.before(input)
-					input.each(initInputElement)
-					input.find().andSelf().filter(":input:first").focus()
-					updateButtonState(parent)
-				})
-			})
-			parent.append(add)
+					var input = $(data);
+					add.before(input);
+					input.each(initInputElement);
+					input.find().andSelf().filter(":input:first").focus();
+					updateButtonState(parent);
+				});
+			});
+			parent.append(add);
 		}
 		if (minOccurs) {
-			var n = parseInt(minOccurs) - count
+			var n = parseInt(minOccurs) - count;
 			for (var i=0; i<n; i++) {
 				jQuery.get(parent.attr("data-more"), function(data) {
-					var input = $(data)
+					var input = $(data);
 					if (add) {
-						add.before(input)
+						add.before(input);
 					} else {
-						parent.append(input)
+						parent.append(input);
 					}
-					input.each(initInputElement)
-					updateButtonState(parent)
-				})
+					input.each(initInputElement);
+					updateButtonState(parent);
+				});
 			}
 		}
-		updateButtonState(parent)
-	})
+		updateButtonState(parent);
+	});
 }
 
 function initInputElement() {
-	var input = $(this)
-	var property = input.attr("property")
-	input.attr("data-property", property)
+	var input = $(this);
+	var property = input.attr("property");
+	input.attr("data-property", property);
 	input.change(function(){
-		var value = $(this).val()
+		var value = $(this).val();
 		if (value) {
-			$(this).attr("property", property)
-			$(this).attr("content", value)
+			$(this).attr("property", property);
+			$(this).attr("content", value);
 		} else {
-			$(this).removeAttr("property")
-			$(this).removeAttr("content")
+			$(this).removeAttr("property");
+			$(this).removeAttr("content");
 		}
-	})
-	input.change()
-	var parent = input.parent()
-	var remove = $('<button type="button"/>')
-	remove.addClass("remove")
-	remove.attr("data-property", property)
-	remove.text("×")
+	});
+	input.change();
+	var parent = input.parent();
+	var remove = $('<button type="button"/>');
+	remove.addClass("remove");
+	remove.attr("data-property", property);
+	remove.text("×");
 	remove.click(function(){
-		input.remove()
-		remove.remove()
-		updateButtonState(parent)
-	})
-	input.after(remove)
-	updateButtonState(parent)
+		input.remove();
+		remove.remove();
+		updateButtonState(parent);
+	});
+	input.after(remove);
+	updateButtonState(parent);
 }
 
 function updateButtonState(context) {
-	var minOccurs = context.attr("data-min-cardinality")
-	var maxOccurs = context.attr("data-max-cardinality")
-	minOccurs = minOccurs ? minOccurs : context.attr("data-cardinality")
-	maxOccurs = maxOccurs ? maxOccurs : context.attr("data-cardinality")
-	var add = context.children("button[class='add']")
-	var buttons
+	var minOccurs = context.attr("data-min-cardinality");
+	var maxOccurs = context.attr("data-max-cardinality");
+	minOccurs = minOccurs ? minOccurs : context.attr("data-cardinality");
+	maxOccurs = maxOccurs ? maxOccurs : context.attr("data-cardinality");
+	var add = context.children("button[class='add']");
+	var buttons;
 	if (context.attr("rel")) {
-		buttons = context.children().children("button[class='remove']")
+		buttons = context.children().children("button[class='remove']");
 	} else {
-		buttons = context.children("button[class='remove']")
+		buttons = context.children("button[class='remove']");
 	}
 	if (buttons.size() <= minOccurs) {
-		buttons.hide()
+		buttons.hide();
 	} else {
-		buttons.show()
+		buttons.show();
 	}
 	if (buttons.size() >= maxOccurs) {
-		add.hide()
+		add.hide();
 	} else {
-		add.show()
+		add.show();
 	}
 }
 

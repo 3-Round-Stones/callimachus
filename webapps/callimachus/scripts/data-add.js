@@ -8,50 +8,50 @@
 
 $(document).ready(function () {
 	var form = $("form[about]");
-	initSetElements(form)
+	initSetElements(form);
 });
 
 var iframe_counter = 0;
 
 function initSetElements(form) {
-	createAddRelButtons(form)
-	var tbody = $("[data-add]", form)
-	tbody.children("[about]").each(initSetElement)
+	createAddRelButtons(form);
+	var tbody = $("[data-add]", form);
+	tbody.children("[about]").each(initSetElement);
 	tbody.each(function() {
-		var list = $(this)
+		var list = $(this);
 		var dragover = function(event) {
 			if (!list.hasClass("drag-over")) {
-				list.addClass("drag-over")
+				list.addClass("drag-over");
 			}
-			return stopPropagation(event)
+			return stopPropagation(event);
 		}
 		var dragleave = function(event) {
-			list.removeClass("drag-over")
-			return stopPropagation(event)
+			list.removeClass("drag-over");
+			return stopPropagation(event);
 		}
 		if (this.addEventListener) {
-			this.addEventListener("dragenter", dragover, false)
-			this.addEventListener("dragover", dragover, false)
-			this.addEventListener("dragleave", dragleave, false)
-			this.addEventListener("drop", pasteURL(dragleave), false)
+			this.addEventListener("dragenter", dragover, false);
+			this.addEventListener("dragover", dragover, false);
+			this.addEventListener("dragleave", dragleave, false);
+			this.addEventListener("drop", pasteURL(dragleave), false);
 		} else if (this.attachEvent) {
-			this.attachEvent("ondragenter", dragover)
-			this.attachEvent("ondragover", dragover)
-			this.attachEvent("ondragleave", dragleave)
-			this.attachEvent("ondrop", pasteURL(dragleave))
+			this.attachEvent("ondragenter", dragover);
+			this.attachEvent("ondragover", dragover);
+			this.attachEvent("ondragleave", dragleave);
+			this.attachEvent("ondrop", pasteURL(dragleave));
 		}
-		list.prepend("<div style='font-style:italic;font-size:small'>Drag resource(s) here</div>")
-		var url = list.attr("data-search")
+		list.prepend("<div style='font-style:italic;font-size:small'>Drag resource(s) here</div>");
+		var url = list.attr("data-search");
 		if (url && list.attr("data-prompt")) {
-			var id = "lookup" + (++iframe_counter) + "-button"
-			var add = $('<button type="button"/>')
-			add.attr("class", "add")
-			add.attr("id", id)
-			add.text("»")
-			var suggest = list.attr("data-prompt")
-			var divert = list.hasClass("diverted")
+			var id = "lookup" + (++iframe_counter) + "-button";
+			var add = $('<button type="button"/>');
+			add.attr("class", "add");
+			add.attr("id", id);
+			add.text("»");
+			var suggest = list.attr("data-prompt");
+			var divert = list.hasClass("diverted");
 			if (divert) {
-				suggest = window.calli.diverted(suggest, list.get(0))
+				suggest = window.calli.diverted(suggest, list.get(0));
 			}
 			list.append(add);
 			var count = ++iframe_counter;
@@ -116,19 +116,19 @@ function createAddRelButtons(form) {
 		var count = parent.children().size();
 		var add = false;
 		if (!editable && (!maxOccurs || !minOccurs || parseInt(minOccurs) != parseInt(maxOccurs))) {
-			parent.children().each(initSetElement)
-			add = $('<button type="button"/>')
-			add.addClass("add")
-			add.text("»")
+			parent.children().each(initSetElement);
+			add = $('<button type="button"/>');
+			add.addClass("add");
+			add.text("»");
 			add.click(function(){
 				jQuery.get(parent.attr("data-more"), function(data) {
-					var input = $(data)
-					add.before(input)
-					initElements(input)
-					input.each(initSetElement)
-					updateButtonState(parent)
-				})
-			})
+					var input = $(data);
+					add.before(input);
+					initElements(input);
+					input.each(initSetElement);
+					updateButtonState(parent);
+				});
+			});
 			if (this.tagName.toLowerCase() == "table") {
 				var cell = $("<td/>");
 				cell.append(add);
@@ -152,46 +152,46 @@ function createAddRelButtons(form) {
 			}
 		}
 		if (minOccurs) {
-			var n = parseInt(minOccurs) - count
+			var n = parseInt(minOccurs) - count;
 			for (var i=0; i<n; i++) {
 				jQuery.get(parent.attr("data-more"), function(data) {
-					var input = $(data)
+					var input = $(data);
 					if (add) {
-						add.before(input)
+						add.before(input);
 					} else {
-						parent.append(input)
+						parent.append(input);
 					}
-					initElements(input)
-					input.each(initSetElement)
-					updateButtonState(parent)
-				})
+					initElements(input);
+					input.each(initSetElement);
+					updateButtonState(parent);
+				});
 			}
 		}
-		updateButtonState(parent)
-	})
+		updateButtonState(parent);
+	});
 }
 
 function updateButtonState(context) {
-	var minOccurs = context.attr("data-min-cardinality")
-	var maxOccurs = context.attr("data-max-cardinality")
-	minOccurs = minOccurs ? minOccurs : context.attr("data-cardinality")
-	maxOccurs = maxOccurs ? maxOccurs : context.attr("data-cardinality")
-	var add = context.children("button[class='add']")
-	var buttons
+	var minOccurs = context.attr("data-min-cardinality");
+	var maxOccurs = context.attr("data-max-cardinality");
+	minOccurs = minOccurs ? minOccurs : context.attr("data-cardinality");
+	maxOccurs = maxOccurs ? maxOccurs : context.attr("data-cardinality");
+	var add = context.children("button[class='add']");
+	var buttons;
 	if (context.attr("rel")) {
-		buttons = context.children().children("button[class='remove']")
+		buttons = context.children().children("button[class='remove']");
 	} else {
-		buttons = context.children("button[class='remove']")
+		buttons = context.children("button[class='remove']");
 	}
 	if (buttons.size() <= minOccurs) {
-		buttons.hide()
+		buttons.hide();
 	} else {
-		buttons.show()
+		buttons.show();
 	}
 	if (buttons.size() >= maxOccurs) {
-		add.hide()
+		add.hide();
 	} else {
-		add.show()
+		add.show();
 	}
 }
 
@@ -235,91 +235,91 @@ window.calli.resourceCreated = function(uri, iframe) {
 	setTimeout(function() {
 		var list = $('#' + $(iframe).attr("data-button")).parent()
 		if (list.attr("data-add")) {
-			addSetItem(uri, list)
+			addSetItem(uri, list);
 		} else if (list.attr("data-member")) {
-			addListItem(uri, list)
+			addListItem(uri, list);
 		}
 	}, 0)
 };
 
 function stopPropagation(event) {
 	if (event.preventDefault) {
-		event.preventDefault()
+		event.preventDefault();
 	}
 	return false
 }
 
 function pasteURL(callback) {
 	return function(event) {
-		var target = event.target ? event.target : event.srcElement
+		var target = event.target ? event.target : event.srcElement;
 		if (event.preventDefault) {
-			event.preventDefault()
+			event.preventDefault();
 		}
-		var data = event.originalEvent ? event.originalEvent.dataTransfer : event.dataTransfer
+		var data = event.originalEvent ? event.originalEvent.dataTransfer : event.dataTransfer;
 		if (!data) {
-			data = event.clipboardData
+			data = event.clipboardData;
 		}
 		if (!data) {
-			data = window.clipboardData
+			data = window.clipboardData;
 		}
-		var uris = window.calli.listResourceIRIs(data.getData('URL'))
+		var uris = window.calli.listResourceIRIs(data.getData('URL'));
 		if (!uris.size()) {
-			uris = window.calli.listResourceIRIs(data.getData("Text"))
+			uris = window.calli.listResourceIRIs(data.getData("Text"));
 		}
-		var selector = "[data-add]"
-		var script = $(target)
+		var selector = "[data-add]";
+		var script = $(target);
 		if (!script.children(selector).size()) {
 			$(target).parents().each(function() {
 				if ($(this).is(selector)) {
-					script = $(this)
+					script = $(this);
 				}
 			})
 		}
 		uris.each(function() {
 			addSetItem(this, script);
 		})
-		return callback(event)
+		return callback(event);
 	}
 }
 
 function addSetItem(uri, script) {
-	var url = script.attr("data-add").replace("{about}", encodeURIComponent(uri))
+	var url = script.attr("data-add").replace("{about}", encodeURIComponent(uri));
 	jQuery.get(url, function(data) {
-		var input = data ? $(data) : data
+		var input = data ? $(data) : data;
 		if (input && input.is("[about='" + uri + "']") && input.text().match(/\w/)) {
 			if (script.children("button.add").size()) {
-				script.children("button.add").before(input)
+				script.children("button.add").before(input);
 			} else {
-				script.append(input)
+				script.append(input);
 			}
-			input.each(initSetElement)
+			input.each(initSetElement);
 			if (script.attr("data-dialog")) {
-				$('#' + script.attr("data-dialog")).dialog('close')
+				$('#' + script.attr("data-dialog")).dialog('close');
 			}
 		} else {
-			script.trigger("calliError", "Invalid Relationship")
+			script.trigger("calliError", "Invalid Relationship");
 		}
-	})
+	});
 }
 
 function initSetElement() {
-	var row = $(this)
+	var row = $(this);
 	if (!row.parents("*[contenteditable]").size()) {
-		var remove = $('<button type="button"/>')
-		remove.addClass("remove")
-		remove.text("×")
+		var remove = $('<button type="button"/>');
+		remove.addClass("remove");
+		remove.text("×");
 		remove.click(function(){
-			var list = row.parent()
-			row.remove()
-			remove.remove()
-			updateButtonState(row)
+			var list = row.parent();
+			row.remove();
+			remove.remove();
+			updateButtonState(row);
 		})
 		if (this.tagName.toLowerCase() == "tr") {
-			var cell = $("<td/>")
-			cell.append(remove)
-			row.append(cell)
+			var cell = $("<td/>");
+			cell.append(remove);
+			row.append(cell);
 		} else {
-			row.append(remove)
+			row.append(remove);
 		}
 	}
 }

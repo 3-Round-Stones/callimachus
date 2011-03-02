@@ -10,7 +10,19 @@ var rdfnil = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil";
 
 $(document).ready(function () {
 	var form = $("form[about]");
-	var lists = $("[data-member]", form);
+	initListElements(form);
+});
+
+$(document).bind("DOMNodeInsertedIntoDocument", function (event) {
+	initListElements(event.target);
+});
+
+function select(node, selector) {
+	return $(node).find(selector).andSelf().filter(selector);
+}
+
+function initListElements(form) {
+	var lists = select(form, "[data-member]");
 	lists.each(function() {
 		var list = $(this);
 		var members = $("[rel='rdf:first'],[rel='rdf:rest']", list);
@@ -51,7 +63,7 @@ $(document).ready(function () {
 			this.attachEvent("ondrop", pasteListURL(dragleave));
 		}
 	})
-});
+}
 
 function initListElement() {
 	var row = $(this);

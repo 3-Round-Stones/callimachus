@@ -3,21 +3,19 @@
 (function($){
 
 $(document).ready(handle);
-$(document).bind("DOMNodeInserted", handle);
+$(document).bind("DOMNodeInsertedIntoDocument", handle);
+
+function select(node, selector) {
+	return $(node).find(selector).andSelf().filter(selector);
+}
 
 function handle(event) {
-	$("input[title]", event.target).each(function(i, input) {
+	select(event.target, "input[title]").each(function(i, input) {
 		var title = input.getAttribute("title");
 		if (title) {
 			initInputPromptTitle(input, title);
 		}
-	})
-	if ($(event.target).is("input[title]")) {
-		var title = event.target.getAttribute("title");
-		if (title) {
-			initInputPromptTitle(event.target, title);
-		}
-	}
+	});
 }
 
 var counter = 0;

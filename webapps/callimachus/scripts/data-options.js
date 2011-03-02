@@ -12,8 +12,17 @@ $(document).ready(function () {
 	initOptionElements(form);
 });
 
+$(document).bind("DOMNodeInsertedIntoDocument", function (event) {
+	initInputRelElements(event.target);
+	initOptionElements(event.target);
+});
+
+function select(node, selector) {
+	return $(node).find(selector).andSelf().filter(selector);
+}
+
 function initInputRelElements(form) {
-	$("[data-options]:not(select,optgroup)", form).each(function(i, node) {
+	select(form, "[data-options]:not(select,optgroup)").each(function(i, node) {
 		var script = $(node);
 		var objects = script.children("[resource]")
 		loadOptions(script, objects, "checked", function() {
@@ -23,7 +32,7 @@ function initInputRelElements(form) {
 }
 
 function initOptionElements(form) {
-	$("select", form).each(function(i, node) {
+	select(form, "select").each(function(i, node) {
 		var select = $(node);
 		var script = select.is("[data-options]") ? select : select.children("[data-options]");
 		var rel = script.attr("data-rel");
@@ -34,14 +43,14 @@ function initOptionElements(form) {
 					$option.removeAttr("about");
 					$option.attr("rel", rel);
 					$option.attr("resource", $option.attr("data-resource"));
-				})
+				});
 				$("option:not(:selected)", this).each(function(i, option){
 					var $option = $(option);
 					$option.removeAttr("rel");
 					$option.removeAttr("resource");
 					$option.attr("about", $option.attr("data-resource"));
-				})
-			})
+				});
+			});
 			var objects = $("[resource]", select);
 			script.each(function() {
 				var optgroup = $(this);

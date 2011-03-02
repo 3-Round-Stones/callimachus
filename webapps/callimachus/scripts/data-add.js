@@ -11,11 +11,19 @@ $(document).ready(function () {
 	initSetElements(form);
 });
 
+$(document).bind("DOMNodeInsertedIntoDocument", function (event) {
+	initSetElements(event.target);
+});
+
+function select(node, selector) {
+	return $(node).find(selector).andSelf().filter(selector);
+}
+
 var iframe_counter = 0;
 
 function initSetElements(form) {
 	createAddRelButtons(form);
-	var tbody = $("[data-add]", form);
+	var tbody = select(form, "[data-add]");
 	tbody.children("[about]").each(initSetElement);
 	tbody.each(function() {
 		var list = $(this);
@@ -43,7 +51,8 @@ function initSetElements(form) {
 		list.prepend("<div style='font-style:italic;font-size:small'>Drag resource(s) here</div>");
 		var url = list.attr("data-search");
 		if (url && list.attr("data-prompt")) {
-			var id = "lookup" + (++iframe_counter) + "-button";
+			var count = list.attr("id") ? list.attr("id") : (++iframe_counter);
+			var id = "lookup-" + count + "-button";
 			var add = $('<button type="button"/>');
 			add.attr("class", "add");
 			add.attr("id", id);
@@ -54,9 +63,8 @@ function initSetElements(form) {
 				suggest = window.calli.diverted(suggest, list.get(0));
 			}
 			list.append(add);
-			var count = ++iframe_counter;
-			var name = "lookup" + count + "-iframe";
-			var searchTerms = "searchTerms" + count + "-input";
+			var name = id.replace(/-button/, "-iframe");
+			var searchTerms = id.replace(/-button/, "-input");
 			var form = $("<form>"
 				+ "<div class='lookup'>"
 				+ "<input name='q' title='Lookup..' id='" + searchTerms + "' /></div>"
@@ -105,7 +113,7 @@ function initSetElements(form) {
 }
 
 function createAddRelButtons(form) {
-	$("[data-more][rel]", form).each(function() {
+	select(form, "[data-more][rel]").each(function() {
 		var parent = $(this);
 		var property = parent.attr("rel");
 		var editable = parent.is("*[contenteditable]") || parent.parents("*[contenteditable]").size();
@@ -124,7 +132,7 @@ function createAddRelButtons(form) {
 				jQuery.get(parent.attr("data-more"), function(data) {
 					var input = $(data);
 					add.before(input);
-					initElements(input);
+					input.trigger("DOMNodeInsertedIntoDocument");
 					input.each(initSetElement);
 					updateButtonState(parent);
 				});
@@ -161,7 +169,7 @@ function createAddRelButtons(form) {
 					} else {
 						parent.append(input);
 					}
-					initElements(input);
+					input.trigger("DOMNodeInsertedIntoDocument");
 					input.each(initSetElement);
 					updateButtonState(parent);
 				});

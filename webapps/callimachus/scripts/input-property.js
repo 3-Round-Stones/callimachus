@@ -12,8 +12,17 @@ $(document).ready(function () {
 	$(":input[property]", form).each(initInputElement);
 });
 
+$(document).bind("DOMNodeInsertedIntoDocument", function (event) {
+	createAddPropertyButtons(event.target);
+	select(event.target, ":input[property]").each(initInputElement);
+});
+
+function select(node, selector) {
+	return $(node).find(selector).andSelf().filter(selector);
+}
+
 function createAddPropertyButtons(form) {
-	$("[data-more][data-property]", form).each(function() {
+	select(form, "[data-more][data-property]").each(function() {
 		var parent = $(this);
 		var property = parent.attr("data-property");
 		var minOccurs = parent.attr("data-min-cardinality");
@@ -31,7 +40,7 @@ function createAddPropertyButtons(form) {
 				jQuery.get(parent.attr("data-more"), function(data) {
 					var input = $(data);
 					add.before(input);
-					input.each(initInputElement);
+					input.trigger("DOMNodeInsertedIntoDocument");
 					input.find().andSelf().filter(":input:first").focus();
 					updateButtonState(parent);
 				});
@@ -48,7 +57,7 @@ function createAddPropertyButtons(form) {
 					} else {
 						parent.append(input);
 					}
-					input.each(initInputElement);
+					input.trigger("DOMNodeInsertedIntoDocument");
 					updateButtonState(parent);
 				});
 			}

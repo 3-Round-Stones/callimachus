@@ -31,11 +31,6 @@ $(document).ready(function() {
 		$("#error-message").empty();
 		$("#error-widget pre").remove();
 	});
-	$(document).bind("calliOk", function() {
-		$("#error-widget").hide();
-		$("#error-message").empty();
-		$("#error-widget pre").remove();
-	});
 	$(document).bind("calliError", showError);
 });
 

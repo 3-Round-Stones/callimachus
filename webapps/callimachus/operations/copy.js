@@ -11,7 +11,7 @@ $(document).ready(initForms);
 function initForms() {
 	$("form[about]").each(function(i, node) {
 		var form = $(node)
-		form.bind("calliForm", function() {
+		$(document).bind("calliReady", function() {
 			form.validate({submitHandler: submitRDFForm})
 		})
 	})
@@ -84,7 +84,6 @@ function readRDF(form) {
 function postData(form, url, type, data, callback) {
 	var xhr = null
 	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, success: function(data, textStatus) {
-		form.trigger("calliOk")
 		callback(data, textStatus, xhr)
 	}})
 }

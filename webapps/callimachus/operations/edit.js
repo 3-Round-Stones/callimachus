@@ -12,7 +12,7 @@ function initForms() {
 	$("form[about]").each(function(i, node) {
 		var form = $(node);
 		var stored = readRDF(form);
-		form.bind("calliForm", function() {
+		$(document).bind("calliReady", function() {
 			form.validate({submitHandler: function() {
 				return submitRDFForm(form, stored);
 			}})
@@ -126,7 +126,6 @@ function patchData(form, url, type, data, callback) {
 			xhr.setRequestHeader("If-Match", etag)
 		}
 	}, success: function(data, textStatus) {
-		form.trigger("calliOk")
 		callback(data, textStatus, xhr)
 	}})
 }

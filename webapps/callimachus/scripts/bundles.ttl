@@ -25,6 +25,11 @@
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;
 	rdf:_1 <jquery.rdfquery.rdfa.js>;
 	rdf:_2 <jquery.validate.js>;
-	rdf:_3 <elements.js>;
-	rdf:_4 <focus.js>.
+	rdf:_3 <data-options.js>;
+	rdf:_4 <input-property.js>;
+	rdf:_5 <resource-iri.js>;
+	rdf:_6 <data-add.js>;
+	rdf:_7 <data-member.js>;
+	rdf:_8 <document-ready.js>;
+	rdf:_9 <focus.js>.
 

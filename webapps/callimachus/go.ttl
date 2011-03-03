@@ -19,16 +19,65 @@
 	msg:imports <lookup>;
 	msg:imports </diverted>;
 	msg:script """
-		try {
-			if (q.indexOf(":") > 0) {
-				if (java.net.URI.create(q).isAbsolute())
-					return diverted.toString() + ";" + URLEncoder.encode(q);
+		function parseAbsoluteURI(string) {
+			try {
+				if (string.indexOf(":") > 0) {
+					var uri = java.net.URI.create(string);
+					if (uri.isAbsolute())
+						return uri;
+				}
+			} catch (e) {
+				return null;
 			}
-		} catch (e) {
 		}
-		var vf = this.objectConnection.valueFactory;
-		var stmts = this.objectConnection.getStatements(null, RDFS.LABEL, vf.createLiteral(q), []);
-		try {
+
+		function redirectURL(uri) {
+			uri = canonicalize(uri);
+			var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toString() : null;
+			var iri = uri.toString();
+			var present = con.hasStatement(vf.createURI(iri), null, null, []);
+			var hosted = con.hasStatement(null, null, vf.createURI(origin + "diverted"), []);
+			if (present && hosted && (uri.query || uri.fragment)) { //# self resolving IRI
+				var url = origin + "diverted;" + URLEncoder.encode(q);
+				if (query) {
+					url = url + '?' + query;
+				}
+				return url;
+			} else if (present && (uri.query || uri.fragment)) { //# IRI present in this RDF store
+				var url = diverted.toString() + ";" + URLEncoder.encode(q);
+				if (query) {
+					url = url + '?' + query;
+				}
+				return url;
+			} else { //# self resolving URL or unknown resource
+				var url = q;
+				if (query && url.indexOf('?') < 0 && url.indexOf('#') < 0) {
+					url = url + '?' + query;
+				}
+				return url;
+			}
+		}
+
+		function canonicalize(uri) {
+			uri = uri.normalize();
+			var sch = uri.scheme.toLowerCase();
+			var frag = uri.fragment;
+			if (uri.isOpaque()) {
+				return new java.net.URI(sch, uri.schemeSpecificPart, frag);
+			} else {
+				var auth = uri.authority.toLowerCase();
+				return new java.net.URI(sch, auth, uri.path, uri.query, frag);
+			}
+		}
+
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var uri = parseAbsoluteURI(q);
+		if (uri) { //# absolute URI redirect
+			return redirectURL(uri);
+		}
+		var stmts = con.getStatements(null, RDFS.LABEL, vf.createLiteral(q), []);
+		try { //# check if there is a resource with this exact label
 			if (stmts.hasNext()) {
 				var uri = stmts.next().subject;
 				while (!(uri instanceof org.openrdf.model.URI) && stmts.hasNext()) {
@@ -40,11 +89,16 @@
 		} finally {
 			stmts.close();
 		}
-		return lookup + "?q=" + URLEncoder.encode(q);
+		return lookup + "?q=" + URLEncoder.encode(q); //# list resources by label prefix
 	""".
 
 :q a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :LookupAndGo;
 	rdfs:range xsd:string;
 	msg:query "q".
+
+:query a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :LookupAndGo;
+	rdfs:range xsd:string;
+	msg:query "query".
 

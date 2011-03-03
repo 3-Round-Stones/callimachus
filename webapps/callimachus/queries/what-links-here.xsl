@@ -53,7 +53,7 @@
 			</a>
 			<xsl:if test="sparql:binding[@name='url']">
 				<xsl:text> (</xsl:text>
-				<a href="{sparql:binding[@name='url']/*}" data-diverted="?whatlinkshere">links</a>
+				<a href="{sparql:binding[@name='url']/*}" data-query="whatlinkshere">links</a>
 				<xsl:text>) </xsl:text>
 			</xsl:if>
 			<xsl:if test="sparql:binding[@name='comment']">

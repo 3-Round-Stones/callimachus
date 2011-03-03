@@ -39,8 +39,25 @@ window.calli.listResourceIRIs = function (text) {
 				uri = uri.substring(0, uri.indexOf('#'));
 			}
 			uri = decodeURIComponent(uri);
+		} else if (uri.indexOf('/callimachus/go?q=') >= 0) {
+			uri = uri.substring(uri.indexOf('/callimachus/go?q=') + '/callimachus/go?q='.length);
+			if (uri.indexOf('&') >= 0) {
+				uri = uri.substring(0, uri.indexOf('&'));
+			}
+			if (uri.indexOf('#') >= 0) {
+				uri = uri.substring(0, uri.indexOf('#'));
+			}
+			uri = decodeURIComponent(uri);
 		} else if (uri.indexOf('?view') >= 0) {
 			uri = uri.substring(0, uri.indexOf('?view'));
+		} else if (uri.indexOf('?edit') >= 0) {
+			uri = uri.substring(0, uri.indexOf('?edit'));
+		} else if (uri.indexOf('?discussion') >= 0) {
+			uri = uri.substring(0, uri.indexOf('?discussion'));
+		} else if (uri.indexOf('?describe') >= 0) {
+			uri = uri.substring(0, uri.indexOf('?describe'));
+		} else if (uri.indexOf('?history') >= 0) {
+			uri = uri.substring(0, uri.indexOf('?history'));
 		}
 		return uri;
 	})

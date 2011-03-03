@@ -92,7 +92,7 @@
 				</xsl:call-template>
 			</a>
 			<xsl:text> (</xsl:text>
-			<a href="{@rdf:resource}" data-diverted="?describe">describe</a>
+			<a href="{@rdf:resource}" data-query="describe">describe</a>
 			<xsl:text>) </xsl:text>
 		</li>
 	</xsl:template>

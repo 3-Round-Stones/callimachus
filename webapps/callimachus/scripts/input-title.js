@@ -33,6 +33,11 @@ function initInputPromptTitle(input, title) {
 	promptSpan.bind('mouseover', function() {
 		promptSpan.css('display', "none");
 	});
+	promptSpan.bind('mouseout', function() {
+		if(input.value == '' && input!=document.activeElement) {
+			promptSpan.css('display', "inline");
+		}
+	});
 	promptSpan.bind('click', function() {
 		promptSpan.css('display', "none");
 		input.focus();
@@ -44,17 +49,20 @@ function initInputPromptTitle(input, title) {
 	input.removeAttribute("title");
 	input.onfocus = function() {
 		promptSpan.css('display', "none");
-	}
+	};
 	input.onblur = function() {
 		if(input.value == '') {
 			promptSpan.css('display', "inline");
 		}
-	}
+	};
+	input.onmouseover = function() {
+		promptSpan.css('display', "none");
+	};
 	input.onmouseout = function() {
 		if(input.value == '' && input!=document.activeElement) {
 			promptSpan.css('display', "inline");
 		}
-	}
+	};
 }
 
 })(window.jQuery);

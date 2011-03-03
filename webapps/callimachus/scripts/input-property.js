@@ -1,3 +1,4 @@
+// input-property.js
 /*
    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
@@ -12,7 +13,7 @@ $(document).ready(function () {
 	$(":input[property]", form).each(initInputElement);
 });
 
-$(document).bind("DOMNodeInsertedIntoDocument", function (event) {
+$(document).bind("DOMNodeInserted", function (event) {
 	createAddPropertyButtons(event.target);
 	select(event.target, ":input[property]").each(initInputElement);
 });
@@ -40,7 +41,6 @@ function createAddPropertyButtons(form) {
 				jQuery.get(parent.attr("data-more"), function(data) {
 					var input = $(data);
 					add.before(input);
-					input.trigger("DOMNodeInsertedIntoDocument");
 					input.find().andSelf().filter(":input:first").focus();
 					updateButtonState(parent);
 				});
@@ -57,7 +57,6 @@ function createAddPropertyButtons(form) {
 					} else {
 						parent.append(input);
 					}
-					input.trigger("DOMNodeInsertedIntoDocument");
 					updateButtonState(parent);
 				});
 			}

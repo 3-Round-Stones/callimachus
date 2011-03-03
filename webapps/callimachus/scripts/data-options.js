@@ -1,3 +1,4 @@
+// data-options.js
 /*
    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
@@ -12,7 +13,7 @@ $(document).ready(function () {
 	initOptionElements(form);
 });
 
-$(document).bind("DOMNodeInsertedIntoDocument", function (event) {
+$(document).bind("DOMNodeInserted", function (event) {
 	initInputRelElements(event.target);
 	initOptionElements(event.target);
 });

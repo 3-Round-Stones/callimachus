@@ -1,3 +1,4 @@
+// data-add.js
 /*
    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
@@ -11,7 +12,7 @@ $(document).ready(function () {
 	initSetElements(form);
 });
 
-$(document).bind("DOMNodeInsertedIntoDocument", function (event) {
+$(document).bind("DOMNodeInserted", function (event) {
 	initSetElements(event.target);
 });
 
@@ -132,7 +133,6 @@ function createAddRelButtons(form) {
 				jQuery.get(parent.attr("data-more"), function(data) {
 					var input = $(data);
 					add.before(input);
-					input.trigger("DOMNodeInsertedIntoDocument");
 					input.each(initSetElement);
 					updateButtonState(parent);
 				});
@@ -169,7 +169,6 @@ function createAddRelButtons(form) {
 					} else {
 						parent.append(input);
 					}
-					input.trigger("DOMNodeInsertedIntoDocument");
 					input.each(initSetElement);
 					updateButtonState(parent);
 				});

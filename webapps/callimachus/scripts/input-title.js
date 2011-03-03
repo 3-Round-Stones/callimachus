@@ -3,7 +3,7 @@
 (function($){
 
 $(document).ready(handle);
-$(document).bind("DOMNodeInsertedIntoDocument", handle);
+$(document).bind("DOMNodeInserted", handle);
 
 function select(node, selector) {
 	return $(node).find(selector).andSelf().filter(selector);

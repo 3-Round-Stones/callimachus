@@ -11,15 +11,16 @@
 <web_bundle> a calli:ScriptBundle;
 	rdf:_1 <jquery.js>;
 	rdf:_2 <jquery-ui.js>;
-	rdf:_3 <referrer.js>;
-	rdf:_4 <divert.js>;
-	rdf:_5 <creole.js>;
-	rdf:_6 <wiki.js>;
-	rdf:_7 <sorted.js>;
-	rdf:_8 <datetime-locale.js>;
-	rdf:_9 <auto-expand.js>;
-	rdf:_10 <disable-button.js>;
-	rdf:_11 <input-title.js>.
+	rdf:_3 <node-inserted.js>;
+	rdf:_4 <referrer.js>;
+	rdf:_5 <divert.js>;
+	rdf:_6 <creole.js>;
+	rdf:_7 <wiki.js>;
+	rdf:_8 <sorted.js>;
+	rdf:_9 <datetime-locale.js>;
+	rdf:_10 <auto-expand.js>;
+	rdf:_11 <disable-button.js>;
+	rdf:_12 <input-title.js>.
 
 # IE8 can't handle any more than 1 minification for these scripts
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;

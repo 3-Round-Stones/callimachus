@@ -59,10 +59,6 @@ function initSetElements(form) {
 			add.attr("id", id);
 			add.text("»");
 			var suggest = list.attr("data-prompt");
-			var divert = list.hasClass("diverted");
-			if (divert) {
-				suggest = window.calli.diverted(suggest, list.get(0));
-			}
 			list.append(add);
 			var name = id.replace(/-button/, "-iframe");
 			var searchTerms = id.replace(/-button/, "-input");
@@ -101,7 +97,7 @@ function initSetElements(form) {
 				iframe.before(form);
 				form.submit(function(event) {
 					var searchUrl = url.replace('{searchTerms}', encodeURIComponent(document.getElementById(searchTerms).value));
-					listSearchResults(searchUrl, iframe.get(0), divert);
+					listSearchResults(searchUrl, iframe.get(0));
 					return stopPropagation(event);
 				});
 				form.css('top', Math.max(bottom - dialogTitle.height() /2 - form.height()/2, bottom - form.height()));
@@ -202,7 +198,7 @@ function updateButtonState(context) {
 	}
 }
 
-function listSearchResults(url, iframe, divert) {
+function listSearchResults(url, iframe) {
 	jQuery.get(url, function(data) {
 		if (data) {
 			var result = $(data).children();
@@ -211,12 +207,8 @@ function listSearchResults(url, iframe, divert) {
 				var about = $(this).attr("about");
 				if (about && about.indexOf('[') < 0) {
 					var li = $("<li/>");
-					var link = $("<a/>");
-					if (divert) {
-						link.attr("href", window.calli.diverted(about + "?view", iframe));
-					} else {
-						link.attr("href", about + "?view");
-					}
+					var link = $('<a data-query="view"/>');
+					link.attr("href", about);
 					link.append($(this).text());
 					li.append(link);
 					ul.append(li);

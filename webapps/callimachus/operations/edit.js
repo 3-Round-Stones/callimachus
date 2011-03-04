@@ -160,21 +160,18 @@ window.calli.deleteResource = function() {
 				}
 			}, success: function(data, textStatus) {
 				try {
-					var event = jQuery.Event("calliRedirect")
-					event.location = form.attr("data-redirect")
-					if (form.hasClass("diverted")) {
-						event.location = window.calli.diverted(event.location, form.get(0))
-					}
+					var event = jQuery.Event("calliRedirect");
+					event.location = form.attr("data-redirect");
 					if (!event.location) {
 						if (window.sessionStorage) {
-							var previous = sessionStorage.getItem("Previous")
+							var previous = sessionStorage.getItem("Previous");
 							if (previous) {
-								event.location = previous.substring(0, previous.indexOf(' '))
+								event.location = previous.substring(0, previous.indexOf(' '));
 							}
 						}
 					}
 					if (!event.location) {
-						event.location = document.referrer
+						event.location = document.referrer;
 					}
 					form.trigger(event)
 					if (!event.isDefaultPrevented()) {

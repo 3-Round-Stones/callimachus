@@ -10,55 +10,43 @@ function select(node, selector) {
 }
 
 function handle(event) {
-	select(event.target, "a.intralink,a[data-query]").each(function() {
-		var href = window.calli.intralink(this.href, this);
+	select(event.target, "a.intralink,a[data-query],a.diverted,a[data-diverted]").each(function() {
+		var href = window.calli.intralink(this.href, $(this).attr("data-query"));
 		var link = $(this);
 		if (this.href != href) {
-			if (!link.attr("resource")) {
-				link.attr("resource", link.attr("href"));
-			}
 			$(this).mousedown(function() {
 				this.href = href;
+				if (!link.attr("resource")) {
+					link.attr("resource", link.attr("href"));
+				}
 			});
+			link.addClass("intralink");
+		} else {
+			link.removeClass("intralink");
 		}
 		link.removeAttr("data-query");
-		if (this.href.indexOf("/callimachus/go?q=") < 0) {
-			link.removeClass("intralink");
-		} else {
-			link.addClass("intralink");
-		}
-	});
-	select(event.target, "a.diverted,a[data-diverted]").each(function() {
-		var href = window.calli.diverted(this.href, this);
-		var link = $(this);
-		if (this.href != href) {
-			if (!link.attr("resource")) {
-				link.attr("resource", link.attr("href"));
-			}
-			$(this).mousedown(function() {
-				this.href = href;
-			});
-		}
 		link.removeAttr("data-diverted");
-		if (this.href.indexOf("/diverted;") < 0) {
-			link.removeClass("diverted");
-		} else {
-			link.addClass("diverted");
-		}
+		link.removeClass("diverted");
 	});
+	if (select(event.target, "a.diverted").length) {
+		setTimeout(function(){ throw 'Use class="intralink" instead'; }, 0);
+	}
+	if (select(event.target, "a[data-diverted]").length) {
+		setTimeout(function(){ throw 'Use data-query="view" instead'; }, 0);
+	}
 }
 
 if (!window.calli) {
 	window.calli = {};
 }
 
-window.calli.intralink = function(url, node) {
+window.calli.intralink = function(uri, query) {
+	var url = uri;
     var prefix = location.protocol + '//' + location.host + '/';
-	var query = $(node).attr("data-query");
 	if (url.indexOf(prefix) != 0 && url.indexOf(':') > 0 || url.indexOf('?') > 0 || url.indexOf('#') > 0) {
 		if (url.indexOf(':') < 0) {
-		    if (node && node.baseURIObject && node.baseURIObject.resolve) {
-		        url = node.baseURIObject.resolve(url);
+		    if (document.baseURIObject && document.baseURIObject.resolve) {
+		        url = document.baseURIObject.resolve(url);
 		    } else {
 		        var a = document.createElement('a');
 		        a.setAttribute('href', url);
@@ -79,27 +67,12 @@ window.calli.intralink = function(url, node) {
 }
 
 window.calli.diverted = function(url, node) {
-    var prefix = location.protocol + '//' + location.host + '/';
-	if (url.indexOf(prefix) != 0 && url.indexOf(':') > 0 || url.indexOf('?') > 0 || url.indexOf('#') > 0) {
-		if (url.indexOf(':') < 0) {
-		    if (node && node.baseURIObject && node.baseURIObject.resolve) {
-		        url = node.baseURIObject.resolve(url);
-		    } else {
-		        var a = document.createElement('a');
-		        a.setAttribute('href', url);
-		        if (a.href) {
-		            url = a.href;
-		        }
-		    }
-		}
-    	var path = 'diverted;';
-		url = prefix + path + encodeURIComponent(url);
+	setTimeout(function(){ throw "Use window.calli.intralink(uri, query) instead"; }, 0);
+	var query = null;
+	if ($(node).attr("data-diverted")) {
+		 query = $(node).attr("data-diverted").substring(1);
 	}
-	var query = $(node).attr("data-diverted");
-	if (query) {
-	    url = url + query;
-	}
-	return url
+	return window.calli.intralink(url, query);
 }
 
 })(window.jQuery);

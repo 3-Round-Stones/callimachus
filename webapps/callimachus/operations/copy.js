@@ -38,12 +38,7 @@ function submitRDFForm(form) {
 					} catch (e) {}
 					var redirect = xhr.getResponseHeader("Location");
 					var event = jQuery.Event("calliRedirect");
-					if (form.hasClass("diverted") || form.attr("data-diverted")) {
-						event.location = window.calli.diverted(redirect, form.get(0));
-					} else {
-						event.location = redirect;
-					}
-					event.location = event.location  + "?view";
+					event.location = window.calli.lintralink(redirect, "view");
 					form.trigger(event);
 					if (!event.isDefaultPrevented()) {
 						location.replace(event.location);

@@ -43,7 +43,7 @@
 					url = url + '?' + query;
 				}
 				return url;
-			} else if (present && (uri.query || uri.fragment)) { //# IRI present in this RDF store
+			} else if (present && !hosted) { //# IRI present in this RDF store
 				var url = diverted.toString() + ";" + URLEncoder.encode(q);
 				if (query) {
 					url = url + '?' + query;

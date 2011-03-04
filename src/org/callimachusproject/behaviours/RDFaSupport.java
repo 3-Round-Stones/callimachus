@@ -46,7 +46,6 @@ import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.XMLElementReader;
 import org.callimachusproject.traits.SoundexTrait;
-import org.openrdf.http.object.annotations.parameter;
 import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.http.object.exceptions.BadRequest;
@@ -141,7 +140,7 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 		return reader;
 	}
 
-	private XMLEventReader applyXSLT(@parameter("query") String query)
+	private XMLEventReader applyXSLT(@query("query") String query)
 			throws XMLStreamException, IOException, TransformerException {
 		String href = readXSLTSource();
 		if (href == null)

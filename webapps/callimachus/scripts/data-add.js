@@ -235,8 +235,6 @@ window.calli.resourceCreated = function(uri, iframe) {
 		var list = $('#' + $(iframe).attr("data-button")).parent()
 		if (list.attr("data-add")) {
 			addSetItem(uri, list);
-		} else if (list.attr("data-member")) {
-			addListItem(uri, list);
 		}
 	}, 0)
 };

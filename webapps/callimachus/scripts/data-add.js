@@ -106,7 +106,7 @@ function initSetElements(form) {
 				iframe.get(0).src = suggest;
 		    });
 		}
-	})
+	});
 }
 
 function createAddRelButtons(form) {

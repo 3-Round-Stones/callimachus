@@ -76,6 +76,14 @@
 		<hr />
 		<div style="overflow:auto">
 			<div style="float:left;margin:1ex">
+				<label for="broader">Broader</label>
+				<div id="broader" rev="skos:narrower" data-prompt="/skos/concept_template?copy" style="min-height: 1em">
+					<span about="?broader" typeof="skos:Concept">
+						<span property="skos:prefLabel"></span>
+					</span>
+				</div>
+			</div>
+			<div style="float:left;margin:1ex">
 				<label for="related">Related</label>
 				<div id="related" rel="skos:related" data-prompt="/skos/concept_template?copy" style="min-height: 1em">
 					<span about="?related" typeof="skos:Concept">

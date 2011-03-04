@@ -37,13 +37,11 @@ import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.rdfa.events.Base;
-import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.BoundedRDFReader;
 import org.callimachusproject.stream.GraphPatternReader;
 import org.callimachusproject.stream.OverrideBaseReader;
-import org.callimachusproject.stream.PipedRDFEventReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.XMLElementReader;
@@ -123,26 +121,8 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 
 	public RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
 			TriplePattern pattern) {
-		VarOrTerm subj = pattern.getObject();
-		if (pattern.isInverse()) {
-			subj = pattern.getSubject();
-		}
-		RDFEventReader query = patterns.openQueryBySubject(subj);
-		if (query == null)
-			return null;
-		final TriplePattern project = patterns.getProjectedPattern(pattern);
-		query = new PipedRDFEventReader(query) {
-			private boolean sent;
-
-			protected void process(RDFEvent next) throws RDFParseException {
-				if (!sent && next.isTriplePattern()) {
-					add(project);
-					sent = true;
-				}
-				add(next);
-			}
-		};
-		return query;
+		VarOrTerm subj = pattern.getPartner();
+		return patterns.openQueryBySubject(subj);
 	}
 
 	public RDFEventReader openPatternReader(String query, String element,

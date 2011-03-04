@@ -126,6 +126,10 @@ public class SubjectTracker extends RDFHandlerWrapper {
 		return about;
 	}
 
+	public void addSubject(URI subj) {
+		subjects.add(subj);
+	}
+
 	public Set<URI> getTypes() {
 		return types;
 	}
@@ -149,9 +153,9 @@ public class SubjectTracker extends RDFHandlerWrapper {
 			throw new RDFHandlerException("Invalid triple: " + subj + " "
 					+ pred + " " + obj);
 		if (rev && obj instanceof URI) {
-			subjects.add((URI) obj);
+			addSubject((URI) obj);
 		} else if (!rev && subj instanceof URI) {
-			subjects.add((URI) subj);
+			addSubject((URI) subj);
 			if (RDF.TYPE.equals(pred) && obj instanceof URI) {
 				types.add((URI) obj);
 			}
@@ -163,6 +167,7 @@ public class SubjectTracker extends RDFHandlerWrapper {
 	private Boolean accept(Resource subj, URI pred, Value obj) {
 		if (patterns == null)
 			return false;
+		Boolean result = null;
 		Term sterm = asTerm(subj);
 		Term pterm = asTerm(pred);
 		Term oterm = asTerm(obj);
@@ -179,9 +184,12 @@ public class SubjectTracker extends RDFHandlerWrapper {
 				if (!tp.getObject().equals(oterm))
 					continue;
 			}
-			return tp.isInverse();
+			result = tp.isInverse();
+			if (!tp.isInverse() && subjects.contains(subj) || tp.isInverse()
+					&& subjects.contains(obj))
+				return result;
 		}
-		return null;
+		return result;
 	}
 
 	private Term asTerm(Value obj) {

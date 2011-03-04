@@ -71,7 +71,7 @@ public abstract class SearchSupport implements Template, SoundexTrait,
 	 */
 	@query("search")
 	@type("application/rdf+xml")
-	@header("cache-control:must-reevaluate")
+	@header("cache-control:no-validate")
 	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
 	public XMLEventReader constructSearch(@query("query") String query,
 			@query("element") String element, @query("q") String q)
@@ -102,7 +102,7 @@ public abstract class SearchSupport implements Template, SoundexTrait,
 
 	private IterableRDFEventReader filterPrefix(TriplePatternStore patterns,
 			TriplePattern pattern, String q) {
-		VarOrTerm obj = pattern.getObject();
+		VarOrTerm obj = pattern.getPartner();
 		PlainLiteral phone = tf.literal(asSoundex(q));
 		String regex = regexStartsWith(q);
 		List<RDFEvent> list = new ArrayList<RDFEvent>();
@@ -112,7 +112,7 @@ public abstract class SearchSupport implements Template, SoundexTrait,
 		for (String pred : LABELS) {
 			IRI iri = tf.iri(pred);
 			for (TriplePattern tp : patterns.getPatternsByPredicate(iri)) {
-				if (tp.getSubject().equals(obj)) {
+				if (tp.getAbout().equals(obj)) {
 					if (filter) {
 						list.add(new ConditionalOrExpression());
 					} else {

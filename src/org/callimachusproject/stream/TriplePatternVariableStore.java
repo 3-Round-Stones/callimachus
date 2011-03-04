@@ -47,10 +47,9 @@ public class TriplePatternVariableStore extends TriplePatternStore {
 		VarOrTerm subj = tp.getSubject();
 		VarOrIRI pred = tp.getPredicate();
 		VarOrTerm obj = tp.getObject();
-		if (tp.isInverse() && subj.isVar() && !(subj instanceof BlankOrLiteralVar)) {
-			pred = tf.iri(v + subj.stringValue());
-		} else if (!tp.isInverse() && obj.isVar() && !(obj instanceof BlankOrLiteralVar)) {
-			pred = tf.iri(v + obj.stringValue());
+		VarOrTerm ptr = tp.getPartner();
+		if (ptr.isVar() && !(ptr instanceof BlankOrLiteralVar)) {
+			pred = tf.iri(v + ptr.stringValue());
 		}
 		return new TriplePattern(subj, pred, obj, tp.isInverse());
 	}

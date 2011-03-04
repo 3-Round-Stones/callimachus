@@ -87,6 +87,7 @@ public abstract class EditSupport implements Template {
 			ObjectConnection con) throws Exception {
 		SubjectTracker remover = createSubjectTracker(resource,
 				new Remover(con));
+		remover.addSubject(resource);
 		GraphPatternBuilder pattern = new GraphPatternBuilder();
 		parser.setRDFHandler(pattern);
 		parser.parse(in, resource.stringValue());
@@ -104,6 +105,7 @@ public abstract class EditSupport implements Template {
 			ObjectConnection con) throws Exception {
 		SubjectTracker inserter = createSubjectTracker(resource,
 				new RDFInserter(con));
+		inserter.addSubject(resource);
 		inserter.accept(changeNoteOf(resource));
 		parser.setValueFactory(con.getValueFactory());
 		parser.setRDFHandler(inserter);

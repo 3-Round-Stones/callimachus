@@ -48,6 +48,7 @@
 	msg:script """
 		var template = this.FindEditTemplate();
 		template.calliEditResource(this, input);
+		this.touchRevision();
 		var ver = new ProtocolVersion("HTTP", 1, 1);
 		var resp = new BasicHttpResponse(ver, 201, "Modified");
 		resp.addHeader("Location", this + "?view");

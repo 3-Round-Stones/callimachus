@@ -150,7 +150,7 @@
 	msg:type "message/x-response";
 	msg:realm </accounts>;
 	msg:transform :TransformResult;
-	msg:header "cache-control:must-reevaluate";
+	msg:header "cache-control:no-validate";
 	msg:script "return EvaluateSparql(queryStr)".
 
 :queryStr a owl:DatatypeProperty, owl:FunctionalProperty;

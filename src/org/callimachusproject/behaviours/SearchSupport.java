@@ -71,7 +71,7 @@ public abstract class SearchSupport implements Template, SoundexTrait,
 	 */
 	@query("search")
 	@type("application/rdf+xml")
-	@header("cache-control:no-validate")
+	@header("cache-control:no-validate,max-age=60")
 	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
 	public XMLEventReader constructSearch(@query("query") String query,
 			@query("element") String element, @query("q") String q)

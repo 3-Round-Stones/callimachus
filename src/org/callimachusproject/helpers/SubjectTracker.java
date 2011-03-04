@@ -50,6 +50,7 @@ import org.openrdf.rio.helpers.RDFHandlerWrapper;
 public class SubjectTracker extends RDFHandlerWrapper {
 	private TermFactory tf = TermFactory.newInstance();
 	private Set<URI> subjects = new HashSet<URI>();
+	private Set<URI> resources = new HashSet<URI>();
 	private Set<URI> types = new HashSet<URI>();
 	private boolean empty = true;
 	private Resource matcher;
@@ -134,6 +135,10 @@ public class SubjectTracker extends RDFHandlerWrapper {
 		return types;
 	}
 
+	public Set<URI> getResources() {
+		return resources;
+	}
+
 	@Override
 	public void handleStatement(Statement st) throws RDFHandlerException {
 		Resource subj = st.getSubject();
@@ -159,6 +164,11 @@ public class SubjectTracker extends RDFHandlerWrapper {
 			if (RDF.TYPE.equals(pred) && obj instanceof URI) {
 				types.add((URI) obj);
 			}
+		}
+		if (rev && subj instanceof URI) {
+			resources.add((URI) subj);
+		} else if (!rev && obj instanceof URI) {
+			resources.add((URI) obj);
 		}
 		empty = false;
 		super.handleStatement(new StatementImpl(subj, pred, obj));

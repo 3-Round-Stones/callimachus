@@ -29,10 +29,12 @@ import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.model.IRI;
 import org.callimachusproject.rdfa.model.TermFactory;
 import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.traits.VersionedObject;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFHandler;
@@ -75,6 +77,9 @@ public abstract class EditSupport implements Template {
 			ObjectConnection con = target.getObjectConnection();
 			remove((URI) target.getResource(), multipart.next(), parser, con);
 			add((URI) target.getResource(), multipart.next(), parser, con);
+			if (target instanceof VersionedObject) {
+				((VersionedObject) target).touchRevision();
+			}
 			assert multipart.next() == null;
 		} catch (RDFHandlerException e) {
 			throw new BadRequest(e);
@@ -99,6 +104,10 @@ public abstract class EditSupport implements Template {
 			if (!remover.isAbout(resource))
 				throw new BadRequest("Wrong Subject");
 		}
+		ObjectFactory of = con.getObjectFactory();
+		for (URI partner : remover.getResources()) {
+			of.createObject(partner, VersionedObject.class).touchRevision();
+		}
 	}
 
 	private void add(URI resource, InputStream in, RDFXMLParser parser,
@@ -112,6 +121,10 @@ public abstract class EditSupport implements Template {
 		parser.parse(in, resource.stringValue());
 		if (!inserter.isEmpty() && !inserter.isAbout(resource))
 			throw new BadRequest("Wrong Subject");
+		ObjectFactory of = con.getObjectFactory();
+		for (URI partner : inserter.getResources()) {
+			of.createObject(partner, VersionedObject.class).touchRevision();
+		}
 	}
 
 	private TriplePattern changeNoteOf(URI resource) {

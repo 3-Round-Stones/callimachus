@@ -287,6 +287,8 @@ calli:DeleteWebResource rdfs:subClassOf msg:Message;
 						var obj = st.object.stringValue();
 						if (obj.startsWith(subj) && obj.charAt(subj.length()) == "#") {
 							removeTriples(st.object);
+						} else {
+							con.getObjectFactory().createObject(st.object).touchRevision();
 						}
 					}
 					con.remove(st, []);

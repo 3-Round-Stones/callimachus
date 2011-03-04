@@ -4,13 +4,18 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://localhost:8080/" />
-<title>delete-narrower</title>
+<title>create-broader</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">delete-narrower</td></tr>
+<tr><td rowspan="1" colspan="3">create-broader</td></tr>
 </thead><tbody>
+<tr>
+	<td>setTimeout</td>
+	<td>100000</td>
+	<td></td>
+</tr>
 <tr>
 	<td>open</td>
 	<td>/</td>
@@ -48,17 +53,57 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>delete</td>
+	<td>lookup-broader-button</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertConfirmation</td>
-	<td>Are you sure you want to delete this concept?</td>
+	<td>waitForEval</td>
+	<td>window.frames[0].name</td>
+	<td>lookup-broader-iframe</td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>lookup-broader-iframe</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForPageToLoad</td>
 	<td>30000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForNotEval</td>
+	<td>window.document.body.className</td>
+	<td>*wait*</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>label</td>
+	<td>Users and groups</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextNotPresent</td>
+	<td>Exception</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>relative=up</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForNotEval</td>
+	<td>window.document.body.className</td>
+	<td>*wait*</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>submit</td>
 	<td></td>
 </tr>
 <tr>
@@ -72,11 +117,10 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyTextNotPresent</td>
-	<td>User management</td>
+	<td>verifyTextPresent</td>
+	<td>Users and groups</td>
 	<td></td>
 </tr>
-
 </tbody></table>
 </body>
 </html>

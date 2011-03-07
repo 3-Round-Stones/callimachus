@@ -117,7 +117,7 @@ calli:view a owl:AnnotationProperty;
 calli:algorithm a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:comment "A value of 'MD5' indicates this credential is a digest credential.";
 	rdfs:domain calli:Credential;
-	rdfs:range xsd:string.
+	rdfs:range rdf:PlainLiteral.
 
 calli:encoded a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:comment "The MD5 encoded username:realm:password";
@@ -127,12 +127,12 @@ calli:encoded a owl:DatatypeProperty, owl:FunctionalProperty;
 calli:name a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:comment "The username for this credential.";
 	rdfs:domain calli:Credential;
-	rdfs:range xsd:string.
+	rdfs:range rdf:PlainLiteral.
 
 calli:email a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:comment "The primary email address for this user.";
 	rdfs:domain calli:User;
-	rdfs:range xsd:string.
+	rdfs:range rdf:PlainLiteral.
 
 calli:authenticates a owl:ObjectProperty;
 	rdfs:comment "Group of credentials that can be authenticated by this realm.";
@@ -182,7 +182,7 @@ calli:member a owl:ObjectProperty;
 
 calli:soundex a owl:DatatypeProperty;
 	rdfs:comment "A soundex encoding of one of this resource's label or label prefix.";
-	rdfs:range xsd:string.
+	rdfs:range rdf:PlainLiteral.
 
 calli:copyOf a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:comment "The authoritative canonical URL of which this alias is a copy of.";

@@ -81,7 +81,7 @@ Select 'Use Update'
 
 Build Triggers
 Select 'Poll SCM'
-Schedule: @hourly (alternatively, use * 0-23/2 * * * for every 2 hours)
+Schedule: @hourly (alternatively, use 0 0-23/2 * * * for every 2 hours)
 
 Build
 Add Ant build steps:
@@ -99,9 +99,8 @@ etc. e.g. Also for 'test-accounts-explorer', 'test-skos-firefox', ...
 The test-suite, browser and results file may be passed directly as parameters to ant. The target would be as follows:
 -Dsuite=SUITE_PATH -Dbrowser=BROWSER -Dresults=RESULTS_PATH test
 
-where BROWSER = *firefox, *googlechrome, *iexploreproxy, or *safariproxy
-
-For example:
+where BROWSER is one of *firefox, *googlechrome, *iexploreproxy, or *safariproxy
+Paths are rooted in the Hudson Workspace, for example:
 
 Ant Version: Ant 1.8.2
 (click 'Advanced')

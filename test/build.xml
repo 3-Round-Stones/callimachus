@@ -23,7 +23,12 @@
 	<target name="test-init">
 		<mkdir dir="${build}" />
 		<mkdir dir="${testlib}" />
-		<available file="${selenium.server.jar}" property="selenium.present" />
+		<condition property="dependencies.present">
+			<and>
+				<available file="${selenium.server.jar}" />
+				<available file="${junit.jar}" />
+			</and>
+		</condition>
 		<available file="${RDFaTestSuite}" property="RDFaTestSuite.present" />
 	</target>
 
@@ -33,7 +38,7 @@
 		<delete dir="${RDFaTestSuite}" />
 	</target>
 
-	<target name="test-dependencies" depends="test-init" unless="selenium.present">
+	<target name="test-dependencies" depends="test-init" unless="dependencies.present">
 		<get src="${selenium.url}" dest="${selenium.server.jar}" />
 		<get src="${junit.url}" dest="${junit.jar}" />
 	</target>

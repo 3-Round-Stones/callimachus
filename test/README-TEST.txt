@@ -19,7 +19,9 @@ Subversion <http://subversion.tigris.org/>
 Mozilla Firefox
 Internet Explorer
 
+
 Callimachus and selenium-server-standalone-2.0b2.jar are installed during the build process.
+In addition, the RDFa conformance tests dynamically load JUnit 4.
 
 Starting the Mail Server
 ------------------------

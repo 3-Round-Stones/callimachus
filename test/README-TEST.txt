@@ -114,3 +114,10 @@ Alternatively, a test may be run providing explicit parameters for suite, browse
 
 ant -Dsuite=/callimachus/test/directory/directory.html -Dbrowser=*firefox -Dresults=/callimachus/test/directory/test-result-firefox.html test
 
+RDFa Conformance Tests
+----------------------
+
+The ant scripts include tests for RDFa conformance (RDFaParser). This downloads the RDFa conformance test-suite from <http://rdfa.digitalbazaar.com/test-suite/> parses the XHTML including the RDFa, and evaluates the sparql against the output. The results are written to 'test/RDFa/rdfa-conformance-test-results.txt'.
+
+ant test-rdfa-conformance
+

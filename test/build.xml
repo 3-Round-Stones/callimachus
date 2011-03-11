@@ -1,7 +1,11 @@
 <project name="test" default="test" basedir="..">
+	<property name="lib" location="lib" />
 	<property name="testlib" location="test/lib" />
 	<property name="rep" location="repositories" />
 	<property name="test" location="test" />
+	<property name="build" location="build" />
+	<property name="testsrc" location="${test}/src" />
+	<property name="RDFaTestSuite" location="${test}/RDFa/test-suite/test-cases/xhtml1" />
 
 	<property name="selenium.url" value="http://selenium.googlecode.com/files/selenium-server-standalone-2.0b2.jar" />
 	<property name="selenium.server.jar" location="${testlib}/selenium-server-standalone.jar" />
@@ -12,17 +16,26 @@
 	<property name="selenium.browser.chrome" value="*googlechrome" />
 	<property name="selenium.browser.safari" value="*safariproxy" />
 
+	<property name="junit.url" value="http://cloud.github.com/downloads/KentBeck/junit/junit-4.8.2.jar" />
+	<property name="junit.jar" location="${testlib}/junit.jar" />
+	<property name="junit.RDFaConformanceTest" value="org.callimachusproject.rdfa.test.RDFaConformanceTest" />
+
 	<target name="test-init">
+		<mkdir dir="${build}" />
 		<mkdir dir="${testlib}" />
 		<available file="${selenium.server.jar}" property="selenium.present" />
+		<available file="${RDFaTestSuite}" property="RDFaTestSuite.present" />
 	</target>
 
 	<target name="test-clean" description="clean up the test lib">
+		<delete dir="${build}" />
 		<delete dir="${testlib}" />
+		<delete dir="${RDFaTestSuite}" />
 	</target>
 
 	<target name="test-dependencies" depends="test-init" unless="selenium.present">
 		<get src="${selenium.url}" dest="${selenium.server.jar}" />
+		<get src="${junit.url}" dest="${junit.jar}" />
 	</target>
 
 	<macrodef name="test-macro" description="Run test-suite with a given browser">
@@ -89,6 +102,40 @@ mail.password = root
 
 	<target name="test" depends="test-dependencies" description="Run test suite">
 		<test-macro suite="${suite}" browser="${browser}" results="${results}" />
+	</target>
+
+	<path id ="test.classpath">
+		<fileset dir="${lib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<pathelement location="${junit.jar}" />
+		<pathelement location="${build}"/>
+	</path>
+
+	<target name="test-compile" depends="test-init,test-dependencies" description="compile junit tests">
+		<ant target="compile" />
+		<javac srcdir="${testsrc}" destdir="${build}">
+			<classpath refid="test.classpath" />
+		</javac>
+	</target>
+
+	<target name="rdfa-test-suite" depends="test-init, test-compile" unless="RDFaTestSuite.present">
+		<mkdir dir="${RDFaTestSuite}" />
+		<java classname="${junit.RDFaConformanceTest}">
+			<arg line="-get" />
+			<classpath refid="test.classpath" />
+		</java>
+	</target>
+
+	<target name="test-rdfa-conformance" depends="test-compile, rdfa-test-suite">
+		<junit printsummary="true">
+			<classpath>
+				<path refid="test.classpath" />
+				<pathelement location="${junit.jar}" />
+			</classpath>
+			<formatter type="plain" />
+			<test todir="${test}/RDFa" name="${junit.RDFaConformanceTest}" outfile="rdfa-conformance-test-results" />
+		</junit>
 	</target>
 
 </project>

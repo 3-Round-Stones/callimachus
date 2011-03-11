@@ -81,7 +81,7 @@ Select 'Use Update'
 
 Build Triggers
 Select 'Poll SCM'
-Schedule: @hourly
+Schedule: @hourly (alternatively, use * 0-23/2 * * * for every 2 hours)
 
 Build
 Add Ant build steps:
@@ -95,6 +95,26 @@ Targets: test-accounts-firefox
 Build File: test/build.xml
 
 etc. e.g. Also for 'test-accounts-explorer', 'test-skos-firefox', ...
+
+The test-suite, browser and results file may be passed directly as parameters to ant. The target would be as follows:
+-Dsuite=SUITE_PATH -Dbrowser=BROWSER -Dresults=RESULTS_PATH test
+
+where BROWSER = *firefox, *googlechrome, *iexploreproxy, or *safariproxy
+
+For example:
+
+Ant Version: Ant 1.8.2
+(click 'Advanced')
+Targets: -Dsuite=/Workspace/callimachus/test/accounts/accounts.html -Dbrowser=*firefox -Dresults=/Workspace/callimachus/test/accounts/test-result-firefox.html test
+Build File: test/build.xml
+
+The RDFa conformance tests are run by invoking the relevant ant script:
+
+Ant Version: Ant 1.8.2
+(click 'Advanced')
+Targets: test-rdfa-conformance
+Build File: test/build.xml
+
 
 
 Ant

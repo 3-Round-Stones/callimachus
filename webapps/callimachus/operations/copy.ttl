@@ -34,9 +34,7 @@
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
-	msg:script """
-		return this.FindCopyTemplate().calliConstruct(this, 'copy');
-	""".
+	msg:script <operations.js#getCopyPage>.
 
 :PostCopy rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
@@ -45,67 +43,12 @@
 	msg:query "copy";
 	msg:expect "201-created";
 	msg:type "text/uri-list";
-	msg:imports calli:Copyable;
-	msg:script """
-		var template = this.FindCopyTemplate();
-		var copy = template.calliCopyResource(this, input, this.FindCopyNamespaces());
-		if (this.calliCurators.size()) {
-			copy.calliMaintainers.addAll(this.calliCurators);
-			if (copy instanceof Copyable) {
-				copy.calliCurators.addAll(this.calliCurators);
-			}
-		} else {
-			copy.calliMaintainers.addAll(this.FindScribe(copy));
-		}
-		return copy;
-	""".
+	msg:script <operations.js#postCopy>.
 
 :input a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostCopy;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "application/rdf+xml".
-
-:FindCopyTemplate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Template];
-	msg:imports calli:Template;
-	msg:imports <java:org.callimachusproject.annotations.copy>;
-	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	msg:script """
-		function findAnnotatedClass(klass, ann) {
-			if (klass.isAnnotationPresent(ann)) {
-				return klass;
-			}
-			var result;
-			if (klass.getSuperclass()) {
-				result = findAnnotatedClass(klass.getSuperclass(), ann);
-			}
-			var interfaces = klass.getInterfaces();
-			for (var i = interfaces.length; i--;) {
-				var face = findAnnotatedClass(interfaces[i], ann);
-				if (face) {
-					if (!result || result.isAssignableFrom(face)) {
-						result = face;
-					} else if (!face.isAssignableFrom(result)) {
-						throw new InternalServerError("Conflicting templates for "
-							+ result.simpleName +  " and " + face.simpleName);
-					}
-				}
-			}
-			return result;
-		}
-		var annotated = findAnnotatedClass(this.getClass(), copy);
-		if (annotated) {
-			var uri = annotated.getAnnotation(copy).value();
-			if (uri.length != 1)
-				throw new InternalServerError("Multiple templates for " + annotated.simpleName);
-			var template = this.objectConnection.getObject(Template, uri[0]);
-			if (template instanceof Template)
-				return template;
-			throw new InternalServerError("Missing template");
-		}
-		throw new InternalServerError("No template");
-	""".
 
 :FindCopyNamespaces rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];

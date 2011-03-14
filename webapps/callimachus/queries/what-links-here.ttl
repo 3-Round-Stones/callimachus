@@ -15,25 +15,7 @@
 	msg:type "application/sparql-results+xml";
 	msg:header "cache-control:no-store";
 	msg:transform :TransformWhatLinksHere;
-	msg:sparql  """
-		SELECT DISTINCT ?label ?comment ?icon ?url ?modified
-		WHERE {
-			{ ?url ?rel $this }
-			UNION { ?bnode ?rel $this FILTER (!isIRI(?bnode))
-				OPTIONAL { ?url ?rel2 ?bnode } }
-			FILTER (isIRI(?url))
-			FILTER (?rel != audit:contributor)
-			OPTIONAL { ?url a [calli:icon ?icon] }
-			OPTIONAL { ?url skos:prefLabel ?label }
-			OPTIONAL { ?url rdfs:label ?label }
-			OPTIONAL { ?url rdfs:comment ?comment }
-			OPTIONAL { ?url audit:revision ?revision
-				OPTIONAL { ?revision audit:committedOn ?modified }
-			}
-		}
-		ORDER BY ?label ?url ?icon
-		LIMIT 100
-	""".
+	msg:sparql <what-links-here.rq>.
 
 :TransformWhatLinksHere rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];

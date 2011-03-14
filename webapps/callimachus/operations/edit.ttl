@@ -33,9 +33,7 @@
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
-	msg:script """
-		return this.FindEditTemplate().calliConstruct(this, 'edit');
-	""".
+	msg:script <operations.js#getEditPage>.
 
 :PostEdit rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
@@ -43,61 +41,10 @@
 	msg:method "POST";
 	msg:query "edit";
 	msg:type "message/x-response";
-	msg:imports <java:org.apache.http.ProtocolVersion>;
-	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-	msg:script """
-		var template = this.FindEditTemplate();
-		template.calliEditResource(this, input);
-		var ver = new ProtocolVersion("HTTP", 1, 1);
-		var resp = new BasicHttpResponse(ver, 201, "Modified");
-		resp.addHeader("Location", this + "?view");
-		return resp;
-	""".
+	msg:script <operations.js#postEdit>.
 
 :input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PostEdit;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "multipart/related;type=\"application/rdf+xml\"".
-
-:FindEditTemplate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Template];
-	msg:imports calli:Template;
-	msg:imports <java:org.callimachusproject.annotations.edit>;
-	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	msg:script """
-		function findAnnotatedClass(klass, ann) {
-			if (klass.isAnnotationPresent(ann)) {
-				return klass;
-			}
-			var result;
-			if (klass.getSuperclass()) {
-				result = findAnnotatedClass(klass.getSuperclass(), ann);
-			}
-			var interfaces = klass.getInterfaces();
-			for (var i = interfaces.length; i--;) {
-				var face = findAnnotatedClass(interfaces[i], ann);
-				if (face) {
-					if (!result || result.isAssignableFrom(face)) {
-						result = face;
-					} else if (!face.isAssignableFrom(result)) {
-						throw new InternalServerError("Conflicting templates for "
-							+ result.simpleName +  " and " + face.simpleName);
-					}
-				}
-			}
-			return result;
-		}
-		var annotated = findAnnotatedClass(this.getClass(), edit);
-		if (annotated) {
-			var uri = annotated.getAnnotation(edit).value();
-			if (uri.length != 1)
-				throw new InternalServerError("Multiple templates for " + annotated.simpleName);
-			var template = this.objectConnection.getObject(Template, uri[0]);
-			if (template instanceof Template)
-				return template;
-			throw new InternalServerError("Missing template");
-		}
-		throw new InternalServerError("No template");
-	""".
 

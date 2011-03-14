@@ -34,42 +34,5 @@
 	msg:type "application/xhtml+xml";
 	msg:header "cache-control:must-revalidate";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
-	msg:imports calli:Template;
-	msg:imports <java:org.callimachusproject.annotations.view>;
-	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	msg:script """
-		function findAnnotatedClass(klass, ann) {
-			if (klass.isAnnotationPresent(ann)) {
-				return klass;
-			}
-			var result;
-			if (klass.getSuperclass()) {
-				result = findAnnotatedClass(klass.getSuperclass(), ann);
-			}
-			var interfaces = klass.getInterfaces();
-			for (var i = interfaces.length; i--;) {
-				var face = findAnnotatedClass(interfaces[i], ann);
-				if (face) {
-					if (!result || result.isAssignableFrom(face)) {
-						result = face;
-					} else if (!face.isAssignableFrom(result)) {
-						throw new InternalServerError("Conflicting templates for "
-							+ result.simpleName +  " and " + face.simpleName);
-					}
-				}
-			}
-			return result;
-		}
-		var annotated = findAnnotatedClass(this.getClass(), view);
-		if (annotated) {
-			var uri = annotated.getAnnotation(view).value();
-			if (uri.length != 1)
-				throw new InternalServerError("Multiple templates for " + annotated.simpleName);
-			var template = this.objectConnection.getObject(Template, uri[0]);
-			if (template instanceof Template)
-				return template.calliConstruct(this, 'view');
-			throw new InternalServerError("Missing template");
-		}
-		throw new InternalServerError("No template");
-	""".
+	msg:script <operations.js#getViewPage>.
 

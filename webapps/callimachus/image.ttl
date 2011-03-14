@@ -118,7 +118,7 @@
 	rdfs:range <java:java.io.InputStream> ;
 	msg:type "application/octet-stream" .
 
-# find the user that created $ths if it does not have a conservator
+# find the user that created $this
 :FindContributors rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Image>];
 	msg:sparql  """

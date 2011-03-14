@@ -79,6 +79,7 @@ image/jpeg jpe
 image/jpeg jpeg
 image/jpeg jpg
 image/png png
+image/svg+xml svg
 image/tiff tif
 image/tiff tiff
 image/vnd.microsoft.icon ico

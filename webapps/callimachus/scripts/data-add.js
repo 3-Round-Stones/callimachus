@@ -180,12 +180,9 @@ function updateButtonState(context) {
 	minOccurs = minOccurs ? minOccurs : context.attr("data-cardinality");
 	maxOccurs = maxOccurs ? maxOccurs : context.attr("data-cardinality");
 	var add = context.children("button[class='add']");
-	var buttons;
-	if (context.attr("rel")) {
-		buttons = context.children().children("button[class='remove']");
-	} else {
-		buttons = context.children("button[class='remove']");
-	}
+	var buttons = context.children("[id]").map(function(){
+		return context.find("button[class='remove'][data-for='" + $(this).attr("id") + "']").get(0);
+	});
 	if (buttons.size() <= minOccurs) {
 		buttons.hide();
 	} else {
@@ -299,11 +296,17 @@ function addSetItem(uri, script) {
 	});
 }
 
+var counter = 0;
+
 function initSetElement() {
 	var row = $(this);
 	if (!row.parents("*[contenteditable]").size()) {
 		var remove = $('<button type="button"/>');
 		remove.addClass("remove");
+		if (!row.attr("id")) {
+			row.attr("id", "element" + (++counter));
+		}
+		remove.attr("data-for", row.attr("id"));
 		remove.text("×");
 		remove.click(function(){
 			var list = row.parent();
@@ -311,7 +314,9 @@ function initSetElement() {
 			remove.remove();
 			updateButtonState(row);
 		})
-		if (this.tagName.toLowerCase() == "tr") {
+		if (row.is(":input")) {
+			row.after(remove);
+		} else if (this.tagName.toLowerCase() == "tr") {
 			var cell = $("<td/>");
 			cell.append(remove);
 			row.append(cell);

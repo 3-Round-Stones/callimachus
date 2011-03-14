@@ -101,87 +101,11 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 
 # users or groups associated as conservator of a class of the object are authorized
 :AuthorizeConservator owl:equivalentClass :AuthorizeCredential;
-	msg:imports </accounts/Group>;
-	msg:imports <java:org.callimachusproject.annotations.conservator>;
-	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	msg:script """
-		if (method == "GET" || method == "HEAD" || method == "POST" && (query == "edit" || query == "discussion")) {
-			if (query == null || query == "view" || query == "edit" || query == "discussion" || query == "describe" || query == "history"
-						|| query == "whatlinkshere" || query == "relatedchanges" || query == "introspect") {
-				var annotated = this.FindAnnotatedClass(conservator, object.getClass());
-				for (var a = annotated.length; a--;) {
-					var uri = annotated[a].getAnnotation(conservator).value();
-					for (var u = uri.length; u--;) {
-						if (credential.resource.stringValue().equals(uri[u]))
-							return true;
-						var group = this.objectConnection.objectFactory.createObject(uri[u], Group);
-						if (group.calliMembers.contains(credential))
-							return true;
-					}
-				}
-			}
-		}
-		return proceed();
-	""".
+	msg:script <authorization.js#isConservator>.
 
 # users or groups associated as reviewer of a class of the object are authorized
 :AuthorizeReviewer owl:equivalentClass :AuthorizeCredential;
-	msg:imports </accounts/Group>;
-	msg:imports <java:org.callimachusproject.annotations.reviewer>;
-	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	msg:script """
-		if (method == "GET" || method == "HEAD" || method == "POST" && query == "discussion") {
-			if (query == null || query == "view" || query == "discussion" || query == "describe" || query == "history"
-						|| query == "whatlinkshere" || query == "relatedchanges" || query == "introspect") {
-				var annotated = this.FindAnnotatedClass(reviewer, object.getClass());
-				for (var a = annotated.length; a--;) {
-					var uri = annotated[a].getAnnotation(reviewer).value();
-					for (var u = uri.length; u--;) {
-						if (credential.resource.stringValue().equals(uri[u]))
-							return true;
-						var group = this.objectConnection.objectFactory.createObject(uri[u], Group);
-						if (group.calliMembers.contains(credential))
-							return true;
-					}
-				}
-			}
-		}
-		return proceed();
-	""".
-
-:FindAnnotatedClass rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:cardinality 1];
-	msg:script """
-		if (klass.isAnnotationPresent(ann)) {
-			return [klass];
-		}
-		var result = [];
-		if (klass.getSuperclass()) {
-			result = this.FindAnnotatedClass(ann, klass.getSuperclass());
-		}
-		var interfaces = klass.getInterfaces();
-		for (var i = interfaces.length; i--;) {
-			var face = this.FindAnnotatedClass(ann, interfaces[i]);
-			for (var f = face.length; f--;) {
-				for (var r = result.length; r--;) {
-					if (result[r].isAssignableFrom(face[f])) {
-						result.splice(r, 1); //# annotation overridden
-					}
-				}
-				result.push(face[f]);
-			}
-		}
-		return result;
-	""".
-
-:ann a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :FindAnnotatedClass;
-	rdfs:range <java:java.lang.Class>.
-
-:klass a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :FindAnnotatedClass;
-	rdfs:range <java:java.lang.Class>.
+	msg:script <authorization.js#isReviewer>.
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage owl:equivalentClass :AuthorizeCredential;
@@ -215,25 +139,7 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 
 # transcations are authorized by the object they modified
 :AuthorizeTransactionView owl:equivalentClass :AuthorizeCredential;
-	msg:imports audit:Transaction;
-	msg:script """
-		if (proceed()) {
-			return true;
-		}
-		if (method == "GET" || method == "HEAD" || method == "POST" && query == "discussion") {
-			if (query == null || query == "view" || query == "discussion" || query == "describe" || query == "history"
-						|| query == "whatlinkshere" || query == "relatedchanges" || query == "introspect") {
-				if (object instanceof Transaction) {
-					var iter = this.ListSubjectsOfTransaction(object).iterator();
-					while (iter.hasNext()) {
-						if (this.AuthorizeCredential(credential, "GET", iter.next(), "describe"))
-							return true; //# if they can view the RDF of the resource they can view its transactions
-					}
-				}
-			}
-		}
-		return false;
-	""".
+	msg:script <authorization.js#isViewingTransaction>.
 
 :ListSubjectsOfTransaction rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];

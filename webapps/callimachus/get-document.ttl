@@ -80,6 +80,14 @@
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
+:GetQuery rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:application/sparql-query>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "application/sparql-query";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
+
 :GetPng rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:image/png>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
@@ -101,6 +109,14 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:type "image/gif";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
+
+:GetSvg rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:image/svg+xml>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "image/svg+xml";
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 

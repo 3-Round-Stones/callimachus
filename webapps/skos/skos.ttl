@@ -56,18 +56,3 @@ skos:Concept rdfs:subClassOf calli:Viewable, calli:Editable;
 	calli:copy <concept-create.xhtml>;
 	calli:withNamespace </concept/>.
 
-:TouchRelated owl:intersectionOf (</callimachus/operations/edit.ttl#PostEdit>
-	[owl:onProperty msg:target; owl:allValuesFrom skos:Concept]);
-	msg:script """
-		var ret = proceed();
-		var iter = this.skosNarrowers.iterator();
-		while (iter.hasNext()) {
-			iter.next().touchRevision();
-		}
-		iter = this.skosRelated.iterator();
-		while (iter.hasNext()) {
-			iter.next().touchRevision();
-		}
-		return ret;
-	""".
-

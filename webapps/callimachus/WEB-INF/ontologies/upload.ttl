@@ -92,6 +92,10 @@ calli:NamedGraph a owl:Class.
 	msg:type "text/html;q=0.1", "text/html-sandboxed;q=0.1", "text/cache-manifest;q=0.1",
 		"text/css;q=0.1", "text/plain;q=0.1".
 
+################################
+# JavaScript File
+################################
+
 :PutJavaScriptDocument rdfs:subClassOf :PutContentType;
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
@@ -163,7 +167,41 @@ calli:NamedGraph a owl:Class.
 :binaryStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutBinaryDocument;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "image/png;q=0.1", "image/jpeg;q=0.1", "image/gif;q=0.1", "image/vnd.microsoft.icon;q=0.1", "application/pdf;q=0.1".
+	msg:type "image/png;q=0.1", "image/jpeg;q=0.1", "image/gif;q=0.1", "image/svg+xml;q=0.1", "image/vnd.microsoft.icon;q=0.1", "application/pdf;q=0.1".
+
+################################
+# SPARQL File
+################################
+
+:PutSparqlDocument rdfs:subClassOf :PutContentType;
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:query "calliwebapps";
+	msg:header "cache-control:cache-range";
+	msg:realm calli:nobody;
+	msg:script """
+		this.calliDeleteWebResource();
+		var type = "urn:mimetype:" + contentType;
+		if (type.indexOf(';') > 0) {
+			type = type.substring(0, type.indexOf(';'));
+		}
+		this.objectConnection.addDesignation(this, type);
+		var read;
+		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+		var out = this.openOutputStream();
+		try {
+			while ((read = sparqlStream.read(buf)) >= 0) {
+				out.write(buf, 0, read);
+			}
+		} finally {
+			out.close();
+		}
+	""".
+
+:sparqlStream a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PutSparqlDocument;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "application/sparql-query;q=0.1".
 
 ################################
 # XSL File
@@ -198,7 +236,7 @@ calli:NamedGraph a owl:Class.
 	msg:type "text/xsl;q=0.1".
 
 ################################
-# Template File
+# XML File
 ################################
 
 :PutXmlDocument rdfs:subClassOf msg:Message;
@@ -230,6 +268,10 @@ calli:NamedGraph a owl:Class.
 	rdfs:domain :PutXmlDocument;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "application/xml;q=0.1".
+
+################################
+# XHTML File
+################################
 
 :PutXhtmlDocument rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];

@@ -15,6 +15,7 @@
 	<h1>New Concept Scheme</h1>
 	<form id="form" about="?this" typeof="skos:ConceptScheme" action=""
 			onsubmit="$(this).attr('about', '/scheme/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
+		<span rel="rdf:type" resource="/callimachus/skos/ConceptScheme" />
 		<label for="label">Label</label>
 		<div data-cardinality="1">
 			<input id="label" property="skos:prefLabel" class="required auto-expand" />

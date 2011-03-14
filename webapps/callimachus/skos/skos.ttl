@@ -22,7 +22,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-skos:ConceptScheme rdfs:subClassOf calli:Viewable, calli:Editable;
+<ConceptScheme> rdfs:subClassOf skos:ConceptScheme, calli:Viewable, calli:Editable;
 	calli:icon <scheme.png>;
 	calli:view <scheme.xhtml>;
 	calli:edit <scheme-edit.xhtml>.
@@ -35,7 +35,7 @@ skos:ConceptScheme rdfs:subClassOf calli:Viewable, calli:Editable;
 	calli:withNamespace </scheme/>.
 
 :GetConcepts rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom skos:ConceptScheme];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ConceptScheme>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET";
 	msg:query "viewconcepts";
@@ -44,7 +44,7 @@ skos:ConceptScheme rdfs:subClassOf calli:Viewable, calli:Editable;
 	msg:imports <concept-list.xhtml>;
 	msg:script "return concept_list_xhtml.calliConstructHTML(this)".
 
-skos:Concept rdfs:subClassOf calli:Viewable, calli:Editable;
+<Concept> rdfs:subClassOf skos:Concept, calli:Viewable, calli:Editable;
 	calli:icon <concept.png>;
 	calli:view <concept.xhtml>;
 	calli:edit <concept-edit.xhtml>.

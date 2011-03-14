@@ -202,12 +202,6 @@
 		<war needxmlfile="false" destfile="${dist}/accounts.war">
 			<zipfileset dir="${webapps}/accounts" prefix="" />
 		</war>
-		<war needxmlfile="false" destfile="${dist}/sparql.war">
-			<zipfileset dir="${webapps}/sparql" prefix="" />
-		</war>
-		<war needxmlfile="false" destfile="${dist}/skos.war">
-			<zipfileset dir="${webapps}/skos" prefix="" />
-		</war>
 		<zip destfile="${dist}/callimachus-${version}.zip">
 			<zipfileset dir="." includes="*.txt" />
 			<zipfileset dir="${bin}" prefix="bin" />
@@ -217,8 +211,6 @@
 			<zipfileset file="${dist}/callimachus.war" prefix="webapps" />
 			<zipfileset file="${dist}/layout.war" prefix="webapps" />
 			<zipfileset file="${dist}/accounts.war" prefix="webapps" />
-			<zipfileset file="${dist}/sparql.war" prefix="webapps" />
-			<zipfileset file="${dist}/skos.war" prefix="webapps" />
 			<zipfileset file="${webapps}/index.xhtml" prefix="webapps" />
 			<zipfileset file="${webapps}/index.ttl" prefix="webapps" />
 		</zip>

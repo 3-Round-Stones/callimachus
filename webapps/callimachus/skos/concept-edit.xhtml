@@ -77,7 +77,7 @@
 		<div style="overflow:auto">
 			<div style="float:left;margin:1ex">
 				<label for="broader">Broader</label>
-				<div id="broader" rev="skos:narrower" data-prompt="/skos/concept_template?copy" style="min-height: 1em">
+				<div id="broader" rev="skos:narrower" data-prompt="/callimachus/skos/concept_template?copy" style="min-height: 1em">
 					<span about="?broader" typeof="skos:Concept">
 						<span property="skos:prefLabel"></span>
 					</span>
@@ -85,12 +85,7 @@
 			</div>
 			<div style="float:left;margin:1ex">
 				<label for="related">Related</label>
-				<div rev="skos:related">
-					<span about="?revated" typeof="skos:Concept">
-						<span property="skos:prefLabel"></span>
-					</span>
-				</div>
-				<div id="related" rel="skos:related" data-prompt="/skos/concept_template?copy" style="min-height: 1em">
+				<div id="related" rel="skos:related" data-prompt="/callimachus/skos/concept_template?copy" style="min-height: 1em">
 					<span about="?related" typeof="skos:Concept">
 						<span property="skos:prefLabel"></span>
 					</span>
@@ -98,7 +93,7 @@
 			</div>
 			<div style="float:left;margin:1ex">
 				<label for="narrower">Narrower</label>
-				<div id="narrower" rel="skos:narrower" data-prompt="/skos/concept_template?copy" style="min-height: 1em">
+				<div id="narrower" rel="skos:narrower" data-prompt="/callimachus/skos/concept_template?copy" style="min-height: 1em">
 					<span about="?narrower" typeof="skos:Concept">
 						<span property="skos:prefLabel"></span>
 					</span>
@@ -108,9 +103,7 @@
 		<hr />
 		<label for="image">Image</label>
 	 	<div id="image" rel="foaf:depiction" data-prompt="/image">
-			<span about="?image">
-				<span rel="rdf:type" resource="/callimachus/Image" property="rdfs:label"></span>
-			</span>
+			<span about="?image" typeof="foaf:Image" property="rdfs:label"></span>
 		</div>
 		<hr />
 		<label for="note">Change note</label>

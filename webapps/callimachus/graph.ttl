@@ -34,7 +34,7 @@
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
 	msg:imports <java:javax.mail.internet.MimeMultipart>;
-	msg:imports </sparql/uploaded.xhtml>;
+	msg:imports <graph-uploaded.xhtml>;
 	msg:script """
 		var ds = new ByteArrayDataSource(input, "multipart/form-data");
 		var part = new MimeMultipart(ds).getBodyPart(0);
@@ -52,7 +52,7 @@
 		this.objectConnection.add(file, uri, format, [vf.createURI(uri)]);
 		this.objectConnection.commit();
 		java.lang.System.gc();
-		return uploaded_xhtml.calliConstructHTML(obj);
+		return graph_uploaded_xhtml.calliConstructHTML(obj);
 	""".
 
 :input a owl:DatatypeProperty, owl:FunctionalProperty;

@@ -59,6 +59,7 @@
 
 		//# designate as <Image> and the relevant mimetype
 		obj = this.objectConnection.addDesignation(obj, Image) ;
+		obj = this.objectConnection.addDesignation(obj, "http://xmlns.com/foaf/0.1/Image") ;
 		var type = img.contentType;
 		if (type == "image/pjpeg") { //# IE
 			type = "image/jpeg";

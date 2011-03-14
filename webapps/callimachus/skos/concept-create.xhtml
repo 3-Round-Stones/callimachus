@@ -19,6 +19,7 @@
 	</ul>
 	<form id="form" about="?this" typeof="skos:Concept" action=""
 			onsubmit="$(this).attr('about', '/concept/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
+		<span rel="rdf:type" resource="/callimachus/skos/Concept" />
 		<h1>
 			<span id="inscheme" rel="skos:inScheme">
 				<span about="?scheme" property="skos:prefLabel" />

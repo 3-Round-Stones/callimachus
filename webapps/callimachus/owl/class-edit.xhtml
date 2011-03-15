@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<head>
+	<title about="?this" property="rdfs:label" />
+	<style>
+		.imports:before {content:'←'}
+		img { border-style:none; }
+	</style>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li rel="rdfs:isDefinedBy">
+			<span id="ontology" about="?isDefinedBy" typeof="owl:Ontology">
+				<span property="rdfs:label"></span>
+			</span>
+		</li>
+	</ul>
+	<h1 property="rdfs:label" />
+	<form about="?this" typeof="owl:Class" action="">
+		<label for="label">Label</label>
+		<div data-cardinality="1">
+			<input id="label" property="rdfs:label" class="required auto-expand" />
+		</div>
+		<label for="icon">Icon</label>
+		<div id="icon" rel="calli:icon" data-prompt="/callimachus/Image?create">
+			<span about="?icon" typeof="foaf:Image" property="rdfs:label"/>
+		</div>
+		<label for="comment">Comment</label>
+		<div data-cardinality="1">
+			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
+		</div>
+		<div style="overflow:auto">
+			<div style="float:left;margin-right:1ex">
+				<label for="subClassOf">Super-classes</label>
+				<div id="subClassOf" rel="rdfs:subClassOf" data-prompt="/callimachus/owl/Class?create">
+					<div about="?subClassOf" typeof="owl:Class" property="rdfs:label" />
+				</div>
+			</div>
+			<div style="float:left;margin-right:1ex">
+				<label for="subClass">Sub-classes</label>
+				<div id="subClass" rev="rdfs:subClassOf" data-prompt="/callimachus/owl/Class?create">
+					<div about="?subClass" typeof="owl:Class" property="rdfs:label" />
+				</div>
+			</div>
+		</div>
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this ontology?')) calli.deleteResource()">Delete</button>
+	</form>
+</body>
+</html>

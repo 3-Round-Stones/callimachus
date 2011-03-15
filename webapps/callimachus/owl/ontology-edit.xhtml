@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title about="?this" property="rdfs:label" />
+	<style>
+		.imports:before {content:'←'}
+		img { border-style:none; }
+	</style>
+</head>
+<body about="?this">
+	<h1 property="rdfs:label" />
+	<h1><span id="ontology" about="?this" property="rdfs:label" /></h1>
+	<form about="?this" typeof="owl:Ontology" action="" data-redirect="/callimachus/owl/ontology-list.xhtml?construct">
+		<label for="label">Label</label>
+		<div data-cardinality="1">
+			<input id="label" property="rdfs:label" class="required auto-expand" />
+		</div>
+		<label for="versionInfo">Version info</label>
+		<div data-cardinality="1">
+			<input id="versionInfo" property="owl:versionInfo" class="required auto-expand" />
+		</div>
+		<label for="comment">Comment</label>
+		<div data-cardinality="1">
+			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
+		</div>
+		<label for="imports">Imports</label>
+		<div id="imports" rel="owl:imports">
+			<span about="?imports" property="rdfs:label" class="imports" />
+		</div>
+		<label for="class">Class</label>
+		<div id="class" rev="rdfs:isDefinedBy" data-prompt="/callimachus/owl/Class?create">
+			<div about="?class" typeof="owl:Class" property="rdfs:label" />
+		</div>
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this ontology?')) calli.deleteResource()">Delete</button>
+	</form>
+</body>
+</html>

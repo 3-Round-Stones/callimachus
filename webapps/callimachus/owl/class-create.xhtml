@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:owl="http://www.w3.org/2002/07/owl#">
+<head>
+	<title>New Class</title>
+	<script>
+		$(document).ready(function() {
+			$('#isDefinedBy').append($('#ontology', parent.document).clone())
+		});
+	</script>
+</head>
+<body>
+	<h1>New Class</h1>
+	<form id="form" about="?this" typeof="owl:Class" action=""
+			onsubmit="$(this).attr('about', '/class/' + encodeURI($('#label').val()).replace(/%20/g,'+'))">
+		<span rel="rdf:type" resource="/callimachus/owl/Class" />
+		<h1>
+			<span id="isDefinedBy" rel="rdfs:isDefinedBy">
+				<span about="?isDefinedBy" property="rdfs:label" />
+			</span>
+		</h1>
+		<label for="label">Label</label>
+		<div data-cardinality="1">
+			<input id="label" property="rdfs:label" class="required auto-expand" />
+		</div>
+		<label for="comment">Comment</label>
+		<div data-cardinality="1">
+			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
+		</div>
+		<button id="submit" type="submit">Create</button>
+		<button id="cancel" type="button" onclick="history.back()">Cancel</button>
+	</form>
+</body>
+</html>

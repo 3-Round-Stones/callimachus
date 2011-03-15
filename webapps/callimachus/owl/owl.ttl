@@ -1,0 +1,48 @@
+# 
+#    Copyright (c) 2011 Talis Inc., Some rights reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix ontology:</ontology/>.
+@prefix class:</class/>.
+@prefix :<#>.
+
+</ontology> a calli:Alias;
+	calli:aliasOf <ontology-list.xhtml?construct>.
+
+<Ontology> a owl:Class, calli:Creatable;
+	rdfs:subClassOf owl:Ontology, calli:Viewable, calli:Editable;
+	calli:icon <ontology.png>;
+	calli:view <ontology.xhtml>;
+	calli:edit <ontology-edit.xhtml>;
+	calli:create <ontology-create.xhtml>;
+	calli:withNamespace </ontology/>;
+	calli:curator </group/admin>.
+
+# Note instances of <Class> are creatable and <Class> itself is also creatable
+<Class> a owl:Class, calli:Creatable;
+	rdfs:subClassOf owl:Class, calli:Creatable, calli:Viewable, calli:Editable;
+	calli:icon <class.png>;
+	calli:view <class.xhtml>;
+	calli:edit <class-edit.xhtml>;
+	calli:create <class-create.xhtml>;
+	calli:withNamespace </class/>;
+	calli:curator </group/admin>.
+

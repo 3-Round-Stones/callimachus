@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title about="?this" property="rdfs:label" />
+	<style>
+		img { border-style:none; }
+	</style>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li rel="rdfs:isDefinedBy">
+			<a about="?isDefinedBy" property="rdfs:label" href="?isDefinedBy"></a>
+		</li>
+		<li rel="rdfs:subClassOf" class="optional">
+			<label>Super</label>
+			<div about="?subClassOf" typeof="owl:Class">
+				<a href="?subClassOf" property="rdfs:label" class="subClassOf" />
+			</div>
+		</li>
+		<li rev="rdfs:subClassOf" class="optional">
+			<label>Sub</label>
+			<div about="?subClass" typeof="owl:Class">
+				<a href="?subClass" property="rdfs:label" class="subClass" />
+			</div>
+		</li>
+	</ul>
+	<h1>
+		<div id="icon" rel="calli:icon" resource="?icon" style="float:left;max-width:1em;padding-right:1ex;">
+			<a href="?icon" data-query="view"><img src="?icon" style="max-width:1em;max-height:2em" /></a>
+		</div>
+		<a property="rdfs:label" href="?this" />
+	</h1>
+	<pre property="rdfs:comment" class="wiki"></pre>
+</body>
+</html>

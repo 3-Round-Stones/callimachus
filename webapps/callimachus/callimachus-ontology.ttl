@@ -18,7 +18,6 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix dct:<http://purl.org/dc/terms/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
@@ -29,8 +28,8 @@
 ################################
 
 <> a owl:Ontology;
-	dct:title "Callimachus Ontology";
-	dct:description "Vocabulary used to create Callimachus applications.".
+	rdfs:label "Callimachus Ontology";
+	rdfs:comment "Vocabulary used to create Callimachus applications.".
 
 ################################
 # Class
@@ -41,6 +40,9 @@ calli:Alias a owl:Class;
 
 calli:Copyable a owl:Class;
 	rdfs:comment "Resources that can be copied to create new resources.".
+
+calli:Creatable a owl:Class;
+	rdfs:comment "Set of classes that can be instantiated from a Web browser.".
 
 calli:Editable a owl:Class;
 	rdfs:comment "Resources that can be edited.".
@@ -105,7 +107,7 @@ calli:reviewer a owl:AnnotationProperty;
 	rdfs:comment "Credential or group of credentials that can view individual resources of this class.".
 
 calli:copy a owl:AnnotationProperty;
-	rdfs:comment "The RDFa template used to copy individual resources of this class using a Web browser.".
+	rdfs:comment "The RDFa template used to copy individual resources from this resource using a Web browser.".
 
 calli:edit a owl:AnnotationProperty;
 	rdfs:comment "The RDFa template used to edit individual resources of this class using a Web browser.".
@@ -164,14 +166,19 @@ calli:unauthorized a owl:ObjectProperty;
 	rdfs:domain calli:Realm;
 	rdfs:range calli:Template.
 
+calli:create a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:comment "The RDFa template used to create resources of this class using a Web browser.";
+	rdfs:domain calli:Creatable;
+	rdfs:range calli:Template.
+
 calli:scribe a owl:ObjectProperty;
 	rdfs:comment "Credential or group of credentials that can copy this resource remotely.";
-	rdfs:domain calli:Copyable;
+	rdfs:domain [owl:unionOf (calli:Copyable calli:Creatadle)];
 	rdfs:range calli:Party.
 
 calli:curator a owl:ObjectProperty;
 	rdfs:comment "Credential or group of credentials that will maintain any copied resources.";
-	rdfs:domain calli:Copyable;
+	rdfs:domain [owl:unionOf (calli:Copyable calli:Creatadle)];
 	rdfs:range calli:Party.
 
 calli:maintainer a owl:ObjectProperty;

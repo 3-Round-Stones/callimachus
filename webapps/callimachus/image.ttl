@@ -24,17 +24,26 @@
 @prefix callimachus:<.>.
 @prefix :<#>.
 
-</image> a calli:Alias;
-	calli:copyOf <image-create.xhtml?construct>;
-	calli:maintainer </group/admin>.
-
 <Image> rdfs:subClassOf foaf:Image, calli:Viewable, calli:Editable ;
-	calli:view <image.xhtml> ; calli:edit <image-edit.xhtml> .
+	calli:view <image.xhtml> ;
+	calli:edit <image-edit.xhtml> ;
+	calli:curator </group/admin> .
 
-:PostImage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </image> ];
+:GetImageCreate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Image> ];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET" ;
+	msg:query "create" ;
+	msg:imports <image-create.xhtml> ;
+	msg:script """
+		return image_create_xhtml.calliConstructHTML(this, "copy");
+	""".
+
+:PostImageCreate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Image> ];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "POST" ;
+	msg:query "create" ;
 	msg:expect "303-see-also" ;
 	msg:type "text/uri-list";
 	msg:realm </accounts> ;
@@ -88,7 +97,7 @@
 	""".
 
 :input a owl:DatatypeProperty, owl:FunctionalProperty ;
-	rdfs:domain :PostImage ;
+	rdfs:domain :PostImageCreate ;
 	rdfs:range <java:java.io.InputStream> ;
 	msg:type "multipart/form-data".
 

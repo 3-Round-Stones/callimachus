@@ -1,6 +1,3 @@
-org.callimachusproject.concepts.Copyable
-org.callimachusproject.concepts.Editable
-org.callimachusproject.concepts.Viewable
 org.callimachusproject.concepts.DigestRealm
 org.callimachusproject.concepts.Group
 org.callimachusproject.concepts.ScriptBundle

@@ -24,8 +24,23 @@ function postCopy(msg) {
 			newCopy.calliCurators.addAll(this.calliCurators);
 		}
 	} else {
-		newCopy.calliMaintainers.addAll(this.FindScribe(newCopy));
+		newCopy.calliMaintainers.addAll(this.FindCopyScribe(newCopy));
 	}
+	return newCopy;
+}
+
+function getCreatePage() {
+	if (!this.calliCreate)
+		throw new InternalServerError("No create template");
+	return this.calliCreate.calliConstruct(this, 'copy');
+}
+
+function postCreate(msg) {
+	if (!this.calliCreate)
+		throw new InternalServerError("No create template");
+	var template = this.calliCreate;
+	var newCopy = template.calliCopyResource(this, msg.input, this.FindCreateNamespaces());
+	newCopy.calliMaintainers.addAll(this.FindCreateScribe(newCopy));
 	return newCopy;
 }
 

@@ -149,9 +149,20 @@
 	msg:method "GET";
 	msg:type "message/x-response";
 	msg:realm </accounts>;
-	msg:transform :TransformResult;
 	msg:header "cache-control:no-validate";
-	msg:script "return EvaluateSparql(queryStr)".
+	msg:imports <java:org.apache.http.ProtocolVersion>;
+	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+	msg:imports <java:org.apache.http.entity.StringEntity>;
+	msg:imports <sparql.xhtml>;
+	msg:script """
+		if (queryStr)
+			return EvaluateSparql(queryStr);
+		var http11 = new ProtocolVersion("HTTP", 1, 1);
+		var resp = new BasicHttpResponse(http11, 302, "see-other");
+		resp.setHeader("Location", sparql_xhtml + "?construct");
+		resp.setEntity(new StringEntity(""));
+		return resp;
+	""".
 
 :queryStr a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :GetQueryResult;

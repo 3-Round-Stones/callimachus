@@ -22,17 +22,17 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<ConceptScheme> rdfs:subClassOf skos:ConceptScheme, calli:Viewable, calli:Editable;
+</scheme> a calli:Alias;
+	calli:aliasOf <scheme-list.xhtml?construct>.
+
+<ConceptScheme> a owl:Class, calli:Creatable;
+	rdfs:subClassOf skos:ConceptScheme, calli:Viewable, calli:Editable;
 	calli:icon <scheme.png>;
 	calli:view <scheme.xhtml>;
-	calli:edit <scheme-edit.xhtml>.
-
-<scheme_template> a <ConceptSchemeTemplate>;
+	calli:edit <scheme-edit.xhtml>;
+	calli:create <scheme-create.xhtml>;
+	calli:withNamespace </scheme/>;
 	calli:curator </group/admin>.
-
-<ConceptSchemeTemplate> rdfs:subClassOf calli:Copyable;
-	calli:copy <scheme-create.xhtml>;
-	calli:withNamespace </scheme/>.
 
 :GetConcepts rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ConceptScheme>];
@@ -44,15 +44,12 @@
 	msg:imports <concept-list.xhtml>;
 	msg:script "return concept_list_xhtml.calliConstructHTML(this)".
 
-<Concept> rdfs:subClassOf skos:Concept, calli:Viewable, calli:Editable;
+<Concept> a owl:Class, calli:Creatable;
+	rdfs:subClassOf skos:Concept, calli:Viewable, calli:Editable;
 	calli:icon <concept.png>;
 	calli:view <concept.xhtml>;
-	calli:edit <concept-edit.xhtml>.
-
-<concept_template> a <ConceptTemplate>;
+	calli:edit <concept-edit.xhtml>;
+	calli:create <concept-create.xhtml>;
+	calli:withNamespace </concept/>;
 	calli:curator </group/admin>.
-
-<ConceptTemplate> rdfs:subClassOf calli:Copyable;
-	calli:copy <concept-create.xhtml>;
-	calli:withNamespace </concept/>.
 

@@ -24,7 +24,7 @@
 			<li>List the most used or recommended concepts is the list.</li>
 		</ul>
 		<h1><span id="scheme" about="?this" property="skos:prefLabel" /></h1>
-		<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()" data-redirect="/callimachus/skos/scheme-list.xhtml?construct">
+		<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()" data-redirect="/scheme">
 			<label for="label">Label</label>
 			<div data-cardinality="1">
 				<input id="label" property="skos:prefLabel" class="required auto-expand" />
@@ -35,14 +35,14 @@
 			</div>
 			<hr />
 			<label for="topConcept">Top concepts</label>
-			<div id="topConcept" rel="skos:hasTopConcept" data-prompt="/callimachus/skos/concept_template?copy">
+			<div id="topConcept" rel="skos:hasTopConcept" data-prompt="/callimachus/skos/Concept?create">
 				<span about="?top" typeof="skos:Concept">
 					<span property="skos:prefLabel"></span>
 				</span>
 			</div>
 			<hr />
 			<label for="image">Image</label>
-			<div id="image" rel="foaf:depiction" data-prompt="/image">
+			<div id="image" rel="foaf:depiction" data-prompt="/callimachus/Image?create">
 				<span about="?image" typeof="foaf:Image" property="rdfs:label"/>
 			</div>
 			<hr />

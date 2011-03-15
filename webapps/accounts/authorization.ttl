@@ -30,6 +30,8 @@
 # all common modification operations must be authenticated
 </callimachus/operations/copy.ttl#GetCopyPage> msg:realm </accounts>.
 </callimachus/operations/copy.ttl#PostCopy> msg:realm </accounts>.
+</callimachus/operations/create.ttl#GetCreatePage> msg:realm </accounts>.
+</callimachus/operations/create.ttl#PostCreate> msg:realm </accounts>.
 </callimachus/operations/edit.ttl#GetEditPage> msg:realm </accounts>.
 </callimachus/operations/edit.ttl#PostEdit> msg:realm </accounts>.
 </callimachus/operations/delete.ttl#Delete> msg:realm </accounts>.
@@ -69,11 +71,11 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 			{
 				$object calli:scribe $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ($query = "copy")
+				FILTER ($query = "copy" || $query = "create")
 			} UNION {
 				$object calli:curator $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ($query = "copy")
+				FILTER ($query = "copy" || $query = "create")
 			} UNION {
 				$object calli:maintainer $credential
 			}
@@ -88,11 +90,11 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 			{
 				$object calli:scribe ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ($query = "copy")
+				FILTER ($query = "copy" || $query = "create")
 			} UNION {
 				$object calli:curator ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ($query = "copy")
+				FILTER ($query = "copy" || $query = "create")
 			} UNION {
 				$object calli:maintainer ?group
 			}
@@ -126,15 +128,6 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 			FILTER ($method = "GET" || $method = "HEAD")
 			FILTER (!bound($query) || $query = "view" || $query = "discussion")
 		}
-	""".
-
-# Group curators can create users if they can also create groups
-:AuthorizeUserCreate owl:equivalentClass :AuthorizeCredential;
-	msg:imports </accounts/Group>;
-	msg:script """
-		if (query == "usercreate" && object instanceof Group)
-			return this.AuthorizeCredential(credential, method, object, "copy");
-		return proceed();
 	""".
 
 # transcations are authorized by the object they modified

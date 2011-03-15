@@ -58,7 +58,7 @@
 	""".
 
 # find the user that created $of if it does not have a conservator
-:FindScribe rdfs:subClassOf msg:Message;
+:FindCopyScribe rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
 	msg:sparql  """
 		SELECT DISTINCT ?scribe
@@ -75,5 +75,5 @@
 	""".
 
 :of a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :FindScribe.
+	rdfs:domain :FindCopyScribe.
 

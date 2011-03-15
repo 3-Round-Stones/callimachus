@@ -21,12 +21,24 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-</graph> calli:maintainer </group/admin>.
+<Graph> rdfs:subClassOf calli:NamedGraph ;
+	calli:curator </group/admin> .
 
-:PostRdfGraph rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </graph>];
+:GetGraphCreate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Graph> ];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET" ;
+	msg:query "create" ;
+	msg:imports <graph-create.xhtml> ;
+	msg:script """
+		return graph_create_xhtml.calliConstructHTML(this, "copy");
+	""".
+
+:PostGraphCreate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Graph>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "POST";
+	msg:query "create";
 	msg:type "text/html";
 	msg:realm </accounts>;
 	msg:imports calli:NamedGraph;
@@ -34,6 +46,7 @@
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
 	msg:imports <java:javax.mail.internet.MimeMultipart>;
+	msg:imports <Graph>;
 	msg:imports <graph-uploaded.xhtml>;
 	msg:script """
 		var ds = new ByteArrayDataSource(input, "multipart/form-data");
@@ -49,6 +62,9 @@
 		if (!(obj instanceof NamedGraph)) {
 			this.objectConnection.addDesignation(obj, NamedGraph);
 		}
+		if (!(obj instanceof Graph)) {
+			this.objectConnection.addDesignation(obj, Graph);
+		}
 		this.objectConnection.add(file, uri, format, [vf.createURI(uri)]);
 		this.objectConnection.commit();
 		java.lang.System.gc();
@@ -56,7 +72,7 @@
 	""".
 
 :input a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :PostRdfGraph;
+	rdfs:domain :PostGraphCreate;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "multipart/form-data".
 

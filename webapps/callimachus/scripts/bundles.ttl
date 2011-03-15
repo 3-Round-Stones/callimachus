@@ -30,8 +30,9 @@
 	rdf:_3 <data-options.js>;
 	rdf:_4 <input-property.js>;
 	rdf:_5 <resource-iri.js>;
-	rdf:_6 <data-add.js>;
-	rdf:_7 <data-member.js>;
-	rdf:_8 <document-ready.js>;
-	rdf:_9 <focus.js>.
+	rdf:_6 <data-more.js>;
+	rdf:_7 <data-add.js>;
+	rdf:_8 <data-member.js>;
+	rdf:_9 <document-ready.js>;
+	rdf:_10 <focus.js>.
 

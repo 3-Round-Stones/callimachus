@@ -176,7 +176,6 @@ a[href]:hover {
 	background-color: #EEEEEE;
 	border: 1px solid #A8ACB8;
 	padding: 1ex;
-	margin: 1ex;
 	list-style: none;
 }
 
@@ -323,6 +322,7 @@ iframe {
 @media all and (min-width:32em) {
 	.aside {
 		float: right;
+		margin: 1ex;
 	}
 
 	a img {

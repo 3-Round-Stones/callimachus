@@ -46,3 +46,73 @@
 	calli:withNamespace </class/>;
 	calli:curator </group/admin>.
 
+<WebTemplateClass> rdfs:subClassOf calli:Creatable.
+
+<FormTemplateClass> rdfs:subClassOf calli:Creatable.
+
+<WebTemplate> a owl:Class, calli:Creatable, <WebTemplateClass>;
+	rdfs:subClassOf <Template>, calli:Template, calli:Viewable, calli:Editable;
+	calli:icon <template.png>;
+	calli:view <template.xhtml>;
+	calli:edit <template-edit.xhtml>;
+	calli:create <template-create.xhtml>;
+	calli:withNamespace </template/>;
+	calli:curator </group/admin>.
+
+<FormTemplate> a owl:Class, calli:Creatable, <FormTemplateClass>;
+	rdfs:subClassOf <Template>, calli:Template, calli:Viewable, calli:Editable;
+	calli:icon <template.png>;
+	calli:view <template.xhtml>;
+	calli:edit <form-edit.xhtml>;
+	calli:create <form-create.xhtml>;
+	calli:withNamespace </template/>;
+	calli:curator </group/admin>.
+
+:PostWebTemplateCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:allValuesFrom <WebTemplateClass>]);
+	msg:imports <sample-view.xhtml>;
+	msg:imports <java:java.io>;
+	msg:script """
+		var created = proceed();
+		this.objectConnection.commit();
+		created.PutTemplate(new java.net.URL(sample_view_xhtml.toString()).openStream());
+		return created;
+	""".
+
+:PostFormTemplateCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:allValuesFrom <FormTemplateClass>]);
+	msg:imports <sample-edit.xhtml>;
+	msg:imports <java:java.io>;
+	msg:script """
+		var created = proceed();
+		this.objectConnection.commit();
+		created.PutTemplate(new java.net.URL(sample_edit_xhtml.toString()).openStream());
+		return created;
+	""".
+
+:local a calli:LocalRealm;
+	calli:domain </template/>.
+
+:PutTemplate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Template>];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT" ;
+	msg:realm </accounts>, :local ;
+	msg:script """
+		var out = this.openOutputStream() ;
+		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+		var read;
+		try {
+			while ((read = templateStream.read(buf)) >= 0) {
+				out.write(buf, 0, read);
+			}
+		} finally {
+			out.close();
+		}
+	""".
+
+:templateStream a owl:DatatypeProperty, owl:FunctionalProperty ;
+	rdfs:domain :PutTemplate ;
+	rdfs:range <java:java.io.InputStream> ;
+	msg:type "application/xhtml+xml" .
+

@@ -87,6 +87,7 @@ rdfs:label a rdf:Property.
 		if (user instanceof User)
 			throw new Conflict("User already exists: " + user);
 		user = this.objectConnection.addDesignation(user, User);
+		user = this.objectConnection.addDesignation(user, "http://callimachusproject.org/rdf/2009/framework#User");
 		user.calliName = username;
 		user.calliAlgorithm = algorithm;
 		user.calliEncoded = decoded;

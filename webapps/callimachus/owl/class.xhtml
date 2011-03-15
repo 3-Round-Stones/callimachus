@@ -14,6 +14,9 @@
 		<li rel="rdfs:isDefinedBy">
 			<a about="?isDefinedBy" property="rdfs:label" href="?isDefinedBy"></a>
 		</li>
+		<li>
+			<a href="?create">Create a new <span about="?this" property="rdfs:label"/></a>
+		</li>
 		<li rel="rdfs:subClassOf" class="optional">
 			<label>Super</label>
 			<div about="?subClassOf" typeof="owl:Class">
@@ -24,6 +27,32 @@
 			<label>Sub</label>
 			<div about="?subClass" typeof="owl:Class">
 				<a href="?subClass" property="rdfs:label" class="subClass" />
+			</div>
+		</li>
+		<li>
+			<div class="optional">
+				<label>Create</label>
+				<span rel="calli:create">
+					<a href="?create" property="rdfs:label" data-query="view" />
+				</span>
+			</div>
+			<div class="optional">
+				<label>Copy</label>
+				<span rel="calli:copy">
+					<a href="?copy" property="rdfs:label" data-query="view" />
+				</span>
+			</div>
+			<div class="optional">
+				<label>View</label>
+				<span rel="calli:view">
+					<a href="?view" property="rdfs:label" data-query="view" />
+				</span>
+			</div>
+			<div class="optional">
+				<label>Edit</label>
+				<span rel="calli:edit">
+					<a href="?edit" property="rdfs:label" data-query="view" />
+				</span>
 			</div>
 		</li>
 	</ul>

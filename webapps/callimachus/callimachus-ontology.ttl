@@ -39,15 +39,19 @@ calli:Alias a owl:Class;
 	rdfs:comment "".
 
 calli:Copyable a owl:Class;
+	rdfs:label "Copyable";
 	rdfs:comment "Resources that can be copied to create new resources.".
 
 calli:Creatable a owl:Class;
+	rdfs:label "Viewable";
 	rdfs:comment "Set of classes that can be instantiated from a Web browser.".
 
 calli:Editable a owl:Class;
+	rdfs:label "Editable";
 	rdfs:comment "Resources that can be edited.".
 
 calli:Viewable a owl:Class;
+	rdfs:label "Viewable";
 	rdfs:comment "Resources that can be viewed from a Web browser.".
 
 calli:Template a owl:Class;

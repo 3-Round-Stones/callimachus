@@ -2,6 +2,7 @@
 
 .aside {
 	float: right;
+	margin: 1ex;
 }
 #logo {
 	float: none;

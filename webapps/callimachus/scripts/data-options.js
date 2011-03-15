@@ -23,7 +23,7 @@ function select(node, selector) {
 }
 
 function initInputRelElements(form) {
-	select(form, "[data-options]:not(select,optgroup)").each(function(i, node) {
+	select(form, "[data-options]:not(:input,optgroup)").each(function(i, node) {
 		var script = $(node);
 		var objects = script.children("[resource]")
 		loadOptions(script, objects, "checked", function() {

@@ -14,7 +14,7 @@
 			<li>Use Wiki text to describe the group</li>
 		</ul>
 		<h1>New Group</h1>
-		<form id="form" action="" about="?this"
+		<form id="form" action="" about="?this" typeof="calli:Group"
 				onsubmit="$(this).attr('about', '/group/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
 			<div rel="rdf:type" resource="/accounts/Group" />
 			<label for="label">Name</label>

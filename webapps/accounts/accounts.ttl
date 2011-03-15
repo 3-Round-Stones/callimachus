@@ -28,7 +28,7 @@
 	calli:curator </group/admin>;
 	calli:maintainer </group/admin>.
 
-</group/admin> a <Group>;
+</group/admin> a calli:Group, <Group>;
 	rdfs:label "admin";
 	calli:curator </group/admin>; # maintainer of invited users
 	calli:maintainer </group/admin>.

@@ -23,7 +23,6 @@ function select(node, selector) {
 var iframe_counter = 0;
 
 function initSetElements(form) {
-	createAddRelButtons(form);
 	var tbody = select(form, "[data-add]");
 	tbody.children("[about]").each(initSetElement);
 	tbody.each(function() {
@@ -106,71 +105,6 @@ function initSetElements(form) {
 				iframe.get(0).src = suggest;
 		    });
 		}
-	});
-}
-
-function createAddRelButtons(form) {
-	select(form, "[data-more][rel]").each(function() {
-		var parent = $(this);
-		var property = parent.attr("rel");
-		var editable = parent.is("*[contenteditable]") || parent.parents("*[contenteditable]").size();
-		var minOccurs = parent.attr("data-min-cardinality");
-		var maxOccurs = parent.attr("data-max-cardinality");
-		minOccurs = minOccurs ? minOccurs : parent.attr("data-cardinality");
-		maxOccurs = maxOccurs ? maxOccurs : parent.attr("data-cardinality");
-		var count = parent.children().size();
-		var add = false;
-		if (!editable && (!maxOccurs || !minOccurs || parseInt(minOccurs) != parseInt(maxOccurs))) {
-			parent.children().each(initSetElement);
-			add = $('<button type="button"/>');
-			add.addClass("add");
-			add.text("»");
-			add.click(function(){
-				jQuery.get(parent.attr("data-more"), function(data) {
-					var input = $(data);
-					add.before(input);
-					input.each(initSetElement);
-					updateButtonState(parent);
-				});
-			});
-			if (this.tagName.toLowerCase() == "table") {
-				var cell = $("<td/>");
-				cell.append(add);
-				var row = $("<tr/>");
-				row.append(cell);
-				var tbody = $("<tbody/>");
-				tbody.append(row);
-				parent.append(tbody);
-			} else if (this.tagName.toLowerCase() == "tbody") {
-				var cell = $("<td/>");
-				cell.append(add);
-				var row = $("<tr/>");
-				row.append(cell);
-				parent.append(row);
-			} else if (this.tagName.toLowerCase() == "tr") {
-				var cell = $("<td/>");
-				cell.append(add);
-				parent.append(cell);
-			} else {
-				parent.append(add);
-			}
-		}
-		if (minOccurs) {
-			var n = parseInt(minOccurs) - count;
-			for (var i=0; i<n; i++) {
-				jQuery.get(parent.attr("data-more"), function(data) {
-					var input = $(data);
-					if (add) {
-						add.before(input);
-					} else {
-						parent.append(input);
-					}
-					input.each(initSetElement);
-					updateButtonState(parent);
-				});
-			}
-		}
-		updateButtonState(parent);
 	});
 }
 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title>New Template</title>
+</head>
+<body>
+	<h1>New Template</h1>
+	<form id="form" about="?this" typeof="calli:Template" action=""
+			onsubmit="$(this).attr('about', '/template/' + encodeURI($('#label').val()).replace(/%20/g,'+'))">
+		<span rel="rdf:type" resource="urn:mimetype:application/xhtml+xml" />
+		<span rel="rdf:type" resource="/callimachus/owl/FormTemplate" />
+		<label for="label">File name</label>
+		<div data-cardinality="1">
+			<input id="label" property="rdfs:label" class="required auto-expand" />
+		</div>
+		<button id="submit" type="submit">Create</button>
+	</form>
+</body>
+</html>

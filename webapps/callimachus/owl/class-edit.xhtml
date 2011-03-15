@@ -7,9 +7,50 @@
 <head>
 	<title about="?this" property="rdfs:label" />
 	<style>
-		.imports:before {content:'←'}
 		img { border-style:none; }
 	</style>
+	<script>//<![CDATA[
+		function updateSuperClasses() {
+			var Copyable = 'about="http://callimachusproject.org/rdf/2009/framework#Copyable"';
+			var Viewable = 'about="http://callimachusproject.org/rdf/2009/framework#Viewable"';
+			var Editable = 'about="http://callimachusproject.org/rdf/2009/framework#Editable"';
+			var subClassOf = $('#subClassOf');
+			if ($('#copy').children('[about]').length) {
+				if (!subClassOf.children('[' + Copyable + ']').length) {
+					subClassOf.append('<div ' + Copyable + '>Copyable</div>');
+				}
+			} else {
+				subClassOf.children('[' + Copyable + ']').remove();
+			}
+			if ($('#view').children('[about]').length) {
+				if (!subClassOf.children('[' + Viewable + ']').length) {
+					subClassOf.append('<div ' + Viewable + '>Viewable</div>');
+				}
+			} else {
+				subClassOf.children('[' + Viewable + ']').remove();
+			}
+			if ($('#edit').children('[about]').length) {
+				if (!subClassOf.children('[' + Editable + ']').length) {
+					subClassOf.append('<div ' + Editable + '>Editable</div>');
+				}
+			} else {
+				subClassOf.children('[' + Editable + ']').remove();
+			}
+		}
+		jQuery(function($) {
+			if (!$('#namespace').length) {
+				$('#namespace-div').append('<input id="namespace" rel="calli:withNamespace" class="auto-expand" />');
+			}
+			$('#namespace').change(function() {
+				if ($(this).val()) {
+					$(this).attr('resource', $(this).val());
+				} else {
+					$(this).removeAttr('resource');
+				}
+			});
+		});
+		// ]]>
+	</script>
 </head>
 <body about="?this">
 	<ul class="aside">
@@ -20,7 +61,7 @@
 		</li>
 	</ul>
 	<h1 property="rdfs:label" />
-	<form about="?this" typeof="owl:Class" action="">
+	<form about="?this" typeof="owl:Class" action="" onsubmit="updateSuperClasses()">
 		<label for="label">Label</label>
 		<div data-cardinality="1">
 			<input id="label" property="rdfs:label" class="required auto-expand" />
@@ -44,6 +85,41 @@
 				<label for="subClass">Sub-classes</label>
 				<div id="subClass" rev="rdfs:subClassOf" data-prompt="/callimachus/owl/Class?create">
 					<div about="?subClass" typeof="owl:Class" property="rdfs:label" />
+				</div>
+			</div>
+		</div>
+		<hr />
+		<label for="editor">Editor</label>
+		<div id="editor" rel="calli:curator" data-prompt="/accounts">
+			<div about="?editor" property="rdfs:label" />
+		</div>
+		<label for="namespace">Namespace</label>
+		<div data-cardinality="1" id="namespace-div">
+			<input id="namespace" rel="calli:withNamespace" resource="?namespace" value="?namespace" class="auto-expand" />
+		</div>
+		<div style="overflow:auto">
+			<div style="float:left;margin-right:1em">
+				<label for="create">Create template</label>
+				<div id="create" rel="calli:create" data-prompt="/callimachus/owl/FormTemplate?create">
+					<span about="?create" typeof="calli:Template" property="rdfs:label" />
+				</div>
+			</div>
+			<div style="float:left;margin-right:1em">
+				<label for="copy">Copy template</label>
+				<div id="copy" rel="calli:copy" data-prompt="/callimachus/owl/FormTemplate?create">
+					<span about="?copy" typeof="calli:Template" property="rdfs:label" />
+				</div>
+			</div>
+			<div style="float:left;margin-right:1em">
+				<label for="view">View template</label>
+				<div id="view" rel="calli:view" data-prompt="/callimachus/owl/WebTemplate?create">
+					<span about="?view" typeof="calli:Template" property="rdfs:label" />
+				</div>
+			</div>
+			<div style="float:left;margin-right:1em">
+				<label for="edit">Edit template</label>
+				<div id="edit" rel="calli:edit" data-prompt="/callimachus/owl/FormTemplate?create">
+					<span about="?edit" typeof="calli:Template" property="rdfs:label" />
 				</div>
 			</div>
 		</div>

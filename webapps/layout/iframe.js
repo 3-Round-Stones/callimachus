@@ -12,9 +12,11 @@ function hideFluffIfInFrame() {
 	try {
 		if (window.frameElement) {
 			hideSiblings(document.getElementById("content"));
-			var asides = document.querySelectorAll(".aside");
-			for (var i = 0; i < asides.length; i++) {
-				asides[i].parentNode.removeChild(asides[i]);
+			if ($("#content form").length) { // hide form instructions
+				var asides = document.querySelectorAll(".aside");
+				for (var i = 0; i < asides.length; i++) {
+					asides[i].parentNode.removeChild(asides[i]);
+				}
 			}
 		}
 	} catch(e) {}

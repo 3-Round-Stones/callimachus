@@ -31,7 +31,7 @@
 	msg:query "create" ;
 	msg:imports <graph-create.xhtml> ;
 	msg:script """
-		return graph_create_xhtml.calliConstructHTML(this, "copy");
+		return graph_create_xhtml.calliConstructHTML(this, "create");
 	""".
 
 :PostGraphCreate rdfs:subClassOf msg:Message;

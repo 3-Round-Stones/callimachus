@@ -56,7 +56,7 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  * @author James Leigh
  * 
  */
-public abstract class CopySupport implements Template {
+public abstract class CreateSupport implements Template {
 
 	public RDFObject calliCopyResource(final RDFObject source, InputStream in,
 			final Set<?> namespaces) throws Exception {
@@ -89,7 +89,7 @@ public abstract class CopySupport implements Template {
 					} else if (subject.equals(source.getResource())) {
 						throw new RDFHandlerException("Target resource URI not provided");
 					}
-					accept(openBoundedPatterns("copy", subject.stringValue()));
+					accept(openBoundedPatterns("create", subject.stringValue()));
 				}
 			};
 			String base = source.getResource().stringValue();
@@ -151,7 +151,7 @@ public abstract class CopySupport implements Template {
 	}
 
 	private boolean isResourceAlreadyPresent(ObjectConnection con, String about) throws Exception {
-		RDFEventReader reader = openBoundedPatterns("copy", about);
+		RDFEventReader reader = openBoundedPatterns("create", about);
 		try {
 			StringWriter str = new StringWriter();
 			SPARQLWriter writer = new SPARQLWriter(str);

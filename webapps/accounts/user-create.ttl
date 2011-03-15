@@ -16,7 +16,7 @@
 	msg:realm </accounts>;
 	msg:imports <user-create.xhtml>;
 	msg:script """
-		return user_create_xhtml.calliConstruct(this, 'copy');
+		return user_create_xhtml.calliConstruct(this, "create");
 	""".
 
 rdfs:label a rdf:Property.

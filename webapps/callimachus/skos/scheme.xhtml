@@ -5,24 +5,29 @@
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
-	<head>
-		<title about="?this" property="skos:prefLabel" />
-		<style type="text/css">img { border-style:none; }</style>
-	</head>
-	<body about="?this">
-		<ul class="aside">
-			<li><a href="?viewconcepts">View all Concepts</a></li>
-		</ul>
-		<h2>
-			<a property="skos:prefLabel" href="?this" />
-		</h2>
-		<div id="image" rel="foaf:depiction" resource="?image" style="float:right;max-width:50%">
-			<a href="?image" data-query="view"><img src="?image" style="max-width:100%;max-height:75%" /></a>
-			<p property="rdfs:comment" />
-		</div>
-		<pre property="rdfs:comment" class="wiki"></pre>
-		<div rel="skos:hasTopConcept" resource="?top">
-			<a href="?top" property="skos:prefLabel"></a>
-		</div>
-	</body>
+<head>
+	<title about="?this" property="skos:prefLabel" />
+	<style type="text/css">img { border-style:none; }</style>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li>
+			<a href="?viewconcepts">View all Concepts</a>
+		</li>
+		<li>
+			<label>Top concepts</label>
+			<div rel="skos:hasTopConcept" resource="?top">
+				<a href="?top" property="skos:prefLabel"></a>
+			</div>
+		</li>
+	</ul>
+	<h2>
+		<a property="skos:prefLabel" href="?this" />
+	</h2>
+	<div id="image" rel="foaf:depiction" resource="?image" style="float:left;max-width:33%">
+		<a href="?image" data-query="view"><img src="?image" style="max-width:100%;max-height:75%" /></a>
+		<p property="rdfs:comment" />
+	</div>
+	<pre property="rdfs:comment" class="wiki"></pre>
+</body>
 </html>

@@ -68,11 +68,11 @@
 			<xsl:comment>[if lte IE 8]>&lt;link rel="stylesheet" href="<xsl:value-of select="$layout" />/ie8.css" /&gt;&lt;![endif]</xsl:comment>
 			<xsl:apply-templates select="*[local-name()='link' or local-name()='style']" />
 			<script type="text/javascript" src="{$callimachus}/scripts/web_bundle?source">&#160;</script>
-			<xsl:if test="$query='copy' or $query='edit'">
+			<xsl:if test="$query='create' or $query='edit'">
 			<script type="text/javascript" src="{$callimachus}/scripts/form_bundle?source">&#160;</script>
 			</xsl:if>
-			<xsl:if test="$query='copy'">
-			<script type="text/javascript" src="{$callimachus}/operations/copy.js">&#160;</script>
+			<xsl:if test="$query='create'">
+			<script type="text/javascript" src="{$callimachus}/operations/create.js">&#160;</script>
 			</xsl:if>
 			<xsl:if test="$query='edit'">
 			<script type="text/javascript" src="{$callimachus}/operations/edit.js">&#160;</script>

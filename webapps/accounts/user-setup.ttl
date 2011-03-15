@@ -43,7 +43,7 @@
 	msg:script """
 		if (!this.HasNoMaintainer())
 			throw new BadRequest("This service has already been setup");
-		return user_setup_xhtml.calliConstruct(this, 'copy');
+		return user_setup_xhtml.calliConstruct(this, "create");
 	""".
 
 rdfs:label a rdf:Property.

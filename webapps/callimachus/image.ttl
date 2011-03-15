@@ -36,7 +36,7 @@
 	msg:query "create" ;
 	msg:imports <image-create.xhtml> ;
 	msg:script """
-		return image_create_xhtml.calliConstructHTML(this, "copy");
+		return image_create_xhtml.calliConstructHTML(this, "create");
 	""".
 
 :PostImageCreate rdfs:subClassOf msg:Message;

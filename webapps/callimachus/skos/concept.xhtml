@@ -5,48 +5,53 @@
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
-	<head>
-		<title about="?this" property="skos:prefLabel"></title>
-		<style>
-			.broader:before {content:'←'}
-			.narrower:before {content:'→'}
-			img { border-style:none; }
-		</style>
-	</head>
-	<body about="?this">
-		<h2>
-			<a property="skos:prefLabel" href="?this"></a>
-		</h2>
-		<div id="image" rel="foaf:depiction" resource="?image" style="float:right;max-width:50%">
-			<a href="?image" data-query="view"><img src="?image" style="max-width:100%;max-height:75%" /></a>
-			<p property="rdfs:comment" />
-		</div>
-		<div rel="skos:inScheme">
+<head>
+	<title about="?this" property="skos:prefLabel"></title>
+	<style>
+		img { border-style:none; }
+	</style>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li rel="skos:inScheme">
 			<a about="?scheme" property="skos:prefLabel" href="?scheme"></a>
-		</div>
-		<pre property="skos:definition" class="wiki"></pre>
-		<pre property="skos:example" class="wiki"></pre>
-		<pre property="skos:historyNote" class="wiki"></pre>
-		<pre property="skos:scopeNote" class="wiki"></pre>
-		<div rev="skos:narrower">
-			<span about="?broader" class="broader">
+		</li>
+		<li rev="skos:narrower" class="optional">
+			<label>Broader</label>
+			<div about="?broader">
 				<a property="skos:prefLabel" href="?broader"></a>
-			</span>
-		</div>
-		<div rel="skos:related">
-			<span about="?related" class="related">
-				<a property="skos:prefLabel" href="?related"></a>
-			</span>
-		</div>
-		<div rev="skos:related">
-			<span about="?revated" class="related">
-				<a property="skos:prefLabel" href="?revated"></a>
-			</span>
-		</div>
-		<div rel="skos:narrower">
-			<span about="?narrower" class="narrower">
+			</div>
+		</li>
+		<li class="optional">
+			<label>Related</label>
+			<div rel="skos:related">
+				<div about="?related" class="related">
+					<a property="skos:prefLabel" href="?related"></a>
+				</div>
+			</div>
+			<div rev="skos:related">
+				<div about="?revated" class="related">
+					<a property="skos:prefLabel" href="?revated"></a>
+				</div>
+			</div>
+		</li>
+		<li rel="skos:narrower" class="optional">
+			<label>Narrower</label>
+			<div about="?narrower">
 				<a property="skos:prefLabel" href="?narrower"></a>
-			</span>
-		</div>
-	</body>
+			</div>
+		</li>
+	</ul>
+	<h2>
+		<a property="skos:prefLabel" href="?this"></a>
+	</h2>
+	<div id="image" rel="foaf:depiction" resource="?image" style="float:left;max-width:33%">
+		<a href="?image" data-query="view"><img src="?image" style="max-width:100%;max-height:75%" /></a>
+		<p property="rdfs:comment" />
+	</div>
+	<pre property="skos:definition" class="wiki"></pre>
+	<pre property="skos:example" class="wiki"></pre>
+	<pre property="skos:historyNote" class="wiki"></pre>
+	<pre property="skos:scopeNote" class="wiki"></pre>
+</body>
 </html>

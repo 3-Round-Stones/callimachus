@@ -12,7 +12,7 @@ function getViewPage() {
 }
 
 function getCopyPage() {
-	return findTemplate(this, copy).calliConstruct(this, 'copy');
+	return findTemplate(this, copy).calliConstruct(this, 'create');
 }
 
 function postCopy(msg) {
@@ -32,7 +32,7 @@ function postCopy(msg) {
 function getCreatePage() {
 	if (!this.calliCreate)
 		throw new InternalServerError("No create template");
-	return this.calliCreate.calliConstruct(this, 'copy');
+	return this.calliCreate.calliConstruct(this, 'create');
 }
 
 function postCreate(msg) {

@@ -1,0 +1,78 @@
+# 
+#    Portions Copyright (c) 2011 Talis Inc, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix dc:<http://purl.org/dc/elements/1.1/>.
+@prefix dcterms:<http://purl.org/dc/terms/>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+:GetCreatePage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "create";
+	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:header "cache-control:no-cache";
+	msg:script <operations.js#getCreatePage>.
+
+:PostCreate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	msg:method "POST";
+	msg:query "create";
+	msg:expect "201-created";
+	msg:type "text/uri-list";
+	msg:script <operations.js#postCreate>.
+
+:input a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :PostCreate;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "application/rdf+xml".
+
+:FindCreateNamespaces rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	msg:sparql  """
+		SELECT DISTINCT ?namespace
+		WHERE { $this calli:withNamespace ?namespace }
+	""".
+
+# find the user that created $of if it does not have a conservator
+:FindCreateScribe rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	msg:sparql  """
+		SELECT DISTINCT ?scribe
+		WHERE {
+			{
+				audit:current-trx audit:contributor ?scribe
+			} UNION {
+				GRAPH ?graph { $of a ?type }
+				?graph audit:contributor ?scribe
+			}
+			OPTIONAL { $this calli:conservator ?conservator }
+			FILTER (!bound(?conservator))
+		}
+	""".
+
+:of a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :FindCreateScribe.
+

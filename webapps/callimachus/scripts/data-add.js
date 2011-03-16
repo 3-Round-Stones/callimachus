@@ -88,20 +88,15 @@ function initSetElements(form) {
 				});
 				dialog.dialog("open");
 				var dialogTitle = iframe.parents(".ui-dialog").find(".ui-dialog-title");
-				var bottom = dialogTitle.height() + dialogTitle.offset().top - iframe.parent().offset().top;
-				var left = dialogTitle.width() + dialogTitle.offset().left - iframe.parent().offset().left;
 				form.css('position', "absolute");
-				form.css('top', bottom - dialogTitle.height());
-				form.css('left', left + 10);
+				form.css('top', dialogTitle.offset().top - iframe.parent().offset().top - 5);
+				form.css('right', 30);
 				iframe.before(form);
 				form.submit(function(event) {
 					var searchUrl = url.replace('{searchTerms}', encodeURIComponent(document.getElementById(searchTerms).value));
 					listSearchResults(searchUrl, iframe.get(0));
 					return stopPropagation(event);
 				});
-				form.css('top', Math.max(bottom - dialogTitle.height() /2 - form.height()/2, bottom - form.height()));
-				var maxLeft = iframe.parent().width() - form.width() - 30; // close button = 19px
-				form.css('left', Math.min(maxLeft, left + 10));
 				iframe.get(0).src = suggest;
 		    });
 		}

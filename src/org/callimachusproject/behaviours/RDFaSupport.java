@@ -21,7 +21,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,7 +76,17 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 	private static final Pattern HREF_XSLT = Pattern
 			.compile("<?xml-stylesheet\\b[^>]*\\bhref=[\"']([^\"']*)[\"']");
 	private static final Pattern START_ELEMENT = Pattern.compile("<[^\\?]");
-	private static XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
+	private static final XMLEventReaderFactory factory = XMLEventReaderFactory
+			.newInstance();
+	private static final int MAX_XSLT = 16;
+	private static final Map<String, Reference<XSLTransformer>> transformers = new LinkedHashMap<String, Reference<XSLTransformer>>() {
+		private static final long serialVersionUID = 1362917757653811798L;
+
+		protected boolean removeEldestEntry(
+				Map.Entry<String, Reference<XSLTransformer>> eldest) {
+			return size() > MAX_XSLT;
+		}
+	};
 
 	@query("xslt")
 	public XMLEventReader xslt(@query("query") String query,
@@ -147,13 +161,27 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 			return factory.createXMLEventReader(openInputStream());
 		java.net.URI uri = toUri();
 		String xsl = uri.resolve(href).toASCIIString();
-		XSLTransformer xslt = new XSLTransformer(xsl);
+		XSLTransformer xslt = newXSLTransformer(xsl);
 		TransformBuilder transform = xslt.transform(openInputStream(), uri
 				.toASCIIString());
 		transform = transform.with("this", uri.toASCIIString());
 		transform = transform.with("xslt", xsl);
 		transform = transform.with("query", query);
 		return transform.asXMLEventReader();
+	}
+
+	private XSLTransformer newXSLTransformer(String xsl) {
+		synchronized (transformers) {
+			Reference<XSLTransformer> ref = transformers.get(xsl);
+			if (ref != null) {
+				XSLTransformer xslt = ref.get();
+				if (xslt != null)
+					return xslt;
+			}
+			XSLTransformer xslt = new XSLTransformer(xsl);
+			transformers.put(xsl, new SoftReference<XSLTransformer>(xslt));
+			return xslt;
+		}
 	}
 
 	/**

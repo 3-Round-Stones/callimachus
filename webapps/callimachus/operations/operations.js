@@ -36,10 +36,11 @@ function getCreatePage() {
 }
 
 function postCreate(msg) {
-	if (!this.calliCreate)
-		throw new InternalServerError("No create template");
 	var template = this.calliCreate;
+	if (!template)
+		throw new InternalServerError("No create template");
 	var newCopy = template.calliCopyResource(this, msg.input, this.FindCreateNamespaces());
+	newCopy.objectConnection.addDesignation(newCopy, this.toString());
 	newCopy.calliMaintainers.addAll(this.FindCreateScribe(newCopy));
 	return newCopy;
 }

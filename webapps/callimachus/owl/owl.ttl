@@ -46,43 +46,39 @@
 	calli:withNamespace </class/>;
 	calli:curator </group/admin>.
 
-<WebTemplate> a calli:Creatable, owl:Class;
-	rdfs:subClassOf <Template>, calli:Template, calli:Viewable, calli:Editable;
+:ListMembers rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET";
+	msg:query "members";
+	msg:header "cache-control:no-store";
+	msg:imports <class-members.xhtml>;
+	msg:script """
+		return class_members_xhtml.calliConstructHTML(this);
+	""".
+
+<Template> rdfs:subClassOf calli:Template, calli:Copyable, calli:Viewable, calli:Editable;
 	calli:icon <template.png>;
 	calli:view <template.xhtml>;
 	calli:edit <template-edit.xhtml>;
-	calli:create <template-create.xhtml>;
-	calli:withNamespace </template/>;
+	calli:copy <template-copy.xhtml>;
+	calli:withNamespace </template/>.
+
+<sample-view.xhtml> a <Template>;
 	calli:curator </group/admin>.
 
-<FormTemplate> a calli:Creatable, owl:Class;
-	rdfs:subClassOf <Template>, calli:Template, calli:Viewable, calli:Editable;
-	calli:icon <template.png>;
-	calli:view <template.xhtml>;
-	calli:edit <form-edit.xhtml>;
-	calli:create <form-create.xhtml>;
-	calli:withNamespace </template/>;
+<sample-edit.xhtml> a <Template>;
 	calli:curator </group/admin>.
 
-:PostWebTemplateCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <WebTemplate>]);
-	msg:imports <sample-view.xhtml>;
-	msg:imports <java:java.io>;
+<sample-create.xhtml> a <Template>;
+	calli:curator </group/admin>.
+
+:PostTemplateCopy owl:intersectionOf (</callimachus/operations/copy.ttl#PostCopy>
+		[owl:onProperty msg:target; owl:allValuesFrom <Template>]);
 	msg:script """
 		var created = proceed();
 		this.objectConnection.commit();
-		created.PutTemplate(new java.net.URL(sample_view_xhtml.toString()).openStream());
-		return created;
-	""".
-
-:PostFormTemplateCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <FormTemplate>]);
-	msg:imports <sample-edit.xhtml>;
-	msg:imports <java:java.io>;
-	msg:script """
-		var created = proceed();
-		this.objectConnection.commit();
-		created.PutTemplate(new java.net.URL(sample_edit_xhtml.toString()).openStream());
+		created.PutTemplate(new java.net.URL(this.toString()).openStream());
 		return created;
 	""".
 
@@ -94,6 +90,7 @@
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT" ;
 	msg:realm </accounts>, :local ;
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:script """
 		this.objectConnection.addDesignation(this, "urn:mimetype:application/xhtml+xml");
 		var out = this.openOutputStream() ;

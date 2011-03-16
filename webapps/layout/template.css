@@ -218,6 +218,7 @@ pre {
 
 img.icon {
 	padding-right: 2pt;
+	max-height: 1em;
 }
 
 .summary {

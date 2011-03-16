@@ -45,7 +45,7 @@ function isViewingTransaction(msg) {
 	}
 	if (isReviewing(msg.method, msg.query)) {
 		if (msg.object instanceof Transaction) {
-			var iter = this.ListSubjectsOfTransaction(object).iterator();
+			var iter = this.ListSubjectsOfTransaction(msg.object).iterator();
 			while (iter.hasNext()) {
 				if (this.AuthorizeCredential(msg.credential, "GET", iter.next(), "describe"))
 					return true; //# if they can view the RDF of the resource they can view its transactions

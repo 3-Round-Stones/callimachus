@@ -78,6 +78,7 @@
 			<script type="text/javascript" src="{$callimachus}/operations/edit.js">&#160;</script>
 			</xsl:if>
 			<xsl:apply-templates select="*[local-name()!='link' and local-name()!='style']|text()|comment()" />
+			<noscript><style>body.wait, body.wait * {cursor: auto !important}</style></noscript>
 		</xsl:copy>
 	</xsl:template>
 

@@ -169,9 +169,25 @@ window.calli.deleteResource = function() {
 								event.location = previous.substring(0, previous.indexOf(' '));
 							}
 						}
+						if (!event.location) {
+							event.location = document.referrer;
+						}
+						if (event.location) {
+							var href = location.href;
+							if (href.indexOf('?') > 0) {
+								href = href.substring(0, href.indexOf('?'));
+							}
+							var referrer = event.location;
+							if (referrer.indexOf('?') > 0) {
+								referrer = referrer.substring(0, referrer.indexOf('?'));
+							}
+							if (href == referrer) {
+								event.location = null; // don't redirect back to self
+							}
+						}
 					}
 					if (!event.location) {
-						event.location = document.referrer;
+						event.location = location.protocol + '//' + location.host + '/';
 					}
 					form.trigger(event)
 					if (!event.isDefaultPrevented()) {

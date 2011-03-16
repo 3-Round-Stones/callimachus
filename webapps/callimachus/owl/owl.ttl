@@ -27,7 +27,7 @@
 </ontology> a calli:Alias;
 	calli:aliasOf <ontology-list.xhtml?construct>.
 
-<Ontology> a owl:Class, calli:Creatable;
+<Ontology> a calli:Creatable, owl:Class;
 	rdfs:subClassOf owl:Ontology, calli:Viewable, calli:Editable;
 	calli:icon <ontology.png>;
 	calli:view <ontology.xhtml>;
@@ -37,7 +37,7 @@
 	calli:curator </group/admin>.
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
-<Class> a owl:Class, calli:Creatable;
+<Class> a calli:Creatable, owl:Class;
 	rdfs:subClassOf owl:Class, calli:Creatable, calli:Viewable, calli:Editable;
 	calli:icon <class.png>;
 	calli:view <class.xhtml>;
@@ -46,11 +46,7 @@
 	calli:withNamespace </class/>;
 	calli:curator </group/admin>.
 
-<WebTemplateClass> rdfs:subClassOf calli:Creatable.
-
-<FormTemplateClass> rdfs:subClassOf calli:Creatable.
-
-<WebTemplate> a owl:Class, calli:Creatable, <WebTemplateClass>;
+<WebTemplate> a calli:Creatable, owl:Class;
 	rdfs:subClassOf <Template>, calli:Template, calli:Viewable, calli:Editable;
 	calli:icon <template.png>;
 	calli:view <template.xhtml>;
@@ -59,7 +55,7 @@
 	calli:withNamespace </template/>;
 	calli:curator </group/admin>.
 
-<FormTemplate> a owl:Class, calli:Creatable, <FormTemplateClass>;
+<FormTemplate> a calli:Creatable, owl:Class;
 	rdfs:subClassOf <Template>, calli:Template, calli:Viewable, calli:Editable;
 	calli:icon <template.png>;
 	calli:view <template.xhtml>;
@@ -69,7 +65,7 @@
 	calli:curator </group/admin>.
 
 :PostWebTemplateCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:allValuesFrom <WebTemplateClass>]);
+		[owl:onProperty msg:target; owl:hasValue <WebTemplate>]);
 	msg:imports <sample-view.xhtml>;
 	msg:imports <java:java.io>;
 	msg:script """
@@ -80,7 +76,7 @@
 	""".
 
 :PostFormTemplateCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:allValuesFrom <FormTemplateClass>]);
+		[owl:onProperty msg:target; owl:hasValue <FormTemplate>]);
 	msg:imports <sample-edit.xhtml>;
 	msg:imports <java:java.io>;
 	msg:script """
@@ -99,6 +95,7 @@
 	msg:method "PUT" ;
 	msg:realm </accounts>, :local ;
 	msg:script """
+		this.objectConnection.addDesignation(this, "urn:mimetype:application/xhtml+xml");
 		var out = this.openOutputStream() ;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
 		var read;
@@ -109,6 +106,7 @@
 		} finally {
 			out.close();
 		}
+		HTTPObjectServer.resetAllCache();
 	""".
 
 :templateStream a owl:DatatypeProperty, owl:FunctionalProperty ;

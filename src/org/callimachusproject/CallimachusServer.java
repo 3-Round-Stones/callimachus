@@ -65,6 +65,7 @@ import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.sail.auditing.vocabulary.Audit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +85,8 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			throws Exception {
 		File webappsDir = webapps.getCanonicalFile();
 		this.repository = importJars(webappsDir, repository);
+		// compile schema not in an explicit named graph
+		this.repository.addSchemaGraphType(Audit.TRANSACTION);
 		ObjectConnection con = this.repository.getConnection();
 		try {
 			ClassLoader cl = con.getObjectFactory().getClassLoader();
@@ -95,6 +98,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			MimetypesFileTypeMap mimetypes = createMimetypesMap();
 			uploader = new Uploader(mimetypes, dataDir);
 			uploader.setWebappsDir(webappsDir);
+			// compile schema in webapps named graphs
 			uploader.addListener(new ObjectDatesetListener(this.repository));
 		} finally {
 			con.close();

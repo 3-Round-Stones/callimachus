@@ -3,6 +3,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 	<head>
 		<title about="?this" property="rdfs:label" />
+		<script>//<![CDATA[
+			jQuery(function($){
+				if (document.referrer && document.referrer.indexOf('/callimachus/Image?create') > 0) {
+					try {
+						if (window.parent && parent.calli && window.frameElement) {
+							var subj = $('body').attr("about");
+							parent.calli.resourceCreated(subj, window.frameElement);
+						}
+					} catch (e) {}
+				}
+			});
+			//]]>
+		</script>
 	</head>
 	<body about="?this">
 		<div>

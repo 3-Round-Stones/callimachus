@@ -22,7 +22,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-</sparql> calli:maintainer </group/admin>.
+</sparql> calli:administrator </group/admin>.
 
 :EvaluateSparql rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];

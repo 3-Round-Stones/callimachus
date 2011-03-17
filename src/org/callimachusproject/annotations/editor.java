@@ -7,9 +7,9 @@ import java.lang.annotation.Target;
 
 import org.openrdf.repository.object.annotations.iri;
 
-@iri("http://callimachusproject.org/rdf/2009/framework#reviewer")
+@iri("http://callimachusproject.org/rdf/2009/framework#editor")
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
-public @interface reviewer {
+public @interface editor {
 	String[] value();
 }

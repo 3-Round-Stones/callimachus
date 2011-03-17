@@ -6,6 +6,7 @@ importClass(Packages.org.callimachusproject.annotations.view);
 importClass(Packages.org.callimachusproject.annotations.copy);
 importClass(Packages.org.callimachusproject.annotations.edit);
 importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
+importClass(Packages.calli.Copyable);
 
 function getViewPage() {
 	return findTemplate(this, view).calliConstruct(this, 'view');
@@ -18,13 +19,13 @@ function getCopyPage() {
 function postCopy(msg) {
 	var template = findTemplate(this, copy);
 	var newCopy = template.calliCopyResource(this, msg.input, this.FindCopyNamespaces());
-	if (this.calliCurators.size()) {
-		newCopy.calliMaintainers.addAll(this.calliCurators);
-		if (newCopy.calliCurators) {
-			newCopy.calliCurators.addAll(this.calliCurators);
+	if (this.calliEditors.size()) {
+		if (newCopy instanceof Copyable) {
+			newCopy.calliEditors.addAll(this.calliEditors);
 		}
+		newCopy.calliAdministrators.addAll(this.calliEditors);
 	} else {
-		newCopy.calliMaintainers.addAll(this.FindCopyScribe(newCopy));
+		newCopy.calliAdministrators.addAll(this.FindCopyContributor(newCopy));
 	}
 	return newCopy;
 }
@@ -40,8 +41,15 @@ function postCreate(msg) {
 	if (!template)
 		throw new InternalServerError("No create template");
 	var newCopy = template.calliCopyResource(this, msg.input, this.FindCreateNamespaces());
-	newCopy.objectConnection.addDesignation(newCopy, this.toString());
-	newCopy.calliMaintainers.addAll(this.FindCreateScribe(newCopy));
+	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
+	if (this.calliEditors.size()) {
+		if (newCopy instanceof Copyable) {
+			newCopy.calliEditors.addAll(this.calliEditors);
+		}
+		newCopy.calliAdministrators.addAll(this.calliEditors);
+	} else {
+		newCopy.calliAdministrators.addAll(this.FindCreateContributor(newCopy));
+	}
 	return newCopy;
 }
 

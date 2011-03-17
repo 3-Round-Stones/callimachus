@@ -25,13 +25,13 @@
 	calli:unauthorized <unauthorized.xhtml>;
 	calli:forbidden <forbidden.xhtml>;
 	calli:authenticates </group/admin>;
-	calli:curator </group/admin>;
-	calli:maintainer </group/admin>.
+	calli:editor </group/admin>;
+	calli:administrator </group/admin>.
 
 </group/admin> a calli:Group, <Group>;
 	rdfs:label "admin";
-	calli:curator </group/admin>; # maintainer of invited users
-	calli:maintainer </group/admin>.
+	calli:editor </group/admin>; # administrator of invited users
+	calli:administrator </group/admin>.
 
 ################################
 # User

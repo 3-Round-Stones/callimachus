@@ -57,23 +57,21 @@
 		WHERE { $this a [calli:withNamespace ?namespace] }
 	""".
 
-# find the user that created $of if it does not have a conservator
-:FindCopyScribe rdfs:subClassOf msg:Message;
+# find the user that created $of
+:FindCopyContributor rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
 	msg:sparql  """
-		SELECT DISTINCT ?scribe
+		SELECT DISTINCT ?contributor
 		WHERE {
 			{
-				audit:current-trx audit:contributor ?scribe
+				audit:current-trx audit:contributor ?contributor
 			} UNION {
 				GRAPH ?graph { $of a ?type }
-				?graph audit:contributor ?scribe
+				?graph audit:contributor ?contributor
 			}
-			OPTIONAL { $of a [calli:conservator ?conservator] }
-			FILTER (!bound(?conservator))
 		}
 	""".
 
 :of a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :FindCopyScribe.
+	rdfs:domain :FindCopyContributor.
 

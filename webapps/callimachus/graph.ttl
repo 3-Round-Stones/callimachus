@@ -22,7 +22,7 @@
 @prefix :<#>.
 
 <Graph> rdfs:subClassOf calli:NamedGraph ;
-	calli:curator </group/admin> .
+	calli:editor </group/admin> .
 
 :GetGraphCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Graph> ];

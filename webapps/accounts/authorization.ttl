@@ -69,15 +69,15 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 	msg:sparql  """
 		ASK {
 			{
-				$object calli:scribe $credential
+				$object calli:contributor $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($query = "copy" || $query = "create")
 			} UNION {
-				$object calli:curator $credential
+				$object calli:editor $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($query = "copy" || $query = "create")
 			} UNION {
-				$object calli:maintainer $credential
+				$object calli:administrator $credential
 			}
 		}
 	""".
@@ -88,26 +88,26 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 		ASK {
 			?group calli:member $credential
 			{
-				$object calli:scribe ?group
+				$object calli:contributor ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($query = "copy" || $query = "create")
 			} UNION {
-				$object calli:curator ?group
+				$object calli:editor ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER ($query = "copy" || $query = "create")
 			} UNION {
-				$object calli:maintainer ?group
+				$object calli:administrator ?group
 			}
 		}
 	""".
 
-# users or groups associated as conservator of a class of the object are authorized
-:AuthorizeConservator owl:equivalentClass :AuthorizeCredential;
-	msg:script <authorization.js#isConservator>.
+# users or groups associated as editor of a class of the object are authorized
+:AuthorizeClassEditor owl:equivalentClass :AuthorizeCredential;
+	msg:script <authorization.js#isClassEditor>.
 
-# users or groups associated as reviewer of a class of the object are authorized
-:AuthorizeReviewer owl:equivalentClass :AuthorizeCredential;
-	msg:script <authorization.js#isReviewer>.
+# users or groups associated as reader of a class of the object are authorized
+:AuthorizeReader owl:equivalentClass :AuthorizeCredential;
+	msg:script <authorization.js#isReader>.
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage owl:equivalentClass :AuthorizeCredential;

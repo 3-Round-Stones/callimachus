@@ -104,10 +104,13 @@ calli:ScriptBundle a owl:Class;
 # Annotation
 ################################
 
-calli:conservator a owl:AnnotationProperty;
-	rdfs:comment "Credential or group of credentials that can maintain individual resources of this class.".
+calli:contributor a owl:AnnotationProperty;
+	rdfs:comment "Credential or group of credentials that can copy this resource or create an instance of this class.".
 
-calli:reviewer a owl:AnnotationProperty;
+calli:editor a owl:AnnotationProperty;
+	rdfs:comment "Credential or group of credentials that can create and maintain members of this class or can copy and maintain any copies of this resources.".
+
+calli:reader a owl:AnnotationProperty;
 	rdfs:comment "Credential or group of credentials that can view individual resources of this class.".
 
 calli:copy a owl:AnnotationProperty;
@@ -175,17 +178,7 @@ calli:create a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain calli:Creatable;
 	rdfs:range calli:Template.
 
-calli:scribe a owl:ObjectProperty;
-	rdfs:comment "Credential or group of credentials that can copy this resource remotely.";
-	rdfs:domain [owl:unionOf (calli:Copyable calli:Creatadle)];
-	rdfs:range calli:Party.
-
-calli:curator a owl:ObjectProperty;
-	rdfs:comment "Credential or group of credentials that will maintain any copied resources.";
-	rdfs:domain [owl:unionOf (calli:Copyable calli:Creatadle)];
-	rdfs:range calli:Party.
-
-calli:maintainer a owl:ObjectProperty;
+calli:administrator a owl:ObjectProperty;
 	rdfs:comment "Credential or group of credentials that can interact with this resource remotely.";
 	rdfs:range calli:Party.
 

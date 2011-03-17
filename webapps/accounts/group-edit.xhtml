@@ -21,9 +21,9 @@
 	<body about="?this">
 		<ul class="aside">
 			<li>Use Wiki text to describe the group</li>
-			<li>Scribes can invite new users and create empty groups</li>
-			<li>Curators can invite and administrate new users of this group and maintain new groups</li>
-			<li>Maintainers can add and remove members and authorization groups, invite new users, and create empty groups</li>
+			<li>Contributors can invite new users and create empty groups</li>
+			<li>Editors can invite and administrate new users of this group and maintain new groups</li>
+			<li>Administrators can add and remove members and authorization groups, invite new users, and create empty groups</li>
 		</ul>
 		<h1><span property="rdfs:label" /> Group</h1>
 		<form id="form" action="" about="?this" onsubmit="saveChangeNote()" data-redirect="/accounts">
@@ -32,21 +32,21 @@
 				<textarea id="comment" class="auto-expand"
 					property="rdfs:comment"></textarea>
 			</div>
-			<label for="scribe">Scribes</label>
-			<div id="scribe" rel="calli:scribe" data-prompt="/accounts">
-				<span about="?scribe">
+			<label for="contributor">Contributors</label>
+			<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
+				<span about="?contributor">
 					<span property="rdfs:label"/>
 				</span>
 			</div>
-			<label for="curator">Curators</label>
-			<div id="curator" rel="calli:curator" data-prompt="/accounts">
-				<span about="?curator">
+			<label for="editor">Editors</label>
+			<div id="editor" rel="calli:editor" data-prompt="/accounts">
+				<span about="?editor">
 					<span property="rdfs:label"/>
 				</span>
 			</div>
-			<label for="maintainer">Maintainers</label>
-			<div id="maintainer" rel="calli:maintainer" data-prompt="/accounts">
-				<span about="?maintainer">
+			<label for="administrator">Administrator</label>
+			<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
+				<span about="?administrator">
 					<span property="rdfs:label"/>
 				</span>
 			</div>

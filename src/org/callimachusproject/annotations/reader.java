@@ -7,9 +7,9 @@ import java.lang.annotation.Target;
 
 import org.openrdf.repository.object.annotations.iri;
 
-@iri("http://callimachusproject.org/rdf/2009/framework#conservator")
+@iri("http://callimachusproject.org/rdf/2009/framework#reader")
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
-public @interface conservator {
+public @interface reader {
 	String[] value();
 }

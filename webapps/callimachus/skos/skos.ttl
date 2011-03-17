@@ -33,7 +33,7 @@
 	calli:edit <scheme-edit.xhtml>;
 	calli:create <scheme-create.xhtml>;
 	calli:withNamespace </scheme/>;
-	calli:curator </group/admin>.
+	calli:editor </group/admin>.
 
 :GetConcepts rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ConceptScheme>];
@@ -52,5 +52,5 @@
 	calli:edit <concept-edit.xhtml>;
 	calli:create <concept-create.xhtml>;
 	calli:withNamespace </concept/>;
-	calli:curator </group/admin>.
+	calli:editor </group/admin>.
 

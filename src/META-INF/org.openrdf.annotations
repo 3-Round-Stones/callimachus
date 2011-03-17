@@ -1,5 +1,5 @@
-org.callimachusproject.annotations.conservator
-org.callimachusproject.annotations.reviewer
+org.callimachusproject.annotations.editor
+org.callimachusproject.annotations.reader
 org.callimachusproject.annotations.copy
 org.callimachusproject.annotations.edit
 org.callimachusproject.annotations.view

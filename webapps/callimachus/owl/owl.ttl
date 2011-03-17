@@ -34,7 +34,7 @@
 	calli:edit <ontology-edit.xhtml>;
 	calli:create <ontology-create.xhtml>;
 	calli:withNamespace </ontology/>;
-	calli:curator </group/admin>.
+	calli:editor </group/admin>.
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
 <Class> a calli:Creatable, owl:Class;
@@ -44,7 +44,7 @@
 	calli:edit <class-edit.xhtml>;
 	calli:create <class-create.xhtml>;
 	calli:withNamespace </class/>;
-	calli:curator </group/admin>.
+	calli:editor </group/admin>.
 
 :ListMembers rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class>];
@@ -65,13 +65,13 @@
 	calli:withNamespace </template/>.
 
 <sample-view.xhtml> a <Template>;
-	calli:curator </group/admin>.
+	calli:editor </group/admin>.
 
 <sample-edit.xhtml> a <Template>;
-	calli:curator </group/admin>.
+	calli:editor </group/admin>.
 
 <sample-create.xhtml> a <Template>;
-	calli:curator </group/admin>.
+	calli:editor </group/admin>.
 
 :PostTemplateCopy owl:intersectionOf (</callimachus/operations/copy.ttl#PostCopy>
 		[owl:onProperty msg:target; owl:allValuesFrom <Template>]);

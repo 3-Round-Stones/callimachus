@@ -12,7 +12,7 @@
 	calli:view <menu.xhtml>;
 	calli:edit <menu-edit.xhtml>.
 
-<menu> a <Menu>; calli:maintainer </group/admin>.
+<menu> a <Menu>; calli:administrator </group/admin>.
 
 calli:logo a owl:ObjectProperty;
 	msg:method "GET"; msg:query "logo"; msg:expect "302-see-other".

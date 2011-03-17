@@ -10,23 +10,23 @@
 	calli:origin </>;
 	calli:domain </group/>.
 
-:HasNoMaintainer rdfs:subClassOf msg:Message;
+:HasNoAdministrator rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
 	msg:sparql  """
 		ASK {
 			# this group is maintained by its members, but
-			$this calli:maintainer $this
+			$this calli:administrator $this
 
 			# there are no members to maintain this
 			OPTIONAL { $this calli:member ?member } FILTER (!bound(?member))
 
 			# there is no user assigned to maintain this
-			OPTIONAL { $this calli:maintainer [calli:name ?user] } FILTER (!bound(?user))
+			OPTIONAL { $this calli:administrator [calli:name ?user] } FILTER (!bound(?user))
 
 			# there is no member of another group that can maintain this
-			OPTIONAL { $this calli:maintainer [calli:member ?adimn] } FILTER (!bound(?admin))
+			OPTIONAL { $this calli:administrator [calli:member ?adimn] } FILTER (!bound(?admin))
 		}
 	""".
 
@@ -41,7 +41,7 @@
 	msg:imports <user-setup.xhtml>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:script """
-		if (!this.HasNoMaintainer())
+		if (!this.HasNoAdministrator())
 			throw new BadRequest("This service has already been setup");
 		return user_setup_xhtml.calliConstruct(this, "create");
 	""".
@@ -63,7 +63,7 @@ rdfs:label a rdf:Property.
 	msg:imports <java:org.apache.commons.codec.binary.Hex>;
 	msg:imports <java:java.net.URLEncoder>;
 	msg:script """
-		if (!this.HasNoMaintainer())
+		if (!this.HasNoAdministrator())
 			throw new BadRequest("This service has already been setup");
 		if (!form.get("label"))
 			throw new BadRequest("Missing label");

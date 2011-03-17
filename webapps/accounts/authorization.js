@@ -1,15 +1,15 @@
 // authorization.js
 
 importClass(Packages.org.openrdf.http.object.concepts.Transaction);
-importClass(Packages.org.callimachusproject.annotations.reviewer);
-importClass(Packages.org.callimachusproject.annotations.conservator);
+importClass(Packages.org.callimachusproject.annotations.editor);
+importClass(Packages.org.callimachusproject.annotations.reader);
 importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
 
-function isConservator(msg) {
+function isClassEditor(msg) {
 	if (isReviewing(msg.method, msg.query) || isEditing(msg.method, msg.query)) {
-		var annotated = findAnnotatedClass(msg.object.getClass(), conservator);
+		var annotated = findAnnotatedClass(msg.object.getClass(), editor);
 		for (var a = annotated.length; a--;) {
-			var uri = annotated[a].getAnnotation(conservator).value();
+			var uri = annotated[a].getAnnotation(editor).value();
 			for (var u = uri.length; u--;) {
 				if (msg.credential.resource.stringValue().equals(uri[u]))
 					return true;
@@ -22,11 +22,11 @@ function isConservator(msg) {
 	return msg.proceed();
 }
 
-function isReviewer(msg) {
+function isReader(msg) {
 	if (isReviewing(msg.method, msg.query)) {
-		var annotated = findAnnotatedClass(msg.object.getClass(), reviewer);
+		var annotated = findAnnotatedClass(msg.object.getClass(), reader);
 		for (var a = annotated.length; a--;) {
-			var uri = annotated[a].getAnnotation(reviewer).value();
+			var uri = annotated[a].getAnnotation(reader).value();
 			for (var u = uri.length; u--;) {
 				if (msg.credential.resource.stringValue().equals(uri[u]))
 					return true;

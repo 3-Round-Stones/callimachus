@@ -141,17 +141,24 @@ a[href]:hover {
 	font-size: small;
     text-align: center;
     display: inline-block;
+	padding: 0px;
+}
+
+#tabs li a {
+    display: inline-block;
+    background: white;
+	padding: 0px 1ex;
     border-top: 1px solid #A8ACB8;
     border-right: 1px solid #A8ACB8;
     border-left: 1px solid #A8ACB8;
-	padding: 0px 1ex;
-	color: black;
-    background: white;
     border-bottom: 1px solid white;
+	color: black;
     font-weight: bold;
+	text-decoration: none;
+	cursor: default;
 }
 
-#tabs li[onclick] {
+#tabs li a[onclick] {
 	background: #DDDDDD;
     border-bottom: 1px solid #A8ACB8;
     font-weight: normal;

@@ -122,35 +122,50 @@
 
 			<xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history'">
 				<ul id="tabs">
-					<li id="view-tab" class="authenticated" tabindex="1">
-						<xsl:if test="not($query='view')">
-							<xsl:attribute name="onclick">location.replace('?view')</xsl:attribute>
-						</xsl:if>
-						<xsl:text>View</xsl:text>
+					<li class="authenticated">
+						<a id="view-tab" tabindex="1">
+							<xsl:if test="not($query='view')">
+								<xsl:attribute name="href">?view</xsl:attribute>
+								<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
+							</xsl:if>
+							<xsl:text>View</xsl:text>
+						</a>
 					</li>
-					<li id="edit-tab" class="authenticated" tabindex="2">
-						<xsl:if test="not($query='edit')">
-							<xsl:attribute name="onclick">location.replace('?edit')</xsl:attribute>
-						</xsl:if>
-						<xsl:text>Edit</xsl:text>
+					<li class="authenticated">
+						<a id="edit-tab" tabindex="2">
+							<xsl:if test="not($query='edit')">
+								<xsl:attribute name="href">?edit</xsl:attribute>
+								<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
+							</xsl:if>
+							<xsl:text>Edit</xsl:text>
+						</a>
 					</li>
-					<li id="discussion-tab" class="authenticated" tabindex="3">
-						<xsl:if test="not($query='discussion')">
-							<xsl:attribute name="onclick">location.replace('?discussion')</xsl:attribute>
-						</xsl:if>
-						<xsl:text>Discussion</xsl:text>
+					<li class="authenticated">
+						<a id="discussion-tab" tabindex="3">
+							<xsl:if test="not($query='discussion')">
+								<xsl:attribute name="href">?discussion</xsl:attribute>
+								<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
+							</xsl:if>
+							<xsl:text>Discussion</xsl:text>
+						</a>
 					</li>
-					<li id="describe-tab" class="authenticated" tabindex="4">
-						<xsl:if test="not($query='describe')">
-							<xsl:attribute name="onclick">location.replace('?describe')</xsl:attribute>
-						</xsl:if>
-						<xsl:text>Describe</xsl:text>
+					<li class="authenticated">
+						<a id="describe-tab" tabindex="4">
+							<xsl:if test="not($query='describe')">
+								<xsl:attribute name="href">?describe</xsl:attribute>
+								<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
+							</xsl:if>
+							<xsl:text>Describe</xsl:text>
+						</a>
 					</li>
-					<li id="history-tab" class="authenticated" tabindex="5">
-						<xsl:if test="not($query='history')">
-							<xsl:attribute name="onclick">location.replace('?history')</xsl:attribute>
-						</xsl:if>
-						<xsl:text>History</xsl:text>
+					<li class="authenticated">
+						<a id="history-tab" tabindex="5">
+							<xsl:if test="not($query='history')">
+								<xsl:attribute name="href">?history</xsl:attribute>
+								<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
+							</xsl:if>
+							<xsl:text>History</xsl:text>
+						</a>
 					</li>
 				</ul>
 			</xsl:if>

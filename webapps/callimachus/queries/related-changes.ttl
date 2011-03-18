@@ -20,9 +20,9 @@
 		WHERE {
 			$this ?rel ?url .
 			{
-				GRAPH ?revision { ?url ?p ?o FILTER (?p != audit:contained) }
+				GRAPH ?revision { ?url ?p ?o FILTER (?p != audit:contained && ?p != audit:revision) }
 			} UNION {
-				?revision audit:contained [rdf:subject ?url]
+				?revision audit:contained [rdf:subject ?url; rdf:predicate ?p] FILTER (?p != audit:revision)
 			}
 			?revision audit:committedOn ?modified
 			OPTIONAL { ?revision audit:contributor ?user OPTIONAL { ?user rdfs:label ?name }}

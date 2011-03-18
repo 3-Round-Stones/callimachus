@@ -32,13 +32,13 @@
 	<h1 property="skos:prefLabel" />
 	<form id="form" about="?this" typeof="skos:Concept" action="" onsubmit="saveChangeNote()">
 		<div style="overflow:auto">
-			<div style="float:left;margin:1ex">
+			<div style="float:left;margin-right:1em">
 				<label for="label">Label</label>
 				<div data-cardinality="1">
 					<input id="label" property="skos:prefLabel" class="auto-expand" />
 				</div>
 			</div>
-			<div style="float:left;margin:1ex">
+			<div style="float:left;margin-right:1em">
 				<label for="altLabel">Alternate label</label>
 				<div>
 					<input id="altLabel" property="skos:altLabel" class="auto-expand" />
@@ -46,13 +46,13 @@
 			</div>
 		</div>
 		<div style="overflow:auto">
-			<div style="float:left;margin:1ex">
+			<div style="float:left;margin-right:1em">
 				<label for="definition">Definition</label>
 				<div data-cardinality="1">
 					<textarea id="definition" class="auto-expand" property="skos:definition" />
 				</div>
 			</div>
-			<div style="float:left;margin:1ex">
+			<div style="float:left;margin-right:1em">
 				<label for="example">Example</label>
 				<div data-cardinality="1">
 					<textarea id="example" class="auto-expand" property="skos:example" />
@@ -60,13 +60,13 @@
 			</div>
 		</div>
 		<div style="overflow:auto">
-			<div style="float:left;margin:1ex">
+			<div style="float:left;margin-right:1em">
 				<label for="scopeNote">Scope</label>
 				<div data-cardinality="1">
 					<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
 				</div>
 			</div>
-			<div style="float:left;margin:1ex">
+			<div style="float:left;margin-right:1em">
 				<label for="historyNote">History</label>
 				<div data-cardinality="1">
 					<textarea id="historyNote" class="auto-expand" property="skos:historyNote" />
@@ -75,7 +75,7 @@
 		</div>
 		<hr />
 		<div style="overflow:auto">
-			<div style="float:left;margin:1ex">
+			<div style="float:left;margin-right:1em">
 				<label for="broader">Broader</label>
 				<div id="broader" rev="skos:narrower" data-prompt="/callimachus/skos/Concept?create" style="min-height: 1em">
 					<span about="?broader" typeof="skos:Concept">
@@ -83,7 +83,7 @@
 					</span>
 				</div>
 			</div>
-			<div style="float:left;margin:1ex">
+			<div style="float:left;margin-right:1em">
 				<label for="related">Related</label>
 				<div id="related" rel="skos:related" data-prompt="/callimachus/skos/Concept?create" style="min-height: 1em">
 					<span about="?related" typeof="skos:Concept">
@@ -91,7 +91,7 @@
 					</span>
 				</div>
 			</div>
-			<div style="float:left;margin:1ex">
+			<div style="float:left;margin-right:1em">
 				<label for="narrower">Narrower</label>
 				<div id="narrower" rel="skos:narrower" data-prompt="/callimachus/skos/Concept?create" style="min-height: 1em">
 					<span about="?narrower" typeof="skos:Concept">

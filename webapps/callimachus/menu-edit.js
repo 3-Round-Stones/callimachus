@@ -4,14 +4,17 @@ jQuery(function($){
 	$('span[rel]').each(function() {
 		$(this).text($(this).attr('resource'));
 	});
-	$('#items>li').each(parseItem);
+	$('#items>li').each(function(p,n){parseItem(p,n,true)});
 	$('#form').bind('cut paste', function() {
-		setTimeout(function() {$('#items>li').each(parseItem);}, 0);
+		setTimeout(function() {$('#items>li').each(function(p,n) {parseItem(p,n,true)});}, 0);
 		return true;
+	});
+	$('#form *').blur(function() {
+		$('#items>li').each(parseItem);
 	});
 
 	$('#form').submit(function() {
-		$('#items>li').each(parseItem);
+		$('#items>li').each(function(p,n){parseItem(p,n,true)});
 		return true;
 	});
 
@@ -39,31 +42,27 @@ jQuery(function($){
 		return true;
 	});
 
-	$('#form *').blur(function() {
-		$('#items>li').each(parseItem);
-	});
-
 	function getFocusNode() {
 		if (window.getSelection)
 			return window.getSelection().focusNode;
 		return document.selection.createRange().parentElement();
 	}
 
-	function parseItem(position, node) {
+	function parseItem(position, node, trim) {
 		var item = $(node);
 		var span = item.children("span[property]");
 		var label = item.children("label");
 		var link = item.children("span[rel]");
 		var ol = item.children("ol");
-		ol.children("li").each(parseItem);
+		ol.children("li").each(function(p, n) { parseItem(p, n, trim); });
 		item.find("br").remove();
 		if (!item.attr("typeof")) {
 			item.attr("typeof", "");
 		}
 		var text = textContent(node);
-		if (!text) {
+		if (!text && trim) {
 			removeItem(item);
-		} else {
+		} else if (text) {
 			var url = '';
 			var m = text.match(/^(.*)\s+(\w+:\S+)$/);
 			if (m) {
@@ -74,9 +73,10 @@ jQuery(function($){
 			}
 			if (span.text() != '' + position || label.text() != text || link.attr("resource") != url) {
 				setLabelLink(item, position, text, url);
-			} else if (!ol.children("li").size()) {
-				ol.remove();
 			}
+		}
+		if (!ol.children("li").size()) {
+			ol.remove();
 		}
 	}
 

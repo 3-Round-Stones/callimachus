@@ -134,6 +134,7 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 :AuthorizeTransactionView owl:equivalentClass :AuthorizeCredential;
 	msg:script <authorization.js#isViewingTransaction>.
 
+# called from authorization.js#isViewingTransaction
 :ListSubjectsOfTransaction rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];
 	msg:sparql  """

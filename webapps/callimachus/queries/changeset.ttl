@@ -66,6 +66,11 @@
 						rdf:predicate ?predicate;
 						rdf:object ?object
 					]
+					FILTER (?subject != $this)
+					FILTER (?predicate != audit:revision)
+					FILTER (?predicate != rdf:subject)
+					FILTER (?predicate != rdf:predicate)
+					FILTER (?predicate != rdf:object)
 				}
 				OPTIONAL { ?added audit:committedOn ?asof }
 				FILTER (?added = $this || ?removed = $this)

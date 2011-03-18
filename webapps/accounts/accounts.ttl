@@ -12,11 +12,9 @@
 # Realm
 ################################
 
-<Accounts> rdfs:subClassOf calli:DigestRealm, calli:Viewable, calli:Editable, calli:Copyable;
+<Accounts> rdfs:subClassOf calli:Viewable, calli:Editable, calli:DigestRealm;
 	calli:view <accounts.xhtml>;
-	calli:edit <accounts-edit.xhtml>;
-	calli:copy <group-create.xhtml>;
-	calli:withNamespace </group/>.
+	calli:edit <accounts-edit.xhtml>.
 
 </accounts> a <Accounts>;
 	calli:origin </>;
@@ -25,20 +23,13 @@
 	calli:unauthorized <unauthorized.xhtml>;
 	calli:forbidden <forbidden.xhtml>;
 	calli:authenticates </group/admin>;
-	calli:editor </group/admin>;
-	calli:administrator </group/admin>.
-
-</group/admin> a calli:Group, <Group>;
-	rdfs:label "admin";
-	calli:editor </group/admin>; # administrator of invited users
-	calli:administrator </group/admin>.
+	calli:administrator </group/admin>. # can add/remove authenticating user groups
 
 ################################
 # User
 ################################
 
-<User> rdfs:subClassOf calli:User, calli:MailSubmitter;
-	rdfs:subClassOf calli:Viewable, calli:Editable;
+<User> rdfs:subClassOf calli:Viewable, calli:Editable, calli:User;
 	msg:realm </accounts>; # User operations must be authorized
 	calli:icon <user-favicon.png>;
 	calli:withNamespace </user/>;
@@ -49,11 +40,20 @@
 # Group
 ################################
 
-<Group> rdfs:subClassOf calli:Group, calli:Viewable, calli:Editable;
-	msg:realm </accounts>; # Group operations must be authorized
+<Group> a calli:Creatable, owl:Class;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Group;
 	calli:icon <group-favicon.png>;
+	msg:realm </accounts>; # Group operations must be authorized
+	calli:editor </group/admin>; # create/edit all groups
 	calli:view <group.xhtml>;
-	calli:edit <group-edit.xhtml>.
+	calli:edit <group-edit.xhtml>;
+	calli:create <group-create.xhtml>;
+	calli:withNamespace </group/>.
+
+</group/admin> a calli:Group, <Group>;
+	rdfs:label "admin";
+	calli:editor </group/admin>; # administrator of invited users
+	calli:administrator </group/admin>. # can remove and invite new users
 
 ################################
 # login

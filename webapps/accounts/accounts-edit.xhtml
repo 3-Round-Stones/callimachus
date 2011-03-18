@@ -8,10 +8,14 @@
 	<title>User Groups</title>
 </head>
 <body about="?this">
+	<ul class="aside">
+		<li>Here are all the user groups whos members can login to this system.</li>
+		<li>Click the » button to add a new group.</li>
+	</ul>
 	<h1>User Groups</h1>
 	<form about="?this">
 		<label for="group">Authenticating groups</label>
-		<ul id="group" rel="calli:authenticates" data-prompt="/accounts?copy">
+		<ul id="group" rel="calli:authenticates" data-prompt="/accounts/Group?create">
 			<li about="?group" rel="rdf:type" resource="/accounts/Group" property="rdfs:label" />
 		</ul>
 		<button id="submit" type="submit">Save</button>

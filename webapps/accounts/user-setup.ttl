@@ -22,7 +22,7 @@
 			# there are no members to maintain this
 			OPTIONAL { $this calli:member ?member } FILTER (!bound(?member))
 
-			# there is no user assigned to maintain this
+			# there is no other user assigned to maintain this
 			OPTIONAL { $this calli:administrator [calli:name ?user] } FILTER (!bound(?user))
 
 			# there is no member of another group that can maintain this

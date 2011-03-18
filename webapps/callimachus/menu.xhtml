@@ -17,9 +17,26 @@
 	</script>
 </head>
 <body about="?this">
-	<div rel="calli:logo" resource="?logo">
-		<img src="?logo"/>
-	</div>
+	<ul class="aside">
+		<li>
+			<label>Icon</label>
+			<span rel="calli:favicon" resource="?icon">
+				<a href="?icon" data-query="view">
+					<img src="?icon" align="center" />
+				</a>
+				<div property="rdfs:comment" />
+			</span>
+		</li>
+		<li>
+			<label>Logo</label>
+			<span rel="calli:logo" resource="?logo">
+				<a href="?logo" data-query="view">
+					<img src="?logo" align="center" />
+				</a>
+				<div property="rdfs:comment" />
+			</span>
+		</li>
+	</ul>
 	<ol rel="calli:item" class="sorted">
 		<li typeof="">
 			<span class="asc" property="calli:position" style="display:none" />

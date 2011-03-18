@@ -16,7 +16,6 @@
 		<h1>New Group</h1>
 		<form id="form" action="" about="?this" typeof="calli:Group"
 				onsubmit="$(this).attr('about', '/group/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
-			<div rel="rdf:type" resource="/accounts/Group" />
 			<label for="label">Name</label>
 			<div data-cardinality="1">
 				<input id="label" property="rdfs:label" type="text" class="auto-expand required" />

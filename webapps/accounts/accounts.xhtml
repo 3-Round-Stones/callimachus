@@ -4,15 +4,20 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-	<head>
-		<title>User Groups</title>
-	</head>
-	<body about="?this">
-		<h1>User Groups</h1>
-		<ul>
-			<li rel="calli:authenticates" resource="?group">
-				<a href="?group" property="rdfs:label" />
-			</li>
-		</ul>
-	</body>
+<head>
+	<title>User Groups</title>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li>Callimachus splits permission controls into two steps: authentication and authorization.</li>
+		<li>Authentication authorizes user accounts based on a username and password that are members of the group listed here.</li>
+		<li>Authorization is done by matching authenticated users and their groups to resource controls.</li>
+	</ul>
+	<h1>User Groups</h1>
+	<ul>
+		<li rel="calli:authenticates" resource="?group">
+			<a href="?group" property="rdfs:label" />
+		</li>
+	</ul>
+</body>
 </html>

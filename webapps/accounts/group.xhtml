@@ -4,19 +4,21 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-	<head>
-		<title about="?this" property="rdfs:label"/>
-	</head>
-	<body about="?this">
-		<ul class="aside">
-			<li class="authenticated"><a href="?usercreate">Invite a new user</a></li>
-		</ul>
-		<h1><a href="?this" property="rdfs:label" /></h1>
-		<pre class="wiki" property="rdfs:comment" />
-		<ul rel="calli:member" class="sorted">
-			<li about="?member">
-				<a href="?member" property="rdfs:label" class="asc" />
-			</li>
-		</ul>
-	</body>
+<head>
+	<title about="?this" property="rdfs:label"/>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li class="authenticated"><a href="?usercreate">Invite a new user</a></li>
+		<li>Groups provide a way to assign permissions to a named set of users.</li>
+		<li>User permissions through groups can help generalize resources' permission.</li>
+	</ul>
+	<h1><a href="?this" property="rdfs:label" /></h1>
+	<pre class="wiki" property="rdfs:comment" />
+	<ul rel="calli:member" class="sorted">
+		<li about="?member">
+			<a href="?member" property="rdfs:label" class="asc" />
+		</li>
+	</ul>
+</body>
 </html>

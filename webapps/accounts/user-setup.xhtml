@@ -5,81 +5,81 @@
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
-	<head>
-		<title>Administrator Account</title>
-		<link type="text/css" href="/accounts/jquery.validate.password.css" rel="stylesheet" />	
-		<script src="/accounts/jquery.validate.password.js">
-		</script>
-		<script src="/accounts/md5.js">
-		</script>
-		<script>//<![CDATA[
-			$(document).ready(function() {
-				$("#form").validate({submitHandler: userSetup});
-			});
-			function userSetup(form) {
-				var label = $("#label").val();
-				var name = $("#name").val();
-				var realm = $("#realm-link")[0].href;
-				var value = $("#password").val();
-				var encoded = hex_md5(name + ':' + realm + ':' + value);
-				var data = {name: name, label: label, algorithm: 'MD5', encoded: encoded};
-				try {
-					var xhr = jQuery.post(location.href, data, function(data, textStatus) {
-						var event = jQuery.Event("calliLogin");
-						event.username = name;
-						event.password = value;
-						event.location = "/";
-						$(document).trigger(event);
-					});
-				} catch (e) {
-					$(form).trigger("calliError", e.description ? e.description : e);
-					return false;
-				}
+<head>
+	<title>Administrator Account</title>
+	<link type="text/css" href="/accounts/jquery.validate.password.css" rel="stylesheet" />	
+	<script src="/accounts/jquery.validate.password.js">
+	</script>
+	<script src="/accounts/md5.js">
+	</script>
+	<script>//<![CDATA[
+		$(document).ready(function() {
+			$("#form").validate({submitHandler: userSetup});
+		});
+		function userSetup(form) {
+			var label = $("#label").val();
+			var name = $("#name").val();
+			var realm = $("#realm-link")[0].href;
+			var value = $("#password").val();
+			var encoded = hex_md5(name + ':' + realm + ':' + value);
+			var data = {name: name, label: label, algorithm: 'MD5', encoded: encoded};
+			try {
+				var xhr = jQuery.post(location.href, data, function(data, textStatus) {
+					var event = jQuery.Event("calliLogin");
+					event.username = name;
+					event.password = value;
+					event.location = "/";
+					$(document).trigger(event);
+				});
+			} catch (e) {
+				$(form).trigger("calliError", e.description ? e.description : e);
 				return false;
 			}
-			// ]]>
-		</script>
-	</head>
-	<body>
-		<ul class="aside">
-			<li>The username cannot be changed once the created</li>
-			<li>Provide your full name for identification</li>
-			<li>The password can be changed using the settings link</li>
-			<li><label>Choosing a good password</label>
-				<ul>
-					<li>Never share your password to colleagues, friends, or family members, even when asked.</li>
-					<li>Don't choose passwords that relate to you as a person.</li>
-					<li>Don't use your last name, your wife's name, the name of your cat, the date of birth, your favourite flower etc.</li>
-					<li>Use complex multiple word pass phrases, never a single word.</li>
-				</ul>
-			</li>
-		</ul>
-		<h1>Initial Setup</h1>
-		<form id="form" method="POST" action="" autocomplete="off" >
-			<div rel="rdf:type" resource="/accounts/User" />
-			<span style="display:none">
-				<a id="realm-link" href="/" />
-			</span>
-			<label for="name">Username</label>
-			<div data-cardinality="1">
-				<input id="name" name="name" type="text" class="required auto-expand" />
-			</div>
-			<label for="label">Full name</label>
-			<div data-cardinality="1">
-				<input id="label" name="label" type="text" class="required auto-expand" />
-			</div>
-			<label for="password">Password</label>
-			<div>
-				<input id="password" type="password" password="#username" onkeyup="$(this).valid()" />
-				<div class="password-meter">
-					<label for="password" class="password-meter-message" />
-					<div class="password-meter-bg">
-						<div class="password-meter-bar"></div>
-					</div>
+			return false;
+		}
+		// ]]>
+	</script>
+</head>
+<body>
+	<ul class="aside">
+		<li>The username cannot be changed once the created</li>
+		<li>Provide your full name for identification</li>
+		<li>The password can be changed using the settings link</li>
+		<li><label>Choosing a good password</label>
+			<ul>
+				<li>Never share your password to colleagues, friends, or family members, even when asked.</li>
+				<li>Don't choose passwords that relate to you as a person.</li>
+				<li>Don't use your last name, your spouse's name, the name of your pet, the date of birth, your favourite flower etc.</li>
+				<li>Use complex multiple word pass phrases, never a single word.</li>
+			</ul>
+		</li>
+	</ul>
+	<h1>Initial Setup</h1>
+	<form id="form" method="POST" action="" autocomplete="off" >
+		<div rel="rdf:type" resource="/accounts/User" />
+		<span style="display:none">
+			<a id="realm-link" href="/" />
+		</span>
+		<label for="name">Username</label>
+		<div data-cardinality="1">
+			<input id="name" name="name" type="text" class="required auto-expand" />
+		</div>
+		<label for="label">Full name</label>
+		<div data-cardinality="1">
+			<input id="label" name="label" type="text" class="required auto-expand" />
+		</div>
+		<label for="password">Password</label>
+		<div>
+			<input id="password" type="password" password="#username" onkeyup="$(this).valid()" />
+			<div class="password-meter">
+				<label for="password" class="password-meter-message" />
+				<div class="password-meter-bg">
+					<div class="password-meter-bar"></div>
 				</div>
 			</div>
-			<button id="submit" type="submit">Create</button>
-			<button id="cancel" type="button" onclick="location.replace('/')">Cancel</button>
-		</form>
-	</body>
+		</div>
+		<button id="submit" type="submit">Create</button>
+		<button id="cancel" type="button" onclick="location.replace('/')">Cancel</button>
+	</form>
+</body>
 </html>

@@ -6,63 +6,58 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
-	<head>
-		<title about="?this" property="rdfs:label"/>
-		<script>
-			function saveChangeNote() {
-				var note = document.getElementById('note')
-				if (note.value) {
-					note.setAttribute('property', 'skos:changeNote')
-					note.setAttribute('content', note.value)
-				}
+<head>
+	<title about="?this" property="rdfs:label"/>
+	<script>
+		function saveChangeNote() {
+			var note = document.getElementById('note')
+			if (note.value) {
+				note.setAttribute('property', 'skos:changeNote')
+				note.setAttribute('content', note.value)
 			}
-		</script>
-	</head>
-	<body about="?this">
-		<ul class="aside">
-			<li>Use Wiki text to describe the group</li>
-			<li>Contributors can invite new users and create empty groups</li>
-			<li>Editors can invite and administrate new users of this group and maintain new groups</li>
-			<li>Administrators can add and remove members and authorization groups, invite new users, and create empty groups</li>
-		</ul>
-		<h1><span property="rdfs:label" /> Group</h1>
-		<form id="form" action="" about="?this" onsubmit="saveChangeNote()" data-redirect="/accounts">
-			<label for="comment">Description</label>
-			<div data-cardinality="1">
-				<textarea id="comment" class="auto-expand"
-					property="rdfs:comment"></textarea>
+		}
+	</script>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li>Use Wiki text to describe the purpose of this group.</li>
+		<li>Administrators can add and remove members of this groups and invite new users.</li>
+		<li>Editors can edit user settings of users invited to this group.</li>
+	</ul>
+	<h1><span property="rdfs:label" /> Group</h1>
+	<form id="form" action="" about="?this" onsubmit="saveChangeNote()" data-redirect="/accounts">
+		<label for="comment">Description</label>
+		<div data-cardinality="1">
+			<textarea id="comment" class="auto-expand"
+				property="rdfs:comment"></textarea>
+		</div>
+		<div style="overflow:auto">
+			<div style="float:left;margin-right:1em">
+				<label for="administrator">Administrator</label>
+				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
+					<div about="?administrator" property="rdfs:label"/>
+				</div>
 			</div>
-			<label for="contributor">Contributors</label>
-			<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
-				<span about="?contributor">
-					<span property="rdfs:label"/>
-				</span>
+			<div style="float:left;margin-right:1em">
+				<label for="editor">Editors</label>
+				<div id="editor" rel="calli:editor" data-prompt="/accounts">
+					<div about="?editor" property="rdfs:label"/>
+				</div>
 			</div>
-			<label for="editor">Editors</label>
-			<div id="editor" rel="calli:editor" data-prompt="/accounts">
-				<span about="?editor">
-					<span property="rdfs:label"/>
-				</span>
-			</div>
-			<label for="administrator">Administrator</label>
-			<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
-				<span about="?administrator">
-					<span property="rdfs:label"/>
-				</span>
-			</div>
-			<hr />
-			<label for="member">Members</label>
-			<div id="member" rel="calli:member" data-prompt="?usercreate">
-				<span about="?member" typeof="calli:User" property="rdfs:label" />
-			</div>
-			<hr />
-			<label for="note">Change summary</label>
-			<div>
-				<input type="text" id="note" maxlength="140" class="auto-expand" />
-			</div>
-			<button id="submit" type="submit">Save</button>
-			<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-			<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this group?')) calli.deleteResource()">Delete</button>
-		</form>
-	</body>
+		</div>
+		<hr />
+		<label for="member">Members</label>
+		<div id="member" rel="calli:member" data-prompt="?usercreate">
+			<span about="?member" typeof="calli:User" property="rdfs:label" />
+		</div>
+		<hr />
+		<label for="note">Change summary</label>
+		<div>
+			<input type="text" id="note" maxlength="140" class="auto-expand" />
+		</div>
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this group?')) calli.deleteResource()">Delete</button>
+	</form>
+</body>
 </html>

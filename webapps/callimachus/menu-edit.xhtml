@@ -20,19 +20,27 @@
 		<li>Use ENTER key to create a new entry at the start or end of a line.</li>
 		<li>Use TAB key to indent, or shift-TAB to outdent.</li>
 		<li>Use SPACE to separate a label from a full URL.</li>
+		<li>Drag links or text to an empty list item to insert, then click outside of the edit area.</li>
 	</ul>
+	<h1>Website Contents</h1>
 	<form id='form' about="?this">
-		<label for="logo-image">Logo</label>
-		<div id="logo-image" rel="calli:logo" data-prompt="/callimachus/Image?create">
-			<span about="?logo">
-				<span property="rdfs:label"/>
-			</span>
-		</div>
-		<label for="favicon-image">Favicon</label>
-		<div id="favicon-image" rel="calli:favicon" data-prompt="/callimachus/Image?create">
-			<span about="?favicon">
-				<span property="rdfs:label"/>
-			</span>
+		<div style="overflow:auto">
+			<div style="float:left;margin-right:1em">
+				<label for="favicon-image">Icon</label>
+				<div id="favicon-image" rel="calli:favicon" data-prompt="/callimachus/Image?create">
+					<span about="?favicon">
+						<span property="rdfs:label"/>
+					</span>
+				</div>
+			</div>
+			<div style="float:left;margin-right:1em">
+				<label for="logo-image">Logo</label>
+				<div id="logo-image" rel="calli:logo" data-prompt="/callimachus/Image?create">
+					<span about="?logo">
+						<span property="rdfs:label"/>
+					</span>
+				</div>
+			</div>
 		</div>
 		<div>
 			<ol id="items" rel="calli:item" class="sorted textarea" contenteditable="true">

@@ -36,6 +36,7 @@
 		} finally {
 			subclass.close();
 		}
+		proceed();
 	""".
 
 :MigrateGroups owl:equivalentClass calli:Started;
@@ -67,5 +68,6 @@
 		} finally {
 			subclass.close();
 		}
+		proceed();
 	""".
 

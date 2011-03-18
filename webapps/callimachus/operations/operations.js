@@ -1,12 +1,12 @@
 // operations.js
 
+importClass(Packages.calli.Copyable);
+importClass(Packages.calli.copy);
+importClass(Packages.calli.edit);
+importClass(Packages.calli.view);
 importClass(Packages.org.apache.http.ProtocolVersion);
 importClass(Packages.org.apache.http.message.BasicHttpResponse);
-importClass(Packages.org.callimachusproject.annotations.view);
-importClass(Packages.org.callimachusproject.annotations.copy);
-importClass(Packages.org.callimachusproject.annotations.edit);
 importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
-importClass(Packages.calli.Copyable);
 
 function getViewPage() {
 	return findTemplate(this, view).calliConstruct(this, 'view');
@@ -18,7 +18,7 @@ function getCopyPage() {
 
 function postCopy(msg) {
 	var template = findTemplate(this, copy);
-	var newCopy = template.calliCopyResource(this, msg.input, this.FindCopyNamespaces());
+	var newCopy = template.calliCreateResource(this, msg.input, this.FindCopyNamespaces());
 	if (this.calliEditors.size()) {
 		if (newCopy instanceof Copyable) {
 			newCopy.calliEditors.addAll(this.calliEditors);
@@ -40,7 +40,7 @@ function postCreate(msg) {
 	var template = this.calliCreate;
 	if (!template)
 		throw new InternalServerError("No create template");
-	var newCopy = template.calliCopyResource(this, msg.input, this.FindCreateNamespaces());
+	var newCopy = template.calliCreateResource(this, msg.input, this.FindCreateNamespaces());
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
 	if (this.calliEditors.size()) {
 		if (newCopy instanceof Copyable) {

@@ -58,7 +58,7 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  */
 public abstract class CreateSupport implements Template {
 
-	public RDFObject calliCopyResource(final RDFObject source, InputStream in,
+	public RDFObject calliCreateResource(final RDFObject source, InputStream in,
 			final Set<?> namespaces) throws Exception {
 		try {
 			final ObjectConnection con = source.getObjectConnection();

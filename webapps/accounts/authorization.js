@@ -1,8 +1,8 @@
 // authorization.js
 
+importClass(Packages.calli.editor);
+importClass(Packages.calli.reader);
 importClass(Packages.org.openrdf.http.object.concepts.Transaction);
-importClass(Packages.org.callimachusproject.annotations.editor);
-importClass(Packages.org.callimachusproject.annotations.reader);
 importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
 
 function isClassEditor(msg) {

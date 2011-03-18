@@ -52,7 +52,6 @@
 
 </group/admin> a calli:Group, <Group>;
 	rdfs:label "admin";
-	calli:editor </group/admin>; # administrator of invited users
 	calli:administrator </group/admin>. # can remove and invite new users
 
 ################################

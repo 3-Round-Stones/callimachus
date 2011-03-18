@@ -22,7 +22,7 @@
 	<ul class="aside">
 		<li>Use Wiki text to describe the purpose of this group.</li>
 		<li>Administrators can add and remove members of this groups and invite new users.</li>
-		<li>Editors can edit user settings of users invited to this group.</li>
+		<li>Administrators can edit user settings of users invited to this group.</li>
 	</ul>
 	<h1><span property="rdfs:label" /> Group</h1>
 	<form id="form" action="" about="?this" onsubmit="saveChangeNote()" data-redirect="/accounts">
@@ -31,19 +31,9 @@
 			<textarea id="comment" class="auto-expand"
 				property="rdfs:comment"></textarea>
 		</div>
-		<div style="overflow:auto">
-			<div style="float:left;margin-right:1em">
-				<label for="administrator">Administrator</label>
-				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
-					<div about="?administrator" property="rdfs:label"/>
-				</div>
-			</div>
-			<div style="float:left;margin-right:1em">
-				<label for="editor">Editors</label>
-				<div id="editor" rel="calli:editor" data-prompt="/accounts">
-					<div about="?editor" property="rdfs:label"/>
-				</div>
-			</div>
+		<label for="administrator">Administrator</label>
+		<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
+			<div about="?administrator" property="rdfs:label"/>
 		</div>
 		<hr />
 		<label for="member">Members</label>

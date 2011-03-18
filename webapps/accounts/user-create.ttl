@@ -63,7 +63,7 @@ rdfs:comment a rdf:Property.
 		user.calliName = username;
 		user.calliEmail = email;
 		user.rdfsLabels.add(label);
-		user.calliAdministrators.addAll(this.calliEditors);
+		user.calliAdministrators.addAll(this.calliAdministrators);
 		this.calliMembers.add(user);
 		if (form.get("comment")) {
 			user.rdfsComments.add(form.get("comment")[0]);

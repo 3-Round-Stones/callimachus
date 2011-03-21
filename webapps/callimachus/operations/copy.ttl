@@ -57,7 +57,7 @@
 		WHERE { $this a [calli:withNamespace ?namespace] }
 	""".
 
-# find the user that created $thing
+# find the user that created $thing if they are not editors of $this
 :FindCopyContributor rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
 	msg:sparql  """
@@ -68,7 +68,12 @@
 			} UNION {
 				GRAPH ?graph { $thing a ?type }
 				?graph audit:contributor ?contributor
+			} OPTIONAL {
+				?template calli:editor ?contributor FILTER (?template = $this)
+			} OPTIONAL {
+				$this calli:editor ?group . ?group calli:member ?contributor
 			}
+			FILTER (!bound(?template) && !bound(?group))
 		}
 	""".
 

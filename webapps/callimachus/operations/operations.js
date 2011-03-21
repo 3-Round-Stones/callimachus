@@ -19,14 +19,11 @@ function getCopyPage() {
 function postCopy(msg) {
 	var template = findTemplate(this, copy);
 	var newCopy = template.calliCreateResource(this, msg.input, this.FindCopyNamespaces());
-	if (this.calliEditors.size()) {
-		if (newCopy instanceof Copyable) {
-			newCopy.calliEditors.addAll(this.calliEditors);
-		}
-		newCopy.calliAdministrators.addAll(this.calliEditors);
-	} else {
-		newCopy.calliAdministrators.addAll(this.FindCopyContributor(newCopy));
+	if (newCopy instanceof Copyable) {
+		newCopy.calliEditors.addAll(this.calliEditors);
 	}
+	newCopy.calliAdministrators.addAll(this.calliEditors);
+	newCopy.calliAdministrators.addAll(this.FindCopyContributor(newCopy));
 	return newCopy;
 }
 
@@ -42,14 +39,11 @@ function postCreate(msg) {
 		throw new InternalServerError("No create template");
 	var newCopy = template.calliCreateResource(this, msg.input, this.FindCreateNamespaces());
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
-	if (this.calliEditors.size()) {
-		if (newCopy instanceof Copyable) {
-			newCopy.calliEditors.addAll(this.calliEditors);
-		}
-		newCopy.calliAdministrators.addAll(this.calliEditors);
-	} else {
-		newCopy.calliAdministrators.addAll(this.FindCreateContributor(newCopy));
+	if (newCopy instanceof Copyable) {
+		newCopy.calliEditors.addAll(this.calliEditors);
 	}
+	newCopy.calliAdministrators.addAll(this.calliEditors);
+	newCopy.calliAdministrators.addAll(this.FindCreateContributor(newCopy));
 	return newCopy;
 }
 

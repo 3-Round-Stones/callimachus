@@ -131,6 +131,21 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 		}
 	""".
 
+# Users can view resized photos if they can view the photo itself
+:AuthorizePhotos owl:equivalentClass </accounts/authorization.ttl#AuthorizeCredential>;
+	msg:imports </callimachus/Photo>;
+	msg:script  """
+		if (method == "GET" || method == "HEAD") {
+			if (query == "large" || query == "medium" || query == "small") {
+				if (object instanceof Photo) {
+					if (this.AuthorizeCredential(credential, method, object, null))
+						return true;
+				}
+			}
+		}
+		return proceed();
+	""".
+
 # Users can view parts of an entity if they can view the resource it is a part of
 :AuthorizePart owl:equivalentClass </accounts/authorization.ttl#AuthorizeCredential>;
 	msg:script <authorization.js#authorizePart>.

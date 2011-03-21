@@ -2,7 +2,7 @@
 
 (function($){
 
-$(document).ready(findAutoExpandTextArea);
+$(document).ready(function(event){setTimeout(function(){findAutoExpandTextArea(event)}, 0)});
 $(window).bind('resize', findAutoExpandTextArea);
 $(document).bind('change', findAutoExpandTextArea);
 $(document).bind('keypress', findAutoExpandTextArea);

@@ -89,13 +89,19 @@
 			</div>
 		</div>
 		<hr />
-		<label for="editor">Editor</label>
-		<div id="editor" rel="calli:editor" data-prompt="/accounts">
-			<div about="?editor" property="rdfs:label" />
-		</div>
-		<label for="namespace">Namespace</label>
-		<div data-cardinality="1" id="namespace-div">
-			<input id="namespace" rel="calli:withNamespace" resource="?namespace" value="?namespace" class="auto-expand" />
+		<div style="overflow:auto">
+			<div style="float:left;margin-right:1em">
+				<label for="contributor">Contributors</label>
+				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
+					<div about="?contributor" property="rdfs:label" />
+				</div>
+			</div>
+			<div style="float:left;margin-right:1em">
+				<label for="editor">Editors</label>
+				<div id="editor" rel="calli:editor" data-prompt="/accounts">
+					<div about="?editor" property="rdfs:label" />
+				</div>
+			</div>
 		</div>
 		<div style="overflow:auto">
 			<div style="float:left;margin-right:1em">
@@ -125,7 +131,7 @@
 		</div>
 		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this ontology?')) calli.deleteResource()">Delete</button>
+		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this class?')) calli.deleteResource()">Delete</button>
 	</form>
 </body>
 </html>

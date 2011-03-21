@@ -97,6 +97,9 @@ calli:Menu a owl:Class;
 calli:NamedGraph a owl:Class;
 	rdfs:comment "Graph in the RDF store that can be retrieved remotely.".
 
+calli:SchemaGraph a owl:Class;
+	rdfs:comment "Graph in the RDF store that contains schema data.".
+
 calli:ScriptBundle a owl:Class;
 	rdfs:comment "A collection of JavaScript files that are downloaded and compressed together.".
 

@@ -57,6 +57,7 @@ import org.openrdf.http.object.HTTPObjectAgentMXBean;
 import org.openrdf.http.object.HTTPObjectServer;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.util.FileUtil;
+import org.openrdf.model.impl.URIImpl;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfigException;
@@ -65,11 +66,11 @@ import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.rio.RDFFormat;
-import org.openrdf.sail.auditing.vocabulary.Audit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CallimachusServer implements HTTPObjectAgentMXBean {
+	private static final String SCHEMA_GRAPH = "http://callimachusproject.org/rdf/2009/framework#SchemaGraph";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
 	private static final String ERROR_XSLT_PATH = "/layout/error.xsl";
@@ -86,7 +87,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		File webappsDir = webapps.getCanonicalFile();
 		this.repository = importJars(webappsDir, repository);
 		// compile schema not in an explicit named graph
-		this.repository.addSchemaGraphType(Audit.TRANSACTION); // FIXME be more specific
+		this.repository.addSchemaGraphType(new URIImpl(SCHEMA_GRAPH));
 		ObjectConnection con = this.repository.getConnection();
 		try {
 			ClassLoader cl = con.getObjectFactory().getClassLoader();

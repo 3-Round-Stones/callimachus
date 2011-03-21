@@ -39,6 +39,20 @@ function isReader(msg) {
 	return msg.proceed();
 }
 
+function authorizePart(msg) {
+	if (msg.proceed()) {
+		return true;
+	}
+	if (isReviewing(msg.method, msg.query)) {
+		var iter = this.GetParentResources(msg.object).iterator();
+		while (iter.hasNext()) {
+			if (this.AuthorizeCredential(msg.credential, msg.method, iter.next(), msg.query))
+				return true;
+		}
+	}
+	return false;
+}
+
 function isViewingTransaction(msg) {
 	if (msg.proceed()) {
 		return true;

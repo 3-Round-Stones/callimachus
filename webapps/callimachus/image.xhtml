@@ -5,7 +5,7 @@
 		<title about="?this" property="rdfs:label" />
 		<script>//<![CDATA[
 			jQuery(function($){
-				if (document.referrer && document.referrer.indexOf('/callimachus/Image?create') > 0) {
+				if (document.referrer && document.referrer.indexOf('?create') > 0) {
 					try {
 						if (window.parent && parent.calli && window.frameElement) {
 							var subj = $('body').attr("about");

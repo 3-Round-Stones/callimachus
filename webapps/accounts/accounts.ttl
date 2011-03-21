@@ -41,7 +41,7 @@
 ################################
 
 <Group> a calli:Creatable, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Group;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Group;
 	calli:icon <group-favicon.png>;
 	msg:realm </accounts>; # Group operations must be authorized
 	calli:editor </group/admin>; # create/edit all groups

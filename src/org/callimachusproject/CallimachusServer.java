@@ -86,7 +86,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		File webappsDir = webapps.getCanonicalFile();
 		this.repository = importJars(webappsDir, repository);
 		// compile schema not in an explicit named graph
-		this.repository.addSchemaGraphType(Audit.TRANSACTION);
+		this.repository.addSchemaGraphType(Audit.TRANSACTION); // FIXME be more specific
 		ObjectConnection con = this.repository.getConnection();
 		try {
 			ClassLoader cl = con.getObjectFactory().getClassLoader();

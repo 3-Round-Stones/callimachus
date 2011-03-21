@@ -27,7 +27,7 @@
 	calli:aliasOf <scheme-list.xhtml?construct>.
 
 <ConceptScheme> a calli:Creatable, owl:Class;
-	rdfs:subClassOf skos:ConceptScheme, calli:Viewable, calli:Editable;
+	rdfs:subClassOf calli:Viewable, calli:Editable, skos:ConceptScheme;
 	calli:icon <scheme.png>;
 	calli:view <scheme.xhtml>;
 	calli:edit <scheme-edit.xhtml>;
@@ -46,7 +46,7 @@
 	msg:script "return concept_list_xhtml.calliConstructHTML(this)".
 
 <Concept> a calli:Creatable, owl:Class;
-	rdfs:subClassOf skos:Concept, calli:Viewable, calli:Editable;
+	rdfs:subClassOf calli:Viewable, calli:Editable, skos:Concept;
 	calli:icon <concept.png>;
 	calli:view <concept.xhtml>;
 	calli:edit <concept-edit.xhtml>;

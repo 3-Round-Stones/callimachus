@@ -18,6 +18,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix dcterms:<http://purl.org/dc/terms/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
@@ -129,6 +130,25 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 			FILTER (!bound($query) || $query = "view" || $query = "discussion")
 		}
 	""".
+
+# Users can view parts of an entity if they can view the resource it is a part of
+:AuthorizePart owl:equivalentClass </accounts/authorization.ttl#AuthorizeCredential>;
+	msg:script <authorization.js#authorizePart>.
+
+# The relationship dcterms:isPartOf should only be editable with rel="dcterms:isPartOf"
+# This will ensure access permission is granted by users that can edit the resource and not taken
+:GetParentResources rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];
+	msg:sparql """
+		SELECT DISTINCT ?parent
+		WHERE {
+			$part dcterms:isPartOf ?parent
+			FILTER (!isLiteral(?parent))
+		}
+	""".
+
+:part a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :GetParentResources.
 
 # transcations are authorized by the object they modified
 :AuthorizeTransactionView owl:equivalentClass :AuthorizeCredential;

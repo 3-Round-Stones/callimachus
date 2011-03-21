@@ -5,24 +5,32 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
-	<head>
-		<title about="?this" property="rdfs:label"/>
-	</head>
-	<body about="?this">
-		<ul class="aside">
-			<li><a href="?contributions">Contributions</a></li>
-			<li><span>Group memberships</span>
-			<ul rev="calli:member">
-				<li about="?group"><a href="?group" property="rdfs:label"/></li>
-			</ul></li>
-		</ul>
-		<h1><a href="?this" property="rdfs:label" /></h1>
-		<div id="img" rel="foaf:depiction" resource="?img"  style="margin: 0px 1ex 1ex 0px;max-width:10em">
-			<a href="?img" data-query="view"><img src="?img" style="max-height:100%;max-width:10em" /></a>
-		</div>
-		<div>
-			<p property="calli:name" />
-			<pre class="wiki" property="rdfs:comment" />
-		</div>
-	</body>
+<head>
+	<title about="?this" property="rdfs:label"/>
+	<script>
+		$(document).ready(function() {
+			$('img[about]:not([src])').each(function(){
+				var node = $(this);
+				node.attr('src', node.attr('about') + '?' + node.attr('data-query'));
+			});
+		});
+	</script>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li><a href="?contributions">Contributions</a></li>
+		<li><span>Group memberships</span>
+		<ul rev="calli:member">
+			<li about="?group"><a href="?group" property="rdfs:label"/></li>
+		</ul></li>
+	</ul>
+	<h1><a href="?this" property="rdfs:label" /></h1>
+	<div id="img" rel="foaf:depiction" resource="?img" style="margin: 0px 1ex 1ex 0px;max-width:10em">
+		<a href="?img" data-query="view"><img about="?img" data-query="medium" style="max-height:100%;max-width:10em" /></a>
+	</div>
+	<div>
+		<p property="calli:name" />
+		<pre class="wiki" property="rdfs:comment" />
+	</div>
+</body>
 </html>

@@ -57,7 +57,7 @@
 		WHERE { $this a [calli:withNamespace ?namespace] }
 	""".
 
-# find the user that created $of
+# find the user that created $thing
 :FindCopyContributor rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
 	msg:sparql  """
@@ -66,12 +66,12 @@
 			{
 				audit:current-trx audit:contributor ?contributor
 			} UNION {
-				GRAPH ?graph { $of a ?type }
+				GRAPH ?graph { $thing a ?type }
 				?graph audit:contributor ?contributor
 			}
 		}
 	""".
 
-:of a owl:ObjectProperty, owl:FunctionalProperty;
+:thing a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :FindCopyContributor.
 

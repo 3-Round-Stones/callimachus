@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Upload Photo</title>
+		<script>//<![CDATA[
+			jQuery(function($){
+				if (window.parent && window.frameElement) {
+					var subj = $('form[about]', parent.document).attr("about");
+					$('#isPartOf').val(subj);
+				}
+			});
+			//]]>
+		</script>
+	</head>
+	<body>
+		<h1>Upload Photo</h1>
+		<form method="POST" action="Photo?create" enctype="multipart/form-data">
+			<label for="photo">Photo file</label>
+			<input type="file" id="photo" name="photo" />
+			<label for="caption">Caption</label>
+			<input type="text" id="caption" name="caption" />
+			<input type="hidden" id="isPartOf" name="isPartOf" />
+			<div class="authenticated">
+				<br/>
+				<button type="submit" id="upload">Upload</button>
+			</div>
+		</form>
+	</body>
+</html>

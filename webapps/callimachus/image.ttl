@@ -64,7 +64,7 @@
 		var local = ("" + URLEncoder.encode(img.fileName, "UTF-8")).replace(/%20/g, "+") ;
 		var uri = this.toUri().resolve("/image/") + local ;
 		var obj = this.objectConnection.getObject(uri) ;
-		if (obj instanceof Image) throw new Conflict("Image already exists: " + uri) ;
+		if (obj instanceof Image) throw new Conflict("An image with that file named has already been uploaded: " + uri) ;
 
 		//# designate as <Image> and the relevant mimetype
 		obj = this.objectConnection.addDesignation(obj, Image) ;
@@ -85,7 +85,7 @@
 		obj.rdfsLabels.add(img.fileName) ;
 
 		//# add the image caption
-		if (caption!="") obj.rdfsComments.add(caption);
+		if (caption) obj.rdfsComments.add(caption);
 
 		this.objectConnection.commit();
 

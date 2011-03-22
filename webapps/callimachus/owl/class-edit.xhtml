@@ -54,11 +54,16 @@
 </head>
 <body about="?this">
 	<ul class="aside">
-		<li rel="rdfs:isDefinedBy">
+		<li rel="rdfs:isDefinedBy"><!-- used by popups -->
 			<span id="ontology" about="?isDefinedBy" typeof="owl:Ontology">
 				<span property="rdfs:label"></span>
 			</span>
 		</li>
+		<li>Icon is used when looking up resources</li>
+		<li>A superclass should be a common part of its subclasses</li>
+		<li>Contributors can create resources and edit those resources</li>
+		<li>Editors can create resources and edit all resources of this class</li>
+		<li>Templates are used for page or form structure for each operation</li>
 	</ul>
 	<h1 property="rdfs:label" />
 	<form about="?this" typeof="owl:Class" action="" onsubmit="updateSuperClasses()">

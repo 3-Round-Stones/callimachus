@@ -30,7 +30,7 @@ function postCopy(msg) {
 function getCreatePage() {
 	if (!this.calliCreate)
 		throw new InternalServerError("No create template");
-	return this.calliCreate.calliConstruct(null, 'create');
+	return this.calliCreate.calliConstruct(this, 'create');
 }
 
 function postCreate(msg) {

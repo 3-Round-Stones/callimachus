@@ -10,6 +10,9 @@
 	</style>
 </head>
 <body about="?this">
+	<ul class="aside">
+		<li>A class usually represents a noun, such as a person, place or (possibly quite abstract) thing</li>
+	</ul>
 	<h1><span id="ontology" about="?this" property="rdfs:label" /></h1>
 	<form about="?this" typeof="owl:Ontology" action="" data-redirect="/callimachus/owl/ontology-list.xhtml?construct">
 		<label for="label">Label</label>
@@ -23,10 +26,6 @@
 		<label for="comment">Comment</label>
 		<div data-cardinality="1">
 			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
-		</div>
-		<label for="imports">Imports</label>
-		<div id="imports" rel="owl:imports">
-			<span about="?imports" property="rdfs:label" class="imports" />
 		</div>
 		<label for="class">Class</label>
 		<div id="class" rev="rdfs:isDefinedBy" data-prompt="/callimachus/owl/Class?create">

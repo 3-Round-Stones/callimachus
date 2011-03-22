@@ -19,10 +19,15 @@
 			var name = $("#name-span").text();
 			var realm = document.getElementById("realm-link").href;
 			if (value) {
-				var encoded = hex_md5(name + ':' + realm + ':' + value);
 				var span = $("#encoded-span");
-				span.attr("datatype", "xsd:hexBinary");
-				span.text(encoded);
+				var previously = hex_md5(name + ':' + realm + ':' + $("#currently").val());
+				if (span.text() == previously) {
+					var encoded = hex_md5(name + ':' + realm + ':' + value);
+					span.attr("datatype", "xsd:hexBinary");
+					span.text(encoded);
+				} else {
+					throw "That is not your current password";
+				}
 			}
 			return true;
 		}
@@ -77,7 +82,7 @@
 		</li>
 	</ul>
 	<h1 property="rdfs:label" />
-	<form action="" about="?this" autocomplete="off" onsubmit="savePassword()">
+	<form id="form" action="" about="?this" autocomplete="off" onsubmit="savePassword()">
 		<label for="label">Full name</label>
 		<div data-cardinality="1">
 			<input id="label" property="rdfs:label" type="text" class="auto-expand required" />
@@ -96,13 +101,21 @@
 			<input id="email" property="calli:email" type="text" class="auto-expand email" />
 		</div>
 		<hr />
-		<label for="password">New password</label>
-		<div>
-			<input id="password" type="password" password="#name-span" class="password" onkeyup="$(this).valid()" />
-			<div class="password-meter">
-				<label for="password" class="password-meter-message" />
-				<div class="password-meter-bg">
-					<div class="password-meter-bar"></div>
+		<div style="overflow:auto">
+			<div style="float:left;margin-right:1em">
+				<label for="current">Current password</label>
+				<input id="current" type="password" />
+			</div>
+			<div style="float:left;margin-right:1em">
+				<label for="password">New password</label>
+				<div>
+					<input id="password" type="password" password="#name-span" class="password" onkeyup="$(this).valid()" />
+					<div class="password-meter">
+						<label for="password" class="password-meter-message" />
+						<div class="password-meter-bg">
+							<div class="password-meter-bar"></div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

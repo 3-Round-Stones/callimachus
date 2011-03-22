@@ -50,14 +50,13 @@ import javax.activation.MimetypesFileTypeMap;
 import org.apache.commons.codec.binary.Base64;
 import org.callimachusproject.webapps.BootListener;
 import org.callimachusproject.webapps.ConciseListener;
-import org.callimachusproject.webapps.ObjectDatesetListener;
 import org.callimachusproject.webapps.Uploader;
 import org.openrdf.http.object.ConnectionBean;
 import org.openrdf.http.object.HTTPObjectAgentMXBean;
 import org.openrdf.http.object.HTTPObjectServer;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.util.FileUtil;
-import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfigException;
@@ -86,8 +85,8 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			throws Exception {
 		File webappsDir = webapps.getCanonicalFile();
 		this.repository = importJars(webappsDir, repository);
-		// compile schema not in an explicit named graph
-		this.repository.addSchemaGraphType(new URIImpl(SCHEMA_GRAPH));
+		ValueFactory vf = this.repository.getValueFactory();
+		this.repository.setSchemaGraphType(vf.createURI(SCHEMA_GRAPH));
 		ObjectConnection con = this.repository.getConnection();
 		try {
 			ClassLoader cl = con.getObjectFactory().getClassLoader();
@@ -99,8 +98,6 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			MimetypesFileTypeMap mimetypes = createMimetypesMap();
 			uploader = new Uploader(mimetypes, dataDir);
 			uploader.setWebappsDir(webappsDir);
-			// compile schema in webapps named graphs
-			uploader.addListener(new ObjectDatesetListener(this.repository));
 		} finally {
 			con.close();
 		}

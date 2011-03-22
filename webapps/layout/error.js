@@ -39,8 +39,8 @@ function showError(event, error, detail) {
 	try {
 		var status = '' + error;
 		if (detail && detail.indexOf('<') == 0) {
-			status = $(detail).find("h1").html();
-			detail = $(detail).find("pre").text();
+			status = $(detail).find("h1").andSelf().filter("h1").html();
+			detail = $(detail).find("pre").andSelf().filter("pre").text();
 		}
 		var msg = $("#error-message");
 		if (msg.size()) {

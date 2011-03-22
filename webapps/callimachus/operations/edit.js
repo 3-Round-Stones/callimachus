@@ -15,9 +15,9 @@ function initForms() {
 		$(document).bind("calliReady", function() {
 			form.validate({submitHandler: function() {
 				return submitRDFForm(form, stored);
-			}})
-		})
-	})
+			}});
+		});
+	});
 }
 
 function submitRDFForm(form, stored) {

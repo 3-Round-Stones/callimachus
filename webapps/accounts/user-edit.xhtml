@@ -8,29 +8,7 @@
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
 	<title about="?this" property="rdfs:label"/>
-	<link type="text/css" href="/accounts/jquery.validate.password.css" rel="stylesheet" />	
-	<script src="/accounts/jquery.validate.password.js">
-	</script>
-	<script src="/accounts/md5.js">
-	</script>
 	<script>//<![CDATA[
-		function savePassword() {
-			var value = $("#password").val();
-			var name = $("#name-span").text();
-			var realm = document.getElementById("realm-link").href;
-			if (value) {
-				var span = $("#encoded-span");
-				var previously = hex_md5(name + ':' + realm + ':' + $("#currently").val());
-				if (span.text() == previously) {
-					var encoded = hex_md5(name + ':' + realm + ':' + value);
-					span.attr("datatype", "xsd:hexBinary");
-					span.text(encoded);
-				} else {
-					throw "That is not your current password";
-				}
-			}
-			return true;
-		}
 		$(document).ready(function() {
 			var uri = $("form[about]").attr("about");
 			var credential = null;
@@ -52,13 +30,11 @@
 				return true;
 			});
 			$(document).bind("calliRedirect", function(event) {
-				if (credential && credential == uri) {
-					if (deleted || $("#password").val()) {
-						// need to log user out gracefully since they changed their password or deleted themselves
-						$(document).trigger(jQuery.Event("calliLogout"));
-						event.preventDefault();
-						return false;
-					}
+				if (deleted && credential && credential == uri) {
+					// need to log user out gracefully since they deleted themselves
+					$(document).trigger(jQuery.Event("calliLogout"));
+					event.preventDefault();
+					return false;
 				}
 				return true;
 			});
@@ -68,21 +44,14 @@
 </head>
 <body about="?this">
 	<ul class="aside">
+		<li><a href="?password">Change password or email</a></li>
 		<li>Enter your full name</li>
 		<li>Upload a small photo of yourself so other can recognize you</li>
 		<li>Additional information is to provide additional contact information and is viewable to all authenticated users</li>
 		<li>Your e-mail address is used to reset your password</li>
-		<li><label>Choosing a good password</label>
-			<ul>
-				<li>Never share your password to colleagues, friends, or family members, even when asked</li>
-				<li>Don't choose passwords that relate to you as a person</li>
-				<li>Don't use your last name, your spouse's name, the name of your pet, the date of birth, your favourite flower etc.</li>
-				<li>Use complex multiple word pass phrases, never a single word</li>
-			</ul>
-		</li>
 	</ul>
 	<h1 property="rdfs:label" />
-	<form id="form" action="" about="?this" autocomplete="off" onsubmit="savePassword()">
+	<form id="form" action="" about="?this" autocomplete="off">
 		<label for="label">Full name</label>
 		<div data-cardinality="1">
 			<input id="label" property="rdfs:label" type="text" class="auto-expand required" />
@@ -96,38 +65,9 @@
 			<textarea id="comment" class="auto-expand"
 				property="rdfs:comment"></textarea>
 		</div>
-		<label for="email">E-mail address</label>
-		<div data-cardinality="1">
-			<input id="email" property="calli:email" type="text" class="auto-expand email" />
-		</div>
-		<hr />
-		<div style="overflow:auto">
-			<div style="float:left;margin-right:1em">
-				<label for="current">Current password</label>
-				<input id="current" type="password" />
-			</div>
-			<div style="float:left;margin-right:1em">
-				<label for="password">New password</label>
-				<div>
-					<input id="password" type="password" password="#name-span" class="password" onkeyup="$(this).valid()" />
-					<div class="password-meter">
-						<label for="password" class="password-meter-message" />
-						<div class="password-meter-bg">
-							<div class="password-meter-bar"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<hr />
 		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
 		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this user account?')) calli.deleteResource()">Delete</button>
-		<span style="display:none">
-			<span id="encoded-span" property="calli:encoded" />
-			<span id="name-span" property="calli:name" />
-			<a id="realm-link" href="/" />
-		</span>
 	</form>
 </body>
 </html>

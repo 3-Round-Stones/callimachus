@@ -22,6 +22,7 @@
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix :<#>.
 
 ################################
@@ -131,13 +132,13 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 		}
 	""".
 
-# Users can view resized photos if they can view the photo itself
-:AuthorizePhotos owl:equivalentClass </accounts/authorization.ttl#AuthorizeCredential>;
-	msg:imports </callimachus/Photo>;
+# Users can view resized images or photos if they can view the image itself
+:AuthorizeImageResize owl:equivalentClass </accounts/authorization.ttl#AuthorizeCredential>;
+	msg:imports foaf:Image;
 	msg:script  """
 		if (method == "GET" || method == "HEAD") {
 			if (query == "large" || query == "medium" || query == "small") {
-				if (object instanceof Photo) {
+				if (object instanceof Image) {
 					if (this.AuthorizeCredential(credential, method, object, null))
 						return true;
 				}

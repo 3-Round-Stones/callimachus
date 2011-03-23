@@ -412,8 +412,8 @@ calli:DeleteWebResource rdfs:subClassOf msg:Message;
 		var types = con.getStatements(this.resource, RDF.TYPE, null, true, []);
 		try {
 			while (types.hasNext()) {
-				var type = types.next().object.stringValue();
-				if (type.indexOf("urn:mimetype:") == 0) {
+				var st = types.next();
+				if (st.object.stringValue().indexOf("urn:mimetype:") == 0) {
 					con.remove(st, []);
 				}
 			}

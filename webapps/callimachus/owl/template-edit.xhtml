@@ -7,10 +7,17 @@
 	<title about="?this" property="rdfs:label" />
 </head>
 <body about="?this">
+	<ul class="aside">
+		<li><a href="http://www.w3.org/Amaya/" target="_blank">Download Amaya</a></li>
+	</ul>
+	<ul class="aside">
+		<li>Edit the URL in the link using the Amaya HTML editor</li>
+		<li>Select Views -> Show source to edit the raw HTML</li>
+		<li>Click the save button to replace the template with your revisions</li>
+	</ul>
 	<h1 property="rdfs:label" />
 	<a href="?this" property="rdfs:label" />
 	<form about="?this">
-		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
 		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this template?')) calli.deleteResource()">Delete</button>
 	</form>

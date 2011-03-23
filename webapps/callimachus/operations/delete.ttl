@@ -29,6 +29,9 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
 	msg:method "DELETE";
+	msg:imports <java:org.openrdf.model.BNode>;
+	msg:imports <java:org.openrdf.model.URI>;
+	msg:imports <java:javax.tools.FileObject>;
 	msg:script """
 		var con = this.objectConnection;
 		var stmts = con.getStatements(null, null, this.resource, []);
@@ -43,6 +46,34 @@
 		} finally {
 			stmts.close();
 		}
-		this.calliDeleteWebResource();
+
+		function removeTriples(subject) {
+			var stmts = con.getStatements(subject, null, null, []);
+			try {
+				while (stmts.hasNext()) {
+					var st = stmts.next();
+					if (st.object instanceof BNode && !st.object.equals(subject)) {
+						removeTriples(st.object);
+					} else if (st.object instanceof URI && !st.object.equals(subject)) {
+						var subj = subject.stringValue();
+						var obj = st.object.stringValue();
+						if (obj.startsWith(subj) && obj.charAt(subj.length()) == "#") {
+							removeTriples(st.object);
+						} else {
+							con.getObjectFactory().createObject(st.object).touchRevision();
+						}
+					}
+					con.remove(st, []);
+				}
+			} finally {
+				stmts.close();
+			}
+		}
+
+		con.clear([this.resource]); //# clear graph
+		removeTriples(this.resource); //# follow blank and hash references
+		if (this instanceof FileObject) {
+			this['delete'](); //# remove document
+		}
 	""".
 

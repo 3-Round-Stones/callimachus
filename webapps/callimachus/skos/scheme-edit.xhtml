@@ -7,7 +7,7 @@
 	xmlns:foaf="http://xmlns.com/foaf/0.1/"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 	<head>
-		<title about="?this" property="skos:prefLabel"></title>
+		<title about="?this" property="rdfs:label"></title>
 		<script>
 			function saveChangeNote() {
 				var note = document.getElementById('note')
@@ -24,11 +24,11 @@
 			<li>Provide clarity in the comment</li>
 			<li>List the most used or recommended concepts is the list</li>
 		</ul>
-		<h1><span id="scheme" about="?this" property="skos:prefLabel" /></h1>
+		<h1><span id="scheme" about="?this" property="rdfs:label" /></h1>
 		<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()" data-redirect="/scheme">
 			<label for="label">Label</label>
 			<div data-cardinality="1">
-				<input id="label" property="skos:prefLabel" class="required auto-expand" />
+				<input id="label" property="rdfs:label" class="required auto-expand" />
 			</div>
 			<label for="comment">Comment</label>
 			<div data-cardinality="1">

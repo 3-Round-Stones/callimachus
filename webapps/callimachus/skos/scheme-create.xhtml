@@ -17,7 +17,7 @@
 			onsubmit="$(this).attr('about', '/scheme/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
 		<label for="label">Label</label>
 		<div data-cardinality="1">
-			<input id="label" property="skos:prefLabel" class="required auto-expand" />
+			<input id="label" property="rdfs:label" class="required auto-expand" />
 		</div>
 		<label for="comment">Comment</label>
 		<div data-cardinality="1">

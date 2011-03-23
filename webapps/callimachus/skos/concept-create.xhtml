@@ -2,6 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 <head>
 	<title>New Concept</title>
@@ -21,7 +22,7 @@
 			onsubmit="$(this).attr('about', '/concept/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
 		<h1>
 			<span id="inscheme" rel="skos:inScheme">
-				<span about="?scheme" property="skos:prefLabel" />
+				<span about="?scheme" property="rdfs:label" />
 			</span>
 		</h1>
 		<div style="overflow:auto">

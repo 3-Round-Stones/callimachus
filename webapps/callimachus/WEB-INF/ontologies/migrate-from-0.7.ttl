@@ -16,6 +16,28 @@
 		var calli = "http://callimachusproject.org/rdf/2009/framework#";
 		var maintainer = vf.createURI(calli, "maintainer");
 
+		var skosConceptScheme = vf.createURI(skos, "ConceptScheme");
+		var schemes = con.getStatements(null, RDF.TYPE, skosConceptScheme, true, []);
+		try {
+			while (schemes.hasNext()) {
+				var st = schemes.next();
+				if (!con.hasStatement(st.subject, RDFS.LABEL, null, true, [])) {
+					var prefLabels = con.getStatements(st.subject, vf.createURI(skos, "prefLabel"), null, true, []);
+					try {
+						while (prefLabels.hasNext()) {
+							var obj = prefLabels.next().object;
+							java.lang.System.err.println("Migrating label " + st.subject);
+							con.add(st.subject, RDFS.LABEL, obj, []);
+						}
+					} finally {
+						prefLabels.close();
+					}
+				}
+			}
+		} finally {
+			schemes.close();
+		}
+
 		function migrate(concept) {
 			var skosConcept = vf.createURI(skos, concept);
 			var concepts = con.getStatements(null, RDF.TYPE, skosConcept, true, []);

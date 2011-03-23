@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
-	<title about="?this" property="skos:prefLabel" />
+	<title about="?this" property="rdfs:label" />
 	<style type="text/css">img { border-style:none; }</style>
 </head>
 <body about="?this">
@@ -25,7 +25,7 @@
 		<li>Concepts are ideas, meanings, or categories of objects and events</li>
 	</ul>
 	<h2>
-		<a property="skos:prefLabel" href="?this" />
+		<a property="rdfs:label" href="?this" />
 	</h2>
 	<div id="image" rel="foaf:depiction" resource="?image" style="float:left;max-width:33%">
 		<a href="?image" data-query="view"><img src="?image" style="max-width:100%;max-height:75%" /></a>

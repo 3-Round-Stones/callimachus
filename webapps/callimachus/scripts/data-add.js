@@ -70,7 +70,7 @@ function initSetElements(form) {
 			if (list.attr("id")) {
 				title = $("label[for='" + list.attr("id") + "']").text();
 			}
-			var iframe = $("<iframe id='" + name + "' name='" + name + "' frameborder='0' src='about:blank' data-button='" + id + "'></iframe>");
+			var iframe = $("<iframe id='" + name + "' name='" + name + "' src='about:blank' data-button='" + id + "'></iframe>");
 		    add.click(function(e) {
 			    var dialog = iframe.dialog({
 			        title: title,
@@ -87,6 +87,7 @@ function initSetElements(form) {
 					add.focus();
 				});
 				dialog.dialog("open");
+				iframe.css('width', '100%');
 				var dialogTitle = iframe.parents(".ui-dialog").find(".ui-dialog-title");
 				form.css('position', "absolute");
 				form.css('top', dialogTitle.offset().top - iframe.parent().offset().top - 5);

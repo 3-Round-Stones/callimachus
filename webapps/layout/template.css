@@ -177,6 +177,23 @@ a[href]:hover {
 	clear: right;
 }
 
+body.iframe, body.iframe #content {
+	border: none;
+	margin: 0px;
+	background: inherit;
+}
+
+body.iframe #header, body.iframe #tabs, body.iframe #sidebar, body.iframe #logo, body.iframe #footer {
+	display: none;
+}
+
+iframe.ui-widget-content.ui-dialog-content {
+	margin: 0px;
+	padding: 0px;
+	border: none;
+	background-color: white;
+}
+
 .aside {
 	clear: right;
 	width: 16em;
@@ -303,11 +320,6 @@ label.error {
 	font-style: italic;
 	font-size: x-small;
 	display: block;
-}
-
-iframe {
-	border: none;
-	background-color: white;
 }
 
 #footer {

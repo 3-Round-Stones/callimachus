@@ -158,7 +158,6 @@ calli:SchemaGraph a owl:Class.
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;
-	msg:imports calli:Template;
 	msg:script """
 		this.calliDeleteWebResource();
 		var type = "urn:mimetype:" + contentType;
@@ -193,7 +192,6 @@ calli:SchemaGraph a owl:Class.
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;
-	msg:imports calli:Template;
 	msg:script """
 		this.calliDeleteWebResource();
 		var con = this.objectConnection;

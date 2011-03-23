@@ -1,0 +1,121 @@
+# 
+#    Copyright (c) 2011 Talis Inc., Some rights reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<WikiPage> rdfs:subClassOf <Wiki>;
+	calli:icon <wiki.png>.
+
+[msg:matching </wiki/*>] rdfs:subClassOf <Wiki>.
+
+<Wiki> calli:editor </group/admin>.
+
+:FindWikiPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [
+		owl:intersectionOf (<Wiki> [owl:complementOf <WikiPage>])]];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET", "HEAD";
+	msg:expect "302-found";
+	msg:imports <WikiPage>;
+	msg:script """
+		var page = this.objectConnection.getObject(this.toString() + ".txt");
+		if (page instanceof WikiPage)
+			return page.toString() + "?view";
+		return page.toString() + "?edit";
+	""".
+
+:ViewWikiPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <WikiPage>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:rel "alternate";
+	msg:method "GET", "HEAD";
+	msg:query "view";
+	msg:type "text/html";
+	msg:imports <java:java.net.URLDecoder>;
+	msg:imports <wiki.xhtml> ;
+	msg:script """
+		var canonical = this.toString().replaceAll("\\\\.txt$", "");
+		var text = this.getCharContent(true).toString();
+		text = text.replace("&", "&amp;");
+		text = text.replace("<", "&lt;");
+		text = text.replace(">", "&gt;");
+		var html = wiki_xhtml.calliConstructHTML(this, "view");
+		html = html.replace("@@CANONICAL@@", canonical);
+		html = html.replace("@@TEXT@@", text);
+		return html;
+	""".
+
+:EditWikiPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <WikiPage>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET", "HEAD";
+	msg:query "edit";
+	msg:realm </accounts>;
+	msg:type "text/html";
+	msg:imports <wiki-edit.xhtml> ;
+	msg:script """
+		return wiki_edit_xhtml.calliConstructHTML(this, "edit");
+	""".
+
+:CreateWikiPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [
+		owl:intersectionOf (<Wiki> [owl:complementOf <WikiPage>])]];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET", "HEAD";
+	msg:query "edit";
+	msg:realm </accounts>;
+	msg:type "text/html";
+	msg:imports <wiki-create.xhtml> ;
+	msg:script """
+		return wiki_create_xhtml.calliConstructHTML(this);
+	""".
+
+:PutWikiText rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Wiki>];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:realm </accounts>;
+	msg:imports <WikiPage>;
+	msg:script """
+		this.calliDeleteWebResource();
+		con.remove(this.resource, RDFS.LABEL, null, []);
+		this.objectConnection.addDesignation(this, "urn:mimetype:text/plain");
+		this.objectConnection.addDesignation(this, WikiPage);
+		var canonical = this.toString().replaceAll("\\\\.txt$", "");
+		var name = URLDecoder.decode(canonical.replaceAll(".*/", ""), "UTF-8");
+		con.add(this.resource, RDFS.LABEL, vf.createLiteral(name), []);
+		var read;
+		var cbuf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
+		var out = this.openWriter();
+		try {
+			while ((read = textReader.read(cbuf)) >= 0) {
+				out.write(cbuf, 0, read);
+			}
+		} finally {
+			out.close();
+		}
+	""".
+
+:textReader a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PutWikiText;
+	rdfs:range <java:java.io.Reader>;
+	msg:type "text/plain".
+

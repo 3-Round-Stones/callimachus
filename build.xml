@@ -266,4 +266,18 @@
 			</classpath>
 		</java>
 	</target>
+
+	<target name="trial-union" depends="compile">
+		<java classname="${main}" fork="true" failonerror="true">
+			<jvmarg line="${jvmargs} -Dtrial='union results'" />
+			<arg line="${args}" />
+			<classpath>
+				<pathelement location="${build}/" />
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</java>
+	</target>
+
 </project>

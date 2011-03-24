@@ -91,6 +91,9 @@ calli:Group a owl:Class;
 calli:Party a owl:Class;
 	rdfs:comment "A credential, user or group of credentials.".
 
+calli:Origin a owl:Class;
+	rdfs:comment "A URI with a '/' path that is served by a Callimachus system.".
+
 calli:Menu a owl:Class;
 	rdfs:comment "A hierarchical menu of human-readable links.".
 

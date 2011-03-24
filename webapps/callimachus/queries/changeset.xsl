@@ -70,7 +70,7 @@
 			<xsl:if test="preceding-sibling::*[1]/sparql:binding[@name='subject']">
 				<xsl:text disable-output-escaping="yes">&lt;/ul&gt;</xsl:text>
 			</xsl:if>
-			<a href="{$subject}">
+			<a href="{$subject}" class="view">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="$subject"/>
 				</xsl:call-template>
@@ -101,7 +101,7 @@
 		<xsl:apply-templates select="*" />
 	</xsl:template>
 	<xsl:template match="sparql:uri">
-		<a href="{text()}" class="uri">
+		<a href="{text()}" class="view uri">
 			<xsl:attribute name="rel">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="text()" />

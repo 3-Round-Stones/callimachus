@@ -134,7 +134,7 @@ function listSearchResults(url, iframe) {
 				var about = $(this).attr("about");
 				if (about && about.indexOf('[') < 0) {
 					var li = $("<li/>");
-					var link = $('<a data-query="view"/>');
+					var link = $('<a class="view"/>');
 					link.attr("href", about);
 					link.append($(this).text());
 					li.append(link);

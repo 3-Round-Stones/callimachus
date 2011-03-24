@@ -39,7 +39,7 @@ function submitRDFForm(form) {
 					} catch (e) {}
 					var redirect = xhr.getResponseHeader("Location");
 					var event = jQuery.Event("calliRedirect");
-					event.location = window.calli.intralink(redirect, "view");
+					event.location = window.calli.viewpage(redirect);
 					form.trigger(event);
 					if (!event.isDefaultPrevented()) {
 						location.replace(event.location);

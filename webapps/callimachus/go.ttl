@@ -8,6 +8,8 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
+</> a calli:Origin. # Resources with this origin originated from this RDF store
+
 :LookupAndGo rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <go>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
@@ -15,48 +17,14 @@
 	msg:expect "302-see-other";
 	msg:header "cache-control:no-store";
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <lookup>;
 	msg:imports </diverted>;
+	msg:imports calli:Viewable;
 	msg:script """
-		function parseAbsoluteURI(string) {
-			try {
-				if (string.indexOf(":") > 0) {
-					var uri = java.net.URI.create(string);
-					if (uri.isAbsolute())
-						return uri;
-				}
-			} catch (e) {
-				return null;
-			}
-		}
-
-		function redirectURL(uri) {
-			uri = canonicalize(uri);
-			var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toString() : null;
-			var iri = uri.toString();
-			var present = con.hasStatement(vf.createURI(iri), null, null, []);
-			var hosted = con.hasStatement(null, null, vf.createURI(origin + "diverted"), []);
-			if (present && hosted && (uri.query || uri.fragment)) { //# self resolving IRI
-				var url = origin + "diverted;" + URLEncoder.encode(q);
-				if (query) {
-					url = url + '?' + query;
-				}
-				return url;
-			} else if (present && !hosted) { //# IRI present in this RDF store
-				var url = diverted.toString() + ";" + URLEncoder.encode(q);
-				if (query) {
-					url = url + '?' + query;
-				}
-				return url;
-			} else { //# self resolving URL or unknown resource
-				var url = q;
-				if (query && url.indexOf('?') < 0 && url.indexOf('#') < 0) {
-					url = url + '?' + query;
-				}
-				return url;
-			}
-		}
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
 
 		function canonicalize(uri) {
 			uri = uri.normalize();
@@ -70,8 +38,38 @@
 			}
 		}
 
-		var con = this.objectConnection;
-		var vf = con.valueFactory;
+		function parseAbsoluteURI(string) {
+			try {
+				if (string.indexOf(":") > 0) {
+					var uri = java.net.URI.create(string);
+					if (uri.isAbsolute())
+						return canonicalize(uri);
+				}
+			} catch (e) {
+				return null;
+			}
+		}
+
+		function redirectURL(uri) {
+			var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toString() : null;
+			var iri = uri.toString();
+			var viewable = con.getObject(iri) instanceof Viewable;
+			var Origin = vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin");
+			var authority = con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
+			if (viewable && authority && (uri.query || uri.fragment)) { //# complex resource URI
+				var url = origin + "diverted;" + URLEncoder.encode(iri) + '?view';
+				return url;
+			} else if (viewable && authority) { //# Self resolving URL
+				var url = iri + '?view';
+				return url;
+			} else if (viewable) { //# Foreign IRI, but can be presented here
+				var url = diverted.toString() + ";" + URLEncoder.encode(iri) + '?view';
+				return url;
+			} else { //# Unknown resource
+				return iri;
+			}
+		}
+
 		var uri = parseAbsoluteURI(q);
 		if (uri) { //# absolute URI redirect
 			return redirectURL(uri);
@@ -84,7 +82,7 @@
 					uri = stmts.next().subject;
 				}
 				if (uri instanceof org.openrdf.model.URI && !stmts.hasNext())
-					return uri.stringValue();
+					return redirectURL(java.net.URI.create(uri.stringValue()));
 			}
 		} finally {
 			stmts.close();
@@ -96,9 +94,4 @@
 	rdfs:domain :LookupAndGo;
 	rdfs:range xsd:string;
 	msg:query "q".
-
-:query a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :LookupAndGo;
-	rdfs:range xsd:string;
-	msg:query "query".
 

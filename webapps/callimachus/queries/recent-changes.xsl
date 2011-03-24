@@ -50,6 +50,9 @@
 					<xsl:attribute name="href">
 						<xsl:value-of select="sparql:binding[@name='url']/*" />
 					</xsl:attribute>
+					<xsl:attribute name="class">
+						<xsl:value-of select="'view'" />
+					</xsl:attribute>
 				</xsl:if>
 				<xsl:apply-templates select="sparql:binding[@name='label']/*" />
 				<xsl:if test="not(sparql:binding[@name='label'])">

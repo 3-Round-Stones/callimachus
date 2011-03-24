@@ -22,10 +22,17 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-</sparql> calli:administrator </group/admin>.
+</sparql> a <SparqlEndPoint>;
+	rdfs:label "sparql";
+	calli:administrator </group/admin>.
+
+<SparqlEndPoint> rdfs:subClassOf calli:Viewable, calli:Editable;
+	msg:realm </accounts>;
+	calli:view <sparql.xhtml>;
+	calli:edit <sparql-edit.xhtml>.
 
 :EvaluateSparql rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
@@ -105,11 +112,10 @@
 
 # POST application/sparql-query
 :PostQuery rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "POST";
 	msg:type "message/x-response";
-	msg:realm </accounts>;
 	msg:transform :TransformResult;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:script """
@@ -125,11 +131,10 @@
 
 # POST application/x-www-form-urlencoded
 :PostForm rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "POST";
 	msg:type "message/x-response";
-	msg:realm </accounts>;
 	msg:transform :TransformResult;
 	msg:script """
 		if (map == null || !map.containsKey("query"))
@@ -144,22 +149,20 @@
 
 # GET query parameter
 :GetQueryResult rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "GET";
 	msg:type "message/x-response";
-	msg:realm </accounts>;
 	msg:header "cache-control:no-validate";
 	msg:imports <java:org.apache.http.ProtocolVersion>;
 	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
 	msg:imports <java:org.apache.http.entity.StringEntity>;
-	msg:imports <sparql.xhtml>;
 	msg:script """
 		if (queryStr)
 			return EvaluateSparql(queryStr);
 		var http11 = new ProtocolVersion("HTTP", 1, 1);
 		var resp = new BasicHttpResponse(http11, 302, "see-other");
-		resp.setHeader("Location", sparql_xhtml + "?construct");
+		resp.setHeader("Location", this.toString() + "?view");
 		resp.setEntity(new StringEntity(""));
 		return resp;
 	""".
@@ -171,7 +174,7 @@
 
 # Transformers
 :TransformResult rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform :TransformXml;
@@ -183,7 +186,7 @@
 	msg:type "message/x-response".
 
 :TransformXml rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </sparql>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform </callimachus/layout.ttl#TransformLayout>;

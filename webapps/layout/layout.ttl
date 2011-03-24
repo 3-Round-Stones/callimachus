@@ -20,7 +20,7 @@
 
 </callimachus/menu> calli:link </>;
 	calli:logo <logo.png> ; calli:favicon <favicon.png> ;
-	calli:item [calli:position 1; rdfs:label "Main page"; calli:link </>];
+	calli:item [calli:position 1; rdfs:label "Main page"; calli:link </wiki/MainPage>];
 	calli:item [calli:position 2; rdfs:label "Contents"; calli:link </callimachus/menu>];
 	calli:item [calli:position 3; rdfs:label "Recent changes"; calli:link </callimachus/changes>];
 	calli:item [calli:position 9; rdfs:label "Administration";

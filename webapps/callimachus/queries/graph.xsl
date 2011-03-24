@@ -81,7 +81,7 @@
 				</xsl:call-template>
 			</label>
 			<xsl:text> </xsl:text>
-			<a href="{@rdf:resource}" class="uri">
+			<a href="{@rdf:resource}" class="view uri">
 				<xsl:attribute name="rel">
 					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
@@ -175,7 +175,7 @@
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</xsl:attribute>
-			<a href="{@rdf:about}" class="uri">
+			<a href="{@rdf:about}" class="view uri">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@rdf:about"/>
 				</xsl:call-template>
@@ -198,7 +198,7 @@
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</xsl:attribute>
-			<a href="#{@rdf:ID}" class="uri">
+			<a href="#{@rdf:ID}" class="view uri">
 				<xsl:value-of select="@rdf:ID"/>
 			</a>
 			<span> a </span>
@@ -235,7 +235,7 @@
 	</xsl:template>
 	<xsl:template match="rdf:Description[@rdf:about]">
 		<div about="{@rdf:about}">
-			<a href="{@rdf:about}" class="uri">
+			<a href="{@rdf:about}" class="view uri">
 				<xsl:if test="substring-before(@rdf:about, '#')=$this">
 					<xsl:attribute name="name"><xsl:value-of select="substring-after(@rdf:about, '#')" /></xsl:attribute>
 				</xsl:if>
@@ -250,7 +250,7 @@
 	</xsl:template>
 	<xsl:template match="rdf:Description[@rdf:ID]">
 		<div about="#{@rdf:ID}">
-			<a href="#{@rdf:ID}" class="uri" name="{@rdf:ID}">
+			<a href="#{@rdf:ID}" class="view uri" name="{@rdf:ID}">
 				<xsl:value-of select="@rdf:ID"/>
 			</a>
 			<ul>

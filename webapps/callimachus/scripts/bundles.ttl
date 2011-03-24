@@ -13,7 +13,7 @@
 	rdf:_2 <jquery-ui.js>;
 	rdf:_3 <node-inserted.js>;
 	rdf:_4 <referrer.js>;
-	rdf:_5 <intralink.js>;
+	rdf:_5 <viewpage.js>;
 	rdf:_6 <creole.js>;
 	rdf:_7 <wiki.js>;
 	rdf:_8 <sorted.js>;

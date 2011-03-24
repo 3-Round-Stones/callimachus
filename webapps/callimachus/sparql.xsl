@@ -68,7 +68,7 @@
 		<xsl:apply-templates select="*" />
 	</xsl:template>
 	<xsl:template match="sparql:uri">
-		<a href="{text()}" class="intralink uri">
+		<a href="{text()}" class="view uri">
 			<xsl:call-template name="iriref">
 				<xsl:with-param name="iri" select="text()"/>
 			</xsl:call-template>
@@ -150,7 +150,7 @@
 				</xsl:call-template>
 			</label>
 			<xsl:text> </xsl:text>
-			<a href="{@rdf:resource}" class="intralink uri">
+			<a href="{@rdf:resource}" class="view uri">
 				<xsl:attribute name="rel">
 					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
@@ -244,7 +244,7 @@
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</xsl:attribute>
-			<a href="{@rdf:about}" class="intralink uri">
+			<a href="{@rdf:about}" class="view uri">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@rdf:about"/>
 				</xsl:call-template>
@@ -267,7 +267,7 @@
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</xsl:attribute>
-			<a href="#{@rdf:ID}" class="intralink uri">
+			<a href="#{@rdf:ID}" class="view uri">
 				<xsl:value-of select="@rdf:ID"/>
 			</a>
 			<span> a </span>
@@ -304,7 +304,7 @@
 	</xsl:template>
 	<xsl:template match="rdf:Description[@rdf:about]">
 		<div about="{@rdf:about}">
-			<a href="{@rdf:about}" class="intralink uri">
+			<a href="{@rdf:about}" class="view uri">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@rdf:about"/>
 				</xsl:call-template>
@@ -316,7 +316,7 @@
 	</xsl:template>
 	<xsl:template match="rdf:Description[@rdf:ID]">
 		<div about="#{@rdf:ID}">
-			<a href="#{@rdf:ID}" class="intralink uri">
+			<a href="#{@rdf:ID}" class="view uri">
 				<xsl:value-of select="@rdf:ID"/>
 			</a>
 			<ul>

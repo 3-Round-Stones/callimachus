@@ -21,12 +21,14 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<WikiPage> rdfs:subClassOf <Wiki>;
-	calli:icon <wiki.png>.
-
 [msg:matching </wiki/*>] rdfs:subClassOf <Wiki>.
 
 <Wiki> calli:editor </group/admin>.
+
+<WikiPage> rdfs:subClassOf calli:Viewable, calli:Editable, <Wiki>;
+	calli:icon <wiki.png>;
+	calli:view <wiki.xhtml>;
+	calli:edit <wiki-edit.xhtml>.
 
 :FindWikiPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [
@@ -42,37 +44,19 @@
 		return page.toString() + "?edit";
 	""".
 
-:ViewWikiPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <WikiPage>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:rel "alternate";
-	msg:method "GET", "HEAD";
-	msg:query "view";
-	msg:type "text/html";
-	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <wiki.xhtml> ;
+:ViewWikiPage owl:intersectionOf (</callimachus/operations/view.ttl#GetViewPage>
+		[owl:onProperty msg:target; owl:allValuesFrom <WikiPage>]);
 	msg:script """
 		var canonical = this.toString().replaceAll("\\\\.txt$", "");
 		var text = this.getCharContent(true).toString();
 		text = text.replace("&", "&amp;");
 		text = text.replace("<", "&lt;");
 		text = text.replace(">", "&gt;");
-		var html = wiki_xhtml.calliConstructHTML(this, "view");
+		var scanner = new java.util.Scanner(proceed()).useDelimiter("\\\\A");
+		var html = scanner.next();
 		html = html.replace("@@CANONICAL@@", canonical);
 		html = html.replace("@@TEXT@@", text);
-		return html;
-	""".
-
-:EditWikiPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <WikiPage>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET", "HEAD";
-	msg:query "edit";
-	msg:realm </accounts>;
-	msg:type "text/html";
-	msg:imports <wiki-edit.xhtml> ;
-	msg:script """
-		return wiki_edit_xhtml.calliConstructHTML(this, "edit");
+		return new java.io.ByteArrayInputStream(html.getBytes());
 	""".
 
 :CreateWikiPage rdfs:subClassOf msg:Message;

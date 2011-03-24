@@ -1,27 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-	<head>
-		<title about="?this" property="rdfs:label" />
-		<script>//<![CDATA[
-			jQuery(function($){
-				if (document.referrer && document.referrer.indexOf('?create') > 0) {
-					try {
-						if (window.parent && parent.calli && window.frameElement) {
-							var subj = $('body').attr("about");
-							parent.calli.resourceCreated(subj, window.frameElement);
-						}
-					} catch (e) {}
-				}
-			});
-			//]]>
-		</script>
-	</head>
-	<body about="?this">
+<head>
+	<title about="?this" property="rdfs:label" />
+	<script>//<![CDATA[
+		jQuery(function($){
+			$('#pathname').text(location.pathname);
+			if (document.referrer && document.referrer.indexOf('?create') > 0) {
+				try {
+					if (window.parent && parent.calli && window.frameElement) {
+						var subj = $('body').attr("about");
+						parent.calli.resourceCreated(subj, window.frameElement);
+					}
+				} catch (e) {}
+			}
+		});
+		//]]>
+	</script>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li>Use the following wiki syntax to reference this image<br />{{<span id="pathname">/image/<span property="rdfs:label" /></span>}}</li>
+	</ul>
+	<div>
+		<p><a href="?this" property="rdfs:label" /></p>
 		<div>
-			<p><a href="?this" property="rdfs:label" /></p>
-			<a href="?this"><img src="?this" style="max-width:100%;max-height:75%;display:block" /></a>
-			<p property="rdfs:comment" />
+			<a href="?this"><img src="?this" style="max-width:100%;max-height:75%" /></a>
 		</div>
-	</body>
+		<p property="rdfs:comment" />
+	</div>
+</body>
 </html>

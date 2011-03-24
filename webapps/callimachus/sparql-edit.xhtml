@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title>SPARQL Query</title>
+</head>
+<body>
+	<ul class="aside">
+		<li>The following users and groups can perform SPARQL query</li>
+		<li>Sensitive user data can be accessed through this end point</li>
+	</ul>
+	<h1>SPARQL Query</h1>
+	<form id="form" action="" about="?this">
+		<label for="administrator">Administrator</label>
+		<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
+			<div about="?administrator" property="rdfs:label"/>
+		</div>
+		<hr />
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+	</form>
+</body>
+</html>

@@ -47,6 +47,7 @@ import org.callimachusproject.stream.BoundedRDFReader;
 import org.callimachusproject.stream.GraphPatternReader;
 import org.callimachusproject.stream.OverrideBaseReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
+import org.callimachusproject.stream.SPARQLProducer;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.XMLElementReader;
 import org.callimachusproject.traits.SoundexTrait;
@@ -67,6 +68,7 @@ import org.openrdf.repository.object.xslt.XSLTransformer;
  * graph pattern.
  * 
  * @author James Leigh
+ * @author Steve Battle
  * 
  */
 public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
@@ -81,12 +83,14 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 	private static final int MAX_XSLT = 16;
 	private static final Map<String, Reference<XSLTransformer>> transformers = new LinkedHashMap<String, Reference<XSLTransformer>>() {
 		private static final long serialVersionUID = 1362917757653811798L;
-
+	
 		protected boolean removeEldestEntry(
-				Map.Entry<String, Reference<XSLTransformer>> eldest) {
+			Map.Entry<String, Reference<XSLTransformer>> eldest) {
 			return size() > MAX_XSLT;
 		}
 	};
+	
+	static final String TRIAL = System.getProperty("trial");
 
 	@query("xslt")
 	public XMLEventReader xslt(@query("query") String query,
@@ -141,9 +145,16 @@ public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
 	public RDFEventReader openPatternReader(String query, String element,
 			String about) throws XMLStreamException, IOException,
 			TransformerException {
-		RDFEventReader reader = new RDFaReader(about, xslt(query, element),
-				toString());
-		reader = new GraphPatternReader(reader);
+		RDFEventReader reader = new RDFaReader(about, xslt(query, element), toString());
+		
+		/* trial UNION form of sparql query */
+		if (TRIAL!=null && TRIAL.contains("union")) {
+			reader = new SPARQLProducer(reader);
+		}
+		else {
+			reader = new GraphPatternReader(reader);
+		}
+		
 		Base resolver = new Base(getResource().stringValue());
 		if (about == null) {
 			reader = new OverrideBaseReader(resolver, null, reader);

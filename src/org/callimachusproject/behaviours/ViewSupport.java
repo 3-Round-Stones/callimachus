@@ -44,6 +44,7 @@ import org.callimachusproject.stream.PrependTriple;
 import org.callimachusproject.stream.RDFStoreReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.ReducedTripleReader;
+import org.callimachusproject.stream.SPARQLResultReader;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.TriplePatternVariableStore;
 import org.openrdf.http.object.annotations.header;
@@ -69,6 +70,8 @@ public abstract class ViewSupport implements Template, RDFObject,
 		VersionedObject, FileObject {
 	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
 	private static TermFactory tf = TermFactory.newInstance();
+	
+	static final String TRIAL = System.getProperty("trial");
 
 	@Override
 	public String calliConstructHTML(Object target) throws Exception {
@@ -126,7 +129,16 @@ public abstract class ViewSupport implements Template, RDFObject,
 		TriplePattern pattern = patterns.getFirstTriplePattern();
 		RDFEventReader q = constructPossibleTriples(patterns, pattern);
 		ObjectConnection con = getObjectConnection();
-		RDFEventReader rdf = new RDFStoreReader(toSPARQL(q), patterns, con);
+		
+		/* trial UNION form of sparql query */
+		RDFEventReader rdf;
+		if (TRIAL!=null && TRIAL.contains("results")) {
+			rdf = new SPARQLResultReader(toSPARQL(q), patterns, con);
+		}
+		else {
+			rdf = new RDFStoreReader(toSPARQL(q), patterns, con);
+		}
+		
 		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
 	}
 
@@ -163,7 +175,16 @@ public abstract class ViewSupport implements Template, RDFObject,
 		String uri = about == null ? null : toUri().resolve(about).toASCIIString();
 		TriplePatternStore qry = readPatternStore(query, element, uri);
 		ObjectConnection con = getObjectConnection();
-		RDFEventReader rdf = new RDFStoreReader(qry, con, uri);
+
+		/* trial UNION form of sparql query */
+		RDFEventReader rdf;
+		if (TRIAL!=null && TRIAL.contains("results")) {
+			rdf = new SPARQLResultReader(qry, con, uri);
+		}
+		else {
+			rdf = new RDFStoreReader(qry, con, uri);
+		}
+
 		rdf = new ReducedTripleReader(rdf);
 		if (uri != null && element == null) {
 			IRI subj = tf.iri(uri);

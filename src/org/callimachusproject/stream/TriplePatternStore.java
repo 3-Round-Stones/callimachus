@@ -44,12 +44,12 @@ import org.callimachusproject.rdfa.model.VarOrTerm;
  * @author James Leigh
  */
 public class TriplePatternStore {
-	private Base base;
-	private List<Namespace> namespaces = new ArrayList<Namespace>();
-	private List<RDFEvent> where = new LinkedList<RDFEvent>();
-	private TriplePattern firstTriplePattern;
-	private Map<VarOrTerm, List<RDFEvent>> patterns = new HashMap<VarOrTerm, List<RDFEvent>>();
-	private Map<VarOrIRI, List<TriplePattern>> triples = new HashMap<VarOrIRI, List<TriplePattern>>();
+	protected Base base;
+	protected List<Namespace> namespaces = new ArrayList<Namespace>();
+	protected List<RDFEvent> where = new LinkedList<RDFEvent>();
+	protected TriplePattern firstTriplePattern;
+	protected Map<VarOrTerm, List<RDFEvent>> patterns = new HashMap<VarOrTerm, List<RDFEvent>>();
+	protected Map<VarOrIRI, List<TriplePattern>> triples = new HashMap<VarOrIRI, List<TriplePattern>>();
 
 	public TriplePatternStore(String base) {
 		this.base = new Base(base);
@@ -220,7 +220,7 @@ public class TriplePatternStore {
 		return list;
 	}
 
-	private RDFEventReader openQueryReader(List<RDFEvent> where) {
+	protected RDFEventReader openQueryReader(List<RDFEvent> where) {
 		List<RDFEvent> list = new ArrayList<RDFEvent>();
 		list.add(new Document(true));
 		if (base != null) {

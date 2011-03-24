@@ -78,8 +78,12 @@
 	msg:method "PUT";
 	msg:realm </accounts>;
 	msg:imports <WikiPage>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
 	msg:script """
 		this.calliDeleteWebResource();
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
 		con.remove(this.resource, RDFS.LABEL, null, []);
 		this.objectConnection.addDesignation(this, "urn:mimetype:text/plain");
 		this.objectConnection.addDesignation(this, WikiPage);

@@ -7,7 +7,7 @@
 <head>
 	<title>SPARQL Query</title>
 </head>
-<body>
+<body about="?this">
 	<ul class="aside">
 		<li>The following users and groups can perform SPARQL query</li>
 		<li>Sensitive user data can be accessed through this end point</li>
@@ -18,7 +18,6 @@
 		<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
 			<div about="?administrator" property="rdfs:label"/>
 		</div>
-		<hr />
 		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
 	</form>

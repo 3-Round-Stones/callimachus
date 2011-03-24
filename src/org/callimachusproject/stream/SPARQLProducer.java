@@ -226,7 +226,6 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 				// remove redundant brackets under the following conditions:
 				// if this is a singleton optional (ignoring mandatory triples)
 				// new subjects are contained in a joined optional so don't harm single status
-				//if (!singleton(false,true))
 				if (context.union)
 					context = new Context(CLAUSE.GROUP).open();
 				

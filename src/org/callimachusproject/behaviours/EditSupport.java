@@ -21,7 +21,7 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.InputStream;
 
-import org.callimachusproject.concepts.Template;
+import org.callimachusproject.concepts.Page;
 import org.callimachusproject.helpers.GraphPatternBuilder;
 import org.callimachusproject.helpers.MultipartParser;
 import org.callimachusproject.helpers.SubjectTracker;
@@ -49,7 +49,7 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  * @author James Leigh
  * 
  */
-public abstract class EditSupport implements Template {
+public abstract class EditSupport implements Page {
 
 	private static class Remover extends RDFHandlerBase {
 		private final ObjectConnection con;

@@ -1,10 +1,9 @@
-@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
 <.> a calli:Alias;
-	calli:aliasOf </wiki/MainPage.txt?view>.
+	calli:aliasOf </page/MainPage>.
 
-</wiki/MainPage.txt> a </callimachus/WikiPage>;
-	rdfs:label "MainPage".
+# /callimachus/Page makes this page editable
+</page/MainPage.xhtml> a </callimachus/Page>.
 
 

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+<head>
+	<title>New Page</title>
+	<link rel="stylesheet" href="/callimachus/wymeditor/skins/callimachus/skin.css" />
+	<script type="text/javascript" src="/callimachus/wymeditor/jquery.wymeditor.js"> </script>
+	<script type="text/javascript"><![CDATA[
+	jQuery(function($){
+		function outter(node, replacement) {
+			var html = $($('<div/>').html($(node).clone())).html();
+			$(document.createTextNode(replacement)).insertBefore(node);
+		    $(node).remove();
+			return html;
+		}
+		var local = $('body').attr('about').replace(/.*\//, '').replace(/\.[a-zA-Z]+$/, '');
+		var label = decodeURIComponent(local);
+		$('title').text(label);
+		var page = [null, '<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>' + label + '</title></head><body about="?this">', '<h1>' + label + '</h1>','</body></html>'];
+		$('#textarea').wymeditor({
+			html: page[2],
+			skinPath: "/callimachus/wymeditor/skins/callimachus/",
+			postInit: function() {
+				$(document).trigger('change');
+			},
+			logoHtml: outter($('.wym_wymeditor_link'), '{Wym_Logo}'),
+			iframeHtml: outter($('.wym_iframe'), '{Wym_Iframe}'),
+			toolsItemHtml:outter($('.Wym_Tools_Items'), '{Wym_Tools_Items}'),
+			toolsHtml: outter($('.wym_tools'), '{Wym_Tools}'),
+			containersItemHtml: outter($('.Wym_Containers_Items'), '{Wym_Containers_Items}'),
+			containersHtml: outter($('.wym_containers'), '{Wym_Containers}'),
+			classesItemHtml: outter($('.Wym_Classes_Items'), '{Wym_Classes_Items}'),
+			classesHtml: outter($('.wym_classes'), '{Wym_Classes}'),
+			statusHtml: outter($('.wym_status'), '{Wym_Status}'),
+			htmlHtml: outter($('.wym_html'), '{Wym_Html}'),
+			boxHtml: outter($('.wymeditor'), '')
+		});
+		$('#form').submit(function(event) {
+			jQuery.wymeditors(0).update();
+			var html = page[1] + $('#textarea').val() + page[3];
+			jQuery.ajax({
+				type: "PUT", url: $('body').attr('about'),
+				headers: {'If-Match': $('meta[http-equiv="etag"]').attr('content')},
+				contentType: 'application/xhtml+xml',
+				data: html,
+				success: function() {
+					location = "?view";
+				}
+			});
+			event.preventDefault();
+			return false;
+		});
+	});
+	]]></script>
+</head>
+
+
+<body about="?this">
+	<form id="form" action="">
+		<div style="display:none">
+			<div class="wymeditor">
+				<ul class="aside">
+					<li class="wym_containers wym_section">
+					  <label>{Containers}</label>
+						<ul>
+						  <li class="Wym_Containers_Items {Wym_Container_Class}">
+							<a href="#" name="{Wym_Container_Name}">{Wym_Containers_Title}</a>
+						  </li>
+						</ul>
+					</li>
+					<li class="wym_classes wym_section">
+					  <label>{Classes}</label>
+						<ul>
+						  <li class="Wym_Classes_Items wym_classes_{Wym_Class_Name}">
+							<a href="#" name="{Wym_Class_Name}">{Wym_Class_Title}</a>
+						  </li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="wym_tools wym_section ui-widget-header auto-expand" style="overflow:auto">
+					<li class="Wym_Tools_Items {Wym_Tool_Class}">
+						<a href="#" name="{Wym_Tool_Name}" title="{Wym_Tool_Title}">{Wym_Tool_Title}</a>
+					</li>
+				</ul>
+				<div class="wym_html wym_section">
+					<textarea class="wym_html_val"/>
+				</div>
+				<div id="Wym_Iframe" class="wym_iframe wym_section">
+					<iframe class="auto-expand" src="{Wym_Iframe_Base_Path}wymiframe.html" onload="this.contentWindow.parent.WYMeditor.INSTANCES[{Wym_Index}].initIframe(this)"> </iframe>
+				</div>
+				<div class="wym_status wym_section">
+				</div>
+				<a class="wym_wymeditor_link" href="http://www.wymeditor.org/">WYMeditor</a>
+			</div>
+		</div>
+		<div>
+			<textarea id="textarea"></textarea>
+		</div>
+		<button id="save" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this page?')) calli.deleteResource();">Delete</button>
+	</form>
+</body>
+</html>

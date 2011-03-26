@@ -30,7 +30,7 @@ package org.callimachusproject.traits;
 
 import java.util.Set;
 
-import org.callimachusproject.concepts.Template;
+import org.callimachusproject.concepts.Page;
 import org.openrdf.repository.object.annotations.iri;
 
 /**
@@ -68,18 +68,18 @@ public interface Realm extends org.openrdf.http.object.traits.Realm {
 	 * resource.
 	 */
 	@iri("http://callimachusproject.org/rdf/2009/framework#forbidden")
-	Template getCalliForbidden();
+	Page getCalliForbidden();
 
 	@iri("http://callimachusproject.org/rdf/2009/framework#forbidden")
-	void setCalliForbidden(Template forbidden);
+	void setCalliForbidden(Page forbidden);
 
 	/**
 	 * The RDFa template used when an agent is aunothorized from the requested
 	 * resource.
 	 */
 	@iri("http://callimachusproject.org/rdf/2009/framework#unauthorized")
-	Template getCalliUnauthorized();
+	Page getCalliUnauthorized();
 
 	@iri("http://callimachusproject.org/rdf/2009/framework#unauthorized")
-	void setCalliUnauthorized(Template unauthorized);
+	void setCalliUnauthorized(Page unauthorized);
 }

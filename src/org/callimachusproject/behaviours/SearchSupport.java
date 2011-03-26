@@ -29,7 +29,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.concepts.Template;
+import org.callimachusproject.concepts.Page;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.BuiltInCall;
@@ -62,7 +62,7 @@ import org.openrdf.repository.object.RDFObject;
  * @author James Leigh
  * 
  */
-public abstract class SearchSupport implements Template, SoundexTrait,
+public abstract class SearchSupport implements Page, SoundexTrait,
 		RDFObject, FileObject {
 	private static TermFactory tf = TermFactory.newInstance();
 

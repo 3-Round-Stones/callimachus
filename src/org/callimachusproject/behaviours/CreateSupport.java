@@ -25,7 +25,7 @@ import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.callimachusproject.concepts.Template;
+import org.callimachusproject.concepts.Page;
 import org.callimachusproject.helpers.SubjectTracker;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.events.Ask;
@@ -56,7 +56,7 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  * @author James Leigh
  * 
  */
-public abstract class CreateSupport implements Template {
+public abstract class CreateSupport implements Page {
 
 	public RDFObject calliCreateResource(final RDFObject source, InputStream in,
 			final Set<?> namespaces) throws Exception {

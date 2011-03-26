@@ -13,7 +13,7 @@ $(document).ready(function () {
 	$(":input[property]", form).each(initInputElement);
 });
 
-$(document).bind("DOMNodeInserted", function (event) {
+$("form[about]").live("DOMNodeInserted", function (event) {
 	createAddPropertyButtons(event.target);
 	select(event.target, ":input[property]").each(initInputElement);
 });

@@ -3,7 +3,7 @@
 (function($){
 
 $(document).ready(function(event){setTimeout(function(){findAutoExpandTextArea(event)}, 0)});
-$(window).bind('resize', findAutoExpandTextArea);
+$(window).bind('resize', function(){findAutoExpandTextArea(document)});
 $(document).bind('change', findAutoExpandTextArea);
 $(document).bind('keypress', findAutoExpandTextArea);
 $(document).bind('input', findAutoExpandTextArea);
@@ -16,43 +16,64 @@ function findAutoExpandTextArea(event) {
 		areas = areas.add(event.target);
 	}
 	for (var i = 0; i < areas.length; i++) {
-		if (areas[i].type == "textarea" || areas[i].type == "text") {
-			expandTextArea(areas[i]);
-		}
+		expand(areas[i]);
 	}
 	$(areas).unbind("paste", targetAutoExpandTextArea);
 	$(areas).bind("paste", targetAutoExpandTextArea);
 }
 
 function targetAutoExpandTextArea(event) {
-	var target = null;
-	if (event.target && event.target.type == "textarea") {
-		target = event.target;
-	} else if (event.srcElement && event.srcElement.type == "textarea") {
-		target = event.srcElement;
-	} else if (event.target && event.target.type == "text") {
-		target = event.target;
-	} else if (event.srcElement && event.srcElement.type == "text") {
-		target = event.srcElement;
-	}
-	if (target && target.className.match(/\bauto-expand\b/)) {
-		setTimeout(function(){expandTextArea(target)}, 0);
+	if (event.target && event.target.className.match(/\bauto-expand\b/)) {
+		setTimeout(function(){
+			expand(event.target);
+		}, 0);
 	}
 }
 
-function expandTextArea(area) {
-	var asideLeft = document.documentElement.clientWidth;
-	$(".aside").filter(function(){
+function expand(area) {
+	var clientWidth = document.documentElement.clientWidth;
+	var asideLeft = clientWidth;
+	$(".aside:visible").filter(function(){
 		var top = $(this).offset().top;
 		var parent = $(area).offsetParent();
 		return parent.offset().top < top + $(this).height() && parent.offset().top + parent.height() > top;
 	}).each(function() {
-		if ($(this).offset().left < asideLeft) {
-			asideLeft = $(this).offset().left;
+		var left = $(this).offset().left;
+		left -= $(this).css("margin-left").replace(/px/,'');
+		if (left < asideLeft) {
+			asideLeft = left;
 		}
 	});
-	var contentWidth = asideLeft - $(area).offset().left;
+	var left = $(area).css("border-left-width");
+	var right = $(area).css("border-right-width");
+	var marginRight = parseInt(left.replace(/px/,'')) + parseInt(right.replace(/px/,''));
+	$(area).parents().each(function(){
+		marginRight += parseInt($(this).css("border-right-width").replace(/px/,''));
+		marginRight += parseInt($(this).css("margin-right").replace(/px/,''));
+		marginRight += parseInt($(this).css("padding-right").replace(/px/,''));
+	});
+	var contentWidth = asideLeft - $(area).offset().left - marginRight;
 	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
+	if (innerHeight > document.height) {
+		// no scrollbars yet, assume they will appear
+		contentWidth -= 32;
+	}
+	if (area.type == "textarea" ||  area.type == "text") {
+		expandTextArea(area, contentWidth, innerHeight);
+	} else if (area.nodeName.toLowerCase() == "iframe") {
+		expandIframe(area, contentWidth, innerHeight);
+	} else {
+		expandBlock(area, contentWidth, innerHeight);
+	}
+	setTimeout(function() {
+		if (clientWidth > document.documentElement.clientWidth) {
+			// the resize might have caused scrollbar to appear
+			expand(area);
+		}
+	}, 100);
+}
+
+function expandTextArea(area, contentWidth, innerHeight) {
 	var width = area.cols || area.size;
 	var height = area.rows;
 	var maxCols = Math.floor(contentWidth / area.offsetWidth * width - 3);
@@ -79,6 +100,34 @@ function expandTextArea(area) {
 	} else {
 		area.size = Math.min(maxCols, cols);
 	}
+}
+
+function expandIframe(area, contentWidth, innerHeight) {
+	$(area).css('width', contentWidth);
+	try {
+		var height = area.contentWindow.document.height;
+		if (height > 100) {
+			$(area).css('height', Math.min(innerHeight, height));
+			return;
+		}
+	} catch(e) {}
+	$(area).css('height', innerHeight);
+}
+
+function expandBlock(area, contentWidth, innerHeight) {
+	var childHeight = 0;
+	$(area).find(":visible").each(function() {
+		var height = $(this).height();
+		height += parseInt($(this).css("border-top-width").replace(/px/,''));
+		height += parseInt($(this).css("border-bottom-width").replace(/px/,''));
+		height += parseInt($(this).css("margin-top").replace(/px/,''));
+		height += parseInt($(this).css("margin-bottom").replace(/px/,''));
+		if (height > childHeight) {
+			childHeight = height;
+		}
+	});
+	$(area).css('width', contentWidth);
+	$(area).css('height', Math.min(innerHeight, childHeight));
 }
 
 })(window.jQuery);

@@ -2,6 +2,6 @@
 
 jQuery(function($){
 	$(document).bind("calliReady", function() {
-		$("#content :input:visible:first").focus();
+		$(".iframe #content :input:visible:first").focus();
 	});
 });

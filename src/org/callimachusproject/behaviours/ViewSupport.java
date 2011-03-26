@@ -30,7 +30,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.concepts.Template;
+import org.callimachusproject.concepts.Page;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.Triple;
@@ -66,7 +66,7 @@ import org.openrdf.repository.object.RDFObject;
  * @author James Leigh
  * 
  */
-public abstract class ViewSupport implements Template, RDFObject,
+public abstract class ViewSupport implements Page, RDFObject,
 		VersionedObject, FileObject {
 	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
 	private static TermFactory tf = TermFactory.newInstance();

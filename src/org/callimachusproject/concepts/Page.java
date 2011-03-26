@@ -30,13 +30,13 @@ import org.callimachusproject.stream.TriplePatternStore;
 import org.openrdf.repository.object.annotations.iri;
 
 /**
- * Interface for all RDFa Templates.
+ * Interface for all RDFa page templates.
  * 
  * @author James Leigh
  *
  */
-@iri("http://callimachusproject.org/rdf/2009/framework#Template")
-public interface Template {
+@iri("http://callimachusproject.org/rdf/2009/framework#Page")
+public interface Page {
 
 	/**
 	 * Populates the page with the properties of the target resource.

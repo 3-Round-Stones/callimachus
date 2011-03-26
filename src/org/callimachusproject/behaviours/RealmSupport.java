@@ -35,7 +35,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.callimachusproject.concepts.Template;
+import org.callimachusproject.concepts.Page;
 import org.callimachusproject.traits.Realm;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectFactory;
@@ -167,7 +167,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	@Override
 	public HttpResponse unauthorized(String method, Object resource,
 			Map<String, String[]> request) throws Exception {
-		Template unauthorized = getCalliUnauthorized();
+		Page unauthorized = getCalliUnauthorized();
 		if (unauthorized == null)
 			return null;
 		String url = request.get("request-target")[0];
@@ -185,7 +185,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	@Override
 	public HttpResponse forbidden(String method, Object resource,
 			Map<String, String[]> request) throws Exception {
-		Template forbidden = getCalliForbidden();
+		Page forbidden = getCalliForbidden();
 		if (forbidden == null)
 			return null;
 		String url = request.get("request-target")[0];

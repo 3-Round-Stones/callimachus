@@ -45,9 +45,19 @@ calli:SchemaGraph a owl:Class.
 	msg:imports calli:NamedGraph;
 	msg:imports calli:SchemaGraph;
 	msg:imports <java:org.openrdf.repository.util.RDFInserter>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
 	msg:script """
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+
 		this.calliDeleteWebResource();
-		this.objectConnection.addDesignation(this, NamedGraph);
+
+		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		con.add(this.resource, RDFS.LABEL, label, []);
+
+		con.addDesignation(this, NamedGraph);
 
 		var type = contentType;
 		if (type.indexOf(';') > 0) {
@@ -86,11 +96,11 @@ calli:SchemaGraph a owl:Class.
 					|| ons == rdfns && local == "Property";
 			}
 			if (schema) {
-				target.objectConnection.addDesignation(target, SchemaGraph);
+				con.addDesignation(target, SchemaGraph);
 			}
 		}
 
-		var rdfInserter = new RDFInserter(this.objectConnection);
+		var rdfInserter = new RDFInserter(con);
 		rdfInserter.enforceContext([this.resource]);
 		rdfParser.setRDFHandler(new RDFHandler({
 			startRDF: function() { rdfInserter.startRDF(); },
@@ -119,29 +129,27 @@ calli:SchemaGraph a owl:Class.
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;
-	msg:imports <java:org.openrdf.rio>;
 	msg:imports calli:NamedGraph;
-	msg:imports <java:org.openrdf.repository.util.RDFInserter>;
+	msg:imports <java:org.openrdf.rio.RDFFormat>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
 	msg:script """
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+
 		this.calliDeleteWebResource();
-		this.objectConnection.addDesignation(this, NamedGraph);
+
+		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		con.add(this.resource, RDFS.LABEL, label, []);
+
+		con.addDesignation(this, NamedGraph);
 
 		var type = contentType;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		var dataFormat = RDFFormat.forMIMEType(type);
-		var vf = this.objectConnection.getValueFactory();
-		var rdfParser = Rio.createParser(dataFormat, vf);
-
-		rdfParser.setVerifyData(true);
-		rdfParser.setStopAtFirstError(true);
-		rdfParser.setDatatypeHandling(RDFParser.DatatypeHandling.IGNORE);
-
-		var rdfInserter = new RDFInserter(this.objectConnection);
-		rdfInserter.enforceContext([this.resource]);
-		rdfParser.setRDFHandler(rdfInserter);
-		rdfParser.parse(rdfStream, this.toString());
+		con.add(rdfStream, this.toString(), RDFFormat.forMIMEType(type), [this.resource]);
 	""".
 
 :rdfStream a owl:ObjectProperty; a owl:FunctionalProperty;
@@ -158,13 +166,24 @@ calli:SchemaGraph a owl:Class.
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
 	msg:script """
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+
 		this.calliDeleteWebResource();
+
+		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		con.add(this.resource, RDFS.LABEL, label, []);
+
 		var type = "urn:mimetype:" + contentType;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		this.objectConnection.addDesignation(this, type);
+		con.addDesignation(this, type);
+
 		var read;
 		var cbuf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
 		var out = this.openWriter();
@@ -193,20 +212,8 @@ calli:SchemaGraph a owl:Class.
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;
 	msg:script """
-		this.calliDeleteWebResource();
+		this.PutTextDocument(contentType, jsReader);
 		var con = this.objectConnection;
-		var type = "urn:mimetype:text/javascript";
-		con.addDesignation(this, type);
-		var read;
-		var cbuf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
-		var out = this.openWriter();
-		try {
-			while ((read = jsReader.read(cbuf)) >= 0) {
-				out.write(cbuf, 0, read);
-			}
-		} finally {
-			out.close();
-		}
 		var bundles = con.getStatements(null, null, this.resource, true, []);
 		try {
 			while (bundles.hasNext()) {
@@ -235,13 +242,24 @@ calli:SchemaGraph a owl:Class.
 	msg:query "calliwebapps";
 	msg:header "cache-control:cache-range";
 	msg:realm calli:nobody;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
 	msg:script """
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+
 		this.calliDeleteWebResource();
+
+		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		con.add(this.resource, RDFS.LABEL, label, []);
+
 		var type = "urn:mimetype:" + contentType;
 		if (type.indexOf(';') > 0) {
 			type = type.substring(0, type.indexOf(';'));
 		}
-		this.objectConnection.addDesignation(this, type);
+		con.addDesignation(this, type);
+
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
 		var out = this.openOutputStream();
@@ -257,135 +275,44 @@ calli:SchemaGraph a owl:Class.
 :binaryStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutBinaryDocument;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "image/png", "image/jpeg", "image/gif", "image/svg+xml", "image/vnd.microsoft.icon", "application/pdf".
-
-################################
-# SPARQL File
-################################
-
-:PutSparqlDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
-	msg:method "PUT";
-	msg:query "calliwebapps";
-	msg:header "cache-control:cache-range";
-	msg:realm calli:nobody;
-	msg:script """
-		this.calliDeleteWebResource();
-		var type = "urn:mimetype:" + contentType;
-		if (type.indexOf(';') > 0) {
-			type = type.substring(0, type.indexOf(';'));
-		}
-		this.objectConnection.addDesignation(this, type);
-		var read;
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var out = this.openOutputStream();
-		try {
-			while ((read = sparqlStream.read(buf)) >= 0) {
-				out.write(buf, 0, read);
-			}
-		} finally {
-			out.close();
-		}
-	""".
-
-:sparqlStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :PutSparqlDocument;
-	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/sparql-query".
-
-################################
-# XSL File
-################################
-
-:PutXslDocument rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
-	msg:method "PUT";
-	msg:query "calliwebapps";
-	msg:header "cache-control:cache-range";
-	msg:realm calli:nobody;
-	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	msg:script """
-		this.calliDeleteWebResource();
-		this.objectConnection.addDesignation(this, "urn:mimetype:text/xsl");
-		var read;
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var out = this.openOutputStream();
-		try {
-			while ((read = xslStream.read(buf)) >= 0) {
-				out.write(buf, 0, read);
-			}
-		} finally {
-			out.close();
-		}
-		HTTPObjectServer.resetAllCache();
-	""".
-
-:xslStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :PutXslDocument;
-	rdfs:range <java:java.io.InputStream>;
-	msg:type "text/xsl".
+	msg:type "image/png", "image/jpeg", "image/gif", "image/svg+xml", "image/vnd.microsoft.icon", "application/pdf", "application/sparql-query".
 
 ################################
 # XML File
 ################################
 
-:PutXmlDocument rdfs:subClassOf msg:Message;
+:PutXmlDocument rdfs:subClassOf :PutContentType;
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:header "cache-control:cache-range";
 	msg:realm calli:nobody;
-	msg:imports calli:Template;
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:script """
-		this.calliDeleteWebResource();
-		this.objectConnection.addDesignation(this, Template);
-		this.objectConnection.addDesignation(this, "urn:mimetype:application/xml");
-		var read;
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var out = this.openOutputStream();
-		try {
-			while ((read = xmlStream.read(buf)) >= 0) {
-				out.write(buf, 0, read);
-			}
-		} finally {
-			out.close();
-		}
+		this.PutBinaryDocument(xmlStream, contentType);
 		HTTPObjectServer.resetAllCache();
 	""".
 
 :xmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutXmlDocument;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/xml".
+	msg:type "application/xml", "text/xsl".
 
 ################################
 # XHTML File
 ################################
 
-:PutXhtmlDocument rdfs:subClassOf msg:Message;
+:PutXhtmlDocument rdfs:subClassOf :PutContentType;
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:header "cache-control:cache-range";
 	msg:realm calli:nobody;
-	msg:imports calli:Template;
-	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:imports calli:Page;
 	msg:script """
-		this.calliDeleteWebResource();
-		this.objectConnection.addDesignation(this, Template);
-		this.objectConnection.addDesignation(this, "urn:mimetype:application/xhtml+xml");
-		var read;
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var out = this.openOutputStream();
-		try {
-			while ((read = xhtmlStream.read(buf)) >= 0) {
-				out.write(buf, 0, read);
-			}
-		} finally {
-			out.close();
-		}
-		HTTPObjectServer.resetAllCache();
+		this.PutXmlDocument(contentType, xhtmlStream);
+
+		this.objectConnection.addDesignation(this, Page);
 	""".
 
 :xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
@@ -402,11 +329,15 @@ calli:DeleteWebResource rdfs:subClassOf msg:Message;
 	msg:method "DELETE";
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;
-	msg:imports calli:Template;
+	msg:imports calli:Page;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:javax.tools.FileObject>;
 	msg:script """
 		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+
 		var types = con.getStatements(this.resource, RDF.TYPE, null, true, []);
 		try {
 			while (types.hasNext()) {
@@ -418,7 +349,12 @@ calli:DeleteWebResource rdfs:subClassOf msg:Message;
 		} finally {
 			types.close();
 		}
-		con.removeDesignation(this, Template);
+		con.removeDesignation(this, Page);
+
+		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		con.remove(this.resource, RDFS.LABEL, label, []);
+
 		con.clear([this.resource]); //# clear graph
 		if (this instanceof FileObject) {
 			this['delete'](); //# remove document

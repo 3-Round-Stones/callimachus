@@ -79,57 +79,12 @@
 		return class_members_xhtml.calliConstructHTML(this);
 	""".
 
-<Template> rdfs:subClassOf calli:Template, calli:Copyable, calli:Viewable, calli:Editable;
-	calli:icon <template.png>;
-	calli:view <template.xhtml>;
-	calli:edit <template-edit.xhtml>;
-	calli:copy <template-copy.xhtml>;
-	calli:withNamespace </template/>.
-
-<sample-view.xhtml> a <Template>;
+<sample-view.xhtml> a </callimachus/Page>;
 	calli:editor </group/admin>.
 
-<sample-edit.xhtml> a <Template>;
+<sample-edit.xhtml> a </callimachus/Page>;
 	calli:editor </group/admin>.
 
-<sample-create.xhtml> a <Template>;
+<sample-create.xhtml> a </callimachus/Page>;
 	calli:editor </group/admin>.
-
-:PostTemplateCopy owl:intersectionOf (</callimachus/operations/copy.ttl#PostCopy>
-		[owl:onProperty msg:target; owl:allValuesFrom <Template>]);
-	msg:script """
-		var created = proceed();
-		this.objectConnection.commit();
-		created.PutTemplate(new java.net.URL(this.toString()).openStream());
-		return created;
-	""".
-
-:local a calli:LocalRealm;
-	calli:domain </template/>.
-
-:PutTemplate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Template>];
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
-	msg:method "PUT" ;
-	msg:realm </accounts>, :local ;
-	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	msg:script """
-		this.objectConnection.addDesignation(this, "urn:mimetype:application/xhtml+xml");
-		var out = this.openOutputStream() ;
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var read;
-		try {
-			while ((read = templateStream.read(buf)) >= 0) {
-				out.write(buf, 0, read);
-			}
-		} finally {
-			out.close();
-		}
-		HTTPObjectServer.resetAllCache();
-	""".
-
-:templateStream a owl:DatatypeProperty, owl:FunctionalProperty ;
-	rdfs:domain :PutTemplate ;
-	rdfs:range <java:java.io.InputStream> ;
-	msg:type "application/xhtml+xml" .
 

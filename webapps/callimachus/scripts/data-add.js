@@ -12,7 +12,7 @@ $(document).ready(function () {
 	initSetElements(form);
 });
 
-$(document).bind("DOMNodeInserted", function (event) {
+$("form[about]").live("DOMNodeInserted", function (event) {
 	initSetElements(event.target);
 });
 

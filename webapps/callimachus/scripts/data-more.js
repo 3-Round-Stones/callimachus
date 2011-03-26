@@ -12,7 +12,7 @@ $(document).ready(function () {
 	createAddRelButtons(form);
 });
 
-$(document).bind("DOMNodeInserted", function (event) {
+$("form[about]").live("DOMNodeInserted", function (event) {
 	createAddRelButtons(event.target);
 });
 

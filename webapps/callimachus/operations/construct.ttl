@@ -26,7 +26,7 @@
 @prefix :<#>.
 
 calli:ConstructHTML rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Template];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Page];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:type "text/html";
 	msg:script """
@@ -52,7 +52,7 @@ calli:queryhtml a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:range xsd:string.
 
 calli:ConstructTemplate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Template];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Page];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;

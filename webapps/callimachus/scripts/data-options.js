@@ -13,7 +13,7 @@ $(document).ready(function () {
 	initOptionElements(form);
 });
 
-$(document).bind("DOMNodeInserted", function (event) {
+$("form[about]").live("DOMNodeInserted", function (event) {
 	initInputRelElements(event.target);
 	initOptionElements(event.target);
 });

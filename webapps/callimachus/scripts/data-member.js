@@ -14,7 +14,7 @@ $(document).ready(function () {
 	initListElements(form);
 });
 
-$(document).bind("DOMNodeInserted", function (event) {
+$("form[about]").live("DOMNodeInserted", function (event) {
 	initListElements(event.target);
 });
 

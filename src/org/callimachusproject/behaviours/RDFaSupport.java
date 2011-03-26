@@ -36,7 +36,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.concepts.Template;
+import org.callimachusproject.concepts.Page;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.RDFaReader;
@@ -64,14 +64,14 @@ import org.openrdf.repository.object.xslt.XMLEventReaderFactory;
 import org.openrdf.repository.object.xslt.XSLTransformer;
 
 /**
- * Implements a few {@link Template} methods to convent an RDFa document into a
+ * Implements a few {@link Page} methods to convent an RDFa document into a
  * graph pattern.
  * 
  * @author James Leigh
  * @author Steve Battle
  * 
  */
-public abstract class RDFaSupport implements Template, SoundexTrait, RDFObject,
+public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		FileObject {
 	private static final Pattern TYPE_XSLT = Pattern
 			.compile("\\btype=[\"'](text/xsl|application/xslt+xml)[\"']");

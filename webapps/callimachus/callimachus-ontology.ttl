@@ -54,8 +54,8 @@ calli:Viewable a owl:Class;
 	rdfs:label "Viewable";
 	rdfs:comment "Resources that can be viewed from a Web browser.".
 
-calli:Template a owl:Class;
-	rdfs:comment "RDFa template.".
+calli:Page a owl:Class;
+	rdfs:comment "An XHTML+RDFa web page.".
 
 calli:Realm a owl:Class;
 	rdfs:comment "A realm.".
@@ -120,13 +120,13 @@ calli:reader a owl:AnnotationProperty;
 	rdfs:comment "Credential or group of credentials that can view individual resources of this class.".
 
 calli:copy a owl:AnnotationProperty;
-	rdfs:comment "The RDFa template used to copy individual resources from this resource using a Web browser.".
+	rdfs:comment "The RDFa page template used to copy individual resources from this resource using a Web browser.".
 
 calli:edit a owl:AnnotationProperty;
-	rdfs:comment "The RDFa template used to edit individual resources of this class using a Web browser.".
+	rdfs:comment "The RDFa page template used to edit individual resources of this class using a Web browser.".
 
 calli:view a owl:AnnotationProperty;
-	rdfs:comment "The RDFa template used to display individual resources of this class in a Web browser.".
+	rdfs:comment "The RDFa page template used to display individual resources of this class in a Web browser.".
 
 ################################
 # Property
@@ -170,19 +170,19 @@ calli:domain a rdf:Property;
 	rdfs:domain calli:Realm.
 
 calli:forbidden a owl:ObjectProperty;
-	rdfs:comment "The RDFa template used when an agent is forbidden from the requested resource.";
+	rdfs:comment "The RDFa page template used when an agent is forbidden from the requested resource.";
 	rdfs:domain calli:Realm;
-	rdfs:range calli:Template.
+	rdfs:range calli:Page.
 
 calli:unauthorized a owl:ObjectProperty;
-	rdfs:comment "The RDFa template used when an agent is aunothorized from the requested resource.";
+	rdfs:comment "The RDFa page template used when an agent is aunothorized from the requested resource.";
 	rdfs:domain calli:Realm;
-	rdfs:range calli:Template.
+	rdfs:range calli:Page.
 
 calli:create a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:comment "The RDFa template used to create resources of this class using a Web browser.";
+	rdfs:comment "The RDFa page template used to create resources of this class using a Web browser.";
 	rdfs:domain calli:Creatable;
-	rdfs:range calli:Template.
+	rdfs:range calli:Page.
 
 calli:administrator a owl:ObjectProperty;
 	rdfs:comment "Credential or group of credentials that can interact with this resource remotely.";

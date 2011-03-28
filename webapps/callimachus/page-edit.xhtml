@@ -35,7 +35,13 @@
 						classesHtml: outter($('.wym_classes'), '{Wym_Classes}'),
 						statusHtml: outter($('.wym_status'), '{Wym_Status}'),
 						htmlHtml: outter($('.wym_html'), '{Wym_Html}'),
-						boxHtml: outter($('.wymeditor'), '')
+						boxHtml: outter($('.wymeditor'), ''),
+						dialogImageHtml: outter($('.wym_dialog_image'), ''),
+						dialogTableHtml: outter($('.wym_dialog_table'), ''),
+						dialogPasteHtml: outter($('.wym_dialog_paste'), ''),
+						dialogPreviewHtml: outter($('.wym_dialog_preview'), ''),
+						dialogLinkHtml: outter($('.wym_dialog_link'), '{Wym_Dialog_Body}'),
+						dialogHtml: outter($('.dialogHtml'), ''),
 					});
 				}
 			}
@@ -61,43 +67,118 @@
 
 
 <body about="?this">
-	<form id="form" action="">
-		<div style="display:none">
-			<div class="wymeditor">
-				<ul class="aside">
-					<li class="wym_containers wym_section">
-					  <label>{Containers}</label>
-						<ul>
-						  <li class="Wym_Containers_Items {Wym_Container_Class}">
-							<a href="#" name="{Wym_Container_Name}">{Wym_Containers_Title}</a>
-						  </li>
-						</ul>
-					</li>
-					<li class="wym_classes wym_section">
-					  <label>{Classes}</label>
-						<ul>
-						  <li class="Wym_Classes_Items wym_classes_{Wym_Class_Name}">
-							<a href="#" name="{Wym_Class_Name}">{Wym_Class_Title}</a>
-						  </li>
-						</ul>
-					</li>
-				</ul>
-				<ul class="wym_tools wym_section ui-widget-header auto-expand" style="overflow:auto">
-					<li class="Wym_Tools_Items {Wym_Tool_Class}">
-						<a href="#" name="{Wym_Tool_Name}" title="{Wym_Tool_Title}">{Wym_Tool_Title}</a>
-					</li>
-				</ul>
-				<div class="wym_html wym_section">
-					<textarea class="wym_html_val"/>
-				</div>
-				<div id="Wym_Iframe" class="wym_iframe wym_section">
-					<iframe class="auto-expand" src="{Wym_Iframe_Base_Path}wymiframe.html" onload="this.contentWindow.parent.WYMeditor.INSTANCES[{Wym_Index}].initIframe(this)"> </iframe>
-				</div>
-				<div class="wym_status wym_section">
-				</div>
-				<a class="wym_wymeditor_link" href="http://www.wymeditor.org/">WYMeditor</a>
+	<div style="display:none">
+		<div class="wymeditor">
+			<ul class="aside">
+				<li class="wym_containers wym_section">
+				  <label>{Containers}</label>
+					<ul>
+					  <li class="Wym_Containers_Items {Wym_Container_Class}">
+						<a href="#" name="{Wym_Container_Name}">{Wym_Containers_Title}</a>
+					  </li>
+					</ul>
+				</li>
+				<li class="wym_classes wym_section">
+				  <label>{Classes}</label>
+					<ul>
+					  <li class="Wym_Classes_Items wym_classes_{Wym_Class_Name}">
+						<a href="#" name="{Wym_Class_Name}">{Wym_Class_Title}</a>
+					  </li>
+					</ul>
+				</li>
+			</ul>
+			<ul class="wym_tools wym_section ui-widget-header auto-expand" style="overflow:auto">
+				<li class="Wym_Tools_Items {Wym_Tool_Class}">
+					<a href="#" name="{Wym_Tool_Name}" title="{Wym_Tool_Title}">{Wym_Tool_Title}</a>
+				</li>
+			</ul>
+			<div class="wym_html wym_section">
+				<textarea class="wym_html_val auto-expand"/>
 			</div>
+			<div id="Wym_Iframe" class="wym_iframe wym_section">
+				<iframe class="auto-expand" src="{Wym_Iframe_Base_Path}wymiframe.html" onload="this.contentWindow.parent.WYMeditor.INSTANCES[{Wym_Index}].initIframe(this)"> </iframe>
+			</div>
+			<div class="wym_status wym_section">
+			</div>
+			<a class="wym_wymeditor_link" href="http://www.wymeditor.org/">WYMeditor</a>
 		</div>
+		<div class="dialogHtml">
+			<div class="wym_dialog wym_dialog_link">
+				<form>
+					<input type='hidden' class='wym_dialog_type' value='Link' />
+					<label for="url">{URL}</label>
+					<div>
+						<input id="url" type='text' class='wym_href auto-expand' value='' />
+					</div>
+					<label for="title">{Title}</label>
+					<div>
+						<input id="title" type='text' class='wym_title auto-expand' value='' />
+					</div>
+					<button class='wym_submit' type='submit'>Link</button>
+					<button class='wym_cancel' type='button'>{Cancel}</button>
+				</form>
+			</div>
+			<div class="wym_dialog wym_dialog_image">
+				<form>
+					<fieldset>
+						<input type='hidden' class='wym_dialog_type' value='Image' />
+						<legend>{Image}</legend>
+						<div class='row'>
+							<label>{URL}</label>
+							<input type='text' class='wym_src' value='' size='40' />
+						</div>
+						<div class='row'>
+							<label>{Alternative_Text}</label>
+							<input type='text' class='wym_alt' value='' size='40' />
+						</div>
+						<div class='row'>
+							<label>{Title}</label>
+							<input type='text' class='wym_title' value='' size='40' />
+						</div>
+						<div class='row row-indent'>
+							<input class='wym_submit' type='button' value='{Submit}' />
+							<input class='wym_cancel' type='button' value='{Cancel}' />
+						</div>
+					</fieldset>
+				</form>
+			</div>
+			<div class='wym_dialog wym_dialog_table'>
+				<form>
+					<input type='hidden' class='wym_dialog_type' value='InsertTable' />
+					<label for="caption">{Caption}</label>
+					<div>
+						<input id="caption" type='text' class='wym_caption auto-expand' value='' />
+					</div>
+					<label for="summary">{Summary}</label>
+					<div>
+						<input id="summary" type='text' class='wym_summary auto-expand' value='' />
+					</div>
+					<label for="numberofrows">{Number_Of_Rows}</label>
+					<div>
+						<input id="numberofrows" type='text' class='wym_rows' value='3' size='3' />
+					</div>
+					<label for="numberofcols">{Number_Of_Cols}</label>
+					<div>
+						<input id="numberofcols" type='text' class='wym_cols' value='2' size='3' />
+					</div>
+					<button class='wym_submit' type='submit'>Add table</button>
+					<button class='wym_cancel' type='button'>{Cancel}</button>
+				</form>
+			</div>
+			<div class='wym_dialog wym_dialog_paste'>
+				<form>
+					<input type='hidden' class='wym_dialog_type' value='Paste_From_Word' />
+					<div>
+						<textarea class='wym_text auto-expand'></textarea>
+					</div>
+					<button class='wym_submit' type='submit'>Insert text</button>
+					<button class='wym_cancel' type='button'>{Cancel}</button>
+				</form>
+			</div>
+			<div class='wym_dialog wym_dialog_preview'></div>
+		</div>
+	</div>
+	<form id="form" action="">
 		<div>
 			<textarea id="textarea"></textarea>
 		</div>

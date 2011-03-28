@@ -1,5 +1,5 @@
 /**
- * @version 0.5-rc1
+ * @version 0.5-rc1+
  *
  * WYMeditor : what you see is What You Mean web-based editor
  * Copyright (c) 2005 - 2009 Jean-Francois Hovinne, http://www.wymeditor.org/
@@ -937,8 +937,8 @@ WYMeditor.editor.prototype.exec = function(cmd) {
     break;
     
     case WYMeditor.TOGGLE_HTML:
-      this.update();
       this.toggleHtml();
+      this.update();
     break;
     
     case WYMeditor.PREVIEW:
@@ -1145,17 +1145,13 @@ WYMeditor.editor.prototype.update = function() {
   var html = this.xhtml();
   jQuery(this._element).val(html);
   jQuery(this._box).find(this._options.htmlValSelector).not('.hasfocus').val(html); //#147
+  jQuery(this._box).find(this._options.htmlValSelector).not('.hasfocus').change(); //#147
 };
 
 /* @name dialog
  * @description Opens a dialog box
  */
 WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHtml ) {
-  
-  var features = dialogFeatures || this._wym._options.dialogFeatures;
-  var wDialog = window.open('', 'dialog', features);
-
-  if(wDialog) {
 
     var sBodyHtml = "";
     
@@ -1195,17 +1191,36 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.INDEX, this._index);
       
     dialogHtml = this.replaceStrings(dialogHtml);
+
+	var options = {
+        title: dialogType.replace(/_/g, ' '),
+        autoOpen: false,
+        modal: true,
+        draggable: true,
+        resizable: true,
+        autoResize: true
+	};
+
+	if (dialogType == WYMeditor.PREVIEW) {
+		options.width = $(this._iframe).width();
+		options.minHeight = $(this._iframe).height();
+	}
     
-    var doc = wDialog.document;
-    doc.write(dialogHtml);
-    doc.close();
-  }
+    var dialog = jQuery(dialogHtml).dialog(options);
+	dialog.bind("dialogclose", function(event, ui) {
+		dialog.dialog("destroy");
+	});
+	dialog.dialog("open");
+	window.dialog = dialog;
+	WYMeditor.INIT_DIALOG(this._index);
+
 };
 
 /* @name toggleHtml
  * @description Shows/Hides the HTML
  */
 WYMeditor.editor.prototype.toggleHtml = function() {
+  jQuery(this._box).find(this._options.iframeSelector).toggle();
   jQuery(this._box).find(this._options.htmlSelector).toggle();
 };
 
@@ -1421,7 +1436,8 @@ WYMeditor.editor.prototype.loadSkin = function() {
 
 WYMeditor.INIT_DIALOG = function(index) {
 
-  var wym = window.opener.WYMeditor.INSTANCES[index];
+  var opener = window.opener ? window.opener : window;
+  var wym = opener.WYMeditor.INSTANCES[index];
   var doc = window.document;
   var selected = wym.selected();
   var dialogType = jQuery(wym._options.dialogTypeSelector).val();
@@ -1469,8 +1485,7 @@ WYMeditor.INIT_DIALOG = function(index) {
       .val(jQuery(wym._selected_image).attr(WYMeditor.ALT));
   }
 
-  jQuery(wym._options.dialogLinkSelector + " "
-    + wym._options.submitSelector).click(function() {
+  var submitLink = function() {
 
       var sUrl = jQuery(wym._options.hrefSelector).val();
       if(sUrl.length > 0) {
@@ -1487,11 +1502,20 @@ WYMeditor.INIT_DIALOG = function(index) {
             .attr(WYMeditor.TITLE, jQuery(wym._options.titleSelector).val());
 
       }
-      window.close();
-  });
+      if (window.opener) {
+        window.close();
+      } else if (window.dialog) {
+        window.dialog.dialog('close');
+      }
+      return false;
+  };
 
-  jQuery(wym._options.dialogImageSelector + " "
-    + wym._options.submitSelector).click(function() {
+  jQuery(wym._options.dialogLinkSelector + " "
+    + wym._options.submitSelector).click(submitLink);
+  jQuery(wym._options.dialogLinkSelector + " "
+    + wym._options.submitSelector).parents("form:first").submit(submitLink);
+
+  var submitImage = function() {
 
       var sUrl = jQuery(wym._options.srcSelector).val();
       if(sUrl.length > 0) {
@@ -1503,11 +1527,20 @@ WYMeditor.INIT_DIALOG = function(index) {
             .attr(WYMeditor.TITLE, jQuery(wym._options.titleSelector).val())
             .attr(WYMeditor.ALT, jQuery(wym._options.altSelector).val());
       }
-      window.close();
-  });
+      if (window.opener) {
+        window.close();
+      } else if (window.dialog) {
+        window.dialog.dialog('close');
+      }
+      return false;
+  };
 
-  jQuery(wym._options.dialogTableSelector + " "
-    + wym._options.submitSelector).click(function() {
+  jQuery(wym._options.dialogImageSelector + " "
+    + wym._options.submitSelector).click(submitImage);
+  jQuery(wym._options.dialogImageSelector + " "
+    + wym._options.submitSelector).parents("form:first").submit(submitImage);
+
+  var submitTable = function() {
 
       var iRows = jQuery(wym._options.rowsSelector).val();
       var iCols = jQuery(wym._options.colsSelector).val();
@@ -1540,16 +1573,35 @@ WYMeditor.INIT_DIALOG = function(index) {
         if(!node || !node.parentNode) jQuery(wym._doc.body).append(table);
         else jQuery(node).after(table);
       }
-      window.close();
-  });
+      if (window.opener) {
+        window.close();
+      } else if (window.dialog) {
+        window.dialog.dialog('close');
+      }
+      return false;
+  };
 
-  jQuery(wym._options.dialogPasteSelector + " "
-    + wym._options.submitSelector).click(function() {
+  jQuery(wym._options.dialogTableSelector + " "
+    + wym._options.submitSelector).click(submitTable);
+  jQuery(wym._options.dialogTableSelector + " "
+    + wym._options.submitSelector).parents("form:first").submit(submitTable);
+
+  var submitPaste = function() {
 
       var sText = jQuery(wym._options.textSelector).val();
       wym.paste(sText);
-      window.close();
-  });
+      if (window.opener) {
+        window.close();
+      } else if (window.dialog) {
+        window.dialog.dialog('close');
+      }
+      return false;
+  };
+
+  jQuery(wym._options.dialogPasteSelector + " "
+    + wym._options.submitSelector).click(submitPaste);
+  jQuery(wym._options.dialogPasteSelector + " "
+    + wym._options.submitSelector).parents("form:first").submit(submitPaste);
 
   jQuery(wym._options.dialogPreviewSelector + " "
     + wym._options.previewSelector)
@@ -1557,7 +1609,11 @@ WYMeditor.INIT_DIALOG = function(index) {
 
   //cancel button
   jQuery(wym._options.cancelSelector).mousedown(function() {
-    window.close();
+      if (window.opener) {
+        window.close();
+      } else if (window.dialog) {
+        window.dialog.dialog('close');
+      }
   });
 
   //pre-init functions

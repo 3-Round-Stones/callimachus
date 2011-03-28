@@ -23,41 +23,30 @@
 			</div>
 		</li>
 		<li rel="rdfs:subClassOf" class="optional">
-			<label>Super</label>
+			<label>Super class</label>
 			<div about="?subClassOf" typeof="owl:Class">
 				<a href="?subClassOf" property="rdfs:label" class="subClassOf" />
 			</div>
 		</li>
 		<li rev="rdfs:subClassOf" class="optional">
-			<label>Sub</label>
+			<label>Sub class</label>
 			<div about="?subClass" typeof="owl:Class">
 				<a href="?subClass" property="rdfs:label" class="subClass" />
 			</div>
 		</li>
-		<li>
-			<div class="optional">
-				<label>Create</label>
-				<span rel="calli:create">
-					<a href="?create" property="rdfs:label" class="view" />
-				</span>
+		<li class="optional">
+			<label>Templates</label>
+			<div rel="calli:create">
+				<a href="?create" property="rdfs:label" class="view" />
 			</div>
-			<div class="optional">
-				<label>Copy</label>
-				<span rel="calli:copy">
-					<a href="?copy" property="rdfs:label" class="view" />
-				</span>
+			<div rel="calli:copy">
+				<a href="?copy" property="rdfs:label" class="view" />
 			</div>
-			<div class="optional">
-				<label>View</label>
-				<span rel="calli:view">
-					<a href="?view" property="rdfs:label" class="view" />
-				</span>
+			<div rel="calli:view">
+				<a href="?view" property="rdfs:label" class="view" />
 			</div>
-			<div class="optional">
-				<label>Edit</label>
-				<span rel="calli:edit">
-					<a href="?edit" property="rdfs:label" class="view" />
-				</span>
+			<div rel="calli:edit">
+				<a href="?edit" property="rdfs:label" class="view" />
 			</div>
 		</li>
 	</ul>

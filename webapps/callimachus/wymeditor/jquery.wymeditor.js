@@ -739,6 +739,8 @@ WYMeditor.editor.prototype.init = function() {
       for (var prop in WymClass) { this[prop] = WymClass[prop]; }
 
       //load wymbox
+      this._box = jQuery('.wym_box_' + this._index);
+      if(!this._box.length) {
       this._box = jQuery(this._element).hide().after(this._options.boxHtml).next().addClass('wym_box_' + this._index);
 
       //store the instance index in wymbox and element replaced by editor instance
@@ -823,6 +825,7 @@ WYMeditor.editor.prototype.init = function() {
       
       //load html in wymbox
       jQuery(this._box).html(boxHtml);
+      }
       
       //hide the html value
       jQuery(this._box).find(this._options.htmlSelector).hide();
@@ -1100,6 +1103,7 @@ WYMeditor.editor.prototype.switchTo = function(node,sType) {
 };
 
 WYMeditor.editor.prototype.replaceStrings = function(sVal) {
+  if(this._options.lang) {
   //check if the language file has already been loaded
   //if not, get it via a synchronous ajax call
   if(!WYMeditor.STRINGS[this._options.lang]) {
@@ -1118,6 +1122,7 @@ WYMeditor.editor.prototype.replaceStrings = function(sVal) {
     + this._options.stringDelimiterRight,
     WYMeditor.STRINGS[this._options.lang][key]);
   };
+  }
   return(sVal);
 };
 
@@ -1152,6 +1157,8 @@ WYMeditor.editor.prototype.update = function() {
  * @description Opens a dialog box
  */
 WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHtml ) {
+
+  var features = dialogFeatures || this._wym._options.dialogFeatures;
 
     var sBodyHtml = "";
     
@@ -1192,27 +1199,34 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
       
     dialogHtml = this.replaceStrings(dialogHtml);
 
-	var options = {
-        title: dialogType.replace(/_/g, ' '),
-        autoOpen: false,
-        modal: true,
-        draggable: true,
-        resizable: true,
-        autoResize: true
-	};
+    if (features == 'jQuery.dialog') {
+		var options = {
+		    title: dialogType.replace(/_/g, ' '),
+		    autoOpen: false,
+		    modal: true,
+		    draggable: true,
+		    resizable: true,
+		    autoResize: true
+		};
 
-	if (dialogType == WYMeditor.PREVIEW) {
-		options.width = $(this._iframe).width();
-		options.minHeight = $(this._iframe).height();
-	}
-    
-    var dialog = jQuery(dialogHtml).dialog(options);
-	dialog.bind("dialogclose", function(event, ui) {
-		dialog.dialog("destroy");
-	});
-	dialog.dialog("open");
-	window.dialog = dialog;
-	WYMeditor.INIT_DIALOG(this._index);
+		if (dialogType == WYMeditor.PREVIEW) {
+			options.width = $(this._iframe).width();
+			options.minHeight = $(this._iframe).height();
+		}
+		
+		var dialog = jQuery(dialogHtml).dialog(options);
+		dialog.bind("dialogclose", function(event, ui) {
+			dialog.dialog("destroy");
+		});
+		dialog.dialog("open");
+		window.dialog = dialog;
+		WYMeditor.INIT_DIALOG(this._index);
+    } else {
+      var wDialog = window.open('', 'dialog', features);
+      var doc = wDialog.document;
+      doc.write(dialogHtml);
+      doc.close();
+    }
 
 };
 

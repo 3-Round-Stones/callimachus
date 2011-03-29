@@ -7,10 +7,9 @@
 	<script type="text/javascript" src="/callimachus/wymeditor/jquery.wymeditor.js"> </script>
 	<script type="text/javascript"><![CDATA[
 	jQuery(function($){
-		function outter(node, replacement) {
+		function outter(node) {
 			var html = $($('<div/>').html($(node).clone())).html();
-			$(document.createTextNode(replacement)).insertBefore(node);
-		    $(node).remove();
+			$(node).remove();
 			return html;
 		}
 		var page = [null, '<html><head></head><body>', '','</body></html>'];
@@ -19,36 +18,29 @@
 			complete: function(xhr) {
 				if (xhr.readyState == 4 && xhr.status == 200) {
 					page = xhr.responseText.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
-					$('#textarea').wymeditor({
+					$('.wym_box_0').wymeditor({
 						html: page[2],
-						skinPath: "/callimachus/wymeditor/skins/callimachus/",
+						lang: null,
+						initSkin: false,
+						loadSkin: false,
 						postInit: function() {
-							$(document).trigger('change');
+							$('.wym_box_0').trigger('DOMNodeInserted');
 						},
-						logoHtml: outter($('.wym_wymeditor_link'), '{Wym_Logo}'),
-						iframeHtml: outter($('.wym_iframe'), '{Wym_Iframe}'),
-						toolsItemHtml:outter($('.Wym_Tools_Items'), '{Wym_Tools_Items}'),
-						toolsHtml: outter($('.wym_tools'), '{Wym_Tools}'),
-						containersItemHtml: outter($('.Wym_Containers_Items'), '{Wym_Containers_Items}'),
-						containersHtml: outter($('.wym_containers'), '{Wym_Containers}'),
-						classesItemHtml: outter($('.Wym_Classes_Items'), '{Wym_Classes_Items}'),
-						classesHtml: outter($('.wym_classes'), '{Wym_Classes}'),
-						statusHtml: outter($('.wym_status'), '{Wym_Status}'),
-						htmlHtml: outter($('.wym_html'), '{Wym_Html}'),
-						boxHtml: outter($('.wymeditor'), ''),
-						dialogImageHtml: outter($('.wym_dialog_image'), ''),
-						dialogTableHtml: outter($('.wym_dialog_table'), ''),
-						dialogPasteHtml: outter($('.wym_dialog_paste'), ''),
-						dialogPreviewHtml: outter($('.wym_dialog_preview'), ''),
-						dialogLinkHtml: outter($('.wym_dialog_link'), '{Wym_Dialog_Body}'),
-						dialogHtml: outter($('.dialogHtml'), ''),
+						dialogFeatures: 'jQuery.dialog',
+						dialogFeaturesPreview: 'jQuery.dialog',
+						dialogImageHtml: outter($('.wym_dialog_image')),
+						dialogTableHtml: outter($('.wym_dialog_table')),
+						dialogPasteHtml: outter($('.wym_dialog_paste')),
+						dialogPreviewHtml: outter($('.wym_dialog_preview')),
+						dialogLinkHtml: outter($('.wym_dialog_link')),
+						dialogHtml: outter($('.dialogHtml'))
 					});
 				}
 			}
 		});
 		$('#form').submit(function(event) {
-			jQuery.wymeditors(0).update();
-			var html = page[1] + $('#textarea').val() + page[3];
+			var body = jQuery.wymeditors(0).xhtml();
+			var html = page[1] + body + page[3];
 			jQuery.ajax({
 				type: "PUT", url: $('body').attr('about'),
 				headers: {'If-Match': $('meta[http-equiv="etag"]').attr('content')},
@@ -67,124 +59,170 @@
 
 
 <body about="?this">
-	<div style="display:none">
-		<div class="wymeditor">
-			<ul class="aside">
-				<li class="wym_containers wym_section">
-				  <label>{Containers}</label>
-					<ul>
-					  <li class="Wym_Containers_Items {Wym_Container_Class}">
-						<a href="#" name="{Wym_Container_Name}">{Wym_Containers_Title}</a>
-					  </li>
-					</ul>
+	<ul class="aside">
+		<li>Use the tool bar to change the text style, create links, upload images, create tables, and paste text</li>
+		<li>Page headers, sections, and paragraphs are labeled, but displayed without labels in view mode</li>
+		<li>Use the preview button to view the page as it would in view mode</li>
+	</ul>
+	<form id="form" action="">
+		<div class="wym_box_0">
+			<ul class="wym_tools wym_section ui-widget-header auto-expand wym_buttons" style="overflow:auto">
+				<li class="wym_containers">
+					<select onchange="jQuery.wymeditors(0).container(value);value='';">
+						<option value="" style="font-style:italic;color:grey">Styles..</option>
+						<option value="P">Paragraph</option>
+						<option value="H1">Heading 1</option>
+						<option value="H2">Heading 2</option>
+						<option value="H3">Heading 3</option>
+						<option value="H4">Heading 4</option>
+						<option value="H5">Heading 5</option>
+						<option value="H6">Heading 6</option>
+						<option value="PRE">Preformatted</option>
+						<option value="BLOCKQUOTE">Blockquote</option>
+						<option value="TH">Table Header</option>
+					</select>
 				</li>
-				<li class="wym_classes wym_section">
-				  <label>{Classes}</label>
-					<ul>
-					  <li class="Wym_Classes_Items wym_classes_{Wym_Class_Name}">
-						<a href="#" name="{Wym_Class_Name}">{Wym_Class_Title}</a>
-					  </li>
-					</ul>
+				<li class="Wym_Tools_Items wym_tools_strong">
+					<a title="Strong" name="Bold" href="#">Strong</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_emphasis">
+					<a title="Emphasis" name="Italic" href="#">Emphasis</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_superscript">
+					<a title="Superscript" name="Superscript" href="#">Superscript</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_subscript">
+					<a title="Subscript" name="Subscript" href="#">Subscript</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_ordered_list">
+					<a title="Ordered List" name="InsertOrderedList" href="#">Ordered List</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_unordered_list">
+					<a title="Unordered List" name="InsertUnorderedList" href="#">Unordered List</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_indent">
+					<a title="Indent" name="Indent" href="#">Indent</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_outdent">
+					<a title="Outdent" name="Outdent" href="#">Outdent</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_undo">
+					<a title="Undo" name="Undo" href="#">Undo</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_redo">
+					<a title="Redo" name="Redo" href="#">Redo</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_link">
+					<a title="Link" name="CreateLink" href="#">Link</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_unlink">
+					<a title="Unlink" name="Unlink" href="#">Unlink</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_image">
+					<a title="Image" name="InsertImage" href="#">Image</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_table">
+					<a title="Table" name="InsertTable" href="#">Table</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_paste">
+					<a title="Paste from Word" name="Paste" href="#">Paste from Word</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_html">
+					<a title="HTML" name="ToggleHtml" href="#">HTML</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_preview">
+					<a title="Preview" name="Preview" href="#">Preview</a>
 				</li>
 			</ul>
-			<ul class="wym_tools wym_section ui-widget-header auto-expand" style="overflow:auto">
-				<li class="Wym_Tools_Items {Wym_Tool_Class}">
-					<a href="#" name="{Wym_Tool_Name}" title="{Wym_Tool_Title}">{Wym_Tool_Title}</a>
-				</li>
-			</ul>
-			<div class="wym_html wym_section">
+			<div class="wym_html wym_section" style="display:none">
 				<textarea class="wym_html_val auto-expand"/>
 			</div>
 			<div id="Wym_Iframe" class="wym_iframe wym_section">
-				<iframe class="auto-expand" src="{Wym_Iframe_Base_Path}wymiframe.html" onload="this.contentWindow.parent.WYMeditor.INSTANCES[{Wym_Index}].initIframe(this)"> </iframe>
+				<iframe class="auto-expand" src="/callimachus/wymeditor/iframe/default/wymiframe.html" onload="var iframe=this;jQuery(function(){setTimeout(function(){window.WYMeditor.INSTANCES[0].initIframe(iframe)}, 0)})"> </iframe>
 			</div>
 			<div class="wym_status wym_section">
 			</div>
 			<a class="wym_wymeditor_link" href="http://www.wymeditor.org/">WYMeditor</a>
 		</div>
-		<div class="dialogHtml">
-			<div class="wym_dialog wym_dialog_link">
-				<form>
-					<input type='hidden' class='wym_dialog_type' value='Link' />
-					<label for="url">{URL}</label>
-					<div>
-						<input id="url" type='text' class='wym_href auto-expand' value='' />
-					</div>
-					<label for="title">{Title}</label>
-					<div>
-						<input id="title" type='text' class='wym_title auto-expand' value='' />
-					</div>
-					<button class='wym_submit' type='submit'>Link</button>
-					<button class='wym_cancel' type='button'>{Cancel}</button>
-				</form>
-			</div>
-			<div class="wym_dialog wym_dialog_image">
-				<form>
-					<fieldset>
-						<input type='hidden' class='wym_dialog_type' value='Image' />
-						<legend>{Image}</legend>
-						<div class='row'>
-							<label>{URL}</label>
-							<input type='text' class='wym_src' value='' size='40' />
-						</div>
-						<div class='row'>
-							<label>{Alternative_Text}</label>
-							<input type='text' class='wym_alt' value='' size='40' />
-						</div>
-						<div class='row'>
-							<label>{Title}</label>
-							<input type='text' class='wym_title' value='' size='40' />
-						</div>
-						<div class='row row-indent'>
-							<input class='wym_submit' type='button' value='{Submit}' />
-							<input class='wym_cancel' type='button' value='{Cancel}' />
-						</div>
-					</fieldset>
-				</form>
-			</div>
-			<div class='wym_dialog wym_dialog_table'>
-				<form>
-					<input type='hidden' class='wym_dialog_type' value='InsertTable' />
-					<label for="caption">{Caption}</label>
-					<div>
-						<input id="caption" type='text' class='wym_caption auto-expand' value='' />
-					</div>
-					<label for="summary">{Summary}</label>
-					<div>
-						<input id="summary" type='text' class='wym_summary auto-expand' value='' />
-					</div>
-					<label for="numberofrows">{Number_Of_Rows}</label>
-					<div>
-						<input id="numberofrows" type='text' class='wym_rows' value='3' size='3' />
-					</div>
-					<label for="numberofcols">{Number_Of_Cols}</label>
-					<div>
-						<input id="numberofcols" type='text' class='wym_cols' value='2' size='3' />
-					</div>
-					<button class='wym_submit' type='submit'>Add table</button>
-					<button class='wym_cancel' type='button'>{Cancel}</button>
-				</form>
-			</div>
-			<div class='wym_dialog wym_dialog_paste'>
-				<form>
-					<input type='hidden' class='wym_dialog_type' value='Paste_From_Word' />
-					<div>
-						<textarea class='wym_text auto-expand'></textarea>
-					</div>
-					<button class='wym_submit' type='submit'>Insert text</button>
-					<button class='wym_cancel' type='button'>{Cancel}</button>
-				</form>
-			</div>
-			<div class='wym_dialog wym_dialog_preview'></div>
-		</div>
-	</div>
-	<form id="form" action="">
-		<div>
-			<textarea id="textarea"></textarea>
-		</div>
 		<button id="save" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
 		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this page?')) calli.deleteResource();">Delete</button>
 	</form>
+	<div style="display:none">
+		<div class="dialogHtml">{Wym_Dialog_Body}</div>
+		<div class="wym_dialog wym_dialog_link">
+			<form>
+				<input type='hidden' class='wym_dialog_type' value='Link' />
+				<label for="url">URL</label>
+				<div>
+					<input id="url" type='text' class='wym_href auto-expand' value='' />
+				</div>
+				<label for="title">Title</label>
+				<div>
+					<input id="title" type='text' class='wym_title auto-expand' value='' />
+				</div>
+				<button class='wym_submit' type='submit'>Link</button>
+				<button class='wym_cancel' type='button'>Cancel</button>
+			</form>
+		</div>
+		<div class="wym_dialog wym_dialog_image">
+			<form>
+				<fieldset>
+					<input type='hidden' class='wym_dialog_type' value='Image' />
+					<legend>{Image}</legend>
+					<div class='row'>
+						<label>{URL}</label>
+						<input type='text' class='wym_src' value='' size='40' />
+					</div>
+					<div class='row'>
+						<label>{Alternative_Text}</label>
+						<input type='text' class='wym_alt' value='' size='40' />
+					</div>
+					<div class='row'>
+						<label>{Title}</label>
+						<input type='text' class='wym_title' value='' size='40' />
+					</div>
+					<div class='row row-indent'>
+						<input class='wym_submit' type='button' value='{Submit}' />
+						<input class='wym_cancel' type='button' value='{Cancel}' />
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div class='wym_dialog wym_dialog_table'>
+			<form>
+				<input type='hidden' class='wym_dialog_type' value='InsertTable' />
+				<label for="caption">Caption</label>
+				<div>
+					<input id="caption" type='text' class='wym_caption auto-expand' value='' />
+				</div>
+				<label for="summary">Summary</label>
+				<div>
+					<input id="summary" type='text' class='wym_summary auto-expand' value='' />
+				</div>
+				<label for="numberofrows">Number_Of_Rows</label>
+				<div>
+					<input id="numberofrows" type='text' class='wym_rows' value='3' size='3' />
+				</div>
+				<label for="numberofcols">Number_Of_Cols</label>
+				<div>
+					<input id="numberofcols" type='text' class='wym_cols' value='2' size='3' />
+				</div>
+				<button class='wym_submit' type='submit'>Add table</button>
+				<button class='wym_cancel' type='button'>Cancel</button>
+			</form>
+		</div>
+		<div class='wym_dialog wym_dialog_paste'>
+			<form>
+				<input type='hidden' class='wym_dialog_type' value='Paste_From_Word' />
+				<div>
+					<textarea class='wym_text auto-expand'></textarea>
+				</div>
+				<button class='wym_submit' type='submit'>Insert text</button>
+				<button class='wym_cancel' type='button'>Cancel</button>
+			</form>
+		</div>
+		<div class='wym_dialog wym_dialog_preview'></div>
+	</div>
 </body>
 </html>

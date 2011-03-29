@@ -56,8 +56,16 @@ function expand(area) {
 		marginRight += parsePixel($(this).css("margin-right"));
 		marginRight += parsePixel($(this).css("padding-right"));
 	});
-	var contentWidth = asideLeft - $(area).offset().left - marginRight;
 	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
+	var top = $(area).parents('form').offset().top;
+	var formHeight = $(area).parents('form').height() - $(area).height();
+	var contentHeight = innerHeight;
+	if (formHeight > 0 && top > 0 && formHeight + top <= innerHeight / 3) {
+		contentHeight -= formHeight + top;
+	} else if (formHeight > 0 && formHeight <= innerHeight / 3) {
+		contentHeight -= formHeight;
+	}
+	var contentWidth = asideLeft - $(area).offset().left - marginRight;
 	if (innerHeight >= document.height) {
 		// no scrollbars yet, assume they will appear
 		contentWidth -= 32;
@@ -68,11 +76,11 @@ function expand(area) {
 		}, 100);
 	}
 	if (area.type == "textarea" ||  area.type == "text") {
-		expandTextArea(area, contentWidth, innerHeight);
+		expandTextArea(area, contentWidth, contentHeight);
 	} else if (area.nodeName.toLowerCase() == "iframe") {
-		expandIframe(area, contentWidth, innerHeight);
+		expandIframe(area, contentWidth, contentHeight);
 	} else {
-		expandBlock(area, contentWidth, innerHeight);
+		expandBlock(area, contentWidth, contentHeight);
 	}
 }
 

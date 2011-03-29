@@ -3,8 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
 	<title about="?this" property="rdfs:label" />
-	<link rel="stylesheet" href="/callimachus/wymeditor/skins/callimachus/skin.css" />
-	<script type="text/javascript" src="/callimachus/wymeditor/jquery.wymeditor.js"> </script>
+	<link rel="stylesheet" href="/callimachus/page-edit.css" />
+	<script type="text/javascript" src="/callimachus/scripts/jquery.wymeditor.js"> </script>
 	<script type="text/javascript"><![CDATA[
 	jQuery(function($){
 		var local = $('body').attr('about').replace(/.*\//, '').replace(/\.[a-zA-Z]+$/, '');
@@ -140,7 +140,7 @@
 				<textarea class="wym_html_val auto-expand"/>
 			</div>
 			<div id="Wym_Iframe" class="wym_iframe wym_section">
-				<iframe class="auto-expand" src="/callimachus/wymeditor/iframe/default/wymiframe.html" onload="var iframe=this;jQuery(function(){setTimeout(function(){window.WYMeditor.INSTANCES[0].initIframe(iframe)}, 0)})"> </iframe>
+				<iframe class="auto-expand" src="/callimachus/page-edit-iframe.html" onload="var iframe=this;jQuery(function(){setTimeout(function(){window.WYMeditor.INSTANCES[0].initIframe(iframe)}, 0)})"> </iframe>
 			</div>
 			<div class="wym_status wym_section">
 			</div>

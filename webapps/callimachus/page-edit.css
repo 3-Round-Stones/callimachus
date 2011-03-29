@@ -58,7 +58,7 @@
         .wym_buttons li         { float:left;}
         .wym_buttons a          { width: 20px; height: 20px; overflow: hidden; padding: 2px }
       /*image replacements*/
-        .wym_buttons li a                         { background: url(icons.png) no-repeat; text-indent: -9999px;} 
+        .wym_buttons li a                         { background: url(/callimachus/images/text-icons.png) no-repeat; text-indent: -9999px;} 
         .wym_buttons li.wym_tools_strong a        { background-position: 0 -382px;}
         .wym_buttons li.wym_tools_emphasis a      { background-position: 0 -22px;}
         .wym_buttons li.wym_tools_superscript a   { background-position: 0 -430px;}
@@ -98,4 +98,4 @@
             /* End hide from IE-mac */                
             
 /*WYMEDITOR_LINK*/
-        a.wym_wymeditor_link        { text-indent: -9999px; float: right; display: block; width: 50px; height: 15px; background: url(../wymeditor_icon.png);  overflow: hidden; text-decoration: none;  }
+        a.wym_wymeditor_link        { text-indent: -9999px; float: right; display: block; width: 50px; height: 15px; background: url(/callimachus/images/wymeditor_icon.png);  overflow: hidden; text-decoration: none;  }

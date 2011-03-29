@@ -8,7 +8,7 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-<web_bundle> a calli:ScriptBundle; calli:minified 0 ;
+<web_bundle> a calli:ScriptBundle;
 	rdf:_1 <jquery.js>;
 	rdf:_2 <jquery-ui.js>;
 	rdf:_3 <node-inserted.js>;

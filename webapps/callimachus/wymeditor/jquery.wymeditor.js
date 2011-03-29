@@ -1149,8 +1149,7 @@ WYMeditor.editor.prototype.update = function() {
 
   var html = this.xhtml();
   jQuery(this._element).val(html);
-  jQuery(this._box).find(this._options.htmlValSelector).not('.hasfocus').val(html); //#147
-  jQuery(this._box).find(this._options.htmlValSelector).not('.hasfocus').change(); //#147
+  jQuery(this._box).find(this._options.htmlValSelector).not('.hasfocus').val(html).change(); //#147
 };
 
 /* @name dialog
@@ -1188,6 +1187,7 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
 
     //construct the dialog
     var dialogHtml = this._options.dialogHtml;
+    if (dialogHtml) {
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.BASE_PATH, this._options.basePath);
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.DIRECTION, this._options.direction);
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.CSS_PATH, this._options.skinPath + WYMeditor.SKINS_DEFAULT_CSS);
@@ -1196,6 +1196,9 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.DIALOG_TITLE, this.encloseString( dialogType ));
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.DIALOG_BODY, sBodyHtml);
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.INDEX, this._index);
+    } else {
+      dialogHtml = sBodyHtml;
+    }
       
     dialogHtml = this.replaceStrings(dialogHtml);
 
@@ -1203,15 +1206,17 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
 		var options = {
 		    title: dialogType.replace(/_/g, ' '),
 		    autoOpen: false,
-		    modal: true,
+		    modal: false,
 		    draggable: true,
 		    resizable: true,
-		    autoResize: true
+		    autoResize: true,
+			minWidth: 320,
+			minHeight: 320
 		};
 
 		if (dialogType == WYMeditor.PREVIEW) {
 			options.width = $(this._iframe).width();
-			options.minHeight = $(this._iframe).height();
+			options.height = $(this._iframe).height();
 		}
 		
 		var dialog = jQuery(dialogHtml).dialog(options);

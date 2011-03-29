@@ -30,14 +30,19 @@ function submitRDFForm(form) {
 			var data = added.dump({format:"application/rdf+xml",serialize:true});
 			postData(form, location.href, type, data, function(data, textStatus, xhr) {
 				try {
-					try {
-						if (window.parent && parent.calli && window.frameElement) {
-							var subj = $.uri.base().resolve($(form).attr("about"));
-							parent.calli.resourceCreated(subj.toString(), window.frameElement);
-							return;
-						}
-					} catch (e) {}
 					var redirect = xhr.getResponseHeader("Location");
+					try {
+						if (window.frameElement && parent.jQuery) {
+							var ce = parent.jQuery.Event("calliCreate");
+							ce.location = window.calli.viewpage(redirect);
+							ce.about = $.uri.base().resolve($(form).attr("about")).toString();
+							ce.rdfType = $(form).attr("typeof");
+							parent.jQuery(frameElement).trigger(ce);
+							if (ce.isDefaultPrevented()) {
+								return;
+							}
+						}
+					} catch (e) { }
 					var event = jQuery.Event("calliRedirect");
 					event.location = window.calli.viewpage(redirect);
 					form.trigger(event);

@@ -10,6 +10,14 @@
 $(document).ready(function () {
 	var form = $("form[about]");
 	initSetElements(form);
+
+	$(document).bind('calliCreate', function(event) {
+		var list = $('#' + $(event.target).attr("data-button")).parent()
+		if (list.attr("data-add")) {
+			addSetItem(event.about, list);
+			return stopPropagation(event);
+		}
+	});
 });
 
 $("form[about]").live("DOMNodeInserted", function (event) {
@@ -151,19 +159,6 @@ function listSearchResults(url, iframe) {
 			}
 		}
 	});
-};
-
-if (!window.calli) {
-	window.calli = {};
-}
-
-window.calli.resourceCreated = function(uri, iframe) {
-	setTimeout(function() {
-		var list = $('#' + $(iframe).attr("data-button")).parent()
-		if (list.attr("data-add")) {
-			addSetItem(uri, list);
-		}
-	}, 0)
 };
 
 function stopPropagation(event) {

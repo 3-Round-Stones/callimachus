@@ -15,18 +15,20 @@
    limitations under the License.
 
  */
-package org.callimachusproject.helpers;
+package org.callimachusproject.util;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Parses multipart inputsteams into multiple inputstream.
+ * Parses multipart inputsteams into multiple streamed serial inputstreams.
  * 
  * @author James Leigh
- *
+ * 
  */
 public class MultipartParser {
 	private byte[] boundary = null;
@@ -34,6 +36,7 @@ public class MultipartParser {
 	private boolean fileEnd = false;
 	private InputStream in = null;
 	private boolean partEnd = false;
+	private StringBuilder headers;
 
 	public MultipartParser(InputStream in) throws IOException {
 		this.boundary = readBoundary(in);
@@ -44,10 +47,47 @@ public class MultipartParser {
 		this.fileEnd = false;
 	}
 
+	/**
+	 * Aborts reading the stream.
+	 * 
+	 * @throws IOException
+	 */
 	public void close() throws IOException {
 		in.close();
 	}
 
+	/**
+	 * Call after next() to return the most recent headers parsed from the stream.
+	 * 
+	 * @return Map with all keys in lowercase and values joined using a comma
+	 */
+	public Map<String, String> getHeaders() {
+		assert headers != null;
+		Map<String, String> map = new HashMap<String, String>();
+		for (String line : headers.toString().split("\r\n")) {
+			String[] hd = line.split(":", 2);
+			if (hd.length != 2 || hd[0] == null || hd[0].length() == 0)
+				continue;
+			String key = hd[0].trim().toLowerCase();
+			String value = hd[1].trim();
+			if (map.containsKey(key)) {
+				map.put(key, map.get(key) + ',' + value);
+			} else {
+				map.put(key, value);
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * Parses a new set of headers and returns an InputStream to read the next
+	 * part. The previous InputStream must be consumed in full (or closed)
+	 * before calling this method. Calling close() on the returned InputStream
+	 * will advance the stream to the end of the part.
+	 * 
+	 * @return an InputStream or null if end of file reached
+	 * @throws IOException
+	 */
 	public InputStream next() throws IOException {
 		if (fileEnd)
 			return null;
@@ -101,6 +141,11 @@ public class MultipartParser {
 				}
 			}
 
+			public void close() throws IOException {
+				while (read() != -1)
+					;
+			}
+
 			private final boolean readBoundaryBytes() throws IOException {
 				int pos = 0;
 				while (pos < buffer.length) {
@@ -131,16 +176,25 @@ public class MultipartParser {
 	}
 
 	private boolean readHeaders() throws IOException {
-		if (in.read() == '\r' && in.read() == '\n')
+		headers = new StringBuilder();
+		if (read(in, headers) == '\r' && read(in, headers) == '\n')
 			return true;
-		int ch = in.read();
+		int ch = read(in, headers);
 		while (ch != -1) {
-			ch = in.read();
-			if (ch == '\r' && in.read() == '\n' && in.read() == '\r'
-					&& in.read() == '\n') {
+			ch = read(in, headers);
+			if (ch == '\r' && read(in, headers) == '\n'
+					&& read(in, headers) == '\r' && read(in, headers) == '\n') {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	private int read(InputStream in, StringBuilder sb) throws IOException {
+		int read = in.read();
+		if (read != -1) {
+			sb.append((char) read);
+		}
+		return read;
 	}
 }

@@ -75,7 +75,7 @@ function expand(area) {
 			}
 		}, 100);
 	}
-	if (area.type == "textarea" ||  area.type == "text") {
+	if ($(area).is(":input")) {
 		expandTextArea(area, contentWidth, contentHeight);
 	} else if (area.nodeName.toLowerCase() == "iframe") {
 		expandIframe(area, contentWidth, contentHeight);

@@ -1,5 +1,6 @@
 # 
 #    Copyright (c) 2010 James Leigh, Some rights reserved
+#    Copyright (c) 2011 Talis Inc., Some rights reserved
 # 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -44,19 +45,23 @@
 	msg:imports calli:NamedGraph;
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
-	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
-	msg:imports <java:javax.mail.internet.MimeMultipart>;
+	msg:imports <java:java.io.BufferedInputStream>;
+	msg:imports <java:org.callimachusproject.util.MultipartParser>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <Graph>;
 	msg:imports <graph-uploaded.xhtml>;
 	msg:script """
-		var ds = new ByteArrayDataSource(input, "multipart/form-data");
-		var part = new MimeMultipart(ds).getBodyPart(0);
-		var fileName = part.fileName;
-		var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+");
+		var parser = new MultipartParser(new BufferedInputStream(input, 65536));
+		var file = parser.next();
+		var headers = parser.getHeaders();
+		var disposition = headers.get("content-disposition");
+		if (!disposition || disposition.indexOf("filename") < 0)
+			throw new BadRequest("No file provided");
+		var fileName = disposition.replaceAll('.*filename="', '').replaceAll('".*', '');
+		var local = URLEncoder.encode(fileName, "UTF-8").replaceAll("%20", "+");
 		var uri = this.toUri().resolve("/graph/") + local;
 		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
 		var vf = this.objectConnection.getValueFactory();
-		var file = part.getInputStream();
 		var obj = this.objectConnection.getObject(uri);
 		this.objectConnection.clear([vf.createURI(uri)]);
 		if (!(obj instanceof NamedGraph)) {
@@ -66,12 +71,13 @@
 			this.objectConnection.addDesignation(obj, Graph);
 		}
 		this.objectConnection.add(file, uri, format, [vf.createURI(uri)]);
+		parser.close();
 		this.objectConnection.commit();
 		java.lang.System.gc();
 		return graph_uploaded_xhtml.calliConstructHTML(obj);
 	""".
 
-:input a owl:DatatypeProperty, owl:FunctionalProperty;
+:input a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostGraphCreate;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "multipart/form-data".

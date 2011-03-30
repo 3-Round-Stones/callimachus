@@ -23,11 +23,11 @@ import java.io.InputStream;
 
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.helpers.GraphPatternBuilder;
-import org.callimachusproject.helpers.MultipartParser;
 import org.callimachusproject.helpers.SubjectTracker;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.model.IRI;
 import org.callimachusproject.rdfa.model.TermFactory;
+import org.callimachusproject.util.MultipartParser;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.traits.VersionedObject;
 import org.openrdf.model.Statement;

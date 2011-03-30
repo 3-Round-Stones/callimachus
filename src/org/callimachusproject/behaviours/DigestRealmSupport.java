@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpMessage;
@@ -99,7 +98,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 		String nonce = nextNonce(resource, request.get("via"));
 		String authenticate = "Digest realm=\"" + realm + "\"" + domain
 				+ ", nonce=\"" + nonce
-				+ "\", algorithm=\"MD5\", qop=\"auth,auth-int\"";
+				+ "\", algorithm=\"MD5\", qop=\"auth\"";
 		String[] auth = request.get("authorization");
 		if (auth != null && auth.length == 1 && auth[0] != null
 				&& auth[0].startsWith("Digest")) {
@@ -165,7 +164,6 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 	public Object authenticateRequest(String method, Object resource,
 			Map<String, String[]> map) throws RepositoryException {
 		String url = map.get("request-target")[0];
-		String[] md5 = map.get("content-md5");
 		String[] auth = map.get("authorization");
 		if (auth == null || auth.length != 1 || auth[0] == null
 				|| !auth[0].startsWith("Digest"))
@@ -192,13 +190,9 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 				logger.info("Bad authorization on {} using {}", url, auth[0]);
 				throw new BadRequest("Bad Authorization");
 			}
-			String qop = options.get("qop");
-			if ("auth-int".equals(qop) && (md5 == null || md5.length != 1))
-				throw new BadRequest("Missing content-md5");
 			if (!verify(options.get("nonce"), resource, map.get("via")))
 				return null;
-			String md50 = md5 == null ? null : md5[0];
-			return authenticatedCredential(method, md50, options);
+			return authenticatedCredential(method, options);
 		} catch (BadRequest e) {
 			throw e;
 		} catch (Exception e) {
@@ -240,21 +234,14 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 	protected abstract boolean AuthorizeCredential(Object credential,
 			String method, Object object, String query);
 
-	private Object authenticatedCredential(String method, String md5,
+	private Object authenticatedCredential(String method,
 			Map<String, String> options) throws UnsupportedEncodingException {
-		String ha2;
 		String qop = options.get("qop");
 		String uri = options.get("uri");
 		String nonce = options.get("nonce");
 		String username = options.get("username");
 		String response = options.get("response");
-		if ("auth-int".equals(qop)) {
-			byte[] md5sum = Base64.decodeBase64(md5.getBytes("UTF-8"));
-			char[] hex = Hex.encodeHex(md5sum);
-			ha2 = md5(method + ":" + uri + ":" + new String(hex));
-		} else {
-			ha2 = md5(method + ":" + uri);
-		}
+		String ha2 = md5(method + ":" + uri);
 		if (username == null)
 			throw new BadRequest("Missing username");
 		List<Object[]> encodings = findDigest(username);

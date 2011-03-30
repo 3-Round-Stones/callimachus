@@ -81,7 +81,8 @@ public class SPARQLResultReader extends RDFEventReader {
 			URI self = vf.createURI(uri);
 			q.setBinding("this", self);
 			TriplePattern tp = patterns.getFirstTriplePattern();
-			if (tp.isInverse()) {
+			if (tp==null);
+			else if (tp.isInverse()) {
 				VarOrTerm obj = tp.getObject();
 				if (obj.isVar()) {
 					q.setBinding(obj.stringValue(), self);

@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
+import org.callimachusproject.rdfa.events.Filter;
 import org.callimachusproject.rdfa.events.Group;
 import org.callimachusproject.rdfa.events.Optional;
 import org.callimachusproject.rdfa.events.RDFEvent;
@@ -210,6 +211,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			boolean optional = getVarOrTerm(triple.getPartner()).isVar(); 	
 			Context context = stack.peek();
 			TriplePattern pattern = new TriplePattern(s, p, o, rev);
+			//String lang = triple.getPartner().asPlainLiteral().getLang();
 			
 			// close any dangling UNION sub-clause
 			if (!initial && context.isGroup() && !context.hasSubject()) context = context.close();

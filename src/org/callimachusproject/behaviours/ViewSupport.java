@@ -132,11 +132,11 @@ public abstract class ViewSupport implements Page, RDFObject,
 		
 		/* trial UNION form of sparql query */
 		RDFEventReader rdf;
-		if (TRIAL!=null && TRIAL.contains("results")) {
-			rdf = new SPARQLResultReader(toSPARQL(q), patterns, con);
+		if (TRIAL!=null && TRIAL.contains("rollback")) {
+			rdf = new RDFStoreReader(toSPARQL(q), patterns, con);
 		}
 		else {
-			rdf = new RDFStoreReader(toSPARQL(q), patterns, con);
+			rdf = new SPARQLResultReader(toSPARQL(q), patterns, con);
 		}
 		
 		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
@@ -178,11 +178,11 @@ public abstract class ViewSupport implements Page, RDFObject,
 
 		/* trial UNION form of sparql query */
 		RDFEventReader rdf;
-		if (TRIAL!=null && TRIAL.contains("results")) {
-			rdf = new SPARQLResultReader(qry, con, uri);
+		if (TRIAL!=null && TRIAL.contains("rollback")) {
+			rdf = new RDFStoreReader(qry, con, uri);
 		}
 		else {
-			rdf = new RDFStoreReader(qry, con, uri);
+			rdf = new SPARQLResultReader(qry, con, uri);
 		}
 
 		rdf = new ReducedTripleReader(rdf);

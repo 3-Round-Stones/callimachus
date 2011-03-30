@@ -267,9 +267,9 @@
 		</java>
 	</target>
 
-	<target name="trial-union" depends="compile">
+	<target name="run-rollback" depends="compile">
 		<java classname="${main}" fork="true" failonerror="true">
-			<jvmarg line="${jvmargs} -Dtrial='union results'" />
+			<jvmarg line="${jvmargs} -Dtrial='rollback'" />
 			<arg line="${args}" />
 			<classpath>
 				<pathelement location="${build}/" />

@@ -86,6 +86,13 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
+/**
+ * Dymnamic Test Suite for the generation of RDFa pages from RDFa templates.
+ * 
+ * @author Steve Battle
+ * 
+ */
+
 // This is a parameterized test that runs over the test directory
 @RunWith(Parameterized.class)
 public class RDFaGenerationTest {
@@ -97,6 +104,13 @@ public class RDFaGenerationTest {
 	// Different suffixes following the signifier allow reuse of the target
 	static final String TEST_FILE_SIGNIFIER = "-test";
 	
+	// static properties loaded by static initializer
+	static String test_dir;
+	static String transform;
+	static { // load default properties
+		loadProperties(PROPERTIES);
+	}
+	
 	// static properties defined in @BeforeClass setUp()
 	static XMLInputFactory xmlInputFactory;
 	static TransformerFactory transformerFactory;
@@ -104,27 +118,24 @@ public class RDFaGenerationTest {
 	static XPathFactory xPathFactory;
 	static Repository repository;
 	
+	// static flag set in main()
+	static boolean verbose = false;
+	
+	// object properties defined in @Before initialize() 
+	RepositoryConnection con;
+	String base;
+	
 	// properties defined by constructor
-
 	// XHTML RDFa template used to derive SPARQL query 
 	File template;
 	// target XHTML with embedded RDFa (also used as RDF data source)
 	File target;
 
-	// flag set in main()
-	static boolean verbose = false;
-	
-	// static properties loaded by static initializer
-	static String test_dir;
-	static String transform;
-	static { // load default properties
-		loadProperties(PROPERTIES);
+	public RDFaGenerationTest(File template, File target) {
+		this.template = template;
+		this.target = target;
 	}
-		
-	// object properties defined in @Before initialize() 
-	RepositoryConnection con;
-	String base;
-	
+
 	abstract class AbstractNamespaceContext implements NamespaceContext {
 		@Override
 		public abstract String getNamespaceURI(String prefix) ;
@@ -234,7 +245,7 @@ public class RDFaGenerationTest {
 		public void remove() {}
 
 	}
-
+	
 	private static void loadProperties(String properties) {
 		try {
 			Properties props = new Properties();
@@ -247,11 +258,6 @@ public class RDFaGenerationTest {
 		}
 	}
 	
-	public RDFaGenerationTest(File template, File target) {
-		this.template = template;
-		this.target = target;
-	}
-
 	/* define dynamically generated parameters {{ template, target } ... } passed to the constructor
 	 * list test-cases by enumerating test files in the test directory 
 	 * A test file has the TEST_FILE_SIGNIFIER in the filename 
@@ -274,7 +280,7 @@ public class RDFaGenerationTest {
 		File[] testFiles = dir.listFiles(new FilenameFilter() {
 			public boolean accept(File file, String filename) {
 				return (filename.contains(TEST_FILE_SIGNIFIER)
-						|| new File(file,filename).isDirectory()) ;
+						|| (new File(file,filename).isDirectory() && !filename.startsWith(".")) ) ;
 		}});
 		// enumerate test files (RDFa templates)
 		for (File f: testFiles) {
@@ -379,12 +385,13 @@ public class RDFaGenerationTest {
 	}
 	
 	public static void write(Graph graph, OutputStream out) {
-		for (Iterator i = graph.iterator(); i.hasNext(); ) {
+		for (Iterator<Statement> i = graph.iterator(); i.hasNext(); ) {
 			System.out.println(i.next());
 		}
 	}
 	
 	public static Document read(File file) throws Exception {
+		if (!file.exists()) return null;
 		Transformer transformer = transformerFactory.newTransformer();
 		DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
 		Document source = builder.parse(file);
@@ -404,10 +411,22 @@ public class RDFaGenerationTest {
 		return null;
 	}
 	
+	/* a document is only viewable if it defines a fragment that is about '?this' */
+	
+	boolean isViewable(Document doc) throws Exception {
+		XPath xpath = xPathFactory.newXPath();
+		// there are no namespaces in this xpath so a prefix resolver is not required
+		String exp = "//*[@about='?this']";
+		XPathExpression compiled = xpath.compile(exp);
+		Object result = compiled.evaluate(doc,XPathConstants.NODE);
+		return result!=null;
+	}
+	
 	/* order independent equivalence */
 	/* check that all elements in the target appear in the output, and vice versa */
 	
 	boolean equivalent(Document outputDoc, Document targetDoc) throws Exception {
+		if (targetDoc==null) return true;
 		// Match output to target
 		if (verbose) System.out.println("\nTEST: "+template);
 		XPathExpression evalOutput = evaluateXPaths(new XPathIterator(outputDoc), targetDoc) ;
@@ -498,7 +517,7 @@ public class RDFaGenerationTest {
 		TriplePatternStore query = constructQuery(base, sparql, true);
 
 		// should last parameter be base?
-		RDFEventReader results = new RDFStoreReader(query, con, null);
+		RDFEventReader results = new RDFStoreReader(query, con, isViewable(read(template))?base:null);
 		RDFXMLEventReader rdfxml = new RDFXMLEventReader(results);			
 		Document outputDoc = transform(rdfxml);
 
@@ -522,7 +541,7 @@ public class RDFaGenerationTest {
 		
 		// evaluate the SPARQL query
 		// some tests fail 'about-typeof-test' if we pass the base instead of null
-		RDFEventReader results = new SPARQLResultReader(query, con, null);
+		RDFEventReader results = new SPARQLResultReader(query, con, isViewable(read(template))?base:null);
 		
 		results = new ReducedTripleReader(results);
 		RDFXMLEventReader rdfxml = new RDFXMLEventReader(results);			

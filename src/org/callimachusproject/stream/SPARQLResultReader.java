@@ -80,8 +80,13 @@ public class SPARQLResultReader extends RDFEventReader {
 			ValueFactory vf = con.getValueFactory();
 			URI self = vf.createURI(uri);
 			q.setBinding("this", self);
+			
+			/* The following is required for evaluating document fragments from forms
+			 * in that case the first 'subject' is not '?this' */
 			TriplePattern tp = patterns.getFirstTriplePattern();
+			// tp may be null if the where clause is empty
 			if (tp==null);
+			// the 'subject' of tp may not be ?this
 			else if (tp.isInverse()) {
 				VarOrTerm obj = tp.getObject();
 				if (obj.isVar()) {

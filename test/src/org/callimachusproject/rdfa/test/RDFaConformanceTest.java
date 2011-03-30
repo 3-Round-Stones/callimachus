@@ -51,6 +51,14 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.openrdf.sail.memory.MemoryStore;
 
+/**
+ * Dymnamic Test Suite for the derivation of RDF from RDFa templates and pages
+ * XHTML 1.1 + RDFa 1.1 test data from http://rdfa.digitalbazaar.com/test-suite/
+ * 
+ * @author Steve Battle
+ * 
+ */
+
 // This is a parameterized test that runs over the test directory
 @RunWith(Parameterized.class)
 public class RDFaConformanceTest {

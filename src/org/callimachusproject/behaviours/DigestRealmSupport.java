@@ -59,7 +59,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 			new ProtocolVersion("HTTP", 1, 1), 401, "Unauthorized");
 	private static final BasicStatusLine _204 = new BasicStatusLine(
 			new ProtocolVersion("HTTP", 1, 1), 401, "No Content");
-	private static final int MAX_NONCE_AGE = 15000;
+	private static final int MAX_NONCE_AGE = 300000; // nonce timeout of 5min
 	private static final int MAX_ENTRIES = 2048;
 	private static long resetAttempts;
 	private static final Map<String, Integer> failedAttempts = new HashMap<String, Integer>();

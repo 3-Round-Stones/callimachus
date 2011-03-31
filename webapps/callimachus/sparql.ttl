@@ -159,7 +159,7 @@
 	msg:imports <java:org.apache.http.entity.StringEntity>;
 	msg:script """
 		if (queryStr)
-			return EvaluateSparql(queryStr);
+			return this.EvaluateSparql(queryStr);
 		var http11 = new ProtocolVersion("HTTP", 1, 1);
 		var resp = new BasicHttpResponse(http11, 302, "see-other");
 		resp.setHeader("Location", this.toString() + "?view");

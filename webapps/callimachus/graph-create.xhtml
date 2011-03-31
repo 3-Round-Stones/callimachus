@@ -10,6 +10,7 @@
 					var form = $('.graph-form:last');
 					if (form.find(':input').val()) {
 						var clone = form.clone();
+						clone.find(':input').val('');
 						form.children('div').remove();
 						form.after(clone);
 					}

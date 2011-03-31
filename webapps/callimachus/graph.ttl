@@ -63,14 +63,13 @@
 		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
 		var vf = this.objectConnection.getValueFactory();
 		var obj = this.objectConnection.getObject(uri);
+		this.objectConnection.removeDesignation(obj, NamedGraph);
+		this.objectConnection.removeDesignation(obj, Graph);
 		this.objectConnection.clear([vf.createURI(uri)]);
-		if (!(obj instanceof NamedGraph)) {
-			this.objectConnection.addDesignation(obj, NamedGraph);
-		}
-		if (!(obj instanceof Graph)) {
-			this.objectConnection.addDesignation(obj, Graph);
-		}
+		obj.touchRevision();
 		this.objectConnection.add(file, uri, format, [vf.createURI(uri)]);
+		this.objectConnection.addDesignation(obj, NamedGraph);
+		this.objectConnection.addDesignation(obj, Graph);
 		parser.close();
 		this.objectConnection.commit();
 		java.lang.System.gc();

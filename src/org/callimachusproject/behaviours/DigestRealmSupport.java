@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
@@ -95,6 +96,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 		} else if (domain.length() != 0) {
 			domain = ", domain=\"" + domain + "\"";
 		}
+		long now = DateUtil.parseDate(request.get("date")[0]).getTime();
 		String nonce = nextNonce(resource, request.get("via"));
 		String authenticate = "Digest realm=\"" + realm + "\"" + domain
 				+ ", nonce=\"" + nonce
@@ -104,7 +106,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 				&& auth[0].startsWith("Digest")) {
 			String string = auth[0].substring("Digest ".length());
 			Map<String, String> options = parseOptions(string);
-			if (!verify(options.get("nonce"), resource, request.get("via"))) {
+			if (!verify(options.get("nonce"), now, resource, request.get("via"))) {
 				authenticate += ",stale=true";
 				HttpResponse resp = new BasicHttpResponse(_401);
 				resp.setHeader("Cache-Control", "no-store");
@@ -190,7 +192,8 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 				logger.info("Bad authorization on {} using {}", url, auth[0]);
 				throw new BadRequest("Bad Authorization");
 			}
-			if (!verify(options.get("nonce"), resource, map.get("via")))
+			long now = DateUtil.parseDate(map.get("date")[0]).getTime();
+			if (!verify(options.get("nonce"), now, resource, map.get("via")))
 				return null;
 			return authenticatedCredential(method, options);
 		} catch (BadRequest e) {
@@ -342,7 +345,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 		return Long.toString(code, Character.MAX_RADIX);
 	}
 
-	private boolean verify(String nonce, Object resource, String[] key) {
+	private boolean verify(String nonce, long now, Object resource, String[] key) {
 		if (nonce == null)
 			return false;
 		try {
@@ -357,7 +360,7 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 				return false;
 			String time = nonce.substring(0, first);
 			Long ms = Long.valueOf(time, Character.MAX_RADIX);
-			long age = System.currentTimeMillis() - ms;
+			long age = now - ms;
 			return age < MAX_NONCE_AGE;
 		} catch (NumberFormatException e) {
 			logger.debug(e.toString(), e);

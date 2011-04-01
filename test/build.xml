@@ -5,7 +5,7 @@
 	<property name="test" location="test" />
 	<property name="build" location="build" />
 	<property name="testsrc" location="${test}/src" />
-	<property name="RDFaTestSuite" location="${test}/RDFa/test-suite/test-cases/xhtml1" />
+	<property name="RDFaConformanceTestSuite" location="${test}/RDFaConformance/test-suite/test-cases/xhtml1/rdfa1.1/" />
 
 	<property name="selenium.url" value="http://selenium.googlecode.com/files/selenium-server-standalone-2.0b2.jar" />
 	<property name="selenium.server.jar" location="${testlib}/selenium-server-standalone.jar" />
@@ -19,6 +19,7 @@
 	<property name="junit.url" value="http://cloud.github.com/downloads/KentBeck/junit/junit-4.8.2.jar" />
 	<property name="junit.jar" location="${testlib}/junit.jar" />
 	<property name="junit.RDFaConformanceTest" value="org.callimachusproject.rdfa.test.RDFaConformanceTest" />
+	<property name="junit.RDFaGenerationTest" value="org.callimachusproject.rdfa.test.RDFaGenerationTest" />
 
 	<target name="test-init">
 		<mkdir dir="${build}" />
@@ -29,13 +30,13 @@
 				<available file="${junit.jar}" />
 			</and>
 		</condition>
-		<available file="${RDFaTestSuite}" property="RDFaTestSuite.present" />
+		<available file="${RDFaConformanceTestSuite}" property="RDFaConformanceTestSuite.present" />
 	</target>
 
 	<target name="test-clean" description="clean up the test lib">
 		<delete dir="${build}" />
 		<delete dir="${testlib}" />
-		<delete dir="${RDFaTestSuite}" />
+		<delete dir="${RDFaConformanceTestSuite}" />
 	</target>
 
 	<target name="test-dependencies" depends="test-init" unless="dependencies.present">
@@ -124,8 +125,8 @@ mail.password = root
 		</javac>
 	</target>
 
-	<target name="rdfa-test-suite" depends="test-init, test-compile" unless="RDFaTestSuite.present">
-		<mkdir dir="${RDFaTestSuite}" />
+	<target name="rdfa-test-suite" depends="test-init, test-compile" unless="RDFaConformanceTestSuite.present">
+		<mkdir dir="${RDFaConformanceTestSuite}" />
 		<java classname="${junit.RDFaConformanceTest}">
 			<arg line="-get" />
 			<classpath refid="test.classpath" />
@@ -139,7 +140,18 @@ mail.password = root
 				<pathelement location="${junit.jar}" />
 			</classpath>
 			<formatter type="plain" />
-			<test todir="${test}/RDFa" name="${junit.RDFaConformanceTest}" outfile="rdfa-conformance-test-results" />
+			<test todir="${test}/RDFaConformance" name="${junit.RDFaConformanceTest}" outfile="rdfa-conformance-test-results" />
+		</junit>
+	</target>
+
+	<target name="test-rdfa-generation" depends="test-compile">
+		<junit printsummary="true">
+			<classpath>
+				<path refid="test.classpath" />
+				<pathelement location="${junit.jar}" />
+			</classpath>
+			<formatter type="plain" />
+			<test todir="${test}/RDFaGeneration" name="${junit.RDFaGenerationTest}" outfile="rdfa-generation-test-results" />
 		</junit>
 	</target>
 

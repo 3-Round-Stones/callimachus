@@ -17,18 +17,31 @@
 				});
 				var advance = function() {
 					$('.graph-form').find('button').attr('disabled', 'disabled');
-					var next = $($('.graph-form').get(submitted++));
+					var next = $($('.graph-form').get(submitted));
 					if (next.find(':input').val()) {
 						next.submit();
 						next.find(':input').attr('disabled', 'disabled');
+						submitted++;
 					} else {
-						submitted--;
 						$('.graph-form').find('button').removeAttr('disabled');
 					}
 					return false;
 				};
+				var retreat = function() {
+					submitted--;
+					$('.graph-form').find('button').removeAttr('disabled');
+					var next = $($('.graph-form').get(submitted));
+					next.find(':input').removeAttr('disabled');
+					return false;
+				};
 				$('button[type=submit]').live('click', advance);
-				$('iframe').load(advance);
+				$('iframe').load(function() {
+					if ($('#graph-link', this.contentWindow.document).length) {
+						advance();
+					} else {
+						retreat();
+					}
+				});
 			});
 		</script>
 	</head>

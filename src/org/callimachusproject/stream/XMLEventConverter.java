@@ -122,7 +122,7 @@ public abstract class XMLEventConverter extends EventReaderDelegate {
 	protected abstract XMLEvent convert(XMLEvent event) throws XMLStreamException;
 
 	private XMLEvent take() throws XMLStreamException {
-		if (reset && buffer != null & !buffer.isEmpty()) {
+		if (reset && buffer != null && !buffer.isEmpty()) {
 			return buffer.poll();
 		}
 		while (super.hasNext()) {

@@ -1,3 +1,0 @@
-test_dir = RDFa/test-suite/test-cases/xhtml/
-transform = ../webapps/callimachus/operations/construct.xsl
-

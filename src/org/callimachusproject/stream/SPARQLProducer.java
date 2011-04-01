@@ -145,7 +145,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	}
 	
 	protected void process(RDFEvent event) throws RDFParseException {
-
+		if (event==null) return;
 		if (event.isStartDocument() || event.isBase() || event.isNamespace()) {
 			add(event);
 		}
@@ -209,10 +209,25 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			VarOrTerm o = getVarOrTerm(triple.getObject());
 			boolean rev = triple.isInverse();
 			boolean optional = getVarOrTerm(triple.getPartner()).isVar(); 	
-			Context context = stack.peek();
 			TriplePattern pattern = new TriplePattern(s, p, o, rev);
 			//String lang = triple.getPartner().asPlainLiteral().getLang();
+
+			Context context = null;
 			
+			// a document fragment may not include a start subject
+			// the outermost context is a triple block (with no subject)
+			if (stack.isEmpty()) {
+				context = new Context(CLAUSE.BLOCK).open();
+				// make the outer block a UNION
+				context.union = true;
+				if (optional) {
+					new Context(CLAUSE.GROUP).open();
+					context = new Context(CLAUSE.OPTIONAL).open();
+				}
+
+			}
+			else context = stack.peek();
+
 			// close any dangling UNION sub-clause
 			if (!initial && context.isGroup() && !context.hasSubject()) context = context.close();
 			
@@ -295,6 +310,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		RDFEvent e;
 		while (depth>=0 && singleton) {
 			e = peek(lookAhead++);
+			if (e==null) break;
 			if (e.isStartSubject()) {
 				singleton = false;				
 				depth++;

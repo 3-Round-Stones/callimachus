@@ -5,33 +5,34 @@
 		<title>RDF Graph</title>
 		<script>
 			jQuery(function($){
-				var submitted = 0;
 				$(':input[type=file]').live('change', function() {
 					var form = $('.graph-form:last');
-					if (form.find(':input').val()) {
+					if (form.find(':input[type=file]').val()) {
+						var button = $('<button class="remove">x</button>');
+						button.click(function() {
+							form.remove();
+						});
 						var clone = form.clone();
-						clone.find(':input').val('');
-						form.children('div').remove();
+						clone.find(':input[type=file]').val('');
+						form.find('div').remove();
+						form.append(button);
 						form.after(clone);
 					}
 				});
 				var advance = function() {
-					$('.graph-form').find('button').attr('disabled', 'disabled');
-					var next = $($('.graph-form').get(submitted));
-					if (next.find(':input').val()) {
+					$('.graph-form:last').find('button').attr('disabled', 'disabled');
+					var next = $(':input[type=file]:enabled:first').parents('form');
+					if (next.find(':input[type=file]').val()) {
 						next.submit();
 						next.find(':input').attr('disabled', 'disabled');
-						submitted++;
 					} else {
-						$('.graph-form').find('button').removeAttr('disabled');
+						$(':input[type=file]').parents('form').find('button').removeAttr('disabled');
 					}
 					return false;
 				};
 				var retreat = function() {
-					submitted--;
 					$('.graph-form').find('button').removeAttr('disabled');
-					var next = $($('.graph-form').get(submitted));
-					next.find(':input').removeAttr('disabled');
+					$(':input[type=file]:disabled:last').removeAttr('disabled');
 					return false;
 				};
 				$('button[type=submit]').live('click', advance);

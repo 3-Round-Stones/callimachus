@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +17,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Queue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -25,6 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -57,6 +61,7 @@ import org.callimachusproject.stream.SPARQLProducer;
 import org.callimachusproject.stream.SPARQLResultReader;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.TriplePatternVariableStore;
+import org.callimachusproject.stream.XMLElementReader;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -97,7 +102,9 @@ import org.xml.sax.InputSource;
 @RunWith(Parameterized.class)
 public class RDFaGenerationTest {
 	static final String DTD_FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+	static final String INDENT_AMOUNT = "{http://xml.apache.org/xslt}indent-amount";
 	static final String PROPERTIES = "RDFaGeneration/RDFaGenerationTest.props";
+	static final Pattern pathPattern = Pattern.compile("^.*element=([/\\d+]+).*\\z");
 	
 	// The signifier should appear within the filename
 	// The target filename is the substring before the signifier
@@ -151,6 +158,7 @@ public class RDFaGenerationTest {
 		
 	class XPathIterator implements Iterator<Object> {	
 		Queue<XPathExpression> queue = (Queue<XPathExpression>) new LinkedList<XPathExpression>();
+		List<NamespaceContext> contexts = new LinkedList<NamespaceContext>();
 		
 		final String[] DISTINGUISHING_VALUE_ATTRIBUTES = { "id", "name", "class" };
 		List<String> distinguishingValueAttributes = Arrays.asList(DISTINGUISHING_VALUE_ATTRIBUTES);
@@ -160,93 +168,111 @@ public class RDFaGenerationTest {
 
 		// enumerate XPaths to all leaf nodes in the document
 		XPathIterator(Document doc) throws Exception {
-			enumerate(doc.getDocumentElement(),"");
+			enumerate(doc.getDocumentElement(),"",true);
 		}
-		private void enumerate(final Element element, String path) throws Exception {
-			boolean negativeTest = false;
+		
+		XPathIterator(Element element) throws Exception {
+			enumerate(element,"",true);
+		}
+
+		private void enumerate(final Element element, String path, boolean positive) throws Exception {
 			String prefix = element.getPrefix();
 			// if this element has no prefix and the default namespace is defined then the prefix is empty
 			if (prefix==null && element.lookupNamespaceURI(null)!=null) prefix = "";
 			path += "/"+(prefix==null?"":prefix+":")+element.getLocalName();
 			String content=null, text=null;
 			boolean leaf = true;
-			if (element.hasChildNodes()) {
-				// add distinguishing attributes
-				NamedNodeMap attributes = element.getAttributes();
-				for (int i=0; i<attributes.getLength(); i++) {
-					Attr a = (Attr) attributes.item(i);
-					if (a.getName().equals("content")) 
-						content = a.getValue();
-					// the @class may denote this as a negative-test
-					else if (a.getName().equals("class") && a.getValue().contains("negative-test"))
-						negativeTest = true;
-					else if (distinguishingValueAttributes.contains(a.getName())) {
-						path += "[@"+a.getName()+"='"+a.getValue()+"']";
-					}
-					else if (distinguishingURIAttributes.contains(a.getName())) {
-						java.net.URI relBase = new java.net.URI(base.substring(0,base.lastIndexOf('/')));
-						java.net.URI resBase = new java.net.URI(base);
-						String resolved = a.getValue().isEmpty()?base:resBase.resolve(a.getValue()).toString();
-						String relative = a.getValue().equals(base)?"":relBase.relativize(new java.net.URI(a.getValue())).toString();
-						if (relative.contains("#")) relative = relative.substring(relative.lastIndexOf('#'));
-						path += "[@"+a.getName()+"='"+resolved+"' or @"+a.getName()+"='"+relative+"']";
-					}
+
+			// add distinguishing attributes
+			NamedNodeMap attributes = element.getAttributes();
+			for (int i=0; i<attributes.getLength(); i++) {
+				Attr a = (Attr) attributes.item(i);
+				if (a.getName().equals("content")) 
+					content = a.getValue();
+				// the @class may denote this as a negative-test
+				else if (a.getName().equals("class") && a.getValue().contains("negative-test"))
+					positive = false;
+				else if (distinguishingValueAttributes.contains(a.getName())) {
+					path += "[@"+a.getName()+"='"+a.getValue()+"']";
 				}
-				// iterate over any children
-				NodeList children = element.getChildNodes();
-				for (int j=0; j<children.getLength(); j++) {
-					org.w3c.dom.Node node = children.item(j);
-					switch (node.getNodeType()) {
-					case org.w3c.dom.Node.ELEMENT_NODE:
-						enumerate((Element)node,path);
-						leaf = false;
-						break;
-					case org.w3c.dom.Node.TEXT_NODE:
-						Text t = (Text)node;
-						text = t.getTextContent().trim();
-						//if (!text.trim().equals("")) text = text.trim();
+				else if (distinguishingURIAttributes.contains(a.getName())) {
+					java.net.URI relBase = new java.net.URI(base.substring(0,base.lastIndexOf('/')));
+					java.net.URI resBase = new java.net.URI(base);
+					String resolved = a.getValue();
+					try {
+						resolved = a.getValue().isEmpty()?base:resBase.resolve(a.getValue()).toString();
 					}
-				}
-				if (leaf) {
-					// @content trumps body text
-					if (content==null && text!=null && !text.isEmpty()) content = text;
-					
-					if (content!=null) {
-						XPath xpath = xPathFactory.newXPath();
-						// add namespace prefix resolver to the xpath based on the current element
-						xpath.setNamespaceContext(new AbstractNamespaceContext(){
-							public String getNamespaceURI(String prefix) {
-								// for the empty prefix lookup the default namespace
-								if (prefix.isEmpty()) return element.lookupNamespaceURI(null);
-								return element.lookupNamespaceURI(prefix);
-							}
-						});
-						final String exp = path + "[@content='"+content+"' or normalize-space(text())='"+content+"']";
-						final XPathExpression compiled = xpath.compile(exp);
-						final boolean negative = negativeTest;
-						// implement XPathExpression toString() returning the string expression
-						queue.add(new XPathExpression() {
-							public String evaluate(Object source) throws XPathExpressionException {
-								return compiled.evaluate(source);
-							}
-							public String evaluate(InputSource source) throws XPathExpressionException {
-								return compiled.evaluate(source);
-							}
-							public Object evaluate(Object source, QName returnType) throws XPathExpressionException {
-								return compiled.evaluate(source, returnType);
-							}
-							public Object evaluate(InputSource source, QName returnType) throws XPathExpressionException {
-								return compiled.evaluate(source, returnType);
-							}
-							public String toString() {
-								// prefix XPaths for negative tests with '-'
-								return (negative?"-":"")+exp;
-							}
-						});
-						if (verbose) System.out.println(exp);
+					catch (Exception e) {}
+					String relative = a.getValue();
+					try {
+						relative = a.getValue().equals(base)?"":relBase.relativize(new java.net.URI(a.getValue())).toString();
 					}
+					catch (Exception e) {}
+
+					if (relative.contains("#")) relative = relative.substring(relative.lastIndexOf('#'));
+					path += "[@"+a.getName()+"='"+resolved+"' or @"+a.getName()+"='"+relative+"']";
 				}
 			}
+			// iterate over any children
+			NodeList children = element.getChildNodes();
+			for (int j=0; j<children.getLength(); j++) {
+				org.w3c.dom.Node node = children.item(j);
+				switch (node.getNodeType()) {
+				case org.w3c.dom.Node.ELEMENT_NODE:
+					enumerate((Element)node,path,positive);
+					leaf = false;
+					break;
+				case org.w3c.dom.Node.TEXT_NODE:
+					Text t = (Text)node;
+					if (text!=null) leaf = false;
+					text = t.getTextContent().trim();
+				}
+			}
+			if (leaf) {
+				// @content trumps body text
+				if (content==null && text!=null && !text.isEmpty()) content = text;
+				
+
+				XPath xpath = xPathFactory.newXPath();
+				// add namespace prefix resolver to the xpath based on the current element
+				xpath.setNamespaceContext(new AbstractNamespaceContext(){
+					public String getNamespaceURI(String prefix) {
+						// for the empty prefix lookup the default namespace
+						if (prefix.isEmpty()) return element.lookupNamespaceURI(null);
+						return element.lookupNamespaceURI(prefix);
+					}
+				});
+				if (content!=null) {
+					path = path + "[@content='"+content+"' or normalize-space(text())='"+content+"']";
+				}
+				// otherwise check the node has no text at all
+				else path = path + "[not(text()) or normalize-space(text())='']";
+				
+				final String exp = path;
+				final XPathExpression compiled = xpath.compile(exp);
+				final boolean negative = !positive;
+				// implements XPathExpression toString() returning the string expression
+				queue.add(new XPathExpression() {
+					public String evaluate(Object source) throws XPathExpressionException {
+						return compiled.evaluate(source);
+					}
+					public String evaluate(InputSource source) throws XPathExpressionException {
+						return compiled.evaluate(source);
+					}
+					public Object evaluate(Object source, QName returnType) throws XPathExpressionException {
+						return compiled.evaluate(source, returnType);
+					}
+					public Object evaluate(InputSource source, QName returnType) throws XPathExpressionException {
+						return compiled.evaluate(source, returnType);
+					}
+					public String toString() {
+						// prefix XPaths for negative tests with '-'
+						return (negative?"-":"")+exp;
+					}
+				});
+				if (verbose) System.out.println(exp);
+				contexts.add(xpath.getNamespaceContext());
+			}								
 		}
 		@Override
 		public boolean hasNext() {
@@ -259,6 +285,60 @@ public class RDFaGenerationTest {
 		@Override
 		public void remove() {}
 
+	}
+	
+	XPathExpression conjoinXPaths(Document fragment) throws Exception {
+		String path = "//*";
+		final Element e = fragment.getDocumentElement();
+		if (e==null) return null;
+		final XPathIterator conjunction = new XPathIterator(e);
+		if (conjunction.hasNext()) {
+			path += "[";
+			boolean first = true;
+			while (conjunction.hasNext()) {
+				if (!first) path += " and ";
+				XPathExpression x = conjunction.next();
+				path += x.toString().substring(1);
+				first = false;
+			}
+			path += "]";
+		}
+		XPath xpath = xPathFactory.newXPath();
+		// add namespace prefix resolver to the xpath based on the current element
+		xpath.setNamespaceContext(new AbstractNamespaceContext(){
+			public String getNamespaceURI(String prefix) {
+				// for the empty prefix lookup the default namespace
+				if (prefix.isEmpty()) return e.lookupNamespaceURI(null);
+				for (int i=0; i<conjunction.contexts.size(); i++) {
+					NamespaceContext c = conjunction.contexts.get(i);
+					String ns = c.getNamespaceURI(prefix);
+					if (ns!=null) return ns;
+				}
+				return null;
+			}
+		});
+		final String exp = path;
+		final XPathExpression compiled = xpath.compile(path);
+		if (verbose) 
+			System.out.println(exp);
+
+		return new XPathExpression() {
+			public String evaluate(Object source) throws XPathExpressionException {
+				return compiled.evaluate(source);
+			}
+			public String evaluate(InputSource source) throws XPathExpressionException {
+				return compiled.evaluate(source);
+			}
+			public Object evaluate(Object source, QName returnType) throws XPathExpressionException {
+				return compiled.evaluate(source, returnType);
+			}
+			public Object evaluate(InputSource source, QName returnType) throws XPathExpressionException {
+				return compiled.evaluate(source, returnType);
+			}
+			public String toString() {
+				return exp;
+			}
+		};
 	}
 	
 	private static void loadProperties(String properties) {
@@ -382,12 +462,13 @@ public class RDFaGenerationTest {
 		return graph;
 	}
 
-	private Document transform(RDFXMLEventReader rdfxml)
-			throws TransformerConfigurationException, MalformedURLException,
-			ParserConfigurationException, TransformerException,
-			XMLStreamException {
-		Transformer transformer = transformerFactory.newTransformer(new StreamSource(new File(transform)));
-		transformer.setParameter("this", template.toURI().toURL().toString());
+	private static Document transform(RDFXMLEventReader rdfxml, File self, String query, String element)
+		throws Exception {
+		Transformer transformer = transformerFactory.newTransformer(new StreamSource(transform));
+		transformer.setParameter("this", self.toURI().toURL().toString());	
+		if (query!=null) transformer.setParameter("query", query);
+		if (element!=null) transformer.setParameter("element", element);
+		
 		Document doc = documentBuilderFactory.newDocumentBuilder().newDocument();
 		transformer.transform(new StAXSource(rdfxml), new DOMResult(doc));
 		return doc;
@@ -398,6 +479,15 @@ public class RDFaGenerationTest {
 		transformer.transform (new DOMSource(doc), new StreamResult(out));
 		out.write('\n');
 	}
+	
+	public static void write(XMLEventReader xml, OutputStream out) throws Exception {
+		Transformer transformer = transformerFactory.newTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty(INDENT_AMOUNT, "2");
+		transformer.transform (new StAXSource(xml), new StreamResult(out));
+		out.write('\n');
+	}
+
 	
 	public static void write(Graph graph, OutputStream out) throws Exception {
 		for (Iterator<Statement> i = graph.iterator(); i.hasNext(); ) {
@@ -431,6 +521,13 @@ public class RDFaGenerationTest {
 		}
 		return null;
 	}
+	
+	private static boolean evaluateXPath(XPathExpression xpath, Document doc) throws Exception {
+		if (xpath==null) return false;
+		NodeList result = (NodeList) xpath.evaluate(doc,XPathConstants.NODESET);
+		return result.getLength()==1;
+	}
+	
 	
 	/* a document is only viewable if it defines a fragment that is about '?this'*/
 	
@@ -489,6 +586,29 @@ public class RDFaGenerationTest {
 		return query;
 	}
 	
+	static NodeList findFragmentIdentifiers(Document doc) throws Exception {
+		XPath xpath = xPathFactory.newXPath();
+		// there are no namespaces in this xpath so a prefix resolver is not required
+		// do not use data-add, data-more?
+		String exp = "//*[@data-search]";
+		XPathExpression compiled = xpath.compile(exp);
+		NodeList results = (NodeList) compiled.evaluate(doc,XPathConstants.NODESET);
+		return results;
+	}
+	
+	static String getFragmentIdentifiers(Element element) {
+		NamedNodeMap attributes = element.getAttributes();
+		for (int i=0; i<attributes.getLength(); i++) {
+			Attr a = (Attr) attributes.item(i);
+			if (a.getName().equals("data-search")) {
+				Matcher pathMatcher = pathPattern.matcher(a.getValue());
+				if (pathMatcher.matches()) return pathMatcher.group(1);
+			}
+		}
+		return null;
+	}
+
+	
 	@BeforeClass
 	public static void setUp() throws Exception {		
 		xmlInputFactory = XMLInputFactory.newInstance();
@@ -536,28 +656,39 @@ public class RDFaGenerationTest {
 		if (con!=null) con.close();	
 	}
 	
+	/* Produce SPARQL from the RDFa template using GraphPatternReader.
+	 * Generate SPARQL result-set using RDFStoreReader.
+	 * Test equivalence of the target and transform output.
+	 */
+
+	
 	@Test
 	public void legacyTest() throws Exception {
-		// produce SPARQL from the RDFa template
 		XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
 		RDFEventReader rdfa = new RDFaReader(base, xml, null);
 		RDFEventReader sparql = new GraphPatternReader(rdfa);
 		TriplePatternStore query = constructQuery(base, sparql, true);
 		String uri = isViewable(readDocument(template))?base:null;
 		RDFEventReader results = new RDFStoreReader(query, con, uri);
+		results = new ReducedTripleReader(results);
 		RDFXMLEventReader rdfxml = new RDFXMLEventReader(results);			
-		Document outputDoc = transform(rdfxml);
+		Document outputDoc = transform(rdfxml,template,null,null);
 
-		boolean eq = equivalent(outputDoc,readDocument(target));
-		if (!eq || verbose) {
+		boolean ok = equivalent(outputDoc,readDocument(target));
+		if (!ok || verbose) {
 			System.out.println("\nRDF (from target):");
 			write(exportGraph(con), System.out);
 			System.out.println("\nSPARQL (from test):\n"+query);
 			results = new RDFStoreReader(query, con, null);
 			while (results.hasNext()) System.out.println(results.next());
 		}
-		assertTrue(eq);
+		assertTrue(ok);
 	}
+	
+	/* Produce SPARQL from the RDFa template using SPARQLProducer.
+	 * Generate SPARQL result-set using SPARQLResultReader.
+	 * Test equivalence of the target and transform output.
+	 */
 	
 	@Test
 	public void unionTest() throws Exception {
@@ -571,21 +702,95 @@ public class RDFaGenerationTest {
 		RDFEventReader results = new SPARQLResultReader(query, con, uri);	
 		results = new ReducedTripleReader(results);
 		RDFXMLEventReader rdfxml = new RDFXMLEventReader(results);			
-		Document outputDoc = transform(rdfxml);
+		Document outputDoc = transform(rdfxml,template,null,null);
 
-		boolean eq = equivalent(outputDoc,readDocument(target));
-		if (!eq || verbose) {
+		boolean ok = equivalent(outputDoc,readDocument(target));
+		if (!ok || verbose) {
 			System.out.println("\nRDF (from target):");
 			write(exportGraph(con), System.out);
 			System.out.println("\nSPARQL (from test):\n"+query);
 			results = new SPARQLResultReader(query, con, null);
 			while (results.hasNext()) System.out.println(results.next());
 		}
-		assertTrue(eq);
+		assertTrue(ok);
+	}
+	
+	/* Look for template fragment identifiers in the output
+	 * Generate SPARQL query and transformed output from the fragment
+	 * Test that the fragment output is a sub-document of the prior output
+	 */
+	
+	@Test
+	public void fragmentTest() throws Exception {
+		XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
+		RDFEventReader rdfa = new RDFaReader(base, xml, null);
+		RDFEventReader sparql = new SPARQLProducer(rdfa);
+		TriplePatternStore query = constructQuery(base, sparql, true);
+		// the URI is supplied for a ?view template, but not for ?construct
+		String uri = isViewable(readDocument(template))?base:null;
+		RDFEventReader results = new SPARQLResultReader(query, con, uri);	
+		results = new ReducedTripleReader(results);
+		RDFXMLEventReader rdfxml = new RDFXMLEventReader(results);			
+		Document outputDoc = transform(rdfxml,template,null,null);
+		
+		// look for fragment identifiers
+		NodeList fragments = findFragmentIdentifiers(outputDoc);
+		for (int i=0; i<fragments.getLength(); i++) {
+			org.w3c.dom.Node frag = fragments.item(i);
+			String path = getFragmentIdentifiers((Element)frag);
+			
+			// extract the template fragment to a temporary file
+			xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
+			XMLElementReader xmlFragment = new XMLElementReader(xml,path);
+			File temp = File.createTempFile("temp", ".xhtml");
+			PrintStream out = new PrintStream(temp);
+			write(xmlFragment,out);
+			out.flush();
+			out.close();
+			
+			xml = xmlInputFactory.createXMLEventReader(new FileReader(temp));
+			rdfa = new RDFaReader(base, xml, null);
+			sparql = new SPARQLProducer(rdfa);
+			query = constructQuery(base, sparql, true);
+			
+			results = new SPARQLResultReader(query, con, uri);	
+			results = new ReducedTripleReader(results);
+			rdfxml = new RDFXMLEventReader(results);
+							
+			Document fragment = transform(rdfxml,temp,"edit",path);
+			XPathExpression xpath = conjoinXPaths(fragment) ;
+			
+			boolean ok = evaluateXPath(xpath,outputDoc);
+			if (!ok || verbose) {
+				System.out.println("FRAGMENT TEST: "+template+"\n");
+
+				System.out.println("TEMPLATE:");
+				write(readDocument(template),System.out);
+
+				System.out.println("OUTPUT:");
+				write(outputDoc,System.out);
+				
+				System.out.println("PATH: "+path);
+				write(readDocument(temp),System.out);
+				
+				System.out.println("XPATH: "+path);
+				System.out.println(xpath);
+				
+				System.out.println("\nSPARQL (from test): ");
+				System.out.println(query);
+
+				System.out.println("TRANSFORMED FRAGMENT:");
+				write(fragment,System.out);
+			}
+			assertTrue(ok);
+
+			temp.deleteOnExit();
+		}
 	}
 
+
 	// switch between different test modes from main()
-	enum MODE { LEGACY, UNION };
+	enum MODE { LEGACY, UNION, FRAGMENT };
 		
 	public static void main(String[] args) {
 		try {
@@ -596,6 +801,8 @@ public class RDFaGenerationTest {
 				String arg = args[i];
 				if (arg.equals("-verbose")) verbose = true;
 				else if (arg.equals("-legacy")) mode = MODE.LEGACY;
+				else if (arg.equals("-union")) mode = MODE.UNION;
+				else if (arg.equals("-fragment")) mode = MODE.FRAGMENT;
 				else if (!arg.startsWith("-")) loadProperties(arg);
 			}
 			
@@ -613,7 +820,10 @@ public class RDFaGenerationTest {
 					test.legacyTest();
 					break;
 				case UNION:
-					test.unionTest();					
+					test.unionTest();
+					break;
+				case FRAGMENT:
+					test.fragmentTest();
 				}
 				test.closure();
 	        }

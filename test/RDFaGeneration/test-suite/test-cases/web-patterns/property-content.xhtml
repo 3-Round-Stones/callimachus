@@ -14,13 +14,13 @@
 			<span property="rdfs:value" content="true" />
 			<a href="concept2" property="skos:prefLabel">Concept2</a>
 		</div>	
-		<div about="concept3" typeof="skos:Concept">
+		<div about="concept3" typeof="skos:Concept" class="negative-test">
 			<span property="rdfs:value" content="false" />
-			<a href="concept3" property="skos:prefLabel" class="negative-test">Concept3</a>
+			<a href="concept3" property="skos:prefLabel">Concept3</a>
 		</div>	
-		<div about="concept4" typeof="skos:Concept">
-			<span property="rdfs:value" class="negative-test">false</span>
-			<a href="concept4" property="skos:prefLabel" class="negative-test">Concept4</a>
+		<div about="concept4" typeof="skos:Concept" class="negative-test">
+			<span property="rdfs:value">false</span>
+			<a href="concept4" property="skos:prefLabel">Concept4</a>
 		</div>	
 	</body>
 </html>

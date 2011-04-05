@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+	<head>
+		<title about="" property="rdfs:label">Scheme Title</title>
+	</head>
+	<body about="">
+		<h1><span id="scheme" about="" property="rdfs:label">Scheme Title</span></h1>
+		<form about="" typeof="skos:ConceptScheme" data-redirect="/scheme">
+			<label for="label">Label</label>
+			<div data-cardinality="1">
+				<input id="label" property="rdfs:label" >Scheme Title</input>
+			</div>
+			<label for="topConcept">Top concepts</label>
+			<div id="topConcept" rel="skos:hasTopConcept" data-prompt="/callimachus/skos/Concept?create">
+				<span about="concept" typeof="skos:Concept">
+					<span property="skos:prefLabel">Concept Label</span>
+				</span>
+			</div>
+			<button id="submit" type="submit">Save</button>
+		</form>
+	</body>
+</html>

@@ -55,8 +55,8 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.GatewayTimeout;
-import org.openrdf.http.object.threads.ManagedExecutors;
-import org.openrdf.http.object.threads.NamedThreadFactory;
+import org.openrdf.http.object.util.ManagedExecutors;
+import org.openrdf.repository.object.util.NamedThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -21,7 +21,8 @@
 	rdf:_10 <auto-expand.js>;
 	rdf:_11 <disable-button.js>;
 	rdf:_12 <input-title.js>;
-	rdf:_13 <optional.js>.
+	rdf:_13 <optional.js>;
+	rdf:_14 <hbox.js>.
 
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;

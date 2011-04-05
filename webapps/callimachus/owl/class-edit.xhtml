@@ -79,14 +79,14 @@
 		<div data-cardinality="1">
 			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
 		</div>
-		<div style="overflow:auto">
-			<div style="float:left;margin-right:1em">
+		<div class="hbox">
+			<div>
 				<label for="subClassOf">Super-classes</label>
 				<div id="subClassOf" rel="rdfs:subClassOf" data-prompt="/callimachus/owl/Class?create">
 					<div about="?subClassOf" typeof="owl:Class" property="rdfs:label" />
 				</div>
 			</div>
-			<div style="float:left;margin-right:1em">
+			<div>
 				<label for="subClass">Sub-classes</label>
 				<div id="subClass" rev="rdfs:subClassOf" data-prompt="/callimachus/owl/Class?create">
 					<div about="?subClass" typeof="owl:Class" property="rdfs:label" />
@@ -94,40 +94,40 @@
 			</div>
 		</div>
 		<hr />
-		<div style="overflow:auto">
-			<div style="float:left;margin-right:1em">
+		<div class="hbox">
+			<div>
 				<label for="contributor">Contributors</label>
 				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
 					<div about="?contributor" property="rdfs:label" />
 				</div>
 			</div>
-			<div style="float:left;margin-right:1em">
+			<div>
 				<label for="editor">Editors</label>
 				<div id="editor" rel="calli:editor" data-prompt="/accounts">
 					<div about="?editor" property="rdfs:label" />
 				</div>
 			</div>
 		</div>
-		<div style="overflow:auto">
-			<div style="float:left;margin-right:1em">
+		<div class="hbox">
+			<div>
 				<label for="create">Create template</label>
 				<div id="create" rel="calli:create" data-prompt="/callimachus/owl/sample-create.xhtml?copy">
 					<span about="?create" typeof="calli:Page" property="rdfs:label" />
 				</div>
 			</div>
-			<div style="float:left;margin-right:1em">
+			<div>
 				<label for="copy">Copy template</label>
 				<div id="copy" rel="calli:copy" data-prompt="/callimachus/owl/sample-create.xhtml?copy">
 					<span about="?copy" typeof="calli:Page" property="rdfs:label" />
 				</div>
 			</div>
-			<div style="float:left;margin-right:1em">
+			<div>
 				<label for="view">View template</label>
 				<div id="view" rel="calli:view" data-prompt="/callimachus/owl/sample-view.xhtml?copy">
 					<span about="?view" typeof="calli:Page" property="rdfs:label" />
 				</div>
 			</div>
-			<div style="float:left;margin-right:1em">
+			<div>
 				<label for="edit">Edit template</label>
 				<div id="edit" rel="calli:edit" data-prompt="/callimachus/owl/sample-edit.xhtml?copy">
 					<span about="?edit" typeof="calli:Page" property="rdfs:label" />

@@ -29,6 +29,8 @@ import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.TriplePattern;
+import org.callimachusproject.rdfa.model.VarOrIRI;
+import org.openrdf.model.vocabulary.RDF;
 
 /**
  * Writes out RDF triple patterns as SPARQL.
@@ -37,6 +39,8 @@ import org.callimachusproject.rdfa.events.TriplePattern;
  *
  */
 public class SPARQLWriter implements Closeable {
+
+	private static final String RDFTYPE = RDF.TYPE.stringValue();
 
 	public static String toSPARQL(RDFEventReader reader) throws RDFParseException,
 			IOException {
@@ -164,7 +168,12 @@ public class SPARQLWriter implements Closeable {
 			indent(indent);
 			writer.append(tp.getSubject().toString());
 			writer.append(" ");
-			writer.append(tp.getPredicate().toString());
+			VarOrIRI pred = tp.getPredicate();
+			if (pred.isIRI() && pred.stringValue().equals(RDFTYPE)) {
+				writer.append("a");
+			} else {
+				writer.append(pred.toString());
+			}
 			writer.append(" ");
 			writer.append(tp.getObject().toString());
 			writer.append(" .\n");

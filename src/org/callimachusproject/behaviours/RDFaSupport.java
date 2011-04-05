@@ -81,7 +81,8 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 	private static final XMLEventReaderFactory factory = XMLEventReaderFactory
 			.newInstance();
 	private static final int MAX_XSLT = 16;
-	private static final Map<String, Reference<XSLTransformer>> transformers = new LinkedHashMap<String, Reference<XSLTransformer>>() {
+	private static final Map<String, Reference<XSLTransformer>> transformers = new LinkedHashMap<String, Reference<XSLTransformer>>(
+			16, 0.75f, true) {
 		private static final long serialVersionUID = 1362917757653811798L;
 	
 		protected boolean removeEldestEntry(

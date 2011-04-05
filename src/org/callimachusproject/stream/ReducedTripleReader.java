@@ -33,11 +33,11 @@ import org.callimachusproject.rdfa.events.Triple;
  *
  */
 public class ReducedTripleReader extends PipedRDFEventReader {
-	private Map<Triple, Object> set = new LinkedHashMap<Triple, Object>() {
+	private Map<Triple, Object> set = new LinkedHashMap<Triple, Object>(256, 0.75f, true) {
 		private static final long serialVersionUID = -8926173487624544845L;
 
 		protected boolean removeEldestEntry(Entry<Triple, Object> eldest) {
-			return size() > 1024;
+			return size() > 10240;
 		}
 	};
 
@@ -49,7 +49,7 @@ public class ReducedTripleReader extends PipedRDFEventReader {
 	protected void process(RDFEvent next) throws RDFParseException {
 		if (!next.isTriple()) {
 			add(next);
-		} else if (!set.containsKey(next)) {
+		} else if (set.get(next) == null) {
 			set.put(next.asTriple(), Boolean.TRUE);
 			add(next);
 		}

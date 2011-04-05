@@ -38,7 +38,7 @@
         .wym_section h2,
         .wym_section h3         { padding: 1px 3px; margin: 0; }
         .wym_section a          { padding: 0 3px; display: block; text-decoration: none; color: black; }
-        .wym_section a:hover    { background-color: yellow; }
+        .wym_section a:hover    { background-color: #fbf9ee; }
       /*hide section titles by default*/
         .wym_section h2         { display: none; }
       /*disable any margin-collapse*/

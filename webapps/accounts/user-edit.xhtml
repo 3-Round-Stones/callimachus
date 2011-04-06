@@ -32,7 +32,7 @@
 			$(document).bind("calliRedirect", function(event) {
 				if (deleted && credential && credential == uri) {
 					// need to log user out gracefully since they deleted themselves
-					$(document).trigger(jQuery.Event("calliLogout"));
+					$(document).trigger("calliLogout");
 					event.preventDefault();
 					return false;
 				}

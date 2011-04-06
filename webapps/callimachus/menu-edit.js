@@ -59,8 +59,11 @@ jQuery(function($){
 		if (!item.attr("typeof")) {
 			item.attr("typeof", "");
 		}
+		if (!link.text()) {
+			link.remove();
+		}
 		var text = textContent(node);
-		if (!text && trim) {
+		if (!text && (trim || ol.children("li").length)) {
 			removeItem(item);
 		} else if (text) {
 			var url = '';

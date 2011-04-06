@@ -1,21 +1,23 @@
 // discussion.js
 
-jQuery(function($){
-	$("#discussion-tab").each(function() {
-		var tab = $(this);
-		var url = this.href;
-		if (url) {
-			jQuery.ajax({ type: 'GET', url: url,
-				success: function(doc) { handleDiscussion(tab, url, doc); }
-			});
-		} else {
-			var url = location.href;
-			var posts = $(".comment").parent().find(".datetime-locale").map(function(){ return $(this).attr("content"); });
-			if (window.localStorage && posts.length) {
-				localStorage.setItem(url, posts.get().join(','));
+(function($){
+	function checkTab() {
+		$("#discussion-tab:visible").each(function() {
+			var tab = $(this);
+			var url = this.href;
+			if (url) {
+				jQuery.ajax({ type: 'GET', url: url,
+					success: function(doc) { handleDiscussion(tab, url, doc); }
+				});
+			} else {
+				var url = location.href;
+				var posts = $(".comment").parent().find(".datetime-locale").map(function(){ return $(this).attr("content"); });
+				if (window.localStorage && posts.length) {
+					localStorage.setItem(url, posts.get().join(','));
+				}
 			}
-		}
-	});
+		});
+	}
 	function handleDiscussion(tab, url, data) {
 		var posts = $(".comment", data).parent().find(".datetime-locale").map(function(){ return $(this).text(); });
 		if (posts.length) {
@@ -37,4 +39,5 @@ jQuery(function($){
 			tab.css('font-weight', "bold");
 		}
 	}
-});
+	$(document).bind('calliLoggedIn', function(){setTimeout(checkTab,0)});
+})(jQuery);

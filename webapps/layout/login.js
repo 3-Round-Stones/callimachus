@@ -142,6 +142,7 @@ $(document).ready(function(){
 				event.preventDefault(); // don't reload page
 				event.username = up.substring(0, up.indexOf(':'));
 				event.password = up.substring(up.indexOf(':') + 1);
+				event.remember = true;
 				$(document).trigger(event);
 				return;
 			} else if (auth && auth.indexOf("Credentials ") == 0) {
@@ -151,6 +152,7 @@ $(document).ready(function(){
 				event.preventDefault(); // don't reload page
 				event.username = up.substring(0, up.indexOf(':'));
 				event.password = up.substring(up.indexOf(':') + 1);
+				event.remember = true;
 				$(document).trigger(event);
 				return;
 			} else if (localStorage.getItem('Name')) {
@@ -201,13 +203,15 @@ function loggedIn(title) {
 			event.preventDefault();
 		}
 		return false;
-	}) 
+	}) ;
+	$(document).trigger("calliLoggedIn");
 }
 
 function loggedOut() {
 	$(".authenticated").hide();
 	$("#login-link").show();
 	$("#login-link").click(login);
+	$(document).trigger("calliLoggedOut");
 }
 
 function login(event) {

@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
-import org.callimachusproject.rdfa.events.Filter;
 import org.callimachusproject.rdfa.events.Group;
 import org.callimachusproject.rdfa.events.Optional;
 import org.callimachusproject.rdfa.events.RDFEvent;
@@ -61,33 +60,37 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	
 	static enum CLAUSE { GROUP, OPTIONAL, BLOCK }
 	
-	// determine if a new subject is well-joined in this context
-	static boolean wellJoined(TriplePattern pattern, VarOrTerm subject) {
-		return pattern!=null && subject!=null &&
-		(subject.equals(pattern.getSubject()) || subject.equals(pattern.getObject()) );
+	// determine if a new subject is chained to the previous triple
+	static boolean chained(TriplePattern pattern, VarOrTerm subject) {
+		return pattern!=null && subject!=null && 
+		(subject.equals(pattern.getPartner()) 
+		|| (subject.equals(pattern.getAbout()) && !pattern.getPartner().isVar())
+		);
+		//(subject.equals(pattern.getSubject()) || subject.equals(pattern.getObject()) );
 	}
 	
 	class Context {
 		CLAUSE clause = CLAUSE.BLOCK;
 		// a block may have a subject (the outermost block does not)
 		VarOrTerm subject;
-		// 'union' is set once we have begun a UNION in this context
+		// 'union' is set when a context is opened
+		// for triple-blocks 'union' is inherited from parent
 		boolean union = false;
-		int mandatoryCount=0, optionalCount=0, subjectCount=0;
 		
 		/* create a new subject block */
 		Context(VarOrTerm subject) throws RDFParseException {
 			this.subject = subject;
-			// a nesting block may have begun a UNION
-			union = stack.peek().union;
-			return;
+			// triple blocks inherit union status from parent
+			union = stack.isEmpty()?false:stack.peek().union;
 		}
+		
 		/* create a new clause */
 		Context(CLAUSE clause) {
 			this.clause = clause;
-			// a block (unbracketed) inherits union from its parent
+			// triple blocks inherit union status from parent
 			union = stack.isEmpty()?false:stack.peek().union;
 		}
+		
 		public String toString() {
 			StringBuffer b = new StringBuffer();
 			b.append("(");
@@ -109,6 +112,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		boolean isBlock() {
 			return clause==CLAUSE.BLOCK;
 		}
+		
 		/* push the context adding necessary open brackets */
 		Context open() {
 			if (isOptional()) {
@@ -117,6 +121,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 				union = true;
 			}
 			else if (isGroup()) {
+				// the parent group may be a union
+				if (!stack.isEmpty() && stack.peek().union && !initial) 
+					add(new Union());
 				add(new Group(OPEN));
 				// a group (i.e. a UNION sub-clause) represents a conjunction / join
 				union = false;
@@ -126,17 +133,17 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			if (!isBlock()) initial = true;
 			return stack.push(this);
 		}
+		
 		/* pop the context adding necessary close brackets */
 		Context close() {
 			if (hasSubject()) add(new Subject(CLOSE, subject));
 			if (isOptional()) add(new Optional(CLOSE));
 			else if (isGroup()) add(new Group(CLOSE));
+			if (!isBlock()) previousPattern = null;
 			stack.pop();
-			// a nested block may have begun a UNION
-			if (!stack.isEmpty() && stack.peek().isBlock()) {
-				stack.peek().union |= union && !stack.peek().isOptional();
-			}
-			return stack.isEmpty() ? null : stack.peek();
+			// closing the LHS of a UNION? (UNION keyword required subsequently)
+			if (!stack.isEmpty() && stack.peek().union) initial = false;
+			return stack.isEmpty()?null:stack.peek();
 		}
 	}
 
@@ -156,51 +163,26 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		}
 		else if (event.isStartSubject()) {
 			VarOrTerm subj = getVarOrTerm(event.asSubject().getSubject());
-			Context context;
-			
-			// the outermost context is a triple block (with no subject)
-			if (stack.isEmpty()) {
-				context = new Context(CLAUSE.BLOCK).open();
-				// make the outer block a UNION
-				context.union = true;
-			}
-			else context = stack.peek();
+			Context context = getContext();
 
-			// close any dangling UNION sub-clause if the subject isn't well-joined
-			if (!initial && context.isGroup() && !context.hasSubject() && !wellJoined(previousPattern,subj)) 
+			// close any dangling UNION sub-clause if the subject isn't chained to the previous triple
+			if (context.isGroup() && !context.hasSubject() && !chained(previousPattern,subj)) 
 				context = context.close();
 
-			// create a (triple block) context for the new subject (no brackets)
-			context = new Context(subj).open();
+			// assemble mandatory conditions at the beginning of the block
+			// if not in a union mandatory triples are inner-joined
+			context = addMandatoryTriples(context);
 			
-			// Don't add a subject directly to an optional - enclose within a group
-			if (context.union) {
-				if (!initial) add(new Union()) ;
-				context = new Context(CLAUSE.GROUP).open();
-			}
-						
-			// assemble mandatory conditions at beginning of the block
-			// initialize mandatoryCount and optionalCount
-			addMandatoryTriples(context);
+			// create a (unbracketed triple block) context for the new subject
+			context = new Context(subj).open();	
 			
-			// if there are optional or potentially optional triples, add an optional clause
-			if (context.optionalCount>0 || context.subjectCount>0) {
-				// the block is well-joined if it is chained to the previous triple pattern
-				// also if it contains any mandatory triples (appended above) sharing the same subject
-				boolean wellJoined =  context.mandatoryCount>0 || wellJoined(previousPattern,subj);
-				
-				// We need a left join with the empty group (a single empty solution)
-				// { OPTIONAL { P }} equivalent to {} OPTIONAL { P }
-				
-				// only open the group if we didn't open it above
-				if (!wellJoined && !context.isGroup())
-					context = new Context(CLAUSE.GROUP).open();
-
-				// in both cases we add the OPTIONAL
+			// subjects chained to the previous triple can be left-joined
+			// this may be a singleton if no optional properties are defined
+			// in which case the optional is not required
+			if (!context.union && chained(previousPattern,subj) && !singleton())
 				context = new Context(CLAUSE.OPTIONAL).open();
-
-				previousPattern = null;
-			}
+			
+			previousPattern = null;
 		} 
 		else if (event.isTriple()) {
 			Triple triple = event.asTriple();
@@ -208,60 +190,33 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			IRI p = triple.getPredicate();
 			VarOrTerm o = getVarOrTerm(triple.getObject());
 			boolean rev = triple.isInverse();
-			boolean optional = getVarOrTerm(triple.getPartner()).isVar(); 	
+			boolean optional = isOptionalTriple(triple); 	
 			TriplePattern pattern = new TriplePattern(s, p, o, rev);
 			//String lang = triple.getPartner().asPlainLiteral().getLang();
-
-			Context context = null;
-			
-			// a document fragment may not include a start subject
-			// the outermost context is a triple block (with no subject)
-			if (stack.isEmpty()) {
-				context = new Context(CLAUSE.BLOCK).open();
-				// make the outer block a UNION
-				context.union = true;
-				if (optional) {
-					new Context(CLAUSE.GROUP).open();
-					context = new Context(CLAUSE.OPTIONAL).open();
-				}
-
-			}
-			else context = stack.peek();
-
+			Context context = getContext();
+						
 			// close any dangling UNION sub-clause
-			if (!initial && context.isGroup() && !context.hasSubject()) context = context.close();
+			// i.e don't close if this is a union
+			// and don't close if this is the first (non mandatory) triple
+			if (!context.union && !initial && context.isGroup() && !context.hasSubject()) 
+				context = context.close();
 			
-			// if this group is a singleton, then treat it like a conjunction (no inner brackets)
-			context.union = !singleton(false);
-			
-			// an optional triple may open a new union context
 			if (optional) {
-				// add the 'UNION' keyword if this is not the first UNION sub-clause
-				if (context.union && !initial) add(new Union()) ;
-
-				// open a group for the UNION sub-clause
-				// remove redundant brackets under the following conditions:
-				// if this is a singleton optional (ignoring mandatory triples)
-				// new subjects are contained in a joined optional so don't harm single status
-				if (context.union)
+				// an optional triple must be within an optional/union clause
+				if (!context.union) 
+					context = new Context(CLAUSE.OPTIONAL).open();
+				
+				// open a group (a UNION sub-clause) unless this is a singleton in an OPTIONAL
+				if (!(initial && singleton()) || !context.isOptional())
 					context = new Context(CLAUSE.GROUP).open();
 				
 				// add the triple pattern
-				add(previousPattern = pattern);
+				add(pattern);
+				
 				// subsequent triples/subjects are not in the initial position
 				initial = false;
-				
-				// if this is followed by >1 subject add an optional
-				if (initial && multipleSubjects())
-					new Context(CLAUSE.OPTIONAL).open();
+				previousPattern = pattern;
 			}
-			else { 
-				// this is a mandatory triple (already added at start of subject)
-				// used here only to determine if subsequent subjects are well-joined
-				previousPattern = pattern;	
-			}
-			
-	
 		} 
 		else if (event.isEndSubject()) {
 			Context context = stack.peek();
@@ -273,40 +228,55 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			context = context.close();
 		}
 	}
+	
+	private Context getContext() {
+		Context context = null;
+		// the outermost context is a triple block (with no subject)
+		if (stack.isEmpty()) {
+			context = new Context(CLAUSE.BLOCK).open();
+			// The outer block a UNION
+			context.union = true;
+		}
+		else context = stack.peek();
+		return context;
+	}
+	
+	private boolean isOptionalTriple(Triple triple) throws RDFParseException {
+		return getVarOrTerm(triple.getPartner()).isVar() ;
+	}
 
-	private void addMandatoryTriples(Context context) throws RDFParseException {
+	private Context addMandatoryTriples(Context context) throws RDFParseException {
 		int lookAhead=0, depth=0;
 		RDFEvent e;
 		while (depth>=0) { // look-ahead until we reach corresponding close subject
 			e = peek(lookAhead++);
-			if (e.isStartSubject()) {
-				depth++;
-				context.subjectCount++;
-			}
+			if (e.isStartSubject()) depth++;
 			else if (e.isEndSubject()) depth-- ;
 			// don't consider mandatory triples in nested contexts
 			else if (e.isTriple() && depth==0) {
-				Triple triple = e.asTriple();
-				boolean optional = getVarOrTerm(triple.getPartner()).isVar();
-				if (optional) context.optionalCount++;
-				else {
-					context.mandatoryCount++;
+				Triple triple = e.asTriple();				
+				if (!isOptionalTriple(triple)) {
 					VarOrTerm s = getVarOrTerm(triple.getSubject());
 					IRI p = triple.getPredicate();
 					VarOrTerm o = getVarOrTerm(triple.getObject());
 					boolean rev = triple.isInverse();
-
-					TriplePattern pattern = new TriplePattern(s, p, o, rev);
+					
+					if (context.union)
+						context = new Context(CLAUSE.GROUP).open();
+					
+					TriplePattern pattern = new TriplePattern(s, p, o, rev);			
 					add(pattern);
-					initial = false;
+					previousPattern = pattern;
+					// don't reset 'initial' otherwise the next optional triple will close the group
 				}
 			}
 		}
+		return context;
 	}
-
-	private boolean singleton(boolean skipFirstOptional) throws RDFParseException {
+	
+	private boolean singleton() throws RDFParseException {
 		int lookAhead=0, depth=0;
-		boolean singleton=initial;
+		boolean singleton=true;
 		RDFEvent e;
 		while (depth>=0 && singleton) {
 			e = peek(lookAhead++);
@@ -317,28 +287,11 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			}
 			else if (e.isEndSubject()) depth--;
 			else if (e.isTriple() && depth==0) {
-				Triple t = e.asTriple();
-				boolean opt = getVarOrTerm(t.getPartner()).isVar();
-				if (skipFirstOptional) skipFirstOptional = false;
-				else singleton = !opt;
+				// ignore mandatory triples
+				singleton = !isOptionalTriple(e.asTriple());
 			}
 		}
 		return singleton;
-	}
-	
-	private boolean multipleSubjects() throws RDFParseException {
-		int lookAhead=0, depth=0;
-		int subjectCount=0;
-		RDFEvent e;
-		while (depth>=0) {
-			e = peek(lookAhead++);
-			if (e.isStartSubject()) {
-				subjectCount++; depth++;
-			}
-			else if (e.isEndSubject()) depth--;
-
-		}
-		return subjectCount>1;
 	}
 
 	protected VarOrTerm getVarOrTerm(VarOrTerm term) throws RDFParseException {

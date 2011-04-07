@@ -1,3 +1,0 @@
-test_dir = RDFaGeneration/test-suite/test-cases/
-transform = ../webapps/callimachus/operations/construct.xsl
-

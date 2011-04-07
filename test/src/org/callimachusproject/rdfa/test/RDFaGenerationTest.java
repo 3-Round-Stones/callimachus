@@ -106,19 +106,10 @@ public class RDFaGenerationTest {
 	static final String INDENT_AMOUNT = "{http://xml.apache.org/xslt}indent-amount";
 	static final String PROPERTIES = "RDFaGeneration/RDFaGenerationTest.props";
 	static final Pattern pathPattern = Pattern.compile("^.*element=([/\\d+]+).*\\z");
-	
-	// The signifier should appear within the filename
-	// The target filename is the substring before the signifier
-	// Different suffixes following the signifier allow reuse of the target
-	static final String TEST_FILE_SIGNIFIER = "-test";
-	
-	// static properties loaded by static initializer
-	static String test_dir;
-	static String transform;
-	static { // load default properties
-		loadProperties(PROPERTIES);
-	}
-	
+	// location of the XSLT transform relative to the test directory
+	static final String TRANSFORM = "../webapps/callimachus/operations/construct.xsl";
+	static final String TEST_FILE_SUFFIX = "-test";
+		
 	// static properties defined in @BeforeClass setUp()
 	static XMLInputFactory xmlInputFactory;
 	static TransformerFactory transformerFactory;
@@ -128,8 +119,9 @@ public class RDFaGenerationTest {
 	
 	// static flags set in main()
 	static boolean verbose = false;
-	static boolean showQuery = false;
-
+	static boolean show = false;
+	// this is the default test directory
+	static String test_dir = "RDFaGeneration/test-suite/test-cases/";
 	
 	// object properties defined in @Before initialize() 
 	RepositoryConnection con;
@@ -251,30 +243,32 @@ public class RDFaGenerationTest {
 				// otherwise check the node has no text at all
 				else path = path + "[not(text()) or normalize-space(text())='']";
 				
-				final String exp = path;
-				final XPathExpression compiled = xpath.compile(exp);
-				final boolean negative = !positive;
-				// implements XPathExpression toString() returning the string expression
-				queue.add(new XPathExpression() {
-					public String evaluate(Object source) throws XPathExpressionException {
-						return compiled.evaluate(source);
-					}
-					public String evaluate(InputSource source) throws XPathExpressionException {
-						return compiled.evaluate(source);
-					}
-					public Object evaluate(Object source, QName returnType) throws XPathExpressionException {
-						return compiled.evaluate(source, returnType);
-					}
-					public Object evaluate(InputSource source, QName returnType) throws XPathExpressionException {
-						return compiled.evaluate(source, returnType);
-					}
-					public String toString() {
-						// prefix XPaths for negative tests with '-'
-						return (negative?"-":"")+exp;
-					}
-				});
-				if (verbose) System.out.println(exp);
-				contexts.add(xpath.getNamespaceContext());
+				if (!path.contains("\n")) {
+					final String exp = path;
+					final XPathExpression compiled = xpath.compile(exp);
+					final boolean negative = !positive;
+					// implements XPathExpression toString() returning the string expression
+					queue.add(new XPathExpression() {
+						public String evaluate(Object source) throws XPathExpressionException {
+							return compiled.evaluate(source);
+						}
+						public String evaluate(InputSource source) throws XPathExpressionException {
+							return compiled.evaluate(source);
+						}
+						public Object evaluate(Object source, QName returnType) throws XPathExpressionException {
+							return compiled.evaluate(source, returnType);
+						}
+						public Object evaluate(InputSource source, QName returnType) throws XPathExpressionException {
+							return compiled.evaluate(source, returnType);
+						}
+						public String toString() {
+							// prefix XPaths for negative tests with '-'
+							return (negative?"-":"")+exp;
+						}
+					});
+					if (verbose) System.out.println(exp);
+					contexts.add(xpath.getNamespaceContext());
+				}
 			}								
 		}
 		@Override
@@ -343,24 +337,12 @@ public class RDFaGenerationTest {
 			}
 		};
 	}
-	
-	private static void loadProperties(String properties) {
-		try {
-			Properties props = new Properties();
-			props.load(new FileReader(properties));
-			test_dir = props.getProperty("test_dir");
-			transform = props.getProperty("transform");
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
+		
 	/* define dynamically generated parameters {{ template, target } ... } passed to the constructor
 	 * list test-cases by enumerating test files in the test directory 
 	 * A test file has the TEST_FILE_SIGNIFIER in the filename 
 	 * A test file serves as an RDFa template
-	 * A target filename has the TEST_FILE_SIGNIFIER (and anything after it) removed 
+	 * A target filename has the TEST_FILE_SIGNIFIER removed 
 	 */
 
 	@Parameters
@@ -376,7 +358,7 @@ public class RDFaGenerationTest {
 
 		File[] testFiles = dir.listFiles(new FilenameFilter() {
 			public boolean accept(File file, String filename) {
-				return (filename.contains(TEST_FILE_SIGNIFIER)
+				return (filename.endsWith(TEST_FILE_SUFFIX+".xhtml")
 				|| (new File(file,filename).isDirectory() && !filename.startsWith(".")) ) ;
 		}});
 		// enumerate test files (RDFa templates)
@@ -386,7 +368,7 @@ public class RDFaGenerationTest {
 			else {
 				// find the corresponding target (if it exists)
 				String target = f.getName();
-				int n = target.lastIndexOf(TEST_FILE_SIGNIFIER);
+				int n = target.lastIndexOf(TEST_FILE_SUFFIX);
 				target = target.substring(0, n)+".xhtml";
 				cases.add(new Object[] { f, new File(dir,target) });
 			}
@@ -467,7 +449,7 @@ public class RDFaGenerationTest {
 
 	private static Document transform(RDFXMLEventReader rdfxml, File self, String query, String element)
 		throws Exception {
-		Transformer transformer = transformerFactory.newTransformer(new StreamSource(transform));
+		Transformer transformer = transformerFactory.newTransformer(new StreamSource(TRANSFORM));
 		transformer.setParameter("this", self.toURI().toURL().toString());	
 		if (query!=null) transformer.setParameter("query", query);
 		if (element!=null) transformer.setParameter("element", element);
@@ -563,7 +545,7 @@ public class RDFaGenerationTest {
 		// Match target to output
 		evalTarget = evaluateXPaths(new XPathIterator(targetDoc), outputDoc) ;
 
-		if (evalOutput!=null || evalTarget!=null || verbose) {
+		if ((evalOutput!=null || evalTarget!=null || verbose) && !show) {
 			if (!verbose) System.out.println("\nTEST: "+template);
 			if (evalOutput!=null) System.out.println("FAILS: "+evalOutput);
 			write(outputDoc,System.out);
@@ -702,7 +684,7 @@ public class RDFaGenerationTest {
 	@Test
 	public void unionTest() throws Exception {
 		try {
-			if (verbose || showQuery) System.out.println("UNION TEST: "+template);
+			if (verbose || show) System.out.println("UNION TEST: "+template);
 			// produce SPARQL from the RDFa template
 			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
 			RDFEventReader rdfa = new RDFaReader(base, xml, null);
@@ -716,18 +698,18 @@ public class RDFaGenerationTest {
 			Document outputDoc = transform(rdfxml,template,null,null);
 	
 			boolean ok = equivalent(outputDoc,readDocument(target));
-			if (showQuery) {
+			if (show) {
 				write(readDocument(template),System.out);
 				System.out.println("\n"+query+"\n");
 			}
-			if (!ok || verbose) {
+			if ((!ok || verbose) && !show) {
 				System.out.println("RDF (from target):");
 				write(exportGraph(con), System.out);
 				System.out.println("SPARQL (from test):\n"+query);
 				results = new SPARQLResultReader(query, con, null);
 				while (results.hasNext()) System.out.println(results.next());
 			}
-			assertTrue(ok);
+			if (!show) assertTrue(ok);
 		}
 		catch (Exception e) {
 			System.out.println("UNION TEST: "+template);
@@ -829,11 +811,16 @@ public class RDFaGenerationTest {
 			for (int i=0; i<args.length; i++) {
 				String arg = args[i];
 				if (arg.equals("-verbose")) verbose = true;
-				else if (arg.equals("-show")) showQuery = true;
+				// just show the generated queries (don't run the test)
+				else if (arg.equals("-show")) show = true;
 				else if (arg.equals("-legacy")) mode = MODE.LEGACY;
-				else if (arg.equals("-union")) mode = MODE.UNION;
+				else if (arg.equals("-union")) mode = MODE.UNION; // default
 				else if (arg.equals("-fragment")) mode = MODE.FRAGMENT;
-				else if (!arg.startsWith("-")) loadProperties(arg);
+				else if (!arg.startsWith("-")) test_dir = arg;
+			}
+			if (!new File(test_dir).isDirectory()) {
+				System.out.println("usage: [-verbose] [-show] [-legacy] [-union] [-fragment] [test_dir]");
+				return;
 			}
 			
 			setUp();

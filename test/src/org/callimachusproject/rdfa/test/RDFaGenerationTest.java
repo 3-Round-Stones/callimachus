@@ -9,14 +9,12 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,15 +23,14 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stax.StAXSource;
@@ -226,7 +223,6 @@ public class RDFaGenerationTest {
 			if (leaf) {
 				// @content trumps body text
 				if (content==null && text!=null && !text.isEmpty()) content = text;
-				
 
 				XPath xpath = xPathFactory.newXPath();
 				// add namespace prefix resolver to the xpath based on the current element
@@ -281,7 +277,6 @@ public class RDFaGenerationTest {
 		}
 		@Override
 		public void remove() {}
-
 	}
 	
 	XPathExpression conjoinXPaths(Document fragment) throws Exception {
@@ -295,7 +290,16 @@ public class RDFaGenerationTest {
 			while (conjunction.hasNext()) {
 				if (!first) path += " and ";
 				XPathExpression x = conjunction.next();
-				path += x.toString().substring(1);
+				String exp = x.toString();
+				boolean positive = true;
+				if (exp.startsWith("-")) {
+					positive = false;
+					exp = exp.substring(1);
+				}
+				// remove the initial '/'
+				exp = exp.substring(1);
+				if (positive) path += exp;
+				else path += "not("+exp+")";
 				first = false;
 			}
 			path += "]";
@@ -447,9 +451,30 @@ public class RDFaGenerationTest {
 		return graph;
 	}
 
-	private static Document transform(RDFXMLEventReader rdfxml, File self, String query, String element)
+	private Document transform(RDFXMLEventReader rdfxml, File self, String query, String element)
 		throws Exception {
 		Transformer transformer = transformerFactory.newTransformer(new StreamSource(TRANSFORM));
+		transformer.setURIResolver(new URIResolver() {
+			@Override
+			public Source resolve(String href, String base) throws TransformerException {
+				try {
+					Matcher pathMatcher = pathPattern.matcher(href);
+					String path=null;
+					if (pathMatcher.matches()) path = pathMatcher.group(1);
+					else return null;
+					// we should only ever be loading the template
+					XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
+					// extract the fragment
+					XMLElementReader fragment = new XMLElementReader(xml,path);
+					return new StAXSource(fragment);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					return null;
+				}
+			}	
+		});
+		
 		transformer.setParameter("this", self.toURI().toURL().toString());	
 		if (query!=null) transformer.setParameter("query", query);
 		if (element!=null) transformer.setParameter("element", element);
@@ -668,7 +693,7 @@ public class RDFaGenerationTest {
 				results = new RDFStoreReader(query, con, null);
 				while (results.hasNext()) System.out.println(results.next());
 			}
-			assertTrue(ok);
+			if (!show) assertTrue(ok);
 		}
 		catch (Exception e) {
 			System.out.println("LEGACY TEST: "+template);
@@ -741,18 +766,11 @@ public class RDFaGenerationTest {
 			for (int i=0; i<fragments.getLength(); i++) {
 				org.w3c.dom.Node frag = fragments.item(i);
 				String path = getFragmentIdentifiers((Element)frag);
-				
-				// extract the template fragment to a temporary file
+
+				// Generate the query from the fragment
 				xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
 				XMLElementReader xmlFragment = new XMLElementReader(xml,path);
-				File temp = File.createTempFile("temp", ".xhtml");
-				PrintStream out = new PrintStream(temp);
-				write(xmlFragment,out);
-				out.flush();
-				out.close();
-				
-				xml = xmlInputFactory.createXMLEventReader(new FileReader(temp));
-				rdfa = new RDFaReader(base, xml, null);
+				rdfa = new RDFaReader(base, xmlFragment, null);
 				sparql = new SPARQLProducer(rdfa);
 				query = constructQuery(base, sparql, true);
 				
@@ -760,37 +778,39 @@ public class RDFaGenerationTest {
 				results = new ReducedTripleReader(results);
 				rdfxml = new RDFXMLEventReader(results);
 								
-				Document fragment = transform(rdfxml,temp,"edit",path);
+				Document fragment = transform(rdfxml,template,"edit",path);
 				XPathExpression xpath = conjoinXPaths(fragment) ;
 				
+				// the output fragment should be a sub-document of the target
 				boolean ok = evaluateXPath(xpath,outputDoc);
 				if (!ok || verbose) {
-					System.out.println("FRAGMENT TEST: "+template+"\n");
+					System.out.println("\nFRAGMENT TEST: "+template+"\n");
 		
 					System.out.println("TEMPLATE:");
 					write(readDocument(template),System.out);
 		
-					System.out.println("OUTPUT:");
+					System.out.println("\nOUTPUT:");
 					write(outputDoc,System.out);
 					
-					System.out.println("PATH: "+path);
-					write(readDocument(temp),System.out);
+					System.out.println("\nPATH: "+path);
+					// show the fragment addressed by the path
+					xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
+					write(new XMLElementReader(xml,path), System.out);
 					
-					System.out.println("XPATH: "+path);
+					System.out.println("XPATH:");
 					System.out.println(xpath);
 					
-					System.out.println("SPARQL (from test): ");
+					System.out.println("\nSPARQL: ");
 					System.out.println(query);
-					
+
+					System.out.println("RESULT SET: ");
 					results = new SPARQLResultReader(query, con, uri);	
 					while (results.hasNext()) System.out.println(results.next());
 		
-					System.out.println("TRANSFORMED FRAGMENT:");
+					System.out.println("\nTRANSFORMED FRAGMENT:");
 					write(fragment,System.out);
 				}
-				assertTrue(ok);
-		
-				temp.deleteOnExit();
+				if (!show) assertTrue(ok);		
 			}
 		}
 		catch (Exception e) {

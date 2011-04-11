@@ -15,6 +15,17 @@
 			$(node).remove();
 			return html;
 		}
+		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push(
+			'rel',
+			'rev',
+			'content',
+			'href',
+			'src',
+			'about',
+			'property',
+			'resource',
+			'datatype',
+			'typeof');
 		$('.wym_box_0').wymeditor({
 			html: page[2],
 			lang: null,

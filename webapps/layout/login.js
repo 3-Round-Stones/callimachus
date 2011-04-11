@@ -19,7 +19,9 @@ $(document).ready(function(){
 						sessionStorage.setItem("Name", title[1]);
 						localStorage.setItem("Name", title[1]);
 					}
-					loggedIn(title[1]);
+					if (!$("#profile-link").text()) {
+						loggedIn(title[1]);
+					}
 				}
 				if (window.localStorage) {
 					var auth = "User " + event.username;

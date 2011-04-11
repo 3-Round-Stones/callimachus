@@ -181,6 +181,7 @@ body.iframe, body.iframe #content {
 	border: none;
 	margin: 0px;
 	background: inherit;
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";
 }
 
 body.iframe #header, body.iframe #tabs, body.iframe #sidebar, body.iframe #logo, body.iframe #footer {

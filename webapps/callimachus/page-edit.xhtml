@@ -9,7 +9,6 @@
 	jQuery(function($){
 		var local = $('body').attr('about').replace(/.*\//, '').replace(/\.[a-zA-Z]+$/, '');
 		var label = decodeURIComponent(local);
-		$('title').text(label);
 		var page = [null, '<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>' + label + '</title></head><body about="?this">', '<h1>' + label + '</h1>','</body></html>'];
 		function outter(node) {
 			var html = $($('<div/>').html($(node).clone())).html();
@@ -21,40 +20,38 @@
 			lang: null,
 			initSkin: false,
 			loadSkin: false,
-			postInit: function() {
-				$('.wym_box_0').trigger('DOMNodeInserted');
-			},
+			jQueryPath: '/callimachus/scripts/jquery.js',
 			dialogFeatures: 'jQuery.dialog',
 			dialogFeaturesPreview: 'jQuery.dialog',
 			dialogImageHtml: outter($('.wym_dialog_image')),
 			dialogTableHtml: outter($('.wym_dialog_table')),
 			dialogPasteHtml: outter($('.wym_dialog_paste')),
 			dialogPreviewHtml: outter($('.wym_dialog_preview')),
-			dialogLinkHtml: outter($('.wym_dialog_link')),
-			dialogHtml: null
+			dialogLinkHtml: outter($('.wym_dialog_link'))
 		});
-		var initIframe = false;
-		$('#iframe').load(function() {
-			var iframe = this;
-			window.WYMeditor.INSTANCES[0].initIframe(iframe);
-			initIframe = true;
-			if (page[0]) {
-				jQuery.wymeditors(0).html(page[2]);
-			}
-		});
-		jQuery.ajax({
-			type: "GET", url: $('body').attr('about'),
-			complete: function(xhr) {
-				if (xhr.readyState == 4 && xhr.status == 200) {
-					var type = xhr.getResponseHeader("Content-Type");
-					if (type && type.indexOf('application/xhtml+xml') == 0) {
-						page = xhr.responseText.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
-						if (initIframe) {
-							jQuery.wymeditors(0).html(page[2]);
+		$(window).one('load', function() {
+			jQuery.ajax({
+				type: "GET", url: $('body').attr('about'),
+				complete: function(xhr) {
+					if (xhr.readyState == 4) {
+						if (xhr.status == 200) {
+							var type = xhr.getResponseHeader("Content-Type");
+							if (type && type.indexOf('application/xhtml+xml') == 0) {
+								page = xhr.responseText.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
+							}
 						}
+						jQuery.wymeditors(0)._html = page[2];
+						window.WYMeditor.INSTANCES[0].initIframe($('#iframe')[0]);
+						$('#iframe').trigger('load');
+						setTimeout(function(){
+							if (!$('body', $('#iframe')[0].contentWindow.document).children().length) {
+								// IE need this called twice on first load (reload doesn't seem to work)
+								window.WYMeditor.INSTANCES[0].initIframe($('#iframe')[0]);
+							}
+						}, 1000);
 					}
 				}
-			}
+			});
 		});
 		$(document).bind('calliCreate', function(event) {
 			if (event.rdfType == "foaf:Image") {

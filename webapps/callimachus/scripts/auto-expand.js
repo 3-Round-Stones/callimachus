@@ -2,13 +2,22 @@
 
 (function($){
 
-$(document).ready(function(event){setTimeout(function(){findAutoExpandTextArea(event)}, 0)});
-$(window).bind('resize', function(){findAutoExpandTextAreaIn(document)});
+$(window).bind('resize', findAllAutoExpandTextArea);
 $(document).bind('change', findAutoExpandTextArea);
 $(document).bind('keypress', findAutoExpandTextArea);
 $(document).bind('input', findAutoExpandTextArea);
 $(document).bind('paste', findAutoExpandTextArea);
 $(document).bind("DOMNodeInserted", findAutoExpandTextArea);
+$(document).ready(function(){setTimeout(findAllAutoExpandTextArea, 0)});
+$(window).load(function(event){
+	$('iframe').load(findAllAutoExpandTextArea);
+	$('img').load(findAllAutoExpandTextArea);
+	findAllAutoExpandTextArea();
+});
+
+function findAllAutoExpandTextArea(){
+	findAutoExpandTextAreaIn(document);
+}
 
 function findAutoExpandTextArea(event) {
 	findAutoExpandTextAreaIn(event.target);
@@ -144,24 +153,21 @@ function expandIframe(area, contentWidth, innerHeight) {
 }
 
 function expandBlock(area, contentWidth, innerHeight) {
-	var childHeight = 0;
-	$(area).find(":visible").each(function() {
-		var height = $(this).height();
-		height += parsePixel($(this).css("border-top-width"));
-		height += parsePixel($(this).css("border-bottom-width"));
-		height += parsePixel($(this).css("margin-top"));
-		height += parsePixel($(this).css("margin-bottom"));
-		if (height > childHeight) {
-			childHeight = height;
-		}
-	});
 	$(area).css('width', contentWidth);
-	$(area).css('height', Math.min(innerHeight, childHeight));
+	$(area).css('max-height', innerHeight);
 }
 
 function parsePixel(str) {
-	if (str && str.indexOf('px'))
+	if (!str)
+		return 0;
+	if (str.indexOf('px') > 0)
 		return parseInt(str.substring(0, str.indexOf('px')));
+	if (str == "thin")
+		return 1;
+	if (str == "medium")
+		return 3;
+	if (str == "thick")
+		return 5;
 	return 0;
 }
 

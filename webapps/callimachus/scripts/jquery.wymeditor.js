@@ -1185,9 +1185,44 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
     
     var h = WYMeditor.Helper;
 
+    if (features == 'jQuery.dialog') {
+
+    //construct the dialog
+    var dialogHtml = this.replaceStrings(sBodyHtml);
+      var options = {
+        title: dialogType.replace(/_/g, ' '),
+        autoOpen: false,
+        modal: false,
+        draggable: true,
+        resizable: true,
+        autoResize: true,
+        minWidth: 320,
+        minHeight: 320
+      };
+
+      if (dialogType == WYMeditor.PREVIEW) {
+        options.width = $(this._iframe).width();
+        options.height = $(this._iframe).height();
+      }
+
+      var dialog = jQuery(dialogHtml).dialog(options);
+      dialog.bind("dialogclose", function(event, ui) {
+        dialog.dialog("destroy");
+      });
+      dialog.dialog("open");
+      window.dialog = dialog;
+      WYMeditor.INIT_DIALOG(this._index);
+
+    } else {
+
+      if (sBodyHtml.indexOf("INIT_DIALOG") < 0) {
+        sBodyHtml = "<body class='wym_dialog wym_dialog_link'"
+               + " onload='WYMeditor.INIT_DIALOG(" + this._index + ")'"
+               + ">" + sBodyHtml + "</body>";
+      }
+
     //construct the dialog
     var dialogHtml = this._options.dialogHtml;
-    if (dialogHtml) {
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.BASE_PATH, this._options.basePath);
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.DIRECTION, this._options.direction);
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.CSS_PATH, this._options.skinPath + WYMeditor.SKINS_DEFAULT_CSS);
@@ -1196,37 +1231,8 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.DIALOG_TITLE, this.encloseString( dialogType ));
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.DIALOG_BODY, sBodyHtml);
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.INDEX, this._index);
-    } else {
-      dialogHtml = sBodyHtml;
-    }
       
     dialogHtml = this.replaceStrings(dialogHtml);
-
-    if (features == 'jQuery.dialog') {
-		var options = {
-		    title: dialogType.replace(/_/g, ' '),
-		    autoOpen: false,
-		    modal: false,
-		    draggable: true,
-		    resizable: true,
-		    autoResize: true,
-			minWidth: 320,
-			minHeight: 320
-		};
-
-		if (dialogType == WYMeditor.PREVIEW) {
-			options.width = $(this._iframe).width();
-			options.height = $(this._iframe).height();
-		}
-		
-		var dialog = jQuery(dialogHtml).dialog(options);
-		dialog.bind("dialogclose", function(event, ui) {
-			dialog.dialog("destroy");
-		});
-		dialog.dialog("open");
-		window.dialog = dialog;
-		WYMeditor.INIT_DIALOG(this._index);
-    } else {
       var wDialog = window.open('', 'dialog', features);
       var doc = wDialog.document;
       doc.write(dialogHtml);
@@ -4005,6 +4011,18 @@ WYMeditor.WymClassExplorer.prototype.initIframe = function(iframe) {
         // Is this really needed, it trigger an unexisting property on IE6
         this._doc = iframe.contentWindow.document; 
     }catch(e){}
+};
+
+WYMeditor.WymClassExplorer.prototype.dialog = function( dialogType, dialogFeatures, bodyHtml ) {
+
+  var features = dialogFeatures || this._wym._options.dialogFeatures;
+
+  if ( features == 'jQuery.dialog' && dialogType == WYMeditor.DIALOG_LINK ) {
+      // IE loses selection with jquery dialog
+      dialogFeatures = "menubar=no,titlebar=no,toolbar=no,resizable=no"
+                      + ",width=560,height=300,top=0,left=0";
+   }
+  WYMeditor.editor.prototype.dialog.call(this, dialogType, dialogFeatures, bodyHtml );
 };
 
 WYMeditor.WymClassExplorer.prototype._exec = function(cmd,param) {

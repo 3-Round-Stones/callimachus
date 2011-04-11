@@ -217,6 +217,10 @@ iframe.ui-widget-content.ui-dialog-content {
 	padding-left: 1em;
 }
 
+img {
+	border: none;
+}
+
 table.aside {
 	border-spacing: 0px;
 }
@@ -345,10 +349,6 @@ label.error {
 		float: right;
 		margin: 1ex;
 	}
-
-	a img {
-		border: none; /* IE may hide img */
-	}
 } /* end all */
 
 @media screen and (min-width:42em) {
@@ -367,6 +367,9 @@ label.error {
 	#tabs, #content, #footer {
 		margin-left: 10em;
 	}
+} /* end screen */
+
+@media screen and (min-height:38em) {
 	#content {
 		min-height: 30em;
 	}

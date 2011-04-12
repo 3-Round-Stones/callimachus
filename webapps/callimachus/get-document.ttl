@@ -149,6 +149,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:type "application/xhtml+xml";
+	msg:header "cache-control:must-revalidate";
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 

@@ -136,8 +136,8 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 :AuthorizeImageResize owl:equivalentClass </accounts/authorization.ttl#AuthorizeCredential>;
 	msg:imports foaf:Image;
 	msg:script  """
-		if (method == "GET" || method == "HEAD") {
-			if (query == "large" || query == "medium" || query == "small") {
+		if (query == "large" || query == "medium" || query == "small") {
+			if (method == "GET" || method == "HEAD") {
 				if (object instanceof Image) {
 					if (this.AuthorizeCredential(credential, method, object, null))
 						return true;

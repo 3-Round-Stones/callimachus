@@ -76,7 +76,11 @@ function isReviewing(method, query) {
 }
 
 function isEditing(method, query) {
-	return query == "edit" && (method == "GET" || method == "HEAD" || method == "POST") || query == null && method == "PUT";
+	if (query == "edit")
+		return method == "GET" || method == "HEAD" || method == "POST";
+	if (query == null)
+		return method == "PUT" || method == "DELETE";
+	return false;
 }
 
 function findAnnotatedClass(klass, ann) {

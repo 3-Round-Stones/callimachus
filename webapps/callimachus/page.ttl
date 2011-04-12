@@ -27,31 +27,11 @@
 
 <Page> rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Page;
 	calli:icon <page.png>;
-	calli:view <page.xhtml>;
 	calli:edit <page-edit.xhtml>;
 	calli:copy <page-copy.xhtml>;
 	calli:withNamespace </page/>.
 
-:FindWikiPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [
-		owl:intersectionOf (<WikiPage> [owl:complementOf calli:Page])]];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET", "HEAD";
-	msg:expect "302-found";
-	msg:imports calli:Page;
-	msg:script """
-		var page = this.objectConnection.getObject(this.toString() + ".xhtml");
-		if (page instanceof Page)
-			return page.toString() + "?view";
-		return page.toString() + "?edit";
-	""".
-
-:GetPage owl:intersectionOf (</callimachus/operations/view.ttl#GetViewPage>
-		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
-	msg:script """
-		return this.calliConstruct(this, 'view');
-	""".
-
+# POST /page/MainPage.xhtml?copy
 :PostTemplateCopy owl:intersectionOf (</callimachus/operations/copy.ttl#PostCopy>
 		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
 	msg:script """
@@ -61,9 +41,32 @@
 		return created;
 	""".
 
+# GET /page/MainPage
+:FindWikiPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [
+		owl:intersectionOf (<WikiPage> [owl:complementOf calli:Viewable])]];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET", "HEAD";
+	msg:expect "302-found";
+	msg:imports calli:Viewable;
+	msg:script """
+		var page = this.objectConnection.getObject(this.toString() + ".xhtml");
+		if (page instanceof Viewable)
+			return page.toString() + "?view";
+		return page.toString() + "?edit";
+	""".
+
+# GET /page/MainPage.xhtml?view
+:GetPage owl:intersectionOf (</callimachus/operations/view.ttl#GetViewPage>
+		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
+	msg:script """
+		return this.calliConstruct(this, 'view');
+	""".
+
+# GET /page/NewPage.xhtml?edit
 :CreateWikiPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [
-		owl:intersectionOf (<WikiPage> [owl:complementOf calli:Page])]];
+		owl:intersectionOf (<WikiPage> [owl:complementOf calli:Viewable])]];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET", "HEAD";
 	msg:query "edit";
@@ -74,18 +77,54 @@
 		return page_edit_xhtml.calliConstructHTML(this);
 	""".
 
+# GET /page/MainPage.xhtml
+:GetPageSource rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "application/xhtml+xml";
+	msg:header "cache-control:must-revalidate";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
+
 :local a calli:LocalRealm;
 	calli:domain </page/>.
 
+# PUT /page/MainPage.xhtml
 :PutWikiPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <WikiPage>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:realm </accounts>, :local;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:imports <Page>;
 	msg:script """
-		this.PutXhtmlDocument("application/xhtml+xml", xhtmlStream);
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+
+		con.removeDesignation(this, Page);
+		this.calliDeleteWebResource();
+
+		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		con.add(this.resource, RDFS.LABEL, label, []);
+
 		this.objectConnection.addDesignation(this, Page);
+		this.objectConnection.addDesignation(this, "http://callimachusproject.org/rdf/2009/framework#Page");
+
+		var read;
+		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+		var out = this.openOutputStream();
+		try {
+			while ((read = xhtmlStream.read(buf)) >= 0) {
+				out.write(buf, 0, read);
+			}
+		} finally {
+			out.close();
+		}
+		HTTPObjectServer.resetAllCache();
 	""".
 
 :xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;

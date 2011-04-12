@@ -17,9 +17,6 @@ http://callimachusproject.org.
 Please consider joining the mailing lists and participating in the
 online community so we can serve you better.
 
-Version-specific information is contained in the file RELEASENOTES.txt.
-There are no release notes for the first release.
-
 This software is licensed as defined in the accompanying files
 LICENSE.txt and LEGAL.txt.  These files may be found in the
 installation directory.
@@ -43,7 +40,7 @@ for the server to read runtime changes in the webapps directory.
 - 2) Extract jnotify-native-linux-0.93-src.zip
 - 3) Edit the JDK include paths in jnotify_linux/Release/subdir.mk
 - 4) Move the include statement for "unistd.h" up above "sys/time.h" in net_contentobjects_jnotify_linux_JNotify_linux.c
-- 5) cd Release/ && make && cp libjnotify.so ~/$CALLIMACHUS/lib/
+- 5) cd Release/ && make && cp libjnotify.so $CALLIMACHUS/lib/
 More detailed instructions for creating your own libjnotify.so file can be found at
 http://jnotify.sourceforge.net/
 
@@ -69,13 +66,13 @@ Once you have the source code checked out, you can execute 'ant run' from a
 command line in the top directory to run the server.
 
 Files with the extension .ttl, .ttl.gz, .rdf, or .rdf.gz will be loaded as 
-graphs into the RDF store. Any RDF Schema or OWL ontologies will be compiled 
-as defined in AliBaba (http://www.openrdf.org/).
+graphs into the RDF store. Any RDF Schema or OWL ontologies in .ttl will be
+compiled as defined in AliBaba (http://www.openrdf.org/).
 
 Classes that are subclasses of calli:Viewable (and other calli-able classes) 
-should use calli annotations, such as calli:view to identify XML/RDFa 
+should use calli annotations, such as calli:view to identify XHTML+RDFa 
 template files for display actions against individuals of the class. See the 
-callimachus-ontology.ttl file for details.
+$CALLIMACHUS/webapps/callimachus/callimachus-ontology.ttl file for more details.
 
 The calli Realm classes can be used to declare an authorization realms. Use 
 the http:realm annotation to assign a realm to a message type or class. See 

@@ -28,3 +28,51 @@ I.  Open Source Components
     LICENSE:  BSD
               http://www.opensource.org/licenses/bsd-license.php
 
+    OpenRDF Sesame
+    Source:   http://www.openrdf.org/
+    URL:      http://www.openrdf.org/
+    LICENSE:  Aduna BSD-style license
+              http://www.opensource.org/licenses/bsd-license.php
+
+    jchardet
+    Source:   http://jchardet.sourceforge.net/
+    URL:      http://jchardet.sourceforge.net/
+    LICENSE:  MOZILLA PUBLIC LICENSE Version 1.1
+              http://www.mozilla.org/MPL/MPL-1.1.txt
+
+    Apache Java Libraries
+    Source:   http://apache.org/
+    URL:      http://apache.org/
+    LICENSE:  Apache License, Version 2.0
+              http://www.apache.org/licenses/LICENSE-2.0.html
+
+    Closure Compiler
+    Source:   http://code.google.com/closure/compiler/
+    URL:      http://code.google.com/closure/compiler/
+    LICENSE:  BSD
+              http://www.opensource.org/licenses/bsd-license.php
+
+    Javassist
+    Source:   http://www.csg.is.titech.ac.jp/~chiba/javassist/
+    URL:      http://www.csg.is.titech.ac.jp/~chiba/javassist/
+    LICENSE:  MPL
+              http://www.mozilla.org/MPL/MPL-1.1.txt
+
+    JNotify
+    Source:   http://jnotify.sourceforge.net/
+    URL:      http://jnotify.sourceforge.net/
+    LICENSE:  GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
+              http://www.gnu.org/licenses/lgpl-2.1.txt
+
+    JavaMail
+    Source:   http://www.oracle.com/technetwork/java/javamail/index.html
+    URL:      http://www.oracle.com/technetwork/java/javamail/index.html
+    LICENSE:  BSD
+              http://www.opensource.org/licenses/bsd-license.php
+
+    SLF4j
+    Source:   http://www.slf4j.org/
+    URL:      http://www.slf4j.org/
+    LICENSE:  MIT license
+              http://www.slf4j.org/license.html
+

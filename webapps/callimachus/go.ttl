@@ -55,7 +55,7 @@
 			var iri = uri.toString();
 			var viewable = con.getObject(iri) instanceof Viewable;
 			var Origin = vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin");
-			var authority = con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
+			var authority = origin && con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
 			if (viewable && authority && (uri.query || uri.fragment)) { //# complex resource URI
 				var url = origin + "diverted;" + URLEncoder.encode(iri) + '?view';
 				return url;

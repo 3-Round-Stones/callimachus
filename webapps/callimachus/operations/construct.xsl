@@ -60,7 +60,7 @@
 					<xsl:apply-templates
 						select="$html/@*|$html/*|$html/text()|$html/comment()">
 						<xsl:with-param name="about" select="$about" />
-						<xsl:with-param name="top" select="$element='/1'" />
+						<xsl:with-param name="top" select="true()" />
 						<xsl:with-param name="scope" select="$newscope" />
 					</xsl:apply-templates>
 				</xsl:element>

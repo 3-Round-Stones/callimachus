@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:vcard="http://www.w3.org/2006/vcard/ns#">
+<head>
+	<title>New Email Address</title>
+	<script type="text/javascript"><![CDATA[
+		$(document).ready(function(){
+			$('#form').submit(function(){
+				$('#form').attr('about','mailto:' + $('#value').val().toLowerCase() ) ;
+			});
+		});
+	]]></script>
+</head>
+<body>
+	<form id="form" about="?this" typeof="vcard:Email" class="diverted">
+		<label for="type">Type</label>
+		<div id="type">
+			<label rel="rdf:type" resource="?emailtype" style="display:block">
+				<input type="checkbox" name="emailtype" checked="checked" />
+				<span rel="rdfs:subClassOf" resource="http://www.w3.org/2006/vcard/ns#Email" property="rdfs:label"/>
+			</label>
+		</div>
+		<label for="value">Address</label>
+		<div data-cardinality="1">
+			<input id="value" class="required" property="rdf:value" />
+		</div>
+		<button id="submit" type="submit">Create</button>
+	</form>
+</body>
+</html>

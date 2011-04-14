@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:vcard="http://www.w3.org/2006/vcard/ns#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<head>
+	<title about="" property="vcard:fn" >JOHN DOE</title>
+	<style>
+		span.term { margin-right: 1ex }
+		td { vertical-align: top }
+	</style>
+	<script type="text/javascript"><![CDATA[
+		$(document).ready(function(){
+			$('#form').submit(function(){
+				var encoded = encodeURIComponent($('#fn').val()).replace(/%20/g, '+').toLowerCase()
+				$('#form').attr('about','/vcard/' + encoded ) ;
+			});
+		});
+	]]></script>
+</head>
+<body>
+	<form id="form" about="" typeof="vcard:VCard">
+		<label for="photo">Photo</label>
+		<div id="photo" rel="foaf:depiction" data-prompt="/callimachus/Image?create">
+			<span about="photo" rel="rdf:type" resource="/callimachus/Image" property="rdfs:label" />
+		</div>
+		<label for="fn">Full Name</label>
+		<div data-cardinality="1">
+			<input id="fn" class="required" property="vcard:fn" >JOHN DOE</input>
+		</div>
+		<label for="category">Category</label>
+		<div>
+			<input id="category" property="vcard:category" >CATEGORY</input>
+		</div>
+		<label id="role">Job</label>
+		<div>
+			<span data-cardinality="1">
+				<input id="role" title="Role" property="vcard:role" >DIRECTOR</input>
+			</span>
+			<span rel="vcard:org" data-cardinality="1">
+				<span>
+					<span data-cardinality="1">
+						<input title="Organization name" property="vcard:organization-name" >ORG</input>
+					</span>
+					<span data-cardinality="1">
+						<input title="Organization unit" property="vcard:organization-unit" >UNIT</input>
+					</span>
+				</span>
+			</span>
+		</div>
+		<label for="email">Email</label>
+		<div id="email" rel="vcard:email" data-prompt="/directory/Email?create">
+			<span about="email">
+				<span rel="rdf:type">
+					<span class="asc term" rel="rdfs:subClassOf" resource="http://www.w3.org/2006/vcard/ns#Email" property="rdfs:label">EMAIL</span>
+				</span>
+				<span property="rdf:value" >JOHN@DOE</span>
+			</span>
+		</div>
+		<label for="tel">Telephone</label>
+		<div id="tel" rel="vcard:tel" style="overflow:auto"/>
+		<label for="adr">Address</label>
+		<div id="adr" rel="vcard:adr"/>
+		<label for="note">Note</label>
+		<div id="note" data-cardinality="1"/>
+		<button id="submit" type="submit">Create</button>
+	</form>
+</body>
+</html>

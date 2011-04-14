@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:vcard="http://www.w3.org/2006/vcard/ns#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<head>
+	<title about="?this" property="vcard:fn" />
+	<style>
+		span.term { margin-right: 1ex }
+		td { vertical-align: top }
+	</style>
+	<script type="text/javascript"><![CDATA[
+		$(document).ready(function(){
+			$('#form').submit(function(){
+				var encoded = encodeURIComponent($('#fn').val()).replace(/%20/g, '+').toLowerCase()
+				$('#form').attr('about','/vcard/' + encoded ) ;
+			});
+		});
+	]]></script>
+</head>
+<body>
+	<form id="form" about="?this" typeof="vcard:VCard">
+		<label for="photo">Photo</label>
+		<div id="photo" rel="foaf:depiction" data-prompt="/callimachus/Image?create">
+			<span about="?photo" rel="rdf:type" resource="/callimachus/Image" property="rdfs:label" />
+		</div>
+		<label for="fn">Full Name</label>
+		<div data-cardinality="1">
+			<input id="fn" class="required" property="vcard:fn" />
+		</div>
+		<label for="category">Category</label>
+		<div>
+			<input id="category" property="vcard:category" />
+		</div>
+		<label id="role">Job</label>
+		<div>
+			<span data-cardinality="1">
+				<input id="role" title="Role" property="vcard:role" />
+			</span>
+			<span rel="vcard:org" data-cardinality="1">
+				<span>
+					<span data-cardinality="1">
+						<input title="Organization name" property="vcard:organization-name" />
+					</span>
+					<span data-cardinality="1">
+						<input title="Organization unit" property="vcard:organization-unit" />
+					</span>
+				</span>
+			</span>
+		</div>
+		<label for="email">Email</label>
+		<div id="email" rel="vcard:email" data-prompt="/directory/Email?create">
+			<span about="?email">
+				<span rel="rdf:type">
+					<span class="asc term" rel="rdfs:subClassOf" resource="http://www.w3.org/2006/vcard/ns#Email" property="rdfs:label"/>
+				</span>
+				<span property="rdf:value" />
+			</span>
+		</div>
+		<label for="tel">Telephone</label>
+		<div id="tel" rel="vcard:tel" style="overflow:auto">
+			<div style="float:left" typeof="vcard:Tel">
+				<div>
+					<select multiple="multiple" size="4">
+						<option rel="rdf:type" resource="?teltype">
+							<span rel="rdfs:subClassOf" resource="http://www.w3.org/2006/vcard/ns#Tel" property="rdfs:label"/>
+						</option>
+					</select>
+				</div>
+				<span data-cardinality="1">
+					<input property="rdf:value" />
+				</span>
+			</div>
+		</div>
+		<label for="adr">Address</label>
+		<div id="adr" rel="vcard:adr">
+			<div typeof="vcard:Address" style="overflow:auto">
+				<div style="float:left">
+					<label form="form">Type</label>
+					<select multiple="multiple" size="5">
+						<option rel="rdf:type" resource="?adrtype">
+							<span rel="rdfs:subClassOf" resource="http://www.w3.org/2006/vcard/ns#Address" property="rdfs:label"/>
+						</option>
+					</select>
+				</div>
+				<div style="float:left">
+					<label form="form">Address</label>
+					<div data-cardinality="1">
+						<input title="Street address" property="vcard:street-address" />
+					</div>
+					<div data-cardinality="1">
+						<input title="Extended address" property="vcard:extended-address" />
+					</div>
+					<div data-cardinality="1">
+						<input title="PO box" property="vcard:post-office-box" />
+					</div>
+				</div>
+				<div style="float:left">
+					<label form="form">Region</label>
+					<div data-cardinality="1">
+						<input title="City" property="vcard:locality" />
+					</div>
+					<div data-cardinality="1">
+						<input title="Code" property="vcard:postal-code" />
+					</div>
+					<div data-cardinality="1">
+						<input title="State/Province" property="vcard:region" />
+					</div>
+					<div data-cardinality="1">
+						<input title="Country" property="vcard:country-name" />
+					</div>
+				</div>
+			</div>
+		</div>
+		<label for="note">Note</label>
+		<div id="note" data-cardinality="1">
+			<textarea id="note" class="auto-expand" property="vcard:note" />
+		</div>
+		<button id="submit" type="submit">Create</button>
+	</form>
+</body>
+</html>

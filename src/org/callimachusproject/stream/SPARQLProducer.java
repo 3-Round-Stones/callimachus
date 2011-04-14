@@ -169,12 +169,12 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			if (context.isGroup() && !context.hasSubject() && !chained(previousPattern,subj)) 
 				context = context.close();
 
+			// create a (unbracketed triple block) context for the new subject
+			context = new Context(subj).open();	
+			
 			// assemble mandatory conditions at the beginning of the block
 			// if not in a union mandatory triples are inner-joined
 			context = addMandatoryTriples(context);
-			
-			// create a (unbracketed triple block) context for the new subject
-			context = new Context(subj).open();	
 			
 			// subjects chained to the previous triple can be left-joined
 			// this may be a singleton if no optional properties are defined

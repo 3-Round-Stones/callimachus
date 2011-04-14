@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:vcard="http://www.w3.org/2006/vcard/ns#">
+<head>
+	<title>Directory Listing</title>
+	<script>
+		$(document).ready(function() {
+			if ($("#results").children().size() == 0) {
+				$("#results").parent().after("<p>No contacts</p>");
+			}
+		})
+	</script>
+</head>
+<body>
+	<ul class="aside">
+		<li><a href="VCard?create">Create new Contact</a></li>
+	</ul>
+	<h1>Contact Listing</h1>
+	<table>
+		<thead>
+			<tr>
+				<th>Full Name</th>
+				<th>Email</th>
+				<th>Business Phone</th>
+				<th>Home Phone</th>
+				<th>Mobile Phone</th>
+			</tr>
+		</thead>
+		<tbody id="results" class="sorted">
+		</tbody>
+	</table>
+</body>
+</html>

@@ -90,7 +90,7 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
 /**
- * Dymnamic Test Suite for the generation of RDFa pages from RDFa templates.
+ * Dymnamic Test Suite for the generation of XHTML+RDFa pages from RDFa templates.
  * 
  * @author Steve Battle
  * 

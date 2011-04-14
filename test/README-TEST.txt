@@ -140,7 +140,17 @@ ant -Dsuite=/callimachus/test/directory/directory.html -Dbrowser=*firefox -Dresu
 RDFa Conformance Tests
 ----------------------
 
-The ant scripts include tests for RDFa conformance (RDFaParser). This downloads the RDFa conformance test-suite from <http://rdfa.digitalbazaar.com/test-suite/> parses the XHTML including the RDFa, and evaluates the sparql against the output. The results are written to 'test/RDFa/rdfa-conformance-test-results.txt'.
+The ant script includes tests for RDFa conformance (RDFaParser). This downloads the RDFa conformance test-suite from <http://rdfa.digitalbazaar.com/test-suite/> parses the XHTML including the RDFa, and evaluates the sparql against the output. The results are written to 'test/RDFaConformance/rdfa-conformance-test-results.txt'.
 
 ant test-rdfa-conformance
+
+XHTML+RDFa Generation Tests
+---------------------------
+
+The ant script includes tests for the XHTML+RDFa generation. These tests are dynamically driven from the contents of the 'test/RDFaGeneration/test-suite/test-cases' directory. Test results are written to 'test/RDFaGeneration/rdfa-generation-test-results.txt'. Currently, there are three kinds of test
+1) Legacy test - checking GraphPatternReader (query) and RDFStoreReader (results) with construct.xsl (transform).
+2) Union test - checking generation of union/construct queries by SPARQLProducer and SPARQLResultReader with construct.xsl.
+3) Fragment test - checking the generation of XHTML+RDFa fragments by SPARQLProducer and SPARQLResultReader with construct.xsl.
+
+ant test-rdfa-generation
 

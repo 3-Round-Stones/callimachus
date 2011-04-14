@@ -9,7 +9,7 @@
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
-    <title about="" property="rdfs:label" >JOHN DOE</title>
+    <title about="" property="rdfs:label" >ME</title>
 	<link href='http://fonts.googleapis.com/css?family=UnifrakturMaguntia' rel='stylesheet' type='text/css' />
 	<style>
 		h1 { font-family: 'UnifrakturMaguntia', arial, serif; }
@@ -41,7 +41,7 @@
 </head>
 <body about="">
 	<div style="float:right">
-		<ul class="aside" rel="foaf:member" resource="siblings">
+		<ul class="aside" rev="foaf:member" resource="siblings">
 			<li rev="gene:parentTo" resource="father">
 				<label>F</label>
 				<span property="foaf:gender" content="M" style="display:none" />
@@ -67,6 +67,14 @@
 						<a href="sibling2" property="rdfs:label" >BROTHER</a>
 						<span rel="bio:event" style="font-size:small">
 							<span about="siblingbirth2" typeof="bio:Birth" property="bio:date" class="asc year">1971-01-01</span>
+						</span>
+					</div>
+				</div>
+				<div rel="foaf:member" class="sorted">
+					<div about="">
+						<a href="" property="rdfs:label" >ME</a>
+						<span rel="bio:event" style="font-size:small">
+							<span about="birth" typeof="bio:Birth" property="bio:date" class="asc year">1972-01-01</span>
 						</span>
 					</div>
 				</div>
@@ -96,7 +104,7 @@
 			</li>
 		</ul>
 	</div>
-	<h1><a href="" property="rdfs:label" >JOHN DOE</a></h1>
+	<h1><a href="" property="rdfs:label" >ME</a></h1>
 	<div rel="foaf:img" style="float:left;margin: 0px 1ex 1ex 0px;max-width:50%">
 		<a about="photo" href="photo">
 			<img about="photo" data-query="medium" style="max-height:100%;max-width:10em" />
@@ -107,7 +115,7 @@
 		<div about="birth" typeof="bio:Birth">
 			<label>Born</label>
 			<span property="bio:date" class="asc date-locale" >1972-01-01</span>
-			<span property="rdfs:label" >AGE</span>
+			<span property="rdfs:label" >DOB</span>
 			<div rel="bio:place" style="font-size:small">
 				<span property="v:label" >PLACE</span>
 			</div>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title>Page Authorization</title>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li>Contributors can create pages and edit pages they created</li>
+		<li>Editors can create and edit any page</li>
+	</ul>
+	<h1>Page Authorization</h1>
+	<form id="form" action="" about="?this">
+		<div class="hbox">
+			<div>
+				<label for="contributor">Contributor</label>
+				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
+					<div about="?contributor" property="rdfs:label"/>
+				</div>
+			</div>
+			<div>
+				<label for="editor">Editor</label>
+				<div id="editor" rel="calli:editor" data-prompt="/accounts">
+					<div about="?editor" property="rdfs:label"/>
+				</div>
+			</div>
+		</div>
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+	</form>
+</body>
+</html>

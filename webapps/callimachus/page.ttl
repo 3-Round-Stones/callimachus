@@ -21,30 +21,24 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-[msg:matching </page/*>] rdfs:subClassOf <WikiPage>.
+<PageClass> rdfs:subClassOf calli:Viewable, calli:Editable, owl:Class;
+	calli:view <page-list.xhtml>;
+	calli:edit <page-auth.xhtml>;
+	calli:editor </group/admin>.
 
-<WikiPage> calli:editor </group/admin>.
-
-<Page> rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Page;
+<Page> a calli:Creatable, <PageClass>;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Page;
 	calli:icon <page.png>;
 	calli:edit <page-edit.xhtml>;
 	calli:copy <page-copy.xhtml>;
-	calli:withNamespace </page/>.
-
-# POST /page/MainPage.xhtml?copy
-:PostTemplateCopy owl:intersectionOf (</callimachus/operations/copy.ttl#PostCopy>
-		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
-	msg:script """
-		var created = proceed();
-		this.objectConnection.commit();
-		created.PutWikiPage(new java.net.URL(this.toString()).openStream());
-		return created;
-	""".
+	calli:create <page-edit.xhtml>;
+	calli:withNamespace </page/>;
+	calli:editor </group/admin>.
 
 # GET /page/MainPage
 :FindWikiPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [
-		owl:intersectionOf (<WikiPage> [owl:complementOf calli:Viewable])]];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (
+		[msg:matching </page/*>] [owl:complementOf calli:Viewable])]];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET", "HEAD";
 	msg:expect "302-found";
@@ -52,8 +46,8 @@
 	msg:script """
 		var page = this.objectConnection.getObject(this.toString() + ".xhtml");
 		if (page instanceof Viewable)
-			return page.toString() + "?view";
-		return page.toString() + "?edit";
+			return page + "?view";
+		return page.toUri().resolve("/callimachus/Page") + "?create#!" + page.toUri().getPath();
 	""".
 
 # GET /page/MainPage.xhtml?view
@@ -61,20 +55,6 @@
 		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
 	msg:script """
 		return this.calliConstruct(this, 'view');
-	""".
-
-# GET /page/NewPage.xhtml?edit
-:CreateWikiPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [
-		owl:intersectionOf (<WikiPage> [owl:complementOf calli:Viewable])]];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET", "HEAD";
-	msg:query "edit";
-	msg:realm </accounts>;
-	msg:type "text/html";
-	msg:imports <page-edit.xhtml> ;
-	msg:script """
-		return page_edit_xhtml.calliConstructHTML(this);
 	""".
 
 # GET /page/MainPage.xhtml
@@ -87,24 +67,78 @@
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
+# POST /page/MainPage.xhtml?copy
+:PostTemplateCopy owl:intersectionOf (</callimachus/operations/copy.ttl#PostCopy>
+		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
+	msg:script """
+		var created = proceed();
+		this.objectConnection.commit();
+		created.UploadPage(new java.net.URL(this.toString()).openStream());
+		return created;
+	""".
+
+# POST /callimachus/Page?create
+:CreatePage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Page>];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	msg:method "POST";
+	msg:query "create";
+	msg:expect "201-created";
+	msg:type "text/uri-list";
+	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports calli:Page;
+	msg:script """
+		if (!location) {
+			throw new BadRequest("Missing location request header");
+		}
+		var template = this.calliCreate;
+		if (!template)
+			throw new InternalServerError("No create template");
+		var created = this.objectConnection.getObject(this.toUri().resolve(location).toString());
+		if (!created.toString().startsWith(this.toUri().resolve("/page/").toString())) {
+			throw new BadRequest("Wrong location namespace");
+		}
+		if (created instanceof Page) {
+			throw new BadRequest("Page already exists");
+		}
+		created = this.objectConnection.addDesignation(created, this.toString());
+		created.calliEditors.addAll(this.calliEditors);
+		created.calliAdministrators.addAll(this.calliEditors);
+		created.calliAdministrators.addAll(this.FindCreateContributor(created));
+		this.touchRevision(); // update index page
+		this.objectConnection.commit();
+		created.UploadPage(inputStream);
+		return created;
+	""".
+
+:location a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :CreatePage;
+	rdfs:range xsd:string;
+	msg:header "Location".
+
+:inputStream a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :CreatePage;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "application/xhtml+xml".
+
 :local a calli:LocalRealm;
 	calli:domain </page/>.
 
 # PUT /page/MainPage.xhtml
-:PutWikiPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <WikiPage>];
+:UploadPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:realm </accounts>, :local;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	msg:imports <Page>;
+	msg:imports calli:Page;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
 
-		con.removeDesignation(this, Page);
 		this.calliDeleteWebResource();
 
 		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
@@ -112,7 +146,6 @@
 		con.add(this.resource, RDFS.LABEL, label, []);
 
 		this.objectConnection.addDesignation(this, Page);
-		this.objectConnection.addDesignation(this, "http://callimachusproject.org/rdf/2009/framework#Page");
 
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
@@ -128,7 +161,7 @@
 	""".
 
 :xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :PutWikiPage;
+	rdfs:domain :UploadPage;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "application/xhtml+xml".
 

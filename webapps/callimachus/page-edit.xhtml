@@ -7,7 +7,13 @@
 	<script type="text/javascript" src="/callimachus/scripts/jquery.wymeditor.js"> </script>
 	<script type="text/javascript"><![CDATA[
 	jQuery(function($){
-		var local = $('body').attr('about').replace(/.*\//, '').replace(/\.[a-zA-Z]+$/, '');
+		var url = $('body').attr('about');
+		var conditional = {'If-Match': $('meta[http-equiv="etag"]').attr('content')};
+		if (location.hash && location.hash.indexOf('#!') == 0) { // new page
+			url = location.hash.substring(2);
+			conditional = {};
+		}
+		var local = url.replace(/.*\//, '').replace(/\.[a-zA-Z]+$/, '');
 		var label = decodeURIComponent(local);
 		var page = [null, '<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>' + label + '</title></head><body about="?this">', '<h1>' + label + '</h1>','</body></html>'];
 		function outter(node) {
@@ -41,33 +47,77 @@
 			dialogLinkHtml: outter($('.wym_dialog_link'))
 		});
 		$(window).one('load', function() {
-			jQuery.ajax({
-				type: "GET", url: $('body').attr('about'),
-				complete: function(xhr) {
-					if (xhr.readyState == 4) {
-						if (xhr.status == 200) {
-							var type = xhr.getResponseHeader("Content-Type");
-							if (type && type.indexOf('application/xhtml+xml') == 0) {
-								page = xhr.responseText.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
-								$('#create').hide();
-								$('#abort').hide();
-								$('#save').show();
-								$('#cancel').show();
-								$('#delete').show();
+			if (conditional['If-Match']) {
+				jQuery.ajax({
+					type: "GET", url: url,
+					complete: function(xhr) {
+						if (xhr.readyState == 4) {
+							if (xhr.status == 200) {
+								var type = xhr.getResponseHeader("Content-Type");
+								if (type && type.indexOf('application/xhtml+xml') == 0) {
+									page = xhr.responseText.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
+									$('#create').hide();
+									$('#abort').hide();
+									$('#save').show();
+									$('#cancel').show();
+									$('#delete').show();
+								}
 							}
+							jQuery.wymeditors(0)._html = page[2];
+							window.WYMeditor.INSTANCES[0].initIframe($('#iframe')[0]);
+							$('#iframe').trigger('load');
+							setTimeout(function(){
+								if (!$('body', $('#iframe')[0].contentWindow.document).children().length) {
+									// IE need this called twice on first load (reload doesn't seem to work)
+									window.WYMeditor.INSTANCES[0].initIframe($('#iframe')[0]);
+								}
+							}, 1000);
 						}
-						jQuery.wymeditors(0)._html = page[2];
-						window.WYMeditor.INSTANCES[0].initIframe($('#iframe')[0]);
-						$('#iframe').trigger('load');
-						setTimeout(function(){
-							if (!$('body', $('#iframe')[0].contentWindow.document).children().length) {
-								// IE need this called twice on first load (reload doesn't seem to work)
-								window.WYMeditor.INSTANCES[0].initIframe($('#iframe')[0]);
-							}
-						}, 1000);
 					}
-				}
-			});
+				});
+			} else { // new page
+				jQuery.wymeditors(0)._html = page[2];
+				window.WYMeditor.INSTANCES[0].initIframe($('#iframe')[0]);
+				$('#iframe').trigger('load');
+				setTimeout(function(){
+					if (!$('body', $('#iframe')[0].contentWindow.document).children().length) {
+						// IE need this called twice on first load (reload doesn't seem to work)
+						window.WYMeditor.INSTANCES[0].initIframe($('#iframe')[0]);
+					}
+				}, 1000);
+			}
+		});
+		$('#form').submit(function(event) {
+			var body = jQuery.wymeditors(0).xhtml();
+			var html = page[1] + body + page[3];
+			if (conditional['If-Match']) {
+				jQuery.ajax({
+					type: "PUT", url: url,
+					headers: conditional,
+					beforeSend: function(xhr) {
+						xhr.setRequestHeader('If-Match', $('meta[http-equiv="etag"]').attr('content'));
+					},
+					contentType: 'application/xhtml+xml',
+					data: html,
+					success: function() {
+						location = url + "?view";
+					}
+				});
+			} else { // new page
+				jQuery.ajax({
+					type: "POST", url: location,
+					beforeSend: function(xhr) {
+						xhr.setRequestHeader('Location', url);
+					},
+					contentType: 'application/xhtml+xml',
+					data: html,
+					success: function() {
+						location = url + "?view";
+					}
+				});
+			}
+			event.preventDefault();
+			return false;
 		});
 		$(document).bind('calliCreate', function(event) {
 			if (event.rdfType == "foaf:Image") {
@@ -76,21 +126,6 @@
 					window.dialog.dialog('close');
 				}
 			}
-		});
-		$('#form').submit(function(event) {
-			var body = jQuery.wymeditors(0).xhtml();
-			var html = page[1] + body + page[3];
-			jQuery.ajax({
-				type: "PUT", url: $('body').attr('about'),
-				headers: {'If-Match': $('meta[http-equiv="etag"]').attr('content')},
-				contentType: 'application/xhtml+xml',
-				data: html,
-				success: function() {
-					location = "?view";
-				}
-			});
-			event.preventDefault();
-			return false;
 		});
 	});
 	]]></script>

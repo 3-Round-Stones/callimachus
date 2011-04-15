@@ -49,13 +49,6 @@
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "application/rdf+xml".
 
-:FindCreateNamespaces rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
-	msg:sparql  """
-		SELECT DISTINCT ?namespace
-		WHERE { $this calli:withNamespace ?namespace }
-	""".
-
 # find the user that created $thing if they are not editors or $this
 :FindCreateContributor rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];

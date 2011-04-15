@@ -37,7 +37,7 @@ function postCreate(msg) {
 	var template = this.calliCreate;
 	if (!template)
 		throw new InternalServerError("No create template");
-	var newCopy = template.calliCreateResource(this, msg.input, this.FindCreateNamespaces());
+	var newCopy = template.calliCreateResource(this, msg.input, this.calliWithNamespace);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
 	if (newCopy instanceof Copyable) {
 		newCopy.calliEditors.addAll(this.calliEditors);

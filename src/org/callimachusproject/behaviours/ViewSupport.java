@@ -216,6 +216,9 @@ public abstract class ViewSupport implements Page, RDFObject,
 	private String getETag(String uri) throws RepositoryException {
 		ObjectConnection con = getObjectConnection();
 		VersionedObject target = (VersionedObject) con.getObject(uri);
-		return "W/" + '"' + target.revision() + '"';
+		String revision = target.revision();
+		if (revision == null)
+			return null;
+		return "W/" + '"' + revision + '"';
 	}
 }

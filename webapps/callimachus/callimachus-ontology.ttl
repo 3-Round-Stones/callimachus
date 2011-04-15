@@ -128,6 +128,9 @@ calli:edit a owl:AnnotationProperty;
 calli:view a owl:AnnotationProperty;
 	rdfs:comment "The RDFa page template used to display individual resources of this class in a Web browser.".
 
+calli:withNamespace a owl:AnnotationProperty;
+	rdfs:comment "Restricts the possible namespace of resources created from this class or template.".
+
 ################################
 # Property
 ################################

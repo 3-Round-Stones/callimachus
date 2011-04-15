@@ -1245,8 +1245,8 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
  * @description Shows/Hides the HTML
  */
 WYMeditor.editor.prototype.toggleHtml = function() {
-  jQuery(this._box).find(this._options.iframeSelector).toggle();
   jQuery(this._box).find(this._options.htmlSelector).toggle();
+  jQuery(this._box).find(this._options.iframeSelector).toggle();
 };
 
 WYMeditor.editor.prototype.uniqueStamp = function() {

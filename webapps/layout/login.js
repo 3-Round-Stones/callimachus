@@ -178,8 +178,10 @@ $(document).ready(function(){
 					$(document).trigger(event);
 				} else if (!xhr.getAllResponseHeaders()) { // Opera sends empty response; try again w/o cache
 					xhr = jQuery.ajax({type: 'GET', url: location.href,
-						headers: {'Cache-Control': "no-cache"},
-						beforeSend: withCredentials,
+						beforeSend: function(xhr) {
+							xhr.setRequestHeader('Cache-Control', 'no-cache');
+							withCredentials(xhr);
+						},
 						success: function() {
 							if (xhr.getResponseHeader("Authentication-Info")) {
 								var event = jQuery.Event("calliLogin");

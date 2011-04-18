@@ -13,7 +13,7 @@
 </head>
 <body>
 	<form id="form" about="?this" typeof="owl:Class" action=""
-			onsubmit="$(this).attr('about', '/class/' + encodeURI($('#label').val()).replace(/%20/g,'+'))">
+			onsubmit="$(this).attr('about', $('#isDefinedBy').find('[about]').attr('about') + '/' + encodeURI($('#label').val()).replace(/%20/g,'+'))">
 		<span rel="rdf:type" resource="/callimachus/owl/Class" />
 		<h1>
 			<span id="isDefinedBy" rel="rdfs:isDefinedBy">

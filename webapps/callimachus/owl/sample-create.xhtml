@@ -9,7 +9,7 @@
 <body about="?this">
 	<h1 property="rdfs:label" />
 	<form id="form" about="?this" typeof="" action=""
-			onsubmit="$(this).attr('about', '/resource/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
+			onsubmit="$(this).attr('about', $('body').attr('about') + '/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
 		<label for="label">Label</label>
 		<div data-cardinality="1">
 			<input id="label" property="rdfs:label" class="required auto-expand" />

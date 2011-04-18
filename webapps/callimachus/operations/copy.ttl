@@ -50,11 +50,11 @@
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "application/rdf+xml".
 
-:FindCopyNamespaces rdfs:subClassOf msg:Message;
+:FindCopyUriSpaces rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
 	msg:sparql  """
 		SELECT DISTINCT ?namespace
-		WHERE { $this a [calli:withNamespace ?namespace] }
+		WHERE { $this a [calli:uriSpace ?namespace] }
 	""".
 
 # find the user that created $thing if they are not editors of $this

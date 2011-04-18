@@ -59,7 +59,7 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
 public abstract class CreateSupport implements Page {
 
 	public RDFObject calliCreateResource(final RDFObject source, InputStream in,
-			final Set<?> namespaces) throws Exception {
+			final Set<?> spaces) throws Exception {
 		try {
 			final ObjectConnection con = source.getObjectConnection();
 			final ValueFactory vf = con.getValueFactory();
@@ -104,7 +104,7 @@ public abstract class CreateSupport implements Page {
 			URI subject = tracker.getSubject();
 			String uri = subject.stringValue();
 			new java.net.URI(uri);
-			checkNamespace(namespaces, uri);
+			checkUriSpace(spaces, uri);
 			ObjectFactory of = con.getObjectFactory();
 			return of.createObject(subject, tracker.getTypes());
 		} catch (URISyntaxException  e) {
@@ -116,10 +116,10 @@ public abstract class CreateSupport implements Page {
 		}
 	}
 
-	private void checkNamespace(final Set<?> namespaces, String uri) {
-		if (namespaces != null && !namespaces.isEmpty()) {
+	private void checkUriSpace(final Set<?> spaces, String uri) {
+		if (spaces != null && !spaces.isEmpty()) {
 			boolean found = false;
-			Iterator<?> iter = namespaces.iterator();
+			Iterator<?> iter = spaces.iterator();
 			try {
 				while (iter.hasNext()) {
 					String ns = iter.next().toString();
@@ -132,13 +132,8 @@ public abstract class CreateSupport implements Page {
 								break;
 							}
 						} else {
-							int e = local.length() - 2;
-							if (local.lastIndexOf('/', e) == -1
-									&& local.lastIndexOf('#', e) == -1
-									&& local.lastIndexOf(':', e) == -1) {
-								found = true;
-								break;
-							}
+							found = true;
+							break;
 						}
 					}
 				}

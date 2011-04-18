@@ -32,7 +32,7 @@
 	calli:view <scheme.xhtml>;
 	calli:edit <scheme-edit.xhtml>;
 	calli:create <scheme-create.xhtml>;
-	calli:withNamespace </scheme/>;
+	calli:uriSpace </scheme/>;
 	calli:editor </group/admin>.
 
 :GetConcepts rdfs:subClassOf msg:Message;
@@ -51,6 +51,6 @@
 	calli:view <concept.xhtml>;
 	calli:edit <concept-edit.xhtml>;
 	calli:create <concept-create.xhtml>;
-	calli:withNamespace </concept/>;
+	calli:uriSpace </scheme/>;
 	calli:editor </group/admin>.
 

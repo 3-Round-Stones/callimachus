@@ -33,7 +33,7 @@
 	calli:view <ontology.xhtml>;
 	calli:edit <ontology-edit.xhtml>;
 	calli:create <ontology-create.xhtml>;
-	calli:withNamespace </ontology/>;
+	calli:uriSpace </rdf/>;
 	calli:editor </group/admin>.
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
@@ -43,7 +43,7 @@
 	calli:view <class.xhtml>;
 	calli:edit <class-edit.xhtml>;
 	calli:create <class-create.xhtml>;
-	calli:withNamespace </class/>;
+	calli:uriSpace </rdf/>;
 	calli:editor </group/admin>.
 
 :PostClassCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>

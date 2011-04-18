@@ -32,7 +32,7 @@
 	calli:edit <page-edit.xhtml>;
 	calli:copy <page-copy.xhtml>;
 	calli:create <page-edit.xhtml>;
-	calli:withNamespace </page/>;
+	calli:uriSpace </page/>;
 	calli:editor </group/admin>.
 
 # GET /page/MainPage

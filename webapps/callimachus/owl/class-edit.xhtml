@@ -37,18 +37,6 @@
 				subClassOf.children('[' + Editable + ']').remove();
 			}
 		}
-		jQuery(function($) {
-			if (!$('#namespace').length) {
-				$('#namespace-div').append('<input id="namespace" rel="calli:withNamespace" class="auto-expand" />');
-			}
-			$('#namespace').change(function() {
-				if ($(this).val()) {
-					$(this).attr('resource', $(this).val());
-				} else {
-					$(this).removeAttr('resource');
-				}
-			});
-		});
 		// ]]>
 	</script>
 </head>

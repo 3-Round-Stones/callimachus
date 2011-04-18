@@ -12,6 +12,9 @@ if (!window.calli) {
 window.calli.listResourceIRIs = function (text) {
 	var set = text ? text.replace(/\s+$/,"").replace(/^\s+/,"").replace(/\s+/,'\n') : "";
 	return $(set.split('\n')).filter(function() {
+		if (this.length <= 0) {
+			return false;
+		}
 		if (this.indexOf('>') >= 0 || this.indexOf('<') >= 0) {
 			return false;
 		}
@@ -48,19 +51,11 @@ window.calli.listResourceIRIs = function (text) {
 				uri = uri.substring(0, uri.indexOf('#'));
 			}
 			uri = decodeURIComponent(uri);
-		} else if (uri.indexOf('?view') >= 0) {
-			uri = uri.substring(0, uri.indexOf('?view'));
-		} else if (uri.indexOf('?edit') >= 0) {
-			uri = uri.substring(0, uri.indexOf('?edit'));
-		} else if (uri.indexOf('?discussion') >= 0) {
-			uri = uri.substring(0, uri.indexOf('?discussion'));
-		} else if (uri.indexOf('?describe') >= 0) {
-			uri = uri.substring(0, uri.indexOf('?describe'));
-		} else if (uri.indexOf('?history') >= 0) {
-			uri = uri.substring(0, uri.indexOf('?history'));
+		} else if (uri.indexOf('?') >= 0) {
+			uri = uri.substring(0, uri.indexOf('?'));
 		}
-		return uri;
-	})
+		return uri.substring(0);
+	});
 };
 
 })(jQuery);

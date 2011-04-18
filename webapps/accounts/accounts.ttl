@@ -32,7 +32,7 @@
 <User> rdfs:subClassOf calli:Viewable, calli:Editable, calli:User;
 	msg:realm </accounts>; # User operations must be authorized
 	calli:icon <user-favicon.png>;
-	calli:withNamespace </user/>;
+	calli:uriSpace </user/>;
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>.
 
@@ -48,7 +48,7 @@
 	calli:view <group.xhtml>;
 	calli:edit <group-edit.xhtml>;
 	calli:create <group-create.xhtml>;
-	calli:withNamespace </group/>.
+	calli:uriSpace </group/>.
 
 </group/admin> a calli:Group, <Group>;
 	rdfs:label "admin";

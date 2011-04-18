@@ -56,6 +56,13 @@ function initSetElements(form) {
 			this.attachEvent("ondragleave", dragleave);
 			this.attachEvent("ondrop", pasteURL(dragleave));
 		}
+		$(this).bind('calliLink', function(event) {
+			var script = $(event.target);
+			var uris = window.calli.listResourceIRIs(event.location);
+			uris.each(function() {
+				addSetItem(this, script);
+			});
+		});
 		list.prepend("<div style='font-style:italic;font-size:small'>Drag resource(s) here</div>");
 		var url = list.attr("data-search");
 		if (url && list.attr("data-prompt")) {
@@ -181,22 +188,13 @@ function pasteURL(callback) {
 		if (!data) {
 			data = window.clipboardData;
 		}
-		var uris = window.calli.listResourceIRIs(data.getData('URL'));
-		if (!uris.size()) {
-			uris = window.calli.listResourceIRIs(data.getData("Text"));
+		var text = data.getData('URL');
+		if (!text) {
+			text = data.getData("Text");
 		}
-		var selector = "[data-add]";
-		var script = $(target);
-		if (!script.children(selector).size()) {
-			$(target).parents().each(function() {
-				if ($(this).is(selector)) {
-					script = $(this);
-				}
-			})
-		}
-		uris.each(function() {
-			addSetItem(this, script);
-		})
+		var de = jQuery.Event('calliLink');
+		de.location = text;
+		$(target).trigger(de);
 		return callback(event);
 	}
 }

@@ -18,7 +18,7 @@ function getCopyPage() {
 
 function postCopy(msg) {
 	var template = findTemplate(this, copy);
-	var newCopy = template.calliCreateResource(this, msg.input, this.FindCopyNamespaces());
+	var newCopy = template.calliCreateResource(this, msg.input, this.FindCopyUriSpaces());
 	if (newCopy instanceof Copyable) {
 		newCopy.calliEditors.addAll(this.calliEditors);
 	}
@@ -37,7 +37,7 @@ function postCreate(msg) {
 	var template = this.calliCreate;
 	if (!template)
 		throw new InternalServerError("No create template");
-	var newCopy = template.calliCreateResource(this, msg.input, this.calliWithNamespace);
+	var newCopy = template.calliCreateResource(this, msg.input, this.calliUriSpace);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
 	if (newCopy instanceof Copyable) {
 		newCopy.calliEditors.addAll(this.calliEditors);

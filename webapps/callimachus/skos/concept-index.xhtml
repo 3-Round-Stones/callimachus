@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+<head>
+	<title>All Concepts</title>
+	<script>//<![CDATA[
+		jQuery(function($){
+			$('.result').each(function() {
+				var label = $(this).find('a').text();
+				if (label.match(/^[A-Za-z]/)) {
+					box = $('#' + label.substring(0, 1).toUpperCase());
+				} else {
+					box = $('#_');
+				}
+				box.append($(this));
+			});
+			$('#results').children().each(function() {
+				if (!$(this).children('div').length) {
+					$('#index').children('[href="#' + $(this).attr('id') + '"]').removeAttr('href');
+					$(this).remove();
+				}
+			});
+		});
+		// ]]>
+	</script>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li>New concepts can be created in a <a href="ConceptScheme">Concept Scheme</a></li>
+	</ul>
+	<h1>All Concepts</h1>
+	<div id="index">
+		<a href="#A">A</a>
+		<a href="#B">B</a>
+		<a href="#C">C</a>
+		<a href="#D">D</a>
+		<a href="#E">E</a>
+		<a href="#F">F</a>
+		<a href="#G">G</a>
+		<a href="#H">H</a>
+		<a href="#I">I</a>
+		<a href="#J">J</a>
+		<a href="#K">K</a>
+		<a href="#L">L</a>
+		<a href="#M">M</a>
+		<a href="#N">N</a>
+		<a href="#O">O</a>
+		<a href="#P">P</a>
+		<a href="#Q">Q</a>
+		<a href="#R">R</a>
+		<a href="#S">S</a>
+		<a href="#T">T</a>
+		<a href="#U">U</a>
+		<a href="#V">V</a>
+		<a href="#W">W</a>
+		<a href="#X">X</a>
+		<a href="#Y">Y</a>
+		<a href="#Z">Z</a>
+		<a href="#_">?</a>
+	</div>
+	<div id="results" class="hbox">
+		<div id="A"><h2>A</h2></div>
+		<div id="B"><h2>B</h2></div>
+		<div id="C"><h2>C</h2></div>
+		<div id="D"><h2>D</h2></div>
+		<div id="E"><h2>E</h2></div>
+		<div id="F"><h2>F</h2></div>
+		<div id="G"><h2>G</h2></div>
+		<div id="H"><h2>H</h2></div>
+		<div id="I"><h2>I</h2></div>
+		<div id="J"><h2>J</h2></div>
+		<div id="K"><h2>K</h2></div>
+		<div id="L"><h2>L</h2></div>
+		<div id="M"><h2>M</h2></div>
+		<div id="N"><h2>N</h2></div>
+		<div id="O"><h2>O</h2></div>
+		<div id="P"><h2>P</h2></div>
+		<div id="Q"><h2>Q</h2></div>
+		<div id="R"><h2>R</h2></div>
+		<div id="S"><h2>S</h2></div>
+		<div id="T"><h2>T</h2></div>
+		<div id="U"><h2>U</h2></div>
+		<div id="V"><h2>V</h2></div>
+		<div id="W"><h2>W</h2></div>
+		<div id="X"><h2>X</h2></div>
+		<div id="Y"><h2>Y</h2></div>
+		<div id="Z"><h2>Z</h2></div>
+		<div id="_">
+			<h2>?</h2>
+			<div class="result" rev="rdf:type" resource="?concept">
+			  <a href="?concept" class="view" property="skos:prefLabel" />
+			</div>
+		</div>
+	</div>
+</body>
+</html>

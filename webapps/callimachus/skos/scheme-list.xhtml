@@ -6,16 +6,17 @@
 <head>
 	<title>Concept Schemes</title>
 </head>
-<body>
+<body about="?this">
 	<ul class="aside">
-		<li><a href="/callimachus/skos/ConceptScheme?create">Create a new Scheme</a></li>
+		<li><a href="Concept">View all concepts</a></li>
+		<li><a href="ConceptScheme?create">Create a new Scheme</a></li>
 	</ul>
 	<ul class="aside">
 		<li>A scheme is a particular classification, arranged in a hierarchical structure</li>
 		<li>Typically this is organized by supertype-subtype relationships, also called generalization-specialization relationships, or less formally, parent-child relationships</li>
 	</ul>
 	<h2>Concept Schemes</h2>
-	<ul class="results">
+	<ul class="results" rev="rdf:type">
 		<li class="result" about="?scheme" typeof="skos:ConceptScheme">
 			<img src="scheme.png" class="icon" />
 			<a href="?scheme" property="rdfs:label"/>

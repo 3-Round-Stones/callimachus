@@ -23,10 +23,12 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-</scheme> a calli:Alias;
-	calli:aliasOf <scheme-list.xhtml?construct>.
+<SchemeClass> rdfs:subClassOf calli:Viewable, calli:Editable, owl:Class;
+	calli:view <scheme-list.xhtml>;
+	calli:edit <scheme-auth.xhtml>;
+	calli:editor </group/admin>.
 
-<ConceptScheme> a calli:Creatable, owl:Class;
+<ConceptScheme> a calli:Creatable, <SchemeClass>;
 	rdfs:subClassOf calli:Viewable, calli:Editable, skos:ConceptScheme;
 	calli:icon <scheme.png>;
 	calli:view <scheme.xhtml>;
@@ -45,7 +47,12 @@
 	msg:imports <concept-list.xhtml>;
 	msg:script "return concept_list_xhtml.calliConstructHTML(this)".
 
-<Concept> a calli:Creatable, owl:Class;
+<ConceptClass> rdfs:subClassOf calli:Viewable, calli:Editable, owl:Class;
+	calli:view <concept-index.xhtml>;
+	calli:edit <concept-auth.xhtml>;
+	calli:editor </group/admin>.
+
+<Concept> a calli:Creatable, <ConceptClass>;
 	rdfs:subClassOf calli:Viewable, calli:Editable, skos:Concept;
 	calli:icon <concept.png>;
 	calli:view <concept.xhtml>;

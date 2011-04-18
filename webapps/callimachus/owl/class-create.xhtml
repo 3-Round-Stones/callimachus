@@ -5,10 +5,17 @@
 	xmlns:owl="http://www.w3.org/2002/07/owl#">
 <head>
 	<title>New Class</title>
-	<script>
-		$(document).ready(function() {
-			$('#isDefinedBy').append($('#ontology', parent.document).clone())
-		});
+	<script> // <![CDATA[
+	jQuery(function($){
+		if (parent && $('#ontology', parent.document).length) {
+			// copy ontology from parent concept
+			$('#isDefinedBy').append($('#ontology', parent.document).clone());
+		} else if (document.referrer) {
+			var de = jQuery.Event('calliLink');
+			de.location = document.referrer;
+			$('#isDefinedBy').trigger(de);
+		}
+	}); // ]]>
 	</script>
 </head>
 <body>

@@ -37,6 +37,7 @@ import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.SPARQLWriter;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.exceptions.Conflict;
+import org.openrdf.http.object.traits.VersionedObject;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -106,6 +107,9 @@ public abstract class CreateSupport implements Page {
 			new java.net.URI(uri);
 			checkUriSpace(spaces, uri);
 			ObjectFactory of = con.getObjectFactory();
+			for (URI partner : tracker.getResources()) {
+				of.createObject(partner, VersionedObject.class).touchRevision();
+			}
 			return of.createObject(subject, tracker.getTypes());
 		} catch (URISyntaxException  e) {
 			throw new BadRequest(e);

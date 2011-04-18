@@ -6,15 +6,16 @@
 <head>
 	<title>Ontologies</title>
 </head>
-<body>
+<body about="?this">
 	<ul class="aside">
-		<li><a href="/callimachus/owl/Ontology?create">Create a new Ontology</a></li>
+		<li><a href="Class">View all classes</a></li>
+		<li><a href="Ontology?create">Create a new Ontology</a></li>
 	</ul>
 	<ul class="aside">
 		<li>Ontologies are the structural frameworks for organizing resources into classes based on characteristics which they have in common</li>
 	</ul>
 	<h2>Ontologies</h2>
-	<ul class="results">
+	<ul class="results" rev="rdf:type">
 		<li class="result" about="?ontology" typeof="owl:Ontology">
 			<a href="?ontology">
 				<img src="ontology.png" class="icon" />

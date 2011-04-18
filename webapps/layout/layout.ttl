@@ -27,7 +27,7 @@
 	calli:item [calli:position 9; rdfs:label "Administration";
 		calli:item [calli:position 1; rdfs:label "User groups"; calli:link </accounts>];
 		calli:item [calli:position 2; rdfs:label "Concept schemes"; calli:link </callimachus/skos/ConceptScheme>];
-		calli:item [calli:position 3; rdfs:label "Ontologies"; calli:link </ontology>];
+		calli:item [calli:position 3; rdfs:label "Ontologies"; calli:link </callimachus/owl/Ontology>];
 		calli:item [calli:position 4; rdfs:label "SPARQL query"; calli:link </sparql>]];
 	calli:item [calli:position 10; rdfs:label "Toolbox";
 		calli:item [calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>];

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
-	<title about="?this" property="rdfs:label" />
+	<title>All Classes</title>
 	<script>//<![CDATA[
 		jQuery(function($){
 			$('.result').each(function() {
@@ -28,49 +28,9 @@
 </head>
 <body about="?this">
 	<ul class="aside">
-		<li>
-			<a href="?create">Create a new <span about="?this" property="rdfs:label"/></a>
-		</li>
+		<li>New classes can be created in an <a href="Ontology">Ontology</a></li>
 	</ul>
-	<ul class="aside">
-		<li rel="rdfs:isDefinedBy">
-			<a about="?isDefinedBy" property="rdfs:label" href="?isDefinedBy"></a>
-		</li>
-		<li rel="rdfs:subClassOf" class="optional">
-			<label>Super class</label>
-			<div about="?subClassOf" typeof="owl:Class">
-				<a href="?subClassOf" property="rdfs:label" class="subClassOf" />
-			</div>
-		</li>
-		<li rev="rdfs:subClassOf" class="optional">
-			<label>Sub class</label>
-			<div about="?subClass" typeof="owl:Class">
-				<a href="?subClass" property="rdfs:label" class="subClass" />
-			</div>
-		</li>
-		<li class="optional">
-			<label>Templates</label>
-			<div rel="calli:create">
-				<a href="?create" property="rdfs:label" class="view" />
-			</div>
-			<div rel="calli:copy">
-				<a href="?copy" property="rdfs:label" class="view" />
-			</div>
-			<div rel="calli:view">
-				<a href="?view" property="rdfs:label" class="view" />
-			</div>
-			<div rel="calli:edit">
-				<a href="?edit" property="rdfs:label" class="view" />
-			</div>
-		</li>
-	</ul>
-	<h1>
-		<div id="icon" rel="calli:icon" resource="?icon" style="float:left;max-width:1em;padding-right:1ex;">
-			<a href="?icon" class="view"><img src="?icon" style="max-width:1em;max-height:2em" /></a>
-		</div>
-		<a property="rdfs:label" href="?this" />
-	</h1>
-	<pre property="rdfs:comment" class="wiki"></pre>
+	<h1>All Classes</h1>
 	<div id="index">
 		<a href="#A">A</a>
 		<a href="#B">B</a>
@@ -129,8 +89,8 @@
 		<div id="Z"><h2>Z</h2></div>
 		<div id="_">
 			<h2>?</h2>
-			<div class="result" rev="rdf:type" resource="?resource">
-			  <a href="?resource" class="view" property="rdfs:label" />
+			<div class="result" rev="rdf:type" resource="?class">
+			  <a href="?class" class="view" property="rdfs:label" />
 			</div>
 		</div>
 	</div>

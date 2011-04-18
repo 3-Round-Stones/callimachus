@@ -24,10 +24,12 @@
 @prefix class:</class/>.
 @prefix :<#>.
 
-</ontology> a calli:Alias;
-	calli:aliasOf <ontology-list.xhtml?construct>.
+<OntologyClass> rdfs:subClassOf calli:Viewable, calli:Editable, owl:Class;
+	calli:view <ontology-list.xhtml>;
+	calli:edit <ontology-auth.xhtml>;
+	calli:editor </group/admin>.
 
-<Ontology> a calli:Creatable, owl:Class;
+<Ontology> a calli:Creatable, <OntologyClass>;
 	rdfs:subClassOf owl:Ontology, calli:Viewable, calli:Editable;
 	calli:icon <ontology.png>;
 	calli:view <ontology.xhtml>;
@@ -36,8 +38,13 @@
 	calli:uriSpace </rdf/>;
 	calli:editor </group/admin>.
 
+<MetaClass> rdfs:subClassOf calli:Viewable, calli:Editable, owl:Class;
+	calli:view <class-index.xhtml>;
+	calli:edit <class-auth.xhtml>;
+	calli:editor </group/admin>.
+
 # Note instances of <Class> are creatable and <Class> itself is also creatable
-<Class> a calli:Creatable, owl:Class;
+<Class> a calli:Creatable, <MetaClass>;
 	rdfs:subClassOf owl:Class, calli:Creatable, calli:Viewable, calli:Editable;
 	calli:icon <class.png>;
 	calli:view <class.xhtml>;
@@ -69,17 +76,6 @@
 		var vf = con.getValueFactory();
 		con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph"), []);
 		return proceed();
-	""".
-
-:ListMembers rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET";
-	msg:query "members";
-	msg:header "cache-control:no-store";
-	msg:imports <class-members.xhtml>;
-	msg:script """
-		return class_members_xhtml.calliConstructHTML(this);
 	""".
 
 <sample-view.xhtml> a </callimachus/Page>;

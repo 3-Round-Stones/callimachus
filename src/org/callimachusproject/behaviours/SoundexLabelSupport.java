@@ -65,7 +65,7 @@ public abstract class SoundexLabelSupport implements SoundexTrait {
 			} else {
 				same = 0;
 			}
-			if (same > 3)
+			if (same > 6)
 				break;
 			previous = phone;
 			phones.add(phone);

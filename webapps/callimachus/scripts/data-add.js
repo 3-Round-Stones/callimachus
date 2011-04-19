@@ -57,7 +57,7 @@ function initSetElements(form) {
 			this.attachEvent("ondrop", pasteURL(dragleave));
 		}
 		$(this).bind('calliLink', function(event) {
-			var script = $(event.target);
+			var script = $(event.target).parents('[data-add]').andSelf().filter('[data-add]');
 			var uris = window.calli.listResourceIRIs(event.location);
 			uris.each(function() {
 				addSetItem(this, script);

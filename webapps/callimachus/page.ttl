@@ -21,13 +21,10 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<PageClass> rdfs:subClassOf calli:Viewable, calli:Editable, owl:Class;
-	calli:view <page-list.xhtml>;
-	calli:edit <page-auth.xhtml>;
-	calli:editor </group/admin>.
-
-<Page> a calli:Creatable, <PageClass>;
+<Page> a calli:Creatable, </callimachus/IndexClass>;
 	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Page;
+	rdfs:label "Page";
+	rdfs:comment "New pages can be created by adding a relative link to a new page in an existing page";
 	calli:icon <page.png>;
 	calli:edit <page-edit.xhtml>;
 	calli:copy <page-copy.xhtml>;

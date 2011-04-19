@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title about="?this" property="rdfs:label" />
+	<script>
+		jQuery(function($) {
+			$('.related[about=' + $('body').attr('about') + ']').remove();
+		});
+	</script>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li><a href="?create">Create a new <span property="rdfs:label" /></a></li>
+	</ul>
+	<div rel="rdfs:isDefinedBy">
+		<ul class="aside" rev="rdfs:isDefinedBy">
+			<li class="related" about="?related"><a href="?related">View all <span property="rdfs:label" /> resources</a></li>
+		</ul>
+	</div>
+	<ul class="aside">
+		<li property="rdfs:comment" />
+	</ul>
+	<h1>All <span property="rdfs:label" /> Resources</h1>
+	<ul class="results" rev="rdf:type">
+		<li class="result" about="?member">
+			<span rel="rdf:type"><span rel="calli:icon"><img src="?icon" class="icon" /></span></span>
+			<a href="?member" property="rdfs:label"/>
+			<a href="?member" property="skos:prefLabel"/>
+			<pre class="wiki summary" property="rdfs:comment" />
+		</li>
+	</ul>
+</body>
+</html>

@@ -81,16 +81,30 @@
 	</xsl:template>
 	<xsl:template match="sparql:literal">
 		<span class="literal">
-			<xsl:attribute name="datatype">
-				<xsl:call-template name="iriref">
-					<xsl:with-param name="iri" select="@datatype" />
-				</xsl:call-template>
-			</xsl:attribute>
-			<xsl:attribute name="title">
-				<xsl:call-template name="iriref">
-					<xsl:with-param name="iri" select="@datatype" />
-				</xsl:call-template>
-			</xsl:attribute>
+			<xsl:if test="@datatype">
+				<xsl:attribute name="datatype">
+					<xsl:call-template name="iriref">
+						<xsl:with-param name="iri" select="@datatype" />
+					</xsl:call-template>
+				</xsl:attribute>
+				<xsl:attribute name="title">
+					<xsl:call-template name="iriref">
+						<xsl:with-param name="iri" select="@datatype" />
+					</xsl:call-template>
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:if test="@xml:lang">
+				<xsl:attribute name="xml:lang">
+					<xsl:call-template name="iriref">
+						<xsl:with-param name="iri" select="@xml:lang" />
+					</xsl:call-template>
+				</xsl:attribute>
+				<xsl:attribute name="title">
+					<xsl:call-template name="iriref">
+						<xsl:with-param name="iri" select="@xml:lang" />
+					</xsl:call-template>
+				</xsl:attribute>
+			</xsl:if>
 			<xsl:value-of select="text()" />
 		</span>
 	</xsl:template>
@@ -185,6 +199,30 @@
 					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="@rdf:datatype" />
 					</xsl:call-template>
+				</xsl:attribute>
+				<xsl:apply-templates />
+			</span>
+		</li>
+	</xsl:template>
+	<xsl:template match="*[@xml:lang]">
+		<li>
+			<label class="predicate">
+				<xsl:call-template name="iriref">
+					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
+				</xsl:call-template>
+			</label>
+			<xsl:text> </xsl:text>
+			<span class="literal">
+				<xsl:attribute name="property">
+					<xsl:call-template name="iriref">
+						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
+					</xsl:call-template>
+				</xsl:attribute>
+				<xsl:attribute name="xml:lang">
+					<xsl:value-of select="@xml:lang" />
+				</xsl:attribute>
+				<xsl:attribute name="title">
+					<xsl:value-of select="@xml:lang" />
 				</xsl:attribute>
 				<xsl:apply-templates />
 			</span>

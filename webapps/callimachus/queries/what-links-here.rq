@@ -9,9 +9,7 @@ PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
 
 SELECT DISTINCT ?label ?comment ?icon ?url ?modified
 WHERE {
-	{ ?url ?rel $this }
-	UNION { ?bnode ?rel $this FILTER (!isIRI(?bnode))
-		OPTIONAL { ?url ?rel2 ?bnode } }
+	?url ?rel $this
 	FILTER (isIRI(?url))
 	FILTER (?rel != audit:contributor)
 	OPTIONAL { ?url a [calli:icon ?icon] }

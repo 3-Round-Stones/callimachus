@@ -124,6 +124,30 @@
 			</span>
 		</li>
 	</xsl:template>
+	<xsl:template match="*[@xml:lang]">
+		<li>
+			<label class="predicate">
+				<xsl:call-template name="iriref">
+					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
+				</xsl:call-template>
+			</label>
+			<xsl:text> </xsl:text>
+			<span class="literal">
+				<xsl:attribute name="property">
+					<xsl:call-template name="iriref">
+						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
+					</xsl:call-template>
+				</xsl:attribute>
+				<xsl:attribute name="xml:lang">
+					<xsl:value-of select="@xml:lang" />
+				</xsl:attribute>
+				<xsl:attribute name="title">
+					<xsl:value-of select="@xml:lang" />
+				</xsl:attribute>
+				<xsl:apply-templates />
+			</span>
+		</li>
+	</xsl:template>
 	<xsl:template match="*[@rdf:parseType='Literal']">
 		<li>
 			<label class="predicate">

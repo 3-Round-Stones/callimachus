@@ -44,6 +44,7 @@ function postCreate(msg) {
 	}
 	newCopy.calliAdministrators.addAll(this.calliEditors);
 	newCopy.calliAdministrators.addAll(this.FindCreateContributor(newCopy));
+	this.touchRevision();
 	return newCopy;
 }
 

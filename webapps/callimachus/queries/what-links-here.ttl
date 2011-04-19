@@ -13,7 +13,6 @@
 	msg:method "GET";
 	msg:query "whatlinkshere";
 	msg:type "application/sparql-results+xml";
-	msg:header "cache-control:no-store";
 	msg:transform :TransformWhatLinksHere;
 	msg:sparql <what-links-here.rq>.
 

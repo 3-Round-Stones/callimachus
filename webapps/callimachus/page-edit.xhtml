@@ -9,12 +9,15 @@
 	jQuery(function($){
 		var url = $('body').attr('about');
 		var conditional = {'If-Match': $('meta[http-equiv="etag"]').attr('content')};
-		if (location.hash && location.hash.indexOf('#!') == 0) { // new page
+		if (location.hash && location.hash.indexOf('#!') == 0 || location.search == "?create") { // new page
 			url = location.hash.substring(2);
 			conditional = {};
 		}
 		var local = url.replace(/.*\//, '').replace(/\.[a-zA-Z]+$/, '');
 		var label = decodeURIComponent(local);
+		if (!label) {
+			label = 'Enter Title Here';
+		}
 		var page = [null, '<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>' + label + '</title></head><body about="?this">', '<h1>' + label + '</h1>','</body></html>'];
 		function outter(node) {
 			var html = $($('<div/>').html($(node).clone())).html();
@@ -62,6 +65,9 @@
 									$('#cancel').show();
 									$('#delete').show();
 								}
+							} else {
+								conditional = {};
+								url = null;
 							}
 							jQuery.wymeditors(0)._html = page[2];
 							window.WYMeditor.INSTANCES[0].initIframe($('#iframe')[0]);
@@ -104,8 +110,14 @@
 					}
 				});
 			} else { // new page
+				if (!url) {
+					// no URL provided
+					var header = $(':header:first', $('#iframe')[0].contentWindow.document).text();
+					header = header.replace(/^\s+/, '').replace(/\s+$/, '').replace(/\s+/, ' ');
+					url = 'http://localhost:8080/page/' + encodeURI(header).replace(/%20/g,'+') + '.xhtml';
+				}
 				jQuery.ajax({
-					type: "POST", url: location,
+					type: "POST", url: location.href,
 					beforeSend: function(xhr) {
 						xhr.setRequestHeader('Location', url);
 					},

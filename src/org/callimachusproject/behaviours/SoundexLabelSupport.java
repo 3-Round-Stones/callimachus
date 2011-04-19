@@ -55,20 +55,25 @@ public abstract class SoundexLabelSupport implements SoundexTrait {
 			"http://www.w3.org/2004/02/skos/core#hiddenLabel" })
 	public void addSoundexForLabel(String label) {
 		Set<String> phones = new HashSet<String>();
-		String previous = null;
+		String clean = clean(label);
+		String full = soundex.encode(clean);
+		if (full == null || full.length() < 3)
+			return;
+		full = full.substring(0, 3);
 		int same = 0;
-		for (int i = 1; i <= label.length(); i++) {
-			String prefix = label.substring(0, i);
-			String phone = asSoundex(prefix);
+		String previous = null;
+		for (int i = 1, n = clean.length(); i <= n; i++) {
+			String prefix = clean.substring(0, i);
+			String phone = soundex.encode(prefix).substring(0, 3);
 			if (phone.equals(previous)) {
 				same++;
 			} else {
 				same = 0;
+				previous = phone;
+				phones.add(phone + '0');
 			}
-			if (same > 6)
+			if (same > 3 && previous.equals(full))
 				break;
-			previous = phone;
-			phones.add(phone);
 		}
 		getSoundexes().addAll(phones);
 	}

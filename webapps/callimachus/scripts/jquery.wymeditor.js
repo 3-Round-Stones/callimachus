@@ -1205,9 +1205,11 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
         options.height = $(this._iframe).height();
       }
 
-      var dialog = jQuery(dialogHtml).dialog(options);
+      var div = jQuery(dialogHtml);
+      var dialog = div.dialog(options);
       dialog.bind("dialogclose", function(event, ui) {
         dialog.dialog("destroy");
+        div.remove();
       });
       dialog.dialog("open");
       window.dialog = dialog;
@@ -1523,8 +1525,14 @@ WYMeditor.INIT_DIALOG = function(index) {
             link = jQuery("a[href=" + sStamp + "]", wym._doc.body);
         }
 
+        var title = jQuery(wym._options.titleSelector).val();
         link.attr(WYMeditor.HREF, sUrl)
-            .attr(WYMeditor.TITLE, jQuery(wym._options.titleSelector).val());
+            .attr(WYMeditor.TITLE, title);
+        if (title && link.text() == sStamp) {
+            link.text(title);
+        } else if (link.text() == sStamp) {
+            link.text(sUrl);
+        }
 
       }
       if (window.opener) {
@@ -1538,7 +1546,7 @@ WYMeditor.INIT_DIALOG = function(index) {
   jQuery(wym._options.dialogLinkSelector + " "
     + wym._options.submitSelector).click(submitLink);
   jQuery(wym._options.dialogLinkSelector + " "
-    + wym._options.submitSelector).parents("form:first").submit(submitLink);
+    + wym._options.submitSelector).parents("form").submit(submitLink);
 
   var submitImage = function() {
 
@@ -1563,7 +1571,7 @@ WYMeditor.INIT_DIALOG = function(index) {
   jQuery(wym._options.dialogImageSelector + " "
     + wym._options.submitSelector).click(submitImage);
   jQuery(wym._options.dialogImageSelector + " "
-    + wym._options.submitSelector).parents("form:first").submit(submitImage);
+    + wym._options.submitSelector).parents("form").submit(submitImage);
 
   var submitTable = function() {
 
@@ -1609,7 +1617,7 @@ WYMeditor.INIT_DIALOG = function(index) {
   jQuery(wym._options.dialogTableSelector + " "
     + wym._options.submitSelector).click(submitTable);
   jQuery(wym._options.dialogTableSelector + " "
-    + wym._options.submitSelector).parents("form:first").submit(submitTable);
+    + wym._options.submitSelector).parents("form").submit(submitTable);
 
   var submitPaste = function() {
 
@@ -1626,7 +1634,7 @@ WYMeditor.INIT_DIALOG = function(index) {
   jQuery(wym._options.dialogPasteSelector + " "
     + wym._options.submitSelector).click(submitPaste);
   jQuery(wym._options.dialogPasteSelector + " "
-    + wym._options.submitSelector).parents("form:first").submit(submitPaste);
+    + wym._options.submitSelector).parents("form").submit(submitPaste);
 
   jQuery(wym._options.dialogPreviewSelector + " "
     + wym._options.previewSelector)

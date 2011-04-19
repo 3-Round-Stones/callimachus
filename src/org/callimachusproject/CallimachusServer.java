@@ -245,6 +245,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.start();
 		uploader.started();
 		System.gc();
+		Thread.yield();
 		long uptime = ManagementFactory.getRuntimeMXBean().getUptime();
 		logger.info("Callimachus started in {} seconds", uptime / 1000.0);
 	}

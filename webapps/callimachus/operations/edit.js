@@ -143,8 +143,14 @@ function getEntityTag() {
 if (!window.calli) {
 	window.calli = {};
 }
-window.calli.deleteResource = function() {
-	var form = $("form[about]");
+window.calli.deleteResource = function(form) {
+	form = $(form);
+	if (!form.length) {
+		form = $("form[about]");
+	}
+	if (!form.length) {
+		form = $(document);
+	}
 	try {
 		var de = jQuery.Event("calliDelete");
 		form.trigger(de);

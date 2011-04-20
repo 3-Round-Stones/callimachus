@@ -15,52 +15,21 @@
    limitations under the License.
 
  */
-package org.callimachusproject.rdfa.model;
+package org.callimachusproject.rdfa.events;
 
 /**
- * SPARQL variable or RDF term.
+ * SPARQL keyword.
  * 
- * @author James Leigh
+ * @author Steve Battle
  *
  */
-public interface VarOrTerm {
+public class Select extends RDFEvent {
 
-	boolean isNode();
+	public Select() {
+		super();
+	}
 
-	boolean isIRI();
-
-	boolean isReference();
-
-	boolean isCURIE();
-
-	boolean isLiteral();
-
-	boolean isPlainLiteral();
-
-	boolean isTypedLiteral();
-
-	boolean isXMLLiteral();
-
-	boolean isTerm();
-
-	boolean isVar();
-
-	Var asVar();
-
-	Reference asReference();
-
-	CURIE asCURIE();
-
-	PlainLiteral asPlainLiteral();
-
-	TypedLiteral asTypedLiteral();
-
-	XMLLiteral asXMLLiteral();
-
-	String stringValue();
-	
-	void setOrigin(String origin);
-	
-	String getOrigin();
-
+	public String toString() {
+		return "SELECT";
+	}
 }

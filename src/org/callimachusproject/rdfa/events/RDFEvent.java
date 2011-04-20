@@ -25,7 +25,8 @@ package org.callimachusproject.rdfa.events;
  */
 public class RDFEvent {
 	private Boolean start;
-
+	//private String source;
+	
 	public RDFEvent() {
 		this.start = null;
 	}
@@ -72,6 +73,10 @@ public class RDFEvent {
 
 	public boolean isAsk() {
 		return this instanceof Ask;
+	}
+
+	public boolean isSelect() {
+		return this instanceof Select;
 	}
 
 	public boolean isStartWhere() {

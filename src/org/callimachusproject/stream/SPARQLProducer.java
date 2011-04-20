@@ -17,22 +17,29 @@
  */
 package org.callimachusproject.stream;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
+import org.callimachusproject.rdfa.events.Ask;
 import org.callimachusproject.rdfa.events.Group;
 import org.callimachusproject.rdfa.events.Optional;
 import org.callimachusproject.rdfa.events.RDFEvent;
+import org.callimachusproject.rdfa.events.Select;
 import org.callimachusproject.rdfa.events.Subject;
 import org.callimachusproject.rdfa.events.Triple;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.events.Union;
+import org.callimachusproject.rdfa.events.Where;
 import org.callimachusproject.rdfa.model.IRI;
 import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.rdfa.model.VarOrTerm;
+import org.openrdf.model.URI;
+import org.openrdf.model.impl.URIImpl;
 
 /**
  * Produce SPARQL events from an RDFa event stream. 
@@ -49,9 +56,19 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		
 	private static boolean OPEN = true, CLOSE = false;
 	private Stack<Context> stack = new Stack<Context>();	
-	private AtomicInteger seq = new AtomicInteger(0);
+//	private AtomicInteger seq = new AtomicInteger(0);
 	private TermFactory tf = TermFactory.newInstance();
 	
+	// map unique resource IDs to variable labels
+	// resources can be objects or literals
+	private Map<String,String> varMap = new HashMap<String,String>();
+
+	// map variable labels to a label counter
+	private Map<String,AtomicInteger> varSeq = new HashMap<String,AtomicInteger>();
+	
+	// map variable names to template origin (path)
+	private Map<String,String> origins = new HashMap<String,String>();
+		
 	// 'initial' controls placement of the 'UNION' keyword
 	private boolean initial = true;
 	
@@ -60,6 +77,20 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	
 	static enum CLAUSE { GROUP, OPTIONAL, BLOCK }
 	
+	public static enum QUERY { SELECT, CONSTRUCT, ASK }
+
+	// construct queries are the default
+	private QUERY queryType=QUERY.CONSTRUCT;
+	
+	
+	public boolean isSelectQuery() {
+		return queryType==QUERY.SELECT;
+	}
+	
+	public boolean isAskQuery() {
+		return queryType==QUERY.ASK;
+	}
+
 	// determine if a new subject is chained to the previous triple
 	static boolean chained(TriplePattern pattern, VarOrTerm subject) {
 		return pattern!=null && subject!=null && 
@@ -151,18 +182,33 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		super(reader);
 	}
 	
+	public SPARQLProducer(RDFEventReader reader, QUERY queryType) {
+		super(reader);
+		this.queryType = queryType;
+	}
+	
 	protected void process(RDFEvent event) throws RDFParseException {
 		if (event==null) return;
 		if (event.isStartDocument() || event.isBase() || event.isNamespace()) {
 			add(event);
+			RDFEvent next = peekNext();
+			if (isSelectQuery() && !next.isBase() && !next.isNamespace()) {
+				add(new Select());
+				add(new Where(OPEN));
+			}
+			else if (isAskQuery() && !next.isBase() && !next.isNamespace()) {
+				add(new Ask());
+				add(new Where(OPEN));
+			}
 		}
 		else if (event.isEndDocument()) {
 			// close any remaining open contexts (i.e. the outermost context)
 			while (!stack.isEmpty()) stack.peek().close();
+			if (isSelectQuery() || isAskQuery()) add(new Where(CLOSE));
 			add(event);
 		}
 		else if (event.isStartSubject()) {
-			VarOrTerm subj = getVarOrTerm(event.asSubject().getSubject());
+			VarOrTerm subj = getVarOrTerm(event.asSubject().getSubject(),null);
 			Context context = getContext();
 
 			// close any dangling UNION sub-clause if the subject isn't chained to the previous triple
@@ -186,10 +232,11 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		} 
 		else if (event.isTriple()) {
 			Triple triple = event.asTriple();
-			VarOrTerm s = getVarOrTerm(triple.getSubject());
 			IRI p = triple.getPredicate();
-			VarOrTerm o = getVarOrTerm(triple.getObject());
 			boolean rev = triple.isInverse();
+			VarOrTerm s = getVarOrTerm(triple.getSubject(),triple);
+			VarOrTerm o = getVarOrTerm(triple.getObject(),triple);
+
 			boolean optional = isOptionalTriple(triple); 	
 			TriplePattern pattern = new TriplePattern(s, p, o, rev);
 			//String lang = triple.getPartner().asPlainLiteral().getLang();
@@ -242,7 +289,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	}
 	
 	private boolean isOptionalTriple(Triple triple) throws RDFParseException {
-		return getVarOrTerm(triple.getPartner()).isVar() ;
+		return getVarOrTerm(triple.getPartner(),null).isVar() ;
 	}
 
 	private Context addMandatoryTriples(Context context) throws RDFParseException {
@@ -256,10 +303,10 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			else if (e.isTriple() && depth==0) {
 				Triple triple = e.asTriple();				
 				if (!isOptionalTriple(triple)) {
-					VarOrTerm s = getVarOrTerm(triple.getSubject());
 					IRI p = triple.getPredicate();
-					VarOrTerm o = getVarOrTerm(triple.getObject());
 					boolean rev = triple.isInverse();
+					VarOrTerm s = getVarOrTerm(triple.getSubject(),triple);
+					VarOrTerm o = getVarOrTerm(triple.getObject(),triple);
 					
 					if (context.union)
 						context = new Context(CLAUSE.GROUP).open();
@@ -293,30 +340,129 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		}
 		return singleton;
 	}
+	
+	String stripPrefix(String l, String prefix) {
+		int p = prefix.length();
+		if (l.startsWith(prefix) && l.length()>p
+		&& l.substring(p,p+1).equals(l.substring(p,p+1).toUpperCase())) {
+			l = l.substring(p,p+1).toLowerCase() + l.substring(p+1);
+		}
+		return l;
+	}
+	
+	String stripSuffix(String l, String suffix) {
+		int s = suffix.length();
+		if (l.endsWith(suffix) && l.length()>s) {
+			l = l.substring(0,l.length()-s);
+		}
+		return l;
+	}
+	
+	String predLabel(IRI pred) {
+		URI uri=null;
+		if (pred.isCURIE())
+			uri = new URIImpl(pred.asCURIE().stringValue());
+		else if (pred.isIRI())
+			uri = new URIImpl(pred.toString());
+		String l = uri.getLocalName();
+		l = stripPrefix(l,"has");
+		l = stripPrefix(l,"in");
+		return l;
+	}
+	
+	String mapSeq(String label, boolean increment) {
+		if (label==null) return "";
+		if (varSeq.containsKey(label)) {
+			if (increment)
+				return label + varSeq.get(label).incrementAndGet();
+			else {
+				int n = varSeq.get(label).intValue();
+				return label + (n==0?"":n);
+			}
+		}
+		else {
+			varSeq.put(label, new AtomicInteger(0));
+			// implicit '0' on label
+			return label;
+		}
+	}
+	
+	// the key is a unique string identifying the resource
+	
+	String mapVar(String key, String label) {
+		if (varMap.containsKey(key)) {
+			label = varMap.get(key);
+			return mapSeq(label,false);
+		}
+		else if (label==null) return "";
+		else {
+			varMap.put(key, label);
+			return mapSeq(label,true);
+		}
+	}
+	
+	protected VarOrTerm getVarOrTerm(VarOrTerm term, Triple triple) throws RDFParseException {
+		String label = null;
+		VarOrTerm opposite = null;
+		if (triple!=null) {
+			label = predLabel(triple.getPredicate());
+			// characters valid in NCName but not SPARQL variable name
+			label = label.replaceAll("-", "_").replaceAll("\\.", "_");
+			
+			// append/remove 'Of' to inverse relations
+			if (triple.isInverse()) {
+				if (label.endsWith("Of")) label = stripSuffix(label,"Of");
+				else label += "Of";
+			}
 
-	protected VarOrTerm getVarOrTerm(VarOrTerm term) throws RDFParseException {
+			// build a compound label using variable at the opposing end of the triple
+			if (term.equals(triple.getSubject())) 
+				opposite = triple.getObject();
+			else opposite = triple.getSubject();
+			if (!opposite.isIRI()) {
+				label = mapVar(opposite.stringValue(),null) + "_" + label;
+			}
+			else if (opposite.isReference()){
+				String v = opposite.asReference().getRelative();
+				if (v.startsWith("?") && !v.equals("?this")) 
+					label = v.substring(1) + "_" + label;
+			}
+		}
+		
 		if (term.isVar())
 			return term;
-		if (term.isLiteral() && isEmpty(term.stringValue()))
-			return new BlankOrLiteralVar("blank_" + seq.incrementAndGet());
+		if (term.isLiteral() && isEmpty(term.stringValue())) {
+			String name = "_"+mapSeq(label,true);
+			origins.put(name, term.getOrigin());
+			return new BlankOrLiteralVar(name);
+		}
 		if (term.isLiteral())
 			return term;
-		if (!term.isIRI())
-			return new BlankOrLiteralVar("blank_" + term.stringValue());
+		if (!term.isIRI()) {
+			String name = "_" + mapVar(term.stringValue(),label);
+			origins.put(name, term.getOrigin());
+			return new BlankOrLiteralVar(name);
+		}
 		if (term.isCURIE())
 			return term;
 		if (!term.isReference())
 			return term;
 		String var = term.asReference().getRelative();
-		if (!var.startsWith("?"))
-			return term;
+		if (!var.startsWith("?")) return term;
 		String name = var.substring(1);
 		if (!VAR_REGEX.matcher(name).matches())
 			throw new RDFParseException("Invalid Variable Name: " + name);
+		origins.put(name, term.getOrigin());
 		return tf.var(name);
 	}
 
 	protected boolean isEmpty(String str) {
 		return "".equals(str) || WHITE_SPACE.matcher(str).matches();
+	}
+	
+	public String getOrigin(String variable) throws Exception {
+		// consume the RDFa input in case it has not already been fully parsed
+		while (this.hasNext()) this.next();
+		return origins.get(variable);
 	}
 }

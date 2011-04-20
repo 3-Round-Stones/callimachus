@@ -36,6 +36,7 @@ import org.openrdf.model.vocabulary.RDF;
  * Writes out RDF triple patterns as SPARQL.
  * 
  * @author James Leigh
+ * @author Steve Battle
  *
  */
 public class SPARQLWriter implements Closeable {
@@ -126,6 +127,23 @@ public class SPARQLWriter implements Closeable {
 			}
 			indent(indent);
 			writer.append("ASK\n");
+		} else if (event.isSelect()) {
+			if (base != null) {
+				writer.append("BASE <");
+				writer.append(base);
+				writer.append(">\n");
+			}
+			if (!namespaces.isEmpty()) {
+				for (Map.Entry<String, String> e : namespaces.entrySet()) {
+					writer.append("PREFIX ");
+					writer.append(e.getKey());
+					writer.append(":<");
+					writer.append(e.getValue());
+					writer.append(">\n");
+				}
+			}
+			indent(indent);
+			writer.append("SELECT *\n");
 		} else if (event.isStartWhere()) {
 			indent(indent);
 			writer.append("WHERE {\n");

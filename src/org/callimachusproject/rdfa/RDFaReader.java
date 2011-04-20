@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Stack;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventFactory;
@@ -60,6 +61,7 @@ import org.callimachusproject.stream.NamespaceStartElement;
  * RDFa parser.
  * 
  * @author James Leigh
+ * @author Steve Battle
  * 
  */
 public class RDFaReader extends RDFEventReader {
@@ -67,6 +69,7 @@ public class RDFaReader extends RDFEventReader {
 	private static final String RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 	private static final String XHV = "http://www.w3.org/1999/xhtml/vocab#";
 	private static final String XHTML = "http://www.w3.org/1999/xhtml";
+	private static final char ELEMENT_SEPARATOR = '/';
 	private final XMLEventReader reader;
 	private final String systemId;
 	private Base base;
@@ -82,12 +85,27 @@ public class RDFaReader extends RDFEventReader {
 	private TermFactory tf = TermFactory.newInstance();
 	private IRI XMLLITERAL = tf.iri(RDF + "XMLLiteral");
 	private List<Node> TYPE = Arrays.asList((Node) tf.iri(RDF + "type"));
+	
+	// The element stack keeps track of the origin of the node
+	private Stack<Integer> elementStack = new Stack<Integer>();
+	private int elementIndex = 1;
 
 	public RDFaReader(String base, XMLEventReader reader, String systemId) {
 		this.reader = reader;
 		this.systemId = systemId;
 		this.base = new Base(base == null ? systemId : base);
 		this.document = tf.reference(this.base.getBase(), this.base.getReference());
+	}
+	
+	/* return the elementStack as a string that represents a template path */
+	
+	public String origin() {
+		StringBuffer b = new StringBuffer();
+		for(Iterator<Integer> i=elementStack.iterator(); i.hasNext();) {
+			b.append(ELEMENT_SEPARATOR);
+			b.append(i.next());
+		}
+		return b.toString();
 	}
 
 	public String toString() {
@@ -126,9 +144,13 @@ public class RDFaReader extends RDFEventReader {
 		} else if (event.isEndDocument()) {
 			processEndDocument((EndDocument) event);
 		} else if (event.isStartElement()) {
+			elementStack.push(elementIndex);
+			elementIndex=1;
 			processStartElement(event.asStartElement());
 		} else if (event.isEndElement()) {
 			processEndElement(event.asEndElement());
+			if (!elementStack.isEmpty()) elementIndex = elementStack.pop();
+			elementIndex++;
 		} else if (contentDepth >= 0) {
 			if (writer == null && event.isCharacters()) {
 				content.append(event.asCharacters().getData());
@@ -151,6 +173,7 @@ public class RDFaReader extends RDFEventReader {
 	private void processStartElement(StartElement event)
 			throws XMLStreamException, RDFParseException {
 		if (contentDepth >= 0) {
+
 			contentDepth++;
 			if (!tag.isTextContent()) {
 				XMLEventWriter writer = getContentWriter();
@@ -166,9 +189,10 @@ public class RDFaReader extends RDFEventReader {
 					writer.add(event);
 				}
 			}
-		} else {
+		} else {			
 			tag = new Tag(tag, event, reader.peek().isEndElement(), ++number);
 			tag.started();
+
 			if (tag.isContent()) {
 				contentDepth = 0;
 				content = new StringWriter();
@@ -235,12 +259,14 @@ public class RDFaReader extends RDFEventReader {
 		private Node datatype;
 		private boolean startedSubject;
 		private Node list;
+		String origin;
 
 		public Tag(Tag parent, StartElement event, boolean empty, int number) {
 			this.parent = parent;
 			this.event = event;
 			this.empty = empty;
 			this.number = number;
+			this.origin = origin();
 		}
 
 		public String toString() {
@@ -372,11 +398,15 @@ public class RDFaReader extends RDFEventReader {
 		}
 
 		public BlankNode getBlankNode() {
-			return new BlankNode("n" + number);
+			BlankNode b = new BlankNode("n" + number);
+			b.setOrigin("NODE"+origin);
+			return b;
 		}
 
 		public BlankNode getNextBlankNode() {
-			return new BlankNode("n" + (number + 1));
+			BlankNode b = new BlankNode("n" + (number + 1));
+			b.setOrigin("NEXT"+origin);
+			return b;
 		}
 
 		public boolean isStartSubject() throws RDFParseException {
@@ -569,9 +599,14 @@ public class RDFaReader extends RDFEventReader {
 		private Node uriOrSafeCURIE(String value) throws RDFParseException {
 			if (value == null)
 				return null;
-			if (!value.startsWith("["))
-				return tf.reference(resolve(value), value);
-			return curie(value.substring(1, value.length() - 1));
+			if (!value.startsWith("[")) {
+				Reference r = tf.reference(resolve(value), value);
+				r.setOrigin(origin);
+				return r;
+			}
+			Node c = curie(value.substring(1, value.length() - 1));
+			c.setOrigin(origin);
+			return c;
 		}
 
 		private List<Node> curies(String value) throws RDFParseException {
@@ -605,7 +640,9 @@ public class RDFaReader extends RDFEventReader {
 				namespaceURI = XHV;
 			}
 			String reference = value.substring(idx + 1);
-			return tf.curie(namespaceURI, reference, prefix);
+			Node c = tf.curie(namespaceURI, reference, prefix);
+			c.setOrigin(origin);
+			return c;
 		}
 
 		private void triple(Node subj, List<Node> pred, Node obj, boolean inverse) {
@@ -617,6 +654,7 @@ public class RDFaReader extends RDFEventReader {
 		private void plain(Node subj, List<Node> pred, String content,
 				String lang) {
 			PlainLiteral lit = tf.literal(content, lang);
+			lit.setOrigin("LITERAL"+origin);
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit));
 			}
@@ -625,6 +663,7 @@ public class RDFaReader extends RDFEventReader {
 		private void typed(Node subj, List<Node> pred, String content,
 				IRI datatype) {
 			TypedLiteral lit = tf.literal(content, datatype);
+			lit.setOrigin("LITERAL"+origin);
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit));
 			}

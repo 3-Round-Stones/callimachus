@@ -23,8 +23,6 @@ import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Set;
 
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
@@ -49,8 +47,10 @@ import org.openrdf.repository.RepositoryException;
  */
 public class SPARQLResultReader extends RDFEventReader {
 	private TriplePatternStore patterns;
-	private RDFEventReader result;
+	private RDFEventReader graphResult;
 	private boolean started, ended = false;
+	
+	/* Assume that the query is a CONSTRUCT query */
 	
 	public SPARQLResultReader(String sparql, TriplePatternStore store, RepositoryConnection con)
 			throws RepositoryException, MalformedQueryException,
@@ -59,9 +59,11 @@ public class SPARQLResultReader extends RDFEventReader {
 		
 		if (sparql != null) {
 			GraphQuery q = con.prepareGraphQuery(SPARQL, sparql);
-			result = new GraphResultReader(q.evaluate());
+			graphResult = new GraphResultReader(q.evaluate());
 		}
 	}
+	
+	/* Assume that the query is a CONSTRUCT query */
 
 	public SPARQLResultReader(TriplePatternStore store,
 			RepositoryConnection con, String uri) throws RepositoryException,
@@ -100,16 +102,16 @@ public class SPARQLResultReader extends RDFEventReader {
 				}
 			}
 		}
-		result = new ReducedTripleReader(new GraphResultReader(q.evaluate())) ;
+		graphResult = new ReducedTripleReader(new GraphResultReader(q.evaluate())) ;
 	}
-
+	
 	public String toString() {
 		return patterns.toString();
 	}
 
 	@Override
 	public void close() throws RDFParseException {
-		if (result != null) result.close();
+		if (graphResult != null) graphResult.close();
 	}
 
 	@Override
@@ -120,12 +122,12 @@ public class SPARQLResultReader extends RDFEventReader {
 					started = true;
 					return new Document(true);	
 				}
-				if (result!=null && result.hasNext()) {
-					RDFEvent next = result.next();
+				if (graphResult!=null && graphResult.hasNext()) {
+					RDFEvent next = graphResult.next();
 					if (next.isStartDocument()) return take();
 					if (next.isEndDocument()) {
-						result.close();
-						result = null;
+						graphResult.close();
+						graphResult = null;
 						return take();
 					}
 					return next;	

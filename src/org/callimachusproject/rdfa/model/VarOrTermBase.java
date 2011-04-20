@@ -24,6 +24,8 @@ package org.callimachusproject.rdfa.model;
  *
  */
 public abstract class VarOrTermBase implements VarOrTerm {
+	String origin;
+	
 	public boolean isNode() {
 		return this instanceof Node;
 	}
@@ -90,4 +92,13 @@ public abstract class VarOrTermBase implements VarOrTerm {
 	}
 
 	public abstract String stringValue();
+	
+	public void setOrigin(String origin) {
+		this.origin = origin;
+	}
+	
+	public String getOrigin() {
+		return origin;
+	}
+
 }

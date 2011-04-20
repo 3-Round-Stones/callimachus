@@ -215,9 +215,10 @@ public class RDFaGenerationTest {
 					leaf = false;
 					break;
 				case org.w3c.dom.Node.TEXT_NODE:
+				case org.w3c.dom.Node.CDATA_SECTION_NODE:
 					Text t = (Text)node;
 					if (text!=null) leaf = false;
-					text = t.getTextContent().trim();
+					text = t.getTextContent().trim();					
 				}
 			}
 			if (leaf) {
@@ -508,12 +509,8 @@ public class RDFaGenerationTest {
 	
 	public static Document readDocument(File file) throws Exception {
 		if (!file.exists()) return null;
-		Transformer transformer = transformerFactory.newTransformer();
 		DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
-		Document source = builder.parse(file);
-		Document doc = builder.newDocument();
-		transformer.transform (new DOMSource(source), new DOMResult(doc));
-		return doc;
+		return builder.parse(file);
 	}
 
 	/* return only failing XPaths */

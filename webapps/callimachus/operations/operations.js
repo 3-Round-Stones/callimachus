@@ -30,13 +30,12 @@ function postCopy(msg) {
 }
 
 function getCreatePage(msg) {
-java.lang.System.err.println('create: ' + msg);
 	var factory = msg.create ? msg.create : this;
 	if (this instanceof Creator && factory != this && !this.IsCreatable(factory))
 		throw new BadRequest("Cannot create this class here: " + factory);
 	if (!factory.calliCreate)
 		throw new InternalServerError("No create template");
-	return factory.calliCreate.calliConstruct(factory, 'create');
+	return factory.calliCreate.calliConstruct(this, 'create');
 }
 
 function postCreate(msg) {
@@ -46,7 +45,7 @@ function postCreate(msg) {
 	var template = factory.calliCreate;
 	if (!template)
 		throw new InternalServerError("No create template");
-	var newCopy = template.calliCreateResource(factory, msg.input, factory.calliUriSpace);
+	var newCopy = template.calliCreateResource(this, msg.input, factory.calliUriSpace);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, factory.toString());
 	if (newCopy instanceof Copyable || newCopy instanceof Creator) {
 		newCopy.calliEditors.addAll(factory.calliEditors);
@@ -55,7 +54,12 @@ function postCreate(msg) {
 	newCopy.calliAdministrators.addAll(factory.calliEditors);
 	newCopy.calliAdministrators.addAll(this.calliEditors);
 	newCopy.calliAdministrators.addAll(this.FindCreateContributor(newCopy));
-	factory.touchRevision();
+	if (factory != this) {
+		factory.touchRevision();
+	}
+	if (!msg.intermediate || !msg.intermediate.booleanValue()) {
+		this.touchRevision();
+	}
 	return newCopy;
 }
 

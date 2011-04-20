@@ -11,11 +11,11 @@ $(document).ready(initForms);
 
 function initForms() {
 	$("form[about]").each(function(i, node) {
-		var form = $(node)
+		var form = $(node);
 		$(document).bind("calliReady", function() {
-			form.validate({submitHandler: submitRDFForm})
-		})
-	})
+			form.validate({submitHandler: submitRDFForm});
+		});
+	});
 }
 
 function submitRDFForm(form) {
@@ -28,7 +28,7 @@ function submitRDFForm(form) {
 			var added = readRDF(form);
 			var type = "application/rdf+xml";
 			var data = added.dump({format:"application/rdf+xml",serialize:true});
-			postData(form, location.href, type, data, function(data, textStatus, xhr) {
+			postData(form, type, data, function(data, textStatus, xhr) {
 				try {
 					var redirect = xhr.getResponseHeader("Location");
 					try {
@@ -61,32 +61,36 @@ function submitRDFForm(form) {
 }
 
 function readRDF(form) {
-	var subj = $.uri.base()
+	var subj = $.uri.base();
 	if ($(form).attr("about")) {
-		subj = subj.resolve($(form).attr("about"))
+		subj = subj.resolve($(form).attr("about"));
 	}
-	var store = form.rdf().databank
+	var store = form.rdf().databank;
 	store.triples().each(function(){
 		if (this.subject.type == 'uri' && this.subject.value.toString() != subj.toString() && this.subject.value.toString().indexOf(subj.toString() + '#') != 0) {
-			store.remove(this)
+			store.remove(this);
 		} else if (this.subject.type == "bnode") {
-			var orphan = true
+			var orphan = true;
 			$.rdf({databank: store}).where("?s ?p " + this.subject).each(function (i, bindings, triples) {
-				orphan = false
-			})
+				orphan = false;
+			});
 			if (orphan) {
-				store.remove(this)
+				store.remove(this);
 			}
 		}
-	})
-	return store
+	});
+	return store;
 }
 
-function postData(form, url, type, data, callback) {
-	var xhr = null
+function postData(form, type, data, callback) {
+	var url = location.href;
+	if (window.frameElement) {
+		url = location.search + '&intermediate=true';
+	}
+	var xhr = null;
 	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, success: function(data, textStatus) {
-		callback(data, textStatus, xhr)
-	}})
+		callback(data, textStatus, xhr);
+	}});
 }
 
 })(jQuery)

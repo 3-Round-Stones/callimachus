@@ -49,6 +49,11 @@
 	rdfs:range calli:Creatable;
 	msg:query "create".
 
+:intermediate a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :PostCreate;
+	rdfs:range xsd:boolean;
+	msg:query "intermediate".
+
 :input a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostCreate;
 	rdfs:range <java:java.io.InputStream>;

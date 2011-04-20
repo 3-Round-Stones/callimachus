@@ -108,7 +108,9 @@ public abstract class CreateSupport implements Page {
 			checkUriSpace(spaces, uri);
 			ObjectFactory of = con.getObjectFactory();
 			for (URI partner : tracker.getResources()) {
-				of.createObject(partner, VersionedObject.class).touchRevision();
+				if (!partner.equals(source.getResource())) {
+					of.createObject(partner, VersionedObject.class).touchRevision();
+				}
 			}
 			return of.createObject(subject, tracker.getTypes());
 		} catch (URISyntaxException  e) {

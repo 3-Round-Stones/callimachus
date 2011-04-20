@@ -73,11 +73,11 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 			{
 				$object calli:contributor $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ( $query = "copy" || regex($query, "^create(=|$)"))
+				FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
 			} UNION {
 				$object calli:editor $credential
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ($query = "copy" || regex($query, "^create(=|$)"))
+				FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
 			} UNION {
 				$object calli:administrator $credential
 			}
@@ -92,11 +92,11 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 			{
 				$object calli:contributor ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ($query = "copy" || regex($query, "^create(=|$)"))
+				FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
 			} UNION {
 				$object calli:editor ?group
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER ( $query = "copy" || regex($query, "^create(=|$)"))
+				FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
 			} UNION {
 				$object calli:administrator ?group
 			}

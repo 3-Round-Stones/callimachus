@@ -1,5 +1,6 @@
 // operations.js
 
+importClass(Packages.calli.Creator);
 importClass(Packages.calli.Copyable);
 importClass(Packages.calli.copy);
 importClass(Packages.calli.edit);
@@ -7,6 +8,7 @@ importClass(Packages.calli.view);
 importClass(Packages.org.apache.http.ProtocolVersion);
 importClass(Packages.org.apache.http.message.BasicHttpResponse);
 importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
+importClass(Packages.org.openrdf.http.object.exceptions.BadRequest);
 
 function getViewPage() {
 	return findTemplate(this, view).calliConstruct(this, 'view');
@@ -19,7 +21,7 @@ function getCopyPage() {
 function postCopy(msg) {
 	var template = findTemplate(this, copy);
 	var newCopy = template.calliCreateResource(this, msg.input, this.FindCopyUriSpaces());
-	if (newCopy instanceof Copyable) {
+	if (newCopy instanceof Copyable || newCopy instanceof Creator) {
 		newCopy.calliEditors.addAll(this.calliEditors);
 	}
 	newCopy.calliAdministrators.addAll(this.calliEditors);
@@ -27,24 +29,33 @@ function postCopy(msg) {
 	return newCopy;
 }
 
-function getCreatePage() {
-	if (!this.calliCreate)
+function getCreatePage(msg) {
+java.lang.System.err.println('create: ' + msg);
+	var factory = msg.create ? msg.create : this;
+	if (this instanceof Creator && factory != this && !this.IsCreatable(factory))
+		throw new BadRequest("Cannot create this class here: " + factory);
+	if (!factory.calliCreate)
 		throw new InternalServerError("No create template");
-	return this.calliCreate.calliConstruct(this, 'create');
+	return factory.calliCreate.calliConstruct(factory, 'create');
 }
 
 function postCreate(msg) {
-	var template = this.calliCreate;
+	var factory = msg.create ? msg.create : this;
+	if (this instanceof Creator && factory != this && !this.IsCreatable(factory))
+		throw new BadRequest("Cannot create this class here: " + factory);
+	var template = factory.calliCreate;
 	if (!template)
 		throw new InternalServerError("No create template");
-	var newCopy = template.calliCreateResource(this, msg.input, this.calliUriSpace);
-	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
-	if (newCopy instanceof Copyable) {
+	var newCopy = template.calliCreateResource(factory, msg.input, factory.calliUriSpace);
+	newCopy = newCopy.objectConnection.addDesignation(newCopy, factory.toString());
+	if (newCopy instanceof Copyable || newCopy instanceof Creator) {
+		newCopy.calliEditors.addAll(factory.calliEditors);
 		newCopy.calliEditors.addAll(this.calliEditors);
 	}
+	newCopy.calliAdministrators.addAll(factory.calliEditors);
 	newCopy.calliAdministrators.addAll(this.calliEditors);
 	newCopy.calliAdministrators.addAll(this.FindCreateContributor(newCopy));
-	this.touchRevision();
+	factory.touchRevision();
 	return newCopy;
 }
 

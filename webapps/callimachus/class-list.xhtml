@@ -5,21 +5,11 @@
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this" property="rdfs:label" />
-	<script>
-		jQuery(function($) {
-			$('.related[about=' + $('body').attr('about') + ']').remove();
-		});
-	</script>
 </head>
 <body about="?this">
 	<ul class="aside">
 		<li><a href="?create">Create a new <span property="rdfs:label" /></a></li>
 	</ul>
-	<div rel="rdfs:isDefinedBy">
-		<ul class="aside" rev="rdfs:isDefinedBy">
-			<li class="related" about="?related"><a href="?related">View all <span property="rdfs:label" /> resources</a></li>
-		</ul>
-	</div>
 	<ul class="aside">
 		<li property="rdfs:comment" />
 	</ul>

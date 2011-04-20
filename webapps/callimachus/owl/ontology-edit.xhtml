@@ -27,10 +27,6 @@
 		<div data-cardinality="1">
 			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
 		</div>
-		<label for="class">Class</label>
-		<div id="class" rev="rdfs:isDefinedBy" data-prompt="/callimachus/owl/Class?create">
-			<div about="?class" typeof="owl:Class" property="rdfs:label" />
-		</div>
 		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
 		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this ontology?')) calli.deleteResource()">Delete</button>

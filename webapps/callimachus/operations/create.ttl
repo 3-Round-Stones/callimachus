@@ -26,7 +26,7 @@
 @prefix :<#>.
 
 :GetCreatePage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Creator calli:Creatable)]];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "create";
@@ -36,7 +36,7 @@
 	msg:script <operations.js#getCreatePage>.
 
 :PostCreate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Creator calli:Creatable)]];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	msg:method "POST";
 	msg:query "create";
@@ -44,14 +44,32 @@
 	msg:type "text/uri-list";
 	msg:script <operations.js#postCreate>.
 
+:create a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain [owl:unionOf (:GetCreatePage :PostCreate)];
+	rdfs:range calli:Creatable;
+	msg:query "create".
+
 :input a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostCreate;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "application/rdf+xml".
 
-# find the user that created $thing if they are not editors or $this
+# find the user that created $thing if they are not editors of $this
+:IsCreatable rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
+	msg:sparql  """
+		ASK { $this a [calli:creates $creatable] }
+	""".
+
+:creatable a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :IsCreatable;
+	rdfs:range calli:Creatable.
+
+# find the user that created $thing if they are not editors of $this
 :FindCreateContributor rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Creator calli:Creatable)]];
 	msg:sparql  """
 		SELECT DISTINCT ?contributor
 		WHERE {
@@ -61,11 +79,11 @@
 				GRAPH ?graph { $thing a ?type }
 				?graph audit:contributor ?contributor
 			} OPTIONAL {
-				?class calli:editor ?contributor FILTER (?class = $this)
+				?editor calli:editor ?contributor FILTER (?editor = $this)
 			} OPTIONAL {
 				$this calli:editor ?group . ?group calli:member ?contributor
 			}
-			FILTER (!bound(?class) && !bound(?group))
+			FILTER (!bound(?editor) && !bound(?group))
 		}
 	""".
 

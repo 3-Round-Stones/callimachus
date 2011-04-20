@@ -24,10 +24,10 @@
 @prefix :<#>.
 
 <ConceptScheme> a calli:Creatable, </callimachus/ListClass>;
-	rdfs:subClassOf calli:Viewable, calli:Editable, skos:ConceptScheme;
+	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, skos:ConceptScheme;
 	rdfs:label "Concept Scheme";
 	rdfs:comment "A scheme is a particular classification, arranged in a hierarchical structure", "Typically this is organized by supertype-subtype relationships, also called generalization-specialization relationships, or less formally, parent-child relationships";
-	rdfs:isDefinedBy <>;
+	calli:creates <Concept>;
 	calli:icon <scheme.png>;
 	calli:view <scheme.xhtml>;
 	calli:edit <scheme-edit.xhtml>;
@@ -45,15 +45,11 @@
 	msg:imports <concept-list.xhtml>;
 	msg:script "return concept_list_xhtml.calliConstructHTML(this)".
 
-<Concept> a calli:Creatable, </callimachus/IndexClass>;
+<Concept> a calli:Creatable, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, skos:Concept;
-	rdfs:label "Concept";
-	rdfs:comment "New Classes should be created from a scheme";
-	rdfs:isDefinedBy <>;
 	calli:icon <concept.png>;
 	calli:view <concept.xhtml>;
 	calli:edit <concept-edit.xhtml>;
 	calli:create <concept-create.xhtml>;
-	calli:uriSpace </scheme/>;
-	calli:editor </group/admin>.
+	calli:uriSpace </scheme/>.
 

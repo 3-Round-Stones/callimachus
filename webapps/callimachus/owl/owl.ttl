@@ -25,10 +25,10 @@
 @prefix :<#>.
 
 <Ontology> a calli:Creatable, </callimachus/ListClass>;
-	rdfs:subClassOf owl:Ontology, calli:Viewable, calli:Editable;
+	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, owl:Ontology;
 	rdfs:label "Ontology";
 	rdfs:comment "Ontologies are the structural frameworks for organizing resources into classes based on characteristics which they have in common";
-	rdfs:isDefinedBy <>;
+	calli:creates <Class>;
 	calli:icon <ontology.png>;
 	calli:view <ontology.xhtml>;
 	calli:edit <ontology-edit.xhtml>;
@@ -37,17 +37,13 @@
 	calli:editor </group/admin>.
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
-<Class> a calli:Creatable, </callimachus/IndexClass>;
+<Class> a calli:Creatable, owl:Class;
 	rdfs:subClassOf owl:Class, calli:Creatable, calli:Viewable, calli:Editable;
-	rdfs:label "Class";
-	rdfs:comment "A class is a construct that is used as a blueprint (or template) to create and edit resources of that class", "New Classes should be created from an ontology";
-	rdfs:isDefinedBy <>;
 	calli:icon <class.png>;
 	calli:view <class.xhtml>;
 	calli:edit <class-edit.xhtml>;
 	calli:create <class-create.xhtml>;
-	calli:uriSpace </rdf/>;
-	calli:editor </group/admin>.
+	calli:uriSpace </rdf/>.
 
 :PostClassCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Class>]);

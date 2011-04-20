@@ -49,8 +49,9 @@
 		</li>
 		<li>Icon is used when looking up resources</li>
 		<li>A superclass should be a common part of its subclasses</li>
-		<li>Contributors can create resources and edit those resources</li>
-		<li>Editors can create resources and edit all resources of this class</li>
+		<li>Contributors can create and edit resources they created</li>
+		<li>Editors can create and edit new resources</li>
+		<li>Administrators edit this page, can create and edit resources they created</li>
 		<li>Templates are used for page or form structure for each operation</li>
 	</ul>
 	<h1 property="rdfs:label" />
@@ -95,7 +96,14 @@
 					<div about="?editor" property="rdfs:label" />
 				</div>
 			</div>
+			<div>
+				<label for="administrator">Administrator</label>
+				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
+					<div about="?administrator" typeof="calli:Group" property="rdfs:label"/>
+				</div>
+			</div>
 		</div>
+		<hr />
 		<div class="hbox">
 			<div>
 				<label for="create">Create template</label>

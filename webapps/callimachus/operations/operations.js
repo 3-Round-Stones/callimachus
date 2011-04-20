@@ -1,6 +1,7 @@
 // operations.js
 
 importClass(Packages.calli.Creator);
+importClass(Packages.calli.Creatable);
 importClass(Packages.calli.Copyable);
 importClass(Packages.calli.copy);
 importClass(Packages.calli.edit);
@@ -21,7 +22,7 @@ function getCopyPage() {
 function postCopy(msg) {
 	var template = findTemplate(this, copy);
 	var newCopy = template.calliCreateResource(this, msg.input, this.FindCopyUriSpaces());
-	if (newCopy instanceof Copyable || newCopy instanceof Creator) {
+	if (newCopy instanceof Copyable || newCopy instanceof Creatable || newCopy instanceof Creator) {
 		newCopy.calliEditors.addAll(this.calliEditors);
 	}
 	newCopy.calliAdministrators.addAll(this.calliEditors);
@@ -47,7 +48,7 @@ function postCreate(msg) {
 		throw new InternalServerError("No create template");
 	var newCopy = template.calliCreateResource(this, msg.input, factory.calliUriSpace);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, factory.toString());
-	if (newCopy instanceof Copyable || newCopy instanceof Creator) {
+	if (newCopy instanceof Copyable || newCopy instanceof Creatable || newCopy instanceof Creator) {
 		newCopy.calliEditors.addAll(factory.calliEditors);
 		newCopy.calliEditors.addAll(this.calliEditors);
 	}

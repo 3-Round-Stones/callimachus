@@ -6,54 +6,82 @@
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
-	<head>
-		<title about="?this" property="rdfs:label"></title>
-		<script>
-			function saveChangeNote() {
-				var note = document.getElementById('note')
-				if (note.value) {
-					note.setAttribute('property', 'skos:changeNote')
-					note.setAttribute('content', note.value)
-				}
+<head>
+	<title about="?this" property="rdfs:label"></title>
+	<script>
+		function saveChangeNote() {
+			var note = document.getElementById('note')
+			if (note.value) {
+				note.setAttribute('property', 'skos:changeNote')
+				note.setAttribute('content', note.value)
 			}
-		</script>
-	</head>
-	<body about="?this">
-		<ul class="aside">
-			<li>Use a recognizable label</li>
-			<li>Provide clarity in the comment</li>
-			<li>List the most used or recommended concepts is the list</li>
-		</ul>
-		<h1 property="rdfs:label" />
-		<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()" data-redirect="/scheme">
-			<label for="label">Label</label>
-			<div data-cardinality="1">
-				<input id="label" property="rdfs:label" class="required auto-expand" />
-			</div>
-			<label for="comment">Comment</label>
-			<div data-cardinality="1">
-				<textarea id="comment" class="auto-expand" property="rdfs:comment" />
-			</div>
-			<hr />
-			<label for="topConcept">Top concepts</label>
-			<div id="topConcept" rel="skos:hasTopConcept" data-prompt="?create=/callimachus/skos/Concept">
-				<span about="?top" typeof="skos:Concept">
-					<span property="skos:prefLabel"></span>
-				</span>
-			</div>
-			<hr />
-			<label for="image">Image</label>
-			<div id="image" rel="foaf:depiction" data-prompt="/callimachus/Image?create">
-				<span about="?image" typeof="foaf:Image" property="rdfs:label"/>
-			</div>
-			<hr />
-			<label for="note">Change note</label>
+		}
+	</script>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li>Use a recognizable label</li>
+		<li>Provide clarity in the comment</li>
+		<li>List the most used or recommended concepts is the list</li>
+		<li>Contributors can create and edit concepts they created</li>
+		<li>Editors can create and edit new concepts in this scheme</li>
+		<li>Administrators edit this page, can create and edit concepts they created</li>
+	</ul>
+	<h1 property="rdfs:label" />
+	<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()" data-redirect="/scheme">
+		<label for="label">Label</label>
+		<div data-cardinality="1">
+			<input id="label" property="rdfs:label" class="required auto-expand" />
+		</div>
+		<label for="comment">Comment</label>
+		<div data-cardinality="1">
+			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
+		</div>
+		<div class="hbox">
 			<div>
-				<input type="text" id="note" maxlength="140" class="auto-expand" />
+				<label for="topConcept">Top concepts</label>
+				<div id="topConcept" rel="skos:hasTopConcept" data-prompt="?create=/callimachus/skos/Concept">
+					<div about="?top" typeof="skos:Concept">
+						<span property="skos:prefLabel"></span>
+					</div>
+				</div>
 			</div>
-			<button id="submit" type="submit">Save</button>
-			<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-			<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this scheme?')) calli.deleteResource()">Delete</button>
-		</form>
-	</body>
+			<div>
+				<label for="image">Image</label>
+				<div id="image" rel="foaf:depiction" data-prompt="/callimachus/Image?create">
+					<span about="?image" typeof="foaf:Image" property="rdfs:label"/>
+				</div>
+			</div>
+		</div>
+		<hr />
+		<div class="hbox">
+			<div>
+				<label for="contributor">Contributor</label>
+				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
+					<div about="?contributor" typeof="calli:Group" property="rdfs:label"/>
+				</div>
+			</div>
+			<div>
+				<label for="editor">Editor</label>
+				<div id="editor" rel="calli:editor" data-prompt="/accounts">
+					<div about="?editor" typeof="calli:Group" property="rdfs:label"/>
+				</div>
+			</div>
+			<div>
+				<label for="administrator">Administrator</label>
+				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
+					<div about="?administrator" typeof="calli:Group" property="rdfs:label"/>
+				</div>
+			</div>
+		</div>
+		<hr />
+		<label for="note">Change note</label>
+		<div>
+			<input type="text" id="note" maxlength="140" class="auto-expand" />
+		</div>
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this scheme?')) calli.deleteResource()">Delete</button>
+	</form>
+</body>
 </html>

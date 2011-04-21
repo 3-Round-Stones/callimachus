@@ -72,9 +72,28 @@
 	rdfs:domain :IsCreatable;
 	rdfs:range calli:Creatable.
 
-# find the user that created $thing if they are not editors of $this
-:FindCreateContributor rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Creator calli:Creatable)]];
+:ConstructCreatorRelationship rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <java:org.openrdf.model.Statement>];
+	msg:sparql """
+		CONSTRUCT {
+			$this ?rel $that . $that ?rev $this
+		} WHERE {
+			$that a ?type
+			{
+				$this a [calli:createRel ?rel]
+			} UNION {
+				$this a [calli:createRev ?rev]
+			}
+		}
+	""".
+
+:that a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :ConstructCreatorRelationship.
+
+# find the user that created $thing if they are not administrators nor editors of $this
+:FindCreatorContributor rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
 	msg:sparql  """
 		SELECT DISTINCT ?contributor
 		WHERE {
@@ -84,7 +103,11 @@
 				GRAPH ?graph { $thing a ?type }
 				?graph audit:contributor ?contributor
 			} OPTIONAL {
+				?editor calli:administrator ?contributor FILTER (?editor = $this)
+			} OPTIONAL {
 				?editor calli:editor ?contributor FILTER (?editor = $this)
+			} OPTIONAL {
+				$this calli:administrator ?group . ?group calli:member ?contributor
 			} OPTIONAL {
 				$this calli:editor ?group . ?group calli:member ?contributor
 			}
@@ -93,5 +116,5 @@
 	""".
 
 :thing a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :FindCreateContributor.
+	rdfs:domain :FindCreatorContributor.
 

@@ -7,14 +7,17 @@
 	<title>New Class</title>
 	<script> // <![CDATA[
 	jQuery(function($){
-		if (parent && $('#ontology', parent.document).length) {
-			// copy ontology from parent concept
-			$('#isDefinedBy').append($('#ontology', parent.document).clone());
-		} else if (document.referrer) {
-			var de = jQuery.Event('calliLink');
-			de.location = document.referrer;
-			$('#isDefinedBy').trigger(de);
-		}
+		$('#form').submit(function() {
+			var ontology = calli.listResourceIRIs(document.referrer)[0];
+			if (parent) {
+				// copy ontology from parent class
+				var about = $('#ontology', parent.document).attr('about');
+				if (about) {
+					ontology = about;
+				}
+			}
+			$(this).attr('about', ontology + '/' + encodeURI($('#label').val()).replace(/%20/g,'+'))
+		});
 	}); // ]]>
 	</script>
 </head>
@@ -22,14 +25,9 @@
 	<ul class="aside">
 		<li>A class usually represents a noun, such as a person, place or (possibly quite abstract) thing</li>
 	</ul>
-	<form id="form" about="?this" typeof="owl:Class" action=""
-			onsubmit="$(this).attr('about', $('#isDefinedBy').find('[about]').attr('about') + '/' + encodeURI($('#label').val()).replace(/%20/g,'+'))">
+	<form id="form" about="?this" typeof="owl:Class" action="">
 		<span rel="rdf:type" resource="/callimachus/owl/Class" />
-		<h1>
-			<span id="isDefinedBy" rel="rdfs:isDefinedBy">
-				<span about="?isDefinedBy" property="rdfs:label" />
-			</span>
-		</h1>
+		<h1>New Class</h1>
 		<label for="label">Label</label>
 		<div data-cardinality="1">
 			<input id="label" property="rdfs:label" class="required auto-expand" />

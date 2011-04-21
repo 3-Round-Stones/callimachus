@@ -59,7 +59,7 @@
 
 # find the user that created $thing if they are not editors of $this
 :FindCopyContributor rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Copyable calli:Creatable)]];
 	msg:sparql  """
 		SELECT DISTINCT ?contributor
 		WHERE {

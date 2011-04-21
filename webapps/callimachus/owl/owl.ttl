@@ -29,6 +29,7 @@
 	rdfs:label "Ontology";
 	rdfs:comment "Ontologies are the structural frameworks for organizing resources into classes based on characteristics which they have in common";
 	calli:creates <Class>;
+	calli:createRev rdfs:isDefinedBy;
 	calli:icon <ontology.png>;
 	calli:view <ontology.xhtml>;
 	calli:edit <ontology-edit.xhtml>;

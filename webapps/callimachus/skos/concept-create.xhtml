@@ -8,14 +8,17 @@
 	<title>New Concept</title>
 	<script> // <![CDATA[
 	jQuery(function($){
-		if (parent && $('#scheme', parent.document).length) {
-			// copy scheme from parent concept
-			$('#inscheme').append($('#scheme', parent.document).clone());
-		} else if (document.referrer) {
-			var de = jQuery.Event('calliLink');
-			de.location = document.referrer;
-			$('#inscheme').trigger(de);
-		}
+		$('#form').submit(function() {
+			var scheme = calli.listResourceIRIs(document.referrer)[0];
+			if (parent) {
+				// copy scheme from parent concept
+				var about = $('#scheme', parent.document).attr('about');
+				if (about) {
+					scheme = about;
+				}
+			}
+			$(this).attr('about', scheme + '/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())
+		});
 	}); // ]]>
 	</script>
 </head>
@@ -25,13 +28,8 @@
 		<li>Other labels can be provide to assist concept lookup</li>
 		<li>The definition, example, and scope can be provide to clarify usage and meaning</li>
 	</ul>
-	<form id="form" about="?this" typeof="skos:Concept" action=""
-			onsubmit="$(this).attr('about', $('#inscheme').find('[about]').attr('about') + '/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
-		<h1>
-			<span id="inscheme" rel="skos:inScheme">
-				<span about="?scheme" property="rdfs:label" />
-			</span>
-		</h1>
+	<form id="form" about="?this" typeof="skos:Concept" action="">
+		<h1>New Concept</h1>
 		<div class="hbox">
 			<div>
 				<label for="label">Label</label>

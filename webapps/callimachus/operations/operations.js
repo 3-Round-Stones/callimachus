@@ -41,8 +41,10 @@ function getCreatePage(msg) {
 
 function postCreate(msg) {
 	var factory = msg.create ? msg.create : this;
-	if (this instanceof Creator && factory != this && !this.IsCreatable(factory))
-		throw new BadRequest("Cannot create this class here: " + factory);
+	if (!(factory instanceof Creatable))
+		throw new BadRequest("Cannot create " + factory);
+	if (factory != this && !(this instanceof Creator && this.IsCreatable(factory)))
+		throw new BadRequest("Cannot create this class here");
 	var template = factory.calliCreate;
 	if (!template)
 		throw new InternalServerError("No create template");
@@ -53,9 +55,17 @@ function postCreate(msg) {
 		newCopy.calliEditors.addAll(this.calliEditors);
 	}
 	newCopy.calliAdministrators.addAll(factory.calliEditors);
-	newCopy.calliAdministrators.addAll(this.calliEditors);
-	newCopy.calliAdministrators.addAll(this.FindCreateContributor(newCopy));
-	if (factory != this) {
+	if (factory == this) {
+		newCopy.calliAdministrators.addAll(this.FindCopyContributor(newCopy));
+	} else {
+		// administrators are inherited from this creator resource
+		newCopy.calliAdministrators.addAll(this.calliEditors);
+		newCopy.calliAdministrators.addAll(this.calliAdministrators);
+		newCopy.calliAdministrators.addAll(this.FindCreatorContributor(newCopy));
+		var statements = this.ConstructCreatorRelationship(newCopy).iterator();
+		while (statements.hasNext()) {
+			this.objectConnection.add(statements.next(), []);
+		}
 		factory.touchRevision();
 	}
 	if (!msg.intermediate || !msg.intermediate.booleanValue()) {

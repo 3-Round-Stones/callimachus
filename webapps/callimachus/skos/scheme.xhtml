@@ -18,14 +18,6 @@
 			<a href="?create=/callimachus/skos/Concept">Create a new Concept</a>
 		</li>
 	</ul>
-	<ul class="optional aside">
-		<li>
-			<label>Top concepts</label>
-			<div rel="skos:hasTopConcept" resource="?top">
-				<a href="?top" property="skos:prefLabel"></a>
-			</div>
-		</li>
-	</ul>
 	<ul class="aside">
 		<li>Concepts are ideas, meanings, or categories of objects and events</li>
 	</ul>
@@ -37,5 +29,13 @@
 		<p property="rdfs:comment" />
 	</div>
 	<pre property="rdfs:comment" class="wiki"></pre>
+	<ul rel="skos:hasTopConcept">
+		<li about="?top">
+			<img src="/callimachus/skos/concept.png" class="icon" />
+			<a href="?top" property="rdfs:label"/>
+			<a href="?top" property="skos:prefLabel"/>
+			<pre class="wiki summary" property="skos:definition" />
+		</li>
+	</ul>
 </body>
 </html>

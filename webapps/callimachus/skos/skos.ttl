@@ -28,6 +28,7 @@
 	rdfs:label "Concept Scheme";
 	rdfs:comment "A scheme is a particular classification, arranged in a hierarchical structure", "Typically this is organized by supertype-subtype relationships, also called generalization-specialization relationships, or less formally, parent-child relationships";
 	calli:creates <Concept>;
+	calli:createRev skos:inScheme;
 	calli:icon <scheme.png>;
 	calli:view <scheme.xhtml>;
 	calli:edit <scheme-edit.xhtml>;

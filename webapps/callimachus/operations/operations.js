@@ -32,7 +32,7 @@ function postCopy(msg) {
 
 function getCreatePage(msg) {
 	var factory = msg.create ? msg.create : this;
-	if (this instanceof Creator && factory != this && !this.IsCreatable(factory))
+	if (this instanceof Creator && !this.equals(factory) && !this.IsCreatable(factory))
 		throw new BadRequest("Cannot create this class here: " + factory);
 	if (!factory.calliCreate)
 		throw new InternalServerError("No create template");
@@ -43,7 +43,7 @@ function postCreate(msg) {
 	var factory = msg.create ? msg.create : this;
 	if (!(factory instanceof Creatable))
 		throw new BadRequest("Cannot create " + factory);
-	if (factory != this && !(this instanceof Creator && this.IsCreatable(factory)))
+	if (!this.equals(factory) && !(this instanceof Creator && this.IsCreatable(factory)))
 		throw new BadRequest("Cannot create this class here");
 	var template = factory.calliCreate;
 	if (!template)
@@ -55,7 +55,7 @@ function postCreate(msg) {
 		newCopy.calliEditors.addAll(this.calliEditors);
 	}
 	newCopy.calliAdministrators.addAll(factory.calliEditors);
-	if (factory == this) {
+	if (this.equals(factory)) {
 		newCopy.calliAdministrators.addAll(this.FindCopyContributor(newCopy));
 	} else {
 		// administrators are inherited from this creator resource

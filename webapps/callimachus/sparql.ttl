@@ -50,7 +50,7 @@
 	msg:imports <java:org.openrdf.http.object.model.ReadableHttpEntityChannel>;
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	msg:script """
-		if (qry == null)
+		if (!qry)
 			throw new BadRequest("Missing query");
 		try {
 			var query;
@@ -119,7 +119,7 @@
 	msg:transform :TransformResult;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:script """
-		if (query == null)
+		if (!query)
 			throw new BadRequest("Missing query body");
 		return this.EvaluateSparql(new java.lang.String(query, "UTF-8"));
 	""".
@@ -137,7 +137,7 @@
 	msg:type "message/x-response";
 	msg:transform :TransformResult;
 	msg:script """
-		if (map == null || !map.containsKey("query"))
+		if (!map || !map.containsKey("query"))
 			throw new org.openrdf.http.object.exceptions.BadRequest("Missing query");
 		return this.EvaluateSparql(map.get("query")[0]);
 	""".

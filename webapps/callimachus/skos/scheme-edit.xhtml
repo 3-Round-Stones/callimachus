@@ -23,7 +23,6 @@
 		<li>Use a recognizable label</li>
 		<li>Provide clarity in the comment</li>
 		<li>List the most used or recommended concepts is the list</li>
-		<li>Contributors can create and edit concepts they created</li>
 		<li>Editors can create and edit new concepts in this scheme</li>
 		<li>Administrators edit this page, can create and edit new concepts in this scheme</li>
 	</ul>
@@ -56,21 +55,15 @@
 		<hr />
 		<div class="hbox">
 			<div>
-				<label for="contributor">Contributor</label>
-				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
-					<div about="?contributor" typeof="calli:Group" property="rdfs:label"/>
-				</div>
-			</div>
-			<div>
 				<label for="editor">Editor</label>
 				<div id="editor" rel="calli:editor" data-prompt="/accounts">
-					<div about="?editor" typeof="calli:Group" property="rdfs:label"/>
+					<div about="?editor" typeof="calli:Party" property="rdfs:label"/>
 				</div>
 			</div>
 			<div>
 				<label for="administrator">Administrator</label>
 				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
-					<div about="?administrator" typeof="calli:Group" property="rdfs:label"/>
+					<div about="?administrator" typeof="calli:Party" property="rdfs:label"/>
 				</div>
 			</div>
 		</div>

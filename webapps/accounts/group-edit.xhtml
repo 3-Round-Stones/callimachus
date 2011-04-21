@@ -21,8 +21,8 @@
 <body about="?this">
 	<ul class="aside">
 		<li>Use Wiki text to describe the purpose of this group</li>
-		<li>Administrators can add and remove members of this groups and invite new users</li>
-		<li>Administrators can edit user settings of users invited to this group</li>
+		<li>Contributors can invite new users</li>
+		<li>Administrators can edit this page, invite new users, and edit the settings and passwords of new users</li>
 	</ul>
 	<h1><span property="rdfs:label" /> Group</h1>
 	<form id="form" action="" about="?this" onsubmit="saveChangeNote()" data-redirect="/accounts">
@@ -31,13 +31,23 @@
 			<textarea id="comment" class="auto-expand"
 				property="rdfs:comment"></textarea>
 		</div>
-		<label for="administrator">Administrator</label>
-		<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
-			<div about="?administrator" property="rdfs:label"/>
+		<div class="hbox">
+			<div>
+				<label for="contributor">Contributor</label>
+				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
+					<div about="?contributor" typeof="calli:Party" property="rdfs:label"/>
+				</div>
+			</div>
+			<div>
+				<label for="administrator">Administrator</label>
+				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
+					<div about="?administrator" typeof="calli:Party" property="rdfs:label"/>
+				</div>
+			</div>
 		</div>
 		<hr />
 		<label for="member">Members</label>
-		<div id="member" rel="calli:member" data-prompt="?usercreate">
+		<div id="member" rel="calli:member" data-prompt="?create=/accounts/User">
 			<span about="?member" typeof="calli:User" property="rdfs:label" />
 		</div>
 		<hr />

@@ -1,0 +1,55 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+:AddPartyToUsers owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var Party = vf.createURI(calli, "Party");
+		var User = vf.createURI(calli, "User");
+		var users = con.getStatements(null, RDF.TYPE, User, true, []);
+		try {
+			while (users.hasNext()) {
+				var user = users.next().subject;
+				if (!con.hasStatement(user, RDF.TYPE, Party, true, [])) {
+					java.lang.System.err.println("Migrating " + user);
+					con.add(user, RDF.TYPE, Party, []);
+				}
+			}
+		} finally {
+			users.close();
+		}
+		proceed();
+	""".
+
+:AddPartyToGroups owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var Party = vf.createURI(calli, "Party");
+		var Group = vf.createURI(calli, "Group");
+		var groups = con.getStatements(null, RDF.TYPE, Group, true, []);
+		try {
+			while (groups.hasNext()) {
+				var group = groups.next().subject;
+				if (!con.hasStatement(group, RDF.TYPE, Party, true, [])) {
+					java.lang.System.err.println("Migrating " + group);
+					con.add(group, RDF.TYPE, Party, []);
+				}
+			}
+		} finally {
+			groups.close();
+		}
+		proceed();
+	""".
+

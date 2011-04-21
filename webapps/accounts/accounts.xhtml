@@ -9,6 +9,9 @@
 </head>
 <body about="?this">
 	<ul class="aside">
+		<li><a href="?create=/accounts/Group">Create a new Group</a></li>
+	</ul>
+	<ul class="aside">
 		<li>Callimachus splits access control into two steps: authentication and authorization</li>
 		<li>Authentication authorizes user accounts based on a username and password that are members of a group listed here</li>
 		<li>Authorization is done by matching authenticated users or their groups to resource and class settings</li>
@@ -16,7 +19,7 @@
 	<h1>User Groups</h1>
 	<ul>
 		<li rel="calli:authenticates" resource="?group">
-			<a href="?group" property="rdfs:label" />
+			<a href="?group" typeof="calli:Group" property="rdfs:label" />
 		</li>
 	</ul>
 </body>

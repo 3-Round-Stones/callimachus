@@ -83,16 +83,17 @@ rdfs:label a rdf:Property.
 			throw new BadRequest("Invalid MD5 sum");
 		var decoded = Hex.decodeHex(encoded.toCharArray());
 		var uri = user + URLEncoder.encode(username).replaceAll("%20", "+").toLowerCase();
-		var user = this.objectConnection.getObject(uri);
-		if (user instanceof User)
-			throw new Conflict("User already exists: " + user);
-		user = this.objectConnection.addDesignation(user, User);
-		user = this.objectConnection.addDesignation(user, "http://callimachusproject.org/rdf/2009/framework#User");
-		user.calliName = username;
-		user.calliAlgorithm = algorithm;
-		user.calliEncoded = decoded;
-		user.rdfsLabels.add(label);
-		this.calliMembers.add(user);
+		var newUser = this.objectConnection.getObject(uri);
+		if (newUser instanceof User)
+			throw new Conflict("User already exists: " + newUser);
+		newUser = this.objectConnection.addDesignation(newUser, User);
+		newUser = this.objectConnection.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#Party");
+		newUser = this.objectConnection.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#User");
+		newUser.calliName = username;
+		newUser.calliAlgorithm = algorithm;
+		newUser.calliEncoded = decoded;
+		newUser.rdfsLabels.add(label);
+		this.calliMembers.add(newUser);
 		return uri;
 	""".
 

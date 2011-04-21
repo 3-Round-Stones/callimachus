@@ -12,7 +12,9 @@
 # Realm
 ################################
 
-<Accounts> rdfs:subClassOf calli:Viewable, calli:Editable, calli:DigestRealm;
+<Accounts> rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:DigestRealm;
+	calli:creates <Group>;
+	calli:createRel calli:authenticates;
 	calli:view <accounts.xhtml>;
 	calli:edit <accounts-edit.xhtml>.
 
@@ -34,7 +36,8 @@
 	calli:icon <user-favicon.png>;
 	calli:uriSpace </user/>;
 	calli:view <user.xhtml>;
-	calli:edit <user-edit.xhtml>.
+	calli:edit <user-edit.xhtml>;
+	calli:editor </group/admin>. # admin members can edit any user
 
 ################################
 # Group
@@ -44,15 +47,15 @@
 	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Group;
 	calli:icon <group-favicon.png>;
 	msg:realm </accounts>; # Group operations must be authorized
-	calli:editor </group/admin>; # create/edit all groups
 	calli:view <group.xhtml>;
 	calli:edit <group-edit.xhtml>;
 	calli:create <group-create.xhtml>;
-	calli:uriSpace </group/>.
+	calli:uriSpace </group/>;
+	calli:editor </group/admin>. # admin members can edit any group
 
 </group/admin> a calli:Group, <Group>;
 	rdfs:label "admin";
-	calli:administrator </group/admin>. # can remove and invite new users
+	calli:administrator </group/admin>. # can remove and invite new admin users
 
 ################################
 # login

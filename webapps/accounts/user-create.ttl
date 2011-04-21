@@ -10,7 +10,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
-	msg:query "usercreate";
+	msg:query "create";
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
 	msg:realm </accounts>;
@@ -26,7 +26,7 @@ rdfs:comment a rdf:Property.
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	msg:method "POST";
-	msg:query "usercreate";
+	msg:query "create";
 	msg:realm </accounts>;
 	msg:expect "303-see-other";
 	msg:imports <User>;
@@ -55,24 +55,25 @@ rdfs:comment a rdf:Property.
 		var body = form.get("message")[0];
 		//# assign id
 		var uri = user + URLEncoder.encode(username).replaceAll("%20", "+").toLowerCase();
-		var user = this.objectConnection.getObject(uri);
-		if (user instanceof User)
-			throw new Conflict("User already exists: " + user);
-		user = this.objectConnection.addDesignation(user, User);
-		user = this.objectConnection.addDesignation(user, "http://callimachusproject.org/rdf/2009/framework#User");
-		user.calliName = username;
-		user.calliEmail = email;
-		user.rdfsLabels.add(label);
-		user.calliAdministrators.addAll(this.calliAdministrators);
-		this.calliMembers.add(user);
+		var newUser = this.objectConnection.getObject(uri);
+		if (newUser instanceof User)
+			throw new Conflict("User already exists: " + newUser);
+		newUser = this.objectConnection.addDesignation(newUser, User);
+		newUser = this.objectConnection.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#Party");
+		newUser = this.objectConnection.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#User");
+		newUser.calliName = username;
+		newUser.calliEmail = email;
+		newUser.rdfsLabels.add(label);
+		newUser.calliAdministrators.addAll(this.calliAdministrators);
+		this.calliMembers.add(newUser);
 		if (form.get("comment")) {
-			user.rdfsComments.add(form.get("comment")[0]);
+			newUser.rdfsComments.add(form.get("comment")[0]);
 		}
 		//# generate and save a password
-		var password = user.generatePassword();
+		var password = newUser.generatePassword();
 		var token = username + ":" + accounts.calliAuthName + ":" + password;
-		user.calliAlgorithm = "MD5";
-		user.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));
+		newUser.calliAlgorithm = "MD5";
+		newUser.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));
 		//# email the password to the email address provided
 		var fromUser = accounts.findCredential(authorization);
 		body = body.replaceAll("@@PASSWORD@@", password);

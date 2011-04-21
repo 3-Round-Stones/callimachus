@@ -9,15 +9,14 @@
 </head>
 <body about="?this">
 	<ul class="aside">
-		<li>Here are all the user groups whos members can login to this system</li>
-		<li>Click the » button to add a new group</li>
+		<li>Contributors can create and administer groups they created</li>
 	</ul>
 	<h1>User Groups</h1>
 	<form about="?this">
-		<label for="group">Authenticating groups</label>
-		<ul id="group" rel="calli:authenticates" data-prompt="/accounts/Group?create">
-			<li about="?group" rel="rdf:type" resource="/accounts/Group" property="rdfs:label" />
-		</ul>
+		<label for="contributor">Contributor</label>
+		<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
+			<div about="?contributor" typeof="calli:Party" property="rdfs:label"/>
+		</div>
 		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
 	</form>

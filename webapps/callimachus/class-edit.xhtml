@@ -9,8 +9,8 @@
 </head>
 <body about="?this">
 	<ul class="aside">
-		<li>Contributors can create and edit resources they created</li>
-		<li>Editors can create and edit new resources</li>
+		<li>Contributors can create and edit <span property="rdfs:label" /> resources they created</li>
+		<li>Editors can create and edit all new <span property="rdfs:label" /> resources</li>
 	</ul>
 	<h1>All <span property="rdfs:label" /> Resources</h1>
 	<form id="form" action="" about="?this">
@@ -18,13 +18,13 @@
 			<div>
 				<label for="contributor">Contributor</label>
 				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
-					<div about="?contributor" typeof="calli:Group" property="rdfs:label"/>
+					<div about="?contributor" typeof="calli:Party" property="rdfs:label"/>
 				</div>
 			</div>
 			<div>
 				<label for="editor">Editor</label>
 				<div id="editor" rel="calli:editor" data-prompt="/accounts">
-					<div about="?editor" typeof="calli:Group" property="rdfs:label"/>
+					<div about="?editor" typeof="calli:Party" property="rdfs:label"/>
 				</div>
 			</div>
 		</div>

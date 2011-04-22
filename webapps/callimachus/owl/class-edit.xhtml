@@ -37,6 +37,11 @@
 				subClassOf.children('[' + Editable + ']').remove();
 			}
 		}
+		jQuery(function($) {
+			$('[data-prompt]').each(function() {
+				$(this).attr('data-prompt', $('#scheme').attr('about') + $(this).attr('data-prompt'));
+			});
+		});
 		// ]]>
 	</script>
 </head>
@@ -71,13 +76,13 @@
 		<div class="hbox">
 			<div>
 				<label for="subClassOf">Super-classes</label>
-				<div id="subClassOf" rel="rdfs:subClassOf" data-prompt="/callimachus/owl/Class?create">
+				<div id="subClassOf" rel="rdfs:subClassOf" data-prompt="?create=/callimachus/owl/Class">
 					<div about="?subClassOf" typeof="owl:Class" property="rdfs:label" />
 				</div>
 			</div>
 			<div>
 				<label for="subClass">Sub-classes</label>
-				<div id="subClass" rev="rdfs:subClassOf" data-prompt="/callimachus/owl/Class?create">
+				<div id="subClass" rev="rdfs:subClassOf" data-prompt="?create=/callimachus/owl/Class">
 					<div about="?subClass" typeof="owl:Class" property="rdfs:label" />
 				</div>
 			</div>

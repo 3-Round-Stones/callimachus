@@ -15,6 +15,11 @@
 				note.setAttribute('content', note.value)
 			}
 		}
+		jQuery(function($) {
+			$('[data-prompt]').each(function() {
+				$(this).attr('data-prompt', $('#scheme').attr('about') + $(this).attr('data-prompt'));
+			});
+		});
 	</script>
 </head>
 <body about="?this">
@@ -77,7 +82,7 @@
 		<div class="hbox">
 			<div>
 				<label for="broader">Broader</label>
-				<div id="broader" rev="skos:narrower" data-prompt="/callimachus/skos/Concept?create" style="min-height: 1em">
+				<div id="broader" rev="skos:narrower" data-prompt="?create=/callimachus/skos/Concept" style="min-height: 1em">
 					<span about="?broader" typeof="skos:Concept">
 						<span property="skos:prefLabel"></span>
 					</span>
@@ -85,7 +90,7 @@
 			</div>
 			<div>
 				<label for="related">Related</label>
-				<div id="related" rel="skos:related" data-prompt="/callimachus/skos/Concept?create" style="min-height: 1em">
+				<div id="related" rel="skos:related" data-prompt="?create=/callimachus/skos/Concept" style="min-height: 1em">
 					<span about="?related" typeof="skos:Concept">
 						<span property="skos:prefLabel"></span>
 					</span>
@@ -93,7 +98,7 @@
 			</div>
 			<div>
 				<label for="narrower">Narrower</label>
-				<div id="narrower" rel="skos:narrower" data-prompt="/callimachus/skos/Concept?create" style="min-height: 1em">
+				<div id="narrower" rel="skos:narrower" data-prompt="?create=/callimachus/skos/Concept" style="min-height: 1em">
 					<span about="?narrower" typeof="skos:Concept">
 						<span property="skos:prefLabel"></span>
 					</span>

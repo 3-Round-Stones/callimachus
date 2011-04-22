@@ -72,7 +72,6 @@ function initSetElements(form) {
 			add.attr("class", "add");
 			add.attr("id", id);
 			add.text("»");
-			var suggest = list.attr("data-prompt");
 			list.append(add);
 			var name = id.replace(/-button/, "-iframe");
 			var searchTerms = id.replace(/-button/, "-input");
@@ -113,7 +112,7 @@ function initSetElements(form) {
 					listSearchResults(searchUrl, iframe.get(0));
 					return stopPropagation(event);
 				});
-				iframe.get(0).src = suggest;
+				iframe.get(0).src = list.attr("data-prompt");
 		    });
 		}
 	});

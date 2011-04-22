@@ -68,7 +68,7 @@ function postCreate(msg) {
 		}
 		factory.touchRevision();
 	}
-	if (!msg.intermediate || !msg.intermediate.booleanValue()) {
+	if (!msg.intermediate) {
 		this.touchRevision();
 	}
 	return newCopy;

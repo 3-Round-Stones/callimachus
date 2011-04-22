@@ -79,10 +79,10 @@ rdfs:label a rdf:Property.
 		var encoded = form.get("encoded")[0];
 		if (algorithm != "MD5")
 			throw new BadRequest("Unsupported algorithm");
-		if (!encoded || encoded.length() < 32)
+		if (!encoded || encoded.length < 32)
 			throw new BadRequest("Invalid MD5 sum");
-		var decoded = Hex.decodeHex(encoded.toCharArray());
-		var uri = user + URLEncoder.encode(username).replaceAll("%20", "+").toLowerCase();
+		var decoded = Hex.decodeHex(new java.lang.String(encoded).toCharArray());
+		var uri = user + URLEncoder.encode(username).replace(/%20/g, "+").toLowerCase();
 		var newUser = this.objectConnection.getObject(uri);
 		if (newUser instanceof User)
 			throw new Conflict("User already exists: " + newUser);

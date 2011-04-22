@@ -93,7 +93,7 @@
 		if (!template)
 			throw new InternalServerError("No create template");
 		var created = this.objectConnection.getObject(this.toUri().resolve(location).toString());
-		if (!created.toString().startsWith(this.toUri().resolve("/page/").toString())) {
+		if (created.toString().indexOf(this.toUri().resolve("/page/").toString()) != 0) {
 			throw new BadRequest("Wrong location namespace");
 		}
 		if (created instanceof Page) {
@@ -138,7 +138,7 @@
 
 		this.calliDeleteWebResource();
 
-		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
 		con.add(this.resource, RDFS.LABEL, label, []);
 

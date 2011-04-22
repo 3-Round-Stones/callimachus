@@ -53,7 +53,7 @@ calli:SchemaGraph a owl:Class.
 
 		this.calliDeleteWebResource();
 
-		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/g, "$1");
 		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
 		con.add(this.resource, RDFS.LABEL, label, []);
 
@@ -139,7 +139,7 @@ calli:SchemaGraph a owl:Class.
 
 		this.calliDeleteWebResource();
 
-		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
 		con.add(this.resource, RDFS.LABEL, label, []);
 
@@ -174,7 +174,7 @@ calli:SchemaGraph a owl:Class.
 
 		this.calliDeleteWebResource();
 
-		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
 		con.add(this.resource, RDFS.LABEL, label, []);
 
@@ -218,7 +218,7 @@ calli:SchemaGraph a owl:Class.
 		try {
 			while (bundles.hasNext()) {
 				var bundle = bundles.next().subject;
-				if (bundle.stringValue().contains(":")) {
+				if (bundle.stringValue().indexOf(":") > 0) {
 					con.getObject(bundle).touchRevision();
 				}
 			}
@@ -250,7 +250,7 @@ calli:SchemaGraph a owl:Class.
 
 		this.calliDeleteWebResource();
 
-		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
 		con.add(this.resource, RDFS.LABEL, label, []);
 
@@ -351,7 +351,7 @@ calli:DeleteWebResource rdfs:subClassOf msg:Message;
 		}
 		con.removeDesignation(this, Page);
 
-		var filename = this.resource.localName.replaceAll("(?<=[a-zA-Z_0-9])\\\\.[a-zA-Z]+$", "");
+		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
 		con.remove(this.resource, RDFS.LABEL, label, []);
 

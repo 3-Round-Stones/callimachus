@@ -53,6 +53,9 @@
 			if (conditional['If-Match']) {
 				jQuery.ajax({
 					type: "GET", url: url,
+					beforeSend: function(xhr) {
+						xhr.setRequestHeader('Cache-Control', 'no-store');
+					},
 					complete: function(xhr) {
 						if (xhr.readyState == 4) {
 							if (xhr.status == 200) {
@@ -99,7 +102,6 @@
 			if (conditional['If-Match']) {
 				jQuery.ajax({
 					type: "PUT", url: url,
-					headers: conditional,
 					beforeSend: function(xhr) {
 						xhr.setRequestHeader('If-Match', $('meta[http-equiv="etag"]').attr('content'));
 					},

@@ -57,8 +57,8 @@
 		var disposition = headers.get("content-disposition");
 		if (!disposition || disposition.indexOf("filename") < 0)
 			throw new BadRequest("No file provided");
-		var fileName = disposition.replaceAll('.*filename="', '').replaceAll('".*', '');
-		var local = URLEncoder.encode(fileName, "UTF-8").replaceAll("%20", "+");
+		var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
+		var local = URLEncoder.encode(fileName, "UTF-8").replace(/%20/g, "+");
 		var uri = this.toUri().resolve("/graph/") + local;
 		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
 		var vf = this.objectConnection.getValueFactory();

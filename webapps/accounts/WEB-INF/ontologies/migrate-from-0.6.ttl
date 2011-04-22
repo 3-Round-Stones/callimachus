@@ -18,7 +18,7 @@
 		try {
 			while (subclass.hasNext()) {
 				var MyUser = subclass.next().subject;
-				if (MyUser.stringValue().contains("/accounts/User")
+				if (MyUser.stringValue().indexOf("/accounts/User") >= 0
 						&& !con.hasStatement(null, RDF.TYPE, MyUser, true, [])) {
 					var MyOldUser = vf.createURI(MyUser.stringValue().replace("/accounts/User", "/accounts/user/User"));
 					var stmts = con.getStatements(null, RDF.TYPE, MyOldUser, true, []);
@@ -50,7 +50,7 @@
 		try {
 			while (subclass.hasNext()) {
 				var MyGroup = subclass.next().subject;
-				if (MyGroup.stringValue().contains("/accounts/Group")
+				if (MyGroup.stringValue().indexOf("/accounts/Group") >= 0
 						&& !con.hasStatement(null, RDF.TYPE, MyGroup, true, [])) {
 					var MyOldGroup = vf.createURI(MyGroup.stringValue().replace("/accounts/Group", "/accounts/group/Group"));
 					var stmts = con.getStatements(null, RDF.TYPE, MyOldGroup, true, []);

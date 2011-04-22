@@ -106,7 +106,7 @@
 	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
 	msg:script """
 		var ver = new ProtocolVersion("HTTP", 1, 1);
-		if (authorization && authorization.contains('username="logout"')) {
+		if (authorization && authorization.indexOf('username="logout"') > 0) {
 			//# bogus credentials received
 			var resp = new BasicHttpResponse(ver, 303, "See Other");
 			resp.setHeader("Location", "/");

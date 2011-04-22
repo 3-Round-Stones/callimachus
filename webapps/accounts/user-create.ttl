@@ -54,7 +54,7 @@ rdfs:comment a rdf:Property.
 		var subject = form.get("subject")[0];
 		var body = form.get("message")[0];
 		//# assign id
-		var uri = user + URLEncoder.encode(username).replaceAll("%20", "+").toLowerCase();
+		var uri = user + URLEncoder.encode(username).replace(/%20/g, "+").toLowerCase();
 		var newUser = this.objectConnection.getObject(uri);
 		if (newUser instanceof User)
 			throw new Conflict("User already exists: " + newUser);
@@ -76,7 +76,7 @@ rdfs:comment a rdf:Property.
 		newUser.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));
 		//# email the password to the email address provided
 		var fromUser = accounts.findCredential(authorization);
-		body = body.replaceAll("@@PASSWORD@@", password);
+		body = body.replace(/@@PASSWORD@@/g, password);
 		fromUser.sendMessage(subject + '\\n' + body, label + " <" + email + ">");
 		return this;
 	""".

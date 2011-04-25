@@ -71,8 +71,8 @@ function isViewingTransaction(msg) {
 
 function isReviewing(method, query) {
 	return (method == "GET" || method == "HEAD" || method == "POST" && query == "discussion")
-		&& (query == null || query == "view" || query == "discussion" || query == "describe" || query == "history"
-			|| query == "whatlinkshere" || query == "relatedchanges" || query == "introspect");
+		&& (query == null || query == "view" || query == "discussion" || query == "history"
+			|| query == "whatlinkshere" || query == "relatedchanges");
 }
 
 function isEditing(method, query) {

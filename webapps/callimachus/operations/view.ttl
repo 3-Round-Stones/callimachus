@@ -32,7 +32,7 @@
 	msg:method "GET";
 	msg:query "view";
 	msg:type "application/xhtml+xml";
-	msg:header "cache-control:must-revalidate";
+	msg:header "cache-control:no-cache";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
 	msg:script <operations.js#getViewPage>.
 

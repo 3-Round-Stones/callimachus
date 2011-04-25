@@ -54,9 +54,6 @@
 		</li>
 		<li>Icon is used when looking up resources</li>
 		<li>A superclass should be a common part of its subclasses</li>
-		<li>Contributors can create and edit resources they created</li>
-		<li>Editors can create and edit new resources</li>
-		<li>Administrators edit this page, can create and edit resources they created</li>
 		<li>Templates are used for page or form structure for each operation</li>
 	</ul>
 	<h1 property="rdfs:label" />
@@ -84,27 +81,6 @@
 				<label for="subClass">Sub-classes</label>
 				<div id="subClass" rev="rdfs:subClassOf" data-prompt="?create=/callimachus/owl/Class">
 					<div about="?subClass" typeof="owl:Class" property="rdfs:label" />
-				</div>
-			</div>
-		</div>
-		<hr />
-		<div class="hbox">
-			<div>
-				<label for="contributor">Contributors</label>
-				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
-					<div about="?contributor" typeof="calli:Party" property="rdfs:label" />
-				</div>
-			</div>
-			<div>
-				<label for="editor">Editors</label>
-				<div id="editor" rel="calli:editor" data-prompt="/accounts">
-					<div about="?editor" typeof="calli:Party" property="rdfs:label" />
-				</div>
-			</div>
-			<div>
-				<label for="administrator">Administrator</label>
-				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
-					<div about="?administrator" typeof="calli:Party" property="rdfs:label"/>
 				</div>
 			</div>
 		</div>

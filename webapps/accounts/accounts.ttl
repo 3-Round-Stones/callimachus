@@ -12,13 +12,13 @@
 # Realm
 ################################
 
-<Accounts> rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:DigestRealm;
+<Accounts> rdfs:subClassOf calli:Creator, calli:Viewable, calli:DigestRealm;
 	calli:creates <Group>;
 	calli:createRel calli:authenticates;
-	calli:view <accounts.xhtml>;
-	calli:edit <accounts-edit.xhtml>.
+	calli:view <accounts.xhtml>.
 
 </accounts> a <Accounts>;
+	rdfs:label "User accounts";
 	calli:origin </>;
 	calli:authName </>;
 	calli:domain </>;
@@ -31,9 +31,12 @@
 # User
 ################################
 
-<User> rdfs:subClassOf calli:Viewable, calli:Editable, calli:User;
+<User> a calli:Creatable, owl:Class;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:User;
+	rdfs:label "User";
 	msg:realm </accounts>; # User operations must be authorized
 	calli:icon <user-favicon.png>;
+	calli:create <user-create.xhtml>;
 	calli:uriSpace </user/>;
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>;
@@ -44,7 +47,8 @@
 ################################
 
 <Group> a calli:Creatable, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Group;
+	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:Group;
+	rdfs:label "Group";
 	calli:icon <group-favicon.png>;
 	msg:realm </accounts>; # Group operations must be authorized
 	calli:view <group.xhtml>;

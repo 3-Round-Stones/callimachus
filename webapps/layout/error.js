@@ -64,7 +64,7 @@ function showError(event, error, detail) {
 	} catch (e) {
 		alert(error);
 	}
-	}, 0);
+	}, 1000);
 }
 
 })(window.jQuery);

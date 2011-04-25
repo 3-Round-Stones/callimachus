@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:msg="http://www.openrdf.org/rdf/2011/messaging#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title about="?this" property="rdfs:label" />
+	<script type="text/javascript" src="/callimachus/scripts/form_bundle?source"> </script>
+	<script type="text/javascript" src="/callimachus/operations/edit.js"> </script>
+	<script type="text/javascript"><![CDATA[
+	(function($) {
+		jQuery.ajax({type: 'GET', url:'?rdftype', complete: function(xhr) {
+			if (xhr.status == 200) {
+				var text = xhr.responseText;
+				var list = text.split('\r\n');
+				var calli = "http://callimachusproject.org/rdf/2009/framework#";
+				if (jQuery.inArray(calli + 'Copyable', list) >= 0) {
+					$('.copyable').show();
+				} else {
+					$('.copyable').hide();
+				}
+				if (jQuery.inArray(calli + 'Creator', list) >= 0) {
+					$('.creator').show();
+				} else {
+					$('.creator').hide();
+				}
+				if (jQuery.inArray(calli + 'Copyable', list) >= 0
+						|| jQuery.inArray(calli + 'Creatable', list) >= 0
+						|| jQuery.inArray(calli + 'Creator', list) >= 0) {
+					$('.create').show();
+				} else {
+					$('.create').hide();
+				}
+				if (jQuery.inArray('http://www.w3.org/2002/07/owl#Class', list) >= 0) {
+					$('.class').show();
+					if ($('.realm').length) {
+						$('.read').show();
+					} else {
+						$('.read').hide();
+					}
+				} else {
+					$('.class').hide();
+					var control = xhr.getResponseHeader('Cache-Control');
+					if (control && control.indexOf('public') >= 0) {
+						$('.read').hide();
+					} else {
+						$('.read').show();
+					}
+				}
+			}
+		}});
+	})(jQuery);
+	// ]]>
+	</script>
+</head>
+<body about="?this">
+	<ul class="optional aside" rel="rdf:type">
+		<li about="?type" typeof="calli:Creatable"><a href="?type" onmousedown="href=href + '?permissions'">All <span property="rdfs:label" /> premissions</a></li>
+	</ul>
+	<ul class="aside">
+		<li class="class"><span class="read">Readers, </span>Editors and Administrators apply to this resource and all resources of this class</li>
+		<li class="copyable"><span class="read">Readers, </span>Editors and Administrators propagate to resources copied from this resource</li>
+		<li class="creator"><span class="read">Readers, </span>Editors and Administrators propagate to new resources created from this resource</li>
+		<li class="optional" rel="msg:realm">
+			<div class="realm" about="?realm">Access to resources of this class is restricted to authenticated users</div>
+		</li>
+		<li class="read">Readers can view, discuss, and see the history of this resource</li>
+		<li class="create">Contributors can create new resources and edit them</li>
+		<li>Editors can edit this resource</li>
+		<li>Administrators can view and modify any aspect of this resource</li>
+	</ul>
+	<h1><span property="rdfs:label" /> Permissions</h1>
+	<form id="form" action="" about="?this">
+		<div class="hbox">
+			<div class="read">
+				<label for="reader">Reader</label>
+				<div id="reader" rel="calli:reader" data-prompt="/accounts">
+					<div about="?reader" typeof="calli:Party" property="rdfs:label"/>
+				</div>
+			</div>
+			<div class="create">
+				<label for="contributor">Contributor</label>
+				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
+					<div about="?contributor" typeof="calli:Party" property="rdfs:label"/>
+				</div>
+			</div>
+			<div>
+				<label for="editor">Editor</label>
+				<div id="editor" rel="calli:editor" data-prompt="/accounts">
+					<div about="?editor" typeof="calli:Party" property="rdfs:label"/>
+				</div>
+			</div>
+			<div>
+				<label for="administrator">Administrator</label>
+				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
+					<div about="?administrator" typeof="calli:Party" property="rdfs:label"/>
+				</div>
+			</div>
+		</div>
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+	</form>
+</body>
+</html>

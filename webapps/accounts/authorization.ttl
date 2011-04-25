@@ -38,6 +38,8 @@
 </callimachus/operations/edit.ttl#PostEdit> msg:realm </accounts>.
 </callimachus/operations/delete.ttl#Delete> msg:realm </accounts>.
 </callimachus/queries/discussion.ttl#PostDiscussion> msg:realm </accounts>.
+</callimachus/operations/permissions.ttl#GetPermissions> msg:realm </accounts>.
+</callimachus/operations/permissions.ttl#PostPermissions> msg:realm </accounts>.
 
 # Transaction operations must be authenticated
 audit:Transaction a owl:Class; msg:realm </accounts>.

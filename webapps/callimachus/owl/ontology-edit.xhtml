@@ -10,11 +10,6 @@
 	</style>
 </head>
 <body about="?this">
-	<ul class="aside">
-		<li>Contributors can create and edit classes they created</li>
-		<li>Editors can create and edit new classes in this ontology</li>
-		<li>Administrators edit this page, can create and edit new classes in this ontology</li>
-	</ul>
 	<h1 property="rdfs:label" />
 	<form about="?this" typeof="owl:Ontology" action="" data-redirect="/callimachus/owl/ontology-list.xhtml?construct">
 		<label for="label">Label</label>
@@ -28,27 +23,6 @@
 		<label for="comment">Comment</label>
 		<div data-cardinality="1">
 			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
-		</div>
-		<hr />
-		<div class="hbox">
-			<div>
-				<label for="contributor">Contributor</label>
-				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
-					<div about="?contributor" typeof="calli:Party" property="rdfs:label"/>
-				</div>
-			</div>
-			<div>
-				<label for="editor">Editor</label>
-				<div id="editor" rel="calli:editor" data-prompt="/accounts">
-					<div about="?editor" typeof="calli:Party" property="rdfs:label"/>
-				</div>
-			</div>
-			<div>
-				<label for="administrator">Administrator</label>
-				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
-					<div about="?administrator" typeof="calli:Party" property="rdfs:label"/>
-				</div>
-			</div>
 		</div>
 		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>

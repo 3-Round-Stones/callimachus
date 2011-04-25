@@ -23,8 +23,6 @@
 		<li>Use a recognizable label</li>
 		<li>Provide clarity in the comment</li>
 		<li>List the most used or recommended concepts is the list</li>
-		<li>Editors can create and edit new concepts in this scheme</li>
-		<li>Administrators edit this page, can create and edit new concepts in this scheme</li>
 	</ul>
 	<h1 property="rdfs:label" />
 	<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()" data-redirect="/scheme">
@@ -49,21 +47,6 @@
 				<label for="image">Image</label>
 				<div id="image" rel="foaf:depiction" data-prompt="/callimachus/Image?create">
 					<span about="?image" typeof="foaf:Image" property="rdfs:label"/>
-				</div>
-			</div>
-		</div>
-		<hr />
-		<div class="hbox">
-			<div>
-				<label for="editor">Editor</label>
-				<div id="editor" rel="calli:editor" data-prompt="/accounts">
-					<div about="?editor" typeof="calli:Party" property="rdfs:label"/>
-				</div>
-			</div>
-			<div>
-				<label for="administrator">Administrator</label>
-				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
-					<div about="?administrator" typeof="calli:Party" property="rdfs:label"/>
 				</div>
 			</div>
 		</div>

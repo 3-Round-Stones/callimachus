@@ -21,13 +21,9 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<EditableClass> rdfs:subClassOf calli:Editable, owl:Class;
-	calli:edit <class-edit.xhtml>;
-	calli:editor </group/admin>.
-
-<ListClass> rdfs:subClassOf calli:Viewable, <EditableClass>;
+<ListClass> rdfs:subClassOf calli:Viewable, owl:Class;
 	calli:view <class-list.xhtml>.
 
-<IndexClass> rdfs:subClassOf calli:Viewable, <EditableClass>;
+<IndexClass> rdfs:subClassOf calli:Viewable, owl:Class;
 	calli:view <class-index.xhtml>.
 

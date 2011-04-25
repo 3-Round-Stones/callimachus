@@ -31,21 +31,6 @@
 			<textarea id="comment" class="auto-expand"
 				property="rdfs:comment"></textarea>
 		</div>
-		<div class="hbox">
-			<div>
-				<label for="contributor">Contributor</label>
-				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
-					<div about="?contributor" typeof="calli:Party" property="rdfs:label"/>
-				</div>
-			</div>
-			<div>
-				<label for="administrator">Administrator</label>
-				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
-					<div about="?administrator" typeof="calli:Party" property="rdfs:label"/>
-				</div>
-			</div>
-		</div>
-		<hr />
 		<label for="member">Members</label>
 		<div id="member" rel="calli:member" data-prompt="?create=/accounts/User">
 			<span about="?member" typeof="calli:User" property="rdfs:label" />

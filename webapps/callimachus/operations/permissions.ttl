@@ -1,0 +1,87 @@
+# 
+#    Copyright (c) 2011 Talis Inc, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix dc:<http://purl.org/dc/elements/1.1/>.
+@prefix dcterms:<http://purl.org/dc/terms/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+:GetPermissions rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "permissions";
+	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:header "cache-control:no-cache";
+	msg:imports <permissions.xhtml>;
+	msg:script """
+		return permissions_xhtml.calliConstruct(this, 'permissions');
+	""".
+
+# used by permissions.xhtml
+:GetRdfTypes rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:literalSet; owl:allValuesFrom xsd:string];
+	msg:method "GET";
+	msg:query "rdftype";
+	msg:type "text/uri-list";
+	msg:imports <java:org.openrdf.repository.object.annotations.iri>;
+	msg:script """
+		function addConcepts(klass, concepts, visited) {
+			if (visited.contains(sup))
+				return concepts;
+			visited.add(klass);
+			if (klass.isAnnotationPresent(iri)) {
+				concepts.add(klass.getAnnotation(iri).value());
+			}
+			var sup = klass.getSuperclass();
+			if (sup) {
+				addConcepts(sup, concepts, visited);
+			}
+			var interfaces = klass.getInterfaces();
+			for (var i = 0; i < interfaces.length; i++) {
+				addConcepts(interfaces[i], concepts, visited);
+			}
+			return concepts;
+		}
+		return addConcepts(this.getClass(), new java.util.TreeSet(), new java.util.HashSet());
+	""".
+
+:PostPermissions rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	msg:method "POST";
+	msg:query "permissions";
+	msg:type "message/x-response";
+	msg:imports <permissions.xhtml>;
+	msg:imports <java:org.apache.http.ProtocolVersion>;
+	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+	msg:script """
+		permissions_xhtml.calliEditResource(this, msg.input);
+		var ver = new ProtocolVersion("HTTP", 1, 1);
+		var resp = new BasicHttpResponse(ver, 201, "Modified");
+		resp.addHeader("Location", this + "?view");
+		return resp;
+	""".
+
+:input a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PostPermissions;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "multipart/related;type=\"application/rdf+xml\"".
+

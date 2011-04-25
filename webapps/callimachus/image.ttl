@@ -27,7 +27,7 @@
 <Image> rdfs:subClassOf foaf:Image, calli:Viewable, calli:Editable ;
 	calli:view <image.xhtml> ;
 	calli:edit <image-edit.xhtml> ;
-	calli:editor </group/admin> .
+	calli:administrator </group/admin> .
 
 :GetImageCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Image> ];

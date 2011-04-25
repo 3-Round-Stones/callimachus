@@ -34,7 +34,7 @@
 	calli:edit <scheme-edit.xhtml>;
 	calli:create <scheme-create.xhtml>;
 	calli:uriSpace </scheme/>;
-	calli:editor </group/admin>.
+	calli:administrator </group/admin>.
 
 :GetConcepts rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ConceptScheme>];

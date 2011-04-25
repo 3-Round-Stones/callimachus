@@ -35,7 +35,7 @@
 	calli:edit <ontology-edit.xhtml>;
 	calli:create <ontology-create.xhtml>;
 	calli:uriSpace </rdf/>;
-	calli:editor </group/admin>.
+	calli:administrator </group/admin>.
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
 <Class> a calli:Creatable, owl:Class;
@@ -71,12 +71,7 @@
 		return proceed();
 	""".
 
-<sample-view.xhtml> a </callimachus/Page>;
-	calli:editor </group/admin>.
-
-<sample-edit.xhtml> a </callimachus/Page>;
-	calli:editor </group/admin>.
-
-<sample-create.xhtml> a </callimachus/Page>;
-	calli:editor </group/admin>.
+<sample-view.xhtml> a </callimachus/Page>.
+<sample-edit.xhtml> a </callimachus/Page>.
+<sample-create.xhtml> a </callimachus/Page>.
 

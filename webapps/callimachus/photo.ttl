@@ -28,7 +28,7 @@
 	msg:realm </accounts> ;
 	calli:view <photo.xhtml> ;
 	calli:edit <photo-edit.xhtml> ;
-	calli:editor </group/admin> .
+	calli:administrator </group/admin> .
 
 :GetPhotoLarge rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];

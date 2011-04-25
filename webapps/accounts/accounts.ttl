@@ -15,7 +15,8 @@
 <Accounts> rdfs:subClassOf calli:Creator, calli:Viewable, calli:DigestRealm;
 	calli:creates <Group>;
 	calli:createRel calli:authenticates;
-	calli:view <accounts.xhtml>.
+	calli:view <accounts.xhtml>;
+	calli:administrator </group/admin>. # can add/remove authenticating user groups
 
 </accounts> a <Accounts>;
 	rdfs:label "User accounts";
@@ -24,8 +25,7 @@
 	calli:domain </>;
 	calli:unauthorized <unauthorized.xhtml>;
 	calli:forbidden <forbidden.xhtml>;
-	calli:authenticates </group/admin>;
-	calli:administrator </group/admin>. # can add/remove authenticating user groups
+	calli:authenticates </group/admin>.
 
 ################################
 # User
@@ -40,7 +40,7 @@
 	calli:uriSpace </user/>;
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>;
-	calli:editor </group/admin>. # admin members can edit any user
+	calli:administrator </group/admin>. # admin members can edit any user
 
 ################################
 # Group
@@ -55,11 +55,10 @@
 	calli:edit <group-edit.xhtml>;
 	calli:create <group-create.xhtml>;
 	calli:uriSpace </group/>;
-	calli:editor </group/admin>. # admin members can edit any group
+	calli:administrator </group/admin>. # admin members can edit any group
 
 </group/admin> a calli:Group, <Group>;
-	rdfs:label "admin";
-	calli:administrator </group/admin>. # can remove and invite new admin users
+	rdfs:label "admin".
 
 ################################
 # login

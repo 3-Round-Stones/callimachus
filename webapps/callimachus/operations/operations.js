@@ -22,11 +22,10 @@ function getCopyPage() {
 function postCopy(msg) {
 	var template = findTemplate(this, copy);
 	var newCopy = template.calliCreateResource(this, msg.input, this.FindCopyUriSpaces());
-	if (newCopy instanceof Copyable || newCopy instanceof Creatable || newCopy instanceof Creator) {
-		newCopy.calliEditors.addAll(this.calliEditors);
-	}
-	newCopy.calliAdministrators.addAll(this.calliEditors);
-	newCopy.calliAdministrators.addAll(this.FindCopyContributor(newCopy));
+	newCopy.calliEditors.addAll(this.FindCreatorContributor(newCopy));
+	newCopy.calliReaders.addAll(this.calliReaders);
+	newCopy.calliEditors.addAll(this.calliEditors);
+	newCopy.calliAdministrators.addAll(this.calliAdministrators);
 	return newCopy;
 }
 
@@ -50,18 +49,13 @@ function postCreate(msg) {
 		throw new InternalServerError("No create template");
 	var newCopy = template.calliCreateResource(this, msg.input, factory.calliUriSpace);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, factory.toString());
-	if (newCopy instanceof Copyable || newCopy instanceof Creatable || newCopy instanceof Creator) {
-		newCopy.calliEditors.addAll(factory.calliEditors);
-		newCopy.calliEditors.addAll(this.calliEditors);
-	}
-	newCopy.calliAdministrators.addAll(factory.calliEditors);
 	if (this.equals(factory)) {
-		newCopy.calliAdministrators.addAll(this.FindCopyContributor(newCopy));
+		newCopy.calliEditors.addAll(this.FindCreatorContributor(newCopy));
 	} else {
-		// administrators are inherited from this creator resource
-		newCopy.calliAdministrators.addAll(this.calliEditors);
+		newCopy.calliEditors.addAll(this.FindCreatorContributor(newCopy));
+		newCopy.calliReaders.addAll(this.calliReaders);
+		newCopy.calliEditors.addAll(this.calliEditors);
 		newCopy.calliAdministrators.addAll(this.calliAdministrators);
-		newCopy.calliAdministrators.addAll(this.FindCreatorContributor(newCopy));
 		var statements = this.ConstructCreatorRelationship(newCopy).iterator();
 		while (statements.hasNext()) {
 			this.objectConnection.add(statements.next(), []);

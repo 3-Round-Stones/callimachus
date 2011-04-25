@@ -69,17 +69,32 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 	rdfs:range xsd:string.
 
 # users associated with the object are authorized
-:AuthorizeMaintainer owl:equivalentClass :AuthorizeCredential;
+:AuthorizeIndividual owl:equivalentClass :AuthorizeCredential;
 	msg:sparql  """
 		ASK {
 			{
-				$object calli:contributor $credential
+				{
+					$object calli:reader $credential
+				} UNION {
+					$object calli:contributor $credential
+				} UNION {
+					$object calli:editor $credential
+				}
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $query = "discussion")
+				FILTER (!bound($query) || $query = "view" || $query = "discussion" || $query = "history"
+					|| $query = "whatlinkshere" || $query = "relatedchanges")
+			} UNION {
+				{
+					$object calli:contributor $credential
+				} UNION {
+					$object calli:editor $credential
+				}
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
 			} UNION {
 				$object calli:editor $credential
-				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
+				FILTER ($query = "edit" && ($method = "GET" || $method = "HEAD" || $method = "POST"))
+				FILTER (!bound($query) && ($method = "PUT" || $method = "DELETE"))
 			} UNION {
 				$object calli:administrator $credential
 			}
@@ -92,26 +107,52 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 		ASK {
 			?group calli:member $credential
 			{
-				$object calli:contributor ?group
+				{
+					$object calli:reader ?group
+				} UNION {
+					$object calli:contributor ?group
+				} UNION {
+					$object calli:editor ?group
+				}
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $query = "discussion")
+				FILTER (!bound($query) || $query = "view" || $query = "discussion" || $query = "history"
+					|| $query = "whatlinkshere" || $query = "relatedchanges")
+			} UNION {
+				{
+					$object calli:contributor ?group
+				} UNION {
+					$object calli:editor ?group
+				}
 				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
 				FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
 			} UNION {
 				$object calli:editor ?group
-				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-				FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
+				FILTER ($query = "edit" && ($method = "GET" || $method = "HEAD" || $method = "POST"))
+				FILTER (!bound($query) && ($method = "PUT" || $method = "DELETE"))
 			} UNION {
 				$object calli:administrator ?group
 			}
 		}
 	""".
 
-# users or groups associated as editor of a class of the object are authorized
-:AuthorizeClassEditor owl:equivalentClass :AuthorizeCredential;
-	msg:script <authorization.js#isClassEditor>.
-
 # users or groups associated as reader of a class of the object are authorized
 :AuthorizeReader owl:equivalentClass :AuthorizeCredential;
+	msg:precedes :AuthorizeCreator;
 	msg:script <authorization.js#isReader>.
+
+# users or groups associated as editor of a class of the object are authorized
+:AuthorizeCreator owl:equivalentClass :AuthorizeCredential;
+	msg:precedes :AuthorizeEditor;
+	msg:script <authorization.js#isCreator>.
+
+# users or groups associated as editor of a class of the object are authorized
+:AuthorizeEditor owl:equivalentClass :AuthorizeCredential;
+	msg:precedes :AuthorizeAdministrator;
+	msg:script <authorization.js#isEditor>.
+
+# users or groups associated as editor of a class of the object are authorized
+:AuthorizeAdministrator owl:equivalentClass :AuthorizeCredential;
+	msg:script <authorization.js#isAdministrator>.
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage owl:equivalentClass :AuthorizeCredential;

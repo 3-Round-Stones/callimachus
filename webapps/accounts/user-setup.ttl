@@ -17,7 +17,11 @@
 	msg:sparql  """
 		ASK {
 			# this group is maintained by its members, but
-			$this calli:administrator $this
+			{
+				$this calli:administrator $this
+			} UNION {
+				$this a [calli:administrator $this]
+			}
 
 			# there are no members to maintain this
 			OPTIONAL { $this calli:member ?member } FILTER (!bound(?member))

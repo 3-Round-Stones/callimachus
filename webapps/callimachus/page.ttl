@@ -30,7 +30,7 @@
 	calli:copy <page-copy.xhtml>;
 	calli:create <page-edit.xhtml>;
 	calli:uriSpace </page/>;
-	calli:editor </group/admin>.
+	calli:administrator </group/admin>.
 
 # GET /page/MainPage
 :FindWikiPage rdfs:subClassOf msg:Message;

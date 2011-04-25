@@ -34,14 +34,12 @@
 					$('.create').hide();
 				}
 				if (jQuery.inArray('http://www.w3.org/2002/07/owl#Class', list) >= 0) {
-					$('.class').show();
 					if ($('.realm').length) {
 						$('.read').show();
 					} else {
 						$('.read').hide();
 					}
 				} else {
-					$('.class').hide();
 					var control = xhr.getResponseHeader('Cache-Control');
 					if (control && control.indexOf('public') >= 0) {
 						$('.read').hide();
@@ -56,11 +54,7 @@
 	</script>
 </head>
 <body about="?this">
-	<ul class="optional aside" rel="rdf:type">
-		<li about="?type" typeof="calli:Creatable"><a href="?type" onmousedown="href=href + '?permissions'">All <span property="rdfs:label" /> premissions</a></li>
-	</ul>
 	<ul class="aside">
-		<li class="class"><span class="read">Readers, </span>Editors and Administrators apply to this resource and all resources of this class</li>
 		<li class="copyable"><span class="read">Readers, </span>Editors and Administrators propagate to resources copied from this resource</li>
 		<li class="creator"><span class="read">Readers, </span>Editors and Administrators propagate to new resources created from this resource</li>
 		<li class="optional" rel="msg:realm">

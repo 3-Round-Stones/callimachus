@@ -91,9 +91,9 @@
 :that a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :ConstructCreatorRelationship.
 
-# find the user that created $thing if they are not administrators nor editors of $this
+# find the user that created $thing if they are not otherwise editors
 :FindCreatorContributor rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Copyable calli:Creatable calli:Creator)]];
 	msg:sparql  """
 		SELECT DISTINCT ?contributor
 		WHERE {
@@ -103,15 +103,23 @@
 				GRAPH ?graph { $thing a ?type }
 				?graph audit:contributor ?contributor
 			} OPTIONAL {
-				?editor calli:administrator ?contributor FILTER (?editor = $this)
+				?exists calli:editor ?contributor FILTER (?exists = $this)
 			} OPTIONAL {
-				?editor calli:editor ?contributor FILTER (?editor = $this)
+				?exists calli:administrator ?contributor FILTER (?exists = $this)
 			} OPTIONAL {
-				$this calli:administrator ?group . ?group calli:member ?contributor
+				?exists calli:editor [calli:member ?contributor] FILTER (?exists = $this)
 			} OPTIONAL {
-				$this calli:editor ?group . ?group calli:member ?contributor
+				?exists calli:administrator [calli:member ?contributor] FILTER (?exists = $this)
+			} OPTIONAL {
+				?exists a [calli:editor ?contributor] FILTER (?exists = $thing)
+			} OPTIONAL {
+				?exists a [calli:administrator ?contributor] FILTER (?exists = $thing)
+			} OPTIONAL {
+				?exists a [calli:editor [calli:member ?contributor]] FILTER (?exists = $thing)
+			} OPTIONAL {
+				?exists a [calli:administrator [calli:member ?contributor]] FILTER (?exists = $thing)
 			}
-			FILTER (!bound(?editor) && !bound(?group))
+			FILTER (!bound(?exists))
 		}
 	""".
 

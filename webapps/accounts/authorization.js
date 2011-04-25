@@ -1,40 +1,58 @@
 // authorization.js
 
-importClass(Packages.calli.editor);
 importClass(Packages.calli.reader);
+importClass(Packages.calli.contributor);
+importClass(Packages.calli.editor);
+importClass(Packages.calli.administrator);
 importClass(Packages.org.openrdf.http.object.concepts.Transaction);
 importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
 
-function isClassEditor(msg) {
-	if (isReviewing(msg.method, msg.query) || isEditing(msg.method, msg.query)) {
-		var annotated = findAnnotatedClass(msg.object.getClass(), editor);
-		for (var a = annotated.length; a--;) {
-			var uri = annotated[a].getAnnotation(editor).value();
-			for (var u = uri.length; u--;) {
-				if (msg.credential.resource.stringValue().equals(uri[u]))
-					return true;
-				var group = this.objectConnection.getObject(uri[u]);
-				if (group.calliMembers && group.calliMembers.contains(msg.credential))
-					return true;
-			}
+function isReader(msg) {
+	if (isReading(msg.method, msg.query)) {
+		var annotated = findAnnotatedClass(msg.object.getClass(), reader);
+		for (var i = 0; i < annotated.length; i++) {
+			var groups = annotated[i].getAnnotation(reader).value();
+if (isMember(msg.credential, groups)) java.lang.System.out.println("is reader of " + annotated);
+			if (isMember(msg.credential, groups))
+				return true;
 		}
 	}
 	return msg.proceed();
 }
 
-function isReader(msg) {
-	if (isReviewing(msg.method, msg.query)) {
-		var annotated = findAnnotatedClass(msg.object.getClass(), reader);
-		for (var a = annotated.length; a--;) {
-			var uri = annotated[a].getAnnotation(reader).value();
-			for (var u = uri.length; u--;) {
-				if (msg.credential.resource.stringValue().equals(uri[u]))
-					return true;
-				var group = this.objectConnection.getObject(uri[u]);
-				if (group.calliMembers && group.calliMembers.contains(credential))
-					return true;
-			}
+function isCreator(msg) {
+	if (isReading(msg.method, msg.query) || isCreating(msg.method, msg.query)) {
+		var annotated = findAnnotatedClass(msg.object.getClass(), contributor);
+		for (var i = 0; i < annotated.length; i++) {
+			var groups = annotated[i].getAnnotation(contributor).value();
+if (isMember(msg.credential, groups)) java.lang.System.out.println("is creator of " + annotated);
+			if (isMember(msg.credential, groups))
+				return true;
 		}
+	}
+	return msg.proceed();
+}
+
+function isEditor(msg) {
+	if (isReading(msg.method, msg.query) || isCreating(msg.method, msg.query) || isEditing(msg.method, msg.query)) {
+		var annotated = findAnnotatedClass(msg.object.getClass(), editor);
+		for (var i = 0; i < annotated.length; i++) {
+			var groups = annotated[i].getAnnotation(editor).value();
+if (isMember(msg.credential, groups)) java.lang.System.out.println("is editor of " + annotated);
+			if (isMember(msg.credential, groups))
+				return true;
+		}
+	}
+	return msg.proceed();
+}
+
+function isAdministrator(msg) {
+	var annotated = findAnnotatedClass(msg.object.getClass(), administrator);
+	for (var i = 0; i < annotated.length; i++) {
+		var groups = annotated[i].getAnnotation(administrator).value();
+if (isMember(msg.credential, groups)) java.lang.System.out.println("is administrator of " + annotated);
+		if (isMember(msg.credential, groups))
+			return true;
 	}
 	return msg.proceed();
 }
@@ -43,7 +61,7 @@ function authorizePart(msg) {
 	if (msg.proceed()) {
 		return true;
 	}
-	if (isReviewing(msg.method, msg.query)) {
+	if (isReading(msg.method, msg.query)) {
 		var iter = this.GetParentResources(msg.object).iterator();
 		while (iter.hasNext()) {
 			if (this.AuthorizeCredential(msg.credential, msg.method, iter.next(), msg.query))
@@ -57,7 +75,7 @@ function isViewingTransaction(msg) {
 	if (msg.proceed()) {
 		return true;
 	}
-	if (isReviewing(msg.method, msg.query)) {
+	if (isReading(msg.method, msg.query)) {
 		if (msg.object instanceof Transaction) {
 			var iter = this.ListSubjectsOfTransaction(msg.object).iterator();
 			while (iter.hasNext()) {
@@ -69,10 +87,15 @@ function isViewingTransaction(msg) {
 	return false;
 }
 
-function isReviewing(method, query) {
+function isReading(method, query) {
 	return (method == "GET" || method == "HEAD" || method == "POST" && query == "discussion")
 		&& (query == null || query == "view" || query == "discussion" || query == "history"
 			|| query == "whatlinkshere" || query == "relatedchanges");
+}
+
+function isCreating(method, query) {
+	return (method == "GET" || method == "HEAD" || method == "POST")
+		&& query != null && query.match(/^copy(=|&|$)|^create(=|&|$)/)
 }
 
 function isEditing(method, query) {
@@ -80,6 +103,17 @@ function isEditing(method, query) {
 		return method == "GET" || method == "HEAD" || method == "POST";
 	if (query == null)
 		return method == "PUT" || method == "DELETE";
+	return false;
+}
+
+function isMember(credential, groups) {
+	for (var i = 0; i < groups.length; i++) {
+		if (credential.resource.stringValue().equals(groups[i]))
+			return true;
+		var group = credential.objectConnection.getObject(groups[i]);
+		if (group.calliMembers && group.calliMembers.contains(credential))
+			return true;
+	}
 	return false;
 }
 

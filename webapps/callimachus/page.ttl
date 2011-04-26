@@ -21,7 +21,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Page> a calli:Creatable, </callimachus/IndexClass>;
+<Page> a calli:Creatable, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Page;
 	rdfs:label "Page";
 	rdfs:comment "New pages can be created by adding a relative link to a new page in an existing page";

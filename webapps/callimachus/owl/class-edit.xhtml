@@ -38,8 +38,8 @@
 			}
 		}
 		jQuery(function($) {
-			$('[data-prompt]').each(function() {
-				$(this).attr('data-prompt', $('#scheme').attr('about') + $(this).attr('data-prompt'));
+			$('[data-prompt^=?]').each(function() {
+				$(this).attr('data-prompt', $('#ontology').attr('about') + $(this).attr('data-prompt'));
 			});
 		});
 		// ]]>

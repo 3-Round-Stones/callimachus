@@ -24,7 +24,7 @@
 @prefix class:</class/>.
 @prefix :<#>.
 
-<Ontology> a calli:Creatable, </callimachus/ListClass>;
+<Ontology> a calli:Creatable, owl:Class;
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, owl:Ontology;
 	rdfs:label "Ontology";
 	rdfs:comment "Ontologies are the structural frameworks for organizing resources into classes based on characteristics which they have in common";
@@ -73,7 +73,7 @@
 		con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph"), []);
 		con.commit();
 		con.repository.recompileRepository();
-		retur ret;
+		return ret;
 	""".
 
 <sample-view.xhtml> a </callimachus/Page>.

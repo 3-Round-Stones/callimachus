@@ -21,7 +21,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Page> a calli:Creatable, owl:Class;
+<Page> a calli:Creatable, <IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Page;
 	rdfs:label "Page";
 	rdfs:comment "New pages can be created by adding a relative link to a new page in an existing page";
@@ -100,9 +100,10 @@
 			throw new BadRequest("Page already exists");
 		}
 		created = this.objectConnection.addDesignation(created, this.toString());
+		created.calliAdministrators.addAll(this.FindCreatorContributor(created));
+		created.calliReaders.addAll(this.calliReaders);
 		created.calliEditors.addAll(this.calliEditors);
-		created.calliAdministrators.addAll(this.calliEditors);
-		created.calliAdministrators.addAll(this.FindCreateContributor(created));
+		created.calliAdministrators.addAll(this.calliAdministrators);
 		this.touchRevision(); // update index page
 		this.objectConnection.commit();
 		created.UploadPage(inputStream);

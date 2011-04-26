@@ -28,6 +28,25 @@
 	calli:authenticates </group/admin>.
 
 ################################
+# Group
+################################
+
+<Group> a calli:Creatable, owl:Class;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Group;
+	rdfs:label "Group";
+	rdfs:comment "Groups provide a way to assign permissions to a named set of users";
+	calli:icon <group-favicon.png>;
+	msg:realm </accounts>; # Group operations must be authorized
+	calli:view <group.xhtml>;
+	calli:edit <group-edit.xhtml>;
+	calli:create <group-create.xhtml>;
+	calli:uriSpace </group/>;
+	calli:administrator </group/admin>. # admin members can edit any group
+
+</group/admin> a calli:Group, <Group>;
+	rdfs:label "admin".
+
+################################
 # User
 ################################
 
@@ -42,25 +61,6 @@
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>;
 	calli:administrator </group/admin>. # admin members can edit any user
-
-################################
-# Group
-################################
-
-<Group> a calli:Creatable, owl:Class;
-	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:Group;
-	rdfs:label "Group";
-	rdfs:comment "Groups provide a way to assign permissions to a named set of users";
-	calli:icon <group-favicon.png>;
-	msg:realm </accounts>; # Group operations must be authorized
-	calli:view <group.xhtml>;
-	calli:edit <group-edit.xhtml>;
-	calli:create <group-create.xhtml>;
-	calli:uriSpace </group/>;
-	calli:administrator </group/admin>. # admin members can edit any group
-
-</group/admin> a calli:Group, <Group>;
-	rdfs:label "admin".
 
 ################################
 # login

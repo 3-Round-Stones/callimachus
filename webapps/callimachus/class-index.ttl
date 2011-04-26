@@ -22,24 +22,24 @@
 @prefix :<#>.
 
 :GetCreatableListPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IndexClass>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "list";
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
-	msg:imports <creatable-list.xhtml>;
-	msg:script "return creatable_list_xhtml.calliConstruct(this, 'list')".
+	msg:imports <class-list.xhtml>;
+	msg:script "return class_list_xhtml.calliConstruct(this, 'list')".
 
 :GetCreatableIndexPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IndexClass>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "index";
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
-	msg:imports <creatable-index.xhtml>;
-	msg:script "return creatable_index_xhtml.calliConstruct(this, 'index')".
+	msg:imports <class-index.xhtml>;
+	msg:script "return class_index_xhtml.calliConstruct(this, 'index')".
 

@@ -23,12 +23,16 @@
 					$(this).remove();
 				}
 			});
+			if (!$('.type[resource$=Creatable]').length) {
+				$('#create-link').remove();
+			}
 		});
 		// ]]>
 	</script>
 </head>
 <body about="?this">
-	<ul class="aside">
+	<span class="type" rel="rdf:type" resource="?type" />
+	<ul id="create-link" class="aside">
 		<li><a href="?create">Create a new <span property="rdfs:label" /></a></li>
 	</ul>
 	<ul class="optional aside">

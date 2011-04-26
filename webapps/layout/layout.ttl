@@ -22,12 +22,12 @@
 	calli:logo <logo.png> ; calli:favicon <favicon.png> ;
 	calli:item [calli:position 1; rdfs:label "Main page"; calli:link </page/MainPage>];
 	calli:item [calli:position 2; rdfs:label "Contents"; calli:link </callimachus/menu>];
-	calli:item [calli:position 3; rdfs:label "All pages"; calli:link </callimachus/Page?index>];
+	calli:item [calli:position 3; rdfs:label "All pages"; calli:link </callimachus/Page>];
 	calli:item [calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>];
 	calli:item [calli:position 9; rdfs:label "Administration";
 		calli:item [calli:position 1; rdfs:label "User groups"; calli:link </accounts>];
-		calli:item [calli:position 2; rdfs:label "Concept schemes"; calli:link </callimachus/skos/ConceptScheme?list>];
-		calli:item [calli:position 3; rdfs:label "Ontologies"; calli:link </callimachus/owl/Ontology?list>];
+		calli:item [calli:position 2; rdfs:label "Concept schemes"; calli:link </callimachus/skos/ConceptScheme>];
+		calli:item [calli:position 3; rdfs:label "Ontologies"; calli:link </callimachus/owl/Ontology>];
 		calli:item [calli:position 4; rdfs:label "SPARQL query"; calli:link </sparql>]];
 	calli:item [calli:position 10; rdfs:label "Toolbox";
 		calli:item [calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>];

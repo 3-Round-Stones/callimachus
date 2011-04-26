@@ -22,8 +22,9 @@
 @prefix :<#>.
 
 :GetCreatableListPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IndexClass>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ListClass>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:rel "alternate";
 	msg:method "GET";
 	msg:query "list";
 	msg:type "application/xhtml+xml";
@@ -35,6 +36,7 @@
 :GetCreatableIndexPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IndexClass>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:rel "alternate";
 	msg:method "GET";
 	msg:query "index";
 	msg:type "application/xhtml+xml";

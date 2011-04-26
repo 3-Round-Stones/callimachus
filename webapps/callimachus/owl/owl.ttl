@@ -24,7 +24,7 @@
 @prefix class:</class/>.
 @prefix :<#>.
 
-<Ontology> a calli:Creatable, </callimachus/IndexClass>, owl:Class;
+<Ontology> a calli:Creatable, </callimachus/ListClass>, owl:Class;
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, owl:Ontology;
 	rdfs:label "Ontology";
 	rdfs:comment "Ontologies are the structural frameworks for organizing resources into classes based on characteristics which they have in common";
@@ -39,14 +39,26 @@
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
 <Class> a calli:Creatable, owl:Class;
-	rdfs:subClassOf calli:Creatable, calli:Viewable, calli:Editable, </callimachus/IndexClass>, owl:Class;
+	rdfs:subClassOf calli:Creatable, calli:Viewable, calli:Editable, owl:Class;
 	rdfs:label "Class";
 	rdfs:comment "A class is a construct that is used as a blueprint (or template) to create and edit resources of that class";
 	calli:icon <class.png>;
 	calli:view <class.xhtml>;
 	calli:edit <class-edit.xhtml>;
 	calli:create <class-create.xhtml>;
-	calli:uriSpace </rdf/>.
+	calli:uriSpace </rdf/>;
+	calli:administrator </group/admin>.
+
+:GetClassIndexPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "index";
+	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:header "cache-control:no-cache";
+	msg:imports </callimachus/class-index.xhtml>;
+	msg:script "return class_index_xhtml.calliConstruct(this, 'index')".
 
 :PostClassCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Class>]);

@@ -13,42 +13,47 @@
 	(function($) {
 		jQuery.ajax({type: 'GET', url:'?rdftype', complete: function(xhr) {
 			if (xhr.status == 200) {
-				var text = xhr.responseText;
-				var list = text.split('\r\n');
-				var calli = "http://callimachusproject.org/rdf/2009/framework#";
-				if (jQuery.inArray(calli + 'Copyable', list) >= 0) {
-					$('.copyable').show();
-				} else {
-					$('.copyable').hide();
-				}
-				if (jQuery.inArray(calli + 'Creator', list) >= 0) {
-					$('.creator').show();
-				} else {
-					$('.creator').hide();
-				}
-				if (jQuery.inArray(calli + 'Copyable', list) >= 0
-						|| jQuery.inArray(calli + 'Creatable', list) >= 0
-						|| jQuery.inArray(calli + 'Creator', list) >= 0) {
-					$('.create').show();
-				} else {
-					$('.create').hide();
-				}
-				if (jQuery.inArray('http://www.w3.org/2002/07/owl#Class', list) >= 0) {
-					if ($('.realm').length) {
+				jQuery(function($) {
+					var text = xhr.responseText;
+					var list = text.split('\r\n');
+					var calli = "http://callimachusproject.org/rdf/2009/framework#";
+					if (jQuery.inArray(calli + 'Copyable', list) >= 0) {
+						$('.copyable').show();
+					} else {
+						$('.copyable').hide();
+					}
+					if (jQuery.inArray(calli + 'Creator', list) >= 0) {
+						$('.creator').show();
+					} else {
+						$('.creator').hide();
+					}
+					if (jQuery.inArray(calli + 'Copyable', list) >= 0
+							|| jQuery.inArray(calli + 'Creatable', list) >= 0
+							|| jQuery.inArray(calli + 'Creator', list) >= 0) {
+						$('.create').show();
+					} else {
+						$('.create').hide();
+					}
+					if (jQuery.inArray('http://www.w3.org/2002/07/owl#Class', list) >= 0) {
+						$('.class').show();
 						$('.read').show();
 					} else {
-						$('.read').hide();
+						$('.class').hide();
+						var control = xhr.getResponseHeader('Cache-Control');
+						if (control && control.indexOf('public') >= 0) {
+							$('.read').hide();
+						} else {
+							$('.read').show();
+						}
 					}
-				} else {
-					var control = xhr.getResponseHeader('Cache-Control');
-					if (control && control.indexOf('public') >= 0) {
-						$('.read').hide();
-					} else {
-						$('.read').show();
-					}
-				}
+				});
 			}
 		}});
+		$(document).bind('calliRedirect', function(event) {
+			var url = event.location;
+			event.location = url.substring(0, url.indexOf('?'));
+			return true;
+		});
 	})(jQuery);
 	// ]]>
 	</script>
@@ -57,16 +62,23 @@
 	<ul class="aside">
 		<li class="copyable"><span class="read">Readers, </span>Editors and Administrators propagate to resources copied from this resource</li>
 		<li class="creator"><span class="read">Readers, </span>Editors and Administrators propagate to new resources created from this resource</li>
-		<li class="optional" rel="msg:realm">
-			<div class="realm" about="?realm">Access to resources of this class is restricted to authenticated users</div>
-		</li>
-		<li class="read">Readers can view, discuss, and see the history of this resource</li>
+		<li class="class"><span class="read">Readers, </span>Editors and Administrators apply to this resource and all resources of this class</li>
+		<li class="read">Readers can view, discuss, and see the history</li>
 		<li class="create">Contributors can create new resources and edit them</li>
-		<li>Editors can edit this resource</li>
-		<li>Administrators can view and modify any aspect of this resource</li>
+		<li>Editors can make changes using the edit tab</li>
+		<li>Administrators can view and modify using any available operation</li>
 	</ul>
 	<h1><span property="rdfs:label" /> Permissions</h1>
 	<form id="form" action="" about="?this">
+		<div class="class">
+			<label for="realm">Authentication</label>
+			<div id="realm">
+				<label rel="msg:realm" resource="?realm">
+					<input type="checkbox" name="realm" checked="checked" />
+					<span rel="calli:domain" resource="/" property="rdfs:label" />
+				</label>
+			</div>
+		</div>
 		<div class="hbox">
 			<div class="read">
 				<label for="reader">Reader</label>

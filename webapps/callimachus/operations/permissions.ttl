@@ -65,19 +65,14 @@
 	""".
 
 :PostPermissions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
 	msg:method "POST";
 	msg:query "permissions";
-	msg:type "message/x-response";
+	msg:expect "201-modified";
 	msg:imports <permissions.xhtml>;
-	msg:imports <java:org.apache.http.ProtocolVersion>;
-	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
 	msg:script """
 		permissions_xhtml.calliEditResource(this, msg.input);
-		var ver = new ProtocolVersion("HTTP", 1, 1);
-		var resp = new BasicHttpResponse(ver, 201, "Modified");
-		resp.addHeader("Location", this + "?view");
-		return resp;
+		return this;
 	""".
 
 :input a owl:ObjectProperty; a owl:FunctionalProperty;

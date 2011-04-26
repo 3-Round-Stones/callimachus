@@ -23,7 +23,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<ConceptScheme> a calli:Creatable, </callimachus/IndexClass>, owl:Class;
+<ConceptScheme> a calli:Creatable, </callimachus/ListClass>, owl:Class;
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, skos:ConceptScheme;
 	rdfs:label "Scheme";
 	rdfs:comment "A scheme is a particular classification, arranged in a hierarchical structure", "Typically this is organized by supertype-subtype relationships, also called generalization-specialization relationships, or less formally, parent-child relationships";
@@ -54,5 +54,6 @@
 	calli:view <concept.xhtml>;
 	calli:edit <concept-edit.xhtml>;
 	calli:create <concept-create.xhtml>;
-	calli:uriSpace </scheme/>.
+	calli:uriSpace </scheme/>;
+	calli:administrator </group/admin>.
 

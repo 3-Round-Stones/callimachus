@@ -6,8 +6,6 @@ importClass(Packages.calli.Copyable);
 importClass(Packages.calli.copy);
 importClass(Packages.calli.edit);
 importClass(Packages.calli.view);
-importClass(Packages.org.apache.http.ProtocolVersion);
-importClass(Packages.org.apache.http.message.BasicHttpResponse);
 importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
 importClass(Packages.org.openrdf.http.object.exceptions.BadRequest);
 
@@ -76,10 +74,7 @@ function getEditPage() {
 function postEdit(msg) {
 	var template = findTemplate(this, edit);
 	template.calliEditResource(this, msg.input);
-	var ver = new ProtocolVersion("HTTP", 1, 1);
-	var resp = new BasicHttpResponse(ver, 201, "Modified");
-	resp.addHeader("Location", this + "?view");
-	return resp;
+	return this;
 }
 
 function findTemplate(obj, ann) {

@@ -37,10 +37,10 @@
 
 :PostEdit rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Editable];
 	msg:method "POST";
 	msg:query "edit";
-	msg:type "message/x-response";
+	msg:expect "201-modified";
 	msg:script <operations.js#postEdit>.
 
 :input a owl:ObjectProperty; a owl:FunctionalProperty;

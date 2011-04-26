@@ -29,11 +29,22 @@
 	rdfs:label "Ontology";
 	rdfs:comment "Ontologies are the structural frameworks for organizing resources into classes based on characteristics which they have in common";
 	calli:creates <Class>;
+	calli:creates <ObjectProperty>;
 	calli:createRev rdfs:isDefinedBy;
 	calli:icon <ontology.png>;
 	calli:view <ontology.xhtml>;
 	calli:edit <ontology-edit.xhtml>;
 	calli:create <ontology-create.xhtml>;
+	calli:uriSpace </rdf/>;
+	calli:administrator </group/admin>.
+
+<ObjectProperty> a calli:Creatable, owl:Class;
+	rdfs:subClassOf calli:Viewable, calli:Editable, owl:Class;
+	rdfs:label "Object Property";
+	rdfs:comment "A type of relationship between objects";
+	calli:view <property.xhtml>;
+	calli:edit <property-edit.xhtml>;
+	calli:create <property-create.xhtml>;
 	calli:uriSpace </rdf/>;
 	calli:administrator </group/admin>.
 

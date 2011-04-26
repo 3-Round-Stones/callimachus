@@ -5,26 +5,6 @@
 	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this" property="rdfs:label" />
-	<script>//<![CDATA[
-		jQuery(function($){
-			$('.result').each(function() {
-				var label = $(this).find('a').text();
-				if (label.match(/^[A-Za-z]/)) {
-					box = $('#' + label.substring(0, 1).toUpperCase());
-				} else {
-					box = $('#_');
-				}
-				box.append($(this));
-			});
-			$('#results').children().each(function() {
-				if (!$(this).children('div').length) {
-					$('#index').children('[href="#' + $(this).attr('id') + '"]').removeAttr('href');
-					$(this).remove();
-				}
-			});
-		});
-		// ]]>
-	</script>
 </head>
 <body about="?this">
 	<ul class="aside">
@@ -42,13 +22,31 @@
 		<li rel="rdfs:subClassOf" class="optional">
 			<label>Super class</label>
 			<div about="?subClassOf" typeof="owl:Class">
-				<a href="?subClassOf" property="rdfs:label" class="subClassOf" />
+				<a href="?subClassOf" property="rdfs:label" class="view" />
 			</div>
 		</li>
 		<li rev="rdfs:subClassOf" class="optional">
 			<label>Sub class</label>
 			<div about="?subClass" typeof="owl:Class">
-				<a href="?subClass" property="rdfs:label" class="subClass" />
+				<a href="?subClass" property="rdfs:label" class="view" />
+			</div>
+		</li>
+		<li rel="calli:creates" class="optional">
+			<label>Nested class</label>
+			<div about="?creates" typeof="owl:Class">
+				<a href="?creates" property="rdfs:label" class="view" />
+			</div>
+		</li>
+		<li rel="calli:createRel" class="optional">
+			<label>Nested relationship</label>
+			<div about="?createRel" typeof="owl:ObjectProperty">
+				<a href="?createRel" property="rdfs:label" class="view" />
+			</div>
+		</li>
+		<li rel="calli:createRev" class="optional">
+			<label>Nested reverse relationship</label>
+			<div about="?createRev" typeof="owl:ObjectProperty">
+				<a href="?createRev" property="rdfs:label" class="view" />
 			</div>
 		</li>
 		<li class="optional">

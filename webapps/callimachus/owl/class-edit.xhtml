@@ -6,11 +6,9 @@
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
 	<title about="?this" property="rdfs:label" />
-	<style>
-		img { border-style:none; }
-	</style>
 	<script>//<![CDATA[
 		function updateSuperClasses() {
+			var Creator = 'about="http://callimachusproject.org/rdf/2009/framework#Creator"';
 			var Copyable = 'about="http://callimachusproject.org/rdf/2009/framework#Copyable"';
 			var Viewable = 'about="http://callimachusproject.org/rdf/2009/framework#Viewable"';
 			var Editable = 'about="http://callimachusproject.org/rdf/2009/framework#Editable"';
@@ -36,6 +34,13 @@
 			} else {
 				subClassOf.children('[' + Editable + ']').remove();
 			}
+			if ($('#creates').children('[about]').length) {
+				if (!subClassOf.children('[' + Creator + ']').length) {
+					subClassOf.append('<div ' + Creator + '>Creator</div>');
+				}
+			} else {
+				subClassOf.children('[' + Creator + ']').remove();
+			}
 		}
 		jQuery(function($) {
 			$('[data-prompt^=?]').each(function() {
@@ -54,6 +59,8 @@
 		</li>
 		<li>Icon is used when looking up resources</li>
 		<li>A superclass should be a common part of its subclasses</li>
+		<li>Nested classes are resources that belong to a resource of this class</li>
+		<li>A nested relationship links the super resource of this class with a resource of a nested class</li>
 		<li>Templates are used for page or form structure for each operation</li>
 	</ul>
 	<h1 property="rdfs:label" />
@@ -81,6 +88,26 @@
 				<label for="subClass">Sub-classes</label>
 				<div id="subClass" rev="rdfs:subClassOf" data-prompt="?create=/callimachus/owl/Class">
 					<div about="?subClass" typeof="owl:Class" property="rdfs:label" />
+				</div>
+			</div>
+		</div>
+		<div class="hbox">
+			<div>
+				<label for="creates">Nested classes</label>
+				<div id="creates" rel="calli:creates" data-prompt="?create=/callimachus/owl/Class">
+					<div about="?creates" typeof="owl:Class" property="rdfs:label" />
+				</div>
+			</div>
+			<div>
+				<label for="createRel">Nested relationship</label>
+				<div id="createRel" rel="calli:createRel" data-prompt="?create=/callimachus/owl/ObjectProperty">
+					<div about="?createRel" typeof="owl:ObjectProperty" property="rdfs:label" />
+				</div>
+			</div>
+			<div>
+				<label for="createRev">Nested reverse relationship</label>
+				<div id="createRev" rel="calli:createRev" data-prompt="?create=/callimachus/owl/ObjectProperty">
+					<div about="?createRev" typeof="owl:ObjectProperty" property="rdfs:label" />
 				</div>
 			</div>
 		</div>

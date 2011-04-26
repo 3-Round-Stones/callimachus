@@ -4,7 +4,7 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:owl="http://www.w3.org/2002/07/owl#">
 <head>
-	<title>New Class</title>
+	<title>New Property</title>
 	<script> // <![CDATA[
 	jQuery(function($){
 		$('#form').submit(function() {
@@ -23,10 +23,10 @@
 </head>
 <body>
 	<ul class="aside">
-		<li>A class usually represents a noun, such as a person, place or (possibly quite abstract) thing</li>
+		<li>Relationships (also known as relations) between objects in an ontology specify how objects are related to other objects</li>
 	</ul>
-	<form id="form" about="?this" typeof="owl:Class" action="">
-		<h1>New Class</h1>
+	<form id="form" about="?this" typeof="owl:ObjectProperty" action="">
+		<h1>New Property</h1>
 		<label for="label">Label</label>
 		<div data-cardinality="1">
 			<input id="label" property="rdfs:label" class="required auto-expand" />

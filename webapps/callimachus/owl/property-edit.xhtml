@@ -2,14 +2,14 @@
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
-	<title>New Resource</title>
+	<title about="?this" property="rdfs:label" />
 </head>
 <body about="?this">
-	<h1>New Resource</h1>
-	<form id="form" about="?this" typeof="" action=""
-			onsubmit="$(this).attr('about', $('body').attr('about') + '/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
+	<h1 property="rdfs:label" />
+	<form about="?this" typeof="owl:Class" action="">
 		<label for="label">Label</label>
 		<div data-cardinality="1">
 			<input id="label" property="rdfs:label" class="required auto-expand" />
@@ -18,7 +18,9 @@
 		<div data-cardinality="1">
 			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
 		</div>
-		<button id="submit" type="submit">Create</button>
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+		<button id="delete" type="button" onclick="if (confirm('Are you sure you want to delete this property?')) calli.deleteResource()">Delete</button>
 	</form>
 </body>
 </html>

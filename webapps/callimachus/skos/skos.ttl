@@ -48,6 +48,8 @@
 
 <Concept> a calli:Creatable, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, skos:Concept;
+	rdfs:label "Concept";
+	rdfs:comment "Concepts are ideas, meanings, or categories of objects and events";
 	calli:icon <concept.png>;
 	calli:view <concept.xhtml>;
 	calli:edit <concept-edit.xhtml>;

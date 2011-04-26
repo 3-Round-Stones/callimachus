@@ -40,6 +40,8 @@
 # Note instances of <Class> are creatable and <Class> itself is also creatable
 <Class> a calli:Creatable, owl:Class;
 	rdfs:subClassOf owl:Class, calli:Creatable, calli:Viewable, calli:Editable;
+	rdfs:label "Class";
+	rdfs:comment "A class is a construct that is used as a blueprint (or template) to create and edit resources of that class";
 	calli:icon <class.png>;
 	calli:view <class.xhtml>;
 	calli:edit <class-edit.xhtml>;

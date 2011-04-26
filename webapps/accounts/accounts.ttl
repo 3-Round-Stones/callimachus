@@ -34,6 +34,7 @@
 <User> a calli:Creatable, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, calli:User;
 	rdfs:label "User";
+	rdfs:comment "Username and password associated with an email address";
 	msg:realm </accounts>; # User operations must be authorized
 	calli:icon <user-favicon.png>;
 	calli:create <user-create.xhtml>;
@@ -49,6 +50,7 @@
 <Group> a calli:Creatable, owl:Class;
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:Group;
 	rdfs:label "Group";
+	rdfs:comment "Groups provide a way to assign permissions to a named set of users";
 	calli:icon <group-favicon.png>;
 	msg:realm </accounts>; # Group operations must be authorized
 	calli:view <group.xhtml>;

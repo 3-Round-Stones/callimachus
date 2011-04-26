@@ -50,14 +50,12 @@
 # User
 ################################
 
-<User> a calli:Creatable, owl:Class;
+<User> a owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, calli:User;
 	rdfs:label "User";
 	rdfs:comment "Username and password associated with an email address";
 	msg:realm </accounts>; # User operations must be authorized
 	calli:icon <user-favicon.png>;
-	calli:create <user-create.xhtml>;
-	calli:uriSpace </user/>;
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>;
 	calli:administrator </group/admin>. # admin members can edit any user

@@ -8,10 +8,10 @@
 	<script type="text/javascript"><![CDATA[
 	jQuery(function($){
 		var url = $('body').attr('about');
-		var conditional = {'If-Match': $('meta[http-equiv="etag"]').attr('content')};
+		var etag = $('meta[http-equiv="etag"]').attr('content');
 		if (location.hash && location.hash.indexOf('#!') == 0 || location.search == "?create") { // new page
 			url = location.hash.substring(2);
-			conditional = {};
+			etag = null;
 		}
 		var local = url.replace(/.*\//, '').replace(/\.[a-zA-Z]+$/, '');
 		var label = decodeURIComponent(local);
@@ -50,7 +50,7 @@
 			dialogLinkHtml: outter($('.wym_dialog_link'))
 		});
 		$(window).one('load', function() {
-			if (conditional['If-Match']) {
+			if (etag) {
 				jQuery.ajax({
 					type: "GET", url: url,
 					beforeSend: function(xhr) {
@@ -61,6 +61,7 @@
 							if (xhr.status == 200) {
 								var type = xhr.getResponseHeader("Content-Type");
 								if (type && type.indexOf('application/xhtml+xml') == 0) {
+									etag = xhr.getResponseHeader("ETag");
 									page = xhr.responseText.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
 									$('#create').hide();
 									$('#abort').hide();
@@ -69,7 +70,7 @@
 									$('#delete').show();
 								}
 							} else {
-								conditional = {};
+								etag = null;
 								url = null;
 							}
 							jQuery.wymeditors(0)._html = page[2];
@@ -99,11 +100,11 @@
 		$('#form').submit(function(event) {
 			var body = jQuery.wymeditors(0).xhtml();
 			var html = page[1] + body + page[3];
-			if (conditional['If-Match']) {
+			if (etag) {
 				jQuery.ajax({
 					type: "PUT", url: url,
 					beforeSend: function(xhr) {
-						xhr.setRequestHeader('If-Match', $('meta[http-equiv="etag"]').attr('content'));
+						xhr.setRequestHeader('If-Match', etag);
 					},
 					contentType: 'application/xhtml+xml',
 					data: html,

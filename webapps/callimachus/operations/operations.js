@@ -49,13 +49,14 @@ function postCreate(msg) {
 		throw new InternalServerError("No create template");
 	var newCopy = template.calliCreateResource(this, msg.input, factory.calliUriSpace);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, factory.toString());
-	if (this.equals(factory)) {
-		newCopy.calliEditors.addAll(this.FindCreatorContributor(newCopy));
-	} else {
-		newCopy.calliEditors.addAll(this.FindCreatorContributor(newCopy));
-		newCopy.calliReaders.addAll(this.calliReaders);
-		newCopy.calliEditors.addAll(this.calliEditors);
-		newCopy.calliAdministrators.addAll(this.calliAdministrators);
+	newCopy.calliEditors.addAll(this.FindCreatorContributor(newCopy));
+	newCopy.calliReaders.addAll(this.calliReaders);
+	newCopy.calliEditors.addAll(this.calliEditors);
+	newCopy.calliAdministrators.addAll(this.calliAdministrators);
+	if (!this.equals(factory)) {
+		newCopy.calliReaders.addAll(factory.calliReaders);
+		newCopy.calliEditors.addAll(factory.calliEditors);
+		newCopy.calliAdministrators.addAll(factory.calliAdministrators);
 		var statements = this.ConstructCreatorRelationship(newCopy).iterator();
 		while (statements.hasNext()) {
 			this.objectConnection.add(statements.next(), []);

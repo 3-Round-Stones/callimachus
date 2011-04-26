@@ -103,23 +103,18 @@
 				GRAPH ?graph { $thing a ?type }
 				?graph audit:contributor ?contributor
 			} OPTIONAL {
-				?exists calli:editor ?contributor FILTER (?exists = $this)
-			} OPTIONAL {
-				?exists calli:administrator ?contributor FILTER (?exists = $this)
-			} OPTIONAL {
-				?exists calli:editor [calli:member ?contributor] FILTER (?exists = $this)
-			} OPTIONAL {
-				?exists calli:administrator [calli:member ?contributor] FILTER (?exists = $this)
-			} OPTIONAL {
-				?exists a [calli:editor ?contributor] FILTER (?exists = $thing)
-			} OPTIONAL {
-				?exists a [calli:administrator ?contributor] FILTER (?exists = $thing)
-			} OPTIONAL {
-				?exists a [calli:editor [calli:member ?contributor]] FILTER (?exists = $thing)
-			} OPTIONAL {
-				?exists a [calli:administrator [calli:member ?contributor]] FILTER (?exists = $thing)
+				{
+					$this ?editor ?contributor
+				} UNION {
+					$this ?editor [calli:member ?contributor]
+				} UNION {
+					$thing a [?editor ?contributor]
+				} UNION {
+					$thing a [?editor [calli:member ?contributor]]
+				}
+				FILTER (?editor = calli:editor || ?editor = calli:administrator)
 			}
-			FILTER (!bound(?exists))
+			FILTER (!bound(?editor))
 		}
 	""".
 

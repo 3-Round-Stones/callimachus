@@ -93,8 +93,8 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 				FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
 			} UNION {
 				$object calli:editor $credential
-				FILTER ($query = "edit" && ($method = "GET" || $method = "HEAD" || $method = "POST"))
-				FILTER (!bound($query) && ($method = "PUT" || $method = "DELETE"))
+				FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" || $method = "PUT" || $method = "DELETE")
+				FILTER (!bound($query) || $query = "edit")
 			} UNION {
 				$object calli:administrator $credential
 			}

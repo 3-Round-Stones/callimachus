@@ -62,7 +62,7 @@
 				</xsl:if>
 			</a>
 			<xsl:text>; </xsl:text>
-			<a href="{sparql:binding[@name='revision']/*}" class="abbreviated time-locale"><xsl:value-of select="sparql:binding[@name='modified']/*" /></a>
+			<a href="{sparql:binding[@name='revision']/*}?view" class="abbreviated time-locale"><xsl:value-of select="sparql:binding[@name='modified']/*" /></a>
 			<xsl:text>..</xsl:text>
 			<a>
 				<xsl:if test="sparql:binding[@name='user']">

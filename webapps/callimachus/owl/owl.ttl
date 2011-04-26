@@ -52,11 +52,13 @@
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:imports </rdf/>;
 	msg:script """
+		var klass = proceed();
+		klass.calliUriSpace.add(rdf);
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
 		con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph"), []);
-		var klass = proceed();
-		klass.calliUriSpace.add(rdf);
+		con.commit();
+		con.repository.recompileRepository();
 		return klass;
 	""".
 
@@ -65,10 +67,13 @@
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:script """
+		var ret = proceed();
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
 		con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph"), []);
-		return proceed();
+		con.commit();
+		con.repository.recompileRepository();
+		retur ret;
 	""".
 
 <sample-view.xhtml> a </callimachus/Page>.

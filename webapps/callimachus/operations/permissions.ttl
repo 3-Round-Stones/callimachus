@@ -28,6 +28,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "permissions";
+	msg:realm </accounts>;
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
@@ -68,6 +69,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
 	msg:method "POST";
 	msg:query "permissions";
+	msg:realm </accounts>;
 	msg:expect "201-modified";
 	msg:imports <permissions.xhtml>;
 	msg:script """

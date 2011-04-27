@@ -20,10 +20,7 @@ function getCopyPage() {
 function postCopy(msg) {
 	var template = findTemplate(this, copy);
 	var newCopy = template.calliCreateResource(this, msg.input, this.FindCopyUriSpaces());
-	newCopy.calliEditors.addAll(this.FindCreatorContributor(newCopy));
-	newCopy.calliReaders.addAll(this.calliReaders);
-	newCopy.calliEditors.addAll(this.calliEditors);
-	newCopy.calliAdministrators.addAll(this.calliAdministrators);
+	this.PropagatePermissions(newCopy);
 	return newCopy;
 }
 
@@ -47,10 +44,7 @@ function postCreate(msg) {
 		throw new InternalServerError("No create template");
 	var newCopy = template.calliCreateResource(this, msg.input, factory.calliUriSpace);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, factory.toString());
-	newCopy.calliEditors.addAll(this.FindCreatorContributor(newCopy));
-	newCopy.calliReaders.addAll(this.calliReaders);
-	newCopy.calliEditors.addAll(this.calliEditors);
-	newCopy.calliAdministrators.addAll(this.calliAdministrators);
+	this.PropagatePermissions(newCopy);
 	if (!this.equals(factory)) {
 		newCopy.calliReaders.addAll(factory.calliReaders);
 		newCopy.calliEditors.addAll(factory.calliEditors);

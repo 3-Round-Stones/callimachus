@@ -80,6 +80,7 @@
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	msg:method "POST";
 	msg:query "create";
+	msg:realm </accounts>;
 	msg:expect "201-created";
 	msg:type "text/uri-list";
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
@@ -100,10 +101,7 @@
 			throw new BadRequest("Page already exists");
 		}
 		created = this.objectConnection.addDesignation(created, this.toString());
-		created.calliAdministrators.addAll(this.FindCreatorContributor(created));
-		created.calliReaders.addAll(this.calliReaders);
-		created.calliEditors.addAll(this.calliEditors);
-		created.calliAdministrators.addAll(this.calliAdministrators);
+		this.PropagatePermissions(created);
 		this.touchRevision(); // update index page
 		this.objectConnection.commit();
 		created.UploadPage(inputStream);

@@ -25,22 +25,6 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix :<#>.
 
-################################
-# Authentication
-################################
-
-# all common modification operations must be authenticated
-</callimachus/operations/copy.ttl#GetCopyPage> msg:realm </accounts>.
-</callimachus/operations/copy.ttl#PostCopy> msg:realm </accounts>.
-</callimachus/operations/create.ttl#GetCreatePage> msg:realm </accounts>.
-</callimachus/operations/create.ttl#PostCreate> msg:realm </accounts>.
-</callimachus/operations/edit.ttl#GetEditPage> msg:realm </accounts>.
-</callimachus/operations/edit.ttl#PostEdit> msg:realm </accounts>.
-</callimachus/operations/delete.ttl#Delete> msg:realm </accounts>.
-</callimachus/queries/discussion.ttl#PostDiscussion> msg:realm </accounts>.
-</callimachus/operations/permissions.ttl#GetPermissions> msg:realm </accounts>.
-</callimachus/operations/permissions.ttl#PostPermissions> msg:realm </accounts>.
-
 # Transaction operations must be authenticated
 audit:Transaction a owl:Class; msg:realm </accounts>.
 

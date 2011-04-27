@@ -30,6 +30,7 @@
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET" ;
 	msg:query "create" ;
+	msg:realm </accounts>;
 	msg:imports <graph-create.xhtml> ;
 	msg:script """
 		return graph_create_xhtml.calliConstructHTML(this, "create");

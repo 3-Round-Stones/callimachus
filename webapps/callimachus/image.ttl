@@ -24,26 +24,19 @@
 @prefix callimachus:<.>.
 @prefix :<#>.
 
-<Image> rdfs:subClassOf foaf:Image, calli:Viewable, calli:Editable ;
+<Image> a calli:Creatable, owl:Class;
+	rdfs:subClassOf foaf:Image, calli:Viewable, calli:Editable ;
 	calli:view <image.xhtml> ;
 	calli:edit <image-edit.xhtml> ;
+	calli:create <image-create.xhtml>;
 	calli:administrator </group/admin> .
-
-:GetImageCreate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Image> ];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET" ;
-	msg:query "create" ;
-	msg:imports <image-create.xhtml> ;
-	msg:script """
-		return image_create_xhtml.calliConstructHTML(this, "create");
-	""".
 
 :PostImageCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Image> ];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "POST" ;
 	msg:query "create" ;
+	msg:realm </accounts>;
 	msg:expect "303-see-also" ;
 	msg:type "text/uri-list";
 	msg:realm </accounts> ;
@@ -80,6 +73,7 @@
 			throw new BadRequest("Unsupported format: " + type);
 		}
 		obj = this.objectConnection.addDesignation(obj, "urn:mimetype:" + type) ;
+		this.PropagatePermissions(obj);
 
 		//# add the image label
 		obj.rdfsLabels.add(img.fileName) ;
@@ -110,7 +104,6 @@
 	msg:method "PUT" ;
 	msg:realm :local ;
 	msg:script """
-		this.calliAdministrators.addAll(this.FindContributors());
 		var out = this.openOutputStream() ;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
 		var read;
@@ -127,15 +120,4 @@
 	rdfs:domain :PutImage ;
 	rdfs:range <java:java.io.InputStream> ;
 	msg:type "application/octet-stream" .
-
-# find the user that created $this
-:FindContributors rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Image>];
-	msg:sparql  """
-		SELECT DISTINCT ?contributor
-		WHERE {
-			GRAPH ?graph { $this a ?type }
-			?graph audit:contributor ?contributor
-		}
-	""".
 

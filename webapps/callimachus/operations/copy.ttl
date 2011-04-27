@@ -31,6 +31,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "copy";
+	msg:realm </accounts>;
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
@@ -41,6 +42,7 @@
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	msg:method "POST";
 	msg:query "copy";
+	msg:realm </accounts>;
 	msg:expect "201-created";
 	msg:type "text/uri-list";
 	msg:script <operations.js#postCopy>.

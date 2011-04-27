@@ -30,6 +30,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "create";
+	msg:realm </accounts>;
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
@@ -40,6 +41,7 @@
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
 	msg:method "POST";
 	msg:query "create";
+	msg:realm </accounts>;
 	msg:expect "201-created";
 	msg:type "text/uri-list";
 	msg:script <operations.js#postCreate>.
@@ -91,8 +93,21 @@
 :that a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :ConstructCreatorRelationship.
 
+:PropagatePermissions rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Copyable calli:Creatable calli:Creator)]];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	msg:script """
+		newResource.calliEditors.addAll(this.FindContributor(newResource));
+		newResource.calliReaders.addAll(this.calliReaders);
+		newResource.calliEditors.addAll(this.calliEditors);
+		newResource.calliAdministrators.addAll(this.calliAdministrators);
+	""".
+
+:newResource a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :PropagatePermissions.
+
 # find the user that created $thing if they are not otherwise editors
-:FindCreatorContributor rdfs:subClassOf msg:Message;
+:FindContributor rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Copyable calli:Creatable calli:Creator)]];
 	msg:sparql  """
 		SELECT DISTINCT ?contributor
@@ -119,5 +134,5 @@
 	""".
 
 :thing a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :FindCreatorContributor.
+	rdfs:domain :FindContributor.
 

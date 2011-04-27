@@ -369,9 +369,9 @@ label.error {
 	}
 } /* end screen */
 
-@media screen and (min-height:38em) {
+@media screen and (min-height:36em) {
 	#content {
-		min-height: 30em;
+		min-height: 28em;
 	}
 } /* end screen */
 

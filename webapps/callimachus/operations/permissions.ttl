@@ -97,8 +97,7 @@
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
 		con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph"), []);
-		con.commit();
-		con.repository.recompileRepository();
+		con.recompileAfterClose();
 		return ret;
 	""".
 

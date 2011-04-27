@@ -7,8 +7,20 @@
 	<title>New Class</title>
 	<script> // <![CDATA[
 	jQuery(function($){
+		$(document).bind('DOMNodeInserted', function(event) {
+			var label = $('.equivalentLabel', event.target).text();
+			var comment = $('.equivalentComment', event.target).text();
+			if (label && !$('#label').val()) {
+				$('#label').val(label);
+				$('#label').change();
+			}
+			if (comment && !$('#comment').val()) {
+				$('#comment').val(comment);
+				$('#comment').change();
+			}
+		});
 		$('#form').submit(function() {
-			var ontology = calli.listResourceIRIs(document.referrer)[0];
+			var ontology = location.href.substring(0, location.href.indexOf('?'));
 			if (parent) {
 				// copy ontology from parent class
 				var about = $('#ontology', parent.document).attr('about');
@@ -16,7 +28,7 @@
 					ontology = about;
 				}
 			}
-			$(this).attr('about', ontology + '/' + encodeURI($('#label').val()).replace(/%20/g,'+'))
+			$(this).attr('about', ontology + '/' + encodeURI($('#label').val()).replace(/%20/g,'+'));
 		});
 	}); // ]]>
 	</script>
@@ -27,13 +39,26 @@
 	</ul>
 	<form id="form" about="?this" typeof="owl:Class" action="">
 		<h1>New Class</h1>
-		<label for="label">Label</label>
-		<div data-cardinality="1">
-			<input id="label" property="rdfs:label" class="required auto-expand" />
-		</div>
-		<label for="comment">Comment</label>
-		<div data-cardinality="1">
-			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
+		<div class="hbox">
+			<div>
+				<label for="label">Label</label>
+				<div data-cardinality="1">
+					<input id="label" property="rdfs:label" class="required auto-expand" />
+				</div>
+				<label for="comment">Comment</label>
+				<div data-cardinality="1">
+					<textarea id="comment" class="auto-expand" property="rdfs:comment" />
+				</div>
+			</div>
+			<div>
+				<label for="equivalentClass">Use existing class</label>
+				<div id="equivalentClass" rel="owl:equivalentClass" data-prompt="?create=/callimachus/owl/Class">
+					<div about="?equivalentClass" typeof="owl:Class">
+						<span class="equivalentLabel" property="rdfs:label" />
+						<span style="display:none" class="equivalentComment" property="rdfs:comment" />
+					</div>
+				</div>
+			</div>
 		</div>
 		<button id="submit" type="submit">Create</button>
 	</form>

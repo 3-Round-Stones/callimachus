@@ -65,13 +65,19 @@
 	</ul>
 	<h1 property="rdfs:label" />
 	<form about="?this" typeof="owl:Class" action="" onsubmit="updateSuperClasses()">
-		<label for="label">Label</label>
-		<div data-cardinality="1">
-			<input id="label" property="rdfs:label" class="required auto-expand" />
-		</div>
-		<label for="icon">Icon</label>
-		<div id="icon" rel="calli:icon" data-prompt="/callimachus/Image?create">
-			<span about="?icon" typeof="foaf:Image" property="rdfs:label"/>
+		<div class="hbox">
+			<div>
+				<label for="label">Label</label>
+				<div data-cardinality="1">
+					<input id="label" property="rdfs:label" class="required auto-expand" />
+				</div>
+			</div>
+			<div>
+				<label for="icon">Icon</label>
+				<div id="icon" rel="calli:icon" data-prompt="/callimachus/Image?create">
+					<span about="?icon" typeof="foaf:Image" property="rdfs:label"/>
+				</div>
+			</div>
 		</div>
 		<label for="comment">Comment</label>
 		<div data-cardinality="1">
@@ -79,21 +85,28 @@
 		</div>
 		<div class="hbox">
 			<div>
-				<label for="subClassOf">Super-classes</label>
+				<label for="subClassOf">Super</label>
 				<div id="subClassOf" rel="rdfs:subClassOf" data-prompt="?create=/callimachus/owl/Class">
 					<div about="?subClassOf" typeof="owl:Class" property="rdfs:label" />
 				</div>
 			</div>
 			<div>
-				<label for="subClass">Sub-classes</label>
+				<label for="equivalentClass">Equivalent</label>
+				<div id="equivalentClass" rel="owl:equivalentClass" data-prompt="?create=/callimachus/owl/Class">
+					<div about="?equivalentClass" typeof="owl:Class" property="rdfs:label" />
+				</div>
+			</div>
+			<div>
+				<label for="subClass">Sub</label>
 				<div id="subClass" rev="rdfs:subClassOf" data-prompt="?create=/callimachus/owl/Class">
 					<div about="?subClass" typeof="owl:Class" property="rdfs:label" />
 				</div>
 			</div>
 		</div>
+		<hr />
 		<div class="hbox">
 			<div>
-				<label for="creates">Nested classes</label>
+				<label for="creates">Nested</label>
 				<div id="creates" rel="calli:creates" data-prompt="?create=/callimachus/owl/Class">
 					<div about="?creates" typeof="owl:Class" property="rdfs:label" />
 				</div>

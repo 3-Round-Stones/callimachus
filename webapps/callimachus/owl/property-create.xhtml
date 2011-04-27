@@ -8,7 +8,7 @@
 	<script> // <![CDATA[
 	jQuery(function($){
 		$('#form').submit(function() {
-			var ontology = calli.listResourceIRIs(document.referrer)[0];
+			var ontology = location.href.substirng(0, location.href.indexOf('?'));
 			if (parent) {
 				// copy ontology from parent class
 				var about = $('#ontology', parent.document).attr('about');

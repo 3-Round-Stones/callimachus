@@ -25,11 +25,12 @@
 
 # View photos requires authentication and authorization by the resource that it was uploaded for
 <Photo> a calli:Creatable, owl:Class;
-	rdfs:subClassOf foaf:Image, calli:Viewable, calli:Editable ;
+	rdfs:subClassOf calli:Viewable, calli:Editable, foaf:Image ;
 	msg:realm </accounts> ;
 	calli:view <photo.xhtml> ;
 	calli:edit <photo-edit.xhtml> ;
 	calli:create <photo-create.xhtml>;
+	calli:editor </group/staff>;
 	calli:administrator </group/admin> .
 
 :GetPhotoLarge rdfs:subClassOf msg:Message;
@@ -119,16 +120,9 @@
 		return out;
 	""".
 
-# Photo?create should only be used in a popup. This allows the parent resources to be assigned correctly
-:PostPhotoCreate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Photo> ];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+:PostPhotoCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Photo> ]);
 	msg:method "POST" ;
-	msg:query "create" ;
-	msg:realm </accounts>;
-	msg:expect "303-see-also" ;
-	msg:type "text/uri-list";
-	msg:realm </accounts> ;
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
 	msg:imports <java:javax.mail.internet.MimeMultipart>;
@@ -144,7 +138,6 @@
 		var multipart = new MimeMultipart(ds);
 		var img = multipart.getBodyPart(0) ;
 		var caption = multipart.getBodyPart(1).content ;
-		var partOf = multipart.getBodyPart(2).content ;
 
 		//# image resource
 		var local = ("" + URLEncoder.encode(img.fileName, "UTF-8")).replace(/%20/g, "+") ;
@@ -170,7 +163,6 @@
 
 		//# add the image caption and container
 		if (caption) con.add(obj.resource, RDFS.COMMENT, vf.createLiteral(caption), []);
-		if (partOf) con.add(obj.resource, vf.createURI("http://purl.org/dc/terms/isPartOf"), vf.createURI(partOf), []);
 
 		this.objectConnection.commit();
 
@@ -178,13 +170,8 @@
 		var file = img.getInputStream();
 		var out = obj.PutPhoto(file) ;
 
-		return obj + "?view";
+		return obj;
 	""".
-
-:input a owl:DatatypeProperty, owl:FunctionalProperty ;
-	rdfs:domain :PostPhotoCreate ;
-	rdfs:range <java:java.io.InputStream> ;
-	msg:type "multipart/form-data".
 
 :local a calli:LocalRealm;
 	calli:domain </photo/>.

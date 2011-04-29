@@ -4,29 +4,12 @@
 <head>
 	<title about="?this" property="rdfs:label" />
 	<script>//<![CDATA[
-		if (document.referrer && document.referrer.indexOf('?create') > 0) {
-			jQuery(window).load(function() {
-				try {
-					if (window.frameElement && parent.jQuery) {
-						var ce = parent.jQuery.Event("calliCreate");
-						ce.location = location.href;
-						ce.about = $('body').attr("about");
-						ce.rdfType = "foaf:Image";
-						parent.jQuery(frameElement).trigger(ce);
-						if (ce.isDefaultPrevented()) {
-							return;
-						}
-					}
-				} catch (e) {alert(e); }
+		jQuery(function($) {
+			$('img[about]:not([src])').each(function(){
+				var node = $(this);
+				node.attr('src', node.attr('about') + '?' + node.attr('data-query'));
 			});
-		} else {
-			jQuery(function($) {
-				$('img[about]:not([src])').each(function(){
-					var node = $(this);
-					node.attr('src', node.attr('about') + '?' + node.attr('data-query'));
-				});
-			});
-		}
+		});
 		//]]>
 	</script>
 </head>

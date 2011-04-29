@@ -36,6 +36,8 @@
 	calli:edit <ontology-edit.xhtml>;
 	calli:create <ontology-create.xhtml>;
 	calli:uriSpace </rdf/>;
+	calli:reader </group/users>;
+	calli:editor </group/staff>;
 	calli:administrator </group/admin>.
 
 <ObjectProperty> a calli:Creatable, owl:Class;

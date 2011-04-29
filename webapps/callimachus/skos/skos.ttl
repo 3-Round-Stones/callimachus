@@ -34,6 +34,8 @@
 	calli:edit <scheme-edit.xhtml>;
 	calli:create <scheme-create.xhtml>;
 	calli:uriSpace </scheme/>;
+	calli:reader </group/users>;
+	calli:editor </group/staff>;
 	calli:administrator </group/admin>.
 
 :GetConcepts rdfs:subClassOf msg:Message;

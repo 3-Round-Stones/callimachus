@@ -36,14 +36,10 @@
 	msg:header "cache-control:no-cache";
 	msg:script <operations.js#getCreatePage>.
 
+# override this method for subclass create methods
 :PostCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Creator calli:Creatable)]];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
-	msg:method "POST";
-	msg:query "create";
-	msg:realm </accounts>;
-	msg:expect "201-created";
-	msg:type "text/uri-list";
 	msg:script <operations.js#postCreate>.
 
 :create a owl:FunctionalProperty, owl:ObjectProperty;
@@ -51,15 +47,23 @@
 	rdfs:range calli:Creatable;
 	msg:query "create".
 
+:input a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :PostCreate;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "application/rdf+xml", "multipart/form-data".
+
 :intermediate a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain :PostCreate;
 	rdfs:range xsd:boolean;
 	msg:query "intermediate".
 
-:input a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :PostCreate;
-	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/rdf+xml".
+# this method is distinct from PostCreate to allow local calls to PostCreate without going through HTTP
+:PostRemoteCreate rdfs:subClassOf :PostCreate;
+	msg:method "POST";
+	msg:query "create";
+	msg:realm </accounts>;
+	msg:expect "201-created";
+	msg:type "text/plain".
 
 # find the user that created $thing if they are not editors of $this
 :IsCreatable rdfs:subClassOf msg:Message;

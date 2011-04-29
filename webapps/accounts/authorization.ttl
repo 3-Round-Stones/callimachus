@@ -149,16 +149,6 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 		}
 	""".
 
-# any authenticated user can view any other user
-:AuthorizeUserView owl:equivalentClass :AuthorizeCredential;
-	msg:sparql  """
-		ASK {
-			$object a </accounts/User>
-			FILTER ($method = "GET" || $method = "HEAD")
-			FILTER (!bound($query) || $query = "view" || $query = "discussion")
-		}
-	""".
-
 # Users can view resized images or photos if they can view the image itself
 :AuthorizeImageResize owl:equivalentClass </accounts/authorization.ttl#AuthorizeCredential>;
 	msg:imports foaf:Image;
@@ -173,25 +163,6 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 		}
 		return proceed();
 	""".
-
-# Users can view parts of an entity if they can view the resource it is a part of
-:AuthorizePart owl:equivalentClass </accounts/authorization.ttl#AuthorizeCredential>;
-	msg:script <authorization.js#authorizePart>.
-
-# The relationship dcterms:isPartOf should only be editable with rel="dcterms:isPartOf"
-# This will ensure access permission is granted by users that can edit the resource and not taken
-:GetParentResources rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];
-	msg:sparql """
-		SELECT DISTINCT ?parent
-		WHERE {
-			$part dcterms:isPartOf ?parent
-			FILTER (!isLiteral(?parent))
-		}
-	""".
-
-:part a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :GetParentResources.
 
 # transcations are authorized by the object they modified
 :AuthorizeTransactionView owl:equivalentClass :AuthorizeCredential;

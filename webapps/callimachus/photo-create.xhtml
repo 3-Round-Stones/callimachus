@@ -3,28 +3,48 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>Upload Photo</title>
-		<script>//<![CDATA[
-			jQuery(function($){
-				if (window.parent && window.frameElement) {
-					var subj = $('form[about]', parent.document).attr("about");
-					$('#isPartOf').val(subj);
+		<script><![CDATA[
+		jQuery(function($) {
+			$('#iframe').load(function() {
+				var redirect = $($('#iframe')[0].contentWindow.document).text();
+				if (redirect && redirect.indexOf('http') == 0) {
+					try {
+						if (window.frameElement && parent.jQuery) {
+							var ce = parent.jQuery.Event("calliCreate");
+							ce.location = window.calli.viewpage(redirect);
+							ce.about = redirect;
+							ce.rdfType = "foaf:Image";
+							parent.jQuery(frameElement).trigger(ce);
+							if (ce.isDefaultPrevented()) {
+								return;
+							}
+						}
+					} catch (e) { }
+					var event = jQuery.Event("calliRedirect");
+					event.location = window.calli.viewpage(redirect);
+					form.trigger(event);
+					if (!event.isDefaultPrevented()) {
+						location.replace(event.location);
+					}
+				} else {
+					$('#form').trigger("calliError", redirect);
 				}
 			});
-			//]]>
+		}); // ]]>
 		</script>
 	</head>
 	<body>
 		<h1>Upload Photo</h1>
-		<form method="POST" action="Photo?create" enctype="multipart/form-data">
+		<form id="form" method="POST" action="?create=/callimachus/Photo&amp;intermediate=true" enctype="multipart/form-data" target="hidden">
 			<label for="photo">Photo file</label>
 			<input type="file" id="photo" name="photo" />
 			<label for="caption">Caption</label>
 			<input type="text" id="caption" name="caption" />
-			<input type="hidden" id="isPartOf" name="isPartOf" />
 			<div class="authenticated">
 				<br/>
 				<button type="submit" id="upload">Upload</button>
 			</div>
 		</form>
+		<iframe id="iframe" name="hidden" src="about:blank" style="display:none"> </iframe>
 	</body>
 </html>

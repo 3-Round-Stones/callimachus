@@ -16,6 +16,7 @@
 	calli:creates <Group>;
 	calli:createRel calli:authenticates;
 	calli:view <accounts.xhtml>;
+	calli:reader </group/users>, </group/staff>;
 	calli:administrator </group/admin>. # can add/remove authenticating user groups
 
 </accounts> a <Accounts>;
@@ -25,7 +26,7 @@
 	calli:domain </>;
 	calli:unauthorized <unauthorized.xhtml>;
 	calli:forbidden <forbidden.xhtml>;
-	calli:authenticates </group/admin>.
+	calli:authenticates </group/admin>, </group/staff>, </group/users>.
 
 ################################
 # Group
@@ -44,20 +45,33 @@
 	calli:administrator </group/admin>. # admin members can edit any group
 
 </group/admin> a calli:Group, <Group>;
-	rdfs:label "admin".
+	rdfs:label "admin";
+	rdfs:comment "The user accounts in this group have heightened privileges, including the ability to edit other user accounts and access the underlying data store";
+	calli:reader </group/users>, </group/staff>.
+
+</group/staff> a calli:Group, <Group>;
+	rdfs:label "staff";
+	rdfs:comment "Members of this group can design and edit resources within the system";
+	calli:reader </group/users>, </group/staff>.
+
+</group/users> a calli:Group, <Group>;
+	rdfs:label "users";
+	rdfs:comment "Members of this group can view and discuss resources within the system";
+	calli:reader </group/users>, </group/staff>.
 
 ################################
 # User
 ################################
 
 <User> a owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:User;
+	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:User;
 	rdfs:label "User";
 	rdfs:comment "Username and password associated with an email address";
 	msg:realm </accounts>; # User operations must be authorized
 	calli:icon <user-favicon.png>;
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>;
+	calli:creates </callimachus/Photo>;
 	calli:administrator </group/admin>. # admin members can edit any user
 
 ################################

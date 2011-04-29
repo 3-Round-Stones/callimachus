@@ -37,23 +37,24 @@ function postCreate(msg) {
 	var factory = msg.create ? msg.create : this;
 	if (!(factory instanceof Creatable))
 		throw new BadRequest("Cannot create " + factory);
-	if (!this.equals(factory) && !(this instanceof Creator && this.IsCreatable(factory)))
-		throw new BadRequest("Cannot create this class here");
-	var template = factory.calliCreate;
-	if (!template)
-		throw new InternalServerError("No create template");
-	var newCopy = template.calliCreateResource(this, msg.input, factory.calliUriSpace);
-	newCopy = newCopy.objectConnection.addDesignation(newCopy, factory.toString());
-	this.PropagatePermissions(newCopy);
-	if (!this.equals(factory)) {
-		newCopy.calliReaders.addAll(factory.calliReaders);
-		newCopy.calliEditors.addAll(factory.calliEditors);
-		newCopy.calliAdministrators.addAll(factory.calliAdministrators);
+	if (this.equals(factory)) {
+		var template = this.calliCreate;
+		if (!template)
+			throw new InternalServerError("No create template");
+		var newCopy = template.calliCreateResource(this, msg.input, this.calliUriSpace);
+		newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
+		this.PropagatePermissions(newCopy);
+	} else {
+		if (!(this instanceof Creator && this.IsCreatable(factory)))
+			throw new BadRequest("Cannot create this class here");
+		var newCopy = factory.PostCreate(factory, msg.input, false);
+		newCopy.calliReaders.addAll(this.calliReaders);
+		newCopy.calliEditors.addAll(this.calliEditors);
+		newCopy.calliAdministrators.addAll(this.calliAdministrators);
 		var statements = this.ConstructCreatorRelationship(newCopy).iterator();
 		while (statements.hasNext()) {
 			this.objectConnection.add(statements.next(), []);
 		}
-		factory.touchRevision();
 	}
 	if (!msg.intermediate) {
 		this.touchRevision();

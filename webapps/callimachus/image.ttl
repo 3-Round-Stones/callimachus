@@ -25,21 +25,15 @@
 @prefix :<#>.
 
 <Image> a calli:Creatable, owl:Class;
-	rdfs:subClassOf foaf:Image, calli:Viewable, calli:Editable ;
+	rdfs:subClassOf calli:Viewable, calli:Editable, foaf:Image ;
 	calli:view <image.xhtml> ;
 	calli:edit <image-edit.xhtml> ;
 	calli:create <image-create.xhtml>;
+	calli:editor </group/staff>;
 	calli:administrator </group/admin> .
 
-:PostImageCreate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Image> ];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "POST" ;
-	msg:query "create" ;
-	msg:realm </accounts>;
-	msg:expect "303-see-also" ;
-	msg:type "text/uri-list";
-	msg:realm </accounts> ;
+:PostImageCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Image> ]);
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
 	msg:imports <java:javax.mail.internet.MimeMultipart>;
@@ -87,7 +81,7 @@
 		var file = img.getInputStream();
 		var out = obj.PutImage(file) ;
 
-		return obj + "?view";
+		return obj;
 	""".
 
 :input a owl:DatatypeProperty, owl:FunctionalProperty ;

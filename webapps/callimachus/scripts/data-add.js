@@ -31,7 +31,9 @@ function select(node, selector) {
 var iframe_counter = 0;
 
 function initSetElements(form) {
-	var tbody = select(form, "[data-add]");
+	var tbody = select(form, "[data-add]").filter(function() {
+		return !$(this).parents("*[contenteditable]").length && !$(this).is("*[contenteditable]");
+	});
 	tbody.children("[about]").each(initSetElement);
 	tbody.each(function() {
 		var list = $(this);

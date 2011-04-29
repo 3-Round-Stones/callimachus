@@ -127,6 +127,7 @@ a[href]:hover {
 }
 
 #tabs {
+	clear: right;
 	display: block;
 	list-style: none;
 	margin: 0px 0px -1px 0px;
@@ -366,6 +367,12 @@ label.error {
 	}
 	#tabs, #content, #footer {
 		margin-left: 10em;
+	}
+} /* end screen */
+
+@media screen and (min-width:56em) {
+	#tabs {
+		clear: none;
 	}
 } /* end screen */
 

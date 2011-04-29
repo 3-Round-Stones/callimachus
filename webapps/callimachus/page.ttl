@@ -24,7 +24,7 @@
 <Page> a calli:Creatable, <IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Page;
 	rdfs:label "Page";
-	rdfs:comment "New pages can be created by adding a relative link to a new page in an existing page";
+	rdfs:comment "New pages can be created using the link provided or by adding a relative link to a new page (without extension) in an existing page";
 	calli:icon <page.png>;
 	calli:edit <page-edit.xhtml>;
 	calli:copy <page-copy.xhtml>;

@@ -15,9 +15,6 @@
 	rdfs:member <discussion.js>;
 	rdfs:member <error.js>.
 
-<logo.png> rdfs:label "/layout/logo.png".
-<favicon.png> rdfs:label "/layout/favicon.png".
-
 </callimachus/menu> calli:link </>;
 	calli:logo <logo.png> ; calli:favicon <favicon.png> ;
 	calli:item [calli:position 1; rdfs:label "Main page"; calli:link </page/MainPage>];

@@ -37,7 +37,7 @@
 
 calli:Alias a owl:Class;
 	rdfs:label "Alias";
-	rdfs:comment "".
+	rdfs:comment "Defines a resource that, when resolved, will either redirect or proxy the response of its target to the client".
 
 calli:Creator a owl:Class;
 	rdfs:label "Creator";

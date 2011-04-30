@@ -16,7 +16,7 @@
 			}
 		}
 		jQuery(function($) {
-			$('[data-prompt]').each(function() {
+			$('[data-prompt=^?]').each(function() {
 				$(this).attr('data-prompt', $('#scheme').attr('about') + $(this).attr('data-prompt'));
 			});
 		});

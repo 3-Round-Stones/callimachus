@@ -19,7 +19,7 @@
 				$('#comment').change();
 			}
 		});
-		$('#form').submit(function() {
+		$('#form').bind('calliSubmit', function() {
 			var ontology = location.href.substring(0, location.href.indexOf('?'));
 			if (parent) {
 				// copy ontology from parent class

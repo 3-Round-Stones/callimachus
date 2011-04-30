@@ -8,8 +8,8 @@
 	<title>New Concept</title>
 	<script> // <![CDATA[
 	jQuery(function($){
-		$('#form').submit(function() {
-			var scheme = calli.listResourceIRIs(document.referrer)[0];
+		$('#form').bind('calliSubmit', function() {
+			var scheme = location.href.substring(0, location.href.indexOf('?'));
 			if (parent) {
 				// copy scheme from parent concept
 				var about = $('#scheme', parent.document).attr('about');

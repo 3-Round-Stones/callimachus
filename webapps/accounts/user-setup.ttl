@@ -97,6 +97,8 @@ rdfs:label a rdf:Property.
 		newUser.calliAlgorithm = algorithm;
 		newUser.calliEncoded = decoded;
 		newUser.rdfsLabels.add(label);
+		newUser.calliReaders.addAll(this.calliReaders);
+		newUser.calliEditors.addAll(this.calliEditors);
 		this.calliMembers.add(newUser);
 		return uri;
 	""".

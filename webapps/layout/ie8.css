@@ -16,11 +16,14 @@
 	top: 10em;
 	left: 0px;
 }
+#tabs {
+	clear: none;
+}
 #tabs, #content, #footer {
 	margin-left: 10em;
 }
 #content {
-	min-height: 30em;
+	min-height: 28em;
 }
 body.iframe #content {
 	min-height: 0px;

@@ -123,6 +123,16 @@ jQuery(function($){
 			});
 			var header = page[1].replace(/<html\s+(xmlns:\w*="[^"]*"\s*)*/g, '<html ');
 			header = header.replace(/<html\s*/, '<html ' + items.join(' ') + ' ');
+			var m = body.match(/<h(\d)(\s*[^>]*>(?:[^<]|<[^h\/]|<\/[^h])*)<\/h\1>/);
+			if (m) {
+				header = header.replace(/<title\b.*<\/title>/, '<title about="?this"' + m[2] + '</title>');
+				header = header.replace(/<title\b[^>]*\/>/, '<title about="?this"' + m[2] + '</title>');
+			}
+			m = body.match(/<h(\d)(\s*[^>]*)\/>/);
+			if (m) {
+				header = header.replace(/<title\b.*<\/title>/, '<title about="?this"' + m[2] + '/>');
+				header = header.replace(/<title\b[^>]*\/>/, '<title about="?this"' + m[2] + '/>');
+			}
 			var html = header + body + page[3];
 			if (etag) {
 				jQuery.ajax({
@@ -139,10 +149,10 @@ jQuery(function($){
 			} else { // new page
 				if (!url) {
 					// no URL provided
-					var header = $(':header:first', $('#iframe')[0].contentWindow.document).text();
-					header = header.replace(/^\s+/, '').replace(/\s+$/, '').replace(/\s+/, ' ');
-					url = 'http://localhost:8080/page/' + encodeURI(header).replace(/%20/g,'+') + '.xhtml';
-					html = html.replace(/<title>[^<]*<\/title>/, '<title>' + header + '</title>');
+					var h1 = $(':header:first', $('#iframe')[0].contentWindow.document).text();
+					h1 = h1 ? h1.replace(/^\s+/, '').replace(/\s+$/, '').replace(/\s+/, ' ') : '';
+					url = 'http://localhost:8080/page/' + encodeURI(h1).replace(/%20/g,'+') + '.xhtml';
+					html = html.replace(/<title>[^<]*<\/title>/, '<title>' + h1 + '</title>');
 				}
 				jQuery.ajax({
 					type: "POST", url: location.href,

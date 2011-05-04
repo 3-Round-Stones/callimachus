@@ -51,6 +51,35 @@
 		return model;
 	""".
 
+:GetJsonProfile rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <profile>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+	msg:method "GET";
+	msg:type "application/json;q=0.3";
+	msg:header "cache-control:no-store";
+	msg:imports <java:java.io.ByteArrayOutputStream>;
+	msg:script """
+		var output = new java.io.ByteArrayOutputStream();
+		var writer = new java.io.OutputStreamWriter(output, "UTF-8");
+		var namespaces = this.objectConnection.namespaces.asList();
+		writer.write("{");
+		for (var i = 0; i < namespaces.size(); i++) {
+			var prefix = namespaces.get(i).prefix;
+			var uri = namespaces.get(i).name;
+			writer.write('"');
+			writer.write(prefix);
+			writer.write('":"');
+			writer.write(uri);
+			writer.write('"');
+			if (i < namespaces.size() - 1) {
+				writer.write(",\\n");
+			}
+		}
+		writer.write("}");
+		writer.flush();
+		return output;
+	""".
+
 :PostProfile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <profile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:hasValue <profile>];

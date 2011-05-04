@@ -114,7 +114,7 @@ function initSetElements(form) {
 					listSearchResults(searchUrl, iframe.get(0));
 					return stopPropagation(event);
 				});
-				iframe.get(0).src = list.attr("data-prompt");
+				iframe[0].src = list.attr("data-prompt");
 		    });
 		}
 	});

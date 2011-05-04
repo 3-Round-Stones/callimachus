@@ -64,9 +64,12 @@
 			<link rel="icon" href="{$callimachus}/menu?favicon" />
 			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1"/>
 			<link rel="stylesheet" href="{$layout}/template.css" />
-			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
 			<xsl:comment>[if lte IE 8]>&lt;link rel="stylesheet" href="<xsl:value-of select="$layout" />/ie8.css" /&gt;&lt;![endif]</xsl:comment>
+			<xsl:if test="$query='create' or $query='edit'">
+			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
+			</xsl:if>
 			<xsl:apply-templates select="*[local-name()='link' or local-name()='style']" />
+
 			<script type="text/javascript" src="{$callimachus}/scripts/web_bundle?source">&#160;</script>
 			<xsl:if test="$query='create' or $query='edit'">
 			<script type="text/javascript" src="{$callimachus}/scripts/form_bundle?source">&#160;</script>

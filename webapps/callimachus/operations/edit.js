@@ -144,6 +144,8 @@ if (!window.calli) {
 	window.calli = {};
 }
 window.calli.deleteResource = function(form) {
+	if (form && !confirm("Are you sure you want to delete " + document.title + "?"))
+		return;
 	form = $(form);
 	if (!form.length) {
 		form = $("form[about]");

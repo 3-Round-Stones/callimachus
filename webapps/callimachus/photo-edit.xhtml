@@ -4,15 +4,6 @@
 	<head>
 		<title about="?this" property="rdfs:label" />
 		<style>img { border-style:none; }</style>
-		<script type="text/javascript"><![CDATA[
-		$(document).ready(function(){
-			$('#delete').click(function(){
-				$(this).attr('disabled', 'disabled');
-				if (confirm('Are you sure you want to delete this photo?')) calli.deleteResource();
-				else $(this).removeAttr('disabled');
-			});
-		});
-		]]></script>
 	</head>
 	<body about="?this">
 		<img src="?this" style="max-height:50%;display:block" /><br/>
@@ -24,7 +15,7 @@
 			<div><br/>
 				<button id="save" type="submit">Save</button>
 				<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-   				<button id="delete" type="button">Delete</button>
+   				<button id="delete" type="button" onclick="calli.deleteResource(form)">Delete</button>
 			</div>
 		</form>
 	</body>

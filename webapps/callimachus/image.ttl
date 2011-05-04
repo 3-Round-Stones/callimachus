@@ -84,11 +84,6 @@
 		return obj;
 	""".
 
-:input a owl:DatatypeProperty, owl:FunctionalProperty ;
-	rdfs:domain :PostImageCreate ;
-	rdfs:range <java:java.io.InputStream> ;
-	msg:type "multipart/form-data".
-
 :local a calli:LocalRealm;
 	calli:domain </image/>.
 

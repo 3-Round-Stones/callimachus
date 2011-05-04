@@ -16,6 +16,48 @@ function initForms() {
 			form.validate({submitHandler: submitRDFForm});
 		});
 	});
+	$('form[enctype="multipart/form-data"]:not([target])').each(function(i, node) {
+		var form = $(this);
+		var id = form.attr('id');
+		if (!id) {
+			id = 'form-data' + i;
+		}
+		form.attr('target', id + '-iframe');
+		if (window.frameElement) {
+			this.action = this.action + '&intermediate=true';
+		}
+		var iframe = $('<iframe/>');
+		iframe.attr('id', "iframe");
+		iframe.attr('name', id + '-iframe');
+		iframe.attr('src', "about:blank");
+		iframe.attr('style', "display:none");
+		$('body').append(iframe);
+		iframe.load(function() {
+			var redirect = $(this.contentWindow.document).text();
+			if (redirect && redirect.indexOf('http') == 0) {
+				try {
+					if (window.frameElement && parent.jQuery) {
+						var ce = parent.jQuery.Event("calliCreate");
+						ce.location = window.calli.viewpage(redirect);
+						ce.about = redirect;
+						ce.rdfType = "foaf:Image";
+						parent.jQuery(frameElement).trigger(ce);
+						if (ce.isDefaultPrevented()) {
+							return;
+						}
+					}
+				} catch (e) { }
+				var event = jQuery.Event("calliRedirect");
+				event.location = window.calli.viewpage(redirect);
+				form.trigger(event);
+				if (!event.isDefaultPrevented()) {
+					location.replace(event.location);
+				}
+			} else {
+				form.trigger("calliError", redirect);
+			}
+		});
+	});
 }
 
 function submitRDFForm(form) {

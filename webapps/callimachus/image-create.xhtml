@@ -3,39 +3,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<title>Upload Image</title>
-		<script><![CDATA[
-		jQuery(function($) {
-			$('#iframe').load(function() {
-				var redirect = $($('#iframe')[0].contentWindow.document).text();
-				if (redirect && redirect.indexOf('http') == 0) {
-					try {
-						if (window.frameElement && parent.jQuery) {
-							var ce = parent.jQuery.Event("calliCreate");
-							ce.location = window.calli.viewpage(redirect);
-							ce.about = redirect;
-							ce.rdfType = "foaf:Image";
-							parent.jQuery(frameElement).trigger(ce);
-							if (ce.isDefaultPrevented()) {
-								return;
-							}
-						}
-					} catch (e) { }
-					var event = jQuery.Event("calliRedirect");
-					event.location = window.calli.viewpage(redirect);
-					form.trigger(event);
-					if (!event.isDefaultPrevented()) {
-						location.replace(event.location);
-					}
-				} else {
-					$('#form').trigger("calliError", redirect);
-				}
-			});
-		}); // ]]>
-		</script>
 	</head>
 	<body>
 		<h1>Upload Image</h1>
-		<form id="form" method="POST" action="?create=/callimachus/Image&amp;intermediate=true" enctype="multipart/form-data" target="hidden">
+		<form id="form" method="POST" action="" enctype="multipart/form-data">
 			<label for="image">Image file</label>
 			<input type="file" id="image" name="image" />
 			<label for="caption">Caption</label>
@@ -45,6 +16,5 @@
 				<button type="submit" id="upload">Upload</button>
 			</div>
 		</form>
-		<iframe id="iframe" name="hidden" src="about:blank" style="display:none"> </iframe>
 	</body>
 </html>

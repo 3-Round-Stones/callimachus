@@ -30,7 +30,6 @@
 	calli:view <photo.xhtml> ;
 	calli:edit <photo-edit.xhtml> ;
 	calli:create <photo-create.xhtml>;
-	calli:editor </group/staff>;
 	calli:administrator </group/admin> .
 
 :GetPhotoLarge rdfs:subClassOf msg:Message;
@@ -122,7 +121,6 @@
 
 :PostPhotoCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Photo> ]);
-	msg:method "POST" ;
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
 	msg:imports <java:javax.mail.internet.MimeMultipart>;

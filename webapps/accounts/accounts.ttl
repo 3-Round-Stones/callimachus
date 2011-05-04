@@ -33,7 +33,7 @@
 ################################
 
 <Group> a calli:Creatable, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Group;
+	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:Group;
 	rdfs:label "Group";
 	rdfs:comment "Groups provide a way to assign permissions to a named set of users";
 	calli:icon <group-favicon.png>;
@@ -41,6 +41,8 @@
 	calli:view <group.xhtml>;
 	calli:edit <group-edit.xhtml>;
 	calli:create <group-create.xhtml>;
+	calli:creates <User>;
+	calli:createRel calli:member;
 	calli:uriSpace </group/>;
 	calli:administrator </group/admin>. # admin members can edit any group
 
@@ -63,7 +65,7 @@
 # User
 ################################
 
-<User> a owl:Class;
+<User> a calli:Creatable, owl:Class;
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:User;
 	rdfs:label "User";
 	rdfs:comment "Username and password associated with an email address";
@@ -71,6 +73,8 @@
 	calli:icon <user-favicon.png>;
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>;
+	calli:create <user-create.xhtml>;
+	calli:uriSpace </user/>;
 	calli:creates </callimachus/Photo>;
 	calli:administrator </group/admin>. # admin members can edit any user
 

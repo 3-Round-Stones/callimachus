@@ -7,10 +7,12 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 	<head>
 		<title>Invite a New User</title>
-		<script>jQuery(function($){
+		<script><![CDATA[
+		jQuery(function($) {
 			$('#message').val($('#message').val() + ' ' + location.protocol + '//' + location.host + '/')
 			$("#form").validate();
-		});</script>
+		}); // ]]>
+		</script>
 	</head>
 	<body>
 		<ul class="aside">
@@ -20,7 +22,7 @@
 			<li>Provide any additional contact information or affiliation information</li>
 			<li>You can customize the message sent in the email here</li>
 		</ul>
-		<form id="form" method="POST" action="" autocomplete="off">
+		<form id="form" method="POST" action="" enctype="multipart/form-data" autocomplete="off">
 			<label for="name">Username</label>
 			<div>
 				<input id="name" name="name" type="text" class="auto-expand required"

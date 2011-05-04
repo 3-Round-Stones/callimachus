@@ -223,26 +223,16 @@ function login(event) {
 	if ($("#login-form").size() && $("#login-form").get(0).style.display != 'none' ) {
 		$("#login-form").slideUp();
 		$("#login-form").hide();
-		link.children(".ui-icon").removeClass('ui-icon-circle-arrow-n');
-		link.children(".ui-icon").addClass('ui-icon-circle-arrow-s');
-		link.removeClass('ui-corner-top');
-		link.removeClass('ui-state-active');
-		link.addClass('ui-corner-all');
-		link.css('border-bottom-width', null);
+		link.css('border-bottom-width', '1px');
 		link.css('padding-bottom', '0.2em');
 		link.css('top', null);
 		if (window.localStorage) {
 			localStorage.removeItem('Authorization');
 		}
 	} else {
-		link.removeClass('ui-corner-all');
-		link.addClass('ui-corner-top');
-		link.addClass('ui-state-active');
 		link.css('padding-bottom', '0.4em');
 		link.css('border-bottom-width', '0px');
 		link.css('top', '1px');
-		link.children(".ui-icon").removeClass('ui-icon-circle-arrow-s');
-		link.children(".ui-icon").addClass('ui-icon-circle-arrow-n');
 		function showForm(form) {
 			form.slideDown();
 			form.show();

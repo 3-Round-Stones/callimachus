@@ -96,11 +96,11 @@
 			</xsl:attribute>
 			<xsl:apply-templates select="@*[name() != 'class']" />
 			<div id="header">
-				<a class="ui-state-default ui-corner-all" id="login-link" href="{$accounts}?login"
-						style="display:none;padding: .2em 20px .2em 1em;text-decoration: none;position: relative;">
+				<a id="login-link" href="{$accounts}?login"
+						style="display:none;padding: .2em 20px .2em 1em; text-decoration: none;position: relative; border: 1px solid #a8acb8; background: #eeeeee; font-weight: bold; color: #0645ad; outline: none; -moz-border-radius: 2px; -webkit-border-radius: 2px;">
 					Login
 					<span class="ui-icon ui-icon-circle-arrow-s"
-							style="margin: 0 0 0 5px;position: absolute;right: .2em;top: 50%;margin-top: -8px;">
+							style="margin: 0 0 0 5px;position: absolute;right: .2em;top: 50%;margin-top: -8px; display: block; text-indent: -99999px; overflow: hidden; background-repeat: no-repeat; width: 16px; height: 16px; background-image: url({$layout}/images/ui-icons_f58735_256x240.png); background-position: -128px -192px;">
 						<xsl:text> </xsl:text>
 					</span>
 				</a>

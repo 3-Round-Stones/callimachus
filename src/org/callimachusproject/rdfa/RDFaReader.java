@@ -69,7 +69,6 @@ public class RDFaReader extends RDFEventReader {
 	private static final String RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 	private static final String XHV = "http://www.w3.org/1999/xhtml/vocab#";
 	private static final String XHTML = "http://www.w3.org/1999/xhtml";
-	private static final char ELEMENT_SEPARATOR = '/';
 	private final XMLEventReader reader;
 	private final String systemId;
 	private Base base;
@@ -102,8 +101,7 @@ public class RDFaReader extends RDFEventReader {
 	public String origin() {
 		StringBuffer b = new StringBuffer();
 		for(Iterator<Integer> i=elementStack.iterator(); i.hasNext();) {
-			b.append(ELEMENT_SEPARATOR);
-			b.append(i.next());
+			b.append("/"+i.next());
 		}
 		return b.toString();
 	}
@@ -399,13 +397,13 @@ public class RDFaReader extends RDFEventReader {
 
 		public BlankNode getBlankNode() {
 			BlankNode b = new BlankNode("n" + number);
-			b.setOrigin("NODE"+origin);
+			b.setOrigin("ABOUT"+origin);
 			return b;
 		}
 
 		public BlankNode getNextBlankNode() {
 			BlankNode b = new BlankNode("n" + (number + 1));
-			b.setOrigin("NEXT"+origin);
+			b.setOrigin("RESOURCE"+origin);
 			return b;
 		}
 
@@ -654,7 +652,7 @@ public class RDFaReader extends RDFEventReader {
 		private void plain(Node subj, List<Node> pred, String content,
 				String lang) {
 			PlainLiteral lit = tf.literal(content, lang);
-			lit.setOrigin("LITERAL"+origin);
+			lit.setOrigin("CONTENT"+origin);
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit));
 			}
@@ -663,7 +661,7 @@ public class RDFaReader extends RDFEventReader {
 		private void typed(Node subj, List<Node> pred, String content,
 				IRI datatype) {
 			TypedLiteral lit = tf.literal(content, datatype);
-			lit.setOrigin("LITERAL"+origin);
+			lit.setOrigin("CONTENT"+origin);
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit));
 			}

@@ -18,7 +18,9 @@
 package org.callimachusproject.stream;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -56,9 +58,8 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		
 	private static boolean OPEN = true, CLOSE = false;
 	private Stack<Context> stack = new Stack<Context>();	
-//	private AtomicInteger seq = new AtomicInteger(0);
 	private TermFactory tf = TermFactory.newInstance();
-	
+		
 	// map unique resource IDs to variable labels
 	// resources can be objects or literals
 	private Map<String,String> varMap = new HashMap<String,String>();
@@ -97,7 +98,6 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		(subject.equals(pattern.getPartner()) 
 		|| (subject.equals(pattern.getAbout()) && !pattern.getPartner().isVar())
 		);
-		//(subject.equals(pattern.getSubject()) || subject.equals(pattern.getObject()) );
 	}
 	
 	class Context {
@@ -225,7 +225,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			// subjects chained to the previous triple can be left-joined
 			// this may be a singleton if no optional properties are defined
 			// in which case the optional is not required
-			if (!context.union && chained(previousPattern,subj) && !singleton())
+			if (!context.union && chained(previousPattern,subj) && !singleton(context))
 				context = new Context(CLAUSE.OPTIONAL).open();
 			
 			previousPattern = null;
@@ -254,7 +254,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 					context = new Context(CLAUSE.OPTIONAL).open();
 				
 				// open a group (a UNION sub-clause) unless this is a singleton in an OPTIONAL
-				if (!(initial && singleton()) || !context.isOptional())
+				if (!(initial && singleton(context)) || !context.isOptional())
 					context = new Context(CLAUSE.GROUP).open();
 				
 				// add the triple pattern
@@ -321,7 +321,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		return context;
 	}
 	
-	private boolean singleton() throws RDFParseException {
+	private boolean singleton(Context context) throws RDFParseException {
 		int lookAhead=0, depth=0;
 		boolean singleton=true;
 		RDFEvent e;
@@ -334,8 +334,10 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			}
 			else if (e.isEndSubject()) depth--;
 			else if (e.isTriple() && depth==0) {
+				Triple t = e.asTriple();
+				//if (context.optionals.contains(t)) continue;
 				// ignore mandatory triples
-				singleton = !isOptionalTriple(e.asTriple());
+				singleton = !isOptionalTriple(t);
 			}
 		}
 		return singleton;
@@ -433,14 +435,14 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			return term;
 		if (term.isLiteral() && isEmpty(term.stringValue())) {
 			String name = "_"+mapSeq(label,true);
-			origins.put(name, term.getOrigin());
+			if (label!=null) origins.put(name,term.getOrigin());
 			return new BlankOrLiteralVar(name);
 		}
 		if (term.isLiteral())
 			return term;
 		if (!term.isIRI()) {
 			String name = "_" + mapVar(term.stringValue(),label);
-			origins.put(name, term.getOrigin());
+			if (label!=null) origins.put(name,term.getOrigin());
 			return new BlankOrLiteralVar(name);
 		}
 		if (term.isCURIE())
@@ -452,17 +454,15 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		String name = var.substring(1);
 		if (!VAR_REGEX.matcher(name).matches())
 			throw new RDFParseException("Invalid Variable Name: " + name);
-		origins.put(name, term.getOrigin());
+		if (label!=null) origins.put(name,term.getOrigin());
 		return tf.var(name);
 	}
 
 	protected boolean isEmpty(String str) {
 		return "".equals(str) || WHITE_SPACE.matcher(str).matches();
 	}
-	
-	public String getOrigin(String variable) throws Exception {
-		// consume the RDFa input in case it has not already been fully parsed
-		while (this.hasNext()) this.next();
-		return origins.get(variable);
+		
+	public Map<String,String> getOrigins() {
+		return origins;
 	}
 }

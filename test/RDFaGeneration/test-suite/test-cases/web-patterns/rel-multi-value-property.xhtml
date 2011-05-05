@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html version="XHTML+RDFa 1.1" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+	<head>
+		<title>Test rel-multi-value-property</title>
+	</head>
+	<body about="">
+		<div rel="skos:hasTopConcept" resource="concept1">
+			<span property="skos:prefLabel">pref1</span>
+			<span property="rdfs:label">label1a</span>
+			<span property="rdfs:label">label1b</span>
+			<span property="rdfs:comment">comment1</span>
+		</div>
+		<div rel="skos:hasTopConcept" resource="concept2">
+			<span property="skos:prefLabel">pref2</span>
+			<span property="rdfs:comment">comment2a</span>
+			<span property="rdfs:comment">comment2b</span>
+		</div>
+	</body>
+</html>

@@ -1,7 +1,9 @@
 package org.callimachusproject.rdfa.test;
 
+import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.File;
 import java.io.FileReader;
@@ -45,6 +47,7 @@ import javax.xml.xpath.XPathFactory;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.RDFaReader;
+import org.callimachusproject.rdfa.events.Base;
 import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.Triple;
 import org.callimachusproject.rdfa.model.Node;
@@ -52,8 +55,10 @@ import org.callimachusproject.rdfa.model.PlainLiteral;
 import org.callimachusproject.rdfa.model.Term;
 import org.callimachusproject.rdfa.model.TypedLiteral;
 import org.callimachusproject.stream.GraphPatternReader;
+import org.callimachusproject.stream.OverrideBaseReader;
 import org.callimachusproject.stream.RDFStoreReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
+import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.ReducedTripleReader;
 import org.callimachusproject.stream.SPARQLProducer;
 import org.callimachusproject.stream.SPARQLResultReader;
@@ -75,6 +80,8 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.GraphImpl;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.sail.SailRepository;
@@ -106,7 +113,7 @@ public class RDFaGenerationTest {
 	// location of the XSLT transform relative to the test directory
 	static final String TRANSFORM = "../webapps/callimachus/operations/construct.xsl";
 	static final String TEST_FILE_SUFFIX = "-test";
-		
+			
 	// static properties defined in @BeforeClass setUp()
 	static XMLInputFactory xmlInputFactory;
 	static TransformerFactory transformerFactory;
@@ -116,7 +123,11 @@ public class RDFaGenerationTest {
 	
 	// static flags set in main()
 	static boolean verbose = false;
-	static boolean show = false;
+	static boolean show_rdf = false;
+	static boolean show_sparql = false;
+	static boolean show_xml = false;
+	static boolean show_results = false;
+
 	// this is the default test directory
 	static String test_dir = "RDFaGeneration/test-suite/test-cases/";
 	
@@ -152,7 +163,7 @@ public class RDFaGenerationTest {
 		Queue<XPathExpression> queue = (Queue<XPathExpression>) new LinkedList<XPathExpression>();
 		List<NamespaceContext> contexts = new LinkedList<NamespaceContext>();
 		
-		final String[] DISTINGUISHING_VALUE_ATTRIBUTES = { "id", "name", "class" };
+		final String[] DISTINGUISHING_VALUE_ATTRIBUTES = { "id", "name", "class", "content", "for" };
 		List<String> distinguishingValueAttributes = Arrays.asList(DISTINGUISHING_VALUE_ATTRIBUTES);
 
 		final String[] DISTINGUISHING_URI_ATTRIBUTES = { "about", "resource", "href", "src" };
@@ -202,7 +213,12 @@ public class RDFaGenerationTest {
 					catch (Exception e) {}
 
 					if (relative.contains("#")) relative = relative.substring(relative.lastIndexOf('#'));
-					path += "[@"+a.getName()+"='"+resolved+"' or @"+a.getName()+"='"+relative+"']";
+					
+					// legacy RDFa generation removes about="?this" where there are no solutions
+					// in future retain @about with document URI (ending with .xhtml)
+					// don't report missing @about as an error
+					if (!resolved.endsWith(".xhtml"))
+						path += "[@"+a.getName()+"='"+resolved+"' or @"+a.getName()+"='"+relative+"']";
 				}
 			}
 			// iterate over any children
@@ -234,12 +250,12 @@ public class RDFaGenerationTest {
 						return element.lookupNamespaceURI(prefix);
 					}
 				});
-				if (content!=null) {
+				if (content!=null && !whitespace(content)) {
 					path = path + "[@content='"+content+"' or normalize-space(text())='"+content+"']";
 				}
 				// otherwise check the node has no text at all
-				else path = path + "[not(text()) or normalize-space(text())='']";
-				
+				else if (content==null) path = path + "[not(text()) or normalize-space(text())='']";
+					
 				if (!path.contains("\n")) {
 					final String exp = path;
 					final XPathExpression compiled = xpath.compile(exp);
@@ -268,6 +284,12 @@ public class RDFaGenerationTest {
 				}
 			}								
 		}
+		private boolean whitespace(String content) {
+			content.replaceAll("\n", "");
+			content.replaceAll("\t", "");
+			return content.trim().isEmpty();
+		}
+
 		@Override
 		public boolean hasNext() {
 			return !queue.isEmpty();
@@ -499,7 +521,16 @@ public class RDFaGenerationTest {
 		out.write('\n');
 	}
 
+	public static Document asDocument(XMLEventReader xml) throws Exception {
+		Transformer transformer = transformerFactory.newTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty(INDENT_AMOUNT, "2");
+		Document doc = documentBuilderFactory.newDocumentBuilder().newDocument();
+		transformer.transform (new StAXSource(xml), new DOMResult(doc));
+		return doc;
+	}
 	
+
 	public static void write(Graph graph, OutputStream out) throws Exception {
 		for (Iterator<Statement> i = graph.iterator(); i.hasNext(); ) {
 			System.out.println(i.next());
@@ -522,14 +553,15 @@ public class RDFaGenerationTest {
 			boolean negativeTest = exp.toString().startsWith("-");
 			int solutions = result.getLength();
 			// a positive test should return exactly one solution
-			if ((solutions!=1 && !negativeTest)
+			boolean failure = ((solutions!=1 && !negativeTest)
 			// a negative test should return no solutions
-			 || (solutions>0 && negativeTest)) return exp; // fail
+			 || (solutions>0 && negativeTest)) ;
+			if (failure) return exp; // fail
 		}
 		return null;
 	}
 	
-	private static boolean evaluateXPath(XPathExpression xpath, Document doc) throws Exception {
+	private static boolean verifyXPath(XPathExpression xpath, Document doc) throws Exception {
 		if (xpath==null) return false;
 		NodeList result = (NodeList) xpath.evaluate(doc,XPathConstants.NODESET);
 		return result.getLength()==1;
@@ -567,7 +599,7 @@ public class RDFaGenerationTest {
 		// Match target to output
 		evalTarget = evaluateXPaths(new XPathIterator(targetDoc), outputDoc) ;
 
-		if ((evalOutput!=null || evalTarget!=null || verbose) && !show) {
+		if ((evalOutput!=null || evalTarget!=null || verbose) && !show_sparql) {
 			if (!verbose) System.out.println("\nTEST: "+template);
 			if (evalOutput!=null) System.out.println("FAILS: "+evalOutput);
 			write(outputDoc,System.out);
@@ -672,6 +704,10 @@ public class RDFaGenerationTest {
 	@Test
 	public void legacyTest() throws Exception {
 		try {
+			if (verbose || show_rdf || show_sparql || show_results || show_xml) {
+				System.out.println("\nLEGACY TEST: "+template);
+				write(readDocument(template),System.out);
+			}
 			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
 			RDFEventReader rdfa = new RDFaReader(base, xml, null);
 			RDFEventReader sparql = new GraphPatternReader(rdfa);
@@ -683,14 +719,24 @@ public class RDFaGenerationTest {
 			Document outputDoc = transform(rdfxml,template,null,null);
 	
 			boolean ok = equivalent(outputDoc,readDocument(target));
-			if (!ok || verbose) {
+			if (!ok || verbose || show_rdf) {
 				System.out.println("RDF (from target):");
 				write(exportGraph(con), System.out);
+			}
+			if (!ok || verbose || show_sparql) {
 				System.out.println("SPARQL (from test):\n"+query);
-				results = new RDFStoreReader(query, con, null);
+			}
+			if (!ok || verbose || show_results) {
+				System.out.println("\nRESULTS:");
+				results = new RDFStoreReader(query, con, null);				
 				while (results.hasNext()) System.out.println(results.next());
 			}
-			if (!show) assertTrue(ok);
+			if (!ok || verbose || show_xml) {
+				System.out.println("\nOUTPUT:");
+				write(outputDoc,System.out);
+			}
+			if (!show_rdf && !show_sparql && !show_results) 
+				assertTrue(ok);
 		}
 		catch (Exception e) {
 			System.out.println("LEGACY TEST: "+template);
@@ -704,13 +750,17 @@ public class RDFaGenerationTest {
 	 */
 	
 	@Test
-	public void unionTest() throws Exception {
+	public void unionConstructTest() throws Exception {
 		try {
-			if (verbose || show) System.out.println("UNION TEST: "+template);
+			if (verbose || show_rdf || show_sparql || show_results || show_xml) {
+				System.out.println("\nUNION CONSTRUCT TEST: "+template);
+				write(readDocument(template),System.out);
+			}
 			// produce SPARQL from the RDFa template
 			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
 			RDFEventReader rdfa = new RDFaReader(base, xml, null);
 			RDFEventReader sparql = new SPARQLProducer(rdfa);
+
 			TriplePatternStore query = constructQuery(base, sparql, true);
 			// the URI is supplied for a ?view template, but not for ?construct
 			String uri = isViewable(readDocument(template))?base:null;
@@ -720,18 +770,25 @@ public class RDFaGenerationTest {
 			Document outputDoc = transform(rdfxml,template,null,null);
 	
 			boolean ok = equivalent(outputDoc,readDocument(target));
-			if (show) {
-				write(readDocument(template),System.out);
-				System.out.println("\n"+query+"\n");
-			}
-			if ((!ok || verbose) && !show) {
+			if (!ok || verbose || show_rdf) {
 				System.out.println("RDF (from target):");
 				write(exportGraph(con), System.out);
-				System.out.println("SPARQL (from test):\n"+query);
-				results = new SPARQLResultReader(query, con, null);
-				while (results.hasNext()) System.out.println(results.next());
 			}
-			if (!show) assertTrue(ok);
+			if (!ok || verbose || show_sparql) {
+				System.out.println("\nSPARQL:");
+				System.out.println(query+"\n");
+			}
+			if (!ok || verbose || show_results) {
+				System.out.println("\nRESULTS:");
+				results = new SPARQLResultReader(query, con, null);
+				while (results.hasNext()) System.out.println(results.next());				
+			}
+			if (!ok || verbose || show_xml) {
+				System.out.println("\nOUTPUT:");
+				write(outputDoc,System.out);
+			}
+			if (!show_sparql && !show_sparql && !show_results && !show_xml) 
+				assertTrue(ok);
 		}
 		catch (Exception e) {
 			System.out.println("UNION TEST: "+template);
@@ -779,7 +836,7 @@ public class RDFaGenerationTest {
 				XPathExpression xpath = conjoinXPaths(fragment) ;
 				
 				// the output fragment should be a sub-document of the target
-				boolean ok = evaluateXPath(xpath,outputDoc);
+				boolean ok = verifyXPath(xpath,outputDoc);
 				if (!ok || verbose) {
 					System.out.println("\nFRAGMENT TEST: "+template+"\n");
 		
@@ -807,7 +864,7 @@ public class RDFaGenerationTest {
 					System.out.println("\nTRANSFORMED FRAGMENT:");
 					write(fragment,System.out);
 				}
-				if (!show) assertTrue(ok);		
+				if (!show_sparql) assertTrue(ok);		
 			}
 		}
 		catch (Exception e) {
@@ -816,22 +873,79 @@ public class RDFaGenerationTest {
 		}
 	}
 
+	/* Produce SPARQL from the RDFa template using SPARQLProducer.
+	 * Generate XHTML+RDFa using RDFaProducer.
+	 * Test equivalence of the target and generated output.
+	 */
+	
+	@Test
+	public void unionSelectTest() throws Exception {
+		try {
+			if (verbose || show_rdf || show_sparql || show_xml || show_results) {
+				System.out.println("\nUNION SELECT TEST: "+template);
+				write(readDocument(template),System.out);
+			}
+			// produce SPARQL from the RDFa template
+			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
+			RDFEventReader rdfa = new RDFaReader(base, xml, null);			
+			SPARQLProducer sparql = new SPARQLProducer(rdfa,SPARQLProducer.QUERY.SELECT);
+			String query = toSPARQL(sparql);			
+			ValueFactory vf = con.getValueFactory();
+			TupleQuery q = con.prepareTupleQuery(SPARQL, query, base);
+			URI self = vf.createURI(base);
+			q.setBinding("this", self);
+			TupleQueryResult results = q.evaluate();
+			xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
+			XMLEventReader xrdfa = new RDFaProducer(xml, results, sparql.getOrigins(),self);
+
+			Document outputDoc = asDocument(xrdfa);
+			boolean ok = equivalent(outputDoc,readDocument(target));
+			if (!ok || verbose || show_rdf) {
+				System.out.println("RDF (from target):");
+				write(exportGraph(con), System.out);
+			}
+			if (!ok || verbose || show_sparql) {
+				System.out.println("\nSPARQL:");
+				System.out.println(query+"\n");
+			}
+			if (!ok || verbose || show_xml) {
+				System.out.println("\nOUTPUT:");
+				write(outputDoc,System.out);
+			}
+			if (!ok || verbose || show_results) {
+				System.out.println("\nRESULTS:");
+				results = q.evaluate();
+				while (results.hasNext()) System.out.println(results.next());
+			}
+			if (!show_rdf && !show_sparql && !show_xml && !show_results) 
+				assertTrue(ok);
+		}
+		catch (Exception e) {
+			System.out.println("UNION SELECT TEST: "+template);
+			fail();
+		}
+	}
+	
 
 	// switch between different test modes from main()
-	enum MODE { LEGACY, UNION, FRAGMENT };
+	enum MODE { LEGACY, UNION_CONSTRUCT, FRAGMENT, UNION_SELECT };
 		
 	public static void main(String[] args) {
 		try {
 			RDFaGenerationTest test;
 			
-			MODE mode = MODE.UNION;
+			MODE mode = MODE.UNION_CONSTRUCT;
 			for (int i=0; i<args.length; i++) {
 				String arg = args[i];
 				if (arg.equals("-verbose")) verbose = true;
 				// just show the generated queries (don't run the test)
-				else if (arg.equals("-show")) show = true;
+				else if (arg.equals("-rdf")) show_rdf = true;
+				else if (arg.equals("-sparql")) show_sparql = true;
+				else if (arg.equals("-xml")) show_xml = true;
+				else if (arg.equals("-results")) show_results = true;
 				else if (arg.equals("-legacy")) mode = MODE.LEGACY;
-				else if (arg.equals("-union")) mode = MODE.UNION; // default
+				else if (arg.equals("-construct")) mode = MODE.UNION_CONSTRUCT; // default
+				else if (arg.equals("-select")) mode = MODE.UNION_SELECT; // default
 				else if (arg.equals("-fragment")) mode = MODE.FRAGMENT;
 				else if (!arg.startsWith("-")) test_dir = arg;
 			}
@@ -853,8 +967,11 @@ public class RDFaGenerationTest {
 				case LEGACY:
 					test.legacyTest();
 					break;
-				case UNION:
-					test.unionTest();
+				case UNION_CONSTRUCT:
+					test.unionConstructTest();
+					break;
+				case UNION_SELECT:
+					test.unionSelectTest();
 					break;
 				case FRAGMENT:
 					test.fragmentTest();

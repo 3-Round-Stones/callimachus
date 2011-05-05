@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html version="XHTML+RDFa 1.1" xmlns="http://www.w3.org/1999/xhtml" 
-	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title>Test rel-rev-no-resource</title>
+		<title>Test rel-resource2</title>
 	</head>
 	<body about="?this">
-		<ul rev="skos:inScheme">
-			<li property="skos:prefLabel" />
-		</ul>
+		<div rel="skos:inScheme" resource="?scheme">
+			 <span property="rdfs:label"/>
+		</div>
 	</body>
 </html>

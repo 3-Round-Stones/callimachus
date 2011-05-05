@@ -58,7 +58,7 @@
         .wym_buttons li         { float:left;}
         .wym_buttons a          { width: 20px; height: 20px; overflow: hidden; padding: 2px }
       /*image replacements*/
-        .wym_buttons li a                         { background: url(/callimachus/images/text-icons.png) no-repeat; text-indent: -9999px;} 
+        .wym_buttons li a                         { background: url(/callimachus/images/text-icons.png) center no-repeat; text-indent: -9999px;} 
         .wym_buttons li.wym_tools_strong a        { background-position: 0 -382px;}
         .wym_buttons li.wym_tools_emphasis a      { background-position: 0 -22px;}
         .wym_buttons li.wym_tools_superscript a   { background-position: 0 -430px;}
@@ -76,6 +76,9 @@
         .wym_buttons li.wym_tools_paste a         { background-position: 0 -552px;}
         .wym_buttons li.wym_tools_html a          { background-position: 0 -193px;}
         .wym_buttons li.wym_tools_preview a       { background-position: 0 -408px;}
+        .wym_buttons li.wym_tools_vbox a          { background-image: url(/callimachus/images/vbox.png);}
+        .wym_buttons li.wym_tools_hbox a          { background-image: url(/callimachus/images/hbox.png);}
+        .wym_buttons li.wym_tools_rel a           { background-image: url(/callimachus/images/rel.png);}
 
 /*DECORATION*/
         .wym_section h2             { background: #ddd; border: solid gray; border-width: 0 0 1px;}

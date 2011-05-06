@@ -245,11 +245,11 @@ jQuery(function($){
 						if (h1) {
 							h1 = h1.replace(/^\s+/, '').replace(/\s+$/, '').replace(/\s+/, ' ');
 						} else {
-							h1 = prompt('Please provide a page title', 'Enter Page Title Here');
-							if (!h1 || h1 == 'Enter Page Title Here') throw 'No page title provided';
-							html = html.replace(/<title>[^<]*<\/title>/, '<title>' + h1 + '</title>');
-							html = html.replace(/<title\b[^>]*\/>/, '<title>' + h1 + '</title>');
+							h1 = 'Enter Page Title Here';
 						}
+						h1 = prompt('Please provide a page title', h1);
+						if (!h1 || h1 == 'Enter Page Title Here') throw 'No page title provided';
+						html = html.replace(/<title>[^<]*<\/title>/, '<title>' + h1 + '</title>');
 						url = 'http://localhost:8080/page/' + encodeURI(h1).replace(/%20/g,'+') + '.xhtml';
 					}
 					jQuery.ajax({

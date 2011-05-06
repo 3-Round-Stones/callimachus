@@ -6,23 +6,8 @@
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 <head>
 	<title>New Concept</title>
-	<script> // <![CDATA[
-	jQuery(function($){
-		$('#form').bind('calliSubmit', function() {
-			var scheme = location.href.substring(0, location.href.indexOf('?'));
-			if (parent) {
-				// copy scheme from parent concept
-				var about = $('#scheme', parent.document).attr('about');
-				if (about) {
-					scheme = about;
-				}
-			}
-			$(this).attr('about', scheme + '/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())
-		});
-	}); // ]]>
-	</script>
 </head>
-<body>
+<body about="?this">
 	<ul class="aside">
 		<li>The initial label is use to construct the resource URI</li>
 		<li>Other labels can be provide to assist concept lookup</li>

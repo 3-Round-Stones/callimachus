@@ -19,21 +19,10 @@
 				$('#comment').change();
 			}
 		});
-		$('#form').bind('calliSubmit', function() {
-			var ontology = location.href.substring(0, location.href.indexOf('?'));
-			if (parent) {
-				// copy ontology from parent class
-				var about = $('#ontology', parent.document).attr('about');
-				if (about) {
-					ontology = about;
-				}
-			}
-			$(this).attr('about', ontology + '/' + encodeURI($('#label').val()).replace(/%20/g,'+'));
-		});
 	}); // ]]>
 	</script>
 </head>
-<body>
+<body about="?this">
 	<ul class="aside">
 		<li>A class usually represents a noun, such as a person, place or (possibly quite abstract) thing</li>
 	</ul>

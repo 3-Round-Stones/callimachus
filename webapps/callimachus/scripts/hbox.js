@@ -7,7 +7,9 @@ $(document).bind("DOMNodeInserted", handle);
 $(window).resize(function(){hbox($('.hbox'))});
 
 function select(node, selector) {
-	return $(node).find(selector).andSelf().filter(selector);
+	var set = $(node).find(selector).andSelf();
+	set = set.add($(node).parents(selector));
+	return set.filter(selector);
 }
 
 function handle(event) {

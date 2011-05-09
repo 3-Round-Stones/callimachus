@@ -17,12 +17,6 @@ jQuery(function($){
 	}
 	var page = [null, '<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>' + label + '</title></head><body about="?this">', '<h1>' + label + '</h1>','</body></html>'];
 
-	function outter(node) {
-		var html = $($('<div/>').html($(node).clone())).html();
-		$(node).remove();
-		return html;
-	}
-
 	function inlineProperties(html) {
 		var result = html;
 		result = result.replace(/<input\b(\s*[^>]*)\bproperty="(\w*:\w*)"(\s*[^>]*>)/g, '<input$1value="{$2}"$3');
@@ -33,142 +27,13 @@ jQuery(function($){
 
 	function outlineProperties(html) {
 		var result = html;
-		result = result.replace(/<input\b(\s*[^>]*)\value="{(\w*:\w*)}"(\s*[^>]*>)/g, '<input$1property="$2"$3');
+		result = result.replace(/<input\b(\s*[^>]*)value="{(\w*:\w*)}"(\s*[^>]*>)/g, '<input$1property="$2"$3');
+		result = result.replace(/<textarea\b(\s*[^>]*)>{(\w*:\w*)}<\/textarea>/g, '<textarea$1 property="$2"></textarea>');
 		result = result.replace(/<pre(\s*[^>]*)>{(\w*:\w*)}<\/pre>/g, '<pre$1 property="$2" />');
 		result = result.replace(/<(\w*)\s*>{(\w*:\w*)}<\/\1>/g, '<$1 property="$2" />');
 		result = result.replace(/{(\w*:\w*)}/g, '<span property="$1" />');
 		return result;
 	}
-
-	function initHtml(html) {
-		jQuery.wymeditors(0)._html = inlineProperties(html);
-		window.WYMeditor.INSTANCES[0].initIframe($('#iframe')[0]);
-		$('#iframe').trigger('load');
-		setTimeout(function(){
-			if (!$('body', $('#iframe')[0].contentWindow.document).children().length) {
-				// IE need this called twice on first load (reload doesn't seem to work)
-				window.WYMeditor.INSTANCES[0].initIframe($('#iframe')[0]);
-			}
-		}, 1000);
-		var wym = window.WYMeditor.INSTANCES[0];
-		var previously = wym.exec;
-		var dialog_rel = outter($('.wym_dialog_rel'));
-		function insertDiv(styleClass) {
-			var block = jQuery(wym.findUp(wym.container(), WYMeditor.BLOCKS)).get(0);
-			var node = jQuery(wym.findUp(wym.container(), WYMeditor.MAIN_CONTAINERS)).get(0);
-			if((!node || !node.parentNode) && block && block.parentNode) {
-				var div = $('<div class="' + styleClass + '"><p></p></div>');
-				jQuery(block).append(div);
-				wym.setFocusToNode(div.children()[0]);
-			} else if(!node || !node.parentNode) {
-				var div = $('<div class="' + styleClass + '"><p></p></div>');
-				jQuery(wym._doc.body).append(div);
-				wym.setFocusToNode(div.children()[0]);
-			} else if ($(node.parentNode).is('div.' + styleClass) && $(node.parentNode).children().length < 2) {
-				jQuery(node.parentNode).replaceWith(node);
-				wym.setFocusToNode(node);
-			} else if ($(node.parentNode).is('div.' + styleClass)) {
-				jQuery(node.parentNode).after(node);
-				wym.setFocusToNode(node);
-			} else {
-				var div = $('<div class="' + styleClass + '"></div>');
-				div.append($(node).clone());
-				jQuery(node).replaceWith(div);
-				wym.setFocusToNode(div.children()[0]);
-			}
-		}
-		wym.exec = function(cmd) {
-			switch (cmd) {
-			case 'InsertVBox':
-				insertDiv('vbox');
-			break;
-			case 'InsertHBox':
-				insertDiv('hbox');
-			break;
-			case 'InsertRel':
-				this.dialog('InsertRel', null, dialog_rel);
-				var blocks = new Array("address", "div", "dl", "fieldset", "form", "noscript", "ol", "ul", "dd", "dt", "li", "tr");
-				var node = jQuery(wym.findUp(wym.container(), blocks)).get(0);
-				if (node && $(node).is("*[rel]")) {
-					$('#curie').val($(node).attr('rel'));
-					$('#variable').val($(node).attr('resource'));
-				} else if (node && $(node).is("*[rev]")) {
-					$('#reverse').attr('checked', 'checked');
-					$('#curie').val($(node).attr('rev'));
-					$('#variable').val($(node).attr('resource'));
-				}
-				$('.wym_dialog_rel .wym_submit').parents('form').submit(function(event) {
-					var attr = $('#reverse').is(':checked') ? 'rev' : 'rel';
-					var curie = $('#curie').val();
-					var variable = $('#variable').val();
-					if (!curie || curie.indexOf(':') < 1) {
-						$(this).trigger('calliError', 'Invalid CURIE');
-					}
-					if (!variable || variable.indexOf('?') != 0) {
-						$(this).trigger('calliError', 'Variables must start with "?"');
-					}
-					if (node && node.parentNode) {
-						$(node).removeAttr('rel');
-						$(node).removeAttr('rev');
-						$(node).attr(attr, curie);
-						$(node).attr('resource', variable);
-					} else {
-						node = jQuery(wym.findUp(wym.container(), WYMeditor.MAIN_CONTAINERS)).get(0);
-						if (node && node.parentNode) {
-							var div = $('<div/>');
-							div.attr('class', 'vbox');
-							div.attr(attr, curie);
-							div.attr('resource', variable);
-							div.append($(node).clone());
-							$(node).replaceWith(div);
-							wym.setFocusToNode(div.children()[0]);
-						} else {
-							var div = '<div ' + attr + '="' + curie + '" resource="' + variable + '"><p>{rdfs:label}</p></div>';
-							jQuery(wym._doc.body).append(div);
-							wym.setFocusToNode(div.children()[0]);
-						}
-					}
-					if (window.opener) {
-						window.close();
-					} else if (window.dialog) {
-						window.dialog.dialog('close');
-					}
-					return false;
-				});
-			break;
-			default:
-				return previously.call(this, cmd);
-			}
-		}
-	}
-
-	$(document).ready(function() {
-		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push(
-			'rel',
-			'rev',
-			'content',
-			'href',
-			'src',
-			'about',
-			'property',
-			'resource',
-			'datatype',
-			'typeof');
-		$('.wym_box_0').wymeditor({
-			html: inlineProperties(page[2]),
-			lang: null,
-			initSkin: false,
-			loadSkin: false,
-			jQueryPath: '/callimachus/scripts/jquery.js',
-			dialogFeatures: 'jQuery.dialog',
-			dialogFeaturesPreview: 'jQuery.dialog',
-			dialogImageHtml: outter($('.wym_dialog_image')),
-			dialogTableHtml: outter($('.wym_dialog_table')),
-			dialogPasteHtml: outter($('.wym_dialog_paste')),
-			dialogPreviewHtml: outter($('.wym_dialog_preview')),
-			dialogLinkHtml: outter($('.wym_dialog_link'))
-		});
-	});
 
 	$(window).one('load', function() {
 		if (etag) {
@@ -194,12 +59,12 @@ jQuery(function($){
 							etag = null;
 							url = null;
 						}
-						initHtml(page[2]);
+						window.WYMeditor.INSTANCES[0].initHtml(inlineProperties(page[2]));
 					}
 				}
 			});
 		} else { // new page
-			initHtml(page[2]);
+			window.WYMeditor.INSTANCES[0].initHtml(inlineProperties(page[2]));
 		}
 	});
 

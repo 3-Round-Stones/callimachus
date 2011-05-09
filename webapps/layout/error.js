@@ -19,14 +19,15 @@ $(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
 
 $(document).ajaxSuccess(function(event, xhr, ajaxOptions){
 	if (xhr && xhr.status >= 200 && xhr.status < 300) {
-		$("#error-widget").hide();
-		$("#error-message").empty();
-		$("#error-widget pre").remove();
+		$(document).trigger('calliSuccess');
 	}
 });
 
 $(document).ready(function() {
 	$(document).bind("calliSubmit", function() {
+		$(document).trigger('calliSuccess');
+	});
+	$(document).bind("calliSuccess", function() {
 		$("#error-widget").hide();
 		$("#error-message").empty();
 		$("#error-widget pre").remove();

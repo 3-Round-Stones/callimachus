@@ -166,7 +166,7 @@ a[href]:hover {
 }
 
 #content {
-	overflow: auto;
+	overflow: hidden;
 	background-color: white;
 	border-top: 1px solid #A8ACB8;
 	border-left: 1px solid #A8ACB8;
@@ -296,7 +296,7 @@ form label[for], label[form] {
 	display: block;
 }
 
-input, select, textarea, .textarea {
+input, textarea, .textarea {
 	background-image: -moz-linear-gradient(top, #DDDDDD, white, white);
 	background-image: -webkit-gradient(linear, left top, left center, from(#DDDDDD), to(white));
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";

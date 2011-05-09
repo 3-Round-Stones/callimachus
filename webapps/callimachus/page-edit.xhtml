@@ -5,16 +5,10 @@
 	<title about="?this" property="rdfs:label" />
 	<link rel="stylesheet" href="/callimachus/page-edit.css" />
 	<script type="text/javascript" src="/callimachus/scripts/jquery.wymeditor.js"> </script>
+	<script type="text/javascript" src="/callimachus/page-edit-wym.js"> </script>
 	<script type="text/javascript" src="/callimachus/page-edit.js"> </script>
 </head>
 <body about="?this">
-	<ul class="aside">
-		<li>Use the tool bar to change the text style, create links, upload images, create tables, and paste text</li>
-		<li>Drag images and links from other pages to insert them</li>
-		<li>Page headers, sections, and paragraphs are labeled, but displayed without labels in view mode</li>
-		<li>Use the preview button to view the page as it would in view mode</li>
-		<li>New pages can be created by adding a relative link to a new page in an existing page</li>
-	</ul>
 	<form id="form" action="" data-redirect="/">
 		<div class="wym_box_0">
 			<ul class="wym_tools wym_section ui-widget-header auto-expand wym_buttons" style="overflow:auto">
@@ -72,6 +66,9 @@
 				<li class="Wym_Tools_Items wym_tools_image">
 					<a title="Image" name="InsertImage" href="#">Image</a>
 				</li>
+				<li class="Wym_Tools_Items wym_tools_paste">
+					<a title="Paste from Word" name="Paste" href="#">Paste from Word</a>
+				</li>
 				<li class="Wym_Tools_Items wym_tools_table">
 					<a title="Table" name="InsertTable" href="#">Table</a>
 				</li>
@@ -81,11 +78,17 @@
 				<li class="Wym_Tools_Items wym_tools_hbox">
 					<a title="Horizontal box" name="InsertHBox" href="#">Horizontal box</a>
 				</li>
+				<li class="Wym_Tools_Items wym_tools_form">
+					<a title="Form" name="InsertForm" href="#">Form</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_input">
+					<a title="Input box" name="InsertInput" href="#">Input box</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_textarea">
+					<a title="Text area" name="InsertTextArea" href="#">Text area</a>
+				</li>
 				<li class="Wym_Tools_Items wym_tools_rel">
 					<a title="Relationship" name="InsertRel" href="#">Relationship</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_paste">
-					<a title="Paste from Word" name="Paste" href="#">Paste from Word</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_html">
 					<a title="HTML" name="ToggleHtml" href="#">HTML</a>
@@ -166,6 +169,29 @@
 					<input id="variable" type='text' class='wym_variable' value='' />
 				</div>
 				<button class='wym_submit' type='submit'>Insert relationship</button>
+				<button class='wym_cancel' type='button'>Cancel</button>
+			</form>
+		</div>
+		<div class='wym_dialog wym_dialog_input'>
+			<form>
+				<input type='hidden' class='wym_dialog_type' value='InsertInput' />
+				<label for="label">Label</label>
+				<div>
+					<input id="label" type='text' class='wym_label' value='' />
+				</div>
+				<label for="curie">Property</label>
+				<div>
+					<input id="curie" type='text' class='wym_curie' value='' />
+				</div>
+				<label>
+					<input id="functional" type='checkbox' class='wym_functional' value='true' />
+					<span>Single value / Functional</span>
+				</label>
+				<label for="variable">Variable <small>must start with '?'</small></label>
+				<div>
+					<input id="variable" type='text' class='wym_variable' value='' />
+				</div>
+				<button class='wym_submit' type='submit'>Insert property</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
 			</form>
 		</div>

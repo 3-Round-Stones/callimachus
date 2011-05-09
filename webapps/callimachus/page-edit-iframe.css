@@ -35,7 +35,8 @@
   table,
   blockquote,
   pre,
-  div           { background: #FFFFFF no-repeat 2px 2px;
+  div,
+  form          { background: #FFFFFF no-repeat 2px 2px;
                   padding:8px 5px 5px;
                   margin:10px; }
   td            { background: #F0F4F8; }
@@ -47,8 +48,10 @@
   td            { width: 25%; }
   blockquote    { margin-left: 30px; }
   pre           { background-color:transparent; border: 1px solid white; }
+  div           { background-color:transparent; }
   .vbox      { background-color:transparent; border: none; border-left: thick solid gray; }
   .hbox      { background-color:transparent; border: none; border-top: thick solid gray; }
+  form       { background-color:transparent; border: thin dashed gray; }
 
 /* Gecko min height fix */
   p             { min-height: 1em; } /*min-height is needed under Firefox, because empty parargraphs */

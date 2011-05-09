@@ -59,7 +59,8 @@ function expand(area) {
 	});
 	var left = $(area).css("border-left-width");
 	var right = $(area).css("border-right-width");
-	var marginRight = parsePixel(left) + parsePixel(right);
+	var margin = $(area).css("margin-right-width");
+	var marginRight = parsePixel(left) + parsePixel(right) + parsePixel(margin);
 	$(area).parents().each(function(){
 		marginRight += parsePixel($(this).css("border-right-width"));
 		marginRight += parsePixel($(this).css("margin-right"));

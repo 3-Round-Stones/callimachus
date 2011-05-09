@@ -91,8 +91,6 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		}
 	};
 	
-	static final String TRIAL = System.getProperty("trial");
-
 	@query("xslt")
 	public XMLEventReader xslt(@query("query") String query,
 			@query("element") String element) throws XMLStreamException,
@@ -148,13 +146,9 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 			TransformerException {
 		RDFEventReader reader = new RDFaReader(about, xslt(query, element), toString());
 		
-		/* trial UNION form of sparql query */
-		if (TRIAL!=null && TRIAL.contains("rollback")) {
-			reader = new GraphPatternReader(reader);
-		}
-		else {
-			reader = new SPARQLProducer(reader);
-		}
+		/* generate UNION form of sparql query */
+		// reader = new GraphPatternReader(reader);
+		reader = new SPARQLProducer(reader);
 		
 		Base resolver = new Base(getResource().stringValue());
 		if (about == null) {

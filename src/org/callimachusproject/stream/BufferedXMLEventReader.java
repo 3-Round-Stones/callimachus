@@ -37,7 +37,7 @@ public class BufferedXMLEventReader implements XMLEventReader {
 	private static final int CAPACITY_INCREMENT = 100;
 	private List<XMLEvent> buffer;
 	private XMLEventReader reader;
-	private int position;
+	private int position, mark=0;
 
 	public BufferedXMLEventReader(XMLEventReader reader) {
 		this.reader = reader;
@@ -46,9 +46,9 @@ public class BufferedXMLEventReader implements XMLEventReader {
 	public synchronized int mark() {
 		if (buffer==null) {
 			buffer = new Vector<XMLEvent>(CAPACITY_INCREMENT, CAPACITY_INCREMENT);
-			return 0;
+			return mark=0;
 		}
-		else return position;
+		else return mark=position;
 	}
 	
 	public synchronized void mark(int readlimit) {
@@ -57,7 +57,7 @@ public class BufferedXMLEventReader implements XMLEventReader {
 	
 	public synchronized void reset() throws XMLStreamException {
 		if (buffer==null) throw new XMLStreamException("bad stream reset");
-		position = 0;
+		position = mark;
 	}
 	
 	public synchronized void reset(int position) throws XMLStreamException {
@@ -82,7 +82,7 @@ public class BufferedXMLEventReader implements XMLEventReader {
 	}
 
 	public boolean hasNext() {
-		return (position>=0 && position<buffer.size()) || reader.hasNext() ;
+		return (position>=0 && buffer!=null && position<buffer.size()) || reader.hasNext() ;
 	}
 
 	public XMLEvent peek() throws XMLStreamException {

@@ -83,12 +83,14 @@ public abstract class XMLEventReaderBase implements XMLEventReader {
 				nextException = null;
 			}
 		}
+
 		if (next == null) {
 			XMLEvent result = take();
 			if (result == null)
 				throw new NoSuchElementException();
 			return result;
 		}
+
 		try {
 			return next;
 		} finally {

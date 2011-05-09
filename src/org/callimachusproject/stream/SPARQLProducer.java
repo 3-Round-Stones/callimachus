@@ -51,9 +51,9 @@ import org.openrdf.model.impl.URIImpl;
  */
 public class SPARQLProducer extends BufferedRDFEventReader {
 	private static final Pattern VAR_REGEX = Pattern
-			.compile("[a-zA-Z0-9_"
-					+ "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD"
-					+ "\\u00B7\\u0300-\\u036F\\u203F-\\u2040]+");
+		.compile("[a-zA-Z0-9_"
+		+ "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD"
+		+ "\\u00B7\\u0300-\\u036F\\u203F-\\u2040]+");
 	private static final Pattern WHITE_SPACE = Pattern.compile("\\s*");
 		
 	private static boolean OPEN = true, CLOSE = false;
@@ -189,14 +189,18 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	
 	protected void process(RDFEvent event) throws RDFParseException {
 		if (event==null) return;
-		if (event.isStartDocument() || event.isBase() || event.isNamespace()) {
+		if (event.isStartDocument()) {
 			add(event);
-			RDFEvent next = peekNext();
-			if (isSelectQuery() && !next.isBase() && !next.isNamespace()) {
+			// add the first occurrence of the base
+			addBase();
+			// add all namespace definitions
+			addPrefixes();
+			// don't open a where clause for construct queries (here)
+			if (isSelectQuery()) {
 				add(new Select());
 				add(new Where(OPEN));
 			}
-			else if (isAskQuery() && !next.isBase() && !next.isNamespace()) {
+			else if (isAskQuery()) {
 				add(new Ask());
 				add(new Where(OPEN));
 			}
@@ -276,6 +280,28 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		}
 	}
 	
+	private void addBase() throws RDFParseException {
+		int lookAhead=0;
+		RDFEvent e;
+		do {
+			e = peek(lookAhead++);
+			if (e.isBase()) {
+				add(e);
+				break;
+			}
+		} while (!e.isEndDocument());
+	}
+
+	private void addPrefixes() throws RDFParseException {
+		int lookAhead=0;
+		RDFEvent e;
+		do {
+			e = peek(lookAhead++);
+			if (e.isNamespace())
+				add(e);
+		} while (!e.isEndDocument());		
+	}
+
 	private Context getContext() {
 		Context context = null;
 		// the outermost context is a triple block (with no subject)

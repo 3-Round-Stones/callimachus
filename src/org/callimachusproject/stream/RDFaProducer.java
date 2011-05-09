@@ -76,15 +76,15 @@ public class RDFaProducer extends XMLEventReaderBase {
 			assignments.putAll(context.assignments);
 		}
 	}
-
-	public RDFaProducer(XMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins) 
+	
+	public RDFaProducer(BufferedXMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self) 
 	throws Exception {
 		super();
-		this.reader = new BufferedXMLEventReader(reader);
-		this.reader.mark();
+		this.reader = reader;
 		this.origins = origins;
 		this.resultSet = resultSet;
 		result = nextResult();
+		this.self = self;
 		
 		branches = new HashSet<String>();
 		for (String name: resultSet.getBindingNames()) {
@@ -95,12 +95,13 @@ public class RDFaProducer extends XMLEventReaderBase {
 			branches.add(origin);
 		}
 	}
-	
+
 	public RDFaProducer(XMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self) 
 	throws Exception {
-		this(reader,resultSet, origins);
-		this.self = self;
+		this(new BufferedXMLEventReader(reader), resultSet, origins, self);
+		this.reader.mark();
 	}
+
 
 	@Override
 	public void close() throws XMLStreamException {
@@ -205,7 +206,20 @@ public class RDFaProducer extends XMLEventReaderBase {
 			context.position++;
 			return true;
 		}
-		else if (skipElement==null && event.getEventType()!=XMLEvent.SPACE) {
+		else if (event.isCharacters()) {
+			if (event.toString().trim().equals(""))
+				return false;
+			if (skipElement!=null) return false;
+			add(event);
+			context.hasBody=true;
+			return true;
+		}
+		else if (event.getEventType()==XMLEvent.COMMENT) {
+			if (skipElement!=null) return false;
+			add(event);
+			return true;			
+		}
+		else if (skipElement==null) {
 			add(event);
 			context.hasBody=true;
 			return true;
@@ -218,18 +232,18 @@ public class RDFaProducer extends XMLEventReaderBase {
 	 */
 	
 	private boolean incomplete(StartElement start) {
-		boolean hasRel = false, hasSubject=false, hasProperty=false;
+		boolean hasRel = false; //, hasSubject=false, hasProperty=false;
 		// look for a rel or rev that may be potentially incomplete
 		for (Iterator<?> i = start.getAttributes(); i.hasNext();) {
 			Attribute attr = (Attribute) i.next();
 			String lname = attr.getName().getLocalPart();
 			// assume an explicit @resource is bound
-			if (lname.equals("about")
-			&& attr.getName().getNamespaceURI().isEmpty())
-				hasSubject = true;
-			if (lname.equals("property")
-			&& attr.getName().getNamespaceURI().isEmpty())
-				hasProperty = true;
+//			if (lname.equals("about")
+//			&& attr.getName().getNamespaceURI().isEmpty())
+//				hasSubject = true;
+//			if (lname.equals("property")
+//			&& attr.getName().getNamespaceURI().isEmpty())
+//				hasProperty = true;
 			if ((lname.equals("resource") || lname.equals("href")) 
 			&& attr.getName().getNamespaceURI().isEmpty())
 				return false;
@@ -281,27 +295,29 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 	
 	private boolean grounded(StartElement start) {
+		// all (implicit and explicit) variables with this element at their origin must be bound
+		// These origins are the first use of a variable - no need to check subsequent use in descendents
+		// This avoids forced grounding of @href with relative URL "?..."
 		for (String name: resultSet.getBindingNames()) {
 			String origin = origins.get(name);
 			int n = origin.indexOf("/");
-			if (n>0) origin = origin.substring(n);
-			if (origin.equals(context.path)) {
+			if (origin.substring(n<0?0:n).equals(context.path)) {
 				// name must be bound
 				if (context.assignments.get(name)==null) return false;
 			}
 		}
-		for (Iterator<?> i = start.getAttributes(); i.hasNext();) {
-			Attribute attr = (Attribute) i.next();
-			String lname = attr.getName().getLocalPart();
-			// check this is an RDFa attribute about, resource, href, src, etc
-			if (RDFaVarAttributes.contains(lname) 
-			&& attr.getName().getNamespaceURI().isEmpty()
-			&& attr.getValue().startsWith("?")) {
-				String name = attr.getValue().substring(1);				
-				// name must be bound
-				if (context.assignments.get(name)==null) return false;
-			}
-		}
+//		for (Iterator<?> i = start.getAttributes(); i.hasNext();) {
+//			Attribute attr = (Attribute) i.next();
+//			String lname = attr.getName().getLocalPart();
+//			// check this is an RDFa attribute about, resource, href, src, etc
+//			if (RDFaVarAttributes.contains(lname) 
+//			&& attr.getName().getNamespaceURI().isEmpty()
+//			&& attr.getValue().startsWith("?")) {
+//				String name = attr.getValue().substring(1);				
+//				// name must be bound
+//				if (context.assignments.get(name)==null) return false;
+//			}
+//		}
 		return true;
 	}
 
@@ -324,9 +340,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			Binding b = i.next();
 			String origin = origins.get(b.getName());
 			int n = origin.indexOf("/");
-			if (n<0) n=0;
-
-			if (origin.substring(n).equals(context.path)) {
+			if (origin.substring(n<0?0:n).equals(context.path)) {
 				if (origin.equals("CONTENT"+context.path))
 					content = b.getValue();
 

@@ -20,6 +20,8 @@
 package org.callimachusproject.behaviours;
 
 import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
+import static org.callimachusproject.stream.XMLEventUtility.toInputStream;
+import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +35,7 @@ import javax.xml.transform.TransformerException;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
+import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.rdfa.events.Triple;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.model.CURIE;
@@ -40,10 +43,12 @@ import org.callimachusproject.rdfa.model.IRI;
 import org.callimachusproject.rdfa.model.PlainLiteral;
 import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.stream.About;
+import org.callimachusproject.stream.BufferedXMLEventReader;
 import org.callimachusproject.stream.PrependTriple;
-import org.callimachusproject.stream.RDFStoreReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
+import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.ReducedTripleReader;
+import org.callimachusproject.stream.SPARQLProducer;
 import org.callimachusproject.stream.SPARQLResultReader;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.TriplePatternVariableStore;
@@ -53,8 +58,11 @@ import org.openrdf.http.object.annotations.transform;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.traits.VersionedObject;
+import org.openrdf.model.URI;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
@@ -64,29 +72,56 @@ import org.openrdf.repository.object.RDFObject;
  * template.
  * 
  * @author James Leigh
+ * @author Steve Battle
  * 
  */
-public abstract class ViewSupport implements Page, RDFObject,
-		VersionedObject, FileObject {
-	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
-	private static TermFactory tf = TermFactory.newInstance();
+public abstract class ViewSupport implements Page, RDFObject, VersionedObject, FileObject {
 	
-	static final String TRIAL = System.getProperty("trial");
+	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
+	private static TermFactory tf = TermFactory.newInstance();	
+	static final String TRIAL = "disabled"; //System.getProperty("trial");
 
 	@Override
 	public String calliConstructHTML(Object target) throws Exception {
 		return calliConstructHTML(target, null);
 	}
 
+	/* calliConstruct() is used e.g. by the view tab (not exclusively) and returns 'application/xhtml+xml'.
+	 * It returns the complete XHTML page.
+	 */
+	
 	@Override
-	public InputStream calliConstruct(Object target, String query)
-			throws Exception {
+	public InputStream calliConstruct(Object target, String query) throws Exception {
 		String uri = null;
 		if (target instanceof RDFObject) {
 			uri = ((RDFObject) target).getResource().stringValue();
 		}
-		XMLEventReader data = calliConstructRDF(query, null, uri);
-		return calliConstructTemplate(null, query, data);
+		// trial may be set to e.g 'disabled' to switch off the new functionality
+		if (TRIAL==null && "view".equals(query)) {
+			ObjectConnection con = getObjectConnection();
+			uri = uri==null?null:toUri().resolve(uri).toASCIIString();
+			URI uriValue = con.getValueFactory().createURI(uri);
+
+			// Apply the XSLT stylesheet to the template
+			BufferedXMLEventReader template = new BufferedXMLEventReader(xslt("view",null));
+			int bufferStart = template.mark();
+			
+			// Generate SPARQL from the template and evaluate
+			RDFEventReader rdfa = new RDFaReader(uri, template, toString());			
+			SPARQLProducer sparql = new SPARQLProducer(rdfa,SPARQLProducer.QUERY.SELECT);
+			TupleQuery q = con.prepareTupleQuery(SPARQL,toSPARQL(sparql), uri);
+			q.setBinding("this", uriValue);
+			TupleQueryResult results = q.evaluate();
+			
+			// Populate the template from the result set
+			template.reset(bufferStart);
+			XMLEventReader xrdfa = new RDFaProducer(template, results, sparql.getOrigins(), uriValue);
+			return toInputStream(xrdfa);
+		}
+		else {
+			XMLEventReader data = calliConstructRDF(query, null, uri);
+			return calliConstructTemplate(null, query, data);
+		}
 	}
 
 	/**
@@ -129,15 +164,10 @@ public abstract class ViewSupport implements Page, RDFObject,
 		TriplePattern pattern = patterns.getFirstTriplePattern();
 		RDFEventReader q = constructPossibleTriples(patterns, pattern);
 		ObjectConnection con = getObjectConnection();
-		
-		/* trial UNION form of sparql query */
-		RDFEventReader rdf;
-		if (TRIAL!=null && TRIAL.contains("rollback")) {
-			rdf = new RDFStoreReader(toSPARQL(q), patterns, con);
-		}
-		else {
-			rdf = new SPARQLResultReader(toSPARQL(q), patterns, con);
-		}
+
+		/* consume UNION form of sparql construct */
+		// RDFEventReader rdf = new RDFStoreReader(toSPARQL(q), patterns, con);
+		RDFEventReader rdf = new SPARQLResultReader(toSPARQL(q), patterns, con);
 		
 		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
 	}
@@ -176,14 +206,9 @@ public abstract class ViewSupport implements Page, RDFObject,
 		TriplePatternStore qry = readPatternStore(query, element, uri);
 		ObjectConnection con = getObjectConnection();
 
-		/* trial UNION form of sparql query */
-		RDFEventReader rdf;
-		if (TRIAL!=null && TRIAL.contains("rollback")) {
-			rdf = new RDFStoreReader(qry, con, uri);
-		}
-		else {
-			rdf = new SPARQLResultReader(qry, con, uri);
-		}
+		/* consume UNION form of sparql construct */
+		// RDFEventReader rdf = new RDFStoreReader(qry, con, uri);
+		RDFEventReader rdf = new SPARQLResultReader(qry, con, uri);
 
 		rdf = new ReducedTripleReader(rdf);
 		if (uri != null && element == null) {
@@ -221,4 +246,5 @@ public abstract class ViewSupport implements Page, RDFObject,
 			return null;
 		return "W/" + '"' + revision + '"';
 	}
+	
 }

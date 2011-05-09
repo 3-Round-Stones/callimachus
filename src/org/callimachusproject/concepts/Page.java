@@ -21,12 +21,14 @@ package org.callimachusproject.concepts;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.stream.TriplePatternStore;
+import org.openrdf.http.object.annotations.query;
 import org.openrdf.repository.object.annotations.iri;
 
 /**
@@ -76,4 +78,9 @@ public interface Page {
 	 */
 	RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
 			TriplePattern pattern);
+	
+	@query("xslt")
+	XMLEventReader xslt(@query("query") String query, @query("element") String element) 
+		throws XMLStreamException, IOException, TransformerException ;
+
 }

@@ -20,8 +20,6 @@
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix ontology:</ontology/>.
-@prefix class:</class/>.
 @prefix :<#>.
 
 <Ontology> a calli:Creatable, </callimachus/ListClass>, owl:Class;
@@ -62,6 +60,21 @@
 	calli:uriSpace </rdf/>;
 	calli:administrator </group/admin>.
 
+# when an ontology is created
+:PostOntologyCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Ontology>]);
+	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
+	msg:imports </rdf/>;
+	msg:imports <Class>;
+	msg:script """
+		var ontology = proceed();
+		var local = ontology.resource.localName.replace(/[+]/g, '');
+		var uri = ontology.resource.stringValue();
+		ontology.objectConnection.setNamespace(local, uri + '/');
+		return ontology;
+	""".
+
 :GetClassIndexPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
@@ -73,7 +86,7 @@
 	msg:imports </callimachus/class-index.xhtml>;
 	msg:script "return class_index_xhtml.calliConstruct(this, 'index')".
 
-# when a ontology creates a class
+# when an ontology creates a class
 :PostClassCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:allValuesFrom <Ontology>]);
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;

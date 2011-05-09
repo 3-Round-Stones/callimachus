@@ -21,7 +21,8 @@
 		});		
 		$('#form').bind('calliSubmit', function() {
 			var label = $('#label').val();
-			$(this).attr('about', $('body').attr('about') + '/' + encodeURI(label).replace(/%20/g,'+'));
+			label = label.replace(/([a-z])\s([A-Z])/g, '$1$2');
+			$(this).attr('about', $('body').attr('about') + '/' + encodeURI(label).replace(/%20/g,'_'));
 			return true;
 		});
 	}); // ]]>

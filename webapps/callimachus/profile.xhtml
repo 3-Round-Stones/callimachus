@@ -33,10 +33,10 @@
 						</td>
 						<td property="rdfa:uri" content="{rdfa:uri/text()}">
 							<input type="text" name="{rdfa:prefix}" value="{rdfa:uri/text()}" class="auto-expand" />
-							<span class="ui-icon ui-icon-close" style="display:inline-block;vertical-align:middle"
-								 onclick="$(this).parents('tr:first').remove()">
-								<xsl:text> </xsl:text>
-							</span>
+							<a href="#" title="Remove" style="display:inline-block;vertical-align:middle"
+								 onclick="$(this).parents('tr:first').remove();return false">
+								<xsl:text>×</xsl:text>
+							</a>
 						</td>				
 					</tr>
 				</xsl:for-each>

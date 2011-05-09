@@ -8,20 +8,18 @@
 	<script> // <![CDATA[
 	jQuery(function($){
 		$('#form').submit(function() {
-			var ontology = location.href.substring(0, location.href.indexOf('?'));
-			if (parent) {
-				// copy ontology from parent class
-				var about = $('#ontology', parent.document).attr('about');
-				if (about) {
-					ontology = about;
-				}
+			var label = $('#label').val();
+			if (label.length > 1 && label.substring(1, 2).toLowerCase() == label.substring(1, 2)) {
+				label = label.substring(0, 1).toLowerCase() + label.substring(1);
 			}
-			$(this).attr('about', ontology + '/' + encodeURI($('#label').val()).replace(/%20/g,'+'))
+			label = label.replace(/([a-z])\s([A-Z])/g, '$1$2');
+			$(this).attr('about', $('body').attr('about') + '/' + encodeURI(label).replace(/%20/g,'_'));
+			return true;
 		});
 	}); // ]]>
 	</script>
 </head>
-<body>
+<body about="?this">
 	<ul class="aside">
 		<li>Relationships (also known as relations) between objects in an ontology specify how objects are related to other objects</li>
 	</ul>

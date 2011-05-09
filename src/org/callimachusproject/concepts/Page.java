@@ -83,4 +83,6 @@ public interface Page {
 	XMLEventReader xslt(@query("query") String query, @query("element") String element) 
 		throws XMLStreamException, IOException, TransformerException ;
 
+	XMLEventReader xslt(String query, String element, boolean addDataAttributes) 
+		throws XMLStreamException, IOException, TransformerException ;
 }

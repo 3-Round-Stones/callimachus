@@ -361,7 +361,6 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			else if (e.isEndSubject()) depth--;
 			else if (e.isTriple() && depth==0) {
 				Triple t = e.asTriple();
-				//if (context.optionals.contains(t)) continue;
 				// ignore mandatory triples
 				singleton = !isOptionalTriple(t);
 			}
@@ -391,7 +390,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		if (pred.isCURIE())
 			uri = new URIImpl(pred.asCURIE().stringValue());
 		else if (pred.isIRI())
-			uri = new URIImpl(pred.toString());
+			uri = new URIImpl(pred.stringValue());
 		String l = uri.getLocalName();
 		l = stripPrefix(l,"has");
 		l = stripPrefix(l,"in");

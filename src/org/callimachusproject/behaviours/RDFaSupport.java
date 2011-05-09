@@ -44,7 +44,6 @@ import org.callimachusproject.rdfa.events.Base;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.BoundedRDFReader;
-import org.callimachusproject.stream.GraphPatternReader;
 import org.callimachusproject.stream.OverrideBaseReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.SPARQLProducer;
@@ -90,6 +89,8 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 			return size() > MAX_XSLT;
 		}
 	};
+	static final String DATA_ATTRIBUTES = "/callimachus/operations/data-attributes.xsl";
+
 	
 	@query("xslt")
 	public XMLEventReader xslt(@query("query") String query,
@@ -119,6 +120,24 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 			throw new BadRequest(e);
 		}
 	}
+	
+	public XMLEventReader xslt(String query, String element, boolean addDataAttributes) 
+	throws XMLStreamException,
+			IOException, TransformerException {
+		XMLEventReader xml = xslt(query, element);
+		if (addDataAttributes) {
+			java.net.URI uri = toUri();
+			String xsl = uri.resolve(DATA_ATTRIBUTES).toASCIIString();
+			XSLTransformer xslt = newXSLTransformer(xsl);
+			TransformBuilder transform = xslt.transform(xml, uri.toASCIIString());
+			transform = transform.with("this", uri.toASCIIString());
+			transform = transform.with("query", query);
+			transform = transform.with("element", element);
+			xml = transform.asXMLEventReader();
+		}
+		return xml;
+	}
+
 
 	@query("rdfa-triples")
 	@type("application/rdf+xml")
@@ -175,7 +194,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		transform = transform.with("query", query);
 		return transform.asXMLEventReader();
 	}
-
+	
 	private XSLTransformer newXSLTransformer(String xsl) {
 		synchronized (transformers) {
 			Reference<XSLTransformer> ref = transformers.get(xsl);

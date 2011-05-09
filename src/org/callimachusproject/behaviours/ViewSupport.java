@@ -79,7 +79,8 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 	
 	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
 	private static TermFactory tf = TermFactory.newInstance();	
-	static final String TRIAL = "disabled"; //System.getProperty("trial");
+	static final String TRIAL = System.getProperty("trial");
+	private static final boolean ADD_DATA_ATTRIBUTES = true;
 
 	@Override
 	public String calliConstructHTML(Object target) throws Exception {
@@ -103,7 +104,7 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 			URI uriValue = con.getValueFactory().createURI(uri);
 
 			// Apply the XSLT stylesheet to the template
-			BufferedXMLEventReader template = new BufferedXMLEventReader(xslt("view",null));
+			BufferedXMLEventReader template = new BufferedXMLEventReader(xslt("view",null,ADD_DATA_ATTRIBUTES));
 			int bufferStart = template.mark();
 			
 			// Generate SPARQL from the template and evaluate

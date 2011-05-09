@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 <head>
 	<title about="?this" property="rdfs:label" />
 	<link rel="stylesheet" href="/callimachus/page-edit.css" />
@@ -87,6 +88,20 @@
 				<li class="Wym_Tools_Items wym_tools_textarea">
 					<a title="Text area" name="InsertTextArea" href="#">Text area</a>
 				</li>
+<!--
+				<li class="Wym_Tools_Items wym_tools_radio">
+					<a title="Radio button" name="InsertRadio" href="#">Radio</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_checkbox">
+					<a title="Check box" name="InsertCheckbox" href="#">Check box</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_dropdown">
+					<a title="Drop down" name="InsertDropDown" href="#">Drop down</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_select">
+					<a title="Select box" name="InsertSelect" href="#">Select box</a>
+				</li>
+-->
 				<li class="Wym_Tools_Items wym_tools_rel">
 					<a title="Relationship" name="InsertRel" href="#">Relationship</a>
 				</li>
@@ -153,25 +168,6 @@
 				<button class='wym_cancel' type='button'>Cancel</button>
 			</form>
 		</div>
-		<div class='wym_dialog wym_dialog_rel'>
-			<form>
-				<input type='hidden' class='wym_dialog_type' value='InsertRel' />
-				<label for="curie">Relationship</label>
-				<div>
-					<input id="curie" type='text' class='wym_curie' value='' />
-					<label>
-						<input id="reverse" type='checkbox' class='wym_reverse' value='true' />
-						<span>rev?</span>
-					</label>
-				</div>
-				<label for="variable">Variable <small>must start with '?'</small></label>
-				<div>
-					<input id="variable" type='text' class='wym_variable' value='' />
-				</div>
-				<button class='wym_submit' type='submit'>Insert relationship</button>
-				<button class='wym_cancel' type='button'>Cancel</button>
-			</form>
-		</div>
 		<div class='wym_dialog wym_dialog_input'>
 			<form>
 				<input type='hidden' class='wym_dialog_type' value='InsertInput' />
@@ -192,6 +188,58 @@
 					<input id="variable" type='text' class='wym_variable' value='' />
 				</div>
 				<button class='wym_submit' type='submit'>Insert property</button>
+				<button class='wym_cancel' type='button'>Cancel</button>
+			</form>
+		</div>
+		<div class='wym_dialog wym_dialog_select'>
+			<form>
+				<input type='hidden' class='wym_dialog_type' value='InsertSelect' />
+				<label for="label">Label</label>
+				<div>
+					<input id="label" type='text' class='wym_label' value='' />
+				</div>
+				<label for="curie">Relationship</label>
+				<div>
+					<input id="curie" type='text' class='wym_curie' value='' />
+					<label>
+						<input id="reverse" type='checkbox' class='wym_reverse' value='true' />
+						<span>rev?</span>
+					</label>
+				</div>
+				<label for="variable">Variable <small>must start with '?'</small></label>
+				<div>
+					<input id="variable" type='text' class='wym_variable' value='' />
+				</div>
+				<label for="scheme">Scheme</label>
+				<div>
+					<select id="scheme" class='wym_scheme'>
+						<option about="?scheme" typeof="skos:ConceptScheme" property="rdfs:label"/>
+					</select>
+				</div>
+				<label for="curie">Property</label>
+				<div>
+					<input id="curie" type='text' class='wym_curie' value='rdfs:label' />
+				</div>
+				<button class='wym_submit' type='submit'>Insert relationship</button>
+				<button class='wym_cancel' type='button'>Cancel</button>
+			</form>
+		</div>
+		<div class='wym_dialog wym_dialog_rel'>
+			<form>
+				<input type='hidden' class='wym_dialog_type' value='InsertRel' />
+				<label for="curie">Relationship</label>
+				<div>
+					<input id="curie" type='text' class='wym_curie' value='' />
+					<label>
+						<input id="reverse" type='checkbox' class='wym_reverse' value='true' />
+						<span>rev?</span>
+					</label>
+				</div>
+				<label for="variable">Variable <small>must start with '?'</small></label>
+				<div>
+					<input id="variable" type='text' class='wym_variable' value='' />
+				</div>
+				<button class='wym_submit' type='submit'>Insert relationship</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
 			</form>
 		</div>

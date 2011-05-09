@@ -137,6 +137,48 @@ jQuery(function($){
 		});
 	}
 
+	function insertSelect(dialog_select, html, toggle) {
+		var wym = this;
+		this.dialog('InsertSelect', null, dialog_select);
+		var node = select(this.container(), toggle)[0];
+		if (node) {
+			$('#label').val($(node).find('label').text());
+			$('#curie').val($(node).find('[property]').attr('property'));
+			$('#functional').attr('checked', 'checked');
+		}
+		$('.wym_dialog_input .wym_submit').parents('form').submit(function(event) {
+			var label = $('#label').val();
+			var functional = $('#functional').is(':checked');
+			var curie = $('#curie').val();
+			var variable = $('#variable').val();
+			if (!curie || curie.indexOf(':') < 1) {
+				$(this).trigger('calliError', 'Invalid CURIE');
+				return false;
+			}
+			if (!variable || variable.indexOf('?') != 0) {
+				$(this).trigger('calliError', 'Variables must start with "?"');
+				return false;
+			}
+			html = html.replace(/@@LABEL@@/g, label);
+			html = html.replace(/@@ID@@/g, variable.substring(1));
+			html = html.replace(/@@CURIE@@/g, curie);
+			if (node && node.parentNode) {
+				var div = $(html);
+				$(node).replaceWith(div);
+				setFocusToNode(wym, div);
+			} else {
+				insertField.call(wym, html, toggle);
+			}
+			if (window.opener) {
+				window.close();
+			} else if (window.dialog) {
+				window.dialog.dialog('close');
+			}
+			$(this).trigger('calliSuccess');
+			return false;
+		});
+	}
+
 	function insertRel(dialog_rel) {
 		var wym = this;
 		this.dialog('InsertRel', null, dialog_rel);
@@ -200,6 +242,8 @@ jQuery(function($){
 			if(typeof html === 'string') {
 				var ret = innerHtml.call(this, html);
 				$(wym._doc.body).find(':input').attr("disabled", 'disabled');
+				$(wym._doc.body).find('.vbox:not(:has(p))').append('<p></p>');
+				$(wym._doc.body).find('.hbox:not(:has(p))').append('<p></p>');
 				return ret;
 			} else {
 				$(wym._doc.body).find(':input').removeAttr("disabled");
@@ -208,31 +252,53 @@ jQuery(function($){
 				return markup;
 			}
 		};
+
+		var innerKeyup = wym.keyup;
+		wym.keyup = function(event) {
+			var ret = innerKeyup.call(this, event);
+			$(wym._doc.body).find('.vbox:not(:has(p))').append('<p></p>');
+			$(wym._doc.body).find('.hbox:not(:has(p))').append('<p></p>');
+			return ret;
+		};
+
 		var previously = wym.exec;
 		var dialog_input = outter($('.wym_dialog_input'));
+		var dialog_select = outter($('.wym_dialog_select'));
 		var dialog_rel = outter($('.wym_dialog_rel'));
 
 		wym.exec = function(cmd) {
 			switch (cmd) {
 			case 'InsertVBox':
-				insertContainer.call(wym, '<div class="vbox"><p></p></div>', 'div.vbox');
+				insertContainer.call(wym, '<div class="vbox"><p></p></div>\n', 'div.vbox');
 			break;
 			case 'InsertHBox':
-				insertContainer.call(wym, '<div class="hbox"><p></p></div>', 'div.hbox');
+				insertContainer.call(wym, '<div class="hbox"><p></p></div>\n', 'div.hbox');
 			break;
 			case 'InsertForm':
-				var form = $('<form about="?this" action=""><p></p></form>');
-				form.append('<button type="submit" disabled="disabled">Create</button>');
-				form.append('<button type="submit" disabled="disabled">Save</button>');
-				form.append('<button type="button" disabled="disabled" onclick="location.replace(\'?view\')">Cancel</button>');
-				form.append('<button type="button" disabled="disabled" onclick="calli.deleteResource(form)">Delete</button>');
+				var form = $('<form about="?this" action="">\n<p></p></form>\n');
+				form.append('<button type="submit" disabled="disabled">Create</button>\n');
+				form.append('<button type="submit" disabled="disabled">Save</button>\n');
+				form.append('<button type="button" disabled="disabled" onclick="location.replace(\'?view\')">Cancel</button>\n');
+				form.append('<button type="button" disabled="disabled" onclick="calli.deleteResource(form)">Delete</button>\n');
 				insertContainer.call(wym, form, 'form');
 			break;
 			case 'InsertInput':
-				insertInput.call(wym, dialog_input, '<div class="input field"><label for="@@ID@@">@@LABEL@@</label><div><input id="@@ID@@" property="@@CURIE@@" /></div></div>', 'div.input.field');
+				insertInput.call(wym, dialog_input, '<div class="input field"><label for="@@ID@@">@@LABEL@@</label><div><input id="@@ID@@" disabled="disabled" property="@@CURIE@@" /></div></div>\n', 'div.input.field');
 			break;
 			case 'InsertTextArea':
-				insertInput.call(wym, dialog_input, '<div class="text field"><label for="@@ID@@">@@LABEL@@</label><div><textarea id="@@ID@@" property="@@CURIE@@" /></div></div>', 'div.text.field');
+				insertInput.call(wym, dialog_input, '<div class="text field"><label for="@@ID@@">@@LABEL@@</label><div><textarea id="@@ID@@" disabled="disabled" property="@@CURIE@@" /></div></div>\n', 'div.text.field');
+			break;
+			case 'InsertRadio':
+				insertSelect.call(wym, dialog_select, '<div class="radio field"><label for="@@ID@@">@@LABEL@@</label><div id="@@ID@@"><label @@REL@@="@@CURIE@@" resource="@@VAR@@"><input type="radio" name="@@ID@@" checked="checked" /><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></label></div></div>\n', 'div.radio.field');
+			break;
+			case 'InsertCheckbox':
+				insertSelect.call(wym, dialog_select, '<div class="radio field"><label for="@@ID@@">@@LABEL@@</label><div id="@@ID@@"><label @@REL@@="@@CURIE@@" resource="@@VAR@@"><input type="checkbox" name="@@ID@@" checked="checked" /><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></label></div></div>\n', 'div.radio.field');
+			break;
+			case 'InsertDropDown':
+				insertSelect.call(wym, dialog_select, '<div class="radio field"><label for="@@ID@@">@@LABEL@@</label><div><select id="@@ID@@"><option @@REL@@="@@CURIE@@" resource="@@VAR@@"><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></option></div></div>\n', 'div.dropdown.field');
+			break;
+			case 'InsertSelect':
+				insertSelect.call(wym, dialog_select, '<div class="radio field"><label for="@@ID@@">@@LABEL@@</label><div><select multiple="multiple" id="@@ID@@"><option @@REL@@="@@CURIE@@" resource="@@VAR@@"><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></option></div></div>\n', 'div.dropdown.field');
 			break;
 			case 'InsertRel':
 				insertRel.call(wym, dialog_rel);

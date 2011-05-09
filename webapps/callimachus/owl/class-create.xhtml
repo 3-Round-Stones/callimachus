@@ -18,6 +18,11 @@
 				$('#comment').val(comment);
 				$('#comment').change();
 			}
+		});		
+		$('#form').bind('calliSubmit', function() {
+			var label = $('#label').val();
+			$(this).attr('about', $('body').attr('about') + '/' + encodeURI(label).replace(/%20/g,'+'));
+			return true;
 		});
 	}); // ]]>
 	</script>

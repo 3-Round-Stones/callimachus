@@ -73,7 +73,7 @@ function submitRDFForm(form) {
 					label = form.find('input[property=skos:prefLabel]').val();
 				}
 				if (label) {
-					form.attr('about', $('body').attr('about') + '/' + encodeURI(label).replace(/%20/g,'+').toLowerCase())
+					form.attr('about', $('body').attr('about') + '/' + encodeURI(label).replace(/%20/g,'+').toLowerCase());
 				}
 			}
 			var added = readRDF(form);

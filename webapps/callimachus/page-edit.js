@@ -2,13 +2,10 @@
 
 jQuery(function($){
 	var url = $('body').attr('about');
-	var etag = $('meta[http-equiv="etag"]').attr('content');
 	if (location.hash && location.hash.indexOf('#!') == 0) { // new page
 		url = location.hash.substring(2);
-		etag = null;
 	} else if (location.search == "?create") { // new page
 		url = '';
-		etag = null;
 	}
 	var local = url.replace(/.*\//, '').replace(/\.[a-zA-Z]+$/, '');
 	var label = decodeURIComponent(local);
@@ -16,6 +13,7 @@ jQuery(function($){
 		label = 'Enter Title Here';
 	}
 	var page = [null, '<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>' + label + '</title></head><body about="?this">', '<h1>' + label + '</h1>','</body></html>'];
+	var etag = null;
 
 	function inlineProperties(html) {
 		var result = html;
@@ -36,7 +34,7 @@ jQuery(function($){
 	}
 
 	$(window).one('load', function() {
-		if (etag) {
+		if (location.search != "?create") {
 			jQuery.ajax({
 				type: "GET", url: url,
 				beforeSend: function(xhr) {

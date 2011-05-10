@@ -187,7 +187,7 @@
 			<a href="{$origin}/" id="logo">&#160;</a>
 
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
-				<xsl:if test="$query='view'">
+				<xsl:if test="$query='view' or $query='edit'">
 					<p id="footer-lastmod" about="?this" rel="audit:revision" resource="?revision">This resource was last modified at 
 						<span property="audit:committedOn" class="abbreviated datetime-locale" />.
 					</p>

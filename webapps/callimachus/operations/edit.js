@@ -119,25 +119,24 @@ function addTriple(triple, store) {
 }
 
 function patchData(form, url, type, data, callback) {
-	var xhr = null
+	var xhr = null;
 	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, beforeSend: function(xhr){
-		var etag = getEntityTag()
-		if (etag) {
-			xhr.setRequestHeader("If-Match", etag)
+		var lastmod = getLastModified();
+		if (lastmod) {
+			xhr.setRequestHeader("If-Unmodified-Since", lastmod);
 		}
 	}, success: function(data, textStatus) {
-		callback(data, textStatus, xhr)
+		callback(data, textStatus, xhr);
 	}})
 }
 
-function getEntityTag() {
-	var etag = null
-	$("head>meta[http-equiv]").each(function(){
-		if (this.attributes['http-equiv'].value == 'etag') {
-			etag = this.attributes['content'].value
-		}
-	})
-	return etag
+function getLastModified() {
+	try {
+		var committedOn = $('#footer-lastmod').find('[property=audit:committedOn]').attr('content');
+		return new Date(committedOn).toGMTString();
+	} catch (e) {
+		return null;
+	}
 }
 
 if (!window.calli) {
@@ -157,14 +156,14 @@ window.calli.deleteResource = function(form) {
 		var de = jQuery.Event("calliDelete");
 		form.trigger(de);
 		if (!de.isDefaultPrevented()) {
-			var url = location.href
+			var url = location.href;
 			if (url.indexOf('?') > 0) {
-				url = url.substring(0, url.indexOf('?'))
+				url = url.substring(0, url.indexOf('?'));
 			}
 			var xhr = $.ajax({ type: "DELETE", url: url, beforeSend: function(xhr){
-				var etag = getEntityTag()
-				if (etag) {
-					xhr.setRequestHeader("If-Match", etag)
+				var lastmod = getLastModified();
+				if (lastmod) {
+					xhr.setRequestHeader("If-Unmodified-Since", lastmod);
 				}
 			}, success: function(data, textStatus) {
 				try {

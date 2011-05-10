@@ -63,7 +63,7 @@
 					<xsl:apply-templates mode="xptr-element" select="*" />
 				</xsl:attribute>
 			</xsl:if>
-			<xsl:apply-templates mode="copy" select="@*|node()"/>
+			<xsl:apply-templates select="@*|node()"/>
 		</xsl:copy>
 	</xsl:template>
 

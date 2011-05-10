@@ -34,6 +34,7 @@ import javax.xml.stream.events.XMLEvent;
  * @author James Leigh
  *
  */
+
 public abstract class XMLEventReaderBase implements XMLEventReader {
 	private XMLEvent next;
 	private XMLStreamException nextException;

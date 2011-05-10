@@ -20,6 +20,7 @@
 	<property name="junit.jar" location="${testlib}/junit.jar" />
 	<property name="junit.RDFaConformanceTest" value="org.callimachusproject.rdfa.test.RDFaConformanceTest" />
 	<property name="junit.RDFaGenerationTest" value="org.callimachusproject.rdfa.test.RDFaGenerationTest" />
+	<property name="junit.RDFaDataAttributeTest" value="org.callimachusproject.rdfa.test.RDFaDataAttributeTest" />
 
 	<target name="test-init">
 		<mkdir dir="${build}" />

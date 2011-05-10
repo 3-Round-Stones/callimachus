@@ -29,9 +29,13 @@ import java.nio.charset.Charset;
 
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
@@ -56,7 +60,9 @@ import org.openrdf.http.object.annotations.header;
 import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.transform;
 import org.openrdf.http.object.annotations.type;
+import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.ResponseException;
 import org.openrdf.http.object.traits.VersionedObject;
 import org.openrdf.model.URI;
 import org.openrdf.query.MalformedQueryException;
@@ -78,9 +84,8 @@ import org.openrdf.repository.object.RDFObject;
 public abstract class ViewSupport implements Page, RDFObject, VersionedObject, FileObject {
 	
 	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
-	private static TermFactory tf = TermFactory.newInstance();	
-	static final String TRIAL = System.getProperty("trial");
-	private static final boolean ADD_DATA_ATTRIBUTES = true;
+	private static TermFactory tf = TermFactory.newInstance();
+	public static String TRIAL = System.getProperty("trial");
 
 	@Override
 	public String calliConstructHTML(Object target) throws Exception {
@@ -98,22 +103,22 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 			uri = ((RDFObject) target).getResource().stringValue();
 		}
 		// trial may be set to e.g 'disabled' to switch off the new functionality
-		if (TRIAL.equals("enabled") && "view".equals(query)) {
+		if ("enabled".equals(TRIAL) && "view".equals(query)) {
 			ObjectConnection con = getObjectConnection();
-			uri = uri==null?null:toUri().resolve(uri).toASCIIString();
+			uri = uri == null ? null : toUri().resolve(uri).toASCIIString();
 			URI uriValue = con.getValueFactory().createURI(uri);
 
 			// Apply the XSLT stylesheet to the template
-			BufferedXMLEventReader template = new BufferedXMLEventReader(xslt("view",null,ADD_DATA_ATTRIBUTES));
+			BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query));
 			int bufferStart = template.mark();
-			
+
 			// Generate SPARQL from the template and evaluate
-			RDFEventReader rdfa = new RDFaReader(uri, template, toString());			
-			SPARQLProducer sparql = new SPARQLProducer(rdfa,SPARQLProducer.QUERY.SELECT);
-			TupleQuery q = con.prepareTupleQuery(SPARQL,toSPARQL(sparql), uri);
+			RDFEventReader rdfa = new RDFaReader(uri, template, toString());
+			SPARQLProducer sparql = new SPARQLProducer(rdfa, SPARQLProducer.QUERY.SELECT);
+			TupleQuery q = con.prepareTupleQuery(SPARQL, toSPARQL(sparql), uri);
 			q.setBinding("this", uriValue);
 			TupleQueryResult results = q.evaluate();
-			
+
 			// Populate the template from the result set
 			template.reset(bufferStart);
 			XMLEventReader xrdfa = new RDFaProducer(template, results, sparql.getOrigins(), uriValue);
@@ -198,6 +203,20 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 
 	protected abstract InputStream calliConstructTemplate(String element,
 			String query, XMLEventReader rdf) throws Exception;
+
+	private XMLEventReader xslt(String qry) throws IOException,
+			XMLStreamException {
+		HTTPObjectClient client = HTTPObjectClient.getInstance();
+		String uri = getResource().stringValue();
+		String target = uri + (qry == null ? "?xslt" : "?xslt&query=" + qry);
+		HttpRequest request = new BasicHttpRequest("GET", target);
+		HttpResponse response = client.service(request);
+		if (response.getStatusLine().getStatusCode() >= 300)
+			throw ResponseException.create(response);
+		InputStream input = response.getEntity().getContent();
+		XMLInputFactory factory = XMLInputFactory.newInstance();
+		return factory.createXMLEventReader(input);
+	}
 
 	private XMLEventReader calliConstructRDF(String query, String element,
 			String about) throws XMLStreamException, IOException,

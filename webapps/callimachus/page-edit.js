@@ -79,15 +79,16 @@ jQuery(function($){
 				});
 				var header = page[1].replace(/<html\s+(xmlns[:\w]*="[^"]*"\s*)*/g, '<html ');
 				header = header.replace(/<html\s*/, '<html xmlns="http://www.w3.org/1999/xhtml" ' + items.join(' ') + ' ');
-				var m = body.match(/<h(\d)(\s*[^>]*>(?:[^<]|<[^h\/]|<\/[^h])*)<\/h\1>/);
+				var m = body.match(/<h1\s*(?:[^<\/]|<[^\/h]|\/[^>])*>\s*([^<]*)\s*<\//);
 				if (m) {
-					header = header.replace(/<title\b[\s\S]*<\/title>/, '<title about="?this"' + m[2] + '</title>');
-					header = header.replace(/<title\b[^>]*\/>/, '<title about="?this"' + m[2] + '</title>');
-				}
-				m = body.match(/<h(\d)(\s*[^>]*)\/>/);
-				if (m) {
-					header = header.replace(/<title\b[\s\S]*<\/title>/, '<title about="?this"' + m[2] + '/>');
-					header = header.replace(/<title\b[^>]*\/>/, '<title about="?this"' + m[2] + '/>');
+					header = header.replace(/<title\b[\s\S]*<\/title>/, '<title>' + m[1] + '</title>');
+					header = header.replace(/<title\b[^>]*\/>/, '<title>' + m[1] + '</title>');
+				} else {
+					m = body.match(/<h1\s*(?:[^<\/]|<[^\/h]|\/[^>])*\bproperty=['"](\w+:\w+)["']/);
+					if (m) {
+						header = header.replace(/<title\b[\s\S]*<\/title>/, '<title about="?this" property="' + m[1] + '" />');
+						header = header.replace(/<title\b[^>]*\/>/, '<title about="?this" property="' + m[1] + '" />');
+					}
 				}
 				var html = header + body + page[3];
 				if (etag) {

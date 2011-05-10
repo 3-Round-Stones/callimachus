@@ -81,6 +81,7 @@ a[href]:hover {
 	width: 10em;
 	height: 10em;
 	display: block;
+	text-decoration: none;
 	background-image: url(/callimachus/menu?logo);
 	background-position: 50% 50%;
 	background-repeat: no-repeat;

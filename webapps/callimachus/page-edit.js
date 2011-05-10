@@ -19,7 +19,8 @@ jQuery(function($){
 		var result = html;
 		result = result.replace(/<input\b(\s*[^>]*)\bproperty="(\w*:\w*)"(\s*[^>]*>)/g, '<input$1value="{$2}"$3');
 		result = result.replace(/<span\s+property="(\w*:\w*)"\s*\/>/g, '{$1}');
-		result = result.replace(/<(\w*)\b(\s*[^>]*)\bproperty="(\w*:\w*)"(\s*[^>]*)(?:\/>|>\s*<\/\1>)/g, '<$1$2$4>{$3}</$1>');
+		result = result.replace(/<(\w*)\s+property="(\w*:\w*)"\s*(?:\/>|>\s*<\/\1>)/g, '<$1>{$2}</$1>');
+		result = result.replace(/<(\w*)\b(\s*(?:(?:href|class)="[^"]*"\s*)*)\bproperty="(\w*:\w*)"(\s*(?:(?:href|class)="[^"]*"\s*)*)(?:\/>|>\s*<\/\1>)/g, '<$1$2$4>{$3}</$1>');
 		return result;
 	}
 

@@ -88,13 +88,13 @@
 				<li class="Wym_Tools_Items wym_tools_textarea">
 					<a title="Text area" name="InsertTextArea" href="#">Text area</a>
 				</li>
-<!--
 				<li class="Wym_Tools_Items wym_tools_radio">
 					<a title="Radio button" name="InsertRadio" href="#">Radio</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_checkbox">
 					<a title="Check box" name="InsertCheckbox" href="#">Check box</a>
 				</li>
+<!--
 				<li class="Wym_Tools_Items wym_tools_dropdown">
 					<a title="Drop down" name="InsertDropDown" href="#">Drop down</a>
 				</li>
@@ -213,12 +213,14 @@
 				<label for="scheme">Scheme</label>
 				<div>
 					<select id="scheme" class='wym_scheme'>
-						<option about="?scheme" typeof="skos:ConceptScheme" property="rdfs:label"/>
+						<option about="?scheme" typeof="skos:ConceptScheme">
+							<span property="rdfs:label"/>
+						</option>
 					</select>
 				</div>
-				<label for="curie">Property</label>
+				<label for="property">Property</label>
 				<div>
-					<input id="curie" type='text' class='wym_curie' value='rdfs:label' />
+					<input id="property" type='text' class='wym_property' value='skos:prefLabel' />
 				</div>
 				<button class='wym_submit' type='submit'>Insert relationship</button>
 				<button class='wym_cancel' type='button'>Cancel</button>

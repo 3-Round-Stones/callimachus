@@ -120,6 +120,7 @@ jQuery(function($){
 			html = html.replace(/@@LABEL@@/g, label);
 			html = html.replace(/@@ID@@/g, variable.substring(1));
 			html = html.replace(/@@CURIE@@/g, curie);
+			html = html.replace(/@@VAR@@/g, variable);
 			if (node && node.parentNode) {
 				var div = $(html);
 				$(node).replaceWith(div);
@@ -143,14 +144,30 @@ jQuery(function($){
 		var node = select(this.container(), toggle)[0];
 		if (node) {
 			$('#label').val($(node).find('label').text());
-			$('#curie').val($(node).find('[property]').attr('property'));
-			$('#functional').attr('checked', 'checked');
+			$('#property').val($(node).find('[property]').attr('property'));
+			$('#variable').val($(node).find('[resource]').attr('resource'));
+			if ($(node).find('[rev]').length) {
+				$('#reverse').attr('checked', 'checked');
+				$('#curie').val($(node).find('[rev]').attr('rev'));
+			} else {
+				$('#curie').val($(node).find('[rel]').attr('rel'));
+			}
+			var scheme = $(node).find('[rel=skos:inScheme]').attr('resource');
+			var options = $('#scheme')[0].options;
+			for (var i = 0; i < options.length; i++) {
+				if (scheme == options[i].attr('about')) {
+					$('#scheme')[0].selectedIndex = i;
+				}
+			}
 		}
-		$('.wym_dialog_input .wym_submit').parents('form').submit(function(event) {
+		$('.wym_dialog_select .wym_submit').parents('form').submit(function(event) {
+			var attr = $('#reverse').is(':checked') ? 'rev' : 'rel';
 			var label = $('#label').val();
-			var functional = $('#functional').is(':checked');
 			var curie = $('#curie').val();
 			var variable = $('#variable').val();
+			var property = $('#property').val();
+			var select = $('#scheme')[0];
+			var scheme = select.options[select.selectedIndex].getAttribute('about');
 			if (!curie || curie.indexOf(':') < 1) {
 				$(this).trigger('calliError', 'Invalid CURIE');
 				return false;
@@ -161,7 +178,11 @@ jQuery(function($){
 			}
 			html = html.replace(/@@LABEL@@/g, label);
 			html = html.replace(/@@ID@@/g, variable.substring(1));
+			html = html.replace(/@@REL@@/g, attr);
 			html = html.replace(/@@CURIE@@/g, curie);
+			html = html.replace(/@@VAR@@/g, variable);
+			html = html.replace(/@@SCHEME@@/g, scheme);
+			html = html.replace(/@@PROPERTY@@/g, property);
 			if (node && node.parentNode) {
 				var div = $(html);
 				$(node).replaceWith(div);
@@ -184,12 +205,13 @@ jQuery(function($){
 		this.dialog('InsertRel', null, dialog_rel);
 		var blocks = new Array("address", "div", "dl", "fieldset", "form", "noscript", "ol", "ul", "dd", "dt", "li", "tr");
 		var node = jQuery(this.findUp(this.container(), blocks)).get(0);
-		if (node && $(node).is("*[rel]")) {
-			$('#curie').val($(node).attr('rel'));
-			$('#variable').val($(node).attr('resource'));
-		} else if (node && $(node).is("*[rev]")) {
-			$('#reverse').attr('checked', 'checked');
-			$('#curie').val($(node).attr('rev'));
+		if (node) {
+			if ($(node).is("*[rev]")) {
+				$('#reverse').attr('checked', 'checked');
+				$('#curie').val($(node).attr('rev'));
+			} else {
+				$('#curie').val($(node).attr('rel'));
+			}
 			$('#variable').val($(node).attr('resource'));
 		}
 		$('.wym_dialog_rel .wym_submit').parents('form').submit(function(event) {
@@ -235,8 +257,25 @@ jQuery(function($){
 		});
 	}
 
+	function formatXML(text) {
+		if (window.XML) {
+			if (text.search(/^<\?xml/) == 0) {
+				text = text.substring(text.indexOf('?>') + 2)
+			}
+			return window.XML(text).toXMLString()
+		}
+		var sheet ='<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:output method="xml" omit-xml-declaration="yes" indent="yes"/><xsl:template match="node()|@*"><xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy></xsl:template></xsl:stylesheet>'
+		var xsl = new DOMParser().parseFromString(sheet, "text/xml")
+		var src = new DOMParser().parseFromString(text, "text/xml")
+		var xsltproc = new XSLTProcessor()
+		xsltproc.importStylesheet(xsl)
+		var result = xsltproc.transformToDocument(src)
+		return new XMLSerializer().serializeToString(result)
+	}
+
 	window.WYMeditor.INSTANCES[0].initHtml = function(html) {
 		var wym = window.WYMeditor.INSTANCES[0];
+
 		var innerHtml = wym.html;
 		wym.html = function(html) {
 			if(typeof html === 'string') {
@@ -251,6 +290,13 @@ jQuery(function($){
 				$(wym._doc.body).find(':input').attr("disabled", 'disabled');
 				return markup;
 			}
+		};
+
+		var innerXhtml = wym.xhtml;
+		wym.xhtml = function(html) {
+			var xhtml = innerXhtml.call(this, html);
+			var formatted = formatXML('<body>' + xhtml + '</body>');
+			return formatted.replace(/^\s*<body\s*>/, '').replace(/<\/body>\s*$/, '');
 		};
 
 		var innerKeyup = wym.keyup;
@@ -292,13 +338,13 @@ jQuery(function($){
 				insertSelect.call(wym, dialog_select, '<div class="radio field"><label for="@@ID@@">@@LABEL@@</label><div id="@@ID@@"><label @@REL@@="@@CURIE@@" resource="@@VAR@@"><input type="radio" name="@@ID@@" checked="checked" /><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></label></div></div>\n', 'div.radio.field');
 			break;
 			case 'InsertCheckbox':
-				insertSelect.call(wym, dialog_select, '<div class="radio field"><label for="@@ID@@">@@LABEL@@</label><div id="@@ID@@"><label @@REL@@="@@CURIE@@" resource="@@VAR@@"><input type="checkbox" name="@@ID@@" checked="checked" /><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></label></div></div>\n', 'div.radio.field');
+				insertSelect.call(wym, dialog_select, '<div class="checkbox field"><label for="@@ID@@">@@LABEL@@</label><div id="@@ID@@"><label @@REL@@="@@CURIE@@" resource="@@VAR@@"><input type="checkbox" name="@@ID@@" checked="checked" /><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></label></div></div>\n', 'div.checkbox.field');
 			break;
 			case 'InsertDropDown':
-				insertSelect.call(wym, dialog_select, '<div class="radio field"><label for="@@ID@@">@@LABEL@@</label><div><select id="@@ID@@"><option @@REL@@="@@CURIE@@" resource="@@VAR@@"><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></option></div></div>\n', 'div.dropdown.field');
+				insertSelect.call(wym, dialog_select, '<div class="dropdown field"><label for="@@ID@@">@@LABEL@@</label><div><select id="@@ID@@"><option @@REL@@="@@CURIE@@" resource="@@VAR@@"><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></option></div></div>\n', 'div.dropdown.field');
 			break;
 			case 'InsertSelect':
-				insertSelect.call(wym, dialog_select, '<div class="radio field"><label for="@@ID@@">@@LABEL@@</label><div><select multiple="multiple" id="@@ID@@"><option @@REL@@="@@CURIE@@" resource="@@VAR@@"><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></option></div></div>\n', 'div.dropdown.field');
+				insertSelect.call(wym, dialog_select, '<div class="select field"><label for="@@ID@@">@@LABEL@@</label><div><select multiple="multiple" id="@@ID@@"><option @@REL@@="@@CURIE@@" resource="@@VAR@@"><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></option></div></div>\n', 'div.select.field');
 			break;
 			case 'InsertRel':
 				insertRel.call(wym, dialog_rel);

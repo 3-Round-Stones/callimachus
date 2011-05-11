@@ -104,7 +104,13 @@ jQuery(function($){
 			$('#label').val($(node).find('label').text());
 			$('#curie').val($(node).find('[property]').attr('property'));
 			$('#functional').attr('checked', 'checked');
+		} else {
+			$('.wym_dialog_input .wym_delete').remove();
 		}
+		$('.wym_dialog_input .wym_delete').click(function(event) {
+			$(node).remove();
+			closeDialogue();
+		});
 		$('.wym_dialog_input .wym_submit').parents('form').submit(function(event) {
 			var label = $('#label').val();
 			var functional = $('#functional').is(':checked');
@@ -139,11 +145,17 @@ jQuery(function($){
 			var scheme = $(node).find('[rel=skos:inScheme]').attr('resource');
 			var options = $('#scheme')[0].options;
 			for (var i = 0; i < options.length; i++) {
-				if (scheme == options[i].attr('about')) {
+				if (scheme == options[i].getAttribute('about')) {
 					$('#scheme')[0].selectedIndex = i;
 				}
 			}
+		} else {
+			$('.wym_dialog_select .wym_delete').remove();
 		}
+		$('.wym_dialog_select .wym_delete').click(function(event) {
+			$(node).remove();
+			closeDialogue();
+		});
 		$('.wym_dialog_select .wym_submit').parents('form').submit(function(event) {
 			var attr = $('#reverse').is(':checked') ? 'rev' : 'rel';
 			var label = $('#label').val();
@@ -179,7 +191,13 @@ jQuery(function($){
 			}
 			$('#class').val($(node).find('[typeof]').attr('typeof'));
 			$('#prompt').val($(node).find('[data-prompt]').attr('data-prompt'));
+		} else {
+			$('.wym_dialog_drop .wym_delete').remove();
 		}
+		$('.wym_dialog_drop .wym_delete').click(function(event) {
+			$(node).remove();
+			closeDialogue();
+		});
 		$('.wym_dialog_drop .wym_submit').parents('form').submit(function(event) {
 			var attr = $('#reverse').is(':checked') ? 'rev' : 'rel';
 			var label = $('#label').val();

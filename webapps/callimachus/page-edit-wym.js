@@ -9,6 +9,7 @@ jQuery(function($){
 	}
 
 	$(document).ready(function() {
+		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('data-cardinality');
 		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push(
 			'rel',
 			'rev',
@@ -95,8 +96,8 @@ jQuery(function($){
 		}
 	}
 
-	function insertInput(dialog_input, html, toggle) {
-		var wym = this;
+	function insertInput(dialog_input, type, template) {
+		var toggle = 'div.field.' + type;
 		this.dialog('InsertInput', null, dialog_input);
 		var node = select(this.container(), toggle)[0];
 		if (node) {
@@ -109,37 +110,20 @@ jQuery(function($){
 			var functional = $('#functional').is(':checked');
 			var curie = $('#curie').val();
 			var variable = $('#variable').val();
-			if (!curie || curie.indexOf(':') < 1) {
-				$(this).trigger('calliError', 'Invalid CURIE');
+			if (!checkCURIE(curie) || !checkVariable(variable)) {
 				return false;
 			}
-			if (!variable || variable.indexOf('?') != 0) {
-				$(this).trigger('calliError', 'Variables must start with "?"');
-				return false;
-			}
-			html = html.replace(/@@LABEL@@/g, label);
-			html = html.replace(/@@ID@@/g, variable.substring(1));
-			html = html.replace(/@@CURIE@@/g, curie);
-			html = html.replace(/@@VAR@@/g, variable);
-			if (node && node.parentNode) {
-				var div = $(html);
-				$(node).replaceWith(div);
-				setFocusToNode(wym, div);
-			} else {
-				insertField.call(wym, html, toggle);
-			}
-			if (window.opener) {
-				window.close();
-			} else if (window.dialog) {
-				window.dialog.dialog('close');
-			}
-			$(this).trigger('calliSuccess');
+			var cardinality = functional ? 'data-cardinality="1"' : '';
+			insertTemplate(node, template, {type: type, label: label,
+				id: variable.substring(1), curie: curie,
+				cardinality: cardinality});
+			closeDialogue();
 			return false;
 		});
 	}
 
-	function insertSelect(dialog_select, html, toggle) {
-		var wym = this;
+	function insertSelect(dialog_select, type, template) {
+		var toggle = 'div.field.' + type;
 		this.dialog('InsertSelect', null, dialog_select);
 		var node = select(this.container(), toggle)[0];
 		if (node) {
@@ -168,36 +152,33 @@ jQuery(function($){
 			var property = $('#property').val();
 			var select = $('#scheme')[0];
 			var scheme = select.options[select.selectedIndex].getAttribute('about');
-			if (!curie || curie.indexOf(':') < 1) {
-				$(this).trigger('calliError', 'Invalid CURIE');
+			if (!checkCURIE(curie) || !checkVariable(variable)) {
 				return false;
 			}
-			if (!variable || variable.indexOf('?') != 0) {
-				$(this).trigger('calliError', 'Variables must start with "?"');
-				return false;
-			}
-			html = html.replace(/@@LABEL@@/g, label);
-			html = html.replace(/@@ID@@/g, variable.substring(1));
-			html = html.replace(/@@REL@@/g, attr);
-			html = html.replace(/@@CURIE@@/g, curie);
-			html = html.replace(/@@VAR@@/g, variable);
-			html = html.replace(/@@SCHEME@@/g, scheme);
-			html = html.replace(/@@PROPERTY@@/g, property);
-			if (node && node.parentNode) {
-				var div = $(html);
-				$(node).replaceWith(div);
-				setFocusToNode(wym, div);
-			} else {
-				insertField.call(wym, html, toggle);
-			}
-			if (window.opener) {
-				window.close();
-			} else if (window.dialog) {
-				window.dialog.dialog('close');
-			}
-			$(this).trigger('calliSuccess');
+			insertTemplate(node, template, {type: type, label: label,
+				id: variable.substring(1), rel: attr, curie: curie,
+				scheme: scheme, property: property});
+			closeDialogue();
 			return false;
 		});
+	}
+
+	function insertTemplate(node, template, bindings) {
+		var wym = window.WYMeditor.INSTANCES[0];
+		var html = template;
+		for (key in bindings) {
+			html = html.replace(new RegExp('\\$' + key + '\\b', 'g'), bindings[key]);
+		}
+		var label = '<label for="' + bindings['id'] + '">' + bindings['label'] + '</label>\n\t';
+		html = '<div class="' + bindings['type'] + ' field">\n\t' + label + html + '\n</div>\n';
+		if (node && node.parentNode) {
+			var div = $(html);
+			$(node).replaceWith(div);
+			setFocusToNode(wym, div);
+		} else {
+			var toggle = 'div.field.' + bindings['type'];
+			insertField.call(wym, html, toggle);
+		}
 	}
 
 	function insertRel(dialog_rel) {
@@ -218,12 +199,7 @@ jQuery(function($){
 			var attr = $('#reverse').is(':checked') ? 'rev' : 'rel';
 			var curie = $('#curie').val();
 			var variable = $('#variable').val();
-			if (!curie || curie.indexOf(':') < 1) {
-				$(this).trigger('calliError', 'Invalid CURIE');
-				return false;
-			}
-			if (!variable || variable.indexOf('?') != 0) {
-				$(this).trigger('calliError', 'Variables must start with "?"');
+			if (!checkCURIE(curie) || !checkVariable(variable)) {
 				return false;
 			}
 			if (node && node.parentNode) {
@@ -247,14 +223,32 @@ jQuery(function($){
 					setFocusToNode(wym, div.children()[0]);
 				}
 			}
-			if (window.opener) {
-				window.close();
-			} else if (window.dialog) {
-				window.dialog.dialog('close');
-			}
-			$(this).trigger('calliSuccess');
+			closeDialogue();
 			return false;
 		});
+	}
+
+	function checkCURIE(curie, form) {
+		if (curie && curie.match(/^\w+:\w+$/))
+			return true;
+		$(form).trigger('calliError', 'CURIE must have be a word prefix and word suffix separated by a colon');
+		return false;
+	}
+
+	function checkVariable(variable, form) {
+		if (variable && variable.match(/^\?[a-zA-Z]\w*$/))
+			return true;
+		$(form).trigger('calliError', 'Variables must start with "?" and be alphanumeric');
+		return false;
+	}
+
+	function closeDialogue() {
+		if (window.opener) {
+			window.close();
+		} else if (window.dialog) {
+			window.dialog.dialog('close');
+		}
+		$(this).trigger('calliSuccess');
 	}
 
 	function formatXML(text) {
@@ -315,13 +309,13 @@ jQuery(function($){
 		wym.exec = function(cmd) {
 			switch (cmd) {
 			case 'InsertVBox':
-				insertContainer.call(wym, '<div class="vbox"><p></p></div>\n', 'div.vbox');
+				insertContainer.call(wym, '<div class="vbox">\n<p></p></div>\n', 'div.vbox');
 			break;
 			case 'InsertHBox':
-				insertContainer.call(wym, '<div class="hbox"><p></p></div>\n', 'div.hbox');
+				insertContainer.call(wym, '<div class="hbox">\n<p></p></div>\n', 'div.hbox');
 			break;
 			case 'InsertForm':
-				var form = $('<form about="?this" action="">\n<p></p></form>\n');
+				var form = $('<form about="?this" action="">\n<div class="vbox">\n<p></p></div>\n</form>\n');
 				form.append('<button type="submit" disabled="disabled">Create</button>\n');
 				form.append('<button type="submit" disabled="disabled">Save</button>\n');
 				form.append('<button type="button" disabled="disabled" onclick="location.replace(\'?view\')">Cancel</button>\n');
@@ -329,22 +323,22 @@ jQuery(function($){
 				insertContainer.call(wym, form, 'form');
 			break;
 			case 'InsertInput':
-				insertInput.call(wym, dialog_input, '<div class="input field"><label for="@@ID@@">@@LABEL@@</label><div><input id="@@ID@@" disabled="disabled" property="@@CURIE@@" /></div></div>\n', 'div.input.field');
+				insertInput.call(wym, dialog_input, 'input', '<div $cardinality><input id="$id" disabled="disabled" property="$curie" /></div>');
 			break;
 			case 'InsertTextArea':
-				insertInput.call(wym, dialog_input, '<div class="text field"><label for="@@ID@@">@@LABEL@@</label><div><textarea id="@@ID@@" disabled="disabled" property="@@CURIE@@" /></div></div>\n', 'div.text.field');
+				insertInput.call(wym, dialog_input, 'text', '<div $cardinality><textarea id="$id" disabled="disabled" property="$curie"></textarea></div>');
 			break;
 			case 'InsertRadio':
-				insertSelect.call(wym, dialog_select, '<div class="radio field"><label for="@@ID@@">@@LABEL@@</label><div id="@@ID@@"><label @@REL@@="@@CURIE@@" resource="@@VAR@@"><input type="radio" name="@@ID@@" checked="checked" /><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></label></div></div>\n', 'div.radio.field');
+				insertSelect.call(wym, dialog_select, 'radio', '<div id="$id"><label $rel="$curie" resource="?$id"><input type="radio" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="$property" /></label></div>');
 			break;
 			case 'InsertCheckbox':
-				insertSelect.call(wym, dialog_select, '<div class="checkbox field"><label for="@@ID@@">@@LABEL@@</label><div id="@@ID@@"><label @@REL@@="@@CURIE@@" resource="@@VAR@@"><input type="checkbox" name="@@ID@@" checked="checked" /><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></label></div></div>\n', 'div.checkbox.field');
+				insertSelect.call(wym, dialog_select, 'checkbox', '<div id="$id"><label $rel="$curie" resource="?$id"><input type="checkbox" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="$property" /></label></div>');
 			break;
 			case 'InsertDropDown':
-				insertSelect.call(wym, dialog_select, '<div class="dropdown field"><label for="@@ID@@">@@LABEL@@</label><div><select id="@@ID@@"><option @@REL@@="@@CURIE@@" resource="@@VAR@@"><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></option></div></div>\n', 'div.dropdown.field');
+				insertSelect.call(wym, dialog_select, 'dropdown', '<div><select id="$id"><option $rel="$curie" resource="?$id"><span rel="skos:inScheme" resource="$scheme" property="$property" /></option></div>');
 			break;
 			case 'InsertSelect':
-				insertSelect.call(wym, dialog_select, '<div class="select field"><label for="@@ID@@">@@LABEL@@</label><div><select multiple="multiple" id="@@ID@@"><option @@REL@@="@@CURIE@@" resource="@@VAR@@"><span rel="skos:inScheme" resource="@@SCHEME@@" property="@@PROPERTY@@" /></option></div></div>\n', 'div.select.field');
+				insertSelect.call(wym, dialog_select, 'select', '<div><select multiple="multiple" id="$id"><option $rel="$curie" resource="?$id"><span rel="skos:inScheme" resource="$scheme" property="$property" /></option></div>');
 			break;
 			case 'InsertRel':
 				insertRel.call(wym, dialog_rel);

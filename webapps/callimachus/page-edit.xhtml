@@ -83,16 +83,16 @@
 					<a title="Form" name="InsertForm" href="#">Form</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_input">
-					<a title="Input box" name="InsertInput" href="#">Input box</a>
+					<a title="Input box field" name="InsertInput" href="#">Input box</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_textarea">
-					<a title="Text area" name="InsertTextArea" href="#">Text area</a>
+					<a title="Text area field" name="InsertTextArea" href="#">Text area</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_radio">
-					<a title="Radio button" name="InsertRadio" href="#">Radio</a>
+					<a title="Radio button field" name="InsertRadio" href="#">Radio</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_checkbox">
-					<a title="Check box" name="InsertCheckbox" href="#">Check box</a>
+					<a title="Check box field" name="InsertCheckbox" href="#">Check box</a>
 				</li>
 <!--
 				<li class="Wym_Tools_Items wym_tools_dropdown">
@@ -103,10 +103,13 @@
 				</li>
 -->
 				<li class="Wym_Tools_Items wym_tools_drop">
-					<a title="Drop area" name="InsertDropArea" href="#">Drop area</a>
+					<a title="Drop area field" name="InsertDropArea" href="#">Drop area</a>
+				</li>
+				<li class="Wym_Tools_Items wym_tools_about">
+					<a title="Assign resource type" name="InsertAbout" href="#">About</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_rel">
-					<a title="Relationship" name="InsertRel" href="#">Relationship</a>
+					<a title="Insert relationship" name="InsertRel" href="#">Relationship</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_html">
 					<a title="HTML" name="ToggleHtml" href="#">HTML</a>
@@ -267,6 +270,21 @@
 				<button class='wym_delete' type='button'>Delete</button>
 			</form>
 		</div>
+		<div class='wym_dialog wym_dialog_about'>
+			<form>
+				<input type='hidden' class='wym_dialog_type' value='InsertAbout' />
+				<label for="variable">Variable</label>
+				<div>
+					<input id="variable" type='text' class='wym_variable' value='' />
+				</div>
+				<label for="curie">Type</label>
+				<div>
+					<input id="curie" type='text' class='wym_curie' value='' />
+				</div>
+				<button class='wym_submit' type='submit'>Save</button>
+				<button class='wym_cancel' type='button'>Cancel</button>
+			</form>
+		</div>
 		<div class='wym_dialog wym_dialog_rel'>
 			<form>
 				<input type='hidden' class='wym_dialog_type' value='InsertRel' />
@@ -282,7 +300,7 @@
 				<div>
 					<input id="variable" type='text' class='wym_variable' value='' />
 				</div>
-				<button class='wym_submit' type='submit'>Insert relationship</button>
+				<button class='wym_submit' type='submit'>Insert</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
 			</form>
 		</div>
@@ -292,7 +310,7 @@
 				<div>
 					<textarea class='wym_text'></textarea>
 				</div>
-				<button class='wym_submit' type='submit'>Insert text</button>
+				<button class='wym_submit' type='submit'>Insert</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
 			</form>
 		</div>

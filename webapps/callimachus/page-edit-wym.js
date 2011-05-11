@@ -235,6 +235,45 @@ jQuery(function($){
 		}
 	}
 
+	function insertAbout(dialog_about) {
+		var wym = this;
+		this.dialog('InsertAbout', null, dialog_about);
+		var blocks = new Array("address", "div", "dl", "fieldset", "form", "noscript", "ol", "ul", "dd", "dt", "li", "tr");
+		var node = jQuery(this.findUp(this.container(), blocks)).get(0);
+		if (node) {
+			$('#variable').val($(node).attr('about'));
+			$('#curie').val($(node).attr('typeof'));
+		}
+		$('.wym_dialog_about .wym_submit').parents('form').submit(function(event) {
+			var curie = $('#curie').val();
+			var variable = $('#variable').val();
+			if (curie && !checkCURIE(curie) || !checkVariable(variable)) {
+				return false;
+			}
+			if (node && node.parentNode) {
+				$(node).attr('about', variable);
+				$(node).attr('typeof', curie);
+			} else {
+				node = jQuery(wym.findUp(wym.container(), WYMeditor.MAIN_CONTAINERS)).get(0);
+				if (node && node.parentNode) {
+					var div = $('<div/>');
+					div.attr('class', 'vbox');
+					div.attr('about', variable);
+					div.attr('typeof', curie);
+					div.append($(node).clone());
+					$(node).replaceWith(div);
+					setFocusToNode(wym, div.children()[0]);
+				} else {
+					var div = '<div class="vbox" about="' + variable + '" typeof="' + curie + '"><p>{rdfs:label}</p></div>';
+					$(wym._doc.body).append(div);
+					setFocusToNode(wym, div.children()[0]);
+				}
+			}
+			closeDialogue();
+			return false;
+		});
+	}
+
 	function insertRel(dialog_rel) {
 		var wym = this;
 		this.dialog('InsertRel', null, dialog_rel);
@@ -272,7 +311,7 @@ jQuery(function($){
 					$(node).replaceWith(div);
 					setFocusToNode(wym, div.children()[0]);
 				} else {
-					var div = '<div ' + attr + '="' + curie + '" resource="' + variable + '"><p>{rdfs:label}</p></div>';
+					var div = '<div class="vbox" ' + attr + '="' + curie + '" resource="' + variable + '"><p>{rdfs:label}</p></div>';
 					$(wym._doc.body).append(div);
 					setFocusToNode(wym, div.children()[0]);
 				}
@@ -359,6 +398,7 @@ jQuery(function($){
 		var dialog_input = outter($('.wym_dialog_input'));
 		var dialog_select = outter($('.wym_dialog_select'));
 		var dialog_drop = outter($('.wym_dialog_drop'));
+		var dialog_about = outter($('.wym_dialog_about'));
 		var dialog_rel = outter($('.wym_dialog_rel'));
 
 		wym.exec = function(cmd) {
@@ -397,6 +437,9 @@ jQuery(function($){
 			break;
 			case 'InsertDropArea':
 				insertDropArea.call(wym, dialog_drop, 'droparea', '<div id="$id" $rel="$curie" data-prompt="$prompt"><div about="?$id" typeof="$class"><span property="$property" /></div></div>');
+			break;
+			case 'InsertAbout':
+				insertAbout.call(wym, dialog_about);
 			break;
 			case 'InsertRel':
 				insertRel.call(wym, dialog_rel);

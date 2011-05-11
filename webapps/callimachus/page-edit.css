@@ -78,7 +78,6 @@
         .wym_buttons li.wym_tools_preview a       { background-position: 0 -408px;}
         .wym_buttons li.wym_tools_vbox a          { background-image: url(/callimachus/images/vbox.png);}
         .wym_buttons li.wym_tools_hbox a          { background-image: url(/callimachus/images/hbox.png);}
-        .wym_buttons li.wym_tools_rel a           { background-image: url(/callimachus/images/rel.png);}
         .wym_buttons li.wym_tools_form a          { background-image: url(/callimachus/images/form.png);}
         .wym_buttons li.wym_tools_input a         { background-image: url(/callimachus/images/inputbox.png);}
         .wym_buttons li.wym_tools_textarea a      { background-image: url(/callimachus/images/textbox.png);}
@@ -86,7 +85,9 @@
         .wym_buttons li.wym_tools_select a        { background-image: url(/callimachus/images/select.png);}
         .wym_buttons li.wym_tools_checkbox a      { background-image: url(/callimachus/images/checkbox.png);}
         .wym_buttons li.wym_tools_radio a         { background-image: url(/callimachus/images/radio.png);}
-        .wym_buttons li.wym_tools_drop a         { background-image: url(/callimachus/images/drop.png);}
+        .wym_buttons li.wym_tools_drop a          { background-image: url(/callimachus/images/drop.png);}
+        .wym_buttons li.wym_tools_rel a           { background-image: url(/callimachus/images/rel.png);}
+        .wym_buttons li.wym_tools_about a         { background-image: url(/callimachus/images/typeof.png);}
 
 /*DECORATION*/
         .wym_section h2             { background: #ddd; border: solid gray; border-width: 0 0 1px;}

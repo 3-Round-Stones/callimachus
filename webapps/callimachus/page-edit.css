@@ -86,6 +86,7 @@
         .wym_buttons li.wym_tools_select a        { background-image: url(/callimachus/images/select.png);}
         .wym_buttons li.wym_tools_checkbox a      { background-image: url(/callimachus/images/checkbox.png);}
         .wym_buttons li.wym_tools_radio a         { background-image: url(/callimachus/images/radio.png);}
+        .wym_buttons li.wym_tools_drop a         { background-image: url(/callimachus/images/drop.png);}
 
 /*DECORATION*/
         .wym_section h2             { background: #ddd; border: solid gray; border-width: 0 0 1px;}

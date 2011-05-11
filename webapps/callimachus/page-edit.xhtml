@@ -102,6 +102,9 @@
 					<a title="Select box" name="InsertSelect" href="#">Select box</a>
 				</li>
 -->
+				<li class="Wym_Tools_Items wym_tools_drop">
+					<a title="Drop area" name="InsertDropArea" href="#">Drop area</a>
+				</li>
 				<li class="Wym_Tools_Items wym_tools_rel">
 					<a title="Relationship" name="InsertRel" href="#">Relationship</a>
 				</li>
@@ -221,6 +224,41 @@
 				<label for="property">Property</label>
 				<div>
 					<input id="property" type='text' class='wym_property' value='skos:prefLabel' />
+				</div>
+				<button class='wym_submit' type='submit'>Insert relationship</button>
+				<button class='wym_cancel' type='button'>Cancel</button>
+			</form>
+		</div>
+		<div class='wym_dialog wym_dialog_drop'>
+			<form>
+				<input type='hidden' class='wym_dialog_type' value='InsertDropArea' />
+				<label for="label">Label</label>
+				<div>
+					<input id="label" type='text' class='wym_label' value='' />
+				</div>
+				<label for="curie">Relationship</label>
+				<div>
+					<input id="curie" type='text' class='wym_curie' value='' />
+					<label>
+						<input id="reverse" type='checkbox' class='wym_reverse' value='true' />
+						<span>rev?</span>
+					</label>
+				</div>
+				<label for="variable">Variable <small>must start with '?'</small></label>
+				<div>
+					<input id="variable" type='text' class='wym_variable' value='' />
+				</div>
+				<label for="class">Class</label>
+				<div>
+					<input id="class" type='text' class='wym_class' value='' />
+				</div>
+				<label for="property">Property</label>
+				<div>
+					<input id="property" type='text' class='wym_property' value='rdfs:label' />
+				</div>
+				<label for="prompt">Search page</label>
+				<div>
+					<input id="prompt" type='text' class='wym_prompt' value='about:blank' />
 				</div>
 				<button class='wym_submit' type='submit'>Insert relationship</button>
 				<button class='wym_cancel' type='button'>Cancel</button>

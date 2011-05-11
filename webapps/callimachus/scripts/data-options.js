@@ -37,7 +37,7 @@ function initOptionElements(form) {
 		var select = $(node);
 		var script = select.is("[data-options]") ? select : select.children("[data-options]");
 		var rel = script.attr("data-rel");
-		if (script.size() && rel) {
+		if (script.size()) {
 			select.change(function(){
 				$("option:selected", this).each(function(i, option){
 					var $option = $(option);

@@ -33,10 +33,10 @@
 		<div rel="skos:hasTopConcept"> <div about="?concept"
 		typeof="skos:Concept"> <span property="skos:prefLabel"/> </div> </div>
 	-->
-	<xsl:template match="*[(@rel and contains(@rel, ':') or @rev) and not(@resource or @href)]">
+	<xsl:template match="*[(@rel or @rev) and not(@resource or @href)]">
 		<xsl:copy>
-			<xsl:if test="1=count(*[@about or @src or @href])">
-				<xsl:attribute name="data-rel"><xsl:value-of select="@rel" /></xsl:attribute>
+			<xsl:if test="1=count(*/@about) and starts-with(*/@about, '?')">
+				<!-- Lookup possible members by label -->
 				<xsl:attribute name="data-search">
 					<xsl:value-of select="$this" />
 					<xsl:text>?search&amp;query=</xsl:text>
@@ -45,16 +45,18 @@
 					<xsl:apply-templates mode="xptr-element" select="." />
 					<xsl:text>&amp;q={searchTerms}</xsl:text>
 				</xsl:attribute>
+				<!-- Called when a resource is added to build its label -->
 				<xsl:attribute name="data-add">
 					<xsl:value-of select="$this" />
 					<xsl:text>?construct&amp;query=</xsl:text>
 					<xsl:value-of select="$query" />
 					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select="*[@about or @src or @href]" />
+					<xsl:apply-templates mode="xptr-element" select="*[@about]" />
 					<xsl:text>&amp;about={about}</xsl:text>
 				</xsl:attribute>
 			</xsl:if>
-			<xsl:if test="not(*[@about or @src or @href]) and 1=count(*)">
+			<xsl:if test="1=count(*) and not(*[@about])">
+				<!-- Called to insert an inline blank node -->
 				<xsl:attribute name="data-more">
 					<xsl:value-of select="$this" />
 					<xsl:text>?template&amp;query=</xsl:text>
@@ -71,9 +73,7 @@
 	<xsl:template match="*">
 		<xsl:copy>
 			<xsl:if test="1=count(*/@property)">
-				<xsl:attribute name="data-property">
-					<xsl:value-of select="*/@property" />
-				</xsl:attribute>
+				<!-- Called to insert another property value -->
 				<xsl:attribute name="data-more">
 					<xsl:value-of select="$this" />
 					<xsl:text>?template&amp;query=</xsl:text>
@@ -82,8 +82,12 @@
 					<xsl:apply-templates mode="xptr-element" select="*[@property]" />
 				</xsl:attribute>
 			</xsl:if>
-			<xsl:if test="1=count(*[@rel or @rev]) and *[(@rel and contains(@rel, ':') or @rev) and (starts-with(@resource,'?') or starts-with(@href,'?'))]">
-				<xsl:attribute name="data-rel"><xsl:value-of select="*/@rel"/><xsl:value-of select="*/@rev"/></xsl:attribute>
+			<xsl:if test="1=count(*[@rel or @rev]) and *[(@rel or @rev) and starts-with(@resource,'?')]">
+				<xsl:attribute name="data-rel">
+					<xsl:value-of select="*/@rel"/>
+					<xsl:value-of select="*/@rev"/>
+				</xsl:attribute>
+				<!-- Called to populate a select/radio/checkbox -->
 				<xsl:attribute name="data-options">
 					<xsl:value-of select="$this" />
 					<xsl:text>?options&amp;query=</xsl:text>
@@ -98,16 +102,6 @@
 
 	<xsl:template match="@*|comment()|text()">
 		<xsl:copy />
-	</xsl:template>
-
-	<!-- copy -->
-	<xsl:template mode="copy" match="node()">
-		<xsl:copy>
-			<xsl:apply-templates mode="copy" select="@*|node()" />
-		</xsl:copy>
-	</xsl:template>
-	<xsl:template mode="copy" match="@*">
-		<xsl:copy/>
 	</xsl:template>
 
 	<!-- xptr-element -->

@@ -23,19 +23,17 @@ function select(node, selector) {
 }
 
 function createAddPropertyButtons(form) {
-	select(form, "[data-more][data-property]").each(function() {
+	select(form, "[data-more]").each(function() {
 		var parent = $(this);
-		var property = parent.attr("data-property");
 		var minOccurs = parent.attr("data-min-cardinality");
 		var maxOccurs = parent.attr("data-max-cardinality");
 		minOccurs = minOccurs ? minOccurs : parent.attr("data-cardinality");
 		maxOccurs = maxOccurs ? maxOccurs : parent.attr("data-cardinality");
-		var count = parent.children("[property='" + property + "']").size();
+		var count = parent.children("[property]").size();
 		var add = false;
 		if (!maxOccurs || !minOccurs || parseInt(minOccurs) != parseInt(maxOccurs)) {
 			add = $('<button type="button"/>');
 			add.addClass("add");
-			add.attr("data-property", property);
 			add.text("»");
 			add.click(function(){
 				jQuery.get(parent.attr("data-more"), function(data) {
@@ -68,7 +66,6 @@ function createAddPropertyButtons(form) {
 function initInputElement() {
 	var input = $(this);
 	var property = input.attr("property");
-	input.attr("data-property", property);
 	input.change(function(){
 		var value = $(this).val();
 		if (value) {
@@ -83,7 +80,6 @@ function initInputElement() {
 	var parent = input.parent();
 	var remove = $('<button type="button"/>');
 	remove.addClass("remove");
-	remove.attr("data-property", property);
 	remove.text("×");
 	remove.click(function(){
 		input.remove();

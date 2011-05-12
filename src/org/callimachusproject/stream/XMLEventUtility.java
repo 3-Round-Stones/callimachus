@@ -26,6 +26,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -75,7 +76,8 @@ public class XMLEventUtility {
 			StartElement start = e.asStartElement();
 			buffer.append("<");
 			serialize(buffer,start.getName());
-			serialize(buffer,start.getAttributes());
+			serializeNamespaces(buffer,start.getNamespaces());
+			serializeAttributes(buffer,start.getAttributes());
 			if (peek.isEndElement()) buffer.append("/");
 			buffer.append(">");
 			if (peek.isCharacters() || peek.isStartElement()) return false;
@@ -126,7 +128,18 @@ public class XMLEventUtility {
 	}
 
 
-	private static void serialize(StringBuffer buffer, Iterator<?> attributes) {
+	private static void serializeNamespaces(StringBuffer buffer, Iterator<?> namespaces) {
+		while (namespaces.hasNext()) {
+			Namespace ns = (Namespace) namespaces.next();
+			buffer.append(" xmlns");
+			String prefix = ns.getPrefix();
+			if (!prefix.isEmpty()) buffer.append(":"+prefix);
+			buffer.append("=");
+			buffer.append("\""+substituteEntitiesinValue(ns.getNamespaceURI())+"\"");
+		}
+	}
+
+	private static void serializeAttributes(StringBuffer buffer, Iterator<?> attributes) {
 		while (attributes.hasNext()) {
 			Attribute attr = (Attribute) attributes.next();
 			buffer.append(" ");

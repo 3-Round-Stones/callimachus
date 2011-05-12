@@ -19,6 +19,7 @@ package org.callimachusproject.stream;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -89,6 +90,14 @@ public class BufferedXMLEventReader implements XMLEventReader {
 		if (position>=0 && position<buffer.size()) 
 			return buffer.get(position);
 		else return reader.peek();
+	}
+	
+	protected final XMLEvent peek(int lookAhead) throws XMLStreamException {
+		while (buffer.size()<=lookAhead+position) {
+			buffer.add(reader.nextEvent());
+		}
+		if (buffer.size()==lookAhead+position) return reader.peek();
+		return buffer.get(lookAhead+position);
 	}
 
 	public XMLEvent nextEvent() throws XMLStreamException {

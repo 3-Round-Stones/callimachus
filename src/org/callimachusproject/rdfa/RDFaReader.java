@@ -595,7 +595,8 @@ public class RDFaReader extends RDFEventReader {
 		}
 
 		private Node uriOrSafeCURIE(String value) throws RDFParseException {
-			if (value == null)
+			// braces are not safe characters in URIs and are used to define template expressions
+			if (value == null || value.indexOf('{')>=0 )
 				return null;
 			if (!value.startsWith("[")) {
 				Reference r = tf.reference(resolve(value), value);

@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -32,12 +34,14 @@ import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResult;
@@ -50,6 +54,9 @@ import org.openrdf.query.TupleQueryResult;
 
 public class RDFaProducer extends XMLEventReaderBase {
 	
+	final static String[] RDFA_OBJECT_ATTRIBUTES = { "about", "resource", "typeof" };
+	final static List<String> RDFA_OBJECTS = Arrays.asList(RDFA_OBJECT_ATTRIBUTES);
+
 	final String[] RDFA_VAR_ATTRIBUTES = { "about", "resource", "href", "src", "typeof" };
 	List<String> RDFaVarAttributes = Arrays.asList(RDFA_VAR_ATTRIBUTES);
 
@@ -61,6 +68,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	Set<String> branches;
 	Stack<Context> stack = new Stack<Context>();
 	XMLEventFactory eventFactory = XMLEventFactory.newFactory();
+	ValueFactory valueFactory = new ValueFactoryImpl();
 	Context context = new Context();
 	String skipElement = null;
 	URI self;
@@ -70,7 +78,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		Map<String,Value> assignments = new HashMap<String,Value>();
 		String path;
 		Value content;
-		boolean isBranch=false, hasBody=false;
+		boolean isBranch=false;
 		protected Context() {}
 		protected Context(Context context) {
 			assignments.putAll(context.assignments);
@@ -91,8 +99,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			String origin = origins.get(name);
 			//System.out.println(name+" "+origin);
 			int n = origin.indexOf("/");
-			if (n>0) origin = origin.substring(n);
-			branches.add(origin);
+			branches.add(origin.substring(n<0?0:n));
 		}
 	}
 
@@ -146,7 +153,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		else if (event.isStartElement()) {
 			StartElement start = event.asStartElement();
-			context.hasBody = true;
 			stack.push(context);
 			context = new Context(context);
 			context.path = path();
@@ -172,7 +178,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 						skipElement = context.path;
 					else addStartElement(start);
 				}
-				else add(start);
+				// even if this is not a branch-point it may still contain substitutable attributes
+				else addStartElement(start);
 			}			
 			return skipElement==null;
 		}
@@ -183,11 +190,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 				context.position++;
 				return false;
 			}
-			if (!context.hasBody && context.content!=null)
-				add(eventFactory.createCharacters(context.content.stringValue()));
-
 			add(event);
-
 			if (context.isBranch && result!=null) {
 				if (!moreBindings()) result = nextResult();
 
@@ -210,8 +213,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 			if (event.toString().trim().equals(""))
 				return false;
 			if (skipElement!=null) return false;
-			add(event);
-			context.hasBody=true;
+			String text = substitute(event.toString());
+			if (text!=null) add(eventFactory.createCharacters(text));
+			else add(event);
 			return true;
 		}
 		else if (event.getEventType()==XMLEvent.COMMENT) {
@@ -221,7 +225,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		else if (skipElement==null) {
 			add(event);
-			context.hasBody=true;
 			return true;
 		}
 		return false;
@@ -263,11 +266,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		for (String name: result.getBindingNames()) {
 			String origin = origins.get(name);
 			int n = origin.indexOf("/");
-			if (n<0) n=0;
 			// a longer path completes the triple
-			if (origin.substring(n).startsWith(context.path+"/")) 
+			if (origin.substring(n<0?0:n).startsWith(context.path+"/")) 
 				return false;
-
 		}
 		return true;
 	}
@@ -278,7 +279,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 			Attribute attr = (Attribute) i.next();
 			if (RDFaVarAttributes.contains(attr.getName().getLocalPart()) 
 			&& attr.getName().getNamespaceURI().isEmpty()
-			&& attr.getValue().startsWith("?")) return true;
+			&& attr.getValue().startsWith("?")) 
+				return true;
 		}
 		return false;
 	}
@@ -306,18 +308,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 				if (context.assignments.get(name)==null) return false;
 			}
 		}
-//		for (Iterator<?> i = start.getAttributes(); i.hasNext();) {
-//			Attribute attr = (Attribute) i.next();
-//			String lname = attr.getName().getLocalPart();
-//			// check this is an RDFa attribute about, resource, href, src, etc
-//			if (RDFaVarAttributes.contains(lname) 
-//			&& attr.getName().getNamespaceURI().isEmpty()
-//			&& attr.getValue().startsWith("?")) {
-//				String name = attr.getValue().substring(1);				
-//				// name must be bound
-//				if (context.assignments.get(name)==null) return false;
-//			}
-//		}
 		return true;
 	}
 
@@ -333,9 +323,63 @@ public class RDFaProducer extends XMLEventReaderBase {
 		return true;
 	}
 
+	/* An attribute is substitutable if it is an RDFa assignable attribute: "about", "resource", "typeof"
+	 * or if it is the subject or object of a triple (e.g. "href", "src"), with a variable value "?VAR".
+	 * ANY other attribute value with the variable expression syntax {?VAR} is substitutable.
+	 * RDFa @content to be added later.
+	 * Returns the variable name or null. 
+	 */
+	
+	Value substitute(Attribute attr, String path) {
+		String namespace = attr.getName().getNamespaceURI();
+		String localPart = attr.getName().getLocalPart();
+		String value = attr.getValue();
+		// primary RDFa object attribute, excluding 'content' and 'property'
+		if (namespace.isEmpty() && RDFA_OBJECTS.contains(localPart)) {
+			if (value.startsWith("?")) {
+				String var = value.substring(1);
+				return context.assignments.get(var);
+			}
+			else return null;
+		}
+		// enumerate variables in triples with ?VAR syntax
+		for (String name: resultSet.getBindingNames()) {
+			String origin = origins.get(name);
+			int n = origin.indexOf("/");
+			if (origin.substring(n<0?0:n).equals(path) && value.startsWith("?")) {
+				String var = value.substring(1);
+				return context.assignments.get(var);
+			}
+		}
+		// look for variable expressions in the attribute value
+		value = substitute(value);
+		return value!=null?valueFactory.createLiteral(value):null;
+	}
+	
+	/* Substitute variable expressions in attributes and text nodes */
+	
+	private static final String VAR_EXP_REGEX = "\\{\\?([a-zA-Z]\\w*)\\}";
+	private static final Pattern VAR_EXP_PATTERN = Pattern.compile(VAR_EXP_REGEX);
+		
+	String substitute(String text) {
+		// look for variable expressions in the attribute value
+		Matcher m = VAR_EXP_PATTERN.matcher(text);
+		boolean found = false;
+		while (m.find()) {
+			String var = m.group(1);
+			String val = context.assignments.get(var).stringValue();
+			text = text.replace(m.group(), val);
+			found = true;
+		}
+		return found?text:null;		
+	}
+	
+	/* Use result bindings to make assignments in this context */
+
 	private Value assign(StartElement start) {
 		if (result==null) return null;
 		Value content = null;
+		// identify implicit variables for this element, not found among the attributes
 		for (Iterator<Binding> i=result.iterator(); i.hasNext();) {
 			Binding b = i.next();
 			String origin = origins.get(b.getName());
@@ -343,102 +387,153 @@ public class RDFaProducer extends XMLEventReaderBase {
 			if (origin.substring(n<0?0:n).equals(context.path)) {
 				if (origin.equals("CONTENT"+context.path))
 					content = b.getValue();
-
 				if (b.getName().startsWith("_")) 
 					context.assignments.put(b.getName(), b.getValue());
 			}
 		}
+		// identify attributes that MAY contain RDFa variables,
+		// if they contain a bound variable, add the assignment
 		for (Iterator<?> i = start.getAttributes(); i.hasNext();) {
 			Attribute attr = (Attribute) i.next();
-			if (RDFaVarAttributes.contains(attr.getName().getLocalPart()) 
+			if (RDFaVarAttributes.contains(attr.getName().getLocalPart())
 			&& attr.getName().getNamespaceURI().isEmpty()
 			&& attr.getValue().startsWith("?")) {
 				String name = attr.getValue().substring(1);
 				Value v = result.getValue(name);
-				if (v!=null)
-					context.assignments.put(name, v);				
+				if (v!=null) context.assignments.put(name, v);
 			}
 		}
 		return content;
 	}
-		
-	class XMLNamespaceContext implements NamespaceContext {
-		StartElement start;
-		public XMLNamespaceContext(StartElement start) {
-			this.start = start;
-		}
-		public String getNamespaceURI(String prefix) {
-			for (Iterator<?> i=start.getNamespaces(); i.hasNext();) {
-				Namespace ns=(Namespace) i.next();
-				if (ns.getPrefix().equals(prefix)) return ns.getNamespaceURI();
+	
+	// ^"[^\"]*"\^\^<(.*)>$
+	private static final String DATATYPE_REGEX = "^\"[^\\\"]*\"\\^\\^<(.*)>$";
+	private static final Pattern DATATYPE_REGEX_PATTERN = Pattern.compile(DATATYPE_REGEX);
+
+	private String getDatatype(Value content, NamespaceContext ctx) {
+		String datatype = null;
+		if (content!=null) {
+			// use a string that includes the datatype
+			Matcher m = DATATYPE_REGEX_PATTERN.matcher(content.toString());
+			if (m.matches()) {
+				datatype = m.group(1);
+				
+				// derive datatype curie
+				try {
+					URI uri = new URIImpl(datatype);
+					String ns = uri.getNamespace();
+					String prefix = ctx.getPrefix(ns);
+					// deal with problematic namespaces without trailing symbol
+					if (prefix==null && ns.endsWith("#")) 
+						prefix = ctx.getPrefix(ns.substring(0,ns.length()-1));
+					if (prefix!=null)
+						datatype = prefix+":"+uri.getLocalName();
+				}
+				catch (Exception e) {}
 			}
-			return null;
 		}
-		public String getPrefix(String arg0) {
-			return null;
-		}
-		public Iterator<?> getPrefixes(String arg0) {
-			return null;
-		}
+		return datatype;
 	}
+
 	
 	/* an iterator over attributes - substituting variable bindings 
-	 * Only add content if @content is present */
+	 * Only assigns content to @content if the attribute is present
+	 * May return more attributes than in the input, adding e.g. datatype and xml:lang
+	 */
 	
 	class AttributeIterator implements Iterator<Object> {
 		Iterator<?> attributes;
 		Value content;
+		String datatype = null;
+		String path;
 		Attribute nextAttribute;
-		public AttributeIterator(Iterator<?> attributes, Value content) {
+		boolean hasBody;
+		
+		public AttributeIterator
+		(Iterator<?> attributes, Value content, String path, boolean hasBody, NamespaceContext ctx) {
 			this.attributes = attributes;
 			this.content = content;
+			this.path = path;
+			this.hasBody = hasBody;
+			datatype = getDatatype(content,ctx);
 			while (nextAttribute==null && attributes.hasNext()) 
 			nextAttribute = more();
 		}
 		@Override
 		public boolean hasNext() {
-			//return attributes.hasNext();
 			return nextAttribute!=null;
 		}
 		@Override
-		public Object next() {			
-			Attribute attr = attributes.hasNext()?more():null;
-			while (attributes.hasNext() && attr==null)
-				attr = more();
-			
+		public Object next() {
 			Attribute a = nextAttribute;
-			nextAttribute = attr;
+			nextAttribute = more();
 			return a;
 		}
-		
 		private Attribute more() {
-			Attribute attr = (Attribute) attributes.next();
-			String value = attr.getValue();
-			if (RDFaVarAttributes.contains(attr.getName().getLocalPart()) 
-			&& attr.getName().getNamespaceURI().isEmpty() 
-			&& value.startsWith("?")) {
-				Value v = context.assignments.get(value.substring(1));
-				if (v!=null)
-					attr = eventFactory.createAttribute(attr.getName(), v.stringValue());
+			if (attributes.hasNext()) {
+				Attribute attr = (Attribute) attributes.next();
+				Value newValue = substituteValue(attr);
+				if (newValue!=null) 
+					return eventFactory.createAttribute(attr.getName(), newValue.stringValue());
+				else return attr;
 			}
-			else if (attr.getName().equals("content") && value.isEmpty()) {
-				attr = eventFactory.createAttribute("content", content.stringValue());	
+			// opportunity to add additional attributes
+			else if (hasBody && content!=null) {
+				// add @content if no existing @content and a non-empty element body
+				Attribute a = eventFactory.createAttribute("content", content.stringValue());				
+				// prevent adding content again
 				content = null;
+				return a;
 			}
-			return attr;			
+			else if (datatype!=null) {
+				Attribute a = eventFactory.createAttribute("datatype", datatype);
+				datatype = null;
+				return a;
+			}
+			return null;
+		}
+		/* If there is a content attribute there is no need to add text content */
+		private Value substituteValue(Attribute attr) {
+			String namespace = attr.getName().getNamespaceURI();
+			String localPart = attr.getName().getLocalPart();
+			String value = attr.getValue();
+			Value v = substitute(attr,context.path);
+			// content variables are currently represented as empty strings
+			if (v==null && localPart.equals("content") && namespace.isEmpty() && value.isEmpty()) {
+				// remove content from the context to prevent addition as text content
+				context.content = null;
+				return content;	
+			}
+			return v;
 		}
 		@Override
 		public void remove() {
 		}	
 	}
 	
-	private void addStartElement(StartElement start) {
+	/* Add the start element, and content if the next event is not end element */
+	
+	private void addStartElement(StartElement start) throws XMLStreamException {
 		QName name = start.getName();
-		Iterator<?> attributes = new AttributeIterator(start.getAttributes(), context.content);
+		// only add content if the body is empty or ignorable whitespace
+		boolean hasBody = false;
+		for (int i=0; !hasBody; i++) {
+			XMLEvent e = reader.peek(i);
+			if (e.isEndElement()) break;
+			if (e.isCharacters() && e.toString().trim().isEmpty()) continue;
+			hasBody = true;
+		}
+		
+		NamespaceContext ctx = start.getNamespaceContext();
+		Iterator<?> attributes = new AttributeIterator(start.getAttributes(), context.content, context.path, hasBody, ctx);
 		Iterator<?> namespaces = start.getNamespaces();
-		NamespaceContext context = new XMLNamespaceContext(start);
-		XMLEvent e = eventFactory.createStartElement(name.getPrefix(), name.getNamespaceURI(), name.getLocalPart(), attributes, namespaces, context);
+		XMLEvent e = eventFactory.createStartElement(name.getPrefix(), name.getNamespaceURI(), name.getLocalPart(), attributes, namespaces, ctx);
 		add(e);
+		
+		// The AttributeIterator (above) clears context.content if it adds the content attribute
+		if (!hasBody && context.content!=null)
+			add(eventFactory.createCharacters(context.content.stringValue()));
+
 	}
 
 }

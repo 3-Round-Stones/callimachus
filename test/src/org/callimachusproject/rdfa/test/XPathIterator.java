@@ -50,7 +50,7 @@ public class XPathIterator implements Iterator<Object> {
 	final String[] DISTINGUISHING_VALUE_ATTRIBUTES = { "id", "name", "class", "content", "for" };
 	List<String> distinguishingValueAttributes = Arrays.asList(DISTINGUISHING_VALUE_ATTRIBUTES);
 
-	final String[] DISTINGUISHING_URI_ATTRIBUTES = { "about", "resource", "href", "src" };
+	final String[] DISTINGUISHING_URI_ATTRIBUTES = { "about", "resource", "href", "src", "datatype" };
 	List<String> distinguishingURIAttributes = Arrays.asList(DISTINGUISHING_URI_ATTRIBUTES);
 
 	final String[] DISTINGUISHING_DATA_ATTRIBUTES = { "data-rel", "data-add", "data-search", "data-more", "data-options" };
@@ -98,6 +98,9 @@ public class XPathIterator implements Iterator<Object> {
 				java.net.URI relBase = new java.net.URI(base.substring(0,base.lastIndexOf('/')));
 				java.net.URI resBase = new java.net.URI(base);
 				String resolved = a.getValue();
+				// we may use the disguise href/src={URI} to prevent href and src generating undesired subjects
+				if (resolved.startsWith("{") && resolved.endsWith("}")) 
+					resolved = resolved.substring(1,resolved.length()-1);
 				try {
 					resolved = a.getValue().isEmpty()?base:resBase.resolve(a.getValue()).toString();
 				}
@@ -113,8 +116,13 @@ public class XPathIterator implements Iterator<Object> {
 				// legacy RDFa generation removes about="?this" where there are no solutions
 				// in future retain @about with document URI (ending with .xhtml)
 				// don't report missing @about as an error
-				if (!resolved.endsWith(".xhtml"))
-					path += "[@"+a.getName()+"='"+resolved+"' or @"+a.getName()+"='"+relative+"']";
+				if (!resolved.endsWith(".xhtml")) {
+					path += "[@"+a.getName()+"='"+resolved+"'";
+					// add possible {...} to match disguised URIs in target
+					if (a.getName().equals("href") || a.getName().equals("src")) 
+						path += " or @"+a.getName()+"='{"+resolved+"}'";
+					path += " or @"+a.getName()+"='"+relative+"']";
+				}
 			}
 			else if (useDataAttributes && distinguishingDataAttributes.contains(a.getName())) {
 				path += "[@"+a.getName()+"='"+a.getValue()+"']";

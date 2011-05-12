@@ -4,13 +4,9 @@
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title>Test problematic-condition (condition is moved to the top of the triple-block in the SPARQL)</title>
+		<title>Test text-exp</title>
 	</head>
-	<body about="?this">
-		<span property="rdfs:comment" />
-		<a href="?this">
-			<span property="rdfs:label"/>
-		</a>
-		<span property="rdf:value" content="true" />
+	<body about="?this" rel="skos:hasTopConcept" resource="?concept">
+		<a href="?view">{?concept}</a>
 	</body>
 </html>

@@ -200,5 +200,11 @@ public class TestUtility {
 		}
 		out.write('\n');
 	}
+		
+	public static Document transform(XMLEventReader xml, Transformer transformer) throws Exception {
+		Document doc = documentBuilderFactory.newDocumentBuilder().newDocument();
+		transformer.transform(new StAXSource(xml), new DOMResult(doc));
+		return doc;
+	}
 	
 }

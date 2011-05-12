@@ -34,6 +34,7 @@ import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -45,6 +46,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.repository.RepositoryConnection;
 
 /**
  * Produce XHTML+RDFa events from a streamed template and SPARQL result set 
@@ -54,10 +56,10 @@ import org.openrdf.query.TupleQueryResult;
 
 public class RDFaProducer extends XMLEventReaderBase {
 	
-	final static String[] RDFA_OBJECT_ATTRIBUTES = { "about", "resource", "typeof" };
+	final static String[] RDFA_OBJECT_ATTRIBUTES = { "about", "resource", "typeof", "content" };
 	final static List<String> RDFA_OBJECTS = Arrays.asList(RDFA_OBJECT_ATTRIBUTES);
 
-	final String[] RDFA_VAR_ATTRIBUTES = { "about", "resource", "href", "src", "typeof" };
+	final String[] RDFA_VAR_ATTRIBUTES = { "about", "resource", "href", "src", "typeof", "content" };
 	List<String> RDFaVarAttributes = Arrays.asList(RDFA_VAR_ATTRIBUTES);
 
 	// reads the input template
@@ -72,6 +74,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	Context context = new Context();
 	String skipElement = null;
 	URI self;
+	RepositoryConnection con;
 	
 	class Context {
 		int position=1, mark;
@@ -85,7 +88,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 	}
 	
-	public RDFaProducer(BufferedXMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self) 
+	/* @Param con	required to resolve (datatype) namespace prefixes */
+	
+	public RDFaProducer(BufferedXMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self, RepositoryConnection con) 
 	throws Exception {
 		super();
 		this.reader = reader;
@@ -93,6 +98,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		this.resultSet = resultSet;
 		result = nextResult();
 		this.self = self;
+		this.con = con;
 		
 		branches = new HashSet<String>();
 		for (String name: resultSet.getBindingNames()) {
@@ -103,9 +109,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 	}
 
-	public RDFaProducer(XMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self) 
+	public RDFaProducer(XMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self, RepositoryConnection con) 
 	throws Exception {
-		this(new BufferedXMLEventReader(reader), resultSet, origins, self);
+		this(new BufferedXMLEventReader(reader), resultSet, origins, self, con);
 		this.reader.mark();
 	}
 
@@ -262,6 +268,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		
 //		if (!hasProperty || result==null) return false;
 //		if (!(hasProperty || hasSubject) || result==null) return true;
+		
 		// look for binding that explicitly completes the triple
 		for (String name: result.getBindingNames()) {
 			String origin = origins.get(name);
@@ -406,31 +413,62 @@ public class RDFaProducer extends XMLEventReaderBase {
 		return content;
 	}
 	
+	String getPrefix(String namespace, NamespaceContext ctx) {
+		if (namespace==null) return null;
+		String prefix = ctx.getPrefix(namespace);
+		// deal with problematic namespaces without trailing symbol
+		if (prefix==null && namespace.endsWith("#")) 
+			prefix = ctx.getPrefix(namespace.substring(0,namespace.length()-1));
+		return prefix;
+	}
+	
+	String getPrefix(String namespace, RepositoryConnection con) {
+		if (namespace==null) return null;
+		String prefix = null;
+		try {
+			List<org.openrdf.model.Namespace> l = con.getNamespaces().asList();
+			for (int i=0; i<l.size(); i++) {
+				if (namespace.equals(l.get(i).getName())) {
+					prefix = l.get(i).getPrefix();
+					break;
+				}
+				if (namespace.endsWith("#") 
+				&& l.get(i).getName().equals(namespace.substring(0, namespace.length()-1))) {
+					prefix = l.get(i).getPrefix();
+					break;					
+				}
+			}
+		} 
+		catch (Exception e) {}
+		return prefix;
+	}
+		
 	// ^"[^\"]*"\^\^<(.*)>$
 	private static final String DATATYPE_REGEX = "^\"[^\\\"]*\"\\^\\^<(.*)>$";
 	private static final Pattern DATATYPE_REGEX_PATTERN = Pattern.compile(DATATYPE_REGEX);
-
-	private String getDatatype(Value content, NamespaceContext ctx) {
-		String datatype = null;
+	
+	private String getDatatype(Value content) {
 		if (content!=null) {
-			// use a string that includes the datatype
+			// use toString() that includes the datatype
 			Matcher m = DATATYPE_REGEX_PATTERN.matcher(content.toString());
-			if (m.matches()) {
-				datatype = m.group(1);
-				
-				// derive datatype curie
-				try {
-					URI uri = new URIImpl(datatype);
-					String ns = uri.getNamespace();
-					String prefix = ctx.getPrefix(ns);
-					// deal with problematic namespaces without trailing symbol
-					if (prefix==null && ns.endsWith("#")) 
-						prefix = ctx.getPrefix(ns.substring(0,ns.length()-1));
-					if (prefix!=null)
-						datatype = prefix+":"+uri.getLocalName();
-				}
-				catch (Exception e) {}
+			if (m.matches()) return m.group(1);
+		}
+		return null;
+	}
+
+	private String getDatatypeCurie(Value content, NamespaceContext ctx) {
+		String namespaceURI = getDatatype(content);
+		String datatype = null;
+		if (namespaceURI!=null) {
+			// convert datatype URI into a curie
+			try {
+				URI uri = new URIImpl(namespaceURI);
+				String prefix = getPrefix(uri.getNamespace(), ctx);
+				// otherwise use the repository connection to resolve the prefix
+				if (prefix==null) prefix = getPrefix(uri.getNamespace(), con);
+				datatype = prefix+":"+uri.getLocalName();
 			}
+			catch (Exception e) {}
 		}
 		return datatype;
 	}
@@ -455,7 +493,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			this.content = content;
 			this.path = path;
 			this.hasBody = hasBody;
-			datatype = getDatatype(content,ctx);
+			datatype = getDatatypeCurie(content,ctx);
 			while (nextAttribute==null && attributes.hasNext()) 
 			nextAttribute = more();
 		}
@@ -511,6 +549,47 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}	
 	}
 	
+	/* NamespaceIterator is able to add additional namespace declaration for content */
+	
+	class NamespaceIterator implements Iterator<Namespace> {
+		Iterator<?> namespaces;
+		String namespaceURI, prefix;
+		Namespace nextNamespace;
+		public NamespaceIterator(Iterator<?> namespaces, Value content, NamespaceContext ctx) {
+			this.namespaces = namespaces;
+			String datatype = getDatatype(content);
+			if (datatype!=null) {
+				namespaceURI = new URIImpl(datatype).getNamespace();
+				String p = getPrefix(namespaceURI,ctx);
+				// if the namespace is already defined clear it
+				if (p!=null) namespaceURI = null;
+				else prefix = getPrefix(namespaceURI,con);
+			}
+			nextNamespace = more();
+		}
+		public boolean hasNext() {
+			return nextNamespace!=null;
+		}
+		public Namespace next() {
+			Namespace ns = nextNamespace;
+			nextNamespace = more();
+			return ns;
+		}
+		private Namespace more() {
+			if (namespaces.hasNext()) return (Namespace) namespaces.next();
+			// if there is an undefined (null) prefix add xmlns:null
+			if (namespaceURI!=null) {
+				String ns = namespaceURI;
+				// prevent adding this again
+				namespaceURI = null;
+				return eventFactory.createNamespace(prefix!=null?prefix:"null", ns);
+			}
+			return null;
+		}
+		public void remove() {
+		}		
+	}
+	
 	/* Add the start element, and content if the next event is not end element */
 	
 	private void addStartElement(StartElement start) throws XMLStreamException {
@@ -523,17 +602,16 @@ public class RDFaProducer extends XMLEventReaderBase {
 			if (e.isCharacters() && e.toString().trim().isEmpty()) continue;
 			hasBody = true;
 		}
-		
 		NamespaceContext ctx = start.getNamespaceContext();
+		Iterator<?> namespaces = new NamespaceIterator(start.getNamespaces(), context.content, ctx);
+		// AttributeIterator may clear context.content on construction so do this last
 		Iterator<?> attributes = new AttributeIterator(start.getAttributes(), context.content, context.path, hasBody, ctx);
-		Iterator<?> namespaces = start.getNamespaces();
 		XMLEvent e = eventFactory.createStartElement(name.getPrefix(), name.getNamespaceURI(), name.getLocalPart(), attributes, namespaces, ctx);
 		add(e);
 		
 		// The AttributeIterator (above) clears context.content if it adds the content attribute
 		if (!hasBody && context.content!=null)
 			add(eventFactory.createCharacters(context.content.stringValue()));
-
 	}
 
 }

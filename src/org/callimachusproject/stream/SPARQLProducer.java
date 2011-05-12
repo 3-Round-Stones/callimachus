@@ -36,7 +36,9 @@ import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.events.Union;
 import org.callimachusproject.rdfa.events.Where;
 import org.callimachusproject.rdfa.model.IRI;
+import org.callimachusproject.rdfa.model.PlainLiteral;
 import org.callimachusproject.rdfa.model.TermFactory;
+import org.callimachusproject.rdfa.model.VarOrIRI;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
@@ -277,7 +279,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			context = context.close();
 		}
 	}
-	
+
 	private void addBase() throws RDFParseException {
 		int lookAhead=0;
 		RDFEvent e;
@@ -313,7 +315,8 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	}
 	
 	private boolean isOptionalTriple(Triple triple) throws RDFParseException {
-		return getVarOrTerm(triple.getPartner(),null).isVar() ;
+		// This may be an object variable
+		return getVarOrTerm(triple.getPartner(),null).isVar();
 	}
 
 	private Context addMandatoryTriples(Context context) throws RDFParseException {
@@ -461,8 +464,18 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			if (label!=null) origins.put(name,term.getOrigin());
 			return new BlankOrLiteralVar(name);
 		}
-		if (term.isLiteral())
-			return term;
+		// a non-empty literal may represent a literal variable
+		if (term.isLiteral()) {
+			if (term.stringValue().startsWith("?")) {
+				String name = term.stringValue().substring(1);
+				VarOrTerm v = tf.var(name);
+				v.setOrigin(term.getOrigin());
+				origins.put(name,term.getOrigin());
+				return v;
+			}
+			else return term;
+		}
+		
 		if (!term.isIRI()) {
 			String name = "_" + mapVar(term.stringValue(),label);
 			if (label!=null) origins.put(name,term.getOrigin());

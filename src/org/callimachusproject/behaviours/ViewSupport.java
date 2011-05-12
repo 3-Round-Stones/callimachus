@@ -121,7 +121,7 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 
 			// Populate the template from the result set
 			template.reset(bufferStart);
-			XMLEventReader xrdfa = new RDFaProducer(template, results, sparql.getOrigins(), uriValue);
+			XMLEventReader xrdfa = new RDFaProducer(template, results, sparql.getOrigins(), uriValue, con);
 			return toInputStream(xrdfa);
 		}
 		else {

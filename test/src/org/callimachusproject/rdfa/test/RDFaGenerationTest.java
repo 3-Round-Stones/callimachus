@@ -440,6 +440,9 @@ public class RDFaGenerationTest {
 		con.clear();
 		con.clearNamespaces();
 		
+		// used in tests of undefined namespaces
+		con.setNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
+		
 		// use the target filename as the base URL if not 'legacy', 'construct' or 'fragment' (all construct queries) ;
 		if (!test_set.contains("data") && !test_set.contains("construct") && !test_set.contains("fragment")) 
 			base = DATA_ATTRIBUTE_TEST_BASE;
@@ -659,7 +662,7 @@ public class RDFaGenerationTest {
 			q.setBinding("this", self);
 			TupleQueryResult results = q.evaluate();
 			xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
-			XMLEventReader xrdfa = new RDFaProducer(xml, results, sparql.getOrigins(),self);
+			XMLEventReader xrdfa = new RDFaProducer(xml, results, sparql.getOrigins(),self,con);
 
 			Document outputDoc = asDocument(xrdfa);
 			boolean ok = equivalent(outputDoc,readDocument(target),base);
@@ -717,7 +720,7 @@ public class RDFaGenerationTest {
 		TupleQueryResult results = q.evaluate();
 
 		buffer.reset(start);
-		XMLEventReader xrdfa = new RDFaProducer(buffer, results, sparql.getOrigins(),self);
+		XMLEventReader xrdfa = new RDFaProducer(buffer, results, sparql.getOrigins(),self, con);
 		Document outputDoc = asDocument(xrdfa);
 		boolean ok = equivalent(outputDoc,readDocument(target),base);
 		if (!ok || verbose) {

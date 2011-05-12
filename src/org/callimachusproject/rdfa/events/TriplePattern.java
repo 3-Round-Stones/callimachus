@@ -38,7 +38,8 @@ public class TriplePattern extends RDFEvent {
 
 	public TriplePattern(VarOrTerm subject, VarOrIRI predicate,
 			VarOrTerm object, boolean inverse) {
-		this.subject = subject;
+		
+		this.subject = subject;	
 		this.predicate = predicate;
 		this.object = object;
 		this.inverse = inverse;

@@ -396,6 +396,23 @@ jQuery(function($){
 			return ret;
 		};
 
+		var innerContainer = wym.container;
+		wym.container = function(sType) {
+			if (sType && sType.indexOf('.') >= 0) {
+				if (sType.indexOf('.') > 0) {
+					innerContainer.call(this, sType.substring(0, sType.indexOf('.')));
+				}
+				var container = $(innerContainer.call(this));
+				var css = sType.split('.');
+				for (var i = 1; i < css.length; i++) {
+					sType = container.toggleClass(css[i]);
+				}
+				return innerContainer.call(this);
+			} else {
+				return innerContainer.call(this, sType);
+			}
+		};
+
 		var previously = wym.exec;
 		var dialog_input = outter($('.wym_dialog_input'));
 		var dialog_select = outter($('.wym_dialog_select'));

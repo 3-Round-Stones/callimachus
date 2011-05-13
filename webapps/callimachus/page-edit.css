@@ -76,18 +76,18 @@
         .wym_buttons li.wym_tools_paste a         { background-position: 0 -552px;}
         .wym_buttons li.wym_tools_html a          { background-position: 0 -193px;}
         .wym_buttons li.wym_tools_preview a       { background-position: 0 -408px;}
-        .wym_buttons li.wym_tools_vbox a          { background-image: url(/callimachus/images/vbox.png);}
-        .wym_buttons li.wym_tools_hbox a          { background-image: url(/callimachus/images/hbox.png);}
-        .wym_buttons li.wym_tools_form a          { background-image: url(/callimachus/images/form.png);}
-        .wym_buttons li.wym_tools_input a         { background-image: url(/callimachus/images/inputbox.png);}
-        .wym_buttons li.wym_tools_textarea a      { background-image: url(/callimachus/images/textbox.png);}
-        .wym_buttons li.wym_tools_dropdown a      { background-image: url(/callimachus/images/dropdown.png);}
-        .wym_buttons li.wym_tools_select a        { background-image: url(/callimachus/images/select.png);}
-        .wym_buttons li.wym_tools_checkbox a      { background-image: url(/callimachus/images/checkbox.png);}
-        .wym_buttons li.wym_tools_radio a         { background-image: url(/callimachus/images/radio.png);}
-        .wym_buttons li.wym_tools_drop a          { background-image: url(/callimachus/images/drop.png);}
-        .wym_buttons li.wym_tools_rel a           { background-image: url(/callimachus/images/rel.png);}
-        .wym_buttons li.wym_tools_about a         { background-image: url(/callimachus/images/typeof.png);}
+        .wym_buttons li.wym_tools_vbox a          { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px 0px; }
+        .wym_buttons li.wym_tools_hbox a          { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -24px; }
+        .wym_buttons li.wym_tools_form a          { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -48px; }
+        .wym_buttons li.wym_tools_input a         { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -72px; }
+        .wym_buttons li.wym_tools_textarea a      { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -96px; }
+        .wym_buttons li.wym_tools_radio a         { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -120px; }
+        .wym_buttons li.wym_tools_checkbox a      { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -144px; }
+        .wym_buttons li.wym_tools_dropdown a      { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -168px; }
+        .wym_buttons li.wym_tools_select a        { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -192px; }
+        .wym_buttons li.wym_tools_drop a          { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -216px; }
+        .wym_buttons li.wym_tools_about a         { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -240px; }
+        .wym_buttons li.wym_tools_rel a           { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -264px; }
 
 /*DECORATION*/
         .wym_section h2             { background: #ddd; border: solid gray; border-width: 0 0 1px;}

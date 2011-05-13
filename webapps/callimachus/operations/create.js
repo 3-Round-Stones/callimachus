@@ -54,7 +54,7 @@ function initForms() {
 					location.replace(event.location);
 				}
 			} else {
-				form.trigger("calliError", redirect);
+				form.trigger("calliError", $(this.contentWindow.document).find('h1').html(), $(this.contentWindow.document).find('pre').html());
 			}
 		});
 	});

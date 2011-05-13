@@ -177,6 +177,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		transform = transform.with("this", uri.toASCIIString());
 		transform = transform.with("xslt", xsl);
 		transform = transform.with("query", query);
+		transform = transform.with("template", true);
 		return transform.asXMLEventReader();
 	}
 

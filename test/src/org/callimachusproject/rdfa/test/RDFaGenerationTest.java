@@ -95,7 +95,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 /**
- * Dymnamic Test Suite for the generation of XHTML+RDFa pages from RDFa templates.
+ * Dynamic Test Suite for the generation of XHTML+RDFa pages from RDFa templates.
  * 
  * @author Steve Battle
  * 
@@ -259,7 +259,6 @@ public class RDFaGenerationTest {
 		}
 		return cases;
 	}
-
 	
 	static XMLEventReader applyDataAttributeXSLT(XMLEventReader xml, String _this) throws Exception {
 		Transformer transformer = transformerFactory.newTransformer(new StreamSource(DATA_ATTRIBUTE_TEST_XSLT));

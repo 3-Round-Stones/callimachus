@@ -212,7 +212,6 @@
 			<zipfileset file="${dist}/layout.war" prefix="webapps" />
 			<zipfileset file="${dist}/accounts.war" prefix="webapps" />
 			<zipfileset file="${webapps}/index.ttl" prefix="webapps" />
-			<zipfileset dir="${webapps}/page" prefix="webapps/page" />
 		</zip>
 	</target>
 

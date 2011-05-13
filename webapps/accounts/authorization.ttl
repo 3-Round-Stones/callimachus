@@ -168,6 +168,23 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 :AuthorizeTransactionView owl:equivalentClass :AuthorizeCredential;
 	msg:script <authorization.js#isViewingTransaction>.
 
+# transcations are authorized by the object they modified
+:AuthorizeTransaction owl:equivalentClass :AuthorizeCredential;
+	msg:sparql  """
+		ASK {
+			{
+				# they created this transaction
+				$object audit:contributor $credential
+			} UNION {
+				# they administer the user that did this
+				$object audit:contributor [calli:administrator $credential]
+			} UNION {
+				# they are part of a group that administers the user that did this
+				$object audit:contributor [calli:administrator [calli:member $credential]]
+			}
+		}
+	""".
+
 # called from authorization.js#isViewingTransaction
 :ListSubjectsOfTransaction rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];

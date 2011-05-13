@@ -25,17 +25,57 @@
 
 	<xsl:param name="this" />
 	<xsl:param name="query" select="''" />
-	<xsl:param name="element" select="'/1'" />
 
 	<xsl:output method="xml" />
 
-	<!--
-		<div rel="skos:hasTopConcept"> <div about="?concept"
-		typeof="skos:Concept"> <span property="skos:prefLabel"/> </div> </div>
-	-->
-	<xsl:template match="*[(@rel or @rev) and not(@resource or @href)]">
+	<xsl:template match="@*|comment()|text()">
+		<xsl:copy />
+	</xsl:template>
+
+	<xsl:template match="*">
 		<xsl:copy>
-			<xsl:if test="1=count(*/@about) and starts-with(*/@about, '?')">
+			<xsl:apply-templates select="@*|node()" />
+		</xsl:copy>
+	</xsl:template>
+
+	<xsl:template match="xhtml:form">
+		<xsl:apply-templates mode="form" select="." />
+	</xsl:template>
+
+	<xsl:template mode="form" match="@*|comment()|text()">
+		<xsl:copy />
+	</xsl:template>
+
+	<xsl:template mode="form" match="*">
+		<xsl:copy>
+			<xsl:apply-templates mode="data-var" select="@*"/>
+			<xsl:apply-templates mode="data-expression" select="@*"/>
+			<xsl:if test="text() and not(*|comment())">
+				<xsl:call-template name="data-text-expression">
+					<xsl:with-param name="text" select="string(.)"/>
+				</xsl:call-template>
+			</xsl:if>
+			<xsl:if test="1=count(*[@about or @typeof or @resource or @property])">
+				<!-- Called to insert another property value or node -->
+				<xsl:attribute name="data-more">
+					<xsl:value-of select="$this" />
+					<xsl:text>?template&amp;query=</xsl:text>
+					<xsl:value-of select="$query" />
+					<xsl:text>&amp;element=</xsl:text>
+					<xsl:apply-templates mode="xptr-element" select="*[@about or @typeof or @resource or @property]" />
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:if test="xhtml:option[@about or @resource] or xhtml:label[@about or @resource]">
+				<!-- Called to populate select/radio/checkbox -->
+				<xsl:attribute name="data-options">
+					<xsl:value-of select="$this" />
+					<xsl:text>?options&amp;query=</xsl:text>
+					<xsl:value-of select="$query" />
+					<xsl:text>&amp;element=</xsl:text>
+					<xsl:apply-templates mode="xptr-element" select="." />
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:if test="1=count(*[@about or @resource])">
 				<!-- Lookup possible members by label -->
 				<xsl:attribute name="data-search">
 					<xsl:value-of select="$this" />
@@ -45,69 +85,55 @@
 					<xsl:apply-templates mode="xptr-element" select="." />
 					<xsl:text>&amp;q={searchTerms}</xsl:text>
 				</xsl:attribute>
-				<!-- Called when a resource is added to build its label -->
+				<!-- Called when a resource URI is dropped to construct its label -->
 				<xsl:attribute name="data-add">
 					<xsl:value-of select="$this" />
 					<xsl:text>?construct&amp;query=</xsl:text>
 					<xsl:value-of select="$query" />
 					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select="*[@about]" />
+					<xsl:apply-templates mode="xptr-element" select="*[@about or @resource]" />
 					<xsl:text>&amp;about={about}</xsl:text>
 				</xsl:attribute>
 			</xsl:if>
-			<xsl:if test="1=count(*) and not(*[@about])">
-				<!-- Called to insert an inline blank node -->
-				<xsl:attribute name="data-more">
-					<xsl:value-of select="$this" />
-					<xsl:text>?template&amp;query=</xsl:text>
-					<xsl:value-of select="$query" />
-					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select="*" />
-				</xsl:attribute>
-			</xsl:if>
-			<xsl:apply-templates select="@*|node()"/>
+			<xsl:apply-templates mode="form" select="@*|node()"/>
 		</xsl:copy>
 	</xsl:template>
 
-	<!-- <div> <span property="rdfs:label"/> </div> -->
-	<xsl:template match="*">
-		<xsl:copy>
-			<xsl:if test="1=count(*/@property)">
-				<!-- Called to insert another property value -->
-				<xsl:attribute name="data-more">
-					<xsl:value-of select="$this" />
-					<xsl:text>?template&amp;query=</xsl:text>
-					<xsl:value-of select="$query" />
-					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select="*[@property]" />
-				</xsl:attribute>
-			</xsl:if>
-			<xsl:if test="1=count(*[@rel or @rev]) and *[(@rel or @rev) and starts-with(@resource,'?')]">
-				<xsl:attribute name="data-rel">
-					<xsl:value-of select="*/@rel"/>
-					<xsl:value-of select="*/@rev"/>
-				</xsl:attribute>
-				<!-- Called to populate a select/radio/checkbox -->
-				<xsl:attribute name="data-options">
-					<xsl:value-of select="$this" />
-					<xsl:text>?options&amp;query=</xsl:text>
-					<xsl:value-of select="$query" />
-					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select="." />
-				</xsl:attribute>
-			</xsl:if>
-			<xsl:apply-templates select="@*|node()"/>
-		</xsl:copy>
+	<!-- variable expressions -->
+	<xsl:template mode="data-var" match="@*">
+		<xsl:if test="starts-with(., '?')">
+			<xsl:attribute name="data-var-{name()}">
+				<xsl:value-of select="." />
+			</xsl:attribute>
+		</xsl:if>
 	</xsl:template>
-
-	<xsl:template match="@*|comment()|text()">
-		<xsl:copy />
+	<xsl:template mode="data-expression" match="@*">
+		<xsl:variable name="expression">
+			<xsl:value-of select="substring-before(substring-after(., '{'), '}')"/>
+		</xsl:variable>
+		<xsl:if test="string(.) = concat('{', $expression, '}')">
+			<xsl:attribute name="data-expression-{name()}">
+				<xsl:value-of select="$expression" />
+			</xsl:attribute>
+		</xsl:if>
+	</xsl:template>
+	<xsl:template name="data-text-expression">
+		<xsl:param name="text" />
+		<xsl:variable name="expression">
+			<xsl:value-of select="substring-before(substring-after($text, '{'), '}')"/>
+		</xsl:variable>
+		<xsl:if test="$text = concat('{', $expression, '}')">
+			<xsl:attribute name="data-text-expression">
+				<xsl:value-of select="$expression" />
+			</xsl:attribute>
+		</xsl:if>
 	</xsl:template>
 
 	<!-- xptr-element -->
 	<xsl:template mode="xptr-element" match="/*">
-		<xsl:value-of select="$element" />
+		<xsl:value-of select="'/1'" />
 	</xsl:template>
+
 	<xsl:template mode="xptr-element" match="*">
 		<xsl:apply-templates mode="xptr-element" select=".." />
 		<xsl:text>/</xsl:text>

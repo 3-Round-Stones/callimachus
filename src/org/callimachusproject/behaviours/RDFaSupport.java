@@ -99,7 +99,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		try {
 			XMLEventReader doc = applyXSLT(query);
 			if ("enabled".equals(TRIAL) && "view".equals(query)) {
-			doc = addDataAttributes(doc, query, element);
+			doc = addDataAttributes(doc, query);
 			}
 			if (element == null || element.equals("/1"))
 				return doc;
@@ -180,16 +180,14 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		return transform.asXMLEventReader();
 	}
 
-	private XMLEventReader addDataAttributes(XMLEventReader doc, String query,
-			String element) throws TransformerException, IOException,
-			XMLStreamException {
+	private XMLEventReader addDataAttributes(XMLEventReader doc, String query)
+			throws TransformerException, IOException, XMLStreamException {
 		java.net.URI uri = toUri();
 		String xsl = uri.resolve(DATA_ATTRIBUTES).toASCIIString();
 		XSLTransformer xslt = newXSLTransformer(xsl);
 		TransformBuilder transform = xslt.transform(doc, uri.toASCIIString());
 		transform = transform.with("this", uri.toASCIIString());
 		transform = transform.with("query", query);
-		transform = transform.with("element", element);
 		return transform.asXMLEventReader();
 	}
 	

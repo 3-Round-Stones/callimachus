@@ -38,6 +38,7 @@ import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.openrdf.http.object.exceptions.InternalServerError;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
@@ -129,9 +130,14 @@ public class RDFaProducer extends XMLEventReaderBase {
 			}
 			return false;
 		}
+		catch (RuntimeException e) {
+			throw e;
+		}
+		catch (Error e) {
+			throw e;
+		}
 		catch (Exception e) {
-			e.printStackTrace();
-			throw new XMLStreamException(e.getMessage());
+			throw new XMLStreamException(e);
 		}
 	}
 	
@@ -374,8 +380,13 @@ public class RDFaProducer extends XMLEventReaderBase {
 		boolean found = false;
 		while (m.find()) {
 			String var = m.group(1);
-			String val = context.assignments.get(var).stringValue();
-			text = text.replace(m.group(), val);
+			Value assignment = context.assignments.get(var);
+			if (assignment != null) {
+				String val = assignment.stringValue();
+				text = text.replace(m.group(), val);
+			} else {
+				throw new InternalServerError("Variable not bound: " + var);
+			}
 			found = true;
 		}
 		return found?text:null;		

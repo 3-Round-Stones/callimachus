@@ -1,9 +1,4 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
-<.> a calli:Alias;
-	calli:aliasOf </page/MainPage>.
-
-# /callimachus/Page makes this page editable
-</page/MainPage.xhtml> a </callimachus/Page>.
-
+<.> a calli:Alias; calli:aliasOf </page/MainPage>.
 

@@ -124,6 +124,7 @@
 	calli:domain </page/>.
 
 # PUT /page/MainPage.xhtml
+# Called by client, copy operation, create operation, and MainPage initialization
 :UploadPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];

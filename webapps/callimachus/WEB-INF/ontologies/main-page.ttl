@@ -1,0 +1,54 @@
+# 
+#    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
+#    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+:InitializeMainPage owl:equivalentClass calli:Started;
+	msg:imports calli:Page;
+	msg:script """
+		var pages = this.FindDefaultMainPage().iterator();
+		while (pages.hasNext()) {
+			var url = pages.next().toString();
+			var page = url.replace(/callimachus.MainPage.xhtml$/, 'page/MainPage.xhtml');
+			var created = this.objectConnection.getObject(page);
+			if (!(created instanceof Page)) {
+				var ptype = url.replace(/MainPage.xhtml$/, 'Page');
+				var pageClass = this.objectConnection.getObject(ptype);
+				created = this.objectConnection.addDesignation(created, ptype);
+				pageClass.PropagatePermissions(created);
+				this.objectConnection.commit();
+				java.lang.System.out.println("Uploading " + page);
+				created.UploadPage(new java.net.URL(url).openStream());
+			}
+		}
+	""".
+
+:FindDefaultMainPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue calli:boot];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Page];
+	msg:sparql """
+		SELECT ?main
+		WHERE {
+			?main a calli:Page; rdfs:label "MainPage".
+			FILTER (regex(str(?main), "^[a-z]+://[^/]+/callimachus/MainPage.xhtml$"))
+		}
+	""".

@@ -186,7 +186,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 					// if there are no solutions then skip this branch
 					// All variables must be bound and the triple must have an object
-					if (!grounded(start) || incomplete(start))
+					//if (!grounded(start) || incomplete(start))
+					if (!grounded(start))
 						skipElement = context.path;
 					else addStartElement(start);
 				}
@@ -311,7 +312,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	private boolean grounded(StartElement start) {
 		// all (implicit and explicit) variables with this element at their origin must be bound
-		// These origins are the first use of a variable - no need to check subsequent use in descendents
+		// These origins are the first use of a variable - no need to check subsequent use in descendants
 		// This avoids forced grounding of @href with relative URL "?..."
 		for (String name: resultSet.getBindingNames()) {
 			String origin = origins.get(name);
@@ -460,7 +461,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	private String getDatatype(Value content) {
 		if (content!=null) {
-			// use toString() that includes the datatype
+			// use toString() to include the datatype
 			Matcher m = DATATYPE_REGEX_PATTERN.matcher(content.toString());
 			if (m.matches()) return m.group(1);
 		}
@@ -483,7 +484,19 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		return datatype;
 	}
+	
+	// ^"[^\"]*"\@(.*)$
+	private static final String LANG_REGEX = "^\"[^\\\"]*\"\\@(.*)$";
+	private static final Pattern LANG_REGEX_PATTERN = Pattern.compile(LANG_REGEX);
 
+	private String getLang(Value content) {
+		if (content!=null) {
+			// use toString() to include lang
+			Matcher m = LANG_REGEX_PATTERN.matcher(content.toString());
+			if (m.matches()) return m.group(1);
+		}
+		return null;
+	}
 	
 	/* an iterator over attributes - substituting variable bindings 
 	 * Only assigns content to @content if the attribute is present
@@ -493,7 +506,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	class AttributeIterator implements Iterator<Object> {
 		Iterator<?> attributes;
 		Value content;
-		String datatype = null;
+		String datatype, lang;
 		String path;
 		Attribute nextAttribute;
 		boolean hasBody;
@@ -505,7 +518,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			this.path = path;
 			this.hasBody = hasBody;
 			datatype = getDatatypeCurie(content,ctx);
-			while (nextAttribute==null && attributes.hasNext()) 
+			lang = getLang(content);
 			nextAttribute = more();
 		}
 		@Override
@@ -518,25 +531,31 @@ public class RDFaProducer extends XMLEventReaderBase {
 			nextAttribute = more();
 			return a;
 		}
-		private Attribute more() {
+		private Attribute more() {			
 			if (attributes.hasNext()) {
 				Attribute attr = (Attribute) attributes.next();
+				String namespace = attr.getName().getNamespaceURI();
+				String localPart = attr.getName().getLocalPart();
+				
 				Value newValue = substituteValue(attr);
-				if (newValue!=null) 
+				if (newValue!=null) {
+					// clear content to prevent it being added as text
+					if (namespace.isEmpty() && localPart.equals("content")) 
+						context.content = null;
 					return eventFactory.createAttribute(attr.getName(), newValue.stringValue());
+				}
 				else return attr;
 			}
 			// opportunity to add additional attributes
-			else if (hasBody && content!=null) {
-				// add @content if no existing @content and a non-empty element body
-				Attribute a = eventFactory.createAttribute("content", content.stringValue());				
-				// prevent adding content again
-				content = null;
-				return a;
-			}
 			else if (datatype!=null) {
 				Attribute a = eventFactory.createAttribute("datatype", datatype);
 				datatype = null;
+				return a;
+			}
+			else if (lang!=null) {
+				QName q = new QName("http://www.w3.org/XML/1998/namespace","lang","xml");
+				Attribute a = eventFactory.createAttribute(q, lang);
+				lang = null;
 				return a;
 			}
 			return null;

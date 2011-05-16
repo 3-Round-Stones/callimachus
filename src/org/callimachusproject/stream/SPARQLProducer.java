@@ -37,6 +37,7 @@ import org.callimachusproject.rdfa.events.Union;
 import org.callimachusproject.rdfa.events.Where;
 import org.callimachusproject.rdfa.model.IRI;
 import org.callimachusproject.rdfa.model.PlainLiteral;
+import org.callimachusproject.rdfa.model.Term;
 import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.rdfa.model.VarOrIRI;
 import org.callimachusproject.rdfa.model.VarOrTerm;
@@ -177,6 +178,12 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			return stack.isEmpty()?null:stack.peek();
 		}
 	}
+	
+	String origin(VarOrTerm term) {
+		String origin = term.getOrigin();
+		int n = origin.indexOf('/');
+		return origin.substring(n<0?0:n);
+	}
 
 	public SPARQLProducer(RDFEventReader reader) {
 		super(reader);
@@ -212,7 +219,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			add(event);
 		}
 		else if (event.isStartSubject()) {
-			VarOrTerm subj = getVarOrTerm(event.asSubject().getSubject(),null);
+			VarOrTerm subj = getVarOrTerm(event.asSubject().getSubject(),null,true);
 			Context context = getContext();
 
 			// close any dangling UNION sub-clause if the subject isn't chained to the previous triple
@@ -233,13 +240,17 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 				context = new Context(CLAUSE.OPTIONAL).open();
 			
 			previousPattern = null;
+			
+			promotion();
 		} 
 		else if (event.isTriple()) {
 			Triple triple = event.asTriple();
+			if (promoted(triple)) return;
+			
 			IRI p = triple.getPredicate();
 			boolean rev = triple.isInverse();
-			VarOrTerm s = getVarOrTerm(triple.getSubject(),triple);
-			VarOrTerm o = getVarOrTerm(triple.getObject(),triple);
+			VarOrTerm s = getVarOrTerm(triple.getSubject(),triple,true);
+			VarOrTerm o = getVarOrTerm(triple.getObject(),triple,true);
 
 			boolean optional = isOptionalTriple(triple); 	
 			TriplePattern pattern = new TriplePattern(s, p, o, rev);
@@ -279,6 +290,46 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			context = context.close();
 		}
 	}
+	
+	/* Look for out of order literal properties in this subject context.
+	 * This can be produced by elements with @content and nested complex content
+	 * Only promote triples that originate before the first nested subject
+	 */
+	
+	private void promotion() throws RDFParseException {
+		int lookAhead=0, depth=0;
+		String x=null, y;
+		RDFEvent e;
+		do {
+			e = peek(lookAhead++);
+			if (e.isStartSubject()) {
+				depth++;
+				if (x==null)
+					x = origin(e.asSubject().getSubject());
+			}
+			else if (e.isEndSubject()) {
+				depth--;
+			}
+			else if (depth==0 && x!=null && e.isTriple()) {
+				Term obj = e.asTriple().getObject();
+				if (obj.isLiteral()) {
+					y = origin(obj);
+					if (x.startsWith(y))
+						// triple processing must not rely on lookahead
+						process(e);
+				}
+			}
+		} while (!e.isEndDocument() && depth>=0);
+	}
+	
+	/* literal triples that were brought forward are already mapped 
+	 * There can be only one content variable assigned to an element */
+	
+	private boolean promoted(Triple triple) {
+		Term obj = triple.getObject();
+		boolean b = obj.isLiteral() && origins.containsValue("CONTENT"+origin(obj));
+		return b;
+	}
 
 	private void addBase() throws RDFParseException {
 		int lookAhead=0;
@@ -316,7 +367,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	
 	private boolean isOptionalTriple(Triple triple) throws RDFParseException {
 		// This may be an object variable
-		return getVarOrTerm(triple.getPartner(),null).isVar();
+		return getVarOrTerm(triple.getPartner(),null,false).isVar();
 	}
 
 	private Context addMandatoryTriples(Context context) throws RDFParseException {
@@ -332,8 +383,8 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 				if (!isOptionalTriple(triple)) {
 					IRI p = triple.getPredicate();
 					boolean rev = triple.isInverse();
-					VarOrTerm s = getVarOrTerm(triple.getSubject(),triple);
-					VarOrTerm o = getVarOrTerm(triple.getObject(),triple);
+					VarOrTerm s = getVarOrTerm(triple.getSubject(),triple,true);
+					VarOrTerm o = getVarOrTerm(triple.getObject(),triple,true);
 					
 					if (context.union)
 						context = new Context(CLAUSE.GROUP).open();
@@ -429,7 +480,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		}
 	}
 	
-	protected VarOrTerm getVarOrTerm(VarOrTerm term, Triple triple) throws RDFParseException {
+	protected VarOrTerm getVarOrTerm(VarOrTerm term, Triple triple, boolean addOrigin) throws RDFParseException {
 		String label = null;
 		VarOrTerm opposite = null;
 		if (triple!=null) {
@@ -461,7 +512,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			return term;
 		if (term.isLiteral() && isEmpty(term.stringValue())) {
 			String name = "_"+mapSeq(label,true);
-			if (label!=null) origins.put(name,term.getOrigin());
+			if (label!=null && addOrigin) origins.put(name,term.getOrigin());
 			return new BlankOrLiteralVar(name);
 		}
 		// a non-empty literal may represent a literal variable
@@ -470,7 +521,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 				String name = term.stringValue().substring(1);
 				VarOrTerm v = tf.var(name);
 				v.setOrigin(term.getOrigin());
-				origins.put(name,term.getOrigin());
+				if (addOrigin) origins.put(name,term.getOrigin());
 				return v;
 			}
 			else return term;
@@ -478,7 +529,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		
 		if (!term.isIRI()) {
 			String name = "_" + mapVar(term.stringValue(),label);
-			if (label!=null) origins.put(name,term.getOrigin());
+			if (label!=null && addOrigin) origins.put(name,term.getOrigin());
 			return new BlankOrLiteralVar(name);
 		}
 		if (term.isCURIE())
@@ -490,7 +541,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		String name = var.substring(1);
 		if (!VAR_REGEX.matcher(name).matches())
 			throw new RDFParseException("Invalid Variable Name: " + name);
-		if (label!=null) origins.put(name,term.getOrigin());
+		if (label!=null && addOrigin) origins.put(name,term.getOrigin());
 		return tf.var(name);
 	}
 

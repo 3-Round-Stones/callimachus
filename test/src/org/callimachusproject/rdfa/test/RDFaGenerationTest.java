@@ -44,6 +44,8 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -636,6 +638,18 @@ public class RDFaGenerationTest {
 			fail();
 		}
 	}
+	
+	/* test Processing Instructions */	
+	void testPI(XMLEventReader xml) throws Exception {
+		while (xml.hasNext()) {
+			XMLEvent e = xml.nextEvent();
+			if (e.isProcessingInstruction()) {
+				if (e.toString().contains("repository clear")) {
+					con.clear();
+				}
+			}
+		}
+	}
 
 	/* Produce SPARQL from the RDFa template using SPARQLProducer.
 	 * Generate XHTML+RDFa using RDFaProducer.
@@ -651,7 +665,12 @@ public class RDFaGenerationTest {
 				write(readDocument(template),System.out);
 			}
 			// produce SPARQL from the RDFa template
-			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
+			XMLEventReader src = xmlInputFactory.createXMLEventReader(new FileReader(template));
+			BufferedXMLEventReader xml = new BufferedXMLEventReader(src);
+			int start = xml.mark();
+			testPI(xml);
+			xml.reset(start);
+			//XMLEventReader xml = xmlInputFactory.createXMLEventReader(src); 
 			RDFEventReader rdfa = new RDFaReader(base, xml, null);			
 			SPARQLProducer sparql = new SPARQLProducer(rdfa,SPARQLProducer.QUERY.SELECT);
 			String query = toSPARQL(sparql);			
@@ -660,7 +679,8 @@ public class RDFaGenerationTest {
 			URI self = vf.createURI(base);
 			q.setBinding("this", self);
 			TupleQueryResult results = q.evaluate();
-			xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
+			xml.reset(start);
+			//xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
 			XMLEventReader xrdfa = new RDFaProducer(xml, results, sparql.getOrigins(),self,con);
 
 			Document outputDoc = asDocument(xrdfa);

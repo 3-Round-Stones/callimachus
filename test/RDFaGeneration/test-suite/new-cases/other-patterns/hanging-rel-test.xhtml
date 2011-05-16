@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?repository clear?>
 <html version="XHTML+RDFa 1.1" xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title>Test detached</title>
+		<title>Test hanging-rel</title>
 	</head>
 	<body about="?this">
-		<div about="?concept" typeof="skos:Concept" property="skos:prefLabel" />
-		<span property="rdfs:comment" />
+		<div rel="skos:hasTopConcept" >
+			<a about="?concept" property="skos:prefLabel" />
+		</div>	
 	</body>
 </html>

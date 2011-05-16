@@ -382,9 +382,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 				String val = assignment.stringValue();
 				text = text.replace(m.group(), val);
 			} else {
-				// if unbound allow {} to disable use of attribute as var and treat as string (e.g. for relative URIs )
-				text = text.replace(m.group(), "?"+var);
-				//throw new InternalServerError("Variable not bound: " + var);
+				throw new InternalServerError("Variable not bound: " + var);
 			}
 			found = true;
 		}

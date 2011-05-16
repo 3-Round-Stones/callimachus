@@ -149,7 +149,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	public String path() {
 		StringBuffer b = new StringBuffer();
-		for(Iterator<Context> i=stack.iterator(); i.hasNext();) {
+		for (Iterator<Context> i=stack.iterator(); i.hasNext();) {
 			Context c = i.next();
 			b.append("/"+c.position);
 		}
@@ -158,9 +158,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	private boolean process(XMLEvent event) throws Exception {
 		if (event.isStartDocument()) {
-			if (self!=null) {
+			if (self!=null)
 				context.assignments.put("this", self);
-			}
 			add(event);
 		}
 		else if (event.isStartElement()) {
@@ -185,8 +184,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 					if (!moreBindings()) result = nextResult();
 	
 					// if there are no solutions then skip this branch
-					// All variables must be bound and the triple must have an object
-					//if (!grounded(start) || incomplete(start))
+					// All variables must be bound
 					if (!grounded(start))
 						skipElement = context.path;
 					else addStartElement(start);
@@ -360,10 +358,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		for (String name: resultSet.getBindingNames()) {
 			String origin = origins.get(name);
 			int n = origin.indexOf("/");
-			if (origin.substring(n<0?0:n).equals(path) && value.startsWith("?")) {
-				String var = value.substring(1);
-				return context.assignments.get(var);
-			}
+			if (origin.substring(n<0?0:n).equals(path) && value.startsWith("?"))
+				return context.assignments.get(name);
 		}
 		// look for variable expressions in the attribute value
 		value = substitute(value);

@@ -450,8 +450,10 @@ public class RDFaGenerationTest {
 		else base = target.toURI().toURL().toString();
 		
 		// if the target is supplied parse it for RDF and load the repository
-		if (target.exists())
+		if (target.exists()) {
+			testPI(xmlInputFactory.createXMLEventReader(new FileReader(target)));
 			loadRepository(con, parseRDFa(target, base));
+		}
 	}
 	
 	@After
@@ -668,8 +670,7 @@ public class RDFaGenerationTest {
 			XMLEventReader src = xmlInputFactory.createXMLEventReader(new FileReader(template));
 			BufferedXMLEventReader xml = new BufferedXMLEventReader(src);
 			int start = xml.mark();
-			testPI(xml);
-			xml.reset(start);
+
 			//XMLEventReader xml = xmlInputFactory.createXMLEventReader(src); 
 			RDFEventReader rdfa = new RDFaReader(base, xml, null);			
 			SPARQLProducer sparql = new SPARQLProducer(rdfa,SPARQLProducer.QUERY.SELECT);
@@ -684,6 +685,7 @@ public class RDFaGenerationTest {
 			XMLEventReader xrdfa = new RDFaProducer(xml, results, sparql.getOrigins(),self,con);
 
 			Document outputDoc = asDocument(xrdfa);
+		
 			boolean ok = equivalent(outputDoc,readDocument(target),base);
 			if (!ok || verbose || show_rdf) {
 				System.out.println("RDF (from target):");

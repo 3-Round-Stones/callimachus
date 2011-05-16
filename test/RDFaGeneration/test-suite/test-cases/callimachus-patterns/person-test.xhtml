@@ -45,18 +45,18 @@
 			<li rev="gene:parentTo" resource="?father">
 				<label>F</label>
 				<span property="foaf:gender" content="M" style="display:none" />
-				<a href="?father" property="rdfs:label" />
+				<a href="{?father}" property="rdfs:label" />
 			</li>
 			<li rev="gene:parentTo" resource="?mother">
 				<label>M</label>
 				<span property="foaf:gender" content="F" style="display:none" />
-				<a href="?mother" property="rdfs:label" />
+				<a href="{?mother}" property="rdfs:label" />
 			</li>
 			<li>
 				<label>Siblings</label>
 				<div rel="foaf:member" class="sorted">
 					<div about="?sibling">
-						<a href="?sibling" property="rdfs:label" />
+						<a href="{?sibling}" property="rdfs:label" />
 						<span rel="bio:event" style="font-size:small">
 							<span about="?siblingbirth" typeof="bio:Birth" property="bio:date" class="asc year" />
 						</span>
@@ -68,18 +68,18 @@
 			<li rev="gene:parentTo" resource="?husband">
 				<label>H</label>
 				<span property="foaf:gender" content="M" style="display:none" />
-				<a href="?husband" property="rdfs:label" />
+				<a href="{?husband}" property="rdfs:label" />
 			</li>
 			<li rev="gene:parentTo" resource="?wife">
 				<label>W</label>
 				<span property="foaf:gender" content="F" style="display:none" />
-				<a href="?wife" property="rdfs:label" />
+				<a href="{?wife}" property="rdfs:label" />
 			</li>
 			<li>
 				<label>Children</label>
 				<div rel="foaf:member" class="sorted">
 					<div about="?child">
-						<a href="?child" property="rdfs:label" />
+						<a href="{?child}" property="rdfs:label" />
 						<span rel="bio:event" style="font-size:small">
 							<span about="?childbirth" typeof="bio:Birth" property="bio:date" class="asc year" />
 						</span>
@@ -88,7 +88,7 @@
 			</li>
 		</ul>
 	</div>
-	<h1><a href="?this" property="rdfs:label" /></h1>
+	<h1><a href="{?this}" property="rdfs:label" /></h1>
 	<div rel="foaf:img" style="float:left;margin: 0px 1ex 1ex 0px;max-width:50%">
 		<a about="?photo" href="?photo">
 			<img about="?photo" data-query="medium" style="max-height:100%;max-width:10em" />
@@ -153,7 +153,7 @@
 		<div about="?lived" typeof="bio:Event">
 			<label>Life event</label>
 			<span property="bio:date" class="asc date-locale" />
-			<a href="?lived" property="rdfs:label" />
+			<a href="{?lived}" property="rdfs:label" />
 			<div rel="bio:place" style="font-size:small">
 				<span property="v:label" />
 			</div>
@@ -182,7 +182,7 @@
 	<div rev="bio:agent" style="overflow:auto">
 		<div about="?attended" style="float:left;margin:0.5ex">
 			<label property="rdfs:label" style="overflow:hidden;text-overflow:ellipsis;" />
-			<a href="?attended">
+			<a href="{?attended}">
 				<div rel="foaf:depiction">
 					<img about="?image" data-query="thumbnail" style="max-height:150px" />
 				</div>

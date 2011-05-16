@@ -112,19 +112,32 @@ public class XMLEventUtility {
 	}
 
 	private static String substituteEntitiesInBody(String data) {
-		return data
+		data = data
 			.replaceAll("\\u0026", "&#x26;") // amp (do this first)
 			.replaceAll("\\u003c", "&#x3C;") // lt
-			.replaceAll("\\u003E", "&#x3E;") // gt
-			.replaceAll("\\u00A0", "&#xA0;"); // nbsp
+			.replaceAll("\\u003E", "&#x3E;"); // gt
+			//.replaceAll("\\u00A0", "&#xA0;"); // nbsp
+		return substituteEntities(data);
 	}
 	
 	private static String substituteEntitiesinValue(String data) {
-		return data
+		data = data
 			.replaceAll("\\u0026", "&#x26;") // amp
-			.replaceAll("\\u0022", "&#x22;") // quot
-			.replaceAll("\\u0027", "&#x27;") // apos
-			.replaceAll("\\u00A0", "&#xA0;"); // nbsp
+			.replaceAll("\\u0022", "&#x22;"); // quot
+			//.replaceAll("\\u0027", "&#x27;"); // apos
+			//.replaceAll("\\u00A0", "&#xA0;"); // nbsp
+		return substituteEntities(data);
+	}
+	
+	/* convert other characters such as nbsp &#160; ( &#xA0; ) */
+	
+	private static String substituteEntities(String data) {
+		char[] chars = data.toCharArray();
+		for (int i=0; i<chars.length; i++) {
+			if (chars[i]>0x7e)
+				data = data.replaceFirst(Character.toString((char) chars[i]), "&#"+(int)chars[i]+";");
+		}
+		return data;
 	}
 
 

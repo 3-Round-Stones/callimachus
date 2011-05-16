@@ -348,8 +348,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 	private static final String VAR_EXP_REGEX = "\\{\\?([a-zA-Z]\\w*)\\}";
 	private static final Pattern VAR_EXP_PATTERN = Pattern.compile(VAR_EXP_REGEX);
 	
-	// \{(\"|\')([^\"]*?)\1\}
-	private static final String LITERAL_EXP_REGEX = "\\{(\\\"|\\')([^\\\"]*?)\\1\\}";
+	// A string with " or ' delimiters, allowing escaped characters \" and \'
+	// \{(\"|\')(([^\"]|\\['"])*?)\1\}
+	private static final String LITERAL_EXP_REGEX = "\\{(\\\"|\\')(([^\\\"]|\\\\['\"])*?)\\1\\}";
 	private static final Pattern LITERAL_EXP_PATTERN = Pattern.compile(LITERAL_EXP_REGEX);
 	
 	String substitute(String text) {
@@ -375,7 +376,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 			}
 			// literal expression
 			else if (b1) {
-				text = text.replace(m1.group(), m1.group(2));
+				String val = m1.group(2);
+				// substitute escaped characters
+				val = val.replaceAll("\\'", "'").replaceAll("\\\"", "\"");
+				text = text.replace(m1.group(), val);
 				found = true;
 				start = m1.end();
 			}

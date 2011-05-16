@@ -7,7 +7,7 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
-	<title about="?this" property="rdfs:label" content="?label">{?label}</title>
+	<title about="" property="rdfs:label" content="label">label</title>
 	<script>//<![CDATA[
 		$(document).ready(function() {
 			var uri = $("form[about]").attr("about");
@@ -42,9 +42,9 @@
 		// ]]>
 	</script>
 </head>
-<body about="?this">
+<body about="">
 	<ul class="aside">
-		<li><a href="?password">Change password or email</a></li>
+		<li><a href="{'?password'}">Change password or email</a></li>
 	</ul>
 	<ul class="aside">
 		<li>Enter your full name</li>
@@ -52,24 +52,24 @@
 		<li>Additional information is to provide additional contact information and is viewable to all authenticated users</li>
 		<li>Your e-mail address is used to reset your password</li>
 	</ul>
-	<h1 property="rdfs:label" />
-	<form id="form" action="" about="?this" autocomplete="off">
+	<h1 property="rdfs:label" >label</h1>
+	<form id="form" action="" about="" autocomplete="off">
 		<label for="label">Full name</label>
 		<div>
-			<input id="label" property="rdfs:label" content="?label" value="{?label}" type="text" class="auto-expand required" />
+			<input id="label" property="rdfs:label" content="label" value="label" type="text" class="auto-expand required" />
 		</div>
 		<label for="img">Photo</label>
 	 	<div id="img" rel="foaf:depiction" class="droppable">
 			<div style='font-style:italic;font-size:small'>Drag resource(s) here</div>
 			<div about="?img" typeof="foaf:Image">
-				<span property="rdfs:label" />
+				<span property="rdfs:label" >image label</span>
 				<button type="button" class="remove">×</button>
 			</div>
-			<button type="button" data-dialog="?create=/callimachus/Photo">»</button>
+			<button type="button" data-dialog="{'?create=/callimachus/Photo'}">»</button>
 		</div>
 		<label for="comment">Additional information</label>
 		<div>
-			<textarea id="comment" class="auto-expand" property="rdfs:comment" content="?comment">{?comment}</textarea>
+			<textarea id="comment" class="auto-expand" property="rdfs:comment" content="comment">comment</textarea>
 			<button type="button" class="add">»</button>
 		</div>
 		<button id="submit" type="submit">Save</button>

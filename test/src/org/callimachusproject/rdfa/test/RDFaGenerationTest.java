@@ -451,8 +451,8 @@ public class RDFaGenerationTest {
 		
 		// if the target is supplied parse it for RDF and load the repository
 		if (target.exists()) {
-			testPI(xmlInputFactory.createXMLEventReader(new FileReader(target)));
 			loadRepository(con, parseRDFa(target, base));
+			testPI(xmlInputFactory.createXMLEventReader(new FileReader(target)));
 		}
 	}
 	

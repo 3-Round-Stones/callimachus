@@ -60,9 +60,37 @@
 			</span>
 		</div>
 		<label for="tel">Telephone</label>
-		<div id="tel" rel="vcard:tel" style="overflow:auto"/>
+		<div id="tel" rel="vcard:tel" style="overflow:auto">
+			<div style="float:left" typeof="vcard:Tel">
+				<div>
+					<select multiple="multiple" size="4"/>
+				</div>
+				<span data-cardinality="1">
+				</span>
+			</div>
+		</div>
 		<label for="adr">Address</label>
-		<div id="adr" rel="vcard:adr"/>
+		<div id="adr" rel="vcard:adr">
+			<div typeof="vcard:Address" style="overflow:auto">
+				<div style="float:left">
+					<label form="form">Type</label>
+					<select multiple="multiple" size="5"/>
+				</div>
+				<div style="float:left">
+					<label form="form">Address</label>
+					<div data-cardinality="1"/>
+					<div data-cardinality="1"/>
+					<div data-cardinality="1"/>
+				</div>
+				<div style="float:left">
+					<label form="form">Region</label>
+					<div data-cardinality="1"/>
+					<div data-cardinality="1"/>
+					<div data-cardinality="1"/>
+					<div data-cardinality="1"/>
+				</div>
+			</div>
+		</div>
 		<label for="note">Note</label>
 		<div id="note" data-cardinality="1"/>
 		<button id="submit" type="submit">Create</button>

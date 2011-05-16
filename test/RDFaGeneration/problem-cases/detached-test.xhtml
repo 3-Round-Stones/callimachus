@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html version="XHTML+RDFa 1.1" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title>Test about-href3</title>
+		<title>Test detached</title>
 	</head>
 	<body about="?this">
-		<div rel="skos:hasTopConcept" resource="?var">
-			<a href="{'?view'}" property="skos:prefLabel" />
-		</div>	
+		<div about="?concept" typeof="skos:Concept" property="skos:prefLabel" />
+		<span property="rdfs:comment" />
 	</body>
 </html>

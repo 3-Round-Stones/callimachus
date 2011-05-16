@@ -95,6 +95,10 @@ public class XPathIterator implements Iterator<Object> {
 				path += "[@"+a.getName()+"='"+a.getValue()+"']";
 			}
 			else if (distinguishingURIAttributes.contains(a.getName())) {
+				// for testing don't check text values starting '?' probably a relative URI
+				// typically derived from an expression {...} which won't correspond
+				if (a.getValue().startsWith("?") || a.getValue().contains("{")) continue;
+				
 				java.net.URI relBase = new java.net.URI(base.substring(0,base.lastIndexOf('/')));
 				java.net.URI resBase = new java.net.URI(base);
 				String resolved = a.getValue();

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<head>
+	<title about="?this" property="rdfs:label" content="?label">{?label}</title>
+	<script>//<![CDATA[
+		$(document).ready(function() {
+			var uri = $("form[about]").attr("about");
+			var credential = null;
+			jQuery.ajax({type: "GET",  url: "/accounts?login",
+				beforeSend: function(req) {
+					try {
+						req.withCredentials = true;
+					} catch (e) {}
+				},
+				success: function(doc) {
+					credential = /about="([^" >]*)"/i.exec(doc)[1];
+				}
+			});
+			var deleted = false;
+			$(document).bind("calliDelete", function(event) {
+				if (credential && credential == uri) {
+					deleted = true;
+				}
+				return true;
+			});
+			$(document).bind("calliRedirect", function(event) {
+				if (deleted && credential && credential == uri) {
+					// need to log user out gracefully since they deleted themselves
+					$(document).trigger("calliLogout");
+					event.preventDefault();
+					return false;
+				}
+				return true;
+			});
+		});
+		// ]]>
+	</script>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li><a href="?password">Change password or email</a></li>
+	</ul>
+	<ul class="aside">
+		<li>Enter your full name</li>
+		<li>Upload a small photo of yourself so other can recognize you using the chevron</li>
+		<li>Additional information is to provide additional contact information and is viewable to all authenticated users</li>
+		<li>Your e-mail address is used to reset your password</li>
+	</ul>
+	<h1 property="rdfs:label" />
+	<form id="form" action="" about="?this" autocomplete="off">
+		<label for="label">Full name</label>
+		<div>
+			<input id="label" property="rdfs:label" content="?label" value="{?label}" type="text" class="auto-expand required" />
+		</div>
+		<label for="img">Photo</label>
+	 	<div id="img" rel="foaf:depiction" class="droppable">
+			<div style='font-style:italic;font-size:small'>Drag resource(s) here</div>
+			<div about="?img" typeof="foaf:Image">
+				<span property="rdfs:label" />
+				<button type="button" class="remove">×</button>
+			</div>
+			<button type="button" data-dialog="?create=/callimachus/Photo">»</button>
+		</div>
+		<label for="comment">Additional information</label>
+		<div>
+			<textarea id="comment" class="auto-expand" property="rdfs:comment" content="?comment">{?comment}</textarea>
+			<button type="button" class="add">»</button>
+		</div>
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+		<button id="delete" type="button" onclick="calli.deleteResource(form)">Delete</button>
+	</form>
+</body>
+</html>

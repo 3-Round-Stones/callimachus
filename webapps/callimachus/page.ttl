@@ -76,6 +76,22 @@
 		return created;
 	""".
 
+# GET /callimachus/Page?schemes
+# Called from page create/edit to load scheme options
+:ListScheme rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Page>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "schemes";
+	msg:type "application/xml";
+	msg:header "cache-control:no-store";
+	msg:sparql """
+		SELECT ?uri ?label
+		WHERE {
+			?uri a skos:ConceptScheme; rdfs:label ?label
+		}
+	""".
+
 # POST /callimachus/Page?create
 :CreatePage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Page>];
@@ -133,8 +149,11 @@
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports calli:Page;
 	msg:script """
+		if (!xhtmlStream)
+			throw new BadRequest("Missing PUT request payload");
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
 

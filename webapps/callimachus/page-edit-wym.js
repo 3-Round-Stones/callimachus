@@ -44,6 +44,7 @@ jQuery(function($){
 	}
 
 	function setFocusToNode(wym, node) {
+		updateBody();
 		try {
 			wym.setFocusToNode(node);
 		} catch (e) { }
@@ -104,6 +105,7 @@ jQuery(function($){
 			$('#label').val($(node).find('label').text());
 			$('#curie').val($(node).find('[property]').attr('property'));
 			$('#functional').attr('checked', 'checked');
+			$('#variable').val('?' + $(node).find('[id]').attr('id'));
 		} else {
 			$('.wym_dialog_input .wym_delete').remove();
 		}
@@ -112,11 +114,12 @@ jQuery(function($){
 			closeDialogue();
 		});
 		$('.wym_dialog_input .wym_submit').parents('form').submit(function(event) {
+			event.preventDefault();
 			var label = $('#label').val();
 			var functional = $('#functional').is(':checked');
 			var curie = $('#curie').val();
 			var variable = $('#variable').val();
-			if (!checkCURIE(curie) || !checkVariable(variable)) {
+			if (!checkCURIE(curie, this) || !checkVariable(variable, this)) {
 				return false;
 			}
 			var cardinality = functional ? 'data-cardinality="1"' : '';
@@ -152,19 +155,34 @@ jQuery(function($){
 		} else {
 			$('.wym_dialog_select .wym_delete').remove();
 		}
+		if ($('#scheme')[0].options.length <= 0) {
+			jQuery.get('/callimachus/Page?schemes', function(xml) {
+				$(xml).find('result').each(function() {
+					var uri = $(this).find('[name=uri]>*').text();
+					var label = $(this).find('[name=label]>*').text();
+					var option = $('<option/>');
+					option.attr('value', uri);
+					option.text(label);
+					$('#scheme').append(option);
+				});
+			}, 'xml');
+		}
 		$('.wym_dialog_select .wym_delete').click(function(event) {
 			$(node).remove();
 			closeDialogue();
 		});
 		$('.wym_dialog_select .wym_submit').parents('form').submit(function(event) {
+			event.preventDefault();
 			var attr = $('#reverse').is(':checked') ? 'rev' : 'rel';
 			var label = $('#label').val();
 			var curie = $('#curie').val();
 			var variable = $('#variable').val();
 			var property = $('#property').val();
-			var select = $('#scheme')[0];
-			var scheme = select.options[select.selectedIndex].getAttribute('about');
-			if (!checkCURIE(curie) || !checkVariable(variable)) {
+			var scheme = $('#scheme').val();
+			if (!scheme) {
+				$(this).trigger('calliError', 'A scheme is required for this field');
+			}
+			if (!checkCURIE(curie, this) || !checkVariable(variable, this)) {
 				return false;
 			}
 			insertTemplate(node, template, {type: type, label: label,
@@ -199,6 +217,7 @@ jQuery(function($){
 			closeDialogue();
 		});
 		$('.wym_dialog_drop .wym_submit').parents('form').submit(function(event) {
+			event.preventDefault();
 			var attr = $('#reverse').is(':checked') ? 'rev' : 'rel';
 			var label = $('#label').val();
 			var curie = $('#curie').val();
@@ -206,7 +225,7 @@ jQuery(function($){
 			var property = $('#property').val();
 			var ctype = $('#class').val();
 			var prompt = $('#prompt').val();
-			if (!checkCURIE(curie) || !checkVariable(variable) || !checkCURIE(ctype)) {
+			if (!checkCURIE(curie, this) || !checkVariable(variable, this) || !checkCURIE(ctype, this)) {
 				return false;
 			}
 			insertTemplate(node, template, {type: type, label: label,
@@ -245,9 +264,10 @@ jQuery(function($){
 			$('#curie').val($(node).attr('typeof'));
 		}
 		$('.wym_dialog_about .wym_submit').parents('form').submit(function(event) {
+			event.preventDefault();
 			var curie = $('#curie').val();
 			var variable = $('#variable').val();
-			if (curie && !checkCURIE(curie) || !checkVariable(variable)) {
+			if (curie && !checkCURIE(curie, this) || !checkVariable(variable, this)) {
 				return false;
 			}
 			if (node && node.parentNode) {
@@ -289,10 +309,11 @@ jQuery(function($){
 			$('#variable').val($(node).attr('resource'));
 		}
 		$('.wym_dialog_rel .wym_submit').parents('form').submit(function(event) {
+			event.preventDefault();
 			var attr = $('#reverse').is(':checked') ? 'rev' : 'rel';
 			var curie = $('#curie').val();
 			var variable = $('#variable').val();
-			if (!checkCURIE(curie) || !checkVariable(variable)) {
+			if (!checkCURIE(curie, this) || !checkVariable(variable, this)) {
 				return false;
 			}
 			if (node && node.parentNode) {
@@ -350,16 +371,25 @@ jQuery(function($){
 				text = text.substring(text.indexOf('?>') + 2);
 			}
 			return window.XML(text).toXMLString();
+		} else if (window.DOMParser) {
+			var sheet ='<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:output method="xml" omit-xml-declaration="yes" indent="yes"/><xsl:template match="node()|@*"><xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy></xsl:template></xsl:stylesheet>';
+			var xsl = new DOMParser().parseFromString(sheet, "text/xml");
+			var src = new DOMParser().parseFromString(text, "text/xml");
+			var xsltproc = new XSLTProcessor();
+			xsltproc.importStylesheet(xsl);
+			var result = xsltproc.transformToDocument(src);
+			if (result)
+				return new XMLSerializer().serializeToString(result);
 		}
-		var sheet ='<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:output method="xml" omit-xml-declaration="yes" indent="yes"/><xsl:template match="node()|@*"><xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy></xsl:template></xsl:stylesheet>';
-		var xsl = new DOMParser().parseFromString(sheet, "text/xml");
-		var src = new DOMParser().parseFromString(text, "text/xml");
-		var xsltproc = new XSLTProcessor();
-		xsltproc.importStylesheet(xsl);
-		var result = xsltproc.transformToDocument(src);
-		if (result)
-			return new XMLSerializer().serializeToString(result);
 		return text;
+	}
+
+	function updateBody() {
+		var wym = window.WYMeditor.INSTANCES[0];
+		$(wym._doc.body).find('.vbox:not(:has(p))').append('<p></p>');
+		$(wym._doc.body).find('.hbox:not(:has(p))').append('<p></p>');
+		$(wym._doc.body).find('.vbox>div+div').before('<p></p>');
+		$(wym._doc.body).find('.hbox>div+div').before('<p></p>');
 	}
 
 	window.WYMeditor.INSTANCES[0].initHtml = function(html) {
@@ -370,8 +400,7 @@ jQuery(function($){
 			if(typeof html === 'string') {
 				var ret = innerHtml.call(this, html);
 				$(wym._doc.body).find(':input').attr("disabled", 'disabled');
-				$(wym._doc.body).find('.vbox:not(:has(p))').append('<p></p>');
-				$(wym._doc.body).find('.hbox:not(:has(p))').append('<p></p>');
+				updateBody();
 				return ret;
 			} else {
 				$(wym._doc.body).find(':input').removeAttr("disabled");
@@ -391,8 +420,7 @@ jQuery(function($){
 		var innerKeyup = wym.keyup;
 		wym.keyup = function(event) {
 			var ret = innerKeyup.call(this, event);
-			$(wym._doc.body).find('.vbox:not(:has(p))').append('<p></p>');
-			$(wym._doc.body).find('.hbox:not(:has(p))').append('<p></p>');
+			updateBody();
 			return ret;
 		};
 
@@ -431,6 +459,7 @@ jQuery(function($){
 			case 'InsertForm':
 				var form = $('<form about="?this" action="">\n<div class="vbox">\n<p></p></div>\n</form>\n');
 				form.append('<button type="submit" disabled="disabled">Create</button>\n');
+				form.append('<br />\n');
 				form.append('<button type="submit" disabled="disabled">Save</button>\n');
 				form.append('<button type="button" disabled="disabled" onclick="location.replace(\'?view\')">Cancel</button>\n');
 				form.append('<button type="button" disabled="disabled" onclick="calli.deleteResource(form)">Delete</button>\n');
@@ -440,7 +469,7 @@ jQuery(function($){
 				insertInput.call(wym, dialog_input, 'input', '<div $cardinality><input id="$id" disabled="disabled" property="$curie" /></div>');
 			break;
 			case 'InsertTextArea':
-				insertInput.call(wym, dialog_input, 'text', '<div $cardinality><textarea id="$id" disabled="disabled" property="$curie"></textarea></div>');
+				insertInput.call(wym, dialog_input, 'text', '<div $cardinality><textarea id="$id" class="auto-expand" disabled="disabled" property="$curie"></textarea></div>');
 			break;
 			case 'InsertRadio':
 				insertSelect.call(wym, dialog_select, 'radio', '<div id="$id"><label $rel="$curie" resource="?$id"><input type="radio" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="$property" /></label></div>');
@@ -473,8 +502,9 @@ jQuery(function($){
 		$('#iframe').trigger('load');
 		setTimeout(function(){
 			if (!$('body', $('#iframe')[0].contentWindow.document).children().length) {
-				// IE need this called twice on first load (reload doesn't seem to work)
+				// IE need this called twice on first load
 				wym.initIframe($('#iframe')[0]);
+				updateBody();
 			}
 		}, 1000);
 	}

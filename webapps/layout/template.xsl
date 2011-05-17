@@ -63,7 +63,7 @@
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
 			<link rel="icon" href="{$callimachus}/menu?favicon" />
-			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1"/>
+			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1"/>
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<xsl:comment>[if lte IE 8]>&lt;link rel="stylesheet" href="<xsl:value-of select="$layout" />/ie8.css" /&gt;&lt;![endif]</xsl:comment>
 			<xsl:if test="$query='create' or $query='edit'">
@@ -190,7 +190,7 @@
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
 				<xsl:if test="$template and ($query='view' or $query='edit')">
 					<p id="footer-lastmod" about="?this" rel="audit:revision" resource="?revision">This resource was last modified at 
-						<span property="audit:committedOn" class="abbreviated datetime-locale" />.
+						<span property="audit:committedOn" class="abbreviated datetime-locale" />
 					</p>
 				</xsl:if>
 				<a href="http://callimachusproject.org/" title="Callimachus">

@@ -103,7 +103,7 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 			uri = ((RDFObject) target).getResource().stringValue();
 		}
 		// trial may be set to e.g 'disabled' to switch off the new functionality
-		if ("enabled".equals(TRIAL) && "view".equals(query)) {
+		if (true ||"enabled".equals(TRIAL) && "view".equals(query)) {
 			ObjectConnection con = getObjectConnection();
 			uri = uri == null ? null : toUri().resolve(uri).toASCIIString();
 			URI uriValue = con.getValueFactory().createURI(uri);

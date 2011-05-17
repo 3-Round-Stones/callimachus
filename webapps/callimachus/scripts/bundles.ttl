@@ -29,11 +29,12 @@
 	rdf:_2 <jquery.rdfquery.rdfa.js>;
 	rdf:_3 <jquery.validate.js>;
 	rdf:_4 <data-options.js>;
-	rdf:_5 <input-property.js>;
+	rdf:_5 <input-expression.js>;
 	rdf:_6 <resource-iri.js>;
-	rdf:_7 <data-more.js>;
-	rdf:_8 <data-add.js>;
-	rdf:_9 <data-member.js>;
-	rdf:_10 <document-ready.js>;
-	rdf:_11 <focus.js>.
+	rdf:_7 <button-add.js>;
+	rdf:_8 <button-remove.js>;
+	rdf:_9 <data-add.js>;
+	rdf:_10 <data-dialog.js>;
+	rdf:_11 <document-ready.js>;
+	rdf:_12 <focus.js>.
 

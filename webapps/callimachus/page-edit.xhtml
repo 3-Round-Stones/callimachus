@@ -186,10 +186,12 @@
 				<div>
 					<input id="curie" type='text' class='wym_curie' value='' />
 				</div>
-				<label>
-					<input id="functional" type='checkbox' class='wym_functional' value='true' />
-					<span>Single value / Functional</span>
-				</label>
+				<div>
+					<label>
+						<input id="functional" type='checkbox' class='wym_functional' value='true' />
+						<span>Single value / Functional</span>
+					</label>
+				</div>
 				<label for="variable">Variable <small>must start with '?'</small></label>
 				<div>
 					<input id="variable" type='text' class='wym_variable' value='' />
@@ -221,9 +223,6 @@
 				<label for="scheme">Scheme</label>
 				<div>
 					<select id="scheme" class='wym_scheme'>
-						<option about="?scheme" typeof="skos:ConceptScheme">
-							<span property="rdfs:label"/>
-						</option>
 					</select>
 				</div>
 				<label for="property">Property</label>

@@ -25,16 +25,15 @@
 @prefix :<#>.
 
 :GetPermissions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET";
 	msg:query "permissions";
 	msg:realm </accounts>;
-	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:type "text/html";
 	msg:header "cache-control:no-cache";
 	msg:imports <permissions.xhtml>;
 	msg:script """
-		return permissions_xhtml.calliConstruct(this, 'permissions');
+		return permissions_xhtml.calliConstructHTML(this, 'permissions');
 	""".
 
 # used by permissions.xhtml

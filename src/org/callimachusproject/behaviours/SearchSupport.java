@@ -46,18 +46,19 @@ import org.callimachusproject.stream.IterableRDFEventReader;
 import org.callimachusproject.stream.RDFStoreReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.ReducedTripleReader;
+import org.callimachusproject.stream.SPARQLResultReader;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.TriplePatternVariableStore;
 import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.annotations.header;
 import org.openrdf.http.object.annotations.query;
-import org.openrdf.http.object.annotations.transform;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 
 /**
- * Implements the construct search method to lookup resources by label prefix.
+ * Implements the construct search method to lookup resources by label prefix
+ * and options method to list all possible values.
  * 
  * @author James Leigh
  * 
@@ -67,12 +68,32 @@ public abstract class SearchSupport implements Page, SoundexTrait,
 	private static TermFactory tf = TermFactory.newInstance();
 
 	/**
+	 * Returns the given element with all known possible children.
+	 */
+	@query("options")
+	@type("application/rdf+xml")
+	@header("cache-control:no-store")
+	public XMLEventReader options(@query("query") String query,
+			@query("element") String element) throws Exception {
+		String base = toUri().toASCIIString();
+		TriplePatternStore patterns = readPatternStore(query, element, base);
+		TriplePattern pattern = patterns.getFirstTriplePattern();
+		RDFEventReader q = constructPossibleTriples(patterns, pattern);
+		ObjectConnection con = getObjectConnection();
+
+		/* consume UNION form of sparql construct */
+		// RDFEventReader rdf = new RDFStoreReader(toSPARQL(q), patterns, con);
+		RDFEventReader rdf = new SPARQLResultReader(toSPARQL(q), patterns, con);
+		
+		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
+	}
+
+	/**
 	 * Returns an HTML page listing suggested resources for the given element.
 	 */
 	@query("search")
 	@type("application/rdf+xml")
 	@header("cache-control:no-validate,max-age=60")
-	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
 	public XMLEventReader constructSearch(@query("query") String query,
 			@query("element") String element, @query("q") String q)
 			throws Exception {
@@ -91,7 +112,7 @@ public abstract class SearchSupport implements Page, SoundexTrait,
 			TransformerException, RDFParseException {
 		String base = toUri().toASCIIString();
 		TriplePatternStore qry = new TriplePatternVariableStore(base);
-		RDFEventReader reader = openPatternReader(query, element, about);
+		RDFEventReader reader = openPatternReader(about, query, element);
 		try {
 			qry.consume(reader);
 		} finally {
@@ -130,5 +151,11 @@ public abstract class SearchSupport implements Page, SoundexTrait,
 		}
 		list.add(new Subject(false, obj));
 		return new IterableRDFEventReader(list);
+	}
+
+	public RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
+			TriplePattern pattern) {
+		VarOrTerm subj = pattern.getPartner();
+		return patterns.openQueryBySubject(subj);
 	}
 }

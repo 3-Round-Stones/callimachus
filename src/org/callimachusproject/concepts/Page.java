@@ -19,14 +19,12 @@
 package org.callimachusproject.concepts;
 
 import java.io.IOException;
-import java.io.InputStream;
 
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.rdfa.RDFEventReader;
-import org.callimachusproject.rdfa.events.TriplePattern;
-import org.callimachusproject.stream.TriplePatternStore;
 import org.openrdf.repository.object.annotations.iri;
 
 /**
@@ -46,16 +44,12 @@ public interface Page {
 	/**
 	 * Populates the page with the properties of the target resource.
 	 */
-	@iri("http://callimachusproject.org/rdf/2009/framework#ConstructHTML")
-	String calliConstructHTML(
-			@iri("http://callimachusproject.org/rdf/2009/framework#objecthtml") Object target,
-			@iri("http://callimachusproject.org/rdf/2009/framework#queryhtml") String query)
-			throws Exception;
+	String calliConstructHTML(Object target, String query) throws Exception;
 
 	/**
 	 * Populates the page with the properties of the target resource.
 	 */
-	InputStream calliConstruct(Object target, String query) throws Exception;
+	XMLEventReader calliConstruct(Object target, String query) throws Exception;
 
 	/**
 	 * Returns only the primary patterns as for the given subject.
@@ -67,13 +61,7 @@ public interface Page {
 	/**
 	 * Reads the template as a graph pattern.
 	 */
-	RDFEventReader openPatternReader(String query, String element,
-			String about) throws XMLStreamException, IOException,
+	RDFEventReader openPatternReader(String about, String query,
+			String element) throws XMLStreamException, IOException,
 			TransformerException;
-
-	/**
-	 * Reads only the patterns for the object of the given pattern.
-	 */
-	RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
-			TriplePattern pattern);
 }

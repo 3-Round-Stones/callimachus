@@ -19,107 +19,88 @@
 
 package org.callimachusproject.behaviours;
 
-import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
-import static org.callimachusproject.stream.XMLEventUtility.toInputStream;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.List;
 
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
-import org.callimachusproject.rdfa.RDFEventReader;
-import org.callimachusproject.rdfa.RDFParseException;
-import org.callimachusproject.rdfa.RDFaReader;
-import org.callimachusproject.rdfa.events.Triple;
-import org.callimachusproject.rdfa.events.TriplePattern;
-import org.callimachusproject.rdfa.model.CURIE;
-import org.callimachusproject.rdfa.model.IRI;
-import org.callimachusproject.rdfa.model.PlainLiteral;
-import org.callimachusproject.rdfa.model.TermFactory;
-import org.callimachusproject.stream.About;
-import org.callimachusproject.stream.BufferedXMLEventReader;
-import org.callimachusproject.stream.PrependTriple;
-import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.RDFaProducer;
-import org.callimachusproject.stream.ReducedTripleReader;
-import org.callimachusproject.stream.SPARQLProducer;
-import org.callimachusproject.stream.SPARQLResultReader;
-import org.callimachusproject.stream.TriplePatternStore;
-import org.callimachusproject.stream.TriplePatternVariableStore;
 import org.openrdf.http.object.annotations.header;
 import org.openrdf.http.object.annotations.query;
-import org.openrdf.http.object.annotations.transform;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.exceptions.ResponseException;
 import org.openrdf.http.object.traits.VersionedObject;
+import org.openrdf.http.object.util.ChannelUtil;
 import org.openrdf.model.URI;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
-import org.openrdf.repository.RepositoryException;
+import org.openrdf.query.impl.TupleQueryResultImpl;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.object.xslt.XMLEventReaderFactory;
+import org.openrdf.repository.object.xslt.XSLTransformer;
 
 /**
  * Extracts parts of this template and constructs the RDF needed for this
- * template.
+ * template. This class is responsible for extracting data from the RDF store
+ * and merging it with the RDFa template document.
  * 
  * @author James Leigh
  * @author Steve Battle
  * 
  */
 public abstract class ViewSupport implements Page, RDFObject, VersionedObject, FileObject {
-	
-	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
-	private static final TermFactory tf = TermFactory.newInstance();
+
+	private static final XSLTransformer HTML_XSLT;
+	static {
+		String path = "org/callimachusproject/xsl/xhtml-to-html.xsl";
+		ClassLoader cl = ViewSupport.class.getClassLoader();
+		String url = cl.getResource(path).toExternalForm();
+		InputStream input = cl.getResourceAsStream(path);
+		InputStreamReader reader = new InputStreamReader(input);
+		HTML_XSLT = new XSLTransformer(reader, url);
+	}
 
 	@Override
 	public String calliConstructHTML(Object target) throws Exception {
 		return calliConstructHTML(target, null);
 	}
-
-	/* calliConstruct() is used e.g. by the view tab (not exclusively) and returns 'application/xhtml+xml'.
-	 * It returns the complete XHTML page.
-	 */
 	
 	@Override
-	public InputStream calliConstruct(Object target, String query) throws Exception {
-		String uri = null;
+	public String calliConstructHTML(Object target, String query)
+			throws Exception {
+		XMLEventReader xhtml = calliConstruct(target, query);
+		return HTML_XSLT.transform(xhtml, this.toString()).asString();
+	}
+
+	/**
+	 * calliConstruct() is used e.g. by the view tab (not exclusively) and
+	 * returns 'application/xhtml+xml'. It returns the complete XHTML page.
+	 */
+	@Override
+	public XMLEventReader calliConstruct(Object target, String query) throws Exception {
+		URI about = null;
 		if (target instanceof RDFObject) {
-			uri = ((RDFObject) target).getResource().stringValue();
+			about = (URI) ((RDFObject) target).getResource();
 		}
-		ObjectConnection con = getObjectConnection();
-		uri = uri == null ? null : toUri().resolve(uri).toASCIIString();
-		URI uriValue = con.getValueFactory().createURI(uri);
-
-		// Apply the XSLT stylesheet to the template
-		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query));
-		int bufferStart = template.mark();
-
-		// Generate SPARQL from the template and evaluate
-		RDFEventReader rdfa = new RDFaReader(uri, template, toString());
-		SPARQLProducer sparql = new SPARQLProducer(rdfa, SPARQLProducer.QUERY.SELECT);
-		TupleQuery q = con.prepareTupleQuery(SPARQL, toSPARQL(sparql), uri);
-		q.setBinding("this", uriValue);
-		TupleQueryResult results = q.evaluate();
-
-		// Populate the template from the result set
-		template.reset(bufferStart);
-		XMLEventReader xrdfa = new RDFaProducer(template, results, sparql.getOrigins(), uriValue, con);
-		return toInputStream(xrdfa);
+		return calliConstructXhtml(about, query, null);
+	
 	}
 
 	/**
@@ -129,131 +110,81 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 	@query("construct")
 	@type("application/rdf+xml")
 	@header("cache-control:no-store")
-	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
-	public XMLEventReader calliConstruct(@query("query") String query,
-			@query("element") String element,
-			@query("about") String about) throws Exception {
+	public XMLEventReader calliConstruct(@query("about") URI about,
+			@query("query") String query, @query("element") String element)
+			throws Exception {
 		if (about != null && (element == null || element.equals("/1")))
 			throw new BadRequest("Missing element parameter");
-		return calliConstructRDF(query, element, about);
-	}
-
-	/**
-	 * Extracts an element from the template (without variables).
-	 */
-	@query("template")
-	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
-	public XMLEventReader template(@query("query") String query,
-			@query("element") String element) throws Exception {
-		return null;
-	}
-
-	/**
-	 * Returns the given element with all known possible children.
-	 */
-	@query("options")
-	@type("application/rdf+xml")
-	@header("cache-control:no-store")
-	@transform("http://callimachusproject.org/rdf/2009/framework#ConstructTemplate")
-	public XMLEventReader options(@query("query") String query,
-			@query("element") String element) throws Exception {
-		String base = toUri().toASCIIString();
-		TriplePatternStore patterns = readPatternStore(query, element, base);
-		TriplePattern pattern = patterns.getFirstTriplePattern();
-		RDFEventReader q = constructPossibleTriples(patterns, pattern);
-		ObjectConnection con = getObjectConnection();
-
-		/* consume UNION form of sparql construct */
-		// RDFEventReader rdf = new RDFStoreReader(toSPARQL(q), patterns, con);
-		RDFEventReader rdf = new SPARQLResultReader(toSPARQL(q), patterns, con);
-		
-		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
-	}
-
-	@query("query")
-	@type("application/sparql-query")
-	public byte[] query(@query("element") String element, @query("about") String about)
-			throws XMLStreamException, IOException, TransformerException,
-			RDFParseException {
-		String base = toUri().toASCIIString();
-		TriplePatternStore query = new TriplePatternStore(base);
-		String uri = about == null ? query.resolve(query.getReference()) : query.resolve(about);
-		RDFEventReader reader = readPatterns("view", element, uri);
-		try {
-			query.consume(reader);
-		} finally {
-			reader.close();
+		if (about == null && query == null && element == null) {
+			ValueFactory vf = getObjectConnection().getValueFactory();
+			about = vf.createURI(this.toString());
 		}
-		return query.toString().getBytes(Charset.forName("UTF-8"));
+		return calliConstructXhtml(about, query, element);
 	}
 
-	protected RDFEventReader readPatterns(String query, String element,
-			String about) throws XMLStreamException, IOException,
-			TransformerException {
-		return openPatternReader(query, element, about);
+	private XMLEventReader calliConstructXhtml(URI about, String query,
+			String element) throws Exception {
+		ObjectConnection con = getObjectConnection();
+		// Generate SPARQL from the template and evaluate
+		TupleQueryResult results = evaluate(about, query, element);
+		return new RDFaProducer(xslt(query, element), results, about, con);
 	}
 
-	private XMLEventReader xslt(String qry) throws IOException,
-			XMLStreamException {
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
+	private TupleQueryResult evaluate(URI about, String query, String element)
+			throws Exception {
+		if (about == null) {
+			List<String> names = Collections.emptyList();
+			List<BindingSet> results = Collections.emptyList();
+			return new TupleQueryResultImpl(names, results.iterator());
+		}
+		String base = about.stringValue();
+		String qry = sparql(query, element);
+		ObjectConnection con = getObjectConnection();
+		TupleQuery q = con.prepareTupleQuery(SPARQL, qry, base);
+		q.setBinding("this", about);
+		return q.evaluate();
+	}
+
+	private String sparql(String query, String element) throws IOException {
+		InputStream in = request("sparql", query, element);
+		try {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			ChannelUtil.transfer(in, out);
+			return new String(out.toByteArray());
+		} finally {
+			in.close();
+		}
+	}
+
+	private XMLEventReader xslt(String query, String element)
+			throws IOException, XMLStreamException {
+		XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
+		InputStream in = request("xslt", query, element);
+		return factory.createXMLEventReader(in);
+	}
+
+	private InputStream request(String operation, String query, String element)
+			throws IOException {
 		String uri = getResource().stringValue();
-		String target = uri + (qry == null ? "?xslt" : "?xslt&query=" + qry);
-		HttpRequest request = new BasicHttpRequest("GET", target);
+		StringBuilder sb = new StringBuilder();
+		sb.append(uri);
+		sb.append("?");
+		sb.append(operation);
+		if (query != null) {
+			sb.append("&query=");
+			sb.append(query);
+		}
+		if (element != null) {
+			sb.append("&element=");
+			sb.append(element);
+		}
+		HTTPObjectClient client = HTTPObjectClient.getInstance();
+		HttpRequest request = new BasicHttpRequest("GET", sb.toString());
 		HttpResponse response = client.service(request);
 		if (response.getStatusLine().getStatusCode() >= 300)
 			throw ResponseException.create(response);
-		InputStream input = response.getEntity().getContent();
-		XMLInputFactory factory = XMLInputFactory.newInstance();
-		return factory.createXMLEventReader(input);
+		InputStream in = response.getEntity().getContent();
+		return in;
 	}
 
-	private XMLEventReader calliConstructRDF(String query, String element,
-			String about) throws XMLStreamException, IOException,
-			TransformerException, RDFParseException, RepositoryException,
-			MalformedQueryException, QueryEvaluationException {
-		String uri = about == null ? null : toUri().resolve(about).toASCIIString();
-		TriplePatternStore qry = readPatternStore(query, element, uri);
-		ObjectConnection con = getObjectConnection();
-
-		/* consume UNION form of sparql construct */
-		// RDFEventReader rdf = new RDFStoreReader(qry, con, uri);
-		RDFEventReader rdf = new SPARQLResultReader(qry, con, uri);
-
-		rdf = new ReducedTripleReader(rdf);
-		if (uri != null && element == null) {
-			IRI subj = tf.iri(uri);
-			rdf = new About(subj, rdf);
-			String label = getETag(uri);
-			if (label != null) {
-				CURIE etag = tf.curie(NS, "etag", "calli");
-				PlainLiteral obj = tf.literal(label);
-				rdf = new PrependTriple(new Triple(subj, etag, obj), rdf);
-			}
-		}
-		return new RDFXMLEventReader(rdf);
-	}
-
-	private TriplePatternStore readPatternStore(String query, String element,
-			String about) throws XMLStreamException, IOException,
-			TransformerException, RDFParseException {
-		String base = toUri().toASCIIString();
-		TriplePatternStore qry = new TriplePatternVariableStore(base);
-		RDFEventReader reader = readPatterns(query, element, about);
-		try {
-			qry.consume(reader);
-		} finally {
-			reader.close();
-		}
-		return qry;
-	}
-
-	private String getETag(String uri) throws RepositoryException {
-		ObjectConnection con = getObjectConnection();
-		VersionedObject target = (VersionedObject) con.getObject(uri);
-		String revision = target.revision();
-		if (revision == null)
-			return null;
-		return "W/" + '"' + revision + '"';
-	}
-	
 }

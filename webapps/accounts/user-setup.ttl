@@ -36,18 +36,17 @@
 
 :GetUserSetup rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET";
 	msg:query "usersetup";
-	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:type "text/html";
 	msg:realm :local;
 	msg:imports <user-setup.xhtml>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:script """
 		if (!this.HasNoAdministrator())
 			throw new BadRequest("This service has already been setup");
-		return user_setup_xhtml.calliConstruct(this, "create");
+		return user_setup_xhtml.calliConstructHTML(this, "create");
 	""".
 
 rdfs:label a rdf:Property.

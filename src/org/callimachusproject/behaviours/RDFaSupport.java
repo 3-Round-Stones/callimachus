@@ -17,12 +17,15 @@
  */
 package org.callimachusproject.behaviours;
 
+import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,33 +41,27 @@ import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.rdfa.RDFEventReader;
-import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.rdfa.events.Base;
-import org.callimachusproject.rdfa.events.TriplePattern;
-import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.BoundedRDFReader;
 import org.callimachusproject.stream.OverrideBaseReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.SPARQLProducer;
-import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.XMLElementReader;
 import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.exceptions.InternalServerError;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.xslt.TransformBuilder;
 import org.openrdf.repository.object.xslt.XMLEventReaderFactory;
 import org.openrdf.repository.object.xslt.XSLTransformer;
 
 /**
- * Implements a few {@link Page} methods to convent an RDFa document into a
- * graph pattern.
+ * Implements a few {@link Page} methods to read an RDFa document. This class is
+ * responsible for applying XSL transformations, extracting x-pointer elements,
+ * and parsing RDFa into sparql.
  * 
  * @author James Leigh
  * @author Steve Battle
@@ -83,52 +80,55 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 	private static final Map<String, Reference<XSLTransformer>> transformers = new LinkedHashMap<String, Reference<XSLTransformer>>(
 			16, 0.75f, true) {
 		private static final long serialVersionUID = 1362917757653811798L;
-	
+
 		protected boolean removeEldestEntry(
-			Map.Entry<String, Reference<XSLTransformer>> eldest) {
+				Map.Entry<String, Reference<XSLTransformer>> eldest) {
 			return size() > MAX_XSLT;
 		}
 	};
-	private static final String DATA_ATTRIBUTES = "/callimachus/operations/data-attributes.xsl";
-
-	@query("xslt")
-	public XMLEventReader xslt(@query("query") String query,
-			@query("element") String element) throws XMLStreamException,
-			IOException, TransformerException {
-		try {
-			XMLEventReader doc = applyXSLT(query);
-			doc = addDataAttributes(doc, query);
-			if (element == null || element.equals("/1"))
-				return doc;
-			if (!element.startsWith("/1/"))
-				throw new BadRequest("Invalid element parameter");
-			String parent = element.substring(0, element.lastIndexOf('/'));
-			String child = "/1" + element.substring(element.lastIndexOf('/'));
-			XMLElementReader pxptr = new XMLElementReader(doc, parent);
-			boolean prel = isRelationshipElement(pxptr); // data-add(construct) data-member(construct) data-more@rel(template)
-			XMLElementReader xptr = new XMLElementReader(pxptr, child);
-			boolean crel = isRelationshipElement(xptr); // data-search(search) data-more@property(template)
-			xptr = new XMLElementReader(xptr, "/1");
-			xptr.mark(1024);
-			XMLElementReader nxptr = new XMLElementReader(xptr, "/1/1");
-			boolean nrel = isRelationshipElement(nxptr); // data-options(options)
-			xptr.reset();
-			if (!prel && !crel && !nrel)
-				throw new BadRequest("Invalid element parameter");
-			return xptr;
-		} catch (NumberFormatException e) {
-			throw new BadRequest(e);
-		}
+	private static final XSLTransformer DATA_ATTR;
+	static {
+		String path = "org/callimachusproject/xsl/data-attributes.xsl";
+		ClassLoader cl = RDFaSupport.class.getClassLoader();
+		String url = cl.getResource(path).toExternalForm();
+		InputStream input = cl.getResourceAsStream(path);
+		InputStreamReader reader = new InputStreamReader(input);
+		DATA_ATTR = new XSLTransformer(reader, url);
 	}
 
-	@query("rdfa-triples")
+	@query("xslt")
+	public XMLEventReader xslt(@query("query") String query)
+			throws XMLStreamException, IOException, TransformerException {
+		XMLEventReader doc = applyXSLT(query);
+		return addDataAttributes(doc, query);
+	}
+
+	/**
+	 * Extracts an element from the template (without variables).
+	 * TODO strip out RDFa variables and expressions
+	 */
+	@query("template")
+	public XMLEventReader template(@query("query") String query,
+			@query("element") String element) throws Exception {
+		return extract(xslt(query), element);
+	}
+
+	@query("triples")
 	@type("application/rdf+xml")
-	public XMLEventReader parseRDFa() throws XMLStreamException, IOException,
-			TransformerException, RDFParseException, RepositoryException,
-			MalformedQueryException, QueryEvaluationException {
+	public XMLEventReader triples(@query("query") String query,
+			@query("element") String element) throws Exception {
 		String base = toUri().toASCIIString();
-		return new RDFXMLEventReader(new RDFaReader(base, xslt("view", null),
-				toString()));
+		XMLEventReader doc = extract(xslt(query), element);
+		return new RDFXMLEventReader(new RDFaReader(base, doc, toString()));
+	}
+
+	@query("sparql")
+	@type("application/sparql-query")
+	public byte[] sparql(@query("about") String about,
+			@query("query") String query, @query("element") String element)
+			throws Exception {
+		RDFEventReader sparql = openPatternReader(about, query, element);
+		return toSPARQL(sparql).getBytes(Charset.forName("UTF-8"));
 	}
 
 	public RDFEventReader openBoundedPatterns(String query, String about)
@@ -136,16 +136,11 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		return new BoundedRDFReader(openPatternReader(query, null, about));
 	}
 
-	public RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
-			TriplePattern pattern) {
-		VarOrTerm subj = pattern.getPartner();
-		return patterns.openQueryBySubject(subj);
-	}
-
-	public RDFEventReader openPatternReader(String query, String element,
-			String about) throws XMLStreamException, IOException,
+	public RDFEventReader openPatternReader(String about, String query,
+			String element) throws XMLStreamException, IOException,
 			TransformerException {
-		RDFEventReader reader = new RDFaReader(about, xslt(query, element), toString());
+		XMLEventReader template = extract(xslt(query), element);
+		RDFEventReader reader = new RDFaReader(about, template, toString());
 		
 		/* generate UNION form of sparql query */
 		// reader = new GraphPatternReader(reader);
@@ -180,13 +175,39 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 
 	private XMLEventReader addDataAttributes(XMLEventReader doc, String query)
 			throws TransformerException, IOException, XMLStreamException {
-		java.net.URI uri = toUri();
-		String xsl = uri.resolve(DATA_ATTRIBUTES).toASCIIString();
-		XSLTransformer xslt = newXSLTransformer(xsl);
-		TransformBuilder transform = xslt.transform(doc, uri.toASCIIString());
-		transform = transform.with("this", uri.toASCIIString());
+		TransformBuilder transform = DATA_ATTR.transform(doc, this.toString());
+		transform = transform.with("this", this.toString());
 		transform = transform.with("query", query);
 		return transform.asXMLEventReader();
+	}
+
+	private XMLEventReader extract(XMLEventReader xhtml, String element)
+			throws XMLStreamException, IOException, TransformerException {
+		try {
+			if (element == null || element.equals("/1"))
+				return xhtml;
+			if (!element.startsWith("/1/"))
+				throw new BadRequest("Invalid element parameter");
+			String parent = element.substring(0, element.lastIndexOf('/'));
+			String child = "/1" + element.substring(element.lastIndexOf('/'));
+			XMLElementReader pxptr = new XMLElementReader(xhtml, parent);
+			boolean prel = isRelationshipElement(pxptr); // data-add(construct)
+															// data-member(construct)
+															// data-more@rel(template)
+			XMLElementReader xptr = new XMLElementReader(pxptr, child);
+			boolean crel = isRelationshipElement(xptr); // data-search(search)
+														// data-more@property(template)
+			xptr = new XMLElementReader(xptr, "/1");
+			xptr.mark(1024);
+			XMLElementReader nxptr = new XMLElementReader(xptr, "/1/1");
+			boolean nrel = isRelationshipElement(nxptr); // data-options(options)
+			xptr.reset();
+			if (!prel && !crel && !nrel)
+				throw new BadRequest("Invalid element parameter");
+			return xptr;
+		} catch (NumberFormatException e) {
+			throw new BadRequest(e);
+		}
 	}
 	
 	private XSLTransformer newXSLTransformer(String xsl) {

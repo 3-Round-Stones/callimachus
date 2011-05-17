@@ -17,7 +17,9 @@
 
 package org.callimachusproject.stream;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,6 +40,9 @@ import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.callimachusproject.rdfa.RDFEventReader;
+import org.callimachusproject.rdfa.RDFParseException;
+import org.callimachusproject.rdfa.RDFaReader;
 import org.openrdf.http.object.exceptions.InternalServerError;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -112,10 +117,41 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 	}
 
-	public RDFaProducer(XMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self, RepositoryConnection con) 
-	throws Exception {
-		this(new BufferedXMLEventReader(reader), resultSet, origins, self, con);
+	public RDFaProducer(XMLEventReader reader, TupleQueryResult resultSet,
+			URI self, RepositoryConnection con) throws Exception {
+		super();
+		this.reader = new BufferedXMLEventReader(reader);
+		this.resultSet = resultSet;
+		result = nextResult();
+		this.self = self;
+		this.con = con;
+
+		this.origins = getOrigins(self, reader);
+		branches = new HashSet<String>();
+		for (String name: resultSet.getBindingNames()) {
+			String origin = origins.get(name);
+			//System.out.println(name+" "+origin);
+			int n = origin.indexOf("/");
+			branches.add(origin.substring(n<0?0:n));
+		}
 		this.reader.mark();
+	}
+
+	/* TODO make this more efficient */
+	private Map<String, String> getOrigins(URI self, XMLEventReader reader)
+			throws RDFParseException, IOException, XMLStreamException {
+		if (self == null)
+			return Collections.emptyMap();
+		int startMark = this.reader.mark();
+		try {
+			// Generate SPARQL from the template and evaluate
+			RDFEventReader rdfa = new RDFaReader(self.stringValue(), this.reader, reader.toString());
+			SPARQLProducer sparql = new SPARQLProducer(rdfa, SPARQLProducer.QUERY.SELECT);
+			SPARQLWriter.toSPARQL(sparql);
+			return sparql.getOrigins();
+		} finally {
+			this.reader.reset(startMark);
+		}
 	}
 
 

@@ -60,6 +60,13 @@ extract it into a new directory. Execute a callimachus-start script located
 in the bin/ directory to start the server. The server will serve files from 
 the webapps directory that have a known file extension.
 
+On Mac and Linux run:
+ $ chmod a+x bin/*
+ $ bin/callimachus-start.sh
+
+On Windows run:
+ # bin/callimachus-start.bat
+
 If you want to check out the source code, see the directions at:
   http://code.google.com/p/callimachus/source/checkout
 Once you have the source code checked out, you can execute 'ant run' from a 
@@ -75,9 +82,9 @@ template files for display actions against individuals of the class. See the
 $CALLIMACHUS/webapps/callimachus/callimachus-ontology.ttl file for more details.
 
 The calli Realm classes can be used to declare an authorization realms. Use 
-the http:realm annotation to assign a realm to a message type or class. See 
-the callimachus-ontology.ttl file for details on how to declare them in the 
-RDF store.
+the http:realm annotation to assign a realm to a message type or class. The 
+default realm is </accounts>. See the callimachus-ontology.ttl file for 
+details on how to declare them in the RDF store.
 
 The end point "/sparql" accepts ready only application/sparql-query or a form 
 and returns the result. The operation "?describe" can be appended to any IRI 

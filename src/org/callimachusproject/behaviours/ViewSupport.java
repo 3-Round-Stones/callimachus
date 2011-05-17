@@ -84,8 +84,7 @@ import org.openrdf.repository.object.RDFObject;
 public abstract class ViewSupport implements Page, RDFObject, VersionedObject, FileObject {
 	
 	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
-	private static TermFactory tf = TermFactory.newInstance();
-	public static String TRIAL = System.getProperty("trial");
+	private static final TermFactory tf = TermFactory.newInstance();
 
 	@Override
 	public String calliConstructHTML(Object target) throws Exception {
@@ -102,32 +101,25 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 		if (target instanceof RDFObject) {
 			uri = ((RDFObject) target).getResource().stringValue();
 		}
-		// trial may be set to e.g 'disabled' to switch off the new functionality
-		if (true ||"enabled".equals(TRIAL) && "view".equals(query)) {
-			ObjectConnection con = getObjectConnection();
-			uri = uri == null ? null : toUri().resolve(uri).toASCIIString();
-			URI uriValue = con.getValueFactory().createURI(uri);
+		ObjectConnection con = getObjectConnection();
+		uri = uri == null ? null : toUri().resolve(uri).toASCIIString();
+		URI uriValue = con.getValueFactory().createURI(uri);
 
-			// Apply the XSLT stylesheet to the template
-			BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query));
-			int bufferStart = template.mark();
+		// Apply the XSLT stylesheet to the template
+		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query));
+		int bufferStart = template.mark();
 
-			// Generate SPARQL from the template and evaluate
-			RDFEventReader rdfa = new RDFaReader(uri, template, toString());
-			SPARQLProducer sparql = new SPARQLProducer(rdfa, SPARQLProducer.QUERY.SELECT);
-			TupleQuery q = con.prepareTupleQuery(SPARQL, toSPARQL(sparql), uri);
-			q.setBinding("this", uriValue);
-			TupleQueryResult results = q.evaluate();
+		// Generate SPARQL from the template and evaluate
+		RDFEventReader rdfa = new RDFaReader(uri, template, toString());
+		SPARQLProducer sparql = new SPARQLProducer(rdfa, SPARQLProducer.QUERY.SELECT);
+		TupleQuery q = con.prepareTupleQuery(SPARQL, toSPARQL(sparql), uri);
+		q.setBinding("this", uriValue);
+		TupleQueryResult results = q.evaluate();
 
-			// Populate the template from the result set
-			template.reset(bufferStart);
-			XMLEventReader xrdfa = new RDFaProducer(template, results, sparql.getOrigins(), uriValue, con);
-			return toInputStream(xrdfa);
-		}
-		else {
-			XMLEventReader data = calliConstructRDF(query, null, uri);
-			return calliConstructTemplate(null, query, data);
-		}
+		// Populate the template from the result set
+		template.reset(bufferStart);
+		XMLEventReader xrdfa = new RDFaProducer(template, results, sparql.getOrigins(), uriValue, con);
+		return toInputStream(xrdfa);
 	}
 
 	/**
@@ -200,9 +192,6 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 			TransformerException {
 		return openPatternReader(query, element, about);
 	}
-
-	protected abstract InputStream calliConstructTemplate(String element,
-			String query, XMLEventReader rdf) throws Exception;
 
 	private XMLEventReader xslt(String qry) throws IOException,
 			XMLStreamException {

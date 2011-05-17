@@ -90,7 +90,6 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		}
 	};
 	private static final String DATA_ATTRIBUTES = "/callimachus/operations/data-attributes.xsl";
-	public static String TRIAL = System.getProperty("trial");
 
 	@query("xslt")
 	public XMLEventReader xslt(@query("query") String query,
@@ -98,9 +97,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 			IOException, TransformerException {
 		try {
 			XMLEventReader doc = applyXSLT(query);
-			if (true ||"enabled".equals(TRIAL) && "view".equals(query)) {
 			doc = addDataAttributes(doc, query);
-			}
 			if (element == null || element.equals("/1"))
 				return doc;
 			if (!element.startsWith("/1/"))

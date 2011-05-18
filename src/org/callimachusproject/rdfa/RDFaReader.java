@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventFactory;
@@ -177,7 +179,7 @@ public class RDFaReader extends RDFEventReader {
 				XMLEventWriter writer = getContentWriter();
 				if (contentDepth == 1) {
 					Map<String, Namespace> map = tag.getNamespaceMap();
-					Iterator iter = event.getNamespaces();
+					Iterator<?> iter = event.getNamespaces();
 					while (iter.hasNext()) {
 						Namespace ns = (Namespace) iter.next();
 						map.put(ns.getPrefix(), ns);
@@ -299,7 +301,7 @@ public class RDFaReader extends RDFEventReader {
 		}
 
 		public String getNamespaceURI(String prefix) {
-			Iterator iter = event.getNamespaces();
+			Iterator<?> iter = event.getNamespaces();
 			while (iter.hasNext()) {
 				Namespace ns = (Namespace) iter.next();
 				if (ns.getPrefix().equals(prefix))
@@ -319,7 +321,7 @@ public class RDFaReader extends RDFEventReader {
 			} else {
 				map = parent.getNamespaceMap();
 			}
-			Iterator iter = event.getNamespaces();
+			Iterator<?> iter = event.getNamespaces();
 			while (iter.hasNext()) {
 				Namespace ns = (Namespace) iter.next();
 				map.put(ns.getPrefix(), ns);
@@ -482,7 +484,7 @@ public class RDFaReader extends RDFEventReader {
 					queue.add(base(href));
 				}
 			}
-			Iterator nter = event.getNamespaces();
+			Iterator<?> nter = event.getNamespaces();
 			while (nter.hasNext()) {
 				Namespace ns = (Namespace) nter.next();
 				String uri = ns.getNamespaceURI();
@@ -498,6 +500,9 @@ public class RDFaReader extends RDFEventReader {
 					triple(subj, TYPE, t, false);
 				}
 			}
+			/*****/
+			addPropertyExpressions(subj, event);
+			/*****/
 			Node newSubject = getNewSubject();
 			List<Node> rel = getRel();
 			List<Node> rev = getRev();
@@ -525,6 +530,28 @@ public class RDFaReader extends RDFEventReader {
 				}
 				if (isStartResource()) {
 					queue.add(new Subject(true, getResource()));
+				}
+			}
+		}
+
+		// Property expression: \{([^\}\?\"\':]*):(\w+)\}
+		// group(1) is the prefix, group(2) is the local part, they must be separated by a colon
+		// The local part may only contain word characters
+		private static final String PROPERTY_EXP_REGEX = "\\{([^\\}\\?\\\"\\':]*):(\\w+)\\}";
+		private final Pattern PROPERTY_EXP_PATTERN = Pattern.compile(PROPERTY_EXP_REGEX);
+		
+		private void addPropertyExpressions(Node subj, StartElement start) 
+		throws RDFParseException {
+			Iterator<?> i = start.getAttributes();
+			while (i.hasNext()) {
+				Attribute a = (Attribute) i.next();
+				String value = a.getValue();
+				Matcher m = PROPERTY_EXP_PATTERN.matcher(value);
+				while (m.find()) {
+					PlainLiteral lit = tf.literal("");
+					Node c = curie(m.group(1)+":"+m.group(2));
+					lit.setOrigin(c.toString()+origin);
+					queue.add(new Triple(subj, (IRI) c, lit));
 				}
 			}
 		}

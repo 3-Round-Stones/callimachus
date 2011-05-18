@@ -305,13 +305,16 @@ form label[for], label[form] {
 }
 
 input, textarea, .textarea {
-	background-image: -moz-linear-gradient(top, #DDDDDD, white, white);
-	background-image: -webkit-gradient(linear, left top, left center, from(#DDDDDD), to(white));
-	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
 	border: thin solid #999FAD;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 	display: inline-block;
+	background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
+	background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#EEEEEE, endColorstr=white, GradientType=0)";
+	box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;
+	-moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;
+	-webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;
 }
 
 button {

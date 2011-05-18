@@ -115,7 +115,8 @@ public class XPathIterator implements Iterator<Object> {
 				}
 				catch (Exception e) {}
 
-				if (relative.contains("#")) relative = relative.substring(relative.lastIndexOf('#'));
+				if (relative.indexOf('#')>=0) relative = relative.substring(relative.lastIndexOf('#'));
+				//if (relative.indexOf('?')>=0) relative = relative.substring(relative.lastIndexOf('?'));
 				
 				// legacy RDFa generation removes about="?this" where there are no solutions
 				// in future retain @about with document URI (ending with .xhtml)

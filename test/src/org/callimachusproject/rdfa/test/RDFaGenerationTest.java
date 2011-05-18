@@ -44,7 +44,6 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -416,6 +415,7 @@ public class RDFaGenerationTest {
 	public static void setUp() throws Exception {		
 		xmlInputFactory = XMLInputFactory.newInstance();
 		xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+		xmlInputFactory.setProperty("http://java.sun.com/xml/stream/properties/report-cdata-event", true);
 		
 		// XSL
 		transformerFactory = TransformerFactory.newInstance();

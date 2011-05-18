@@ -43,6 +43,8 @@ import javax.xml.stream.events.XMLEvent;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.RDFaReader;
+import org.callimachusproject.rdfa.model.TermFactory;
+import org.callimachusproject.rdfa.model.Node;
 import org.openrdf.http.object.exceptions.InternalServerError;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -61,7 +63,6 @@ import org.openrdf.repository.RepositoryConnection;
  */
 
 public class RDFaProducer extends XMLEventReaderBase {
-	
 	final static String[] RDFA_OBJECT_ATTRIBUTES = { "about", "resource", "typeof", "content" };
 	final static List<String> RDFA_OBJECTS = Arrays.asList(RDFA_OBJECT_ATTRIBUTES);
 
@@ -77,6 +78,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	Stack<Context> stack = new Stack<Context>();
 	XMLEventFactory eventFactory = XMLEventFactory.newFactory();
 	ValueFactory valueFactory = new ValueFactoryImpl();
+	TermFactory termFactory = TermFactory.newInstance();
 	Context context = new Context();
 	String skipElement = null;
 	URI self;
@@ -88,8 +90,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 		String path;
 		Value content;
 		boolean isBranch=false, isHanging=false;
+		StartElement start;
 		protected Context() {}
-		protected Context(Context context) {
+		protected Context(Context context, StartElement start) {
+			this.start = start;
 			assignments.putAll(context.assignments);
 			// all sub-contexts of a hanging context are hanging
 			isHanging = context.isHanging;
@@ -111,7 +115,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		branches = new HashSet<String>();
 		for (String name: resultSet.getBindingNames()) {
 			String origin = origins.get(name);
-			//System.out.println(name+" "+origin);
+			System.out.println(name+" "+origin);
 			int n = origin.indexOf("/");
 			branches.add(origin.substring(n<0?0:n));
 		}
@@ -201,7 +205,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		else if (event.isStartElement()) {
 			StartElement start = event.asStartElement();
 			stack.push(context);
-			context = new Context(context);
+			context = new Context(context, start);
 			context.path = path();
 			// record the start element position in the stream
 			context.mark = reader.mark()-1;
@@ -213,11 +217,18 @@ public class RDFaProducer extends XMLEventReaderBase {
 			if (skipElement==null) {
 				context.isBranch = branchPoint(start);
 				if (context.isBranch) {		
-					context.content = assign(start);
+					//context.content = assign(start);
 				
 					// following the assignment there may be no more result bindings
 					// we may need the next result to complete the triple
-					if (!moreBindings()) result = nextResult();
+					//if (!moreBindings()) result = nextResult();
+					
+					while (consistent() && result!=null) {
+						Value c = assign(start);
+						if (context.content==null) context.content = c;
+						if (!moreBindings()) result = nextResult();
+						else break;
+					}
 	
 					// if there are no solutions then skip this branch
 					// All variables must be bound
@@ -313,6 +324,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// These origins are the first use of a variable - no need to check subsequent use in descendants
 		for (String name: resultSet.getBindingNames()) {
 			String origin = origins.get(name);
+			// process CONTENT
 			if (name.startsWith("_") && !origin.startsWith("CONTENT")) continue;
 			int n = origin.indexOf("/");
 			if (origin.substring(n<0?0:n).equals(context.path) 
@@ -324,6 +336,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	private boolean complete(StartElement start) {
 		// all implicit variables originating from this element must be bound
+		// excluding property expressions
 		for (String name: resultSet.getBindingNames()) {
 			if (!name.startsWith("_")) continue;
 			String origin = origins.get(name);
@@ -378,25 +391,35 @@ public class RDFaProducer extends XMLEventReaderBase {
 		return value!=null?valueFactory.createLiteral(value):null;
 	}
 	
-	/* Substitute variable expressions in attributes and text nodes */
+	/* Substitute variable and literal expressions in attributes and text nodes */
 	
+	// Variable expression
 	// \{\?([a-zA-Z]\w*)\}
 	private static final String VAR_EXP_REGEX = "\\{\\?([a-zA-Z]\\w*)\\}";
 	private static final Pattern VAR_EXP_PATTERN = Pattern.compile(VAR_EXP_REGEX);
 	
+	// Literal expression
 	// A string with " or ' delimiters, allowing escaped characters \" and \'
 	// \{(\"|\')(([^\"]|\\['"])*?)\1\}
 	private static final String LITERAL_EXP_REGEX = "\\{(\\\"|\\')(([^\\\"]|\\\\['\"])*?)\\1\\}";
 	private static final Pattern LITERAL_EXP_PATTERN = Pattern.compile(LITERAL_EXP_REGEX);
 	
+	// Property expression
+	// \{([^\}\?\"\':]*):(\w+)\}
+	// group(1) is the prefix, group(2) is the local part, they must be separated by a colon
+	// The local part may only contain word characters
+	private static final String PROPERTY_EXP_REGEX = "\\{([^\\}\\?\\\"\\':]*):(\\w+)\\}";
+	private final Pattern PROPERTY_EXP_PATTERN = Pattern.compile(PROPERTY_EXP_REGEX);
+	
 	String substitute(String text) {
 		// look for variable expressions in the attribute value
 		Matcher m = VAR_EXP_PATTERN.matcher(text);
 		Matcher m1 = LITERAL_EXP_PATTERN.matcher(text);
+		Matcher m2 = PROPERTY_EXP_PATTERN.matcher(text);
 		boolean found = false;
-		boolean b, b1 = false;
+		boolean b=false, b1=false, b2=false;
 		int start = 0;
-		while ((b=m.find(start)) || (b1=m1.find(start))) {
+		while ((b=m.find(start)) || (b1=m1.find(start)) || (b2=m2.find(start))) {
 			// variable expression
 			if (b) {
 				String var = m.group(1);
@@ -419,8 +442,31 @@ public class RDFaProducer extends XMLEventReaderBase {
 				found = true;
 				start = m1.end();
 			}
+			// property expression
+			else if (b2) {
+				NamespaceContext ctx = context.start.getNamespaceContext();
+				String prefix = m2.group(1), localPart = m2.group(2);
+				String ns = ctx.getNamespaceURI(prefix);
+				if (ns==null) ns = getNamespaceURI(prefix);
+				Node c = termFactory.curie(ns, localPart, prefix);
+				String var = getVar(c,context.path);
+				Value val = context.assignments.get(var);
+				text = text.replace(m2.group(), val.stringValue());
+				found = true;
+				start = m2.end();
+			}
 		}
 		return found?text:null;		
+	}
+	
+	private String getVar(Node c, String path) {
+		for (String name: origins.keySet()) {
+			if (!name.startsWith("_")) continue;
+			String origin = origins.get(name);
+			if (origin.equals(c.toString()+path)) 
+			return name;
+		}
+		return null;
 	}
 	
 	/* Use result bindings to make assignments in this context */
@@ -434,6 +480,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			String origin = origins.get(b.getName());
 			int n = origin.indexOf("/");
 			if (origin.substring(n<0?0:n).equals(context.path)) {
+				// process CONTENT
 				if (origin.equals("CONTENT"+context.path))
 					content = b.getValue();
 				if (b.getName().startsWith("_")) 
@@ -455,6 +502,22 @@ public class RDFaProducer extends XMLEventReaderBase {
 			}
 		}
 		return content;
+	}
+	
+	String getNamespaceURI(String prefix) {
+		if (prefix==null) return null;
+		String namespace = null;
+		try {
+			List<org.openrdf.model.Namespace> l = con.getNamespaces().asList();
+			for (int i=0; i<l.size(); i++) {
+				if (prefix.equals(l.get(i).getPrefix())) {
+					namespace = l.get(i).getName();
+					break;
+				}
+			}
+		} 
+		catch (Exception e) {}
+		return namespace;
 	}
 	
 	String getPrefix(String namespace, NamespaceContext ctx) {

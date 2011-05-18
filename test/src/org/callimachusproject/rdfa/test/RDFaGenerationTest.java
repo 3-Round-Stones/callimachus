@@ -130,7 +130,7 @@ public class RDFaGenerationTest {
 	static boolean show_results = false;
 
 	// this is the default test directory
-	static String test_dir = "RDFaGeneration/test-suite/test-cases/";
+	static String test_dir = "RDFaGeneration/test-suite/";
 	static {
 		// override default test-dir with VM arg
 		if (System.getProperty("dir")!=null)
@@ -138,7 +138,8 @@ public class RDFaGenerationTest {
 	}
 	
 	// the default test set to run on the default test_dir (other tests are assumed disabled)
-	static String test_set = "legacy construct select fragment";
+	//static String test_set = "legacy construct fragment select data";
+	static String test_set = "select data";
 	static {
 		// override default test-dir with VM arg
 		if (System.getProperty("test")!=null)
@@ -445,7 +446,7 @@ public class RDFaGenerationTest {
 		con.setNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
 		
 		// use the target filename as the base URL if not 'legacy', 'construct' or 'fragment' (all construct queries) ;
-		if (!test_set.contains("data") && !test_set.contains("construct") && !test_set.contains("fragment")) 
+		if (!test_set.contains("legacy") && !test_set.contains("construct") && !test_set.contains("fragment")) 
 			base = DATA_ATTRIBUTE_TEST_BASE;
 		else base = target.toURI().toURL().toString();
 		

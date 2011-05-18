@@ -399,13 +399,13 @@ public class RDFaReader extends RDFEventReader {
 
 		public BlankNode getBlankNode() {
 			BlankNode b = new BlankNode("n" + number);
-			b.setOrigin("ABOUT"+origin);
+			b.setOrigin(origin);
 			return b;
 		}
 
 		public BlankNode getNextBlankNode() {
 			BlankNode b = new BlankNode("n" + (number + 1));
-			b.setOrigin("RESOURCE"+origin);
+			b.setOrigin(origin);
 			return b;
 		}
 

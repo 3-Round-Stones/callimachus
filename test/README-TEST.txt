@@ -118,8 +118,6 @@ Ant Version: Ant 1.8.2
 Targets: test-rdfa-conformance
 Build File: test/build.xml
 
-
-
 Ant
 ---
 The ant scripts may be run independently of the integration server. The Callimachus compile and server start/stop scripts are defined in the main build.xml file. The test folder includes a build.xml file containing additional test scripts.
@@ -153,4 +151,18 @@ The ant script includes tests for the XHTML+RDFa generation. These tests are dyn
 3) Fragment test - checking the generation of XHTML+RDFa fragments by SPARQLProducer and SPARQLResultReader with construct.xsl.
 
 ant test-rdfa-generation
+
+Eclipse
+-------
+
+To run tests under eclipse, ensure that both src and test/src are configured as source folders. Also add all libraries from lib and only junit.jar from test/lib (adding selenium-server-standalone.jar is unnecessary and may cause conflict).
+The test-cases for RDFa conformance need to be downloaded. This may be done using "ant rdfa-test-suite" from the command line (in test), 
+or by running RDFaConformance.java with argument -get (with the working directory set to test).
+RDFaConformanceTest may be run-as a JUnit (4) test with the working directory should be set to test.
+
+Similarly RDFaGeneration may be run-as a JUnit (4) test with the working directory set to test. The default test directory is "RDFaGeneration/test-suite/" covering both legacy and new test-cases, and the tests performed are "select data".
+The full set of tests include also "legacy construct fragment", but these legacy tests should not be run on the full test-suite but "RDFaGeneration/test-suite/test-cases/".
+These settings can be set manually (or changed) by supplying VM args:
+-Ddir=RDFaGeneration/test-suite/ -Dtest="select"
+
 

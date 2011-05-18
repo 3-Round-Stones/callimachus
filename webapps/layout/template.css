@@ -267,6 +267,12 @@ img.icon {
 	color: #3F547F;
 }
 
+.watermark {
+	font-style: italic;
+	color: #aaa;
+	font-size: small;
+}
+
 div.ui-datepicker {
 	font-size: small;
 }

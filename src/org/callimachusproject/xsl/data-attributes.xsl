@@ -46,67 +46,88 @@
 		<xsl:copy />
 	</xsl:template>
 
-	<xsl:template mode="form" match="*">
+	<xsl:template mode="form" match="xhtml:button[@data-dialog]">
 		<xsl:copy>
-			<xsl:apply-templates mode="data-var" select="@*"/>
-			<xsl:apply-templates mode="data-expression" select="@*"/>
-			<xsl:if test="text() and not(*|comment())">
-				<xsl:call-template name="data-text-expression">
-					<xsl:with-param name="text" select="string(.)"/>
-				</xsl:call-template>
-			</xsl:if>
-			<xsl:if test="1=count(*[@about or @typeof or @resource or @property])">
-				<!-- Called to insert another property value or node -->
-				<xsl:attribute name="data-more">
-					<xsl:value-of select="$this" />
-					<xsl:text>?template&amp;query=</xsl:text>
-					<xsl:value-of select="$query" />
-					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select="*[@about or @typeof or @resource or @property]" />
-				</xsl:attribute>
-			</xsl:if>
-			<xsl:if test="xhtml:option[@about or @resource] or xhtml:label[@about or @resource]">
-				<!-- Called to populate select/radio/checkbox -->
-				<xsl:attribute name="data-options">
-					<xsl:value-of select="$this" />
-					<xsl:text>?options&amp;query=</xsl:text>
-					<xsl:value-of select="$query" />
-					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select="." />
-				</xsl:attribute>
-			</xsl:if>
-			<xsl:if test="1=count(*[@about or @resource])">
+			<xsl:if test="1=count(../*[@about or @resource]) and not(@data-search)">
 				<!-- Lookup possible members by label -->
 				<xsl:attribute name="data-search">
 					<xsl:value-of select="$this" />
 					<xsl:text>?search&amp;query=</xsl:text>
 					<xsl:value-of select="$query" />
 					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select="." />
+					<xsl:apply-templates mode="xptr-element" select=".." />
 					<xsl:text>&amp;q={searchTerms}</xsl:text>
 				</xsl:attribute>
-				<!-- Called when a resource URI is dropped to construct its label -->
-				<xsl:attribute name="data-add">
-					<xsl:value-of select="$this" />
-					<xsl:text>?construct&amp;query=</xsl:text>
-					<xsl:value-of select="$query" />
-					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select="*[@about or @resource]" />
-					<xsl:text>&amp;about={about}</xsl:text>
-				</xsl:attribute>
 			</xsl:if>
+			<xsl:call-template name="data-attributes" />
 			<xsl:apply-templates mode="form" select="@*|node()"/>
 		</xsl:copy>
 	</xsl:template>
 
+	<xsl:template mode="form" match="xhtml:button[contains(@class, 'add') and not(@data-dialog)]">
+		<xsl:copy>
+			<xsl:if test="1=count(../*[@about or @typeof or @resource or @property]) and not(@data-more)">
+				<!-- Called to insert another property value or node -->
+				<xsl:attribute name="data-more">
+					<xsl:value-of select="$this" />
+					<xsl:text>?template&amp;query=</xsl:text>
+					<xsl:value-of select="$query" />
+					<xsl:text>&amp;element=</xsl:text>
+					<xsl:apply-templates mode="xptr-element" select="../*[@about or @typeof or @resource or @property]" />
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:call-template name="data-attributes" />
+			<xsl:apply-templates mode="form" select="@*|node()"/>
+		</xsl:copy>
+	</xsl:template>
+
+	<xsl:template mode="form" match="*">
+		<xsl:copy>
+			<xsl:call-template name="data-attributes" />
+			<xsl:apply-templates mode="form" select="@*|node()"/>
+		</xsl:copy>
+	</xsl:template>
+
+	<xsl:template name="data-attributes">
+		<xsl:apply-templates mode="data-var" select="@*"/>
+		<xsl:apply-templates mode="data-expression" select="@*"/>
+		<xsl:if test="text() and not(*|comment())">
+			<xsl:call-template name="data-text-expression">
+				<xsl:with-param name="text" select="string(.)"/>
+			</xsl:call-template>
+		</xsl:if>
+		<xsl:if test="xhtml:option[@about or @resource] or xhtml:label[@about or @resource]">
+			<!-- Called to populate select/radio/checkbox -->
+			<xsl:attribute name="data-options">
+				<xsl:value-of select="$this" />
+				<xsl:text>?options&amp;query=</xsl:text>
+				<xsl:value-of select="$query" />
+				<xsl:text>&amp;element=</xsl:text>
+				<xsl:apply-templates mode="xptr-element" />
+			</xsl:attribute>
+		</xsl:if>
+		<xsl:if test="1=count(*[@about or @resource]) and not(@data-add)">
+			<!-- Called when a resource URI is dropped to construct its label -->
+			<xsl:attribute name="data-add">
+				<xsl:value-of select="$this" />
+				<xsl:text>?construct&amp;query=</xsl:text>
+				<xsl:value-of select="$query" />
+				<xsl:text>&amp;element=</xsl:text>
+				<xsl:apply-templates mode="xptr-element" select="*[@about or @resource]" />
+				<xsl:text>&amp;about={about}</xsl:text>
+			</xsl:attribute>
+		</xsl:if>
+	</xsl:template>
+
 	<!-- variable expressions -->
-	<xsl:template mode="data-var" match="@*">
+	<xsl:template mode="data-var" match="@about|@resource|@content|@href|@src">
 		<xsl:if test="starts-with(., '?')">
 			<xsl:attribute name="data-var-{name()}">
 				<xsl:value-of select="." />
 			</xsl:attribute>
 		</xsl:if>
 	</xsl:template>
+	<xsl:template mode="data-var" match="@*" />
 	<xsl:template mode="data-expression" match="@*">
 		<xsl:variable name="expression">
 			<xsl:value-of select="substring-before(substring-after(., '{'), '}')"/>

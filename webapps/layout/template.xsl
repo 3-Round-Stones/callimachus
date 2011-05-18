@@ -125,8 +125,8 @@
 			</div>
 
 			<xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history'">
-				<ul id="tabs">
-					<li class="authenticated">
+				<ul id="tabs" class="authenticated">
+					<li>
 						<a id="view-tab" tabindex="1">
 							<xsl:if test="not($query='view')">
 								<xsl:attribute name="href">?view</xsl:attribute>
@@ -135,7 +135,7 @@
 							<xsl:text>View</xsl:text>
 						</a>
 					</li>
-					<li class="authenticated">
+					<li>
 						<a id="edit-tab" tabindex="2">
 							<xsl:if test="not($query='edit')">
 								<xsl:attribute name="href">?edit</xsl:attribute>
@@ -144,7 +144,7 @@
 							<xsl:text>Edit</xsl:text>
 						</a>
 					</li>
-					<li class="authenticated">
+					<li>
 						<a id="discussion-tab" tabindex="3">
 							<xsl:if test="not($query='discussion')">
 								<xsl:attribute name="href">?discussion</xsl:attribute>
@@ -153,7 +153,7 @@
 							<xsl:text>Discussion</xsl:text>
 						</a>
 					</li>
-					<li class="authenticated">
+					<li>
 						<a id="describe-tab" tabindex="4">
 							<xsl:if test="not($query='describe')">
 								<xsl:attribute name="href">?describe</xsl:attribute>
@@ -162,7 +162,7 @@
 							<xsl:text>Describe</xsl:text>
 						</a>
 					</li>
-					<li class="authenticated">
+					<li>
 						<a id="history-tab" tabindex="5">
 							<xsl:if test="not($query='history')">
 								<xsl:attribute name="href">?history</xsl:attribute>

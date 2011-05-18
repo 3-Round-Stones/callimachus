@@ -69,6 +69,7 @@ public abstract class SearchSupport implements Page, SoundexTrait,
 
 	/**
 	 * Returns the given element with all known possible children.
+	 * TODO limit the result set
 	 */
 	@query("options")
 	@type("application/rdf+xml")

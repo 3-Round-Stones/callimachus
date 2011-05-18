@@ -97,20 +97,12 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 	}
 
 	@query("xslt")
-	public XMLEventReader xslt(@query("query") String query)
+	@type("application/xml")
+	public XMLEventReader xslt(@query("query") String query,
+			@query("element") String element)
 			throws XMLStreamException, IOException, TransformerException {
 		XMLEventReader doc = applyXSLT(query);
-		return addDataAttributes(doc, query);
-	}
-
-	/**
-	 * Extracts an element from the template (without variables).
-	 * TODO strip out RDFa variables and expressions
-	 */
-	@query("template")
-	public XMLEventReader template(@query("query") String query,
-			@query("element") String element) throws Exception {
-		return extract(xslt(query), element);
+		return extract(addDataAttributes(doc, query), element);
 	}
 
 	@query("triples")
@@ -118,7 +110,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 	public XMLEventReader triples(@query("query") String query,
 			@query("element") String element) throws Exception {
 		String base = toUri().toASCIIString();
-		XMLEventReader doc = extract(xslt(query), element);
+		XMLEventReader doc = xslt(query, element);
 		return new RDFXMLEventReader(new RDFaReader(base, doc, toString()));
 	}
 
@@ -139,7 +131,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 	public RDFEventReader openPatternReader(String about, String query,
 			String element) throws XMLStreamException, IOException,
 			TransformerException {
-		XMLEventReader template = extract(xslt(query), element);
+		XMLEventReader template = xslt(query, element);
 		RDFEventReader reader = new RDFaReader(about, template, toString());
 		
 		/* generate UNION form of sparql query */

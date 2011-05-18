@@ -58,7 +58,7 @@ function initDialogButton(buttons) {
 			});
 			iframe.dialog("open");
 			iframe.css('width', '100%');
-			if (list.attr("data-search")) {
+			if (add.attr("data-search") && add.attr("data-search").indexOf('{searchTerms}') >= 0) {
 				var dialogTitle = iframe.parents(".ui-dialog").find(".ui-dialog-title");
 				var searchTerms = id + "-input";
 				var form = $("<form>"
@@ -71,7 +71,7 @@ function initDialogButton(buttons) {
 				iframe.before(form);
 				form.submit(function(event) {
 					var terms = document.getElementById(searchTerms).value;
-					var searchUrl = list.attr("data-search").replace('{searchTerms}', encodeURIComponent(terms));
+					var searchUrl = add.attr("data-search").replace('{searchTerms}', encodeURIComponent(terms));
 					listSearchResults(searchUrl, iframe[0]);
 					event.preventDefault();
 					return false;

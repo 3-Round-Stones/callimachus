@@ -26,7 +26,8 @@ function initInputPromptTitle(input, title) {
 		id = 'input-' + (++counter);
 	}
 	var promptSpan = $("<span/>");
-	promptSpan.attr("style", "position: absolute; font-style: italic; color: #aaa; margin: 0px 1ex; cursor: text; line-height: 1.75em");
+	promptSpan.attr("class", "watermark");
+	promptSpan.attr("style", "position: absolute; margin: 0px 1ex; cursor: text; line-height: 1.75em; font-size: inherit");
 	promptSpan.attr('id', id + '-prompt');
 	promptSpan.attr("title", title);
 	promptSpan.text(title);

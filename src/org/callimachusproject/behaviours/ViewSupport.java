@@ -77,6 +77,20 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 		HTML_XSLT = new XSLTransformer(reader, url);
 	}
 
+	/**
+	 * Extracts an element from the template (without variables).
+	 * TODO strip out RDFa variables and expressions
+	 */
+	@query("template")
+	@type("text/html")
+	public String template(@query("query") String query,
+			@query("element") String element) throws Exception {
+		String html = asHtmlString(xslt(query, element));
+		html = html.replaceAll("\\{[^\\}<>]*\\}", "");
+		html = html.replaceAll("\\b(content|resource|about)(=[\"'])\\?\\w+([\"'])", "$1$2$3");
+		return html;
+	}
+
 	@Override
 	public String calliConstructHTML(Object target) throws Exception {
 		return calliConstructHTML(target, null);
@@ -85,8 +99,7 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 	@Override
 	public String calliConstructHTML(Object target, String query)
 			throws Exception {
-		XMLEventReader xhtml = calliConstruct(target, query);
-		return HTML_XSLT.transform(xhtml, this.toString()).asString();
+		return asHtmlString(calliConstruct(target, query));
 	}
 
 	/**
@@ -108,9 +121,9 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 	 * the element with the properties of the about resource.
 	 */
 	@query("construct")
-	@type("application/rdf+xml")
+	@type("text/html")
 	@header("cache-control:no-store")
-	public XMLEventReader calliConstruct(@query("about") URI about,
+	public InputStream calliConstruct(@query("about") URI about,
 			@query("query") String query, @query("element") String element)
 			throws Exception {
 		if (about != null && (element == null || element.equals("/1")))
@@ -119,7 +132,12 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 			ValueFactory vf = getObjectConnection().getValueFactory();
 			about = vf.createURI(this.toString());
 		}
-		return calliConstructXhtml(about, query, element);
+		XMLEventReader xhtml = calliConstructXhtml(about, query, element);
+		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
+	}
+
+	private String asHtmlString(XMLEventReader xhtml) throws Exception {
+		return HTML_XSLT.transform(xhtml, this.toString()).asString();
 	}
 
 	private XMLEventReader calliConstructXhtml(URI about, String query,

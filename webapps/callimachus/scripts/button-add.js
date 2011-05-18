@@ -7,23 +7,19 @@
 (function($){
 
 $(document).ready(function () {
-	bindAddButtons($("button.add"));
+	bindAddButtons($("button.add[data-more]"));
 });
 
 $(document).bind("DOMNodeInserted", function (event) {
-	bindAddButtons($(event.target).find("button.add").andSelf().filter("button.add"));
+	bindAddButtons($(event.target).find("button.add[data-more]").andSelf().filter("button.add[data-more]"));
 });
 
 function bindAddButtons(buttons) {
 	buttons.click(function() {
 		var button = $(this);
-		var more = button.parent().attr("data-more");
-		if (more) {
-			jQuery.get(more, function(data) {
-				var input = $(data);
-				button.before(input);
-			});
-		}
+		jQuery.get(button.attr("data-more"), function(data) {
+			button.before($(data).clone());
+		}, 'text');
 	});
 }
 

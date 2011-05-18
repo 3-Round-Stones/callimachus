@@ -50,6 +50,12 @@
 			height = 768;
 			width = originalImage.getWidth() * height / originalImage.getHeight();
 		}
+		if (width > originalImage.getWidth()) {
+			width = originalImage.getWidth();
+		}
+		if (height > originalImage.getHeight()) {
+			height = originalImage.getHeight();
+		}
 		var resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		var g = resizedImage.createGraphics();
 		g.drawImage(originalImage, 0, 0, width, height, null);
@@ -79,6 +85,12 @@
 			height = 480;
 			width = originalImage.getWidth() * height / originalImage.getHeight();
 		}
+		if (width > originalImage.getWidth()) {
+			width = originalImage.getWidth();
+		}
+		if (height > originalImage.getHeight()) {
+			height = originalImage.getHeight();
+		}
 		var resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		var g = resizedImage.createGraphics();
 		g.drawImage(originalImage, 0, 0, width, height, null);
@@ -107,6 +119,12 @@
 		if (width < 150) {
 			width = 150;
 			height = originalImage.getHeight() * width / originalImage.getWidth();
+		}
+		if (width > originalImage.getWidth()) {
+			width = originalImage.getWidth();
+		}
+		if (height > originalImage.getHeight()) {
+			height = originalImage.getHeight();
 		}
 		var resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		var g = resizedImage.createGraphics();

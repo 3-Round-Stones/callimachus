@@ -47,7 +47,7 @@ function propagate(node, expression, value) {
 		} else {
 			disableRDFa(declaration);
 		}
-	} else {
+	} else if (expression.indexOf(':') > 0) {
 		if (value) {
 			enableRDFa(node);
 			node.attr("property", expression);

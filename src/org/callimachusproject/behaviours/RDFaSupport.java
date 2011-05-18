@@ -123,9 +123,9 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		return toSPARQL(sparql).getBytes(Charset.forName("UTF-8"));
 	}
 
-	public RDFEventReader openBoundedPatterns(String query, String about)
+	public RDFEventReader openBoundedPatterns(String about, String query)
 			throws XMLStreamException, IOException, TransformerException {
-		return new BoundedRDFReader(openPatternReader(query, null, about));
+		return new BoundedRDFReader(openPatternReader(query, about, null));
 	}
 
 	public RDFEventReader openPatternReader(String about, String query,
@@ -179,7 +179,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 			if (element == null || element.equals("/1"))
 				return xhtml;
 			if (!element.startsWith("/1/"))
-				throw new BadRequest("Invalid element parameter");
+				throw new BadRequest("Invalid element parameter: " + element);
 			String parent = element.substring(0, element.lastIndexOf('/'));
 			String child = "/1" + element.substring(element.lastIndexOf('/'));
 			XMLElementReader pxptr = new XMLElementReader(xhtml, parent);
@@ -195,7 +195,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 			boolean nrel = isRelationshipElement(nxptr); // data-options(options)
 			xptr.reset();
 			if (!prel && !crel && !nrel)
-				throw new BadRequest("Invalid element parameter");
+				throw new BadRequest("Invalid element parameter: " + element);
 			return xptr;
 		} catch (NumberFormatException e) {
 			throw new BadRequest(e);

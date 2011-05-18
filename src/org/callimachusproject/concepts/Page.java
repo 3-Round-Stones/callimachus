@@ -55,7 +55,7 @@ public interface Page {
 	 * Returns only the primary patterns as for the given subject.
 	 * @param about the subject to filter the pattern with.
 	 */
-	RDFEventReader openBoundedPatterns(String query, String about)
+	RDFEventReader openBoundedPatterns(String about, String query)
 			throws XMLStreamException, IOException, TransformerException;
 
 	/**

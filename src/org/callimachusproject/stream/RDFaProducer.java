@@ -149,7 +149,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		int startMark = this.reader.mark();
 		try {
 			// Generate SPARQL from the template and evaluate
-			RDFEventReader rdfa = new RDFaReader(self.stringValue(), this.reader, reader.toString());
+			RDFEventReader rdfa = new RDFaReader(self.stringValue(), this.reader, self.stringValue());
 			SPARQLProducer sparql = new SPARQLProducer(rdfa, SPARQLProducer.QUERY.SELECT);
 			SPARQLWriter.toSPARQL(sparql);
 			return sparql.getOrigins();

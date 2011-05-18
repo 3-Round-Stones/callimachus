@@ -87,7 +87,7 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 			@query("element") String element) throws Exception {
 		String html = asHtmlString(xslt(query, element));
 		html = html.replaceAll("\\{[^\\}<>]*\\}", "");
-		html = html.replaceAll("\\b(content|resource|about)(=[\"'])\\?\\w+([\"'])", "$1$2$3");
+		html = html.replaceAll("(\\s)(content|resource|about)(=[\"'])\\?\\w+([\"'])", "$1$2$3$4");
 		return html;
 	}
 

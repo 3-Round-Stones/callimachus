@@ -94,7 +94,10 @@ public class RDFaReader extends RDFEventReader {
 	public RDFaReader(String base, XMLEventReader reader, String systemId) {
 		this.reader = reader;
 		this.systemId = systemId;
-		this.base = new Base(base == null ? systemId : base);
+		this.base = new Base(systemId);
+		if (base != null) {
+			this.base = new Base(this.base.resolve(base));
+		}
 		this.document = tf.reference(this.base.getBase(), this.base.getReference());
 	}
 	

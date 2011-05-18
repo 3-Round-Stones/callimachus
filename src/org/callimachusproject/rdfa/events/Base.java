@@ -31,7 +31,7 @@ public class Base extends RDFEvent {
 	public Base(String base) {
 		assert base != null;
 		this.base = new ParsedURI(base);
-		assert this.base.isAbsolute();
+		assert this.base.isAbsolute() : base;
 	}
 
 	public String getBase() {

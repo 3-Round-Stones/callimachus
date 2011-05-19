@@ -86,6 +86,7 @@ public class RDFaReader extends RDFEventReader {
 	private TermFactory tf = TermFactory.newInstance();
 	private IRI XMLLITERAL = tf.iri(RDF + "XMLLiteral");
 	private List<Node> TYPE = Arrays.asList((Node) tf.iri(RDF + "type"));
+	public static final String CONTENT = "!";
 	
 	// The element stack keeps track of the origin of the node
 	private Stack<Integer> elementStack = new Stack<Integer>();
@@ -261,7 +262,7 @@ public class RDFaReader extends RDFEventReader {
 		private String content;
 		private Node datatype;
 		private boolean startedSubject;
-		private Node list;
+		//private Node list;
 		String origin;
 
 		public Tag(Tag parent, StartElement event, boolean empty, int number) {
@@ -503,9 +504,9 @@ public class RDFaReader extends RDFEventReader {
 					triple(subj, TYPE, t, false);
 				}
 			}
-			/*****/
+
 			addPropertyExpressions(subj, event);
-			/*****/
+
 			Node newSubject = getNewSubject();
 			List<Node> rel = getRel();
 			List<Node> rev = getRev();
@@ -553,7 +554,7 @@ public class RDFaReader extends RDFEventReader {
 				while (m.find()) {
 					PlainLiteral lit = tf.literal("");
 					Node c = curie(m.group(1)+":"+m.group(2));
-					lit.setOrigin(c.toString()+origin);
+					lit.setOrigin(origin+" "+c);
 					queue.add(new Triple(subj, (IRI) c, lit));
 				}
 			}
@@ -683,7 +684,7 @@ public class RDFaReader extends RDFEventReader {
 		private void plain(Node subj, List<Node> pred, String content,
 				String lang) {
 			PlainLiteral lit = tf.literal(content, lang);
-			lit.setOrigin("CONTENT"+origin);
+			lit.setOrigin(origin+" "+CONTENT);
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit));
 			}
@@ -692,10 +693,11 @@ public class RDFaReader extends RDFEventReader {
 		private void typed(Node subj, List<Node> pred, String content,
 				IRI datatype) {
 			TypedLiteral lit = tf.literal(content, datatype);
-			lit.setOrigin("CONTENT"+origin);
+			lit.setOrigin(origin+ " "+CONTENT);
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit));
 			}
 		}
+
 	}
 }

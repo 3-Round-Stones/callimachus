@@ -47,7 +47,7 @@ public class XPathIterator implements Iterator<Object> {
 	boolean useDataAttributes = false;
 	static XPathFactory xPathFactory = XPathFactory.newInstance();
 	
-	final String[] DISTINGUISHING_VALUE_ATTRIBUTES = { "id", "name", "class", "content", "for", "lang" };
+	final String[] DISTINGUISHING_VALUE_ATTRIBUTES = { "id", "name", "class", "content", "for", "lang", "value" };
 	List<String> distinguishingValueAttributes = Arrays.asList(DISTINGUISHING_VALUE_ATTRIBUTES);
 
 	final String[] DISTINGUISHING_URI_ATTRIBUTES = { "about", "resource", "href", "src", "datatype" };

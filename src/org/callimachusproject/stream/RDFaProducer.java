@@ -63,6 +63,7 @@ import org.openrdf.repository.RepositoryConnection;
  */
 
 public class RDFaProducer extends XMLEventReaderBase {
+	
 	final static String[] RDFA_OBJECT_ATTRIBUTES = { "about", "resource", "typeof", "content" };
 	final static List<String> RDFA_OBJECTS = Arrays.asList(RDFA_OBJECT_ATTRIBUTES);
 
@@ -91,6 +92,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		Value content;
 		boolean isBranch=false, isHanging=false;
 		StartElement start;
+
 		protected Context() {}
 		protected Context(Context context, StartElement start) {
 			this.start = start;
@@ -114,10 +116,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		
 		branches = new HashSet<String>();
 		for (String name: resultSet.getBindingNames()) {
-			String origin = origins.get(name);
-			System.out.println(name+" "+origin);
-			int n = origin.indexOf("/");
-			branches.add(origin.substring(n<0?0:n));
+			List<String> origin = Arrays.asList(origins.get(name).split(" "));
+			//System.out.println(name+" "+origins.get(name));			
+			branches.add(origin.get(0));
 		}
 	}
 
@@ -133,10 +134,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		this.origins = getOrigins(self, reader);
 		branches = new HashSet<String>();
 		for (String name: resultSet.getBindingNames()) {
-			String origin = origins.get(name);
-			//System.out.println(name+" "+origin);
-			int n = origin.indexOf("/");
-			branches.add(origin.substring(n<0?0:n));
+			List<String> origin = Arrays.asList(origins.get(name).split(" "));
+			//System.out.println(name+" "+origins.get(name));
+			branches.add(origin.get(0));
 		}
 		this.reader.mark();
 	}
@@ -216,12 +216,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 			
 			if (skipElement==null) {
 				context.isBranch = branchPoint(start);
-				if (context.isBranch) {		
-					//context.content = assign(start);
-				
-					// following the assignment there may be no more result bindings
-					// we may need the next result to complete the triple
-					//if (!moreBindings()) result = nextResult();
+				if (context.isBranch) {	
+					// optional properties (in the next result) required deeper in the tree
+					// collapse multiple consistent solutions into a single element
+					// required for property expressions
 					
 					while (consistent() && result!=null) {
 						Value c = assign(start);
@@ -237,9 +235,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 						addStartElement(start);
 					}
 					else skipElement = context.path;
-//					if (!grounded(start))
-//						skipElement = context.path;
-//					else addStartElement(start);
 				}
 				// even if this is not a branch-point it may still contain substitutable attributes
 				else addStartElement(start);
@@ -254,22 +249,19 @@ public class RDFaProducer extends XMLEventReaderBase {
 				return false;
 			}
 			add(event);
-			if (context.isBranch && result!=null) {
-				if (!moreBindings()) result = nextResult();
-
-				if (!consistent()) {
-					int mark = context.mark;
-					context = stack.pop();
-					context.position++;
-					if (consistent()) {
-						reader.reset(mark);
-						context.position--;
-					}
-					return true;
+			if (context.isBranch && result!=null && !consistent()) {
+				int mark = context.mark;
+				context = stack.pop();
+				context.position++;
+				if (consistent()) {
+					reader.reset(mark);
+					context.position--;
 				}
 			}
-			context = stack.pop();
-			context.position++;
+			else {
+				context = stack.pop();
+				context.position++;
+			}
 			return true;
 		}
 		else if (event.isCharacters()) {
@@ -291,10 +283,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		return false;
 	}
-	
-	/* search for additional bindings to complete a "hanging rel"
-	 * This may be a bnode associated with the element itself (or a nested element)
-	 */
 
 	private boolean branchPoint(StartElement start) {
 		if (branches.contains(context.path)) return true;
@@ -312,8 +300,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		if (result==null) return false;
 		for (Iterator<Binding> i=result.iterator(); i.hasNext();) {
 			Binding b = i.next();
-			if (!context.assignments.keySet().contains(b.getName()) 
-			|| !context.assignments.get(b.getName()).equals(b.getValue())) 
+			if (!context.assignments.keySet().contains(b.getName()) )
 				return true;
 		}		
 		return false;
@@ -323,12 +310,11 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// all explicit variables or content originating from this element must be bound
 		// These origins are the first use of a variable - no need to check subsequent use in descendants
 		for (String name: resultSet.getBindingNames()) {
-			String origin = origins.get(name);
-			// process CONTENT
-			if (name.startsWith("_") && !origin.startsWith("CONTENT")) continue;
-			int n = origin.indexOf("/");
-			if (origin.substring(n<0?0:n).equals(context.path) 
-			&& context.assignments.get(name)==null) 
+			List<String> origin = Arrays.asList(origins.get(name).split(" "));
+			// implicit vars (apart from CONTENT) need not be grounded
+			if (name.startsWith("_") && !origin.contains(RDFaReader.CONTENT)) 
+				continue;
+			if (origin.get(0).equals(context.path) && context.assignments.get(name)==null) 
 				return false;
 		}
 		return true;
@@ -339,21 +325,23 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// excluding property expressions
 		for (String name: resultSet.getBindingNames()) {
 			if (!name.startsWith("_")) continue;
-			String origin = origins.get(name);
-			int n = origin.indexOf("/");
-			if (origin.substring(n<0?0:n).equals(context.path) 
-			&& context.assignments.get(name)==null) 
+			List<String> origin = Arrays.asList(origins.get(name).split(" "));
+			if (origin.get(0).equals(context.path) && context.assignments.get(name)==null) 
 				return false;
 		}
 		return true;
 	}
 
-	/* is the result set consistent with assignments to this point */
+	/* is the result set consistent with assignments to this point 
+	 * variables tied to property expressions are not considered */
 	
 	private boolean consistent() {
 		if (result==null) return true;
 		for (Iterator<Binding> i=result.iterator(); i.hasNext();) {
 			Binding b = i.next();
+			List<String> origin = Arrays.asList(origins.get(b.getName()).split(" "));
+			// is this a property expression with a curie
+			if (origin.size()>1 && origin.get(1).contains(":")) continue;
 			Value v = context.assignments.get(b.getName());
 			if (v!=null && !b.getValue().equals(v)) return false;
 		}
@@ -381,9 +369,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		// enumerate variables in triples with ?VAR syntax
 		for (String name: resultSet.getBindingNames()) {
-			String origin = origins.get(name);
-			int n = origin.indexOf("/");
-			if (origin.substring(n<0?0:n).equals(path) && value.startsWith("?"))
+			List<String> origin = Arrays.asList(origins.get(name).split(" "));
+			if (origin.get(0).equals(context.path) && value.startsWith("?")) 
 				return context.assignments.get(name);
 		}
 		// look for variable expressions in the attribute value
@@ -444,14 +431,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 			}
 			// property expression
 			else if (b2) {
-				NamespaceContext ctx = context.start.getNamespaceContext();
 				String prefix = m2.group(1), localPart = m2.group(2);
-				String ns = ctx.getNamespaceURI(prefix);
-				if (ns==null) ns = getNamespaceURI(prefix);
-				Node c = termFactory.curie(ns, localPart, prefix);
-				String var = getVar(c,context.path);
+				String var = getVar(prefix+":"+localPart,context.path);
 				Value val = context.assignments.get(var);
-				text = text.replace(m2.group(), val.stringValue());
+				text = text.replace(m2.group(), val!=null?val.stringValue():"");
 				found = true;
 				start = m2.end();
 			}
@@ -459,12 +442,26 @@ public class RDFaProducer extends XMLEventReaderBase {
 		return found?text:null;		
 	}
 	
-	private String getVar(Node c, String path) {
+	Node curie(String curie) {
+		if (curie==null) return null;
+		String[] parts = curie.split(":");
+		if (parts.length!=2) return null;
+		return curie(parts[0],parts[1]);
+	}
+	
+	Node curie(String prefix, String localPart) {
+		NamespaceContext ctx = context.start.getNamespaceContext();
+		String ns = ctx.getNamespaceURI(prefix);
+		if (ns==null) ns = getNamespaceURI(prefix);
+		return termFactory.curie(ns, localPart, prefix);
+	}
+	
+	private String getVar(String property, String path) {
 		for (String name: origins.keySet()) {
 			if (!name.startsWith("_")) continue;
-			String origin = origins.get(name);
-			if (origin.equals(c.toString()+path)) 
-			return name;
+			List<String> origin = Arrays.asList(origins.get(name).split(" "));
+			if (origin.get(0).startsWith(path) && origin.contains(property)) 
+				return name;
 		}
 		return null;
 	}
@@ -477,14 +474,21 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// identify implicit variables for this element, not found among the attributes
 		for (Iterator<Binding> i=result.iterator(); i.hasNext();) {
 			Binding b = i.next();
-			String origin = origins.get(b.getName());
-			int n = origin.indexOf("/");
-			if (origin.substring(n<0?0:n).equals(context.path)) {
-				// process CONTENT
-				if (origin.equals("CONTENT"+context.path))
+			List<String> origin = Arrays.asList(origins.get(b.getName()).split(" "));
+			if (origin.get(0).equals(context.path)) {
+				// context.property refers to CONTENT
+				if (origin.contains(RDFaReader.CONTENT))
 					content = b.getValue();
-				if (b.getName().startsWith("_")) 
-					context.assignments.put(b.getName(), b.getValue());
+				if (b.getName().startsWith("_")) {
+					Value val = b.getValue();
+					Value current = context.assignments.get(b.getName());
+					if (current!=null) {
+						// append multiple property values
+						String append = current.stringValue() + " " + val.stringValue();
+						val = valueFactory.createLiteral(append);
+					}
+					context.assignments.put(b.getName(), val);
+				}
 			}
 		}
 		// identify attributes that MAY contain RDFa variables,

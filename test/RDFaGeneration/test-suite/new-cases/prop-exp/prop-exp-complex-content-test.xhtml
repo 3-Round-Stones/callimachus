@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html version="XHTML+RDFa 1.1" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+	<head>
+		<title>Test prop-exp-complex-content</title>
+	</head>
+	<body about="?this">
+		<div value="{rdfs:label}" property="rdfs:label" content="">
+			<div rel="skos:hasTopConcept">
+				<span about="?concept" property="skos:prefLabel" />
+			</div>
+			<div property="rdfs:comment"/>
+		</div>
+	</body>
+</html>

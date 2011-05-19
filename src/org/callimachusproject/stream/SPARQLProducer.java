@@ -17,7 +17,9 @@
  */
 package org.callimachusproject.stream;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -179,11 +181,11 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		}
 	}
 	
-	String origin(VarOrTerm term) {
-		String origin = term.getOrigin();
-		int n = origin.indexOf('/');
-		return origin.substring(n<0?0:n);
-	}
+//	String origin(VarOrTerm term) {
+//		String origin = term.getOrigin();
+//		int n = origin.indexOf('/');
+//		return origin.substring(n<0?0:n);
+//	}
 
 	public SPARQLProducer(RDFEventReader reader) {
 		super(reader);
@@ -304,8 +306,11 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			e = peek(lookAhead++);
 			if (e.isStartSubject()) {
 				depth++;
-				if (x==null)
-					x = origin(e.asSubject().getSubject());
+				if (x==null) {
+					List<String> origin = Arrays.asList(e.asSubject().getSubject().getOrigin().split(" "));
+					x = origin.get(0);
+					//x = origin(e.asSubject().getSubject());
+				}
 			}
 			else if (e.isEndSubject()) {
 				depth--;
@@ -313,7 +318,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			else if (depth==0 && x!=null && e.isTriple()) {
 				Term obj = e.asTriple().getObject();
 				if (obj.isLiteral()) {
-					y = origin(obj);
+					//y = origin(obj);
+					List<String> origin = Arrays.asList(obj.getOrigin().split(" "));
+					y = origin.get(0);
 					if (x.startsWith(y))
 						// triple processing must not rely on lookahead
 						process(e);
@@ -327,8 +334,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	
 	private boolean promoted(Triple triple) {
 		Term obj = triple.getObject();
-		boolean b = obj.isLiteral() && origins.containsValue("CONTENT"+origin(obj));
-		return b;
+		//List<String> origin = Arrays.asList(obj.getOrigin().split(" "));
+//		boolean b = obj.isLiteral() && origins.containsValue("CONTENT"+origin(obj));
+		return obj.isLiteral() && origins.containsValue(obj.getOrigin());
 	}
 
 	private void addBase() throws RDFParseException {

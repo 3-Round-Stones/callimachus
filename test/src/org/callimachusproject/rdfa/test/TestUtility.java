@@ -87,7 +87,7 @@ public class TestUtility {
 
 	public static RDFaReader parseRDFa(File rdfa, String base) throws Exception {
 		XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(rdfa));   
-		RDFaReader rdf = new RDFaReader(base, xml, null);
+		RDFaReader rdf = new RDFaReader(base, xml, base);
 		return rdf;
 	}
 	

@@ -113,7 +113,7 @@ public class RDFaGenerationTest {
 	static final String TRANSFORM = "../webapps/callimachus/operations/construct.xsl";
 	static final String TEST_FILE_SUFFIX = "-test";
 	static final String DATA_ATTRIBUTE_TEST_BASE = "http://example.org/test";
-	static final String DATA_ATTRIBUTE_TEST_XSLT = "../webapps/callimachus/operations/data-attributes.xsl";
+	static final String DATA_ATTRIBUTE_TEST_XSLT = "../src/org/callimachusproject/xsl/data-attributes.xsl";
 	static final String MENU = "examples/menu.xml";
 			
 	// static properties defined in @BeforeClass setUp()
@@ -476,7 +476,7 @@ public class RDFaGenerationTest {
 				write(readDocument(template),System.out);
 			}
 			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
-			RDFEventReader rdfa = new RDFaReader(base, xml, null);
+			RDFEventReader rdfa = new RDFaReader(base, xml, base);
 			RDFEventReader sparql = new GraphPatternReader(rdfa);
 			TriplePatternStore query = constructQuery(base, sparql, true);
 			String uri = isViewable(readDocument(template))?base:null;
@@ -526,7 +526,7 @@ public class RDFaGenerationTest {
 			}
 			// produce SPARQL from the RDFa template
 			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
-			RDFEventReader rdfa = new RDFaReader(base, xml, null);
+			RDFEventReader rdfa = new RDFaReader(base, xml, base);
 			RDFEventReader sparql = new SPARQLProducer(rdfa);
 
 			TriplePatternStore query = constructQuery(base, sparql, true);
@@ -574,7 +574,7 @@ public class RDFaGenerationTest {
 		assumeTrue(test_set.contains("fragment"));
 		try {
 			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
-			RDFEventReader rdfa = new RDFaReader(base, xml, null);
+			RDFEventReader rdfa = new RDFaReader(base, xml, base);
 			RDFEventReader sparql = new SPARQLProducer(rdfa);
 			TriplePatternStore query = constructQuery(base, sparql, true);
 			// the URI is supplied for a ?view template, but not for ?construct
@@ -593,7 +593,7 @@ public class RDFaGenerationTest {
 				// Generate the query from the fragment
 				xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
 				XMLElementReader xmlFragment = new XMLElementReader(xml,path);
-				rdfa = new RDFaReader(base, xmlFragment, null);
+				rdfa = new RDFaReader(base, xmlFragment, base);
 				sparql = new SPARQLProducer(rdfa);
 				query = constructQuery(base, sparql, true);
 				
@@ -673,7 +673,7 @@ public class RDFaGenerationTest {
 			int start = xml.mark();
 
 			//XMLEventReader xml = xmlInputFactory.createXMLEventReader(src); 
-			RDFEventReader rdfa = new RDFaReader(base, xml, null);			
+			RDFEventReader rdfa = new RDFaReader(base, xml, base);			
 			SPARQLProducer sparql = new SPARQLProducer(rdfa,SPARQLProducer.QUERY.SELECT);
 			String query = toSPARQL(sparql);			
 			ValueFactory vf = con.getValueFactory();
@@ -731,7 +731,7 @@ public class RDFaGenerationTest {
 		BufferedXMLEventReader buffer = new BufferedXMLEventReader(xml);
 		int start = buffer.mark();
 
-		RDFEventReader rdfa = new RDFaReader(base, buffer, null);			
+		RDFEventReader rdfa = new RDFaReader(base, buffer, base);			
 		SPARQLProducer sparql = new SPARQLProducer(rdfa,SPARQLProducer.QUERY.SELECT);
 		String query = toSPARQL(sparql);
 

@@ -219,7 +219,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 			if (skipElement==null) {
 				context.isBranch = branchPoint(start);
 				if (context.isBranch) {
-					if (previous.isCharacters())
+					// save preceding whitespace for repeating branch points
+					if (isWhitespace(previous))
 						context.previousWhitespace = previous;
 					
 					// optional properties (in the next result) required deeper in the tree
@@ -389,6 +390,17 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// look for variable expressions in the attribute value
 		value = substitute(value);
 		return value!=null?valueFactory.createLiteral(value):null;
+	}
+	
+	// whitespace
+	private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s*");
+	
+	boolean isWhitespace(XMLEvent event) {
+		if (event.isCharacters()) {
+			String text = event.asCharacters().getData();
+			return WHITESPACE_PATTERN.matcher(text).matches();
+		}
+		return false;
 	}
 	
 	/* Substitute variable and literal expressions in attributes and text nodes */

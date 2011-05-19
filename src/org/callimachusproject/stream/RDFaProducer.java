@@ -123,16 +123,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	public RDFaProducer
 	(XMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self, RepositoryConnection con) 
 	throws Exception {
-		super();
-		this.reader = new BufferedXMLEventReader(reader);
-		this.resultSet = resultSet;
-		result = nextResult();
-		this.self = self;
-		this.con = con;
-		this.origins = origins;
-		
-		for (String name: resultSet.getBindingNames())
-			branches.add(origins.get(name).split(" ")[0]);
+		this(new BufferedXMLEventReader(reader), resultSet, origins, self, con);
 		this.reader.mark();
 	}
 

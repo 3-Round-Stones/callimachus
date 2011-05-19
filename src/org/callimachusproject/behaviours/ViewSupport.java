@@ -139,28 +139,48 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 	private String asHtmlString(XMLEventReader xhtml) throws Exception {
 		return HTML_XSLT.transform(xhtml, this.toString()).asString();
 	}
+	
+//	private XMLEventReader calliConstructXhtml(URI about, String query,
+//			String element) throws Exception {
+//		ObjectConnection con = getObjectConnection();
+//		// Generate SPARQL from the template and evaluate
+//		TupleQueryResult results = evaluate(about, query, element);
+//		return new RDFaProducer(xslt(query, element), results, about, con);
+//	}
+//
+//	private TupleQueryResult evaluate(URI about, String query, String element)
+//			throws Exception {
+//		if (about == null) {
+//			List<String> names = Collections.emptyList();
+//			List<BindingSet> results = Collections.emptyList();
+//			return new TupleQueryResultImpl(names, results.iterator());
+//		}
+//		String base = about.stringValue();
+//		String qry = sparql(query, element);
+//		ObjectConnection con = getObjectConnection();
+//		TupleQuery q = con.prepareTupleQuery(SPARQL, qry, base);
+//		q.setBinding("this", about);
+//		return q.evaluate();
+//	}
 
-	private XMLEventReader calliConstructXhtml(URI about, String query,
-			String element) throws Exception {
+	private XMLEventReader calliConstructXhtml(URI about, String query, String element) 
+	throws Exception {
 		ObjectConnection con = getObjectConnection();
-		// Generate SPARQL from the template and evaluate
-		TupleQueryResult results = evaluate(about, query, element);
-		return new RDFaProducer(xslt(query, element), results, about, con);
-	}
-
-	private TupleQueryResult evaluate(URI about, String query, String element)
-			throws Exception {
-		if (about == null) {
+		String sparql=null;
+		TupleQueryResult results;
+		if (about==null) {
 			List<String> names = Collections.emptyList();
-			List<BindingSet> results = Collections.emptyList();
-			return new TupleQueryResultImpl(names, results.iterator());
+			List<BindingSet> bindings = Collections.emptyList();
+			results = new TupleQueryResultImpl(names, bindings.iterator());			
 		}
-		String base = about.stringValue();
-		String qry = sparql(query, element);
-		ObjectConnection con = getObjectConnection();
-		TupleQuery q = con.prepareTupleQuery(SPARQL, qry, base);
-		q.setBinding("this", about);
-		return q.evaluate();
+		else { // evaluate SPARQL derived from the template
+			String base = about.stringValue();
+			sparql = sparql(query, element);
+			TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, base);
+			q.setBinding("this", about);
+			results = q.evaluate();
+		}
+		return new RDFaProducer(xslt(query, element), results, sparql, about, con);
 	}
 
 	private String sparql(String query, String element) throws IOException {

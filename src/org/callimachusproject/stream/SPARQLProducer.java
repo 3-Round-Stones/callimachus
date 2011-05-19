@@ -567,6 +567,8 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		return origins;
 	}
 	
+	/* extract origins from sparql query annotation */
+	
 	// # @origin ([^\s]+)\s([^\n]+)\n
 	private static final String ORIGIN_REGEX = "# @origin ([^\\s]+)\\s([^\\n]+)\\n";
 	private static final Pattern ORIGIN_PATTERN = Pattern.compile(ORIGIN_REGEX);

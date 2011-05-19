@@ -75,7 +75,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	Map<String,String> origins;
 	TupleQueryResult resultSet;
 	BindingSet result;
-	Set<String> branches;
+	Set<String> branches = new HashSet<String>();
 	Stack<Context> stack = new Stack<Context>();
 	XMLEventFactory eventFactory = XMLEventFactory.newFactory();
 	ValueFactory valueFactory = new ValueFactoryImpl();
@@ -106,7 +106,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	/* @Param con	required to resolve (datatype) namespace prefixes */
 	
-	public RDFaProducer(BufferedXMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self, RepositoryConnection con) 
+	public RDFaProducer
+	(BufferedXMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self, RepositoryConnection con) 
 	throws Exception {
 		super();
 		this.reader = reader;
@@ -116,16 +117,32 @@ public class RDFaProducer extends XMLEventReaderBase {
 		this.self = self;
 		this.con = con;
 		
-		branches = new HashSet<String>();
 		for (String name: resultSet.getBindingNames()) {
-			List<String> origin = Arrays.asList(origins.get(name).split(" "));
+			String[] origin = origins.get(name).split(" ");
 			//System.out.println(name+" "+origins.get(name));			
-			branches.add(origin.get(0));
+			branches.add(origin[0]);
 		}
 	}
+	
+	public RDFaProducer
+	(XMLEventReader reader, TupleQueryResult resultSet, String sparql, URI self, RepositoryConnection con) 
+	throws Exception {
+		super();
+		this.reader = new BufferedXMLEventReader(reader);
+		this.resultSet = resultSet;
+		result = nextResult();
+		this.self = self;
+		this.con = con;
 
-	public RDFaProducer(XMLEventReader reader, TupleQueryResult resultSet,
-			URI self, RepositoryConnection con) throws Exception {
+		this.origins = SPARQLProducer.getOrigins(sparql);
+		for (String name: resultSet.getBindingNames())
+			branches.add(origins.get(name).split(" ")[0]);
+		this.reader.mark();
+	}
+
+	public RDFaProducer
+	(XMLEventReader reader, TupleQueryResult resultSet, URI self, RepositoryConnection con) 
+	throws Exception {
 		super();
 		this.reader = new BufferedXMLEventReader(reader);
 		this.resultSet = resultSet;
@@ -134,12 +151,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		this.con = con;
 
 		this.origins = getOrigins(self, reader);
-		branches = new HashSet<String>();
-		for (String name: resultSet.getBindingNames()) {
-			List<String> origin = Arrays.asList(origins.get(name).split(" "));
-			//System.out.println(name+" "+origins.get(name));
-			branches.add(origin.get(0));
-		}
+		for (String name: resultSet.getBindingNames())
+			branches.add(origins.get(name).split(" ")[0]);
 		this.reader.mark();
 	}
 
@@ -159,7 +172,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 			this.reader.reset(startMark);
 		}
 	}
-
 
 	@Override
 	public void close() throws XMLStreamException {
@@ -339,8 +351,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// excluding property expressions
 		for (String name: resultSet.getBindingNames()) {
 			if (!name.startsWith("_")) continue;
-			List<String> origin = Arrays.asList(origins.get(name).split(" "));
-			if (origin.get(0).equals(context.path) && context.assignments.get(name)==null) 
+			String[] origin = origins.get(name).split(" ");
+			if (origin[0].equals(context.path) && context.assignments.get(name)==null) 
 				return false;
 		}
 		return true;
@@ -353,9 +365,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		if (result==null) return true;
 		for (Iterator<Binding> i=result.iterator(); i.hasNext();) {
 			Binding b = i.next();
-			List<String> origin = Arrays.asList(origins.get(b.getName()).split(" "));
+			String[] origin = origins.get(b.getName()).split(" ");
 			// is this a property expression with a curie
-			if (origin.size()>1 && origin.get(1).contains(":")) continue;
+			if (origin.length>1 && origin[1].contains(":")) continue;
 			Value v = context.assignments.get(b.getName());
 			if (v!=null && !b.getValue().equals(v)) return false;
 		}
@@ -383,8 +395,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		// enumerate variables in triples with ?VAR syntax
 		for (String name: resultSet.getBindingNames()) {
-			List<String> origin = Arrays.asList(origins.get(name).split(" "));
-			if (origin.get(0).equals(context.path) && value.startsWith("?")) 
+			String[] origin = origins.get(name).split(" ");
+			if (origin[0].equals(context.path) && value.startsWith("?")) 
 				return context.assignments.get(name);
 		}
 		// look for variable expressions in the attribute value

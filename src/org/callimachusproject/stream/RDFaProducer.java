@@ -125,7 +125,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 	
 	public RDFaProducer
-	(XMLEventReader reader, TupleQueryResult resultSet, String sparql, URI self, RepositoryConnection con) 
+	(XMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self, RepositoryConnection con) 
 	throws Exception {
 		super();
 		this.reader = new BufferedXMLEventReader(reader);
@@ -133,8 +133,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		result = nextResult();
 		this.self = self;
 		this.con = con;
-
-		this.origins = SPARQLProducer.getOrigins(sparql);
+		this.origins = origins;
+		
 		for (String name: resultSet.getBindingNames())
 			branches.add(origins.get(name).split(" ")[0]);
 		this.reader.mark();

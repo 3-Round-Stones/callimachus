@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
@@ -37,6 +38,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.stream.RDFaProducer;
+import org.callimachusproject.stream.SPARQLProducer;
 import org.openrdf.http.object.annotations.header;
 import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;
@@ -166,21 +168,23 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 	private XMLEventReader calliConstructXhtml(URI about, String query, String element) 
 	throws Exception {
 		ObjectConnection con = getObjectConnection();
-		String sparql=null;
 		TupleQueryResult results;
+		Map<String,String> origins;
 		if (about==null) {
 			List<String> names = Collections.emptyList();
 			List<BindingSet> bindings = Collections.emptyList();
-			results = new TupleQueryResultImpl(names, bindings.iterator());			
+			results = new TupleQueryResultImpl(names, bindings.iterator());
+			origins = Collections.emptyMap();
 		}
 		else { // evaluate SPARQL derived from the template
 			String base = about.stringValue();
-			sparql = sparql(query, element);
+			String sparql = sparql(query, element);
 			TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, base);
 			q.setBinding("this", about);
 			results = q.evaluate();
+			origins = SPARQLProducer.getOrigins(sparql);
 		}
-		return new RDFaProducer(xslt(query, element), results, sparql, about, con);
+		return new RDFaProducer(xslt(query, element), results, origins, about, con);
 	}
 
 	private String sparql(String query, String element) throws IOException {

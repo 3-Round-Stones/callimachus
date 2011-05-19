@@ -84,6 +84,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	String skipElement = null;
 	URI self;
 	RepositoryConnection con;
+	XMLEvent previous;
 	
 	class Context {
 		int position=1, mark;
@@ -92,6 +93,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		Value content;
 		boolean isBranch=false, isHanging=false;
 		StartElement start;
+		XMLEvent previousWhitespace=null;
 
 		protected Context() {}
 		protected Context(Context context, StartElement start) {
@@ -216,7 +218,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 			
 			if (skipElement==null) {
 				context.isBranch = branchPoint(start);
-				if (context.isBranch) {	
+				if (context.isBranch) {
+					if (previous.isCharacters())
+						context.previousWhitespace = previous;
+					
 					// optional properties (in the next result) required deeper in the tree
 					// collapse multiple consistent solutions into a single element
 					// required for property expressions
@@ -238,7 +243,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 				}
 				// even if this is not a branch-point it may still contain substitutable attributes
 				else addStartElement(start);
-			}			
+			}
+			previous = event;
 			return skipElement==null;
 		}
 		else if (event.isEndElement()) {
@@ -246,41 +252,48 @@ public class RDFaProducer extends XMLEventReaderBase {
 				if (context.path.equals(skipElement)) skipElement = null;
 				context = stack.pop();
 				context.position++;
+				previous = event;
 				return false;
 			}
 			add(event);
 			if (context.isBranch && result!=null && !consistent()) {
 				int mark = context.mark;
+				XMLEvent ws = context.previousWhitespace;
 				context = stack.pop();
 				context.position++;
 				if (consistent()) {
 					reader.reset(mark);
 					context.position--;
+					if (ws!=null) process(ws);
 				}
 			}
 			else {
 				context = stack.pop();
 				context.position++;
 			}
+			previous = event;
 			return true;
 		}
 		else if (event.isCharacters()) {
-			if (event.toString().trim().isEmpty() || skipElement!=null)
-				return false;
+			previous = event;
+			if (skipElement!=null) return false;
 			String text = substitute(event.toString());
 			if (text!=null) add(eventFactory.createCharacters(text));
 			else add(event);
 			return true;
 		}
 		else if (event.getEventType()==XMLEvent.COMMENT) {
+			previous = event;
 			if (skipElement!=null) return false;
 			add(event);
 			return true;			
 		}
 		else if (skipElement==null) {
 			add(event);
+			previous = event;
 			return true;
 		}
+		previous = event;
 		return false;
 	}
 

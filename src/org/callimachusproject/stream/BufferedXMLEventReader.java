@@ -37,6 +37,8 @@ public class BufferedXMLEventReader implements XMLEventReader {
 	private static final int CAPACITY_INCREMENT = 100;
 	private List<XMLEvent> buffer;
 	private XMLEventReader reader;
+	// position is the current position in the buffer
+	// mark is the most recent mark
 	private int position, mark=0;
 
 	public BufferedXMLEventReader(XMLEventReader reader) {

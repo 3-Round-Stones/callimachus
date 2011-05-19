@@ -23,11 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.Ask;
+import org.callimachusproject.rdfa.events.Comment;
 import org.callimachusproject.rdfa.events.Group;
 import org.callimachusproject.rdfa.events.Optional;
 import org.callimachusproject.rdfa.events.RDFEvent;
@@ -38,10 +40,8 @@ import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.events.Union;
 import org.callimachusproject.rdfa.events.Where;
 import org.callimachusproject.rdfa.model.IRI;
-import org.callimachusproject.rdfa.model.PlainLiteral;
 import org.callimachusproject.rdfa.model.Term;
 import org.callimachusproject.rdfa.model.TermFactory;
-import org.callimachusproject.rdfa.model.VarOrIRI;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
@@ -57,7 +57,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		.compile("[a-zA-Z0-9_"
 		+ "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD"
 		+ "\\u00B7\\u0300-\\u036F\\u203F-\\u2040]+");
+	
 	private static final Pattern WHITE_SPACE = Pattern.compile("\\s*");
+	private static final String ORIGIN_ANNOTATION = "@origin" ;
 		
 	private static boolean OPEN = true, CLOSE = false;
 	private Stack<Context> stack = new Stack<Context>();	
@@ -78,6 +80,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	
 	// keep a record of the most recent triple pattern
 	TriplePattern previousPattern = null;
+	
+	// flag to disable look-ahead when events are not processed in the order they appear in the input
+	private boolean outOfLine = false;
 	
 	static enum CLAUSE { GROUP, OPTIONAL, BLOCK }
 	
@@ -180,12 +185,6 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			return stack.isEmpty()?null:stack.peek();
 		}
 	}
-	
-//	String origin(VarOrTerm term) {
-//		String origin = term.getOrigin();
-//		int n = origin.indexOf('/');
-//		return origin.substring(n<0?0:n);
-//	}
 
 	public SPARQLProducer(RDFEventReader reader) {
 		super(reader);
@@ -217,7 +216,14 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		else if (event.isEndDocument()) {
 			// close any remaining open contexts (i.e. the outermost context)
 			while (!stack.isEmpty()) stack.peek().close();
-			if (isSelectQuery() || isAskQuery()) add(new Where(CLOSE));
+			if (isSelectQuery() || isAskQuery()) {
+				add(new Where(CLOSE));
+				// add annotation comments to record variable origins
+				for (String var: origins.keySet()) {
+					String comment = " "+ORIGIN_ANNOTATION+" "+var+" "+origins.get(var);
+					add(new Comment(comment));
+				}
+			}
 			add(event);
 		}
 		else if (event.isStartSubject()) {
@@ -242,9 +248,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 				context = new Context(CLAUSE.OPTIONAL).open();
 			
 			previousPattern = null;
-			
 			promotion();
-		} 
+		}
+		/* triple processing may be called out-of-line so should not use look-ahead */
 		else if (event.isTriple()) {
 			Triple triple = event.asTriple();
 			if (promoted(triple)) return;
@@ -309,7 +315,6 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 				if (x==null) {
 					List<String> origin = Arrays.asList(e.asSubject().getSubject().getOrigin().split(" "));
 					x = origin.get(0);
-					//x = origin(e.asSubject().getSubject());
 				}
 			}
 			else if (e.isEndSubject()) {
@@ -318,12 +323,14 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			else if (depth==0 && x!=null && e.isTriple()) {
 				Term obj = e.asTriple().getObject();
 				if (obj.isLiteral()) {
-					//y = origin(obj);
 					List<String> origin = Arrays.asList(obj.getOrigin().split(" "));
 					y = origin.get(0);
-					if (x.startsWith(y))
-						// triple processing must not rely on lookahead
+					if (x.startsWith(y)) {
+						// out of line triple processing must not use lookahead
+						outOfLine = true;
 						process(e);
+						outOfLine = false;
+					}
 				}
 			}
 		} while (!e.isEndDocument() && depth>=0);
@@ -334,8 +341,6 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	
 	private boolean promoted(Triple triple) {
 		Term obj = triple.getObject();
-		//List<String> origin = Arrays.asList(obj.getOrigin().split(" "));
-//		boolean b = obj.isLiteral() && origins.containsValue("CONTENT"+origin(obj));
 		return obj.isLiteral() && origins.containsValue(obj.getOrigin());
 	}
 
@@ -409,6 +414,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	
 	private boolean singleton(Context context) throws RDFParseException {
 		int lookAhead=0, depth=0;
+		if (outOfLine) return false;
 		boolean singleton=true;
 		RDFEvent e;
 		while (depth>=0 && singleton) {
@@ -558,6 +564,18 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	}
 		
 	public Map<String,String> getOrigins() {
+		return origins;
+	}
+	
+	// # @origin ([^\s]+)\s([^\n]+)\n
+	private static final String ORIGIN_REGEX = "# @origin ([^\\s]+)\\s([^\\n]+)\\n";
+	private static final Pattern ORIGIN_PATTERN = Pattern.compile(ORIGIN_REGEX);
+
+	public static Map<String,String> getOrigins(String sparql) {
+		Map<String,String> origins = new HashMap<String,String>();
+		Matcher m = ORIGIN_PATTERN.matcher(sparql);
+		while (m.find())
+			origins.put(m.group(1), m.group(2));
 		return origins;
 	}
 }

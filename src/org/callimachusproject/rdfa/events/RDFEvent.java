@@ -21,6 +21,7 @@ package org.callimachusproject.rdfa.events;
  * A basic RDF event that occurs within a document.
  * 
  * @author James Leigh
+ * @author Steve Battle
  *
  */
 public class RDFEvent {
@@ -149,6 +150,10 @@ public class RDFEvent {
 
 	public boolean isExpression() {
 		return this instanceof Expression;
+	}
+
+	public boolean isComment() {
+		return this instanceof Comment;
 	}
 
 	public Base asBase() {

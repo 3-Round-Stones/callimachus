@@ -207,6 +207,8 @@ public class SPARQLWriter implements Closeable {
 				writer.append(", ");
 			}
 			writer.append(event.asExpression().getTerm().toString());
+		} else if (event.isComment()) {
+			writer.append(event.toString());
 		}
 		previous = event;
 	}

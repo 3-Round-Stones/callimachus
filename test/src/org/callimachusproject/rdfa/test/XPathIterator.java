@@ -151,8 +151,6 @@ public class XPathIterator implements Iterator<Object> {
 			}
 		}
 		if (leaf) {
-			// @content trumps body text
-			if (content==null && text!=null && !text.isEmpty()) content = text;
 
 			XPath xpath = xPathFactory.newXPath();
 			// add namespace prefix resolver to the xpath based on the current element
@@ -163,11 +161,23 @@ public class XPathIterator implements Iterator<Object> {
 					return element.lookupNamespaceURI(prefix);
 				}
 			});
-			if (content!=null && !whitespace(content)) {
+			
+			// content and text
+			if (content!=null && text!=null) {
+				path = path + "[@content='"+content+"' and normalize-space(text())='"+text+"']";
+			}
+			// no content or text
+			else if (content==null && (text==null || text.isEmpty())) {
+				path = path + "[not(text()) or normalize-space(text())='']";
+			}
+			// text but no content
+			else if (content==null && text!=null && !text.isEmpty()) {
+				path = path + "[@content='"+text+"' or normalize-space(text())='"+text+"']";				
+			}
+			// content but no text
+			else if (content!=null && !whitespace(content)) {
 				path = path + "[@content='"+content+"' or normalize-space(text())='"+content+"']";
 			}
-			// otherwise check the node has no text at all
-			else if (content==null) path = path + "[not(text()) or normalize-space(text())='']";
 				
 			if (!path.contains("\n")) {
 				final String exp = path;

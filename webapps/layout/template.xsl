@@ -67,7 +67,7 @@
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<xsl:comment>[if lte IE 8]>&lt;link rel="stylesheet" href="<xsl:value-of select="$layout" />/ie8.css" /&gt;&lt;![endif]</xsl:comment>
 			<xsl:if test="$query='create' or $query='edit'">
-			<link type="text/css" href="{$layout}/jquery-ui-1.7.3.custom.css" rel="stylesheet" />
+			<link type="text/css" href="{$layout}/jquery-ui.css" rel="stylesheet" />
 			</xsl:if>
 			<xsl:apply-templates select="*[local-name()='link' or local-name()='style']" />
 

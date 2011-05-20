@@ -52,6 +52,7 @@ function initDropArea(droppable) {
 		var script = $(event.target).parents().andSelf().filter('[data-add]');
 		window.calli.listResourceIRIs(event.location).each(function() {
 			addSetItem(this, script);
+			event.preventDefault();
 		});
 	});
 }

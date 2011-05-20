@@ -72,7 +72,7 @@ function initDialogButton(buttons) {
 				form.submit(function(event) {
 					var terms = document.getElementById(searchTerms).value;
 					var searchUrl = add.attr("data-search").replace('{searchTerms}', encodeURIComponent(terms));
-					listSearchResults(searchUrl, iframe[0]);
+					listSearchResults(searchUrl, iframe[0], add);
 					event.preventDefault();
 					return false;
 				});
@@ -82,7 +82,7 @@ function initDialogButton(buttons) {
 	});
 }
 
-function listSearchResults(url, iframe) {
+function listSearchResults(url, iframe, button) {
 	jQuery.get(url, function(data) {
 		if (data) {
 			var result = $(data).children();
@@ -105,6 +105,16 @@ function listSearchResults(url, iframe) {
 				doc.open();
 				doc.write("<ul>" + html + "</ul>");
 				doc.close();
+				$('a', doc).click(function(event) {
+					var de = jQuery.Event('calliLink');
+					de.location = event.target.href;
+					$(button).trigger(de);
+					if (de.isDefaultPrevented()) {
+						event.preventDefault();
+						return false;
+					}
+					return true;
+				});
 			}
 		}
 	});

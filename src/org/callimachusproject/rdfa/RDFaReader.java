@@ -164,6 +164,9 @@ public class RDFaReader extends RDFEventReader {
 				getContentWriter().add(event);
 			}
 		}
+		// process property expressions embedded in character data
+		if (event.isCharacters() && tag!=null)
+			tag.addPropertyExpressions(tag.getCurrentSubject(),event.asCharacters().getData());
 	}
 
 	private void processStartDocument(XMLEvent event) {
@@ -550,13 +553,18 @@ public class RDFaReader extends RDFEventReader {
 			while (i.hasNext()) {
 				Attribute a = (Attribute) i.next();
 				String value = a.getValue();
-				Matcher m = PROPERTY_EXP_PATTERN.matcher(value);
-				while (m.find()) {
-					PlainLiteral lit = tf.literal("");
-					Node c = curie(m.group(1)+":"+m.group(2));
-					lit.setOrigin(origin+" "+c);
-					queue.add(new Triple(subj, (IRI) c, lit));
-				}
+				addPropertyExpressions(subj, value);
+			}
+		}
+
+		private void addPropertyExpressions(Node subj, String value)
+				throws RDFParseException {
+			Matcher m = PROPERTY_EXP_PATTERN.matcher(value);
+			while (m.find()) {
+				PlainLiteral lit = tf.literal("");
+				Node c = curie(m.group(1)+":"+m.group(2));
+				lit.setOrigin(origin+" "+c);
+				queue.add(new Triple(subj, (IRI) c, lit));
 			}
 		}
 

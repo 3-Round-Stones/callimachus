@@ -86,6 +86,10 @@ public class RDFaReader extends RDFEventReader {
 	private TermFactory tf = TermFactory.newInstance();
 	private IRI XMLLITERAL = tf.iri(RDF + "XMLLiteral");
 	private List<Node> TYPE = Arrays.asList((Node) tf.iri(RDF + "type"));
+	
+	// The CONTENT signifier is required to distinguish content from property expressions
+	// where the same property is used for both in the same element. 
+	// The content @origin ends with '!', while the property expression ends with the property curie
 	public static final String CONTENT = "!";
 	
 	// The element stack keeps track of the origin of the node

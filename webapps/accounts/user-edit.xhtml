@@ -7,7 +7,7 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
-	<title about="?this" property="rdfs:label" content="?label">{?label}</title>
+	<title about="?this">{rdfs:label}</title>
 	<script>//<![CDATA[
 		$(document).ready(function() {
 			var uri = $("form[about]").attr("about");
@@ -56,21 +56,20 @@
 	<form id="form" action="" about="?this" autocomplete="off">
 		<label for="label">Full name</label>
 		<div>
-			<input id="label" property="rdfs:label" content="?label" value="{?label}" type="text" class="auto-expand required" />
+			<input id="label" value="{rdfs:label}" type="text" class="auto-expand required" />
 		</div>
 		<label for="img">Photo</label>
 	 	<div id="img" rel="foaf:depiction" class="droppable">
 			<div class="watermark">Drag resource(s) here</div>
 			<div about="?img" typeof="foaf:Image">
-				<span property="rdfs:label" />
+				<img src="{?img}?small" />
 				<button type="button" class="remove">×</button>
 			</div>
 			<button type="button" data-dialog="?create=/callimachus/Photo">»</button>
 		</div>
 		<label for="comment">Additional information</label>
 		<div>
-			<textarea id="comment" class="auto-expand" property="rdfs:comment" content="?comment">{?comment}</textarea>
-			<button type="button" class="add">»</button>
+			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 		</div>
 		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>

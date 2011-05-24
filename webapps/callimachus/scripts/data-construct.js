@@ -1,4 +1,4 @@
-// data-add.js
+// data-construct.js
 /*
    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
@@ -8,11 +8,11 @@
 (function($){
 
 $(document).ready(function() {
-	initDropArea($("[data-add].droppable"));
+	initDropArea($("[data-construct].droppable"));
 });
 
 $(document).bind('DOMNodeInserted', function (event) {
-	initDropArea($(event.target).find("[data-add].droppable").andSelf().filter("[data-add].droppable"));
+	initDropArea($(event.target).find("[data-construct].droppable").andSelf().filter("[data-construct].droppable"));
 });
 
 function initDropArea(droppable) {
@@ -49,7 +49,7 @@ function initDropArea(droppable) {
 		return false;
 	});
 	droppable.bind('calliLink', function(event) {
-		var script = $(event.target).parents().andSelf().filter('[data-add]');
+		var script = $(event.target).parents().andSelf().filter('[data-construct]');
 		window.calli.listResourceIRIs(event.location).each(function() {
 			addSetItem(this, script);
 			event.preventDefault();
@@ -58,7 +58,7 @@ function initDropArea(droppable) {
 }
 
 function addSetItem(uri, script) {
-	var url = script.attr("data-add").replace("{about}", encodeURIComponent(uri));
+	var url = script.attr("data-construct").replace("{about}", encodeURIComponent(uri));
 	jQuery.get(url, function(data) {
 		var input = data ? $(data) : data;
 		if (input && input.is("[about='" + uri + "']") && input.text().match(/\w/)) {

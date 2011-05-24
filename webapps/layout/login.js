@@ -200,7 +200,7 @@ function loggedIn(title) {
 	$("#login-form").hide();
 	$("#login-link").hide();
 	$("#profile-link").text(title);
-	$(".authenticated").show();
+	$(".authenticated").css('display', null);
 	$("#logout-link").click(function(event) {
 		$(document).trigger(jQuery.Event("calliLogout"));
 		if (event.preventDefault) {
@@ -212,7 +212,7 @@ function loggedIn(title) {
 }
 
 function loggedOut() {
-	$(".authenticated").hide();
+	$(".authenticated").css('display', 'none');
 	$("#login-link").show();
 	$("#login-link").click(login);
 	$(document).trigger("calliLoggedOut");

@@ -24,16 +24,16 @@
 	rdf:_14 <hbox.js>.
 
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
-<form_bundle> a calli:ScriptBundle; calli:minified 1 ;
+<form_bundle> a calli:ScriptBundle; calli:minified 0 ;
 	rdf:_1 <jquery-ui.js>;
 	rdf:_2 <jquery.rdfquery.rdfa.js>;
 	rdf:_3 <jquery.validate.js>;
 	rdf:_4 <data-options.js>;
 	rdf:_5 <input-expression.js>;
 	rdf:_6 <resource-iri.js>;
-	rdf:_7 <button-add.js>;
+	rdf:_7 <data-add.js>;
 	rdf:_8 <button-remove.js>;
-	rdf:_9 <data-add.js>;
+	rdf:_9 <data-construct.js>;
 	rdf:_10 <data-dialog.js>;
 	rdf:_11 <document-ready.js>;
 	rdf:_12 <focus.js>.

@@ -66,9 +66,9 @@
 
 	<xsl:template mode="form" match="xhtml:button[contains(@class, 'add') and not(@data-dialog)]">
 		<xsl:copy>
-			<xsl:if test="1=count(../*[@about or @typeof or @resource or @property]) and not(@data-more)">
+			<xsl:if test="1=count(../*[@about or @typeof or @resource or @property]) and not(@data-add)">
 				<!-- Called to insert another property value or node -->
-				<xsl:attribute name="data-more">
+				<xsl:attribute name="data-add">
 					<xsl:value-of select="$this" />
 					<xsl:text>?template&amp;query=</xsl:text>
 					<xsl:value-of select="$query" />
@@ -106,9 +106,9 @@
 				<xsl:apply-templates mode="xptr-element" select="." />
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:if test="1=count(*[@about or @resource]) and not(@data-add)">
+		<xsl:if test="1=count(*[@about or @resource]) and not(@data-construct)">
 			<!-- Called when a resource URI is dropped to construct its label -->
-			<xsl:attribute name="data-add">
+			<xsl:attribute name="data-construct">
 				<xsl:value-of select="$this" />
 				<xsl:text>?construct&amp;query=</xsl:text>
 				<xsl:value-of select="$query" />

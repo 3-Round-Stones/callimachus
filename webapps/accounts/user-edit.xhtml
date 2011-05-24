@@ -60,12 +60,12 @@
 		</div>
 		<label for="img">Photo</label>
 	 	<div id="img" rel="foaf:depiction" class="droppable">
-			<div class="watermark">Drag resource(s) here</div>
-			<div about="?img" typeof="foaf:Image">
+			<div class="watermark">Drag uploaded photo here</div>
+			<span about="?img" typeof="foaf:Image">
 				<img src="{?img}?small" />
-				<button type="button" class="remove">×</button>
-			</div>
-			<button type="button" data-dialog="?create=/callimachus/Photo">»</button>
+				<button type="button" class="remove" />
+			</span>
+			<button type="button" class="dialog" data-dialog="?create=/callimachus/Photo" />
 		</div>
 		<label for="comment">Additional information</label>
 		<div>

@@ -318,15 +318,18 @@ input, textarea, .textarea {
 }
 
 button {
+	background-color: #DDD;
 	background-image: -moz-linear-gradient(top, #EEE, #EEE, #DDD);
 	background-image: -webkit-gradient(linear, left center, left bottom, from(#EEE), to(#DDD));
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#EEEEEE, endColorstr=#DDDDDD, GradientType=0)";
 	border: thin solid #3F547F;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
+	white-space: nowrap;
 }
 
 button[type=submit] {
+	background-color: #F58735;
 	background-image: -moz-linear-gradient(top, white, #F58735);
 	background-image: -webkit-gradient(linear, left top, left bottom, from(white), to(#F58735));
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#F58735, GradientType=0)";

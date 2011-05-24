@@ -362,7 +362,9 @@ jQuery(function($){
 		} else if (window.dialog) {
 			window.dialog.dialog('close');
 		}
-		$(this).trigger('calliSuccess');
+		var wym = window.WYMeditor.INSTANCES[0];
+		wym.update();
+		$(document).trigger('calliSuccess');
 	}
 
 	function formatXML(text) {
@@ -493,8 +495,11 @@ jQuery(function($){
 				insertRel.call(wym, dialog_rel);
 			break;
 			default:
-				return previously.call(wym, cmd);
+				var ret = previously.call(wym, cmd);
+				wym.update();
+				return ret;
 			}
+			wym.update();
 		};
 
 		jQuery.wymeditors(0)._html = html;

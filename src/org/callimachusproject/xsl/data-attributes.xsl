@@ -103,7 +103,7 @@
 				<xsl:text>?options&amp;query=</xsl:text>
 				<xsl:value-of select="$query" />
 				<xsl:text>&amp;element=</xsl:text>
-				<xsl:apply-templates mode="xptr-element" />
+				<xsl:apply-templates mode="xptr-element" select="." />
 			</xsl:attribute>
 		</xsl:if>
 		<xsl:if test="1=count(*[@about or @resource]) and not(@data-add)">

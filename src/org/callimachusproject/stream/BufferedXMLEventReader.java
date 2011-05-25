@@ -88,7 +88,7 @@ public class BufferedXMLEventReader implements XMLEventReader {
 	}
 
 	public XMLEvent peek() throws XMLStreamException {
-		if (position>=0 && position<buffer.size()) 
+		if (position>=0 && buffer!=null && position<buffer.size()) 
 			return buffer.get(position);
 		else return reader.peek();
 	}
@@ -102,13 +102,15 @@ public class BufferedXMLEventReader implements XMLEventReader {
 	}
 
 	public XMLEvent nextEvent() throws XMLStreamException {
-		if (position>=0 && position<buffer.size()) {
+		if (position>=0 && buffer!=null && position<buffer.size()) {
 			return buffer.get(position++);
 		}
 		else {
-			position++;
 			XMLEvent e = reader.nextEvent();
-			if (buffer!=null) buffer.add(e);
+			if (buffer!=null) {
+				position++;
+				buffer.add(e);
+			}
 			return e;
 		}
 	}

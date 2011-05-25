@@ -32,6 +32,7 @@ import org.callimachusproject.rdfa.events.Construct;
 import org.callimachusproject.rdfa.events.Document;
 import org.callimachusproject.rdfa.events.Namespace;
 import org.callimachusproject.rdfa.events.RDFEvent;
+import org.callimachusproject.rdfa.events.Select;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.events.Where;
 import org.callimachusproject.rdfa.model.VarOrIRI;
@@ -188,7 +189,31 @@ public class TriplePatternStore {
 			return null;
 		return openQueryReader(patterns.get(subj));
 	}
-
+	
+	public RDFEventReader selectBySubject(VarOrTerm subj) {
+		if (!patterns.containsKey(subj)) return null;
+		List<RDFEvent> list = new ArrayList<RDFEvent>();
+		list.add(new Document(true));
+		if (base != null) {
+			list.add(base);
+		}
+		for (RDFEvent event : namespaces) {
+			list.add(event);
+		}
+		for (RDFEvent event: where) {
+			if (event.isComment()) list.add(event);
+		}
+		list.add(new Select());
+		
+		list.add(new Where(true));
+		for (RDFEvent event : patterns.get(subj)) {
+			list.add(event);
+		}
+		list.add(new Where(false));
+		list.add(new Document(false));
+		return new IterableRDFEventReader(list);
+	}
+	
 	public String toString() {
 		StringWriter str = new StringWriter();
 		try {

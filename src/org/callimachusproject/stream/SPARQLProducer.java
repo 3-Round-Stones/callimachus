@@ -88,7 +88,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	
 	public static enum QUERY { SELECT, CONSTRUCT, ASK }
 
-	// construct queries are the default
+	// select queries are the default
 	private QUERY queryType=QUERY.SELECT;
 	
 	

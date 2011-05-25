@@ -148,6 +148,25 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		return reader;
 	}
 
+	public RDFEventReader openPatternReader(XMLEventReader template, String about, String query,
+			String element) throws XMLStreamException, IOException,
+			TransformerException {
+		RDFEventReader reader = new RDFaReader(about, template, toString());
+		
+		/* generate UNION form of sparql query */
+		// reader = new GraphPatternReader(reader);
+		reader = new SPARQLProducer(reader);
+		
+		Base resolver = new Base(getResource().stringValue());
+		if (about == null) {
+			reader = new OverrideBaseReader(resolver, null, reader);
+		} else {
+			String uri = resolver.resolve(about);
+			reader = new OverrideBaseReader(resolver, new Base(uri), reader);
+		}
+		return reader;
+	}
+
 	private XMLEventReader applyXSLT(@query("query") String query)
 			throws XMLStreamException, IOException, TransformerException {
 		String href = readXSLTSource();

@@ -108,8 +108,11 @@ public class RDFaConformanceTest {
 	public static Collection<Object[]> listCases() {
 		Collection<Object[]> params = new ArrayList<Object[]>();
 		try {
-			params.addAll(list_cases(positive_tests.split(","),true));
-			params.addAll(list_cases(negative_tests.split(","),false));
+			if (positive_tests!=null)
+				params.addAll(list_cases(positive_tests.split(","),true));
+			
+			if (negative_tests!=null)
+				params.addAll(list_cases(negative_tests.split(","),false));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -186,7 +189,7 @@ public class RDFaConformanceTest {
 	
 	RDFaReader parseRDFa(File rdfa, String base) throws Exception {
 		XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(rdfa));   
-		RDFaReader rdf = new RDFaReader(base, xml, null);
+		RDFaReader rdf = new RDFaReader(base, xml, base);
 		return rdf;
 	}
 

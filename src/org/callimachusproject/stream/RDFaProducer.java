@@ -90,13 +90,15 @@ public class RDFaProducer extends XMLEventReaderBase {
 		boolean isBranch=false, isHanging=false;
 		StartElement start;
 		XMLEvent previousWhitespace=null;
+		BindingSet resultOnEntry;
 
 		protected Context() {}
 		protected Context(Context context, StartElement start) {
 			this.start = start;
 			assignments.putAll(context.assignments);
 			// all sub-contexts of a hanging context are hanging
-			isHanging = context.isHanging;
+			/*isHanging = context.isHanging;*/
+			resultOnEntry = result;
 		}
 	}
 	
@@ -198,6 +200,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 	
 	private boolean process(XMLEvent event) throws Exception {
+		// add previous whitespace if this is not an start event
+		if (event.isStartElement() && isWhitespace(previous))
+			add(previous);
+		
 		if (event.isStartDocument()) {
 			if (self!=null)
 				context.assignments.put("this", self);
@@ -217,32 +223,29 @@ public class RDFaProducer extends XMLEventReaderBase {
 			
 			if (skipElement==null) {
 				context.isBranch = branchPoint(start);
-				if (context.isBranch) {
-					// save preceding whitespace for repeating branch points
-					if (isWhitespace(previous))
-						context.previousWhitespace = previous;
-					
+				if (context.isBranch) {					
 					// optional properties (in the next result) required deeper in the tree
 					// collapse multiple consistent solutions into a single element
 					// required for property expressions
 					
+					// consume results that are consistent with the current assignments
 					while (consistent() && result!=null) {
 						Value c = assign(start);
 						if (context.content==null) context.content = c;
+						// if there are no more bindings to consume in the current result then step to the next result
 						if (!moreBindings()) result = nextResult();
 						else break;
 					}
-	
 					// if there are no solutions then skip this branch
 					// All variables must be bound
 					if (!context.isHanging && grounded(start)) {
 						if (!complete(start)) context.isHanging = true;
-						addStartElement(start);
+						addStart(start);
 					}
 					else skipElement = context.path;
 				}
 				// even if this is not a branch-point it may still contain substitutable attributes
-				else addStartElement(start);
+				else addStart(start);
 			}
 			previous = event;
 			return skipElement==null;
@@ -256,7 +259,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 				return false;
 			}
 			add(event);
-			if (context.isBranch && result!=null && !consistent()) {
+			// don't repeat if we haven't consumed any results
+			if (context.isBranch && result!=null /*&& !consistent()*/ && context.resultOnEntry!=result) {
 				int mark = context.mark;
 				XMLEvent ws = context.previousWhitespace;
 				context = stack.pop();
@@ -264,7 +268,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 				if (consistent()) {
 					reader.reset(mark);
 					context.position--;
-					if (ws!=null) process(ws);
+					if (ws!=null) previous = ws;
 				}
 			}
 			else {
@@ -277,6 +281,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		else if (event.isCharacters()) {
 			previous = event;
 			if (skipElement!=null) return false;
+			if (isWhitespace(event)) return false;
 			String text = substitute(event.toString());
 			if (text!=null) add(eventFactory.createCharacters(text));
 			else add(event);
@@ -295,6 +300,16 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		previous = event;
 		return false;
+	}
+	
+	private void addStart(StartElement start) throws Exception {
+		// if we're adding the element then add and save previous whitespace
+		// previous whitespace isn't added if this element is skipped
+		if (isWhitespace(previous)) {
+			process(previous);
+			context.previousWhitespace = previous;
+		}
+		addStartElement(start);		
 	}
 
 	private boolean branchPoint(StartElement start) {
@@ -395,6 +410,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s*");
 	
 	boolean isWhitespace(XMLEvent event) {
+		if (event==null) return false;
 		if (event.isCharacters()) {
 			String text = event.asCharacters().getData();
 			return WHITESPACE_PATTERN.matcher(text).matches();

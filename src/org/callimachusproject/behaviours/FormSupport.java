@@ -41,6 +41,7 @@ import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
+import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.rdfa.events.BuiltInCall;
 import org.callimachusproject.rdfa.events.ConditionalOrExpression;
 import org.callimachusproject.rdfa.events.Expression;
@@ -57,6 +58,7 @@ import org.callimachusproject.stream.RDFStoreReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.ReducedTripleReader;
+import org.callimachusproject.stream.SPARQLPosteditor;
 import org.callimachusproject.stream.SPARQLProducer;
 import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.stream.TriplePatternVariableStore;
@@ -86,6 +88,7 @@ import org.openrdf.repository.object.xslt.XSLTransformer;
  * and options method to list all possible values.
  * 
  * @author James Leigh 
+ * @author Steve Battle
  * 
  */
 public abstract class FormSupport implements Page, SoundexTrait,
@@ -194,23 +197,43 @@ public abstract class FormSupport implements Page, SoundexTrait,
 	@query("options")
 	@type("application/html")
 	@header("cache-control:no-store")
+//		public InputStream options
+//	(@query("query") String query, @query("element") String element) throws Exception {
+//		String base = toUri().toASCIIString();
+//		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
+//		int n = template.mark();
+//		TriplePatternStore patterns = readPatternStore(template,query, element, base);
+//		TriplePattern pattern = patterns.getFirstTriplePattern();
+//		RDFEventReader rq = patterns.selectBySubject(pattern.getPartner());
+//		String sparql = toSPARQL(rq);
+//		RepositoryConnection con = getObjectConnection();
+//		TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, base);
+//		TupleQueryResult results = q.evaluate();
+//		Map<String,String> origins = SPARQLProducer.getOrigins(sparql);
+//		URI about = vf.createURI(base);
+//		template.reset(n);
+//		RDFaProducer xhtml = new RDFaProducer(template, results, origins, about, con);
+//		
+//		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
+//	}
 	public InputStream options
 	(@query("query") String query, @query("element") String element) throws Exception {
 		String base = toUri().toASCIIString();
 		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
-		int n = template.mark();
-		TriplePatternStore patterns = readPatternStore(template,query, element, base);
-		TriplePattern pattern = patterns.getFirstTriplePattern();
-		RDFEventReader rq = patterns.selectBySubject(pattern.getPartner());
-		String sparql = toSPARQL(rq);
+		template.mark();
+		RDFEventReader rdfa = new RDFaReader(base, template, toString());
+		SPARQLProducer rq = new SPARQLProducer(rdfa);
+		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
+		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
+		// ^(/\d+){3,}$|^(/\d+)*\s.*$
+		ed.addMatcher(new SPARQLPosteditor.OriginMatcher(rq.getOrigins(),null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
+		String sparql = toSPARQL(ed);
 		RepositoryConnection con = getObjectConnection();
 		TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, base);
 		TupleQueryResult results = q.evaluate();
-		Map<String,String> origins = SPARQLProducer.getOrigins(sparql);
 		URI about = vf.createURI(base);
-		template.reset(n);
-		RDFaProducer xhtml = new RDFaProducer(template, results, origins, about, con);
-		
+		template.reset(0);
+		RDFaProducer xhtml = new RDFaProducer(template, results, rq.getOrigins(), about, con);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
@@ -247,15 +270,15 @@ public abstract class FormSupport implements Page, SoundexTrait,
 		return qry;
 	}
 	
-	private TriplePatternStore readPatternStore(XMLEventReader xml, String query, String element,
-			String about) throws XMLStreamException, IOException,
-			TransformerException, RDFParseException {
-		String base = toUri().toASCIIString();
-		TriplePatternStore qry = new TriplePatternVariableStore(base);
-		RDFEventReader reader = openPatternReader(xml,about, query, element);
-		qry.consume(reader);
-		return qry;
-	}
+//	private TriplePatternStore readPatternStore(XMLEventReader xml, String query, String element,
+//			String about) throws XMLStreamException, IOException,
+//			TransformerException, RDFParseException {
+//		String base = toUri().toASCIIString();
+//		TriplePatternStore qry = new TriplePatternVariableStore(base);
+//		RDFEventReader reader = openPatternReader(xml,about, query, element);
+//		qry.consume(reader);
+//		return qry;
+//	}
 
 	private IterableRDFEventReader filterPrefix(TriplePatternStore patterns,
 			TriplePattern pattern, String q) {

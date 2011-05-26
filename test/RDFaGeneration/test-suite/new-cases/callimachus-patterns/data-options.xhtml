@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:eg="http://example.com#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:skosxl="http://www.w3.org/2008/05/skos-xl#">
+  <head><title>data-options-test</title></head>
+  <body>
+	<form id="form" about="" typeof="eg:MyClass">
+		<label for="myrel1">My rel</label>
+		<div>
+			<select id="myrel" rel="eg:myRel" >
+			  <option about="concept1" rel="skos:inScheme" resource="/samples/MyScheme" property="skos:prefLabel">Concept1</option>
+			  <option about="concept2" rel="skos:inScheme" resource="/samples/MyScheme" property="skos:prefLabel">Concept2</option>
+			</select>
+		</div>
+		<button id="create" type="submit">Create</button>
+	</form>
+  </body>
+</html>
+

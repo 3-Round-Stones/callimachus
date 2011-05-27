@@ -330,7 +330,7 @@ if [ "$1" = "start" ] ; then ################################
     exit $RETURN_VAL
   fi
 
-  SLEEP=120
+  SLEEP=240
   ID=`cat $PID`
   while [ $SLEEP -ge 0 ]; do
     kill -0 $ID >/dev/null 2>&1

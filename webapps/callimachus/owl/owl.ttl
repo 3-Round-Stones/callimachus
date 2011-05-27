@@ -83,7 +83,7 @@
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/layout.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
-	msg:imports </callimachus/class-index.xhtml>;
+	msg:imports <class-index.xhtml>;
 	msg:script "return class_index_xhtml.calliConstruct(this, 'index')".
 
 # when an ontology creates a class

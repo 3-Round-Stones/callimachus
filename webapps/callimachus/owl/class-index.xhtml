@@ -3,19 +3,26 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+	xmlns:owl="http://www.w3.org/2002/07/owl#">
 <head>
 	<title about="?this" property="rdfs:label" />
 	<script type="text/javascript">//<![CDATA[
 		jQuery(function($){
+			var hash = {};
 			$('.result').each(function() {
-				var label = $(this).find('a').text();
-				if (label.match(/^[A-Za-z]/)) {
-					box = $('#' + label.substring(0, 1).toUpperCase());
+				var uri = $(this).attr('resource');
+				if (hash[uri]) {
+					$(this).remove(); // remove duplicates
 				} else {
-					box = $('#_');
+					hash[uri] = this;
+					var label = $(this).find('a').text();
+					if (label.match(/^[A-Za-z]/)) {
+						box = $('#' + label.substring(0, 1).toUpperCase());
+					} else {
+						box = $('#_');
+					}
+					box.append($(this));
 				}
-				box.append($(this));
 			});
 			$('#results').children().each(function() {
 				if (!$(this).children('div').length) {
@@ -97,9 +104,13 @@
 		<div id="Z"><h2>Z</h2></div>
 		<div id="_">
 			<h2>?</h2>
-			<div class="result" rev="rdf:type" resource="?page">
-			  <a href="?page" class="view" property="rdfs:label" />
-			  <a href="?page" class="view" property="skos:prefLabel" />
+			<div class="result" rev="rdf:type" resource="?resource">
+			  <a href="?resource" class="view" property="rdfs:label" />
+			</div>
+			<div rel="owl:equivalentClass" resource="?equivalent">
+				<div class="result" rev="rdf:type" resource="?member">
+				  <a href="?member" class="view" property="rdfs:label" />
+				</div>
 			</div>
 		</div>
 	</div>

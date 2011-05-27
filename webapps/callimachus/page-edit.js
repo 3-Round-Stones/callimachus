@@ -77,7 +77,7 @@ jQuery(function($){
 						items.push('xmlns:' + key + '="' + val + '"');
 					}
 				});
-				var header = page[1].replace(/<html\s+(xmlns[:\w]*="[^"]*"\s*)*/g, '<html ');
+				var header = page[1].replace(/<html\s+(xmlns[:\w-_]*="[^"]*"\s*)*/g, '<html ');
 				header = header.replace(/<html\s*/, '<html xmlns="http://www.w3.org/1999/xhtml" ' + items.join(' ') + ' ');
 				var m = body.match(/<h1\s*(?:[^<\/]|<[^\/h]|\/[^>])*>\s*([^<]*)\s*<\//);
 				if (m) {

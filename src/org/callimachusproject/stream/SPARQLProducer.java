@@ -19,6 +19,7 @@ package org.callimachusproject.stream;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -73,7 +74,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	private Map<String,AtomicInteger> varSeq = new HashMap<String,AtomicInteger>();
 	
 	// map variable names to template origin (path)
-	private Map<String,String> origins = new HashMap<String,String>();
+	private Map<String,String> origins = new LinkedHashMap<String,String>();
 		
 	// 'initial' controls placement of the 'UNION' keyword
 	private boolean initial = true;
@@ -574,7 +575,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	private static final Pattern ORIGIN_PATTERN = Pattern.compile(ORIGIN_REGEX);
 
 	public static Map<String,String> getOrigins(String sparql) {
-		Map<String,String> origins = new HashMap<String,String>();
+		Map<String,String> origins = new LinkedHashMap<String,String>();
 		Matcher m = ORIGIN_PATTERN.matcher(sparql);
 		while (m.find())
 			origins.put(m.group(1), m.group(2));

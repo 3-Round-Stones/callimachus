@@ -25,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,35 +32,21 @@ import java.util.Map;
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.rdfa.RDFEventReader;
-import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.RDFaReader;
-import org.callimachusproject.rdfa.events.BuiltInCall;
-import org.callimachusproject.rdfa.events.ConditionalOrExpression;
-import org.callimachusproject.rdfa.events.Expression;
-import org.callimachusproject.rdfa.events.RDFEvent;
-import org.callimachusproject.rdfa.events.Subject;
 import org.callimachusproject.rdfa.events.TriplePattern;
-import org.callimachusproject.rdfa.model.IRI;
-import org.callimachusproject.rdfa.model.PlainLiteral;
 import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.BufferedXMLEventReader;
-import org.callimachusproject.stream.IterableRDFEventReader;
-import org.callimachusproject.stream.RDFStoreReader;
-import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.RDFaProducer;
-import org.callimachusproject.stream.ReducedTripleReader;
 import org.callimachusproject.stream.SPARQLPosteditor;
 import org.callimachusproject.stream.SPARQLProducer;
 import org.callimachusproject.stream.TriplePatternStore;
-import org.callimachusproject.stream.TriplePatternVariableStore;
 import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.annotations.header;
 import org.openrdf.http.object.annotations.query;
@@ -190,8 +175,7 @@ public abstract class FormSupport implements Page, SoundexTrait,
 	}
 
 	/**
-	 * Returns the given element with all known possible children.
-	 * TODO limit the result set
+	 * See data-options, defining an HTML select/option fragment
 	 */
 
 	@query("options")
@@ -221,96 +205,113 @@ public abstract class FormSupport implements Page, SoundexTrait,
 		String base = toUri().toASCIIString();
 		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
 		template.mark();
-		RDFEventReader rdfa = new RDFaReader(base, template, toString());
-		SPARQLProducer rq = new SPARQLProducer(rdfa);
+		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
+		
 		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
 		// ^(/\d+){3,}$|^(/\d+)*\s.*$
-		ed.addMatcher(new SPARQLPosteditor.OriginMatcher(rq.getOrigins(),null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
-		String sparql = toSPARQL(ed);
+		ed.addEditor(ed.new CutTriplePattern(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
+		
 		RepositoryConnection con = getObjectConnection();
-		TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, base);
-		TupleQueryResult results = q.evaluate();
+		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(ed), base);
 		URI about = vf.createURI(base);
 		template.reset(0);
-		RDFaProducer xhtml = new RDFaProducer(template, results, rq.getOrigins(), about, con);
+		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), about, con);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
 	/**
 	 * Returns an HTML page listing suggested resources for the given element.
+	 * See data-search
 	 */
 	@query("search")
-	@type("application/rdf+xml")
+	@type("application/html")
 	@header("cache-control:no-validate,max-age=60")
-	public XMLEventReader constructSearch(@query("query") String query,
-			@query("element") String element, @query("q") String q)
-			throws Exception {
+//		public XMLEventReader constructSearch
+//	(@query("query") String query, @query("element") String element, @query("q") String q)
+//	throws Exception {
+//		String base = toUri().toASCIIString();
+//		TriplePatternStore patterns = readPatternStore(query, element, base);
+//		TriplePattern pattern = patterns.getFirstTriplePattern();
+//		patterns.consume(filterPrefix(patterns, pattern, q));
+//		RDFEventReader qry = constructPossibleTriples(patterns, pattern);
+//		ObjectConnection con = getObjectConnection();
+//		RDFEventReader rdf = new RDFStoreReader(toSPARQL(qry), patterns, con);
+//		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
+//	}
+	public InputStream constructSearch
+	(@query("query") String query, @query("element") String element, @query("q") String q)
+	throws Exception {
 		String base = toUri().toASCIIString();
-		TriplePatternStore patterns = readPatternStore(query, element, base);
-		TriplePattern pattern = patterns.getFirstTriplePattern();
-		patterns.consume(filterPrefix(patterns, pattern, q));
-		RDFEventReader qry = constructPossibleTriples(patterns, pattern);
-		ObjectConnection con = getObjectConnection();
-		RDFEventReader rdf = new RDFStoreReader(toSPARQL(qry), patterns, con);
-		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
+		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
+		template.mark();
+		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
+		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
+		
+		// filter out the outer rel
+		ed.addEditor(ed.new CutTriplePattern(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
+		
+		// add soundex
+		ed.addEditor(ed.new AddCondition("^(/\\d+){2}$",tf.iri(SOUNDEX),tf.literal(asSoundex(q))));
+		
+		// add filters to soundex labels
+		ed.addEditor(ed.new AddFilter("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
+
+		RepositoryConnection con = getObjectConnection();
+		String sparql = toSPARQL(ed);
+		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
+		URI about = vf.createURI(base);
+		template.reset(0);
+		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), about, con);
+		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
-	private TriplePatternStore readPatternStore(String query, String element,
-			String about) throws XMLStreamException, IOException,
-			TransformerException, RDFParseException {
-		String base = toUri().toASCIIString();
-		TriplePatternStore qry = new TriplePatternVariableStore(base);
-		RDFEventReader reader = openPatternReader(about, query, element);
-		try {
-			qry.consume(reader);
-		} finally {
-			reader.close();
-		}
-		return qry;
-	}
-	
-//	private TriplePatternStore readPatternStore(XMLEventReader xml, String query, String element,
+//	private TriplePatternStore readPatternStore(String query, String element,
 //			String about) throws XMLStreamException, IOException,
 //			TransformerException, RDFParseException {
 //		String base = toUri().toASCIIString();
 //		TriplePatternStore qry = new TriplePatternVariableStore(base);
-//		RDFEventReader reader = openPatternReader(xml,about, query, element);
-//		qry.consume(reader);
+//		RDFEventReader reader = openPatternReader(about, query, element);
+//		try {
+//			qry.consume(reader);
+//		} finally {
+//			reader.close();
+//		}
 //		return qry;
 //	}
-
-	private IterableRDFEventReader filterPrefix(TriplePatternStore patterns,
-			TriplePattern pattern, String q) {
-		VarOrTerm obj = pattern.getPartner();
-		PlainLiteral phone = tf.literal(asSoundex(q));
-		String regex = regexStartsWith(q);
-		List<RDFEvent> list = new ArrayList<RDFEvent>();
-		list.add(new Subject(true, obj));
-		list.add(new TriplePattern(obj, tf.iri(SOUNDEX), phone));
-		boolean filter = false;
-		for (String pred : LABELS) {
-			IRI iri = tf.iri(pred);
-			for (TriplePattern tp : patterns.getPatternsByPredicate(iri)) {
-				if (tp.getAbout().equals(obj)) {
-					if (filter) {
-						list.add(new ConditionalOrExpression());
-					} else {
-						filter = true;
-					}
-					list.add(new BuiltInCall(true, "regex"));
-					list.add(new BuiltInCall(true, "str"));
-					list.add(new Expression(tp.getObject()));
-					list.add(new BuiltInCall(false, "str"));
-					list.add(new Expression(tf.literal(regex)));
-					list.add(new Expression(tf.literal("i")));
-					list.add(new BuiltInCall(false, "regex"));
-				}
-			}
-		}
-		list.add(new Subject(false, obj));
-		return new IterableRDFEventReader(list);
-	}
+//
+//	private IterableRDFEventReader filterPrefix(TriplePatternStore patterns,
+//			TriplePattern pattern, String q) {
+//		VarOrTerm obj = pattern.getPartner();
+//		PlainLiteral phone = tf.literal(asSoundex(q));
+//		String regex = regexStartsWith(q);
+//		List<RDFEvent> list = new ArrayList<RDFEvent>();
+//		list.add(new Subject(true, obj));
+//		list.add(new TriplePattern(obj, tf.iri(SOUNDEX), phone));
+//		boolean filter = false;
+//		for (String pred : LABELS) {
+//			IRI iri = tf.iri(pred);
+//			for (TriplePattern tp : patterns.getPatternsByPredicate(iri)) {
+//				if (tp.getAbout().equals(obj)) {
+//					if (filter) {
+//						list.add(new ConditionalOrExpression());
+//					} else {
+//						filter = true;
+//					}
+//					// eg. FILTER regex( str(<object>),<regex>,i)
+//					list.add(new BuiltInCall(true, "regex"));
+//					list.add(new BuiltInCall(true, "str"));
+//					list.add(new Expression(tp.getObject()));
+//					list.add(new BuiltInCall(false, "str"));
+//					list.add(new Expression(tf.literal(regex)));
+//					list.add(new Expression(tf.literal("i")));
+//					list.add(new BuiltInCall(false, "regex"));
+//				}
+//			}
+//		}
+//		list.add(new Subject(false, obj));
+//		return new IterableRDFEventReader(list);
+//	}
 
 	public RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
 			TriplePattern pattern) {

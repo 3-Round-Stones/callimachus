@@ -189,7 +189,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 	protected BindingSet nextResult() throws Exception {
 		if (resultSet.hasNext())
 			return resultSet.next();
-		else return null;
+		resultSet.close();
+		return null;
 	}
 	
 	public String path() {

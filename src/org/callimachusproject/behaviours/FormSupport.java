@@ -43,6 +43,7 @@ import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.BufferedXMLEventReader;
+import org.callimachusproject.stream.DeDupedResultSet;
 import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.SPARQLPosteditor;
 import org.callimachusproject.stream.SPARQLProducer;
@@ -248,21 +249,22 @@ public abstract class FormSupport implements Page, SoundexTrait,
 		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
 		
-		// filter out the outer rel
+		// filter out the outer rel (the button may add additional bnodes that need to be cut out)
 		ed.addEditor(ed.new CutTriplePattern(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
 		
-		// add soundex
+		// add soundex condition to @about siblings on the next level only
 		ed.addEditor(ed.new AddCondition("^(/\\d+){2}$",tf.iri(SOUNDEX),tf.literal(asSoundex(q))));
 		
-		// add filters to soundex labels
-		ed.addEditor(ed.new AddFilter("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
+		// add filters to soundex labels on the next level down
+		ed.addEditor(ed.new AddFilter("^(/\\d+){2,}$",LABELS,regexStartsWith(q)));
 
 		RepositoryConnection con = getObjectConnection();
 		String sparql = toSPARQL(ed);
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
+		TupleQueryResult results = new DeDupedResultSet(qry.evaluate());
 		URI about = vf.createURI(base);
 		template.reset(0);
-		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), about, con);
+		RDFaProducer xhtml = new RDFaProducer(template, results, rq.getOrigins(), about, con);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 

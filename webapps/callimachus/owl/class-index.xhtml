@@ -3,7 +3,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:owl="http://www.w3.org/2002/07/owl#">
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:dcterms="http://purl.org/dc/terms/">
 <head>
 	<title about="?this" property="rdfs:label" />
 	<script type="text/javascript">//<![CDATA[
@@ -15,7 +19,8 @@
 					$(this).remove(); // remove duplicates
 				} else {
 					hash[uri] = this;
-					var label = $(this).find('a').text();
+					var label = $(this).find('a:first').text();
+					$(this).find('a:not(:first)').remove();
 					if (label.match(/^[A-Za-z]/)) {
 						box = $('#' + label.substring(0, 1).toUpperCase());
 					} else {
@@ -102,15 +107,21 @@
 		<div id="X"><h2>X</h2></div>
 		<div id="Y"><h2>Y</h2></div>
 		<div id="Z"><h2>Z</h2></div>
-		<div id="_">
-			<h2>?</h2>
-			<div class="result" rev="rdf:type" resource="?resource">
-			  <a href="?resource" class="view" property="rdfs:label" />
-			</div>
-			<div rel="owl:equivalentClass" resource="?equivalent">
-				<div class="result" rev="rdf:type" resource="?member">
-				  <a href="?member" class="view" property="rdfs:label" />
-				</div>
+		<div id="_"><h2>?</h2></div>
+		<div class="result" rev="rdf:type" resource="?resource">
+		  <a href="?resource" class="view" property="rdfs:label" />
+		  <a href="?resource" class="view" property="skos:prefLabel" />
+		  <a href="?resource" class="view" property="foaf:name" />
+		  <a href="?resource" class="view" property="dc:title" />
+		  <a href="?resource" class="view" property="dcterms:title" />
+		</div>
+		<div rel="owl:equivalentClass" resource="?equivalent">
+			<div class="result" rev="rdf:type" resource="?member">
+			  <a href="?member" class="view" property="rdfs:label" />
+			  <a href="?member" class="view" property="skos:prefLabel" />
+			  <a href="?member" class="view" property="foaf:name" />
+			  <a href="?member" class="view" property="dc:title" />
+			  <a href="?member" class="view" property="dcterms:title" />
 			</div>
 		</div>
 	</div>

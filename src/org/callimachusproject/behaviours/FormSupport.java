@@ -252,15 +252,17 @@ public abstract class FormSupport implements Page, SoundexTrait,
 		// filter out the outer rel (the button may add additional bnodes that need to be cut out)
 		ed.addEditor(ed.new CutTriplePattern(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
 		
-		// add soundex condition to @about siblings on the next level only
+		// add soundex conditions to @about siblings on the next level only
+		// The regex should not match properties and property-expressions with info following the xptr
 		ed.addEditor(ed.new AddCondition("^(/\\d+){2}$",tf.iri(SOUNDEX),tf.literal(asSoundex(q))));
 		
-		// add filters to soundex labels on the next level down
+		// add filters to soundex labels from the next level
 		ed.addEditor(ed.new AddFilter("^(/\\d+){2,}$",LABELS,regexStartsWith(q)));
 
 		RepositoryConnection con = getObjectConnection();
 		String sparql = toSPARQL(ed);
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
+		// The edited query may return multiple and/or empty solutions
 		TupleQueryResult results = new DeDupedResultSet(qry.evaluate());
 		URI about = vf.createURI(base);
 		template.reset(0);

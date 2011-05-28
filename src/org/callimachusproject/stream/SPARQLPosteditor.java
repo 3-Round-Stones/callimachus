@@ -23,6 +23,7 @@ package org.callimachusproject.stream;
  * @author Steve Battle
  */
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.regex.Pattern;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.BuiltInCall;
+import org.callimachusproject.rdfa.events.ConditionalOrExpression;
 import org.callimachusproject.rdfa.events.Expression;
 import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.TriplePattern;
@@ -96,6 +98,7 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 		List<String> props;
 		Pattern subjectPattern;
 		String regex;
+		List<RDFEvent> list;
 		public AddFilter(String subjectRegex, String[] props, String regex) {
 			super();
 			this.props = Arrays.asList(props);
@@ -104,21 +107,25 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 		}
 		@Override
 		public boolean edit(RDFEvent event) {
-			if (!event.isTriplePattern()) return false;
-			TriplePattern t = event.asTriplePattern();
-			
-			if (match(subjectPattern,t.getSubject()) 
-			&& props.contains(t.getPredicate().stringValue())) {
-				add(event);
-				// eg. FILTER regex( str(<object>),<regex>,i)
-				add(new BuiltInCall(true, "regex"));
-				add(new BuiltInCall(true, "str"));
-				add(new Expression(t.getObject()));
-				add(new BuiltInCall(false, "str"));
-				add(new Expression(tf.literal(regex)));
-				add(new Expression(tf.literal("i")));
-				add(new BuiltInCall(false, "regex"));
-				return true;
+			if (event.isTriplePattern()) {
+				TriplePattern t = event.asTriplePattern();
+				if (match(subjectPattern,t.getSubject()) 
+				&& props.contains(t.getPredicate().stringValue())) {
+					if (list==null) list = new ArrayList<RDFEvent>();
+					else list.add(new ConditionalOrExpression());
+					// eg. FILTER regex( str(<object>),<regex>,i)
+					list.add(new BuiltInCall(true, "regex"));
+					list.add(new BuiltInCall(true, "str"));
+					list.add(new Expression(t.getObject()));
+					list.add(new BuiltInCall(false, "str"));
+					list.add(new Expression(tf.literal(regex)));
+					list.add(new Expression(tf.literal("i")));
+					list.add(new BuiltInCall(false, "regex"));
+				}
+			}
+			else if (event.isEndSubject() && list!=null) {
+				addAll(list);
+				list = null;
 			}
 			return false;
 		}
@@ -152,6 +159,8 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 	protected void process(RDFEvent event) throws RDFParseException {
 		if (event==null) return;
 		for (Editor ed: editors) {
+			// if the edit returns true, then skip further editing
+			// only required to cut or re-order events
 			if (ed.edit(event)) return;
 		}
 		add(event);

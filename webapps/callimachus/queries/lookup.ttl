@@ -3,6 +3,7 @@
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix skosxl:<http://www.w3.org/2008/05/skos-xl#>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
@@ -31,6 +32,9 @@
 			} UNION {
 				?url skos:prefLabel ?label; skos:hiddenLabel ?hiddenLabel
 				FILTER (regex(str(?hiddenLabel), $regex, "i"))
+			} UNION {
+				?url skosxl:literalForm ?label
+				FILTER (regex(str(?label), $regex, "i"))
 			}
 			FILTER (isIRI(?url))
 			OPTIONAL { ?url a [calli:icon ?icon] }

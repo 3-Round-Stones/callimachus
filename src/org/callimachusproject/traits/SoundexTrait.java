@@ -29,7 +29,7 @@ import org.openrdf.repository.object.annotations.iri;
  */
 public interface SoundexTrait {
 	public static String SOUNDEX = "http://callimachusproject.org/rdf/2009/framework#soundex";
-	public static String[] LABELS = {
+	public static final String[] LABELS = {
 			"http://www.w3.org/2000/01/rdf-schema#label",
 			"http://www.w3.org/2004/02/skos/core#prefLabel",
 			"http://www.w3.org/2004/02/skos/core#altLabel",

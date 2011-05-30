@@ -49,10 +49,12 @@ public abstract class SoundexLabelSupport implements SoundexTrait {
 		return "^" + string.replaceAll("[^a-zA-Z0-9\\s]", ".");
 	}
 
-	@triggeredBy( { "http://www.w3.org/2000/01/rdf-schema#label",
+	@triggeredBy( // see SoundexTrait.LABELS
+			{ "http://www.w3.org/2000/01/rdf-schema#label",
 			"http://www.w3.org/2004/02/skos/core#prefLabel",
 			"http://www.w3.org/2004/02/skos/core#altLabel",
-			"http://www.w3.org/2004/02/skos/core#hiddenLabel" })
+			"http://www.w3.org/2004/02/skos/core#hiddenLabel",
+			"http://www.w3.org/2008/05/skos-xl#literalForm" })
 	public void addSoundexForLabel(String label) {
 		Set<String> phones = new HashSet<String>();
 		String clean = clean(label);

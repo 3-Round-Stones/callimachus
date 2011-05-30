@@ -59,7 +59,8 @@ import org.openrdf.repository.RepositoryConnection;
  */
 
 public class RDFaProducer extends XMLEventReaderBase {
-	
+	private static final String XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace";
+
 	final static String[] RDFA_OBJECT_ATTRIBUTES = { "about", "resource", "typeof", "content" };
 	final static List<String> RDFA_OBJECTS = Arrays.asList(RDFA_OBJECT_ATTRIBUTES);
 
@@ -376,7 +377,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// enumerate variables in triples with ?VAR syntax
 		for (String name: resultSet.getBindingNames()) {
 			String[] origin = origins.get(name).split(" ");
-			if (origin[0].equals(context.path) && value.startsWith("?")) 
+			if (origin[0].equals(context.path) && value.startsWith("?")
+			&& namespace.isEmpty() && RDFaVarAttributes.contains(localPart)) 
 				return context.assignments.get(name);
 		}
 		// look for variable expressions in the attribute value
@@ -670,7 +672,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 				return a;
 			}
 			else if (lang!=null) {
-				QName q = new QName("http://www.w3.org/XML/1998/namespace","lang","xml");
+				QName q = new QName(XML_NAMESPACE,"lang","xml");
 				Attribute a = eventFactory.createAttribute(q, lang);
 				lang = null;
 				return a;

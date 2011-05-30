@@ -26,7 +26,6 @@ import java.io.InputStreamReader;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.nio.charset.Charset;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -35,8 +34,6 @@ import java.util.regex.Pattern;
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.StartElement;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.concepts.Page;
@@ -197,25 +194,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		try {
 			if (element == null || element.equals("/1"))
 				return xhtml;
-			if (!element.startsWith("/1/"))
-				throw new BadRequest("Invalid element parameter: " + element);
-			String parent = element.substring(0, element.lastIndexOf('/'));
-			String child = "/1" + element.substring(element.lastIndexOf('/'));
-			XMLElementReader pxptr = new XMLElementReader(xhtml, parent);
-			boolean prel = isRelationshipElement(pxptr); // data-add(construct)
-															// data-member(construct)
-															// data-more@rel(template)
-			XMLElementReader xptr = new XMLElementReader(pxptr, child);
-			boolean crel = isRelationshipElement(xptr); // data-search(search)
-														// data-more@property(template)
-			xptr = new XMLElementReader(xptr, "/1");
-			xptr.mark(1024);
-			XMLElementReader nxptr = new XMLElementReader(xptr, "/1/1");
-			boolean nrel = isRelationshipElement(nxptr); // data-options(options)
-			xptr.reset();
-			if (!prel && !crel && !nrel)
-				throw new BadRequest("Invalid element parameter: " + element);
-			return xptr;
+			return new XMLElementReader(xhtml, element);
 		} catch (NumberFormatException e) {
 			throw new BadRequest(e);
 		}
@@ -267,27 +246,4 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		return href;
 	}
 
-	private boolean isRelationshipElement(XMLElementReader doc)
-			throws XMLStreamException {
-		doc.mark(1024);
-		try {
-			while (doc.hasNext() && !doc.peek().isStartElement()) {
-				doc.next();
-			}
-			if (doc.hasNext()) {
-				StartElement start = doc.nextEvent().asStartElement();
-				Iterator<Attribute> iter = start.getAttributes();
-				while (iter.hasNext()) {
-					String part = iter.next().getName().getLocalPart();
-					if ("rel".equals(part) || "rev".equals(part)
-							|| "property".equals(part)) {
-						return true;
-					}
-				}
-			}
-			return false;
-		} finally {
-			doc.reset();
-		}
-	}
 }

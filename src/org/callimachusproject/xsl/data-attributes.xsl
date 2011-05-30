@@ -48,14 +48,14 @@
 
 	<xsl:template mode="form" match="xhtml:button[@data-dialog]">
 		<xsl:copy>
-			<xsl:if test="../*[@about or @resource] and not(@data-search)">
+			<xsl:if test="ancestor::*[.//@about or .//@resource] and not(@data-search)">
 				<!-- Lookup possible members by label -->
 				<xsl:attribute name="data-search">
 					<xsl:value-of select="$this" />
 					<xsl:text>?search&amp;query=</xsl:text>
 					<xsl:value-of select="$query" />
 					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select=".." />
+					<xsl:apply-templates mode="xptr-element" select="ancestor::*[.//@about or .//@resource][1]" />
 					<xsl:text>&amp;q={searchTerms}</xsl:text>
 				</xsl:attribute>
 			</xsl:if>
@@ -66,14 +66,14 @@
 
 	<xsl:template mode="form" match="xhtml:button[contains(@class, 'add') and not(@data-dialog)]">
 		<xsl:copy>
-			<xsl:if test="../*[@about or @typeof or @resource or @property] and not(@data-add)">
+			<xsl:if test="ancestor::*[.//@about or .//@typeof or .//@resource or .//@property] and not(@data-add)">
 				<!-- Called to insert another property value or node -->
 				<xsl:attribute name="data-add">
 					<xsl:value-of select="$this" />
 					<xsl:text>?template&amp;query=</xsl:text>
 					<xsl:value-of select="$query" />
 					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select=".." />
+					<xsl:apply-templates mode="xptr-element" select="ancestor::*[.//@about or .//@typeof or .//@resource or .//@property][1]" />
 				</xsl:attribute>
 			</xsl:if>
 			<xsl:call-template name="data-attributes" />

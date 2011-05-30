@@ -20,7 +20,7 @@ function bindAddButtons(buttons) {
 		var button = $(this);
 		jQuery.get(button.attr("data-add"), function(data) {
 			var clone = $(data).clone();
-			button.before(clone);
+			button.before(clone.children());
 			clone.find(':input').andSelf().filter(':input').focus();
 		}, 'text');
 	});

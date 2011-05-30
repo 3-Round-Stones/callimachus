@@ -60,8 +60,8 @@ function initDropArea(droppable) {
 function addSetItem(uri, script) {
 	var url = script.attr("data-construct").replace("{about}", encodeURIComponent(uri));
 	jQuery.get(url, function(data) {
-		var input = data ? $(data) : data;
-		if (input && input.is("[about='" + uri + "']") && input.text().match(/\w/)) {
+		var input = data ? $(data).children() : data;
+		if (input && input.text().match(/\w/)) {
 			if (script.children("button[data-dialog]").length) {
 				script.children("button[data-dialog]").before(input);
 			} else {

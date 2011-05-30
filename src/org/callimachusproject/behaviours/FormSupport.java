@@ -77,8 +77,7 @@ import org.openrdf.repository.object.xslt.XSLTransformer;
  * @author Steve Battle
  * 
  */
-public abstract class FormSupport implements Page, SoundexTrait,
-		RDFObject, FileObject {
+public abstract class FormSupport implements Page, SoundexTrait, RDFObject, FileObject {
 	private static TermFactory tf = TermFactory.newInstance();
 	private static ValueFactory vf = new ValueFactoryImpl();
 	
@@ -130,6 +129,8 @@ public abstract class FormSupport implements Page, SoundexTrait,
 			throws Exception {
 		if (about != null && (element == null || element.equals("/1")))
 			throw new BadRequest("Missing element parameter");
+		if (about!=null && element!=null)
+			return dataConstruct(about, query, element);
 		if (about == null && query == null && element == null) {
 			ValueFactory vf = getObjectConnection().getValueFactory();
 			about = vf.createURI(this.toString());
@@ -152,7 +153,7 @@ public abstract class FormSupport implements Page, SoundexTrait,
 			List<BindingSet> bindings = Collections.emptyList();
 			results = new TupleQueryResultImpl(names, bindings.iterator());
 			origins = Collections.emptyMap();
-		}
+		}	
 		else { // evaluate SPARQL derived from the template
 			String base = about.stringValue();
 			String sparql = sparql(query, element);
@@ -174,6 +175,33 @@ public abstract class FormSupport implements Page, SoundexTrait,
 			in.close();
 		}
 	}
+	
+	private InputStream dataConstruct(URI about, String query, String element) throws Exception {
+		String base = toUri().toASCIIString();
+		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
+		template.mark();
+		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
+		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
+		
+		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
+		// ^(/\d+){3,}$|^(/\d+)*\s.*$
+		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
+		
+		// use the type relationship to select the subject to bind
+		SPARQLPosteditor.TriplePatternRecorder rec;
+		ed.addEditor(rec = ed.new TriplePatternRecorder("^(/\\d+){2}$",null,null));
+		
+		RepositoryConnection con = getObjectConnection();
+		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(ed), base);
+		for (TriplePattern t: rec.getTriplePatterns()) {
+			VarOrTerm vt = t.getSubject();
+			if (vt.isVar())
+				qry.setBinding(vt.asVar().stringValue(), about);
+		}
+		template.reset(0);
+		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), about, con);
+		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();		
+	}
 
 	/**
 	 * See data-options, defining an HTML select/option fragment
@@ -182,25 +210,7 @@ public abstract class FormSupport implements Page, SoundexTrait,
 	@query("options")
 	@type("text/html")
 	@header("cache-control:no-store")
-//		public InputStream options
-//	(@query("query") String query, @query("element") String element) throws Exception {
-//		String base = toUri().toASCIIString();
-//		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
-//		int n = template.mark();
-//		TriplePatternStore patterns = readPatternStore(template,query, element, base);
-//		TriplePattern pattern = patterns.getFirstTriplePattern();
-//		RDFEventReader rq = patterns.selectBySubject(pattern.getPartner());
-//		String sparql = toSPARQL(rq);
-//		RepositoryConnection con = getObjectConnection();
-//		TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, base);
-//		TupleQueryResult results = q.evaluate();
-//		Map<String,String> origins = SPARQLProducer.getOrigins(sparql);
-//		URI about = vf.createURI(base);
-//		template.reset(n);
-//		RDFaProducer xhtml = new RDFaProducer(template, results, origins, about, con);
-//		
-//		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
-//	}
+
 	public InputStream options
 	(@query("query") String query, @query("element") String element) throws Exception {
 		String base = toUri().toASCIIString();
@@ -211,7 +221,7 @@ public abstract class FormSupport implements Page, SoundexTrait,
 		
 		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
 		// ^(/\d+){3,}$|^(/\d+)*\s.*$
-		ed.addEditor(ed.new CutTriplePattern(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
+		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
 		
 		RepositoryConnection con = getObjectConnection();
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(ed), base);
@@ -228,18 +238,7 @@ public abstract class FormSupport implements Page, SoundexTrait,
 	@query("search")
 	@type("text/html")
 	@header("cache-control:no-validate,max-age=60")
-//		public XMLEventReader constructSearch
-//	(@query("query") String query, @query("element") String element, @query("q") String q)
-//	throws Exception {
-//		String base = toUri().toASCIIString();
-//		TriplePatternStore patterns = readPatternStore(query, element, base);
-//		TriplePattern pattern = patterns.getFirstTriplePattern();
-//		patterns.consume(filterPrefix(patterns, pattern, q));
-//		RDFEventReader qry = constructPossibleTriples(patterns, pattern);
-//		ObjectConnection con = getObjectConnection();
-//		RDFEventReader rdf = new RDFStoreReader(toSPARQL(qry), patterns, con);
-//		return new RDFXMLEventReader(new ReducedTripleReader(rdf));
-//	}
+	
 	public InputStream constructSearch
 	(@query("query") String query, @query("element") String element, @query("q") String q)
 	throws Exception {
@@ -250,14 +249,14 @@ public abstract class FormSupport implements Page, SoundexTrait,
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
 		
 		// filter out the outer rel (the button may add additional bnodes that need to be cut out)
-		ed.addEditor(ed.new CutTriplePattern(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
+		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
 		
 		// add soundex conditions to @about siblings on the next level only
 		// The regex should not match properties and property-expressions with info following the xptr
-		ed.addEditor(ed.new AddCondition("^(/\\d+){2}$",tf.iri(SOUNDEX),tf.literal(asSoundex(q))));
+		ed.addEditor(ed.new ConditionInsert("^(/\\d+){2}$",tf.iri(SOUNDEX),tf.literal(asSoundex(q))));
 		
 		// add filters to soundex labels from the next level
-		ed.addEditor(ed.new AddFilter("^(/\\d+){2,}$",LABELS,regexStartsWith(q)));
+		ed.addEditor(ed.new FilterInsert("^(/\\d+){2,}$",LABELS,regexStartsWith(q)));
 
 		RepositoryConnection con = getObjectConnection();
 		String sparql = toSPARQL(ed);
@@ -269,53 +268,6 @@ public abstract class FormSupport implements Page, SoundexTrait,
 		RDFaProducer xhtml = new RDFaProducer(template, results, rq.getOrigins(), about, con);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
-
-//	private TriplePatternStore readPatternStore(String query, String element,
-//			String about) throws XMLStreamException, IOException,
-//			TransformerException, RDFParseException {
-//		String base = toUri().toASCIIString();
-//		TriplePatternStore qry = new TriplePatternVariableStore(base);
-//		RDFEventReader reader = openPatternReader(about, query, element);
-//		try {
-//			qry.consume(reader);
-//		} finally {
-//			reader.close();
-//		}
-//		return qry;
-//	}
-//
-//	private IterableRDFEventReader filterPrefix(TriplePatternStore patterns,
-//			TriplePattern pattern, String q) {
-//		VarOrTerm obj = pattern.getPartner();
-//		PlainLiteral phone = tf.literal(asSoundex(q));
-//		String regex = regexStartsWith(q);
-//		List<RDFEvent> list = new ArrayList<RDFEvent>();
-//		list.add(new Subject(true, obj));
-//		list.add(new TriplePattern(obj, tf.iri(SOUNDEX), phone));
-//		boolean filter = false;
-//		for (String pred : LABELS) {
-//			IRI iri = tf.iri(pred);
-//			for (TriplePattern tp : patterns.getPatternsByPredicate(iri)) {
-//				if (tp.getAbout().equals(obj)) {
-//					if (filter) {
-//						list.add(new ConditionalOrExpression());
-//					} else {
-//						filter = true;
-//					}
-//					// eg. FILTER regex( str(<object>),<regex>,i)
-//					list.add(new BuiltInCall(true, "regex"));
-//					list.add(new BuiltInCall(true, "str"));
-//					list.add(new Expression(tp.getObject()));
-//					list.add(new BuiltInCall(false, "str"));
-//					list.add(new Expression(tf.literal(regex)));
-//					list.add(new Expression(tf.literal("i")));
-//					list.add(new BuiltInCall(false, "regex"));
-//				}
-//			}
-//		}
-//		list.add(new Subject(false, obj));
-//		return new IterableRDFEventReader(list);
-//	}
 
 	public RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
 			TriplePattern pattern) {

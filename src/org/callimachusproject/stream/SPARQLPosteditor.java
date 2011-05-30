@@ -41,6 +41,7 @@ import org.callimachusproject.rdfa.model.PlainLiteral;
 import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.rdfa.model.Var;
 import org.callimachusproject.rdfa.model.VarOrTerm;
+import org.openrdf.model.URI;
 
 
 public class SPARQLPosteditor extends BufferedRDFEventReader {
@@ -53,10 +54,9 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 		boolean edit(RDFEvent event);
 	}
 	
-	public class CutTriplePattern implements Editor {
-		Map<String,String> origins;
+	public class TriplePatternCutter implements Editor {
 		Pattern subject, object;
-		public CutTriplePattern(String subject, String object) {
+		public TriplePatternCutter(String subject, String object) {
 			if (subject!=null) this.subject = Pattern.compile(subject);
 			if (object!=null) this.object = Pattern.compile(object);
 		}
@@ -68,12 +68,11 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 		}
 	}
 	
-	public class AddCondition implements Editor {
-		Map<String,String> origins;
+	public class ConditionInsert implements Editor {
 		IRI pred;
 		PlainLiteral lit;
 		Pattern subjectPattern;
-		public AddCondition(String subjectRegex, IRI pred, PlainLiteral lit) {
+		public ConditionInsert(String subjectRegex, IRI pred, PlainLiteral lit) {
 			super();
 			this.subjectPattern = Pattern.compile(subjectRegex);
 			this.pred = pred;
@@ -92,13 +91,12 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 		}
 	}
 
-	public class AddFilter implements Editor {
-		Map<String,String> origins;
+	public class FilterInsert implements Editor {
 		List<String> props;
 		Pattern subjectPattern;
 		String regex;
 		List<RDFEvent> list = new LinkedList<RDFEvent>();
-		public AddFilter(String subjectRegex, String[] props, String regex) {
+		public FilterInsert(String subjectRegex, String[] props, String regex) {
 			super();
 			this.props = Arrays.asList(props);
 			this.subjectPattern = Pattern.compile(subjectRegex);
@@ -129,6 +127,30 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 		}
 	}
 	
+	public class TriplePatternRecorder implements Editor {
+		URI pred;
+		Pattern subjectPattern, objectPattern;
+		List<TriplePattern> triples = new LinkedList<TriplePattern>();
+		public TriplePatternRecorder(String subjectRegex, URI pred, String objectRegex) {
+			if (subjectRegex!=null) subjectPattern = Pattern.compile(subjectRegex);
+			if (objectRegex!=null) objectPattern = Pattern.compile(objectRegex);
+			this.pred = pred;
+		}
+		@Override
+		public boolean edit(RDFEvent event) {
+			if (!event.isTriplePattern()) return false;
+			TriplePattern t = event.asTriplePattern();
+			if (match(subjectPattern, t.getSubject())
+			&& (pred==null || t.getPredicate().stringValue().equals(pred.stringValue()))
+			&& match(objectPattern, t.getObject()))
+				triples.add(t);
+			return false;
+		}
+		public List<TriplePattern> getTriplePatterns() {
+			return triples;
+		}
+	}
+		
 	private boolean match(Pattern p, VarOrTerm vt) {
 		if (p!=null && vt!=null && vt.isVar()) {
 			Var v = vt.asVar();

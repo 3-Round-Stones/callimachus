@@ -4,6 +4,8 @@
 
 $(document).ready(handle);
 
+$(document).bind("DOMNodeInserted", handle);
+
 function handle(event) {
 	$(".sorted", event.target).each(function(i, node) {
 		sortElements(node);

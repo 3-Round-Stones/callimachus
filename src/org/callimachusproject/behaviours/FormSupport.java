@@ -180,7 +180,7 @@ public abstract class FormSupport implements Page, SoundexTrait,
 	 */
 
 	@query("options")
-	@type("application/html")
+	@type("text/html")
 	@header("cache-control:no-store")
 //		public InputStream options
 //	(@query("query") String query, @query("element") String element) throws Exception {
@@ -226,7 +226,7 @@ public abstract class FormSupport implements Page, SoundexTrait,
 	 * See data-search
 	 */
 	@query("search")
-	@type("application/html")
+	@type("text/html")
 	@header("cache-control:no-validate,max-age=60")
 //		public XMLEventReader constructSearch
 //	(@query("query") String query, @query("element") String element, @query("q") String q)

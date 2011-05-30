@@ -263,7 +263,7 @@ public abstract class FormSupport implements Page, SoundexTrait,
 		String sparql = toSPARQL(ed);
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
 		// The edited query may return multiple and/or empty solutions
-		TupleQueryResult results = new DeDupedResultSet(qry.evaluate());
+		TupleQueryResult results = new DeDupedResultSet(qry.evaluate(),true);
 		URI about = vf.createURI(base);
 		template.reset(0);
 		RDFaProducer xhtml = new RDFaProducer(template, results, rq.getOrigins(), about, con);

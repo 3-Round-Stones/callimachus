@@ -78,10 +78,10 @@ public class SPARQLWriter implements Closeable {
 	public void write(RDFEvent event) throws IOException {
 		if (event.isFilter() && !filtering) {
 			indent(indent);
-			writer.append("FILTER ");
+			writer.append("FILTER (");
 			filtering = true;
 		} else if (!event.isFilter() && filtering) {
-			writer.append("\n");
+			writer.append(")\n");
 			filtering = false;
 		}
 		if (event.isBase()) {
@@ -207,7 +207,11 @@ public class SPARQLWriter implements Closeable {
 				writer.append(", ");
 			}
 			writer.append(event.asExpression().getTerm().toString());
-		} else if (event.isComment()) {
+		}
+		else if (event.isConditionalOrExpression()) {
+			writer.append(" || ");
+		}
+		else if (event.isComment()) {
 			writer.append(event.toString());
 		}
 		previous = event;

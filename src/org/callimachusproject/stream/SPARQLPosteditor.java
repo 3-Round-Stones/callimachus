@@ -23,7 +23,6 @@ package org.callimachusproject.stream;
  * @author Steve Battle
  */
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -92,13 +91,13 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 			return false;
 		}
 	}
-	
+
 	public class AddFilter implements Editor {
 		Map<String,String> origins;
 		List<String> props;
 		Pattern subjectPattern;
 		String regex;
-		List<RDFEvent> list;
+		List<RDFEvent> list = new LinkedList<RDFEvent>();
 		public AddFilter(String subjectRegex, String[] props, String regex) {
 			super();
 			this.props = Arrays.asList(props);
@@ -109,23 +108,22 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 		public boolean edit(RDFEvent event) {
 			if (event.isTriplePattern()) {
 				TriplePattern t = event.asTriplePattern();
-				if (match(subjectPattern,t.getSubject()) 
-				&& props.contains(t.getPredicate().stringValue())) {
-					if (list==null) list = new ArrayList<RDFEvent>();
-					else list.add(new ConditionalOrExpression());
-					// eg. FILTER regex( str(<object>),<regex>,i)
-					list.add(new BuiltInCall(true, "regex"));
-					list.add(new BuiltInCall(true, "str"));
-					list.add(new Expression(t.getObject()));
-					list.add(new BuiltInCall(false, "str"));
-					list.add(new Expression(tf.literal(regex)));
-					list.add(new Expression(tf.literal("i")));
-					list.add(new BuiltInCall(false, "regex"));
+				if (match(subjectPattern,t.getSubject())) {
+					if (props.contains(t.getPredicate().stringValue())) {
+						if (list.size()>0) list.add(new ConditionalOrExpression());
+						// eg. FILTER regex( str(<object>),<regex>,i)
+						list.add(new BuiltInCall(true, "regex"));
+						list.add(new BuiltInCall(true, "str"));
+						list.add(new Expression(t.getObject()));
+						list.add(new BuiltInCall(false, "str"));
+						list.add(new Expression(tf.literal(regex)));
+						list.add(new Expression(tf.literal("i")));
+						list.add(new BuiltInCall(false, "regex"));
+					}
 				}
 			}
-			else if (event.isEndSubject() && list!=null) {
+			else if (event.isEndWhere()) {
 				addAll(list);
-				list = null;
 			}
 			return false;
 		}

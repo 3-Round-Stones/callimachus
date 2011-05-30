@@ -17,7 +17,9 @@
 
 package org.callimachusproject.stream;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
@@ -25,7 +27,8 @@ import org.openrdf.query.TupleQueryResult;
 
 
 /**
- * Remove contiguous duplicates and empty results from a result set 
+ * Remove contiguous duplicates and empty results from a result set
+ * Enable full de-dupe for full duplicate removal (more expensive)
  * 
  * @author Steve Battle
  */
@@ -33,12 +36,19 @@ import org.openrdf.query.TupleQueryResult;
 public class DeDupedResultSet implements TupleQueryResult {
 	TupleQueryResult results;
 	BindingSet next;
+	Set<BindingSet> seen;
 
 	public DeDupedResultSet(TupleQueryResult results) 
 	throws QueryEvaluationException {
 		super();
 		this.results = results;
 		next = more();
+	}
+
+	public DeDupedResultSet(TupleQueryResult results, boolean full) 
+	throws QueryEvaluationException {
+		this(results);
+		seen = new HashSet<BindingSet>();
 	}
 
 	@Override
@@ -56,7 +66,10 @@ public class DeDupedResultSet implements TupleQueryResult {
 		BindingSet next = this.next;
 		do {
 			this.next = more();
-		} while (this.next!=null && (this.next.equals(next) || this.next.size()==0));
+		} while (this.next!=null 
+		&& (this.next.equals(next) || this.next.size()==0 
+		|| (seen!=null && seen.contains(this.next))));
+		if (seen!=null) seen.add(next);
 		return next;
 	}
 	

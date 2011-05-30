@@ -48,7 +48,7 @@
 
 	<xsl:template mode="form" match="xhtml:button[@data-dialog]">
 		<xsl:copy>
-			<xsl:if test="1=count(../*[@about or @resource]) and not(@data-search)">
+			<xsl:if test="../*[@about or @resource] and not(@data-search)">
 				<!-- Lookup possible members by label -->
 				<xsl:attribute name="data-search">
 					<xsl:value-of select="$this" />

@@ -71,7 +71,9 @@
 		var ontology = proceed();
 		var local = ontology.resource.localName.replace(/[+]/g, '');
 		var uri = ontology.resource.stringValue();
-		ontology.objectConnection.setNamespace(local, uri + '/');
+		if (!ontology.objectConnection.getNamespace(local)) {
+			ontology.objectConnection.setNamespace(local, uri + '/');
+		}
 		return ontology;
 	""".
 

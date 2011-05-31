@@ -646,6 +646,9 @@ public class RDFaReader extends RDFEventReader {
 			// braces are not safe characters in URIs and are used to define template expressions
 			if (value == null || value.indexOf('{')>=0 )
 				return null;
+			if (value.equals("[]")) {
+				return this.getParent().getNewSubject();
+			}
 			if (!value.startsWith("[")) {
 				Reference r = tf.reference(resolve(value), value);
 				r.setOrigin(origin);
@@ -680,6 +683,10 @@ public class RDFaReader extends RDFEventReader {
 			if (idx < 0)
 				return null;
 			String prefix = value.substring(0, idx);
+			// this may not be a curie
+			if (prefix.equals("http")) {
+				return tf.iri(value);
+			}
 			String namespaceURI = getNamespaceURI(prefix);
 			if (namespaceURI == null)
 				throw new RDFParseException("Undefined Prefix: " + prefix);

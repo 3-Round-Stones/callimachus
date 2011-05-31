@@ -71,7 +71,13 @@ public class RDFaConformanceTest {
 	static String negative_tests;
 	
 	static { // load default properties
-		loadProperties(PROPERTIES);
+		String props = PROPERTIES;
+		
+		// override default props with VM arg
+		if (System.getProperty("props")!=null)
+			props = System.getProperty("props");
+
+		loadProperties(props);
 	}
 
 	private static void loadProperties(String properties) {
@@ -251,7 +257,7 @@ public class RDFaConformanceTest {
 	}
 	
 	@Test
-	public void conformanceTest() {
+	public void conformanceTest() throws Exception {
 		RepositoryConnection con=null;
 		try {
 			String base = url_prefix+pack(id)+".xhtml";
@@ -259,9 +265,9 @@ public class RDFaConformanceTest {
 			con = loadRepository(rdf);
 			verifySPARQL(con, new File(test_dir+pack(id)+".sparql"));
 		}
-		catch (Exception e) {
-			fail("Test #"+id+" "+e.toString());
-		}
+//		catch (Exception e) {
+//			fail("Test #"+id+" "+e==null?"":e.toString());
+//		}
 		finally {
 			try { if (con!=null) con.close(); }
 			catch (Exception e) {  fail("Test #"+id+" "+e.toString()) ; }

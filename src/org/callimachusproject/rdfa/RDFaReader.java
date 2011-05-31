@@ -477,8 +477,9 @@ public class RDFaReader extends RDFEventReader {
 				if (!isStartSubject()) {
 					chain();
 				}
-				Node subj = getCurrentSubject();
-				if (parent != null && parent.isHanging()) {
+				// new subject (not current subject) is null if this tag has no RDFa markup
+				Node subj = getNewSubject();
+				if (parent != null && parent.isHanging() && subj!=null) {
 					List<Node> rel = parent.getRel();
 					if (rel != null) {
 						triple(parent.getCurrentSubject(), rel, subj, false);
@@ -514,7 +515,7 @@ public class RDFaReader extends RDFEventReader {
 					triple(subj, TYPE, t, false);
 				}
 			}
-
+			// add property expressions in attributes of this event
 			addPropertyExpressions(subj, event);
 
 			Node newSubject = getNewSubject();

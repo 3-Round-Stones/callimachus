@@ -187,7 +187,7 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		// ^(/\d+){3,}$|^(/\d+)*\s.*$
 		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
 		
-		// use the type relationship to select the subject to bind
+		// find top-level new subjects to bind
 		SPARQLPosteditor.TriplePatternRecorder rec;
 		ed.addEditor(rec = ed.new TriplePatternRecorder("^(/\\d+){2}$",null,null));
 		

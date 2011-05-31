@@ -63,7 +63,7 @@
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
 			<link rel="icon" href="{$callimachus}/menu?favicon" />
-			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1"/>
+			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,target-densityDpi=device-dpi"/>
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<xsl:comment>[if lte IE 8]>&lt;link rel="stylesheet" href="<xsl:value-of select="$layout" />/ie8.css" /&gt;&lt;![endif]</xsl:comment>
 			<xsl:if test="$query='create' or $query='edit'">

@@ -17,6 +17,8 @@ function handle(event) {
 
 function sortElements(node) {
 	var nodes = node.childNodes;
+	if (parseInt($(node).attr('data-sorted')) >= nodes.length)
+		return;
 	var list = [nodes.length];
 	for (var i = 0; i < nodes.length; i++) {
 		list[i] = nodes[i];
@@ -48,9 +50,8 @@ function sortElements(node) {
 		if (d1 < d2) return 1;
 		return 0;
 	});
-	for (var i = 0; i < nodes.length; i++) {
-		node.appendChild(list[i]);
-	}
+	$(node).attr('data-sorted', list.length);
+	$(node).append($(list));
 }
 
 })(window.jQuery);

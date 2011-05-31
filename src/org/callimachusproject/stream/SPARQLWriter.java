@@ -143,7 +143,7 @@ public class SPARQLWriter implements Closeable {
 				}
 			}
 			indent(indent);
-			writer.append("SELECT *\n");
+			writer.append("SELECT REDUCED *\n");
 		} else if (event.isStartWhere()) {
 			indent(indent);
 			writer.append("WHERE {\n");

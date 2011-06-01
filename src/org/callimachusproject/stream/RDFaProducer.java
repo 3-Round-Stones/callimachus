@@ -346,7 +346,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		for (String name: resultSet.getBindingNames()) {
 			List<String> origin = Arrays.asList(origins.get(name).split(" "));
 			// implicit vars (apart from CONTENT) need not be grounded
-			if (name.startsWith("_") && !origin.contains(RDFaReader.CONTENT)) 
+			if (name.startsWith("_") 
+			&& !(origin.contains(RDFaReader.CONTENT) || origin.contains("_"))) 
 				continue;
 			if (origin.get(0).equals(context.path) && context.assignments.get(name)==null) 
 				return false;

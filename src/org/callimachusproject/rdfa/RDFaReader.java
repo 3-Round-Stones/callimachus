@@ -377,7 +377,13 @@ public class RDFaReader extends RDFEventReader {
 				if ("head".equalsIgnoreCase(tn) || "body".equalsIgnoreCase(tn))
 					return document;
 			}
-			if (curies(attr("typeof")) != null)
+			String typeof = attr("typeof");
+			if (typeof!=null && typeof.isEmpty()) {
+				BlankNode b = getBlankNode();
+				b.setOrigin(origin+" _");
+				return b;
+			}
+			if (typeof!=null && (typeof.isEmpty() || curies(typeof) != null))
 				return getBlankNode();
 			if (parent != null && parent.isHanging()) {
 				if (attr("property") != null || attr("rel") != null

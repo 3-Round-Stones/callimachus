@@ -182,7 +182,8 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			if (!isBlock()) previousPattern = null;
 			stack.pop();
 			// closing the LHS of a UNION? (UNION keyword required subsequently)
-			if (!stack.isEmpty() && stack.peek().union) initial = false;
+			// If a group wasn't opened we have an empty triple block - no UNION required
+			if (!stack.isEmpty() && stack.peek().union) initial &= !isGroup();//false;
 			return stack.isEmpty()?null:stack.peek();
 		}
 	}

@@ -1,0 +1,5 @@
+test_dir = RDFaConformance/test-suite/test-cases/xhtml1/rdfa1.1/
+url_prefix = http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/
+packing = 0000
+positive_tests = 1,6-10,12-15,17-21,23,25-27,29-39,41,46-60,63-68,71-74,78-83,85,87-89,91,93,99,104,106,108-109,112-113,115,118-121,126,147,174,181,197-197,205
+negative_tests = 122

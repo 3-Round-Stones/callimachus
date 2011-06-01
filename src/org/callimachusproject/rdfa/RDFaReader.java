@@ -89,8 +89,12 @@ public class RDFaReader extends RDFEventReader {
 	
 	// The CONTENT signifier is required to distinguish content from property expressions
 	// where the same property is used for both in the same element. 
-	// The content @origin ends with '!', while the property expression ends with the property curie
+	// The content @origin ends with '!', while the property expression ends with the property
 	public static final String CONTENT = "!";
+	
+	// The BLANK signifies blank nodes introduced by typeof
+	public static final String BLANK = "_";
+
 	
 	// The element stack keeps track of the origin of the node
 	private Stack<Integer> elementStack = new Stack<Integer>();
@@ -377,15 +381,12 @@ public class RDFaReader extends RDFEventReader {
 				if ("head".equalsIgnoreCase(tn) || "body".equalsIgnoreCase(tn))
 					return document;
 			}
-			// empty typeof introduces a blank node
+			
+			// typeof (including empty typeof) introduces a blank node
 			String typeof = attr("typeof");
-			if (typeof!=null && typeof.isEmpty()) {
-				BlankNode b = getBlankNode();
-				b.setOrigin(origin+" _");
-				return b;
-			}
-			if (curies(typeof) != null)
+			if ((typeof!=null && typeof.isEmpty()) || curies(typeof) != null)
 				return getBlankNode();
+			
 			if (parent != null && parent.isHanging()) {
 				if (attr("property") != null || attr("rel") != null
 						|| attr("rev") != null) {
@@ -420,7 +421,7 @@ public class RDFaReader extends RDFEventReader {
 
 		public BlankNode getBlankNode() {
 			BlankNode b = new BlankNode("n" + number);
-			b.setOrigin(origin);
+			b.setOrigin(origin+" "+BLANK);
 			return b;
 		}
 
@@ -724,7 +725,7 @@ public class RDFaReader extends RDFEventReader {
 		private void typed(Node subj, List<Node> pred, String content,
 				IRI datatype) {
 			TypedLiteral lit = tf.literal(content, datatype);
-			lit.setOrigin(origin+ " "+CONTENT);
+			lit.setOrigin(origin+" "+CONTENT);
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit));
 			}

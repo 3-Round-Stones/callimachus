@@ -153,7 +153,10 @@
 		var ds = new ByteArrayDataSource(input, "multipart/form-data") ;
 		var multipart = new MimeMultipart(ds);
 		var img = multipart.getBodyPart(0) ;
-		var caption = multipart.getBodyPart(1).content ;
+		var caption = null;
+		if (multipart.getCount() > 1) {
+			caption = multipart.getBodyPart(1).content;
+		}
 
 		//# image resource
 		var local = ("" + URLEncoder.encode(img.fileName, "UTF-8")).replace(/%20/g, "+") ;

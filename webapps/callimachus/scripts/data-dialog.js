@@ -86,15 +86,20 @@ function initDialogButton(buttons) {
 function listSearchResults(url, iframe, button) {
 	jQuery.get(url, function(data) {
 		if (data) {
-			var result = $(data).children();
+			var result = $(data).children("[about],[resource]");
+			result.find(':input').remove();
 			var ul = $("<ul/>");
 			result.each(function() {
 				var about = $(this).attr("about");
+				if (!about) {
+					about = $(this).attr("resource");
+				}
 				if (about && about.indexOf('[') < 0) {
 					var li = $("<li/>");
-					var link = $('<a class="view"/>');
+					var link = $('<a/>');
+					link.attr("class", "view");
 					link.attr("href", about);
-					link.append($(this).text());
+					link.append($(this).clone());
 					li.append(link);
 					ul.append(li);
 				}
@@ -108,7 +113,7 @@ function listSearchResults(url, iframe, button) {
 				doc.close();
 				$('a', doc).click(function(event) {
 					var de = jQuery.Event('calliLink');
-					de.location = event.target.href;
+					de.location = this.href;
 					$(button).trigger(de);
 					if (de.isDefaultPrevented()) {
 						event.preventDefault();

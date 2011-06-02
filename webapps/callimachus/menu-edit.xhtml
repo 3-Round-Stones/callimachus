@@ -4,6 +4,7 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 <head>
 	<title>Main Menu</title>
@@ -32,18 +33,24 @@
 		<div class="hbox">
 			<div>
 				<label for="favicon-image">Icon</label>
-				<div id="favicon-image" rel="calli:favicon" data-prompt="/callimachus/Image?create">
-					<span about="?favicon">
+				<div id="favicon-image" rel="calli:favicon" class="droppable">
+					<div class="watermark">Drag uploaded favicon here</div> 
+					<span about="?favicon" typeof="">
 						<span property="rdfs:label"/>
+						<button type="button" class="remove" />
 					</span>
+					<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
 				</div>
 			</div>
 			<div>
 				<label for="logo-image">Logo</label>
-				<div id="logo-image" rel="calli:logo" data-prompt="/callimachus/Image?create">
-					<span about="?logo">
+				<div id="logo-image" rel="calli:logo" class="droppable">
+					<div class="watermark">Drag uploaded logo here</div> 
+					<span about="?logo" typeof="">
 						<span property="rdfs:label"/>
+						<button type="button" class="remove" />
 					</span>
+					<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
 				</div>
 			</div>
 		</div>

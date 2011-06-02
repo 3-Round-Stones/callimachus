@@ -121,6 +121,12 @@ function listSearchResults(url, iframe, button) {
 					}
 					return true;
 				});
+			} else {
+				iframe.src = "about:blank";
+	            var doc = iframe.contentWindow.document;
+				doc.open();
+				doc.write('<p style="text-align:center">No results</p>');
+				doc.close();
 			}
 		}
 	});

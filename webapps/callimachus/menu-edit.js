@@ -113,8 +113,10 @@ jQuery(function($){
 		item.empty();
 		item.append(span);
 		item.append(label);
-		item.append(" ");
-		item.append(link);
+		if (url) {
+			item.append(" ");
+			item.append(link);
+		}
 		if (ol.children("li").size()) {
 			item.append(ol);
 		}

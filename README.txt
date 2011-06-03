@@ -56,9 +56,11 @@ There are two ways to acquire and run Callimachus:  Download the ZIP archive
 or checkout the Subversion repository.
 
 If you download a ZIP archive of a release from http://callimachusproject.org/, 
-extract it into a new directory. Execute a callimachus-start script located 
-in the bin/ directory to start the server. The server will serve files from 
-the webapps directory that have a known file extension.
+extract it into a new directory. Edit etc/callimachus.conf and change the
+authority to the be the same as the hostname and port (if not port 80). Execute
+a callimachus-start script located in the bin/ directory to start the server.
+The server will serve files from the webapps directory that have a known file
+extension.
 
 On Mac and Linux run:
  $ chmod a+x bin/*

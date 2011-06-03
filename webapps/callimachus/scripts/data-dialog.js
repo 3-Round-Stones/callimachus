@@ -125,7 +125,7 @@ function listSearchResults(url, iframe, button) {
 				iframe.src = "about:blank";
 	            var doc = iframe.contentWindow.document;
 				doc.open();
-				doc.write('<p style="text-align:center">No results</p>');
+				doc.write('<p style="text-align:center">No match found</p>');
 				doc.close();
 			}
 		}

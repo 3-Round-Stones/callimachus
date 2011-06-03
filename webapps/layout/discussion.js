@@ -12,9 +12,11 @@
 			} else {
 				var url = location.href;
 				var posts = $(".comment").parent().find(".datetime-locale").map(function(){ return $(this).attr("content"); });
-				if (window.localStorage && posts.length) {
-					localStorage.setItem(url, posts.get().join(','));
-				}
+				try {
+					if (window.localStorage && posts.length) {
+						localStorage.setItem(url, posts.get().join(','));
+					}
+				} catch (e) { }
 			}
 		});
 	}

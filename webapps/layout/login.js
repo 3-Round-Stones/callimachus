@@ -14,11 +14,13 @@ $(document).ready(function(){
 			success: function(doc) {
 				var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc);
 				if (title) {
-					if (window.sessionStorage) {
-						// now logged in
-						sessionStorage.setItem("Name", title[1]);
-						localStorage.setItem("Name", title[1]);
-					}
+					try {
+						if (window.sessionStorage) {
+							// now logged in
+							sessionStorage.setItem("Name", title[1]);
+							localStorage.setItem("Name", title[1]);
+						}
+					} catch (e) { }
 					if (!$("#profile-link").text()) {
 						loggedIn(title[1]);
 					}
@@ -33,7 +35,9 @@ $(document).ready(function(){
 							auth = "Credentials " + auth;
 						}
 					}
-					localStorage.setItem('Authorization', auth);
+					try {
+						localStorage.setItem('Authorization', auth);
+					} catch (e) { }
 				}
 				if (!event.isDefaultPrevented() && event.location) {
 					location = event.location;
@@ -159,8 +163,10 @@ $(document).ready(function(){
 				return;
 			} else if (localStorage.getItem('Name')) {
 				// was logged in before, prompt to log back in
-				var count = localStorage.getItem('NotLoginCount');
-				localStorage.setItem('NotLoginCount', count ? parseInt(count) + 1 : 1);
+				try {
+					var count = localStorage.getItem('NotLoginCount');
+					localStorage.setItem('NotLoginCount', count ? parseInt(count) + 1 : 1);
+				} catch (e) { }
 				setTimeout(function() {
 					if ($("#login-link").is(":visible")) {
 						$("#login-link").click();

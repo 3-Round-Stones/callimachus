@@ -23,8 +23,10 @@ function initForms() {
 			id = 'form-data' + i;
 		}
 		form.attr('target', id + '-iframe');
-		if (window.frameElement) {
+		if (window.frameElement && this.action) {
 			this.action = this.action + '&intermediate=true';
+		} else if (window.frameElement) {
+			this.action = location.href + '&intermediate=true';
 		}
 		var iframe = $('<iframe/>');
 		iframe.attr('id', "iframe");

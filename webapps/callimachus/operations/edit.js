@@ -6,6 +6,15 @@
 
 (function($){
 
+function getPageLocationURL() {
+	// window.location.href needlessly decodes URI-encoded characters in the URI path
+	// https://bugs.webkit.org/show_bug.cgi?id=30225
+	var path = location.pathname;
+	if (path.match(/#/))
+		return location.href.replace(path, path.replace('#', '%23'));
+	return location.href;
+}
+
 $(document).ready(initForms);
 
 function initForms() {
@@ -42,11 +51,11 @@ function submitRDFForm(form, stored) {
 					+ "\r\n--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
 					+ added.dump({format:"application/rdf+xml",serialize:true})
 					+ "\r\n--" + boundary + "--";
-			patchData(form, location.href, type, data, function(data, textStatus, xhr) {
+			patchData(form, getPageLocationURL(), type, data, function(data, textStatus, xhr) {
 				try {
 					var redirect = xhr.getResponseHeader("Location");
 					if (!redirect) {
-						redirect = location.href;
+						redirect = getPageLocationURL();
 						if (redirect.indexOf('?') > 0) {
 							redirect = redirect.substring(0, redirect.indexOf('?'));
 						}
@@ -156,7 +165,7 @@ window.calli.deleteResource = function(form) {
 		var de = jQuery.Event("calliDelete");
 		form.trigger(de);
 		if (!de.isDefaultPrevented()) {
-			var url = location.href;
+			var url = getPageLocationURL();
 			if (url.indexOf('?') > 0) {
 				url = url.substring(0, url.indexOf('?'));
 			}
@@ -180,7 +189,7 @@ window.calli.deleteResource = function(form) {
 							event.location = document.referrer;
 						}
 						if (event.location) {
-							var href = location.href;
+							var href = getPageLocationURL();
 							if (href.indexOf('?') > 0) {
 								href = href.substring(0, href.indexOf('?'));
 							}

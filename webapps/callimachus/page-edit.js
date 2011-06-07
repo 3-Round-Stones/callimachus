@@ -1,6 +1,16 @@
 // page-edit.js
 
 jQuery(function($){
+
+function getPageLocationURL() {
+	// window.location.href needlessly decodes URI-encoded characters in the URI path
+	// https://bugs.webkit.org/show_bug.cgi?id=30225
+	var path = location.pathname;
+	if (path.match(/#/))
+		return location.href.replace(path, path.replace('#', '%23'));
+	return location.href;
+}
+
 	var url = $('body').attr('about');
 	if (location.hash && location.hash.indexOf('#!') == 0) { // new page
 		url = location.hash.substring(2);
@@ -118,7 +128,7 @@ jQuery(function($){
 						url = 'http://localhost:8080/page/' + encodeURI(h1).replace(/%20/g,'+') + '.xhtml';
 					}
 					jQuery.ajax({
-						type: "POST", url: location.href,
+						type: "POST", url: getPageLocationURL(),
 						beforeSend: function(xhr) {
 							xhr.setRequestHeader('Location', url);
 						},

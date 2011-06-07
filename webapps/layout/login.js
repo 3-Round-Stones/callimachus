@@ -2,6 +2,15 @@
 
 (function($){
 
+function getPageLocationURL() {
+	// window.location.href needlessly decodes URI-encoded characters in the URI path
+	// https://bugs.webkit.org/show_bug.cgi?id=30225
+	var path = location.pathname;
+	if (path.match(/#/))
+		return location.href.replace(path, path.replace('#', '%23'));
+	return location.href;
+}
+
 $(document).ready(function(){
 	$("#profile-link").text('');
 	$(document).bind("calliLogin", function(event) {
@@ -175,7 +184,7 @@ $(document).ready(function(){
 			}
 		}
 		// hasn't logged in using the login form; is this page protected?
-		var xhr = jQuery.ajax({type: 'GET', url: location.href,
+		var xhr = jQuery.ajax({type: 'GET', url: getPageLocationURL(),
 			beforeSend: withCredentials,
 			success: function() {
 				if (xhr.getResponseHeader("Authentication-Info")) { 
@@ -183,7 +192,7 @@ $(document).ready(function(){
 					event.preventDefault(); // don't reload page
 					$(document).trigger(event);
 				} else if (!xhr.getAllResponseHeaders()) { // Opera sends empty response; try again w/o cache
-					xhr = jQuery.ajax({type: 'GET', url: location.href,
+					xhr = jQuery.ajax({type: 'GET', url: getPageLocationURL(),
 						beforeSend: function(xhr) {
 							xhr.setRequestHeader('Cache-Control', 'no-cache');
 							withCredentials(xhr);

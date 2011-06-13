@@ -647,7 +647,8 @@ public class RDFaGenerationTest {
 		while (xml.hasNext()) {
 			XMLEvent e = xml.nextEvent();
 			if (e.isProcessingInstruction()) {
-				if (e.toString().contains("repository clear")) {
+				if (e.toString().contains("repository clear") 
+					|| e.toString().contains("clear repository")) {
 					con.clear();
 				}
 			}

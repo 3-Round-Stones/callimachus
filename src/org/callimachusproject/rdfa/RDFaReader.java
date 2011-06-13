@@ -99,6 +99,10 @@ public class RDFaReader extends RDFEventReader {
 	// The element stack keeps track of the origin of the node
 	private Stack<Integer> elementStack = new Stack<Integer>();
 	private int elementIndex = 1;
+	
+	// record variable nodes as they are declared
+	// variables are scoped to the page
+	HashMap<String,Node> vars = new HashMap<String,Node>();
 
 	public RDFaReader(String base, XMLEventReader reader, String systemId) {
 		this.reader = reader;
@@ -267,6 +271,16 @@ public class RDFaReader extends RDFEventReader {
 	private String resolve(String relative) {
 		return base.resolve(relative);
 	}
+	
+	Node addVar(Node node) {
+		if (node!=null && node.isReference()) {
+			String url = node.asReference().stringValue();
+			int n = url.indexOf("?");
+			if (n>=0 && url.startsWith(base.getBase()+"?")) 
+				vars.put(url.substring(n), node);
+		}
+		return node;
+	}
 
 	private class Tag {
 		private Tag parent;
@@ -276,7 +290,6 @@ public class RDFaReader extends RDFEventReader {
 		private String content;
 		private Node datatype;
 		private boolean startedSubject;
-		//private Node list;
 		String origin;
 
 		public Tag(Tag parent, StartElement event, boolean empty, int number) {
@@ -294,7 +307,7 @@ public class RDFaReader extends RDFEventReader {
 		public Tag getParent() {
 			return parent;
 		}
-
+		
 		public String getContent() {
 			String attr = attr("content");
 			if (attr != null)
@@ -360,21 +373,28 @@ public class RDFaReader extends RDFEventReader {
 		}
 
 		public Node getNewSubject() throws RDFParseException {
-			Node about = uriOrSafeCURIE(attr("about"));
-			if (about != null) {
-				return about;
-			}
-			Node src = uriOrSafeCURIE(attr("src"));
-			if (src != null) {
-				return src;
-			}
+			String attr = attr("about");
+			if (vars.containsKey(attr)) return vars.get(attr);
+			Node about = uriOrSafeCURIE(attr);
+			if (about != null) return addVar(about);
+
+			attr = attr("src");
+			if (vars.containsKey(attr)) return vars.get(attr);
+			Node src = uriOrSafeCURIE(attr);
+			if (src != null) return addVar(src);
+			
 			if (attr("rel") == null && attr("rev") == null) {
-				Node resource = uriOrSafeCURIE(attr("resource"));
-				if (resource != null)
-					return resource;
-				Node href = uriOrSafeCURIE(attr("href"));
-				if (href != null)
-					return href;
+				
+				attr = attr("resource");
+				if (vars.containsKey(attr)) return vars.get(attr);
+				Node resource = uriOrSafeCURIE(attr);
+				if (resource != null) return addVar(resource);
+				
+				attr = attr("href");
+				if (vars.containsKey(attr)) return vars.get(attr);
+				Node href = uriOrSafeCURIE(attr);
+				if (href != null) return addVar(href);
+				
 			}
 			if (isHTML(event.getName())) {
 				String tn = event.getName().getLocalPart();
@@ -405,14 +425,16 @@ public class RDFaReader extends RDFEventReader {
 		}
 
 		public Node getResource() throws RDFParseException {
-			Node resource = uriOrSafeCURIE(attr("resource"));
-			if (resource != null) {
-				return resource;
-			}
-			Node href = uriOrSafeCURIE(attr("href"));
-			if (href != null) {
-				return href;
-			}
+			String attr = attr("resource");
+			if (vars.containsKey(attr)) return vars.get(attr);
+			Node resource = uriOrSafeCURIE(attr);
+			if (resource != null) return addVar(resource);
+
+			attr = attr("href");
+			if (vars.containsKey(attr)) return vars.get(attr);
+			Node href = uriOrSafeCURIE(attr);
+			if (href != null) return addVar(href);
+
 			if (getRel() != null || getRev() != null) {
 				return getNextBlankNode();
 			}
@@ -517,6 +539,7 @@ public class RDFaReader extends RDFEventReader {
 				}
 			}
 			Node subj = getCurrentSubject();
+
 			List<Node> typeof = curies(attr("typeof"));
 			if (typeof != null) {
 				for (Node t : typeof) {

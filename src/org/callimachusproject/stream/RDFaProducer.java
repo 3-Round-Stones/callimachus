@@ -169,7 +169,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 	
 	private boolean process(XMLEvent event) throws Exception {
-		// add previous whitespace if this is not an start event
+		// add previous whitespace if this is not a start event
 		if (isWhitespace(previous)) {
 			add(previous);
 			context.previousWhitespace = previous;
@@ -384,7 +384,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 
 	/* An attribute is substitutable if it is an RDFa assignable attribute: "about", "resource", "typeof"
-	 * or if it is the subject or object of a triple (e.g. "href", "src"), with a variable value "?VAR".
+	 * or if it is the subject or object of a triple in this OR ANY SHALLOWER element
+	 * (e.g. "href", "src"), with a variable value "?VAR".
 	 * ANY other attribute value with the variable expression syntax {?VAR} is substitutable.
 	 * RDFa @content to be added later.
 	 * Returns the variable name or null. 
@@ -405,7 +406,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// enumerate variables in triples with ?VAR syntax
 		for (String name: resultSet.getBindingNames()) {
 			String[] origin = origins.get(name).split(" ");
-			if (origin[0].equals(context.path) && value.startsWith("?")
+//			if (origin[0].equals(context.path) && value.startsWith("?")
+			if (context.path.startsWith(origin[0]) && value.startsWith("?") && value.substring(1).equals(name)
 			&& namespace.isEmpty() && RDFaVarAttributes.contains(localPart)) 
 				return context.assignments.get(name);
 		}
@@ -725,7 +727,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}	
 	}
 	
-	/* NamespaceIterator is able to add additional namespace declaration for content */
+	/* NamespaceIterator is able to add an additional namespace declaration for content */
 	
 	class NamespaceIterator implements Iterator<Namespace> {
 		Iterator<?> namespaces;

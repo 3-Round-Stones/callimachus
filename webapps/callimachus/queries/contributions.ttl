@@ -21,9 +21,15 @@
 		WHERE {
 			?revision audit:committedOn ?modified; audit:contributor $this
 			{
-				GRAPH ?revision { ?url ?p ?o FILTER (?p != audit:contained && ?p != audit:revision) }
+				GRAPH ?revision {
+					?url ?p ?o
+					FILTER (?p != audit:contained)
+					FILTER (?p != audit:revision)
+					FILTER (?p != calli:soundex)
+				}
 			} UNION {
-				?revision audit:contained [rdf:subject ?url; rdf:predicate ?p] FILTER (?p != audit:revision)
+				?revision audit:contained [rdf:subject ?url; rdf:predicate ?p]
+				FILTER (?p != audit:revision)
 			}
 			FILTER (?url != ?revision)
 			FILTER (?url != $this)

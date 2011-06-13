@@ -25,28 +25,107 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * A persistent (file-base) map to store filenames.
  * 
  * @author James Leigh
- *
+ * 
  */
 public class MultiValuedFileMap {
+	private boolean relative;
 	private File entriesDir;
-	private File keys;
+	private File entriesFile;
 
-	public MultiValuedFileMap(File entriesDir) {
+	public MultiValuedFileMap(File entriesDir, String list, boolean relative) {
+		this.relative = relative;
 		this.entriesDir = entriesDir;
-		entriesDir.mkdirs();
-		this.keys = new File(entriesDir, "keys.list");
+		this.entriesDir.mkdirs();
+		this.entriesFile = new File(this.entriesDir, list);
 	}
 
 	public synchronized Set<String> get(File file) throws IOException {
-		File entriesFile = getEntriesFile(file);
-		Set<String> set = new HashSet<String>();
+		Set<String> set = new TreeSet<String>();
+		File valuesFile = getValuesFile(file);
+		if (!valuesFile.exists())
+			return set;
+		String line;
+		BufferedReader reader;
+		reader = new BufferedReader(new FileReader(valuesFile));
+		try {
+			while ((line = reader.readLine()) != null) {
+				set.add(line);
+			}
+		} finally {
+			reader.close();
+		}
+		return set;
+	}
+
+	public synchronized void add(File file, String value) throws IOException {
+		Set<String> entries = get(file);
+		entries.add(value);
+		put(file, entries);
+	}
+
+	public synchronized void addAll(File file, Set<String> values)
+			throws IOException {
+		Set<String> entries = get(file);
+		entries.addAll(values);
+		put(file, entries);
+	}
+
+	public synchronized void addAll(MultiValuedFileMap map) throws IOException {
+		for (File key : map.keySet()) {
+			addAll(key, map.get(key));
+		}
+	}
+
+	public synchronized void put(File file, Set<String> values)
+			throws IOException {
+		PrintWriter writer;
+		File valuesFile = getValuesFile(file);
+		if (!valuesFile.exists()) {
+			Set<String> set = getEntries();
+			set.add(getEntryPath(file));
+			writeEntries(set);
+		}
+		writer = new PrintWriter(new FileWriter(valuesFile));
+		try {
+			for (String line : values) {
+				writer.println(line);
+			}
+		} finally {
+			writer.close();
+		}
+	}
+
+	public synchronized void remove(File file) throws IOException {
+		Set<String> set = getEntries();
+		set.remove(getEntryPath(file));
+		writeEntries(set);
+		getValuesFile(file).delete();
+	}
+
+	public Set<File> keySet() throws IOException {
+		Set<File> set = new TreeSet<File>();
+		if (entriesFile.exists()) {
+			for (String path : getEntries()) {
+				File abs = new File(path);
+				if (abs.isAbsolute()) {
+					set.add(abs);
+				} else {
+					set.add(new File(entriesDir, path).getAbsoluteFile());
+				}
+			}
+		}
+		return set;
+	}
+
+	private Set<String> getEntries() throws IOException {
+		Set<String> set = new TreeSet<String>();
 		if (entriesFile.exists()) {
 			String line;
 			BufferedReader reader;
@@ -62,82 +141,41 @@ public class MultiValuedFileMap {
 		return set;
 	}
 
-	public synchronized void add(File file, String value)
-			throws IOException {
-		Set<String> entries = get(file);
-		entries.add(value);
-		put(file, entries);
-	}
-
-	public synchronized void put(File file, Set<String> values)
-			throws IOException {
-		PrintWriter writer;
-		File entriesFile = getEntriesFile(file);
-		if (!entriesFile.exists()) {
-			addKey(file);
-		}
-		writer = new PrintWriter(new FileWriter(entriesFile));
+	private void writeEntries(Set<String> entries) throws IOException {
+		PrintWriter writer = new PrintWriter(new FileWriter(entriesFile));
 		try {
-			for (String line : values) {
-				writer.println(line);
+			for (String path : entries) {
+				writer.println(path);
 			}
 		} finally {
 			writer.close();
 		}
 	}
 
-	public synchronized void remove(File file) throws IOException {
-		removeKey(file);
-		getEntriesFile(file).delete();
-	}
-
-	public Set<File> keySet() throws IOException {
-		Set<File> set = new HashSet<File>();
-		if (keys.exists()) {
-			String line;
-			BufferedReader reader;
-			reader = new BufferedReader(new FileReader(keys));
-			try {
-				while ((line = reader.readLine()) != null) {
-					set.add(new File(line));
-				}
-			} finally {
-				reader.close();
-			}
-		}
-		return set;
-	}
-
-	private void addKey(File file) throws IOException {
-		Set<File> set = keySet();
-		set.add(file);
-		PrintWriter writer = new PrintWriter(new FileWriter(keys));
-		try {
-			for (File key : set) {
-				writer.println(key.getPath());
-			}
-		} finally {
-			writer.close();
-		}
-	}
-
-	private void removeKey(File file) throws IOException {
-		Set<File> set = keySet();
-		set.remove(file);
-		PrintWriter writer = new PrintWriter(new FileWriter(keys));
-		try {
-			for (File key : set) {
-				writer.println(key.getPath());
-			}
-		} finally {
-			writer.close();
-		}
-	}
-
-	private File getEntriesFile(File file) {
-		int code = file.getPath().hashCode();
+	private File getValuesFile(File file) throws IOException {
+		int code = getEntryPath(file).hashCode();
 		String name = file.getName() + toHexString(code) + ".list";
-		File entriesFile = new File(entriesDir, name);
-		return entriesFile;
+		return new File(entriesDir, name);
+	}
+
+	private String getEntryPath(File file) throws IOException {
+		return relative(file, entriesDir, relative);
+	}
+
+	private String relative(File dir, File base, boolean relative)
+			throws IOException {
+		String path = dir.getAbsolutePath();
+		if (relative) {
+			String working = base.getAbsolutePath() + File.separatorChar;
+			if (path.startsWith(working))
+				return path.substring(working.length());
+			if (base.getParentFile() == null)
+				return path;
+			String up = relative(dir, base.getParentFile(), true);
+			if (path.equals(up))
+				return path;
+			return ".." + File.separatorChar + up;
+		}
+		return path;
 	}
 }

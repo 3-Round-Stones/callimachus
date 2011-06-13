@@ -105,12 +105,14 @@ public class Uploader {
 	public Uploader(MimetypesFileTypeMap mimetypes, File dataDir) throws IOException {
 		this.mimetypes = mimetypes;
 		File entriesDir = new File(dataDir, "entries").getCanonicalFile();
-		entries = new MultiValuedFileMap(entriesDir);
-		entries = new MultiValuedFileMap(entriesDir);
+		entries = new MultiValuedFileMap(entriesDir, "entries.list", true);
 		File originsDir = new File(dataDir, "origins").getCanonicalFile();
-		origins = new MultiValuedFileMap(originsDir);
+		origins = new MultiValuedFileMap(originsDir, "entries.list", true);
 		dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
 		dateformat.setTimeZone(GMT);
+		// import 0.10 format
+		entries.addAll(new MultiValuedFileMap(entriesDir, "keys.list", false));
+		origins.addAll(new MultiValuedFileMap(originsDir, "keys.list", false));
 	}
 
 	public String toString() {

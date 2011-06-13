@@ -39,23 +39,30 @@
 	msg:imports <java:javax.mail.internet.MimeMultipart>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <Image> ;
 	msg:script """
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
 		//# image and caption input (see below)
 		var ds = new ByteArrayDataSource(input, "multipart/form-data") ;
 		var multipart = new MimeMultipart(ds);
 		var img = multipart.getBodyPart(0) ;
-		var caption = multipart.getBodyPart(1).content ;
+		var fileName = img.fileName.replace(/.*[\\\\\\/]/, '');
+		var caption = null;
+		if (multipart.getCount() > 1) {
+			caption = multipart.getBodyPart(1).content;
+		}
 
 		//# image resource
-		var local = ("" + URLEncoder.encode(img.fileName, "UTF-8")).replace(/%20/g, "+") ;
+		var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+") ;
 		var uri = this.toUri().resolve("/image/") + local ;
-		var obj = this.objectConnection.getObject(uri) ;
+		var obj = con.getObject(uri) ;
 		if (obj instanceof Image) throw new Conflict("An image with that file named has already been uploaded: " + uri) ;
 
 		//# designate as <Image> and the relevant mimetype
-		obj = this.objectConnection.addDesignation(obj, Image) ;
-		obj = this.objectConnection.addDesignation(obj, "http://xmlns.com/foaf/0.1/Image") ;
+		obj = con.addDesignation(obj, Image) ;
+		obj = con.addDesignation(obj, "http://xmlns.com/foaf/0.1/Image") ;
 		var type = img.contentType;
 		if (type == "image/pjpeg") { //# IE
 			type = "image/jpeg";
@@ -66,14 +73,15 @@
 		if (type != "image/png" && type != "image/jpeg" && type != "image/gif" && type != "image/vnd.microsoft.icon") {
 			throw new BadRequest("Unsupported format: " + type);
 		}
-		obj = this.objectConnection.addDesignation(obj, "urn:mimetype:" + type) ;
+		obj = con.addDesignation(obj, "urn:mimetype:" + type) ;
 		this.PropagatePermissions(obj);
 
 		//# add the image label
-		obj.rdfsLabels.add(img.fileName) ;
+		var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+		con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 
 		//# add the image caption
-		if (caption) obj.rdfsComments.add(caption);
+		if (caption) con.add(obj.resource, RDFS.COMMENT, vf.createLiteral(caption), []);
 
 		this.objectConnection.commit();
 

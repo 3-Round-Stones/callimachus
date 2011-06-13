@@ -153,13 +153,14 @@
 		var ds = new ByteArrayDataSource(input, "multipart/form-data") ;
 		var multipart = new MimeMultipart(ds);
 		var img = multipart.getBodyPart(0) ;
+		var fileName = img.fileName.replace(/.*[\\\\\\/]/, '');
 		var caption = null;
 		if (multipart.getCount() > 1) {
 			caption = multipart.getBodyPart(1).content;
 		}
 
 		//# image resource
-		var local = ("" + URLEncoder.encode(img.fileName, "UTF-8")).replace(/%20/g, "+") ;
+		var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+") ;
 		var uri = this.toUri().resolve("/photo/") + local ;
 		var obj = con.getObject(uri) ;
 		if (obj instanceof Photo) throw new Conflict("A photo with that file name has already been uploaded: " + uri) ;
@@ -178,7 +179,8 @@
 		this.PropagatePermissions(obj);
 
 		//# add the image label
-		con.add(obj.resource, RDFS.LABEL, vf.createLiteral(img.fileName), []);
+		var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+		con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 
 		//# add the image caption and container
 		if (caption) con.add(obj.resource, RDFS.COMMENT, vf.createLiteral(caption), []);

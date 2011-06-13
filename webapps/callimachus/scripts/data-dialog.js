@@ -34,18 +34,15 @@ function initDialogButton(buttons) {
 		if (!title) {
 			title = list.find("label").text();
 		}
-		var iframe = $("<iframe></iframe>");
-		iframe.attr("name", frame);
-		iframe.attr("src", 'about:blank');
-		iframe.bind('calliCreate', function(event) {
-			var de = jQuery.Event('calliLink');
-			de.location = event.about;
-			$(add).trigger(de);
-		});
-		list.bind('calliLinked', function() {
-			iframe.dialog('close');
-		});
 		add.click(function(e) {
+			var iframe = $("<iframe></iframe>");
+			iframe.attr("name", frame);
+			iframe.attr("src", 'about:blank');
+			iframe.bind('calliCreate', function(event) {
+				var de = jQuery.Event('calliLink');
+				de.location = event.about;
+				$(add).trigger(de);
+			});
 			iframe.dialog({
 			    title: title,
 			    autoOpen: false,
@@ -56,8 +53,13 @@ function initDialogButton(buttons) {
 				width: 320,
 				height: 480
 			});
+			var onlinked = function() {
+				iframe.dialog('close');
+			};
+			list.bind('calliLinked', onlinked);
 			iframe.bind("dialogclose", function(event, ui) {
-				iframe.dialog("destroy");
+				list.unbind('calliLinked', onlinked);
+				iframe.parent().remove();
 				add.focus();
 			});
 			iframe.dialog("open");

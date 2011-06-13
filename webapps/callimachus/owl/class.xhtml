@@ -5,10 +5,17 @@
 	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this" property="rdfs:label" />
+	<script type="text/javascript">
+		jQuery(function($){
+			if (!$('#create-template').length) {
+				$('#create').hide();
+			}
+		});
+	</script>
 </head>
 <body about="?this">
 	<ul class="aside">
-		<li class="authenticated">
+		<li id="create" class="authenticated">
 			<a href="?create">Create a new <span about="?this" property="rdfs:label"/></a>
 		</li>
 		<li>
@@ -52,7 +59,7 @@
 		<li class="optional">
 			<label>Templates</label>
 			<div rel="calli:create">
-				<a href="?create" property="rdfs:label" class="view" />
+				<a id="create-template" href="?create" property="rdfs:label" class="view" />
 			</div>
 			<div rel="calli:copy">
 				<a href="?copy" property="rdfs:label" class="view" />
@@ -67,7 +74,7 @@
 	</ul>
 	<h1>
 		<div id="icon" rel="calli:icon" resource="?icon" style="float:left;max-width:1em;padding-right:1ex;">
-			<a href="?icon" class="view"><img src="?icon" style="max-width:1em;max-height:2em" /></a>
+			<a href="{?icon}" class="view"><img src="{?icon}" style="max-width:1em;max-height:2em" /></a>
 		</div>
 		<a property="rdfs:label" href="?this" />
 	</h1>

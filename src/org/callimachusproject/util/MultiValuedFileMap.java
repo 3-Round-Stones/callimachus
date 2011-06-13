@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.webapps;
+package org.callimachusproject.util;
 
 import static java.lang.Integer.toHexString;
 
@@ -38,6 +38,10 @@ public class MultiValuedFileMap {
 	private boolean relative;
 	private File entriesDir;
 	private File entriesFile;
+
+	public MultiValuedFileMap(File entriesDir) {
+		this(entriesDir, "entries.list", true);
+	}
 
 	public MultiValuedFileMap(File entriesDir, String list, boolean relative) {
 		this.relative = relative;

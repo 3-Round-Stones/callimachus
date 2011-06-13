@@ -37,7 +37,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
-import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.model.TermFactory;
@@ -47,7 +46,6 @@ import org.callimachusproject.stream.DeDupedResultSet;
 import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.SPARQLPosteditor;
 import org.callimachusproject.stream.SPARQLProducer;
-import org.callimachusproject.stream.TriplePatternStore;
 import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.annotations.header;
 import org.openrdf.http.object.annotations.query;
@@ -267,12 +265,6 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		template.reset(0);
 		RDFaProducer xhtml = new RDFaProducer(template, results, rq.getOrigins(), about, con);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
-	}
-
-	public RDFEventReader constructPossibleTriples(TriplePatternStore patterns,
-			TriplePattern pattern) {
-		VarOrTerm subj = pattern.getPartner();
-		return patterns.openQueryBySubject(subj);
 	}
 
 	

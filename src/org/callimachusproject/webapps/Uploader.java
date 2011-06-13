@@ -53,6 +53,7 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
+import org.callimachusproject.util.MultiValuedFileMap;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.GatewayTimeout;
 import org.openrdf.http.object.util.ManagedExecutors;
@@ -105,9 +106,9 @@ public class Uploader {
 	public Uploader(MimetypesFileTypeMap mimetypes, File dataDir) throws IOException {
 		this.mimetypes = mimetypes;
 		File entriesDir = new File(dataDir, "entries").getCanonicalFile();
-		entries = new MultiValuedFileMap(entriesDir, "entries.list", true);
+		entries = new MultiValuedFileMap(entriesDir);
 		File originsDir = new File(dataDir, "origins").getCanonicalFile();
-		origins = new MultiValuedFileMap(originsDir, "entries.list", true);
+		origins = new MultiValuedFileMap(originsDir);
 		dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
 		dateformat.setTimeZone(GMT);
 		// import 0.10 format

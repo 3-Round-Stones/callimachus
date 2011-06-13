@@ -13,12 +13,12 @@
 	<h1 property="rdfs:label" />
 	<form about="?this" typeof="owl:Ontology" action="" data-redirect="/callimachus/owl/Ontology">
 		<label for="label">Label</label>
-		<div data-cardinality="1">
-			<input id="label" property="rdfs:label" class="required auto-expand" />
+		<div>
+			<input id="label" value="{rdfs:label}" class="required auto-expand" />
 		</div>
 		<label for="comment">Comment</label>
-		<div data-cardinality="1">
-			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
+		<div>
+			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 		</div>
 		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>

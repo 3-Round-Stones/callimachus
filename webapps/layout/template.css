@@ -335,6 +335,10 @@ button[type=submit] {
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#F58735, GradientType=0)";
 }
 
+button.add, button.remove, button.dialog {
+	padding: 0px;
+}
+
 label.error {
 	color: red;
 	font-style: italic;

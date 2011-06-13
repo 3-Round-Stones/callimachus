@@ -69,88 +69,110 @@
 		<div class="hbox">
 			<div>
 				<label for="label">Label</label>
-				<div data-cardinality="1">
-					<input id="label" property="rdfs:label" class="required auto-expand" />
+				<div>
+					<input id="label" value="{rdfs:label}" class="required auto-expand" />
 				</div>
 			</div>
-			<div>
-				<label for="icon">Icon</label>
-				<div id="icon" rel="calli:icon" data-prompt="/callimachus/Image?create">
-					<span about="?icon" typeof="foaf:Image" property="rdfs:label"/>
+			<div id="icon" rel="calli:icon" class="droppable">
+				<label>Icon</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
+				<div about="?icon" typeof="foaf:Image">
+					<img src="{?icon}?small" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
 		</div>
 		<label for="comment">Comment</label>
-		<div data-cardinality="1">
-			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
+		<div>
+			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 		</div>
 		<div class="hbox">
-			<div>
-				<label for="subClassOf">Super</label>
-				<div id="subClassOf" rel="rdfs:subClassOf" data-prompt="?create=/callimachus/owl/Class">
-					<div about="?subClassOf" typeof="owl:Class" property="rdfs:label" />
+			<div id="subClassOf" rel="rdfs:subClassOf" class="droppable">
+				<label>Super</label>
+				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/Class" />
+				<div about="?subClassOf" typeof="owl:Class">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="equivalentClass">Equivalent</label>
-				<div id="equivalentClass" rel="owl:equivalentClass" data-prompt="about:blank">
-					<div about="?equivalentClass" typeof="owl:Class" property="rdfs:label" />
+			<div id="equivalentClass" rel="owl:equivalentClass" class="droppable">
+				<label>Equivalent</label>
+				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/Class" />
+				<div about="?equivalentClass" typeof="owl:Class">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="subClass">Sub</label>
-				<div id="subClass" rev="rdfs:subClassOf" data-prompt="?create=/callimachus/owl/Class">
-					<div about="?subClass" typeof="owl:Class" property="rdfs:label" />
+			<div id="subClass" rev="rdfs:subClassOf" class="droppable">
+				<label>Sub</label>
+				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/Class" />
+				<div about="?subClass" typeof="owl:Class">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
 		</div>
 		<hr />
 		<h2>Nested Classes</h2>
 		<div class="hbox">
-			<div>
-				<label for="creates">Nested</label>
-				<div id="creates" rel="calli:creates" data-prompt="?create=/callimachus/owl/Class">
-					<div about="?creates" typeof="owl:Class" property="rdfs:label" />
+			<div id="creates" rel="calli:creates" class="droppable">
+				<label>Nested</label>
+				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/Class" />
+				<div about="?creates" typeof="owl:Class">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="createRel">Nested relationship</label>
-				<div id="createRel" rel="calli:createRel" data-prompt="?create=/callimachus/owl/ObjectProperty">
-					<div about="?createRel" typeof="owl:ObjectProperty" property="rdfs:label" />
+			<div id="createRel" rel="calli:createRel" class="droppable">
+				<label>Nested relationship</label>
+				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/ObjectProperty" />
+				<div about="?createRel" typeof="owl:ObjectProperty">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="createRev">Nested reverse relationship</label>
-				<div id="createRev" rel="calli:createRev" data-prompt="?create=/callimachus/owl/ObjectProperty">
-					<div about="?createRev" typeof="owl:ObjectProperty" property="rdfs:label" />
+			<div id="createRev" rel="calli:createRev" class="droppable">
+				<label>Nested reverse relationship</label>
+				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/ObjectProperty" />
+				<div about="?createRev" typeof="owl:ObjectProperty">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
 		</div>
 		<hr />
 		<h2>Page Templates</h2>
 		<div class="hbox">
-			<div>
-				<label for="create">Create template</label>
-				<div id="create" rel="calli:create" data-prompt="/callimachus/owl/sample-create.xhtml?copy">
-					<span about="?create" typeof="calli:Page" property="rdfs:label" />
+			<div id="create" rel="calli:create" class="droppable">
+				<label>Create template</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/owl/sample-create.xhtml?copy" />
+				<div about="?create" typeof="calli:Page">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="copy">Copy template</label>
-				<div id="copy" rel="calli:copy" data-prompt="/callimachus/owl/sample-create.xhtml?copy">
-					<span about="?copy" typeof="calli:Page" property="rdfs:label" />
+			<div id="copy" rel="calli:copy" class="droppable">
+				<label>Copy template</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/owl/sample-create.xhtml?copy" />
+				<div about="?copy" typeof="calli:Page">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="view">View template</label>
-				<div id="view" rel="calli:view" data-prompt="/callimachus/owl/sample-view.xhtml?copy">
-					<span about="?view" typeof="calli:Page" property="rdfs:label" />
+			<div id="view" rel="calli:view" class="droppable">
+				<label>View template</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/owl/sample-view.xhtml?copy" />
+				<div about="?view" typeof="calli:Page">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="edit">Edit template</label>
-				<div id="edit" rel="calli:edit" data-prompt="/callimachus/owl/sample-edit.xhtml?copy">
-					<span about="?edit" typeof="calli:Page" property="rdfs:label" />
+			<div id="edit" rel="calli:edit" class="droppable">
+				<label>Edit template</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/owl/sample-edit.xhtml?copy" />
+				<div about="?edit" typeof="calli:Page">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
 		</div>

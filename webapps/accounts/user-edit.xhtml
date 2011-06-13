@@ -58,14 +58,13 @@
 		<div>
 			<input id="label" value="{rdfs:label}" type="text" class="auto-expand required" />
 		</div>
-		<label for="img">Photo</label>
-	 	<div id="img" rel="foaf:depiction" class="droppable">
-			<div class="watermark">Drag uploaded photo here</div>
-			<span about="?img" typeof="foaf:Image">
+	 	<div rel="foaf:depiction" class="droppable">
+			<label>Photo</label>
+			<button type="button" class="dialog" data-dialog="?create=/callimachus/Photo" />
+			<div about="?img" typeof="foaf:Image">
 				<img src="{?img}?small" />
 				<button type="button" class="remove" />
-			</span>
-			<button type="button" class="dialog" data-dialog="?create=/callimachus/Photo" />
+			</div>
 		</div>
 		<label for="comment">Additional information</label>
 		<div>

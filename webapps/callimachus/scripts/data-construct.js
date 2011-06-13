@@ -58,12 +58,17 @@ function initDropArea(droppable) {
 }
 
 function addSetItem(uri, script) {
+	var position = 0;
 	var url = script.attr("data-construct").replace("{about}", encodeURIComponent(uri));
+	var m = script.attr("data-construct").match(/\belement=\/(\d+\/)*(\d+)\b/);
+	if (m) {
+		position = parseInt(m[0][2]);
+	}
 	jQuery.get(url, function(data) {
 		var input = data ? $(data).children("[about],[resource]") : data;
 		if (input && input.length) {
-			if (script.children("button[data-dialog]").length) {
-				script.children("button[data-dialog]").before(input);
+			if (position > 0 && script.children().length >= position) {
+				script.children()[position - 1].before(input);
 			} else {
 				script.append(input);
 			}

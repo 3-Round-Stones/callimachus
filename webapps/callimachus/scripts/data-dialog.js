@@ -31,6 +31,9 @@ function initDialogButton(buttons) {
 		if (list.attr("id")) {
 			title = $("label[for='" + list.attr("id") + "']").text();
 		}
+		if (!title) {
+			title = list.find("label").text();
+		}
 		var iframe = $("<iframe></iframe>");
 		iframe.attr("name", frame);
 		iframe.attr("src", 'about:blank');

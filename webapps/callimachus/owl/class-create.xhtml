@@ -38,17 +38,18 @@
 		<div class="hbox">
 			<div>
 				<label for="label">Label</label>
-				<div data-cardinality="1">
-					<input id="label" property="rdfs:label" class="required auto-expand" />
+				<div>
+					<input id="label" value="{rdfs:label}" class="required auto-expand" />
 				</div>
 				<label for="comment">Comment</label>
-				<div data-cardinality="1">
-					<textarea id="comment" class="auto-expand" property="rdfs:comment" />
+				<div>
+					<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 				</div>
 			</div>
 			<div>
-				<label for="equivalentClass">Associate external class</label>
-				<div id="equivalentClass" rel="owl:equivalentClass" data-prompt="about:blank">
+				<div id="equivalentClass" rel="owl:equivalentClass" class="droppable">
+					<label>Associate external class</label>
+					<button type="button" class="dialog" data-dialog="/callimachus/Graph?create" />
 					<div about="?equivalentClass" typeof="owl:Class">
 						<span class="equivalentLabel" property="rdfs:label" />
 						<span style="display:none" class="equivalentComment" property="rdfs:comment" />

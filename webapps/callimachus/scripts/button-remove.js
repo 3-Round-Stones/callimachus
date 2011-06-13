@@ -18,20 +18,30 @@ function showButton() {
 	var button = $(this).children('button.remove');
 	var top = 0;
 	var left = 0;
+	var bheight = button.outerHeight(true);
+	var bwidth = button.outerWidth(true);
 	$(this).find(':not(button)').each(function() {
-		var margin = 0;
-		if ($(this).height() >= button.height() * 2) {
-			margin = button.height() * 0.5;
+		var vmargin = 0;
+		var hmargin = 0;
+		var width = $(this).outerWidth(true);
+		var height = $(this).outerHeight(true);
+		if (width < bwidth) {
+			vmargin = height / 2 - bheight / 2;
+			hmargin = width / 2 - bwidth / 2;
+		} else if (height >= bheight * 2) {
+			vmargin = bheight * 0.5;
+			hmargin = bheight * 0.5;
 		} else {
-			margin = $(this).height() / 2 - button.height() / 2;
+			vmargin = height / 2 - bheight / 2;
+			hmargin = 0;
 		}
 		var offset = $(this).offset();
 		if (!top || offset.top > top) {
-			top = offset.top + margin;
+			top = offset.top + vmargin;
 		}
-		var right = offset.left + $(this).width();
+		var right = offset.left + width;
 		if (!left || right > left) {
-			left = right - button.outerWidth(true) - margin;
+			left = right - bwidth - hmargin;
 		}
 	});
 	button.css('display', "inline-block");

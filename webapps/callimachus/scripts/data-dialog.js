@@ -59,6 +59,7 @@ function initDialogButton(buttons) {
 			list.bind('calliLinked', onlinked);
 			iframe.bind("dialogclose", function(event, ui) {
 				list.unbind('calliLinked', onlinked);
+				iframe.remove();
 				iframe.parent().remove();
 				add.focus();
 			});

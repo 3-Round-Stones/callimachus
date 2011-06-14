@@ -27,34 +27,42 @@
 	</ul>
 	<h1 property="rdfs:label" />
 	<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()" data-redirect="/callimachus/skos/ConceptScheme">
-		<label for="label">Label</label>
-		<div data-cardinality="1">
-			<input id="label" property="rdfs:label" class="required auto-expand" />
+		<div>
+			<label for="label">Label</label>
+			<div>
+				<input id="label" value="{rdfs:label}" class="required auto-expand" />
+			</div>
 		</div>
-		<label for="comment">Comment</label>
-		<div data-cardinality="1">
-			<textarea id="comment" class="auto-expand" property="rdfs:comment" />
+		<div>
+			<label for="comment">Comment</label>
+			<div>
+				<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+			</div>
 		</div>
 		<div class="hbox">
-			<div>
-				<label for="topConcept">Top concepts</label>
-				<div id="topConcept" rel="skos:hasTopConcept" data-prompt="?create=/callimachus/skos/Concept">
-					<div about="?top" typeof="skos:Concept">
-						<span property="skos:prefLabel"></span>
-					</div>
+			<div id="topConcept" rel="skos:hasTopConcept" class="droppable">
+				<label>Top concepts</label>
+				<button type="button" class="dialog" data-dialog="?create=/callimachus/skos/Concept" />				
+				<div about="?top" typeof="skos:Concept">
+					<span property="skos:prefLabel"/>
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="image">Image</label>
-				<div id="image" rel="foaf:depiction" data-prompt="/callimachus/Image?create">
-					<span about="?image" typeof="foaf:Image" property="rdfs:label"/>
+			<div id="image" rel="foaf:depiction" class="droppable">
+				<label>Image</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
+				<div about="?depiction" typeof="foaf:Image">
+					<img src="{?depiction}?small" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
 		</div>
 		<hr />
-		<label for="note">Change note</label>
 		<div>
-			<input type="text" id="note" maxlength="140" class="auto-expand" />
+			<label for="note">Change note</label>
+			<div>
+				<input type="text" id="note" maxlength="140" class="auto-expand" />
+			</div>
 		</div>
 		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>

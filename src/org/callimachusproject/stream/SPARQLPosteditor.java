@@ -55,16 +55,16 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 	}
 	
 	public class TriplePatternCutter implements Editor {
-		Pattern subject, object;
-		public TriplePatternCutter(String subject, String object) {
-			if (subject!=null) this.subject = Pattern.compile(subject);
-			if (object!=null) this.object = Pattern.compile(object);
+		Pattern about, partner;
+		public TriplePatternCutter(String about, String partner) {
+			if (about!=null) this.about = Pattern.compile(about);
+			if (partner!=null) this.partner = Pattern.compile(partner);
 		}
 		@Override
 		public boolean edit(RDFEvent event) {
 			if (!event.isTriplePattern()) return false;
 			TriplePattern t = event.asTriplePattern();
-			return !(match(subject,t.getSubject()) && match(object,t.getObject()));
+			return !(match(about,t.getAbout()) && match(partner,t.getPartner()));
 		}
 	}
 	

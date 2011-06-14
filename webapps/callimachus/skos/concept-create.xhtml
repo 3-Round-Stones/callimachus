@@ -18,42 +18,42 @@
 		<div class="hbox">
 			<div>
 				<label for="label">Label</label>
-				<div data-cardinality="1">
-					<input id="label" property="skos:prefLabel" class="auto-expand required" />
+				<div>
+					<input id="label" value="{skos:prefLabel}" class="auto-expand required" />
 				</div>
 			</div>
 			<div>
 				<label for="altLabel">Alternate label</label>
 				<div>
-					<input id="altLabel" property="skos:altLabel" class="auto-expand" />
+					<input id="altLabel" value="{skos:altLabel}" class="auto-expand" />
 				</div>
 			</div>
 		</div>
 		<div class="hbox">
 			<div>
 				<label for="definition">Definition</label>
-				<div data-cardinality="1">
-					<textarea id="definition" class="auto-expand" property="skos:definition" />
+				<div>
+					<textarea id="definition" class="auto-expand required">{skos:definition}</textarea>
 				</div>
 			</div>
 			<div>
 				<label for="example">Example</label>
-				<div data-cardinality="1">
-					<textarea id="example" class="auto-expand" property="skos:example" />
+				<div>
+					<textarea id="example" class="auto-expand required">{skos:example}</textarea>
 				</div>
 			</div>
 		</div>
 		<div class="hbox">
 			<div>
 				<label for="scopeNote">Scope</label>
-				<div data-cardinality="1">
-					<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
+				<div>
+					<textarea id="scopeNote" class="auto-expand required">{skos:scopeNote}</textarea>
 				</div>
 			</div>
 			<div>
 				<label for="historyNote">History</label>
-				<div data-cardinality="1">
-					<textarea id="historyNote" class="auto-expand" property="skos:historyNote" />
+				<div>
+					<textarea id="historyNote" class="auto-expand required">{skos:historyNote}</textarea>
 				</div>
 			</div>
 		</div>

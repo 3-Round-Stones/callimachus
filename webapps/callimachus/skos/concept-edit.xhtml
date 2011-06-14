@@ -16,8 +16,8 @@
 			}
 		}
 		jQuery(function($) {
-			$('[data-prompt^=?]').each(function() {
-				$(this).attr('data-prompt', $('#scheme').attr('about') + $(this).attr('data-prompt'));
+			$('button[data-dialog^=?]').each(function() {
+				$(this).attr('data-dialog', $('#scheme').attr('about') + $(this).attr('data-dialog'));
 			});
 		});
 	</script>
@@ -40,76 +40,80 @@
 		<div class="hbox">
 			<div>
 				<label for="label">Label</label>
-				<div data-cardinality="1">
-					<input id="label" property="skos:prefLabel" class="auto-expand" />
+				<div>
+					<input id="label" value="{skos:prefLabel}" class="auto-expand required" />
 				</div>
 			</div>
 			<div>
 				<label for="altLabel">Alternate label</label>
 				<div>
-					<input id="altLabel" property="skos:altLabel" class="auto-expand" />
+					<input id="altLabel" value="{skos:altLabel}" class="auto-expand" />
 				</div>
 			</div>
 		</div>
 		<div class="hbox">
 			<div>
 				<label for="definition">Definition</label>
-				<div data-cardinality="1">
-					<textarea id="definition" class="auto-expand" property="skos:definition" />
+				<div>
+					<textarea id="definition" class="auto-expand required">{skos:definition}</textarea>
 				</div>
 			</div>
 			<div>
 				<label for="example">Example</label>
-				<div data-cardinality="1">
-					<textarea id="example" class="auto-expand" property="skos:example" />
+				<div>
+					<textarea id="example" class="auto-expand required">{skos:example}</textarea>
 				</div>
 			</div>
 		</div>
 		<div class="hbox">
 			<div>
 				<label for="scopeNote">Scope</label>
-				<div data-cardinality="1">
-					<textarea id="scopeNote" class="auto-expand" property="skos:scopeNote" />
+				<div>
+					<textarea id="scopeNote" class="auto-expand required">{skos:scopeNote}</textarea>
 				</div>
 			</div>
 			<div>
 				<label for="historyNote">History</label>
-				<div data-cardinality="1">
-					<textarea id="historyNote" class="auto-expand" property="skos:historyNote" />
+				<div>
+					<textarea id="historyNote" class="auto-expand required">{skos:historyNote}</textarea>
 				</div>
 			</div>
 		</div>
 		<hr />
-		<div class="hbox">
-			<div>
-				<label for="broader">Broader</label>
-				<div id="broader" rev="skos:narrower" data-prompt="?create=/callimachus/skos/Concept" style="min-height: 1em">
-					<span about="?broader" typeof="skos:Concept">
-						<span property="skos:prefLabel"></span>
-					</span>
+		<div class="hbox">			
+			<div id="broader" rev="skos:narrower" class="droppable">
+				<label>Broader</label>
+				<button type="button" class="dialog" data-dialog="?create=/callimachus/skos/Concept" />				
+				<div about="?broader" typeof="skos:Concept">
+					<span property="skos:prefLabel"/>
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="related">Related</label>
-				<div id="related" rel="skos:related" data-prompt="?create=/callimachus/skos/Concept" style="min-height: 1em">
-					<span about="?related" typeof="skos:Concept">
-						<span property="skos:prefLabel"></span>
-					</span>
+			<div id="related" rel="skos:related" class="droppable">
+				<label>Related</label>
+				<button type="button" class="dialog" data-dialog="?create=/callimachus/skos/Concept" />				
+				<div about="?related" typeof="skos:Concept">
+					<span property="skos:prefLabel"/>
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="narrower">Narrower</label>
-				<div id="narrower" rel="skos:narrower" data-prompt="?create=/callimachus/skos/Concept" style="min-height: 1em">
-					<span about="?narrower" typeof="skos:Concept">
-						<span property="skos:prefLabel"></span>
-					</span>
+			<div id="narrower" rel="skos:narrower" class="droppable">
+				<label>Narrower</label>
+				<button type="button" class="dialog" data-dialog="?create=/callimachus/skos/Concept" />				
+				<div about="?narrower" typeof="skos:Concept" >
+					<span property="skos:prefLabel"/>
+					<button type="button" class="remove" />
 				</div>
 			</div>
 		</div>
 		<hr />
-		<label for="image">Image</label>
-	 	<div id="image" rel="foaf:depiction" data-prompt="/callimachus/Image?create">
-			<span about="?image" typeof="foaf:Image" property="rdfs:label"></span>
+		<div id="image" rel="foaf:depiction" class="droppable">
+			<label>Image</label>
+			<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
+		 	<div about="?depiction" typeof="foaf:Image">
+				<img src="{?depiction}?small" />
+				<button type="button" class="remove" />
+			</div>
 		</div>
 		<hr />
 		<label for="note">Change note</label>

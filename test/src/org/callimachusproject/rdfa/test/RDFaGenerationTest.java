@@ -59,18 +59,11 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.callimachusproject.rdfa.RDFEventReader;
-import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.stream.BufferedXMLEventReader;
-import org.callimachusproject.stream.GraphPatternReader;
-import org.callimachusproject.stream.RDFStoreReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.RDFaProducer;
-import org.callimachusproject.stream.ReducedTripleReader;
 import org.callimachusproject.stream.SPARQLProducer;
-import org.callimachusproject.stream.SPARQLResultReader;
-import org.callimachusproject.stream.TriplePatternStore;
-import org.callimachusproject.stream.TriplePatternVariableStore;
 import org.callimachusproject.stream.XMLElementReader;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -378,17 +371,17 @@ public class RDFaGenerationTest {
 		return evalOutput==null && evalTarget==null;
 	}
 	
-	private TriplePatternStore constructQuery(String base,
-			RDFEventReader sparql, boolean useVariant) throws RDFParseException {
-		TriplePatternStore query ;	
-		// TriplePatternVariableStore is a variation on TriplePatternStore 
-		// inserts extra relationships to identify variables
-		if (useVariant) query = new TriplePatternVariableStore(base) ;
-		else query = new TriplePatternStore(base) ;
-		query.consume(sparql);
-		sparql.close();
-		return query;
-	}
+//	private TriplePatternStore constructQuery(String base,
+//			RDFEventReader sparql, boolean useVariant) throws RDFParseException {
+//		TriplePatternStore query ;	
+//		// TriplePatternVariableStore is a variation on TriplePatternStore 
+//		// inserts extra relationships to identify variables
+//		if (useVariant) query = new TriplePatternVariableStore(base) ;
+//		else query = new TriplePatternStore(base) ;
+//		query.consume(sparql);
+//		sparql.close();
+//		return query;
+//	}
 	
 	static NodeList findFragmentIdentifiers(Document doc) throws Exception {
 		XPath xpath = xPathFactory.newXPath();
@@ -467,180 +460,180 @@ public class RDFaGenerationTest {
 	 * Test equivalence of the target and transform output.
 	 */
 	
-	@Test
-	public void legacyTest() throws Exception {
-		assumeTrue(test_set.contains("legacy"));
-		try {
-			if (verbose || show_rdf || show_sparql || show_results || show_xml) {
-				System.out.println("\nLEGACY TEST: "+template);
-				write(readDocument(template),System.out);
-			}
-			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
-			RDFEventReader rdfa = new RDFaReader(base, xml, base);
-			RDFEventReader sparql = new GraphPatternReader(rdfa);
-			TriplePatternStore query = constructQuery(base, sparql, true);
-			String uri = isViewable(readDocument(template))?base:null;
-			RDFEventReader results = new RDFStoreReader(query, con, uri);
-			results = new ReducedTripleReader(results);
-			RDFXMLEventReader rdfxml = new RDFXMLEventReader(results);			
-			Document outputDoc = applyConstructXSLT(rdfxml,template,null,null);
-	
-			boolean ok = equivalent(outputDoc,readDocument(target),base);
-			if (!ok || verbose || show_rdf) {
-				System.out.println("RDF (from target):");
-				write(exportGraph(con), System.out);
-			}
-			if (!ok || verbose || show_sparql) {
-				System.out.println("SPARQL (from test):\n"+query);
-			}
-			if (!ok || verbose || show_results) {
-				System.out.println("\nRESULTS:");
-				results = new RDFStoreReader(query, con, null);				
-				while (results.hasNext()) System.out.println(results.next());
-			}
-			if (!ok || verbose || show_xml) {
-				System.out.println("\nOUTPUT:");
-				write(outputDoc,System.out);
-			}
-			if (!show_rdf && !show_sparql && !show_results) 
-				assertTrue(ok);
-		}
-		catch (Exception e) {
-			System.out.println("LEGACY TEST: "+template);
-			fail();
-		}
-	}
+//	@Test
+//	public void legacyTest() throws Exception {
+//		assumeTrue(test_set.contains("legacy"));
+//		try {
+//			if (verbose || show_rdf || show_sparql || show_results || show_xml) {
+//				System.out.println("\nLEGACY TEST: "+template);
+//				write(readDocument(template),System.out);
+//			}
+//			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
+//			RDFEventReader rdfa = new RDFaReader(base, xml, base);
+//			RDFEventReader sparql = new GraphPatternReader(rdfa);
+//			TriplePatternStore query = constructQuery(base, sparql, true);
+//			String uri = isViewable(readDocument(template))?base:null;
+//			RDFEventReader results = new RDFStoreReader(query, con, uri);
+//			results = new ReducedTripleReader(results);
+//			RDFXMLEventReader rdfxml = new RDFXMLEventReader(results);			
+//			Document outputDoc = applyConstructXSLT(rdfxml,template,null,null);
+//	
+//			boolean ok = equivalent(outputDoc,readDocument(target),base);
+//			if (!ok || verbose || show_rdf) {
+//				System.out.println("RDF (from target):");
+//				write(exportGraph(con), System.out);
+//			}
+//			if (!ok || verbose || show_sparql) {
+//				System.out.println("SPARQL (from test):\n"+query);
+//			}
+//			if (!ok || verbose || show_results) {
+//				System.out.println("\nRESULTS:");
+//				results = new RDFStoreReader(query, con, null);				
+//				while (results.hasNext()) System.out.println(results.next());
+//			}
+//			if (!ok || verbose || show_xml) {
+//				System.out.println("\nOUTPUT:");
+//				write(outputDoc,System.out);
+//			}
+//			if (!show_rdf && !show_sparql && !show_results) 
+//				assertTrue(ok);
+//		}
+//		catch (Exception e) {
+//			System.out.println("LEGACY TEST: "+template);
+//			fail();
+//		}
+//	}
 	
 	/* Produce SPARQL from the RDFa template using SPARQLProducer.
 	 * Generate SPARQL result-set using SPARQLResultReader.
 	 * Test equivalence of the target and transform output.
 	 */
 	
-	@Test
-	public void unionConstructTest() throws Exception {
-		assumeTrue(test_set.contains("construct"));
-		try {
-			if (verbose || show_rdf || show_sparql || show_results || show_xml) {
-				System.out.println("\nUNION CONSTRUCT TEST: "+template);
-				write(readDocument(template),System.out);
-			}
-			// produce SPARQL from the RDFa template
-			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
-			RDFEventReader rdfa = new RDFaReader(base, xml, base);
-			RDFEventReader sparql = new SPARQLProducer(rdfa);
-
-			TriplePatternStore query = constructQuery(base, sparql, true);
-			// the URI is supplied for a ?view template, but not for ?construct
-			String uri = isViewable(readDocument(template))?base:null;
-			RDFEventReader results = new SPARQLResultReader(query, con, uri);	
-			results = new ReducedTripleReader(results);
-			RDFXMLEventReader rdfxml = new RDFXMLEventReader(results);			
-			Document outputDoc = applyConstructXSLT(rdfxml,template,null,null);
-	
-			boolean ok = equivalent(outputDoc,readDocument(target),base);
-			if (!ok || verbose || show_rdf) {
-				System.out.println("RDF (from target):");
-				write(exportGraph(con), System.out);
-			}
-			if (!ok || verbose || show_sparql) {
-				System.out.println("\nSPARQL:");
-				System.out.println(query+"\n");
-			}
-			if (!ok || verbose || show_results) {
-				System.out.println("\nRESULTS:");
-				results = new SPARQLResultReader(query, con, null);
-				while (results.hasNext()) System.out.println(results.next());				
-			}
-			if (!ok || verbose || show_xml) {
-				System.out.println("\nOUTPUT:");
-				write(outputDoc,System.out);
-			}
-			if (!show_sparql && !show_sparql && !show_results && !show_xml) 
-				assertTrue(ok);
-		}
-		catch (Exception e) {
-			System.out.println("UNION TEST: "+template);
-			fail();
-		}
-	}
+//	@Test
+//	public void unionConstructTest() throws Exception {
+//		assumeTrue(test_set.contains("construct"));
+//		try {
+//			if (verbose || show_rdf || show_sparql || show_results || show_xml) {
+//				System.out.println("\nUNION CONSTRUCT TEST: "+template);
+//				write(readDocument(template),System.out);
+//			}
+//			// produce SPARQL from the RDFa template
+//			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template)); 
+//			RDFEventReader rdfa = new RDFaReader(base, xml, base);
+//			RDFEventReader sparql = new SPARQLProducer(rdfa);
+//
+//			TriplePatternStore query = constructQuery(base, sparql, true);
+//			// the URI is supplied for a ?view template, but not for ?construct
+//			String uri = isViewable(readDocument(template))?base:null;
+//			RDFEventReader results = new SPARQLResultReader(query, con, uri);	
+//			results = new ReducedTripleReader(results);
+//			RDFXMLEventReader rdfxml = new RDFXMLEventReader(results);			
+//			Document outputDoc = applyConstructXSLT(rdfxml,template,null,null);
+//	
+//			boolean ok = equivalent(outputDoc,readDocument(target),base);
+//			if (!ok || verbose || show_rdf) {
+//				System.out.println("RDF (from target):");
+//				write(exportGraph(con), System.out);
+//			}
+//			if (!ok || verbose || show_sparql) {
+//				System.out.println("\nSPARQL:");
+//				System.out.println(query+"\n");
+//			}
+//			if (!ok || verbose || show_results) {
+//				System.out.println("\nRESULTS:");
+//				results = new SPARQLResultReader(query, con, null);
+//				while (results.hasNext()) System.out.println(results.next());				
+//			}
+//			if (!ok || verbose || show_xml) {
+//				System.out.println("\nOUTPUT:");
+//				write(outputDoc,System.out);
+//			}
+//			if (!show_sparql && !show_sparql && !show_results && !show_xml) 
+//				assertTrue(ok);
+//		}
+//		catch (Exception e) {
+//			System.out.println("UNION TEST: "+template);
+//			fail();
+//		}
+//	}
 	
 	/* Look for template fragment identifiers in the output
 	 * Generate SPARQL query and transformed output from the fragment
 	 * Test that the fragment output is a sub-document of the prior output
 	 */
 	
-	@Test
-	public void fragmentTest() throws Exception {
-		assumeTrue(test_set.contains("fragment"));
-		try {
-			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
-			RDFEventReader rdfa = new RDFaReader(base, xml, base);
-			RDFEventReader sparql = new SPARQLProducer(rdfa);
-			TriplePatternStore query = constructQuery(base, sparql, true);
-			// the URI is supplied for a ?view template, but not for ?construct
-			String uri = isViewable(readDocument(template))?base:null;
-			RDFEventReader results = new SPARQLResultReader(query, con, uri);	
-			results = new ReducedTripleReader(results);
-			RDFXMLEventReader rdfxml = new RDFXMLEventReader(results);			
-			Document outputDoc = applyConstructXSLT(rdfxml,template,null,null);
-			
-			// look for fragment identifiers
-			NodeList fragments = findFragmentIdentifiers(outputDoc);
-			for (int i=0; i<fragments.getLength(); i++) {
-				org.w3c.dom.Node frag = fragments.item(i);
-				String path = getFragmentIdentifiers((Element)frag);
-
-				// Generate the query from the fragment
-				xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
-				XMLElementReader xmlFragment = new XMLElementReader(xml,path);
-				rdfa = new RDFaReader(base, xmlFragment, base);
-				sparql = new SPARQLProducer(rdfa);
-				query = constructQuery(base, sparql, true);
-				
-				results = new SPARQLResultReader(query, con, uri);	
-				results = new ReducedTripleReader(results);
-				rdfxml = new RDFXMLEventReader(results);
-								
-				Document fragment = applyConstructXSLT(rdfxml,template,"edit",path);
-				XPathExpression xpath = conjoinXPaths(fragment,base) ;
-				
-				// the output fragment should be a sub-document of the target
-				boolean ok = verifyXPath(xpath,outputDoc);
-				if (!ok || verbose) {
-					System.out.println("\nFRAGMENT TEST: "+template+"\n");
-		
-					System.out.println("TEMPLATE:");
-					write(readDocument(template),System.out);
-		
-					System.out.println("\nOUTPUT:");
-					write(outputDoc,System.out);
-					
-					System.out.println("\nPATH: "+path);
-					// show the fragment addressed by the path
-					xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
-					write(new XMLElementReader(xml,path), System.out);
-					
-					System.out.println("\nXPATH:");
-					System.out.println(xpath);
-					
-					System.out.println("\nSPARQL: ");
-					System.out.println(query);
-
-					System.out.println("RESULT SET: ");
-					results = new SPARQLResultReader(query, con, uri);	
-					while (results.hasNext()) System.out.println(results.next());
-		
-					System.out.println("\nTRANSFORMED FRAGMENT:");
-					write(fragment,System.out);
-				}
-				if (!show_sparql) assertTrue(ok);		
-			}
-		}
-		catch (Exception e) {
-			System.out.println("FRAGMENT TEST: "+template);
-			fail();
-		}
-	}
+//	@Test
+//	public void fragmentTest() throws Exception {
+//		assumeTrue(test_set.contains("fragment"));
+//		try {
+//			XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
+//			RDFEventReader rdfa = new RDFaReader(base, xml, base);
+//			RDFEventReader sparql = new SPARQLProducer(rdfa);
+//			TriplePatternStore query = constructQuery(base, sparql, true);
+//			// the URI is supplied for a ?view template, but not for ?construct
+//			String uri = isViewable(readDocument(template))?base:null;
+//			RDFEventReader results = new SPARQLResultReader(query, con, uri);	
+//			results = new ReducedTripleReader(results);
+//			RDFXMLEventReader rdfxml = new RDFXMLEventReader(results);			
+//			Document outputDoc = applyConstructXSLT(rdfxml,template,null,null);
+//			
+//			// look for fragment identifiers
+//			NodeList fragments = findFragmentIdentifiers(outputDoc);
+//			for (int i=0; i<fragments.getLength(); i++) {
+//				org.w3c.dom.Node frag = fragments.item(i);
+//				String path = getFragmentIdentifiers((Element)frag);
+//
+//				// Generate the query from the fragment
+//				xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
+//				XMLElementReader xmlFragment = new XMLElementReader(xml,path);
+//				rdfa = new RDFaReader(base, xmlFragment, base);
+//				sparql = new SPARQLProducer(rdfa);
+//				query = constructQuery(base, sparql, true);
+//				
+//				results = new SPARQLResultReader(query, con, uri);	
+//				results = new ReducedTripleReader(results);
+//				rdfxml = new RDFXMLEventReader(results);
+//								
+//				Document fragment = applyConstructXSLT(rdfxml,template,"edit",path);
+//				XPathExpression xpath = conjoinXPaths(fragment,base) ;
+//				
+//				// the output fragment should be a sub-document of the target
+//				boolean ok = verifyXPath(xpath,outputDoc);
+//				if (!ok || verbose) {
+//					System.out.println("\nFRAGMENT TEST: "+template+"\n");
+//		
+//					System.out.println("TEMPLATE:");
+//					write(readDocument(template),System.out);
+//		
+//					System.out.println("\nOUTPUT:");
+//					write(outputDoc,System.out);
+//					
+//					System.out.println("\nPATH: "+path);
+//					// show the fragment addressed by the path
+//					xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
+//					write(new XMLElementReader(xml,path), System.out);
+//					
+//					System.out.println("\nXPATH:");
+//					System.out.println(xpath);
+//					
+//					System.out.println("\nSPARQL: ");
+//					System.out.println(query);
+//
+//					System.out.println("RESULT SET: ");
+//					results = new SPARQLResultReader(query, con, uri);	
+//					while (results.hasNext()) System.out.println(results.next());
+//		
+//					System.out.println("\nTRANSFORMED FRAGMENT:");
+//					write(fragment,System.out);
+//				}
+//				if (!show_sparql) assertTrue(ok);		
+//			}
+//		}
+//		catch (Exception e) {
+//			System.out.println("FRAGMENT TEST: "+template);
+//			fail();
+//		}
+//	}
 	
 	/* test Processing Instructions */	
 	void testPI(XMLEventReader xml) throws Exception {
@@ -777,10 +770,10 @@ public class RDFaGenerationTest {
 				else if (arg.equals("-sparql")) show_sparql = true;
 				else if (arg.equals("-xml")) show_xml = true;
 				else if (arg.equals("-results")) show_results = true;
-				else if (arg.equals("-legacy")) test_set = "legacy";
-				else if (arg.equals("-construct")) test_set = "construct";
+				//else if (arg.equals("-legacy")) test_set = "legacy";
+				//else if (arg.equals("-construct")) test_set = "construct";
 				else if (arg.equals("-select")) test_set = "select";
-				else if (arg.equals("-fragment")) test_set = "fragment";
+				//else if (arg.equals("-fragment")) test_set = "fragment";
 				else if (arg.equals("-data")) test_set = "data";
 				else if (!arg.startsWith("-")) test_dir = arg;
 			}
@@ -798,10 +791,10 @@ public class RDFaGenerationTest {
 	        	Object[] param = parameters.next();
 	        	test = new RDFaGenerationTest((File)param[0], (File)param[1]);
 				test.initialize();
-				test.legacyTest();
-				test.unionConstructTest();
+				//test.legacyTest();
+				//test.unionConstructTest();
 				test.unionSelectTest();
-				test.fragmentTest();
+				//test.fragmentTest();
 				test.closure();
 	        }
 			tearDown();

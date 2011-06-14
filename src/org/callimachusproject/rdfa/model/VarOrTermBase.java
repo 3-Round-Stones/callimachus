@@ -94,6 +94,7 @@ public abstract class VarOrTermBase implements VarOrTerm {
 	public abstract String stringValue();
 	
 	public void setOrigin(String origin) {
+		if (this.origin==null)
 		this.origin = origin;
 	}
 	

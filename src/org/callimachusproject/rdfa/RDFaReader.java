@@ -100,9 +100,6 @@ public class RDFaReader extends RDFEventReader {
 	private Stack<Integer> elementStack = new Stack<Integer>();
 	private int elementIndex = 1;
 	
-	// record variable nodes as they are declared
-	// variables are scoped to the page
-	HashMap<String,Node> vars = new HashMap<String,Node>();
 
 	public RDFaReader(String base, XMLEventReader reader, String systemId) {
 		this.reader = reader;
@@ -271,16 +268,7 @@ public class RDFaReader extends RDFEventReader {
 	private String resolve(String relative) {
 		return base.resolve(relative);
 	}
-	
-	Node addVar(Node node) {
-		if (node!=null && node.isReference()) {
-			String url = node.asReference().stringValue();
-			int n = url.indexOf("?");
-			if (n>=0 && url.startsWith(base.getBase()+"?")) 
-				vars.put(url.substring(n), node);
-		}
-		return node;
-	}
+
 
 	private class Tag {
 		private Tag parent;
@@ -291,6 +279,9 @@ public class RDFaReader extends RDFEventReader {
 		private Node datatype;
 		private boolean startedSubject;
 		String origin;
+		// record variable nodes as they are declared
+		// the same variable may be re-used within a descendant tag
+		HashMap<String,Node> vars = new HashMap<String,Node>();
 
 		public Tag(Tag parent, StartElement event, boolean empty, int number) {
 			this.parent = parent;
@@ -298,12 +289,23 @@ public class RDFaReader extends RDFEventReader {
 			this.empty = empty;
 			this.number = number;
 			this.origin = origin();
+			if (parent!=null) vars.putAll(parent.vars);
 		}
 
 		public String toString() {
 			return event.toString();
 		}
-
+		
+		Node addVar(Node node) {
+			if (node!=null && node.isReference()) {
+				String url = node.asReference().stringValue();
+				int n = url.indexOf("?");
+				if (n>=0 && url.startsWith(base.getBase()+"?")) 
+					vars.put(url.substring(n), node);
+			}
+			return node;
+		}
+		
 		public Tag getParent() {
 			return parent;
 		}

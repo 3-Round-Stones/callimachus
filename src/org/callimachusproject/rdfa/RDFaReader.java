@@ -94,7 +94,6 @@ public class RDFaReader extends RDFEventReader {
 	
 	// The BLANK signifies blank nodes introduced by typeof
 	public static final String BLANK = "_";
-
 	
 	// The element stack keeps track of the origin of the node
 	private Stack<Integer> elementStack = new Stack<Integer>();
@@ -505,22 +504,27 @@ public class RDFaReader extends RDFEventReader {
 		}
 
 		public void started() throws RDFParseException {
+			Node subj = getCurrentSubject();
+			// add property expressions in attributes of this event
+			addPropertyExpressions(subj, event);
+			
 			if (isTriplePresent() || (parent != null && parent.isHanging())) {
 				if (!isStartSubject()) {
 					chain();
 				}
-				// new subject (not current subject) is null if this tag has no RDFa markup
-				Node subj = getNewSubject();
-				if (parent != null && parent.isHanging() && subj!=null) {
+				// subj is null if this tag doesn't introduce a subject
+				Node newSubj = getNewSubject();
+				if (parent != null && parent.isHanging() && newSubj!=null) {
 					List<Node> rel = parent.getRel();
 					if (rel != null) {
-						triple(parent.getCurrentSubject(), rel, subj, false);
+						triple(parent.getCurrentSubject(), rel, newSubj, false);
 					}
 					List<Node> rev = parent.getRev();
 					if (rev != null) {
-						triple(subj, rev, parent.getCurrentSubject(), true);
+						triple(newSubj, rev, parent.getCurrentSubject(), true);
 					}
 				}
+				// open new subject
 				if (isStartSubject()) {
 					chain();
 				}
@@ -540,7 +544,7 @@ public class RDFaReader extends RDFEventReader {
 							ns.getPrefix(), uri));
 				}
 			}
-			Node subj = getCurrentSubject();
+			//Node subj = getCurrentSubject();
 
 			List<Node> typeof = curies(attr("typeof"));
 			if (typeof != null) {
@@ -549,7 +553,7 @@ public class RDFaReader extends RDFEventReader {
 				}
 			}
 			// add property expressions in attributes of this event
-			addPropertyExpressions(subj, event);
+			//addPropertyExpressions(subj, event);
 
 			Node newSubject = getNewSubject();
 			List<Node> rel = getRel();
@@ -597,6 +601,17 @@ public class RDFaReader extends RDFEventReader {
 				addPropertyExpressions(subj, value);
 			}
 		}
+		
+		private boolean isPropertyExpressionPresent(StartElement start) {
+			Iterator<?> i = start.getAttributes();
+			while (i.hasNext()) {
+				Attribute a = (Attribute) i.next();
+				String value = a.getValue();
+				Matcher m = PROPERTY_EXP_PATTERN.matcher(value);
+				if (m.find()) return true;
+			}	
+			return false;
+		}
 
 		private void addPropertyExpressions(Node subj, String value)
 				throws RDFParseException {
@@ -606,8 +621,33 @@ public class RDFaReader extends RDFEventReader {
 				PlainLiteral lit = tf.literal("");
 				Node c = curie(m.group(1)+":"+m.group(2));
 				lit.setOrigin(origin+" "+c);
+				
+				if (isHanging()) {
+					List<Node> rel = getRel();
+					List<Node> rev = getRev();
+					if (rel != null)
+						triple(getCurrentSubject(), rel, subj, false);
+					if (rev != null)
+						triple(subj, rev, getCurrentSubject(), true);
+					queue.add(new Subject(true, subj));
+				}
+				else if (parent.isHanging()) {
+					List<Node> rel = parent.getRel();
+					List<Node> rev = parent.getRev();
+					if (rel != null)
+						triple(parent.getCurrentSubject(), rel, subj, false);
+					if (rev != null)
+						triple(subj, rev, parent.getCurrentSubject(), true);
+					queue.add(new Subject(true, subj));
+				}
+				
 				queue.add(new Triple(subj, (IRI) c, lit));
+				
+				if (isHanging() || parent.isHanging()) {
+					queue.add(new Subject(false, subj));
+				}
 			}
+				
 		}
 
 		public void chain() throws RDFParseException {

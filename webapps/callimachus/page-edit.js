@@ -27,20 +27,20 @@ function getPageLocationURL() {
 
 	function inlineProperties(html) {
 		var result = html;
-		result = result.replace(/<input\b(\s*[^>]*)\bproperty="(\w*:\w*)"(\s*[^>]*>)/g, '<input$1value="{$2}"$3');
 		result = result.replace(/<span\s+property="(\w*:\w*)"\s*\/>/g, '{$1}');
-		result = result.replace(/<(\w*)\s+property="(\w*:\w*)"\s*(?:\/>|>\s*<\/\1>)/g, '<$1>{$2}</$1>');
-		result = result.replace(/<(\w*)\b(\s*(?:(?:href|class)="[^"]*"\s*)*)\bproperty="(\w*:\w*)"(\s*(?:(?:href|class)="[^"]*"\s*)*)(?:\/>|>\s*<\/\1>)/g, '<$1$2$4>{$3}</$1>');
+		result = result.replace(/<(\w*)(\s+class="[^"]*")?\s+property="(\w*:\w*)"\s*(?:\/>|>\s*<\/\1>)/g, '<$1$2>{$3}</$1>');
 		return result;
 	}
 
 	function outlineProperties(html) {
 		var result = html;
-		result = result.replace(/<input\b(\s*[^>]*)value="{(\w*:\w*)}"(\s*[^>]*>)/g, '<input$1property="$2"$3');
-		result = result.replace(/<textarea\b(\s*[^>]*)>{(\w*:\w*)}<\/textarea>/g, '<textarea$1 property="$2"></textarea>');
-		result = result.replace(/<pre(\s*[^>]*)>{(\w*:\w*)}<\/pre>/g, '<pre$1 property="$2" />');
-		result = result.replace(/<(\w*)\s*>{(\w*:\w*)}<\/\1>/g, '<$1 property="$2" />');
-		result = result.replace(/{(\w*:\w*)}/g, '<span property="$1" />');
+		result = result.replace(/<(\w*)(\s+class="[^"]*")?\s*>{(\w*:\w*)}<\/\1>/g, '<$1$2 property="$3" />');
+		var regex = /{(\w*:\w*)}([^>]*<\/?)(a|abbr|acronym|address|applet|audio|b|bdi|bdo|big|blockquote|body|br|button|canvas|caption|center|cite|code|command|datalist|dd|del|dfn|div|dt|em|embed|fieldset|font|form|h1|h2|h3|h4|h5|h6|i|iframe|img|input|ins|kbd|keygen|label|legend|li|mark|math|meter|noframes|noscript|object|output|p|progress|q|ruby|s|samp|select|small|span|strike|strong|sub|sup|svg|td|th|time|tt|u|var|video|wbr)\b/g;
+		var inline = result.replace(regex, '<span property="$1" />$2$3');
+		while (result != inline) {
+			result = inline;
+			inline = result.replace(regex, '<span property="$1" />$2$3');
+		}
 		return result;
 	}
 

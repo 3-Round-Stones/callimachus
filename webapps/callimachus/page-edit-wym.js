@@ -9,7 +9,7 @@ jQuery(function($){
 	}
 
 	$(document).ready(function() {
-		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('data-cardinality', 'data-prompt');
+		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('data-dialog');
 		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push(
 			'rel',
 			'rev',
@@ -38,9 +38,17 @@ jQuery(function($){
 	});
 
 	function select(node, selector) {
+		if (!node)
+			return $([]);
 		var set = $(node).find(selector).andSelf();
 		set = set.add($(node).parents(selector));
 		return set.filter(selector);
+	}
+
+	function find(node, selector) {
+		if (!node)
+			return $([]);
+		return $(node).find(selector).andSelf().filter(selector);
 	}
 
 	function setFocusToNode(wym, node) {
@@ -102,10 +110,8 @@ jQuery(function($){
 		this.dialog('InsertInput', null, dialog_input);
 		var node = select(this.container(), toggle)[0];
 		if (node) {
-			$('#label').val($(node).find('label').text());
-			$('#curie').val($(node).find('[property]').attr('property'));
-			$('#functional').attr('checked', 'checked');
-			$('#variable').val('?' + $(node).find('[id]').attr('id'));
+			$('#label').val(find(node, 'label').text());
+			$('#curie').val($(node).html().match(/\{([^}]+)\}/)[1]);
 		} else {
 			$('.wym_dialog_input .wym_delete').remove();
 		}
@@ -116,16 +122,16 @@ jQuery(function($){
 		$('.wym_dialog_input .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
 			var label = $('#label').val();
-			var functional = $('#functional').is(':checked');
 			var curie = $('#curie').val();
-			var variable = $('#variable').val();
-			if (!checkCURIE(curie, this) || !checkVariable(variable, this)) {
+			var id = find(node, '[id]').attr('id');
+			if (!id) {
+				id = generateUniqueId();
+			}
+			if (!checkCURIE(curie, this)) {
 				return false;
 			}
-			var cardinality = functional ? 'data-cardinality="1"' : '';
 			insertTemplate(node, template, {type: type, label: label,
-				id: variable.substring(1), curie: curie,
-				cardinality: cardinality});
+				id: id, curie: curie});
 			closeDialogue();
 			return false;
 		});
@@ -136,16 +142,8 @@ jQuery(function($){
 		this.dialog('InsertSelect', null, dialog_select);
 		var node = select(this.container(), toggle)[0];
 		if (node) {
-			$('#label').val($(node).find('label').text());
-			$('#property').val($(node).find('[property]').attr('property'));
-			$('#variable').val($(node).find('[resource]').attr('resource'));
-			if ($(node).find('[rev]').length) {
-				$('#reverse').attr('checked', 'checked');
-				$('#curie').val($(node).find('[rev]').attr('rev'));
-			} else {
-				$('#curie').val($(node).find('[rel]').attr('rel'));
-			}
-			var scheme = $(node).find('[rel=skos:inScheme]').attr('resource');
+			$('#curie').val(find(node, '[rel]').attr('rel'));
+			var scheme = find(node, '[rel=skos:inScheme]').attr('resource');
 			var options = $('#scheme')[0].options;
 			for (var i = 0; i < options.length; i++) {
 				if (scheme == options[i].getAttribute('about')) {
@@ -173,64 +171,59 @@ jQuery(function($){
 		});
 		$('.wym_dialog_select .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
-			var attr = $('#reverse').is(':checked') ? 'rev' : 'rel';
-			var label = $('#label').val();
+			var attr = 'rel';
+			var label = $($('#scheme')[0].options[$('#scheme')[0].selectedIndex]).text();
 			var curie = $('#curie').val();
-			var variable = $('#variable').val();
-			var property = $('#property').val();
 			var scheme = $('#scheme').val();
+			var id = find(node, '[id]').attr('id');
+			if (!id) {
+				id = generateUniqueId();
+			}
 			if (!scheme) {
 				$(this).trigger('calliError', 'A scheme is required for this field');
 			}
-			if (!checkCURIE(curie, this) || !checkVariable(variable, this)) {
+			if (!checkCURIE(curie, this)) {
 				return false;
 			}
 			insertTemplate(node, template, {type: type, label: label,
-				id: variable.substring(1), rel: attr, curie: curie,
-				scheme: scheme, property: property});
+				id: id, rel: attr, curie: curie,
+				scheme: scheme});
 			closeDialogue();
 			return false;
 		});
 	}
 
-	function insertDropArea(dialog_drop, type, template) {
+	function InsertDropZone(dialog_drop, type, template) {
 		var toggle = 'div.field.' + type;
-		this.dialog('InsertDropArea', null, dialog_drop);
+		this.dialog('InsertDropZone', null, dialog_drop);
 		var node = select(this.container(), toggle)[0];
 		if (node) {
 			$('#label').val($(node).find('label').text());
-			$('#property').val($(node).find('[property]').attr('property'));
-			$('#variable').val($(node).find('[about]').attr('about'));
-			if ($(node).find('[rev]').length) {
-				$('#reverse').attr('checked', 'checked');
-				$('#curie').val($(node).find('[rev]').attr('rev'));
-			} else {
-				$('#curie').val($(node).find('[rel]').attr('rel'));
-			}
+			$('#curie').val($(node).find('[rel]').attr('rel'));
 			$('#class').val($(node).find('[typeof]').attr('typeof'));
-			$('#prompt').val($(node).find('[data-prompt]').attr('data-prompt'));
 		} else {
-			$('.wym_dialog_drop .wym_delete').remove();
+			$('.wym_dialog_dropzone .wym_delete').remove();
 		}
-		$('.wym_dialog_drop .wym_delete').click(function(event) {
+		$('.wym_dialog_dropzone .wym_delete').click(function(event) {
 			$(node).remove();
 			closeDialogue();
 		});
-		$('.wym_dialog_drop .wym_submit').parents('form').submit(function(event) {
+		$('.wym_dialog_dropzone .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
-			var attr = $('#reverse').is(':checked') ? 'rev' : 'rel';
+			var attr = 'rel';
 			var label = $('#label').val();
 			var curie = $('#curie').val();
-			var variable = $('#variable').val();
-			var property = $('#property').val();
 			var ctype = $('#class').val();
-			var prompt = $('#prompt').val();
-			if (!checkCURIE(curie, this) || !checkVariable(variable, this) || !checkCURIE(ctype, this)) {
+			var id = find(node, '[id]').attr('id');
+			if (!id) {
+				id = generateUniqueId();
+			}
+			if (!checkCURIE(curie, this) || !checkCURIE(ctype, this)) {
 				return false;
 			}
 			insertTemplate(node, template, {type: type, label: label,
-				id: variable.substring(1), rel: attr, curie: curie,
-				'class': ctype, property: property, prompt: prompt});
+				id: id, rel: attr, curie: curie,
+				'class': ctype, prompt: prompt});
 			closeDialogue();
 			return false;
 		});
@@ -242,8 +235,10 @@ jQuery(function($){
 		for (key in bindings) {
 			html = html.replace(new RegExp('\\$' + key + '\\b', 'g'), bindings[key]);
 		}
-		var label = '<label for="' + bindings['id'] + '">' + bindings['label'] + '</label>\n\t';
-		html = '<div class="' + bindings['type'] + ' field">\n\t' + label + html + '\n</div>\n';
+		if (html.indexOf('class="' + bindings['type'] + ' field"') < 0) {
+			var label = '<label for="' + bindings['id'] + '">' + bindings['label'] + '</label>\n\t';
+			html = '<div class="' + bindings['type'] + ' field">\n\t' + label + html + '\n</div>\n';
+		}
 		if (node && node.parentNode) {
 			var div = $(html);
 			$(node).replaceWith(div);
@@ -254,41 +249,36 @@ jQuery(function($){
 		}
 	}
 
-	function insertAbout(dialog_about) {
+	function insertForm(dialog_form) {
 		var wym = this;
-		this.dialog('InsertAbout', null, dialog_about);
-		var blocks = new Array("address", "div", "dl", "fieldset", "form", "noscript", "ol", "ul", "dd", "dt", "li", "tr");
-		var node = jQuery(this.findUp(this.container(), blocks)).get(0);
+		this.dialog('InsertForm', null, dialog_form);
+		var node = jQuery(this.findUp(this.container(), ['form'])).get(0);
 		if (node) {
-			$('#variable').val($(node).attr('about'));
 			$('#curie').val($(node).attr('typeof'));
+			if ($(node).find('button[onclick]').length) {
+				$('#edit')[0].checked = true;
+			} else {
+				$('#create')[0].checked = true;
+			}
 		}
-		$('.wym_dialog_about .wym_submit').parents('form').submit(function(event) {
+		$('.wym_dialog_form .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
 			var curie = $('#curie').val();
-			var variable = $('#variable').val();
-			if (curie && !checkCURIE(curie, this) || !checkVariable(variable, this)) {
+			if (curie && !checkCURIE(curie, this)) {
 				return false;
 			}
-			if (node && node.parentNode) {
-				$(node).attr('about', variable);
-				$(node).attr('typeof', curie);
-			} else {
-				node = jQuery(wym.findUp(wym.container(), WYMeditor.MAIN_CONTAINERS)).get(0);
-				if (node && node.parentNode) {
-					var div = $('<div/>');
-					div.attr('class', 'vbox');
-					div.attr('about', variable);
-					div.attr('typeof', curie);
-					div.append($(node).clone());
-					$(node).replaceWith(div);
-					setFocusToNode(wym, div.children()[0]);
-				} else {
-					var div = '<div class="vbox" about="' + variable + '" typeof="' + curie + '"><p>{rdfs:label}</p></div>';
-					$(wym._doc.body).append(div);
-					setFocusToNode(wym, div.children()[0]);
-				}
+			var form = $('<form about="?this" action="">\n<div class="vbox">\n<p></p></div>\n</form>\n');
+			if (curie) {
+				form.attr('typeof', curie);
 			}
+			if ($('#create')[0].checked) {
+				form.append('<button type="submit" disabled="disabled">Create</button>\n');
+			} else {
+				form.append('<button type="submit" disabled="disabled">Save</button>\n');
+				form.append('<button type="button" disabled="disabled" onclick="location.replace(\'?view\')">Cancel</button>\n');
+				form.append('<button type="button" disabled="disabled" onclick="calli.deleteResource(form)">Delete</button>\n');
+			}
+			insertContainer.call(wym, form, 'form');
 			closeDialogue();
 			return false;
 		});
@@ -300,39 +290,36 @@ jQuery(function($){
 		var blocks = new Array("address", "div", "dl", "fieldset", "form", "noscript", "ol", "ul", "dd", "dt", "li", "tr");
 		var node = jQuery(this.findUp(this.container(), blocks)).get(0);
 		if (node) {
-			if ($(node).is("*[rev]")) {
-				$('#reverse').attr('checked', 'checked');
-				$('#curie').val($(node).attr('rev'));
-			} else {
-				$('#curie').val($(node).attr('rel'));
-			}
-			$('#variable').val($(node).attr('resource'));
+			$('#curie').val($(node).attr('rel'));
 		}
 		$('.wym_dialog_rel .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
-			var attr = $('#reverse').is(':checked') ? 'rev' : 'rel';
+			var attr = 'rel';
 			var curie = $('#curie').val();
-			var variable = $('#variable').val();
-			if (!checkCURIE(curie, this) || !checkVariable(variable, this)) {
+			var id = find(node, '[id]').attr('id');
+			if (!id) {
+				id = generateUniqueId();
+			}
+			if (!checkCURIE(curie, this)) {
 				return false;
 			}
 			if (node && node.parentNode) {
 				$(node).removeAttr('rel');
 				$(node).removeAttr('rev');
 				$(node).attr(attr, curie);
-				$(node).attr('resource', variable);
+				$(node).attr('resource', '?' + id);
 			} else {
 				node = jQuery(wym.findUp(wym.container(), WYMeditor.MAIN_CONTAINERS)).get(0);
 				if (node && node.parentNode) {
 					var div = $('<div/>');
 					div.attr('class', 'vbox');
 					div.attr(attr, curie);
-					div.attr('resource', variable);
+					div.attr('resource', '?' + id);
 					div.append($(node).clone());
 					$(node).replaceWith(div);
 					setFocusToNode(wym, div.children()[0]);
 				} else {
-					var div = '<div class="vbox" ' + attr + '="' + curie + '" resource="' + variable + '"><p>{rdfs:label}</p></div>';
+					var div = '<div class="vbox" ' + attr + '="' + curie + '" resource="?' + id + '"><p>{rdfs:label}</p></div>';
 					$(wym._doc.body).append(div);
 					setFocusToNode(wym, div.children()[0]);
 				}
@@ -349,11 +336,9 @@ jQuery(function($){
 		return false;
 	}
 
-	function checkVariable(variable, form) {
-		if (variable && variable.match(/^\?[a-zA-Z]\w*$/))
-			return true;
-		$(form).trigger('calliError', 'Variables must start with "?" and be alphanumeric');
-		return false;
+	var generateUniqueIdCounter = 0;
+	function generateUniqueId() {
+		return 'id' + generateUniqueIdCounter++;
 	}
 
 	function closeDialogue() {
@@ -446,8 +431,8 @@ jQuery(function($){
 		var previously = wym.exec;
 		var dialog_input = outter($('.wym_dialog_input'));
 		var dialog_select = outter($('.wym_dialog_select'));
-		var dialog_drop = outter($('.wym_dialog_drop'));
-		var dialog_about = outter($('.wym_dialog_about'));
+		var dialog_drop = outter($('.wym_dialog_dropzone'));
+		var dialog_form = outter($('.wym_dialog_form'));
 		var dialog_rel = outter($('.wym_dialog_rel'));
 
 		wym.exec = function(cmd) {
@@ -459,37 +444,28 @@ jQuery(function($){
 				insertContainer.call(wym, '<div class="hbox">\n<p></p></div>\n', 'div.hbox');
 			break;
 			case 'InsertForm':
-				var form = $('<form about="?this" action="">\n<div class="vbox">\n<p></p></div>\n</form>\n');
-				form.append('<button type="submit" disabled="disabled">Create</button>\n');
-				form.append('<br />\n');
-				form.append('<button type="submit" disabled="disabled">Save</button>\n');
-				form.append('<button type="button" disabled="disabled" onclick="location.replace(\'?view\')">Cancel</button>\n');
-				form.append('<button type="button" disabled="disabled" onclick="calli.deleteResource(form)">Delete</button>\n');
-				insertContainer.call(wym, form, 'form');
+				insertForm.call(wym, dialog_form);
 			break;
 			case 'InsertInput':
-				insertInput.call(wym, dialog_input, 'input', '<div $cardinality><input id="$id" disabled="disabled" property="$curie" /></div>');
+				insertInput.call(wym, dialog_input, 'input', '<input id="$id" disabled="disabled" value="{$curie}" />');
 			break;
 			case 'InsertTextArea':
-				insertInput.call(wym, dialog_input, 'text', '<div $cardinality><textarea id="$id" class="auto-expand" disabled="disabled" property="$curie"></textarea></div>');
+				insertInput.call(wym, dialog_input, 'text', '<textarea id="$id" class="auto-expand" disabled="disabled">{$curie}</textarea>');
 			break;
 			case 'InsertRadio':
-				insertSelect.call(wym, dialog_select, 'radio', '<div id="$id"><label $rel="$curie" resource="?$id"><input type="radio" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="$property" /></label></div>');
+				insertSelect.call(wym, dialog_select, 'radio', '<div id="$id">\n<label $rel="$curie" resource="?$id"><input type="radio" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="$property" /></label>\n</div>');
 			break;
 			case 'InsertCheckbox':
-				insertSelect.call(wym, dialog_select, 'checkbox', '<div id="$id"><label $rel="$curie" resource="?$id"><input type="checkbox" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="$property" /></label></div>');
+				insertSelect.call(wym, dialog_select, 'checkbox', '<div id="$id">\n<label $rel="$curie" resource="?$id"><input type="checkbox" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="$property" /></label>\n</div>');
 			break;
 			case 'InsertDropDown':
-				insertSelect.call(wym, dialog_select, 'dropdown', '<div><select id="$id"><option $rel="$curie" resource="?$id"><span rel="skos:inScheme" resource="$scheme" property="$property" /></option></div>');
+				insertSelect.call(wym, dialog_select, 'dropdown', '<select id="$id" $rel="$curie">\n<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel"/>\n</select>');
 			break;
 			case 'InsertSelect':
-				insertSelect.call(wym, dialog_select, 'select', '<div><select multiple="multiple" id="$id"><option $rel="$curie" resource="?$id"><span rel="skos:inScheme" resource="$scheme" property="$property" /></option></div>');
+				insertSelect.call(wym, dialog_select, 'select', '<select multiple="multiple" id="$id" $rel="$curie">\n<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel"/>\n</select>');
 			break;
-			case 'InsertDropArea':
-				insertDropArea.call(wym, dialog_drop, 'droparea', '<div id="$id" $rel="$curie" data-prompt="$prompt"><div about="?$id" typeof="$class"><span property="$property" /></div></div>');
-			break;
-			case 'InsertAbout':
-				insertAbout.call(wym, dialog_about);
+			case 'InsertDropZone':
+				InsertDropZone.call(wym, dialog_drop, 'droparea', '<div id="$id" class="$type field" $rel="$curie"><label>$label</label><button type="button" class="dialog"  data-dialog="$prompt"/><div about="?$id" typeof="$class"><span property="rdfs:label" /><button type="button" class="remove" /></div></div>');
 			break;
 			case 'InsertRel':
 				insertRel.call(wym, dialog_rel);

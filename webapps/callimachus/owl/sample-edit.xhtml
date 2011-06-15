@@ -6,15 +6,13 @@
 	<title about="?this" property="rdfs:label" />
 </head>
 <body about="?this">
-	<h1 property="rdfs:label" />
+	<h1>{rdfs:label}</h1>
 	<form id="form" about="?this" action="">
-		<label for="label">Label</label>
-		<div>
-			<input id="label" value="{rdfs:label}" class="required auto-expand" />
-		</div>
-		<label for="comment">Comment</label>
-		<div>
-			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+		<div class="vbox">
+			<div>
+				<label for="comment">Comment</label>
+				<div><textarea id="comment" class="auto-expand">{rdfs:comment}</textarea></div>
+			</div>
 		</div>
 		<button id="submit" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>

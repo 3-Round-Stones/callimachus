@@ -544,7 +544,6 @@ public class RDFaReader extends RDFEventReader {
 							ns.getPrefix(), uri));
 				}
 			}
-			//Node subj = getCurrentSubject();
 
 			List<Node> typeof = curies(attr("typeof"));
 			if (typeof != null) {
@@ -552,8 +551,6 @@ public class RDFaReader extends RDFEventReader {
 					triple(subj, TYPE, t, false);
 				}
 			}
-			// add property expressions in attributes of this event
-			//addPropertyExpressions(subj, event);
 
 			Node newSubject = getNewSubject();
 			List<Node> rel = getRel();
@@ -600,17 +597,6 @@ public class RDFaReader extends RDFEventReader {
 				String value = a.getValue();
 				addPropertyExpressions(subj, value);
 			}
-		}
-		
-		private boolean isPropertyExpressionPresent(StartElement start) {
-			Iterator<?> i = start.getAttributes();
-			while (i.hasNext()) {
-				Attribute a = (Attribute) i.next();
-				String value = a.getValue();
-				Matcher m = PROPERTY_EXP_PATTERN.matcher(value);
-				if (m.find()) return true;
-			}	
-			return false;
 		}
 
 		private void addPropertyExpressions(Node subj, String value)

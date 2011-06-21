@@ -9,6 +9,7 @@ jQuery(function($){
 	}
 
 	$(document).ready(function() {
+		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('dropzone');
 		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('data-dialog');
 		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push(
 			'rel',
@@ -198,10 +199,10 @@ jQuery(function($){
 		this.dialog('Insert Drop Zone', null, dialog_drop);
 		var node = select(this.container(), toggle)[0];
 		if (node) {
-			$('#label').val($(node).find('label').text());
-			$('#curie').val($(node).find('[rel]').attr('rel'));
-			$('#class').val($(node).find('[typeof]').attr('typeof'));
-			$('#prompt').val($(node).find('[data-dialog]').attr('data-dialog'));
+			$('#label').val(find(node, 'label').text());
+			$('#curie').val(find(node, '[rel]').attr('rel'));
+			$('#class').val(find(node, '[typeof]').attr('typeof'));
+			$('#prompt').val(find(node, '[data-dialog]').attr('data-dialog'));
 		} else {
 			$('.wym_dialog_dropzone .wym_delete').remove();
 		}
@@ -475,7 +476,7 @@ jQuery(function($){
 				insertSelect.call(wym, dialog_select, 'select', '<select multiple="multiple" id="$id" $rel="$curie">\n<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n</select>');
 			break;
 			case 'InsertDropZone':
-				InsertDropZone.call(wym, dialog_drop, 'dropzone', '<div id="$id" class="$type field" $rel="$curie"><label>$label</label><button type="button" class="dialog" data-dialog="$prompt"/>\n<div about="?$id" typeof="$class"><span property="rdfs:label" /><button type="button" class="remove" /></div>\n</div>');
+				InsertDropZone.call(wym, dialog_drop, 'dropzone', '<div id="$id" class="$type field" $rel="$curie" dropzone="link s:text/uri-list"><label>$label</label><button type="button" class="dialog" data-dialog="$prompt"/>\n<div about="?$id" typeof="$class"><span property="rdfs:label" /><button type="button" class="remove" /></div>\n</div>');
 			break;
 			case 'InsertRel':
 				insertRel.call(wym, dialog_rel);

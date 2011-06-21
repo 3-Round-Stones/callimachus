@@ -81,7 +81,7 @@
 		</div>
 		<hr />
 		<div class="hbox">			
-			<div id="broader" rev="skos:narrower" class="droppable">
+			<div id="broader" rev="skos:narrower" dropzone="link s:text/uri-list">
 				<label>Broader</label>
 				<button type="button" class="dialog" data-dialog="?create=/callimachus/skos/Concept" />				
 				<div about="?broader" typeof="skos:Concept">
@@ -89,7 +89,7 @@
 					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div id="related" rel="skos:related" class="droppable">
+			<div id="related" rel="skos:related" dropzone="link s:text/uri-list">
 				<label>Related</label>
 				<button type="button" class="dialog" data-dialog="?create=/callimachus/skos/Concept" />				
 				<div about="?related" typeof="skos:Concept">
@@ -97,7 +97,7 @@
 					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div id="narrower" rel="skos:narrower" class="droppable">
+			<div id="narrower" rel="skos:narrower" dropzone="link s:text/uri-list">
 				<label>Narrower</label>
 				<button type="button" class="dialog" data-dialog="?create=/callimachus/skos/Concept" />				
 				<div about="?narrower" typeof="skos:Concept" >
@@ -107,7 +107,7 @@
 			</div>
 		</div>
 		<hr />
-		<div id="image" rel="foaf:depiction" class="droppable">
+		<div id="image" rel="foaf:depiction" dropzone="link s:text/uri-list">
 			<label>Image</label>
 			<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
 		 	<div about="?depiction" typeof="foaf:Image">

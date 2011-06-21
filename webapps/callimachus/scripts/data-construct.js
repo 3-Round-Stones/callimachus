@@ -8,37 +8,31 @@
 (function($){
 
 $(document).ready(function() {
-	initDropArea($("[data-construct].droppable"));
+	initDropArea($("[data-construct][dropzone]"));
 });
 
 $(document).bind('DOMNodeInserted', function (event) {
-	initDropArea($(event.target).find("[data-construct].droppable").andSelf().filter("[data-construct].droppable"));
+	initDropArea($(event.target).find("[data-construct][dropzone]").andSelf().filter("[data-construct][dropzone]"));
 });
 
-function initDropArea(droppable) {
-	droppable.bind('dragenter dragover', function(event) {
+function initDropArea(dropzone) {
+	dropzone.bind('dragenter dragover', function(event) {
 		if (!$(this).hasClass("drag-over")) {
 			$(this).addClass("drag-over");
 		}
 		event.preventDefault();
 		return false;
 	});
-	droppable.bind('dragleave', function(event) {
+	dropzone.bind('dragleave', function(event) {
 		$(this).removeClass("drag-over");
 		event.preventDefault();
 		return false;
 	});
-	droppable.bind('drop', function(event) {
+	dropzone.bind('drop', function(event) {
 		var target = event.target;
 		event.preventDefault();
 		$(this).removeClass("drag-over");
 		var data = event.originalEvent ? event.originalEvent.dataTransfer : event.dataTransfer;
-		if (!data) {
-			data = event.clipboardData;
-		}
-		if (!data) {
-			data = window.clipboardData;
-		}
 		var text = data.getData('URL');
 		if (!text) {
 			text = data.getData("Text");
@@ -48,7 +42,7 @@ function initDropArea(droppable) {
 		$(target).trigger(de);
 		return false;
 	});
-	droppable.bind('calliLink', function(event) {
+	dropzone.bind('calliLink', function(event) {
 		var script = $(event.target).parents().andSelf().filter('[data-construct]');
 		window.calli.listResourceIRIs(event.location).each(function() {
 			addSetItem(this, script);

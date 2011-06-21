@@ -24,14 +24,19 @@ function loadOptions(selects) {
 			options.children('option,label').each(function() {
 				var option = $(this);
 				var checked = filterByAttributes(selected, option);
-				if (!checked.is('option:selected,label:has(input:checked)')) {
+				var bool = checked.is('option:selected,label:has(input:checked)');
+				if (!bool) {
 					disableRDFa(option);
 					option.removeAttr("selected");
 					option.children('input').removeAttr("checked");
 				}
 				checked.remove();
+				select.append(option);
+				if (bool && option.is('option')) {
+					// drop down auto selects first, until another is progamically selected
+					select[0].options[select[0].options.length - 1].selected = selected;
+				}
 			});
-			select.append(options.children('option,label'));
 			select.find('input:radio').each(function() {
 				this.checked = this.getAttribute('checked') != null;
 			});

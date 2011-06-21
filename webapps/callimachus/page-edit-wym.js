@@ -107,7 +107,7 @@ jQuery(function($){
 
 	function insertInput(dialog_input, type, template) {
 		var toggle = 'div.field.' + type;
-		this.dialog('InsertInput', null, dialog_input);
+		this.dialog('Insert Input', null, dialog_input);
 		var node = select(this.container(), toggle)[0];
 		if (node) {
 			$('#label').val(find(node, 'label').text());
@@ -139,7 +139,7 @@ jQuery(function($){
 
 	function insertSelect(dialog_select, type, template) {
 		var toggle = 'div.field.' + type;
-		this.dialog('InsertSelect', null, dialog_select);
+		this.dialog('Insert Select', null, dialog_select);
 		var node = select(this.container(), toggle)[0];
 		if (node) {
 			$('#curie').val(find(node, '[rel]').attr('rel'));
@@ -195,12 +195,13 @@ jQuery(function($){
 
 	function InsertDropZone(dialog_drop, type, template) {
 		var toggle = 'div.field.' + type;
-		this.dialog('InsertDropZone', null, dialog_drop);
+		this.dialog('Insert Drop Zone', null, dialog_drop);
 		var node = select(this.container(), toggle)[0];
 		if (node) {
 			$('#label').val($(node).find('label').text());
 			$('#curie').val($(node).find('[rel]').attr('rel'));
 			$('#class').val($(node).find('[typeof]').attr('typeof'));
+			$('#prompt').val($(node).find('[data-dialog]').attr('data-dialog'));
 		} else {
 			$('.wym_dialog_dropzone .wym_delete').remove();
 		}
@@ -214,6 +215,7 @@ jQuery(function($){
 			var label = $('#label').val();
 			var curie = $('#curie').val();
 			var ctype = $('#class').val();
+			var prompt = $('#prompt').val();
 			var id = find(node, '[id]').attr('id');
 			if (!id) {
 				id = generateUniqueId();
@@ -251,16 +253,24 @@ jQuery(function($){
 
 	function insertForm(dialog_form) {
 		var wym = this;
-		this.dialog('InsertForm', null, dialog_form);
+		this.dialog('Insert Form', null, dialog_form);
 		var node = jQuery(this.findUp(this.container(), ['form'])).get(0);
 		if (node) {
 			$('#curie').val($(node).attr('typeof'));
 			if ($(node).find('button[onclick]').length) {
-				$('#edit')[0].checked = true;
+				$('#create-radio')[0].checked = false;
+				$('#edit-radio')[0].checked = true;
 			} else {
-				$('#create')[0].checked = true;
+				$('#edit-radio')[0].checked = false;
+				$('#create-radio')[0].checked = true;
 			}
+		} else {
+			$('.wym_dialog_form .wym_delete').remove();
 		}
+		$('.wym_dialog_form .wym_delete').click(function(event) {
+			$(node).remove();
+			closeDialogue();
+		});
 		$('.wym_dialog_form .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
 			var curie = $('#curie').val();
@@ -271,7 +281,7 @@ jQuery(function($){
 			if (curie) {
 				form.attr('typeof', curie);
 			}
-			if ($('#create')[0].checked) {
+			if ($('#create-radio').is(':checked')) {
 				form.append('<button type="submit" disabled="disabled">Create</button>\n');
 			} else {
 				form.append('<button type="submit" disabled="disabled">Save</button>\n');
@@ -286,7 +296,7 @@ jQuery(function($){
 
 	function insertRel(dialog_rel) {
 		var wym = this;
-		this.dialog('InsertRel', null, dialog_rel);
+		this.dialog('Insert Rel', null, dialog_rel);
 		var blocks = new Array("address", "div", "dl", "fieldset", "form", "noscript", "ol", "ul", "dd", "dt", "li", "tr");
 		var node = jQuery(this.findUp(this.container(), blocks)).get(0);
 		if (node) {
@@ -453,19 +463,19 @@ jQuery(function($){
 				insertInput.call(wym, dialog_input, 'text', '<textarea id="$id" class="auto-expand" disabled="disabled">{$curie}</textarea>');
 			break;
 			case 'InsertRadio':
-				insertSelect.call(wym, dialog_select, 'radio', '<div id="$id">\n<label $rel="$curie" resource="?$id"><input type="radio" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="$property" /></label>\n</div>');
+				insertSelect.call(wym, dialog_select, 'radio', '<div id="$id">\n<label $rel="$curie" resource="?$id"><input type="radio" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" /></label>\n</div>');
 			break;
 			case 'InsertCheckbox':
-				insertSelect.call(wym, dialog_select, 'checkbox', '<div id="$id">\n<label $rel="$curie" resource="?$id"><input type="checkbox" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="$property" /></label>\n</div>');
+				insertSelect.call(wym, dialog_select, 'checkbox', '<div id="$id">\n<label $rel="$curie" resource="?$id"><input type="checkbox" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" /></label>\n</div>');
 			break;
 			case 'InsertDropDown':
-				insertSelect.call(wym, dialog_select, 'dropdown', '<select id="$id" $rel="$curie">\n<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel"/>\n</select>');
+				insertSelect.call(wym, dialog_select, 'dropdown', '<select id="$id" $rel="$curie">\n<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n</select>');
 			break;
 			case 'InsertSelect':
-				insertSelect.call(wym, dialog_select, 'select', '<select multiple="multiple" id="$id" $rel="$curie">\n<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel"/>\n</select>');
+				insertSelect.call(wym, dialog_select, 'select', '<select multiple="multiple" id="$id" $rel="$curie">\n<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n</select>');
 			break;
 			case 'InsertDropZone':
-				InsertDropZone.call(wym, dialog_drop, 'droparea', '<div id="$id" class="$type field" $rel="$curie"><label>$label</label><button type="button" class="dialog"  data-dialog="$prompt"/><div about="?$id" typeof="$class"><span property="rdfs:label" /><button type="button" class="remove" /></div></div>');
+				InsertDropZone.call(wym, dialog_drop, 'dropzone', '<div id="$id" class="$type field" $rel="$curie"><label>$label</label><button type="button" class="dialog" data-dialog="$prompt"/>\n<div about="?$id" typeof="$class"><span property="rdfs:label" /><button type="button" class="remove" /></div>\n</div>');
 			break;
 			case 'InsertRel':
 				insertRel.call(wym, dialog_rel);

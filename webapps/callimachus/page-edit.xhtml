@@ -102,7 +102,7 @@
 					<a title="Select box" name="InsertSelect" href="#">Select box</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_drop">
-					<a title="Drop area field" name="InsertDropZone" href="#">Drop area</a>
+					<a title="Drop zone field" name="InsertDropZone" href="#">Drop zone</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_rel">
 					<a title="Insert relationship" name="InsertRel" href="#">Relationship</a>
@@ -218,6 +218,10 @@
 				<div>
 					<input id="class" type='text' class='wym_class' value='' />
 				</div>
+				<label for="prompt">Create/Search page</label>
+				<div>
+					<input id="prompt" type='text' class='wym_prompt' value='about:blank' />
+				</div>
 				<button class='wym_submit' type='submit'>Insert</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
 				<button class='wym_delete' type='button'>Delete</button>
@@ -232,16 +236,17 @@
 				</div>
 				<div>
 					<label>
-						<input id="create" type='radio' name="mode" value='true' checked="checked" />
+						<input id="create-radio" type='radio' name="mode" value='true' checked="checked" />
 						<span>Create</span>
 					</label>
 					<label>
-						<input id="edit" type='radio' name="mode" value='true' />
+						<input id="edit-radio" type='radio' name="mode" value='true' />
 						<span>Edit</span>
 					</label>
 				</div>
 				<button class='wym_submit' type='submit'>Save</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
+				<button class='wym_delete' type='button'>Delete</button>
 			</form>
 		</div>
 		<div class='wym_dialog wym_dialog_rel'>

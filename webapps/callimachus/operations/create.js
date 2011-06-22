@@ -71,6 +71,8 @@ function initForms() {
 	});
 }
 
+var overrideFormURI = false;
+
 function submitRDFForm(form) {
 	var form = $(form);
 	try {
@@ -78,7 +80,8 @@ function submitRDFForm(form) {
 		form.trigger(se);
 		if (!se.isDefaultPrevented()) {
 			form.find("input").change(); // IE may not have called onchange before onsubmit
-			if (form.attr('about') == $('body').attr('about')) {
+			if (overrideFormURI || form.attr('about') == $('body').attr('about')) {
+				overrideFormURI = true;
 				var label = form.find('input:text').val();
 				if (label) {
 					form.attr('about', $('body').attr('about') + '/' + encodeURI(label).replace(/%20/g,'+').toLowerCase());

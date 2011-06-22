@@ -124,10 +124,7 @@ jQuery(function($){
 			event.preventDefault();
 			var label = $('#label').val();
 			var curie = $('#curie').val();
-			var id = find(node, '[id]').attr('id');
-			if (!id) {
-				id = generateUniqueId();
-			}
+			var id = findOrGenerateId(node, curie);
 			if (!checkCURIE(curie, this)) {
 				return false;
 			}
@@ -176,10 +173,7 @@ jQuery(function($){
 			var label = $($('#scheme')[0].options[$('#scheme')[0].selectedIndex]).text();
 			var curie = $('#curie').val();
 			var scheme = $('#scheme').val();
-			var id = find(node, '[id]').attr('id');
-			if (!id) {
-				id = generateUniqueId();
-			}
+			var id = findOrGenerateId(node, curie);
 			if (!scheme) {
 				$(this).trigger('calliError', 'A scheme is required for this field');
 			}
@@ -217,10 +211,7 @@ jQuery(function($){
 			var curie = $('#curie').val();
 			var ctype = $('#class').val();
 			var prompt = $('#prompt').val();
-			var id = find(node, '[id]').attr('id');
-			if (!id) {
-				id = generateUniqueId();
-			}
+			var id = findOrGenerateId(node, curie);
 			if (!checkCURIE(curie, this) || !checkCURIE(ctype, this)) {
 				return false;
 			}
@@ -307,10 +298,7 @@ jQuery(function($){
 			event.preventDefault();
 			var attr = 'rel';
 			var curie = $('#curie').val();
-			var id = find(node, '[id]').attr('id');
-			if (!id) {
-				id = generateUniqueId();
-			}
+			var id = findOrGenerateId(node, curie);
 			if (!checkCURIE(curie, this)) {
 				return false;
 			}
@@ -347,9 +335,44 @@ jQuery(function($){
 		return false;
 	}
 
-	var generateUniqueIdCounter = 0;
-	function generateUniqueId() {
-		return 'id' + generateUniqueIdCounter++;
+	function findOrGenerateId(node, curie) {
+		var id = find(node, '[id]').attr('id');
+		if (node && id)
+			return id;
+		var wym = window.WYMeditor.INSTANCES[0];
+		var path = [];
+		var container = wym.container();
+		var parents = $(container).add($(container).parents());
+		parents.filter('[rel],[rev],[property],[id]').each(function() {
+			var id = $(this).attr('id');
+			if (id) {
+				path = [id];
+			} else {
+				var rel = $(this).attr('rel');
+				var rev = $(this).attr('rev');
+				var property = $(this).attr('property');
+				if (rel) {
+					path.push(rel);
+				}
+				if (rev) {
+					path.push(rev);
+				}
+				if (property) {
+					path.push(property);
+				}
+			}
+		});
+		path.push(curie);
+		var counter = '';
+		var base = path.join('_').replace(/[^_]*\W+/g, '');
+		while ($('#' + base + counter, wym._doc).length) {
+			if (counter) {
+				counter = counter + 1;
+			} else {
+				counter = 1;
+			}
+		}
+		return base + counter;
 	}
 
 	function closeDialogue() {

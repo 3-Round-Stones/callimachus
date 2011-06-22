@@ -229,11 +229,21 @@ jQuery(function($){
 		var wym = window.WYMeditor.INSTANCES[0];
 		var html = template;
 		for (key in bindings) {
-			html = html.replace(new RegExp('\\$' + key + '\\b', 'g'), bindings[key]);
+			var value = bindings[key].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+			html = html.replace(new RegExp('\\$' + key + '\\b', 'g'), value);
 		}
 		if (html.indexOf('class="' + bindings['type'] + ' field"') < 0) {
-			var label = '<label for="' + bindings['id'] + '">' + bindings['label'] + '</label>\n\t';
-			html = '<div class="' + bindings['type'] + ' field">\n\t' + label + html + '\n</div>\n';
+			var label = $('<label/>');
+			label.attr('for', bindings['id']);
+			label.text(bindings['label']);
+			var div = $('<div/>');
+			div.attr('class', bindings['type'] + ' field');
+			div.append('\n\t');
+			div.append(label);
+			div.append('\n\t');
+			div.append(html);
+			div.append('\n');
+			html = $('<div/>').append(div).html();
 		}
 		if (node && node.parentNode) {
 			var div = $(html);
@@ -320,7 +330,9 @@ jQuery(function($){
 					$(node).replaceWith(div);
 					setFocusToNode(wym, div.children()[0]);
 				} else {
-					var div = '<div class="vbox" ' + attr + '="' + curie + '" resource="?' + id + '"><p>{rdfs:label}</p></div>';
+					var div = '<div class="vbox"><p>{rdfs:label}</p></div>';
+					div.attr(attr, curie);
+					div.attr('resource', '?' + id);
 					$(wym._doc.body).append(div);
 					setFocusToNode(wym, div.children()[0]);
 				}
@@ -331,7 +343,7 @@ jQuery(function($){
 	}
 
 	function checkCURIE(curie, form) {
-		if (curie && curie.match(/^\w+:\w+$/))
+		if (curie && curie.match(/^[0-9a-zA-Z_\.-]+:[0-9a-zA-Z_\.-]+$/))
 			return true;
 		$(form).trigger('calliError', 'CURIE must have be a word prefix and word suffix separated by a colon');
 		return false;

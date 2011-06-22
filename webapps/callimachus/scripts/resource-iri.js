@@ -32,18 +32,18 @@ window.calli.listResourceIRIs = function (text) {
 		}
 		return true;
 	}).map(function() {
-		var uri = this;
-		if (uri.indexOf('/diverted;') >= 0) {
-			uri = uri.substring(uri.indexOf('/diverted;') + '/diverted;'.length);
+		var url = this;
+		if (url.indexOf('/diverted;') >= 0) {
+			var uri = url.substring(url.indexOf('/diverted;') + '/diverted;'.length);
 			if (uri.indexOf('?') >= 0) {
 				uri = uri.substring(0, uri.indexOf('?'));
 			}
 			if (uri.indexOf('#') >= 0) {
 				uri = uri.substring(0, uri.indexOf('#'));
 			}
-			uri = decodeURIComponent(uri);
-		} else if (uri.indexOf('/callimachus/go?q=') >= 0) {
-			uri = uri.substring(uri.indexOf('/callimachus/go?q=') + '/callimachus/go?q='.length);
+			return decodeURIComponent(uri);
+		} else if (url.indexOf('/callimachus/go?q=') >= 0) {
+			var uri = url.substring(url.indexOf('/callimachus/go?q=') + '/callimachus/go?q='.length);
 			if (uri.indexOf('&') >= 0) {
 				uri = uri.substring(0, uri.indexOf('&'));
 			}
@@ -51,10 +51,14 @@ window.calli.listResourceIRIs = function (text) {
 				uri = uri.substring(0, uri.indexOf('#'));
 			}
 			uri = decodeURIComponent(uri);
-		} else if (uri.indexOf('?') >= 0) {
-			uri = uri.substring(0, uri.indexOf('?'));
+			if (uri.indexOf('/') == 0) {
+				uri = url.substring(0, url.indexOf('/callimachus/go')) + uri;
+			}
+			return uri;
+		} else if (url.indexOf('?') >= 0) {
+			return url.substring(0, url.indexOf('?'));
 		}
-		return uri.substring(0);
+		return url.substring(0);
 	});
 };
 

@@ -21,6 +21,17 @@
 					hash[uri] = this;
 					var label = $(this).find('a:first').text();
 					$(this).find('a:not(:first)').remove();
+					if (!label) {
+						var m = uri.match(/\w+\W*$/);
+						if (m) {
+							label = m[0];
+							var a = $('<a/>');
+							a.attr('href', uri);
+							a.attr('class', 'view');
+							a.text(label);
+							$(this).append(a);
+						}
+					}
 					if (label.match(/^[A-Za-z]/)) {
 						box = $('#' + label.substring(0, 1).toUpperCase());
 					} else {

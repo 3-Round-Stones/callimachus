@@ -7,18 +7,18 @@
 </head>
 <body about="?this">
 	<h1>New Resource</h1>
-	<form id="form" about="?this" action="">
+	<form about="?this">
 		<div class="vbox">
-			<div>
+			<div class="input field">
 				<label for="label">Label</label>
-				<div><input id="label" value="{rdfs:label}" class="required auto-expand" /></div>
+				<input id="label" value="{rdfs:label}" class="required auto-expand"/>
 			</div>
-			<div>
+			<div class="text field">
 				<label for="comment">Comment</label>
-				<div><textarea id="comment" class="auto-expand">{rdfs:comment}</textarea></div>
+				<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 			</div>
 		</div>
-		<button id="submit" type="submit">Create</button>
+		<button type="submit">Create</button>
 	</form>
 </body>
 </html>

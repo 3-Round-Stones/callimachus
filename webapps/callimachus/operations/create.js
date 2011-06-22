@@ -79,10 +79,7 @@ function submitRDFForm(form) {
 		if (!se.isDefaultPrevented()) {
 			form.find("input").change(); // IE may not have called onchange before onsubmit
 			if (form.attr('about') == $('body').attr('about')) {
-				var label = form.find('input[property=rdfs:label]').val();
-				if (!label) {
-					label = form.find('input[property=skos:prefLabel]').val();
-				}
+				var label = form.find('input:text').val();
 				if (label) {
 					form.attr('about', $('body').attr('about') + '/' + encodeURI(label).replace(/%20/g,'+').toLowerCase());
 				}

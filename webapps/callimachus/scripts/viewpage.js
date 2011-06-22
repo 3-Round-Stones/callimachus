@@ -50,7 +50,10 @@ window.calli.viewpage = function(uri) {
 	    }
 	}
     var prefix = location.protocol + '//' + location.host + '/';
-	return prefix + 'callimachus/go?q=' + encodeURIComponent(url);
+	if (url.indexOf(prefix) == 0) {
+		url = url.substring(prefix.length - 1);
+	}
+	return prefix + 'callimachus/go?q=' + encodeURIComponent(url).replace(/%2F/g, '/');
 }
 
 window.calli.diverted = function(uri, query) {

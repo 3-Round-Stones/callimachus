@@ -7,11 +7,15 @@
 </head>
 <body about="?this">
 	<h1>{rdfs:label}</h1>
-	<form id="form" about="?this" action="">
+	<form about="?this">
 		<div class="vbox">
-			<div>
+			<div class="input field">
+				<label for="label">Label</label>
+				<input id="label" value="{rdfs:label}" class="required auto-expand"/>
+			</div>
+			<div class="text field">
 				<label for="comment">Comment</label>
-				<div><textarea id="comment" class="auto-expand">{rdfs:comment}</textarea></div>
+				<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 			</div>
 		</div>
 		<button id="submit" type="submit">Save</button>

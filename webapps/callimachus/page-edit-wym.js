@@ -9,6 +9,8 @@ jQuery(function($){
 	}
 
 	$(document).ready(function() {
+		WYMeditor.XhtmlValidator._tags['a']['attributes']['rel'] = /^.+$/;
+		WYMeditor.XhtmlValidator._tags['a']['attributes']['rev'] = /^.+$/;
 		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('dropzone');
 		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('data-dialog');
 		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push(
@@ -289,7 +291,7 @@ jQuery(function($){
 	function insertRel(dialog_rel) {
 		var wym = this;
 		this.dialog('Insert Rel', null, dialog_rel);
-		var blocks = new Array("address", "div", "dl", "fieldset", "form", "noscript", "ol", "ul", "dd", "dt", "li", "tr");
+		var blocks = new Array("address", "div", "dl", "fieldset", "form", "noscript", "ol", "ul", "dd", "dt", "li", "tr", "a");
 		var node = jQuery(this.findUp(this.container(), blocks)).get(0);
 		if (node) {
 			$('#curie').val($(node).attr('rel'));

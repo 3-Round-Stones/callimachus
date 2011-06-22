@@ -190,7 +190,7 @@ jQuery(function($){
 		});
 	}
 
-	function InsertDropZone(dialog_drop, type, template) {
+	function insertDropZone(dialog_drop, type, template) {
 		var toggle = 'div.field.' + type;
 		this.dialog('Insert Drop Zone', null, dialog_drop);
 		var node = select(this.container(), toggle)[0];
@@ -281,9 +281,15 @@ jQuery(function($){
 			if (curie && !checkCURIE(curie, this)) {
 				return false;
 			}
-			var form = $('<form about="?this" action="">\n<div class="vbox">\n<p></p></div>\n</form>\n');
+			var form = $('<form/>');
+			form.attr("about", '?this');
 			if (curie) {
 				form.attr('typeof', curie);
+			}
+			if (node) {
+				form.append($(node).children(':not(:button)'));
+			} else {
+				form.append('<div class="vbox">\n<p></p>\n</div>');
 			}
 			if ($('#create-radio').is(':checked')) {
 				form.append('<button type="submit" disabled="disabled">Create</button>\n');
@@ -292,7 +298,11 @@ jQuery(function($){
 				form.append('<button type="button" disabled="disabled" onclick="location.replace(\'?view\')">Cancel</button>\n');
 				form.append('<button type="button" disabled="disabled" onclick="calli.deleteResource(form)">Delete</button>\n');
 			}
-			insertContainer.call(wym, form, 'form');
+			if (node) {
+				$(node).replaceWith(form);
+			} else {
+				insertContainer.call(wym, form, 'form');
+			}
 			closeDialogue();
 			return false;
 		});
@@ -513,7 +523,7 @@ jQuery(function($){
 				insertSelect.call(wym, dialog_select, 'select', '<select multiple="multiple" id="$id" $rel="$curie">\n<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n</select>');
 			break;
 			case 'InsertDropZone':
-				InsertDropZone.call(wym, dialog_drop, 'dropzone', '<div id="$id" class="$type field" $rel="$curie" dropzone="link s:text/uri-list"><label>$label</label><button type="button" class="dialog" data-dialog="$prompt"/>\n<div about="?$id" typeof="$class"><span property="rdfs:label" /><button type="button" class="remove" /></div>\n</div>');
+				insertDropZone.call(wym, dialog_drop, 'dropzone', '<div id="$id" class="$type field" $rel="$curie" dropzone="link s:text/uri-list"><label>$label</label><button type="button" class="dialog" data-dialog="$prompt"/>\n<div about="?$id" typeof="$class"><span property="rdfs:label" /><button type="button" class="remove" /></div>\n</div>');
 			break;
 			case 'InsertRel':
 				insertRel.call(wym, dialog_rel);

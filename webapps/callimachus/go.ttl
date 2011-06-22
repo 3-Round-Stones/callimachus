@@ -44,6 +44,14 @@
 					var uri = java.net.URI.create(string);
 					if (uri.isAbsolute())
 						return canonicalize(uri);
+				} else if (string.indexOf("/") == 0) {
+					var origin = java.net.URI.create(lookup.toString());
+					var sch = origin.scheme;
+					var auth = origin.authority;
+					var uri = java.net.URI.create(string);
+					var frag = uri.fragment;
+					uri = new java.net.URI(sch, auth, uri.path, uri.query, frag);
+					return canonicalize(uri);
 				}
 			} catch (e) {
 				return null;

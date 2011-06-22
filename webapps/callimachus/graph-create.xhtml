@@ -8,7 +8,7 @@
 				$(':input[type=file]').live('change', function() {
 					var form = $('.graph-form:last');
 					if (form.find(':input[type=file]').val()) {
-						var button = $('<button class="remove">x</button>');
+						var button = $('<button type="button" class="remove"/>');
 						button.click(function() {
 							form.remove();
 						});

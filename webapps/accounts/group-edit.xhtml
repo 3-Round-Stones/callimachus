@@ -27,13 +27,16 @@
 	<h1><span property="rdfs:label" /> Group</h1>
 	<form id="form" action="" about="?this" onsubmit="saveChangeNote()" data-redirect="/accounts">
 		<label for="comment">Description</label>
-		<div data-cardinality="1">
-			<textarea id="comment" class="auto-expand"
-				property="rdfs:comment"></textarea>
+		<div>
+			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 		</div>
-		<label for="member">Members</label>
-		<div id="member" rel="calli:member" data-prompt="?create=/accounts/User">
-			<span about="?member" typeof="calli:User" property="rdfs:label" />
+		<div rel="calli:member" dropzone="link s:text/uri-list">
+			<label>Members</label>
+			<button type="button" class="dialog" data-dialog="?create=/accounts/User" />
+			<div about="?member" typeof="calli:User">
+				<span property="rdfs:label" />
+				<button type="button" class="remove" />
+			</div>
 		</div>
 		<hr />
 		<label for="note">Change summary</label>

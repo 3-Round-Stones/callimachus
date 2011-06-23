@@ -17,13 +17,12 @@
 		<form id="form" action="" about="?this" typeof="calli:Party calli:Group"
 				onsubmit="$(this).attr('about', '/group/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
 			<label for="label">Name</label>
-			<div data-cardinality="1">
-				<input id="label" property="rdfs:label" type="text" class="auto-expand required" />
+			<div>
+				<input id="label" value="{rdfs:label}" type="text" class="auto-expand required" />
 			</div>
 			<label for="comment">Description</label>
-			<div data-cardinality="1">
-				<textarea id="comment" class="auto-expand"
-					property="rdfs:comment"></textarea>
+			<div>
+				<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 			</div>
 			<button id="submit" type="submit">Create</button>
 		</form>

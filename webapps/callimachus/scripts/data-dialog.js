@@ -105,7 +105,7 @@ function listSearchResults(url, iframe, button) {
 					var link = $('<a/>');
 					link.attr("class", "view");
 					link.attr("href", about);
-					link.append($(this).clone());
+					link.append($(this).html());
 					li.append(link);
 					ul.append(li);
 				}

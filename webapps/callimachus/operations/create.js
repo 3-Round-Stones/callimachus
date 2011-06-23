@@ -44,7 +44,10 @@ function initForms() {
 		iframe.attr('style', "display:none");
 		$('body').append(iframe);
 		iframe.load(function() {
-			var redirect = $(this.contentWindow.document).text();
+			var doc = this.contentWindow.document;
+			if (doc.URL == "about:blank")
+				return true;
+			var redirect = $(doc).text();
 			if (redirect && redirect.indexOf('http') == 0) {
 				try {
 					if (window.frameElement && parent.jQuery) {
@@ -65,7 +68,9 @@ function initForms() {
 					location.replace(event.location);
 				}
 			} else {
-				form.trigger("calliError", $(this.contentWindow.document).find('h1').html(), $(this.contentWindow.document).find('pre').html());
+				var h1 = $(doc).find('h1').html();
+				var pre = $(doc).find('pre').html();
+				form.trigger("calliError", h1, pre);
 			}
 		});
 	});

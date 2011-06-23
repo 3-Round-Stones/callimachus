@@ -13,15 +13,16 @@
 	rdf:_3 <node-inserted.js>;
 	rdf:_4 <referrer.js>;
 	rdf:_5 <viewpage.js>;
-	rdf:_6 <creole.js>;
-	rdf:_7 <wiki.js>;
-	rdf:_8 <sorted.js>;
-	rdf:_9 <datetime-locale.js>;
-	rdf:_10 <auto-expand.js>;
-	rdf:_11 <disable-button.js>;
+	rdf:_6 <datetime-locale.js>;
+	rdf:_7 <auto-expand.js>;
+	rdf:_8 <optional.js>;
+	rdf:_9 <hbox.js>;
+	rdf:_10 <vbox.js>;
+	rdf:_11 <sorted.js>;
 	rdf:_12 <input-title.js>;
-	rdf:_13 <optional.js>;
-	rdf:_14 <hbox.js>.
+	rdf:_13 <disable-button.js>;
+	rdf:_14 <creole.js>;
+	rdf:_15 <wiki.js>.
 
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;

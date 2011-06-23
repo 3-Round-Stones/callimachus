@@ -12,7 +12,7 @@ function select(node, selector) {
 function handle(event) {
 	select(event.target, ".optional").each(function() {
 		var node = $(this);
-		if (node.find("[about],[src],[typeof],[resource],[href],[property]").length) {
+		if (node.find("[about],[src],[typeof],[typeof=''],[resource],[href],[property]").length) {
 			node.show();
 		} else {
 			node.hide();

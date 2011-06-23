@@ -14,13 +14,12 @@ $(document).bind("DOMNodeInserted", function (event) {
 	bindRemoveButtons($(event.target).find("button.remove").andSelf().filter("button.remove"));
 });
 
-function showButton() {
-	var button = $(this).children('button.remove');
+function positionButton(button) {
 	var top = 0;
 	var left = 0;
 	var bheight = button.outerHeight(true);
 	var bwidth = button.outerWidth(true);
-	$(this).find(':not(button)').each(function() {
+	$(button).parent().find(':not(button)').each(function() {
 		var vmargin = 0;
 		var hmargin = 0;
 		var width = $(this).outerWidth(true);
@@ -44,10 +43,15 @@ function showButton() {
 			left = right - bwidth - hmargin;
 		}
 	});
-	button.css('display', "inline-block");
 	button.css('position', 'absolute');
 	button.css('top', top);
 	button.css('left', left);
+}
+
+function showButton() {
+	var button = $(this).children('button.remove');
+	positionButton(button);
+	button.css('display', "inline-block");
 }
 
 function bindRemoveButtons(buttons) {

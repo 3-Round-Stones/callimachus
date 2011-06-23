@@ -418,12 +418,13 @@ jQuery(function($){
 			return window.XML(text).toXMLString();
 		} else if (window.DOMParser) {
 			var sheet ='<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:output method="xml" omit-xml-declaration="yes" indent="yes"/><xsl:template match="node()|@*"><xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy></xsl:template></xsl:stylesheet>';
-			var xsl = new DOMParser().parseFromString(sheet, "text/xml");
-			var src = new DOMParser().parseFromString(text, "text/xml");
+			var parser = new DOMParser();
+			var xsl = parser.parseFromString(sheet, "text/xml");
+			var src = parser.parseFromString(text, "text/xml");
 			var xsltproc = new XSLTProcessor();
 			xsltproc.importStylesheet(xsl);
 			var result = xsltproc.transformToDocument(src);
-			if (result)
+			if (result && !$("parsererror", result).length)
 				return new XMLSerializer().serializeToString(result);
 		}
 		return text;

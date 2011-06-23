@@ -26,10 +26,9 @@
 	rdfs:label "sparql";
 	calli:administrator </group/admin>.
 
-<SparqlEndPoint> rdfs:subClassOf calli:Viewable, calli:Editable;
+<SparqlEndPoint> rdfs:subClassOf calli:Viewable;
 	msg:realm </accounts>;
-	calli:view <sparql.xhtml>;
-	calli:edit <sparql-edit.xhtml>.
+	calli:view <sparql.xhtml>.
 
 :EvaluateSparql rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];

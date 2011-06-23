@@ -81,28 +81,36 @@
 			</div>
 		</div>
 		<div class="hbox">
-			<div class="read">
-				<label for="reader">Reader</label>
-				<div id="reader" rel="calli:reader" data-prompt="/accounts">
-					<div about="?reader" typeof="calli:Party" property="rdfs:label"/>
+			<div class="read" rel="calli:reader" dropzone="link s:text/uri-list">
+				<label>Reader</label>
+				<button type="button" class="dialog" data-dialog="/accounts" />
+				<div about="?reader" typeof="calli:Party">
+					<span property="rdfs:label"/>
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div class="create">
-				<label for="contributor">Contributor</label>
-				<div id="contributor" rel="calli:contributor" data-prompt="/accounts">
-					<div about="?contributor" typeof="calli:Party" property="rdfs:label"/>
+			<div class="create" rel="calli:contributor" dropzone="link s:text/uri-list">
+				<label>Contributor</label>
+				<button type="button" class="dialog" data-dialog="/accounts" />
+				<div about="?contributor" typeof="calli:Party">
+					<span property="rdfs:label"/>
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="editor">Editor</label>
-				<div id="editor" rel="calli:editor" data-prompt="/accounts">
-					<div about="?editor" typeof="calli:Party" property="rdfs:label"/>
+			<div rel="calli:editor" dropzone="link s:text/uri-list">
+				<label>Editor</label>
+				<button type="button" class="dialog" data-dialog="/accounts" />
+				<div about="?editor" typeof="calli:Party">
+					<span property="rdfs:label"/>
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div>
-				<label for="administrator">Administrator</label>
-				<div id="administrator" rel="calli:administrator" data-prompt="/accounts">
-					<div about="?administrator" typeof="calli:Party" property="rdfs:label"/>
+			<div rel="calli:administrator" dropzone="link s:text/uri-list">
+				<label>Administrator</label>
+				<button type="button" class="dialog" data-dialog="/accounts" />
+				<div about="?administrator" typeof="calli:Party">
+					<span property="rdfs:label"/>
+					<button type="button" class="remove" />
 				</div>
 			</div>
 		</div>

@@ -105,7 +105,7 @@
 					<a title="Drop zone field" name="InsertDropZone" href="#">Drop zone</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_rel">
-					<a title="Insert relationship" name="InsertRel" href="#">Relationship</a>
+					<a title="Add relationship" name="AddRel" href="#">Relationship</a>
 				</li>
 				<li class="Wym_Tools_Items wym_tools_html">
 					<a title="HTML" name="ToggleHtml" href="#">HTML</a>
@@ -251,13 +251,14 @@
 		</div>
 		<div class='wym_dialog wym_dialog_rel'>
 			<form>
-				<input type='hidden' class='wym_dialog_type' value='InsertRel' />
+				<input type='hidden' class='wym_dialog_type' value='AddRel' />
 				<label for="curie">Relationship</label>
 				<div>
 					<input id="curie" type='text' class='wym_curie' value='' />
 				</div>
-				<button class='wym_submit' type='submit'>Insert</button>
+				<button class='wym_submit' type='submit'>Add</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
+				<button class='wym_delete' type='button'>Remove</button>
 			</form>
 		</div>
 		<div class='wym_dialog wym_dialog_paste'>

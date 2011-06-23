@@ -126,10 +126,10 @@ jQuery(function($){
 			event.preventDefault();
 			var label = $('#label').val();
 			var curie = $('#curie').val();
-			var id = findOrGenerateId(node, curie);
 			if (!checkCURIE(curie, this)) {
 				return false;
 			}
+			var id = findOrGenerateId(node, curie);
 			insertTemplate(node, template, {type: type, label: label,
 				id: id, curie: curie});
 			closeDialogue();
@@ -175,13 +175,13 @@ jQuery(function($){
 			var label = $($('#scheme')[0].options[$('#scheme')[0].selectedIndex]).text();
 			var curie = $('#curie').val();
 			var scheme = $('#scheme').val();
-			var id = findOrGenerateId(node, curie);
 			if (!scheme) {
 				$(this).trigger('calliError', 'A scheme is required for this field');
 			}
 			if (!checkCURIE(curie, this)) {
 				return false;
 			}
+			var id = findOrGenerateId(node, curie);
 			insertTemplate(node, template, {type: type, label: label,
 				id: id, rel: attr, curie: curie,
 				scheme: scheme});
@@ -213,10 +213,10 @@ jQuery(function($){
 			var curie = $('#curie').val();
 			var ctype = $('#class').val();
 			var prompt = $('#prompt').val();
-			var id = findOrGenerateId(node, curie);
 			if (!checkCURIE(curie, this) || !checkCURIE(ctype, this)) {
 				return false;
 			}
+			var id = findOrGenerateId(node, curie);
 			insertTemplate(node, template, {type: type, label: label,
 				id: id, rel: attr, curie: curie,
 				'class': ctype, prompt: prompt});
@@ -308,22 +308,29 @@ jQuery(function($){
 		});
 	}
 
-	function insertRel(dialog_rel) {
+	function addRel(dialog_rel) {
 		var wym = this;
-		this.dialog('Insert Rel', null, dialog_rel);
+		this.dialog('Add Rel', null, dialog_rel);
 		var blocks = new Array("address", "div", "dl", "fieldset", "form", "noscript", "ol", "ul", "dd", "dt", "li", "tr", "a");
 		var node = jQuery(this.findUp(this.container(), blocks)).get(0);
-		if (node) {
+		if (node && $(node).attr('rel')) {
 			$('#curie').val($(node).attr('rel'));
+		} else {
+			$('.wym_dialog_rel .wym_delete').remove();
 		}
+		$('.wym_dialog_rel .wym_delete').click(function(event) {
+			$(node).removeAttr('rel');
+			$(node).removeAttr('resource');
+			closeDialogue();
+		});
 		$('.wym_dialog_rel .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
 			var attr = 'rel';
 			var curie = $('#curie').val();
-			var id = findOrGenerateId(node, curie);
 			if (!checkCURIE(curie, this)) {
 				return false;
 			}
+			var id = findOrGenerateId(node, curie);
 			if (node && node.parentNode) {
 				$(node).removeAttr('rel');
 				$(node).removeAttr('rev');
@@ -526,8 +533,8 @@ jQuery(function($){
 			case 'InsertDropZone':
 				insertDropZone.call(wym, dialog_drop, 'dropzone', '<div id="$id" class="$type field" $rel="$curie" dropzone="link s:text/uri-list"><label>$label</label><button type="button" class="dialog" data-dialog="$prompt"/>\n<div about="?$id" typeof="$class"><span property="rdfs:label" /><button type="button" class="remove" /></div>\n</div>');
 			break;
-			case 'InsertRel':
-				insertRel.call(wym, dialog_rel);
+			case 'AddRel':
+				addRel.call(wym, dialog_rel);
 			break;
 			default:
 				var ret = previously.call(wym, cmd);

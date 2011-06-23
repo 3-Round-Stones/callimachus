@@ -2,7 +2,7 @@
 
 jQuery(function($){
 
-	function outter(node) {
+	function outer(node) {
 		var html = $($('<div/>').html($(node).clone())).html();
 		$(node).remove();
 		return html;
@@ -32,11 +32,11 @@ jQuery(function($){
 			jQueryPath: '/callimachus/scripts/jquery.js',
 			dialogFeatures: 'jQuery.dialog',
 			dialogFeaturesPreview: 'jQuery.dialog',
-			dialogImageHtml: outter($('.wym_dialog_image')),
-			dialogTableHtml: outter($('.wym_dialog_table')),
-			dialogPasteHtml: outter($('.wym_dialog_paste')),
-			dialogPreviewHtml: outter($('.wym_dialog_preview')),
-			dialogLinkHtml: outter($('.wym_dialog_link'))
+			dialogImageHtml: outer($('.wym_dialog_image')),
+			dialogTableHtml: outer($('.wym_dialog_table')),
+			dialogPasteHtml: outer($('.wym_dialog_paste')),
+			dialogPreviewHtml: outer($('.wym_dialog_preview')),
+			dialogLinkHtml: outer($('.wym_dialog_link'))
 		});
 	});
 
@@ -487,11 +487,11 @@ jQuery(function($){
 		};
 
 		var previously = wym.exec;
-		var dialog_input = outter($('.wym_dialog_input'));
-		var dialog_select = outter($('.wym_dialog_select'));
-		var dialog_drop = outter($('.wym_dialog_dropzone'));
-		var dialog_form = outter($('.wym_dialog_form'));
-		var dialog_rel = outter($('.wym_dialog_rel'));
+		var dialog_input = outer($('.wym_dialog_input'));
+		var dialog_select = outer($('.wym_dialog_select'));
+		var dialog_drop = outer($('.wym_dialog_dropzone'));
+		var dialog_form = outer($('.wym_dialog_form'));
+		var dialog_rel = outer($('.wym_dialog_rel'));
 
 		wym.exec = function(cmd) {
 			switch (cmd) {

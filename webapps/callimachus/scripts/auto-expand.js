@@ -49,7 +49,7 @@ function expand(area) {
 	$(".aside:visible").filter(function(){
 		var top = $(this).offset().top;
 		var parent = $(area).offsetParent();
-		return parent.offset().top < top + $(this).height() && parent.offset().top + parent.height() > top;
+		return parent.offset().top < top + $(this).outerHeight(true) && parent.offset().top + parent.outerHeight(true) > top;
 	}).each(function() {
 		var left = $(this).offset().left;
 		left -= parsePixel($(this).css("margin-left"));
@@ -67,11 +67,14 @@ function expand(area) {
 		marginRight += parsePixel($(this).css("padding-right"));
 	});
 	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-	var top = $(area).parents('form').offset().top;
-	var formHeight = $(area).parents('form').height() - $(area).height();
+	var body = $(area).parents('body>*').offset().top + $(area).parents('body>*').outerHeight(true) - $(area).outerHeight(true);
+	var formTop = $(area).parents('form').offset().top;
+	var formHeight = $(area).parents('form').outerHeight(true) - $(area).outerHeight(true);
 	var contentHeight = innerHeight;
-	if (formHeight > 0 && top > 0 && formHeight + top <= innerHeight / 3) {
-		contentHeight -= formHeight + top;
+	if (body <= innerHeight / 3) {
+		contentHeight -= body;
+	} else if (formHeight > 0 && formTop > 0 && formHeight + formTop <= innerHeight / 3) {
+		contentHeight -= formHeight + formTop;
 	} else if (formHeight > 0 && formHeight <= innerHeight / 3) {
 		contentHeight -= formHeight;
 	}
@@ -130,16 +133,14 @@ function expandIframe(area, contentWidth, innerHeight) {
 			var height = 0;
 			var body = $('body', area.contentWindow.document);
 			body.children(":visible").each(function() {
-				height += $(this).height();
+				height += $(this).outerHeight(true);
 			});
 			height += parsePixel(body.css("padding-top"));
 			height += parsePixel(body.css("padding-bottom"));
-			body.children(":visible").andSelf().each(function() {
-				height += parsePixel($(this).css("border-top-width"));
-				height += parsePixel($(this).css("border-bottom-width"));
-				height += parsePixel($(this).css("margin-top"));
-				height += parsePixel($(this).css("margin-bottom"));
-			});
+			height += parsePixel(body.css("border-top-width"));
+			height += parsePixel(body.css("border-bottom-width"));
+			height += parsePixel(body.css("margin-top"));
+			height += parsePixel(body.css("margin-bottom"));
 			height += parsePixel($(area).css("padding-top"));
 			height += parsePixel($(area).css("padding-bottom"));
 			height += parsePixel($(area).css("border-top-width"));
@@ -156,6 +157,7 @@ function expandIframe(area, contentWidth, innerHeight) {
 function expandBlock(area, contentWidth, innerHeight) {
 	$(area).css('width', contentWidth);
 	$(area).css('max-height', innerHeight);
+	$(area).css('overflow', 'auto');
 }
 
 function parsePixel(str) {

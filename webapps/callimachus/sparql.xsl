@@ -20,7 +20,9 @@
 			</head>
 			<body>
 				<h1>SPARQL Results</h1>
-				<xsl:apply-templates />
+				<div class="auto-expand">
+					<xsl:apply-templates />
+				</div>
 			</body>
 		</html>
 	</xsl:template>

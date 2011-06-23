@@ -43,17 +43,17 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>lookup-topConcept-button</td>
+	<td>//div[@id='topConcept']/button</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForEval</td>
 	<td>window.frames[0].name</td>
-	<td>lookup-topConcept-iframe</td>
+	<td>dialog-topConcept-iframe</td>
 </tr>
 <tr>
 	<td>selectFrame</td>
-	<td>lookup-topConcept-iframe</td>
+	<td>dialog-topConcept-iframe</td>
 	<td></td>
 </tr>
 <tr>
@@ -72,9 +72,14 @@
 	<td>Accounts Module</td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
+	<td>click</td>
 	<td>submit</td>
 	<td></td>
+</tr>
+<tr>
+	<td>waitForNotEval</td>
+	<td>window.document.body.className</td>
+	<td>*wait*</td>
 </tr>
 <tr>
 	<td>verifyTextNotPresent</td>

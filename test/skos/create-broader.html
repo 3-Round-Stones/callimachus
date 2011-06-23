@@ -53,17 +53,17 @@
 </tr>
 <tr>
 	<td>click</td>
-	<td>lookup-broader-button</td>
+	<td>//div[@id='broader']/button</td>
 	<td></td>
 </tr>
 <tr>
 	<td>waitForEval</td>
 	<td>window.frames[0].name</td>
-	<td>lookup-broader-iframe</td>
+	<td>dialog-broader-iframe</td>
 </tr>
 <tr>
 	<td>selectFrame</td>
-	<td>lookup-broader-iframe</td>
+	<td>dialog-broader-iframe</td>
 	<td></td>
 </tr>
 <tr>
@@ -82,9 +82,14 @@
 	<td>Users and groups</td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
+	<td>click</td>
 	<td>submit</td>
 	<td></td>
+</tr>
+<tr>
+	<td>waitForNotEval</td>
+	<td>window.document.body.className</td>
+	<td>*wait*</td>
 </tr>
 <tr>
 	<td>verifyTextNotPresent</td>

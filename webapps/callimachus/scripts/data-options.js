@@ -18,23 +18,29 @@ $(document).bind('DOMNodeInserted', function (event) {
 function loadOptions(selects) {
 	selects.each(function() {
 		var select = $(this);
-		jQuery.get(select.attr("data-options"), function(data) {
+		var url = select.attr("data-options");
+		select.removeAttr("data-options");
+		jQuery.get(url, function(data) {
 			var options = $(data);
 			var selected = select.children('option,label');
-			options.children('option,label').each(function() {
-				var option = $(this);
-				var checked = filterByAttributes(selected, option);
-				var bool = checked.is('option:selected,label:has(input:checked)');
-				if (!bool) {
-					disableRDFa(option);
-					option.removeAttr("selected");
-					option.children('input').removeAttr("checked");
-				}
-				checked.remove();
-				select.append(option);
-				if (bool && option.is('option')) {
-					// drop down auto selects first, until another is progamically selected
-					select[0].options[select[0].options.length - 1].selected = selected;
+			options.contents().each(function() {
+				if (this.nodeType == 3) {
+					select.append(this); // text node
+				} else if (this.nodeType == 1 && $(this).is('option,label')) {
+					var option = $(this);
+					var checked = filterByAttributes(selected, option);
+					var bool = checked.is('option:selected,label:has(input:checked)');
+					if (!bool) {
+						disableRDFa(option);
+						option.removeAttr("selected");
+						option.children('input').removeAttr("checked");
+					}
+					checked.remove();
+					select.append(option);
+					if (bool && option.is('option')) {
+						// drop down auto selects first, until another is progamically selected
+						select[0].options[select[0].options.length - 1].selected = selected;
+					}
 				}
 			});
 			select.find('input:radio').each(function() {

@@ -92,6 +92,10 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	// select queries are the default
 	private QUERY queryType=QUERY.SELECT;
 	
+	// queries are in union form by default
+	// reset this to select OPTIONAL only form
+	private boolean unionForm = true;
+	
 	
 	public boolean isSelectQuery() {
 		return queryType==QUERY.SELECT;
@@ -155,16 +159,16 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		
 		/* push the context adding necessary open brackets */
 		Context open() {
-			if (isOptional()) {
+			if (isOptional() && unionForm) {
 				add(new Optional(OPEN));
 				// the first clause of the optional is the LHS of a UNION
 				union = true;
 			}
 			else if (isGroup()) {
 				// the parent group may be a union
-				if (!stack.isEmpty() && stack.peek().union && !initial) 
+				if (!stack.isEmpty() && stack.peek().union && !initial && unionForm) 
 					add(new Union());
-				add(new Group(OPEN));
+				openUnion();
 				// a group (i.e. a UNION sub-clause) represents a conjunction / join
 				union = false;
 			}
@@ -173,19 +177,24 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			if (!isBlock()) initial = true;
 			return stack.push(this);
 		}
-		
+
 		/* pop the context adding necessary close brackets */
 		Context close() {
 			if (hasSubject()) add(new Subject(CLOSE, subject));
-			if (isOptional()) add(new Optional(CLOSE));
+			if (isOptional() && unionForm) add(new Optional(CLOSE));
 			else if (isGroup()) add(new Group(CLOSE));
 			if (!isBlock()) previousPattern = null;
 			stack.pop();
 			// closing the LHS of a UNION? (UNION keyword required subsequently)
 			// If a group wasn't opened we have an empty triple block - no UNION required
-			if (!stack.isEmpty() && stack.peek().union) initial &= !isGroup();//false;
+			if (!stack.isEmpty() && stack.peek().union) initial &= !isGroup();
 			return stack.isEmpty()?null:stack.peek();
 		}
+	}
+	
+	private void openUnion() {
+		if (unionForm) add(new Group(OPEN));
+		else add(new Optional(OPEN));
 	}
 
 	public SPARQLProducer(RDFEventReader reader) {
@@ -195,6 +204,12 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	public SPARQLProducer(RDFEventReader reader, QUERY queryType) {
 		super(reader);
 		this.queryType = queryType;
+	}
+	
+	public SPARQLProducer(RDFEventReader reader, QUERY queryType, boolean unionForm) {
+		super(reader);
+		this.queryType = queryType;
+		this.unionForm = unionForm;
 	}
 	
 	protected void process(RDFEvent event) throws RDFParseException {
@@ -275,7 +290,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			
 			if (optional) {
 				// an optional triple must be within an optional/union clause
-				if (!context.union) 
+				if (!context.union && unionForm) 
 					context = new Context(CLAUSE.OPTIONAL).open();
 				
 				// open a group (a UNION sub-clause) unless this is a singleton in an OPTIONAL

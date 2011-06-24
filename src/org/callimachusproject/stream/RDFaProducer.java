@@ -72,6 +72,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	Map<String,String> origins;
 	TupleQueryResult resultSet;
 	BindingSet result;
+	Set<Binding> consumed;
 	Set<String> branches = new HashSet<String>();
 	Stack<Context> stack = new Stack<Context>();
 	XMLEventFactory eventFactory = XMLEventFactory.newFactory();
@@ -155,6 +156,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 	
 	protected BindingSet nextResult() throws Exception {
+		// clear the record of consumed bindings
+		consumed = new HashSet<Binding>();
 		if (resultSet.hasNext())
 			return resultSet.next();
 		resultSet.close();
@@ -253,7 +256,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		return skipElement==null;
 	}
 
-	private boolean processEndElement(XMLEvent event) throws XMLStreamException {
+	private boolean processEndElement(XMLEvent event) throws Exception {
 		if (skipElement!=null) {
 			if (context.path.equals(skipElement)) skipElement = null;
 			context = stack.pop();
@@ -263,6 +266,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		add(event);
 		previous = event;
+		
+		// has the current result been entirely consumed?
+		if (result!=null && consumed()) result = nextResult(); 
 
 		// don't repeat if we haven't consumed any results
 		if (context.isBranch && result!=null && complete() && context.resultOnEntry!=result) {
@@ -316,7 +322,19 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		return true;
 	}
+	
+	/* has every result binding been consumed.
+	 * Not necessarily all in the current context, 
+	 * previous siblings may have consumed bindings */
 
+	private boolean consumed() {
+		for (Iterator<?> i=result.iterator(); i.hasNext();) {
+			Binding b = (Binding) i.next();
+			if (!consumed.contains(b)) return false;
+		}
+		return true;
+	}
+	
 	private boolean branchPoint(StartElement start) {
 		if (branches.contains(context.path)) return true;
 		// RDFa may not identify variable first-use as origin
@@ -406,7 +424,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// enumerate variables in triples with ?VAR syntax
 		for (String name: resultSet.getBindingNames()) {
 			String[] origin = origins.get(name).split(" ");
-//			if (origin[0].equals(context.path) && value.startsWith("?")
 			if (context.path.startsWith(origin[0]) && value.startsWith("?") && value.substring(1).equals(name)
 			&& namespace.isEmpty() && RDFaVarAttributes.contains(localPart)) 
 				return context.assignments.get(name);
@@ -537,6 +554,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 						val = valueFactory.createLiteral(append);
 					}
 					context.assignments.put(b.getName(), val);
+					consumed.add(b);
 				}
 			}
 		}
@@ -551,7 +569,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 			&& namespace.isEmpty() && value.startsWith("?")) {
 				String name = attr.getValue().substring(1);
 				Value v = result.getValue(name);
-				if (v!=null) context.assignments.put(name, v);
+				if (v!=null) {
+					context.assignments.put(name, v);
+					consumed.add(result.getBinding(name));
+				}
 			}
 		}
 		return content;

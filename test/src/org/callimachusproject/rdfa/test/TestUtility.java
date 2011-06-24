@@ -131,7 +131,7 @@ public class TestUtility {
 	    rdf.close();
 	}
 	
-	String load(File file) throws IOException {
+	public String load(File file) throws IOException {
 		final FileReader reader = new FileReader(file);
 		char[] block = new char[4096];
 		final StringBuffer buffer = new StringBuffer();

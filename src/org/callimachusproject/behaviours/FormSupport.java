@@ -243,7 +243,10 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		String base = toUri().toASCIIString();
 		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
 		template.mark();
-		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
+		// generate a non-union, optional only form of SELECT so that FILTER works correctly
+		SPARQLProducer rq = 
+			new SPARQLProducer(new RDFaReader(base, template, toString()),
+				SPARQLProducer.QUERY.SELECT,false);
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
 		
 		// filter out the outer rel (the button may add additional bnodes that need to be cut out)
@@ -253,8 +256,8 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		// The regex should not match properties and property-expressions with info following the xptr
 		ed.addEditor(ed.new ConditionInsert("^(/\\d+){2}$",tf.iri(SOUNDEX),tf.literal(asSoundex(q))));
 		
-		// add filters to soundex labels from the next level
-		ed.addEditor(ed.new FilterInsert("^(/\\d+){2,}$",LABELS,regexStartsWith(q)));
+		// add filters to soundex labels at the next level (only direct properties of the top-level subject)
+		ed.addEditor(ed.new FilterInsert("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
 
 		RepositoryConnection con = getObjectConnection();
 		String sparql = toSPARQL(ed);

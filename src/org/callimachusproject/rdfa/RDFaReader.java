@@ -583,10 +583,11 @@ public class RDFaReader extends RDFEventReader {
 			}
 		}
 
-		// Property expression: \{([^\}\?\"\':]*):(\w+)\}
+		// Property expression:
+		// \{([^ \}\?\"\':]*):([^ \}]+)\}
 		// group(1) is the prefix, group(2) is the local part, they must be separated by a colon
 		// The local part may only contain word characters
-		private static final String PROPERTY_EXP_REGEX = "\\{([^\\}\\?\\\"\\':]*):(\\w+)\\}";
+		private static final String PROPERTY_EXP_REGEX = "\\{([^ \\}\\?\\\"\\':]*):([^ \\}]+)\\}";
 		private final Pattern PROPERTY_EXP_PATTERN = Pattern.compile(PROPERTY_EXP_REGEX);
 		
 		private void addPropertyExpressions(Node subj, StartElement start) 

@@ -668,7 +668,7 @@ public class RDFaGenerationTest {
 
 			//XMLEventReader xml = xmlInputFactory.createXMLEventReader(src); 
 			RDFEventReader rdfa = new RDFaReader(base, xml, base);			
-			SPARQLProducer sparql = new SPARQLProducer(rdfa,SPARQLProducer.QUERY.SELECT);
+			SPARQLProducer sparql = new SPARQLProducer(rdfa);
 			String query = toSPARQL(sparql);			
 			ValueFactory vf = con.getValueFactory();
 			TupleQuery q = con.prepareTupleQuery(SPARQL, query, base);
@@ -726,7 +726,7 @@ public class RDFaGenerationTest {
 		int start = buffer.mark();
 
 		RDFEventReader rdfa = new RDFaReader(base, buffer, base);			
-		SPARQLProducer sparql = new SPARQLProducer(rdfa,SPARQLProducer.QUERY.SELECT);
+		SPARQLProducer sparql = new SPARQLProducer(rdfa);
 		String query = toSPARQL(sparql);
 
 		ValueFactory vf = con.getValueFactory();

@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.Ask;
+import org.callimachusproject.rdfa.events.Base;
 import org.callimachusproject.rdfa.events.Comment;
 import org.callimachusproject.rdfa.events.Group;
 import org.callimachusproject.rdfa.events.Optional;
@@ -96,6 +97,8 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	// reset this to select OPTIONAL only form
 	private boolean unionForm = true;
 	
+	// the current binding for this, used to substitute base
+	private String _this = null;
 	
 	public boolean isSelectQuery() {
 		return queryType==QUERY.SELECT;
@@ -113,6 +116,30 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		);
 	}
 	
+	public SPARQLProducer(RDFEventReader reader) {
+		super(reader);
+	}
+	
+	public SPARQLProducer(RDFEventReader reader, String _this) {
+		super(reader);
+		this._this = _this;
+	}
+	
+	public SPARQLProducer setQueryType(QUERY queryType) {
+		this.queryType = queryType;
+		return this;
+	}
+	
+	public SPARQLProducer setUnionForm(boolean unionForm) {
+		this.unionForm = unionForm;
+		return this;
+	}
+	
+	public SPARQLProducer setThis(String _this) {
+		this._this = _this;
+		return this;
+	}
+
 	class Context {
 		CLAUSE clause = CLAUSE.BLOCK;
 		// a block may have a subject (the outermost block does not)
@@ -197,26 +224,11 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		else add(new Optional(OPEN));
 	}
 
-	public SPARQLProducer(RDFEventReader reader) {
-		super(reader);
-	}
-	
-	public SPARQLProducer(RDFEventReader reader, QUERY queryType) {
-		super(reader);
-		this.queryType = queryType;
-	}
-	
-	public SPARQLProducer(RDFEventReader reader, QUERY queryType, boolean unionForm) {
-		super(reader);
-		this.queryType = queryType;
-		this.unionForm = unionForm;
-	}
-	
 	protected void process(RDFEvent event) throws RDFParseException {
 		if (event==null) return;
 		if (event.isStartDocument()) {
 			add(event);
-			// add the first occurrence of the base
+			// add the base
 			addBase();
 			// add all namespace definitions
 			addPrefixes();
@@ -367,10 +379,13 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		do {
 			e = peek(lookAhead++);
 			if (e.isBase()) {
-				add(e);
-				break;
+				Base b = e.asBase();
+				if (b.getBase().endsWith("?this") && _this!=null) {
+					b = new Base(_this);
+				}
+				add(b);
 			}
-		} while (!e.isEndDocument());
+		} while (!e.isEndDocument() && !e.isStartSubject());
 	}
 
 	private void addPrefixes() throws RDFParseException {

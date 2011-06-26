@@ -60,6 +60,7 @@ import org.openrdf.repository.RepositoryConnection;
 
 public class RDFaProducer extends XMLEventReaderBase {
 	private static final String XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace";
+	private static final String BASE_TAG = "http://www.w3.org/1999/xhtmlbase";
 
 	final static String[] RDFA_OBJECT_ATTRIBUTES = { "about", "resource", "typeof", "content" };
 	final static List<String> RDFA_OBJECTS = Arrays.asList(RDFA_OBJECT_ATTRIBUTES);
@@ -409,12 +410,12 @@ public class RDFaProducer extends XMLEventReaderBase {
 	 * Returns the variable name or null. 
 	 */
 	
-	Value substitute(Attribute attr, String path) {
+	Value substitute(String tag, Attribute attr, String path) {
 		String namespace = attr.getName().getNamespaceURI();
 		String localPart = attr.getName().getLocalPart();
 		String value = attr.getValue();
 		// primary RDFa object attribute, excluding 'content' and 'property'
-		if (namespace.isEmpty() && RDFA_OBJECTS.contains(localPart)) {
+		if ((namespace.isEmpty() && RDFA_OBJECTS.contains(localPart)) || tag.equals(BASE_TAG)) {
 			if (value.startsWith("?")) {
 				String var = value.substring(1);
 				return context.assignments.get(var);
@@ -676,12 +677,13 @@ public class RDFaProducer extends XMLEventReaderBase {
 		Iterator<?> attributes;
 		Value content;
 		String datatype, lang;
-		String path;
+		String path, tag;
 		Attribute nextAttribute;
 		boolean hasBody;
 		
 		public AttributeIterator
-		(Iterator<?> attributes, Value content, String path, boolean hasBody, NamespaceContext ctx) {
+		(String tag,Iterator<?> attributes, Value content, String path, boolean hasBody, NamespaceContext ctx) {
+			this.tag = tag;
 			this.attributes = attributes;
 			this.content = content;
 			this.path = path;
@@ -706,7 +708,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 				String namespace = attr.getName().getNamespaceURI();
 				String localPart = attr.getName().getLocalPart();
 				
-				Value newValue = substituteValue(attr);
+				Value newValue = substituteValue(tag,attr);
 				if (newValue!=null) {
 					// clear content to prevent it being added as text
 					if (namespace.isEmpty() && localPart.equals("content")) 
@@ -730,11 +732,11 @@ public class RDFaProducer extends XMLEventReaderBase {
 			return null;
 		}
 		/* If there is a content attribute there is no need to add text content */
-		private Value substituteValue(Attribute attr) {
+		private Value substituteValue(String tag,Attribute attr) {
 			String namespace = attr.getName().getNamespaceURI();
 			String localPart = attr.getName().getLocalPart();
 			String value = attr.getValue();
-			Value v = substitute(attr,context.path);
+			Value v = substitute(tag,attr,context.path);
 			// content variables are currently represented as empty strings
 			if (v==null && localPart.equals("content") && namespace.isEmpty() && value.isEmpty()) {
 				// remove content from the context to prevent addition as text content
@@ -793,6 +795,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	private void addStartElement(StartElement start) throws XMLStreamException {
 		QName name = start.getName();
+		String tag = name.getNamespaceURI()+name.getLocalPart();
 		// only add content if the body is empty or ignorable whitespace
 		boolean hasBody = false;
 		for (int i=0; !hasBody; i++) {
@@ -804,7 +807,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		NamespaceContext ctx = start.getNamespaceContext();
 		Iterator<?> namespaces = new NamespaceIterator(start.getNamespaces(), context.content, ctx);
 		// AttributeIterator may clear context.content on construction so do this last
-		Iterator<?> attributes = new AttributeIterator(start.getAttributes(), context.content, context.path, hasBody, ctx);
+		Iterator<?> attributes = new AttributeIterator(tag,start.getAttributes(), context.content, context.path, hasBody, ctx);
 		XMLEvent e = eventFactory.createStartElement(name.getPrefix(), name.getNamespaceURI(), name.getLocalPart(), attributes, namespaces, ctx);
 		add(e);
 		

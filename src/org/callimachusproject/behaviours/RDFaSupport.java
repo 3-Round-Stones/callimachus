@@ -132,8 +132,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		RDFEventReader reader = new RDFaReader(about, template, toString());
 		
 		/* generate UNION form of sparql query */
-		// reader = new GraphPatternReader(reader);
-		reader = new SPARQLProducer(reader);
+		reader = new SPARQLProducer(reader,about);
 		
 		Base resolver = new Base(getResource().stringValue());
 		if (about == null) {
@@ -151,8 +150,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		RDFEventReader reader = new RDFaReader(about, template, toString());
 		
 		/* generate UNION form of sparql query */
-		// reader = new GraphPatternReader(reader);
-		reader = new SPARQLProducer(reader);
+		reader = new SPARQLProducer(reader,about);
 		
 		Base resolver = new Base(getResource().stringValue());
 		if (about == null) {

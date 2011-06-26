@@ -244,9 +244,8 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
 		template.mark();
 		// generate a non-union, optional only form of SELECT so that FILTER works correctly
-		SPARQLProducer rq = 
-			new SPARQLProducer(new RDFaReader(base, template, toString()),
-				SPARQLProducer.QUERY.SELECT,false);
+		RDFaReader rdf = new RDFaReader(base, template, toString());
+		SPARQLProducer rq = new SPARQLProducer(rdf).setUnionForm(false);
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
 		
 		// filter out the outer rel (the button may add additional bnodes that need to be cut out)

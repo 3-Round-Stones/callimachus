@@ -103,7 +103,7 @@ function listSearchResults(url, iframe, button) {
 				if (about && about.indexOf('[') < 0) {
 					var li = $("<li/>");
 					var link = $('<a/>');
-					link.attr("class", "view");
+					link.attr("class", "option");
 					link.attr("href", about);
 					link.append($(this).html());
 					li.append(link);
@@ -117,7 +117,7 @@ function listSearchResults(url, iframe, button) {
 				doc.open();
 				doc.write("<ul>" + html + "</ul>");
 				doc.close();
-				$('a', doc).click(function(event) {
+				$('a.option', doc).click(function(event) {
 					var de = jQuery.Event('calliLink');
 					de.location = this.href;
 					$(button).trigger(de);

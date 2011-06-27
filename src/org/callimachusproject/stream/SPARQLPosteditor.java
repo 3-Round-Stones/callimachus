@@ -166,21 +166,8 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 					if (!first) add(new Union());
 					add(new Group(OPEN));
 					VarOrTerm subj = subject;
-					String[] split = prop.split(" ");
-					String name = "_";
-					if (subject.isVar()) {
-						name += "_"+subject.asVar().stringValue();
-					}
-					for (int i=0; i<split.length; i++) {
-						IRI pred = tf.iri(split[i]);
-						if (i==(split.length-1))
-							add(new TriplePattern(subj,pred,object));
-						else {
-							VarOrTerm newSubj = tf.var(name+"_"+predicateLabel(pred,false));
-							add(new TriplePattern(subj,pred,newSubj));
-							subj = newSubj;
-						}
-					}
+					IRI pred = tf.iri(prop);
+					add(new TriplePattern(subj,pred,object));
 					add(new Group(CLOSE));
 					first = false;
 				}

@@ -54,6 +54,7 @@ public class WebAppListener implements JNotifyListener, Runnable {
 
 	public void stop() {
 		synchronized (queue) {
+			queue.clear();
 			queue.add(eos);
 			queue.notifyAll();
 		}

@@ -34,7 +34,9 @@ public interface SoundexTrait {
 			"http://www.w3.org/2004/02/skos/core#prefLabel",
 			"http://www.w3.org/2004/02/skos/core#altLabel",
 			"http://www.w3.org/2004/02/skos/core#hiddenLabel",
-			"http://www.w3.org/2008/05/skos-xl#literalForm"
+			"http://www.w3.org/2008/05/skos-xl#prefLabel http://www.w3.org/2008/05/skos-xl#literalForm",
+			"http://www.w3.org/2008/05/skos-xl#altLabel http://www.w3.org/2008/05/skos-xl#literalForm",
+			"http://www.w3.org/2008/05/skos-xl#hiddenLabel http://www.w3.org/2008/05/skos-xl#literalForm"
 	};
 
 	@iri(SOUNDEX)

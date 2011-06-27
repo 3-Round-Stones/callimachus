@@ -466,7 +466,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		return singleton;
 	}
 	
-	String stripPrefix(String l, String prefix) {
+	static String stripPrefix(String l, String prefix) {
 		int p = prefix.length();
 		if (l.startsWith(prefix) && l.length()>p
 		&& l.substring(p,p+1).equals(l.substring(p,p+1).toUpperCase())) {
@@ -475,7 +475,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		return l;
 	}
 	
-	String stripSuffix(String l, String suffix) {
+	static String stripSuffix(String l, String suffix) {
 		int s = suffix.length();
 		if (l.endsWith(suffix) && l.length()>s) {
 			l = l.substring(0,l.length()-s);
@@ -483,7 +483,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		return l;
 	}
 	
-	String predLabel(IRI pred) {
+	public static String predicateLabel(IRI pred, boolean inverse) {
 		URI uri=null;
 		if (pred.isCURIE())
 			uri = new URIImpl(pred.asCURIE().stringValue());
@@ -492,6 +492,16 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		String l = uri.getLocalName();
 		l = stripPrefix(l,"has");
 		l = stripPrefix(l,"in");
+		
+		// characters valid in NCName but not SPARQL variable name
+		l = l.replaceAll("-", "_").replaceAll("\\.", "_");
+
+		// append/remove 'Of' to inverse relations
+		if (inverse) {
+			if (l.endsWith("Of")) l = stripSuffix(l,"Of");
+			else l += "Of";
+		}
+
 		return l;
 	}
 	
@@ -530,16 +540,8 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		String label = null;
 		VarOrTerm opposite = null;
 		if (triple!=null) {
-			label = predLabel(triple.getPredicate());
-			// characters valid in NCName but not SPARQL variable name
-			label = label.replaceAll("-", "_").replaceAll("\\.", "_");
+			label = predicateLabel(triple.getPredicate(), triple.isInverse());
 			
-			// append/remove 'Of' to inverse relations
-			if (triple.isInverse()) {
-				if (label.endsWith("Of")) label = stripSuffix(label,"Of");
-				else label += "Of";
-			}
-
 			// build a compound label using variable at the opposing end of the triple
 			if (term.equals(triple.getSubject())) 
 				opposite = triple.getObject();

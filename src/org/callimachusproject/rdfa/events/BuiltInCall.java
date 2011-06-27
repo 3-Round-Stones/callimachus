@@ -23,7 +23,7 @@ package org.callimachusproject.rdfa.events;
  * @author James Leigh
  *
  */
-public class BuiltInCall extends Filter {
+public class BuiltInCall extends RDFEvent {
 	private String function;
 
 	public BuiltInCall(boolean start, String function) {

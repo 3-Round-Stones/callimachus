@@ -23,6 +23,8 @@ package org.callimachusproject.stream;
  * @author Steve Battle
  */
 
+import static org.callimachusproject.stream.SPARQLProducer.predicateLabel;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,9 +35,13 @@ import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.BuiltInCall;
 import org.callimachusproject.rdfa.events.ConditionalOrExpression;
+import org.callimachusproject.rdfa.events.Exists;
 import org.callimachusproject.rdfa.events.Expression;
+import org.callimachusproject.rdfa.events.Filter;
+import org.callimachusproject.rdfa.events.Group;
 import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.TriplePattern;
+import org.callimachusproject.rdfa.events.Union;
 import org.callimachusproject.rdfa.model.IRI;
 import org.callimachusproject.rdfa.model.PlainLiteral;
 import org.callimachusproject.rdfa.model.TermFactory;
@@ -43,8 +49,9 @@ import org.callimachusproject.rdfa.model.Var;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.openrdf.model.URI;
 
-
 public class SPARQLPosteditor extends BufferedRDFEventReader {
+	private static boolean OPEN = true, CLOSE = false;
+
 	private static TermFactory tf = TermFactory.newInstance();
 
 	List<Editor> editors = new LinkedList<Editor>();
@@ -110,13 +117,13 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 					if (props.contains(t.getPredicate().stringValue())) {
 						if (list.size()>0) list.add(new ConditionalOrExpression());
 						// eg. FILTER regex( str(<object>),<regex>,i)
-						list.add(new BuiltInCall(true, "regex"));
-						list.add(new BuiltInCall(true, "str"));
+						list.add(new BuiltInCall(OPEN, "regex"));
+						list.add(new BuiltInCall(OPEN, "str"));
 						list.add(new Expression(t.getObject()));
-						list.add(new BuiltInCall(false, "str"));
+						list.add(new BuiltInCall(CLOSE, "str"));
 						list.add(new Expression(tf.literal(regex)));
 						list.add(new Expression(tf.literal("i")));
-						list.add(new BuiltInCall(false, "regex"));
+						list.add(new BuiltInCall(CLOSE, "regex"));
 					}
 				}
 			}
@@ -125,6 +132,74 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 			}
 			return false;
 		}
+	}
+	
+	public class FilterExists implements Editor {
+		List<String> props;
+		Pattern subjectPattern;
+		VarOrTerm subject, object;
+		String regex;
+		public FilterExists(String subjectRegex, String[] props, String regex) {
+			super();
+			this.subjectPattern = Pattern.compile(subjectRegex);
+			this.props = Arrays.asList(props);
+			this.regex = regex;
+		}
+		@Override
+		public boolean edit(RDFEvent event) {
+			// the subject of the filter is the first matching subject
+			if (event.isTriplePattern()) {
+				TriplePattern t = event.asTriplePattern();
+				if (subject==null && match(subjectPattern,t.getSubject())) {
+					subject = t.getAbout();
+					object = tf.var("__label");
+				}
+			}
+			// add the filter exists at the end, use "__" prefix for introduced variables
+			// these variables are extraneous to the template (having no origin)
+			else if (event.isEndWhere() && subject!=null) {
+				add(new Filter(OPEN));
+				add(new Exists(OPEN));
+				
+				boolean first = true;
+				for (String prop: props) {
+					if (!first) add(new Union());
+					add(new Group(OPEN));
+					VarOrTerm subj = subject;
+					String[] split = prop.split(" ");
+					String name = "_";
+					if (subject.isVar()) {
+						name += "_"+subject.asVar().stringValue();
+					}
+					for (int i=0; i<split.length; i++) {
+						IRI pred = tf.iri(split[i]);
+						if (i==(split.length-1))
+							add(new TriplePattern(subj,pred,object));
+						else {
+							VarOrTerm newSubj = tf.var(name+"_"+predicateLabel(pred,false));
+							add(new TriplePattern(subj,pred,newSubj));
+							subj = newSubj;
+						}
+					}
+					add(new Group(CLOSE));
+					first = false;
+				}
+				// eg. FILTER regex( str(<object>),<regex>,i)
+				add(new Filter(OPEN));
+				add(new BuiltInCall(true, "regex"));
+				add(new BuiltInCall(true, "str"));
+				add(new Expression(object));
+				add(new BuiltInCall(false, "str"));
+				add(new Expression(tf.literal(regex)));
+				add(new Expression(tf.literal("i")));
+				add(new BuiltInCall(false, "regex"));
+				add(new Filter(CLOSE));
+
+				add(new Exists(CLOSE));
+				add(new Filter(CLOSE));
+			}
+			return false;
+		}		
 	}
 	
 	public class TriplePatternRecorder implements Editor {

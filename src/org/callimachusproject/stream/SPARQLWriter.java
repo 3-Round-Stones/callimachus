@@ -64,7 +64,7 @@ public class SPARQLWriter implements Closeable {
 	private Map<String, String> namespaces = new HashMap<String, String>();
 	private int indent;
 	private RDFEvent previous;
-	private boolean filtering;
+	//private boolean filtering;
 	private int builtin;
 
 	public SPARQLWriter(Writer writer) {
@@ -76,15 +76,13 @@ public class SPARQLWriter implements Closeable {
 	}
 
 	public void write(RDFEvent event) throws IOException {
-		if (event.isFilter() && !filtering) {
+		if (event.isStartFilter()) {
 			indent(indent);
 			writer.append("FILTER (");
-			filtering = true;
-		} else if (!event.isFilter() && filtering) {
+		} else if (event.isEndFilter()) {
 			writer.append(")\n");
-			filtering = false;
 		}
-		if (event.isBase()) {
+		else if (event.isBase()) {
 			base = event.asBase().getBase();
 		} else if (event.isNamespace()) {
 			namespaces.put(event.asNamespace().getPrefix(), event.asNamespace().getNamespaceURI());
@@ -152,6 +150,14 @@ public class SPARQLWriter implements Closeable {
 			indent--;
 			indent(indent);
 			writer.append("}\n");
+		} else if (event.isStartExists()) {
+			indent(indent);
+			writer.append("EXISTS {\n");
+			indent++;
+		} else if (event.isEndExists()) {
+			indent--;
+			indent(indent);
+			writer.append("}");
 		} else if (event.isStartGroup()) {
 			indent(indent);
 			writer.append("{\n");

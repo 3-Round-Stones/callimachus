@@ -74,6 +74,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 	TupleQueryResult resultSet;
 	BindingSet result;
 	Set<Binding> consumed;
+	// variables that don't originate directly from the document (ignored here)
+	Set<String> extraneous = new HashSet<String>();
 	Set<String> branches = new HashSet<String>();
 	Stack<Context> stack = new Stack<Context>();
 	XMLEventFactory eventFactory = XMLEventFactory.newFactory();
@@ -119,9 +121,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 		this.con = con;
 		
 		for (String name: resultSet.getBindingNames()) {
-			String[] origin = origins.get(name).split(" ");
-			//System.out.println(name+" "+origins.get(name));			
-			branches.add(origin[0]);
+			String origin = origins.get(name);
+			if (origin!=null)
+				branches.add(origin.split(" ")[0]);
+			else extraneous.add(name);
 		}
 	}
 	
@@ -331,7 +334,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	private boolean consumed() {
 		for (Iterator<?> i=result.iterator(); i.hasNext();) {
 			Binding b = (Binding) i.next();
-			if (!consumed.contains(b)) return false;
+			if (!extraneous.contains(b.getName()) && !consumed.contains(b)) return false;
 		}
 		return true;
 	}
@@ -353,7 +356,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		if (result==null) return false;
 		for (Iterator<Binding> i=result.iterator(); i.hasNext();) {
 			Binding b = i.next();
-			if (!context.assignments.keySet().contains(b.getName()) )
+			if (!context.assignments.keySet().contains(b.getName()) 
+			&& !extraneous.contains(b.getName()))
 				return true;
 		}		
 		return false;
@@ -363,12 +367,14 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// all explicit variables or content originating from this element must be bound
 		// These origins are the first use of a variable - no need to check subsequent use in descendants
 		for (String name: resultSet.getBindingNames()) {
-			List<String> origin = Arrays.asList(origins.get(name).split(" "));
+			String origin = origins.get(name);
+			if (origin==null) continue;
+			List<String> split = Arrays.asList(origin.split(" "));
 			// implicit vars (apart from CONTENT) need not be grounded
 			if (name.startsWith("_") 
-			&& !(origin.contains(RDFaReader.CONTENT) || origin.contains("_"))) 
+			&& !(split.contains(RDFaReader.CONTENT) || split.contains("_"))) 
 				continue;
-			if (origin.get(0).equals(context.path) && context.assignments.get(name)==null) 
+			if (split.get(0).equals(context.path) && context.assignments.get(name)==null) 
 				return false;
 		}
 		return true;
@@ -378,7 +384,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// all implicit variables originating from this element must be bound
 		// excluding property expressions
 		for (String name: resultSet.getBindingNames()) {
-			if (!name.startsWith("_")) continue;
+			if (!name.startsWith("_") || extraneous.contains(name)) continue;
 			String[] origin = origins.get(name).split(" ");
 			if (origin[0].equals(context.path) && context.assignments.get(name)==null) 
 				return false;
@@ -424,8 +430,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		// enumerate variables in triples with ?VAR syntax
 		for (String name: resultSet.getBindingNames()) {
-			String[] origin = origins.get(name).split(" ");
-			if (context.path.startsWith(origin[0]) && value.startsWith("?") && value.substring(1).equals(name)
+			String origin = origins.get(name);
+			if (origin!=null && context.path.startsWith(origin.split(" ")[0]) 
+			&& value.startsWith("?") && value.substring(1).equals(name)
 			&& namespace.isEmpty() && RDFaVarAttributes.contains(localPart)) 
 				return context.assignments.get(name);
 		}

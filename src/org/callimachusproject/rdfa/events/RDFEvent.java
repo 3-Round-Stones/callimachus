@@ -88,6 +88,14 @@ public class RDFEvent {
 		return isEnd() && this instanceof Where;
 	}
 
+	public boolean isStartExists() {
+		return isStart() && this instanceof Exists;
+	}
+
+	public boolean isEndExists() {
+		return isEnd() && this instanceof Exists;
+	}
+
 	public boolean isStartGroup() {
 		return isStart() && this instanceof Group;
 	}
@@ -132,9 +140,14 @@ public class RDFEvent {
 		return this instanceof TriplePattern;
 	}
 
-	public boolean isFilter() {
-		return this instanceof Filter;
+	public boolean isStartFilter() {
+		return this instanceof Filter && isStart();
 	}
+	
+	public boolean isEndFilter() {
+		return this instanceof Filter && isEnd();
+	}
+
 
 	public boolean isConditionalOrExpression() {
 		return this instanceof ConditionalOrExpression;

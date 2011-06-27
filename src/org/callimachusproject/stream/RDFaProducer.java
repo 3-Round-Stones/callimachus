@@ -494,8 +494,14 @@ public class RDFaProducer extends XMLEventReaderBase {
 			else if (b1) {
 				String val = m1.group(2);
 				// substitute escaped characters
+				// replace  escaped backslash with backslash entity
+				val = val.replaceAll("\\\\\\\\", "&#92;");
+				// replace escaped quote with quote
 				val = val.replaceAll("\\\\\\'", "\'").replaceAll("\\\\\\\"", "\"");
+				// replace escaped brace with brace
 				val = val.replaceAll("\\\\\\{", "{").replaceAll("\\\\\\}", "}");
+				// replace backslash entity with backslash
+				val = val.replaceAll("&#92;", "\\\\");
 				text = text.replace(m1.group(), val);
 				found = true;
 				start = m1.end();

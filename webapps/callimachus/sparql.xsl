@@ -13,9 +13,13 @@
 			<head>
 				<title>SPARQL Results</title>
 				<style>
-					.uri, .bnode, .literal { font-size: large; }
-					.bnode, .literal { font-family: monospace; white-space: pre-wrap; }
-					.predicate { font-weight: bold; }
+					ul.properties { margin-top: 0px; }
+					li.triple { list-style-type: none }
+					.plain { font-size: large; }
+					.bnode, .plain { font-family: monospace; white-space: pre-wrap; }
+					.typed { color: magenta; }
+					.datatype, .language { color: gray; }
+					.predicate { color: darkgreen; }
 				</style>
 			</head>
 			<body>
@@ -33,14 +37,14 @@
 		</div>
 	</xsl:template>
 	<xsl:template match="*">
-		<li>
-			<label class="predicate">
+		<li class="triple">
+			<span class="predicate">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
-			</label>
+			</span>
 			<xsl:text> </xsl:text>
-			<span class="literal">
+			<span class="plain literal">
 				<xsl:attribute name="property">
 					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
@@ -51,12 +55,12 @@
 		</li>
 	</xsl:template>
 	<xsl:template match="*[@rdf:nodeID]">
-		<li>
-			<label class="predicate">
+		<li class="triple">
+			<span class="predicate">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
-			</label>
+			</span>
 			<xsl:text> </xsl:text>
 			<a href="#{@rdf:nodeID}" class="bnode">
 				<xsl:attribute name="rel">
@@ -64,17 +68,18 @@
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 					</xsl:call-template>
 				</xsl:attribute>
+				<xsl:text>_:</xsl:text>
 				<xsl:value-of select="@rdf:nodeID" />
 			</a>
 		</li>
 	</xsl:template>
 	<xsl:template match="*[@rdf:resource]">
-		<li>
-			<label class="predicate">
+		<li class="triple">
+			<span class="predicate">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
-			</label>
+			</span>
 			<xsl:text> </xsl:text>
 			<a href="{@rdf:resource}" class="view uri">
 				<xsl:attribute name="rel">
@@ -89,14 +94,14 @@
 		</li>
 	</xsl:template>
 	<xsl:template match="*[@rdf:datatype]">
-		<li>
-			<label class="predicate">
+		<li class="triple">
+			<span class="predicate">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
-			</label>
+			</span>
 			<xsl:text> </xsl:text>
-			<span class="literal">
+			<span class="typed literal">
 				<xsl:attribute name="property">
 					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
@@ -107,24 +112,25 @@
 						<xsl:with-param name="iri" select="@rdf:datatype" />
 					</xsl:call-template>
 				</xsl:attribute>
-				<xsl:attribute name="title">
+				<xsl:apply-templates />
+				<span class="datatype">
+					<span>^^</span>
 					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="@rdf:datatype" />
 					</xsl:call-template>
-				</xsl:attribute>
-				<xsl:apply-templates />
+				</span>
 			</span>
 		</li>
 	</xsl:template>
 	<xsl:template match="*[@xml:lang]">
-		<li>
-			<label class="predicate">
+		<li class="triple">
+			<span class="predicate">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
-			</label>
+			</span>
 			<xsl:text> </xsl:text>
-			<span class="literal">
+			<span class="plain literal">
 				<xsl:attribute name="property">
 					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
@@ -133,22 +139,23 @@
 				<xsl:attribute name="xml:lang">
 					<xsl:value-of select="@xml:lang" />
 				</xsl:attribute>
-				<xsl:attribute name="title">
-					<xsl:value-of select="@xml:lang" />
-				</xsl:attribute>
 				<xsl:apply-templates />
+				<span class="language">
+					<span>@</span>
+					<xsl:value-of select="@xml:lang" />
+				</span>
 			</span>
 		</li>
 	</xsl:template>
 	<xsl:template match="*[@rdf:parseType='Literal']">
-		<li>
-			<label class="predicate">
+		<li class="triple">
+			<span class="predicate">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
-			</label>
+			</span>
 			<xsl:text> </xsl:text>
-			<span class="literal">
+			<span class="typed literal">
 				<xsl:attribute name="property">
 					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
@@ -159,13 +166,13 @@
 		</li>
 	</xsl:template>
 	<xsl:template match="*[@rdf:parseType='Resource']">
-		<li>
-			<label class="predicate">
+		<li class="triple">
+			<span class="predicate">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
-			</label>
-			<ul>
+			</span>
+			<ul class="properties">
 				<xsl:attribute name="rel">
 					<xsl:call-template name="iriref">
 						<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
@@ -176,13 +183,13 @@
 		</li>
 	</xsl:template>
 	<xsl:template match="*[@rdf:parseType='Collection']">
-		<li>
-			<label class="predicate">
+		<li class="triple">
+			<span class="predicate">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
-			</label>
-			<ol>
+			</span>
+			<ol class="collection">
 				<xsl:apply-templates select="*" />
 			</ol>
 		</li>
@@ -205,7 +212,7 @@
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</span>
-			<ul>
+			<ul class="properties">
 				<xsl:apply-templates select="*" />
 			</ul>
 		</div>
@@ -226,7 +233,7 @@
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</span>
-			<ul>
+			<ul class="properties">
 				<xsl:apply-templates select="*" />
 			</ul>
 		</div>
@@ -239,6 +246,7 @@
 				</xsl:call-template>
 			</xsl:attribute>
 			<a name="{@rdf:nodeID}" id="{@rdf:nodeID}" class="bnode">
+				<xsl:text>_:</xsl:text>
 				<xsl:value-of select="@rdf:nodeID" />
 			</a>
 			<span> a </span>
@@ -247,7 +255,7 @@
 					<xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
 				</xsl:call-template>
 			</span>
-			<ul>
+			<ul class="properties">
 				<xsl:apply-templates select="*" />
 			</ul>
 		</div>
@@ -259,7 +267,7 @@
 					<xsl:with-param name="iri" select="@rdf:about"/>
 				</xsl:call-template>
 			</a>
-			<ul>
+			<ul class="properties">
 				<xsl:apply-templates select="*" />
 			</ul>
 		</div>
@@ -269,7 +277,7 @@
 			<a href="#{@rdf:ID}" class="view uri">
 				<xsl:value-of select="@rdf:ID"/>
 			</a>
-			<ul>
+			<ul class="properties">
 				<xsl:apply-templates select="*" />
 			</ul>
 		</div>
@@ -277,9 +285,10 @@
 	<xsl:template match="rdf:Description[@rdf:nodeID]">
 		<div about="_:{@rdf:nodeID}">
 			<a name="{@rdf:nodeID}" id="{@rdf:nodeID}" class="bnode">
+				<xsl:text>_:</xsl:text>
 				<xsl:value-of select="@rdf:nodeID" />
 			</a>
-			<ul>
+			<ul class="properties">
 				<xsl:apply-templates select="*" />
 			</ul>
 		</div>
@@ -337,47 +346,50 @@
 	</xsl:template>
 	<xsl:template match="sparql:bnode">
 		<a class="bnode" about="_:{text()}" name="{text()}">
+			<xsl:text>_:</xsl:text>
 			<xsl:value-of select="text()" />
 		</a>
 	</xsl:template>
 	<xsl:template match="sparql:literal">
-		<span class="literal">
+		<span class="plain literal">
 			<xsl:value-of select="text()" />
 		</span>
 	</xsl:template>
 	<xsl:template match="sparql:literal[@datatype]">
-		<span class="literal">
+		<span class="typed literal">
 			<xsl:attribute name="datatype">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@datatype" />
 				</xsl:call-template>
 			</xsl:attribute>
-			<xsl:attribute name="title">
+			<xsl:value-of select="text()" />
+			<span class="datatype">
+				<span>^^</span>
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@datatype" />
 				</xsl:call-template>
-			</xsl:attribute>
-			<xsl:value-of select="text()" />
+			</span>
 		</span>
 	</xsl:template>
 	<xsl:template match="sparql:literal[@xml:lang]">
-		<span class="literal">
+		<span class="plain literal">
 			<xsl:attribute name="xml:lang">
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@xml:lang" />
 				</xsl:call-template>
 			</xsl:attribute>
-			<xsl:attribute name="title">
+			<xsl:value-of select="text()" />
+			<span class="language">
+				<span>@</span>
 				<xsl:call-template name="iriref">
 					<xsl:with-param name="iri" select="@xml:lang" />
 				</xsl:call-template>
-			</xsl:attribute>
-			<xsl:value-of select="text()" />
+			</span>
 		</span>
 	</xsl:template>
 	<xsl:template
 		match="sparql:literal[@datatype='http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral']">
-		<span class="literal" datatype="rdf:XMLLiteral">
+		<span class="typed literal" datatype="rdf:XMLLiteral">
 			<xsl:value-of disable-output-escaping="yes" select="text()" />
 		</span>
 	</xsl:template>

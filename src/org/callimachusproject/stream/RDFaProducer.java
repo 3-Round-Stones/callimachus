@@ -461,16 +461,12 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	// Literal expression
 	// A string with " or ' delimiters, allowing escaped characters \" and \'
-	// \{(\"|\')(([^\"]|\\['"])*?)\1\}
-	private static final String LITERAL_EXP_REGEX = "\\{(\\\"|\\')(([^\\\"]|\\\\['\"])*?)\\1\\}";
+	// \{(\"|\')(([^\"\n]|\\['"])*?)\1\}
+	private static final String LITERAL_EXP_REGEX = "\\{(\\\"|\\')(([^\\\"\\n]|\\\\['\"])*?)\\1\\}";
 	private static final Pattern LITERAL_EXP_PATTERN = Pattern.compile(LITERAL_EXP_REGEX);
 	
 	// Property expression
-	// \{([^ \}\?\"\':]*):([^ \}]+)\}
-	// group(1) is the prefix, group(2) is the local part, they must be separated by a colon
-	// The local part may only contain word characters
-	private static final String PROPERTY_EXP_REGEX = "\\{([^ \\}\\?\\\"\\':]*):([^ \\}]+)\\}";
-	private final Pattern PROPERTY_EXP_PATTERN = Pattern.compile(PROPERTY_EXP_REGEX);
+	private final Pattern PROPERTY_EXP_PATTERN = Pattern.compile(RDFaReader.PROPERTY_EXP_REGEX);
 	
 	String substitute(String text) {
 		// look for variable expressions in the attribute value
@@ -498,7 +494,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 			else if (b1) {
 				String val = m1.group(2);
 				// substitute escaped characters
-				val = val.replaceAll("\\'", "'").replaceAll("\\\"", "\"");
+				val = val.replaceAll("\\\\\\'", "\'").replaceAll("\\\\\\\"", "\"");
+				val = val.replaceAll("\\\\\\{", "{").replaceAll("\\\\\\}", "}");
 				text = text.replace(m1.group(), val);
 				found = true;
 				start = m1.end();

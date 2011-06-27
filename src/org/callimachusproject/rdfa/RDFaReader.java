@@ -87,6 +87,12 @@ public class RDFaReader extends RDFEventReader {
 	private IRI XMLLITERAL = tf.iri(RDF + "XMLLiteral");
 	private List<Node> TYPE = Arrays.asList((Node) tf.iri(RDF + "type"));
 	
+	// Property expression:
+	// \{([^ \}\?\"\':]*):([^ \"\']+)\}
+	// group(1) is the prefix, group(2) is the local part, they must be separated by a colon
+	// The local part may only contain word characters
+	public static final String PROPERTY_EXP_REGEX = "\\{([^ \\}\\?\\\"\\':]*):([^ \\\"\\']+)\\}";
+	
 	// The CONTENT signifier is required to distinguish content from property expressions
 	// where the same property is used for both in the same element. 
 	// The content @origin ends with '!', while the property expression ends with the property
@@ -583,11 +589,7 @@ public class RDFaReader extends RDFEventReader {
 			}
 		}
 
-		// Property expression:
-		// \{([^ \}\?\"\':]*):([^ \}]+)\}
-		// group(1) is the prefix, group(2) is the local part, they must be separated by a colon
-		// The local part may only contain word characters
-		private static final String PROPERTY_EXP_REGEX = "\\{([^ \\}\\?\\\"\\':]*):([^ \\}]+)\\}";
+		// Property expression
 		private final Pattern PROPERTY_EXP_PATTERN = Pattern.compile(PROPERTY_EXP_REGEX);
 		
 		private void addPropertyExpressions(Node subj, StartElement start) 

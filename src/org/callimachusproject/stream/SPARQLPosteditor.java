@@ -23,8 +23,6 @@ package org.callimachusproject.stream;
  * @author Steve Battle
  */
 
-import static org.callimachusproject.stream.SPARQLProducer.predicateLabel;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;

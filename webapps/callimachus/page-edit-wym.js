@@ -308,6 +308,45 @@ jQuery(function($){
 		});
 	}
 
+	function addProperty(dialog_property) {
+		var wym = this;
+		this.dialog('Add Property', null, dialog_property);
+		var blocks = new Array("span", "pre");
+		var node = jQuery(this.findUp(this.container(), blocks)).filter('span,pre').get(0);
+		if (node && $(node).attr("property")) {
+			$('#curie').val($(node).attr("property"));
+		} else {
+			$('.wym_dialog_property .wym_delete').remove();
+		}
+		$('.wym_dialog_property .wym_delete').click(function(event) {
+			if ($(node).is('span')) {
+				$(node).replaceWith($(node).html().replace('{' + $(node).attr("content") + '}', ''));
+			} else {
+				$(node).html($(node).html().replace('{' + $(node).attr("content") + '}', ''));
+				$(node).removeAttr("property");
+				$(node).removeAttr("content");
+			}
+			closeDialogue();
+		});
+		$('.wym_dialog_property .wym_submit').parents('form').submit(function(event) {
+			event.preventDefault();
+			var curie = $('#curie').val();
+			if (!checkCURIE(curie, this)) {
+				return false;
+			}
+			var id = findOrGenerateId(node, curie);
+			if (!node || $(node).is('span')) {
+				wym.insert('<span property="' + curie + '" content="?' + id + '">{?' + id + '}</span>&nbsp;');
+			} else {
+				$(node).attr("property", curie);
+				$(node).attr("content", '?' + id);
+				wym.insert('{?' + id + '}');
+			}
+			closeDialogue();
+			return false;
+		});
+	}
+
 	function addRel(dialog_rel) {
 		var wym = this;
 		this.dialog('Add Rel', null, dialog_rel);
@@ -368,7 +407,7 @@ jQuery(function($){
 
 	function findOrGenerateId(node, curie) {
 		var id = find(node, '[id]').attr('id');
-		if (node && id)
+		if (node && id && node != document)
 			return id;
 		var wym = window.WYMeditor.INSTANCES[0];
 		var path = [];
@@ -499,6 +538,7 @@ jQuery(function($){
 		var dialog_select = outer($('.wym_dialog_select'));
 		var dialog_drop = outer($('.wym_dialog_dropzone'));
 		var dialog_form = outer($('.wym_dialog_form'));
+		var dialog_property = outer($('.wym_dialog_property'));
 		var dialog_rel = outer($('.wym_dialog_rel'));
 
 		wym.exec = function(cmd) {
@@ -532,6 +572,9 @@ jQuery(function($){
 			break;
 			case 'InsertDropZone':
 				insertDropZone.call(wym, dialog_drop, 'dropzone', '<div id="$id" class="$type field" $rel="$curie" dropzone="link s:text/uri-list"><label>$label</label><button type="button" class="dialog" data-dialog="$prompt"/>\n<div about="?$id" typeof="$class"><span property="rdfs:label" /><button type="button" class="remove" /></div>\n</div>');
+			break;
+			case 'AddProperty':
+				addProperty.call(wym, dialog_property);
 			break;
 			case 'AddRel':
 				addRel.call(wym, dialog_rel);

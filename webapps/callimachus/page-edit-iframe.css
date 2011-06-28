@@ -70,11 +70,53 @@
   pre       { background-image: url(/callimachus/images/lbl-pre.png); }
   pre.wiki  { background-image: url(/callimachus/images/lbl-wiki.png); background-color: white; }
   .aside    { background: white url(/callimachus/images/lbl-aside.png) no-repeat 2px 2px !important; padding-top: 8px; margin-left: 25%; }
-  .vbox     { background: url(/callimachus/images/lbl-vbox.png) no-repeat 2px 2px !important; padding-top: 8px }
-  .hbox     { background: url(/callimachus/images/lbl-hbox.png) no-repeat 2px 2px !important; padding-top: 8px }
-  *[rel]    { background: url(/callimachus/images/lbl-rel.png) no-repeat 2px 2px !important; padding-top: 8px }
-  *[rev]    { background: url(/callimachus/images/lbl-rev.png) no-repeat 2px 2px !important; padding-top: 8px }
-  *[about]    { background: url(/callimachus/images/lbl-about.png) no-repeat 2px 2px !important; padding-top: 8px }
+
+.vbox {
+	background-image: url(/callimachus/images/lbl-vbox.png) !important;
+	background-repeat: no-repeat;
+	background-position: 2px 2px;
+	padding-top: 8px;
+}
+
+.hbox {
+	background-image: url(/callimachus/images/lbl-hbox.png) !important;
+	background-repeat: no-repeat;
+	background-position: 2px 2px;
+	padding-top: 8px;
+}
+
+*[rel] {
+	background-image: url(/callimachus/images/lbl-rel.png) !important;
+	background-repeat: no-repeat;
+	background-position: 2px 2px;
+	padding-top: 8px;
+}
+
+*[rev] {
+	background-image: url(/callimachus/images/lbl-rev.png) !important;
+	background-repeat: no-repeat;
+	background-position: 2px 2px;
+	padding-top: 8px;
+}
+
+*[about] {
+	background-image: url(/callimachus/images/lbl-about.png) !important;
+	background-repeat: no-repeat;
+	background-position: 2px 2px;
+	padding-top: 8px;
+}
+
+*[property] {
+	background-image: url(/callimachus/images/lbl-property.png) !important;
+	background-repeat: no-repeat;
+	background-position: 2px 2px !important;
+	padding-top: 8px;
+	margin-left: 10px;
+}
+
+pre.wiki[property] {
+	background-image: url(/callimachus/images/lbl-wiki-property.png) !important;
+}
 
 /* specific HTML elements */
   caption   { text-align: left; }

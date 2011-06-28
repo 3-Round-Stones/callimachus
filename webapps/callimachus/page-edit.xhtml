@@ -104,6 +104,9 @@
 				<li class="Wym_Tools_Items wym_tools_drop">
 					<a title="Drop zone field" name="InsertDropZone" href="#">Drop zone</a>
 				</li>
+				<li class="Wym_Tools_Items wym_tools_property">
+					<a title="Add property" name="AddProperty" href="#">Property</a>
+				</li>
 				<li class="Wym_Tools_Items wym_tools_rel">
 					<a title="Add relationship" name="AddRel" href="#">Relationship</a>
 				</li>
@@ -247,6 +250,18 @@
 				<button class='wym_submit' type='submit'>Save</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
 				<button class='wym_delete' type='button'>Delete</button>
+			</form>
+		</div>
+		<div class='wym_dialog wym_dialog_property'>
+			<form>
+				<input type='hidden' class='wym_dialog_type' value='AddProperty' />
+				<label for="curie">Property</label>
+				<div>
+					<input id="curie" type='text' class='wym_curie' value='' />
+				</div>
+				<button class='wym_submit' type='submit'>Add</button>
+				<button class='wym_cancel' type='button'>Cancel</button>
+				<button class='wym_delete' type='button'>Remove</button>
 			</form>
 		</div>
 		<div class='wym_dialog wym_dialog_rel'>

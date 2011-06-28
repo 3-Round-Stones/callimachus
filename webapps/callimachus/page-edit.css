@@ -86,7 +86,7 @@
         .wym_buttons li.wym_tools_dropdown a      { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -168px; }
         .wym_buttons li.wym_tools_select a        { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -192px; }
         .wym_buttons li.wym_tools_drop a          { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -216px; }
-        .wym_buttons li.wym_tools_about a         { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -240px; }
+        .wym_buttons li.wym_tools_property a      { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -240px; }
         .wym_buttons li.wym_tools_rel a           { background-image: url(/callimachus/images/form-toolbar.png); background-position: 0px -264px; }
 
 /*DECORATION*/

@@ -25,25 +25,6 @@ function getPageLocationURL() {
 	var page = [null, '<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>' + label + '</title></head><body about="?this">', '<h1>' + label + '</h1>','</body></html>'];
 	var etag = null;
 
-	function inlineProperties(html) {
-		var result = html;
-		result = result.replace(/<span\s+property="(\w*:\w*)"\s*\/>/g, '{$1}');
-		result = result.replace(/<(\w*)(\s+class="[^"]*")?\s+property="(\w*:\w*)"\s*(?:\/>|>\s*<\/\1>)/g, '<$1$2>{$3}</$1>');
-		return result;
-	}
-
-	function outlineProperties(html) {
-		var result = html;
-		result = result.replace(/<(\w*)(\s+class="[^"]*")?\s*>{(\w*:\w*)}<\/\1>/g, '<$1$2 property="$3" />');
-		var regex = /{(\w*:\w*)}([^>]*<\/?)(a|abbr|acronym|address|applet|audio|b|bdi|bdo|big|blockquote|body|br|button|canvas|caption|center|cite|code|command|datalist|dd|del|dfn|div|dt|em|embed|fieldset|font|form|h1|h2|h3|h4|h5|h6|i|iframe|img|input|ins|kbd|keygen|label|legend|li|mark|math|meter|noframes|noscript|object|output|p|progress|q|ruby|s|samp|select|small|span|strike|strong|sub|sup|svg|td|th|time|tt|u|var|video|wbr)\b/g;
-		var inline = result.replace(regex, '<span property="$1" />$2$3');
-		while (result != inline) {
-			result = inline;
-			inline = result.replace(regex, '<span property="$1" />$2$3');
-		}
-		return result;
-	}
-
 	$(window).one('load', function() {
 		if (location.search != "?create") {
 			jQuery.ajax({
@@ -68,17 +49,17 @@ function getPageLocationURL() {
 							etag = null;
 							url = null;
 						}
-						window.WYMeditor.INSTANCES[0].initHtml(inlineProperties(page[2]));
+						window.WYMeditor.INSTANCES[0].initHtml(page[2]);
 					}
 				}
 			});
 		} else { // new page
-			window.WYMeditor.INSTANCES[0].initHtml(inlineProperties(page[2]));
+			window.WYMeditor.INSTANCES[0].initHtml(page[2]);
 		}
 	});
 
 	$('#form').submit(function(event) {
-		var body = outlineProperties(jQuery.wymeditors(0).xhtml());
+		var body = jQuery.wymeditors(0).xhtml();
 		jQuery.getJSON('/callimachus/profile', function(json) {
 			try {
 				var items = [];

@@ -22,7 +22,7 @@ function getPageLocationURL() {
 	if (!label) {
 		label = 'Enter Title Here';
 	}
-	var page = [null, '<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>' + label + '</title></head><body about="?this">', '<h1>' + label + '</h1>','</body></html>'];
+	var page = '<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>' + label + '</title></head><body about="?this"><h1>' + label + '</h1></body></html>';
 	var etag = null;
 
 	$(window).one('load', function() {
@@ -38,7 +38,7 @@ function getPageLocationURL() {
 							var type = xhr.getResponseHeader("Content-Type");
 							if (type && type.indexOf('application/xhtml+xml') == 0) {
 								etag = xhr.getResponseHeader("ETag");
-								page = xhr.responseText.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
+								page = xhr.responseText;
 								$('#create').hide();
 								$('#abort').hide();
 								$('#save').show();
@@ -49,17 +49,17 @@ function getPageLocationURL() {
 							etag = null;
 							url = null;
 						}
-						window.WYMeditor.INSTANCES[0].initHtml(page[2]);
+						window.WYMeditor.INSTANCES[0].initHtml(page);
 					}
 				}
 			});
 		} else { // new page
-			window.WYMeditor.INSTANCES[0].initHtml(page[2]);
+			window.WYMeditor.INSTANCES[0].initHtml(page);
 		}
 	});
 
 	$('#form').submit(function(event) {
-		var body = jQuery.wymeditors(0).xhtml();
+		var xhtml = jQuery.wymeditors(0).xhtml();
 		jQuery.getJSON('/callimachus/profile', function(json) {
 			try {
 				var items = [];
@@ -68,7 +68,9 @@ function getPageLocationURL() {
 						items.push('xmlns:' + key + '="' + val + '"');
 					}
 				});
-				var header = page[1].replace(/<html\s+(xmlns[:\w-_]*="[^"]*"\s*)*/g, '<html ');
+				var page = xhtml.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
+				var body = page[2];
+				var header = page[1].replace(/<html\s+(xmlns[:\w-_.]*="[^"]*"\s*)*/g, '<html ');
 				header = header.replace(/<html\s*/, '<html xmlns="http://www.w3.org/1999/xhtml" ' + items.join(' ') + ' ');
 				var m = body.match(/<h1\s*(?:[^<\/]|<[^\/h]|\/[^>])*>\s*([^<]*)\s*<\//);
 				if (m) {

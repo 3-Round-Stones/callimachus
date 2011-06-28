@@ -456,26 +456,6 @@ jQuery(function($){
 		$(document).trigger('calliSuccess');
 	}
 
-	function formatXML(text) {
-		if (window.XML) {
-			if (text.search(/^<\?xml/) == 0) {
-				text = text.substring(text.indexOf('?>') + 2);
-			}
-			return window.XML(text).toXMLString();
-		} else if (window.DOMParser) {
-			var sheet ='<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"><xsl:output method="xml" omit-xml-declaration="yes" indent="yes"/><xsl:template match="node()|@*"><xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy></xsl:template></xsl:stylesheet>';
-			var parser = new DOMParser();
-			var xsl = parser.parseFromString(sheet, "text/xml");
-			var src = parser.parseFromString(text, "text/xml");
-			var xsltproc = new XSLTProcessor();
-			xsltproc.importStylesheet(xsl);
-			var result = xsltproc.transformToDocument(src);
-			if (result && !$("parsererror", result).length)
-				return new XMLSerializer().serializeToString(result);
-		}
-		return text;
-	}
-
 	function updateBody() {
 		var wym = window.WYMeditor.INSTANCES[0];
 		$(wym._doc.body).find('.vbox:not(:has(p))').append('<p></p>');
@@ -486,28 +466,39 @@ jQuery(function($){
 
 	window.WYMeditor.INSTANCES[0].initHtml = function(html) {
 		var wym = window.WYMeditor.INSTANCES[0];
+		var page = html.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
 
 		var innerHtml = wym.html;
 		wym.html = function(html) {
 			if(typeof html === 'string') {
+				var m = html.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
+				if (m) {
+					page = m;
+					html = page[2];
+				}
 				var ret = innerHtml.call(this, html);
 				$(wym._doc.body).find(':input').attr("disabled", 'disabled');
 				updateBody();
 				return ret;
 			} else {
-				$(wym._doc.body).find(':input').removeAttr("disabled");
-				var markup = $(this._doc.body).html();
-				$(wym._doc.body).find(':input').attr("disabled", 'disabled');
-				return markup;
+				var editor = $('#ace-iframe');
+				if (editor.is(':visible')) {
+					var value = editor[0].contentWindow.editor.getSession().getValue();
+					page = value.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
+					return page[2];
+				} else {
+					$(wym._doc.body).find(':input').removeAttr("disabled");
+					var markup = $(this._doc.body).html();
+					$(wym._doc.body).find(':input').attr("disabled", 'disabled');
+					return markup;
+				}
 			}
 		};
 
 		var innerXhtml = wym.xhtml;
-		wym.xhtml = function(html) {
-			var xhtml = innerXhtml.call(this, html);
-			var formatted = formatXML('<body>' + xhtml + '</body>');
-			return formatted.replace(/^\s*<body\s*>/, '').replace(/<\/body>\s*$/, '');
-		};
+		wym.xhtml = function() {
+			return page[1] + innerXhtml.call(this) + page[3];
+		}
 
 		var innerKeyup = wym.keyup;
 		wym.keyup = function(event) {
@@ -543,6 +534,25 @@ jQuery(function($){
 
 		wym.exec = function(cmd) {
 			switch (cmd) {
+			case 'ToggleHtml':
+				var editor = $('#ace-iframe');
+				if (editor.is(':visible')) {
+					var html = editor[0].contentWindow.editor.getSession().getValue();
+					wym.html(html);
+					$('#iframe').css('width', editor.css('width'));
+					$('#iframe').css('height', editor.css('height'));
+					editor.hide();
+					$('#iframe').show();
+				} else {
+					var html = wym.xhtml();
+					editor[0].contentWindow.editor.getSession().setValue(html);
+					editor.css('width', $('#iframe').css('width'));
+					editor.css('height', $('#iframe').css('height'));
+					editor[0].contentWindow.editor.gotoLine(1);
+					$('#iframe').hide();
+					editor.show();
+				}
+			break;
 			case 'InsertVBox':
 				insertContainer.call(wym, '<div class="vbox">\n<p></p></div>\n', 'div.vbox');
 			break;
@@ -587,7 +597,7 @@ jQuery(function($){
 			wym.update();
 		};
 
-		jQuery.wymeditors(0)._html = html;
+		jQuery.wymeditors(0)._html = page[2];
 		wym.initIframe($('#iframe')[0]);
 		$('#iframe').trigger('load');
 		setTimeout(function(){

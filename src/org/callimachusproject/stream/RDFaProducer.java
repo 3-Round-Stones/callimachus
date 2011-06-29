@@ -442,7 +442,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 	
 	// whitespace
-	private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s*");
+	private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
 	
 	boolean isWhitespace(XMLEvent event) {
 		if (event!=null && event.isCharacters()) {
@@ -462,8 +462,11 @@ public class RDFaProducer extends XMLEventReaderBase {
 	// Literal expression
 	// A string with " or ' delimiters, allowing escaped characters \" and \'
 	// \{(\"|\')(([^\"\n]|\\['"])*?)\1\}
-	private static final String LITERAL_EXP_REGEX = "\\{(\\\"|\\')(([^\\\"\\n]|\\\\['\"])*?)\\1\\}";
-	private static final Pattern LITERAL_EXP_PATTERN = Pattern.compile(LITERAL_EXP_REGEX);
+	private static final String LITERAL_EXP_REGEX1 = "\\{\"(([^\"\\n]|\\\\\")*?)\"\\}";
+	private static final Pattern LITERAL_EXP_PATTERN1 = Pattern.compile(LITERAL_EXP_REGEX1);
+	private static final String LITERAL_EXP_REGEX2 = "\\{'(([^'\\n]|\\\\')*?)'\\}";
+	private static final Pattern LITERAL_EXP_PATTERN2 = Pattern.compile(LITERAL_EXP_REGEX2);
+	private static final Pattern UNICODE_ESCAPE = Pattern.compile("\\\\u(\\w\\w\\w\\w)");
 	
 	// Property expression
 	private final Pattern PROPERTY_EXP_PATTERN = Pattern.compile(RDFaReader.PROPERTY_EXP_REGEX);
@@ -471,12 +474,13 @@ public class RDFaProducer extends XMLEventReaderBase {
 	String substitute(String text) {
 		// look for variable expressions in the attribute value
 		Matcher m = VAR_EXP_PATTERN.matcher(text);
-		Matcher m1 = LITERAL_EXP_PATTERN.matcher(text);
-		Matcher m2 = PROPERTY_EXP_PATTERN.matcher(text);
+		Matcher m1 = LITERAL_EXP_PATTERN1.matcher(text);
+		Matcher m2 = LITERAL_EXP_PATTERN2.matcher(text);
+		Matcher m3 = PROPERTY_EXP_PATTERN.matcher(text);
 		boolean found = false;
-		boolean b=false, b1=false, b2=false;
+		boolean b=false, b1=false, b2=false, b3=false;
 		int start = 0;
-		while ((b=m.find(start)) || (b1=m1.find(start)) || (b2=m2.find(start))) {
+		while ((b=m.find(start)) || (b1=m1.find(start)) || (b2=m2.find(start)) || (b3=m3.find(start))) {
 			// variable expression
 			if (b) {
 				String var = m.group(1);
@@ -485,38 +489,71 @@ public class RDFaProducer extends XMLEventReaderBase {
 					String val = assignment.stringValue();
 					text = text.replace(m.group(), val);
 				} else {
-					throw new InternalServerError("Variable not bound: " + var);
+					text = text.replace(m.group(), "");
 				}
 				found = true;
 				start = m.end();
 			}
-			// literal expression
+			// literal expression 1
 			else if (b1) {
-				String val = m1.group(2);
+				String val = m1.group(1);
 				// substitute escaped characters
-				// replace  escaped backslash with backslash entity
-				val = val.replaceAll("\\\\\\\\", "&#92;");
-				// replace escaped quote with quote
-				val = val.replaceAll("\\\\\\'", "\'").replaceAll("\\\\\\\"", "\"");
-				// replace escaped brace with brace
-				val = val.replaceAll("\\\\\\{", "{").replaceAll("\\\\\\}", "}");
-				// replace backslash entity with backslash
-				val = val.replaceAll("&#92;", "\\\\");
+				val = backslash(val);
 				text = text.replace(m1.group(), val);
 				found = true;
 				start = m1.end();
 			}
-			// property expression
+			// literal expression 2
 			else if (b2) {
-				String prefix = m2.group(1), localPart = m2.group(2);
-				String var = getVar(prefix+":"+localPart,context.path);
-				Value val = context.assignments.get(var);
-				text = text.replace(m2.group(), val!=null?val.stringValue():"");
+				String val = m2.group(1);
+				// substitute escaped characters
+				val = backslash(val);
+				text = text.replace(m2.group(), val);
 				found = true;
 				start = m2.end();
 			}
+			// property expression
+			else if (b3) {
+				String prefix = m3.group(1), localPart = m3.group(2);
+				String var = getVar(prefix+":"+localPart,context.path);
+				Value val = context.assignments.get(var);
+				text = text.replace(m3.group(), val!=null?val.stringValue():"");
+				found = true;
+				start = m3.end();
+			}
 		}
 		return found?text:null;		
+	}
+
+	private String backslash(String val) {
+		Matcher m = UNICODE_ESCAPE.matcher(val);
+		loop: while (m.find()) {
+			int unicode = 0;
+			for (char c : m.group(1).toCharArray()) {
+				if ((c >= '0') && (c <= '9')) {
+				    unicode = (unicode << 4) + c - '0';
+				}
+				else if ((c >= 'a') && (c <= 'f')) {
+				    unicode = (unicode << 4) + 10 + c - 'a';
+				}
+				else if ((c >= 'A') && (c <= 'F')) {
+				    unicode = (unicode << 4) + 10 + c - 'A';
+				}
+				else {
+				    break loop;
+				}
+			}
+			val.replace(m.group(), Character.toString((char) unicode));
+		}
+		val = val.replace("\\b", "\b");
+		val = val.replace("\\f", "\f");
+		val = val.replace("\\n", "\n");
+		val = val.replace("\\r", "\r");
+		val = val.replace("\\t", "\t");
+		val = val.replace("\\'", "\'");
+		val = val.replace("\\\"", "\"");
+		val = val.replaceAll("\\\\(.)", "$1");
+		return val;
 	}
 	
 	Node curie(String curie) {

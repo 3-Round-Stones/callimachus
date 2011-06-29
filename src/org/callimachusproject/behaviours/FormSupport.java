@@ -52,12 +52,14 @@ import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.BadRequest;
+import org.openrdf.http.object.exceptions.InternalServerError;
 import org.openrdf.http.object.exceptions.ResponseException;
 import org.openrdf.http.object.util.ChannelUtil;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.impl.TupleQueryResultImpl;
@@ -155,10 +157,14 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		else { // evaluate SPARQL derived from the template
 			String base = about.stringValue();
 			String sparql = sparql(query, element);
-			TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, base);
-			q.setBinding("this", about);
-			results = q.evaluate();
-			origins = SPARQLProducer.getOrigins(sparql);
+			try {
+				TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, base);
+				q.setBinding("this", about);
+				results = q.evaluate();
+				origins = SPARQLProducer.getOrigins(sparql);
+			} catch (MalformedQueryException e) {
+				throw new InternalServerError(e.toString() + '\n' + sparql, e);
+			}
 		}
 		return new RDFaProducer(xslt(query,element), results, origins, about, con);
 	}

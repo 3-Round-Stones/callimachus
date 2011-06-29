@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Listens for changes to a directory and uploads or deletes the coresponding
+ * Listens for changes to a directory and uploads or deletes the corresponding
  * files to a web server.
  * 
  * @author James Leigh

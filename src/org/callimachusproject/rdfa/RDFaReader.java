@@ -91,7 +91,7 @@ public class RDFaReader extends RDFEventReader {
 	// \{([^ \}\?\"\':]*):([^ \"\']+)\}
 	// group(1) is the prefix, group(2) is the local part, they must be separated by a colon
 	// The local part may only contain word characters
-	public static final String PROPERTY_EXP_REGEX = "\\{([^ \\}\\?\\\"\\':]*):([^ \\\"\\']+)\\}";
+	public static final String PROPERTY_EXP_REGEX = "\\{([^\\s\u00a0\\}\\?\\\"\\':]*):([^\\s\u00a0\\\"\\']+)\\}";
 	
 	// The CONTENT signifier is required to distinguish content from property expressions
 	// where the same property is used for both in the same element. 

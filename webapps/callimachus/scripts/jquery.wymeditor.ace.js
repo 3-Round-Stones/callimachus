@@ -6,8 +6,14 @@
  */
 (function($){
 
-function getNodeIndex(html, row) {
-	var m = html.match(new RegExp('(:?[^\n]*\n){0,' + (row + 1) + '}'));
+function getNodeIndex(html, row, column) {
+	var regex = '(:?[^\n]*\n){0,' + row + '}';
+	if (column == 0) {
+		regex = regex + '(:?[^<]|<[^/])*';
+	} else {
+		regex = regex + '.{0,' + column + '}';
+	}
+	var m = html.match(new RegExp(regex));
 	if (m) {
 		var body = m[0].replace(/[\s\S]*<body[^>]*>/, '');
 		m = body.match(/<(:?[^<]|<\/)*/g);
@@ -89,6 +95,22 @@ WYMeditor.editor.prototype.initHtml = function(html) {
 		return page[1] + body + page[3];
 	}
 
+	var _update = wym.update;
+	wym.update = function() {
+		var editor = $('#ace-iframe');
+		if (editor.is(':visible')) {
+			var html = page[1] + wym.parser.parse($(wym._doc.body).html()) + page[3];
+			var ed = editor[0].contentWindow.editor;
+			var value = ed.getSession().getValue();
+			if (value != html) {
+				var row = ed.getSelectionRange().start.row;
+				ed.getSession().setValue(html);
+				ed.gotoLine(row + 1);
+			}
+		}
+		return _update.call(this);
+	};
+
 	return _initHtml.call(this, html);
 }
 
@@ -126,24 +148,14 @@ jQuery.fn.wymeditor = function(options) {
 			default:
 				var ret = _exec.call(wym, cmd);
 				wym.update();
+				if (window.dialog) {
+					window.dialog.bind("dialogbeforeclose", function(event, ui) {
+						wym.update();
+						return true;
+					});
+				}
 				return ret;
 			}
-		};
-
-		var _update = wym.update;
-		wym.update = function() {
-			var editor = $('#ace-iframe');
-			if (editor.is(':visible')) {
-				var html = wym.xhtml();
-				var ed = editor[0].contentWindow.editor;
-				var value = ed.getSession().getValue();
-				if (value != html) {
-					var row = ed.getSelectionRange().start.row;
-					ed.getSession().setValue(html);
-					ed.gotoLine(row + 1);
-				}
-			}
-			return _update.call(this);
 		};
 
 		var _setFocusToNode = wym.setFocusToNode;

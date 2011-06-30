@@ -1210,6 +1210,7 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
       dialog.bind("dialogclose", function(event, ui) {
         dialog.dialog("destroy");
         div.remove();
+		window.dialog = null;
       });
       dialog.dialog("open");
       window.dialog = dialog;

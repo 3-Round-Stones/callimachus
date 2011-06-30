@@ -1,44 +1,15 @@
-// page-edit-wym.js
+// jquery.wymeditor.callimachus.js
 
-jQuery(function($){
+/*
+ * Support inserting of Callimachus form elements into page
+ */
+(function($){
 
 	function outer(node) {
 		var html = $($('<div/>').html($(node).clone())).html();
 		$(node).remove();
 		return html;
 	}
-
-	$(document).ready(function() {
-		WYMeditor.XhtmlValidator._tags['a']['attributes']['rel'] = /^.+$/;
-		WYMeditor.XhtmlValidator._tags['a']['attributes']['rev'] = /^.+$/;
-		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('dropzone');
-		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('data-dialog');
-		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push(
-			'rel',
-			'rev',
-			'content',
-			'href',
-			'src',
-			'about',
-			'property',
-			'resource',
-			'datatype',
-			'typeof');
-		$('.wym_box_0').wymeditor({
-			html: '<h1></h1>',
-			lang: null,
-			initSkin: false,
-			loadSkin: false,
-			jQueryPath: '/callimachus/scripts/jquery.js',
-			dialogFeatures: 'jQuery.dialog',
-			dialogFeaturesPreview: 'jQuery.dialog',
-			dialogImageHtml: outer($('.wym_dialog_image')),
-			dialogTableHtml: outer($('.wym_dialog_table')),
-			dialogPasteHtml: outer($('.wym_dialog_paste')),
-			dialogPreviewHtml: outer($('.wym_dialog_preview')),
-			dialogLinkHtml: outer($('.wym_dialog_link'))
-		});
-	});
 
 	function select(node, selector) {
 		if (!node)
@@ -62,8 +33,8 @@ jQuery(function($){
 	}
 
 	function insertContainer(html, toggle) {
-		var block = $(this.findUp(this.container(), WYMeditor.BLOCKS)).get(0);
-		var node = $(this.findUp(this.container(), WYMeditor.MAIN_CONTAINERS)).get(0);
+		var block = this.findUp(this.container(), WYMeditor.BLOCKS);
+		var node = this.findUp(this.container(), WYMeditor.MAIN_CONTAINERS);
 		if((!node || !node.parentNode) && block && block.parentNode) {
 			var div = $(html);
 			$(block).append(div);
@@ -88,23 +59,42 @@ jQuery(function($){
 	}
 
 	function insertField(html, toggle) {
-		var block = $(this.findUp(this.container(), WYMeditor.BLOCKS)).get(0);
-		var node = $(this.findUp(this.container(), WYMeditor.MAIN_CONTAINERS)).get(0);
+		var container = this.container();
+		var field = $(container).parents().andSelf().filter('.field')[0];
+		var block = this.findUp(container, WYMeditor.BLOCKS);
+		var node = this.findUp(container, WYMeditor.MAIN_CONTAINERS);
 		if (toggle && select(this.container(), toggle).length) {
 			var field = select(this.container(), toggle);
 			var parent = field.parent();
 			field.remove();
 			setFocusToNode(this, parent[0]);
-		} else if ((!node || !node.parentNode) && block && block.parentNode) {
-			this.insert(html);
-		} else if (!node || !node.parentNode) {
+		} else if (field) {
 			var div = $(html);
-			$(this._doc.body).append(div);
-			setFocusToNode(this, div);
+			$(field).after('\n\t\t');
+			$(field).after(div);
+			$(field).after('\n\t\t\t');
+			setFocusToNode(this, div[0]);
+		} else if (node) {
+			var div = $(html);
+			$(node).before('\n\t\t\t');
+			$(node).before(div);
+			$(node).before('\n\t\t');
+			setFocusToNode(this, node);
+		} else if ($(container).is(':input')) {
+			var div = $(html);
+			$(container).before('\n\t\t\t');
+			$(container).before(div);
+			$(container).before('\n\t\t');
+			setFocusToNode(this, node);
+		} else if (block && block.parentNode) {
+			this.insert(html);
+			this.update();
 		} else {
 			var div = $(html);
-			$(node).before(div);
-			setFocusToNode(this, node);
+			$(this._doc.body).append('\n\t\t\t');
+			$(this._doc.body).append(div);
+			$(this._doc.body).append('\n\t\t');
+			setFocusToNode(this, div[0]);
 		}
 	}
 
@@ -238,11 +228,11 @@ jQuery(function($){
 			label.text(bindings['label']);
 			var div = $('<div/>');
 			div.attr('class', bindings['type'] + ' field');
-			div.append('\n\t');
+			div.append('\n\t\t\t\t');
 			div.append(label);
-			div.append('\n\t');
+			div.append('\n\t\t\t\t');
 			div.append(html);
-			div.append('\n');
+			div.append('\n\t\t\t');
 			html = $('<div/>').append(div).html();
 		}
 		if (node && node.parentNode) {
@@ -258,7 +248,7 @@ jQuery(function($){
 	function insertForm(dialog_form) {
 		var wym = this;
 		this.dialog('Insert Form', null, dialog_form);
-		var node = jQuery(this.findUp(this.container(), ['form'])).get(0);
+		var node = this.findUp(this.container(), ['form']);
 		if (node) {
 			$('#curie').val($(node).attr('typeof'));
 			if ($(node).find('button[onclick]').length) {
@@ -289,14 +279,14 @@ jQuery(function($){
 			if (node) {
 				form.append($(node).children(':not(:button)'));
 			} else {
-				form.append('<div class="vbox">\n<p></p>\n</div>');
+				form.append('\n\t\t<div class="vbox">\n\t\t\t<p></p>\n\t\t</div>\n');
 			}
 			if ($('#create-radio').is(':checked')) {
-				form.append('<button type="submit" disabled="disabled">Create</button>\n');
+				form.append('\t\t<button type="submit" disabled="disabled">Create</button>\n\t');
 			} else {
-				form.append('<button type="submit" disabled="disabled">Save</button>\n');
-				form.append('<button type="button" disabled="disabled" onclick="location.replace(\'?view\')">Cancel</button>\n');
-				form.append('<button type="button" disabled="disabled" onclick="calli.deleteResource(form)">Delete</button>\n');
+				form.append('\t\t<button type="submit" disabled="disabled">Save</button>\n');
+				form.append('\t\t<button type="button" disabled="disabled" onclick="location.replace(\'?view\')">Cancel</button>\n');
+				form.append('\t\t<button type="button" disabled="disabled" onclick="calli.deleteResource(form)">Delete</button>\n\t');
 			}
 			if (node) {
 				$(node).replaceWith(form);
@@ -312,7 +302,7 @@ jQuery(function($){
 		var wym = this;
 		this.dialog('Add Property', null, dialog_property);
 		var blocks = new Array("span", "pre");
-		var node = jQuery(this.findUp(this.container(), blocks)).filter('span,pre').get(0);
+		var node = this.findUp(this.container(), blocks);
 		if (node && $(node).attr("property")) {
 			$('#curie').val($(node).attr("property"));
 		} else {
@@ -351,7 +341,7 @@ jQuery(function($){
 		var wym = this;
 		this.dialog('Add Rel', null, dialog_rel);
 		var blocks = new Array("address", "div", "dl", "fieldset", "form", "noscript", "ol", "ul", "dd", "dt", "li", "tr", "a");
-		var node = jQuery(this.findUp(this.container(), blocks)).get(0);
+		var node = this.findUp(this.container(), blocks);
 		if (node && $(node).attr('rel')) {
 			$('#curie').val($(node).attr('rel'));
 		} else {
@@ -376,7 +366,7 @@ jQuery(function($){
 				$(node).attr(attr, curie);
 				$(node).attr('resource', '?' + id);
 			} else {
-				node = jQuery(wym.findUp(wym.container(), WYMeditor.MAIN_CONTAINERS)).get(0);
+				node = wym.findUp(wym.container(), WYMeditor.MAIN_CONTAINERS);
 				if (node && node.parentNode) {
 					var div = $('<div/>');
 					div.attr('class', 'vbox');
@@ -413,6 +403,9 @@ jQuery(function($){
 		var path = [];
 		var container = wym.container();
 		var parents = $(container).add($(container).parents());
+		if (parents.is('.field')) {
+			parents = parents.filter('.field').parents();
+		}
 		parents.filter('[rel],[rev],[property],[id]').each(function() {
 			var id = $(this).attr('id');
 			if (id) {
@@ -462,43 +455,40 @@ jQuery(function($){
 		$(wym._doc.body).find('.hbox:not(:has(p))').append('<p></p>');
 		$(wym._doc.body).find('.vbox>div+div').before('<p></p>');
 		$(wym._doc.body).find('.hbox>div+div').before('<p></p>');
+		wym.update();
 	}
 
-	window.WYMeditor.INSTANCES[0].initHtml = function(html) {
-		var wym = window.WYMeditor.INSTANCES[0];
-		var page = html.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
+var _wymeditor = jQuery.fn.wymeditor;
+jQuery.fn.wymeditor = function(options) {
+	var _postInit = options.postInit;
+	options.postInit = function(wym) {
 
 		var innerHtml = wym.html;
 		wym.html = function(html) {
 			if(typeof html === 'string') {
-				var m = html.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
-				if (m) {
-					page = m;
-					html = page[2];
-				}
+				updateBody();
+				var index = jQuery.inArray(this.selected(), $(this._doc.body).find('*').get());
 				var ret = innerHtml.call(this, html);
 				$(wym._doc.body).find(':input').attr("disabled", 'disabled');
 				updateBody();
+				var nodes = $(this._doc.body).find('*');
+				var node = nodes[index];
+				if (node) {
+					var next = nodes[index + 1];
+					if (!$(node).is('p') && $(next).is('p')) {
+						this.setFocusToNode(next);
+					} else {
+						this.setFocusToNode(node);
+					}
+				}
 				return ret;
 			} else {
-				var editor = $('#ace-iframe');
-				if (editor.is(':visible')) {
-					var value = editor[0].contentWindow.editor.getSession().getValue();
-					page = value.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
-					return page[2];
-				} else {
-					$(wym._doc.body).find(':input').removeAttr("disabled");
-					var markup = $(this._doc.body).html();
-					$(wym._doc.body).find(':input').attr("disabled", 'disabled');
-					return markup;
-				}
+				$(wym._doc.body).find(':input').removeAttr("disabled");
+				var markup = innerHtml.call(this, html);
+				$(wym._doc.body).find(':input').attr("disabled", 'disabled');
+				return markup;
 			}
 		};
-
-		var innerXhtml = wym.xhtml;
-		wym.xhtml = function() {
-			return page[1] + innerXhtml.call(this) + page[3];
-		}
 
 		var innerKeyup = wym.keyup;
 		wym.keyup = function(event) {
@@ -507,24 +497,6 @@ jQuery(function($){
 			return ret;
 		};
 
-		var innerContainer = wym.container;
-		wym.container = function(sType) {
-			if (sType && sType.indexOf('.') >= 0) {
-				if (sType.indexOf('.') > 0) {
-					innerContainer.call(this, sType.substring(0, sType.indexOf('.')));
-				}
-				var container = $(innerContainer.call(this));
-				var css = sType.split('.');
-				for (var i = 1; i < css.length; i++) {
-					sType = container.toggleClass(css[i]);
-				}
-				return innerContainer.call(this);
-			} else {
-				return innerContainer.call(this, sType);
-			}
-		};
-
-		var previously = wym.exec;
 		var dialog_input = outer($('.wym_dialog_input'));
 		var dialog_select = outer($('.wym_dialog_select'));
 		var dialog_drop = outer($('.wym_dialog_dropzone'));
@@ -532,27 +504,9 @@ jQuery(function($){
 		var dialog_property = outer($('.wym_dialog_property'));
 		var dialog_rel = outer($('.wym_dialog_rel'));
 
+		var previously = wym.exec;
 		wym.exec = function(cmd) {
 			switch (cmd) {
-			case 'ToggleHtml':
-				var editor = $('#ace-iframe');
-				if (editor.is(':visible')) {
-					var html = editor[0].contentWindow.editor.getSession().getValue();
-					wym.html(html);
-					$('#iframe').css('width', editor.css('width'));
-					$('#iframe').css('height', editor.css('height'));
-					editor.hide();
-					$('#iframe').show();
-				} else {
-					var html = wym.xhtml();
-					editor[0].contentWindow.editor.getSession().setValue(html);
-					editor.css('width', $('#iframe').css('width'));
-					editor.css('height', $('#iframe').css('height'));
-					editor[0].contentWindow.editor.gotoLine(1);
-					$('#iframe').hide();
-					editor.show();
-				}
-			break;
 			case 'InsertVBox':
 				insertContainer.call(wym, '<div class="vbox">\n<p></p></div>\n', 'div.vbox');
 			break;
@@ -569,19 +523,19 @@ jQuery(function($){
 				insertInput.call(wym, dialog_input, 'text', '<textarea id="$id" class="auto-expand" disabled="disabled">{$curie}</textarea>');
 			break;
 			case 'InsertRadio':
-				insertSelect.call(wym, dialog_select, 'radio', '<div id="$id">\n<label $rel="$curie" resource="?$id"><input type="radio" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" /></label>\n</div>');
+				insertSelect.call(wym, dialog_select, 'radio', '<div id="$id">\n\t\t\t\t\t<label $rel="$curie" resource="?$id">\n\t\t\t\t\t\t<input type="radio" name="$id" checked="checked" />\n\t\t\t\t\t\t<span rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" />\n\t\t\t\t\t</label>\n\t\t\t\t</div>');
 			break;
 			case 'InsertCheckbox':
-				insertSelect.call(wym, dialog_select, 'checkbox', '<div id="$id">\n<label $rel="$curie" resource="?$id"><input type="checkbox" name="$id" checked="checked" /><span rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" /></label>\n</div>');
+				insertSelect.call(wym, dialog_select, 'checkbox', '<div id="$id">\n\t\t\t\t\t<label $rel="$curie" resource="?$id">\n\t\t\t\t\t\t<input type="checkbox" name="$id" checked="checked" />\n\t\t\t\t\t\t<span rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" />\n\t\t\t\t\t</label>\n\t\t\t\t</div>');
 			break;
 			case 'InsertDropDown':
-				insertSelect.call(wym, dialog_select, 'dropdown', '<select id="$id" $rel="$curie">\n<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n</select>');
+				insertSelect.call(wym, dialog_select, 'dropdown', '<select id="$id" $rel="$curie">\n\t\t\t\t\t<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n\t\t\t\t</select>');
 			break;
 			case 'InsertSelect':
-				insertSelect.call(wym, dialog_select, 'select', '<select multiple="multiple" id="$id" $rel="$curie">\n<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n</select>');
+				insertSelect.call(wym, dialog_select, 'select', '<select multiple="multiple" id="$id" $rel="$curie">\n\t\t\t\t\t<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n\t\t\t\t</select>');
 			break;
 			case 'InsertDropZone':
-				insertDropZone.call(wym, dialog_drop, 'dropzone', '<div id="$id" class="$type field" $rel="$curie" dropzone="link s:text/uri-list"><label>$label</label><button type="button" class="dialog" data-dialog="$prompt"/>\n<div about="?$id" typeof="$class"><span property="rdfs:label" /><button type="button" class="remove" /></div>\n</div>');
+				insertDropZone.call(wym, dialog_drop, 'dropzone', '<div id="$id" class="$type field" $rel="$curie" dropzone="link s:text/uri-list">\n\t\t\t\t\t<label>$label</label>\n\t\t\t\t\t<button type="button" class="dialog" data-dialog="$prompt"/>\n\t\t\t\t\t<div about="?$id" typeof="$class">\n\t\t\t\t\t\t<span property="rdfs:label" />\n\t\t\t\t\t\t<button type="button" class="remove" />\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
 			break;
 			case 'AddProperty':
 				addProperty.call(wym, dialog_property);
@@ -597,15 +551,10 @@ jQuery(function($){
 			wym.update();
 		};
 
-		jQuery.wymeditors(0)._html = page[2];
-		wym.initIframe($('#iframe')[0]);
-		$('#iframe').trigger('load');
-		setTimeout(function(){
-			if (!$('body', $('#iframe')[0].contentWindow.document).children().length) {
-				// IE need this called twice on first load
-				wym.initIframe($('#iframe')[0]);
-				updateBody();
-			}
-		}, 1000);
-	}
-});
+		if (_postInit) {
+			_postInit.call(this, wym);
+		}
+	};
+	return _wymeditor.call(this, options);
+}
+})(jQuery);

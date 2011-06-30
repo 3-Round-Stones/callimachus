@@ -22,8 +22,46 @@ function getPageLocationURL() {
 	if (!label) {
 		label = 'Enter Title Here';
 	}
-	var page = '<?xml version="1.0" encoding="UTF-8" ?><?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>' + label + '</title></head><body about="?this"><h1>' + label + '</h1></body></html>';
+	var page = '<?xml version="1.0" encoding="UTF-8" ?>\n<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>\n<html xmlns="http://www.w3.org/1999/xhtml">\n<head>\n\t<title>' + label + '</title>\n</head>\n<body about="?this">\n\t<h1>' + label + '</h1>\n</body>\n</html>';
 	var etag = null;
+
+	function outer(node) {
+		var html = $($('<div/>').html($(node).clone())).html();
+		$(node).remove();
+		return html;
+	}
+
+	$(document).ready(function() {
+		WYMeditor.XhtmlValidator._tags['a']['attributes']['rel'] = /^.+$/;
+		WYMeditor.XhtmlValidator._tags['a']['attributes']['rev'] = /^.+$/;
+		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('dropzone');
+		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('data-dialog');
+		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push(
+			'rel',
+			'rev',
+			'content',
+			'href',
+			'src',
+			'about',
+			'property',
+			'resource',
+			'datatype',
+			'typeof');
+		$('.wym_box_0').wymeditor({
+			html: '<h1></h1>',
+			lang: null,
+			initSkin: false,
+			loadSkin: false,
+			jQueryPath: '/callimachus/scripts/jquery.js',
+			dialogFeatures: 'jQuery.dialog',
+			dialogFeaturesPreview: 'jQuery.dialog',
+			dialogImageHtml: outer($('.wym_dialog_image')),
+			dialogTableHtml: outer($('.wym_dialog_table')),
+			dialogPasteHtml: outer($('.wym_dialog_paste')),
+			dialogPreviewHtml: outer($('.wym_dialog_preview')),
+			dialogLinkHtml: outer($('.wym_dialog_link'))
+		});
+	});
 
 	$(window).one('load', function() {
 		if (location.search != "?create") {
@@ -99,7 +137,7 @@ function getPageLocationURL() {
 				} else { // new page
 					if (!url) {
 						// no URL provided
-						var h1 = $(':header:first', $('#iframe')[0].contentWindow.document).text();
+						var h1 = $(':header:first', $('#wym-iframe')[0].contentWindow.document).text();
 						if (h1) {
 							h1 = h1.replace(/^\s+/, '').replace(/\s+$/, '').replace(/\s+/, ' ');
 						} else {

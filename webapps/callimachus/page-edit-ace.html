@@ -19,14 +19,15 @@
 	}
 	</style>
     
-	<script src="/callimachus/scripts/ace.js" type="text/javascript" charset="utf-8"></script>
-	<script src="/callimachus/scripts/mode-html.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/callimachus/scripts/ace_bundle?source" type="text/javascript"></script>
 	<script>
 	window.onload = function() {
 		window.editor = ace.edit("editor");
 		
 		var Mode = require("ace/mode/html").Mode;
 		window.editor.getSession().setMode(new Mode());
+		window.editor.getSession().setUseWrapMode(true);
+
 	};
 	</script>
 

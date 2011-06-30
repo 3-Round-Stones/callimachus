@@ -39,3 +39,14 @@
 	rdf:_11 <document-ready.js>;
 	rdf:_12 <focus.js>.
 
+<wymeditor_bundle> a calli:ScriptBundle; calli:minified 0 ;
+	rdf:_1 <jquery.wymeditor.js>;
+	rdf:_2 <jquery.wymeditor.inithtml.js>;
+	rdf:_2 <jquery.wymeditor.containerclass.js>;
+	rdf:_3 <jquery.wymeditor.callimachus.js>;
+	rdf:_4 <jquery.wymeditor.ace.js>.
+
+<ace_bundle> a calli:ScriptBundle;
+	rdf:_1 <ace.js>;
+	rdf:_2 <mode-html.js>.
+

@@ -1334,9 +1334,12 @@ WYMeditor.editor.prototype.addCssRules = function(doc, aCss) {
 /********** CONFIGURATION **********/
 
 WYMeditor.editor.prototype.computeBasePath = function() {
-  return jQuery(jQuery.grep(jQuery('script'), function(s){
+  var script = jQuery(jQuery.grep(jQuery('script'), function(s){
     return (s.src && s.src.match(/jquery\.wymeditor(\.pack|\.min|\.packed)?\.js(\?.*)?$/ ))
-  })).attr('src').replace(/jquery\.wymeditor(\.pack|\.min|\.packed)?\.js(\?.*)?$/, '');
+  }));
+  if (script.length)
+    return script.attr('src').replace(/jquery\.wymeditor(\.pack|\.min|\.packed)?\.js(\?.*)?$/, '');
+  return null;
 };
 
 WYMeditor.editor.prototype.computeWymPath = function() {

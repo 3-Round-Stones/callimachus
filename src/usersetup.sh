@@ -50,7 +50,7 @@ function usage
   echo
   echo "usage: sh usersetup.sh [-h hostname -u userid -p password -f fullname] | [-?]]"
   echo "e.g."
-  echo "  sh usersetup.sh -h localhost -u admin -p \"admin's password\" -n \"Admin User\""
+  echo "  sh usersetup.sh -h localhost -u admin -p \"admin's password\" -f \"Admin User\""
   echo "  sh usersetup.sh -?"
   echo
   echo "Needed parameters:"

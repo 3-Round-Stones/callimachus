@@ -305,9 +305,13 @@
 		var node = this.findUp(this.container(), blocks);
 		if (node && $(node).attr("property")) {
 			$('#curie').val($(node).attr("property"));
+			$('#variable').val($(node).attr("content"));
 		} else {
 			$('.wym_dialog_property .wym_delete').remove();
 		}
+		$('.wym_dialog_property .wym_curie').change(function(event) {
+			$('#variable').val('?' + findOrGenerateId(null, $('#curie').val()));
+		});
 		$('.wym_dialog_property .wym_delete').click(function(event) {
 			if ($(node).is('span')) {
 				$(node).replaceWith($(node).html().replace('{' + $(node).attr("content") + '}', ''));
@@ -321,10 +325,11 @@
 		$('.wym_dialog_property .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
 			var curie = $('#curie').val();
-			if (!checkCURIE(curie, this)) {
+			var variable = $('#variable').val();
+			if (!checkCURIE(curie, this) || !checkVariable(variable, this)) {
 				return false;
 			}
-			var id = findOrGenerateId(node, curie);
+			var id = variable.substring(1);
 			if (!node || $(node).is('span')) {
 				wym.insert('<span property="' + curie + '" content="?' + id + '">{?' + id + '}</span>&nbsp;');
 			} else {
@@ -344,9 +349,13 @@
 		var node = this.findUp(this.container(), blocks);
 		if (node && $(node).attr('rel')) {
 			$('#curie').val($(node).attr('rel'));
+			$('#variable').val($(node).attr("resource"));
 		} else {
 			$('.wym_dialog_rel .wym_delete').remove();
 		}
+		$('.wym_dialog_rel .wym_curie').change(function(event) {
+			$('#variable').val('?' + findOrGenerateId(null, $('#curie').val()));
+		});
 		$('.wym_dialog_rel .wym_delete').click(function(event) {
 			$(node).removeAttr('rel');
 			$(node).removeAttr('resource');
@@ -356,10 +365,11 @@
 			event.preventDefault();
 			var attr = 'rel';
 			var curie = $('#curie').val();
-			if (!checkCURIE(curie, this)) {
+			var variable = $('#variable').val();
+			if (!checkCURIE(curie, this) || !checkVariable(variable, this)) {
 				return false;
 			}
-			var id = findOrGenerateId(node, curie);
+			var id = variable.substring(1);
 			if (node && node.parentNode) {
 				$(node).removeAttr('rel');
 				$(node).removeAttr('rev');
@@ -395,10 +405,19 @@
 		return false;
 	}
 
+	function checkVariable(variable, form) {
+		if (variable && variable.match(/^\?[a-zA-Z]\w*$/))
+			return true;
+		$(form).trigger('calliError', 'Variables must start with "?" and be alphanumeric');
+		return false;
+	}
+
 	function findOrGenerateId(node, curie) {
 		var id = find(node, '[id]').attr('id');
 		if (node && id && node != document)
 			return id;
+		if (!curie)
+			return '';
 		var wym = window.WYMeditor.INSTANCES[0];
 		var path = [];
 		var container = wym.container();

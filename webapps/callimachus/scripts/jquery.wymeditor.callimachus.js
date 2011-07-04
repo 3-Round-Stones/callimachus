@@ -102,12 +102,19 @@
 		var toggle = 'div.field.' + type;
 		this.dialog('Insert Input', null, dialog_input);
 		var node = select(this.container(), toggle)[0];
+		var container = node ? $(node).parent()[0] : this.container();
 		if (node) {
 			$('#label').val(find(node, 'label').text());
-			$('#curie').val($(node).html().match(/\{([^}]+)\}/)[1]);
+			setCurie('#prefix', '#local', $(node).html().match(/\{([^}:]*:[^}]*)\}/)[0]);
 		} else {
 			$('.wym_dialog_input .wym_delete').remove();
+			updatePrefixSelect('#prefix');
 		}
+		$('#label').change(function(event) {
+			var value = $(this).val();
+			var local = value.substring(0, 1).toLowerCase() + value.substring(1).replace(/\W/g, '');
+			$('#local').val(local);
+		});
 		$('.wym_dialog_input .wym_delete').click(function(event) {
 			$(node).remove();
 			closeDialogue();
@@ -115,11 +122,10 @@
 		$('.wym_dialog_input .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
 			var label = $('#label').val();
-			var curie = $('#curie').val();
-			if (!checkCURIE(curie, this)) {
+			var curie = getCurie('#prefix', '#local', this, true);
+			if (!curie)
 				return false;
-			}
-			var id = findOrGenerateId(node, curie, this.container());
+			var id = findOrGenerateId(node, curie, container);
 			insertTemplate(node, template, {type: type, label: label,
 				id: id, curie: curie});
 			closeDialogue();
@@ -131,8 +137,9 @@
 		var toggle = 'div.field.' + type;
 		this.dialog('Insert Select', null, dialog_select);
 		var node = select(this.container(), toggle)[0];
+		var container = node ? $(node).parent()[0] : this.container();
 		if (node) {
-			$('#curie').val(find(node, '[rel]').attr('rel'));
+			setCurie('#prefix', '#local', find(node, '[rel]').attr('rel'));
 			var scheme = find(node, '[rel=skos:inScheme]').attr('resource');
 			var options = $('#scheme')[0].options;
 			for (var i = 0; i < options.length; i++) {
@@ -142,7 +149,13 @@
 			}
 		} else {
 			$('.wym_dialog_select .wym_delete').remove();
+			updatePrefixSelect('#prefix');
 		}
+		$('#scheme').change(function(event) {
+			var label = $($('#scheme')[0].options[$('#scheme')[0].selectedIndex]).text();
+			var local = label.replace(/\W/g, '');
+			$('#local').val('has' + local);
+		});
 		if ($('#scheme')[0].options.length <= 0) {
 			jQuery.get('/callimachus/Page?schemes', function(xml) {
 				$(xml).find('result').each(function() {
@@ -153,6 +166,7 @@
 					option.text(label);
 					$('#scheme').append(option);
 				});
+				$('#scheme').change();
 			}, 'xml');
 		}
 		$('.wym_dialog_select .wym_delete').click(function(event) {
@@ -163,15 +177,14 @@
 			event.preventDefault();
 			var attr = 'rel';
 			var label = $($('#scheme')[0].options[$('#scheme')[0].selectedIndex]).text();
-			var curie = $('#curie').val();
+			var curie = getCurie('#prefix', '#local', this, true);
 			var scheme = $('#scheme').val();
 			if (!scheme) {
 				$(this).trigger('calliError', 'A scheme is required for this field');
 			}
-			if (!checkCURIE(curie, this)) {
+			if (!curie)
 				return false;
-			}
-			var id = findOrGenerateId(node, curie, this.container());
+			var id = findOrGenerateId(node, curie, container);
 			insertTemplate(node, template, {type: type, label: label,
 				id: id, rel: attr, curie: curie,
 				scheme: scheme});
@@ -184,14 +197,22 @@
 		var toggle = 'div.field.' + type;
 		this.dialog('Insert Drop Zone', null, dialog_drop);
 		var node = select(this.container(), toggle)[0];
+		var container = node ? $(node).parent()[0] : this.container();
 		if (node) {
 			$('#label').val(find(node, 'label').text());
-			$('#curie').val(find(node, '[rel]').attr('rel'));
-			$('#class').val(find(node, '[typeof]').attr('typeof'));
+			setCurie('#prefix', '#local', find(node, '[rel]').attr('rel'));
+			setCurie('#class-prefix', '#class-local', find(node, '[typeof]').attr('typeof'));
 			$('#prompt').val(find(node, '[data-dialog]').attr('data-dialog'));
 		} else {
 			$('.wym_dialog_dropzone .wym_delete').remove();
+			updatePrefixSelect('#prefix');
+			updatePrefixSelect('#class-prefix');
 		}
+		$('#label').change(function(event) {
+			var label = $('#label').val();
+			var local = label.replace(/\W/g, '');
+			$('#local').val('has' + local);
+		});
 		$('.wym_dialog_dropzone .wym_delete').click(function(event) {
 			$(node).remove();
 			closeDialogue();
@@ -200,13 +221,12 @@
 			event.preventDefault();
 			var attr = 'rel';
 			var label = $('#label').val();
-			var curie = $('#curie').val();
-			var ctype = $('#class').val();
+			var curie = getCurie('#prefix', '#local', this, true);
+			var ctype = getCurie('#class-prefix', '#class-local', this, true);
 			var prompt = $('#prompt').val();
-			if (!checkCURIE(curie, this) || !checkCURIE(ctype, this)) {
+			if (!curie || !ctype)
 				return false;
-			}
-			var id = findOrGenerateId(node, curie, this.container());
+			var id = findOrGenerateId(node, curie, container);
 			insertTemplate(node, template, {type: type, label: label,
 				id: id, rel: attr, curie: curie,
 				'class': ctype, prompt: prompt});
@@ -250,7 +270,7 @@
 		this.dialog('Insert Form', null, dialog_form);
 		var node = this.findUp(this.container(), ['form']);
 		if (node) {
-			$('#curie').val($(node).attr('typeof'));
+			setCurie('#prefix', '#local', $(node).attr('typeof'));
 			if ($(node).find('button[onclick]').length) {
 				$('#create-radio')[0].checked = false;
 				$('#edit-radio')[0].checked = true;
@@ -260,6 +280,7 @@
 			}
 		} else {
 			$('.wym_dialog_form .wym_delete').remove();
+			updatePrefixSelect('#prefix');
 		}
 		$('.wym_dialog_form .wym_delete').click(function(event) {
 			$(node).remove();
@@ -267,19 +288,23 @@
 		});
 		$('.wym_dialog_form .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
-			var curie = $('#curie').val();
-			if (curie && !checkCURIE(curie, this)) {
-				return false;
-			}
+			var curie = getCurie('#prefix', '#local', this, false);
 			var form = $('<form/>');
 			form.attr("about", '?this');
 			if (curie) {
 				form.attr('typeof', curie);
+			} else {
+				form.removeAttr("typeof");
 			}
+			var focus = null;
 			if (node) {
 				form.append($(node).children(':not(:button)'));
+				focus = form.children(':not(:button)')[0];
 			} else {
-				form.append('\n\t\t<div class="vbox">\n\t\t\t<p></p>\n\t\t</div>\n');
+				form.append('\n\t\t');
+				form.append('<div class="vbox">\n\t\t\t<p></p>\n\t\t</div>');
+				form.append('\n');
+				focus = form.find('p')[0];
 			}
 			if ($('#create-radio').is(':checked')) {
 				form.append('\t\t<button type="submit">Create</button>\n\t');
@@ -290,6 +315,9 @@
 			}
 			if (node) {
 				$(node).replaceWith(form);
+				if (focus) {
+					setFocusToNode(wym, focus);
+				}
 			} else {
 				insertContainer.call(wym, form, 'form');
 			}
@@ -305,13 +333,14 @@
 		var node = this.findUp(this.container(), blocks);
 		var container = node ? $(node).parent()[0] : this.container();
 		if (node && $(node).attr("property")) {
-			$('#curie').val($(node).attr("property"));
+			setCurie('#prefix', '#local', $(node).attr("property"));
 			$('#variable').val($(node).attr("content"));
 		} else {
 			$('.wym_dialog_property .wym_delete').remove();
+			updatePrefixSelect('#prefix');
 		}
-		$('.wym_dialog_property .wym_curie').change(function(event) {
-			$('#variable').val('?' + findOrGenerateId(null, $('#curie').val(), container));
+		$('#local').change(function(event) {
+			$('#variable').val('?' + findOrGenerateId(null, getCurie('#prefix', '#local', this.form, false), container));
 		});
 		$('.wym_dialog_property .wym_delete').click(function(event) {
 			if ($(node).is('span')) {
@@ -325,9 +354,9 @@
 		});
 		$('.wym_dialog_property .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
-			var curie = $('#curie').val();
+			var curie = getCurie('#prefix', '#local', this, true);
 			var variable = $('#variable').val();
-			if (!checkCURIE(curie, this) || !checkVariable(variable, this)) {
+			if (!curie || !checkVariable(variable, this)) {
 				return false;
 			}
 			var id = variable.substring(1);
@@ -354,13 +383,14 @@
 		var node = this.findUp(this.container(), blocks);
 		var container = node ? $(node).parent()[0] : this.container();
 		if (node && $(node).attr('rel')) {
-			$('#curie').val($(node).attr('rel'));
+			setCurie('#prefix', '#local', $(node).attr('rel'));
 			$('#variable').val($(node).attr("resource"));
 		} else {
 			$('.wym_dialog_rel .wym_delete').remove();
+			updatePrefixSelect('#prefix');
 		}
-		$('.wym_dialog_rel .wym_curie').change(function(event) {
-			$('#variable').val('?' + findOrGenerateId(null, $('#curie').val(), container));
+		$('#local').change(function(event) {
+			$('#variable').val('?' + findOrGenerateId(null, getCurie('#prefix', '#local', this.form, false), container));
 		});
 		$('.wym_dialog_rel .wym_delete').click(function(event) {
 			$(node).removeAttr('rel');
@@ -370,9 +400,9 @@
 		$('.wym_dialog_rel .wym_submit').parents('form').submit(function(event) {
 			event.preventDefault();
 			var attr = 'rel';
-			var curie = $('#curie').val();
+			var curie = getCurie('#prefix', '#local', this, true);
 			var variable = $('#variable').val();
-			if (!checkCURIE(curie, this) || !checkVariable(variable, this)) {
+			if (!curie || !checkVariable(variable, this)) {
 				return false;
 			}
 			var id = variable.substring(1);
@@ -401,6 +431,42 @@
 			}
 			closeDialogue();
 			return false;
+		});
+	}
+
+	function setCurie(prefix, local, curie) {
+		var val = null;
+		if (curie) {
+			var m = curie.match(/([^:]*):(.*)/);
+			if (m) {
+				val = m[1];
+				$(local).val(m[2]);
+			}
+		}
+		updatePrefixSelect(prefix, val);
+	}
+
+	function getCurie(prefix, local, form, required) {
+		var curie = $(prefix).val() + ':' + $(local).val();
+		if ((curie != ':' || required) && checkCURIE(curie, form))
+			return curie;
+		return null;
+	}
+
+	function updatePrefixSelect(ref, prefix) {
+		jQuery.getJSON('/callimachus/profile', function(json) {
+			var items = [];
+			$.each(json, function(key, val) {
+				items.push(key);
+			});
+			$.each(items.sort(), function(index, prefix) {
+				var option = $('<option/>');
+				option.text(prefix);
+				$(ref).append(option);
+			});
+			if (prefix) {
+				$(ref).val(prefix);
+			}
 		});
 	}
 
@@ -475,10 +541,6 @@
 
 	function updateBody() {
 		var wym = window.WYMeditor.INSTANCES[0];
-		$(wym._doc.body).find('.vbox:not(:has(p))').append('<p></p>');
-		$(wym._doc.body).find('.hbox:not(:has(p))').append('<p></p>');
-		$(wym._doc.body).find('.vbox>div+div').before('<p></p>');
-		$(wym._doc.body).find('.hbox>div+div').before('<p></p>');
 		wym.update();
 	}
 

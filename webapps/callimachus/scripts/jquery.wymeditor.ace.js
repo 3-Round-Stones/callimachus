@@ -164,10 +164,6 @@ jQuery.fn.wymeditor = function(options) {
 					editor.hide();
 					$('#wym-iframe').show();
 				} else {
-					editor.css('width', $('#wym-iframe').css('width'));
-					editor.css('height', $('#wym-iframe').css('height'));
-					$('#wym-iframe').hide();
-					editor.show();
 					var html = wym.xhtml();
 					var ace = editor[0].contentWindow.editor;
 					var value = ace.getSession().getValue();
@@ -176,6 +172,10 @@ jQuery.fn.wymeditor = function(options) {
 					}
 					var index = getSelectedNodeIndex(this.selected(), this._doc.body);
 					gotoLineOfNodeIndex(ace, html, index);
+					editor.css('width', $('#wym-iframe').css('width'));
+					editor.css('height', $('#wym-iframe').css('height'));
+					$('#wym-iframe').hide();
+					editor.show();
 				}
 			break;
 			default:

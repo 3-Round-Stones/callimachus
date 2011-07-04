@@ -184,7 +184,9 @@
 				</div>
 				<label for="curie">Property</label>
 				<div>
-					<input id="curie" type='text' class='wym_curie' value='' />
+					<select id="prefix" style="width:10ex"></select>
+					<span>:</span>
+					<input id="local" type="text" size="12" />
 				</div>
 				<button class='wym_submit' type='submit'>Insert</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
@@ -194,14 +196,16 @@
 		<div class='wym_dialog wym_dialog_select'>
 			<form>
 				<input type='hidden' class='wym_dialog_type' value='InsertSelect' />
-				<label for="curie">Relationship</label>
-				<div>
-					<input id="curie" type='text' class='wym_curie' value='' />
-				</div>
 				<label for="scheme">Scheme</label>
 				<div>
 					<select id="scheme" class='wym_scheme'>
 					</select>
+				</div>
+				<label for="curie">Relationship</label>
+				<div>
+					<select id="prefix" style="width:10ex"></select>
+					<span>:</span>
+					<input id="local" type="text" size="12" />
 				</div>
 				<button class='wym_submit' type='submit'>Insert</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
@@ -217,11 +221,15 @@
 				</div>
 				<label for="curie">Relationship</label>
 				<div>
-					<input id="curie" type='text' class='wym_curie' value='' />
+					<select id="prefix" style="width:10ex"></select>
+					<span>:</span>
+					<input id="local" type="text" size="12" />
 				</div>
 				<label for="class">Class</label>
 				<div>
-					<input id="class" type='text' class='wym_class' value='' />
+					<select id="class-prefix" style="width:10ex"></select>
+					<span>:</span>
+					<input id="class-local" type="text" size="12" />
 				</div>
 				<label for="prompt">Create/Search page</label>
 				<div>
@@ -237,7 +245,9 @@
 				<input type='hidden' class='wym_dialog_type' value='InsertForm' />
 				<label for="curie">Type</label>
 				<div>
-					<input id="curie" type='text' class='wym_curie' value='' />
+					<select id="prefix" style="width:10ex"></select>
+					<span>:</span>
+					<input id="local" type="text" size="12" />
 				</div>
 				<div>
 					<label>
@@ -259,7 +269,9 @@
 				<input type='hidden' class='wym_dialog_type' value='AddProperty' />
 				<label for="curie">Property</label>
 				<div>
-					<input id="curie" type='text' class='wym_curie' value='' />
+					<select id="prefix" style="width:10ex"></select>
+					<span>:</span>
+					<input id="local" type="text" size="12" />
 				</div>
 				<label for="variable">Variable</label>
 				<div>
@@ -275,7 +287,9 @@
 				<input type='hidden' class='wym_dialog_type' value='AddRel' />
 				<label for="curie">Relationship</label>
 				<div>
-					<input id="curie" type='text' class='wym_curie' value='' />
+					<select id="prefix" style="width:10ex"></select>
+					<span>:</span>
+					<input id="local" type="text" size="12" />
 				</div>
 				<label for="variable">Variable</label>
 				<div>

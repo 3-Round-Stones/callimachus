@@ -6,6 +6,12 @@
  */
 (function($){
 
+var console = window.console || {};
+console.log = window.console.log || function(){};
+console.info = window.console.info || function(){};
+console.warn = window.console.warn || function(){};
+console.error = window.console.error || function(){};
+
 function getNodeIndex(html, row, column) {
 	var regex = '(:?[^\n]*\n){0,' + row + '}';
 	if (column == 0) {
@@ -17,32 +23,52 @@ function getNodeIndex(html, row, column) {
 	if (m) {
 		var body = m[0].replace(/[\s\S]*<body[^>]*>/, '');
 		m = body.match(/<(:?[^<]|<\/)*/g);
-		if (m)
-			return m.length - 1;
+		if (m) {
+			var index = m.length - 1;
+			console.info('Focus is on node ' + index);
+			return index;
+		}
 	}
 	return -1;
 }
 
 function getSelectedNodeIndex(selected, body) {
-	return jQuery.inArray(selected, $(body).find('*').get());
+	var index = jQuery.inArray(selected, $(body).find('*').get());
+	console.info('Focus is on node ' + index);
+	return index;
+}
+
+function getNodeFromIndex(wym, index) {
+	console.info('Changing focus to node ' + index);
+	return $(wym._doc.body).find('*')[index];
 }
 
 function focusOnNodeIndex(wym, index) {
-	var node = $(wym._doc.body).find('*')[index];
+	var node = getNodeFromIndex(wym, index);
 	if (node) {
 		wym.setFocusToNode(node);
 	}
 }
 
-function gotoLineOfNodeIndex(ed, html, index) {
+function gotoLineOfNodeIndex(ace, html, index) {
 	if (index >= 0) {
-		var m = html.match(new RegExp('[\\s\\S]*<body[^>]*>[^<]*(<([^<]|</)*){' + index + '}'));
+		var m = html.match(new RegExp('[\\s\\S]*<body[^>]*>(([^<]|</)*<[^<>/][^<>]*>){' + (index + 1) + '}'));
 		if (m) {
-			var line = m[0].match(/\n/g).length;
-			ed.gotoLine(line);
+			var line = m[0].match(/\n/g).length + 1;
+			console.info('Changing focus to node ' + index + ' on line ' + line);
+			ace.gotoLine(line);
 		}
 	}
 }
+
+WYMeditor.XhtmlSaxListener.prototype.afterParsing = function(xhtml)
+{
+  xhtml = this.replaceNamedEntities(xhtml);
+  xhtml = this.joinRepeatedEntities(xhtml);
+  //xhtml = this.removeEmptyTags(xhtml);
+  xhtml = this.removeBrInPre(xhtml);
+  return xhtml;
+};
 
 var _initHtml = WYMeditor.editor.prototype.initHtml;
 WYMeditor.editor.prototype.initHtml = function(html) {
@@ -60,12 +86,12 @@ WYMeditor.editor.prototype.initHtml = function(html) {
 		if(typeof html === 'string') {
 			var m = html.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
 			if (editor.is(':visible') && m) {
-				var ed = editor[0].contentWindow.editor;
-				var value = ed.getSession().getValue();
+				var ace = editor[0].contentWindow.editor;
+				var value = ace.getSession().getValue();
 				if (value != html) {
-					var row = ed.getSelectionRange().start.row;
-					ed.getSession().setValue(html);
-					ed.gotoLine(row + 1);
+					var row = ace.getSelectionRange().start.row;
+					ace.getSession().setValue(html);
+					ace.gotoLine(row + 1);
 				}
 			}
 			if (m) {
@@ -100,12 +126,12 @@ WYMeditor.editor.prototype.initHtml = function(html) {
 		var editor = $('#ace-iframe');
 		if (editor.is(':visible')) {
 			var html = page[1] + wym.parser.parse($(wym._doc.body).html()) + page[3];
-			var ed = editor[0].contentWindow.editor;
-			var value = ed.getSession().getValue();
+			var ace = editor[0].contentWindow.editor;
+			var value = ace.getSession().getValue();
 			if (value != html) {
-				var row = ed.getSelectionRange().start.row;
-				ed.getSession().setValue(html);
-				ed.gotoLine(row + 1);
+				var row = ace.getSelectionRange().start.row;
+				ace.getSession().setValue(html);
+				ace.gotoLine(row + 1);
 			}
 		}
 		return _update.call(this);
@@ -123,9 +149,9 @@ jQuery.fn.wymeditor = function(options) {
 		wym.exec = function(cmd) {
 			var editor = $('#ace-iframe');
 			if (editor.is(':visible')) {
-				var ed = editor[0].contentWindow.editor;
-				var html = ed.getSession().getValue();
-				var start = ed.getSelectionRange().start;
+				var ace = editor[0].contentWindow.editor;
+				var html = ace.getSession().getValue();
+				var start = ace.getSelectionRange().start;
 				var index = getNodeIndex(html, start.row, start.column);
 				wym.html(html);
 				focusOnNodeIndex(this, index);
@@ -142,8 +168,15 @@ jQuery.fn.wymeditor = function(options) {
 					editor.css('height', $('#wym-iframe').css('height'));
 					$('#wym-iframe').hide();
 					editor.show();
+					var html = wym.xhtml();
+					var ace = editor[0].contentWindow.editor;
+					var value = ace.getSession().getValue();
+					if (value != html) {
+						ace.getSession().setValue(html);
+					}
+					var index = getSelectedNodeIndex(this.selected(), this._doc.body);
+					gotoLineOfNodeIndex(ace, html, index);
 				}
-				wym.update();
 			break;
 			default:
 				var ret = _exec.call(wym, cmd);
@@ -163,15 +196,56 @@ jQuery.fn.wymeditor = function(options) {
 			var editor = $('#ace-iframe');
 			if (editor.is(':visible')) {
 				var html = wym.xhtml();
-				var ed = editor[0].contentWindow.editor;
-				var value = ed.getSession().getValue();
+				var ace = editor[0].contentWindow.editor;
+				var value = ace.getSession().getValue();
 				if (value != html) {
-					ed.getSession().setValue(html);
+					ace.getSession().setValue(html);
 				}
 				var index = getSelectedNodeIndex(node, this._doc.body);
-				gotoLineOfNodeIndex(ed, html, index);
+				gotoLineOfNodeIndex(ace, html, index);
 			}
-			return _setFocusToNode.call(this, node, toStart);
+			try {
+				return _setFocusToNode.call(this, node, toStart);
+			} catch(e) {
+				// hidden
+				return null;
+			}
+		};
+
+		var _selected = wym.selected;
+		wym.selected = function() {
+			var editor = $('#ace-iframe');
+			if (editor.is(':visible')) {
+				try {
+					var ret = _selected.call(this);
+					if (ret)
+						return ret;
+				} catch (e) {
+					// no selection
+				}
+				var ace = editor[0].contentWindow.editor;
+				var html = ace.getSession().getValue();
+				var start = ace.getSelectionRange().start;
+				var index = getNodeIndex(html, start.row, start.column);
+				return getNodeFromIndex(this, index);
+			}
+			return _selected.call(this);
+		};
+
+		var _insert = wym.insert;
+		wym.insert = function(code) {
+			var editor = $('#ace-iframe');
+			if (editor.is(':visible')) {
+				var ace = editor[0].contentWindow.editor;
+				var ret = ace.insert(code);
+				var html = ace.getSession().getValue();
+				var start = ace.getSelectionRange().start;
+				var index = getNodeIndex(html, start.row, start.column);
+				wym.html(html);
+				focusOnNodeIndex(this, index);
+				return ret;
+			}
+			return _insert.call(this, code);
 		};
 
 		if (_postInit) {

@@ -17,13 +17,15 @@ function handle(event) {
 }
 
 function initWiki(pre) {
-	var text = pre.getAttribute("content") || pre.textContent || pre.innerText;
+	var text = pre.textContent || pre.innerText;
 	var div = document.createElement("div");
 	var attrs = pre.attributes;
 	for(var j=attrs.length-1; j>=0; j--) {
 		div.setAttribute(attrs[j].name, attrs[j].value);
 	}
-	div.setAttribute("content", text);
+	if (!div.getAttribute("content")) {
+		div.setAttribute("content", text);
+	}
 	pre.parentNode.replaceChild(div, pre);
 	creole.parse(div, text);
 }

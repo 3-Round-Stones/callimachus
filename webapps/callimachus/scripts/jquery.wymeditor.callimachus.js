@@ -58,17 +58,12 @@
 		}
 	}
 
-	function insertField(html, toggle) {
+	function insertField(html) {
 		var container = this.container();
 		var field = $(container).parents().andSelf().filter('.field')[0];
 		var block = this.findUp(container, WYMeditor.BLOCKS);
 		var node = this.findUp(container, WYMeditor.MAIN_CONTAINERS);
-		if (toggle && select(this.container(), toggle).length) {
-			var field = select(this.container(), toggle);
-			var parent = field.parent();
-			field.remove();
-			setFocusToNode(this, parent[0]);
-		} else if (field) {
+		if (field) {
 			var div = $(html);
 			$(field).after('\n\t\t');
 			$(field).after(div);
@@ -105,7 +100,7 @@
 		var container = node ? $(node).parent()[0] : this.container();
 		if (node) {
 			$('#label').val(find(node, 'label').text());
-			setCurie('#prefix', '#local', $(node).html().match(/\{([^}:]*:[^}]*)\}/)[0]);
+			setCurie('#prefix', '#local', $(node).html().match(/\{([^}:]*:[^}]*)\}/)[1]);
 		} else {
 			$('.wym_dialog_input .wym_delete').remove();
 			updatePrefixSelect('#prefix');
@@ -126,7 +121,7 @@
 			if (!curie)
 				return false;
 			var id = findOrGenerateId(node, curie, container);
-			insertTemplate(node, template, {type: type, label: label,
+			insertTemplate(template, {type: type, label: label,
 				id: id, curie: curie});
 			closeDialogue();
 			return false;
@@ -138,37 +133,36 @@
 		this.dialog('Insert Select', null, dialog_select);
 		var node = select(this.container(), toggle)[0];
 		var container = node ? $(node).parent()[0] : this.container();
-		if (node) {
-			setCurie('#prefix', '#local', find(node, '[rel]').attr('rel'));
-			var scheme = find(node, '[rel=skos:inScheme]').attr('resource');
-			var options = $('#scheme')[0].options;
-			for (var i = 0; i < options.length; i++) {
-				if (scheme == options[i].getAttribute('about')) {
-					$('#scheme')[0].selectedIndex = i;
-				}
-			}
-		} else {
-			$('.wym_dialog_select .wym_delete').remove();
-			updatePrefixSelect('#prefix');
-		}
 		$('#scheme').change(function(event) {
 			var label = $($('#scheme')[0].options[$('#scheme')[0].selectedIndex]).text();
 			var local = label.replace(/\W/g, '');
 			$('#local').val('has' + local);
 		});
-		if ($('#scheme')[0].options.length <= 0) {
-			jQuery.get('/callimachus/Page?schemes', function(xml) {
-				$(xml).find('result').each(function() {
-					var uri = $(this).find('[name=uri]>*').text();
-					var label = $(this).find('[name=label]>*').text();
-					var option = $('<option/>');
-					option.attr('value', uri);
-					option.text(label);
-					$('#scheme').append(option);
-				});
+		jQuery.get('/callimachus/Page?schemes', function(xml) {
+			$(xml).find('result').each(function() {
+				var uri = $(this).find('[name=uri]>*').text();
+				var label = $(this).find('[name=label]>*').text();
+				var option = $('<option/>');
+				option.attr('value', uri);
+				option.text(label);
+				$('#scheme').append(option);
+			});
+			if (node) {
+				var scheme = find(node, '[rel=skos:inScheme]').attr('resource');
+				var options = $('#scheme')[0].options;
+				for (var i = 0; i < options.length; i++) {
+					if (scheme == options[i].getAttribute('value')) {
+						$('#scheme')[0].selectedIndex = i;
+					}
+				}
 				$('#scheme').change();
-			}, 'xml');
-		}
+				setCurie('#prefix', '#local', find(node, '[rel]').attr('rel'));
+			} else {
+				updatePrefixSelect('#prefix');
+				$('#scheme').change();
+				$('.wym_dialog_select .wym_delete').remove();
+			}
+		}, 'xml');
 		$('.wym_dialog_select .wym_delete').click(function(event) {
 			$(node).remove();
 			closeDialogue();
@@ -185,7 +179,7 @@
 			if (!curie)
 				return false;
 			var id = findOrGenerateId(node, curie, container);
-			insertTemplate(node, template, {type: type, label: label,
+			insertTemplate(template, {type: type, label: label,
 				id: id, rel: attr, curie: curie,
 				scheme: scheme});
 			closeDialogue();
@@ -227,7 +221,7 @@
 			if (!curie || !ctype)
 				return false;
 			var id = findOrGenerateId(node, curie, container);
-			insertTemplate(node, template, {type: type, label: label,
+			insertTemplate(template, {type: type, label: label,
 				id: id, rel: attr, curie: curie,
 				'class': ctype, prompt: prompt});
 			closeDialogue();
@@ -235,7 +229,7 @@
 		});
 	}
 
-	function insertTemplate(node, template, bindings) {
+	function insertTemplate(template, bindings) {
 		var wym = window.WYMeditor.INSTANCES[0];
 		var html = template;
 		for (key in bindings) {
@@ -255,14 +249,7 @@
 			div.append('\n\t\t\t');
 			html = $('<div/>').append(div).html();
 		}
-		if (node && node.parentNode) {
-			var div = $(html);
-			$(node).replaceWith(div);
-			setFocusToNode(wym, div);
-		} else {
-			var toggle = 'div.field.' + bindings['type'];
-			insertField.call(wym, html, toggle);
-		}
+		insertField.call(wym, html);
 	}
 
 	function insertForm(dialog_form) {

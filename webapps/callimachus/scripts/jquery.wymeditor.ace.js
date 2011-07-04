@@ -6,12 +6,6 @@
  */
 (function($){
 
-var console = window.console || {};
-console.log = window.console.log || function(){};
-console.info = window.console.info || function(){};
-console.warn = window.console.warn || function(){};
-console.error = window.console.error || function(){};
-
 function getNodeIndex(html, row, column) {
 	var regex = '(:?[^\n]*\n){0,' + row + '}';
 	if (column == 0) {
@@ -25,7 +19,6 @@ function getNodeIndex(html, row, column) {
 		m = body.match(/<(:?[^<]|<\/)*/g);
 		if (m) {
 			var index = m.length - 1;
-			console.info('Focus is on node ' + index);
 			return index;
 		}
 	}
@@ -34,12 +27,10 @@ function getNodeIndex(html, row, column) {
 
 function getSelectedNodeIndex(selected, body) {
 	var index = jQuery.inArray(selected, $(body).find('*').get());
-	console.info('Focus is on node ' + index);
 	return index;
 }
 
 function getNodeFromIndex(wym, index) {
-	console.info('Changing focus to node ' + index);
 	return $(wym._doc.body).find('*')[index];
 }
 
@@ -55,7 +46,6 @@ function gotoLineOfNodeIndex(ace, html, index) {
 		var m = html.match(new RegExp('[\\s\\S]*<body[^>]*>(([^<]|</)*<[^<>/][^<>]*>){' + (index + 1) + '}'));
 		if (m) {
 			var line = m[0].match(/\n/g).length + 1;
-			console.info('Changing focus to node ' + index + ' on line ' + line);
 			ace.gotoLine(line);
 		}
 	}

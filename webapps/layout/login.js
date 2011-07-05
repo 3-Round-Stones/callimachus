@@ -215,7 +215,7 @@ function loggedIn(title) {
 	$("#login-form").hide();
 	$("#login-link").hide();
 	$("#profile-link").text(title);
-	$(".authenticated").css('display', null);
+	$(".authenticated").css('display', '');
 	$("#logout-link").click(function(event) {
 		$(document).trigger(jQuery.Event("calliLogout"));
 		if (event.preventDefault) {

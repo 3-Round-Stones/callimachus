@@ -42,6 +42,9 @@ function initDialogButton(buttons) {
 				var de = jQuery.Event('calliLink');
 				de.location = event.about;
 				$(add).trigger(de);
+				if (de.isDefaultPrevented()) {
+					event.preventDefault();
+				}
 			});
 			iframe.dialog({
 			    title: title,

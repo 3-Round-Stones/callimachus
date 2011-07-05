@@ -32,10 +32,8 @@ function initForms() {
 			id = 'form-data' + i;
 		}
 		form.attr('target', id + '-iframe');
-		if (window.frameElement && this.action) {
-			this.action = this.action + '&intermediate=true';
-		} else if (window.frameElement) {
-			this.action = getPageLocationURL() + '&intermediate=true';
+		if (window.frameElement) {
+			this.action = location.search + '&intermediate=true';
 		}
 		var iframe = $('<iframe/>');
 		iframe.attr('id', "iframe");

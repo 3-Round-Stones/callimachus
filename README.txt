@@ -93,6 +93,10 @@ and returns the result. The operation "?describe" can be appended to any IRI
 to receive an RDF bounded description of it. The path prefix "/diverted;" 
 identifies percent encoded RDF IRI resources.
 
+Additional documentation regarding usage and application development may
+be found on the project's wiki at:
+  http://code.google.com/p/callimachus/w/list
+
 Share your experience or ask questions on the mailing list: callimachus-
 discuss@googlegroups.com.  You can sign up at 
 http://groups.google.com/group/callimachus-discuss.

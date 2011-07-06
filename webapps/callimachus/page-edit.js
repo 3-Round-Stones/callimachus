@@ -57,7 +57,6 @@ function getPageLocationURL() {
 			dialogFeaturesPreview: 'jQuery.dialog',
 			dialogImageHtml: outer($('.wym_dialog_image')),
 			dialogTableHtml: outer($('.wym_dialog_table')),
-			dialogPasteHtml: outer($('.wym_dialog_paste')),
 			dialogPreviewHtml: outer($('.wym_dialog_preview')),
 			dialogLinkHtml: outer($('.wym_dialog_link'))
 		});

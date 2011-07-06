@@ -116,7 +116,7 @@
 				</span>
 				<form method="GET" action="{$callimachus}/go" style="display:inline">
 					<span id="search-box">
-						<input id="search-box-input" type="text" size="10" name="q" title="Lookup..." />
+						<input id="search-box-input" type="text" size="10" name="q" placeholder="Lookup..." />
 						<button id="search-box-button" type="button" onclick="form.action='{$callimachus}/lookup';form.submit()">
 							<img src="{$layout}/search.png" width="12" height="13" />
 						</button>

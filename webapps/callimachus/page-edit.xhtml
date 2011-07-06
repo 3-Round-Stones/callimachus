@@ -67,9 +67,6 @@
 				<li class="Wym_Tools_Items wym_tools_image">
 					<a title="Image" name="InsertImage" href="#">Image</a>
 				</li>
-				<li class="Wym_Tools_Items wym_tools_paste">
-					<a title="Paste from Word" name="Paste" href="#">Paste from Word</a>
-				</li>
 				<li class="Wym_Tools_Items wym_tools_table">
 					<a title="Table" name="InsertTable" href="#">Table</a>
 				</li>
@@ -141,11 +138,11 @@
 				<input type='hidden' class='wym_dialog_type' value='Link' />
 				<label for="url">URL</label>
 				<div>
-					<input id="url" type='text' class='wym_href' value='' />
+					<input id="url" type='text' class='wym_href' size="24" />
 				</div>
 				<label for="title">Title</label>
 				<div>
-					<input id="title" type='text' class='wym_title' value='' />
+					<input id="title" type='text' class='wym_title' size="24" />
 				</div>
 				<button class='wym_submit' type='submit'>Link</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
@@ -157,18 +154,16 @@
 				<input type='hidden' class='wym_dialog_type' value='InsertTable' />
 				<label for="caption">Caption</label>
 				<div>
-					<input id="caption" type='text' class='wym_caption' value='' />
+					<input id="caption" type='text' class='wym_caption' size="24" />
 				</div>
 				<label for="summary">Summary</label>
 				<div>
-					<input id="summary" type='text' class='wym_summary' value='' />
+					<input id="summary" type='text' class='wym_summary' size="24" />
 				</div>
-				<label for="numberofrows">Number_Of_Rows</label>
+				<label for="numberofrows">Number of rows and cols</label>
 				<div>
 					<input id="numberofrows" type='text' class='wym_rows' value='3' size='3' />
-				</div>
-				<label for="numberofcols">Number_Of_Cols</label>
-				<div>
+					<span>x</span>
 					<input id="numberofcols" type='text' class='wym_cols' value='2' size='3' />
 				</div>
 				<button class='wym_submit' type='submit'>Add table</button>
@@ -180,11 +175,11 @@
 				<input type='hidden' class='wym_dialog_type' value='InsertInput' />
 				<label for="label">Label</label>
 				<div>
-					<input id="label" type='text' class='wym_label' value='' />
+					<input id="label" type='text' class='wym_label' size="24" />
 				</div>
 				<label for="curie">Property</label>
 				<div>
-					<select id="prefix" style="width:10ex"></select>
+					<select id="prefix" style="width:11ex"></select>
 					<span>:</span>
 					<input id="local" type="text" size="12" />
 				</div>
@@ -198,12 +193,12 @@
 				<input type='hidden' class='wym_dialog_type' value='InsertSelect' />
 				<label for="scheme">Scheme</label>
 				<div>
-					<select id="scheme" class='wym_scheme'>
+					<select id="scheme" class='wym_scheme' style="width:24ex">
 					</select>
 				</div>
 				<label for="curie">Relationship</label>
 				<div>
-					<select id="prefix" style="width:10ex"></select>
+					<select id="prefix" style="width:11ex"></select>
 					<span>:</span>
 					<input id="local" type="text" size="12" />
 				</div>
@@ -217,17 +212,17 @@
 				<input type='hidden' class='wym_dialog_type' value='InsertDropZone' />
 				<label for="label">Label</label>
 				<div>
-					<input id="label" type='text' class='wym_label' value='' />
+					<input id="label" type='text' class='wym_label' size="24" />
 				</div>
 				<label for="curie">Relationship</label>
 				<div>
-					<select id="prefix" style="width:10ex"></select>
+					<select id="prefix" style="width:11ex"></select>
 					<span>:</span>
 					<input id="local" type="text" size="12" />
 				</div>
 				<label for="class">Class</label>
 				<div>
-					<select id="class-prefix" style="width:10ex"></select>
+					<select id="class-prefix" style="width:11ex"></select>
 					<span>:</span>
 					<input id="class-local" type="text" size="12" />
 				</div>
@@ -245,7 +240,7 @@
 				<input type='hidden' class='wym_dialog_type' value='InsertForm' />
 				<label for="curie">Type</label>
 				<div>
-					<select id="prefix" style="width:10ex"></select>
+					<select id="prefix" style="width:11ex"></select>
 					<span>:</span>
 					<input id="local" type="text" size="12" />
 				</div>
@@ -269,13 +264,13 @@
 				<input type='hidden' class='wym_dialog_type' value='AddProperty' />
 				<label for="curie">Property</label>
 				<div>
-					<select id="prefix" style="width:10ex"></select>
+					<select id="prefix" style="width:11ex"></select>
 					<span>:</span>
 					<input id="local" type="text" size="12" />
 				</div>
 				<label for="variable">Variable</label>
 				<div>
-					<input id="variable" type='text' class='wym_variable' value='' />
+					<input id="variable" type='text' class='wym_variable' size="24" />
 				</div>
 				<button class='wym_submit' type='submit'>Add</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
@@ -287,27 +282,17 @@
 				<input type='hidden' class='wym_dialog_type' value='AddRel' />
 				<label for="curie">Relationship</label>
 				<div>
-					<select id="prefix" style="width:10ex"></select>
+					<select id="prefix" style="width:11ex"></select>
 					<span>:</span>
 					<input id="local" type="text" size="12" />
 				</div>
 				<label for="variable">Variable</label>
 				<div>
-					<input id="variable" type='text' class='wym_variable' value='' />
+					<input id="variable" type='text' class='wym_variable' size="24" />
 				</div>
 				<button class='wym_submit' type='submit'>Add</button>
 				<button class='wym_cancel' type='button'>Cancel</button>
 				<button class='wym_delete' type='button'>Remove</button>
-			</form>
-		</div>
-		<div class='wym_dialog wym_dialog_paste'>
-			<form>
-				<input type='hidden' class='wym_dialog_type' value='Paste_From_Word' />
-				<div>
-					<textarea class='wym_text'></textarea>
-				</div>
-				<button class='wym_submit' type='submit'>Insert</button>
-				<button class='wym_cancel' type='button'>Cancel</button>
 			</form>
 		</div>
 		<div class='wym_dialog wym_dialog_preview'></div>

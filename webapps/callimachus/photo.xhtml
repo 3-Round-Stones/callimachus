@@ -3,20 +3,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
 	<title about="?this">{rdfs:label}</title>
-	<script type="text/javascript">//<![CDATA[
-		jQuery(function($) {
-			$('img[about]:not([src])').each(function(){
-				var node = $(this);
-				node.attr('src', node.attr('about') + '?' + node.attr('data-query'));
-			});
-		});
-		//]]>
-	</script>
 </head>
 <body about="?this">
 	<div>
 		<p><a href="?this" property="rdfs:label" /></p>
-		<a href="?this"><img about="?this" data-query="large" style="max-width:100%;max-height:75%;display:block" /></a>
+		<a href="{?this}"><img src="{?this}?large" /></a>
 		<p property="rdfs:comment" />
 	</div>
 </body>

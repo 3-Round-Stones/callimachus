@@ -23,6 +23,7 @@ function loadOptions(selects) {
 		jQuery.get(url, function(data) {
 			var options = $(data);
 			var selected = select.children('option,label');
+			var selectedOptions = [];
 			options.contents().each(function() {
 				if (this.nodeType == 3) {
 					select.append(this); // text node
@@ -38,10 +39,12 @@ function loadOptions(selects) {
 					checked.remove();
 					select.append(option);
 					if (bool && option.is('option')) {
-						// drop down auto selects first, until another is progamically selected
-						select[0].options[select[0].options.length - 1].selected = selected;
+						selectedOptions.push(this);
 					}
 				}
+			});
+			$(selectedOptions).each(function() {
+				this.selected = true;
 			});
 			select.find('input:radio').each(function() {
 				this.checked = this.getAttribute('checked') != null;

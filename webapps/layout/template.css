@@ -59,7 +59,9 @@ a[href]:hover {
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
 	border: none !important;
 	margin: 0px;
-	height: 1.5em;
+	padding: 0px;
+	height: 1em;
+	margin-bottom: 0.25em;
 	outline: none !important;
 	vertical-align: middle;
 }

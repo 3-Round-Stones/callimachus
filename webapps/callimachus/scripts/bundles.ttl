@@ -21,7 +21,8 @@
 	rdf:_11 <sorted.js>;
 	rdf:_12 <disable-button.js>;
 	rdf:_13 <creole.js>;
-	rdf:_14 <wiki.js>.
+	rdf:_14 <wiki.js>;
+	rdf:_15 <placeholder.js>.
 
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;

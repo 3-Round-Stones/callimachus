@@ -39,10 +39,10 @@ PRGDIR=`dirname "$PRG"`
 EXECUTABLE=`basename "$PRG" | sed 's/-[^-]*/.sh/'`
 
 # Check that target executable exists
-if [ ! -x "$PRGDIR"/"$EXECUTABLE" -o "$PRG" = "$PRGDIR/$EXECUTABLE" ]; then
+if [ ! -e "$PRGDIR"/"$EXECUTABLE" -o "$PRG" = "$PRGDIR/$EXECUTABLE" ]; then
   echo "Cannot find $PRGDIR/$EXECUTABLE"
   echo "This file is needed to run this program"
   exit 1
 fi
 
-exec "$PRGDIR"/"$EXECUTABLE" start "$@"
+exec /bin/sh "$PRGDIR"/"$EXECUTABLE" start "$@"

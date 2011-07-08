@@ -132,11 +132,12 @@ public class Server implements HTTPObjectAgentMXBean {
 		options.addOption("n", "name", true, "Server name");
 		options.addOption("a", "authority", true,
 				"The hostname and port ( localhost:8080 )");
-		options
-				.addOption("p", "port", true,
+		options.addOption("p", "port", true,
 						"Port the server should listen on");
 		options.addOption("r", "repository", true,
-				"The existing repository url (relative file: or http:)");
+				"The Sesame repository url (relative file: or http:)");
+		options.addOption("c", "config", true,
+						"A repository config (if no repository exists) url (relative file: or http:)");
 		options.addOption("d", "dir", true,
 				"Directory used for data storage and retrieval");
 		options.addOption("u", "update", false,
@@ -546,17 +547,40 @@ public class Server implements HTTPObjectAgentMXBean {
 			throws RepositoryException, RepositoryConfigException,
 			MalformedURLException, IOException, RDFParseException,
 			RDFHandlerException, GraphUtilException {
+		RepositoryManager manager;
 		if (line.hasOption('r')) {
 			String url = line.getOptionValue('r');
 			Repository repository = RepositoryProvider.getRepository(url);
-			if (repository == null)
-				throw new RepositoryConfigException("Repository Not Setup at " + url);
-			return repository;
+			if (repository != null)
+				return repository;
+			manager = RepositoryProvider.getRepositoryManagerOfRepository(url);
+		} else {
+			String ref = dir.toURI().toASCIIString();
+			manager = RepositoryProvider.getRepositoryManager(ref);
 		}
-		RepositoryManager manager = RepositoryProvider.getRepositoryManager(dir
-				.toURI().toASCIIString());
-		ClassLoader cl = Server.class.getClassLoader();
-		URL url = cl.getResource(REPOSITORY_TEMPLATE);
+		URL config_url;
+		if (line.hasOption('c')) {
+			String ref = line.getOptionValue('c');
+			config_url = new File(".").toURI().resolve(ref).toURL();
+		} else {
+			ClassLoader cl = Server.class.getClassLoader();
+			config_url = cl.getResource(REPOSITORY_TEMPLATE);
+		}
+		Graph graph = parseTurtleGraph(config_url);
+		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
+				RepositoryConfigSchema.REPOSITORY);
+		String id = GraphUtil.getUniqueObjectLiteral(graph, node,
+				RepositoryConfigSchema.REPOSITORYID).stringValue();
+		if (manager.hasRepositoryConfig(id))
+			return manager.getRepository(id);
+		RepositoryConfig config = RepositoryConfig.create(graph, node);
+		config.validate();
+		manager.addRepositoryConfig(config);
+		return manager.getRepository(id);
+	}
+
+	private Graph parseTurtleGraph(URL url) throws IOException,
+			RDFParseException, RDFHandlerException {
 		Graph graph = new GraphImpl();
 		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
 		rdfParser.setRDFHandler(new StatementCollector(graph));
@@ -577,16 +601,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		} finally {
 			in.close();
 		}
-		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
-				RepositoryConfigSchema.REPOSITORY);
-		String id = GraphUtil.getUniqueObjectLiteral(graph, node,
-				RepositoryConfigSchema.REPOSITORYID).stringValue();
-		if (manager.hasRepositoryConfig(id))
-			return manager.getRepository(id);
-		RepositoryConfig config = RepositoryConfig.create(graph, node);
-		config.validate();
-		manager.addRepositoryConfig(config);
-		return manager.getRepository(id);
+		return graph;
 	}
 
 	private void applyPolicy(CommandLine line, Repository repository, File dir,

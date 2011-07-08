@@ -65,10 +65,21 @@ if [ -r "$CONFIG" ]; then
 fi
 
 # Check that target executable exists
-if [ ! -x "$EXECUTABLE" ]; then
+if [ ! -e "$EXECUTABLE" ]; then
   echo "Cannot find $EXECUTABLE"
   echo "This file is needed to run this program"
   exit 1
+fi
+
+# Check that target is executable
+if [ ! -x "$EXECUTABLE" ]; then
+  chmod a+x "$EXECUTABLE"
+    # Check that target is executable
+    if [ ! -x "$EXECUTABLE" ]; then
+      echo "$EXECUTABLE is not executable"
+      echo "This file is needed to run this program"
+      exit 1
+    fi
 fi
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
@@ -196,6 +207,14 @@ if [ -z "$MAIL" ] ; then
   MAIL="$BASEDIR/etc/mail.properties"
 fi
 
+if [ -z "$REPOSITORY" ] ; then
+  REPOSITORY="$BASEDIR/repositories/callimachus"
+fi
+
+if [ -z "$REPOSITORY_CONFIG" ] ; then
+  REPOSITORY_CONFIG="$BASEDIR/etc/callimachus-repository.ttl"
+fi
+
 for JAR in "$BASEDIR"/lib/*.jar ; do
   if [ ! -z "$CLASSPATH" ] ; then
     CLASSPATH="$CLASSPATH":
@@ -238,11 +257,7 @@ if [ -z "$OPTS" ] ; then
   if [ "$SECURITY_MANAGER" = "false" ]; then
     OPTS="--trust"
   fi
-  if [ -z "$STORE" ]; then
-    OPTS="-d \"$BASEDIR\" -p $PORT -a $AUTHORITY $OPTS"
-  else
-    OPTS="-d \"$BASEDIR\" -p $PORT -a $AUTHORITY -r \"$STORE\" $OPTS"
-  fi
+  OPTS="-d \"$BASEDIR\" -p $PORT -a $AUTHORITY -r \"$REPOSITORY\" -c \"$REPOSITORY_CONFIG\" $OPTS"
 fi
 
 # For Cygwin, switch paths to Windows format before running java

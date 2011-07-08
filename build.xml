@@ -163,13 +163,13 @@
 			</classpath>
 		</javac>
 		<copy todir="${build}">
-			<fileset dir="${src}" excludes="**/*.java *.sh *.bat *.conf *.properties"/>
+			<fileset dir="${src}" excludes="**/*.java *.sh *.bat *.conf *.properties *.ttl"/>
 		</copy>
 		<copy todir="${bin}">
 			<fileset dir="${src}" includes="*.sh *.bat"/>
 		</copy>
 		<copy todir="${etc}">
-			<fileset dir="${src}" includes="*.conf *.properties"/>
+			<fileset dir="${src}" includes="*.conf *.properties *.ttl"/>
 		</copy>
 	</target>
 

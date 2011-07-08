@@ -127,6 +127,14 @@ if not "%MAIL%" == "" goto gotMail
 set "MAIL=%BASEDIR%\etc\mail.properties"
 :gotMail
 
+if not "%REPOSITORY%" == "" goto gotRepository
+set "REPOSITORY=repositories/callimachus"
+:gotRepository
+
+if not "%REPOSITORY_CONFIG%" == "" goto gotRepositoryConfig
+set "REPOSITORY_CONFIG=etc/callimachus-repository.ttl"
+:gotRepositoryConfig
+
 setlocal ENABLEDELAYEDEXPANSION
 for /r "%LIB%" %%a IN (*.jar) do set CLASSPATH=!CLASSPATH!;%%a
 
@@ -145,10 +153,7 @@ set "AUTHORITY=%AUTHORITY%:%PORT%"
 :gotAuthority
 
 if not "%OPT%" == "" goto gotOpt
-set "OPT=-d "%BASEDIR%" -p %PORT% -a %AUTHORITY%"
-if "%STORE%" == "" goto gotStore
-set "OPT=%OPT% -r "%STORE%""
-:gotStore
+set "OPT=-d "%BASEDIR%" -p %PORT% -a %AUTHORITY% -r %REPOSITORY% -c %REPOSITORY_CONFIG%"
 if not "%SECURITY_MANAGER%" == "false" goto gotOpt
 set "OPT=%OPT% --trust"
 :gotOpt

@@ -44,9 +44,26 @@ for the server to read runtime changes in the webapps directory.
 More detailed instructions for creating your own libjnotify.so file can be found at
 http://jnotify.sourceforge.net/
 
-In some environments, Callimachus may log "An exception has occurred in the compiler...FilePermission" exceptions. This is 
-often due to an issue in the embedded Java compiler and if so has no impact on the 
-run time behaviour of Callimachus.
+-----------------
+| Configuration |
+-----------------
+
+An SMTP server is required to send an invite email and password and reset user's password.
+The SMTP server can be configured in etc/mail.properties (not provided).
+A typical file might contain the following block:
+
+mail.transport.protocol = smtp
+mail.from = system@example.com
+mail.smtp.host = example.com
+mail.smtp.port = 25
+mail.smtp.auth = true
+mail.user = system
+mail.password = secret
+
+For more options see:
+ http://java.sun.com/javaee/5/docs/api/javax/mail/package-summary.html
+ http://java.sun.com/products/javamail/javadocs/com/sun/mail/smtp/package-summary.html
+
 
 ----------------
 | Installation |
@@ -68,6 +85,10 @@ On Mac and Linux run:
 
 On Windows run:
  # bin/callimachus-start.bat
+
+In some environments, Callimachus may log "An exception has occurred in the compiler...FilePermission" exceptions. This is 
+often due to an issue in the embedded Java compiler and if so has no impact on the 
+run time behaviour of Callimachus.
 
 If you want to check out the source code, see the directions at:
   http://code.google.com/p/callimachus/source/checkout

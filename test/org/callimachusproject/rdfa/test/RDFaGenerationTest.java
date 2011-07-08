@@ -34,6 +34,7 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -106,7 +107,7 @@ public class RDFaGenerationTest {
 	static final String TRANSFORM = "../webapps/callimachus/operations/construct.xsl";
 	static final String TEST_FILE_SUFFIX = "-test";
 	static final String DATA_ATTRIBUTE_TEST_BASE = "http://example.org/test";
-	static final String DATA_ATTRIBUTE_TEST_XSLT = "../src/org/callimachusproject/xsl/data-attributes.xsl";
+	static final String DATA_ATTRIBUTE_TEST_XSLT = "org/callimachusproject/xsl/data-attributes.xsl";
 	static final String MENU = "examples/menu.xml";
 			
 	// static properties defined in @BeforeClass setUp()
@@ -226,7 +227,9 @@ public class RDFaGenerationTest {
 
 	@Parameters
 	public static Collection<Object[]> listCases() {
-		File testDir = new File(test_dir);
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		String path = cl.getResource(test_dir).getPath();
+		File testDir = new File(path);
 		if (testDir.exists() && testDir.isDirectory())
 			return listCases(testDir);
 		return null;
@@ -256,7 +259,9 @@ public class RDFaGenerationTest {
 	}
 	
 	static XMLEventReader applyDataAttributeXSLT(XMLEventReader xml, String _this) throws Exception {
-		Transformer transformer = transformerFactory.newTransformer(new StreamSource(DATA_ATTRIBUTE_TEST_XSLT));
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		InputStream in = cl.getResourceAsStream(DATA_ATTRIBUTE_TEST_XSLT);
+		Transformer transformer = transformerFactory.newTransformer(new StreamSource(in));
 		transformer.setParameter("this", _this);
 		transformer.setURIResolver(new URIResolver() {
 			@Override

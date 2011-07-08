@@ -5,10 +5,11 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -83,7 +84,8 @@ public class RDFaConformanceTest {
 	private static void loadProperties(String properties) {
 		try {
 			Properties props = new Properties();
-			props.load(new FileReader(properties));
+			ClassLoader cl = Thread.currentThread().getContextClassLoader();
+			props.load(cl.getResourceAsStream(properties));
 	
 			test_dir = props.getProperty("test_dir");
 	        url_prefix = props.getProperty("url_prefix");
@@ -178,8 +180,12 @@ public class RDFaConformanceTest {
 		return f.createStatement(s, p, o);
 	}
 	
-	String load(File file) throws IOException {
-		final FileReader reader = new FileReader(file);
+	String load(String file) throws IOException {
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		InputStream in = cl.getResourceAsStream(file);
+		if (in == null)
+			return null;
+		final Reader reader = new InputStreamReader(in, "UTF-8");
 		char[] block = new char[4096];
 		final StringBuffer buffer = new StringBuffer();
 		try {
@@ -193,8 +199,12 @@ public class RDFaConformanceTest {
 		return buffer.toString();
 	}
 	
-	RDFaReader parseRDFa(File rdfa, String base) throws Exception {
-		XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(rdfa));   
+	RDFaReader parseRDFa(String rdfa, String base) throws Exception {
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		InputStream in = cl.getResourceAsStream(rdfa);
+		if (in == null)
+			return null;
+		XMLEventReader xml = xmlInputFactory.createXMLEventReader(in);   
 		RDFaReader rdf = new RDFaReader(base, xml, base);
 		return rdf;
 	}
@@ -225,20 +235,24 @@ public class RDFaConformanceTest {
 		return graph;
 	}
 	
-	void verifySPARQL(RepositoryConnection con, File sparql) 
+	void verifySPARQL(RepositoryConnection con, String sparql) 
 	throws Exception {
 	    // evaluate sparql ASK query
 	    String query = load(sparql);
-		BooleanQuery q = con.prepareBooleanQuery(QueryLanguage.SPARQL, query);
-		boolean result = q.evaluate();
-		boolean success = (positive && result) || (!positive && !result);
-		if (!success) {
-			System.out.println("Failed "+ (positive?"positive":"negative") +" Test #"+id);
-			System.out.println(exportGraph(con));	
-			System.out.println(query);
-			System.out.println();
-		}
-		assertTrue("Test #"+id, success);
+	    if (query == null) {
+	    	fail(sparql + " is missing");
+	    } else {
+			BooleanQuery q = con.prepareBooleanQuery(QueryLanguage.SPARQL, query);
+			boolean result = q.evaluate();
+			boolean success = (positive && result) || (!positive && !result);
+			if (!success) {
+				System.out.println("Failed "+ (positive?"positive":"negative") +" Test #"+id);
+				System.out.println(exportGraph(con));	
+				System.out.println(query);
+				System.out.println();
+			}
+			assertTrue("Test #"+id, success);
+	    }
 	}
 
 	@BeforeClass
@@ -261,9 +275,13 @@ public class RDFaConformanceTest {
 		RepositoryConnection con=null;
 		try {
 			String base = url_prefix+pack(id)+".xhtml";
-			RDFEventReader rdf = parseRDFa(new File(test_dir+pack(id)+".xhtml"), base);
-			con = loadRepository(rdf);
-			verifySPARQL(con, new File(test_dir+pack(id)+".sparql"));
+			RDFEventReader rdf = parseRDFa(test_dir+pack(id)+".xhtml", base);
+			if (rdf != null) {
+				con = loadRepository(rdf);
+				verifySPARQL(con, test_dir+pack(id)+".sparql");
+			} else {
+				fail(test_dir+pack(id)+".xhtml" + " is missing");
+			}
 		}
 //		catch (Exception e) {
 //			fail("Test #"+id+" "+e==null?"":e.toString());

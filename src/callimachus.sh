@@ -208,11 +208,11 @@ if [ -z "$MAIL" ] ; then
 fi
 
 if [ -z "$REPOSITORY" ] ; then
-  REPOSITORY="$BASEDIR/repositories/callimachus"
+  REPOSITORY="$BASEDIR/repositories/$NAME"
 fi
 
 if [ -z "$REPOSITORY_CONFIG" ] ; then
-  REPOSITORY_CONFIG="$BASEDIR/etc/callimachus-repository.ttl"
+  REPOSITORY_CONFIG="$BASEDIR/etc/$NAME-repository.ttl"
 fi
 
 for JAR in "$BASEDIR"/lib/*.jar ; do

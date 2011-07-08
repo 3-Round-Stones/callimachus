@@ -128,11 +128,11 @@ set "MAIL=%BASEDIR%\etc\mail.properties"
 :gotMail
 
 if not "%REPOSITORY%" == "" goto gotRepository
-set "REPOSITORY=repositories/callimachus"
+set "REPOSITORY=repositories/%NAME%"
 :gotRepository
 
 if not "%REPOSITORY_CONFIG%" == "" goto gotRepositoryConfig
-set "REPOSITORY_CONFIG=etc/callimachus-repository.ttl"
+set "REPOSITORY_CONFIG=etc/%NAME%-repository.ttl"
 :gotRepositoryConfig
 
 setlocal ENABLEDELAYEDEXPANSION

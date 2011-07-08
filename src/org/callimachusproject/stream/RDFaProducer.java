@@ -321,7 +321,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		for (Iterator<?> i=result.iterator(); i.hasNext();) {
 			Binding b = (Binding) i.next();
 			if (context.assignments.containsKey(b.getName())) continue;
-			String[] origin = origins.get(b.getName()).split(" ");
+			String value = origins.get(b.getName());
+			if (value == null) continue;
+			String[] origin = value.split(" ");
 			if (!origin[0].startsWith(context.path)) return false;
 		}
 		return true;
@@ -385,7 +387,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// excluding property expressions
 		for (String name: resultSet.getBindingNames()) {
 			if (!name.startsWith("_") || extraneous.contains(name)) continue;
-			String[] origin = origins.get(name).split(" ");
+			String value = origins.get(name);
+			if (value == null) continue;
+			String[] origin = value.split(" ");
 			if (origin[0].equals(context.path) && context.assignments.get(name)==null) 
 				return false;
 		}
@@ -399,7 +403,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		if (result==null) return true;
 		for (Iterator<Binding> i=result.iterator(); i.hasNext();) {
 			Binding b = i.next();
-			String[] origin = origins.get(b.getName()).split(" ");
+			String value = origins.get(b.getName());
+			if (value == null) continue;
+			String[] origin = value.split(" ");
 			// is this a property expression with a curie
 			if (origin.length>1 && origin[1].contains(":")) continue;
 			Value v = context.assignments.get(b.getName());
@@ -588,7 +594,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// identify implicit variables for this element, not found among the attributes
 		for (Iterator<Binding> i=result.iterator(); i.hasNext();) {
 			Binding b = i.next();
-			List<String> origin = Arrays.asList(origins.get(b.getName()).split(" "));
+			String value = origins.get(b.getName());
+			if (value == null) continue;
+			List<String> origin = Arrays.asList(value.split(" "));
 			if (origin.get(0).equals(context.path)) {
 				// context.property refers to CONTENT
 				if (origin.contains(RDFaReader.CONTENT))

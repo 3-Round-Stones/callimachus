@@ -25,7 +25,7 @@
 		<form id="form" method="POST" action="" enctype="multipart/form-data" autocomplete="off">
 			<label for="name">Username</label>
 			<div>
-				<input id="name" name="name" type="text" class="auto-expand required"
+				<input id="name" name="name" type="text" class="auto-expand required" autofocus="autofocus"
 					onchange="$('#message').val($('#message').val().replace(/username is (\w*)/, 'username is ' + value))" />
 			</div>
 			<label for="email">E-mail address</label>

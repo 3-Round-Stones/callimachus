@@ -120,7 +120,7 @@
 			var curie = getCurie('#prefix', '#local', this, true);
 			if (!curie)
 				return false;
-			var id = findOrGenerateId(node, curie, container);
+			var id = findOrGenerateId(curie, container);
 			insertTemplate(template, {type: type, label: label,
 				id: id, curie: curie});
 			closeDialogue();
@@ -178,7 +178,7 @@
 			}
 			if (!curie)
 				return false;
-			var id = findOrGenerateId(node, curie, container);
+			var id = findOrGenerateId(curie, container);
 			insertTemplate(template, {type: type, label: label,
 				id: id, rel: attr, curie: curie,
 				scheme: scheme});
@@ -220,7 +220,7 @@
 			var prompt = $('#prompt').val();
 			if (!curie || !ctype)
 				return false;
-			var id = findOrGenerateId(node, curie, container);
+			var id = findOrGenerateId(curie, container);
 			insertTemplate(template, {type: type, label: label,
 				id: id, rel: attr, curie: curie,
 				'class': ctype, prompt: prompt});
@@ -327,7 +327,7 @@
 			updatePrefixSelect('#prefix');
 		}
 		$('#local').change(function(event) {
-			$('#variable').val('?' + findOrGenerateId(null, getCurie('#prefix', '#local', this.form, false), container));
+			$('#variable').val('?' + findOrGenerateId(getCurie('#prefix', '#local', this.form, false), container));
 		});
 		$('.wym_dialog_property .wym_delete').click(function(event) {
 			if ($(node).is('span')) {
@@ -377,7 +377,7 @@
 			updatePrefixSelect('#prefix');
 		}
 		$('#local').change(function(event) {
-			$('#variable').val('?' + findOrGenerateId(null, getCurie('#prefix', '#local', this.form, false), container));
+			$('#variable').val('?' + findOrGenerateId(getCurie('#prefix', '#local', this.form, false), container));
 		});
 		$('.wym_dialog_rel .wym_delete').click(function(event) {
 			$(node).removeAttr('rel');
@@ -471,10 +471,7 @@
 		return false;
 	}
 
-	function findOrGenerateId(node, curie, container) {
-		var id = find(node, '[id]').attr('id');
-		if (node && id && node != document)
-			return id;
+	function findOrGenerateId(curie, container) {
 		if (!curie)
 			return '';
 		var wym = window.WYMeditor.INSTANCES[0];

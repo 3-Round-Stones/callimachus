@@ -32,21 +32,7 @@ function getPageLocationURL() {
 	}
 
 	$(document).ready(function() {
-		WYMeditor.XhtmlValidator._tags['a']['attributes']['rel'] = /^.+$/;
-		WYMeditor.XhtmlValidator._tags['a']['attributes']['rev'] = /^.+$/;
-		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('dropzone');
 		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('data-dialog');
-		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push(
-			'rel',
-			'rev',
-			'content',
-			'href',
-			'src',
-			'about',
-			'property',
-			'resource',
-			'datatype',
-			'typeof');
 		$('.wym_box_0').wymeditor({
 			html: '<h1></h1>',
 			lang: null,

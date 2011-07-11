@@ -3480,7 +3480,7 @@ WYMeditor.XhtmlSaxListener = function()
     "object", "ol", "optgroup", "option", "p", "param", "pre", "q",
     "samp", "script", "select", "small", "span", "strong", "style",
     "sub", "sup", "table", "tbody", "td", "textarea", "tfoot", "th",
-    "thead", "title", "tr", "tt", "ul", "var", "extends"];
+    "thead", "title", "tr", "tt", "ul", "var", "extends", "time"];
 
 
     this.inline_tags = ["br", "hr", "img", "input"];

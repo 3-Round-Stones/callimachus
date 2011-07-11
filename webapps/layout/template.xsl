@@ -190,7 +190,7 @@
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
 				<xsl:if test="$template and ($query='view' or $query='edit')">
 					<p id="footer-lastmod" about="?this" rel="audit:revision" resource="?revision">This resource was last modified at 
-						<span property="audit:committedOn" class="abbreviated datetime-locale" />
+						<time pubdate="pubdate" property="audit:committedOn" class="abbreviated" />
 					</p>
 				</xsl:if>
 				<a href="http://callimachusproject.org/" title="Callimachus">

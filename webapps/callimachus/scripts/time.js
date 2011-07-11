@@ -7,33 +7,37 @@ $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
 	var now = new Date();
-	$(".datetime-locale, .date-locale, .time-locale", event.target).each(function(i, node) {
+	$(event.target).find("time").andSelf().filter("time").each(function(i, node) {
 		changeDateLocale(node, now);
-	})
-	if ($(event.target).is(".datetime-locale, .date-locale, .time-locale")) {
-		changeDateLocale(event.target, now);
-	}
+	});
 }
 
 function changeDateLocale(node, now) {
 	var node = $(node);
-	if (!node.attr("content")) {
+	if (!node.attr("datetime")) {
 		var text = node.text();
 		var timestamp = parseDateTime(text, now);
 		if (!isNaN(timestamp)) {
 			node.attr("content", text);
+			node.attr("datetime", text);
 			var date = new Date(timestamp);
 			if ((date.getHours() > 0 || date.getMinutes() > 0) && /^\s*(\d{4})-?(\d{2})-?(\d{2})\s*$/.exec(text)) {
 				date = new Date(parseDateTime(text + "T00:00:00"));
 			}
 			if (node.is(".abbreviated")) {
-				node.text(abbreviated(date, node, now));
-			} else if (node.is(".datetime-locale")) {
+				node.text(local(date, now, node));
+			} else if (node.is(".datetime")) {
 				node.text(date.toLocaleString());
-			} else if (node.is(".date-locale")) {
+			} else if (node.is(".datetime-local")) {
+				node.text(local(date, now));
+			} else if (node.is(".date")) {
 				node.text(date.toLocaleDateString());
-			} else if (node.is(".time-locale")) {
+			} else if (node.is(".month")) {
+				node.text(month(date));
+			} else if (node.is(".time")) {
 				node.text(date.toLocaleTimeString());
+			} else {
+				node.text(date.toString());
 			}
 		}
 	}
@@ -77,13 +81,13 @@ function parseDateTime(text, now) {
 	return timestamp;
 }
 
-function abbreviated(date, node, now) {
+function local(date, now, node) {
 	var locale = '';
-	if (node.is(".datetime-locale, .time-locale")) {
-		var minutes;
+	var minutes = '';
+	if (!node || !node.is('.date') && !node.is('.month')) {
 		if (date.getMinutes() >= 10) {
 			minutes = ':' + date.getMinutes();
-		} else if (date.getHours() > 0 || date.getMinutes() > 0) {
+		} else if (!node || date.getHours() > 0 || date.getMinutes() > 0) {
 			minutes = ':0' + date.getMinutes();
 		}
 		if (date.getHours() > 12) {
@@ -96,19 +100,27 @@ function abbreviated(date, node, now) {
 			locale = "12" + minutes + " am";
 		}
 	}
-	if (node.is(".datetime-locale, .date-locale")) {
-		if (locale == '' || date.getDate() != now.getDate() || date.getMonth() != now.getMonth() || date.getFullYear() != now.getFullYear()) {
+	if (!node || !node.is('.time')) {
+		if (!node || locale == '' || date.getDate() != now.getDate() || date.getMonth() != now.getMonth() || date.getFullYear() != now.getFullYear()) {
 			if (locale) {
 				locale += ", ";
 			}
 			var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()];
-			locale += date.getDate() + ' ' + month;
-			if (date.getFullYear() != now.getFullYear()) {
+			if (!node || !node.is('.month')) {
+				locale += date.getDate() + ' ';
+			}
+			locale + month;
+			if (!node || date.getFullYear() != now.getFullYear()) {
 				locale += ' ' + date.getFullYear();
 			}
 		}
 	}
 	return locale;
+}
+
+function month(date) {
+	var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date.getMonth()];
+	return month + ' ' + date.getFullYear();
 }
 
 })(window.jQuery);

@@ -90,7 +90,7 @@ public abstract class CreateSupport implements Page {
 					} else if (subject.equals(source.getResource())) {
 						throw new RDFHandlerException("Target resource URI not provided");
 					}
-					accept(openBoundedPatterns(subject.stringValue(), "create"));
+					accept(openPatternReader(subject.stringValue(), "create", null));
 				}
 			};
 			String base = source.getResource().stringValue();
@@ -152,7 +152,7 @@ public abstract class CreateSupport implements Page {
 	}
 
 	private boolean isResourceAlreadyPresent(ObjectConnection con, String about) throws Exception {
-		RDFEventReader reader = openBoundedPatterns(about, "create");
+		RDFEventReader reader = openPatternReader(about, "create", null);
 		try {
 			StringWriter str = new StringWriter();
 			SPARQLWriter writer = new SPARQLWriter(str);

@@ -62,7 +62,7 @@
 	<xsl:template match="head|xhtml:head">
 		<xsl:copy>
 			<xsl:apply-templates select="@*" />
-			<link rel="icon" href="{$callimachus}/menu?favicon" />
+			<link rel="icon" href="{$callimachus}/manifest?favicon" />
 			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,target-densityDpi=device-dpi"/>
 			<link rel="stylesheet" href="{$layout}/template.css" />
 			<xsl:comment>[if lte IE 8]>&lt;link rel="stylesheet" href="<xsl:value-of select="$layout" />/ie8.css" /&gt;&lt;![endif]</xsl:comment>
@@ -188,16 +188,45 @@
 			<a href="{$origin}/" id="logo">&#160;</a>
 
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
-				<xsl:if test="$template and ($query='view' or $query='edit')">
-					<p id="footer-lastmod" about="?this" rel="audit:revision" resource="?revision">This resource was last modified at 
-						<time pubdate="pubdate" property="audit:committedOn" class="abbreviated" />
+				<div id="footer-info">
+					<xsl:if test="$template and ($query='view' or $query='edit')">
+						<p about="?this" rel="audit:revision" resource="?revision">This resource was last modified at 
+							<time pubdate="pubdate" property="audit:committedOn" class="abbreviated" />
+						</p>
+					</xsl:if>
+					<p>
+						<xsl:apply-templates mode="rights" select="document(concat($callimachus, '/manifest?rights'))" />
 					</p>
-				</xsl:if>
+				</div>
 				<a href="http://callimachusproject.org/" title="Callimachus">
 					<img src="{$callimachus}/images/callimachus-powered.png" alt="Callimachus" width="98" height="35" />
 				</a>
 			</div>
 		</xsl:copy>
+	</xsl:template>
+
+	<!-- rights -->
+	<xsl:template mode="rights" match="sparql:sparql">
+		<xsl:apply-templates mode="rights" select="sparql:results/sparql:result/sparql:binding[@name='license']" />
+		<xsl:apply-templates mode="rights" select="sparql:results/sparql:result/sparql:binding[@name='rights']" />
+	</xsl:template>
+	<xsl:template mode="rights" match="sparql:binding[@name='license']">
+		<xsl:variable name="title" select="../sparql:binding[@name='title']/*/text()" />
+		<xsl:variable name="creator" select="../sparql:binding[@name='creator']/*/text()" />
+		<xsl:text>Unless otherwise state, data is available under the </xsl:text>
+		<a rel="license" href="{*/text()}">
+			<xsl:value-of select="$creator" />
+			<xsl:text> </xsl:text>
+			<xsl:value-of select="$title" />
+			<xsl:text> License</xsl:text>
+		</a>
+		<xsl:text>; additional terms may apply.</xsl:text>
+		<br />
+	</xsl:template>
+	<xsl:template mode="rights" match="sparql:binding[@name='rights']">
+		<span>
+			<xsl:value-of select="*/text()" />
+		</span>
 	</xsl:template>
 
 	<!-- menu -->

@@ -52,13 +52,6 @@ public interface Page {
 	XMLEventReader calliConstruct(Object target, String query) throws Exception;
 
 	/**
-	 * Returns only the primary patterns as for the given subject.
-	 * @param about the subject to filter the pattern with.
-	 */
-	RDFEventReader openBoundedPatterns(String about, String query)
-			throws XMLStreamException, IOException, TransformerException;
-
-	/**
 	 * Reads the template as a graph pattern.
 	 */
 	RDFEventReader openPatternReader(String about, String query,

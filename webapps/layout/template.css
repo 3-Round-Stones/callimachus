@@ -84,7 +84,7 @@ a[href]:hover {
 	height: 10em;
 	display: block;
 	text-decoration: none;
-	background-image: url(/callimachus/menu?logo);
+	background-image: url(/callimachus/manifest?logo);
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
 }
@@ -354,7 +354,7 @@ label.error {
     padding-bottom: 25pt;
 }
 
-#footer-lastmod {
+#footer-info {
 	font-size: small;
     text-align: left;
 	float: left;

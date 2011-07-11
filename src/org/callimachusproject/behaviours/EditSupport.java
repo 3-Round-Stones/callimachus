@@ -137,7 +137,7 @@ public abstract class EditSupport implements Page {
 			RDFHandler delegate) throws Exception {
 		SubjectTracker tracker = new SubjectTracker(delegate);
 		String about = resource.stringValue();
-		tracker.accept(openBoundedPatterns(about, "edit"));
+		tracker.accept(openPatternReader(about, "edit", null));
 		return tracker;
 	}
 }

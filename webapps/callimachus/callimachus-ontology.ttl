@@ -20,6 +20,7 @@
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix cc:<http://creativecommons.org/ns#>.
 
 @base <http://callimachusproject.org/rdf/2009/framework>.
 
@@ -109,6 +110,10 @@ calli:Party a owl:Class;
 calli:Origin a owl:Class;
 	rdfs:label "Origin";
 	rdfs:comment "A URI with a '/' path that is served by a Callimachus system".
+
+calli:Manifest a owl:Class;
+	rdfs:label "Manifest";
+	rdfs:comment "Information about a Web application server".
 
 calli:Menu a owl:Class;
 	rdfs:label "Menu";
@@ -266,12 +271,24 @@ calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
 calli:logo a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "logo";
 	rdfs:comment "The logo image that should be shown with this menu";
-	rdfs:domain calli:Menu.
+	rdfs:domain calli:Manifest.
 
 calli:favicon a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "favicon";
 	rdfs:comment "A small logo image that should be shown with this menu";
-	rdfs:domain calli:Menu.
+	rdfs:domain calli:Manifest.
+
+calli:license a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:label "license";
+	rdfs:comment "A legal document giving official permission to do something with the data in this Web application server";
+	rdfs:domain calli:Manifest;
+	rdfs:range cc:License.
+
+calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:label "rights";
+	rdfs:comment "Rights statement for the data in this Web application server";
+	rdfs:domain calli:Manifest;
+	rdfs:range rdf:PlainLiteral.
 
 calli:item a owl:ObjectProperty;
 	rdfs:label "item";

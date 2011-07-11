@@ -40,7 +40,6 @@ import org.callimachusproject.concepts.Page;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.rdfa.events.Base;
-import org.callimachusproject.stream.BoundedRDFReader;
 import org.callimachusproject.stream.OverrideBaseReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.SPARQLProducer;
@@ -118,11 +117,6 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 			throws Exception {
 		RDFEventReader sparql = openPatternReader(about, query, element);
 		return toSPARQL(sparql).getBytes(Charset.forName("UTF-8"));
-	}
-
-	public RDFEventReader openBoundedPatterns(String about, String query)
-			throws XMLStreamException, IOException, TransformerException {
-		return new BoundedRDFReader(openPatternReader(query, about, null));
 	}
 
 	public RDFEventReader openPatternReader(String about, String query,

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xmlns:dcterms="http://purl.org/dc/terms/">
+<head>
+	<title>Manifest</title>
+</head>
+<body about="?this">
+	<ul class="aside">
+		<li>To replace the icon or logo, click the × button, then the chevron to open a file upload dialogue</li>
+		<li>The icon should be of type PNG, JPEG, GIF, or ICO and should be 16×16 or 32×32 pixels in size</li>
+		<li>The logo should be of type PNG, JPEG, or GIF and should be 128x128 pixels in size</li>
+	</ul>
+	<h1>Manifest</h1>
+	<form id='form' about="?this">
+		<div class="hbox">
+			<div id="logo-image" rel="calli:logo" dropzone="link s:text/uri-list">
+				<label>Logo</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
+				<div about="?logo" typeof="">
+					<img src="{?logo}" />
+					<button type="button" class="remove" />
+				</div>
+			</div>
+			<div id="favicon-image" rel="calli:favicon" dropzone="link s:text/uri-list">
+				<label>Icon</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
+				<div about="?favicon" typeof="">
+					<img src="{?favicon}" />
+					<button type="button" class="remove" />
+				</div>
+			</div>
+		</div>
+		<div rel="calli:license" dropzone="link t:text/uri-list">
+			<label>License</label>
+			<button type="button" class="dialog" data-dialog="/callimachus/Graph?create" />
+			<div about="?license">
+				<span property="dcterms:title" />
+				<button type="button" class="remove" />
+			</div>
+		</div>
+		<div>
+			<label for="rights">Rights Statement</label>
+			<input id="rights" value="{calli:rights}" class="auto-expand" />
+		</div>
+		<button id="submit" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+	</form>
+</body>
+</html>

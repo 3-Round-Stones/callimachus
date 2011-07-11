@@ -56,8 +56,13 @@ jQuery(function($){
 		var ol = item.children("ol");
 		ol.children("li").each(function(p, n) { parseItem(p, n, trim); });
 		item.find("br").remove();
-		if (!item.attr("typeof")) {
-			item.attr("typeof", "");
+		if (!item.attr("about") && label.text()) {
+			item.attr("about", $('body').attr("about") + "#" + label.text().toLowerCase().replace(/\W/, ''));
+		} else {
+			var about = item.attr("about");
+			if ($('li[about="' + about + '"]').length > 1) {
+				item.attr("about", $('body').attr("about") + "#" + label.text().toLowerCase().replace(/\W/, ''));
+			}
 		}
 		if (!link.text()) {
 			link.remove();
@@ -76,6 +81,7 @@ jQuery(function($){
 			}
 			if (span.text() != '' + position || label.text() != text || link.attr("resource") != url) {
 				setLabelLink(item, position, text, url);
+				item.attr("about", $('body').attr("about") + "#" + text.toLowerCase().replace(/\W/, ''));
 			}
 		}
 		if (!ol.children("li").size()) {

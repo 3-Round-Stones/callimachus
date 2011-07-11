@@ -1,0 +1,49 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix dcterms:<http://purl.org/dc/terms/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix :<#>.
+
+<Manifest> rdfs:subClassOf calli:Menu, calli:Viewable, calli:Editable;
+	calli:view <manifest.xhtml>;
+	calli:edit <manifest-edit.xhtml>;
+	calli:administrator </group/admin>.
+
+<manifest> a <Manifest>;
+	calli:reader </group/users>;
+	calli:editor </group/staff>.
+
+calli:logo a owl:ObjectProperty;
+	msg:method "GET"; msg:query "logo"; msg:expect "302-see-other".
+
+calli:favicon a owl:ObjectProperty;
+	msg:method "GET"; msg:query "favicon"; msg:expect "302-see-other".
+
+:GetRights rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "rights";
+	msg:type "application/sparql-results+xml";
+	msg:sparql  """
+		SELECT DISTINCT ?rights ?license ?title ?creator
+		WHERE {
+			{
+				$this calli:rights ?rights
+			} UNION {
+				$this calli:license ?license
+				OPTIONAL {
+					?license dcterms:title ?title
+				}
+				OPTIONAL {
+					?license dcterms:creator [dcterms:title ?creator]
+				}
+			}
+		}
+	""".
+

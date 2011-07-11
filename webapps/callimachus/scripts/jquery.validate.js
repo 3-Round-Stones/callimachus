@@ -767,6 +767,14 @@ $.extend($.validator, {
 				$.extend(rules, $.validator.classRuleSettings[this]);
 			}
 		});
+		var type = element.getAttribute('type');
+		if (type && type != element.type && type in $.validator.classRuleSettings) {
+			$.extend(rules, $.validator.classRuleSettings[type]);
+		}
+		var required = element.getAttribute('required');
+		if (required != null && 'required' in $.validator.classRuleSettings) {
+			$.extend(rules, $.validator.classRuleSettings['required']);
+		}
 		return rules;
 	},
 	
@@ -775,7 +783,8 @@ $.extend($.validator, {
 		var $element = $(element);
 		
 		for (method in $.validator.methods) {
-			var value = $element.attr(method);
+			// "required" is now an HTML5 attribute and cannot be used for method parameters
+			var value = $element.attr(method == 'required' ? 'data-required' : method);
 			if (value) {
 				rules[method] = value;
 			}

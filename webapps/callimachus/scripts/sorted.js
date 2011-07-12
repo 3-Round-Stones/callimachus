@@ -7,11 +7,11 @@ $(document).ready(handle);
 $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
-	$(".sorted", event.target).each(function(i, node) {
+	$(".asc,.desc", event.target).parents('.sorted').each(function(i, node) {
 		sortElements(node);
 	})
-	if ($(event.target).is(".sorted")) {
-		sortElements(event.target);
+	if ($(event.target).is(".asc,.desc")) {
+		sortElements($(event.target).parents('.sorted')[0]);
 	}
 }
 
@@ -19,10 +19,7 @@ function sortElements(node) {
 	var nodes = node.childNodes;
 	if (parseInt($(node).attr('data-sorted')) >= nodes.length)
 		return;
-	var list = [nodes.length];
-	for (var i = 0; i < nodes.length; i++) {
-		list[i] = nodes[i];
-	}
+	var list = $(nodes).get();
 	var exclude = $(node).find(".sorted").find(".asc, .desc");
 	list.sort(function(a, b) {
 		if (a.nodeType < b.nodeType) return -1;
@@ -50,8 +47,18 @@ function sortElements(node) {
 		if (d1 < d2) return 1;
 		return 0;
 	});
+	list = $(list).filter(function(){
+		if (this.nodeType != 3 || this.data.search(/\S/) >= 0)
+			return true;
+		$(this).remove();
+		return false;
+	}).get();
 	$(node).attr('data-sorted', list.length);
-	$(node).append($(list));
+	$(list).each(function(i) {
+		if (this != nodes[i]) {
+			$(this).insertBefore(nodes[i]);
+		}
+	});
 }
 
 })(window.jQuery);

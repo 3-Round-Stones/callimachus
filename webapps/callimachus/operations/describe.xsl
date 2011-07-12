@@ -25,6 +25,22 @@
 					.datatype, .language { color: gray; }
 					.predicate { color: darkgreen; }
 				</style>
+				<script type="text/javascript">
+				// <![CDATA[
+				jQuery(function($) {
+					var index = {};
+					$($('#results').children('div[about]').get()).each(function() {
+						var first = index[this.getAttribute('about')];
+						if (first && $(first).children('ul')) {
+							$(this).children('ul').contents().appendTo($(first).children('ul'));
+							$(this).remove();
+						} else {
+							index[this.getAttribute('about')] = this;
+						}
+					});
+				});
+				// ]]>
+				</script>
 			</head>
 			<body>
 				<h1>
@@ -33,7 +49,9 @@
 					</xsl:call-template>
 					<xsl:text> Resource</xsl:text>
 				</h1>
-				<xsl:apply-imports />
+				<div id="results">
+					<xsl:apply-imports />
+				</div>
 			</body>
 		</html>
 	</xsl:template>

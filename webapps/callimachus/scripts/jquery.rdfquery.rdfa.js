@@ -1592,7 +1592,7 @@
           ns = m[1];
           local = m[2];
           for (n in namespaces) {
-            if (namespaces[n] === ns) {
+            if (namespaces[n].toString() === ns) {
               prefix = n;
               break;
             }
@@ -1612,7 +1612,7 @@
             ns = m[1];
             local = m[2];
             for (n in namespaces) {
-              if (namespaces[n] === ns) {
+              if (namespaces[n].toString() === ns) {
                 prefix = n;
                 break;
               }

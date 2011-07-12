@@ -47,9 +47,9 @@ function submitRDFForm(form, stored) {
 			var boundary = "jeseditor-boundary";
 			var type = "multipart/related;boundary=" + boundary + ";type=\"application/rdf+xml\"";
 			var data = "--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
-					+ removed.dump({format:"application/rdf+xml",serialize:true})
+					+ removed.dump({format:"application/rdf+xml",serialize:true,namespaces:form.xmlns()})
 					+ "\r\n--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
-					+ added.dump({format:"application/rdf+xml",serialize:true})
+					+ added.dump({format:"application/rdf+xml",serialize:true,namespaces:form.xmlns()})
 					+ "\r\n--" + boundary + "--";
 			patchData(form, getPageLocationURL(), type, data, function(data, textStatus, xhr) {
 				try {

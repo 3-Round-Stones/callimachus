@@ -92,7 +92,7 @@ function submitRDFForm(form) {
 			}
 			var added = readRDF(form);
 			var type = "application/rdf+xml";
-			var data = added.dump({format:"application/rdf+xml",serialize:true});
+			var data = added.dump({format:"application/rdf+xml",serialize:true,namespaces:form.xmlns()});
 			postData(form, type, data, function(data, textStatus, xhr) {
 				try {
 					var redirect = xhr.getResponseHeader("Location");

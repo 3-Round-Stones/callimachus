@@ -105,7 +105,7 @@
 						<xsl:text> </xsl:text>
 					</span>
 				</a>
-				<span class="authenticated" style="display:none">
+				<span class="protected" style="display:none">
 					<a id="profile-link" href="{$accounts}?login">Profile</a>
 					<span> | </span>
 					<a href="{$accounts}?settings">Settings</a>
@@ -125,7 +125,7 @@
 			</div>
 
 			<xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history'">
-				<ul id="tabs" class="authenticated">
+				<ul id="tabs" class="protected">
 					<li>
 						<a id="view-tab" tabindex="1">
 							<xsl:if test="not($query='view')">
@@ -183,7 +183,7 @@
 			</div>
 
 			<div id="sidebar">
-				<xsl:apply-templates mode="menu" select="document(concat($callimachus, '/menu?evaluate'))" />
+				<xsl:copy-of select="document(concat($callimachus, '/menu?items'))/xhtml:html/xhtml:body/node()" />
 			</div>
 			<a href="{$origin}/" id="logo">&#160;</a>
 
@@ -195,7 +195,7 @@
 						</p>
 					</xsl:if>
 					<p>
-						<xsl:apply-templates mode="rights" select="document(concat($callimachus, '/manifest?rights'))" />
+						<xsl:copy-of select="document(concat($callimachus, '/manifest?rights'))/xhtml:html/xhtml:body/node()" />
 					</p>
 				</div>
 				<a href="http://callimachusproject.org/" title="Callimachus">
@@ -203,56 +203,5 @@
 				</a>
 			</div>
 		</xsl:copy>
-	</xsl:template>
-
-	<!-- rights -->
-	<xsl:template mode="rights" match="sparql:sparql">
-		<xsl:apply-templates mode="rights" select="sparql:results/sparql:result/sparql:binding[@name='license']" />
-		<xsl:apply-templates mode="rights" select="sparql:results/sparql:result/sparql:binding[@name='rights']" />
-	</xsl:template>
-	<xsl:template mode="rights" match="sparql:binding[@name='license']">
-		<xsl:variable name="title" select="../sparql:binding[@name='title']/*/text()" />
-		<xsl:variable name="creator" select="../sparql:binding[@name='creator']/*/text()" />
-		<xsl:text>Unless otherwise state, data is available under the </xsl:text>
-		<a rel="license" href="{*/text()}">
-			<xsl:value-of select="$creator" />
-			<xsl:text> </xsl:text>
-			<xsl:value-of select="$title" />
-			<xsl:text> License</xsl:text>
-		</a>
-		<xsl:text>; additional terms may apply.</xsl:text>
-		<br />
-	</xsl:template>
-	<xsl:template mode="rights" match="sparql:binding[@name='rights']">
-		<span>
-			<xsl:value-of select="*/text()" />
-		</span>
-	</xsl:template>
-
-	<!-- menu -->
-	<xsl:template mode="menu" match="sparql:sparql">
-		<ul id="nav">
-			<xsl:apply-templates mode="menu" select="sparql:results/sparql:result[not(sparql:binding/@name='heading')]" />
-		</ul>
-	</xsl:template>
-	<xsl:template mode="menu" match="sparql:result">
-		<xsl:variable name="label" select="sparql:binding[@name='label']/*/text()" />
-		<li>
-			<xsl:if test="sparql:binding/@name='link'">
-				<a href="{sparql:binding[@name='link']/*}">
-					<xsl:value-of select="$label" />
-				</a>
-			</xsl:if>
-			<xsl:if test="not(sparql:binding/@name='link')">
-				<span>
-					<xsl:value-of select="$label" />
-				</span>
-			</xsl:if>
-			<xsl:if test="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]">
-				<ul>
-					<xsl:apply-templates mode="menu" select="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]" />
-				</ul>
-			</xsl:if>
-		</li>
 	</xsl:template>
 </xsl:stylesheet>

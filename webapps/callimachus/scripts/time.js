@@ -109,7 +109,7 @@ function local(date, now, node) {
 			if (!node || !node.is('.month')) {
 				locale += date.getDate() + ' ';
 			}
-			locale + month;
+			locale += month;
 			if (!node || date.getFullYear() != now.getFullYear()) {
 				locale += ' ' + date.getFullYear();
 			}

@@ -56,14 +56,6 @@ jQuery(function($){
 		var ol = item.children("ol");
 		ol.children("li").each(function(p, n) { parseItem(p, n, trim); });
 		item.find("br").remove();
-		if (!item.attr("about") && label.text()) {
-			item.attr("about", $('body').attr("about") + "#" + label.text().toLowerCase().replace(/\W/, ''));
-		} else {
-			var about = item.attr("about");
-			if ($('li[about="' + about + '"]').length > 1) {
-				item.attr("about", $('body').attr("about") + "#" + label.text().toLowerCase().replace(/\W/, ''));
-			}
-		}
 		if (!link.text()) {
 			link.remove();
 		}
@@ -71,7 +63,7 @@ jQuery(function($){
 		if (!text && (trim || ol.children("li").length)) {
 			removeItem(item);
 		} else if (text) {
-			var url = '';
+			var url = undefined;
 			var m = text.match(/^(.*)\s+(\w+:\S+)$/);
 			if (m) {
 				text = m[1];
@@ -79,14 +71,21 @@ jQuery(function($){
 			} else if (item.find("a").size()) {
 				url = item.find("a")[0].href;
 			}
-			if (span.text() != '' + position || label.text() != text || link.attr("resource") != url) {
+			if (!span.text() || label.text() != text || link.attr("resource") != url) {
 				setLabelLink(item, position, text, url);
-				item.attr("about", $('body').attr("about") + "#" + text.toLowerCase().replace(/\W/, ''));
+			} else if (span.text() != '' + position) {
+				setPosition(span, position);
 			}
 		}
 		if (!ol.children("li").size()) {
 			ol.remove();
 		}
+	}
+
+	function setPosition(span, position) {
+		span.attr('property', 'calli:position');
+		span.attr('datatype', 'xsd:integer');
+		span.attr('content', position);
 	}
 
 	function setLabelLink(item, position, text, url) {
@@ -98,9 +97,7 @@ jQuery(function($){
 		if (!span.size()) {
 			span = $("<span/>");
 		}
-		span.attr('property', 'calli:position');
-		span.attr('datatype', 'xsd:integer');
-		span.attr('content', position);
+		setPosition(span, position);
 		if (!label.size()) {
 			label = $("<label/>");
 		}
@@ -127,6 +124,17 @@ jQuery(function($){
 			item.append(ol);
 		}
 		item.append(trail);
+		var id = text.toLowerCase().replace(/[^a-z]/, '');
+		if (!id) {
+			id = position;
+		}
+		item.attr("about", $('body').attr("about") + "#" + id);
+		var same = $('li[about="' + item.attr('about') + '"]');
+		if (same.length > 1 && item[0] != same[0]) {
+			var index = jQuery.inArray(item[0], same.get());
+			var about = item.attr('about');
+			item.attr('about', about + index);
+		}
 	}
 
 	function removeItem(li) {

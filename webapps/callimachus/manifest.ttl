@@ -47,3 +47,8 @@ calli:favicon a owl:ObjectProperty;
 		}
 	""".
 
+:PostEditManifest owl:intersectionOf (</callimachus/operations/edit.ttl#PostEdit>
+		[owl:onProperty msg:target; owl:allValuesFrom <Manifest>]);
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
+

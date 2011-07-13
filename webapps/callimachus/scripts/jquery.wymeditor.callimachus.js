@@ -26,7 +26,6 @@
 	}
 
 	function setFocusToNode(wym, node) {
-		updateBody();
 		try {
 			wym.setFocusToNode(node);
 		} catch (e) { }
@@ -277,7 +276,6 @@
 			event.preventDefault();
 			var curie = getCurie('#prefix', '#local', this, false);
 			var form = $('<form/>');
-			form.attr("about", '?this');
 			if (curie) {
 				form.attr('typeof', curie);
 			} else {

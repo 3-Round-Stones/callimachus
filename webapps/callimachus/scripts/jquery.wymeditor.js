@@ -1776,13 +1776,13 @@ WYMeditor.XmlHelper.prototype.tagOptions = function(options)
   for (var key in options) {
     var formated_options = '';
     var value = options[key];
-    if(typeof value != 'function' && value.length > 0) {
+    if(typeof value != 'function') {
 
       if(parseInt(key) == key && typeof value == 'object'){
         key = value.shift();
         value = value.pop();
       }
-      if(key != '' && value != ''){
+      if(key != '' && value != undefined){
         xml._formated_options += ' '+key+'="'+xml.escapeOnce(value)+'"';
       }
     }
@@ -3352,6 +3352,8 @@ WYMeditor.XhtmlParser.prototype.DoubleQuotedAttribute = function(match, state)
 {
   if(WYMeditor.LEXER_UNMATCHED == state){
     this._tag_attributes[this._current_attribute] = match;
+  } else if (WYMeditor.LEXER_ENTER == state){
+    this._tag_attributes[this._current_attribute] = '';
   }
   return true;
 };
@@ -3360,6 +3362,8 @@ WYMeditor.XhtmlParser.prototype.SingleQuotedAttribute = function(match, state)
 {
   if(WYMeditor.LEXER_UNMATCHED == state){
     this._tag_attributes[this._current_attribute] = match;
+  } else if (WYMeditor.LEXER_ENTER == state){
+    this._tag_attributes[this._current_attribute] = '';
   }
   return true;
 };

@@ -83,11 +83,11 @@ function submitRDFForm(form) {
 		form.trigger(se);
 		if (!se.isDefaultPrevented()) {
 			form.find("input").change(); // IE may not have called onchange before onsubmit
-			if (overrideFormURI || form.attr('about') == $('body').attr('about')) {
+			if (overrideFormURI || !form.attr('about') || form.attr('about') == $('body').attr('about')) {
 				overrideFormURI = true;
 				var label = form.find('input:text').val();
 				if (label) {
-					form.attr('about', $('body').attr('about') + '/' + encodeURI(label).replace(/%20/g,'+').toLowerCase());
+					form.attr('about', calli.listResourceIRIs(getPageLocationURL())[0] + '/' + encodeURI(label).replace(/%20/g,'+').toLowerCase());
 				}
 			}
 			var added = readRDF(form);

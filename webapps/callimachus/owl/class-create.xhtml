@@ -22,7 +22,7 @@
 		$('#form').bind('calliSubmit', function() {
 			var label = $('#label').val();
 			label = label.replace(/([a-z])\s([A-Z])/g, '$1$2');
-			$(this).attr('about', $('body').attr('about') + '/' + encodeURI(label).replace(/%20/g,'_'));
+			$(this).attr('about', location.pathname + '/' + encodeURI(label).replace(/%20/g,'_'));
 			return true;
 		});
 	}); // ]]>

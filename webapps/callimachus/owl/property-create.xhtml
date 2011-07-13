@@ -13,7 +13,7 @@
 				label = label.substring(0, 1).toLowerCase() + label.substring(1);
 			}
 			label = label.replace(/([a-z])\s([A-Z])/g, '$1$2');
-			$(this).attr('about', $('body').attr('about') + '/' + encodeURI(label).replace(/%20/g,'_'));
+			$(this).attr('about', location.pathname + '/' + encodeURI(label).replace(/%20/g,'_'));
 			return true;
 		});
 	}); // ]]>

@@ -22,7 +22,7 @@ function getPageLocationURL() {
 	if (!label) {
 		label = 'Enter Title Here';
 	}
-	var page = '<?xml version="1.0" encoding="UTF-8" ?>\n<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>\n<html xmlns="http://www.w3.org/1999/xhtml">\n<head>\n\t<title>' + label + '</title>\n</head>\n<body about="?this">\n\t<h1>' + label + '</h1>\n</body>\n</html>';
+	var page = '<?xml version="1.0" encoding="UTF-8" ?>\n<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>\n<html xmlns="http://www.w3.org/1999/xhtml">\n<head>\n\t<title>' + label + '</title>\n</head>\n<body>\n\t<h1>' + label + '</h1>\n</body>\n</html>';
 	var etag = null;
 
 	function outer(node) {

@@ -523,15 +523,30 @@
 		$(document).trigger('calliSuccess');
 	}
 
-	function updateBody() {
+	function updateToolbar() {
 		var wym = window.WYMeditor.INSTANCES[0];
-		wym.update();
+		var view = wym.xhtml().search(/<body.*\?this/) >= 0;
+		var form = $('form', wym._doc).length;
+		if (!form) {
+			$('.Wym_Form_Items').hide();
+		}
+		if (!view) {
+			$('.Wym_View_Items').hide();
+		}
+		if (form) {
+			$('.Wym_Form_Items').show();
+		}
+		if (view) {
+			$('.Wym_View_Items').show();
+		}
 	}
 
 var _wymeditor = jQuery.fn.wymeditor;
 jQuery.fn.wymeditor = function(options) {
 	var _postInit = options.postInit;
 	options.postInit = function(wym) {
+
+		updateToolbar();
 
 		$(wym._doc.body).bind('click', function(event) {
 			event.preventDefault();
@@ -552,10 +567,9 @@ jQuery.fn.wymeditor = function(options) {
 		var innerHtml = wym.html;
 		wym.html = function(html) {
 			if(typeof html === 'string') {
-				updateBody();
 				var index = jQuery.inArray(this.selected(), $(this._doc.body).find('*').get());
 				var ret = innerHtml.call(this, html);
-				updateBody();
+				updateToolbar();
 				var nodes = $(this._doc.body).find('*');
 				var node = nodes[index];
 				if (node) {
@@ -571,13 +585,6 @@ jQuery.fn.wymeditor = function(options) {
 				var markup = innerHtml.call(this, html);
 				return markup;
 			}
-		};
-
-		var innerKeyup = wym.keyup;
-		wym.keyup = function(event) {
-			var ret = innerKeyup.call(this, event);
-			updateBody();
-			return ret;
 		};
 
 		var dialog_input = outer($('.wym_dialog_input'));

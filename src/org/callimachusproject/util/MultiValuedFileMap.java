@@ -35,17 +35,18 @@ import java.util.TreeSet;
  * 
  */
 public class MultiValuedFileMap {
-	private boolean relative;
-	private File entriesDir;
-	private File entriesFile;
+	private final boolean relative;
+	private final File entriesDir;
+	private final File entriesFile;
 
-	public MultiValuedFileMap(File entriesDir) {
+	public MultiValuedFileMap(File entriesDir) throws IOException {
 		this(entriesDir, "entries.list", true);
 	}
 
-	public MultiValuedFileMap(File entriesDir, String list, boolean relative) {
+	public MultiValuedFileMap(File entriesDir, String list, boolean relative)
+			throws IOException {
 		this.relative = relative;
-		this.entriesDir = entriesDir;
+		this.entriesDir = entriesDir.getCanonicalFile();
 		this.entriesDir.mkdirs();
 		this.entriesFile = new File(this.entriesDir, list);
 	}
@@ -119,9 +120,9 @@ public class MultiValuedFileMap {
 			for (String path : getEntries()) {
 				File abs = new File(path);
 				if (abs.isAbsolute()) {
-					set.add(abs);
+					set.add(abs.getCanonicalFile());
 				} else {
-					set.add(new File(entriesDir, path).getAbsoluteFile());
+					set.add(new File(entriesDir, path).getCanonicalFile());
 				}
 			}
 		}
@@ -168,9 +169,9 @@ public class MultiValuedFileMap {
 
 	private String relative(File dir, File base, boolean relative)
 			throws IOException {
-		String path = dir.getAbsolutePath();
+		String path = dir.getCanonicalPath();
 		if (relative) {
-			String working = base.getAbsolutePath() + File.separatorChar;
+			String working = base.getCanonicalPath() + File.separatorChar;
 			if (path.startsWith(working))
 				return path.substring(working.length());
 			if (base.getParentFile() == null)

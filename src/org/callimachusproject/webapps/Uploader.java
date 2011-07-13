@@ -244,6 +244,14 @@ public class Uploader {
 		return webappsDir;
 	}
 
+	private String getWebAppsRelativePath(File file) throws IOException {
+		String base = webappsDir.getCanonicalPath() + File.separatorChar;
+		String path = file.getCanonicalPath();
+		if (path.startsWith(base))
+			return path.substring(base.length());
+		return path;
+	}
+
 	private String getOriginFor(File file) {
 		return origin;
 	}
@@ -297,7 +305,7 @@ public class Uploader {
 		} else {
 			String url = getOriginFor(file) + path;
 			HttpResponse resp = upload(file, url, gzip, conditional);
-			entries.add(getWebAppsDirFor(file), file.getAbsolutePath());
+			entries.add(getWebAppsDirFor(file), getWebAppsRelativePath(file));
 			report(resp, url, file.getName());
 		}
 	}
@@ -325,7 +333,7 @@ public class Uploader {
 				}
 			} else {
 				for (String entry : entries.get(webapps)) {
-					File file = new File(entry);
+					File file = resolveFile(webapps, entry);
 					if (isWebappDir(webapps)) {
 						File webAppsDir = getWebAppsDirFor(file);
 						Set<String> origin = singleton(getOriginFor(file));
@@ -348,6 +356,13 @@ public class Uploader {
 			entries.remove(webapps);
 		}
 		return modified;
+	}
+
+	private File resolveFile(File webapps, String entry) {
+		File file = new File(entry);
+		if (file.isAbsolute())
+			return file;
+		return new File(webapps, entry);
 	}
 
 	private HttpResponse upload(File file, String url, boolean gzip,

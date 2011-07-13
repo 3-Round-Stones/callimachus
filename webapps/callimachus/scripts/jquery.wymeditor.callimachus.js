@@ -294,6 +294,7 @@
 			if ($('#create-radio').is(':checked')) {
 				form.append('\t\t<button type="submit">Create</button>\n\t');
 			} else {
+				form.attr("about", '?this');
 				form.append('\t\t<button type="submit">Save</button>\n');
 				form.append('\t\t<button type="button" onclick="location.replace(\'?view\')">Cancel</button>\n');
 				form.append('\t\t<button type="button" onclick="calli.deleteResource(form)">Delete</button>\n\t');

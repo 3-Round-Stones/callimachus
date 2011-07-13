@@ -119,8 +119,12 @@ calli:Menu a owl:Class;
 	rdfs:label "Menu";
 	rdfs:comment "A hierarchical menu of human-readable links".
 
+calli:NamedQuery a owl:Class;
+	rdfs:label "Named Query";
+	rdfs:comment "Query in the RDF store that can be evaluated remotely".
+
 calli:NamedGraph a owl:Class;
-	rdfs:label "named Graph";
+	rdfs:label "Named Graph";
 	rdfs:comment "Graph in the RDF store that can be retrieved remotely".
 
 calli:SchemaGraph a owl:Class;
@@ -267,6 +271,12 @@ calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "alias of";
 	rdfs:comment "The canonical URL for this alias";
 	rdfs:domain calli:Alias.
+
+calli:sparql a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:label "sparql";
+	rdfs:comment "SPARQL query string that this named query represents";
+	rdfs:domain calli:NamedQuery;
+	rdfs:range rdf:PlainLiteral.
 
 calli:logo a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "logo";

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title about="?this">{rdfs:label}</title>
+</head>
+<body>
+	<h1 property="rdfs:label"></h1>
+	<form about="?this">
+		<div class="vbox">
+			<div class="input field">
+				<label for="label">Label</label>
+				<input id="label" value="{rdfs:label}" class="auto-expand" required="required" />
+			</div>
+			<div class="text field">
+				<label for="sparql">SPARQL</label>
+				<textarea id="sparql" class="auto-expand">{calli:sparql}</textarea>
+			</div>
+		</div>
+        <button type="submit">Save and evaluate</button>
+		<button type="button" onclick="location.replace('?view')">Cancel</button>
+		<button type="button" onclick="calli.deleteResource(form)">Delete</button>
+	</form>
+</body>
+</html>
+

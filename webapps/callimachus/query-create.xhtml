@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title>New Named Query</title>
+</head>
+<body>
+	<h1>New Named Query</h1>
+	<form about="" onsubmit="$(this).attr('about', '/query/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
+		<div class="vbox">
+			<div class="input field">
+				<label for="label">Label</label>
+				<input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+			</div>
+			<div class="text field">
+				<label for="sparql">SPARQL</label>
+				<textarea id="sparql" class="auto-expand">{calli:sparql}</textarea>
+			</div>
+		</div>
+		<button type="submit">Create and evaluate</button>
+	</form>
+</body>
+</html>
+

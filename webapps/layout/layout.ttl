@@ -35,6 +35,7 @@
 		calli:item </callimachus/menu#manifest>;
 		calli:item </callimachus/menu#conceptschemes>;
 		calli:item </callimachus/menu#ontologies>;
+		calli:item </callimachus/menu#namedqueries>;
 		calli:item </callimachus/menu#sparqlquery>.
 </callimachus/menu#toolbox> calli:position 10; rdfs:label "Toolbox";
 		calli:item </callimachus/menu#whatlinkshere>;
@@ -47,7 +48,8 @@
 </callimachus/menu#manifest> calli:position 2; rdfs:label "Manifest"; calli:link </callimachus/manifest>; calli:group </group/admin>.
 </callimachus/menu#conceptschemes> calli:position 3; rdfs:label "Concept schemes"; calli:link </callimachus/skos/ConceptScheme>.
 </callimachus/menu#ontologies> calli:position 4; rdfs:label "Ontologies"; calli:link </callimachus/owl/Ontology>.
-</callimachus/menu#sparqlquery> calli:position 5; rdfs:label "SPARQL query"; calli:link </sparql>; calli:group </group/admin>.
+</callimachus/menu#namedqueries> calli:position 5; rdfs:label "Named queries"; calli:link </callimachus/NamedQuery>.
+</callimachus/menu#sparqlquery> calli:position 6; rdfs:label "SPARQL query"; calli:link </sparql>; calli:group </group/admin>.
 
 </callimachus/menu#whatlinkshere> calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>.
 </callimachus/menu#relatedchanges> calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>.

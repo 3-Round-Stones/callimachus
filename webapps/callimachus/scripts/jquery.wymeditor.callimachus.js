@@ -133,9 +133,12 @@
 		var node = select(this.container(), toggle)[0];
 		var container = node ? $(node).parent()[0] : this.container();
 		$('#scheme').change(function(event) {
-			var label = $($('#scheme')[0].options[$('#scheme')[0].selectedIndex]).text();
-			var local = label.replace(/\W/g, '');
-			$('#local').val('has' + local);
+			var selected = $('#scheme')[0].options[$('#scheme')[0].selectedIndex];
+			if (selected) {
+				var label = $(selected).text();
+				var local = label.replace(/\W/g, '');
+				$('#local').val('has' + local);
+			}
 		});
 		jQuery.get('/callimachus/Page?schemes', function(xml) {
 			$(xml).find('result').each(function() {

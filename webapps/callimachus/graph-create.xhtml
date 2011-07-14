@@ -54,7 +54,9 @@
 		</ul>
 		<h1>RDF Graph</h1>
 		<form class="graph-form" action="/callimachus/Graph?create" method="POST" enctype="multipart/form-data" target="iframe">
-			<input type="file" name="graph" autofocus="autofocus" />
+			<div>
+				<input type="file" name="graph" autofocus="autofocus" />
+			</div>
 			<button type="submit">Upload Graph</button>
 			<button type="button" onclick="history.back()">Cancel</button>
 		</form>

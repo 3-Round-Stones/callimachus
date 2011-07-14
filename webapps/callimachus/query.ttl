@@ -33,33 +33,105 @@
 	calli:uriSpace </query/>;
 	calli:administrator </group/admin>.
 
-:Evaluate rdfs:subClassOf msg:Message;
+:Chart rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.TupleQueryResult>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:request "GET";
-	msg:query "eval";
-	msg:type "application/sparql-results+xml", "application/sparql-results+json";
-	msg:header "cache-control:no-store";
-	msg:transform :TransformResult;
+	msg:query "tqx";
+	msg:type "message/x-response";
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:imports <java:org.apache.http.ProtocolVersion>;
+	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+	msg:imports <java:org.apache.http.entity.InputStreamEntity>;
 	msg:script """
+		var map = {};
+		if (tqx) {
+			var pairs = tqx.split(';');
+			for (var i = 0; i < pairs.length; i++) {
+				var pair = pairs[i].split(':', 2);
+				map[pair[0]] = pair[1];
+			}
+		}
 		var con = this.objectConnection;
 		var query = this.calliSparql;
 		if (query == null)
 			throw new InternalServerError("SPARQL query is missing");
-		return con.prepareTupleQuery(QueryLanguage.SPARQL, query, this.toString()).evaluate();
+		var http11 = new ProtocolVersion("HTTP", 1, 1);
+		var resp = new BasicHttpResponse(http11, 200, "OK");
+		resp.setHeader("Cache-Control", "no-store");
+		var rs = con.prepareTupleQuery(QueryLanguage.SPARQL, query, this.toString()).evaluate();
+		if (map.out == "html") {
+			var out = this.TransformIntoHtml(rs);
+			var entity = new InputStreamEntity(out, -1);
+			entity.contentType = "text/html;charset=UTF-8";
+			resp.setEntity(entity);
+			return resp;
+		} else if (map.out == "csv") {
+			var out = this.TransformIntoCSV(rs);
+			var entity = new InputStreamEntity(out, -1);
+			entity.contentType = "text/csv;charset=UTF-8";
+			resp.setEntity(entity);
+			return resp;
+		} else if (map.out == "tsv-excel") {
+			var out = this.TransformIntoTSV(rs);
+			var entity = new InputStreamEntity(out, -1);
+			entity.contentType = "text/tab-separated-values;charset=UTF-16";
+			resp.setEntity(entity);
+			return resp;
+		} else {
+			if (!map.responseHandler) {
+				map.responseHandler = 'google.visualization.Query.setResponse';
+			}
+			if (!map.reqId) {
+				map.reqId = '0';
+			}
+			var out = this.TransformIntoWire(map.responseHandler, map.reqId, rs);
+			var entity = new InputStreamEntity(out, -1);
+			entity.contentType = "text/javascript;charset=UTF-8";
+			resp.setEntity(entity);
+			if (map.outFileName) {
+				resp.setHeader("Content-Disposition", 'inline;filename="' + map.outFileName + '"');
+			}
+			return resp;
+		}
 	""".
 
-:TransformResult rdfs:subClassOf msg:Message;
+:tqx a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :Chart;
+	rdfs:range xsd:string;
+	msg:query "tqx".
+
+:TransformSparqlResult rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/layout.ttl#TransformXhtml>;
-	msg:xslt <sparql.xsl>.
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>].
 
 :xml a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :TransformResult;
+	rdfs:domain :TransformSparqlResult;
 	rdfs:range <java:org.openrdf.query.TupleQueryResult>;
 	msg:type "application/sparql-results+xml".
+
+:TransformIntoHtml rdfs:subClassOf :TransformSparqlResult;
+	msg:type "text/csv;charset=UTF-8";
+	msg:xslt <util/sparql-results-html.xsl>.
+
+:TransformIntoCSV rdfs:subClassOf :TransformSparqlResult;
+	msg:type "text/csv;charset=UTF-8";
+	msg:xslt <util/sparql-results-csv.xsl>.
+
+:TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
+	msg:type "text/csv;charset=UTF-8";
+	msg:xslt <util/sparql-results-tsv.xsl>.
+
+:TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
+	msg:type "text/javascript;charset=UTF-8";
+	msg:xslt <util/sparql-results-wire.xsl>.
+
+:handler a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :TransformIntoWire;
+	rdfs:range xsd:string.
+
+:reqId a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :TransformIntoWire;
+	rdfs:range xsd:string.
 

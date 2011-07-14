@@ -5,10 +5,25 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this">{rdfs:label}</title>
+    <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+	<script type="text/javascript">
+	  google.load('visualization', '1.0', {packages: ['table']});
+	  function drawVisualization() {
+		google.visualization.drawChart({
+		   "containerId": "visualization",
+		   "dataSourceUrl": "{?this}",
+		   "chartType": "Table",
+		   "options": {
+		      "alternatingRowStyle": true,
+		   }
+		 });
+	  }
+	  google.setOnLoadCallback(drawVisualization);
+	</script>
 </head>
 <body>
 	<h1 property="rdfs:label"></h1>
-	<iframe style="border:none" class="auto-expand" src="?eval"></iframe>
+	<div id="visualization" />
 </body>
 </html>
 

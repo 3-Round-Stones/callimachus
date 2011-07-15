@@ -33,10 +33,14 @@
 	calli:uriSpace </query/>;
 	calli:administrator </group/admin>.
 
-:Chart rdfs:subClassOf msg:Message;
+################################
+# Google Chart Wire Protocol 0.6
+################################
+
+:GetResult rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	msg:request "GET";
+	msg:method "GET";
 	msg:query "tqx";
 	msg:type "message/x-response";
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
@@ -97,16 +101,20 @@
 		}
 	""".
 
-:tqx a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :Chart;
+:tqx a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :GetResult;
 	rdfs:range xsd:string;
 	msg:query "tqx".
+
+################################
+# XSL Transformation methods
+################################
 
 :TransformSparqlResult rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>].
 
-:xml a owl:ObjectProperty, owl:FunctionalProperty;
+:xml a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :TransformSparqlResult;
 	rdfs:range <java:org.openrdf.query.TupleQueryResult>;
 	msg:type "application/sparql-results+xml".
@@ -127,11 +135,11 @@
 	msg:type "text/javascript;charset=UTF-8";
 	msg:xslt <util/sparql-results-wire.xsl>.
 
-:handler a owl:DatatypeProperty, owl:FunctionalProperty;
+:handler a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain :TransformIntoWire;
 	rdfs:range xsd:string.
 
-:reqId a owl:DatatypeProperty, owl:FunctionalProperty;
+:reqId a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain :TransformIntoWire;
 	rdfs:range xsd:string.
 

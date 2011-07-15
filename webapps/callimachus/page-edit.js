@@ -32,7 +32,7 @@ function getPageLocationURL() {
 	}
 
 	$(document).ready(function() {
-		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('data-dialog');
+		WYMeditor.XhtmlValidator._attributes['core']['attributes'].push('data-dialog', 'data-chart-type','data-chart-source','data-chart-options');
 		$('.wym_box_0').wymeditor({
 			html: '<h1></h1>',
 			lang: null,

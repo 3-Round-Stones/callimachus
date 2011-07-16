@@ -54,11 +54,11 @@
 		</ul>
 		<h1>RDF Graph</h1>
 		<form class="graph-form" action="/callimachus/Graph?create" method="POST" enctype="multipart/form-data" target="iframe">
+			<input type="file" name="graph" autofocus="autofocus" />
 			<div>
-				<input type="file" name="graph" autofocus="autofocus" />
+				<button type="submit">Upload Graph</button>
+				<button type="button" onclick="history.back()">Cancel</button>
 			</div>
-			<button type="submit">Upload Graph</button>
-			<button type="button" onclick="history.back()">Cancel</button>
 		</form>
 		<iframe id="iframe" name="iframe" src="about:blank" style="width:40em;height:20em;border:none"> </iframe>
 	</body>

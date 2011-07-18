@@ -235,10 +235,15 @@
 		var wym = window.WYMeditor.INSTANCES[0];
 		var html = template;
 		for (key in bindings) {
-			var value = bindings[key].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
-			html = html.replace(new RegExp('\\$' + key + '\\b', 'g'), value);
+			var value = bindings[key];
+			var encoded = '';
+			if (typeof value == 'string') {
+				encoded = value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+			}
+			html = html.replace(new RegExp('\\$' + key + '\\b', 'g'), encoded);
+			html = html.replace(new RegExp('\\${' + key + '}', 'g'), encoded);
 		}
-		if (html.indexOf('class="' + bindings['type'] + ' field"') < 0) {
+		if (bindings['id'] && bindings['type'] && bindings['label'] && html.indexOf('class="' + bindings['type'] + ' field"') < 0) {
 			var label = $('<label/>');
 			label.attr('for', bindings['id']);
 			label.text(bindings['label']);
@@ -421,6 +426,75 @@
 			closeDialogue();
 			return false;
 		});
+	}
+
+	function insertChart() {
+		var wym = this;
+		google.load('visualization', '1.0', {packages: ['charteditor'], callback: function() {
+			var chartEditor = new google.visualization.ChartEditor();
+			google.visualization.events.addListener(chartEditor, 'ok', function() {
+				var chart = chartEditor.getChartWrapper();
+				var id = findOrGenerateId('chart', wym.container());
+				var options = chart.getOptions();
+				if (!options.height) {
+					options.height = 300;
+				}
+				chart.setOptions(options);
+				var json = chart.toJSON();
+				insertTemplate('<div id="$id" class="chart" style="height:${height}px" />', {id: id, height: options.height.toString()});
+				var xhtml = wym.xhtml();
+				wym.html(xhtml.replace(/(\s*<\/head>)/, '\n\t<script type="text/javascript">\n' +
+					'		google.load("visualization", "1", {callback: function(){\n' +
+					'			var chart = new google.visualization.ChartWrapper(' + json + ');\n' +
+					'			chart.setContainerId("' + id + '");\n' +
+					'			chart.draw();\n' +
+					'		}});\n\t</script>$1'));
+			});
+			chartEditor.openDialog(new google.visualization.ChartWrapper(), {dataSourceInput: 'urlbox'});
+		}});
+	}
+
+	function SerializeObject(obj) {
+	  var hexDigits = "0123456789ABCDEF";
+	  function ToHex(d) {
+		return hexDigits[d >> 8] + hexDigits[d & 0x0F];
+	  }
+	  function Escape(string) {
+		return string.replace(/[\x00-\x1F'\\]/g,
+		    function (x) {
+		      if (x == "'" || x == "\\") return "\\" + x;
+		      return "\\x" + ToHex(String.charCodeAt(x, 0));
+		    });
+	  }
+
+	  return GetObject(obj).replace(/,$/, "");
+
+	  function GetObject(obj) {
+		if (typeof obj == 'string') {
+		  return "'" + Escape(obj) + "',";
+		}
+		if (obj instanceof Array) {
+		  result = "[";
+		  for (var i = 0; i < obj.length; i++) {
+		    result += GetObject(obj[i]);
+		  }
+		  result += "],";
+		  return result;
+		}
+		var result = "";
+		if (typeof obj == 'object') {
+		  result += "{";
+		  for (var property in obj) {
+		    result += "'" +
+		        Escape(property) + "' : " +
+		        GetObject(obj[property]);
+		  }
+		  result += "},";
+		} else {
+		  result += obj + ",";
+		}
+		return result.replace(/,(\n?\s*)([\]}])/g, "$1$2");
+	  }
 	}
 
 	function setCurie(prefix, local, curie) {
@@ -634,6 +708,9 @@ jQuery.fn.wymeditor = function(options) {
 			break;
 			case 'AddRel':
 				addRel.call(wym, dialog_rel);
+			break;
+			case 'InsertChart':
+				insertChart.call(wym);
 			break;
 			default:
 				var ret = previously.call(wym, cmd);

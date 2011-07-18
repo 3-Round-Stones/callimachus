@@ -118,6 +118,12 @@ pre.wiki[property] {
 	background-image: url(/callimachus/images/lbl-wiki-property.png) !important;
 }
 
+.chart {
+	background-image: url(/callimachus/images/charts.png);
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
 /* specific HTML elements */
   caption   { text-align: left; }
   img       { margin-right: 5px;

@@ -212,7 +212,7 @@ if [ -z "$SSL" ] ; then
 fi
 
 if [ -z "$SSL_OPTS" -a -e "$SSL" ] ; then
-  SSL_OPTS=$(sed 's/\\s*\#.*$//g' "$SSL" |sed 's/\(\S\+\)=\(.*\)/-D\1="\2"/' |tr '\n' ' ')
+  SSL_OPTS=$(sed 's/\\s*\#.*$//g' "$SSL" |sed 's/\(\S\+\)=\(.*\)/-D\1=\2/' |tr '\n' ' ')
 fi
 
 if [ -z "$REPOSITORY" ] ; then

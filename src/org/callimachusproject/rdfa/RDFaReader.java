@@ -746,7 +746,7 @@ public class RDFaReader extends RDFEventReader {
 				return null;
 			String prefix = value.substring(0, idx);
 			// this may not be a curie
-			if (prefix.equals("http")) {
+			if (value.contains("://")) {
 				return tf.iri(value);
 			}
 			String namespaceURI = getNamespaceURI(prefix);

@@ -35,6 +35,7 @@ import java.net.UnknownHostException;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -75,7 +76,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private static final String ERROR_XSLT_PATH = "/layout/error.xsl";
 	Logger logger = LoggerFactory.getLogger(CallimachusServer.class);
 	private Uploader uploader;
-	private String authority;
+	private String origin;
 	private ObjectRepository repository;
 	private HTTPObjectServer server;
 	private boolean conditional = true;
@@ -114,15 +115,15 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		uploader.addListener(new ConciseListener(out));
 	}
 
-	public String getAuthority() {
-		return authority;
+	public String getOrigin() {
+		return origin;
 	}
 
-	public void setAuthority(String authority) {
-		this.authority = authority;
-		String prefix = "http://" + authority + IDENTITY_PATH;
+	public void setOrigin(String origin) {
+		this.origin = origin;
+		String prefix = origin + IDENTITY_PATH;
 		server.setIdentityPrefix(new String[] { prefix });
-		server.setErrorXSLT("http://" + authority + ERROR_XSLT_PATH);
+		server.setErrorXSLT(origin + ERROR_XSLT_PATH);
 		uploader.setProxy(getAuthorityAddress());
 		boot.setProxy(getAuthorityAddress());
 	}
@@ -223,13 +224,20 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.poke();
 	}
 
-	public void listen(int... ports) throws Exception {
-		assert ports != null && ports.length > 0;
-		if (authority == null) {
-			setAuthority(getAuthority(ports[0]));
+	public void listen(int[] ports, int[] sslports) throws Exception {
+		assert ports != null && ports.length > 0 || sslports != null && sslports.length > 0;
+		if (ports == null) {
+			ports = new int[0];
+		} else if (sslports == null) {
+			sslports = new int[0];
 		}
-		uploader.setOrigin("http://" + authority + "/");
-		server.listen(ports);
+		if (origin == null && ports.length > 0) {
+			setOrigin("http://" + getAuthority(ports[0]));
+		} else if (origin == null && sslports.length > 0) {
+			setOrigin("https://" + getAuthority(sslports[0]));
+		}
+		uploader.setOrigin(origin + "/");
+		server.listen(ports, sslports);
 	}
 
 	public void start() throws Exception {
@@ -272,12 +280,17 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	private InetSocketAddress getAuthorityAddress() {
 		InetSocketAddress host;
-		if (authority.contains(":")) {
-			int idx = authority.indexOf(':');
-			int port = Integer.parseInt(authority.substring(idx + 1));
-			host = new InetSocketAddress(authority.substring(0, idx), port);
+		if (origin.indexOf(':') != origin.lastIndexOf(':')) {
+			int slash = origin.lastIndexOf('/');
+			int colon = origin.lastIndexOf(':');
+			int port = Integer.parseInt(origin.substring(colon + 1));
+			host = new InetSocketAddress(origin.substring(slash + 1, colon), port);
+		} else if (origin.startsWith("https:")) {
+			int slash = origin.lastIndexOf('/');
+			host = new InetSocketAddress(origin.substring(slash + 1), 443);
 		} else {
-			host = new InetSocketAddress(authority, 80);
+			int slash = origin.lastIndexOf('/');
+			host = new InetSocketAddress(origin.substring(slash + 1), 80);
 		}
 		return host;
 	}
@@ -306,7 +319,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 				hostname = "127.0.0.1";
 			}
 		}
-		if (port == 80)
+		if (port == 80 || port == 443)
 			return hostname;
 		return hostname + ":" + port;
 	}
@@ -337,7 +350,8 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	}
 
 	private HTTPObjectServer createServer(File dir, String basic,
-			ObjectRepository or) throws IOException, MimeTypeParseException {
+			ObjectRepository or) throws IOException, MimeTypeParseException,
+			NoSuchAlgorithmException {
 		File wwwDir = new File(dir, "www");
 		File cacheDir = new File(dir, "cache");
 		FileUtil.deleteOnExit(cacheDir);

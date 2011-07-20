@@ -127,6 +127,19 @@ if not "%MAIL%" == "" goto gotMail
 set "MAIL=%BASEDIR%\etc\mail.properties"
 :gotMail
 
+if not "%SSL%" == "" goto gotSSL
+set "SSL=%BASEDIR%\etc\ssl.properties"
+:gotSSL
+
+rem Get system properties from file
+if not exist "%SSL%" goto okSslOpts
+setlocal EnableDelayedExpansion
+IF NOT EXIST "%BASEDIR%\tmp" MKDIR "%BASEDIR%\tmp"
+for /f "tokens=1,* delims==" %%i in ('find /V "#" "%SSL%"') do (
+  set "SSL_OPTS=%SSL_OPTS% "-D%%i=%%~j""
+)
+:okSslOpts
+
 if not "%REPOSITORY%" == "" goto gotRepository
 set "REPOSITORY=repositories/%NAME%"
 :gotRepository
@@ -143,17 +156,19 @@ set "JAVA_OPTS=-Xmx512m"
 :gotJavaOpts
 
 if not "%PORT%" == "" goto gotPort
+if not "%SSLPORT%" == "" goto gotPort
 set "PORT=8080"
 :gotPort
 
-if not "%AUTHORITY%" == "" goto gotAuthority
-for /f %%i in ('hostname') do set "AUTHORITY=%%i"
-if "%PORT%" == "80" goto gotAuthority
-set "AUTHORITY=%AUTHORITY%:%PORT%"
-:gotAuthority
+if not "%ORIGIN%" == "" goto gotOrigin
+for /f %%i in ('hostname') do set "ORIGIN=%%i"
+if "%PORT%" == "80" goto gotOrigin
+if "%SSLPORT%" == "443" goto gotOrigin
+set "ORIGIN=%ORIGIN%:%PORT%"
+:gotOrigin
 
 if not "%OPT%" == "" goto gotOpt
-set "OPT=-d "%BASEDIR%" -p %PORT% -a %AUTHORITY% -r %REPOSITORY% -c %REPOSITORY_CONFIG%"
+set "OPT=-d "%BASEDIR%" -p %PORT% -o %ORIGIN% -r %REPOSITORY% -c %REPOSITORY_CONFIG%"
 if not "%SECURITY_MANAGER%" == "false" goto gotOpt
 set "OPT=%OPT% --trust"
 :gotOpt
@@ -167,7 +182,7 @@ if ""%1"" == ""stop"" goto doStop
 
 echo Using BASEDIR:   "%BASEDIR%"
 echo Using PORT:      "%PORT%"
-echo Using AUTHORITY: "%AUTHORITY%"
+echo Using ORIGIN:    "%ORIGIN%"
 echo Using JAVA_HOME: "%JAVA_HOME%"
 
 rem Get remaining unshifted command line arguments and save them in the
@@ -183,13 +198,13 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% --pid "%PID%" %OPT% %CMD_LINE_ARGS%
+"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStart
 echo Using BASEDIR:   "%BASEDIR%"
 echo Using PORT:      "%PORT%"
-echo Using AUTHORITY: "%AUTHORITY%"
+echo Using ORIGIN:    "%ORIGIN%"
 echo Using JAVA_HOME: "%JAVA_HOME%"
 
 rem Get remaining command line arguments
@@ -206,7 +221,7 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-start "%NAME%" "%JAVAW%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %MAINCLASS% --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
+start "%NAME%" "%JAVAW%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStop

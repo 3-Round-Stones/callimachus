@@ -30,7 +30,7 @@
 	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
 	<property name="main" value="org.callimachusproject.Server" />
 	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
-	<property name="args" value="-p 8080 -a localhost:8080 -r repositories/callimachus -c etc/callimachus-repository.ttl" />
+	<property name="args" value="-p 8080 -o http://localhost:8080 -r repositories/callimachus -c etc/callimachus-repository.ttl" />
 
 	<target name="init">
 		<!-- Create the time stamp and build directory -->

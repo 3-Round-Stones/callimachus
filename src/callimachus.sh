@@ -207,6 +207,14 @@ if [ -z "$MAIL" ] ; then
   MAIL="$BASEDIR/etc/mail.properties"
 fi
 
+if [ -z "$SSL" ] ; then
+  SSL="$BASEDIR/etc/ssl.properties"
+fi
+
+if [ -z "$SSL_OPTS" -a -e "$SSL" ] ; then
+  SSL_OPTS=$(sed 's/\\s*\#.*$//g' "$SSL" |sed 's/\(\S\+\)=\(.*\)/-D\1="\2"/' |tr '\n' ' ')
+fi
+
 if [ -z "$REPOSITORY" ] ; then
   REPOSITORY="$BASEDIR/repositories/$NAME"
 fi
@@ -242,14 +250,21 @@ if [ -z "$JSVC_OPTS" ] ; then
   JSVC_OPTS="$JAVA_OPTS"
 fi
 
-if [ -z "$PORT" ] ; then
+if [ -z "$PORT" -a -z "$SSLPORT" ] ; then
   PORT="8080"
 fi
 
-if [ -z "$AUTHORITY" ] ; then
-  AUTHORITY="$(hostname -f)"
-  if [ "$PORT" != "80" ] ; then
-    AUTHORITY="$AUTHORITY:$PORT"
+if [ -z "$ORIGIN" ] ; then
+  if [ -n "$PORT" ] ; then
+    ORIGIN="http://$(hostname -f)"
+    if [ "$PORT" != "80" ] ; then
+      ORIGIN="$ORIGIN:$PORT"
+    fi
+  elif [ -n "$SSLPORT" ] ; then
+    ORIGIN="https://$(hostname -f)"
+    if [ "$SSLPORT" != "443" ] ; then
+      ORIGIN="$ORIGIN:$SSLPORT"
+    fi
   fi
 fi
 
@@ -257,7 +272,8 @@ if [ -z "$OPTS" ] ; then
   if [ "$SECURITY_MANAGER" = "false" ]; then
     OPTS="--trust"
   fi
-  OPTS="-d \"$BASEDIR\" -p $PORT -a $AUTHORITY -r \"$REPOSITORY\" -c \"$REPOSITORY_CONFIG\" $OPTS"
+  PORT_OPTS="$(echo $PORT |sed 's/\(^\|\s\)\(\S\)/ -p \2/g') $(echo $SSLPORT |sed 's/\(^\|\s\)\(\S\)/ -s \2/g')"
+  OPTS="-d \"$BASEDIR\" $PORT_OPTS -o $(echo $ORIGIN |sed 's/\s+/ -o/g') -r \"$REPOSITORY\" -c \"$REPOSITORY_CONFIG\" $OPTS"
 fi
 
 # For Cygwin, switch paths to Windows format before running java
@@ -321,7 +337,7 @@ if [ "$1" = "start" ] ; then ################################
   if [ "`tty`" != "not a tty" ]; then
     echo "Using BASEDIR:   $BASEDIR"
     echo "Using PORT:      $PORT"
-    echo "Using AUTHORITY: $AUTHORITY"
+    echo "Using ORIGIN:    $ORIGIN"
     echo "Using JAVA_HOME: $JAVA_HOME"
   fi
 
@@ -335,7 +351,7 @@ if [ "$1" = "start" ] ; then ################################
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
     -user $DAEMON_USER \
-    $JSVC_OPTS $MAINCLASS -q $OPTS "$@"
+    $JSVC_OPTS $SSL_OPTS $MAINCLASS -q $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 1
@@ -430,7 +446,7 @@ else ################################
   if [ "`tty`" != "not a tty" ]; then
     echo "Using BASEDIR:   $BASEDIR"
     echo "Using PORT:      $PORT"
-    echo "Using AUTHORITY: $AUTHORITY"
+    echo "Using ORIGIN:    $ORIGIN"
     echo "Using JAVA_HOME: $JAVA_HOME"
   fi
 
@@ -444,7 +460,7 @@ else ################################
       -Djava.mail.properties="$MAIL" \
       -classpath "$CLASSPATH" \
       -user $DAEMON_USER \
-      $JSVC_OPTS $MAINCLASS -q $OPTS "$@"
+      $JSVC_OPTS $SSL_OPTS $MAINCLASS -q $OPTS "$@"
 
     RETURN_VAL=$?
     sleep 1
@@ -460,7 +476,7 @@ else ################################
       -Djava.io.tmpdir="$TMPDIR" \
       -Djava.util.logging.config.file="$LOGGING" \
       -classpath "$CLASSPATH" \
-      $JAVA_OPTS $MAINCLASS --pid "$PID" $OPTS "$@"
+      $JAVA_OPTS $SSL_OPTS $MAINCLASS --pid "$PID" $OPTS "$@"
   fi
 fi
 

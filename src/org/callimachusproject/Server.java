@@ -130,10 +130,12 @@ public class Server implements HTTPObjectAgentMXBean {
 	private static final Options options = new Options();
 	static {
 		options.addOption("n", "name", true, "Server name");
-		options.addOption("a", "authority", true,
-				"The hostname and port ( localhost:8080 )");
+		options.addOption("o", "origin", true,
+				"The scheme, hostname and port ( http://localhost:8080 )");
 		options.addOption("p", "port", true,
 						"Port the server should listen on");
+		options.addOption("s", "sslport", true,
+				"Secure port the server should listen on");
 		options.addOption("r", "repository", true,
 				"The Sesame repository url (relative file: or http:)");
 		options.addOption("c", "config", true,
@@ -186,10 +188,10 @@ public class Server implements HTTPObjectAgentMXBean {
 					System.out.println();
 					System.out.println(server.getClass().getSimpleName()
 							+ " is listening on port " + server.getPort()
-							+ " for http://" + server.getAuthority() + "/");
+							+ " for " + server.getOrigin() + "/");
 					System.out.println("Repository: " + server.getRepository());
 					System.out.println("Webapps: " + server.getWebappsDir());
-					System.out.println("Authority: " + server.getAuthority());
+					System.out.println("Origin: " + server.getOrigin());
 				} else if (!server.isRunning()) {
 					System.err.println(server.getClass().getSimpleName()
 							+ " could not be started.");
@@ -323,16 +325,21 @@ public class Server implements HTTPObjectAgentMXBean {
 	}
 
 	private CallimachusServer server;
-	private int port = 8080;
+	private int[] ports = new int[0];
+	private int[] sslports = new int[0];
 
-	public String getAuthority() {
+	public String getOrigin() {
 		if (server == null)
 			return null;
-		return server.getAuthority();
+		return server.getOrigin();
 	}
 
-	public int getPort() {
-		return port;
+	public Integer getPort() {
+		if (ports.length > 0)
+			return ports[0];
+		if (sslports.length > 0)
+			return sslports[0];
+		return null;
 	}
 
 	public ObjectRepository getRepository() {
@@ -496,10 +503,24 @@ public class Server implements HTTPObjectAgentMXBean {
 		}
 		server = new CallimachusServer(repository, webappsDir, dir);
 		if (line.hasOption('p')) {
-			port = Integer.parseInt(line.getOptionValue('p'));
+			String[] values = line.getOptionValues('p');
+			ports = new int[values.length];
+			for (int i = 0; i < values.length; i++) {
+				ports[i] = Integer.parseInt(values[i]);
+			}
 		}
-		if (line.hasOption('a')) {
-			server.setAuthority(line.getOptionValue('a'));
+		if (line.hasOption('s')) {
+			String[] values = line.getOptionValues('s');
+			sslports = new int[values.length];
+			for (int i = 0; i < values.length; i++) {
+				sslports[i] = Integer.parseInt(values[i]);
+			}
+		}
+		if (!line.hasOption('p') && !line.hasOption('s')) {
+			ports = new int[] { 8080 };
+		}
+		if (line.hasOption('o')) {
+			server.setOrigin(line.getOptionValue('o'));
 		}
 		if (line.hasOption('n')) {
 			server.setServerName(line.getOptionValue('n'));
@@ -509,7 +530,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		}
 		AuditingSail sail = findAuditingSail(repository);
 		if (sail != null) {
-			sail.setNamespace("http://" + server.getAuthority() + CHANGE_PATH);
+			sail.setNamespace(server.getOrigin() + CHANGE_PATH);
 		}
 		try {
 			JNotify.removeWatch(-1); // load library
@@ -523,7 +544,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		if (!line.hasOption('q')) {
 			server.printStatus(System.out);
 		}
-		server.listen(port);
+		server.listen(ports, sslports);
 	}
 
 	private AuditingSail findAuditingSail(Repository repository) {

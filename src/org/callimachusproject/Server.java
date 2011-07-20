@@ -203,12 +203,22 @@ public class Server implements HTTPObjectAgentMXBean {
 			System.err.println(e.getMessage());
 			System.exit(1);
 		} catch (Exception e) {
-			if (e.getMessage() != null) {
-				System.err.println(e.getMessage());
-			} else {
-				e.printStackTrace(System.err);
-			}
+			println(e);
 			System.exit(1);
+		}
+	}
+
+	private static void println(Throwable e) {
+		Throwable cause = e.getCause();
+		if (cause == null && e.getMessage() == null) {
+			e.printStackTrace(System.err);
+		} else if (cause != null) {
+			println(cause);
+		}
+		if (e.getMessage() == null) {
+			System.err.println(e.toString());
+		} else {
+			System.err.println(e.getMessage());
 		}
 	}
 
@@ -447,11 +457,7 @@ public class Server implements HTTPObjectAgentMXBean {
 			}
 			init(line);
 		} catch (Exception e) {
-			if (e.getMessage() != null) {
-				System.err.println(e.getMessage());
-			} else {
-				e.printStackTrace(System.err);
-			}
+			println(e);
 			System.exit(2);
 		}
 	}

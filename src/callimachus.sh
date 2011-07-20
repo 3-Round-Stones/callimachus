@@ -336,7 +336,7 @@ if [ "$1" = "start" ] ; then ################################
 
   if [ "`tty`" != "not a tty" ]; then
     echo "Using BASEDIR:   $BASEDIR"
-    echo "Using PORT:      $PORT"
+    echo "Using PORT:      $PORT $SSLPORT"
     echo "Using ORIGIN:    $ORIGIN"
     echo "Using JAVA_HOME: $JAVA_HOME"
   fi
@@ -369,8 +369,14 @@ if [ "$1" = "start" ] ; then ################################
       echo "The server is not running, see log files for details. Start aborted."
       exit 1
     fi
-    if netstat -ltpn 2>/dev/null |grep -e ":$PORT\b" |grep -qe "\b$ID\b"; then
-      break
+    if [ -n "$PORT" ]; then
+      if netstat -ltpn 2>/dev/null |grep -e ":$PORT\b" |grep -qe "\b$ID\b"; then
+        break
+      fi
+    elif [ -n "$SSLPORT" ]; then
+      if netstat -ltpn 2>/dev/null |grep -e ":$SSLPORT\b" |grep -qe "\b$ID\b"; then
+        break
+      fi
     fi
     if [ $SLEEP -gt 0 ]; then
       sleep 1
@@ -445,12 +451,12 @@ else ################################
 
   if [ "`tty`" != "not a tty" ]; then
     echo "Using BASEDIR:   $BASEDIR"
-    echo "Using PORT:      $PORT"
+    echo "Using PORT:      $PORT $SSLPORT"
     echo "Using ORIGIN:    $ORIGIN"
     echo "Using JAVA_HOME: $JAVA_HOME"
   fi
 
-  if [ "$PORT" -le 1024 -a \( -z "$DAEMON_USER" -o "$DAEMON_USER" != "root" \) ]; then
+  if [ \( "$PORT" -le 1024 -o "$SSLPORT" -le 1024 \) -a \( -z "$DAEMON_USER" -o "$DAEMON_USER" != "root" \) ]; then
     "$EXECUTABLE" -nodetach -home "$JAVA_HOME" -jvm server -procname "$NAME" \
       -pidfile "$PID" \
       -Duser.home="$BASEDIR" \

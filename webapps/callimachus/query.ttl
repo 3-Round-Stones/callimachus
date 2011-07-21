@@ -48,6 +48,9 @@
 	msg:imports <java:org.apache.http.ProtocolVersion>;
 	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
 	msg:imports <java:org.apache.http.entity.InputStreamEntity>;
+	msg:imports <java:org.apache.http.entity.StringEntity>;
+	msg:imports <java:java.lang.IllegalArgumentException>;
+	msg:imports <java:org.openrdf.query.MalformedQueryException>;
 	msg:script """
 		var map = {};
 		if (tqx) {
@@ -57,6 +60,12 @@
 				map[pair[0]] = pair[1];
 			}
 		}
+		if (!map.responseHandler) {
+			map.responseHandler = 'google.visualization.Query.setResponse';
+		}
+		if (!map.reqId) {
+			map.reqId = '0';
+		}
 		var con = this.objectConnection;
 		var query = this.calliSparql;
 		if (query == null)
@@ -64,41 +73,52 @@
 		var http11 = new ProtocolVersion("HTTP", 1, 1);
 		var resp = new BasicHttpResponse(http11, 200, "OK");
 		resp.setHeader("Cache-Control", "no-store");
-		var rs = con.prepareTupleQuery(QueryLanguage.SPARQL, query, this.toString()).evaluate();
-		if (map.out == "html") {
-			var out = this.TransformIntoHtml(rs);
-			var entity = new InputStreamEntity(out, -1);
-			entity.contentType = "text/html;charset=UTF-8";
-			resp.setEntity(entity);
-			return resp;
-		} else if (map.out == "csv") {
-			var out = this.TransformIntoCSV(rs);
-			var entity = new InputStreamEntity(out, -1);
-			entity.contentType = "text/csv;charset=UTF-8";
-			resp.setEntity(entity);
-			return resp;
-		} else if (map.out == "tsv-excel") {
-			var out = this.TransformIntoTSV(rs);
-			var entity = new InputStreamEntity(out, -1);
-			entity.contentType = "text/tab-separated-values;charset=UTF-16";
-			resp.setEntity(entity);
-			return resp;
-		} else {
-			if (!map.responseHandler) {
-				map.responseHandler = 'google.visualization.Query.setResponse';
-			}
-			if (!map.reqId) {
-				map.reqId = '0';
-			}
-			var out = this.TransformIntoWire(map.responseHandler, map.reqId, rs);
-			var entity = new InputStreamEntity(out, -1);
-			entity.contentType = "text/javascript;charset=UTF-8";
-			resp.setEntity(entity);
-			if (map.outFileName) {
-				resp.setHeader("Content-Disposition", 'inline;filename="' + map.outFileName + '"');
-			}
-			return resp;
+		if (map.outFileName) {
+			resp.setHeader("Content-Disposition", 'inline;filename="' + map.outFileName + '"');
 		}
+		var entity = null;
+		try {
+			var rs = con.prepareTupleQuery(QueryLanguage.SPARQL, query, this.toString()).evaluate();
+			if (map.out == "html") {
+				entity = new InputStreamEntity(this.TransformIntoHtml(rs), -1);
+				entity.contentType = "text/html;charset=UTF-8";
+			} else if (map.out == "csv") {
+				entity = new InputStreamEntity(this.TransformIntoCSV(rs), -1);
+				entity.contentType = "text/csv;charset=UTF-8";
+			} else if (map.out == "tsv-excel") {
+				entity = new InputStreamEntity(this.TransformIntoTSV(rs), -1);
+				entity.contentType = "text/tab-separated-values;charset=UTF-16";
+			} else {
+				var out = this.TransformIntoWire(map.responseHandler, map.reqId, rs);
+				entity = new InputStreamEntity(out, -1);
+				entity.contentType = "text/javascript;charset=UTF-8";
+			}
+		} catch(e) {
+			if (e.javaException) {
+				e = e.javaException;
+			}
+			if (!map.out || map.out == "json") {
+				var reason = null;
+				var msg = e.message;
+				if (!msg) {
+					msg = e.toString();
+				}
+				msg = msg.replace(/\\n[\\s\\S]*/, '').replace(/'/, '"');
+				if (e instanceof MalformedQueryException) {
+					reason = "reason:'invalid_query',message:'" + msg + "'";
+				} else if (e instanceof IllegalArgumentException) {
+					reason = "reason:'not_supported',message:'" + msg + "'";
+				} else {
+					reason = "reason:'internal_error',message:'" + msg + "'";
+				}
+				var json = map.responseHandler + "({reqId:'" + map.reqId + "',status:'error',errors:[{" + reason + "}]})";
+				entity = new StringEntity(json);
+			} else {
+				throw new InternalServerError(e.toString(), e);
+			}
+		}
+		resp.setEntity(entity);
+		return resp;
 	""".
 
 :tqx a owl:FunctionalProperty, owl:DatatypeProperty;

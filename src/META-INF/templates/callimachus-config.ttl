@@ -17,7 +17,8 @@
          sail:sailType "openrdf:AuditingSail" ;
          sail:delegate [
             sail:sailType "openrdf:MemoryStore" ;
-            ms:persist false ;
+            ms:persist true ;
+            ms:syncDelay -1 ;
          ]
       ]
    ].

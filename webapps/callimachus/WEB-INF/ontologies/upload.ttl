@@ -18,6 +18,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
@@ -275,7 +276,28 @@ calli:SchemaGraph a owl:Class.
 :binaryStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutBinaryDocument;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "image/png", "image/jpeg", "image/gif", "image/svg+xml", "image/vnd.microsoft.icon", "application/pdf", "application/sparql-query".
+	msg:type "application/pdf", "application/sparql-query".
+
+################################
+# Image File
+################################
+
+:PutImageFile rdfs:subClassOf :PutContentType;
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:query "calliwebapps";
+	msg:header "cache-control:cache-range";
+	msg:realm calli:nobody;
+	msg:imports foaf:Image;
+	msg:script """
+		this.PutBinaryDocument(imageStream, contentType);
+		this.objectConnection.addDesignation(this, Image);
+	""".
+
+:imageStream a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PutImageFile;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "image/png", "image/jpeg", "image/gif", "image/svg+xml", "image/vnd.microsoft.icon".
 
 ################################
 # XML File

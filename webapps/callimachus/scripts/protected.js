@@ -31,32 +31,7 @@ function hide(set) {
 }
 
 function show(set, user) {
-	set.each(function() {
-		var node = $(this);
-		var groups = node.attr("data-group");
-		if (groups) {
-			$(groups.split(/\s+/)).each(function() {
-				var group = this;
-				ifHasMembership(user, group, function() {
-					node.css('display', '');
-				}, function() {
-					node.css('display', 'none');
-				});
-			});
-		} else {
-			node.css('display', '');
-		}
-	});
-}
-
-function ifHasMembership(user, group, member, nonmember) {
-	jQuery.get(group + '?membership', function(text) {
-		if ("true" == text) {
-			member();
-		} else {
-			nonmember();
-		}
-	});
+	set.css('display', '');
 }
 
 })(window.jQuery);

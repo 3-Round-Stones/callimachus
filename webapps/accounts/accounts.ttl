@@ -64,34 +64,6 @@
 	rdfs:comment "Members of this group can view and discuss resources within the system";
 	calli:reader </group/users>, </group/staff>.
 
-# Checks if the currently logged in user is a member of this group
-# Called from first page loaded to conditionally hide menu entries
-:hasMembership rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
-	msg:method "GET";
-	msg:query "membership";
-	msg:type "text/plain";
-	msg:realm :anybody;
-	msg:imports </accounts>;
-	msg:script """
-		if (!auth)
-			return false;
-		var user = accounts.findCredential(auth);
-		if (!user)
-			return false;
-		return this.calliMembers.contains(user);
-	""".
-
-:auth a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :hasMembership;
-	rdfs:range xsd:string;
-	msg:header "Authorization".
-
-:anybody a calli:AnybodyRealm;
-	calli:origin </>;
-	calli:domain </group/>.
-
 ################################
 # User
 ################################

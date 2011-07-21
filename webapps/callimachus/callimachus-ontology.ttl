@@ -317,11 +317,6 @@ calli:link a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:comment "The target of this menu entry";
 	rdfs:domain calli:Menu.
 
-calli:group a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:label "group";
-	rdfs:comment "This menu should only be displayed if the user is part of this group";
-	rdfs:domain calli:Menu.
-
 calli:minified a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "minified";
 	rdfs:comment "Level of minification that should be applied to this bundle. Zero represents no minification. One represents minimal minification";

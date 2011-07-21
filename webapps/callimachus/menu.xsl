@@ -22,14 +22,6 @@
 	<xsl:template match="sparql:result">
 		<xsl:variable name="label" select="sparql:binding[@name='label']/*/text()" />
 		<li>
-			<xsl:if test="sparql:binding/@name='group'">
-				<xsl:attribute name="class">
-					<xsl:text>protected</xsl:text>
-				</xsl:attribute>
-				<xsl:attribute name="data-group">
-					<xsl:value-of select="sparql:binding[@name='group']/*" />
-				</xsl:attribute>
-			</xsl:if>
 			<xsl:if test="sparql:binding/@name='link'">
 				<a href="{sparql:binding[@name='link']/*}">
 					<xsl:value-of select="$label" />

@@ -136,7 +136,8 @@ if not exist "%SSL%" goto okSslOpts
 setlocal EnableDelayedExpansion
 IF NOT EXIST "%BASEDIR%\tmp" MKDIR "%BASEDIR%\tmp"
 for /f "tokens=1,* delims==" %%i in ('find /V "#" "%SSL%"') do (
-  set "SSL_OPTS=%SSL_OPTS% "-D%%i=%%~j""
+  set "line=-D%%i=%%~j"
+  if not "!line:~4,1!" == "-" set "SSL_OPTS=!SSL_OPTS! !line!"
 )
 :okSslOpts
 
@@ -168,10 +169,18 @@ set "ORIGIN=%ORIGIN%:%PORT%"
 :gotOrigin
 
 if not "%OPT%" == "" goto gotOpt
-set "OPT=-d "%BASEDIR%" -p %PORT% -o %ORIGIN% -r %REPOSITORY% -c %REPOSITORY_CONFIG%"
+set "OPT=-d "%BASEDIR%" -o %ORIGIN% -r %REPOSITORY% -c %REPOSITORY_CONFIG%"
 if not "%SECURITY_MANAGER%" == "false" goto gotOpt
 set "OPT=%OPT% --trust"
 :gotOpt
+
+if "%PORT%" == "" goto gotPortOpt
+set "OPT=%OPT% -p %PORT%"
+:gotPortOpt
+
+if "%SSLPORT%" == "" goto gotSslPortOpt
+set "OPT=%OPT% -s %SSLPORT%"
+:gotSslPortOpt
 
 rem ----- Execute The Requested Command ---------------------------------------
 
@@ -180,10 +189,10 @@ set MAINCLASS=org.callimachusproject.Server
 if ""%1"" == ""start"" goto doStart
 if ""%1"" == ""stop"" goto doStop
 
-echo Using BASEDIR:   "%BASEDIR%"
-echo Using PORT:      "%PORT%"
-echo Using ORIGIN:    "%ORIGIN%"
-echo Using JAVA_HOME: "%JAVA_HOME%"
+echo Using BASEDIR:   %BASEDIR%
+echo Using PORT:      %PORT% %SSLPORT%
+echo Using ORIGIN:    %ORIGIN%
+echo Using JAVA_HOME: %JAVA_HOME%
 
 rem Get remaining unshifted command line arguments and save them in the
 set CMD_LINE_ARGS=
@@ -202,10 +211,10 @@ rem Execute Java with the applicable properties
 goto end
 
 :doStart
-echo Using BASEDIR:   "%BASEDIR%"
-echo Using PORT:      "%PORT%"
-echo Using ORIGIN:    "%ORIGIN%"
-echo Using JAVA_HOME: "%JAVA_HOME%"
+echo Using BASEDIR:   %BASEDIR%
+echo Using PORT:      %PORT% %SSLPORT%
+echo Using ORIGIN:    %ORIGIN%
+echo Using JAVA_HOME: %JAVA_HOME%
 
 rem Get remaining command line arguments
 shift

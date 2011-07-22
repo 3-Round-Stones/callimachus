@@ -352,6 +352,7 @@ calli:DeleteWebResource rdfs:subClassOf msg:Message;
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;
 	msg:imports calli:Page;
+	msg:imports foaf:Image;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
@@ -372,6 +373,7 @@ calli:DeleteWebResource rdfs:subClassOf msg:Message;
 			types.close();
 		}
 		con.removeDesignation(this, Page);
+		con.removeDesignation(this, Image);
 
 		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));

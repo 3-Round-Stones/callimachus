@@ -84,6 +84,9 @@ call "%BASEDIR%\tmp\%NAME%-conf.bat"
 del "%BASEDIR%\tmp\%NAME%-conf.bat"
 :okConfig
 
+rem Read relative config paths from BASEDIR
+cd "%BASEDIR%"
+
 rem check for a JDK in the BASEDIR
 for /d %%i in ("%BASEDIR%\jdk*") do set JAVA_HOME=%%i
 

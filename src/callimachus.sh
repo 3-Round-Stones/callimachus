@@ -64,6 +64,9 @@ if [ -r "$CONFIG" ]; then
   . "$CONFIG" 2>/dev/null
 fi
 
+# Read relative config paths from BASEDIR
+cd "$BASEDIR"
+
 # Check that target executable exists
 if [ ! -e "$EXECUTABLE" ]; then
   echo "Cannot find $EXECUTABLE"
@@ -456,7 +459,19 @@ else ################################
     echo "Using JAVA_HOME: $JAVA_HOME"
   fi
 
-  if [ \( "$PORT" -le 1024 -o "$SSLPORT" -le 1024 \) -a \( -z "$DAEMON_USER" -o "$DAEMON_USER" != "root" \) ]; then
+  if [ -z "$DAEMON_USER" -o "$DAEMON_USER" != "root" ]; then
+	  if [ -n "$PORT" ]; then
+	    if [ "$PORT" -le 1024 ]; then
+          USE_JSVC=true
+        fi
+      fi
+	  if [ -n "$SSLPORT" ]; then
+	    if [ "$SSLPORT" -le 1024 ]; then
+          USE_JSVC=true
+        fi
+      fi
+  fi
+  if [ -n "$USE_JSVC" ]; then
     "$EXECUTABLE" -nodetach -home "$JAVA_HOME" -jvm server -procname "$NAME" \
       -pidfile "$PID" \
       -Duser.home="$BASEDIR" \
@@ -473,16 +488,15 @@ else ################################
 
     if [ $RETURN_VAL -gt 0 ]; then
       echo "The server terminated abnormally, see log files for details."
-      exit $RETURN_VAL
     fi
-  else
-    exec "$JAVA" -server \
-      -Duser.home="$BASEDIR" \
-      -Djava.library.path="$LIB" \
-      -Djava.io.tmpdir="$TMPDIR" \
-      -Djava.util.logging.config.file="$LOGGING" \
-      -classpath "$CLASSPATH" \
-      $JAVA_OPTS $SSL_OPTS $MAINCLASS --pid "$PID" $OPTS "$@"
+    exit $RETURN_VAL
   fi
+  exec "$JAVA" -server \
+    -Duser.home="$BASEDIR" \
+    -Djava.library.path="$LIB" \
+    -Djava.io.tmpdir="$TMPDIR" \
+    -Djava.util.logging.config.file="$LOGGING" \
+    -classpath "$CLASSPATH" \
+    $JAVA_OPTS $SSL_OPTS $MAINCLASS --pid "$PID" $OPTS "$@"
 fi
 

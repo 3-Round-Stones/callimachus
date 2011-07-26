@@ -46,6 +46,7 @@ import org.callimachusproject.stream.DeDupedResultSet;
 import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.SPARQLPosteditor;
 import org.callimachusproject.stream.SPARQLProducer;
+import org.callimachusproject.stream.TemplateReader;
 import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.annotations.header;
 import org.openrdf.http.object.annotations.query;
@@ -94,16 +95,12 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 
 	/**
 	 * Extracts an element from the template (without variables).
-	 * TODO strip out RDFa variables and expressions
 	 */
 	@query("template")
 	@type("text/html")
 	public String template(@query("query") String query,
 			@query("element") String element) throws Exception {
-		String html = asHtmlString(xslt(query, element));
-		html = html.replaceAll("\\{[^\\}<>]*\\}", "");
-		html = html.replaceAll("(\\s)(content|resource|about)(=[\"'])\\?\\w+([\"'])", "$1$2$3$4");
-		return html;
+		return asHtmlString(removeNestedResources(xslt(query, element)));
 	}
 
 	@Override
@@ -137,6 +134,77 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		}
 		XMLEventReader xhtml = calliConstructXhtml(about, query, element);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
+	}
+
+	/**
+	 * See data-options, defining an HTML select/option fragment
+	 */
+	
+	@query("options")
+	@type("text/html")
+	@header("cache-control:no-store")
+	
+	public InputStream options
+	(@query("query") String query, @query("element") String element) throws Exception {
+		String base = toUri().toASCIIString();
+		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
+		template.mark();
+		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
+		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
+		
+		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
+		// ^(/\d+){3,}$|^(/\d+)*\s.*$
+		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
+		
+		RepositoryConnection con = getObjectConnection();
+		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(ed), base);
+		URI about = vf.createURI(base);
+		template.reset(0);
+		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), about, con);
+		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
+	}
+
+	/**
+	 * Returns an HTML page listing suggested resources for the given element.
+	 * See data-search
+	 */
+	@query("search")
+	@type("text/html")
+	@header("cache-control:no-validate,max-age=60")
+	
+	public InputStream constructSearch
+	(@query("query") String query, @query("element") String element, @query("q") String q)
+	throws Exception {
+		String base = toUri().toASCIIString();
+		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
+		template.mark();
+		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
+		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
+		
+		// filter out the outer rel (the button may add additional bnodes that need to be cut out)
+		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
+		
+		// add soundex conditions to @about siblings on the next level only
+		// The regex should not match properties and property-expressions with info following the xptr
+		ed.addEditor(ed.new ConditionInsert("^(/\\d+){2}$",tf.iri(SOUNDEX),tf.literal(asSoundex(q))));
+		
+		// add filters to soundex labels at the next level (only direct properties of the top-level subject)
+		//ed.addEditor(ed.new FilterInsert("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
+		ed.addEditor(ed.new FilterExists("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
+	
+		RepositoryConnection con = getObjectConnection();
+		String sparql = toSPARQL(ed);
+		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
+		// The edited query may return multiple and/or empty solutions
+		TupleQueryResult results = new DeDupedResultSet(qry.evaluate(),true);
+		URI about = vf.createURI(base);
+		template.reset(0);
+		RDFaProducer xhtml = new RDFaProducer(template, results, rq.getOrigins(), about, con);
+		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
+	}
+
+	private XMLEventReader removeNestedResources(final XMLEventReader xslt) {
+		return new TemplateReader(xslt);
 	}
 
 	private String asHtmlString(XMLEventReader xhtml) throws Exception {
@@ -207,74 +275,6 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();		
 	}
 
-	/**
-	 * See data-options, defining an HTML select/option fragment
-	 */
-
-	@query("options")
-	@type("text/html")
-	@header("cache-control:no-store")
-
-	public InputStream options
-	(@query("query") String query, @query("element") String element) throws Exception {
-		String base = toUri().toASCIIString();
-		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
-		template.mark();
-		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
-		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
-		
-		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
-		// ^(/\d+){3,}$|^(/\d+)*\s.*$
-		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
-		
-		RepositoryConnection con = getObjectConnection();
-		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(ed), base);
-		URI about = vf.createURI(base);
-		template.reset(0);
-		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), about, con);
-		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
-	}
-
-	/**
-	 * Returns an HTML page listing suggested resources for the given element.
-	 * See data-search
-	 */
-	@query("search")
-	@type("text/html")
-	@header("cache-control:no-validate,max-age=60")
-	
-	public InputStream constructSearch
-	(@query("query") String query, @query("element") String element, @query("q") String q)
-	throws Exception {
-		String base = toUri().toASCIIString();
-		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
-		template.mark();
-		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
-		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
-		
-		// filter out the outer rel (the button may add additional bnodes that need to be cut out)
-		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
-		
-		// add soundex conditions to @about siblings on the next level only
-		// The regex should not match properties and property-expressions with info following the xptr
-		ed.addEditor(ed.new ConditionInsert("^(/\\d+){2}$",tf.iri(SOUNDEX),tf.literal(asSoundex(q))));
-		
-		// add filters to soundex labels at the next level (only direct properties of the top-level subject)
-		//ed.addEditor(ed.new FilterInsert("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
-		ed.addEditor(ed.new FilterExists("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
-
-		RepositoryConnection con = getObjectConnection();
-		String sparql = toSPARQL(ed);
-		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
-		// The edited query may return multiple and/or empty solutions
-		TupleQueryResult results = new DeDupedResultSet(qry.evaluate(),true);
-		URI about = vf.createURI(base);
-		template.reset(0);
-		RDFaProducer xhtml = new RDFaProducer(template, results, rq.getOrigins(), about, con);
-		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
-	}
-
-	
 	private XMLEventReader xslt(String query, String element)
 			throws IOException, XMLStreamException {
 		XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();

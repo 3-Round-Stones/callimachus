@@ -118,7 +118,7 @@ public abstract class XMLEventReaderBase implements XMLEventReader {
 		}
 	}
 
-	protected XMLEvent take() throws XMLStreamException {
+	private XMLEvent take() throws XMLStreamException {
 		while (queue.isEmpty()) {
 			if (!more())
 				return null;

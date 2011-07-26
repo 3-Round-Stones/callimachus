@@ -345,7 +345,9 @@ if [ "$1" = "start" ] ; then ################################
   fi
 
   shift
-  "$EXECUTABLE" -home "$JAVA_HOME" -jvm server -procname "$NAME" \
+  "$EXECUTABLE" -keepstdin -jvm server \
+    -procname "$NAME" \
+    -home "$JAVA_HOME" \
     -pidfile "$PID" \
     -Duser.home="$BASEDIR" \
     -Djava.library.path="$LIB" \
@@ -364,7 +366,7 @@ if [ "$1" = "start" ] ; then ################################
     exit $RETURN_VAL
   fi
 
-  SLEEP=240
+  SLEEP=120
   ID=`cat $PID`
   while [ $SLEEP -ge 0 ]; do
     kill -0 $ID >/dev/null 2>&1
@@ -374,15 +376,17 @@ if [ "$1" = "start" ] ; then ################################
     fi
     if [ -n "$PORT" ]; then
       if netstat -ltpn 2>/dev/null |grep -e ":$PORT\b" |grep -qe "\b$ID\b"; then
+        sleep 4
         break
       fi
     elif [ -n "$SSLPORT" ]; then
       if netstat -ltpn 2>/dev/null |grep -e ":$SSLPORT\b" |grep -qe "\b$ID\b"; then
+        sleep 4
         break
       fi
     fi
     if [ $SLEEP -gt 0 ]; then
-      sleep 1
+      sleep 2
     fi
     if [ $SLEEP -eq 0 ]; then
       if [ "`tty`" != "not a tty" ]; then
@@ -472,7 +476,7 @@ else ################################
       fi
   fi
   if [ -n "$USE_JSVC" ]; then
-    "$EXECUTABLE" -nodetach -home "$JAVA_HOME" -jvm server -procname "$NAME" \
+    "$EXECUTABLE" -nodetach -keepstdin -home "$JAVA_HOME" -jvm server -procname "$NAME" \
       -pidfile "$PID" \
       -Duser.home="$BASEDIR" \
       -Djava.library.path="$LIB" \

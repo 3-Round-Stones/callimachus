@@ -43,6 +43,7 @@
 	msg:query "edit";
 	msg:realm </accounts>;
 	msg:expect "201-modified";
+	msg:type "text/uri-list";
 	msg:script <operations.js#postEdit>.
 
 :input a owl:ObjectProperty; a owl:FunctionalProperty;

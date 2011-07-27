@@ -17,6 +17,7 @@
 package org.callimachusproject.behaviours;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -68,16 +69,7 @@ public abstract class MailSubmitterSupport implements User {
 			throws IOException, MessagingException, NamingException {
 		if (recipients == null || recipients.isEmpty())
 			throw new BadRequest("Missing to paramenter");
-		Properties properties = new Properties();
-		String javamail = System.getProperty("java.mail.properties");
-		if (javamail != null) {
-			InputStream stream = new FileInputStream(javamail);
-			try {
-				properties.load(stream);
-			} finally {
-				stream.close();
-			}
-		}
+		Properties properties = getMailProperties();
 		Session session = Session.getInstance(properties);
 		MimeMessage message = new MimeMessage(session);
 		message.setSentDate(new Date());
@@ -160,6 +152,24 @@ public abstract class MailSubmitterSupport implements User {
 		}
 		logger.info("Sent e-mail {} {} {}", new Object[] { recipients,
 				message.getSubject(), message.getMessageID() });
+	}
+
+	private Properties getMailProperties() throws IOException {
+		Properties properties = new Properties();
+		String javamail = System.getProperty("java.mail.properties");
+		if (javamail != null) {
+			try {
+				InputStream stream = new FileInputStream(javamail);
+				try {
+					properties.load(stream);
+				} finally {
+					stream.close();
+				}
+			} catch (FileNotFoundException e) {
+				// skip
+			}
+		}
+		return properties;
 	}
 
 	private String extractDomain(String to) {

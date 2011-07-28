@@ -48,7 +48,7 @@
 
 	<xsl:template mode="form" match="xhtml:button[@data-dialog]">
 		<xsl:copy>
-			<xsl:if test="ancestor::*[.//@about or .//@resource] and not(@data-search)">
+			<xsl:if test="ancestor::*[.//@about or .//@resource][1]//*[contains(' rdfs:label skos:preflabel skos:altlabel skosxl:literalForm ', concat(' ', @property, ' '))] and not(@data-search)">
 				<!-- Lookup possible members by label -->
 				<xsl:attribute name="data-search">
 					<xsl:value-of select="$this" />

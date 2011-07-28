@@ -73,7 +73,7 @@ function initDialogButton(buttons) {
 				var searchTerms = id + "-input";
 				var form = $("<form>"
 					+ "<div class='lookup'>"
-					+ "<input name='q' title='Lookup..' id='" + searchTerms + "' /></div>"
+					+ "<input name='q' placeholder='Lookup..' id='" + searchTerms + "' /></div>"
 					+ "</form>");
 				form.css('position', "absolute");
 				form.css('top', dialogTitle.offset().top - iframe.parent().offset().top - 5);

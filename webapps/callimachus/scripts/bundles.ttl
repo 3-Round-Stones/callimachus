@@ -20,11 +20,10 @@
 	rdf:_10 <hbox.js>;
 	rdf:_11 <vbox.js>;
 	rdf:_12 <sorted.js>;
-	rdf:_13 <disable-button.js>;
-	rdf:_14 <creole.js>;
-	rdf:_15 <wiki.js>;
-	rdf:_16 <placeholder.js>;
-	rdf:_17 <http://www.google.com/jsapi>.
+	rdf:_13 <creole.js>;
+	rdf:_14 <wiki.js>;
+	rdf:_15 <placeholder.js>;
+	rdf:_16 <http://www.google.com/jsapi>.
 
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;
@@ -39,7 +38,8 @@
 	rdf:_9 <data-construct.js>;
 	rdf:_10 <data-dialog.js>;
 	rdf:_11 <document-ready.js>;
-	rdf:_12 <input-date.js>.
+	rdf:_12 <input-date.js>;
+	rdf:_13 <disable-button.js>.
 
 <wymeditor_bundle> a calli:ScriptBundle; calli:minified 0 ;
 	rdf:_1 <jquery.wymeditor.js>;

@@ -293,7 +293,6 @@ form {
 }
 
 label {
-	margin-top: 1ex;
 	display: inline-block;
 	font-weight: bold;
 	white-space: nowrap;
@@ -303,7 +302,12 @@ label span {
 	font-weight: normal;
 }
 
+div[dropzone]>label {
+	margin-top: 1ex;
+}
+
 form label[for], label[form] {
+	margin-top: 1ex;
 	display: block;
 }
 

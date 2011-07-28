@@ -19,7 +19,8 @@ function handle(event) {
 function hbox(element) {
 	element.css("overflow", "hidden");
 	var children = element.children();
-	children.css("float", "left").css("margin-right", "1em").css("clear", "none");
+	children.css("float", "left").css("clear", "none");
+	children.filter(":not(:last-child)").css("margin-right", "1em");
 	setTimeout(function() { // reposition children first
 		children.css("clear", function() {
 			if ($(this).prev().size() && $(this).position().top > $(this).prev().position().top) {

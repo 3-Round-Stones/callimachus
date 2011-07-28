@@ -11,7 +11,7 @@ $(document).ready(function () {
 	bindTextAreaChange($("textarea[data-text-expression]"));
 });
 
-$("form[about]").live("DOMNodeInserted", function (event) {
+$(document).bind("DOMNodeInserted", function (event) {
 	bindInputChange(select(event.target, "input[data-expression-value]"));
 	bindTextAreaChange(select(event.target, "textarea[data-text-expression]"));
 });

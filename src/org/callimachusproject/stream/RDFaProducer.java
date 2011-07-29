@@ -279,6 +279,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 			int mark = context.mark;
 			XMLEvent ws = context.previousWhitespace;
 			context = stack.pop();
+			// Use preceding whitespace from outer context if inner context had none
+			if (ws==null) ws = context.previousWhitespace;
+			
 			context.position++;
 			if (consistent()) {
 				reader.reset(mark);

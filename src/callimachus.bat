@@ -165,6 +165,10 @@ set "PORT=8080"
 :gotPort
 
 if not "%ORIGIN%" == "" goto gotOrigin
+if "%AUTHORITY%" == "" goto noAuthority
+set "ORIGIN=http://%AUTHORITY%"
+goto gotOrigin
+:noAuthority
 for /f %%i in ('hostname') do set "ORIGIN=%%i"
 if "%PORT%" == "80" goto gotOrigin
 if "%SSLPORT%" == "443" goto gotOrigin

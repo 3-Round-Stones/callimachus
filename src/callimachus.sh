@@ -258,7 +258,9 @@ if [ -z "$PORT" -a -z "$SSLPORT" ] ; then
 fi
 
 if [ -z "$ORIGIN" ] ; then
-  if [ -n "$PORT" ] ; then
+  if [ -n "$AUTHORITY" ] ; then
+    ORIGIN="http://$AUTHORITY"
+  elif [ -n "$PORT" ] ; then
     ORIGIN="http://$(hostname -f)"
     if [ "$PORT" != "80" ] ; then
       ORIGIN="$ORIGIN:$PORT"

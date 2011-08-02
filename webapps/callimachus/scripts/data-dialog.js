@@ -35,6 +35,12 @@ function initDialogButton(buttons) {
 			title = list.find("label").text();
 		}
 		add.click(function(e) {
+			var width = 420;
+			var height = 540;
+			if ($('body').is('.iframe')) {
+				width = 320;
+				height = 480;
+			}
 			var iframe = $("<iframe></iframe>");
 			iframe.attr("name", frame);
 			iframe.attr("src", 'about:blank');
@@ -53,8 +59,8 @@ function initDialogButton(buttons) {
 			    draggable: true,
 			    resizable: true,
 			    autoResize: true,
-				width: 320,
-				height: 480
+				width: width,
+				height: height
 			});
 			var onlinked = function() {
 				iframe.dialog('close');

@@ -269,9 +269,9 @@ public class Uploader {
 		return getWebPath(webAppsDir, file);
 	}
 
-	private String getWebPath(File webAppsDir, File file) {
+	private String getWebPath(File webAppsDir, File file) throws IOException {
 		String rootPath = webAppsDir.getPath() + File.separator;
-		String path = file.getAbsolutePath();
+		String path = file.getCanonicalPath();
 		if (path.startsWith(rootPath)) {
 			path = path.substring(rootPath.length());
 		}

@@ -20,12 +20,15 @@ function hbox(element) {
 	element.css("overflow", "hidden");
 	var children = element.children();
 	children.css("float", "left").css("clear", "none");
-	children.filter(":not(:last-child)").css("margin-right", "1em");
+	var siblings = children.filter(':not(:first-child)');
+	siblings.css("margin-left", "1em");
 	setTimeout(function() { // reposition children first
-		children.css("clear", function() {
+		siblings.css("clear", function() {
 			if ($(this).prev().size() && $(this).position().top > $(this).prev().position().top) {
+				$(this).css("margin-left", "0px");
 				return "left";
 			} else {
+				$(this).css("margin-left", "1em");
 				return "none";
 			}
 		});

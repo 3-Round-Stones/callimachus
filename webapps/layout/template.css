@@ -99,6 +99,11 @@ a[href]:hover {
 	outline: none !important;
 	cursor: pointer;
 	vertical-align: middle;
+	-moz-border-radius: none;
+	-moz-box-shadow: none;
+	-webkit-border-radius: none;
+	-webkit-box-shadow: none;
+	text-shadow: none;
 }
 
 #logo {

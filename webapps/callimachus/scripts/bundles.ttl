@@ -41,7 +41,7 @@
 	rdf:_12 <input-date.js>;
 	rdf:_13 <disable-button.js>.
 
-<wymeditor_bundle> a calli:ScriptBundle; calli:minified 0 ;
+<wymeditor_bundle> a calli:ScriptBundle; calli:minified 1 ;
 	rdf:_1 <jquery.wymeditor.js>;
 	rdf:_2 <jquery.wymeditor.html5.js>;
 	rdf:_2 <jquery.wymeditor.inithtml.js>;

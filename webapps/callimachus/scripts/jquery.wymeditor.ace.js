@@ -41,12 +41,85 @@ function focusOnNodeIndex(wym, index) {
 	}
 }
 
-function gotoLineOfNodeIndex(ace, html, index) {
+var ace_port = null;
+var outgoing = [];
+var incoming = {};
+function initAcePort(event) {
+	if (!ace_port && event.originalEvent.data == "calliEditorPort" && $('#ace-iframe')[0].contentWindow == event.originalEvent.source) {
+		ace_port = event.originalEvent.ports[0];
+		if (outgoing.length) {
+			$(outgoing).each(function() {
+				ace_port.postMessage(this);
+			});
+		}
+		ace_port.onmessage = function(event) {
+			var msg = event.data;
+			var header = msg;
+			var body = null;
+			if (msg.indexOf('\n') > 0) {
+				header = msg.substring(0, msg.indexOf('\n'));
+				body = msg.substring(msg.indexOf('\n') + 1);
+			}
+			if (incoming[header]) {
+				$(incoming[header]).each(function() {
+					this(body);
+				});
+				delete incoming[header];
+			}
+		};
+		$(window).unbind('message', initAcePort);
+	}
+}
+$(window).bind('message', initAcePort);
+
+function postCallback(header, body, callback) {
+	if (callback) {
+		if (incoming[header]) {
+			incoming[header].push(callback);
+		} else {
+			incoming[header] = [callback];
+		}
+	}
+	var msg = header;
+	if (body) {
+		msg = msg + '\n' + body;
+	}
+	if (ace_port) {
+		ace_port.postMessage(msg);
+	} else {
+		outgoing.push(msg);
+	}
+}
+
+function getValue(callback) {
+	postCallback('GET text', null, callback);
+}
+
+function setValue(value) {
+	postCallback('POST text', value);
+}
+
+function gotoLine(line) {
+	postCallback('POST line.column', '' + line + '.0');
+}
+
+function getLineColumn(callback) {
+	postCallback('GET line.column', null, function(linecolumn) {
+		var ar = linecolumn.split('.');
+		callback({line: parseInt(ar[0]), column: parseInt(ar[1])});
+	});
+}
+
+function insert(html) {
+	postCallback('POST insert', html);
+}
+
+function gotoLineOfNodeIndex(html, index) {
 	if (index >= 0) {
 		var m = html.match(new RegExp('[\\s\\S]*<body[^>]*>(([^<]|</)*<[^<>/][^<>]*>){' + (index + 1) + '}'));
 		if (m) {
 			var line = m[0].match(/\n/g).length + 1;
-			ace.gotoLine(line);
+			gotoLine(line);
 		}
 	}
 }
@@ -76,39 +149,46 @@ WYMeditor.editor.prototype.initHtml = function(html) {
 		if(typeof html === 'string') {
 			var m = html.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
 			if (editor.is(':visible') && m) {
-				var ace = editor[0].contentWindow.editor;
-				var value = ace.getSession().getValue();
-				if (value != html) {
-					var row = ace.getSelectionRange().start.row;
-					ace.getSession().setValue(html);
-					ace.gotoLine(row + 1);
-				}
+				setValue(html);
 			}
 			if (m) {
 				page = m;
 				html = page[2];
 			}
-			var index = getSelectedNodeIndex(this.selected(), this._doc.body);
-			var ret = innerHtml.call(this, html);
-			focusOnNodeIndex(this, index);
-			return ret;
+			this.selected(function(selected) {
+				var index = getSelectedNodeIndex(selected, wym._doc.body);
+				innerHtml.call(wym, html);
+				focusOnNodeIndex(wym, index);
+			});
 		} else {
+			var callback = html;
+			if (!callback) {
+				callback = function(ret) {
+					return ret;
+				};
+			}
 			var editor = $('#ace-iframe');
 			if (editor.is(':visible')) {
-				var value = editor[0].contentWindow.editor.getSession().getValue();
-				if (value) {
-					page = value.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
-					return page[2];
-				}
+				getValue(function(value) {
+					if (value) {
+						page = value.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
+						callback(page[2]);
+					}
+				});
 			}
-			return innerHtml.call(this, html);
+			return callback(innerHtml.call(this, html));
 		}
 	};
 
 	var _xhtml = wym.xhtml;
-	wym.xhtml = function() {
+	wym.xhtml = function(callback) {
+		if (!callback) {
+			callback = function(ret) {
+				return ret;
+			};
+		}
 		var body = _xhtml.call(this);
-		return page[1] + body + page[3];
+		return callback(page[1] + body + page[3]);
 	}
 
 	var _update = wym.update;
@@ -116,13 +196,7 @@ WYMeditor.editor.prototype.initHtml = function(html) {
 		var editor = $('#ace-iframe');
 		if (editor.is(':visible')) {
 			var html = page[1] + wym.parser.parse($(wym._doc.body).html()) + page[3];
-			var ace = editor[0].contentWindow.editor;
-			var value = ace.getSession().getValue();
-			if (value != html) {
-				var row = ace.getSelectionRange().start.row;
-				ace.getSession().setValue(html);
-				ace.gotoLine(row + 1);
-			}
+			setValue(html);
 		}
 		return _update.call(this);
 	};
@@ -138,46 +212,48 @@ jQuery.fn.wymeditor = function(options) {
 		var _exec = wym.exec;
 		wym.exec = function(cmd) {
 			var editor = $('#ace-iframe');
-			if (editor.is(':visible')) {
-				var ace = editor[0].contentWindow.editor;
-				var html = ace.getSession().getValue();
-				var start = ace.getSelectionRange().start;
-				var index = getNodeIndex(html, start.row, start.column);
-				wym.html(html);
-				focusOnNodeIndex(this, index);
-			}
-			switch (cmd) {
-			case 'ToggleHtml':
-				if (editor.is(':visible')) {
-					$('#wym-iframe').css('width', editor.css('width'));
-					$('#wym-iframe').css('height', editor.css('height'));
-					editor.hide();
-					$('#wym-iframe').show();
-				} else {
-					var html = wym.xhtml();
-					var ace = editor[0].contentWindow.editor;
-					var value = ace.getSession().getValue();
-					if (value != html) {
-						ace.getSession().setValue(html);
+			function switchBlock() {
+				switch (cmd) {
+				case 'ToggleHtml':
+					if (editor.is(':visible')) {
+						$('#wym-iframe').css('width', editor.css('width'));
+						$('#wym-iframe').css('height', editor.css('height'));
+						editor.hide();
+						$('#wym-iframe').show();
+					} else {
+						var html = wym.xhtml();
+						setValue(html);
+						wym.selected(function(selected) {
+							var index = getSelectedNodeIndex(selected, wym._doc.body);
+							gotoLineOfNodeIndex(html, index);
+							editor.css('width', $('#wym-iframe').css('width'));
+							editor.css('height', $('#wym-iframe').css('height'));
+							$('#wym-iframe').hide();
+							editor.show();
+						});
 					}
-					var index = getSelectedNodeIndex(this.selected(), this._doc.body);
-					gotoLineOfNodeIndex(ace, html, index);
-					editor.css('width', $('#wym-iframe').css('width'));
-					editor.css('height', $('#wym-iframe').css('height'));
-					$('#wym-iframe').hide();
-					editor.show();
+				break;
+				default:
+					_exec.call(wym, cmd);
+					wym.update();
+					if (window.dialog) {
+						window.dialog.bind("dialogbeforeclose", function(event, ui) {
+							wym.update();
+						});
+					}
 				}
-			break;
-			default:
-				var ret = _exec.call(wym, cmd);
-				wym.update();
-				if (window.dialog) {
-					window.dialog.bind("dialogbeforeclose", function(event, ui) {
-						wym.update();
-						return true;
+			};
+			if (editor.is(':visible')) {
+				getValue(function(html) {
+					getLineColumn(function(start) {
+						var index = getNodeIndex(html, start.line - 1, start.column);
+						wym.html(html);
+						focusOnNodeIndex(wym, index);
+						switchBlock();
 					});
-				}
-				return ret;
+				});
+			} else {
+				switchBlock();
 			}
 		};
 
@@ -186,13 +262,9 @@ jQuery.fn.wymeditor = function(options) {
 			var editor = $('#ace-iframe');
 			if (editor.is(':visible')) {
 				var html = wym.xhtml();
-				var ace = editor[0].contentWindow.editor;
-				var value = ace.getSession().getValue();
-				if (value != html) {
-					ace.getSession().setValue(html);
-				}
+				setValue(html);
 				var index = getSelectedNodeIndex(node, this._doc.body);
-				gotoLineOfNodeIndex(ace, html, index);
+				gotoLineOfNodeIndex(html, index);
 			}
 			try {
 				return _setFocusToNode.call(this, node, toStart);
@@ -203,37 +275,45 @@ jQuery.fn.wymeditor = function(options) {
 		};
 
 		var _selected = wym.selected;
-		wym.selected = function() {
+		wym.selected = function(callback) {
+			if (!callback) {
+				callback = function(ret) {
+					return ret;
+				};
+			}
 			var editor = $('#ace-iframe');
 			if (editor.is(':visible')) {
 				try {
 					var ret = _selected.call(this);
 					if (ret)
-						return ret;
+						return callback(ret);
 				} catch (e) {
 					// no selection
 				}
-				var ace = editor[0].contentWindow.editor;
-				var html = ace.getSession().getValue();
-				var start = ace.getSelectionRange().start;
-				var index = getNodeIndex(html, start.row, start.column);
-				return getNodeFromIndex(this, index);
+				getValue(function(html) {
+					getLineColumn(function(start) {
+						var index = getNodeIndex(html, start.line - 1, start.column);
+						callback(getNodeFromIndex(wym, index));
+					});
+				});
+				return ret;
 			}
-			return _selected.call(this);
+			return callback(_selected.call(this));
 		};
 
 		var _insert = wym.insert;
 		wym.insert = function(code) {
 			var editor = $('#ace-iframe');
 			if (editor.is(':visible')) {
-				var ace = editor[0].contentWindow.editor;
-				var ret = ace.insert(code);
-				var html = ace.getSession().getValue();
-				var start = ace.getSelectionRange().start;
-				var index = getNodeIndex(html, start.row, start.column);
-				wym.html(html);
-				focusOnNodeIndex(this, index);
-				return ret;
+				insert(code);
+				getValue(function(html) {
+					getLineColumn(function(start) {
+						var index = getNodeIndex(html, start.line - 1, start.column);
+						wym.html(html);
+						focusOnNodeIndex(wym, index);
+					});
+				});
+				return true;
 			}
 			return _insert.call(this, code);
 		};

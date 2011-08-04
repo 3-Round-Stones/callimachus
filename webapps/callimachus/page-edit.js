@@ -82,7 +82,7 @@ function getPageLocationURL() {
 	});
 
 	$('#form').submit(function(event) {
-		var xhtml = jQuery.wymeditors(0).xhtml();
+		jQuery.wymeditors(0).xhtml(function(xhtml){
 		jQuery.getJSON('/callimachus/profile', function(json) {
 			try {
 				var items = [];
@@ -148,6 +148,7 @@ function getPageLocationURL() {
 			} catch (e) {
 				$('#form').trigger("calliError", e.description ? e.description : e);
 			}
+		});
 		});
 		event.preventDefault();
 		return false;

@@ -903,28 +903,41 @@ WYMeditor.editor.prototype.box = function() {
  */
 WYMeditor.editor.prototype.html = function(html) {
 
-  if(typeof html === 'string') jQuery(this._doc.body).html(html);
-  else return(jQuery(this._doc.body).html());
+  if(typeof html === 'string') return jQuery(this._doc.body).html(html);
+  var callback = html;
+  if (!callback) {
+    callback = function(ret){return ret;};
+  }
+  return callback(jQuery(this._doc.body).html());
 };
 
 /* @name xhtml
  * @description Cleans up the HTML
  */
-WYMeditor.editor.prototype.xhtml = function() {
-    return this.parser.parse(this.html());
+WYMeditor.editor.prototype.xhtml = function(callback) {
+	if (callback) {
+        var wym = this;
+		this.html(function(html) {
+			callback(wym.parser.parse(html));
+		});
+	} else {
+	    return this.parser.parse(this.html());
+	}
 };
 
 /* @name exec
  * @description Executes a button command
  */
 WYMeditor.editor.prototype.exec = function(cmd) {
-  
+
+  var wym = this;
   //base function for execCommand
   //open a dialog or exec
   switch(cmd) {
     case WYMeditor.CREATE_LINK:
-      var container = this.container();
-      if(container || this._selected_image) this.dialog(WYMeditor.DIALOG_LINK);
+      wym.container(function(container){
+      if(container || wym._selected_image) wym.dialog(WYMeditor.DIALOG_LINK);
+      });
     break;
     
     case WYMeditor.INSERT_IMAGE:
@@ -959,13 +972,11 @@ WYMeditor.editor.prototype.exec = function(cmd) {
  */
 WYMeditor.editor.prototype.container = function(sType) {
 
-  if(sType) {
-  
-    var container = null;
+  var wym = this;
+  if(sType && !(typeof sType == 'function')) {
+    wym.container(function(container){
     
     if(sType.toLowerCase() == WYMeditor.TH) {
-    
-      container = this.container();
       
       //find the TD or TH container
       switch(container.tagName.toLowerCase()) {
@@ -974,7 +985,7 @@ WYMeditor.editor.prototype.container = function(sType) {
           break;
         default:
           var aTypes = new Array(WYMeditor.TD,WYMeditor.TH);
-          container = this.findUp(this.container(), aTypes);
+          container = wym.findUp(container, aTypes);
           break;
       }
       
@@ -982,15 +993,15 @@ WYMeditor.editor.prototype.container = function(sType) {
       if(container!=null) {
       
         sType = (container.tagName.toLowerCase() == WYMeditor.TD)? WYMeditor.TH: WYMeditor.TD;
-        this.switchTo(container,sType);
-        this.update();
+        wym.switchTo(container,sType);
+        wym.update();
       }
     } else {
   
       //set the container type
       var aTypes=new Array(WYMeditor.P,WYMeditor.H1,WYMeditor.H2,WYMeditor.H3,WYMeditor.H4,WYMeditor.H5,
       WYMeditor.H6,WYMeditor.PRE,WYMeditor.BLOCKQUOTE);
-      container = this.findUp(this.container(), aTypes);
+      container = wym.findUp(container, aTypes);
       
       if(container) {
   
@@ -999,11 +1010,11 @@ WYMeditor.editor.prototype.container = function(sType) {
         //blockquotes must contain a block level element
         if(sType.toLowerCase() == WYMeditor.BLOCKQUOTE) {
         
-          var blockquote = this.findUp(this.container(), WYMeditor.BLOCKQUOTE);
+          var blockquote = wym.findUp(container, WYMeditor.BLOCKQUOTE);
           
           if(blockquote == null) {
           
-            newNode = this._doc.createElement(sType);
+            newNode = wym._doc.createElement(sType);
             container.parentNode.insertBefore(newNode,container);
             newNode.appendChild(container);
             this.setFocusToNode(newNode.firstChild);
@@ -1019,17 +1030,18 @@ WYMeditor.editor.prototype.container = function(sType) {
               blockquote.parentNode.insertBefore(nodes.item(0),blockquote);
             }
             blockquote.parentNode.removeChild(blockquote);
-            if(firstNode) this.setFocusToNode(firstNode);
+            if(firstNode) wym.setFocusToNode(firstNode);
           }
         }
         
-        else this.switchTo(container,sType);
+        else wym.switchTo(container,sType);
       
-        this.update();
+        wym.update();
       }
     }
+    });
   }
-  else return(this.selected());
+  else return(wym.selected(sType));
 };
 
 /* @name toggleClass
@@ -1037,13 +1049,16 @@ WYMeditor.editor.prototype.container = function(sType) {
  */
 WYMeditor.editor.prototype.toggleClass = function(sClass, jqexpr) {
 
-  var container = (this._selected_image
+  var wym = this;
+  wym.selected(function(selected) {
+  var container = (wym._selected_image
                     ? this._selected_image
-                    : jQuery(this.selected()));
+                    : jQuery(selected));
   container = jQuery(container).parentsOrSelf(jqexpr);
   jQuery(container).toggleClass(sClass);
 
-  if(!jQuery(container).attr(WYMeditor.CLASS)) jQuery(container).removeAttr(this._class);
+  if(!jQuery(container).attr(WYMeditor.CLASS)) jQuery(container).removeAttr(wym._class);
+  });
 
 };
 
@@ -1146,10 +1161,11 @@ WYMeditor.editor.prototype.status = function(sMessage) {
  * @description Updates the element and textarea values
  */
 WYMeditor.editor.prototype.update = function() {
-
-  var html = this.xhtml();
-  jQuery(this._element).val(html);
-  jQuery(this._box).find(this._options.htmlValSelector).not('.hasfocus').val(html).change(); //#147
+  var wym = this;
+  this.xhtml(function(html){
+    jQuery(wym._element).val(html);
+    jQuery(wym._box).find(wym._options.htmlValSelector).not('.hasfocus').val(html).change(); //#147
+  });
 };
 
 /* @name dialog
@@ -1259,11 +1275,12 @@ WYMeditor.editor.prototype.uniqueStamp = function() {
 WYMeditor.editor.prototype.paste = function(sData) {
 
   var sTmp;
-  var container = this.selected();
+  var wym = this;
+  wym.selected(function(container) {
 	
   //split the data, using double newlines as the separator
-  var aP = sData.split(this._newLine + this._newLine);
-  var rExp = new RegExp(this._newLine, "g");
+  var aP = sData.split(wym._newLine + wym._newLine);
+  var rExp = new RegExp(wym._newLine, "g");
 
   //add a P for each item
   if(container && container.tagName.toLowerCase() != WYMeditor.BODY) {
@@ -1278,10 +1295,11 @@ WYMeditor.editor.prototype.paste = function(sData) {
         sTmp = aP[x];
         //simple newlines are replaced by a break
         sTmp = sTmp.replace(rExp, "<br />");
-        jQuery(this._doc.body).append("<p>" + sTmp + "</p>");
+        jQuery(wym._doc.body).append("<p>" + sTmp + "</p>");
     }
   
   }
+  });
 };
 
 WYMeditor.editor.prototype.insert = function(html) {
@@ -1469,7 +1487,7 @@ WYMeditor.INIT_DIALOG = function(index) {
   var opener = window.opener ? window.opener : window;
   var wym = opener.WYMeditor.INSTANCES[index];
   var doc = window.document;
-  var selected = wym.selected();
+  wym.selected(function(selected) {
   var dialogType = jQuery(wym._options.dialogTypeSelector).val();
   var sStamp = wym.uniqueStamp();
 
@@ -1604,10 +1622,12 @@ WYMeditor.INIT_DIALOG = function(index) {
             jQuery(wym._options.summarySelector).val());
 
         //append the table after the selected container
-        var node = jQuery(wym.findUp(wym.container(),
+        wym.container(function(container) {
+        var node = jQuery(wym.findUp(container,
           WYMeditor.MAIN_CONTAINERS)).get(0);
         if(!node || !node.parentNode) jQuery(wym._doc.body).append(table);
         else jQuery(node).after(table);
+        });
       }
       if (window.opener) {
         window.close();
@@ -1655,7 +1675,7 @@ WYMeditor.INIT_DIALOG = function(index) {
   //pre-init functions
   if(jQuery.isFunction(wym._options.postInitDialog))
     wym._options.postInitDialog(wym,window);
-
+  });
 };
 
 /********** XHTML LEXER/PARSER **********/
@@ -4042,18 +4062,20 @@ WYMeditor.WymClassExplorer.prototype.dialog = function( dialogType, dialogFeatur
 
 WYMeditor.WymClassExplorer.prototype._exec = function(cmd,param) {
 
+    var wym = this;
     switch(cmd) {
     
     case WYMeditor.INDENT: case WYMeditor.OUTDENT:
-    
-        var container = this.findUp(this.container(), WYMeditor.LI);
+      wym.container(function(container) {
+        container = wym.findUp(container, WYMeditor.LI);
         if(container) {
             var ancestor = container.parentNode.parentNode;
             if(container.parentNode.childNodes.length>1
               || ancestor.tagName.toLowerCase() == WYMeditor.OL
               || ancestor.tagName.toLowerCase() == WYMeditor.UL)
-              this._doc.execCommand(cmd);
+              wym._doc.execCommand(cmd);
         }
+      });
     break;
     default:
         if(param) this._doc.execCommand(cmd,false,param);
@@ -4063,12 +4085,15 @@ WYMeditor.WymClassExplorer.prototype._exec = function(cmd,param) {
 
 };
 
-WYMeditor.WymClassExplorer.prototype.selected = function() {
+WYMeditor.WymClassExplorer.prototype.selected = function(callback) {
 
+  if (!callback) {
+    callback = function(ret){return ret;};
+  }
     var caretPos = this._iframe.contentWindow.document.caretPos;
         if(caretPos!=null) {
             if(caretPos.parentElement!=undefined)
-              return(caretPos.parentElement());
+              return callback(caretPos.parentElement());
         }
 };
 
@@ -4250,19 +4275,20 @@ WYMeditor.WymClassMozilla.prototype.html = function(html) {
 
 WYMeditor.WymClassMozilla.prototype._exec = function(cmd,param) {
 
-    if(!this.selected()) return(false);
+    var wym = this;
 
     switch(cmd) {
     
     case WYMeditor.INDENT: case WYMeditor.OUTDENT:
     
-        var focusNode = this.selected();    
-        var sel = this._iframe.contentWindow.getSelection();
+        wym.selected(function(focusNode) {
+        if(!focusNode) return(false);
+        var sel = wym._iframe.contentWindow.getSelection();
         var anchorNode = sel.anchorNode;
         if(anchorNode.nodeName == "#text") anchorNode = anchorNode.parentNode;
         
-        focusNode = this.findUp(focusNode, WYMeditor.BLOCKS);
-        anchorNode = this.findUp(anchorNode, WYMeditor.BLOCKS);
+        focusNode = wym.findUp(focusNode, WYMeditor.BLOCKS);
+        anchorNode = wym.findUp(anchorNode, WYMeditor.BLOCKS);
         
         if(focusNode && focusNode == anchorNode
           && focusNode.tagName.toLowerCase() == WYMeditor.LI) {
@@ -4272,8 +4298,9 @@ WYMeditor.WymClassMozilla.prototype._exec = function(cmd,param) {
             if(focusNode.parentNode.childNodes.length>1
               || ancestor.tagName.toLowerCase() == WYMeditor.OL
               || ancestor.tagName.toLowerCase() == WYMeditor.UL)
-                this._doc.execCommand(cmd,'',null);
+                wym._doc.execCommand(cmd,'',null);
         }
+        });
 
     break;
     
@@ -4284,22 +4311,26 @@ WYMeditor.WymClassMozilla.prototype._exec = function(cmd,param) {
     }
     
     //set to P if parent = BODY
-    var container = this.selected();
+    this.selected(function(container) {
     if(container.tagName.toLowerCase() == WYMeditor.BODY)
-        this._exec(WYMeditor.FORMAT_BLOCK, WYMeditor.P);
+        wym._exec(WYMeditor.FORMAT_BLOCK, WYMeditor.P);
+    });
 };
 
 /* @name selected
  * @description Returns the selected container
  */
-WYMeditor.WymClassMozilla.prototype.selected = function() {
+WYMeditor.WymClassMozilla.prototype.selected = function(callback) {
 
+  if (!callback) {
+    callback = function(ret){return ret;};
+  }
     var sel = this._iframe.contentWindow.getSelection();
     var node = sel.focusNode;
     if(node) {
         if(node.nodeName == "#text") return(node.parentNode);
-        else return(node);
-    } else return(null);
+        else return callback(node);
+    } else return callback(null);
 };
 
 WYMeditor.WymClassMozilla.prototype.addCssRule = function(styles, oCss) {
@@ -4332,11 +4363,12 @@ WYMeditor.WymClassMozilla.prototype.keydown = function(evt) {
   else if(evt.keyCode == 13) {
     if(!evt.shiftKey){
       //fix PRE bug #73
-      container = wym.selected();
+      wym.selected(function(container) {
       if(container && container.tagName.toLowerCase() == WYMeditor.PRE) {
         evt.preventDefault();
         wym.insert('<p></p>');
       }
+      });
     }
   }
 };
@@ -4367,7 +4399,7 @@ WYMeditor.WymClassMozilla.prototype.keyup = function(evt) {
     //NOT BACKSPACE, NOT DELETE, NOT CTRL, NOT COMMAND
     //text nodes replaced by P
     
-    container = wym.selected();
+    wym.selected(function(container) {
     var name = container.tagName.toLowerCase();
 
     //fix forbidden main containers
@@ -4383,6 +4415,7 @@ WYMeditor.WymClassMozilla.prototype.keyup = function(evt) {
     ) name = container.parentNode.tagName.toLowerCase();
 
     if(name == WYMeditor.BODY) wym._exec(WYMeditor.FORMAT_BLOCK, WYMeditor.P);
+    });
   }
 };
 
@@ -4497,14 +4530,17 @@ WYMeditor.WymClassOpera.prototype._exec = function(cmd,param) {
 
 };
 
-WYMeditor.WymClassOpera.prototype.selected = function() {
+WYMeditor.WymClassOpera.prototype.selected = function(callback) {
 
+  if (!callback) {
+    callback = function(ret){return ret;};
+  }
     var sel=this._iframe.contentWindow.getSelection();
     var node=sel.focusNode;
     if(node) {
         if(node.nodeName=="#text")return(node.parentNode);
-        else return(node);
-    } else return(null);
+        else return callback(node);
+    } else return callback(null);
 };
 
 WYMeditor.WymClassOpera.prototype.addCssRule = function(styles, oCss) {
@@ -4613,19 +4649,19 @@ WYMeditor.WymClassSafari.prototype.initIframe = function(iframe) {
 
 WYMeditor.WymClassSafari.prototype._exec = function(cmd,param) {
 
-    if(!this.selected()) return(false);
+    var wym = this;
 
     switch(cmd) {
     
     case WYMeditor.INDENT: case WYMeditor.OUTDENT:
     
-        var focusNode = this.selected();    
-        var sel = this._iframe.contentWindow.getSelection();
+        wym.selected(function(focusNode) {
+        var sel = wym._iframe.contentWindow.getSelection();
         var anchorNode = sel.anchorNode;
         if(anchorNode.nodeName == "#text") anchorNode = anchorNode.parentNode;
         
-        focusNode = this.findUp(focusNode, WYMeditor.BLOCKS);
-        anchorNode = this.findUp(anchorNode, WYMeditor.BLOCKS);
+        focusNode = wym.findUp(focusNode, WYMeditor.BLOCKS);
+        anchorNode = wym.findUp(anchorNode, WYMeditor.BLOCKS);
         
         if(focusNode && focusNode == anchorNode
           && focusNode.tagName.toLowerCase() == WYMeditor.LI) {
@@ -4635,8 +4671,9 @@ WYMeditor.WymClassSafari.prototype._exec = function(cmd,param) {
             if(focusNode.parentNode.childNodes.length>1
               || ancestor.tagName.toLowerCase() == WYMeditor.OL
               || ancestor.tagName.toLowerCase() == WYMeditor.UL)
-                this._doc.execCommand(cmd,'',null);
+                wym._doc.execCommand(cmd,'',null);
         }
+        });
 
     break;
 
@@ -4646,9 +4683,10 @@ WYMeditor.WymClassSafari.prototype._exec = function(cmd,param) {
 
         //Safari creates lists in e.g. paragraphs.
         //Find the container, and remove it.
-        var focusNode = this.selected();
-        var container = this.findUp(focusNode, WYMeditor.MAIN_CONTAINERS);
+        wym.selected(function(focusNode) {
+        var container = wym.findUp(focusNode, WYMeditor.MAIN_CONTAINERS);
         if(container) jQuery(container).replaceWith(jQuery(container).html());
+        });
 
     break;
     
@@ -4659,23 +4697,27 @@ WYMeditor.WymClassSafari.prototype._exec = function(cmd,param) {
     }
     
     //set to P if parent = BODY
-    var container = this.selected();
+    wym.selected(function(container){
     if(container && container.tagName.toLowerCase() == WYMeditor.BODY)
-        this._exec(WYMeditor.FORMAT_BLOCK, WYMeditor.P);
+        wym._exec(WYMeditor.FORMAT_BLOCK, WYMeditor.P);
+    });
 
 };
 
 /* @name selected
  * @description Returns the selected container
  */
-WYMeditor.WymClassSafari.prototype.selected = function() {
+WYMeditor.WymClassSafari.prototype.selected = function(callback) {
 
+  if (!callback) {
+    callback = function(ret){return ret;};
+  }
     var sel = this._iframe.contentWindow.getSelection();
     var node = sel.focusNode;
     if(node) {
         if(node.nodeName == "#text") return(node.parentNode);
-        else return(node);
-    } else return(null);
+        else return callback(node);
+    } else return callback(null);
 };
 
 WYMeditor.WymClassSafari.prototype.addCssRule = function(styles, oCss) {
@@ -4721,9 +4763,10 @@ WYMeditor.WymClassSafari.prototype.keyup = function(evt) {
     jQuery(wym._doc.body).children(WYMeditor.BR).remove();
     
     //fix PRE bug #73
-    container = wym.selected();
+    wym.selected(function(container){
     if(container && container.tagName.toLowerCase() == WYMeditor.PRE)
         wym._exec(WYMeditor.FORMAT_BLOCK, WYMeditor.P); //create P after PRE
+    });
   }
 
   //fix #112
@@ -4741,7 +4784,7 @@ WYMeditor.WymClassSafari.prototype.keyup = function(evt) {
     //NOT BACKSPACE, NOT DELETE, NOT CTRL, NOT COMMAND
     //text nodes replaced by P
     
-    container = wym.selected();
+    wym.selected(function(container){
     var name = container.tagName.toLowerCase();
 
     //fix forbidden main containers
@@ -4758,6 +4801,7 @@ WYMeditor.WymClassSafari.prototype.keyup = function(evt) {
     ) name = container.parentNode.tagName.toLowerCase();
 
     if(name == WYMeditor.BODY || name == WYMeditor.DIV) wym._exec(WYMeditor.FORMAT_BLOCK, WYMeditor.P); //fix #110 for DIV
+    });
   }
 };
 

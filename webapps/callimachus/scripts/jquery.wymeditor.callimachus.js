@@ -31,9 +31,9 @@
 		} catch (e) { }
 	}
 
-	function insertContainer(html, toggle) {
-		var block = this.findUp(this.container(), WYMeditor.BLOCKS);
-		var node = this.findUp(this.container(), WYMeditor.MAIN_CONTAINERS);
+	function insertContainer(html, toggle, container) {
+		var block = this.findUp(container, WYMeditor.BLOCKS);
+		var node = this.findUp(container, WYMeditor.MAIN_CONTAINERS);
 		if((!node || !node.parentNode) && block && block.parentNode) {
 			var div = $(html);
 			$(block).append(div);
@@ -57,8 +57,7 @@
 		}
 	}
 
-	function insertField(html) {
-		var container = this.container();
+	function insertField(html, container) {
 		var field = $(container).parents().andSelf().filter('.field')[0];
 		var block = this.findUp(container, WYMeditor.BLOCKS);
 		var node = this.findUp(container, WYMeditor.MAIN_CONTAINERS);
@@ -92,11 +91,13 @@
 		}
 	}
 
-	function insertInput(dialog_input, type, template) {
+	function insertInput(dialog_input, type, template, container) {
 		var toggle = 'div.field.' + type;
 		this.dialog('Insert Input', null, dialog_input);
-		var node = select(this.container(), toggle)[0];
-		var container = node ? $(node).parent()[0] : this.container();
+		var node = select(container, toggle)[0];
+		if (node) {
+			container = $(node).parent()[0];
+		}
 		if (node) {
 			$('#label').val(find(node, 'label').text());
 			setCurie('#prefix', '#local', $(node).html().match(/\{([^}:]*:[^}]*)\}/)[1]);
@@ -127,11 +128,13 @@
 		});
 	}
 
-	function insertSelect(dialog_select, type, template) {
+	function insertSelect(dialog_select, type, template, container) {
 		var toggle = 'div.field.' + type;
 		this.dialog('Insert Select', null, dialog_select);
-		var node = select(this.container(), toggle)[0];
-		var container = node ? $(node).parent()[0] : this.container();
+		var node = select(container, toggle)[0];
+		if (node) {
+			container = $(node).parent()[0];
+		}
 		$('#scheme').change(function(event) {
 			var selected = $('#scheme')[0].options[$('#scheme')[0].selectedIndex];
 			if (selected) {
@@ -189,11 +192,13 @@
 		});
 	}
 
-	function insertDropZone(dialog_drop, type, template) {
+	function insertDropZone(dialog_drop, type, template, container) {
 		var toggle = 'div.field.' + type;
 		this.dialog('Insert Drop Zone', null, dialog_drop);
-		var node = select(this.container(), toggle)[0];
-		var container = node ? $(node).parent()[0] : this.container();
+		var node = select(container, toggle)[0];
+		if (node) {
+			container = $(node).parent()[0];
+		}
 		if (node) {
 			$('#label').val(find(node, 'label').text());
 			setCurie('#prefix', '#local', find(node, '[rel]').attr('rel'));
@@ -259,10 +264,10 @@
 		insertField.call(wym, html);
 	}
 
-	function insertForm(dialog_form) {
+	function insertForm(dialog_form, container) {
 		var wym = this;
 		this.dialog('Insert Form', null, dialog_form);
-		var node = this.findUp(this.container(), ['form']);
+		var node = this.findUp(container, ['form']);
 		if (node) {
 			setCurie('#prefix', '#local', $(node).attr('typeof'));
 			if ($(node).find('button[onclick]').length) {
@@ -313,19 +318,21 @@
 					setFocusToNode(wym, focus);
 				}
 			} else {
-				insertContainer.call(wym, form, 'form');
+				insertContainer.call(wym, form, 'form', container);
 			}
 			closeDialogue();
 			return false;
 		});
 	}
 
-	function addProperty(dialog_property) {
+	function addProperty(dialog_property, container) {
 		var wym = this;
 		this.dialog('Add Property', null, dialog_property);
 		var blocks = new Array("span", "pre");
-		var node = this.findUp(this.container(), blocks);
-		var container = node ? $(node).parent()[0] : this.container();
+		var node = this.findUp(container, blocks);
+		if (node) {
+			container = $(node).parent()[0];
+		}
 		if (node && $(node).attr("property")) {
 			setCurie('#prefix', '#local', $(node).attr("property"));
 			$('#variable').val($(node).attr("content"));
@@ -370,12 +377,14 @@
 		});
 	}
 
-	function addRel(dialog_rel) {
+	function addRel(dialog_rel, container) {
 		var wym = this;
 		this.dialog('Add Rel', null, dialog_rel);
 		var blocks = new Array("address", "div", "dl", "fieldset", "form", "noscript", "ol", "ul", "dd", "dt", "li", "tr", "a");
-		var node = this.findUp(this.container(), blocks);
-		var container = node ? $(node).parent()[0] : this.container();
+		var node = this.findUp(container, blocks);
+		if (node) {
+			container = $(node).parent()[0];
+		}
 		if (node && $(node).attr('rel')) {
 			setCurie('#prefix', '#local', $(node).attr('rel'));
 			$('#variable').val($(node).attr("resource"));
@@ -406,7 +415,7 @@
 				$(node).attr(attr, curie);
 				$(node).attr('resource', '?' + id);
 			} else {
-				node = wym.findUp(wym.container(), WYMeditor.MAIN_CONTAINERS);
+				node = wym.findUp(container, WYMeditor.MAIN_CONTAINERS);
 				if (node && node.parentNode) {
 					var div = $('<div/>');
 					div.attr('class', 'vbox');
@@ -428,13 +437,13 @@
 		});
 	}
 
-	function insertChart() {
+	function insertChart(container) {
 		var wym = this;
 		google.load('visualization', '1.0', {packages: ['charteditor'], callback: function() {
 			var chartEditor = new google.visualization.ChartEditor();
 			google.visualization.events.addListener(chartEditor, 'ok', function() {
 				var chart = chartEditor.getChartWrapper();
-				var id = findOrGenerateId('chart', wym.container());
+				var id = findOrGenerateId('chart', container);
 				var options = chart.getOptions();
 				if (!options.height) {
 					options.height = 300;
@@ -442,13 +451,14 @@
 				chart.setOptions(options);
 				var json = chart.toJSON();
 				insertTemplate('<div id="$id" class="chart" style="height:${height}px" />', {id: id, height: options.height.toString()});
-				var xhtml = wym.xhtml();
-				wym.html(xhtml.replace(/(\s*<\/head>)/, '\n\t<script type="text/javascript">\n' +
-					'		google.load("visualization", "1", {callback: function(){\n' +
-					'			var chart = new google.visualization.ChartWrapper(' + json + ');\n' +
-					'			chart.setContainerId("' + id + '");\n' +
-					'			chart.draw();\n' +
-					'		}});\n\t</script>$1'));
+				wym.xhtml(function(xhtml){
+					wym.html(xhtml.replace(/(\s*<\/head>)/, '\n\t<script type="text/javascript">\n' +
+						'		google.load("visualization", "1", {callback: function(){\n' +
+						'			var chart = new google.visualization.ChartWrapper(' + json + ');\n' +
+						'			chart.setContainerId("' + id + '");\n' +
+						'			chart.draw();\n' +
+						'		}});\n\t</script>$1'));
+				});
 			});
 			chartEditor.openDialog(new google.visualization.ChartWrapper(), {dataSourceInput: 'urlbox'});
 		}});
@@ -601,20 +611,22 @@
 
 	function updateToolbar() {
 		var wym = window.WYMeditor.INSTANCES[0];
-		var view = wym.xhtml().search(/<body.*\?this/) >= 0;
-		var form = $('form', wym._doc).length;
-		if (!form) {
-			$('.Wym_Form_Items').hide();
-		}
-		if (!view) {
-			$('.Wym_View_Items').hide();
-		}
-		if (form) {
-			$('.Wym_Form_Items').show();
-		}
-		if (view) {
-			$('.Wym_View_Items').show();
-		}
+		wym.xhtml(function(xhtml){
+			var view = xhtml.search(/<body.*\?this/) >= 0;
+			var form = $('form', wym._doc).length;
+			if (!form) {
+				$('.Wym_Form_Items').hide();
+			}
+			if (!view) {
+				$('.Wym_View_Items').hide();
+			}
+			if (form) {
+				$('.Wym_Form_Items').show();
+			}
+			if (view) {
+				$('.Wym_View_Items').show();
+			}
+		});
 	}
 
 var _wymeditor = jQuery.fn.wymeditor;
@@ -643,23 +655,23 @@ jQuery.fn.wymeditor = function(options) {
 		var innerHtml = wym.html;
 		wym.html = function(html) {
 			if(typeof html === 'string') {
-				var index = jQuery.inArray(this.selected(), $(this._doc.body).find('*').get());
-				var ret = innerHtml.call(this, html);
-				updateToolbar();
-				var nodes = $(this._doc.body).find('*');
-				var node = nodes[index];
-				if (node) {
-					var next = nodes[index + 1];
-					if (!$(node).is('p') && $(next).is('p')) {
-						this.setFocusToNode(next);
-					} else {
-						this.setFocusToNode(node);
+				this.selected(function(selected) {
+					var index = jQuery.inArray(selected, $(wym._doc.body).find('*').get());
+					var ret = innerHtml.call(wym, html);
+					updateToolbar();
+					var nodes = $(wym._doc.body).find('*');
+					var node = nodes[index];
+					if (node) {
+						var next = nodes[index + 1];
+						if (!$(node).is('p') && $(next).is('p')) {
+							wym.setFocusToNode(next);
+						} else {
+							wym.setFocusToNode(node);
+						}
 					}
-				}
-				return ret;
+				});
 			} else {
-				var markup = innerHtml.call(this, html);
-				return markup;
+				return innerHtml.call(this, html);
 			}
 		};
 
@@ -672,45 +684,46 @@ jQuery.fn.wymeditor = function(options) {
 
 		var previously = wym.exec;
 		wym.exec = function(cmd) {
+			wym.container(function(container) {
 			switch (cmd) {
 			case 'InsertVBox':
-				insertContainer.call(wym, '<div class="vbox">\n<p></p></div>\n', 'div.vbox');
+				insertContainer.call(wym, '<div class="vbox">\n<p></p></div>\n', 'div.vbox', container);
 			break;
 			case 'InsertHBox':
-				insertContainer.call(wym, '<div class="hbox">\n<p></p></div>\n', 'div.hbox');
+				insertContainer.call(wym, '<div class="hbox">\n<p></p></div>\n', 'div.hbox', container);
 			break;
 			case 'InsertForm':
-				insertForm.call(wym, dialog_form);
+				insertForm.call(wym, dialog_form, container);
 			break;
 			case 'InsertInput':
-				insertInput.call(wym, dialog_input, 'input', '<input id="$id" value="{$curie}" />');
+				insertInput.call(wym, dialog_input, 'input', '<input id="$id" value="{$curie}" />', container);
 			break;
 			case 'InsertTextArea':
-				insertInput.call(wym, dialog_input, 'text', '<textarea id="$id" class="auto-expand">{$curie}</textarea>');
+				insertInput.call(wym, dialog_input, 'text', '<textarea id="$id" class="auto-expand">{$curie}</textarea>', container);
 			break;
 			case 'InsertRadio':
-				insertSelect.call(wym, dialog_select, 'radio', '<div id="$id">\n\t\t\t\t\t<label $rel="$curie" resource="?$id">\n\t\t\t\t\t\t<input type="radio" name="$id" checked="checked" />\n\t\t\t\t\t\t<span rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" />\n\t\t\t\t\t</label>\n\t\t\t\t</div>');
+				insertSelect.call(wym, dialog_select, 'radio', '<div id="$id">\n\t\t\t\t\t<label $rel="$curie" resource="?$id">\n\t\t\t\t\t\t<input type="radio" name="$id" checked="checked" />\n\t\t\t\t\t\t<span rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" />\n\t\t\t\t\t</label>\n\t\t\t\t</div>', container);
 			break;
 			case 'InsertCheckbox':
-				insertSelect.call(wym, dialog_select, 'checkbox', '<div id="$id">\n\t\t\t\t\t<label $rel="$curie" resource="?$id">\n\t\t\t\t\t\t<input type="checkbox" name="$id" checked="checked" />\n\t\t\t\t\t\t<span rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" />\n\t\t\t\t\t</label>\n\t\t\t\t</div>');
+				insertSelect.call(wym, dialog_select, 'checkbox', '<div id="$id">\n\t\t\t\t\t<label $rel="$curie" resource="?$id">\n\t\t\t\t\t\t<input type="checkbox" name="$id" checked="checked" />\n\t\t\t\t\t\t<span rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" />\n\t\t\t\t\t</label>\n\t\t\t\t</div>', container);
 			break;
 			case 'InsertDropDown':
-				insertSelect.call(wym, dialog_select, 'dropdown', '<select id="$id" $rel="$curie">\n\t\t\t\t\t<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n\t\t\t\t</select>');
+				insertSelect.call(wym, dialog_select, 'dropdown', '<select id="$id" $rel="$curie">\n\t\t\t\t\t<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n\t\t\t\t</select>', container);
 			break;
 			case 'InsertSelect':
-				insertSelect.call(wym, dialog_select, 'select', '<select multiple="multiple" id="$id" $rel="$curie">\n\t\t\t\t\t<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n\t\t\t\t</select>');
+				insertSelect.call(wym, dialog_select, 'select', '<select multiple="multiple" id="$id" $rel="$curie">\n\t\t\t\t\t<option about="?$id" rel="skos:inScheme" resource="$scheme" property="skos:prefLabel" selected="selected" />\n\t\t\t\t</select>', container);
 			break;
 			case 'InsertDropZone':
-				insertDropZone.call(wym, dialog_drop, 'dropzone', '<div id="$id" class="$type field" $rel="$curie" dropzone="link s:text/uri-list">\n\t\t\t\t\t<label>$label</label>\n\t\t\t\t\t<button type="button" class="dialog" data-dialog="$prompt"/>\n\t\t\t\t\t<div about="?$id" typeof="$class">\n\t\t\t\t\t\t<span property="rdfs:label" />\n\t\t\t\t\t\t<button type="button" class="remove" />\n\t\t\t\t\t</div>\n\t\t\t\t</div>');
+				insertDropZone.call(wym, dialog_drop, 'dropzone', '<div id="$id" class="$type field" $rel="$curie" dropzone="link s:text/uri-list">\n\t\t\t\t\t<label>$label</label>\n\t\t\t\t\t<button type="button" class="dialog" data-dialog="$prompt"/>\n\t\t\t\t\t<div about="?$id" typeof="$class">\n\t\t\t\t\t\t<span property="rdfs:label" />\n\t\t\t\t\t\t<button type="button" class="remove" />\n\t\t\t\t\t</div>\n\t\t\t\t</div>', container);
 			break;
 			case 'AddProperty':
-				addProperty.call(wym, dialog_property);
+				addProperty.call(wym, dialog_property, container);
 			break;
 			case 'AddRel':
-				addRel.call(wym, dialog_rel);
+				addRel.call(wym, dialog_rel, container);
 			break;
 			case 'InsertChart':
-				insertChart.call(wym);
+				insertChart.call(wym, container);
 			break;
 			default:
 				var ret = previously.call(wym, cmd);
@@ -718,6 +731,7 @@ jQuery.fn.wymeditor = function(options) {
 				return ret;
 			}
 			wym.update();
+            });
 		};
 
 		if (_postInit) {

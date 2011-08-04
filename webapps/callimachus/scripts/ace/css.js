@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-define(function(require, exports, module) {
+define("ace/mode/css", function(require, exports, module) {
 
 var oop = require("pilot/oop");
 var TextMode = require("ace/mode/text").Mode;

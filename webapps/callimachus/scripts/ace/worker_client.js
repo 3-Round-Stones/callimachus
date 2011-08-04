@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-define(function(require, exports, module) {
+define("ace/worker/worker_client", function(require, exports, module) {
 
 var oop = require("pilot/oop");
 var EventEmitter = require("pilot/event_emitter").EventEmitter;

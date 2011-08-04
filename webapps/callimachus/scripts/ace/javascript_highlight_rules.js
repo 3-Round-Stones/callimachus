@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-define(function(require, exports, module) {
+define("ace/mode/javascript_highlight_rules", function(require, exports, module) {
 
 var oop = require("pilot/oop");
 var lang = require("pilot/lang");

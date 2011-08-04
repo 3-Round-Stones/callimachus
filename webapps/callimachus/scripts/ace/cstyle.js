@@ -36,7 +36,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-define(function(require, exports, module) {
+define("ace/mode/behaviour/cstyle", function(require, exports, module) {
 
 var oop = require("pilot/oop");
 var Behaviour = require('ace/mode/behaviour').Behaviour;

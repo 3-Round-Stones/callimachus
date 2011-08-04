@@ -50,6 +50,18 @@
 	rdf:_4 <jquery.wymeditor.ace.js>.
 
 <ace_bundle> a calli:ScriptBundle;
-	rdf:_1 <ace.js>;
-	rdf:_2 <mode-html.js>.
+	rdf:_1 <ace/ace-uncompressed.js>;
+	rdf:_2 <ace/css_highlight_rules.js>;
+	rdf:_3 <ace/css.js>;
+	rdf:_4 <ace/cstyle.js>;
+	rdf:_5 <ace/doc_comment_highlight_rules.js>;
+	rdf:_6 <ace/html_highlight_rules.js>;
+	rdf:_7 <ace/html.js>;
+	rdf:_8 <ace/javascript_highlight_rules.js>;
+	rdf:_9 <ace/javascript.js>;
+	rdf:_10 <ace/matching_brace_outdent.js>;
+	rdf:_11 <ace/sparql_highlight_rules.js>;
+	rdf:_12 <ace/sparql.js>;
+	rdf:_13 <ace/worker_client.js>;
+	rdf:_14 <ace/xml.js>.
 

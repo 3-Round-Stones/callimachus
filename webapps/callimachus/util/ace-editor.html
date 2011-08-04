@@ -25,7 +25,9 @@
 		if (location.hash && location.hash.length > 1) {
 			var hash = location.hash.substring(1);
 			var Mode = require("ace/mode/" + hash).Mode;
-			editor.getSession().setMode(new Mode());
+			if (Mode) {
+				editor.getSession().setMode(new Mode());
+			}
 		}
 		editor.getSession().setUseWrapMode(true);
 		var channel = new MessageChannel();

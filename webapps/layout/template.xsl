@@ -182,9 +182,7 @@
 				<xsl:apply-templates select="*|comment()|text()" />
 			</div>
 
-			<div id="sidebar">
-				<xsl:copy-of select="document(concat($callimachus, '/menu?items'))/xhtml:html/xhtml:body/node()" />
-			</div>
+			<xsl:copy-of select="document(concat($callimachus, '/menu?items'))/xhtml:html/xhtml:body/node()" />
 			<a href="{$origin}/" id="logo">&#160;</a>
 
 			<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">

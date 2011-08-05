@@ -118,13 +118,8 @@ a[href]:hover {
 	background-repeat: no-repeat;
 }
 
-#sidebar {
-	float: left;
-	margin: 0px;
-	padding: 0px;
-}
-
 #nav {
+	float: left;
 	list-style: none;
 	width: 10em;
 	margin: 0px;
@@ -217,7 +212,7 @@ body.iframe, body.iframe #content {
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled=false)";
 }
 
-body.iframe #header, body.iframe #tabs, body.iframe #sidebar, body.iframe #logo, body.iframe #footer {
+body.iframe #header, body.iframe #tabs, body.iframe #nav, body.iframe #logo, body.iframe #footer {
 	display: none;
 }
 
@@ -423,7 +418,7 @@ label.error {
 		top: 0px;
 		left: 0px;
 	}
-	#sidebar {
+	#nav {
 		float: none;
 		position: absolute;
 		top: 10em;
@@ -447,7 +442,7 @@ label.error {
 } /* end screen */
 
 @media print {
-	#logo, #sidebar, #header, #tabs, button {
+	#logo, #nav, #header, #tabs, button {
 		display: none;
 	}
 	.aside {

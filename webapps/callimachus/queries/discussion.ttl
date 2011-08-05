@@ -19,7 +19,8 @@
 		WHERE {
 			{
 				$this skos:prefLabel ?label
-				OPTIONAL { $this rdfs:label ?label }
+			} UNION {
+				$this rdfs:label ?label
 			} UNION {
 				GRAPH ?revision { $this skos:editorialNote ?note }
 				?revision audit:committedOn ?modified

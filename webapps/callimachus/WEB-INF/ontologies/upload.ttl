@@ -55,7 +55,7 @@ calli:SchemaGraph a owl:Class.
 		this.calliDeleteWebResource();
 
 		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/g, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/, " "));
 		con.add(this.resource, RDFS.LABEL, label, []);
 
 		con.addDesignation(this, NamedGraph);
@@ -141,7 +141,7 @@ calli:SchemaGraph a owl:Class.
 		this.calliDeleteWebResource();
 
 		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/, " "));
 		con.add(this.resource, RDFS.LABEL, label, []);
 
 		con.addDesignation(this, NamedGraph);
@@ -176,7 +176,7 @@ calli:SchemaGraph a owl:Class.
 		this.calliDeleteWebResource();
 
 		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/, " "));
 		con.add(this.resource, RDFS.LABEL, label, []);
 
 		var type = "urn:mimetype:" + contentType;
@@ -252,7 +252,7 @@ calli:SchemaGraph a owl:Class.
 		this.calliDeleteWebResource();
 
 		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/, " "));
 		con.add(this.resource, RDFS.LABEL, label, []);
 
 		var type = "urn:mimetype:" + contentType;
@@ -376,8 +376,9 @@ calli:DeleteWebResource rdfs:subClassOf msg:Message;
 		con.removeDesignation(this, Image);
 
 		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/, " "));
-		con.remove(this.resource, RDFS.LABEL, label, []);
+		var label = URLDecoder.decode(filename, "UTF-8");
+		con.remove(this.resource, RDFS.LABEL, vf.createLiteral(label), []);
+		con.remove(this.resource, RDFS.LABEL, vf.createLiteral(label.replace(/-/, " ")), []);
 
 		con.clear([this.resource]); //# clear graph
 		if (this instanceof FileObject) {

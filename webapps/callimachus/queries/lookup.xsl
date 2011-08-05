@@ -95,9 +95,9 @@
 					</span>
 					<xsl:if test="sparql:binding[@name='modified']">
 						<span> - </span>
-						<span class="abbreviated datetime-locale">
+						<time class="abbreviated">
 							<xsl:value-of select="sparql:binding[@name='modified']/*" />
-						</span>
+						</time>
 					</xsl:if>
 				</div>
 			</xsl:if>

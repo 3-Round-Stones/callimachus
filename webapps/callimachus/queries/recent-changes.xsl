@@ -35,7 +35,7 @@
 			<xsl:if test="preceding-sibling::*[1]/sparql:binding[@name='modified']/*">
 				<xsl:text disable-output-escaping="yes">&lt;/ul&gt;</xsl:text>
 			</xsl:if>
-			<h2 class="abbreviated date-locale"><xsl:value-of select="sparql:binding[@name='modified']/*" /></h2>
+			<h2><time class="abbreviated date"><xsl:value-of select="sparql:binding[@name='modified']/*" /></time></h2>
 			<xsl:text disable-output-escaping="yes">&lt;ul&gt;</xsl:text>
 		</xsl:if>
 		<li class="result">
@@ -62,7 +62,7 @@
 				</xsl:if>
 			</a>
 			<xsl:text>; </xsl:text>
-			<a href="{sparql:binding[@name='revision']/*}?view" class="abbreviated time-locale"><xsl:value-of select="sparql:binding[@name='modified']/*" /></a>
+			<a href="{sparql:binding[@name='revision']/*}?view"><time class="abbreviated time"><xsl:value-of select="sparql:binding[@name='modified']/*" /></time></a>
 			<xsl:text>..</xsl:text>
 			<a>
 				<xsl:if test="sparql:binding[@name='user']">

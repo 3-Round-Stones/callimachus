@@ -18,6 +18,7 @@
 package org.callimachusproject.stream;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,7 +42,6 @@ import javax.xml.stream.events.XMLEvent;
 import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.rdfa.model.Node;
 import org.callimachusproject.rdfa.model.TermFactory;
-import org.openrdf.http.object.exceptions.InternalServerError;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
@@ -50,6 +50,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.impl.TupleQueryResultImpl;
 import org.openrdf.repository.RepositoryConnection;
 
 /**
@@ -61,6 +62,10 @@ import org.openrdf.repository.RepositoryConnection;
 public class RDFaProducer extends XMLEventReaderBase {
 	private static final String XML_NAMESPACE = "http://www.w3.org/XML/1998/namespace";
 	private static final String BASE_TAG = "http://www.w3.org/1999/xhtmlbase";
+	private static final List<String> EMPTY_LIST = Collections.emptyList();
+	private static final Iterable<BindingSet> EMPTY_SET = Collections.emptySet();
+	private static final Map<String,String> EMPTY_MAP = Collections.emptyMap();
+	private static final TupleQueryResult EMPTY_RESULT = new TupleQueryResultImpl(EMPTY_LIST, EMPTY_SET);
 
 	final static String[] RDFA_OBJECT_ATTRIBUTES = { "about", "resource", "typeof", "content" };
 	final static List<String> RDFA_OBJECTS = Arrays.asList(RDFA_OBJECT_ATTRIBUTES);
@@ -132,6 +137,11 @@ public class RDFaProducer extends XMLEventReaderBase {
 	(XMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self, RepositoryConnection con) 
 	throws Exception {
 		this(new BufferedXMLEventReader(reader), resultSet, origins, self, con);
+		this.reader.mark();
+	}
+	
+	public RDFaProducer(XMLEventReader reader, RepositoryConnection con) throws Exception {
+		this(reader, EMPTY_RESULT, EMPTY_MAP, null, con);
 		this.reader.mark();
 	}
 

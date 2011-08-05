@@ -65,7 +65,8 @@
 		<li>Templates are used for page or form structure for each operation</li>
 	</ul>
 	<h1 property="rdfs:label" />
-	<form about="?this" typeof="owl:Class" action="" onsubmit="updateSuperClasses()">
+	<form method="POST" action="" enctype="application/sparql-update" about="?this" typeof="owl:Class"
+			onsubmit="updateSuperClasses()">
 		<div class="hbox">
 			<div>
 				<label for="label">Label</label>

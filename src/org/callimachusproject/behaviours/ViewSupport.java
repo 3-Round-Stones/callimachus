@@ -64,18 +64,17 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 	 */
 	@Override
 	public XMLEventReader calliConstruct(Object target, String query) throws Exception {
-		URI about = null;
-		assert(target instanceof RDFObject);
-		about = (URI) ((RDFObject) target).getResource();
+		if (target == null)
+			return new RDFaProducer(xslt(query), getObjectConnection());
+		assert target instanceof RDFObject;
+		URI about = (URI) ((RDFObject) target).getResource();
 		return calliConstructXhtml(about, query);
 	}
 
-	private XMLEventReader calliConstructXhtml(URI about, String query) 
-	throws Exception {
+	private XMLEventReader calliConstructXhtml(URI about, String query) throws Exception {
 		ObjectConnection con = getObjectConnection();
-		TupleQueryResult results;
-		Map<String,String> origins;
-		assert(about!=null);
+		TupleQueryResult results = null;
+		Map<String,String> origins = null;
 		// evaluate SPARQL derived from the template
 		String base = about.stringValue();
 		String sparql = sparql(query);
@@ -83,7 +82,6 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 		q.setBinding("this", about);
 		results = q.evaluate();
 		origins = SPARQLProducer.getOrigins(sparql);
-		
 		return new RDFaProducer(xslt(query), results, origins, about, con);
 	}
 

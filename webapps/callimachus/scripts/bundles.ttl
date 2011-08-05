@@ -39,7 +39,8 @@
 	rdf:_10 <data-dialog.js>;
 	rdf:_11 <document-ready.js>;
 	rdf:_12 <input-date.js>;
-	rdf:_13 <disable-button.js>.
+	rdf:_13 <disable-button.js>;
+	rdf:_14 <iframe-redirect.js>.
 
 <wymeditor_bundle> a calli:ScriptBundle; calli:minified 1 ;
 	rdf:_1 <jquery.wymeditor.js>;

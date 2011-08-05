@@ -30,7 +30,7 @@ function getCreatePage(msg) {
 		throw new BadRequest("Cannot create this class here: " + factory);
 	if (!factory.calliCreate)
 		throw new InternalServerError("No create template");
-	return factory.calliCreate.calliConstruct(this, 'create');
+	return factory.calliCreate.calliConstruct(null, 'create');
 }
 
 function postCreate(msg) {

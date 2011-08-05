@@ -8,7 +8,8 @@
 </head>
 <body>
 	<h1>New Named Query</h1>
-	<form about="" onsubmit="$(this).attr('about', '/query/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
+	<form method="POST" action="" enctype="application/sparql-update"
+			onsubmit="$(this).attr('about', '/query/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
 		<div class="vbox">
 			<div class="input field">
 				<label for="label">Label</label>

@@ -36,7 +36,8 @@
 		<li>To add an image, click the chevron to open a file upload dialogue</li>
 	</ul>
 	<h1 property="skos:prefLabel" />
-	<form id="form" about="?this" typeof="skos:Concept" action="" onsubmit="saveChangeNote()">
+	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this" typeof="skos:Concept" 
+			onsubmit="saveChangeNote()">
 		<div class="hbox">
 			<div>
 				<label for="label">Label</label>

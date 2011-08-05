@@ -45,13 +45,17 @@
 	<h1>
 		<a property="skos:prefLabel" href="?this"></a>
 	</h1>
-	<div id="image" rel="foaf:depiction" resource="?image" style="float:right;max-width:33%">
-		<a href="?image" class="view"><img src="?image" style="max-width:100%;max-height:75%" /></a>
-		<p property="rdfs:comment" />
+	<div class="hbox">
+		<div class="vbox">
+			<pre property="skos:definition" class="wiki"></pre>
+			<pre property="skos:example" class="wiki"></pre>
+			<pre property="skos:historyNote" class="wiki"></pre>
+			<pre property="skos:scopeNote" class="wiki"></pre>
+		</div>
+		<div id="image" rel="foaf:depiction" resource="?image" style="max-width:33%">
+			<a href="?image" class="view"><img src="?image" style="max-width:100%;max-height:75%" /></a>
+			<p property="rdfs:comment" />
+		</div>
 	</div>
-	<pre property="skos:definition" class="wiki"></pre>
-	<pre property="skos:example" class="wiki"></pre>
-	<pre property="skos:historyNote" class="wiki"></pre>
-	<pre property="skos:scopeNote" class="wiki"></pre>
 </body>
 </html>

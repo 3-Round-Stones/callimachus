@@ -5,57 +5,58 @@
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
-	<head>
-		<title>Invite a New User</title>
-		<script type="text/javascript"><![CDATA[
-		jQuery(function($) {
-			$('#message').val($('#message').val() + ' ' + location.protocol + '//' + location.host + '/')
-			$("#form").validate();
-		}); // ]]>
-		</script>
-	</head>
-	<body>
-		<ul class="aside">
-			<li>The username cannot be changed once the user is created</li>
-			<li>E-mail address is used to send an invite password and possibly reset the password</li>
-			<li>Provide the user's full name</li>
-			<li>Provide any additional contact information or affiliation information</li>
-			<li>You can customize the message sent in the email here</li>
-		</ul>
-		<form id="form" method="POST" action="" enctype="multipart/form-data" autocomplete="off">
-			<label for="name">Username</label>
-			<div>
-				<input id="name" name="name" type="text" class="auto-expand required" autofocus="autofocus"
-					onchange="$('#message').val($('#message').val().replace(/username is (\w*)/, 'username is ' + value))" />
-			</div>
-			<label for="email">E-mail address</label>
-			<div>
-				<input id="email" name="email" type="email" class="auto-expand required" />
-			</div>
-			<label for="label">Full name</label>
-			<div>
-				<input id="label" name="label" type="text" class="auto-expand required"
-					onchange="$('#message').val($('#message').val().replace(/Hi[^,]*,/, 'Hi ' + value + ','))" />
-			</div>
-			<label for="comment">Additional information</label>
-			<div>
-				<textarea id="comment" class="auto-expand" name="comment"></textarea>
-			</div>
-			<label for="subject">Welcome subject</label>
-			<div>
-				<input id="subject" name="subject" type="text" class="auto-expand required" value="You have a new account" />
-			</div>
-			<label for="message">Welcome message</label>
-			<div>
-				<textarea id="message" class="auto-expand required" name="message">Hi,
+<head>
+	<title>Invite a New User</title>
+	<script type="text/javascript"><![CDATA[
+	jQuery(function($) {
+		$('#message').val($('#message').val() + ' ' + location.protocol + '//' + location.host + '/')
+		$("#form").validate();
+	}); // ]]>
+	</script>
+</head>
+<body>
+	<ul class="aside">
+		<li>The username cannot be changed once the user is created</li>
+		<li>E-mail address is used to send an invite password and possibly reset the password</li>
+		<li>Provide the user's full name</li>
+		<li>Provide any additional contact information or affiliation information</li>
+		<li>You can customize the message sent in the email here</li>
+	</ul>
+	<iframe class="redirect" name="iframe" src="about:blank" style="display:none"></iframe>
+	<form id="form" method="POST" action="" enctype="multipart/form-data" target="iframe" autocomplete="off">
+		<label for="name">Username</label>
+		<div>
+			<input id="name" name="name" type="text" class="auto-expand required" autofocus="autofocus"
+				onchange="$('#message').val($('#message').val().replace(/username is (\w*)/, 'username is ' + value))" />
+		</div>
+		<label for="email">E-mail address</label>
+		<div>
+			<input id="email" name="email" type="email" class="auto-expand required" />
+		</div>
+		<label for="label">Full name</label>
+		<div>
+			<input id="label" name="label" type="text" class="auto-expand required"
+				onchange="$('#message').val($('#message').val().replace(/Hi[^,]*,/, 'Hi ' + value + ','))" />
+		</div>
+		<label for="comment">Additional information</label>
+		<div>
+			<textarea id="comment" class="auto-expand" name="comment"></textarea>
+		</div>
+		<label for="subject">Welcome subject</label>
+		<div>
+			<input id="subject" name="subject" type="text" class="auto-expand required" value="You have a new account" />
+		</div>
+		<label for="message">Welcome message</label>
+		<div>
+			<textarea id="message" class="auto-expand required" name="message">Hi,
 
 You have a new account.
 
 Your username is  and your password is "@@PASSWORD@@" (without quotes).
 
 You can sign in at:</textarea>
-			</div>
-			<button id="submit" type="submit">Invite</button>
-		</form>
-	</body>
+		</div>
+		<button id="submit" type="submit">Invite</button>
+	</form>
+</body>
 </html>

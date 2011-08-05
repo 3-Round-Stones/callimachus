@@ -53,7 +53,7 @@
 :GetPage owl:intersectionOf (</callimachus/operations/view.ttl#GetViewPage>
 		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
 	msg:script """
-		return this.calliConstruct(this, 'view');
+		return this.calliConstruct(null, 'view');
 	""".
 
 # GET /page/MainPage.xhtml

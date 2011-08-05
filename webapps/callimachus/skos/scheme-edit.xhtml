@@ -26,7 +26,8 @@
 		<li>To add an image, click the chevron to open a file upload dialogue</li>
 	</ul>
 	<h1 property="rdfs:label" />
-	<form about="?this" typeof="skos:ConceptScheme" action="" onsubmit="saveChangeNote()" data-redirect="/callimachus/skos/ConceptScheme">
+	<form method="POST" action="" enctype="application/sparql-update" about="?this" typeof="skos:ConceptScheme"
+			onsubmit="saveChangeNote()" data-redirect="/callimachus/skos/ConceptScheme">
 		<div>
 			<label for="label">Label</label>
 			<div>

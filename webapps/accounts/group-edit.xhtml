@@ -25,7 +25,8 @@
 		<li>Administrators can edit this page, invite new users, and edit the settings and passwords of new users</li>
 	</ul>
 	<h1><span property="rdfs:label" /> Group</h1>
-	<form id="form" action="" about="?this" onsubmit="saveChangeNote()" data-redirect="/accounts">
+	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this"
+			onsubmit="saveChangeNote()" data-redirect="/accounts">
 		<label for="comment">Description</label>
 		<div>
 			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>

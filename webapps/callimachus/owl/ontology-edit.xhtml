@@ -11,7 +11,8 @@
 </head>
 <body about="?this">
 	<h1 property="rdfs:label" />
-	<form about="?this" typeof="owl:Ontology" action="" data-redirect="/callimachus/owl/Ontology">
+	<form method="POST" action="" enctype="application/sparql-update" about="?this" typeof="owl:Ontology" 
+			data-redirect="/callimachus/owl/Ontology">
 		<label for="label">Label</label>
 		<div>
 			<input id="label" value="{rdfs:label}" class="auto-expand" required="required" />

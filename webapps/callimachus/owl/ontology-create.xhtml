@@ -7,12 +7,12 @@
 	<title>New Ontology</title>
 </head>
 <body>
+	<h1>New Ontology</h1>
 	<ul class="aside">
 		<li>Choose a recognizable title</li>
 		<li>The initial title will be used in the ontology URL</li>
 		<li>Provide a description of intent and usefulness</li>
 	</ul>
-	<h1>New Ontology</h1>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" typeof="owl:Ontology"
 			onsubmit="$(this).attr('about', '/rdf/' + encodeURI($('#label').val()).replace(/%20/g,'_').toLowerCase())">
 		<span rel="rdf:type" resource="/callimachus/owl/Ontology" />

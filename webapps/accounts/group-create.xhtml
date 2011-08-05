@@ -9,11 +9,11 @@
 		<title>New Group</title>
 	</head>
 	<body>
+		<h1>New Group</h1>
 		<ul class="aside">
 			<li>The group name cannot be changed once created</li>
 			<li>Use Wiki text to describe the group</li>
 		</ul>
-		<h1>New Group</h1>
 		<form id="form" method="POST" action="" enctype="application/sparql-update" typeof="calli:Party calli:Group"
 				onsubmit="$(this).attr('about', '/group/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
 			<label for="label">Name</label>

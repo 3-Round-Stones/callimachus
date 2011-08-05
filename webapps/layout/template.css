@@ -228,6 +228,18 @@ iframe.ui-widget-content.ui-dialog-content {
 	background-color: white;
 }
 
+#content > hgroup, #content > h1, #content > h2 {
+	float: left;
+}
+
+#content > * {
+	clear: left;
+}
+
+#content > .aside {
+	clear: right;
+}
+
 .aside {
 	clear: right;
 	width: 16em;

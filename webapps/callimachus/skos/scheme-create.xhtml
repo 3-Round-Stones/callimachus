@@ -7,12 +7,12 @@
 	<title>New Concept Scheme</title>
 </head>
 <body>
+	<h1>New Concept Scheme</h1>
 	<ul class="aside">
 		<li>Choose a recognizable label to identify this scheme</li>
 		<li>The initial label will be used in the scheme URI</li>
 		<li>Provide a comment describing this scheme for clarity</li>
 	</ul>
-	<h1>New Concept Scheme</h1>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" typeof="skos:ConceptScheme"
 			onsubmit="$(this).attr('about', '/scheme/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
 		<label for="label">Label</label>

@@ -51,6 +51,7 @@
 	</script>
 </head>
 <body about="?this">
+	<h1 property="rdfs:label" />
 	<ul class="aside">
 		<li rel="rdfs:isDefinedBy"><!-- used by javascript above -->
 			<span id="ontology" about="?isDefinedBy" typeof="owl:Ontology">
@@ -64,7 +65,6 @@
 		<li>A nested relationship links the super resource of this class with a resource of a nested class</li>
 		<li>Templates are used for page or form structure for each operation</li>
 	</ul>
-	<h1 property="rdfs:label" />
 	<form method="POST" action="" enctype="application/sparql-update" about="?this" typeof="owl:Class"
 			onsubmit="updateSuperClasses()">
 		<div class="hbox">

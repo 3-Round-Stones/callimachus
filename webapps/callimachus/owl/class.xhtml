@@ -14,6 +14,12 @@
 	</script>
 </head>
 <body about="?this">
+	<h1>
+		<div id="icon" rel="calli:icon" resource="?icon" style="float:left;max-width:1em;padding-right:1ex;">
+			<a href="{?icon}" class="view"><img src="{?icon}" style="max-width:1em;max-height:2em" /></a>
+		</div>
+		<a property="rdfs:label" href="?this" />
+	</h1>
 	<ul class="aside">
 		<li id="create" class="protected">
 			<a href="?create">Create a new <span about="?this" property="rdfs:label"/></a>
@@ -72,12 +78,6 @@
 			</div>
 		</li>
 	</ul>
-	<h1>
-		<div id="icon" rel="calli:icon" resource="?icon" style="float:left;max-width:1em;padding-right:1ex;">
-			<a href="{?icon}" class="view"><img src="{?icon}" style="max-width:1em;max-height:2em" /></a>
-		</div>
-		<a property="rdfs:label" href="?this" />
-	</h1>
 	<pre property="rdfs:comment" class="wiki"></pre>
 </body>
 </html>

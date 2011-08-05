@@ -23,6 +23,7 @@
 	</script>
 </head>
 <body about="?this">
+	<h1 property="skos:prefLabel" />
 	<ul class="aside">
 		<li rel="skos:inScheme"><!-- use by javascript above -->
 			<span id="scheme" about="?scheme" typeof="skos:ConceptScheme">
@@ -35,7 +36,6 @@
 		<li>Links to other related concepts may also be provided</li>
 		<li>To add an image, click the chevron to open a file upload dialogue</li>
 	</ul>
-	<h1 property="skos:prefLabel" />
 	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this" typeof="skos:Concept" 
 			onsubmit="saveChangeNote()">
 		<div class="hbox">

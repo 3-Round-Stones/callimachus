@@ -376,7 +376,7 @@ calli:DeleteWebResource rdfs:subClassOf msg:Message;
 		con.removeDesignation(this, Image);
 
 		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/, " "));
 		con.remove(this.resource, RDFS.LABEL, label, []);
 
 		con.clear([this.resource]); //# clear graph

@@ -160,7 +160,7 @@
 		this.calliDeleteWebResource();
 
 		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8"));
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/, " "));
 		con.add(this.resource, RDFS.LABEL, label, []);
 
 		this.objectConnection.addDesignation(this, Page);

@@ -28,10 +28,10 @@
 		var pages = this.FindDefaultMainPage().iterator();
 		while (pages.hasNext()) {
 			var url = pages.next().toString();
-			var page = url.replace(/callimachus.MainPage.xhtml$/, 'page/MainPage.xhtml');
+			var page = url.replace(/callimachus.main-page.xhtml$/, 'page/main-page.xhtml');
 			var created = this.objectConnection.getObject(page);
 			if (!(created instanceof Page)) {
-				var ptype = url.replace(/MainPage.xhtml$/, 'Page');
+				var ptype = url.replace(/main-page.xhtml$/, 'Page');
 				var pageClass = this.objectConnection.getObject(ptype);
 				created = this.objectConnection.addDesignation(created, ptype);
 				pageClass.PropagatePermissions(created);
@@ -48,7 +48,7 @@
 	msg:sparql """
 		SELECT ?main
 		WHERE {
-			?main a calli:Page; rdfs:label "MainPage".
-			FILTER (regex(str(?main), "^[a-z]+://[^/]+/callimachus/MainPage.xhtml$"))
+			?main a calli:Page; rdfs:label "main page".
+			FILTER (regex(str(?main), "^[a-z]+://[^/]+/callimachus/main-page.xhtml$"))
 		}
 	""".

@@ -161,22 +161,21 @@ WYMeditor.editor.prototype.initHtml = function(html) {
 				focusOnNodeIndex(wym, index);
 			});
 		} else {
-			var callback = html;
-			if (!callback) {
-				callback = function(ret) {
-					return ret;
-				};
-			}
 			var editor = $('#ace-iframe');
-			if (editor.is(':visible')) {
-				getValue(function(value) {
-					if (value) {
-						page = value.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
-						callback(page[2]);
-					}
-				});
+			if (typeof html == 'function') {
+				if (editor.is(':visible')) {
+					getValue(function(value) {
+						if (value) {
+							page = value.match(/([\s\S]*<body[^>]*>)([\s\S]*)(<\/body>\s*<\/html>\s*)/);
+							html(page[2]);
+						}
+					});
+				} else {
+					return innerHtml.call(this, html);
+				}
+			} else {
+				return innerHtml.call(this);
 			}
-			return callback(innerHtml.call(this, html));
 		}
 	};
 
@@ -187,8 +186,10 @@ WYMeditor.editor.prototype.initHtml = function(html) {
 				return ret;
 			};
 		}
-		var body = _xhtml.call(this);
-		return callback(page[1] + body + page[3]);
+		var body = _xhtml.call(this, function(body) {
+			callback(page[1] + body + page[3]);
+		});
+		return page[1] + body + page[3];
 	}
 
 	var _update = wym.update;
@@ -221,15 +222,16 @@ jQuery.fn.wymeditor = function(options) {
 						editor.hide();
 						$('#wym-iframe').show();
 					} else {
-						var html = wym.xhtml();
-						setValue(html);
-						wym.selected(function(selected) {
-							var index = getSelectedNodeIndex(selected, wym._doc.body);
-							gotoLineOfNodeIndex(html, index);
-							editor.css('width', $('#wym-iframe').css('width'));
-							editor.css('height', $('#wym-iframe').css('height'));
-							$('#wym-iframe').hide();
-							editor.show();
+						wym.xhtml(function(html){
+							setValue(html);
+							wym.selected(function(selected) {
+								var index = getSelectedNodeIndex(selected, wym._doc.body);
+								gotoLineOfNodeIndex(html, index);
+								editor.css('width', $('#wym-iframe').css('width'));
+								editor.css('height', $('#wym-iframe').css('height'));
+								$('#wym-iframe').hide();
+								editor.show();
+							});
 						});
 					}
 				break;
@@ -261,10 +263,11 @@ jQuery.fn.wymeditor = function(options) {
 		wym.setFocusToNode = function(node, toStart) {
 			var editor = $('#ace-iframe');
 			if (editor.is(':visible')) {
-				var html = wym.xhtml();
-				setValue(html);
-				var index = getSelectedNodeIndex(node, this._doc.body);
-				gotoLineOfNodeIndex(html, index);
+				wym.xhtml(function(html){
+					setValue(html);
+					var index = getSelectedNodeIndex(node, this._doc.body);
+					gotoLineOfNodeIndex(html, index);
+				});
 			}
 			try {
 				return _setFocusToNode.call(this, node, toStart);

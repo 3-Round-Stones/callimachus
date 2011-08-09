@@ -58,22 +58,27 @@
 		var disposition = headers.get("content-disposition");
 		if (!disposition || disposition.indexOf("filename") < 0)
 			throw new BadRequest("No file provided");
+
 		var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
-		var local = URLEncoder.encode(fileName, "UTF-8").replace(/%20/g, "+");
+		var local = URLEncoder.encode(fileName, "UTF-8").toLowerCase().replace(/%20/g, "-");
 		var uri = this.toUri().resolve("/graph/") + local;
 		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
 		var vf = this.objectConnection.getValueFactory();
 		var obj = this.objectConnection.getObject(uri);
+
+		java.lang.System.out.println("Parsing " + fileName);
 		this.objectConnection.removeDesignation(obj, NamedGraph);
 		this.objectConnection.removeDesignation(obj, Graph);
 		this.objectConnection.clear([vf.createURI(uri)]);
 		obj.touchRevision();
+
 		this.objectConnection.add(file, uri, format, [vf.createURI(uri)]);
 		this.objectConnection.addDesignation(obj, NamedGraph);
 		this.objectConnection.addDesignation(obj, Graph);
 		parser.close();
 		this.objectConnection.commit();
 		java.lang.System.gc();
+		java.lang.System.out.println("Imported " + uri);
 		return graph_uploaded_xhtml.calliConstructHTML(obj);
 	""".
 

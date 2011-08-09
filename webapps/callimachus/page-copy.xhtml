@@ -9,11 +9,10 @@
 <body>
 	<h1>New Page Template</h1>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this" typeof="calli:Page"
-			onsubmit="$(this).attr('about', '/page/' + encodeURI($('#label').val()).replace(/%20/g,'+') + '.xhtml')">
+			onsubmit="$(this).attr('about', '/page/' + encodeURI($('#label').val().toLowerCase()).replace(/%20/g,'-') + '.xhtml')">
 		<span rel="rdf:type" resource="/callimachus/Page" />
 		<label for="label">File name</label>
 		<div>
-			<span>/page/</span>
 			<input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
 			<span>.xhtml</span>
 		</div>

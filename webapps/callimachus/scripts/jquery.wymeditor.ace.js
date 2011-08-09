@@ -181,15 +181,20 @@ WYMeditor.editor.prototype.initHtml = function(html) {
 
 	var _xhtml = wym.xhtml;
 	wym.xhtml = function(callback) {
-		if (!callback) {
-			callback = function(ret) {
-				return ret;
-			};
+		var editor = $('#ace-iframe');
+		if (callback && editor.is(':visible')) {
+			getValue(callback);
+		} else {
+			if (!callback) {
+				callback = function(ret) {
+					return ret;
+				};
+			}
+			var body = _xhtml.call(this, function(body) {
+				callback(page[1] + body + page[3]);
+			});
+			return page[1] + body + page[3];
 		}
-		var body = _xhtml.call(this, function(body) {
-			callback(page[1] + body + page[3]);
-		});
-		return page[1] + body + page[3];
 	}
 
 	var _update = wym.update;

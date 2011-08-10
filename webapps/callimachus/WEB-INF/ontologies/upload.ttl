@@ -38,7 +38,7 @@ calli:NamedGraph a owl:Class.
 calli:SchemaGraph a owl:Class.
 
 :PutTurtleDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;
@@ -126,7 +126,7 @@ calli:SchemaGraph a owl:Class.
 ################################
 
 :PutGraphDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;
@@ -163,7 +163,7 @@ calli:SchemaGraph a owl:Class.
 ################################
 
 :PutTextDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;
@@ -208,7 +208,7 @@ calli:SchemaGraph a owl:Class.
 ################################
 
 :PutJavaScriptDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;
@@ -238,7 +238,7 @@ calli:SchemaGraph a owl:Class.
 ################################
 
 :PutBinaryDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:header "cache-control:cache-range";
@@ -283,7 +283,7 @@ calli:SchemaGraph a owl:Class.
 ################################
 
 :PutImageFile rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:header "cache-control:cache-range";
@@ -304,7 +304,7 @@ calli:SchemaGraph a owl:Class.
 ################################
 
 :PutXmlDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:header "cache-control:cache-range";
@@ -325,7 +325,7 @@ calli:SchemaGraph a owl:Class.
 ################################
 
 :PutXhtmlDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:query "calliwebapps";
 	msg:header "cache-control:cache-range";
@@ -347,7 +347,7 @@ calli:SchemaGraph a owl:Class.
 ################################
 
 calli:DeleteWebResource rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "DELETE";
 	msg:query "calliwebapps";
 	msg:realm calli:nobody;

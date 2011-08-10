@@ -53,7 +53,7 @@
 :GetPage owl:intersectionOf (</callimachus/operations/view.ttl#GetViewPage>
 		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
 	msg:script """
-		return this.calliConstruct(null, 'view');
+		return this.calliConstruct(null, '');
 	""".
 
 # GET /page/MainPage.xhtml
@@ -143,7 +143,7 @@
 # Called by client, copy operation, create operation, and MainPage initialization
 :UploadPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:realm </accounts>, :local;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;

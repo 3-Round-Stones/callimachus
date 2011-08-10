@@ -1,5 +1,8 @@
 /* ie8.css */
 
+#content > hgroup, #content > h1, #content > h2 {
+	float: left;
+}
 .aside {
 	float: right;
 	margin: 1ex;

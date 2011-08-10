@@ -43,7 +43,11 @@
 	msg:expect "302-found";
 	msg:imports calli:Viewable;
 	msg:script """
-		var page = this.objectConnection.getObject(this.toString() + ".xhtml");
+		var uri = this.toString();
+		if (uri.indexOf('.xhtml') != uri.length - 6) {
+			uri = uri + ".xhtml";
+		}
+		var page = this.objectConnection.getObject(uri);
 		if (page instanceof Viewable)
 			return page + "?view";
 		return page.toUri().resolve("/callimachus/Page") + "?create#!" + page.toUri().getPath();

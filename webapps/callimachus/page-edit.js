@@ -18,8 +18,14 @@ function getPageLocationURL() {
 		url = '';
 	}
 	var local = url.replace(/.*\//, '').replace(/\.[a-zA-Z]+$/, '');
-	var label = decodeURIComponent(local);
-	if (!label) {
+	var label = decodeURIComponent(local).replace(/-/g, ' ');
+	if (label) {
+		var ar = label.split(' ');
+		for (var i = 0; i < ar.length; i++) {
+			ar[i] = ar[i].substring(0, 1).toUpperCase() + ar[i].substring(1).toLowerCase();
+		}
+		label = ar.join(' ');
+	} else {
 		label = 'Enter Title Here';
 	}
 	var page = '<?xml version="1.0" encoding="UTF-8" ?>\n<?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>\n<html xmlns="http://www.w3.org/1999/xhtml">\n<head>\n\t<title>' + label + '</title>\n</head>\n<body>\n\t<h1>' + label + '</h1>\n</body>\n</html>';

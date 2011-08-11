@@ -45,6 +45,7 @@
 	msg:realm </accounts>;
 	msg:imports calli:NamedGraph;
 	msg:imports <java:java.net.URLEncoder>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:imports <java:java.io.BufferedInputStream>;
 	msg:imports <java:org.callimachusproject.util.MultipartParser>;
@@ -59,24 +60,36 @@
 		if (!disposition || disposition.indexOf("filename") < 0)
 			throw new BadRequest("No file provided");
 
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
 		var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
+		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
+		var name = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/g, "$1");
+		var label = vf.createLiteral(name.replace(/-/g, " "));
 		var local = URLEncoder.encode(fileName, "UTF-8").toLowerCase().replace(/%20/g, "-");
 		var uri = this.toUri().resolve("/graph/") + local;
-		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
-		var vf = this.objectConnection.getValueFactory();
-		var obj = this.objectConnection.getObject(uri);
+		var obj = con.getObject(uri);
 
 		java.lang.System.out.println("Parsing " + fileName);
-		this.objectConnection.removeDesignation(obj, NamedGraph);
-		this.objectConnection.removeDesignation(obj, Graph);
-		this.objectConnection.clear([vf.createURI(uri)]);
+		con.removeDesignation(obj, NamedGraph);
+		con.removeDesignation(obj, Graph);
+		con.remove(this.resource, RDFS.LABEL, vf.createLiteral(label), []);
+		con.clear([vf.createURI(uri)]);
 		obj.touchRevision();
 
-		this.objectConnection.add(file, uri, format, [vf.createURI(uri)]);
-		this.objectConnection.addDesignation(obj, NamedGraph);
-		this.objectConnection.addDesignation(obj, Graph);
+		var oldLocal = URLEncoder.encode(fileName, "UTF-8").replace(/%20/g, "+");
+		var oldUri = this.toUri().resolve("/graph/") + oldLocal;
+		var oldObj = con.getObject(oldUri);
+		con.removeDesignation(oldObj, NamedGraph);
+		con.removeDesignation(oldObj, Graph);
+		con.clear([vf.createURI(oldUri)]);
+
+		con.add(file, uri, format, [vf.createURI(uri)]);
+		con.addDesignation(obj, NamedGraph);
+		con.addDesignation(obj, Graph);
+		con.add(this.resource, RDFS.LABEL, label, []);
 		parser.close();
-		this.objectConnection.commit();
+		con.commit();
 		java.lang.System.gc();
 		java.lang.System.out.println("Imported " + uri);
 		return graph_uploaded_xhtml.calliConstructHTML(obj);

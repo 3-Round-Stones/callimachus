@@ -10,7 +10,7 @@ if (!window.calli) {
 }
 
 window.calli.listResourceIRIs = function (text) {
-	var set = text ? text.replace(/\s+$/,"").replace(/^\s+/,"").replace(/\s+/,'\n') : "";
+	var set = text ? text.replace(/\s+$/,"").replace(/^\s+/,"").replace(/\s+/g,'\n') : "";
 	return $(set.split('\n')).filter(function() {
 		if (this.length <= 0) {
 			return false;

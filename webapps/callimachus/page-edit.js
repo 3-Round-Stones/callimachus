@@ -130,7 +130,7 @@ function getPageLocationURL() {
 						// no URL provided
 						var h1 = $(':header:first', $('#wym-iframe')[0].contentWindow.document).text();
 						if (h1) {
-							h1 = h1.replace(/^\s+/, '').replace(/\s+$/, '').replace(/\s+/, ' ');
+							h1 = h1.replace(/^\s+/, '').replace(/\s+$/, '').replace(/\s+/g, ' ');
 						} else {
 							h1 = 'Enter Page Title Here';
 						}

@@ -103,7 +103,7 @@
 				if (!msg) {
 					msg = e.toString();
 				}
-				msg = msg.replace(/\\n[\\s\\S]*/, '').replace(/'/, '"');
+				msg = msg.replace(/\\n[\\s\\S]*/, '').replace(/'/g, '"');
 				if (e instanceof MalformedQueryException) {
 					reason = "reason:'invalid_query',message:'" + msg + "'";
 				} else if (e instanceof IllegalArgumentException) {
@@ -111,8 +111,17 @@
 				} else {
 					reason = "reason:'internal_error',message:'" + msg + "'";
 				}
+				var sw = new java.io.StringWriter();
+				var print = new java.io.PrintWriter(sw);
+				e.printStackTrace(print);
+				print.close();
+				var trace = sw.toString().replace(/\\n/g, '\\\\n').replace(/'/g, '"');
+				reason = reason + ",detailed_message:'" + trace + "'";
 				var json = map.responseHandler + "({reqId:'" + map.reqId + "',status:'error',errors:[{" + reason + "}]})";
+				var resp = new BasicHttpResponse(http11, 200, "Internal Server Error");
 				entity = new StringEntity(json);
+				entity.contentType = "text/javascript;charset=UTF-8";
+				e.printStackTrace(); // log the error
 			} else {
 				throw new InternalServerError(e.toString(), e);
 			}

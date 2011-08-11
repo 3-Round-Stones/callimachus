@@ -39,7 +39,7 @@
 # override this method for subclass create methods
 :PostCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Creator calli:Creatable)]];
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
 	msg:script <operations.js#postCreate>.
 
 :create a owl:FunctionalProperty, owl:ObjectProperty;

@@ -43,7 +43,7 @@
 	msg:expect "302-found";
 	msg:imports calli:Viewable;
 	msg:script """
-		var uri = this.toString();
+		var uri = this.toString().toLowerCase().replace(/%20/g, '-');
 		if (uri.indexOf('.xhtml') != uri.length - 6) {
 			uri = uri + ".xhtml";
 		}
@@ -57,7 +57,7 @@
 :GetPage owl:intersectionOf (</callimachus/operations/view.ttl#GetViewPage>
 		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
 	msg:script """
-		return this.calliConstruct(null, '');
+		return this.calliConstruct(this, 'view');
 	""".
 
 # GET /page/MainPage.xhtml
@@ -99,7 +99,7 @@
 # POST /callimachus/Page?create
 :CreatePage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Page>];
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
 	msg:method "POST";
 	msg:query "create";
 	msg:realm </accounts>;

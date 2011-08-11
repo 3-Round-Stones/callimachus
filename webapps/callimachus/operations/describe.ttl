@@ -23,7 +23,7 @@
 @prefix :<#>.
 
 :GetDescription rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:maxCardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
 	msg:title "RDF Describe";
 	msg:rel "describedby";
 	msg:method "GET";

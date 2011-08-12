@@ -62,6 +62,7 @@ import javax.xml.xpath.XPathFactory;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.stream.BufferedXMLEventReader;
+import org.callimachusproject.stream.OrderedSparqlReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.SPARQLProducer;
@@ -674,7 +675,7 @@ public class RDFaGenerationTest {
 			//XMLEventReader xml = xmlInputFactory.createXMLEventReader(src); 
 			RDFEventReader rdfa = new RDFaReader(base, xml, base);			
 			SPARQLProducer sparql = new SPARQLProducer(rdfa);
-			String query = toSPARQL(sparql);			
+			String query = toSPARQL(new OrderedSparqlReader(sparql));
 			ValueFactory vf = con.getValueFactory();
 			TupleQuery q = con.prepareTupleQuery(SPARQL, query, base);
 			URI self = vf.createURI(base);
@@ -732,7 +733,7 @@ public class RDFaGenerationTest {
 
 		RDFEventReader rdfa = new RDFaReader(base, buffer, base);			
 		SPARQLProducer sparql = new SPARQLProducer(rdfa);
-		String query = toSPARQL(sparql);
+		String query = toSPARQL(new OrderedSparqlReader(sparql));
 
 		ValueFactory vf = con.getValueFactory();
 		TupleQuery q = con.prepareTupleQuery(SPARQL, query, base);

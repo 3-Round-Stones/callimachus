@@ -40,6 +40,7 @@ import org.callimachusproject.concepts.Page;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.rdfa.events.Base;
+import org.callimachusproject.stream.OrderedSparqlReader;
 import org.callimachusproject.stream.OverrideBaseReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.SPARQLProducer;
@@ -116,6 +117,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 			@query("query") String query, @query("element") String element)
 			throws Exception {
 		RDFEventReader sparql = openPatternReader(about, query, element);
+		sparql = new OrderedSparqlReader(sparql);
 		return toSPARQL(sparql).getBytes(Charset.forName("UTF-8"));
 	}
 
@@ -123,24 +125,6 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 			String element) throws XMLStreamException, IOException,
 			TransformerException {
 		XMLEventReader template = xslt(query, element);
-		RDFEventReader reader = new RDFaReader(about, template, toString());
-		
-		/* generate UNION form of sparql query */
-		reader = new SPARQLProducer(reader,about);
-		
-		Base resolver = new Base(getResource().stringValue());
-		if (about == null) {
-			reader = new OverrideBaseReader(resolver, null, reader);
-		} else {
-			String uri = resolver.resolve(about);
-			reader = new OverrideBaseReader(resolver, new Base(uri), reader);
-		}
-		return reader;
-	}
-
-	public RDFEventReader openPatternReader(XMLEventReader template, String about, String query,
-			String element) throws XMLStreamException, IOException,
-			TransformerException {
 		RDFEventReader reader = new RDFaReader(about, template, toString());
 		
 		/* generate UNION form of sparql query */

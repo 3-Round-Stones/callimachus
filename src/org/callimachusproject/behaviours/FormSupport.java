@@ -43,6 +43,7 @@ import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.BufferedXMLEventReader;
 import org.callimachusproject.stream.DeDupedResultSet;
+import org.callimachusproject.stream.OrderedSparqlReader;
 import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.SPARQLPosteditor;
 import org.callimachusproject.stream.SPARQLProducer;
@@ -157,7 +158,7 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
 		
 		RepositoryConnection con = getObjectConnection();
-		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(ed), base);
+		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(new OrderedSparqlReader(ed)), base);
 		URI about = vf.createURI(base);
 		template.reset(0);
 		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), about, con);
@@ -193,7 +194,7 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		ed.addEditor(ed.new FilterExists("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
 	
 		RepositoryConnection con = getObjectConnection();
-		String sparql = toSPARQL(ed);
+		String sparql = toSPARQL(new OrderedSparqlReader(ed));
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
 		// The edited query may return multiple and/or empty solutions
 		TupleQueryResult results = new DeDupedResultSet(qry.evaluate(),true);
@@ -264,7 +265,7 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		ed.addEditor(rec = ed.new TriplePatternRecorder("^(/\\d+){2}$",null,null));
 		
 		RepositoryConnection con = getObjectConnection();
-		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(ed), base);
+		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(new OrderedSparqlReader(ed)), base);
 		for (TriplePattern t: rec.getTriplePatterns()) {
 			VarOrTerm vt = t.getSubject();
 			if (vt.isVar())

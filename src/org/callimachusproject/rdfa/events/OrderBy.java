@@ -1,6 +1,5 @@
 /*
-   Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
-   Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
+   Copyright (c) 2011 3 round Stones Inc, Some Rights Reserved
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,15 +16,25 @@
  */
 package org.callimachusproject.rdfa.events;
 
-/**
- * SPARQL grammer.
- * 
- * @author James Leigh
- *
- */
-public class ConditionalOrExpression extends Filter {
+import java.util.List;
+
+import org.callimachusproject.rdfa.model.Var;
+
+public class OrderBy extends RDFEvent {
+	private List<Var> vars;
+
+	public OrderBy(List<Var> vars) {
+		assert vars != null && !vars.isEmpty();
+		this.vars = vars;
+	}
 
 	public String toString() {
-		return "||";
+		StringBuilder sb = new StringBuilder();
+		sb.append("ORDER BY");
+		for (Var var : vars) {
+			sb.append(" ");
+			sb.append(var);
+		}
+		return sb.toString();
 	}
 }

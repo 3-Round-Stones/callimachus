@@ -214,11 +214,12 @@ public class SPARQLWriter implements Closeable {
 			}
 			writer.append(event.asExpression().getTerm().toString());
 		}
-		else if (event.isConditionalOrExpression()) {
-			writer.append(" || ");
+		else if (event.isStart() || event.isEnd()) {
+			// unknown block
 		}
-		else if (event.isComment()) {
+		else  {
 			writer.append(event.toString());
+			writer.append("\n");
 		}
 		previous = event;
 	}

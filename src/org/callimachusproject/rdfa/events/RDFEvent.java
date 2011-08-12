@@ -148,7 +148,6 @@ public class RDFEvent {
 		return this instanceof Filter && isEnd();
 	}
 
-
 	public boolean isConditionalOrExpression() {
 		return this instanceof ConditionalOrExpression;
 	}
@@ -171,6 +170,10 @@ public class RDFEvent {
 
 	public Base asBase() {
 		return (Base) this;
+	}
+
+	public Comment asComment() {
+		return (Comment) this;
 	}
 
 	public Namespace asNamespace() {

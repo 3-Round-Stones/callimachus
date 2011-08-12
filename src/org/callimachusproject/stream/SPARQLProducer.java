@@ -121,7 +121,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	}
 	
 	public SPARQLProducer(RDFEventReader reader, String _this) {
-		super(reader);
+		this(reader);
 		this._this = _this;
 	}
 	

@@ -41,7 +41,6 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -59,16 +58,14 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.stream.BufferedXMLEventReader;
-import org.callimachusproject.stream.RDFXMLEventReader;
+import org.callimachusproject.stream.OrderedSparqlReader;
 import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.SPARQLProducer;
-import org.callimachusproject.stream.XMLElementReader;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -89,8 +86,6 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * Dynamic Test Suite for the generation of XHTML+RDFa pages from RDFa templates.
@@ -369,7 +364,7 @@ public class RDFaOrderDependentTest {
 
 			RDFEventReader rdfa = new RDFaReader(base, xml, base);			
 			SPARQLProducer sparql = new SPARQLProducer(rdfa);
-			String query = toSPARQL(sparql);			
+			String query = toSPARQL(new OrderedSparqlReader(sparql));			
 			ValueFactory vf = con.getValueFactory();
 			TupleQuery q = con.prepareTupleQuery(SPARQL, query, base);
 			URI self = vf.createURI(base);

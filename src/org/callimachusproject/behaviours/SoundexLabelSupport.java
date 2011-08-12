@@ -36,10 +36,10 @@ public abstract class SoundexLabelSupport implements SoundexTrait {
 
 	public String asSoundex(String label) {
 		if (label == null || label.length() == 0)
-			return "";
+			return "_000";
 		String ex = soundex.encode(clean(label));
 		if (ex == null || ex.length() < 3)
-			return "";
+			return "_000";
 		return ex.substring(0, 3) + "0";
 	}
 
@@ -50,18 +50,21 @@ public abstract class SoundexLabelSupport implements SoundexTrait {
 	}
 
 	@triggeredBy( // see SoundexTrait.LABELS
-			{ "http://www.w3.org/2000/01/rdf-schema#label",
+	{ "http://www.w3.org/2000/01/rdf-schema#label",
+			"http://xmlns.com/foaf/0.1/name",
 			"http://www.w3.org/2004/02/skos/core#prefLabel",
 			"http://www.w3.org/2004/02/skos/core#altLabel",
 			"http://www.w3.org/2004/02/skos/core#hiddenLabel",
 			"http://www.w3.org/2008/05/skos-xl#literalForm" })
 	public void addSoundexForLabel(String label) {
-		Set<String> phones = new HashSet<String>();
 		String clean = clean(label);
 		String full = soundex.encode(clean);
-		if (full == null || full.length() < 3)
+		if (full == null || full.length() < 3) {
+			getSoundexes().add("_000"); // no soundex
 			return;
+		}
 		full = full.substring(0, 3);
+		Set<String> phones = new HashSet<String>();
 		int same = 0;
 		String previous = null;
 		for (int i = 1, n = clean.length(); i <= n; i++) {

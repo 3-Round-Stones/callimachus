@@ -20,15 +20,20 @@ package org.callimachusproject.rdfa.events;
  * SPARQL comment.
  * 
  * @author Steve Battle
- *
+ * 
  */
 public class Comment extends RDFEvent {
 	String comment;
+
 	public Comment(String comment) {
-		super();
 		this.comment = comment;
 	}
+
+	public String getComment() {
+		return comment;
+	}
+
 	public String toString() {
-		return "#"+comment+"\n";
+		return "#" + comment;
 	}
 }

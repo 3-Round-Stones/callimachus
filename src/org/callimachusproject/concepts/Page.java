@@ -57,9 +57,5 @@ public interface Page {
 	RDFEventReader openPatternReader(String about, String query,
 			String element) throws XMLStreamException, IOException,
 			TransformerException;
-	
-	RDFEventReader openPatternReader(XMLEventReader template, String about, String query,
-			String element) throws XMLStreamException, IOException,
-			TransformerException;
 		
 }

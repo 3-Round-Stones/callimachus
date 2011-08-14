@@ -70,7 +70,7 @@
 		var uri = this.toUri().resolve("/graph/") + local;
 		var obj = con.getObject(uri);
 
-		java.lang.System.out.println("Parsing " + fileName);
+		java.lang.System.out.println("Clearing " + uri);
 		con.removeDesignation(obj, NamedGraph);
 		con.removeDesignation(obj, Graph);
 		con.remove(this.resource, RDFS.LABEL, vf.createLiteral(label), []);
@@ -84,6 +84,7 @@
 		con.removeDesignation(oldObj, Graph);
 		con.clear([vf.createURI(oldUri)]);
 
+		java.lang.System.out.println("Parsing " + fileName);
 		con.add(file, uri, format, [vf.createURI(uri)]);
 		con.addDesignation(obj, NamedGraph);
 		con.addDesignation(obj, Graph);

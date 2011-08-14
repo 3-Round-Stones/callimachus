@@ -136,7 +136,7 @@ public class OrderByTest {
 				new Comment(" @origin _concept_label /1/2/1/1 !"),
 				new Document(false));
 		assertOrderBy(list,
-				"ORDER BY ?_concept_label ?_concept_altLabel ?concept");
+				"ORDER BY ?concept ?_concept_label ?_concept_altLabel");
 	}
 
 	public void testUnionOptional() throws Exception {
@@ -298,7 +298,7 @@ public class OrderByTest {
 						new Comment(
 								" @origin _lit_literalForm /1/2/1/2/1/1/2 skosxl:literalForm"),
 						new Document(false));
-		assertOrderBy(list, "ORDER BY ?lit ?_lit_literalForm ?concept");
+		assertOrderBy(list, "ORDER BY ?concept ?lit ?_lit_literalForm");
 	}
 
 	@Test

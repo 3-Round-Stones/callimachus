@@ -13,7 +13,9 @@ import org.callimachusproject.rdfa.model.VarOrTerm;
 public class OrderedSparqlReader extends RDFEventReader {
 	private final RDFEventReader delegate;
 	private RDFEvent next;
-	private List<List<Var>> stack = new ArrayList<List<Var>>();
+	private List<List<Var>> parent_vars = new ArrayList<List<Var>>();
+	private List<List<Var>> parent_nested = new ArrayList<List<Var>>();
+	private List<Var> nested = new ArrayList<Var>();
 	private List<Var> vars = new ArrayList<Var>();
 
 	public OrderedSparqlReader(RDFEventReader delegate) {
@@ -41,15 +43,23 @@ public class OrderedSparqlReader extends RDFEventReader {
 	}
 
 	private void process(RDFEvent taken) {
-		if (taken.isStartGroup()) {
-			stack.add(vars);
+		if (taken.isStartGroup() || taken.isStartWhere()) {
+			parent_vars.add(vars);
+			parent_nested.add(nested);
 			vars = new ArrayList<Var>();
-		} else if (taken.isEndGroup()) {
-			vars.addAll(stack.remove(stack.size() - 1));
+			nested = new ArrayList<Var>();
+		} else if (taken.isEndGroup() || taken.isEndWhere()) {
+			if (!nested.isEmpty()) {
+				vars.addAll(nested);
+			}
+			nested = parent_nested.remove(parent_nested.size() - 1);
+			nested.addAll(0, vars);
+			vars = parent_vars.remove(parent_vars.size() - 1);
 		} else if (taken.isTriplePattern()) {
 			addIfVar(taken.asTriplePattern().getPartner());
-		} else if (taken.isEndWhere() && !vars.isEmpty()) {
-			next = new OrderBy(vars);
+		}
+		if (taken.isEndWhere() && !nested.isEmpty()) {
+			next = new OrderBy(nested);
 		}
 	}
 

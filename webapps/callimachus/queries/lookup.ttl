@@ -4,6 +4,7 @@
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix skosxl:<http://www.w3.org/2008/05/skos-xl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
@@ -19,24 +20,34 @@
 	msg:sparql  """
 		SELECT DISTINCT ?label ?comment ?icon ?url ?modified
 		WHERE {
-			?url calli:soundex $soundex
 			{
-				?url rdfs:label ?label
-				FILTER (regex(str(?label), $regex, "i"))
-			} UNION {
+				?url calli:soundex $soundex
+			} OPTIONAL {
 				?url skos:prefLabel ?label
-				FILTER (regex(str(?label), $regex, "i"))
-			} UNION {
-				?url skos:prefLabel ?label; skos:altLabel ?altLabel
-				FILTER (regex(str(?altLabel), $regex, "i"))
-			} UNION {
-				?url skos:prefLabel ?label; skos:hiddenLabel ?hiddenLabel
-				FILTER (regex(str(?hiddenLabel), $regex, "i"))
-			} UNION {
+			} OPTIONAL {
+				?url foaf:name ?label
+			} OPTIONAL {
+				?url rdfs:label ?label
+			} OPTIONAL {
 				?url skosxl:literalForm ?label
-				FILTER (regex(str(?label), $regex, "i"))
 			}
 			FILTER (isIRI(?url))
+			FILTER (EXISTS {
+				{
+					?url rdfs:label ?string
+				} UNION {
+					?url foaf:name ?string
+				} UNION {
+					?url skos:prefLabel ?string
+				} UNION {
+					?url skos:altLabel ?string
+				} UNION {
+					?url skos:hiddenLabel ?string
+				} UNION {
+					?url skosxl:literalForm ?string
+				}
+				FILTER (regex(str(?string), $regex, "i"))
+			})
 			OPTIONAL { ?url a [calli:icon ?icon] }
 			OPTIONAL { ?url rdfs:comment ?comment }
 			OPTIONAL { ?url audit:revision ?revision

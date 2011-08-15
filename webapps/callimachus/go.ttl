@@ -82,14 +82,16 @@
 		if (uri) { //# absolute URI redirect
 			return redirectURL(uri);
 		}
-		var stmts = con.getStatements(null, RDFS.LABEL, vf.createLiteral(q), []);
+		var stmts = con.getStatements(null, null, vf.createLiteral(q), []);
 		try { //# check if there is a resource with this exact label
 			if (stmts.hasNext()) {
 				var uri = stmts.next().subject;
-				while (!(uri instanceof org.openrdf.model.URI) && stmts.hasNext()) {
-					uri = stmts.next().subject;
-				}
-				if (uri instanceof org.openrdf.model.URI && !stmts.hasNext())
+				var pred = stmts.next().predicate;
+				if (uri instanceof org.openrdf.model.URI && !stmts.hasNext()
+						&& (RDFS.LABEL.equals(pred)
+						|| pred.stringValue().equals("http://www.w3.org/2004/02/skos/core#prefLabel")
+						|| pred.stringValue().equals("http://xmlns.com/foaf/0.1/name")
+						|| pred.stringValue().equals("http://www.w3.org/2008/05/skos-xl#literalForm")))
 					return redirectURL(java.net.URI.create(uri.stringValue()));
 			}
 		} finally {

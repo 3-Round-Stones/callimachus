@@ -33,14 +33,14 @@ function onload(event) {
 		} catch (e) { }
 		var event = jQuery.Event("calliRedirect");
 		event.location = window.calli.viewpage(redirect);
-		form.trigger(event);
+		$(this).trigger(event);
 		if (!event.isDefaultPrevented()) {
 			location.replace(event.location);
 		}
 	} else {
 		var h1 = $(doc).find('h1').html();
 		var pre = $(doc).find('pre').html();
-		form.trigger("calliError", h1, pre);
+		$(this).trigger("calliError", h1, pre);
 	}
 }
 

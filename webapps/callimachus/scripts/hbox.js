@@ -19,7 +19,7 @@ function handle(event) {
 function hbox(element) {
 	element.css("overflow", "hidden");
 	var children = element.children();
-	children.css("float", "left").css("clear", "none");
+	children.css("float", "left").css("clear", "none").css("margin-bottom", "0.5ex");
 	var siblings = children.filter(':not(:first-child)');
 	siblings.css("margin-left", "1em");
 	setTimeout(function() { // reposition children first

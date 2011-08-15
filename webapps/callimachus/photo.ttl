@@ -27,6 +27,7 @@
 # View photos requires authentication and authorization by the resource that it was uploaded for
 <Photo> a calli:Creatable, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, foaf:Image ;
+	rdfs:label "Photo" ;
 	msg:realm </accounts> ;
 	calli:view <photo.xhtml> ;
 	calli:edit <photo-edit.xhtml> ;
@@ -183,7 +184,7 @@
 		var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 
-		//# add the image caption and container
+		//# add the image caption
 		if (caption) con.add(obj.resource, RDFS.COMMENT, vf.createLiteral(caption), []);
 
 		this.objectConnection.commit();

@@ -41,10 +41,11 @@
 				}
 			});
 			$('#all').remove();
-			$('#results,#equivalent').children().each(function() {
-				if (!$(this).children('div').length) {
-					$('#index').children('[href="#' + $(this).attr('id') + '"]').removeAttr('href');
-					$(this).remove();
+			$('#index').children().each(function() {
+				var letter = $($(this).attr('href'));
+				if (!letter.children('div').length) {
+					$(this).removeAttr('href');
+					letter.remove();
 				}
 			});
 		});

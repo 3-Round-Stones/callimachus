@@ -21,11 +21,11 @@ package org.callimachusproject.rdfa.model;
  * Common methods for {@link VarOrTerm}.
  * 
  * @author James Leigh
- *
+ * 
  */
 public abstract class VarOrTermBase implements VarOrTerm {
-	String origin;
-	
+	private String origin;
+
 	public boolean isNode() {
 		return this instanceof Node;
 	}
@@ -92,12 +92,12 @@ public abstract class VarOrTermBase implements VarOrTerm {
 	}
 
 	public abstract String stringValue();
-	
+
 	public void setOrigin(String origin) {
-		if (this.origin==null)
+		assert this.origin == null;
 		this.origin = origin;
 	}
-	
+
 	public String getOrigin() {
 		return origin;
 	}

@@ -36,6 +36,7 @@ import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.SPARQLProducer;
+import org.callimachusproject.stream.TemplateReader;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.ResponseException;
 import org.openrdf.http.object.traits.VersionedObject;
@@ -65,7 +66,7 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 	@Override
 	public XMLEventReader calliConstruct(Object target, String query) throws Exception {
 		if (target == null)
-			return new RDFaProducer(xslt(query), getObjectConnection());
+			return new TemplateReader(xslt(query));
 		assert target instanceof RDFObject;
 		URI about = (URI) ((RDFObject) target).getResource();
 		return calliConstructXhtml(about, query);

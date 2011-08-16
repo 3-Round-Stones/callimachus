@@ -27,6 +27,7 @@ function handle(event) {
           $detailsNotSummaryContents = $details.contents(':not(summary)');
 
 	$details.css("display", "list-item");
+	$detailsSummary.css("outline", "none");
 
       // If there is no `summary` in the current `details` element…
       if (!$detailsSummary.length) {

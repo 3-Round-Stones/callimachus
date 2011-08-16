@@ -72,7 +72,6 @@
 			throw new InternalServerError("SPARQL query is missing");
 		var http11 = new ProtocolVersion("HTTP", 1, 1);
 		var resp = new BasicHttpResponse(http11, 200, "OK");
-		resp.setHeader("Cache-Control", "no-store");
 		if (map.outFileName) {
 			resp.setHeader("Content-Disposition", 'inline;filename="' + map.outFileName + '"');
 		}
@@ -126,6 +125,7 @@
 				throw new InternalServerError(e.toString(), e);
 			}
 		}
+		resp.setHeader("Cache-Control", "no-store");
 		resp.setEntity(entity);
 		return resp;
 	""".

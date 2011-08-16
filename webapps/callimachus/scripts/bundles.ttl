@@ -23,7 +23,8 @@
 	rdf:_13 <creole.js>;
 	rdf:_14 <wiki.js>;
 	rdf:_15 <placeholder.js>;
-	rdf:_16 <http://www.google.com/jsapi>.
+	rdf:_16 <details.js>;
+	rdf:_17 <http://www.google.com/jsapi>.
 
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;

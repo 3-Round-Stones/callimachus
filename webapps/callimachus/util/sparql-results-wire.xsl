@@ -66,6 +66,9 @@
 		<xsl:variable name="current" select="."/> 
 		<xsl:for-each select="../../sparql:head/sparql:variable">
 			<xsl:variable name="name" select="@name"/>
+			<xsl:if test="not($current/sparql:binding[@name=$name])">
+				<xsl:text>{v:''}</xsl:text>
+			</xsl:if>
 			<xsl:apply-templates select="$current/sparql:binding[@name=$name]" />
 			<xsl:if test="position() != last()">
 				<xsl:text>,</xsl:text>
@@ -90,14 +93,16 @@
 		<xsl:text>'}</xsl:text>
 	</xsl:template>
 	<xsl:template match="sparql:literal">
-	</xsl:template>
-	<xsl:template match="sparql:literal">
 		<xsl:variable name="ns" select="substring-before(@datatype, '#')" />
 		<xsl:variable name="local" select="substring-after(@datatype, '#')" />
 		<xsl:choose>
 			<xsl:when test="not($ns='http://www.w3.org/2001/XMLSchema')">
 				<xsl:text>{v:'</xsl:text>
-				<xsl:value-of select="text()" />
+				<xsl:call-template name="replace-string">
+					<xsl:with-param name="text" select="text()"/>
+					<xsl:with-param name="replace" select="&quot;'&quot;"/>
+					<xsl:with-param name="with" select="&quot;\'&quot;"/>
+				</xsl:call-template>
 				<xsl:text>'}</xsl:text>
 			</xsl:when>
 			<xsl:when test="$local='float' or $local='decimal' or $local='double' or $local='integer' or $local='long' or $local='int' or $local='short' or $local='byte' or $local='nonPositiveInteger' or $local='negativeInteger' or $local='nonNegativeInteger' or $local='positiveInteger' or $local='unsignedLong' or $local='unsignedInt' or $local='unsignedShort' or $local='unsignedByte'">
@@ -154,9 +159,35 @@
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:text>{v:'</xsl:text>
-				<xsl:value-of select="text()" />
+				<xsl:call-template name="replace-string">
+					<xsl:with-param name="text" select="text()"/>
+					<xsl:with-param name="replace" select="&quot;'&quot;"/>
+					<xsl:with-param name="with" select="&quot;\'&quot;"/>
+				</xsl:call-template>
 				<xsl:text>'}</xsl:text>
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
+
+  <xsl:template name="replace-string">
+    <xsl:param name="text"/>
+    <xsl:param name="replace"/>
+    <xsl:param name="with"/>
+    <xsl:choose>
+      <xsl:when test="contains($text,$replace)">
+        <xsl:value-of select="substring-before($text,$replace)"/>
+        <xsl:value-of select="$with"/>
+        <xsl:call-template name="replace-string">
+          <xsl:with-param name="text"
+select="substring-after($text,$replace)"/>
+          <xsl:with-param name="replace" select="$replace"/>
+          <xsl:with-param name="with" select="$with"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$text"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
 </xsl:stylesheet>

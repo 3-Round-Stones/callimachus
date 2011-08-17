@@ -4265,12 +4265,17 @@ WYMeditor.WymClassMozilla.prototype.html = function(html) {
       .replace(/<\/strong>/gi, "</b>");
 
     //update the html body
-    jQuery(this._doc.body).html(html);
+    var ret = jQuery(this._doc.body).html(html);
     
     //re-init designMode
     this.enableDesignMode();
+    return ret;
   }
-  else return(jQuery(this._doc.body).html());
+  var callback = html;
+  if (!callback) {
+    callback = function(ret){return ret;};
+  }
+  return callback(jQuery(this._doc.body).html());
 };
 
 WYMeditor.WymClassMozilla.prototype._exec = function(cmd,param) {

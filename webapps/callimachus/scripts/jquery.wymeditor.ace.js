@@ -44,33 +44,32 @@ function focusOnNodeIndex(wym, index) {
 var ace_port = null;
 var outgoing = [];
 var incoming = {};
-function initAcePort(event) {
-	if (!ace_port && event.originalEvent.data == "calliEditorPort" && $('#ace-iframe')[0].contentWindow == event.originalEvent.source) {
-		ace_port = event.originalEvent.ports[0];
+function onmessage(event) {
+	var src = event.originalEvent.source;
+	var msg = event.originalEvent.data;
+	if (!ace_port && src == $('#ace-iframe')[0].contentWindow && 'CONNECT calliTextEditorLoaded' == msg) {
+		ace_port = src;
+	} else if (ace_port == src) {
 		if (outgoing.length) {
 			$(outgoing).each(function() {
-				ace_port.postMessage(this);
+				src.postMessage(this, '*');
 			});
 		}
-		ace_port.onmessage = function(event) {
-			var msg = event.data;
-			var header = msg;
-			var body = null;
-			if (msg.indexOf('\n') > 0) {
-				header = msg.substring(0, msg.indexOf('\n'));
-				body = msg.substring(msg.indexOf('\n') + 1);
-			}
-			if (incoming[header]) {
-				$(incoming[header]).each(function() {
-					this(body);
-				});
-				delete incoming[header];
-			}
-		};
-		$(window).unbind('message', initAcePort);
+		var header = msg;
+		var body = null;
+		if (msg.indexOf('\n\n') > 0) {
+			header = msg.substring(0, msg.indexOf('\n\n'));
+			body = msg.substring(msg.indexOf('\n\n') + 2);
+		}
+		if (incoming[header]) {
+			$(incoming[header]).each(function() {
+				this(body);
+			});
+			delete incoming[header];
+		}
 	}
 }
-$(window).bind('message', initAcePort);
+$(window).bind('message', onmessage);
 
 function postCallback(header, body, callback) {
 	if (callback) {
@@ -82,10 +81,10 @@ function postCallback(header, body, callback) {
 	}
 	var msg = header;
 	if (body) {
-		msg = msg + '\n' + body;
+		msg = msg + '\n\n' + body;
 	}
 	if (ace_port) {
-		ace_port.postMessage(msg);
+		ace_port.postMessage(msg, '*');
 	} else {
 		outgoing.push(msg);
 	}
@@ -270,7 +269,7 @@ jQuery.fn.wymeditor = function(options) {
 			if (editor.is(':visible')) {
 				wym.xhtml(function(html){
 					setValue(html);
-					var index = getSelectedNodeIndex(node, this._doc.body);
+					var index = getSelectedNodeIndex(node, wym._doc.body);
 					gotoLineOfNodeIndex(html, index);
 				});
 			}

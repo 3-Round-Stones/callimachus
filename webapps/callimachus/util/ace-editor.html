@@ -29,41 +29,49 @@
 				editor.getSession().setMode(new Mode());
 			}
 		}
-		var channel = new MessageChannel();
-		channel.port1.onmessage = function handleMessage(event) {
+		function handleMessage(event) {
 			var msg = event.data;
 			var header = msg;
 			var body = null;
-			if (msg.indexOf('\n') > 0) {
-				header = msg.substring(0, msg.indexOf('\n'));
-				body = msg.substring(msg.indexOf('\n') + 1);
+			if (msg.indexOf('\n\n') > 0) {
+				header = msg.substring(0, msg.indexOf('\n\n'));
+				body = msg.substring(msg.indexOf('\n\n') + 2);
 			}
 			if (header == 'GET text') {
-				channel.port1.postMessage(header + '\n' + editor.getSession().getValue());
+				parent.postMessage(header + '\n\n' + editor.getSession().getValue(), '*');
 			} else if (header == 'POST text') {
 				if (body != editor.getSession().getValue()) {
 					var row = editor.getSelectionRange().start.row;
 					editor.getSession().setValue(body);
 					editor.gotoLine(row + 1);
 				}
-				channel.port1.postMessage(header);
+				parent.postMessage(header, '*');
 			} else if (header == 'POST insert' && body) {
 				editor.insert(body);
-				channel.port1.postMessage(header);
+				parent.postMessage(header, '*');
 			} else if (header == 'GET line.column') {
 				var start = editor.getSelectionRange().start;
-				channel.port1.postMessage(header + '\n' + (1 + start.row) + '.' + start.column);
+				parent.postMessage(header + '\n\n' + (1 + start.row) + '.' + start.column, '*');
 			} else if (header == 'POST line.column' && body) {
 				var line = parseInt(body.split('.', 2)[0]);
 				var start = editor.getSelectionRange().start;
 				if (start.row + 1 != line) {
 					editor.gotoLine(line);
 				}
-				channel.port1.postMessage(header);
+				parent.postMessage(header, '*');
 			}
 		};
-		channel.port1.start();
-		parent.postMessage("calliEditorPort", [channel.port2], "*");
+		function onmessage(event) {
+			if (event.source == parent) {
+				handleMessage(event);
+			}
+		}
+		if (window.addEventListener) {
+			window.addEventListener('message', onmessage, false);
+		} else if (window.attachEvent) {
+			window.attachEvent('onmessage',onmessage);
+		}
+		parent.postMessage('CONNECT calliTextEditorLoaded', '*');
 	};
 	</script>
 </head>

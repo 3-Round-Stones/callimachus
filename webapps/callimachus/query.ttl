@@ -33,6 +33,122 @@
 	calli:uriSpace </query/>;
 	calli:administrator </group/admin>.
 
+# GET /query/My%20Query
+:FindNamedQuery rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (
+		[msg:matching </query/*>] [owl:complementOf calli:Viewable])]];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET", "HEAD";
+	msg:expect "302-found";
+	msg:imports calli:Viewable;
+	msg:script """
+		var uri = this.toString().toLowerCase().replace(/%20/g, '-');
+		if (uri.indexOf('.rq') != uri.length - 3) {
+			uri = uri + ".rq";
+		}
+		var query = this.objectConnection.getObject(uri);
+		if (query instanceof Viewable)
+			return query + "?view";
+		return query.toUri().resolve("/callimachus/NamedQuery") + "?create#!" + query.toUri().getPath();
+	""".
+
+# GET /query/my-query.rq
+:GetNamedQuery rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "application/sparql-query";
+	msg:header "cache-control:no-cache";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
+
+# POST /callimachus/NamedQuery?create
+:CreateNamedQuery rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <NamedQuery>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "POST";
+	msg:query "create";
+	msg:realm </accounts>;
+	msg:expect "201-created";
+	msg:type "text/uri-list";
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:imports calli:NamedQuery;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		if (!location)
+			throw new BadRequest("Missing location request header");
+
+		var created = con.getObject(this.toUri().resolve(location).toString());
+		if (created.toString().indexOf(this.toUri().resolve("/query/").toString()) != 0)
+			throw new BadRequest("Wrong location namespace");
+		if (created instanceof NamedQuery)
+			throw new BadRequest("Page already exists");
+
+		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
+		con.add(created.resource, RDFS.LABEL, label, []);
+
+		created = con.addDesignation(created, this.toString());
+		created = con.addDesignation(created, NamedQuery);
+		this.PropagatePermissions(created);
+
+		this.touchRevision(); // update index page
+		con.commit();
+
+		created.UploadNamedQuery(payload); //# cannot write to other streams directly
+		return created;
+	""".
+
+:location a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :CreateNamedQuery;
+	rdfs:range xsd:string;
+	msg:header "Location".
+
+:payload a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :CreateNamedQuery;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "application/sparql-query".
+
+:local a calli:LocalRealm;
+	calli:domain </query/>.
+
+# PUT /query/my-query.rq
+:UploadNamedQuery rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:realm </accounts>, :local;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <NamedQuery>;
+	msg:script """
+		if (!stream)
+			throw new BadRequest("Missing PUT request payload");
+		var read;
+		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+		var out = this.openOutputStream();
+		try {
+			while ((read = stream.read(buf)) >= 0) {
+				out.write(buf, 0, read);
+			}
+		} finally {
+			out.close();
+		}
+	""".
+
+:stream a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :UploadNamedQuery;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "application/sparql-query".
+
+
 ################################
 # Google Chart Wire Protocol 0.6
 ################################
@@ -67,7 +183,9 @@
 			map.reqId = '0';
 		}
 		var con = this.objectConnection;
-		var query = this.calliSparql;
+		var scanner = new java.util.Scanner(this.openInputStream(), "UTF-8");
+		var query = scanner.useDelimiter("\\\\A").next();
+		scanner.close();
 		if (query == null)
 			throw new InternalServerError("SPARQL query is missing");
 		var http11 = new ProtocolVersion("HTTP", 1, 1);

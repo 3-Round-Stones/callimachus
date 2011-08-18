@@ -55,17 +55,25 @@ function onmessage(event) {
 				src.postMessage(this, '*');
 			});
 		}
-		var header = msg;
+		var response = msg;
+		var request = null;
 		var body = null;
-		if (msg.indexOf('\n\n') > 0) {
-			header = msg.substring(0, msg.indexOf('\n\n'));
-			body = msg.substring(msg.indexOf('\n\n') + 2);
+		var i1 = msg.indexOf('\n\n');
+		var i2 = msg.indexOf('\n\n', i1 + 2);
+		if (i1 > 0) {
+			response = msg.substring(0, i1);
+			request = msg.substring(i1 + 2, i2);
+			body = msg.substring(i2 + 2);
 		}
-		if (incoming[header]) {
-			$(incoming[header]).each(function() {
+		if (response == 'OK' && incoming[request]) {
+			$(incoming[request]).each(function() {
 				this(body);
 			});
-			delete incoming[header];
+			delete incoming[request];
+		} else if (response != 'OK' && body) {
+			throw body;
+		} else if (response != 'OK') {
+			throw response;
 		}
 	}
 }

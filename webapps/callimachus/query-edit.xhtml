@@ -5,21 +5,30 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this">{rdfs:label}</title>
+	<script>// <![CDATA[
+		jQuery(function($){
+			$('#iframe')[0].src = '/callimachus/editor/editor.html#sparql!' + location.pathname;
+			$('#form').submit(function(event) {
+				event.preventDefault();
+				$(window).bind('message', function(event) {
+					if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
+						var msg = event.originalEvent.data;
+						if (msg == 'OK\n\nPOST save') {
+							location.replace('?view');
+						}
+					}
+				});
+				$('#iframe')[0].contentWindow.postMessage('POST save', '*');
+				return false;
+			});
+		});
+	// ]]>
+	</script>
 </head>
 <body>
-	<h1 property="rdfs:label"></h1>
-	<form method="POST" action="" enctype="application/sparql-update" about="?this">
-		<div class="vbox">
-			<div class="input field">
-				<label for="label">Label</label>
-				<input id="label" value="{rdfs:label}" class="auto-expand" required="required" />
-			</div>
-			<div class="text field">
-				<label for="sparql">SPARQL</label>
-				<textarea id="sparql" class="auto-expand">{calli:sparql}</textarea>
-			</div>
-		</div>
-        <button type="submit">Save and evaluate</button>
+	<form id="form" action="">
+		<iframe id="iframe" class="auto-expand" src="/callimachus/editor/editor.html"> </iframe>
+        <button type="submit">Save</button>
 		<button type="button" onclick="location.replace('?view')">Cancel</button>
 		<button type="button" onclick="calli.deleteResource(form)">Delete</button>
 	</form>

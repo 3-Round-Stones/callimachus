@@ -335,7 +335,7 @@ form label[for], label[form] {
 	display: block;
 }
 
-label.input {
+label.input, form label[for].input, label[form].input {
 	font-weight: normal;
 	margin-top: 0px;
 	display: inline-block;

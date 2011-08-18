@@ -1,0 +1,28 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix :<#>.
+
+<bundle> a calli:ScriptBundle; calli:minified 0 ;
+	rdf:_1 <ace/ace-uncompressed.js>;
+	rdf:_2 <ace/css_highlight_rules.js>;
+	rdf:_3 <ace/css.js>;
+	rdf:_4 <ace/cstyle.js>;
+	rdf:_5 <ace/doc_comment_highlight_rules.js>;
+	rdf:_6 <ace/html_highlight_rules.js>;
+	rdf:_7 <ace/html.js>;
+	rdf:_8 <ace/javascript_highlight_rules.js>;
+	rdf:_9 <ace/javascript.js>;
+	rdf:_10 <ace/matching_brace_outdent.js>;
+	rdf:_11 <ace/sparql_highlight_rules.js>;
+	rdf:_12 <ace/sparql.js>;
+	rdf:_13 <ace/worker_client.js>;
+	rdf:_14 <ace/xml.js>;
+	rdf:_15 <../scripts/jquery.js>;
+	rdf:_16 <editor.js>.
+

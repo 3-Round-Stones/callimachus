@@ -272,12 +272,6 @@ calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:comment "The canonical URL for this alias";
 	rdfs:domain calli:Alias.
 
-calli:sparql a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:label "sparql";
-	rdfs:comment "SPARQL query string that this named query represents";
-	rdfs:domain calli:NamedQuery;
-	rdfs:range rdf:PlainLiteral.
-
 calli:logo a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "logo";
 	rdfs:comment "The logo image that should be shown with this menu";

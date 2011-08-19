@@ -71,7 +71,10 @@ jQuery(function($) {
 	onhashchange();
 
 	// saving
+	var saving = false;
 	function postFile(action, callback) {
+		if (saving) return false;
+		saving = true;
 		var text = editor.getSession().getValue();
 		jQuery.ajax({
 			type: 'POST',
@@ -81,13 +84,24 @@ jQuery(function($) {
 				xhr.setRequestHeader('Location', path);
 			},
 			data: text,
-			complete: callback
+			complete: function(xhr) {
+				saving = false;
+				if (xhr.status == 204) {
+					etag = xhr.getResponseHeader('ETag');
+				}
+				if (typeof callback == 'function') {
+					callback(xhr);
+				}
+			}
 		});
+		return true;
 	}
 	function putFile(callback) {
 		var text = editor.getSession().getValue();
 		if (!etag)
 			throw 'No file loaded';
+		if (saving) return false;
+		saving = true;
 		jQuery.ajax({
 			type: 'PUT',
 			url: path,
@@ -96,13 +110,22 @@ jQuery(function($) {
 				xhr.setRequestHeader('If-Match', etag);
 			},
 			data: text,
-			complete: callback
+			complete: function(xhr) {
+				saving = false;
+				if (xhr.status == 204) {
+					etag = xhr.getResponseHeader('ETag');
+				}
+				if (typeof callback == 'function') {
+					callback(xhr);
+				}
+			}
 		});
+		return true;
 	}
 	$(window).keypress(function(event) {
 		if (event.which == 115 && event.ctrlKey || event.which == 19) {
-			putFile(function(){});
 			event.preventDefault();
+			putFile();
 			return false;
 		}
 		return true;
@@ -116,8 +139,8 @@ jQuery(function($) {
 		$(document).keydown(function (e) {
 			if(e.which == 17) isCtrl=true;
 			if(e.which == 83 && isCtrl == true) {
-				putFile(function(){});
-				event.preventDefault();
+				e.preventDefault();
+				putFile();
 				return false;
 			}
 			return true;

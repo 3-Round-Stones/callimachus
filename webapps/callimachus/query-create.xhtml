@@ -10,7 +10,8 @@
 			$('#iframe')[0].src = $('#iframe')[0].src + '#sparql';
 			$('#form').submit(function(event) {
 				event.preventDefault();
-				var local = encodeURI($('#name').val()).replace(/%20/g,'-').toLowerCase();
+				var name = prompt('Save as...', 'Untitled Query');
+				var local = encodeURI(name).replace(/%20/g,'-').toLowerCase();
 				var header = 'POST create'
 					+ '\nAction: ' + location.href
 					+ '\nLocation: /query/' + local + '.rq'
@@ -35,11 +36,6 @@
 </head>
 <body>
 	<form id="form" method="POST" action="">
-		<div>
-			<label for="name" class="input">File name</label>
-			<input id="name" type="text" autofocus="autofocus" />
-			<span>.rq</span>
-		</div>
 		<iframe id="iframe" class="auto-expand" src="/callimachus/editor/editor.html"> </iframe>
 		<button type="submit">Create</button>
 	</form>

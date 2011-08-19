@@ -117,9 +117,9 @@
 				<xsl:text>{v:new Date(</xsl:text>
 				<xsl:value-of select="substring-before($date, '-')" />
 				<xsl:text>,</xsl:text>
-				<xsl:value-of select="number(substring-before(substring-after($date, '-'), '-')) - 1" />
+				<xsl:value-of select="number(substring(substring-after($date, '-'), 1, 2)) - 1" />
 				<xsl:text>,</xsl:text>
-				<xsl:value-of select="substring-before(substring-after(substring-after($date, '-'), '-'), '-')" />
+				<xsl:value-of select="substring(substring-after($date, '-'), 4, 2)" />
 				<xsl:text>)}</xsl:text>
 			</xsl:when>
 			<xsl:when test="$local='dateTime'">
@@ -128,9 +128,9 @@
 				<xsl:text>{v:new Date(</xsl:text>
 				<xsl:value-of select="substring-before($date, '-')" />
 				<xsl:text>,</xsl:text>
-				<xsl:value-of select="number(substring-before(substring-after($date, '-'), '-')) - 1" />
+				<xsl:value-of select="number(substring(substring-after($date, '-'), 1, 2)) - 1" />
 				<xsl:text>,</xsl:text>
-				<xsl:value-of select="substring-before(substring-after(substring-after($date, '-'), '-'), '-')" />
+				<xsl:value-of select="substring(substring-after($date, '-'), 4, 2)" />
 				<xsl:text>,</xsl:text>
 				<xsl:value-of select="substring($time,1,2)" />
 				<xsl:text>,</xsl:text>

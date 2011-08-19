@@ -14,9 +14,9 @@ import org.callimachusproject.rdfa.model.TermFactory;
 import org.openrdf.model.Value;
 
 public class MarkupExpression implements Expression {
-	/** ^\{\?([a-zA-Z]\w*)\} */
+	/** ^\{(\?[a-zA-Z]\w*)\} */
 	private static final Pattern VARIABLE = Pattern
-			.compile("^\\{\\?([a-zA-Z]\\w*)\\}");
+			.compile("^\\{(\\?[a-zA-Z]\\w*)\\}");
 	/** ^\{"(([^"\n]|\\")*?)"\} */
 	private static final Pattern STRING1 = Pattern
 			.compile("^\\{\"(([^\"\\n]|\\\\\")*?)\"\\}");

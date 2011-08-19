@@ -96,6 +96,22 @@
 		}
 	""".
 
+# GET /callimachus/Page?queries
+# Called from page create/edit to load named query options
+:ListScheme rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Page>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "queries";
+	msg:type "application/xml";
+	msg:header "cache-control:no-store";
+	msg:sparql """
+		SELECT ?uri ?label
+		WHERE {
+			?uri a calli:NamedQuery; rdfs:label ?label
+		}
+	""".
+
 # POST /callimachus/Page?create
 :CreatePage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Page>];

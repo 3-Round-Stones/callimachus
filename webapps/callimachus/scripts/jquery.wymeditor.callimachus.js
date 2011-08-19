@@ -460,7 +460,25 @@
 						'		}});\n\t</script>$1'));
 				});
 			});
-			chartEditor.openDialog(new google.visualization.ChartWrapper(), {dataSourceInput: 'urlbox'});
+			jQuery.get('/callimachus/Page?queries', function(xml) {
+				var select = $('<select/>');
+				select.append($('<option/>'));
+				$(xml).find('result').each(function() {
+					var uri = $(this).find('[name=uri]>*').text();
+					var label = $(this).find('[name=label]>*').text();
+					var option = $('<option/>');
+					option.attr('value', uri);
+					option.text(label);
+					select.append(option);
+				});
+				select.change(function() {
+					var uri = select.val();
+					if (uri) {
+						chartEditor.setChartWrapper(new google.visualization.ChartWrapper({dataSourceUrl:uri}));
+					}
+				});
+				chartEditor.openDialog(new google.visualization.ChartWrapper(), {dataSourceInput: select[0]});
+			}, 'xml');
 		}});
 	}
 

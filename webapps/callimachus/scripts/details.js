@@ -17,6 +17,10 @@ function select(node, selector) {
 	return set;
 }
 
+function notSummary(){
+	return this.tagName != 'summary' && this.tagName != 'SUMMARY';
+}
+
 function handle(event) {
     // Loop through all `details` elements
     select(event.target, "details").each(function() {
@@ -26,12 +30,11 @@ function handle(event) {
           // Store a reference to the `summary` element of the current `details` element (if any) in a variable
           $detailsSummary = $('summary', $details),
           // Do the same for the info within the `details` element
-          $detailsNotSummary = $details.children().filter(function(){return this.tagName != 'summary';}),
+          $detailsNotSummary = $details.children().filter(notSummary),
           // This will be used later to look for direct child text nodes
-          $detailsNotSummaryContents = $details.contents().filter(function(){return this.tagName != 'summary';});
+          $detailsNotSummaryContents = $details.contents().filter(notSummary);
 
-	$details.css("display", "list-item");
-	$detailsSummary.css("outline", "none");
+	$detailsSummary.css("display", "list-item").css("margin-left", "1em").css("outline", "none");
 
       // If there is no `summary` in the current `details` element…
       if (!$detailsSummary.length) {
@@ -47,7 +50,7 @@ function handle(event) {
           return (this.nodeType === 3) && (/[^\t\n\r ]/.test(this.data));
         }).wrap('<span>');
         // There are now no direct child text nodes anymore — they’re wrapped in `span` elements
-        $detailsNotSummary = $details.children().filter(function(){return this.tagName != 'summary';});
+        $detailsNotSummary = $details.children().filter(notSummary);
       }
 
       // Hide content unless there’s an `open` attribute

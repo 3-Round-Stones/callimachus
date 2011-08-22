@@ -97,7 +97,7 @@ if [ -z "$JAVA_VERSION" ] ; then
 fi
 
 # Transform the required version string into an integer that can be used in comparisons
-JAVA_VERSION_INT=`echo "$JAVA_VERSION" | perl -pe 's;\.;0;g'
+JAVA_VERSION_INT=`echo "$JAVA_VERSION" | perl -pe 's;\.;0;g'`
 
 # Check JAVA_HOME directory to see if Java version is adequate
 if [ ! -z "$JAVA_HOME" -a -x "$JAVA_HOME/bin/java" -a -x "$JAVA_HOME/bin/javac" ] ; then

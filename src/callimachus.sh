@@ -36,7 +36,8 @@ while [ -h "$PRG" ] ; do
   fi
 done
  
-PRGDIR=`dirname "$PRG"`
+PRGDIRNAME=`dirname "$PRG"`
+PRGDIR=`cd "$PRGDIRNAME";pwd`
 
 if [ -z "$NAME" ] ; then
   NAME=`basename "$PRG" | sed 's/\.sh$//'`

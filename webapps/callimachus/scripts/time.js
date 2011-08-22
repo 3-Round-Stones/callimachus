@@ -1,4 +1,4 @@
-// datetime-locale.js
+// time.js
 
 (function($){
 
@@ -7,7 +7,8 @@ $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
 	var now = new Date();
-	$(event.target).find("time").andSelf().filter("time").each(function(i, node) {
+	var target = event.target ? event.target : document;
+	$(target.getElementsByTagName('time')).add(target).filter("time").each(function(i, node) {
 		changeDateLocale(node, now);
 	});
 }
@@ -15,7 +16,12 @@ function handle(event) {
 function changeDateLocale(node, now) {
 	var node = $(node);
 	if (!node.attr("datetime")) {
+		var ie8 = false;
 		var text = node.text();
+		if (!text && node[0].nextSibling && node[0].nextSibling.nodeValue) {
+			text = node[0].nextSibling.nodeValue;
+			ie8 = true;
+		}
 		var timestamp = parseDateTime(text, now);
 		if (!isNaN(timestamp)) {
 			node.attr("content", text);
@@ -24,20 +30,26 @@ function changeDateLocale(node, now) {
 			if ((date.getHours() > 0 || date.getMinutes() > 0) && /^\s*(\d{4})-?(\d{2})-?(\d{2})\s*$/.exec(text)) {
 				date = new Date(parseDateTime(text + "T00:00:00"));
 			}
+			var formatted = null;
 			if (node.is(".abbreviated")) {
-				node.text(local(date, now, node));
+				formatted = local(date, now, node);
 			} else if (node.is(".datetime")) {
-				node.text(date.toLocaleString());
+				formatted =  date.toLocaleString();
 			} else if (node.is(".datetime-local")) {
-				node.text(local(date, now));
+				formatted = local(date, now);
 			} else if (node.is(".date")) {
-				node.text(date.toLocaleDateString());
+				formatted = date.toLocaleDateString();
 			} else if (node.is(".month")) {
-				node.text(month(date));
+				formatted = month(date);
 			} else if (node.is(".time")) {
-				node.text(date.toLocaleTimeString());
+				formatted = date.toLocaleTimeString();
 			} else {
-				node.text(date.toString());
+				formatted = date.toString();
+			}
+			if (ie8) {
+				node[0].nextSibling.nodeValue = formatted;
+			} else {
+				node.text(formatted);
 			}
 		}
 	}

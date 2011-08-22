@@ -123,14 +123,15 @@ a[href]:hover {
 	list-style: none;
 	width: 10em;
 	margin: 0px;
-	padding: 0px 1ex;
-	font-size: small;
+	padding: 0px;
 	list-style: none;
 }
 
 #nav>li {
 	border-bottom: 1px solid #A8ACB8;
 	padding: 0.5ex;
+	font-size: small;
+	margin: 0px 1ex;
 }
 
 #nav>li:last-child {

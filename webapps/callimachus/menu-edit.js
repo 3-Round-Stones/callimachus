@@ -85,7 +85,7 @@ jQuery(function($){
 	function setPosition(span, position) {
 		span.attr('property', 'calli:position');
 		span.attr('datatype', 'xsd:integer');
-		span.attr('content', position);
+		span.attr('content', parseInt(position) + 1);
 	}
 
 	function setLabelLink(item, position, text, url) {

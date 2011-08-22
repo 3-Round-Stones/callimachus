@@ -224,12 +224,9 @@ iframe.ui-widget-content.ui-dialog-content {
 	background-color: white;
 }
 
-#content > * {
-	clear: left;
-}
-
-#content > .aside {
-	clear: right;
+h1 ~ .aside, hgroup ~ .aside, h2 ~ .aside {
+	position: relative;
+	top: -4em;
 }
 
 .aside {
@@ -384,6 +381,10 @@ label.error {
 	display: block;
 }
 
+header, nav, article, footer, address, details, summary {
+	display: block;
+}
+
 #footer {
     text-align: right;
     padding-bottom: 25pt;
@@ -402,9 +403,6 @@ label.error {
 }
 
 @media all and (min-width:32em) {
-	#content > hgroup, #content > h1, #content > h2 {
-		float: left;
-	}
 	.aside {
 		float: right;
 		margin: 1ex;
@@ -444,9 +442,6 @@ label.error {
 @media print {
 	#logo, #nav, #header, #tabs, button {
 		display: none;
-	}
-	#content > hgroup, #content > h1, #content > h2 {
-		float: left;
 	}
 	.aside {
 		float: right;

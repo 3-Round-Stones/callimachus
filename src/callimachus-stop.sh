@@ -36,7 +36,7 @@ while [ -h "$PRG" ] ; do
 done
  
 PRGDIR=`dirname "$PRG"`
-EXECUTABLE=`basename "$PRG" | sed 's/-[^-]*/.sh/'`
+EXECUTABLE=`basename "$PRG" | perl -pe 's/-.*/.sh/'`
 
 # Check that target executable exists
 if [ ! -e "$PRGDIR"/"$EXECUTABLE" -o "$PRG" = "$PRGDIR/$EXECUTABLE" ]; then

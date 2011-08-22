@@ -6,7 +6,9 @@ $(document).ready(handle);
 $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
-	select(event.target, "input[type=date]").each(function(i, node) {
+	select(event.target, "input").filter(function(){
+		return this.getAttribute('type') == "date";
+	}).each(function(i, node) {
 		addDateSelect(node);
 	});
 }

@@ -10,7 +10,11 @@ $(document).ready(function(event) {
 });
 
 function select(node, selector) {
-	return $(node).find(selector).andSelf().filter(selector);
+	var set = $(node).find(selector);
+	if (node && $(node).is(selector)) {
+		set = set.add(node);
+	}
+	return set;
 }
 
 function handle(event) {
@@ -22,9 +26,9 @@ function handle(event) {
           // Store a reference to the `summary` element of the current `details` element (if any) in a variable
           $detailsSummary = $('summary', $details),
           // Do the same for the info within the `details` element
-          $detailsNotSummary = $details.children(':not(summary)'),
+          $detailsNotSummary = $details.children().filter(function(){return this.tagName != 'summary';}),
           // This will be used later to look for direct child text nodes
-          $detailsNotSummaryContents = $details.contents(':not(summary)');
+          $detailsNotSummaryContents = $details.contents().filter(function(){return this.tagName != 'summary';});
 
 	$details.css("display", "list-item");
 	$detailsSummary.css("outline", "none");
@@ -43,13 +47,15 @@ function handle(event) {
           return (this.nodeType === 3) && (/[^\t\n\r ]/.test(this.data));
         }).wrap('<span>');
         // There are now no direct child text nodes anymore — they’re wrapped in `span` elements
-        $detailsNotSummary = $details.children(':not(summary)');
+        $detailsNotSummary = $details.children().filter(function(){return this.tagName != 'summary';});
       }
 
       // Hide content unless there’s an `open` attribute
       // Chrome 10 already recognizes the `open` attribute as a boolean (even though it doesn’t support rendering `<details>` yet
       // Other browsers without `<details>` support treat it as a string
-      open = $details.attr('open');
+      try {
+        open = $details.attr('open');
+      } catch (e) {}
       if (typeof open == 'string' || (typeof open == 'boolean' && open)) {
         $details.addClass('open');
         $detailsNotSummary.show();

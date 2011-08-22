@@ -8,7 +8,11 @@ $(document).bind("DOMNodeInserted", handle);
 function handle(event) {
 	var now = new Date();
 	var target = event.target ? event.target : document;
-	$(target.getElementsByTagName('time')).add(target).filter("time").each(function(i, node) {
+	var time = $(target.getElementsByTagName('time'));
+	if ($(target).is('time')) {
+		time = time.add(target);
+	}
+	time.each(function(i, node) {
 		changeDateLocale(node, now);
 	});
 }

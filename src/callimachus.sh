@@ -97,12 +97,12 @@ if [ -z "$JAVA_VERSION" ] ; then
 fi
 
 # Transform the required version string into an integer that can be used in comparisons
-JAVA_VERSION_INT=`echo "$JAVA_VERSION" | perl -pe 's;\.;0;g'`
+JAVA_VERSION_INT=`echo "$JAVA_VERSION" | perl -pe 's;\.;0;g' 2>/dev/null`
 
 # Check JAVA_HOME directory to see if Java version is adequate
 if [ ! -z "$JAVA_HOME" -a -x "$JAVA_HOME/bin/java" -a -x "$JAVA_HOME/bin/javac" ] ; then
   JAVA="$JAVA_HOME/bin/java"
-  VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g'`
+  VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
   if [ -L "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
     JAVA_HOME=
   fi
@@ -117,7 +117,7 @@ then
     # verify java instance
     if [ ! -z "$JAVA_HOME" ] ; then
       JAVA="$JAVA_HOME/bin/java"
-      VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g'`
+      VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
       if [ -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
         JAVA_HOME=
       fi
@@ -131,7 +131,7 @@ if [ -z "$JAVA_HOME" -a -x /usr/libexec/java_home ] ; then
   # verify java instance
   if [ ! -z "$JAVA_HOME" ] ; then
     JAVA="$JAVA_HOME/bin/java"
-    VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g'`
+    VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
     if [ -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
       JAVA_HOME=
     fi
@@ -165,7 +165,7 @@ if [ -z "$JAVA_HOME" ] ; then
     exit 1
   fi
   JAVA="$JAVA_HOME/bin/java"
-  VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g'`
+  VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
   if [ ! -x "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
     echo "The JAVA_HOME environment variable does not point to a $JAVA_VERSION JDK installation"
     echo "JDK $JAVA_VERSION is needed to run this server"
@@ -215,7 +215,7 @@ if [ -z "$SSL" ] ; then
 fi
 
 if [ -z "$SSL_OPTS" -a -e "$SSL" ] ; then
-  SSL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" |perl -pe 's/(\S\+)=(.*)/-D$1=$2/' |tr -s '\n' ' ')
+  SSL_OPTS=$(perl -pe 's/\s*\#.*$//g' "$SSL" 2>/dev/null |perl -pe 's/(\S+)=(.*)/-D$1=$2/' 2>/dev/null |tr -s '\n' ' ')
 fi
 
 if [ -z "$REPOSITORY" ] ; then
@@ -277,8 +277,8 @@ if [ -z "$OPTS" ] ; then
   if [ "$SECURITY_MANAGER" = "false" ]; then
     OPTS="--trust"
   fi
-  PORT_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -p $2/g') $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -s $2/g')"
-  OPTS="-d \"$BASEDIR\" $PORT_OPTS -o $(echo $ORIGIN |perl -pe 's/(\s)(\S)/ -o $2/g') -r \"$REPOSITORY\" -c \"$REPOSITORY_CONFIG\" $OPTS"
+  PORT_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -p $2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -s $2/g' 2>/dev/null)"
+  OPTS="-d \"$BASEDIR\" $PORT_OPTS -o $(echo $ORIGIN |perl -pe 's/(\s)(\S)/ -o $2/g' 2>/dev/null) -r \"$REPOSITORY\" -c \"$REPOSITORY_CONFIG\" $OPTS"
 fi
 
 # For Cygwin, switch paths to Windows format before running java

@@ -5,10 +5,7 @@ jQuery(function($) {
 		$('#editor').css('background-color', 'lightyellow');
 	});
 	$('#editor').ajaxSuccess(function(event, XMLHttpRequest, ajaxOptions) {
-		$('#editor').css('background-color', 'PaleGreen');
-		setTimeout(function() {
-			$('#editor').css('background-color', 'inherit');
-		}, 100);
+		$('#editor').css('background-color', 'inherit');
 	});
 	$('#editor').ajaxError(function(event, XMLHttpRequest, ajaxOptions) {
 		$('#editor').css('background-color', '#FF9999');
@@ -27,11 +24,15 @@ jQuery(function($) {
 	// loading
 	function onhashchange() {
 		if (location.hash && location.hash.length > 1) {
-			var mode, line = null;
+			var mode, line = null, column = null;
 			if (location.hash.indexOf('!') > 0 && location.hash.indexOf('#', 2) > 0) {
 				mode = location.hash.substring(1, location.hash.indexOf('!'));
 				path = location.hash.substring(location.hash.indexOf('!') + 1, location.hash.indexOf('#', 2));
 				line = location.hash.substring(location.hash.indexOf('#', 2) + 1);
+				if (line.indexOf('.')) {
+					column = line.substring(line.indexOf('.') + 1);
+					line = line.substring(0, line.indexOf('.'));
+				}
 			} else if (location.hash.indexOf('!') > 0) {
 				mode = location.hash.substring(1, location.hash.indexOf('!'));
 				path = location.hash.substring(location.hash.indexOf('!') + 1);
@@ -52,18 +53,23 @@ jQuery(function($) {
 						etag = xhr.getResponseHeader('ETag');
 						var body = xhr.responseText;
 						var row = editor.getSelectionRange().start.row;
+						var col = editor.getSelectionRange().start.column;
 						if (body != editor.getSession().getValue()) {
 							editor.getSession().setValue(body);
 						}
 						if (line && line != editor.getSelectionRange().start.row + 1) {
-							editor.gotoLine(line);
+							editor.gotoLine(line, column);
+						} else if (line && column && column != editor.getSelectionRange().start.column) {
+							editor.gotoLine(line, column);
 						} else if (row != editor.getSelectionRange().start.row) {
-							editor.gotoLine(row + 1);
+							editor.gotoLine(row + 1, col);
 						}
 					}
 				}});
 			} else if (line && line != editor.getSelectionRange().start.row + 1) {
-				editor.gotoLine(line);
+				editor.gotoLine(line, column);
+			} else if (line && column && column != editor.getSelectionRange().start.column) {
+				editor.gotoLine(line, column);
 			}
 		}
 	}
@@ -176,8 +182,9 @@ jQuery(function($) {
 		} else if (header == 'POST text') {
 			if (body != editor.getSession().getValue()) {
 				var row = editor.getSelectionRange().start.row;
+				var column = editor.getSelectionRange().start.column;
 				editor.getSession().setValue(body);
-				editor.gotoLine(row + 1);
+				editor.gotoLine(row + 1, column);
 			}
 			return true;
 		} else if (header == 'POST insert' && body) {
@@ -188,9 +195,10 @@ jQuery(function($) {
 			return '' + (1 + start.row) + '.' + start.column;
 		} else if (header == 'POST line.column' && body) {
 			var line = parseInt(body.split('.', 2)[0]);
+			var column = parseInt(body.split('.', 2)[1]);
 			var start = editor.getSelectionRange().start;
-			if (start.row + 1 != line) {
-				editor.gotoLine(line);
+			if (start.row + 1 != line || start.column != column) {
+				editor.gotoLine(line, column);
 			}
 			return true;
 		}

@@ -11,23 +11,25 @@
 			$('#form').submit(function(event) {
 				event.preventDefault();
 				var name = prompt('Save as...', 'Untitled Query');
-				var local = encodeURI(name).replace(/%20/g,'-').toLowerCase();
-				var header = 'POST create'
-					+ '\nAction: ' + location.href
-					+ '\nLocation: /query/' + local + '.rq'
-					+ '\nContent-Type: application/sparql-query';
-				if ($('#cache').val()) {
-					header += '\nCache-Control: ' + $('#cache').val();
-				}
-				$(window).bind('message', function(event) {
-					if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
-						var msg = event.originalEvent.data;
-						if (msg == 'OK\n\n' + header) {
-							location.replace('/query/' + local + '?view');
-						}
+				if (name) {
+					var local = encodeURI(name).replace(/%20/g,'-').toLowerCase();
+					var header = 'POST create'
+						+ '\nAction: ' + location.href
+						+ '\nLocation: /query/' + local + '.rq'
+						+ '\nContent-Type: application/sparql-query';
+					if ($('#cache').val()) {
+						header += '\nCache-Control: ' + $('#cache').val();
 					}
-				});
-				$('#iframe')[0].contentWindow.postMessage(header, '*');
+					$(window).bind('message', function(event) {
+						if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
+							var msg = event.originalEvent.data;
+							if (msg == 'OK\n\n' + header) {
+								location.replace('/query/' + local + '.rq?view');
+							}
+						}
+					});
+					$('#iframe')[0].contentWindow.postMessage(header, '*');
+				}
 				return false;
 			});
 		});

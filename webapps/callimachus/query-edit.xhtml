@@ -7,7 +7,18 @@
 	<title about="?this">{rdfs:label}</title>
 	<script>// <![CDATA[
 		jQuery(function($){
-			$('#iframe')[0].src = '/callimachus/editor/editor.html#sparql!' + location.pathname;
+			function onhashchange() {
+				var path = location.pathname;
+				if (location.hash) {
+					path += location.hash;
+				}
+				$('#iframe')[0].src = '/callimachus/editor/editor.html#sparql!' + path;
+			}
+			$(window).bind('hashchange', onhashchange);
+			onhashchange();
+		});
+
+		jQuery(function($){
 			$('#form').submit(function(event) {
 				event.preventDefault();
 				$(window).bind('message', function(event) {
@@ -24,25 +35,38 @@
 			$('#saveas').click(function(event) {
 				event.preventDefault();
 				var name = prompt('Save as...', 'Untitled Query');
-				var local = encodeURI(name).replace(/%20/g,'-').toLowerCase();
-				var header = 'POST create'
-					+ '\nAction: /callimachus/NamedQuery?create'
-					+ '\nLocation: /query/' + local + '.rq'
-					+ '\nContent-Type: application/sparql-query';
-				if ($('#cache').val()) {
-					header += '\nCache-Control: ' + $('#cache').val();
-				}
-				$(window).bind('message', function(event) {
-					if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
-						var msg = event.originalEvent.data;
-						if (msg == 'OK\n\n' + header) {
-							location.replace('/query/' + local + '?view');
-						}
+				if (name) {
+					var local = encodeURI(name).replace(/%20/g,'-').toLowerCase();
+					var header = 'POST create'
+						+ '\nAction: /callimachus/NamedQuery?create'
+						+ '\nLocation: /query/' + local + '.rq'
+						+ '\nContent-Type: application/sparql-query';
+					if ($('#cache').val()) {
+						header += '\nCache-Control: ' + $('#cache').val();
 					}
-				});
-				$('#iframe')[0].contentWindow.postMessage(header, '*');
+					$(window).bind('message', function(event) {
+						if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
+							var msg = event.originalEvent.data;
+							if (msg == 'OK\n\n' + header) {
+								loadQuery('/query/' + local + '.rq?edit');
+							}
+						}
+					});
+					$('#iframe')[0].contentWindow.postMessage(header, '*');
+				}
 				return false;
 			});
+			function loadQuery(url) {
+					$(window).bind('message', function(event) {
+						if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
+							var msg = event.originalEvent.data;
+							if (msg.indexOf('OK\n\nGET line.column\n\n') == 0) {
+								location.href = url + '#' + msg.substring(msg.indexOf('\n\n', 4) + 2);
+							}
+						}
+					});
+				$('#iframe')[0].contentWindow.postMessage('GET line.column', '*');
+			}
 		});
 	// ]]>
 	</script>

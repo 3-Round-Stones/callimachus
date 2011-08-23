@@ -17,7 +17,7 @@
 	<property file="src/META-INF/callimachusproject.properties" />
 	<property name="alibaba.snapshot" value="2.0-SNAPSHOT" />
 	<property name="m2.repository" value="http://repo.aduna-software.org/maven2/snapshots" />
-	<property name="alibaba.url" value="http://downloads.sourceforge.net/project/sesame/AliBabaElmo/2.0-beta11/openrdf-alibaba-2.0-beta11.zip" />
+	<property name="alibaba.url" value="http://downloads.sourceforge.net/project/sesame/AliBabaElmo/2.0-beta12/openrdf-alibaba-2.0-beta12.zip" />
 	<property name="mail.jar" value="mail-1.4.1.jar" />
 	<property name="mail.url" value="http://mirrors.ibiblio.org/pub/mirrors/maven2/javax/mail/mail/1.4.1/mail-1.4.1.jar" />
 	<property name="jchardet.url" value="http://downloads.sourceforge.net/project/jchardet/jchardet/1.1/jchardet-1.1.zip" />

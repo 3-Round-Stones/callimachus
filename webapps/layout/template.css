@@ -16,7 +16,7 @@ body {
 	background-image:-moz-linear-gradient(top, white, #DDDDDD 256px);
 	background-image:-webkit-gradient(linear, center top, center 256, color-stop(0,white), color-stop(1,#DDDDDD));
 	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#DDDDDD, GradientType=0)";
-	margin:0px;
+	margin:0;
 	font-family:sans-serif;
 }
 
@@ -69,7 +69,7 @@ a[href]:hover {
 	height:1.75em;
 	line-height:1.75em;
 	margin:1px;
-	padding:0px;
+	padding:0;
 	margin-left:1ex;
 }
 
@@ -82,8 +82,8 @@ a[href]:hover {
 	background:transparent;
 	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
 	border:none !important;
-	margin:0px;
-	padding:0px;
+	margin:0;
+	padding:0;
 	height:1em;
 	margin-bottom:0.25em;
 	outline:none !important;
@@ -94,7 +94,7 @@ a[href]:hover {
 	background:transparent;
 	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
 	border:none !important;
-	margin:0px;
+	margin:0;
 	height:1.5em;
 	outline:none !important;
 	cursor:pointer;
@@ -122,8 +122,8 @@ a[href]:hover {
 	float:left;
 	list-style:none;
 	width:10em;
-	margin:0px;
-	padding:0px;
+	margin:0;
+	padding:0;
 	list-style:none;
 }
 
@@ -131,7 +131,7 @@ a[href]:hover {
 	border-bottom:1px solid #A8ACB8;
 	padding:0.5ex;
 	font-size:small;
-	margin:0px 1ex;
+	margin:0 1ex;
 }
 
 #nav>li:last-child {
@@ -149,17 +149,17 @@ a[href]:hover {
 
 #nav ul {
 	list-style:none;
-	margin:0px;
+	margin:0;
 	margin-left:1ex;
-	padding:0px;
+	padding:0;
 }
 
 #tabs {
 	clear:right;
 	display:block;
 	list-style:none;
-	margin:0px 0px -1px 0px;
-    padding:1ex 3pt 0px 0px;
+	margin:0 0 -1px 0;
+    padding:1ex 3pt 0 0;
 	vertical-align:bottom;
 	min-height:1em;
 	line-height:1em;
@@ -170,13 +170,13 @@ a[href]:hover {
 	font-size:small;
     text-align:center;
     display:inline-block;
-	padding:0px;
+	padding:0;
 }
 
 #tabs li a {
     display:inline-block;
     background:white;
-	padding:0px 0.5em;
+	padding:0 0.5em;
     border-top:1px solid #A8ACB8;
     border-right:1px solid #A8ACB8;
     border-left:1px solid #A8ACB8;
@@ -199,8 +199,8 @@ a[href]:hover {
 	border-top:1px solid #A8ACB8;
 	border-left:1px solid #A8ACB8;
 	border-bottom:1px solid #A8ACB8;
-	border-right:0px;
-	margin:0px 0px 1ex 0px;
+	border-right:0;
+	margin:0 0 1ex 0;
 	padding:1ex;
 	padding-left:1em;
 	clear:right;
@@ -208,7 +208,7 @@ a[href]:hover {
 
 body.iframe, body.iframe #content {
 	border:none;
-	margin:0px;
+	margin:0;
 	background:inherit;
 	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled=false)";
 }
@@ -218,8 +218,8 @@ body.iframe #header, body.iframe #tabs, body.iframe #nav, body.iframe #logo, bod
 }
 
 iframe.ui-widget-content.ui-dialog-content {
-	margin:0px;
-	padding:0px;
+	margin:0;
+	padding:0;
 	border:none;
 	background-color:white;
 }
@@ -256,7 +256,7 @@ img {
 }
 
 table.aside {
-	border-spacing:0px;
+	border-spacing:0;
 }
 
 table.aside>thead>tr>td, table.aside>thead>tr>th,
@@ -291,8 +291,8 @@ img.icon {
 }
 
 .summary * {
-	margin:0px;
-	padding:0px;
+	margin:0;
+	padding:0;
 }
 
 .cite {
@@ -319,7 +319,7 @@ body.wait, body.wait * {
 }
 
 form {
-	margin:0px;
+	margin:0;
 }
 
 label {
@@ -335,7 +335,7 @@ form label[for], label[form] {
 
 label.input, form label[for].input, label[form].input {
 	font-weight:normal;
-	margin-top:0px;
+	margin-top:0;
 	display:inline-block;
 }
 
@@ -347,9 +347,9 @@ input, textarea, .textarea {
 	background:-webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
 	background:-moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
 	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#EEEEEE, endColorstr=white, GradientType=0)";
-	box-shadow:rgba(0,0,0, 0.1) 0px 0px 8px;
-	-moz-box-shadow:rgba(0,0,0, 0.1) 0px 0px 8px;
-	-webkit-box-shadow:rgba(0,0,0, 0.1) 0px 0px 8px;
+	box-shadow:rgba(0,0,0, 0.1) 0 0 8px;
+	-moz-box-shadow:rgba(0,0,0, 0.1) 0 0 8px;
+	-webkit-box-shadow:rgba(0,0,0, 0.1) 0 0 8px;
 }
 
 button {
@@ -371,7 +371,7 @@ button[type=submit] {
 }
 
 button.add, button.remove, button.dialog {
-	padding:0px;
+	padding:0;
 }
 
 label.error {
@@ -413,14 +413,14 @@ header, nav, article, footer, address, details, summary {
 	#logo {
 		float:none;
 		position:absolute;
-		top:0px;
-		left:0px;
+		top:0;
+		left:0;
 	}
 	#nav {
 		float:none;
 		position:absolute;
 		top:10em;
-		left:0px;
+		left:0;
 	}
 	#tabs, #content, #footer {
 		margin-left:10em;

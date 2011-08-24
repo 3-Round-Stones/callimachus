@@ -1,0 +1,49 @@
+/* font.css */
+
+body {
+	font-family:sans-serif;
+}
+
+h1 {
+	font-size:x-large;
+}
+
+h2 {
+	font-size:large;
+}
+
+h3 {
+	font-size:medium;
+}
+
+h4 {
+	font-size:small;
+}
+
+h5 {
+	font-size:x-small;
+}
+
+h6 {
+	font-size:xx-small;
+}
+
+#header {
+	font-size:x-small;
+}
+
+#nav>*,#tabs>*,#footer>* {
+	font-size:small;
+}
+
+.watermark {
+	font-size:small;
+	font-style:italic;
+}
+
+@media print {
+	body {
+		font-family:serif;
+	}
+} /* end print */
+

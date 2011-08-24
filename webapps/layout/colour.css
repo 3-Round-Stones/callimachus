@@ -1,0 +1,130 @@
+/* screen.css
+
+F58735 brown
+0645AD blue
+3F547F dark blue/gray
+999FAD blue/gray
+A8ACB8 light blue/gray
+DDDDDD gray
+EEEEEE light gray*/
+
+body {
+	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#DDDDDD, GradientType=0)";
+	background-color:#DDDDDD;
+	background-image:-moz-linear-gradient(top, white, #DDDDDD 256px);
+	background-image:-webkit-gradient(linear, center top, center 256, color-stop(0,white), color-stop(1,#DDDDDD));
+	background-repeat:no-repeat;
+}
+
+a[href] {
+	color:#0645AD;
+}
+
+#search-box {
+	-moz-border-radius:2pt;
+	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
+	background-image:-moz-linear-gradient(top, #DDDDDD, white, white);
+	background-image:-webkit-gradient(linear, left top, left center, from(#DDDDDD), to(white));
+	border:thin solid #999FAD;
+	border-radius:2pt;
+}
+
+#search-box-input {
+	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
+	background:transparent;
+	border:none !important;
+}
+
+#search-box-button {
+	-moz-border-radius:none;
+	-moz-box-shadow:none;
+	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#DDDDDD, endColorstr=white, GradientType=0)";
+	-webkit-border-radius:none;
+	-webkit-box-shadow:none;
+	background:transparent;
+	border:none !important;
+}
+
+#logo {
+	background-image:url(/callimachus/manifest?logo);
+	background-position:50% 50%;
+	background-repeat:no-repeat;
+}
+
+#nav>li {
+	border-bottom:1px solid #A8ACB8;
+}
+
+#nav>li:last-child {
+	border-bottom:none;
+}
+
+#nav li span {
+	color:#3F547F;
+}
+
+#tabs li a {
+	background:white;
+	border-bottom:1px solid white;
+	border-left:1px solid #A8ACB8;
+	border-right:1px solid #A8ACB8;
+	border-top:1px solid #A8ACB8;
+}
+
+#tabs li a[onclick] {
+	background:#DDDDDD;
+	border-bottom:1px solid #A8ACB8;
+}
+
+#content {
+	background-color:white;
+	border-bottom:1px solid #A8ACB8;
+	border-left:1px solid #A8ACB8;
+	border-right:0;
+	border-top:1px solid #A8ACB8;
+}
+
+body.iframe,body.iframe #content {
+	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled=false)";
+	background:inherit;
+	border:none;
+}
+
+iframe.ui-widget-content.ui-dialog-content {
+	background-color:white;
+	border:none;
+}
+
+.aside {
+	background-color:#EEEEEE;
+	border:1px solid #A8ACB8;
+}
+
+.aside>li {
+	border-bottom:1px solid #A8ACB8;
+}
+
+.aside>li:last-child {
+	border-bottom:none;
+}
+
+img {
+	border:none;
+}
+
+table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.aside>tbody>tr>th {
+	border-bottom:1px solid #A8ACB8;
+}
+
+table.aside>tbody:last-child>tr:last-child>td,table.aside>tbody:last-child>tr:last-child>th {
+	border-bottom:none;
+}
+
+.cite {
+	color:#3F547F;
+}
+
+.watermark {
+	color:#aaa;
+}
+

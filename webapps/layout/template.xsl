@@ -65,27 +65,29 @@
 			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,target-densityDpi=device-dpi"/>
 			<meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1" />
 			<link rel="icon" href="{$callimachus}/manifest?favicon" />
-			<link rel="stylesheet" href="{$layout}/template.css" />
+			<link rel="stylesheet" href="{$layout}/layout.css" />
+			<link rel="stylesheet" href="{$layout}/colour.css" />
+			<xsl:if test="//form|//xhtml:form">
+				<link rel="stylesheet" href="{$layout}/form.css" />
+				<link type="text/css" href="{$layout}/jquery-ui.css" rel="stylesheet" />
+			</xsl:if>
 			<xsl:comment>[if lt IE 9]>
 				&lt;link rel="stylesheet" href="<xsl:value-of select="$layout" />/ie8.css" /&gt;
 			&lt;![endif]</xsl:comment>
-			<xsl:if test="$query='create' or $query='edit'">
-			<link type="text/css" href="{$layout}/jquery-ui.css" rel="stylesheet" />
-			</xsl:if>
 			<xsl:apply-templates select="*[local-name()='link' or local-name()='style']" />
 
 			<xsl:comment>[if lt IE 9]>
 				&lt;script src="//html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;
 			&lt;![endif]</xsl:comment>
 			<script type="text/javascript" src="{$callimachus}/scripts/web_bundle?source">&#160;</script>
-			<xsl:if test="$query='create' or $query='edit'">
-			<script type="text/javascript" src="{$callimachus}/scripts/form_bundle?source">&#160;</script>
+			<xsl:if test="//form|//xhtml:form">
+				<script type="text/javascript" src="{$callimachus}/scripts/form_bundle?source">&#160;</script>
 			</xsl:if>
 			<xsl:if test="$query='create'">
-			<script type="text/javascript" src="{$callimachus}/operations/create.js">&#160;</script>
+				<script type="text/javascript" src="{$callimachus}/operations/create.js">&#160;</script>
 			</xsl:if>
 			<xsl:if test="$query='edit'">
-			<script type="text/javascript" src="{$callimachus}/operations/edit.js">&#160;</script>
+				<script type="text/javascript" src="{$callimachus}/operations/edit.js">&#160;</script>
 			</xsl:if>
 			<xsl:apply-templates select="*[local-name()!='link' and local-name()!='style']|text()|comment()" />
 			<noscript><style>body.wait, body.wait * {cursor: auto !important}</style></noscript>

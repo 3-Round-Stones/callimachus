@@ -8,7 +8,7 @@ A8ACB8 light blue/gray
 DDDDDD gray
 EEEEEE light gray*/
 
-body {
+html {
 	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#DDDDDD, GradientType=0)";
 	background-color:#DDDDDD;
 	background-image:-moz-linear-gradient(top, white, #DDDDDD 256px);

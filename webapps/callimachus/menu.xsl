@@ -22,15 +22,15 @@
 	<xsl:template match="sparql:result">
 		<xsl:variable name="label" select="sparql:binding[@name='label']/*/text()" />
 		<li>
-			<xsl:if test="sparql:binding/@name='link'">
+			<xsl:if test="sparql:binding[@name='link']">
 				<a href="{sparql:binding[@name='link']/*}">
 					<xsl:value-of select="$label" />
 				</a>
 			</xsl:if>
-			<xsl:if test="not(sparql:binding/@name='link')">
-				<span>
+			<xsl:if test="not(sparql:binding[@name='link'])">
+				<h3>
 					<xsl:value-of select="$label" />
-				</span>
+				</h3>
 			</xsl:if>
 			<xsl:if test="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]">
 				<ul>

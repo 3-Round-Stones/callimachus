@@ -19,37 +19,43 @@
 	calli:logo <logo.png> ; calli:favicon <favicon.ico> .
 
 </callimachus/menu> calli:link </>;
-	calli:item </callimachus/menu#mainpage>;
-	calli:item </callimachus/menu#contents>;
-	calli:item </callimachus/menu#allpages>;
-	calli:item </callimachus/menu#recentchanges>;
+	calli:item </callimachus/menu#site>;
+	calli:item </callimachus/menu#development>;
 	calli:item </callimachus/menu#administration>;
 	calli:item </callimachus/menu#toolbox>.
 
-</callimachus/menu#mainpage> calli:position 1; rdfs:label "Main page"; calli:link </page/MainPage>.
-</callimachus/menu#contents> calli:position 2; rdfs:label "Contents"; calli:link </callimachus/menu>.
-</callimachus/menu#allpages> calli:position 3; rdfs:label "All pages"; calli:link </callimachus/Page>.
-</callimachus/menu#recentchanges> calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
+</callimachus/menu#site> calli:position 1; rdfs:label "Site";
+	calli:item </callimachus/menu#mainpage>;
+	calli:item </callimachus/menu#contents>;
+	calli:item </callimachus/menu#recentchanges>.
+</callimachus/menu#development> calli:position 8; rdfs:label "Development";
+	calli:item </callimachus/menu#allpages>;
+	calli:item </callimachus/menu#conceptschemes>;
+	calli:item </callimachus/menu#ontologies>.
 </callimachus/menu#administration> calli:position 9; rdfs:label "Administration";
-		calli:item </callimachus/menu#usergroups>;
-		calli:item </callimachus/menu#manifest>;
-		calli:item </callimachus/menu#conceptschemes>;
-		calli:item </callimachus/menu#ontologies>;
-		calli:item </callimachus/menu#namedqueries>;
-		calli:item </callimachus/menu#sparqlquery>.
+	calli:item </callimachus/menu#usergroups>;
+	calli:item </callimachus/menu#manifest>;
+	calli:item </callimachus/menu#namedqueries>;
+	calli:item </callimachus/menu#sparqlquery>.
 </callimachus/menu#toolbox> calli:position 10; rdfs:label "Toolbox";
-		calli:item </callimachus/menu#whatlinkshere>;
-		calli:item </callimachus/menu#relatedchanges>;
-		calli:item </callimachus/menu#introspectresource>;
-		calli:item </callimachus/menu#permissions>;
-		calli:item </callimachus/menu#printthispage>.
+	calli:item </callimachus/menu#whatlinkshere>;
+	calli:item </callimachus/menu#relatedchanges>;
+	calli:item </callimachus/menu#introspectresource>;
+	calli:item </callimachus/menu#permissions>;
+	calli:item </callimachus/menu#printthispage>.
+
+</callimachus/menu#mainpage> calli:position 1; rdfs:label "Main page"; calli:link </page/main-page>.
+</callimachus/menu#contents> calli:position 2; rdfs:label "Contents"; calli:link </callimachus/menu>.
+</callimachus/menu#recentchanges> calli:position 3; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
+
+</callimachus/menu#allpages> calli:position 1; rdfs:label "All pages"; calli:link </callimachus/Page>.
+</callimachus/menu#conceptschemes> calli:position 2; rdfs:label "Concept schemes"; calli:link </callimachus/skos/ConceptScheme>.
+</callimachus/menu#ontologies> calli:position 3; rdfs:label "Ontologies"; calli:link </callimachus/owl/Ontology>.
 
 </callimachus/menu#usergroups> calli:position 1; rdfs:label "User groups"; calli:link </accounts>.
 </callimachus/menu#manifest> calli:position 2; rdfs:label "Manifest"; calli:link </callimachus/manifest>.
-</callimachus/menu#conceptschemes> calli:position 3; rdfs:label "Concept schemes"; calli:link </callimachus/skos/ConceptScheme>.
-</callimachus/menu#ontologies> calli:position 4; rdfs:label "Ontologies"; calli:link </callimachus/owl/Ontology>.
-</callimachus/menu#namedqueries> calli:position 5; rdfs:label "Named queries"; calli:link </callimachus/NamedQuery>.
-</callimachus/menu#sparqlquery> calli:position 6; rdfs:label "SPARQL query"; calli:link </sparql>.
+</callimachus/menu#namedqueries> calli:position 3; rdfs:label "Named queries"; calli:link </callimachus/NamedQuery>.
+</callimachus/menu#sparqlquery> calli:position 4; rdfs:label "SPARQL query"; calli:link </sparql>.
 
 </callimachus/menu#whatlinkshere> calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>.
 </callimachus/menu#relatedchanges> calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>.

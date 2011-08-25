@@ -40,7 +40,7 @@
 * jQuery UI CSS Framework
 * Copyright (c) 2009 AUTHORS.txt (http://jqueryui.com/about)
 * Dual licensed under the MIT (MIT-LICENSE.txt) and GPL (GPL-LICENSE.txt) licenses.
-* To view and modify this theme, visit http://jqueryui.com/themeroller/?ffDefault=Trebuchet%20MS,%20Tahoma,%20Verdana,%20Arial,%20sans-serif&fwDefault=bold&fsDefault=1em&cornerRadius=2px&bgColorHeader=dddddd&bgTextureHeader=03_highlight_soft.png&bgImgOpacityHeader=100&borderColorHeader=a8acb8&fcHeader=333333&iconColorHeader=f58735&bgColorContent=ffffff&bgTextureContent=01_flat.png&bgImgOpacityContent=100&borderColorContent=a8acb8&fcContent=333333&iconColorContent=f58735&bgColorDefault=eeeeee&bgTextureDefault=01_flat.png&bgImgOpacityDefault=100&borderColorDefault=a8acb8&fcDefault=0645ad&iconColorDefault=f58735&bgColorHover=dddddd&bgTextureHover=01_flat.png&bgImgOpacityHover=100&borderColorHover=3f547f&fcHover=0645ad&iconColorHover=f58735&bgColorActive=ffffff&bgTextureActive=01_flat.png&bgImgOpacityActive=100&borderColorActive=a8acb8&fcActive=333333&iconColorActive=f58735&bgColorHighlight=fbf9ee&bgTextureHighlight=01_flat.png&bgImgOpacityHighlight=100&borderColorHighlight=fcefa1&fcHighlight=363636&iconColorHighlight=2e83ff&bgColorError=fef1ec&bgTextureError=01_flat.png&bgImgOpacityError=100&borderColorError=cd0a0a&fcError=cd0a0a&iconColorError=cd0a0a&bgColorOverlay=aaaaaa&bgTextureOverlay=01_flat.png&bgImgOpacityOverlay=100&opacityOverlay=30&bgColorShadow=000000&bgTextureShadow=21_glow_ball.png&bgImgOpacityShadow=10&opacityShadow=10&thicknessShadow=2px&offsetTopShadow=-1px&offsetLeftShadow=-1px&cornerRadiusShadow=5px
+* To view and modify this theme, visit http://jqueryui.com/themeroller/?ffDefault=Trebuchet%20MS,%20Tahoma,%20Verdana,%20Arial,%20sans-serif&fwDefault=bold&fsDefault=1em&cornerRadius=3px&bgColorHeader=dbe7f0&bgTextureHeader=01_flat.png&bgImgOpacityHeader=100&borderColorHeader=c6d4e0&fcHeader=000000&iconColorHeader=000000&bgColorContent=ffffff&bgTextureContent=01_flat.png&bgImgOpacityContent=100&borderColorContent=c6d4e0&fcContent=333333&iconColorContent=ffffff&bgColorDefault=555555&bgTextureDefault=01_flat.png&bgImgOpacityDefault=100&borderColorDefault=333333&fcDefault=ffffff&iconColorDefault=ffffff&bgColorHover=3a80b3&bgTextureHover=01_flat.png&bgImgOpacityHover=100&borderColorHover=333333&fcHover=ffffff&iconColorHover=ffffff&bgColorActive=ffffff&bgTextureActive=01_flat.png&bgImgOpacityActive=100&borderColorActive=c6d4e0&fcActive=333333&iconColorActive=000000&bgColorHighlight=fbf9ee&bgTextureHighlight=01_flat.png&bgImgOpacityHighlight=100&borderColorHighlight=fcefa1&fcHighlight=363636&iconColorHighlight=2e83ff&bgColorError=fef1ec&bgTextureError=01_flat.png&bgImgOpacityError=100&borderColorError=cd0a0a&fcError=cd0a0a&iconColorError=cd0a0a&bgColorOverlay=aaaaaa&bgTextureOverlay=01_flat.png&bgImgOpacityOverlay=100&opacityOverlay=30&bgColorShadow=000000&bgTextureShadow=21_glow_ball.png&bgImgOpacityShadow=10&opacityShadow=10&thicknessShadow=3px&offsetTopShadow=-1px&offsetLeftShadow=0px&cornerRadiusShadow=3px
 */
 
 
@@ -48,17 +48,18 @@
 ----------------------------------*/
 .ui-widget { font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif; font-size: 1em; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif; font-size: 1em; }
-.ui-widget-content { border: 1px solid #a8acb8; background: #ffffff url(images/ui-bg_flat_100_ffffff_40x100.png) 50% 50% repeat-x; color: #333333; }
-.ui-widget-header { border: 1px solid #a8acb8; background: #dddddd url(images/ui-bg_highlight-soft_100_dddddd_1x100.png) 50% 50% repeat-x; color: #333333; font-weight: bold; }
-.ui-widget-header a { color: #333333; }
+.ui-widget-content { border: 1px solid #c6d4e0; background: #ffffff url(images/ui-bg_flat_100_ffffff_40x100.png) 50% 50% repeat-x; color: #333333; }
+.ui-widget-content a { color: #333333; }
+.ui-widget-header { border: 1px solid #c6d4e0; background: #dbe7f0 url(images/ui-bg_flat_100_dbe7f0_40x100.png) 50% 50% repeat-x; color: #000000; font-weight: bold; }
+.ui-widget-header a { color: #000000; }
 
 /* Interaction states
 ----------------------------------*/
-.ui-state-default, .ui-widget-content .ui-state-default { border: 1px solid #a8acb8; background: #eeeeee url(images/ui-bg_flat_100_eeeeee_40x100.png) 50% 50% repeat-x; font-weight: bold; color: #0645ad; outline: none; }
-.ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: #0645ad; text-decoration: none; outline: none; }
-.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus { border: 1px solid #3f547f; background: #dddddd url(images/ui-bg_flat_100_dddddd_40x100.png) 50% 50% repeat-x; font-weight: bold; color: #0645ad; outline: none; }
-.ui-state-hover a, .ui-state-hover a:hover { color: #0645ad; text-decoration: none; outline: none; }
-.ui-state-active, .ui-widget-content .ui-state-active { border: 1px solid #a8acb8; background: #ffffff url(images/ui-bg_flat_100_ffffff_40x100.png) 50% 50% repeat-x; font-weight: bold; color: #333333; outline: none; }
+.ui-state-default, .ui-widget-content .ui-state-default { border: 1px solid #333333; background: #555555 url(images/ui-bg_flat_100_555555_40x100.png) 50% 50% repeat-x; font-weight: bold; color: #ffffff; outline: none; }
+.ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: #ffffff; text-decoration: none; outline: none; }
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus { border: 1px solid #333333; background: #3a80b3 url(images/ui-bg_flat_100_3a80b3_40x100.png) 50% 50% repeat-x; font-weight: bold; color: #ffffff; outline: none; }
+.ui-state-hover a, .ui-state-hover a:hover { color: #ffffff; text-decoration: none; outline: none; }
+.ui-state-active, .ui-widget-content .ui-state-active { border: 1px solid #c6d4e0; background: #ffffff url(images/ui-bg_flat_100_ffffff_40x100.png) 50% 50% repeat-x; font-weight: bold; color: #333333; outline: none; }
 .ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited { color: #333333; outline: none; text-decoration: none; }
 
 /* Interaction Cues
@@ -76,12 +77,12 @@
 ----------------------------------*/
 
 /* states and images */
-.ui-icon { width: 16px; height: 16px; background-image: url(images/ui-icons_f58735_256x240.png); }
-.ui-widget-content .ui-icon {background-image: url(images/ui-icons_f58735_256x240.png); }
-.ui-widget-header .ui-icon {background-image: url(images/ui-icons_f58735_256x240.png); }
-.ui-state-default .ui-icon { background-image: url(images/ui-icons_f58735_256x240.png); }
-.ui-state-hover .ui-icon, .ui-state-focus .ui-icon {background-image: url(images/ui-icons_f58735_256x240.png); }
-.ui-state-active .ui-icon {background-image: url(images/ui-icons_f58735_256x240.png); }
+.ui-icon { width: 16px; height: 16px; background-image: url(images/ui-icons_ffffff_256x240.png); }
+.ui-widget-content .ui-icon {background-image: url(images/ui-icons_ffffff_256x240.png); }
+.ui-widget-header .ui-icon {background-image: url(images/ui-icons_000000_256x240.png); }
+.ui-state-default .ui-icon { background-image: url(images/ui-icons_ffffff_256x240.png); }
+.ui-state-hover .ui-icon, .ui-state-focus .ui-icon {background-image: url(images/ui-icons_ffffff_256x240.png); }
+.ui-state-active .ui-icon {background-image: url(images/ui-icons_000000_256x240.png); }
 .ui-state-highlight .ui-icon {background-image: url(images/ui-icons_2e83ff_256x240.png); }
 .ui-state-error .ui-icon, .ui-state-error-text .ui-icon {background-image: url(images/ui-icons_cd0a0a_256x240.png); }
 
@@ -265,19 +266,19 @@
 ----------------------------------*/
 
 /* Corner radius */
-.ui-corner-tl { -moz-border-radius-topleft: 2px; -webkit-border-top-left-radius: 2px; }
-.ui-corner-tr { -moz-border-radius-topright: 2px; -webkit-border-top-right-radius: 2px; }
-.ui-corner-bl { -moz-border-radius-bottomleft: 2px; -webkit-border-bottom-left-radius: 2px; }
-.ui-corner-br { -moz-border-radius-bottomright: 2px; -webkit-border-bottom-right-radius: 2px; }
-.ui-corner-top { -moz-border-radius-topleft: 2px; -webkit-border-top-left-radius: 2px; -moz-border-radius-topright: 2px; -webkit-border-top-right-radius: 2px; }
-.ui-corner-bottom { -moz-border-radius-bottomleft: 2px; -webkit-border-bottom-left-radius: 2px; -moz-border-radius-bottomright: 2px; -webkit-border-bottom-right-radius: 2px; }
-.ui-corner-right {  -moz-border-radius-topright: 2px; -webkit-border-top-right-radius: 2px; -moz-border-radius-bottomright: 2px; -webkit-border-bottom-right-radius: 2px; }
-.ui-corner-left { -moz-border-radius-topleft: 2px; -webkit-border-top-left-radius: 2px; -moz-border-radius-bottomleft: 2px; -webkit-border-bottom-left-radius: 2px; }
-.ui-corner-all { -moz-border-radius: 2px; -webkit-border-radius: 2px; }
+.ui-corner-tl { -moz-border-radius-topleft: 3px; -webkit-border-top-left-radius: 3px; }
+.ui-corner-tr { -moz-border-radius-topright: 3px; -webkit-border-top-right-radius: 3px; }
+.ui-corner-bl { -moz-border-radius-bottomleft: 3px; -webkit-border-bottom-left-radius: 3px; }
+.ui-corner-br { -moz-border-radius-bottomright: 3px; -webkit-border-bottom-right-radius: 3px; }
+.ui-corner-top { -moz-border-radius-topleft: 3px; -webkit-border-top-left-radius: 3px; -moz-border-radius-topright: 3px; -webkit-border-top-right-radius: 3px; }
+.ui-corner-bottom { -moz-border-radius-bottomleft: 3px; -webkit-border-bottom-left-radius: 3px; -moz-border-radius-bottomright: 3px; -webkit-border-bottom-right-radius: 3px; }
+.ui-corner-right {  -moz-border-radius-topright: 3px; -webkit-border-top-right-radius: 3px; -moz-border-radius-bottomright: 3px; -webkit-border-bottom-right-radius: 3px; }
+.ui-corner-left { -moz-border-radius-topleft: 3px; -webkit-border-top-left-radius: 3px; -moz-border-radius-bottomleft: 3px; -webkit-border-bottom-left-radius: 3px; }
+.ui-corner-all { -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 
 /* Overlays */
 .ui-widget-overlay { background: #aaaaaa url(images/ui-bg_flat_100_aaaaaa_40x100.png) 50% 50% repeat-x; opacity: .30;filter:Alpha(Opacity=30); }
-.ui-widget-shadow { margin: -1px 0 0 -1px; padding: 2px; background: #000000 url(images/ui-bg_glow-ball_10_000000_600x600.png) 50% 35% repeat-x; opacity: .10;filter:Alpha(Opacity=10); -moz-border-radius: 5px; -webkit-border-radius: 5px; }/* Resizable
+.ui-widget-shadow { margin: -1px 0 0 0px; padding: 3px; background: #000000 url(images/ui-bg_glow-ball_10_000000_600x600.png) 50% 35% repeat-x; opacity: .10;filter:Alpha(Opacity=10); -moz-border-radius: 3px; -webkit-border-radius: 3px; }/* Resizable
 ----------------------------------*/
 .ui-resizable { position: relative;}
 .ui-resizable-handle { position: absolute;font-size: 0.1px;z-index: 99999; display: block;}

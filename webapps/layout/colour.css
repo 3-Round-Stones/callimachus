@@ -42,6 +42,13 @@ a[href] {
 	background-repeat: no-repeat;
 }
 
+#header-login .ui-state-default {
+	background:#eeeeee url(images/ui-bg_flat_100_eeeeee_40x100.png) 50% 50% repeat-x;
+	border:1px solid #a8acb8;
+	color:#0645ad;
+}
+
+
 #nav>li {
 	border-bottom:1px solid #A8ACB8;
 }

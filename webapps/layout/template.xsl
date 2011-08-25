@@ -68,7 +68,6 @@
 			<xsl:if test="//form|//xhtml:form">
 				<link type="text/css" href="{$layout}/jquery-ui.css" rel="stylesheet" />
 			</xsl:if>
-				<link type="text/css" href="{$layout}/jquery-ui.css" rel="stylesheet" />
 			<link rel="stylesheet" href="{$layout}/content.css" />
 			<link rel="stylesheet" href="{$layout}/layout.css" />
 			<xsl:if test="//*[contains(@class,'aside')]">

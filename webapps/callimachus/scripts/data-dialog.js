@@ -17,6 +17,7 @@ $(document).bind('DOMNodeInserted', function (event) {
 var iframe_counter = 0;
 
 function initDialogButton(buttons) {
+	buttons.addClass('ui-state-default');
 	buttons.prepend('<span class="ui-icon ui-icon-newwin" style="display:inline-block;vertical-align:text-bottom"></span>');
 	buttons.each(function() {
 		var add = $(this);

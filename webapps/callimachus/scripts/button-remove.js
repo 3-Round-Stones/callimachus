@@ -65,6 +65,7 @@ function bindRemoveButtons(buttons) {
 		}
 	});
 	buttons.css('display', "none");
+	buttons.addClass('ui-state-default');
 	buttons.prepend('<span class="ui-icon ui-icon-closethick" style="display:inline-block;vertical-align:text-bottom"></span>');
 	buttons.parent().hover(showButton, function() {
 		$(this).children('button.remove').fadeOut();

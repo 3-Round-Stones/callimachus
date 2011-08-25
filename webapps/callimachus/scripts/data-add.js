@@ -15,6 +15,7 @@ $(document).bind("DOMNodeInserted", function (event) {
 });
 
 function bindAddButtons(buttons) {
+	buttons.addClass('ui-state-default');
 	buttons.prepend('<span class="ui-icon ui-icon-plusthick" style="display:inline-block;vertical-align:text-bottom"></span>');
 	buttons.click(function() {
 		var button = $(this);

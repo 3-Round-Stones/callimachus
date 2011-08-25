@@ -22,11 +22,16 @@ body {
 }
 
 #header-lookup {
-	display:inline;
+	display:inline-block;
 }
 
 #header-login {
-	display:inline;
+	display:inline-block;
+}
+
+#header-login>button {
+	font-weight:bold;
+	font-size:1em;
 }
 
 #header-login .ui-icon {

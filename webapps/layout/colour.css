@@ -36,7 +36,7 @@ a[href] {
 	border-radius:2px;
 }
 
-#header-login .ui-icon {
+#header-login .ui-icon-circle-arrow-s {
 	background-image: url(images/ui-icons_f58735_256x240.png);
 	background-position: -128px -192px;
 	background-repeat: no-repeat;
@@ -47,7 +47,6 @@ a[href] {
 	border:1px solid #a8acb8;
 	color:#0645ad;
 }
-
 
 #nav>li {
 	border-bottom:1px solid #A8ACB8;

@@ -24,21 +24,12 @@ iframe.ui-widget-content.ui-dialog-content {
 	padding:0;
 }
 
-div.ui-datepicker {
-	font-size:small;
-}
-
 a[href] {
 	text-decoration:none;
 }
 
 a[href]:hover {
 	text-decoration:underline;
-}
-
-iframe.ui-widget-content.ui-dialog-content {
-	margin:0;
-	padding:0;
 }
 
 pre {
@@ -113,8 +104,8 @@ input,textarea,.textarea {
 }
 
 button {
-	white-space:nowrap;
 	position:relative;
+	white-space:nowrap;
 }
 
 button:active {
@@ -136,4 +127,4 @@ label.error {
 		display:none;
 	}
 } /* end print */
-	
+

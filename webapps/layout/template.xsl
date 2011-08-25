@@ -78,6 +78,7 @@
 				&lt;link rel="stylesheet" href="<xsl:value-of select="$layout" />/ie8.css" /&gt;
 			&lt;![endif]</xsl:comment>
 			<xsl:apply-templates select="*[local-name()='link' or local-name()='style']" />
+			<noscript><style>body.wait, body.wait * {cursor: auto !important}</style></noscript>
 
 			<xsl:comment>[if lt IE 9]>
 				&lt;script src="//html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;
@@ -93,7 +94,6 @@
 				<script type="text/javascript" src="{$callimachus}/operations/edit.js">&#160;</script>
 			</xsl:if>
 			<xsl:apply-templates select="*[local-name()!='link' and local-name()!='style']|text()|comment()" />
-			<noscript><style>body.wait, body.wait * {cursor: auto !important}</style></noscript>
 		</xsl:copy>
 	</xsl:template>
 

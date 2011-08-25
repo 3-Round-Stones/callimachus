@@ -25,13 +25,6 @@
 	margin-bottom:1em;
 }
 
-.aside {
-	clear:right;
-	list-style:none;
-	padding:1ex;
-	width:16em;
-}
-
 .aside>li {
 	padding:0.5ex;
 }

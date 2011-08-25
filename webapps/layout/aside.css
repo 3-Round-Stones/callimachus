@@ -1,21 +1,5 @@
 /* aside.css */
 
-@media screen and (min-width:36em) {
-	h1 ~ .aside,hgroup ~ .aside,h2 ~ .aside {
-		position:relative;
-		top:-3.5em;
-	}
-	.aside {
-		float:right;
-	}
-} /* end screen */
-
-@media print {
-	.aside {
-		float:right;
-	}
-} /* end print */
-
 .aside {
 	clear:right;
 	list-style:none;
@@ -44,4 +28,20 @@ table.aside {
 table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.aside>tbody>tr>th {
 	padding:0.5ex;
 }
-	
+
+@media screen and (min-width:36em) {
+	h1 ~ .aside,hgroup ~ .aside {
+		position:relative;
+		top:-3.5em;
+	}
+	.aside {
+		float:right;
+	}
+} /* end screen */
+
+@media print {
+	.aside {
+		float:right;
+	}
+} /* end print */
+

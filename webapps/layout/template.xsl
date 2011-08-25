@@ -107,92 +107,99 @@
 				</xsl:if>
 			</xsl:attribute>
 			<xsl:apply-templates select="@*[name() != 'class']" />
-			<div id="top" />
-			<div id="main">
-				<div id="header">
-					<div id="header-text">
-						<form id="header-login" action="{$accounts}?login">
-							<button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
-								<span class="ui-button-icon-primary ui-icon ui-icon-circle-arrow-s">
-									<xsl:text> </xsl:text>
+			<div id="page-top">
+				<div id="top" />
+				<div id="page">
+					<div id="header">
+						<div id="header-float">
+							<div id="header-text">
+								<form id="header-login" action="{$accounts}?login">
+									<button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+										<span class="ui-button-icon-primary ui-icon ui-icon-circle-arrow-s">
+											<xsl:text> </xsl:text>
+										</span>
+										<span class="ui-button-text">Login</span>
+									</button>
+								</form>
+								<span id="header-profile" class="protected" style="display:none">
+									<a id="profile-link" href="{$accounts}?login">Profile</a>
+									<span> | </span>
+									<a href="{$accounts}?settings">Settings</a>
+									<span> | </span>
+									<a href="{$accounts}?contributions">Contributions</a>
+									<span> | </span>
+									<a id="logout-link" href="{$accounts}?logout">Logout</a>
 								</span>
-								<span class="ui-button-text">Login</span>
-							</button>
-						</form>
-						<span id="header-profile" class="protected" style="display:none">
-							<a id="profile-link" href="{$accounts}?login">Profile</a>
-							<span> | </span>
-							<a href="{$accounts}?settings">Settings</a>
-							<span> | </span>
-							<a href="{$accounts}?contributions">Contributions</a>
-							<span> | </span>
-							<a id="logout-link" href="{$accounts}?logout">Logout</a>
-						</span>
-						<form id="header-lookup" class="textarea" method="GET" action="{$callimachus}/go">
-							<input type="text" name="q" placeholder="Lookup..." />
-							<button type="button" onclick="form.action='{$callimachus}/lookup';form.submit()">
-								<img src="{$layout}/search.png" width="12" height="13" />
-							</button>
-						</form>
+								<form id="header-lookup" class="textarea" method="GET" action="{$callimachus}/go">
+									<input type="text" name="q" placeholder="Lookup..." />
+									<button type="button" onclick="form.action='{$callimachus}/lookup';form.submit()">
+										<img src="{$layout}/search.png" width="12" height="13" />
+									</button>
+								</form>
+							</div>
+						</div>
+						<div id="header-float-clear" />
 					</div>
-				</div>
 
-				<xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history'">
-					<ul id="tabs" class="protected">
-						<li>
-							<a id="view-tab" tabindex="1">
-								<xsl:if test="not($query='view')">
-									<xsl:attribute name="href">?view</xsl:attribute>
-									<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
-								</xsl:if>
-								<xsl:text>View</xsl:text>
-							</a>
-						</li>
-						<li>
-							<a id="edit-tab" tabindex="2">
-								<xsl:if test="not($query='edit')">
-									<xsl:attribute name="href">?edit</xsl:attribute>
-									<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
-								</xsl:if>
-								<xsl:text>Edit</xsl:text>
-							</a>
-						</li>
-						<li>
-							<a id="discussion-tab" tabindex="3">
-								<xsl:if test="not($query='discussion')">
-									<xsl:attribute name="href">?discussion</xsl:attribute>
-									<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
-								</xsl:if>
-								<xsl:text>Discussion</xsl:text>
-							</a>
-						</li>
-						<li>
-							<a id="describe-tab" tabindex="4">
-								<xsl:if test="not($query='describe')">
-									<xsl:attribute name="href">?describe</xsl:attribute>
-									<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
-								</xsl:if>
-								<xsl:text>Describe</xsl:text>
-							</a>
-						</li>
-						<li>
-							<a id="history-tab" tabindex="5">
-								<xsl:if test="not($query='history')">
-									<xsl:attribute name="href">?history</xsl:attribute>
-									<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
-								</xsl:if>
-								<xsl:text>History</xsl:text>
-							</a>
-						</li>
-					</ul>
-				</xsl:if>
+					<xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history'">
+						<ul id="tabs" class="protected">
+							<li>
+								<a id="view-tab" tabindex="1">
+									<xsl:if test="not($query='view')">
+										<xsl:attribute name="href">?view</xsl:attribute>
+										<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
+									</xsl:if>
+									<xsl:text>View</xsl:text>
+								</a>
+							</li>
+							<li>
+								<a id="edit-tab" tabindex="2">
+									<xsl:if test="not($query='edit')">
+										<xsl:attribute name="href">?edit</xsl:attribute>
+										<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
+									</xsl:if>
+									<xsl:text>Edit</xsl:text>
+								</a>
+							</li>
+							<li>
+								<a id="discussion-tab" tabindex="3">
+									<xsl:if test="not($query='discussion')">
+										<xsl:attribute name="href">?discussion</xsl:attribute>
+										<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
+									</xsl:if>
+									<xsl:text>Discussion</xsl:text>
+								</a>
+							</li>
+							<li>
+								<a id="describe-tab" tabindex="4">
+									<xsl:if test="not($query='describe')">
+										<xsl:attribute name="href">?describe</xsl:attribute>
+										<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
+									</xsl:if>
+									<xsl:text>Describe</xsl:text>
+								</a>
+							</li>
+							<li>
+								<a id="history-tab" tabindex="5">
+									<xsl:if test="not($query='history')">
+										<xsl:attribute name="href">?history</xsl:attribute>
+										<xsl:attribute name="onclick">location.replace(href);return false</xsl:attribute>
+									</xsl:if>
+									<xsl:text>History</xsl:text>
+								</a>
+							</li>
+						</ul>
+					</xsl:if>
 
-				<div id="content">
-					<div id="error-widget" class="ui-state-error ui-corner-all" style="padding: 1ex; margin: 1ex; display: none">
-						<div><span class="ui-icon ui-icon-alert" style="margin-right: 0.3em; float: left; "></span>
-						<strong>Alert:</strong><span id="error-message" style="padding: 0px 0.7em"> Sample ui-state-error style.</span></div>
+					<div id="main">
+						<div id="error-widget" class="ui-state-error ui-corner-all" style="padding: 1ex; margin: 1ex; display: none">
+							<div><span class="ui-icon ui-icon-alert" style="margin-right: 0.3em; float: left; "></span>
+							<strong>Alert:</strong><span id="error-message" style="padding: 0px 0.7em"> Sample ui-state-error style.</span></div>
+						</div>
+						<div id="content">
+							<xsl:apply-templates select="*|comment()|text()" />
+						</div>
 					</div>
-					<xsl:apply-templates select="*|comment()|text()" />
 				</div>
 			</div>
 

@@ -123,15 +123,18 @@ body {
 	font-weight:normal;
 }
 
-#content {
+#main {
 	clear:right;
 	margin:0 0 1ex;
 	overflow:hidden;
+}
+
+#content {
 	padding:1ex;
 	padding-left:1em;
 }
 
-body.iframe {
+body.iframe,body.iframe #main {
 	margin:0;
 	padding:0;
 }
@@ -168,7 +171,7 @@ body.iframe #header,body.iframe #tabs,body.iframe #nav,body.iframe #logo,body.if
 		top:10em;
 		left:0;
 	}
-	#tabs, #content, #footer {
+	#tabs, #main, #footer {
 		margin-left:10em;
 	}
 } /* end screen */
@@ -189,7 +192,7 @@ body.iframe #header,body.iframe #tabs,body.iframe #nav,body.iframe #logo,body.if
 	#logo, #nav, #header, #tabs {
 		display:none;
 	}
-	#content {
+	#main {
 		border:none;
 	}
 	body {

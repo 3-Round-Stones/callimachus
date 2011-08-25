@@ -66,6 +66,7 @@ label {
 }
 
 .textarea>input,.textarea>button {
+	outline:none !important;
 	vertical-align:middle;
 	padding:0;
 	margin:0;

@@ -75,7 +75,7 @@ label {
 }
 
 .textarea>input,.textarea>button {
-	vertical-align:top;
+	vertical-align:middle;
 	padding:0;
 	margin:0;
 }
@@ -114,6 +114,11 @@ input,textarea,.textarea {
 
 button {
 	white-space:nowrap;
+	position:relative;
+}
+
+button:active {
+	top:1px;
 }
 
 button.add,button.remove,button.dialog {

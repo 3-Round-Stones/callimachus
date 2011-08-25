@@ -68,6 +68,7 @@
 			<xsl:if test="//form|//xhtml:form">
 				<link type="text/css" href="{$layout}/jquery-ui.css" rel="stylesheet" />
 			</xsl:if>
+				<link type="text/css" href="{$layout}/jquery-ui.css" rel="stylesheet" />
 			<link rel="stylesheet" href="{$layout}/content.css" />
 			<link rel="stylesheet" href="{$layout}/layout.css" />
 			<xsl:if test="//*[contains(@class,'aside')]">
@@ -111,14 +112,14 @@
 			<div id="main">
 				<div id="header">
 					<div id="header-text">
-						<a id="header-login" href="{$accounts}?login"
-								style="display:none;padding: .2em 20px .2em 1em; text-decoration: none;position: relative; border: 1px solid #a8acb8; background: #eeeeee; font-weight: bold; color: #0645ad; outline: none; -moz-border-radius: 2px; -webkit-border-radius: 2px;">
-							Login
-							<span class="ui-icon ui-icon-circle-arrow-s"
-									style="margin: 0 0 0 5px;position: absolute;right: .2em;top: 50%;margin-top: -8px; display: block; text-indent: -99999px; overflow: hidden; background-repeat: no-repeat; width: 16px; height: 16px; background-image: url({$layout}/images/ui-icons_f58735_256x240.png); background-position: -128px -192px;">
-								<xsl:text> </xsl:text>
-							</span>
-						</a>
+						<form id="header-login" action="{$accounts}?login">
+							<button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+								<span class="ui-button-icon-primary ui-icon ui-icon-circle-arrow-s">
+									<xsl:text> </xsl:text>
+								</span>
+								<span class="ui-button-text">Login</span>
+							</button>
+						</form>
 						<span id="header-profile" class="protected" style="display:none">
 							<a id="profile-link" href="{$accounts}?login">Profile</a>
 							<span> | </span>
@@ -128,7 +129,7 @@
 							<span> | </span>
 							<a id="logout-link" href="{$accounts}?logout">Logout</a>
 						</span>
-						<form id="header-lookup" class="textarea" method="GET" action="{$callimachus}/go" style="display:inline">
+						<form id="header-lookup" class="textarea" method="GET" action="{$callimachus}/go">
 							<input type="text" name="q" placeholder="Lookup..." />
 							<button type="button" onclick="form.action='{$callimachus}/lookup';form.submit()">
 								<img src="{$layout}/search.png" width="12" height="13" />

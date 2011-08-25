@@ -26,6 +26,22 @@ a[href] {
 	background-repeat:no-repeat;
 }
 
+#header-login>button {
+	-moz-border-radius:2px;
+	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#EEEEEE, endColorstr=#DDDDDD, GradientType=0)";
+	background-color:#DDD;
+	background-image:-moz-linear-gradient(top, #EEE, #EEE, #DDD);
+	background-image:-webkit-gradient(linear, left center, left bottom, from(#EEE), to(#DDD));
+	border:thin solid #3F547F;
+	border-radius:2px;
+}
+
+#header-login .ui-icon {
+	background-image: url(images/ui-icons_f58735_256x240.png);
+	background-position: -128px -192px;
+	background-repeat: no-repeat;
+}
+
 #nav>li {
 	border-bottom:1px solid #A8ACB8;
 }

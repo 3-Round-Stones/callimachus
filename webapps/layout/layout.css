@@ -21,6 +21,26 @@ body {
 	height:1.5rem;
 }
 
+#header-lookup {
+	display:inline;
+}
+
+#header-login {
+	display:inline;
+}
+
+#header-login .ui-icon {
+	position: absolute;
+	top: 50%;
+	margin-top: -8px;
+	height: 16px;
+	width: 16px;
+}
+
+#header-login .ui-button-text {
+	padding-left:22px;
+}
+
 #login-form {
 	text-align:left;
 }
@@ -127,6 +147,7 @@ body.iframe #header,body.iframe #tabs,body.iframe #nav,body.iframe #logo,body.if
 
 #footer-powered {
 	float:right;
+	margin:0;
 }
 
 @media screen and (min-width:42em) {

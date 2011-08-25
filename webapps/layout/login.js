@@ -5,7 +5,7 @@
 $(document).bind("calliLogInPrompt", function() {
 	$(document).ready(function() {
 		if ($("#header-login").is(":visible")) {
-			$("#header-login").click();
+			$("#header-login").submit();
 		}
 	});
 });
@@ -14,7 +14,7 @@ $(document).bind("calliLoggedIn", function(event) {
 	$(document).ready(function() {
 		var title = event.title;
 		$("#login-form").hide();
-		$("#header-login").hide();
+		$("#header-login").css('display', 'none');
 		$("#profile-link").text(title);
 		$("#logout-link").click(function(event) {
 			$(document).trigger(jQuery.Event("calliLogout"));
@@ -28,23 +28,31 @@ $(document).bind("calliLoggedIn", function(event) {
 
 $(document).bind("calliLoggedOut", function() {
 	$(document).ready(function() {
-		$("#header-login").show();
-		$("#header-login").click(login);
+		$("#header-login").css('display', 'inline');
+		$("#header-login").submit(login);
 	});
 });
 
 function login(event) {
 	var link = $(this);
+	if (link.find('button').length) {
+		link = link.find('button');
+	}
 	if ($("#login-form").size() && $("#login-form").get(0).style.display != 'none' ) {
-		$("#login-form").slideUp();
-		$("#login-form").hide();
-		link.css('border-bottom-width', '1px');
-		link.css('padding-bottom', '0.2em');
-		link.css('top', null);
+		$("#login-form").slideUp(function(){
+			$("#login-form").hide();
+			link.css('margin-left', null);
+			link.css('margin-bottom', null);
+			link.css('border-bottom-width', null);
+			link.css('padding-bottom', null);
+			link.css('top', null);
+		});
 		if (window.localStorage) {
 			localStorage.removeItem('Authorization');
 		}
 	} else {
+		link.css('margin-left', '0px');
+		link.css('margin-bottom', '0px');
 		link.css('padding-bottom', '0.4em');
 		link.css('border-bottom-width', '0px');
 		link.css('top', '1px');

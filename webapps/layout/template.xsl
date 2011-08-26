@@ -32,8 +32,9 @@
 			<xsl:value-of select="'/callimachus'" />
 		</xsl:if>
 	</xsl:variable>
-	<xsl:variable name="layout_head" select="document(concat($layout, '/layout.xhtml'))/xhtml:html/xhtml:head" />
-	<xsl:variable name="layout_body" select="document(concat($layout, '/layout.xhtml'))/xhtml:html/xhtml:body" />
+	<xsl:variable name="layout_xhtml" select="document(concat($layout, '/layout.xhtml'))" />
+	<xsl:variable name="layout_head" select="$layout_xhtml/xhtml:html/xhtml:head|$layout_xhtml/html/head" />
+	<xsl:variable name="layout_body" select="$layout_xhtml/xhtml:html/xhtml:body|$layout_xhtml/html/body" />
 	<xsl:variable name="template_body" select="/xhtml:html/xhtml:body|/html/body" />
 
 	<xsl:template name="substring-before-last">
@@ -53,7 +54,7 @@
 
 	<xsl:template match="*">
 		<xsl:copy>
-			<xsl:apply-templates select="@*|*|comment()|text()" />
+			<xsl:apply-templates select="@*|*|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
 
@@ -118,37 +119,47 @@
 				<xsl:with-param name="one" select="." />
 				<xsl:with-param name="two" select="$layout_body" />
 			</xsl:call-template>
-			<xsl:apply-templates select="$layout_body/*|$layout_body/text()|$layout_body/comment()" />
+			<xsl:apply-templates mode="layout" select="$layout_body/*|$layout_body/text()|$layout_body/comment()" />
 			<xsl:if test="not($layout_body)">
 				<xsl:apply-templates select="*|text()|comment()" />
 			</xsl:if>
 		</xsl:copy>
 	</xsl:template>
 
-	<xsl:template match="xhtml:ul[@id='tabs']/xhtml:li/xhtml:a[@href]">
+	<xsl:template mode="layout" match="*">
 		<xsl:copy>
-			<xsl:if test="@href=concat('?',$query)">
-				<xsl:apply-templates select="@*[name()!='href' and name()!='onclick']" />
-			</xsl:if>
-			<xsl:if test="not(@href=concat('?',$query))">
-				<xsl:apply-templates select="@*" />
-			</xsl:if>
-			<xsl:apply-templates select="*|text()|comment()" />
+			<xsl:apply-templates mode="layout" select="@*|*|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
 
-	<xsl:template match="xhtml:div[@id='content']">
+	<xsl:template mode="layout" match="@*|text()|comment()">
+		<xsl:copy />
+	</xsl:template>
+
+	<xsl:template mode="layout" match="xhtml:ul[@id='tabs']/xhtml:li/xhtml:a[@href]|ul[@id='tabs']/li/a[@href]">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" />
+			<xsl:if test="@href=concat('?',$query)">
+				<xsl:apply-templates mode="layout" select="@*[name()!='href' and name()!='onclick']" />
+			</xsl:if>
+			<xsl:if test="not(@href=concat('?',$query))">
+				<xsl:apply-templates mode="layout" select="@*" />
+			</xsl:if>
+			<xsl:apply-templates mode="layout" select="*|text()|comment()" />
+		</xsl:copy>
+	</xsl:template>
+
+	<xsl:template mode="layout" match="xhtml:div[@id='content']|div[@id='content']">
+		<xsl:copy>
+			<xsl:apply-templates mode="layout" select="@*" />
 			<xsl:apply-templates select="$template_body/*|$template_body/comment()|$template_body/text()" />
 		</xsl:copy>
 	</xsl:template>
 
-	<xsl:template match="xhtml:ul[@id='nav']">
+	<xsl:template mode="layout" match="xhtml:ul[@id='nav']|ul[@id='nav']">
 		<xsl:copy-of select="document(concat($callimachus, '/menu?items'))/xhtml:html/xhtml:body/node()" />
 	</xsl:template>
 
-	<xsl:template match="xhtml:p[@id='resource-lastmod']">
+	<xsl:template mode="layout" match="xhtml:p[@id='resource-lastmod']|p[@id='resource-lastmod']">
 		<xsl:if test="$template and ($query='view' or $query='edit')">
 			<p id="resource-lastmod" about="?this" rel="audit:revision" resource="?revision">This resource was last modified at 
 				<time pubdate="pubdate" property="audit:committedOn" class="abbreviated" />
@@ -156,9 +167,9 @@
 		</xsl:if>
 	</xsl:template>
 
-	<xsl:template match="xhtml:p[@id='manifest-rights']">
+	<xsl:template mode="layout" match="xhtml:p[@id='manifest-rights']|p[@id='manifest-rights']">
 		<xsl:copy>
-			<xsl:apply-templates select="@*" />
+			<xsl:apply-templates mode="layout" select="@*" />
 			<xsl:copy-of select="document(concat($callimachus, '/manifest?rights'))/xhtml:html/xhtml:body/node()" />
 		</xsl:copy>
 	</xsl:template>

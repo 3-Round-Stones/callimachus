@@ -40,7 +40,9 @@ for the server to read runtime changes in the webapps directory.
 - 2) Extract jnotify-native-linux-0.93-src.zip
 - 3) Edit the JDK include paths in Release/subdir.mk
 - 4) Move the include statement for "unistd.h" up above "sys/time.h" in net_contentobjects_jnotify_linux_JNotify_linux.c
-- 5) cd Release/ && make && cp libjnotify.so $CALLIMACHUS/lib/
+- 5) cd Release && make
+- 6) Edit etc/callimachus.conf
+- 7) Change the LIB variable to point to the Release directory above
 More detailed instructions for creating your own libjnotify.so file can be found at
 http://jnotify.sourceforge.net/
 

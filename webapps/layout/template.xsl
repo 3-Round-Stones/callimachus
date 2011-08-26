@@ -136,6 +136,14 @@
 		<xsl:copy />
 	</xsl:template>
 
+	<xsl:template mode="layout" match="xhtml:ul[@id='tabs']">
+		<xsl:if test="xhtml:li/xhtml:a[@href=concat('?',$query)]|li/a[@href=concat('?',$query)]">
+			<xsl:copy>
+				<xsl:apply-templates mode="layout" select="@*|*|text()|comment()" />
+			</xsl:copy>
+		</xsl:if>
+	</xsl:template>
+
 	<xsl:template mode="layout" match="xhtml:ul[@id='tabs']/xhtml:li/xhtml:a[@href]|ul[@id='tabs']/li/a[@href]">
 		<xsl:copy>
 			<xsl:if test="@href=concat('?',$query)">

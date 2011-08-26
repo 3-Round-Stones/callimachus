@@ -141,7 +141,7 @@ function patchData(form, url, type, data, callback) {
 
 function getLastModified() {
 	try {
-		var committedOn = $('#footer-lastmod').find('[property=audit:committedOn]').attr('content');
+		var committedOn = $('#resource-lastmod').find('[property=audit:committedOn]').attr('content');
 		return new Date(committedOn).toGMTString();
 	} catch (e) {
 		return null;

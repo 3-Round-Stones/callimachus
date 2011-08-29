@@ -1,0 +1,60 @@
+PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+
+ASK {
+	{
+		{
+			{
+				$this calli:reader $credential
+			} UNION {
+				$this calli:contributor $credential
+			} UNION {
+				$this calli:editor $credential
+			}
+			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $query = "discussion")
+			FILTER (!bound($query) || $query = "view" || $query = "discussion" || $query = "history"
+				|| $query = "whatlinkshere" || $query = "relatedchanges")
+		} UNION {
+			{
+				$this calli:contributor $credential
+			} UNION {
+				$this calli:editor $credential
+			}
+			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
+			FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
+		} UNION {
+			$this calli:editor $credential
+			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" || $method = "PUT" || $method = "DELETE")
+			FILTER (!bound($query) || $query = "edit")
+		} UNION {
+			$this calli:administrator $credential
+		}
+	} UNION {
+		?group calli:member $credential
+		{
+			{
+				$this calli:reader ?group
+			} UNION {
+				$this calli:contributor ?group
+			} UNION {
+				$this calli:editor ?group
+			}
+			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" && $query = "discussion")
+			FILTER (!bound($query) || $query = "view" || $query = "discussion" || $query = "history"
+				|| $query = "whatlinkshere" || $query = "relatedchanges")
+		} UNION {
+			{
+				$this calli:contributor ?group
+			} UNION {
+				$this calli:editor ?group
+			}
+			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
+			FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
+		} UNION {
+			$this calli:editor ?group
+			FILTER ($query = "edit" && ($method = "GET" || $method = "HEAD" || $method = "POST"))
+			FILTER (!bound($query) && ($method = "PUT" || $method = "DELETE"))
+		} UNION {
+			$this calli:administrator ?group
+		}
+	}
+}

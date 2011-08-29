@@ -38,6 +38,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.concepts.DigestRealm;
+import org.callimachusproject.traits.SelfAuthorizingTarget;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.traits.VersionedObject;
 import org.openrdf.repository.RepositoryException;
@@ -234,8 +235,12 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 			+ "OPTIONAL { ?user :encoded ?encoded; :algorithm \"MD5\" } }")
 	protected abstract List<Object[]> findDigest(@name("name") String username);
 
-	protected abstract boolean AuthorizeCredential(Object credential,
-			String method, Object object, String query);
+	private boolean AuthorizeCredential(Object credential, String method,
+			Object object, String query) {
+		assert object instanceof SelfAuthorizingTarget;
+		SelfAuthorizingTarget target = (SelfAuthorizingTarget) object;
+		return target.calliIsAuthorized(credential, method, query);
+	}
 
 	private Object authenticatedCredential(String method,
 			Map<String, String> options) throws UnsupportedEncodingException {

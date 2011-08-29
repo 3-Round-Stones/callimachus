@@ -115,6 +115,17 @@
 	rdfs:range xsd:string;
 	msg:query "*".
 
+# anybody with credentials can login and is welcome
+:AuthorizeLoginPage rdfs:subClassOf calli:IsAuthorized;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];
+	msg:sparql  """
+		ASK {
+			$this calli:authenticates [calli:member $credential]
+			FILTER ($method = "GET" || $method = "HEAD")
+			FILTER ($query = "login" || $query = "settings" || $query = "contributions")
+		}
+	""".
+
 ################################
 # logout
 ################################

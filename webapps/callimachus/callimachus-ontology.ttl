@@ -318,6 +318,26 @@ calli:minified a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:range xsd:integer.
 
 ################################
+# Message
+################################
+
+# interface method used by DigestRealmSupport
+calli:IsAuthorized rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean].
+
+<framework/IsAuthorized#credential> a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain calli:IsAuthorized.
+
+<framework/IsAuthorized#method> a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain calli:IsAuthorized;
+	rdfs:range xsd:string;.
+
+<framework/IsAuthorized#query> a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain calli:IsAuthorized;
+	rdfs:range xsd:string.
+
+################################
 # Thing
 ################################
 

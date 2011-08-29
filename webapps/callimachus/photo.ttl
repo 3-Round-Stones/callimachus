@@ -35,6 +35,97 @@
 	calli:uriSpace </>;
 	calli:administrator </group/admin> .
 
+:PostPhotoCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Photo> ]);
+	msg:imports <java:java.net.URLEncoder>;
+	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
+	msg:imports <java:javax.mail.internet.MimeMultipart>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <Photo> ;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+		//# image and caption input (see below)
+		var ds = new ByteArrayDataSource(body, "multipart/form-data") ;
+		var multipart = new MimeMultipart(ds);
+		var img = multipart.getBodyPart(0) ;
+		var fileName = img.fileName.replace(/.*[\\\\\\/]/, '');
+		var caption = null;
+		if (multipart.getCount() > 1) {
+			caption = multipart.getBodyPart(1).content;
+		}
+
+		//# image resource
+		var obj = location;
+		if (!obj) { //# TODO require location
+			var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+") ;
+			var uri = this.toUri().resolve("/photo/") + local ;
+			obj = con.getObject(uri) ;
+		}
+		if (obj instanceof Photo)
+			throw new Conflict("A photo with that file name has already been uploaded: " + obj) ;
+
+		//# designate as <Image> and the relevant mimetype
+		obj = con.addDesignation(obj, Photo) ;
+		obj = con.addDesignation(obj, "http://xmlns.com/foaf/0.1/Image") ;
+		var type = img.contentType;
+		if (type == "image/pjpeg") { //# IE
+			type = "image/jpeg";
+		}
+		if (type != "image/jpeg") {
+			throw new BadRequest("Unsupported format: " + type);
+		}
+		obj = con.addDesignation(obj, "urn:mimetype:" + type) ;
+		this.PropagatePermissions(obj);
+
+		//# add the image label
+		var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+		con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
+
+		//# add the image caption
+		if (caption) con.add(obj.resource, RDFS.COMMENT, vf.createLiteral(caption), []);
+
+		this.objectConnection.commit();
+
+		//# load image data
+		var file = img.getInputStream();
+		var out = obj.PutPhoto(file) ;
+
+		return obj;
+	""".
+
+:local a calli:LocalRealm;
+	calli:domain </>.
+
+:PutPhoto rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT" ;
+	msg:realm :local ;
+	msg:script """
+		var out = this.openOutputStream() ;
+		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+		var read;
+		try {
+			while ((read = imageStream.read(buf)) >= 0) {
+				out.write(buf, 0, read);
+			}
+		} finally {
+			out.close();
+		}
+	""".
+
+:imageStream a owl:DatatypeProperty, owl:FunctionalProperty ;
+	rdfs:domain :PutPhoto ;
+	rdfs:range <java:java.io.InputStream> ;
+	msg:type "application/octet-stream" .
+
+################################
+# Resize Photo
+################################
+
 :GetPhotoLarge rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
@@ -140,90 +231,16 @@
 		return out;
 	""".
 
-:PostPhotoCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Photo> ]);
-	msg:imports <java:java.net.URLEncoder>;
-	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
-	msg:imports <java:javax.mail.internet.MimeMultipart>;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <Photo> ;
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.getValueFactory();
-		//# image and caption input (see below)
-		var ds = new ByteArrayDataSource(body, "multipart/form-data") ;
-		var multipart = new MimeMultipart(ds);
-		var img = multipart.getBodyPart(0) ;
-		var fileName = img.fileName.replace(/.*[\\\\\\/]/, '');
-		var caption = null;
-		if (multipart.getCount() > 1) {
-			caption = multipart.getBodyPart(1).content;
-		}
-
-		//# image resource
-		var obj = location;
-		if (!obj) { //# TODO require location
-			var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+") ;
-			var uri = this.toUri().resolve("/photo/") + local ;
-			obj = con.getObject(uri) ;
-		}
-		if (obj instanceof Photo)
-			throw new Conflict("A photo with that file name has already been uploaded: " + obj) ;
-
-		//# designate as <Image> and the relevant mimetype
-		obj = con.addDesignation(obj, Photo) ;
-		obj = con.addDesignation(obj, "http://xmlns.com/foaf/0.1/Image") ;
-		var type = img.contentType;
-		if (type == "image/pjpeg") { //# IE
-			type = "image/jpeg";
-		}
-		if (type != "image/jpeg") {
-			throw new BadRequest("Unsupported format: " + type);
-		}
-		obj = con.addDesignation(obj, "urn:mimetype:" + type) ;
-		this.PropagatePermissions(obj);
-
-		//# add the image label
-		var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
-
-		//# add the image caption
-		if (caption) con.add(obj.resource, RDFS.COMMENT, vf.createLiteral(caption), []);
-
-		this.objectConnection.commit();
-
-		//# load image data
-		var file = img.getInputStream();
-		var out = obj.PutPhoto(file) ;
-
-		return obj;
-	""".
-
-:local a calli:LocalRealm;
-	calli:domain </>.
-
-:PutPhoto rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "PUT" ;
-	msg:realm :local ;
-	msg:script """
-		var out = this.openOutputStream() ;
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var read;
-		try {
-			while ((read = imageStream.read(buf)) >= 0) {
-				out.write(buf, 0, read);
+# Users can view resized images or photos if they can view the image itself
+:AuthorizeImageResize rdfs:subClassOf calli:IsAuthorized;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo>];
+	msg:script  """
+		if (query == "large" || query == "medium" || query == "small") {
+			if (method == "GET" || method == "HEAD") {
+				if (this.calliIsAuthorized(credential, method, null))
+					return true;
 			}
-		} finally {
-			out.close();
 		}
+		return proceed();
 	""".
-
-:imageStream a owl:DatatypeProperty, owl:FunctionalProperty ;
-	rdfs:domain :PutPhoto ;
-	rdfs:range <java:java.io.InputStream> ;
-	msg:type "application/octet-stream" .
 

@@ -99,7 +99,7 @@
 	""".
 
 :local a calli:LocalRealm;
-	calli:domain </image/>.
+	calli:domain </>.
 
 :PutImage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Image> ];

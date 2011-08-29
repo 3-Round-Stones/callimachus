@@ -80,7 +80,7 @@
 	""".
 
 :local a calli:LocalRealm;
-	calli:domain </query/>.
+	calli:domain </>.
 
 # PUT /query/my-query.rq
 :UploadNamedQuery rdfs:subClassOf msg:Message;

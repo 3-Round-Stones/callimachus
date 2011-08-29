@@ -18,8 +18,18 @@ function getCopyPage() {
 }
 
 function postCopy(msg) {
+	if (!msg.location)
+		throw new BadRequest("Missing Location header");
+	if (!this.IsCopyInUriSpace(msg.location))
+		throw new BadRequest("Incorrect Subject Namespace");
+	var copier = this.toString();
+	var copying = msg.location.toString();
+	var src = copier.substring(0, copier.lastIndexOf('/', copier.length - 2));
+	var dest = copying.substring(0, copying.lastIndexOf('/', copying.length - 2));
+	if (src != dest)
+		throw new BadRequest("Resources can only be copied within the same space");
 	var template = findTemplate(this, copy);
-	var newCopy = template.calliCreateResource(this, msg.input, this.FindCopyUriSpaces());
+	var newCopy = template.calliCreateResource(msg.body, this.toString(), msg.location);
 	this.PropagatePermissions(newCopy);
 	return newCopy;
 }
@@ -41,13 +51,24 @@ function postCreate(msg) {
 		var template = this.calliCreate;
 		if (!template)
 			throw new InternalServerError("No create template");
-		var newCopy = template.calliCreateResource(this, msg.input, this.calliUriSpace);
+		if (!msg.location)
+			throw new BadRequest("Missing Location header");
+		if (!this.IsCreateInUriSpace(msg.location))
+			throw new BadRequest("Incorrect Subject Namespace");
+		var newCopy = template.calliCreateResource(msg.body, this.toString(), msg.location);
 		newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
 		this.PropagatePermissions(newCopy);
 	} else {
 		if (!(this instanceof Creator && this.IsCreatable(factory)))
 			throw new BadRequest("Cannot create this class here");
-		var newCopy = factory.PostCreate(factory, msg.input, false);
+		var creatorUri = this.toString();
+		if (msg.location) { //# TODO require location
+			var createdUri = msg.location.toString();
+			var dest = createdUri.substring(0, createdUri.lastIndexOf('/', createdUri.length - 2));
+			if (creatorUri != dest && creatorUri != dest.substring(0, dest.length - 1))
+				throw new BadRequest("Resource URI must be nested");
+		}
+		var newCopy = factory.PostCreate(msg.body, factory, false, msg.location);
 		newCopy.calliReaders.addAll(this.calliReaders);
 		newCopy.calliEditors.addAll(this.calliEditors);
 		newCopy.calliAdministrators.addAll(this.calliAdministrators);

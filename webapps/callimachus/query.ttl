@@ -33,25 +33,6 @@
 	calli:uriSpace </query/>;
 	calli:administrator </group/admin>.
 
-# GET /query/My%20Query
-:FindNamedQuery rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (
-		[msg:matching </query/*>] [owl:complementOf calli:Viewable])]];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET", "HEAD";
-	msg:expect "302-found";
-	msg:imports calli:Viewable;
-	msg:script """
-		var uri = this.toString().toLowerCase().replace(/%20/g, '-');
-		if (uri.indexOf('.rq') != uri.length - 3) {
-			uri = uri + ".rq";
-		}
-		var query = this.objectConnection.getObject(uri);
-		if (query instanceof Viewable)
-			return query + "?view";
-		return query.toUri().resolve("/callimachus/NamedQuery") + "?create#!" + query.toUri().getPath();
-	""".
-
 # GET /query/my-query.rq
 :GetNamedQuery rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
@@ -63,14 +44,8 @@
 	msg:script "return this.openInputStream()".
 
 # POST /callimachus/NamedQuery?create
-:CreateNamedQuery rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <NamedQuery>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "POST";
-	msg:query "create";
-	msg:realm </accounts>;
-	msg:expect "201-created";
-	msg:type "text/uri-list";
+:CreateNamedQuery owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <NamedQuery> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
@@ -100,19 +75,9 @@
 		this.touchRevision(); // update index page
 		con.commit();
 
-		created.UploadNamedQuery(payload); //# cannot write to other streams directly
+		created.UploadNamedQuery(body); //# cannot write to other streams directly
 		return created;
 	""".
-
-:location a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :CreateNamedQuery;
-	rdfs:range xsd:string;
-	msg:header "Location".
-
-:payload a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :CreateNamedQuery;
-	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/sparql-query".
 
 :local a calli:LocalRealm;
 	calli:domain </query/>.

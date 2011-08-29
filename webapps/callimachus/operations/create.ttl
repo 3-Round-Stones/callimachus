@@ -42,20 +42,25 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
 	msg:script <operations.js#postCreate>.
 
+:body a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :PostCreate;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "*/*".
+
 :create a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain [owl:unionOf (:GetCreatePage :PostCreate)];
 	rdfs:range calli:Creatable;
 	msg:query "create".
 
-:input a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :PostCreate;
-	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/rdf+xml", "multipart/form-data".
-
 :intermediate a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain :PostCreate;
 	rdfs:range xsd:boolean;
 	msg:query "intermediate".
+
+:location a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :PostCreate;
+	msg:query "location";
+	msg:header "location".
 
 # this method is distinct from PostCreate to allow local calls to PostCreate without going through HTTP
 :PostRemoteCreate rdfs:subClassOf :PostCreate;
@@ -77,6 +82,21 @@
 :creatable a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :IsCreatable;
 	rdfs:range calli:Creatable.
+
+:IsCreateInUriSpace rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
+	msg:sparql  """
+		ASK {
+			$this calli:uriSpace ?space
+			#TODO FILTER strstarts(str($createLocation), str(?space))
+			FILTER regex(str($createLocation), str(?space))
+		}
+	""".
+
+:createLocation a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :IsCreateInUriSpace.
 
 :ConstructCreatorRelationship rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];

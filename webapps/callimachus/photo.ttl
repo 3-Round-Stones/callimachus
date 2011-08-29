@@ -32,6 +32,7 @@
 	calli:view <photo.xhtml> ;
 	calli:edit <photo-edit.xhtml> ;
 	calli:create <photo-create.xhtml>;
+	calli:uriSpace </>;
 	calli:administrator </group/admin> .
 
 :GetPhotoLarge rdfs:subClassOf msg:Message;
@@ -152,7 +153,7 @@
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
 		//# image and caption input (see below)
-		var ds = new ByteArrayDataSource(input, "multipart/form-data") ;
+		var ds = new ByteArrayDataSource(body, "multipart/form-data") ;
 		var multipart = new MimeMultipart(ds);
 		var img = multipart.getBodyPart(0) ;
 		var fileName = img.fileName.replace(/.*[\\\\\\/]/, '');
@@ -162,10 +163,14 @@
 		}
 
 		//# image resource
-		var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+") ;
-		var uri = this.toUri().resolve("/photo/") + local ;
-		var obj = con.getObject(uri) ;
-		if (obj instanceof Photo) throw new Conflict("A photo with that file name has already been uploaded: " + uri) ;
+		var obj = location;
+		if (!obj) { //# TODO require location
+			var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+") ;
+			var uri = this.toUri().resolve("/photo/") + local ;
+			obj = con.getObject(uri) ;
+		}
+		if (obj instanceof Photo)
+			throw new Conflict("A photo with that file name has already been uploaded: " + obj) ;
 
 		//# designate as <Image> and the relevant mimetype
 		obj = con.addDesignation(obj, Photo) ;

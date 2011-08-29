@@ -47,15 +47,28 @@
 	msg:type "text/plain";
 	msg:script <operations.js#postCopy>.
 
-:input a owl:ObjectProperty, owl:FunctionalProperty;
+:body a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostCopy;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "application/rdf+xml".
 
-:FindCopyUriSpaces rdfs:subClassOf msg:Message;
+:location a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :PostCopy;
+	msg:query "location";
+	msg:header "location".
+
+:IsCopyInUriSpace rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Copyable];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
 	msg:sparql  """
-		SELECT DISTINCT ?namespace
-		WHERE { $this a [calli:uriSpace ?namespace] }
+		ASK {
+			$this a [calli:uriSpace ?space]
+			#TODO FILTER strstarts(str($copyLocation), str(?space))
+			FILTER regex(str($copyLocation), str(?space))
+		}
 	""".
+
+:copyLocation a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :IsCopyInUriSpace.
 

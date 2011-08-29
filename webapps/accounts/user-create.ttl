@@ -21,7 +21,7 @@ rdfs:comment a rdf:Property.
 	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
 	msg:imports <java:java.net.URLEncoder>;
 	msg:script """
-		var ds = new ByteArrayDataSource(input, "multipart/form-data") ;
+		var ds = new ByteArrayDataSource(body, "multipart/form-data") ;
 		var multipart = new MimeMultipart(ds);
 		//# read form
 		var username = multipart.getBodyPart(0).content;
@@ -29,7 +29,7 @@ rdfs:comment a rdf:Property.
 		var label = multipart.getBodyPart(2).content;
 		var comment = multipart.getBodyPart(3).content;
 		var subject = multipart.getBodyPart(4).content;
-		var body = multipart.getBodyPart(5).content;
+		var body5 = multipart.getBodyPart(5).content;
 		if (!label)
 			throw new BadRequest("Missing label");
 		if (!username)
@@ -38,10 +38,10 @@ rdfs:comment a rdf:Property.
 			throw new BadRequest("Missing email");
 		if (!subject)
 			throw new BadRequest("Missing subject");
-		if (!body)
+		if (!body5)
 			throw new BadRequest("Missing message");
 
-		//# assign id
+		//# assign id TODO use "location" instead
 		var uri = user + URLEncoder.encode(username).replace(/%20/g, "+").toLowerCase();
 		var newUser = this.objectConnection.getObject(uri);
 		if (newUser instanceof User)
@@ -68,8 +68,8 @@ rdfs:comment a rdf:Property.
 		var fromUser = newUser.FindUserCreator();
 		if (!fromUser || !fromUser.sendMessage)
 			throw new BadRequest("Could not find creator user");
-		body = body.replace(/@@PASSWORD@@/g, password);
-		fromUser.sendMessage(subject + '\\n' + body, label + " <" + email + ">");
+		body5 = body5.replace(/@@PASSWORD@@/g, password);
+		fromUser.sendMessage(subject + '\\n' + body5, label + " <" + email + ">");
 		return newUser;
 	""".
 

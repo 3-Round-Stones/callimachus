@@ -30,6 +30,7 @@
 	calli:view <image.xhtml> ;
 	calli:edit <image-edit.xhtml> ;
 	calli:create <image-create.xhtml>;
+	calli:uriSpace </>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin> .
 
@@ -46,7 +47,7 @@
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
 		//# image and caption input (see below)
-		var ds = new ByteArrayDataSource(input, "multipart/form-data") ;
+		var ds = new ByteArrayDataSource(body, "multipart/form-data") ;
 		var multipart = new MimeMultipart(ds);
 		var img = multipart.getBodyPart(0) ;
 		var fileName = img.fileName.replace(/.*[\\\\\\/]/, '');
@@ -56,10 +57,14 @@
 		}
 
 		//# image resource
-		var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+") ;
-		var uri = this.toUri().resolve("/image/") + local ;
-		var obj = con.getObject(uri) ;
-		if (obj instanceof Image) throw new Conflict("An image with that file named has already been uploaded: " + uri) ;
+		var obj = location;
+		if (!obj) { //# TODO require location
+			var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+") ;
+			var uri = this.toUri().resolve("/image/") + local ;
+			obj = con.getObject(uri) ;
+		}
+		if (obj instanceof Image)
+			throw new Conflict("An image with that file named has already been uploaded: " + obj) ;
 
 		//# designate as <Image> and the relevant mimetype
 		obj = con.addDesignation(obj, Image) ;

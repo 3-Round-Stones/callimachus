@@ -32,9 +32,22 @@ function initForms() {
 			}
 		});
 	}
+	$('form[enctype="multipart/form-data"]').submit(function() {
+		var form = $(this);
+		var file = form.find('input[type=file]');
+		if (file.length == 1) {
+			var label = file.val().match(/[\\/]([^\\/]+)$/)[1]
+			var uri = calli.listResourceIRIs(getPageLocationURL())[0] + '/' + encodeURIComponent(label).replace(/%20/g,'+').toLowerCase();
+			if (this.action.indexOf('&location=') > 0) {
+				var m = this.action.match(/^(.*&location=)[^&=]*(.*)$/);
+				this.action = m[1] + encodeURIComponent(uri) + m[2];
+			} else {
+				this.action = this.action + '&location=' + encodeURIComponent(uri);
+			}
+		}
+		return true;
+	});
 }
-
-var overrideFormURI = false;
 
 function submitRDFForm(form) {
 	var form = $(form);
@@ -43,17 +56,11 @@ function submitRDFForm(form) {
 		form.trigger(se);
 		if (!se.isDefaultPrevented()) {
 			form.find("input").change(); // IE may not have called onchange before onsubmit
-			if (overrideFormURI || !form.attr('about') || form.attr('about') == $('body').attr('about')) {
-				overrideFormURI = true;
-				var label = form.find('input:text').val();
-				if (label) {
-					form.attr('about', calli.listResourceIRIs(getPageLocationURL())[0] + '/' + encodeURI(label).replace(/%20/g,'+').toLowerCase());
-				}
-			}
-			var added = readRDF(form);
+			var uri = getResourceUri(form);
+			var added = readRDF(uri, form);
 			var type = "application/rdf+xml";
 			var data = added.dump({format:"application/rdf+xml",serialize:true,namespaces:form.xmlns()});
-			postData(form.action, type, data, function(data, textStatus, xhr) {
+			postData(form.action, type, uri, data, function(data, textStatus, xhr) {
 				try {
 					var redirect = xhr.getResponseHeader("Location");
 					try {
@@ -85,11 +92,23 @@ function submitRDFForm(form) {
 	return false;
 }
 
-function readRDF(form) {
-	var subj = $.uri.base();
-	if ($(form).attr("about")) {
-		subj = subj.resolve($(form).attr("about"));
+var overrideFormURI = false;
+
+function getResourceUri(form) {
+	if (overrideFormURI || !form.attr('about') || form.attr('about') == $('body').attr('about')) {
+		overrideFormURI = true;
+		var label = form.find('input:text').val();
+		if (label) {
+			var uri = calli.listResourceIRIs(getPageLocationURL())[0] + '/' + encodeURI(label).replace(/%20/g,'+').toLowerCase();
+			form.attr('about', uri);
+			return uri;
+		}
 	}
+	return form.attr('about');
+}
+
+function readRDF(uri, form) {
+	var subj = $.uri.base().resolve(uri);
 	var store = form.rdf().databank;
 	store.triples().each(function(){
 		if (this.subject.type == 'uri' && this.subject.value.toString() != subj.toString() && this.subject.value.toString().indexOf(subj.toString() + '#') != 0 && (this.object.type != 'uri' || this.object.value.toString() != subj.toString() && this.object.value.toString().indexOf(subj.toString() + '#') != 0)) {
@@ -107,11 +126,20 @@ function readRDF(form) {
 	return store;
 }
 
-function postData(url, type, data, callback) {
+function postData(url, type, loc, data, callback) {
 	var xhr = null;
-	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, success: function(data, textStatus) {
-		callback(data, textStatus, xhr);
-	}});
+	xhr = $.ajax({
+		type: "POST",
+		url: url,
+		contentType: type,
+		data: data,
+		beforeSend: function(xhr) {
+			xhr.setRequestHeader('Location', loc);
+		},
+		success: function(data, textStatus) {
+			callback(data, textStatus, xhr);
+		}
+	});
 }
 
 })(jQuery)

@@ -22,8 +22,6 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.Set;
 
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.helpers.SubjectTracker;
@@ -38,8 +36,6 @@ import org.callimachusproject.stream.SPARQLWriter;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.exceptions.Conflict;
 import org.openrdf.http.object.traits.VersionedObject;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BooleanQuery;
@@ -59,95 +55,37 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  */
 public abstract class CreateSupport implements Page {
 
-	public RDFObject calliCreateResource(final RDFObject source, InputStream in,
-			final Set<?> spaces) throws Exception {
+	public RDFObject calliCreateResource(InputStream in, String base,
+			final RDFObject target) throws Exception {
 		try {
-			final ObjectConnection con = source.getObjectConnection();
-			final ValueFactory vf = con.getValueFactory();
-			SubjectTracker tracker = new SubjectTracker(new RDFInserter(con)) {
-				boolean first = true;
-
-				public void handleStatement(Statement st)
-						throws RDFHandlerException {
-					if (first) {
-						first = false;
-						try {
-							init(st);
-						} catch (RuntimeException e) {
-							throw e;
-						} catch (Exception e) {
-							throw new RDFHandlerException(e);
-						}
-					}
-					super.handleStatement(st);
-				}
-
-				private void init(Statement st) throws Exception {
-					Resource subject = st.getSubject();
-					String about = subject.stringValue();
-					if (isResourceAlreadyPresent(con, about)) {
-						throw new Conflict("Resource already exists: " + about);
-					} else if (subject.equals(source.getResource())) {
-						throw new RDFHandlerException("Target resource URI not provided");
-					}
-					accept(openPatternReader(subject.stringValue(), "create", null));
-				}
-			};
-			String base = source.getResource().stringValue();
+			ObjectConnection con = target.getObjectConnection();
+			if (target.toString().equals(base))
+				throw new RDFHandlerException("Target resource URI not provided");
+			if (isResourceAlreadyPresent(con, target.toString()))
+				throw new Conflict("Resource already exists: " + target);
+			SubjectTracker tracker = new SubjectTracker(new RDFInserter(con));
+			tracker.accept(openPatternReader(target.toString(), "create", null));
 			RDFXMLParser parser = new RDFXMLParser();
-			parser.setValueFactory(vf);
+			parser.setValueFactory(con.getValueFactory());
 			parser.setRDFHandler(tracker);
 			parser.parse(in, base);
 			if (tracker.isEmpty())
 				throw new BadRequest("Missing Information");
 			if (!tracker.isSingleton())
 				throw new BadRequest("Wrong Subject");
-			URI subject = tracker.getSubject();
-			String uri = subject.stringValue();
-			new java.net.URI(uri);
-			checkUriSpace(spaces, uri);
 			ObjectFactory of = con.getObjectFactory();
 			for (URI partner : tracker.getResources()) {
-				if (!partner.equals(source.getResource())) {
+				if (!partner.toString().equals(base)) {
 					of.createObject(partner, VersionedObject.class).touchRevision();
 				}
 			}
-			return of.createObject(subject, tracker.getTypes());
+			return of.createObject(target.toString(), tracker.getTypes());
 		} catch (URISyntaxException  e) {
 			throw new BadRequest(e);
 		} catch (RDFHandlerException e) {
 			throw new BadRequest(e);
 		} finally {
 			in.close();
-		}
-	}
-
-	private void checkUriSpace(final Set<?> spaces, String uri) {
-		if (spaces != null && !spaces.isEmpty()) {
-			boolean found = false;
-			Iterator<?> iter = spaces.iterator();
-			try {
-				while (iter.hasNext()) {
-					String ns = iter.next().toString();
-					if (uri.length() > ns.length() && uri.startsWith(ns)) {
-						String local = uri.substring(ns.length());
-						if (local.length() < 2) {
-							char l = local.charAt(0);
-							if (l != '/' && l != '#' && l != ':') {
-								found = true;
-								break;
-							}
-						} else {
-							found = true;
-							break;
-						}
-					}
-				}
-			} finally {
-				ObjectConnection.close(iter);
-			}
-			if (!found)
-				throw new BadRequest("Incorrect Subject Namespace");
 		}
 	}
 

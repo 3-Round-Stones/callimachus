@@ -30,6 +30,8 @@ public abstract class ResourceAuthorizationSupport implements SelfAuthorizingTar
 	@Override
 	public boolean calliIsAuthorized(Object credential, String method,
 			String query) {
+		if (this.getResource().stringValue().equals(credential.toString()))
+			return true;
 		ObjectConnection con = getObjectConnection();
 		try {
 			BooleanQuery qry = con.prepareBooleanQuery(SPARQL, AUTHORIZED);

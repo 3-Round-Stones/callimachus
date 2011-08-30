@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.callimachusproject.traits.SelfAuthorizingTarget;
-import org.openrdf.http.object.annotations.realm;
 import org.openrdf.repository.object.annotations.name;
 import org.openrdf.repository.object.annotations.sparql;
 import org.openrdf.repository.object.traits.RDFObjectBehaviour;
@@ -27,8 +26,6 @@ public abstract class ClassAuthorizationSupport implements SelfAuthorizingTarget
 			String query) {
 		assert credential != null;
 		Class<?> klass = getBehaviourDelegate().getClass();
-		if (isPublic(klass))
-			return true;
 		Set<String> groups = new LinkedHashSet<String>();
 		findAuthorizedGroups(klass, method, query, groups);
 		if (groups.isEmpty())
@@ -41,15 +38,6 @@ public abstract class ClassAuthorizationSupport implements SelfAuthorizingTarget
 
 	@sparql(PREFIX + "SELECT (str(?group) as ?gstring) { ?group calli:member $credential }")
 	protected abstract Set<String> selectMembership(@name("credential") Object credential);
-
-	/**
-	 * A class of resources are public if the class has no realm annotation
-	 */
-	private boolean isPublic(Class<?> klass) {
-		Set<String> groups = new LinkedHashSet<String>();
-		addAnnotationValues(klass, realm.class.getName(), groups);
-		return groups.isEmpty();
-	}
 
 	private void findAuthorizedGroups(Class<?> klass, String method,
 			String query, Set<String> groups) {
@@ -76,12 +64,14 @@ public abstract class ClassAuthorizationSupport implements SelfAuthorizingTarget
 		if (query == null)
 			return false;
 		if ("GET".equals(method) || "HEAD".equals(method) || "POST".equals(method)) {
+			if ("copy".equals(query) || "create".equals(query))
+				return true;
 			if (query.startsWith("copy")) {
 				char ch = query.charAt("copy".length());
-				return !Character.isLetter(ch);
+				return ch == '=' || ch == '&';
 			} else if (query.startsWith("create")) {
 				char ch = query.charAt("create".length());
-				return !Character.isLetter(ch);
+				return ch == '=' || ch == '&';
 			}
 		}
 		return false;

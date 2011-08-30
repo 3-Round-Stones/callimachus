@@ -53,7 +53,30 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 # transcations are authorized by the objects modified
 :AuthorizeTransactionView rdfs:subClassOf calli:IsAuthorized;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [msg:matching </change/*>]];
+	msg:imports <java:org.openrdf.http.object.annotations.realm>;
 	msg:script """
+		function findAnnotatedClass(klass, ann) {
+			if (klass.isAnnotationPresent(ann)) {
+				return [klass];
+			}
+			var result = [];
+			if (klass.getSuperclass()) {
+				result = findAnnotatedClass(klass.getSuperclass(), ann);
+			}
+			var interfaces = klass.getInterfaces();
+			for (var i = interfaces.length; i--;) {
+				var face = findAnnotatedClass(interfaces[i], ann);
+				for (var f = face.length; f--;) {
+					for (var r = result.length; r--;) {
+						if (result[r].isAssignableFrom(face[f])) {
+							result.splice(r, 1); //# annotation overridden
+						}
+					}
+					result.push(face[f]);
+				}
+			}
+			return result;
+		}
 		if (proceed())
 			return true;
 		var reading = (method == "GET" || method == "HEAD" || method == "POST" && query == "discussion")
@@ -64,6 +87,8 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 		var iter = this.ListSubjectsOfTransaction().iterator();
 		while (iter.hasNext()) {
 			var subject = iter.next();
+			if (!findAnnotatedClass(subject.getClass(), realm).length)
+				continue; // class is not protected
 			if (!subject.IsAuthorized(credential, "GET", "describe"))
 				return false;
 		}

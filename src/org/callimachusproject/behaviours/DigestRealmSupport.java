@@ -208,11 +208,10 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 	@Override
 	public boolean authorizeCredential(Object credential, String method,
 			Object resource, Map<String, String[]> map) {
-		String url = map.get("request-target")[0];
-		ParsedURI parsed = new ParsedURI(url);
-		String query = parsed.getQuery();
-		return credential.equals(resource)
-				|| AuthorizeCredential(credential, method, resource, query);
+		String query = new ParsedURI(map.get("request-target")[0]).getQuery();
+		assert resource instanceof SelfAuthorizingTarget;
+		SelfAuthorizingTarget target = (SelfAuthorizingTarget) resource;
+		return target.calliIsAuthorized(credential, method, query);
 	}
 
 	public Object findCredential(String authorization) {
@@ -234,13 +233,6 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 			+ "$this :authenticates [:member ?user] .\n"
 			+ "OPTIONAL { ?user :encoded ?encoded; :algorithm \"MD5\" } }")
 	protected abstract List<Object[]> findDigest(@name("name") String username);
-
-	private boolean AuthorizeCredential(Object credential, String method,
-			Object object, String query) {
-		assert object instanceof SelfAuthorizingTarget;
-		SelfAuthorizingTarget target = (SelfAuthorizingTarget) object;
-		return target.calliIsAuthorized(credential, method, query);
-	}
 
 	private Object authenticatedCredential(String method,
 			Map<String, String> options) throws UnsupportedEncodingException {

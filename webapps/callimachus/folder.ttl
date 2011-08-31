@@ -1,0 +1,135 @@
+# 
+#    Copyright (c) 2011 3 Round Stones Inc, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix dcterms:<http://purl.org/dc/terms/>.
+@prefix skosxl:<http://www.w3.org/2008/05/skos-xl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix :<#>.
+
+</> a <Folder>, calli:Folder;
+	rdfs:label "Folders";
+	rdfs:comment "Create new folders here to organize resources and assign permissions".
+
+<Folder> a calli:Creatable, <ListClass>, owl:Class;
+	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:Folder;
+	rdfs:label "Folder";
+	rdfs:comment "A folder of resources";
+	calli:creates <Folder>;
+	calli:creates <Page>;
+	calli:creates <NamedQuery>;
+	calli:creates <owl/Class>;
+	calli:creates <skos/ConceptScheme>;
+	calli:creates </accounts/Group>;
+	calli:createRev dcterms:isPartOf;
+	calli:icon <folder.png>;
+	calli:view <folder-view.xhtml>;
+	calli:edit <folder-edit.xhtml>;
+	calli:create <folder-create.xhtml>;
+	calli:uriSpace </>;
+	calli:administrator </group/admin>;
+	calli:reader </group/users>;
+	calli:editor </group/staff>;
+	calli:administrator </group/admin>.
+
+:GetFolderFeed rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "feed";
+	msg:type "application/sparql-results+xml";
+	msg:transform :TransformIntoAtom;
+	msg:sparql """
+		SELECT ?id ?totalResults ?title ?icon ?summary ?author_uri ?author_name ?updated ?reader ?contributor ?editor ?administrator
+				(?id as ?link) # TODO construct callimachus go URL
+				(if(bound(?folder), ?id, ?folder) as ?link_feed) # TODO append '?feed' to ?id
+				(if(?content_type = calli:Page, "application/xhtml+xml",
+					if(?content_type = calli:NamedQuery, "application/sparql-query", ?content_type)
+				) as ?content_type)
+				(if(bound(?type), ?id, ?type) as ?content_src) {
+			{
+				{
+					SELECT ($this as ?id) (count(?part) as ?totalResults) {
+						?part dcterms:isPartOf $this
+					} GROUP BY $this
+				}
+			} UNION {
+				?id dcterms:isPartOf $this
+				FILTER (isIRI(?id))
+			} OPTIONAL {
+				?id skos:prefLabel ?title
+			} OPTIONAL {
+				?id foaf:name ?title
+			} OPTIONAL {
+				?id rdfs:label ?title
+			} OPTIONAL {
+				?id skosxl:literalForm ?title
+			} OPTIONAL {
+				?id dcterms:title ?title
+			} OPTIONAL {
+				?id rdfs:comment ?summary
+			} OPTIONAL {
+				?id a [calli:icon ?icon]
+			} OPTIONAL {
+				?id audit:revision [audit:contributor ?author_uri; audit:committedOn ?updated]
+				OPTIONAL {
+					?author_uri rdfs:label ?author_name
+				}
+			} OPTIONAL {
+				?id calli:reader ?reader
+				OPTIONAL {
+					?reader rdfs:label ?reader_name
+				}
+			} OPTIONAL {
+				?id calli:contributor ?contributor_uri
+				OPTIONAL {
+					?contributor_uri rdfs:label ?contributor_name
+				}
+			} OPTIONAL {
+				?id calli:editor ?editor_uri
+				OPTIONAL {
+					?editor_uri rdfs:label ?editor_name
+				}
+			} OPTIONAL {
+				?id calli:administrator ?administrator_uri
+				OPTIONAL {
+					?administrator_uri rdfs:label ?administrator_name
+				}
+			} OPTIONAL {
+				?id a ?content_type
+				FILTER (?content_type IN (calli:Page, calli:NamedQuery))
+			} OPTIONAL {
+				?id a ?folder
+				FILTER (?folder = calli:Folder)
+			}
+		} ORDER BY desc(?totalResults) ?id LIMIT 1001
+	""".
+
+:TransformIntoAtom rdfs:subClassOf msg:Message;
+   rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+   rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+   msg:type "application/atom+xml";
+   msg:xslt <util/sparql-results-atom.xsl>.
+
+:sparqlResult a owl:FunctionalProperty, owl:ObjectProperty;
+   rdfs:domain :TransformIntoAtom;
+   rdfs:range <java:java.io.InputStream>;
+   msg:type "application/sparql-results+xml".

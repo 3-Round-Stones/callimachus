@@ -60,9 +60,13 @@ calli:Viewable a owl:Class;
 	rdfs:label "Viewable";
 	rdfs:comment "Resources that can be viewed from a Web browser".
 
+calli:Folder a owl:Class;
+	rdfs:label "Folder";
+	rdfs:comment "A resource URI space ending in a slash. Resources with dcterms:isPartOf to this folder, start with this URI and contain no additional slashes or hashes.".
+
 calli:Page a owl:Class;
 	rdfs:label "Page";
-	rdfs:comment "An XHTML+RDFa web page".
+	rdfs:comment "An XHTML+RDFa Web page".
 
 calli:Realm a owl:Class;
 	rdfs:label "Realm";

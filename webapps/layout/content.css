@@ -80,6 +80,10 @@ header,nav,article,footer,address,details,summary {
 	cursor:copy;
 }
 
+time {
+	white-space:nowrap;
+}
+
 form {
 	margin:0;
 }

@@ -99,7 +99,14 @@ function getResourceUri(form) {
 		overrideFormURI = true;
 		var label = form.find('input:text').val();
 		if (label) {
-			var uri = calli.listResourceIRIs(getPageLocationURL())[0] + '/' + encodeURI(label).replace(/%20/g,'+').toLowerCase();
+			var uri;
+			var base = calli.listResourceIRIs(getPageLocationURL())[0];
+			var local = encodeURI(label).replace(/%20/g,'+').toLowerCase();
+			if (base.lastIndexOf('/') == base.length - 1) {
+				uri = base + local;
+			} else {
+				uri = base + '/' + local;
+			}
 			form.attr('about', uri);
 			return uri;
 		}

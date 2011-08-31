@@ -64,7 +64,7 @@ function postCreate(msg) {
 		var creatorUri = this.toString();
 		if (msg.location) { //# TODO require location
 			var createdUri = msg.location.toString();
-			var dest = createdUri.substring(0, createdUri.lastIndexOf('/', createdUri.length - 2));
+			var dest = createdUri.substring(0, createdUri.lastIndexOf('/', createdUri.length - 2) + 1);
 			if (creatorUri != dest && creatorUri != dest.substring(0, dest.length - 1))
 				throw new BadRequest("Resource URI must be nested");
 		}

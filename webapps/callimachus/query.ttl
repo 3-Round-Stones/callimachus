@@ -30,7 +30,7 @@
 	calli:edit <query-edit.xhtml>;
 	calli:copy <query-copy.xhtml>;
 	calli:create <query-create.xhtml>;
-	calli:uriSpace </query/>;
+	calli:uriSpace </>;
 	calli:administrator </group/admin>.
 
 # GET /query/my-query.rq

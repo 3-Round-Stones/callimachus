@@ -33,7 +33,7 @@
 	calli:view <scheme.xhtml>;
 	calli:edit <scheme-edit.xhtml>;
 	calli:create <scheme-create.xhtml>;
-	calli:uriSpace </scheme/>;
+	calli:uriSpace </>;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>.
@@ -56,6 +56,6 @@
 	calli:view <concept.xhtml>;
 	calli:edit <concept-edit.xhtml>;
 	calli:create <concept-create.xhtml>;
-	calli:uriSpace </scheme/>;
+	calli:uriSpace </>;
 	calli:administrator </group/admin>.
 

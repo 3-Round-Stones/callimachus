@@ -14,7 +14,7 @@
 		<li>Provide a comment describing this scheme for clarity</li>
 	</ul>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" typeof="skos:ConceptScheme"
-			onsubmit="$(this).attr('about', '/scheme/' + encodeURI($('#label').val()).replace(/%20/g,'+').toLowerCase())">
+			onsubmit="$(this).attr('about', location.pathname + encodeURI($('#label').val()).replace(/%20/g,'_').toLowerCase())">
 		<label for="label">Label</label>
 		<div>
 			<input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />

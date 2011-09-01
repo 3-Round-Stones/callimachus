@@ -39,7 +39,7 @@
 					var local = encodeURI(name).replace(/%20/g,'-').toLowerCase();
 					var header = 'POST create'
 						+ '\nAction: /callimachus/NamedQuery?create'
-						+ '\nLocation: /query/' + local + '.rq'
+						+ '\nLocation: ' + local + '.rq'
 						+ '\nContent-Type: application/sparql-query';
 					if ($('#cache').val()) {
 						header += '\nCache-Control: ' + $('#cache').val();

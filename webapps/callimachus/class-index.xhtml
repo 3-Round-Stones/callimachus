@@ -9,9 +9,6 @@
 	<title about="?this">{rdfs:label}</title>
 	<script type="text/javascript">//<![CDATA[
 		jQuery(function($){
-			if (!$('.type[resource$=Creatable]').length) {
-				$('#create-link').remove();
-			}
 			$('#results').children().each(function() {
 				if (!$(this).children('div').length) {
 					$('#index').children('[href="#' + $(this).attr('id') + '"]').removeAttr('href');
@@ -24,10 +21,6 @@
 </head>
 <body about="?this">
 	<h1><span property="rdfs:label" /> Resources</h1>
-	<span class="type" rel="rdf:type" resource="?type" />
-	<ul id="create-link" class="aside protected">
-		<li><a href="?create">Create a new <span about="?this" property="rdfs:label" /></a></li>
-	</ul>
 	<ul class="optional aside">
 		<li property="rdfs:comment" />
 	</ul>

@@ -22,7 +22,12 @@
 		$('#form').bind('calliSubmit', function() {
 			var label = $('#label').val();
 			label = label.replace(/([a-z])\s([A-Z])/g, '$1$2');
-			$(this).attr('about', location.pathname + '/' + encodeURI(label).replace(/%20/g,'_'));
+			var local = encodeURI(label).replace(/%20/g,'_');
+			if (location.pathname.lastIndexOf('/') == location.pathname.length - 1) {
+				$(this).attr('about', location.pathname + local);
+			} else {
+				$(this).attr('about', location.pathname + '/' + local);
+			}
 			return true;
 		});
 	}); // ]]>

@@ -33,7 +33,7 @@
 	calli:view <ontology.xhtml>;
 	calli:edit <ontology-edit.xhtml>;
 	calli:create <ontology-create.xhtml>;
-	calli:uriSpace </rdf/>;
+	calli:uriSpace </>;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>.
@@ -45,7 +45,7 @@
 	calli:view <property.xhtml>;
 	calli:edit <property-edit.xhtml>;
 	calli:create <property-create.xhtml>;
-	calli:uriSpace </rdf/>;
+	calli:uriSpace </>;
 	calli:administrator </group/admin>.
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
@@ -57,7 +57,7 @@
 	calli:view <class.xhtml>;
 	calli:edit <class-edit.xhtml>;
 	calli:create <class-create.xhtml>;
-	calli:uriSpace </rdf/>;
+	calli:uriSpace </>;
 	calli:administrator </group/admin>.
 
 # when an ontology is created

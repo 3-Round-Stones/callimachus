@@ -5,21 +5,9 @@
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this">{rdfs:label}</title>
-	<script type="text/javascript">//<![CDATA[
-		jQuery(function($){
-			if (!$('.type[resource$=Creatable]').length) {
-				$('#create-link').remove();
-			}
-		});
-		// ]]>
-	</script>
 </head>
 <body about="?this">
 	<h1><span property="rdfs:label" /> Resources</h1>
-	<span class="type" rel="rdf:type" resource="?type" />
-	<ul class="aside protected">
-		<li><a href="?create">Create a new <span about="?this" property="rdfs:label" /></a></li>
-	</ul>
 	<ul class="optional aside">
 		<li property="rdfs:comment" />
 	</ul>

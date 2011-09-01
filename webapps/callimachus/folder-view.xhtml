@@ -10,13 +10,14 @@
 	<link rel="stylesheet" href="/layout/jquery-ui.css" />
 	<style type="text/css">
 		.filecol { width:100% }
-		.timecell { text-align: right }
+		.ui-grid table tbody td.filecell { text-align: left }
 
 		/* Grid
 		----------------------------------*/
 		.ui-grid { font-size:small}
 		.ui-grid .ui-grid-content { width: 100%; border-collapse: collapse; border-spacing:0; }
 		.ui-grid table thead th { white-space:nowrap; }
+		.ui-grid table tbody td { text-align: right; white-space:nowrap; }
 		.ui-grid table tbody td, .ui-grid .ui-grid-header, .ui-grid table thead a { padding: .4em;  }
 		.ui-grid .ui-grid-header, .ui-grid .ui-grid-footer { padding: .8em .4em; text-align: center; }
 		.ui-grid .ui-grid-footer { background-image: none; font-weight: normal; text-align: left; }
@@ -28,16 +29,18 @@
 			function createTextCell(text, url, src) {
 				var td = $('<td/>');
 				td.addClass('ui-widget-content');
+				td.addClass('filecell');
 				var a = $('<a/>');
 				if (url) {
 					a.attr('href', url);
+					a.addClass('view');
 				}
+				a.text(text);
 				if (src) {
 					var img = $('<img/>');
 					img.attr('src', src);
-					a.append(img);
+					a.prepend(img);
 				}
-				a.text(text);
 				td.append(a);
 				return td;
 			}
@@ -64,7 +67,11 @@
 					if (uri) {
 						a.attr('href', uri);
 					}
-					a.append(name);
+					if (name) {
+						a.text(name);
+					} else {
+						a.text(uri);
+					}
 					td.append(' ');
 					td.append(a);
 				});
@@ -143,8 +150,8 @@
 			</thead>
 			<tbody id="tfolders" rev="dcterms:isPartOf">
 				<tr about="?folder" typeof="calli:Folder">
-					<td class="ui-widget-content">
-						<a href="?folder" property="rdfs:label" content="?flabel"><img src="/callimachus/folder.png" />{?flabel}</a>
+					<td class="ui-widget-content filecell">
+						<a class="view" href="?folder" property="rdfs:label" content="?flabel"><img src="/callimachus/folder.png" />{?flabel}</a>
 					</td>
 					<td class="ui-widget-content timecell">
 						<span rel="audit:revision" resource="?revision">

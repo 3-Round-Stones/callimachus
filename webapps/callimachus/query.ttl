@@ -59,10 +59,8 @@
 			throw new BadRequest("Missing location request header");
 
 		var created = con.getObject(this.toUri().resolve(location).toString());
-		if (created.toString().indexOf(this.toUri().resolve("/query/").toString()) != 0)
-			throw new BadRequest("Wrong location namespace");
 		if (created instanceof NamedQuery)
-			throw new BadRequest("Page already exists");
+			throw new BadRequest("Query already exists");
 
 		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));

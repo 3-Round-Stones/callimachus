@@ -15,7 +15,7 @@
 					var local = encodeURI(name).replace(/%20/g,'-').toLowerCase();
 					var header = 'POST create'
 						+ '\nAction: ' + location.href
-						+ '\nLocation: /query/' + local + '.rq'
+						+ '\nLocation: ' + location.pathname + local + '.rq'
 						+ '\nContent-Type: application/sparql-query';
 					if ($('#cache').val()) {
 						header += '\nCache-Control: ' + $('#cache').val();

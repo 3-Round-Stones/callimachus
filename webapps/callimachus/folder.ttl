@@ -34,11 +34,11 @@
 	rdfs:label "Folder";
 	rdfs:comment "A folder of resources";
 	calli:creates <Folder>;
-	calli:creates <Page>;
+	#calli:creates <Page>;
 	calli:creates <NamedQuery>;
 	calli:creates <owl/Class>;
 	calli:creates <skos/ConceptScheme>;
-	calli:creates </accounts/Group>;
+	#calli:creates </accounts/Group>;
 	calli:createRev dcterms:isPartOf;
 	calli:icon <folder.png>;
 	calli:view <folder-view.xhtml>;
@@ -58,7 +58,9 @@
 	msg:type "application/sparql-results+xml";
 	msg:transform :TransformIntoAtom;
 	msg:sparql """
-		SELECT ?id ?totalResults ?title ?icon ?summary ?author_uri ?author_name ?updated ?reader ?contributor ?editor ?administrator
+		SELECT DISTINCT ?id ?totalResults ?title ?icon ?summary ?updated
+				?author_uri ?author_name ?reader_uri ?reader_name ?contributor_uri ?contributor_name
+				?editor_uri ?editor_name ?administrator_uri ?administrator_name
 				(?id as ?link) # TODO construct callimachus go URL
 				(if(bound(?folder), ?id, ?folder) as ?link_feed) # TODO append '?feed' to ?id
 				(if(?content_type = calli:Page, "application/xhtml+xml",
@@ -89,14 +91,17 @@
 			} OPTIONAL {
 				?id a [calli:icon ?icon]
 			} OPTIONAL {
-				?id audit:revision [audit:contributor ?author_uri; audit:committedOn ?updated]
+				?id audit:revision ?revision . ?revision audit:committedOn ?updated
 				OPTIONAL {
-					?author_uri rdfs:label ?author_name
+					?revision audit:contributor ?author_uri
+					OPTIONAL {
+						?author_uri rdfs:label ?author_name
+					}
 				}
 			} OPTIONAL {
-				?id calli:reader ?reader
+				?id calli:reader ?reader_uri
 				OPTIONAL {
-					?reader rdfs:label ?reader_name
+					?reader_uri rdfs:label ?reader_name
 				}
 			} OPTIONAL {
 				?id calli:contributor ?contributor_uri

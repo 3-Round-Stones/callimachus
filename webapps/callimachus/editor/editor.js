@@ -162,7 +162,7 @@ jQuery(function($) {
 			contentType = m[3];
 			postFile(action, function(xhr) {
 				if (xhr.status < 300) {
-					parent.postMessage('OK\n\n' + header, '*');
+					parent.postMessage('OK\n\n' + header + '\n\nLocation: ' + xhr.getResponseHeader('Location'), '*');
 				} else {
 					parent.postMessage(xhr.statusText + '\n\n' + header + '\n\n' + xhr.responseText, '*');
 				}

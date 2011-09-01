@@ -28,30 +28,11 @@
 	calli:icon <page.png>;
 	calli:edit <page-edit.xhtml>;
 	calli:copy <page-copy.xhtml>;
-	calli:create <page-edit.xhtml>;
+	calli:create <page-create.xhtml>;
 	calli:uriSpace </page/>;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>.
-
-# GET /page/MainPage
-:FindWikiPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (
-		[msg:matching </page/*>] [owl:complementOf calli:Viewable])]];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET", "HEAD";
-	msg:expect "302-found";
-	msg:imports calli:Viewable;
-	msg:script """
-		var uri = this.toString().toLowerCase().replace(/%20/g, '-');
-		if (uri.indexOf('.xhtml') != uri.length - 6) {
-			uri = uri + ".xhtml";
-		}
-		var page = this.objectConnection.getObject(uri);
-		if (page instanceof Viewable)
-			return page + "?view";
-		return page.toUri().resolve("/callimachus/Page") + "?create#!" + page.toUri().getPath();
-	""".
 
 # GET /page/MainPage.xhtml?view
 :GetPage owl:intersectionOf (</callimachus/operations/view.ttl#GetViewPage>
@@ -113,51 +94,40 @@
 	""".
 
 # POST /callimachus/Page?create
-:CreatePage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Page>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	msg:method "POST";
-	msg:query "create";
-	msg:realm </accounts>;
-	msg:expect "201-created";
-	msg:type "text/uri-list";
-	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+:CreatePage owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Page> ]);
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	msg:imports calli:Page;
 	msg:script """
-		if (!location) {
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		if (!location)
 			throw new BadRequest("Missing location request header");
-		}
-		var template = this.calliCreate;
-		if (!template)
-			throw new InternalServerError("No create template");
-		var created = this.objectConnection.getObject(this.toUri().resolve(location).toString());
-		if (created.toString().indexOf(this.toUri().resolve("/page/").toString()) != 0) {
-			throw new BadRequest("Wrong location namespace");
-		}
-		if (created instanceof Page) {
+
+		var created = con.getObject(this.toUri().resolve(location).toString());
+		if (created instanceof Page)
 			throw new BadRequest("Page already exists");
-		}
-		created = this.objectConnection.addDesignation(created, this.toString());
+
+		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
+		con.add(created.resource, RDFS.LABEL, label, []);
+
+		created = con.addDesignation(created, this.toString());
+		created = con.addDesignation(created, Page);
 		this.PropagatePermissions(created);
+
 		this.touchRevision(); // update index page
-		this.objectConnection.commit();
-		created.UploadPage(inputStream);
+		con.commit();
+
+		created.UploadPage(body); //# cannot write to other streams directly
 		return created;
 	""".
 
-:location a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :CreatePage;
-	rdfs:range xsd:string;
-	msg:header "Location".
-
-:inputStream a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :CreatePage;
-	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/xhtml+xml".
-
 :local a calli:LocalRealm;
-	calli:domain </page/>.
+	calli:domain </>.
 
 # PUT /page/MainPage.xhtml
 # Called by client, copy operation, create operation, and MainPage initialization

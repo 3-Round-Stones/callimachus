@@ -5,7 +5,7 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this">{rdfs:label}</title>
-	<script>// <![CDATA[
+	<script type="text/javascript">// <![CDATA[
 		jQuery(function($){
 			function onhashchange() {
 				var path = location.pathname;
@@ -47,8 +47,9 @@
 					$(window).bind('message', function(event) {
 						if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
 							var msg = event.originalEvent.data;
-							if (msg == 'OK\n\n' + header) {
-								loadQuery('/query/' + local + '.rq?edit');
+							if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
+								var url = msg.substring(msg.lastIndexOf('\n\n')).match(/Location:\s*(\S+)/)[1]
+								location.replace(url + '?edit');
 							}
 						}
 					});

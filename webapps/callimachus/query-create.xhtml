@@ -5,7 +5,7 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title>New Named Query</title>
-	<script>// <![CDATA[
+	<script type="text/javascript">// <![CDATA[
 		jQuery(function($){
 			$('#iframe')[0].src = $('#iframe')[0].src + '#sparql';
 			$('#form').submit(function(event) {
@@ -23,8 +23,9 @@
 					$(window).bind('message', function(event) {
 						if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
 							var msg = event.originalEvent.data;
-							if (msg == 'OK\n\n' + header) {
-								location.replace('/query/' + local + '.rq?view');
+							if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
+								var url = msg.substring(msg.lastIndexOf('\n\n')).match(/Location:\s*(\S+)/)[1]
+								location.replace(url + '?view');
 							}
 						}
 					});

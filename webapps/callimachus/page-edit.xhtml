@@ -1,301 +1,85 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this">{rdfs:label}</title>
-	<link rel="stylesheet" href="/callimachus/page-edit.css" />
-	<script type="text/javascript" src="/callimachus/scripts/wymeditor_bundle?source"> </script>
-	<script type="text/javascript" src="/callimachus/page-edit.js"> </script>
+	<script type="text/javascript">// <![CDATA[
+		jQuery(function($){
+			function onhashchange() {
+				var path = location.pathname;
+				if (location.hash) {
+					path += location.hash;
+				}
+				$('#iframe')[0].src = '/callimachus/editor/editor.html#html!' + path;
+			}
+			$(window).bind('hashchange', onhashchange);
+			onhashchange();
+		});
+
+		jQuery(function($){
+			$('#form').submit(function(event) {
+				event.preventDefault();
+				$(window).bind('message', function(event) {
+					if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
+						var msg = event.originalEvent.data;
+						if (msg == 'OK\n\nPOST save') {
+							location.replace('?view');
+						}
+					}
+				});
+				$('#iframe')[0].contentWindow.postMessage('POST save', '*');
+				return false;
+			});
+			$('#saveas').click(function(event) {
+				event.preventDefault();
+				var name = prompt('Save as...', 'Untitled Page');
+				if (name) {
+					var local = encodeURI(name).replace(/%20/g,'-').toLowerCase();
+					var header = 'POST create'
+						+ '\nAction: /callimachus/NamedQuery?create'
+						+ '\nLocation: ' + local + '.xhtml'
+						+ '\nContent-Type: application/xhtml+xml';
+					if ($('#cache').val()) {
+						header += '\nCache-Control: ' + $('#cache').val();
+					}
+					$(window).bind('message', function(event) {
+						if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
+							var msg = event.originalEvent.data;
+							if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
+								var url = msg.substring(msg.lastIndexOf('\n\n')).match(/Location:\s*(\S+)/)[1]
+								location.replace(url + '?edit');
+							}
+						}
+					});
+					$('#iframe')[0].contentWindow.postMessage(header, '*');
+				}
+				return false;
+			});
+			function loadPage(url) {
+					$(window).bind('message', function(event) {
+						if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
+							var msg = event.originalEvent.data;
+							if (msg.indexOf('OK\n\nGET line.column\n\n') == 0) {
+								location.href = url + '#' + msg.substring(msg.indexOf('\n\n', 4) + 2);
+							}
+						}
+					});
+				$('#iframe')[0].contentWindow.postMessage('GET line.column', '*');
+			}
+		});
+	// ]]>
+	</script>
 </head>
-<body about="?this">
-	<form id="form" action="" data-redirect="/">
-		<div class="wym_box_0">
-			<ul class="wym_tools wym_section ui-widget-header auto-expand wym_buttons">
-				<li class="wym_containers">
-					<select onchange="jQuery.wymeditors(0).container(value);value='';">
-						<option value="" style="font-style:italic;color:grey">Styles..</option>
-						<option value="P">Paragraph</option>
-						<option value="H1">Heading 1</option>
-						<option value="H2">Heading 2</option>
-						<option value="H3">Heading 3</option>
-						<option value="H4">Heading 4</option>
-						<option value="H5">Heading 5</option>
-						<option value="H6">Heading 6</option>
-						<option value="PRE">Preformatted</option>
-						<option value="BLOCKQUOTE">Blockquote</option>
-						<option value=".aside">Aside box</option>
-						<option value="pre.wiki">Wiki text</option>
-					</select>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_strong">
-					<a title="Strong" name="Bold" href="#">Strong</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_emphasis">
-					<a title="Emphasis" name="Italic" href="#">Emphasis</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_superscript">
-					<a title="Superscript" name="Superscript" href="#">Superscript</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_subscript">
-					<a title="Subscript" name="Subscript" href="#">Subscript</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_ordered_list">
-					<a title="Ordered List" name="InsertOrderedList" href="#">Ordered List</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_unordered_list">
-					<a title="Unordered List" name="InsertUnorderedList" href="#">Unordered List</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_indent">
-					<a title="Indent" name="Indent" href="#">Indent</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_outdent">
-					<a title="Outdent" name="Outdent" href="#">Outdent</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_undo">
-					<a title="Undo" name="Undo" href="#">Undo</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_redo">
-					<a title="Redo" name="Redo" href="#">Redo</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_link">
-					<a title="Link" name="CreateLink" href="#">Link</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_unlink">
-					<a title="Unlink" name="Unlink" href="#">Unlink</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_image">
-					<a title="Image" name="InsertImage" href="#">Image</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_table">
-					<a title="Table" name="InsertTable" href="#">Table</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_chart">
-					<a title="Insert Chart" name="InsertChart" href="#">Chart</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_vbox">
-					<a title="Vertical box" name="InsertVBox" href="#">Vertical box</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_hbox">
-					<a title="Horizontal box" name="InsertHBox" href="#">Horizontal box</a>
-				</li>
-				<li class="Wym_Form_Items wym_tools_form">
-					<a title="Form" name="InsertForm" href="#">Form</a>
-				</li>
-				<li class="Wym_Form_Items wym_tools_input">
-					<a title="Input box field" name="InsertInput" href="#">Input box</a>
-				</li>
-				<li class="Wym_Form_Items wym_tools_textarea">
-					<a title="Text area field" name="InsertTextArea" href="#">Text area</a>
-				</li>
-				<li class="Wym_Form_Items wym_tools_radio">
-					<a title="Radio button field" name="InsertRadio" href="#">Radio</a>
-				</li>
-				<li class="Wym_Form_Items wym_tools_checkbox">
-					<a title="Check box field" name="InsertCheckbox" href="#">Check box</a>
-				</li>
-				<li class="Wym_Form_Items wym_tools_dropdown">
-					<a title="Drop down" name="InsertDropDown" href="#">Drop down</a>
-				</li>
-				<li class="Wym_Form_Items wym_tools_select">
-					<a title="Select box" name="InsertSelect" href="#">Select box</a>
-				</li>
-				<li class="Wym_Form_Items wym_tools_drop">
-					<a title="Drop zone field" name="InsertDropZone" href="#">Drop zone</a>
-				</li>
-				<li class="Wym_View_Items wym_tools_property">
-					<a title="Add property" name="AddProperty" href="#">Property</a>
-				</li>
-				<li class="Wym_View_Items wym_tools_rel">
-					<a title="Add relationship" name="AddRel" href="#">Relationship</a>
-				</li>
-				<li class="Wym_Tools_Items wym_tools_html">
-					<a title="HTML" name="ToggleHtml" href="#">HTML</a>
-				</li>
-			</ul>
-			<div class="wym_html wym_section" style="display:none">
-				<textarea class="wym_html_val auto-expand"/>
-			</div>
-			<div id="Wym_Iframe" class="wym_iframe wym_section">
-				<iframe id="wym-iframe" class="auto-expand" src="/callimachus/page-edit-iframe.html"> </iframe>
-			</div>
-			<div id="ace-div" class="wym_iframe wym_section">
-				<iframe id="ace-iframe" class="auto-expand" src="/callimachus/editor/editor.html#html" style="display:none"> </iframe>
-			</div>
-			<div class="wym_status wym_section">
-			</div>
-			<a class="wym_wymeditor_link" href="http://www.wymeditor.org/">WYMeditor</a>
-		</div>
-		<button id="create" type="submit">Create</button>
-		<button id="abort" type="button" onclick="history.go(-1)">Cancel</button>
-		<button id="save" type="submit" style="display:none">Save</button>
-		<button id="cancel" type="button" style="display:none" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" style="display:none" onclick="calli.deleteResource(form)">Delete</button>
+<body>
+	<form id="form" action="">
+		<iframe id="iframe" class="auto-expand" src="/callimachus/editor/editor.html"> </iframe>
+        <button type="submit">Save</button>
+		<button id="saveas" type="button">Save as...</button>
+		<button type="button" onclick="location.replace('?view')">Cancel</button>
+		<button type="button" onclick="calli.deleteResource(form)">Delete</button>
 	</form>
-	<div style="display:none">
-		<div class="wym_dialog wym_dialog_link">
-			<form>
-				<input type='hidden' class='wym_dialog_type' value='Link' />
-				<label for="url">URL</label>
-				<div>
-					<input id="url" type='text' class='wym_href' size="24" />
-				</div>
-				<label for="title">Title</label>
-				<div>
-					<input id="title" type='text' class='wym_title' size="24" />
-				</div>
-				<button class='wym_submit' type='submit'>Link</button>
-				<button class='wym_cancel' type='button'>Cancel</button>
-			</form>
-		</div>
-		<iframe class="wym_dialog wym_dialog_image" src="/callimachus/Image?create" style="border:none"> </iframe>
-		<div class='wym_dialog wym_dialog_table'>
-			<form>
-				<input type='hidden' class='wym_dialog_type' value='InsertTable' />
-				<label for="caption">Caption</label>
-				<div>
-					<input id="caption" type='text' class='wym_caption' size="24" />
-				</div>
-				<label for="summary">Summary</label>
-				<div>
-					<input id="summary" type='text' class='wym_summary' size="24" />
-				</div>
-				<label for="numberofrows">Number of rows and cols</label>
-				<div>
-					<input id="numberofrows" type='text' class='wym_rows' value='3' size='3' />
-					<span>x</span>
-					<input id="numberofcols" type='text' class='wym_cols' value='2' size='3' />
-				</div>
-				<button class='wym_submit' type='submit'>Add table</button>
-				<button class='wym_cancel' type='button'>Cancel</button>
-			</form>
-		</div>
-		<div class='wym_dialog wym_dialog_input'>
-			<form>
-				<input type='hidden' class='wym_dialog_type' value='InsertInput' />
-				<label for="label">Label</label>
-				<div>
-					<input id="label" type='text' class='wym_label' size="24" />
-				</div>
-				<label for="curie">Property</label>
-				<div>
-					<select id="prefix" style="width:11ex"></select>
-					<span>:</span>
-					<input id="local" type="text" size="12" />
-				</div>
-				<button class='wym_submit' type='submit'>Insert</button>
-				<button class='wym_cancel' type='button'>Cancel</button>
-				<button class='wym_delete' type='button'>Delete</button>
-			</form>
-		</div>
-		<div class='wym_dialog wym_dialog_select'>
-			<form>
-				<input type='hidden' class='wym_dialog_type' value='InsertSelect' />
-				<label for="scheme">Scheme</label>
-				<div>
-					<select id="scheme" class='wym_scheme' style="width:24ex">
-					</select>
-				</div>
-				<label for="curie">Relationship</label>
-				<div>
-					<select id="prefix" style="width:11ex"></select>
-					<span>:</span>
-					<input id="local" type="text" size="12" />
-				</div>
-				<button class='wym_submit' type='submit'>Insert</button>
-				<button class='wym_cancel' type='button'>Cancel</button>
-				<button class='wym_delete' type='button'>Delete</button>
-			</form>
-		</div>
-		<div class='wym_dialog wym_dialog_dropzone'>
-			<form>
-				<input type='hidden' class='wym_dialog_type' value='InsertDropZone' />
-				<label for="label">Label</label>
-				<div>
-					<input id="label" type='text' class='wym_label' size="24" />
-				</div>
-				<label for="curie">Relationship</label>
-				<div>
-					<select id="prefix" style="width:11ex"></select>
-					<span>:</span>
-					<input id="local" type="text" size="12" />
-				</div>
-				<label for="class">Class</label>
-				<div>
-					<select id="class-prefix" style="width:11ex"></select>
-					<span>:</span>
-					<input id="class-local" type="text" size="12" />
-				</div>
-				<label for="prompt">Create/Search page</label>
-				<div>
-					<input id="prompt" type='text' class='wym_prompt' value='about:blank' size="24" />
-				</div>
-				<button class='wym_submit' type='submit'>Insert</button>
-				<button class='wym_cancel' type='button'>Cancel</button>
-				<button class='wym_delete' type='button'>Delete</button>
-			</form>
-		</div>
-		<div class='wym_dialog wym_dialog_form'>
-			<form>
-				<input type='hidden' class='wym_dialog_type' value='InsertForm' />
-				<label for="curie">Type</label>
-				<div>
-					<select id="prefix" style="width:11ex"></select>
-					<span>:</span>
-					<input id="local" type="text" size="12" />
-				</div>
-				<div>
-					<label>
-						<input id="create-radio" type='radio' name="mode" value='true' checked="checked" />
-						<span>Create</span>
-					</label>
-					<label>
-						<input id="edit-radio" type='radio' name="mode" value='true' />
-						<span>Edit</span>
-					</label>
-				</div>
-				<button class='wym_submit' type='submit'>Save</button>
-				<button class='wym_cancel' type='button'>Cancel</button>
-				<button class='wym_delete' type='button'>Delete</button>
-			</form>
-		</div>
-		<div class='wym_dialog wym_dialog_property'>
-			<form>
-				<input type='hidden' class='wym_dialog_type' value='AddProperty' />
-				<label for="curie">Property</label>
-				<div>
-					<select id="prefix" style="width:11ex"></select>
-					<span>:</span>
-					<input id="local" type="text" size="12" />
-				</div>
-				<label for="variable">Variable</label>
-				<div>
-					<input id="variable" type='text' class='wym_variable' size="24" />
-				</div>
-				<button class='wym_submit' type='submit'>Add</button>
-				<button class='wym_cancel' type='button'>Cancel</button>
-				<button class='wym_delete' type='button'>Remove</button>
-			</form>
-		</div>
-		<div class='wym_dialog wym_dialog_rel'>
-			<form>
-				<input type='hidden' class='wym_dialog_type' value='AddRel' />
-				<label for="curie">Relationship</label>
-				<div>
-					<select id="prefix" style="width:11ex"></select>
-					<span>:</span>
-					<input id="local" type="text" size="12" />
-				</div>
-				<label for="variable">Variable</label>
-				<div>
-					<input id="variable" type='text' class='wym_variable' size="24" />
-				</div>
-				<button class='wym_submit' type='submit'>Add</button>
-				<button class='wym_cancel' type='button'>Cancel</button>
-				<button class='wym_delete' type='button'>Remove</button>
-			</form>
-		</div>
-		<div class='wym_dialog wym_dialog_preview'></div>
-	</div>
 </body>
 </html>
+

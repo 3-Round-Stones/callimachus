@@ -190,6 +190,11 @@ jQuery(function($) {
 		} else if (header == 'POST insert' && body) {
 			editor.insert(body);
 			return true;
+		} else if (header == 'POST template' && body) {
+			if (!editor.getSession().getValue()) {
+				editor.insert(body);
+			}
+			return true;
 		} else if (header == 'GET line.column') {
 			var start = editor.getSelectionRange().start;
 			return '' + (1 + start.row) + '.' + start.column;

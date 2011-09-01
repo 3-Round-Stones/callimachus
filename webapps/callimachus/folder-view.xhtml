@@ -38,6 +38,7 @@
 				a.text(text);
 				if (src) {
 					var img = $('<img/>');
+					img.addClass('icon');
 					img.attr('src', src);
 					a.prepend(img);
 				}
@@ -151,7 +152,7 @@
 			<tbody id="tfolders" rev="dcterms:isPartOf">
 				<tr about="?folder" typeof="calli:Folder">
 					<td class="ui-widget-content filecell">
-						<a class="view" href="?folder" property="rdfs:label" content="?flabel"><img src="/callimachus/folder.png" />{?flabel}</a>
+						<a class="view" href="?folder" property="rdfs:label" content="?flabel"><img class="icon" src="/callimachus/folder.png" />{?flabel}</a>
 					</td>
 					<td class="ui-widget-content timecell">
 						<span rel="audit:revision" resource="?revision">

@@ -34,7 +34,7 @@
 	rdfs:label "Folder";
 	rdfs:comment "A folder of resources";
 	calli:creates <Folder>;
-	#calli:creates <Page>;
+	calli:creates <Page>;
 	calli:creates <NamedQuery>;
 	calli:creates <owl/Class>;
 	calli:creates <skos/ConceptScheme>;

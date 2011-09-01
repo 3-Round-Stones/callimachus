@@ -44,6 +44,7 @@ pre {
 img.icon {
 	max-height:1em;
 	padding-right:2pt;
+	vertical-align:text-top;
 }
 
 .summary {

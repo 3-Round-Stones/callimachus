@@ -1,0 +1,129 @@
+<html>
+<head>
+	<title>Docbook Editor</title>
+	<link rel="stylesheet" href="wymeditor/skin.css" />
+	<style type="text/css">
+		html, body { margin:0; }
+		.wym_tools { position:absolute;width:100%;height:26px;box-sizing:border-box; }
+		.wym_box_0 .wym_iframe { width:100%;height:100%;box-sizing:border-box; }
+		.wym_box_0 .wym_iframe > iframe { display:block;width:100%;height:100%;border:0;margin:0;padding-top:25px;padding-bottom:1.4em;box-sizing:border-box; }
+		#wym_wymeditor_link {float:right;}
+		p, h2, h3, ul, li { background: transparent; }
+		ul.wym_buttons>li>a.wym_wymeditor_link { background: url(wymeditor/wymeditor_icon.png);width: 50px; height: 15px;padding:0;margin:4px;}
+		.wym_box_0 .wym_section { margin-bottom:0;padding:0; }
+		.wym_box_0 {border:0;padding:0;}
+		.wym_status { position:absolute;width:100%;height:1.5em;bottom:0;box-sizing:border-box; }
+	</style>
+	<link rel="stylesheet" href="/layout/jquery-ui.css" />
+	<script type="text/javascript" src="docbook_bundle?source"> </script>
+</head>
+<body>
+	<div id="editor" class="wym_box_0 wym_skin_compact">
+		<ul class="wym_tools wym_section ui-widget-header wym_buttons">
+			<li class="wym_containers">
+				<select onchange="jQuery.wymeditors(0).container(value);value='';">
+					<option value="" style="font-style:italic;color:grey">Styles..</option>
+					<option value="P">Paragraph</option>
+					<option value="H1">Heading 1</option>
+					<option value="H2">Heading 2</option>
+					<option value="H3">Heading 3</option>
+					<option value="H4">Heading 4</option>
+					<option value="H5">Heading 5</option>
+					<option value="H6">Heading 6</option>
+					<option value="PRE">Preformatted</option>
+					<option value="BLOCKQUOTE">Blockquote</option>
+				</select>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_strong">
+				<a title="Strong" name="Bold" href="#">Strong</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_emphasis">
+				<a title="Emphasis" name="Italic" href="#">Emphasis</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_superscript">
+				<a title="Superscript" name="Superscript" href="#">Superscript</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_subscript">
+				<a title="Subscript" name="Subscript" href="#">Subscript</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_ordered_list">
+				<a title="Ordered List" name="InsertOrderedList" href="#">Ordered List</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_unordered_list">
+				<a title="Unordered List" name="InsertUnorderedList" href="#">Unordered List</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_indent">
+				<a title="Indent" name="Indent" href="#">Indent</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_outdent">
+				<a title="Outdent" name="Outdent" href="#">Outdent</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_undo">
+				<a title="Undo" name="Undo" href="#">Undo</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_redo">
+				<a title="Redo" name="Redo" href="#">Redo</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_link">
+				<a title="Link" name="CreateLink" href="#">Link</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_unlink">
+				<a title="Unlink" name="Unlink" href="#">Unlink</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_image">
+				<a title="Image" name="InsertImage" href="#">Image</a>
+			</li>
+			<li class="Wym_Tools_Items wym_tools_table">
+				<a title="Table" name="InsertTable" href="#">Table</a>
+			</li>
+			<li id="wym_wymeditor_link">
+				<a class="wym_wymeditor_link" href="http://www.wymeditor.org/">WYMeditor</a>
+			</li>
+		</ul>
+		<div id="Wym_Iframe" class="wym_iframe wym_section ui-widget-content">
+			<iframe id="wym-iframe" src="/callimachus/editor/wymeditor/wymiframe.html"> </iframe>
+		</div>
+		<div class="wym_status wym_section ui-widget-header">
+		</div>
+	</div>
+	<div style="display:none">
+		<div class="wym_dialog wym_dialog_link">
+			<form>
+				<input type='hidden' class='wym_dialog_type' value='Link' />
+				<label for="url">URL</label>
+				<div>
+					<input id="url" type='text' class='wym_href' size="24" />
+				</div>
+				<label for="title">Title</label>
+				<div>
+					<input id="title" type='text' class='wym_title' size="24" />
+				</div>
+				<button class='wym_submit' type='submit'>Link</button>
+				<button class='wym_cancel' type='button'>Cancel</button>
+			</form>
+		</div>
+		<iframe class="wym_dialog wym_dialog_image" src="/callimachus/Image?create" style="border:none"> </iframe>
+		<div class='wym_dialog wym_dialog_table'>
+			<form>
+				<input type='hidden' class='wym_dialog_type' value='InsertTable' />
+				<label for="caption">Caption</label>
+				<div>
+					<input id="caption" type='text' class='wym_caption' size="24" />
+				</div>
+				<label for="summary">Summary</label>
+				<div>
+					<input id="summary" type='text' class='wym_summary' size="24" />
+				</div>
+				<label for="numberofrows">Number of rows and cols</label>
+				<div>
+					<input id="numberofrows" type='text' class='wym_rows' value='3' size='3' />
+					<span>x</span>
+					<input id="numberofcols" type='text' class='wym_cols' value='2' size='3' />
+				</div>
+				<button class='wym_submit' type='submit'>Add table</button>
+				<button class='wym_cancel' type='button'>Cancel</button>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

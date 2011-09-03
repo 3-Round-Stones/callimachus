@@ -1,5 +1,5 @@
 /**
- * @version 0.5-rc1
+ * @version 0.5-rc1+
  *
  * WYMeditor : what you see is What You Mean web-based editor
  * Copyright (c) 2005 - 2009 Jean-Francois Hovinne, http://www.wymeditor.org/
@@ -739,6 +739,8 @@ WYMeditor.editor.prototype.init = function() {
       for (var prop in WymClass) { this[prop] = WymClass[prop]; }
 
       //load wymbox
+      this._box = jQuery('.wym_box_' + this._index);
+      if(!this._box.length) {
       this._box = jQuery(this._element).hide().after(this._options.boxHtml).next().addClass('wym_box_' + this._index);
 
       //store the instance index in wymbox and element replaced by editor instance
@@ -823,6 +825,7 @@ WYMeditor.editor.prototype.init = function() {
       
       //load html in wymbox
       jQuery(this._box).html(boxHtml);
+      }
       
       //hide the html value
       jQuery(this._box).find(this._options.htmlSelector).hide();
@@ -1100,6 +1103,7 @@ WYMeditor.editor.prototype.switchTo = function(node,sType) {
 };
 
 WYMeditor.editor.prototype.replaceStrings = function(sVal) {
+  if(this._options.lang) {
   //check if the language file has already been loaded
   //if not, get it via a synchronous ajax call
   if(!WYMeditor.STRINGS[this._options.lang]) {
@@ -1118,6 +1122,7 @@ WYMeditor.editor.prototype.replaceStrings = function(sVal) {
     + this._options.stringDelimiterRight,
     WYMeditor.STRINGS[this._options.lang][key]);
   };
+  }
   return(sVal);
 };
 
@@ -1144,18 +1149,15 @@ WYMeditor.editor.prototype.update = function() {
 
   var html = this.xhtml();
   jQuery(this._element).val(html);
-  jQuery(this._box).find(this._options.htmlValSelector).not('.hasfocus').val(html); //#147
+  jQuery(this._box).find(this._options.htmlValSelector).not('.hasfocus').val(html).change(); //#147
 };
 
 /* @name dialog
  * @description Opens a dialog box
  */
 WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHtml ) {
-  
-  var features = dialogFeatures || this._wym._options.dialogFeatures;
-  var wDialog = window.open('', 'dialog', features);
 
-  if(wDialog) {
+  var features = dialogFeatures || this._wym._options.dialogFeatures;
 
     var sBodyHtml = "";
     
@@ -1183,6 +1185,45 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
     
     var h = WYMeditor.Helper;
 
+    if (features == 'jQuery.dialog') {
+
+    //construct the dialog
+    var dialogHtml = this.replaceStrings(sBodyHtml);
+      var options = {
+        title: dialogType.replace(/_/g, ' '),
+        autoOpen: false,
+        modal: false,
+        draggable: true,
+        resizable: true,
+        autoResize: true,
+        minWidth: 320,
+        minHeight: 320
+      };
+
+      if (dialogType == WYMeditor.PREVIEW) {
+        options.width = $(this._iframe).width();
+        options.height = $(this._iframe).height();
+      }
+
+      var div = jQuery(dialogHtml);
+      var dialog = div.dialog(options);
+      dialog.bind("dialogclose", function(event, ui) {
+        dialog.dialog("destroy");
+        div.remove();
+		window.dialog = null;
+      });
+      dialog.dialog("open");
+      window.dialog = dialog;
+      WYMeditor.INIT_DIALOG(this._index);
+
+    } else {
+
+      if (sBodyHtml.indexOf("INIT_DIALOG") < 0) {
+        sBodyHtml = "<body class='wym_dialog wym_dialog_link'"
+               + " onload='WYMeditor.INIT_DIALOG(" + this._index + ")'"
+               + ">" + sBodyHtml + "</body>";
+      }
+
     //construct the dialog
     var dialogHtml = this._options.dialogHtml;
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.BASE_PATH, this._options.basePath);
@@ -1195,11 +1236,12 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.INDEX, this._index);
       
     dialogHtml = this.replaceStrings(dialogHtml);
-    
-    var doc = wDialog.document;
-    doc.write(dialogHtml);
-    doc.close();
-  }
+      var wDialog = window.open('', 'dialog', features);
+      var doc = wDialog.document;
+      doc.write(dialogHtml);
+      doc.close();
+    }
+
 };
 
 /* @name toggleHtml
@@ -1293,9 +1335,12 @@ WYMeditor.editor.prototype.addCssRules = function(doc, aCss) {
 /********** CONFIGURATION **********/
 
 WYMeditor.editor.prototype.computeBasePath = function() {
-  return jQuery(jQuery.grep(jQuery('script'), function(s){
+  var script = jQuery(jQuery.grep(jQuery('script'), function(s){
     return (s.src && s.src.match(/jquery\.wymeditor(\.pack|\.min|\.packed)?\.js(\?.*)?$/ ))
-  })).attr('src').replace(/jquery\.wymeditor(\.pack|\.min|\.packed)?\.js(\?.*)?$/, '');
+  }));
+  if (script.length)
+    return script.attr('src').replace(/jquery\.wymeditor(\.pack|\.min|\.packed)?\.js(\?.*)?$/, '');
+  return null;
 };
 
 WYMeditor.editor.prototype.computeWymPath = function() {
@@ -1421,7 +1466,8 @@ WYMeditor.editor.prototype.loadSkin = function() {
 
 WYMeditor.INIT_DIALOG = function(index) {
 
-  var wym = window.opener.WYMeditor.INSTANCES[index];
+  var opener = window.opener ? window.opener : window;
+  var wym = opener.WYMeditor.INSTANCES[index];
   var doc = window.document;
   var selected = wym.selected();
   var dialogType = jQuery(wym._options.dialogTypeSelector).val();
@@ -1469,8 +1515,7 @@ WYMeditor.INIT_DIALOG = function(index) {
       .val(jQuery(wym._selected_image).attr(WYMeditor.ALT));
   }
 
-  jQuery(wym._options.dialogLinkSelector + " "
-    + wym._options.submitSelector).click(function() {
+  var submitLink = function() {
 
       var sUrl = jQuery(wym._options.hrefSelector).val();
       if(sUrl.length > 0) {
@@ -1483,15 +1528,30 @@ WYMeditor.INIT_DIALOG = function(index) {
             link = jQuery("a[href=" + sStamp + "]", wym._doc.body);
         }
 
+        var title = jQuery(wym._options.titleSelector).val();
         link.attr(WYMeditor.HREF, sUrl)
-            .attr(WYMeditor.TITLE, jQuery(wym._options.titleSelector).val());
+            .attr(WYMeditor.TITLE, title);
+        if (title && link.text() == sStamp) {
+            link.text(title);
+        } else if (link.text() == sStamp) {
+            link.text(sUrl);
+        }
 
       }
-      window.close();
-  });
+      if (window.opener) {
+        window.close();
+      } else if (window.dialog) {
+        window.dialog.dialog('close');
+      }
+      return false;
+  };
 
-  jQuery(wym._options.dialogImageSelector + " "
-    + wym._options.submitSelector).click(function() {
+  jQuery(wym._options.dialogLinkSelector + " "
+    + wym._options.submitSelector).click(submitLink);
+  jQuery(wym._options.dialogLinkSelector + " "
+    + wym._options.submitSelector).parents("form").submit(submitLink);
+
+  var submitImage = function() {
 
       var sUrl = jQuery(wym._options.srcSelector).val();
       if(sUrl.length > 0) {
@@ -1503,11 +1563,20 @@ WYMeditor.INIT_DIALOG = function(index) {
             .attr(WYMeditor.TITLE, jQuery(wym._options.titleSelector).val())
             .attr(WYMeditor.ALT, jQuery(wym._options.altSelector).val());
       }
-      window.close();
-  });
+      if (window.opener) {
+        window.close();
+      } else if (window.dialog) {
+        window.dialog.dialog('close');
+      }
+      return false;
+  };
 
-  jQuery(wym._options.dialogTableSelector + " "
-    + wym._options.submitSelector).click(function() {
+  jQuery(wym._options.dialogImageSelector + " "
+    + wym._options.submitSelector).click(submitImage);
+  jQuery(wym._options.dialogImageSelector + " "
+    + wym._options.submitSelector).parents("form").submit(submitImage);
+
+  var submitTable = function() {
 
       var iRows = jQuery(wym._options.rowsSelector).val();
       var iCols = jQuery(wym._options.colsSelector).val();
@@ -1540,16 +1609,35 @@ WYMeditor.INIT_DIALOG = function(index) {
         if(!node || !node.parentNode) jQuery(wym._doc.body).append(table);
         else jQuery(node).after(table);
       }
-      window.close();
-  });
+      if (window.opener) {
+        window.close();
+      } else if (window.dialog) {
+        window.dialog.dialog('close');
+      }
+      return false;
+  };
 
-  jQuery(wym._options.dialogPasteSelector + " "
-    + wym._options.submitSelector).click(function() {
+  jQuery(wym._options.dialogTableSelector + " "
+    + wym._options.submitSelector).click(submitTable);
+  jQuery(wym._options.dialogTableSelector + " "
+    + wym._options.submitSelector).parents("form").submit(submitTable);
+
+  var submitPaste = function() {
 
       var sText = jQuery(wym._options.textSelector).val();
       wym.paste(sText);
-      window.close();
-  });
+      if (window.opener) {
+        window.close();
+      } else if (window.dialog) {
+        window.dialog.dialog('close');
+      }
+      return false;
+  };
+
+  jQuery(wym._options.dialogPasteSelector + " "
+    + wym._options.submitSelector).click(submitPaste);
+  jQuery(wym._options.dialogPasteSelector + " "
+    + wym._options.submitSelector).parents("form").submit(submitPaste);
 
   jQuery(wym._options.dialogPreviewSelector + " "
     + wym._options.previewSelector)
@@ -1557,7 +1645,11 @@ WYMeditor.INIT_DIALOG = function(index) {
 
   //cancel button
   jQuery(wym._options.cancelSelector).mousedown(function() {
-    window.close();
+      if (window.opener) {
+        window.close();
+      } else if (window.dialog) {
+        window.dialog.dialog('close');
+      }
   });
 
   //pre-init functions
@@ -1684,13 +1776,13 @@ WYMeditor.XmlHelper.prototype.tagOptions = function(options)
   for (var key in options) {
     var formated_options = '';
     var value = options[key];
-    if(typeof value != 'function' && value.length > 0) {
+    if(typeof value != 'function') {
 
       if(parseInt(key) == key && typeof value == 'object'){
         key = value.shift();
         value = value.pop();
       }
-      if(key != '' && value != ''){
+      if(key != '' && value != undefined){
         xml._formated_options += ' '+key+'="'+xml.escapeOnce(value)+'"';
       }
     }
@@ -3260,6 +3352,8 @@ WYMeditor.XhtmlParser.prototype.DoubleQuotedAttribute = function(match, state)
 {
   if(WYMeditor.LEXER_UNMATCHED == state){
     this._tag_attributes[this._current_attribute] = match;
+  } else if (WYMeditor.LEXER_ENTER == state){
+    this._tag_attributes[this._current_attribute] = '';
   }
   return true;
 };
@@ -3268,6 +3362,8 @@ WYMeditor.XhtmlParser.prototype.SingleQuotedAttribute = function(match, state)
 {
   if(WYMeditor.LEXER_UNMATCHED == state){
     this._tag_attributes[this._current_attribute] = match;
+  } else if (WYMeditor.LEXER_ENTER == state){
+    this._tag_attributes[this._current_attribute] = '';
   }
   return true;
 };
@@ -3930,6 +4026,18 @@ WYMeditor.WymClassExplorer.prototype.initIframe = function(iframe) {
         // Is this really needed, it trigger an unexisting property on IE6
         this._doc = iframe.contentWindow.document; 
     }catch(e){}
+};
+
+WYMeditor.WymClassExplorer.prototype.dialog = function( dialogType, dialogFeatures, bodyHtml ) {
+
+  var features = dialogFeatures || this._wym._options.dialogFeatures;
+
+  if ( features == 'jQuery.dialog' && dialogType == WYMeditor.DIALOG_LINK ) {
+      // IE loses selection with jquery dialog
+      dialogFeatures = "menubar=no,titlebar=no,toolbar=no,resizable=no"
+                      + ",width=560,height=300,top=0,left=0";
+   }
+  WYMeditor.editor.prototype.dialog.call(this, dialogType, dialogFeatures, bodyHtml );
 };
 
 WYMeditor.WymClassExplorer.prototype._exec = function(cmd,param) {

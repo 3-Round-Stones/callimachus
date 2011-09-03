@@ -19,7 +19,7 @@
 
 /*TRYING TO RESET STYLES THAT MAY INTERFERE WITH WYMEDITOR*/
         .wym_skin_compact p, .wym_skin_compact h2, .wym_skin_compact h3,
-        .wym_skin_compact ul, .wym_skin_compact li { background: transparent url(); margin: 0; padding: 0; border-width:0; list-style: none; }
+        .wym_skin_compact ul, .wym_skin_compact li { margin: 0; padding: 0; list-style: none; }
 
 
 /*HIDDEN BY DEFAULT*/
@@ -36,11 +36,6 @@
 
 /*WYM_BOX*/
         .wym_skin_compact                { border: 1px solid gray; padding: 5px}
-
-    /*auto-clear the wym_box*/
-        .wym_skin_compact:after 	 { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
- * html .wym_skin_compact                { height: 1%;}
-
 
 /*WYM_HTML*/
         .wym_skin_compact .wym_html               { width: 98%;}

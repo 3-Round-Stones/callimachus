@@ -1,19 +1,19 @@
 // editor.js
 
-jQuery(function($) {
-	$('#editor').ajaxSend(function(event, XMLHttpRequest, ajaxOptions) {
+(function($) {
+	$(window).ajaxSend(function(event, XMLHttpRequest, ajaxOptions) {
 		$('#editor').css('background-color', 'lightyellow');
 	});
-	$('#editor').ajaxSuccess(function(event, XMLHttpRequest, ajaxOptions) {
+	$(window).ajaxSuccess(function(event, XMLHttpRequest, ajaxOptions) {
 		$('#editor').css('background-color', 'inherit');
 	});
-	$('#editor').ajaxError(function(event, XMLHttpRequest, ajaxOptions) {
+	$(window).ajaxError(function(event, XMLHttpRequest, ajaxOptions) {
 		$('#editor').css('background-color', '#FF9999');
 		setTimeout(function() {
 			$('#editor').css('background-color', 'inherit');
 		}, 1000);
 	});
-});
+})(jQuery);
 
 jQuery(function($) {
 	var editor = ace.edit("editor");
@@ -48,7 +48,7 @@ jQuery(function($) {
 			}
 			if (path && !editor.getSession().getValue()) {
 				jQuery.ajax({type: 'GET', url: path, complete: function(xhr) {
-					if (xhr.status == 200) {
+					if (xhr.status == 200 || xhr.status == 304) {
 						contentType = xhr.getResponseHeader('Content-Type');
 						etag = xhr.getResponseHeader('ETag');
 						var body = xhr.responseText;
@@ -104,8 +104,6 @@ jQuery(function($) {
 	}
 	function putFile(callback) {
 		var text = editor.getSession().getValue();
-		if (!etag)
-			throw 'No file loaded';
 		if (saving) return false;
 		saving = true;
 		jQuery.ajax({
@@ -113,7 +111,9 @@ jQuery(function($) {
 			url: path,
 			contentType: contentType,
 			beforeSend: function(xhr) {
-				xhr.setRequestHeader('If-Match', etag);
+				if (etag) {
+					xhr.setRequestHeader('If-Match', etag);
+				}
 			},
 			data: text,
 			complete: function(xhr) {
@@ -156,10 +156,12 @@ jQuery(function($) {
 	// messaging
 	function handleMessage(header, body) {
 		if (header.indexOf('POST create\n') == 0) {
-			var m = header.match(/^POST create\s+Action:\s*(\S*)\s+Location:\s*(\S*)\s+Content-Type:\s*(\S*)\b/i);
+			var m = header.match(/^POST create\s+Action:\s*(\S*)\s+Location:\s*(\S*)(\s+Content-Type:\s*(\S*))?\b/i);
 			var action = m[1];
 			path = m[2];
-			contentType = m[3];
+			if (m[4]) {
+				contentType = m[4];
+			}
 			postFile(action, function(xhr) {
 				if (xhr.status < 300) {
 					parent.postMessage('OK\n\n' + header + '\n\nLocation: ' + xhr.getResponseHeader('Location'), '*');
@@ -177,19 +179,6 @@ jQuery(function($) {
 				}
 			});
 			return false; // don't respond yet
-		} else if (header == 'GET text') {
-			return editor.getSession().getValue();
-		} else if (header == 'POST text') {
-			if (body != editor.getSession().getValue()) {
-				var row = editor.getSelectionRange().start.row;
-				var column = editor.getSelectionRange().start.column;
-				editor.getSession().setValue(body);
-				editor.gotoLine(row + 1, column);
-			}
-			return true;
-		} else if (header == 'POST insert' && body) {
-			editor.insert(body);
-			return true;
 		} else if (header == 'POST template' && body) {
 			if (!editor.getSession().getValue()) {
 				editor.insert(body);
@@ -198,14 +187,6 @@ jQuery(function($) {
 		} else if (header == 'GET line.column') {
 			var start = editor.getSelectionRange().start;
 			return '' + (1 + start.row) + '.' + start.column;
-		} else if (header == 'POST line.column' && body) {
-			var line = parseInt(body.split('.', 2)[0]);
-			var column = parseInt(body.split('.', 2)[1]);
-			var start = editor.getSelectionRange().start;
-			if (start.row + 1 != line || start.column != column) {
-				editor.gotoLine(line, column);
-			}
-			return true;
 		}
 		return true; // empty response
 	};
@@ -233,5 +214,5 @@ jQuery(function($) {
 			}
 		}
 	});
-	parent.postMessage('CONNECT calliTextEditorLoaded', '*');
+	parent.postMessage('CONNECT calliEditorLoaded', '*');
 });

@@ -5,78 +5,13 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this">{rdfs:label}</title>
-	<script type="text/javascript">// <![CDATA[
-		jQuery(function($){
-			function onhashchange() {
-				var path = location.pathname;
-				if (location.hash) {
-					path += location.hash;
-				}
-				$('#iframe')[0].src = '/callimachus/editor/editor.html#sparql!' + path;
-			}
-			$(window).bind('hashchange', onhashchange);
-			onhashchange();
-		});
-
-		jQuery(function($){
-			$('#form').submit(function(event) {
-				event.preventDefault();
-				$(window).bind('message', function(event) {
-					if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
-						var msg = event.originalEvent.data;
-						if (msg == 'OK\n\nPOST save') {
-							location.replace('?view');
-						}
-					}
-				});
-				$('#iframe')[0].contentWindow.postMessage('POST save', '*');
-				return false;
-			});
-			$('#saveas').click(function(event) {
-				event.preventDefault();
-				var name = prompt('Save as...', 'Untitled Query');
-				if (name) {
-					var local = encodeURI(name).replace(/%20/g,'-').toLowerCase();
-					var header = 'POST create'
-						+ '\nAction: /callimachus/NamedQuery?create'
-						+ '\nLocation: ' + local + '.rq'
-						+ '\nContent-Type: application/sparql-query';
-					if ($('#cache').val()) {
-						header += '\nCache-Control: ' + $('#cache').val();
-					}
-					$(window).bind('message', function(event) {
-						if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
-							var msg = event.originalEvent.data;
-							if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
-								var url = msg.substring(msg.lastIndexOf('\n\n')).match(/Location:\s*(\S+)/)[1]
-								location.replace(url + '?edit');
-							}
-						}
-					});
-					$('#iframe')[0].contentWindow.postMessage(header, '*');
-				}
-				return false;
-			});
-			function loadQuery(url) {
-					$(window).bind('message', function(event) {
-						if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
-							var msg = event.originalEvent.data;
-							if (msg.indexOf('OK\n\nGET line.column\n\n') == 0) {
-								location.href = url + '#' + msg.substring(msg.indexOf('\n\n', 4) + 2);
-							}
-						}
-					});
-				$('#iframe')[0].contentWindow.postMessage('GET line.column', '*');
-			}
-		});
-	// ]]>
-	</script>
+	<script type="text/javascript" src="/callimachus/editor/edit.js"> </script>
 </head>
 <body>
 	<form id="form" action="">
-		<iframe id="iframe" class="auto-expand" src="/callimachus/editor/editor.html"> </iframe>
+		<iframe id="iframe" class="auto-expand" src="/callimachus/editor/text-editor.html#sparql"> </iframe>
         <button type="submit">Save</button>
-		<button id="saveas" type="button">Save as...</button>
+		<button id="saveas" type="button" data-create="/callimachus/NamedQuery" data-label="Untitled Query" data-suffix=".rq">Save as...</button>
 		<button type="button" onclick="location.replace('?view')">Cancel</button>
 		<button type="button" onclick="calli.deleteResource(form)">Delete</button>
 	</form>

@@ -43,11 +43,3 @@
 	rdf:_13 <disable-button.js>;
 	rdf:_14 <iframe-redirect.js>.
 
-<wymeditor_bundle> a calli:ScriptBundle; calli:minified 1 ;
-	rdf:_1 <jquery.wymeditor.js>;
-	rdf:_2 <jquery.wymeditor.html5.js>;
-	rdf:_2 <jquery.wymeditor.inithtml.js>;
-	rdf:_2 <jquery.wymeditor.containerclass.js>;
-	rdf:_3 <jquery.wymeditor.callimachus.js>;
-	rdf:_4 <jquery.wymeditor.ace.js>.
-

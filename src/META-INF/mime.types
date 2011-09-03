@@ -9,6 +9,7 @@ application/atom+xml atom
 application/atomcat+xml atomcat
 application/atomsvc+xml atomsvc
 application/davmount+xml davmount
+application/json json
 application/mac-binhex40 hqx
 application/mbox mbox
 application/msword doc
@@ -83,7 +84,7 @@ image/svg+xml svg
 image/tiff tif
 image/tiff tiff
 image/vnd.microsoft.icon ico
-text/cache-manifest manifest
+text/cache-manifest appcache
 text/calendar ics
 text/css css
 text/csv csv
@@ -98,6 +99,7 @@ text/tab-separated-values tsv
 text/uri-list uri
 text/uri-list uris
 text/xsl xsl
+text/vtt vtt
 video/3gpp 3gp
 video/mp4 mp4
 video/mpeg mp2

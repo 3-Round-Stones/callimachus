@@ -1,5 +1,5 @@
 # 
-#    Copyright (c) 2011 Talis Inc., Some rights reserved
+#    Copyright (c) 2011 3 Round Stones Inc., Some rights reserved
 # 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -21,86 +21,37 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Page> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Page;
-	rdfs:label "Page";
-	rdfs:comment "New pages can be created from a folder";
-	calli:icon <page.png>;
-	calli:edit <page-edit.xhtml>;
-	calli:copy <page-copy.xhtml>;
-	calli:create <page-create.xhtml>;
+<Article> a calli:Creatable, <ListClass>, owl:Class;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Article;
+	rdfs:label "Article";
+	rdfs:comment "New articles can be created from a folder";
+	calli:icon <article.png>;
+	calli:view <article-view.xhtml>;
+	calli:edit <article-edit.xhtml>;
+	calli:create <article-create.xhtml>;
 	calli:uriSpace </>;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>.
 
-# GET /page/MainPage.xhtml?view
-:GetPage owl:intersectionOf (</callimachus/operations/view.ttl#GetViewPage>
-		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
-	msg:script """
-		return this.calliConstruct(this, 'view');
-	""".
-
-# GET /page/MainPage.xhtml
-:GetPageSource rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+# GET /page/MainArticle.xhtml
+:GetArticleSource rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
-	msg:type "application/xhtml+xml";
+	msg:type "application/docbook+xml";
 	msg:header "cache-control:no-cache";
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
-# POST /page/MainPage.xhtml?copy
-:PostTemplateCopy owl:intersectionOf (</callimachus/operations/copy.ttl#PostCopy>
-		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
-	msg:script """
-		var created = proceed();
-		this.objectConnection.commit();
-		created.UploadPage(new java.net.URL(this.toString()).openStream());
-		return created;
-	""".
-
-# GET /callimachus/Page?schemes
-# Called from page create/edit to load scheme options
-:ListScheme rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Page>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:query "schemes";
-	msg:type "application/xml";
-	msg:header "cache-control:no-store";
-	msg:sparql """
-		SELECT ?uri ?label
-		WHERE {
-			?uri a skos:ConceptScheme; rdfs:label ?label
-		}
-	""".
-
-# GET /callimachus/Page?queries
-# Called from page create/edit to load named query options
-:ListScheme rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Page>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:query "queries";
-	msg:type "application/xml";
-	msg:header "cache-control:no-store";
-	msg:sparql """
-		SELECT ?uri ?label
-		WHERE {
-			?uri a calli:NamedQuery; rdfs:label ?label
-		}
-	""".
-
-# POST /callimachus/Page?create
-:CreatePage owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Page> ]);
+# POST /callimachus/Article?create
+:CreateArticle owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Article> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	msg:imports calli:Page;
+	msg:imports calli:Article;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
@@ -108,31 +59,31 @@
 			throw new BadRequest("Missing location request header");
 
 		var created = con.getObject(this.toUri().resolve(location).toString());
-		if (created instanceof Page)
-			throw new BadRequest("Page already exists");
+		if (created instanceof Article)
+			throw new BadRequest("Article already exists");
 
 		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
 		con.add(created.resource, RDFS.LABEL, label, []);
 
 		created = con.addDesignation(created, this.toString());
-		created = con.addDesignation(created, Page);
+		created = con.addDesignation(created, Article);
 		this.PropagatePermissions(created);
 
 		this.touchRevision(); // update index page
 		con.commit();
 
-		created.UploadPage(body); //# cannot write to other streams directly
+		created.UploadArticle(body); //# cannot write to other streams directly
 		return created;
 	""".
 
 :local a calli:LocalRealm;
 	calli:domain </>.
 
-# PUT /page/MainPage.xhtml
-# Called by client, copy operation, create operation, and MainPage initialization
-:UploadPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+# PUT /page/MainArticle.xhtml
+# Called by client, copy operation, create operation, and MainArticle initialization
+:UploadArticle rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:realm </accounts>, :local;
@@ -140,7 +91,7 @@
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:imports calli:Page;
+	msg:imports calli:Article;
 	msg:script """
 		if (!xhtmlStream)
 			throw new BadRequest("Missing PUT request payload");
@@ -153,7 +104,7 @@
 		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
 		con.add(this.resource, RDFS.LABEL, label, []);
 
-		this.objectConnection.addDesignation(this, Page);
+		this.objectConnection.addDesignation(this, Article);
 
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
@@ -169,7 +120,7 @@
 	""".
 
 :xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :UploadPage;
+	rdfs:domain :UploadArticle;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/xhtml+xml".
+	msg:type "application/docbook+xml".
 

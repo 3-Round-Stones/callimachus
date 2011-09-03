@@ -25,11 +25,13 @@
 	calli:item </callimachus/menu#toolbox>.
 
 </callimachus/menu#site> calli:position 1; rdfs:label "Site";
-	calli:item </callimachus/menu#mainpage>;
+	calli:item </callimachus/menu#mainarticle>;
+	calli:item </callimachus/menu#mainfolder>;
 	calli:item </callimachus/menu#contents>;
 	calli:item </callimachus/menu#recentchanges>.
 </callimachus/menu#development> calli:position 8; rdfs:label "Development";
 	calli:item </callimachus/menu#folders>;
+	calli:item </callimachus/menu#articles>;
 	calli:item </callimachus/menu#pages>;
 	calli:item </callimachus/menu#conceptschemes>;
 	calli:item </callimachus/menu#ontologies>.
@@ -45,14 +47,16 @@
 	calli:item </callimachus/menu#permissions>;
 	calli:item </callimachus/menu#printthispage>.
 
-</callimachus/menu#mainpage> calli:position 1; rdfs:label "Main page"; calli:link </page/main-page>.
-</callimachus/menu#contents> calli:position 2; rdfs:label "Contents"; calli:link </callimachus/menu>.
-</callimachus/menu#recentchanges> calli:position 3; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
+</callimachus/menu#mainarticle> calli:position 1; rdfs:label "Main article"; calli:link </page/main-page.xhtml?view>.
+</callimachus/menu#mainfolder> calli:position 2; rdfs:label "Main folder"; calli:link </?view>.
+</callimachus/menu#contents> calli:position 3; rdfs:label "Contents"; calli:link </callimachus/menu>.
+</callimachus/menu#recentchanges> calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
 
-</callimachus/menu#folders> calli:position 1; rdfs:label "Folders"; calli:link </?view>.
-</callimachus/menu#pages> calli:position 2; rdfs:label "Pages"; calli:link </callimachus/Page>.
-</callimachus/menu#conceptschemes> calli:position 3; rdfs:label "Concept schemes"; calli:link </callimachus/skos/ConceptScheme>.
-</callimachus/menu#ontologies> calli:position 4; rdfs:label "Ontologies"; calli:link </callimachus/owl/Ontology>.
+</callimachus/menu#folders> calli:position 1; rdfs:label "Folders"; calli:link </callimachus/Folder>.
+</callimachus/menu#articles> calli:position 2; rdfs:label "Articles"; calli:link </callimachus/Article>.
+</callimachus/menu#pages> calli:position 3; rdfs:label "Pages"; calli:link </callimachus/Page>.
+</callimachus/menu#conceptschemes> calli:position 4; rdfs:label "Concept schemes"; calli:link </callimachus/skos/ConceptScheme>.
+</callimachus/menu#ontologies> calli:position 5; rdfs:label "Ontologies"; calli:link </callimachus/owl/Ontology>.
 
 </callimachus/menu#usergroups> calli:position 1; rdfs:label "User groups"; calli:link </accounts>.
 </callimachus/menu#manifest> calli:position 2; rdfs:label "Manifest"; calli:link </callimachus/manifest>.

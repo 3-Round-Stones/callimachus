@@ -4,7 +4,7 @@
 	<property name="rep" location="repositories" />
 	<property name="test" location="test" />
 	<property name="build" location="build" />
-	<property name="testsrc" location="${test}/src" />
+	<property name="testsrc" location="${test}" />
 	<property name="RDFaConformanceTestSuite" location="${test}/RDFaConformance/test-suite/test-cases/xhtml1/rdfa1.1/" />
 
 	<property name="selenium.url" value="http://selenium.googlecode.com/files/selenium-server-standalone-2.0b2.jar" />
@@ -20,6 +20,7 @@
 	<property name="junit.jar" location="${testlib}/junit.jar" />
 	<property name="junit.RDFaConformanceTest" value="org.callimachusproject.rdfa.test.RDFaConformanceTest" />
 	<property name="junit.RDFaGenerationTest" value="org.callimachusproject.rdfa.test.RDFaGenerationTest" />
+	<property name="junit.RDFaOrderDependentTest" value="org.callimachusproject.rdfa.test.RDFaOrderDependentTest" />
 	<property name="junit.RDFaDataAttributeTest" value="org.callimachusproject.rdfa.test.RDFaDataAttributeTest" />
 
 	<target name="test-init">
@@ -120,8 +121,8 @@ mail.password = root
 	</path>
 
 	<target name="test-compile" depends="test-init,test-dependencies" description="compile junit tests">
-		<ant target="compile" />
-		<javac srcdir="${testsrc}" destdir="${build}">
+		<!-- ant target="compile" /-->
+		<javac srcdir="${testsrc}" destdir="${build}" includeantruntime="false">
 			<classpath refid="test.classpath" />
 		</javac>
 	</target>
@@ -153,6 +154,17 @@ mail.password = root
 			</classpath>
 			<formatter type="plain" />
 			<test todir="${test}/RDFaGeneration" name="${junit.RDFaGenerationTest}" outfile="rdfa-generation-test-results" />
+		</junit>
+	</target>
+	
+	<target name="test-order-dependent" depends="test-compile">
+		<junit printsummary="true">
+			<classpath>
+				<path refid="test.classpath" />
+				<pathelement location="${junit.jar}" />
+			</classpath>
+			<formatter type="plain" />
+			<test todir="${test}/RDFaGeneration" name="${junit.RDFaOrderDependentTest}" outfile="rdfa-order-dependent-test-results" />
 		</junit>
 	</target>
 

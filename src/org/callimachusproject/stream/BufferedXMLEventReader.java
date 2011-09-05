@@ -93,7 +93,7 @@ public class BufferedXMLEventReader implements XMLEventReader {
 		else return reader.peek();
 	}
 	
-	protected final XMLEvent peek(int lookAhead) throws XMLStreamException {
+	public final XMLEvent peek(int lookAhead) throws XMLStreamException {
 		while (buffer.size()<=lookAhead+position) {
 			buffer.add(reader.nextEvent());
 		}

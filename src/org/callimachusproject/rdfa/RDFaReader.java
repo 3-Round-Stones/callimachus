@@ -93,10 +93,11 @@ public class RDFaReader extends RDFEventReader {
 	// The local part may only contain word characters
 	public static final String PROPERTY_EXP_REGEX = "\\{([^\\s\u00a0\\}\\?\\\"\\':]*):([^\\s\u00a0\\\"\\']+?)\\}";
 	
-	// The CONTENT signifier is required to distinguish content from property expressions
+	// The TEXT_CONTENT signifier is required to distinguish content from property expressions
 	// where the same property is used for both in the same element. 
 	// The content @origin ends with '!', while the property expression ends with the property
-	public static final String CONTENT = "!";
+	// This is not used where content is assigned a variable.
+	public static final String TEXT_CONTENT = "!";
 	
 	// The BLANK signifies blank nodes introduced by typeof
 	public static final String BLANK = "_";
@@ -315,13 +316,17 @@ public class RDFaReader extends RDFEventReader {
 			return parent;
 		}
 		
-		public String getContent() {
-			String attr = attr("content");
-			if (attr != null)
-				return attr;
-			if (content != null)
-				return content;
-			return "";
+//		public String getContent() {
+//			String attr = attr("content");
+//			if (attr != null)
+//				return attr;
+//			if (content != null)
+//				return content;
+//			return "";
+//		}
+
+		public String getAttributeContent() {
+			return attr("content");
 		}
 
 		public void setContent(String content) {
@@ -513,6 +518,8 @@ public class RDFaReader extends RDFEventReader {
 			Node subj = getCurrentSubject();
 			// add property expressions in attributes of this event
 			addPropertyExpressions(subj, event);
+			// add properties with @content
+			addAttributeContent(subj);
 			
 			if (isTriplePresent() || (parent != null && parent.isHanging())) {
 				if (!isStartSubject()) {
@@ -602,8 +609,7 @@ public class RDFaReader extends RDFEventReader {
 			}
 		}
 
-		private void addPropertyExpressions(Node subj, String value)
-				throws RDFParseException {
+		private void addPropertyExpressions(Node subj, String value) throws RDFParseException {
 			if (subj==null) return;
 			Matcher m = PROPERTY_EXP_PATTERN.matcher(value);
 			while (m.find()) {
@@ -638,6 +644,23 @@ public class RDFaReader extends RDFEventReader {
 			}
 				
 		}
+		
+		/* Add @content on start tag */
+		
+		private void addAttributeContent(Node subj) throws RDFParseException {
+			String property = attr("property");
+			String content = getAttributeContent();
+			if (property != null && content != null) {
+				Node datatype = getDatatype();
+				List<Node> pred = curies(property);
+				if (pred != null && datatype == null) {
+					String lang = getLang();
+					plain(subj, pred, content, lang);
+				} else if (pred != null) {
+					typed(subj, pred, content, (IRI) datatype);
+				}
+			}
+		}
 
 		public void chain() throws RDFParseException {
 			if (parent != null && !parent.isTriplePresent()) {
@@ -657,7 +680,9 @@ public class RDFaReader extends RDFEventReader {
 			}
 			Node subj = getCurrentSubject();
 			String property = attr("property");
-			String content = getContent();
+			
+			// add properties with content defined in the text on end tag
+			//String content = getContent();
 			if (property != null && content != null) {
 				Node datatype = getDatatype();
 				List<Node> pred = curies(property);
@@ -770,7 +795,8 @@ public class RDFaReader extends RDFEventReader {
 		private void plain(Node subj, List<Node> pred, String content,
 				String lang) {
 			PlainLiteral lit = tf.literal(content, lang);
-			lit.setOrigin(origin+" "+CONTENT);
+			//lit.setOrigin(origin+" "+TEXT_CONTENT);
+			lit.setOrigin(origin+(content.isEmpty()?(" "+TEXT_CONTENT):""));
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit));
 			}
@@ -779,7 +805,8 @@ public class RDFaReader extends RDFEventReader {
 		private void typed(Node subj, List<Node> pred, String content,
 				IRI datatype) {
 			TypedLiteral lit = tf.literal(content, datatype);
-			lit.setOrigin(origin+" "+CONTENT);
+			//lit.setOrigin(origin+" "+TEXT_CONTENT);
+			lit.setOrigin(origin+(content.isEmpty()?(" "+TEXT_CONTENT):""));
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit));
 			}

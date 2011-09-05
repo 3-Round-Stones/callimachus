@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html version="XHTML+RDFa 1.1" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:vcard="http://www.w3.org/2006/vcard/ns#">
+	<head>
+		<title>Test vcard</title>
+	</head>
+	<body>
+		<form about="">
+			<span rel="vcard:org">
+			  <span typeof="vcard:Organization">
+				 	<input title="Organization name" value="NAME" />
+				 	<input title="Organization unit" value="UNIT" />
+					<span class="negative-test" property="vcard:organization-name">NAME</span>
+					<span class="negative-test" property="vcard:organization-unit">UNIT</span>
+				 	<button type="button" class="remove" />
+			  </span>
+			  <button type="button" class="add" />
+			</span>
+		</form>
+	</body>
+</html>

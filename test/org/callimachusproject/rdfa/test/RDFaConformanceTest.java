@@ -63,7 +63,8 @@ import org.openrdf.sail.memory.MemoryStore;
 // This is a parameterized test that runs over the test directory
 @RunWith(Parameterized.class)
 public class RDFaConformanceTest {
-	static final String PROPERTIES = "RDFaConformance/RDFaConformanceTest.props";
+//	static final String PROPERTIES = "RDFaConformance/RDFaConformanceTest.props";
+	static final String PROPERTIES = "RDFaConformance/RDFaConformanceRegressionTest.props";
 
 	static String test_dir;
 	static String url_prefix;

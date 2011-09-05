@@ -63,10 +63,8 @@ import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.stream.BufferedXMLEventReader;
 import org.callimachusproject.stream.OrderedSparqlReader;
-import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.SPARQLProducer;
-import org.callimachusproject.stream.XMLElementReader;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -229,7 +227,9 @@ public class RDFaGenerationTest {
 	@Parameters
 	public static Collection<Object[]> listCases() {
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		System.out.println("list-cases"+cl.toString());
 		String path = cl.getResource(test_dir).getPath();
+		System.out.println(path);
 		File testDir = new File(path);
 		if (testDir.exists() && testDir.isDirectory())
 			return listCases(testDir);
@@ -282,35 +282,35 @@ public class RDFaGenerationTest {
 		return asXMLEventReader(transform(xml,transformer));
 	}
 	
-	private Document applyConstructXSLT(RDFXMLEventReader rdfxml, File self, String query, String element)
-		throws Exception {
-		Transformer transformer = transformerFactory.newTransformer(new StreamSource(TRANSFORM));
-		transformer.setParameter("this", self.toURI().toURL().toString());	
-		if (query!=null) transformer.setParameter("query", query);
-		if (element!=null) transformer.setParameter("element", element);
-		
-		transformer.setURIResolver(new URIResolver() {
-			@Override
-			public Source resolve(String href, String base) throws TransformerException {
-				try {
-					Matcher pathMatcher = pathPattern.matcher(href);
-					String path=null;
-					if (pathMatcher.matches()) path = pathMatcher.group(1);
-					else return null;
-					// we should only ever be loading the template
-					XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
-					// extract the fragment
-					XMLElementReader fragment = new XMLElementReader(xml,path);
-					return new StAXSource(fragment);
-				}
-				catch (Exception e) {
-					e.printStackTrace();
-					return null;
-				}
-			}	
-		});
-		return transform(rdfxml,transformer);
-	}
+//	private Document applyConstructXSLT(RDFXMLEventReader rdfxml, File self, String query, String element)
+//		throws Exception {
+//		Transformer transformer = transformerFactory.newTransformer(new StreamSource(TRANSFORM));
+//		transformer.setParameter("this", self.toURI().toURL().toString());	
+//		if (query!=null) transformer.setParameter("query", query);
+//		if (element!=null) transformer.setParameter("element", element);
+//		
+//		transformer.setURIResolver(new URIResolver() {
+//			@Override
+//			public Source resolve(String href, String base) throws TransformerException {
+//				try {
+//					Matcher pathMatcher = pathPattern.matcher(href);
+//					String path=null;
+//					if (pathMatcher.matches()) path = pathMatcher.group(1);
+//					else return null;
+//					// we should only ever be loading the template
+//					XMLEventReader xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
+//					// extract the fragment
+//					XMLElementReader fragment = new XMLElementReader(xml,path);
+//					return new StAXSource(fragment);
+//				}
+//				catch (Exception e) {
+//					e.printStackTrace();
+//					return null;
+//				}
+//			}	
+//		});
+//		return transform(rdfxml,transformer);
+//	}
 
 	/* return only failing XPaths */
 	
@@ -329,11 +329,11 @@ public class RDFaGenerationTest {
 		return null;
 	}
 	
-	private static boolean verifyXPath(XPathExpression xpath, Document doc) throws Exception {
-		if (xpath==null) return false;
-		NodeList result = (NodeList) xpath.evaluate(doc,XPathConstants.NODESET);
-		return result.getLength()==1;
-	}
+//	private static boolean verifyXPath(XPathExpression xpath, Document doc) throws Exception {
+//		if (xpath==null) return false;
+//		NodeList result = (NodeList) xpath.evaluate(doc,XPathConstants.NODESET);
+//		return result.getLength()==1;
+//	}
 	
 	/* a document is only viewable if it defines a fragment that is about '?this'*/
 	

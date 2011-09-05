@@ -118,6 +118,8 @@ mail.password = root
 		</fileset>
 		<pathelement location="${junit.jar}" />
 		<pathelement location="${build}"/>
+		<!-- The test files need to be on the classpath -->
+		<pathelement location="${test}"/>
 	</path>
 
 	<target name="test-compile" depends="test-init,test-dependencies" description="compile junit tests">

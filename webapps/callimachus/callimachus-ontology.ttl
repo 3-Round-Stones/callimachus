@@ -66,7 +66,7 @@ calli:Viewable a owl:Class;
 
 calli:Folder a owl:Class;
 	rdfs:label "Folder";
-	rdfs:comment "A resource URI space ending in a slash. Resources with dcterms:isPartOf to this folder, start with this URI and contain no additional slashes or hashes.".
+	rdfs:comment "A resource URI namespace ending in a slash".
 
 calli:Page a owl:Class;
 	rdfs:label "Page";
@@ -301,6 +301,11 @@ calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:comment "Rights statement for the data in this Web application server";
 	rdfs:domain calli:Manifest;
 	rdfs:range rdf:PlainLiteral.
+
+calli:hasNamespace a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:label "has namespace";
+	rdfs:comment "The namespace of a resource or concept";
+	rdfs:range calli:Folder.
 
 calli:item a owl:ObjectProperty;
 	rdfs:label "item";

@@ -2,13 +2,13 @@
 <?xml-stylesheet type="text/xsl" href="/layout/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:dcterms="http://purl.org/dc/terms/">
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this">{rdfs:label}</title>
 </head>
 <body about="?this">
 	<h1><span property="rdfs:label" content="?label">{?label}</span></h1>
-	<form method="POST" action="" enctype="application/sparql-update" about="?this" data-redirect="{dcterms:isPartOf}?view">
+	<form method="POST" action="" enctype="application/sparql-update" about="?this" data-redirect="{calli:hasNamespace}?view">
 		<div class="vbox">
 			<div class="input field">
 				<label for="label">Label</label>

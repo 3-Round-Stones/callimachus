@@ -26,7 +26,7 @@
 @prefix :<#>.
 
 </> a <Folder>, calli:Folder;
-	rdfs:label "Home Folder";
+	rdfs:label "Home folder";
 	rdfs:comment "Create new folders here to organize resources and assign permissions".
 
 <Folder> a calli:Creatable, <IndexClass>, owl:Class;
@@ -40,7 +40,7 @@
 	calli:creates <Class>;
 	calli:creates <Concept>;
 	#calli:creates </accounts/Group>;
-	calli:createRev dcterms:isPartOf;
+	calli:createRev calli:hasNamespace;
 	calli:icon <folder.png>;
 	calli:view <folder-view.xhtml>;
 	calli:edit <folder-edit.xhtml>;
@@ -72,11 +72,11 @@
 			{
 				{
 					SELECT ($this as ?id) (count(?part) as ?totalResults) {
-						?part dcterms:isPartOf $this
+						?part calli:hasNamespace $this
 					} GROUP BY $this
 				}
 			} UNION {
-				?id dcterms:isPartOf $this
+				?id calli:hasNamespace $this
 				FILTER (isIRI(?id))
 			} OPTIONAL {
 				?id skos:prefLabel ?title

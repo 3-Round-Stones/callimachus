@@ -23,32 +23,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<ConceptScheme> a calli:Creatable, </callimachus/ListClass>, owl:Class;
-	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, skos:ConceptScheme;
-	rdfs:label "Scheme";
-	rdfs:comment "A scheme is a particular classification, arranged in a hierarchical structure", "Typically this is organized by supertype-subtype relationships, also called generalization-specialization relationships, or less formally, parent-child relationships";
-	calli:creates <Concept>;
-	calli:createRev skos:inScheme;
-	calli:icon <scheme.png>;
-	calli:view <scheme.xhtml>;
-	calli:edit <scheme-edit.xhtml>;
-	calli:create <scheme-create.xhtml>;
-	calli:uriSpace </>;
-	calli:reader </group/users>;
-	calli:editor </group/staff>;
-	calli:administrator </group/admin>.
-
-:GetConcepts rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ConceptScheme>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET";
-	msg:query "viewconcepts";
-	msg:type "text/html";
-	msg:header "cache-control:no-store";
-	msg:imports <concept-list.xhtml>;
-	msg:script "return concept_list_xhtml.calliConstructHTML(this)".
-
-<Concept> a calli:Creatable, owl:Class;
+<Concept> a calli:Creatable, </callimachus/IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, skos:Concept;
 	rdfs:label "Concept";
 	rdfs:comment "Concepts are ideas, meanings, or categories of objects and events";

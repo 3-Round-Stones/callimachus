@@ -26,10 +26,10 @@
 @prefix :<#>.
 
 </> a <Folder>, calli:Folder;
-	rdfs:label "Folders";
+	rdfs:label "Home Folder";
 	rdfs:comment "Create new folders here to organize resources and assign permissions".
 
-<Folder> a calli:Creatable, <ListClass>, owl:Class;
+<Folder> a calli:Creatable, <IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:Folder;
 	rdfs:label "Folder";
 	rdfs:comment "A folder of resources";
@@ -37,8 +37,8 @@
 	calli:creates <Article>;
 	calli:creates <Page>;
 	calli:creates <NamedQuery>;
-	calli:creates <owl/Class>;
-	calli:creates <skos/ConceptScheme>;
+	calli:creates <Class>;
+	calli:creates <Concept>;
 	#calli:creates </accounts/Group>;
 	calli:createRev dcterms:isPartOf;
 	calli:icon <folder.png>;
@@ -57,6 +57,7 @@
 	msg:method "GET";
 	msg:query "feed";
 	msg:type "application/sparql-results+xml";
+	msg:header "cache-control:no-cache";
 	msg:transform :TransformIntoAtom;
 	msg:sparql """
 		SELECT DISTINCT ?id ?totalResults ?title ?icon ?summary ?updated

@@ -5,13 +5,6 @@
 	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this">{rdfs:label}</title>
-	<script type="text/javascript">
-		jQuery(function($){
-			if (!$('#create-template').length) {
-				$('#create').hide();
-			}
-		});
-	</script>
 </head>
 <body about="?this">
 	<h1>
@@ -21,15 +14,12 @@
 		<a property="rdfs:label" href="?this" />
 	</h1>
 	<ul class="aside">
-		<li id="create" class="protected">
-			<a href="?create">Create a new <span about="?this" property="rdfs:label"/></a>
-		</li>
 		<li>
 			<a href="?index"><span about="?this" property="rdfs:label"/> resources</a>
 		</li>
 	</ul>
-	<ul class="aside">
-		<li rel="rdfs:isDefinedBy">
+	<ul class="optional aside">
+		<li rel="rdfs:isDefinedBy" class="optional">
 			<a href="?isDefinedBy" property="rdfs:label"></a>
 		</li>
 		<li rel="rdfs:subClassOf" class="optional">

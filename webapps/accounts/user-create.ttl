@@ -9,7 +9,7 @@
 rdfs:label a rdf:Property.
 rdfs:comment a rdf:Property.
 
-:PostUserCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+:PostUserCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <User> ]);
 	msg:imports <User>;
 	msg:imports </user/>;

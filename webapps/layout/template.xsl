@@ -102,10 +102,10 @@
 				<script type="text/javascript" src="{$callimachus}/scripts/form_bundle?source">&#160;</script>
 			</xsl:if>
 			<xsl:if test="$query='create'">
-				<script type="text/javascript" src="{$callimachus}/operations/create.js">&#160;</script>
+				<script type="text/javascript" src="{$callimachus}/toolbox/create.js">&#160;</script>
 			</xsl:if>
 			<xsl:if test="$query='edit'">
-				<script type="text/javascript" src="{$callimachus}/operations/edit.js">&#160;</script>
+				<script type="text/javascript" src="{$callimachus}/toolbox/edit.js">&#160;</script>
 			</xsl:if>
 			<xsl:apply-templates select="$layout_head/*[local-name()='script']" />
 			<xsl:apply-templates select="*[local-name()='script']" />

@@ -21,18 +21,6 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:GetCreatableListPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <ListClass>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	msg:rel "alternate";
-	msg:method "GET";
-	msg:query "list";
-	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
-	msg:header "cache-control:no-cache";
-	msg:imports <class-list.xhtml>;
-	msg:script "return class_list_xhtml.calliConstruct(this, 'list')".
-
 :GetCreatableIndexPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IndexClass>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
@@ -42,6 +30,6 @@
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
-	msg:imports <class-index.xhtml>;
-	msg:script "return class_index_xhtml.calliConstruct(this, 'index')".
+	msg:imports <resource-index.xhtml>;
+	msg:script "return resource_index_xhtml.calliConstruct(this, 'index')".
 

@@ -22,23 +22,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Ontology> a calli:Creatable, </callimachus/ListClass>, owl:Class;
-	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, owl:Ontology;
-	rdfs:label "Ontology";
-	rdfs:comment "Ontologies are the structural frameworks for organizing resources into classes based on characteristics which they have in common";
-	calli:creates <Class>;
-	calli:creates <ObjectProperty>;
-	calli:createRev rdfs:isDefinedBy;
-	calli:icon <ontology.png>;
-	calli:view <ontology.xhtml>;
-	calli:edit <ontology-edit.xhtml>;
-	calli:create <ontology-create.xhtml>;
-	calli:uriSpace </>;
-	calli:reader </group/users>;
-	calli:editor </group/staff>;
-	calli:administrator </group/admin>.
-
-<ObjectProperty> a calli:Creatable, owl:Class;
+<ObjectProperty> a calli:Creatable, </callimachus/IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, owl:Class;
 	rdfs:label "Object Property";
 	rdfs:comment "A type of relationship between objects";
@@ -49,7 +33,7 @@
 	calli:administrator </group/admin>.
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
-<Class> a calli:Creatable, owl:Class;
+<Class> a calli:Creatable, </callimachus/IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Creatable, calli:Viewable, calli:Editable, owl:Class;
 	rdfs:label "Class";
 	rdfs:comment "A class is a construct that is used as a blueprint (or template) to create and edit resources of that class";
@@ -59,23 +43,6 @@
 	calli:create <class-create.xhtml>;
 	calli:uriSpace </>;
 	calli:administrator </group/admin>.
-
-# when an ontology is created
-:PostOntologyCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Ontology>]);
-	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-	msg:imports </rdf/>;
-	msg:imports <Class>;
-	msg:script """
-		var ontology = proceed();
-		var local = ontology.resource.localName.replace(/[+]/g, '');
-		var uri = ontology.resource.stringValue();
-		if (!ontology.objectConnection.getNamespace(local)) {
-			ontology.objectConnection.setNamespace(local, uri + '/');
-		}
-		return ontology;
-	""".
 
 :GetClassIndexPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class>];
@@ -88,23 +55,18 @@
 	msg:imports <class-index.xhtml>;
 	msg:script "return class_index_xhtml.calliConstruct(this, 'index')".
 
-# when an ontology creates a class
-:PostClassCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:allValuesFrom <Ontology>]);
+# when a class is created
+:CreateClass owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Class> ]);
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-	msg:imports </rdf/>;
-	msg:imports <Class>;
 	msg:script """
-		var klass = proceed();
-		if (klass instanceof Class) {
-			klass.calliUriSpace.add(rdf);
-			var con = this.objectConnection;
-			var vf = con.getValueFactory();
-			con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph"), []);
-			con.recompileAfterClose();
-		}
-		return klass;
+		var ret = proceed();
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+		con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph"), []);
+		con.recompileAfterClose();
+		return ret;
 	""".
 
 :PostClassEdit owl:intersectionOf (</callimachus/toolbox/edit.ttl#PostEdit>

@@ -42,22 +42,12 @@
 				subClassOf.children('[' + Creator + ']').remove();
 			}
 		}
-		jQuery(function($) {
-			$('button[data-dialog^=?]').each(function() {
-				$(this).attr('data-dialog', $('#ontology').attr('about') + $(this).attr('data-dialog'));
-			});
-		});
 		// ]]>
 	</script>
 </head>
 <body about="?this">
 	<h1 property="rdfs:label" />
 	<ul class="aside">
-		<li rel="rdfs:isDefinedBy"><!-- used by javascript above -->
-			<span id="ontology" about="?isDefinedBy" typeof="owl:Ontology">
-				<span property="rdfs:label"></span>
-			</span>
-		</li>
 		<li>Icon is used when looking up resources</li>
 		<li>To add an icon, click the chevron to open a file upload dialogue</li>
 		<li>A superclass should be a common part of its subclasses</li>
@@ -76,7 +66,7 @@
 			</div>
 			<div id="icon" rel="calli:icon" dropzone="link s:text/uri-list">
 				<label>Icon</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
+				<button type="button" class="dialog" data-dialog="./?create=/callimachus/Image" />
 				<div about="?icon" typeof="foaf:Image">
 					<img src="{?icon}?small" />
 					<button type="button" class="remove" />
@@ -90,7 +80,7 @@
 		<div class="hbox">
 			<div id="subClassOf" rel="rdfs:subClassOf" dropzone="link s:text/uri-list">
 				<label>Super</label>
-				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/Class" />
+				<button type="button" class="dialog" data-dialog="./?create=/callimachus/Class" />
 				<div about="?subClassOf" typeof="owl:Class">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
@@ -98,7 +88,7 @@
 			</div>
 			<div id="equivalentClass" rel="owl:equivalentClass" dropzone="link s:text/uri-list">
 				<label>Equivalent</label>
-				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/Class" />
+				<button type="button" class="dialog" data-dialog="./?create=/callimachus/Class" />
 				<div about="?equivalentClass" typeof="owl:Class">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
@@ -106,7 +96,7 @@
 			</div>
 			<div id="subClass" rev="rdfs:subClassOf" dropzone="link s:text/uri-list">
 				<label>Sub</label>
-				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/Class" />
+				<button type="button" class="dialog" data-dialog="./?create=/callimachus/Class" />
 				<div about="?subClass" typeof="owl:Class">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
@@ -118,7 +108,7 @@
 		<div class="hbox">
 			<div id="creates" rel="calli:creates" dropzone="link s:text/uri-list">
 				<label>Nested</label>
-				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/Class" />
+				<button type="button" class="dialog" data-dialog="./?create=/callimachus/Class" />
 				<div about="?creates" typeof="owl:Class">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
@@ -126,7 +116,7 @@
 			</div>
 			<div id="createRel" rel="calli:createRel" dropzone="link s:text/uri-list">
 				<label>Relationship</label>
-				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/ObjectProperty" />
+				<button type="button" class="dialog" data-dialog="./?create=/callimachus/ObjectProperty" />
 				<div about="?createRel" typeof="owl:ObjectProperty">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
@@ -134,7 +124,7 @@
 			</div>
 			<div id="createRev" rel="calli:createRev" dropzone="link s:text/uri-list">
 				<label>Reverse relationship</label>
-				<button type="button" class="dialog" data-dialog="?create=/callimachus/owl/ObjectProperty" />
+				<button type="button" class="dialog" data-dialog="./?create=/callimachus/ObjectProperty" />
 				<div about="?createRev" typeof="owl:ObjectProperty">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
@@ -146,7 +136,7 @@
 		<div class="hbox">
 			<div id="create" rel="calli:create" dropzone="link s:text/uri-list">
 				<label>Create template</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/owl/sample-create.xhtml?copy" />
+				<button type="button" class="dialog" data-dialog="/callimachus/sample-create.xhtml?copy" />
 				<div about="?create" typeof="calli:Page">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
@@ -154,7 +144,7 @@
 			</div>
 			<div id="copy" rel="calli:copy" dropzone="link s:text/uri-list">
 				<label>Copy template</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/owl/sample-create.xhtml?copy" />
+				<button type="button" class="dialog" data-dialog="/callimachus/sample-create.xhtml?copy" />
 				<div about="?copy" typeof="calli:Page">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
@@ -162,7 +152,7 @@
 			</div>
 			<div id="view" rel="calli:view" dropzone="link s:text/uri-list">
 				<label>View template</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/owl/sample-view.xhtml?copy" />
+				<button type="button" class="dialog" data-dialog="/callimachus/sample-view.xhtml?copy" />
 				<div about="?view" typeof="calli:Page">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
@@ -170,7 +160,7 @@
 			</div>
 			<div id="edit" rel="calli:edit" dropzone="link s:text/uri-list">
 				<label>Edit template</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/owl/sample-edit.xhtml?copy" />
+				<button type="button" class="dialog" data-dialog="/callimachus/sample-edit.xhtml?copy" />
 				<div about="?edit" typeof="calli:Page">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />

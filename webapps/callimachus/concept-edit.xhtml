@@ -15,21 +15,11 @@
 				note.setAttribute('content', note.value)
 			}
 		}
-		jQuery(function($) {
-			$('button[data-dialog^=?]').each(function() {
-				$(this).attr('data-dialog', $('#scheme').attr('about') + $(this).attr('data-dialog'));
-			});
-		});
 	</script>
 </head>
 <body about="?this">
 	<h1 property="skos:prefLabel" />
 	<ul class="aside">
-		<li rel="skos:inScheme"><!-- use by javascript above -->
-			<span id="scheme" about="?scheme" typeof="skos:ConceptScheme">
-				<span property="rdfs:label"></span>
-			</span>
-		</li>
 		<li>The primary label should be recognizable</li>
 		<li>Other labels can be provide to assist concept lookup</li>
 		<li>The definition, example, and scope can be provide to clarify usage and meaning</li>
@@ -85,7 +75,7 @@
 		<div class="hbox">			
 			<div id="broader" rev="skos:narrower" dropzone="link s:text/uri-list">
 				<label>Broader</label>
-				<button type="button" class="dialog" data-dialog="?create=/callimachus/skos/Concept" />				
+				<button type="button" class="dialog" data-dialog="./?create=/callimachus/Concept" />				
 				<div about="?broader" typeof="skos:Concept">
 					<span property="skos:prefLabel"/>
 					<button type="button" class="remove" />
@@ -93,7 +83,7 @@
 			</div>
 			<div id="related" rel="skos:related" dropzone="link s:text/uri-list">
 				<label>Related</label>
-				<button type="button" class="dialog" data-dialog="?create=/callimachus/skos/Concept" />				
+				<button type="button" class="dialog" data-dialog="./?create=/callimachus/Concept" />				
 				<div about="?related" typeof="skos:Concept">
 					<span property="skos:prefLabel"/>
 					<button type="button" class="remove" />
@@ -101,7 +91,7 @@
 			</div>
 			<div id="narrower" rel="skos:narrower" dropzone="link s:text/uri-list">
 				<label>Narrower</label>
-				<button type="button" class="dialog" data-dialog="?create=/callimachus/skos/Concept" />				
+				<button type="button" class="dialog" data-dialog="./?create=/callimachus/Concept" />				
 				<div about="?narrower" typeof="skos:Concept" >
 					<span property="skos:prefLabel"/>
 					<button type="button" class="remove" />
@@ -111,7 +101,7 @@
 		<hr />
 		<div id="image" rel="foaf:depiction" dropzone="link s:text/uri-list">
 			<label>Image</label>
-			<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
+			<button type="button" class="dialog" data-dialog="./?create=/callimachus/Image" />
 		 	<div about="?depiction" typeof="foaf:Image">
 				<img src="{?depiction}?small" />
 				<button type="button" class="remove" />

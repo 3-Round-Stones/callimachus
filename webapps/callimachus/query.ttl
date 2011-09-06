@@ -23,7 +23,7 @@
 
 <NamedQuery> a calli:Creatable, <IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:NamedQuery;
-	rdfs:label "Named Query";
+	rdfs:label "Query";
 	rdfs:comment "Saved SPARQL queries";
 	calli:icon <query.png>;
 	calli:view <query-view.xhtml>;

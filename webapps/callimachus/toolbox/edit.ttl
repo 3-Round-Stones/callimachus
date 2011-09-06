@@ -25,14 +25,29 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:GetViewPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Viewable];
+:GetEditPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	msg:rel "alternate";
 	msg:method "GET";
-	msg:query "view";
+	msg:query "edit";
+	msg:realm </accounts>;
 	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
-	msg:transform </callimachus/layout.ttl#TransformXhtml>;
-	msg:script <operations.js#getViewPage>.
+	msg:script <operations.js#getEditPage>.
+
+:PostEdit rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Editable];
+	msg:method "POST";
+	msg:query "edit";
+	msg:realm </accounts>;
+	msg:expect "201-modified";
+	msg:type "text/uri-list";
+	msg:script <operations.js#postEdit>.
+
+:input a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :PostEdit;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "multipart/related;type=\"application/rdf+xml\"".
 

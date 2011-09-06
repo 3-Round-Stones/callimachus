@@ -22,28 +22,13 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:GetDescription rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	msg:title "RDF Describe";
-	msg:rel "describedby";
+:GetIntrospect rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
 	msg:method "GET";
-	msg:query "describe";
-	msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
-	msg:transform :TransformDescription;
-	msg:script """
-		if (this.objectConnection.hasStatement(this.resource, null, null, []))
-			return this;
-		return null;
-	""".
-
-:TransformDescription rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:query "introspect";
 	msg:type "application/xhtml+xml";
-	msg:transform <../layout.ttl#TransformLayout>;
-	msg:xslt <describe.xsl>.
-
-:inputStream a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :TransformDescription;
-	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/rdf+xml".
+	msg:transform <../styles/styles.ttl#TransformLayout>;
+	msg:script """
+		return this.calliIntrospect(this);
+	""".
 

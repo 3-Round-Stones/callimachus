@@ -55,7 +55,7 @@
 :TransformDiscussion rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
-	msg:transform <../layout.ttl#TransformLayout>;
+	msg:transform <../styles/styles.ttl#TransformLayout>;
 	msg:xslt <discussion.xhtml>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;

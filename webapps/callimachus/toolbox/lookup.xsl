@@ -5,7 +5,7 @@
 	xmlns:xhtml="http://www.w3.org/1999/xhtml"
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
 	exclude-result-prefixes="xhtml sparql">
-	<xsl:import href="../util/iriref.xsl" />
+	<xsl:import href="../styles/iriref.xsl" />
 	<xsl:template match="/">
 		<html>
 			<head>

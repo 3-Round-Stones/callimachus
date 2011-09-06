@@ -28,7 +28,7 @@
 	msg:method "GET";
 	msg:query "list";
 	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
 	msg:imports <class-list.xhtml>;
 	msg:script "return class_list_xhtml.calliConstruct(this, 'list')".
@@ -40,7 +40,7 @@
 	msg:method "GET";
 	msg:query "index";
 	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
 	msg:imports <class-index.xhtml>;
 	msg:script "return class_index_xhtml.calliConstruct(this, 'index')".

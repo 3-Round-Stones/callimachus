@@ -25,6 +25,26 @@
 <Graph> rdfs:subClassOf calli:NamedGraph ;
 	calli:administrator </group/admin> .
 
+:GetGraph rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
+	msg:method "GET";
+	msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+	msg:transform :TransformGraph;
+	msg:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
+
+:TransformGraph rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:type "application/xml";
+	msg:transform <styles/styles.ttl#TransformLayout>;
+	msg:xslt <styles/graph.xsl>.
+
+:inputStream a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :TransformGraph;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "application/xml".
+
 :GetGraphCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Graph> ];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];

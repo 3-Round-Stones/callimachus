@@ -18,36 +18,32 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
-@prefix dc:<http://purl.org/dc/elements/1.1/>.
-@prefix dcterms:<http://purl.org/dc/terms/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:GetEditPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+:GetDescription rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+	msg:title "RDF Describe";
+	msg:rel "describedby";
 	msg:method "GET";
-	msg:query "edit";
-	msg:realm </accounts>;
+	msg:query "describe";
+	msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+	msg:transform :TransformDescription;
+	msg:script """
+		if (this.objectConnection.hasStatement(this.resource, null, null, []))
+			return this;
+		return null;
+	""".
+
+:TransformDescription rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/layout.ttl#TransformXhtml>;
-	msg:header "cache-control:no-cache";
-	msg:script <operations.js#getEditPage>.
+	msg:transform <../styles/styles.ttl#TransformLayout>;
+	msg:xslt <describe.xsl>.
 
-:PostEdit rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Editable];
-	msg:method "POST";
-	msg:query "edit";
-	msg:realm </accounts>;
-	msg:expect "201-modified";
-	msg:type "text/uri-list";
-	msg:script <operations.js#postEdit>.
-
-:input a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :PostEdit;
+:inputStream a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :TransformDescription;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "multipart/related;type=\"application/rdf+xml\"".
+	msg:type "application/rdf+xml".
 

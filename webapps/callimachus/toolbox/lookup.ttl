@@ -74,7 +74,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../lookup>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
-	msg:transform <../layout.ttl#TransformLayout>;
+	msg:transform <../styles/styles.ttl#TransformLayout>;
 	msg:xslt <lookup.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;

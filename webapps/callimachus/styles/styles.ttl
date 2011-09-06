@@ -27,7 +27,7 @@
 :TransformXhtml rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
 	msg:type "text/html";
-	msg:xslt <util/xhtml-to-html.xsl>.
+	msg:xslt <xhtml-to-html.xsl>.
 
 :xhtml a owl:ObjectProperty; a owl:FunctionalProperty;
 	msg:type "application/xhtml+xml";

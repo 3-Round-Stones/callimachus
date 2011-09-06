@@ -44,7 +44,7 @@
 	msg:script "return this.openInputStream()".
 
 # POST /callimachus/NamedQuery?create
-:CreateNamedQuery owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+:CreateNamedQuery owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <NamedQuery> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
@@ -232,19 +232,19 @@
 
 :TransformIntoHtml rdfs:subClassOf :TransformSparqlResult;
 	msg:type "text/csv;charset=UTF-8";
-	msg:xslt <util/sparql-results-html.xsl>.
+	msg:xslt <styles/sparql-results-html.xsl>.
 
 :TransformIntoCSV rdfs:subClassOf :TransformSparqlResult;
 	msg:type "text/csv;charset=UTF-8";
-	msg:xslt <util/sparql-results-csv.xsl>.
+	msg:xslt <styles/sparql-results-csv.xsl>.
 
 :TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
 	msg:type "text/csv;charset=UTF-8";
-	msg:xslt <util/sparql-results-tsv.xsl>.
+	msg:xslt <styles/sparql-results-tsv.xsl>.
 
 :TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
 	msg:type "text/javascript;charset=UTF-8";
-	msg:xslt <util/sparql-results-wire.xsl>.
+	msg:xslt <styles/sparql-results-wire.xsl>.
 
 :handler a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain :TransformIntoWire;

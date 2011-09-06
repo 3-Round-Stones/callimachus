@@ -35,7 +35,7 @@
 	calli:uriSpace </>;
 	calli:administrator </group/admin> .
 
-:PostPhotoCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+:PostPhotoCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Photo> ]);
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;

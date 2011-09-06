@@ -50,14 +50,14 @@ calli:favicon a owl:ObjectProperty;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xhtml+xml";
-	msg:xslt <manifest.xsl>.
+	msg:xslt <styles/manifest.xsl>.
 
 :xml a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformRights;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "application/sparql-results+xml".
 
-:PostEditManifest owl:intersectionOf (</callimachus/operations/edit.ttl#PostEdit>
+:PostEditManifest owl:intersectionOf (</callimachus/toolbox/edit.ttl#PostEdit>
 		[owl:onProperty msg:target; owl:allValuesFrom <Manifest>]);
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:script "HTTPObjectServer.resetAllCache(); return proceed();".

@@ -1,6 +1,7 @@
 # 
-#    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
-#    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
+#    Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
+#    Copyright (c) 2010 James Leigh, Some rights reserved
+#    Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
 # 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -18,11 +19,13 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix dc:<http://purl.org/dc/elements/1.1/>.
 @prefix dcterms:<http://purl.org/dc/terms/>.
-@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
-@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
 ################################
@@ -30,7 +33,7 @@
 ################################
 
 # Transaction operations must be authenticated
-audit:Transaction a owl:Class; msg:realm </accounts>.
+[msg:matching </change/*>] msg:realm </accounts>.
 
 # transcations are authorized by the user that made the change
 :AuthorizeTransaction rdfs:subClassOf calli:IsAuthorized;
@@ -102,7 +105,6 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 	msg:sparql  """
 		SELECT DISTINCT ?subj
 		WHERE {
-			$this a audit:Transaction
 			{
 				GRAPH $this { ?subj ?pred ?obj }
 			} UNION {
@@ -114,4 +116,70 @@ audit:Transaction a owl:Class; msg:realm </accounts>.
 			FILTER (!bound(?trans))
 		}
 	""".
+
+:GetChangesetView rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [msg:matching </change/*>]];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "view";
+	msg:rel "alternate";
+	msg:type "application/sparql-results+xml";
+	msg:transform :TransformChangesetView;
+	msg:sparql  """
+		SELECT REDUCED ?modified ?user ?name ?previous ?subsequent ?removed ?added ?subject ?predicate ?object
+		WHERE {
+			{
+				$this audit:committedOn ?modified
+				OPTIONAL {
+					$this audit:contributor ?user
+					OPTIONAL { ?user skos:prefLabel ?name }
+					OPTIONAL { ?user rdfs:label ?name }
+				}
+			} UNION {
+				$this audit:modified ?previous . ?previous audit:committedOn ?asof
+			} UNION {
+				?subsequent audit:modified $this . ?subsequent audit:committedOn ?asof
+			} UNION {
+				GRAPH ?added {
+					?subject ?predicate ?object
+					FILTER (?subject != $this)
+					FILTER (?predicate != audit:revision)
+					FILTER (?predicate != audit:contained)
+					FILTER (?predicate != rdf:subject)
+					FILTER (?predicate != rdf:predicate)
+					FILTER (?predicate != rdf:object)
+				}
+				?added audit:committedOn ?asof
+				FILTER (?added = $this)
+			} UNION {
+				GRAPH ?removed {
+					?added audit:contained [
+						rdf:subject ?subject;
+						rdf:predicate ?predicate;
+						rdf:object ?object
+					]
+					FILTER (?subject != $this)
+					FILTER (?predicate != audit:revision)
+					FILTER (?predicate != rdf:subject)
+					FILTER (?predicate != rdf:predicate)
+					FILTER (?predicate != rdf:object)
+				}
+				OPTIONAL { ?added audit:committedOn ?asof }
+				FILTER (?added = $this || ?removed = $this)
+			}
+		}
+		ORDER BY ?subject ?predicate ?asof ?object
+	""".
+
+:TransformChangesetView rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [msg:matching </change/*>]];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:type "application/xml";
+	msg:transform <styles/styles.ttl#TransformLayout>;
+	msg:xslt <styles/change.xsl>.
+
+:inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :TransformChangesetView;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "application/sparql-results+xml".
 

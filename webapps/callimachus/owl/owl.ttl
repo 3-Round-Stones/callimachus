@@ -61,7 +61,7 @@
 	calli:administrator </group/admin>.
 
 # when an ontology is created
-:PostOntologyCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+:PostOntologyCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Ontology>]);
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
@@ -83,13 +83,13 @@
 	msg:method "GET";
 	msg:query "index";
 	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
 	msg:imports <class-index.xhtml>;
 	msg:script "return class_index_xhtml.calliConstruct(this, 'index')".
 
 # when an ontology creates a class
-:PostClassCreate owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+:PostClassCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:allValuesFrom <Ontology>]);
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
@@ -107,7 +107,7 @@
 		return klass;
 	""".
 
-:PostClassEdit owl:intersectionOf (</callimachus/operations/edit.ttl#PostEdit>
+:PostClassEdit owl:intersectionOf (</callimachus/toolbox/edit.ttl#PostEdit>
 		[owl:onProperty msg:target; owl:allValuesFrom <Class>]);
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;

@@ -133,9 +133,10 @@
    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
    msg:type "application/atom+xml";
-   msg:xslt <util/sparql-results-atom.xsl>.
+   msg:xslt <styles/sparql-results-atom.xsl>.
 
 :sparqlResult a owl:FunctionalProperty, owl:ObjectProperty;
    rdfs:domain :TransformIntoAtom;
    rdfs:range <java:java.io.InputStream>;
    msg:type "application/sparql-results+xml".
+

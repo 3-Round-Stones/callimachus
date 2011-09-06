@@ -45,7 +45,7 @@
 	msg:script "return this.openInputStream()".
 
 # POST /callimachus/Article?create
-:CreateArticle owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+:CreateArticle owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Article> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;

@@ -8,17 +8,18 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-:RecentChanges rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../changes>];
+:GetContributions rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:User];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
+	msg:query "contributions";
 	msg:type "application/sparql-results+xml";
-	msg:header "cache-control:no-validate,max-age=60";
-	msg:transform :TransformRecentChanges;
+	msg:header "cache-control:no-store";
+	msg:transform :TransformContributions;
 	msg:sparql  """
-		SELECT DISTINCT ?label ?note ?icon ?url ?revision ?modified ?user ?name
+		SELECT REDUCED ?label ?comment ?icon ?url ?revision ?modified
 		WHERE {
-			?revision a audit:RecentTransaction; audit:contributor ?user; audit:committedOn ?modified
+			?revision audit:committedOn ?modified; audit:contributor $this
 			{
 				GRAPH ?revision {
 					?url ?p ?o
@@ -30,32 +31,27 @@
 				?revision audit:contained [rdf:subject ?url; rdf:predicate ?p]
 				FILTER (?p != audit:revision)
 			}
-			?user rdfs:label ?name
 			FILTER (?url != ?revision)
-			FILTER (?url != ?user)
+			FILTER (?url != $this)
 			FILTER (isIRI(?url))
+			OPTIONAL { ?url a [calli:icon ?icon] }
 			OPTIONAL { ?url skos:prefLabel ?label }
 			OPTIONAL { ?url rdfs:label ?label }
-			OPTIONAL { ?url a [calli:icon ?icon] }
-			OPTIONAL {
-				{
-					GRAPH ?revision { ?url skos:changeNote ?note }
-				} UNION {
-					?revision audit:contained [rdf:subject ?url; rdf:predicate skos:changeNote; rdf:object ?note]
-				}
-			}
+			OPTIONAL { ?url rdfs:comment ?comment }
 		}
 		ORDER BY desc(?modified) ?url
-		LIMIT 100
+		LIMIT 50
 	""".
 
-:TransformRecentChanges rdfs:subClassOf msg:Message;
+:TransformContributions rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:User];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
-	msg:transform <../layout.ttl#TransformLayout>;
-	msg:xslt <recent-changes.xsl>.
+	msg:transform <../styles/styles.ttl#TransformLayout>;
+	msg:xslt <contributions.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :TransformRecentChanges;
-	rdfs:range <java:java.io.InputStream>.
+	rdfs:domain :TransformContributions;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "application/sparql-results+xml".
 

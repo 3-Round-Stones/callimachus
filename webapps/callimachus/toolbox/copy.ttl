@@ -33,7 +33,7 @@
 	msg:query "copy";
 	msg:realm </accounts>;
 	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/layout.ttl#TransformXhtml>;
+	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
 	msg:script <operations.js#getCopyPage>.
 

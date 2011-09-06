@@ -35,7 +35,7 @@
 	calli:administrator </group/admin>.
 
 # GET /page/MainPage.xhtml?view
-:GetPage owl:intersectionOf (</callimachus/operations/view.ttl#GetViewPage>
+:GetPage owl:intersectionOf (</callimachus/toolbox/view.ttl#GetViewPage>
 		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
 	msg:script """
 		return this.calliConstruct(this, 'view');
@@ -52,7 +52,7 @@
 	msg:script "return this.openInputStream()".
 
 # POST /page/MainPage.xhtml?copy
-:PostTemplateCopy owl:intersectionOf (</callimachus/operations/copy.ttl#PostCopy>
+:PostTemplateCopy owl:intersectionOf (</callimachus/toolbox/copy.ttl#PostCopy>
 		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
 	msg:script """
 		var created = proceed();
@@ -94,7 +94,7 @@
 	""".
 
 # POST /callimachus/Page?create
-:CreatePage owl:intersectionOf (</callimachus/operations/create.ttl#PostCreate>
+:CreatePage owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Page> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;

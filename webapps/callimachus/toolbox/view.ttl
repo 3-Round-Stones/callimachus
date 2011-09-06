@@ -18,17 +18,21 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix dc:<http://purl.org/dc/elements/1.1/>.
+@prefix dcterms:<http://purl.org/dc/terms/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:GetIntrospect rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+:GetViewPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Viewable];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+	msg:rel "alternate";
 	msg:method "GET";
-	msg:query "introspect";
+	msg:query "view";
 	msg:type "application/xhtml+xml";
-	msg:transform <../layout.ttl#TransformLayout>;
-	msg:script """
-		return this.calliIntrospect(this);
-	""".
+	msg:header "cache-control:no-cache";
+	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
+	msg:script <operations.js#getViewPage>.
 

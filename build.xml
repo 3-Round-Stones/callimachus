@@ -194,9 +194,6 @@
 		<war needxmlfile="false" destfile="${dist}/callimachus.war">
 			<zipfileset dir="${webapps}/callimachus" prefix="" />
 		</war>
-		<war needxmlfile="false" destfile="${dist}/layout.war">
-			<zipfileset dir="${webapps}/layout" prefix="" />
-		</war>
 		<war needxmlfile="false" destfile="${dist}/accounts.war">
 			<zipfileset dir="${webapps}/accounts" prefix="" />
 		</war>
@@ -207,7 +204,6 @@
 			<zipfileset dir="${lib}" prefix="lib" />
 			<zipfileset file="${jar.file}" prefix="lib" />
 			<zipfileset file="${dist}/callimachus.war" prefix="webapps" />
-			<zipfileset file="${dist}/layout.war" prefix="webapps" />
 			<zipfileset file="${dist}/accounts.war" prefix="webapps" />
 			<zipfileset file="${webapps}/index.ttl" prefix="webapps" />
 		</zip>

@@ -47,9 +47,7 @@ function login(event) {
 			link.css('padding-bottom', null);
 			link.css('top', null);
 		});
-		if (window.localStorage) {
-			localStorage.removeItem('Authorization');
-		}
+		$(document).trigger("calliLogout");
 	} else {
 		link.css('margin-left', '0px');
 		link.css('margin-bottom', '0px');

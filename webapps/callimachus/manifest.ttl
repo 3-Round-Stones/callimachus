@@ -16,11 +16,24 @@
 
 <manifest> a <Manifest>.
 
+</layout/template.xsl> a calli:Alias; calli:aliasOf </callimachus/manifest?template>.
+
 calli:logo a owl:ObjectProperty;
 	msg:method "GET"; msg:query "logo"; msg:expect "302-see-other".
 
 calli:favicon a owl:ObjectProperty;
 	msg:method "GET"; msg:query "favicon"; msg:expect "302-see-other".
+
+:TransformLayout rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
+	msg:method "GET";
+	msg:query "template";
+	msg:expect "302-see-other";
+	msg:type "text/uri-list";
+	msg:imports </callimachus/styles/layout.xsl>;
+	msg:script """
+		return layout_xsl;
+	""".
 
 :GetRights rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];

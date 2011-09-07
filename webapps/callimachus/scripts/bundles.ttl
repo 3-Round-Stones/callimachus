@@ -10,21 +10,24 @@
 
 <web_bundle> a calli:ScriptBundle;
 	rdf:_1 <jquery.js>;
-	rdf:_3 <node-inserted.js>;
-	rdf:_4 <referrer.js>;
-	rdf:_5 <viewpage.js>;
-	rdf:_6 <protected.js>;
-	rdf:_7 <optional.js>;
-	rdf:_8 <time.js>;
-	rdf:_9 <auto-expand.js>;
-	rdf:_10 <hbox.js>;
-	rdf:_11 <vbox.js>;
-	rdf:_12 <sorted.js>;
-	rdf:_13 <creole.js>;
-	rdf:_14 <wiki.js>;
-	rdf:_15 <placeholder.js>;
-	rdf:_16 <details.js>;
-	rdf:_17 <http://www.google.com/jsapi>.
+	rdf:_2 <iframe.js>;
+	rdf:_3 <wait.js>;
+	rdf:_4 <error.js>;
+	rdf:_5 <node-inserted.js>;
+	rdf:_6 <referrer.js>;
+	rdf:_7 <viewpage.js>;
+	rdf:_8 <protected.js>;
+	rdf:_9 <optional.js>;
+	rdf:_10 <time.js>;
+	rdf:_11 <auto-expand.js>;
+	rdf:_12 <hbox.js>;
+	rdf:_13 <vbox.js>;
+	rdf:_14 <sorted.js>;
+	rdf:_15 <creole.js>;
+	rdf:_16 <wiki.js>;
+	rdf:_17 <placeholder.js>;
+	rdf:_18 <details.js>;
+	rdf:_19 <http://www.google.com/jsapi>.
 
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;

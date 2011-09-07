@@ -6,51 +6,32 @@
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
 	exclude-result-prefixes="xhtml sparql">
 	<xsl:output method="xml" />
-	<xsl:param name="xslt" select="'/layout/template.xsl'" />
+	<xsl:param name="xslt" select="'/callimachus/manifest?template'" />
 	<xsl:param name="this" />
 	<xsl:param name="query" />
 	<xsl:param name="template" select="false()" />
-	<xsl:variable name="layout">
-		<xsl:call-template name="substring-before-last">
-			<xsl:with-param name="string" select="$xslt"/>
-			<xsl:with-param name="delimiter" select="'/'"/>
-		</xsl:call-template>
-	</xsl:variable>
-	<xsl:variable name="origin">
-		<xsl:call-template name="substring-before-last">
-			<xsl:with-param name="string" select="$layout" />
-			<xsl:with-param name="delimiter" select="'/'"/>
-		</xsl:call-template>
-	</xsl:variable>
 	<xsl:variable name="scheme" select="substring-before($xslt, '://')" />
-	<xsl:variable name="host" select="substring-before(substring-after($xslt, '://'), '/')" />
+	<xsl:variable name="authority" select="substring-before(substring-after($xslt, '://'), '/')" />
 	<xsl:variable name="callimachus">
-		<xsl:if test="$scheme and $host">
-			<xsl:value-of select="concat($scheme, '://', $host, '/callimachus')" />
+		<xsl:if test="$scheme and $authority">
+			<xsl:value-of select="concat($scheme, '://', $authority, '/callimachus')" />
 		</xsl:if>
-		<xsl:if test="not($scheme) or not($host)">
+		<xsl:if test="not($scheme) or not($authority)">
 			<xsl:value-of select="'/callimachus'" />
 		</xsl:if>
 	</xsl:variable>
-	<xsl:variable name="layout_xhtml" select="document(concat($layout, '/layout.xhtml'))" />
+	<xsl:variable name="manifest">
+		<xsl:if test="contains($xslt,'?')">
+			<xsl:value-of select="substring-before($xslt, '?')" />
+		</xsl:if>
+		<xsl:if test="not(contains($xslt,'?'))">
+			<xsl:value-of select="concat($callimachus, '/manifest')" />
+		</xsl:if>
+	</xsl:variable>
+	<xsl:variable name="layout_xhtml" select="document(concat($callimachus, '/themes/default/layout.xhtml'))" />
 	<xsl:variable name="layout_head" select="$layout_xhtml/xhtml:html/xhtml:head|$layout_xhtml/html/head" />
 	<xsl:variable name="layout_body" select="$layout_xhtml/xhtml:html/xhtml:body|$layout_xhtml/html/body" />
 	<xsl:variable name="template_body" select="/xhtml:html/xhtml:body|/html/body" />
-
-	<xsl:template name="substring-before-last">
-		<xsl:param name="string"/>
-		<xsl:param name="delimiter"/>
-		<xsl:if test="contains($string,$delimiter)">
-			<xsl:value-of select="substring-before($string,$delimiter)"/>
-			<xsl:if test="contains(substring-after($string,$delimiter),$delimiter)">
-				<xsl:value-of select="$delimiter"/>
-				<xsl:call-template name="substring-before-last">
-					<xsl:with-param name="string" select="substring-after($string,$delimiter)"/>
-					<xsl:with-param name="delimiter" select="$delimiter"/>
-				</xsl:call-template>
-			</xsl:if>
-		</xsl:if>
-	</xsl:template>
 
 	<xsl:template match="*">
 		<xsl:copy>
@@ -88,11 +69,19 @@
 				<xsl:with-param name="one" select="." />
 				<xsl:with-param name="two" select="$layout_head" />
 			</xsl:call-template>
-			<xsl:if test="//form|//xhtml:form">
-				<link type="text/css" href="{$layout}/jquery-ui.css" rel="stylesheet" />
+			<link rel="icon" href="{$manifest}?favicon" />
+			<link rel="stylesheet" href="{$callimachus}/styles/content.css" />
+			<link rel="stylesheet" href="/callimachus/themes/default/layout.css" />
+			<link rel="stylesheet" href="/callimachus/themes/default/colour.css" />
+			<xsl:comment>[if lt IE 9]&gt;
+				&lt;link rel="stylesheet" href="/callimachus/themes/default/ie8.css" /&gt;
+				&lt;script src="//html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;
+			&lt;![endif]</xsl:comment>
+			<xsl:if test="//form|//xhtml:form|//*[contains(@class, 'ui-widget')]">
+				<link type="text/css" href="{$callimachus}/themes/default/jquery-ui.css" rel="stylesheet" />
 			</xsl:if>
 			<xsl:if test="//*[contains(@class,'aside')]">
-				<link rel="stylesheet" href="{$layout}/aside.css" />
+				<link rel="stylesheet" href="{$callimachus}/themes/default/aside.css" />
 			</xsl:if>
 			<xsl:apply-templates select="$layout_head/*[local-name()!='script']|comment()" />
 			<xsl:apply-templates select="*[local-name()!='script']|comment()" />
@@ -107,6 +96,9 @@
 			<xsl:if test="$query='edit'">
 				<script type="text/javascript" src="{$callimachus}/toolbox/edit.js">&#160;</script>
 			</xsl:if>
+			<script type="text/javascript" src="/callimachus/themes/default/login.js"> </script>
+			<script type="text/javascript" src="/callimachus/themes/default/discussion.js"> </script>
+			<script type="text/javascript" src="/callimachus/themes/default/alert.js"> </script>
 			<xsl:apply-templates select="$layout_head/*[local-name()='script']" />
 			<xsl:apply-templates select="*[local-name()='script']" />
 		</xsl:copy>
@@ -178,7 +170,7 @@
 	<xsl:template mode="layout" match="xhtml:p[@id='manifest-rights']|p[@id='manifest-rights']">
 		<xsl:copy>
 			<xsl:apply-templates mode="layout" select="@*" />
-			<xsl:copy-of select="document(concat($callimachus, '/manifest?rights'))/xhtml:html/xhtml:body/node()" />
+			<xsl:copy-of select="document(concat($manifest, '?rights'))/xhtml:html/xhtml:body/node()" />
 		</xsl:copy>
 	</xsl:template>
 </xsl:stylesheet>

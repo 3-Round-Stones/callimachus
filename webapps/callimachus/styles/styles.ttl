@@ -12,7 +12,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xhtml+xml";
 	msg:transform :TransformXhtml;
-	msg:xslt </layout/template.xsl>.
+	msg:xslt </callimachus/manifest?template>.
 
 :query a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformLayout;

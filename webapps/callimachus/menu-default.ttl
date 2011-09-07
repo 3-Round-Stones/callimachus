@@ -8,15 +8,8 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-</callimachus/scripts/web_bundle> a calli:ScriptBundle;
-	rdf:_2 <iframe.js>;
-	rdfs:member <login.js>;
-	rdfs:member <wait.js>;
-	rdfs:member <discussion.js>;
-	rdfs:member <error.js>.
-
 </callimachus/manifest> a calli:Manifest;
-	calli:logo <logo.png> ; calli:favicon <favicon.ico> .
+	calli:logo </callimachus/images/callimachus-logo.png> ; calli:favicon </callimachus/images/callimachus-icon.ico> .
 
 </callimachus/menu> calli:link </>;
 	calli:item </callimachus/menu#site>;

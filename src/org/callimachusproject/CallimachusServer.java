@@ -73,7 +73,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private static final String SCHEMA_GRAPH = "http://callimachusproject.org/rdf/2009/framework#SchemaGraph";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
-	private static final String ERROR_XSLT_PATH = "/layout/error.xsl";
+	private static final String ERROR_XSLT_PATH = "/callimachus/styles/error.xsl";
 	Logger logger = LoggerFactory.getLogger(CallimachusServer.class);
 	private Uploader uploader;
 	private String origin;

@@ -29,12 +29,12 @@ body {
 	display:inline-block;
 }
 
-#header-login>button {
+#header button {
 	font-weight:bold;
 	font-size:1em;
 }
 
-#header-login .ui-icon {
+#header  .ui-icon {
 	position: absolute;
 	top: 50%;
 	margin-top: -8px;
@@ -42,8 +42,17 @@ body {
 	width: 16px;
 }
 
-#header-login .ui-button-text {
+#header .ui-button-text {
+	display:block;
 	padding-left:22px;
+}
+
+#header .ui-button-icon-only .ui-button-text {
+	text-indent: -9999999px;
+}
+
+#header button.ui-button-icon-only {
+	width: 16px;
 }
 
 #login-form {

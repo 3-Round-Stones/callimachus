@@ -62,7 +62,7 @@ function login(event) {
 		if ($("#login-form").size()) {
 			showForm($("#login-form"));
 		} else {
-			window.jQuery.ajax({ type: 'GET', url: "/layout/login.html",
+			window.jQuery.ajax({ type: 'GET', url: "/callimachus/themes/default/login.html",
 				success: function(data) {
 					if ($("#header-login").is(":visible")) {
 						var form = $(data).find("#login-form").andSelf().filter("#login-form");

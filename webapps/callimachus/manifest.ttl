@@ -16,9 +16,10 @@
 
 <manifest> a <Manifest>;
 	calli:origin </>;
-	calli:unauthorized </accounts/unauthorized.xhtml>;
-	calli:forbidden </accounts/forbidden.xhtml>;
-	calli:authentication </accounts>.
+	calli:template <styles/layout.xsl>;
+	calli:unauthorized <pages/unauthorized.xhtml>;
+	calli:forbidden <pages/forbidden.xhtml>;
+	calli:authentication <accounts>.
 
 </layout/template.xsl> a calli:Alias; calli:aliasOf </callimachus/manifest?template>.
 
@@ -28,16 +29,8 @@ calli:logo a owl:ObjectProperty;
 calli:favicon a owl:ObjectProperty;
 	msg:method "GET"; msg:query "favicon"; msg:expect "302-see-other".
 
-:TransformLayout rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	msg:method "GET";
-	msg:query "template";
-	msg:expect "302-see-other";
-	msg:type "text/uri-list";
-	msg:imports </callimachus/styles/layout.xsl>;
-	msg:script """
-		return layout_xsl;
-	""".
+calli:template a owl:ObjectProperty;
+	msg:method "GET"; msg:query "template"; msg:expect "302-see-other".
 
 :GetRights rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];

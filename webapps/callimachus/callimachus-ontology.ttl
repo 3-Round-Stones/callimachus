@@ -259,6 +259,11 @@ calli:authentication a owl:ObjectProperty;
 	rdfs:domain calli:Manifest;
 	rdfs:range calli:DomainRealm.
 
+calli:template a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:label "template";
+	rdfs:comment "An XSL file that adds common header and footer to xhtml templates";
+	rdfs:domain calli:Manifest.
+
 calli:logo a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "logo";
 	rdfs:comment "The logo image that should be shown with this menu";

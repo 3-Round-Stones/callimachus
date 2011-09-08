@@ -1,0 +1,251 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<User> a calli:Creatable, owl:Class;
+	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:User;
+	rdfs:label "User";
+	rdfs:comment "Username and password associated with an email address";
+	msg:realm </callimachus/manifest>; # User operations must be authorized
+	calli:icon <user.png>;
+	calli:view <user.xhtml>;
+	calli:edit <user-edit.xhtml>;
+	calli:create <user-create.xhtml>;
+	calli:uriSpace </user/>;
+	calli:creates </callimachus/Photo>;
+	calli:administrator </group/admin>. # admin members can edit any user
+
+################################
+# User create
+################################
+
+rdfs:label a rdf:Property.
+rdfs:comment a rdf:Property.
+
+:PostUserCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <User> ]);
+	msg:imports <User>;
+	msg:imports </user/>;
+	msg:imports <accounts>;
+	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
+	msg:imports <java:javax.mail.internet.MimeMultipart>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+	msg:imports <java:java.net.URLEncoder>;
+	msg:script """
+		var ds = new ByteArrayDataSource(body, "multipart/form-data") ;
+		var multipart = new MimeMultipart(ds);
+		//# read form
+		var username = multipart.getBodyPart(0).content;
+		var email = multipart.getBodyPart(1).content;
+		var label = multipart.getBodyPart(2).content;
+		var comment = multipart.getBodyPart(3).content;
+		var subject = multipart.getBodyPart(4).content;
+		var body5 = multipart.getBodyPart(5).content;
+		if (!label)
+			throw new BadRequest("Missing label");
+		if (!username)
+			throw new BadRequest("Missing name");
+		if (!email)
+			throw new BadRequest("Missing email");
+		if (!subject)
+			throw new BadRequest("Missing subject");
+		if (!body5)
+			throw new BadRequest("Missing message");
+
+		//# assign id TODO use "location" instead
+		var uri = user + URLEncoder.encode(username).replace(/%20/g, "+").toLowerCase();
+		var newUser = this.objectConnection.getObject(uri);
+		if (newUser instanceof User)
+			throw new Conflict("User already exists: " + newUser);
+		newUser = this.objectConnection.addDesignation(newUser, User);
+		newUser = this.objectConnection.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#Party");
+		newUser = this.objectConnection.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#User");
+
+		//# populate resource
+		newUser.calliName = username;
+		newUser.calliEmail = email;
+		newUser.rdfsLabels.add(label);
+		if (comment) {
+			newUser.rdfsComments.add(comment);
+		}
+		this.PropagatePermissions(newUser);
+
+		//# generate and save a password
+		var password = newUser.generatePassword();
+		var token = username + ":" + accounts.calliAuthName + ":" + password;
+		newUser.calliAlgorithm = "MD5";
+		newUser.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));
+		//# email the password to the email address provided
+		var fromUser = newUser.FindUserCreator();
+		if (!fromUser || !fromUser.sendMessage)
+			throw new BadRequest("Could not find creator user");
+		body5 = body5.replace(/@@PASSWORD@@/g, password);
+		fromUser.sendMessage(subject + '\\n' + body5, label + " <" + email + ">");
+		return newUser;
+	""".
+
+# find the user that created $this
+:FindUserCreator rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:User];
+	msg:sparql  """
+		SELECT DISTINCT ?contributor
+		WHERE {
+			{
+				audit:current-trx audit:contributor ?contributor
+			} UNION {
+				GRAPH ?graph { $this a ?type }
+				?graph audit:contributor ?contributor
+			}
+		} LIMIT 1
+	""".
+
+################################
+# User password
+################################
+
+:GetUserPasswordPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET";
+	msg:query "password";
+	msg:type "text/html";
+	msg:header "cache-control:no-cache";
+	msg:realm </callimachus/manifest>;
+	msg:imports <pages/user-password.xhtml>;
+	msg:script """
+		return user_password_xhtml.calliConstructHTML(this, "edit");
+	""".
+
+:PostUserPassword rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "POST";
+	msg:query "password";
+	msg:realm </callimachus/manifest>;
+	msg:expect "201-modified";
+	msg:imports <accounts>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.apache.commons.codec.binary.Hex>;
+	msg:script """
+		var credential = accounts.findCredential(authorization);
+		//# read form
+		var email = form.get("email") ? form.get("email")[0] : null;
+		var current = form.get("current") ? form.get("current")[0] : null;
+		var password = form.get("password") ? form.get("password")[0] : null;
+		if (this.equals(credential)) {
+			//# check if they know their own password
+			if (!current)
+				throw new BadRequest("What is your current password?");
+			var encoded = Hex.decodeHex(new java.lang.String(current).toCharArray());
+			if (!java.util.Arrays.equals(this.calliEncoded, encoded))
+				throw new BadRequest("That is not your current password");
+		}
+		//# save email
+		if (email) {
+			this.calliEmail = email;
+		}
+		//# save password
+		if (password) {
+			this.calliEncoded = Hex.decodeHex(new java.lang.String(password).toCharArray());
+		}
+		return this + "?view";
+	""".
+
+:form a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :PostUserPassword;
+	rdfs:range <java:java.util.Map>;
+	msg:type "application/x-www-form-urlencoded".
+
+:authorization a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :PostUserPassword;
+	rdfs:range xsd:string;
+	msg:header "Authorization".
+
+################################
+# User reset password
+################################
+
+:anybody a calli:AnybodyRealm;
+	calli:domain </user/>.
+
+# Linked from request password email
+:GetResetPassword rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET";
+	msg:query "resetpassword";
+	msg:type "text/html";
+	msg:header "cache-control:no-store";
+	msg:realm :anybody;
+	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <pages/reset-password.xhtml>;
+	msg:script """
+		if (!nonce || !token)
+			throw new BadRequest("Missing nonce and/or token");
+		var ha1 = DigestUtils.md5Hex(this.calliEncoded);
+		var ha2 = DigestUtils.md5Hex(this.toString());
+		var hex = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
+		if (token != hex)
+			throw new BadRequest("Request is No Longer Valid");
+		return reset_password_xhtml.calliConstructHTML(this);
+	""".
+
+:nonce a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :GetResetPassword;
+	rdfs:range xsd:string;
+	msg:query "nonce".
+
+:token a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :GetResetPassword;
+	rdfs:range xsd:string;
+	msg:query "token".
+
+# Confirms token and resets their password
+:PostResetPassword rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "POST";
+	msg:query "resetpassword";
+	msg:header "cache-control:no-store";
+	msg:realm :anybody;
+	msg:imports <accounts>;
+	msg:imports <pages/mail-password.xhtml>;
+	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:java.io.CharArrayWriter>;
+	msg:imports <java:java.util.Random>;
+	msg:imports <java:java.lang.Integer>;
+	msg:imports <java:java.lang.System>;
+	msg:script """
+		if (!resetForm.get('nonce') || !resetForm.get("token"))
+			throw new BadRequest("Missing nonce and/or token");
+		var ha1 = DigestUtils.md5Hex(this.calliEncoded);
+		var nonce = resetForm.get('nonce')[0];
+		var ha2 = DigestUtils.md5Hex(this.toString());
+		var token = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
+		if (token != resetForm.get("token")[0])
+			throw new BadRequest("Request is No Longer Valid");
+		var password = this.generatePassword();
+		var decoded = this.calliName + ":" + accounts.calliAuthName + ":" + password;
+		this.calliAlgorithm = "MD5";
+		this.calliEncoded = DigestUtils.md5(new java.lang.String(decoded).getBytes("UTF-8"));
+		var body = mail_password_xhtml.calliConstructHTML(this);
+		body = body.replace(/@@USERNAME@@/g, this.calliName);
+		body = body.replace(/@@PASSWORD@@/g, password);
+		this.sendMessage(body, this.rdfsLabels.iterator().next() + " <" + this.calliEmail + ">");
+	""".
+
+:resetForm a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :PostResetPassword;
+	rdfs:range <java:java.util.Map>;
+	msg:type "application/x-www-form-urlencoded".
+

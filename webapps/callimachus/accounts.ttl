@@ -5,7 +5,6 @@
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix accounts:</accounts/>.
 @prefix :<#>.
 
 ################################
@@ -19,71 +18,18 @@
 	calli:reader </group/users>, </group/staff>;
 	calli:administrator </group/admin>. # can add/remove authenticating user groups
 
-</accounts> a <Accounts>;
+<accounts> a <Accounts>;
 	rdfs:label "User accounts";
 	calli:authName </>;
 	calli:domain </>;
 	calli:authenticates </group/admin>, </group/staff>, </group/users>.
-
-</callimachus/scripts/web_bundle> a calli:ScriptBundle;
-	rdfs:member <accounts.js>.
-
-################################
-# Group
-################################
-
-<Group> a calli:Creatable, owl:Class;
-	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:Group;
-	rdfs:label "Group";
-	rdfs:comment "Groups provide a way to assign permissions to a named set of users";
-	calli:icon <group-favicon.png>;
-	msg:realm </callimachus/manifest>; # Group operations must be authorized
-	calli:view <group.xhtml>;
-	calli:edit <group-edit.xhtml>;
-	calli:create <group-create.xhtml>;
-	calli:creates <User>;
-	calli:createRel calli:member;
-	calli:uriSpace </group/>;
-	calli:administrator </group/admin>. # admin members can edit any group
-
-</group/admin> a calli:Party, calli:Group, <Group>;
-	rdfs:label "admin";
-	rdfs:comment "The user accounts in this group have heightened privileges, including the ability to edit other user accounts and access the underlying data store";
-	calli:reader </group/users>, </group/staff>.
-
-</group/staff> a calli:Party, calli:Group, <Group>;
-	rdfs:label "staff";
-	rdfs:comment "Members of this group can design and edit resources within the system";
-	calli:reader </group/users>, </group/staff>.
-
-</group/users> a calli:Party, calli:Group, <Group>;
-	rdfs:label "users";
-	rdfs:comment "Members of this group can view and discuss resources within the system";
-	calli:reader </group/users>, </group/staff>.
-
-################################
-# User
-################################
-
-<User> a calli:Creatable, owl:Class;
-	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:User;
-	rdfs:label "User";
-	rdfs:comment "Username and password associated with an email address";
-	msg:realm </callimachus/manifest>; # User operations must be authorized
-	calli:icon <user-favicon.png>;
-	calli:view <user.xhtml>;
-	calli:edit <user-edit.xhtml>;
-	calli:create <user-create.xhtml>;
-	calli:uriSpace </user/>;
-	calli:creates </callimachus/Photo>;
-	calli:administrator </group/admin>. # admin members can edit any user
 
 ################################
 # login
 ################################
 
 :GetAuthorization rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>].
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Accounts>].
 
 :authorization a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :GetAuthorization;
@@ -114,7 +60,7 @@
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage rdfs:subClassOf calli:IsAuthorized;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </accounts>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Accounts>];
 	msg:sparql  """
 		ASK {
 			$this calli:authenticates [calli:member $credential]
@@ -151,4 +97,82 @@
 		resp.setHeader('WWW-Authenticate', hd);
 		return resp;
 	""".
+
+################################
+# User forgot password
+################################
+
+:anybody a calli:AnybodyRealm;
+	calli:domain <accounts?forgotpassword>.
+
+# Linked from request password email
+:GetForgotPasswordPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Accounts>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET";
+	msg:query "forgotpassword";
+	msg:type "text/html";
+	msg:header "cache-control:no-store";
+	msg:realm :anybody;
+	msg:imports <pages/forgot-password.xhtml>;
+	msg:script """
+		return forgot_password_xhtml.calliConstructHTML(this);
+	""".
+
+# Sends request for password reset emails
+# Submitted by form in the unauthorized page
+:PostForgotPassword rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Accounts>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "POST";
+	msg:query "forgotpassword";
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+	msg:imports <pages/mail-request-password.xhtml>;
+	msg:imports <java:java.io.CharArrayWriter>;
+	msg:imports <java:java.util.Random>;
+	msg:imports <java:java.lang.Integer>;
+	msg:imports <java:java.lang.System>;
+	msg:script """
+		if (!formEmail)
+			throw new BadRequest("Missing Email");
+		var iter = this.FindUsersByEmail(formEmail).iterator();
+		if (!iter.hasNext()) {
+			java.lang.System.err.println("No users with email " + formEmail + " found");
+		}
+		while (iter.hasNext()) {
+			var user = iter.next();
+			var ha1 = DigestUtils.md5Hex(user.calliEncoded);
+			var nonce = Integer.toHexString(new Random(System.nanoTime()).nextInt());
+			var ha2 = DigestUtils.md5Hex(user.toString());
+			var token = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
+			var qs = "?resetpassword&amp;nonce=" + nonce + "&amp;token=" + token;
+			var body = mail_request_password_xhtml.calliConstructHTML(user);
+			body = body.replace(/\\?resetpassword/g, qs);
+			user.sendMessage(body, user.rdfsLabels.iterator().next() + " <" + formEmail + ">");
+			java.lang.Thread.sleep(new java.util.Random().nextInt() % 2000 + 2000);
+		}
+	""".
+
+:formEmail a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :PostForgotPassword;
+	rdfs:range xsd:string;
+	msg:type "text/plain".
+
+# Looks up user by email address
+# Used to request password reset
+:FindUsersByEmail rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Accounts>];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:User];
+	msg:sparql  """
+		SELECT REDUCED ?user
+		WHERE {
+			$this calli:authenticates [calli:member ?user].
+			?user calli:email $email
+		}
+	""".
+
+:email a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :FindUsersByEmail;
+	rdfs:range xsd:string.
 

@@ -17,7 +17,7 @@ $(document).bind("calliLogin", function(event) {
 		sessionStorage.removeItem('Name');
 		localStorage.removeItem('Authorization');
 	}
-	var options = {type: "GET", url: "/accounts?login",
+	var options = {type: "GET", url: "/callimachus/accounts?login",
 		success: function(doc) {
 			var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc);
 			if (title) {
@@ -58,7 +58,7 @@ $(document).bind("calliLogin", function(event) {
 			// Safari don't support spaces in ajax passwords
 			if (xhr && xhr.status == 0) {
 				// bring up browser login dialog
-				location = "/accounts?login";
+				location = "/callimachus/accounts?login";
 			}
 		}
 	};
@@ -75,7 +75,7 @@ $(document).bind("calliLogin", function(event) {
 	} catch (e) {
 		// Opera don't support spaces in ajax passwords
 		// bring up browser login dialog
-		location = "/accounts?login";
+		location = "/callimachus/accounts?login";
 	}
 });
 

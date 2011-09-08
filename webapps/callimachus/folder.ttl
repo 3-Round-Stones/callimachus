@@ -39,7 +39,7 @@
 	calli:creates <NamedQuery>;
 	calli:creates <Class>;
 	calli:creates <Concept>;
-	#calli:creates </accounts/Group>;
+	calli:creates </callimachus/Group>;
 	calli:createRev calli:hasNamespace;
 	calli:icon <folder.png>;
 	calli:view <folder-view.xhtml>;

@@ -21,11 +21,8 @@
 
 </accounts> a <Accounts>;
 	rdfs:label "User accounts";
-	calli:origin </>;
 	calli:authName </>;
 	calli:domain </>;
-	calli:unauthorized <unauthorized.xhtml>;
-	calli:forbidden <forbidden.xhtml>;
 	calli:authenticates </group/admin>, </group/staff>, </group/users>.
 
 </callimachus/scripts/web_bundle> a calli:ScriptBundle;
@@ -40,7 +37,7 @@
 	rdfs:label "Group";
 	rdfs:comment "Groups provide a way to assign permissions to a named set of users";
 	calli:icon <group-favicon.png>;
-	msg:realm </accounts>; # Group operations must be authorized
+	msg:realm </callimachus/manifest>; # Group operations must be authorized
 	calli:view <group.xhtml>;
 	calli:edit <group-edit.xhtml>;
 	calli:create <group-create.xhtml>;
@@ -72,7 +69,7 @@
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:User;
 	rdfs:label "User";
 	rdfs:comment "Username and password associated with an email address";
-	msg:realm </accounts>; # User operations must be authorized
+	msg:realm </callimachus/manifest>; # User operations must be authorized
 	calli:icon <user-favicon.png>;
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>;
@@ -99,7 +96,7 @@
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET";
 	msg:query "login", "settings", "contributions";
-	msg:realm </accounts>;
+	msg:realm </callimachus/manifest>;
 	msg:expect "302-found";
 	msg:header "cache-control:max-age:3600";
 	msg:script """

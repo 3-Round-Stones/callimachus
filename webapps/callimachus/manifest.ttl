@@ -14,7 +14,11 @@
 	calli:edit <manifest-edit.xhtml>;
 	calli:administrator </group/admin>.
 
-<manifest> a <Manifest>.
+<manifest> a <Manifest>;
+	calli:origin </>;
+	calli:unauthorized </accounts/unauthorized.xhtml>;
+	calli:forbidden </accounts/forbidden.xhtml>;
+	calli:authentication </accounts>.
 
 </layout/template.xsl> a calli:Alias; calli:aliasOf </callimachus/manifest?template>.
 

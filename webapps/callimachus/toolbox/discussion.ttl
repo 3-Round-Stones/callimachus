@@ -37,7 +37,7 @@
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "POST";
 	msg:query "discussion";
-	msg:realm </accounts>;
+	msg:realm </callimachus/manifest>;
 	msg:expect "303-see-other";
 	msg:imports skos:editorialNote;
 	msg:script """

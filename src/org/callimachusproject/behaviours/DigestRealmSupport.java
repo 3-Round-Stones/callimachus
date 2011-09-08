@@ -51,8 +51,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates HTTP digest authorization.
  */
-public abstract class DigestRealmSupport extends RealmSupport implements
-		DigestRealm, RDFObject {
+public abstract class DigestRealmSupport implements DigestRealm, RDFObject {
 	private static final Pattern TOKENS_REGEX = Pattern
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"((?:[^\"]|\"\")*)\"|([^,\"]*)))?\\s*,?");
 	private static final String PREFIX = "PREFIX :<http://callimachusproject.org/rdf/2009/framework#>\n";
@@ -117,13 +116,10 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 				return resp;
 			}
 		}
-		HttpResponse resp = super.unauthorized(method, resource, request);
-		if (resp == null) {
-			resp = new BasicHttpResponse(_401);
-			resp.setHeader("Cache-Control", "no-store");
-			resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
-			resp.setEntity(new StringEntity("Unauthorized", "UTF-8"));
-		}
+		HttpResponse resp = new BasicHttpResponse(_401);
+		resp.setHeader("Cache-Control", "no-store");
+		resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
+		resp.setEntity(new StringEntity("Unauthorized", "UTF-8"));
 		resp.setHeader("WWW-Authenticate", authenticate);
 		return resp;
 	}
@@ -131,11 +127,10 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 	@Override
 	public HttpMessage authenticationInfo(String method, Object resource,
 			Map<String, String[]> request) {
-		HttpMessage resp = super.authenticationInfo(method, resource, request);
 		String[] auth = request.get("authorization");
 		if (auth == null || auth.length != 1 || auth[0] == null
 				|| !auth[0].startsWith("Digest"))
-			return resp;
+			return null;
 		String string = auth[0].substring("Digest ".length());
 		Map<String, String> options = parseOptions(string);
 		String cnonce = options.get("cnonce");
@@ -152,15 +147,13 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 			String ha1 = new String(Hex.encodeHex(a1));
 			String rspauth = md5(ha1 + ":" + nonce + ":" + nc + ":" + cnonce
 					+ ":auth:" + ha2);
-			if (resp == null) {
-				resp = new BasicHttpResponse(_204);
-			}
+			BasicHttpResponse resp = new BasicHttpResponse(_204);
 			String authenticate = "qop=auth,cnonce=\"" + cnonce + "\",nc=" + nc
 					+ ",rspauth=\"" + rspauth + "\"";
 			resp.setHeader("Authentication-Info", authenticate);
-			break;
+			return resp;
 		}
-		return resp;
+		return null;
 	}
 
 	@Override
@@ -226,6 +219,36 @@ public abstract class DigestRealmSupport extends RealmSupport implements
 		if (encodings.isEmpty())
 			return null;
 		return encodings.get(0)[0];
+	}
+
+	@Override
+	public String allowOrigin() {
+		return "*";
+	}
+
+	@Override
+	public HttpResponse forbidden(String method, Object resource,
+			Map<String, String[]> request) throws Exception {
+		return null;
+	}
+
+	@Override
+	public String protectionDomain() {
+		StringBuilder sb = new StringBuilder();
+		for (Object domain : getCalliDomains()) {
+			if (sb.length() > 0) {
+				sb.append(" ");
+			}
+			sb.append(domain.toString());
+		}
+		if (sb.length() < 1)
+			return null;
+		return sb.toString();
+	}
+
+	@Override
+	public boolean withAgentCredentials(String origin) {
+		return true;
 	}
 
 	@sparql(PREFIX + "SELECT ?user ?encoded\n"

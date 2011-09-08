@@ -30,7 +30,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	msg:method "GET";
 	msg:query "edit";
-	msg:realm </accounts>;
+	msg:realm </callimachus/manifest>;
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
@@ -41,7 +41,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Editable];
 	msg:method "POST";
 	msg:query "edit";
-	msg:realm </accounts>;
+	msg:realm </callimachus/manifest>;
 	msg:expect "201-modified";
 	msg:type "text/uri-list";
 	msg:script <operations.js#postEdit>.

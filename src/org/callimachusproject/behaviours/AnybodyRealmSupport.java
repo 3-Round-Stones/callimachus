@@ -27,7 +27,7 @@ import org.openrdf.repository.object.RDFObject;
  * @author James Leigh
  * 
  */
-public abstract class AnybodyRealmSupport extends RealmSupport implements
+public abstract class AnybodyRealmSupport extends LocalRealmSupport implements
 		RDFObject {
 
 	@Override

@@ -72,27 +72,27 @@ calli:Page a owl:Class;
 	rdfs:label "Page";
 	rdfs:comment "An XHTML+RDFa Web page".
 
-calli:Realm a owl:Class;
-	rdfs:label "Realm";
-	rdfs:comment "A realm".
+calli:DomainRealm a owl:Class;
+	rdfs:label "Domain Realm";
+	rdfs:comment "A realm with a configurable domain".
 
 calli:AnybodyRealm a owl:Class;
-	rdfs:subClassOf calli:Realm;
+	rdfs:subClassOf calli:DomainRealm;
 	rdfs:label "Anybody Realm";
 	rdfs:comment "A realm that authenticates any agent".
 
 calli:NobodyRealm a owl:Class;
-	rdfs:subClassOf calli:Realm;
+	rdfs:subClassOf calli:DomainRealm;
 	rdfs:label "Nobody Realm";
 	rdfs:comment "A realm that forbids all agents".
 
 calli:LocalRealm a owl:Class;
-	rdfs:subClassOf calli:Realm;
+	rdfs:subClassOf calli:DomainRealm;
 	rdfs:label "Local Realm";
 	rdfs:comment "A realm that only authenticates local agents".
 
 calli:DigestRealm a owl:Class;
-	rdfs:subClassOf calli:Realm;
+	rdfs:subClassOf calli:DomainRealm;
 	rdfs:label "Digest Realm";
 	rdfs:comment "A realm that authenticates HTTP digest credentials".
 
@@ -231,27 +231,55 @@ calli:authName a rdf:Property, owl:FunctionalProperty;
 	rdfs:comment "A string to be displayed to users so they know which username and password to use. This string should contain at least the name of the host performing the authentication and might additionally indicate the collection of users who might have access. This string is used to encode the passwords and changing it will invalidates existing encoded passwords";
 	rdfs:domain calli:DigestRealm.
 
-calli:origin a rdf:Property;
-	rdfs:label "origin";
-	rdfs:comment "Identifies the security contexts that allow user agent scripts to initiate an HTTP request that can be seamlessly authenticated with this realm. Include '*' to allow all other contexts without agent credentials";
-	rdfs:domain calli:Realm.
-
 calli:domain a rdf:Property;
 	rdfs:label "domain";
 	rdfs:comment "Define the protection space for this realm to authenticate. Any URI that has a URI in this set as a prefix may be assumed to be in the same protection space";
-	rdfs:domain calli:Realm.
+	rdfs:domain calli:DomainRealm.
+
+calli:origin a rdf:Property;
+	rdfs:label "origin";
+	rdfs:comment "Identifies the security contexts that allow user agent scripts to initiate an HTTP request that can be seamlessly authenticated with this realm. Include '*' to allow all other contexts without agent credentials";
+	rdfs:domain calli:Manifest.
 
 calli:forbidden a owl:ObjectProperty;
 	rdfs:label "forbidden";
 	rdfs:comment "The RDFa page template used when an agent is forbidden from the requested resource";
-	rdfs:domain calli:Realm;
+	rdfs:domain calli:Manifest;
 	rdfs:range calli:Page.
 
 calli:unauthorized a owl:ObjectProperty;
 	rdfs:label "authorized";
 	rdfs:comment "The RDFa page template used when an agent is aunothorized from the requested resource";
-	rdfs:domain calli:Realm;
+	rdfs:domain calli:Manifest;
 	rdfs:range calli:Page.
+
+calli:authentication a owl:ObjectProperty;
+	rdfs:label "authentication";
+	rdfs:comment "The realm used for authentication";
+	rdfs:domain calli:Manifest;
+	rdfs:range calli:DomainRealm.
+
+calli:logo a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:label "logo";
+	rdfs:comment "The logo image that should be shown with this menu";
+	rdfs:domain calli:Manifest.
+
+calli:favicon a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:label "favicon";
+	rdfs:comment "A small logo image that should be shown with this menu";
+	rdfs:domain calli:Manifest.
+
+calli:license a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:label "license";
+	rdfs:comment "A legal document giving official permission to do something with the data in this Web application server";
+	rdfs:domain calli:Manifest;
+	rdfs:range cc:License.
+
+calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:label "rights";
+	rdfs:comment "Rights statement for the data in this Web application server";
+	rdfs:domain calli:Manifest;
+	rdfs:range rdf:PlainLiteral.
 
 calli:create a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "create";
@@ -279,28 +307,6 @@ calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "alias of";
 	rdfs:comment "The canonical URL for this alias";
 	rdfs:domain calli:Alias.
-
-calli:logo a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:label "logo";
-	rdfs:comment "The logo image that should be shown with this menu";
-	rdfs:domain calli:Manifest.
-
-calli:favicon a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:label "favicon";
-	rdfs:comment "A small logo image that should be shown with this menu";
-	rdfs:domain calli:Manifest.
-
-calli:license a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:label "license";
-	rdfs:comment "A legal document giving official permission to do something with the data in this Web application server";
-	rdfs:domain calli:Manifest;
-	rdfs:range cc:License.
-
-calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:label "rights";
-	rdfs:comment "Rights statement for the data in this Web application server";
-	rdfs:domain calli:Manifest;
-	rdfs:range rdf:PlainLiteral.
 
 calli:hasNamespace a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "has namespace";

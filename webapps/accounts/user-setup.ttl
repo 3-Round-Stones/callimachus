@@ -7,7 +7,6 @@
 @prefix :<#>.
 
 :local a calli:LocalRealm;
-	calli:origin </>;
 	calli:domain </group/>.
 
 :HasNoAdministrator rdfs:subClassOf msg:Message;

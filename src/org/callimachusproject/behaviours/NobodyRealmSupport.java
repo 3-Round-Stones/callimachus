@@ -26,7 +26,7 @@ import java.util.Map;
  * @author James Leigh
  * 
  */
-public abstract class NobodyRealmSupport extends RealmSupport {
+public abstract class NobodyRealmSupport extends LocalRealmSupport {
 
 	@Override
 	public boolean authorizeCredential(Object credential, String method,

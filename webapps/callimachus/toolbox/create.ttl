@@ -30,7 +30,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	msg:method "GET";
 	msg:query "create";
-	msg:realm </accounts>;
+	msg:realm </callimachus/manifest>;
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
@@ -66,7 +66,7 @@
 :PostRemoteCreate rdfs:subClassOf :PostCreate;
 	msg:method "POST";
 	msg:query "create";
-	msg:realm </accounts>;
+	msg:realm </callimachus/manifest>;
 	msg:expect "201-created";
 	msg:type "text/plain".
 

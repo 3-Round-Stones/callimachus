@@ -50,7 +50,7 @@
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET" ;
 	msg:query "create" ;
-	msg:realm </accounts>;
+	msg:realm </callimachus/manifest>;
 	msg:imports <graph-create.xhtml> ;
 	msg:script """
 		return graph_create_xhtml.calliConstructHTML(this, "create");
@@ -62,7 +62,7 @@
 	msg:method "POST";
 	msg:query "create";
 	msg:type "text/html";
-	msg:realm </accounts>;
+	msg:realm </callimachus/manifest>;
 	msg:imports calli:NamedGraph;
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;

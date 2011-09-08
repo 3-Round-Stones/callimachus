@@ -86,7 +86,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:hasValue <profile>];
 	msg:method "POST";
 	msg:expect "303-see-other";
-	msg:realm </accounts>;
+	msg:realm </callimachus/manifest>;
 	msg:script """
 		var iter = form.entrySet().iterator();
 		while (iter.hasNext()) {

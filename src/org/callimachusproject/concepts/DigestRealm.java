@@ -28,7 +28,6 @@
  */
 package org.callimachusproject.concepts;
 
-import org.callimachusproject.traits.Realm;
 import org.openrdf.repository.object.annotations.iri;
 
 /**
@@ -38,7 +37,7 @@ import org.openrdf.repository.object.annotations.iri;
  *
  */
 @iri("http://callimachusproject.org/rdf/2009/framework#DigestRealm")
-public interface DigestRealm extends Realm {
+public interface DigestRealm extends DomainRealm {
 
 	/**
 	 * A string to be displayed to users so they know which username and

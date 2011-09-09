@@ -25,10 +25,6 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-</> a <Folder>, calli:Folder;
-	rdfs:label "Home folder";
-	rdfs:comment "Create new folders here to organize resources and assign permissions".
-
 <Folder> a calli:Creatable, <IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:Folder;
 	rdfs:label "Folder";
@@ -39,17 +35,13 @@
 	calli:creates <NamedQuery>;
 	calli:creates <Class>;
 	calli:creates <Concept>;
-	calli:creates </callimachus/Group>;
-	calli:createRev calli:hasNamespace;
+	calli:creates <Group>;
+	calli:createRel calli:isNamespaceOf;
 	calli:icon <folder.png>;
 	calli:view <folder-view.xhtml>;
 	calli:edit <folder-edit.xhtml>;
 	calli:create <folder-create.xhtml>;
-	calli:uriSpace </>;
-	calli:administrator </group/admin>;
-	calli:reader </group/users>;
-	calli:editor </group/staff>;
-	calli:administrator </group/admin>.
+	calli:uriSpace </>.
 
 :GetFolderFeed rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
@@ -72,11 +64,11 @@
 			{
 				{
 					SELECT ($this as ?id) (count(?part) as ?totalResults) {
-						?part calli:hasNamespace $this
+						$this calli:isNamespaceOf ?part
 					} GROUP BY $this
 				}
 			} UNION {
-				?id calli:hasNamespace $this
+				$this calli:isNamespaceOf ?id
 				FILTER (isIRI(?id))
 			} OPTIONAL {
 				?id skos:prefLabel ?title

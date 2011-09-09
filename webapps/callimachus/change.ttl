@@ -33,11 +33,12 @@
 ################################
 
 # Transaction operations must be authenticated
-[msg:matching </change/*>] msg:realm </callimachus/manifest>.
+<Change> rdfs:subClassOf audit:Transaction;
+	msg:matching </change/*>.
 
 # transcations are authorized by the user that made the change
 :AuthorizeTransaction rdfs:subClassOf calli:IsAuthorized;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [msg:matching </change/*>]];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
 	msg:sparql  """
 		ASK {
 			{
@@ -55,7 +56,7 @@
 
 # transcations are authorized by the objects modified
 :AuthorizeTransactionView rdfs:subClassOf calli:IsAuthorized;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [msg:matching </change/*>]];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
 	msg:imports <java:org.openrdf.http.object.annotations.realm>;
 	msg:script """
 		function findAnnotatedClass(klass, ann) {
@@ -101,7 +102,7 @@
 
 # called from :AuthorizeTransactionView
 :ListSubjectsOfTransaction rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [msg:matching </change/*>]];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
 	msg:sparql  """
 		SELECT DISTINCT ?subj
 		WHERE {
@@ -118,7 +119,7 @@
 	""".
 
 :GetChangesetView rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [msg:matching </change/*>]];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "view";
@@ -172,7 +173,7 @@
 	""".
 
 :TransformChangesetView rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [msg:matching </change/*>]];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform <styles/styles.ttl#TransformLayout>;

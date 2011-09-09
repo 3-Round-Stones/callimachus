@@ -14,15 +14,7 @@
 <AccountManager> rdfs:subClassOf calli:Creator, calli:Viewable, calli:AccountManager;
 	calli:creates <Group>;
 	calli:createRel calli:authenticates;
-	calli:view <accounts.xhtml>;
-	calli:reader </group/users>, </group/staff>;
-	calli:administrator </group/admin>. # can add/remove authenticating user groups
-
-<accounts> a <AccountManager>;
-	rdfs:label "User accounts";
-	calli:authName </>;
-	calli:domain </>;
-	calli:authenticates </group/admin>, </group/staff>, </group/users>.
+	calli:view <accounts.xhtml>.
 
 ################################
 # login

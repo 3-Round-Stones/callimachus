@@ -22,8 +22,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Graph> rdfs:subClassOf calli:NamedGraph ;
-	calli:administrator </group/admin> .
+<Graph> rdfs:subClassOf calli:NamedGraph.
 
 :GetGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];

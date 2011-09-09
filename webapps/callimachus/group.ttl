@@ -12,36 +12,19 @@
 	rdfs:label "Group";
 	rdfs:comment "Groups provide a way to assign permissions to a named set of users";
 	calli:icon <group.png>;
-	msg:realm </callimachus/manifest>; # Group operations must be authorized
 	calli:view <group.xhtml>;
 	calli:edit <group-edit.xhtml>;
 	calli:create <group-create.xhtml>;
 	calli:creates <User>;
 	calli:createRel calli:member;
-	calli:uriSpace </group/>;
-	calli:administrator </group/admin>. # admin members can edit any group
-
-</group/admin> a calli:Party, calli:Group, <Group>;
-	rdfs:label "admin";
-	rdfs:comment "The user accounts in this group have heightened privileges, including the ability to edit other user accounts and access the underlying data store";
-	calli:reader </group/users>, </group/staff>.
-
-</group/staff> a calli:Party, calli:Group, <Group>;
-	rdfs:label "staff";
-	rdfs:comment "Members of this group can design and edit resources within the system";
-	calli:reader </group/users>, </group/staff>.
-
-</group/users> a calli:Party, calli:Group, <Group>;
-	rdfs:label "users";
-	rdfs:comment "Members of this group can view and discuss resources within the system";
-	calli:reader </group/users>, </group/staff>.
+	calli:uriSpace </>.
 
 ################################
 # User setup
 ################################
 
 :local a calli:LocalRealm;
-	calli:domain </group/>.
+	calli:domain </>.
 
 :HasNoAdministrator rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];

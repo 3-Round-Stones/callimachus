@@ -1,0 +1,169 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix :<#>.
+
+################################################################
+# Data to initialize an Callimachus store, but may be removed.
+################################################################
+
+################################
+# Backwards compatibility
+################################
+
+</layout/template.xsl> a calli:Alias; calli:aliasOf </callimachus/manifest?template>.
+
+################################
+# Authorization and Groups
+################################
+
+</callimachus/accounts> a </callimachus/AccountManager>, calli:AccountManager;
+	rdfs:label "User accounts";
+	calli:authName </>;
+	calli:domain </>;
+	calli:authenticates </group/admin>, </group/staff>, </group/users>.
+
+</> a </callimachus/Folder>, calli:Folder, calli:Alias;
+	rdfs:label "Home folder";
+	rdfs:comment "Create new folders here to organize resources and assign permissions";
+	calli:aliasOf </page/main-page.xhtml?view>;
+	calli:reader </group/users>;
+	calli:editor </group/staff>;
+	calli:isNamespaceOf </group/>.
+
+</group/> a </callimachus/Folder>, calli:Folder;
+	rdfs:label "group";
+	rdfs:comment "Create new groups here";
+	calli:isNamespaceOf </group/admin>, </group/staff>, </group/users>.
+
+</group/admin> a calli:Party, calli:Group, </callimachus/Group>;
+	rdfs:label "admin";
+	rdfs:comment "The user accounts in this group have heightened privileges, including the ability to edit other user accounts and access the underlying data store";
+	calli:reader </group/users>, </group/staff>.
+
+</group/staff> a calli:Party, calli:Group, </callimachus/Group>;
+	rdfs:label "staff";
+	rdfs:comment "Members of this group can design and edit resources within the system";
+	calli:reader </group/users>, </group/staff>.
+
+</group/users> a calli:Party, calli:Group, </callimachus/Group>;
+	rdfs:label "users";
+	rdfs:comment "Members of this group can view and discuss resources within the system";
+	calli:reader </group/users>, </group/staff>.
+
+################################
+# Protected Resource Classes
+################################
+
+</callimachus/Change>         msg:realm </callimachus/manifest>.
+</callimachus/Group>          msg:realm </callimachus/manifest>.
+</callimachus/Photo>          msg:realm </callimachus/manifest>.
+</callimachus/SparqlEndPoint> msg:realm </callimachus/manifest>.
+</callimachus/User>           msg:realm </callimachus/manifest>.
+
+################################
+# Class wide authorization
+################################
+
+</callimachus/AccountManager> calli:administrator </group/admin>.
+</callimachus/Article>        calli:administrator </group/admin>.
+</callimachus/Change>         calli:administrator </group/admin>.
+</callimachus/Class>          calli:administrator </group/admin>.
+</callimachus/Concept>        calli:administrator </group/admin>.
+</callimachus/Folder>         calli:administrator </group/admin>.
+</callimachus/Graph>          calli:administrator </group/admin> .
+</callimachus/Group>          calli:administrator </group/admin>.
+</callimachus/Image>          calli:administrator </group/admin>.
+</callimachus/Manifest>       calli:administrator </group/admin>.
+</callimachus/Menu>           calli:administrator </group/admin>.
+</callimachus/NamedQuery>     calli:administrator </group/admin>.
+</callimachus/ObjectProperty> calli:administrator </group/admin>.
+</callimachus/Page>           calli:administrator </group/admin>.
+</callimachus/Photo>          calli:administrator </group/admin>.
+</callimachus/Profile>        calli:administrator </group/admin>.
+</callimachus/SparqlEndPoint> calli:administrator </group/admin>.
+</callimachus/User>           calli:administrator </group/admin>.
+
+################################
+# Well known services
+################################
+
+</sparql> a </callimachus/SparqlEndPoint>;
+	rdfs:label "sparql".
+
+</callimachus/profile> a </callimachus/Profile>.
+
+################################
+# Manifest and Menu
+################################
+
+</callimachus/manifest> a </callimachus/Manifest>, calli:Manifest;
+	calli:reader </group/users>;
+	calli:editor </group/staff>;
+	calli:origin </>;
+	calli:template </callimachus/styles/layout.xsl>;
+	calli:unauthorized </callimachus/pages/unauthorized.xhtml>;
+	calli:forbidden </callimachus/pages/forbidden.xhtml>;
+	calli:authentication </callimachus/accounts>;
+	calli:logo </callimachus/images/callimachus-logo.png> ;
+	calli:favicon </callimachus/images/callimachus-icon.ico> .
+
+</callimachus/menu> a </callimachus/Menu>, calli:Menu;
+	calli:reader </group/users>;
+	calli:editor </group/staff>;
+	calli:link </>;
+	calli:item </callimachus/menu#site>;
+	calli:item </callimachus/menu#resources>;
+	calli:item </callimachus/menu#administration>;
+	calli:item </callimachus/menu#toolbox>.
+
+</callimachus/menu#site> calli:position 1; rdfs:label "Site";
+	calli:item </callimachus/menu#mainarticle>;
+	calli:item </callimachus/menu#homefolder>;
+	calli:item </callimachus/menu#contents>;
+	calli:item </callimachus/menu#recentchanges>.
+</callimachus/menu#resources> calli:position 8; rdfs:label "Resources";
+	calli:item </callimachus/menu#folders>;
+	calli:item </callimachus/menu#articles>;
+	calli:item </callimachus/menu#pages>;
+	calli:item </callimachus/menu#concepts>;
+	calli:item </callimachus/menu#classes>.
+</callimachus/menu#administration> calli:position 9; rdfs:label "Administration";
+	calli:item </callimachus/menu#usergroups>;
+	calli:item </callimachus/menu#manifest>;
+	calli:item </callimachus/menu#namedqueries>;
+	calli:item </callimachus/menu#sparqlquery>.
+</callimachus/menu#toolbox> calli:position 10; rdfs:label "Toolbox";
+	calli:item </callimachus/menu#whatlinkshere>;
+	calli:item </callimachus/menu#relatedchanges>;
+	calli:item </callimachus/menu#introspectresource>;
+	calli:item </callimachus/menu#permissions>;
+	calli:item </callimachus/menu#printthispage>.
+
+</callimachus/menu#mainarticle> calli:position 1; rdfs:label "Main article"; calli:link </page/main-page.xhtml?view>.
+</callimachus/menu#homefolder> calli:position 2; rdfs:label "Home folder"; calli:link </?view>.
+</callimachus/menu#contents> calli:position 3; rdfs:label "Contents"; calli:link </callimachus/menu>.
+</callimachus/menu#recentchanges> calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
+
+</callimachus/menu#folders> calli:position 1; rdfs:label "Folders"; calli:link </callimachus/Folder>.
+</callimachus/menu#articles> calli:position 2; rdfs:label "Articles"; calli:link </callimachus/Article>.
+</callimachus/menu#pages> calli:position 3; rdfs:label "Pages"; calli:link </callimachus/Page>.
+</callimachus/menu#concepts> calli:position 4; rdfs:label "Concepts"; calli:link </callimachus/Concept>.
+</callimachus/menu#classes> calli:position 5; rdfs:label "Classes"; calli:link </callimachus/Class>.
+
+</callimachus/menu#usergroups> calli:position 1; rdfs:label "User groups"; calli:link </callimachus/accounts>.
+</callimachus/menu#manifest> calli:position 2; rdfs:label "Manifest"; calli:link </callimachus/manifest>.
+</callimachus/menu#namedqueries> calli:position 3; rdfs:label "Named queries"; calli:link </callimachus/NamedQuery>.
+</callimachus/menu#sparqlquery> calli:position 4; rdfs:label "SPARQL query"; calli:link </sparql>.
+
+</callimachus/menu#whatlinkshere> calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>.
+</callimachus/menu#relatedchanges> calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>.
+</callimachus/menu#introspectresource> calli:position 3; rdfs:label "Introspect resource"; calli:link <javascript:location='?introspect'>.
+</callimachus/menu#permissions> calli:position 3; rdfs:label "Permissions"; calli:link <javascript:location='?permissions'>.
+</callimachus/menu#printthispage> calli:position 4; rdfs:label "Print this page"; calli:link <javascript:print()>.
+

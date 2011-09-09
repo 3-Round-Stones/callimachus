@@ -31,6 +31,5 @@
 	calli:view <concept.xhtml>;
 	calli:edit <concept-edit.xhtml>;
 	calli:create <concept-create.xhtml>;
-	calli:uriSpace </>;
-	calli:administrator </group/admin>.
+	calli:uriSpace </>.
 

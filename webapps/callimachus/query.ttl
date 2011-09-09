@@ -30,8 +30,7 @@
 	calli:edit <query-edit.xhtml>;
 	calli:copy <query-copy.xhtml>;
 	calli:create <query-create.xhtml>;
-	calli:uriSpace </>;
-	calli:administrator </group/admin>.
+	calli:uriSpace </>.
 
 # GET /query/my-query.rq
 :GetNamedQuery rdfs:subClassOf msg:Message;

@@ -29,8 +29,7 @@
 	calli:view <property.xhtml>;
 	calli:edit <property-edit.xhtml>;
 	calli:create <property-create.xhtml>;
-	calli:uriSpace </>;
-	calli:administrator </group/admin>.
+	calli:uriSpace </>.
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
 <Class> a calli:Creatable, </callimachus/IndexClass>, owl:Class;
@@ -41,8 +40,7 @@
 	calli:view <class.xhtml>;
 	calli:edit <class-edit.xhtml>;
 	calli:create <class-create.xhtml>;
-	calli:uriSpace </>;
-	calli:administrator </group/admin>.
+	calli:uriSpace </>.
 
 :GetClassIndexPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class>];

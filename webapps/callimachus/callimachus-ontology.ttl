@@ -313,10 +313,10 @@ calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:comment "The canonical URL for this alias";
 	rdfs:domain calli:Alias.
 
-calli:hasNamespace a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:label "has namespace";
-	rdfs:comment "The namespace of a resource or concept";
-	rdfs:range calli:Folder.
+calli:isNamespaceOf a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:label "is namespace of";
+	rdfs:comment "Resources with this namespace";
+	rdfs:domain calli:Folder.
 
 calli:item a owl:ObjectProperty;
 	rdfs:label "item";

@@ -11,14 +11,12 @@
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:User;
 	rdfs:label "User";
 	rdfs:comment "Username and password associated with an email address";
-	msg:realm </callimachus/manifest>; # User operations must be authorized
 	calli:icon <user.png>;
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>;
 	calli:create <user-create.xhtml>;
 	calli:uriSpace </user/>;
-	calli:creates </callimachus/Photo>;
-	calli:administrator </group/admin>. # admin members can edit any user
+	calli:creates </callimachus/Photo>.
 
 ################################
 # User create

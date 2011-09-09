@@ -11,17 +11,7 @@
 
 <Manifest> rdfs:subClassOf calli:Menu, calli:Viewable, calli:Editable;
 	calli:view <manifest.xhtml>;
-	calli:edit <manifest-edit.xhtml>;
-	calli:administrator </group/admin>.
-
-<manifest> a <Manifest>;
-	calli:origin </>;
-	calli:template <styles/layout.xsl>;
-	calli:unauthorized <pages/unauthorized.xhtml>;
-	calli:forbidden <pages/forbidden.xhtml>;
-	calli:authentication <accounts>.
-
-</layout/template.xsl> a calli:Alias; calli:aliasOf </callimachus/manifest?template>.
+	calli:edit <manifest-edit.xhtml>.
 
 calli:logo a owl:ObjectProperty;
 	msg:method "GET"; msg:query "logo"; msg:expect "302-see-other".

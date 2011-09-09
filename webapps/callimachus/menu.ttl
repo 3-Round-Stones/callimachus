@@ -10,12 +10,7 @@
 
 <Menu> rdfs:subClassOf calli:Menu, calli:Viewable, calli:Editable;
 	calli:view <menu.xhtml>;
-	calli:edit <menu-edit.xhtml>;
-	calli:administrator </group/admin>.
-
-<menu> a <Menu>;
-	calli:reader </group/users>;
-	calli:editor </group/staff>.
+	calli:edit <menu-edit.xhtml>.
 
 calli:logo a owl:ObjectProperty;
 	msg:method "GET"; msg:query "logo"; msg:expect "302-see-other".

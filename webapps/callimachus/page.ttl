@@ -29,10 +29,7 @@
 	calli:edit <page-edit.xhtml>;
 	calli:copy <page-copy.xhtml>;
 	calli:create <page-create.xhtml>;
-	calli:uriSpace </>;
-	calli:reader </group/users>;
-	calli:editor </group/staff>;
-	calli:administrator </group/admin>.
+	calli:uriSpace </>.
 
 # GET /page/MainPage.xhtml?view
 :GetPage owl:intersectionOf (</callimachus/toolbox/view.ttl#GetViewPage>

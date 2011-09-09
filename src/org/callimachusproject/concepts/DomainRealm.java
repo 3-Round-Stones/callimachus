@@ -30,7 +30,6 @@ package org.callimachusproject.concepts;
 
 import java.util.Set;
 
-import org.openrdf.http.object.traits.Realm;
 import org.openrdf.repository.object.annotations.iri;
 
 /**
@@ -40,7 +39,7 @@ import org.openrdf.repository.object.annotations.iri;
  *
  */
 @iri("http://callimachusproject.org/rdf/2009/framework#DomainRealm")
-public interface DomainRealm extends Realm {
+public interface DomainRealm {
 
 	/**
 	 * Define the protection space for this realm to authenticate. Any URI that

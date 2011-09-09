@@ -36,8 +36,8 @@ function initDialogButton(buttons) {
 			title = list.find("label").text();
 		}
 		add.click(function(e) {
-			var width = 420;
-			var height = 540;
+			var width = 450;
+			var height = 500;
 			if ($('body').is('.iframe')) {
 				width = 320;
 				height = 480;

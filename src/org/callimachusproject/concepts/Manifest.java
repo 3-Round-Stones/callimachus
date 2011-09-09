@@ -12,10 +12,10 @@ public interface Manifest extends Realm {
 	 * The realm used for authentication
 	 */
 	@iri("http://callimachusproject.org/rdf/2009/framework#authentication")
-	Set<Realm> getCalliAuthentications();
+	Set<AccountManager> getCalliAuthentications();
 
 	@iri("http://callimachusproject.org/rdf/2009/framework#authentication")
-	void setCalliAuthentications(Set<? extends Realm> authentications);
+	void setCalliAuthentications(Set<? extends AccountManager> authentications);
 
 	/**
 	 * Identifies the security contexts that allow user agent scripts to

@@ -91,10 +91,10 @@ calli:LocalRealm a owl:Class;
 	rdfs:label "Local Realm";
 	rdfs:comment "A realm that only authenticates local agents".
 
-calli:DigestRealm a owl:Class;
+calli:AccountManager a owl:Class;
 	rdfs:subClassOf calli:DomainRealm;
-	rdfs:label "Digest Realm";
-	rdfs:comment "A realm that authenticates HTTP digest credentials".
+	rdfs:label "Account Manager";
+	rdfs:comment "A managed set of users that can authenticate using HTTP digest credentials".
 
 calli:Credential a owl:Class;
 	rdfs:label "Credential";
@@ -223,13 +223,13 @@ calli:email a owl:DatatypeProperty, owl:FunctionalProperty;
 calli:authenticates a owl:ObjectProperty;
 	rdfs:label "authenticates";
 	rdfs:comment "Group of credentials that can be authenticated by this realm";
-	rdfs:domain calli:DigestRealm;
+	rdfs:domain calli:AccountManager;
 	rdfs:range calli:Group.
 
 calli:authName a rdf:Property, owl:FunctionalProperty;
 	rdfs:label "auth name";
 	rdfs:comment "A string to be displayed to users so they know which username and password to use. This string should contain at least the name of the host performing the authentication and might additionally indicate the collection of users who might have access. This string is used to encode the passwords and changing it will invalidates existing encoded passwords";
-	rdfs:domain calli:DigestRealm.
+	rdfs:domain calli:AccountManager.
 
 calli:domain a rdf:Property;
 	rdfs:label "domain";
@@ -257,7 +257,7 @@ calli:authentication a owl:ObjectProperty;
 	rdfs:label "authentication";
 	rdfs:comment "The realm used for authentication";
 	rdfs:domain calli:Manifest;
-	rdfs:range calli:DomainRealm.
+	rdfs:range calli:AccountManager.
 
 calli:template a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "template";
@@ -345,7 +345,7 @@ calli:minified a owl:DatatypeProperty, owl:FunctionalProperty;
 # Message
 ################################
 
-# interface method used by DigestRealmSupport
+# interface method used by ManifestSupport
 calli:IsAuthorized rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean].

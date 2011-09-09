@@ -1,4 +1,4 @@
-org.callimachusproject.concepts.DigestRealm
+org.callimachusproject.concepts.AccountManager
 org.callimachusproject.concepts.DomainRealm
 org.callimachusproject.concepts.Manifest
 org.callimachusproject.concepts.Group

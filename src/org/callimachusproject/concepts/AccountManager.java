@@ -28,6 +28,10 @@
  */
 package org.callimachusproject.concepts;
 
+import java.util.Map;
+
+import org.apache.http.HttpMessage;
+import org.apache.http.HttpResponse;
 import org.openrdf.repository.object.annotations.iri;
 
 /**
@@ -36,8 +40,8 @@ import org.openrdf.repository.object.annotations.iri;
  * @author James Leigh
  *
  */
-@iri("http://callimachusproject.org/rdf/2009/framework#DigestRealm")
-public interface DigestRealm extends DomainRealm {
+@iri("http://callimachusproject.org/rdf/2009/framework#AccountManager")
+public interface AccountManager extends DomainRealm {
 
 	/**
 	 * A string to be displayed to users so they know which username and
@@ -51,4 +55,15 @@ public interface DigestRealm extends DomainRealm {
 
 	@iri("http://callimachusproject.org/rdf/2009/framework#authName")
 	void setAuthName(Object authName);
+
+	String protectionDomain();
+
+	HttpResponse unauthorized(String method, Object resource,
+			Map<String, String[]> request);
+
+	Object authenticateRequest(String method, Object resource,
+			Map<String, String[]> request);
+
+	HttpMessage authenticationInfo(String method, Object resource,
+			Map<String, String[]> request);
 }

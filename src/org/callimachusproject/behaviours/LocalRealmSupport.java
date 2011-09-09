@@ -30,6 +30,7 @@ import java.util.Set;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.callimachusproject.concepts.DomainRealm;
+import org.openrdf.http.object.traits.Realm;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
@@ -40,7 +41,7 @@ import org.openrdf.repository.object.RDFObject;
  * @author James Leigh
  * 
  */
-public abstract class LocalRealmSupport implements DomainRealm, RDFObject {
+public abstract class LocalRealmSupport implements Realm, DomainRealm, RDFObject {
 
 	private static Set<String> local;
 	static {

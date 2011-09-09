@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
@@ -37,11 +38,9 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.callimachusproject.concepts.DigestRealm;
-import org.callimachusproject.traits.SelfAuthorizingTarget;
+import org.callimachusproject.concepts.AccountManager;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.traits.VersionedObject;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.annotations.name;
 import org.openrdf.repository.object.annotations.sparql;
@@ -51,7 +50,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates HTTP digest authorization.
  */
-public abstract class DigestRealmSupport implements DigestRealm, RDFObject {
+public abstract class AccountManagerSupport implements AccountManager, RDFObject {
 	private static final Pattern TOKENS_REGEX = Pattern
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"((?:[^\"]|\"\")*)\"|([^,\"]*)))?\\s*,?");
 	private static final String PREFIX = "PREFIX :<http://callimachusproject.org/rdf/2009/framework#>\n";
@@ -82,21 +81,26 @@ public abstract class DigestRealmSupport implements DigestRealm, RDFObject {
 		DIGEST_OPTS.put("nc", null);
 		DIGEST_OPTS.put("response", null);
 	}
-	private Logger logger = LoggerFactory.getLogger(DigestRealmSupport.class);
+	private Logger logger = LoggerFactory.getLogger(AccountManagerSupport.class);
 
 	@Override
 	public HttpResponse unauthorized(String method, Object resource,
-			Map<String, String[]> request) throws Exception {
+			Map<String, String[]> request) {
 		Object realm = getAuthName();
 		if (realm == null)
-			return forbidden(method, resource, request);
+			return null;
 		String domain = protectionDomain();
 		if (domain == null) {
 			domain = "";
 		} else if (domain.length() != 0) {
 			domain = ", domain=\"" + domain + "\"";
 		}
-		long now = DateUtil.parseDate(request.get("date")[0]).getTime();
+		long now;
+		try {
+			now = DateUtil.parseDate(request.get("date")[0]).getTime();
+		} catch (DateParseException e) {
+			return null;
+		}
 		String nonce = nextNonce(resource, request.get("via"));
 		String authenticate = "Digest realm=\"" + realm + "\"" + domain
 				+ ", nonce=\"" + nonce
@@ -111,16 +115,24 @@ public abstract class DigestRealmSupport implements DigestRealm, RDFObject {
 				HttpResponse resp = new BasicHttpResponse(_401);
 				resp.setHeader("Cache-Control", "no-store");
 				resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
-				resp.setEntity(new StringEntity("Stale authorization header", "UTF-8"));
 				resp.setHeader("WWW-Authenticate", authenticate);
+				try {
+					resp.setEntity(new StringEntity("Stale authorization header", "UTF-8"));
+				} catch (UnsupportedEncodingException e) {
+					throw new AssertionError(e);
+				}
 				return resp;
 			}
 		}
 		HttpResponse resp = new BasicHttpResponse(_401);
 		resp.setHeader("Cache-Control", "no-store");
 		resp.setHeader("Content-Type", "text/plain;charset=\"UTF-8\"");
-		resp.setEntity(new StringEntity("Unauthorized", "UTF-8"));
 		resp.setHeader("WWW-Authenticate", authenticate);
+		try {
+			resp.setEntity(new StringEntity("Unauthorized", "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError(e);
+		}
 		return resp;
 	}
 
@@ -158,7 +170,7 @@ public abstract class DigestRealmSupport implements DigestRealm, RDFObject {
 
 	@Override
 	public Object authenticateRequest(String method, Object resource,
-			Map<String, String[]> map) throws RepositoryException {
+			Map<String, String[]> map) {
 		String url = map.get("request-target")[0];
 		String[] auth = map.get("authorization");
 		if (auth == null || auth.length != 1 || auth[0] == null
@@ -198,15 +210,6 @@ public abstract class DigestRealmSupport implements DigestRealm, RDFObject {
 		}
 	}
 
-	@Override
-	public boolean authorizeCredential(Object credential, String method,
-			Object resource, Map<String, String[]> map) {
-		String query = new ParsedURI(map.get("request-target")[0]).getQuery();
-		assert resource instanceof SelfAuthorizingTarget;
-		SelfAuthorizingTarget target = (SelfAuthorizingTarget) resource;
-		return target.calliIsAuthorized(credential, method, query);
-	}
-
 	public Object findCredential(String authorization) {
 		if (authorization == null || !authorization.startsWith("Digest"))
 			return null;
@@ -222,17 +225,6 @@ public abstract class DigestRealmSupport implements DigestRealm, RDFObject {
 	}
 
 	@Override
-	public String allowOrigin() {
-		return "*";
-	}
-
-	@Override
-	public HttpResponse forbidden(String method, Object resource,
-			Map<String, String[]> request) throws Exception {
-		return null;
-	}
-
-	@Override
 	public String protectionDomain() {
 		StringBuilder sb = new StringBuilder();
 		for (Object domain : getCalliDomains()) {
@@ -244,11 +236,6 @@ public abstract class DigestRealmSupport implements DigestRealm, RDFObject {
 		if (sb.length() < 1)
 			return null;
 		return sb.toString();
-	}
-
-	@Override
-	public boolean withAgentCredentials(String origin) {
-		return true;
 	}
 
 	@sparql(PREFIX + "SELECT ?user ?encoded\n"

@@ -11,14 +11,14 @@
 # Realm
 ################################
 
-<Accounts> rdfs:subClassOf calli:Creator, calli:Viewable, calli:DigestRealm;
+<AccountManager> rdfs:subClassOf calli:Creator, calli:Viewable, calli:AccountManager;
 	calli:creates <Group>;
 	calli:createRel calli:authenticates;
 	calli:view <accounts.xhtml>;
 	calli:reader </group/users>, </group/staff>;
 	calli:administrator </group/admin>. # can add/remove authenticating user groups
 
-<accounts> a <Accounts>;
+<accounts> a <AccountManager>;
 	rdfs:label "User accounts";
 	calli:authName </>;
 	calli:domain </>;
@@ -29,7 +29,7 @@
 ################################
 
 :GetAuthorization rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Accounts>].
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>].
 
 :authorization a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :GetAuthorization;
@@ -60,7 +60,7 @@
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage rdfs:subClassOf calli:IsAuthorized;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Accounts>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
 	msg:sparql  """
 		ASK {
 			$this calli:authenticates [calli:member $credential]
@@ -107,7 +107,7 @@
 
 # Linked from request password email
 :GetForgotPasswordPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Accounts>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET";
 	msg:query "forgotpassword";
@@ -122,7 +122,7 @@
 # Sends request for password reset emails
 # Submitted by form in the unauthorized page
 :PostForgotPassword rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Accounts>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "POST";
 	msg:query "forgotpassword";
@@ -162,7 +162,7 @@
 # Looks up user by email address
 # Used to request password reset
 :FindUsersByEmail rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Accounts>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:User];
 	msg:sparql  """
 		SELECT REDUCED ?user

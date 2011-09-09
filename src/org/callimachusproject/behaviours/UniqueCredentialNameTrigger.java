@@ -18,7 +18,7 @@
  */
 package org.callimachusproject.behaviours;
 
-import org.callimachusproject.concepts.DigestRealm;
+import org.callimachusproject.concepts.AccountManager;
 import org.openrdf.repository.object.annotations.sparql;
 import org.openrdf.repository.object.annotations.triggeredBy;
 
@@ -29,7 +29,7 @@ import org.openrdf.repository.object.annotations.triggeredBy;
  * @author James Leigh
  * 
  */
-public abstract class UniqueCredentialNameTrigger implements DigestRealm {
+public abstract class UniqueCredentialNameTrigger implements AccountManager {
 	private static final String NS = "http://callimachusproject.org/rdf/2009/framework#";
 	private static final String PREFIX = "PREFIX calli:<" + NS + ">\n";
 

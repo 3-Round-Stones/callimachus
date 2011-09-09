@@ -15,7 +15,7 @@
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>;
 	calli:create <user-create.xhtml>;
-	calli:uriSpace </user/>;
+	calli:uriSpace </>;
 	calli:creates </callimachus/Photo>.
 
 ################################
@@ -28,7 +28,6 @@ rdfs:comment a rdf:Property.
 :PostUserCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <User> ]);
 	msg:imports <User>;
-	msg:imports </user/>;
 	msg:imports <accounts>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
 	msg:imports <java:javax.mail.internet.MimeMultipart>;
@@ -57,14 +56,19 @@ rdfs:comment a rdf:Property.
 		if (!body5)
 			throw new BadRequest("Missing message");
 
-		//# assign id TODO use "location" instead
-		var uri = user + URLEncoder.encode(username).replace(/%20/g, "+").toLowerCase();
-		var newUser = this.objectConnection.getObject(uri);
+		var newUser = location;
+		if (!newUser)
+			throw new BadRequest("Missing resource location");
 		if (newUser instanceof User)
 			throw new Conflict("User already exists: " + newUser);
-		newUser = this.objectConnection.addDesignation(newUser, User);
-		newUser = this.objectConnection.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#Party");
-		newUser = this.objectConnection.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#User");
+		var folder = location.resource.namespace;
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		if (!con.hasStatement(null, vf.createURI("http://callimachusproject.org/rdf/2009/framework#authNamespace"), vf.createURI(folder), []))
+			throw new BadRequest("Cannot create a user here");
+		newUser = con.addDesignation(newUser, User);
+		newUser = con.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#Party");
+		newUser = con.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#User");
 
 		//# populate resource
 		newUser.calliName = username;

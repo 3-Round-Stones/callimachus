@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AccountManagerSupport implements AccountManager, RDFObject {
 	private static final Pattern TOKENS_REGEX = Pattern
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"((?:[^\"]|\"\")*)\"|([^,\"]*)))?\\s*,?");
-	private static final String PREFIX = "PREFIX :<http://callimachusproject.org/rdf/2009/framework#>\n";
+	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final BasicStatusLine _401 = new BasicStatusLine(
 			new ProtocolVersion("HTTP", 1, 1), 401, "Unauthorized");
 	private static final BasicStatusLine _204 = new BasicStatusLine(
@@ -239,9 +239,9 @@ public abstract class AccountManagerSupport implements AccountManager, RDFObject
 	}
 
 	@sparql(PREFIX + "SELECT ?user ?encoded\n"
-			+ "WHERE { ?user :name $name .\n"
-			+ "$this :authenticates [:member ?user] .\n"
-			+ "OPTIONAL { ?user :encoded ?encoded; :algorithm \"MD5\" } }")
+			+ "WHERE { ?user calli:name $name .\n"
+			+ "$this calli:authNamespace [calli:isNamespaceOf ?user] .\n"
+			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" } }")
 	protected abstract List<Object[]> findDigest(@name("name") String username);
 
 	private Object authenticatedCredential(String method,

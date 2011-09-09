@@ -32,21 +32,41 @@ function initForms() {
 			}
 		});
 	}
+	var overrideLocationURI = false;
 	$('form[enctype="multipart/form-data"]').submit(function() {
 		var form = $(this);
-		var file = form.find('input[type=file]');
-		if (file.length == 1) {
-			var label = file.val().match(/[\\/]([^\\/]+)$/)[1]
-			var uri = calli.listResourceIRIs(getPageLocationURL())[0] + '/' + encodeURIComponent(label).replace(/%20/g,'+').toLowerCase();
-			if (this.action.indexOf('&location=') > 0) {
-				var m = this.action.match(/^(.*&location=)[^&=]*(.*)$/);
-				this.action = m[1] + encodeURIComponent(uri) + m[2];
-			} else {
-				this.action = this.action + '&location=' + encodeURIComponent(uri);
+		if (overrideLocationURI || this.action.indexOf('&location=') < 0) {
+			var file = form.find('input[type=file]');
+			if (file.length == 1) {
+				var label = file.val().match(/[\\/]([^\\/]+)$/)[1];
+				var uri = calli.listResourceIRIs(getPageLocationURL())[0] + '/' + encodeURIComponent(label).replace(/%20/g,'+').toLowerCase();
+				overrideLocation(this, uri);
+				overrideLocationURI = true;
+			} else if (form.find('input:text').val()) {
+				var uri;
+				var label = form.find('input:text').val();
+				var base = calli.listResourceIRIs(getPageLocationURL())[0];
+				var local = encodeURI(label).replace(/%20/g,'+').toLowerCase();
+				if (base.lastIndexOf('/') == base.length - 1) {
+					uri = base + local;
+				} else {
+					uri = base + '/' + local;
+				}
+				overrideLocation(this, uri);
+				overrideLocationURI = true;
 			}
 		}
 		return true;
 	});
+}
+
+function overrideLocation(form, uri) {
+	if (form.action.indexOf('&location=') > 0) {
+		var m = form.action.match(/^(.*&location=)[^&=]*(.*)$/);
+		form.action = m[1] + encodeURIComponent(uri) + m[2];
+	} else {
+		form.action = form.action + '&location=' + encodeURIComponent(uri);
+	}
 }
 
 function submitRDFForm(form) {

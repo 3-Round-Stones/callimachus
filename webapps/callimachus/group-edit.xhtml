@@ -26,14 +26,14 @@
 		<li>Administrators can edit this page, invite new users, and edit the settings and passwords of new users</li>
 	</ul>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this"
-			onsubmit="saveChangeNote()" data-redirect="/callimachus/accounts">
+			onsubmit="saveChangeNote()" data-redirect="../">
 		<label for="comment">Description</label>
 		<div>
 			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 		</div>
 		<div rel="calli:member" dropzone="link s:text/uri-list">
 			<label>Members</label>
-			<button type="button" class="dialog" data-dialog="?create=/callimachus/User" />
+			<button type="button" class="dialog" data-dialog="/user/?create=/callimachus/User" />
 			<div about="?member" typeof="calli:User">
 				<span property="rdfs:label" />
 				<button type="button" class="remove" />

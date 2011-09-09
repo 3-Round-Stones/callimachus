@@ -5,21 +5,18 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
-	<title>User Groups</title>
+	<title>User Accounts</title>
 </head>
 <body about="?this">
-	<h1>User Groups</h1>
-	<ul class="aside protected">
-		<li><a href="?create=/callimachus/Group">Create a new Group</a></li>
-	</ul>
+	<h1>User Accounts</h1>
 	<ul class="aside">
 		<li>Callimachus splits access control into two steps: authentication and authorization</li>
-		<li>Authentication authorizes user accounts based on a username and password that are members of a group listed here</li>
+		<li>Authentication authorizes user accounts based on a username and password that are is the folders listed here</li>
 		<li>Authorization is done by matching authenticated users or their groups to resource and class settings</li>
 	</ul>
 	<ul>
-		<li rel="calli:authenticates" resource="?group">
-			<a href="?group" typeof="calli:Group" property="rdfs:label" />
+		<li rel="calli:authNamespace" resource="?folder">
+			<a href="?folder" property="rdfs:label" />
 		</li>
 	</ul>
 </body>

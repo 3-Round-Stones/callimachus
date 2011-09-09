@@ -11,9 +11,7 @@
 # Realm
 ################################
 
-<AccountManager> rdfs:subClassOf calli:Creator, calli:Viewable, calli:AccountManager;
-	calli:creates <Group>;
-	calli:createRel calli:authenticates;
+<AccountManager> rdfs:subClassOf calli:Viewable, calli:AccountManager;
 	calli:view <accounts.xhtml>.
 
 ################################
@@ -55,7 +53,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
 	msg:sparql  """
 		ASK {
-			$this calli:authenticates [calli:member $credential]
+			$this calli:authNamespace [calli:isNamespaceOf $credential]
 			FILTER ($method = "GET" || $method = "HEAD")
 			FILTER ($query = "login" || $query = "settings" || $query = "contributions")
 		}
@@ -159,7 +157,7 @@
 	msg:sparql  """
 		SELECT REDUCED ?user
 		WHERE {
-			$this calli:authenticates [calli:member ?user].
+			$this calli:authNamespace [calli:isNamespaceOf ?user].
 			?user calli:email $email
 		}
 	""".

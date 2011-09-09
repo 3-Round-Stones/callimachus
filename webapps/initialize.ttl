@@ -26,7 +26,7 @@
 	rdfs:label "User accounts";
 	calli:authName </>;
 	calli:domain </>;
-	calli:authenticates </group/admin>, </group/staff>, </group/users>.
+	calli:authNamespace </user/>.
 
 </> a </callimachus/Folder>, calli:Folder, calli:Alias;
 	rdfs:label "Home folder";
@@ -34,27 +34,39 @@
 	calli:aliasOf </page/main-page.xhtml?view>;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
-	calli:isNamespaceOf </group/>.
+	calli:administrator </group/admin>;
+	calli:isNamespaceOf </group/>, </user/>.
+
+</user/> a </callimachus/Folder>, calli:Folder;
+	rdfs:label "user";
+	rdfs:comment "Create new users here and be sure to add them to groups";
+	calli:reader </group/staff>;
+	calli:administrator </group/admin>.
 
 </group/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "group";
 	rdfs:comment "Create new groups here";
+	calli:reader </group/staff>;
+	calli:administrator </group/admin>;
 	calli:isNamespaceOf </group/admin>, </group/staff>, </group/users>.
 
 </group/admin> a calli:Party, calli:Group, </callimachus/Group>;
 	rdfs:label "admin";
 	rdfs:comment "The user accounts in this group have heightened privileges, including the ability to edit other user accounts and access the underlying data store";
-	calli:reader </group/users>, </group/staff>.
+	calli:reader </group/staff>;
+	calli:administrator </group/admin>.
 
 </group/staff> a calli:Party, calli:Group, </callimachus/Group>;
 	rdfs:label "staff";
 	rdfs:comment "Members of this group can design and edit resources within the system";
-	calli:reader </group/users>, </group/staff>.
+	calli:reader </group/staff>;
+	calli:administrator </group/admin>.
 
 </group/users> a calli:Party, calli:Group, </callimachus/Group>;
 	rdfs:label "users";
 	rdfs:comment "Members of this group can view and discuss resources within the system";
-	calli:reader </group/users>, </group/staff>.
+	calli:reader </group/staff>;
+	calli:administrator </group/admin>.
 
 ################################
 # Protected Resource Classes
@@ -105,6 +117,7 @@
 </callimachus/manifest> a </callimachus/Manifest>, calli:Manifest;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
+	calli:administrator </group/admin>;
 	calli:origin </>;
 	calli:template </callimachus/styles/layout.xsl>;
 	calli:unauthorized </callimachus/pages/unauthorized.xhtml>;
@@ -116,6 +129,7 @@
 </callimachus/menu> a </callimachus/Menu>, calli:Menu;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
+	calli:administrator </group/admin>;
 	calli:link </>;
 	calli:item </callimachus/menu#site>;
 	calli:item </callimachus/menu#resources>;

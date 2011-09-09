@@ -15,8 +15,6 @@
 	calli:view <group.xhtml>;
 	calli:edit <group-edit.xhtml>;
 	calli:create <group-create.xhtml>;
-	calli:creates <User>;
-	calli:createRel calli:member;
 	calli:uriSpace </>.
 
 ################################
@@ -113,6 +111,7 @@ rdfs:label a rdf:Property.
 		newUser.rdfsLabels.add(label);
 		newUser.calliReaders.addAll(this.calliReaders);
 		newUser.calliEditors.addAll(this.calliEditors);
+		user.calliIsNamespaceOf.add(newUser);
 		this.calliMembers.add(newUser);
 		return uri;
 	""".

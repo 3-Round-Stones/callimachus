@@ -220,11 +220,11 @@ calli:email a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain calli:User;
 	rdfs:range rdf:PlainLiteral.
 
-calli:authenticates a owl:ObjectProperty;
-	rdfs:label "authenticates";
-	rdfs:comment "Group of credentials that can be authenticated by this realm";
+calli:authNamespace a owl:ObjectProperty;
+	rdfs:label "auth namespace";
+	rdfs:comment "Folder of credentials that can be authenticated by this realm";
 	rdfs:domain calli:AccountManager;
-	rdfs:range calli:Group.
+	rdfs:range calli:Folder.
 
 calli:authName a rdf:Property, owl:FunctionalProperty;
 	rdfs:label "auth name";
@@ -313,7 +313,7 @@ calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:comment "The canonical URL for this alias";
 	rdfs:domain calli:Alias.
 
-calli:isNamespaceOf a owl:ObjectProperty, owl:FunctionalProperty;
+calli:isNamespaceOf a owl:ObjectProperty;
 	rdfs:label "is namespace of";
 	rdfs:comment "Resources with this namespace";
 	rdfs:domain calli:Folder.

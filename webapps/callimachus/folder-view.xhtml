@@ -27,6 +27,9 @@
 		// <![CDATA[
 		(function($){
 			function createTextCell(text, url, src) {
+				if (!src) {
+					src = '/callimachus/images/rdf-icon.png';
+				}
 				var td = $('<td/>');
 				td.addClass('ui-widget-content');
 				td.addClass('filecell');
@@ -36,12 +39,10 @@
 					a.addClass('view');
 				}
 				a.text(text);
-				if (src) {
-					var img = $('<img/>');
-					img.addClass('icon');
-					img.attr('src', src);
-					a.prepend(img);
-				}
+				var img = $('<img/>');
+				img.addClass('icon');
+				img.attr('src', src);
+				a.prepend(img);
 				td.append(a);
 				return td;
 			}

@@ -27,6 +27,7 @@
 <Photo> a calli:Creatable, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, foaf:Image ;
 	rdfs:label "Photo" ;
+	calli:icon <photo.png>;
 	calli:view <photo.xhtml> ;
 	calli:edit <photo-edit.xhtml> ;
 	calli:create <photo-create.xhtml>;

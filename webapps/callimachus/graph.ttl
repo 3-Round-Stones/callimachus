@@ -22,7 +22,12 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Graph> rdfs:subClassOf calli:NamedGraph.
+<Graph> a calli:Creatable, owl:Class;
+	rdfs:subClassOf calli:NamedGraph;
+	rdfs:label "Graph";
+	calli:icon <graph.png>;
+	calli:create <graph-create.xhtml>;
+	calli:uriSpace </>.
 
 :GetGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
@@ -44,24 +49,8 @@
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "application/xml".
 
-:GetGraphCreate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Graph> ];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET" ;
-	msg:query "create" ;
-	msg:realm </callimachus/manifest>;
-	msg:imports <graph-create.xhtml> ;
-	msg:script """
-		return graph_create_xhtml.calliConstructHTML(this, "create");
-	""".
-
-:PostGraphCreate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Graph>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "POST";
-	msg:query "create";
-	msg:type "text/html";
-	msg:realm </callimachus/manifest>;
+:PostGraphCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Graph> ]);
 	msg:imports calli:NamedGraph;
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
@@ -72,7 +61,7 @@
 	msg:imports <Graph>;
 	msg:imports <graph-uploaded.xhtml>;
 	msg:script """
-		var parser = new MultipartParser(new BufferedInputStream(input, 65536));
+		var parser = new MultipartParser(new BufferedInputStream(body, 65536));
 		var file = parser.next();
 		var headers = parser.getHeaders();
 		var disposition = headers.get("content-disposition");
@@ -85,9 +74,9 @@
 		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
 		var name = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/g, "$1");
 		var label = vf.createLiteral(name.replace(/-/g, " "));
-		var local = URLEncoder.encode(fileName, "UTF-8").toLowerCase().replace(/%20/g, "-");
-		var uri = this.toUri().resolve("/graph/") + local;
-		var obj = con.getObject(uri);
+		var obj = location;
+		if (!obj)
+			throw new BadRequest("No graph location provided");
 
 		java.lang.System.out.println("Clearing " + uri);
 		con.removeDesignation(obj, NamedGraph);
@@ -114,9 +103,4 @@
 		java.lang.System.out.println("Imported " + uri);
 		return graph_uploaded_xhtml.calliConstructHTML(obj);
 	""".
-
-:input a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :PostGraphCreate;
-	rdfs:range <java:java.io.InputStream>;
-	msg:type "multipart/form-data".
 

@@ -37,6 +37,10 @@
 	calli:creates <Concept>;
 	calli:creates <Group>;
 	calli:creates <User>;
+	calli:creates <Photo>;
+	calli:creates <Image>;
+	calli:creates <Graph>;
+	calli:creates <ObjectProperty>;
 	calli:createRel calli:isNamespaceOf;
 	calli:icon <folder.png>;
 	calli:view <folder-view.xhtml>;

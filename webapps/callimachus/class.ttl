@@ -22,15 +22,6 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<ObjectProperty> a calli:Creatable, </callimachus/IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, owl:Class;
-	rdfs:label "Object Property";
-	rdfs:comment "A type of relationship between objects";
-	calli:view <property.xhtml>;
-	calli:edit <property-edit.xhtml>;
-	calli:create <property-create.xhtml>;
-	calli:uriSpace </>.
-
 # Note instances of <Class> are creatable and <Class> itself is also creatable
 <Class> a calli:Creatable, </callimachus/IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Creatable, calli:Viewable, calli:Editable, owl:Class;

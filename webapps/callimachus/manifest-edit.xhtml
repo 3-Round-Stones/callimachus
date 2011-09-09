@@ -21,7 +21,7 @@
 		<div class="hbox">
 			<div id="logo-image" rel="calli:logo" dropzone="link s:text/uri-list">
 				<label>Logo</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
+				<button type="button" class="dialog" data-dialog="/image/?create=/callimachus/Image" />
 				<div about="?logo" typeof="foaf:Image">
 					<img src="{?logo}" />
 					<button type="button" class="remove" />
@@ -29,7 +29,7 @@
 			</div>
 			<div id="favicon-image" rel="calli:favicon" dropzone="link s:text/uri-list">
 				<label>Icon</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
+				<button type="button" class="dialog" data-dialog="/image/?create=/callimachus/Image" />
 				<div about="?favicon" typeof="foaf:Image">
 					<img src="{?favicon}" />
 					<button type="button" class="remove" />
@@ -38,7 +38,7 @@
 		</div>
 		<div rel="calli:license" dropzone="link t:text/uri-list">
 			<label>License</label>
-			<button type="button" class="dialog" data-dialog="/callimachus/Graph?create" />
+			<button type="button" class="dialog" data-dialog="/graph/?create=/callimachus/Graph" />
 			<div about="?license">
 				<span property="dcterms:title" />
 				<button type="button" class="remove" />

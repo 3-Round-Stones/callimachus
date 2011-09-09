@@ -39,20 +39,15 @@ function initForms() {
 			var file = form.find('input[type=file]');
 			if (file.length == 1) {
 				var label = file.val().match(/[\\/]([^\\/]+)$/)[1];
-				var uri = calli.listResourceIRIs(getPageLocationURL())[0] + '/' + encodeURIComponent(label).replace(/%20/g,'+').toLowerCase();
-				overrideLocation(this, uri);
+				var dir = calli.listResourceIRIs(getPageLocationURL())[0];
+				var local = encodeURIComponent(label).replace(/%20/g,'+').toLowerCase();
+				overrideLocation(this, dir, local);
 				overrideLocationURI = true;
 			} else if (form.find('input:text').val()) {
-				var uri;
 				var label = form.find('input:text').val();
-				var base = calli.listResourceIRIs(getPageLocationURL())[0];
+				var dir = calli.listResourceIRIs(getPageLocationURL())[0];
 				var local = encodeURI(label).replace(/%20/g,'+').toLowerCase();
-				if (base.lastIndexOf('/') == base.length - 1) {
-					uri = base + local;
-				} else {
-					uri = base + '/' + local;
-				}
-				overrideLocation(this, uri);
+				overrideLocation(this, dir, local);
 				overrideLocationURI = true;
 			}
 		}
@@ -60,7 +55,13 @@ function initForms() {
 	});
 }
 
-function overrideLocation(form, uri) {
+function overrideLocation(form, dir, local) {
+	var uri;
+	if (dir.lastIndexOf('/') == dir.length - 1) {
+		uri = dir + local;
+	} else {
+		uri = dir + '/' + local;
+	}
 	if (form.action.indexOf('&location=') > 0) {
 		var m = form.action.match(/^(.*&location=)[^&=]*(.*)$/);
 		form.action = m[1] + encodeURIComponent(uri) + m[2];

@@ -26,7 +26,7 @@
 @prefix :<#>.
 
 :GetCreatePage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Creator calli:Creatable)]];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	msg:method "GET";
 	msg:query "create";
@@ -36,39 +36,41 @@
 	msg:header "cache-control:no-cache";
 	msg:script <operations.js#getCreatePage>.
 
-# override this method for subclass create methods
-:PostCreate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Creator calli:Creatable)]];
+:PostRemoteCreate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	msg:script <operations.js#postCreate>.
-
-:body a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :PostCreate;
-	rdfs:range <java:java.io.InputStream>;
-	msg:type "*/*".
-
-:create a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain [owl:unionOf (:GetCreatePage :PostCreate)];
-	rdfs:range calli:Creatable;
-	msg:query "create".
-
-:intermediate a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :PostCreate;
-	rdfs:range xsd:boolean;
-	msg:query "intermediate".
-
-:location a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :PostCreate;
-	msg:query "location";
-	msg:header "location".
-
-# this method is distinct from PostCreate to allow local calls to PostCreate without going through HTTP
-:PostRemoteCreate rdfs:subClassOf :PostCreate;
 	msg:method "POST";
 	msg:query "create";
 	msg:realm </callimachus/manifest>;
 	msg:expect "201-created";
-	msg:type "text/plain".
+	msg:type "text/plain";
+	msg:script <operations.js#postRemoteCreate>.
+
+# override this method for subclass create methods
+:PostCreate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+	msg:script <operations.js#postCreate>.
+
+:body a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain [owl:unionOf (:PostCreate :PostRemoteCreate)];
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "*/*".
+
+:create a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain [owl:unionOf (:GetCreatePage :PostRemoteCreate)];
+	rdfs:range calli:Creatable;
+	msg:query "create".
+
+:intermediate a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain [owl:unionOf (:PostCreate :PostRemoteCreate)];
+	rdfs:range xsd:boolean;
+	msg:query "intermediate".
+
+:location a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain [owl:unionOf (:PostCreate :PostRemoteCreate)];
+	msg:query "location";
+	msg:header "location".
 
 # find the user that created $thing if they are not editors of $this
 :IsCreatable rdfs:subClassOf msg:Message;

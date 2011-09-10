@@ -31,7 +31,7 @@
 	calli:create <article-create.xhtml>;
 	calli:uriSpace </>.
 
-# GET /page/MainArticle.xhtml
+# GET /article/main-article.xml
 :GetArticleSource rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
@@ -40,6 +40,24 @@
 	msg:header "cache-control:no-cache";
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
+
+# GET /article/main-article.xml?view
+:GetPage owl:intersectionOf (</callimachus/toolbox/view.ttl#GetViewPage>
+		[owl:onProperty msg:target; owl:allValuesFrom <Article>]);
+	msg:script """
+		return this.InlineArticle(proceed());
+	""".
+
+:InlineArticle rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+	msg:type "application/xhtml+xml";
+	msg:xslt <styles/article-inline.xsl>.
+
+:xmlInput a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :InlineArticle;
+	rdfs:range <java:javax.xml.stream.XMLEventReader>;
+	msg:type "application/xhtml+xml".
 
 # POST /callimachus/Article?create
 :CreateArticle owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>

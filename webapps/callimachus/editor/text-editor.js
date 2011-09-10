@@ -166,7 +166,7 @@ jQuery(function($) {
 				if (xhr.status < 300) {
 					parent.postMessage('OK\n\n' + header + '\n\nLocation: ' + xhr.getResponseHeader('Location'), '*');
 				} else {
-					parent.postMessage(xhr.statusText + '\n\n' + header + '\n\n' + xhr.responseText, '*');
+					parent.postMessage('ERROR ' + xhr.statusText + '\n\n' + header + '\n\n' + xhr.responseText, '*');
 				}
 			});
 			return false; // don't respond yet
@@ -175,7 +175,7 @@ jQuery(function($) {
 				if (xhr.status < 300) {
 					parent.postMessage('OK\n\n' + header, '*');
 				} else {
-					parent.postMessage(xhr.statusText + '\n\n' + header + '\n\n' + xhr.responseText, '*');
+					parent.postMessage('ERROR ' + xhr.statusText + '\n\n' + header + '\n\n' + xhr.responseText, '*');
 				}
 			});
 			return false; // don't respond yet

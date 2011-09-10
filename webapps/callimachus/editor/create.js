@@ -1,20 +1,24 @@
 // create.js
 
 (function($){
-	var template = $('#template').text();
-	if (template) {
-		$(window).bind('message', function(event) {
-			if (event.originalEvent.source == $('#iframe')[0].contentWindow && event.originalEvent.data == 'CONNECT calliEditorLoaded') {
+	$(window).bind('message', function(event) {
+		if (event.originalEvent.source == $('#iframe')[0].contentWindow && event.originalEvent.data == 'CONNECT calliEditorLoaded') {
+			var template = $('#template').text();
+			if (template) {
 				$('#iframe')[0].contentWindow.postMessage('POST template\n\n' + template, '*');
 			}
-		});
-	}
+		}
+	});
 	$(window).bind('message', function(event) {
 		if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
 			var msg = event.originalEvent.data;
-			if (msg.indexOf('ERROR\n\n') == 0) {
+			if (msg.indexOf('ERROR ') == 0) {
+				var status = msg.substring('ERROR '.length, msg.indexOf('\n\n'));
 				var error = msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2);
-				throw error;
+				$(document).trigger("calliError", status, error);
+			} else if (msg.indexOf('ERROR') == 0) {
+				var error = msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2);
+				$(document).trigger("calliError", error);
 			}
 		}
 	});

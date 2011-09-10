@@ -6,7 +6,7 @@
 	xmlns:msg="http://www.openrdf.org/rdf/2011/messaging#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title about="?this">{rdfs:label}</title>
+	<title about="?this">{rdfs:label} Permissions</title>
 	<script type="text/javascript" src="/callimachus/toolbox/edit.js"> </script>
 	<script type="text/javascript"><![CDATA[
 	(function($) {
@@ -27,7 +27,6 @@
 						$('.creator').hide();
 					}
 					if (jQuery.inArray(calli + 'Copyable', list) >= 0
-							|| jQuery.inArray(calli + 'Creatable', list) >= 0
 							|| jQuery.inArray(calli + 'Creator', list) >= 0) {
 						$('.create').show();
 					} else {
@@ -61,7 +60,7 @@
 	<h1><span property="rdfs:label" /> Permissions</h1>
 	<ul class="aside">
 		<li class="copyable"><span class="read">Readers, </span>Editors and Administrators propagate to resources copied from this resource</li>
-		<li class="creator"><span class="read">Readers, </span>Editors and Administrators propagate to new resources created from this resource</li>
+		<li class="creator"><span class="read">Readers, </span>Editors and Administrators propagate to new resources created in this resource</li>
 		<li class="class"><span class="read">Readers, </span>Editors and Administrators apply to this resource and all resources of this class</li>
 		<li class="read">Readers can view, discuss, and see the history</li>
 		<li class="create">Contributors can create new resources and edit them</li>
@@ -70,18 +69,22 @@
 	</ul>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this">
 		<div class="class">
-			<label for="realm">Authentication</label>
+			<label for="realm">Authentication of resources of this class</label>
 			<div id="realm">
-				<label rel="msg:realm" resource="?realm">
-					<input type="checkbox" name="realm" checked="checked" />
-					<span rel="calli:domain" resource="/" property="rdfs:label" />
+				<label class="input">
+					<input type="radio" name="realm" checked="checked" />
+					<span>Public</span>
+				</label>
+				<label class="input" rel="msg:realm" resource="?realm">
+					<input type="radio" name="realm" checked="checked" />
+					<span rel="rdf:type" resource="/callimachus/Manifest">Protected</span>
 				</label>
 			</div>
 		</div>
 		<div class="hbox">
 			<div class="read" rel="calli:reader" dropzone="link s:text/uri-list">
 				<label>Reader</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/accounts" />
+				<button type="button" class="dialog" data-dialog="/callimachus/Group" />
 				<div about="?reader" typeof="calli:Party">
 					<span property="rdfs:label"/>
 					<button type="button" class="remove" />
@@ -89,7 +92,7 @@
 			</div>
 			<div class="create" rel="calli:contributor" dropzone="link s:text/uri-list">
 				<label>Contributor</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/accounts" />
+				<button type="button" class="dialog" data-dialog="/callimachus/Group" />
 				<div about="?contributor" typeof="calli:Party">
 					<span property="rdfs:label"/>
 					<button type="button" class="remove" />
@@ -97,7 +100,7 @@
 			</div>
 			<div rel="calli:editor" dropzone="link s:text/uri-list">
 				<label>Editor</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/accounts" />
+				<button type="button" class="dialog" data-dialog="/callimachus/Group" />
 				<div about="?editor" typeof="calli:Party">
 					<span property="rdfs:label"/>
 					<button type="button" class="remove" />
@@ -105,7 +108,7 @@
 			</div>
 			<div rel="calli:administrator" dropzone="link s:text/uri-list">
 				<label>Administrator</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/accounts" />
+				<button type="button" class="dialog" data-dialog="/callimachus/Group" />
 				<div about="?administrator" typeof="calli:Party">
 					<span property="rdfs:label"/>
 					<button type="button" class="remove" />

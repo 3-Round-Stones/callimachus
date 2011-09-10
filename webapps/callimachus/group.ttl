@@ -7,7 +7,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Group> a calli:Creatable, owl:Class;
+<Group> a calli:Creatable, <IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:Group;
 	rdfs:label "Group";
 	rdfs:comment "Groups provide a way to assign permissions to a named set of users";

@@ -7,7 +7,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<User> a calli:Creatable, owl:Class;
+<User> a calli:Creatable, <IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:User;
 	rdfs:label "User";
 	rdfs:comment "Username and password associated with an email address";

@@ -39,8 +39,8 @@ function initDialogButton(buttons) {
 			var width = 450;
 			var height = 500;
 			if ($('body').is('.iframe')) {
-				width = 320;
-				height = 480;
+				width = 350;
+				height = 450;
 			}
 			var iframe = $("<iframe></iframe>");
 			iframe.attr("name", frame);

@@ -24,7 +24,7 @@
 <Page> a calli:Creatable, <IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Page;
 	rdfs:label "Page";
-	rdfs:comment "New pages can be created from a folder";
+	rdfs:comment "New pages can be created in a folder";
 	calli:icon <page.png>;
 	calli:edit <page-edit.xhtml>;
 	calli:copy <page-copy.xhtml>;

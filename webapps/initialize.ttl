@@ -106,7 +106,8 @@
 ################################
 
 </sparql> a </callimachus/SparqlEndPoint>;
-	rdfs:label "sparql".
+	rdfs:label "sparql";
+	calli:administrator </group/admin>.
 
 </callimachus/profile> a </callimachus/Profile>.
 
@@ -127,6 +128,7 @@
 ################################
 
 </callimachus/manifest> a </callimachus/Manifest>, calli:Manifest;
+	rdfs:label "manifest";
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;
@@ -139,6 +141,7 @@
 	calli:favicon </callimachus/images/callimachus-icon.ico> .
 
 </callimachus/menu> a </callimachus/Menu>, calli:Menu;
+	rdfs:label "menu";
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;
@@ -160,8 +163,9 @@
 	calli:item </callimachus/menu#concepts>;
 	calli:item </callimachus/menu#classes>.
 </callimachus/menu#administration> calli:position 9; rdfs:label "Administration";
-	calli:item </callimachus/menu#usergroups>;
 	calli:item </callimachus/menu#manifest>;
+	calli:item </callimachus/menu#users>;
+	calli:item </callimachus/menu#groups>;
 	calli:item </callimachus/menu#namedqueries>;
 	calli:item </callimachus/menu#sparqlquery>.
 </callimachus/menu#toolbox> calli:position 10; rdfs:label "Toolbox";
@@ -182,10 +186,11 @@
 </callimachus/menu#concepts> calli:position 4; rdfs:label "Concepts"; calli:link </callimachus/Concept>.
 </callimachus/menu#classes> calli:position 5; rdfs:label "Classes"; calli:link </callimachus/Class>.
 
-</callimachus/menu#usergroups> calli:position 1; rdfs:label "User groups"; calli:link </callimachus/accounts>.
-</callimachus/menu#manifest> calli:position 2; rdfs:label "Manifest"; calli:link </callimachus/manifest>.
-</callimachus/menu#namedqueries> calli:position 3; rdfs:label "Named queries"; calli:link </callimachus/NamedQuery>.
-</callimachus/menu#sparqlquery> calli:position 4; rdfs:label "SPARQL query"; calli:link </sparql>.
+</callimachus/menu#manifest> calli:position 1; rdfs:label "Manifest"; calli:link </callimachus/manifest>.
+</callimachus/menu#users> calli:position 2; rdfs:label "Users"; calli:link </callimachus/User>.
+</callimachus/menu#groups> calli:position 3; rdfs:label "Groups"; calli:link </callimachus/Group>.
+</callimachus/menu#namedqueries> calli:position 4; rdfs:label "Named queries"; calli:link </callimachus/NamedQuery>.
+</callimachus/menu#sparqlquery> calli:position 5; rdfs:label "SPARQL query"; calli:link </sparql>.
 
 </callimachus/menu#whatlinkshere> calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>.
 </callimachus/menu#relatedchanges> calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>.

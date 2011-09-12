@@ -1,0 +1,49 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix :<#>.
+
+################################################################
+# Schema data to initialize an Callimachus store, but may be removed.
+################################################################
+
+audit:current-trx a calli:SchemaGraph.
+
+################################
+# Protected Resource Classes
+################################
+
+</callimachus/Change>         msg:realm </callimachus/manifest>.
+</callimachus/Group>          msg:realm </callimachus/manifest>.
+</callimachus/Photo>          msg:realm </callimachus/manifest>.
+</callimachus/SparqlEndPoint> msg:realm </callimachus/manifest>.
+</callimachus/User>           msg:realm </callimachus/manifest>.
+
+################################
+# Class wide authorization
+################################
+
+</callimachus/AccountManager> calli:administrator </group/admin>.
+</callimachus/Article>        calli:administrator </group/admin>.
+</callimachus/Change>         calli:administrator </group/admin>.
+</callimachus/Class>          calli:administrator </group/admin>.
+</callimachus/Concept>        calli:administrator </group/admin>.
+</callimachus/Folder>         calli:administrator </group/admin>.
+</callimachus/Graph>          calli:administrator </group/admin> .
+</callimachus/Group>          calli:administrator </group/admin>.
+</callimachus/Image>          calli:administrator </group/admin>.
+</callimachus/Manifest>       calli:administrator </group/admin>.
+</callimachus/Menu>           calli:administrator </group/admin>.
+</callimachus/NamedQuery>     calli:administrator </group/admin>.
+</callimachus/ObjectProperty> calli:administrator </group/admin>.
+</callimachus/Page>           calli:administrator </group/admin>.
+</callimachus/Photo>          calli:administrator </group/admin>.
+</callimachus/Profile>        calli:administrator </group/admin>.
+</callimachus/SparqlEndPoint> calli:administrator </group/admin>.
+</callimachus/User>           calli:administrator </group/admin>.
+

@@ -8,8 +8,6 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-</> a calli:Origin. # Resources with this origin originated from this RDF store
-
 :LookupAndGo rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </callimachus/go>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];

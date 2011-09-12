@@ -28,9 +28,10 @@
 	calli:domain </>;
 	calli:authNamespace </user/>.
 
-</> a </callimachus/Folder>, calli:Folder, calli:Alias;
+</> a </callimachus/Folder>, calli:Folder, calli:Alias, calli:Origin;
 	rdfs:label "Home folder";
 	rdfs:comment "Create new folders here to organize resources and assign permissions";
+	calli:version "0.13";
 	calli:aliasOf </page/main-page.xhtml?view>;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
@@ -67,39 +68,6 @@
 	rdfs:comment "Members of this group can view and discuss resources within the system";
 	calli:reader </group/staff>;
 	calli:administrator </group/admin>.
-
-################################
-# Protected Resource Classes
-################################
-
-</callimachus/Change>         msg:realm </callimachus/manifest>.
-</callimachus/Group>          msg:realm </callimachus/manifest>.
-</callimachus/Photo>          msg:realm </callimachus/manifest>.
-</callimachus/SparqlEndPoint> msg:realm </callimachus/manifest>.
-</callimachus/User>           msg:realm </callimachus/manifest>.
-
-################################
-# Class wide authorization
-################################
-
-</callimachus/AccountManager> calli:administrator </group/admin>.
-</callimachus/Article>        calli:administrator </group/admin>.
-</callimachus/Change>         calli:administrator </group/admin>.
-</callimachus/Class>          calli:administrator </group/admin>.
-</callimachus/Concept>        calli:administrator </group/admin>.
-</callimachus/Folder>         calli:administrator </group/admin>.
-</callimachus/Graph>          calli:administrator </group/admin> .
-</callimachus/Group>          calli:administrator </group/admin>.
-</callimachus/Image>          calli:administrator </group/admin>.
-</callimachus/Manifest>       calli:administrator </group/admin>.
-</callimachus/Menu>           calli:administrator </group/admin>.
-</callimachus/NamedQuery>     calli:administrator </group/admin>.
-</callimachus/ObjectProperty> calli:administrator </group/admin>.
-</callimachus/Page>           calli:administrator </group/admin>.
-</callimachus/Photo>          calli:administrator </group/admin>.
-</callimachus/Profile>        calli:administrator </group/admin>.
-</callimachus/SparqlEndPoint> calli:administrator </group/admin>.
-</callimachus/User>           calli:administrator </group/admin>.
 
 ################################
 # Well known services

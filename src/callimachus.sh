@@ -68,7 +68,7 @@ fi
 cd "$BASEDIR"
 
 # Check that target executable exists
-if [ ! -e "$EXECUTABLE" ]; then
+if [ ! -f "$EXECUTABLE" ]; then
   echo "Cannot find $EXECUTABLE"
   echo "This file is needed to run this program"
   exit 1

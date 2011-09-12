@@ -286,6 +286,12 @@ calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain calli:Manifest;
 	rdfs:range rdf:PlainLiteral.
 
+calli:version a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:label "version";
+	rdfs:comment "The latest Callimachus software version hosting this origin";
+	rdfs:domain calli:Origin;
+	rdfs:range rdf:PlainLiteral.
+
 calli:create a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "create";
 	rdfs:comment "The RDFa page template used to create resources of this class using a Web browser";

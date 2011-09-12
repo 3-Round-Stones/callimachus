@@ -39,6 +39,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -57,20 +58,27 @@ import org.openrdf.http.object.HTTPObjectAgentMXBean;
 import org.openrdf.http.object.HTTPObjectServer;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.util.FileUtil;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private static final String SCHEMA_GRAPH = "http://callimachusproject.org/rdf/2009/framework#SchemaGraph";
+	private static final String VERSION = "http://callimachusproject.org/rdf/2009/framework#version";
+	private static final String PROPERTIES = "/META-INF/callimachusproject.properties";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
 	private static final String ERROR_XSLT_PATH = "/callimachus/styles/error.xsl";
@@ -244,11 +252,14 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		logger.info("Callimachus is binding to {}", uploader.getOrigin());
 		InetSocketAddress host = getAuthorityAddress();
 		HTTPObjectClient.getInstance().setProxy(host, server);
-		boolean empty = false;
-		if (!conditional || (empty = isEmpty(repository))) {
+		String version = getStoreVersion(repository);
+		if (!conditional || version == null) {
 			repository.setCompileRepository(false);
 		}
-		uploader.uploadWebapps(conditional && !empty);
+		if (version == null) {
+			initializeStore(repository, origin);
+		}
+		uploader.uploadWebapps(conditional && version != null);
 		repository.setCompileRepository(true);
 		server.start();
 		uploader.started();
@@ -295,16 +306,6 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		return host;
 	}
 
-	private boolean isEmpty(ObjectRepository repository)
-			throws RepositoryException {
-		ObjectConnection con = repository.getConnection();
-		try {
-			return con.isEmpty();
-		} finally {
-			con.close();
-		}
-	}
-
 	private String getAuthority(int port) throws IOException {
 		String hostname;
 		try {
@@ -322,6 +323,73 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		if (port == 80 || port == 443)
 			return hostname;
 		return hostname + ":" + port;
+	}
+
+	private String getStoreVersion(ObjectRepository repository)
+			throws RepositoryException {
+		ObjectConnection con = repository.getConnection();
+		try {
+			ValueFactory vf = con.getValueFactory();
+			RepositoryResult<Statement> stmts;
+			URI s = vf.createURI(origin + "/");
+			stmts = con.getStatements(s, vf.createURI(VERSION), null);
+			try {
+				if (!stmts.hasNext())
+					return null;
+				return stmts.next().getObject().stringValue();
+			} finally {
+				stmts.close();
+			}
+		} finally {
+			con.close();
+		}
+	}
+
+	private void initializeStore(Repository repository, String origin) {
+		Properties properties = new Properties();
+		InputStream load = CallimachusServer.class
+				.getResourceAsStream(PROPERTIES);
+		if (load == null) {
+			logger.debug("Missing {}", PROPERTIES);
+			return;
+		}
+		try {
+			properties.load(load);
+			String graphs = properties.getProperty("initial-graphs");
+			loadDefaultGraphs(graphs, origin, repository);
+		} catch (IOException e) {
+			logger.debug(e.toString(), e);
+		}
+	}
+
+	private void loadDefaultGraphs(String graphs, String origin,
+			Repository repository) throws IOException {
+		if (graphs == null || graphs.length() < 1) {
+			logger.debug("No initial graphs in {}", PROPERTIES);
+			return;
+		}
+		logger.info("Initializing {} Store", origin);
+		for (String graph : graphs.split("\\s+")) {
+			InputStream in = CallimachusServer.class
+					.getResourceAsStream(graph);
+			if (in == null) {
+				logger.debug("Missing {}", graph);
+				continue;
+			}
+			RDFFormat format = RDFFormat.forFileName(graph, RDFFormat.RDFXML);
+			try {
+				RepositoryConnection con = repository.getConnection();
+				try {
+					con.add(in, origin + "/", format);
+				} finally {
+					con.close();
+				}
+			} catch (RepositoryException exc) {
+				logger.warn(exc.toString(), exc);
+			} catch (RDFParseException exc) {
+				logger.warn(exc.toString(), exc);
+			}
+		}
 	}
 
 	private String generatePassword() {

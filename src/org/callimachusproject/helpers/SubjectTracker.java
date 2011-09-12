@@ -18,6 +18,7 @@
  */
 package org.callimachusproject.helpers;
 
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -153,6 +154,13 @@ public class SubjectTracker extends RDFHandlerWrapper {
 		} else if (obj instanceof URI && ((URI)obj).getNamespace().equals(hash)) {
 			obj = new URIImpl(replacement.stringValue() + "#" + ((URI)obj).getLocalName());
 		}
+		try {
+			validate(subj);
+			validate(pred);
+			validate(obj);
+		} catch (URISyntaxException e) {
+			throw new RDFHandlerException(e.toString(), e);
+		}
 		Boolean rev = accept(subj, pred, obj);
 		if (rev == null)
 			throw new RDFHandlerException("Invalid triple: " + subj + " "
@@ -172,6 +180,12 @@ public class SubjectTracker extends RDFHandlerWrapper {
 		}
 		empty = false;
 		super.handleStatement(new StatementImpl(subj, pred, obj));
+	}
+
+	private void validate(Value obj) throws URISyntaxException {
+		if (obj instanceof URI) {
+			new java.net.URI(obj.stringValue());
+		}
 	}
 
 	private Boolean accept(Resource subj, URI pred, Value obj) {

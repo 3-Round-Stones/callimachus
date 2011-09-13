@@ -5,25 +5,25 @@
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
-	<head>
-		<title>New Group</title>
-	</head>
-	<body>
-		<h1>New Group</h1>
-		<ul class="aside">
-			<li>The group name cannot be changed once created</li>
-			<li>Use Wiki text to describe the group</li>
-		</ul>
-		<form id="form" method="POST" action="" enctype="application/sparql-update" typeof="calli:Party calli:Group">
-			<label for="label">Name</label>
-			<div>
-				<input id="label" value="{rdfs:label}" type="text" class="auto-expand required" autofocus="autofocus" />
-			</div>
-			<label for="comment">Description</label>
-			<div>
-				<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
-			</div>
-			<button id="submit" type="submit">Create</button>
-		</form>
-	</body>
+<head>
+	<title>New Group</title>
+</head>
+<body>
+	<h1>New Group</h1>
+	<ul class="aside">
+		<li>The group name cannot be changed once created</li>
+		<li>Use Wiki text to describe the group</li>
+	</ul>
+	<form id="form" method="POST" action="" enctype="application/sparql-update" typeof="calli:Party calli:Group">
+		<label for="label">Name</label>
+		<div>
+			<input id="label" value="{rdfs:label}" type="text" class="auto-expand required" autofocus="autofocus" />
+		</div>
+		<label for="comment">Description</label>
+		<div>
+			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+		</div>
+		<button id="submit" type="submit">Create</button>
+	</form>
+</body>
 </html>

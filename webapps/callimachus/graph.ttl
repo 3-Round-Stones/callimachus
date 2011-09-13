@@ -22,11 +22,12 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Graph> a calli:Creatable, owl:Class;
-	rdfs:subClassOf calli:NamedGraph;
+<Graph> a calli:Creatable, <IndexClass>, owl:Class;
+	rdfs:subClassOf calli:Viewable, calli:NamedGraph;
 	rdfs:label "Graph";
 	calli:icon <graph.png>;
 	calli:create <graph-create.xhtml>;
+	calli:view <graph-view.xhtml>;
 	calli:uriSpace </>.
 
 :GetGraph rdfs:subClassOf msg:Message;
@@ -77,6 +78,7 @@
 		var obj = location;
 		if (!obj)
 			throw new BadRequest("No graph location provided");
+		var uri = obj.toString();
 
 		java.lang.System.out.println("Clearing " + uri);
 		con.removeDesignation(obj, NamedGraph);
@@ -101,6 +103,6 @@
 		con.commit();
 		java.lang.System.gc();
 		java.lang.System.out.println("Imported " + uri);
-		return graph_uploaded_xhtml.calliConstructHTML(obj);
+		return obj;
 	""".
 

@@ -36,16 +36,19 @@ function initForms() {
 	$('form[enctype="multipart/form-data"]').submit(function() {
 		var form = $(this);
 		if (overrideLocationURI || this.action.indexOf('&location=') < 0) {
+			var dir = calli.listResourceIRIs(getPageLocationURL())[0];
 			var file = form.find('input[type=file]');
-			if (file.length == 1) {
+			if (form.attr('about')) {
+				var uri = getResourceUri(form[0]);
+				overrideLocation(this, uri);
+				overrideLocationURI = true;
+			} else if (file.length == 1) {
 				var label = file.val().match(/[\\/]([^\\/]+)$/)[1];
-				var dir = calli.listResourceIRIs(getPageLocationURL())[0];
 				var local = encodeURIComponent(label).replace(/%20/g,'+').toLowerCase();
 				overrideLocation(this, dir, local);
 				overrideLocationURI = true;
 			} else if (form.find('input:text').val()) {
 				var label = form.find('input:text').val();
-				var dir = calli.listResourceIRIs(getPageLocationURL())[0];
 				var local = encodeURI(label).replace(/%20/g,'+').toLowerCase();
 				overrideLocation(this, dir, local);
 				overrideLocationURI = true;
@@ -57,7 +60,9 @@ function initForms() {
 
 function overrideLocation(form, dir, local) {
 	var uri;
-	if (dir.lastIndexOf('/') == dir.length - 1) {
+	if (!local) {
+		uri = dir;
+	} else if (dir.lastIndexOf('/') == dir.length - 1) {
 		uri = dir + local;
 	} else {
 		uri = dir + '/' + local;
@@ -71,16 +76,15 @@ function overrideLocation(form, dir, local) {
 }
 
 function submitRDFForm(form) {
-	var form = $(form);
 	try {
 		var se = jQuery.Event("calliSubmit");
-		form.trigger(se);
+		$(form).trigger(se);
 		if (!se.isDefaultPrevented()) {
-			form.find("input").change(); // IE may not have called onchange before onsubmit
+			$(form).find("input").change(); // IE may not have called onchange before onsubmit
 			var uri = getResourceUri(form);
 			var added = readRDF(uri, form);
 			var type = "application/rdf+xml";
-			var data = added.dump({format:"application/rdf+xml",serialize:true,namespaces:form.xmlns()});
+			var data = added.dump({format:"application/rdf+xml",serialize:true,namespaces:$(form).xmlns()});
 			postData(form.action, type, uri, data, function(data, textStatus, xhr) {
 				try {
 					var redirect = xhr.getResponseHeader("Location");
@@ -98,17 +102,17 @@ function submitRDFForm(form) {
 					} catch (e) { }
 					var event = jQuery.Event("calliRedirect");
 					event.location = window.calli.viewpage(redirect);
-					form.trigger(event);
+					$(form).trigger(event);
 					if (!event.isDefaultPrevented()) {
-						location.replace(event.location);
+						window.location.replace(event.location);
 					}
 				} catch(e) {
-					form.trigger("calliError", e.description ? e.description : e);
+					$(form).trigger("calliError", e.description ? e.description : e);
 				}
-			})
+			});
 		}
 	} catch(e) {
-		form.trigger("calliError", e.description ? e.description : e);
+		$(form).trigger("calliError", e.description ? e.description : e);
 	}
 	return false;
 }
@@ -116,28 +120,30 @@ function submitRDFForm(form) {
 var overrideFormURI = false;
 
 function getResourceUri(form) {
-	if (overrideFormURI || !form.attr('about') || form.attr('about') == $('body').attr('about')) {
+	if (overrideFormURI || !$(form).attr('about') || $(form).attr('about') == $('body').attr('about')) {
 		overrideFormURI = true;
-		var label = form.find('input:text').val();
+		var label = $(form).find('input:text').val();
 		if (label) {
-			var uri;
-			var base = calli.listResourceIRIs(getPageLocationURL())[0];
 			var local = encodeURI(label).replace(/%20/g,'+').toLowerCase();
-			if (base.lastIndexOf('/') == base.length - 1) {
-				uri = base + local;
-			} else {
-				uri = base + '/' + local;
-			}
-			form.attr('about', uri);
-			return uri;
+			$(form).attr('about', local);
 		}
 	}
-	return form.attr('about');
+	var uri = $(form).attr('about');
+	if (uri.indexOf(':') < 0 && uri.indexOf('/') != 0 && uri.indexOf('?') != 0) {
+		var dir = calli.listResourceIRIs(getPageLocationURL())[0];
+		if (dir.lastIndexOf('/') == dir.length - 1) {
+			uri = dir + uri;
+		} else {
+			uri = dir + '/' + uri;
+		}
+		$(form).attr('about', uri);
+	}
+	return $(form).attr('about');
 }
 
 function readRDF(uri, form) {
 	var subj = $.uri.base().resolve(uri);
-	var store = form.rdf().databank;
+	var store = $(form).rdf().databank;
 	store.triples().each(function(){
 		if (this.subject.type == 'uri' && this.subject.value.toString() != subj.toString() && this.subject.value.toString().indexOf(subj.toString() + '#') != 0 && (this.object.type != 'uri' || this.object.value.toString() != subj.toString() && this.object.value.toString().indexOf(subj.toString() + '#') != 0)) {
 			store.remove(this);

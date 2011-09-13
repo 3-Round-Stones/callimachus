@@ -35,7 +35,12 @@ function onload(event) {
 		event.location = window.calli.viewpage(redirect);
 		$(this).trigger(event);
 		if (!event.isDefaultPrevented()) {
-			location.replace(event.location);
+			var dataTarget = $(this).attr('data-target');
+			if (dataTarget && window.frames[dataTarget]) {
+				window.frames[dataTarget].location.href = event.location;
+			} else {
+				window.location.replace(event.location);
+			}
 		}
 	} else {
 		var h1 = $(doc).find('h1').html();

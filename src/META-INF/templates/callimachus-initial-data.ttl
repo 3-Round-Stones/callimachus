@@ -36,7 +36,7 @@
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;
-	calli:isNamespaceOf </group/>, </user/>, </image/>, </graph/>, </sparql>.
+	calli:isNamespaceOf </group/>, </user/>, </sparql>.
 
 </user/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "user";
@@ -78,18 +78,6 @@
 	calli:administrator </group/admin>.
 
 </callimachus/profile> a </callimachus/Profile>.
-
-</image/> a </callimachus/Folder>, calli:Folder;
-	rdfs:label "image";
-	rdfs:comment "Upload images here";
-	calli:reader </group/users>;
-	calli:editor </group/staff>;
-	calli:administrator </group/admin>.
-
-</graph/> a </callimachus/Folder>, calli:Folder;
-	rdfs:label "graph";
-	rdfs:comment "Upload RDF graphs here";
-	calli:administrator </group/admin>.
 
 ################################
 # Manifest and Menu

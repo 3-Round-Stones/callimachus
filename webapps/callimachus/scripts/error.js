@@ -42,14 +42,16 @@ function showError(event, error, detail) {
 				status = $(detail).find("h1").andSelf().filter("h1").html();
 				detail = $(detail).find("pre").andSelf().filter("pre").text();
 			}
-			var target = event.target;
-			if (!target) {
-				target = document;
+			if (status) {
+				var target = event.target;
+				if (!target) {
+					target = document;
+				}
+				var e = jQuery.Event("error");
+				e.message = status;
+				e.data = detail;
+				$(target).trigger(e);
 			}
-			var e = jQuery.Event("error");
-			e.message = status;
-			e.data = detail;
-			$(target).trigger(e);
 		} catch (e) {
 			alert(error);
 		}

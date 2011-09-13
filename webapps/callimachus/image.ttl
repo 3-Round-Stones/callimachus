@@ -24,7 +24,7 @@
 @prefix callimachus:<.>.
 @prefix :<#>.
 
-<Image> a calli:Creatable, owl:Class;
+<Image> a calli:Creatable, <IndexClass>, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, foaf:Image ;
 	rdfs:label "Image" ;
 	calli:icon <image.png>;

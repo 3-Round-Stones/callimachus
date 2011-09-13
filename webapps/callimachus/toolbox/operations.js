@@ -43,7 +43,7 @@ function getCreatePage(msg) {
 	return factory.calliCreate.calliConstruct(null, 'create');
 }
 
-function postRemoteCreate(msg) {
+function postFactoryCreate(msg) {
 	if (!(msg.create instanceof Creatable))
 		throw new BadRequest("Cannot create " + msg.create);
 	if (!(this instanceof Creator && this.IsCreatable(msg.create)))
@@ -55,7 +55,7 @@ function postRemoteCreate(msg) {
 	var dest = createdUri.substring(0, createdUri.lastIndexOf('/', createdUri.length - 2) + 1);
 	if (creatorUri != dest && creatorUri != dest.substring(0, dest.length - 1))
 		throw new BadRequest("Resource URI must be nested");
-	var newCopy = msg.create.PostCreate(msg.body, false, msg.location);
+	var newCopy = msg.create.PostCreate(msg.body, msg.location);
 	newCopy.calliReaders.addAll(this.calliReaders);
 	newCopy.calliEditors.addAll(this.calliEditors);
 	newCopy.calliAdministrators.addAll(this.calliAdministrators);
@@ -63,6 +63,7 @@ function postRemoteCreate(msg) {
 	while (statements.hasNext()) {
 		this.objectConnection.add(statements.next(), []);
 	}
+	msg.create.touchRevision();
 	if (!msg.intermediate) {
 		this.touchRevision();
 	}
@@ -80,9 +81,6 @@ function postCreate(msg) {
 	var newCopy = template.calliCreateResource(msg.body, this.toString(), msg.location);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
 	this.PropagatePermissions(newCopy);
-	if (!msg.intermediate) {
-		this.touchRevision();
-	}
 	return newCopy;
 }
 

@@ -14,7 +14,7 @@
 		<li>Provide a description of intent and usefulness</li>
 	</ul>
 	<form method="POST" action="" enctype="application/sparql-update" typeof="calli:Folder"
-			onsubmit="$(this).attr('about', location.pathname + encodeURI($('#label').val()).replace(/%20/g,'-').toLowerCase() +'/')">
+			onsubmit="$(this).attr('about', encodeURI($('#label').val()).replace(/%20/g,'-').toLowerCase() +'/')">
 		<div class="vbox">
 			<div class="input field">
 				<label for="label">Label</label>

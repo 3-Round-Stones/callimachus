@@ -28,7 +28,7 @@
 			<xsl:value-of select="concat($callimachus, '/manifest')" />
 		</xsl:if>
 	</xsl:variable>
-	<xsl:variable name="layout_xhtml" select="document(concat($callimachus, '/themes/default/layout.xhtml'))" />
+	<xsl:variable name="layout_xhtml" select="document(concat($manifest, '?layout'))" />
 	<xsl:variable name="layout_head" select="$layout_xhtml/xhtml:html/xhtml:head|$layout_xhtml/html/head" />
 	<xsl:variable name="layout_body" select="$layout_xhtml/xhtml:html/xhtml:body|$layout_xhtml/html/body" />
 	<xsl:variable name="template_body" select="/xhtml:html/xhtml:body|/html/body" />
@@ -71,17 +71,17 @@
 			</xsl:call-template>
 			<link rel="icon" href="{$manifest}?favicon" />
 			<link rel="stylesheet" href="{$callimachus}/styles/content.css" />
-			<link rel="stylesheet" href="/callimachus/themes/default/layout.css" />
-			<link rel="stylesheet" href="/callimachus/themes/default/colour.css" />
+			<link rel="stylesheet" href="{$manifest}?style" />
+			<link rel="stylesheet" href="{$manifest}?colour" />
 			<xsl:comment>[if lt IE 9]&gt;
 				&lt;link rel="stylesheet" href="/callimachus/themes/default/ie8.css" /&gt;
 				&lt;script src="//html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;
 			&lt;![endif]</xsl:comment>
 			<xsl:if test="//form|//xhtml:form|//*[contains(@class, 'ui-widget')]">
-				<link type="text/css" href="{$callimachus}/themes/default/jquery-ui.css" rel="stylesheet" />
+				<link type="text/css" href="{$manifest}?jqueryui" rel="stylesheet" />
 			</xsl:if>
 			<xsl:if test="//*[contains(@class,'aside')]">
-				<link rel="stylesheet" href="{$callimachus}/themes/default/aside.css" />
+				<link rel="stylesheet" href="{$manifest}?aside" />
 			</xsl:if>
 			<xsl:apply-templates select="$layout_head/*[local-name()!='script']|comment()" />
 			<xsl:apply-templates select="*[local-name()!='script']|comment()" />
@@ -96,9 +96,7 @@
 			<xsl:if test="$query='edit'">
 				<script type="text/javascript" src="{$callimachus}/toolbox/edit.js">&#160;</script>
 			</xsl:if>
-			<script type="text/javascript" src="/callimachus/themes/default/login.js"> </script>
-			<script type="text/javascript" src="/callimachus/themes/default/discussion.js"> </script>
-			<script type="text/javascript" src="/callimachus/themes/default/alert.js"> </script>
+			<script type="text/javascript" src="{$manifest}?source"> </script>
 			<xsl:apply-templates select="$layout_head/*[local-name()='script']" />
 			<xsl:apply-templates select="*[local-name()='script']" />
 		</xsl:copy>

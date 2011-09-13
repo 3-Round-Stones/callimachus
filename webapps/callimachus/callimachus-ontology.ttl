@@ -1,6 +1,7 @@
 # 
 #    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
 #    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
+#    Portions Copyright (c) 2011 3 Round Stones Inc, Some Rights Reserved
 # 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -143,6 +144,15 @@ calli:SchemaGraph a owl:Class;
 calli:ScriptBundle a owl:Class;
 	rdfs:label "Script Bundle";
 	rdfs:comment "A collection of JavaScript files that are downloaded and compressed together".
+
+calli:Theme a owl:Class;
+	rdfs:label "Theme";
+	rdfs:comment "A Callimachus Web theme of HTML templates, CSS, and JavaScript";
+	rdfs:subClassOf calli:ScriptBundle.
+
+calli:ColourScheme a owl:Class;
+	rdfs:label "Colour Scheme";
+	rdfs:comment "The CSS files used to colour one or more Callimachus Web themes".
 
 ################################
 # Annotation
@@ -346,6 +356,48 @@ calli:minified a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:comment "Level of minification that should be applied to this bundle. Zero represents no minification. One represents minimal minification";
 	rdfs:domain calli:ScriptBundle;
 	rdfs:range xsd:integer.
+
+calli:theme a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:label "theme";
+	rdfs:comment "The primary theme used for this manifest";
+	rdfs:domain calli:Manifest;
+	rdfs:range calli:Theme.
+
+calli:layout a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:label "layout";
+	rdfs:comment "The HTML template used by this theme as the primary page layout";
+	rdfs:domain calli:Theme.
+
+calli:style a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:label "style";
+	rdfs:comment "The primary CSS style for this theme";
+	rdfs:domain calli:Theme.
+
+calli:aside a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:label "aside";
+	rdfs:comment "The CSS style used in pages with aside links or notes";
+	rdfs:domain calli:Theme.
+
+calli:internetExplorer a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:label "internet explorer";
+	rdfs:comment "Additional CSS style file for this theme in IE8";
+	rdfs:domain calli:Theme.
+
+calli:colourScheme a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:label "colour scheme";
+	rdfs:comment "The primary colour scheme used for this manifest";
+	rdfs:domain calli:Manifest;
+	rdfs:range calli:ColourScheme.
+
+calli:colour a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:label "colour";
+	rdfs:comment "The primary CSS style for this colour scheme";
+	rdfs:domain calli:ColourScheme.
+
+calli:jqueryui a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:label "jQuery ui";
+	rdfs:comment "The jQuery UI theme used for this colour scheme";
+	rdfs:domain calli:ColourScheme.
 
 ################################
 # Message

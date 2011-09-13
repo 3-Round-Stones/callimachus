@@ -94,7 +94,9 @@
 	calli:forbidden </callimachus/pages/forbidden.xhtml>;
 	calli:authentication </callimachus/accounts>;
 	calli:logo </callimachus/images/callimachus-logo.png> ;
-	calli:favicon </callimachus/images/callimachus-icon.ico> .
+	calli:favicon </callimachus/images/callimachus-icon.ico> ;
+	calli:theme </callimachus/themes/default>;
+	calli:colourScheme </callimachus/themes/default>.
 
 </callimachus/menu> a </callimachus/Menu>, calli:Menu;
 	rdfs:label "menu";

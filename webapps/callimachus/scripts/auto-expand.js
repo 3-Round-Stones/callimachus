@@ -2,21 +2,41 @@
 
 (function($){
 
-$(window).bind('resize', findAllAutoExpandTextArea);
+$(window).bind('resize', fillOutFlex);
 $(document).bind('change', findAutoExpandTextArea);
 $(document).bind('keypress', findAutoExpandTextArea);
 $(document).bind('input', findAutoExpandTextArea);
 $(document).bind('paste', findAutoExpandTextArea);
 $(document).bind("DOMNodeInserted", findAutoExpandTextArea);
-$(document).ready(function(){setTimeout(findAllAutoExpandTextArea, 0)});
+$(document).ready(function(){setTimeout(fillOutFlex, 0)});
 $(window).load(function(event){
-	$('iframe').load(findAllAutoExpandTextArea);
-	$('img').load(findAllAutoExpandTextArea);
-	findAllAutoExpandTextArea();
+	$('iframe').load(fillOutFlex);
+	$('img').load(fillOutFlex);
+	fillOutFlex();
 });
 
-function findAllAutoExpandTextArea(){
+function fillOutFlex(){
+	findFlex(document);
 	findAutoExpandTextAreaIn(document);
+}
+
+function findFlex(target) {
+	var areas = $(".flex", target);
+	if ($(target).is(".flex")) {
+		areas = areas.add(target);
+	}
+	areas.each(function() {
+		flex(this);
+	});
+	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
+	if (innerHeight >= document.height) {
+		// no scrollbars yet, assume they will appear
+		setTimeout(function() {
+			if (innerHeight < document.height) {
+				findFlex(target);
+			}
+		}, 100);
+	}
 }
 
 function findAutoExpandTextArea(event) {
@@ -43,57 +63,23 @@ function targetAutoExpandTextArea(event) {
 	}
 }
 
+function flex(area) {
+	var contentWidth = getAvailableWidth(area);
+	var contentHeight = getAvailableHeight(area);
+	if ($(area).is(":input")) {
+		flexTextArea(area, contentWidth, contentHeight);
+	} else if (area.nodeName.toLowerCase() == "iframe") {
+		flexIframe(area, contentWidth, contentHeight);
+	} else {
+		flexBlock(area, contentWidth, contentHeight);
+	}
+}
+
 function expand(area) {
-	var clientWidth = document.documentElement.clientWidth;
-	var asideLeft = clientWidth;
-	$(".aside:visible").filter(function(){
-		var top = $(this).offset().top;
-		var parent = $(area).offsetParent();
-		return parent.offset().top < top + $(this).outerHeight(true) && parent.offset().top + parent.outerHeight(true) > top;
-	}).each(function() {
-		var left = $(this).offset().left;
-		left -= parsePixel($(this).css("margin-left"));
-		if (left < asideLeft) {
-			asideLeft = left;
-		}
-	});
-	var left = $(area).css("border-left-width");
-	var right = $(area).css("border-right-width");
-	var margin = $(area).css("margin-right-width");
-	var marginRight = parsePixel(left) + parsePixel(right) + parsePixel(margin);
-	$(area).parents().each(function(){
-		marginRight += parsePixel($(this).css("border-right-width"));
-		marginRight += parsePixel($(this).css("margin-right"));
-		marginRight += parsePixel($(this).css("padding-right"));
-	});
-	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-	var body = $(area).parents('body>*').offset().top + $(area).parents('body>*').outerHeight(true) - $(area).outerHeight(true);
-	var formTop = $(area).parents('form').offset().top;
-	var formHeight = $(area).parents('form').outerHeight(true) - $(area).outerHeight(true);
-	var contentHeight = innerHeight;
-	if (body <= innerHeight / 3) {
-		contentHeight -= body;
-	} else if (formHeight > 0 && formTop > 0 && formHeight + formTop <= innerHeight / 3) {
-		contentHeight -= formHeight + formTop;
-	} else if (formHeight > 0 && formHeight <= innerHeight / 3) {
-		contentHeight -= formHeight;
-	}
-	var contentWidth = asideLeft - $(area).offset().left - marginRight;
-	if (innerHeight >= document.height) {
-		// no scrollbars yet, assume they will appear
-		contentWidth -= 32;
-		setTimeout(function() {
-			if (innerHeight < document.height) {
-				findAutoExpandTextAreaIn(document);
-			}
-		}, 100);
-	}
+	var contentWidth = getAvailableWidth(area);
+	var contentHeight = getAvailableHeight(area);
 	if ($(area).is(":input")) {
 		expandTextArea(area, contentWidth, contentHeight);
-	} else if (area.nodeName.toLowerCase() == "iframe") {
-		expandIframe(area, contentWidth, contentHeight);
-	} else {
-		expandBlock(area, contentWidth, contentHeight);
 	}
 }
 
@@ -126,7 +112,12 @@ function expandTextArea(area, contentWidth, innerHeight) {
 	}
 }
 
-function expandIframe(area, contentWidth, innerHeight) {
+function flexTextArea(area, contentWidth, innerHeight) {
+	$(area).css('width', contentWidth);
+	$(area).css('height', innerHeight);
+}
+
+function flexIframe(area, contentWidth, innerHeight) {
 	if (area.contentWindow) {
 		$(area).css('width', contentWidth);
 		try {
@@ -154,10 +145,98 @@ function expandIframe(area, contentWidth, innerHeight) {
 	}
 }
 
-function expandBlock(area, contentWidth, innerHeight) {
+function flexBlock(area, contentWidth, innerHeight) {
 	$(area).css('width', contentWidth);
 	$(area).css('max-height', innerHeight);
 	$(area).css('overflow', 'auto');
+}
+
+function getAvailableHeight(area) {
+	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
+	var body = $(area).parents('body>*').offset().top + $(area).parents('body>*').outerHeight(true) - $(area).outerHeight(true);
+	var formTop = $(area).parents('form').offset().top;
+	var formHeight = $(area).parents('form').outerHeight(true) - $(area).outerHeight(true);
+	var mainTop = $(area).parents('#content').offset().top;
+	var mainHeight = $(area).parents('#content').outerHeight(true) - $(area).outerHeight(true);
+	var contentHeight = innerHeight;
+	if (body <= innerHeight / 3) {
+		contentHeight -= body;
+	} else if (mainHeight > 0 && mainTop > 0 && mainHeight + mainTop <= innerHeight / 3) {
+		contentHeight -= mainHeight + mainTop;
+	} else if (formHeight > 0 && formTop > 0 && formHeight + formTop <= innerHeight / 3) {
+		contentHeight -= formHeight + formTop;
+	} else if (formHeight > 0 && formHeight <= innerHeight / 3) {
+		contentHeight -= formHeight;
+	}
+	return contentHeight;
+}
+
+function getAvailableWidth(area) {
+	var margin = getMarginRight(area);
+	var contentWidth = document.documentElement.clientWidth - $(area).offset().left - margin;
+	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
+	if (innerHeight >= document.height) {
+		// no scrollbars yet, assume they will appear
+		contentWidth -= 32;
+	}
+	return contentWidth;
+}
+
+function getMarginRight(area) {
+	var clientWidth = document.documentElement.clientWidth;
+	var asideLeft = getAsideLeft(area);
+	var parent = getParentBlock(area);
+	var left = $(area).css("border-left-width");
+	var right = $(area).css("border-right-width");
+	var margin = $(area).css("margin-right-width");
+	var marginRight = parsePixel(left) + parsePixel(right) + parsePixel(margin);
+	var breakFlag = false;
+	$(area).parents().each(function(){
+		if (this == parent) {
+			breakFlag = true;
+		} else if (!breakFlag) {
+			marginRight += parsePixel($(this).css("border-right-width"));
+			marginRight += parsePixel($(this).css("margin-right"));
+			marginRight += parsePixel($(this).css("padding-right"));
+		}
+	});
+	marginRight += clientWidth - $(parent).offset().left - parsePixel($(parent).css('border-left-width')) - $(parent).width();
+	if (marginRight >= clientWidth - asideLeft)
+		return marginRight;
+	return marginRight + clientWidth - asideLeft;
+}
+
+function getParentBlock(area) {
+	var parent = null;
+	$(area).parents().each(function(){
+		if (!parent) {
+			var display = $(this).css('display');
+			var floatStyle = $(this).css('float');
+			if (display == 'block' && (!floatStyle || floatStyle == 'none')) {
+				parent = this;
+			}
+		}
+	});
+	if (parent)
+		return parent;
+	return $('body')[0];
+}
+
+function getAsideLeft(area) {
+	var clientWidth = document.documentElement.clientWidth;
+	var asideLeft = clientWidth;
+	var areaTop = $(area).offset().top;
+	$(".aside:visible").filter(function(){
+		var top = $(this).offset().top;
+		return areaTop < top + $(this).outerHeight(true) && areaTop + $(area).outerHeight(true) > top;
+	}).each(function() {
+		var left = $(this).offset().left;
+		left -= parsePixel($(this).css("margin-left"));
+		if (left < asideLeft) {
+			asideLeft = left;
+		}
+	});
+	return asideLeft;
 }
 
 function parsePixel(str) {

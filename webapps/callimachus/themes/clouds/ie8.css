@@ -26,7 +26,7 @@
 
 	h1 ~ .aside,hgroup ~ .aside {
 		position:relative;
-		top:-3.5em;
+		top:-4.5em;
 	}
 	.aside {
 		float:right;

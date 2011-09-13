@@ -1,0 +1,44 @@
+/* ie8.css */
+
+	#logo {
+		display:block;
+		height:90px;
+		width:192px;
+	}
+	#header {
+		margin-left:192px;
+	}
+
+	#page {
+		width:960px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	#footer-text {
+		width:960px;
+		margin-left:auto;
+		margin-right:auto;
+	}
+
+	#content {
+		min-height:21em;
+	}
+
+	h1 ~ .aside,hgroup ~ .aside {
+		position:relative;
+		top:-3.5em;
+	}
+	.aside {
+		float:right;
+	}
+	#main {
+		margin-right:18em;
+	}
+	.aside {
+		margin-right:-18.5em;
+	}
+
+	.aside {
+		margin-top:-17px;
+		margin-bottom:2em;
+	}

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,target-densityDpi=device-dpi"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1" />
+	<noscript><style>body.wait, body.wait * {cursor: auto !important}</style></noscript>
+</head>
+<body class="wait">
+	<div id="page-top">
+		<div id="top" />
+		<div id="page">
+			<a href="/" id="logo">&#160;</a>
+			<div id="header">
+				<div id="header-float">
+					<div id="header-text">
+						<form id="header-login" action="/callimachus/accounts?login">
+							<button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+								<span class="ui-button-icon-primary ui-icon ui-icon-circle-arrow-s"> </span>
+								<span class="ui-button-text">Login</span>
+							</button>
+						</form>
+						<span id="header-profile" class="protected" style="display:none">
+							<a id="profile-link" href="/callimachus/accounts?login">Profile</a>
+							<span> | </span>
+							<a href="/callimachus/accounts?settings">Settings</a>
+							<span> | </span>
+							<a href="/callimachus/accounts?contributions">Contributions</a>
+							<span> | </span>
+							<a id="logout-link" href="/callimachus/accounts?logout">Logout</a>
+						</span>
+						<form id="header-lookup" class="textarea" method="GET" action="/callimachus/lookup">
+							<input type="text" name="q" placeholder="Lookup..." />
+							<button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only">
+								<span class="ui-button-icon-primary ui-icon ui-icon-search"> </span>
+								<span class="ui-button-text">Go</span>
+							</button>
+						</form>
+					</div>
+				</div>
+				<div id="header-float-clear" />
+			</div>
+
+			<div id="main">
+				<div id="error-widget" class="ui-state-error ui-corner-all" style="padding: 1ex; margin: 1ex; display: none">
+					<div><span class="ui-icon ui-icon-alert" style="margin-right: 0.3em; float: left; "></span>
+					<strong>Alert:</strong><span id="error-message" style="padding: 0px 0.7em"> Sample ui-state-error style.</span></div>
+				</div>
+				<div id="content">
+					Main content goes here.
+				</div>
+				<ul id="tabs" class="protected">
+					<li>
+						<a id="view-tab" tabindex="1" href="?view" onclick="location.replace(href);return false">View</a>
+					</li>
+					<li>
+						<a id="edit-tab" tabindex="2" href="?edit" onclick="location.replace(href);return false">Edit</a>
+					</li>
+					<li>
+						<a id="discussion-tab" tabindex="3" href="?discussion" onclick="location.replace(href);return false">Discussion</a>
+					</li>
+					<li>
+						<a id="describe-tab" tabindex="4" href="?describe" onclick="location.replace(href);return false">Describe</a>
+					</li>
+					<li>
+						<a id="history-tab" tabindex="5" href="?history" onclick="location.replace(href);return false">History</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div id="footer" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
+		<div id="footer-text">
+			<ul id="nav">
+				<li><h3>Menu item</h3>
+					<ul>
+						<li><a href="#">Sub item</a></li>
+					</ul>
+				</li>
+			</ul>
+			<p id="footer-powered">
+				<a href="http://callimachusproject.org/" title="Callimachus">
+					<img src="/callimachus/images/callimachus-powered.png" alt="Callimachus" width="98" height="35" />
+				</a>
+			</p>
+			<p id="resource-lastmod">This resource was last modified info here</p>
+			<p id="manifest-rights">Copyright and licensing rights here.</p>
+		</div>
+	</div>
+</body>
+</html>

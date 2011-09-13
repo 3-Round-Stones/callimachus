@@ -1,0 +1,222 @@
+/* colour.css */
+
+body {
+	-webkit-background-size:cover;
+	-moz-background-size:cover;
+	-o-background-size:cover;
+	background-size:cover;
+	background:url(bg.jpg) no-repeat center center fixed;
+	background-color:black;
+}
+	
+#top {
+	background-color:#231F20;
+}
+
+#footer {
+	background-color:#231F20;
+	color:#BCBEC0;
+}
+
+#footer a {
+	color: #BCBEC0;
+}
+
+#header {
+	-moz-border-radius: 12px;
+	-webkit-border-radius: 12px;
+	border-radius: 12px;
+	background-color:white;
+	background-color:rgba(256,256,256,0.75);
+	border: solid 1px #666;	
+}
+
+#logo {
+	background-image:url(/callimachus/manifest?logo);
+	background-position:50% 50%;
+	background-repeat:no-repeat;
+}
+
+#header button {
+	border:0;
+	-moz-border-radius:3px;
+	-moz-box-shadow:0 1px 3px rgba(0,0,0,0.5);
+	-webkit-border-radius:3px;
+	-webkit-box-shadow:0 1px 3px rgba(0,0,0,0.5);
+	border-bottom:1px solid black;
+	border-bottom:1px solid rgba(0,0,0,0.25);
+	background-color:#555;
+	color:#FFF;
+	text-shadow:0 -1px 1px rgba(0,0,0,0.25);
+}
+
+#header .ui-icon-search {
+	background-image: url(images/ui-icons_333333_256x240.png);
+	background-position: -160px -112px;
+	background-repeat: no-repeat;
+}
+
+#header .ui-icon-circle-arrow-s {
+	background-image: url(images/ui-icons_ffffff_256x240.png);
+	background-position: -128px -192px;
+	background-repeat: no-repeat;
+}
+
+#header .ui-state-default {
+	background: #555 url(images/ui-bg_flat_100_555555_40x100.png) repeat-x 50% 50%;
+	border: 1px solid #333;
+	color:white;
+}
+
+#nav>li {
+	border-right:solid 1px #414042;
+}
+
+#nav li h3 {
+	color:white;
+	font-weight:bold;
+}
+
+#main {
+	-moz-border-radius: 12px;
+	-webkit-border-radius: 12px;
+	border-radius: 12px;
+	background-color:white;
+	background-color:rgba(256,256,256,0.75);
+	border: solid 1px #666;	
+}
+
+@media screen and (min-width:36em) {
+	.aside {
+		margin-top:-17px;
+		margin-bottom:2em;
+	}
+} /* end screen */
+
+a[href] {
+	color:#0645AD;
+}
+
+#tabs {
+	-moz-border-bottom-left-radius:12px;
+	-moz-border-bottom-right-radius:12px;
+	-webkit-border-bottom-left-radius:12px;
+	-webkit-border-bottom-right-radius:12px;
+	border-bottom-left-radius:12px;
+	border-bottom-right-radius:12px;
+	-moz-box-shadow:0 -2px 5px #888;
+	-webkit-box-shadow:0 -2px 5px #888;
+	box-shadow:0 -2 5px #888;
+	background:white;
+	border-top:solid 1px #666;
+	background-color:white;
+	background-color:rgba(256,256,256,0.75);
+}
+
+#tabs li a {
+	border-right: groove 2px white;
+}
+
+#tabs li a[href] {
+	background:transparent;
+}
+
+body.iframe,body.iframe #main {
+	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled=false)";
+	background:inherit;
+	border:none;
+}
+
+iframe.ui-widget-content.ui-dialog-content {
+	background-color:white;
+	border:none;
+}
+
+.aside {
+	-moz-border-radius: 12px;
+	-webkit-border-radius: 12px;
+	border-radius: 12px;
+	background-color:white;
+	background-color:rgba(256,256,256,0.75);
+	border: solid 1px #666;
+}
+
+.aside>li {
+	border-bottom:1px solid #A8ACB8;
+}
+
+.aside>li:last-child {
+	border-bottom:none;
+}
+
+h1 {
+	color:#01017C;
+	text-shadow:1px 1px 1px #FFFFFF;
+	border-bottom:2px groove white;
+}
+
+img {
+	border:none;
+}
+
+table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.aside>tbody>tr>th {
+	border-bottom:1px solid #A8ACB8;
+}
+
+table.aside>tbody:last-child>tr:last-child>td,table.aside>tbody:last-child>tr:last-child>th {
+	border-bottom:none;
+}
+
+.cite {
+	color:#3F547F;
+}
+
+.watermark {
+	color:#aaa;
+}
+
+.drag-over {
+	background-color:#DDDDDD !important;
+}
+
+input, textarea, .textarea {
+	border: thin solid #999FAD;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	background: -webkit-gradient(linear, left top, left 25, from(#FFFFFF), color-stop(4%, #EEEEEE), to(#FFFFFF));
+	background: -moz-linear-gradient(top, #FFFFFF, #EEEEEE 1px, #FFFFFF 25px);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#EEEEEE, endColorstr=white, GradientType=0)";
+	box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;
+	-moz-box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;
+	-webkit-box-shadow: rgba(0,0,0, 0.1) 0px 0px 8px;
+}
+
+.textarea>input,.textarea>button {
+	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=#EEEEEE, endColorstr=white, GradientType=0)";
+	box-shadow:none !important;
+	border:0 !important;
+	background:transparent !important;
+}
+
+button {
+	border:0;
+	-moz-border-radius:3px;
+	-moz-box-shadow:0 1px 3px rgba(0,0,0,0.5);
+	-webkit-border-radius:3px;
+	-webkit-box-shadow:0 1px 3px rgba(0,0,0,0.5);
+	border-bottom:1px solid black;
+	border-bottom:1px solid rgba(0,0,0,0.25);
+	background-color:#555;
+	color:#FFF;
+	text-shadow:0 -1px 1px rgba(0,0,0,0.25);
+}
+
+button[type=submit], button:hover {
+	background-color:#3A80B3;
+	color:#fff;
+}
+
+label.error {
+	color:red;
+}
+

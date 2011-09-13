@@ -64,19 +64,23 @@ function targetAutoExpandTextArea(event) {
 }
 
 function flex(area) {
-	var contentWidth = getAvailableWidth(area);
-	var contentHeight = getAvailableHeight(area);
 	if ($(area).is(":input")) {
+		var contentWidth = getAvailableWidth(area, true);
+		var contentHeight = getAvailableHeight(area);
 		flexTextArea(area, contentWidth, contentHeight);
 	} else if (area.nodeName.toLowerCase() == "iframe") {
+		var contentWidth = getAvailableWidth(area, true);
+		var contentHeight = getAvailableHeight(area);
 		flexIframe(area, contentWidth, contentHeight);
 	} else {
+		var contentWidth = getAvailableWidth(area, false);
+		var contentHeight = getAvailableHeight(area);
 		flexBlock(area, contentWidth, contentHeight);
 	}
 }
 
 function expand(area) {
-	var contentWidth = getAvailableWidth(area);
+	var contentWidth = getAvailableWidth(area, true);
 	var contentHeight = getAvailableHeight(area);
 	if ($(area).is(":input")) {
 		expandTextArea(area, contentWidth, contentHeight);
@@ -171,11 +175,11 @@ function getAvailableHeight(area) {
 	return contentHeight;
 }
 
-function getAvailableWidth(area) {
+function getAvailableWidth(area, withScrollbars) {
 	var margin = getMarginRight(area);
 	var contentWidth = document.documentElement.clientWidth - $(area).offset().left - margin;
 	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-	if (innerHeight >= document.height) {
+	if (withScrollbars && innerHeight >= document.height) {
 		// no scrollbars yet, assume they will appear
 		contentWidth -= 32;
 	}
@@ -208,15 +212,14 @@ function getMarginRight(area) {
 
 function getParentBlock(area) {
 	var parent = null;
-	$(area).parents().each(function(){
-		if (!parent) {
-			var display = $(this).css('display');
-			var floatStyle = $(this).css('float');
-			if (display == 'block' && (!floatStyle || floatStyle == 'none')) {
-				parent = this;
-			}
-		}
-	});
+	var parents = $(area).parents();
+	for (var i=parents.length;i--;) {
+		var display = $(parents[i]).css('display');
+		var floatStyle = $(parents[i]).css('float');
+		if (display != 'block' || floatStyle && floatStyle != 'none')
+			break;
+		parent = parents[i];
+	}
 	if (parent)
 		return parent;
 	return $('body')[0];

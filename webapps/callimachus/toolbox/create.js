@@ -177,52 +177,62 @@ function getDirectory(form, callback, fin) {
 	if (location.search.search(/\?\w+=/) == 0) {
 		callback(calli.listResourceIRIs(getPageLocationURL())[0]);
 	} else {
-		var width = 450;
-		var height = 500;
-		if ($('body').is('.iframe')) {
-			width = 350;
-			height = 450;
+		calli.promptFolder(form, callback, fin);
+	}
+}
+
+window.calli.promptFolder = function(form, callback, fin) {
+	var width = 450;
+	var height = 500;
+	if ($('body').is('.iframe')) {
+		width = 350;
+		height = 450;
+	}
+	var iframe = $("<iframe></iframe>");
+	iframe.attr('src', "/callimachus/Folder");
+	iframe.dialog({
+		title: 'Choose a folder or namespace',
+		autoOpen: false,
+		modal: false,
+		draggable: true,
+		resizable: true,
+		autoResize: true,
+		width: width,
+		height: height
+	});
+	iframe.bind("dialogclose", function(event, ui) {
+		iframe.remove();
+		iframe.parent().remove();
+		if (typeof fin == 'function') {
+			fin();
 		}
-		var iframe = $("<iframe></iframe>");
-		iframe.attr('src', "/callimachus/Folder");
-		iframe.dialog({
-			title: 'Choose a folder or namespace',
-			autoOpen: false,
-			modal: false,
-			draggable: true,
-			resizable: true,
-			autoResize: true,
-			width: width,
-			height: height
-		});
-		iframe.bind("dialogclose", function(event, ui) {
-			iframe.remove();
-			iframe.parent().remove();
-			if (typeof fin == 'function') {
-				fin();
-			}
-		});
-		$(window).bind('message', function(event) {
-			if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data.indexOf('PUT src\n') == 0) {
-				var data = event.originalEvent.data;
-				var src = data.substring(data.indexOf('\n\n') + 2);
-				var uri = calli.listResourceIRIs(src)[0];
-				if (uri.lastIndexOf('/') == uri.length - 1) {
+	});
+	$(window).bind('message', function(event) {
+		if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data.indexOf('PUT src\n') == 0) {
+			var data = event.originalEvent.data;
+			var src = data.substring(data.indexOf('\n\n') + 2);
+			var uri = calli.listResourceIRIs(src)[0];
+			if (uri.lastIndexOf('/') == uri.length - 1) {
+				if (form) {
 					var action = form.action ? form.action : getPageLocationURL();
 					var m;
-					if (m = action.match(/^(\?\w+)(&.*)?$/)) {
+					if (m = action.match(/^(\?\w+)(&.*)$/)) {
 						form.action = uri + m[1] + '=' + location.pathname + m[2];
-					} else if (m = action.match(/^([^\?]+)(\?\w+)(&.*)?$/)) {
+					} else if (m = action.match(/^([^\?]+)(\?\w+)(&.*)$/)) {
 						form.action = uri + m[2] + '=' + m[1] + m[3];
+					} else if (m = action.match(/^(\?\w+)$/)) {
+						form.action = uri + m[1] + '=' + location.pathname;
+					} else if (m = action.match(/^([^\?]+)(\?\w+)$/)) {
+						form.action = uri + m[2] + '=' + m[1];
 					}
-					callback(uri);
-					iframe.dialog('close');
 				}
+				callback(uri);
+				iframe.dialog('close');
 			}
-		});
-		iframe.dialog("open");
-		iframe.css('width', '100%');
-	}
+		}
+	});
+	iframe.dialog("open");
+	iframe.css('width', '100%');
 }
 
 function readRDF(uri, form) {

@@ -71,7 +71,3 @@
 		return ret;
 	""".
 
-<sample-view.xhtml> a </callimachus/Page>.
-<sample-edit.xhtml> a </callimachus/Page>.
-<sample-create.xhtml> a </callimachus/Page>.
-

@@ -83,22 +83,15 @@
 		java.lang.System.out.println("Clearing " + uri);
 		con.removeDesignation(obj, NamedGraph);
 		con.removeDesignation(obj, Graph);
-		con.remove(this.resource, RDFS.LABEL, vf.createLiteral(label), []);
+		con.remove(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 		con.clear([vf.createURI(uri)]);
 		obj.touchRevision();
-
-		var oldLocal = URLEncoder.encode(fileName, "UTF-8").replace(/%20/g, "+");
-		var oldUri = this.toUri().resolve("/graph/") + oldLocal;
-		var oldObj = con.getObject(oldUri);
-		con.removeDesignation(oldObj, NamedGraph);
-		con.removeDesignation(oldObj, Graph);
-		con.clear([vf.createURI(oldUri)]);
 
 		java.lang.System.out.println("Parsing " + fileName);
 		con.add(file, uri, format, [vf.createURI(uri)]);
 		con.addDesignation(obj, NamedGraph);
 		con.addDesignation(obj, Graph);
-		con.add(this.resource, RDFS.LABEL, label, []);
+		con.add(obj.resource, RDFS.LABEL, label, []);
 		parser.close();
 		con.commit();
 		java.lang.System.gc();

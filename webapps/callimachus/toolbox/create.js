@@ -33,25 +33,50 @@ function initForms() {
 		});
 	}
 	var overrideLocationURI = false;
-	$('form[enctype="multipart/form-data"]').submit(function() {
+	var prompted = false;
+	$('form[enctype="multipart/form-data"]').submit(function(event) {
+		if (prompted)
+			return true;
 		var form = $(this);
 		if (overrideLocationURI || this.action.indexOf('&location=') < 0) {
-			var dir = calli.listResourceIRIs(getPageLocationURL())[0];
 			var file = form.find('input[type=file]');
 			if (form.attr('about')) {
-				var uri = getResourceUri(form[0]);
-				overrideLocation(this, uri);
-				overrideLocationURI = true;
+				event.preventDefault();
+				prompted = true;
+				getResourceUri(form[0], function(uri){
+					overrideLocation(form[0], uri);
+					overrideLocationURI = true;
+					form.submit();
+				}, function(){
+					prompted = false;
+				});
+				return false;
 			} else if (file.length == 1) {
-				var label = file.val().match(/[\\/]([^\\/]+)$/)[1];
-				var local = encodeURIComponent(label).replace(/%20/g,'+').toLowerCase();
-				overrideLocation(this, dir, local);
-				overrideLocationURI = true;
+				event.preventDefault();
+				prompted = true;
+				getDirectory(form[0], function(dir) {
+					var label = file.val().match(/[\\/]([^\\/]+)$/)[1];
+					var local = encodeURIComponent(label).replace(/%20/g,'+').toLowerCase();
+					overrideLocation(form[0], dir, local);
+					overrideLocationURI = true;
+					form.submit();
+				}, function(){
+					prompted = false;
+				});
+				return false;
 			} else if (form.find('input:text').val()) {
-				var label = form.find('input:text').val();
-				var local = encodeURI(label).replace(/%20/g,'+').toLowerCase();
-				overrideLocation(this, dir, local);
-				overrideLocationURI = true;
+				event.preventDefault();
+				prompted = true;
+				getDirectory(form[0], function(dir) {
+					var label = form.find('input:text').val();
+					var local = encodeURI(label).replace(/%20/g,'+').toLowerCase();
+					overrideLocation(form[0], dir, local);
+					overrideLocationURI = true;
+					form.submit();
+				}, function(){
+					prompted = false;
+				});
+				return false;
 			}
 		}
 		return true;
@@ -76,50 +101,51 @@ function overrideLocation(form, dir, local) {
 }
 
 function submitRDFForm(form) {
-	try {
-		var se = jQuery.Event("calliSubmit");
-		$(form).trigger(se);
-		if (!se.isDefaultPrevented()) {
-			$(form).find("input").change(); // IE may not have called onchange before onsubmit
-			var uri = getResourceUri(form);
-			var added = readRDF(uri, form);
-			var type = "application/rdf+xml";
-			var data = added.dump({format:"application/rdf+xml",serialize:true,namespaces:$(form).xmlns()});
-			postData(form.action, type, uri, data, function(data, textStatus, xhr) {
-				try {
-					var redirect = xhr.getResponseHeader("Location");
+	var se = jQuery.Event("calliSubmit");
+	$(form).trigger(se);
+	if (!se.isDefaultPrevented()) {
+		$(form).find("input").change(); // IE may not have called onchange before onsubmit
+		getResourceUri(form, function(uri){
+			try {
+				var added = readRDF(uri, form);
+				var type = "application/rdf+xml";
+				var data = added.dump({format:"application/rdf+xml",serialize:true,namespaces:$(form).xmlns()});
+				postData(form.action, type, uri, data, function(data, textStatus, xhr) {
 					try {
-						if (window.frameElement && parent.jQuery) {
-							var ce = parent.jQuery.Event("calliCreate");
-							ce.location = window.calli.viewpage(redirect);
-							ce.about = $.uri.base().resolve($(form).attr("about")).toString();
-							ce.rdfType = $(form).attr("typeof");
-							parent.jQuery(frameElement).trigger(ce);
-							if (ce.isDefaultPrevented()) {
-								return;
+						var redirect = xhr.getResponseHeader("Location");
+						try {
+							if (window.frameElement && parent.jQuery) {
+								var ce = parent.jQuery.Event("calliCreate");
+								ce.location = window.calli.viewpage(redirect);
+								ce.about = $.uri.base().resolve($(form).attr("about")).toString();
+								ce.rdfType = $(form).attr("typeof");
+								parent.jQuery(frameElement).trigger(ce);
+								if (ce.isDefaultPrevented()) {
+									return;
+								}
 							}
+						} catch (e) { }
+						var event = jQuery.Event("calliRedirect");
+						event.location = window.calli.viewpage(redirect);
+						$(form).trigger(event);
+						if (!event.isDefaultPrevented()) {
+							window.location.replace(event.location);
 						}
-					} catch (e) { }
-					var event = jQuery.Event("calliRedirect");
-					event.location = window.calli.viewpage(redirect);
-					$(form).trigger(event);
-					if (!event.isDefaultPrevented()) {
-						window.location.replace(event.location);
+					} catch(e) {
+						$(form).trigger("calliError", e.description ? e.description : e);
 					}
-				} catch(e) {
-					$(form).trigger("calliError", e.description ? e.description : e);
-				}
-			});
-		}
-	} catch(e) {
-		$(form).trigger("calliError", e.description ? e.description : e);
+				});
+			} catch(e) {
+				$(form).trigger("calliError", e.description ? e.description : e);
+			}
+		});
 	}
 	return false;
 }
 
 var overrideFormURI = false;
 
-function getResourceUri(form) {
+function getResourceUri(form, callback, fin) {
 	if (overrideFormURI || !$(form).attr('about') || $(form).attr('about') == $('body').attr('about')) {
 		overrideFormURI = true;
 		var label = $(form).find('input:text').val();
@@ -130,15 +156,73 @@ function getResourceUri(form) {
 	}
 	var uri = $(form).attr('about');
 	if (uri.indexOf(':') < 0 && uri.indexOf('/') != 0 && uri.indexOf('?') != 0) {
-		var dir = calli.listResourceIRIs(getPageLocationURL())[0];
-		if (dir.lastIndexOf('/') == dir.length - 1) {
-			uri = dir + uri;
-		} else {
-			uri = dir + '/' + uri;
+		getDirectory(form, function(dir){
+			if (dir.lastIndexOf('/') == dir.length - 1) {
+				uri = dir + uri;
+			} else {
+				uri = dir + '/' + uri;
+			}
+			$(form).attr('about', uri);
+			callback(uri);
+		}, fin);
+	} else {
+		callback($(form).attr('about'));
+		if (typeof fin == 'function') {
+			fin();
 		}
-		$(form).attr('about', uri);
 	}
-	return $(form).attr('about');
+}
+
+function getDirectory(form, callback, fin) {
+	if (location.search.search(/\?\w+=/) == 0) {
+		callback(calli.listResourceIRIs(getPageLocationURL())[0]);
+	} else {
+		var width = 450;
+		var height = 500;
+		if ($('body').is('.iframe')) {
+			width = 350;
+			height = 450;
+		}
+		var iframe = $("<iframe></iframe>");
+		iframe.attr('src', "/callimachus/Folder");
+		iframe.dialog({
+			title: 'Choose a folder or namespace',
+			autoOpen: false,
+			modal: false,
+			draggable: true,
+			resizable: true,
+			autoResize: true,
+			width: width,
+			height: height
+		});
+		iframe.bind("dialogclose", function(event, ui) {
+			iframe.remove();
+			iframe.parent().remove();
+			if (typeof fin == 'function') {
+				fin();
+			}
+		});
+		$(window).bind('message', function(event) {
+			if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data.indexOf('PUT src\n') == 0) {
+				var data = event.originalEvent.data;
+				var src = data.substring(data.indexOf('\n\n') + 2);
+				var uri = calli.listResourceIRIs(src)[0];
+				if (uri.lastIndexOf('/') == uri.length - 1) {
+					var action = form.action ? form.action : getPageLocationURL();
+					var m;
+					if (m = action.match(/^(\?\w+)(&.*)?$/)) {
+						form.action = uri + m[1] + '=' + location.pathname + m[2];
+					} else if (m = action.match(/^([^\?]+)(\?\w+)(&.*)?$/)) {
+						form.action = uri + m[2] + '=' + m[1] + m[3];
+					}
+					callback(uri);
+					iframe.dialog('close');
+				}
+			}
+		});
+		iframe.dialog("open");
+		iframe.css('width', '100%');
+	}
 }
 
 function readRDF(uri, form) {

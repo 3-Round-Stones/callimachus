@@ -157,7 +157,7 @@ function flexBlock(area, contentWidth, innerHeight) {
 
 function getAvailableHeight(area) {
 	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-	var body = $(area).parents('body>*').offset().top + $(area).parents('body>*').outerHeight(true) - $(area).outerHeight(true);
+	var body = $(area).parents('body>*').offset().top + $(area).parents('body>*').outerHeight(true) - $(area).innerHeight();
 	var formTop = $(area).parents('form').offset().top;
 	var formHeight = $(area).parents('form').outerHeight(true) - $(area).outerHeight(true);
 	var mainTop = $(area).parents('#content').offset().top;
@@ -179,7 +179,7 @@ function getAvailableWidth(area, withScrollbars) {
 	var margin = getMarginRight(area);
 	var contentWidth = document.documentElement.clientWidth - $(area).offset().left - margin;
 	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-	if (withScrollbars && innerHeight >= document.height) {
+	if (withScrollbars && innerHeight >= document.height && !$('body').is('.iframe')) {
 		// no scrollbars yet, assume they will appear
 		contentWidth -= 32;
 	}

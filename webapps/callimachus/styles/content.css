@@ -73,6 +73,10 @@ label {
 	margin:0;
 }
 
+.flex {
+	display:block;
+}
+
 header,nav,article,footer,address,details,summary {
 	display:block;
 }

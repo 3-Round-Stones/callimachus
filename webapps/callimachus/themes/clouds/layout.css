@@ -177,9 +177,11 @@ h1 {
 	font-weight:normal;
 }
 
-body.iframe,body.iframe #main {
+body.iframe,body.iframe #main,body.iframe #page-top,body.iframe #page {
 	margin:0;
 	padding:0;
+	height:auto;
+	max-height:none;
 }
 
 body.iframe #content {

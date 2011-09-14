@@ -13,8 +13,17 @@ jQuery(function($) {
 
 	if (window.frameElement) {
 		$('body').addClass('iframe');
-		if (parent.postMessage) {
-			parent.postMessage('PUT src\n\n' + getPageLocationURL(), '*');
+		var src = null;
+		var func = function() {
+			if (window.location.search == '?view' && parent.postMessage) {
+				var url = getPageLocationURL();
+				if (url != src) {
+					src = url;
+					parent.postMessage('PUT src\n\n' + url, '*');
+				}
+			}
 		}
+		$(window).bind('popstate', func);
+		func();
 	}
 });

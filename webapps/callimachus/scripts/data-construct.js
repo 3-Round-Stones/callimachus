@@ -39,6 +39,7 @@ function initDropArea(dropzone) {
 		}
 		var de = jQuery.Event('calliLink');
 		de.location = text;
+		de.errorMessage = "Invalid Relationship";
 		$(target).trigger(de);
 		return false;
 	});
@@ -69,8 +70,8 @@ function addSetItem(uri, script) {
 			var de = jQuery.Event('calliLinked');
 			de.location = uri;
 			$(input).trigger(de);
-		} else {
-			script.trigger("calliError", "Invalid Relationship");
+		} else if (event.errorMessage) {
+			script.trigger("calliError", event.errorMessage);
 		}
 	});
 }

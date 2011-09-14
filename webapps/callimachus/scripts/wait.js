@@ -5,9 +5,9 @@
 var formRequestCount = 1;
 var lastWait = 0;
 
-$(window).unload(function (event) {
-	$("body").addClass("wait");
+$(document).bind("calliRedirect unload", function() {
 	formRequestCount++;
+	$("body").addClass("wait");
 });
 
 $(document).ajaxSend(function(event, xhr, options){
@@ -22,10 +22,6 @@ $(document).ajaxComplete(function(event, xhr, options){
 $(document).ready(function() {
 	$("body").addClass("wait");
 	setTimeout(removeWait, 0);
-	$(document).bind("calliRedirect", function() {
-		formRequestCount++;
-		$("body").addClass("wait");
-	});
 });
 
 function removeWait() {

@@ -54,11 +54,16 @@ jQuery(function($) {
 		var contentType = null;
 		var etag = null;
 
-		$(document).bind('calliCreate', function(event) {
-			if (event.rdfType == "foaf:Image") {
-				editor.insert("<img src='" + event.about + "' />");
-				if (window.dialog) {
-					window.dialog.dialog('close');
+		$(window).bind('message', function(event) {
+			if (event.originalEvent.source == $('#image-iframe')[0].contentWindow && event.originalEvent.data.indexOf('PUT src\n') == 0) {
+				var data = event.originalEvent.data;
+				var src = data.substring(data.indexOf('\n\n') + 2);
+				var uri = calli.listResourceIRIs(src)[0];
+				if (uri.search(/\.[a-zA-Z]+$/) > 0) {
+					editor.insert("<img src='" + uri + "' />");
+					if (window.dialog) {
+						window.dialog.dialog('close');
+					}
 				}
 			}
 		});

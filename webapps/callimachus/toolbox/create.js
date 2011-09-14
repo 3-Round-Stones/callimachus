@@ -113,18 +113,6 @@ function submitRDFForm(form) {
 				postData(form.action, type, uri, data, function(data, textStatus, xhr) {
 					try {
 						var redirect = xhr.getResponseHeader("Location");
-						try {
-							if (window.frameElement && parent.jQuery) {
-								var ce = parent.jQuery.Event("calliCreate");
-								ce.location = window.calli.viewpage(redirect);
-								ce.about = $.uri.base().resolve($(form).attr("about")).toString();
-								ce.rdfType = $(form).attr("typeof");
-								parent.jQuery(frameElement).trigger(ce);
-								if (ce.isDefaultPrevented()) {
-									return;
-								}
-							}
-						} catch (e) { }
 						var event = jQuery.Event("calliRedirect");
 						event.location = window.calli.viewpage(redirect);
 						$(form).trigger(event);

@@ -45,12 +45,14 @@ function initDialogButton(buttons) {
 			var iframe = $("<iframe></iframe>");
 			iframe.attr("name", frame);
 			iframe.attr("src", 'about:blank');
-			iframe.bind('calliCreate', function(event) {
-				var de = jQuery.Event('calliLink');
-				de.location = event.about;
-				$(add).trigger(de);
-				if (de.isDefaultPrevented()) {
-					event.preventDefault();
+			$(window).bind('message', function(event) {
+				if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data.indexOf('PUT src\n') == 0) {
+					var data = event.originalEvent.data;
+					var src = data.substring(data.indexOf('\n\n') + 2);
+					var uri = calli.listResourceIRIs(src)[0];
+					var de = jQuery.Event('calliLink');
+					de.location = uri;
+					$(add).trigger(de);
 				}
 			});
 			iframe.dialog({

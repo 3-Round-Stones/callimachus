@@ -19,18 +19,6 @@ function onload(event) {
 		return true;
 	var redirect = $(doc).text();
 	if (redirect && redirect.indexOf('http') == 0) {
-		try {
-			if (window.frameElement && parent.jQuery) {
-				var ce = parent.jQuery.Event("calliCreate");
-				ce.location = window.calli.viewpage(redirect);
-				ce.about = redirect;
-				ce.rdfType = "foaf:Image";
-				parent.jQuery(frameElement).trigger(ce);
-				if (ce.isDefaultPrevented()) {
-					return;
-				}
-			}
-		} catch (e) { }
 		var event = jQuery.Event("calliRedirect");
 		event.location = window.calli.viewpage(redirect);
 		$(this).trigger(event);

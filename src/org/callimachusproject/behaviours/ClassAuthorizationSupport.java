@@ -64,12 +64,9 @@ public abstract class ClassAuthorizationSupport implements SelfAuthorizingTarget
 		if (query == null)
 			return false;
 		if ("GET".equals(method) || "HEAD".equals(method) || "POST".equals(method)) {
-			if ("copy".equals(query) || "create".equals(query))
+			if ("create".equals(query))
 				return true;
-			if (query.startsWith("copy")) {
-				char ch = query.charAt("copy".length());
-				return ch == '=' || ch == '&';
-			} else if (query.startsWith("create")) {
+			if (query.startsWith("create")) {
 				char ch = query.charAt("create".length());
 				return ch == '=' || ch == '&';
 			}

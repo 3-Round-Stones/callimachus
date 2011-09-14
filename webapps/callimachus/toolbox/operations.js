@@ -13,27 +13,6 @@ function getViewPage() {
 	return findTemplate(this, view).calliConstruct(this, 'view');
 }
 
-function getCopyPage() {
-	return findTemplate(this, copy).calliConstruct(this, 'create');
-}
-
-function postCopy(msg) {
-	if (!msg.location)
-		throw new BadRequest("Missing Location header");
-	if (!this.IsCopyInUriSpace(msg.location))
-		throw new BadRequest("Incorrect Subject Namespace");
-	var copier = this.toString();
-	var copying = msg.location.toString();
-	var src = copier.substring(0, copier.lastIndexOf('/', copier.length - 2));
-	var dest = copying.substring(0, copying.lastIndexOf('/', copying.length - 2));
-	if (src != dest)
-		throw new BadRequest("Resources can only be copied within the same space");
-	var template = findTemplate(this, copy);
-	var newCopy = template.calliCreateResource(msg.body, this.toString(), msg.location);
-	this.PropagatePermissions(newCopy);
-	return newCopy;
-}
-
 function getCreatePage(msg) {
 	var factory = msg.create ? msg.create : this;
 	if (this instanceof Creator && !this.equals(factory) && !this.IsCreatable(factory))
@@ -56,9 +35,7 @@ function postFactoryCreate(msg) {
 	if (creatorUri != dest && creatorUri != dest.substring(0, dest.length - 1))
 		throw new BadRequest("Resource URI must be nested");
 	var newCopy = msg.create.PostCreate(msg.body, msg.location);
-	newCopy.calliReaders.addAll(this.calliReaders);
-	newCopy.calliEditors.addAll(this.calliEditors);
-	newCopy.calliAdministrators.addAll(this.calliAdministrators);
+	this.PropagatePermissions(newCopy);
 	var statements = this.ConstructCreatorRelationship(newCopy).iterator();
 	while (statements.hasNext()) {
 		this.objectConnection.add(statements.next(), []);
@@ -80,7 +57,6 @@ function postCreate(msg) {
 		throw new BadRequest("Incorrect Subject Namespace");
 	var newCopy = template.calliCreateResource(msg.body, this.toString(), msg.location);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
-	this.PropagatePermissions(newCopy);
 	return newCopy;
 }
 

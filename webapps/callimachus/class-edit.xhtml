@@ -9,17 +9,9 @@
 	<script type="text/javascript">//<![CDATA[
 		function updateSuperClasses() {
 			var Creator = 'about="http://callimachusproject.org/rdf/2009/framework#Creator"';
-			var Copyable = 'about="http://callimachusproject.org/rdf/2009/framework#Copyable"';
 			var Viewable = 'about="http://callimachusproject.org/rdf/2009/framework#Viewable"';
 			var Editable = 'about="http://callimachusproject.org/rdf/2009/framework#Editable"';
 			var subClassOf = $('#subClassOf');
-			if ($('#copy').children('[about]').length) {
-				if (!subClassOf.children('[' + Copyable + ']').length) {
-					subClassOf.append('<div ' + Copyable + '>Copyable</div>');
-				}
-			} else {
-				subClassOf.children('[' + Copyable + ']').remove();
-			}
 			if ($('#view').children('[about]').length) {
 				if (!subClassOf.children('[' + Viewable + ']').length) {
 					subClassOf.append('<div ' + Viewable + '>Viewable</div>');
@@ -138,14 +130,6 @@
 				<label>Create template</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/Page" />
 				<div about="?create" typeof="calli:Page">
-					<span property="rdfs:label" />
-					<button type="button" class="remove" />
-				</div>
-			</div>
-			<div id="copy" rel="calli:copy" dropzone="link s:text/uri-list">
-				<label>Copy template</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Page" />
-				<div about="?copy" typeof="calli:Page">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
 				</div>

@@ -20,7 +20,7 @@ ASK {
 				$this calli:editor $credential
 			}
 			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-			FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
+			FILTER (regex($query, "^create(=|&|$)"))
 		} UNION {
 			$this calli:editor $credential
 			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" || $method = "PUT" || $method = "DELETE")
@@ -48,7 +48,7 @@ ASK {
 				$this calli:editor ?group
 			}
 			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-			FILTER (regex($query, "^copy(=|&|$)|^create(=|&|$)"))
+			FILTER (regex($query, "^create(=|&|$)"))
 		} UNION {
 			$this calli:editor ?group
 			FILTER ($query = "edit" && ($method = "GET" || $method = "HEAD" || $method = "POST"))

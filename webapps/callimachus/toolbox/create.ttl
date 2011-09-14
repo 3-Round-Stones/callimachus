@@ -120,7 +120,7 @@
 	rdfs:domain :ConstructCreatorRelationship.
 
 :PropagatePermissions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Copyable calli:Creatable calli:Creator)]];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:script """
 		newResource.calliEditors.addAll(this.FindContributor(newResource));
@@ -134,7 +134,7 @@
 
 # find the user that created $thing if they are not otherwise editors
 :FindContributor rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Copyable calli:Creatable calli:Creator)]];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
 	msg:sparql  """
 		SELECT DISTINCT ?contributor
 		WHERE {
@@ -148,10 +148,6 @@
 					$this ?editor ?contributor
 				} UNION {
 					$this ?editor [calli:member ?contributor]
-				} UNION {
-					$thing a [?editor ?contributor]
-				} UNION {
-					$thing a [?editor [calli:member ?contributor]]
 				}
 				FILTER (?editor = calli:editor || ?editor = calli:administrator)
 			}

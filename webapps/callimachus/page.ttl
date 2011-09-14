@@ -22,12 +22,11 @@
 @prefix :<#>.
 
 <Page> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:Page;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Page;
 	rdfs:label "Page";
 	rdfs:comment "New pages can be created in a folder";
 	calli:icon <page.png>;
 	calli:edit <page-edit.xhtml>;
-	calli:copy <page-copy.xhtml>;
 	calli:create <page-create.xhtml>;
 	calli:uriSpace </>.
 
@@ -47,16 +46,6 @@
 	msg:header "cache-control:no-cache";
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
-
-# POST /page/MainPage.xhtml?copy
-:PostTemplateCopy owl:intersectionOf (</callimachus/toolbox/copy.ttl#PostCopy>
-		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
-	msg:script """
-		var created = proceed();
-		this.objectConnection.commit();
-		created.UploadPage(new java.net.URL(this.toString()).openStream());
-		return created;
-	""".
 
 # GET /callimachus/Page?schemes
 # Called from page create/edit to load scheme options

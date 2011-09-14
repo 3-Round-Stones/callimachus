@@ -22,13 +22,12 @@
 @prefix :<#>.
 
 <NamedQuery> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Copyable, calli:NamedQuery;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:NamedQuery;
 	rdfs:label "Query";
 	rdfs:comment "Saved SPARQL queries";
 	calli:icon <query.png>;
 	calli:view <query-view.xhtml>;
 	calli:edit <query-edit.xhtml>;
-	calli:copy <query-copy.xhtml>;
 	calli:create <query-create.xhtml>;
 	calli:uriSpace </>.
 

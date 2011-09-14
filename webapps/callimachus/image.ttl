@@ -79,7 +79,6 @@
 			throw new BadRequest("Unsupported format: " + type);
 		}
 		obj = con.addDesignation(obj, "urn:mimetype:" + type) ;
-		this.PropagatePermissions(obj);
 
 		//# add the image label
 		var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");

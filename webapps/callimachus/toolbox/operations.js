@@ -2,8 +2,6 @@
 
 importClass(Packages.calli.Creator);
 importClass(Packages.calli.Creatable);
-importClass(Packages.calli.Copyable);
-importClass(Packages.calli.copy);
 importClass(Packages.calli.edit);
 importClass(Packages.calli.view);
 importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);

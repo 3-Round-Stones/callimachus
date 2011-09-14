@@ -103,7 +103,6 @@
 
 		created = con.addDesignation(created, this.toString());
 		created = con.addDesignation(created, Page);
-		this.PropagatePermissions(created);
 
 		this.touchRevision(); // update index page
 		con.commit();

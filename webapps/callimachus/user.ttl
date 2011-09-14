@@ -77,7 +77,6 @@ rdfs:comment a rdf:Property.
 		if (comment) {
 			newUser.rdfsComments.add(comment);
 		}
-		this.PropagatePermissions(newUser);
 
 		//# generate and save a password
 		var password = newUser.generatePassword();

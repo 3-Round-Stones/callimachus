@@ -238,9 +238,13 @@ public abstract class AccountManagerSupport implements AccountManager, RDFObject
 		return sb.toString();
 	}
 
-	@sparql(PREFIX + "SELECT ?user ?encoded\n"
+	@sparql(PREFIX
+			+ "SELECT ?user ?encoded\n"
 			+ "WHERE { ?user calli:name $name .\n"
-			+ "$this calli:authNamespace [calli:isNamespaceOf ?user] .\n"
+			+ "$this calli:authNamespace ?folder .\n"
+			+ "?user calli:belongsTo ?folder .\n"
+			//TODO + "FILTER (str(?user) = concat(str(?folder), $name))\n"
+			+ "FILTER regex(str(?user), str(?folder))\n"
 			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" } }")
 	protected abstract List<Object[]> findDigest(@name("name") String username);
 

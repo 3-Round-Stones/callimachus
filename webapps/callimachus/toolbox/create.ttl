@@ -26,15 +26,23 @@
 @prefix :<#>.
 
 :GetCreatePage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom [owl:unionOf (calli:Creator calli:Creatable)]];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+	msg:method "GET";
+	msg:query "create";
+	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
+	msg:script <operations.js#getCreatePage>.
+
+:GetCreatorPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	msg:method "GET";
 	msg:query "create";
 	msg:realm </callimachus/manifest>;
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
-	msg:header "cache-control:no-cache";
-	msg:script <operations.js#getCreatePage>.
+	msg:script <operations.js#getCreatorPage>.
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
@@ -58,7 +66,7 @@
 	msg:type "*/*".
 
 :create a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain [owl:unionOf (:GetCreatePage :PostFactoryCreate)];
+	rdfs:domain [owl:unionOf (:GetCreatorPage :PostFactoryCreate)];
 	rdfs:range calli:Creatable;
 	msg:query "create".
 
@@ -71,19 +79,6 @@
 	rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
 	msg:query "location";
 	msg:header "location".
-
-# find the user that created $thing if they are not editors of $this
-:IsCreatable rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
-	msg:sparql  """
-		ASK { $this a [calli:creates $creatable] }
-	""".
-
-:creatable a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :IsCreatable;
-	rdfs:range calli:Creatable.
 
 :IsCreateInUriSpace rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
@@ -100,37 +95,28 @@
 :createLocation a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :IsCreateInUriSpace.
 
-:ConstructCreatorRelationship rdfs:subClassOf msg:Message;
+:IsUnauthorizedInFolder rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <java:org.openrdf.model.Statement>];
-	msg:sparql """
-		CONSTRUCT {
-			$this ?rel $that . $that ?rev $this
-		} WHERE {
-			$that a ?type
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
+	msg:sparql  """
+		ASK {
+			?folder a calli:Folder
 			{
-				$this a [calli:createRel ?rel]
+				$this calli:contributor ?contributor
+				FILTER (NOT EXISTS { ?folder calli:contributor ?contributor })
 			} UNION {
-				$this a [calli:createRev ?rev]
+				$this calli:editor ?editor
+				FILTER (NOT EXISTS { ?folder calli:editor ?editor })
+			} UNION {
+				$this calli:administrator ?editor
+				FILTER (NOT EXISTS { ?folder calli:administrator ?editor })
 			}
 		}
 	""".
 
-:that a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :ConstructCreatorRelationship.
-
-:PropagatePermissions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:script """
-		newResource.calliEditors.addAll(this.FindContributor(newResource));
-		newResource.calliReaders.addAll(this.calliReaders);
-		newResource.calliEditors.addAll(this.calliEditors);
-		newResource.calliAdministrators.addAll(this.calliAdministrators);
-	""".
-
-:newResource a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :PropagatePermissions.
+:folder a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :IsUnauthorizedInFolder.
 
 # find the user that created $thing if they are not otherwise editors
 :FindContributor rdfs:subClassOf msg:Message;

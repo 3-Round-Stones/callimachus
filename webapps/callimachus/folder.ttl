@@ -29,19 +29,6 @@
 	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:Folder;
 	rdfs:label "Folder";
 	rdfs:comment "A folder of resources";
-	calli:creates <Folder>;
-	calli:creates <Article>;
-	calli:creates <Page>;
-	calli:creates <NamedQuery>;
-	calli:creates <Class>;
-	calli:creates <Concept>;
-	calli:creates <Group>;
-	calli:creates <User>;
-	calli:creates <Photo>;
-	calli:creates <Image>;
-	calli:creates <Graph>;
-	calli:creates <ObjectProperty>;
-	calli:createRel calli:isNamespaceOf;
 	calli:icon <folder.png>;
 	calli:view <folder-view.xhtml>;
 	calli:edit <folder-edit.xhtml>;
@@ -69,11 +56,11 @@
 			{
 				{
 					SELECT ($this as ?id) (count(?part) as ?totalResults) {
-						$this calli:isNamespaceOf ?part
+						?part calli:belongsTo $this
 					} GROUP BY $this
 				}
 			} UNION {
-				$this calli:isNamespaceOf ?id
+				?id calli:belongsTo $this
 				FILTER (isIRI(?id))
 			} OPTIONAL {
 				?id skos:prefLabel ?title

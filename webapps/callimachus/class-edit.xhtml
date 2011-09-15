@@ -8,7 +8,6 @@
 	<title about="?this">{rdfs:label}</title>
 	<script type="text/javascript">//<![CDATA[
 		function updateSuperClasses() {
-			var Creator = 'about="http://callimachusproject.org/rdf/2009/framework#Creator"';
 			var Viewable = 'about="http://callimachusproject.org/rdf/2009/framework#Viewable"';
 			var Editable = 'about="http://callimachusproject.org/rdf/2009/framework#Editable"';
 			var subClassOf = $('#subClassOf');
@@ -25,13 +24,6 @@
 				}
 			} else {
 				subClassOf.children('[' + Editable + ']').remove();
-			}
-			if ($('#creates').children('[about]').length) {
-				if (!subClassOf.children('[' + Creator + ']').length) {
-					subClassOf.append('<div ' + Creator + '>Creator</div>');
-				}
-			} else {
-				subClassOf.children('[' + Creator + ']').remove();
 			}
 		}
 		// ]]>
@@ -82,42 +74,6 @@
 				<label>Equivalent</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/Class" />
 				<div about="?equivalentClass" typeof="owl:Class">
-					<span property="rdfs:label" />
-					<button type="button" class="remove" />
-				</div>
-			</div>
-			<div id="subClass" rev="rdfs:subClassOf" dropzone="link s:text/uri-list">
-				<label>Sub</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Class" />
-				<div about="?subClass" typeof="owl:Class">
-					<span property="rdfs:label" />
-					<button type="button" class="remove" />
-				</div>
-			</div>
-		</div>
-		<hr />
-		<h2>Nested Classes</h2>
-		<div class="hbox">
-			<div id="creates" rel="calli:creates" dropzone="link s:text/uri-list">
-				<label>Nested</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Class" />
-				<div about="?creates" typeof="owl:Class">
-					<span property="rdfs:label" />
-					<button type="button" class="remove" />
-				</div>
-			</div>
-			<div id="createRel" rel="calli:createRel" dropzone="link s:text/uri-list">
-				<label>Relationship</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/ObjectProperty" />
-				<div about="?createRel" typeof="owl:ObjectProperty">
-					<span property="rdfs:label" />
-					<button type="button" class="remove" />
-				</div>
-			</div>
-			<div id="createRev" rel="calli:createRev" dropzone="link s:text/uri-list">
-				<label>Reverse relationship</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/ObjectProperty" />
-				<div about="?createRev" typeof="owl:ObjectProperty">
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
 				</div>

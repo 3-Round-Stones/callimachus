@@ -5,6 +5,13 @@
 	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
 	<title about="?this">{rdfs:label}</title>
+	<script type="text/javascript">
+		jQuery(function($){
+			if (!$('#create-template').length) {
+				$('#create-link').hide();
+			}
+		});
+	</script>
 </head>
 <body about="?this">
 	<h1>
@@ -14,6 +21,9 @@
 		<a property="rdfs:label" href="?this" />
 	</h1>
 	<ul class="aside">
+		<li id="create-link" class="protected">
+			<a href="?create">Create a new <span about="?this" property="rdfs:label"/></a>
+		</li>
 		<li>
 			<a href="?index"><span about="?this" property="rdfs:label"/> resources</a>
 		</li>
@@ -32,24 +42,6 @@
 			<label>Sub class</label>
 			<div about="?subClass" typeof="owl:Class">
 				<a href="?subClass" property="rdfs:label" class="view" />
-			</div>
-		</li>
-		<li rel="calli:creates" class="optional">
-			<label>Nested class</label>
-			<div about="?creates" typeof="owl:Class">
-				<a href="?creates" property="rdfs:label" class="view" />
-			</div>
-		</li>
-		<li rel="calli:createRel" class="optional">
-			<label>Nested relationship</label>
-			<div about="?createRel" typeof="owl:ObjectProperty">
-				<a href="?createRel" property="rdfs:label" class="view" />
-			</div>
-		</li>
-		<li rel="calli:createRev" class="optional">
-			<label>Nested reverse relationship</label>
-			<div about="?createRev" typeof="owl:ObjectProperty">
-				<a href="?createRev" property="rdfs:label" class="view" />
 			</div>
 		</li>
 		<li class="optional">

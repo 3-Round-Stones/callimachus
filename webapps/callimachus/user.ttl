@@ -15,8 +15,7 @@
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>;
 	calli:create <user-create.xhtml>;
-	calli:uriSpace </>;
-	calli:creates </callimachus/Photo>.
+	calli:uriSpace </>.
 
 ################################
 # User create

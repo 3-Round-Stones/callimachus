@@ -103,6 +103,8 @@ public abstract class EditSupport implements Page {
 				throw new BadRequest("Removed Content Not Found");
 			if (!remover.isAbout(resource))
 				throw new BadRequest("Wrong Subject");
+			if (!remover.getTypes(resource).isEmpty())
+				throw new BadRequest("Cannot change resource type");
 		}
 		ObjectFactory of = con.getObjectFactory();
 		for (URI partner : remover.getResources()) {
@@ -121,6 +123,8 @@ public abstract class EditSupport implements Page {
 		parser.parse(in, resource.stringValue());
 		if (!inserter.isEmpty() && !inserter.isAbout(resource))
 			throw new BadRequest("Wrong Subject");
+		if (!inserter.getTypes(resource).isEmpty())
+			throw new BadRequest("Cannot change resource type");
 		ObjectFactory of = con.getObjectFactory();
 		for (URI partner : inserter.getResources()) {
 			of.createObject(partner, VersionedObject.class).touchRevision();
@@ -136,6 +140,8 @@ public abstract class EditSupport implements Page {
 	private SubjectTracker createSubjectTracker(URI resource,
 			RDFHandler delegate) throws Exception {
 		SubjectTracker tracker = new SubjectTracker(delegate);
+		tracker.setReverseAllowed(false);
+		tracker.setWildPropertiesAllowed(false);
 		String about = resource.stringValue();
 		tracker.accept(openPatternReader(about, "edit", null));
 		return tracker;

@@ -53,7 +53,8 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
 	msg:sparql  """
 		ASK {
-			$this calli:authNamespace [calli:isNamespaceOf $credential]
+			$this calli:authNamespace ?folder .
+			$credential calli:belongsTo ?folder .
 			FILTER ($method = "GET" || $method = "HEAD")
 			FILTER ($query = "login" || $query = "settings" || $query = "contributions")
 		}
@@ -157,8 +158,9 @@
 	msg:sparql  """
 		SELECT REDUCED ?user
 		WHERE {
-			$this calli:authNamespace [calli:isNamespaceOf ?user].
-			?user calli:email $email
+			$this calli:authNamespace ?folder .
+			?user calli:belongsTo ?folder .
+			?user calli:email $email .
 		}
 	""".
 

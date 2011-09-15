@@ -31,10 +31,13 @@
 			var page = url.replace(/callimachus.main-page.xhtml$/, 'page/main-page.xhtml');
 			var created = this.objectConnection.getObject(page);
 			if (!(created instanceof Page)) {
+				var ptype = url.replace(/main-page.xhtml$/, 'Page');
 				var home = url.replace(/callimachus.main-page.xhtml$/, '');
 				var folder = this.objectConnection.getObject(home);
 				created = this.objectConnection.addDesignation(created, ptype);
-				folder.PropagatePermissions(created);
+				created.calliReaders.addAll(folder.calliReaders);
+				created.calliEditors.addAll(folder.calliEditors);
+				created.calliAdministrators.addAll(folder.calliAdministrators);
 				this.objectConnection.commit();
 				java.lang.System.out.println("Uploading " + page);
 				created.UploadPage(new java.net.URL(url).openStream());

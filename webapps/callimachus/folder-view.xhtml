@@ -116,19 +116,11 @@
 <body about="?this">
 	<ul class="optional aside">
 		<li>
-			<label>Create a new...</label>
-			<ul rel="rdf:type">
-				<li about="?type" typeof="calli:Creatable" rel="calli:creates" resource="?class">
-					<a href="?create={?class}" property="rdfs:label" content="?clabel">
-						<img class="icon" about="?class" rel="calli:icon" resource="?icon" src="{?icon}"/>
-						{?clabel}
-					</a>
-				</li>
-			</ul>
+			<a href="?create=/callimachus/Folder">Create a new Folder</a>
 		</li>
 	</ul>
 	<ul class="optional aside">
-		<li rev="calli:isNamespaceOf">
+		<li rel="calli:belongsTo">
 			<div about="?parent">
 				<a class="view" href="?parent" property="rdfs:label" content="?plabel">Up to {?plabel}</a>
 			</div>
@@ -151,7 +143,7 @@
 					<th class="ui-state-default"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> Administrators</a></th>
 				</tr>
 			</thead>
-			<tbody id="tfolders" rel="calli:isNamespaceOf">
+			<tbody id="tfolders" rev="calli:belongsTo">
 				<tr about="?folder" typeof="calli:Folder">
 					<td class="ui-widget-content filecell">
 						<a class="view" href="?folder" property="rdfs:label" content="?flabel"><img class="icon" src="/callimachus/folder.png" />{?flabel}</a>

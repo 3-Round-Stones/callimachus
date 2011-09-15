@@ -19,7 +19,7 @@
 				$('#equivalent').remove();
 			}
 			$('#all>div:has(a)').remove();
-			if (!$('.type[resource$=Creatable]').length) {
+			if (!$('#create-template').length) {
 				$('#create-link').remove();
 			}
 			$('.result>a:not(:first-child)').remove();
@@ -54,7 +54,7 @@
 </head>
 <body about="?this">
 	<h1><span property="rdfs:label" /> Resources</h1>
-	<span class="type" rel="rdf:type" resource="?type" />
+	<span id="create-template" rel="calli:create" resource="?createTemplate" />
 	<ul id="create-link" class="aside protected">
 		<li><a href="?create">Create a new <span about="?this" property="rdfs:label" /></a></li>
 	</ul>

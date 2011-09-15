@@ -93,13 +93,26 @@
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
 	msg:sparql """
 		ASK {
-			{
-				$this a [calli:createRel ?rel].
-				$this ?rel ?child
-			} UNION {
-				$this a [calli:createRev ?rev].
-				?child ?rev $this
-			}
+			?child calli:belongsTo $this
+		}
+	""".
+
+:DeleteCreatable owl:intersectionOf ( :Delete
+		[owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (calli:Editable calli:Creatable)]]);
+	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+	msg:script """
+		if (this.HasInstanceChildren())
+			throw new Conflict("Member resources of must be deleted first");
+		return proceed();
+	""".
+
+:HasInstanceChildren rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
+	msg:sparql """
+		ASK {
+			?child a $this
 		}
 	""".
 

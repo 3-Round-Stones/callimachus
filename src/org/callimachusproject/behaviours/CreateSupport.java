@@ -22,6 +22,7 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.util.Set;
 
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.helpers.SubjectTracker;
@@ -29,8 +30,12 @@ import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.events.Ask;
 import org.callimachusproject.rdfa.events.Group;
 import org.callimachusproject.rdfa.events.RDFEvent;
+import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.events.Union;
 import org.callimachusproject.rdfa.events.Where;
+import org.callimachusproject.rdfa.model.IRI;
+import org.callimachusproject.rdfa.model.TermFactory;
+import org.callimachusproject.rdfa.model.Var;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.SPARQLWriter;
 import org.openrdf.http.object.exceptions.BadRequest;
@@ -54,6 +59,7 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  * 
  */
 public abstract class CreateSupport implements Page {
+	private static final String BELONGS_TO = "http://callimachusproject.org/rdf/2009/framework#" + "belongsTo";
 
 	public RDFObject calliCreateResource(InputStream in, String base,
 			final RDFObject target) throws Exception {
@@ -64,6 +70,8 @@ public abstract class CreateSupport implements Page {
 			if (isResourceAlreadyPresent(con, target.toString()))
 				throw new Conflict("Resource already exists: " + target);
 			SubjectTracker tracker = new SubjectTracker(new RDFInserter(con));
+			tracker.setWildPropertiesAllowed(false);
+			tracker.setReverseAllowed(false);
 			tracker.accept(openPatternReader(target.toString(), "create", null));
 			RDFXMLParser parser = new RDFXMLParser();
 			parser.setValueFactory(con.getValueFactory());
@@ -79,7 +87,8 @@ public abstract class CreateSupport implements Page {
 					of.createObject(partner, VersionedObject.class).touchRevision();
 				}
 			}
-			return of.createObject(target.toString(), tracker.getTypes());
+			Set<URI> types = tracker.getTypes(tracker.getSubject());
+			return of.createObject(target.toString(), types);
 		} catch (URISyntaxException  e) {
 			throw new BadRequest(e);
 		} catch (RDFHandlerException e) {
@@ -89,29 +98,35 @@ public abstract class CreateSupport implements Page {
 		}
 	}
 
-	private boolean isResourceAlreadyPresent(ObjectConnection con, String about) throws Exception {
+	private boolean isResourceAlreadyPresent(ObjectConnection con, String about)
+			throws Exception {
+		TermFactory tf = TermFactory.newInstance();
 		RDFEventReader reader = openPatternReader(about, "create", null);
 		try {
+			boolean first = true;
 			StringWriter str = new StringWriter();
 			SPARQLWriter writer = new SPARQLWriter(str);
-			boolean empty = true;
 			while (reader.hasNext()) {
 				RDFEvent next = reader.next();
 				if (next.isStartDocument() || next.isBase()
 						|| next.isNamespace()) {
 					writer.write(next);
-				} else if (next.isTriplePattern()) {
+				} else if (first) {
+					first = false;
+					writer.write(new Ask());
+					writer.write(new Where(true));
+					writer.write(new Group(true));
+					IRI to = tf.iri(BELONGS_TO);
+					Var var = tf.var("calliBelongsTo");
+					writer.write(new TriplePattern(tf.var("this"), to, var));
+					writer.write(new Group(false));
+				}
+				if (next.isTriplePattern()) {
 					VarOrTerm subj = next.asTriplePattern().getSubject();
 					if (subj.isIRI() && subj.stringValue().equals(about)
 							|| subj.isVar()
 							&& subj.stringValue().equals("this")) {
-						if (empty) {
-							empty = false;
-							writer.write(new Ask());
-							writer.write(new Where(true));
-						} else {
-							writer.write(new Union());
-						}
+						writer.write(new Union());
 						writer.write(new Group(true));
 						writer.write(next);
 						writer.write(new Group(false));
@@ -122,8 +137,6 @@ public abstract class CreateSupport implements Page {
 				}
 			}
 			writer.close();
-			if (empty)
-				return false;
 			String qry = str.toString();
 			ValueFactory vf = con.getValueFactory();
 			BooleanQuery query = con.prepareBooleanQuery(SPARQL, qry);

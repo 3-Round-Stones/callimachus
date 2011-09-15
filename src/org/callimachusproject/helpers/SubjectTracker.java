@@ -19,8 +19,11 @@
 package org.callimachusproject.helpers;
 
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.callimachusproject.rdfa.RDFEventReader;
@@ -29,6 +32,7 @@ import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.TriplePattern;
 import org.callimachusproject.rdfa.model.Term;
 import org.callimachusproject.rdfa.model.TermFactory;
+import org.callimachusproject.rdfa.model.VarOrIRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -52,7 +56,9 @@ public class SubjectTracker extends RDFHandlerWrapper {
 	private TermFactory tf = TermFactory.newInstance();
 	private Set<URI> subjects = new HashSet<URI>();
 	private Set<URI> resources = new HashSet<URI>();
-	private Set<URI> types = new HashSet<URI>();
+	private Map<URI, Set<URI>> types = new HashMap<URI, Set<URI>>();
+	private boolean reverseAllowed = true;
+	private boolean wildPropertiesAllowed = true;
 	private boolean empty = true;
 	private Resource matcher;
 	private String hash;
@@ -61,6 +67,14 @@ public class SubjectTracker extends RDFHandlerWrapper {
 
 	public SubjectTracker(RDFHandler delegate) {
 		super(delegate);
+	}
+
+	public void setReverseAllowed(boolean reverseAllowed) {
+		this.reverseAllowed = reverseAllowed;
+	}
+
+	public void setWildPropertiesAllowed(boolean wildPropertiesAllowed) {
+		this.wildPropertiesAllowed = wildPropertiesAllowed;
 	}
 
 	public void replace(Resource match, Resource replacement) {
@@ -76,7 +90,13 @@ public class SubjectTracker extends RDFHandlerWrapper {
 			while (reader.hasNext()) {
 				RDFEvent next = reader.next();
 				if (next.isTriplePattern()) {
-					accept(next.asTriplePattern());
+					TriplePattern tp = next.asTriplePattern();
+					VarOrIRI pred = tp.getPredicate();
+					if (reverseAllowed || !tp.isInverse()) {
+						if (wildPropertiesAllowed || pred.isIRI()) {
+							accept(tp);
+						}
+					}
 				}
 			}
 		} finally {
@@ -132,8 +152,10 @@ public class SubjectTracker extends RDFHandlerWrapper {
 		subjects.add(subj);
 	}
 
-	public Set<URI> getTypes() {
-		return types;
+	public Set<URI> getTypes(URI subject) {
+		if (types.containsKey(subject))
+			return types.get(subject);
+		return Collections.emptySet();
 	}
 
 	public Set<URI> getResources() {
@@ -170,7 +192,10 @@ public class SubjectTracker extends RDFHandlerWrapper {
 		} else if (!rev && subj instanceof URI) {
 			addSubject((URI) subj);
 			if (RDF.TYPE.equals(pred) && obj instanceof URI) {
-				types.add((URI) obj);
+				if (!types.containsKey(subj)) {
+					types.put((URI) subj, new HashSet<URI>());
+				}
+				types.get(subj).add((URI) obj);
 			}
 		}
 		if (rev && subj instanceof URI) {

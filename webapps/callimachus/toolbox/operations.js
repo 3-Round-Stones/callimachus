@@ -12,32 +12,46 @@ function getViewPage() {
 }
 
 function getCreatePage(msg) {
-	var factory = msg.create ? msg.create : this;
-	if (this instanceof Creator && !this.equals(factory) && !this.IsCreatable(factory))
-		throw new BadRequest("Cannot create this class here: " + factory);
-	if (!factory.calliCreate)
+	if (!this.calliCreate)
 		throw new InternalServerError("No create template");
-	return factory.calliCreate.calliConstruct(null, 'create');
+	return this.calliCreate.calliConstruct(null, 'create');
+}
+
+function getCreatorPage(msg) {
+	if (!(msg.create instanceof Creatable))
+		throw new BadRequest("Cannot create this class here: " + msg.create);
+	if (!msg.create.calliCreate)
+		throw new InternalServerError("No create template");
+	return msg.create.calliCreate.calliConstruct(null, 'create');
 }
 
 function postFactoryCreate(msg) {
 	if (!(msg.create instanceof Creatable))
-		throw new BadRequest("Cannot create " + msg.create);
-	if (!(this instanceof Creator && this.IsCreatable(msg.create)))
-		throw new BadRequest("Cannot create this class here");
-	var creatorUri = this.toString();
+		throw new BadRequest("Cannot create: " + msg.create);
+	if (!(this instanceof Creator))
+		throw new BadRequest("Cannot create resources here: " + this);
+	if (!msg.create.IsCreateInUriSpace(msg.location))
+		throw new BadRequest("Invalid namespace");
 	if (!msg.location)
 		throw new BadRequest("No location provided");
+	var creatorUri = this.toString();
 	var createdUri = msg.location.toString();
 	var dest = createdUri.substring(0, createdUri.lastIndexOf('/', createdUri.length - 2) + 1);
 	if (creatorUri != dest && creatorUri != dest.substring(0, dest.length - 1))
-		throw new BadRequest("Resource URI must be nested");
-	var newCopy = msg.create.PostCreate(msg.body, msg.location);
-	this.PropagatePermissions(newCopy);
-	var statements = this.ConstructCreatorRelationship(newCopy).iterator();
-	while (statements.hasNext()) {
-		this.objectConnection.add(statements.next(), []);
+		throw new BadRequest("Location URI must be nested");
+	if (createdUri.search(/[\s\#\?]/) >= 0 || createdUri.search(/^\w+:\/\/\S+/) != 0)
+		throw new BadRequest("Fragement or name resources are not supported");
+	if (creatorUri.lastIndexOf('/') != creatorUri.length - 1) {
+		// check that every user has same permissions on folder
+		if (this.IsUnauthorizedInFolder(this.objectConnection.getObject(creatorUri + '/')))
+			throw new BadRequest("This resource must be created in the folder: " + creatorUri + '/');
 	}
+	var newCopy = msg.create.PostCreate(msg.body, msg.location);
+	newCopy.calliBelongsTo.add(this);
+	newCopy.calliEditors.addAll(this.FindContributor(newCopy));
+	newCopy.calliReaders.addAll(this.calliReaders);
+	newCopy.calliEditors.addAll(this.calliEditors);
+	newCopy.calliAdministrators.addAll(this.calliAdministrators);
 	msg.create.touchRevision();
 	if (!msg.intermediate) {
 		this.touchRevision();
@@ -49,10 +63,6 @@ function postCreate(msg) {
 	var template = this.calliCreate;
 	if (!template)
 		throw new InternalServerError("No create template");
-	if (!msg.location)
-		throw new BadRequest("Missing Location header");
-	if (!this.IsCreateInUriSpace(msg.location))
-		throw new BadRequest("Incorrect Subject Namespace");
 	var newCopy = template.calliCreateResource(msg.body, this.toString(), msg.location);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
 	return newCopy;

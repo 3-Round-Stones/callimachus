@@ -20,7 +20,7 @@ ASK {
 				$this calli:editor $credential
 			}
 			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-			FILTER (regex($query, "^create(=|&|$)"))
+			FILTER (regex($query, "^create="))
 		} UNION {
 			$this calli:editor $credential
 			FILTER ($method = "GET" || $method = "HEAD" || $method = "POST" || $method = "PUT" || $method = "DELETE")

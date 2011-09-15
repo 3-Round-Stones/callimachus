@@ -154,18 +154,6 @@ calli:ColourScheme a owl:Class;
 # Annotation
 ################################
 
-calli:creates a owl:AnnotationProperty;
-	rdfs:label "creates";
-	rdfs:comment "Resources of this creator class can create new resources of the given creatable class".
-
-calli:createRel a owl:AnnotationProperty;
-	rdfs:label "create rel";
-	rdfs:comment "Resources of this creator class will be linked, using the given inverse functional object property, to new resources created from it".
-
-calli:createRev a owl:AnnotationProperty;
-	rdfs:label "create rev";
-	rdfs:comment "Resources created from resources of this creator class will be linked, using the given functional object property, to their creator".
-
 calli:reader a owl:AnnotationProperty;
 	rdfs:label "reader";
 	rdfs:comment "Credential or group of credentials that can view individual resources of this class".
@@ -193,6 +181,10 @@ calli:view a owl:AnnotationProperty;
 calli:uriSpace a owl:AnnotationProperty;
 	rdfs:label "uri space";
 	rdfs:comment "Restricts the possible URI prefix of resources created from this class or template".
+
+calli:belongsTo a owl:AnnotationProperty;
+	rdfs:label "belongs to";
+	rdfs:comment "Immediate container or parent resource that is a prefix URI of this resource".
 
 ################################
 # Property
@@ -320,11 +312,6 @@ calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "alias of";
 	rdfs:comment "The canonical URL for this alias";
 	rdfs:domain calli:Alias.
-
-calli:isNamespaceOf a owl:ObjectProperty;
-	rdfs:label "is namespace of";
-	rdfs:comment "Resources with this namespace";
-	rdfs:domain calli:Folder.
 
 calli:item a owl:ObjectProperty;
 	rdfs:label "item";

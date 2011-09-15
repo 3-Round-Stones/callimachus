@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -289,14 +290,14 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		StringBuilder sb = new StringBuilder();
 		sb.append(uri);
 		sb.append("?");
-		sb.append(operation);
+		sb.append(URLEncoder.encode(operation, "UTF-8"));
 		if (query != null) {
 			sb.append("&query=");
-			sb.append(query);
+			sb.append(URLEncoder.encode(query, "UTF-8"));
 		}
 		if (element != null) {
 			sb.append("&element=");
-			sb.append(element);
+			sb.append(URLEncoder.encode(element, "UTF-8"));
 		}
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		HttpRequest request = new BasicHttpRequest("GET", sb.toString());

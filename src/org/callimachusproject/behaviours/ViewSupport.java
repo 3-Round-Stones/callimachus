@@ -24,6 +24,7 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.Map;
 
 import javax.tools.FileObject;
@@ -110,10 +111,10 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 		StringBuilder sb = new StringBuilder();
 		sb.append(uri);
 		sb.append("?");
-		sb.append(operation);
+		sb.append(URLEncoder.encode(operation, "UTF-8"));
 		if (query != null) {
 			sb.append("&query=");
-			sb.append(query);
+			sb.append(URLEncoder.encode(query, "UTF-8"));
 		}
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		HttpRequest request = new BasicHttpRequest("GET", sb.toString());

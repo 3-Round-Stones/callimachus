@@ -93,7 +93,7 @@
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
 	msg:sparql """
 		ASK {
-			?child calli:belongsTo $this
+			$this calli:hasComponent ?child
 		}
 	""".
 

@@ -182,10 +182,6 @@ calli:uriSpace a owl:AnnotationProperty;
 	rdfs:label "uri space";
 	rdfs:comment "Restricts the possible URI prefix of resources created from this class or template".
 
-calli:belongsTo a owl:AnnotationProperty;
-	rdfs:label "belongs to";
-	rdfs:comment "Immediate container or parent resource that is a prefix URI of this resource".
-
 ################################
 # Property
 ################################
@@ -297,6 +293,10 @@ calli:member a owl:ObjectProperty;
 	rdfs:comment "Credential that is part of this group";
 	rdfs:domain calli:Group;
 	rdfs:range calli:Credential.
+
+calli:hasComponent a owl:ObjectProperty;
+	rdfs:label "has component";
+	rdfs:comment "A nested resource with a URI that starts with this resource URI with one additional path, fragement, or component segment".
 
 calli:soundex a owl:DatatypeProperty;
 	rdfs:label "soundex";

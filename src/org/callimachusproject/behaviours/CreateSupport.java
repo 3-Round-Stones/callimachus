@@ -59,7 +59,7 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  * 
  */
 public abstract class CreateSupport implements Page {
-	private static final String BELONGS_TO = "http://callimachusproject.org/rdf/2009/framework#" + "belongsTo";
+	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#" + "hasComponent";
 
 	public RDFObject calliCreateResource(InputStream in, String base,
 			final RDFObject target) throws Exception {
@@ -116,9 +116,9 @@ public abstract class CreateSupport implements Page {
 					writer.write(new Ask());
 					writer.write(new Where(true));
 					writer.write(new Group(true));
-					IRI to = tf.iri(BELONGS_TO);
-					Var var = tf.var("calliBelongsTo");
-					writer.write(new TriplePattern(tf.var("this"), to, var));
+					IRI has = tf.iri(HAS_COMPONENT);
+					Var var = tf.var("calliHasComponent");
+					writer.write(new TriplePattern(var, has, tf.var("this")));
 					writer.write(new Group(false));
 				}
 				if (next.isTriplePattern()) {

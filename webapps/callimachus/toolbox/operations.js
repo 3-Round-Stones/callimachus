@@ -41,20 +41,18 @@ function postFactoryCreate(msg) {
 		throw new BadRequest("Location URI must be nested");
 	if (createdUri.search(/[\s\#\?]/) >= 0 || createdUri.search(/^\w+:\/\/\S+/) != 0)
 		throw new BadRequest("Fragement or name resources are not supported");
-	if (creatorUri.lastIndexOf('/') != creatorUri.length - 1) {
-		// check that every user has same permissions on folder
-		if (this.IsUnauthorizedInFolder(this.objectConnection.getObject(creatorUri + '/')))
-			throw new BadRequest("This resource must be created in the folder: " + creatorUri + '/');
-	}
 	var newCopy = msg.create.PostCreate(msg.body, msg.location);
-	newCopy.calliBelongsTo.add(this);
 	newCopy.calliEditors.addAll(this.FindContributor(newCopy));
 	newCopy.calliReaders.addAll(this.calliReaders);
 	newCopy.calliEditors.addAll(this.calliEditors);
 	newCopy.calliAdministrators.addAll(this.calliAdministrators);
-	msg.create.touchRevision();
-	if (!msg.intermediate) {
-		this.touchRevision();
+	msg.create.touchRevision(); // Update class index
+	if (msg.intermediate) {
+		var revision = this.auditRevision;
+		this.calliHasComponent.add(newCopy);
+		this.auditRevision = revision; // restore the previous revision
+	} else {
+		this.calliHasComponent.add(newCopy);
 	}
 	return newCopy;
 }

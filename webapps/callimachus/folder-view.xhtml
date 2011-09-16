@@ -120,7 +120,7 @@
 		</li>
 	</ul>
 	<ul class="optional aside">
-		<li rel="calli:belongsTo">
+		<li rev="calli:hasComponent">
 			<div about="?parent">
 				<a class="view" href="?parent" property="rdfs:label" content="?plabel">Up to {?plabel}</a>
 			</div>
@@ -143,7 +143,7 @@
 					<th class="ui-state-default"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> Administrators</a></th>
 				</tr>
 			</thead>
-			<tbody id="tfolders" rev="calli:belongsTo">
+			<tbody id="tfolders" rel="calli:hasComponent">
 				<tr about="?folder" typeof="calli:Folder">
 					<td class="ui-widget-content filecell">
 						<a class="view" href="?folder" property="rdfs:label" content="?flabel"><img class="icon" src="/callimachus/folder.png" />{?flabel}</a>

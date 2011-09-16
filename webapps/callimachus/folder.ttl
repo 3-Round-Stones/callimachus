@@ -56,11 +56,11 @@
 			{
 				{
 					SELECT ($this as ?id) (count(?part) as ?totalResults) {
-						?part calli:belongsTo $this
+						$this calli:hasComponent ?part
 					} GROUP BY $this
 				}
 			} UNION {
-				?id calli:belongsTo $this
+				$this calli:hasComponent ?id
 				FILTER (isIRI(?id))
 			} OPTIONAL {
 				?id skos:prefLabel ?title

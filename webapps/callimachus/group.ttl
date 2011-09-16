@@ -111,7 +111,7 @@ rdfs:label a rdf:Property.
 		newUser.rdfsLabels.add(label);
 		newUser.calliReaders.addAll(this.calliReaders);
 		newUser.calliEditors.addAll(this.calliEditors);
-		newUser.calliBelongsTo.add(user);
+		user.calliHasComponent.add(newUser);
 		this.calliMembers.add(newUser);
 		return uri;
 	""".

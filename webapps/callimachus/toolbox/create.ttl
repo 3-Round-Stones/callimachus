@@ -95,29 +95,6 @@
 :createLocation a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :IsCreateInUriSpace.
 
-:IsUnauthorizedInFolder rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
-	msg:sparql  """
-		ASK {
-			?folder a calli:Folder
-			{
-				$this calli:contributor ?contributor
-				FILTER (NOT EXISTS { ?folder calli:contributor ?contributor })
-			} UNION {
-				$this calli:editor ?editor
-				FILTER (NOT EXISTS { ?folder calli:editor ?editor })
-			} UNION {
-				$this calli:administrator ?editor
-				FILTER (NOT EXISTS { ?folder calli:administrator ?editor })
-			}
-		}
-	""".
-
-:folder a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :IsUnauthorizedInFolder.
-
 # find the user that created $thing if they are not otherwise editors
 :FindContributor rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creator];

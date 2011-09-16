@@ -35,40 +35,37 @@
 	calli:aliasOf </page/main-page.xhtml?view>;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
-	calli:administrator </group/admin>.
+	calli:administrator </group/admin>;
+	calli:hasComponent </user/>, </group/>, </sparql>.
 
 </user/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "user";
 	rdfs:comment "Create new users here and be sure to add them to groups";
-	calli:belongsTo </>;
 	calli:reader </group/staff>;
 	calli:administrator </group/admin>.
 
 </group/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "group";
 	rdfs:comment "Create new groups here";
-	calli:belongsTo </>;
 	calli:reader </group/staff>;
-	calli:administrator </group/admin>.
+	calli:administrator </group/admin>;
+	calli:hasComponent </group/admin>, </group/staff>, </group/users>.
 
 </group/admin> a calli:Party, calli:Group, </callimachus/Group>;
 	rdfs:label "admin";
 	rdfs:comment "The user accounts in this group have heightened privileges, including the ability to edit other user accounts and access the underlying data store";
-	calli:belongsTo </group/>;
 	calli:reader </group/staff>;
 	calli:administrator </group/admin>.
 
 </group/staff> a calli:Party, calli:Group, </callimachus/Group>;
 	rdfs:label "staff";
 	rdfs:comment "Members of this group can design and edit resources within the system";
-	calli:belongsTo </group/>;
 	calli:reader </group/staff>;
 	calli:administrator </group/admin>.
 
 </group/users> a calli:Party, calli:Group, </callimachus/Group>;
 	rdfs:label "users";
 	rdfs:comment "Members of this group can view and discuss resources within the system";
-	calli:belongsTo </group/>;
 	calli:reader </group/staff>;
 	calli:administrator </group/admin>.
 
@@ -78,7 +75,6 @@
 
 </sparql> a </callimachus/SparqlEndPoint>;
 	rdfs:label "sparql";
-	calli:belongsTo </>;
 	calli:administrator </group/admin>.
 
 </callimachus/profile> a </callimachus/Profile>.

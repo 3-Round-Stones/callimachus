@@ -132,6 +132,11 @@ body {
 	font-weight:normal;
 }
 
+#breadcrumbs {
+	font-size:small;
+	padding:0.5em;
+}
+
 #main {
 	clear:right;
 	margin:0 0 1ex;

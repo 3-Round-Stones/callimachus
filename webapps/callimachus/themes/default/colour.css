@@ -79,6 +79,17 @@ a[href] {
 	border-bottom:1px solid #A8ACB8;
 }
 
+.breadcrumb:first-child {
+	display:inline-block;
+	background-image: url(images/ui-icons_f58735_256x240.png);
+	background-position:0 -112px;
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 16px;
+	text-indent: -9999999px;
+	vertical-align:text-bottom;
+}
+
 #main {
 	background-color:white;
 	border-bottom:1px solid #A8ACB8;

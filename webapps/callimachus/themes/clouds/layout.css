@@ -139,6 +139,7 @@ body:before {
 h1 {
 	padding: 0.25em;
 	margin-bottom: 0.5em;
+	margin-top:0.25em;
 }
 
 #tabs {
@@ -175,6 +176,11 @@ h1 {
 #tabs li a[href] {
 	font-size:100%;
 	font-weight:normal;
+}
+
+#breadcrumbs {
+	font-size:small;
+	padding:0.5em;
 }
 
 body.iframe,body.iframe #main,body.iframe #page-top,body.iframe #page {

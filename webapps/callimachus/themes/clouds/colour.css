@@ -121,6 +121,17 @@ a[href] {
 	background:transparent;
 }
 
+.breadcrumb:first-child {
+	display:inline-block;
+	background-image:url(images/ui-icons_333333_256x240.png);
+	background-position:0 -112px;
+	background-repeat:no-repeat;
+	width:16px;
+	height:16px;
+	text-indent:-9999999px;
+	vertical-align:text-bottom;
+}
+
 body.iframe,body.iframe #main {
 	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled=false)";
 	background:inherit;

@@ -30,9 +30,13 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 }
 
 @media screen and (min-width:36em) {
-	h1 ~ .aside,hgroup ~ .aside {
+	h1 ~ .aside {
 		position:relative;
-		top:-4.5em;
+		top:-4em;
+	}
+	hgroup ~ .aside {
+		position:relative;
+		top:-6.5em;
 	}
 	.aside {
 		float:right;

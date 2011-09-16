@@ -153,16 +153,94 @@
 		</xsl:copy>
 	</xsl:template>
 
+	<xsl:template mode="layout" match="xhtml:div[@id='breadcrumbs']|div[@id='breadcrumbs']">
+		<xsl:if test="$template and $query='view'">
+			<xsl:variable name="breadcrumb" select="*[1]" />
+			<xsl:variable name="ellipsis" select="$breadcrumb/preceding-sibling::text()[1]" />
+			<xsl:variable name="separator" select="$breadcrumb/following-sibling::text()[1]" />
+			<xsl:variable name="here" select="*[2]" />
+			<xsl:variable name="close" select="$here/following-sibling::text()[1]" />
+			<div xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+					 rev="calli:hasComponent" resource="?up">
+				<xsl:apply-templates mode="layout" select="@*[name()!='rev' and name()!='rel' and name()!='resource']" />
+				<span>
+					<span rev="calli:hasComponent" resource="?upup">
+						<span rev="calli:hasComponent" resource="?upupup">
+							<span rev="calli:hasComponent" resource="?upupupup">
+								<span rev="calli:hasComponent" resource="?upupupupup">
+									<span rev="calli:hasComponent" resource="?upupupupupup">
+										<xsl:value-of select="$ellipsis" />
+									</span>
+									<xsl:element name="{name($breadcrumb)}">
+										<xsl:attribute name="href"><xsl:text>?upupupupup</xsl:text></xsl:attribute>
+										<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
+										<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href' and name()!='property']" />
+									</xsl:element>
+									<xsl:value-of select="$separator" />
+								</span>
+								<xsl:element name="{name($breadcrumb)}">
+									<xsl:attribute name="href"><xsl:text>?upupupup</xsl:text></xsl:attribute>
+									<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
+									<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href' and name()!='property']" />
+								</xsl:element>
+								<xsl:value-of select="$separator" />
+							</span>
+							<xsl:element name="{name($breadcrumb)}">
+								<xsl:attribute name="href"><xsl:text>?upupup</xsl:text></xsl:attribute>
+								<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
+								<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href' and name()!='property']" />
+							</xsl:element>
+							<xsl:value-of select="$separator" />
+						</span>
+						<xsl:element name="{name($breadcrumb)}">
+							<xsl:attribute name="href"><xsl:text>?upup</xsl:text></xsl:attribute>
+							<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
+							<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href' and name()!='property']" />
+						</xsl:element>
+						<xsl:value-of select="$separator" />
+					</span>
+					<xsl:element name="{name($breadcrumb)}">
+						<xsl:attribute name="href"><xsl:text>?up</xsl:text></xsl:attribute>
+						<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
+						<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href' and name()!='property']" />
+					</xsl:element>
+					<xsl:value-of select="$separator" />
+				</span>
+				<xsl:element name="{name($here)}">
+					<xsl:attribute name="about"><xsl:text>?this</xsl:text></xsl:attribute>
+					<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
+					<xsl:apply-templates mode="layout" select="$here/@*[name()!='property' and name()!='about']" />
+				</xsl:element>
+				<xsl:value-of select="$close" />
+			</div>
+		</xsl:if>
+	</xsl:template>
+
 	<xsl:template mode="layout" match="xhtml:ul[@id='nav']|ul[@id='nav']">
 		<xsl:copy-of select="document(concat($callimachus, '/menu?items'))/xhtml:html/xhtml:body/node()" />
 	</xsl:template>
 
 	<xsl:template mode="layout" match="xhtml:p[@id='resource-lastmod']|p[@id='resource-lastmod']">
 		<xsl:if test="$template and ($query='view' or $query='edit')">
-			<p id="resource-lastmod" about="?this" rel="audit:revision" resource="?revision">This resource was last modified at 
-				<time pubdate="pubdate" property="audit:committedOn" class="abbreviated" />
+			<p xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#" about="?this" rel="audit:revision" resource="?revision">
+				<xsl:apply-templates mode="layout" select="@*" />
+				<xsl:apply-templates mode="time" select="*|text()|comment()" />
 			</p>
 		</xsl:if>
+	</xsl:template>
+
+	<xsl:template mode="time" match="@*|text()|comment()">
+		<xsl:copy />
+	</xsl:template>
+
+	<xsl:template mode="time" match="*">
+		<xsl:copy>
+			<xsl:apply-templates mode="layout" select="@*|*|text()|comment()" />
+		</xsl:copy>
+	</xsl:template>
+
+	<xsl:template mode="time" match="xhtml:time|time">
+		<time pubdate="pubdate" property="audit:committedOn" class="abbreviated" />
 	</xsl:template>
 
 	<xsl:template mode="layout" match="xhtml:p[@id='manifest-rights']|p[@id='manifest-rights']">

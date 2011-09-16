@@ -122,31 +122,8 @@ function flexTextArea(area, contentWidth, innerHeight) {
 }
 
 function flexIframe(area, contentWidth, innerHeight) {
-	if (area.contentWindow) {
-		$(area).css('width', contentWidth);
-		try {
-			var height = 0;
-			var body = $('body', area.contentWindow.document);
-			body.children(":visible").each(function() {
-				height += $(this).outerHeight(true);
-			});
-			height += parsePixel(body.css("padding-top"));
-			height += parsePixel(body.css("padding-bottom"));
-			height += parsePixel(body.css("border-top-width"));
-			height += parsePixel(body.css("border-bottom-width"));
-			height += parsePixel(body.css("margin-top"));
-			height += parsePixel(body.css("margin-bottom"));
-			height += parsePixel($(area).css("padding-top"));
-			height += parsePixel($(area).css("padding-bottom"));
-			height += parsePixel($(area).css("border-top-width"));
-			height += parsePixel($(area).css("border-bottom-width"));
-			if (height >= 100) {
-				$(area).css('height', Math.min(innerHeight, height + 100));
-				return;
-			}
-		} catch(e) {}
-		$(area).css('height', innerHeight);
-	}
+	$(area).css('width', contentWidth);
+	$(area).css('height', innerHeight);
 }
 
 function flexBlock(area, contentWidth, innerHeight) {

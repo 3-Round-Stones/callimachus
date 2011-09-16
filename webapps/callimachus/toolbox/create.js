@@ -19,7 +19,7 @@ function getPageLocationURL() {
 $(document).ready(initForms);
 
 function initForms() {
-	$('form[about],form[enctype="application/sparql-update"]').each(function(i, node) {
+	$('form[enctype="application/sparql-update"]').each(function(i, node) {
 		var form = $(node);
 		$(document).bind("calliReady", function() {
 			form.validate({submitHandler: submitRDFForm});
@@ -39,59 +39,22 @@ function initForms() {
 			return true;
 		var form = $(this);
 		if (overrideLocationURI || this.action.indexOf('&location=') < 0) {
-			var file = form.find('input[type=file]');
-			if (form.attr('about')) {
-				event.preventDefault();
-				prompted = true;
-				getResourceUri(form[0], function(uri){
-					overrideLocation(form[0], uri);
-					overrideLocationURI = true;
-					form.submit();
-				}, function(){
-					prompted = false;
-				});
-				return false;
-			} else if (file.length == 1) {
-				event.preventDefault();
-				prompted = true;
-				getDirectory(form[0], function(dir) {
-					var label = file.val().match(/[\\/]([^\\/]+)$/)[1];
-					var local = encodeURIComponent(label).replace(/%20/g,'+').toLowerCase();
-					overrideLocation(form[0], dir, local);
-					overrideLocationURI = true;
-					form.submit();
-				}, function(){
-					prompted = false;
-				});
-				return false;
-			} else if (form.find('input:text').val()) {
-				event.preventDefault();
-				prompted = true;
-				getDirectory(form[0], function(dir) {
-					var label = form.find('input:text').val();
-					var local = encodeURI(label).replace(/%20/g,'+').toLowerCase();
-					overrideLocation(form[0], dir, local);
-					overrideLocationURI = true;
-					form.submit();
-				}, function(){
-					prompted = false;
-				});
-				return false;
-			}
+			event.preventDefault();
+			prompted = true;
+			getResourceUri(this, function(uri){
+				overrideLocation(form[0], uri);
+				overrideLocationURI = true;
+				form.submit();
+			}, function(){
+				prompted = false;
+			});
+			return false;
 		}
 		return true;
 	});
 }
 
-function overrideLocation(form, dir, local) {
-	var uri;
-	if (!local) {
-		uri = dir;
-	} else if (dir.lastIndexOf('/') == dir.length - 1) {
-		uri = dir + local;
-	} else {
-		uri = dir + '/' + local;
-	}
+function overrideLocation(form, uri) {
 	if (form.action.indexOf('&location=') > 0) {
 		var m = form.action.match(/^(.*&location=)[^&=]*(.*)$/);
 		form.action = m[1] + encodeURIComponent(uri) + m[2];
@@ -132,24 +95,25 @@ function submitRDFForm(form) {
 }
 
 var overrideFormURI = false;
+var overrideFormLocation = false;
 
 function getResourceUri(form, callback, fin) {
-	if (overrideFormURI || !$(form).attr('about') || $(form).attr('about') == $('body').attr('about')) {
-		overrideFormURI = true;
-		var label = $(form).find('input:text').val();
-		if (label) {
-			var local = encodeURI(label).replace(/%20/g,'+').toLowerCase();
-			$(form).attr('about', local);
-		}
-	}
 	var uri = $(form).attr('about');
-	if (uri.indexOf(':') < 0 && uri.indexOf('/') != 0 && uri.indexOf('?') != 0) {
-		getDirectory(form, function(dir){
-			if (dir.lastIndexOf('/') == dir.length - 1) {
-				uri = dir + uri;
-			} else {
-				uri = dir + '/' + uri;
-			}
+	if (overrideFormURI || !uri || uri == $('body').attr('about')) {
+		overrideFormURI = true;
+		var input = $(form).find('input').val();
+		if (input.lastIndexOf('\\') > 0) {
+			input = input.substring(input.lastIndexOf('\\') + 1);
+		}
+		calli.promptLocation(form, input, function(ns, label){
+			var uri = ns + encodeURI(label).replace(/%20/g,'+').toLowerCase();
+			$(form).attr('about', uri);
+			callback(uri);
+		}, fin);
+	} else if (overrideFormLocation || (uri.indexOf(':') < 0 && uri.indexOf('/') != 0 && uri.indexOf('?') != 0)) {
+		overrideFormLocation = true;
+		calli.promptLocation(form, $(form).attr('about'), function(ns, label){
+			var uri = ns + encodeURI(label).replace(/%20/g,'+');
 			$(form).attr('about', uri);
 			callback(uri);
 		}, fin);
@@ -161,15 +125,7 @@ function getResourceUri(form, callback, fin) {
 	}
 }
 
-function getDirectory(form, callback, fin) {
-	if (location.search.search(/\?\w+=/) == 0) {
-		callback(calli.listResourceIRIs(getPageLocationURL())[0]);
-	} else {
-		calli.promptFolder(form, callback, fin);
-	}
-}
-
-window.calli.promptFolder = function(form, callback, fin) {
+window.calli.promptLocation = function(form, label, callback, fin) {
 	var width = 450;
 	var height = 500;
 	if ($('body').is('.iframe')) {
@@ -202,19 +158,28 @@ window.calli.promptFolder = function(form, callback, fin) {
 			var uri = calli.listResourceIRIs(src)[0];
 			if (uri.lastIndexOf('/') == uri.length - 1) {
 				if (form) {
-					var action = form.action ? form.action : getPageLocationURL();
 					var m;
-					if (m = action.match(/^(\?\w+)(&.*)$/)) {
-						form.action = uri + m[1] + '=' + location.pathname + m[2];
-					} else if (m = action.match(/^([^\?]+)(\?\w+)(&.*)$/)) {
-						form.action = uri + m[2] + '=' + m[1] + m[3];
-					} else if (m = action.match(/^(\?\w+)$/)) {
-						form.action = uri + m[1] + '=' + location.pathname;
-					} else if (m = action.match(/^([^\?]+)(\?\w+)$/)) {
-						form.action = uri + m[2] + '=' + m[1];
+					var action = form.action ? form.action : getPageLocationURL();
+					if (m = action.match(/^([^\?]*)(\?\w+)(&.*)?$/)) {
+						action = uri + m[2] + '=';
+						if (m[1]) {
+							action += m[1];
+						} else {
+							action += location.pathname;
+						}
+						if (m[3]) {
+							action += m[3];
+						}
+						form.action = action;
+					} else if (m = action.match(/^([^\?]*)(\?\w+=[^&]+)(&.*)?$/)) {
+						action = uri + m[2];
+						if (m[3]) {
+							action += m[3];
+						}
+						form.action = action;
 					}
 				}
-				callback(uri);
+				callback(uri, label);
 				iframe.dialog('close');
 			}
 		}

@@ -27,7 +27,6 @@
 				var next = $(':input[type=file]:enabled:first').parents('form');
 				if (next.find(':input[type=file]').val()) {
 					next.submit();
-					next.find(':input').attr('disabled', 'disabled');
 				} else {
 					$(':input[type=file]').parents('form').find('button').removeAttr('disabled');
 				}
@@ -38,9 +37,10 @@
 				$(':input[type=file]:disabled:last').removeAttr('disabled');
 				return false;
 			};
-			$('button[type=submit]').live('click', advance);
+			$('button.advance-graph').live('click', advance);
 			$('iframe').load(function() {
 				if ($('#graph-link', this.contentWindow.document).length) {
+					$(':input[type=file]:enabled:first').parents('form').find(':input').attr('disabled', 'disabled');
 					advance();
 				} else if ($('h1', this.contentWindow.document).length) {
 					retreat();
@@ -60,7 +60,7 @@
 	<form class="graph-form" action="" method="POST" enctype="multipart/form-data" target="redirect">
 		<input type="file" name="graph" autofocus="autofocus" />
 		<div>
-			<button type="submit">Upload Graph</button>
+			<button type="button" class="advance-graph submit">Upload Graph</button>
 			<button type="button" onclick="history.back()">Cancel</button>
 		</div>
 	</form>

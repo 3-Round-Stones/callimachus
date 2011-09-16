@@ -180,7 +180,7 @@ button {
 	border-radius:2px;
 }
 
-button[type=submit] {
+button.submit,button[type=submit] {
 	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled='true', startColorstr=white, endColorstr=#F58735, GradientType=0)";
 	background-color:#F58735;
 	background-image:-moz-linear-gradient(top, white, #F58735);

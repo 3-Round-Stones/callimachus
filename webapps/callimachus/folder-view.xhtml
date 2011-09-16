@@ -10,6 +10,7 @@
 	<style type="text/css">
 		.filecol { width:100% }
 		.ui-grid table tbody td.filecell { text-align: left }
+		#table.small .permission { display:none; }
 
 		/* Grid
 		----------------------------------*/
@@ -26,6 +27,14 @@
 	<script type="text/javascript">
 		// <![CDATA[
 		(function($){
+			try {
+				if (window.sessionStorage) {
+					sessionStorage.setItem("LastFolder", location.href);
+					localStorage.setItem("LastFolder", location.href);
+				}
+			} catch (e) {
+				// ignore
+			}
 			function createTextCell(text, url, src) {
 				if (!src) {
 					src = '/callimachus/images/rdf-icon.png';
@@ -61,6 +70,7 @@
 			function createPermissionCell(entry, tagName) {
 				var td = $('<td/>');
 				td.addClass('ui-widget-content');
+				td.addClass('permission');
 				var tags = entry.children().filter(function(){return this.tagName==tagName});
 				tags.each(function() {
 					var uri = $(this).children('uri').text();
@@ -110,37 +120,52 @@
 				});
 			});
 		})(jQuery);
+		jQuery(function($){
+			var tooSmall = 500;
+			var resized = function() {
+				setTimeout(function(){
+					var clientWidth = $('#box').width();
+					if (clientWidth < $('#table').width()) {
+						tooSmall = clientWidth;
+						$('#table').addClass('small');
+					} else if (clientWidth > tooSmall) {
+						$('#table').removeClass('small');
+						setTimeout(resized, 500);
+					}
+				}, 0);
+			}
+			$(window).bind('resize', resized);
+			resized();
+		});
 		// ]]>
 	</script>
 </head>
 <body about="?this">
 	<ul class="optional aside">
-		<li>
+		<li class="optional">
 			<a href="?create=/callimachus/Folder">Create a new Folder</a>
 		</li>
-	</ul>
-	<ul class="optional aside">
-		<li rev="calli:hasComponent">
+		<li class="optional" rev="calli:hasComponent">
 			<div about="?parent">
 				<a class="view" href="?parent" property="rdfs:label" content="?plabel">Up to {?plabel}</a>
 			</div>
 		</li>
-	</ul>
-	<ul class="optional aside">
 		<li property="rdfs:comment" />
 	</ul>
-	<div class="ui-grid ui-widget ui-widget-content ui-corner-all flex">
-		<div class="ui-grid-header ui-widget-header ui-corner-top" property="rdfs:label"></div>
-		<table class="ui-grid-content ui-widget-content">
+	<div id="box" class="ui-grid ui-widget ui-widget-content ui-corner-all flex">
+		<div class="ui-grid-header ui-widget-header ui-corner-top">
+			<span property="rdfs:label"/>
+		</div>
+		<table id="table" class="ui-grid-content ui-widget-content">
 			<colgroup class="filecol" />
 			<thead>
 				<tr>
 					<th class="ui-state-default"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> File</a></th>
 					<th class="ui-state-default"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> Updated</a></th>
-					<th class="ui-state-default"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> Readers</a></th>
-					<th class="ui-state-default"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> Contributors</a></th>
-					<th class="ui-state-default"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> Editors</a></th>
-					<th class="ui-state-default"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> Administrators</a></th>
+					<th class="ui-state-default permission"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> Readers</a></th>
+					<th class="ui-state-default permission"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> Contributors</a></th>
+					<th class="ui-state-default permission"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> Editors</a></th>
+					<th class="ui-state-default permission"><a><span class="ui-icon ui-icon-triangle-1-s" title="sort ascending"></span> Administrators</a></th>
 				</tr>
 			</thead>
 			<tbody id="tfolders" rel="calli:hasComponent">
@@ -153,22 +178,22 @@
 							<time class="abbreviated" property="audit:committedOn"/>
 						</span>
 					</td>
-					<td class="ui-widget-content">
+					<td class="ui-widget-content permission">
 						<a rel="calli:reader" href="?reader">
 							<span property="rdfs:label"/>
 						</a>
 					</td>
-					<td class="ui-widget-content">
+					<td class="ui-widget-content permission">
 						<a rel="calli:contributor" href="?contributor">
 							<span property="rdfs:label"/>
 						</a>
 					</td>
-					<td class="ui-widget-content">
+					<td class="ui-widget-content permission">
 						<a rel="calli:editor" href="?editor">
 							<span property="rdfs:label"/>
 						</a>
 					</td>
-					<td class="ui-widget-content">
+					<td class="ui-widget-content permission">
 						<a rel="calli:administrator" href="?administrator">
 							<span property="rdfs:label"/>
 						</a>

@@ -40,39 +40,29 @@ jQuery(function($){
 			return location.href.replace(path, path.replace('#', '%23'));
 		return location.href;
 	}
-	function getDirectory(form, callback, fin) {
-		if (location.search.search(/\?\w+=/) == 0) {
-			callback(calli.listResourceIRIs(getPageLocationURL())[0]);
-		} else {
-			calli.promptFolder(form, callback, fin);
-		}
-	}
 	$('#form[data-type]').submit(function(event) {
 		var form = this;
 		event.preventDefault();
-		var name = prompt('Save as...', $(this).attr('data-label'));
-		if (name) {
-			getDirectory(form, function(dir) {
-				var local = encodeURI(name).replace(/%20/g,'-').toLowerCase();
-				var header = 'POST create'
-					+ '\nAction: ' + form.action
-					+ '\nLocation: ' + dir + local + $(form).attr('data-suffix')
-					+ '\nContent-Type: ' + $(form).attr('data-type');
-				if ($('#cache').val()) {
-					header += '\nCache-Control: ' + $('#cache').val();
-				}
-				$(window).bind('message', function(event) {
-					if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
-						var msg = event.originalEvent.data;
-						if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
-							var url = msg.substring(msg.lastIndexOf('\n\n')).match(/Location:\s*(\S+)/)[1]
-							location.replace(url + '?view');
-						}
+		calli.promptLocation(form, prompt('Save as..', $(this).attr('data-label')), function(ns, label) {
+			var local = encodeURI(label).replace(/%20/g,'-').toLowerCase();
+			var header = 'POST create'
+				+ '\nAction: ' + form.action
+				+ '\nLocation: ' + ns + local + $(form).attr('data-suffix')
+				+ '\nContent-Type: ' + $(form).attr('data-type');
+			if ($('#cache').val()) {
+				header += '\nCache-Control: ' + $('#cache').val();
+			}
+			$(window).bind('message', function(event) {
+				if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
+					var msg = event.originalEvent.data;
+					if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
+						var url = msg.substring(msg.lastIndexOf('\n\n')).match(/Location:\s*(\S+)/)[1]
+						location.replace(url + '?view');
 					}
-				});
-				$('#iframe')[0].contentWindow.postMessage(header, '*');
+				}
 			});
-		}
+			$('#iframe')[0].contentWindow.postMessage(header, '*');
+		});
 		return false;
 	});
 });

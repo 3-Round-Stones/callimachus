@@ -2,7 +2,8 @@
 <?xml-stylesheet type="text/xsl" href="/callimachus/manifest?template"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
 	<title>New Class</title>
 	<script type="text/javascript"> // <![CDATA[
@@ -28,35 +29,105 @@
 		});
 	}); // ]]>
 	</script>
+	<script type="text/javascript">//<![CDATA[
+		function updateSuperClasses() {
+			var Creator = 'about="http://callimachusproject.org/rdf/2009/framework#Creator"';
+			var Viewable = 'about="http://callimachusproject.org/rdf/2009/framework#Viewable"';
+			var Editable = 'about="http://callimachusproject.org/rdf/2009/framework#Editable"';
+			var subClassOf = $('#subClassOf');
+			if (!subClassOf.children('[' + Creator + ']').length) {
+				subClassOf.append('<div ' + Creator + '>Creator</div>');
+			}
+			if ($('#view').children('[about]').length) {
+				if (!subClassOf.children('[' + Viewable + ']').length) {
+					subClassOf.append('<div ' + Viewable + '>Viewable</div>');
+				}
+			} else {
+				subClassOf.children('[' + Viewable + ']').remove();
+			}
+			if ($('#edit').children('[about]').length) {
+				if (!subClassOf.children('[' + Editable + ']').length) {
+					subClassOf.append('<div ' + Editable + '>Editable</div>');
+				}
+			} else {
+				subClassOf.children('[' + Editable + ']').remove();
+			}
+		}
+		// ]]>
+	</script>
 </head>
 <body>
 	<h1>New Class</h1>
 	<ul class="aside">
 		<li>A class usually represents a noun, such as a person, place or (possibly quite abstract) thing</li>
-		<li>An external class can be associated with a Callimachus class to apply templates to an external class</li>
+		<li>An external class can be associated with a Callimachus class using equivalence this will apply the templates to both classes</li>
+		<li>Templates are used for page or form structure on each operation</li>
 	</ul>
-	<form id="form" method="POST" action="" enctype="application/sparql-update" typeof="owl:Class">
+	<form id="form" method="POST" action="" enctype="application/sparql-update" typeof="owl:Class"
+			onsubmit="updateSuperClasses()">
 		<div class="hbox">
 			<div>
 				<label for="label">Label</label>
-				<div>
-					<input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
-				</div>
-				<label for="comment">Comment</label>
-				<div>
-					<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+				<input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+			</div>
+			<div id="icon" rel="calli:icon" dropzone="link s:text/uri-list">
+				<label>Icon</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/Image" />
+				<div about="?icon" typeof="foaf:Image">
+					<img src="{?icon}?small" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
-			<div id="uriSpace" rel="calli:uriSpace" resource="/" />
-			<div>
-				<div id="subClassOf" rel="rdfs:subClassOf" resource="http://callimachusproject.org/rdf/2009/framework#Creator" />
-				<div id="equivalentClass" rel="owl:equivalentClass" dropzone="link s:text/uri-list">
-					<label>Associate external class</label>
-					<button type="button" class="dialog" data-dialog="./?create=/callimachus/Graph" />
-					<div about="?equivalentClass" typeof="owl:Class">
-						<span class="equivalentLabel" property="rdfs:label" />
-						<span style="display:none" class="equivalentComment" property="rdfs:comment" />
-					</div>
+		</div>
+		<div>
+			<label for="comment">Comment</label>
+			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+		</div>
+		<div id="uriSpace" rel="calli:uriSpace" resource="/" />
+		<div class="hbox">
+			<div id="subClassOf" rel="rdfs:subClassOf" dropzone="link s:text/uri-list">
+				<label>Super</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/Class" />
+				<div about="?subClassOf" typeof="owl:Class">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
+				</div>
+			</div>
+			<div id="equivalentClass" rel="owl:equivalentClass" dropzone="link s:text/uri-list">
+				<label>Equivalent</label>
+				<button type="button" class="dialog" data-dialog="callimachus/Graph?create" />
+				<div about="?equivalentClass" typeof="owl:Class">
+					<span class="equivalentLabel" property="rdfs:label" />
+					<span style="display:none" class="equivalentComment" property="rdfs:comment" />
+					<button type="button" class="remove" />
+				</div>
+			</div>
+		</div>
+		<hr />
+		<h2>Page Templates</h2>
+		<div class="hbox">
+			<div id="create" rel="calli:create" dropzone="link s:text/uri-list">
+				<label>Create template</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" />
+				<div about="?create" typeof="calli:Page">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
+				</div>
+			</div>
+			<div id="view" rel="calli:view" dropzone="link s:text/uri-list">
+				<label>View template</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" />
+				<div about="?view" typeof="calli:Page">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
+				</div>
+			</div>
+			<div id="edit" rel="calli:edit" dropzone="link s:text/uri-list">
+				<label>Edit template</label>
+				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" />
+				<div about="?edit" typeof="calli:Page">
+					<span property="rdfs:label" />
+					<button type="button" class="remove" />
 				</div>
 			</div>
 		</div>

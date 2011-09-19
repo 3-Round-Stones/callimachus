@@ -126,6 +126,13 @@
 		<xsl:copy />
 	</xsl:template>
 
+	<xsl:template mode="layout" match="xhtml:img/@src[starts-with(., '/callimachus/')]|img/@src[starts-with(., '/callimachus/')]">
+		<xsl:attribute name="{name()}">
+			<xsl:value-of select="$callimachus" />
+			<xsl:value-of select="substring-after(.,'/callimachus')" />
+		</xsl:attribute>
+	</xsl:template>
+
 	<xsl:template mode="layout" match="xhtml:ul[@id='tabs']">
 		<xsl:if test="xhtml:li/xhtml:a[@href=concat('?',$query)]|li/a[@href=concat('?',$query)]">
 			<xsl:copy>

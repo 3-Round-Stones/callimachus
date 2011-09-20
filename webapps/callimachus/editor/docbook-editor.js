@@ -55,8 +55,8 @@ jQuery(function($) {
 		var etag = null;
 
 		$(window).bind('message', function(event) {
-			if (event.originalEvent.source == $('#image-iframe')[0].contentWindow && event.originalEvent.data.indexOf('PUT src\n') == 0) {
-				var data = event.originalEvent.data;
+			var data = event.originalEvent.data;
+			if ($('#image-iframe').length && event.originalEvent.source == $('#image-iframe')[0].contentWindow && data.indexOf('PUT src\n') == 0) {
 				var src = data.substring(data.indexOf('\n\n') + 2);
 				var uri = calli.listResourceIRIs(src)[0];
 				if (uri.search(/\.[a-zA-Z]+$/) > 0) {

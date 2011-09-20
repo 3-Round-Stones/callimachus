@@ -130,7 +130,7 @@ a[href] {
 	vertical-align:text-bottom;
 }
 
-body.iframe,body.iframe #main {
+.iframe body,.iframe #main {
 	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled=false)";
 	background:inherit;
 	border:none;

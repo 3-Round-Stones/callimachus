@@ -17,7 +17,6 @@ body {
 	display:table-cell;
 	vertical-align:middle;
 	text-align:right;
-	height:1.5em;
 	height:1.5rem;
 }
 
@@ -148,17 +147,17 @@ body {
 	padding-left:1em;
 }
 
-body.iframe,body.iframe #main {
+.iframe body,.iframe #main {
 	margin:0;
 	padding:0;
 }
 
-body.iframe #content {
+.iframe #content {
 	margin:0;
 	padding:0.5em;
 }
 
-body.iframe #header,body.iframe #tabs,body.iframe #nav,body.iframe #logo,body.iframe #footer {
+.iframe #header,.iframe #tabs,.iframe #nav,.iframe #logo,.iframe #footer {
 	display:none;
 }
 
@@ -191,7 +190,7 @@ body.iframe #header,body.iframe #tabs,body.iframe #nav,body.iframe #logo,body.if
 .ie7_html #tabs, #main, #footer { margin-left:10em; }
 .ie7_html #tabs { clear:none; }
 .ie7_html #content { min-height:28em; }
-.ie7_html body.iframe #content {min-height: 0px; }
+.ie7_html .iframe #content {min-height: 0px; }
 /* end desktop */
 
 /* start print */

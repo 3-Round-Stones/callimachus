@@ -100,8 +100,6 @@ if (window.localStorage) {
 	var oldName = localStorage.getItem('Name');
 	var oldNotLoginCount = localStorage.getItem('NotLoginCount');
 	var oldLoginCount = localStorage.getItem('LoginCount');
-	$(window).bind('storage', handleStorageEvent);
-	$(document).bind('storage', handleStorageEvent); // IE
 
 	var currently = '';
 
@@ -113,7 +111,7 @@ if (window.localStorage) {
 		currently = '';
 	});
 
-	function handleStorageEvent(e) {
+	var handleStorageEvent = function(e) {
 		var newName = localStorage.getItem('Name');
 		var newNotLoginCount = localStorage.getItem('NotLoginCount');
 		var newLoginCount = localStorage.getItem('LoginCount');
@@ -159,7 +157,9 @@ if (window.localStorage) {
 			} 
 		}
 		return true;
-	}
+	};
+	$(window).bind('storage', handleStorageEvent);
+	$(document).bind('storage', handleStorageEvent); // IE
 }
 
 if (window.sessionStorage && sessionStorage.getItem("Name")) {

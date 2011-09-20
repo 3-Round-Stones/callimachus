@@ -183,19 +183,19 @@ h1 {
 	padding:0.5em;
 }
 
-body.iframe,body.iframe #main,body.iframe #page-top,body.iframe #page {
+.iframe body,.iframe #main,.iframe #page-top,.iframe #page {
 	margin:0;
 	padding:0;
 	height:auto;
 	max-height:none;
 }
 
-body.iframe #content {
+.iframe #content {
 	margin:0;
 	padding:0.5em;
 }
 
-body.iframe #header,body.iframe #tabs,body.iframe #nav,body.iframe #logo,body.iframe #footer,body.iframe #top {
+.iframe #header,.iframe #tabs,.iframe #nav,.iframe #logo,.iframe #footer,.iframe #top {
 	display:none;
 }
 

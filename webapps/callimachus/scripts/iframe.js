@@ -12,7 +12,7 @@ jQuery(function($) {
 	}
 
 	if (window.frameElement) {
-		$('body').addClass('iframe');
+		$('html').addClass('iframe');
 		var src = null;
 		var func = function() {
 			if (window.location.search == '?view' && parent.postMessage) {

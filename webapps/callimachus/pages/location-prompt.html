@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Save as...</title>
+	<style type="text/css">
+		html,body { padding:0;margin:0;overflow:hidden; }
+		label { height:1.5em;position:absolute;display:block;width:100%; }
+		#label { float:right; }
+		iframe { border:none;width:100%;height:100%;padding-top:1.5em;box-sizing:border-box; }
+		#form { padding:0; }
+	</style>
+	<script src="/callimachus/scripts/web_bundle?source" type="text/javascript"> </script>
+	<script type="text/javascript">
+	// <![CDATA[
+		jQuery(function($) {
+			if (location.hash) {
+				var i = location.hash.indexOf('!');
+				if (i > 0) {
+					var uri = location.hash.substring(i + 1);
+					$('#iframe')[0].src = calli.viewpage(uri);
+					var label = decodeURIComponent(location.hash.substring(1, i));
+					$('#label').val(label);
+				} else {
+					var label = decodeURIComponent(location.hash.substring(1));
+					$('#label').val(label);
+				}
+			}
+			var src = null;
+			$(window).bind('message', function(event) {
+				var data = event.originalEvent.data;
+				if (event.originalEvent.source == $('#iframe')[0].contentWindow && data.indexOf('PUT src\n\n') == 0) {
+					src = data.substring(data.indexOf('\n\n') + 2);
+				} else if (event.originalEvent.source == parent && data == 'GET label') {
+					parent.postMessage('OK\n\nGET label\n\n' + $('#label').val(), '*');
+				} else if (event.originalEvent.source == parent && data == 'GET url') {
+					parent.postMessage('OK\n\nGET url\n\n' + src, '*');
+				}
+			});
+		});
+	// ]]>
+	</script>
+</head>
+<body>
+	<form id="form">
+		<label for="label"><input class="auto-expand" id="label" type="text" />Label: </label>
+		<iframe id="iframe" src="/?view"></iframe>
+	</form>
+</body>
+</html>
+

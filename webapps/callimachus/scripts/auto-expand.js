@@ -153,32 +153,25 @@ function getAvailableHeight(area) {
 }
 
 function getAvailableWidth(area) {
-	var margin = getMarginRight(area);
-	return document.documentElement.clientWidth - $(area).offset().left - margin;
-}
-
-function getMarginRight(area) {
-	var clientWidth = document.documentElement.clientWidth;
-	var asideLeft = getAsideLeft(area);
 	var parent = getParentBlock(area);
-	var left = $(area).css("border-left-width");
-	var right = $(area).css("border-right-width");
-	var margin = $(area).css("margin-right-width");
-	var marginRight = parsePixel(left) + parsePixel(right) + parsePixel(margin);
+	var margin = 0;
 	var breakFlag = false;
-	$(area).parents().each(function(){
+	$(area).add($(area).parents()).each(function(){
 		if (this == parent) {
 			breakFlag = true;
 		} else if (!breakFlag) {
-			marginRight += parsePixel($(this).css("border-right-width"));
-			marginRight += parsePixel($(this).css("margin-right"));
-			marginRight += parsePixel($(this).css("padding-right"));
+			margin += parsePixel($(this).css("border-left-width"));
+			margin += parsePixel($(this).css("margin-left"));
+			margin += parsePixel($(this).css("padding-left"));
+			margin += parsePixel($(this).css("border-right-width"));
+			margin += parsePixel($(this).css("margin-right"));
+			margin += parsePixel($(this).css("padding-right"));
 		}
 	});
-	marginRight += clientWidth - $(parent).offset().left - parsePixel($(parent).css('border-left-width')) - $(parent).width();
-	if (marginRight >= clientWidth - asideLeft)
-		return marginRight;
-	return marginRight + clientWidth - asideLeft;
+	var asideLeft = getAsideLeft(area);
+	if ($(parent).offset().left + $(parent).outerWidth(true) <= asideLeft)
+		return $(parent).width() - margin;
+	return $(parent).width() - margin - $(parent).offset().left - $(parent).outerWidth(true) + asideLeft;
 }
 
 function getParentBlock(area) {

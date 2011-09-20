@@ -98,7 +98,7 @@ a[href] {
 	border-top:1px solid #A8ACB8;
 }
 
-body.iframe,body.iframe #main {
+.iframe body,.iframe #main {
 	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled=false)";
 	background:inherit;
 	border:none;

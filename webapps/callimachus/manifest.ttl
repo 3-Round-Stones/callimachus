@@ -71,6 +71,17 @@ calli:template a owl:ObjectProperty;
 		return this.calliColourScheme.toString() + "?source";
 	""".
 
+:GetJqueryuiStyle rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+	msg:method "GET";
+	msg:query "jqueryui";
+	msg:expect "302-see-other";
+	msg:type "text/uri-list";
+	msg:script """
+		return this.calliColourScheme.calliJqueryui;
+	""".
+
 :GetRights rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];

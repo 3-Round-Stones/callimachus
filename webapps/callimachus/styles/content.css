@@ -24,6 +24,10 @@ iframe.ui-widget-content.ui-dialog-content {
 	padding:0;
 }
 
+html.iframe {
+	overflow-y: auto;
+}
+
 a[href] {
 	text-decoration:none;
 }

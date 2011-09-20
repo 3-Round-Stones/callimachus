@@ -43,7 +43,7 @@ jQuery(function($){
 	$('#form[data-type]').submit(function(event) {
 		var form = this;
 		event.preventDefault();
-		calli.promptLocation(form, prompt('Save as..', $(this).attr('data-label')), function(ns, label) {
+		calli.promptLocation(form, $(this).attr('data-label'), function(ns, label) {
 			var local = encodeURI(label).replace(/%20/g,'-').toLowerCase();
 			var header = 'POST create'
 				+ '\nAction: ' + form.action

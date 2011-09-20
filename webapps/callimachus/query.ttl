@@ -212,7 +212,11 @@
 			}
 		}
 		var nq = con.repository.getNamedQuery(this.resource);
-		resp.setHeader("Last-Modified", java.lang.Long.toString(nq.getResultLastModified()));
+		var PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
+		var dateFormat = new java.text.SimpleDateFormat(PATTERN_RFC1123, java.util.Locale.US) ;
+		dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
+		var lastModified = dateFormat.format(new Date(nq.getResultLastModified()));
+		resp.setHeader("Last-Modified", lastModified);
 		resp.setHeader('ETag', 'W/"' + nq.getResponseTag() + '"');
 		resp.setEntity(entity);
 		return resp;

@@ -28,7 +28,9 @@
 			<xsl:value-of select="concat($callimachus, '/manifest')" />
 		</xsl:if>
 	</xsl:variable>
+	<xsl:variable name="styles" select="document(concat($manifest, '?styles'))/xhtml:html/xhtml:head/xhtml:link" />
 	<xsl:variable name="layout_xhtml" select="document(concat($manifest, '?layout'))" />
+	<xsl:variable name="layout_html" select="$layout_xhtml/xhtml:html|$layout_xhtml/html" />
 	<xsl:variable name="layout_head" select="$layout_xhtml/xhtml:html/xhtml:head|$layout_xhtml/html/head" />
 	<xsl:variable name="layout_body" select="$layout_xhtml/xhtml:html/xhtml:body|$layout_xhtml/html/body" />
 	<xsl:variable name="template_body" select="/xhtml:html/xhtml:body|/html/body" />
@@ -69,20 +71,20 @@
 				<xsl:with-param name="one" select="." />
 				<xsl:with-param name="two" select="$layout_head" />
 			</xsl:call-template>
+			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,target-densityDpi=device-dpi"/>
+			<meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1" />
 			<link rel="icon" href="{$manifest}?favicon" />
+			<link rel="stylesheet" href="{$callimachus}/styles/normalize.css" />
 			<link rel="stylesheet" href="{$callimachus}/styles/content.css" />
-			<link rel="stylesheet" href="{$manifest}?style" />
-			<link rel="stylesheet" href="{$manifest}?colour" />
-			<xsl:comment>[if lt IE 9]&gt;
-				&lt;link rel="stylesheet" href="/callimachus/themes/default/ie8.css" /&gt;
-				&lt;script src="//html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;
-			&lt;![endif]</xsl:comment>
-			<xsl:if test="//form|//xhtml:form|//*[contains(@class, 'ui-widget')]">
-				<link type="text/css" href="{$manifest}?jqueryui" rel="stylesheet" />
-			</xsl:if>
-			<xsl:if test="//*[contains(@class,'aside')]">
-				<link rel="stylesheet" href="{$manifest}?aside" />
-			</xsl:if>
+			<xsl:comment>[if gt IE 6]&gt;&lt;!</xsl:comment>
+			<xsl:for-each select="$styles">
+				<xsl:if test="not(contains(@rel, 'jqueryui')) or $template_body//xhtml:form or $template_body//*[contains(@class, 'ui-widget')]">
+					<xsl:if test="not(contains(@rel, 'aside')) or $template_body//*[contains(@class,'aside')]">
+						<link rel="stylesheet" href="{@href}" />
+					</xsl:if>
+				</xsl:if>
+			</xsl:for-each>
+			<xsl:comment>&lt;![endif]</xsl:comment>
 			<xsl:apply-templates select="$layout_head/*[local-name()!='script']|comment()" />
 			<xsl:apply-templates select="*[local-name()!='script']|comment()" />
 
@@ -99,6 +101,11 @@
 			<script type="text/javascript" src="{$manifest}?source"> </script>
 			<xsl:apply-templates select="$layout_head/*[local-name()='script']" />
 			<xsl:apply-templates select="*[local-name()='script']" />
+			<xsl:comment>[if lt IE 9]&gt;
+				&lt;script src="//html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;
+				&lt;script src="//ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"&gt;&lt;/script&gt;
+				&lt;script src="<xsl:value-of select="concat($callimachus,'/scripts/ie_bundle?source')" />"&gt;&lt;/script&gt;
+			&lt;![endif]</xsl:comment>
 		</xsl:copy>
 	</xsl:template>
 

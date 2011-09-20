@@ -30,62 +30,34 @@ calli:template a owl:ObjectProperty;
 	msg:expect "302-see-other";
 	msg:type "text/uri-list";
 	msg:script """
-		return this.calliTheme.calliLayout;
+		var theme = this.calliTheme;
+		if (theme)
+			return theme.calliLayout;
+		return this.objectConnection.getObject(this.toUri().resolve("/callimachus/themes/default/layout.xhtml"));
 	""".
 
-:GetStyle rdfs:subClassOf msg:Message;
+:GetStyleSheets rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET";
-	msg:query "style";
-	msg:expect "302-see-other";
-	msg:type "text/uri-list";
+	msg:query "styles";
+	msg:type "text/xml";
 	msg:script """
-		return this.calliTheme.calliStyle;
-	""".
-
-:GetAside rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	msg:method "GET";
-	msg:query "aside";
-	msg:expect "302-see-other";
-	msg:type "text/uri-list";
-	msg:script """
-		return this.calliTheme.calliAside;
-	""".
-
-:GetInternetExplorer rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	msg:method "GET";
-	msg:query "internetExplorer";
-	msg:expect "302-see-other";
-	msg:type "text/uri-list";
-	msg:script """
-		return this.calliTheme.calliInternetExplorer;
-	""".
-
-:GetColour rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	msg:method "GET";
-	msg:query "colour";
-	msg:expect "302-see-other";
-	msg:type "text/uri-list";
-	msg:script """
-		return this.calliColourScheme.calliColour;
-	""".
-
-:GetJqueryui rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	msg:method "GET";
-	msg:query "jqueryui";
-	msg:expect "302-see-other";
-	msg:type "text/uri-list";
-	msg:script """
-		return this.calliColourScheme.calliJqueryui;
+		var xhtml = ['<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title>'];
+		xhtml.push('<link rel="stylesheet" href="');
+		xhtml.push(this.calliTheme.calliStyle);
+		xhtml.push('" />');
+		xhtml.push('<link rel="stylesheet aside" href="');
+		xhtml.push(this.calliTheme.calliAside);
+		xhtml.push('" />');
+		xhtml.push('<link rel="stylesheet jqueryui" href="');
+		xhtml.push(this.calliColourScheme.calliJqueryui);
+		xhtml.push('" />');
+		xhtml.push('<link rel="stylesheet" href="');
+		xhtml.push(this.calliColourScheme.calliColour);
+		xhtml.push('" />');
+		xhtml.push('</head><body></body></html>');
+		return xhtml.join('');
 	""".
 
 :GetSource rdfs:subClassOf msg:Message;

@@ -357,11 +357,6 @@ calli:aside a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:comment "The CSS style used in pages with aside links or notes";
 	rdfs:domain calli:Theme.
 
-calli:internetExplorer a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:label "internet explorer";
-	rdfs:comment "Additional CSS style file for this theme in IE8";
-	rdfs:domain calli:Theme.
-
 calli:colourScheme a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "colour scheme";
 	rdfs:comment "The primary colour scheme used for this manifest";

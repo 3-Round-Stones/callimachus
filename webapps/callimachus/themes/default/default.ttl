@@ -13,7 +13,6 @@
 	calli:layout <layout.xhtml>;
 	calli:style <layout.css>;
 	calli:aside <aside.css>;
-	calli:internetExplorer <ie8.css>;
 	calli:colour <colour.css>;
 	calli:jqueryui <jquery-ui.css>.
 

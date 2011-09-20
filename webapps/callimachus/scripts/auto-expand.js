@@ -65,22 +65,22 @@ function targetAutoExpandTextArea(event) {
 
 function flex(area) {
 	if ($(area).is(":input")) {
-		var contentWidth = getAvailableWidth(area, true);
+		var contentWidth = getAvailableWidth(area);
 		var contentHeight = getAvailableHeight(area);
 		flexTextArea(area, contentWidth, contentHeight);
 	} else if (area.nodeName.toLowerCase() == "iframe") {
-		var contentWidth = getAvailableWidth(area, true);
+		var contentWidth = getAvailableWidth(area);
 		var contentHeight = getAvailableHeight(area);
 		flexIframe(area, contentWidth, contentHeight);
 	} else {
-		var contentWidth = getAvailableWidth(area, false);
+		var contentWidth = getAvailableWidth(area);
 		var contentHeight = getAvailableHeight(area);
 		flexBlock(area, contentWidth, contentHeight);
 	}
 }
 
 function expand(area) {
-	var contentWidth = getAvailableWidth(area, true);
+	var contentWidth = getAvailableWidth(area);
 	var contentHeight = getAvailableHeight(area);
 	if ($(area).is(":input")) {
 		expandTextArea(area, contentWidth, contentHeight);
@@ -152,15 +152,9 @@ function getAvailableHeight(area) {
 	return contentHeight;
 }
 
-function getAvailableWidth(area, withScrollbars) {
+function getAvailableWidth(area) {
 	var margin = getMarginRight(area);
-	var contentWidth = document.documentElement.clientWidth - $(area).offset().left - margin;
-	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-	if (withScrollbars && innerHeight >= document.height && !$('body').is('.iframe')) {
-		// no scrollbars yet, assume they will appear
-		contentWidth -= 32;
-	}
-	return contentWidth;
+	return document.documentElement.clientWidth - $(area).offset().left - margin;
 }
 
 function getMarginRight(area) {

@@ -29,29 +29,25 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 	padding:0.5ex;
 }
 
+/* start desktop */
 @media screen and (min-width:36em) {
-	h1 ~ .aside {
-		position:relative;
-		top:-4em;
-	}
-	hgroup ~ .aside {
-		position:relative;
-		top:-6.5em;
-	}
-	.aside {
-		float:right;
-	}
-	#main {
-		margin-right:18em;
-	}
-	.aside {
-		margin-right:-18.5em;
-	}
-} /* end screen */
+	h1 ~ .aside { position:relative; top:-4em; }
+	hgroup ~ .aside { position:relative; top:-6.5em; }
+	.aside { float:right; }
+	#main { margin-right:18em; }
+	.aside { margin-right:-18.5em; }
+}
+
+.ie7_html h1 ~ .aside { position:relative; top:-4em; }
+.ie7_html hgroup ~ .aside { position:relative; top:-6.5em; }
+.ie7_html .aside { float:right; }
+.ie7_html #main { margin-right:18em; }
+.ie7_html .aside { margin-right:-18.5em; }
+
+.ie7_html .aside { margin-top:-17px; margin-bottom:2em; }
+/* end desktop */
 
 @media print {
-	.aside {
-		float:right;
-	}
+	.aside { float:right; }
 } /* end print */
 

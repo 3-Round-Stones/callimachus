@@ -95,69 +95,71 @@ $(document).bind("calliLogout", function(event) {
 	});
 });
 
-// IE8 doesn't support event.key
-var oldName = localStorage.getItem('Name');
-var oldNotLoginCount = localStorage.getItem('NotLoginCount');
-var oldLoginCount = localStorage.getItem('LoginCount');
-$(window).bind('storage', handleStorageEvent);
-$(document).bind('storage', handleStorageEvent); // IE
+if (window.localStorage) {
+	// IE8 doesn't support event.key
+	var oldName = localStorage.getItem('Name');
+	var oldNotLoginCount = localStorage.getItem('NotLoginCount');
+	var oldLoginCount = localStorage.getItem('LoginCount');
+	$(window).bind('storage', handleStorageEvent);
+	$(document).bind('storage', handleStorageEvent); // IE
 
-var currently = '';
+	var currently = '';
 
-$(document).bind("calliLoggedIn", function(event) {
-	currently = event.title;
-});
+	$(document).bind("calliLoggedIn", function(event) {
+		currently = event.title;
+	});
 
-$(document).bind("calliLoggedOut", function() {
-	currently = '';
-});
+	$(document).bind("calliLoggedOut", function() {
+		currently = '';
+	});
 
-function handleStorageEvent(e) {
-	var newName = localStorage.getItem('Name');
-	var newNotLoginCount = localStorage.getItem('NotLoginCount');
-	var newLoginCount = localStorage.getItem('LoginCount');
-	if (newName != oldName) {
-		oldName = newName;
-		if (currently && !newName) {
-			// now logged out
-			sessionStorage.removeItem('Name');
-			$(document).ready(function() {
-				$(document).trigger("calliLoggedOut");
-			});
-			location = "/";
-		} else if (!currently && newName) {
-			// now logged in
-			sessionStorage.setItem("Name", newName);
-			var e = jQuery.Event("calliLoggedIn");
-			e.title = newName;
-			$(document).ready(function() {
-				$(document).trigger(e);
-			});
+	function handleStorageEvent(e) {
+		var newName = localStorage.getItem('Name');
+		var newNotLoginCount = localStorage.getItem('NotLoginCount');
+		var newLoginCount = localStorage.getItem('LoginCount');
+		if (newName != oldName) {
+			oldName = newName;
+			if (currently && !newName) {
+				// now logged out
+				sessionStorage.removeItem('Name');
+				$(document).ready(function() {
+					$(document).trigger("calliLoggedOut");
+				});
+				location = "/";
+			} else if (!currently && newName) {
+				// now logged in
+				sessionStorage.setItem("Name", newName);
+				var e = jQuery.Event("calliLoggedIn");
+				e.title = newName;
+				$(document).ready(function() {
+					$(document).trigger(e);
+				});
+			}
 		}
+		if (newNotLoginCount != oldNotLoginCount) {
+			oldNotLoginCount = newNotLoginCount;
+			if (currently && newNotLoginCount) {
+				// a window is not sure if we are logged in
+				localStorage.setItem("Name", currently);
+				var count = localStorage.getItem('LoginCount');
+				localStorage.setItem('LoginCount', count ? parseInt(count) + 1 : 1);
+			} 
+		}
+		if (newLoginCount != oldLoginCount) {
+			oldLoginCount = newLoginCount;
+			if (!currently && newLoginCount) {
+				// another window says we are logged in
+				var value = localStorage.getItem("Name");
+				sessionStorage.setItem("Name", value);
+				var e = jQuery.Event("calliLoggedIn");
+				e.title = value;
+				$(document).ready(function() {
+					$(document).trigger(e);
+				});
+			} 
+		}
+		return true;
 	}
-	if (newNotLoginCount != oldNotLoginCount) {
-		oldNotLoginCount = newNotLoginCount;
-		if (currently && newNotLoginCount) {
-			// a window is not sure if we are logged in
-			localStorage.setItem("Name", currently);
-			var count = localStorage.getItem('LoginCount');
-			localStorage.setItem('LoginCount', count ? parseInt(count) + 1 : 1);
-		} 
-	}
-	if (newLoginCount != oldLoginCount) {
-		oldLoginCount = newLoginCount;
-		if (!currently && newLoginCount) {
-			// another window says we are logged in
-			var value = localStorage.getItem("Name");
-			sessionStorage.setItem("Name", value);
-			var e = jQuery.Event("calliLoggedIn");
-			e.title = value;
-			$(document).ready(function() {
-				$(document).trigger(e);
-			});
-		} 
-	}
-	return true;
 }
 
 if (window.sessionStorage && sessionStorage.getItem("Name")) {

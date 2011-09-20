@@ -30,6 +30,9 @@
 	rdf:_19 <accounts.js>;
 	rdf:_20 <http://www.google.com/jsapi>.
 
+<ie_bundle> a calli:ScriptBundle;
+	rdf:_1 <selectivizr.js>.
+
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;
 	rdf:_1 <jquery-ui.js>;

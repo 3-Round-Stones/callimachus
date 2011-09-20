@@ -70,7 +70,7 @@
 		this.touchRevision(); // update index page
 		con.commit();
 
-		created.UploadNamedQuery(body); //# cannot write to other streams directly
+		created.UploadNamedQuery(body); //# cannot write to other streams directly		
 		return created;
 	""".
 
@@ -88,6 +88,7 @@
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <NamedQuery>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
 	msg:script """
 		if (!stream)
 			throw new BadRequest("Missing PUT request payload");
@@ -102,6 +103,12 @@
 			out.close();
 		}
 		this.touchRevision();
+
+		var con = this.objectConnection;					
+		var scanner = new java.util.Scanner(this.openInputStream(), "UTF-8");
+		var query = scanner.useDelimiter("\\\\A").next();
+		scanner.close();
+		con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query, this.toString());
 	""".
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
@@ -204,7 +211,9 @@
 				throw new InternalServerError(e.toString(), e);
 			}
 		}
-		resp.setHeader("Cache-Control", "no-store");
+		var nq = con.repository.getNamedQuery(this.resource);
+		resp.setHeader("Last-Modified", java.lang.Long.toString(nq.getResultLastModified()));
+		resp.setHeader('ETag', 'W/"' + nq.getResponseTag() + '"');
 		resp.setEntity(entity);
 		return resp;
 	""".

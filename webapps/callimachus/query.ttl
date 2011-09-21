@@ -108,7 +108,11 @@
 		var scanner = new java.util.Scanner(this.openInputStream(), "UTF-8");
 		var query = scanner.useDelimiter("\\\\A").next();
 		scanner.close();
-		con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query, this.toString());
+		try {
+			con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query, this.toString());
+		} catch (e) {
+			// too late!
+		}
 	""".
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
@@ -151,19 +155,29 @@
 			map.reqId = '0';
 		}
 		var con = this.objectConnection;
-		var scanner = new java.util.Scanner(this.openInputStream(), "UTF-8");
-		var query = scanner.useDelimiter("\\\\A").next();
-		scanner.close();
-		if (query == null)
-			throw new InternalServerError("SPARQL query is missing");
+		var nq = con.repository.getNamedQuery(this.resource);
+		var etag = "";
 		var http11 = new ProtocolVersion("HTTP", 1, 1);
 		var resp = new BasicHttpResponse(http11, 200, "OK");
+		if (nq) {
+			etag = 'W/"' + nq.getResultTag() + '"';
+			if (match == etag) {
+				resp = new BasicHttpResponse(http11, 304, "Not Modified");
+			}
+			resp.setHeader("Last-Modified", nq.getResultLastModifiedString());
+			resp.setHeader("ETag", etag);
+		}
+		resp.setHeader("Cache-Control", "no-cache");
 		if (map.outFileName) {
 			resp.setHeader("Content-Disposition", 'inline;filename="' + map.outFileName + '"');
 		}
+		if (nq && match == etag)
+			return resp;
 		var entity = null;
 		try {
-			var rs = con.prepareTupleQuery(QueryLanguage.SPARQL, query, this.toString()).evaluate();
+			if (nq == null)
+				throw new InternalServerError("SPARQL query is not valid or is missing");
+			var rs = con.prepareTupleQuery(nq.getQueryLanguage(), nq.getQueryString(), nq.getBaseURI()).evaluate();
 			if (map.out == "html") {
 				entity = new InputStreamEntity(this.TransformIntoHtml(rs), -1);
 				entity.contentType = "text/html;charset=UTF-8";
@@ -211,13 +225,6 @@
 				throw new InternalServerError(e.toString(), e);
 			}
 		}
-		var nq = con.repository.getNamedQuery(this.resource);
-		var PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
-		var dateFormat = new java.text.SimpleDateFormat(PATTERN_RFC1123, java.util.Locale.US) ;
-		dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("GMT"));
-		var lastModified = dateFormat.format(new Date(nq.getResultLastModified()));
-		resp.setHeader("Last-Modified", lastModified);
-		resp.setHeader('ETag', 'W/"' + nq.getResponseTag() + '"');
 		resp.setEntity(entity);
 		return resp;
 	""".
@@ -226,6 +233,11 @@
 	rdfs:domain :GetResult;
 	rdfs:range xsd:string;
 	msg:query "tqx".
+
+:match a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :GetResult;
+	rdfs:range xsd:string;
+	msg:header "If-None-Match".
 
 ################################
 # XSL Transformation methods

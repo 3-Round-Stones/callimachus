@@ -51,31 +51,32 @@ jQuery(function($){
 	});
 	$('#saveas[data-create]').click(function(event) {
 		event.preventDefault();
-		var name = prompt('Save as...', $(this).attr('data-label'));
-		if (name) {
-			var local = encodeURI(name).replace(/%20/g,'-').toLowerCase();
+		var button = $(this);
+		calli.saveas(button.attr('data-name'), function(parent, label, ns, local) {
 			var header = 'POST create'
-				+ '\nAction: ./?create=' + $(this).attr('data-create')
-				+ '\nLocation: ' + local + $(this).attr('data-suffix');
+				+ '\nAction: ' + parent + '?create=' + button.attr('data-create')
+				+ '\nLocation: ' + ns + local.replace(/\+/g,'-').toLowerCase();
 			$(window).bind('message', function(event) {
 				if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
 					var msg = event.originalEvent.data;
 					if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
-						var url = msg.substring(msg.lastIndexOf('\n\n')).match(/Location:\s*(\S+)/)[1]
+						var url = msg.substring(msg.lastIndexOf('\n\n') + 2);
 						loadEditor(url + '?edit');
 					}
 				}
 			});
 			$('#iframe')[0].contentWindow.postMessage(header, '*');
-		}
+		});
 		return false;
 	});
 	function loadEditor(url) {
 		$(window).bind('message', function(event) {
 			if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
 				var msg = event.originalEvent.data;
-				if (msg.indexOf('OK\n\nGET line.column\n\n') == 0) {
-					location.href = url + '#' + msg.substring(msg.indexOf('\n\n', 4) + 2);
+				if (msg == 'OK\n\nGET line.column') {
+					location.href = url;
+				} else if (msg.indexOf('OK\n\nGET line.column\n\n') == 0) {
+					location.href = url + '#' + msg.substring(msg.lastIndexOf('\n\n') + 2);
 				}
 			}
 		});

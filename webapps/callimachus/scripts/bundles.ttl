@@ -48,5 +48,6 @@
 	rdf:_11 <document-ready.js>;
 	rdf:_12 <input-date.js>;
 	rdf:_13 <disable-button.js>;
-	rdf:_14 <iframe-redirect.js>.
+	rdf:_14 <iframe-redirect.js>;
+	rdf:_15 <saveas.js>.
 

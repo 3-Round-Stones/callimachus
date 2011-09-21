@@ -105,16 +105,14 @@ function getResourceUri(form, callback, fin) {
 		if (input.lastIndexOf('\\') > 0) {
 			input = input.substring(input.lastIndexOf('\\') + 1);
 		}
-		promptLocation(form, input, function(ns, label){
-			var uri = ns + encodeURI(label).replace(/%20/g,'+').toLowerCase();
-			$(form).attr('about', uri);
+		promptLocation(form, input, function(parent, label, ns, local){
+			$(form).attr('about', ns + local.toLowerCase());
 			callback(uri);
 		}, fin);
 	} else if (overrideFormLocation || (uri.indexOf(':') < 0 && uri.indexOf('/') != 0 && uri.indexOf('?') != 0)) {
 		overrideFormLocation = true;
-		promptLocation(form, decodeURI(uri), function(ns, label){
-			var uri = ns + encodeURI(label).replace(/%20/g,'+');
-			$(form).attr('about', uri);
+		promptLocation(form, decodeURI(uri), function(parent, label, ns, local){
+			$(form).attr('about', ns + local);
 			callback(uri);
 		}, fin);
 	} else {
@@ -127,114 +125,19 @@ function getResourceUri(form, callback, fin) {
 
 function promptLocation(form, label, callback, fin) {
 	if (label && location.search.search(/\?\w+=/) >= 0) {
-		var ns = calli.listResourceIRIs(getPageLocationURL())[0];
+		var parent = calli.listResourceIRIs(getPageLocationURL())[0];
+		var ns = parent;
 		if (ns.lastIndexOf('/') != ns.length - 1) {
 			ns += '/';
 		}
-		callback(ns, label);
+		var local = encodeURI(label).replace(/%20/, '+');
+		callback(parent, label, ns, local);
 		if (typeof fin == 'function') {
 			fin();
 		}
 	} else {
-		calli.promptLocation(form, label, callback, fin);
+		calli.saveas(label, form, callback, fin);
 	}
-}
-
-function updateFormAction(form, ns) {
-	if (form) {
-		var m;
-		var action = form.action ? form.action : getPageLocationURL();
-		if (m = action.match(/^([^\?]*)(\?\w+)(&.*)?$/)) {
-			action = ns + m[2] + '=';
-			if (m[1]) {
-				action += m[1];
-			} else {
-				action += location.pathname;
-			}
-			if (m[3]) {
-				action += m[3];
-			}
-			form.action = action;
-		} else if (m = action.match(/^([^\?]*)(\?\w+=[^&]+)(&.*)?$/)) {
-			action = ns + m[2];
-			if (m[3]) {
-				action += m[3];
-			}
-			form.action = action;
-		}
-	}
-}
-
-window.calli.promptLocation = function(form, label, callback, fin) {
-	var width = 450;
-	var height = 500;
-	if ($('html').is('.iframe')) {
-		width = 350;
-		height = 450;
-	}
-	var src = "/callimachus/pages/location-prompt.html#" + encodeURIComponent(label);
-	if (location.search.search(/\?\w+=/) >= 0) {
-		src += '!' + calli.listResourceIRIs(getPageLocationURL())[0];
-	} else if (window.sessionStorage) {
-		try {
-			var url = sessionStorage.getItem("LastFolder");
-			if (url) {
-				src += '!' + calli.listResourceIRIs(url)[0];
-			} else if (url = localStorage.setItem("LastFolder")) {
-				src += '!' + calli.listResourceIRIs(url)[0];
-			}
-		} catch (e) {
-			// ignore
-		}
-	}
-	var iframe = $("<iframe></iframe>");
-	iframe.attr('src', src);
-	iframe.dialog({
-		title: 'Save As...',
-		autoOpen: false,
-		modal: false,
-		draggable: true,
-		resizable: true,
-		autoResize: true,
-		width: width,
-		height: height,
-		buttons: {
-			"OK": function() {
-				iframe[0].contentWindow.postMessage('GET label', '*');
-			},
-			"Cancel": function() {
-				iframe.dialog('close');
-			}
-		}
-	});
-	var handle = function(event) {
-		if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data.indexOf('OK\n\nGET label\n\n') == 0) {
-			var data = event.originalEvent.data;
-			label = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
-			iframe[0].contentWindow.postMessage('GET url', '*');
-		} else if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data.indexOf('OK\n\nGET url\n\n') == 0) {
-			var data = event.originalEvent.data;
-			var src = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
-			var uri = calli.listResourceIRIs(src)[0];
-			if (uri.lastIndexOf('/') != uri.length - 1) {
-				uri += '/';
-			}
-			updateFormAction(form, uri);
-			callback(uri, label);
-			iframe.dialog('close');
-		}
-	};
-	$(window).bind('message', handle);
-	iframe.bind("dialogclose", function(event, ui) {
-		$(window).unbind('message', handle);
-		iframe.remove();
-		iframe.parent().remove();
-		if (typeof fin == 'function') {
-			fin();
-		}
-	});
-	iframe.dialog("open");
-	iframe.css('width', '100%');
 }
 
 function readRDF(uri, form) {

@@ -179,7 +179,7 @@ jQuery(function($) {
 				}
 				postFile(action, function(xhr) {
 					if (xhr.status < 300) {
-						parent.postMessage('OK\n\n' + header + '\n\nLocation: ' + xhr.getResponseHeader('Location'), '*');
+						parent.postMessage('OK\n\n' + header + '\n\n' + xhr.getResponseHeader('Location'), '*');
 					} else {
 						parent.postMessage('ERROR ' + xhr.statusText + '\n\n' + header + '\n\n' + xhr.responseText, '*');
 					}
@@ -199,6 +199,8 @@ jQuery(function($) {
 					editor.docbook(body);
 				}
 				return true;
+			} else if (header == 'GET line.column') {
+				return '';
 			}
 			return true; // empty response
 		};

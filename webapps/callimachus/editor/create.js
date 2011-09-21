@@ -43,11 +43,10 @@ jQuery(function($){
 	$('#form[data-type]').submit(function(event) {
 		var form = this;
 		event.preventDefault();
-		calli.promptLocation(form, $(this).attr('data-label'), function(ns, label) {
-			var local = encodeURI(label).replace(/%20/g,'-').toLowerCase();
+		calli.saveas($(this).attr('data-name'), form, function(parent, label, ns, local) {
 			var header = 'POST create'
 				+ '\nAction: ' + form.action
-				+ '\nLocation: ' + ns + local + $(form).attr('data-suffix')
+				+ '\nLocation: ' + ns + local.replace(/\+/g,'-').toLowerCase()
 				+ '\nContent-Type: ' + $(form).attr('data-type');
 			if ($('#cache').val()) {
 				header += '\nCache-Control: ' + $('#cache').val();
@@ -56,7 +55,7 @@ jQuery(function($){
 				if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
 					var msg = event.originalEvent.data;
 					if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
-						var url = msg.substring(msg.lastIndexOf('\n\n')).match(/Location:\s*(\S+)/)[1]
+						var url = msg.substring(msg.lastIndexOf('\n\n') + 2);
 						location.replace(url + '?view');
 					}
 				}

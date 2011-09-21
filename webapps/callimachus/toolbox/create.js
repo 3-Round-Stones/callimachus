@@ -106,13 +106,15 @@ function getResourceUri(form, callback, fin) {
 			input = input.substring(input.lastIndexOf('\\') + 1);
 		}
 		promptLocation(form, input, function(parent, label, ns, local){
-			$(form).attr('about', ns + local.toLowerCase());
+			uri = ns + local.toLowerCase();
+			$(form).attr('about', uri);
 			callback(uri);
 		}, fin);
 	} else if (overrideFormLocation || (uri.indexOf(':') < 0 && uri.indexOf('/') != 0 && uri.indexOf('?') != 0)) {
 		overrideFormLocation = true;
 		promptLocation(form, decodeURI(uri), function(parent, label, ns, local){
-			$(form).attr('about', ns + local);
+			uri = ns + local;
+			$(form).attr('about', uri);
 			callback(uri);
 		}, fin);
 	} else {

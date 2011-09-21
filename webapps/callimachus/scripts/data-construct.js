@@ -44,9 +44,9 @@ function initDropArea(dropzone) {
 		return false;
 	});
 	dropzone.bind('calliLink', function(event) {
-		var script = $(event.target).parents().andSelf().filter('[data-construct]');
+		var script = $(event.target).add($(event.target).parents()).filter('[data-construct]')[0];
 		window.calli.listResourceIRIs(event.location).each(function() {
-			addSetItem(this, script);
+			addSetItem(this, $(script));
 			event.preventDefault();
 		});
 	});

@@ -112,7 +112,7 @@ function getResourceUri(form, callback, fin) {
 		}, fin);
 	} else if (overrideFormLocation || (uri.indexOf(':') < 0 && uri.indexOf('/') != 0 && uri.indexOf('?') != 0)) {
 		overrideFormLocation = true;
-		promptLocation(form, uri, function(ns, label){
+		promptLocation(form, decodeURI(uri), function(ns, label){
 			var uri = ns + encodeURI(label).replace(/%20/g,'+');
 			$(form).attr('about', uri);
 			callback(uri);
@@ -168,18 +168,29 @@ function updateFormAction(form, ns) {
 window.calli.promptLocation = function(form, label, callback, fin) {
 	var width = 450;
 	var height = 500;
-	if ($('body').is('.iframe')) {
+	if ($('html').is('.iframe')) {
 		width = 350;
 		height = 450;
 	}
 	var src = "/callimachus/pages/location-prompt.html#" + encodeURIComponent(label);
 	if (location.search.search(/\?\w+=/) >= 0) {
 		src += '!' + calli.listResourceIRIs(getPageLocationURL())[0];
+	} else if (window.sessionStorage) {
+		try {
+			var url = sessionStorage.getItem("LastFolder");
+			if (url) {
+				src += '!' + calli.listResourceIRIs(url)[0];
+			} else if (url = localStorage.setItem("LastFolder")) {
+				src += '!' + calli.listResourceIRIs(url)[0];
+			}
+		} catch (e) {
+			// ignore
+		}
 	}
 	var iframe = $("<iframe></iframe>");
 	iframe.attr('src', src);
 	iframe.dialog({
-		title: 'Choose a folder or namespace',
+		title: 'Save As...',
 		autoOpen: false,
 		modal: false,
 		draggable: true,

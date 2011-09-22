@@ -13,6 +13,11 @@
 	<script type="text/javascript">
 	// <![CDATA[
 		jQuery(function($) {
+			$('#form').submit(function(event){
+				event.preventDefault();
+				parent.postMessage('POST save', '*');
+				return false;
+			});
 			if (location.hash) {
 				var i = location.hash.indexOf('!');
 				if (i > 0) {

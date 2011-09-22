@@ -92,7 +92,11 @@ window.calli.saveas = function(label, form, callback, fin) {
 		}
 	});
 	var handle = function(event) {
-		if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data.indexOf('OK\n\nGET label\n\n') == 0) {
+		if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data == 'POST save') {
+			var data = event.originalEvent.data;
+			iframe[0].contentWindow.postMessage('OK\n\n' + data, '*');
+			iframe[0].contentWindow.postMessage('GET label', '*');
+		} else if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data.indexOf('OK\n\nGET label\n\n') == 0) {
 			var data = event.originalEvent.data;
 			label = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
 			iframe[0].contentWindow.postMessage('GET url', '*');

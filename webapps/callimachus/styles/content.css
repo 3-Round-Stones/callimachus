@@ -62,7 +62,7 @@ img.icon {
 	padding:0;
 }
 
-body.wait,body.wait * {
+.wait,.wait * {
 	cursor:wait;
 }
 

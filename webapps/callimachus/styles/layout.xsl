@@ -83,7 +83,7 @@
 				</xsl:if>
 			</xsl:for-each>
 			<xsl:comment>&lt;![endif]</xsl:comment>
-			<xsl:apply-templates select="$layout_head/*[local-name()!='script']|comment()" />
+			<xsl:apply-templates select="$layout_head/*[local-name()!='script' and local-name()!='title']|comment()" />
 			<xsl:apply-templates select="*[local-name()!='script']|comment()" />
 
 			<script type="text/javascript" src="{$callimachus}/scripts/web_bundle?source">&#160;</script>
@@ -97,13 +97,13 @@
 				<script type="text/javascript" src="{$callimachus}/toolbox/edit.js">&#160;</script>
 			</xsl:if>
 			<script type="text/javascript" src="{$manifest}?source"> </script>
-			<xsl:apply-templates select="$layout_head/*[local-name()='script']" />
-			<xsl:apply-templates select="*[local-name()='script']" />
 			<xsl:comment>[if lt IE 9]&gt;
 				&lt;script src="//html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;
 				&lt;script src="//ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"&gt;&lt;/script&gt;
 				&lt;script src="<xsl:value-of select="concat($callimachus,'/scripts/ie_bundle?source')" />"&gt;&lt;/script&gt;
 			&lt;![endif]</xsl:comment>
+			<xsl:apply-templates select="$layout_head/*[local-name()='script']" />
+			<xsl:apply-templates select="*[local-name()='script']" />
 		</xsl:copy>
 	</xsl:template>
 

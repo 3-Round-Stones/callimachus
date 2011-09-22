@@ -2,25 +2,27 @@
 
 (function($){
 
+document.documentElement.className += ' wait';
 var formRequestCount = 1;
 var lastWait = 0;
 
-$(document).bind("calliRedirect unload", function() {
+$(window).bind("beforeunload unload", function() {
 	formRequestCount++;
-	$("body").addClass("wait");
+	$(document.documentElement).addClass("wait");
 });
 
 $(document).ajaxSend(function(event, xhr, options){
 	formRequestCount++;
-	$("body").addClass("wait");
+	$(document.documentElement).addClass("wait");
 });
 
 $(document).ajaxComplete(function(event, xhr, options){
-	setTimeout(removeWait, 0);
+	$(function() {
+		setTimeout(removeWait, 0);
+	});
 });
 
-$(document).ready(function() {
-	$("body").addClass("wait");
+$(function() {
 	setTimeout(removeWait, 0);
 });
 
@@ -31,7 +33,7 @@ function removeWait() {
 		setTimeout(function() {
 			if (myWait == lastWait && formRequestCount < 1) {
 				formRequestCount = 0;
-				$("body").removeClass("wait");
+				$(document.documentElement).removeClass("wait");
 			}
 		}, 500); // give browser a chance to draw the page
 	}

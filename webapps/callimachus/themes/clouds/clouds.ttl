@@ -12,7 +12,6 @@
 	rdf:_3 <../default/login.js>;
 	calli:layout <layout.xhtml>;
 	calli:style <layout.css>;
-	calli:aside <aside.css>;
 	calli:colour <colour.css>;
 	calli:jqueryui <jquery-ui.css>.
 

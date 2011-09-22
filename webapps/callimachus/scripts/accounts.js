@@ -28,9 +28,11 @@ $(document).bind("calliLogin", function(event) {
 						localStorage.setItem("Name", title[1]);
 					}
 				} catch (e) { }
+				document.documentElement.className += ' auth';
 				var e = jQuery.Event("calliLoggedIn");
 				e.title = title[1];
 				$(document).ready(function() {
+					$(document.documentElement).removeClass('noauth');
 					$(document).trigger(e);
 				});
 			}
@@ -119,17 +121,21 @@ if (window.localStorage) {
 			oldName = newName;
 			if (currently && !newName) {
 				// now logged out
+				document.documentElement.className += ' noauth';
 				sessionStorage.removeItem('Name');
 				$(document).ready(function() {
+					$(document.documentElement).removeClass('auth');
 					$(document).trigger("calliLoggedOut");
 				});
 				location = "/";
 			} else if (!currently && newName) {
 				// now logged in
 				sessionStorage.setItem("Name", newName);
+				document.documentElement.className += ' auth';
 				var e = jQuery.Event("calliLoggedIn");
 				e.title = newName;
 				$(document).ready(function() {
+					$(document.documentElement).removeClass('noauth');
 					$(document).trigger(e);
 				});
 			}
@@ -149,9 +155,11 @@ if (window.localStorage) {
 				// another window says we are logged in
 				var value = localStorage.getItem("Name");
 				sessionStorage.setItem("Name", value);
+				document.documentElement.className += ' auth';
 				var e = jQuery.Event("calliLoggedIn");
 				e.title = value;
 				$(document).ready(function() {
+					$(document.documentElement).removeClass('noauth');
 					$(document).trigger(e);
 				});
 			} 
@@ -164,6 +172,7 @@ if (window.localStorage) {
 
 if (window.sessionStorage && sessionStorage.getItem("Name")) {
 	// logged in already
+	document.documentElement.className += ' auth';
 	var name = sessionStorage.getItem("Name");
 	var e = jQuery.Event("calliLoggedIn");
 	e.title = name;
@@ -171,6 +180,7 @@ if (window.sessionStorage && sessionStorage.getItem("Name")) {
 		$(document).trigger(e);
 	});
 } else {
+	document.documentElement.className += ' noauth';
 	$(document).ready(function() {
 		$(document).trigger("calliLoggedOut");
 	});

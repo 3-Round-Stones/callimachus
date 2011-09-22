@@ -1,6 +1,6 @@
 // iframe.js
 
-jQuery(function($) {
+(function($) {
 
 	function getPageLocationURL() {
 		// window.location.href needlessly decodes URI-encoded characters in the URI path
@@ -12,9 +12,9 @@ jQuery(function($) {
 	}
 
 	if (window.frameElement) {
-		$('html').addClass('iframe');
+		document.documentElement.className += " iframe";
 		var src = null;
-		var func = function() {
+		var postSource = function() {
 			if (window.location.search == '?view' && parent.postMessage) {
 				var url = getPageLocationURL();
 				if (url != src) {
@@ -23,7 +23,7 @@ jQuery(function($) {
 				}
 			}
 		}
-		$(window).bind('popstate', func);
-		func();
+		$(window).bind('popstate', postSource);
+		$(postSource);
 	}
-});
+})(jQuery);

@@ -28,9 +28,14 @@ body {
 	display:inline-block;
 }
 
+.auth #header-login, .auth #login-form {
+	display:none !important;
+}
+
 #header button {
 	font-weight:bold;
 	font-size:1em;
+	margin:0;
 }
 
 #header .ui-icon {
@@ -170,6 +175,36 @@ body {
 	float:right;
 	margin:0;
 }
+
+.aside {
+	clear:right;
+	list-style:none;
+	padding:1ex;
+	width:16em;
+	margin-top:0;
+	margin-bottom:1em;
+}
+
+.aside>li {
+	padding:0.5ex;
+}
+
+.aside>li:last-child {
+	border-bottom:none;
+}
+
+.aside ul {
+	padding-left:1em;
+}
+
+table.aside {
+	border-spacing:0;
+}
+
+table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.aside>tbody>tr>th {
+	padding:0.5ex;
+}
+
 /* start desktop */
 @media screen and (min-width:42em) {
 	#logo { float:none; position:absolute; top:0; left:0; }
@@ -179,6 +214,12 @@ body {
 
 @media screen and (min-width:56em) {
 	#tabs { clear:none; }
+}
+
+@media screen and (min-width:36em) {
+	hgroup ~ .aside { position:relative; top:-6em; }
+	h1 ~ .aside { position:relative; top:-3.5em; }
+	.aside { float:right; }
 }
 
 @media screen and (min-height:36em) {
@@ -198,5 +239,6 @@ body {
 	#logo, #nav, #header, #tabs { display:none; }
 	#main { border:none; }
 	body { background:inherit; }
+	.aside { float:right; }
 } /* end print */
 	

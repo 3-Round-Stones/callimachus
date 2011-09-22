@@ -4,7 +4,7 @@
 
 $(document).bind("calliLogInPrompt", function() {
 	$(document).ready(function() {
-		if ($("#header-login").is(":visible")) {
+		if ($(document.documentElement).is(".noauth")) {
 			$("#header-login").submit();
 		}
 	});
@@ -13,8 +13,6 @@ $(document).bind("calliLogInPrompt", function() {
 $(document).bind("calliLoggedIn", function(event) {
 	$(document).ready(function() {
 		var title = event.title;
-		$("#login-form").hide();
-		$("#header-login").css('display', 'none');
 		$("#profile-link").text(title);
 		$("#logout-link").click(function(event) {
 			$(document).trigger(jQuery.Event("calliLogout"));
@@ -26,11 +24,8 @@ $(document).bind("calliLoggedIn", function(event) {
 	});
 });
 
-$(document).bind("calliLoggedOut", function() {
-	$(document).ready(function() {
-		$("#header-login").css('display', 'inline');
-		$("#header-login").submit(login);
-	});
+$(document).ready(function() {
+	$("#header-login").submit(login);
 });
 
 function login(event) {
@@ -38,7 +33,7 @@ function login(event) {
 	if (link.find('button').length) {
 		link = link.find('button');
 	}
-	if ($("#login-form").size() && $("#login-form").get(0).style.display != 'none' ) {
+	if ($("#login-form").size() && $("#login-form").css('display') != 'none' ) {
 		$("#login-form").slideUp(function(){
 			$("#login-form").hide();
 			link.css('margin-left', null);
@@ -64,7 +59,7 @@ function login(event) {
 		} else {
 			window.jQuery.ajax({ type: 'GET', url: "/callimachus/themes/default/login.html",
 				success: function(data) {
-					if ($("#header-login").is(":visible")) {
+					if ($(document.documentElement).is(".noauth")) {
 						var form = $(data).find("#login-form").andSelf().filter("#login-form");
 						form.css('position', "absolute");
 						form.css('display', "none");

@@ -138,6 +138,10 @@ label.error {
 	font-style:italic;
 }
 
+.noauth .protected {
+	display: none !important;
+}
+
 @media print {
 	button,.button {
 		display:none;

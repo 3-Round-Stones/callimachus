@@ -30,7 +30,6 @@
 
 </> a </callimachus/Folder>, calli:Folder, calli:Alias, calli:Origin;
 	rdfs:label "Home folder";
-	rdfs:comment "Create new folders here to organize resources and assign permissions";
 	calli:version "0.13";
 	calli:aliasOf </page/main-page.xhtml?view>;
 	calli:reader </group/users>;
@@ -40,13 +39,11 @@
 
 </user/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "user";
-	rdfs:comment "Create new users here and be sure to add them to groups";
 	calli:reader </group/staff>;
 	calli:administrator </group/admin>.
 
 </group/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "group";
-	rdfs:comment "Create new groups here";
 	calli:reader </group/staff>;
 	calli:administrator </group/admin>;
 	calli:hasComponent </group/admin>, </group/staff>, </group/users>.

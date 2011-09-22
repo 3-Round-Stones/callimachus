@@ -9,20 +9,14 @@
 <body>
 	<h1>New Folder</h1>
 	<ul class="aside">
-		<li>Choose a recognizable label</li>
-		<li>The initial label will be used in the URL</li>
-		<li>Provide a description of intent and usefulness</li>
+		<li>Choose a recognizable label to be used in the URL</li>
 	</ul>
 	<form method="POST" action="" enctype="application/sparql-update" typeof="calli:Folder"
-			onsubmit="$(this).attr('about', encodeURI($('#label').val()).replace(/%20/g,'-').toLowerCase() +'/')">
+			onsubmit="$('#label').val($('#label').val().toLowerCase());$(this).attr('about',encodeURI($('#label').val()).replace(/%20/g,'-')+'/')">
 		<div class="vbox">
 			<div class="input field">
-				<label for="label">Label</label>
+				<label for="label">Name</label>
 				<input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
-			</div>
-			<div class="text field">
-				<label for="comment">Comment</label>
-				<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 			</div>
 		</div>
 		<button type="submit">Create</button>

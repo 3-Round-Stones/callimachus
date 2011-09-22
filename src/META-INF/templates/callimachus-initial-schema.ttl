@@ -18,11 +18,12 @@ audit:current-trx a calli:SchemaGraph.
 # Protected Resource Classes
 ################################
 
-</callimachus/Change>         msg:realm </callimachus/manifest>.
-</callimachus/Group>          msg:realm </callimachus/manifest>.
-</callimachus/Photo>          msg:realm </callimachus/manifest>.
-</callimachus/SparqlEndPoint> msg:realm </callimachus/manifest>.
-</callimachus/User>           msg:realm </callimachus/manifest>.
+</callimachus/Change>             msg:realm </callimachus/manifest>.
+</callimachus/Group>              msg:realm </callimachus/manifest>.
+</callimachus/Photo>              msg:realm </callimachus/manifest>.
+</callimachus/SparqlEndPoint>     msg:realm </callimachus/manifest>.
+</callimachus/User>               msg:realm </callimachus/manifest>.
+[owl:oneOf (</callimachus/User>)] msg:realm </callimachus/manifest>.
 
 ################################
 # Class wide authorization

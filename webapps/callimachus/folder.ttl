@@ -26,12 +26,11 @@
 @prefix :<#>.
 
 <Folder> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Editable, calli:Folder;
+	rdfs:subClassOf calli:Creator, calli:Viewable, calli:Folder;
 	rdfs:label "Folder";
 	rdfs:comment "A folder of resources";
 	calli:icon <folder.png>;
 	calli:view <folder-view.xhtml>;
-	calli:edit <folder-edit.xhtml>;
 	calli:create <folder-create.xhtml>;
 	calli:uriSpace </>.
 

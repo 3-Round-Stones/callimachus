@@ -38,6 +38,36 @@
 							index[this.getAttribute('about')] = this;
 						}
 					});
+					$('#rdfxml').click(function(event) {
+						event.preventDefault();
+						var req = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+						req.open('GET', '?describe', true);
+						req.setRequestHeader("Accept", "application/rdf+xml");
+						req.onreadystatechange = function () {
+							if (req.readyState != 4) return;
+							if (req.status == 200 || req.status == 304) {
+								document.write('<pre>' + req.responseText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>');
+							}
+						}
+						if (req.readyState == 4) return false;
+						req.send(null);
+						return false;
+					});
+					$('#turtle').click(function(event) {
+						event.preventDefault();
+						var req = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+						req.open('GET', '?describe', true);
+						req.setRequestHeader("Accept", "text/turtle");
+						req.onreadystatechange = function () {
+							if (req.readyState != 4) return;
+							if (req.status == 200 || req.status == 304) {
+								document.write('<pre>' + req.responseText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>');
+							}
+						}
+						if (req.readyState == 4) return false;
+						req.send(null);
+						return false;
+					});
 				});
 				// ]]>
 				</script>
@@ -49,6 +79,10 @@
 					</xsl:call-template>
 					<xsl:text> Resource</xsl:text>
 				</h1>
+				<ul class="aside">
+					<li>As <a href="#" id="rdfxml">RDF/XML</a></li>
+					<li>As <a href="#" id="turtle">Turtle</a></li>
+				</ul>
 				<div id="results">
 					<xsl:apply-imports />
 				</div>

@@ -3,41 +3,64 @@
 (function($){
 
 document.documentElement.className += ' wait';
-var formRequestCount = 1;
+var requestCount = 1;
 var lastWait = 0;
 
+if (window.parent && window.parent.postMessage) {
+	parent.postMessage('POST wait\n\ntrue', '*');
+}
+
+function removeWait() {
+	$(function() {
+		setTimeout(function() {
+			requestCount--;
+			if (requestCount < 1) {
+				var myWait = ++lastWait;
+				setTimeout(function() {
+					if (myWait == lastWait && requestCount < 1) {
+						requestCount = 0;
+						$(document.documentElement).removeClass("wait");
+						if (window.parent && window.parent.postMessage) {
+							parent.postMessage('POST wait\n\nfalse', '*');
+						}
+					}
+				}, 400); // give browser a chance to draw the page
+			}
+		}, 0);
+	});
+}
+
+$(removeWait);
+
 $(window).bind("beforeunload unload", function() {
-	formRequestCount++;
+	requestCount++;
 	$(document.documentElement).addClass("wait");
 });
 
 $(document).ajaxSend(function(event, xhr, options){
-	formRequestCount++;
+	requestCount++;
 	$(document.documentElement).addClass("wait");
 });
 
-$(document).ajaxComplete(function(event, xhr, options){
-	$(function() {
-		setTimeout(removeWait, 0);
-	});
-});
+$(document).ajaxComplete(removeWait);
 
-$(function() {
-	setTimeout(removeWait, 0);
-});
-
-function removeWait() {
-	formRequestCount--;
-	if (formRequestCount < 1) {
-		var myWait = ++lastWait;
-		setTimeout(function() {
-			if (myWait == lastWait && formRequestCount < 1) {
-				formRequestCount = 0;
-				$(document.documentElement).removeClass("wait");
+$(window).bind('message', function(event) {
+	var data = event.originalEvent.data;
+	var source = event.originalEvent.source;
+	if (data.indexOf('POST wait\n\n') == 0) {
+		$('iframe').each(function(){
+			if (this.contentWindow == source) {
+				var bool = data.substring(data.indexOf('\n\n') + 2);
+				if (bool == 'true') {
+					requestCount++;
+					$(document.documentElement).addClass("wait");
+				} else {
+					removeWait();
+				}
 			}
-		}, 500); // give browser a chance to draw the page
+		});
 	}
-}
+});
 
 })(window.jQuery);
 

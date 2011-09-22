@@ -16,19 +16,20 @@
 	rdf:_5 <error.js>;
 	rdf:_6 <accounts.js>;
 	rdf:_7 <node-inserted.js>;
-	rdf:_8 <referrer.js>;
-	rdf:_9 <viewpage.js>;
-	rdf:_10 <optional.js>;
-	rdf:_11 <time.js>;
-	rdf:_12 <auto-expand.js>;
-	rdf:_13 <hbox.js>;
-	rdf:_14 <vbox.js>;
-	rdf:_15 <sorted.js>;
-	rdf:_16 <creole.js>;
-	rdf:_17 <wiki.js>;
-	rdf:_18 <placeholder.js>;
-	rdf:_19 <details.js>;
-	rdf:_20 <http://www.google.com/jsapi>.
+	rdf:_8 <breadcrumb.js>;
+	rdf:_9 <referrer.js>;
+	rdf:_10 <viewpage.js>;
+	rdf:_11 <optional.js>;
+	rdf:_12 <time.js>;
+	rdf:_13 <auto-expand.js>;
+	rdf:_14 <hbox.js>;
+	rdf:_15 <vbox.js>;
+	rdf:_16 <sorted.js>;
+	rdf:_17 <creole.js>;
+	rdf:_18 <wiki.js>;
+	rdf:_19 <placeholder.js>;
+	rdf:_20 <details.js>;
+	rdf:_21 <http://www.google.com/jsapi>.
 
 <ie_bundle> a calli:ScriptBundle;
 	rdf:_1 <selectivizr.js>.

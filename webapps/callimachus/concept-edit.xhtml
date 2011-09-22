@@ -26,7 +26,7 @@
 		<li>Links to other related concepts may also be provided</li>
 		<li>To add an image, click the chevron to open a file upload dialogue</li>
 	</ul>
-	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this" typeof="skos:Concept" 
+	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this" typeof="skos:Concept"
 			onsubmit="saveChangeNote()">
 		<div class="hbox">
 			<div>
@@ -75,7 +75,7 @@
 		<div class="hbox">
 			<div id="related" rel="skos:related" dropzone="link s:text/uri-list">
 				<label>Related</label>
-				<button type="button" class="dialog" data-dialog="./?create=/callimachus/Concept" />				
+				<button type="button" class="dialog" data-dialog="/callimachus/Concept?create" />
 				<div about="?related" typeof="skos:Concept">
 					<span property="skos:prefLabel"/>
 					<button type="button" class="remove" />
@@ -83,7 +83,7 @@
 			</div>
 			<div id="narrower" rel="skos:narrower" dropzone="link s:text/uri-list">
 				<label>Narrower</label>
-				<button type="button" class="dialog" data-dialog="./?create=/callimachus/Concept" />				
+				<button type="button" class="dialog" data-dialog="/callimachus/Concept?create" />
 				<div about="?narrower" typeof="skos:Concept" >
 					<span property="skos:prefLabel"/>
 					<button type="button" class="remove" />
@@ -93,7 +93,7 @@
 		<hr />
 		<div id="image" rel="foaf:depiction" dropzone="link s:text/uri-list">
 			<label>Image</label>
-			<button type="button" class="dialog" data-dialog="./?create=/callimachus/Image" />
+			<button type="button" class="dialog" data-dialog="/callimachus/Image?create" />
 		 	<div about="?depiction" typeof="foaf:Image">
 				<img src="{?depiction}?small" />
 				<button type="button" class="remove" />

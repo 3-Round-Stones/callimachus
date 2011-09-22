@@ -172,8 +172,9 @@
 			<xsl:variable name="separator" select="$breadcrumb/following-sibling::text()[1]" />
 			<xsl:variable name="here" select="*[2]" />
 			<xsl:variable name="close" select="$here/following-sibling::text()[1]" />
-			<div xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-					 rev="calli:hasComponent" resource="?up">
+			<div xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+					xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+					rev="calli:hasComponent" resource="?up">
 				<xsl:apply-templates mode="layout" select="@*[name()!='rev' and name()!='rel' and name()!='resource']" />
 				<span>
 					<span rev="calli:hasComponent" resource="?upup">
@@ -185,43 +186,55 @@
 									</span>
 									<xsl:element name="{name($breadcrumb)}">
 										<xsl:attribute name="href"><xsl:text>?upupupupup</xsl:text></xsl:attribute>
-										<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
-										<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href' and name()!='property']" />
+										<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href']" />
+										<span property="rdfs:label" />
+										<span property="skos:prefLabel" />
+										<span property="foaf:name" />
 									</xsl:element>
 									<xsl:value-of select="$separator" />
 								</span>
 								<xsl:element name="{name($breadcrumb)}">
 									<xsl:attribute name="href"><xsl:text>?upupupup</xsl:text></xsl:attribute>
-									<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
-									<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href' and name()!='property']" />
+									<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href']" />
+									<span property="rdfs:label" />
+									<span property="skos:prefLabel" />
+									<span property="foaf:name" />
 								</xsl:element>
 								<xsl:value-of select="$separator" />
 							</span>
 							<xsl:element name="{name($breadcrumb)}">
 								<xsl:attribute name="href"><xsl:text>?upupup</xsl:text></xsl:attribute>
-								<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
-								<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href' and name()!='property']" />
+								<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href']" />
+								<span property="rdfs:label" />
+								<span property="skos:prefLabel" />
+								<span property="foaf:name" />
 							</xsl:element>
 							<xsl:value-of select="$separator" />
 						</span>
 						<xsl:element name="{name($breadcrumb)}">
 							<xsl:attribute name="href"><xsl:text>?upup</xsl:text></xsl:attribute>
-							<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
-							<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href' and name()!='property']" />
+							<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href']" />
+							<span property="rdfs:label" />
+							<span property="skos:prefLabel" />
+							<span property="foaf:name" />
 						</xsl:element>
 						<xsl:value-of select="$separator" />
 					</span>
 					<xsl:element name="{name($breadcrumb)}">
 						<xsl:attribute name="href"><xsl:text>?up</xsl:text></xsl:attribute>
-						<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
-						<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href' and name()!='property']" />
+						<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href']" />
+						<span property="rdfs:label" />
+						<span property="skos:prefLabel" />
+						<span property="foaf:name" />
 					</xsl:element>
 					<xsl:value-of select="$separator" />
 				</span>
 				<xsl:element name="{name($here)}">
 					<xsl:attribute name="about"><xsl:text>?this</xsl:text></xsl:attribute>
-					<xsl:attribute name="property"><xsl:text>rdfs:label</xsl:text></xsl:attribute>
-					<xsl:apply-templates mode="layout" select="$here/@*[name()!='property' and name()!='about']" />
+					<xsl:apply-templates mode="layout" select="$here/@*[name()!='about']" />
+					<span property="rdfs:label" />
+					<span property="skos:prefLabel" />
+					<span property="foaf:name" />
 				</xsl:element>
 				<xsl:value-of select="$close" />
 			</div>

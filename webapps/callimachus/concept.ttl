@@ -23,7 +23,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Concept> a calli:Creatable, </callimachus/IndexClass>, owl:Class;
+<Concept> a calli:Creatable, owl:Class;
 	rdfs:subClassOf calli:Viewable, calli:Editable, skos:Concept;
 	rdfs:label "Concept";
 	rdfs:comment "Concepts are ideas, meanings, or categories of objects and events";
@@ -32,4 +32,16 @@
 	calli:edit <concept-edit.xhtml>;
 	calli:create <concept-create.xhtml>;
 	calli:uriSpace </>.
+
+:GetConceptIndexPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Concept>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+	msg:rel "alternate";
+	msg:method "GET";
+	msg:query "index";
+	msg:type "application/xhtml+xml";
+	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
+	msg:header "cache-control:no-cache";
+	msg:imports <concept-index.xhtml>;
+	msg:script "return concept_index_xhtml.calliConstruct(this, 'index')".
 

@@ -1,0 +1,112 @@
+# 
+#    Copyright (c) 2011 3 Round Stones Inc, Some Rights Reserved
+# 
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+# 
+#        http://www.apache.org/licenses/LICENSE-2.0
+# 
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+<Text> a calli:Creatable, <IndexClass>, owl:Class;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Text;
+	rdfs:label "Text";
+	rdfs:comment "Text files";
+	calli:icon <text.png>;
+	calli:view <text-view.xhtml>;
+	calli:edit <text-edit.xhtml>;
+	calli:create <text-create.xhtml>;
+	calli:uriSpace </>.
+
+# GET /robots.txt
+:GetText rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Text>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "text/plain";
+	msg:header "cache-control:no-cache";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
+
+# POST /callimachus/Text?create
+:CreateText owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Text> ]);
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:imports calli:Text;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		if (!location)
+			throw new BadRequest("Missing location request header");
+
+		var created = con.getObject(this.toUri().resolve(location).toString());
+		if (created instanceof Text)
+			throw new BadRequest("File already exists");
+
+		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
+		con.add(created.resource, RDFS.LABEL, label, []);
+
+		created = con.addDesignation(created, this.toString());
+		created = con.addDesignation(created, Text);
+
+		this.touchRevision(); // update index page
+		con.commit();
+
+		created.UploadText(new java.io.InputStreamReader(body, "UTF-8")); //# cannot write to other streams directly		
+		return created;
+	""".
+
+:local a calli:LocalRealm;
+	calli:domain </>.
+
+# PUT /robots.txt
+:UploadText rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Text>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:realm </callimachus/manifest>, :local;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <Text>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:script """
+		if (!reader)
+			throw new BadRequest("Missing PUT request payload");
+		var read;
+		var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
+		var out = this.openWriter();
+		try {
+			while ((read = reader.read(buf)) >= 0) {
+				out.write(buf, 0, read);
+			}
+		} finally {
+			out.close();
+		}
+		this.touchRevision();
+	""".
+
+:reader a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :UploadText;
+	rdfs:range <java:java.io.Reader>;
+	msg:type "text/plain".
+

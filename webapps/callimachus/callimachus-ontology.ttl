@@ -69,6 +69,10 @@ calli:Page a owl:Class;
 	rdfs:label "Page";
 	rdfs:comment "An XHTML+RDFa Web page".
 
+calli:Text a owl:Class;
+	rdfs:label "Text";
+	rdfs:comment "An plain text document".
+
 calli:DomainRealm a owl:Class;
 	rdfs:label "Domain Realm";
 	rdfs:comment "A realm with a configurable domain".

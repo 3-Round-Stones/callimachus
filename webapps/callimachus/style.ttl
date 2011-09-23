@@ -21,35 +21,35 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Text> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Text;
-	rdfs:label "Text";
-	rdfs:comment "Text files";
-	calli:icon <text.png>;
-	calli:view <text-view.xhtml>;
-	calli:edit <text-edit.xhtml>;
-	calli:create <text-create.xhtml>;
+<Style> a calli:Creatable, <IndexClass>, owl:Class;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Style;
+	rdfs:label "Style";
+	rdfs:comment "Style files";
+	calli:icon <style.png>;
+	calli:view <style-view.xhtml>;
+	calli:edit <style-edit.xhtml>;
+	calli:create <style-create.xhtml>;
 	calli:uriSpace </>.
 
-# GET /robots.txt
-:GetText rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Text>];
+# GET /style.css
+:GetStyleSheet rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
 	msg:method "GET";
-	msg:type "text/plain";
+	msg:type "text/css";
 	msg:header "cache-control:no-cache";
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openReader(true)".
 
-# POST /callimachus/Text?create
-:CreateText owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Text> ]);
+# POST /callimachus/Style?create
+:CreateStyle owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Style> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	msg:imports calli:Text;
+	msg:imports calli:Style;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
@@ -57,7 +57,7 @@
 			throw new BadRequest("Missing location request header");
 
 		var created = con.getObject(this.toUri().resolve(location).toString());
-		if (created instanceof Text)
+		if (created instanceof Style)
 			throw new BadRequest("File already exists");
 
 		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
@@ -65,21 +65,21 @@
 		con.add(created.resource, RDFS.LABEL, label, []);
 
 		created = con.addDesignation(created, this.toString());
-		created = con.addDesignation(created, Text);
+		created = con.addDesignation(created, Style);
 
 		this.touchRevision(); // update index page
 		con.commit();
 
-		created.UploadText(new java.io.InputStreamReader(body, "UTF-8")); //# cannot write to other streams directly		
+		created.UploadStyle(new java.io.InputStreamReader(body, "UTF-8")); //# cannot write to other streams directly		
 		return created;
 	""".
 
 :local a calli:LocalRealm;
 	calli:domain </>.
 
-# PUT /robots.txt
-:UploadText rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Text>];
+# PUT /style.css
+:UploadStyle rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:realm </callimachus/manifest>, :local;
@@ -87,7 +87,7 @@
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:imports <Text>;
+	msg:imports <Style>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
 	msg:script """
 		if (!reader)
@@ -106,7 +106,7 @@
 	""".
 
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :UploadText;
+	rdfs:domain :UploadStyle;
 	rdfs:range <java:java.io.Reader>;
-	msg:type "text/plain".
+	msg:type "text/css".
 

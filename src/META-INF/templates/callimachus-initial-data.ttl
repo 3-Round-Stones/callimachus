@@ -106,52 +106,56 @@
 	calli:item </callimachus/menu#administration>;
 	calli:item </callimachus/menu#toolbox>.
 
-</callimachus/menu#site> calli:position 1; rdfs:label "Site";
+</callimachus/menu#site>	calli:position 1; rdfs:label "Site";
 	calli:item </callimachus/menu#mainarticle>;
 	calli:item </callimachus/menu#homefolder>;
 	calli:item </callimachus/menu#contents>;
 	calli:item </callimachus/menu#recentchanges>.
-</callimachus/menu#resources> calli:position 8; rdfs:label "Resources";
+</callimachus/menu#resources>	calli:position 8; rdfs:label "Resources";
 	calli:item </callimachus/menu#folders>;
 	calli:item </callimachus/menu#articles>;
 	calli:item </callimachus/menu#textfiles>;
 	calli:item </callimachus/menu#pages>;
+	calli:item </callimachus/menu#scripts>;
+	calli:item </callimachus/menu#styles>;
 	calli:item </callimachus/menu#concepts>;
 	calli:item </callimachus/menu#classes>.
-</callimachus/menu#administration> calli:position 9; rdfs:label "Administration";
+</callimachus/menu#administration>	calli:position 9; rdfs:label "Administration";
 	calli:item </callimachus/menu#manifest>;
 	calli:item </callimachus/menu#users>;
 	calli:item </callimachus/menu#groups>;
 	calli:item </callimachus/menu#namedqueries>;
 	calli:item </callimachus/menu#sparqlquery>.
-</callimachus/menu#toolbox> calli:position 10; rdfs:label "Toolbox";
+</callimachus/menu#toolbox>	calli:position 10; rdfs:label "Toolbox";
 	calli:item </callimachus/menu#whatlinkshere>;
 	calli:item </callimachus/menu#relatedchanges>;
 	calli:item </callimachus/menu#introspectresource>;
 	calli:item </callimachus/menu#permissions>;
 	calli:item </callimachus/menu#printthispage>.
 
-</callimachus/menu#mainarticle> calli:position 1; rdfs:label "Main article"; calli:link </page/main-page.xhtml?view>.
-</callimachus/menu#homefolder> calli:position 2; rdfs:label "Home folder"; calli:link </?view>.
-</callimachus/menu#contents> calli:position 3; rdfs:label "Contents"; calli:link </callimachus/menu>.
-</callimachus/menu#recentchanges> calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
+</callimachus/menu#mainarticle>	calli:position 1; rdfs:label "Main article"; calli:link </page/main-page.xhtml?view>.
+</callimachus/menu#homefolder>	calli:position 2; rdfs:label "Home folder"; calli:link </?view>.
+</callimachus/menu#contents>	calli:position 3; rdfs:label "Contents"; calli:link </callimachus/menu>.
+</callimachus/menu#recentchanges>	calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
 
-</callimachus/menu#folders> calli:position 1; rdfs:label "Folders"; calli:link </callimachus/Folder>.
-</callimachus/menu#articles> calli:position 2; rdfs:label "Articles"; calli:link </callimachus/Article>.
-</callimachus/menu#textfiles> calli:position 3; rdfs:label "Text files"; calli:link </callimachus/Text>.
-</callimachus/menu#pages> calli:position 4; rdfs:label "Pages"; calli:link </callimachus/Page>.
-</callimachus/menu#concepts> calli:position 5; rdfs:label "Concepts"; calli:link </callimachus/Concept>.
-</callimachus/menu#classes> calli:position 6; rdfs:label "Classes"; calli:link </callimachus/Class>.
+</callimachus/menu#folders>	calli:position 1; rdfs:label "Folders"; calli:link </callimachus/Folder>.
+</callimachus/menu#articles>	calli:position 2; rdfs:label "Articles"; calli:link </callimachus/Article>.
+</callimachus/menu#textfiles>	calli:position 3; rdfs:label "Text files"; calli:link </callimachus/Text>.
+</callimachus/menu#pages>	calli:position 4; rdfs:label "Pages"; calli:link </callimachus/Page>.
+</callimachus/menu#scripts>	calli:position 5; rdfs:label "Scripts"; calli:link </callimachus/Script>.
+</callimachus/menu#styles>	calli:position 6; rdfs:label "Styles"; calli:link </callimachus/Style>.
+</callimachus/menu#concepts>	calli:position 7; rdfs:label "Concepts"; calli:link </callimachus/Concept>.
+</callimachus/menu#classes>	calli:position 8; rdfs:label "Classes"; calli:link </callimachus/Class>.
 
-</callimachus/menu#manifest> calli:position 1; rdfs:label "Manifest"; calli:link </callimachus/manifest>.
-</callimachus/menu#users> calli:position 2; rdfs:label "Users"; calli:link </callimachus/User>.
-</callimachus/menu#groups> calli:position 3; rdfs:label "Groups"; calli:link </callimachus/Group>.
-</callimachus/menu#namedqueries> calli:position 4; rdfs:label "Named queries"; calli:link </callimachus/NamedQuery>.
-</callimachus/menu#sparqlquery> calli:position 5; rdfs:label "SPARQL query"; calli:link </sparql>.
+</callimachus/menu#manifest>	calli:position 1; rdfs:label "Manifest"; calli:link </callimachus/manifest>.
+</callimachus/menu#users>	calli:position 2; rdfs:label "Users"; calli:link </callimachus/User>.
+</callimachus/menu#groups>	calli:position 3; rdfs:label "Groups"; calli:link </callimachus/Group>.
+</callimachus/menu#namedqueries>	calli:position 4; rdfs:label "Named queries"; calli:link </callimachus/NamedQuery>.
+</callimachus/menu#sparqlquery>	calli:position 5; rdfs:label "SPARQL query"; calli:link </sparql>.
 
-</callimachus/menu#whatlinkshere> calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>.
-</callimachus/menu#relatedchanges> calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>.
-</callimachus/menu#introspectresource> calli:position 3; rdfs:label "Introspect resource"; calli:link <javascript:location='?introspect'>.
-</callimachus/menu#permissions> calli:position 3; rdfs:label "Permissions"; calli:link <javascript:location='?permissions'>.
-</callimachus/menu#printthispage> calli:position 4; rdfs:label "Print this page"; calli:link <javascript:print()>.
+</callimachus/menu#whatlinkshere>	calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>.
+</callimachus/menu#relatedchanges>	calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>.
+</callimachus/menu#introspectresource>	calli:position 3; rdfs:label "Introspect resource"; calli:link <javascript:location='?introspect'>.
+</callimachus/menu#permissions>	calli:position 3; rdfs:label "Permissions"; calli:link <javascript:location='?permissions'>.
+</callimachus/menu#printthispage>	calli:position 4; rdfs:label "Print this page"; calli:link <javascript:print()>.
 

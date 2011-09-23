@@ -69,6 +69,14 @@ calli:Page a owl:Class;
 	rdfs:label "Page";
 	rdfs:comment "An XHTML+RDFa Web page".
 
+calli:Script a owl:Class;
+	rdfs:label "Script";
+	rdfs:comment "An EMCA script document".
+
+calli:Style a owl:Class;
+	rdfs:label "Style";
+	rdfs:comment "An Cascading Style Sheet document".
+
 calli:Text a owl:Class;
 	rdfs:label "Text";
 	rdfs:comment "An plain text document".

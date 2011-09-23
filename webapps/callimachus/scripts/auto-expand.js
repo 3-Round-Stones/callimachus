@@ -2,41 +2,19 @@
 
 (function($){
 
-$(window).bind('resize', fillOutFlex);
+$(window).bind('resize', fillOutTextArea);
 $(document).bind('change', findAutoExpandTextArea);
 $(document).bind('keypress', findAutoExpandTextArea);
 $(document).bind('input', findAutoExpandTextArea);
 $(document).bind('paste', findAutoExpandTextArea);
 $(document).bind("DOMNodeInserted", findAutoExpandTextArea);
-$(document).ready(function(){setTimeout(fillOutFlex, 0)});
+$(document).ready(function(){setTimeout(fillOutTextArea, 0)});
 $(window).load(function(event){
-	$('iframe').load(fillOutFlex);
-	$('img').load(fillOutFlex);
-	fillOutFlex();
+	fillOutTextArea();
 });
 
-function fillOutFlex(){
-	findFlex(document);
+function fillOutTextArea(){
 	findAutoExpandTextAreaIn(document);
-}
-
-function findFlex(target) {
-	var areas = $(".flex", target);
-	if ($(target).is(".flex")) {
-		areas = areas.add(target);
-	}
-	areas.each(function() {
-		flex(this);
-	});
-	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-	if (innerHeight >= document.height) {
-		// no scrollbars yet, assume they will appear
-		setTimeout(function() {
-			if (innerHeight < document.height) {
-				findFlex(target);
-			}
-		}, 100);
-	}
 }
 
 function findAutoExpandTextArea(event) {
@@ -60,22 +38,6 @@ function targetAutoExpandTextArea(event) {
 		setTimeout(function(){
 			expand(event.target);
 		}, 0);
-	}
-}
-
-function flex(area) {
-	if ($(area).is(":input")) {
-		var contentWidth = getAvailableWidth(area);
-		var contentHeight = getAvailableHeight(area);
-		flexTextArea(area, contentWidth, contentHeight);
-	} else if (area.nodeName.toLowerCase() == "iframe") {
-		var contentWidth = getAvailableWidth(area);
-		var contentHeight = getAvailableHeight(area);
-		flexIframe(area, contentWidth, contentHeight);
-	} else {
-		var contentWidth = getAvailableWidth(area);
-		var contentHeight = getAvailableHeight(area);
-		flexBlock(area, contentWidth, contentHeight);
 	}
 }
 
@@ -116,40 +78,27 @@ function expandTextArea(area, contentWidth, innerHeight) {
 	}
 }
 
-function flexTextArea(area, contentWidth, innerHeight) {
-	$(area).css('width', contentWidth);
-	$(area).css('height', innerHeight);
-}
-
-function flexIframe(area, contentWidth, innerHeight) {
-	$(area).css('width', contentWidth);
-	$(area).css('height', innerHeight);
-}
-
-function flexBlock(area, contentWidth, innerHeight) {
-	$(area).css('width', contentWidth);
-	$(area).css('max-height', innerHeight);
-	$(area).css('overflow', 'auto');
-}
-
 function getAvailableHeight(area) {
-	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-	var body = $(area).parents('body>*').offset().top + $(area).parents('body>*').outerHeight(true) - $(area).innerHeight();
-	var formTop = $(area).parents('form').offset().top;
-	var formHeight = $(area).parents('form').outerHeight(true) - $(area).outerHeight(true);
-	var mainTop = $(area).parents('#content').offset().top;
-	var mainHeight = $(area).parents('#content').outerHeight(true) - $(area).outerHeight(true);
-	var contentHeight = innerHeight;
-	if (body <= innerHeight / 3) {
-		contentHeight -= body;
-	} else if (mainHeight > 0 && mainTop > 0 && mainHeight + mainTop <= innerHeight / 3) {
-		contentHeight -= mainHeight + mainTop;
-	} else if (formHeight > 0 && formTop > 0 && formHeight + formTop <= innerHeight / 3) {
-		contentHeight -= formHeight + formTop;
-	} else if (formHeight > 0 && formHeight <= innerHeight / 3) {
-		contentHeight -= formHeight;
-	}
-	return contentHeight;
+	var innerHeight = $(area).height();
+	var clientHeight = window.innerHeight || document.documentElement.clientHeight;
+
+	var body = bottom($(area).parents('body>*')) - innerHeight;
+	if (body > 0 && body <= clientHeight / 3)
+		return clientHeight - body;
+	var content = bottom($(area).parents('#content')) - innerHeight;
+	if (content > 0 && content <= clientHeight / 3)
+		return clientHeight - content;
+	var form = bottom($(area).parents('form')) - innerHeight;
+	if (form > 0 && form <= clientHeight / 3)
+		return clientHeight - form;
+	var formHeight = $(area).parents('form').outerHeight(true) - innerHeight;
+	if (formHeight > 0 && formHeight <= clientHeight / 3)
+		return clientHeight - formHeight;
+	return clientHeight;
+}
+
+function bottom(element) {
+	return $(element).offset().top + $(element).outerHeight(true);
 }
 
 function getAvailableWidth(area) {
@@ -160,12 +109,7 @@ function getAvailableWidth(area) {
 		if (this == parent) {
 			breakFlag = true;
 		} else if (!breakFlag) {
-			margin += parsePixel($(this).css("border-left-width"));
-			margin += parsePixel($(this).css("margin-left"));
-			margin += parsePixel($(this).css("padding-left"));
-			margin += parsePixel($(this).css("border-right-width"));
-			margin += parsePixel($(this).css("margin-right"));
-			margin += parsePixel($(this).css("padding-right"));
+			margin += $(this).outerWidth(true) - $(this).width();
 		}
 	});
 	var asideLeft = getAsideLeft(area);
@@ -220,5 +164,134 @@ function parsePixel(str) {
 	return 0;
 }
 
-})(window.jQuery);
+$(window).bind('resize', fillOutFlex);
+$(window).load(function(event){
+	$('iframe').load(fillOutFlex);
+	$('img').load(fillOutFlex);
+	fillOutFlex();
+});
+
+function fillOutFlex(){
+	var areas = $(".flex");
+	areas.each(function() {
+		flex(this);
+	});
+}
+
+function flex(area) {
+	if ($(area).is(":input")) {
+		var contentWidth = getAvailableWidth(area);
+		var contentHeight = getAvailableHeight(area);
+		flexInput(area, contentWidth, contentHeight);
+	} else if (area.nodeName.toLowerCase() == "iframe") {
+		var contentWidth = getAvailableWidth(area);
+		var contentHeight = getAvailableHeight(area);
+		flexIframe(area, contentWidth, contentHeight);
+	} else {
+		var contentWidth = getAvailableWidth(area);
+		var contentHeight = getAvailableHeight(area);
+		flexBlock(area, contentWidth, contentHeight);
+	}
+}
+
+function flexInput(area, contentWidth, innerHeight) {
+	$(area).css('width', contentWidth);
+	$(area).css('height', innerHeight);
+	if (area.scrollHeight > innerHeight && window.parent) {
+		var clientHeight = window.innerHeight || document.documentElement.clientHeight;
+		var height = clientHeight + area.scrollHeight - innerHeight;
+		parent.postMessage('PUT height\n\n' + height, '*');
+	} else if (area.scrollWidth > contentWidth) {
+		var clientWidth = document.documentElement.clientWidth;
+		var width = clientWidth + area.scrollWidth - contentWidth;
+		parent.postMessage('PUT width\n\n' + width, '*');
+	}
+}
+
+function flexIframe(iframe, contentWidth, innerHeight) {
+	$(iframe).css('width', contentWidth);
+	$(iframe).css('height', innerHeight);
+}
+
+function flexBlock(area, contentWidth, innerHeight) {
+	$(area).css('width', contentWidth);
+	$(area).css('max-height', innerHeight);
+	$(area).css('overflow', 'auto');
+	if (area.scrollHeight > innerHeight && window.parent) {
+		var clientHeight = window.innerHeight || document.documentElement.clientHeight;
+		var height = clientHeight + area.scrollHeight - innerHeight;
+		parent.postMessage('PUT height\n\n' + height, '*');
+	} else if (area.scrollWidth > contentWidth) {
+		var clientWidth = document.documentElement.clientWidth;
+		var width = clientWidth + area.scrollWidth - contentWidth;
+		parent.postMessage('PUT width\n\n' + width, '*');
+	}
+}
+
+if (window.frameElement) {
+	$(window).bind('load', function() {
+		setTimeout(function() {
+			var innerHeight = window.innerHeight || document.documentElement.clientHeight;
+			if (innerHeight < document.height) {
+				parent.postMessage('PUT height\n\n' + document.height, '*');
+			} else {
+				var maxHeight = innerHeight;
+				$('.flex').each(function() {
+					if (this.scrollHeight > this.clientHeight) {
+						var height = document.documentElement.scrollHeight + this.scrollHeight - this.clientHeight;
+						if (height > maxHeight) {
+							maxHeight = height;
+						}
+					}
+				});
+				if (maxHeight > innerHeight) {
+					parent.postMessage('PUT height\n\n' + maxHeight, '*');
+				}
+			}
+			var clientWidth = document.documentElement.clientWidth;
+			if (clientWidth < document.documentElement.scrollWidth) {
+				parent.postMessage('PUT width\n\n' + document.documentElement.scrollWidth, '*');
+			} else {
+				var maxWidth = clientWidth;
+				$('.flex').each(function() {
+					if (this.scrollWidth > this.clientWidth) {
+						var width = clientWidth + this.scrollWidth - this.clientWidth;
+						if (width > maxWidth) {
+							maxWidth = width;
+						}
+					}
+				});
+				if (maxWidth > clientWidth) {
+					parent.postMessage('PUT width\n\n' + maxWidth, '*');
+				}
+			}
+		}, 0);
+	});
+	$(window).bind('message', function(event) {
+		var source = event.originalEvent.source;
+		var data = event.originalEvent.data;
+		if (data.indexOf('PUT height\n\n') == 0) {
+			$('iframe.flex').each(function() {
+				if (this.contentWindow == source) {
+					var innerHeight = window.innerHeight || document.documentElement.clientHeight;
+					var height = parseInt(data.substring(data.indexOf('\n\n') + 2));
+					height += innerHeight - $(this).height();
+					parent.postMessage('PUT height\n\n' + height, '*');
+					this.contentWindow.postMessage('OK\n\nPUT height', '*');
+				}
+			});
+		} else if (data.indexOf('PUT width\n\n') == 0) {
+			$('iframe.flex').each(function() {
+				if (this.contentWindow == source) {
+					var width = parseInt(data.substring(data.indexOf('\n\n') + 2));
+					width += document.documentElement.scrollWidth - $(this).width();
+					parent.postMessage('PUT width\n\n' + width, '*');
+					this.contentWindow.postMessage('OK\n\nPUT width', '*');
+				}
+			});
+		}
+	});
+}
+
+})(jQuery);
 

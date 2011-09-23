@@ -11,6 +11,17 @@
 		return location.href;
 	}
 
+	function checkWindowSize() {
+		var innerHeight = window.innerHeight || document.documentElement.clientHeight;
+		if (innerHeight < document.height) {
+			parent.postMessage('POST height\n\n' + document.height, '*');
+		}
+		var clientWidth = document.documentElement.clientWidth;
+		if (clientWidth < document.documentElement.scrollWidth) {
+			parent.postMessage('POST width\n\n' + document.documentElement.scrollWidth, '*');
+		}
+	}
+
 	if (window.frameElement) {
 		document.documentElement.className += " iframe";
 		var src = null;
@@ -25,5 +36,9 @@
 		}
 		$(window).bind('popstate', postSource);
 		$(postSource);
+		$(checkWindowSize);
+		$(window).bind('load resize', function() {
+			setTimeout(checkWindowSize, 0);
+		});
 	}
 })(jQuery);

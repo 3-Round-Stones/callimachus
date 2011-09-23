@@ -228,7 +228,7 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 
 .ie7_html #logo { float:none; position:absolute; top:0; left:0; }
 .ie7_html #nav { float:none; position:absolute; top:10em; left:0; }
-.ie7_html #tabs, #main, #footer { margin-left:10em; }
+.ie7_html #tabs, .ie7_html #main, .ie7_html #footer { margin-left:10em; }
 .ie7_html #tabs { clear:none; }
 .ie7_html #content { min-height:28em; }
 .ie7_html .iframe #content {min-height: 0px; }

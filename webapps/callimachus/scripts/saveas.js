@@ -40,21 +40,11 @@ function updateFormAction(form, ns) {
 	}
 }
 
-if (!window.calli) {
-	window.calli = {};
-}
-
 window.calli.saveas = function(label, form, callback, fin) {
 	if (typeof form == 'function') {
 		fin = callback;
 		callback = form;
 		form = null;
-	}
-	var width = 450;
-	var height = 500;
-	if ($('html').is('.iframe')) {
-		width = 350;
-		height = 450;
 	}
 	var src = "/callimachus/pages/location-prompt.html#" + encodeURIComponent(label);
 	if (location.search.search(/\?\w+=/) >= 0) {
@@ -71,61 +61,44 @@ window.calli.saveas = function(label, form, callback, fin) {
 			// ignore
 		}
 	}
-	var iframe = $("<iframe></iframe>");
-	iframe.attr('src', src);
-	iframe.dialog({
-		title: 'Save As...',
-		autoOpen: false,
-		modal: false,
-		draggable: true,
-		resizable: true,
-		autoResize: true,
-		width: width,
-		height: height,
+	var dialog = window.calli.dialog(src, 'Save As...', {
 		buttons: {
-			"OK": function() {
-				iframe[0].contentWindow.postMessage('GET label', '*');
+			"Save": function() {
+				dialog.postMessage('GET label', '*');
 			},
 			"Cancel": function() {
-				iframe.dialog('close');
+				calli.dialogClose(dialog);
+			}
+		},
+		onmessage: function(event) {
+			if (event.data == 'POST save') {
+				dialog.postMessage('OK\n\n' + event.data, '*');
+				dialog.postMessage('GET label', '*');
+			} else if (event.data.indexOf('OK\n\nGET label\n\n') == 0) {
+				var data = event.data;
+				label = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
+				dialog.postMessage('GET url', '*');
+			} else if (event.data.indexOf('OK\n\nGET url\n\n') == 0) {
+				var data = event.data;
+				var src = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
+				var uri = calli.listResourceIRIs(src)[0];
+				var ns = uri;
+				if (ns.lastIndexOf('/') != ns.length - 1) {
+					ns += '/';
+				}
+				var local = encodeURI(label).replace(/%20/g,'+');
+				updateFormAction(form, uri);
+				callback(uri, label, ns, local);
+				calli.dialogClose(dialog);
+			}
+		},
+		onclose: function() {
+			if (typeof fin == 'function') {
+				fin();
 			}
 		}
 	});
-	var handle = function(event) {
-		if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data == 'POST save') {
-			var data = event.originalEvent.data;
-			iframe[0].contentWindow.postMessage('OK\n\n' + data, '*');
-			iframe[0].contentWindow.postMessage('GET label', '*');
-		} else if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data.indexOf('OK\n\nGET label\n\n') == 0) {
-			var data = event.originalEvent.data;
-			label = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
-			iframe[0].contentWindow.postMessage('GET url', '*');
-		} else if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data.indexOf('OK\n\nGET url\n\n') == 0) {
-			var data = event.originalEvent.data;
-			var src = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
-			var uri = calli.listResourceIRIs(src)[0];
-			var ns = uri;
-			if (ns.lastIndexOf('/') != ns.length - 1) {
-				ns += '/';
-			}
-			var local = encodeURI(label).replace(/%20/g,'+');
-			updateFormAction(form, uri);
-			callback(uri, label, ns, local);
-			iframe.dialog('close');
-		}
-	};
-	$(window).bind('message', handle);
-	iframe.bind("dialogclose", function(event, ui) {
-		$(window).unbind('message', handle);
-		iframe.remove();
-		iframe.parent().remove();
-		if (typeof fin == 'function') {
-			fin();
-		}
-	});
-	iframe.dialog("open");
-	iframe.css('width', '100%');
 }
 
-})(jQuery)
+})(jQuery);
 

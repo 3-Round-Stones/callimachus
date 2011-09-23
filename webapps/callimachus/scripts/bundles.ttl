@@ -45,10 +45,11 @@
 	rdf:_7 <data-add.js>;
 	rdf:_8 <button-remove.js>;
 	rdf:_9 <data-construct.js>;
-	rdf:_10 <data-dialog.js>;
-	rdf:_11 <document-ready.js>;
-	rdf:_12 <input-date.js>;
-	rdf:_13 <disable-button.js>;
-	rdf:_14 <iframe-redirect.js>;
-	rdf:_15 <saveas.js>.
+	rdf:_10 <dialog.js>;
+	rdf:_11 <data-dialog.js>;
+	rdf:_12 <document-ready.js>;
+	rdf:_13 <input-date.js>;
+	rdf:_14 <disable-button.js>;
+	rdf:_15 <iframe-redirect.js>;
+	rdf:_16 <saveas.js>.
 

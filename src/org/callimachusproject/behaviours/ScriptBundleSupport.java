@@ -35,7 +35,8 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 			scripts.add(JSSourceFile.fromCode(url, code));
 		}
 
-		if (isMinificationDisabled()) {
+		int minification = getMinification();
+		if (minification < 1) {
 			StringBuilder sb = new StringBuilder();
 			for (JSSourceFile script : scripts) {
 				sb.append(script.getCode()).append("\n");
@@ -45,7 +46,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 
 		Compiler compiler = new Compiler();
 		CompilerOptions options = new CompilerOptions();
-		getCompilationLevel(options).setOptionsForCompilationLevel(options);
+		getCompilationLevel(minification).setOptionsForCompilationLevel(options);
 
 		List<JSSourceFile> externals = CommandLineRunner.getDefaultExterns();
 
@@ -65,16 +66,22 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 			+ "} ORDER BY ?member ?three ?two ?one")
 	protected abstract List<?> getCalliScriptsAsList();
 
-	private boolean isMinificationDisabled() {
-		return getCalliMinified() != null && getCalliMinified().intValue() < 1;
+	private int getMinification() {
+		int result = Integer.MAX_VALUE;
+		for (Number number : getCalliMinified()) {
+			if (number.intValue() < result) {
+				result = number.intValue();
+			}
+		}
+		if (result == Integer.MAX_VALUE)
+			return 2;
+		return result;
 	}
 
-	private CompilationLevel getCompilationLevel(CompilerOptions options) {
-		if (getCalliMinified() == null)
-			return CompilationLevel.SIMPLE_OPTIMIZATIONS;
-		if (getCalliMinified().intValue() == 1)
+	private CompilationLevel getCompilationLevel(int minification) {
+		if (minification == 1)
 			return CompilationLevel.WHITESPACE_ONLY;
-		if (getCalliMinified().intValue() == 2)
+		if (minification == 2)
 			return CompilationLevel.SIMPLE_OPTIMIZATIONS;
 		return CompilationLevel.ADVANCED_OPTIMIZATIONS;
 	}

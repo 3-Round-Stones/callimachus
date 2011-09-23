@@ -24,7 +24,8 @@ function hbox(element) {
 	siblings.css("margin-left", "1em");
 	setTimeout(function() { // reposition children first
 		siblings.css("clear", function() {
-			if ($(this).prev().size() && $(this).position().top > $(this).prev().position().top) {
+			var prev = prevElement(this);
+			if (prev.length && $(this).position().top > prev.position().top) {
 				$(this).css("margin-left", "0px");
 				return "left";
 			} else {
@@ -33,6 +34,14 @@ function hbox(element) {
 			}
 		});
 	}, 0);
+}
+
+function prevElement(element) {
+	var prev = $(this).prev();
+	while (prev.length && !prev.is(':visible')) {
+		prev = prev.prev();
+	}
+	return prev;
 }
 
 })(window.jQuery);

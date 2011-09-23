@@ -61,13 +61,13 @@ window.calli.saveas = function(label, form, callback, fin) {
 			// ignore
 		}
 	}
-	var dialog = window.calli.dialog(src, 'Save As...', {
+	var dialog = window.calli.openDialog(src, 'Save As...', {
 		buttons: {
 			"Save": function() {
 				dialog.postMessage('GET label', '*');
 			},
 			"Cancel": function() {
-				calli.dialogClose(dialog);
+				calli.closeDialog(dialog);
 			}
 		},
 		onmessage: function(event) {
@@ -89,7 +89,7 @@ window.calli.saveas = function(label, form, callback, fin) {
 				var local = encodeURI(label).replace(/%20/g,'+');
 				updateFormAction(form, uri);
 				callback(uri, label, ns, local);
-				calli.dialogClose(dialog);
+				calli.closeDialog(dialog);
 			}
 		},
 		onclose: function() {

@@ -10,11 +10,11 @@ if (!window.calli) {
 	window.calli = {};
 }
 
-window.calli.dialogClose = function(iframe) {
+window.calli.closeDialog = function(iframe) {
 	$(iframe.frameElement).dialog('close');
 }
 
-window.calli.dialog = function(url, title, options) {
+window.calli.openDialog = function(url, title, options) {
 	var width = 450;
 	var height = 500;
 	height += 50; // title bar
@@ -22,7 +22,15 @@ window.calli.dialog = function(url, title, options) {
 		height += 50; // button bar
 	}
 	var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-	while (height >= 200 && width >= 200 && (height > innerHeight || width > document.documentElement.clientWidth)) {
+	if (window.parent != window && parent.postMessage) {
+		if (height > innerHeight) {
+			parent.postMessage('PUT height\n\n' + height, '*');
+		}
+		if (width > document.documentElement.clientWidth) {
+			parent.postMessage('PUT width\n\n' + width, '*');
+		}
+	}
+	while (height > 200 && width > 200 && (height > innerHeight || width > document.documentElement.clientWidth)) {
 		height -= 100;
 		width -= 100;
 	}
@@ -38,54 +46,64 @@ window.calli.dialog = function(url, title, options) {
 		height: height
 	}, options);
 	var iframe = $("<iframe></iframe>");
-	iframe.attr('src', url);
+	iframe.attr('src', 'about:blank');
 	iframe.addClass('dialog');
 	iframe.dialog(settings);
 	var requestedHeight = height;
 	var requestedWidth = width;
-	var setDialogHeight = function(height) {
-		iframe.dialog("option", "height", height);
-		var fheight = height;
+	var setDialogOuterHeight = function(outerHeight) {
+		outerHeight = Math.min(outerHeight, window.innerHeight || document.documentElement.clientHeight);
+		var height = outerHeight - iframe.parent().outerHeight(true) + iframe.parent().height();
+		var fheight = height - iframe.outerHeight(true) + iframe.height();
 		iframe.siblings().each(function(){
-			fheight -= $(this).outerHeight(true);
+			if ($(this).css('position') != 'absolute') {
+				fheight -= $(this).outerHeight(true);
+			}
 		});
+		var previously = iframe.dialog("option", "height");
+		iframe.dialog("option", "height", height);
 		iframe.height(fheight);
+		if (outerHeight - 50 > iframe.parent().outerWidth(true) && previously < height) {
+			setDialogOuterWidth(outerHeight - 50);
+		}
+		iframe.dialog("option", "position", "center");
+	};
+	var setDialogOuterWidth = function(outerWidth) {
+		outerWidth = Math.min(outerWidth, document.documentElement.clientWidth);
+		var width = outerWidth - iframe.parent().outerWidth(true) + iframe.parent().width();
+		var previously = iframe.dialog("option", "width");
+		iframe.dialog("option", "width", width);
+		if (outerWidth - 50 > iframe.parent().outerHeight(true) && previously < width) {
+			setDialogOuterHeight(outerWidth - 50);
+		}
+		iframe.dialog("option", "position", "center");
 	};
 	var handle = function(event) {
 		if (event.originalEvent.source == iframe[0].contentWindow) {
 			var data = event.originalEvent.data;
 			if (data.indexOf('PUT height\n\n') == 0) {
 				var height = parseInt(data.substring(data.indexOf('\n\n') + 2));
-				var dheight = height + iframe.dialog("option", "height") - iframe.height();
-				requestedHeight = Math.max(requestedHeight, dheight);
+				requestedHeight = height + iframe.parent().outerHeight(true) - iframe.height();
 				var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-				if (dheight <= innerHeight) {
-					if (dheight > iframe.dialog("option", "height")) {
-						setDialogHeight(dheight);
-					}
-				} else if (height > innerHeight && window.parent) {
-					parent.postMessage('PUT height\n\n' + dheight, '*');
+				if (requestedHeight <= innerHeight) {
+					setDialogOuterHeight(requestedHeight);
 				} else {
-					var position = iframe.dialog("option", "position");
-					position[1] = 'top';
-					iframe.dialog("option", "position", position);
-					setDialogHeight(innerHeight);
+					setDialogOuterHeight(innerHeight);
+					if (window.parent != window) {
+						parent.postMessage('PUT height\n\n' + requestedHeight, '*');
+					}
 				}
 				iframe[0].contentWindow.postMessage('OK\n\PUT height', '*');
 			} else if (data.indexOf('PUT width\n\n') == 0) {
 				var width = parseInt(data.substring(data.indexOf('\n\n') + 2));
-				requestedWidth = Math.max(requestedWidth, width);
-				if (width <= document.documentElement.clientWidth) {
-					if (width > iframe.dialog("option", "width")) {
-						iframe.dialog("option", "width", width);
-					}
-				} else if (width > document.documentElement.clientWidth && window.parent) {
-					parent.postMessage('PUT width\n\n' + width, '*');
+				requestedWidth = width + iframe.parent().outerWidth(true) - iframe.width();
+				if (requestedWidth <= document.documentElement.clientWidth) {
+					setDialogOuterWidth(requestedWidth);
 				} else {
-					var position = iframe.dialog("option", "position");
-					position[0] = 'left';
-					iframe.dialog("option", "position", position);
-					iframe.dialog("option", "width", document.documentElement.clientWidth);
+					setDialogOuterWidth(document.documentElement.clientWidth);
+					if (window.parent != window) {
+						parent.postMessage('PUT width\n\n' + requestedWidth, '*');
+					}
 				}
 				iframe[0].contentWindow.postMessage('OK\n\nPUT width', '*');
 			} else if (typeof options.onmessage == 'function') {
@@ -99,23 +117,17 @@ window.calli.dialog = function(url, title, options) {
 			}
 		}
 	};
-	$(window).bind('message', handle);
-	$(window).bind('resize', function(){
+	var onresize = function(){
 		var clientWidth = document.documentElement.clientWidth;
-		if (requestedWidth > clientWidth) {
-			var position = iframe.dialog("option", "position");
-			position[0] = 'left';
-			iframe.dialog("option", "position", position);
-		}
-		iframe.dialog("option", "width", Math.min(clientWidth, requestedWidth));
+		setDialogOuterWidth(Math.min(Math.max(450, requestedWidth), clientWidth));
 		var innerHeight = window.innerHeight || document.documentElement.clientHeight;
-		if (requestedHeight > innerHeight) {
-			var position = iframe.dialog("option", "position");
-			position[1] = 'top';
-			iframe.dialog("option", "position", position);
+		if (requestedWidth > clientWidth || requestedHeight > innerHeight) {
+			iframe.dialog("option", "position", "center");
 		}
-		setDialogHeight(Math.min(innerHeight, requestedHeight));
-	});
+		setDialogOuterHeight(Math.min(Math.max(500, requestedHeight), innerHeight));
+	};
+	$(window).bind('message', handle);
+	$(window).bind('resize', onresize);
 	iframe.one('load', function(){
 		setTimeout(function() {
 			iframe.dialog("option", "position", ['center', 'center']);
@@ -123,6 +135,7 @@ window.calli.dialog = function(url, title, options) {
 	});
 	iframe.bind("dialogclose", function(event, ui) {
 		$(window).unbind('message', handle);
+		$(window).unbind('resize', onresize);
 		iframe.remove();
 		iframe.parent().remove();
 		if (typeof options.onclose == 'function') {
@@ -131,6 +144,25 @@ window.calli.dialog = function(url, title, options) {
 	});
 	iframe.dialog("open");
 	iframe.css('width', '100%');
+	iframe[0].src = url;
+	if (typeof options.onlookup == 'function') {
+		var dialogTitle = iframe.parents(".ui-dialog").find(".ui-dialog-title");
+		var form = $("<form></form>");
+		var searchTerms = $("<input/>");
+		searchTerms.attr("placeholder", "Lookup..");
+		form.append(searchTerms);
+		form.css('position', "absolute");
+		form.css('top', dialogTitle.offset().top - iframe.parent().offset().top - 5);
+		form.css('right', 30);
+		iframe.before(form);
+		form.submit(function(event) {
+			event.preventDefault();
+			if (searchTerms.val()) {
+				options.onlookup(searchTerms.val());
+			}
+			return false;
+		});
+	}
 	return iframe[0].contentWindow;
 }
 

@@ -6,7 +6,7 @@ document.documentElement.className += ' wait';
 var requestCount = 1;
 var lastWait = 0;
 
-if (window.parent && window.parent.postMessage) {
+if (window.parent != window && window.parent.postMessage) {
 	parent.postMessage('POST wait\n\ntrue', '*');
 }
 
@@ -20,7 +20,7 @@ function removeWait() {
 					if (myWait == lastWait && requestCount < 1) {
 						requestCount = 0;
 						$(document.documentElement).removeClass("wait");
-						if (window.parent && window.parent.postMessage) {
+						if (window.parent != window && window.parent.postMessage) {
 							parent.postMessage('POST wait\n\nfalse', '*');
 						}
 					}

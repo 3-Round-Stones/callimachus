@@ -14,11 +14,27 @@
 	function checkWindowSize() {
 		var innerHeight = window.innerHeight || document.documentElement.clientHeight;
 		if (innerHeight < document.height) {
-			parent.postMessage('POST height\n\n' + document.height, '*');
+			parent.postMessage('PUT height\n\n' + document.height, '*');
+		} else {
+			var scrollHeight = document.height;
+			$('#content').add($('#content').parents()).each(function(){
+				scrollHeight += this.scrollHeight - this.clientHeight;
+			});
+			if (scrollHeight > innerHeight) {
+				parent.postMessage('PUT height\n\n' + scrollHeight, '*');
+			}
 		}
 		var clientWidth = document.documentElement.clientWidth;
 		if (clientWidth < document.documentElement.scrollWidth) {
-			parent.postMessage('POST width\n\n' + document.documentElement.scrollWidth, '*');
+			parent.postMessage('PUT width\n\n' + document.documentElement.scrollWidth, '*');
+		} else {
+			var scrollWidth = document.documentElement.scrollWidth;
+			$('#content').add($('#content').parents()).each(function(){
+				scrollWidth += this.scrollWidth - this.clientWidth;
+			});
+			if (scrollWidth > clientWidth) {
+				parent.postMessage('PUT height\n\n' + scrollWidth, '*');
+			}
 		}
 	}
 
@@ -36,7 +52,6 @@
 		}
 		$(window).bind('popstate', postSource);
 		$(postSource);
-		$(checkWindowSize);
 		$(window).bind('load resize', function() {
 			setTimeout(checkWindowSize, 0);
 		});

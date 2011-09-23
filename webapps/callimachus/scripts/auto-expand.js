@@ -197,7 +197,7 @@ function flex(area) {
 function flexInput(area, contentWidth, innerHeight) {
 	$(area).css('width', contentWidth);
 	$(area).css('height', innerHeight);
-	if (area.scrollHeight > innerHeight && window.parent) {
+	if (area.scrollHeight > innerHeight && window.parent != window) {
 		var clientHeight = window.innerHeight || document.documentElement.clientHeight;
 		var height = clientHeight + area.scrollHeight - innerHeight;
 		parent.postMessage('PUT height\n\n' + height, '*');
@@ -217,7 +217,7 @@ function flexBlock(area, contentWidth, innerHeight) {
 	$(area).css('width', contentWidth);
 	$(area).css('max-height', innerHeight);
 	$(area).css('overflow', 'auto');
-	if (area.scrollHeight > innerHeight && window.parent) {
+	if (area.scrollHeight > innerHeight && window.parent != window) {
 		var clientHeight = window.innerHeight || document.documentElement.clientHeight;
 		var height = clientHeight + area.scrollHeight - innerHeight;
 		parent.postMessage('PUT height\n\n' + height, '*');

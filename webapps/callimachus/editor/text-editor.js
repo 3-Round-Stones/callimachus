@@ -1,4 +1,4 @@
-// editor.js
+// text-editor.js
 
 (function($) {
 	$(window).ajaxSend(function(event, XMLHttpRequest, ajaxOptions) {
@@ -20,6 +20,22 @@ jQuery(function($) {
 	var path = null;
 	var contentType = null;
 	var etag = null;
+
+	var onresize = function() {
+		setTimeout(function() {
+			var pane = $('.ace_scroller')[0];
+			if (pane.scrollWidth > pane.clientWidth && window.parent != window) {
+				var width = pane.scrollWidth - pane.clientWidth + $(pane).outerWidth(true);
+				width += $('.ace_gutter').outerWidth(true);
+				width += 32; // scrollbar width
+				$(pane).parents().each(function() {
+					width += $(this).outerWidth(true) - $(this).width();
+				});
+				parent.postMessage('PUT width\n\n' + width, '*');
+			}
+		}, 100);
+	};
+	$(window).bind('resize', onresize);
 
 	// loading
 	function onhashchange() {
@@ -56,6 +72,7 @@ jQuery(function($) {
 						var col = editor.getSelectionRange().start.column;
 						if (body != editor.getSession().getValue()) {
 							editor.getSession().setValue(body);
+							onresize();
 						}
 						if (line && line != editor.getSelectionRange().start.row + 1) {
 							editor.gotoLine(line, column);
@@ -182,6 +199,7 @@ jQuery(function($) {
 		} else if (header == 'POST template' && body) {
 			if (!editor.getSession().getValue()) {
 				editor.insert(body);
+				onresize();
 			}
 			return true;
 		} else if (header == 'GET line.column') {

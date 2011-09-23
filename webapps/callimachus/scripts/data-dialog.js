@@ -36,72 +36,38 @@ function initDialogButton(buttons) {
 			title = list.find("label").text();
 		}
 		add.click(function(e) {
-			var width = 450;
-			var height = 500;
-			if ($('html').is('.iframe')) {
-				width = 350;
-				height = 450;
-			}
-			var iframe = $("<iframe></iframe>");
-			iframe.attr("name", frame);
-			iframe.attr("src", 'about:blank');
-			$(window).bind('message', function(event) {
-				if (event.originalEvent.source == iframe[0].contentWindow && event.originalEvent.data.indexOf('PUT src\n') == 0) {
-					var data = event.originalEvent.data;
-					var src = data.substring(data.indexOf('\n\n') + 2);
-					var uri = calli.listResourceIRIs(src)[0];
-					var de = jQuery.Event('calliLink');
-					de.location = uri;
-					$(add).trigger(de);
+			var options = {
+				onmessage: function(event) {
+					if (event.data.indexOf('PUT src\n') == 0) {
+						var data = event.data;
+						var src = data.substring(data.indexOf('\n\n') + 2);
+						var uri = calli.listResourceIRIs(src)[0];
+						var de = jQuery.Event('calliLink');
+						de.location = uri;
+						$(add).trigger(de);
+					}
+				},
+				onclose: function() {
+					list.unbind('calliLinked', onlinked);
+					add.focus();
 				}
-			});
-			iframe.dialog({
-			    title: title,
-			    autoOpen: false,
-			    modal: false,
-			    draggable: true,
-			    resizable: true,
-			    autoResize: true,
-				width: width,
-				height: height
-			});
+			};
+			if (add.attr("data-search") && add.attr("data-search").indexOf('{searchTerms}') >= 0) {
+				options.onlookup = function(terms) {
+					var searchUrl = add.attr("data-search").replace('{searchTerms}', encodeURIComponent(terms));
+					listSearchResults(searchUrl, dialog, add);
+				};
+			}
+			var dialog = calli.openDialog(add.attr("data-dialog"), title, options);
 			var onlinked = function() {
-				iframe.dialog('close');
+				calli.closeDialog(dialog);
 			};
 			list.bind('calliLinked', onlinked);
-			iframe.bind("dialogclose", function(event, ui) {
-				list.unbind('calliLinked', onlinked);
-				iframe.remove();
-				iframe.parent().remove();
-				add.focus();
-			});
-			iframe.dialog("open");
-			iframe.css('width', '100%');
-			if (add.attr("data-search") && add.attr("data-search").indexOf('{searchTerms}') >= 0) {
-				var dialogTitle = iframe.parents(".ui-dialog").find(".ui-dialog-title");
-				var searchTerms = id + "-input";
-				var form = $("<form>"
-					+ "<div class='lookup'>"
-					+ "<input name='q' placeholder='Lookup..' id='" + searchTerms + "' /></div>"
-					+ "</form>");
-				form.css('position', "absolute");
-				form.css('top', dialogTitle.offset().top - iframe.parent().offset().top - 5);
-				form.css('right', 30);
-				iframe.before(form);
-				form.submit(function(event) {
-					var terms = document.getElementById(searchTerms).value;
-					var searchUrl = add.attr("data-search").replace('{searchTerms}', encodeURIComponent(terms));
-					listSearchResults(searchUrl, iframe[0], add);
-					event.preventDefault();
-					return false;
-				});
-			}
-			iframe[0].src = add.attr("data-dialog");
 		});
 	});
 }
 
-function listSearchResults(url, iframe, button) {
+function listSearchResults(url, win, button) {
 	jQuery.get(url, function(data) {
 		if (data) {
 			var result = $(data).children("[about],[resource]");
@@ -124,8 +90,7 @@ function listSearchResults(url, iframe, button) {
 			});
 			var html = ul.html();
 			if (html) {
-				iframe.src = "about:blank";
-	            var doc = iframe.contentWindow.document;
+	            var doc = win.document;
 				doc.open();
 				doc.write("<ul>" + html + "</ul>");
 				doc.close();
@@ -140,8 +105,7 @@ function listSearchResults(url, iframe, button) {
 					return true;
 				});
 			} else {
-				iframe.src = "about:blank";
-	            var doc = iframe.contentWindow.document;
+	            var doc = win.document;
 				doc.open();
 				doc.write('<p style="text-align:center">No match found</p>');
 				doc.close();

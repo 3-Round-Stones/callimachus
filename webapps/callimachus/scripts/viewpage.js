@@ -14,11 +14,16 @@ function handle(event) {
 		var href = window.calli.viewpage(this.href, $(this).attr("data-query"));
 		var link = $(this);
 		if (this.href != href) {
+			var resource = link.attr("href");
 			$(this).mousedown(function() {
 				if (!link.attr("resource")) {
-					link.attr("resource", link.attr("href"));
+					link.attr("resource", resource);
 				}
 				this.href = href;
+			});
+			$(this).bind('dragstart', function(event) {
+				event.originalEvent.dataTransfer.setData('text/uri-list', resource);
+				event.originalEvent.dataTransfer.setData('text/plain', resource);
 			});
 			link.addClass("view");
 		} else {

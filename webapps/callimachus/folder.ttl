@@ -110,7 +110,7 @@
 				?id a ?folder
 				FILTER (?folder = calli:Folder)
 			}
-		} ORDER BY desc(?totalResults) ?id LIMIT 1001
+		} ORDER BY desc(?totalResults) ?id LIMIT 100
 	""".
 
 :TransformIntoAtom rdfs:subClassOf msg:Message;

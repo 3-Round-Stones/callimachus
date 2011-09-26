@@ -36,7 +36,7 @@
 			} else {
 				$('#label')[0].select();
 			}
-			var src = null;
+			var src = $('#iframe')[0].src;
 			$(window).bind('message', function(event) {
 				var data = event.originalEvent.data;
 				if (event.originalEvent.source == $('#iframe')[0].contentWindow && data.indexOf('PUT src\n\n') == 0) {

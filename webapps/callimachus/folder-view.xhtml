@@ -92,9 +92,11 @@
 			var url = $('link[type="application/atom+xml"]').attr('href');
 			jQuery.get(url, function(doc) {
 				jQuery(function() {
+					var feed = $(doc).children('feed');
+					var totalResults = feed.children().filter(function(){return this.tagName=='openSearch:totalResults'}).text();
+					$('#totalResults').text(totalResults);
 					var tbody = $('<tbody/>');
 					tbody.attr('id', 'tfiles');
-					var feed = $(doc).children('feed');
 					var totalEntries = 0;
 					feed.children('entry').each(function() {
 						var entry = $(this);
@@ -114,8 +116,6 @@
 						}
 					});
 					$('#tfiles').replaceWith(tbody);
-					var totalResults = feed.children().filter(function(){return this.tagName=='openSearch:totalResults'}).text();
-					$('#totalResults').text(totalResults);
 					$('#totalEntries').text(totalEntries);
 				});
 			});

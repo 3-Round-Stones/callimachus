@@ -45,9 +45,9 @@ calli:Article a owl:Class;
 	rdfs:label "Article";
 	rdfs:comment "A self-contained composition that is intended to be independently distributable or reusable".
 
-calli:Creator a owl:Class;
-	rdfs:label "Creator";
-	rdfs:comment "Proxy resources to create new resources".
+calli:Composite a owl:Class;
+	rdfs:label "Composite";
+	rdfs:comment "Class of resources that contain nested components, where the component URIs have their parent URI as a prefix".
 
 calli:Creatable a owl:Class;
 	rdfs:label "Viewable";
@@ -308,7 +308,8 @@ calli:member a owl:ObjectProperty;
 
 calli:hasComponent a owl:ObjectProperty;
 	rdfs:label "has component";
-	rdfs:comment "A nested resource with a URI that starts with this resource URI with one additional path, fragement, or component segment".
+	rdfs:comment "A nested resource with a URI that starts with this resource URI with one additional path, fragement, or component segment";
+	rdfs:domain calli:Composite.
 
 calli:soundex a owl:DatatypeProperty;
 	rdfs:label "soundex";

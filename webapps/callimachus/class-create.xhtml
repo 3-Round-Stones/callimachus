@@ -8,11 +8,6 @@
 	<title>New Class</title>
 	<script type="text/javascript"> // <![CDATA[
 	jQuery(function($){
-		var Creator = 'about="http://callimachusproject.org/rdf/2009/framework#Creator"';
-		var subClassOf = $('#subClassOf');
-		if (!subClassOf.children('[' + Creator + ']').length) {
-			subClassOf.append('<div ' + Creator + '>Creator</div>');
-		}
 		$(document).bind('DOMNodeInserted', function(event) {
 			var label = $('.equivalentLabel', event.target).text();
 			var comment = $('.equivalentComment', event.target).text();

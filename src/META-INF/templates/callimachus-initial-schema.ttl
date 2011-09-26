@@ -23,7 +23,6 @@ audit:current-trx a calli:SchemaGraph.
 </callimachus/Photo>              msg:realm </callimachus/manifest>.
 </callimachus/SparqlEndPoint>     msg:realm </callimachus/manifest>.
 </callimachus/User>               msg:realm </callimachus/manifest>.
-[owl:oneOf (</callimachus/User>)] msg:realm </callimachus/manifest>.
 
 ################################
 # Class wide authorization

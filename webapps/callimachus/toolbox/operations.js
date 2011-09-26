@@ -1,6 +1,6 @@
 // operations.js
 
-importClass(Packages.calli.Creator);
+importClass(Packages.calli.Composite);
 importClass(Packages.calli.Creatable);
 importClass(Packages.calli.edit);
 importClass(Packages.calli.view);
@@ -28,7 +28,7 @@ function getCreatorPage(msg) {
 function postFactoryCreate(msg) {
 	if (!(msg.create instanceof Creatable))
 		throw new BadRequest("Cannot create: " + msg.create);
-	if (!(this instanceof Creator))
+	if (!(this instanceof Composite))
 		throw new BadRequest("Cannot create resources here: " + this);
 	if (!msg.create.IsCreateInUriSpace(msg.location))
 		throw new BadRequest("Invalid namespace");

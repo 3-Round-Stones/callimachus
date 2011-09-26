@@ -132,7 +132,7 @@ function promptLocation(form, label, callback, fin) {
 		if (ns.lastIndexOf('/') != ns.length - 1) {
 			ns += '/';
 		}
-		var local = encodeURI(label).replace(/%20/, '+');
+		var local = encodeURI(label).replace(/%20/g, '+');
 		callback(parent, label, ns, local);
 		if (typeof fin == 'function') {
 			fin();

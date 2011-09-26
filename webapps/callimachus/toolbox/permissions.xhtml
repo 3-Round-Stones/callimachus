@@ -16,12 +16,12 @@
 					var text = xhr.responseText;
 					var list = text.split('\r\n');
 					var calli = "http://callimachusproject.org/rdf/2009/framework#";
-					if (jQuery.inArray(calli + 'Creator', list) >= 0) {
+					if (jQuery.inArray(calli + 'Composite', list) >= 0) {
 						$('.creator').show();
 					} else {
 						$('.creator').hide();
 					}
-					if (jQuery.inArray(calli + 'Creator', list) >= 0) {
+					if (jQuery.inArray(calli + 'Composite', list) >= 0) {
 						$('.create').show();
 					} else {
 						$('.create').hide();

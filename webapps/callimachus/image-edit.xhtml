@@ -8,15 +8,8 @@
 	<body about="?this">
 		<img src="?this" style="max-height:50%;display:block" /><br/>
 		<form method="POST" action="" enctype="application/sparql-update" about="?this">
-			<label for="caption">Caption</label>
-			<div>
-				<input id="caption" value="{rdfs:comment}" class="auto-expand" />
-			</div>
-			<div><br/>
-				<button id="save" type="submit">Save</button>
-				<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-   				<button id="delete" type="button" onclick="calli.deleteResource(form)">Delete</button>
-			</div>
+			<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+   			<button id="delete" type="button" onclick="calli.deleteResource(form)">Delete</button>
 		</form>
 	</body>
 </html>

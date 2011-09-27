@@ -80,6 +80,11 @@
 	msg:query "location";
 	msg:header "location".
 
+:type a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
+	rdfs:range xsd:string;
+	msg:header "Content-Type".
+
 :IsCreateInUriSpace rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];

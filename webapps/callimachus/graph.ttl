@@ -62,22 +62,16 @@
 	msg:imports <Graph>;
 	msg:imports <graph-uploaded.xhtml>;
 	msg:script """
-		var parser = new MultipartParser(new BufferedInputStream(body, 65536));
-		var file = parser.next();
-		var headers = parser.getHeaders();
-		var disposition = headers.get("content-disposition");
-		if (!disposition || disposition.indexOf("filename") < 0)
-			throw new BadRequest("No file provided");
+		if (!location)
+			throw new BadRequest("No graph location provided");
 
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
-		var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
+		var fileName = location.resource.localName;
 		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
 		var name = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/g, "$1");
 		var label = vf.createLiteral(name.replace(/-/g, " "));
 		var obj = location;
-		if (!obj)
-			throw new BadRequest("No graph location provided");
 		var uri = obj.toString();
 
 		java.lang.System.out.println("Clearing " + uri);
@@ -88,7 +82,7 @@
 		obj.touchRevision();
 
 		java.lang.System.out.println("Parsing " + fileName);
-		con.add(file, uri, format, [vf.createURI(uri)]);
+		con.add(body, uri, format, [vf.createURI(uri)]);
 		con.addDesignation(obj, NamedGraph);
 		con.addDesignation(obj, Graph);
 		con.add(obj.resource, RDFS.LABEL, label, []);

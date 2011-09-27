@@ -274,6 +274,7 @@ iframe.ui-widget-content.ui-dialog-content {
 
 .aside ul {
 	padding-left:1em;
+	margin:0;
 }
 
 table.aside {

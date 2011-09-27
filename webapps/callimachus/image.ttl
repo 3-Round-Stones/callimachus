@@ -24,8 +24,8 @@
 @prefix callimachus:<.>.
 @prefix :<#>.
 
-<Image> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, foaf:Image ;
+<Image> a calli:Creatable, owl:Class;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Image ;
 	rdfs:label "Image" ;
 	calli:icon <image.png>;
 	calli:view <image.xhtml> ;
@@ -45,30 +45,17 @@
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
-		//# image and caption input (see below)
-		var ds = new ByteArrayDataSource(body, "multipart/form-data") ;
-		var multipart = new MimeMultipart(ds);
-		var img = multipart.getBodyPart(0) ;
-		var fileName = img.fileName.replace(/.*[\\\\\\/]/, '');
-		var caption = null;
-		if (multipart.getCount() > 1) {
-			caption = multipart.getBodyPart(1).content;
-		}
 
 		//# image resource
 		var obj = location;
-		if (!obj) { //# TODO require location
-			var local = ("" + URLEncoder.encode(fileName, "UTF-8")).replace(/%20/g, "+") ;
-			var uri = this.toUri().resolve("/image/") + local ;
-			obj = con.getObject(uri) ;
-		}
+		if (!obj)
+			throw new BadRequest("Missing location");
 		if (obj instanceof Image)
 			throw new Conflict("An image with that file named has already been uploaded: " + obj) ;
 
 		//# designate as <Image> and the relevant mimetype
 		obj = con.addDesignation(obj, Image) ;
 		obj = con.addDesignation(obj, "http://xmlns.com/foaf/0.1/Image") ;
-		var type = img.contentType;
 		if (type == "image/pjpeg") { //# IE
 			type = "image/jpeg";
 		}
@@ -81,17 +68,14 @@
 		obj = con.addDesignation(obj, "urn:mimetype:" + type) ;
 
 		//# add the image label
+		var fileName = location.resource.localName;
 		var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
-
-		//# add the image caption
-		if (caption) con.add(obj.resource, RDFS.COMMENT, vf.createLiteral(caption), []);
 
 		this.objectConnection.commit();
 
 		//# load image data
-		var file = img.getInputStream();
-		var out = obj.PutImage(file) ;
+		var out = obj.PutImage(body) ;
 
 		return obj;
 	""".

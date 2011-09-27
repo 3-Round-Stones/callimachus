@@ -4,6 +4,7 @@ importClass(Packages.calli.Composite);
 importClass(Packages.calli.Creatable);
 importClass(Packages.calli.edit);
 importClass(Packages.calli.view);
+importClass(Packages.org.callimachusproject.util.MultipartParser);
 importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
 importClass(Packages.org.openrdf.http.object.exceptions.BadRequest);
 
@@ -41,7 +42,20 @@ function postFactoryCreate(msg) {
 		throw new BadRequest("Location URI must be nested");
 	if (createdUri.search(/[\s\#\?]/) >= 0 || createdUri.search(/^\w+:\/\/\S+/) != 0)
 		throw new BadRequest("Fragement or name resources are not supported");
-	var newCopy = msg.create.PostCreate(msg.body, msg.location);
+	var newCopy = null;
+	if (msg.type.indexOf("multipart/form-data") == 0) {
+		var parser = new MultipartParser(new java.io.BufferedInputStream(msg.body, 65536));
+		try {
+			var file = parser.next();
+			var headers = parser.getHeaders();
+			var type = headers.get("content-type");
+			newCopy = msg.create.PostCreate(file, msg.location, type);
+		} finally {
+			parser.close();
+		}
+	} else {
+		newCopy = msg.create.PostCreate(msg.body, msg.location, msg.type);
+	}
 	newCopy.calliEditors.addAll(this.FindContributor(newCopy));
 	newCopy.calliReaders.addAll(this.calliReaders);
 	newCopy.calliEditors.addAll(this.calliEditors);

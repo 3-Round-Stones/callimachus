@@ -130,13 +130,16 @@
 		<parallel>
 			<get src="${openrdf}/alibaba-composition-object/${alibaba.snapshot}/alibaba-composition-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-composition-object-${alibaba.snapshot}.jar" />
 			<get src="${openrdf}/alibaba-model/${alibaba.snapshot}/alibaba-model-${alibaba.snapshot}.jar" dest="${lib}/alibaba-model-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-repository-object/${alibaba.snapshot}/alibaba-repository-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-object-${alibaba.snapshot}.jar" />
-		<parallel>
 		</parallel>
+		<parallel>
+			<get src="${openrdf}/alibaba-repository-query/${alibaba.snapshot}/alibaba-repository-query-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-query-${alibaba.snapshot}.jar" />
+			<get src="${openrdf}/alibaba-repository-object/${alibaba.snapshot}/alibaba-repository-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-object-${alibaba.snapshot}.jar" />
+		</parallel>
+		<parallel>
 			<get src="${openrdf}/alibaba-repository-optimistic/${alibaba.snapshot}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" />
 			<get src="${openrdf}/alibaba-runtime/${alibaba.snapshot}/alibaba-runtime-${alibaba.snapshot}.jar" dest="${lib}/alibaba-runtime-${alibaba.snapshot}.jar" />
-		<parallel>
 		</parallel>
+		<parallel>
 			<get src="${openrdf}/alibaba-sail-auditing/${alibaba.snapshot}/alibaba-sail-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-auditing-${alibaba.snapshot}.jar" />
 			<get src="${openrdf}/alibaba-server-object/${alibaba.snapshot}/alibaba-server-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-server-object-${alibaba.snapshot}.jar" />
 		</parallel>

@@ -1,0 +1,62 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+:RemoveSpacesInMenuItems owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:script """
+		function isInvalid(uri) {
+			try {
+				return new java.net.URI(uri) == null;
+			} catch (e) {
+				return true;
+			}
+		}
+
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var skos = "http://www.w3.org/2004/02/skos/core#";
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var item = vf.createURI(calli, "item");
+
+		var items = con.getStatements(null, item, null, true, []);
+		try {
+			while (items.hasNext()) {
+				var next = items.next();
+				var menu = next.object;
+				if (isInvalid(menu.stringValue())) {
+					java.lang.System.err.println("Migrating " + menu);
+					var replacement = vf.createURI(menu.getNamespace() + menu.localName.replace(/[^a-z]/g, ''));
+					var triples = con.getStatements(null, null, menu, true, []);
+					try {
+						while (triples.hasNext()) {
+							var st = triples.next();
+							con.add(st.subject, st.predicate, replacement, []);
+							con.remove(st.subject, st.predicate, st.object, []);
+						}
+					} finally {
+						triples.close();
+					}
+					triples = con.getStatements(menu, null, null, true, []);
+					try {
+						while (triples.hasNext()) {
+							var st = triples.next();
+							con.add(replacement, st.predicate, st.object, []);
+							con.remove(st.subject, st.predicate, st.object, []);
+						}
+					} finally {
+						triples.close();
+					}
+				}
+			}
+		} finally {
+			items.close();
+		}
+		proceed();
+	""".
+

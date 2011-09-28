@@ -124,7 +124,7 @@ jQuery(function($){
 			item.append(ol);
 		}
 		item.append(trail);
-		var id = text.toLowerCase().replace(/[^a-z]/, '');
+		var id = text.toLowerCase().replace(/[^a-z]/g, '');
 		if (!id) {
 			id = position;
 		}

@@ -98,7 +98,6 @@
 		con.removeDesignation(obj, "http://callimachusproject.org/rdf/2009/framework#NamedGraph");
 		con.addDesignation(obj, NamedGraph);
 		con.add(obj.resource, RDFS.LABEL, label, []);
-		parser.close();
 		con.commit();
 		java.lang.System.gc();
 		java.lang.System.out.println("Imported " + uri);

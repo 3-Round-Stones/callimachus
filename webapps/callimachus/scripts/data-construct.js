@@ -46,13 +46,13 @@ function initDropArea(dropzone) {
 	dropzone.bind('calliLink', function(event) {
 		var script = $(event.target).add($(event.target).parents()).filter('[data-construct]')[0];
 		window.calli.listResourceIRIs(event.location).each(function() {
-			addSetItem(this, $(script));
+			addSetItem(this, $(script), event.errorMessage);
 			event.preventDefault();
 		});
 	});
 }
 
-function addSetItem(uri, script) {
+function addSetItem(uri, script, errorMessage) {
 	var position = 0;
 	var url = script.attr("data-construct").replace("{about}", encodeURIComponent(uri));
 	var m = script.attr("data-construct").match(/\belement=\/(\d+\/)*(\d+)\b/);
@@ -70,8 +70,8 @@ function addSetItem(uri, script) {
 			var de = jQuery.Event('calliLinked');
 			de.location = uri;
 			$(input).trigger(de);
-		} else if (event.errorMessage) {
-			script.trigger("calliError", event.errorMessage);
+		} else if (errorMessage) {
+			script.trigger("calliError", errorMessage);
 		}
 	});
 }

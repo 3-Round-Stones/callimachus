@@ -128,7 +128,7 @@ button:active {
 	top:1px;
 }
 
-button.add,button.remove,button.dialog {
+button.add,button.remove,button.dialog,button.browse {
 	padding:0;
 }
 

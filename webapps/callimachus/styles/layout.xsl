@@ -12,6 +12,11 @@
 	<xsl:param name="template" select="false()" />
 	<xsl:variable name="scheme" select="substring-before($xslt, '://')" />
 	<xsl:variable name="authority" select="substring-before(substring-after($xslt, '://'), '/')" />
+	<xsl:variable name="origin">
+		<xsl:if test="$scheme and $authority">
+			<xsl:value-of select="concat($scheme, '://', $authority)" />
+		</xsl:if>
+	</xsl:variable>
 	<xsl:variable name="callimachus">
 		<xsl:if test="$scheme and $authority">
 			<xsl:value-of select="concat($scheme, '://', $authority, '/callimachus')" />
@@ -154,6 +159,16 @@
 			<xsl:if test="not(@href=concat('?',$query))">
 				<xsl:apply-templates mode="layout" select="@*" />
 			</xsl:if>
+			<xsl:apply-templates mode="layout" select="*|text()|comment()" />
+		</xsl:copy>
+	</xsl:template>
+
+	<xsl:template mode="layout" match="xhtml:img[starts-with(@src,'/')]|img[starts-with(@src,'/')]">
+		<xsl:copy>
+			<xsl:attribute name="src">
+				<xsl:value-of select="concat($origin,@src)" />
+			</xsl:attribute>
+			<xsl:apply-templates mode="layout" select="@*[name()!='src']" />
 			<xsl:apply-templates mode="layout" select="*|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>

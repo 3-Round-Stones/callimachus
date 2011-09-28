@@ -22,7 +22,7 @@
 @prefix :<#>.
 
 <Page> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Page;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Page, <File>;
 	rdfs:label "Page";
 	rdfs:comment "New pages can be created in a folder";
 	calli:icon <page.png>;
@@ -47,39 +47,19 @@
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
-# GET /callimachus/Page?schemes
-# Called from page create/edit to load scheme options
-:ListScheme rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Page>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:query "schemes";
-	msg:type "application/xml";
-	msg:header "cache-control:no-store";
-	msg:sparql """
-		SELECT ?uri ?label
-		WHERE {
-			?uri a skos:ConceptScheme; rdfs:label ?label
+# POST ?create=/callimachus/File
+:PostPageFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <File> ]);
+	msg:script """
+		if (type == "application/xhtml+xml") {
+			var uri = this.toUri().resolve("/callimachus/Page").toString();
+			var factory = this.objectConnection.getObject(uri);
+			return factory.PostCreate(body, location, type);
 		}
+		return proceed();
 	""".
 
-# GET /callimachus/Page?queries
-# Called from page create/edit to load named query options
-:ListScheme rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Page>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:query "queries";
-	msg:type "application/xml";
-	msg:header "cache-control:no-store";
-	msg:sparql """
-		SELECT ?uri ?label
-		WHERE {
-			?uri a calli:NamedQuery; rdfs:label ?label
-		}
-	""".
-
-# POST /callimachus/Page?create
+# POST ?create=/callimachus/Page
 :CreatePage owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Page> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;

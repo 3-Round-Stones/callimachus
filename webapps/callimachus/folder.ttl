@@ -26,7 +26,7 @@
 @prefix :<#>.
 
 <Folder> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Composite, calli:Viewable, calli:Folder;
+	rdfs:subClassOf calli:Composite, calli:Viewable, <Local>, calli:Folder;
 	rdfs:label "Folder";
 	rdfs:comment "A folder of resources";
 	calli:icon <folder.png>;

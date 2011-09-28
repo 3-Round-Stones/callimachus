@@ -8,7 +8,7 @@
 @prefix :<#>.
 
 <Group> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Group;
+	rdfs:subClassOf calli:Viewable, calli:Editable, <Local>, calli:Group;
 	rdfs:label "Group";
 	rdfs:comment "Groups provide a way to assign permissions to a named set of users";
 	calli:icon <group.png>;

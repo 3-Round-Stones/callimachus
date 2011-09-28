@@ -22,7 +22,7 @@
 @prefix :<#>.
 
 <Style> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Style;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Style, <File>;
 	rdfs:label "Style";
 	rdfs:comment "Style files";
 	calli:icon <style.png>;
@@ -41,7 +41,19 @@
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openReader(true)".
 
-# POST /callimachus/Style?create
+# POST ?create=/callimachus/File
+:PostStyleFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Style> ]);
+	msg:script """
+		if (type == "text/css") {
+			var uri = this.toUri().resolve("/callimachus/Style").toString();
+			var factory = this.objectConnection.getObject(uri);
+			return factory.PostCreate(body, location, type);
+		}
+		return proceed();
+	""".
+
+# POST ?create=/callimachus/Style
 :CreateStyle owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Style> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;

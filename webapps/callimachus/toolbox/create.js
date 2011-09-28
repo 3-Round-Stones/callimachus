@@ -19,7 +19,7 @@ function getPageLocationURL() {
 $(document).ready(initForms);
 
 function initForms() {
-	$('form[enctype="application/sparql-update"]').each(function(i, node) {
+	$('form[enctype="application/sparql-update"],form[enctype="application/rdf+xml"]').each(function(i, node) {
 		var form = $(node);
 		$(document).bind("calliReady", function() {
 			form.validate({submitHandler: submitRDFForm});

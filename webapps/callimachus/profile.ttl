@@ -22,7 +22,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Profile> a owl:Class.
+<Profile> a owl:Class;
+	rdfs:subClassOf <Local>.
 
 :GetProfile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];

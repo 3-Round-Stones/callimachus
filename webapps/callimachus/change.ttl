@@ -33,7 +33,7 @@
 ################################
 
 # Transaction operations must be authenticated
-<Change> rdfs:subClassOf audit:Transaction;
+<Change> rdfs:subClassOf <Local>, audit:Transaction;
 	msg:matching </change/*>.
 
 # transcations are authorized by the user that made the change

@@ -22,7 +22,7 @@
 @prefix :<#>.
 
 <NamedQuery> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:NamedQuery;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:NamedQuery, <File>;
 	rdfs:label "Query";
 	rdfs:comment "Saved SPARQL queries";
 	calli:icon <query.png>;
@@ -41,7 +41,19 @@
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
-# POST /callimachus/NamedQuery?create
+# POST ?create=/callimachus/File
+:PostNamedQueryFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <NamedQuery> ]);
+	msg:script """
+		if (type == "application/sparql-query") {
+			var uri = this.toUri().resolve("/callimachus/NamedQuery").toString();
+			var factory = this.objectConnection.getObject(uri);
+			return factory.PostCreate(body, location, type);
+		}
+		return proceed();
+	""".
+
+# POST ?create=/callimachus/NamedQuery
 :CreateNamedQuery owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <NamedQuery> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;

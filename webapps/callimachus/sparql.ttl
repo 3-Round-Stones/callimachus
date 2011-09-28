@@ -22,7 +22,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<SparqlEndPoint> rdfs:subClassOf calli:Viewable;
+<SparqlEndPoint> rdfs:subClassOf calli:Viewable, <Local>;
 	calli:view <sparql.xhtml>.
 
 :EvaluateSparql rdfs:subClassOf msg:Message;

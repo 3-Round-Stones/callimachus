@@ -22,7 +22,7 @@
 @prefix :<#>.
 
 <Article> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Article;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Article, <File>;
 	rdfs:label "Article";
 	rdfs:comment "New articles can be created from a folder";
 	calli:icon <article.png>;
@@ -59,7 +59,19 @@
 	rdfs:range <java:javax.xml.stream.XMLEventReader>;
 	msg:type "application/xhtml+xml".
 
-# POST /callimachus/Article?create
+# POST ?create=/callimachus/File
+:PostArticleFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <File> ]);
+	msg:script """
+		if (type == "application/docbook+xml") {
+			var uri = this.toUri().resolve("/callimachus/Article").toString();
+			var factory = this.objectConnection.getObject(uri);
+			return factory.PostCreate(body, location, type);
+		}
+		return proceed();
+	""".
+
+# POST ?create=/callimachus/Article
 :CreateArticle owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Article> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;

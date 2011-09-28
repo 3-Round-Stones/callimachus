@@ -73,8 +73,10 @@ function postFactoryCreate(msg) {
 
 function postCreate(msg) {
 	var template = this.calliCreate;
-	if (!template)
-		throw new InternalServerError("No create template");
+	if (!template) // POST ?create=/callimachus/File
+		throw new InternalServerError("Unsupported file type: " + msg.type);
+	if (msg.type != "application/rdf+xml")
+		throw new BadRequest("Request body should be in application/rdf+xml format");
 	var newCopy = template.calliCreateResource(msg.body, this.toString(), msg.location);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
 	return newCopy;

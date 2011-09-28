@@ -61,7 +61,7 @@
 	msg:script <operations.js#postCreate>.
 
 :body a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
+	rdfs:domain [owl:unionOf (:PostFile :PostCreate :PostFactoryCreate)];
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "*/*".
 
@@ -76,12 +76,12 @@
 	msg:query "intermediate".
 
 :location a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
+	rdfs:domain [owl:unionOf (:PostFile :PostCreate :PostFactoryCreate)];
 	msg:query "location";
 	msg:header "location".
 
 :type a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
+	rdfs:domain [owl:unionOf (:PostFile :PostCreate :PostFactoryCreate)];
 	rdfs:range xsd:string;
 	msg:header "Content-Type".
 

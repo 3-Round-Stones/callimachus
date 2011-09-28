@@ -95,10 +95,10 @@ calli:Text a owl:Class;
 calli:Image a owl:Class;
 	rdfs:subClassOf calli:File, foaf:Image;
 	rdfs:label "Image";
-	rdfs:comment "Digital images (such as JPEG, PNG, GIF bitmaps, SVG diagrams etc.)".
+	rdfs:comment "Digital images (PNG, GIF bitmaps, ICO)".
 
 calli:Photo a owl:Class;
-	rdfs:subClassOf calli:Image;
+	rdfs:subClassOf calli:File, foaf:Image;
 	rdfs:label "Photo";
 	rdfs:comment "Digital JPEG photographs created using a camera".
 

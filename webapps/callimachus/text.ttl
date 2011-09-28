@@ -22,7 +22,7 @@
 @prefix :<#>.
 
 <Text> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Text;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Text, <File>;
 	rdfs:label "Text";
 	rdfs:comment "Text files";
 	calli:icon <text.png>;
@@ -41,7 +41,19 @@
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openReader(true)".
 
-# POST /callimachus/Text?create
+# POST ?create=/callimachus/File
+:PostTextFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Text> ]);
+	msg:script """
+		if (type == "text/plain") {
+			var uri = this.toUri().resolve("/callimachus/Text").toString();
+			var factory = this.objectConnection.getObject(uri);
+			return factory.PostCreate(body, location, type);
+		}
+		return proceed();
+	""".
+
+# POST ?create=/callimachus/Text
 :CreateText owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Text> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;

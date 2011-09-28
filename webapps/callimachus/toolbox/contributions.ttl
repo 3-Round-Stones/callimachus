@@ -9,7 +9,7 @@
 @prefix :<#>.
 
 :GetContributions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:User];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../User>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "contributions";
@@ -44,7 +44,7 @@
 	""".
 
 :TransformContributions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:User];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../User>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform <../styles/styles.ttl#TransformLayout>;

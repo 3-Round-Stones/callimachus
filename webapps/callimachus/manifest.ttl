@@ -9,7 +9,7 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-<Manifest> rdfs:subClassOf calli:Menu, calli:Viewable, calli:Editable;
+<Manifest> rdfs:subClassOf calli:Viewable, calli:Editable, <Local>, calli:Manifest;
 	calli:view <manifest.xhtml>;
 	calli:edit <manifest-edit.xhtml>.
 

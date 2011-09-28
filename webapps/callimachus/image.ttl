@@ -25,7 +25,7 @@
 @prefix :<#>.
 
 <Image> a calli:Creatable, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Image ;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Image, <File>;
 	rdfs:label "Image" ;
 	calli:icon <image.png>;
 	calli:view <image.xhtml> ;
@@ -33,6 +33,19 @@
 	calli:create <image-create.xhtml>;
 	calli:uriSpace </>.
 
+# POST ?create=/callimachus/File
+:PostImageFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <File> ]);
+	msg:script """
+		if (type == "image/x-png" || type == "image/png" || type == "image/gif" || type == "image/vnd.microsoft.icon") {
+			var uri = this.toUri().resolve("/callimachus/Image").toString();
+			var factory = this.objectConnection.getObject(uri);
+			return factory.PostCreate(body, location, type);
+		}
+		return proceed();
+	""".
+
+# POST ?create=/callimachus/Image
 :PostImageCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Image> ]);
 	msg:imports <java:java.net.URLEncoder>;
@@ -56,14 +69,11 @@
 		//# designate as <Image> and the relevant mimetype
 		obj = con.addDesignation(obj, Image) ;
 		obj = con.addDesignation(obj, "http://xmlns.com/foaf/0.1/Image") ;
-		if (type == "image/pjpeg") { //# IE
-			type = "image/jpeg";
-		}
 		if (type == "image/x-png") { //# IE
 			type = "image/png";
 		}
-		if (type != "image/png" && type != "image/jpeg" && type != "image/gif" && type != "image/vnd.microsoft.icon") {
-			throw new BadRequest("Unsupported format: " + type);
+		if (type != "image/png" && type != "image/gif" && type != "image/vnd.microsoft.icon") {
+			throw new BadRequest("This format is not support please convert to PNG/GIF/ICO, was: " + type);
 		}
 		obj = con.addDesignation(obj, "urn:mimetype:" + type) ;
 

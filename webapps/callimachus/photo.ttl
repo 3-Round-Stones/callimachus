@@ -25,7 +25,7 @@
 @prefix :<#>.
 
 <Photo> a calli:Creatable, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Photo ;
+	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Photo, <File>;
 	rdfs:label "Photo" ;
 	calli:icon <photo.png>;
 	calli:view <photo.xhtml> ;
@@ -33,6 +33,19 @@
 	calli:create <photo-create.xhtml>;
 	calli:uriSpace </>.
 
+# POST ?create=/callimachus/File
+:PostPhotoFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <File> ]);
+	msg:script """
+		if (type == "image/pjpeg" || type == "image/jpeg") {
+			var uri = this.toUri().resolve("/callimachus/Photo").toString();
+			var factory = this.objectConnection.getObject(uri);
+			return factory.PostCreate(body, location, type);
+		}
+		return proceed();
+	""".
+
+# POST ?create=/callimachus/Photo
 :PostPhotoCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Photo> ]);
 	msg:imports <java:java.net.URLEncoder>;

@@ -22,8 +22,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Graph> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:NamedGraph;
+<NamedGraph> a calli:Creatable, <IndexClass>, owl:Class;
+	rdfs:subClassOf calli:Viewable, calli:NamedGraph, <File>;
 	rdfs:label "Graph";
 	calli:icon <graph.png>;
 	calli:create <graph-create.xhtml>;
@@ -50,16 +50,28 @@
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "application/xml".
 
+# POST ?create=/callimachus/File
+:PostGraphFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <File> ]);
+	msg:script """
+		if (type == "application/rdf+xml") {
+			var uri = this.toUri().resolve("/callimachus/NamedGraph").toString();
+			var Graph = this.objectConnection.getObject(uri);
+			return Graph.PostCreate(body, location, type);
+		}
+		return proceed();
+	""".
+
+# POST ?create=/callimachus/NamedGraph
 :PostGraphCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Graph> ]);
-	msg:imports calli:NamedGraph;
+		[owl:onProperty msg:target; owl:hasValue <NamedGraph> ]);
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:imports <java:java.io.BufferedInputStream>;
 	msg:imports <java:org.callimachusproject.util.MultipartParser>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:imports <Graph>;
+	msg:imports <NamedGraph>;
 	msg:imports <graph-uploaded.xhtml>;
 	msg:script """
 		if (!location)
@@ -75,16 +87,16 @@
 		var uri = obj.toString();
 
 		java.lang.System.out.println("Clearing " + uri);
+		con.removeDesignation(obj, "http://callimachusproject.org/rdf/2009/framework#NamedGraph");
 		con.removeDesignation(obj, NamedGraph);
-		con.removeDesignation(obj, Graph);
 		con.remove(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 		con.clear([vf.createURI(uri)]);
 		obj.touchRevision();
 
 		java.lang.System.out.println("Parsing " + fileName);
 		con.add(body, uri, format, [vf.createURI(uri)]);
+		con.removeDesignation(obj, "http://callimachusproject.org/rdf/2009/framework#NamedGraph");
 		con.addDesignation(obj, NamedGraph);
-		con.addDesignation(obj, Graph);
 		con.add(obj.resource, RDFS.LABEL, label, []);
 		parser.close();
 		con.commit();

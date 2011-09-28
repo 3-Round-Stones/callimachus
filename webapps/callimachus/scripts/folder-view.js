@@ -111,8 +111,31 @@
 			complete:callback
 		});
 	}
+	var fileTypes = {
+		jpg:"image/jpeg",
+		png:"image/png",
+		gif:"image/gif",
+		ico:"image/vnd.microsoft.icon",
+		rdf:"application/rdf+xml",
+		rq:"application/sparql-query",
+		xhtml:"application/xhtml+xml",
+		js:"text/javascript",
+		css:"text/css",
+		txt:"text/plain",
+		docbook:"application/docbook+xml"
+	};
+	function typeByName(name) {
+		for (var ext in fileTypes) {
+			if (name.search(new RegExp("." + ext + "\\b")) > 0) {
+				return fileTypes[ext];
+			}
+		}
+	}
 	var upload_queue = [];
 	function queue(name, type, binary) {
+		if (!type) {
+			type = typeByName(name);
+		}
 		upload_queue.push(function() {
 			upload(name, type, binary, function(){
 				upload_queue.shift();

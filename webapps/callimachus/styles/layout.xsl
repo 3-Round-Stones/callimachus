@@ -95,12 +95,6 @@
 			<xsl:if test="//form|//xhtml:form">
 				<script type="text/javascript" src="{$callimachus}/scripts/form_bundle?source">&#160;</script>
 			</xsl:if>
-			<xsl:if test="$query='create'">
-				<script type="text/javascript" src="{$callimachus}/toolbox/create.js">&#160;</script>
-			</xsl:if>
-			<xsl:if test="$query='edit'">
-				<script type="text/javascript" src="{$callimachus}/toolbox/edit.js">&#160;</script>
-			</xsl:if>
 			<script type="text/javascript" src="{$manifest}?source"> </script>
 			<xsl:comment>[if lt IE 9]&gt;
 				&lt;script src="//html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;

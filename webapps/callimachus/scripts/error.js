@@ -28,8 +28,9 @@ $(document).ajaxSuccess(function(event, xhr, ajaxOptions){
 });
 
 $(document).ready(function() {
-	$(document).bind("calliSubmit", function() {
-		$(document).trigger('calliSuccess');
+	$('form').bind("submit", function(event) {
+		$(this).trigger('calliSuccess');
+		return true;
 	});
 	$(document).bind("calliError", showError);
 });

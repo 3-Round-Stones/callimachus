@@ -1,33 +1,24 @@
+// submit-update.js
 /*
    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
+   Portions Copyright (c) 2011 3 Round Stones Inc., Some Rights Reserved
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
-(function($){
+jQuery(function($){
 
-function getPageLocationURL() {
-	// window.location.href needlessly decodes URI-encoded characters in the URI path
-	// https://bugs.webkit.org/show_bug.cgi?id=30225
-	var path = location.pathname;
-	if (path.match(/#/))
-		return location.href.replace(path, path.replace('#', '%23'));
-	return location.href;
-}
-
-$(document).ready(initForms);
-
-function initForms() {
-	$("form[about]").each(function(i, node) {
-		var form = $(node);
-		var stored = readRDF(form);
-		$(document).bind("calliReady", function() {
-			form.validate({submitHandler: function() {
-				return submitRDFForm(form, stored);
-			}});
-		});
+$('form[enctype="application/sparql-update"]').each(function() {
+	var form = $(this);
+	var stored = readRDF(form);
+	form.submit(function() {
+		var about = form.attr('about');
+		if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
+			return true; // about attribute not set
+		event.preventDefault();
+		return submitRDFForm(form, stored);
 	});
-}
+});
 
 function submitRDFForm(form, stored) {
 	var se = jQuery.Event("calliSubmit");
@@ -75,7 +66,7 @@ function submitRDFForm(form, stored) {
 			form.trigger("calliError", e.description ? e.description : e);
 		}
 	}
-	return false
+	return false;
 }
 
 function readRDF(form) {
@@ -148,80 +139,14 @@ function getLastModified() {
 	}
 }
 
-if (!window.calli) {
-	window.calli = {};
-}
-window.calli.deleteResource = function(form) {
-	if (form && !confirm("Are you sure you want to delete " + document.title + "?"))
-		return;
-	form = $(form);
-	if (!form.length) {
-		form = $("form[about]");
-	}
-	if (!form.length) {
-		form = $(document);
-	}
-	try {
-		var de = jQuery.Event("calliDelete");
-		form.trigger(de);
-		if (!de.isDefaultPrevented()) {
-			var url = getPageLocationURL();
-			if (url.indexOf('?') > 0) {
-				url = url.substring(0, url.indexOf('?'));
-			}
-			var xhr = $.ajax({ type: "DELETE", url: url, beforeSend: function(xhr){
-				var lastmod = getLastModified();
-				if (lastmod) {
-					xhr.setRequestHeader("If-Unmodified-Since", lastmod);
-				}
-			}, success: function(data, textStatus) {
-				try {
-					var event = jQuery.Event("calliRedirect");
-					event.location = form.attr("data-redirect");
-					if (!event.location) {
-						if (window.sessionStorage) {
-							var previous = sessionStorage.getItem("Previous");
-							if (previous) {
-								event.location = previous.substring(0, previous.indexOf(' '));
-							}
-						}
-						if (!event.location) {
-							event.location = document.referrer;
-						}
-						if (event.location) {
-							var href = getPageLocationURL();
-							if (href.indexOf('?') > 0) {
-								href = href.substring(0, href.indexOf('?'));
-							}
-							var referrer = event.location;
-							if (referrer.indexOf('?') > 0) {
-								referrer = referrer.substring(0, referrer.indexOf('?'));
-							}
-							if (href == referrer) {
-								event.location = null; // don't redirect back to self
-							}
-						}
-					}
-					if (!event.location) {
-						event.location = location.protocol + '//' + location.host + '/';
-					}
-					form.trigger(event)
-					if (!event.isDefaultPrevented()) {
-						if (event.location) {
-							location.replace(event.location)
-						} else {
-							history.go(-1)
-						}
-					}
-				} catch(e) {
-					form.trigger("calliError", e.description ? e.description : e);
-				}
-			}})
-		}
-	} catch(e) {
-		form.trigger("calliError", e.description ? e.description : e);
-	}
+function getPageLocationURL() {
+	// window.location.href needlessly decodes URI-encoded characters in the URI path
+	// https://bugs.webkit.org/show_bug.cgi?id=30225
+	var path = location.pathname;
+	if (path.match(/#/))
+		return location.href.replace(path, path.replace('#', '%23'));
+	return location.href;
 }
 
-})(jQuery)
+});
 

@@ -36,7 +36,9 @@ jQuery(function($){
 });
 
 jQuery(function($){
-	$('#form').submit(function(event) {
+	$('form[enctype]').submit(function(event) {
+		if ($(this).attr('about'))
+			return true; // saveas has been called
 		event.preventDefault();
 		$(window).bind('message', function(event) {
 			if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
@@ -49,24 +51,26 @@ jQuery(function($){
 		$('#iframe')[0].contentWindow.postMessage('POST save', '*');
 		return false;
 	});
-	$('#saveas[data-create]').click(function(event) {
+	$('form[enctype]').submit(function(event) {
+		var form = this;
+		var about = $(form).attr('about');
+		if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
+			return true; // about attribute not set yet
 		event.preventDefault();
-		var button = $(this);
-		calli.saveas(button.attr('data-name'), function(parent, label, ns, local) {
-			var header = 'POST create'
-				+ '\nAction: ' + parent + '?create=' + button.attr('data-create')
-				+ '\nLocation: ' + ns + local.replace(/\+/g,'-').toLowerCase();
-			$(window).bind('message', function(event) {
-				if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
-					var msg = event.originalEvent.data;
-					if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
-						var url = msg.substring(msg.lastIndexOf('\n\n') + 2);
+		var header = 'POST create'
+			+ '\nAction: ' + form.action
+			+ '\nLocation: ' + about
+			+ '\nContent-Type: ' + $(form).attr('enctype');
+		$(window).bind('message', function(event) {
+			if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
+				var msg = event.originalEvent.data;
+				if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
+					var url = msg.substring(msg.lastIndexOf('\n\n') + 2);
 						loadEditor(url + '?edit');
-					}
 				}
-			});
-			$('#iframe')[0].contentWindow.postMessage(header, '*');
+			}
 		});
+		$('#iframe')[0].contentWindow.postMessage(header, '*');
 		return false;
 	});
 	function loadEditor(url) {

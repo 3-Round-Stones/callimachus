@@ -50,7 +50,10 @@
 	rdf:_12 <document-ready.js>;
 	rdf:_13 <input-date.js>;
 	rdf:_14 <disable-button.js>;
-	rdf:_15 <iframe-redirect.js>;
-	rdf:_16 <saveas.js>;
-	rdf:_17 <browse.js>.
+	rdf:_15 <saveas.js>;
+	rdf:_16 <browse.js>;
+	rdf:_17 <submit-rdfxml.js>;
+	rdf:_18 <submit-form-data.js>;
+	rdf:_19 <submit-update.js>;
+	rdf:_20 <delete-resource.js>.
 

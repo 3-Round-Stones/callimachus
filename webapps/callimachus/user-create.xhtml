@@ -22,8 +22,7 @@
 		<li>Provide any additional contact information or affiliation information</li>
 		<li>You can customize the message sent in the email here</li>
 	</ul>
-	<iframe class="redirect" name="iframe" src="about:blank" style="display:none"></iframe>
-	<form id="form" method="POST" action="" enctype="multipart/form-data" target="iframe" autocomplete="off">
+	<form id="form" method="POST" action="" enctype="multipart/form-data" autocomplete="off" onsubmit="return calli.saveas(this)">
 		<label for="name">Username</label>
 		<div>
 			<input id="name" name="name" type="text" class="auto-expand required" autofocus="autofocus"

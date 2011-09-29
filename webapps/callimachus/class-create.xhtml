@@ -19,14 +19,7 @@
 				$('#comment').val(comment);
 				$('#comment').change();
 			}
-		});		
-		$('#form').bind('calliSubmit', function() {
-			var label = $('#label').val();
-			label = label.replace(/([a-z])\s([A-Z])/g, '$1$2');
-			var local = encodeURI(label).replace(/%20/g,'_');
-			$(this).attr('about', local);
-			return true;
-		});
+		});	
 	}); // ]]>
 	</script>
 	<script type="text/javascript">//<![CDATA[
@@ -48,6 +41,13 @@
 			} else {
 				subClassOf.children('[' + Editable + ']').remove();
 			}
+		}	
+		function updateAbout() {
+			var label = $('#label').val();
+			label = label.replace(/([a-z])\s([A-Z])/g, '$1$2');
+			var local = encodeURI(label).replace(/%20/g,'_');
+			$('#form').attr('about', local);
+			return true;
 		}
 		// ]]>
 	</script>
@@ -59,8 +59,8 @@
 		<li>An external class can be associated with a Callimachus class using equivalence this will apply the templates to both classes</li>
 		<li>Templates are used for page or form structure on each operation</li>
 	</ul>
-	<form id="form" method="POST" action="" enctype="application/sparql-update" typeof="owl:Class"
-			onsubmit="updateSuperClasses()">
+	<form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="owl:Class"
+			onsubmit="updateSuperClasses();updateAbout();return calli.saveas(this)">
 		<div class="hbox">
 			<div>
 				<label for="label">Label</label>
@@ -127,7 +127,7 @@
 				</div>
 			</div>
 		</div>
-		<button id="submit" type="submit">Create</button>
+		<button id="create" type="submit">Create</button>
 	</form>
 </body>
 </html>

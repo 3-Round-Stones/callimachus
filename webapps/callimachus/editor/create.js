@@ -32,36 +32,26 @@
 })(jQuery);
 
 jQuery(function($){
-	function getPageLocationURL() {
-		// window.location.href needlessly decodes URI-encoded characters in the URI path
-		// https://bugs.webkit.org/show_bug.cgi?id=30225
-		var path = location.pathname;
-		if (path.match(/#/))
-			return location.href.replace(path, path.replace('#', '%23'));
-		return location.href;
-	}
-	$('#form[data-type]').submit(function(event) {
+	$('form[enctype]').submit(function(event) {
 		var form = this;
+		var about = $(form).attr('about');
+		if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
+			return true; // about attribute not set yet
 		event.preventDefault();
-		calli.saveas($(this).attr('data-name'), form, function(parent, label, ns, local) {
-			var header = 'POST create'
-				+ '\nAction: ' + form.action
-				+ '\nLocation: ' + ns + local.replace(/\+/g,'-').toLowerCase()
-				+ '\nContent-Type: ' + $(form).attr('data-type');
-			if ($('#cache').val()) {
-				header += '\nCache-Control: ' + $('#cache').val();
-			}
-			$(window).bind('message', function(event) {
-				if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
-					var msg = event.originalEvent.data;
-					if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
-						var url = msg.substring(msg.lastIndexOf('\n\n') + 2);
-						location.replace(url + '?view');
-					}
+		var header = 'POST create'
+			+ '\nAction: ' + form.action
+			+ '\nLocation: ' + about
+			+ '\nContent-Type: ' + $(form).attr('enctype');
+		$(window).bind('message', function(event) {
+			if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
+				var msg = event.originalEvent.data;
+				if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
+					var url = msg.substring(msg.lastIndexOf('\n\n') + 2);
+					location.replace(url + '?view');
 				}
-			});
-			$('#iframe')[0].contentWindow.postMessage(header, '*');
+			}
 		});
+		$('#iframe')[0].contentWindow.postMessage(header, '*');
 		return false;
 	});
 });

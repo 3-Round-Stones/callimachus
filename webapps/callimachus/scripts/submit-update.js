@@ -12,6 +12,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
 	var form = $(this);
 	var stored = readRDF(form);
 	form.submit(function() {
+		form.find("input").change(); // IE may not have called onchange before onsubmit
 		var about = form.attr('about');
 		if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
 			return true; // about attribute not set
@@ -25,7 +26,6 @@ function submitRDFForm(form, stored) {
 	form.trigger(se);
 	if (!se.isDefaultPrevented()) {
 		try {
-			form.find("input").change(); // IE may not have called onchange before onsubmit
 			var revised = readRDF(form);
 			var removed = stored.except(revised);
 			var added = revised.except(stored);

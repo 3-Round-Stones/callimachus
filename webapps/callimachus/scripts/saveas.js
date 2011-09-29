@@ -7,6 +7,7 @@
 (function($){
 
 window.calli.saveas = function(form, fileName, create) {
+	$(form).find("input").change(); // IE may not have called onchange before onsubmit
 	var about = $(form).attr('about');
 	if (about && about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0) {
 		promptLocation(form, decodeURI(uri), create, function(ns, local){
@@ -23,11 +24,25 @@ window.calli.saveas = function(form, fileName, create) {
 		});
 		return false;
 	} else { // no identifier at all
-		var input = $(form).find('input').val();
-		if (input.lastIndexOf('\\') > 0) {
-			input = input.substring(input.lastIndexOf('\\') + 1);
+		var field = $($(form).find('input')[0]);
+		var input = field.val();
+		if (input) {
+			field.change(function() {
+				if (input != $(form).find('input').val()) {
+					// restore the about attribute when this field changes
+					if (about) {
+						$(form).attr('about', about);
+					} else {
+						$(form).removeAttr('about');
+					}
+				}
+			});
 		}
-		promptLocation(form, input, create, function(ns, local){
+		var label = input;
+		if (label && label.lastIndexOf('\\') > 0) {
+			label = label.substring(label.lastIndexOf('\\') + 1);
+		}
+		promptLocation(form, label, create, function(ns, local){
 			$(form).attr('about', ns + local.toLowerCase());
 			$(form).submit(); // this time with an about attribute
 		});

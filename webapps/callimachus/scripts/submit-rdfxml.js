@@ -10,11 +10,11 @@ jQuery(function($){
 
 $('form[enctype="application/rdf+xml"]').submit(function(event) {
 	var form = $(this);
+	form.find("input").change(); // IE may not have called onchange before onsubmit
 	var about = form.attr('about');
 	if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
 		return true; // about attribute not set yet
 	event.preventDefault();
-	form.find("input").change(); // IE may not have called onchange before onsubmit
 	submitRDFForm(this, about, form.attr('enctype'));
 	return false;
 });

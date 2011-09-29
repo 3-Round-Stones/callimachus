@@ -10,7 +10,7 @@ window.calli.saveas = function(form, fileName, create) {
 	$(form).find("input").change(); // IE may not have called onchange before onsubmit
 	var about = $(form).attr('about');
 	if (about && about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0) {
-		promptLocation(form, decodeURI(uri), create, function(ns, local){
+		promptLocation(form, decodeURI(about), create, function(ns, local){
 			$(form).attr('about', ns + local);
 			$(form).submit(); // this time with an about attribute
 		});
@@ -51,7 +51,7 @@ window.calli.saveas = function(form, fileName, create) {
 };
 
 function promptLocation(form, label, create, callback) {
-	if (label && label.search(/^[\w\.\-\_ ]*$/) == 0 && location.search.search(/\?\w+=/) >= 0) {
+	if (label && label.search(/^[\w\.\-\_ ]*\/?$/) == 0 && location.search.search(/\?\w+=/) >= 0) {
 		var ns = calli.listResourceIRIs(getPageLocationURL())[0];
 		if (ns.lastIndexOf('/') != ns.length - 1) {
 			ns += '/';

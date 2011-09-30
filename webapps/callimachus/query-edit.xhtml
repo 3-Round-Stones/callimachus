@@ -11,7 +11,7 @@
 	<form id="form" method="POST" action="" enctype="application/sparql-query">
 		<iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#sparql"> </iframe>
         <button type="submit">Save</button>
-		<button type="button" onclick="calli.saveas(form, 'untitled query.rq', '/callimachus/NamedQuery')">Save as...</button>
+		<button type="button" onclick="calli.saveFormAs(form, 'untitled query.rq', '/callimachus/NamedQuery')">Save as...</button>
 		<button type="button" onclick="location.replace('?view')">Cancel</button>
 		<button type="button" onclick="calli.deleteResource(form)">Delete</button>
 	</form>

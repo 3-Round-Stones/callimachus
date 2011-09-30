@@ -6,23 +6,33 @@
 
 (function($){
 
-window.calli.saveas = function(form, fileName, create) {
+var originalSubmit = true;
+function resubmit(form) {
+	var previously = originalSubmit;
+	originalSubmit = false;
+	try {
+		$(form).submit(); // this time with an about attribute
+	} finally {
+		originalSubmit = previously;
+	}
+}
+window.calli.saveFormAs = function(form, fileName, create) {
 	$(form).find("input").change(); // IE may not have called onchange before onsubmit
 	var about = $(form).attr('about');
-	if (about && about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0) {
+	if (originalSubmit && fileName) { // prompt for a new URI
+		openSaveAsDialog(form, fileName, create, function(ns, local){
+			$(form).attr('about', ns + local.replace(/\+/g,'-').toLowerCase());
+			resubmit(form);
+		});
+		return false;
+	} else if (about && about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0) {
 		promptLocation(form, decodeURI(about), create, function(ns, local){
 			$(form).attr('about', ns + local);
-			$(form).submit(); // this time with an about attribute
+			resubmit(form); // this time with an about attribute
 		});
 		return false;
 	} else if (about) { // absolute about attribute already set
 		return true;
-	} else if (fileName) { // no identifier at all
-		promptLocation(form, fileName, create, function(ns, local){
-			$(form).attr('about', ns + local.replace(/\+/g,'-').toLowerCase());
-			$(form).submit(); // this time with an about attribute
-		});
-		return false;
 	} else { // no identifier at all
 		var field = $($(form).find('input')[0]);
 		var input = field.val();
@@ -44,7 +54,7 @@ window.calli.saveas = function(form, fileName, create) {
 		}
 		promptLocation(form, label, create, function(ns, local){
 			$(form).attr('about', ns + local.toLowerCase());
-			$(form).submit(); // this time with an about attribute
+			resubmit(form); // this time with an about attribute
 		});
 		return false;
 	}
@@ -59,11 +69,11 @@ function promptLocation(form, label, create, callback) {
 		var local = encodeURI(label).replace(/%20/g, '+');
 		callback(ns, local);
 	} else {
-		openSaveAsDialog(label, form, create, callback);
+		openSaveAsDialog(form, label, create, callback);
 	}
 }
 
-function openSaveAsDialog(label, form, create, callback) {
+function openSaveAsDialog(form, label, create, callback) {
 	var src = "/callimachus/pages/location-prompt.html#" + encodeURIComponent(label);
 	if (location.search.search(/\?\w+=/) == 0) {
 		src += '!' + calli.listResourceIRIs(getPageLocationURL())[0];

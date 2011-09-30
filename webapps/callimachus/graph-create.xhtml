@@ -57,7 +57,7 @@
 		<li>The system should be idle before attempting to upload a graph</li>
 		<li>Files can be formatted as <a href="http://www.w3.org/TR/rdf-syntax-grammar/">RDF/XML</a> or <a href="http://www.w3.org/TeamSubmission/turtle/">Turtle</a> and can optionally be in ZIP or GZIP compression</li>
 	</ul>
-	<form class="graph-form" action="" method="POST" enctype="multipart/form-data" target="iframe" onsubmit="return calli.saveas(this)">
+	<form class="graph-form" action="" method="POST" enctype="multipart/form-data" target="iframe" onsubmit="return calli.saveFormAs(this)">
 		<input type="file" name="graph" autofocus="autofocus" />
 		<div>
 			<button type="button" class="advance-graph submit">Upload Graph</button>

@@ -12,7 +12,7 @@
 		<li>Choose a recognizable label to be used in the URL</li>
 	</ul>
 	<form method="POST" action="" enctype="application/rdf+xml" typeof="calli:Folder"
-			onsubmit="$('#label').val($('#label').val().toLowerCase());$(this).attr('about',encodeURI($('#label').val()).replace(/%20/g,'-')+'/');return calli.saveas(this)">
+			onsubmit="$('#label').val($('#label').val().toLowerCase());$(this).attr('about',encodeURI($('#label').val()).replace(/%20/g,'-')+'/');return calli.saveFormAs(this)">
 		<div class="vbox">
 			<div class="input field">
 				<label for="label">Name</label>

@@ -50,7 +50,7 @@
 	rdf:_12 <document-ready.js>;
 	rdf:_13 <input-date.js>;
 	rdf:_14 <disable-button.js>;
-	rdf:_15 <saveas.js>;
+	rdf:_15 <save-form-as.js>;
 	rdf:_16 <browse.js>;
 	rdf:_17 <submit-rdfxml.js>;
 	rdf:_18 <submit-form-data.js>;

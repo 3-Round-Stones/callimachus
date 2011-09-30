@@ -83,7 +83,7 @@
 	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
 	msg:script """
 		if (this.HasComponents())
-			throw new Conflict("Child resources of must be deleted first");
+			throw new Conflict("Child resources must be deleted first");
 		return proceed();
 	""".
 
@@ -102,7 +102,7 @@
 	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
 	msg:script """
 		if (this.HasInstanceChildren())
-			throw new Conflict("Member resources of must be deleted first");
+			throw new Conflict("Member resources must be deleted first");
 		return proceed();
 	""".
 

@@ -49,7 +49,7 @@
 		try {
 			var query;
 			var con = this.objectConnection;
-			if (qry.match(/PREFIX/i)) {
+			if (qry.search(/\\bPREFIX\\b/i) >= 0) {
 				query = qry;
 			} else {
 				var sb = new java.lang.StringBuilder();
@@ -103,25 +103,6 @@
 :qry a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :EvaluateSparql;
 	rdfs:range xsd:string.
-
-# POST application/sparql-query
-:PostQuery rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	msg:method "POST";
-	msg:type "message/x-response";
-	msg:transform :TransformResult;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:script """
-		if (!query)
-			throw new BadRequest("Missing query body");
-		return this.EvaluateSparql(new java.lang.String(query, "UTF-8"));
-	""".
-
-:query a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :PostQuery;
-	rdfs:range xsd:hexBinary;
-	msg:type "application/sparql-query".
 
 # POST application/x-www-form-urlencoded
 :PostForm rdfs:subClassOf msg:Message;

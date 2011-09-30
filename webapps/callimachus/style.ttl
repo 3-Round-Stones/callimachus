@@ -21,8 +21,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Style> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Style, <File>;
+<Style> a <CreatableIndex>, owl:Class;
+	rdfs:subClassOf calli:Style, <File>;
 	rdfs:label "Style";
 	rdfs:comment "Style files";
 	calli:icon <style.png>;

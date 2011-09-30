@@ -23,8 +23,8 @@
 @prefix :<#>.
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
-<Class> a calli:Creatable, </callimachus/IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Creatable, calli:Viewable, calli:Editable, <Local>, owl:Class;
+<Class> a <CreatableIndex>, owl:Class;
+	rdfs:subClassOf <Creatable>, <Viewable>, <Editable>, owl:Class;
 	rdfs:label "Class";
 	rdfs:comment "A class is a construct that is used as a blueprint (or template) to create and edit resources of that class";
 	calli:icon <class.png>;

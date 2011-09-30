@@ -24,8 +24,8 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix :<#>.
 
-<Photo> a calli:Creatable, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Photo, <File>;
+<Photo> a <Creatable>, owl:Class;
+	rdfs:subClassOf calli:Photo, <File>;
 	rdfs:label "Photo" ;
 	calli:icon <photo.png>;
 	calli:view <photo.xhtml> ;

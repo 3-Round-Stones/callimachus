@@ -21,8 +21,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<File> a calli:Creatable, owl:Class;
+<File> a <Creatable>, owl:Class;
 	rdfs:label "File";
-	rdfs:subClassOf <Local>;
+	rdfs:subClassOf <Viewable>, <Editable>, calli:File;
 	calli:uriSpace </>.
 

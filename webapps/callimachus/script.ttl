@@ -21,8 +21,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Script> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Script, <File>;
+<Script> a <CreatableIndex>, owl:Class;
+	rdfs:subClassOf calli:Script, <File>;
 	rdfs:label "Script";
 	rdfs:comment "Script files";
 	calli:icon <script.png>;

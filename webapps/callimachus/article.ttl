@@ -21,8 +21,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Article> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Article, <File>;
+<Article> a <CreatableIndex>, owl:Class;
+	rdfs:subClassOf calli:Article, <File>;
 	rdfs:label "Article";
 	rdfs:comment "New articles can be created from a folder";
 	calli:icon <article.png>;

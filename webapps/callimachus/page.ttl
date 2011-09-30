@@ -21,8 +21,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Page> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:Page, <File>;
+<Page> a <CreatableIndex>, owl:Class;
+	rdfs:subClassOf calli:Page, <File>;
 	rdfs:label "Page";
 	rdfs:comment "New pages can be created in a folder";
 	calli:icon <page.png>;

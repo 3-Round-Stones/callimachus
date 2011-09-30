@@ -11,7 +11,7 @@
 # Realm
 ################################
 
-<AccountManager> rdfs:subClassOf calli:Viewable, <Local>, calli:AccountManager;
+<AccountManager> rdfs:subClassOf <Viewable>, calli:AccountManager;
 	calli:view <accounts.xhtml>.
 
 ################################

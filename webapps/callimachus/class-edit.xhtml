@@ -8,22 +8,22 @@
 	<title about="?this">{rdfs:label}</title>
 	<script type="text/javascript">//<![CDATA[
 		function updateSuperClasses() {
-			var Viewable = 'about="http://callimachusproject.org/rdf/2009/framework#Viewable"';
-			var Editable = 'about="http://callimachusproject.org/rdf/2009/framework#Editable"';
+			var Viewable = "/callimachus/Viewable";
+			var Editable = "/callimachus/Editable";
 			var subClassOf = $('#subClassOf');
 			if ($('#view').children('[about]').length) {
-				if (!subClassOf.children('[' + Viewable + ']').length) {
-					subClassOf.append('<div ' + Viewable + '>Viewable</div>');
+				if (!subClassOf.children('[about$="' + Viewable + '"]').length) {
+					subClassOf.append('<div about="' + Viewable + '">Viewable</div>');
 				}
 			} else {
-				subClassOf.children('[' + Viewable + ']').remove();
+				subClassOf.children('[about$="' + Viewable + '"]').remove();
 			}
 			if ($('#edit').children('[about]').length) {
-				if (!subClassOf.children('[' + Editable + ']').length) {
-					subClassOf.append('<div ' + Editable + '>Editable</div>');
+				if (!subClassOf.children('[about$="' + Editable + '"]').length) {
+					subClassOf.append('<div about="' + Editable + '">Editable</div>');
 				}
 			} else {
-				subClassOf.children('[' + Editable + ']').remove();
+				subClassOf.children('[about$="' + Editable + '"]').remove();
 			}
 		}
 		// ]]>

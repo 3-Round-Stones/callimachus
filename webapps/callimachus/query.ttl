@@ -21,8 +21,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<NamedQuery> a calli:Creatable, <IndexClass>, owl:Class;
-	rdfs:subClassOf calli:Viewable, calli:Editable, calli:NamedQuery, <File>;
+<NamedQuery> a <CreatableIndex>, owl:Class;
+	rdfs:subClassOf calli:NamedQuery, <File>;
 	rdfs:label "Query";
 	rdfs:comment "Saved SPARQL queries";
 	calli:icon <query.png>;

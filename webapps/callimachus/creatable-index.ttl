@@ -21,8 +21,13 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+<CreatableIndex> a owl:Class;
+	rdfs:label "Creatable Index";
+	rdfs:subClassOf <Creatable>, owl:Class;
+	calli:uriSpace </>.
+
 :GetCreatableIndexPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IndexClass>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <CreatableIndex>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	msg:rel "alternate";
 	msg:method "GET";
@@ -30,6 +35,6 @@
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
 	msg:header "cache-control:no-cache";
-	msg:imports <resource-index.xhtml>;
-	msg:script "return resource_index_xhtml.calliConstruct(this, 'index')".
+	msg:imports <creatable-index.xhtml>;
+	msg:script "return creatable_index_xhtml.calliConstruct(this, 'index')".
 

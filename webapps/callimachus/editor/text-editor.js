@@ -145,30 +145,17 @@ jQuery(function($) {
 		});
 		return true;
 	}
-	$(window).keypress(function(event) {
-		if (event.which == 115 && event.ctrlKey || event.which == 19) {
-			event.preventDefault();
-			putFile();
-			return false;
+	require('pilot/canon').addCommand({
+		name: 'save',
+		bindKey: {
+		    win: 'Ctrl-S',
+		    mac: 'Command-S',
+		    sender: 'editor'
+		},
+		exec: function(env, args, request) {
+		    putFile();
 		}
-		return true;
 	});
-	(function() {
-		var isCtrl = false;
-		$(document).keyup(function (e) {
-			if(e.which == 17) isCtrl=false;
-			return true;
-		});
-		$(document).keydown(function (e) {
-			if(e.which == 17) isCtrl=true;
-			if(e.which == 83 && isCtrl == true) {
-				e.preventDefault();
-				putFile();
-				return false;
-			}
-			return true;
-		});
-	})();
 
 	// messaging
 	function handleMessage(header, body) {

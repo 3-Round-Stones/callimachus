@@ -58,22 +58,41 @@ function initDialogButton(buttons) {
 					add.focus();
 				}
 			};
-			var url = "/?view";
+			var openBrowseDialog = function(url) {
+				var dialog = calli.openDialog(url, title, options);
+				var onlinked = function() {
+					calli.closeDialog(dialog);
+				};
+				list.bind('calliLinked', onlinked);
+			};
+			var url = null;
 			if (window.sessionStorage) {
 				try {
 					var last = sessionStorage.getItem("LastFolder");
 					if (last) {
+						url = last;
+					} else if (last = localStorage.getItem("LastFolder")) {
 						url = last;
 					}
 				} catch (e) {
 					// ignore
 				}
 			}
-			var dialog = calli.openDialog(url, title, options);
-			var onlinked = function() {
-				calli.closeDialog(dialog);
-			};
-			list.bind('calliLinked', onlinked);
+			if (url) {
+				jQuery.ajax({
+					type:"GET",
+					url:url,
+					complete:function(xhr) {
+						if (xhr.status == 200 || xhr.status == 304) {
+							openBrowseDialog(url);
+						} else {
+							openBrowseDialog("/?view");
+						}
+					}
+				});
+			} else {
+				openBrowseDialog("/?view");
+			}
 		});
 	});
 }

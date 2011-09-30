@@ -22,7 +22,16 @@
 				var i = location.hash.indexOf('!');
 				if (i > 0) {
 					var uri = location.hash.substring(i + 1);
-					$('#iframe')[0].src = calli.viewpage(uri);
+					var url = calli.viewpage(uri);
+					jQuery.ajax({
+						type:"GET",
+						url:url,
+						complete:function(xhr) {
+							if (xhr.status == 200 || xhr.status == 304) {
+								$('#iframe')[0].src = url;
+							}
+						}
+					});
 					var label = decodeURIComponent(location.hash.substring(1, i));
 					$('#label').val(label);
 				} else {

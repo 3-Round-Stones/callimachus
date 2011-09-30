@@ -38,10 +38,6 @@
 # Class
 ################################
 
-calli:Alias a owl:Class;
-	rdfs:label "Alias";
-	rdfs:comment "Defines a resource that, when resolved, will either redirect or proxy the response of its target to the client".
-
 calli:Article a owl:Class;
 	rdfs:subClassOf calli:File;
 	rdfs:label "Article";
@@ -339,15 +335,10 @@ calli:soundex a owl:DatatypeProperty;
 	rdfs:comment "A soundex encoding of one of this resource's label or label prefix";
 	rdfs:range rdf:PlainLiteral.
 
-calli:copyOf a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:label "copy of";
-	rdfs:comment "The authoritative canonical URL of which this alias is a copy of";
-	rdfs:domain calli:Alias.
-
-calli:aliasOf a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:label "alias of";
-	rdfs:comment "The canonical URL for this alias";
-	rdfs:domain calli:Alias.
+calli:describedBy a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:label "described by";
+	rdfs:comment "The target URL to use as a directory index";
+	rdfs:domain calli:Folder.
 
 calli:item a owl:ObjectProperty;
 	rdfs:label "item";

@@ -28,10 +28,10 @@
 	calli:domain </>;
 	calli:authNamespace </user/>.
 
-</> a </callimachus/Folder>, calli:Folder, calli:Alias, calli:Origin;
+</> a </callimachus/Folder>, calli:Folder, calli:Origin;
 	rdfs:label "Home folder";
 	calli:version "0.13";
-	calli:aliasOf </main-article.docbook?view>;
+	calli:describedBy </main-article.docbook?view>;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;

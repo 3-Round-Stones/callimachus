@@ -35,6 +35,25 @@
 	calli:create <folder-create.xhtml>;
 	calli:uriSpace </>.
 
+:RedirectToIndex rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	msg:method "GET";
+	msg:type "message/x-response";
+	msg:imports <java:org.apache.http.ProtocolVersion>;
+	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+	msg:script """
+		var http11 = new ProtocolVersion("HTTP", 1, 1);
+		var resp = new BasicHttpResponse(http11, 303, "Directory Index");
+		var target = this.calliDescribedBy;
+		if (target) {
+			resp.addHeader("Location", target.toString());
+		} else {
+			resp.addHeader("Location", this.toString() + "?view");
+		}
+		return resp;
+	""".
+
 :GetFolderFeed rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];

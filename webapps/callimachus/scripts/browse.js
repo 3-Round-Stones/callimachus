@@ -32,6 +32,10 @@ function initDialogButton(buttons) {
 			title = list.find("label").text();
 		}
 		add.click(function(e) {
+			var dialog = null;
+			var onlinked = function() {
+				calli.closeDialog(dialog);
+			};
 			var src = "/?view";
 			var options = {
 				onmessage: function(event) {
@@ -59,10 +63,7 @@ function initDialogButton(buttons) {
 				}
 			};
 			var openBrowseDialog = function(url) {
-				var dialog = calli.openDialog(url, title, options);
-				var onlinked = function() {
-					calli.closeDialog(dialog);
-				};
+				dialog = calli.openDialog(url, title, options);
 				list.bind('calliLinked', onlinked);
 			};
 			var url = null;

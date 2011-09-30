@@ -1,14 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/manifest?template"?>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-	<head>
-		<title about="?this">{rdfs:label}</title>
-	</head>
-	<body about="?this">
-		<h1 property="rdfs:label" />
-		<form method="POST" action="" enctype="application/sparql-update" about="?this">
-			<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-   			<button id="delete" type="button" onclick="calli.deleteResource(form)">Delete</button>
-		</form>
-	</body>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title about="?this">{rdfs:label}</title>
+	<script type="text/javascript">
+		// <![CDATA[
+		jQuery(function($){
+			if (!$('#describedBy').length) {
+				$('#field').append('<input id="describedBy" data-var-resource="?describedBy" class="auto-expand" rel="calli:describedBy" data-expression-value="?describedBy" />');
+			}
+		});
+		// ]]>
+	</script>
+</head>
+<body about="?this">
+	<h1 property="rdfs:label" />
+	<form method="POST" action="" enctype="application/sparql-update" about="?this">
+		<div id="field">
+			<label for="describedBy">Directory index target</label>
+			<input id="describedBy" class="auto-expand" rel="calli:describedBy" resource="?describedBy" value="{?describedBy}" />
+		</div>
+		<button id="save" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+		<button id="delete" type="button" onclick="calli.deleteResource(form)">Delete</button>
+	</form>
+</body>
 </html>

@@ -8,7 +8,7 @@
 
 jQuery(function($){
 
-$('form[enctype="application/sparql-update"]').each(function() {
+$('form[method="POST"][enctype="application/sparql-update"]').each(function() {
 	var form = $(this);
 	var stored = readRDF(form);
 	form.submit(function() {

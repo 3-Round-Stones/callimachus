@@ -139,7 +139,7 @@
 			var qs = "?resetpassword&amp;nonce=" + nonce + "&amp;token=" + token;
 			var body = mail_request_password_xhtml.calliConstructHTML(user);
 			body = body.replace(/\\?resetpassword/g, qs);
-			user.sendMessage(body, user.rdfsLabels.iterator().next() + " <" + formEmail + ">");
+			user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + formEmail + ">");
 			java.lang.Thread.sleep(new java.util.Random().nextInt() % 2000 + 2000);
 		}
 	""".

@@ -87,11 +87,11 @@
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:script """
-		var before = this.calliAdministrators.empty;
+		var before = this.calliAdministrator.empty;
 		var ret = proceed();
 		if (!before) {
 			var obj = this.objectConnection.getObject(this.resource);
-			if (obj.calliAdministrators.empty) {
+			if (obj.calliAdministrator.empty) {
 				throw new BadRequest("Cannot remove all class administrators");
 			}
 		}

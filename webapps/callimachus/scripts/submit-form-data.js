@@ -7,7 +7,7 @@
 jQuery(function($){
 
 var iframe_counter = 0;
-$('form[enctype="multipart/form-data"]').submit(function(event) {
+$('form[method="POST"][enctype="multipart/form-data"],form[method="POST"][enctype="application/x-www-form-urlencoded"]').submit(function(event) {
 	var form = $(this);
 	var about = form.attr('about');
 	if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)

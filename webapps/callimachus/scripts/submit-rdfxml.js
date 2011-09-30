@@ -8,7 +8,7 @@
 
 jQuery(function($){
 
-$('form[enctype="application/rdf+xml"]').submit(function(event) {
+$('form[method="POST"][enctype="application/rdf+xml"]').submit(function(event) {
 	var form = $(this);
 	form.find("input").change(); // IE may not have called onchange before onsubmit
 	var about = form.attr('about');

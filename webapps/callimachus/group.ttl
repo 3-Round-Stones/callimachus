@@ -108,11 +108,12 @@ rdfs:label a rdf:Property.
 		newUser.calliName = username;
 		newUser.calliAlgorithm = algorithm;
 		newUser.calliEncoded = decoded;
-		newUser.rdfsLabels.add(label);
-		newUser.calliReaders.addAll(this.calliReaders);
-		newUser.calliEditors.addAll(this.calliEditors);
+		newUser.rdfsLabel.add(label);
+		newUser.calliReader.addAll(this.calliReader);
+		newUser.calliEditor.addAll(this.calliEditor);
+		newUser.calliAdministrator.addAll(this.calliAdministrator);
 		user.calliHasComponent.add(newUser);
-		this.calliMembers.add(newUser);
+		this.calliMember.add(newUser);
 		return uri;
 	""".
 

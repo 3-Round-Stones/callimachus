@@ -44,22 +44,30 @@ function postFactoryCreate(msg) {
 		throw new BadRequest("Fragement or name resources are not supported");
 	var newCopy = null;
 	if (msg.type.indexOf("multipart/form-data") == 0) {
-		var parser = new MultipartParser(new java.io.BufferedInputStream(msg.body, 65536));
+		var bio = new java.io.BufferedInputStream(msg.body, 65536);
 		try {
+			bio.mark(1024);
+			var parser = new MultipartParser(bio);
 			var file = parser.next();
 			var headers = parser.getHeaders();
-			var type = headers.get("content-type");
-			newCopy = msg.create.PostCreate(file, msg.location, type);
+			var disposition = headers.get("content-disposition");
+			if (disposition && disposition.indexOf("filename=") >= 0) {
+				var type = headers.get("content-type");
+				newCopy = msg.create.PostCreate(file, msg.location, type);
+			} else { // not a file upload
+				bio.reset();
+				newCopy = msg.create.PostCreate(bio, msg.location, msg.type);
+			}
 		} finally {
-			parser.close();
+			bio.close();
 		}
 	} else {
 		newCopy = msg.create.PostCreate(msg.body, msg.location, msg.type);
 	}
-	newCopy.calliEditors.addAll(this.FindContributor(newCopy));
-	newCopy.calliReaders.addAll(this.calliReaders);
-	newCopy.calliEditors.addAll(this.calliEditors);
-	newCopy.calliAdministrators.addAll(this.calliAdministrators);
+	newCopy.calliEditor.addAll(this.FindContributor(newCopy));
+	newCopy.calliReader.addAll(this.calliReader);
+	newCopy.calliEditor.addAll(this.calliEditor);
+	newCopy.calliAdministrator.addAll(this.calliAdministrator);
 	msg.create.touchRevision(); // Update class index
 	if (msg.intermediate) {
 		var revision = this.auditRevision;

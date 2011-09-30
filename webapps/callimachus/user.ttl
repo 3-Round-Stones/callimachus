@@ -72,9 +72,9 @@ rdfs:comment a rdf:Property.
 		//# populate resource
 		newUser.calliName = username;
 		newUser.calliEmail = email;
-		newUser.rdfsLabels.add(label);
+		newUser.rdfsLabel.add(label);
 		if (comment) {
-			newUser.rdfsComments.add(comment);
+			newUser.rdfsComment.add(comment);
 		}
 
 		//# generate and save a password
@@ -241,7 +241,7 @@ rdfs:comment a rdf:Property.
 		var body = mail_password_xhtml.calliConstructHTML(this);
 		body = body.replace(/@@USERNAME@@/g, this.calliName);
 		body = body.replace(/@@PASSWORD@@/g, password);
-		this.sendMessage(body, this.rdfsLabels.iterator().next() + " <" + this.calliEmail + ">");
+		this.sendMessage(body, this.rdfsLabel.iterator().next() + " <" + this.calliEmail + ">");
 	""".
 
 :resetForm a owl:ObjectProperty, owl:FunctionalProperty;

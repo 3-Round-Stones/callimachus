@@ -69,12 +69,13 @@ public abstract class CreateSupport implements Page {
 				throw new RDFHandlerException("Target resource URI not provided");
 			if (isResourceAlreadyPresent(con, target.toString()))
 				throw new Conflict("Resource already exists: " + target);
-			SubjectTracker tracker = new SubjectTracker(new RDFInserter(con));
+			ValueFactory vf = con.getValueFactory();
+			SubjectTracker tracker = new SubjectTracker(new RDFInserter(con), vf);
 			tracker.setWildPropertiesAllowed(false);
 			tracker.setReverseAllowed(false);
 			tracker.accept(openPatternReader(target.toString(), "create", null));
 			RDFXMLParser parser = new RDFXMLParser();
-			parser.setValueFactory(con.getValueFactory());
+			parser.setValueFactory(vf);
 			parser.setRDFHandler(tracker);
 			parser.parse(in, base);
 			if (tracker.isEmpty())
@@ -88,7 +89,7 @@ public abstract class CreateSupport implements Page {
 				}
 			}
 			Set<URI> types = tracker.getTypes(tracker.getSubject());
-			return of.createObject(target.toString(), types);
+			return of.createObject(tracker.getSubject(), types);
 		} catch (URISyntaxException  e) {
 			throw new BadRequest(e);
 		} catch (RDFHandlerException e) {

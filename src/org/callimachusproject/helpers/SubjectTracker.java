@@ -38,8 +38,8 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.StatementImpl;
-import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
@@ -60,13 +60,12 @@ public class SubjectTracker extends RDFHandlerWrapper {
 	private boolean reverseAllowed = true;
 	private boolean wildPropertiesAllowed = true;
 	private boolean empty = true;
-	private Resource matcher;
-	private String hash;
-	private Resource replacement;
+	private final ValueFactory vf;
 	private Set<TriplePattern> patterns;
 
-	public SubjectTracker(RDFHandler delegate) {
+	public SubjectTracker(RDFHandler delegate, ValueFactory vf) {
 		super(delegate);
+		this.vf = vf;
 	}
 
 	public void setReverseAllowed(boolean reverseAllowed) {
@@ -75,14 +74,6 @@ public class SubjectTracker extends RDFHandlerWrapper {
 
 	public void setWildPropertiesAllowed(boolean wildPropertiesAllowed) {
 		this.wildPropertiesAllowed = wildPropertiesAllowed;
-	}
-
-	public void replace(Resource match, Resource replacement) {
-		this.matcher = match;
-		if (match instanceof URI && !match.stringValue().contains("#")) {
-			this.hash = matcher.stringValue() + "#";
-		}
-		this.replacement = replacement;
 	}
 
 	public void accept(RDFEventReader reader) throws RDFParseException {
@@ -148,8 +139,8 @@ public class SubjectTracker extends RDFHandlerWrapper {
 		return about;
 	}
 
-	public void addSubject(URI subj) {
-		subjects.add(subj);
+	public void addSubject(URI subj) throws RDFHandlerException {
+		subjects.add(canonicalize(subj));
 	}
 
 	public Set<URI> getTypes(URI subject) {
@@ -164,25 +155,9 @@ public class SubjectTracker extends RDFHandlerWrapper {
 
 	@Override
 	public void handleStatement(Statement st) throws RDFHandlerException {
-		Resource subj = st.getSubject();
-		URI pred = st.getPredicate();
-		Value obj = st.getObject();
-		if (subj.equals(matcher)) {
-			subj = replacement;
-		} else if (obj.equals(matcher)) {
-			obj = replacement;
-		} else if (subj instanceof URI && ((URI)subj).getNamespace().equals(hash)) {
-			subj = new URIImpl(replacement.stringValue() + "#" + ((URI)subj).getLocalName());
-		} else if (obj instanceof URI && ((URI)obj).getNamespace().equals(hash)) {
-			obj = new URIImpl(replacement.stringValue() + "#" + ((URI)obj).getLocalName());
-		}
-		try {
-			validate(subj);
-			validate(pred);
-			validate(obj);
-		} catch (URISyntaxException e) {
-			throw new RDFHandlerException(e.toString(), e);
-		}
+		Resource subj = canonicalize(st.getSubject());
+		URI pred = canonicalize(st.getPredicate());
+		Value obj = canonicalize(st.getObject());
 		Boolean rev = accept(subj, pred, obj);
 		if (rev == null)
 			throw new RDFHandlerException("Invalid triple: " + subj + " "
@@ -207,10 +182,31 @@ public class SubjectTracker extends RDFHandlerWrapper {
 		super.handleStatement(new StatementImpl(subj, pred, obj));
 	}
 
-	private void validate(Value obj) throws URISyntaxException {
-		if (obj instanceof URI) {
-			new java.net.URI(obj.stringValue());
+	private <V extends Value> V canonicalize(V value) throws RDFHandlerException {
+		try {
+			if (value instanceof URI) {
+				return (V) canonicalizeURI((URI) value);
+			}
+		} catch (URISyntaxException e) {
+			throw new RDFHandlerException(e.toString(), e);
 		}
+		return value;
+	}
+
+	private URI canonicalizeURI(URI uri) throws URISyntaxException {
+		java.net.URI net = new java.net.URI(uri.stringValue());
+		net.normalize();
+		String scheme = net.getScheme().toLowerCase();
+		String frag = net.getFragment();
+		if (net.isOpaque()) {
+			String part = net.getSchemeSpecificPart();
+			net = new java.net.URI(scheme, part, frag);
+			return vf.createURI(net.toASCIIString());
+		}
+		String auth = net.getAuthority().toLowerCase();
+		String qs = net.getQuery();
+		net = new java.net.URI(scheme, auth, net.getPath(), qs, frag);
+		return vf.createURI(net.toASCIIString());
 	}
 
 	private Boolean accept(Resource subj, URI pred, Value obj) {

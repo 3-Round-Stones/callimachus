@@ -32,6 +32,7 @@ import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.traits.VersionedObject;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
@@ -91,7 +92,7 @@ public abstract class EditSupport implements Page {
 	private void remove(URI resource, InputStream in, RDFXMLParser parser,
 			ObjectConnection con) throws Exception {
 		SubjectTracker remover = createSubjectTracker(resource,
-				new Remover(con));
+				new Remover(con), con);
 		remover.addSubject(resource);
 		GraphPatternBuilder pattern = new GraphPatternBuilder();
 		parser.setRDFHandler(pattern);
@@ -115,7 +116,7 @@ public abstract class EditSupport implements Page {
 	private void add(URI resource, InputStream in, RDFXMLParser parser,
 			ObjectConnection con) throws Exception {
 		SubjectTracker inserter = createSubjectTracker(resource,
-				new RDFInserter(con));
+				new RDFInserter(con), con);
 		inserter.addSubject(resource);
 		inserter.accept(changeNoteOf(resource));
 		parser.setValueFactory(con.getValueFactory());
@@ -138,8 +139,9 @@ public abstract class EditSupport implements Page {
 	}
 
 	private SubjectTracker createSubjectTracker(URI resource,
-			RDFHandler delegate) throws Exception {
-		SubjectTracker tracker = new SubjectTracker(delegate);
+			RDFHandler delegate, ObjectConnection con) throws Exception {
+		ValueFactory vf = con.getValueFactory();
+		SubjectTracker tracker = new SubjectTracker(delegate, vf);
 		tracker.setReverseAllowed(false);
 		tracker.setWildPropertiesAllowed(false);
 		String about = resource.stringValue();

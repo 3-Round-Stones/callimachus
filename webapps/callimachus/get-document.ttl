@@ -144,6 +144,14 @@
 	msg:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
+:GetDocbook rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:application/docbook+xml>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "application/docbook+xml";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
+
 :GetXhtml rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <urn:mimetype:application/xhtml+xml>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];

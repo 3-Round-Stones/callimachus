@@ -31,7 +31,7 @@
 </> a </callimachus/Folder>, calli:Folder, calli:Alias, calli:Origin;
 	rdfs:label "Home folder";
 	calli:version "0.13";
-	calli:aliasOf </page/main-page.xhtml?view>;
+	calli:aliasOf </main-article.docbook?view>;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;
@@ -132,7 +132,7 @@
 	calli:item </callimachus/menu#permissions>;
 	calli:item </callimachus/menu#printthispage>.
 
-</callimachus/menu#mainarticle>	calli:position 1; rdfs:label "Main article"; calli:link </page/main-page.xhtml?view>.
+</callimachus/menu#mainarticle>	calli:position 1; rdfs:label "Main article"; calli:link </main-article.docbook?view>.
 </callimachus/menu#homefolder>	calli:position 2; rdfs:label "Home folder"; calli:link </?view>.
 </callimachus/menu#contents>	calli:position 3; rdfs:label "Contents"; calli:link </callimachus/menu>.
 </callimachus/menu#recentchanges>	calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>.

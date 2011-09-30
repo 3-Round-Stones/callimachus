@@ -22,36 +22,37 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-:InitializeMainPage owl:equivalentClass calli:Started;
-	msg:imports calli:Page;
+:InitializeMainArticle owl:equivalentClass calli:Started;
+	msg:imports calli:Article;
 	msg:script """
-		var pages = this.FindDefaultMainPage().iterator();
+		var pages = this.FindDefaultMainArticle().iterator();
 		while (pages.hasNext()) {
 			var url = pages.next().toString();
-			var page = url.replace(/callimachus.main-page.xhtml$/, 'page/main-page.xhtml');
+			var page = url.replace(/callimachus.pages.main-article.docbook$/, 'main-article.docbook');
 			var created = this.objectConnection.getObject(page);
-			if (!(created instanceof Page)) {
-				var ptype = url.replace(/main-page.xhtml$/, 'Page');
-				var home = url.replace(/callimachus.main-page.xhtml$/, '');
+			if (!(created instanceof Article)) {
+				var atype = url.replace(/pages.main-article.docbook$/, 'Article');
+				var home = url.replace(/callimachus.pages.main-article.docbook$/, '');
 				var folder = this.objectConnection.getObject(home);
-				created = this.objectConnection.addDesignation(created, ptype);
+				created = this.objectConnection.addDesignation(created, atype);
+				created = this.objectConnection.addDesignation(created, Article);
 				created.calliReader.addAll(folder.calliReader);
 				created.calliEditor.addAll(folder.calliEditor);
 				created.calliAdministrator.addAll(folder.calliAdministrator);
+				folder.calliHasComponent.add(created);
 				this.objectConnection.commit();
 				java.lang.System.out.println("Uploading " + page);
-				created.UploadPage(new java.net.URL(url).openStream());
+				created.UploadArticle(new java.net.URL(url).openStream());
 			}
 		}
 	""".
 
-:FindDefaultMainPage rdfs:subClassOf msg:Message;
+:FindDefaultMainArticle rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue calli:boot];
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Page];
 	msg:sparql """
 		SELECT ?main
 		WHERE {
-			?main a calli:Page; rdfs:label "main page".
-			FILTER (regex(str(?main), "^[a-z]+://[^/]+/callimachus/main-page.xhtml$"))
+			?main a <urn:mimetype:application/docbook+xml>; rdfs:label "main article".
+			FILTER (regex(str(?main), "^[a-z]+://[^/]+/callimachus/pages/main-article.docbook$"))
 		}
 	""".

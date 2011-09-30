@@ -9,6 +9,7 @@ application/atom+xml atom
 application/atomcat+xml atomcat
 application/atomsvc+xml atomsvc
 application/davmount+xml davmount
+application/docbook+xml docbook
 application/json json
 application/mac-binhex40 hqx
 application/mbox mbox

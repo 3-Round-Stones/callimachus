@@ -22,23 +22,9 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Local> a owl:Class;
-	rdfs:label "Local";
-	rdfs:comment "All resources served by this host".
-
-<Composite> a owl:Class;
-	rdfs:label "Composite";
-	rdfs:subClassOf <Local>, calli:Composite.
-
-<Creatable> a owl:Class;
-	rdfs:label "Creatable";
-	rdfs:subClassOf <Local>, calli:Creatable.
-
-<Viewable> a owl:Class;
-	rdfs:label "Viewable";
-	rdfs:subClassOf <Local>, calli:Viewable.
-
-<Editable> a owl:Class;
-	rdfs:label "Editable";
-	rdfs:subClassOf <Local>, calli:Editable.
+<File> a <Creatable>, owl:Class;
+	rdfs:label "File";
+	rdfs:subClassOf <Viewable>, <Editable>, foaf:Document;
+	calli:view <file-view.xhtml>;
+	calli:edit <file-edit.xhtml>.
 

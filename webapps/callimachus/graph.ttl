@@ -18,6 +18,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
@@ -26,8 +27,7 @@
 	rdfs:subClassOf calli:NamedGraph, <File>;
 	rdfs:label "Graph";
 	calli:icon <graph.png>;
-	calli:create <graph-create.xhtml>;
-	calli:view <graph-view.xhtml>.
+	calli:create <graph-create.xhtml>.
 
 :GetGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
@@ -70,7 +70,7 @@
 	msg:imports <java:java.io.BufferedInputStream>;
 	msg:imports <java:org.callimachusproject.util.MultipartParser>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:imports <NamedGraph>;
+	msg:imports foaf:Document;
 	msg:imports <graph-uploaded.xhtml>;
 	msg:script """
 		if (!location)
@@ -87,15 +87,15 @@
 
 		java.lang.System.out.println("Clearing " + uri);
 		con.removeDesignation(obj, "http://callimachusproject.org/rdf/2009/framework#NamedGraph");
-		con.removeDesignation(obj, NamedGraph);
+		con.removeDesignation(obj, this.toString());
 		con.remove(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 		con.clear([vf.createURI(uri)]);
 		obj.touchRevision();
 
 		java.lang.System.out.println("Parsing " + fileName);
 		con.add(body, uri, format, [vf.createURI(uri)]);
-		con.removeDesignation(obj, "http://callimachusproject.org/rdf/2009/framework#NamedGraph");
-		con.addDesignation(obj, NamedGraph);
+		obj = con.addDesignation(obj, this.toString());
+		obj = con.addDesignation(obj, Document);
 		con.add(obj.resource, RDFS.LABEL, label, []);
 		con.commit();
 		java.lang.System.gc();

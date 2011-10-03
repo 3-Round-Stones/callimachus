@@ -39,7 +39,8 @@
 			};
 			$('button.advance-graph').live('click', advance);
 			$('iframe').load(function() {
-				if ($('#graph-link', this.contentWindow.document).length) {
+				if ($('body[about]', this.contentWindow.document).length) {
+					$('a',this.contentWindow.document).attr('target', '_parent');
 					$(':input[type=file]:enabled:first').parents('form').find(':input').attr('disabled', 'disabled');
 					advance();
 				} else if ($('h1', this.contentWindow.document).length) {

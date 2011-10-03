@@ -10,7 +10,7 @@
 @prefix :<#>.
 
 <Manifest> rdfs:subClassOf <Viewable>, <Editable>, calli:Manifest;
-	calli:view <manifest.xhtml>;
+	calli:view <manifest-view.xhtml>;
 	calli:edit <manifest-edit.xhtml>.
 
 calli:logo a owl:ObjectProperty;

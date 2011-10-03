@@ -9,7 +9,7 @@
 @prefix :<#>.
 
 <Menu> rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
-	calli:view <menu.xhtml>;
+	calli:view <menu-view.xhtml>;
 	calli:edit <menu-edit.xhtml>.
 
 calli:logo a owl:ObjectProperty;

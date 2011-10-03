@@ -12,7 +12,7 @@
 ################################
 
 <AccountManager> rdfs:subClassOf <Viewable>, calli:AccountManager;
-	calli:view <accounts.xhtml>.
+	calli:view <accounts-view.xhtml>.
 
 ################################
 # login

@@ -28,7 +28,7 @@
 	rdfs:label "Concept";
 	rdfs:comment "Concepts are ideas, meanings, or categories of objects and events";
 	calli:icon <concept.png>;
-	calli:view <concept.xhtml>;
+	calli:view <concept-view.xhtml>;
 	calli:edit <concept-edit.xhtml>;
 	calli:create <concept-create.xhtml>.
 

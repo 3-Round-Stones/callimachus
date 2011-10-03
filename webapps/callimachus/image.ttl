@@ -28,7 +28,7 @@
 	rdfs:subClassOf foaf:Image, <File>;
 	rdfs:label "Image" ;
 	calli:icon <image.png>;
-	calli:view <image.xhtml> ;
+	calli:view <image-view.xhtml> ;
 	calli:edit <image-edit.xhtml> ;
 	calli:create <image-create.xhtml>.
 

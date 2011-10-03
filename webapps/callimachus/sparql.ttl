@@ -23,7 +23,7 @@
 @prefix :<#>.
 
 <SparqlEndPoint> rdfs:subClassOf <Viewable>;
-	calli:view <sparql.xhtml>.
+	calli:view <sparql-view.xhtml>.
 
 :EvaluateSparql rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];

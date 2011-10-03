@@ -28,7 +28,7 @@
 	rdfs:subClassOf <Image>;
 	rdfs:label "Photo" ;
 	calli:icon <photo.png>;
-	calli:view <photo.xhtml> ;
+	calli:view <photo-view.xhtml> ;
 	calli:edit <photo-edit.xhtml> ;
 	calli:create <photo-create.xhtml>.
 

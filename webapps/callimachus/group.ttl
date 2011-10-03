@@ -12,7 +12,7 @@
 	rdfs:label "Group";
 	rdfs:comment "Groups provide a way to assign permissions to a named set of users";
 	calli:icon <group.png>;
-	calli:view <group.xhtml>;
+	calli:view <group-view.xhtml>;
 	calli:edit <group-edit.xhtml>;
 	calli:create <group-create.xhtml>.
 

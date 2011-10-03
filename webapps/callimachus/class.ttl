@@ -28,7 +28,7 @@
 	rdfs:label "Class";
 	rdfs:comment "A class is a construct that is used as a blueprint (or template) to create and edit resources of that class";
 	calli:icon <class.png>;
-	calli:view <class.xhtml>;
+	calli:view <class-view.xhtml>;
 	calli:edit <class-edit.xhtml>;
 	calli:create <class-create.xhtml>.
 

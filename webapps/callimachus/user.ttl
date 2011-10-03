@@ -12,7 +12,7 @@
 	rdfs:label "User";
 	rdfs:comment "Username and password associated with an email address";
 	calli:icon <user.png>;
-	calli:view <user.xhtml>;
+	calli:view <user-view.xhtml>;
 	calli:edit <user-edit.xhtml>;
 	calli:create <user-create.xhtml>.
 

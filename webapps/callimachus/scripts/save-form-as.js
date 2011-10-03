@@ -1,4 +1,4 @@
-// saveas.js
+// save-form-as.js
 /*
    Copyright (c) 2011 3 Round Stones Inc, Some Rights Reserved
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
@@ -11,6 +11,7 @@ function resubmit(form) {
 	var previously = originalSubmit;
 	originalSubmit = false;
 	try {
+		overrideLocation(form, $(form).attr('about'));
 		$(form).submit(); // this time with an about attribute
 	} finally {
 		originalSubmit = previously;
@@ -32,6 +33,7 @@ window.calli.saveFormAs = function(form, fileName, create) {
 		});
 		return false;
 	} else if (about) { // absolute about attribute already set
+		overrideLocation(form, $(form).attr('about'));
 		return true;
 	} else { // no identifier at all
 		var field = $($(form).find('input')[0]);
@@ -151,6 +153,40 @@ function updateFormAction(form, composite, create) {
 			form.action = action;
 		}
 	}
+}
+
+function overrideLocation(form, uri) {
+	if (form.action.indexOf('&location=') > 0) {
+		var m = form.action.match(/^(.*&location=)[^&=]*(.*)$/);
+		form.action = m[1] + encodeURIComponent(uri) + m[2];
+	} else {
+		form.action = form.action + '&location=' + encodeURIComponent(uri);
+	}
+	if (form.action.indexOf('&intermediate=') < 0 && isIntermidate(form.action)) {
+		form.action += '&intermediate=true';
+	}
+}
+
+function isIntermidate(url) {
+	if (window.parent != window) {
+		try {
+			var childUrl = url;
+			if (childUrl.indexOf('?create') > 0) {
+				childUrl = childUrl.substring(0, childUrl.indexOf('?'));
+				var parentUrl = window.parent.location.href;
+				if (parentUrl.indexOf('?edit') > 0) {
+					parentUrl = parentUrl.substring(0, parentUrl.indexOf('?'));
+					if (parentUrl == childUrl) {
+						// they are creating a component in a dialog from an edit form
+						return true;
+					}
+				}
+			}
+		} catch (e) {
+			// I guess not
+		}
+	}
+	return false;
 }
 
 function getPageLocationURL() {

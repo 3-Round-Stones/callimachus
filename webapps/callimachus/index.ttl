@@ -28,5 +28,4 @@
 
 </callimachus> a owl:Ontology;
 	rdfs:label "Local Callimachus Ontology";
-	rdfs:comment "Vocabulary used to create local Callimachus applications";
-	owl:imports <http://callimachusproject.org/rdf/2009/framework>.
+	rdfs:comment "Vocabulary used to create local Callimachus applications".

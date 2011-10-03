@@ -12,10 +12,6 @@ $('form[method="POST"][enctype="multipart/form-data"],form[method="POST"][enctyp
 	var about = form.attr('about');
 	if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
 		return true; // about attribute not set yet
-	overrideLocation(this, about);
-	if (this.action.indexOf('&intermediate=') < 0 && isIntermidate(this.action)) {
-		this.action += '&intermediate=true';
-	}
 	if (!this.target || this.target.indexOf('iframe-redirect-') != 0) {
 		var iname = null;
 		while (window.frames[iname = 'iframe-redirect-' + (++iframe_counter)]);
@@ -24,37 +20,6 @@ $('form[method="POST"][enctype="multipart/form-data"],form[method="POST"][enctyp
 	}
 	return true;
 });
-
-function overrideLocation(form, uri) {
-	if (form.action.indexOf('&location=') > 0) {
-		var m = form.action.match(/^(.*&location=)[^&=]*(.*)$/);
-		form.action = m[1] + encodeURIComponent(uri) + m[2];
-	} else {
-		form.action = form.action + '&location=' + encodeURIComponent(uri);
-	}
-}
-
-function isIntermidate(url) {
-	if (window.parent != window) {
-		try {
-			var childUrl = url;
-			if (childUrl && childUrl.indexOf('?create') > 0) {
-				childUrl = childUrl.substring(0, childUrl.indexOf('?'));
-				var parentUrl = window.parent.location.href;
-				if (parentUrl && parentUrl.indexOf('?edit') > 0) {
-					parentUrl = parentUrl.substring(0, parentUrl.indexOf('?'));
-					if (parentUrl == childUrl) {
-						// they are creating a component in a dialog from an edit form
-						return true;
-					}
-				}
-			}
-		} catch (e) {
-			// I guess not
-		}
-	}
-	return false;
-}
 
 function createIframeRedirect(iname, finalTarget) {
 	var iframe = $('<iframe></iframe>');

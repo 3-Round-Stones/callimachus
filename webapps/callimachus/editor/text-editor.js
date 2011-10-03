@@ -103,9 +103,6 @@ jQuery(function($) {
 			type: 'POST',
 			url: action,
 			contentType: contentType,
-			beforeSend: function(xhr) {
-				xhr.setRequestHeader('Location', path);
-			},
 			data: text,
 			complete: function(xhr) {
 				saving = false;
@@ -160,11 +157,10 @@ jQuery(function($) {
 	// messaging
 	function handleMessage(header, body) {
 		if (header.indexOf('POST create\n') == 0) {
-			var m = header.match(/^POST create\s+Action:\s*(\S*)\s+Location:\s*(\S*)(\s+Content-Type:\s*(\S*))?\b/i);
+			var m = header.match(/^POST create\s+Action:\s*(\S*)(\s+Content-Type:\s*(\S*))?\b/i);
 			var action = m[1];
-			path = m[2];
-			if (m[4]) {
-				contentType = m[4];
+			if (m[3]) {
+				contentType = m[3];
 			}
 			postFile(action, function(xhr) {
 				if (xhr.status < 300) {

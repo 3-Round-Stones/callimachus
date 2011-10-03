@@ -61,44 +61,16 @@ function readRDF(uri, form) {
 }
 
 function postData(url, type, loc, data, callback) {
-	if (isIntermidate(url)) {
-		url += '&intermediate=true';
-	}
 	var xhr = null;
 	xhr = $.ajax({
 		type: "POST",
 		url: url,
 		contentType: type,
 		data: data,
-		beforeSend: function(xhr) {
-			xhr.setRequestHeader('Location', loc);
-		},
 		success: function(data, textStatus) {
 			callback(data, textStatus, xhr);
 		}
 	});
-}
-
-function isIntermidate(url) {
-	if (window.parent != window) {
-		try {
-			var childUrl = url;
-			if (childUrl.indexOf('?create') > 0) {
-				childUrl = childUrl.substring(0, childUrl.indexOf('?'));
-				var parentUrl = window.parent.location.href;
-				if (parentUrl.indexOf('?edit') > 0) {
-					parentUrl = parentUrl.substring(0, parentUrl.indexOf('?'));
-					if (parentUrl == childUrl) {
-						// they are creating a component in a dialog from an edit form
-						return true;
-					}
-				}
-			}
-		} catch (e) {
-			// I guess not
-		}
-	}
-	return false;
 }
 
 });

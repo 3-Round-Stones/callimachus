@@ -77,8 +77,7 @@
 
 :location a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain [owl:unionOf (:PostFile :PostCreate :PostFactoryCreate)];
-	msg:query "location";
-	msg:header "location".
+	msg:query "location".
 
 :type a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain [owl:unionOf (:PostFile :PostCreate :PostFactoryCreate)];

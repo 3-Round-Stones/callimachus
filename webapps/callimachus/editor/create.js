@@ -40,7 +40,6 @@ jQuery(function($){
 		event.preventDefault();
 		var header = 'POST create'
 			+ '\nAction: ' + form.action
-			+ '\nLocation: ' + about
 			+ '\nContent-Type: ' + $(form).attr('enctype');
 		$(window).bind('message', function(event) {
 			if (event.originalEvent.source == $('#iframe')[0].contentWindow) {

@@ -15,3 +15,7 @@
 	calli:colour <colour.css>;
 	calli:jqueryui <jquery-ui.css>.
 
+<../cloud#alt> a calli:ColourScheme;
+    rdfs:label "Energy Theme";
+    calli:colour <colour-alt.css>;
+    calli:jqueryui <jquery-ui.css>.

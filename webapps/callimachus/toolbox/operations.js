@@ -13,17 +13,21 @@ function getViewPage() {
 }
 
 function getCreatePage(msg) {
-	if (!this.calliCreate)
+	if (!this.calliCreate || this.calliCreate.isEmpty())
 		throw new InternalServerError("No create template");
-	return this.calliCreate.calliConstruct(null, 'create');
+	if (this.calliCreate.size() != 1)
+		throw new InternalServerError("Multiple create templates");
+	return this.calliCreate.iterator().next().calliConstruct(null, 'create');
 }
 
 function getCreatorPage(msg) {
 	if (!(msg.create instanceof Creatable))
 		throw new BadRequest("Cannot create this class here: " + msg.create);
-	if (!msg.create.calliCreate)
+	if (!msg.create.calliCreate || msg.create.calliCreate.isEmpty())
 		throw new InternalServerError("No create template");
-	return msg.create.calliCreate.calliConstruct(null, 'create');
+	if (msg.create.calliCreate.size() != 1)
+		throw new InternalServerError("Multiple create templates");
+	return msg.create.calliCreate.iterator().next().calliConstruct(null, 'create');
 }
 
 function postFactoryCreate(msg) {
@@ -31,8 +35,6 @@ function postFactoryCreate(msg) {
 		throw new BadRequest("Cannot create: " + msg.create);
 	if (!(this instanceof Composite))
 		throw new BadRequest("Cannot create resources here: " + this);
-	if (!msg.create.IsCreateInUriSpace(msg.location))
-		throw new BadRequest("Invalid namespace");
 	if (!msg.location)
 		throw new BadRequest("No location provided");
 	var creatorUri = this.toString();
@@ -80,7 +82,7 @@ function postFactoryCreate(msg) {
 }
 
 function postCreate(msg) {
-	var template = this.calliCreate;
+	var template = this.calliCreate.iterator().next();
 	if (!template) // POST ?create=/callimachus/File
 		throw new InternalServerError("Unsupported file type: " + msg.type);
 	if (msg.type != "application/rdf+xml")

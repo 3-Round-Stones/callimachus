@@ -30,8 +30,7 @@
 	calli:icon <class.png>;
 	calli:view <class.xhtml>;
 	calli:edit <class-edit.xhtml>;
-	calli:create <class-create.xhtml>;
-	calli:uriSpace </>.
+	calli:create <class-create.xhtml>.
 
 :GetClassIndexPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class>];

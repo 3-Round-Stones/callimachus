@@ -25,15 +25,14 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-<Folder> a <CreatableIndex>, owl:Class;
+<Folder> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:Folder;
 	rdfs:label "Folder";
 	rdfs:comment "A folder of resources";
 	calli:icon <folder.png>;
 	calli:view <folder-view.xhtml>;
 	calli:edit <folder-edit.xhtml>;
-	calli:create <folder-create.xhtml>;
-	calli:uriSpace </>.
+	calli:create <folder-create.xhtml>.
 
 :RedirectToIndex rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
@@ -68,8 +67,8 @@
 				?editor_uri ?editor_name ?administrator_uri ?administrator_name
 				(?id as ?link) # TODO construct callimachus go URL
 				(if(bound(?folder), ?id, ?folder) as ?link_feed) # TODO append '?feed' to ?id
-				(if(?content_type = calli:Page, "application/xhtml+xml",
-					if(?content_type = calli:NamedQuery, "application/sparql-query", ?content_type)
+				(if(?content_type = <Page>, "application/xhtml+xml",
+					if(?content_type = <NamedQuery>, "application/sparql-query", ?content_type)
 				) as ?content_type)
 				(if(bound(?type), ?id, ?type) as ?content_src) {
 			{
@@ -125,7 +124,7 @@
 				}
 			} OPTIONAL {
 				?id a ?content_type
-				FILTER (?content_type IN (calli:Page, calli:NamedQuery))
+				FILTER (?content_type IN (<Page>, <NamedQuery>))
 			} OPTIONAL {
 				?id a ?folder
 				FILTER (?folder = calli:Folder)

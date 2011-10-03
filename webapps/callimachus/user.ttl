@@ -14,8 +14,7 @@
 	calli:icon <user.png>;
 	calli:view <user.xhtml>;
 	calli:edit <user-edit.xhtml>;
-	calli:create <user-create.xhtml>;
-	calli:uriSpace </>.
+	calli:create <user-create.xhtml>.
 
 ################################
 # User create
@@ -94,7 +93,7 @@ rdfs:comment a rdf:Property.
 # find the user that created $this
 :FindUserCreator rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:User];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
 	msg:sparql  """
 		SELECT DISTINCT ?contributor
 		WHERE {
@@ -173,8 +172,7 @@ rdfs:comment a rdf:Property.
 # User reset password
 ################################
 
-:anybody a calli:AnybodyRealm;
-	calli:domain </user/>.
+:anybody a calli:AnybodyRealm.
 
 # Linked from request password email
 :GetResetPassword rdfs:subClassOf msg:Message;

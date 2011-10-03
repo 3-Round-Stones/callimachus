@@ -12,11 +12,6 @@
 	<xsl:param name="template" select="false()" />
 	<xsl:variable name="scheme" select="substring-before($xslt, '://')" />
 	<xsl:variable name="authority" select="substring-before(substring-after($xslt, '://'), '/')" />
-	<xsl:variable name="origin">
-		<xsl:if test="$scheme and $authority">
-			<xsl:value-of select="concat($scheme, '://', $authority)" />
-		</xsl:if>
-	</xsl:variable>
 	<xsl:variable name="callimachus">
 		<xsl:if test="$scheme and $authority">
 			<xsl:value-of select="concat($scheme, '://', $authority, '/callimachus')" />
@@ -34,6 +29,7 @@
 		</xsl:if>
 	</xsl:variable>
 	<xsl:variable name="styles" select="document(concat($manifest, '?styles'))/xhtml:html/xhtml:head/xhtml:link" />
+	<xsl:variable name="layout_base" select="document(concat($manifest, '?styles'))/xhtml:html/xhtml:head/xhtml:base/@href" />
 	<xsl:variable name="layout_xhtml" select="document(concat($manifest, '?layout'))" />
 	<xsl:variable name="layout_html" select="$layout_xhtml/xhtml:html|$layout_xhtml/html" />
 	<xsl:variable name="layout_head" select="$layout_xhtml/xhtml:html/xhtml:head|$layout_xhtml/html/head" />
@@ -50,23 +46,13 @@
 		<xsl:copy />
 	</xsl:template>
 
-	<xsl:template name="merge-attributes">
-		<xsl:param name="one" />
-		<xsl:param name="two" />
-		<xsl:if test="$one/@class and $two/@class">
-			<xsl:attribute name="class">
-				<xsl:value-of select="$one/@class" />
-				<xsl:text> </xsl:text>
-				<xsl:value-of select="$two/@class" />
-			</xsl:attribute>
-		</xsl:if>
-		<xsl:apply-templates select="@*[name() != 'class']" />
-		<xsl:for-each select="$two/@*">
-			<xsl:variable name="name" select="name()" />
-			<xsl:if test="not($one/@*[name()=$name])">
-				<xsl:apply-templates select="." />
-			</xsl:if>
-		</xsl:for-each>
+	<xsl:template match="@src|@href">
+		<xsl:attribute name="{name()}">
+			<xsl:call-template name="resolve-path">
+				<xsl:with-param name="relative" select="." />
+				<xsl:with-param name="base" select="$this" />
+			</xsl:call-template>
+		</xsl:attribute>
 	</xsl:template>
 
 	<!-- head -->
@@ -88,7 +74,7 @@
 				</xsl:if>
 			</xsl:for-each>
 			<xsl:comment>&lt;![endif]</xsl:comment>
-			<xsl:apply-templates select="$layout_head/*[local-name()!='script' and local-name()!='title']|comment()" />
+			<xsl:apply-templates mode="layout" select="$layout_head/*[local-name()!='script' and local-name()!='title']|comment()" />
 			<xsl:apply-templates select="*[local-name()!='script']|comment()" />
 
 			<script type="text/javascript" src="{$callimachus}/scripts/web_bundle?source">&#160;</script>
@@ -101,7 +87,7 @@
 				&lt;script src="//ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"&gt;&lt;/script&gt;
 				&lt;script src="<xsl:value-of select="concat($callimachus,'/scripts/ie_bundle?source')" />"&gt;&lt;/script&gt;
 			&lt;![endif]</xsl:comment>
-			<xsl:apply-templates select="$layout_head/*[local-name()='script']" />
+			<xsl:apply-templates mode="layout" select="$layout_head/*[local-name()='script']" />
 			<xsl:apply-templates select="*[local-name()='script']" />
 		</xsl:copy>
 	</xsl:template>
@@ -130,10 +116,12 @@
 		<xsl:copy />
 	</xsl:template>
 
-	<xsl:template mode="layout" match="xhtml:img/@src[starts-with(., '/callimachus/')]|img/@src[starts-with(., '/callimachus/')]">
+	<xsl:template mode="layout" match="@src|@href">
 		<xsl:attribute name="{name()}">
-			<xsl:value-of select="$callimachus" />
-			<xsl:value-of select="substring-after(.,'/callimachus')" />
+			<xsl:call-template name="resolve-path">
+				<xsl:with-param name="relative" select="." />
+				<xsl:with-param name="base" select="$layout_base" />
+			</xsl:call-template>
 		</xsl:attribute>
 	</xsl:template>
 
@@ -153,16 +141,6 @@
 			<xsl:if test="not(@href=concat('?',$query))">
 				<xsl:apply-templates mode="layout" select="@*" />
 			</xsl:if>
-			<xsl:apply-templates mode="layout" select="*|text()|comment()" />
-		</xsl:copy>
-	</xsl:template>
-
-	<xsl:template mode="layout" match="xhtml:img[starts-with(@src,'/')]|img[starts-with(@src,'/')]">
-		<xsl:copy>
-			<xsl:attribute name="src">
-				<xsl:value-of select="concat($origin,@src)" />
-			</xsl:attribute>
-			<xsl:apply-templates mode="layout" select="@*[name()!='src']" />
 			<xsl:apply-templates mode="layout" select="*|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
@@ -283,4 +261,59 @@
 			<xsl:copy-of select="document(concat($manifest, '?rights'))/xhtml:html/xhtml:body/node()" />
 		</xsl:copy>
 	</xsl:template>
+
+	<xsl:template name="merge-attributes">
+		<xsl:param name="one" />
+		<xsl:param name="two" />
+		<xsl:if test="$one/@class and $two/@class">
+			<xsl:attribute name="class">
+				<xsl:value-of select="$one/@class" />
+				<xsl:text> </xsl:text>
+				<xsl:value-of select="$two/@class" />
+			</xsl:attribute>
+		</xsl:if>
+		<xsl:apply-templates select="@*[name() != 'class']" />
+		<xsl:for-each select="$two/@*">
+			<xsl:variable name="name" select="name()" />
+			<xsl:if test="not($one/@*[name()=$name])">
+				<xsl:apply-templates select="." />
+			</xsl:if>
+		</xsl:for-each>
+	</xsl:template>
+
+	<xsl:template name="resolve-path">
+		<xsl:param name="relative" />
+		<xsl:param name="base" />
+		<xsl:variable name="scheme" select="substring-before($base, '://')" />
+		<xsl:variable name="authority" select="substring-before(substring-after($base, '://'), '/')" />
+		<xsl:if test="$scheme and $authority and $relative and not(starts-with($relative,'//') or starts-with($relative,'?') or starts-with($relative,'#') or contains($relative, '://'))">
+			<xsl:if test="starts-with($relative, '/')">
+				<xsl:value-of select="concat($scheme, '://', $authority)" />
+			</xsl:if>
+			<xsl:if test="not(starts-with($relative, '/'))">
+				<xsl:call-template name="substring-before-last">
+					<xsl:with-param name="arg" select="$base" />
+					<xsl:with-param name="delim" select="'/'" />
+				</xsl:call-template>
+				<xsl:value-of select="'/'" />
+			</xsl:if>
+		</xsl:if>
+		<xsl:value-of select="$relative" />
+	</xsl:template>
+
+	<xsl:template name="substring-before-last">
+		<xsl:param name="arg"/>
+		<xsl:param name="delim"/>
+		<xsl:if test="contains($arg, $delim)">
+			<xsl:value-of select="substring-before($arg, $delim)" />
+			<xsl:if test="contains(substring-after($arg, $delim), $delim)">
+				<xsl:value-of select="$delim" />
+				<xsl:call-template name="substring-before-last">
+					<xsl:with-param name="arg" select="substring-after($arg, $delim)"/>
+					<xsl:with-param name="delim" select="$delim"/>
+				</xsl:call-template>
+			</xsl:if>
+		</xsl:if>
+	</xsl:template>
+
 </xsl:stylesheet>

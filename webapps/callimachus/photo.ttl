@@ -18,24 +18,32 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
-@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
 <Photo> a <Creatable>, owl:Class;
-	rdfs:subClassOf calli:Photo, <File>;
+	rdfs:subClassOf <Image>;
 	rdfs:label "Photo" ;
 	calli:icon <photo.png>;
 	calli:view <photo.xhtml> ;
 	calli:edit <photo-edit.xhtml> ;
-	calli:create <photo-create.xhtml>;
-	calli:uriSpace </>.
+	calli:create <photo-create.xhtml>.
+
+# GET /image.jpg
+:GetPhoto rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "image/jpeg";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/File
 :PostPhotoFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <File> ]);
+		[owl:onProperty msg:target; owl:allValuesFrom [owl:oneOf (<Image> <File>)] ]);
 	msg:script """
 		if (type == "image/pjpeg" || type == "image/jpeg") {
 			var uri = this.toUri().resolve("/callimachus/Photo").toString();
@@ -54,7 +62,7 @@
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <Photo> ;
+	msg:imports foaf:Image ;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
@@ -63,19 +71,12 @@
 		var obj = location;
 		if (!obj)
 			throw new BadRequest("Missing location");
-		if (obj instanceof Photo)
+		if (obj instanceof Image)
 			throw new Conflict("A photo with that file name has already been uploaded: " + obj) ;
 
 		//# designate as <Image> and the relevant mimetype
-		obj = con.addDesignation(obj, Photo) ;
-		obj = con.addDesignation(obj, "http://xmlns.com/foaf/0.1/Image") ;
-		if (type == "image/pjpeg") { //# IE
-			type = "image/jpeg";
-		}
-		if (type != "image/jpeg") {
-			throw new BadRequest("Unsupported format: " + type);
-		}
-		obj = con.addDesignation(obj, "urn:mimetype:" + type) ;
+		obj = con.addDesignation(obj, this.toString()) ;
+		obj = con.addDesignation(obj, Image) ;
 
 		//# add the image label
 		var fileName = location.resource.localName;
@@ -90,8 +91,7 @@
 		return obj;
 	""".
 
-:local a calli:LocalRealm;
-	calli:domain </>.
+:local a calli:LocalRealm.
 
 :PutPhoto rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];

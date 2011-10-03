@@ -38,7 +38,7 @@
 		}
 	}
 
-	if (window.frameElement) {
+	if (window.parent != window) {
 		document.documentElement.className += " iframe";
 		var src = null;
 		var postSource = function() {

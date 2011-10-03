@@ -1,5 +1,6 @@
 # 
-#    Copyright (c) 2011 Talis Inc., Some rights reserved
+#    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
+#    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
 # 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -21,19 +22,29 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<CreatableIndex> a owl:Class;
-	rdfs:label "Creatable Index";
-	rdfs:subClassOf <Creatable>, owl:Class.
+:InitializeOriginlabel owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var Origin = vf.createURI(calli, "Origin");
 
-:GetCreatableIndexPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <CreatableIndex>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	msg:rel "alternate";
-	msg:method "GET";
-	msg:query "index";
-	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
-	msg:header "cache-control:no-cache";
-	msg:imports <creatable-index.xhtml>;
-	msg:script "return creatable_index_xhtml.calliConstruct(this, 'index')".
+		var origins = con.getStatements(null, RDF.TYPE, Origin, true, []);
+		try {
+			while (origins.hasNext()) {
+				var origin = origins.next().subject;
+				if (!con.hasStatement(origin, RDFS.LABEL, null, true, [])) {
+					var url = origin.toString();
+					if (url.lastIndexOf('/') == url.length - 1) {
+						var label = url.substring(0, url.length - 1);
+						con.add(origin, RDFS.LABEL, vf.createLiteral(label), []);
+					}
+				}
+			}
+		} finally {
+			origins.close();
+		}
+		proceed();
+	""".
 

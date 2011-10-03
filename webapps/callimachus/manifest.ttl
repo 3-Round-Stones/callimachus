@@ -44,6 +44,9 @@ calli:template a owl:ObjectProperty;
 	msg:type "text/xml";
 	msg:script """
 		var xhtml = ['<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title>'];
+		xhtml.push('<base href="');
+		xhtml.push(this.calliTheme.calliLayout);
+		xhtml.push('" />');
 		xhtml.push('<link rel="stylesheet" href="');
 		xhtml.push(this.calliTheme.calliStyle);
 		xhtml.push('" />');

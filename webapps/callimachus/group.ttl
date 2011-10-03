@@ -14,15 +14,13 @@
 	calli:icon <group.png>;
 	calli:view <group.xhtml>;
 	calli:edit <group-edit.xhtml>;
-	calli:create <group-create.xhtml>;
-	calli:uriSpace </>.
+	calli:create <group-create.xhtml>.
 
 ################################
 # User setup
 ################################
 
-:local a calli:LocalRealm;
-	calli:domain </>.
+:local a calli:LocalRealm.
 
 :HasNoAdministrator rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];

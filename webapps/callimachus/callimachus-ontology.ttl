@@ -38,112 +38,49 @@
 # Class
 ################################
 
-calli:Article a owl:Class;
-	rdfs:subClassOf calli:File;
-	rdfs:label "Article";
-	rdfs:comment "A self-contained composition that is intended to be independently distributable or reusable".
-
 calli:Composite a owl:Class;
 	rdfs:label "Composite";
 	rdfs:comment "Class of resources that contain nested components, where the component URIs have their parent URI as a prefix".
 
-calli:Creatable a owl:Class;
-	rdfs:label "Viewable";
-	rdfs:comment "Set of classes that can be instantiated from a Web browser".
-
-calli:Editable a owl:Class;
-	rdfs:label "Editable";
-	rdfs:comment "Resources that can be edited".
-
-calli:Viewable a owl:Class;
-	rdfs:label "Viewable";
-	rdfs:comment "Resources that can be viewed from a Web browser".
-
-calli:File a owl:Class;
-	rdfs:subClassOf foaf:Document;
-	rdfs:label "File";
-	rdfs:comment "Information resources, things that can be transmitted electronically".
-
 calli:Folder a owl:Class;
+	rdfs:subClassOf calli:Composite;
 	rdfs:label "Folder";
 	rdfs:comment "A resource URI namespace ending in a slash".
 
-calli:Page a owl:Class;
-	rdfs:subClassOf calli:File;
-	rdfs:label "Page";
-	rdfs:comment "An XHTML+RDFa Web page".
-
-calli:Script a owl:Class;
-	rdfs:subClassOf calli:File;
-	rdfs:label "Script";
-	rdfs:comment "An EMCA script document".
-
-calli:Style a owl:Class;
-	rdfs:subClassOf calli:File;
-	rdfs:label "Style";
-	rdfs:comment "An Cascading Style Sheet document".
-
-calli:Text a owl:Class;
-	rdfs:subClassOf calli:File;
-	rdfs:label "Text";
-	rdfs:comment "An plain text document".
-
-calli:Image a owl:Class;
-	rdfs:subClassOf calli:File, foaf:Image;
-	rdfs:label "Image";
-	rdfs:comment "Digital images (PNG, GIF bitmaps, ICO)".
-
-calli:Photo a owl:Class;
-	rdfs:subClassOf calli:File, foaf:Image;
-	rdfs:label "Photo";
-	rdfs:comment "Digital JPEG photographs created using a camera".
-
-calli:DomainRealm a owl:Class;
-	rdfs:label "Domain Realm";
-	rdfs:comment "A realm with a configurable domain".
+calli:Origin a owl:Class;
+	rdfs:subClassOf calli:Folder;
+	rdfs:label "Origin";
+	rdfs:comment "A URI with a '/' path that is served by a Callimachus system".
 
 calli:AnybodyRealm a owl:Class;
-	rdfs:subClassOf calli:DomainRealm;
 	rdfs:label "Anybody Realm";
 	rdfs:comment "A realm that authenticates any agent".
 
 calli:NobodyRealm a owl:Class;
-	rdfs:subClassOf calli:DomainRealm;
 	rdfs:label "Nobody Realm";
 	rdfs:comment "A realm that forbids all agents".
 
 calli:LocalRealm a owl:Class;
-	rdfs:subClassOf calli:DomainRealm;
 	rdfs:label "Local Realm";
 	rdfs:comment "A realm that only authenticates local agents".
 
 calli:AccountManager a owl:Class;
-	rdfs:subClassOf calli:DomainRealm;
 	rdfs:label "Account Manager";
 	rdfs:comment "A managed set of users that can authenticate using HTTP digest credentials".
 
-calli:Credential a owl:Class;
-	rdfs:label "Credential";
-	rdfs:comment "A digest credential with a MD5 algorithm";
-	rdfs:subClassOf calli:Party.
-
-calli:User a owl:Class;
-	rdfs:label "User";
-	rdfs:comment "Credentials for a person";
-	rdfs:subClassOf calli:Credential.
-
-calli:Group a owl:Class;
-	rdfs:label "Group";
-	rdfs:comment "A collection of credentials";
-	rdfs:subClassOf calli:Party.
-
 calli:Party a owl:Class;
 	rdfs:label "Party";
-	rdfs:comment "A credential, user or group of credentials".
+	rdfs:comment "An agent or group of credentials".
 
-calli:Origin a owl:Class;
-	rdfs:label "Origin";
-	rdfs:comment "A URI with a '/' path that is served by a Callimachus system".
+calli:User a owl:Class;
+	rdfs:subClassOf calli:Party;
+	rdfs:label "Agent";
+	rdfs:comment "A digest credential with a MD5 algorithm".
+
+calli:Group a owl:Class;
+	rdfs:subClassOf calli:Party;
+	rdfs:label "Group";
+	rdfs:comment "A collection of credentials".
 
 calli:Manifest a owl:Class;
 	rdfs:label "Manifest";
@@ -153,25 +90,6 @@ calli:Menu a owl:Class;
 	rdfs:label "Menu";
 	rdfs:comment "A hierarchical menu of human-readable links".
 
-calli:NamedQuery a owl:Class;
-	rdfs:subClassOf calli:File;
-	rdfs:label "Named Query";
-	rdfs:comment "Query in the RDF store that can be evaluated remotely".
-
-calli:NamedGraph a owl:Class;
-	rdfs:subClassOf calli:File;
-	rdfs:label "Named Graph";
-	rdfs:comment "Graph in the RDF store that can be retrieved remotely".
-
-calli:SchemaGraph a owl:Class;
-	rdfs:subClassOf calli:NamedGraph;
-	rdfs:label "Schema Graph";
-	rdfs:comment "Graph in the RDF store that contains schema data".
-
-calli:ScriptBundle a owl:Class;
-	rdfs:label "Script Bundle";
-	rdfs:comment "A collection of JavaScript files that are downloaded and compressed together".
-
 calli:Theme a owl:Class;
 	rdfs:label "Theme";
 	rdfs:comment "A Callimachus Web theme of HTML templates, CSS, and JavaScript";
@@ -180,6 +98,34 @@ calli:Theme a owl:Class;
 calli:ColourScheme a owl:Class;
 	rdfs:label "Colour Scheme";
 	rdfs:comment "The CSS files used to colour one or more Callimachus Web themes".
+
+calli:ScriptBundle a owl:Class;
+	rdfs:label "Script Bundle";
+	rdfs:comment "A collection of JavaScript files that are downloaded and compressed together".
+
+calli:SchemaGraph a owl:Class;
+	rdfs:label "Schema Graph";
+	rdfs:comment "Graph in the RDF store that contains schema data".
+
+calli:Creatable a owl:DeprecatedClass;
+	rdfs:label "Creatable";
+	rdfs:comment "Use </callimachus/Creatable> instead".
+
+calli:Editable a owl:DeprecatedClass;
+	rdfs:label "Editable";
+	rdfs:comment "Use </callimachus/Editable> instead".
+
+calli:Viewable a owl:DeprecatedClass;
+	rdfs:label "Viewable";
+	rdfs:comment "Use </callimachus/Viewable> instead".
+
+calli:Page a owl:DeprecatedClass;
+	rdfs:label "Page";
+	rdfs:comment "Use </callimachus/Page> instead".
+
+calli:NamedGraph a owl:DeprecatedClass;
+	rdfs:label "Named Graph";
+	rdfs:comment "Use </callimachus/NamedGraph> instead".
 
 ################################
 # Annotation
@@ -209,9 +155,9 @@ calli:view a owl:AnnotationProperty;
 	rdfs:label "view";
 	rdfs:comment "The RDFa page template used to display individual resources of this class in a Web browser".
 
-calli:uriSpace a owl:AnnotationProperty;
-	rdfs:label "uri space";
-	rdfs:comment "Restricts the possible URI prefix of resources created from this class or template".
+calli:create a owl:AnnotationProperty;
+	rdfs:label "create";
+	rdfs:comment "The RDFa page template used to create resources of this class using a Web browser".
 
 ################################
 # Property
@@ -219,20 +165,20 @@ calli:uriSpace a owl:AnnotationProperty;
 
 calli:algorithm a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "algorithm";
-	rdfs:comment "A value of 'MD5' indicates this credential is a digest credential";
-	rdfs:domain calli:Credential;
+	rdfs:comment "A value of 'MD5' indicates this Agent is uses digest authentication";
+	rdfs:domain calli:User;
 	rdfs:range rdf:PlainLiteral.
 
 calli:encoded a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "encoded";
 	rdfs:comment "The MD5 encoded username:realm:password";
-	rdfs:domain calli:Credential;
+	rdfs:domain calli:User;
 	rdfs:range xsd:hexBinary.
 
 calli:name a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "name";
-	rdfs:comment "The username for this credential";
-	rdfs:domain calli:Credential;
+	rdfs:comment "The username for this agent";
+	rdfs:domain calli:User;
 	rdfs:range rdf:PlainLiteral.
 
 calli:email a owl:DatatypeProperty, owl:FunctionalProperty;
@@ -251,16 +197,6 @@ calli:authName a rdf:Property, owl:FunctionalProperty;
 	rdfs:label "auth name";
 	rdfs:comment "A string to be displayed to users so they know which username and password to use. This string should contain at least the name of the host performing the authentication and might additionally indicate the collection of users who might have access. This string is used to encode the passwords and changing it will invalidates existing encoded passwords";
 	rdfs:domain calli:AccountManager.
-
-calli:domain a rdf:Property;
-	rdfs:label "domain";
-	rdfs:comment "Define the protection space for this realm to authenticate. Any URI that has a URI in this set as a prefix may be assumed to be in the same protection space";
-	rdfs:domain calli:DomainRealm.
-
-calli:origin a rdf:Property;
-	rdfs:label "origin";
-	rdfs:comment "Identifies the security contexts that allow user agent scripts to initiate an HTTP request that can be seamlessly authenticated with this realm. Include '*' to allow all other contexts without agent credentials";
-	rdfs:domain calli:Manifest.
 
 calli:forbidden a owl:ObjectProperty;
 	rdfs:label "forbidden";
@@ -313,17 +249,11 @@ calli:version a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain calli:Origin;
 	rdfs:range rdf:PlainLiteral.
 
-calli:create a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:label "create";
-	rdfs:comment "The RDFa page template used to create resources of this class using a Web browser";
-	rdfs:domain calli:Creatable;
-	rdfs:range calli:Page.
-
 calli:member a owl:ObjectProperty;
 	rdfs:label "member";
-	rdfs:comment "Credential that is part of this group";
+	rdfs:comment "Agent that is part of this group";
 	rdfs:domain calli:Group;
-	rdfs:range calli:Credential.
+	rdfs:range calli:Agent.
 
 calli:hasComponent a owl:ObjectProperty;
 	rdfs:label "has component";

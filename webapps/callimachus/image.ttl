@@ -25,36 +25,107 @@
 @prefix :<#>.
 
 <Image> a <Creatable>, owl:Class;
-	rdfs:subClassOf calli:Image, <File>;
+	rdfs:subClassOf foaf:Image, <File>;
 	rdfs:label "Image" ;
 	calli:icon <image.png>;
 	calli:view <image.xhtml> ;
 	calli:edit <image-edit.xhtml> ;
-	calli:create <image-create.xhtml>;
-	calli:uriSpace </>.
+	calli:create <image-create.xhtml>.
+
+<AnimatedGraphic> a <Creatable>, owl:Class;
+	rdfs:subClassOf <Image>;
+	rdfs:label "Animated Graphic" ;
+	calli:icon <image.png>;
+	calli:create <image-create.xhtml>.
+
+<IconGraphic> a <Creatable>, owl:Class;
+	rdfs:subClassOf <Image>;
+	rdfs:label "Icon Graphic" ;
+	calli:icon <image.png>;
+	calli:create <image-create.xhtml>.
+
+<NetworkGraphic> a <Creatable>, owl:Class;
+	rdfs:subClassOf <Image>;
+	rdfs:label "Network Graphic" ;
+	calli:icon <image.png>;
+	calli:create <image-create.xhtml>.
+
+<VectorGraphic> a <Creatable>, owl:Class;
+	rdfs:subClassOf <Image>;
+	rdfs:label "Vector Graphic" ;
+	calli:icon <image.png>;
+	calli:create <image-create.xhtml>.
+
+# GET /image.gif
+:GetPhoto rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AnimatedGraphic>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "image/gif";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
+
+# GET /image.ico
+:GetPhoto rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IconGraphic>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "image/vnd.microsoft.icon";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
+
+# GET /image.png
+:GetPhoto rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NetworkGraphic>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "image/png";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
+
+# GET /image.svg
+:GetPhoto rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:type "image/svg+xml";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/File
 :PostImageFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <File> ]);
+		[owl:onProperty msg:target; owl:allValuesFrom [owl:oneOf (<Image> <File>)] ]);
 	msg:script """
-		if (type == "image/x-png" || type == "image/png" || type == "image/gif" || type == "image/vnd.microsoft.icon") {
-			var uri = this.toUri().resolve("/callimachus/Image").toString();
+		if (type == "image/x-png" || type == "image/png") {
+			var uri = this.toUri().resolve("/callimachus/NetworkGraphic").toString();
+			var factory = this.objectConnection.getObject(uri);
+			return factory.PostCreate(body, location, type);
+		} else if (type == "image/svg+xml") {
+			var uri = this.toUri().resolve("/callimachus/VectorGraphic").toString();
+			var factory = this.objectConnection.getObject(uri);
+			return factory.PostCreate(body, location, type);
+		} else if (type == "image/vnd.microsoft.icon") {
+			var uri = this.toUri().resolve("/callimachus/IconGraphic").toString();
+			var factory = this.objectConnection.getObject(uri);
+			return factory.PostCreate(body, location, type);
+		} else if (type == "image/gif") {
+			var uri = this.toUri().resolve("/callimachus/AnimatedGraphic").toString();
 			var factory = this.objectConnection.getObject(uri);
 			return factory.PostCreate(body, location, type);
 		}
 		return proceed();
 	""".
 
-# POST ?create=/callimachus/Image
+# POST ?create=/callimachus/ImageGraphic
 :PostImageCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Image> ]);
+		[owl:onProperty msg:target; owl:allValuesFrom [owl:oneOf (<NetworkGraphic> <VectorGraphic> <IconGraphic> <AnimatedGraphic>)] ]);
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
 	msg:imports <java:javax.mail.internet.MimeMultipart>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <Image> ;
+	msg:imports foaf:Image ;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
@@ -66,16 +137,9 @@
 		if (obj instanceof Image)
 			throw new Conflict("An image with that file named has already been uploaded: " + obj) ;
 
-		//# designate as <Image> and the relevant mimetype
-		obj = con.addDesignation(obj, Image) ;
-		obj = con.addDesignation(obj, "http://xmlns.com/foaf/0.1/Image") ;
-		if (type == "image/x-png") { //# IE
-			type = "image/png";
-		}
-		if (type != "image/png" && type != "image/gif" && type != "image/vnd.microsoft.icon") {
-			throw new BadRequest("This format is not support please convert to PNG/GIF/ICO, was: " + type);
-		}
-		obj = con.addDesignation(obj, "urn:mimetype:" + type) ;
+		//# designate as foaf:Image
+		obj = con.addDesignation(obj, this.toString()) ;
+		obj = con.addDesignation(obj, Image);
 
 		//# add the image label
 		var fileName = location.resource.localName;
@@ -90,8 +154,7 @@
 		return obj;
 	""".
 
-:local a calli:LocalRealm;
-	calli:domain </>.
+:local a calli:LocalRealm.
 
 :PutImage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Image> ];

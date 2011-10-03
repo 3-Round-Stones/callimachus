@@ -92,8 +92,7 @@
 # User forgot password
 ################################
 
-:anybody a calli:AnybodyRealm;
-	calli:domain <accounts?forgotpassword>.
+:anybody a calli:AnybodyRealm.
 
 # Linked from request password email
 :GetForgotPasswordPage rdfs:subClassOf msg:Message;

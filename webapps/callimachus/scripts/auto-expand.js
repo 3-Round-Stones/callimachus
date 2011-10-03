@@ -228,7 +228,7 @@ function flexBlock(area, contentWidth, innerHeight) {
 	}
 }
 
-if (window.frameElement) {
+if (window.parent != window) {
 	$(window).bind('load', function() {
 		setTimeout(function() {
 			var innerHeight = window.innerHeight || document.documentElement.clientHeight;

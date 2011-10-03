@@ -85,21 +85,6 @@
 	rdfs:range xsd:string;
 	msg:header "Content-Type".
 
-:IsCreateInUriSpace rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
-	msg:sparql  """
-		ASK {
-			$this calli:uriSpace ?space
-			#TODO FILTER strstarts(str($createLocation), str(?space))
-			FILTER regex(str($createLocation), str(?space))
-		}
-	""".
-
-:createLocation a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :IsCreateInUriSpace.
-
 # find the user that created $thing if they are not otherwise editors
 :FindContributor rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];

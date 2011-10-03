@@ -27,8 +27,7 @@
 	rdfs:label "Graph";
 	calli:icon <graph.png>;
 	calli:create <graph-create.xhtml>;
-	calli:view <graph-view.xhtml>;
-	calli:uriSpace </>.
+	calli:view <graph-view.xhtml>.
 
 :GetGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];

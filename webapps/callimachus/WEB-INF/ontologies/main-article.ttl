@@ -25,6 +25,11 @@
 :InitializeMainArticle owl:equivalentClass calli:Started;
 	msg:imports calli:Article;
 	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var describedBy = vf.createURI(calli, "describedBy");
+
 		var pages = this.FindDefaultMainArticle().iterator();
 		while (pages.hasNext()) {
 			var url = pages.next().toString();
@@ -33,18 +38,21 @@
 			if (!(created instanceof Article)) {
 				var atype = url.replace(/pages.main-article.docbook$/, 'Article');
 				var home = url.replace(/callimachus.pages.main-article.docbook$/, '');
-				var folder = this.objectConnection.getObject(home);
-				created = this.objectConnection.addDesignation(created, atype);
-				created = this.objectConnection.addDesignation(created, Article);
+				var folder = con.getObject(home);
+				created = con.addDesignation(created, atype);
+				created = con.addDesignation(created, Article);
+				created.rdfsLabel.add("main article");
 				created.calliReader.addAll(folder.calliReader);
 				created.calliEditor.addAll(folder.calliEditor);
 				created.calliAdministrator.addAll(folder.calliAdministrator);
 				folder.calliHasComponent.add(created);
+				con.add(folder.resource, describedBy, vf.createURI(created.toString() + '?view'), []);
 				this.objectConnection.commit();
 				java.lang.System.out.println("Uploading " + page);
 				created.UploadArticle(new java.net.URL(url).openStream());
 			}
 		}
+		proceed();
 	""".
 
 :FindDefaultMainArticle rdfs:subClassOf msg:Message;

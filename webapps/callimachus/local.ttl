@@ -17,6 +17,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
@@ -40,4 +41,8 @@
 <Editable> a owl:Class;
 	rdfs:label "Editable";
 	rdfs:subClassOf <Local>, calli:Editable.
+
+<File> a <Creatable>, owl:Class;
+	rdfs:label "File";
+	rdfs:subClassOf <Viewable>, <Editable>, foaf:Document.
 

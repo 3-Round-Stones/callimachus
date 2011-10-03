@@ -17,19 +17,19 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
 <Article> a <CreatableIndex>, owl:Class;
-	rdfs:subClassOf calli:Article, <File>;
+	rdfs:subClassOf <File>;
 	rdfs:label "Article";
 	rdfs:comment "New articles can be created from a folder";
 	calli:icon <article.png>;
 	calli:view <article-view.xhtml>;
 	calli:edit <article-edit.xhtml>;
-	calli:create <article-create.xhtml>;
-	calli:uriSpace </>.
+	calli:create <article-create.xhtml>.
 
 # GET /article/main-article.xml
 :GetArticleSource rdfs:subClassOf msg:Message;
@@ -78,7 +78,7 @@
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	msg:imports calli:Article;
+	msg:imports foaf:Document;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
@@ -86,7 +86,7 @@
 			throw new BadRequest("Missing location request header");
 
 		var created = con.getObject(this.toUri().resolve(location).toString());
-		if (created instanceof Article)
+		if (created instanceof Document)
 			throw new BadRequest("Article already exists");
 
 		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
@@ -94,7 +94,7 @@
 		con.add(created.resource, RDFS.LABEL, label, []);
 
 		created = con.addDesignation(created, this.toString());
-		created = con.addDesignation(created, Article);
+		created = con.addDesignation(created, Document);
 
 		this.touchRevision(); // update index page
 		con.commit();
@@ -103,8 +103,7 @@
 		return created;
 	""".
 
-:local a calli:LocalRealm;
-	calli:domain </>.
+:local a calli:LocalRealm.
 
 # PUT /page/MainArticle.xhtml
 # Called by client, copy operation, create operation, and MainArticle initialization
@@ -117,21 +116,8 @@
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:imports calli:Article;
+	msg:imports foaf:Document;
 	msg:script """
-		if (!xhtmlStream)
-			throw new BadRequest("Missing PUT request payload");
-		var con = this.objectConnection;
-		var vf = con.getValueFactory();
-
-		this.calliDeleteWebResource();
-
-		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
-		con.add(this.resource, RDFS.LABEL, label, []);
-
-		this.objectConnection.addDesignation(this, Article);
-
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
 		var out = this.openOutputStream();

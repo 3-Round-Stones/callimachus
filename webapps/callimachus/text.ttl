@@ -17,19 +17,19 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
 <Text> a <CreatableIndex>, owl:Class;
-	rdfs:subClassOf calli:Text, <File>;
+	rdfs:subClassOf <File>;
 	rdfs:label "Text";
 	rdfs:comment "Text files";
 	calli:icon <text.png>;
 	calli:view <text-view.xhtml>;
 	calli:edit <text-edit.xhtml>;
-	calli:create <text-create.xhtml>;
-	calli:uriSpace </>.
+	calli:create <text-create.xhtml>.
 
 # GET /robots.txt
 :GetText rdfs:subClassOf msg:Message;
@@ -61,7 +61,7 @@
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
-	msg:imports calli:Text;
+	msg:imports foaf:Document;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
@@ -69,7 +69,7 @@
 			throw new BadRequest("Missing location request header");
 
 		var created = con.getObject(this.toUri().resolve(location).toString());
-		if (created instanceof Text)
+		if (created instanceof Document)
 			throw new BadRequest("File already exists");
 
 		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
@@ -77,7 +77,7 @@
 		con.add(created.resource, RDFS.LABEL, label, []);
 
 		created = con.addDesignation(created, this.toString());
-		created = con.addDesignation(created, Text);
+		created = con.addDesignation(created, Document);
 
 		this.touchRevision(); // update index page
 		con.commit();
@@ -86,8 +86,7 @@
 		return created;
 	""".
 
-:local a calli:LocalRealm;
-	calli:domain </>.
+:local a calli:LocalRealm.
 
 # PUT /robots.txt
 :UploadText rdfs:subClassOf msg:Message;

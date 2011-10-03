@@ -30,8 +30,7 @@
 	calli:icon <concept.png>;
 	calli:view <concept.xhtml>;
 	calli:edit <concept-edit.xhtml>;
-	calli:create <concept-create.xhtml>;
-	calli:uriSpace </>.
+	calli:create <concept-create.xhtml>.
 
 :GetConceptIndexPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Concept>];

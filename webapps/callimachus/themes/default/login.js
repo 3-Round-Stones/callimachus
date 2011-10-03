@@ -5,7 +5,7 @@
 $(document).bind("calliLogInPrompt", function() {
 	$(document).ready(function() {
 		if ($(document.documentElement).is(".noauth")) {
-			$("#header-login").submit();
+			login.call($("#header-login")[0]);
 		}
 	});
 });
@@ -71,7 +71,7 @@ function login(event) {
 			})
 		}
 	}
-	if (event.preventDefault) {
+	if (event && event.preventDefault) {
 		event.preventDefault();
 	}
 	return false;

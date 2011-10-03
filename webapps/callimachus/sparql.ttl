@@ -23,6 +23,7 @@
 @prefix :<#>.
 
 <SparqlEndPoint> rdfs:subClassOf <Viewable>;
+	rdfs:isDefinedBy </callimachus>;
 	calli:view <sparql-view.xhtml>.
 
 :EvaluateSparql rdfs:subClassOf msg:Message;

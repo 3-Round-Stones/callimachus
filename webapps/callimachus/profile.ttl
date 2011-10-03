@@ -23,7 +23,8 @@
 @prefix :<#>.
 
 <Profile> a owl:Class;
-	rdfs:subClassOf <Local>.
+	rdfs:subClassOf <Local>;
+	rdfs:isDefinedBy </callimachus>.
 
 :GetProfile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];

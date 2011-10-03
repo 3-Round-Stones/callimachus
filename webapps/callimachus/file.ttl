@@ -25,6 +25,7 @@
 <File> a <Creatable>, owl:Class;
 	rdfs:label "File";
 	rdfs:subClassOf <Viewable>, <Editable>, foaf:Document;
+	rdfs:isDefinedBy </callimachus>;
 	calli:view <file-view.xhtml>;
 	calli:edit <file-edit.xhtml>.
 

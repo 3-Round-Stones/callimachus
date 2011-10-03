@@ -12,6 +12,7 @@
 ################################
 
 <AccountManager> rdfs:subClassOf <Viewable>, calli:AccountManager;
+	rdfs:isDefinedBy </callimachus>;
 	calli:view <accounts-view.xhtml>.
 
 ################################

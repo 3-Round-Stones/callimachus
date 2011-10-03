@@ -9,6 +9,7 @@
 @prefix :<#>.
 
 <Menu> rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
+	rdfs:isDefinedBy </callimachus>;
 	calli:view <menu-view.xhtml>;
 	calli:edit <menu-edit.xhtml>.
 

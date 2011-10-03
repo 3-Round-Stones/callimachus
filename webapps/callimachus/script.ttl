@@ -26,6 +26,7 @@
 	rdfs:subClassOf <File>;
 	rdfs:label "Script";
 	rdfs:comment "Script files";
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <script.png>;
 	calli:view <script-view.xhtml>;
 	calli:edit <script-edit.xhtml>;

@@ -12,24 +12,21 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-
+#
 @prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
-@prefix dcterms:<http://purl.org/dc/terms/>.
-@prefix skosxl:<http://www.w3.org/2008/05/skos-xl#>.
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
-@prefix :<#>.
+@prefix cc:<http://creativecommons.org/ns#>.
 
-<Origin> a owl:Class;
-	rdfs:subClassOf <Folder>, calli:Origin;
-	rdfs:label "Origin";
-	rdfs:comment "Root path of an http or https authority";
-	rdfs:isDefinedBy </callimachus>;
-	calli:icon <origin.png>;
-	calli:view <folder-view.xhtml>.
+################################
+# Ontology
+################################
 
+</callimachus> a owl:Ontology;
+	rdfs:label "Local Callimachus Ontology";
+	rdfs:comment "Vocabulary used to create local Callimachus applications";
+	owl:imports <http://callimachusproject.org/rdf/2009/framework>.

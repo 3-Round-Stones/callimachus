@@ -26,6 +26,7 @@
 	rdfs:subClassOf <File>;
 	rdfs:label "Style";
 	rdfs:comment "Style files";
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <style.png>;
 	calli:view <style-view.xhtml>;
 	calli:edit <style-edit.xhtml>;

@@ -10,6 +10,7 @@
 @prefix :<#>.
 
 <Manifest> rdfs:subClassOf <Viewable>, <Editable>, calli:Manifest;
+	rdfs:isDefinedBy </callimachus>;
 	calli:view <manifest-view.xhtml>;
 	calli:edit <manifest-edit.xhtml>.
 

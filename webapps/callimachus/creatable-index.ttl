@@ -23,7 +23,8 @@
 
 <CreatableIndex> a owl:Class;
 	rdfs:label "Creatable Index";
-	rdfs:subClassOf <Creatable>, owl:Class.
+	rdfs:subClassOf <Creatable>, owl:Class;
+	rdfs:isDefinedBy </callimachus>.
 
 :GetCreatableIndexPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <CreatableIndex>];

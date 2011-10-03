@@ -26,6 +26,7 @@
 	rdfs:subClassOf <File>;
 	rdfs:label "Query";
 	rdfs:comment "Saved SPARQL queries";
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <query.png>;
 	calli:view <query-view.xhtml>;
 	calli:edit <query-edit.xhtml>;

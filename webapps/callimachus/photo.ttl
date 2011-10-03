@@ -27,6 +27,7 @@
 <Photo> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Photo" ;
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <photo.png>;
 	calli:view <photo-view.xhtml> ;
 	calli:edit <photo-edit.xhtml> ;

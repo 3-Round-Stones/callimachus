@@ -26,6 +26,7 @@
 	rdfs:subClassOf <File>;
 	rdfs:label "Text";
 	rdfs:comment "Text files";
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <text.png>;
 	calli:view <text-view.xhtml>;
 	calli:edit <text-edit.xhtml>;

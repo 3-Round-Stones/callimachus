@@ -26,6 +26,7 @@
 <NamedGraph> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf calli:NamedGraph, <File>;
 	rdfs:label "Graph";
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <graph.png>;
 	calli:create <graph-create.xhtml>.
 

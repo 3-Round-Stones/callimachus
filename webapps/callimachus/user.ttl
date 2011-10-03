@@ -11,6 +11,7 @@
 	rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:User;
 	rdfs:label "User";
 	rdfs:comment "Username and password associated with an email address";
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <user.png>;
 	calli:view <user-view.xhtml>;
 	calli:edit <user-edit.xhtml>;

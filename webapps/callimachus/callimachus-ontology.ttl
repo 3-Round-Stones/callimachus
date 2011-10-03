@@ -32,7 +32,8 @@
 
 <> a owl:Ontology;
 	rdfs:label "Callimachus Ontology";
-	rdfs:comment "Vocabulary used to create Callimachus applications".
+	rdfs:comment "Vocabulary used to create Callimachus applications";
+	owl:versionInfo "0.13".
 
 ################################
 # Class
@@ -241,12 +242,6 @@ calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "rights";
 	rdfs:comment "Rights statement for the data in this Web application server";
 	rdfs:domain calli:Manifest;
-	rdfs:range rdf:PlainLiteral.
-
-calli:version a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:label "version";
-	rdfs:comment "The latest Callimachus software version hosting this origin";
-	rdfs:domain calli:Origin;
 	rdfs:range rdf:PlainLiteral.
 
 calli:member a owl:ObjectProperty;

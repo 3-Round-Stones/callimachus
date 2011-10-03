@@ -27,6 +27,7 @@
 	rdfs:subClassOf <Creatable>, <Viewable>, <Editable>, owl:Class;
 	rdfs:label "Class";
 	rdfs:comment "A class is a construct that is used as a blueprint (or template) to create and edit resources of that class";
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <class.png>;
 	calli:view <class-view.xhtml>;
 	calli:edit <class-edit.xhtml>;

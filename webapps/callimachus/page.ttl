@@ -25,6 +25,7 @@
 	rdfs:subClassOf calli:Page, <File>;
 	rdfs:label "Page";
 	rdfs:comment "New pages can be created in a folder";
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <page.png>;
 	calli:edit <page-edit.xhtml>;
 	calli:create <page-create.xhtml>.

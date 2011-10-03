@@ -26,6 +26,7 @@
 	rdfs:subClassOf <File>;
 	rdfs:label "Article";
 	rdfs:comment "New articles can be created from a folder";
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <article.png>;
 	calli:view <article-view.xhtml>;
 	calli:edit <article-edit.xhtml>;

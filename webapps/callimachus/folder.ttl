@@ -29,6 +29,7 @@
 	rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:Folder;
 	rdfs:label "Folder";
 	rdfs:comment "A folder of resources";
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <folder.png>;
 	calli:view <folder-view.xhtml>;
 	calli:edit <folder-edit.xhtml>;

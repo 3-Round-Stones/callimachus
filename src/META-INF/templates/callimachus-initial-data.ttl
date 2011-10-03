@@ -25,13 +25,10 @@
 </callimachus/accounts> a </callimachus/AccountManager>, calli:AccountManager;
 	rdfs:label "User accounts";
 	calli:authName </>;
-	calli:domain </>;
 	calli:authNamespace </user/>.
 
-</> a </callimachus/Folder>, calli:Folder, calli:Origin;
-	rdfs:label "Home folder";
+</> a </callimachus/Origin>, calli:Origin;
 	calli:version "0.13";
-	calli:describedBy </main-article.docbook?view>;
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;
@@ -85,7 +82,6 @@
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;
-	calli:origin </>;
 	calli:template </callimachus/styles/layout.xsl>;
 	calli:unauthorized </callimachus/pages/unauthorized.xhtml>;
 	calli:forbidden </callimachus/pages/forbidden.xhtml>;
@@ -112,7 +108,6 @@
 	calli:item </callimachus/menu#contents>;
 	calli:item </callimachus/menu#recentchanges>.
 </callimachus/menu#resources>	calli:position 8; rdfs:label "Resources";
-	calli:item </callimachus/menu#folders>;
 	calli:item </callimachus/menu#articles>;
 	calli:item </callimachus/menu#textfiles>;
 	calli:item </callimachus/menu#pages>;
@@ -137,14 +132,13 @@
 </callimachus/menu#contents>	calli:position 3; rdfs:label "Contents"; calli:link </callimachus/menu>.
 </callimachus/menu#recentchanges>	calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
 
-</callimachus/menu#folders>	calli:position 1; rdfs:label "Folders"; calli:link </callimachus/Folder>.
-</callimachus/menu#articles>	calli:position 2; rdfs:label "Articles"; calli:link </callimachus/Article>.
-</callimachus/menu#textfiles>	calli:position 3; rdfs:label "Text files"; calli:link </callimachus/Text>.
-</callimachus/menu#pages>	calli:position 4; rdfs:label "Pages"; calli:link </callimachus/Page>.
-</callimachus/menu#scripts>	calli:position 5; rdfs:label "Scripts"; calli:link </callimachus/Script>.
-</callimachus/menu#styles>	calli:position 6; rdfs:label "Styles"; calli:link </callimachus/Style>.
-</callimachus/menu#concepts>	calli:position 7; rdfs:label "Concepts"; calli:link </callimachus/Concept>.
-</callimachus/menu#classes>	calli:position 8; rdfs:label "Classes"; calli:link </callimachus/Class>.
+</callimachus/menu#articles>	calli:position 1; rdfs:label "Articles"; calli:link </callimachus/Article>.
+</callimachus/menu#textfiles>	calli:position 2; rdfs:label "Text files"; calli:link </callimachus/Text>.
+</callimachus/menu#pages>	calli:position 3; rdfs:label "Pages"; calli:link </callimachus/Page>.
+</callimachus/menu#scripts>	calli:position 4; rdfs:label "Scripts"; calli:link </callimachus/Script>.
+</callimachus/menu#styles>	calli:position 5; rdfs:label "Styles"; calli:link </callimachus/Style>.
+</callimachus/menu#concepts>	calli:position 6; rdfs:label "Concepts"; calli:link </callimachus/Concept>.
+</callimachus/menu#classes>	calli:position 7; rdfs:label "Classes"; calli:link </callimachus/Class>.
 
 </callimachus/menu#manifest>	calli:position 1; rdfs:label "Manifest"; calli:link </callimachus/manifest>.
 </callimachus/menu#usergroups>	calli:position 2; rdfs:label "User groups"; calli:link </callimachus/Group>.

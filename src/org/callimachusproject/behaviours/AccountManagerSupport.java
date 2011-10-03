@@ -224,19 +224,9 @@ public abstract class AccountManagerSupport implements AccountManager, RDFObject
 		return encodings.get(0)[0];
 	}
 
-	@Override
-	public String protectionDomain() {
-		StringBuilder sb = new StringBuilder();
-		for (Object domain : getCalliDomains()) {
-			if (sb.length() > 0) {
-				sb.append(" ");
-			}
-			sb.append(domain.toString());
-		}
-		if (sb.length() < 1)
-			return null;
-		return sb.toString();
-	}
+	@sparql("SELECT (group_concat(?origin;separator=' ') as ?domain)\n"
+			+ "WHERE { ?origin a </callimachus/Origin> }")
+	public abstract String protectionDomain();
 
 	@sparql(PREFIX
 			+ "SELECT ?user ?encoded\n"

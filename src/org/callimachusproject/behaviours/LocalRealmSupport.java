@@ -29,11 +29,11 @@ import java.util.Set;
 
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
-import org.callimachusproject.concepts.DomainRealm;
 import org.openrdf.http.object.traits.Realm;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.object.annotations.sparql;
 
 /**
  * Permits only local TCP connections from accessing this realm.
@@ -41,7 +41,7 @@ import org.openrdf.repository.object.RDFObject;
  * @author James Leigh
  * 
  */
-public abstract class LocalRealmSupport implements Realm, DomainRealm, RDFObject {
+public abstract class LocalRealmSupport implements Realm, RDFObject {
 
 	private static Set<String> local;
 	static {
@@ -89,19 +89,9 @@ public abstract class LocalRealmSupport implements Realm, DomainRealm, RDFObject
 		return result;
 	}
 
-	@Override
-	public final String protectionDomain() {
-		StringBuilder sb = new StringBuilder();
-		for (Object domain : getCalliDomains()) {
-			if (sb.length() > 0) {
-				sb.append(" ");
-			}
-			sb.append(domain.toString());
-		}
-		if (sb.length() < 1)
-			return null;
-		return sb.toString();
-	}
+	@sparql("SELECT (group_concat(?origin;separator=' ') as ?domain)\n"
+			+ "WHERE { ?origin a </callimachus/Origin> }")
+	public abstract String protectionDomain();
 
 	@Override
 	public final String allowOrigin() {

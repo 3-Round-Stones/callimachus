@@ -1,5 +1,4 @@
 org.callimachusproject.concepts.AccountManager
-org.callimachusproject.concepts.DomainRealm
 org.callimachusproject.concepts.Manifest
 org.callimachusproject.concepts.Group
 org.callimachusproject.concepts.ScriptBundle

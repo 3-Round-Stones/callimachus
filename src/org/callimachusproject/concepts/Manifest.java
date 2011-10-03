@@ -18,17 +18,6 @@ public interface Manifest extends Realm {
 	void setCalliAuthentications(Set<? extends AccountManager> authentications);
 
 	/**
-	 * Identifies the security contexts that allow user agent scripts to
-	 * initiate an HTTP request that can be seamlessly authenticated with this
-	 * realm. Include '*' to allow all other contexts without agent credentials.
-	 */
-	@iri("http://callimachusproject.org/rdf/2009/framework#origin")
-	Set<Object> getCalliOrigins();
-
-	@iri("http://callimachusproject.org/rdf/2009/framework#origin")
-	void setCalliOrigins(Set<Object> origins);
-
-	/**
 	 * The RDFa template used when an agent is forbidden from the requested
 	 * resource.
 	 */

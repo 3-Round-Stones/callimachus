@@ -18,6 +18,7 @@ import org.callimachusproject.concepts.Page;
 import org.callimachusproject.traits.SelfAuthorizingTarget;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.object.annotations.sparql;
 
 public abstract class ManifestSupport implements Manifest, RDFObject {
 	private static final BasicStatusLine _204;
@@ -30,26 +31,13 @@ public abstract class ManifestSupport implements Manifest, RDFObject {
 		_403 = new BasicStatusLine(HTTP11, 403, "Forbidden");
 	}
 
-	@Override
-	public final String allowOrigin() {
-		StringBuilder sb = new StringBuilder();
-		for (Object origin : getCalliOrigins()) {
-			if (sb.length() > 0) {
-				sb.append(", ");
-			}
-			String str = origin.toString();
-			if (str.equals("*"))
-				return str;
-			sb.append(str);
-		}
-		if (sb.length() < 1)
-			return null;
-		return sb.toString();
-	}
+	@sparql("SELECT (group_concat(?origin;separator=',') as ?domain)\n"
+			+ "WHERE { ?origin a </callimachus/Origin> }")
+	public abstract String allowOrigin();
 
 	@Override
 	public final boolean withAgentCredentials(String origin) {
-		for (Object script : getCalliOrigins()) {
+		for (Object script : this.allowOrigin().split(",")) {
 			String ao = script.toString();
 			// must be explicitly listed ('*' does not qualify)
 			if (origin.startsWith(ao) || ao.startsWith(origin)
@@ -86,19 +74,9 @@ public abstract class ManifestSupport implements Manifest, RDFObject {
 		return target.calliIsAuthorized(credential, method, query);
 	}
 
-	@Override
-	public final String protectionDomain() {
-		StringBuilder sb = new StringBuilder();
-		for (AccountManager realm : getCalliAuthentications()) {
-			if (sb.length() > 0) {
-				sb.append(" ");
-			}
-			sb.append(realm.protectionDomain());
-		}
-		if (sb.length() < 1)
-			return null;
-		return sb.toString();
-	}
+	@sparql("SELECT (group_concat(?origin;separator=' ') as ?domain)\n"
+			+ "WHERE { ?origin a </callimachus/Origin> }")
+	public abstract String protectionDomain();
 
 	@Override
 	public HttpResponse unauthorized(String method, Object resource,

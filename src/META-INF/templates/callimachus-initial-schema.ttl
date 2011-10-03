@@ -28,22 +28,5 @@ audit:current-trx a calli:SchemaGraph.
 # Class wide authorization
 ################################
 
-</callimachus/AccountManager> calli:administrator </group/admin>.
-</callimachus/Article>        calli:administrator </group/admin>.
-</callimachus/Change>         calli:administrator </group/admin>.
-</callimachus/Class>          calli:administrator </group/admin>.
-</callimachus/Concept>        calli:administrator </group/admin>.
-</callimachus/Folder>         calli:administrator </group/admin>.
-</callimachus/Graph>          calli:administrator </group/admin> .
-</callimachus/Group>          calli:administrator </group/admin>.
-</callimachus/Image>          calli:administrator </group/admin>.
-</callimachus/Manifest>       calli:administrator </group/admin>.
-</callimachus/Menu>           calli:administrator </group/admin>.
-</callimachus/NamedQuery>     calli:administrator </group/admin>.
-</callimachus/ObjectProperty> calli:administrator </group/admin>.
-</callimachus/Page>           calli:administrator </group/admin>.
-</callimachus/Photo>          calli:administrator </group/admin>.
-</callimachus/Profile>        calli:administrator </group/admin>.
-</callimachus/SparqlEndPoint> calli:administrator </group/admin>.
-</callimachus/User>           calli:administrator </group/admin>.
+</callimachus/Local> calli:administrator </group/admin>.
 

@@ -41,7 +41,7 @@ import org.openrdf.repository.object.annotations.iri;
  *
  */
 @iri("http://callimachusproject.org/rdf/2009/framework#AccountManager")
-public interface AccountManager extends DomainRealm {
+public interface AccountManager {
 
 	/**
 	 * A string to be displayed to users so they know which username and

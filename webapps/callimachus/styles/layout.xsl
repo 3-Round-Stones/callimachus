@@ -286,7 +286,7 @@
 		<xsl:param name="base" />
 		<xsl:variable name="scheme" select="substring-before($base, '://')" />
 		<xsl:variable name="authority" select="substring-before(substring-after($base, '://'), '/')" />
-		<xsl:if test="$scheme and $authority and $relative and not(starts-with($relative,'//') or starts-with($relative,'?') or starts-with($relative,'#') or contains($relative, '://'))">
+		<xsl:if test="$scheme and $authority and $relative and not(starts-with($relative,'//') or starts-with($relative,'?') or starts-with($relative,'#') or contains($relative, '://') or contains($relative, '{'))">
 			<xsl:if test="starts-with($relative, '/')">
 				<xsl:value-of select="concat($scheme, '://', $authority)" />
 			</xsl:if>

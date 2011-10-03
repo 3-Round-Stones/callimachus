@@ -18,12 +18,13 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
 :InitializeMainArticle owl:equivalentClass calli:Started;
-	msg:imports calli:Article;
+	msg:imports foaf:Document;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
@@ -35,12 +36,12 @@
 			var url = pages.next().toString();
 			var page = url.replace(/callimachus.pages.main-article.docbook$/, 'main-article.docbook');
 			var created = this.objectConnection.getObject(page);
-			if (!(created instanceof Article)) {
+			if (!(created instanceof Document)) {
 				var atype = url.replace(/pages.main-article.docbook$/, 'Article');
 				var home = url.replace(/callimachus.pages.main-article.docbook$/, '');
 				var folder = con.getObject(home);
 				created = con.addDesignation(created, atype);
-				created = con.addDesignation(created, Article);
+				created = con.addDesignation(created, Document);
 				created.rdfsLabel.add("main article");
 				created.calliReader.addAll(folder.calliReader);
 				created.calliEditor.addAll(folder.calliEditor);

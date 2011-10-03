@@ -57,7 +57,7 @@
 	calli:create <image-create.xhtml>.
 
 # GET /image.gif
-:GetPhoto rdfs:subClassOf msg:Message;
+:GetAnimatedGraphic rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AnimatedGraphic>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
@@ -66,7 +66,7 @@
 	msg:script "return this.openInputStream()".
 
 # GET /image.ico
-:GetPhoto rdfs:subClassOf msg:Message;
+:GetIconGraphic rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IconGraphic>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
@@ -75,7 +75,7 @@
 	msg:script "return this.openInputStream()".
 
 # GET /image.png
-:GetPhoto rdfs:subClassOf msg:Message;
+:GetNetworkGraphic rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NetworkGraphic>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
@@ -84,7 +84,7 @@
 	msg:script "return this.openInputStream()".
 
 # GET /image.svg
-:GetPhoto rdfs:subClassOf msg:Message;
+:GetVectorGraphic rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";

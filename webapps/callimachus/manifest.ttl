@@ -69,7 +69,7 @@ calli:template a owl:ObjectProperty;
 	msg:expect "302-see-other";
 	msg:type "text/uri-list";
 	msg:script """
-		return this.calliColourScheme.toString() + "?source";
+		return this.calliTheme.toString() + "?source";
 	""".
 
 :GetJqueryuiStyle rdfs:subClassOf msg:Message;

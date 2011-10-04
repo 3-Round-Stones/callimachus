@@ -31,31 +31,31 @@
 	calli:icon <image.png>;
 	calli:view <image-view.xhtml> ;
 	calli:edit <image-edit.xhtml> ;
-	calli:create <image-create.xhtml>.
+	calli:create <file-create.xhtml>.
 
 <AnimatedGraphic> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Animated Graphic" ;
 	calli:icon <image.png>;
-	calli:create <image-create.xhtml>.
+	calli:create <file-create.xhtml>.
 
 <IconGraphic> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Icon Graphic" ;
 	calli:icon <image.png>;
-	calli:create <image-create.xhtml>.
+	calli:create <file-create.xhtml>.
 
 <NetworkGraphic> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Network Graphic" ;
 	calli:icon <image.png>;
-	calli:create <image-create.xhtml>.
+	calli:create <file-create.xhtml>.
 
 <VectorGraphic> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Vector Graphic" ;
 	calli:icon <image.png>;
-	calli:create <image-create.xhtml>.
+	calli:create <file-create.xhtml>.
 
 # GET /image.gif
 :GetAnimatedGraphic rdfs:subClassOf msg:Message;
@@ -95,23 +95,45 @@
 
 # POST ?create=/callimachus/File
 :PostImageFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:allValuesFrom [owl:oneOf (<Image> <File>)] ]);
+		[owl:onProperty msg:target; owl:hasValue <File>]);
+	msg:imports <File>;
 	msg:script """
+		var uri = null;
 		if (type == "image/x-png" || type == "image/png") {
-			var uri = this.toUri().resolve("/callimachus/NetworkGraphic").toString();
-			var factory = this.objectConnection.getObject(uri);
-			return factory.PostCreate(body, location, type);
+			uri = this.toUri().resolve("/callimachus/NetworkGraphic");
 		} else if (type == "image/svg+xml") {
-			var uri = this.toUri().resolve("/callimachus/VectorGraphic").toString();
-			var factory = this.objectConnection.getObject(uri);
-			return factory.PostCreate(body, location, type);
+			uri = this.toUri().resolve("/callimachus/VectorGraphic");
 		} else if (type == "image/vnd.microsoft.icon") {
-			var uri = this.toUri().resolve("/callimachus/IconGraphic").toString();
-			var factory = this.objectConnection.getObject(uri);
-			return factory.PostCreate(body, location, type);
+			uri = this.toUri().resolve("/callimachus/IconGraphic");
 		} else if (type == "image/gif") {
-			var uri = this.toUri().resolve("/callimachus/AnimatedGraphic").toString();
-			var factory = this.objectConnection.getObject(uri);
+			uri = this.toUri().resolve("/callimachus/AnimatedGraphic");
+		}
+		if (uri) {
+			if (location instanceof File) {
+				location = location.RemoveFile();
+			}
+			var factory = this.objectConnection.getObject(uri.toString());
+			return factory.PostCreate(body, location, type);
+		}
+		return proceed();
+	""".
+
+# POST ?create=/callimachus/Image
+:PostImage owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <Image>]);
+	msg:script """
+		var uri = null;
+		if (type == "image/x-png" || type == "image/png") {
+			uri = this.toUri().resolve("/callimachus/NetworkGraphic");
+		} else if (type == "image/svg+xml") {
+			uri = this.toUri().resolve("/callimachus/VectorGraphic");
+		} else if (type == "image/vnd.microsoft.icon") {
+			uri = this.toUri().resolve("/callimachus/IconGraphic");
+		} else if (type == "image/gif") {
+			uri = this.toUri().resolve("/callimachus/AnimatedGraphic");
+		}
+		if (uri) {
+			var factory = this.objectConnection.getObject(uri.toString());
 			return factory.PostCreate(body, location, type);
 		}
 		return proceed();

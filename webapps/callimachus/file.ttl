@@ -29,3 +29,18 @@
 	calli:view <file-view.xhtml>;
 	calli:edit <file-edit.xhtml>.
 
+:RemoveFile rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+		var hasComponent = vf.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent");
+
+		con.clear([this.resource]); //# clear graph
+		con.remove(this.resource, null, null, []); //# delete out bound triples
+		con.remove(null, hasComponent, this.resource, []); //# remove from parent folder
+		//#TODO this['delete'](); //# remove document
+		return con.getObjectFactory().createObject(this.resource);
+	""".
+

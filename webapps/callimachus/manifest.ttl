@@ -45,18 +45,22 @@ calli:template a owl:ObjectProperty;
 	msg:type "text/xml";
 	msg:script """
 		var xhtml = ['<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title>'];
-		xhtml.push('<base href="');
-		xhtml.push(this.calliTheme.calliLayout);
-		xhtml.push('" />');
-		xhtml.push('<link rel="stylesheet" href="');
-		xhtml.push(this.calliTheme.calliStyle);
-		xhtml.push('" />');
-		xhtml.push('<link rel="stylesheet jqueryui" href="');
-		xhtml.push(this.calliColourScheme.calliJqueryui);
-		xhtml.push('" />');
-		xhtml.push('<link rel="stylesheet" href="');
-		xhtml.push(this.calliColourScheme.calliColour);
-		xhtml.push('" />');
+		if (this.calliTheme) {
+			xhtml.push('<base href="');
+			xhtml.push(this.calliTheme.calliLayout);
+			xhtml.push('" />');
+			xhtml.push('<link rel="stylesheet" href="');
+			xhtml.push(this.calliTheme.calliStyle);
+			xhtml.push('" />');
+		}
+		if (this.calliColourScheme) {
+			xhtml.push('<link rel="stylesheet jqueryui" href="');
+			xhtml.push(this.calliColourScheme.calliJqueryui);
+			xhtml.push('" />');
+			xhtml.push('<link rel="stylesheet" href="');
+			xhtml.push(this.calliColourScheme.calliColour);
+			xhtml.push('" />');
+		}
 		xhtml.push('</head><body></body></html>');
 		return xhtml.join('');
 	""".

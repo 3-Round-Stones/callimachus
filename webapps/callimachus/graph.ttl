@@ -28,7 +28,7 @@
 	rdfs:label "Graph";
 	rdfs:isDefinedBy </callimachus>;
 	calli:icon <graph.png>;
-	calli:create <graph-create.xhtml>.
+	calli:create <file-create.xhtml>.
 
 :GetGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
@@ -53,8 +53,12 @@
 # POST ?create=/callimachus/File
 :PostGraphFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <File> ]);
+	msg:imports <File>;
 	msg:script """
 		if (type == "application/rdf+xml") {
+			if (location instanceof File) {
+				location = location.RemoveFile();
+			}
 			var uri = this.toUri().resolve("/callimachus/NamedGraph").toString();
 			var Graph = this.objectConnection.getObject(uri);
 			return Graph.PostCreate(body, location, type);
@@ -86,12 +90,8 @@
 		var obj = location;
 		var uri = obj.toString();
 
-		java.lang.System.out.println("Clearing " + uri);
-		con.removeDesignation(obj, "http://callimachusproject.org/rdf/2009/framework#NamedGraph");
-		con.removeDesignation(obj, this.toString());
-		con.remove(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
-		con.clear([vf.createURI(uri)]);
-		obj.touchRevision();
+		if (obj instanceof Document)
+			throw new BadRequest("File already exists: " + uri);
 
 		java.lang.System.out.println("Parsing " + fileName);
 		con.add(body, uri, format, [vf.createURI(uri)]);

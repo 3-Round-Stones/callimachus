@@ -98,13 +98,10 @@
 	function upload(name, type, payload, callback) {
 		jQuery.ajax({
 			type:'POST',
-			url:'?create=/callimachus/File',
+			url:'?create=/callimachus/File&location=' + encodeURI(name).replace(/%20/g, '-'),
 			contentType:type,
 			processData:false,
 			data:payload,
-			beforeSend:function(xhr) {
-				xhr.setRequestHeader('Location', encodeURI(name).replace(/%20/g, '-'));
-			},
 			success:function(data, textStatus) {
 				reload();
 			},

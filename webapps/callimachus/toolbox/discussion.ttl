@@ -31,6 +31,7 @@
 			}
 		}
 		ORDER BY ?modified
+		LIMIT 100
 	""".
 
 :PostDiscussion rdfs:subClassOf msg:Message;

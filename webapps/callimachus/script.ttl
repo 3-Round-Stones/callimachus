@@ -45,8 +45,12 @@
 # POST ?create=/callimachus/File
 :PostScriptFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <File> ]);
+	msg:imports <File>;
 	msg:script """
 		if (type == "text/javascript" || type == "application/javascript") {
+			if (location instanceof File) {
+				location = location.RemoveFile();
+			}
 			var uri = this.toUri().resolve("/callimachus/Script").toString();
 			var factory = this.objectConnection.getObject(uri);
 			return factory.PostCreate(body, location, type);

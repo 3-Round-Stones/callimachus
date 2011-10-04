@@ -46,6 +46,7 @@ calli:favicon a owl:ObjectProperty;
 			}
 		}
 		ORDER BY ?position ?label
+		LIMIT 100
 	""".
 
 :TransformMenu rdfs:subClassOf msg:Message;

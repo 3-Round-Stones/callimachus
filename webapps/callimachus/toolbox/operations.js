@@ -64,7 +64,8 @@ function postFactoryCreate(msg) {
 			bio.close();
 		}
 	} else {
-		newCopy = msg.create.PostCreate(msg.body, msg.location, msg.type);
+		var bio = new java.io.BufferedInputStream(msg.body, 65536);
+		newCopy = msg.create.PostCreate(bio, msg.location, msg.type);
 	}
 	newCopy.calliEditor.addAll(this.FindContributor(newCopy));
 	newCopy.calliReader.addAll(this.calliReader);

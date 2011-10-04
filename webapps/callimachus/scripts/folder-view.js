@@ -95,19 +95,6 @@
 			});
 		});
 	}
-	function upload(name, type, payload, callback) {
-		jQuery.ajax({
-			type:'POST',
-			url:'?create=/callimachus/File&location=' + encodeURI(name).replace(/%20/g, '-'),
-			contentType:type,
-			processData:false,
-			data:payload,
-			success:function(data, textStatus) {
-				reload();
-			},
-			complete:callback
-		});
-	}
 	var fileTypes = {
 		jpg:"image/jpeg",
 		png:"image/png",
@@ -128,21 +115,77 @@
 			}
 		}
 	}
+	var queueTotalSize = 0;
+	var queueCompleteSize = 0;
 	var upload_queue = [];
-	function queue(name, type, binary) {
+	function queue(name, type, size, binary) {
 		if (!type) {
 			type = typeByName(name);
 		}
+		queueTotalSize += size;
 		upload_queue.push(function() {
 			upload(name, type, binary, function(){
 				upload_queue.shift();
+				queueCompleteSize += size;
+				uploadProgress(0);
 				if (upload_queue.length > 0) {
 					upload_queue[0]();
+				} else {
+					queueTotalSize = 0;
+					queueCompleteSize = 0;
+					notifyProgressComplete();
 				}
 			});
 		});
 		if (upload_queue.length == 1) {
 			upload_queue[0]();
+		}
+	}
+	function upload(name, type, payload, callback) {
+		jQuery.ajax({
+			type:'POST',
+			url:'?create=/callimachus/File&location=' + encodeURI(name).replace(/%20/g, '-'),
+			contentType:type,
+			processData:false,
+			data:payload,
+			beforeSend:function(xhr) {
+				if (xhr.upload && xhr.upload.addEventListener) {
+					xhr.upload.addEventListener("progress", function(event) {
+						if (event.lengthComputable) {
+							uploadProgress(event.loaded);
+						}
+					}, false);
+				}
+			},
+			success:function(data, textStatus) {
+				reload();
+			},
+			complete:callback
+		});
+	}
+	function uploadProgress(complete) {
+		var progress = $('#result-status').find('.ui-progressbar-value');
+		if (!progress.length && queueCompleteSize + complete < queueTotalSize / 2) {
+			var progress = $('<div/>');
+			var progressbar = $('<div/>');
+			progressbar.addClass("ui-progressbar ui-widget ui-widget-content ui-corner-all");
+			progress.addClass("ui-progressbar-value ui-widget-header ui-corner-left");
+			progressbar.append(progress);
+			$('#result-status').append(progressbar);
+		}
+		// Set aside 25% for server processing time
+		var x = (queueCompleteSize + complete * 7/8) / queueTotalSize;
+		// Early stage upload just fills up buffers and don't contribute as much
+		var percent = Math.round(Math.pow(x+(1-x)*0.03, 2) * 100);
+		progress.css('width', percent + '%');
+		if (console && console.log) {
+			console.log(new Date().toTimeString() + ' processed ' + percent + '% updated ' + (queueCompleteSize + complete) + ' of ' + queueTotalSize);
+		}
+	}
+	function notifyProgressComplete() {
+		$('#result-status').find('.ui-progressbar').remove();
+		if (console && console.log) {
+			console.log(new Date().toTimeString() + ' processed 100% of ' + queueTotalSize);
 		}
 	}
 	reload();
@@ -168,7 +211,7 @@
 								ui8a[i] = (datastr.charCodeAt(i) & 0xff);
 							}
 							bb.append(data);
-							queue(file.name, file.type, bb.getBlob());
+							queue(file.name, file.type, file.size, bb.getBlob());
 						};
 						reader.readAsBinaryString(file);
 					})(files[i]);

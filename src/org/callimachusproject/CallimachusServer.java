@@ -61,6 +61,7 @@ import org.openrdf.http.object.util.FileUtil;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -77,7 +78,6 @@ import org.slf4j.LoggerFactory;
 
 public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private static final String SCHEMA_GRAPH = "http://callimachusproject.org/rdf/2009/framework#SchemaGraph";
-	private static final String VERSION = "http://callimachusproject.org/rdf/2009/framework#version";
 	private static final String PROPERTIES = "/META-INF/callimachusproject.properties";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
@@ -331,8 +331,8 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		try {
 			ValueFactory vf = con.getValueFactory();
 			RepositoryResult<Statement> stmts;
-			URI s = vf.createURI(origin + "/");
-			stmts = con.getStatements(s, vf.createURI(VERSION), null);
+			URI s = vf.createURI(origin + "/callimachus");
+			stmts = con.getStatements(s, OWL.VERSIONINFO, null);
 			try {
 				if (!stmts.hasNext())
 					return null;

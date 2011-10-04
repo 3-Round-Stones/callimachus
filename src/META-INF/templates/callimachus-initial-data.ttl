@@ -22,7 +22,7 @@
 # Backwards compatibility
 ################################
 
-</layout/template.xsl> a calli:Alias; calli:aliasOf </callimachus/manifest?template>.
+</layout/template.xsl> a </callimachus/Folder>; calli:describedBy </callimachus/manifest?template>.
 
 ################################
 # Authorization and Groups

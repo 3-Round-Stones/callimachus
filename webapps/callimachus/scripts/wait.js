@@ -7,7 +7,7 @@ var requestCount = 1;
 var lastWait = 0;
 
 if (window.parent != window && window.parent.postMessage) {
-	parent.postMessage('POST wait\n\ntrue', '*');
+	parent.postMessage('PUT wait\n\ntrue', '*');
 }
 
 function removeWait() {
@@ -21,7 +21,7 @@ function removeWait() {
 						requestCount = 0;
 						$(document.documentElement).removeClass("wait");
 						if (window.parent != window && window.parent.postMessage) {
-							parent.postMessage('POST wait\n\nfalse', '*');
+							parent.postMessage('PUT wait\n\nfalse', '*');
 						}
 					}
 				}, 400); // give browser a chance to draw the page
@@ -47,7 +47,7 @@ $(document).ajaxComplete(removeWait);
 $(window).bind('message', function(event) {
 	var data = event.originalEvent.data;
 	var source = event.originalEvent.source;
-	if (data.indexOf('POST wait\n\n') == 0) {
+	if (data.indexOf('PUT wait\n\n') == 0) {
 		$('iframe').each(function(){
 			if (this.contentWindow == source) {
 				var bool = data.substring(data.indexOf('\n\n') + 2);

@@ -95,38 +95,15 @@
 			});
 		});
 	}
-	var fileTypes = {
-		jpg:"image/jpeg",
-		png:"image/png",
-		gif:"image/gif",
-		ico:"image/vnd.microsoft.icon",
-		rdf:"application/rdf+xml",
-		rq:"application/sparql-query",
-		xhtml:"application/xhtml+xml",
-		js:"text/javascript",
-		css:"text/css",
-		txt:"text/plain",
-		docbook:"application/docbook+xml"
-	};
-	function typeByName(name) {
-		for (var ext in fileTypes) {
-			if (name.search(new RegExp("." + ext + "\\b")) > 0) {
-				return fileTypes[ext];
-			}
-		}
-	}
 	var queueTotalSize = 0;
 	var queueCompleteSize = 0;
 	var upload_queue = [];
-	function queue(name, type, size, binary) {
-		if (!type) {
-			type = typeByName(name);
-		}
-		queueTotalSize += size;
+	function queue(file) {
+		queueTotalSize += file.size;
 		upload_queue.push(function() {
-			upload(name, type, binary, function(){
+			upload(file, function(){
 				upload_queue.shift();
-				queueCompleteSize += size;
+				queueCompleteSize += file.size;
 				uploadProgress(0);
 				if (upload_queue.length > 0) {
 					upload_queue[0]();
@@ -141,13 +118,15 @@
 			upload_queue[0]();
 		}
 	}
-	function upload(name, type, payload, callback) {
+	function upload(file, callback) {
+		var formData = new FormData();
+		formData.append(file.name, file);
 		jQuery.ajax({
 			type:'POST',
-			url:'?create=/callimachus/File&location=' + encodeURI(name).replace(/%20/g, '-'),
-			contentType:type,
+			url:'?create=/callimachus/File&location=' + encodeURI(file.name).replace(/%20/g, '-'),
+			contentType:"multipart/form-data",
 			processData:false,
-			data:payload,
+			data:formData,
 			beforeSend:function(xhr) {
 				if (xhr.upload && xhr.upload.addEventListener) {
 					xhr.upload.addEventListener("progress", function(event) {
@@ -200,21 +179,7 @@
 				event.preventDefault();
 				var files = event.originalEvent.dataTransfer.files;
 				for (var i = 0; i < files.length; i++) {
-					(function(file){
-						var reader = new FileReader();
-						reader.onload = function(event) {
-							var datastr = event.target.result;
-							var bb = new (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder)();
-							var data = new ArrayBuffer(datastr.length);
-							var ui8a = new Uint8Array(data, 0);
-							for (var i=0; i<datastr.length; i++) {
-								ui8a[i] = (datastr.charCodeAt(i) & 0xff);
-							}
-							bb.append(data);
-							queue(file.name, file.type, file.size, bb.getBlob());
-						};
-						reader.readAsBinaryString(file);
-					})(files[i]);
+					queue(files[i]);
 				}
 			});
 		}

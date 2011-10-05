@@ -108,27 +108,32 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:d="http://docbook.org/ns/docbook" exc
 
 <!-- Images -->
 <xsl:template match="d:inlinemediaobject">
-	<xsl:apply-templates select="node()" />
+	<xsl:apply-templates select="d:imageobject" />
 </xsl:template>
 
 <xsl:template match="d:figure">
-	<xsl:apply-templates select="mediaobject" />
+	<xsl:apply-templates select="d:mediaobject" />
+</xsl:template>
+
+<xsl:template match="d:mediaobject">
+	<xsl:apply-templates select="d:imageobject" />
 </xsl:template>
 
 <xsl:template match="d:imageobject">
-	<xsl:apply-templates select="node()" />
-</xsl:template>
-
-<xsl:template match="d:imagedata">
-	<img src="{@fileref}">
-		<xsl:if test="contains(@depth, 'px')">
+	<img src="{d:imagedata/@fileref}">
+		<xsl:if test="contains(d:imagedata/@depth, 'px')">
 			<xsl:attribute name="height">
-				<xsl:value-of select="substring-before(@depth,'px')"/>
+				<xsl:value-of select="substring-before(d:imagedata/@depth,'px')"/>
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:if test="contains(@width,'px')">
+		<xsl:if test="contains(d:imagedata/@width,'px')">
 			<xsl:attribute name="width">
-				<xsl:value-of select="substring-before(@width,'px')"/>
+				<xsl:value-of select="substring-before(d:imagedata/@width,'px')"/>
+			</xsl:attribute>
+		</xsl:if>
+		<xsl:if test="../d:textobject/d:phrase">
+			<xsl:attribute name="alt">
+				<xsl:value-of select="../d:textobject/d:phrase"/>
 			</xsl:attribute>
 		</xsl:if>
 	</img>

@@ -213,6 +213,13 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 			</xsl:if>
 		</imagedata>
 	</imageobject>
+	<xsl:if test="@alt">
+		<textobject>
+			<phrase>
+				<xsl:value-of select="@alt" />
+			</phrase>
+		</textobject>
+	</xsl:if>
 </xsl:template>
 
 <!-- LIST ELEMENTS -->

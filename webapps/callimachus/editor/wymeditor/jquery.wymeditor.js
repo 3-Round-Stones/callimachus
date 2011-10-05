@@ -1149,15 +1149,18 @@ WYMeditor.editor.prototype.update = function() {
 
   var html = this.xhtml();
   jQuery(this._element).val(html);
-  jQuery(this._box).find(this._options.htmlValSelector).not('.hasfocus').val(html).change(); //#147
+  jQuery(this._box).find(this._options.htmlValSelector).not('.hasfocus').val(html); //#147
 };
 
 /* @name dialog
  * @description Opens a dialog box
  */
 WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHtml ) {
-
+  
   var features = dialogFeatures || this._wym._options.dialogFeatures;
+  var wDialog = window.open('', 'dialog', features);
+
+  if(wDialog) {
 
     var sBodyHtml = "";
     
@@ -1185,45 +1188,6 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
     
     var h = WYMeditor.Helper;
 
-    if (features == 'jQuery.dialog') {
-
-    //construct the dialog
-    var dialogHtml = this.replaceStrings(sBodyHtml);
-      var options = {
-        title: dialogType.replace(/_/g, ' '),
-        autoOpen: false,
-        modal: false,
-        draggable: true,
-        resizable: true,
-        autoResize: true,
-        minWidth: 320,
-        minHeight: 320
-      };
-
-      if (dialogType == WYMeditor.PREVIEW) {
-        options.width = $(this._iframe).width();
-        options.height = $(this._iframe).height();
-      }
-
-      var div = jQuery(dialogHtml);
-      var dialog = div.dialog(options);
-      dialog.bind("dialogclose", function(event, ui) {
-        dialog.dialog("destroy");
-        div.remove();
-		window.dialog = null;
-      });
-      dialog.dialog("open");
-      window.dialog = dialog;
-      WYMeditor.INIT_DIALOG(this._index);
-
-    } else {
-
-      if (sBodyHtml.indexOf("INIT_DIALOG") < 0) {
-        sBodyHtml = "<body class='wym_dialog wym_dialog_link'"
-               + " onload='WYMeditor.INIT_DIALOG(" + this._index + ")'"
-               + ">" + sBodyHtml + "</body>";
-      }
-
     //construct the dialog
     var dialogHtml = this._options.dialogHtml;
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.BASE_PATH, this._options.basePath);
@@ -1236,12 +1200,11 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
     dialogHtml = h.replaceAll(dialogHtml, WYMeditor.INDEX, this._index);
       
     dialogHtml = this.replaceStrings(dialogHtml);
-      var wDialog = window.open('', 'dialog', features);
-      var doc = wDialog.document;
-      doc.write(dialogHtml);
-      doc.close();
-    }
-
+    
+    var doc = wDialog.document;
+    doc.write(dialogHtml);
+    doc.close();
+  }
 };
 
 /* @name toggleHtml
@@ -1466,8 +1429,7 @@ WYMeditor.editor.prototype.loadSkin = function() {
 
 WYMeditor.INIT_DIALOG = function(index) {
 
-  var opener = window.opener ? window.opener : window;
-  var wym = opener.WYMeditor.INSTANCES[index];
+  var wym = window.opener.WYMeditor.INSTANCES[index];
   var doc = window.document;
   var selected = wym.selected();
   var dialogType = jQuery(wym._options.dialogTypeSelector).val();
@@ -1515,7 +1477,8 @@ WYMeditor.INIT_DIALOG = function(index) {
       .val(jQuery(wym._selected_image).attr(WYMeditor.ALT));
   }
 
-  var submitLink = function() {
+  jQuery(wym._options.dialogLinkSelector + " "
+    + wym._options.submitSelector).click(function() {
 
       var sUrl = jQuery(wym._options.hrefSelector).val();
       if(sUrl.length > 0) {
@@ -1538,20 +1501,11 @@ WYMeditor.INIT_DIALOG = function(index) {
         }
 
       }
-      if (window.opener) {
-        window.close();
-      } else if (window.dialog) {
-        window.dialog.dialog('close');
-      }
-      return false;
-  };
+      window.close();
+  });
 
-  jQuery(wym._options.dialogLinkSelector + " "
-    + wym._options.submitSelector).click(submitLink);
-  jQuery(wym._options.dialogLinkSelector + " "
-    + wym._options.submitSelector).parents("form").submit(submitLink);
-
-  var submitImage = function() {
+  jQuery(wym._options.dialogImageSelector + " "
+    + wym._options.submitSelector).click(function() {
 
       var sUrl = jQuery(wym._options.srcSelector).val();
       if(sUrl.length > 0) {
@@ -1563,20 +1517,11 @@ WYMeditor.INIT_DIALOG = function(index) {
             .attr(WYMeditor.TITLE, jQuery(wym._options.titleSelector).val())
             .attr(WYMeditor.ALT, jQuery(wym._options.altSelector).val());
       }
-      if (window.opener) {
-        window.close();
-      } else if (window.dialog) {
-        window.dialog.dialog('close');
-      }
-      return false;
-  };
+      window.close();
+  });
 
-  jQuery(wym._options.dialogImageSelector + " "
-    + wym._options.submitSelector).click(submitImage);
-  jQuery(wym._options.dialogImageSelector + " "
-    + wym._options.submitSelector).parents("form").submit(submitImage);
-
-  var submitTable = function() {
+  jQuery(wym._options.dialogTableSelector + " "
+    + wym._options.submitSelector).click(function() {
 
       var iRows = jQuery(wym._options.rowsSelector).val();
       var iCols = jQuery(wym._options.colsSelector).val();
@@ -1609,35 +1554,16 @@ WYMeditor.INIT_DIALOG = function(index) {
         if(!node || !node.parentNode) jQuery(wym._doc.body).append(table);
         else jQuery(node).after(table);
       }
-      if (window.opener) {
-        window.close();
-      } else if (window.dialog) {
-        window.dialog.dialog('close');
-      }
-      return false;
-  };
+      window.close();
+  });
 
-  jQuery(wym._options.dialogTableSelector + " "
-    + wym._options.submitSelector).click(submitTable);
-  jQuery(wym._options.dialogTableSelector + " "
-    + wym._options.submitSelector).parents("form").submit(submitTable);
-
-  var submitPaste = function() {
+  jQuery(wym._options.dialogPasteSelector + " "
+    + wym._options.submitSelector).click(function() {
 
       var sText = jQuery(wym._options.textSelector).val();
       wym.paste(sText);
-      if (window.opener) {
-        window.close();
-      } else if (window.dialog) {
-        window.dialog.dialog('close');
-      }
-      return false;
-  };
-
-  jQuery(wym._options.dialogPasteSelector + " "
-    + wym._options.submitSelector).click(submitPaste);
-  jQuery(wym._options.dialogPasteSelector + " "
-    + wym._options.submitSelector).parents("form").submit(submitPaste);
+      window.close();
+  });
 
   jQuery(wym._options.dialogPreviewSelector + " "
     + wym._options.previewSelector)
@@ -1645,11 +1571,7 @@ WYMeditor.INIT_DIALOG = function(index) {
 
   //cancel button
   jQuery(wym._options.cancelSelector).mousedown(function() {
-      if (window.opener) {
-        window.close();
-      } else if (window.dialog) {
-        window.dialog.dialog('close');
-      }
+    window.close();
   });
 
   //pre-init functions
@@ -1776,13 +1698,13 @@ WYMeditor.XmlHelper.prototype.tagOptions = function(options)
   for (var key in options) {
     var formated_options = '';
     var value = options[key];
-    if(typeof value != 'function') {
+    if(typeof value != 'function' && value.length > 0) {
 
       if(parseInt(key) == key && typeof value == 'object'){
         key = value.shift();
         value = value.pop();
       }
-      if(key != '' && value != undefined){
+      if(key != '' && value != ''){
         xml._formated_options += ' '+key+'="'+xml.escapeOnce(value)+'"';
       }
     }
@@ -3352,8 +3274,6 @@ WYMeditor.XhtmlParser.prototype.DoubleQuotedAttribute = function(match, state)
 {
   if(WYMeditor.LEXER_UNMATCHED == state){
     this._tag_attributes[this._current_attribute] = match;
-  } else if (WYMeditor.LEXER_ENTER == state){
-    this._tag_attributes[this._current_attribute] = '';
   }
   return true;
 };
@@ -3362,8 +3282,6 @@ WYMeditor.XhtmlParser.prototype.SingleQuotedAttribute = function(match, state)
 {
   if(WYMeditor.LEXER_UNMATCHED == state){
     this._tag_attributes[this._current_attribute] = match;
-  } else if (WYMeditor.LEXER_ENTER == state){
-    this._tag_attributes[this._current_attribute] = '';
   }
   return true;
 };
@@ -4026,18 +3944,6 @@ WYMeditor.WymClassExplorer.prototype.initIframe = function(iframe) {
         // Is this really needed, it trigger an unexisting property on IE6
         this._doc = iframe.contentWindow.document; 
     }catch(e){}
-};
-
-WYMeditor.WymClassExplorer.prototype.dialog = function( dialogType, dialogFeatures, bodyHtml ) {
-
-  var features = dialogFeatures || this._wym._options.dialogFeatures;
-
-  if ( features == 'jQuery.dialog' && dialogType == WYMeditor.DIALOG_LINK ) {
-      // IE loses selection with jquery dialog
-      dialogFeatures = "menubar=no,titlebar=no,toolbar=no,resizable=no"
-                      + ",width=560,height=300,top=0,left=0";
-   }
-  WYMeditor.editor.prototype.dialog.call(this, dialogType, dialogFeatures, bodyHtml );
 };
 
 WYMeditor.WymClassExplorer.prototype._exec = function(cmd,param) {

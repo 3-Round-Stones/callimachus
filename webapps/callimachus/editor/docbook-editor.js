@@ -19,23 +19,17 @@ jQuery(function($) {
 	$('#wym-iframe').one('load', function() {
 		WYMeditor.INSTANCES[0].initIframe(this);
 	});
-	function outer(node) {
-		var html = $($('<div/>').html($(node).clone())).html();
-		$(node).remove();
-		return html;
-	}
 	$('.wym_box_0').wymeditor({
 		html: '',
-		lang: null,
+		lang: "en",
 		initSkin: false,
 		loadSkin: false,
+		basePath: '/callimachus/editor/wymeditor/',
+		skinPath: '/callimachus/editor/wymeditor/',
 		jQueryPath: '/callimachus/scripts/jquery.js',
+		wymPath: '/callimachus/editor/wymeditor/jquery.wymeditor.js',
 		dialogFeatures: 'jQuery.dialog',
 		dialogFeaturesPreview: 'jQuery.dialog',
-		dialogImageHtml: outer($('.wym_dialog_image')),
-		dialogTableHtml: outer($('.wym_dialog_table')),
-		dialogPreviewHtml: outer($('.wym_dialog_preview')),
-		dialogLinkHtml: outer($('.wym_dialog_link'))
 	});
 	$('#wym-iframe').one('load', function() {
 		WYMeditor.INSTANCES[0].initIframe(this);

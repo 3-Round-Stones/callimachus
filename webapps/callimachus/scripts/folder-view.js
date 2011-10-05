@@ -91,7 +91,7 @@
 					}
 				});
 				var box = $('#box')[0];
-				var bottom = box.scrollTop >= box.scrollHeight - box.clientHeight;
+				var bottom = box.scrollTop > 0 && box.scrollTop >= box.scrollHeight - box.clientHeight;
 				$('#tfiles').replaceWith(tbody);
 				$('#totalEntries').text(totalEntries);
 				if (bottom) {

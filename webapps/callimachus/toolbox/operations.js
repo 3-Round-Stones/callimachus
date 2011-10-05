@@ -45,26 +45,28 @@ function postFactoryCreate(msg) {
 	if (createdUri.search(/[\s\#\?]/) >= 0 || createdUri.search(/^\w+:\/\/\S+/) != 0)
 		throw new BadRequest("Fragement or name resources are not supported");
 	var newCopy = null;
+	var bio = new java.io.BufferedInputStream(msg.body, 65536);
 	if (msg.type.indexOf("multipart/form-data") == 0) {
-		var bio = new java.io.BufferedInputStream(msg.body, 65536);
-		try {
-			bio.mark(1024);
-			var parser = new MultipartParser(bio);
-			var file = parser.next();
-			var headers = parser.getHeaders();
-			var disposition = headers.get("content-disposition");
-			if (disposition && disposition.indexOf("filename=") >= 0) {
-				var type = headers.get("content-type");
-				newCopy = msg.create.PostCreate(file, msg.location, type);
-			} else { // not a file upload
-				bio.reset();
-				newCopy = msg.create.PostCreate(bio, msg.location, msg.type);
+		bio.mark(1024);
+		var parser = new MultipartParser(bio);
+		var file = parser.next();
+		var headers = parser.getHeaders();
+		var disposition = headers.get("content-disposition");
+		if (disposition && disposition.indexOf("filename=") >= 0) {
+			var type = headers.get("content-type");
+			if (type == "application/octet-stream" || type.indexOf("application/x-") == 0) {
+				var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
+				var mimetypes = new javax.activation.MimetypesFileTypeMap();
+				if (!"application/octet-stream".equals(mimetypes.getContentType(fileName))) {
+					type = mimetypes.getContentType(fileName);
+				}
 			}
-		} finally {
-			bio.close();
+			newCopy = msg.create.PostCreate(file, msg.location, type);
+		} else { // not a file upload
+			bio.reset();
+			newCopy = msg.create.PostCreate(bio, msg.location, msg.type);
 		}
 	} else {
-		var bio = new java.io.BufferedInputStream(msg.body, 65536);
 		newCopy = msg.create.PostCreate(bio, msg.location, msg.type);
 	}
 	newCopy.calliEditor.addAll(this.FindContributor(newCopy));
@@ -84,10 +86,10 @@ function postFactoryCreate(msg) {
 
 function postCreate(msg) {
 	var template = this.calliCreate.iterator().next();
-	if (!template) // POST ?create=/callimachus/File
-		throw new InternalServerError("Unsupported file type: " + msg.type);
+	if (!template)
+		throw new InternalServerError("Cannot create " + this.toString() + " with " + msg.type);
 	if (msg.type != "application/rdf+xml")
-		throw new BadRequest("Request body should be in application/rdf+xml format");
+		throw new BadRequest("File format is not recognized: " + msg.type);
 	var newCopy = template.calliCreateResource(msg.body, this.toString(), msg.location);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
 	return newCopy;

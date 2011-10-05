@@ -55,7 +55,7 @@
 		[owl:onProperty msg:target; owl:hasValue <File> ]);
 	msg:imports <File>;
 	msg:script """
-		if (type == "application/rdf+xml") {
+		if (type == "application/rdf+xml" || type == "text/turtle") {
 			if (location instanceof File) {
 				location = location.RemoveFile();
 			}
@@ -83,8 +83,8 @@
 
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
+		var format = RDFFormat.forMIMEType(type.replace(/;.*/,""), RDFFormat.RDFXML);
 		var fileName = location.resource.localName;
-		var format = RDFFormat.forFileName(fileName, RDFFormat.RDFXML);
 		var name = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/g, "$1");
 		var label = vf.createLiteral(name.replace(/-/g, " "));
 		var obj = location;

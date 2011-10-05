@@ -16,9 +16,6 @@
 })(jQuery);
 
 jQuery(function($) {
-	$('#wym-iframe').one('load', function() {
-		WYMeditor.INSTANCES[0].initIframe(this);
-	});
 	$('.wym_box_0').wymeditor({
 		html: '',
 		lang: "en",

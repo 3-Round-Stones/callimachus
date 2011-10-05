@@ -1158,7 +1158,33 @@ WYMeditor.editor.prototype.update = function() {
 WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHtml ) {
   
   var features = dialogFeatures || this._wym._options.dialogFeatures;
-  var wDialog = window.open('', 'dialog', features);
+  if (features == 'jQuery.dialog') {
+    var iframe = jQuery('<iframe></iframe>');
+    var dialog = iframe.dialog({
+        title: dialogType.replace(/_/g, ' '),
+        autoOpen: false,
+        draggable: true,
+        width: 350,
+        height: 300
+      });
+    dialog.bind("dialogclose", function(event, ui) {
+        dialog.dialog("destroy");
+        iframe.remove();
+      });
+    dialog.dialog("open");
+    iframe.css('width', '100%');
+    iframe.css('margin', '0px');
+    iframe.css('border-width', '0px');
+    iframe.css('padding', '0px');
+    var wDialog = iframe[0].contentWindow;
+    iframe[0].contentWindow.close = function() {
+      setTimeout(function(){
+        dialog.dialog("close");
+      },0);
+    };
+  } else {
+    var wDialog = window.open('', 'dialog', features);
+  }
 
   if(wDialog) {
 
@@ -1429,7 +1455,7 @@ WYMeditor.editor.prototype.loadSkin = function() {
 
 WYMeditor.INIT_DIALOG = function(index) {
 
-  var wym = window.opener.WYMeditor.INSTANCES[index];
+  var wym = (window.opener || window.parent).WYMeditor.INSTANCES[index];
   var doc = window.document;
   var selected = wym.selected();
   var dialogType = jQuery(wym._options.dialogTypeSelector).val();

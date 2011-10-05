@@ -168,12 +168,18 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:template match="xhtml:a">
 	<ulink url="{@href}">
 		<xsl:apply-templates select="node()" />
+		<xsl:if test="@title">
+			<remark><xsl:value-of select="@title" /></remark>
+		</xsl:if>
 	</ulink>
 </xsl:template>
 
 <xsl:template match="xhtml:a[starts-with(@href,'#')]">
 	<link linkend="{substring-after(@href,'#')}">
 		<xsl:apply-templates select="node()" />
+		<xsl:if test="@title">
+			<remark><xsl:value-of select="@title" /></remark>
+		</xsl:if>
 	</link>
 </xsl:template>
 
@@ -212,6 +218,11 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 				</xsl:attribute>
 			</xsl:if>
 		</imagedata>
+		<xsl:if test="@title">
+			<objectinfo>
+				<title><xsl:value-of select="@title" /></title>
+			</objectinfo>
+		</xsl:if>
 	</imageobject>
 	<xsl:if test="@alt">
 		<textobject>

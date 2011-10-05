@@ -34,6 +34,12 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:d="http://docbook.org/ns/docbook" exc
 	</div>
 </xsl:template>
 
+<xsl:template match="d:remark">
+	<xsl:comment>
+		<xsl:value-of select="." />
+	</xsl:comment>
+</xsl:template>
+
 <xsl:template match="d:article">
 	<html>
 		<head>
@@ -96,12 +102,22 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:d="http://docbook.org/ns/docbook" exc
 <!-- Hyperlinks -->
 <xsl:template match="d:ulink">
 	<a href="{@url}">
+		<xsl:if test="d:remark">
+			<xsl:attribute name="title">
+				<xsl:value-of select="d:remark" />
+			</xsl:attribute>
+		</xsl:if>
 		<xsl:apply-templates select="node()" />
 	</a>
 </xsl:template>
 
 <xsl:template match="d:link">
 	<a href="#{linkend}">
+		<xsl:if test="d:remark">
+			<xsl:attribute name="title">
+				<xsl:value-of select="d:remark" />
+			</xsl:attribute>
+		</xsl:if>
 		<xsl:apply-templates select="node()" />
 	</a>
 </xsl:template>
@@ -134,6 +150,11 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:d="http://docbook.org/ns/docbook" exc
 		<xsl:if test="../d:textobject/d:phrase">
 			<xsl:attribute name="alt">
 				<xsl:value-of select="../d:textobject/d:phrase"/>
+			</xsl:attribute>
+		</xsl:if>
+		<xsl:if test="d:objectinfo/d:title">
+			<xsl:attribute name="title">
+				<xsl:value-of select="d:objectinfo/d:title"/>
 			</xsl:attribute>
 		</xsl:if>
 	</img>

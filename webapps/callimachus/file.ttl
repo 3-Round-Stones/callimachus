@@ -26,6 +26,7 @@
 	rdfs:label "File";
 	rdfs:subClassOf <Viewable>, <Editable>, foaf:Document;
 	rdfs:isDefinedBy </callimachus>;
+	calli:create <file-create.xhtml>;
 	calli:view <file-view.xhtml>;
 	calli:edit <file-edit.xhtml>.
 

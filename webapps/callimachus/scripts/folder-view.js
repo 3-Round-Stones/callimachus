@@ -90,15 +90,24 @@
 						tbody.append(tr);
 					}
 				});
+				var box = $('#box')[0];
+				var bottom = box.scrollTop >= box.scrollHeight - box.clientHeight;
 				$('#tfiles').replaceWith(tbody);
 				$('#totalEntries').text(totalEntries);
+				if (bottom) {
+					box.scrollTop = box.scrollHeight - box.clientHeight;
+				}
 			});
 		});
 	}
+	var queueStarted = null;
 	var queueTotalSize = 0;
 	var queueCompleteSize = 0;
 	var upload_queue = [];
 	function queue(file) {
+		if (!queueStarted) {
+			queueStarted = new Date();
+		}
 		queueTotalSize += file.size;
 		upload_queue.push(function() {
 			upload(file, function(){
@@ -108,6 +117,7 @@
 				if (upload_queue.length > 0) {
 					upload_queue[0]();
 				} else {
+					queueStarted = null;
 					queueTotalSize = 0;
 					queueCompleteSize = 0;
 					notifyProgressComplete();
@@ -130,9 +140,7 @@
 			beforeSend:function(xhr) {
 				if (xhr.upload && xhr.upload.addEventListener) {
 					xhr.upload.addEventListener("progress", function(event) {
-						if (event.lengthComputable) {
-							uploadProgress(event.loaded);
-						}
+						uploadProgress(event.loaded);
 					}, false);
 				}
 			},
@@ -142,7 +150,8 @@
 			complete:callback
 		});
 	}
-	function uploadProgress(complete) {
+	var uploadedSize = 0;
+	function uploadProgress(complete, estimated) {
 		var progress = $('#result-status').find('.ui-progressbar-value');
 		if (!progress.length && queueCompleteSize + complete < queueTotalSize / 2) {
 			var progress = $('<div/>');
@@ -156,12 +165,34 @@
 		var x = (queueCompleteSize + complete * 7/8) / queueTotalSize;
 		// Early stage upload just fills up buffers and don't contribute as much
 		var percent = Math.round(Math.pow(x+(1-x)*0.03, 2) * 100);
+		if (percent >= 100)
+			return false;
 		progress.css('width', percent + '%');
-		if (console && console.log) {
-			console.log(new Date().toTimeString() + ' processed ' + percent + '% updated ' + (queueCompleteSize + complete) + ' of ' + queueTotalSize);
+		if (!estimated) {
+			uploadedSize = queueCompleteSize + complete;
+			if (console && console.log) {
+				console.log(new Date().toTimeString() + ' processed ' + percent + '% uploaded ' + (queueCompleteSize + complete) + ' of ' + queueTotalSize);
+			}
+			estimateProgress();
 		}
+		return true;
+	}
+	function estimateProgress() {
+		var estimate = function(lastSize, complete, rate){
+			setTimeout(function(){
+				if (lastSize == uploadedSize) {
+					if (uploadProgress(complete, true)) {
+						estimate(lastSize, complete + rate, rate);
+					}
+				}
+			}, 1000);
+		};
+		// animate progressbar every second while idle to simulate server processing
+		var rate = uploadedSize / (new Date().getTime() - queueStarted.getTime()) * 1000 / 2;
+		estimate(uploadedSize, uploadedSize - queueCompleteSize + rate, rate);
 	}
 	function notifyProgressComplete() {
+		uploadedSize = 0;
 		$('#result-status').find('.ui-progressbar').remove();
 		if (console && console.log) {
 			console.log(new Date().toTimeString() + ' processed 100% of ' + queueTotalSize);

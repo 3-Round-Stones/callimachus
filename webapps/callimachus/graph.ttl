@@ -42,7 +42,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
-	msg:transform <styles/styles.ttl#TransformLayout>;
+	msg:transform <styles/TransformLayout>;
 	msg:xslt <styles/graph.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;

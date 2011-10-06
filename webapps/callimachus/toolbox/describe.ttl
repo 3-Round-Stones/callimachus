@@ -39,7 +39,7 @@
 :TransformDescription rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xhtml+xml";
-	msg:transform <../styles/styles.ttl#TransformLayout>;
+	msg:transform <../styles/TransformLayout>;
 	msg:xslt <describe.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;

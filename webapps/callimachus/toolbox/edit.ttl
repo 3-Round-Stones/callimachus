@@ -32,7 +32,7 @@
 	msg:query "edit";
 	msg:realm </callimachus/manifest>;
 	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
+	msg:transform </callimachus/styles/TransformXhtml>;
 	msg:header "cache-control:no-cache";
 	msg:script <operations.js#getEditPage>.
 

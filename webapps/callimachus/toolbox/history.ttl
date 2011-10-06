@@ -44,7 +44,7 @@
 :TransformHistory rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
-	msg:transform <../styles/styles.ttl#TransformLayout>;
+	msg:transform <../styles/TransformLayout>;
 	msg:xslt <history.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;

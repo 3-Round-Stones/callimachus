@@ -5,13 +5,17 @@
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
-<../default> a calli:Theme, calli:ColourScheme;
-	rdfs:label "Default Theme";
-	rdf:_1 <alert.js>;
-	rdf:_2 <discussion.js>;
-	rdf:_3 <login.js>;
+<clouds> a calli:Theme, calli:ColourScheme;
+	rdfs:label "Clouds Theme";
+	rdf:_1 <../default/alert.js>;
+	rdf:_2 <../default/discussion.js>;
+	rdf:_3 <../default/login.js>;
 	calli:layout <layout.xhtml>;
 	calli:style <layout.css>;
 	calli:colour <colour.css>;
 	calli:jqueryui <jquery-ui.css>.
 
+<clouds#energy> a calli:ColourScheme;
+    rdfs:label "Energy Clouds Theme";
+    calli:colour <colour-alt.css>;
+    calli:jqueryui <jquery-ui.css>.

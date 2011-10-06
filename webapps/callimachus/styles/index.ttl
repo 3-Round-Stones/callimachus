@@ -8,29 +8,29 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-:TransformLayout rdfs:subClassOf msg:Message;
+<TransformLayout> rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xhtml+xml";
-	msg:transform :TransformXhtml;
+	msg:transform <TransformXhtml>;
 	msg:xslt </callimachus/manifest?template>.
 
-:query a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain :TransformLayout;
+<TransformLayout#query> a owl:DatatypeProperty; a owl:FunctionalProperty;
+	rdfs:domain <TransformLayout>;
 	rdfs:range xsd:string;
 	msg:query "*".
 
-:xml a owl:ObjectProperty; a owl:FunctionalProperty;
+<TransformLayout#xml> a owl:ObjectProperty; a owl:FunctionalProperty;
 	msg:type "application/xhtml+xml";
-	rdfs:domain :TransformLayout;
+	rdfs:domain <TransformLayout>;
 	rdfs:range <java:java.io.InputStream>.
 
-:TransformXhtml rdfs:subClassOf msg:Message;
+<TransformXhtml> rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
 	msg:type "text/html";
 	msg:xslt <xhtml-to-html.xsl>.
 
-:xhtml a owl:ObjectProperty; a owl:FunctionalProperty;
+<TransformXhtml#xhtml> a owl:ObjectProperty; a owl:FunctionalProperty;
 	msg:type "application/xhtml+xml";
-	rdfs:domain :TransformXhtml;
+	rdfs:domain <TransformXhtml>;
 	rdfs:range <java:java.io.InputStream>.
 

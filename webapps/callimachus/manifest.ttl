@@ -31,9 +31,13 @@ calli:template a owl:ObjectProperty;
 	msg:expect "302-see-other";
 	msg:type "text/uri-list";
 	msg:script """
-		var theme = this.calliTheme;
-		if (theme)
-			return theme.calliLayout;
+		try {
+			var theme = this.calliTheme;
+			if (theme)
+				return theme.calliLayout;
+		} catch (e) {
+			e.javaException.printStackTrace();
+		}
 		return this.objectConnection.getObject(this.toUri().resolve("/callimachus/themes/default/layout.xhtml"));
 	""".
 
@@ -45,21 +49,25 @@ calli:template a owl:ObjectProperty;
 	msg:type "text/xml";
 	msg:script """
 		var xhtml = ['<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title>'];
-		if (this.calliTheme) {
-			xhtml.push('<base href="');
-			xhtml.push(this.calliTheme.calliLayout);
-			xhtml.push('" />');
-			xhtml.push('<link rel="stylesheet" href="');
-			xhtml.push(this.calliTheme.calliStyle);
-			xhtml.push('" />');
-		}
-		if (this.calliColourScheme) {
-			xhtml.push('<link rel="stylesheet jqueryui" href="');
-			xhtml.push(this.calliColourScheme.calliJqueryui);
-			xhtml.push('" />');
-			xhtml.push('<link rel="stylesheet" href="');
-			xhtml.push(this.calliColourScheme.calliColour);
-			xhtml.push('" />');
+		try {
+			if (this.calliTheme) {
+				xhtml.push('<base href="');
+				xhtml.push(this.calliTheme.calliLayout);
+				xhtml.push('" />');
+				xhtml.push('<link rel="stylesheet" href="');
+				xhtml.push(this.calliTheme.calliStyle);
+				xhtml.push('" />');
+			}
+			if (this.calliColourScheme) {
+				xhtml.push('<link rel="stylesheet jqueryui" href="');
+				xhtml.push(this.calliColourScheme.calliJqueryui);
+				xhtml.push('" />');
+				xhtml.push('<link rel="stylesheet" href="');
+				xhtml.push(this.calliColourScheme.calliColour);
+				xhtml.push('" />');
+			}
+		} catch (e) {
+			e.javaException.printStackTrace();
 		}
 		xhtml.push('</head><body></body></html>');
 		return xhtml.join('');

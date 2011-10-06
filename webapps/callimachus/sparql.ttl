@@ -165,7 +165,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
-	msg:transform </callimachus/styles/styles.ttl#TransformLayout>;
+	msg:transform </callimachus/styles/TransformLayout>;
 	msg:xslt <styles/sparql.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;

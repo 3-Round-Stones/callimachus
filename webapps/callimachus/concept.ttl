@@ -40,7 +40,7 @@
 	msg:method "GET";
 	msg:query "index";
 	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
+	msg:transform </callimachus/styles/TransformXhtml>;
 	msg:header "cache-control:no-cache";
 	msg:imports <concept-index.xhtml>;
 	msg:script "return concept_index_xhtml.calliConstruct(this, 'index')".

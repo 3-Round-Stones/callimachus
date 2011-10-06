@@ -27,7 +27,7 @@
 	msg:method "GET";
 	msg:query "introspect";
 	msg:type "application/xhtml+xml";
-	msg:transform <../styles/styles.ttl#TransformLayout>;
+	msg:transform <../styles/TransformLayout>;
 	msg:script """
 		return this.calliIntrospect(this);
 	""".

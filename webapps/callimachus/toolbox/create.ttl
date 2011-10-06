@@ -31,7 +31,7 @@
 	msg:method "GET";
 	msg:query "create";
 	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
+	msg:transform </callimachus/styles/TransformXhtml>;
 	msg:script <operations.js#getCreatePage>.
 
 :GetCreatorPage rdfs:subClassOf msg:Message;
@@ -41,7 +41,7 @@
 	msg:query "create";
 	msg:realm </callimachus/manifest>;
 	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/styles.ttl#TransformXhtml>;
+	msg:transform </callimachus/styles/TransformXhtml>;
 	msg:script <operations.js#getCreatorPage>.
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;

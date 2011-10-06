@@ -200,7 +200,7 @@
 		<zip destfile="${dist}/callimachus-${version}.zip">
 			<zipfileset dir="." includes="*.txt" />
 			<zipfileset dir="${bin}" prefix="bin" />
-			<zipfileset dir="${etc}" prefix="etc" />
+			<zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
 			<zipfileset dir="${lib}" prefix="lib" />
 			<zipfileset file="${jar.file}" prefix="lib" />
 			<zipfileset file="${dist}/callimachus.war" prefix="webapps" />

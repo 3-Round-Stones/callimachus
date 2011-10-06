@@ -1,6 +1,6 @@
 /* content.css */
 
-body { font-family:Arial,Helvetica,sans-serif; }
+body,button { font-family:Arial,Helvetica,sans-serif; }
 @media print { body { font-family:serif; } }
 
 h1 { font-size:x-large; }

@@ -80,6 +80,9 @@ body:before {
 	margin-top: -8px;
 	height: 16px;
 	width: 16px;
+	display: block;
+	overflow: hidden;
+	text-indent: -99999px;
 }
 
 #header .ui-button-text {

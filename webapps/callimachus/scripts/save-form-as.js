@@ -27,11 +27,9 @@ window.calli.saveFormAs = function(form, fileName, create) {
 		});
 		return false;
 	} else if (about && about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0) {
-		promptLocation(form, decodeURI(about), create, function(ns, local){
+		return promptIfNeeded(form, decodeURI(about), create, function(ns, local){
 			$(form).attr('about', ns + local);
-			resubmit(form); // this time with an about attribute
 		});
-		return false;
 	} else if (about) { // absolute about attribute already set
 		overrideLocation(form, $(form).attr('about'));
 		return true;
@@ -54,15 +52,13 @@ window.calli.saveFormAs = function(form, fileName, create) {
 		if (label && label.lastIndexOf('\\') > 0) {
 			label = label.substring(label.lastIndexOf('\\') + 1);
 		}
-		promptLocation(form, label, create, function(ns, local){
+		return promptIfNeeded(form, label, create, function(ns, local){
 			$(form).attr('about', ns + local.toLowerCase());
-			resubmit(form); // this time with an about attribute
 		});
-		return false;
 	}
 };
 
-function promptLocation(form, label, create, callback) {
+function promptIfNeeded(form, label, create, callback) {
 	if (label && label.search(/^[\w\.\-\_ ]*\/?$/) == 0 && location.search.search(/\?\w+=/) >= 0) {
 		var ns = calli.listResourceIRIs(getPageLocationURL())[0];
 		if (ns.lastIndexOf('/') != ns.length - 1) {
@@ -70,8 +66,13 @@ function promptLocation(form, label, create, callback) {
 		}
 		var local = encodeURI(label).replace(/%20/g, '+');
 		callback(ns, local);
+		return true;
 	} else {
-		openSaveAsDialog(form, label, create, callback);
+		openSaveAsDialog(form, label, create, function(ns, local) {
+			callback(ns, local);
+			resubmit(form); // this time with an about attribute
+		});
+		return false;
 	}
 }
 

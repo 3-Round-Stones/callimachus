@@ -66,6 +66,7 @@ function promptIfNeeded(form, label, create, callback) {
 		}
 		var local = encodeURI(label).replace(/%20/g, '+');
 		callback(ns, local);
+		overrideLocation(form, $(form).attr('about'));
 		return true;
 	} else {
 		openSaveAsDialog(form, label, create, function(ns, local) {
@@ -157,13 +158,14 @@ function updateFormAction(form, composite, create) {
 }
 
 function overrideLocation(form, uri) {
-	if (form.action.indexOf('&location=') > 0) {
-		var m = form.action.match(/^(.*&location=)[^&=]*(.*)$/);
+	var action = form.action ? form.action : getPageLocationURL();
+	if (action.indexOf('&location=') > 0) {
+		var m = action.match(/^(.*&location=)[^&=]*(.*)$/);
 		form.action = m[1] + encodeURIComponent(uri) + m[2];
 	} else {
-		form.action = form.action + '&location=' + encodeURIComponent(uri);
+		form.action = action + '&location=' + encodeURIComponent(uri);
 	}
-	if (form.action.indexOf('&intermediate=') < 0 && isIntermidate(form.action)) {
+	if (action.indexOf('&intermediate=') < 0 && isIntermidate(form.action)) {
 		form.action += '&intermediate=true';
 	}
 }

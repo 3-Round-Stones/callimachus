@@ -55,7 +55,7 @@ body {
 }
 
 #header .ui-button-icon-only .ui-button-text {
-	text-indent: -9999999px;
+	display:none;
 }
 
 #header button.ui-button-icon-only {

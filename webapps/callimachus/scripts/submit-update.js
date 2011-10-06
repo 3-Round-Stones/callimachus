@@ -11,7 +11,7 @@ jQuery(function($){
 $('form[method="POST"][enctype="application/sparql-update"]').each(function() {
 	var form = $(this);
 	var stored = readRDF(form);
-	form.submit(function() {
+	form.submit(function(event) {
 		form.find("input").change(); // IE may not have called onchange before onsubmit
 		var about = form.attr('about');
 		if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)

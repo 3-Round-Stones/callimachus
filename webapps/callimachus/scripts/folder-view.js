@@ -133,7 +133,7 @@
 		formData.append(file.name, file);
 		jQuery.ajax({
 			type:'POST',
-			url:'?create=/callimachus/File&location=' + encodeURI(file.name).replace(/%20/g, '-'),
+			url:'?create=/callimachus/File&location=' + encodeURI(file.name).replace(/%20/g, '-').toLowerCase(),
 			contentType:"multipart/form-data",
 			processData:false,
 			data:formData,
@@ -188,7 +188,7 @@
 			}, 1000);
 		};
 		// animate progressbar every second while idle to simulate server processing
-		var rate = uploadedSize / (new Date().getTime() - queueStarted.getTime()) * 1000 / 2;
+		var rate = uploadedSize / (new Date().getTime() - queueStarted.getTime()) * 1000 / 5;
 		estimate(uploadedSize, uploadedSize - queueCompleteSize + rate, rate);
 	}
 	function notifyProgressComplete() {

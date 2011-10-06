@@ -130,7 +130,7 @@
 				?id a ?folder
 				FILTER (?folder = calli:Folder)
 			}
-		} ORDER BY desc(?totalResults) ?id LIMIT 100
+		} ORDER BY desc(?totalResults) ?id LIMIT 101 # itself + 100 parts
 	""".
 
 :TransformIntoAtom rdfs:subClassOf msg:Message;

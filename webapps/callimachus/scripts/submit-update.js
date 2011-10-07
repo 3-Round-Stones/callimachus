@@ -42,7 +42,7 @@ function submitRDFForm(form, stored) {
 					+ "\r\n--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
 					+ added.dump({format:"application/rdf+xml",serialize:true,namespaces:form.xmlns()})
 					+ "\r\n--" + boundary + "--";
-			patchData(form, getPageLocationURL(), type, data, function(data, textStatus, xhr) {
+			patchData(form, form.action, type, data, function(data, textStatus, xhr) {
 				try {
 					var redirect = xhr.getResponseHeader("Location");
 					if (!redirect) {

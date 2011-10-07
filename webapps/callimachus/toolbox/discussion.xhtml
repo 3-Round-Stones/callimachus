@@ -26,9 +26,9 @@
 		<xsl:for-each select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='note']">
 			<li class="note">
 				<div class="ui-state-default ui-corner-top" >
-					<span class="abbreviated datetime-locale" style="float: right">
+					<time class="abbreviated" style="float: right">
 						<xsl:value-of select="sparql:binding[@name='modified']/*" />
-					</span>
+					</time>
 					<span class="ui-icon ui-icon-comment" style="float: left"></span>
 					<a href="{sparql:binding[@name='user']/*}">
 						<xsl:value-of select="sparql:binding[@name='name']/*" />

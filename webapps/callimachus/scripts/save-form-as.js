@@ -131,7 +131,7 @@ function openSaveAsDialog(form, label, create, callback) {
 function updateFormAction(form, composite, create) {
 	if (form && composite) {
 		var m;
-		var action = form.action ? form.action : getPageLocationURL();
+		var action = getFormAction(form);
 		if (create) {
 			form.action = composite + '?create=' + create;
 		} else if (m = action.match(/^([^\?]*)\?create(&.*)?$/)) {
@@ -158,7 +158,7 @@ function updateFormAction(form, composite, create) {
 }
 
 function overrideLocation(form, uri) {
-	var action = form.action ? form.action : getPageLocationURL();
+	var action = getFormAction(form);
 	if (action.indexOf('&location=') > 0) {
 		var m = action.match(/^(.*&location=)[^&=]*(.*)$/);
 		form.action = m[1] + encodeURIComponent(uri) + m[2];
@@ -190,6 +190,15 @@ function isIntermidate(url) {
 		}
 	}
 	return false;
+}
+
+function getFormAction(form) {
+	if (form.action)
+		return form.action;
+	var url = getPageLocationURL();
+	if (url.indexOf('#') > 0)
+		return url.substring(0, url.indexOf('#'));
+	return url;
 }
 
 function getPageLocationURL() {

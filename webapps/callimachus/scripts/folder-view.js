@@ -100,6 +100,7 @@
 			});
 		});
 	}
+	reload();
 	var queueStarted = null;
 	var queueTotalSize = 0;
 	var queueCompleteSize = 0;
@@ -198,7 +199,6 @@
 			console.log(new Date().toTimeString() + ' processed 100% of ' + queueTotalSize);
 		}
 	}
-	reload();
 	jQuery(function(){
 		if (window.FileReader && (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder)) {
 			$('#box').bind('dragenter dragexit dragover', function(event) {
@@ -217,6 +217,9 @@
 	});
 })(jQuery);
 jQuery(function($){
+	if (!$('#tfolders').children().length) {
+		$('#tfolders').remove();
+	}
 	var tooSmall = 500;
 	var resized = function() {
 		setTimeout(function(){

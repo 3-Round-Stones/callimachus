@@ -88,7 +88,7 @@ function postCreate(msg) {
 	var template = this.calliCreate.iterator().next();
 	if (!template)
 		throw new InternalServerError("Cannot create " + this.toString() + " with " + msg.type);
-	if (msg.type != "application/rdf+xml")
+	if (msg.type != "application/rdf+xml" && msg.type.indexOf("application/rdf+xml;") != 0)
 		throw new BadRequest("File format is not recognized: " + msg.type);
 	var newCopy = template.calliCreateResource(msg.body, this.toString(), msg.location);
 	newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());

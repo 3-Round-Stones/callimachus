@@ -26,7 +26,7 @@ jQuery(function($) {
 		jQueryPath: '/callimachus/scripts/jquery.js',
 		wymPath: '/callimachus/editor/wymeditor/jquery.wymeditor.js',
 		dialogFeatures: 'jQuery.dialog',
-		dialogFeaturesPreview: 'jQuery.dialog',
+		dialogFeaturesPreview: 'jQuery.dialog'
 	});
 	$('#wym-iframe').one('load', function() {
 		WYMeditor.INSTANCES[0].initIframe(this);
@@ -45,27 +45,14 @@ jQuery(function($) {
 		var contentType = null;
 		var etag = null;
 
-		$(window).bind('message', function(event) {
-			var data = event.originalEvent.data;
-			if ($('#image-iframe').length && event.originalEvent.source == $('#image-iframe')[0].contentWindow && data.indexOf('PUT src\n') == 0) {
-				var src = data.substring(data.indexOf('\n\n') + 2);
-				var uri = calli.listResourceIRIs(src)[0];
-				if (uri.search(/\.[a-zA-Z]+$/) > 0) {
-					editor.insert("<img src='" + uri + "' />");
-					if (window.dialog) {
-						window.dialog.dialog('close');
-					}
-				}
-			}
-		});
-
 		// loading
 		function onhashchange() {
 			if (location.hash && location.hash.length > 1) {
 				if (location.hash.indexOf('!') > 0) {
 					path = location.hash.substring(location.hash.indexOf('!') + 1);
 				}
-				if (path && !editor.html()) {
+				var html = editor.html();
+				if (path && !(html && html.replace(/<[^>]*>/,'').replace(/\s+/,''))) {
 					jQuery.ajax({type: 'GET', url: path, complete: function(xhr) {
 						if (xhr.status == 200 || xhr.status == 304) {
 							contentType = xhr.getResponseHeader('Content-Type');
@@ -217,4 +204,5 @@ jQuery(function($) {
 		});
 		parent.postMessage('CONNECT calliEditorLoaded', '*');
 	});
+	$('#wym-iframe')[0].src = "/callimachus/editor/wymeditor/wymiframe.html";
 });

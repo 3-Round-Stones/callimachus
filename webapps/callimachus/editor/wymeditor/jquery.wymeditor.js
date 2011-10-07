@@ -1164,8 +1164,8 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
         title: dialogType.replace(/_/g, ' '),
         autoOpen: false,
         draggable: true,
-        width: 350,
-        height: 300
+        width: 450,
+        height: 400
       });
     dialog.bind("dialogclose", function(event, ui) {
         dialog.dialog("destroy");
@@ -1182,7 +1182,6 @@ WYMeditor.editor.prototype.dialog = function( dialogType, dialogFeatures, bodyHt
         dialog.dialog("close");
       },0);
     };
-    iframe[0].contentWindow.opener = window;
   } else {
     var wDialog = window.open('', 'dialog', features);
   }
@@ -1456,7 +1455,7 @@ WYMeditor.editor.prototype.loadSkin = function() {
 
 WYMeditor.INIT_DIALOG = function(index) {
 
-  var wym = window.opener.WYMeditor.INSTANCES[index];
+  var wym = (window.opener || window.parent).WYMeditor.INSTANCES[index];
   var doc = window.document;
   var selected = wym.selected();
   var dialogType = jQuery(wym._options.dialogTypeSelector).val();
@@ -1521,9 +1520,9 @@ WYMeditor.INIT_DIALOG = function(index) {
         var title = jQuery(wym._options.titleSelector).val();
         link.attr(WYMeditor.HREF, sUrl)
             .attr(WYMeditor.TITLE, title);
-        if (title && link.text() == sStamp) {
+        if (title && (!link.text() || link.text() == sStamp)) {
             link.text(title);
-        } else if (link.text() == sStamp) {
+        } else if (!link.text() || link.text() == sStamp) {
             link.text(sUrl);
         }
 

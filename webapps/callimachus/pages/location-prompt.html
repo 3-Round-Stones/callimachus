@@ -29,6 +29,8 @@
 						complete:function(xhr) {
 							if (xhr.status == 200 || xhr.status == 304) {
 								$('#iframe')[0].src = url;
+							} else {
+								$('#iframe')[0].src = "/?view";
 							}
 						}
 					});
@@ -37,7 +39,10 @@
 				} else {
 					var label = decodeURIComponent(location.hash.substring(1));
 					$('#label').val(label);
+					$('#iframe')[0].src = "/?view";
 				}
+			} else {
+				$('#iframe')[0].src = "/?view";
 			}
 			var i=$('#label').val().search(/[\.\/]/);
 			if (i>0) {
@@ -63,7 +68,7 @@
 <body>
 	<form id="form">
 		<label for="label"><input class="auto-expand" id="label" type="text" autofocus="autofocus" />Name: </label>
-		<iframe id="iframe" class="flex" src="/?view"></iframe>
+		<iframe id="iframe" class="flex"></iframe>
 	</form>
 </body>
 </html>

@@ -4,15 +4,43 @@
 	<link rel="stylesheet" href="wymeditor/skin.css" />
 	<style type="text/css">
 		html, body { margin:0; }
-		.wym_tools { position:absolute;width:100%;height:26px;box-sizing:border-box; }
-		.wym_box_0 .wym_iframe { width:100%;height:100%;box-sizing:border-box; }
-		.wym_box_0 .wym_iframe > iframe { display:block;width:100%;height:100%;border:0;margin:0;padding-top:25px;padding-bottom:1.4em;box-sizing:border-box; }
+		.wym_tools {
+			position:absolute;
+			width:100%;
+			height:26px;
+			box-sizing:border-box;
+			-moz-box-sizing:border-box;
+		}
+		.wym_box_0 .wym_iframe {
+			width:100%;
+			height:100%;
+			box-sizing:border-box;
+			-moz-box-sizing:border-box;
+		}
+		.wym_box_0 .wym_iframe > iframe {
+			display:block;
+			width:100%;
+			height:100%;
+			border:0;
+			margin:0;
+			padding-top:25px;
+			padding-bottom:1.4em;
+			box-sizing:border-box;
+			-moz-box-sizing:border-box;
+		}
 		#wym_wymeditor_link {float:right;}
 		p, h2, h3, ul, li { background: transparent; }
 		ul.wym_buttons>li>a.wym_wymeditor_link { background: url(wymeditor/wymeditor_icon.png);width: 50px; height: 15px;padding:0;margin:4px;}
 		.wym_box_0 .wym_section { margin-bottom:0;padding:0; }
 		.wym_box_0 {border:0;padding:0;}
-		.wym_status { position:absolute;width:100%;height:1.5em;bottom:0;box-sizing:border-box; }
+		.wym_status {
+			position:absolute;
+			width:100%;
+			height:1.5em;
+			bottom:0;
+			box-sizing:border-box;
+			-moz-box-sizing:border-box;
+		}
 	</style>
 	<link rel="stylesheet" href="/callimachus/manifest?jqueryui" />
 	<script type="text/javascript" src="docbook_bundle?source"> </script>
@@ -81,7 +109,7 @@
 			</li>
 		</ul>
 		<div id="Wym_Iframe" class="wym_iframe wym_section ui-widget-content">
-			<iframe id="wym-iframe" src="/callimachus/editor/wymeditor/wymiframe.html"> </iframe>
+			<iframe id="wym-iframe"> </iframe>
 		</div>
 		<div class="wym_status wym_section ui-widget-header">
 		</div>

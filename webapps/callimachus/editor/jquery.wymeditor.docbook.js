@@ -17,10 +17,13 @@ function parseXml(urlOrXml, callback, sync) {
 	if (urlOrXml.indexOf('<') < 0) {
 		jQuery.ajax({
 			url: urlOrXml,
-			dataType: "xml",
 			async: async,
 			success: function(xml) {
-				callback(xml);
+				if (typeof xml == 'string') {
+					parseXml(xml, callback, sync);
+				} else {
+					callback(xml);
+				}
 			}
 		});
 	} else if (window.DOMParser) {

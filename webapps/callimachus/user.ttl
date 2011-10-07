@@ -94,7 +94,7 @@ rdfs:comment a rdf:Property.
 # find the user that created $this
 :FindUserCreator rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:User];
 	msg:sparql  """
 		SELECT DISTINCT ?contributor
 		WHERE {

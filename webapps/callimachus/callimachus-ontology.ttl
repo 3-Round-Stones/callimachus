@@ -96,10 +96,6 @@ calli:Theme a owl:Class;
 	rdfs:comment "A Callimachus Web theme of HTML templates, CSS, and JavaScript";
 	rdfs:subClassOf calli:ScriptBundle.
 
-calli:ColourScheme a owl:Class;
-	rdfs:label "Colour Scheme";
-	rdfs:comment "The CSS files used to colour one or more Callimachus Web themes".
-
 calli:ScriptBundle a owl:Class;
 	rdfs:label "Script Bundle";
 	rdfs:comment "A collection of JavaScript files that are downloaded and compressed together".
@@ -304,21 +300,15 @@ calli:style a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:comment "The primary CSS style for this theme";
 	rdfs:domain calli:Theme.
 
-calli:colourScheme a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:label "colour scheme";
-	rdfs:comment "The primary colour scheme used for this manifest";
-	rdfs:domain calli:Manifest;
-	rdfs:range calli:ColourScheme.
-
 calli:colour a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "colour";
 	rdfs:comment "The primary CSS style for this colour scheme";
-	rdfs:domain calli:ColourScheme.
+	rdfs:domain calli:Theme.
 
 calli:jqueryui a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "jQuery ui";
 	rdfs:comment "The jQuery UI CSS Framework theme used for this colour scheme";
-	rdfs:domain calli:ColourScheme.
+	rdfs:domain calli:Theme.
 
 ################################
 # Message

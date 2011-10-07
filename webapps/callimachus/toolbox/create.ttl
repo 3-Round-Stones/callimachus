@@ -46,7 +46,7 @@
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom </callimachus/Local>];
 	msg:method "POST";
 	msg:query "create";
 	msg:realm </callimachus/manifest>;
@@ -57,7 +57,7 @@
 # override this method for subclass create methods
 :PostCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom </callimachus/Local>];
 	msg:script <operations.js#postCreate>.
 
 :body a owl:ObjectProperty, owl:FunctionalProperty;

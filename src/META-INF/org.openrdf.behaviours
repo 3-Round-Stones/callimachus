@@ -12,7 +12,7 @@ org.callimachusproject.behaviours.NobodyRealmSupport = http://callimachusproject
 org.callimachusproject.behaviours.LocalRealmSupport = http://callimachusproject.org/rdf/2009/framework#LocalRealm
 org.callimachusproject.behaviours.MailSubmitterSupport
 org.callimachusproject.behaviours.ManifestSupport
-org.callimachusproject.behaviours.PasswordGenerator = http://callimachusproject.org/rdf/2009/framework#Credential
+org.callimachusproject.behaviours.PasswordGenerator = http://callimachusproject.org/rdf/2009/framework#User
 org.callimachusproject.behaviours.ScriptBundleSupport
 org.callimachusproject.behaviours.UniqueCredentialNameTrigger
 org.callimachusproject.behaviours.UniqueMemberNameTrigger

@@ -3,7 +3,7 @@
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
-@prefix dcterms:<http://purl.org/dc/terms/>.
+@prefix dc:<http://purl.org/dc/elements/1.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
@@ -110,10 +110,10 @@ calli:template a owl:ObjectProperty;
 			} UNION {
 				$this calli:license ?license
 				OPTIONAL {
-					?license dcterms:title ?title
+					?license dc:title ?title
 				}
 				OPTIONAL {
-					?license dcterms:creator [dcterms:title ?creator]
+					?license dc:creator [dc:title ?creator]
 				}
 			}
 		}

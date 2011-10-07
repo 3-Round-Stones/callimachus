@@ -257,6 +257,11 @@ iframe.ui-widget-content.ui-dialog-content {
 	padding:0;
 }
 
+#manifest-rights {
+	clear:left;
+	text-align:center;
+}
+
 .aside {
 	clear:right;
 	list-style:none;

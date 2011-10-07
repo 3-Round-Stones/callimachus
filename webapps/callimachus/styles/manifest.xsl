@@ -13,22 +13,21 @@
 				<title>Manifest</title>
 			</head>
 			<body>
-				<xsl:apply-templates mode="rights" select="sparql:results/sparql:result/sparql:binding[@name='license']" />
-				<xsl:apply-templates mode="rights" select="sparql:results/sparql:result/sparql:binding[@name='rights']" />
+				<xsl:apply-templates select="sparql:results/sparql:result/sparql:binding[@name='license']" />
+				<xsl:apply-templates select="sparql:results/sparql:result/sparql:binding[@name='rights']" />
 			</body>
 		</html>
 	</xsl:template>
 	<xsl:template match="sparql:binding[@name='license']">
 		<xsl:variable name="title" select="../sparql:binding[@name='title']/*/text()" />
 		<xsl:variable name="creator" select="../sparql:binding[@name='creator']/*/text()" />
-		<xsl:text>Unless otherwise state, data is available under the </xsl:text>
+		<xsl:text>Except where otherwise noted, content on this site is licensed under the </xsl:text>
 		<a rel="license" href="{*/text()}">
 			<xsl:value-of select="$creator" />
 			<xsl:text> </xsl:text>
 			<xsl:value-of select="$title" />
 			<xsl:text> License</xsl:text>
 		</a>
-		<xsl:text>; additional terms may apply.</xsl:text>
 		<br />
 	</xsl:template>
 	<xsl:template match="sparql:binding[@name='rights']">

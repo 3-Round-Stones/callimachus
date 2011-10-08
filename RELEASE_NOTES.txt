@@ -1,0 +1,23 @@
+Callimachus Project Release Notes
+
+http://callimachusproject.org/
+
+8 October 2011
+
+---------------------------
+| CHANGES IN VERSION 0.13 |
+---------------------------
+
+Callimachus 0.13 supports the HTML5 File API for the drag-and-drop of
+files into Callimachus Folders.  The file API is implemented in current
+versions of Firefox and Chrome, but not implemented in Safari 5, IE 9
+or Opera 10.
+
+Upload of files causes lower-casing of file names.  The side effect is
+that imported applications will need to refer to their files
+using lower-case names, regardless of the case in the uploaded files.
+File URLs include file extensions, although file extensions are not
+shown in the Folder view.
+
+Files may be deleted by selecting the file, and then selecting the Edit
+tab.  Selecting the 'Delete' button in the Edit tab will delete a file.

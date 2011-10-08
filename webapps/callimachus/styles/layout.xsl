@@ -241,7 +241,7 @@
 	</xsl:template>
 
 	<xsl:template mode="layout" match="xhtml:p[@id='resource-lastmod']|p[@id='resource-lastmod']">
-		<xsl:if test="$template and ($query='view' or $query='edit')">
+		<xsl:if test="$template and ($query='view' or $query='edit' or $query='permissions')">
 			<p xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#" about="?this" rel="audit:revision" resource="?revision">
 				<xsl:apply-templates mode="layout" select="@*" />
 				<xsl:apply-templates mode="time" select="*|text()|comment()" />
@@ -266,7 +266,7 @@
 	<xsl:template mode="layout" match="xhtml:p[@id='manifest-rights']|p[@id='manifest-rights']">
 		<xsl:copy>
 			<xsl:apply-templates mode="layout" select="@*" />
-			<xsl:copy-of select="document(concat($manifest, '?rights'))/xhtml:html/xhtml:body/node()" />
+			<xsl:copy-of select="document(concat($manifest, '?rights'))/*/node()" />
 		</xsl:copy>
 	</xsl:template>
 

@@ -72,6 +72,7 @@ application/zip zip
 application/xhtml+xml xhtml
 application/xhtml+xml xht
 application/xml xml
+application/xml-external-parsed-entity ent
 audio/basic au
 audio/basic snd
 audio/mpeg mp1 mp2 mp3 mpg

@@ -14,8 +14,9 @@
 	<h1>Manifest</h1>
 	<ul class="aside">
 		<li>To replace the icon or logo, click the × button, then the chevron to open a file upload dialogue</li>
-		<li>The icon should be of type PNG, JPEG, GIF, or ICO and should be 16×16 or 32×32 pixels in size</li>
-		<li>The logo should be of type PNG, JPEG, or GIF and should be 128x128 pixels in size</li>
+		<li>The icon should be of type PNG, GIF, or ICO and should be 16×16 or 32×32 pixels in size</li>
+		<li>The logo should be of type PNG or GIF and should be 128x128 pixels in size</li>
+		<li>Include a single &lt;p&gt; element in the rights statement to include in the footer</li>
 	</ul>
 	<form id='form' method="POST" action="" enctype="application/sparql-update" about="?this">
 		<div class="hbox">
@@ -44,17 +45,9 @@
 				</select>
 			</div>
 		</div>
-		<div rel="calli:license" dropzone="link t:text/uri-list">
-			<label>License</label>
-			<button type="button" class="dialog" data-dialog="/callimachus/NamedGraph" />
-			<div about="?license">
-				<span property="dc:title" />
-				<button type="button" class="remove" />
-			</div>
-		</div>
 		<div>
 			<label for="rights">Rights Statement</label>
-			<input id="rights" value="{calli:rights}" class="auto-expand" />
+			<textarea id="rights" class="auto-expand" required="required" datatype="rdf:XMLLiteral" onchange="if(value.indexOf('&lt;p') != 0)if('&lt;p'.indexOf(value) != 0)value='&lt;p&gt;' + value + '&lt;/p&gt;'">{calli:rights}</textarea>
 		</div>
 		<button id="save" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>

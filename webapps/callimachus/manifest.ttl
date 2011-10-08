@@ -95,38 +95,25 @@ calli:template a owl:ObjectProperty;
 
 :GetRights rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.w3c.dom.Element>];
 	msg:method "GET";
 	msg:query "rights";
-	msg:type "application/sparql-results+xml";
-	msg:transform :TransformRights;
-	msg:sparql  """
-		SELECT DISTINCT ?rights ?license ?title ?creator
-		WHERE {
-			{
-				$this calli:rights ?rights
-			} UNION {
-				$this calli:license ?license
-				OPTIONAL {
-					?license dc:title ?title
-				}
-				OPTIONAL {
-					?license dc:creator [dc:title ?creator]
+	msg:type "application/xml";
+	msg:script  """
+		var rights = "";
+		try {
+			if (this.calliRights) {
+				var nodes = this.calliRights.childNodes;
+				for (var i=0; i<nodes.length; i++) {
+					if (nodes.item(i).nodeType == 1)
+						return nodes.item(i);
 				}
 			}
+		} catch (e) {
+			e.javaException.printStackTrace();
 		}
+		return null;
 	""".
-
-:TransformRights rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xhtml+xml";
-	msg:xslt <styles/manifest.xsl>.
-
-:xml a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :TransformRights;
-	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/sparql-results+xml".
 
 :PostEditManifest owl:intersectionOf (</callimachus/toolbox/edit.ttl#PostEdit>
 		[owl:onProperty msg:target; owl:allValuesFrom <Manifest>]);

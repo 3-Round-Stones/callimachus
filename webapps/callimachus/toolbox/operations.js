@@ -102,6 +102,10 @@ function getEditPage() {
 function postEdit(msg) {
 	var template = findTemplate(this, edit);
 	template.calliEditResource(this, msg.input);
+	var parent = this.SelectParentComposite();
+	if (parent) {
+		parent.touchRevision();
+	}
 	return this;
 }
 

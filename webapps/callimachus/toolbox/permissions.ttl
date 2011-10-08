@@ -73,6 +73,10 @@
 	msg:imports <permissions.xhtml>;
 	msg:script """
 		permissions_xhtml.calliEditResource(this, msg.input);
+		var parent = this.SelectParentComposite();
+		if (parent) {
+			parent.touchRevision();
+		}
 		return this;
 	""".
 
@@ -100,5 +104,15 @@
 		con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph"), []);
 		con.recompileAfterClose();
 		return ret;
+	""".
+
+:SelectParentComposite rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Composite];
+	msg:sparql """
+		SELECT ?composite
+		WHERE {
+			?composite calli:hasComponent $this
+		}
+		LIMIT 1
 	""".
 

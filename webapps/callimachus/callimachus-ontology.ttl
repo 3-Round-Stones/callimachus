@@ -22,7 +22,6 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix cc:<http://creativecommons.org/ns#>.
 
 @base <http://callimachusproject.org/rdf/2009/framework>.
 
@@ -228,17 +227,11 @@ calli:favicon a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:comment "A small logo image that should be shown with this menu";
 	rdfs:domain calli:Manifest.
 
-calli:license a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:label "license";
-	rdfs:comment "A legal document giving official permission to do something with the data in this Web application server";
-	rdfs:domain calli:Manifest;
-	rdfs:range cc:License.
-
 calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "rights";
 	rdfs:comment "Rights statement for the data in this Web application server";
 	rdfs:domain calli:Manifest;
-	rdfs:range rdf:PlainLiteral.
+	rdfs:range rdf:XMLLiteral.
 
 calli:member a owl:ObjectProperty;
 	rdfs:label "member";

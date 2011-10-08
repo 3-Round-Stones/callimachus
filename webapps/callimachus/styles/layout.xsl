@@ -77,9 +77,7 @@
 			<link rel="stylesheet" href="{$callimachus}/styles/content.css" />
 			<xsl:comment>[if gt IE 6]&gt;&lt;!</xsl:comment>
 			<xsl:for-each select="$styles">
-				<xsl:if test="not(contains(@rel, 'jqueryui')) or $template_body//xhtml:form or $template_body//*[contains(@class, 'ui-')]">
-					<link rel="stylesheet" href="{@href}" />
-				</xsl:if>
+				<link rel="stylesheet" href="{@href}" />
 			</xsl:for-each>
 			<xsl:comment>&lt;![endif]</xsl:comment>
 			<xsl:apply-templates mode="layout" select="$layout_head/*[local-name()!='script' and local-name()!='title']|comment()" />

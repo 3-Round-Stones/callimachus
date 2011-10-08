@@ -131,7 +131,7 @@ body:before {
 
 #page {
 	overflow:auto;
-	padding-bottom:10em;  /* must be same height as the footer */
+	padding-bottom:12em;  /* must be same height as the footer */
 }
 
 #main {
@@ -213,8 +213,8 @@ iframe.ui-widget-content.ui-dialog-content {
 #footer {
 	overflow:hidden;
 	position:relative;
-	margin-top:-10em; /* negative value of footer height */
-	min-height:10em;
+	margin-top:-12em; /* negative value of footer height */
+	min-height:12em;
 	clear:both;
 }
 

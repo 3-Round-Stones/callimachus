@@ -9,7 +9,7 @@
 	} catch (e) {
 		// ignore
 	}
-	function createTextCell(text, url, src) {
+	function createTextCell(text, url, type, src) {
 		if (!src) {
 			src = '/callimachus/images/rdf-icon.png';
 		}
@@ -20,6 +20,9 @@
 		if (url) {
 			a.attr('href', url);
 			a.addClass('view');
+			if (type) {
+				a.attr('type', type);
+			}
 		}
 		a.text(text);
 		var img = $('<img/>');
@@ -80,8 +83,10 @@
 						var tr = $('<tr/>');
 						var icon = entry.children('icon').text();
 						var title = entry.children('title').text();
-						var link = entry.children('link').attr('href');
-						tr.append(createTextCell(title, link, icon));
+						var content = entry.children('content');
+						var src = content.attr('src');
+						var type = content.attr('type');
+						tr.append(createTextCell(title, src, type, icon));
 						tr.append(createTimeCell(entry.children('updated').text()));
 						tr.append(createPermissionCell(entry, 'calli:reader'));
 						tr.append(createPermissionCell(entry, 'contributor'));

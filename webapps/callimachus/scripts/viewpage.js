@@ -22,8 +22,9 @@ function handle(event) {
 				this.href = href;
 			});
 			$(this).bind('dragstart', function(event) {
-				event.originalEvent.dataTransfer.setData('text/uri-list', resource);
-				event.originalEvent.dataTransfer.setData('text/plain', resource);
+				var e = event.originalEvent;
+				e.dataTransfer.setData('text/uri-list', resource);
+				e.dataTransfer.setData('text/plain', resource);
 			});
 			link.addClass("view");
 		} else {

@@ -7,10 +7,27 @@
 <head>
 	<title about="?this">{rdfs:label}</title>
 	<script type="text/javascript">//<![CDATA[
+		jQuery(function($){
+			var Composite = "/callimachus/Composite";
+			var subClassOf = $('#subClassOf');
+			if (subClassOf.children('[about$="' + Composite + '"]').length) {
+				$('#composite').attr('checked','checked');
+			} else {
+				$('#composite').removeAttr('checked');
+			}
+		});
 		function updateSuperClasses() {
+			var Composite = "/callimachus/Composite";
 			var Viewable = "/callimachus/Viewable";
 			var Editable = "/callimachus/Editable";
 			var subClassOf = $('#subClassOf');
+			if ($('#composite').is(':checked')) {
+				if (!subClassOf.children('[about$="' + Composite + '"]').length) {
+					subClassOf.append('<div about="' + Composite + '">Composite</div>');
+				}
+			} else {
+				subClassOf.children('[about$="' + Composite + '"]').remove();
+			}
 			if ($('#view').children('[about]').length) {
 				if (!subClassOf.children('[about$="' + Viewable + '"]').length) {
 					subClassOf.append('<div about="' + Viewable + '">Viewable</div>');
@@ -73,6 +90,10 @@
 					<span property="rdfs:label" />
 					<button type="button" class="remove" />
 				</div>
+			</div>
+			<div>
+				<label for="composite">Nested resources</label>
+				<label class="input"><input id="composite" type="checkbox" /> These resources contain other resources</label>
 			</div>
 		</div>
 		<hr />

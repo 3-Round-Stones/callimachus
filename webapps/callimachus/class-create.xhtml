@@ -64,7 +64,8 @@
 	<h1>New Class</h1>
 	<ul class="aside">
 		<li>A class usually represents a noun, such as a person, place or (possibly quite abstract) thing</li>
-		<li>An external class can be associated with a Callimachus class using equivalence this will apply the templates to both classes</li>
+		<li>An external OWL class can be associated with a Callimachus class to apply the templates to both classes</li>
+		<li>Use the equivalent dialogue to upload and view an imported ontology; drag the external OWL class onto the equivalent field to make the association</li>
 		<li>Templates are used for page or form structure on each operation</li>
 	</ul>
 	<form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="owl:Class"
@@ -92,7 +93,7 @@
 				<label>Super</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/Class" />
 				<div about="?subClassOf" typeof="owl:Class">
-					<span property="rdfs:label" />
+					<span>{rdfs:label}</span>
 					<button type="button" class="remove" />
 				</div>
 			</div>
@@ -100,8 +101,8 @@
 				<label>Equivalent</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/NamedGraph" />
 				<div about="?equivalentClass" typeof="owl:Class">
-					<span class="equivalentLabel" property="rdfs:label" />
-					<span style="display:none" class="equivalentComment" property="rdfs:comment" />
+					<span class="equivalentLabel">{rdfs:label}</span>
+					<span style="display:none" class="equivalentComment">{rdfs:comment}</span>
 					<button type="button" class="remove" />
 				</div>
 			</div>

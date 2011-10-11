@@ -76,8 +76,10 @@ $(document).bind("calliLogin", function(event) {
 		jQuery.ajax(options);
 	} catch (e) {
 		// Opera don't support spaces in ajax passwords
-		// bring up browser login dialog
-		location = "/callimachus/accounts?login";
+		if (options.password) {
+			delete options.password;
+			jQuery.ajax(options);
+		}
 	}
 });
 

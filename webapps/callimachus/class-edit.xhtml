@@ -65,8 +65,10 @@
 				<label>Icon</label>
 				<button type="button" class="browse" />
 				<div about="?icon" typeof="foaf:Image">
-					<img src="{?icon}?small" />
-					<button type="button" class="remove" />
+					<span class="ui-state-highlight ui-corner-all">
+						<img src="{?icon}" />
+						<a href="#" class="remove"></a>
+					</span>
 				</div>
 			</div>
 		</div>
@@ -79,16 +81,14 @@
 				<label>Super</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/Class" />
 				<div about="?subClassOf" typeof="owl:Class">
-					<span>{rdfs:label}</span>
-					<button type="button" class="remove" />
+					<span class="ui-state-highlight ui-corner-all">{rdfs:label}<a href="#" class="remove"></a></span>
 				</div>
 			</div>
 			<div id="equivalentClass" rel="owl:equivalentClass" dropzone="link s:text/uri-list">
 				<label>Equivalent</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/NamedGraph" />
 				<div about="?equivalentClass" typeof="owl:Class">
-					<span>{rdfs:label}</span>
-					<button type="button" class="remove" />
+					<span class="ui-state-highlight ui-corner-all">{rdfs:label}<a href="#" class="remove"></a></span>
 				</div>
 			</div>
 			<div>
@@ -103,24 +103,21 @@
 				<label>Create template</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" />
 				<div about="?create" typeof="calli:Page">
-					<span property="rdfs:label" />
-					<button type="button" class="remove" />
+					<span class="ui-state-highlight ui-corner-all">{rdfs:label}<a href="#" class="remove"></a></span>
 				</div>
 			</div>
 			<div id="view" rel="calli:view" dropzone="link s:text/uri-list">
 				<label>View template</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" />
 				<div about="?view" typeof="calli:Page">
-					<span property="rdfs:label" />
-					<button type="button" class="remove" />
+					<span class="ui-state-highlight ui-corner-all">{rdfs:label}<a href="#" class="remove"></a></span>
 				</div>
 			</div>
 			<div id="edit" rel="calli:edit" dropzone="link s:text/uri-list">
 				<label>Edit template</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" />
 				<div about="?edit" typeof="calli:Page">
-					<span property="rdfs:label" />
-					<button type="button" class="remove" />
+					<span class="ui-state-highlight ui-corner-all">{rdfs:label}<a href="#" class="remove"></a></span>
 				</div>
 			</div>
 		</div>

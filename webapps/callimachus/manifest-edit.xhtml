@@ -24,16 +24,20 @@
 				<label>Logo</label>
 				<button type="button" class="browse" />
 				<div about="?logo" typeof="foaf:Image">
-					<img src="{?logo}" />
-					<button type="button" class="remove" />
+					<span class="ui-state-highlight ui-corner-all">
+						<img src="{?logo}" />
+						<a href="#" class="remove"></a>
+					</span>
 				</div>
 			</div>
 			<div id="favicon-image" rel="calli:favicon" dropzone="link s:text/uri-list">
 				<label>Icon</label>
 				<button type="button" class="browse" />
 				<div about="?favicon" typeof="foaf:Image">
-					<img src="{?favicon}" />
-					<button type="button" class="remove" />
+					<span class="ui-state-highlight ui-corner-all">
+						<img src="{?favicon}" />
+						<a href="#" class="remove"></a>
+					</span>
 				</div>
 			</div>
 		</div>
@@ -47,7 +51,7 @@
 		</div>
 		<div>
 			<label for="rights">Rights Statement</label>
-			<textarea id="rights" class="auto-expand" required="required" datatype="rdf:XMLLiteral" onchange="if(value.indexOf('&lt;p') != 0)if('&lt;p'.indexOf(value) != 0)value='&lt;p&gt;' + value + '&lt;/p&gt;'">{calli:rights}</textarea>
+			<textarea id="rights" class="auto-expand" datatype="rdf:XMLLiteral" onchange="if(value.indexOf('&lt;p') != 0)if('&lt;p'.indexOf(value) != 0)value='&lt;p&gt;' + value + '&lt;/p&gt;'">{calli:rights}</textarea>
 		</div>
 		<button id="save" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>

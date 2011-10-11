@@ -49,7 +49,7 @@
 	</ul>
 	<ul class="aside">
 		<li>Enter your full name</li>
-		<li>Upload a small photo of yourself so other can recognize you using the chevron</li>
+		<li>Upload a small photo of yourself so others can recognize you using the chevron</li>
 		<li>Additional information is to provide additional contact information and is viewable to all authenticated users</li>
 		<li>Your e-mail address is used to reset your password</li>
 	</ul>
@@ -62,8 +62,10 @@
 			<label>Photo</label>
 			<button type="button" class="dialog" data-dialog="?create=/callimachus/Photo" />
 			<div about="?img" typeof="foaf:Image">
-				<img src="{?img}?small" />
-				<button type="button" class="remove" />
+				<span class="ui-state-highlight ui-corner-all">
+					<img src="{?img}?small" />
+					<a href="#" class="remove"></a>
+				</span>
 			</div>
 		</div>
 		<label for="comment">Additional information</label>

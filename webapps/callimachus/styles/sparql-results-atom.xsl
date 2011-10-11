@@ -108,12 +108,15 @@
 	</rights>
 </xsl:template>
 
-<xsl:template match="sparql:binding[@name='link']">
-	<link href="{*}" />
-</xsl:template>
-
-<xsl:template match="sparql:binding[@name='link_feed']">
-	<link rel="alternate" type="application/atom+xml" href="{*}" />
+<xsl:template match="sparql:binding[@name='link_href']">
+	<link href="{*}">
+		<xsl:if test="../sparql:binding[@name='link_rel']">
+			<xsl:attribute name="rel"><xsl:value-of select="../sparql:binding[@name='link_rel']/*" /></xsl:attribute>
+		</xsl:if>
+		<xsl:if test="../sparql:binding[@name='link_type']">
+			<xsl:attribute name="type"><xsl:value-of select="../sparql:binding[@name='link_type']/*" /></xsl:attribute>
+		</xsl:if>
+	</link>
 </xsl:template>
 
 <xsl:template match="sparql:binding[@name='content_src']">

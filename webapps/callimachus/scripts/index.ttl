@@ -28,8 +28,7 @@
 	rdf:_17 <creole.js>;
 	rdf:_18 <wiki.js>;
 	rdf:_19 <placeholder.js>;
-	rdf:_20 <details.js>;
-	rdf:_21 <http://www.google.com/jsapi>.
+	rdf:_20 <details.js>.
 
 <ie_bundle> a calli:ScriptBundle;
 	rdf:_1 <selectivizr.js>.

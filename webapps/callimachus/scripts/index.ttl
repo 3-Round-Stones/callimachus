@@ -46,7 +46,7 @@
 	rdf:_8 <remove-resource.js>;
 	rdf:_9 <data-construct.js>;
 	rdf:_10 <dialog.js>;
-	rdf:_11 <data-dialog.js>;
+	rdf:_11 <create-resource.js>;
 	rdf:_12 <document-ready.js>;
 	rdf:_13 <input-date.js>;
 	rdf:_14 <disable-button.js>;

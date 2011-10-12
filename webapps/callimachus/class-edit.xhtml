@@ -77,8 +77,7 @@
 		</div>
 		<div class="hbox">
 			<div id="subClassOf" rel="rdfs:subClassOf" dropzone="link s:text/uri-list">
-				<label>Super</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Class" />
+				<label>Super <a href="/callimachus/Class" title="New" class="ui-icon ui-icon-newwin" onclick="return calli.createResource(this)" /></label>
 				<div about="?subClassOf" typeof="owl:Class">
 					<span class="ui-state-highlight ui-corner-all">
 						{rdfs:label}
@@ -87,8 +86,7 @@
 				</div>
 			</div>
 			<div id="equivalentClass" rel="owl:equivalentClass" dropzone="link s:text/uri-list">
-				<label>Equivalent</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/NamedGraph" />
+				<label>Equivalent <a href="/callimachus/NamedGraph" title="New" class="ui-icon ui-icon-newwin" onclick="return calli.createResource(this)" /></label>
 				<div about="?equivalentClass" typeof="owl:Class">
 					<span class="ui-state-highlight ui-corner-all">
 						{rdfs:label}
@@ -105,8 +103,7 @@
 		<h2>Page Templates</h2>
 		<div class="hbox">
 			<div id="create" rel="calli:create" dropzone="link s:text/uri-list">
-				<label>Create template</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" />
+				<label>Create template <a href="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" title="New" class="ui-icon ui-icon-newwin" onclick="return calli.createResource(this)" /></label>
 				<div about="?create" typeof="calli:Page">
 					<span class="ui-state-highlight ui-corner-all">
 						{rdfs:label}
@@ -115,8 +112,7 @@
 				</div>
 			</div>
 			<div id="view" rel="calli:view" dropzone="link s:text/uri-list">
-				<label>View template</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" />
+				<label>View template <a href="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" title="New" class="ui-icon ui-icon-newwin" onclick="return calli.createResource(this)" /></label>
 				<div about="?view" typeof="calli:Page">
 					<span class="ui-state-highlight ui-corner-all">
 						{rdfs:label}
@@ -125,8 +121,7 @@
 				</div>
 			</div>
 			<div id="edit" rel="calli:edit" dropzone="link s:text/uri-list">
-				<label>Edit template</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" />
+				<label>Edit template <a href="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" title="New" class="ui-icon ui-icon-newwin" onclick="return calli.createResource(this)" /></label>
 				<div about="?edit" typeof="calli:Page">
 					<span class="ui-state-highlight ui-corner-all">
 						{rdfs:label}

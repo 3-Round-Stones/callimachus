@@ -46,16 +46,16 @@
 		<xsl:copy />
 	</xsl:template>
 
-	<xsl:template mode="form" match="xhtml:button[@data-dialog]">
+	<xsl:template mode="form" match="*">
 		<xsl:copy>
-			<xsl:if test="ancestor::*[.//@about or .//@resource][1]//*[contains(' rdfs:label skos:prefLabel skos:altLabel skosxl:literalForm ', concat(' ', @property, ' '))] and not(@data-search)">
+			<xsl:if test="*[@about or @resource][1]//*[contains(' rdfs:label skos:prefLabel skos:altLabel skosxl:literalForm ', concat(' ', @property, ' ')) or contains(text(), '{rdfs:label}') or contains(text(), '{skos:prefLabel}') or contains(text(), '{skos:altLabel}') or contains(text(), '{skosxl:literalForm}')] and not(@data-search)">
 				<!-- Lookup possible members by label -->
 				<xsl:attribute name="data-search">
 					<xsl:value-of select="$this" />
 					<xsl:text>?search&amp;query=</xsl:text>
 					<xsl:value-of select="$query" />
 					<xsl:text>&amp;element=</xsl:text>
-					<xsl:apply-templates mode="xptr-element" select="ancestor::*[.//@about or .//@resource][1]" />
+					<xsl:apply-templates mode="xptr-element" select="." />
 					<xsl:text>&amp;q={searchTerms}</xsl:text>
 				</xsl:attribute>
 			</xsl:if>
@@ -76,13 +76,6 @@
 					<xsl:apply-templates mode="xptr-element" select="ancestor::*[.//@about or .//@typeof or .//@resource or .//@property][1]" />
 				</xsl:attribute>
 			</xsl:if>
-			<xsl:call-template name="data-attributes" />
-			<xsl:apply-templates mode="form" select="@*|node()"/>
-		</xsl:copy>
-	</xsl:template>
-
-	<xsl:template mode="form" match="*">
-		<xsl:copy>
 			<xsl:call-template name="data-attributes" />
 			<xsl:apply-templates mode="form" select="@*|node()"/>
 		</xsl:copy>

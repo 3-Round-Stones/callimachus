@@ -70,7 +70,7 @@ calli:AccountManager a owl:Class;
 
 calli:Party a owl:Class;
 	rdfs:label "Party";
-	rdfs:comment "An agent or group of credentials".
+	rdfs:comment "A user or group of users".
 
 calli:User a owl:Class;
 	rdfs:subClassOf calli:Party;
@@ -80,7 +80,7 @@ calli:User a owl:Class;
 calli:Group a owl:Class;
 	rdfs:subClassOf calli:Party;
 	rdfs:label "Group";
-	rdfs:comment "A collection of credentials".
+	rdfs:comment "A collection of users".
 
 calli:Manifest a owl:Class;
 	rdfs:label "Manifest";
@@ -129,19 +129,19 @@ calli:NamedGraph a owl:DeprecatedClass;
 
 calli:reader a owl:AnnotationProperty;
 	rdfs:label "reader";
-	rdfs:comment "Credential or group of credentials that can view individual resources of this class".
+	rdfs:comment "User or group of users that can view individual resources of this class".
 
 calli:contributor a owl:AnnotationProperty;
 	rdfs:label "contributor";
-	rdfs:comment "Credential or group of credentials that can create an a resource with this namespace".
+	rdfs:comment "User or group of users that can create an a resource with this namespace".
 
 calli:editor a owl:AnnotationProperty;
 	rdfs:label "editor";
-	rdfs:comment "Credential or group of credentials that can create and maintain members of this class or can edit and maintain this resources".
+	rdfs:comment "User or group of users that can create and maintain members of this class or can edit and maintain this resources".
 
 calli:administrator a owl:AnnotationProperty;
 	rdfs:label "administrator";
-	rdfs:comment "Credential or group of credentials that can interact with this resource remotely".
+	rdfs:comment "User or group of users that can interact with this resource remotely".
 
 calli:edit a owl:AnnotationProperty;
 	rdfs:label "edit";
@@ -185,7 +185,7 @@ calli:email a owl:DatatypeProperty, owl:FunctionalProperty;
 
 calli:authNamespace a owl:ObjectProperty;
 	rdfs:label "auth namespace";
-	rdfs:comment "Folder of credentials that can be authenticated by this realm";
+	rdfs:comment "Folder of users that can be authenticated by this realm";
 	rdfs:domain calli:AccountManager;
 	rdfs:range calli:Folder.
 

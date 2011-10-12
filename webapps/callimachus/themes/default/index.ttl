@@ -5,7 +5,7 @@
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
-<default> a calli:Theme, calli:ColourScheme;
+<default> a calli:Theme;
 	rdfs:label "Default Theme";
 	rdf:_1 <alert.js>;
 	rdf:_2 <discussion.js>;

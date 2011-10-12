@@ -28,10 +28,10 @@
 
 <docbook_bundle> a calli:ScriptBundle; calli:minified 1 ;
 	rdf:_1 <../scripts/jquery.js>;
-	rdf:_1 <../scripts/jquery-ui.js>;
-	rdf:_2 <wymeditor/jquery.wymeditor.js>;
-	rdf:_3 <wymeditor/en.js>;
-	rdf:_4 <wymeditor/skin.js>;
-	rdf:_5 <jquery.wymeditor.docbook.js>;
-	rdf:_6 <docbook-editor.js>.
+	rdf:_2 <../scripts/jquery-ui.js>;
+	rdf:_3 <wymeditor/jquery.wymeditor.js>;
+	rdf:_4 <wymeditor/en.js>;
+	rdf:_5 <wymeditor/skin.js>;
+	rdf:_6 <jquery.wymeditor.docbook.js>;
+	rdf:_7 <docbook-editor.js>.
 

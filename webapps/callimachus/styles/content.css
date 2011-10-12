@@ -19,7 +19,7 @@ div.ui-datepicker {
 	font-size:small;
 }
 
-label .ui-icon,.ui-state-highlight .ui-icon {
+a.ui-icon {
 	display:inline-block;
 }
 

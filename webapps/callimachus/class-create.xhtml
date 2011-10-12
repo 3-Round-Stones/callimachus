@@ -81,7 +81,7 @@
 				<div about="?icon" typeof="foaf:Image">
 					<span class="ui-state-highlight ui-corner-all">
 						<img src="{?icon}" />
-						<a href="#" class="remove"></a>
+						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
 					</span>
 				</div>
 			</div>
@@ -105,7 +105,7 @@
 					<span class="ui-state-highlight ui-corner-all">
 						<span class="equivalentLabel">{rdfs:label}</span>
 						<span style="display:none" class="equivalentComment">{rdfs:comment}</span>
-						<span class="ui-icon ui-icon-closethick" onclick="calli.removeResource(this)"></span>
+						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
 					</span>
 				</div>
 			</div>
@@ -121,21 +121,30 @@
 				<label>Create template</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" />
 				<div about="?create" typeof="calli:Page">
-					<span class="ui-state-highlight ui-corner-all">{rdfs:label}<a href="#" class="remove"></a></span>
+					<span class="ui-state-highlight ui-corner-all">
+						{rdfs:label}
+						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+					</span>
 				</div>
 			</div>
 			<div id="view" rel="calli:view" dropzone="link s:text/uri-list">
 				<label>View template</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" />
 				<div about="?view" typeof="calli:Page">
-					<span class="ui-state-highlight ui-corner-all">{rdfs:label}<a href="#" class="remove"></a></span>
+					<span class="ui-state-highlight ui-corner-all">
+						{rdfs:label}
+						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+					</span>
 				</div>
 			</div>
 			<div id="edit" rel="calli:edit" dropzone="link s:text/uri-list">
 				<label>Edit template</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" />
 				<div about="?edit" typeof="calli:Page">
-					<span class="ui-state-highlight ui-corner-all">{rdfs:label}<a href="#" class="remove"></a></span>
+					<span class="ui-state-highlight ui-corner-all">
+						{rdfs:label}
+						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+					</span>
 				</div>
 			</div>
 		</div>

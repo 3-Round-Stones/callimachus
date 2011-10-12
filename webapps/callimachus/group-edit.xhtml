@@ -35,7 +35,10 @@
 			<label>Members</label>
 			<button type="button" class="dialog" data-dialog="/user/?create=/callimachus/User" />
 			<div about="?member" typeof="calli:User">
-				<span class="ui-state-highlight ui-corner-all">{rdfs:label}<a href="#" class="remove"></a></span>
+				<span class="ui-state-highlight ui-corner-all">
+					{rdfs:label}
+					<span class="ui-icon ui-icon-closethick" onclick="calli.removeResource(this)"></span>
+				</span>
 			</div>
 		</div>
 		<hr />

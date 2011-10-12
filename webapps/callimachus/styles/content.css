@@ -19,6 +19,10 @@ div.ui-datepicker {
 	font-size:small;
 }
 
+.ui-state-highlight .ui-icon {
+	display:inline-block;
+}
+
 iframe.ui-widget-content.ui-dialog-content {
 	margin:0;
 	padding:0;

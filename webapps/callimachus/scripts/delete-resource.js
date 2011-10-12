@@ -13,7 +13,7 @@ window.calli.deleteResource = function(form) {
 	if (form && !confirm("Are you sure you want to delete " + document.title + "?"))
 		return;
 	form = $(form);
-	if (!form.length) {
+	if (!form || !form.length) {
 		form = $("form[about]");
 	}
 	if (!form.length) {

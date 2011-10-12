@@ -163,7 +163,17 @@ window.calli.openDialog = function(url, title, options) {
 			return false;
 		});
 	}
-	return iframe[0].contentWindow;
+	var win = iframe[0].contentWindow;
+	try {
+		win.close = function() {
+			window.setTimeout(function() {
+				calli.closeDialog(win);
+			}, 0);
+		};
+	} catch (e) {
+		// use calli.closeDialog directly
+	}
+	return win;
 }
 
 })(jQuery);

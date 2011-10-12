@@ -76,8 +76,7 @@
 				<input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
 			</div>
 			<div id="icon" rel="calli:icon" dropzone="link s:text/uri-list">
-				<label>Icon</label>
-				<button type="button" class="browse" />
+				<label>Icon <span class="ui-icon ui-icon-folder-open" onclick="calli.selectFile(this)"></span></label>
 				<div about="?icon" typeof="foaf:Image">
 					<span class="ui-state-highlight ui-corner-all">
 						<img src="{?icon}" />

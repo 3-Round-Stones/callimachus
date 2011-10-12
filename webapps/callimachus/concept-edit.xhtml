@@ -96,8 +96,7 @@
 		</div>
 		<hr />
 		<div id="image" rel="foaf:depiction" dropzone="link s:text/uri-list">
-			<label>Image</label>
-			<button type="button" class="browse" />
+			<label>Image <span class="ui-icon ui-icon-folder-open" onclick="calli.selectFile(this)"></span></label>
 		 	<div about="?depiction" typeof="foaf:Image">
 				<span class="ui-state-highlight ui-corner-all">
 					<img src="{?depiction}?small" />

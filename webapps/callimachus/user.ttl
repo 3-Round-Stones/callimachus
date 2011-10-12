@@ -85,7 +85,7 @@ rdfs:comment a rdf:Property.
 		//# email the password to the email address provided
 		var fromUser = newUser.FindUserCreator();
 		if (!fromUser || !fromUser.sendMessage)
-			throw new BadRequest("Could not find creator user");
+			throw new BadRequest("Could not find administrator");
 		body5 = body5.replace(/@@PASSWORD@@/g, password);
 		fromUser.sendMessage(subject + '\\n' + body5, label + " <" + email + ">");
 		return newUser;
@@ -96,7 +96,7 @@ rdfs:comment a rdf:Property.
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:User];
 	msg:sparql  """
-		SELECT DISTINCT ?contributor
+		SELECT ?contributor
 		WHERE {
 			{
 				audit:current-trx audit:contributor ?contributor
@@ -149,7 +149,7 @@ rdfs:comment a rdf:Property.
 				throw new BadRequest("That is not your current password");
 		}
 		//# save email
-		if (email) {
+		if (email && email != this.calliEmail) {
 			this.calliEmail = email;
 		}
 		//# save password

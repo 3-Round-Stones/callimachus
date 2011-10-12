@@ -11,12 +11,6 @@ calli.createResource = function(node) {
 	var list = $(node).parents('[dropzone]');
 	if (!href || !list.length)
 		return true;
-	var id = list.attr("id");
-	if (!id) {
-		var count = list.attr("id") ? list.attr("id") : (++iframe_counter);
-		id = "dialog-" + count;
-	}
-	var frame = id + "-iframe";
 	var title = '';
 	if (list.attr("id")) {
 		title = $("label[for='" + list.attr("id") + "']").text();

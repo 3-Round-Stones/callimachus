@@ -32,8 +32,8 @@
 			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 		</div>
 		<div rel="calli:member" dropzone="link s:text/uri-list">
-			<label>Members</label>
-			<button type="button" class="dialog" data-dialog="/user/?create=/callimachus/User" />
+			<label>Members <a href="/user/?create=/callimachus/User" title="Invite"
+					class="ui-icon ui-icon-newwin" onclick="return calli.createResource(this)" /></label>
 			<div about="?member" typeof="calli:User">
 				<span class="ui-state-highlight ui-corner-all">
 					{rdfs:label}

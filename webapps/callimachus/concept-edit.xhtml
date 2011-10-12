@@ -74,8 +74,8 @@
 		<hr />
 		<div class="hbox">
 			<div id="related" rel="skos:related" dropzone="link s:text/uri-list">
-				<label>Related</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Concept?create" />
+				<label>Related <a href="/callimachus/Concept?create" title="Create"
+						class="ui-icon ui-icon-newwin" onclick="return calli.createResource(this)" /></label>
 				<div about="?related" typeof="skos:Concept">
 					<span class="ui-state-highlight ui-corner-all">
 						{skos:prefLabel}
@@ -84,8 +84,8 @@
 				</div>
 			</div>
 			<div id="narrower" rel="skos:narrower" dropzone="link s:text/uri-list">
-				<label>Narrower</label>
-				<button type="button" class="dialog" data-dialog="/callimachus/Concept?create" />
+				<label>Narrower <a href="/callimachus/Concept?create" title="Create"
+						class="ui-icon ui-icon-newwin" onclick="return calli.createResource(this)" /></label>
 				<div about="?narrower" typeof="skos:Concept" >
 					<span class="ui-state-highlight ui-corner-all">
 						{skos:prefLabel}

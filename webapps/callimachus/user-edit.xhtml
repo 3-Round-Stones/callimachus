@@ -59,8 +59,8 @@
 			<input id="label" value="{rdfs:label}" type="text" class="auto-expand required" />
 		</div>
 	 	<div rel="foaf:depiction" dropzone="link s:text/uri-list">
-			<label>Photo</label>
-			<button type="button" class="dialog" data-dialog="?create=/callimachus/Photo" />
+			<label>Photo <a href="?create=/callimachus/Photo" title="Upload"
+					class="ui-icon ui-icon-newwin" onclick="return calli.createResource(this)" /></label>
 			<div about="?img" typeof="foaf:Image">
 				<span class="ui-state-highlight ui-corner-all">
 					<img src="{?img}?small" />

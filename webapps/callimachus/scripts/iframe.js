@@ -51,7 +51,7 @@
 			}
 		}
 		$(window).bind('popstate', postSource);
-		$(postSource);
+		$(window).bind('load', postSource);
 		$(window).bind('load resize', function() {
 			setTimeout(checkWindowSize, 0);
 		});

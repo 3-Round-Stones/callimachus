@@ -7,9 +7,9 @@
 (function($){
 
 calli.removeResource = function(node) {
-	var parents = $(node).parents();
+	var parents = $(node).add($(node).parents());
 	for (var i=0; i<parents.length; i++) {
-		if ($(parents[i]).is('[about],[resource],[href],[src]')) {
+		if ($(parents[i]).is('[data-var-about],[data-var-resource],[data-var-href],[data-var-src]')) {
 			$(parents[i]).remove();
 			return false;
 		}

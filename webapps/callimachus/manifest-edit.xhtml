@@ -21,20 +21,20 @@
 	<form id='form' method="POST" action="" enctype="application/sparql-update" about="?this">
 		<div class="hbox">
 			<div id="logo-image" rel="calli:logo" dropzone="link s:text/uri-list">
-				<label>Logo <span class="ui-icon ui-icon-folder-open" onclick="calli.selectFile(this)"></span></label>
+				<label>Logo <a href="/?view" title="Browse" class="ui-icon ui-icon-folder-open" onclick="return calli.selectFile(this)" /></label>
 				<div about="?logo" typeof="foaf:Image">
 					<span class="ui-state-highlight ui-corner-all">
 						<img src="{?logo}" />
-						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+						<a href="{?logo}" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
 					</span>
 				</div>
 			</div>
 			<div id="favicon-image" rel="calli:favicon" dropzone="link s:text/uri-list">
-				<label>Icon <span class="ui-icon ui-icon-folder-open" onclick="calli.selectFile(this)"></span></label>
+				<label>Icon <a href="/?view" title="Browse" class="ui-icon ui-icon-folder-open" onclick="return calli.selectFile(this)" /></label>
 				<div about="?favicon" typeof="foaf:Image">
 					<span class="ui-state-highlight ui-corner-all">
 						<img src="{?favicon}" />
-						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+						<a href="{?favicon}" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
 					</span>
 				</div>
 			</div>

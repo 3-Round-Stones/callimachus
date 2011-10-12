@@ -79,7 +79,7 @@
 				<div about="?related" typeof="skos:Concept">
 					<span class="ui-state-highlight ui-corner-all">
 						{skos:prefLabel}
-						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+						<a href="{?related}" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
 					</span>
 				</div>
 			</div>
@@ -89,18 +89,18 @@
 				<div about="?narrower" typeof="skos:Concept" >
 					<span class="ui-state-highlight ui-corner-all">
 						{skos:prefLabel}
-						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+						<a href="{?narrower}" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
 					</span>
 				</div>
 			</div>
 		</div>
 		<hr />
 		<div id="image" rel="foaf:depiction" dropzone="link s:text/uri-list">
-			<label>Image <span class="ui-icon ui-icon-folder-open" onclick="calli.selectFile(this)"></span></label>
+			<label>Image <a href="/?view" title="Browse" class="ui-icon ui-icon-folder-open" onclick="return calli.selectFile(this)" /></label>
 		 	<div about="?depiction" typeof="foaf:Image">
 				<span class="ui-state-highlight ui-corner-all">
 					<img src="{?depiction}?small" />
-					<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+					<a href="{?depiction}" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
 				</span>
 			</div>
 		</div>

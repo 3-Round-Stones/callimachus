@@ -76,11 +76,11 @@
 				<input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
 			</div>
 			<div id="icon" rel="calli:icon" dropzone="link s:text/uri-list">
-				<label>Icon <span class="ui-icon ui-icon-folder-open" onclick="calli.selectFile(this)"></span></label>
+				<label>Icon <a href="/?view" title="Browse" class="ui-icon ui-icon-folder-open" onclick="return calli.selectFile(this)" /></label>
 				<div about="?icon" typeof="foaf:Image">
 					<span class="ui-state-highlight ui-corner-all">
 						<img src="{?icon}" />
-						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+						<a href="{?icon}" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
 					</span>
 				</div>
 			</div>
@@ -94,7 +94,10 @@
 				<label>Super</label>
 				<button type="button" class="dialog" data-dialog="/callimachus/Class" />
 				<div about="?subClassOf" typeof="owl:Class">
-					<span class="ui-state-highlight ui-corner-all">{rdfs:label}<a href="#" class="remove"></a></span>
+					<span class="ui-state-highlight ui-corner-all">
+						{rdfs:label}
+						<a href="{?subClassOf}" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
+					</span>
 				</div>
 			</div>
 			<div id="equivalentClass" rel="owl:equivalentClass" dropzone="link s:text/uri-list">
@@ -104,7 +107,7 @@
 					<span class="ui-state-highlight ui-corner-all">
 						<span class="equivalentLabel">{rdfs:label}</span>
 						<span style="display:none" class="equivalentComment">{rdfs:comment}</span>
-						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+						<a href="{?equivalentClass}" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
 					</span>
 				</div>
 			</div>
@@ -122,7 +125,7 @@
 				<div about="?create" typeof="calli:Page">
 					<span class="ui-state-highlight ui-corner-all">
 						{rdfs:label}
-						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+						<a href="{?create}" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
 					</span>
 				</div>
 			</div>
@@ -132,7 +135,7 @@
 				<div about="?view" typeof="calli:Page">
 					<span class="ui-state-highlight ui-corner-all">
 						{rdfs:label}
-						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+						<a href="{?view}" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
 					</span>
 				</div>
 			</div>
@@ -142,7 +145,7 @@
 				<div about="?edit" typeof="calli:Page">
 					<span class="ui-state-highlight ui-corner-all">
 						{rdfs:label}
-						<span class="ui-icon ui-icon-close" onclick="calli.removeResource(this)"></span>
+						<a href="{?edit}" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
 					</span>
 				</div>
 			</div>

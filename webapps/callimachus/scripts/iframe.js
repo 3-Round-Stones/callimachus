@@ -52,8 +52,14 @@
 		}
 		$(window).bind('popstate', postSource);
 		$(window).bind('load', postSource);
-		$(window).bind('load resize', function() {
-			setTimeout(checkWindowSize, 0);
+		var checkNumber = 0;
+		$(window).bind('load resize DOMNodeInserted', function() {
+			var lastCheck = ++checkNumber;
+			setTimeout(function() {
+				if (checkNumber == lastCheck) {
+					checkWindowSize();
+				}
+			}, 0);
 		});
 	}
 })(jQuery);

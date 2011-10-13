@@ -9,14 +9,17 @@
 calli.createResource = function(node) {
 	var href = $(node).attr("href");
 	var list = $(node).parents('[dropzone]');
-	if (!href || !list.length)
+	if (!href)
 		return true;
 	var title = '';
-	if (list.attr("id")) {
+	if (!title && list.length && list.attr("id")) {
 		title = $("label[for='" + list.attr("id") + "']").text();
 	}
-	if (!title) {
+	if (!title && list.length) {
 		title = list.find("label").text();
+	}
+	if (!title) {
+		title = $(node).attr("title");
 	}
 	var options = {
 		onmessage: function(event) {
@@ -34,9 +37,10 @@ calli.createResource = function(node) {
 			node.focus();
 		}
 	};
-	if (list.attr("data-search") && list.attr("data-search").indexOf('{searchTerms}') >= 0) {
+	var searchTerms = list.find('[data-search]');
+	if (searchTerms.length && searchTerms.attr("data-search").indexOf('{searchTerms}') >= 0) {
 		options.onlookup = function(terms) {
-			var searchUrl = list.attr("data-search").replace('{searchTerms}', encodeURIComponent(terms));
+			var searchUrl = searchTerms.attr("data-search").replace('{searchTerms}', encodeURIComponent(terms));
 			listSearchResults(searchUrl, dialog, node);
 		};
 	}

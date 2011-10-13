@@ -21,7 +21,10 @@ calli.selectFile = function(node) {
 	var onlinked = function() {
 		calli.closeDialog(dialog);
 	};
-	var src = "/?view";
+	var src = $(node).attr('href');
+	if (!src) {
+		"/?view";
+	}
 	var options = {
 		onmessage: function(event) {
 			if (event.data.indexOf('PUT src\n') == 0) {
@@ -72,12 +75,12 @@ calli.selectFile = function(node) {
 				if (xhr.status == 200 || xhr.status == 304) {
 					openBrowseDialog(url);
 				} else {
-					openBrowseDialog("/?view");
+					openBrowseDialog(src);
 				}
 			}
 		});
 	} else {
-		openBrowseDialog("/?view");
+		openBrowseDialog(src);
 	}
 	return false;
 };

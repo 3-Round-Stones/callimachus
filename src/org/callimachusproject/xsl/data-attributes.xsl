@@ -89,7 +89,7 @@
 				<xsl:text>&amp;about={about}</xsl:text>
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:if test="*[@about or @resource]//*[contains(' rdfs:label skos:prefLabel skos:altLabel skosxl:literalForm ', concat(' ', @property, ' ')) or contains(text(), '{rdfs:label}') or contains(text(), '{skos:prefLabel}') or contains(text(), '{skos:altLabel}') or contains(text(), '{skosxl:literalForm}')] and not(@data-search)">
+		<xsl:if test="*[@about or @resource] and .//*[contains(' rdfs:label skos:prefLabel skos:altLabel skosxl:literalForm ', concat(' ', @property, ' ')) or contains(text(), '{rdfs:label}') or contains(text(), '{skos:prefLabel}') or contains(text(), '{skos:altLabel}') or contains(text(), '{skosxl:literalForm}')] and not(@data-search)">
 			<!-- Lookup possible members by label -->
 			<xsl:attribute name="data-search">
 				<xsl:value-of select="$this" />

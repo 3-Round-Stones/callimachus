@@ -1,4 +1,4 @@
-// data-construct.js
+// dropzone.js
 /*
    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
@@ -8,14 +8,15 @@
 (function($){
 
 $(document).ready(function() {
-	initDropArea($("[data-construct][dropzone]"));
+	initDropArea($("[data-construct]"));
 });
 
 $(document).bind('DOMNodeInserted', function (event) {
-	initDropArea($(event.target).find("[data-construct][dropzone]").andSelf().filter("[data-construct][dropzone]"));
+	initDropArea($(event.target).find("[data-construct]").andSelf().filter("[data-construct]"));
 });
 
-function initDropArea(dropzone) {
+function initDropArea(construct) {
+	var dropzone = construct.add(construct.parents()).filter('[dropzone]');
 	dropzone.bind('dragenter dragover', function(event) {
 		if (!$(this).hasClass("drag-over")) {
 			$(this).addClass("drag-over");
@@ -44,12 +45,24 @@ function initDropArea(dropzone) {
 		return false;
 	});
 	dropzone.bind('calliLink', function(event) {
-		var script = $(event.target).add($(event.target).parents()).filter('[data-construct]')[0];
-		window.calli.listResourceIRIs(event.location).each(function() {
-			addSetItem(this, $(script), event.errorMessage);
-			event.preventDefault();
+		select(event.target, '[data-construct]').each(function(i, script) {
+			window.calli.listResourceIRIs(event.location).each(function() {
+				addSetItem(this, $(script), event.errorMessage);
+				event.preventDefault();
+			});
 		});
 	});
+}
+
+function select(node, selector) {
+	var set = $(node).add($(node).parents(selector)).filter(selector);
+	if (set.length)
+		return set;
+	set = $(node).find(selector);
+	if (set.length)
+		return set;
+	set = $(node).parents('[dropzone]').find(selector);
+	return set;
 }
 
 function addSetItem(uri, script, errorMessage) {

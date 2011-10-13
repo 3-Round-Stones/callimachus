@@ -23,6 +23,10 @@ a.ui-icon {
 	display:inline-block;
 }
 
+[dropzone] .ui-state-highlight {
+	white-space:nowrap;
+}
+
 iframe.ui-widget-content.ui-dialog-content {
 	margin:0;
 	padding:0;

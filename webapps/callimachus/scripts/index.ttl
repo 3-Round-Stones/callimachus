@@ -42,7 +42,7 @@
 	rdf:_5 <resource-iri.js>;
 	rdf:_6 <add-template.js>;
 	rdf:_7 <remove-resource.js>;
-	rdf:_8 <data-construct.js>;
+	rdf:_8 <dropzone.js>;
 	rdf:_9 <dialog.js>;
 	rdf:_10 <create-resource.js>;
 	rdf:_11 <document-ready.js>;

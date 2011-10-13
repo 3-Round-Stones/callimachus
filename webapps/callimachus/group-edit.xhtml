@@ -31,13 +31,13 @@
 		<div>
 			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 		</div>
-		<div rel="calli:member" dropzone="link s:text/uri-list">
+		<div dropzone="link s:text/uri-list">
 			<label>Members <a href="/user/?create=/callimachus/User" title="Invite"
-					class="ui-icon ui-icon-newwin" onclick="return calli.createResource(this)" /></label>
-			<div about="?member" typeof="calli:User">
-				<span class="ui-state-highlight ui-corner-all">
+					onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+			<div rel="calli:member" class="vbox">
+				<span about="?member" typeof="calli:User" class="ui-state-highlight ui-corner-all">
 					{rdfs:label}
-					<a href="javascript:void(0)" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
+					<a href="{?member}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
 				</span>
 			</div>
 		</div>

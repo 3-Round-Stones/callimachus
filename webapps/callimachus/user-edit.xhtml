@@ -58,13 +58,13 @@
 		<div>
 			<input id="label" value="{rdfs:label}" type="text" class="auto-expand required" />
 		</div>
-	 	<div rel="foaf:depiction" dropzone="link s:text/uri-list">
+	 	<div dropzone="link s:text/uri-list">
 			<label>Photo <a href="?create=/callimachus/Photo" title="Upload"
-					class="ui-icon ui-icon-newwin" onclick="return calli.createResource(this)" /></label>
-			<div about="?img" typeof="foaf:Image">
-				<span class="ui-state-highlight ui-corner-all">
+					onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+			<div rel="foaf:depiction">
+				<span about="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
 					<img src="{?img}?small" />
-					<a href="javascript:void(0)" title="Remove" class="ui-icon ui-icon-close" onclick="return calli.removeResource(this)" />
+					<a href="javascript:void(0)" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
 				</span>
 			</div>
 		</div>

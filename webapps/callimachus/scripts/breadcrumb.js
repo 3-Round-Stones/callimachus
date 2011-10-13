@@ -17,6 +17,10 @@ function handle(event) {
 
 function breadcrumb(element) {
 	element.children(':not(:first-child)').remove();
+	element.filter(':empty').each(function(i, node){
+		var about = $(node).attr('about') || $(node).attr('href');
+		$(node).text(about.match(/\/([^\/]*)\/?$/)[1]);
+	});
 }
 
 })(window.jQuery);

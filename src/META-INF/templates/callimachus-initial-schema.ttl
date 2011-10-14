@@ -25,10 +25,8 @@ audit:current-trx a calli:SchemaGraph.
 </callimachus/User>               msg:realm </callimachus/manifest>.
 
 ################################
-# Class wide authorization
+# Who can create what
 ################################
-
-</callimachus/Local>    calli:administrator </group/admin>.
 
 </callimachus/User>            calli:author </group/admin>.
 </callimachus/Group>           calli:author </group/admin>.

@@ -30,6 +30,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	msg:method "GET";
 	msg:query "create";
+	msg:realm </callimachus/manifest>;
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/styles/TransformXhtml>;
 	msg:script <operations.js#getCreatePage>.
@@ -84,9 +85,21 @@
 	rdfs:range xsd:string;
 	msg:header "Content-Type".
 
-# find the user that created $thing if they are not otherwise editors
-:FindContributor rdfs:subClassOf msg:Message;
+# find the user will create $thing
+:FindCreator rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
+	msg:sparql  """
+		SELECT DISTINCT ?contributor
+		WHERE {
+			audit:current-trx audit:contributor ?contributor
+		}
+	""".
+
+:thing a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :FindCreator.
+
+# find the user that created $thing if they are not otherwise editors
+:FindContributor rdfs:subClassOf :FindCreator;
 	msg:sparql  """
 		SELECT DISTINCT ?contributor
 		WHERE {
@@ -106,7 +119,4 @@
 			FILTER (!bound(?editor))
 		}
 	""".
-
-:thing a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :FindContributor.
 

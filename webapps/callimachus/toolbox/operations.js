@@ -7,6 +7,7 @@ importClass(Packages.calli.view);
 importClass(Packages.org.callimachusproject.util.MultipartParser);
 importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
 importClass(Packages.org.openrdf.http.object.exceptions.BadRequest);
+importClass(Packages.org.openrdf.http.object.exceptions.Forbidden);
 
 function getViewPage() {
 	return findTemplate(this, view).calliConstruct(this, 'view');
@@ -33,8 +34,6 @@ function getCreatorPage(msg) {
 function postFactoryCreate(msg) {
 	if (!(msg.create instanceof Creatable))
 		throw new BadRequest("Cannot create: " + msg.create);
-	if (!(this instanceof Composite))
-		throw new BadRequest("Cannot create resources here: " + this);
 	if (!msg.location)
 		throw new BadRequest("No location provided");
 	var creatorUri = this.toString();
@@ -44,6 +43,12 @@ function postFactoryCreate(msg) {
 		throw new BadRequest("Location URI must be nested");
 	if (createdUri.search(/[\s\#\?]/) >= 0 || createdUri.search(/^\w+:\/\/\S+/) != 0)
 		throw new BadRequest("Fragement or name resources are not supported");
+	var iter = this.FindCreator(msg.location).iterator();
+	while (iter.hasNext()) {
+		var user = iter.next();
+		if (!msg.create.calliIsAuthorized(user, "POST", "create"))
+			throw new Forbidden(user + " is not permitted to create " + msg.create + " resources");
+	}
 	var newCopy = null;
 	var bio = new java.io.BufferedInputStream(msg.body, 65536);
 	if (msg.type.indexOf("multipart/form-data") == 0) {

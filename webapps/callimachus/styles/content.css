@@ -107,11 +107,11 @@ form {
 
 label {
 	display:inline-block;
-	margin-top:1ex;
 	white-space:nowrap;
 }
 
 form label[for],label[form] {
+	margin-top:1ex;
 	display:block;
 }
 

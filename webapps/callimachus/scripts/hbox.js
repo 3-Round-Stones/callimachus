@@ -37,7 +37,7 @@ function hbox(element) {
 }
 
 function prevElement(element) {
-	var prev = $(this).prev();
+	var prev = $(element).prev();
 	while (prev.length && !prev.is(':visible')) {
 		prev = prev.prev();
 	}

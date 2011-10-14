@@ -11,6 +11,7 @@ import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,14 @@ public abstract class ResourceAuthorizationSupport implements SelfAuthorizingTar
 			return true;
 		ObjectConnection con = getObjectConnection();
 		try {
+			ObjectFactory of = con.getObjectFactory();
 			BooleanQuery qry = con.prepareBooleanQuery(SPARQL, AUTHORIZED);
+			qry.setBinding("this", getResource());
+			qry.setBinding("credential", of.createValue(credential));
+			qry.setBinding("method", of.createLiteral(method));
+			if (query != null) {
+				qry.setBinding("query", of.createLiteral(query));
+			}
 			return qry.evaluate();
 		} catch (QueryEvaluationException e) {
 			logger.error(e.toString(), e);

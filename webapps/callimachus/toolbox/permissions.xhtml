@@ -15,15 +15,8 @@
 					var text = xhr.responseText;
 					var list = text.split('\r\n');
 					var calli = "http://callimachusproject.org/rdf/2009/framework#";
-					if (jQuery.inArray(calli + 'Composite', list) >= 0) {
-						$('.creator').show();
-					} else {
-						$('.creator').hide();
-					}
-					if (jQuery.inArray(calli + 'Composite', list) >= 0) {
-						$('.create').show();
-					} else {
-						$('.create').hide();
+					if (jQuery.inArray(calli + 'Creatable', list) < 0) {
+						$('.creatable').hide();
 					}
 					if (jQuery.inArray('http://www.w3.org/2002/07/owl#Class', list) >= 0) {
 						$('.class').show();
@@ -33,9 +26,12 @@
 						var control = xhr.getResponseHeader('Cache-Control');
 						if (control && control.indexOf('public') >= 0) {
 							$('.read').hide();
-						} else {
-							$('.read').show();
 						}
+					}
+					if (jQuery.inArray(calli + 'Composite', list) >= 0) {
+						$('.composite').show();
+					} else {
+						$('.composite').hide();
 					}
 				});
 			}
@@ -52,12 +48,13 @@
 <body about="?this">
 	<h1><span property="rdfs:label" /> Permissions</h1>
 	<ul class="aside">
-		<li class="creator"><span class="read">Readers, </span>Editors and Administrators propagate to new resources created in this resource</li>
+		<li class="composite"><span class="read">Readers, </span>Editors and Administrators propagate to new resources created in this container</li>
 		<li class="class"><span class="read">Readers, </span>Editors and Administrators apply to this resource and all resources of this class</li>
 		<li class="read">Readers can view, discuss, and see the history</li>
-		<li class="create">Contributors can create new resources and edit them</li>
-		<li>Editors can make changes using the edit tab</li>
-		<li>Administrators can view and modify using any available operation</li>
+		<li class="creatable">Authors can create new member resources and edit them</li>
+		<li class="composite">Contributors can create new resources here and edit them</li>
+		<li>Editors can make changes using the edit tab and create new resources here</li>
+		<li>Administrators can view, create and modify using any available operation</li>
 	</ul>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this">
 		<div class="class">
@@ -70,12 +67,13 @@
 				<label class="input" rel="msg:realm" resource="?realm">
 					<input type="radio" name="realm" checked="checked" />
 					<span rel="rdf:type" resource="/callimachus/Manifest">Protected</span>
+					<span property="rdfs:label" content="?manifest_label">by {?manifest_label}</span>
 				</label>
 			</div>
 		</div>
 		<div class="hbox">
 			<div class="read" dropzone="link s:text/uri-list">
-				<label>Reader <a href="/callimachus/Group" title="Create"
+				<label>Reader <a href="/callimachus/Group" title="Select Group"
 						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:reader" class="vbox">
 					<span about="?reader" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
@@ -84,8 +82,18 @@
 					</span>
 				</div>
 			</div>
-			<div class="create" dropzone="link s:text/uri-list">
-				<label>Contributor <a href="/callimachus/Group" title="Create"
+			<div class="creatable" dropzone="link s:text/uri-list">
+				<label>Author <a href="/callimachus/Group" title="Select Group"
+						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+				<div rel="calli:author" class="vbox">
+					<span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+						{rdfs:label}
+						<a href="{?author}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+					</span>
+				</div>
+			</div>
+			<div class="composite class" dropzone="link s:text/uri-list">
+				<label>Contributor <a href="/callimachus/Group" title="Select Group"
 						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:contributor" class="vbox">
 					<span about="?contributor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
@@ -95,17 +103,17 @@
 				</div>
 			</div>
 			<div dropzone="link s:text/uri-list">
-				<label>Editor <a href="/callimachus/Group" title="Create"
+				<label>Editor <a href="/callimachus/Group" title="Select Group"
 						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:editor" class="vbox">
 					<span about="?editor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
 						{rdfs:label}
-						<a href="javascript:void(0)" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<a href="{?editor}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
 			<div dropzone="link s:text/uri-list">
-				<label>Administrator <a href="/callimachus/Group" title="Create"
+				<label>Administrator <a href="/callimachus/Group" title="Select Group"
 						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:administrator" class="vbox">
 					<span about="?administrator" typeof="calli:Party" class="ui-state-highlight ui-corner-all">

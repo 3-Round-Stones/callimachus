@@ -28,5 +28,26 @@ audit:current-trx a calli:SchemaGraph.
 # Class wide authorization
 ################################
 
-</callimachus/Local> calli:administrator </group/admin>.
+</callimachus/Local>    calli:administrator </group/admin>.
+
+</callimachus/User>            calli:author </group/admin>.
+</callimachus/Group>           calli:author </group/admin>.
+</callimachus/File>            calli:author </group/admin>.
+</callimachus/NamedGraph>      calli:author </group/admin>.
+</callimachus/NamedQuery>      calli:author </group/admin>.
+
+</callimachus/Folder>          calli:author </group/staff>,</group/admin>.
+</callimachus/Class>           calli:author </group/staff>,</group/admin>.
+</callimachus/Concept>         calli:author </group/staff>,</group/admin>.
+</callimachus/Article>         calli:author </group/staff>,</group/admin>.
+</callimachus/Page>            calli:author </group/staff>,</group/admin>.
+</callimachus/Script>          calli:author </group/staff>,</group/admin>.
+</callimachus/Style>           calli:author </group/staff>,</group/admin>.
+</callimachus/Text>            calli:author </group/staff>,</group/admin>.
+</callimachus/Image>           calli:author </group/staff>,</group/admin>.
+</callimachus/AnimatedGraphic> calli:author </group/staff>,</group/admin>.
+</callimachus/IconGraphic>     calli:author </group/staff>,</group/admin>.
+</callimachus/NetworkGraphic>  calli:author </group/staff>,</group/admin>.
+</callimachus/Photo>           calli:author </group/staff>,</group/admin>.
+</callimachus/VectorGraphic>   calli:author </group/staff>,</group/admin>.
 

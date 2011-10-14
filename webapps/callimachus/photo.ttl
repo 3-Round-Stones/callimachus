@@ -243,8 +243,8 @@
 	""".
 
 # Users can view resized images or photos if they can view the image itself
-:AuthorizeImageResize rdfs:subClassOf calli:IsAuthorized;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo>];
+:AuthorizeImageResize owl:intersectionOf (calli:IsAuthorized
+		[owl:onProperty msg:target; owl:allValuesFrom <Photo>]);
 	msg:script  """
 		if (query == "large" || query == "medium" || query == "small") {
 			if (method == "GET" || method == "HEAD") {

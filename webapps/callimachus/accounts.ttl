@@ -50,8 +50,8 @@
 	msg:query "*".
 
 # anybody with credentials can login and is welcome
-:AuthorizeLoginPage rdfs:subClassOf calli:IsAuthorized;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
+:AuthorizeLoginPage owl:intersectionOf (calli:IsAuthorized
+		[owl:onProperty msg:target; owl:allValuesFrom <AccountManager>]);
 	msg:sparql  """
 		ASK {
 			$this calli:authNamespace [calli:hasComponent $credential]

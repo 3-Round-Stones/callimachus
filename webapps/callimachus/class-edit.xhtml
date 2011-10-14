@@ -6,44 +6,52 @@
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
 	<title about="?this">{rdfs:label}</title>
-	<script type="text/javascript">//<![CDATA[
-		jQuery(function($){
-			var Composite = "/callimachus/Composite";
-			var subClassOf = $('#subClassOf');
-			if (subClassOf.children('[about$="' + Composite + '"]').length) {
-				$('#composite').attr('checked','checked');
-			} else {
-				$('#composite').removeAttr('checked');
-			}
+	<link rel="default-authors" href="/group/staff" />
+	<link rel="default-authors" href="/group/admin" />
+	<link rel="viewable" href="/callimachus/Viewable" />
+	<link rel="editable" href="/callimachus/Editable" />
+	<link rel="composite" href="/callimachus/Composite" />
+	<script type="text/javascript"> // <![CDATA[
+	jQuery(function($){
+		$('#create').bind('calliLinked', function() {
+			$('link[rel="default-authors"]').each(function(){
+				var de = jQuery.Event('calliLink');
+				de.location = this.href;
+				$('#authors').trigger(de);
+			});
 		});
-		function updateSuperClasses() {
-			var Composite = "/callimachus/Composite";
-			var Viewable = "/callimachus/Viewable";
-			var Editable = "/callimachus/Editable";
-			var subClassOf = $('#subClassOf');
-			if ($('#composite').is(':checked')) {
-				if (!subClassOf.children('[about$="' + Composite + '"]').length) {
-					subClassOf.append('<div about="' + Composite + '">Composite</div>');
+		$('#view').bind('calliLinked', function() {
+			$('link[rel="viewable"]').each(function(){
+				var de = jQuery.Event('calliLink');
+				de.location = this.href;
+				$('#subClassOf').trigger(de);
+			});
+		});
+		$('#edit').bind('calliLinked', function() {
+			$('link[rel="editable"]').each(function(){
+				var de = jQuery.Event('calliLink');
+				de.location = this.href;
+				$('#subClassOf').trigger(de);
+			});
+		});
+		$('#composite').click(function(){
+			$('link[rel="composite"]').each(function(){
+				var composite = $('#subClassOf').find('[about$="' + this.href + '"]');
+				if ($('#composite').is(':checked')) {
+					if (!composite.length) {
+						var de = jQuery.Event('calliLink');
+						de.location = this.href;
+						$('#subClassOf').trigger(de);
+					}
+				} else {
+					composite.remove();
 				}
-			} else {
-				subClassOf.children('[about$="' + Composite + '"]').remove();
-			}
-			if ($('#view').find('[about]').length) {
-				if (!subClassOf.children('[about$="' + Viewable + '"]').length) {
-					subClassOf.append('<div about="' + Viewable + '">Viewable</div>');
-				}
-			} else {
-				subClassOf.children('[about$="' + Viewable + '"]').remove();
-			}
-			if ($('#edit').find('[about]').length) {
-				if (!subClassOf.children('[about$="' + Editable + '"]').length) {
-					subClassOf.append('<div about="' + Editable + '">Editable</div>');
-				}
-			} else {
-				subClassOf.children('[about$="' + Editable + '"]').remove();
-			}
+			});
+		});
+		if ($('#subClassOf').find('[about$="Composite"]').length) {
+			$('#composite').attr('checked','checked');
 		}
-		// ]]>
+	}); // ]]>
 	</script>
 </head>
 <body about="?this">
@@ -51,11 +59,12 @@
 	<ul class="aside">
 		<li>Icon is used when looking up resources</li>
 		<li>To add an icon, click the browse icon to open a file upload dialogue</li>
+		<li>Authors are permitted to create new resources of this class</li>
 		<li>Use a super class to inherit or override page templates</li>
 		<li>Templates are used for page or form structure on each operation</li>
 	</ul>
 	<form method="POST" action="" enctype="application/sparql-update" about="?this" typeof="owl:Class"
-			onsubmit="updateSuperClasses()" data-redirect="./?view">
+			data-redirect="./?view">
 		<div class="hbox">
 			<div>
 				<label for="label">Label</label>
@@ -77,10 +86,20 @@
 			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 		</div>
 		<div class="hbox">
-			<div dropzone="link s:text/uri-list">
+			<div id="authors" dropzone="link s:text/uri-list">
+				<label>Authors <a href="/callimachus/Group" title="Select Group"
+						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+				<div rel="calli:author" class="vbox">
+					<span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+						{rdfs:label}
+						<a href="{?author}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+					</span>
+				</div>
+			</div>
+			<div id="subClassOf" dropzone="link s:text/uri-list">
 				<label>Super <a href="/callimachus/Class" title="Create"
 						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
-				<div id="subClassOf" rel="rdfs:subClassOf" class="vbox">
+				<div rel="rdfs:subClassOf" class="vbox">
 					<span about="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
 						{rdfs:label}
 						<a href="{?subClassOf}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
@@ -97,10 +116,10 @@
 					</span>
 				</div>
 			</div>
-			<div>
-				<label for="composite">Nested resources</label>
-				<label class="input"><input id="composite" type="checkbox" /> These resources contain other resources</label>
-			</div>
+		</div>
+		<div>
+			<label for="composite">Nested resources</label>
+			<label class="input"><input id="composite" type="checkbox" /> These resources contain other resources</label>
 		</div>
 		<hr />
 		<h2>Page Templates</h2>

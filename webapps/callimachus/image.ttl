@@ -36,24 +36,28 @@
 <AnimatedGraphic> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Animated Graphic" ;
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <image.png>;
 	calli:create <file-create.xhtml>.
 
 <IconGraphic> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Icon Graphic" ;
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <image.png>;
 	calli:create <file-create.xhtml>.
 
 <NetworkGraphic> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Network Graphic" ;
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <image.png>;
 	calli:create <file-create.xhtml>.
 
 <VectorGraphic> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Vector Graphic" ;
+	rdfs:isDefinedBy </callimachus>;
 	calli:icon <image.png>;
 	calli:create <file-create.xhtml>.
 

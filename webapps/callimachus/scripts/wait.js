@@ -33,6 +33,9 @@ function removeWait() {
 $(removeWait);
 
 $(window).bind("beforeunload unload", function() {
+	if (requestCount > 0 && window.parent != window && window.parent.postMessage) {
+		parent.postMessage('PUT wait\n\nfalse', '*');
+	}
 	requestCount++;
 	$(document.documentElement).addClass("wait");
 });

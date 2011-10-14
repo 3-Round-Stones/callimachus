@@ -38,8 +38,8 @@
 	msg:matching </change/*>.
 
 # transcations are authorized by the user that made the change
-:AuthorizeTransaction rdfs:subClassOf calli:IsAuthorized;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
+:AuthorizeTransaction owl:intersectionOf (calli:IsAuthorized
+		[owl:onProperty msg:target; owl:allValuesFrom <Change>]);
 	msg:sparql  """
 		ASK {
 			{

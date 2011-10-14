@@ -176,7 +176,7 @@ public class Uploader {
 		} catch (UnsatisfiedLinkError e) {
 			logger.error(e.getMessage());
 		}
-		conditional = conditional && !deleteMissingFiles();
+		conditional = !deleteMissingFiles() && conditional;
 		origins.put(webappsDir, singleton(origin));
 		uploadWebApps(webappsDir, "", conditional);
 		if (listener != null && listenerThread != null) {

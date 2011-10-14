@@ -60,3 +60,220 @@
 		proceed();
 	""".
 
+:UpgradeUsers owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var rdfs = "http://www.w3.org/2000/01/rdf-schema#";
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var calliOrigin = vf.createURI(calli, "Origin");
+		var calliHasComponent = vf.createURI(calli, "hasComponent");
+		(function(){
+			var prefix = ' PREFIX rdfs:<' + rdfs + '>\\n PREFIX calli:<' + calli + '>\\n ';
+			var users = con.prepareTupleQuery(QueryLanguage.SPARQL, prefix + 'SELECT ?user {{?user a calli:User}OPTIONAL{?folder calli:hasComponent ?user}FILTER(!bound(?folder))}').evaluate();
+			try { while (users.hasNext()) {
+				var user = users.next().getValue("user");
+				var m = user.getNamespace().match(/^(https?:\\/\\/[^\\/]*\\/)user\\/[^\\/]*$/);
+				if (m && con.hasStatement(vf.createURI(m[1]), RDF.TYPE, calliOrigin, false, [])) {
+					java.lang.System.out.println("Upgrading user: " + user);
+					con.add(vf.createURI(user.getNamespace()), calliHasComponent, user, []);
+					con.add(user, RDF.TYPE, vf.createURI(m[1] + "callimachus/User"), []);
+				}
+			}
+			} finally {users.close();}
+		})();
+		proceed();
+	""".
+
+:UpgradeGroups owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var rdfs = "http://www.w3.org/2000/01/rdf-schema#";
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var calliOrigin = vf.createURI(calli, "Origin");
+		var calliHasComponent = vf.createURI(calli, "hasComponent");
+		(function(){
+			var prefix = ' PREFIX rdfs:<' + rdfs + '>\\n PREFIX calli:<' + calli + '>\\n ';
+			var groups = con.prepareTupleQuery(QueryLanguage.SPARQL, prefix + 'SELECT ?group {{?group a calli:Group}OPTIONAL{?folder calli:hasComponent ?group}FILTER(!bound(?folder))}').evaluate();
+			try { while (groups.hasNext()) {
+				var group = groups.next().getValue("group");
+				var m = group.getNamespace().match(/^(https?:\\/\\/[^\\/]*\\/)group\\/[^\\/]*$/);
+				if (m && con.hasStatement(vf.createURI(m[1]), RDF.TYPE, calliOrigin, false, [])) {
+					java.lang.System.out.println("Upgrading group: " + group);
+					con.add(vf.createURI(group.getNamespace()), calliHasComponent, group, []);
+					con.add(group, RDF.TYPE, vf.createURI(m[1] + "callimachus/Group"), []);
+				}
+			}
+			} finally {groups.close();}
+		})();
+		proceed();
+	""".
+
+:UpgradePages owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var rdfs = "http://www.w3.org/2000/01/rdf-schema#";
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var calliOrigin = vf.createURI(calli, "Origin");
+		var calliHasComponent = vf.createURI(calli, "hasComponent");
+		function createFolder(uri) {
+			java.lang.System.out.println("Creating folder: " + uri);
+			var o = uri.match(/^(https?:\\/\\/[^\\/]*)/)[1];
+			var label = uri.match(/([^\\/]*)\\/?$/)[1];
+			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(o + "/callimachus/Folder"), []);
+			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(calli + "Folder"), []);
+			con.add(vf.createURI(uri), vf.createURI(calli, "administrator"), vf.createURI(o + "/group/admin"), []);
+			con.add(vf.createURI(uri), RDFS.LABEL, vf.createLiteral(label), []);
+		}
+		(function(){
+			var prefix = ' PREFIX rdfs:<' + rdfs + '>\\n PREFIX calli:<' + calli + '>\\n ';
+			var pages = con.prepareTupleQuery(QueryLanguage.SPARQL, prefix + 'SELECT ?page {{?page a calli:Page}OPTIONAL{?folder calli:hasComponent ?page}FILTER(!bound(?folder))}').evaluate();
+			try { while (pages.hasNext()) {
+				var page = pages.next().getValue("page");
+				var m = page.getNamespace().match(/^(https?:\\/\\/[^\\/]*\\/)page\\/[^\\/]*$/);
+				if (m && con.hasStatement(vf.createURI(m[1]), RDF.TYPE, calliOrigin, false, [])) {
+					java.lang.System.out.println("Upgrading page: " + page);
+					createFolder(page.getNamespace());
+					con.add(vf.createURI(m[1]), calliHasComponent, vf.createURI(m[1] + "page/"), []);
+					con.add(vf.createURI(page.getNamespace()), calliHasComponent, page, []);
+				}
+			}
+			} finally {pages.close();}
+		})();
+		proceed();
+	""".
+
+:UpgradeQueries owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var rdfs = "http://www.w3.org/2000/01/rdf-schema#";
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var calliOrigin = vf.createURI(calli, "Origin");
+		var calliHasComponent = vf.createURI(calli, "hasComponent");
+		function createFolder(uri) {
+			java.lang.System.out.println("Creating folder: " + uri);
+			var o = uri.match(/^(https?:\\/\\/[^\\/]*)/)[1];
+			var label = uri.match(/([^\\/]*)\\/?$/)[1];
+			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(o + "/callimachus/Folder"), []);
+			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(calli + "Folder"), []);
+			con.add(vf.createURI(uri), vf.createURI(calli, "administrator"), vf.createURI(o + "/group/admin"), []);
+			con.add(vf.createURI(uri), RDFS.LABEL, vf.createLiteral(label), []);
+		}
+		(function(){
+			var prefix = ' PREFIX rdfs:<' + rdfs + '>\\n PREFIX calli:<' + calli + '>\\n ';
+			var queries = con.prepareTupleQuery(QueryLanguage.SPARQL, prefix + 'SELECT ?query {{?query a calli:NamedQuery}OPTIONAL{?folder calli:hasComponent ?query}FILTER(!bound(?folder))}').evaluate();
+			try { while (queries.hasNext()) {
+				var query = queries.next().getValue("query");
+				var m = query.getNamespace().match(/^(https?:\\/\\/[^\\/]*\\/)query\\/[^\\/]*$/);
+				if (m && con.hasStatement(vf.createURI(m[1]), RDF.TYPE, calliOrigin, false, [])) {
+					java.lang.System.out.println("Upgrading query: " + query);
+					createFolder(query.getNamespace());
+					con.add(vf.createURI(m[1]), calliHasComponent, vf.createURI(m[1] + "query/"), []);
+					con.add(vf.createURI(query.getNamespace()), calliHasComponent, query, []);
+					var scanner = new java.util.Scanner(new java.net.URL(query.toString()).openStream(), "UTF-8");
+					var qry = scanner.useDelimiter("\\\\A").next();
+					scanner.close();
+					try {
+						con.repository.createNamedQuery(query, QueryLanguage.SPARQL, qry, query.toString());
+					} catch (e) {
+						// too late!
+					}
+				}
+			}
+			} finally {queries.close();}
+		})();
+		proceed();
+	""".
+
+:UpgradeClasses owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var rdfs = "http://www.w3.org/2000/01/rdf-schema#";
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var calliOrigin = vf.createURI(calli, "Origin");
+		var calliHasComponent = vf.createURI(calli, "hasComponent");
+		function createFolder(uri) {
+			java.lang.System.out.println("Creating folder: " + uri);
+			var o = uri.match(/^(https?:\\/\\/[^\\/]*)/)[1];
+			var label = uri.match(/([^\\/]*)\\/?$/)[1];
+			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(o + "/callimachus/Folder"), []);
+			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(calli + "Folder"), []);
+			con.add(vf.createURI(uri), vf.createURI(calli, "administrator"), vf.createURI(o + "/group/admin"), []);
+			con.add(vf.createURI(uri), RDFS.LABEL, vf.createLiteral(label), []);
+		}
+		(function(){
+			var prefix = ' PREFIX rdfs:<' + rdfs + '>\\n PREFIX calli:<' + calli + '>\\n ';
+			var classes = con.prepareTupleQuery(QueryLanguage.SPARQL, prefix + 'SELECT ?class {{?class rdfs:isDefinedBy ?ontology}OPTIONAL{?folder calli:hasComponent ?class}FILTER(!bound(?folder))}').evaluate();
+			try { while (classes.hasNext()) {
+				var cls = classes.next().getValue("class");
+				var m = cls.getNamespace().match(/^(https?:\\/\\/[^\\/]*\\/)rdf\\/[^\\/]*\\/$/);
+				if (m && con.hasStatement(vf.createURI(m[1]), RDF.TYPE, calliOrigin, false, [])) {
+					java.lang.System.out.println("Upgrading class: " + cls);
+					createFolder(m[1] + "rdf/");
+					createFolder(cls.getNamespace());
+					con.add(vf.createURI(m[1]), calliHasComponent, vf.createURI(m[1] + "rdf/"), []);
+					con.add(vf.createURI(m[1] + "rdf/"), calliHasComponent, vf.createURI(cls.getNamespace()), []);
+					con.add(vf.createURI(cls.getNamespace()), calliHasComponent, cls, []);
+					con.add(cls, RDF.TYPE, vf.createURI(m[1] + "callimachus/Class"), []);
+				}
+			}
+			} finally {classes.close();}
+		})();
+		proceed();
+	""".
+
+:UpgradeConcepts owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var rdfs = "http://www.w3.org/2000/01/rdf-schema#";
+		var skos = "http://www.w3.org/2004/02/skos/core#";
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var calliOrigin = vf.createURI(calli, "Origin");
+		var calliHasComponent = vf.createURI(calli, "hasComponent");
+		function createFolder(uri) {
+			java.lang.System.out.println("Creating folder: " + uri);
+			var o = uri.match(/^(https?:\\/\\/[^\\/]*)/)[1];
+			var label = uri.match(/([^\\/]*)\\/?$/)[1];
+			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(o + "/callimachus/Folder"), []);
+			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(calli + "Folder"), []);
+			con.add(vf.createURI(uri), vf.createURI(calli, "administrator"), vf.createURI(o + "/group/admin"), []);
+			con.add(vf.createURI(uri), RDFS.LABEL, vf.createLiteral(label), []);
+		}
+		(function(){
+			var prefix = ' PREFIX rdfs:<' + rdfs + '>\\n PREFIX skos:<' + skos + '>\\n PREFIX calli:<' + calli + '>\\n ';
+			var concepts = con.prepareTupleQuery(QueryLanguage.SPARQL, prefix + 'SELECT ?concept {{?concept skos:inScheme ?scheme}OPTIONAL{?folder calli:hasComponent ?concept}FILTER(!bound(?folder))}').evaluate();
+			try { while (concepts.hasNext()) {
+				var concept = concepts.next().getValue("concept");
+				var m = concept.getNamespace().match(/^(https?:\\/\\/[^\\/]*\\/)scheme\\/[^\\/]*\\/$/);
+				if (m && con.hasStatement(vf.createURI(m[1]), RDF.TYPE, calliOrigin, false, [])) {
+					java.lang.System.out.println("Upgrading concept: " + concept);
+					createFolder(m[1] + "scheme/");
+					createFolder(concept.getNamespace());
+					con.add(vf.createURI(m[1]), calliHasComponent, vf.createURI(m[1] + "scheme/"), []);
+					con.add(vf.createURI(m[1] + "scheme/"), calliHasComponent, vf.createURI(concept.getNamespace()), []);
+					con.add(vf.createURI(concept.getNamespace()), calliHasComponent, concept, []);
+					con.add(concept, RDF.TYPE, vf.createURI(m[1] + "callimachus/Concept"), []);
+				}
+			}
+			} finally {concepts.close();}
+		})();
+		proceed();
+	""".
+

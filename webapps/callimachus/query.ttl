@@ -120,7 +120,7 @@
 		}
 		this.touchRevision();
 
-		var con = this.objectConnection;					
+		var con = this.objectConnection;
 		var scanner = new java.util.Scanner(this.openInputStream(), "UTF-8");
 		var query = scanner.useDelimiter("\\\\A").next();
 		scanner.close();

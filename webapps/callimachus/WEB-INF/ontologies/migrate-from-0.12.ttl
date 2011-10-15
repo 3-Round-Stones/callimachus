@@ -131,6 +131,7 @@
 			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(o + "/callimachus/Folder"), []);
 			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(calli + "Folder"), []);
 			con.add(vf.createURI(uri), vf.createURI(calli, "administrator"), vf.createURI(o + "/group/admin"), []);
+			con.add(vf.createURI(uri), vf.createURI(calli, "editor"), vf.createURI(o + "/group/staff"), []);
 			con.add(vf.createURI(uri), RDFS.LABEL, vf.createLiteral(label), []);
 		}
 		(function(){
@@ -144,6 +145,8 @@
 					createFolder(page.getNamespace());
 					con.add(vf.createURI(m[1]), calliHasComponent, vf.createURI(m[1] + "page/"), []);
 					con.add(vf.createURI(page.getNamespace()), calliHasComponent, page, []);
+					con.add(page, vf.createURI(calli, "administrator"), vf.createURI(m[1] + "group/admin"), []);
+					con.add(page, vf.createURI(calli, "editor"), vf.createURI(m[1] + "group/staff"), []);
 				}
 			}
 			} finally {pages.close();}
@@ -168,6 +171,7 @@
 			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(o + "/callimachus/Folder"), []);
 			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(calli + "Folder"), []);
 			con.add(vf.createURI(uri), vf.createURI(calli, "administrator"), vf.createURI(o + "/group/admin"), []);
+			con.add(vf.createURI(uri), vf.createURI(calli, "editor"), vf.createURI(o + "/group/staff"), []);
 			con.add(vf.createURI(uri), RDFS.LABEL, vf.createLiteral(label), []);
 		}
 		(function(){
@@ -213,6 +217,7 @@
 			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(o + "/callimachus/Folder"), []);
 			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(calli + "Folder"), []);
 			con.add(vf.createURI(uri), vf.createURI(calli, "administrator"), vf.createURI(o + "/group/admin"), []);
+			con.add(vf.createURI(uri), vf.createURI(calli, "editor"), vf.createURI(o + "/group/staff"), []);
 			con.add(vf.createURI(uri), RDFS.LABEL, vf.createLiteral(label), []);
 		}
 		(function(){
@@ -254,6 +259,7 @@
 			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(o + "/callimachus/Folder"), []);
 			con.add(vf.createURI(uri), RDF.TYPE, vf.createURI(calli + "Folder"), []);
 			con.add(vf.createURI(uri), vf.createURI(calli, "administrator"), vf.createURI(o + "/group/admin"), []);
+			con.add(vf.createURI(uri), vf.createURI(calli, "editor"), vf.createURI(o + "/group/staff"), []);
 			con.add(vf.createURI(uri), RDFS.LABEL, vf.createLiteral(label), []);
 		}
 		(function(){

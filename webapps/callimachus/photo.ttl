@@ -43,29 +43,23 @@
 	msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/File
-:PostPhotoFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:LookupPhotoFile owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <File>]);
-	msg:imports <File>;
 	msg:script """
 		if (type == "image/pjpeg" || type == "image/jpeg") {
-			if (location instanceof File) {
-				location = location.RemoveFile();
-			}
 			var uri = this.toUri().resolve("/callimachus/Photo").toString();
-			var factory = this.objectConnection.getObject(uri);
-			return factory.PostCreate(body, location, type);
+			return this.objectConnection.getObject(uri);
 		}
 		return proceed();
 	""".
 
 # POST ?create=/callimachus/Image
-:PostPhotoImage owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:LookupPhotoImage owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <Image>]);
 	msg:script """
 		if (type == "image/pjpeg" || type == "image/jpeg") {
 			var uri = this.toUri().resolve("/callimachus/Photo").toString();
-			var factory = this.objectConnection.getObject(uri);
-			return factory.PostCreate(body, location, type);
+			return this.objectConnection.getObject(uri);
 		}
 		return proceed();
 	""".
@@ -79,17 +73,19 @@
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <File>;
 	msg:imports foaf:Image ;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
 
 		//# image resource
+		if (location instanceof File) {
+			location = location.RemoveFile();
+		}
 		var obj = location;
 		if (!obj)
 			throw new BadRequest("Missing location");
-		if (obj instanceof Image)
-			throw new Conflict("A photo with that file name has already been uploaded: " + obj) ;
 
 		//# designate as <Image> and the relevant mimetype
 		obj = con.addDesignation(obj, this.toString()) ;

@@ -6,15 +6,16 @@
 	xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
 	<title>New Class</title>
-	<link rel="default-authors" href="/group/staff" />
-	<link rel="default-authors" href="/group/admin" />
+	<link rel="group" href="/group/users" />
+	<link rel="group" href="/group/staff" />
+	<link rel="group" href="/group/admin" />
 	<link rel="viewable" href="/callimachus/Viewable" />
 	<link rel="editable" href="/callimachus/Editable" />
 	<link rel="composite" href="/callimachus/Composite" />
 	<script type="text/javascript"> // <![CDATA[
 	jQuery(function($){
 		$('#create').bind('calliLinked', function() {
-			$('link[rel="default-authors"]').each(function(){
+			$('link[rel="group"]').each(function(){
 				var de = jQuery.Event('calliLink');
 				de.location = this.href;
 				$('#authors').trigger(de);

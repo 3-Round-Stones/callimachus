@@ -32,10 +32,10 @@ function getCreatorPage(msg) {
 }
 
 function postFactoryCreate(msg) {
-	if (!(msg.create instanceof Creatable))
-		throw new BadRequest("Cannot create: " + msg.create);
 	if (!msg.location)
 		throw new BadRequest("No location provided");
+	if (!(msg.create instanceof Creatable))
+		throw new BadRequest("Cannot create: " + msg.create);
 	var creatorUri = this.toString();
 	var createdUri = msg.location.toString();
 	var dest = createdUri.substring(0, createdUri.lastIndexOf('/', createdUri.length - 2) + 1);
@@ -43,13 +43,7 @@ function postFactoryCreate(msg) {
 		throw new BadRequest("Location URI must be nested");
 	if (createdUri.search(/[\s\#\?]/) >= 0 || createdUri.search(/^\w+:\/\/\S+/) != 0)
 		throw new BadRequest("Fragement or name resources are not supported");
-	var iter = this.FindCreator(msg.location).iterator();
-	while (iter.hasNext()) {
-		var user = iter.next();
-		if (!msg.create.calliIsAuthorized(user, "POST", "create"))
-			throw new Forbidden(user + " is not permitted to create " + msg.create + " resources");
-	}
-	var newCopy = null;
+	var type = msg.type;
 	var bio = new java.io.BufferedInputStream(msg.body, 65536);
 	if (msg.type.indexOf("multipart/form-data") == 0) {
 		bio.mark(1024);
@@ -58,7 +52,7 @@ function postFactoryCreate(msg) {
 		var headers = parser.getHeaders();
 		var disposition = headers.get("content-disposition");
 		if (disposition && disposition.indexOf("filename=") >= 0) {
-			var type = headers.get("content-type");
+			type = headers.get("content-type");
 			if (type == "application/octet-stream" || type.indexOf("application/x-") == 0) {
 				var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
 				var mimetypes = new javax.activation.MimetypesFileTypeMap();
@@ -66,19 +60,24 @@ function postFactoryCreate(msg) {
 					type = mimetypes.getContentType(fileName);
 				}
 			}
-			newCopy = msg.create.PostCreate(file, msg.location, type);
+			bio = file;
 		} else { // not a file upload
 			bio.reset();
-			newCopy = msg.create.PostCreate(bio, msg.location, msg.type);
 		}
-	} else {
-		newCopy = msg.create.PostCreate(bio, msg.location, msg.type);
 	}
+	var construct = msg.create.LookupConstructor(type);
+	var iter = this.FindCreator(msg.location).iterator();
+	while (iter.hasNext()) {
+		var user = iter.next();
+		if (!construct.calliIsAuthorized(user, "POST", "create"))
+			throw new Forbidden("You are not permitted to create " + construct + " resources");
+	}
+	var newCopy = construct.PostCreate(bio, msg.location, type);
 	newCopy.calliEditor.addAll(this.FindContributor(newCopy));
 	newCopy.calliReader.addAll(this.calliReader);
 	newCopy.calliEditor.addAll(this.calliEditor);
 	newCopy.calliAdministrator.addAll(this.calliAdministrator);
-	msg.create.touchRevision(); // Update class index
+	construct.touchRevision(); // Update class index
 	if (msg.intermediate) {
 		var revision = this.auditRevision;
 		this.calliHasComponent.add(newCopy);

@@ -43,17 +43,12 @@
 	msg:script "return this.openReader(true)".
 
 # POST ?create=/callimachus/File
-:PostStyleFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:LookupStyleFile owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <File> ]);
-	msg:imports <File>;
 	msg:script """
 		if (type == "text/css") {
-			if (location instanceof File) {
-				location = location.RemoveFile();
-			}
 			var uri = this.toUri().resolve("/callimachus/Style").toString();
-			var factory = this.objectConnection.getObject(uri);
-			return factory.PostCreate(body, location, type);
+			return this.objectConnection.getObject(uri);
 		}
 		return proceed();
 	""".
@@ -66,16 +61,17 @@
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:imports <File>;
 	msg:imports foaf:Document;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
 		if (!location)
 			throw new BadRequest("Missing location request header");
-
-		var created = con.getObject(this.toUri().resolve(location).toString());
-		if (created instanceof Document)
-			throw new BadRequest("File already exists");
+		if (location instanceof File) {
+			location = location.RemoveFile();
+		}
+		var created = location;
 
 		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));

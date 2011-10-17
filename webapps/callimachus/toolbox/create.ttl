@@ -55,6 +55,12 @@
 	msg:type "text/plain";
 	msg:script <operations.js#postFactoryCreate>.
 
+# override this method for subclass methods
+:LookupConstructor rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Creatable];
+	msg:script "return this".
+
 # override this method for subclass create methods
 :PostCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
@@ -62,7 +68,7 @@
 	msg:script <operations.js#postCreate>.
 
 :body a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain [owl:unionOf (:PostFile :PostCreate :PostFactoryCreate)];
+	rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "*/*".
 
@@ -77,11 +83,11 @@
 	msg:query "intermediate".
 
 :location a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain [owl:unionOf (:PostFile :PostCreate :PostFactoryCreate)];
+	rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
 	msg:query "location".
 
 :type a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain [owl:unionOf (:PostFile :PostCreate :PostFactoryCreate)];
+	rdfs:domain [owl:unionOf (:LookupConstructor :PostCreate :PostFactoryCreate)];
 	rdfs:range xsd:string;
 	msg:header "Content-Type".
 

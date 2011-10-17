@@ -51,17 +51,12 @@
 	msg:type "application/xml".
 
 # POST ?create=/callimachus/File
-:PostGraphFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:LookupGraphFile owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <File> ]);
-	msg:imports <File>;
 	msg:script """
 		if (type == "application/rdf+xml" || type == "text/turtle") {
-			if (location instanceof File) {
-				location = location.RemoveFile();
-			}
 			var uri = this.toUri().resolve("/callimachus/NamedGraph").toString();
-			var Graph = this.objectConnection.getObject(uri);
-			return Graph.PostCreate(body, location, type);
+			return this.objectConnection.getObject(uri);
 		}
 		return proceed();
 	""".
@@ -75,11 +70,15 @@
 	msg:imports <java:java.io.BufferedInputStream>;
 	msg:imports <java:org.callimachusproject.util.MultipartParser>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <File>;
 	msg:imports foaf:Document;
 	msg:imports <graph-uploaded.xhtml>;
 	msg:script """
 		if (!location)
 			throw new BadRequest("No graph location provided");
+		if (location instanceof File) {
+			location = location.RemoveFile();
+		}
 
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
@@ -89,9 +88,6 @@
 		var label = vf.createLiteral(name.replace(/-/g, " "));
 		var obj = location;
 		var uri = obj.toString();
-
-		if (obj instanceof Document)
-			throw new BadRequest("File already exists: " + uri);
 
 		java.lang.System.out.println("Parsing " + fileName);
 		con.add(body, uri, format, [vf.createURI(uri)]);

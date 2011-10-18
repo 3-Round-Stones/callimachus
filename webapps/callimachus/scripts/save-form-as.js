@@ -165,7 +165,7 @@ function overrideLocation(form, uri) {
 	} else {
 		form.action = action + '&location=' + encodeURIComponent(uri);
 	}
-	if (action.indexOf('&intermediate=') < 0 && isIntermidate(form.action)) {
+	if (action.indexOf('&intermediate=') < 0 && isIntermidate(action)) {
 		form.action += '&intermediate=true';
 	}
 }
@@ -193,7 +193,7 @@ function isIntermidate(url) {
 }
 
 function getFormAction(form) {
-	if (form.action)
+	if (form.getAttribute("action"))
 		return form.action;
 	var url = getPageLocationURL();
 	if (url.indexOf('#') > 0)

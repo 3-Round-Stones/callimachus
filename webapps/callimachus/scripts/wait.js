@@ -6,10 +6,6 @@ document.documentElement.className += ' wait';
 var requestCount = 1;
 var lastWait = 0;
 
-if (window.parent != window && window.parent.postMessage) {
-	parent.postMessage('PUT wait\n\ntrue', '*');
-}
-
 function removeWait() {
 	$(function() {
 		setTimeout(function() {
@@ -20,9 +16,6 @@ function removeWait() {
 					if (myWait == lastWait && requestCount < 1) {
 						requestCount = 0;
 						$(document.documentElement).removeClass("wait");
-						if (window.parent != window && window.parent.postMessage) {
-							parent.postMessage('PUT wait\n\nfalse', '*');
-						}
 					}
 				}, 400); // give browser a chance to draw the page
 			}
@@ -33,9 +26,6 @@ function removeWait() {
 $(removeWait);
 
 $(window).bind("beforeunload unload", function() {
-	if (requestCount > 0 && window.parent != window && window.parent.postMessage) {
-		parent.postMessage('PUT wait\n\nfalse', '*');
-	}
 	requestCount++;
 	$(document.documentElement).addClass("wait");
 });
@@ -44,26 +34,13 @@ $(document).ajaxSend(function(event, xhr, options){
 	requestCount++;
 	$(document.documentElement).addClass("wait");
 });
-
 $(document).ajaxComplete(removeWait);
 
-$(window).bind('message', function(event) {
-	var data = event.originalEvent.data;
-	var source = event.originalEvent.source;
-	if (data.indexOf('PUT wait\n\n') == 0) {
-		$('iframe').each(function(){
-			if (this.contentWindow == source) {
-				var bool = data.substring(data.indexOf('\n\n') + 2);
-				if (bool == 'true') {
-					requestCount++;
-					$(document.documentElement).addClass("wait");
-				} else {
-					removeWait();
-				}
-			}
-		});
-	}
+$(document).bind('calliOpenDialog', function(event) {
+	requestCount++;
+	$(document.documentElement).addClass("wait");
 });
+$(document).bind('calliCloseDialog', removeWait);
 
 })(window.jQuery);
 

@@ -1,20 +1,5 @@
 // docbook-editor.js
 
-(function($) {
-	$(window).ajaxSend(function(event, XMLHttpRequest, ajaxOptions) {
-		$('#editor').css('background-color', 'lightyellow');
-	});
-	$(window).ajaxSuccess(function(event, XMLHttpRequest, ajaxOptions) {
-		$('#editor').css('background-color', 'inherit');
-	});
-	$(window).ajaxError(function(event, XMLHttpRequest, ajaxOptions) {
-		$('#editor').css('background-color', '#FF9999');
-		setTimeout(function() {
-			$('#editor').css('background-color', 'inherit');
-		}, 1000);
-	});
-})(jQuery);
-
 jQuery(function($) {
 	$('.wym_box_0').wymeditor({
 		html: '',
@@ -30,6 +15,17 @@ jQuery(function($) {
 	});
 	$('#wym-iframe').one('load', function() {
 		WYMeditor.INSTANCES[0].initIframe(this);
+		if ($('#wym-iframe')[0].contentWindow.document.body) {
+			onhashchange();
+		} else {
+			setTimeout(function(){
+				if (!$('body', $('#wym-iframe')[0].contentWindow.document).children().length) {
+					// IE need this called twice on first load
+					WYMeditor.INSTANCES[0].initIframe($('#wym-iframe')[0]);
+				}
+				onhashchange();
+			}, 1000);
+		}
 
 		function getPageLocationURL() {
 			// window.location.href needlessly decodes URI-encoded characters in the URI path
@@ -46,6 +42,7 @@ jQuery(function($) {
 		var etag = null;
 
 		// loading
+		$(window).bind('hashchange', onhashchange);
 		function onhashchange() {
 			if (location.hash && location.hash.length > 1) {
 				if (location.hash.indexOf('!') > 0) {
@@ -66,8 +63,6 @@ jQuery(function($) {
 				}
 			}
 		}
-		$(window).bind('hashchange', onhashchange);
-		onhashchange();
 
 		// saving
 		var saving = false;
@@ -118,30 +113,6 @@ jQuery(function($) {
 			});
 			return true;
 		}
-		$(window).keypress(function(event) {
-			if (event.which == 115 && event.ctrlKey || event.which == 19) {
-				event.preventDefault();
-				putFile();
-				return false;
-			}
-			return true;
-		});
-		(function() {
-			var isCtrl = false;
-			$(document).keyup(function (e) {
-				if(e.which == 17) isCtrl=false;
-				return true;
-			});
-			$(document).keydown(function (e) {
-				if(e.which == 17) isCtrl=true;
-				if(e.which == 83 && isCtrl == true) {
-					e.preventDefault();
-					putFile();
-					return false;
-				}
-				return true;
-			});
-		})();
 
 		// messaging
 		function handleMessage(header, body) {

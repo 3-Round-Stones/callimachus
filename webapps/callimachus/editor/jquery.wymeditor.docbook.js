@@ -55,7 +55,7 @@ function xslt(xslUrl, xmlUrl, callback, sync) {
 				var serializer = new XMLSerializer();
 				callback(serializer.serializeToString(doc));
 			} else if (window.ActiveXObject) {
-				callback(xml.transformNode(xsl).xml);
+				callback(xml.transformNode(xsl));
 			}
 		}, !async);
 	}, !async);

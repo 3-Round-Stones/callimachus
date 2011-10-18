@@ -68,41 +68,51 @@
 	}
 	function reload() {
 		var url = $('link[type="application/atom+xml"]').attr('href');
-		jQuery.get(url, function(doc) {
-			jQuery(function() {
-				var feed = $(doc).children('feed');
-				var totalResults = feed.children().filter(function(){return this.tagName=='openSearch:totalResults'}).text();
-				$('#totalResults').text(totalResults);
-				var tbody = $('<tbody/>');
-				tbody.attr('id', 'tfiles');
-				var totalEntries = 0;
-				feed.children('entry').each(function() {
-					var entry = $(this);
-					totalEntries++;
-					if (!entry.children('link[type="application/atom+xml"]').length) {
-						var tr = $('<tr/>');
-						var icon = entry.children('icon').text();
-						var title = entry.children('title').text();
-						var content = entry.children('content');
-						var src = content.attr('src');
-						var type = content.attr('type');
-						tr.append(createTextCell(title, src, type, icon));
-						tr.append(createTimeCell(entry.children('updated').text()));
-						tr.append(createPermissionCell(entry, 'calli:reader'));
-						tr.append(createPermissionCell(entry, 'contributor'));
-						tr.append(createPermissionCell(entry, 'calli:editor'));
-						tr.append(createPermissionCell(entry, 'calli:administrator'));
-						tbody.append(tr);
+		jQuery.ajax({
+			url: url,
+			processData: false,
+			complete: function(xhr) {
+				var doc = xhr.responseXML;
+				if (doc && !doc.childNodes.length && window.ActiveXObject) {
+					var doc = new ActiveXObject("Microsoft.XMLDOM");
+					doc.async = false;
+					doc.loadXML(xhr.responseText);
+				}
+				if (doc) jQuery(function() {
+					var feed = $(doc).children('feed');
+					var totalResults = feed.children().filter(function(){return this.tagName=='openSearch:totalResults'}).text();
+					$('#totalResults').text(totalResults);
+					var tbody = $('<tbody/>');
+					tbody.attr('id', 'tfiles');
+					var totalEntries = 0;
+					feed.children('entry').each(function() {
+						var entry = $(this);
+						totalEntries++;
+						if (!entry.children('link[type="application/atom+xml"]').length) {
+							var tr = $('<tr/>');
+							var icon = entry.children('icon').text();
+							var title = entry.children('title').text();
+							var content = entry.children('content');
+							var src = content.attr('src');
+							var type = content.attr('type');
+							tr.append(createTextCell(title, src, type, icon));
+							tr.append(createTimeCell(entry.children('updated').text()));
+							tr.append(createPermissionCell(entry, 'calli:reader'));
+							tr.append(createPermissionCell(entry, 'contributor'));
+							tr.append(createPermissionCell(entry, 'calli:editor'));
+							tr.append(createPermissionCell(entry, 'calli:administrator'));
+							tbody.append(tr);
+						}
+					});
+					var box = $('#box')[0];
+					var bottom = box.scrollTop > 0 && box.scrollTop >= box.scrollHeight - box.clientHeight;
+					$('#tfiles').replaceWith(tbody);
+					$('#totalEntries').text(totalEntries);
+					if (bottom) {
+						box.scrollTop = box.scrollHeight - box.clientHeight;
 					}
 				});
-				var box = $('#box')[0];
-				var bottom = box.scrollTop > 0 && box.scrollTop >= box.scrollHeight - box.clientHeight;
-				$('#tfiles').replaceWith(tbody);
-				$('#totalEntries').text(totalEntries);
-				if (bottom) {
-					box.scrollTop = box.scrollHeight - box.clientHeight;
-				}
-			});
+			}
 		});
 	}
 	reload();

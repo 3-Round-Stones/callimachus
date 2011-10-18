@@ -15,17 +15,6 @@ jQuery(function($) {
 	});
 	$('#wym-iframe').one('load', function() {
 		WYMeditor.INSTANCES[0].initIframe(this);
-		if ($('#wym-iframe')[0].contentWindow.document.body) {
-			onhashchange();
-		} else {
-			setTimeout(function(){
-				if (!$('body', $('#wym-iframe')[0].contentWindow.document).children().length) {
-					// IE need this called twice on first load
-					WYMeditor.INSTANCES[0].initIframe($('#wym-iframe')[0]);
-				}
-				onhashchange();
-			}, 1000);
-		}
 
 		function getPageLocationURL() {
 			// window.location.href needlessly decodes URI-encoded characters in the URI path
@@ -40,6 +29,19 @@ jQuery(function($) {
 		var path = null;
 		var contentType = null;
 		var etag = null;
+
+		if ($('#wym-iframe')[0].contentWindow.document.body) {
+			onhashchange();
+		} else {
+			setTimeout(function(){
+				if (!$('body', $('#wym-iframe')[0].contentWindow.document).children().length) {
+					// IE need this called twice on first load
+					WYMeditor.INSTANCES[0].initIframe($('#wym-iframe')[0]);
+					editor = jQuery.wymeditors(0);
+				}
+				onhashchange();
+			}, 1000);
+		}
 
 		// loading
 		$(window).bind('hashchange', onhashchange);

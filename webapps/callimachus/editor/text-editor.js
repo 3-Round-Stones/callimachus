@@ -25,7 +25,7 @@ jQuery(function($) {
 		try {
 			editor.focus();
 		} catch (e) {
-			// ignore
+			// ignore if disabled
 		}
 	});
 
@@ -196,6 +196,9 @@ jQuery(function($) {
 		} else if (header == 'GET line.column') {
 			var start = editor.getSelectionRange().start;
 			return '' + (1 + start.row) + '.' + start.column;
+		} else if (header == 'PUT disabled' && body) {
+			editor.textInput.getElement().disabled = body === 'true';
+			return true;
 		}
 		return true; // empty response
 	};

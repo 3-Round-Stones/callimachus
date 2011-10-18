@@ -11,7 +11,11 @@ if (!window.calli) {
 }
 
 window.calli.closeDialog = function(iframe) {
-	$(iframe.frameElement).dialog('close');
+	var e = jQuery.Event("calliCloseDialog");
+	$(iframe.frameElement).trigger(e);
+	if (!e.isDefaultPrevented()) {
+		$(iframe.frameElement).dialog('close');
+	}
 }
 
 window.calli.openDialog = function(url, title, options) {
@@ -142,38 +146,45 @@ window.calli.openDialog = function(url, title, options) {
 			options.onclose();
 		}
 	});
-	iframe.dialog("open");
-	iframe.css('width', '100%');
-	iframe[0].src = url;
-	if (typeof options.onlookup == 'function') {
-		var dialogTitle = iframe.parents(".ui-dialog").find(".ui-dialog-title");
-		var form = $("<form></form>");
-		var searchTerms = $("<input/>");
-		searchTerms.attr("placeholder", "Lookup..");
-		form.append(searchTerms);
-		form.css('position', "absolute");
-		form.css('top', dialogTitle.offset().top - iframe.parent().offset().top - 5);
-		form.css('right', 30);
-		iframe.before(form);
-		form.submit(function(event) {
-			event.preventDefault();
-			if (searchTerms.val()) {
-				options.onlookup(searchTerms.val());
-			}
-			return false;
-		});
+	var e = jQuery.Event("calliOpenDialog");
+	iframe.trigger(e);
+	if (e.isDefaultPrevented()) {
+		iframe.trigger("dialogclose");
+		return null;
+	} else {
+		iframe.dialog("open");
+		iframe.css('width', '100%');
+		iframe[0].src = url;
+		if (typeof options.onlookup == 'function') {
+			var dialogTitle = iframe.parents(".ui-dialog").find(".ui-dialog-title");
+			var form = $("<form></form>");
+			var searchTerms = $("<input/>");
+			searchTerms.attr("placeholder", "Lookup..");
+			form.append(searchTerms);
+			form.css('position', "absolute");
+			form.css('top', dialogTitle.offset().top - iframe.parent().offset().top - 5);
+			form.css('right', 30);
+			iframe.before(form);
+			form.submit(function(event) {
+				event.preventDefault();
+				if (searchTerms.val()) {
+					options.onlookup(searchTerms.val());
+				}
+				return false;
+			});
+		}
+		var win = iframe[0].contentWindow;
+		try {
+			win.close = function() {
+				window.setTimeout(function() {
+					calli.closeDialog(win);
+				}, 0);
+			};
+		} catch (e) {
+			// use calli.closeDialog directly
+		}
+		return win;
 	}
-	var win = iframe[0].contentWindow;
-	try {
-		win.close = function() {
-			window.setTimeout(function() {
-				calli.closeDialog(win);
-			}, 0);
-		};
-	} catch (e) {
-		// use calli.closeDialog directly
-	}
-	return win;
 }
 
 })(jQuery);

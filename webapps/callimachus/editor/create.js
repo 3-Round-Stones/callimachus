@@ -29,6 +29,16 @@
 			}
 		}
 	});
+	$(document).bind('calliOpenDialog', function(event) {
+		if (!event.isDefaultPrevented()) {
+			$('#iframe')[0].contentWindow.postMessage('PUT disabled\n\ntrue', '*');
+		}
+	});
+	$(document).bind('calliCloseDialog', function(event) {
+		if (!event.isDefaultPrevented()) {
+			$('#iframe')[0].contentWindow.postMessage('PUT disabled\n\nfalse', '*');
+		}
+	});
 })(jQuery);
 
 jQuery(function($){

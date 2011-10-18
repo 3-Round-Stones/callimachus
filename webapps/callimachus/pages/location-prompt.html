@@ -44,12 +44,6 @@
 			} else {
 				$('#iframe')[0].src = "/?view";
 			}
-			var i=$('#label').val().search(/[\.\/]/);
-			if (i>0) {
-				$('#label')[0].setSelectionRange(0, i);
-			} else {
-				$('#label')[0].select();
-			}
 			var src = $('#iframe')[0].src;
 			$(window).bind('message', function(event) {
 				var data = event.originalEvent.data;
@@ -61,6 +55,16 @@
 					parent.postMessage('OK\n\nGET url\n\n' + src, '*');
 				}
 			});
+			var i=$('#label').val().search(/[\.\/]/);
+			if (i>0) {
+				try {
+					$('#label')[0].setSelectionRange(0, i);
+				} catch(e) {
+					$('#label')[0].select();
+				}
+			} else {
+				$('#label')[0].select();
+			}
 		});
 	// ]]>
 	</script>

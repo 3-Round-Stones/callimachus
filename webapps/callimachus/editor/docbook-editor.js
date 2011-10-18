@@ -10,8 +10,8 @@ jQuery(function($) {
 		skinPath: '/callimachus/editor/wymeditor/',
 		jQueryPath: '/callimachus/scripts/jquery.js',
 		wymPath: '/callimachus/editor/wymeditor/jquery.wymeditor.js',
-		dialogFeatures: 'jQuery.dialog',
-		dialogFeaturesPreview: 'jQuery.dialog'
+		dialogFeatures: navigator.appName == 'Microsoft Internet Explorer' ? undefined : 'jQuery.dialog',
+		dialogFeaturesPreview: navigator.appName == 'Microsoft Internet Explorer' ? undefined : 'jQuery.dialog'
 	});
 	$('#wym-iframe').one('load', function() {
 		WYMeditor.INSTANCES[0].initIframe(this);

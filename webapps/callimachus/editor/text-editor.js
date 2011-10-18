@@ -215,5 +215,7 @@ jQuery(function($) {
 			}
 		}
 	});
-	parent.postMessage('CONNECT calliEditorLoaded', '*');
+	if (window.parent != window) {
+		parent.postMessage('CONNECT calliEditorLoaded', '*');
+	}
 });

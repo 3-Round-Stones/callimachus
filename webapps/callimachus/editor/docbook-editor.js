@@ -38,6 +38,16 @@ jQuery(function($) {
 					// IE need this called twice on first load
 					WYMeditor.INSTANCES[0].initIframe($('#wym-iframe')[0]);
 					editor = jQuery.wymeditors(0);
+					var iframe = $('#wym-iframe');
+					var resetHeight = function() {
+						iframe.css('height', iframe.height() + 'px');
+						setTimeout(setFullHeight, 300);
+					};
+					var setFullHeight = function() {
+						iframe.css('height', '100%');
+						setTimeout(resetHeight, 300);
+					};
+					setFullHeight();
 				}
 				onhashchange();
 			}, 1000);
@@ -175,7 +185,9 @@ jQuery(function($) {
 				}
 			}
 		});
-		parent.postMessage('CONNECT calliEditorLoaded', '*');
+		if (window.parent != window) {
+			parent.postMessage('CONNECT calliEditorLoaded', '*');
+		}
 	});
 	$('#wym-iframe')[0].src = "/callimachus/editor/wymeditor/wymiframe.html";
 });

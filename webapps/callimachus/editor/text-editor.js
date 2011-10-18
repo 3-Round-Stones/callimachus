@@ -21,6 +21,14 @@ jQuery(function($) {
 	var contentType = null;
 	var etag = null;
 
+	$('#editor').one('mouseenter', function() {
+		try {
+			editor.focus();
+		} catch (e) {
+			// ignore
+		}
+	});
+
 	var onresize = function() {
 		setTimeout(function() {
 			var pane = $('.ace_scroller')[0];

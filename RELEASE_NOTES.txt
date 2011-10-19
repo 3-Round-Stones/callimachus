@@ -2,9 +2,15 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-8 October 2011
+19 October 2011
 
 = NEW IN VERSION 0.13 =
+
+Callimachus 0.13 works best on browsers that are closely tracking the
+development of HTML5.  At the time of this writing, Callimachus 0.13
+works best on Chrome, with Firefox and Safari as second choices.  It is
+recommended that Callimachus users track updates to their browsers for
+the best usage experience.
 
 Callimachus 0.13 supports the HTML5 File API for the drag-and-drop of
 files into Callimachus Folders.  The file API is implemented in current
@@ -26,9 +32,10 @@ Chrome 14 has been thoroughly tested.
 Firefox 7 has no known issues.
 Internet Explorer 8 can perform most tasks.
 
-Internet Explorer 7 and 9 can login, but do not work with any forms.
+Internet Explorer 7 and 9 can login and read content, but do not work with
+editing operations, including forms.
 
-Callimachus 0.13 requires Java 6.
+Callimachus 0.13 requires Java 6 (server-side) to run.
 
 = HOWTO UPGRADE FROM 0.12 =
 

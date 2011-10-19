@@ -55,13 +55,6 @@ $(document).bind("calliLogin", function(event) {
 			} else if (!event.isDefaultPrevented() && event.location) {
 				location.reload(false);
 			}
-		},
-		error: function(xhr, textStatus, errorThrown) {
-			// Safari don't support spaces in ajax passwords
-			if (xhr && xhr.status == 0) {
-				// bring up browser login dialog
-				location = "/callimachus/accounts?login";
-			}
 		}
 	};
 	if (event.username) {

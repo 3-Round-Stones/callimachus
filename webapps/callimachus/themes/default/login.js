@@ -80,15 +80,13 @@ function login(event) {
 function submitLoginForm(event) {
 	try {
 		var event = jQuery.Event("calliLogin");
+		event.preventDefault();
 		event.username = this.elements['username'].value;
 		event.password = this.elements['password'].value;
 		event.remember = this.elements['remember'].checked;
 		$(document).trigger(event);
 	} catch (e) {
 		$(event.target).trigger("calliError", e.description ? e.description : e);
-	}
-	if (event.preventDefault) {
-		event.preventDefault();
 	}
 	return false;
 }

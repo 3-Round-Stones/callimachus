@@ -6,9 +6,11 @@
 
 (function($){
 
-calli.createResource = function(node) {
-	var href = $(node).attr("href");
-	var list = $(node).parents('[dropzone]');
+calli.createResource = function(node, href) {
+	if (!href && $(node).attr("href")) {
+		href = $(node).attr("href");
+	}
+	var list = $(node).filter('[dropzone]').add($(node).parents('[dropzone]'));
 	if (!href)
 		return true;
 	var title = '';
@@ -34,7 +36,11 @@ calli.createResource = function(node) {
 		},
 		onclose: function() {
 			list.unbind('calliLinked', onlinked);
-			node.focus();
+			try {
+				node.focus();
+			} catch (e) {
+				// ignore
+			}
 		}
 	};
 	var searchTerms = list.find('[data-search]');

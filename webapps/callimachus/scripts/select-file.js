@@ -6,8 +6,8 @@
 
 (function($){
 
-calli.selectFile = function(node) {
-	var list = $(node).parents('[dropzone]');
+calli.selectFile = function(node, src) {
+	var list = $(node).filter('[dropzone]').add($(node).parents('[dropzone]'));
 	if (!list.length)
 		return true;
 	var title = '';
@@ -21,7 +21,9 @@ calli.selectFile = function(node) {
 	var onlinked = function() {
 		calli.closeDialog(dialog);
 	};
-	var src = $(node).attr('href');
+	if (!src && $(node).attr('href')) {
+		src = $(node).attr('href');
+	}
 	if (!src) {
 		"/?view";
 	}
@@ -47,7 +49,11 @@ calli.selectFile = function(node) {
 		},
 		onclose: function() {
 			list.unbind('calliLinked', onlinked);
-			node.focus();
+			try {
+				node.focus();
+			} catch (e) {
+				// ignore
+			}
 		}
 	};
 	var openBrowseDialog = function(url) {

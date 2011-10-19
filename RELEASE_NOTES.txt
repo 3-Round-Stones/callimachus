@@ -4,9 +4,7 @@ http://callimachusproject.org/
 
 8 October 2011
 
----------------------------
-| CHANGES IN VERSION 0.13 |
----------------------------
+= VERSION 0.13 =
 
 Callimachus 0.13 supports the HTML5 File API for the drag-and-drop of
 files into Callimachus Folders.  The file API is implemented in current
@@ -21,3 +19,51 @@ shown in the Folder view.
 
 Files may be deleted by selecting the file, and then selecting the Edit
 tab.  Selecting the 'Delete' button in the Edit tab will delete a file.
+
+== HOWTO UPGRADE FROM 0.12 ==
+
+All information saved through a Web browser is saved in the repositories
+directory. This directory should be backup (in the stopped state) before
+attempting to upgrade.
+
+Stop the 0.12 server using the callimachus-stop script in the bin directory.
+Remove the lib and tmp directories. Remove the supplied war files in the
+webapps directory, including: callimachus.war, layout.war, and accounts.war.
+Backup any configuration files in etc, including etc/callimachus.conf. Unzip
+callimachus-0.13.zip over top of the rest of your existing installation. This
+will restore a lib directory and webapps/callimachus.war. Restore your
+configuration settings in etc/callimachus.conf. Start the server using the new
+callimachus start script in the bin directory.
+
+All classes with a create template must include a list of groups that can author
+new resources. These can be added in the edit tab of a class. All classes for
+container resources (subClass of Creator) must now extend Composite. Check the
+box in the class edit tab to enable nested resources.
+
+The create and edit page template syntax must be updated. The create from
+element should have an enctype of application/rdf+xml, no about attribute, and
+should include an onsubmit handle of onsubmit="return calli.saveFormAs(this)".
+The edit form element should have an enctype of application/sparql-update and
+an about attribute of "?this".
+
+To open a dialogue box to list resources by type or create a new resource use
+the function calli.createResource(zone[, src]) where zone is a focable element
+(like a button or link), within an element with a dropzone attribute, and src
+is the page to open in the dialogue. If no src is provided the zone element's
+href attribute is used. The function will return false if a dialogue was opened.
+
+To remove a referenced resource from a dropzone use the function
+calli.removeResource(node) where node is an element within an element that
+contains an attribute @about, @resource, @src, or @href constructed using a
+Callimachus template variable. This will remove the parent element that contains
+the variable attribute. The function will return false if an element was
+removed.
+
+To open a browse dialogue use the function calli.selectFile(zone[, src]) where
+zone is a focable element (like a button or link), within an element with a
+dropzone attribute, and src is the page to open in the dialogue. If no src is
+provided the zone element's href attribute is used. The function will return
+false if a dialogue was opened.
+
+For syntax examples see http://code.google.com/p/callimachus/wiki/FormPatterns
+

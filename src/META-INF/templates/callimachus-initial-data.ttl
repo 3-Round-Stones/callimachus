@@ -76,7 +76,9 @@
 	rdfs:label "sparql";
 	calli:administrator </group/admin>.
 
-</callimachus/profile> a </callimachus/Profile>.
+</callimachus/profile> a </callimachus/Profile>;
+	rdfs:label "profile";
+	calli:administrator </group/admin>.
 
 ################################
 # Manifest and Menu

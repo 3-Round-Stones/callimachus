@@ -4,7 +4,7 @@ http://callimachusproject.org/
 
 8 October 2011
 
-= VERSION 0.13 =
+= NEW IN VERSION 0.13 =
 
 Callimachus 0.13 supports the HTML5 File API for the drag-and-drop of
 files into Callimachus Folders.  The file API is implemented in current
@@ -20,7 +20,17 @@ shown in the Folder view.
 Files may be deleted by selecting the file, and then selecting the Edit
 tab.  Selecting the 'Delete' button in the Edit tab will delete a file.
 
-== HOWTO UPGRADE FROM 0.12 ==
+= LIMITATIONS OF 0.13 =
+
+Chrome 14 has been thoroughly tested.
+Firefox 7 has no known issues.
+Internet Explorer 8 can perform most tasks.
+
+Internet Explorer 7 and 9 can login, but do not work with any forms.
+
+Callimachus 0.13 requires Java 6.
+
+= HOWTO UPGRADE FROM 0.12 =
 
 All information saved through a Web browser is saved in the repositories
 directory. This directory should be backup (in the stopped state) before

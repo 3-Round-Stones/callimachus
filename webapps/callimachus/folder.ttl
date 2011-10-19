@@ -81,7 +81,7 @@
 					if(?local_type = <Photo>, "image/jpeg",
 					if(?local_type = <Script>, "text/javascript",
 					if(?local_type = <Style>, "text/css",
-					if(?local_type = <Text>, "text/plain",
+					if(?local_type = <TextFile>, "text/plain",
 					if(?local_type = <VectorGraphic>, "image/svg+xml",
 				?content_type)))))))))))) as ?content_type) {
 			{
@@ -149,7 +149,7 @@
 					?local_type = <Photo> ||
 					?local_type = <Script> ||
 					?local_type = <Style> ||
-					?local_type = <Text> ||
+					?local_type = <TextFile> ||
 					?local_type = <VectorGraphic>
 				)
 			} OPTIONAL {

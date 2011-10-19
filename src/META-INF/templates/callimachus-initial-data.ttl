@@ -137,7 +137,7 @@
 </callimachus/menu#recentchanges>	calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
 
 </callimachus/menu#articles>	calli:position 1; rdfs:label "Articles"; calli:link </callimachus/Article>.
-</callimachus/menu#textfiles>	calli:position 2; rdfs:label "Text files"; calli:link </callimachus/Text>.
+</callimachus/menu#textfiles>	calli:position 2; rdfs:label "Text files"; calli:link </callimachus/TextFile>.
 </callimachus/menu#pages>	calli:position 3; rdfs:label "Pages"; calli:link </callimachus/Page>.
 </callimachus/menu#scripts>	calli:position 4; rdfs:label "Scripts"; calli:link </callimachus/Script>.
 </callimachus/menu#styles>	calli:position 5; rdfs:label "Styles"; calli:link </callimachus/Style>.

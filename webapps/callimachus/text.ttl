@@ -22,7 +22,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<Text> a <CreatableIndex>, owl:Class;
+<TextFile> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf <File>;
 	rdfs:label "Text File";
 	rdfs:comment "Text files";
@@ -33,8 +33,8 @@
 	calli:create <text-create.xhtml>.
 
 # GET /robots.txt
-:GetText rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Text>];
+:GetTextFile rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <TextFile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
 	msg:method "GET";
 	msg:type "text/plain";
@@ -47,15 +47,15 @@
 		[owl:onProperty msg:target; owl:hasValue <File> ]);
 	msg:script """
 		if (type == "text/plain") {
-			var uri = this.toUri().resolve("/callimachus/Text").toString();
+			var uri = this.toUri().resolve("/callimachus/TextFile").toString();
 			return this.objectConnection.getObject(uri);
 		}
 		return proceed();
 	""".
 
-# POST ?create=/callimachus/Text
-:CreateText owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Text> ]);
+# POST ?create=/callimachus/TextFile
+:CreateTextFile owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <TextFile> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
@@ -83,15 +83,15 @@
 		this.touchRevision(); // update index page
 		con.commit();
 
-		created.UploadText(new java.io.InputStreamReader(body, "UTF-8")); //# cannot write to other streams directly		
+		created.UploadTextFile(new java.io.InputStreamReader(body, "UTF-8")); //# cannot write to other streams directly		
 		return created;
 	""".
 
 :local a calli:LocalRealm.
 
 # PUT /robots.txt
-:UploadText rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Text>];
+:UploadTextFile rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <TextFile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:realm </callimachus/manifest>, :local;
@@ -99,7 +99,6 @@
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:imports <Text>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
 	msg:script """
 		if (!reader)
@@ -118,7 +117,7 @@
 	""".
 
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :UploadText;
+	rdfs:domain :UploadTextFile;
 	rdfs:range <java:java.io.Reader>;
 	msg:type "text/plain".
 

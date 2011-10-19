@@ -24,7 +24,7 @@
 
 <Text> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf <File>;
-	rdfs:label "Text";
+	rdfs:label "Text File";
 	rdfs:comment "Text files";
 	rdfs:isDefinedBy </callimachus>;
 	calli:icon <text.png>;

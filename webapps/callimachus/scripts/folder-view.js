@@ -232,6 +232,7 @@
 	});
 })(jQuery);
 jQuery(function($){
+	$('a.breadcrumb').addClass("view").trigger("DOMNodeInserted");
 	if (!$('#tfolders').children().length) {
 		$('#tfolders').remove();
 	}

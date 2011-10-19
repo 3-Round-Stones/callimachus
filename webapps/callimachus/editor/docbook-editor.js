@@ -37,14 +37,15 @@ jQuery(function($) {
 				if (!$('body', $('#wym-iframe')[0].contentWindow.document).children().length) {
 					// IE need this called twice on first load
 					WYMeditor.INSTANCES[0].initIframe($('#wym-iframe')[0]);
+					// IE8 hides the iframe body on input, resizing it causes it to show again
 					editor = jQuery.wymeditors(0);
 					var iframe = $('#wym-iframe');
 					var resetHeight = function() {
-						iframe.css('height', iframe.height() + 'px');
+						iframe.css('height', iframe.height() + 'px').css('box-sizing', 'content-box');
 						setTimeout(setFullHeight, 300);
 					};
 					var setFullHeight = function() {
-						iframe.css('height', '100%');
+						iframe.css('height', '100%').css('box-sizing', 'border-box');
 						setTimeout(resetHeight, 300);
 					};
 					setFullHeight();

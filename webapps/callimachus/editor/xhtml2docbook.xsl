@@ -193,9 +193,6 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 		</xsl:when>
 		<xsl:otherwise>
 			<figure>
-				<title>
-					<xsl:value-of select="@title"/>
-				</title>
 				<mediaobject>
 					<xsl:call-template name="imageobject" />
 				</mediaobject>
@@ -218,18 +215,16 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 				</xsl:attribute>
 			</xsl:if>
 		</imagedata>
-		<xsl:if test="@title">
-			<objectinfo>
-				<title><xsl:value-of select="@title" /></title>
-			</objectinfo>
-		</xsl:if>
 	</imageobject>
 	<xsl:if test="@alt">
-		<textobject>
-			<phrase>
-				<xsl:value-of select="@alt" />
-			</phrase>
-		</textobject>
+		<alt>
+			<xsl:value-of select="@alt" />
+		</alt>
+	</xsl:if>
+	<xsl:if test="@title">
+		<caption>
+			<para><xsl:value-of select="@title" /></para>
+		</caption>
 	</xsl:if>
 </xsl:template>
 

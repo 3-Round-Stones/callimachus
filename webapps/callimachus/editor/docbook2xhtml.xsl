@@ -147,14 +147,14 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:d="http://docbook.org/ns/docbook" exc
 				<xsl:value-of select="substring-before(d:imagedata/@width,'px')"/>
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:if test="../d:textobject/d:phrase">
+		<xsl:if test="../d:alt">
 			<xsl:attribute name="alt">
-				<xsl:value-of select="../d:textobject/d:phrase"/>
+				<xsl:value-of select="../d:alt"/>
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:if test="d:objectinfo/d:title">
+		<xsl:if test="../d:caption/d:para">
 			<xsl:attribute name="title">
-				<xsl:value-of select="d:objectinfo/d:title"/>
+				<xsl:value-of select="../d:caption/d:para"/>
 			</xsl:attribute>
 		</xsl:if>
 	</img>

@@ -34,11 +34,11 @@ window.calli.saveFormAs = function(form, fileName, create) {
 		overrideLocation(form, $(form).attr('about'));
 		return true;
 	} else { // no identifier at all
-		var field = $($(form).find('input')[0]);
+		var field = $($(form).find('input:not(:checkbox,:disabled,:button,:password,:radio)')[0]);
 		var input = field.val();
 		if (input) {
 			field.change(function() {
-				if (input != $(form).find('input').val()) {
+				if (input != $(field).val()) {
 					// restore the about attribute when this field changes
 					if (about) {
 						$(form).attr('about', about);

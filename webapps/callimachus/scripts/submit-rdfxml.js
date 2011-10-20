@@ -15,7 +15,7 @@ $('form[method="POST"][enctype="application/rdf+xml"]').submit(function(event) {
 	if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
 		return true; // about attribute not set yet
 	event.preventDefault();
-	submitRDFForm(this, about, form.attr('enctype'));
+	setTimeout(function(){submitRDFForm(form[0], form.attr('about'), form.attr('enctype'));}, 0);
 	return false;
 });
 

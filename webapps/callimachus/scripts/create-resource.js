@@ -37,7 +37,7 @@ calli.createResource = function(node, href) {
 		onclose: function() {
 			list.unbind('calliLinked', onlinked);
 			try {
-				node.focus();
+				$(node)[0].focus();
 			} catch (e) {
 				// ignore
 			}

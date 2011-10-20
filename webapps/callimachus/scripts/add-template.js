@@ -7,14 +7,19 @@
 (function($){
 
 calli.addTemplate = function(node) {
-	var button = $(node).add($(node).parents()).filter('[data-add]');
-	var add = button.attr("data-add");
+	var rel = $(node).add($(node).parents()).filter('[data-add]');
+	var add = rel.attr("data-add");
 	if (!add)
 		return true;
 	jQuery.get(add, function(data) {
 		var clone = $(data).clone();
-		$(node).before(clone.children("[about],[typeof],[typeof=''],[resource],[property]"));
-		clone.find(':input').andSelf().filter(':input').focus();
+		var child = clone.children("[about],[typeof],[typeof=''],[resource],[property]");
+		if ($(node).attr("data-add")) {
+			$(node).append(child);
+		} else {
+			$(node).before(child);
+		}
+		child.find(':input').andSelf().filter(':input:first').focus();
 	}, 'text');
 	return false;
 };

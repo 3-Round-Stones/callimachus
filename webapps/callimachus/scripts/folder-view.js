@@ -24,7 +24,11 @@
 				a.attr('type', type);
 			}
 		}
-		a.text(text);
+		if (text) {
+			a.text(text);
+		} else {
+			a.text(url.replace(/.*\/(.)/, '$1'));
+		}
 		var img = $('<img/>');
 		img.addClass('icon');
 		img.attr('src', src);

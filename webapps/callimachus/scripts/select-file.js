@@ -67,7 +67,7 @@ calli.selectResource = function(node, src) {
 		onclose: function() {
 			list.unbind('calliLinked', onlinked);
 			try {
-				node.focus();
+				$(node)[0].focus();
 			} catch (e) {
 				// ignore
 			}

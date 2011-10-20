@@ -17,7 +17,8 @@ $('form[method="POST"][enctype="application/sparql-update"]').each(function() {
 		if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
 			return true; // about attribute not set
 		event.preventDefault();
-		return submitRDFForm(form, stored);
+		setTimeout(function(){submitRDFForm(form, stored);}, 0);
+		return false;
 	});
 });
 

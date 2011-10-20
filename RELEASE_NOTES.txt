@@ -76,7 +76,7 @@ Callimachus template variable. This will remove the parent element that contains
 the variable attribute. The function will return false if an element was
 removed.
 
-To open a browse dialogue use the function calli.selectFile(zone[, src]) where
+To open a browse dialogue use the function calli.selectResource(zone[, src]) where
 zone is a focable element (like a button or link), within an element with a
 dropzone attribute, and src is the page to open in the dialogue. If no src is
 provided the zone element's href attribute is used. The function will return

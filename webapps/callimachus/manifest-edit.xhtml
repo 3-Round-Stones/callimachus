@@ -21,7 +21,7 @@
 	<form id='form' method="POST" action="" enctype="application/sparql-update" about="?this">
 		<div class="hbox">
 			<div id="logo-image" dropzone="link s:text/uri-list">
-				<label>Logo <a href="/?view" title="Browse" onclick="return calli.selectFile(this)" class="ui-icon ui-icon-folder-open" /></label>
+				<label>Logo <a href="/?view" title="Browse" onclick="return calli.selectResource(this)" class="ui-icon ui-icon-folder-open" /></label>
 				<div rel="calli:logo">
 					<span about="?logo" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
 						<img src="{?logo}" />
@@ -30,7 +30,7 @@
 				</div>
 			</div>
 			<div id="favicon-image" dropzone="link s:text/uri-list">
-				<label>Icon <a href="/?view" title="Browse" onclick="return calli.selectFile(this)" class="ui-icon ui-icon-folder-open" /></label>
+				<label>Icon <a href="/?view" title="Browse" onclick="return calli.selectResource(this)" class="ui-icon ui-icon-folder-open" /></label>
 				<div rel="calli:favicon">
 					<span about="?favicon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
 						<img src="{?favicon}" />

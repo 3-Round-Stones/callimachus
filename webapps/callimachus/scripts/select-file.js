@@ -7,6 +7,10 @@
 (function($){
 
 calli.selectFile = function(node, src) {
+	return calli.selectResource(node, src);
+};
+
+calli.selectResource = function(node, src) {
 	var list = $(node).filter('[dropzone]').add($(node).parents('[dropzone]'));
 	if (!list.length)
 		return true;
@@ -21,11 +25,24 @@ calli.selectFile = function(node, src) {
 	var onlinked = function() {
 		calli.closeDialog(dialog);
 	};
+	var url = null;
 	if (!src && $(node).attr('href')) {
 		src = $(node).attr('href');
 	}
 	if (!src) {
-		"/?view";
+		src = "/?view";
+	}
+	if (src.indexOf("/?view") >= 0 && window.sessionStorage) {
+		try {
+			var last = sessionStorage.getItem("LastFolder");
+			if (last) {
+				url = last;
+			} else if (last = localStorage.getItem("LastFolder")) {
+				url = last;
+			}
+		} catch (e) {
+			// ignore
+		}
 	}
 	var options = {
 		onmessage: function(event) {
@@ -60,19 +77,6 @@ calli.selectFile = function(node, src) {
 		dialog = calli.openDialog(url, title, options);
 		list.bind('calliLinked', onlinked);
 	};
-	var url = null;
-	if (window.sessionStorage) {
-		try {
-			var last = sessionStorage.getItem("LastFolder");
-			if (last) {
-				url = last;
-			} else if (last = localStorage.getItem("LastFolder")) {
-				url = last;
-			}
-		} catch (e) {
-			// ignore
-		}
-	}
 	if (url) {
 		jQuery.ajax({
 			type:"GET",

@@ -43,15 +43,15 @@ public abstract class ClassAuthorizationSupport implements SelfAuthorizingTarget
 			String query, Set<String> groups) {
 		if (isReading(method, query)) {
 			addAnnotationValues(klass, "calli.reader", groups);
-			addAnnotationValues(klass, "call.contributor", groups);
-			addAnnotationValues(klass, "call.editor", groups);
+			addAnnotationValues(klass, "calli.contributor", groups);
+			addAnnotationValues(klass, "calli.editor", groups);
 		} else if (isCreating(method, query)) {
-			addAnnotationValues(klass, "call.contributor", groups);
-			addAnnotationValues(klass, "call.editor", groups);
+			addAnnotationValues(klass, "calli.contributor", groups);
+			addAnnotationValues(klass, "calli.editor", groups);
 		} else if (isEditing(method, query)) {
-			addAnnotationValues(klass, "call.editor", groups);
+			addAnnotationValues(klass, "calli.editor", groups);
 		}
-		addAnnotationValues(klass, "call.administrator", groups);
+		addAnnotationValues(klass, "calli.administrator", groups);
 	}
 
 	private boolean isReading(String method, String query) {
@@ -111,7 +111,8 @@ public abstract class ClassAuthorizationSupport implements SelfAuthorizingTarget
 		for (Class<?> f : new ArrayList<Class<?>>(set)) {
 			Iterator<Class<?>> iter = set.iterator();
 			while (iter.hasNext()) {
-				if (iter.next().isAssignableFrom(f)) {
+				Class<?> next = iter.next();
+				if (!next.equals(f) && next.isAssignableFrom(f)) {
 					iter.remove(); //# annotation overridden
 				}
 			}

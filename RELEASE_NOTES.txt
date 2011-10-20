@@ -4,13 +4,24 @@ http://callimachusproject.org/
 
 19 October 2011
 
-= NEW IN VERSION 0.13 =
+= REQUIREMENTS OF 0.13 =
 
 Callimachus 0.13 works best on browsers that are closely tracking the
 development of HTML5.  At the time of this writing, Callimachus 0.13
 works best on Chrome, with Firefox and Safari as second choices.  It is
 recommended that Callimachus users track updates to their browsers for
 the best usage experience.
+
+Chrome 14 has been thoroughly tested.
+Firefox 7 and Safari 5 has no known issues.
+Internet Explorer 8 can perform most tasks.
+
+Internet Explorer 7 and 9 can login and read content, but do not work with
+editing operations, including forms.
+
+Callimachus 0.13 requires Java 6 (server-side) to run.
+
+= NEW IN VERSION 0.13 =
 
 Callimachus 0.13 supports the HTML5 File API for the drag-and-drop of
 files into Callimachus Folders.  The file API is implemented in current
@@ -26,16 +37,11 @@ shown in the Folder view.
 Files may be deleted by selecting the file, and then selecting the Edit
 tab.  Selecting the 'Delete' button in the Edit tab will delete a file.
 
-= LIMITATIONS OF 0.13 =
+= KNOWN ISSUES IN 0.13 =
 
-Chrome 14 has been thoroughly tested.
-Firefox 7 has no known issues.
-Internet Explorer 8 can perform most tasks.
-
-Internet Explorer 7 and 9 can login and read content, but do not work with
-editing operations, including forms.
-
-Callimachus 0.13 requires Java 6 (server-side) to run.
+Blank nodes are not supported in 0.13. It may be necessary to skolemize blank
+nodes in create and edit forms. See the directory.war sample app for an example
+of this.
 
 = HOWTO UPGRADE FROM 0.12 =
 

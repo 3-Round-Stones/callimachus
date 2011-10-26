@@ -91,7 +91,7 @@
 	rdfs:range xsd:string;
 	msg:header "Content-Type".
 
-# find the user will create $thing
+# find the user that will create $thing
 :FindCreator rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
 	msg:sparql  """
@@ -119,10 +119,56 @@
 					$this ?editor ?contributor
 				} UNION {
 					$this ?editor [calli:member ?contributor]
+				} UNION {
+					$this rdf:type/rdfs:subClassOf* [?editor ?contributor]
+				} UNION {
+					$this rdf:type/rdfs:subClassOf* [?editor [calli:member ?contributor]]
 				}
 				FILTER (?editor = calli:editor || ?editor = calli:administrator)
 			}
 			FILTER (!bound(?editor))
+		}
+	""".
+
+:SelectAllReaders rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
+	msg:sparql  """
+		SELECT DISTINCT ?reader
+		WHERE {
+			{
+				$this calli:reader ?reader
+			} UNION {
+				$this rdf:type/rdfs:subClassOf*/calli:reader ?reader
+			}
+		}
+	""".
+
+:SelectAllEditors rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
+	msg:sparql  """
+		SELECT DISTINCT ?editor
+		WHERE {
+			{
+				$this calli:editor ?editor
+			} UNION {
+				$this rdf:type/rdfs:subClassOf*/calli:editor ?editor
+			}
+		}
+	""".
+
+:SelectAllAdministrators rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
+	msg:sparql  """
+		SELECT DISTINCT ?admin
+		WHERE {
+			{
+				$this calli:administrator ?admin
+			} UNION {
+				$this rdf:type/rdfs:subClassOf*/calli:administrator ?admin
+			}
 		}
 	""".
 

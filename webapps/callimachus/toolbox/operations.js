@@ -74,9 +74,9 @@ function postFactoryCreate(msg) {
 	}
 	var newCopy = construct.PostCreate(bio, msg.location, type);
 	newCopy.calliEditor.addAll(this.FindContributor(newCopy));
-	newCopy.calliReader.addAll(this.calliReader);
-	newCopy.calliEditor.addAll(this.calliEditor);
-	newCopy.calliAdministrator.addAll(this.calliAdministrator);
+	newCopy.calliReader.addAll(this.SelectAllReaders());
+	newCopy.calliEditor.addAll(this.SelectAllEditors());
+	newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
 	construct.touchRevision(); // Update class index
 	if (msg.intermediate) {
 		var revision = this.auditRevision;

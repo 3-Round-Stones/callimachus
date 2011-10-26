@@ -16,7 +16,7 @@
 # Version Info
 ################################
 
-</callimachus> owl:versionInfo "0.14".
+</callimachus> owl:versionInfo "0.13".
 
 ################################
 # Backwards compatibility

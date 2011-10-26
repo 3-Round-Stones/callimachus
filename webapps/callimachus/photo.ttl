@@ -135,114 +135,103 @@
 
 :GetPhotoLarge rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "large";
 	msg:type "image/png";
-	msg:imports <java:java.awt>;
-	msg:imports <java:java.awt.image.BufferedImage>;
-	msg:imports <java:javax.imageio.ImageIO>;
-	msg:imports <java:java.io.ByteArrayOutputStream>;
 	msg:script """
-		var originalImage = ImageIO.read(this.openInputStream());
-		var width = 1024;
-		var height = originalImage.getHeight() * width / originalImage.getWidth();
-		if (height > 768) {
-			height = 768;
-			width = originalImage.getWidth() * height / originalImage.getHeight();
-		}
-		if (width > originalImage.getWidth()) {
-			width = originalImage.getWidth();
-		}
-		if (height > originalImage.getHeight()) {
-			height = originalImage.getHeight();
-		}
-		var resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		var g = resizedImage.createGraphics();
-		g.drawImage(originalImage, 0, 0, width, height, null);
-		g.dispose();
-		g.setComposite(AlphaComposite.Src);
-	
-		var out = new ByteArrayOutputStream();
-		ImageIO.write(resizedImage, "png", out);
-		return out;
+		return this.ResizePhoto(this.openInputStream(), 1080);
 	""".
 
 :GetPhotoMedium rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "medium";
 	msg:type "image/png";
-	msg:imports <java:java.awt>;
-	msg:imports <java:java.awt.image.BufferedImage>;
-	msg:imports <java:javax.imageio.ImageIO>;
-	msg:imports <java:java.io.ByteArrayOutputStream>;
 	msg:script """
-		var originalImage = ImageIO.read(this.openInputStream());
-		var width = 640;
-		var height = originalImage.getHeight() * width / originalImage.getWidth();
-		if (height > 480) {
-			height = 480;
-			width = originalImage.getWidth() * height / originalImage.getHeight();
-		}
-		if (width > originalImage.getWidth()) {
-			width = originalImage.getWidth();
-		}
-		if (height > originalImage.getHeight()) {
-			height = originalImage.getHeight();
-		}
-		var resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		var g = resizedImage.createGraphics();
-		g.drawImage(originalImage, 0, 0, width, height, null);
-		g.dispose();
-		g.setComposite(AlphaComposite.Src);
-	
-		var out = new ByteArrayOutputStream();
-		ImageIO.write(resizedImage, "png", out);
-		return out;
+		return this.ResizePhoto(this.GetPhotoLarge(), 480);
 	""".
 
 :GetPhotoSmall rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
 	msg:query "small";
 	msg:type "image/png";
+	msg:script """
+		return this.ResizePhoto(this.GetPhotoMedium(), 240);
+	""".
+
+:GetPhotoThumbnail rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "thumbnail";
+	msg:type "image/png";
+	msg:script """
+		return this.ResizePhoto(this.GetPhotoSmall(), 64);
+	""".
+
+:ResizePhoto rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:imports <java:java.awt>;
-	msg:imports <java:java.awt.image.BufferedImage>;
+	msg:imports <java:java.awt.image>;
 	msg:imports <java:javax.imageio.ImageIO>;
 	msg:imports <java:java.io.ByteArrayOutputStream>;
 	msg:script """
-		var originalImage = ImageIO.read(this.openInputStream());
-		var height = 150;
-		var width = originalImage.getWidth() * height / originalImage.getHeight();
-		if (width < 150) {
-			width = 150;
-			height = originalImage.getHeight() * width / originalImage.getWidth();
+		var image = ImageIO.read(inputStream);
+		var height = Math.min(minSize, image.getHeight());
+		var width = image.getWidth() * height / image.getHeight();
+		if (width < minSize) {
+			width = Math.min(minSize,  image.getWidth());
+			height = image.getHeight() * width / image.getWidth();
 		}
-		if (width > originalImage.getWidth()) {
-			width = originalImage.getWidth();
+		var blurKernel = java.lang.reflect.Array.newInstance(java.lang.Float.TYPE, 9);
+		for (var i=0; i<9; i++) {
+			blurKernel[i] = 1.0/9.0;
 		}
-		if (height > originalImage.getHeight()) {
-			height = originalImage.getHeight();
+		var map = new java.util.HashMap();
+		map.put(RenderingHints.KEY_INTERPOLATION,
+		RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		map.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		map.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		var hints = new RenderingHints(map);
+		var op = new ConvolveOp(new Kernel(3, 3, blurKernel), ConvolveOp.EDGE_NO_OP, hints);
+		while (height < image.getHeight() && width < image.getWidth()) {
+			var ratio = Math.floor((image.getHeight() - 1) / height);
+			var w = width * ratio;
+			var h = height * ratio;
+			var resizedImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+			var g = resizedImage.createGraphics();
+			g.drawImage(op.filter(image, null), 0, 0, w, h, null);
+			g.dispose();
+			g.setComposite(AlphaComposite.Src);
+			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			image = resizedImage;
 		}
-		var resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		var g = resizedImage.createGraphics();
-		g.drawImage(originalImage, 0, 0, width, height, null);
-		g.dispose();
-		g.setComposite(AlphaComposite.Src);
 	
 		var out = new ByteArrayOutputStream();
-		ImageIO.write(resizedImage, "png", out);
-		return out;
+		ImageIO.write(image, "png", out);
+		return new java.io.ByteArrayInputStream(out.toByteArray());
 	""".
+
+:inputStream a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :ResizePhoto;
+	rdfs:range <java:java.io.InputStream>.
+
+:minSize a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :ResizePhoto;
+	rdfs:range xsd:int.
 
 # Users can view resized images or photos if they can view the image itself
 :AuthorizeImageResize owl:intersectionOf (calli:IsAuthorized
 		[owl:onProperty msg:target; owl:allValuesFrom <Photo>]);
 	msg:script  """
-		if (query == "large" || query == "medium" || query == "small") {
+		if (query == "large" || query == "medium" || query == "small" || query == "thumbnail") {
 			if (method == "GET" || method == "HEAD") {
 				if (this.calliIsAuthorized(credential, method, null))
 					return true;

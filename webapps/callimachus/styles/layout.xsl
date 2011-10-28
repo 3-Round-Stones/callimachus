@@ -292,19 +292,30 @@
 		<xsl:param name="base" />
 		<xsl:variable name="scheme" select="substring-before($base, '://')" />
 		<xsl:variable name="authority" select="substring-before(substring-after($base, '://'), '/')" />
-		<xsl:if test="$scheme and $authority and $relative and not(starts-with($relative,'//') or starts-with($relative,'?') or starts-with($relative,'#') or contains($relative, ':') or contains($relative, '{'))">
-			<xsl:if test="starts-with($relative, '/')">
+		<xsl:variable name="path" select="substring-after(substring-after($base, '://'), $authority)" />
+		<xsl:choose>
+			<xsl:when test="not($scheme) or not($authority)">
+				<xsl:value-of select="$relative" />
+			</xsl:when>
+			<xsl:when test="contains($relative, ':') or starts-with($relative,'//') or contains($relative, '{')">
+				<xsl:value-of select="$relative" />
+			</xsl:when>
+			<xsl:when test="$relative='' or starts-with($relative,'?') or starts-with($relative,'#')">
+				<xsl:value-of select="$relative" />
+			</xsl:when>
+			<xsl:when test="starts-with($relative, '/')">
 				<xsl:value-of select="concat($scheme, '://', $authority)" />
-			</xsl:if>
-			<xsl:if test="not(starts-with($relative, '/'))">
+				<xsl:value-of select="$relative" />
+			</xsl:when>
+			<xsl:otherwise>
 				<xsl:call-template name="substring-before-last">
 					<xsl:with-param name="arg" select="$base" />
 					<xsl:with-param name="delim" select="'/'" />
 				</xsl:call-template>
 				<xsl:value-of select="'/'" />
-			</xsl:if>
-		</xsl:if>
-		<xsl:value-of select="$relative" />
+				<xsl:value-of select="$relative" />
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 
 	<xsl:template name="substring-before-last">

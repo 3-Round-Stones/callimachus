@@ -68,7 +68,7 @@
 				<xsl:with-param name="text" select="string(.)"/>
 			</xsl:call-template>
 		</xsl:if>
-		<xsl:if test="xhtml:option[@about or @resource] or xhtml:label[@about or @resource]">
+		<xsl:if test="xhtml:option[@selected='selected'][@about] or xhtml:label[@about]/input[@checked='checked']">
 			<!-- Called to populate select/radio/checkbox -->
 			<xsl:attribute name="data-options">
 				<xsl:value-of select="$this" />

@@ -46,7 +46,7 @@ public abstract class SoundexLabelSupport implements SoundexTrait {
 	public String regexStartsWith(String string) {
 		if (string == null)
 			return "^";
-		return "^" + string.replaceAll("[^a-zA-Z0-9\\s]", ".");
+		return "^" + string.replaceAll("[^a-zA-Z0-9\\s]", ".").replaceAll("\\s+", "\\s+");
 	}
 
 	@triggeredBy( // see SoundexTrait.LABELS

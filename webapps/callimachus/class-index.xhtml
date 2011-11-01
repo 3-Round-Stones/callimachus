@@ -25,7 +25,7 @@
 			$('.result>a:not(:first-child)').remove();
 			$('#all').children().each(function() {
 				var uri = $(this).attr('resource');
-				var m = uri.match(/\w+\W*$/);
+				var m = uri.match(/[^\/]+\/*$/);
 				if (m) {
 					var label = m[0];
 					var a = $('<a/>');

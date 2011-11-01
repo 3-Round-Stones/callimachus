@@ -20,7 +20,7 @@
 /* VISUAL FEEDBACK */
 
 /* basic */
-  body  { background: #e1e8f1; width:100%;height:100%; }
+  body  { background: #e1e8f1; width:100%;height:100%; margin:0; }
  
 /* make HTML blocs visible */
   p,

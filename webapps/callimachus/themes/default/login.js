@@ -33,15 +33,13 @@ function login(event) {
 	if (link.find('button').length) {
 		link = link.find('button');
 	}
-	if ($("#login-form").size() && $("#login-form").css('display') != 'none' ) {
-		$("#login-form").slideUp(function(){
-			$("#login-form").hide();
-			link.css('margin-left', null);
-			link.css('margin-bottom', null);
-			link.css('border-bottom-width', null);
-			link.css('padding-bottom', null);
-			link.css('top', null);
-		});
+	if ($("#login-form").size() && $("#login-form").css('height') != '0px' ) {
+		$("#login-form").css('height', '0px').css('opacity', '0');
+		link.css('margin-left', null);
+		link.css('margin-bottom', null);
+		link.css('border-bottom-width', null);
+		link.css('padding-bottom', null);
+		link.css('top', null);
 		$(document).trigger("calliLogout");
 	} else {
 		link.css('margin-left', '0px');
@@ -50,8 +48,7 @@ function login(event) {
 		link.css('border-bottom-width', '0px');
 		link.css('top', '1px');
 		function showForm(form) {
-			form.slideDown();
-			form.show();
+			form.css('opacity', '1').css('height', form.children('div').outerHeight() + 'px');
 			$("input:first", form).focus();
 		}
 		if ($("#login-form").size()) {
@@ -62,10 +59,15 @@ function login(event) {
 					if ($(document.documentElement).is(".noauth")) {
 						var form = $(data).find("#login-form").andSelf().filter("#login-form");
 						form.css('position', "absolute");
-						form.css('display', "none");
+						form.css('overflow', "hidden");
+						form.css('padding', "0");
+						form.css('height', "0px").css('opacity', '0');
+						form.css('-webkit-transition', 'height 1s, opacity 1s');
+						form.css('-moz-transition', 'height 1s, opacity 1s');
+						form.css('transition', 'height 1s, opacity 1s');
 						link.after(form);
 						form.submit(submitLoginForm);
-						showForm(form);
+						setTimeout(function(){showForm(form)});
 					}
 				}
 			})

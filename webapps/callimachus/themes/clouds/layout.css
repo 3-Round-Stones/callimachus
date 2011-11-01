@@ -5,6 +5,10 @@ html,body {
 	height:100%;
 }
 
+html.iframe,.iframe body {
+	height:inherit;
+}
+
 #header-text,#footer-text,#nav>li,#tabs>li,.aside>li,.aside>thead,.aside>tbody,.aside>tfoot {
 	font-size:small;
 }
@@ -12,15 +16,6 @@ html,body {
 #page-top {
 	min-height:100%;
 	overflow:hidden;
-}
-
-/*Opera Fix*/
-body:before {
-	content:"";
-	height:100%;
-	float:left;
-	width:0;
-	margin-top:-32767px;
 }
 	
 #top {
@@ -312,6 +307,7 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 
 @media screen and (min-height:36em) {
 	#content { min-height:21em; }
+	.iframe #content { min-height:inherit; }
 }
 .ie7_html #logo { display:block; height:90px; width:192px; }
 .ie7_html #header { margin-left:192px; }
@@ -320,6 +316,7 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 .ie7_html #footer-text { width:960px; margin-left:auto; margin-right:auto; }
 
 .ie7_html #content { min-height:21em; }
+.ie7_html.iframe #content { min-height:inherit; }
 
 .ie7_html #main { margin-right:18em; position:relative; }
 .ie7_html.nosidebar #main { margin-right:0; }

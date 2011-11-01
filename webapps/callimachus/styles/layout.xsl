@@ -63,25 +63,6 @@
 		</xsl:attribute>
 	</xsl:template>
 
-	<!-- html -->
-	<xsl:template match="html|xhtml:html">
-		<xsl:copy>
-			<xsl:choose>
-				<xsl:when test="//@id='sidebar'">
-					<xsl:apply-templates select="@*" />
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:attribute name="class">
-						<xsl:text>nosidebar </xsl:text>
-						<xsl:value-of select="@class" />
-					</xsl:attribute>
-					<xsl:apply-templates select="@*[name()!='class']" />
-				</xsl:otherwise>
-			</xsl:choose>
-			<xsl:apply-templates select="*|text()|comment()" />
-		</xsl:copy>
-	</xsl:template>
-
 	<!-- head -->
 	<xsl:template match="head|xhtml:head">
 		<xsl:copy>
@@ -120,10 +101,21 @@
 	<!-- body -->
 	<xsl:template match="body|xhtml:body">
 		<xsl:copy>
-			<xsl:call-template name="merge-attributes">
-				<xsl:with-param name="one" select="." />
-				<xsl:with-param name="two" select="$layout_body" />
-			</xsl:call-template>
+			<xsl:choose>
+				<xsl:when test="//@id='sidebar'">
+					<xsl:call-template name="merge-attributes">
+						<xsl:with-param name="one" select="." />
+						<xsl:with-param name="two" select="$layout_body" />
+					</xsl:call-template>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="merge-attributes">
+						<xsl:with-param name="one" select="." />
+						<xsl:with-param name="two" select="$layout_body" />
+						<xsl:with-param name="class" select="'nosidebar'" />
+					</xsl:call-template>
+				</xsl:otherwise>
+			</xsl:choose>
 			<xsl:apply-templates mode="layout" select="$layout_body/*|$layout_body/text()|$layout_body/comment()" />
 			<xsl:if test="not($layout_body)">
 				<xsl:apply-templates select="*|text()|comment()" />
@@ -290,15 +282,18 @@
 	<xsl:template name="merge-attributes">
 		<xsl:param name="one" />
 		<xsl:param name="two" />
-		<xsl:if test="$one/@class and $two/@class">
+		<xsl:param name="class" />
+		<xsl:if test="$one/@class or $two/@class or $class">
 			<xsl:attribute name="class">
 				<xsl:value-of select="$one/@class" />
 				<xsl:text> </xsl:text>
 				<xsl:value-of select="$two/@class" />
+				<xsl:text> </xsl:text>
+				<xsl:value-of select="$class" />
 			</xsl:attribute>
 		</xsl:if>
-		<xsl:apply-templates select="@*[name() != 'class']" />
-		<xsl:for-each select="$two/@*">
+		<xsl:apply-templates select="$one/@*[name() != 'class']" />
+		<xsl:for-each select="$two/@*[name() != 'class']">
 			<xsl:variable name="name" select="name()" />
 			<xsl:if test="not($one/@*[name()=$name])">
 				<xsl:apply-templates select="." />

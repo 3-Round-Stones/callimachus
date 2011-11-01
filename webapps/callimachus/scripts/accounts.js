@@ -77,6 +77,14 @@ $(document).bind("calliLogin", function(event) {
 });
 
 $(document).bind("calliLogout", function(event) {
+	if (!window.sessionStorage || sessionStorage.getItem('Name')) {
+		window.jQuery.ajax({ type: 'GET', url: "/callimachus/accounts?logout",
+			username: 'logout', password: 'nil',
+			success: function(data) {
+				location = "/";
+			}
+		});
+	}
 	if (window.sessionStorage) {
 		sessionStorage.removeItem('Name');
 		localStorage.removeItem('Authorization');
@@ -84,12 +92,6 @@ $(document).bind("calliLogout", function(event) {
 		localStorage.removeItem('LoginCount');
 		localStorage.removeItem('Name');
 	}
-	window.jQuery.ajax({ type: 'GET', url: "/callimachus/accounts?logout",
-		username: 'logout', password: 'nil',
-		success: function(data) {
-			location = "/";
-		}
-	});
 });
 
 if (window.localStorage) {

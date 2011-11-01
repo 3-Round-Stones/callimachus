@@ -304,11 +304,10 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 }
 
 @media screen and (min-width:36em) {
-	h1 ~ .aside { position:relative; top:-4em; }
-	hgroup ~ .aside { position:relative; top:-6.5em; }
+	#main { margin-right:18em; position:relative; }
+	.nosidebar #main { margin-right:0; }
+	#sidebar { position:absolute; top:0; right:-18em; width:16em; padding-left:1em; }
 	.aside { float:right; }
-	.withaside #main { margin-right:18em; }
-	.aside { margin-right:-18.5em; }
 }
 
 @media screen and (min-height:36em) {
@@ -322,11 +321,10 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 
 .ie7_html #content { min-height:21em; }
 
-.ie7_html h1 ~ .aside { position:relative; top:-4em; }
-.ie7_html hgroup ~ .aside { position:relative; top:-6.5em; }
+.ie7_html #main { margin-right:18em; position:relative; }
+.ie7_html.nosidebar #main { margin-right:0; }
+.ie7_html #sidebar { position:absolute; top:0; right:-18em; width:16em; padding-left:1em; }
 .ie7_html .aside { float:right; }
-.ie7_html.withaside #main { margin-right:18em; }
-.ie7_html .aside { margin-right:-18.5em; }
 
 .ie7_html .aside { margin-top:-17px; margin-bottom:2em; }
 /* end desktop */

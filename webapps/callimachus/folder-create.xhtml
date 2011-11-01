@@ -8,9 +8,11 @@
 </head>
 <body>
 	<h1>New Folder</h1>
-	<ul class="aside">
-		<li>Choose a recognizable label to be used in the URL</li>
-	</ul>
+	<div id="sidebar">
+		<ul class="aside">
+			<li>Choose a recognizable label to be used in the URL</li>
+		</ul>
+	</div>
 	<form method="POST" action="" enctype="application/rdf+xml" typeof="calli:Folder"
 			onsubmit="$('#label').val($('#label').val().toLowerCase());$(this).attr('about',encodeURI($('#label').val()).replace(/%20/g,'-')+'/');return calli.saveFormAs(this)">
 		<div class="vbox">

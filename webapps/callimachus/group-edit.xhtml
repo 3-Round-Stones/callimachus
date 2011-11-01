@@ -20,11 +20,13 @@
 </head>
 <body about="?this">
 	<h1><span property="rdfs:label" /> Group</h1>
-	<ul class="aside">
-		<li>Use Wiki text to describe the purpose of this group</li>
-		<li>Contributors can invite new users</li>
-		<li>Administrators can edit this page, invite new users, and edit the settings and passwords of new users</li>
-	</ul>
+	<div id="sidebar">
+		<ul class="aside">
+			<li>Use Wiki text to describe the purpose of this group</li>
+			<li>Contributors can invite new users</li>
+			<li>Administrators can edit this page, invite new users, and edit the settings and passwords of new users</li>
+		</ul>
+	</div>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this"
 			onsubmit="saveChangeNote()" data-redirect="../">
 		<label for="comment">Description</label>

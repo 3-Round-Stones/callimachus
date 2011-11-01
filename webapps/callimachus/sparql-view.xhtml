@@ -6,11 +6,12 @@
 	</head>
 	<body about="?this">
 		<h1>SPARQL Query</h1>
-		<ul class="aside">
-			<li>Query the database using the SPARQL language</li>
-			<li>Namespace prefixes are optional and if omitted the default <a href="/callimachus/profile">SPARQL Profile</a> will be used</li>
-			<li>Additional RDF graphs can be uploaded using the <a href="/callimachus/NamedGraph">RDF Graph Interface</a></li>
-			<li>To get started (if your database isn't too big) try listing some of the different types available in the database
+		<div id="sidebar">
+			<ul class="aside">
+				<li>Query the database using the SPARQL language</li>
+				<li>Namespace prefixes are optional and if omitted the default <a href="/callimachus/profile">SPARQL Profile</a> will be used</li>
+				<li>Additional RDF graphs can be uploaded using the <a href="/callimachus/NamedGraph">RDF Graph Interface</a></li>
+				<li>To get started (if your database isn't too big) try listing some of the different types available in the database
 <pre>
 SELECT DISTINCT ?type
 WHERE {
@@ -19,7 +20,8 @@ WHERE {
 ORDER BY ?type
 LIMIT 50
 </pre></li>
-		</ul>
+			</ul>
+		</div>
 		<form action="/sparql" method="POST">
 			<textarea id="query" name="query" class="flex required"></textarea>
 			<div>

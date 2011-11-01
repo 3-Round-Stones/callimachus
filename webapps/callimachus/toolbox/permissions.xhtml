@@ -47,15 +47,17 @@
 </head>
 <body about="?this">
 	<h1><span property="rdfs:label" /> Permissions</h1>
-	<ul class="aside">
-		<li class="composite">Readers, Editors and Administrators propagate to new resources created in this container</li>
-		<li class="class">Readers, Editors and Administrators apply to this resource and all resources of this class</li>
-		<li>Readers can <span class="private">view, see the history, and </span>discuss the resource<span class="class">s</span></li>
-		<li class="creatable">Authors can create new member resources and edit them</li>
-		<li class="composite">Contributors can create new resources here and edit them</li>
-		<li>Editors can make changes using the edit tab and create new resources here</li>
-		<li>Administrators can view, create and modify using any available operation</li>
-	</ul>
+	<div id="sidebar">
+		<ul class="aside">
+			<li class="composite">Readers, Editors and Administrators propagate to new resources created in this container</li>
+			<li class="class">Readers, Editors and Administrators apply to this resource and all resources of this class</li>
+			<li>Readers can <span class="private">view, see the history, and </span>discuss the resource<span class="class">s</span></li>
+			<li class="creatable">Authors can create new member resources and edit them</li>
+			<li class="composite">Contributors can create new resources here and edit them</li>
+			<li>Editors can make changes using the edit tab and create new resources here</li>
+			<li>Administrators can view, create and modify using any available operation</li>
+		</ul>
+	</div>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this">
 		<div class="class">
 			<label for="realm">Authentication of resources of this class</label>

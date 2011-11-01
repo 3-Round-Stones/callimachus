@@ -20,13 +20,15 @@
 </head>
 <body about="?this">
 	<h1>Main Menu</h1>
-	<ul class="aside">
-		<li>Click on the menu entry you want to edit</li>
-		<li>Use ENTER key to create a new entry at the start or end of a line</li>
-		<li>Use TAB key to indent, or shift-TAB to outdent</li>
-		<li>Use SPACE to separate a label from a full URL</li>
-		<li>Drag links or text to an empty list item to insert, then click outside of the edit area</li>
-	</ul>
+	<div id="sidebar">
+		<ul class="aside">
+			<li>Click on the menu entry you want to edit</li>
+			<li>Use ENTER key to create a new entry at the start or end of a line</li>
+			<li>Use TAB key to indent, or shift-TAB to outdent</li>
+			<li>Use SPACE to separate a label from a full URL</li>
+			<li>Drag links or text to an empty list item to insert, then click outside of the edit area</li>
+		</ul>
+	</div>
 	<form id='form' method="POST" action="" enctype="application/sparql-update" about="?this">
 		<div>
 			<ol id="items" rel="calli:item" class="sorted textarea" contenteditable="true">

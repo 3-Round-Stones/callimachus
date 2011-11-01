@@ -63,6 +63,25 @@
 		</xsl:attribute>
 	</xsl:template>
 
+	<!-- html -->
+	<xsl:template match="html|xhtml:html">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="//@id='sidebar'">
+					<xsl:apply-templates select="@*" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:attribute name="class">
+						<xsl:text>nosidebar </xsl:text>
+						<xsl:value-of select="@class" />
+					</xsl:attribute>
+					<xsl:apply-templates select="@*[name()!='class']" />
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:apply-templates select="*|text()|comment()" />
+		</xsl:copy>
+	</xsl:template>
+
 	<!-- head -->
 	<xsl:template match="head|xhtml:head">
 		<xsl:copy>

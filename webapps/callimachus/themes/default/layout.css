@@ -221,8 +221,9 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 }
 
 @media screen and (min-width:36em) {
-	hgroup ~ .aside { position:relative; top:-6em; }
-	h1 ~ .aside { position:relative; top:-3.5em; }
+	hgroup ~ #sidebar { position:relative; top:-6em; }
+	h1 ~ #sidebar { position:relative; top:-3.5em; }
+	#sidebar { float:right; padding-left:1em; }
 	.aside { float:right; }
 }
 
@@ -236,8 +237,9 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 .ie7_html #tabs { clear:none; }
 .ie7_html #content { min-height:28em; }
 .ie7_html .iframe #content {min-height: 0px; }
-.ie7_html hgroup ~ .aside { position:relative; top:-6em; }
-.ie7_html h1 ~ .aside { position:relative; top:-3.5em; }
+.ie7_html hgroup ~ #sidebar { position:relative; top:-6em; }
+.ie7_html h1 ~ #sidebar { position:relative; top:-3.5em; }
+.ie7_html #sidebar { float:right; padding-left:1em; }
 .ie7_html .aside { float:right; }
 /* end desktop */
 

@@ -12,39 +12,39 @@
 	</style>
 </head>
 <body about="?this">
-	<h1>
-		<a property="skos:prefLabel" href="?this"></a>
-	</h1>
-	<ul class="optional aside">
-		<li rel="skos:inScheme" class="optional">
-			<a about="?scheme" property="rdfs:label" href="?scheme"></a>
-		</li>
-		<li rev="skos:narrower" class="optional">
-			<label>Broader</label>
-			<div about="?broader">
-				<a property="skos:prefLabel" href="?broader"></a>
-			</div>
-		</li>
-		<li class="optional">
-			<label>Related</label>
-			<div rel="skos:related">
-				<div about="?related" class="related">
-					<a property="skos:prefLabel" href="?related"></a>
+	<h1 property="skos:prefLabel" />
+	<div id="sidebar">
+		<ul class="optional aside">
+			<li rel="skos:inScheme" class="optional">
+				<a about="?scheme" property="rdfs:label" href="?scheme"></a>
+			</li>
+			<li rev="skos:narrower" class="optional">
+				<label>Broader</label>
+				<div about="?broader">
+					<a property="skos:prefLabel" href="?broader"></a>
 				</div>
-			</div>
-			<div rev="skos:related">
-				<div about="?revated" class="related">
-					<a property="skos:prefLabel" href="?revated"></a>
+			</li>
+			<li class="optional">
+				<label>Related</label>
+				<div rel="skos:related">
+					<div about="?related" class="related">
+						<a property="skos:prefLabel" href="?related"></a>
+					</div>
 				</div>
-			</div>
-		</li>
-		<li rel="skos:narrower" class="optional">
-			<label>Narrower</label>
-			<div about="?narrower">
-				<a property="skos:prefLabel" href="?narrower"></a>
-			</div>
-		</li>
-	</ul>
+				<div rev="skos:related">
+					<div about="?revated" class="related">
+						<a property="skos:prefLabel" href="?revated"></a>
+					</div>
+				</div>
+			</li>
+			<li rel="skos:narrower" class="optional">
+				<label>Narrower</label>
+				<div about="?narrower">
+					<a property="skos:prefLabel" href="?narrower"></a>
+				</div>
+			</li>
+		</ul>
+	</div>
 	<div class="hbox">
 		<div class="vbox">
 			<pre property="skos:definition" class="wiki"></pre>

@@ -10,10 +10,12 @@
 </head>
 <body>
 	<h1>New Group</h1>
-	<ul class="aside">
-		<li>The group name cannot be changed once created</li>
-		<li>Use Wiki text to describe the group</li>
-	</ul>
+	<div id="sidebar">
+		<ul class="aside">
+			<li>The group name cannot be changed once created</li>
+			<li>Use Wiki text to describe the group</li>
+		</ul>
+	</div>
 	<form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Party calli:Group" onsubmit="return calli.saveFormAs(this)">
 		<label for="label">Name</label>
 		<div>

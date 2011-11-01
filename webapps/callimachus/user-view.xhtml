@@ -9,14 +9,16 @@
 	<title about="?this">{rdfs:label}</title>
 </head>
 <body about="?this">
-	<h1><a href="?this" property="rdfs:label" /></h1>
-	<ul class="aside">
-		<li><a href="?contributions">Contributions</a></li>
-		<li><span>Group memberships</span>
-		<ul rev="calli:member">
-			<li about="?group"><a href="?group" property="rdfs:label"/></li>
-		</ul></li>
-	</ul>
+	<h1 property="rdfs:label" />
+	<div id="sidebar">
+		<ul class="aside">
+			<li><a href="?contributions">Contributions</a></li>
+			<li><span>Group memberships</span>
+			<ul rev="calli:member">
+				<li about="?group"><a href="?group" property="rdfs:label"/></li>
+			</ul></li>
+		</ul>
+	</div>
 	<div id="img" rel="foaf:depiction" resource="?img" style="margin: 0px 1ex 1ex 0px;max-width:10em">
 		<a href="{?img}" class="view"><img src="{?img}?small" style="max-height:100%;max-width:10em" /></a>
 	</div>

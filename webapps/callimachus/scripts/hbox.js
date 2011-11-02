@@ -3,7 +3,7 @@
 (function($){
 
 $(document).ready(handle);
-$(document).bind("DOMNodeInserted", handle);
+$(document).bind("DOMNodeInserted load", handle);
 $(window).resize(function(){hbox($('.hbox'))});
 
 function select(node, selector) {

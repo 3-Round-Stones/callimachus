@@ -22,9 +22,6 @@ calli.selectResource = function(node, src) {
 		title = list.find("label").text();
 	}
 	var dialog = null;
-	var onlinked = function() {
-		calli.closeDialog(dialog);
-	};
 	var url = null;
 	if (!src && $(node).attr('href')) {
 		src = $(node).attr('href');
@@ -65,7 +62,6 @@ calli.selectResource = function(node, src) {
 			}
 		},
 		onclose: function() {
-			list.unbind('calliLinked', onlinked);
 			try {
 				$(node)[0].focus();
 			} catch (e) {
@@ -75,7 +71,6 @@ calli.selectResource = function(node, src) {
 	};
 	var openBrowseDialog = function(url) {
 		dialog = calli.openDialog(url, title, options);
-		list.bind('calliLinked', onlinked);
 	};
 	if (url) {
 		jQuery.ajax({

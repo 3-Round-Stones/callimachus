@@ -216,7 +216,7 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 	#tabs, #main, #footer { margin-left:10em; }
 }
 
-@media screen and (min-width:56em) {
+@media screen and (min-width:64em) {
 	#tabs { clear:none; }
 }
 

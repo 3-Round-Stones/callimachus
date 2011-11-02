@@ -71,10 +71,10 @@ function expandTextArea(area, contentWidth, innerHeight) {
 		rows += Math.floor(len / maxCols);
 	}
 	if (area.type == "textarea") {
-		area.cols = Math.min(maxCols, cols);
+		area.cols = Math.min(maxCols, cols + 1);
 		area.rows = Math.min(maxRows, rows + 1);
 	} else {
-		area.size = Math.min(maxCols, cols);
+		area.size = Math.min(maxCols, cols + 1);
 	}
 }
 

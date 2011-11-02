@@ -24,7 +24,7 @@
 			</head>
 			<body>
 				<h1>SPARQL Results</h1>
-				<div class="auto-expand">
+				<div class="flex">
 					<xsl:apply-templates />
 				</div>
 			</body>

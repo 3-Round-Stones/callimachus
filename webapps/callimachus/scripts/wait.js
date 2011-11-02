@@ -36,11 +36,5 @@ $(document).ajaxSend(function(event, xhr, options){
 });
 $(document).ajaxComplete(removeWait);
 
-$(document).bind('calliOpenDialog', function(event) {
-	requestCount++;
-	$(document.documentElement).addClass("wait");
-});
-$(document).bind('calliCloseDialog', removeWait);
-
 })(window.jQuery);
 

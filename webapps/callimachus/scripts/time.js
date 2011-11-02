@@ -45,8 +45,12 @@ function changeDateLocale(node, now) {
 				formatted = date.toLocaleDateString();
 			} else if (node.is(".month")) {
 				formatted = month(date);
+			} else if (node.is(".year")) {
+				formatted = date.getFullYear();
 			} else if (node.is(".time")) {
 				formatted = date.toLocaleTimeString();
+			} else if (text.indexOf('T') < 0) {
+				formatted = date.toLocaleDateString();
 			} else {
 				formatted = date.toString();
 			}
@@ -62,12 +66,9 @@ function changeDateLocale(node, now) {
 function parseDateTime(text, now) {
 	if (/^\s*\d{4}\s*$/.exec(text))
 		return NaN;
-    var timestamp = Date.parse(text);
-	if (!isNaN(timestamp))
-		return timestamp;
     var struct = /(?:(\d{4})-?(\d{2})-?(\d{2}))?(?:[T ]?(\d{2}):?(\d{2}):?(\d{2})(?:\.(\d{3,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?/.exec(text);
 	if (!struct)
-		return NaN;
+		return Date.parse(text);
     var minutesOffset = 0;
     if (struct[8] !== 'Z' && struct[9]) {
         minutesOffset = +struct[10] * 60 + (+struct[11]);

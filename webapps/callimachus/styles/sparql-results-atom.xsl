@@ -9,9 +9,6 @@
 
 <xsl:param name="this" />
 
-<xsl:key name="results" match="sparql:result" use="sparql:binding[@name='id']/*"/>
-<xsl:key name="bindings" match="sparql:binding" use="../sparql:binding[@name='id']/*"/>
-
 <xsl:template match="sparql:head" />
 
 <xsl:template match="sparql:variable" />
@@ -20,14 +17,15 @@
 
 <xsl:template match="sparql:results">
 	<feed>
-		<xsl:apply-templates select="sparql:result[generate-id()=generate-id(key('results',sparql:binding[@name='id']/*)[1])]" />
+		<xsl:apply-templates select="sparql:result" />
 	</feed>
 </xsl:template>
 
 <xsl:template match="sparql:result">
 	<xsl:variable name="id" select="sparql:binding[@name='id']/*/text()" />
+	<xsl:if test="not(preceding::sparql:result[sparql:binding[@name='id']/*=$id])">
 	<entry>
-		<xsl:for-each select="key('bindings',$id)">
+		<xsl:for-each select="../sparql:result[sparql:binding[@name='id']/*=$id]/sparql:binding">
 			<xsl:variable name="name" select="@name" />
 			<xsl:variable name="value" select="*" />
 			<xsl:if test="not(preceding::sparql:result[sparql:binding[@name='id']/*=$id]/sparql:binding[@name=$name]/*=$value)">
@@ -35,17 +33,20 @@
 			</xsl:if>
 		</xsl:for-each>
 	</entry>
+	</xsl:if>
 </xsl:template>
 
 <xsl:template match="sparql:result[sparql:binding/@name='totalResults']">
 	<xsl:variable name="id" select="sparql:binding[@name='id']/*/text()" />
-	<xsl:for-each select="key('bindings',$id)">
+	<xsl:if test="not(preceding::sparql:result[sparql:binding[@name='id']/*=$id])">
+	<xsl:for-each select="../sparql:result[sparql:binding[@name='id']/*=$id]/sparql:binding">
 		<xsl:variable name="name" select="@name" />
 		<xsl:variable name="value" select="*" />
 		<xsl:if test="not(preceding::sparql:result[sparql:binding[@name='id']/*=$id]/sparql:binding[@name=$name]/*=$value)">
 			<xsl:apply-templates select="." />
 		</xsl:if>
 	</xsl:for-each>
+	</xsl:if>
 </xsl:template>
 
 <xsl:template match="sparql:binding[@name='id']">

@@ -38,19 +38,21 @@ $(document).ready(function() {
 function showError(event, error, detail) {
 	setTimeout(function() {
 		try {
-			var status = '' + error;
-			if (detail && detail.indexOf('<') == 0) {
-				status = $(detail).find("h1").andSelf().filter("h1").html();
-				detail = $(detail).find("pre").andSelf().filter("pre").text();
+			var e = jQuery.Event("error");
+			if (typeof error == 'object') {
+				jQuery.extend(true, e, error);
+			} else {
+				e.message = error;
 			}
-			if (status) {
+			if (detail && detail.indexOf('<') == 0) {
+				e.message = $(detail).find("h1").andSelf().filter("h1").clone();
+				e.data = $(detail).find("pre").andSelf().filter("pre").text();
+			}
+			if (e.message) {
 				var target = event.target;
 				if (!target) {
 					target = document;
 				}
-				var e = jQuery.Event("error");
-				e.message = status;
-				e.data = detail;
 				$(target).trigger(e);
 			}
 		} catch (e) {

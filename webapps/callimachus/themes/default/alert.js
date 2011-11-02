@@ -32,11 +32,11 @@ $(document).error(function(event) {
 			p.append(icon);
 			p.append(button);
 			p.append(strong);
-			p.append(status);
+			appendTo(status, p);
 			widget.append(p);
 			if (detail) {
 				var pre = $("<pre/>");
-				pre.text(detail);
+				appendTo(detail, pre);
 				pre.hide();
 				widget.append(pre);
 				p.click(function() {
@@ -50,6 +50,20 @@ $(document).error(function(event) {
 		}
 	}
 });
+
+function appendTo(obj, node) {
+	if (typeof obj == 'string') {
+		node.append(document.createTextNode(obj));
+	} else if (obj.nodeType) {
+		node.append(obj);
+	} else if (typeof obj.toSource == 'function') {
+		node.append(document.createTextNode(obj.toSource()));
+	} else if (obj.message) {
+		node.append(document.createTextNode(obj.message));
+	} else {
+		node.append(document.createTextNode(obj));
+	}
+}
 
 })(window.jQuery);
 

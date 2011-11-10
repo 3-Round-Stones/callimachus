@@ -45,7 +45,12 @@ function showError(event, error, detail) {
 				e.message = error;
 			}
 			if (detail && detail.indexOf('<') == 0) {
-				e.message = $(detail).find("h1").andSelf().filter("h1").clone();
+				var h1 = $(detail).find("h1").andSelf().filter("h1").clone();
+				var frag = document.createDocumentFragment();
+				h1.contents().each(function() {
+					frag.appendChild(this);
+				});
+				e.message = frag;
 				e.data = $(detail).find("pre").andSelf().filter("pre").text();
 			}
 			if (e.message) {

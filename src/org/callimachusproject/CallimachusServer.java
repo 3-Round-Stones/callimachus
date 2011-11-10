@@ -38,7 +38,9 @@ import java.nio.channels.ReadableByteChannel;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.jar.JarEntry;
@@ -73,6 +75,7 @@ import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.store.blob.file.FileBlobStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +96,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	public CallimachusServer(Repository repository, File webapps, File dataDir)
 			throws Exception {
 		File webappsDir = webapps.getCanonicalFile();
-		this.repository = importJars(webappsDir, repository);
+		this.repository = importJars(webappsDir, dataDir, repository);
 		ValueFactory vf = this.repository.getValueFactory();
 		this.repository.setSchemaGraphType(vf.createURI(SCHEMA_GRAPH));
 		ObjectConnection con = this.repository.getConnection();
@@ -420,17 +423,16 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private HTTPObjectServer createServer(File dir, String basic,
 			ObjectRepository or) throws IOException, MimeTypeParseException,
 			NoSuchAlgorithmException {
-		File wwwDir = new File(dir, "www");
 		File cacheDir = new File(dir, "cache");
 		FileUtil.deleteOnExit(cacheDir);
 		File out = new File(cacheDir, "server");
-		HTTPObjectServer server = new HTTPObjectServer(or, wwwDir, out, basic);
+		HTTPObjectServer server = new HTTPObjectServer(or, out, basic);
 		server.setEnvelopeType(ENVELOPE_TYPE);
 		HTTPObjectClient.getInstance().setEnvelopeType(ENVELOPE_TYPE);
 		return server;
 	}
 
-	private ObjectRepository importJars(File webappsDir, Repository repository)
+	private ObjectRepository importJars(File webappsDir, File dir, Repository repository)
 			throws URISyntaxException, RepositoryConfigException,
 			RepositoryException, IOException {
 		File dataDir = repository.getDataDir();
@@ -465,6 +467,16 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 						config.addImports(jar);
 					}
 				}
+			}
+			File wwwDir = new File(dir, "www");
+			File blobDir = new File(dir, "blob");
+			if (wwwDir.isDirectory() && !blobDir.isDirectory()) {
+				config.setBlobStore(wwwDir.toURI().toString());
+				Map<String, String> map = new HashMap<String, String>();
+				map.put("provider", FileBlobStore.class.getName());
+				config.setBlobStoreParameters(map);
+			} else {
+				config.setBlobStore(blobDir.toURI().toString());
 			}
 			or = factory.createRepository(config, repository);
 		}

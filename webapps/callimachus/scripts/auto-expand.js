@@ -137,7 +137,7 @@ function getAsideLeft(area) {
 	var clientWidth = document.documentElement.clientWidth;
 	var asideLeft = clientWidth;
 	var areaTop = $(area).offset().top;
-	$(".aside:visible").filter(function(){
+	$("#sidebar,.aside:visible").filter(function(){
 		var top = $(this).offset().top;
 		return areaTop < top + $(this).outerHeight(true) && areaTop + $(area).outerHeight(true) > top;
 	}).each(function() {

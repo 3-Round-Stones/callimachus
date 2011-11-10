@@ -18,7 +18,7 @@
 	msg:header "cache-control:no-store";
 	msg:transform :TransformLookup;
 	msg:sparql  """
-		SELECT DISTINCT ?label ?comment ?icon ?url ?modified
+		SELECT DISTINCT (max(?label) as ?label) (max(?comment) as ?comment) (max(?icon) as ?icon) ?url (max(?modified) as ?modified)
 		WHERE {
 			{
 				?url calli:soundex $soundex
@@ -54,6 +54,7 @@
 				OPTIONAL { ?revision audit:committedOn ?modified }
 			}
 		}
+		GROUP BY ?url
 		ORDER BY ?label ?url ?icon
 		LIMIT 100
 	""".

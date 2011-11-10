@@ -14,7 +14,7 @@
 			<body>
 				<h1>Recent Changes</h1>
 				<xsl:if test="not(/sparql:sparql/sparql:results/sparql:result)">
-					<p>No changes have ever been made.</p>
+					<p>No changes have been made recently.</p>
 				</xsl:if>
 				<xsl:if test="/sparql:sparql/sparql:results/sparql:result">
 					<xsl:apply-templates />

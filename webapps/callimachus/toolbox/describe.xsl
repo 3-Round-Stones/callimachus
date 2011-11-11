@@ -46,7 +46,8 @@
 						req.onreadystatechange = function () {
 							if (req.readyState != 4) return;
 							if (req.status == 200 || req.status == 304) {
-								document.write('<pre>' + req.responseText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>');
+								var win = window.open('', document.URL);
+								win.document.write('<pre>\n' + req.responseText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '\n</pre>');
 							}
 						}
 						if (req.readyState == 4) return false;
@@ -61,7 +62,8 @@
 						req.onreadystatechange = function () {
 							if (req.readyState != 4) return;
 							if (req.status == 200 || req.status == 304) {
-								document.write('<pre>' + req.responseText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>');
+								var win = window.open('', document.URL);
+								win.document.write('<pre>\n' + req.responseText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '\n</pre>');
 							}
 						}
 						if (req.readyState == 4) return false;

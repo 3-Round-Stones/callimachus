@@ -207,16 +207,17 @@
 			//# Export Triples
 			var triples = component.GetDescription();
 			try {
-				var name = uri + ".rdf";
+				var suffix = ".rdf";
 				if (uri.lastIndexOf('/') == uri.length - 1) {
-					var name = uri + "index.rdf";
+					var suffix = "index.rdf";
 				}
-				var entry = new java.util.zip.ZipEntry(name);
+				var entry = new java.util.zip.ZipEntry(uri + suffix);
 				if (updated) {
 					entry.setTime(updated.getCommittedOn().toGregorianCalendar().getTimeInMillis());
 				}
 				zipStream.putNextEntry(entry);
-				var writer = new org.openrdf.rio.rdfxml.RDFXMLWriter(zipStream);
+				var writer = new org.callimachusproject.util.RDFXMLStreamWriterFactory().createWriter(zipStream);
+				writer.setBaseURI(component.toString() + suffix);
 				writer.startRDF();
 				var namespaces = component.objectConnection.getNamespaces();
 				while (namespaces.hasNext()) {

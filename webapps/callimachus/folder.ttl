@@ -170,3 +170,95 @@
    rdfs:range <java:java.io.InputStream>;
    msg:type "application/sparql-results+xml".
 
+:DownloadFolder rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	msg:method "GET";
+	msg:query "export";
+	msg:realm </callimachus/manifest>;
+	msg:type "application/zip";
+	msg:header "cache-control:no-cache";
+	msg:script """
+		if (this.calliHasComponent.isEmpty())
+			return null; // FIXME use zip with only a manifest
+		var baseURI = this.toString();
+		var component = this;
+		return new org.openrdf.http.object.util.ProducerStream(function(outputStream) {
+			var zipStream = new java.util.zip.ZipOutputStream(outputStream);
+			component.ExportFolder(baseURI, zipStream);
+			zipStream.finish();
+		});
+	""".
+
+:ExportFolder rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:imports <Folder>;
+	msg:script """
+		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+		var components = this.calliHasComponent.iterator();
+		while (components.hasNext()) {
+			var component = components.next();
+			var uri = component.toString();
+			var updated = component.auditRevision;
+			if (uri.indexOf(baseURI) == 0 && baseURI.lastIndexOf('/') == baseURI.length - 1) {
+				uri = uri.substring(baseURI.length);
+			}
+			//# Export Triples
+			var triples = component.GetDescription();
+			try {
+				var name = uri + ".rdf";
+				if (uri.lastIndexOf('/') == uri.length - 1) {
+					var name = uri + "index.rdf";
+				}
+				var entry = new java.util.zip.ZipEntry(name);
+				if (updated) {
+					entry.setTime(updated.getCommittedOn().toGregorianCalendar().getTimeInMillis());
+				}
+				zipStream.putNextEntry(entry);
+				var writer = new org.openrdf.rio.rdfxml.RDFXMLWriter(zipStream);
+				writer.startRDF();
+				var namespaces = component.objectConnection.getNamespaces();
+				while (namespaces.hasNext()) {
+					var ns = namespaces.next();
+					writer.handleNamespace(ns.getPrefix(), ns.getName());
+				}
+				while (triples.hasNext()) {
+					writer.handleStatement(triples.next());
+				}
+				writer.endRDF();
+			} finally {
+				triples.close();
+			}
+			//# Export BLOB
+			var content = component.openInputStream();
+			if (content != null) {
+				try {
+					var entry = new java.util.zip.ZipEntry(uri);
+					if (updated) {
+						entry.setTime(updated.getCommittedOn().toGregorianCalendar().getTimeInMillis());
+					}
+					zipStream.putNextEntry(entry);
+					var read;
+					while ((read = content.read(buf)) >= 0) {
+						zipStream.write(buf, 0, read);
+					}
+				} finally {
+					content.close();
+				}
+			}
+			//# Export nested components
+			if (component instanceof Folder) {
+				component.ExportFolder(baseURI, zipStream);
+			}
+		}
+	""".
+
+:baseURI a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :ExportFolder;
+	rdfs:range xsd:string.
+
+:zipStream a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :ExportFolder;
+	rdfs:range <java:java.util.zip.ZipOutputStream>.
+

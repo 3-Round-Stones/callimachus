@@ -39,6 +39,7 @@ audit:current-trx a calli:SchemaGraph.
 </callimachus/Script>          calli:author </group/staff>,</group/admin>.
 </callimachus/Style>           calli:author </group/staff>,</group/admin>.
 </callimachus/TextFile>        calli:author </group/staff>,</group/admin>.
+</callimachus/Transform>       calli:author </group/staff>,</group/admin>.
 
 </callimachus/Concept>         calli:author </group/users>,</group/staff>,</group/admin>.
 </callimachus/Article>         calli:author </group/users>,</group/staff>,</group/admin>.

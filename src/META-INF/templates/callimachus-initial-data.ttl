@@ -126,6 +126,8 @@
 	calli:item </callimachus/menu#manifest>;
 	calli:item </callimachus/menu#usergroups>;
 	calli:item </callimachus/menu#namedqueries>;
+	calli:item </callimachus/menu#namedgraphs>;
+	calli:item </callimachus/menu#graphdocuments>;
 	calli:item </callimachus/menu#sparqlquery>.
 </callimachus/menu#toolbox>	calli:position 10; rdfs:label "Toolbox";
 	calli:item </callimachus/menu#whatlinkshere>;
@@ -151,7 +153,9 @@
 </callimachus/menu#manifest>	calli:position 1; rdfs:label "Manifest"; calli:link </callimachus/manifest>.
 </callimachus/menu#usergroups>	calli:position 2; rdfs:label "User groups"; calli:link </callimachus/Group>.
 </callimachus/menu#namedqueries>	calli:position 3; rdfs:label "Named queries"; calli:link </callimachus/NamedQuery>.
-</callimachus/menu#sparqlquery>	calli:position 4; rdfs:label "SPARQL query"; calli:link </sparql>.
+</callimachus/menu#namedgraphs>	calli:position 4; rdfs:label "Named graphs"; calli:link </callimachus/NamedGraph>.
+</callimachus/menu#graphdocuments>	calli:position 5; rdfs:label "Graph documents"; calli:link </callimachus/GraphDocument>.
+</callimachus/menu#sparqlquery>	calli:position 6; rdfs:label "SPARQL query"; calli:link </sparql>.
 
 </callimachus/menu#whatlinkshere>	calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>.
 </callimachus/menu#relatedchanges>	calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>.

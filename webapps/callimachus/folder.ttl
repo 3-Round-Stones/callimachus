@@ -75,15 +75,17 @@
 					if(?local_type = <Article>, "application/docbook+xml",
 					if(?local_type = <IconGraphic>, "image/vnd.microsoft.icon",
 					if(?local_type = <NamedGraph>, "application/rdf+xml",
+					if(?local_type = <GraphDocument>, "text/turtle",
 					if(?local_type = <NamedQuery>, "application/sparql-query",
 					if(?local_type = <NetworkGraphic>, "image/png",
 					if(?local_type = <Page>, "application/xhtml+xml",
 					if(?local_type = <Photo>, "image/jpeg",
 					if(?local_type = <Script>, "text/javascript",
 					if(?local_type = <Style>, "text/css",
+					if(?local_type = <Transform>, "text/xsl",
 					if(?local_type = <TextFile>, "text/plain",
 					if(?local_type = <VectorGraphic>, "image/svg+xml",
-				?content_type)))))))))))) as ?content_type) {
+				?content_type)))))))))))))) as ?content_type) {
 			{
 				{
 					SELECT ($this as ?id) (count(?part) as ?totalResults) {
@@ -143,12 +145,14 @@
 					?local_type = <IconGraphic> ||
 					?local_type = <Image> ||
 					?local_type = <NamedGraph> ||
+					?local_type = <GraphDocument> ||
 					?local_type = <NamedQuery> ||
 					?local_type = <NetworkGraphic> ||
 					?local_type = <Page> ||
 					?local_type = <Photo> ||
 					?local_type = <Script> ||
 					?local_type = <Style> ||
+					?local_type = <Transform> ||
 					?local_type = <TextFile> ||
 					?local_type = <VectorGraphic>
 				)

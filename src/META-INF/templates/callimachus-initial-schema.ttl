@@ -30,8 +30,9 @@ audit:current-trx a calli:SchemaGraph.
 
 </callimachus/User>            calli:author </group/admin>.
 </callimachus/Group>           calli:author </group/admin>.
-</callimachus/NamedGraph>      calli:author </group/admin>.
 </callimachus/NamedQuery>      calli:author </group/admin>.
+</callimachus/NamedGraph>      calli:author </group/admin>.
+</callimachus/GraphDocument>   calli:author </group/admin>.
 
 </callimachus/Folder>          calli:author </group/staff>,</group/admin>.
 </callimachus/Class>           calli:author </group/staff>,</group/admin>.

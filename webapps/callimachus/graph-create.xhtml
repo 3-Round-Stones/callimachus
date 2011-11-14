@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/callimachus/manifest?template"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title>New Stylesheet Transform</title>
+	<script type="text/javascript" src="/callimachus/editor/create.js"> </script>
+	<script id="template" type="application/xhtml+xml"><![CDATA[@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix skosxl: <http://www.w3.org/2008/05/skos-xl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix geonames: <http://www.geonames.org/ontology#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix gr: <http://purl.org/goodrelations/v1#> .
+@prefix schema: <http://schema.org/> .
+@prefix msg: <http://www.openrdf.org/rdf/2011/messaging#> .
+@prefix calli: <http://callimachusproject.org/rdf/2009/framework#> .
+@prefix callimachus: </callimachus/> .
+@prefix : <#> .
+
+]]></script>
+</head>
+<body>
+	<form id="form" method="POST" action="" enctype="text/turtle" onsubmit="return calli.saveFormAs(this, 'untitled graph.ttl')">
+		<iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#sparql"> </iframe>
+		<button type="submit">Create</button>
+	</form>
+</body>
+</html>
+

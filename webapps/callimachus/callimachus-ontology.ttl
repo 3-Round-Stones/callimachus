@@ -223,12 +223,12 @@ calli:template a owl:ObjectProperty, owl:FunctionalProperty;
 
 calli:logo a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "logo";
-	rdfs:comment "The logo image that should be shown with this menu";
+	rdfs:comment "The logo image that should be shown on pages using the configured theme";
 	rdfs:domain calli:Manifest.
 
 calli:favicon a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "favicon";
-	rdfs:comment "A small logo image that should be shown with this menu";
+	rdfs:comment "A small logo image that should be shown on pages using the configured theme";
 	rdfs:domain calli:Manifest.
 
 calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
@@ -260,13 +260,13 @@ calli:describedBy a owl:ObjectProperty, owl:FunctionalProperty;
 
 calli:item a owl:ObjectProperty;
 	rdfs:label "item";
-	rdfs:comment "A small logo that should be shown with this menu";
+	rdfs:comment "A menu item that is part of this menu";
 	rdfs:domain calli:Menu;
 	rdfs:range calli:Menu.
 
 calli:position a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "position";
-	rdfs:comment "The position this menu entry should be placed";
+	rdfs:comment "The position this menu item should be placed";
 	rdfs:domain calli:Menu;
 	rdfs:range xsd:integer.
 

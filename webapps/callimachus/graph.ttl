@@ -25,20 +25,134 @@
 
 <NamedGraph> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf calli:NamedGraph, <File>;
-	rdfs:label "Graph";
+	rdfs:label "Named Graph";
 	rdfs:isDefinedBy </callimachus>;
 	calli:icon <graph.png>;
 	calli:create <file-create.xhtml>.
 
-:GetGraph rdfs:subClassOf msg:Message;
+<GraphDocument> a <CreatableIndex>, owl:Class;
+	rdfs:subClassOf <File>;
+	rdfs:label "Graph Document";
+	rdfs:comment "Terse RDF Triple documents";
+	rdfs:isDefinedBy </callimachus>;
+	calli:icon <graph.png>;
+	calli:view <graph-view.xhtml>;
+	calli:edit <graph-edit.xhtml>;
+	calli:create <graph-create.xhtml>.
+
+################################
+# Graph Document
+################################
+
+# GET /graph.ttl
+:GetGraphDocument rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <GraphDocument>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+	msg:method "GET";
+	msg:type "text/turtle";
+	msg:header "cache-control:no-cache";
+	msg:header "cache-control:cache-range";
+	msg:script "return this.openReader(true)".
+
+# POST ?create=/callimachus/File
+:LookupGraphDocument owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
+		[owl:onProperty msg:target; owl:hasValue <File> ]);
+	msg:script """
+		if (type == "text/turtle") {
+			var uri = this.toUri().resolve("/callimachus/GraphDocument").toString();
+			return this.objectConnection.getObject(uri);
+		}
+		return proceed();
+	""".
+
+# POST ?create=/callimachus/GraphDocument
+:CreateGraphDocument owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+		[owl:onProperty msg:target; owl:hasValue <GraphDocument> ]);
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:java.net.URLDecoder>;
+	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:imports <File>;
+	msg:imports foaf:Document;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		if (!location)
+			throw new BadRequest("Missing location request header");
+		if (location instanceof File) {
+			location = location.RemoveFile();
+		}
+		var created = location;
+
+		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
+		con.add(created.resource, RDFS.LABEL, label, []);
+
+		created = con.addDesignation(created, this.toString());
+		created = con.addDesignation(created, Document);
+
+		created.UploadGraphDocument(new java.io.InputStreamReader(body, "UTF-8"));
+		return created;
+	""".
+
+# PUT /graph.ttl
+:UploadGraphDocument rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <GraphDocument>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "PUT";
+	msg:realm </callimachus/manifest>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.rio.RDFFormat>;
+	msg:script """
+		if (!reader)
+			throw new BadRequest("Missing PUT request payload");
+		var con = this.objectConnection;
+		con.clear([this.resource]); //# clear graph
+		var object = this;
+		var inputStream = new org.openrdf.http.object.util.ProducerStream(function(outputStream) {
+			var pipe = new java.io.OutputStreamWriter(outputStream, "UTF-8");
+			var read;
+			var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
+			var out = object.openWriter();
+			try {
+				while ((read = reader.read(buf)) >= 0) {
+					out.write(buf, 0, read); //# save to blob
+					pipe.write(buf, 0, read); //# pipe to RDF store
+				}
+			} finally {
+				out.close();
+				pipe.close();
+			}
+		});
+		
+		java.lang.System.out.println("Parsing " + this);
+		con.add(inputStream, this.toString(), RDFFormat.TURTLE, [this.resource]);
+
+		this.touchRevision();
+		con.commit();
+		java.lang.System.gc();
+		java.lang.System.out.println("Imported " + this);
+	""".
+
+:reader a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :UploadGraphDocument;
+	rdfs:range <java:java.io.Reader>;
+	msg:type "text/turtle".
+
+################################
+# Named Graph
+################################
+
+:GetNamedGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
 	msg:method "GET";
-	msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
-	msg:transform :TransformGraph;
+	msg:type "application/rdf+xml;q=0.4";
+	msg:transform :TransformNamedGraph;
 	msg:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
 
-:TransformGraph rdfs:subClassOf msg:Message;
+:TransformNamedGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
@@ -46,15 +160,15 @@
 	msg:xslt <styles/graph.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :TransformGraph;
+	rdfs:domain :TransformNamedGraph;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "application/xml".
 
 # POST ?create=/callimachus/File
-:LookupGraphFile owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
+:LookupNamedGraphFile owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <File> ]);
 	msg:script """
-		if (type == "application/rdf+xml" || type == "text/turtle") {
+		if (type == "application/rdf+xml") {
 			var uri = this.toUri().resolve("/callimachus/NamedGraph").toString();
 			return this.objectConnection.getObject(uri);
 		}
@@ -62,7 +176,7 @@
 	""".
 
 # POST ?create=/callimachus/NamedGraph
-:PostGraphCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:PostNamedGraphCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <NamedGraph> ]);
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
@@ -94,6 +208,8 @@
 		obj = con.addDesignation(obj, this.toString());
 		obj = con.addDesignation(obj, Document);
 		con.add(obj.resource, RDFS.LABEL, label, []);
+
+		this.touchRevision(); // update index page
 		con.commit();
 		java.lang.System.gc();
 		java.lang.System.out.println("Imported " + uri);

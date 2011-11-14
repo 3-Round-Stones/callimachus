@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/callimachus/manifest?template"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+	<title about="?this">{rdfs:label}</title>
+	<script type="text/javascript" src="/callimachus/editor/edit.js"> </script>
+</head>
+<body>
+	<form id="form" method="POST" action="" enctype="text/turtle">
+		<iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#sparql"> </iframe>
+        <button type="submit">Save</button>
+		<button type="button" onclick="calli.saveFormAs(form, 'untitled graph.ttl', '/callimachus/GraphDocument')">Save as...</button>
+		<button type="button" onclick="location.replace('?view')">Cancel</button>
+		<button type="button" onclick="calli.deleteResource(form)">Delete</button>
+	</form>
+</body>
+</html>
+

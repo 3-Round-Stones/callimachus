@@ -38,28 +38,32 @@
 	rdfs:label "Animated Graphic" ;
 	rdfs:isDefinedBy </callimachus>;
 	calli:icon <image.png>;
-	calli:create <file-create.xhtml>.
+	calli:create <file-create.xhtml>;
+	calli:type "image/gif".
 
 <IconGraphic> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Icon Graphic" ;
 	rdfs:isDefinedBy </callimachus>;
 	calli:icon <image.png>;
-	calli:create <file-create.xhtml>.
+	calli:create <file-create.xhtml>;
+	calli:type "image/vnd.microsoft.icon".
 
 <NetworkGraphic> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Network Graphic" ;
 	rdfs:isDefinedBy </callimachus>;
 	calli:icon <image.png>;
-	calli:create <file-create.xhtml>.
+	calli:create <file-create.xhtml>;
+	calli:type "image/png".
 
 <VectorGraphic> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
 	rdfs:label "Vector Graphic" ;
 	rdfs:isDefinedBy </callimachus>;
 	calli:icon <image.png>;
-	calli:create <file-create.xhtml>.
+	calli:create <file-create.xhtml>;
+	calli:type "image/svg+xml".
 
 # GET /image.gif
 :GetAnimatedGraphic rdfs:subClassOf msg:Message;

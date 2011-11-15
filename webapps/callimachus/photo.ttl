@@ -31,7 +31,8 @@
 	calli:icon <photo.png>;
 	calli:view <photo-view.xhtml> ;
 	calli:edit <photo-edit.xhtml> ;
-	calli:create <file-create.xhtml>.
+	calli:create <file-create.xhtml>;
+	calli:type "image/jpeg".
 
 # GET /image.jpg
 :GetPhoto rdfs:subClassOf msg:Message;

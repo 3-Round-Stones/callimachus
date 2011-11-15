@@ -159,6 +159,10 @@ calli:create a owl:AnnotationProperty;
 	rdfs:label "create";
 	rdfs:comment "The RDFa page template used to create resources of this class using a Web browser".
 
+calli:type a owl:AnnotationProperty;
+	rdfs:label "type";
+	rdfs:comment "The content type for binary or text representations of resources of this class".
+
 ################################
 # Property
 ################################

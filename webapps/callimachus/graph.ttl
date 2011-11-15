@@ -28,7 +28,8 @@
 	rdfs:label "Named Graph";
 	rdfs:isDefinedBy </callimachus>;
 	calli:icon <graph.png>;
-	calli:create <file-create.xhtml>.
+	calli:create <file-create.xhtml>;
+	calli:type "application/rdf+xml".
 
 <GraphDocument> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf <File>;
@@ -38,7 +39,8 @@
 	calli:icon <graph.png>;
 	calli:view <graph-view.xhtml>;
 	calli:edit <graph-edit.xhtml>;
-	calli:create <graph-create.xhtml>.
+	calli:create <graph-create.xhtml>;
+	calli:type "text/turtle".
 
 ################################
 # Graph Document

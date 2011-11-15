@@ -30,7 +30,8 @@
 	calli:icon <style.png>;
 	calli:view <style-view.xhtml>;
 	calli:edit <style-edit.xhtml>;
-	calli:create <style-create.xhtml>.
+	calli:create <style-create.xhtml>;
+	calli:type "text/css".
 
 # GET /style.css
 :GetStyleSheet rdfs:subClassOf msg:Message;

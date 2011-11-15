@@ -30,7 +30,8 @@
 	calli:icon <article.png>;
 	calli:view <article-view.xhtml>;
 	calli:edit <article-edit.xhtml>;
-	calli:create <article-create.xhtml>.
+	calli:create <article-create.xhtml>;
+	calli:type "application/docbook+xml".
 
 # GET /article/main-article.xml
 :GetArticleSource rdfs:subClassOf msg:Message;

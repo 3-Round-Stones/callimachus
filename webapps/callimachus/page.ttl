@@ -28,7 +28,8 @@
 	rdfs:isDefinedBy </callimachus>;
 	calli:icon <page.png>;
 	calli:edit <page-edit.xhtml>;
-	calli:create <page-create.xhtml>.
+	calli:create <page-create.xhtml>;
+	calli:type "application/xhtml+xml".
 
 # GET /page/MainPage.xhtml?view
 :GetPage owl:intersectionOf (</callimachus/toolbox/view.ttl#GetViewPage>

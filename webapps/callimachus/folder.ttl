@@ -54,6 +54,10 @@
 		return resp;
 	""".
 
+################################
+# List folder contents
+################################
+
 :GetFolderFeed rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
@@ -174,6 +178,10 @@
    rdfs:range <java:java.io.InputStream>;
    msg:type "application/sparql-results+xml".
 
+################################
+# Export folder contents
+################################
+
 :DownloadFolderComponents rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
@@ -208,6 +216,14 @@
 			var updated = component.auditRevision;
 			if (uri.indexOf(baseURI) == 0 && baseURI.lastIndexOf('/') == baseURI.length - 1) {
 				uri = uri.substring(baseURI.length);
+			}
+			//# Create directory
+			if (uri.lastIndexOf('/') == uri.length - 1) {
+				var entry = new java.util.zip.ZipEntry(uri);
+				if (updated) {
+					entry.setTime(updated.getCommittedOn().toGregorianCalendar().getTimeInMillis());
+				}
+				zipStream.putNextEntry(entry);
 			}
 			//# Export Triples
 			var triples = component.GetDescription();
@@ -288,4 +304,115 @@
 :zipStream a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :ExportFolderComponents;
 	rdfs:range <java:java.util.zip.ZipOutputStream>.
+
+################################
+# Import folder contents
+################################
+
+:GetFolderUploadPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:method "GET";
+	msg:query "import";
+	msg:type "text/html";
+	msg:header "cache-control:no-cache";
+	msg:realm </callimachus/manifest>;
+	msg:imports <pages/folder-import.xhtml>;
+	msg:script """
+		return folder_import_xhtml.calliConstructHTML(this, "import");
+	""".
+
+:UploadFolderComponents rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+	msg:method "POST";
+	msg:query "import";
+	msg:realm </callimachus/manifest>;
+	msg:expect "302-see-other";
+	msg:script """
+		var bio = new java.io.BufferedInputStream(payload, 65536);
+		var multipart = new org.callimachusproject.util.MultipartParser(bio);
+		var inputStream;
+		while (inputStream = multipart.next()) {
+			try {
+				var bin = new java.io.BufferedInputStream(inputStream, 1024);
+				if (Packages.info.aduna.io.ZipUtil.isZipStream(bin)) {
+					var entry;
+					var zipStream = new java.util.zip.ZipInputStream(bin);
+					while (entry = zipStream.getNextEntry()) {
+						var entryChannel = java.nio.channels.Channels.newChannel(zipStream);
+						var noclose = new java.nio.channels.ReadableByteChannel({
+							read: function(dst) {
+								return entryChannel.read(dst);
+							},
+							isOpen: function() {
+								return entryChannel.isOpen();
+							},
+							close: function() {}
+						});
+						var entryStream = java.nio.channels.Channels.newInputStream(noclose);
+						this.ImportFolderComponent(entry.name, entryStream);
+						zipStream.closeEntry();
+					}
+				} else {
+					var disposition = multipart.headers.get("content-disposition");
+					var filename = disposition.match(/filename="([^"]*)"/)[1];
+					this.ImportFolderComponent(filename, bin);
+				}
+			} finally {
+				inputStream.close();
+			}
+		}
+		return this;
+	""".
+
+:payload a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :UploadFolderComponents;
+	rdfs:range <java:java.io.InputStream>;
+	msg:type "multipart/form-data".
+
+:ImportFolderComponent rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:imports <Folder>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+		var baseURI = this.toString();
+		if (baseURI.lastIndexOf('/') != baseURI.length - 1) {
+			baseURI = baseURI + '/';
+		}
+		var uri = baseURI + encodeURI(fileName);
+		var mimetypes = new javax.activation.MimetypesFileTypeMap();
+		var type = mimetypes.getContentType(fileName);
+		var calliHasComponent = vf.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent");
+		if (!con.hasStatement(null, calliHasComponent, vf.createURI(uri), true, [])) {
+			con.add(this.resource, calliHasComponent, vf.createURI(uri), []);
+		}
+		if ("application/rdf+xml".equals(type)) {
+			con.add(inputStream, uri, org.openrdf.rio.RDFFormat.RDFXML, [vf.createURI(uri)]);
+		} else {
+			var outputStream = con.getBlobObject(uri).openOutputStream() ;
+			var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+			var read;
+			try {
+				while ((read = inputStream.read(buf)) >= 0) {
+					outputStream.write(buf, 0, read);
+				}
+			} finally {
+				outputStream.close();
+			}
+		}
+		this.touchRevision();
+	""".
+
+:fileName a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :ImportFolderComponent;
+	rdfs:range xsd:string.
+
+:inputStream a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :ImportFolderComponent;
+	rdfs:range <java:java.io.InputStream>.
+
+
 

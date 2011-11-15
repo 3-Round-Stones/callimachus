@@ -353,25 +353,8 @@
 		var uri = baseURI + encodeURI(fileName);
 		var mimetypes = new javax.activation.MimetypesFileTypeMap();
 		var type = mimetypes.getContentType(fileName);
-		var calliHasComponent = vf.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent");
-		if (!con.hasStatement(null, calliHasComponent, vf.createURI(uri), true, [])) {
-			con.add(this.resource, calliHasComponent, vf.createURI(uri), []);
-		}
-		if ("application/rdf+xml".equals(type)) {
-			con.add(inputStream, uri, org.openrdf.rio.RDFFormat.RDFXML, [vf.createURI(uri)]);
-		} else {
-			var outputStream = con.getBlobObject(uri).openOutputStream() ;
-			var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-			var read;
-			try {
-				while ((read = inputStream.read(buf)) >= 0) {
-					outputStream.write(buf, 0, read);
-				}
-			} finally {
-				outputStream.close();
-			}
-		}
-		this.touchRevision();
+		var File = this.toUri().resolve("/callimachus/File").toString();
+		return this.PostFactoryCreate(inputStream, con.getObject(File), null, con.getObject(uri), type);
 	""".
 
 :fileName a owl:FunctionalProperty, owl:DatatypeProperty;
@@ -381,6 +364,4 @@
 :inputStream a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :ImportFolderComponent;
 	rdfs:range <java:java.io.InputStream>.
-
-
 

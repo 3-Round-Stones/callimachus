@@ -91,7 +91,8 @@ public class MultipartParser {
 	public InputStream next() throws IOException {
 		if (fileEnd)
 			return null;
-		assert partEnd;
+		if (!partEnd)
+			throw new IOException("The previous part stream must be closed before the next stream can be read");
 		partEnd = false;
 		if (!readHeaders())
 			return null;

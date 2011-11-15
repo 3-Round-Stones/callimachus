@@ -174,7 +174,7 @@
    rdfs:range <java:java.io.InputStream>;
    msg:type "application/sparql-results+xml".
 
-:DownloadFolder rdfs:subClassOf msg:Message;
+:DownloadFolderComponents rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:method "GET";
@@ -189,17 +189,18 @@
 		var component = this;
 		return new org.openrdf.http.object.util.ProducerStream(function(outputStream) {
 			var zipStream = new java.util.zip.ZipOutputStream(outputStream);
-			component.ExportFolder(baseURI, zipStream);
+			component.ExportFolderComponents(baseURI, zipStream);
 			zipStream.finish();
 		});
 	""".
 
-:ExportFolder rdfs:subClassOf msg:Message;
+:ExportFolderComponents rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:imports <Folder>;
 	msg:script """
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+		var xf = new org.callimachusproject.rio.RDFXMLStreamWriterFactory();
 		var components = this.calliHasComponent.iterator();
 		while (components.hasNext()) {
 			var component = components.next();
@@ -220,8 +221,7 @@
 					entry.setTime(updated.getCommittedOn().toGregorianCalendar().getTimeInMillis());
 				}
 				zipStream.putNextEntry(entry);
-				var writer = new org.callimachusproject.util.RDFXMLStreamWriterFactory().createWriter(zipStream);
-				writer.setBaseURI(component.toString() + suffix);
+				var writer = xf.createWriter(zipStream, component.toString() + suffix);
 				writer.startRDF();
 				var namespaces = component.objectConnection.getNamespaces();
 				while (namespaces.hasNext()) {
@@ -251,19 +251,41 @@
 				} finally {
 					content.close();
 				}
+			} else if (component.objectConnection.hasStatement(null, null, null, false, [component.resource])) {
+				var triples = component.objectConnection.getStatements(null, null, null, false, [component.resource]);
+				try {
+					var entry = new java.util.zip.ZipEntry(uri);
+					if (updated) {
+						entry.setTime(updated.getCommittedOn().toGregorianCalendar().getTimeInMillis());
+					}
+					zipStream.putNextEntry(entry);
+					var writer = xf.createWriter(zipStream, component.toString());
+					writer.startRDF();
+					var namespaces = component.objectConnection.getNamespaces();
+					while (namespaces.hasNext()) {
+						var ns = namespaces.next();
+						writer.handleNamespace(ns.getPrefix(), ns.getName());
+					}
+					while (triples.hasNext()) {
+						writer.handleStatement(triples.next());
+					}
+					writer.endRDF();
+				} finally {
+					triples.close();
+				}
 			}
 			//# Export nested components
 			if (component instanceof Folder) {
-				component.ExportFolder(baseURI, zipStream);
+				component.ExportFolderComponents(baseURI, zipStream);
 			}
 		}
 	""".
 
 :baseURI a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :ExportFolder;
+	rdfs:domain :ExportFolderComponents;
 	rdfs:range xsd:string.
 
 :zipStream a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :ExportFolder;
+	rdfs:domain :ExportFolderComponents;
 	rdfs:range <java:java.util.zip.ZipOutputStream>.
 

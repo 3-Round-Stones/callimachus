@@ -14,7 +14,7 @@
    limitations under the License.
 
  */
-package org.callimachusproject.util;
+package org.callimachusproject.rio;
 
 import java.io.OutputStream;
 import java.io.Writer;
@@ -27,25 +27,33 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFWriter;
 
 public class RDFXMLStreamWriterFactory {
+	private final XMLOutputFactory xf;
+
+	public RDFXMLStreamWriterFactory() {
+		xf = XMLOutputFactory.newFactory();
+		xf.setProperty("javax.xml.stream.isRepairingNamespaces",new Boolean(true));
+	}
+
+	public RDFXMLStreamWriterFactory(XMLOutputFactory xf) {
+		this.xf = xf;
+	}
 
 	public RDFFormat getRDFFormat() {
 		return RDFFormat.RDFXML;
 	}
 
-	public RDFWriter createWriter(OutputStream out) throws XMLStreamException {
-		XMLOutputFactory xf = XMLOutputFactory.newFactory();
+	public RDFWriter createWriter(OutputStream out, String systemId) throws XMLStreamException {
 		XMLStreamWriter writer = xf.createXMLStreamWriter(out);
-		return new SortBySubjectWriter(new RDFXMLStreamWriter(writer));
+		return new ArrangedWriter(new RDFXMLStreamWriter(writer, systemId));
 	}
 
-	public RDFWriter createWriter(Writer out) throws XMLStreamException {
-		XMLOutputFactory xf = XMLOutputFactory.newFactory();
+	public RDFWriter createWriter(Writer out, String systemId) throws XMLStreamException {
 		XMLStreamWriter writer = xf.createXMLStreamWriter(out);
-		return new SortBySubjectWriter(new RDFXMLStreamWriter(writer));
+		return new ArrangedWriter(new RDFXMLStreamWriter(writer, systemId));
 	}
 
-	public RDFWriter createWriter(XMLStreamWriter writer) throws XMLStreamException {
-		return new SortBySubjectWriter(new RDFXMLStreamWriter(writer));
+	public RDFWriter createWriter(XMLStreamWriter writer, String systemId) throws XMLStreamException {
+		return new ArrangedWriter(new RDFXMLStreamWriter(writer, systemId));
 	}
 
 }

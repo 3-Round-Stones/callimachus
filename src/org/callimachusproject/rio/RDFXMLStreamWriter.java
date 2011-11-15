@@ -14,7 +14,7 @@
    limitations under the License.
 
  */
-package org.callimachusproject.util;
+package org.callimachusproject.rio;
 
 
 import java.net.URISyntaxException;
@@ -42,11 +42,12 @@ public class RDFXMLStreamWriter implements RDFWriter {
 	private String queryURI;
 	private String fragURI;
 
-	public RDFXMLStreamWriter(XMLStreamWriter writer) {
+	public RDFXMLStreamWriter(XMLStreamWriter writer, String systemId) {
 		this.writer = writer;
+		setRelativeURI(systemId);
 	}
 
-	public void setBaseURI(String baseURI) {
+	public void setRelativeURI(String baseURI) {
 		this.baseURI = baseURI;
 		if (baseURI == null || java.net.URI.create(baseURI).isOpaque()) {
 			authURI = null;

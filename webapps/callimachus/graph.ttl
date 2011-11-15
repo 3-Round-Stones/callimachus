@@ -206,7 +206,7 @@
 		var uri = obj.toString();
 
 		java.lang.System.out.println("Parsing " + fileName);
-		con.add(body, uri, format, [vf.createURI(uri)]);
+		con.add(body, uri, format, [obj.resource]);
 		obj = con.addDesignation(obj, this.toString());
 		obj = con.addDesignation(obj, Document);
 		con.add(obj.resource, RDFS.LABEL, label, []);

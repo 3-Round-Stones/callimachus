@@ -308,19 +308,23 @@
 					var entry;
 					var zipStream = new java.util.zip.ZipInputStream(bin);
 					while (entry = zipStream.getNextEntry()) {
-						var entryChannel = java.nio.channels.Channels.newChannel(zipStream);
-						var noclose = new java.nio.channels.ReadableByteChannel({
-							read: function(dst) {
-								return entryChannel.read(dst);
-							},
-							isOpen: function() {
-								return entryChannel.isOpen();
-							},
-							close: function() {}
-						});
-						var entryStream = java.nio.channels.Channels.newInputStream(noclose);
-						this.ImportFolderComponent(entry.name, entryStream);
-						zipStream.closeEntry();
+						if (entry.isDirectory()) {
+							this.ImportFolderComponent(entry.name, null);
+						} else {
+							var entryChannel = java.nio.channels.Channels.newChannel(zipStream);
+							var noclose = new java.nio.channels.ReadableByteChannel({
+								read: function(dst) {
+									return entryChannel.read(dst);
+								},
+								isOpen: function() {
+									return entryChannel.isOpen();
+								},
+								close: function() {}
+							});
+							var entryStream = java.nio.channels.Channels.newInputStream(noclose);
+							this.ImportFolderComponent(entry.name, entryStream);
+							zipStream.closeEntry();
+						}
 					}
 				} else {
 					var disposition = multipart.headers.get("content-disposition");
@@ -341,8 +345,7 @@
 
 :ImportFolderComponent rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:imports <Folder>;
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Local>];
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
@@ -351,10 +354,23 @@
 			baseURI = baseURI + '/';
 		}
 		var uri = baseURI + encodeURI(fileName);
-		var mimetypes = new javax.activation.MimetypesFileTypeMap();
-		var type = mimetypes.getContentType(fileName);
-		var File = this.toUri().resolve("/callimachus/File").toString();
-		return this.PostFactoryCreate(inputStream, con.getObject(File), null, con.getObject(uri), type);
+		var location = con.getObject(uri);
+		var container = this.FindExistingContainer(location);
+		if (!container) {
+			container = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
+		}
+		if (inputStream) { //# file
+			var mimetypes = new javax.activation.MimetypesFileTypeMap();
+			var type = mimetypes.getContentType(fileName);
+			var File = this.toUri().resolve("/callimachus/File").toString();
+			return container.PostFactoryCreate(inputStream, con.getObject(File), null, location, type);
+		} else { //# folder
+			var label = decodeURI(uri.substring(uri.lastIndexOf('/', uri.length - 2) + 1).replace('/', '')).replace('-', ' ');
+			var Folder = this.toUri().resolve("/callimachus/Folder").toString();
+			var rdfxml = '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"><calli:Folder rdf:about="' + uri.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '"><rdfs:label>' + label.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</rdfs:label></calli:Folder></rdf:RDF>';
+			var stream = new java.io.ByteArrayInputStream(new java.lang.String(rdfxml).getBytes());
+			return container.PostFactoryCreate(stream, con.getObject(Folder), null, location, "application/rdf+xml");
+		}
 	""".
 
 :fileName a owl:FunctionalProperty, owl:DatatypeProperty;
@@ -364,4 +380,16 @@
 :inputStream a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :ImportFolderComponent;
 	rdfs:range <java:java.io.InputStream>.
+
+:FindExistingContainer rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Composite>];
+	msg:sparql """
+		SELECT ?composite {
+			?composite calli:hasComponent $component
+		}
+	""".
+
+:component a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :FindExistingContainer.
 

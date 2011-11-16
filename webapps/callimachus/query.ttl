@@ -82,9 +82,8 @@
 		created = con.addDesignation(created, Document);
 
 		this.touchRevision(); // update index page
-		con.commit();
 
-		created.UploadNamedQuery(body); //# cannot write to other streams directly		
+		created.UploadNamedQuery(body);
 		return created;
 	""".
 

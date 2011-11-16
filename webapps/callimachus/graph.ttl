@@ -132,8 +132,6 @@
 		con.add(inputStream, this.toString(), RDFFormat.TURTLE, [this.resource]);
 
 		this.touchRevision();
-		con.commit();
-		java.lang.System.gc();
 		java.lang.System.out.println("Imported " + this);
 	""".
 
@@ -212,8 +210,6 @@
 		con.add(obj.resource, RDFS.LABEL, label, []);
 
 		this.touchRevision(); // update index page
-		con.commit();
-		java.lang.System.gc();
 		java.lang.System.out.println("Imported " + uri);
 		return obj;
 	""".

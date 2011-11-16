@@ -99,9 +99,8 @@
 		created = con.addDesignation(created, Document);
 
 		this.touchRevision(); // update index page
-		con.commit();
 
-		created.UploadArticle(body); //# cannot write to other streams directly
+		created.UploadArticle(body);
 		return created;
 	""".
 

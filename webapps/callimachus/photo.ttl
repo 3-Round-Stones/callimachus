@@ -97,8 +97,6 @@
 		var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
 		con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 
-		this.objectConnection.commit();
-
 		//# load image data
 		var out = obj.PutPhoto(body) ;
 

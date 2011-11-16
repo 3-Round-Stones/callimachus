@@ -87,9 +87,8 @@
 		created = con.addDesignation(created, Page);
 
 		this.touchRevision(); // update index page
-		con.commit();
 
-		created.UploadPage(body); //# cannot write to other streams directly
+		created.UploadPage(body);
 		return created;
 	""".
 

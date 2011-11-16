@@ -82,9 +82,8 @@
 		created = con.addDesignation(created, Document);
 
 		this.touchRevision(); // update index page
-		con.commit();
 
-		created.UploadStyle(new java.io.InputStreamReader(body, "UTF-8")); //# cannot write to other streams directly		
+		created.UploadStyle(new java.io.InputStreamReader(body, "UTF-8"));
 		return created;
 	""".
 

@@ -48,7 +48,7 @@
 				created.calliAdministrator.addAll(folder.calliAdministrator);
 				folder.calliHasComponent.add(created);
 				con.add(folder.resource, describedBy, vf.createURI(created.toString() + '?view'), []);
-				this.objectConnection.commit();
+				this.objectConnection.commit(); //# uploadArticle is a remote method in this context
 				java.lang.System.out.println("Uploading " + page);
 				created.UploadArticle(new java.net.URL(url).openStream());
 			}

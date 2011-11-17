@@ -189,7 +189,7 @@
 	msg:imports <Class>;
 	msg:script """
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var xf = new org.callimachusproject.rio.RDFXMLStreamWriterFactory();
+		var xf = new org.callimachusproject.io.RDFXMLStreamWriterFactory();
 		function writeTo(triples, entryStream) {
 			try {
 				var writer = xf.createWriter(entryStream, component.toString());
@@ -313,7 +313,7 @@
 		var Folder = con.getObject(this.toUri().resolve("/callimachus/Folder").toString());
 		var SchemaGraph = vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph");
 		var bio = new java.io.BufferedInputStream(payload, 65536);
-		var multipart = new org.callimachusproject.util.MultipartParser(bio);
+		var multipart = new org.callimachusproject.io.MultipartParser(bio);
 		var inputStream;
 		while (inputStream = multipart.next()) {
 			try {

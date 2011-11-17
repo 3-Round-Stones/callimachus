@@ -14,7 +14,7 @@
    limitations under the License.
 
  */
-package org.callimachusproject.rio;
+package org.callimachusproject.io;
 
 
 import java.net.URISyntaxException;

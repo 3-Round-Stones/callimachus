@@ -15,7 +15,7 @@
    limitations under the License.
 
  */
-package org.callimachusproject.util;
+package org.callimachusproject.io;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;

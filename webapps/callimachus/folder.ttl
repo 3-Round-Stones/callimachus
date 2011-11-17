@@ -299,6 +299,7 @@
 	msg:query "import";
 	msg:realm </callimachus/manifest>;
 	msg:expect "302-see-other";
+	msg:imports <Composite>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:script """
@@ -322,28 +323,33 @@
 				while (name = carStream.readEntryName()) {
 					var uri = baseURI + name;
 					var location = con.getObject(uri);
+					var folder = null;
 					var container = this.FindExistingContainer(location);
 					if (!container) {
-						container = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
+						container = folder = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
+						if (!(container instanceof Composite)) {
+							container = folder = this.DesignateAsFolder(container);
+						}
 					}
-					var entryStream = carStream.readEntryStream();
+					var entryStream = carStream.getEntryStream();
 					try {
 						if (carStream.isFolderEntry()) {
-							var label = decodeURI(uri.substring(uri.lastIndexOf('/', uri.length - 2) + 1, uri.length - 1)).replace(/-/g, ' ');
-							var rdfxml = '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"><calli:Folder rdf:about="' + uri.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '"><rdfs:label>' + label.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</rdfs:label></calli:Folder></rdf:RDF>';
-							var stream = new java.io.ByteArrayInputStream(new java.lang.String(rdfxml).getBytes());
-							container.PostFactoryCreate(stream, Folder, null, location, "application/rdf+xml");
+							this.DesignateAsFolder(location);
 						} else if (carStream.isFileEntry()) {
 							var type = carStream.getEntryType();
 							container.PostFactoryCreate(entryStream, File, null, location, type);
 						} else if (carStream.isResourceEntry()) {
 							con.add(entryStream, uri, RDFFormat.RDFXML, []);
-							container.calliHasComponent.add(location);
+							if (folder) {
+								folder.calliHasComponent.add(location);
+							}
 						} else if (carStream.isSchemaEntry()) {
 							var graphURI = vf.createURI(uri + ".owl");
 							con.add(graphURI, RDF.TYPE, SchemaGraph, []);
 							con.add(entryStream, uri, RDFFormat.RDFXML, [graphURI]);
-							container.calliHasComponent.add(location);
+							if (folder) {
+								folder.calliHasComponent.add(location);
+							}
 						}
 					} finally {
 						entryStream.close();
@@ -372,4 +378,30 @@
 
 :component a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :FindExistingContainer.
+
+:DesignateAsFolder rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Folder>];
+	msg:imports <Folder>;
+	msg:imports <Composite>;
+	msg:script """
+		if (nonFolder instanceof Folder)
+			return nonFolder;
+		var uri = nonFolder.toString();
+		var container = this.FindExistingContainer(nonFolder);
+		if (!container) {
+			container = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
+			if (!(container instanceof Folder)) {
+				container = this.DesignateAsFolder(container);
+			}
+		}
+		var label = decodeURI(uri.substring(uri.lastIndexOf('/', uri.length - 2) + 1, uri.length - 1)).replace(/-/g, ' ');
+		var rdfxml = '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"><calli:Folder rdf:about="' + uri.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '"><rdfs:label>' + label.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</rdfs:label></calli:Folder></rdf:RDF>';
+		var stream = new java.io.ByteArrayInputStream(new java.lang.String(rdfxml).getBytes());
+		var folder = con.getObject(this.toUri().resolve("/callimachus/Folder").toString());
+		return container.PostFactoryCreate(stream, folder, null, nonFolder, "application/rdf+xml");
+	""".
+
+:nonFolder a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :DesignateAsFolder.
 

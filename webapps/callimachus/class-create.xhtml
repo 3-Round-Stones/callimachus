@@ -125,6 +125,10 @@
 				<label>Super <a href="/callimachus/Class" title="Create"
 						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="rdfs:subClassOf" class="vbox">
+					<span about="/callimachus/Local" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
+						Local
+						<a href="/callimachus/Local" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+					</span>
 					<span about="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
 						{rdfs:label}
 						<a href="{?subClassOf}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />

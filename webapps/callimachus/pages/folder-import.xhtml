@@ -6,11 +6,17 @@
 </head>
 <body>
 	<h1>Import Folder Contents</h1>
+	<div id="sidebar">
+		<ul class="aside">
+			<li>Upload a CAR file that was previously exported from another Callimachus folder</li>
+		</ul>
+	</div>
 	<form id="form" method="POST" action="" enctype="multipart/form-data">
 		<label for="image">Content</label>
 		<input type="file" id="file" name="file" multiple="multiple" />
 		<br/>
 		<button type="submit" id="import">Import</button>
+		<button type="button" id="cancel" onclick="location.replace('?view')">Cancel</button>
 	</form>
 </body>
 </html>

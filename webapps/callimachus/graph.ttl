@@ -210,7 +210,6 @@
 		con.add(obj.resource, RDFS.LABEL, label, []);
 
 		this.touchRevision(); // update index page
-		java.lang.System.out.println("Imported " + uri);
 		return obj;
 	""".
 

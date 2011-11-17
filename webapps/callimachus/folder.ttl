@@ -152,60 +152,47 @@
 
 :DownloadFolderComponents rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "GET";
 	msg:query "export";
 	msg:realm </callimachus/manifest>;
-	msg:type "application/zip";
+	msg:type "message/x-response";
 	msg:header "cache-control:no-cache";
+	msg:imports <java:org.apache.http.ProtocolVersion>;
+	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+	msg:imports <java:org.apache.http.entity.InputStreamEntity>;
 	msg:script """
-		if (this.calliHasComponent.isEmpty())
-			return null; // FIXME use zip with only a manifest
+		var http11 = new ProtocolVersion("HTTP", 1, 1);
+		var resp = new BasicHttpResponse(http11, 200, "OK");
+		var name = this.resource.localName;
+		var filename = this.toUri().path.substring(1).replace(/\\//g, '-') + this.toUri().authority.replace(/:.*/,'') + '.car';
+		resp.setHeader("Content-Disposition", 'attachment;filename="' + filename + '"');
 		var baseURI = this.toString();
+		if (this.calliHasComponent.isEmpty() || baseURI.charAt(baseURI.length - 1) != '/')
+			return null;
 		var component = this;
-		return new org.openrdf.http.object.util.ProducerStream(function(outputStream) {
-			var zipStream = new java.util.zip.ZipOutputStream(outputStream);
-			component.ExportFolderComponents(baseURI, zipStream);
-			zipStream.finish();
-		});
+		var entity = new InputStreamEntity(new org.openrdf.http.object.util.ProducerStream(function(outputStream) {
+			var carStream = new org.callimachusproject.io.CarOutputStream(outputStream);
+			component.ExportFolderComponents(baseURI, carStream);
+			carStream.finish();
+		}), -1);
+		entity.contentType = "application/zip";
+		resp.setEntity(entity);
+		return resp;
 	""".
 
 :ExportFolderComponents rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:imports <Folder>;
+	msg:imports <File>;
+	msg:imports <Class>;
 	msg:script """
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
 		var xf = new org.callimachusproject.rio.RDFXMLStreamWriterFactory();
-		var components = this.calliHasComponent.iterator();
-		while (components.hasNext()) {
-			var component = components.next();
-			var uri = component.toString();
-			var updated = component.auditRevision;
-			if (uri.indexOf(baseURI) == 0 && baseURI.lastIndexOf('/') == baseURI.length - 1) {
-				uri = uri.substring(baseURI.length);
-			}
-			//# Create directory
-			if (uri.lastIndexOf('/') == uri.length - 1) {
-				var entry = new java.util.zip.ZipEntry(uri);
-				if (updated) {
-					entry.setTime(updated.getCommittedOn().toGregorianCalendar().getTimeInMillis());
-				}
-				zipStream.putNextEntry(entry);
-			}
-			//# Export Triples
-			var triples = component.GetDescription();
+		function writeTo(triples, entryStream) {
 			try {
-				var suffix = ".rdf";
-				if (uri.lastIndexOf('/') == uri.length - 1) {
-					var suffix = "index.rdf";
-				}
-				var entry = new java.util.zip.ZipEntry(uri + suffix);
-				if (updated) {
-					entry.setTime(updated.getCommittedOn().toGregorianCalendar().getTimeInMillis());
-				}
-				zipStream.putNextEntry(entry);
-				var writer = xf.createWriter(zipStream, component.toString() + suffix);
+				var writer = xf.createWriter(entryStream, component.toString());
 				writer.startRDF();
 				var namespaces = component.objectConnection.getNamespaces();
 				while (namespaces.hasNext()) {
@@ -217,50 +204,65 @@
 				}
 				writer.endRDF();
 			} finally {
-				triples.close();
+				entryStream.close();
 			}
-			//# Export BLOB
-			var content = component.openInputStream();
-			if (content != null) {
-				try {
-					var entry = new java.util.zip.ZipEntry(uri);
-					if (updated) {
-						entry.setTime(updated.getCommittedOn().toGregorianCalendar().getTimeInMillis());
+		}
+		var components = this.calliHasComponent.iterator();
+		while (components.hasNext()) {
+			var component = components.next();
+			if (component.toString().indexOf(baseURI) != 0 || !component.auditRevision)
+				continue;
+			var name = component.toString().substring(baseURI.length);
+			var time = component.auditRevision.getCommittedOn().toGregorianCalendar().getTimeInMillis();
+			if (name.lastIndexOf('/') == name.length - 1 && component instanceof Folder) {
+				//# Export Folder
+				carStream.writeFolderEntry(name, time).close();
+			} else if (component instanceof File) {
+				//# Export File
+				var content = component.openInputStream();
+				if (content) {
+					try {
+						var entryStream = carStream.writeFileEntry(name, time, component.GetFileContentType());
+						try {
+							var read;
+							while ((read = content.read(buf)) >= 0) {
+								entryStream.write(buf, 0, read);
+							}
+						} finally {
+							entryStream.close();
+						}
+					} finally {
+						content.close();
 					}
-					zipStream.putNextEntry(entry);
-					var read;
-					while ((read = content.read(buf)) >= 0) {
-						zipStream.write(buf, 0, read);
-					}
-				} finally {
-					content.close();
 				}
 			} else if (component.objectConnection.hasStatement(null, null, null, false, [component.resource])) {
+				//# Export Graph
 				var triples = component.objectConnection.getStatements(null, null, null, false, [component.resource]);
 				try {
-					var entry = new java.util.zip.ZipEntry(uri);
-					if (updated) {
-						entry.setTime(updated.getCommittedOn().toGregorianCalendar().getTimeInMillis());
-					}
-					zipStream.putNextEntry(entry);
-					var writer = xf.createWriter(zipStream, component.toString());
-					writer.startRDF();
-					var namespaces = component.objectConnection.getNamespaces();
-					while (namespaces.hasNext()) {
-						var ns = namespaces.next();
-						writer.handleNamespace(ns.getPrefix(), ns.getName());
-					}
-					while (triples.hasNext()) {
-						writer.handleStatement(triples.next());
-					}
-					writer.endRDF();
+					writeTo(triples, carStream.writeFileEntry(name, time, "application/rdf+xml"));
+				} finally {
+					triples.close();
+				}
+			} else if (component instanceof Class) {
+				//# Export Schema
+				var triples = component.GetDescription();
+				try {
+					writeTo(triples, carStream.writeSchemaEntry(name, time, "application/rdf+xml"));
+				} finally {
+					triples.close();
+				}
+			} else {
+				//# Export Triples
+				var triples = component.GetDescription();
+				try {
+					writeTo(triples, carStream.writeResourceEntry(name, time, "application/rdf+xml"));
 				} finally {
 					triples.close();
 				}
 			}
 			//# Export nested components
 			if (component instanceof Folder) {
-				component.ExportFolderComponents(baseURI, zipStream);
+				component.ExportFolderComponents(baseURI, carStream);
 			}
 		}
 	""".
@@ -269,9 +271,9 @@
 	rdfs:domain :ExportFolderComponents;
 	rdfs:range xsd:string.
 
-:zipStream a owl:FunctionalProperty, owl:ObjectProperty;
+:carStream a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :ExportFolderComponents;
-	rdfs:range <java:java.util.zip.ZipOutputStream>.
+	rdfs:range <java:org.callimachusproject.io.CarOutputStream>.
 
 ################################
 # Import folder contents
@@ -297,39 +299,55 @@
 	msg:query "import";
 	msg:realm </callimachus/manifest>;
 	msg:expect "302-see-other";
+	msg:imports <java:org.openrdf.rio.RDFFormat>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:script """
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+		var baseURI = this.toString();
+		if (baseURI.lastIndexOf('/') != baseURI.length - 1) {
+			baseURI = baseURI + '/';
+		}
+		var File = con.getObject(this.toUri().resolve("/callimachus/File").toString());
+		var Folder = con.getObject(this.toUri().resolve("/callimachus/Folder").toString());
+		var SchemaGraph = vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph");
 		var bio = new java.io.BufferedInputStream(payload, 65536);
 		var multipart = new org.callimachusproject.util.MultipartParser(bio);
 		var inputStream;
 		while (inputStream = multipart.next()) {
 			try {
-				var bin = new java.io.BufferedInputStream(inputStream, 1024);
-				if (Packages.info.aduna.io.ZipUtil.isZipStream(bin)) {
-					var entry;
-					var zipStream = new java.util.zip.ZipInputStream(bin);
-					while (entry = zipStream.getNextEntry()) {
-						if (entry.isDirectory()) {
-							this.ImportFolderComponent(entry.name, null);
-						} else {
-							var entryChannel = java.nio.channels.Channels.newChannel(zipStream);
-							var noclose = new java.nio.channels.ReadableByteChannel({
-								read: function(dst) {
-									return entryChannel.read(dst);
-								},
-								isOpen: function() {
-									return entryChannel.isOpen();
-								},
-								close: function() {}
-							});
-							var entryStream = java.nio.channels.Channels.newInputStream(noclose);
-							this.ImportFolderComponent(entry.name, entryStream);
-							zipStream.closeEntry();
-						}
+				java.lang.System.out.println("Importing folder content from: " + multipart.headers.get("content-disposition"));
+				var name;
+				var carStream = new org.callimachusproject.io.CarInputStream(inputStream);
+				while (name = carStream.readEntryName()) {
+					var uri = baseURI + name;
+					var location = con.getObject(uri);
+					var container = this.FindExistingContainer(location);
+					if (!container) {
+						container = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
 					}
-				} else {
-					var disposition = multipart.headers.get("content-disposition");
-					var filename = disposition.match(/filename="([^"]*)"/)[1];
-					this.ImportFolderComponent(filename, bin);
+					var entryStream = carStream.readEntryStream();
+					try {
+						if (carStream.isFolderEntry()) {
+							var label = decodeURI(uri.substring(uri.lastIndexOf('/', uri.length - 2) + 1, uri.length - 1)).replace(/-/g, ' ');
+							var rdfxml = '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"><calli:Folder rdf:about="' + uri.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '"><rdfs:label>' + label.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</rdfs:label></calli:Folder></rdf:RDF>';
+							var stream = new java.io.ByteArrayInputStream(new java.lang.String(rdfxml).getBytes());
+							container.PostFactoryCreate(stream, Folder, null, location, "application/rdf+xml");
+						} else if (carStream.isFileEntry()) {
+							var type = carStream.getEntryType();
+							container.PostFactoryCreate(entryStream, File, null, location, type);
+						} else if (carStream.isResourceEntry()) {
+							con.add(entryStream, uri, RDFFormat.RDFXML, []);
+							container.calliHasComponent.add(location);
+						} else if (carStream.isSchemaEntry()) {
+							var graphURI = vf.createURI(uri + ".owl");
+							con.add(graphURI, RDF.TYPE, SchemaGraph, []);
+							con.add(entryStream, uri, RDFFormat.RDFXML, [graphURI]);
+							container.calliHasComponent.add(location);
+						}
+					} finally {
+						entryStream.close();
+					}
 				}
 			} finally {
 				inputStream.close();
@@ -342,44 +360,6 @@
 	rdfs:domain :UploadFolderComponents;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "multipart/form-data".
-
-:ImportFolderComponent rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Local>];
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.getValueFactory();
-		var baseURI = this.toString();
-		if (baseURI.lastIndexOf('/') != baseURI.length - 1) {
-			baseURI = baseURI + '/';
-		}
-		var uri = baseURI + encodeURI(fileName);
-		var location = con.getObject(uri);
-		var container = this.FindExistingContainer(location);
-		if (!container) {
-			container = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
-		}
-		if (inputStream) { //# file
-			var mimetypes = new javax.activation.MimetypesFileTypeMap();
-			var type = mimetypes.getContentType(fileName);
-			var File = this.toUri().resolve("/callimachus/File").toString();
-			return container.PostFactoryCreate(inputStream, con.getObject(File), null, location, type);
-		} else { //# folder
-			var label = decodeURI(uri.substring(uri.lastIndexOf('/', uri.length - 2) + 1).replace('/', '')).replace('-', ' ');
-			var Folder = this.toUri().resolve("/callimachus/Folder").toString();
-			var rdfxml = '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"><calli:Folder rdf:about="' + uri.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '"><rdfs:label>' + label.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</rdfs:label></calli:Folder></rdf:RDF>';
-			var stream = new java.io.ByteArrayInputStream(new java.lang.String(rdfxml).getBytes());
-			return container.PostFactoryCreate(stream, con.getObject(Folder), null, location, "application/rdf+xml");
-		}
-	""".
-
-:fileName a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :ImportFolderComponent;
-	rdfs:range xsd:string.
-
-:inputStream a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :ImportFolderComponent;
-	rdfs:range <java:java.io.InputStream>.
 
 :FindExistingContainer rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];

@@ -28,6 +28,7 @@
 	<property name="download-lunix-x86_64.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-x86_64.tar.gz" />
 	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
 	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
+	<property name="compress.url" value="http://archive.apache.org/dist/commons/compress/binaries/commons-compress-1.3-bin.tar.gz" />
 	<property name="main" value="org.callimachusproject.Server" />
 	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
 	<property name="args" value="-p 8080 -o http://localhost:8080 -r repositories/callimachus -c etc/callimachus-repository.ttl" />
@@ -53,6 +54,7 @@
 			<get src="${download-lunix-x86_64.url}" dest="${downloads}/daemon-linux-x86_64.tar.gz" />
 			<get src="${daemon-darwin.url}" dest="${downloads}/daemon-darwin.tar.gz" />
 			<get src="${mail.url}" dest="${lib}/${mail.jar}" />
+			<get src="${compress.url}" dest="${downloads}/compress.tar.gz" />
 		</parallel>
 		<unzip src="${downloads}/openrdf-alibaba.zip" dest="${lib}">
 			<patternset>
@@ -119,6 +121,15 @@
 				<include name="jsvc" />
 			</patternset>
 			<mapper type="glob" from="jsvc" to="callimachus-darwin" />
+		</untar>
+		<delete file="${downloads}/daemon-darwin.tar.gz" />
+		<untar compression="gzip" src="${downloads}/compress.tar.gz" dest="${lib}">
+			<patternset>
+				<include name="commons-compress-*/commons-compress-*.jar" />
+				<exclude name="commons-compress-*/commons-compress-*-sources.jar" />
+				<exclude name="commons-compress-*/commons-compress-*-javadoc.jar" />
+			</patternset>
+			<mapper type="flatten" />
 		</untar>
 		<delete file="${downloads}/daemon-darwin.tar.gz" />
 		<antcall target="alibaba-snapshot" />

@@ -30,6 +30,13 @@
 	calli:view <file-view.xhtml>;
 	calli:edit <file-edit.xhtml>.
 
+:GetFileContentType rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:sparql """
+		SELECT DISTINCT ?type { $this a [calli:type ?type] }
+	""".
+
 :RemoveFile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];

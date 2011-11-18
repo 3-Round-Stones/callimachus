@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -204,7 +205,7 @@ public class CarStreamTest {
 	}
 
 	@Test
-	public void testRoundTripExternalSchema() throws FileNotFoundException, IOException, XMLStreamException, RDFHandlerException {
+	public void testRoundTripExternalSchema() throws FileNotFoundException, IOException, XMLStreamException, RDFHandlerException, URISyntaxException {
 		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(car));
 		out.putNextEntry(new ZipEntry("schema"));
 		RDFWriter writer = new RDFXMLStreamWriterFactory().createWriter(out, "urn:test:schema");

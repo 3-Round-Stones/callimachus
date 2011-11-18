@@ -35,49 +35,12 @@ import org.openrdf.rio.RDFWriter;
 public class RDFXMLStreamWriter implements RDFWriter {
 	private static final Pattern ESCAPED = Pattern.compile("^\\s|<|&|>|\\s$");
 	private final XMLStreamWriter writer;
+	private final Relativizer base;
 	private Resource open;
-	private String baseURI;
-	private String authURI;
-	private String pathURI;
-	private String queryURI;
-	private String fragURI;
 
-	public RDFXMLStreamWriter(XMLStreamWriter writer, String systemId) {
+	public RDFXMLStreamWriter(XMLStreamWriter writer, String systemId) throws URISyntaxException {
 		this.writer = writer;
-		setRelativeURI(systemId);
-	}
-
-	public void setRelativeURI(String baseURI) {
-		this.baseURI = baseURI;
-		if (baseURI == null || java.net.URI.create(baseURI).isOpaque()) {
-			authURI = null;
-			pathURI = null;
-			queryURI = null;
-			fragURI = null;
-		} else {
-			try {
-				java.net.URI parsed = java.net.URI.create(baseURI);
-				String s = parsed.getScheme();
-				String a = parsed.getAuthority();
-				authURI = new java.net.URI(s, a, "/", null, null).toString();
-			} catch (URISyntaxException e) {
-				authURI = null;
-			}
-			int path = baseURI.lastIndexOf('/');
-			pathURI = baseURI.substring(0, path + 1);
-			int query = baseURI.lastIndexOf('?');
-			if (query < 0) {
-				queryURI = baseURI + "?";
-			} else {
-				queryURI = baseURI.substring(0, query + 1);
-			}
-			int frag = baseURI.lastIndexOf('#');
-			if (frag < 0) {
-				fragURI = baseURI + "#";
-			} else {
-				fragURI = baseURI.substring(0, frag + 1);
-			}
-		}
+		this.base = new Relativizer(systemId);
 	}
 
 	@Override
@@ -161,7 +124,7 @@ public class RDFXMLStreamWriter implements RDFWriter {
 			}
 			writer.writeStartElement("rdf", "Description", RDF.NAMESPACE);
 			if (subject instanceof URI) {
-				writer.writeAttribute("rdf", RDF.NAMESPACE, "about", relativize(subject.stringValue()));
+				writer.writeAttribute("rdf", RDF.NAMESPACE, "about", base.relativize(subject.stringValue()));
 			} else {
 				writer.writeAttribute("rdf", RDF.NAMESPACE, "nodeID", subject.stringValue());
 			}
@@ -178,7 +141,7 @@ public class RDFXMLStreamWriter implements RDFWriter {
 				writer.writeAttribute("xml:lang", lit.getLanguage());
 			}
 			if (lit.getDatatype() != null) {
-				writer.writeAttribute("rdf", RDF.NAMESPACE, "datatype", relativize(lit.getDatatype().stringValue()));
+				writer.writeAttribute("rdf", RDF.NAMESPACE, "datatype", base.relativize(lit.getDatatype().stringValue()));
 			}
 			if (ESCAPED.matcher(lit.stringValue()).find()) {
 				writer.writeCData(lit.stringValue());
@@ -186,29 +149,11 @@ public class RDFXMLStreamWriter implements RDFWriter {
 				writer.writeCharacters(lit.stringValue());
 			}
 		} else if (st.getObject() instanceof URI) {
-			writer.writeAttribute("rdf", RDF.NAMESPACE, "resource", relativize(st.getObject().stringValue()));
+			writer.writeAttribute("rdf", RDF.NAMESPACE, "resource", base.relativize(st.getObject().stringValue()));
 		} else {
 			writer.writeAttribute("rdf", RDF.NAMESPACE, "nodeID", st.getObject().stringValue());
 		}
 		writer.writeEndElement();
-	}
-
-	private String relativize(String uri) {
-		if (uri.equals(baseURI))
-			return "";
-		if (pathURI == null)
-			return uri;
-		if (uri.startsWith(fragURI))
-			return uri.substring(fragURI.length() - 1);
-		if (uri.startsWith(queryURI))
-			return uri.substring(queryURI.length() - 1);
-		if (uri.equals(pathURI))
-			return ".";
-		if (uri.startsWith(pathURI))
-			return uri.substring(pathURI.length());
-		if (uri.startsWith(authURI))
-			return uri.substring(authURI.length() - 1);
-		return uri;
 	}
 
 	private void comment(String data) throws XMLStreamException {

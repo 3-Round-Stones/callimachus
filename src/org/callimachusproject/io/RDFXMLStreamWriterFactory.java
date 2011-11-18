@@ -18,6 +18,7 @@ package org.callimachusproject.io;
 
 import java.io.OutputStream;
 import java.io.Writer;
+import java.net.URISyntaxException;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -42,17 +43,17 @@ public class RDFXMLStreamWriterFactory {
 		return RDFFormat.RDFXML;
 	}
 
-	public RDFWriter createWriter(OutputStream out, String systemId) throws XMLStreamException {
+	public RDFWriter createWriter(OutputStream out, String systemId) throws XMLStreamException, URISyntaxException {
 		XMLStreamWriter writer = xf.createXMLStreamWriter(out);
 		return new ArrangedWriter(new RDFXMLStreamWriter(writer, systemId));
 	}
 
-	public RDFWriter createWriter(Writer out, String systemId) throws XMLStreamException {
+	public RDFWriter createWriter(Writer out, String systemId) throws XMLStreamException, URISyntaxException {
 		XMLStreamWriter writer = xf.createXMLStreamWriter(out);
 		return new ArrangedWriter(new RDFXMLStreamWriter(writer, systemId));
 	}
 
-	public RDFWriter createWriter(XMLStreamWriter writer, String systemId) throws XMLStreamException {
+	public RDFWriter createWriter(XMLStreamWriter writer, String systemId) throws XMLStreamException, URISyntaxException {
 		return new ArrangedWriter(new RDFXMLStreamWriter(writer, systemId));
 	}
 

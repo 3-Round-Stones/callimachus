@@ -71,7 +71,7 @@ public class OrderByTest {
 						" @origin _topConcept /1/2/1"), new Comment(
 						" @origin _topConcept_label /1/2/1/1 !"), new Document(
 						false));
-		assertOrderBy(list, "ORDER BY ?_topConcept ?_topConcept_label");
+		assertOrderBy(list, "ORDER BY ?this ?_topConcept ?_topConcept_label");
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class OrderByTest {
 				new Comment(" @origin type /1/2/1"), new Comment(
 						" @origin _label /1/2/2/1/1/1 !"), new Comment(
 						" @origin _comment /1/2/3/1 !"), new Document(false));
-		assertOrderBy(list, "ORDER BY ?_comment ?_label ?type");
+		assertOrderBy(list, "ORDER BY ?_comment ?_label ?this ?type");
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class OrderByTest {
 				new Comment(" @origin _concept_label /1/2/1/1 !"),
 				new Document(false));
 		assertOrderBy(list,
-				"ORDER BY ?concept ?_concept_label ?_concept_altLabel");
+				"ORDER BY ?this ?concept ?_concept_label ?_concept_altLabel");
 	}
 
 	public void testUnionOptional() throws Exception {
@@ -228,7 +228,7 @@ public class OrderByTest {
 						false));
 		assertOrderBy(
 				list,
-				"ORDER BY ?top ?_top_prefLabel ?_comment ?image ?_image_comment ?_label1 ?_label");
+				"ORDER BY ?top ?_top_prefLabel ?_comment ?image ?_image_comment ?_label1 ?this ?_label");
 	}
 
 	@Test
@@ -298,7 +298,7 @@ public class OrderByTest {
 						new Comment(
 								" @origin _lit_literalForm /1/2/1/2/1/1/2 skosxl:literalForm"),
 						new Document(false));
-		assertOrderBy(list, "ORDER BY ?concept ?lit ?_lit_literalForm");
+		assertOrderBy(list, "ORDER BY ?this ?concept ?lit ?_lit_literalForm");
 	}
 
 	@Test
@@ -388,7 +388,7 @@ public class OrderByTest {
 								" @origin _top_prefLabel /1/2/2/4/1/1 !"),
 						new Document(false));
 		assertOrderBy(list,
-				"ORDER BY ?top ?_top_prefLabel ?_label2 ?_label1 ?_label");
+				"ORDER BY ?top ?_top_prefLabel ?_label2 ?_label1 ?this ?_label");
 	}
 
 	@Test
@@ -412,9 +412,7 @@ public class OrderByTest {
 						new VarImpl("this")), new Subject(false, new IRIImpl(
 						"http://example.org/test")), new Where(false),
 				new Comment(" @origin this /1/2/1/1"), new Document(false));
-		RDFEventReader sparql = new IterableRDFEventReader(list);
-		String query = toSPARQL(new OrderedSparqlReader(sparql));
-		Assert.assertFalse(query.contains("ORDER BY"));
+		assertOrderBy(list, "ORDER BY ?this");
 	}
 
 	private void assertOrderBy(List<RDFEvent> list, String string)

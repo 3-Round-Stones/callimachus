@@ -200,7 +200,12 @@
 					writer.handleNamespace(ns.getPrefix(), ns.getName());
 				}
 				while (triples.hasNext()) {
-					writer.handleStatement(triples.next());
+					var st = triples.next();
+					var pred = st.predicate.toString();
+					if (pred != "http://www.openrdf.org/rdf/2009/auditing#revision"
+							&& pred != "http://callimachusproject.org/rdf/2009/framework#soundex") {
+						writer.handleStatement(st);
+					}
 				}
 				writer.endRDF();
 			} finally {

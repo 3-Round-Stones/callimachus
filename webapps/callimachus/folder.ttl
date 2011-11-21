@@ -307,9 +307,25 @@
 	msg:imports <Composite>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
+		function readFrom(entryStream, uri, graphs) {
+			var inserter = new org.openrdf.repository.util.RDFInserter(con);
+			inserter.enforceContext(graphs);
+			var tracker = new org.callimachusproject.helpers.SubjectTracker(inserter, vf);
+			var parser = new org.openrdf.rio.rdfxml.RDFXMLParser();
+			parser.setValueFactory(vf);
+			parser.setRDFHandler(tracker);
+			parser.parse(entryStream, uri);
+			if (tracker.isEmpty())
+				throw new BadRequest("Missing resource information for: " + uri);
+			if (!tracker.isSingleton())
+				throw new BadRequest("Multiple resources for: " + uri);
+			if (tracker.getSubject().toString() != uri)
+				throw new BadRequest("Wrong subject for: " + uri);
+		}
 		var baseURI = this.toString();
 		if (baseURI.lastIndexOf('/') != baseURI.length - 1) {
 			baseURI = baseURI + '/';
@@ -344,14 +360,14 @@
 							var type = carStream.getEntryType();
 							container.PostFactoryCreate(entryStream, File, null, location, type);
 						} else if (carStream.isResourceEntry()) {
-							con.add(entryStream, uri, RDFFormat.RDFXML, []);
+							readFrom(entryStream, uri, []);
 							if (folder) {
 								folder.calliHasComponent.add(location);
 							}
 						} else if (carStream.isSchemaEntry()) {
 							var graphURI = vf.createURI(uri + ".owl");
 							con.add(graphURI, RDF.TYPE, SchemaGraph, []);
-							con.add(entryStream, uri, RDFFormat.RDFXML, [graphURI]);
+							readFrom(entryStream, uri, [graphURI]);
 							if (folder) {
 								folder.calliHasComponent.add(location);
 							}

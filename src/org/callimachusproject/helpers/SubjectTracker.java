@@ -77,6 +77,9 @@ public class SubjectTracker extends RDFHandlerWrapper {
 	}
 
 	public void accept(RDFEventReader reader) throws RDFParseException {
+		if (patterns == null) {
+			patterns = new LinkedHashSet<TriplePattern>();
+		}
 		try {
 			while (reader.hasNext()) {
 				RDFEvent next = reader.next();

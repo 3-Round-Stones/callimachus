@@ -37,7 +37,6 @@
 	rdfs:comment "Terse RDF Triple documents";
 	rdfs:isDefinedBy </callimachus>;
 	calli:icon <graph.png>;
-	calli:view <graph-view.xhtml>;
 	calli:edit <graph-edit.xhtml>;
 	calli:create <graph-create.xhtml>;
 	calli:type "text/turtle".

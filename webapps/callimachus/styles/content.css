@@ -21,6 +21,7 @@ div.ui-datepicker {
 
 a.ui-icon {
 	display:inline-block;
+	vertical-align:text-bottom;
 }
 
 [dropzone] .ui-state-highlight {

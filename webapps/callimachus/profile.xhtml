@@ -35,10 +35,8 @@
 						</td>
 						<td property="rdfa:uri" content="{rdfa:uri/text()}">
 							<input type="text" name="{rdfa:prefix}" value="{rdfa:uri/text()}" class="auto-expand" />
-							<a href="#" title="Remove" style="display:inline-block;vertical-align:middle"
-								 onclick="$(this).parents('tr:first').remove();return false">
-								<xsl:text>×</xsl:text>
-							</a>
+							<a href="javascript:void(0)" title="Remove" class="ui-icon ui-icon-cancel"
+								 onclick="$(this).parents('tr:first').remove();return false" />
 						</td>				
 					</tr>
 				</xsl:for-each>
@@ -50,10 +48,8 @@
 					</td>
 					<td>
 						<input type="text" id="new-uri" class="auto-expand" />
-						<span class="ui-icon ui-icon-close" style="display:inline-block;vertical-align:middle"
-							 onclick="$(this).parents('tr:first').remove()">
-							<xsl:text> </xsl:text>
-						</span>
+						<a href="javascript:void(0)" class="ui-icon ui-icon-cancel"
+							 onclick="$(this).parents('tr:first').remove()" />
 					</td>
 				</tr>
 			</tbody>

@@ -24,7 +24,9 @@
 		<ul class="aside">
 			<li>Use Wiki text to describe the purpose of this group</li>
 			<li>Contributors can invite new users</li>
-			<li>Administrators can edit this page, invite new users, and edit the settings and passwords of new users</li>
+			<li>Administrators can edit this page, invite new users, and remove users from this group</li>
+			<li>Use the<a class="ui-icon ui-icon-cancel"/>icon to remove a user from this group without deleting the user account</li>
+			<li>To delete a user account: click the user link on the view tab and use the edit tab of the user account</li>
 		</ul>
 	</div>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this"
@@ -38,8 +40,8 @@
 					onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
 			<div rel="calli:member" class="vbox">
 				<span about="?member" typeof="calli:User" class="ui-state-highlight ui-corner-all">
-					{rdfs:label}
-					<a href="{?member}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+					<span property="rdfs:label" />
+					<a href="{?member}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-cancel" />
 				</span>
 			</div>
 		</div>

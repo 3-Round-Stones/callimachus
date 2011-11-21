@@ -4,7 +4,7 @@ importClass(Packages.calli.Composite);
 importClass(Packages.calli.Creatable);
 importClass(Packages.calli.edit);
 importClass(Packages.calli.view);
-importClass(Packages.org.callimachusproject.util.MultipartParser);
+importClass(Packages.org.callimachusproject.io.MultipartParser);
 importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
 importClass(Packages.org.openrdf.http.object.exceptions.BadRequest);
 importClass(Packages.org.openrdf.http.object.exceptions.Forbidden);

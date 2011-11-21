@@ -79,7 +79,7 @@
 				<div rel="calli:icon">
 					<span about="?icon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
 						<img src="{?icon}" />
-						<a href="{?icon}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<a href="{?icon}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-cancel" />
 					</span>
 				</div>
 			</div>
@@ -94,8 +94,8 @@
 						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:author" class="vbox">
 					<span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-						{rdfs:label}
-						<a href="{?author}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<span property="rdfs:label" />
+						<a href="{?author}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-cancel" />
 					</span>
 				</div>
 			</div>
@@ -104,8 +104,8 @@
 						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="rdfs:subClassOf" class="vbox">
 					<span about="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
-						{rdfs:label}
-						<a href="{?subClassOf}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<span property="rdfs:label" />
+						<a href="{?subClassOf}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-cancel" />
 					</span>
 				</div>
 			</div>
@@ -122,8 +122,8 @@
 						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:create">
 					<span about="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-						{rdfs:label}
-						<a href="{?create}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<span property="rdfs:label" />
+						<a href="{?create}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-cancel" />
 					</span>
 				</div>
 			</div>
@@ -132,8 +132,8 @@
 						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:view">
 					<span about="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-						{rdfs:label}
-						<a href="{?view}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<span property="rdfs:label" />
+						<a href="{?view}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-cancel" />
 					</span>
 				</div>
 			</div>
@@ -142,8 +142,8 @@
 						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:edit">
 					<span about="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-						{rdfs:label}
-						<a href="{?edit}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<span property="rdfs:label" />
+						<a href="{?edit}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-cancel" />
 					</span>
 				</div>
 			</div>

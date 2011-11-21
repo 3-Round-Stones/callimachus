@@ -25,7 +25,7 @@
 			<li>Use Wiki text to describe the purpose of this group</li>
 			<li>Contributors can invite new users</li>
 			<li>Administrators can edit this page, invite new users, and remove users from this group</li>
-			<li>Use the<a class="ui-icon ui-icon-cancel"/>icon to remove a user from this group without deleting the user account</li>
+			<li>Use the<a class="ui-icon ui-icon-close"/>icon to remove a user from this group without deleting the user account</li>
 			<li>To delete a user account: click the user link on the view tab and use the edit tab of the user account</li>
 		</ul>
 	</div>
@@ -41,7 +41,7 @@
 			<div rel="calli:member" class="vbox">
 				<span about="?member" typeof="calli:User" class="ui-state-highlight ui-corner-all">
 					<span property="rdfs:label" />
-					<a href="{?member}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-cancel" />
+					<a href="{?member}" title="Remove user from group" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
 				</span>
 			</div>
 		</div>

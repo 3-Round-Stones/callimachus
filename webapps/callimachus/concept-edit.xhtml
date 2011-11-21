@@ -81,7 +81,7 @@
 				<div rel="skos:related" class="vbox">
 					<span about="?related" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
 						<span property="skos:prefLabel" />
-						<a href="{?related}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-cancel" />
+						<a href="{?related}" title="Remove relationship" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
@@ -91,7 +91,7 @@
 				<div rel="skos:narrower" class="vbox">
 					<span about="?narrower" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
 						<span property="skos:prefLabel" />
-						<a href="{?narrower}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-cancel" />
+						<a href="{?narrower}" title="Remove relationship" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
@@ -102,7 +102,7 @@
 		 	<div rel="foaf:depiction">
 				<span about="?depiction" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
 					<img src="{?depiction}?small" />
-					<a href="{?depiction}" title="Remove" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-cancel" />
+					<a href="{?depiction}" title="Remove from this concept" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
 				</span>
 			</div>
 		</div>

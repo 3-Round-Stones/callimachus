@@ -33,14 +33,22 @@
 	msg:imports <java:org.openrdf.model.BNode>;
 	msg:imports <java:org.openrdf.model.URI>;
 	msg:imports <java:javax.tools.FileObject>;
+	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
 	msg:script """
 		var con = this.objectConnection;
 		var stmts = con.getStatements(null, null, this.resource, []);
 		try {
 			while (stmts.hasNext()) {
 				var st = stmts.next();
-				if (st.predicate.stringValue() != "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject"
-						&& st.predicate.stringValue() != "http://www.w3.org/1999/02/22-rdf-syntax-ns#object") {
+				var subj = st.subject;
+				var pred = st.predicate.stringValue();
+				if (pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject"
+						&& pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#object") {
+					//# Don't allow removal if used in a complex structure (like an rdf:List)
+					if (subj instanceof BNode)
+						throw new Conflict("This resource is currently is use and cannot be removed");
+					if (subj.stringValue().indexOf('#') >= 0)
+						throw new Conflict("This resource is currently referenced: " + subj);
 					con.remove(st, []);
 				}
 			}
@@ -48,18 +56,16 @@
 			stmts.close();
 		}
 
-		function removeTriples(subject) {
+		function removeTriples(subject, hash) {
 			var stmts = con.getStatements(subject, null, null, []);
 			try {
 				while (stmts.hasNext()) {
 					var st = stmts.next();
 					if (st.object instanceof BNode && !st.object.equals(subject)) {
-						removeTriples(st.object);
+						removeTriples(st.object, hash);
 					} else if (st.object instanceof URI && !st.object.equals(subject)) {
-						var subj = subject.stringValue();
-						var obj = st.object.stringValue();
-						if (obj.indexOf(subj) == 0 && obj.charAt(subj.length) == "#") {
-							removeTriples(st.object);
+						if (st.object.stringValue().indexOf(hash) == 0) {
+							removeTriples(st.object, hash);
 						} else {
 							con.getObjectFactory().createObject(st.object).touchRevision();
 						}
@@ -72,7 +78,7 @@
 		}
 
 		con.clear([this.resource]); //# clear graph
-		removeTriples(this.resource); //# follow blank and hash references
+		removeTriples(this.resource, this.resource.stringValue() + '#'); //# follow blank and hash references
 		if (this instanceof FileObject) {
 			this['delete'](); //# remove document
 		}

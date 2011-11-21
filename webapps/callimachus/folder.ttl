@@ -173,7 +173,7 @@
 		var component = this;
 		var entity = new InputStreamEntity(new org.openrdf.http.object.util.ProducerStream(function(outputStream) {
 			var carStream = new org.callimachusproject.io.CarOutputStream(outputStream);
-			component.ExportFolderComponents(baseURI, carStream);
+			component.ExportComponents(baseURI, carStream);
 			carStream.finish();
 		}), -1);
 		entity.contentType = "application/zip";
@@ -181,10 +181,11 @@
 		return resp;
 	""".
 
-:ExportFolderComponents rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+:ExportComponents rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:imports <Folder>;
+	msg:imports <Composite>;
 	msg:imports <File>;
 	msg:imports <Class>;
 	msg:script """
@@ -266,18 +267,18 @@
 				}
 			}
 			//# Export nested components
-			if (component instanceof Folder) {
-				component.ExportFolderComponents(baseURI, carStream);
+			if (component instanceof Composite) {
+				component.ExportComponents(baseURI, carStream);
 			}
 		}
 	""".
 
 :baseURI a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :ExportFolderComponents;
+	rdfs:domain :ExportComponents;
 	rdfs:range xsd:string.
 
 :carStream a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :ExportFolderComponents;
+	rdfs:domain :ExportComponents;
 	rdfs:range <java:org.callimachusproject.io.CarOutputStream>.
 
 ################################
@@ -336,6 +337,7 @@
 		var bio = new java.io.BufferedInputStream(payload, 65536);
 		var multipart = new org.callimachusproject.io.MultipartParser(bio);
 		var inputStream;
+		this.DeleteComponents(); //# remove existing components
 		while (inputStream = multipart.next()) {
 			try {
 				java.lang.System.out.println("Importing folder content from: " + multipart.headers.get("content-disposition"));
@@ -387,6 +389,52 @@
 	rdfs:domain :UploadFolderComponents;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "multipart/form-data".
+
+:DeleteComponents rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:imports <Composite>;
+	msg:imports <java:org.openrdf.model.BNode>;
+	msg:imports <java:org.openrdf.model.URI>;
+	msg:imports <java:javax.tools.FileObject>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
+		function removeTriples(subject, hash) {
+			var stmts = con.getStatements(subject, null, null, []);
+			try {
+				while (stmts.hasNext()) {
+					var st = stmts.next();
+					if (st.object instanceof BNode && !st.object.equals(subject)) {
+						removeTriples(st.object, hash);
+					} else if (st.object instanceof URI && !st.object.equals(subject)) {
+						if (st.object.stringValue().indexOf(hash) == 0) {
+							removeTriples(st.object, hash);
+						} else {
+							con.getObjectFactory().createObject(st.object).touchRevision();
+						}
+					}
+					con.remove(st, []);
+				}
+			} finally {
+				stmts.close();
+			}
+		}
+		var components = this.calliHasComponent.iterator();
+		while (components.hasNext()) {
+			var component = components.next();
+			if (component instanceof Composite) {
+				component.DeleteComponents();
+			}
+
+			con.clear([component.resource]); //# clear graph
+			removeTriples(component.resource, component.resource.stringValue() + '#'); //# follow blank and hash references
+			if (component instanceof FileObject) {
+				component['delete'](); //# remove document
+			}
+			components.remove();
+		}
+	""".
 
 :FindExistingContainer rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];

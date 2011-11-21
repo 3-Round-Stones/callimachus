@@ -25,7 +25,13 @@ function removeWait() {
 
 $(removeWait);
 
-$(window).bind("beforeunload unload", function() {
+$(window).bind("beforeunload", function() {
+	requestCount++;
+	$(document.documentElement).addClass("wait");
+	setTimeout(removeWait, 1000);
+});
+
+$(window).bind("unload", function() {
 	requestCount++;
 	$(document.documentElement).addClass("wait");
 });

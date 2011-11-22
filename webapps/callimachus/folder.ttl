@@ -346,7 +346,7 @@
 		}
 		while (inputStream = multipart.next()) {
 			try {
-				java.lang.System.out.println("Importing folder content from: " + multipart.headers.get("content-disposition"));
+				println("Importing folder content from: " + multipart.headers.get("content-disposition"));
 				var name;
 				var carStream = new org.callimachusproject.io.CarInputStream(inputStream);
 				while (name = carStream.readEntryName()) {

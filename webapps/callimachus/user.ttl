@@ -223,7 +223,6 @@ rdfs:comment a rdf:Property.
 	msg:imports <java:java.io.CharArrayWriter>;
 	msg:imports <java:java.util.Random>;
 	msg:imports <java:java.lang.Integer>;
-	msg:imports <java:java.lang.System>;
 	msg:script """
 		if (!resetForm.get('nonce') || !resetForm.get("token"))
 			throw new BadRequest("Missing nonce and/or token");

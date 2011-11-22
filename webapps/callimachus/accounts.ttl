@@ -128,7 +128,7 @@
 			throw new BadRequest("Missing Email");
 		var iter = this.FindUsersByEmail(formEmail).iterator();
 		if (!iter.hasNext()) {
-			java.lang.System.err.println("No users with email " + formEmail + " found");
+			println("No users with email " + formEmail + " found");
 		}
 		while (iter.hasNext()) {
 			var user = iter.next();
@@ -140,8 +140,8 @@
 			var body = mail_request_password_xhtml.calliConstructHTML(user);
 			body = body.replace(/\\?resetpassword/g, qs);
 			user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + formEmail + ">");
-			java.lang.Thread.sleep(new java.util.Random().nextInt() % 2000 + 2000);
 		}
+		java.lang.Thread.sleep(new java.util.Random().nextInt() % 2000 + 2000);
 	""".
 
 :formEmail a owl:DatatypeProperty, owl:FunctionalProperty;

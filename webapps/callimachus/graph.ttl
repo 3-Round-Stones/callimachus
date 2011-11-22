@@ -127,11 +127,11 @@
 			}
 		});
 		
-		java.lang.System.out.println("Parsing " + this);
+		println("Parsing " + this);
 		con.add(inputStream, this.toString(), RDFFormat.TURTLE, [this.resource]);
 
 		this.touchRevision();
-		java.lang.System.out.println("Imported " + this);
+		println("Imported " + this);
 	""".
 
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
@@ -202,7 +202,7 @@
 		var obj = location;
 		var uri = obj.toString();
 
-		java.lang.System.out.println("Parsing " + fileName);
+		println("Parsing " + fileName);
 		con.add(body, uri, format, [obj.resource]);
 		obj = con.addDesignation(obj, this.toString());
 		obj = con.addDesignation(obj, Document);

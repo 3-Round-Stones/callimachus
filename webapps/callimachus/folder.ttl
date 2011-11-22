@@ -337,7 +337,13 @@
 		var bio = new java.io.BufferedInputStream(payload, 65536);
 		var multipart = new org.callimachusproject.io.MultipartParser(bio);
 		var inputStream;
+		var dependency = new java.util.HashSet(this.FindComponentsWithExternalDependent());
 		this.DeleteComponents(); //# remove existing components
+		var iter = dependency.iterator();
+		while (iter.hasNext()) {
+			if (!con.hasStatement(null, null, iter.next().resource, true, []))
+				iter.remove(); //# no longer a dependency 
+		}
 		while (inputStream = multipart.next()) {
 			try {
 				java.lang.System.out.println("Importing folder content from: " + multipart.headers.get("content-disposition"));
@@ -358,14 +364,17 @@
 					try {
 						if (carStream.isFolderEntry()) {
 							this.DesignateAsFolder(location);
+							dependency.remove(location);
 						} else if (carStream.isFileEntry()) {
 							var type = carStream.getEntryType();
 							container.PostFactoryCreate(entryStream, File, null, location, type);
+							dependency.remove(location);
 						} else if (carStream.isResourceEntry()) {
 							readFrom(entryStream, uri, []);
 							if (folder) {
 								folder.calliHasComponent.add(location);
 							}
+							dependency.remove(location);
 						} else if (carStream.isSchemaEntry()) {
 							var graphURI = vf.createURI(uri + ".owl");
 							con.add(graphURI, RDF.TYPE, SchemaGraph, []);
@@ -373,6 +382,7 @@
 							if (folder) {
 								folder.calliHasComponent.add(location);
 							}
+							dependency.remove(location);
 						}
 					} finally {
 						entryStream.close();
@@ -382,6 +392,8 @@
 				inputStream.close();
 			}
 		}
+		if (!dependency.isEmpty())
+			throw new BadRequest(dependency.size() + " required resource(s) not present: " + dependency.iterator().next());
 		return this;
 	""".
 
@@ -389,6 +401,17 @@
 	rdfs:domain :UploadFolderComponents;
 	rdfs:range <java:java.io.InputStream>;
 	msg:type "multipart/form-data".
+
+:FindComponentsWithExternalDependent rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Local>];
+	msg:sparql """
+		SELECT ?component {
+			$this calli:hasComponent+ ?component .
+			?external ?dependent ?component
+			FILTER (!isIRI(?external) || !regex(str(?external), str($this))) # TODO replace with strstarts
+		}
+	""".
 
 :DeleteComponents rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];

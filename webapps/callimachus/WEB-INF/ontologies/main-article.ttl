@@ -50,6 +50,7 @@
 				con.add(folder.resource, describedBy, vf.createURI(created.toString() + '?view'), []);
 				this.objectConnection.commit(); //# uploadArticle is a remote method in this context
 				println("Uploading " + page);
+				created.setLocalAuthority(created.toUri().authority);
 				created.UploadArticle(new java.net.URL(url).openStream());
 			}
 		}

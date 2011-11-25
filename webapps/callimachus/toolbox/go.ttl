@@ -83,8 +83,9 @@
 		var stmts = con.getStatements(null, null, vf.createLiteral(q), []);
 		try { //# check if there is a resource with this exact label
 			if (stmts.hasNext()) {
-				var uri = stmts.next().subject;
-				var pred = stmts.next().predicate;
+				var st = stmts.next();
+				var uri = st.subject;
+				var pred = st.predicate;
 				if (uri instanceof org.openrdf.model.URI && !stmts.hasNext()
 						&& (RDFS.LABEL.equals(pred)
 						|| pred.stringValue().equals("http://www.w3.org/2004/02/skos/core#prefLabel")

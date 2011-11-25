@@ -240,14 +240,14 @@
 					} finally {
 						content.close();
 					}
-				}
-			} else if (component.objectConnection.hasStatement(null, null, null, false, [component.resource])) {
-				//# Export Graph
-				var triples = component.objectConnection.getStatements(null, null, null, false, [component.resource]);
-				try {
-					writeTo(triples, carStream.writeFileEntry(name, time, "application/rdf+xml"));
-				} finally {
-					triples.close();
+				} else if (component.objectConnection.hasStatement(null, null, null, false, [component.resource])) {
+					//# Export Graph
+					var triples = component.objectConnection.getStatements(null, null, null, false, [component.resource]);
+					try {
+						writeTo(triples, carStream.writeFileEntry(name, time, "application/rdf+xml"));
+					} finally {
+						triples.close();
+					}
 				}
 			} else if (component instanceof Class) {
 				//# Export Schema

@@ -73,7 +73,7 @@ function addSetItem(uri, script, errorMessage) {
 		position = parseInt(m[0][2]);
 	}
 	jQuery.get(url, function(data) {
-		var input = data ? $(data).children("[about],[resource]") : data;
+		var input = data ? $(data).children("[data-var-about],[data-var-resource]") : data;
 		if (input && input.length) {
 			if (position > 0 && script.children().length >= position) {
 				script.children()[position - 1].before(input);

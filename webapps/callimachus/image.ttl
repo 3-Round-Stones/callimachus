@@ -179,13 +179,9 @@
 		return obj;
 	""".
 
-:local a calli:LocalRealm.
-
 :PutImage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Image> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "PUT" ;
-	msg:realm :local ;
 	msg:script """
 		var out = this.openOutputStream() ;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);

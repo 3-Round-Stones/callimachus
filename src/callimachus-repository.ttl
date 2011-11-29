@@ -1,22 +1,27 @@
 #
 # Sesame configuration for a callimachus repository
 #
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix rep: <http://www.openrdf.org/config/repository#>.
 @prefix sr: <http://www.openrdf.org/config/repository/sail#>.
 @prefix sail: <http://www.openrdf.org/config/sail#>.
 @prefix ns: <http://www.openrdf.org/config/sail/native#>.
 @prefix audit: <http://www.openrdf.org/config/sail/auditing#>.
+@prefix opt: <http://www.openrdf.org/config/repository/optimistic#>.
 
 [] a rep:Repository ;
    rep:repositoryID "callimachus" ;
    rdfs:label "Callimachus Repository" ;
    rep:repositoryImpl [
       rep:repositoryType "openrdf:OptimisticRepository" ;
+      opt:snapshot false ;
+      opt:serializable false ;
       sr:sailImpl [
          sail:sailType "openrdf:AuditingSail" ;
          audit:archiving false ;
          audit:maximumArchiveTriples 100 ;
+         audit:purgeObsoleteTransactionsAfter "P30D"^^xsd:dayTimeDuration ;
          audit:minimumRecentTransactions 100 ;
          audit:maximumRecentTransactions 1000 ;
          sail:delegate [

@@ -3,7 +3,7 @@
 (function($){
 	$(window).bind('message', function(event) {
 		if (event.originalEvent.source == $('#iframe')[0].contentWindow && event.originalEvent.data == 'CONNECT calliEditorLoaded') {
-			var template = $('#template').text();
+			var template = $('#template').text() || $('#template').html();
 			if (window.location.hash.indexOf('#!') == 0) {
 				jQuery.ajax({type: 'GET', url: window.location.hash.substring(2), complete: function(xhr) {
 					if (xhr.status == 200 || xhr.status == 304) {

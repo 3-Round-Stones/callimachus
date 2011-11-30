@@ -23,6 +23,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+<> a </callimachus/SchemaGraph>.
+
 <NamedGraph> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf calli:NamedGraph, <File>;
 	rdfs:label "Named Graph";

@@ -24,6 +24,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+<> a </callimachus/SchemaGraph>.
+
 :GetPermissions rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:method "GET";

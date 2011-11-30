@@ -80,7 +80,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CallimachusServer implements HTTPObjectAgentMXBean {
-	private static final String SCHEMA_GRAPH = "http://callimachusproject.org/rdf/2009/framework#SchemaGraph";
+	private static final String SCHEMA_GRAPH = "/callimachus/SchemaGraph";
 	private static final String PROPERTIES = "/META-INF/callimachusproject.properties";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
@@ -97,8 +97,6 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			throws Exception {
 		File webappsDir = webapps.getCanonicalFile();
 		this.repository = importJars(webappsDir, dataDir, repository);
-		ValueFactory vf = this.repository.getValueFactory();
-		this.repository.setSchemaGraphType(vf.createURI(SCHEMA_GRAPH));
 		ObjectConnection con = this.repository.getConnection();
 		try {
 			ClassLoader cl = con.getObjectFactory().getClassLoader();
@@ -130,10 +128,11 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		return origin;
 	}
 
-	public void setOrigin(String origin) {
+	public void setOrigin(String origin) throws Exception {
 		this.origin = origin;
-		String prefix = origin + IDENTITY_PATH;
-		server.setIdentityPrefix(new String[] { prefix });
+		ValueFactory vf = this.repository.getValueFactory();
+		repository.setSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
+		server.setIdentityPrefix(new String[] { origin + IDENTITY_PATH });
 		server.setErrorXSLT(origin + ERROR_XSLT_PATH);
 		uploader.setProxy(getAuthorityAddress());
 		boot.setProxy(getAuthorityAddress());

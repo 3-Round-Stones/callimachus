@@ -22,6 +22,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+<> a </callimachus/SchemaGraph>.
+
 <Profile> a owl:Class;
 	rdfs:subClassOf <Local>;
 	rdfs:isDefinedBy </callimachus>.

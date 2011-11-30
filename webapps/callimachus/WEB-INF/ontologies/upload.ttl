@@ -31,99 +31,10 @@
 	msg:header "Content-Type".
 
 ################################
-# RDF Named Schema Graph
+# RDF Named Graph
 ################################
 
 calli:NamedGraph a owl:Class.
-calli:SchemaGraph a owl:Class.
-
-:PutTurtleDocument rdfs:subClassOf :PutContentType;
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "PUT";
-	msg:query "calliwebapps";
-	msg:realm calli:nobody;
-	msg:imports <java:org.openrdf.rio>;
-	msg:imports calli:NamedGraph;
-	msg:imports calli:SchemaGraph;
-	msg:imports <java:org.openrdf.repository.util.RDFInserter>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <java:java.net.URLDecoder>;
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.getValueFactory();
-
-		this.calliDeleteWebResource();
-
-		var filename = this.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/g, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
-		con.add(this.resource, RDFS.LABEL, label, []);
-
-		con.addDesignation(this, NamedGraph);
-
-		var type = contentType;
-		if (type.indexOf(';') > 0) {
-			type = type.substring(0, type.indexOf(';'));
-		}
-		var dataFormat = RDFFormat.forMIMEType(type);
-		var vf = this.objectConnection.getValueFactory();
-		var rdfParser = Rio.createParser(dataFormat, vf);
-
-		rdfParser.setVerifyData(true);
-		rdfParser.setStopAtFirstError(true);
-		rdfParser.setDatatypeHandling(RDFParser.DatatypeHandling.IGNORE);
-
-		var target = this;
-		var schema = false;
-		var owlns = "http://www.w3.org/2002/07/owl#";
-		var rdfsns = "http://www.w3.org/2000/01/rdf-schema#";
-		var rdfns = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-		var msgns = "http://www.openrdf.org/rdf/2011/messaging#";
-		var objns = "http://www.openrdf.org/rdf/2009/object#";
-		function checkForSchema(st) {
-			if (schema)
-				return;
-			var ns = st.predicate.namespace;
-			if (ns == owlns || ns == msgns || ns == objns) {
-				schema = true;
-			} else if (ns == rdfsns) {
-				var local = st.predicate.localName;
-				schema = local == "subClassOf" || local == "subPropertyOf"
-					|| local == "domain" || local == "range";
-			} else if (ns == rdfns && st.predicate.localName == "type") {
-				var ons = st.object.namespace;
-				var local = st.object.localName;
-				schema = ons == owlns && local != "Thing"
-					|| ons == rdfsns && local == "Class"
-					|| ons == rdfns && local == "Property";
-			}
-			if (schema) {
-				con.addDesignation(target, SchemaGraph);
-			}
-		}
-
-		var rdfInserter = new RDFInserter(con);
-		rdfInserter.enforceContext([this.resource]);
-		rdfParser.setRDFHandler(new RDFHandler({
-			startRDF: function() { rdfInserter.startRDF(); },
-			endRDF: function() { rdfInserter.endRDF(); },
-			handleNamespace: function(prefix, uri) { rdfInserter.handleNamespace(prefix, uri); },
-			handleComment: function(comment) { rdfInserter.handleComment(comment); },
-			handleStatement: function(st) {
-				checkForSchema(st);
-				rdfInserter.handleStatement(st);
-			}
-		}));
-		rdfParser.parse(turtleStream, this.toString());
-	""".
-
-:turtleStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :PutTurtleDocument;
-	rdfs:range <java:java.io.InputStream>;
-	msg:type "text/turtle", "application/x-turtle".
-
-################################
-# RDF Named Graph
-################################
 
 :PutGraphDocument rdfs:subClassOf :PutContentType;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
@@ -156,7 +67,7 @@ calli:SchemaGraph a owl:Class.
 :rdfStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PutGraphDocument;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/rdf+xml".
+	msg:type "application/rdf+xml", "text/turtle", "application/x-turtle".
 
 ################################
 # Text File

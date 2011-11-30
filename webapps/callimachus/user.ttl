@@ -7,6 +7,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+<> a </callimachus/SchemaGraph>.
+
 <User> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:User;
 	rdfs:label "User";

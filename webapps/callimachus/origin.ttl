@@ -25,6 +25,8 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
+<> a </callimachus/SchemaGraph>.
+
 <Origin> a owl:Class;
 	rdfs:subClassOf <Folder>, calli:Origin;
 	rdfs:label "Origin";

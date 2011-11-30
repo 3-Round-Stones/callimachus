@@ -21,6 +21,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+<> a </callimachus/SchemaGraph>.
+
 <Page> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf calli:Page, <File>;
 	rdfs:label "Page";

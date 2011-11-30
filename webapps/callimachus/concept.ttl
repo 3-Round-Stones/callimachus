@@ -23,6 +23,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+<> a </callimachus/SchemaGraph>.
+
 <Concept> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Viewable>, <Editable>, skos:Concept;
 	rdfs:label "Concept";

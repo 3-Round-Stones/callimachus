@@ -22,14 +22,15 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
 
-@base <http://callimachusproject.org/rdf/2009/framework>.
+<> a </callimachus/SchemaGraph>.
 
 ################################
 # Ontology
 ################################
 
-<> a owl:Ontology;
+<http://callimachusproject.org/rdf/2009/framework> a owl:Ontology;
 	rdfs:label "Callimachus Ontology";
 	rdfs:comment "Vocabulary used to create Callimachus applications";
 	owl:versionInfo "0.13".
@@ -98,10 +99,6 @@ calli:Theme a owl:Class;
 calli:ScriptBundle a owl:Class;
 	rdfs:label "Script Bundle";
 	rdfs:comment "A collection of JavaScript files that are downloaded and compressed together".
-
-calli:SchemaGraph a owl:Class;
-	rdfs:label "Schema Graph";
-	rdfs:comment "Graph in the RDF store that contains schema data".
 
 calli:Creatable a owl:DeprecatedClass;
 	rdfs:label "Creatable";
@@ -320,14 +317,14 @@ calli:IsAuthorized rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean].
 
-<framework/IsAuthorized#credential> a owl:FunctionalProperty, owl:ObjectProperty;
+<http://callimachusproject.org/rdf/2009/framework/IsAuthorized#credential> a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain calli:IsAuthorized.
 
-<framework/IsAuthorized#method> a owl:FunctionalProperty, owl:DatatypeProperty;
+<http://callimachusproject.org/rdf/2009/framework/IsAuthorized#method> a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain calli:IsAuthorized;
 	rdfs:range xsd:string;.
 
-<framework/IsAuthorized#query> a owl:FunctionalProperty, owl:DatatypeProperty;
+<http://callimachusproject.org/rdf/2009/framework/IsAuthorized#query> a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain calli:IsAuthorized;
 	rdfs:range xsd:string.
 

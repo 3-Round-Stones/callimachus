@@ -12,7 +12,7 @@
 # Schema data to initialize an Callimachus store, but may be removed.
 ################################################################
 
-audit:current-trx a calli:SchemaGraph.
+audit:current-trx a </callimachus/SchemaGraph>.
 
 ################################
 # Protected Resource Classes
@@ -40,6 +40,7 @@ audit:current-trx a calli:SchemaGraph.
 </callimachus/Script>          calli:author </group/staff>,</group/admin>.
 </callimachus/Style>           calli:author </group/staff>,</group/admin>.
 </callimachus/TextFile>        calli:author </group/staff>,</group/admin>.
+</callimachus/HypertextFile>   calli:author </group/staff>,</group/admin>.
 </callimachus/Transform>       calli:author </group/staff>,</group/admin>.
 
 </callimachus/Concept>         calli:author </group/users>,</group/staff>,</group/admin>.

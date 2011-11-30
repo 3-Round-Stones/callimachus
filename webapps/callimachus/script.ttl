@@ -22,6 +22,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+<> a </callimachus/SchemaGraph>.
+
 <Script> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf <File>;
 	rdfs:label "Script";

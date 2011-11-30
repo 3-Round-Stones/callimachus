@@ -22,6 +22,8 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
+<> a </callimachus/SchemaGraph>.
+
 # Note instances of <Class> are creatable and <Class> itself is also creatable
 <Class> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf <Creatable>, <Viewable>, <Editable>, owl:Class;

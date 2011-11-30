@@ -9,6 +9,8 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
+<> a </callimachus/SchemaGraph>.
+
 <Manifest> rdfs:subClassOf <Viewable>, <Editable>, calli:Manifest;
 	rdfs:isDefinedBy </callimachus>;
 	calli:view <manifest-view.xhtml>;

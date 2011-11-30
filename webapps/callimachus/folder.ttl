@@ -25,6 +25,8 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
+<> a </callimachus/SchemaGraph>.
+
 <Folder> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:Folder;
 	rdfs:label "Folder";

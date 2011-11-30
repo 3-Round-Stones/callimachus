@@ -29,7 +29,7 @@ public abstract class TypedLiteral extends VarOrTermBase implements Literal {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append('"').append(stringValue().replace("\"", "\\\"")).append('"');
+		sb.append('"').append(stringValue().replace("\\", "\\\\").replace("\n", "\\n").replace("\"", "\\\"")).append('"');
 		sb.append("^^").append(getDatatype().toString());
 		return sb.toString();
 	}

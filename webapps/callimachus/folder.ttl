@@ -308,9 +308,11 @@
 	msg:realm </callimachus/manifest>;
 	msg:expect "302-see-other";
 	msg:imports <Composite>;
+	msg:imports </callimachus>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.repository.object.annotations.iri>;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
@@ -333,9 +335,8 @@
 		if (baseURI.lastIndexOf('/') != baseURI.length - 1) {
 			baseURI = baseURI + '/';
 		}
-		var File = con.getObject(this.toUri().resolve("/callimachus/File").toString());
-		var Folder = con.getObject(this.toUri().resolve("/callimachus/Folder").toString());
-		var SchemaGraph = vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph");
+		var File = con.getObject(callimachus.toUri().resolve("/callimachus/File").toString());
+		var SchemaGraph = vf.createURI(callimachus.toUri().resolve("/callimachus/SchemaGraph").toString());
 		var bio = new java.io.BufferedInputStream(payload, 65536);
 		var multipart = new org.callimachusproject.io.MultipartParser(bio);
 		var inputStream;
@@ -379,7 +380,8 @@
 							dependency.remove(location);
 						} else if (carStream.isSchemaEntry()) {
 							var graphURI = vf.createURI(uri + ".owl");
-							con.add(graphURI, RDF.TYPE, SchemaGraph, []);
+							con.clear([graphURI]);
+							con.add(graphURI, RDF.TYPE, SchemaGraph, [graphURI]);
 							readFrom(entryStream, uri, [graphURI]);
 							if (folder) {
 								folder.calliHasComponent.add(location);

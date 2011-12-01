@@ -51,11 +51,12 @@
 		[owl:onProperty msg:target; owl:hasValue <Class> ]);
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
+	msg:imports <SchemaGraph>;
 	msg:script """
 		var ret = proceed();
 		var con = this.objectConnection;
-		var vf = con.getValueFactory();
-		con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph"), []);
+		var of = con.objectFactory;
+		con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
 		con.recompileAfterClose();
 		return ret;
 	""".
@@ -67,8 +68,8 @@
 	msg:script """
 		var ret = proceed();
 		var con = this.objectConnection;
-		var vf = con.getValueFactory();
-		con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#SchemaGraph"), []);
+		var of = con.objectFactory;
+		con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
 		con.recompileAfterClose();
 		return ret;
 	""".

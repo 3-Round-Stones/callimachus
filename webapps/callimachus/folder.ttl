@@ -481,6 +481,7 @@
 	msg:imports <Folder>;
 	msg:imports <Composite>;
 	msg:script """
+		var con = this.objectConnection;
 		if (nonFolder instanceof Folder)
 			return nonFolder;
 		var uri = nonFolder.toString();

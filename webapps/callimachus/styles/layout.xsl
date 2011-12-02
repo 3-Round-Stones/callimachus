@@ -46,7 +46,7 @@
 		<xsl:copy />
 	</xsl:template>
 
-	<xsl:template match="@src|@href">
+	<xsl:template match="@src|@href|@about|@resource">
 		<xsl:attribute name="{name()}">
 			<xsl:if test="$template">
 				<xsl:call-template name="resolve-path">
@@ -133,7 +133,7 @@
 		<xsl:copy />
 	</xsl:template>
 
-	<xsl:template mode="layout" match="@src|@href">
+	<xsl:template mode="layout" match="@src|@href|@about|@resource">
 		<xsl:attribute name="{name()}">
 			<xsl:call-template name="resolve-path">
 				<xsl:with-param name="relative" select="." />

@@ -46,6 +46,7 @@ import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.SPARQLProducer;
 import org.callimachusproject.stream.XMLElementReader;
 import org.callimachusproject.traits.SoundexTrait;
+import org.openrdf.http.object.annotations.method;
 import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.http.object.exceptions.BadRequest;
@@ -93,6 +94,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		DATA_ATTR = new XSLTransformer(reader, url);
 	}
 
+	@method("GET")
 	@query("xslt")
 	@type("application/xml")
 	public XMLEventReader xslt(@query("query") String query,
@@ -102,6 +104,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		return extract(addDataAttributes(doc, query), element);
 	}
 
+	@method("GET")
 	@query("triples")
 	@type("application/rdf+xml")
 	public XMLEventReader triples(@query("query") String query,
@@ -111,6 +114,7 @@ public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
 		return new RDFXMLEventReader(new RDFaReader(base, doc, toString()));
 	}
 
+	@method("GET")
 	@query("sparql")
 	@type("application/sparql-query")
 	public byte[] sparql(@query("about") String about,

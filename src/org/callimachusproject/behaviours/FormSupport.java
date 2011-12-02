@@ -51,6 +51,7 @@ import org.callimachusproject.stream.SPARQLProducer;
 import org.callimachusproject.stream.TemplateReader;
 import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.annotations.header;
+import org.openrdf.http.object.annotations.method;
 import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.http.object.client.HTTPObjectClient;
@@ -98,6 +99,7 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 	/**
 	 * Extracts an element from the template (without variables).
 	 */
+	@method("GET")
 	@query("template")
 	@type("text/html")
 	public String template(@query("query") String query,
@@ -120,6 +122,7 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 	 * Extracts an element from the template (without variables) and populates
 	 * the element with the properties of the about resource.
 	 */
+	@method("GET")
 	@query("construct")
 	@type("text/html")
 	@header("cache-control:no-store")
@@ -141,7 +144,8 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 	/**
 	 * See data-options, defining an HTML select/option fragment
 	 */
-	
+
+	@method("GET")
 	@query("options")
 	@type("text/html")
 	@header("cache-control:no-store")
@@ -170,6 +174,7 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 	 * Returns an HTML page listing suggested resources for the given element.
 	 * See data-search
 	 */
+	@method("GET")
 	@query("search")
 	@type("text/html")
 	@header("cache-control:no-validate,max-age=60")

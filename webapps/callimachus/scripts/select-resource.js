@@ -53,8 +53,8 @@ calli.selectResource = function(event, src) {
 		buttons: {
 			"Select": function() {
 				var uri = calli.listResourceIRIs(src)[0];
-				var de = jQuery.Event('calliLink');
-				de.location = uri;
+				var de = jQuery.Event('drop');
+				de.dataTransfer = {getData:function(){return uri}};
 				de.errorMessage = "Invalid Selection";
 				$(node).trigger(de);
 				calli.closeDialog(dialog);

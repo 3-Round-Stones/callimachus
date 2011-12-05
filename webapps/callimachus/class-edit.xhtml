@@ -16,22 +16,25 @@
 	jQuery(function($){
 		$('#create').bind('calliLinked', function() {
 			$('link[rel="group"]').each(function(){
-				var de = jQuery.Event('calliLink');
-				de.location = this.href;
+				var href = this.href;
+				var de = jQuery.Event('drop');
+				de.dataTransfer = {getData:function(){return href}};
 				$('#authors').trigger(de);
 			});
 		});
 		$('#view').bind('calliLinked', function() {
 			$('link[rel="viewable"]').each(function(){
-				var de = jQuery.Event('calliLink');
-				de.location = this.href;
+				var href = this.href;
+				var de = jQuery.Event('drop');
+				de.dataTransfer = {getData:function(){return href}};
 				$('#subClassOf').trigger(de);
 			});
 		});
 		$('#edit').bind('calliLinked', function() {
 			$('link[rel="editable"]').each(function(){
-				var de = jQuery.Event('calliLink');
-				de.location = this.href;
+				var href = this.href;
+				var de = jQuery.Event('drop');
+				de.dataTransfer = {getData:function(){return href}};
 				$('#subClassOf').trigger(de);
 			});
 		});
@@ -40,8 +43,9 @@
 				var composite = $('#subClassOf').find('[about$="' + this.href + '"]');
 				if ($('#composite').is(':checked')) {
 					if (!composite.length) {
-						var de = jQuery.Event('calliLink');
-						de.location = this.href;
+						var href = this.href;
+						var de = jQuery.Event('drop');
+						de.dataTransfer = {getData:function(){return href}};
 						$('#subClassOf').trigger(de);
 					}
 				} else {
@@ -72,7 +76,7 @@
 				<label for="label">Label</label>
 				<input id="label" value="{rdfs:label}" class="auto-expand" required="required" />
 			</div>
-			<div id="icon" dropzone="link s:text/uri-list">
+			<div id="icon" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
 				<label>Icon <a href="/?view" title="Browse"
 						onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
 				<div rel="calli:icon">
@@ -88,7 +92,7 @@
 			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 		</div>
 		<div class="hbox">
-			<div id="authors" dropzone="link s:text/uri-list">
+			<div id="authors" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
 				<label>Authors <a href="/callimachus/Group" title="Select Group"
 						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:author" class="vbox">
@@ -98,7 +102,7 @@
 					</span>
 				</div>
 			</div>
-			<div id="subClassOf" dropzone="link s:text/uri-list">
+			<div id="subClassOf" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
 				<label>Super <a href="/callimachus/Class" title="Create"
 						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="rdfs:subClassOf" class="vbox">
@@ -116,7 +120,7 @@
 		<hr />
 		<h2>Page Templates</h2>
 		<div class="hbox">
-			<div id="create" dropzone="link s:text/uri-list">
+			<div id="create" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
 				<label>Create template <a href="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" title="Create"
 						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:create">
@@ -126,7 +130,7 @@
 					</span>
 				</div>
 			</div>
-			<div id="view" dropzone="link s:text/uri-list">
+			<div id="view" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
 				<label>View template <a href="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" title="Create"
 						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:view">
@@ -136,7 +140,7 @@
 					</span>
 				</div>
 			</div>
-			<div id="edit" dropzone="link s:text/uri-list">
+			<div id="edit" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
 				<label>Edit template <a href="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" title="Create"
 						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:edit">

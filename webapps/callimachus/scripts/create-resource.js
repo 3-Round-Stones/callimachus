@@ -31,8 +31,8 @@ calli.createResource = function(event, href) {
 				var data = event.data;
 				var src = data.substring(data.indexOf('\n\n') + 2);
 				var uri = calli.listResourceIRIs(src)[0];
-				var de = jQuery.Event('calliLink');
-				de.location = uri;
+				var de = jQuery.Event('drop');
+				de.dataTransfer = {getData:function(){return uri}};
 				$(node).trigger(de);
 			}
 		},
@@ -88,8 +88,9 @@ function listSearchResults(url, win, button) {
 				doc.write("<ul>" + html + "</ul>");
 				doc.close();
 				$('a.option', doc).click(function(event) {
-					var de = jQuery.Event('calliLink');
-					de.location = this.href;
+					var href = this.href;
+					var de = jQuery.Event('drop');
+					de.dataTransfer = {getData:function(){return href}};
 					$(button).trigger(de);
 					if (de.isDefaultPrevented()) {
 						event.preventDefault();

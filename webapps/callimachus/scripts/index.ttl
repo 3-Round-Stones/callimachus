@@ -52,5 +52,6 @@
 	rdf:_16 <submit-rdfxml.js>;
 	rdf:_17 <submit-form-data.js>;
 	rdf:_18 <submit-update.js>;
-	rdf:_19 <delete-resource.js>.
+	rdf:_19 <delete-resource.js>;
+	rdf:_20 <insert-resource.js>.
 

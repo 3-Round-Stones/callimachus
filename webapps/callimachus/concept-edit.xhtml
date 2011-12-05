@@ -75,7 +75,7 @@
 		</div>
 		<hr />
 		<div class="hbox">
-			<div id="related" dropzone="link s:text/uri-list">
+			<div id="related" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
 				<label>Related <a href="/callimachus/Concept?create" title="Create"
 						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="skos:related" class="vbox">
@@ -85,7 +85,7 @@
 					</span>
 				</div>
 			</div>
-			<div id="narrower" dropzone="link s:text/uri-list">
+			<div id="narrower" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
 				<label>Narrower <a href="/callimachus/Concept?create" title="Create"
 						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="skos:narrower" class="vbox">
@@ -97,7 +97,7 @@
 			</div>
 		</div>
 		<hr />
-		<div id="image" dropzone="link s:text/uri-list">
+		<div id="image" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
 			<label>Image <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
 		 	<div rel="foaf:depiction">
 				<span about="?depiction" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">

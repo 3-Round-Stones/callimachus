@@ -16,7 +16,7 @@
 			<li>Use Wiki text to describe the group</li>
 		</ul>
 	</div>
-	<form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Party calli:Group" onsubmit="return calli.saveFormAs(this)">
+	<form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Party calli:Group" onsubmit="return calli.saveResourceAs(event)">
 		<label for="label">Name</label>
 		<div>
 			<input id="label" value="{rdfs:label}" type="text" class="auto-expand required" autofocus="autofocus" />

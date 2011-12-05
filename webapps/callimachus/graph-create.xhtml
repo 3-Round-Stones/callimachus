@@ -30,7 +30,7 @@
 ]]></script>
 </head>
 <body>
-	<form id="form" method="POST" action="" enctype="text/turtle" onsubmit="return calli.saveFormAs(this, 'untitled graph.ttl')">
+	<form id="form" method="POST" action="" enctype="text/turtle" onsubmit="return calli.saveResourceAs(event, 'untitled graph.ttl')">
 		<iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#sparql"> </iframe>
 		<button type="submit">Create</button>
 	</form>

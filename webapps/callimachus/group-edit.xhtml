@@ -30,18 +30,18 @@
 		</ul>
 	</div>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this"
-			onsubmit="saveChangeNote()" data-redirect="../">
+			onsubmit="saveChangeNote()">
 		<label for="comment">Description</label>
 		<div>
 			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
 		</div>
 		<div dropzone="link s:text/uri-list">
 			<label>Members <a href="/user/?create=/callimachus/User" title="Invite"
-					onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+					onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 			<div rel="calli:member" class="vbox">
 				<span about="?member" typeof="calli:User" class="ui-state-highlight ui-corner-all">
 					<span property="rdfs:label" />
-					<a href="{?member}" title="Remove user from group" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+					<a href="{?member}" title="Remove user from group" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 				</span>
 			</div>
 		</div>
@@ -52,7 +52,7 @@
 		</div>
 		<button id="save" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" onclick="calli.deleteResource(form)">Delete</button>
+		<button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
 	</form>
 </body>
 </html>

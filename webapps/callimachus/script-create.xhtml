@@ -8,7 +8,7 @@
 	<script type="text/javascript" src="/callimachus/editor/create.js"> </script>
 </head>
 <body>
-	<form id="form" method="POST" action="" enctype="text/javascript" onsubmit="return calli.saveFormAs(this, 'untitled script.js')">
+	<form id="form" method="POST" action="" enctype="text/javascript" onsubmit="return calli.saveResourceAs(event, 'untitled script.js')">
 		<iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#javascript"> </iframe>
 		<button type="submit">Create</button>
 	</form>

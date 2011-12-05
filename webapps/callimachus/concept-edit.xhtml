@@ -41,7 +41,7 @@
 				<label for="altLabel">Alternate label</label>
 				<div>
 					<input id="altLabel" property="skos:altLabel" content="?alt" value="{?alt}" class="auto-expand" />
-					<a href="javascript:void(0)" title="More" onclick="return calli.addTemplate(this)" class="ui-icon ui-icon-plus" />
+					<a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="ui-icon ui-icon-plus" />
 				</div>
 			</div>
 		</div>
@@ -77,32 +77,32 @@
 		<div class="hbox">
 			<div id="related" dropzone="link s:text/uri-list">
 				<label>Related <a href="/callimachus/Concept?create" title="Create"
-						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="skos:related" class="vbox">
 					<span about="?related" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
 						<span property="skos:prefLabel" />
-						<a href="{?related}" title="Remove relationship" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<a href="{?related}" title="Remove relationship" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
 			<div id="narrower" dropzone="link s:text/uri-list">
 				<label>Narrower <a href="/callimachus/Concept?create" title="Create"
-						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="skos:narrower" class="vbox">
 					<span about="?narrower" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
 						<span property="skos:prefLabel" />
-						<a href="{?narrower}" title="Remove relationship" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<a href="{?narrower}" title="Remove relationship" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
 		</div>
 		<hr />
 		<div id="image" dropzone="link s:text/uri-list">
-			<label>Image <a href="/?view" title="Browse" onclick="return calli.selectResource(this)" class="ui-icon ui-icon-folder-open" /></label>
+			<label>Image <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
 		 	<div rel="foaf:depiction">
 				<span about="?depiction" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
 					<img src="{?depiction}?small" />
-					<a href="{?depiction}" title="Remove from this concept" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+					<a href="{?depiction}" title="Remove from this concept" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 				</span>
 			</div>
 		</div>
@@ -113,7 +113,7 @@
 		</div>
 		<button id="save" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" onclick="calli.deleteResource(form)">Delete</button>
+		<button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
 	</form>
 </body>
 </html>

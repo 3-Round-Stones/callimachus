@@ -9,10 +9,15 @@
 if (!window.calli) {
 	window.calli = {};
 }
-window.calli.deleteResource = function(form) {
-	if (form && !confirm("Are you sure you want to delete " + document.title + "?"))
-		return;
+window.calli.deleteResource = function(event, redirect) {
+	var form = event.target ? event.target : event.srcElement ? event.srcElement : event;
+	if (form.nodeType == 3) form = form.parentNode; // defeat Safari bug
 	form = $(form);
+	if(!form.is('form')) form = form.closest('form');
+
+	if (event && !confirm("Are you sure you want to delete " + document.title + "?"))
+		return;
+	
 	if (!form || !form.length) {
 		form = $("form[about]");
 	}
@@ -35,7 +40,7 @@ window.calli.deleteResource = function(form) {
 			}, success: function(data, textStatus) {
 				try {
 					var event = jQuery.Event("calliRedirect");
-					event.location = form.attr("data-redirect");
+					event.location = redirect ? redirect : form.attr("data-redirect");
 					if (!event.location) {
 						if (window.sessionStorage) {
 							var previous = sessionStorage.getItem("Previous");

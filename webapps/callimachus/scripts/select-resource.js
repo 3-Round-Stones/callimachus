@@ -1,4 +1,4 @@
-// select-file.js
+// select-resoure.js
 /*
    Copyright (c) 2011 Talis Inc, Some Rights Reserved
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
@@ -10,7 +10,9 @@ calli.selectFile = function(node, src) {
 	return calli.selectResource(node, src);
 };
 
-calli.selectResource = function(node, src) {
+calli.selectResource = function(event, src) {
+	var node = event.target ? event.target : event.srcElement ? event.srcElement : event;
+	if (node.nodeType == 3) node = node.parentNode; // defeat Safari bug
 	var list = $(node).filter('[dropzone]').add($(node).parents('[dropzone]'));
 	if (!list.length)
 		return true;

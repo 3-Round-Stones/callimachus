@@ -39,7 +39,7 @@
 	rdf:_3 <data-options.js>;
 	rdf:_4 <input-expression.js>;
 	rdf:_5 <resource-iri.js>;
-	rdf:_6 <add-template.js>;
+	rdf:_6 <add-resource.js>;
 	rdf:_7 <remove-resource.js>;
 	rdf:_8 <dropzone.js>;
 	rdf:_9 <dialog.js>;
@@ -47,8 +47,8 @@
 	rdf:_11 <document-ready.js>;
 	rdf:_12 <input-date.js>;
 	rdf:_13 <disable-button.js>;
-	rdf:_14 <save-form-as.js>;
-	rdf:_15 <select-file.js>;
+	rdf:_14 <save-resource-as.js>;
+	rdf:_15 <select-resource.js>;
 	rdf:_16 <submit-rdfxml.js>;
 	rdf:_17 <submit-form-data.js>;
 	rdf:_18 <submit-update.js>;

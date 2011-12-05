@@ -1,4 +1,4 @@
-// save-form-as.js
+// save-resource-as.js
 /*
    Copyright (c) 2011 3 Round Stones Inc, Some Rights Reserved
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
@@ -17,7 +17,15 @@ function resubmit(form) {
 		originalSubmit = previously;
 	}
 }
-window.calli.saveFormAs = function(form, fileName, create) {
+
+calli.saveFormAs = function(event, fileName, create) {
+	return calli.saveResourceAs(event, fileName, create);
+};
+window.calli.saveResourceAs = function(event, fileName, create) {
+	var form = event.target ? event.target : event.srcElement ? event.srcElement : event;
+	if (form.nodeType == 3) form = form.parentNode; // defeat Safari bug
+	if(!$(form).is('form')) form = $(form).closest('form')[0];
+
 	$(form).find("input").change(); // IE may not have called onchange before onsubmit
 	var about = $(form).attr('about');
 	if (originalSubmit && fileName) { // prompt for a new URI

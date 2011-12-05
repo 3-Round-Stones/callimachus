@@ -95,7 +95,7 @@
 		</ul>
 	</div>
 	<form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="owl:Class"
-			onsubmit="updateAbout();return calli.saveFormAs(this)">
+			onsubmit="updateAbout();return calli.saveResourceAs(event)">
 		<div class="hbox">
 			<div>
 				<label for="label">Label</label>
@@ -103,11 +103,11 @@
 			</div>
 			<div id="icon" dropzone="link s:text/uri-list">
 				<label>Icon <a href="/?view" title="Browse"
-						onclick="return calli.selectResource(this)" class="ui-icon ui-icon-folder-open" /></label>
+						onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
 				<div rel="calli:icon">
 					<span about="?icon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
 						<img src="{?icon}" />
-						<a href="{?icon}" title="Remove from class" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<a href="{?icon}" title="Remove from class" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
@@ -119,32 +119,32 @@
 		<div class="hbox">
 			<div id="authors" dropzone="link s:text/uri-list">
 				<label>Authors <a href="/callimachus/Group" title="Select Group"
-						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:author" class="vbox">
 					<span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
 						<span property="rdfs:label" />
-						<a href="{?author}" title="Remove permission" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
 			<div id="subClassOf" dropzone="link s:text/uri-list">
 				<label>Super <a href="/callimachus/Class" title="Create"
-						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="rdfs:subClassOf" class="vbox">
 					<span about="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
 						<span property="rdfs:label" />
-						<a href="{?subClassOf}" title="Don't extend" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<a href="{?subClassOf}" title="Don't extend" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
 			<div id="equivalentClass" dropzone="link s:text/uri-list">
 				<label>Equivalent <a href="/callimachus/NamedGraph" title="Create"
-						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="owl:equivalentClass" class="vbox">
 					<span about="?equivalentClass" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
 						<span class="equivalentLabel" property="rdfs:label" />
 						<span style="display:none" class="equivalentComment">{rdfs:comment}</span>
-						<a href="{?equivalentClass}" title="Not equivalent" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<a href="{?equivalentClass}" title="Not equivalent" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
@@ -158,31 +158,31 @@
 		<div class="hbox">
 			<div id="create" dropzone="link s:text/uri-list">
 				<label>Create template <a href="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" title="Create"
-						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:create">
 					<span about="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
 						<span property="rdfs:label" />
-						<a href="{?create}" title="Don't use this template" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<a href="{?create}" title="Don't use this template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
 			<div id="view" dropzone="link s:text/uri-list">
 				<label>View template <a href="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" title="Create"
-						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:view">
 					<span about="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
 						<span property="rdfs:label" />
-						<a href="{?view}" title="Don't use this template" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<a href="{?view}" title="Don't use this template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
 			<div id="edit" dropzone="link s:text/uri-list">
 				<label>Edit template <a href="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" title="Create"
-						onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 				<div rel="calli:edit">
 					<span about="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
 						<span property="rdfs:label" />
-						<a href="{?edit}" title="Don't use this template" onclick="return calli.removeResource(this)" class="ui-icon ui-icon-close" />
+						<a href="{?edit}" title="Don't use this template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>

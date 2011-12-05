@@ -62,7 +62,7 @@
 		</div>
 	 	<div dropzone="link s:text/uri-list">
 			<label>Photo <a href="?create=/callimachus/Photo" title="Upload"
-					onclick="return calli.createResource(this)" class="ui-icon ui-icon-newwin" /></label>
+					onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 			<div rel="foaf:depiction">
 				<span about="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
 					<img src="{?img}?small" />
@@ -75,7 +75,7 @@
 		</div>
 		<button id="save" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" onclick="calli.deleteResource(form)">Delete</button>
+		<button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
 	</form>
 </body>
 </html>

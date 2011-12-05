@@ -6,7 +6,9 @@
 
 (function($){
 
-calli.createResource = function(node, href) {
+calli.createResource = function(event, href) {
+	var node = event.target ? event.target : event.srcElement ? event.srcElement : event;
+	if (node.nodeType == 3) node = node.parentNode; // defeat Safari bug
 	if (!href && $(node).attr("href")) {
 		href = $(node).attr("href");
 	}

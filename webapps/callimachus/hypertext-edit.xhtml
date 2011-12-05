@@ -11,9 +11,9 @@
 	<form id="form" method="POST" action="" enctype="text/plain">
 		<iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#html"> </iframe>
         <button type="submit">Save</button>
-		<button type="button" onclick="calli.saveFormAs(form, 'untitled.html', '/callimachus/HypertextFile')">Save as...</button>
+		<button type="button" onclick="calli.saveResourceAs(event, 'untitled.html', '/callimachus/HypertextFile')">Save as...</button>
 		<button type="button" onclick="location.replace('?view')">Cancel</button>
-		<button type="button" onclick="calli.deleteResource(form)">Delete</button>
+		<button type="button" onclick="calli.deleteResource(event)">Delete</button>
 	</form>
 </body>
 </html>

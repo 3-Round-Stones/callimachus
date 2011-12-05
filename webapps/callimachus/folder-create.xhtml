@@ -14,7 +14,7 @@
 		</ul>
 	</div>
 	<form method="POST" action="" enctype="application/rdf+xml" typeof="calli:Folder"
-			onsubmit="$('#label').val($('#label').val().toLowerCase());$(this).attr('about',encodeURI($('#label').val()).replace(/%20/g,'-')+'/');return calli.saveFormAs(this)">
+			onsubmit="$('#label').val($('#label').val().toLowerCase());$(this).attr('about',encodeURI($('#label').val()).replace(/%20/g,'-')+'/');return calli.saveResourceAs(event)">
 		<div class="vbox">
 			<div class="input field">
 				<label for="label">Name</label>

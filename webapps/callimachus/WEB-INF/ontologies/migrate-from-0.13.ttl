@@ -1,0 +1,97 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+:UpgradeSchemaGraph owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var rdfs = "http://www.w3.org/2000/01/rdf-schema#";
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var prefix = ' PREFIX rdfs:<' + rdfs + '>\\n PREFIX calli:<' + calli + '>\\n ';
+		var select = 'SELECT DISTINCT ?graph {{?graph a calli:SchemaGraph} OPTIONAL { ?graph a ?callimachus FILTER regex(str(?callimachus), "/callimachus/SchemaGraph$")} FILTER (!bound(?callimachus))}';
+		var graphs = con.prepareTupleQuery(QueryLanguage.SPARQL, prefix + select).evaluate();
+		try { while (graphs.hasNext()) {
+			var graph = graphs.next().getValue("graph");
+			println("Migrating schema graph: " + graph);
+			var m = graph.getNamespace().match(/^(https?:\\/\\/[^\\/]*\\/).*$/);
+			con.add(graph, RDF.TYPE, vf.createURI(m[1] + "/callimachus/SchemaGraph"), []);
+		}
+		} finally {graphs.close();}
+		proceed();
+	""".
+
+:UpgradePermissions owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var rdfs = "http://www.w3.org/2000/01/rdf-schema#";
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var author = vf.createURI(calli, "author");
+		var prefix = ' PREFIX rdfs:<' + rdfs + '>\\n PREFIX calli:<' + calli + '>\\n ';
+		var select = 'SELECT DISTINCT ?origin {{ ?origin a calli:Origin } OPTIONAL { ?transform calli:author ?group FILTER regex(str(?transform), "/callimachus/Transform$") } FILTER (!bound(?transform)) }';
+		var origins = con.prepareTupleQuery(QueryLanguage.SPARQL, prefix + select).evaluate();
+		try { while (origins.hasNext()) {
+			var origin = origins.next().getValue("origin").stringValue();
+			println("Upgrading permissions: " + origin);
+			var staff = vf.createURI(origin + "group/staff");
+			var admin = vf.createURI(origin + "group/admin");
+			con.add(vf.createURI(origin + "callimachus/GraphDocument"), author, admin, []);
+			con.add(vf.createURI(origin + "callimachus/HypertextFile"), author, staff, []);
+			con.add(vf.createURI(origin + "callimachus/HypertextFile"), author, admin, []);
+			con.add(vf.createURI(origin + "callimachus/Transform"), author, staff, []);
+			con.add(vf.createURI(origin + "callimachus/Transform"), author, admin, []);
+			con.add(vf.createURI("http://www.openrdf.org/rdf/2009/auditing#current-trx"), RDF.TYPE, vf.createURI(origin + "callimachus/SchemaGraph$"), []);
+		}
+		} finally {origins.close();}
+		proceed();
+	""".
+
+:UpgradeMenu owl:equivalentClass calli:Started;
+	msg:imports <java:org.openrdf.model.vocabulary>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var rdfs = "http://www.w3.org/2000/01/rdf-schema#";
+		var calli = "http://callimachusproject.org/rdf/2009/framework#";
+		var item = vf.createURI(calli, "item");
+		var position = vf.createURI(calli, "position");
+		var link = vf.createURI(calli, "link");
+		var prefix = ' PREFIX rdfs:<' + rdfs + '>\\n PREFIX owl:<http://www.w3.org/2002/07/owl#>\\n PREFIX calli:<' + calli + '>\\n ';
+		var select = 'SELECT DISTINCT ?origin { ?origin a calli:Origin . ?callimachus owl:versionInfo "0.13" FILTER regex(str(?callimachus), "/callimachus$") }';
+		var origins = con.prepareTupleQuery(QueryLanguage.SPARQL, prefix + select).evaluate();
+		try { while (origins.hasNext()) {
+			var origin = origins.next().getValue("origin").stringValue();
+			println("Upgrading menu: " + origin);
+			var transforms = vf.createURI(origin + "callimachus/menu#transforms");
+			var namedgraphs = vf.createURI(origin + "callimachus/menu#namedgraphs");
+			var graphdocuments = vf.createURI(origin + "callimachus/menu#graphdocuments");
+			con.add(vf.createURI(origin + "callimachus/menu#resources"), item, transforms, []);
+			con.add(vf.createURI(origin + "callimachus/menu#administration"), item, namedgraphs, []);
+			con.add(vf.createURI(origin + "callimachus/menu#administration"), item, graphdocuments, []);
+			con.add(transforms, position, vf.createLiteral(6), []);
+			con.add(namedgraphs, position, vf.createLiteral(4), []);
+			con.add(graphdocuments, position, vf.createLiteral(5), []);
+			con.add(transforms, RDFS.LABEL, vf.createLiteral("Transforms"), []);
+			con.add(namedgraphs, RDFS.LABEL, vf.createLiteral("Named graphs"), []);
+			con.add(graphdocuments, RDFS.LABEL, vf.createLiteral("Graph documents"), []);
+			con.add(transforms, link, vf.createURI(origin + "callimachus/Transform"), []);
+			con.add(namedgraphs, link, vf.createURI(origin + "callimachus/NamedGraph"), []);
+			con.add(graphdocuments, link, vf.createURI(origin + "callimachus/GraphDocument"), []);
+			con.remove(vf.createURI(origin + "callimachus"), OWL.VERSIONINFO, vf.createLiteral("0.13"), []);
+			con.add(vf.createURI(origin + "callimachus"), OWL.VERSIONINFO, vf.createLiteral("0.14"), []);
+		}
+		} finally {origins.close();}
+		proceed();
+	""".
+

@@ -10,9 +10,8 @@ if (!window.calli) {
 	window.calli = {};
 }
 window.calli.deleteResource = function(event, redirect) {
-	var form = event.target ? event.target : event.srcElement ? event.srcElement : event;
-	if (form.nodeType == 3) form = form.parentNode; // defeat Safari bug
-	form = $(form);
+	event = calli.fixEvent(event);
+	form = $(event.target);
 	if(!form.is('form')) form = form.closest('form');
 
 	if (event && !confirm("Are you sure you want to delete " + document.title + "?"))

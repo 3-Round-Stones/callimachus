@@ -36,22 +36,23 @@
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;
 	rdf:_1 <jquery-ui.js>;
 	rdf:_2 <jquery.rdfquery.rdfa.js>;
-	rdf:_3 <data-options.js>;
-	rdf:_4 <input-expression.js>;
-	rdf:_5 <resource-iri.js>;
-	rdf:_6 <add-resource.js>;
-	rdf:_7 <remove-resource.js>;
-	rdf:_8 <dropzone.js>;
-	rdf:_9 <dialog.js>;
-	rdf:_10 <create-resource.js>;
-	rdf:_11 <document-ready.js>;
-	rdf:_12 <input-date.js>;
-	rdf:_13 <disable-button.js>;
-	rdf:_14 <save-resource-as.js>;
-	rdf:_15 <select-resource.js>;
-	rdf:_16 <submit-rdfxml.js>;
-	rdf:_17 <submit-form-data.js>;
-	rdf:_18 <submit-update.js>;
-	rdf:_19 <delete-resource.js>;
-	rdf:_20 <insert-resource.js>.
+	rdf:_2 <fix-event.js>;
+	rdf:_4 <data-options.js>;
+	rdf:_5 <input-expression.js>;
+	rdf:_6 <resource-iri.js>;
+	rdf:_7 <add-resource.js>;
+	rdf:_8 <remove-resource.js>;
+	rdf:_9 <dropzone.js>;
+	rdf:_10 <dialog.js>;
+	rdf:_12 <create-resource.js>;
+	rdf:_13 <document-ready.js>;
+	rdf:_14 <input-date.js>;
+	rdf:_15 <disable-button.js>;
+	rdf:_16 <save-resource-as.js>;
+	rdf:_17 <select-resource.js>;
+	rdf:_18 <submit-rdfxml.js>;
+	rdf:_19 <submit-form-data.js>;
+	rdf:_20 <submit-update.js>;
+	rdf:_21 <delete-resource.js>;
+	rdf:_22 <insert-resource.js>.
 

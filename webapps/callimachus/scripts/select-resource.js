@@ -11,8 +11,8 @@ calli.selectFile = function(node, src) {
 };
 
 calli.selectResource = function(event, src) {
-	var node = event.target ? event.target : event.srcElement ? event.srcElement : event;
-	if (node.nodeType == 3) node = node.parentNode; // defeat Safari bug
+	event = calli.fixEvent(event);
+	var node = event.target;
 	var list = $(node).filter('[dropzone]').add($(node).parents('[dropzone]'));
 	if (!list.length)
 		return true;

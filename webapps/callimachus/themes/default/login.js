@@ -49,6 +49,7 @@ function login(event) {
 		link.css('top', '1px');
 		function showForm(form) {
 			form.css('opacity', '1').css('height', form.children('div').outerHeight() + 'px');
+			setTimeout(function(){form.css('filter','none')}, 1000); // workaround for IE8 transition polyfill
 			$("input:first", form).focus();
 		}
 		if ($("#login-form").size()) {

@@ -7,18 +7,17 @@
 (function($){
 
 calli.insertResource = function(event) {
-	var target = event.target ? event.target : event.srcElement;
+	event = calli.fixEvent(event);
+	var target = event.target;
 	event.preventDefault();
-	var data = event.originalEvent ? event.originalEvent.dataTransfer : event.dataTransfer;
-	var text = data.getData('URL');
+	var text = event.dataTransfer.getData('URL');
 	if (!text) {
-		text = data.getData("Text");
+		text = event.dataTransfer.getData("Text");
 	}
 	var errorMessage = event.errorMessage ? event.errorMessage : "Invalid Relationship";
 	select(target, '[data-construct]').each(function(i, script) {
 		window.calli.listResourceIRIs(text).each(function() {
 			addSetItem(this, $(script), errorMessage);
-			event.preventDefault();
 		});
 	});
 	return false;

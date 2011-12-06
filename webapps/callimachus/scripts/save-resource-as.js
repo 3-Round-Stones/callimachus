@@ -22,8 +22,8 @@ calli.saveFormAs = function(event, fileName, create) {
 	return calli.saveResourceAs(event, fileName, create);
 };
 window.calli.saveResourceAs = function(event, fileName, create) {
-	var form = event.target ? event.target : event.srcElement ? event.srcElement : event;
-	if (form.nodeType == 3) form = form.parentNode; // defeat Safari bug
+	event = calli.fixEvent(event);
+	var form = event.target;
 	if(!$(form).is('form')) form = $(form).closest('form')[0];
 
 	$(form).find("input").change(); // IE may not have called onchange before onsubmit

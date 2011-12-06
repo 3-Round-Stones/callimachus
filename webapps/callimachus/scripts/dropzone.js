@@ -31,8 +31,11 @@ function initDropArea(construct) {
 	});
 	dropzone.bind('drop', function(event) {
 		$(this).removeClass("drag-over");
-		if (dropzone.attr('ondrop')) {
-			return eval(dropzone.attr('ondrop'));
+		event.preventDefault();
+		if (typeof dropzone.attr('ondrop') == 'function') {
+			return false; // event registered
+		} else if (typeof dropzone.attr('ondrop') == 'string') {
+			return eval('(function(){' + dropzone.attr('ondrop') + '})()');
 		} else {
 			return calli.insertResource(event);
 		}

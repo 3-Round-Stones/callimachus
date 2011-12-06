@@ -7,8 +7,8 @@
 (function($){
 
 calli.addTemplate = calli.addResource = function(event) {
-	var node = event.target ? event.target : event.srcElement ? event.srcElement : event;
-	if (node.nodeType == 3) node = node.parentNode; // defeat Safari bug
+	event = calli.fixEvent(event);
+	var node = event.target;
 	var rel = $(node).add($(node).parents()).filter('[data-add]');
 	var add = rel.attr("data-add");
 	if (!add)

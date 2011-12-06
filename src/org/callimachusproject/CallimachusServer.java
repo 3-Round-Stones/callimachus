@@ -76,6 +76,7 @@ import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.store.blob.file.FileBlobStore;
+import org.openrdf.store.blob.file.FileBlobStoreProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -472,7 +473,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			if (wwwDir.isDirectory() && !blobDir.isDirectory()) {
 				config.setBlobStore(wwwDir.toURI().toString());
 				Map<String, String> map = new HashMap<String, String>();
-				map.put("provider", FileBlobStore.class.getName());
+				map.put("provider", FileBlobStoreProvider.class.getName());
 				config.setBlobStoreParameters(map);
 			} else {
 				config.setBlobStore(blobDir.toURI().toString());

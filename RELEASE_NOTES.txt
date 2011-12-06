@@ -2,91 +2,60 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-19 October 2011
+6 December 2011
 
-= REQUIREMENTS OF 0.13 =
+= REQUIREMENTS OF 0.14 =
 
-Callimachus 0.13 works best on browsers that are closely tracking the
-development of HTML5.  At the time of this writing, Callimachus 0.13
+Callimachus works best on browsers that are closely tracking the
+development of HTML5.  At the time of this writing, Callimachus
 works best on Chrome, with Firefox and Safari as second choices.  It is
 recommended that Callimachus users track updates to their browsers for
 the best usage experience.
 
 Chrome 14 has been thoroughly tested.
-Firefox 7 and Safari 5 has no known issues.
+Firefox 7 and Safari 5 have no known issues.
 Internet Explorer 8 can perform most tasks.
 
 Internet Explorer 7 and 9 can login and read content, but do not work with
 editing operations, including forms.
 
-Callimachus 0.13 requires Java 6 (server-side) to run.
+Callimachus requires Java 6 (server-side) to run.
 
-= NEW IN VERSION 0.13 =
+= NEW IN VERSION 0.14 =
 
-Callimachus 0.13 supports the HTML5 File API for the drag-and-drop of
-files into Callimachus Folders.  The file API is implemented in current
-versions of Firefox and Chrome, but not implemented in Safari 5, IE 9
-or Opera 10.
+Callimachus 0.14 can export and import folder contents through the edit tab of a folder.
 
-Upload of files causes lower-casing of file names.  The side effect is
-that imported applications will need to refer to their files
-using lower-case names, regardless of the case in the uploaded files.
-File URLs include file extensions, although file extensions are not
-shown in the Folder view.
+= KNOWN ISSUES IN 0.14 =
 
-Files may be deleted by selecting the file, and then selecting the Edit
-tab.  Selecting the 'Delete' button in the Edit tab will delete a file.
-
-= KNOWN ISSUES IN 0.13 =
-
-Blank nodes are not supported in 0.13. It may be necessary to skolemize blank
-nodes in create and edit forms. See the directory.war sample app for an example
+Blank nodes are not supported. It may be necessary to skolemize blank
+nodes in create and edit forms. See the directory.car sample app for an example
 of this.
 
-= HOWTO UPGRADE FROM 0.12 =
+= HOWTO UPGRADE FROM 0.13 =
 
 All information saved through a Web browser is saved in the repositories
 directory. This directory should be backup (in the stopped state) before
 attempting to upgrade.
 
-Stop the 0.12 server using the callimachus-stop script in the bin directory.
-Remove the lib and tmp directories. Remove the supplied war files in the
-webapps directory, including: callimachus.war, layout.war, and accounts.war.
+Stop the 0.13 server using the callimachus-stop script in the bin directory.
+Remove the lib and tmp directories. Remove the supplied callimachus.war file in
+the webapps directory.
 Backup any configuration files in etc, including etc/callimachus.conf. Unzip
-callimachus-0.13.zip over top of the rest of your existing installation. This
+callimachus-0.14.zip over top of the rest of your existing installation. This
 will restore a lib directory and webapps/callimachus.war. Restore your
 configuration settings in etc/callimachus.conf. Start the server using the new
-callimachus start script in the bin directory.
+callimachus start script in the bin directory with the argument "--update".
 
-All classes with a create template must include a list of groups that can author
-new resources. These can be added in the edit tab of a class. All classes for
-container resources (subClass of Creator) must now extend Composite. Check the
-box in the class edit tab to enable nested resources.
+$ callimachus-start.bat --update
+-- OR --
+$ sh callimachus-start.sh --update
 
-The create and edit page template syntax must be updated. The create from
-element should have an enctype of application/rdf+xml, no about attribute, and
-should include an onsubmit handle of onsubmit="return calli.saveFormAs(this)".
-The edit form element should have an enctype of application/sparql-update and
-an about attribute of "?this".
+All edit and create templates with dropzones should include the attribute
+ondrop="calli.insertResource(event)".
 
-To open a dialogue box to list resources by type or create a new resource use
-the function calli.createResource(zone[, src]) where zone is a focable element
-(like a button or link), within an element with a dropzone attribute, and src
-is the page to open in the dialogue. If no src is provided the zone element's
-href attribute is used. The function will return false if a dialogue was opened.
+All client side javascript calli functions now take the HTML event object
+as the first parameter. Replace this or form parameter with the event object.
 
-To remove a referenced resource from a dropzone use the function
-calli.removeResource(node) where node is an element within an element that
-contains an attribute @about, @resource, @src, or @href constructed using a
-Callimachus template variable. This will remove the parent element that contains
-the variable attribute. The function will return false if an element was
-removed.
-
-To open a browse dialogue use the function calli.selectResource(zone[, src]) where
-zone is a focable element (like a button or link), within an element with a
-dropzone attribute, and src is the page to open in the dialogue. If no src is
-provided the zone element's href attribute is used. The function will return
-false if a dialogue was opened.
-
-For syntax examples see http://code.google.com/p/callimachus/wiki/FormPatterns
+For syntax see http://code.google.com/p/callimachus/wiki/FormAPI
+For examples see http://code.google.com/p/callimachus/wiki/FormPatterns
 

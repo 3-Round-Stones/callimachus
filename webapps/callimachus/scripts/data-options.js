@@ -30,8 +30,8 @@ function loadOptions(selects) {
 				} else if (this.nodeType == 1 && $(this).is('option,label')) {
 					var option = $(this);
 					var checked = filterByAttributes(selected, option);
-					var bool = checked.is('option:selected,label:has(input:checked)');
-					if (!bool) {
+					var bool = checked.is('option,label:has(input)');
+					if (!bool) { // IE8 can only read :checked if in document
 						disableRDFa(option);
 						option.removeAttr("selected");
 						option.children('input').removeAttr("checked");

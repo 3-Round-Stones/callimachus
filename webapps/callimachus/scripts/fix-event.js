@@ -32,16 +32,17 @@
 			event = evt;
 		}
 		if (!event && window.event) event = window.event;
-		if (!event) {
-			// event variable was lost (IE!), go find it up the stack trace
+		if (!event || window.event && event.type == window.event.type) {
+			// event variable was lost or might be the wrong one (IE!)
+			// go find it up the stack trace
 			var caller = arguments.callee.caller;
 			var evt = caller.arguments[0];
-			while (caller && (!evt || !evt.type)) {
+			while (caller && (!evt || !evt.type || evt == event || evt == window.event)) {
 				evt = caller.arguments[0];
 				caller = caller.arguments.callee.caller;
 			}
-			if (!caller) return event; // couldn't find it
-			event = evt;
+			if (caller) event = evt;
+			if (!event) return event; // couldn't find anything
 		}
 		return jQuery.event.fix(event);
 	};

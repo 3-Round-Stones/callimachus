@@ -107,14 +107,16 @@ public class ArrangedWriter implements RDFWriter {
 	}
 
 	private synchronized void flushStatements() throws RDFHandlerException {
-		flushNamespaces();
-		for (Set<Statement> set : statements.values()) {
-			for (Statement st : set) {
-				delegate.handleStatement(st);
+		if (!statements.isEmpty()) {
+			flushNamespaces();
+			for (Set<Statement> set : statements.values()) {
+				for (Statement st : set) {
+					delegate.handleStatement(st);
+				}
 			}
+			queueSize = 0;
+			statements.clear();
 		}
-		queueSize = 0;
-		statements.clear();
 	}
 
 	private synchronized void flushNamespaces() throws RDFHandlerException {

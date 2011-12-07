@@ -11,7 +11,7 @@ if (!window.calli) {
 }
 window.calli.deleteResource = function(event, redirect) {
 	event = calli.fixEvent(event);
-	form = $(event.target);
+	var form = $(event.target);
 	if(!form.is('form')) form = form.closest('form');
 
 	if (event && !confirm("Are you sure you want to delete " + document.title + "?"))

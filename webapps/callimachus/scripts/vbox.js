@@ -21,7 +21,9 @@ function vbox(element) {
 		var pos = $(this).css('position');
 		return pos != 'absolute' && pos != 'fixed' && pos != 'relative';
 	});
-	children.css("display", "table").css("margin-bottom", "0.15em");
+	children.css("margin-bottom", "0.15em");
+	children.filter(':not(:input)').css("display", "table");
+	children.filter(':input').css("display", "block");
 }
 
 })(window.jQuery);

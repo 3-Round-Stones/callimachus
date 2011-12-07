@@ -5,13 +5,14 @@
 */
 
 /*
- * calli.asEvent wraps an event is a jQuery.Event object. If an event is not
+ * calli.fixEvent wraps an event with a jQuery.Event object. If an event is not
  * passed as a parameter this method will find it by looking at window.event
  * or walking up the caller hierarchy to find it.
  *
  * The event may be lost when a jQuery initiated event was called on an
  * attribute handler in IE. Since jQuery has no way to pass the event object to
- * function handlers that take no arguments.
+ * function handlers that take no arguments, this method looks at the caller
+ * arguments.
  */
  
 (function($,jQuery){
@@ -24,6 +25,12 @@
 	window.calli.fixEvent = function(event) {
 		if (event && event.originalEvent)
 			return event; // already a jQuery Event
+		if (event && !event.type) {
+			// an element or CSS selector was passed
+			var evt = jQuery.Event('click');
+			evt.target = $(event)[0];
+			event = evt;
+		}
 		if (!event && window.event) event = window.event;
 		if (!event) {
 			// event variable was lost (IE!), go find it up the stack trace

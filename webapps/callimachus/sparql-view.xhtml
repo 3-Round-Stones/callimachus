@@ -23,9 +23,10 @@ LIMIT 50
 			</ul>
 		</div>
 		<form action="/sparql" method="POST">
-			<textarea id="query" name="query" class="flex required"></textarea>
+			<textarea id="sparql" name="query" class="flex required"></textarea>
 			<div>
-				<button type="submit">Evaluate Query</button>
+				<button type="submit" onclick="$('#sparql').attr('name', 'query')">Evaluate Query</button>
+				<button type="submit" onclick="$('#sparql').attr('name', 'update')">Execute Update</button>
 				<button type="button" onclick="history.back()">Cancel</button>
 			</div>
 		</form>

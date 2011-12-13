@@ -116,10 +116,42 @@
 	msg:method "POST";
 	msg:type "message/x-response";
 	msg:transform :TransformResult;
+	msg:imports <java:org.apache.http.ProtocolVersion>;
+	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+	msg:imports <java:org.apache.http.entity.StringEntity>;
+	msg:imports <java:org.openrdf.query.MalformedQueryException>;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
 	msg:script """
-		if (!map || !map.containsKey("query"))
+		if (map && map.containsKey("query"))
+			return this.EvaluateSparql(map.get("query")[0]);
+		if (!map || !map.containsKey("update"))
 			throw new org.openrdf.http.object.exceptions.BadRequest("Missing query");
-		return this.EvaluateSparql(map.get("query")[0]);
+		var qry = map.get("update")[0];
+		try {
+			var query;
+			var con = this.objectConnection;
+			if (qry.search(/\\bPREFIX\\b/i) >= 0) {
+				query = qry;
+			} else {
+				var sb = new java.lang.StringBuilder();
+				var namespaces = con.namespaces.asList();
+				for (var i = 0; i < namespaces.size(); i++) {
+					var prefix = namespaces.get(i).prefix;
+					var uri = namespaces.get(i).name;
+					if (qry.indexOf(prefix) >= 0) {
+						sb.append("PREFIX ").append(prefix);
+						sb.append(":<").append(uri).append(">\\n");
+					}
+				}
+				query = sb.append(qry).toString();
+			}
+			var base = this.resource.stringValue();
+			con.prepareUpdate(QueryLanguage.SPARQL, query, base).execute();
+			return null;
+		} catch (e if e.javaException instanceof MalformedQueryException) {
+			throw new BadRequest(e.javaException.toString());
+		}
 	""".
 
 :map a owl:ObjectProperty, owl:FunctionalProperty;
@@ -159,7 +191,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform :TransformXml;
-	msg:script "return msg.entity.content".
+	msg:script "return msg && msg.entity ? msg.entity.content : null".
 
 :msg a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :TransformResult;

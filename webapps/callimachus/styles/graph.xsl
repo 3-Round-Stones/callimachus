@@ -8,34 +8,36 @@
 	<xsl:import href="iriref.xsl" />
 	<xsl:param name="this" />
 	<xsl:template match="/">
-		<html>
-			<head>
-				<title>
-					<xsl:call-template name="resource">
-						<xsl:with-param name="iri" select="$this"/>
-					</xsl:call-template>
-				</title>
-				<style>
-					ul.properties { margin-top: 0px; }
-					li.triple { list-style-type: none }
-					.plain { font-size: large; }
-					.describe { font-size: xx-small; }
-					.bnode, .plain { font-family: monospace; white-space: pre-wrap; }
-					.typed { color: magenta; }
-					.datatype, .language { color: gray; }
-					.predicate { color: darkgreen; }
-				</style>
-			</head>
-			<body>
-				<h1>
-					<xsl:call-template name="resource">
-						<xsl:with-param name="iri" select="$this"/>
-					</xsl:call-template>
-					<xsl:text> Graph</xsl:text>
-				</h1>
-				<xsl:apply-templates />
-			</body>
-		</html>
+		<xsl:if test="*">
+			<html>
+				<head>
+					<title>
+						<xsl:call-template name="resource">
+							<xsl:with-param name="iri" select="$this"/>
+						</xsl:call-template>
+					</title>
+					<style>
+						ul.properties { margin-top: 0px; }
+						li.triple { list-style-type: none }
+						.plain { font-size: large; }
+						.describe { font-size: xx-small; }
+						.bnode, .plain { font-family: monospace; white-space: pre-wrap; }
+						.typed { color: magenta; }
+						.datatype, .language { color: gray; }
+						.predicate { color: darkgreen; }
+					</style>
+				</head>
+				<body>
+					<h1>
+						<xsl:call-template name="resource">
+							<xsl:with-param name="iri" select="$this"/>
+						</xsl:call-template>
+						<xsl:text> Graph</xsl:text>
+					</h1>
+					<xsl:apply-templates />
+				</body>
+			</html>
+		</xsl:if>
 	</xsl:template>
 	<xsl:template name="resource">
 		<xsl:param name="iri" />

@@ -9,26 +9,28 @@
 	<xsl:import href="graph.xsl" />
 	<xsl:param name="this" />
 	<xsl:template match="/">
-		<html>
-			<head>
-				<title>SPARQL Results</title>
-				<style>
-					ul.properties { margin-top: 0px; }
-					li.triple { list-style-type: none }
-					.plain { font-size: large; }
-					.bnode, .plain { font-family: monospace; white-space: pre-wrap; }
-					.typed { color: magenta; }
-					.datatype, .language { color: gray; }
-					.predicate { color: darkgreen; }
-				</style>
-			</head>
-			<body>
-				<h1>SPARQL Results</h1>
-				<div class="flex">
-					<xsl:apply-templates />
-				</div>
-			</body>
-		</html>
+		<xsl:if test="*">
+			<html>
+				<head>
+					<title>SPARQL Results</title>
+					<style>
+						ul.properties { margin-top: 0px; }
+						li.triple { list-style-type: none }
+						.plain { font-size: large; }
+						.bnode, .plain { font-family: monospace; white-space: pre-wrap; }
+						.typed { color: magenta; }
+						.datatype, .language { color: gray; }
+						.predicate { color: darkgreen; }
+					</style>
+				</head>
+				<body>
+					<h1>SPARQL Results</h1>
+					<div class="flex">
+						<xsl:apply-templates />
+					</div>
+				</body>
+			</html>
+		</xsl:if>
 	</xsl:template>
 	<xsl:template match="sparql:sparql">
 		<table id="sparql">

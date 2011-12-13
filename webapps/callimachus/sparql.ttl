@@ -18,18 +18,20 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix sd:<http://www.w3.org/ns/sparql-service-description#>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
 <> a </callimachus/SchemaGraph>.
 
-<SparqlEndPoint> rdfs:subClassOf <Viewable>;
+<SparqlService> a <Local>, owl:Class;
+	rdfs:subClassOf <Viewable>, sd:Service;
 	rdfs:isDefinedBy </callimachus>;
 	calli:view <sparql-view.xhtml>.
 
 :EvaluateSparql rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
@@ -109,7 +111,7 @@
 
 # POST application/x-www-form-urlencoded
 :PostForm rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "POST";
 	msg:type "message/x-response";
@@ -127,9 +129,10 @@
 
 # GET query parameter
 :GetQueryResult rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	msg:method "GET";
+	msg:query "query";
 	msg:type "message/x-response";
 	msg:header "cache-control:no-validate";
 	msg:imports <java:org.apache.http.ProtocolVersion>;
@@ -152,7 +155,7 @@
 
 # Transformers
 :TransformResult rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform :TransformXml;
@@ -164,7 +167,7 @@
 	msg:type "message/x-response".
 
 :TransformXml rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	msg:type "application/xml";
 	msg:transform </callimachus/styles/TransformLayout>;

@@ -3,6 +3,7 @@
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix sd:<http://www.w3.org/ns/sparql-service-description#>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
@@ -72,9 +73,14 @@
 # Well known services
 ################################
 
-</sparql> a </callimachus/SparqlEndPoint>;
+</sparql> a </callimachus/SparqlService>, sd:Service;
 	rdfs:label "sparql";
-	calli:administrator </group/admin>.
+	calli:administrator </group/admin>;
+	sd:endpoint </sparql>;
+	sd:supportedLanguage sd:SPARQL11Query, sd:SPARQL11Update;
+	sd:feature sd:UnionDefaultGraph, sd:BasicFederatedQuery;
+	sd:inputFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/Turtle>;
+	sd:resultFormat <http://www.w3.org/ns/formats/RDF_XML>, <http://www.w3.org/ns/formats/SPARQL_Results_XML>.
 
 </callimachus/profile> a </callimachus/Profile>;
 	rdfs:label "profile";

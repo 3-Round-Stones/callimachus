@@ -18,6 +18,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix sd:<http://www.w3.org/ns/sparql-service-description#>.
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
@@ -31,7 +32,7 @@
 	rdfs:isDefinedBy </callimachus>.
 
 <NamedGraph> a <CreatableIndex>, owl:Class;
-	rdfs:subClassOf calli:NamedGraph, <File>;
+	rdfs:subClassOf calli:NamedGraph, <File>, sd:NamedGraph;
 	rdfs:label "Named Graph";
 	rdfs:isDefinedBy </callimachus>;
 	calli:icon <graph.png>;
@@ -39,7 +40,7 @@
 	calli:type "application/rdf+xml".
 
 <GraphDocument> a <CreatableIndex>, owl:Class;
-	rdfs:subClassOf <File>;
+	rdfs:subClassOf <File>, sd:NamedGraph;
 	rdfs:label "Graph Document";
 	rdfs:comment "Terse RDF Triple documents";
 	rdfs:isDefinedBy </callimachus>;
@@ -83,6 +84,7 @@
 	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
 	msg:imports <File>;
 	msg:imports foaf:Document;
+	msg:imports sd:NamedGraph;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
@@ -99,6 +101,7 @@
 
 		created = con.addDesignation(created, this.toString());
 		created = con.addDesignation(created, Document);
+		created = con.addDesignation(created, NamedGraph);
 
 		created.UploadGraphDocument(new java.io.InputStreamReader(body, "UTF-8"));
 		return created;
@@ -192,6 +195,7 @@
 	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
 	msg:imports <File>;
 	msg:imports foaf:Document;
+	msg:imports sd:NamedGraph;
 	msg:imports <graph-uploaded.xhtml>;
 	msg:script """
 		if (!location)
@@ -213,6 +217,7 @@
 		con.add(body, uri, format, [obj.resource]);
 		obj = con.addDesignation(obj, this.toString());
 		obj = con.addDesignation(obj, Document);
+		obj = con.addDesignation(obj, NamedGraph);
 		con.add(obj.resource, RDFS.LABEL, label, []);
 
 		this.touchRevision(); // update index page

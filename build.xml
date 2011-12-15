@@ -15,8 +15,6 @@
 	<property name="mail" location="etc/mail.properties" />
 	<property name="tools.jar" location="${java.home}/../lib/tools.jar" />
 	<property file="src/META-INF/callimachusproject.properties" />
-	<property name="alibaba.snapshot" value="2.0-SNAPSHOT" />
-	<property name="m2.repository" value="http://repo.aduna-software.org/maven2/snapshots" />
 	<property name="alibaba.url" value="http://downloads.sourceforge.net/project/sesame/AliBabaElmo/2.0-beta14/openrdf-alibaba-2.0-beta14.zip" />
 	<property name="mail.jar" value="mail-1.4.1.jar" />
 	<property name="mail.url" value="http://download.java.net/maven/1/javax.mail/jars/mail-1.4.jar" />
@@ -132,29 +130,6 @@
 			<mapper type="flatten" />
 		</untar>
 		<delete file="${downloads}/daemon-darwin.tar.gz" />
-		<antcall target="alibaba-snapshot" />
-	</target>
-
-	<target name="alibaba-snapshot" if="alibaba.snapshot">
-		<delete dir="${lib}" includes="openrdf-alibaba-*.jar alibaba-*.jar" />
-		<property name="openrdf" value="${m2.repository}/org/openrdf/alibaba" />
-		<parallel>
-			<get src="${openrdf}/alibaba-composition-object/${alibaba.snapshot}/alibaba-composition-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-composition-object-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-model/${alibaba.snapshot}/alibaba-model-${alibaba.snapshot}.jar" dest="${lib}/alibaba-model-${alibaba.snapshot}.jar" />
-		</parallel>
-		<parallel>
-			<get src="${openrdf}/alibaba-repository-query/${alibaba.snapshot}/alibaba-repository-query-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-query-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-repository-object/${alibaba.snapshot}/alibaba-repository-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-object-${alibaba.snapshot}.jar" />
-		</parallel>
-		<parallel>
-			<get src="${openrdf}/alibaba-repository-optimistic/${alibaba.snapshot}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-store-blob/${alibaba.snapshot}/alibaba-store-blob-${alibaba.snapshot}.jar" dest="${lib}/alibaba-store-blob-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-runtime/${alibaba.snapshot}/alibaba-runtime-${alibaba.snapshot}.jar" dest="${lib}/alibaba-runtime-${alibaba.snapshot}.jar" />
-		</parallel>
-		<parallel>
-			<get src="${openrdf}/alibaba-sail-auditing/${alibaba.snapshot}/alibaba-sail-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-auditing-${alibaba.snapshot}.jar" />
-			<get src="${openrdf}/alibaba-server-object/${alibaba.snapshot}/alibaba-server-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-server-object-${alibaba.snapshot}.jar" />
-		</parallel>
 	</target>
 
 	<target name="dist-clean" description="clean up everything for a new version" depends="clean">

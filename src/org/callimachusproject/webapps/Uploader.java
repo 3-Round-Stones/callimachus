@@ -28,7 +28,6 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -62,10 +61,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Uploads all the files in a given directory to a webserver using the PUT method.
+ * Uploads all the files in a given directory to a webserver using the PUT
+ * method.
  * 
  * @author James Leigh
- *
+ * 
  */
 public class Uploader {
 
@@ -103,7 +103,8 @@ public class Uploader {
 	private String origin;
 	private List<UploadListener> listeners = new ArrayList<UploadListener>();
 
-	public Uploader(MimetypesFileTypeMap mimetypes, File dataDir) throws IOException {
+	public Uploader(MimetypesFileTypeMap mimetypes, File dataDir)
+			throws IOException {
 		this.mimetypes = mimetypes;
 		File entriesDir = new File(dataDir, "entries").getCanonicalFile();
 		entries = new MultiValuedFileMap(entriesDir);
@@ -176,18 +177,18 @@ public class Uploader {
 		} catch (UnsatisfiedLinkError e) {
 			logger.error(e.getMessage());
 		}
-		conditional = !deleteMissingFiles() && conditional;
 		origins.put(webappsDir, singleton(origin));
-		uploadWebApps(webappsDir, "", conditional);
+		if (deleteMissingFiles() || !conditional) {
+			uploadWebApps(webappsDir, "");
+		}
 		if (listener != null && listenerThread != null) {
 			listenerThread.start();
 			listener.await();
 		}
 	}
 
-	public void uploadWebApps(File file, boolean conditional)
-			throws IOException {
-		uploadWebApps(file, getWebPath(file), conditional);
+	public void uploadWebApps(File file) throws IOException {
+		uploadWebApps(file, getWebPath(file));
 	}
 
 	public void deleteFile(File file) throws IOException {
@@ -286,8 +287,7 @@ public class Uploader {
 		return getPath(directory, name);
 	}
 
-	private void uploadWebApps(File file, String path, boolean conditional)
-			throws IOException {
+	private void uploadWebApps(File file, String path) throws IOException {
 		String name = file.getName();
 		if (isHidden(file) || "WEB-INF".equals(name) || "META-INF".equals(name))
 			return;
@@ -295,16 +295,16 @@ public class Uploader {
 		file = file.getAbsoluteFile();
 		if (file.isDirectory()) {
 			for (File f : file.listFiles()) {
-				uploadWebApps(f, getPath(path, f.getName()), conditional);
+				uploadWebApps(f, getPath(path, f.getName()));
 			}
 		} else if (isWar(file.getName())) {
 			if (isWar(path)) {
 				path = path.substring(0, path.length() - 4);
 			}
-			uploadWarFile(file, path, conditional);
+			uploadWarFile(file, path);
 		} else {
 			String url = getOriginFor(file) + path;
-			HttpResponse resp = upload(file, url, gzip, conditional);
+			HttpResponse resp = upload(file, url, gzip);
 			entries.add(getWebAppsDirFor(file), getWebAppsRelativePath(file));
 			report(resp, url, file.getName());
 		}
@@ -365,22 +365,18 @@ public class Uploader {
 		return new File(webapps, entry);
 	}
 
-	private HttpResponse upload(File file, String url, boolean gzip,
-			boolean conditional) throws IOException {
+	private HttpResponse upload(File file, String url, boolean gzip)
+			throws IOException {
 		long size = file.length();
 		String type = getContentType(file.getName(), gzip);
 		if (type.startsWith("text/") && !type.contains("charset")) {
 			type += ";charset=" + detectCharset(file, gzip).name();
 		}
 		long modified = file.lastModified();
-		String since = dateformat.format(new Date(modified));
 		BasicHttpEntityEnclosingRequest req;
 		notifyUploading(url, type);
 		req = new BasicHttpEntityEnclosingRequest("PUT", url + SUFFIX);
 		req.setHeader("Authorization", authorization);
-		if (conditional) {
-			req.setHeader("If-Unmodified-Since", since);
-		}
 		req.setHeader("Content-Type", type);
 		req.setHeader("Content-Length", Long.toString(size));
 		if (gzip) {
@@ -397,13 +393,13 @@ public class Uploader {
 			if (entity != null) {
 				entity.consumeContent();
 			}
-			return upload(file, url, gzip, false);
+			return upload(file, url, gzip);
 		}
 		return resp;
 	}
 
-	private void uploadWarFile(File file, String path, boolean conditional)
-			throws ZipException, IOException {
+	private void uploadWarFile(File file, String path) throws ZipException,
+			IOException {
 		ZipFile zip = new ZipFile(file);
 		try {
 			Set<String> names = new HashSet<String>();
@@ -437,7 +433,7 @@ public class Uploader {
 				String dest = getPath(ep, name);
 				String origin = getOriginFor(new File(zip.getName()));
 				String url = origin + dest;
-				HttpResponse resp = uploadEntry(zip, ze, url, conditional);
+				HttpResponse resp = uploadEntry(zip, ze, url);
 				report(resp, url, file.getName() + "!" + entry);
 			}
 		} finally {
@@ -445,8 +441,8 @@ public class Uploader {
 		}
 	}
 
-	private HttpResponse uploadEntry(ZipFile zip, ZipEntry entry, String url,
-			boolean conditional) throws IOException {
+	private HttpResponse uploadEntry(ZipFile zip, ZipEntry entry, String url)
+			throws IOException {
 		long size = entry.getSize();
 		String type = getContentType(entry.getName(), false);
 		if (type.startsWith("text/") && !type.contains("charset")) {
@@ -457,15 +453,10 @@ public class Uploader {
 				in.close();
 			}
 		}
-		long modified = entry.getTime();
-		String since = dateformat.format(new Date(modified));
 		BasicHttpEntityEnclosingRequest req;
 		notifyUploading(url, type);
 		req = new BasicHttpEntityEnclosingRequest("PUT", url + SUFFIX);
 		req.setHeader("Authorization", authorization);
-		if (conditional) {
-			req.setHeader("If-Unmodified-Since", since);
-		}
 		req.setHeader("Content-Type", type);
 		req.setHeader("Content-Length", Long.toString(size));
 		logger.debug("{}\t{}", url, type);
@@ -495,8 +486,7 @@ public class Uploader {
 			}
 		} else {
 			notifyError(url, status, line.getReasonPhrase());
-			logger.error(line.getReasonPhrase() + " for "
-					+ filename);
+			logger.error(line.getReasonPhrase() + " for " + filename);
 			if (entity != null) {
 				try {
 					ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -568,8 +558,7 @@ public class Uploader {
 			}
 		} else if (status != 405) {
 			notifyError(url, line.getStatusCode(), line.getReasonPhrase());
-			logger.error(line.getReasonPhrase() + " for "
-					+ filename);
+			logger.error(line.getReasonPhrase() + " for " + filename);
 			if (entity != null) {
 				try {
 					ByteArrayOutputStream out = new ByteArrayOutputStream();

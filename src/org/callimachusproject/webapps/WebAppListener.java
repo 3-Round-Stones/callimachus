@@ -98,7 +98,7 @@ public class WebAppListener implements JNotifyListener, Runnable {
 			try {
 				if (file.exists()) {
 					this.uploader.reloading();
-					this.uploader.uploadWebApps(file, false);
+					this.uploader.uploadWebApps(file);
 					this.uploader.reloaded();
 				} else {
 					this.uploader.reloading();

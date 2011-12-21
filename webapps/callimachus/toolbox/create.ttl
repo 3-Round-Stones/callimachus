@@ -35,7 +35,14 @@
 	msg:realm </callimachus/manifest>;
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/styles/TransformXhtml>;
-	msg:script <operations.js#getCreatePage>.
+	msg:script """
+		importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
+		if (!this.calliCreate || this.calliCreate.isEmpty())
+			throw new InternalServerError("No create template");
+		if (this.calliCreate.size() != 1)
+			throw new InternalServerError("Multiple create templates");
+		return this.calliCreate.iterator().next().calliConstruct(null, 'create');
+	""".
 
 :GetCreatorPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
@@ -45,7 +52,18 @@
 	msg:realm </callimachus/manifest>;
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/styles/TransformXhtml>;
-	msg:script <operations.js#getCreatorPage>.
+	msg:script """
+		importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
+		importClass(Packages.org.openrdf.http.object.exceptions.BadRequest);
+		importClass(Packages.calli.Creatable);
+		if (!(create instanceof Creatable))
+			throw new BadRequest("Cannot create this class here: " + create);
+		if (!create.calliCreate || create.calliCreate.isEmpty())
+			throw new InternalServerError("No create template");
+		if (create.calliCreate.size() != 1)
+			throw new InternalServerError("Multiple create templates");
+		return create.calliCreate.iterator().next().calliConstruct(null, 'create');
+	""".
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
@@ -55,7 +73,67 @@
 	msg:realm </callimachus/manifest>;
 	msg:expect "201-created";
 	msg:type "text/plain";
-	msg:script <operations.js#postFactoryCreate>.
+	msg:script """
+		importClass(Packages.org.callimachusproject.io.MultipartParser);
+		importClass(Packages.calli.Creatable);
+		importClass(Packages.org.openrdf.http.object.exceptions.BadRequest);
+		importClass(Packages.org.openrdf.http.object.exceptions.Forbidden);
+		if (!location)
+			throw new BadRequest("No location provided");
+		if (!(create instanceof Creatable))
+			throw new BadRequest("Cannot create: " + create);
+		var creatorUri = this.toString();
+		var createdUri = location.toString();
+		var dest = createdUri.substring(0, createdUri.lastIndexOf('/', createdUri.length - 2) + 1);
+		if (creatorUri != dest && creatorUri != dest.substring(0, dest.length - 1))
+			throw new BadRequest("Location URI must be nested");
+		if (createdUri.search(/[\\s\\#\\?]/) >= 0 || createdUri.search(/^\\w+:\\/\\/\\S+/) != 0)
+			throw new BadRequest("Fragement or name resources are not supported");
+		var ftype = type;
+		var bio = new java.io.BufferedInputStream(body, 65536);
+		if (type.indexOf("multipart/form-data") == 0) {
+			bio.mark(1024);
+			var parser = new MultipartParser(bio);
+			var file = parser.next();
+			var headers = parser.getHeaders();
+			var disposition = headers.get("content-disposition");
+			if (disposition && disposition.indexOf("filename=") >= 0) {
+				ftype = headers.get("content-type");
+				var xml = ftype == "text/xml" || ftype == "application/xml";
+				if (xml || ftype == "application/octet-stream" || ftype.indexOf("application/x-") == 0) {
+					var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
+					var mimetypes = new javax.activation.MimetypesFileTypeMap();
+					if (!"application/octet-stream".equals(mimetypes.getContentType(fileName))) {
+						ftype = mimetypes.getContentType(fileName);
+					}
+				}
+				bio = file;
+			} else { // not a file upload
+				bio.reset();
+			}
+		}
+		var construct = create.LookupConstructor(ftype);
+		var iter = this.FindCreator(location).iterator();
+		while (iter.hasNext()) {
+			var user = iter.next();
+			if (!construct.calliIsAuthorized(user, "POST", "create"))
+				throw new Forbidden("You are not permitted to create " + construct + " resources");
+		}
+		var newCopy = construct.PostCreate(bio, location, type);
+		newCopy.calliEditor.addAll(this.FindContributor(newCopy));
+		newCopy.calliReader.addAll(this.SelectAllReaders());
+		newCopy.calliEditor.addAll(this.SelectAllEditors());
+		newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
+		construct.touchRevision(); // Update class index
+		if (intermediate) {
+			var revision = this.auditRevision;
+			this.calliHasComponent.add(newCopy);
+			this.auditRevision = revision; // restore the previous revision
+		} else {
+			this.calliHasComponent.add(newCopy);
+		}
+		return newCopy;
+	""".
 
 # override this method for subclass methods
 :LookupConstructor rdfs:subClassOf msg:Message;
@@ -67,7 +145,18 @@
 :PostCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom </callimachus/Local>];
-	msg:script <operations.js#postCreate>.
+	msg:script """
+		importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
+		importClass(Packages.org.openrdf.http.object.exceptions.BadRequest);
+		var template = this.calliCreate.iterator().next();
+		if (!template)
+			throw new InternalServerError("Cannot create " + this.toString() + " with " + type);
+		if (type != "application/rdf+xml" && type.indexOf("application/rdf+xml;") != 0)
+			throw new BadRequest("File format is not recognized: " + type);
+		var newCopy = template.calliCreateResource(body, this.toString(), location);
+		newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
+		return newCopy;
+	""".
 
 :body a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];

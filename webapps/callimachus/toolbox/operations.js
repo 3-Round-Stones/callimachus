@@ -53,7 +53,8 @@ function postFactoryCreate(msg) {
 		var disposition = headers.get("content-disposition");
 		if (disposition && disposition.indexOf("filename=") >= 0) {
 			type = headers.get("content-type");
-			if (type == "application/octet-stream" || type.indexOf("application/x-") == 0) {
+			var xml = type == "text/xml" || type == "application/xml";
+			if (xml || type == "application/octet-stream" || type.indexOf("application/x-") == 0) {
 				var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
 				var mimetypes = new javax.activation.MimetypesFileTypeMap();
 				if (!"application/octet-stream".equals(mimetypes.getContentType(fileName))) {

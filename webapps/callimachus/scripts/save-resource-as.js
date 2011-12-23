@@ -45,7 +45,7 @@ window.calli.saveResourceAs = function(event, fileName, create) {
 		var field = $($(form).find('input:not(:checkbox,:disabled,:button,:password,:radio)')[0]);
 		var input = field.val();
 		if (input) {
-			field.change(function() {
+			var onchange = function() {
 				if (input != $(field).val()) {
 					// restore the about attribute when this field changes
 					if (about) {
@@ -53,8 +53,10 @@ window.calli.saveResourceAs = function(event, fileName, create) {
 					} else {
 						$(form).removeAttr('about');
 					}
+					field.unbind('change', onchange);
 				}
-			});
+			};
+			field.bind('change', onchange);
 		}
 		var label = input;
 		if (label && label.lastIndexOf('\\') > 0) {

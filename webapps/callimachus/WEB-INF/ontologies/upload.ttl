@@ -62,6 +62,7 @@ calli:NamedGraph a owl:Class.
 			type = type.substring(0, type.indexOf(';'));
 		}
 		con.add(rdfStream, this.toString(), RDFFormat.forMIMEType(type), [this.resource]);
+		con.recompileSchemaOnClose();
 	""".
 
 :rdfStream a owl:ObjectProperty; a owl:FunctionalProperty;

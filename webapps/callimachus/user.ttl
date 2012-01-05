@@ -62,6 +62,13 @@ rdfs:comment a rdf:Property.
 			throw new BadRequest("Missing resource location");
 		if (newUser instanceof User)
 			throw new Conflict("User already exists: " + newUser);
+		if (username.toLowerCase() != username)
+			throw new BadRequest("Username must be in lowercase");
+		if (URLEncoder.encode(username, "UTF-8") != username)
+			throw new BadRequest("Invalid username: '" + username + "'");
+		if (newUser.resource.localName != username)
+			throw new BadRequest("Invalid username: '" + username + "'");
+
 		var folder = location.resource.namespace;
 		var con = this.objectConnection;
 		var vf = con.valueFactory;

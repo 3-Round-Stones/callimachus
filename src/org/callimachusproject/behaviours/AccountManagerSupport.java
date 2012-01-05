@@ -233,8 +233,7 @@ public abstract class AccountManagerSupport implements AccountManager, RDFObject
 			+ "WHERE { ?user calli:name $name .\n"
 			+ "$this calli:authNamespace ?folder .\n"
 			+ "?folder calli:hasComponent ?user .\n"
-			//TODO + "FILTER (str(?user) = concat(str(?folder), str($name)))\n"
-			+ "FILTER regex(str(?user), str(?folder))\n"
+			+ "FILTER (str(?user) = concat(str(?folder), $name))\n"
 			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" } }")
 	protected abstract List<Object[]> findDigest(@Bind("name") String username);
 

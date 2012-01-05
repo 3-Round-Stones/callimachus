@@ -10,7 +10,7 @@ calli.addTemplate = calli.addResource = function(event, container) {
 	event = calli.fixEvent(event);
 	var node = container ? $(container) : $(event.target);
 	var rel = node.closest('[data-add]');
-	var add = rel.attr("data-add");
+	var add = rel.attr("data-add").replace("{xptr}", calli.xptr(rel));
 	if (!add)
 		return true;
 	jQuery.get(add, function(data) {

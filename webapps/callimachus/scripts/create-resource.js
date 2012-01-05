@@ -48,7 +48,7 @@ calli.createResource = function(event, href) {
 	var searchTerms = list.find('[data-search]');
 	if (searchTerms.length && searchTerms.attr("data-search").indexOf('{searchTerms}') >= 0) {
 		options.onlookup = function(terms) {
-			var searchUrl = searchTerms.attr("data-search").replace('{searchTerms}', encodeURIComponent(terms));
+			var searchUrl = searchTerms.attr("data-search").replace("{xptr}", calli.xptr(searchTerms)).replace('{searchTerms}', encodeURIComponent(terms));
 			listSearchResults(searchUrl, dialog, node);
 		};
 	}

@@ -76,13 +76,17 @@ public class SPARQLWriter implements Closeable {
 	}
 
 	public void write(RDFEvent event) throws IOException {
+		if (event.isExpression()) {
+			if (builtin > 0 && !previous.isStart() && !event.isEnd()) {
+				writer.append(", ");
+			}
+		}
 		if (event.isStartFilter()) {
 			indent(indent);
 			writer.append("FILTER (");
 		} else if (event.isEndFilter()) {
 			writer.append(")\n");
-		}
-		else if (event.isBase()) {
+		} else if (event.isBase()) {
 			base = event.asBase().getBase();
 		} else if (event.isNamespace()) {
 			namespaces.put(event.asNamespace().getPrefix(), event.asNamespace().getNamespaceURI());
@@ -208,11 +212,8 @@ public class SPARQLWriter implements Closeable {
 		} else if (event.isEndBuiltInCall()) {
 			writer.append(")");
 			builtin--;
-		} else if (event.isExpression()) {
-			if (builtin > 0 && !previous.isStartBuiltInCall()) {
-				writer.append(", ");
-			}
-			writer.append(event.asExpression().getTerm().toString());
+		} else if (event.isVarOrTerm()) {
+			writer.append(event.asVarOrTerm().toString());
 		}
 		else if (event.isStart() || event.isEnd()) {
 			// unknown block

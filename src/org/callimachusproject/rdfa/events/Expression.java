@@ -17,28 +17,19 @@
  */
 package org.callimachusproject.rdfa.events;
 
-import org.callimachusproject.rdfa.model.VarOrTerm;
-
 /**
- * SPARQL grammer.
+ * SPARQL keyword.
  * 
  * @author James Leigh
  *
  */
-public class Expression extends Filter {
-	private VarOrTerm term;
+public abstract class Expression extends RDFEvent {
 
-	public Expression(VarOrTerm term) {
-		this.term = term;
+	public Expression() {
+		super();
 	}
 
-	public VarOrTerm getTerm() {
-		return term;
+	public Expression(boolean start) {
+		super(start);
 	}
-
-	@Override
-	public String toString() {
-		return term.toString();
-	}
-
 }

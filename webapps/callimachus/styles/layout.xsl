@@ -10,6 +10,8 @@
 	<xsl:param name="this" />
 	<xsl:param name="query" />
 	<xsl:param name="template" select="false()" />
+
+	<!-- Variables -->
 	<xsl:variable name="scheme" select="substring-before($xslt, '://')" />
 	<xsl:variable name="authority" select="substring-before(substring-after($xslt, '://'), '/')" />
 	<xsl:variable name="callimachus">
@@ -36,6 +38,7 @@
 	<xsl:variable name="layout_body" select="$layout_xhtml/xhtml:html/xhtml:body|$layout_xhtml/html/body" />
 	<xsl:variable name="template_body" select="/xhtml:html/xhtml:body|/html/body" />
 
+	<!-- Template -->
 	<xsl:template match="*">
 		<xsl:copy>
 			<xsl:apply-templates select="@*|*|text()|comment()" />
@@ -123,6 +126,101 @@
 		</xsl:copy>
 	</xsl:template>
 
+	<!-- form -->
+	<xsl:template match="form|xhtml:form">
+		<xsl:apply-templates mode="form" select="." />
+	</xsl:template>
+
+	<!-- Form -->
+	<xsl:template mode="form" match="@*|comment()|text()">
+		<xsl:copy />
+	</xsl:template>
+
+	<xsl:template mode="form" match="*">
+		<xsl:copy>
+			<xsl:call-template name="data-attributes" />
+			<xsl:apply-templates mode="form" select="@*|node()"/>
+		</xsl:copy>
+	</xsl:template>
+
+	<xsl:template name="data-attributes">
+		<xsl:apply-templates mode="data-var" select="@*"/>
+		<xsl:apply-templates mode="data-expression" select="@*"/>
+		<xsl:if test="text() and not(*|comment())">
+			<xsl:call-template name="data-text-expression">
+				<xsl:with-param name="text" select="string(.)"/>
+			</xsl:call-template>
+		</xsl:if>
+		<xsl:if test="xhtml:option[@selected='selected'][@about or @resource] or xhtml:label[@about or @resource]/xhtml:input[@checked='checked']">
+			<!-- Called to populate select/radio/checkbox -->
+			<xsl:attribute name="data-options">
+				<xsl:value-of select="$this" />
+				<xsl:text>?options&amp;query=</xsl:text>
+				<xsl:value-of select="$query" />
+				<xsl:text>&amp;element={xptr}</xsl:text>
+			</xsl:attribute>
+		</xsl:if>
+		<xsl:if test="*[@about or @resource] and not(@data-construct)">
+			<!-- Called when a resource URI is dropped to construct its label -->
+			<xsl:attribute name="data-construct">
+				<xsl:value-of select="$this" />
+				<xsl:text>?construct&amp;query=</xsl:text>
+				<xsl:value-of select="$query" />
+				<xsl:text>&amp;element={xptr}&amp;about={about}</xsl:text>
+			</xsl:attribute>
+		</xsl:if>
+		<xsl:if test="*[@about or @resource] and .//*[contains(' rdfs:label skos:prefLabel skos:altLabel skosxl:literalForm ', concat(' ', @property, ' ')) or contains(text(), '{rdfs:label}') or contains(text(), '{skos:prefLabel}') or contains(text(), '{skos:altLabel}') or contains(text(), '{skosxl:literalForm}')] and not(@data-search)">
+			<!-- Lookup possible members by label -->
+			<xsl:attribute name="data-search">
+				<xsl:value-of select="$this" />
+				<xsl:text>?search&amp;query=</xsl:text>
+				<xsl:value-of select="$query" />
+				<xsl:text>&amp;element={xptr}&amp;q={searchTerms}</xsl:text>
+			</xsl:attribute>
+		</xsl:if>
+		<xsl:if test="*[@about or @typeof or @resource or @property] and not(@data-add)">
+			<!-- Called to insert another property value or node -->
+			<xsl:attribute name="data-add">
+				<xsl:value-of select="$this" />
+				<xsl:text>?template&amp;query=</xsl:text>
+				<xsl:value-of select="$query" />
+				<xsl:text>&amp;element={xptr}</xsl:text>
+			</xsl:attribute>
+		</xsl:if>
+	</xsl:template>
+
+	<!-- variable expressions -->
+	<xsl:template mode="data-var" match="@*" />
+	<xsl:template mode="data-var" match="@about|@resource|@content|@href|@src">
+		<xsl:if test="starts-with(., '?')">
+			<xsl:attribute name="data-var-{name()}">
+				<xsl:value-of select="." />
+			</xsl:attribute>
+		</xsl:if>
+	</xsl:template>
+	<xsl:template mode="data-expression" match="@*">
+		<xsl:variable name="expression">
+			<xsl:value-of select="substring-before(substring-after(., '{'), '}')"/>
+		</xsl:variable>
+		<xsl:if test="string(.) = concat('{', $expression, '}')">
+			<xsl:attribute name="data-expression-{name()}">
+				<xsl:value-of select="$expression" />
+			</xsl:attribute>
+		</xsl:if>
+	</xsl:template>
+	<xsl:template name="data-text-expression">
+		<xsl:param name="text" />
+		<xsl:variable name="expression">
+			<xsl:value-of select="substring-before(substring-after($text, '{'), '}')"/>
+		</xsl:variable>
+		<xsl:if test="$text = concat('{', $expression, '}')">
+			<xsl:attribute name="data-text-expression">
+				<xsl:value-of select="$expression" />
+			</xsl:attribute>
+		</xsl:if>
+	</xsl:template>
+
+	<!-- Layout -->
 	<xsl:template mode="layout" match="*">
 		<xsl:copy>
 			<xsl:apply-templates mode="layout" select="@*|*|text()|comment()" />
@@ -249,6 +347,13 @@
 		<xsl:copy-of select="document(concat($callimachus, '/menu?items'))/xhtml:html/xhtml:body/node()" />
 	</xsl:template>
 
+	<xsl:template mode="layout" match="xhtml:p[@id='manifest-rights']|p[@id='manifest-rights']">
+		<xsl:copy>
+			<xsl:apply-templates mode="layout" select="@*" />
+			<xsl:copy-of select="document(concat($manifest, '?rights'))/*/node()" />
+		</xsl:copy>
+	</xsl:template>
+
 	<xsl:template mode="layout" match="xhtml:p[@id='resource-lastmod']|p[@id='resource-lastmod']">
 		<xsl:if test="$template and ($query='view' or $query='edit' or $query='permissions')">
 			<p xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#" about="?this" rel="audit:revision" resource="?revision">
@@ -272,13 +377,7 @@
 		<time pubdate="pubdate" property="audit:committedOn" class="abbreviated" />
 	</xsl:template>
 
-	<xsl:template mode="layout" match="xhtml:p[@id='manifest-rights']|p[@id='manifest-rights']">
-		<xsl:copy>
-			<xsl:apply-templates mode="layout" select="@*" />
-			<xsl:copy-of select="document(concat($manifest, '?rights'))/*/node()" />
-		</xsl:copy>
-	</xsl:template>
-
+	<!-- Helper Functions -->
 	<xsl:template name="merge-attributes">
 		<xsl:param name="one" />
 		<xsl:param name="two" />

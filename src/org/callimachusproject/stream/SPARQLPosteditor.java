@@ -23,7 +23,6 @@ package org.callimachusproject.stream;
  * @author Steve Battle
  */
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -32,9 +31,8 @@ import java.util.regex.Pattern;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.BuiltInCall;
-import org.callimachusproject.rdfa.events.ConditionalOrExpression;
 import org.callimachusproject.rdfa.events.Exists;
-import org.callimachusproject.rdfa.events.Expression;
+import org.callimachusproject.rdfa.events.VarOrTermExpression;
 import org.callimachusproject.rdfa.events.Filter;
 import org.callimachusproject.rdfa.events.Namespace;
 import org.callimachusproject.rdfa.events.RDFEvent;
@@ -98,50 +96,14 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 				Var var = tf.var(vt.stringValue() + "_phone");
 				add(new TriplePattern(vt,tf.curie(KEYWORD_NS, "phone", "keyword"),var));
 				// eg. FILTER sameTerm(?vt,keyword:soundex(keyword))
+				add(new Filter(OPEN));
 				add(new BuiltInCall(OPEN, "sameTerm"));
-				add(new Expression(vt));
+				add(new VarOrTermExpression(var));
 				add(new BuiltInCall(OPEN, "keyword:soundex"));
-				add(new Expression(tf.literal(keyword)));
+				add(new VarOrTermExpression(tf.literal(keyword)));
 				add(new BuiltInCall(CLOSE, "keyword:soundex"));
 				add(new BuiltInCall(CLOSE, "sameTerm"));
-			}
-			return false;
-		}
-	}
-
-	public class FilterInsert implements Editor {
-		List<String> props;
-		Pattern subjectPattern;
-		String regex;
-		List<RDFEvent> list = new LinkedList<RDFEvent>();
-		public FilterInsert(String subjectRegex, String[] props, String regex) {
-			super();
-			this.props = Arrays.asList(props);
-			this.subjectPattern = Pattern.compile(subjectRegex);
-			this.regex = regex;
-		}
-		@Override
-		public boolean edit(RDFEvent event) {
-			if (event.isTriplePattern()) {
-				TriplePattern t = event.asTriplePattern();
-				if (match(subjectPattern,t.getSubject())) {
-					if (props.contains(t.getPredicate().stringValue())) {
-						if (list.size()>0) list.add(new ConditionalOrExpression());
-						// eg. FILTER regex( str(<object>),<regex>,i)
-						add(new Filter(OPEN));
-						list.add(new BuiltInCall(OPEN, "regex"));
-						list.add(new BuiltInCall(OPEN, "str"));
-						list.add(new Expression(t.getObject()));
-						list.add(new BuiltInCall(CLOSE, "str"));
-						list.add(new Expression(tf.literal(regex)));
-						list.add(new Expression(tf.literal("i")));
-						list.add(new BuiltInCall(CLOSE, "regex"));
-						add(new Filter(CLOSE));
-					}
-				}
-			}
-			else if (event.isEndWhere()) {
-				addAll(list);
+				add(new Filter(CLOSE));
 			}
 			return false;
 		}
@@ -177,12 +139,12 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 				add(new TriplePattern(subj,pred,object));
 				// eg. FILTER regex(?object,keyword:regex($keyword))
 				add(new Filter(OPEN));
-				add(new BuiltInCall(true, "regex"));
-				add(new Expression(object));
-				add(new BuiltInCall(false, "keyword:regex"));
-				add(new Expression(tf.literal(keyword)));
-				add(new BuiltInCall(false, "keyword:regex"));
-				add(new BuiltInCall(false, "regex"));
+				add(new BuiltInCall(OPEN, "regex"));
+				add(new VarOrTermExpression(object));
+				add(new BuiltInCall(OPEN, "keyword:regex"));
+				add(new VarOrTermExpression(tf.literal(keyword)));
+				add(new BuiltInCall(CLOSE, "keyword:regex"));
+				add(new BuiltInCall(CLOSE, "regex"));
 				add(new Filter(CLOSE));
 
 				add(new Exists(CLOSE));

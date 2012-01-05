@@ -18,12 +18,10 @@
 package org.callimachusproject.rdfa.test;
 
 import static org.callimachusproject.rdfa.test.TestUtility.asDocument;
-import static org.callimachusproject.rdfa.test.TestUtility.asXMLEventReader;
 import static org.callimachusproject.rdfa.test.TestUtility.exportGraph;
 import static org.callimachusproject.rdfa.test.TestUtility.loadRepository;
 import static org.callimachusproject.rdfa.test.TestUtility.parseRDFa;
 import static org.callimachusproject.rdfa.test.TestUtility.readDocument;
-import static org.callimachusproject.rdfa.test.TestUtility.transform;
 import static org.callimachusproject.rdfa.test.TestUtility.write;
 import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
 import static org.junit.Assert.assertTrue;
@@ -34,7 +32,6 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -48,13 +45,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.stax.StAXSource;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -106,7 +97,6 @@ public class RDFaOrderDependentTest {
 	static final String TRANSFORM = "../webapps/callimachus/operations/construct.xsl";
 	static final String TEST_FILE_SUFFIX = "-test";
 	static final String DATA_ATTRIBUTE_TEST_BASE = "http://example.org/test";
-	static final String DATA_ATTRIBUTE_TEST_XSLT = "org/callimachusproject/xsl/data-attributes.xsl";
 	static final String MENU = "examples/menu.xml";
 			
 	// static properties defined in @BeforeClass setUp()
@@ -192,29 +182,6 @@ public class RDFaOrderDependentTest {
 			}
 		}
 		return cases;
-	}
-	
-	static XMLEventReader applyDataAttributeXSLT(XMLEventReader xml, String _this) throws Exception {
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		InputStream in = cl.getResourceAsStream(DATA_ATTRIBUTE_TEST_XSLT);
-		Transformer transformer = transformerFactory.newTransformer(new StreamSource(in));
-		transformer.setParameter("this", _this);
-		transformer.setURIResolver(new URIResolver() {
-			@Override
-			public Source resolve(String href, String base)
-					throws TransformerException {
-				try {
-					// we should only ever be loading the menu result set
-					XMLEventReader xml = xmlInputFactory
-							.createXMLEventReader(new FileReader(MENU));
-					return new StAXSource(xml);
-				} catch (Exception e) {
-					e.printStackTrace();
-					return null;
-				}
-			}
-		});
-		return asXMLEventReader(transform(xml,transformer));
 	}
 		
 	/* a document is only viewable if it defines a fragment that is about '?this'*/

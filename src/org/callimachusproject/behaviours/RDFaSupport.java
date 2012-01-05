@@ -83,24 +83,14 @@ public abstract class RDFaSupport implements Page, RDFObject,
 			return size() > MAX_XSLT;
 		}
 	};
-	private static final XSLTransformer DATA_ATTR;
-	static {
-		String path = "org/callimachusproject/xsl/data-attributes.xsl";
-		ClassLoader cl = RDFaSupport.class.getClassLoader();
-		String url = cl.getResource(path).toExternalForm();
-		InputStream input = cl.getResourceAsStream(path);
-		InputStreamReader reader = new InputStreamReader(input);
-		DATA_ATTR = new XSLTransformer(reader, url);
-	}
 
 	@method("GET")
 	@query("xslt")
 	@type("application/xml")
 	public XMLEventReader xslt(@query("query") String query,
-			@query("element") String element)
-			throws XMLStreamException, IOException, TransformerException {
-		XMLEventReader doc = applyXSLT(query);
-		return extract(addDataAttributes(doc, query), element);
+			@query("element") String element) throws XMLStreamException,
+			IOException, TransformerException {
+		return extract(applyXSLT(query), element);
 	}
 
 	@method("GET")
@@ -160,16 +150,7 @@ public abstract class RDFaSupport implements Page, RDFObject,
 		return transform.asXMLEventReader();
 	}
 
-	private XMLEventReader addDataAttributes(XMLEventReader doc, String query)
-			throws TransformerException, IOException, XMLStreamException {
-		TransformBuilder transform = DATA_ATTR.transform(doc, this.toString());
-		transform = transform.with("this", this.toString());
-		transform = transform.with("query", query);
-		return transform.asXMLEventReader();
-	}
-
-	private XMLEventReader extract(XMLEventReader xhtml, String element)
-			throws XMLStreamException, IOException, TransformerException {
+	private XMLEventReader extract(XMLEventReader xhtml, String element) {
 		try {
 			if (element == null || element.equals("/1"))
 				return xhtml;

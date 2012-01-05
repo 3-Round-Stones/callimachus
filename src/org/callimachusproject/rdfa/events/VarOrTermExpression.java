@@ -17,15 +17,28 @@
  */
 package org.callimachusproject.rdfa.events;
 
+import org.callimachusproject.rdfa.model.VarOrTerm;
+
 /**
  * SPARQL grammer.
  * 
  * @author James Leigh
  *
  */
-public class ConditionalOrExpression extends Filter {
+public class VarOrTermExpression extends Expression {
+	private VarOrTerm term;
 
-	public String toString() {
-		return "||";
+	public VarOrTermExpression(VarOrTerm term) {
+		this.term = term;
 	}
+
+	public VarOrTerm getTerm() {
+		return term;
+	}
+
+	@Override
+	public String toString() {
+		return term.toString();
+	}
+
 }

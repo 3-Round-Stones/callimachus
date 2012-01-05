@@ -23,7 +23,7 @@ package org.callimachusproject.rdfa.events;
  * @author James Leigh
  *
  */
-public class Filter extends RDFEvent {
+public final class Filter extends RDFEvent {
 
 	public Filter() {
 		super();

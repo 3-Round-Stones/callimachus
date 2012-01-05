@@ -36,11 +36,7 @@ function select(node, selector) {
 
 function addSetItem(uri, script, errorMessage) {
 	var position = 0;
-	var url = script.attr("data-construct").replace("{about}", encodeURIComponent(uri));
-	var m = script.attr("data-construct").match(/\belement=\/(\d+\/)*(\d+)\b/);
-	if (m) {
-		position = parseInt(m[0][2]);
-	}
+	var url = script.attr("data-construct").replace("{xptr}", calli.xptr(script)).replace("{about}", encodeURIComponent(uri));
 	jQuery.get(url, function(data) {
 		var input = data ? $(data).children("[data-var-about],[data-var-resource]") : data;
 		if (input && input.length) {

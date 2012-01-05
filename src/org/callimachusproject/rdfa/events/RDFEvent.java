@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.rdfa.events;
 
+import org.callimachusproject.rdfa.model.VarOrTerm;
+
 /**
  * A basic RDF event that occurs within a document.
  * 
@@ -148,8 +150,8 @@ public class RDFEvent {
 		return this instanceof Filter && isEnd();
 	}
 
-	public boolean isConditionalOrExpression() {
-		return this instanceof ConditionalOrExpression;
+	public boolean isExpression() {
+		return this instanceof Expression;
 	}
 
 	public boolean isStartBuiltInCall() {
@@ -160,8 +162,8 @@ public class RDFEvent {
 		return isEnd() && this instanceof BuiltInCall;
 	}
 
-	public boolean isExpression() {
-		return this instanceof Expression;
+	public boolean isVarOrTerm() {
+		return this instanceof VarOrTermExpression;
 	}
 
 	public boolean isComment() {
@@ -200,7 +202,7 @@ public class RDFEvent {
 		return (BuiltInCall) this;
 	}
 
-	public Expression asExpression() {
-		return (Expression) this;
+	public VarOrTerm asVarOrTerm() {
+		return ((VarOrTermExpression) this).getTerm();
 	}
 }

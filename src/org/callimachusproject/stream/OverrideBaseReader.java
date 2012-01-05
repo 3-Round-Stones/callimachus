@@ -20,7 +20,7 @@ package org.callimachusproject.stream;
 import org.callimachusproject.rdfa.RDFEventReader;
 import org.callimachusproject.rdfa.RDFParseException;
 import org.callimachusproject.rdfa.events.Base;
-import org.callimachusproject.rdfa.events.Expression;
+import org.callimachusproject.rdfa.events.VarOrTermExpression;
 import org.callimachusproject.rdfa.events.Graph;
 import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.Subject;
@@ -77,8 +77,8 @@ public class OverrideBaseReader extends PipedRDFEventReader {
 			VarOrIRI term = event.asGraph().getGraph();
 			VarOrIRI ref = relative(term);
 			add(new Graph(event.isStart(), ref));
-		} else if (event.isExpression()) {
-			add(new Expression(relative(event.asExpression().getTerm())));
+		} else if (event.isVarOrTerm()) {
+			add(new VarOrTermExpression(relative(event.asVarOrTerm())));
 		} else if (event.isTriple()) {
 			Triple tp = event.asTriple();
 			Node subj = relative(tp.getSubject());

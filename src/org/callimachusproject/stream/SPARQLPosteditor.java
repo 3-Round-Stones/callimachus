@@ -36,18 +36,16 @@ import org.callimachusproject.rdfa.events.ConditionalOrExpression;
 import org.callimachusproject.rdfa.events.Exists;
 import org.callimachusproject.rdfa.events.Expression;
 import org.callimachusproject.rdfa.events.Filter;
-import org.callimachusproject.rdfa.events.Group;
+import org.callimachusproject.rdfa.events.Namespace;
 import org.callimachusproject.rdfa.events.RDFEvent;
 import org.callimachusproject.rdfa.events.TriplePattern;
-import org.callimachusproject.rdfa.events.Union;
-import org.callimachusproject.rdfa.model.IRI;
-import org.callimachusproject.rdfa.model.PlainLiteral;
 import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.rdfa.model.Var;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.openrdf.model.URI;
 
 public class SPARQLPosteditor extends BufferedRDFEventReader {
+	private static final String KEYWORD_NS = "http://www.openrdf.org/rdf/2011/keyword#";
 	private static boolean OPEN = true, CLOSE = false;
 
 	private static TermFactory tf = TermFactory.newInstance();
@@ -73,24 +71,39 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 		}
 	}
 	
-	public class ConditionInsert implements Editor {
-		IRI pred;
-		PlainLiteral lit;
+	public class PhoneMatchInsert implements Editor {
 		Pattern subjectPattern;
-		public ConditionInsert(String subjectRegex, IRI pred, PlainLiteral lit) {
+		String keyword;
+		boolean includesNamespace = false;
+		public PhoneMatchInsert(String subjectRegex, String keyword) {
 			super();
 			this.subjectPattern = Pattern.compile(subjectRegex);
-			this.pred = pred;
-			this.lit = lit;
+			this.keyword = keyword;
 		}
 		@Override
 		public boolean edit(RDFEvent event) {
+			if (!includesNamespace && event.isNamespace()) {
+				if (event.asNamespace().getPrefix().equals("keyword")) {
+					includesNamespace = true;
+				}
+			} else if (!includesNamespace && !event.isStartDocument() && !event.isComment()) {
+				add(new Namespace("keyword", KEYWORD_NS));
+				includesNamespace = true;
+			}
 			if (!event.isEndSubject()) return false;
 			VarOrTerm vt = event.asSubject().getSubject();
 			if (vt.isVar() 
 			&& !vt.asVar().stringValue().startsWith("_") 
 			&& match(subjectPattern,vt)) {
-				add(new TriplePattern(vt,pred,lit));
+				Var var = tf.var(vt.stringValue() + "_phone");
+				add(new TriplePattern(vt,tf.curie(KEYWORD_NS, "phone", "keyword"),var));
+				// eg. FILTER sameTerm(?vt,keyword:soundex(keyword))
+				add(new BuiltInCall(OPEN, "sameTerm"));
+				add(new Expression(vt));
+				add(new BuiltInCall(OPEN, "keyword:soundex"));
+				add(new Expression(tf.literal(keyword)));
+				add(new BuiltInCall(CLOSE, "keyword:soundex"));
+				add(new BuiltInCall(CLOSE, "sameTerm"));
 			}
 			return false;
 		}
@@ -115,6 +128,7 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 					if (props.contains(t.getPredicate().stringValue())) {
 						if (list.size()>0) list.add(new ConditionalOrExpression());
 						// eg. FILTER regex( str(<object>),<regex>,i)
+						add(new Filter(OPEN));
 						list.add(new BuiltInCall(OPEN, "regex"));
 						list.add(new BuiltInCall(OPEN, "str"));
 						list.add(new Expression(t.getObject()));
@@ -122,6 +136,7 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 						list.add(new Expression(tf.literal(regex)));
 						list.add(new Expression(tf.literal("i")));
 						list.add(new BuiltInCall(CLOSE, "regex"));
+						add(new Filter(CLOSE));
 					}
 				}
 			}
@@ -132,16 +147,14 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 		}
 	}
 	
-	public class FilterExists implements Editor {
-		List<String> props;
+	public class FilterKeywordExists implements Editor {
 		Pattern subjectPattern;
 		VarOrTerm subject, object;
-		String regex;
-		public FilterExists(String subjectRegex, String[] props, String regex) {
+		String keyword;
+		public FilterKeywordExists(String subjectRegex, String keyword) {
 			super();
 			this.subjectPattern = Pattern.compile(subjectRegex);
-			this.props = Arrays.asList(props);
-			this.regex = regex;
+			this.keyword = keyword;
 		}
 		@Override
 		public boolean edit(RDFEvent event) {
@@ -159,24 +172,16 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 				add(new Filter(OPEN));
 				add(new Exists(OPEN));
 				
-				boolean first = true;
-				for (String prop: props) {
-					if (!first) add(new Union());
-					add(new Group(OPEN));
-					VarOrTerm subj = subject;
-					IRI pred = tf.iri(prop);
-					add(new TriplePattern(subj,pred,object));
-					add(new Group(CLOSE));
-					first = false;
-				}
-				// eg. FILTER regex( str(<object>),<regex>,i)
+				VarOrTerm subj = subject;
+				Var pred = tf.var("__label_property");
+				add(new TriplePattern(subj,pred,object));
+				// eg. FILTER regex(?object,keyword:regex($keyword))
 				add(new Filter(OPEN));
 				add(new BuiltInCall(true, "regex"));
-				add(new BuiltInCall(true, "str"));
 				add(new Expression(object));
-				add(new BuiltInCall(false, "str"));
-				add(new Expression(tf.literal(regex)));
-				add(new Expression(tf.literal("i")));
+				add(new BuiltInCall(false, "keyword:regex"));
+				add(new Expression(tf.literal(keyword)));
+				add(new BuiltInCall(false, "keyword:regex"));
 				add(new BuiltInCall(false, "regex"));
 				add(new Filter(CLOSE));
 

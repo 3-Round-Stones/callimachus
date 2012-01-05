@@ -25,7 +25,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.rdfa.RDFEventReader;
-import org.openrdf.repository.object.annotations.iri;
+import org.openrdf.annotations.Iri;
 
 /**
  * Interface for all RDFa page templates.
@@ -33,7 +33,7 @@ import org.openrdf.repository.object.annotations.iri;
  * @author James Leigh
  *
  */
-@iri("http://callimachusproject.org/rdf/2009/framework#Page")
+@Iri("http://callimachusproject.org/rdf/2009/framework#Page")
 public interface Page {
 
 	/**

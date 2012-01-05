@@ -40,7 +40,6 @@ import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.rdfa.RDFaReader;
 import org.callimachusproject.rdfa.events.TriplePattern;
-import org.callimachusproject.rdfa.model.TermFactory;
 import org.callimachusproject.rdfa.model.VarOrTerm;
 import org.callimachusproject.stream.BufferedXMLEventReader;
 import org.callimachusproject.stream.DeDupedResultSet;
@@ -49,7 +48,6 @@ import org.callimachusproject.stream.RDFaProducer;
 import org.callimachusproject.stream.SPARQLPosteditor;
 import org.callimachusproject.stream.SPARQLProducer;
 import org.callimachusproject.stream.TemplateReader;
-import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.annotations.header;
 import org.openrdf.http.object.annotations.method;
 import org.openrdf.http.object.annotations.query;
@@ -81,8 +79,7 @@ import org.openrdf.repository.object.xslt.XSLTransformer;
  * @author Steve Battle
  * 
  */
-public abstract class FormSupport implements Page, SoundexTrait, RDFObject, FileObject {
-	private static TermFactory tf = TermFactory.newInstance();
+public abstract class FormSupport implements Page, RDFObject, FileObject {
 	private static ValueFactory vf = new ValueFactoryImpl();
 	
 	
@@ -193,11 +190,11 @@ public abstract class FormSupport implements Page, SoundexTrait, RDFObject, File
 		
 		// add soundex conditions to @about siblings on the next level only
 		// The regex should not match properties and property-expressions with info following the xptr
-		ed.addEditor(ed.new ConditionInsert("^(/\\d+){2}$",tf.iri(SOUNDEX),tf.literal(asSoundex(q))));
+		ed.addEditor(ed.new PhoneMatchInsert("^(/\\d+){2}$", q));
 		
 		// add filters to soundex labels at the next level (only direct properties of the top-level subject)
 		//ed.addEditor(ed.new FilterInsert("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
-		ed.addEditor(ed.new FilterExists("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
+		ed.addEditor(ed.new FilterKeywordExists("^(/\\d+){2}$", q));
 	
 		RepositoryConnection con = getObjectConnection();
 		String sparql = toSPARQL(new OrderedSparqlReader(ed));

@@ -21,18 +21,7 @@
 		SELECT REDUCED ?label ?note ?icon ?url ?revision ?modified ?user ?name
 		WHERE {
 			$this ?rel ?url .
-			{
-				GRAPH ?revision {
-					?url ?p ?o
-					FILTER (?p != audit:contained)
-					FILTER (?p != audit:revision)
-					FILTER (?p != calli:soundex)
-				}
-			} UNION {
-				?revision audit:contained [rdf:subject ?url; rdf:predicate ?p]
-				FILTER (?p != audit:revision)
-			}
-			?revision audit:committedOn ?modified
+			?revision audit:contributedTo ?url; audit:committedOn ?modified
 			OPTIONAL { ?revision audit:contributor ?user OPTIONAL { ?user rdfs:label ?name }}
 			FILTER (?url != ?revision)
 			FILTER (?url != ?user)

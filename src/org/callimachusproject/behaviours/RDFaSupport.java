@@ -45,7 +45,6 @@ import org.callimachusproject.stream.OverrideBaseReader;
 import org.callimachusproject.stream.RDFXMLEventReader;
 import org.callimachusproject.stream.SPARQLProducer;
 import org.callimachusproject.stream.XMLElementReader;
-import org.callimachusproject.traits.SoundexTrait;
 import org.openrdf.http.object.annotations.method;
 import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;
@@ -65,7 +64,7 @@ import org.openrdf.repository.object.xslt.XSLTransformer;
  * @author Steve Battle
  * 
  */
-public abstract class RDFaSupport implements Page, SoundexTrait, RDFObject,
+public abstract class RDFaSupport implements Page, RDFObject,
 		FileObject {
 	private static final Pattern TYPE_XSLT = Pattern
 			.compile("\\btype=[\"'](text/xsl|application/xslt+xml)[\"']");

@@ -105,7 +105,7 @@
 		var con = this.objectConnection;
 		var of = con.objectFactory;
 		con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
-		con.recompileAfterClose();
+		con.recompileSchemaOnClose();
 		return ret;
 	""".
 

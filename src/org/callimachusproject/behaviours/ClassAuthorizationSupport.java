@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.callimachusproject.traits.SelfAuthorizingTarget;
-import org.openrdf.repository.object.annotations.name;
-import org.openrdf.repository.object.annotations.sparql;
+import org.openrdf.annotations.Bind;
+import org.openrdf.annotations.Sparql;
 import org.openrdf.repository.object.traits.RDFObjectBehaviour;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +36,8 @@ public abstract class ClassAuthorizationSupport implements SelfAuthorizingTarget
 		return !groups.isEmpty();
 	}
 
-	@sparql(PREFIX + "SELECT (str(?group) as ?gstring) { ?group calli:member $credential }")
-	protected abstract Set<String> selectMembership(@name("credential") Object credential);
+	@Sparql(PREFIX + "SELECT (str(?group) as ?gstring) { ?group calli:member $credential }")
+	protected abstract Set<String> selectMembership(@Bind("credential") Object credential);
 
 	private void findAuthorizedGroups(Class<?> klass, String method,
 			String query, Set<String> groups) {

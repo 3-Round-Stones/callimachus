@@ -20,18 +20,7 @@
 	msg:sparql  """
 		SELECT DISTINCT ?label ?note ?icon ?url ?revision ?modified ?user ?name
 		WHERE {
-			?revision a audit:RecentTransaction; audit:contributor ?user; audit:committedOn ?modified
-			{
-				GRAPH ?revision {
-					?url ?p ?o
-					FILTER (?p != audit:contained)
-					FILTER (?p != audit:revision)
-					FILTER (?p != calli:soundex)
-				}
-			} UNION {
-				?revision audit:contained [rdf:subject ?url; rdf:predicate ?p]
-				FILTER (?p != audit:revision)
-			}
+			?revision a audit:RecentTransaction; audit:contributedTo ?url; audit:contributor ?user; audit:committedOn ?modified .
 			?user rdfs:label ?name
 			FILTER (?url != ?revision)
 			FILTER (?url != ?user)

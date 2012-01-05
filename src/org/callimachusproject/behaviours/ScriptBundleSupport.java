@@ -15,7 +15,7 @@ import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.GatewayTimeout;
 import org.openrdf.http.object.exceptions.InternalServerError;
 import org.openrdf.http.object.exceptions.ResponseException;
-import org.openrdf.repository.object.annotations.sparql;
+import org.openrdf.annotations.Sparql;
 
 import com.google.javascript.jscomp.CommandLineRunner;
 import com.google.javascript.jscomp.CompilationLevel;
@@ -57,7 +57,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 		return compiler.toSource();
 	}
 
-	@sparql("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+	@Sparql("PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "SELECT DISTINCT ?script\n"
 			+ "WHERE { {$this ?one ?script FILTER (regex(str(?one), \"#_\\\\d$\"))}\n"
 			+ "UNION {$this ?two ?script FILTER (regex(str(?two), \"#_\\\\d\\\\d$\"))}\n"

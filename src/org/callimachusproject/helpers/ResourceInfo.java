@@ -27,8 +27,8 @@ import org.openrdf.http.object.annotations.header;
 import org.openrdf.http.object.annotations.method;
 import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;
-import org.openrdf.repository.object.annotations.iri;
-import org.openrdf.repository.object.annotations.name;
+import org.openrdf.annotations.Iri;
+import org.openrdf.annotations.Bind;
 
 public class ResourceInfo {
 	public static class MethodInfo extends MethodDescriptor {
@@ -60,8 +60,8 @@ public class ResourceInfo {
 		}
 
 		public String getIRI() {
-			if (isAnnotationPresent(iri.class)) {
-				return getAnnotation(iri.class).value();
+			if (isAnnotationPresent(Iri.class)) {
+				return getAnnotation(Iri.class).value();
 			}
 			return null;
 		}
@@ -178,15 +178,15 @@ public class ResourceInfo {
 		}
 
 		public String getIRI() {
-			if (isAnnotationPresent(iri.class)) {
-				return getAnnotation(iri.class).value();
+			if (isAnnotationPresent(Iri.class)) {
+				return getAnnotation(Iri.class).value();
 			}
 			return null;
 		}
 
 		public String getName() {
-			if (isAnnotationPresent(name.class)) {
-				return join(getAnnotation(name.class).value(), ", ");
+			if (isAnnotationPresent(Bind.class)) {
+				return join(getAnnotation(Bind.class).value(), ", ");
 			} else if (super.getName() != null) {
 				return super.getName();
 			} else if (getIRI() != null) {
@@ -267,8 +267,8 @@ public class ResourceInfo {
 		}
 
 		public String getIRI() {
-			if (isAnnotationPresent(iri.class)) {
-				return getAnnotation(iri.class).value();
+			if (isAnnotationPresent(Iri.class)) {
+				return getAnnotation(Iri.class).value();
 			}
 			return null;
 		}

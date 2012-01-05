@@ -42,8 +42,8 @@ import org.callimachusproject.concepts.AccountManager;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.traits.VersionedObject;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.repository.object.annotations.name;
-import org.openrdf.repository.object.annotations.sparql;
+import org.openrdf.annotations.Bind;
+import org.openrdf.annotations.Sparql;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -224,11 +224,11 @@ public abstract class AccountManagerSupport implements AccountManager, RDFObject
 		return encodings.get(0)[0];
 	}
 
-	@sparql("SELECT (group_concat(?origin;separator=' ') as ?domain)\n"
+	@Sparql("SELECT (group_concat(?origin;separator=' ') as ?domain)\n"
 			+ "WHERE { ?origin a </callimachus/Origin> }")
 	public abstract String protectionDomain();
 
-	@sparql(PREFIX
+	@Sparql(PREFIX
 			+ "SELECT ?user ?encoded\n"
 			+ "WHERE { ?user calli:name $name .\n"
 			+ "$this calli:authNamespace ?folder .\n"
@@ -236,7 +236,7 @@ public abstract class AccountManagerSupport implements AccountManager, RDFObject
 			//TODO + "FILTER (str(?user) = concat(str(?folder), str($name)))\n"
 			+ "FILTER regex(str(?user), str(?folder))\n"
 			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" } }")
-	protected abstract List<Object[]> findDigest(@name("name") String username);
+	protected abstract List<Object[]> findDigest(@Bind("name") String username);
 
 	private Object authenticatedCredential(String method,
 			Map<String, String> options) throws UnsupportedEncodingException {

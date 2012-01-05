@@ -28,10 +28,10 @@
  */
 package org.callimachusproject.concepts;
 
-import org.openrdf.repository.object.annotations.iri;
+import org.openrdf.annotations.Iri;
 
 /** A collection of credentials. */
-@iri("http://callimachusproject.org/rdf/2009/framework#Group")
+@Iri("http://callimachusproject.org/rdf/2009/framework#Group")
 public interface Group {
 
 }

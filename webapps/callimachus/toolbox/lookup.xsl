@@ -32,10 +32,10 @@
 					<button type="submit">Search</button>
 				</form>
 				<hr />
-				<xsl:if test="not(/sparql:sparql/sparql:results/sparql:result)">
+				<xsl:if test="not(/sparql:sparql/sparql:results/sparql:result/*)">
 					<p>No resources with this label found.</p>
 				</xsl:if>
-				<xsl:if test="/sparql:sparql/sparql:results/sparql:result">
+				<xsl:if test="/sparql:sparql/sparql:results/sparql:result/*">
 					<xsl:apply-templates />
 				</xsl:if>
 			</body>

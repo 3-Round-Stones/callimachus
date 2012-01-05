@@ -25,7 +25,7 @@
 
 <> a </callimachus/SchemaGraph>.
 
-<Concept> a <Creatable>, owl:Class;
+<Concept> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf <Viewable>, <Editable>, skos:Concept;
 	rdfs:label "Concept";
 	rdfs:comment "Concepts are ideas, meanings, or categories of objects and events";
@@ -35,15 +35,17 @@
 	calli:edit <concept-edit.xhtml>;
 	calli:create <concept-create.xhtml>.
 
-:GetConceptIndexPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <Concept>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	msg:rel "alternate";
-	msg:method "GET";
-	msg:query "index";
-	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/TransformXhtml>;
-	msg:header "cache-control:no-cache";
-	msg:imports <concept-index.xhtml>;
-	msg:script "return concept_index_xhtml.calliConstruct(this, 'index')".
+:GetConceptIndex owl:intersectionOf (<creatable-index.ttl#GetCreatableIndex> [owl:onProperty msg:target; owl:hasValue <Concept> ]);
+	msg:sparql """
+		SELECT REDUCED ?title ?description ?resource ?label (ucase(substr(?label, 1, 1)) as ?index) (regex(?label, "^[a-zA-Z]") as ?letter) {
+			{
+				$this rdfs:label ?title
+				OPTIONAL {
+					$this rdfs:comment ?description
+				}
+			} UNION {
+				?resource a $this; skos:prefLabel ?label
+			}
+		} ORDER BY ?label LIMIT 101
+	""".
 

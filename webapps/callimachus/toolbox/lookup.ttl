@@ -8,6 +8,7 @@
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix keyword:<http://www.openrdf.org/rdf/2011/keyword#>.
 @prefix :<#>.
 
 <> a </callimachus/SchemaGraph>.
@@ -23,7 +24,7 @@
 		SELECT DISTINCT (max(?label) as ?label) (max(?comment) as ?comment) (max(?icon) as ?icon) ?url (max(?modified) as ?modified)
 		WHERE {
 			{
-				?url calli:soundex $soundex
+				?url keyword:phone ?soundex
 			} OPTIONAL {
 				?url skos:prefLabel ?label
 			} OPTIONAL {
@@ -34,22 +35,11 @@
 				?url skosxl:literalForm ?label
 			}
 			FILTER (isIRI(?url))
-			FILTER (EXISTS {
-				{
-					?url rdfs:label ?string
-				} UNION {
-					?url foaf:name ?string
-				} UNION {
-					?url skos:prefLabel ?string
-				} UNION {
-					?url skos:altLabel ?string
-				} UNION {
-					?url skos:hiddenLabel ?string
-				} UNION {
-					?url skosxl:literalForm ?string
-				}
-				FILTER (regex(str(?string), $regex, "i"))
-			})
+			FILTER sameTerm(?soundex, keyword:soundex($q))
+			FILTER EXISTS {
+				?url ?p ?string
+				FILTER regex(?string, keyword:regex($q))
+			}
 			OPTIONAL { ?url a [calli:icon ?icon] }
 			OPTIONAL { ?url rdfs:comment ?comment }
 			OPTIONAL { ?url audit:revision ?revision
@@ -61,17 +51,10 @@
 		LIMIT 100
 	""".
 
-:soundex a owl:DatatypeProperty, owl:FunctionalProperty;
+:q a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :Lookup;
 	rdfs:range xsd:string;
-	msg:query "q";
-	msg:transform calli:asSoundex.
-
-:regex a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :Lookup;
-	rdfs:range xsd:string;
-	msg:query "q";
-	msg:transform calli:regexStartsWith.
+	msg:query "q".
 
 :TransformLookup rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../lookup>];

@@ -32,7 +32,7 @@ import java.util.Map;
 
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
-import org.openrdf.repository.object.annotations.iri;
+import org.openrdf.annotations.Iri;
 
 /**
  * Interface for digest realms to access the calli:authName property.
@@ -40,7 +40,7 @@ import org.openrdf.repository.object.annotations.iri;
  * @author James Leigh
  *
  */
-@iri("http://callimachusproject.org/rdf/2009/framework#AccountManager")
+@Iri("http://callimachusproject.org/rdf/2009/framework#AccountManager")
 public interface AccountManager {
 
 	/**
@@ -50,10 +50,10 @@ public interface AccountManager {
 	 * collection of users who might have access. An example might be
 	 * "registered_users@gotham.news.com".
 	 */
-	@iri("http://callimachusproject.org/rdf/2009/framework#authName")
+	@Iri("http://callimachusproject.org/rdf/2009/framework#authName")
 	Object getAuthName();
 
-	@iri("http://callimachusproject.org/rdf/2009/framework#authName")
+	@Iri("http://callimachusproject.org/rdf/2009/framework#authName")
 	void setAuthName(Object authName);
 
 	String protectionDomain();

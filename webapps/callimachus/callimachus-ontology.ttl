@@ -249,11 +249,6 @@ calli:hasComponent a owl:ObjectProperty;
 	rdfs:comment "A nested resource with a URI that starts with this resource URI with one additional path, fragement, or component segment";
 	rdfs:domain calli:Composite.
 
-calli:soundex a owl:DatatypeProperty;
-	rdfs:label "soundex";
-	rdfs:comment "A soundex encoding of one of this resource's label or label prefix";
-	rdfs:range rdf:PlainLiteral.
-
 calli:describedBy a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "described by";
 	rdfs:comment "The target URL to use as a directory index";

@@ -25,8 +25,11 @@
          audit:minimumRecentTransactions 100 ;
          audit:maximumRecentTransactions 1000 ;
          sail:delegate [
-            sail:sailType "openrdf:NativeStore" ;
-            ns:tripleIndexes "spoc,pocs,oscp,cspo"
+            sail:sailType "openrdf:KeywordSail" ;
+            sail:delegate [
+              sail:sailType "openrdf:NativeStore" ;
+              ns:tripleIndexes "spoc,pocs,oscp,cspo"
+            ]
          ]
       ]
    ].

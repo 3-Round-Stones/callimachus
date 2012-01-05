@@ -33,7 +33,7 @@ import org.openrdf.http.object.traits.Realm;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.repository.object.annotations.sparql;
+import org.openrdf.annotations.Sparql;
 
 /**
  * Permits only local TCP connections from accessing this realm.
@@ -89,7 +89,7 @@ public abstract class LocalRealmSupport implements Realm, RDFObject {
 		return result;
 	}
 
-	@sparql("SELECT (group_concat(?origin;separator=' ') as ?domain)\n"
+	@Sparql("SELECT (group_concat(?origin;separator=' ') as ?domain)\n"
 			+ "WHERE { ?origin a </callimachus/Origin> }")
 	public abstract String protectionDomain();
 

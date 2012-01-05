@@ -20,15 +20,9 @@
 	msg:sparql  """
 		SELECT REDUCED ?label ?note ?icon ?revision ?modified ?user ?name
 		WHERE {
-			{
-				GRAPH ?revision { $this ?p ?o FILTER (?p != audit:contained) }
-			} UNION {
-				?revision audit:contained [rdf:subject $this]
-			}
-			?revision audit:committedOn ?modified
+			?revision audit:contributedTo $this; audit:committedOn ?modified
 			OPTIONAL { ?revision audit:contributor ?user OPTIONAL { ?user rdfs:label ?name } }
 			OPTIONAL { $this a [calli:icon ?icon] }
-			FILTER (!bound(?user) || ?user != $this)
 			OPTIONAL { $this skos:prefLabel ?label }
 			OPTIONAL { $this rdfs:label ?label }
 			OPTIONAL {

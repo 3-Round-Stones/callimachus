@@ -21,18 +21,7 @@
 	msg:sparql  """
 		SELECT REDUCED ?label ?comment ?icon ?url ?revision ?modified
 		WHERE {
-			?revision audit:committedOn ?modified; audit:contributor $this
-			{
-				GRAPH ?revision {
-					?url ?p ?o
-					FILTER (?p != audit:contained)
-					FILTER (?p != audit:revision)
-					FILTER (?p != calli:soundex)
-				}
-			} UNION {
-				?revision audit:contained [rdf:subject ?url; rdf:predicate ?p]
-				FILTER (?p != audit:revision)
-			}
+			?revision audit:contributedTo ?url; audit:committedOn ?modified; audit:contributor $this
 			FILTER (?url != ?revision)
 			FILTER (?url != $this)
 			FILTER (isIRI(?url))

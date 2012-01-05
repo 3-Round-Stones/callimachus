@@ -18,7 +18,7 @@ import org.callimachusproject.concepts.Page;
 import org.callimachusproject.traits.SelfAuthorizingTarget;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.repository.object.annotations.sparql;
+import org.openrdf.annotations.Sparql;
 
 public abstract class ManifestSupport implements Manifest, RDFObject {
 	private static final BasicStatusLine _204;
@@ -31,7 +31,7 @@ public abstract class ManifestSupport implements Manifest, RDFObject {
 		_403 = new BasicStatusLine(HTTP11, 403, "Forbidden");
 	}
 
-	@sparql("SELECT (group_concat(?origin;separator=',') as ?domain)\n"
+	@Sparql("SELECT (group_concat(?origin;separator=',') as ?domain)\n"
 			+ "WHERE { ?origin a </callimachus/Origin> }")
 	public abstract String allowOrigin();
 
@@ -74,7 +74,7 @@ public abstract class ManifestSupport implements Manifest, RDFObject {
 		return target.calliIsAuthorized(credential, method, query);
 	}
 
-	@sparql("SELECT (group_concat(?origin;separator=' ') as ?domain)\n"
+	@Sparql("SELECT (group_concat(?origin;separator=' ') as ?domain)\n"
 			+ "WHERE { ?origin a </callimachus/Origin> }")
 	public abstract String protectionDomain();
 

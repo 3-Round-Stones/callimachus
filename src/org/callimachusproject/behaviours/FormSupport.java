@@ -18,7 +18,7 @@
  */
 package org.callimachusproject.behaviours;
 
-import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
+import static org.callimachusproject.engine.helpers.SPARQLWriter.toSPARQL;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.ByteArrayOutputStream;
@@ -38,16 +38,16 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
-import org.callimachusproject.rdfa.RDFaReader;
-import org.callimachusproject.rdfa.events.TriplePattern;
-import org.callimachusproject.rdfa.model.VarOrTerm;
-import org.callimachusproject.stream.BufferedXMLEventReader;
-import org.callimachusproject.stream.DeDupedResultSet;
-import org.callimachusproject.stream.OrderedSparqlReader;
-import org.callimachusproject.stream.RDFaProducer;
-import org.callimachusproject.stream.SPARQLPosteditor;
-import org.callimachusproject.stream.SPARQLProducer;
-import org.callimachusproject.stream.TemplateReader;
+import org.callimachusproject.engine.RDFaReader;
+import org.callimachusproject.engine.events.TriplePattern;
+import org.callimachusproject.engine.helpers.BufferedXMLEventReader;
+import org.callimachusproject.engine.helpers.DeDupedResultSet;
+import org.callimachusproject.engine.helpers.OrderedSparqlReader;
+import org.callimachusproject.engine.helpers.RDFaProducer;
+import org.callimachusproject.engine.helpers.SPARQLPosteditor;
+import org.callimachusproject.engine.helpers.SPARQLProducer;
+import org.callimachusproject.engine.helpers.TemplateReader;
+import org.callimachusproject.engine.model.VarOrTerm;
 import org.openrdf.http.object.annotations.header;
 import org.openrdf.http.object.annotations.method;
 import org.openrdf.http.object.annotations.query;

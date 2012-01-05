@@ -52,7 +52,6 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.callimachusproject.util.MultiValuedFileMap;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.GatewayTimeout;
 import org.openrdf.http.object.util.ManagedExecutors;

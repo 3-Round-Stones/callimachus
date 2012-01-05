@@ -8,11 +8,11 @@ import java.util.List;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 
-import org.callimachusproject.helpers.ResourceInfo;
-import org.callimachusproject.helpers.XHTMLInfoWriter;
-import org.callimachusproject.helpers.ResourceInfo.MethodInfo;
-import org.callimachusproject.helpers.ResourceInfo.ParameterInfo;
-import org.callimachusproject.helpers.ResourceInfo.PropertyInfo;
+import org.callimachusproject.server.helpers.ResourceInfo;
+import org.callimachusproject.server.helpers.XHTMLInfoWriter;
+import org.callimachusproject.server.helpers.ResourceInfo.MethodInfo;
+import org.callimachusproject.server.helpers.ResourceInfo.ParameterInfo;
+import org.callimachusproject.server.helpers.ResourceInfo.PropertyInfo;
 import org.openrdf.http.object.annotations.query;
 import org.openrdf.model.URI;
 import org.openrdf.repository.object.RDFObject;

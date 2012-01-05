@@ -318,7 +318,7 @@
 		function readFrom(entryStream, uri, graphs) {
 			var inserter = new org.openrdf.repository.util.RDFInserter(con);
 			inserter.enforceContext(graphs);
-			var tracker = new org.callimachusproject.helpers.SubjectTracker(inserter, vf);
+			var tracker = new org.callimachusproject.form.helpers.SubjectTracker(inserter, vf);
 			var parser = new org.openrdf.rio.rdfxml.RDFXMLParser();
 			parser.setValueFactory(vf);
 			parser.setRDFHandler(tracker);

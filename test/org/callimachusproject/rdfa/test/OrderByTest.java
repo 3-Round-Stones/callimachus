@@ -1,29 +1,29 @@
 package org.callimachusproject.rdfa.test;
 
-import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
+import static org.callimachusproject.engine.helpers.SPARQLWriter.toSPARQL;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.callimachusproject.rdfa.RDFEventReader;
-import org.callimachusproject.rdfa.RDFParseException;
-import org.callimachusproject.rdfa.events.Comment;
-import org.callimachusproject.rdfa.events.Document;
-import org.callimachusproject.rdfa.events.Group;
-import org.callimachusproject.rdfa.events.Namespace;
-import org.callimachusproject.rdfa.events.Optional;
-import org.callimachusproject.rdfa.events.RDFEvent;
-import org.callimachusproject.rdfa.events.Select;
-import org.callimachusproject.rdfa.events.Subject;
-import org.callimachusproject.rdfa.events.TriplePattern;
-import org.callimachusproject.rdfa.events.Union;
-import org.callimachusproject.rdfa.events.Where;
-import org.callimachusproject.rdfa.impl.IRIImpl;
-import org.callimachusproject.rdfa.impl.VarImpl;
-import org.callimachusproject.stream.BlankOrLiteralVar;
-import org.callimachusproject.stream.IterableRDFEventReader;
-import org.callimachusproject.stream.OrderedSparqlReader;
+import org.callimachusproject.engine.RDFEventReader;
+import org.callimachusproject.engine.RDFParseException;
+import org.callimachusproject.engine.events.Comment;
+import org.callimachusproject.engine.events.Document;
+import org.callimachusproject.engine.events.Group;
+import org.callimachusproject.engine.events.Namespace;
+import org.callimachusproject.engine.events.Optional;
+import org.callimachusproject.engine.events.RDFEvent;
+import org.callimachusproject.engine.events.Select;
+import org.callimachusproject.engine.events.Subject;
+import org.callimachusproject.engine.events.TriplePattern;
+import org.callimachusproject.engine.events.Union;
+import org.callimachusproject.engine.events.Where;
+import org.callimachusproject.engine.helpers.BlankOrLiteralVar;
+import org.callimachusproject.engine.helpers.IterableRDFEventReader;
+import org.callimachusproject.engine.helpers.OrderedSparqlReader;
+import org.callimachusproject.engine.impl.IRIImpl;
+import org.callimachusproject.engine.impl.VarImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

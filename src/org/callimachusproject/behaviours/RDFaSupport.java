@@ -17,7 +17,7 @@
  */
 package org.callimachusproject.behaviours;
 
-import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
+import static org.callimachusproject.engine.helpers.SPARQLWriter.toSPARQL;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,14 +37,14 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.concepts.Page;
-import org.callimachusproject.rdfa.RDFEventReader;
-import org.callimachusproject.rdfa.RDFaReader;
-import org.callimachusproject.rdfa.events.Base;
-import org.callimachusproject.stream.OrderedSparqlReader;
-import org.callimachusproject.stream.OverrideBaseReader;
-import org.callimachusproject.stream.RDFXMLEventReader;
-import org.callimachusproject.stream.SPARQLProducer;
-import org.callimachusproject.stream.XMLElementReader;
+import org.callimachusproject.engine.RDFEventReader;
+import org.callimachusproject.engine.RDFaReader;
+import org.callimachusproject.engine.events.Base;
+import org.callimachusproject.engine.helpers.OrderedSparqlReader;
+import org.callimachusproject.engine.helpers.OverrideBaseReader;
+import org.callimachusproject.engine.helpers.RDFXMLEventReader;
+import org.callimachusproject.engine.helpers.SPARQLProducer;
+import org.callimachusproject.engine.helpers.XMLElementReader;
 import org.openrdf.http.object.annotations.method;
 import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;

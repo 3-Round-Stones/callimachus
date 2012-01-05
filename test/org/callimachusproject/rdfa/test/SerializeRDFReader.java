@@ -1,10 +1,10 @@
 package org.callimachusproject.rdfa.test;
 
-import org.callimachusproject.rdfa.RDFEventReader;
-import org.callimachusproject.rdfa.RDFParseException;
-import org.callimachusproject.rdfa.events.RDFEvent;
-import org.callimachusproject.rdfa.events.TriplePattern;
-import org.callimachusproject.rdfa.model.VarOrTerm;
+import org.callimachusproject.engine.RDFEventReader;
+import org.callimachusproject.engine.RDFParseException;
+import org.callimachusproject.engine.events.RDFEvent;
+import org.callimachusproject.engine.events.TriplePattern;
+import org.callimachusproject.engine.model.VarOrTerm;
 
 public class SerializeRDFReader extends RDFEventReader {
 	private RDFEventReader delegate;

@@ -18,10 +18,10 @@
 
 	<property name="junit.url" value="http://cloud.github.com/downloads/KentBeck/junit/junit-4.8.2.jar" />
 	<property name="junit.jar" location="${testlib}/junit.jar" />
-	<property name="junit.RDFaConformanceTest" value="org.callimachusproject.rdfa.test.RDFaConformanceTest" />
-	<property name="junit.RDFaGenerationTest" value="org.callimachusproject.rdfa.test.RDFaGenerationTest" />
-	<property name="junit.RDFaOrderDependentTest" value="org.callimachusproject.rdfa.test.RDFaOrderDependentTest" />
-	<property name="junit.RDFaDataAttributeTest" value="org.callimachusproject.rdfa.test.RDFaDataAttributeTest" />
+	<property name="junit.RDFaConformanceTest" value="org.callimachusproject.engine.test.RDFaConformanceTest" />
+	<property name="junit.RDFaGenerationTest" value="org.callimachusproject.engine.test.RDFaGenerationTest" />
+	<property name="junit.RDFaOrderDependentTest" value="org.callimachusproject.engine.test.RDFaOrderDependentTest" />
+	<property name="junit.RDFaDataAttributeTest" value="org.callimachusproject.engine.test.RDFaDataAttributeTest" />
 
 	<target name="test-init">
 		<mkdir dir="${build}" />

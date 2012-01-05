@@ -24,7 +24,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.rdfa.RDFEventReader;
+import org.callimachusproject.engine.RDFEventReader;
 import org.openrdf.annotations.Iri;
 
 /**

@@ -17,13 +17,13 @@
 
 package org.callimachusproject.rdfa.test;
 
+import static org.callimachusproject.engine.helpers.SPARQLWriter.toSPARQL;
 import static org.callimachusproject.rdfa.test.TestUtility.asDocument;
 import static org.callimachusproject.rdfa.test.TestUtility.exportGraph;
 import static org.callimachusproject.rdfa.test.TestUtility.loadRepository;
 import static org.callimachusproject.rdfa.test.TestUtility.parseRDFa;
 import static org.callimachusproject.rdfa.test.TestUtility.readDocument;
 import static org.callimachusproject.rdfa.test.TestUtility.write;
-import static org.callimachusproject.stream.SPARQLWriter.toSPARQL;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
@@ -50,12 +50,12 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.callimachusproject.rdfa.RDFEventReader;
-import org.callimachusproject.rdfa.RDFaReader;
-import org.callimachusproject.stream.BufferedXMLEventReader;
-import org.callimachusproject.stream.OrderedSparqlReader;
-import org.callimachusproject.stream.RDFaProducer;
-import org.callimachusproject.stream.SPARQLProducer;
+import org.callimachusproject.engine.RDFEventReader;
+import org.callimachusproject.engine.RDFaReader;
+import org.callimachusproject.engine.helpers.BufferedXMLEventReader;
+import org.callimachusproject.engine.helpers.OrderedSparqlReader;
+import org.callimachusproject.engine.helpers.RDFaProducer;
+import org.callimachusproject.engine.helpers.SPARQLProducer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

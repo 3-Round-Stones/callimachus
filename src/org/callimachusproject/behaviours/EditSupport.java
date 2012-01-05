@@ -22,12 +22,12 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 import java.io.InputStream;
 
 import org.callimachusproject.concepts.Page;
-import org.callimachusproject.helpers.GraphPatternBuilder;
-import org.callimachusproject.helpers.SubjectTracker;
+import org.callimachusproject.engine.events.TriplePattern;
+import org.callimachusproject.engine.model.IRI;
+import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.form.helpers.GraphPatternBuilder;
+import org.callimachusproject.form.helpers.SubjectTracker;
 import org.callimachusproject.io.MultipartParser;
-import org.callimachusproject.rdfa.events.TriplePattern;
-import org.callimachusproject.rdfa.model.IRI;
-import org.callimachusproject.rdfa.model.TermFactory;
 import org.openrdf.http.object.exceptions.BadRequest;
 import org.openrdf.http.object.traits.VersionedObject;
 import org.openrdf.model.Statement;

@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.Ask;
-import org.callimachusproject.engine.events.Base;
 import org.callimachusproject.engine.events.Comment;
 import org.callimachusproject.engine.events.Group;
 import org.callimachusproject.engine.events.Optional;
@@ -97,9 +96,6 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	// reset this to select OPTIONAL only form
 	private boolean unionForm = true;
 	
-	// the current binding for this, used to substitute base
-	private String _this = null;
-	
 	public boolean isSelectQuery() {
 		return queryType==QUERY.SELECT;
 	}
@@ -120,11 +116,6 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		super(reader);
 	}
 	
-	public SPARQLProducer(RDFEventReader reader, String _this) {
-		this(reader);
-		this._this = _this;
-	}
-	
 	public SPARQLProducer setQueryType(QUERY queryType) {
 		this.queryType = queryType;
 		return this;
@@ -132,11 +123,6 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	
 	public SPARQLProducer setUnionForm(boolean unionForm) {
 		this.unionForm = unionForm;
-		return this;
-	}
-	
-	public SPARQLProducer setThis(String _this) {
-		this._this = _this;
 		return this;
 	}
 
@@ -378,14 +364,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		RDFEvent e;
 		do {
 			e = peek(lookAhead++);
-			if (e.isBase()) {
-				Base b = e.asBase();
-				if (b.getBase().endsWith("?this") && _this!=null) {
-					b = new Base(_this);
-				}
-				add(b);
-			}
-		} while (!e.isEndDocument() && !e.isStartSubject());
+			if (e.isBase())
+				add(e);
+		} while (!e.isStart() && !e.isEnd());		
 	}
 
 	private void addPrefixes() throws RDFParseException {

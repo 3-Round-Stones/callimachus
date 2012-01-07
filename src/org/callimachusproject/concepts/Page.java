@@ -21,10 +21,9 @@ package org.callimachusproject.concepts;
 import java.io.IOException;
 
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.engine.RDFEventReader;
+import org.callimachusproject.engine.TemplateException;
 import org.openrdf.annotations.Iri;
 
 /**
@@ -53,9 +52,9 @@ public interface Page {
 
 	/**
 	 * Reads the template as a graph pattern.
+	 * @throws TemplateException 
 	 */
 	RDFEventReader openPatternReader(String about, String query,
-			String element) throws XMLStreamException, IOException,
-			TransformerException;
+			String element) throws IOException, TemplateException;
 		
 }

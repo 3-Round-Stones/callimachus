@@ -22,7 +22,8 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix :<#>.
+@prefix callimachusproject:<http://callimachusproject.org/rdf/2009/>.
+@prefix :<http://callimachusproject.org/rdf/2009/framework/IsAuthorized#>.
 
 <> a </callimachus/SchemaGraph>.
 

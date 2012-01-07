@@ -21,14 +21,10 @@ package org.callimachusproject.behaviours;
 import static org.callimachusproject.engine.helpers.SPARQLWriter.toSPARQL;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
@@ -39,6 +35,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.RDFaReader;
+import org.callimachusproject.engine.Template;
+import org.callimachusproject.engine.TemplateEngine;
+import org.callimachusproject.engine.TemplateEngineFactory;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.helpers.BufferedXMLEventReader;
 import org.callimachusproject.engine.helpers.DeDupedResultSet;
@@ -54,19 +53,14 @@ import org.openrdf.http.object.annotations.query;
 import org.openrdf.http.object.annotations.type;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.BadRequest;
-import org.openrdf.http.object.exceptions.InternalServerError;
 import org.openrdf.http.object.exceptions.ResponseException;
-import org.openrdf.http.object.util.ChannelUtil;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.impl.TupleQueryResultImpl;
+import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.xslt.XMLEventReaderFactory;
 import org.openrdf.repository.object.xslt.XSLTransformer;
@@ -80,6 +74,7 @@ import org.openrdf.repository.object.xslt.XSLTransformer;
  * 
  */
 public abstract class FormSupport implements Page, RDFObject, FileObject {
+	private static final TemplateEngineFactory tef = TemplateEngineFactory.newInstance();
 	private static ValueFactory vf = new ValueFactoryImpl();
 	
 	
@@ -163,7 +158,9 @@ public abstract class FormSupport implements Page, RDFObject, FileObject {
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(new OrderedSparqlReader(ed)), base);
 		URI about = vf.createURI(base);
 		template.reset(0);
-		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), about, con);
+		MapBindingSet bindings = new MapBindingSet();
+		bindings.addBinding("this", about);
+		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), bindings, con);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
@@ -203,7 +200,9 @@ public abstract class FormSupport implements Page, RDFObject, FileObject {
 		TupleQueryResult results = new DeDupedResultSet(qry.evaluate(),true);
 		URI about = vf.createURI(base);
 		template.reset(0);
-		RDFaProducer xhtml = new RDFaProducer(template, results, rq.getOrigins(), about, con);
+		MapBindingSet bindings = new MapBindingSet();
+		bindings.addBinding("this", about);
+		RDFaProducer xhtml = new RDFaProducer(template, results, rq.getOrigins(), bindings, con);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
@@ -217,39 +216,11 @@ public abstract class FormSupport implements Page, RDFObject, FileObject {
 	
 	private XMLEventReader calliConstructXhtml(URI about, String query, String element) 
 	throws Exception {
-		ObjectConnection con = getObjectConnection();
-		TupleQueryResult results;
-		Map<String,String> origins;
-		if (about==null) {
-			List<String> names = Collections.emptyList();
-			List<BindingSet> bindings = Collections.emptyList();
-			results = new TupleQueryResultImpl(names, bindings.iterator());
-			origins = Collections.emptyMap();
-		}	
-		else { // evaluate SPARQL derived from the template
-			String base = about.stringValue();
-			String sparql = sparql(query, element);
-			try {
-				TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, base);
-				q.setBinding("this", about);
-				results = q.evaluate();
-				origins = SPARQLProducer.getOrigins(sparql);
-			} catch (MalformedQueryException e) {
-				throw new InternalServerError(e.toString() + '\n' + sparql, e);
-			}
-		}
-		return new RDFaProducer(xslt(query,element), results, origins, about, con);
-	}
-
-	private String sparql(String query, String element) throws IOException {
-		InputStream in = request("sparql", query, element);
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			ChannelUtil.transfer(in, out);
-			return new String(out.toByteArray());
-		} finally {
-			in.close();
-		}
+		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
+		Template temp = engine.getTemplate(request("xslt", query, element), toString());
+		MapBindingSet bindings = new MapBindingSet();
+		bindings.addBinding("this", about);
+		return temp.openResultReader(temp.getQuery(), bindings);
 	}
 	
 	private InputStream dataConstruct(URI about, String query, String element) throws Exception {
@@ -275,7 +246,9 @@ public abstract class FormSupport implements Page, RDFObject, FileObject {
 				qry.setBinding(vt.asVar().stringValue(), about);
 		}
 		template.reset(0);
-		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), about, con);
+		MapBindingSet bindings = new MapBindingSet();
+		bindings.addBinding("this", about);
+		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), bindings, con);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();		
 	}
 

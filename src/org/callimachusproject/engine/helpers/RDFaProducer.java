@@ -49,6 +49,7 @@ import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.impl.TupleQueryResultImpl;
 import org.openrdf.repository.RepositoryConnection;
@@ -88,7 +89,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	TermFactory termFactory = TermFactory.newInstance();
 	Context context = new Context();
 	String skipElement = null;
-	URI self;
+	BindingSet bindings;
 	RepositoryConnection con;
 	XMLEvent previous;
 	
@@ -115,14 +116,13 @@ public class RDFaProducer extends XMLEventReaderBase {
 	/* @Param con	required to resolve (datatype) namespace prefixes */
 	
 	public RDFaProducer
-	(BufferedXMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self, RepositoryConnection con) 
-	throws Exception {
+	(BufferedXMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, BindingSet bindings, RepositoryConnection con) throws QueryEvaluationException {
 		super();
 		this.reader = reader;
 		this.origins = origins;
 		this.resultSet = resultSet;
 		result = nextResult();
-		this.self = self;
+		this.bindings = bindings;
 		this.con = con;
 		
 		for (String name: resultSet.getBindingNames()) {
@@ -134,13 +134,12 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 	
 	public RDFaProducer
-	(XMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, URI self, RepositoryConnection con) 
-	throws Exception {
-		this(new BufferedXMLEventReader(reader), resultSet, origins, self, con);
+	(XMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, BindingSet bindings, RepositoryConnection con) throws QueryEvaluationException {
+		this(new BufferedXMLEventReader(reader), resultSet, origins, bindings, con);
 		this.reader.mark();
 	}
 	
-	public RDFaProducer(XMLEventReader reader, RepositoryConnection con) throws Exception {
+	public RDFaProducer(XMLEventReader reader, RepositoryConnection con) throws QueryEvaluationException {
 		this(reader, EMPTY_RESULT, EMPTY_MAP, null, con);
 		this.reader.mark();
 	}
@@ -169,7 +168,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 	}
 	
-	protected BindingSet nextResult() throws Exception {
+	protected BindingSet nextResult() throws QueryEvaluationException {
 		// clear the record of consumed bindings
 		consumed = new HashSet<Binding>();
 		if (resultSet.hasNext())
@@ -224,8 +223,11 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 
 	private void processStartDocument(XMLEvent event) {
-		if (self!=null)
-			context.assignments.put("this", self);
+		if (bindings!=null) {
+			for (Binding bind : bindings) {
+				context.assignments.put(bind.getName(), bind.getValue());
+			}
+		}
 		add(event);
 	}
 

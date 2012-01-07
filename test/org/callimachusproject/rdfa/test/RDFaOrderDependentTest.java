@@ -69,6 +69,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.sail.SailRepository;
@@ -338,7 +339,9 @@ public class RDFaOrderDependentTest {
 			q.setBinding("this", self);
 			TupleQueryResult results = q.evaluate();
 			xml.reset(start);
-			XMLEventReader xrdfa = new RDFaProducer(xml, results, sparql.getOrigins(),self,con);
+			MapBindingSet bindings = new MapBindingSet();
+			bindings.addBinding("this", self);
+			XMLEventReader xrdfa = new RDFaProducer(xml, results, sparql.getOrigins(),bindings,con);
 		
 			XMLEventReader targetXML = xmlInputFactory.createXMLEventReader(new FileReader(target));
 			boolean ok = equivalent(xrdfa,targetXML,base);
@@ -358,7 +361,7 @@ public class RDFaOrderDependentTest {
 				System.out.println("\nOUTPUT:");
 				xml.reset(start);
 				results = q.evaluate();
-				Document doc = asDocument(new RDFaProducer(xml, results, sparql.getOrigins(),self,con));
+				Document doc = asDocument(new RDFaProducer(xml, results, sparql.getOrigins(),bindings,con));
 				write(doc,System.out);
 			}
 			if (!ok || verbose || show_results) {

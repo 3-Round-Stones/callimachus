@@ -6,14 +6,14 @@
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
 	exclude-result-prefixes="xhtml sparql">
 	<xsl:output method="xml" />
-	<xsl:param name="xslt" select="'/callimachus/manifest?template'" />
-	<xsl:param name="this" />
+	<xsl:param name="xsltId" select="'/callimachus/manifest?template'" />
+	<xsl:param name="systemId" />
 	<xsl:param name="query" />
 	<xsl:param name="template" select="false()" />
 
 	<!-- Variables -->
-	<xsl:variable name="scheme" select="substring-before($xslt, '://')" />
-	<xsl:variable name="authority" select="substring-before(substring-after($xslt, '://'), '/')" />
+	<xsl:variable name="scheme" select="substring-before($xsltId, '://')" />
+	<xsl:variable name="authority" select="substring-before(substring-after($xsltId, '://'), '/')" />
 	<xsl:variable name="callimachus">
 		<xsl:if test="$scheme and $authority">
 			<xsl:value-of select="concat($scheme, '://', $authority, '/callimachus')" />
@@ -23,10 +23,10 @@
 		</xsl:if>
 	</xsl:variable>
 	<xsl:variable name="manifest">
-		<xsl:if test="contains($xslt,'?')">
-			<xsl:value-of select="substring-before($xslt, '?')" />
+		<xsl:if test="contains($xsltId,'?')">
+			<xsl:value-of select="substring-before($xsltId, '?')" />
 		</xsl:if>
-		<xsl:if test="not(contains($xslt,'?'))">
+		<xsl:if test="not(contains($xsltId,'?'))">
 			<xsl:value-of select="concat($callimachus, '/manifest')" />
 		</xsl:if>
 	</xsl:variable>
@@ -54,13 +54,13 @@
 			<xsl:if test="$template">
 				<xsl:call-template name="resolve-path">
 					<xsl:with-param name="relative" select="." />
-					<xsl:with-param name="base" select="$this" />
+					<xsl:with-param name="base" select="$systemId" />
 				</xsl:call-template>
 			</xsl:if>
 			<xsl:if test="not($template)">
 				<xsl:call-template name="resolve-path">
 					<xsl:with-param name="relative" select="." />
-					<xsl:with-param name="base" select="$xslt" />
+					<xsl:with-param name="base" select="$xsltId" />
 				</xsl:call-template>
 			</xsl:if>
 		</xsl:attribute>
@@ -154,7 +154,7 @@
 		<xsl:if test="xhtml:option[@selected='selected'][@about or @resource] or xhtml:label[@about or @resource]/xhtml:input[@checked='checked']">
 			<!-- Called to populate select/radio/checkbox -->
 			<xsl:attribute name="data-options">
-				<xsl:value-of select="$this" />
+				<xsl:value-of select="$systemId" />
 				<xsl:text>?options&amp;query=</xsl:text>
 				<xsl:value-of select="$query" />
 				<xsl:text>&amp;element={xptr}</xsl:text>
@@ -163,7 +163,7 @@
 		<xsl:if test="*[@about or @resource] and not(@data-construct)">
 			<!-- Called when a resource URI is dropped to construct its label -->
 			<xsl:attribute name="data-construct">
-				<xsl:value-of select="$this" />
+				<xsl:value-of select="$systemId" />
 				<xsl:text>?construct&amp;query=</xsl:text>
 				<xsl:value-of select="$query" />
 				<xsl:text>&amp;element={xptr}&amp;about={about}</xsl:text>
@@ -172,7 +172,7 @@
 		<xsl:if test="*[@about or @resource] and .//*[contains(' rdfs:label skos:prefLabel skos:altLabel skosxl:literalForm ', concat(' ', @property, ' ')) or contains(text(), '{rdfs:label}') or contains(text(), '{skos:prefLabel}') or contains(text(), '{skos:altLabel}') or contains(text(), '{skosxl:literalForm}')] and not(@data-search)">
 			<!-- Lookup possible members by label -->
 			<xsl:attribute name="data-search">
-				<xsl:value-of select="$this" />
+				<xsl:value-of select="$systemId" />
 				<xsl:text>?search&amp;query=</xsl:text>
 				<xsl:value-of select="$query" />
 				<xsl:text>&amp;element={xptr}&amp;q={searchTerms}</xsl:text>
@@ -181,7 +181,7 @@
 		<xsl:if test="*[@about or @typeof or @resource or @property] and not(@data-add)">
 			<!-- Called to insert another property value or node -->
 			<xsl:attribute name="data-add">
-				<xsl:value-of select="$this" />
+				<xsl:value-of select="$systemId" />
 				<xsl:text>?template&amp;query=</xsl:text>
 				<xsl:value-of select="$query" />
 				<xsl:text>&amp;element={xptr}</xsl:text>

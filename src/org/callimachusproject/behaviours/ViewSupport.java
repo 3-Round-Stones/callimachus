@@ -19,13 +19,9 @@
 
 package org.callimachusproject.behaviours;
 
-import static org.openrdf.query.QueryLanguage.SPARQL;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
-import java.util.Map;
 
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
@@ -35,16 +31,15 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
-import org.callimachusproject.engine.helpers.RDFaProducer;
-import org.callimachusproject.engine.helpers.SPARQLProducer;
+import org.callimachusproject.engine.Template;
+import org.callimachusproject.engine.TemplateEngine;
+import org.callimachusproject.engine.TemplateEngineFactory;
 import org.callimachusproject.engine.helpers.TemplateReader;
 import org.openrdf.http.object.client.HTTPObjectClient;
 import org.openrdf.http.object.exceptions.ResponseException;
 import org.openrdf.http.object.traits.VersionedObject;
-import org.openrdf.http.object.util.ChannelUtil;
 import org.openrdf.model.URI;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.xslt.XMLEventReaderFactory;
@@ -59,6 +54,7 @@ import org.openrdf.repository.object.xslt.XMLEventReaderFactory;
  * 
  */
 public abstract class ViewSupport implements Page, RDFObject, VersionedObject, FileObject {
+	private static final TemplateEngineFactory tef = TemplateEngineFactory.newInstance();
 
 	/**
 	 * calliConstruct() is used e.g. by the view tab (not exclusively) and
@@ -66,8 +62,9 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 	 */
 	@Override
 	public XMLEventReader calliConstruct(Object target, String query) throws Exception {
-		if (target == null)
+		if (target == null) {
 			return new TemplateReader(xslt(query));
+		}
 		assert target instanceof RDFObject;
 		URI about = (URI) ((RDFObject) target).getResource();
 		return calliConstructXhtml(about, query);
@@ -75,27 +72,12 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 
 	private XMLEventReader calliConstructXhtml(URI about, String query) throws Exception {
 		ObjectConnection con = getObjectConnection();
-		TupleQueryResult results = null;
-		Map<String,String> origins = null;
-		// evaluate SPARQL derived from the template
 		String base = about.stringValue();
-		String sparql = sparql(query);
-		TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, base);
-		q.setBinding("this", about);
-		results = q.evaluate();
-		origins = SPARQLProducer.getOrigins(sparql);
-		return new RDFaProducer(xslt(query), results, origins, about, con);
-	}
-
-	private String sparql(String query) throws IOException {
-		InputStream in = request("sparql", query);
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			ChannelUtil.transfer(in, out);
-			return new String(out.toByteArray());
-		} finally {
-			in.close();
-		}
+		TemplateEngine engine = tef.createTemplateEngine(con);
+		Template temp = engine.getTemplate(request("xslt", query), base);
+		MapBindingSet bindings = new MapBindingSet();
+		bindings.addBinding("this", about);
+		return temp.openResultReader(temp.getQuery(), bindings);
 	}
 
 	private XMLEventReader xslt(String query)
@@ -121,8 +103,7 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 		HttpResponse response = client.service(request);
 		if (response.getStatusLine().getStatusCode() >= 300)
 			throw ResponseException.create(response);
-		InputStream in = response.getEntity().getContent();
-		return in;
+		return response.getEntity().getContent();
 	}
 
 }

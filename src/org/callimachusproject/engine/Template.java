@@ -63,14 +63,10 @@ public class Template {
 	}
 
 	public void construct(BindingSet bindings, OutputStream out)
-			throws TemplateException {
+			throws TemplateException, IOException {
 		XMLEventReader xhtml = openResultReader(getQuery(), bindings);
 		try {
 			HTML_XSLT.transform(xhtml, systemId).toOutputStream(out);
-		} catch (IOException e) {
-			throw new TemplateException(e);
-		} catch (XMLStreamException e) {
-			throw new TemplateException(e);
 		} catch (TransformerException e) {
 			throw new TemplateException(e);
 		}

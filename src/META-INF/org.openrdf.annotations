@@ -1,0 +1,13 @@
+org.openrdf.http.object.annotations.operation
+org.openrdf.http.object.annotations.header
+org.openrdf.http.object.annotations.rel
+org.openrdf.http.object.annotations.title
+org.openrdf.http.object.annotations.type
+org.openrdf.http.object.annotations.method
+org.openrdf.http.object.annotations.parameter
+org.openrdf.http.object.annotations.query
+org.openrdf.http.object.annotations.realm
+org.openrdf.http.object.annotations.cacheControl
+org.openrdf.http.object.annotations.transform
+org.openrdf.http.object.annotations.expect
+org.openrdf.http.object.annotations.encoding

@@ -5,3 +5,6 @@ org.callimachusproject.concepts.ScriptBundle
 org.callimachusproject.concepts.Page
 org.callimachusproject.concepts.User
 org.callimachusproject.traits.SelfAuthorizingTarget = http://www.w3.org/2000/01/rdf-schema#Resource
+org.openrdf.http.object.concepts.Transaction
+org.openrdf.http.object.concepts.LocalFileObject
+org.openrdf.http.object.concepts.HTTPFileObject

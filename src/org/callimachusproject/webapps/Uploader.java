@@ -55,7 +55,7 @@ import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.util.ManagedExecutors;
-import org.openrdf.repository.object.util.NamedThreadFactory;
+import org.callimachusproject.server.util.NamedThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

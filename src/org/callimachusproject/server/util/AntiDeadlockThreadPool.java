@@ -36,8 +36,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.openrdf.repository.object.util.ManagedThreadPool;
-
 
 /**
  * {@link ThreadPoolExecutor} that will increase the number of threads when the

@@ -1,5 +1,6 @@
 /*
- * Copyright 2010, James Leigh Some rights reserved.
+ * Copyright (c) 2010, Zepheira LLC Some rights reserved.
+ * Copyright (c) 2011 Talis Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,58 +29,78 @@
  */
 package org.callimachusproject.server.util;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.Pipe;
-import java.nio.channels.Pipe.SinkChannel;
-import java.nio.channels.WritableByteChannel;
+import java.lang.management.ThreadInfo;
 
 /**
- * Pipes the data and error messages of an OuputStream as an InputStream.
- * 
- * @author James Leigh
+ * Interface to manage ThreadPools from MXBeans.
  *
- */
-public class ErrorWritableByteChannel implements WritableByteChannel {
-	private SinkChannel delegate;
-	private IOException e;
+ * @author James Leigh
+ **/
+public interface ThreadPoolMXBean {
 
-	public ErrorWritableByteChannel(Pipe pipe) throws IOException {
-		this(pipe.sink());
-	}
+	String[] getActiveStackDump();
 
-	public ErrorWritableByteChannel(SinkChannel sink) throws IOException {
-		this.delegate = sink;
-	}
+	ThreadInfo[] getLiveThreadInfo(int maxDepth);
 
-	public void error(IOException e) {
-		this.e = e;
-	}
+	String[] getQueueDescription();
 
-	public boolean isOpen() {
-		return delegate.isOpen();
-	}
+	int getQueueSize();
 
-	public int write(ByteBuffer src) throws IOException {
-		throwIOException();
-		return delegate.write(src);
-	}
+	int getQueueRemainingCapacity();
 
-	public void close() throws IOException {
-		throwIOException();
-		delegate.close();
-	}
+	void clearQueue();
 
-	public String toString() {
-		return delegate.toString();
-	}
+	void runNextInQueue();
 
-	private void throwIOException() throws IOException {
-		try {
-			if (e != null)
-				throw e;
-		} finally {
-			e = null;
-		}
-	}
+	void runAllInQueue();
+
+	boolean isContinueExistingPeriodicTasksAfterShutdownPolicy();
+
+	void setContinueExistingPeriodicTasksAfterShutdownPolicy(boolean policy);
+
+	boolean isExecuteExistingDelayedTasksAfterShutdownPolicy();
+
+	void setExecuteExistingDelayedTasksAfterShutdownPolicy(boolean policy);
+
+	void setAllowCoreThreadTimeOut(boolean allow);
+
+	boolean isAllowsCoreThreadTimeOut();
+
+	int getActiveCount();
+
+	long getCompletedTaskCount();
+
+	int getLargestPoolSize();
+
+	int getPoolSize();
+
+	long getTaskCount();
+
+	boolean isShutdown();
+
+	boolean isTerminated();
+
+	boolean isTerminating();
+
+	void startAllCoreThreads();
+
+	void startCoreThread();
+
+	void purge();
+
+	int getCorePoolSize();
+
+	void setCorePoolSize(int size);
+
+	long getKeepAliveTime();
+
+	void setKeepAliveTime(long seconds);
+
+	int getMaximumPoolSize();
+
+	void setMaximumPoolSize(int size);
+
+	void shutdown();
+
+	void interruptWorkers() throws InterruptedException;
 }

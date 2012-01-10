@@ -104,9 +104,9 @@ import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.tasks.Task;
 import org.callimachusproject.server.util.ManagedExecutors;
+import org.callimachusproject.server.util.NamedThreadFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.object.ObjectRepository;
-import org.openrdf.repository.object.util.NamedThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

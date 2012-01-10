@@ -1,5 +1,6 @@
 /*
- * Copyright 2010, James Leigh Some rights reserved.
+ * Copyright 2010, Zepheira LLC Some rights reserved.
+ * Copyright (c) 2011 Talis Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,58 +29,60 @@
  */
 package org.callimachusproject.server.util;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.Pipe;
-import java.nio.channels.Pipe.SinkChannel;
-import java.nio.channels.WritableByteChannel;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ThreadFactory;
 
 /**
- * Pipes the data and error messages of an OuputStream as an InputStream.
+ * Gives new threads a common prefix.
  * 
  * @author James Leigh
  *
  */
-public class ErrorWritableByteChannel implements WritableByteChannel {
-	private SinkChannel delegate;
-	private IOException e;
+public class NamedThreadFactory implements ThreadFactory {
+	private String name;
+	private boolean daemon;
+	private volatile int COUNT = 0;
+	private final List<Thread> threads = new ArrayList<Thread>();
 
-	public ErrorWritableByteChannel(Pipe pipe) throws IOException {
-		this(pipe.sink());
+	public NamedThreadFactory(String name, boolean daemon) {
+		this.name = name;
+		this.daemon = daemon;
 	}
 
-	public ErrorWritableByteChannel(SinkChannel sink) throws IOException {
-		this.delegate = sink;
-	}
-
-	public void error(IOException e) {
-		this.e = e;
-	}
-
-	public boolean isOpen() {
-		return delegate.isOpen();
-	}
-
-	public int write(ByteBuffer src) throws IOException {
-		throwIOException();
-		return delegate.write(src);
-	}
-
-	public void close() throws IOException {
-		throwIOException();
-		delegate.close();
-	}
-
-	public String toString() {
-		return delegate.toString();
-	}
-
-	private void throwIOException() throws IOException {
-		try {
-			if (e != null)
-				throw e;
-		} finally {
-			e = null;
+	public Thread[] getLiveThreads() {
+		synchronized (threads) {
+			removeTerminatedThreads();
+			return threads.toArray(new Thread[threads.size()]);
 		}
 	}
+
+	public Thread newThread(final Runnable r) {
+		Thread thread = new Thread(r, name + "-" + (++COUNT));
+		if (thread.isDaemon() != daemon) {
+			thread.setDaemon(daemon);
+		}
+		synchronized (threads) {
+			removeTerminatedThreads();
+			threads.add(thread);
+		}
+		return thread;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
+	private void removeTerminatedThreads() {
+		Iterator<Thread> iter = threads.iterator();
+		while (iter.hasNext()) {
+			Thread thread = iter.next();
+			if (!thread.isAlive()) {
+				iter.remove();
+			}
+		}
+	}
+
 }

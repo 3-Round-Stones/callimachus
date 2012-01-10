@@ -8,7 +8,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpRequest;
-import org.openrdf.http.object.client.HTTPObjectClient;
+import org.callimachusproject.server.client.HTTPObjectClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

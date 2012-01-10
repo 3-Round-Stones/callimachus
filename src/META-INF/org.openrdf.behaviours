@@ -15,6 +15,6 @@ org.callimachusproject.behaviours.PasswordGenerator = http://callimachusproject.
 org.callimachusproject.behaviours.ScriptBundleSupport
 org.callimachusproject.behaviours.ClassAuthorizationSupport = http://www.w3.org/2000/01/rdf-schema#Resource
 org.callimachusproject.behaviours.ResourceAuthorizationSupport = http://www.w3.org/2000/01/rdf-schema#Resource
-org.openrdf.http.object.behaviours.FileObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
-org.openrdf.http.object.behaviours.ProxyObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
-org.openrdf.http.object.behaviours.VersionedObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
+org.callimachusproject.server.behaviours.FileObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
+org.callimachusproject.server.behaviours.ProxyObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
+org.callimachusproject.server.behaviours.VersionedObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource

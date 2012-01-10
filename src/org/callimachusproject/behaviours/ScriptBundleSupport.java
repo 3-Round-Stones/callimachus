@@ -11,10 +11,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.ScriptBundle;
-import org.openrdf.http.object.client.HTTPObjectClient;
-import org.openrdf.http.object.exceptions.GatewayTimeout;
-import org.openrdf.http.object.exceptions.InternalServerError;
-import org.openrdf.http.object.exceptions.ResponseException;
+import org.callimachusproject.server.client.HTTPObjectClient;
+import org.callimachusproject.server.exceptions.GatewayTimeout;
+import org.callimachusproject.server.exceptions.InternalServerError;
+import org.callimachusproject.server.exceptions.ResponseException;
 import org.openrdf.annotations.Sparql;
 
 import com.google.javascript.jscomp.CommandLineRunner;

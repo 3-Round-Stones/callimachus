@@ -33,9 +33,9 @@ import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateEngineFactory;
 import org.callimachusproject.engine.TemplateException;
 import org.callimachusproject.engine.helpers.RDFXMLEventReader;
-import org.openrdf.http.object.annotations.method;
-import org.openrdf.http.object.annotations.query;
-import org.openrdf.http.object.annotations.type;
+import org.callimachusproject.server.annotations.method;
+import org.callimachusproject.server.annotations.query;
+import org.callimachusproject.server.annotations.type;
 import org.openrdf.repository.object.RDFObject;
 
 /**

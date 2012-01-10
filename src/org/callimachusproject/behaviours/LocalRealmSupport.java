@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
-import org.openrdf.http.object.traits.Realm;
+import org.callimachusproject.server.traits.Realm;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;

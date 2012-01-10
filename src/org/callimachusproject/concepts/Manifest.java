@@ -2,7 +2,7 @@ package org.callimachusproject.concepts;
 
 import java.util.Set;
 
-import org.openrdf.http.object.traits.Realm;
+import org.callimachusproject.server.traits.Realm;
 import org.openrdf.annotations.Iri;
 
 @Iri("http://callimachusproject.org/rdf/2009/framework#Manifest")

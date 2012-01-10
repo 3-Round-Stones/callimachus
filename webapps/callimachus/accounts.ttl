@@ -118,7 +118,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "POST";
 	msg:query "forgotpassword";
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
 	msg:imports <pages/mail-request-password.xhtml>;
 	msg:imports <java:java.io.CharArrayWriter>;

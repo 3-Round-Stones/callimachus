@@ -64,6 +64,6 @@ calli:favicon a owl:ObjectProperty;
 
 :PostEditMenu owl:intersectionOf (</callimachus/toolbox/edit.ttl#PostEdit>
 		[owl:onProperty msg:target; owl:allValuesFrom <Menu>]);
-	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
 	msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
 

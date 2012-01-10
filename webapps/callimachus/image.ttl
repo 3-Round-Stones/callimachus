@@ -149,8 +149,8 @@
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
 	msg:imports <java:javax.mail.internet.MimeMultipart>;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <File>;
 	msg:imports foaf:Image ;

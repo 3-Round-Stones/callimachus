@@ -29,7 +29,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.XMLEvent;
 
-import org.openrdf.http.object.exceptions.NotImplemented;
+import org.callimachusproject.server.exceptions.NotImplemented;
 
 /**
  * Extracts an element from an XML document given the element's xptr.

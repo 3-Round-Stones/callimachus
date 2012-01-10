@@ -79,9 +79,9 @@
 		[owl:onProperty msg:target; owl:hasValue <GraphDocument> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
 	msg:imports <File>;
 	msg:imports foaf:Document;
 	msg:imports sd:NamedGraph;
@@ -113,7 +113,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "PUT";
 	msg:realm </callimachus/manifest>;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:script """
 		if (!reader)
@@ -121,7 +121,7 @@
 		var con = this.objectConnection;
 		con.clear([this.resource]); //# clear graph
 		var object = this;
-		var inputStream = new org.openrdf.http.object.util.ProducerStream(function(outputStream) {
+		var inputStream = new org.callimachusproject.server.util.ProducerStream(function(outputStream) {
 			var pipe = new java.io.OutputStreamWriter(outputStream, "UTF-8");
 			var read;
 			var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
@@ -192,7 +192,7 @@
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:imports <java:java.io.BufferedInputStream>;
 	msg:imports <java:org.callimachusproject.io.MultipartParser>;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <File>;
 	msg:imports foaf:Document;
 	msg:imports sd:NamedGraph;

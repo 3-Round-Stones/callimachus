@@ -1,1 +1,1 @@
-org.openrdf.http.object.behaviours.ProxyObjectBehaviourFactory
+org.callimachusproject.server.behaviours.ProxyObjectBehaviourFactory

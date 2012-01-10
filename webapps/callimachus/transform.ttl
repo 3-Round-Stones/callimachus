@@ -61,9 +61,9 @@
 		[owl:onProperty msg:target; owl:hasValue <Transform> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
 	msg:imports <File>;
 	msg:imports foaf:Document;
 	msg:script """
@@ -97,8 +97,8 @@
 	msg:realm </callimachus/manifest>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
 	msg:script """
 		if (!reader)

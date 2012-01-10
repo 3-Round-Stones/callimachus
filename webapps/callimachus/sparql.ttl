@@ -33,7 +33,7 @@
 :EvaluateSparql rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
 	msg:imports <java:org.openrdf.query.parser.QueryParserRegistry>;
 	msg:imports <java:org.openrdf.query.parser.ParsedBooleanQuery>;
@@ -44,10 +44,10 @@
 	msg:imports <java:org.apache.http.ProtocolVersion>;
 	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
 	msg:imports <java:org.openrdf.query.MalformedQueryException>;
-	msg:imports <java:org.openrdf.http.object.writers.AggregateWriter>;
-	msg:imports <java:org.openrdf.http.object.util.MessageType>;
-	msg:imports <java:org.openrdf.http.object.model.ReadableHttpEntityChannel>;
-	msg:imports <java:org.openrdf.http.object.exceptions.InternalServerError>;
+	msg:imports <java:org.callimachusproject.server.writers.AggregateWriter>;
+	msg:imports <java:org.callimachusproject.server.util.MessageType>;
+	msg:imports <java:org.callimachusproject.server.model.ReadableHttpEntityChannel>;
+	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
 	msg:script """
 		if (!qry)
 			throw new BadRequest("Missing query");
@@ -120,13 +120,13 @@
 	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
 	msg:imports <java:org.apache.http.entity.StringEntity>;
 	msg:imports <java:org.openrdf.query.MalformedQueryException>;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
 	msg:script """
 		if (map && map.containsKey("query"))
 			return this.EvaluateSparql(map.get("query")[0]);
 		if (!map || !map.containsKey("update"))
-			throw new org.openrdf.http.object.exceptions.BadRequest("Missing query");
+			throw new org.callimachusproject.server.exceptions.BadRequest("Missing query");
 		var qry = map.get("update")[0];
 		try {
 			var query;

@@ -3,10 +3,10 @@ package org.callimachusproject.concepts;
 import java.io.IOException;
 import java.util.Set;
 
-import org.openrdf.http.object.annotations.method;
-import org.openrdf.http.object.annotations.query;
-import org.openrdf.http.object.annotations.type;
-import org.openrdf.http.object.exceptions.GatewayTimeout;
+import org.callimachusproject.server.annotations.method;
+import org.callimachusproject.server.annotations.query;
+import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.openrdf.annotations.Iri;
 
 @Iri("http://callimachusproject.org/rdf/2009/framework#ScriptBundle")

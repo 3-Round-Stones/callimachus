@@ -57,7 +57,7 @@
 	msg:type "text/html";
 	msg:realm :local;
 	msg:imports <pages/user-setup.xhtml>;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:script """
 		if (!this.HasNoAdministrator())
 			throw new BadRequest("This service has already been setup");
@@ -75,8 +75,8 @@ rdfs:label a rdf:Property.
 	msg:expect "201-created";
 	msg:imports </user/>;
 	msg:imports <User>;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
-	msg:imports <java:org.openrdf.http.object.exceptions.Conflict>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
 	msg:imports <java:org.apache.commons.codec.binary.Hex>;
 	msg:imports <java:java.net.URLEncoder>;
 	msg:script """

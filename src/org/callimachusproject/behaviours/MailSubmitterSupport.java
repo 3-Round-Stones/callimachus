@@ -42,8 +42,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
 import org.callimachusproject.concepts.User;
-import org.openrdf.http.object.exceptions.BadRequest;
-import org.openrdf.http.object.exceptions.NotImplemented;
+import org.callimachusproject.server.exceptions.BadRequest;
+import org.callimachusproject.server.exceptions.NotImplemented;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

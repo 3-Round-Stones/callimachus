@@ -221,7 +221,7 @@ calli:NamedGraph a owl:Class.
 	msg:query "calliwebapps";
 	msg:header "cache-control:cache-range";
 	msg:realm calli:nobody;
-	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
 	msg:script """
 		this.PutBinaryDocument(xmlStream, contentType);
 		HTTPObjectServer.resetAllCache();

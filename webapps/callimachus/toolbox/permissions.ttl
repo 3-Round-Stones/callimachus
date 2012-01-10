@@ -89,7 +89,7 @@
 
 :PostClassPermissions owl:intersectionOf ( :PostPermissions
 		[owl:onProperty msg:target; owl:allValuesFrom owl:Class]);
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:imports </callimachus/SchemaGraph>;

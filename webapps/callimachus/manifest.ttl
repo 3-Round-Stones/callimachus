@@ -119,6 +119,6 @@ calli:template a owl:ObjectProperty;
 
 :PostEditManifest owl:intersectionOf (</callimachus/toolbox/edit.ttl#PostEdit>
 		[owl:onProperty msg:target; owl:allValuesFrom <Manifest>]);
-	msg:imports <java:org.openrdf.http.object.HTTPObjectServer>;
+	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
 	msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
 

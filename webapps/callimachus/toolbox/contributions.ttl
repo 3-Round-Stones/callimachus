@@ -13,11 +13,11 @@
 :GetContributions rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../User>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:query "contributions";
-	msg:type "application/sparql-results+xml";
-	msg:header "cache-control:no-store";
-	msg:transform :TransformContributions;
+	calli:method "GET";
+	calli:query "contributions";
+	calli:type "application/sparql-results+xml";
+	calli:header "cache-control:no-store";
+	calli:transform :TransformContributions;
 	msg:sparql  """
 		SELECT REDUCED ?label ?comment ?icon ?url ?revision ?modified
 		WHERE {
@@ -37,12 +37,12 @@
 :TransformContributions rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../User>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xml";
-	msg:transform <../styles/TransformLayout>;
+	calli:type "application/xml";
+	calli:transform <../styles/TransformLayout>;
 	msg:xslt <contributions.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformContributions;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/sparql-results+xml".
+	calli:type "application/sparql-results+xml".
 

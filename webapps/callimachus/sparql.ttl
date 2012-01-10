@@ -113,9 +113,9 @@
 :PostForm rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	msg:method "POST";
-	msg:type "message/x-response";
-	msg:transform :TransformResult;
+	calli:method "POST";
+	calli:type "message/x-response";
+	calli:transform :TransformResult;
 	msg:imports <java:org.apache.http.ProtocolVersion>;
 	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
 	msg:imports <java:org.apache.http.entity.StringEntity>;
@@ -157,16 +157,16 @@
 :map a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostForm;
 	rdfs:range <java:java.util.Map>;
-	msg:type "application/x-www-form-urlencoded".
+	calli:type "application/x-www-form-urlencoded".
 
 # GET query parameter
 :GetQueryResult rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	msg:method "GET";
-	msg:query "query";
-	msg:type "message/x-response";
-	msg:header "cache-control:no-validate";
+	calli:method "GET";
+	calli:query "query";
+	calli:type "message/x-response";
+	calli:header "cache-control:no-validate";
 	msg:imports <java:org.apache.http.ProtocolVersion>;
 	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
 	msg:imports <java:org.apache.http.entity.StringEntity>;
@@ -183,30 +183,30 @@
 :queryStr a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :GetQueryResult;
 	rdfs:range xsd:string;
-	msg:query "query".
+	calli:query "query".
 
 # Transformers
 :TransformResult rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xml";
-	msg:transform :TransformXml;
+	calli:type "application/xml";
+	calli:transform :TransformXml;
 	msg:script "return msg && msg.entity ? msg.entity.content : null".
 
 :msg a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :TransformResult;
 	rdfs:range <java:org.apache.http.HttpResponse>;
-	msg:type "message/x-response".
+	calli:type "message/x-response".
 
 :TransformXml rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xml";
-	msg:transform </callimachus/styles/TransformLayout>;
+	calli:type "application/xml";
+	calli:transform </callimachus/styles/TransformLayout>;
 	msg:xslt <styles/sparql.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :TransformXml;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/xml".
+	calli:type "application/xml".
 

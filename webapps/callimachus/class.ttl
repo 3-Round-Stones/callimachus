@@ -38,10 +38,10 @@
 :GetClassIndex rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream> ];
-	msg:method "GET";
-	msg:query "index";
-	msg:type "application/sparql-results+xml";
-	msg:transform :TransformClassIndex;
+	calli:method "GET";
+	calli:query "index";
+	calli:type "application/sparql-results+xml";
+	calli:transform :TransformClassIndex;
 	msg:sparql """
 		SELECT REDUCED ?title ?description ?resource ?label (ucase(substr(?label, 1, 1)) as ?index) (regex(?label, "^[a-zA-Z]") as ?letter) {
 			{
@@ -74,14 +74,14 @@
 :TransformClassIndex rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream> ];
-	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/TransformLayout>;
+	calli:type "application/xhtml+xml";
+	calli:transform </callimachus/styles/TransformLayout>;
 	msg:xslt <class-index.xhtml>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformClassIndex;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/sparql-results+xml".
+	calli:type "application/sparql-results+xml".
 
 # when a class is created
 :CreateClass owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>

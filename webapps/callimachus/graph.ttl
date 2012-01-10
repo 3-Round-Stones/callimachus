@@ -57,10 +57,10 @@
 :GetGraphDocument rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <GraphDocument>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-	msg:method "GET";
-	msg:type "text/turtle";
-	msg:header "cache-control:no-cache";
-	msg:header "cache-control:cache-range";
+	calli:method "GET";
+	calli:type "text/turtle";
+	calli:header "cache-control:no-cache";
+	calli:header "cache-control:cache-range";
 	msg:script "return this.openReader(true)".
 
 # POST ?create=/callimachus/File
@@ -111,8 +111,8 @@
 :UploadGraphDocument rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <GraphDocument>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "PUT";
-	msg:realm </callimachus/manifest>;
+	calli:method "PUT";
+	calli:realm </callimachus/manifest>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:script """
@@ -147,7 +147,7 @@
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :UploadGraphDocument;
 	rdfs:range <java:java.io.Reader>;
-	msg:type "text/turtle".
+	calli:type "text/turtle".
 
 ################################
 # Named Graph
@@ -156,22 +156,22 @@
 :GetNamedGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
-	msg:method "GET";
-	msg:type "application/rdf+xml;q=0.4";
-	msg:transform :TransformNamedGraph;
+	calli:method "GET";
+	calli:type "application/rdf+xml;q=0.4";
+	calli:transform :TransformNamedGraph;
 	msg:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
 
 :TransformNamedGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xml";
-	msg:transform <styles/TransformLayout>;
+	calli:type "application/xml";
+	calli:transform <styles/TransformLayout>;
 	msg:xslt <styles/graph.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :TransformNamedGraph;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/xml".
+	calli:type "application/xml".
 
 # POST ?create=/callimachus/File
 :LookupNamedGraphFile owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>

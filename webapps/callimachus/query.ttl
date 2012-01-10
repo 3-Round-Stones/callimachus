@@ -39,10 +39,10 @@
 :GetNamedQuery rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:type "application/sparql-query";
-	msg:header "cache-control:no-cache";
-	msg:header "cache-control:cache-range";
+	calli:method "GET";
+	calli:type "application/sparql-query";
+	calli:header "cache-control:no-cache";
+	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/File
@@ -93,8 +93,8 @@
 :UploadNamedQuery rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "PUT";
-	msg:realm </callimachus/manifest>;
+	calli:method "PUT";
+	calli:realm </callimachus/manifest>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
@@ -126,7 +126,7 @@
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :UploadNamedQuery;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/sparql-query".
+	calli:type "application/sparql-query".
 
 
 ################################
@@ -136,9 +136,9 @@
 :GetResult rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	msg:method "GET";
-	msg:query "tqx";
-	msg:type "message/x-response";
+	calli:method "GET";
+	calli:query "tqx";
+	calli:type "message/x-response";
 	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
 	msg:imports <java:org.apache.http.ProtocolVersion>;
@@ -240,12 +240,12 @@
 :tqx a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain :GetResult;
 	rdfs:range xsd:string;
-	msg:query "tqx".
+	calli:query "tqx".
 
 :match a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain :GetResult;
 	rdfs:range xsd:string;
-	msg:header "If-None-Match".
+	calli:header "If-None-Match".
 
 ################################
 # XSL Transformation methods
@@ -258,22 +258,22 @@
 :xml a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :TransformSparqlResult;
 	rdfs:range <java:org.openrdf.query.TupleQueryResult>;
-	msg:type "application/sparql-results+xml".
+	calli:type "application/sparql-results+xml".
 
 :TransformIntoHtml rdfs:subClassOf :TransformSparqlResult;
-	msg:type "text/csv;charset=UTF-8";
+	calli:type "text/csv;charset=UTF-8";
 	msg:xslt <styles/sparql-results-html.xsl>.
 
 :TransformIntoCSV rdfs:subClassOf :TransformSparqlResult;
-	msg:type "text/csv;charset=UTF-8";
+	calli:type "text/csv;charset=UTF-8";
 	msg:xslt <styles/sparql-results-csv.xsl>.
 
 :TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
-	msg:type "text/csv;charset=UTF-8";
+	calli:type "text/csv;charset=UTF-8";
 	msg:xslt <styles/sparql-results-tsv.xsl>.
 
 :TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
-	msg:type "text/javascript;charset=UTF-8";
+	calli:type "text/javascript;charset=UTF-8";
 	msg:xslt <styles/sparql-results-wire.xsl>.
 
 :handler a owl:FunctionalProperty, owl:DatatypeProperty;

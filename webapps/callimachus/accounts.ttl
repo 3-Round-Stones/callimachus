@@ -27,17 +27,17 @@
 :authorization a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :GetAuthorization;
 	rdfs:range xsd:string;
-	msg:header "Authorization".
+	calli:header "Authorization".
 
 # Redirection to the authorized user
 # Used to login
 :GetLoginPage rdfs:subClassOf :GetAuthorization;
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET";
-	msg:query "login", "settings", "contributions";
-	msg:realm </callimachus/manifest>;
-	msg:expect "302-found";
-	msg:header "cache-control:max-age:3600";
+	calli:method "GET";
+	calli:query "login", "settings", "contributions";
+	calli:realm </callimachus/manifest>;
+	calli:expect "302-found";
+	calli:header "cache-control:max-age:3600";
 	msg:script """
 		if ("settings" == query)
 			return this.findCredential(authorization) + "?edit";
@@ -49,7 +49,7 @@
 :query a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :GetLoginPage;
 	rdfs:range xsd:string;
-	msg:query "*".
+	calli:query "*".
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage owl:intersectionOf (calli:IsAuthorized
@@ -70,9 +70,9 @@
 # Available to user when logged in
 :GetLogout rdfs:subClassOf :GetAuthorization;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	msg:method "GET";
-	msg:query "logout";
-	msg:type "message/x-response";
+	calli:method "GET";
+	calli:query "logout";
+	calli:type "message/x-response";
 	msg:imports <java:org.apache.http.ProtocolVersion>;
 	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
 	msg:script """
@@ -101,11 +101,11 @@
 :GetForgotPasswordPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET";
-	msg:query "forgotpassword";
-	msg:type "text/html";
-	msg:header "cache-control:no-store";
-	msg:realm :anybody;
+	calli:method "GET";
+	calli:query "forgotpassword";
+	calli:type "text/html";
+	calli:header "cache-control:no-store";
+	calli:realm :anybody;
 	msg:imports <pages/forgot-password.xhtml>;
 	msg:script """
 		return forgot_password_xhtml.calliConstructHTML(this);
@@ -116,8 +116,8 @@
 :PostForgotPassword rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "POST";
-	msg:query "forgotpassword";
+	calli:method "POST";
+	calli:query "forgotpassword";
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
 	msg:imports <pages/mail-request-password.xhtml>;
@@ -149,7 +149,7 @@
 :formEmail a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :PostForgotPassword;
 	rdfs:range xsd:string;
-	msg:type "text/plain".
+	calli:type "text/plain".
 
 # Looks up user by email address
 # Used to request password reset

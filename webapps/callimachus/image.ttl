@@ -71,36 +71,36 @@
 :GetAnimatedGraphic rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AnimatedGraphic>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:type "image/gif";
-	msg:header "cache-control:cache-range";
+	calli:method "GET";
+	calli:type "image/gif";
+	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
 # GET /image.ico
 :GetIconGraphic rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IconGraphic>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:type "image/vnd.microsoft.icon";
-	msg:header "cache-control:cache-range";
+	calli:method "GET";
+	calli:type "image/vnd.microsoft.icon";
+	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
 # GET /image.png
 :GetNetworkGraphic rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NetworkGraphic>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:type "image/png";
-	msg:header "cache-control:cache-range";
+	calli:method "GET";
+	calli:type "image/png";
+	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
 # GET /image.svg
 :GetVectorGraphic rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:type "image/svg+xml";
-	msg:header "cache-control:cache-range";
+	calli:method "GET";
+	calli:type "image/svg+xml";
+	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/File
@@ -200,5 +200,5 @@
 :imageStream a owl:DatatypeProperty, owl:FunctionalProperty ;
 	rdfs:domain :PutImage ;
 	rdfs:range <java:java.io.InputStream> ;
-	msg:type "application/octet-stream" .
+	calli:type "application/octet-stream" .
 

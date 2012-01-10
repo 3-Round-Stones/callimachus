@@ -30,11 +30,11 @@
 :GetViewPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Viewable];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	msg:rel "alternate";
-	msg:method "GET";
-	msg:query "view";
-	msg:type "application/xhtml+xml";
-	msg:header "cache-control:no-cache";
-	msg:transform </callimachus/styles/TransformXhtml>;
+	calli:rel "alternate";
+	calli:method "GET";
+	calli:query "view";
+	calli:type "application/xhtml+xml";
+	calli:header "cache-control:no-cache";
+	calli:transform </callimachus/styles/TransformXhtml>;
 	msg:script <operations.js#getViewPage>.
 

@@ -26,10 +26,10 @@
 
 :GetIntrospect rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
-	msg:method "GET";
-	msg:query "introspect";
-	msg:type "application/xhtml+xml";
-	msg:transform <../styles/TransformLayout>;
+	calli:method "GET";
+	calli:query "introspect";
+	calli:type "application/xhtml+xml";
+	calli:transform <../styles/TransformLayout>;
 	msg:script """
 		return this.calliIntrospect(this);
 	""".

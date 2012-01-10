@@ -40,9 +40,9 @@
 :GetPhoto rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:type "image/jpeg";
-	msg:header "cache-control:cache-range";
+	calli:method "GET";
+	calli:type "image/jpeg";
+	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/File
@@ -124,7 +124,7 @@
 :imageStream a owl:DatatypeProperty, owl:FunctionalProperty ;
 	rdfs:domain :PutPhoto ;
 	rdfs:range <java:java.io.InputStream> ;
-	msg:type "application/octet-stream" .
+	calli:type "application/octet-stream" .
 
 ################################
 # Resize Photo
@@ -133,9 +133,9 @@
 :GetPhotoLarge rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:query "large";
-	msg:type "image/png";
+	calli:method "GET";
+	calli:query "large";
+	calli:type "image/png";
 	msg:script """
 		return this.ResizePhoto(this.openInputStream(), 1080);
 	""".
@@ -143,9 +143,9 @@
 :GetPhotoMedium rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:query "medium";
-	msg:type "image/png";
+	calli:method "GET";
+	calli:query "medium";
+	calli:type "image/png";
 	msg:script """
 		return this.ResizePhoto(this.GetPhotoLarge(), 480);
 	""".
@@ -153,9 +153,9 @@
 :GetPhotoSmall rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:query "small";
-	msg:type "image/png";
+	calli:method "GET";
+	calli:query "small";
+	calli:type "image/png";
 	msg:script """
 		return this.ResizePhoto(this.GetPhotoMedium(), 240);
 	""".
@@ -163,9 +163,9 @@
 :GetPhotoThumbnail rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:query "thumbnail";
-	msg:type "image/png";
+	calli:method "GET";
+	calli:query "thumbnail";
+	calli:type "image/png";
 	msg:script """
 		return this.ResizePhoto(this.GetPhotoSmall(), 64);
 	""".

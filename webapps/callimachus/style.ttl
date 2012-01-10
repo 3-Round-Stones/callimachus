@@ -39,10 +39,10 @@
 :GetStyleSheet rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-	msg:method "GET";
-	msg:type "text/css";
-	msg:header "cache-control:no-cache";
-	msg:header "cache-control:cache-range";
+	calli:method "GET";
+	calli:type "text/css";
+	calli:header "cache-control:no-cache";
+	calli:header "cache-control:cache-range";
 	msg:script "return this.openReader(true)".
 
 # POST ?create=/callimachus/File
@@ -93,8 +93,8 @@
 :UploadStyle rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "PUT";
-	msg:realm </callimachus/manifest>;
+	calli:method "PUT";
+	calli:realm </callimachus/manifest>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
@@ -120,5 +120,5 @@
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :UploadStyle;
 	rdfs:range <java:java.io.Reader>;
-	msg:type "text/css".
+	calli:type "text/css".
 

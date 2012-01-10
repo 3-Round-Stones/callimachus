@@ -31,10 +31,10 @@
 :GetProfile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
-	msg:method "GET";
-	msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
-	msg:header "cache-control:no-store";
-	msg:transform :TransformProfile;
+	calli:method "GET";
+	calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+	calli:header "cache-control:no-store";
+	calli:transform :TransformProfile;
 	msg:imports <java:org.openrdf.model.impl.LinkedHashModel>;
 	msg:script """
 		var vf = this.objectConnection.valueFactory;
@@ -59,9 +59,9 @@
 :GetJsonProfile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
-	msg:method "GET";
-	msg:type "application/json;q=0.3";
-	msg:header "cache-control:no-store";
+	calli:method "GET";
+	calli:type "application/json;q=0.3";
+	calli:header "cache-control:no-store";
 	msg:imports <java:java.io.ByteArrayOutputStream>;
 	msg:script """
 		var output = new java.io.ByteArrayOutputStream();
@@ -88,9 +88,9 @@
 :PostProfile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Profile>];
-	msg:method "POST";
-	msg:expect "303-see-other";
-	msg:realm </callimachus/manifest>;
+	calli:method "POST";
+	calli:expect "303-see-other";
+	calli:realm </callimachus/manifest>;
 	msg:script """
 		var iter = form.entrySet().iterator();
 		while (iter.hasNext()) {
@@ -110,17 +110,17 @@
 :form a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostProfile;
 	rdfs:range <java:java.util.Map>;
-	msg:type "application/x-www-form-urlencoded".
+	calli:type "application/x-www-form-urlencoded".
 
 :TransformProfile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/TransformLayout>;
+	calli:type "application/xhtml+xml";
+	calli:transform </callimachus/styles/TransformLayout>;
 	msg:xslt <profile.xhtml>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :TransformProfile;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/rdf+xml".
+	calli:type "application/rdf+xml".
 

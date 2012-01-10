@@ -17,21 +17,21 @@
 	calli:edit <manifest-edit.xhtml>.
 
 calli:logo a owl:ObjectProperty;
-	msg:method "GET"; msg:query "logo"; msg:expect "302-see-other".
+	calli:method "GET"; calli:query "logo"; calli:expect "302-see-other".
 
 calli:favicon a owl:ObjectProperty;
-	msg:method "GET"; msg:query "favicon"; msg:expect "302-see-other".
+	calli:method "GET"; calli:query "favicon"; calli:expect "302-see-other".
 
 calli:template a owl:ObjectProperty;
-	msg:method "GET"; msg:query "template"; msg:expect "302-see-other".
+	calli:method "GET"; calli:query "template"; calli:expect "302-see-other".
 
 :GetLayout rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	msg:method "GET";
-	msg:query "layout";
-	msg:expect "302-see-other";
-	msg:type "text/uri-list";
+	calli:method "GET";
+	calli:query "layout";
+	calli:expect "302-see-other";
+	calli:type "text/uri-list";
 	msg:script """
 		try {
 			var theme = this.calliTheme;
@@ -46,9 +46,9 @@ calli:template a owl:ObjectProperty;
 :GetStyleSheets rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET";
-	msg:query "styles";
-	msg:type "text/xml";
+	calli:method "GET";
+	calli:query "styles";
+	calli:type "text/xml";
 	msg:script """
 		var xhtml = ['<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title>'];
 		try {
@@ -76,10 +76,10 @@ calli:template a owl:ObjectProperty;
 :GetSource rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET";
-	msg:query "source";
-	msg:expect "302-see-other";
-	msg:type "text/uri-list";
+	calli:method "GET";
+	calli:query "source";
+	calli:expect "302-see-other";
+	calli:type "text/uri-list";
 	msg:script """
 		return this.calliTheme.toString() + "?source";
 	""".
@@ -87,10 +87,10 @@ calli:template a owl:ObjectProperty;
 :GetJqueryuiStyle rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	msg:method "GET";
-	msg:query "jqueryui";
-	msg:expect "302-see-other";
-	msg:type "text/uri-list";
+	calli:method "GET";
+	calli:query "jqueryui";
+	calli:expect "302-see-other";
+	calli:type "text/uri-list";
 	msg:script """
 		return this.calliTheme.calliJqueryui;
 	""".
@@ -98,9 +98,9 @@ calli:template a owl:ObjectProperty;
 :GetRights rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.w3c.dom.Element>];
-	msg:method "GET";
-	msg:query "rights";
-	msg:type "application/xml";
+	calli:method "GET";
+	calli:query "rights";
+	calli:type "application/xml";
 	msg:script  """
 		var rights = "";
 		try {

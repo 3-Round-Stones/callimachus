@@ -52,10 +52,10 @@
 :GetUserSetup rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET";
-	msg:query "usersetup";
-	msg:type "text/html";
-	msg:realm :local;
+	calli:method "GET";
+	calli:query "usersetup";
+	calli:type "text/html";
+	calli:realm :local;
 	msg:imports <pages/user-setup.xhtml>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:script """
@@ -69,10 +69,10 @@ rdfs:label a rdf:Property.
 :PostUserSetup rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "POST";
-	msg:query "usersetup";
-	msg:realm :local;
-	msg:expect "201-created";
+	calli:method "POST";
+	calli:query "usersetup";
+	calli:realm :local;
+	calli:expect "201-created";
 	msg:imports </user/>;
 	msg:imports <User>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
@@ -125,5 +125,5 @@ rdfs:label a rdf:Property.
 :form a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :PostUserSetup;
 	rdfs:range <java:java.util.Map>;
-	msg:type "application/x-www-form-urlencoded".
+	calli:type "application/x-www-form-urlencoded".
 

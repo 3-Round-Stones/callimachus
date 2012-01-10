@@ -26,12 +26,12 @@
 
 :GetDescription rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
-	msg:title "RDF Describe";
-	msg:rel "describedby";
-	msg:method "GET";
-	msg:query "describe";
-	msg:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
-	msg:transform :TransformDescription;
+	calli:title "RDF Describe";
+	calli:rel "describedby";
+	calli:method "GET";
+	calli:query "describe";
+	calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+	calli:transform :TransformDescription;
 	msg:script """
 		var queue = [];
 		queue.push(this.resource);
@@ -93,12 +93,12 @@
 
 :TransformDescription rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xhtml+xml";
-	msg:transform <../styles/TransformLayout>;
+	calli:type "application/xhtml+xml";
+	calli:transform <../styles/TransformLayout>;
 	msg:xslt <describe.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :TransformDescription;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/rdf+xml".
+	calli:type "application/rdf+xml".
 

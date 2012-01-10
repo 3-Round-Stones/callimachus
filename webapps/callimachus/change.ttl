@@ -124,11 +124,11 @@
 :GetChangesetView rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:query "view";
-	msg:rel "alternate";
-	msg:type "application/sparql-results+xml";
-	msg:transform :TransformChangesetView;
+	calli:method "GET";
+	calli:query "view";
+	calli:rel "alternate";
+	calli:type "application/sparql-results+xml";
+	calli:transform :TransformChangesetView;
 	msg:sparql  """
 		SELECT REDUCED ?modified ?user ?name ?previous ?subsequent ?removed ?added ?subject ?predicate ?object
 		WHERE {
@@ -178,12 +178,12 @@
 :TransformChangesetView rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xml";
-	msg:transform <styles/TransformLayout>;
+	calli:type "application/xml";
+	calli:transform <styles/TransformLayout>;
 	msg:xslt <styles/change.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformChangesetView;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/sparql-results+xml".
+	calli:type "application/sparql-results+xml".
 

@@ -12,27 +12,27 @@
 
 <TransformLayout> rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xhtml+xml";
-	msg:transform <TransformXhtml>;
+	calli:type "application/xhtml+xml";
+	calli:transform <TransformXhtml>;
 	msg:xslt </callimachus/manifest?template>.
 
 <TransformLayout#query> a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain <TransformLayout>;
 	rdfs:range xsd:string;
-	msg:query "*".
+	calli:query "*".
 
 <TransformLayout#xml> a owl:ObjectProperty; a owl:FunctionalProperty;
-	msg:type "application/xhtml+xml";
+	calli:type "application/xhtml+xml";
 	rdfs:domain <TransformLayout>;
 	rdfs:range <java:java.io.InputStream>.
 
 <TransformXhtml> rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-	msg:type "text/html";
+	calli:type "text/html";
 	msg:xslt <xhtml-to-html.xsl>.
 
 <TransformXhtml#xhtml> a owl:ObjectProperty; a owl:FunctionalProperty;
-	msg:type "application/xhtml+xml";
+	calli:type "application/xhtml+xml";
 	rdfs:domain <TransformXhtml>;
 	rdfs:range <java:java.io.InputStream>.
 

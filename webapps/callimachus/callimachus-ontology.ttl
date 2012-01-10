@@ -159,7 +159,35 @@ calli:create a owl:AnnotationProperty;
 
 calli:type a owl:AnnotationProperty;
 	rdfs:label "type";
-	rdfs:comment "The content type for binary or text representations of resources of this class".
+	rdfs:comment "The content type for binary or text representations of resources of this class, property, or message response".
+
+calli:expect a owl:AnnotationProperty;
+	rdfs:label "expect";
+	rdfs:comment "Placed on message parameters that should be populated with request headers. Placed on messages to add a response header. Response header of 'cache-control:no-validate' disable server side validation and 'cache-control:cache-range' use strong etag validation".
+
+calli:method a owl:AnnotationProperty;
+	rdfs:label "method";
+	rdfs:comment "Placed on messages that should be called for the given HTTP method".
+
+calli:query a owl:AnnotationProperty;
+	rdfs:label "query";
+	rdfs:comment "Placed on messages that should be called when the given request query parameter name is sent without a value. Placed on message properties that should be populated with request GET query parameters".
+
+calli:realm a owl:AnnotationProperty;
+	rdfs:label "realm";
+	rdfs:comment "The Realm used to secure members of this class or use of this message".
+
+calli:rel a owl:AnnotationProperty;
+	rdfs:label "rel";
+	rdfs:comment "Placed on properties or messages and describes the relationship between the message target and message response".
+
+calli:title a owl:AnnotationProperty;
+	rdfs:label "title";
+	rdfs:comment "Labels the relationship between message target and message response such that it can be used as identification within a human-readable menu".
+
+calli:transform a owl:AnnotationProperty;
+	rdfs:label "transform";
+	rdfs:comment "The messages that should be used to transform the parameter or response".
 
 ################################
 # Property

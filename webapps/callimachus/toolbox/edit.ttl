@@ -30,26 +30,26 @@
 :GetEditPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	msg:method "GET";
-	msg:query "edit";
-	msg:realm </callimachus/manifest>;
-	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/TransformXhtml>;
-	msg:header "cache-control:no-cache";
+	calli:method "GET";
+	calli:query "edit";
+	calli:realm </callimachus/manifest>;
+	calli:type "application/xhtml+xml";
+	calli:transform </callimachus/styles/TransformXhtml>;
+	calli:header "cache-control:no-cache";
 	msg:script <operations.js#getEditPage>.
 
 :PostEdit rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Editable];
-	msg:method "POST";
-	msg:query "edit";
-	msg:realm </callimachus/manifest>;
-	msg:expect "201-modified";
-	msg:type "text/uri-list";
+	calli:method "POST";
+	calli:query "edit";
+	calli:realm </callimachus/manifest>;
+	calli:expect "201-modified";
+	calli:type "text/uri-list";
 	msg:script <operations.js#postEdit>.
 
 :input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PostEdit;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "multipart/related;type=\"application/rdf+xml\"".
+	calli:type "multipart/related;type=\"application/rdf+xml\"".
 

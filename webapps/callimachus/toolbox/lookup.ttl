@@ -16,10 +16,10 @@
 :Lookup rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../lookup>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:type "application/sparql-results+xml";
-	msg:header "cache-control:no-store";
-	msg:transform :TransformLookup;
+	calli:method "GET";
+	calli:type "application/sparql-results+xml";
+	calli:header "cache-control:no-store";
+	calli:transform :TransformLookup;
 	msg:sparql  """
 		SELECT DISTINCT (max(?label) as ?label) (max(?comment) as ?comment) (max(?icon) as ?icon) ?url (max(?modified) as ?modified)
 		WHERE {
@@ -54,13 +54,13 @@
 :q a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :Lookup;
 	rdfs:range xsd:string;
-	msg:query "q".
+	calli:query "q".
 
 :TransformLookup rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../lookup>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xml";
-	msg:transform <../styles/TransformLayout>;
+	calli:type "application/xml";
+	calli:transform <../styles/TransformLayout>;
 	msg:xslt <lookup.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;

@@ -30,11 +30,11 @@
 :GetCreatePage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	msg:method "GET";
-	msg:query "create";
-	msg:realm </callimachus/manifest>;
-	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/TransformXhtml>;
+	calli:method "GET";
+	calli:query "create";
+	calli:realm </callimachus/manifest>;
+	calli:type "application/xhtml+xml";
+	calli:transform </callimachus/styles/TransformXhtml>;
 	msg:script """
 		importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
 		if (!this.calliCreate || this.calliCreate.isEmpty())
@@ -47,11 +47,11 @@
 :GetCreatorPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	msg:method "GET";
-	msg:query "create";
-	msg:realm </callimachus/manifest>;
-	msg:type "application/xhtml+xml";
-	msg:transform </callimachus/styles/TransformXhtml>;
+	calli:method "GET";
+	calli:query "create";
+	calli:realm </callimachus/manifest>;
+	calli:type "application/xhtml+xml";
+	calli:transform </callimachus/styles/TransformXhtml>;
 	msg:script """
 		importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
 		importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
@@ -68,11 +68,11 @@
 :PostFactoryCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom </callimachus/Local>];
-	msg:method "POST";
-	msg:query "create";
-	msg:realm </callimachus/manifest>;
-	msg:expect "201-created";
-	msg:type "text/plain";
+	calli:method "POST";
+	calli:query "create";
+	calli:realm </callimachus/manifest>;
+	calli:expect "201-created";
+	calli:type "text/plain";
 	msg:script """
 		importClass(Packages.org.callimachusproject.io.MultipartParser);
 		importClass(Packages.calli.Creatable);
@@ -161,26 +161,26 @@
 :body a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "*/*".
+	calli:type "*/*".
 
 :create a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain [owl:unionOf (:GetCreatorPage :PostFactoryCreate)];
 	rdfs:range calli:Creatable;
-	msg:query "create".
+	calli:query "create".
 
 :intermediate a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain :PostFactoryCreate;
 	rdfs:range xsd:boolean;
-	msg:query "intermediate".
+	calli:query "intermediate".
 
 :location a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
-	msg:query "location".
+	calli:query "location".
 
 :type a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain [owl:unionOf (:LookupConstructor :PostCreate :PostFactoryCreate)];
 	rdfs:range xsd:string;
-	msg:header "Content-Type".
+	calli:header "Content-Type".
 
 # find the user that will create $thing
 :FindCreator rdfs:subClassOf msg:Message;

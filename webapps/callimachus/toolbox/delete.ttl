@@ -30,8 +30,8 @@
 :Delete rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "DELETE";
-	msg:realm </callimachus/manifest>;
+	calli:method "DELETE";
+	calli:realm </callimachus/manifest>;
 	msg:imports <java:org.openrdf.model.BNode>;
 	msg:imports <java:org.openrdf.model.URI>;
 	msg:imports <java:javax.tools.FileObject>;

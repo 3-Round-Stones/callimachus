@@ -39,10 +39,10 @@
 :GetArticleSource rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:type "application/docbook+xml";
-	msg:header "cache-control:no-cache";
-	msg:header "cache-control:cache-range";
+	calli:method "GET";
+	calli:type "application/docbook+xml";
+	calli:header "cache-control:no-cache";
+	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
 # GET /article/main-article.xml?view
@@ -55,13 +55,13 @@
 :InlineArticle rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	msg:type "application/xhtml+xml";
+	calli:type "application/xhtml+xml";
 	msg:xslt <styles/article-inline.xsl>.
 
 :xmlInput a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :InlineArticle;
 	rdfs:range <java:javax.xml.stream.XMLEventReader>;
-	msg:type "application/xhtml+xml".
+	calli:type "application/xhtml+xml".
 
 # POST ?create=/callimachus/File
 :LookupArticleFile owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
@@ -111,8 +111,8 @@
 :UploadArticle rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "PUT";
-	msg:realm </callimachus/manifest>;
+	calli:method "PUT";
+	calli:realm </callimachus/manifest>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
@@ -135,5 +135,5 @@
 :xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :UploadArticle;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/docbook+xml".
+	calli:type "application/docbook+xml".
 

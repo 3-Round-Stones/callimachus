@@ -13,10 +13,10 @@
 :RecentChanges rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../changes>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:type "application/sparql-results+xml";
-	msg:header "cache-control:no-validate,max-age=60";
-	msg:transform :TransformRecentChanges;
+	calli:method "GET";
+	calli:type "application/sparql-results+xml";
+	calli:header "cache-control:no-validate,max-age=60";
+	calli:transform :TransformRecentChanges;
 	msg:sparql  """
 		SELECT DISTINCT ?label ?note ?icon ?url ?revision ?modified ?user ?name
 		WHERE {
@@ -42,8 +42,8 @@
 
 :TransformRecentChanges rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:type "application/xml";
-	msg:transform <../styles/TransformLayout>;
+	calli:type "application/xml";
+	calli:transform <../styles/TransformLayout>;
 	msg:xslt <recent-changes.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;

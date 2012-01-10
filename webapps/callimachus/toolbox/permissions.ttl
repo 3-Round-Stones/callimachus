@@ -28,11 +28,11 @@
 
 :GetPermissions rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET";
-	msg:query "permissions";
-	msg:realm </callimachus/manifest>;
-	msg:type "text/html";
-	msg:header "cache-control:no-cache";
+	calli:method "GET";
+	calli:query "permissions";
+	calli:realm </callimachus/manifest>;
+	calli:type "text/html";
+	calli:header "cache-control:no-cache";
 	msg:imports <permissions.xhtml>;
 	msg:script """
 		return permissions_xhtml.calliConstructHTML(this, 'permissions');
@@ -41,9 +41,9 @@
 # used by permissions.xhtml
 :GetRdfTypes rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:literalSet; owl:allValuesFrom xsd:string];
-	msg:method "GET";
-	msg:query "rdftype";
-	msg:type "text/uri-list";
+	calli:method "GET";
+	calli:query "rdftype";
+	calli:type "text/uri-list";
 	msg:imports <java:org.openrdf.annotations.Iri>;
 	msg:script """
 		function addConcepts(klass, concepts, visited) {
@@ -68,10 +68,10 @@
 
 :PostPermissions rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
-	msg:method "POST";
-	msg:query "permissions";
-	msg:realm </callimachus/manifest>;
-	msg:expect "201-modified";
+	calli:method "POST";
+	calli:query "permissions";
+	calli:realm </callimachus/manifest>;
+	calli:expect "201-modified";
 	msg:imports <permissions.xhtml>;
 	msg:script """
 		permissions_xhtml.calliEditResource(this, msg.input);
@@ -85,7 +85,7 @@
 :input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PostPermissions;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "multipart/related;type=\"application/rdf+xml\"".
+	calli:type "multipart/related;type=\"application/rdf+xml\"".
 
 :PostClassPermissions owl:intersectionOf ( :PostPermissions
 		[owl:onProperty msg:target; owl:allValuesFrom owl:Class]);

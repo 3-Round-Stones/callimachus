@@ -13,9 +13,9 @@
 :LookupAndGo rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </callimachus/go>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:method "GET";
-	msg:expect "302-see-other";
-	msg:header "cache-control:no-store";
+	calli:method "GET";
+	calli:expect "302-see-other";
+	calli:header "cache-control:no-store";
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:imports <java:java.net.URLEncoder>;
@@ -104,5 +104,5 @@
 :q a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :LookupAndGo;
 	rdfs:range xsd:string;
-	msg:query "q".
+	calli:query "q".
 

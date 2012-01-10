@@ -24,23 +24,23 @@
 calli:Started rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue calli:boot];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "POST";
-	msg:query "started";
-	msg:realm calli:nobody;
+	calli:method "POST";
+	calli:query "started";
+	calli:realm calli:nobody;
 	msg:script "proceed()".
 
 calli:Reloaded rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue calli:boot];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "POST";
-	msg:query "reloaded";
-	msg:realm calli:nobody;
+	calli:method "POST";
+	calli:query "reloaded";
+	calli:realm calli:nobody;
 	msg:script "proceed()".
 
 calli:Stopping rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue calli:boot];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "POST";
-	msg:query "stopping";
-	msg:realm calli:nobody;
+	calli:method "POST";
+	calli:query "stopping";
+	calli:realm calli:nobody;
 	msg:script "proceed()".

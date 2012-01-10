@@ -44,10 +44,10 @@
 :GetPageSource rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:method "GET";
-	msg:type "application/xhtml+xml";
-	msg:header "cache-control:no-cache";
-	msg:header "cache-control:cache-range";
+	calli:method "GET";
+	calli:type "application/xhtml+xml";
+	calli:header "cache-control:no-cache";
+	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/File
@@ -99,8 +99,8 @@
 :UploadPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:method "PUT";
-	msg:realm </callimachus/manifest>;
+	calli:method "PUT";
+	calli:realm </callimachus/manifest>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
@@ -123,5 +123,5 @@
 :xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :UploadPage;
 	rdfs:range <java:java.io.InputStream>;
-	msg:type "application/xhtml+xml".
+	calli:type "application/xhtml+xml".
 

@@ -35,7 +35,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.openrdf.annotations.Iri;
-import org.openrdf.repository.object.vocabulary.MSG;
 
 /**
  * Indicates the methods (by {@link Iri}) that should be used to transform the
@@ -47,6 +46,6 @@ import org.openrdf.repository.object.vocabulary.MSG;
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
 public @interface transform {
-	@Iri(MSG.NAMESPACE + "transform")
+	@Iri("http://callimachusproject.org/rdf/2009/framework#transform")
 	String[] value();
 }

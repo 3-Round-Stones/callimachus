@@ -35,7 +35,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.openrdf.annotations.Iri;
-import org.openrdf.repository.object.vocabulary.MSG;
 
 /**
  * Placed on method parameters that should be populated with values in the
@@ -47,6 +46,6 @@ import org.openrdf.repository.object.vocabulary.MSG;
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.PARAMETER, ElementType.TYPE, ElementType.METHOD })
 public @interface header {
-	@Iri(MSG.NAMESPACE + "header")
+	@Iri("http://callimachusproject.org/rdf/2009/framework#header")
 	String[] value();
 }

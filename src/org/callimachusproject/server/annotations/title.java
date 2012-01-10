@@ -35,7 +35,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.openrdf.annotations.Iri;
-import org.openrdf.repository.object.vocabulary.MSG;
 
 /**
  * Placed on methods to describe their result.
@@ -46,6 +45,6 @@ import org.openrdf.repository.object.vocabulary.MSG;
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
 public @interface title {
-	@Iri(MSG.NAMESPACE + "title")
+	@Iri("http://callimachusproject.org/rdf/2009/framework#title")
 	String[] value();
 }

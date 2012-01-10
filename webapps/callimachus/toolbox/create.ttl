@@ -36,7 +36,7 @@
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/styles/TransformXhtml>;
 	msg:script """
-		importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
+		importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
 		if (!this.calliCreate || this.calliCreate.isEmpty())
 			throw new InternalServerError("No create template");
 		if (this.calliCreate.size() != 1)
@@ -53,8 +53,8 @@
 	msg:type "application/xhtml+xml";
 	msg:transform </callimachus/styles/TransformXhtml>;
 	msg:script """
-		importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
-		importClass(Packages.org.openrdf.http.object.exceptions.BadRequest);
+		importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
+		importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
 		importClass(Packages.calli.Creatable);
 		if (!(create instanceof Creatable))
 			throw new BadRequest("Cannot create this class here: " + create);
@@ -76,8 +76,8 @@
 	msg:script """
 		importClass(Packages.org.callimachusproject.io.MultipartParser);
 		importClass(Packages.calli.Creatable);
-		importClass(Packages.org.openrdf.http.object.exceptions.BadRequest);
-		importClass(Packages.org.openrdf.http.object.exceptions.Forbidden);
+		importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
+		importClass(Packages.org.callimachusproject.server.exceptions.Forbidden);
 		if (!location)
 			throw new BadRequest("No location provided");
 		if (!(create instanceof Creatable))
@@ -146,8 +146,8 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom </callimachus/Local>];
 	msg:script """
-		importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
-		importClass(Packages.org.openrdf.http.object.exceptions.BadRequest);
+		importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
+		importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
 		var template = this.calliCreate.iterator().next();
 		if (!template)
 			throw new InternalServerError("Cannot create " + this.toString() + " with " + type);

@@ -56,6 +56,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.callimachusproject.logging.LoggerBean;
+import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.HTTPObjectPolicy;

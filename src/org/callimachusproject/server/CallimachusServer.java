@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject;
+package org.callimachusproject.server;
 
 import static java.lang.Integer.toHexString;
 
@@ -52,9 +52,6 @@ import javax.activation.MimeTypeParseException;
 import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.codec.binary.Base64;
-import org.callimachusproject.server.ConnectionBean;
-import org.callimachusproject.server.HTTPObjectAgentMXBean;
-import org.callimachusproject.server.HTTPObjectServer;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.util.FileUtil;
 import org.callimachusproject.webapps.BootListener;

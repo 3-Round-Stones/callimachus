@@ -2,7 +2,7 @@
 
 importClass(Packages.calli.edit);
 importClass(Packages.calli.view);
-importClass(Packages.org.openrdf.http.object.exceptions.InternalServerError);
+importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
 
 function getViewPage() {
 	return findTemplate(this, view).calliConstruct(this, 'view');

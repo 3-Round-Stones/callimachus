@@ -40,8 +40,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.query;
+import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.query;
 import org.callimachusproject.server.traits.ProxyObject;
 import org.openrdf.annotations.ParameterTypes;
 import org.openrdf.annotations.Precedes;

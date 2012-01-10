@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.annotations;
+package org.callimachusproject.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

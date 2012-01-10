@@ -1,8 +1,8 @@
 package org.callimachusproject.server;
 
-import org.callimachusproject.server.annotations.header;
-import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.query;
+import org.callimachusproject.annotations.header;
+import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.query;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.openrdf.model.vocabulary.RDFS;
 

@@ -25,6 +25,9 @@ import java.util.Map;
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
 
+import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFaReader;
@@ -33,9 +36,6 @@ import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateEngineFactory;
 import org.callimachusproject.engine.TemplateException;
 import org.callimachusproject.engine.helpers.RDFXMLEventReader;
-import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.query;
-import org.callimachusproject.server.annotations.type;
 import org.openrdf.repository.object.RDFObject;
 
 /**

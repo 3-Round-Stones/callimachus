@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.callimachusproject.server.annotations.header;
-import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.query;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.header;
+import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.concepts.Alias;
 import org.callimachusproject.server.concepts.HTTPFileObject;
 import org.callimachusproject.server.exceptions.BadRequest;

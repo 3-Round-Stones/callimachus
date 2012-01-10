@@ -7,9 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 
-import org.callimachusproject.server.annotations.query;
-import org.callimachusproject.server.annotations.transform;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.transform;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.Matching;

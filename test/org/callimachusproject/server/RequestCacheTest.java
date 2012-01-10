@@ -1,9 +1,9 @@
 package org.callimachusproject.server;
 
-import org.callimachusproject.server.annotations.header;
-import org.callimachusproject.server.annotations.query;
-import org.callimachusproject.server.annotations.rel;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.header;
+import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.rel;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
 import org.openrdf.annotations.Iri;

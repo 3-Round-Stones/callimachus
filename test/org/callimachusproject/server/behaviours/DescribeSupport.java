@@ -28,10 +28,10 @@
  */
 package org.callimachusproject.server.behaviours;
 
-import org.callimachusproject.server.annotations.query;
-import org.callimachusproject.server.annotations.rel;
-import org.callimachusproject.server.annotations.title;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.rel;
+import org.callimachusproject.annotations.title;
+import org.callimachusproject.annotations.type;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
 

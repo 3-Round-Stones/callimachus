@@ -53,8 +53,8 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.server.annotations.expect;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.expect;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.concepts.Transaction;
 import org.callimachusproject.server.traits.ProxyObject;
 import org.callimachusproject.server.traits.VersionedObject;

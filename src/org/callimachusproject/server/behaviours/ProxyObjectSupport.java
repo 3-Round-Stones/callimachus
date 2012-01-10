@@ -54,11 +54,11 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.apache.http.HttpResponse;
-import org.callimachusproject.server.annotations.expect;
-import org.callimachusproject.server.annotations.header;
-import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.query;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.expect;
+import org.callimachusproject.annotations.header;
+import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.client.RemoteConnection;
 import org.callimachusproject.server.client.SecureSocketAddress;
 import org.callimachusproject.server.exceptions.ResponseException;

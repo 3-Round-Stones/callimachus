@@ -8,7 +8,7 @@ import java.util.List;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 
-import org.callimachusproject.server.annotations.query;
+import org.callimachusproject.annotations.query;
 import org.callimachusproject.server.helpers.ResourceInfo;
 import org.callimachusproject.server.helpers.XHTMLInfoWriter;
 import org.callimachusproject.server.helpers.ResourceInfo.MethodInfo;

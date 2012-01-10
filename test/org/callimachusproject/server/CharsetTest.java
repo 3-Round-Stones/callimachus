@@ -3,8 +3,8 @@ package org.callimachusproject.server;
 import java.io.IOException;
 import java.nio.CharBuffer;
 
-import org.callimachusproject.server.annotations.query;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
 import org.openrdf.model.vocabulary.RDFS;

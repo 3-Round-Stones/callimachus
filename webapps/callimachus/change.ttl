@@ -60,7 +60,7 @@
 # transcations are authorized by the objects modified
 :AuthorizeTransactionView rdfs:subClassOf calli:IsAuthorized;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
-	msg:imports <java:org.callimachusproject.server.annotations.realm>;
+	msg:imports <java:org.callimachusproject.annotations.realm>;
 	msg:script """
 		function findAnnotatedClass(klass, ann) {
 			if (klass.isAnnotationPresent(ann)) {

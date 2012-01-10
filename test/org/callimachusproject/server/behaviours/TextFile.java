@@ -3,9 +3,9 @@ package org.callimachusproject.server.behaviours;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.query;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.concepts.HTTPFileObject;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.openrdf.model.ValueFactory;

@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.annotations;
+package org.callimachusproject.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -37,14 +37,14 @@ import java.lang.annotation.Target;
 import org.openrdf.annotations.Iri;
 
 /**
- * Placed on methods to indicates the relationship the target has to the result.
- * 
- * @author James Leigh
- * 
+ * Placed on a method to indicate the HTTP response status code of a successful
+ * response. Possible values include "201-created", "202-accepted",
+ * "205-reset-content", "300-multiple-choices", "301-moved-permanently", and
+ * "302-found"
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
-public @interface rel {
-	@Iri("http://callimachusproject.org/rdf/2009/framework#rel")
+public @interface expect {
+	@Iri("http://callimachusproject.org/rdf/2009/framework#expect")
 	String[] value();
 }

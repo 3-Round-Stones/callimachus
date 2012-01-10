@@ -35,9 +35,9 @@ import java.util.Map;
 
 import javax.activation.MimeTypeParseException;
 
-import org.callimachusproject.server.annotations.rel;
-import org.callimachusproject.server.annotations.title;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.rel;
+import org.callimachusproject.annotations.title;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;

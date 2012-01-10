@@ -5,8 +5,8 @@ import java.io.Writer;
 
 import javax.tools.FileObject;
 
-import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.RepositoryException;

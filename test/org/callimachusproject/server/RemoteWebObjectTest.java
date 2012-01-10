@@ -12,10 +12,10 @@ import java.util.Set;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.callimachusproject.server.annotations.header;
-import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.query;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.header;
+import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
 import org.callimachusproject.server.concepts.HTTPFileObject;

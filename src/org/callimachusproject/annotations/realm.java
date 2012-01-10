@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, James Leigh All rights reserved.
+ * Copyright (c) 2009, Zepheira All rights reserved.
  * Copyright (c) 2011 Talis Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.annotations;
+package org.callimachusproject.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -37,15 +37,15 @@ import java.lang.annotation.Target;
 import org.openrdf.annotations.Iri;
 
 /**
- * Placed on method parameters that should be populated with values in the
- * request query string.
+ * Set of Realms that are permitted to use this method or this type of
+ * resources.
  * 
  * @author James Leigh
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.PARAMETER, ElementType.TYPE, ElementType.METHOD })
-public @interface query {
-	@Iri("http://callimachusproject.org/rdf/2009/framework#query")
+@Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
+public @interface realm {
+	@Iri("http://callimachusproject.org/rdf/2009/framework#realm")
 	String[] value();
 }

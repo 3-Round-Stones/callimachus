@@ -2,10 +2,10 @@ package org.callimachusproject.server;
 
 import java.util.concurrent.CountDownLatch;
 
-import org.callimachusproject.server.annotations.header;
-import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.query;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.header;
+import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.traits.VersionedObject;
 import org.openrdf.annotations.Iri;

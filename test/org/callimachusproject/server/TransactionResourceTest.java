@@ -1,7 +1,7 @@
 package org.callimachusproject.server;
 
-import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.NamedGraphSupport;
 import org.openrdf.model.Model;

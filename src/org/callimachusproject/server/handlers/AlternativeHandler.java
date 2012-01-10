@@ -33,7 +33,7 @@ import java.lang.reflect.Method;
 
 import javax.activation.MimeTypeParseException;
 
-import org.callimachusproject.server.annotations.query;
+import org.callimachusproject.annotations.query;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;

@@ -36,12 +36,12 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.callimachusproject.server.annotations.header;
-import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.query;
-import org.callimachusproject.server.annotations.rel;
-import org.callimachusproject.server.annotations.title;
-import org.callimachusproject.server.annotations.type;
+import org.callimachusproject.annotations.header;
+import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.rel;
+import org.callimachusproject.annotations.title;
+import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.concepts.HTTPFileObject;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;

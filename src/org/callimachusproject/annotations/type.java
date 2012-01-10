@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.annotations;
+package org.callimachusproject.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -37,15 +37,14 @@ import java.lang.annotation.Target;
 import org.openrdf.annotations.Iri;
 
 /**
- * Placed on methods that should be called for HTTP methods that match the
- * value.
+ * Placed on methods indicating the media type they produce.
  * 
  * @author James Leigh
- * 
+ *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
-public @interface method {
-	@Iri("http://callimachusproject.org/rdf/2009/framework#method")
+public @interface type {
+	@Iri("http://callimachusproject.org/rdf/2009/framework#type")
 	String[] value();
 }

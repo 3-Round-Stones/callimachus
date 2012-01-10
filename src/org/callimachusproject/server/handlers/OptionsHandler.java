@@ -37,8 +37,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.callimachusproject.server.annotations.header;
-import org.callimachusproject.server.annotations.method;
+import org.callimachusproject.annotations.header;
+import org.callimachusproject.annotations.method;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;

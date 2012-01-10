@@ -54,12 +54,9 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.apache.http.HttpResponse;
-import org.callimachusproject.server.annotations.cacheControl;
-import org.callimachusproject.server.annotations.encoding;
 import org.callimachusproject.server.annotations.expect;
 import org.callimachusproject.server.annotations.header;
 import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.operation;
 import org.callimachusproject.server.annotations.query;
 import org.callimachusproject.server.annotations.type;
 import org.callimachusproject.server.client.RemoteConnection;
@@ -167,15 +164,6 @@ public abstract class ProxyObjectSupport implements ProxyObject, RDFObject {
 			Type gtype = method.getGenericParameterTypes()[body];
 			if (!Set.class.equals(ptype) || !((Set) result).isEmpty()) {
 				String media = getParameterMediaType(panns[body], ptype, gtype);
-				if (!headers.containsKey("content-encoding")) {
-					for (Annotation ann : panns[body]) {
-						if (ann.annotationType().equals(encoding.class)) {
-							for (String value : ((encoding) ann).value()) {
-								con.addHeader("Content-Encoding", value);
-							}
-						}
-					}
-				}
 				con.write(media, ptype, gtype, result);
 			}
 		}
@@ -271,16 +259,6 @@ public abstract class ProxyObjectSupport implements ProxyObject, RDFObject {
 				}
 			}
 		}
-		if (method.isAnnotationPresent(cacheControl.class)) {
-			String[] values = method.getAnnotation(cacheControl.class).value();
-			for (String value : values) {
-				List<String> list = map.get("cache-control");
-				if (list == null) {
-					map.put("cache-control", list = new LinkedList<String>());
-				}
-				list.add(value);
-			}
-		}
 		if (method.isAnnotationPresent(expect.class)) {
 			String[] values = method.getAnnotation(expect.class).value();
 			if (values.length > 0 && values[0] != null) {
@@ -289,16 +267,6 @@ public abstract class ProxyObjectSupport implements ProxyObject, RDFObject {
 					map.put("expect", list = new LinkedList<String>());
 				}
 				list.add(values[0]);
-			}
-		}
-		if (method.isAnnotationPresent(encoding.class)) {
-			String[] values = method.getAnnotation(encoding.class).value();
-			for (String value : values) {
-				List<String> list = map.get("accept-encoding");
-				if (list == null) {
-					map.put("accept-encoding", list = new LinkedList<String>());
-				}
-				list.add(value);
 			}
 		}
 		return map;
@@ -354,20 +322,12 @@ public abstract class ProxyObjectSupport implements ProxyObject, RDFObject {
 				if (query.class.equals(ann.annotationType())) {
 					String name = ((query) ann).value()[0];
 					append(ptypes[i], gtypes[i], panns[i], name, param[i], map);
-				} else if (operation.class.equals(ann.annotationType())) {
-					String name = ((operation) ann).value()[0];
-					append(ptypes[i], gtypes[i], panns[i], name, param[i], map);
 				}
 			}
 		}
 		StringBuilder sb = new StringBuilder();
 		if (method.isAnnotationPresent(query.class)) {
 			String[] values = method.getAnnotation(query.class).value();
-			if (values.length > 0) {
-				sb.append(enc(values[0]));
-			}
-		} else if (method.isAnnotationPresent(operation.class)) {
-			String[] values = method.getAnnotation(operation.class).value();
 			if (values.length > 0) {
 				sb.append(enc(values[0]));
 			}

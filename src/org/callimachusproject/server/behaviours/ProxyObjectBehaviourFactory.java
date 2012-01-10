@@ -41,7 +41,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.operation;
 import org.callimachusproject.server.annotations.query;
 import org.callimachusproject.server.traits.ProxyObject;
 import org.openrdf.annotations.ParameterTypes;
@@ -64,8 +63,6 @@ public class ProxyObjectBehaviourFactory extends BehaviourFactory {
 				continue;
 			if (method.isAnnotationPresent(query.class))
 				return true;
-			if (method.isAnnotationPresent(operation.class))
-				return true;
 			if (method.isAnnotationPresent(method.class))
 				return true;
 		}
@@ -80,7 +77,6 @@ public class ProxyObjectBehaviourFactory extends BehaviourFactory {
 			if (method.isAnnotationPresent(ParameterTypes.class))
 				continue;
 			if (!method.isAnnotationPresent(query.class)
-					&& !method.isAnnotationPresent(operation.class)
 					&& !method.isAnnotationPresent(method.class))
 				continue;
 			behaviours.add(findBehaviour(role, method));

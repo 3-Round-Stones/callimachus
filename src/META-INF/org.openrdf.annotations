@@ -7,7 +7,6 @@ org.callimachusproject.server.annotations.method
 org.callimachusproject.server.annotations.parameter
 org.callimachusproject.server.annotations.query
 org.callimachusproject.server.annotations.realm
-org.callimachusproject.server.annotations.cacheControl
 org.callimachusproject.server.annotations.transform
 org.callimachusproject.server.annotations.expect
 org.callimachusproject.server.annotations.encoding

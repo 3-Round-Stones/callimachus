@@ -58,10 +58,9 @@ public class ContentHeadersHandler implements Handler {
 		if (rb != null) {
 			Class<?> type = request.getEntityType();
 			String contentType = request.getResponseContentType();
-			String encoding = request.getResponseContentEncoding();
 			String version = request.revision();
 			String cache = request.getResponseCacheControl();
-			addHeaders(request, type, contentType, encoding, version, cache, rb);
+			addHeaders(request, type, contentType, version, cache, rb);
 		}
 		return rb;
 	}
@@ -69,18 +68,17 @@ public class ContentHeadersHandler implements Handler {
 	public Response handle(ResourceOperation request) throws Exception {
 		Class<?> type = request.getEntityType();
 		String contentType = request.getResponseContentType();
-		String encoding = request.getResponseContentEncoding();
 		String derived = request.revision();
 		String cache = request.getResponseCacheControl();
 		Response rb = delegate.handle(request);
-		addHeaders(request, type, contentType, encoding, derived, cache, rb);
+		addHeaders(request, type, contentType, derived, cache, rb);
 		return rb;
 	}
 
 	private void addHeaders(ResourceOperation request, Class<?> type,
-			String contentType, String contentEncoding, String derived,
-			String cache, Response rb) throws MimeTypeParseException,
-			RepositoryException, QueryEvaluationException {
+			String contentType, String derived, String cache, Response rb)
+			throws MimeTypeParseException, RepositoryException,
+			QueryEvaluationException {
 		String version = request.isSafe() ? derived : request.revision();
 		String entityTag = request.getEntityTag(version, cache, contentType);
 		long lastModified = request.getLastModified();
@@ -104,9 +102,6 @@ public class ContentHeadersHandler implements Handler {
 		}
 		if (contentType != null && rb.isContent()) {
 			rb.setHeader("Content-Type", contentType);
-		}
-		if (contentEncoding != null && rb.isContent()) {
-			rb.setHeader("Content-Encoding", contentEncoding);
 		}
 		if (lastModified > 0) {
 			rb.lastModified(lastModified, format.format(lastModified));

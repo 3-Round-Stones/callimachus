@@ -55,13 +55,9 @@ import javax.activation.MimeTypeParseException;
 import javax.tools.FileObject;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.callimachusproject.server.annotations.cacheControl;
-import org.callimachusproject.server.annotations.encoding;
 import org.callimachusproject.server.annotations.expect;
 import org.callimachusproject.server.annotations.header;
 import org.callimachusproject.server.annotations.method;
-import org.callimachusproject.server.annotations.operation;
-import org.callimachusproject.server.annotations.parameter;
 import org.callimachusproject.server.annotations.query;
 import org.callimachusproject.server.annotations.realm;
 import org.callimachusproject.server.annotations.rel;
@@ -150,19 +146,6 @@ public class ResourceOperation extends ResourceRequest {
 		return getContentType(m);
 	}
 
-	public String getResponseContentEncoding() {
-		Method m = getTransformMethod();
-		if (m == null || m.getReturnType().equals(Void.TYPE))
-			return null;
-		if (!m.isAnnotationPresent(encoding.class))
-			return null;
-		StringBuilder sb = new StringBuilder();
-		for (String value : m.getAnnotation(encoding.class).value()) {
-			sb.append(",").append(value);
-		}
-		return sb.substring(1);
-	}
-
 	public String getEntityTag(String revision, String cache, String contentType)
 			throws MimeTypeParseException, RepositoryException, QueryEvaluationException {
 		Method m = this.method;
@@ -249,12 +232,6 @@ public class ResourceOperation extends ResourceRequest {
 						return true;
 				}
 			}
-			if (m.isAnnotationPresent(cacheControl.class)) {
-				for (String value : m.getAnnotation(cacheControl.class).value()) {
-					if (value.contains("must-reevaluate") || value.contains("no-validate"))
-						return true;
-				}
-			}
 		}
 		RDFObject target = getRequestedResource();
 		return noValidate(target.getClass());
@@ -299,16 +276,6 @@ public class ResourceOperation extends ResourceRequest {
 						sb.append(", ");
 					}
 					sb.append(value.substring(idx + 1));
-				}
-			}
-		}
-		if (m != null && m.isAnnotationPresent(cacheControl.class)) {
-			for (String value : m.getAnnotation(cacheControl.class).value()) {
-				if (value != null) {
-					if (sb.length() > 0) {
-						sb.append(", ");
-					}
-					sb.append(value);
 				}
 			}
 		}
@@ -421,7 +388,6 @@ public class ResourceOperation extends ResourceRequest {
 			if (m.isAnnotationPresent(ParameterTypes.class))
 				continue;
 			if (m.isAnnotationPresent(method.class)
-					|| m.isAnnotationPresent(operation.class)
 					|| m.isAnnotationPresent(query.class)) {
 				methods.add(m);
 			}
@@ -468,8 +434,7 @@ public class ResourceOperation extends ResourceRequest {
 				continue;
 			if (!m.isAnnotationPresent(rel.class))
 				continue;
-			if (!m.isAnnotationPresent(query.class)
-					&& !m.isAnnotationPresent(operation.class))
+			if (!m.isAnnotationPresent(query.class))
 				continue;
 			if (isRequestBody(m))
 				continue;
@@ -507,9 +472,6 @@ public class ResourceOperation extends ResourceRequest {
 			String[] query = null;
 			if (m.isAnnotationPresent(query.class)) {
 				query = m.getAnnotation(query.class).value();
-			}
-			if (m.isAnnotationPresent(operation.class)) {
-				query = m.getAnnotation(operation.class).value();
 			}
 			if (query == null || query.length == 0 || query[0] == null
 					|| query[0].length() == 0)
@@ -796,20 +758,12 @@ public class ResourceOperation extends ResourceRequest {
 			String[] values = m.getAnnotation(query.class).value();
 			return values.length != 0 && (values.length != 1 || values[0].length() != 0);
 		}
-		if (m.isAnnotationPresent(operation.class)) {
-			String[] values = m.getAnnotation(operation.class).value();
-			return values.length != 0 && (values.length != 1 || values[0].length() != 0);
-		}
 		return false;
 	}
 
 	private boolean isOperationProhibited(Method m) {
 		if (m.isAnnotationPresent(query.class)) {
 			String[] values = m.getAnnotation(query.class).value();
-			return values.length == 0 || values.length == 1 && values[0].length() == 0;
-		}
-		if (m.isAnnotationPresent(operation.class)) {
-			String[] values = m.getAnnotation(operation.class).value();
 			return values.length == 0 || values.length == 1 && values[0].length() == 0;
 		}
 		return false;
@@ -848,8 +802,6 @@ public class ResourceOperation extends ResourceRequest {
 		for (int i = 0; i < annotations.length; i++) {
 			if (annotations[i].annotationType().equals(query.class))
 				return ((query) annotations[i]).value();
-			if (annotations[i].annotationType().equals(parameter.class))
-				return ((parameter) annotations[i]).value();
 		}
 		return null;
 	}
@@ -878,10 +830,6 @@ public class ResourceOperation extends ResourceRequest {
 			method ann = m.getAnnotation(method.class);
 			if (ann == null) {
 				if (m.isAnnotationPresent(query.class)
-						&& !m.getReturnType().equals(Void.TYPE)
-						&& isRequestBody(m)) {
-					put(map, new String[] { "POST" }, m);
-				} else if (m.isAnnotationPresent(operation.class)
 						&& !m.getReturnType().equals(Void.TYPE)
 						&& isRequestBody(m)) {
 					put(map, new String[] { "POST" }, m);
@@ -1087,15 +1035,6 @@ public class ResourceOperation extends ResourceRequest {
 					sb.append(value.substring(idx + 1));
 				}
 			}
-		} else if (type.isAnnotationPresent(cacheControl.class)) {
-			for (String value : type.getAnnotation(cacheControl.class).value()) {
-				if (value != null) {
-					if (sb.length() > 0) {
-						sb.append(", ");
-					}
-					sb.append(value);
-				}
-			}
 		} else {
 			if (type.getSuperclass() != null) {
 				setCacheControl(type.getSuperclass(), sb);
@@ -1147,11 +1086,6 @@ public class ResourceOperation extends ResourceRequest {
 				if (value.contains("no-validate"))
 					return true;
 				if (value.contains("must-reevaluate"))
-					return true;
-			}
-		} else if (type.isAnnotationPresent(cacheControl.class)) {
-			for (String value : type.getAnnotation(cacheControl.class).value()) {
-				if (value.contains("must-reevaluate") || value.contains("no-validate"))
 					return true;
 			}
 		} else {

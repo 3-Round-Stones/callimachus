@@ -33,7 +33,6 @@ import java.lang.reflect.Method;
 
 import javax.activation.MimeTypeParseException;
 
-import org.callimachusproject.server.annotations.operation;
 import org.callimachusproject.server.annotations.query;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
@@ -115,8 +114,6 @@ public class AlternativeHandler implements Handler {
 	}
 
 	private String getQuery(Method operation) {
-		if (operation.isAnnotationPresent(operation.class))
-			return operation.getAnnotation(operation.class).value()[0];
 		return operation.getAnnotation(query.class).value()[0];
 	}
 

@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.callimachusproject.server.annotations.cacheControl;
 import org.callimachusproject.server.annotations.header;
 import org.callimachusproject.server.annotations.method;
 import org.callimachusproject.server.model.Handler;
@@ -149,18 +148,6 @@ public class OptionsHandler implements Handler {
 					String name = value.substring(0, idx);
 					if (!name.equalsIgnoreCase("cache-control"))
 						continue;
-					int c = value.indexOf(';', m);
-					if (c < 0) {
-						c = value.length();
-					}
-					String max = value.substring(m, c);
-					return max.trim();
-				}
-			}
-		} else if (type.isAnnotationPresent(cacheControl.class)) {
-			for (String value : type.getAnnotation(cacheControl.class).value()) {
-				int m = value.indexOf("max-age=");
-				if (m >= 0) {
 					int c = value.indexOf(';', m);
 					if (c < 0) {
 						c = value.length();

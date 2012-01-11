@@ -56,7 +56,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:type "application/xhtml+xml";
-	msg:xslt <styles/article-inline.xsl>.
+	msg:xslt <transforms/article-inline.xsl>.
 
 :xmlInput a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :InlineArticle;

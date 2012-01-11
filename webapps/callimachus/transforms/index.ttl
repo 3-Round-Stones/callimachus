@@ -6,7 +6,6 @@
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
-@prefix calilmachus_styles:<./>.
 @prefix :<#>.
 
 <> a </callimachus/SchemaGraph>.
@@ -30,7 +29,7 @@
 <TransformXhtml> rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
 	calli:type "text/html";
-	msg:xslt <../transforms/xhtml-to-html.xsl>.
+	msg:xslt <xhtml-to-html.xsl>.
 
 <TransformXhtml#xhtml> a owl:ObjectProperty; a owl:FunctionalProperty;
 	calli:type "application/xhtml+xml";

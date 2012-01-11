@@ -94,7 +94,7 @@
 :TransformDescription rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";
-	calli:transform <../styles/TransformLayout>;
+	calli:transform <../transforms/TransformLayout>;
 	msg:xslt <describe.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;

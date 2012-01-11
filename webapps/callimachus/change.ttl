@@ -179,8 +179,8 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xml";
-	calli:transform <styles/TransformLayout>;
-	msg:xslt <styles/change.xsl>.
+	calli:transform <transforms/TransformLayout>;
+	msg:xslt <transforms/change.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformChangesetView;

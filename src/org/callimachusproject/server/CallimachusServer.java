@@ -81,7 +81,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private static final String PROPERTIES = "/META-INF/callimachusproject.properties";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
-	private static final String ERROR_XSLT_PATH = "/callimachus/styles/error.xsl";
+	private static final String ERROR_XSLT_PATH = "/callimachus/transforms/error.xsl";
 	Logger logger = LoggerFactory.getLogger(CallimachusServer.class);
 	private Uploader uploader;
 	private String origin;

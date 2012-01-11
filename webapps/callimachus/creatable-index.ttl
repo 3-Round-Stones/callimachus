@@ -53,7 +53,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <CreatableIndex> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream> ];
 	calli:type "application/xhtml+xml";
-	calli:transform </callimachus/styles/TransformLayout>;
+	calli:transform </callimachus/transforms/TransformLayout>;
 	msg:xslt <class-index.xhtml>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;

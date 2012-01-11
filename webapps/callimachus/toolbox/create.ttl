@@ -34,7 +34,7 @@
 	calli:query "create";
 	calli:realm </callimachus/manifest>;
 	calli:type "application/xhtml+xml";
-	calli:transform </callimachus/styles/TransformXhtml>;
+	calli:transform </callimachus/transforms/TransformXhtml>;
 	msg:script """
 		importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
 		if (!this.calliCreate || this.calliCreate.isEmpty())
@@ -51,7 +51,7 @@
 	calli:query "create";
 	calli:realm </callimachus/manifest>;
 	calli:type "application/xhtml+xml";
-	calli:transform </callimachus/styles/TransformXhtml>;
+	calli:transform </callimachus/transforms/TransformXhtml>;
 	msg:script """
 		importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
 		importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);

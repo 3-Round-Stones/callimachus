@@ -29,7 +29,7 @@
 	calli:method "GET";
 	calli:query "introspect";
 	calli:type "application/xhtml+xml";
-	calli:transform <../styles/TransformLayout>;
+	calli:transform <../transforms/TransformLayout>;
 	msg:script """
 		return this.calliIntrospect(this);
 	""".

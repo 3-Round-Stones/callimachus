@@ -95,7 +95,7 @@
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;
-	calli:template </callimachus/styles/layout.xsl>;
+	calli:template </callimachus/transforms/layout.xsl>;
 	calli:unauthorized </callimachus/pages/unauthorized.xhtml>;
 	calli:forbidden </callimachus/pages/forbidden.xhtml>;
 	calli:authentication </callimachus/accounts>;

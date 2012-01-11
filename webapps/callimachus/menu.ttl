@@ -55,7 +55,7 @@ calli:favicon a owl:ObjectProperty;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";
-	msg:xslt <styles/menu.xsl>.
+	msg:xslt <transforms/menu.xsl>.
 
 :xml a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformMenu;

@@ -35,6 +35,6 @@
 	calli:query "view";
 	calli:type "application/xhtml+xml";
 	calli:header "cache-control:no-cache";
-	calli:transform </callimachus/styles/TransformXhtml>;
+	calli:transform </callimachus/transforms/TransformXhtml>;
 	msg:script <operations.js#getViewPage>.
 

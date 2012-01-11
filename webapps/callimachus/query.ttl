@@ -262,19 +262,19 @@
 
 :TransformIntoHtml rdfs:subClassOf :TransformSparqlResult;
 	calli:type "text/csv;charset=UTF-8";
-	msg:xslt <styles/sparql-results-html.xsl>.
+	msg:xslt <transforms/sparql-results-html.xsl>.
 
 :TransformIntoCSV rdfs:subClassOf :TransformSparqlResult;
 	calli:type "text/csv;charset=UTF-8";
-	msg:xslt <styles/sparql-results-csv.xsl>.
+	msg:xslt <transforms/sparql-results-csv.xsl>.
 
 :TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
 	calli:type "text/csv;charset=UTF-8";
-	msg:xslt <styles/sparql-results-tsv.xsl>.
+	msg:xslt <transforms/sparql-results-tsv.xsl>.
 
 :TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
 	calli:type "text/javascript;charset=UTF-8";
-	msg:xslt <styles/sparql-results-wire.xsl>.
+	msg:xslt <transforms/sparql-results-wire.xsl>.
 
 :handler a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain :TransformIntoWire;

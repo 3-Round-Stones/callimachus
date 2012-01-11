@@ -45,7 +45,7 @@
 :TransformRelatedChanges rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xml";
-	calli:transform <../styles/TransformLayout>;
+	calli:transform <../transforms/TransformLayout>;
 	msg:xslt <related-changes.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;

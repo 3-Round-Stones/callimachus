@@ -13,10 +13,22 @@
 
 <> a </callimachus/SchemaGraph>.
 
+# anybody with credentials can look something up
+:AuthorizeLookupSearch owl:intersectionOf (calli:IsAuthorized
+		[owl:onProperty msg:target; owl:hasValue <../lookup>]);
+	msg:sparql  """
+		ASK {
+			?accounts calli:authNamespace [calli:hasComponent $credential]
+			FILTER ($method = "GET" || $method = "HEAD")
+			FILTER (substr($query,1,2) = "q=")
+		}
+	""".
+
 :Lookup rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../lookup>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
+	calli:realm </callimachus/manifest>;
 	calli:type "application/sparql-results+xml";
 	calli:header "cache-control:no-store";
 	calli:transform :TransformLookup;

@@ -266,6 +266,8 @@ aside,
 aside>ul,
 ul.aside {
 	list-style:none;
+	padding:0;
+	margin:0;
 }
 
 aside>ul>li,
@@ -278,8 +280,8 @@ aside>ul>li:last-child,
 	border-bottom:none;
 }
 
-aside ul,
-.aside ul {
+aside li ul,
+.aside li ul {
 	padding-left:1em;
 	margin:0;
 }

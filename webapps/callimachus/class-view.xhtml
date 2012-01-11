@@ -21,43 +21,47 @@
 		<a property="rdfs:label" href="?this" />
 	</h1>
 	<div id="sidebar">
-		<ul class="aside">
-			<li id="create-link" class="protected">
-				<a href="?create">Create a new <span about="?this" property="rdfs:label"/></a>
-			</li>
-			<li>
-				<a href="?index"><span about="?this" property="rdfs:label"/> resources</a>
-			</li>
-		</ul>
-		<ul class="optional aside">
-			<li rel="rdfs:isDefinedBy" class="optional">
-				<a href="?isDefinedBy" property="rdfs:label"></a>
-			</li>
-			<li rel="rdfs:subClassOf" class="optional">
-				<label>Super class</label>
-				<div about="?subClassOf" typeof="owl:Class">
-					<a href="?subClassOf" property="rdfs:label" class="view" />
-				</div>
-			</li>
-			<li rev="rdfs:subClassOf" class="optional">
-				<label>Sub class</label>
-				<div about="?subClass" typeof="owl:Class">
-					<a href="?subClass" property="rdfs:label" class="view" />
-				</div>
-			</li>
-			<li class="optional">
-				<label>Templates</label>
-				<div rel="calli:create">
-					<a id="create-template" href="?create" property="rdfs:label" class="view" />
-				</div>
-				<div rel="calli:view">
-					<a href="?view" property="rdfs:label" class="view" />
-				</div>
-				<div rel="calli:edit">
-					<a href="?edit" property="rdfs:label" class="view" />
-				</div>
-			</li>
-		</ul>
+		<aside>
+			<ul>
+				<li id="create-link" class="protected">
+					<a href="?create">Create a new <span about="?this" property="rdfs:label"/></a>
+				</li>
+				<li>
+					<a href="?index"><span about="?this" property="rdfs:label"/> resources</a>
+				</li>
+			</ul>
+		</aside>
+		<aside>
+			<ul class="optional">
+				<li rel="rdfs:isDefinedBy" class="optional">
+					<a href="?isDefinedBy" property="rdfs:label"></a>
+				</li>
+				<li rel="rdfs:subClassOf" class="optional">
+					<label>Super class</label>
+					<div about="?subClassOf" typeof="owl:Class">
+						<a href="?subClassOf" property="rdfs:label" class="view" />
+					</div>
+				</li>
+				<li rev="rdfs:subClassOf" class="optional">
+					<label>Sub class</label>
+					<div about="?subClass" typeof="owl:Class">
+						<a href="?subClass" property="rdfs:label" class="view" />
+					</div>
+				</li>
+				<li class="optional">
+					<label>Templates</label>
+					<div rel="calli:create">
+						<a id="create-template" href="?create" property="rdfs:label" class="view" />
+					</div>
+					<div rel="calli:view">
+						<a href="?view" property="rdfs:label" class="view" />
+					</div>
+					<div rel="calli:edit">
+						<a href="?edit" property="rdfs:label" class="view" />
+					</div>
+				</li>
+			</ul>
+		</aside>
 	</div>
 	<pre property="rdfs:comment" class="wiki"></pre>
 </body>

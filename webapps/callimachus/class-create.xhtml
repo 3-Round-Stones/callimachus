@@ -88,16 +88,18 @@
 <body>
 	<h1>New Class</h1>
 	<div id="sidebar">
-		<ul class="aside">
-			<li>A class usually represents a noun, such as a person, place or (possibly quite abstract) thing</li>
-			<li>Icon is used when looking up resources</li>
-			<li>To add an icon, click the browse icon to open a file upload dialogue</li>
-			<li>Authors are permitted to create new resources of this class</li>
-			<li>Use a super class to inherit or override page templates</li>
-			<li>An external OWL class can be associated with a Callimachus class to apply the templates to both classes</li>
-			<li>Use the equivalent dialogue to upload and view an imported ontology; drag the external OWL class onto the equivalent field to make the association</li>
-			<li>Templates are used for page or form structure on each operation</li>
-		</ul>
+		<aside>
+			<ul>
+				<li>A class usually represents a noun, such as a person, place or (possibly quite abstract) thing</li>
+				<li>Icon is used when looking up resources</li>
+				<li>To add an icon, click the browse icon to open a file upload dialogue</li>
+				<li>Authors are permitted to create new resources of this class</li>
+				<li>Use a super class to inherit or override page templates</li>
+				<li>An external OWL class can be associated with a Callimachus class to apply the templates to both classes</li>
+				<li>Use the equivalent dialogue to upload and view an imported ontology; drag the external OWL class onto the equivalent field to make the association</li>
+				<li>Templates are used for page or form structure on each operation</li>
+			</ul>
+		</aside>
 	</div>
 	<form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="owl:Class"
 			onsubmit="updateAbout();return calli.saveResourceAs(event)">

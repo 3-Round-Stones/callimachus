@@ -47,13 +47,13 @@
 <body>
 	<h1><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /> Resources</h1>
 	<div id="sidebar">
-		<ul id="create-link" class="aside protected">		
-			<li><a href="?create">Create a new <xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /></a></li>		
-		</ul>
+		<aside id="create-link" class="protected">		
+			<a href="?create">Create a new <xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /></a>		
+		</aside>
 		<xsl:if test="//sparql:result[1]/sparql:binding[@name='description']/*">
-			<ul class="aside">
-				<li><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='description']/*"/></li>
-			</ul>
+			<aside>
+				<p><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='description']/*"/></p>
+			</aside>
 		</xsl:if>
 	</div>
 	<div id="index">

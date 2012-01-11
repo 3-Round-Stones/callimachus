@@ -20,13 +20,15 @@
 <body about="?this">
 	<h1 property="skos:prefLabel" />
 	<div id="sidebar">
-		<ul class="aside">
-			<li>The primary label should be recognizable</li>
-			<li>Other labels can be provide to assist concept lookup</li>
-			<li>The definition, example, and scope can be provide to clarify usage and meaning</li>
-			<li>Links to other related concepts may also be provided</li>
-			<li>To add an image, click the browse icon to open a file upload dialogue</li>
-		</ul>
+		<aside>
+			<ul>
+				<li>The primary label should be recognizable</li>
+				<li>Other labels can be provide to assist concept lookup</li>
+				<li>The definition, example, and scope can be provide to clarify usage and meaning</li>
+				<li>Links to other related concepts may also be provided</li>
+				<li>To add an image, click the browse icon to open a file upload dialogue</li>
+			</ul>
+		</aside>
 	</div>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this" typeof="skos:Concept"
 			onsubmit="saveChangeNote()">

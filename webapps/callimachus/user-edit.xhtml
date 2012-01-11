@@ -45,15 +45,17 @@
 <body about="?this">
 	<h1 property="rdfs:label" />
 	<div id="sidebar">
-		<ul class="aside">
-			<li><a href="?password">Change password or email</a></li>
-		</ul>
-		<ul class="aside">
-			<li>Enter your full name</li>
-			<li>Upload a small photo of yourself so others can recognize you using the photo icon</li>
-			<li>Additional information is to provide additional contact information and is viewable to all authenticated users</li>
-			<li>Your e-mail address is used to reset your password</li>
-		</ul>
+		<aside>
+			<a href="?password">Change password or email</a>
+		</aside>
+		<aside>
+			<ul>
+				<li>Enter your full name</li>
+				<li>Upload a small photo of yourself so others can recognize you using the photo icon</li>
+				<li>Additional information is to provide additional contact information and is viewable to all authenticated users</li>
+				<li>Your e-mail address is used to reset your password</li>
+			</ul>
+		</aside>
 	</div>
 	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this" autocomplete="off">
 		<label for="label">Full name</label>

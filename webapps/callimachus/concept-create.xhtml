@@ -9,11 +9,13 @@
 <body>
 	<h1>New Concept</h1>
 	<div id="sidebar">
-		<ul class="aside">
-			<li>The initial label is use to construct the resource URI</li>
-			<li>Other labels can be provide to assist concept lookup</li>
-			<li>The definition, example, and scope can be provide to clarify usage and meaning</li>
-		</ul>
+		<aside>
+			<ul>
+				<li>The initial label is use to construct the resource URI</li>
+				<li>Other labels can be provide to assist concept lookup</li>
+				<li>The definition, example, and scope can be provide to clarify usage and meaning</li>
+			</ul>
+		</aside>
 	</div>
 	<form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="skos:Concept" onsubmit="return calli.saveResourceAs(event)">
 		<div class="hbox">

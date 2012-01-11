@@ -54,19 +54,19 @@ a[href] {
 	color:#0645ad;
 }
 
-#nav>li {
+nav#menu>ul>li {
 	border-bottom:1px solid #A8ACB8;
 }
 
-#nav>li:last-child {
+nav#menu>ul>li:last-child {
 	border-bottom:none;
 }
 
-#nav li h3 {
+nav#menu li h3 {
 	color:#3F547F;
 }
 
-#tabs li a {
+#access>a {
 	background:white;
 	border-bottom:1px solid white;
 	border-left:1px solid #A8ACB8;
@@ -74,7 +74,7 @@ a[href] {
 	border-top:1px solid #A8ACB8;
 }
 
-#tabs li a[onclick] {
+#access>a[onclick] {
 	background:#DDDDDD;
 	border-bottom:1px solid #A8ACB8;
 }
@@ -90,7 +90,7 @@ a[href] {
 	vertical-align:text-bottom;
 }
 
-#main {
+#container {
 	background-color:white;
 	border-bottom:1px solid #A8ACB8;
 	border-left:1px solid #A8ACB8;
@@ -98,7 +98,7 @@ a[href] {
 	border-top:1px solid #A8ACB8;
 }
 
-.iframe, .iframe body,.iframe #main {
+.iframe, .iframe body,.iframe #container {
 	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(enabled=false)";
 	background:inherit;
 	border:none;

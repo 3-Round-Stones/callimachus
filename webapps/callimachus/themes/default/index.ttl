@@ -7,11 +7,5 @@
 
 <default> a calli:Theme;
 	rdfs:label "Default Theme";
-	rdf:_1 <alert.js>;
-	rdf:_2 <discussion.js>;
-	rdf:_3 <login.js>;
-	calli:layout <layout.xhtml>;
-	calli:style <layout.css>;
-	calli:colour <colour.css>;
-	calli:jqueryui <jquery-ui.css>.
+	calli:layout <layout.xhtml>.
 

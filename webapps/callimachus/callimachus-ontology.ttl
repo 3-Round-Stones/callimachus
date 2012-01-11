@@ -94,8 +94,7 @@ calli:Menu a owl:Class;
 
 calli:Theme a owl:Class;
 	rdfs:label "Theme";
-	rdfs:comment "A Callimachus Web theme of HTML templates, CSS, and JavaScript";
-	rdfs:subClassOf calli:ScriptBundle.
+	rdfs:comment "A Callimachus Web theme of HTML templates, CSS, and JavaScript".
 
 calli:ScriptBundle a owl:Class;
 	rdfs:label "Script Bundle";
@@ -315,21 +314,6 @@ calli:theme a owl:FunctionalProperty, owl:ObjectProperty;
 calli:layout a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "layout";
 	rdfs:comment "The HTML template used by this theme as the primary page layout";
-	rdfs:domain calli:Theme.
-
-calli:style a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:label "style";
-	rdfs:comment "The primary CSS style for this theme";
-	rdfs:domain calli:Theme.
-
-calli:colour a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:label "colour";
-	rdfs:comment "The primary CSS style for this colour scheme";
-	rdfs:domain calli:Theme.
-
-calli:jqueryui a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:label "jQuery ui";
-	rdfs:comment "The jQuery UI CSS Framework theme used for this colour scheme";
 	rdfs:domain calli:Theme.
 
 ################################

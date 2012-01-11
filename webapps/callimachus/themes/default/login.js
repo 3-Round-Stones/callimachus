@@ -2,13 +2,7 @@
 
 (function($){
 
-$(document).bind("calliLogInPrompt", function() {
-	$(document).ready(function() {
-		if ($(document.documentElement).is(".noauth")) {
-			login.call($("#header-login")[0]);
-		}
-	});
-});
+var loginForm;
 
 $(document).bind("calliLoggedIn", function(event) {
 	$(document).ready(function() {
@@ -21,12 +15,46 @@ $(document).bind("calliLoggedIn", function(event) {
 			}
 			return false;
 		});
+		if (loginForm) {
+			$(loginForm).remove();
+			loginForm = null;
+		}
 	});
 });
 
-$(document).ready(function() {
-	$("#header-login").submit(login);
+$(document).bind("calliLoggedOut", function(event) {
+	$(document).ready(function() {
+		if (!loginForm) {
+			loginForm = createLoginButton();
+		}
+	});
 });
+
+$(document).bind("calliLogInPrompt", function() {
+	$(document).ready(function() {
+		if (loginForm) {
+			login.call(loginForm);
+		}
+	});
+});
+
+function createLoginButton() {
+	if ($('#profile-link').length) {
+		var loginForm = $('<form />')[0];
+		$(loginForm).attr('action', $('#profile-link')[0].getAttribute('href'));
+		$(loginForm).css('display', "inline-block");
+		var button = $('<button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" />');
+		var icon = $('<span class="ui-button-icon-primary ui-icon ui-icon-circle-arrow-s"> </span>');
+		var text = $('<span class="ui-button-text">Login</span>');
+		button.append(icon);
+		button.append(text);
+		$(loginForm).append(button);
+		$('#profile').before(loginForm);
+		$(loginForm).submit(login);
+		return loginForm;
+	}
+	return null;
+}
 
 function login(event) {
 	var link = $(this);

@@ -2,21 +2,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title>Title Here</title>
+	<link rel="stylesheet" href="layout.css" />
+	<link rel="stylesheet" href="colour.css" />
+	<link rel="stylesheet" href="jquery-ui.css" />
+	<script type="text/javascript" src="alert.js">&#160;</script>
+	<script type="text/javascript" src="discussion.js">&#160;</script>
+	<script type="text/javascript" src="login.js">&#160;</script>
 </head>
 <body>
-	<div id="page-top">
+	<div id="wrapper">
 		<div id="top" />
 		<div id="page">
-			<div id="header">
-				<div id="header-float">
-					<div id="header-text">
-						<form id="header-login" action="/callimachus/accounts?login">
-							<button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
-								<span class="ui-button-icon-primary ui-icon ui-icon-circle-arrow-s"> </span>
-								<span class="ui-button-text">Login</span>
-							</button>
-						</form>
-						<span id="header-profile" class="protected">
+			<header id="header">
+				<div id="masthead">
+					<div id="branding">
+						<span id="profile" class="protected">
 							<a id="profile-link" href="/callimachus/accounts?login">Profile</a>
 							<span> | </span>
 							<a href="/callimachus/accounts?settings">Settings</a>
@@ -25,7 +25,7 @@
 							<span> | </span>
 							<a id="logout-link" href="/callimachus/accounts?logout">Logout</a>
 						</span>
-						<form id="header-lookup" class="textarea" method="GET" action="/callimachus/lookup">
+						<form id="search" class="textarea" method="GET" action="/callimachus/lookup">
 							<input type="text" name="q" placeholder="Lookup..." />
 							<button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only">
 								<span class="ui-button-icon-primary ui-icon ui-icon-search"> </span>
@@ -34,58 +34,54 @@
 						</form>
 					</div>
 				</div>
-				<div id="header-float-clear" />
-			</div>
-
-			<ul id="tabs" class="protected">
-				<li>
-					<a id="view-tab" tabindex="1" href="?view" onclick="location.replace(href);return false">View</a>
-				</li>
-				<li>
-					<a id="edit-tab" tabindex="2" href="?edit" onclick="location.replace(href);return false">Edit</a>
-				</li>
-				<li>
-					<a id="discussion-tab" tabindex="3" href="?discussion" onclick="location.replace(href);return false">Discussion</a>
-				</li>
-				<li>
-					<a id="describe-tab" tabindex="4" href="?describe" onclick="location.replace(href);return false">Describe</a>
-				</li>
-				<li>
-					<a id="history-tab" tabindex="5" href="?history" onclick="location.replace(href);return false">History</a>
-				</li>
-			</ul>
+				<div class="clear" />
+			</header>
 
 			<div id="main">
-				<div id="errors" />
-				<div id="breadcrumbs">
-					... &#187; <a class="breadcrumb" href="?up">Up</a> &#187; <span class="breadcrumb">Here</span>
-				</div>
-				<div id="content">
-					Main content goes here.
-				</div>
-			</div>
-		</div>
-	</div>
 
-	<ul id="nav">
-		<li><h3>Menu item</h3>
-			<ul>
-				<li><a href="#">Sub item</a></li>
-			</ul>
-		</li>
-	</ul>
-	<a href="/" id="logo">&#160;</a>
+				<nav id="access" class="protected">
+					<a tabindex="1" href="?view" onclick="location.replace(href);return false">View</a>
+					<a tabindex="2" href="?edit" onclick="location.replace(href);return false">Edit</a>
+					<a tabindex="3" href="?discussion" onclick="location.replace(href);return false">Discussion</a>
+					<a tabindex="4" href="?describe" onclick="location.replace(href);return false">Describe</a>
+					<a tabindex="5" href="?history" onclick="location.replace(href);return false">History</a>
+				</nav>
 
-	<div id="footer">
-		<div id="footer-text">
-			<p id="footer-powered">
+				<div id="container">
+					<div id="errors" />
+					<div id="breadcrumbs">
+						... &#187; <a class="breadcrumb" href="?up">Up</a> &#187; <span class="breadcrumb">Here</span>
+					</div>
+					<div id="content">
+						Main content goes here.
+					</div>
+				</div><!-- container -->
+
+				<nav id="menu">
+					<ul>
+						<li><h3>Menu item</h3>
+							<ul>
+								<li><a href="#">Sub item</a></li>
+							</ul>
+						</li>
+					</ul>
+				</nav>
+				<a href="/" id="logo">&#160;</a>
+
+			</div><!-- main -->
+		</div><!-- page -->
+	</div><!-- wrapper -->
+
+	<footer id="footer">
+		<div id="colophon">
+			<p id="site-generator">
 				<a href="http://callimachusproject.org/" title="Callimachus">
 					<img src="/callimachus/images/callimachus-powered.png" alt="Callimachus" width="98" height="35" />
 				</a>
 			</p>
 			<p id="resource-lastmod">This resource was last modified at <time/></p>
-			<p id="manifest-rights">Copyright and licensing rights here.</p>
+			<p id="rights">Copyright and licensing rights here.</p>
 		</div>
-	</div>
+	</footer>
 </body>
 </html>

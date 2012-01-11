@@ -43,11 +43,11 @@ calli:template a owl:ObjectProperty;
 		return this.objectConnection.getObject(this.toUri().resolve("/callimachus/themes/default/layout.xhtml"));
 	""".
 
-:GetStyleSheets rdfs:subClassOf msg:Message;
+:GetLayoutBase rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "GET";
-	calli:query "styles";
+	calli:query "base";
 	calli:type "text/xml";
 	msg:script """
 		var xhtml = ['<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title>'];
@@ -56,43 +56,12 @@ calli:template a owl:ObjectProperty;
 				xhtml.push('<base href="');
 				xhtml.push(this.calliTheme.calliLayout);
 				xhtml.push('" />');
-				xhtml.push('<link rel="stylesheet" href="');
-				xhtml.push(this.calliTheme.calliStyle);
-				xhtml.push('" />');
-				xhtml.push('<link rel="stylesheet jqueryui" href="');
-				xhtml.push(this.calliTheme.calliJqueryui);
-				xhtml.push('" />');
-				xhtml.push('<link rel="stylesheet" href="');
-				xhtml.push(this.calliTheme.calliColour);
-				xhtml.push('" />');
 			}
 		} catch (e) {
 			e.javaException.printStackTrace();
 		}
 		xhtml.push('</head><body></body></html>');
 		return xhtml.join('');
-	""".
-
-:GetSource rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	calli:method "GET";
-	calli:query "source";
-	calli:expect "302-see-other";
-	calli:type "text/uri-list";
-	msg:script """
-		return this.calliTheme.toString() + "?source";
-	""".
-
-:GetJqueryuiStyle rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	calli:method "GET";
-	calli:query "jqueryui";
-	calli:expect "302-see-other";
-	calli:type "text/uri-list";
-	msg:script """
-		return this.calliTheme.calliJqueryui;
 	""".
 
 :GetRights rdfs:subClassOf msg:Message;

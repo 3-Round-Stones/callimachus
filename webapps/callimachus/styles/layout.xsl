@@ -30,8 +30,7 @@
 			<xsl:value-of select="concat($callimachus, '/manifest')" />
 		</xsl:if>
 	</xsl:variable>
-	<xsl:variable name="styles" select="document(concat($manifest, '?styles'))/xhtml:html/xhtml:head/xhtml:link" />
-	<xsl:variable name="layout_base" select="document(concat($manifest, '?styles'))/xhtml:html/xhtml:head/xhtml:base/@href" />
+	<xsl:variable name="layout_base" select="document(concat($manifest, '?base'))/xhtml:html/xhtml:head/xhtml:base/@href" />
 	<xsl:variable name="layout_xhtml" select="document(concat($manifest, '?layout'))" />
 	<xsl:variable name="layout_html" select="$layout_xhtml/xhtml:html|$layout_xhtml/html" />
 	<xsl:variable name="layout_head" select="$layout_xhtml/xhtml:html/xhtml:head|$layout_xhtml/html/head" />
@@ -79,18 +78,14 @@
 			<link rel="stylesheet" href="{$callimachus}/styles/normalize.css" />
 			<link rel="stylesheet" href="{$callimachus}/styles/content.css" />
 			<xsl:comment>[if gt IE 6]&gt;&lt;!</xsl:comment>
-			<xsl:for-each select="$styles">
-				<link rel="stylesheet" href="{@href}" />
-			</xsl:for-each>
-			<xsl:comment>&lt;![endif]</xsl:comment>
 			<xsl:apply-templates mode="layout" select="$layout_head/*[local-name()!='script' and local-name()!='title']|comment()" />
 			<xsl:apply-templates select="*[local-name()!='script']|comment()" />
+			<xsl:comment>&lt;![endif]</xsl:comment>
 
 			<script type="text/javascript" src="{$callimachus}/scripts/web_bundle?source">&#160;</script>
 			<xsl:if test="//form|//xhtml:form">
 				<script type="text/javascript" src="{$callimachus}/scripts/form_bundle?source">&#160;</script>
 			</xsl:if>
-			<script type="text/javascript" src="{$manifest}?source"> </script>
 			<xsl:comment>[if lt IE 9]&gt;
 				&lt;script src="//html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;
 				&lt;script src="//ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"&gt;&lt;/script&gt;
@@ -240,15 +235,15 @@
 		</xsl:attribute>
 	</xsl:template>
 
-	<xsl:template mode="layout" match="xhtml:ul[@id='tabs']">
-		<xsl:if test="xhtml:li/xhtml:a[@href=concat('?',$query)]|li/a[@href=concat('?',$query)]">
+	<xsl:template mode="layout" match="xhtml:nav[@id='access']|nav[@id='access']">
+		<xsl:if test="xhtml:a[@href=concat('?',$query)]|li/a[@href=concat('?',$query)]">
 			<xsl:copy>
 				<xsl:apply-templates mode="layout" select="@*|*|text()|comment()" />
 			</xsl:copy>
 		</xsl:if>
 	</xsl:template>
 
-	<xsl:template mode="layout" match="xhtml:ul[@id='tabs']/xhtml:li/xhtml:a[@href]|ul[@id='tabs']/li/a[@href]">
+	<xsl:template mode="layout" match="xhtml:nav[@id='access']/xhtml:a[@href]|nav[@id='access']/a[@href]">
 		<xsl:copy>
 			<xsl:if test="@href=concat('?',$query)">
 				<xsl:apply-templates mode="layout" select="@*[name()!='href' and name()!='onclick']" />
@@ -343,11 +338,14 @@
 		</xsl:if>
 	</xsl:template>
 
-	<xsl:template mode="layout" match="xhtml:ul[@id='nav']|ul[@id='nav']">
-		<xsl:copy-of select="document(concat($callimachus, '/menu?items'))/xhtml:html/xhtml:body/node()" />
+	<xsl:template mode="layout" match="xhtml:nav[@id='menu']|nav[@id='menu']">
+		<xsl:copy>
+			<xsl:apply-templates mode="layout" select="@*" />
+			<xsl:copy-of select="document(concat($callimachus, '/menu?items'))/xhtml:html/xhtml:body/node()" />
+		</xsl:copy>
 	</xsl:template>
 
-	<xsl:template mode="layout" match="xhtml:p[@id='manifest-rights']|p[@id='manifest-rights']">
+	<xsl:template mode="layout" match="xhtml:p[@id='rights']|p[@id='rights']">
 		<xsl:copy>
 			<xsl:apply-templates mode="layout" select="@*" />
 			<xsl:copy-of select="document(concat($manifest, '?rights'))/*/node()" />

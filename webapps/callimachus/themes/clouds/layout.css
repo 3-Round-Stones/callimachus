@@ -9,11 +9,11 @@ html.iframe,.iframe body {
 	height:inherit;
 }
 
-#header-text,#footer-text,#nav>li,#tabs>li,.aside>li,.aside>thead,.aside>tbody,.aside>tfoot {
+#branding,#colophon,nav#menu>ul>li,#access>a,.aside>li,.aside>thead,.aside>tbody,.aside>tfoot {
 	font-size:small;
 }
 
-#page-top {
+#wrapper {
 	min-height:100%;
 	overflow:hidden;
 }
@@ -35,16 +35,16 @@ html.iframe,.iframe body {
 	margin-bottom:15px;
 }
 
-#header-float {
+#masthead {
 	float:right;
 	min-height:60px;
 }
 
-#header-float-clear {
+.clear {
 	clear:right;
 }
 
-#header-text {
+#branding {
 	display:table-cell;
 	vertical-align:middle;
 	text-align:right;
@@ -52,16 +52,8 @@ html.iframe,.iframe body {
 	height:60px;
 }
 
-#header-lookup {
+#search {
 	display:inline-block;
-}
-
-#header-login {
-	display:inline-block;
-}
-
-.auth #header-login, .auth #login-form {
-	display:none !important;
 }
 
 #header button {
@@ -129,7 +121,7 @@ html.iframe,.iframe body {
 	padding-bottom:12em;  /* must be same height as the footer */
 }
 
-#main {
+#container {
 	margin-bottom:1ex;
 }
 
@@ -144,7 +136,7 @@ h1 {
 	margin-top:0.25em;
 }
 
-#tabs {
+#access {
 	margin:0;
 	padding:0;
 	cursor:default;
@@ -155,13 +147,13 @@ h1 {
 	vertical-align:bottom;
 }
 
-#tabs li {
+#access>a {
 	display:inline-block;
 	padding:0;
 	text-align:center;
 }
 
-#tabs li a {
+#access>a {
 	color:black;
 	cursor:default;
 	display:inline-block;
@@ -174,7 +166,7 @@ h1 {
 	font-size:larger;
 }
 
-#tabs li a[href] {
+#access>a[href] {
 	font-size:100%;
 	font-weight:normal;
 }
@@ -184,7 +176,7 @@ h1 {
 	padding:0.5em;
 }
 
-.iframe body,.iframe #main,.iframe #page-top,.iframe #page {
+.iframe body,.iframe #container,.iframe #wrapper,.iframe #page {
 	margin:0;
 	padding:0;
 	height:auto;
@@ -196,7 +188,7 @@ h1 {
 	padding:0.5em;
 }
 
-.iframe #header,.iframe #tabs,.iframe #nav,.iframe #logo,.iframe #footer,.iframe #top {
+.iframe #header,.iframe #access,.iframe nav#menu,.iframe #logo,.iframe #footer,.iframe #top {
 	display:none;
 }
 
@@ -213,19 +205,19 @@ iframe.ui-widget-content.ui-dialog-content {
 	clear:both;
 }
 
-#footer-powered,#footer-lastmod,#footer-rights {
+#site-generator,#footer-lastmod,#footer-rights {
 	text-align:center;
 	margin:0 1em;
 	padding:0.5em 1em;
 }
 
-#nav {
+nav#menu>ul {
 	list-style:none;
 	margin:0;
 	padding:0;
 }
 
-#nav>li {
+nav#menu>ul>li {
 	display:block;
 	float:left;
 	margin:1em;
@@ -233,11 +225,11 @@ iframe.ui-widget-content.ui-dialog-content {
 	height:10em;
 }
 
-#nav li {
+nav#menu li {
 	display:block;
 }
 
-#nav li h3 {
+nav#menu li h3 {
 	text-decoration:none;
 	font-weight:normal;
 	font-size: 1em;
@@ -245,14 +237,14 @@ iframe.ui-widget-content.ui-dialog-content {
 	padding:0;
 }
 
-#nav ul {
+nav#menu>ul ul {
 	list-style:none;
 	margin:0;
 	margin-left:1ex;
 	padding:0;
 }
 
-#manifest-rights {
+#rights {
 	clear:left;
 	text-align:center;
 }
@@ -295,12 +287,12 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 
 @media screen and (min-width:960px) {
 	#page { width:960px; margin-left: auto; margin-right: auto; }
-	#footer-text { width:960px; margin-left:auto; margin-right:auto; }
+	#colophon { width:960px; margin-left:auto; margin-right:auto; }
 }
 
 @media screen and (min-width:36em) {
-	#main { margin-right:18em; position:relative; }
-	.nosidebar #main { margin-right:0; }
+	#container { margin-right:18em; position:relative; }
+	.nosidebar #container { margin-right:0; }
 	#sidebar { position:absolute; top:0; right:-18em; width:16em; padding-left:1em; }
 	.aside { float:right; }
 }
@@ -313,13 +305,13 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 .ie7_html #header { margin-left:192px; }
 
 .ie7_html #page { width:960px; margin-left: auto; margin-right: auto; }
-.ie7_html #footer-text { width:960px; margin-left:auto; margin-right:auto; }
+.ie7_html #colophon { width:960px; margin-left:auto; margin-right:auto; }
 
 .ie7_html #content { min-height:21em; }
 .ie7_html.iframe #content { min-height:inherit; }
 
-.ie7_html #main { margin-right:18em; position:relative; }
-.ie7_html.nosidebar #main { margin-right:0; }
+.ie7_html #container { margin-right:18em; position:relative; }
+.ie7_html.nosidebar #container { margin-right:0; }
 .ie7_html #sidebar { position:absolute; top:0; right:-18em; width:16em; padding-left:1em; }
 .ie7_html .aside { float:right; }
 
@@ -328,7 +320,7 @@ table.aside>thead>tr>td,table.aside>thead>tr>th,table.aside>tbody>tr>td,table.as
 
 /* start print */
 @media print {
-	#logo, #nav, #header, #tabs, button { display:none; }
+	#logo, nav#menu, #header, #access, button { display:none; }
 	body { background:inherit; }
 	.aside { float:right; }
 } /* end print */

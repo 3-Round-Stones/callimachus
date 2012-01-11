@@ -7,21 +7,9 @@
 
 <clouds> a calli:Theme;
 	rdfs:label "Clouds Theme";
-	rdf:_1 <../default/alert.js>;
-	rdf:_2 <../default/discussion.js>;
-	rdf:_3 <../default/login.js>;
-	calli:layout <layout.xhtml>;
-	calli:style <layout.css>;
-	calli:colour <colour.css>;
-	calli:jqueryui <jquery-ui.css>.
+	calli:layout <layout.xhtml>.
 
 <energy> a calli:Theme;
 	rdfs:label "Energy Clouds Theme";
-	rdf:_1 <../default/alert.js>;
-	rdf:_2 <../default/discussion.js>;
-	rdf:_3 <../default/login.js>;
-	calli:layout <layout.xhtml>;
-	calli:style <layout.css>;
-	calli:colour <colour-alt.css>;
-	calli:jqueryui <jquery-ui.css>.
+	calli:layout <layout-alt.xhtml>.
 

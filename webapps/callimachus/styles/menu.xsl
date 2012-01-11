@@ -13,7 +13,7 @@
 				<title>Menu</title>
 			</head>
 			<body>
-				<ul id="nav">
+				<ul>
 					<xsl:apply-templates select="sparql:results/sparql:result[not(sparql:binding/@name='heading')]" />
 				</ul>
 			</body>

@@ -18,7 +18,7 @@ $(document).bind('DOMNodeInserted', function (event) {
 function loadOptions(selects) {
 	selects.each(function() {
 		var select = $(this);
-		var url = select.attr("data-options").replace("{xptr}", calli.xptr(select));
+		var url = select.attr("data-options");
 		select.removeAttr("data-options");
 		jQuery.get(url, function(data) {
 			var options = $(data);

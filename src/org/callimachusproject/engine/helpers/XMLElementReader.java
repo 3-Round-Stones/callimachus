@@ -24,21 +24,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.Namespace;
+import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-
-import org.callimachusproject.server.exceptions.NotImplemented;
 
 /**
  * Extracts an element from an XML document given the element's xptr.
  * 
  * @author James Leigh
- *
+ * 
  */
 public final class XMLElementReader extends XMLEventConverter {
+	private static final QName ID = new QName("id");
+	private final String id;
 	private final List<Integer> path;
+	private int idDepth = 0;
 	private List<Integer> stack = new LinkedList<Integer>();
 	private int position;
 	private Map<String, Namespace> namespaces = new HashMap<String, Namespace>();
@@ -46,9 +50,7 @@ public final class XMLElementReader extends XMLEventConverter {
 	public XMLElementReader(XMLEventReader reader, String element) {
 		super(reader);
 		String[] ar = element.split("/");
-		String id = ar[0];
-		if (id.length() > 0)
-			throw new NotImplemented("ID is not supported in element parameter");
+		id = ar[0];
 		path = new ArrayList<Integer>(ar.length - 1);
 		for (int i = 1; i < ar.length; i++) {
 			path.add(Integer.valueOf(ar[i]));
@@ -62,26 +64,56 @@ public final class XMLElementReader extends XMLEventConverter {
 		if (event.isStartElement()) {
 			stack.add(position + 1);
 			position = 0;
-			if (stack.size() <= path.size()
-					&& path.subList(0, stack.size()).equals(stack)) {
-				Iterator nter = event.asStartElement().getNamespaces();
+			if (id.equals(getIdOf(event.asStartElement()))) {
+				idDepth = stack.size();
+			}
+			if (id.length() > 0 && idDepth == 0 || idDepth == stack.size()
+					|| isParentOrCurrent(subList(stack, idDepth))) {
+				Iterator<?> nter = event.asStartElement().getNamespaces();
 				while (nter.hasNext()) {
 					Namespace ns = (Namespace) nter.next();
 					namespaces.put(ns.getPrefix(), ns);
 				}
 			}
-			if (stack.size() == path.size() && stack.equals(path)) {
+			if ((id.length() == 0 || idDepth > 0) && isCurrent(subList(stack, idDepth))) {
 				return new NamespaceStartElement(event.asStartElement(),
 						namespaces);
 			}
 		}
-		boolean included = stack.size() >= path.size()
-				&& stack.subList(0, path.size()).equals(path);
+		boolean pass = (id.length() == 0 || idDepth > 0) && isWithin(subList(stack, idDepth));
 		if (event.isEndElement()) {
 			position = stack.remove(stack.size() - 1);
+			if (idDepth > stack.size()) {
+				idDepth = 0;
+			}
 		}
-		if (included)
+		if (pass)
 			return event;
 		return null;
+	}
+
+	private List<Integer> subList(List<Integer> stack, int start) {
+		return stack.subList(start, stack.size());
+	}
+
+	private String getIdOf(StartElement event) {
+		Attribute attr = event.getAttributeByName(ID);
+		if (attr == null)
+			return null;
+		return attr.getValue();
+	}
+
+	private boolean isParentOrCurrent(List<Integer> stack) {
+		return stack.size() <= path.size()
+				&& path.subList(0, stack.size()).equals(stack);
+	}
+
+	private boolean isCurrent(List<Integer> stack) {
+		return stack.size() == path.size() && stack.equals(path);
+	}
+
+	private boolean isWithin(List<Integer> stack) {
+		return stack.size() >= path.size()
+				&& stack.subList(0, path.size()).equals(path);
 	}
 }

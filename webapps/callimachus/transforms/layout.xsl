@@ -152,7 +152,8 @@
 				<xsl:value-of select="$systemId" />
 				<xsl:text>?options&amp;query=</xsl:text>
 				<xsl:value-of select="$query" />
-				<xsl:text>&amp;element={xptr}</xsl:text>
+				<xsl:text>&amp;element=</xsl:text>
+				<xsl:apply-templates mode="xptr-element" select="." />
 			</xsl:attribute>
 		</xsl:if>
 		<xsl:if test="*[@about or @resource] and not(@data-construct)">
@@ -161,7 +162,9 @@
 				<xsl:value-of select="$systemId" />
 				<xsl:text>?construct&amp;query=</xsl:text>
 				<xsl:value-of select="$query" />
-				<xsl:text>&amp;element={xptr}&amp;about={about}</xsl:text>
+				<xsl:text>&amp;element=</xsl:text>
+				<xsl:apply-templates mode="xptr-element" select="." />
+				<xsl:text>&amp;about={about}</xsl:text>
 			</xsl:attribute>
 		</xsl:if>
 		<xsl:if test="*[@about or @resource] and .//*[contains(' rdfs:label skos:prefLabel skos:altLabel skosxl:literalForm ', concat(' ', @property, ' ')) or contains(text(), '{rdfs:label}') or contains(text(), '{skos:prefLabel}') or contains(text(), '{skos:altLabel}') or contains(text(), '{skosxl:literalForm}')] and not(@data-search)">
@@ -179,7 +182,8 @@
 				<xsl:value-of select="$systemId" />
 				<xsl:text>?template&amp;query=</xsl:text>
 				<xsl:value-of select="$query" />
-				<xsl:text>&amp;element={xptr}</xsl:text>
+				<xsl:text>&amp;element=</xsl:text>
+				<xsl:apply-templates mode="xptr-element" select="." />
 			</xsl:attribute>
 		</xsl:if>
 	</xsl:template>
@@ -445,6 +449,19 @@
 				</xsl:call-template>
 			</xsl:if>
 		</xsl:if>
+	</xsl:template>
+
+	<!-- xptr-element -->
+	<xsl:template mode="xptr-element" match="/xhtml:html/xhtml:body|/html/body">
+		<xsl:text>content</xsl:text>
+	</xsl:template>
+	<xsl:template mode="xptr-element" match="*[@id]">
+		<xsl:value-of select="@id" />
+	</xsl:template>
+	<xsl:template mode="xptr-element" match="*">
+		<xsl:apply-templates mode="xptr-element" select=".." />
+		<xsl:text>/</xsl:text>
+		<xsl:value-of select="count(preceding-sibling::*) + 1" />
 	</xsl:template>
 
 </xsl:stylesheet>

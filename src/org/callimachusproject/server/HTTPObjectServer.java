@@ -35,11 +35,9 @@ import static org.apache.http.params.CoreConnectionPNames.STALE_CONNECTION_CHECK
 import static org.apache.http.params.CoreConnectionPNames.TCP_NODELAY;
 import static org.callimachusproject.server.HTTPObjectRequestHandler.HANDLER_ATTR;
 import static org.callimachusproject.server.HTTPObjectRequestHandler.PENDING_ATTR;
-import info.aduna.io.MavenUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -56,9 +54,6 @@ import java.util.Queue;
 import java.util.Set;
 
 import javax.activation.MimeTypeParseException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpException;
@@ -79,6 +74,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
+import org.callimachusproject.Version;
 import org.callimachusproject.server.cache.CachingFilter;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.client.HTTPService;
@@ -118,12 +114,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
-	private static final String MXBEAN_TYPE = "org.openrdf:type="
-			+ HTTPObjectServer.class.getSimpleName();
-	private static final String VERSION = MavenUtil.loadVersion(
-			"org.openrdf.alibaba", "alibaba-server-object", "devel");
-	private static final String APP_NAME = "OpenRDF AliBaba object-server";
-	protected static final String DEFAULT_NAME = APP_NAME + "/" + VERSION;
+	private static final String APP_NAME = "Callimachus Server";
+	protected static final String DEFAULT_NAME = APP_NAME + "/" + Version.getVersion();
 	private static NamedThreadFactory executor = new NamedThreadFactory("HttpObjectServer", false);
 	private static final List<HTTPObjectServer> instances = new ArrayList<HTTPObjectServer>();
 
@@ -433,12 +425,6 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		synchronized (instances) {
 			instances.add(this);
 		}
-		try {
-			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-			mbs.registerMBean(this, getObjectName());
-		} catch (Exception e) {
-			logger.info(e.toString(), e);
-		}
 	}
 
 	public synchronized void start() throws Exception {
@@ -509,22 +495,6 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		}
 		synchronized (instances) {
 			instances.remove(this);
-		}
-		try {
-			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-			mbs.unregisterMBean(getObjectName());
-		} catch (Exception e) {
-			logger.info(e.toString(), e);
-		}
-	}
-
-	private ObjectName getObjectName() throws MalformedObjectNameException {
-		if (ports.length > 0) {
-			return new ObjectName(MXBEAN_TYPE + ",port=" + ports[0]);
-		} else if (sslports.length > 0) {
-			return new ObjectName(MXBEAN_TYPE + ",port=" + sslports[0]);
-		} else {
-			return new ObjectName(MXBEAN_TYPE);
 		}
 	}
 

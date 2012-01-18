@@ -34,7 +34,6 @@ import static org.apache.http.params.CoreConnectionPNames.SOCKET_BUFFER_SIZE;
 import static org.apache.http.params.CoreConnectionPNames.SO_TIMEOUT;
 import static org.apache.http.params.CoreConnectionPNames.STALE_CONNECTION_CHECK;
 import static org.apache.http.params.CoreConnectionPNames.TCP_NODELAY;
-import info.aduna.io.MavenUtil;
 import info.aduna.net.ParsedURI;
 
 import java.io.File;
@@ -67,6 +66,7 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
+import org.callimachusproject.Version;
 import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.cache.CachingFilter;
@@ -88,11 +88,10 @@ import org.slf4j.LoggerFactory;
 public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 	private static final String SCHEME = "http.protocol.scheme";
 	private static final Pattern STARTS_WITH_HTTP = Pattern.compile("^[Hh][Tt][Tt][Pp]");
-	private static final String MXBEAN_TYPE = "org.openrdf:type=" + HTTPObjectClient.class.getSimpleName();
-	private static final String VERSION = MavenUtil.loadVersion(
-			"org.openrdf.alibaba", "alibaba-server-object", "devel");
-	private static final String APP_NAME = "OpenRDF AliBaba object-client";
-	protected static final String DEFAULT_NAME = APP_NAME + "/" + VERSION;
+	private static final String MXBEAN_TYPE = "org.callimachusproject:type="
+			+ HTTPObjectClient.class.getSimpleName();
+	private static final String APP_NAME = "Callimachus Client";
+	protected static final String DEFAULT_NAME = APP_NAME + "/" + Version.getVersion();
 	static Executor executor = ManagedExecutors
 			.newCachedPool("HttpObjectClient");
 	private static HTTPObjectClient instance;

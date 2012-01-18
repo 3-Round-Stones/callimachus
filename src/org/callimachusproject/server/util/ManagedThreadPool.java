@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
-	private static final String MXBEAN_TYPE = "org.openrdf:type=ManagedThreads";
+	private static final String MXBEAN_TYPE = "org.callimachusproject:type=ManagedThreads";
 	private final Logger logger = LoggerFactory
 			.getLogger(ManagedThreadPool.class);
 	private ThreadPoolExecutor delegate;

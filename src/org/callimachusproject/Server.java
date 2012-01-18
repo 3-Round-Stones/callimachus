@@ -55,7 +55,6 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.callimachusproject.logging.LoggerBean;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
@@ -97,35 +96,9 @@ import org.slf4j.LoggerFactory;
  */
 public class Server implements HTTPObjectAgentMXBean {
 	private static final String CHANGE_PATH = "/change/";
-	public static final String NAME;
 	private static final String BRAND = "Callimachus Project Server";
+	public static final String NAME = BRAND + '/' + Version.getVersion();
 	private static final String CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
-	private static final String VERSION_PATH = "/META-INF/callimachusproject.properties";
-	private static final String VERSION;
-	static {
-		Properties properties = new Properties();
-		InputStream in = Server.class.getResourceAsStream(VERSION_PATH);
-		if (in != null) {
-			try {
-				properties.load(in);
-			} catch (IOException e) {
-				// ignore
-			}
-		}
-		String version = properties.getProperty("version");
-		if (version == null) {
-			version = "devel";
-		}
-		VERSION = version;
-		try {
-			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-			String name = Server.class.getPackage().getName() + ":type=log";
-			mbs.registerMBean(new LoggerBean(), new ObjectName(name));
-		} catch (Exception e) {
-			// ignore
-		}
-		NAME = BRAND + '/' + VERSION;
-	}
 	private static final String REPOSITORY_TEMPLATE = "META-INF/templates/callimachus-config.ttl";
 
 	private static final Options options = new Options();
@@ -176,10 +149,10 @@ public class Server implements HTTPObjectAgentMXBean {
 				}
 			} else {
 				Server server = new Server();
+				MBeanServer mbs = ManagementFactory
+						.getPlatformMBeanServer();
+				mbs.registerMBean(server, getObjectName());
 				if (line.hasOption("pid")) {
-					MBeanServer mbs = ManagementFactory
-							.getPlatformMBeanServer();
-					mbs.registerMBean(server, getObjectName());
 					initService(args);
 				}
 				server.init(args);
@@ -331,8 +304,7 @@ public class Server implements HTTPObjectAgentMXBean {
 			throws MalformedObjectNameException {
 		String pkg = Server.class.getPackage().getName();
 		String name = pkg + ":type=" + Server.class.getSimpleName();
-		ObjectName objectName = new ObjectName(name);
-		return objectName;
+		return new ObjectName(name);
 	}
 
 	private CallimachusServer server;

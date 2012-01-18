@@ -386,6 +386,7 @@
 								folder.calliHasComponent.add(location);
 							}
 							dependency.remove(location);
+							con.recompileSchemaOnClose();
 						}
 					} finally {
 						entryStream.close();

@@ -19,6 +19,13 @@ div.ui-datepicker {
 	font-size:small;
 }
 
+div.ui-helper-hidden-accessible {
+	position: absolute !important;
+	left: auto;
+	clip: rect(1px 1px 1px 1px);
+	clip: rect(1px,1px,1px,1px);
+}
+
 a.ui-icon {
 	display:inline-block;
 	vertical-align:text-bottom;

@@ -45,13 +45,19 @@ public class TemplateEngine {
 		return getTemplate(url, null);
 	}
 
-	public Template getTemplate(String url, Map<String, ?> parameters)
+	public Template getTemplate(String redirect, Map<String, ?> parameters)
 			throws IOException, TemplateException {
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpRequest request = new BasicHttpRequest("GET", url);
-		request.setHeader("Accept",
-				"appliaction/xhtml+xml, application/xml, text/xml");
-		HttpResponse response = client.resolve(request);
+		HttpResponse response = null;
+		String url = null;
+		for (int i = 0; redirect != null && i < 20; i++) {
+			url = redirect;
+			HttpRequest request = new BasicHttpRequest("GET", redirect);
+			request.setHeader("Accept",
+					"appliaction/xhtml+xml, application/xml, text/xml");
+			response = client.service(request);
+			redirect = client.redirectLocation(response);
+		}
 		if (response.getStatusLine().getStatusCode() >= 300)
 			throw ResponseException.create(response);
 		InputStream in = response.getEntity().getContent();
@@ -91,7 +97,7 @@ public class TemplateEngine {
 			transform = transform.with("systemId", systemId);
 		}
 		if (parameters == null || !parameters.containsKey("xsltId")) {
-			transform = transform.with("xsltId", xsl);
+			transform = transform.with("xsltId", xslt.getSystemId());
 		}
 		if (parameters != null) {
 			for (Map.Entry<String, ?> e : parameters.entrySet()) {

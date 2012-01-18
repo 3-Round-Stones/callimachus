@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
@@ -58,11 +57,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
-import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.AsyncNHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
@@ -73,7 +70,6 @@ import org.apache.http.protocol.BasicHttpProcessor;
 import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.cache.CachingFilter;
-import org.callimachusproject.server.exceptions.BadGateway;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.filters.ClientGZipFilter;
 import org.callimachusproject.server.filters.ClientMD5ValidationFilter;
@@ -293,16 +289,6 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 	 * {@link HttpEntity#writeTo(java.io.OutputStream)} must be called if
 	 * {@link HttpResponse#getEntity()} is non-null.
 	 */
-	public HttpResponse resolve(HttpRequest request) throws IOException,
-			GatewayTimeout {
-		return resolve(request, 20);
-	}
-
-	/**
-	 * {@link HttpEntity#consumeContent()} or
-	 * {@link HttpEntity#writeTo(java.io.OutputStream)} must be called if
-	 * {@link HttpResponse#getEntity()} is non-null.
-	 */
 	public HttpResponse service(HttpRequest request) throws IOException,
 			GatewayTimeout {
 		Header host = request.getFirstHeader("Host");
@@ -335,6 +321,22 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 					.getRequestLine());
 		}
 		return client.service(proxy, request);
+	}
+
+	public String redirectLocation(HttpResponse resp) throws IOException,
+			GatewayTimeout {
+		int code = resp.getStatusLine().getStatusCode();
+		if (code == 301 || code == 302 || code == 307) {
+			Header location = resp.getFirstHeader("Location");
+			if (location != null) {
+				HttpEntity entity = resp.getEntity();
+				if (entity != null) {
+					entity.consumeContent();
+				}
+				return location.getValue();
+			}
+		}
+		return null;
 	}
 
 	public synchronized void stop() throws Exception {
@@ -410,37 +412,6 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 			bean.setPending(list);
 		}
 		return beans;
-	}
-
-	private HttpResponse resolve(HttpRequest request, int maxRedirect)
-			throws GatewayTimeout, IOException {
-		String m = request.getRequestLine().getMethod();
-		ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-		Header[] headers = request.getAllHeaders();
-		headers = Arrays.copyOf(headers, headers.length);
-
-		HttpResponse resp = service(request);
-		int code = resp.getStatusLine().getStatusCode();
-		HttpEntity entity = resp.getEntity();
-		if (code == 301 || code == 302 || code == 307) {
-			if (!m.equals("GET") && !m.equals("HEAD") && !m.equals("OPTIONS")
-					&& !m.equals("TRACE"))
-				return resp;
-			if (entity != null) {
-				entity.consumeContent();
-			}
-			if (maxRedirect < 0)
-				throw new BadGateway("To Many Redirects: "
-						+ request.getRequestLine().getUri());
-			Header location = resp.getFirstHeader("Location");
-			if (location == null)
-				return resp;
-			BasicHttpRequest redirect = new BasicHttpRequest(m,
-					location.getValue(), ver);
-			redirect.setHeaders(headers);
-			return resolve(redirect, maxRedirect - 1);
-		}
-		return resp;
 	}
 
 	private void addMissingHeaders(InetSocketAddress proxy, HttpRequest request) {

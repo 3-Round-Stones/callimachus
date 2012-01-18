@@ -50,18 +50,10 @@
 
 	<xsl:template match="@src|@href|@about|@resource">
 		<xsl:attribute name="{name()}">
-			<xsl:if test="$template">
-				<xsl:call-template name="resolve-path">
-					<xsl:with-param name="relative" select="." />
-					<xsl:with-param name="base" select="$systemId" />
-				</xsl:call-template>
-			</xsl:if>
-			<xsl:if test="not($template)">
-				<xsl:call-template name="resolve-path">
-					<xsl:with-param name="relative" select="." />
-					<xsl:with-param name="base" select="$xsltId" />
-				</xsl:call-template>
-			</xsl:if>
+			<xsl:call-template name="resolve-path">
+				<xsl:with-param name="relative" select="." />
+				<xsl:with-param name="base" select="$systemId" />
+			</xsl:call-template>
 		</xsl:attribute>
 	</xsl:template>
 

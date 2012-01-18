@@ -32,19 +32,16 @@ package org.callimachusproject.server.client;
 import static java.lang.Integer.parseInt;
 import static java.lang.System.currentTimeMillis;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
-import org.callimachusproject.server.exceptions.BadGateway;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.openrdf.repository.object.util.ObjectResolver;
 import org.slf4j.Logger;
@@ -100,7 +97,20 @@ public class HTTPCacheObjectResolver<T> extends ObjectResolver<T> {
 				}
 			}
 		}
-		HttpResponse resp = resolve(systemId, ifNonMatch);
+		String redirect = systemId;
+		HttpResponse resp = null;
+		HTTPObjectClient client = HTTPObjectClient.getInstance();
+		String accept = join(getObjectFactory().getContentTypes());
+		for (int i = 0; i < 20 && redirect != null; i++) {
+			systemId = redirect;
+			HttpRequest req = new BasicHttpRequest("GET", redirect);
+			req.setHeader("Accept", accept);
+			if (ifNonMatch != null) {
+				req.setHeader("If-None-Match", ifNonMatch);
+			}
+			resp = client.service(req);
+			redirect = client.redirectLocation(resp);
+		}
 		return cacheResponse(systemId, resp, cached);
 	}
 
@@ -137,17 +147,6 @@ public class HTTPCacheObjectResolver<T> extends ObjectResolver<T> {
 			maxage = null;
 			return createObject(systemId, resp, null);
 		}
-	}
-
-	private HttpResponse resolve(String url, String tag)
-			throws IOException {
-		HttpRequest req = new BasicHttpRequest("GET", url);
-		req.setHeader("Accept", join(getObjectFactory().getContentTypes()));
-		if (tag != null) {
-			req.setHeader("If-None-Match", tag);
-		}
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		return client.resolve(req);
 	}
 
 	private String getHeader(HttpResponse resp, String name) {

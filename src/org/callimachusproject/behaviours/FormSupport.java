@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
 
-import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 
@@ -73,7 +72,7 @@ import org.openrdf.repository.object.xslt.XSLTransformer;
  * @author Steve Battle
  * 
  */
-public abstract class FormSupport implements Page, RDFObject, FileObject {
+public abstract class FormSupport implements Page, RDFObject {
 	private static final TemplateEngineFactory tef = TemplateEngineFactory.newInstance();
 	private static ValueFactory vf = new ValueFactoryImpl();
 	
@@ -144,7 +143,7 @@ public abstract class FormSupport implements Page, RDFObject, FileObject {
 	
 	public InputStream options
 	(@query("query") String query, @query("element") String element) throws Exception {
-		String base = toUri().toASCIIString();
+		String base = getResource().stringValue();
 		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
 		template.mark();
 		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
@@ -155,7 +154,8 @@ public abstract class FormSupport implements Page, RDFObject, FileObject {
 		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
 		
 		RepositoryConnection con = getObjectConnection();
-		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(new OrderedSparqlReader(ed)), base);
+		String sparql = toSPARQL(new OrderedSparqlReader(ed)) + "\nLIMIT 1000";
+		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
 		URI about = vf.createURI(base);
 		template.reset(0);
 		MapBindingSet bindings = new MapBindingSet();
@@ -176,7 +176,7 @@ public abstract class FormSupport implements Page, RDFObject, FileObject {
 	public InputStream constructSearch
 	(@query("query") String query, @query("element") String element, @query("q") String q)
 	throws Exception {
-		String base = toUri().toASCIIString();
+		String base = getResource().stringValue();
 		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
 		template.mark();
 		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
@@ -224,7 +224,7 @@ public abstract class FormSupport implements Page, RDFObject, FileObject {
 	}
 	
 	private InputStream dataConstruct(URI about, String query, String element) throws Exception {
-		String base = toUri().toASCIIString();
+		String base = getResource().stringValue();
 		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
 		template.mark();
 		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
@@ -252,7 +252,7 @@ public abstract class FormSupport implements Page, RDFObject, FileObject {
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();		
 	}
 
-	private XMLEventReader xslt(String query, String element)
+	protected XMLEventReader xslt(String query, String element)
 			throws IOException, XMLStreamException {
 		XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
 		InputStream in = request("xslt", query, element);

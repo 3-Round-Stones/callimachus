@@ -101,14 +101,14 @@ function enableRDFa(element) {
 }
 
 function disableAttribute(node, attr) {
-	if (node.attr(attr)) {
+	if (node.attr(attr) != undefined) {
 		node.attr('data-' + attr, node.attr(attr));
 		node.removeAttr(attr);
 	}
 }
 
 function enableAttribute(node, attr) {
-	if (node.attr('data-' + attr)) {
+	if (node.attr('data-' + attr) != undefined) {
 		node.attr(attr, node.attr('data-' + attr));
 		node.removeAttr('data-' + attr);
 	}

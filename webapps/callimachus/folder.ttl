@@ -159,7 +159,7 @@
 	calli:query "export";
 	calli:realm </callimachus/manifest>;
 	calli:type "message/x-response";
-	calli:header "cache-control:no-cache";
+	calli:header "cache-control:no-store";
 	msg:imports <java:org.apache.http.ProtocolVersion>;
 	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
 	msg:imports <java:org.apache.http.entity.InputStreamEntity>;

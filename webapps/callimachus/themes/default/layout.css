@@ -188,8 +188,11 @@ aside,
 aside>ul,
 ul.aside {
 	list-style:none;
-	padding:0;
 	margin:0;
+}
+
+aside>ul {
+	padding:0;
 }
 
 aside>ul>li,

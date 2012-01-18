@@ -37,9 +37,9 @@
 			</head>
 			<body>
 				<p><xsl:text>Revised on </xsl:text>
-					<span class="datetime-locale" property="audit:committedOn">
+					<time property="audit:committedOn">
 						<xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='modified']/*" />
-					</span>
+					</time>
 					<xsl:text> by </xsl:text>
 					<a href="{sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='user']/*}">
 						<xsl:value-of select="$name" />

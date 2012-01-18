@@ -81,10 +81,14 @@
 					</xsl:call-template>
 					<xsl:text> Resource</xsl:text>
 				</h1>
-				<ul class="aside">
-					<li>As <a href="#" id="rdfxml">RDF/XML</a></li>
-					<li>As <a href="#" id="turtle">Turtle</a></li>
-				</ul>
+				<div id="sidebar">
+					<aside>
+						<ul>
+							<li>As <a href="#" id="rdfxml">RDF/XML</a></li>
+							<li>As <a href="#" id="turtle">Turtle</a></li>
+						</ul>
+					</aside>
+				</div>
 				<div id="results">
 					<xsl:apply-templates />
 				</div>

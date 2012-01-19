@@ -304,6 +304,7 @@ aside li ul,
 	#container { margin-right:18em; position:relative; }
 	.nosidebar #container { margin-right:0; }
 	#sidebar { position:absolute; top:0; right:-18em; width:16em; padding-left:1em; }
+	.iframe #sidebar { position:inherit; width:auto; padding-left:0; }
 	aside,.aside { float:right; }
 }
 
@@ -323,6 +324,7 @@ aside li ul,
 .ie7_html #container { margin-right:18em; position:relative; }
 .ie7_html.nosidebar #container { margin-right:0; }
 .ie7_html #sidebar { position:absolute; top:0; right:-18em; width:16em; padding-left:1em; }
+.ie7_html.iframe #sidebar { position:inherit; width:auto; padding-left:0; }
 .ie7_html aside,.ie7_html .aside { float:right; }
 
 .ie7_html aside, .ie7_html .aside { margin-top:-17px; margin-bottom:2em; }

@@ -153,7 +153,7 @@
 </manifest/menu#concepts>	calli:position 7; rdfs:label "Concepts"; calli:link </callimachus/Concept>.
 </manifest/menu#classes>	calli:position 8; rdfs:label "Classes"; calli:link </callimachus/Class>.
 
-</manifest/menu#manifest>	calli:position 1; rdfs:label "Manifest"; calli:link </callimachus/manifest>.
+</manifest/menu#manifest>	calli:position 1; rdfs:label "Manifest"; calli:link </manifest>.
 </manifest/menu#usergroups>	calli:position 2; rdfs:label "User groups"; calli:link </callimachus/Group>.
 </manifest/menu#namedqueries>	calli:position 3; rdfs:label "Named queries"; calli:link </callimachus/NamedQuery>.
 </manifest/menu#namedgraphs>	calli:position 4; rdfs:label "Named graphs"; calli:link </callimachus/NamedGraph>.

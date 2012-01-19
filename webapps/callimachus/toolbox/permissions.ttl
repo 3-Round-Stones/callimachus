@@ -30,7 +30,7 @@
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "GET";
 	calli:query "permissions";
-	calli:realm </callimachus/manifest>;
+	calli:realm </manifest>;
 	calli:type "text/html";
 	calli:header "cache-control:no-cache";
 	msg:imports <permissions.xhtml>;
@@ -70,7 +70,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
 	calli:method "POST";
 	calli:query "permissions";
-	calli:realm </callimachus/manifest>;
+	calli:realm </manifest>;
 	calli:expect "201-modified";
 	msg:imports <permissions.xhtml>;
 	msg:script """

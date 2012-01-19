@@ -30,6 +30,7 @@
 	rdfs:subClassOf foaf:Image, <File>;
 	rdfs:label "Image" ;
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/users>,</group/staff>,</group/admin>;
 	calli:icon <image.png>;
 	calli:view <image-view.xhtml> ;
 	calli:edit <image-edit.xhtml> ;
@@ -39,6 +40,7 @@
 	rdfs:subClassOf <Image>;
 	rdfs:label "Animated Graphic" ;
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/users>,</group/staff>,</group/admin>;
 	calli:icon <image.png>;
 	calli:create <file-create.xhtml>;
 	calli:type "image/gif".
@@ -47,6 +49,7 @@
 	rdfs:subClassOf <Image>;
 	rdfs:label "Icon Graphic" ;
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/users>,</group/staff>,</group/admin>;
 	calli:icon <image.png>;
 	calli:create <file-create.xhtml>;
 	calli:type "image/vnd.microsoft.icon".
@@ -55,6 +58,7 @@
 	rdfs:subClassOf <Image>;
 	rdfs:label "Network Graphic" ;
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/users>,</group/staff>,</group/admin>;
 	calli:icon <image.png>;
 	calli:create <file-create.xhtml>;
 	calli:type "image/png".
@@ -63,6 +67,7 @@
 	rdfs:subClassOf <Image>;
 	rdfs:label "Vector Graphic" ;
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/users>,</group/staff>,</group/admin>;
 	calli:icon <image.png>;
 	calli:create <file-create.xhtml>;
 	calli:type "image/svg+xml".

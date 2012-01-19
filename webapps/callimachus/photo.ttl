@@ -30,6 +30,8 @@
 	rdfs:subClassOf <Image>;
 	rdfs:label "Photo" ;
 	rdfs:isDefinedBy </callimachus>;
+	msg:realm </manifest>;
+	calli:author </group/users>,</group/staff>,</group/admin>;
 	calli:icon <photo.png>;
 	calli:view <photo-view.xhtml> ;
 	calli:edit <photo-edit.xhtml> ;

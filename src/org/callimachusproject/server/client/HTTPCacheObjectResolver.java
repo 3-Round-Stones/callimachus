@@ -109,7 +109,7 @@ public class HTTPCacheObjectResolver<T> extends ObjectResolver<T> {
 				req.setHeader("If-None-Match", ifNonMatch);
 			}
 			resp = client.service(req);
-			redirect = client.redirectLocation(resp);
+			redirect = client.redirectLocation(redirect, resp);
 		}
 		return cacheResponse(systemId, resp, cached);
 	}
@@ -190,7 +190,7 @@ public class HTTPCacheObjectResolver<T> extends ObjectResolver<T> {
 				in.close();
 			}
 			return object = cached; // Not Modified
-		} else if (status == 404) {
+		} else if (status == 404 || status == 405 || status == 410 || status == 204) {
 			if (in != null) {
 				in.close();
 			}

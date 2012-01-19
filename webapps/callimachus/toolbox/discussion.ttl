@@ -40,7 +40,7 @@
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "POST";
 	calli:query "discussion";
-	calli:realm </callimachus/manifest>;
+	calli:realm </manifest>;
 	calli:expect "303-see-other";
 	msg:imports skos:editorialNote;
 	msg:script """

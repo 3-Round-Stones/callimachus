@@ -35,6 +35,7 @@
 	rdfs:subClassOf calli:NamedGraph, <File>, sd:NamedGraph;
 	rdfs:label "Named Graph";
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/admin>;
 	calli:icon <graph.png>;
 	calli:create <file-create.xhtml>;
 	calli:type "application/rdf+xml".
@@ -44,6 +45,7 @@
 	rdfs:label "Graph Document";
 	rdfs:comment "Terse RDF Triple documents";
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/admin>;
 	calli:icon <graph.png>;
 	calli:edit <graph-edit.xhtml>;
 	calli:create <graph-create.xhtml>;
@@ -112,7 +114,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <GraphDocument>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	calli:method "PUT";
-	calli:realm </callimachus/manifest>;
+	calli:realm </manifest>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:script """

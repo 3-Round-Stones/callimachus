@@ -11,8 +11,28 @@
 <body about="?this">
 	<h1>Manifest</h1>
 
-	<div rel="calli:logo">
-		<img src="?logo" />
+	<div id="sidebar">
+		<aside>
+			<ul>
+				<li><a rel="calli:authentication" href="?authentication" class="view">{rdfs:label}</a></li>
+				<li class="vbox">
+					<label>Special pages</label>
+					<a rel="calli:unauthorized" href="?unauthorized" class="view">{rdfs:label}</a>
+					<a rel="calli:forbidden" href="?forbidden" class="view">{rdfs:label}</a>
+				</li>
+				<li class="vbox">
+					<label>Theme</label>
+					<a rel="calli:menu" href="?menu" class="view">{rdfs:label}</a>
+					<a rel="calli:theme" href="?theme" class="view">{rdfs:label}</a>
+					<a rel="calli:variation" href="?variation" class="view">{rdfs:label}</a>
+				</li>
+			</ul>
+		</aside>
 	</div>
+
+	<a rel="calli:favicon" href="?favicon" class="view">
+		<img src="?favicon" title="{rdfs:label}" />
+	</a>
+	<p property="calli:rights" />
 </body>
 </html>

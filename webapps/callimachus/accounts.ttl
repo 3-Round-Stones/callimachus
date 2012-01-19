@@ -35,7 +35,7 @@
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "GET";
 	calli:query "login", "settings", "contributions";
-	calli:realm </callimachus/manifest>;
+	calli:realm </manifest>;
 	calli:expect "302-found";
 	calli:header "cache-control:max-age:3600";
 	msg:script """

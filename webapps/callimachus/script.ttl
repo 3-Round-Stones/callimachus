@@ -29,6 +29,7 @@
 	rdfs:label "Script";
 	rdfs:comment "Script files";
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/staff>,</group/admin>;
 	calli:icon <script.png>;
 	calli:view <script-view.xhtml>;
 	calli:edit <script-edit.xhtml>;
@@ -94,7 +95,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Script>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	calli:method "PUT";
-	calli:realm </callimachus/manifest>;
+	calli:realm </manifest>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;

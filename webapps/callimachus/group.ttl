@@ -14,6 +14,8 @@
 	rdfs:label "Group";
 	rdfs:comment "Groups provide a way to assign permissions to a named set of users";
 	rdfs:isDefinedBy </callimachus>;
+	msg:realm </manifest>;
+	calli:author </group/admin>;
 	calli:icon <group.png>;
 	calli:view <group-view.xhtml>;
 	calli:edit <group-edit.xhtml>;

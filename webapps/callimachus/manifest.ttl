@@ -16,74 +16,60 @@
 	calli:view <manifest-view.xhtml>;
 	calli:edit <manifest-edit.xhtml>.
 
-calli:logo a owl:ObjectProperty;
-	calli:method "GET"; calli:query "logo"; calli:expect "302-see-other".
-
-calli:favicon a owl:ObjectProperty;
-	calli:method "GET"; calli:query "favicon"; calli:expect "302-see-other".
-
-calli:template a owl:ObjectProperty;
-	calli:method "GET"; calli:query "template"; calli:expect "302-see-other".
-
-:GetLayout rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+:GetOldTemplate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <manifest>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "GET";
-	calli:query "layout";
+	calli:query "template";
 	calli:expect "302-see-other";
 	calli:type "text/uri-list";
 	msg:script """
-		try {
-			var theme = this.calliTheme;
-			if (theme)
-				return theme.calliLayout;
-		} catch (e) {
-			e.javaException.printStackTrace();
-		}
-		return this.objectConnection.getObject(this.toUri().resolve("/callimachus/themes/default/layout.xhtml"));
+		return "/manifest?layout";
 	""".
 
-:GetLayoutBase rdfs:subClassOf msg:Message;
+:GetLayout rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "GET";
-	calli:query "base";
-	calli:type "text/xml";
+	calli:query "layout";
+	calli:type "text/xsl";
+	msg:imports <transforms/layout.xsl>;
+	msg:imports <styles>;
+	msg:imports <scripts>;
+	msg:imports <themes/default/layout.xhtml>;
 	msg:script """
-		var xhtml = ['<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title>'];
+		var layout = layout_xhtml;
 		try {
 			if (this.calliTheme) {
-				xhtml.push('<base href="');
-				xhtml.push(this.calliTheme.calliLayout);
-				xhtml.push('" />');
+				layout = this.calliTheme.calliLayout;
 			}
 		} catch (e) {
 			e.javaException.printStackTrace();
 		}
-		xhtml.push('</head><body></body></html>');
-		return xhtml.join('');
-	""".
-
-:GetRights rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.w3c.dom.Element>];
-	calli:method "GET";
-	calli:query "rights";
-	calli:type "application/xml";
-	msg:script  """
-		var rights = "";
+		var sb = [];
+		sb.push('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">');
+		sb.push('<xsl:param name="systemId" />');
+		sb.push('<xsl:param name="query" />');
+		sb.push('<xsl:param name="template" select="false()" />');
+		sb.push('<xsl:variable name="manifest">' + this + '</xsl:variable>');
+		sb.push('<xsl:variable name="styles">' + styles + '</xsl:variable>');
+		sb.push('<xsl:variable name="scripts">' + scripts + '</xsl:variable>');
+		sb.push('<xsl:variable name="layout">' + layout + '</xsl:variable>');
+		sb.push('<xsl:variable name="favicon">' + this.calliFavicon + '</xsl:variable>');
+		sb.push('<xsl:variable name="menu">' + this.calliMenu + '?items</xsl:variable>');
+		sb.push('<xsl:variable name="variation">' + (this.calliVariation ? this.calliVariation : '') + '</xsl:variable>');
+		sb.push('<xsl:variable name="rights">');
 		try {
 			if (this.calliRights) {
-				var nodes = this.calliRights.childNodes;
-				for (var i=0; i<nodes.length; i++) {
-					if (nodes.item(i).nodeType == 1)
-						return nodes.item(i);
-				}
+				sb.push(new org.openrdf.repository.object.xslt.XSLTransformer().transform(this.calliRights).asString());
 			}
 		} catch (e) {
 			e.javaException.printStackTrace();
 		}
-		return null;
+		sb.push('</xsl:variable>');
+		sb.push('<xsl:include href="' + layout_xsl + '" />');
+		sb.push('</xsl:stylesheet>');
+		return sb.join('\\n');
 	""".
 
 :PostEditManifest owl:intersectionOf (</callimachus/toolbox/edit.ttl#PostEdit>

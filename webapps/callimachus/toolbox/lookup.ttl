@@ -28,7 +28,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../lookup>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
-	calli:realm </callimachus/manifest>;
+	calli:realm </manifest>;
 	calli:type "application/sparql-results+xml";
 	calli:header "cache-control:no-store";
 	calli:transform :TransformLookup;

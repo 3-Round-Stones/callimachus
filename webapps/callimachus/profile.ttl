@@ -28,6 +28,10 @@
 	rdfs:subClassOf <Local>;
 	rdfs:isDefinedBy </callimachus>.
 
+<profile> a </callimachus/Profile>;
+	rdfs:label "profile";
+	calli:administrator </group/admin>.
+
 :GetProfile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
@@ -90,7 +94,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Profile>];
 	calli:method "POST";
 	calli:expect "303-see-other";
-	calli:realm </callimachus/manifest>;
+	calli:realm </manifest>;
 	msg:script """
 		var iter = form.entrySet().iterator();
 		while (iter.hasNext()) {

@@ -169,7 +169,8 @@ public abstract class ProxyObjectSupport implements ProxyObject, RDFObject {
 		}
 		int status = con.getResponseCode();
 		Class<?> rtype = method.getReturnType();
-		if (body < 0 && Set.class.equals(rtype) && status == 404) {
+		boolean gone = status == 404 || status == 405 || status == 410 || status == 204;
+		if (body < 0 && Set.class.equals(rtype) && gone) {
 			con.close();
 			Type gtype = method.getGenericReturnType();
 			Set values = new HashSet();
@@ -177,7 +178,7 @@ public abstract class ProxyObjectSupport implements ProxyObject, RDFObject {
 			Annotation[] manns = method.getAnnotations();
 			String media = getParameterMediaType(manns, rtype, gtype);
 			return new RemoteSetSupport(addr, uri, qs, media, gtype, values, oc);
-		} else if (body < 0 && status == 404) {
+		} else if (body < 0 && gone) {
 			con.close();
 			return null;
 		} else if (status >= 400) {

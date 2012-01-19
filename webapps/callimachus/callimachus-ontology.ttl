@@ -85,6 +85,7 @@ calli:Group a owl:Class;
 	rdfs:comment "A collection of users".
 
 calli:Manifest a owl:Class;
+	rdfs:subClassOf calli:Composite;
 	rdfs:label "Manifest";
 	rdfs:comment "Information about a Web application server".
 
@@ -245,15 +246,16 @@ calli:authentication a owl:ObjectProperty;
 	rdfs:domain calli:Manifest;
 	rdfs:range calli:AccountManager.
 
-calli:template a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:label "template";
-	rdfs:comment "An XSL file that adds common header and footer to xhtml templates";
+calli:variation a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:label "variation";
+	rdfs:comment "An CSS file that overrides the style of the theme";
 	rdfs:domain calli:Manifest.
 
-calli:logo a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:label "logo";
-	rdfs:comment "The logo image that should be shown on pages using the configured theme";
-	rdfs:domain calli:Manifest.
+calli:menu a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:label "menu";
+	rdfs:comment "The menu used in this manifest";
+	rdfs:domain calli:Manifest;
+	rdfs:range calli:Menu.
 
 calli:favicon a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "favicon";

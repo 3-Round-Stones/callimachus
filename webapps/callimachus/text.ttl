@@ -29,6 +29,7 @@
 	rdfs:label "Text File";
 	rdfs:comment "Text files";
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/staff>,</group/admin>;
 	calli:icon <text.png>;
 	calli:view <text-view.xhtml>;
 	calli:edit <text-edit.xhtml>;
@@ -94,7 +95,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <TextFile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	calli:method "PUT";
-	calli:realm </callimachus/manifest>;
+	calli:realm </manifest>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;

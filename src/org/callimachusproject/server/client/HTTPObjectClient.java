@@ -70,6 +70,7 @@ import org.callimachusproject.Version;
 import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.cache.CachingFilter;
+import org.callimachusproject.server.exceptions.BadGateway;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.filters.ClientGZipFilter;
 import org.callimachusproject.server.filters.ClientMD5ValidationFilter;
@@ -322,7 +323,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 		return client.service(proxy, request);
 	}
 
-	public String redirectLocation(HttpResponse resp) throws IOException,
+	public String redirectLocation(String base, HttpResponse resp) throws IOException,
 			GatewayTimeout {
 		int code = resp.getStatusLine().getStatusCode();
 		if (code == 301 || code == 302 || code == 307) {
@@ -332,7 +333,11 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 				if (entity != null) {
 					entity.consumeContent();
 				}
-				return location.getValue();
+				String value = location.getValue();
+				if (value.startsWith("/") || !value.contains(":")) {
+					value = new ParsedURI(base).resolve(value).toString();
+				}
+				return value;
 			}
 		}
 		return null;
@@ -466,7 +471,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 
 	private InetSocketAddress resolve(String uri) {
 		if (!STARTS_WITH_HTTP.matcher(uri).find())
-			return null;
+			throw new BadGateway("Not an absolute HTTP URL: " + uri);
 		ParsedURI parsed = new ParsedURI(uri);
 		int port = 80;
 		String scheme = parsed.getScheme();
@@ -475,7 +480,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 		} else if ("https".equalsIgnoreCase(scheme)) {
 			port = 443;
 		} else {
-			return null;
+			throw new BadGateway("Not an HTTP URL: " + uri);
 		}
 		return resolve(scheme, parsed.getAuthority(), port);
 	}

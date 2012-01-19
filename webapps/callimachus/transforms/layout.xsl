@@ -3,35 +3,12 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:xhtml="http://www.w3.org/1999/xhtml"
-	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
-	exclude-result-prefixes="xhtml sparql">
+	exclude-result-prefixes="xhtml">
 	<xsl:output method="xml" />
-	<xsl:param name="xsltId" select="'/callimachus/manifest?template'" />
-	<xsl:param name="systemId" />
-	<xsl:param name="query" />
-	<xsl:param name="template" select="false()" />
 
 	<!-- Variables -->
-	<xsl:variable name="scheme" select="substring-before($xsltId, '://')" />
-	<xsl:variable name="authority" select="substring-before(substring-after($xsltId, '://'), '/')" />
-	<xsl:variable name="callimachus">
-		<xsl:if test="$scheme and $authority">
-			<xsl:value-of select="concat($scheme, '://', $authority, '/callimachus')" />
-		</xsl:if>
-		<xsl:if test="not($scheme) or not($authority)">
-			<xsl:value-of select="'/callimachus'" />
-		</xsl:if>
-	</xsl:variable>
-	<xsl:variable name="manifest">
-		<xsl:if test="contains($xsltId,'?')">
-			<xsl:value-of select="substring-before($xsltId, '?')" />
-		</xsl:if>
-		<xsl:if test="not(contains($xsltId,'?'))">
-			<xsl:value-of select="concat($callimachus, '/manifest')" />
-		</xsl:if>
-	</xsl:variable>
-	<xsl:variable name="layout_base" select="document(concat($manifest, '?base'))/xhtml:html/xhtml:head/xhtml:base/@href" />
-	<xsl:variable name="layout_xhtml" select="document(concat($manifest, '?layout'))" />
+	<!-- systemId query templat manifest styles scripts layout favicon menu variation rights -->
+	<xsl:variable name="layout_xhtml" select="document($layout)" />
 	<xsl:variable name="layout_html" select="$layout_xhtml/xhtml:html|$layout_xhtml/html" />
 	<xsl:variable name="layout_head" select="$layout_xhtml/xhtml:html/xhtml:head|$layout_xhtml/html/head" />
 	<xsl:variable name="layout_body" select="$layout_xhtml/xhtml:html/xhtml:body|$layout_xhtml/html/body" />
@@ -44,7 +21,7 @@
 		</xsl:copy>
 	</xsl:template>
 
-	<xsl:template match="@*|comment()">
+	<xsl:template match="@*|comment()|text()">
 		<xsl:copy />
 	</xsl:template>
 
@@ -66,22 +43,25 @@
 			</xsl:call-template>
 			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,target-densityDpi=device-dpi"/>
 			<meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1" />
-			<link rel="icon" href="{$manifest}?favicon" />
-			<link rel="stylesheet" href="{$callimachus}/styles/normalize.css" />
-			<link rel="stylesheet" href="{$callimachus}/styles/content.css" />
+			<link rel="icon" href="{$favicon}" />
+			<link rel="stylesheet" href="{$styles}/normalize.css" />
+			<link rel="stylesheet" href="{$styles}/content.css" />
 			<xsl:comment>[if gt IE 6]&gt;&lt;!</xsl:comment>
 			<xsl:apply-templates mode="layout" select="$layout_head/*[local-name()!='script' and local-name()!='title']|comment()" />
 			<xsl:apply-templates select="*[local-name()!='script']|comment()" />
+			<xsl:if test="$variation">
+			<link rel="stylesheet" href="{$variation}" />
+			</xsl:if>
 			<xsl:comment>&lt;![endif]</xsl:comment>
 
-			<script type="text/javascript" src="{$callimachus}/scripts/web_bundle?source">&#160;</script>
+			<script type="text/javascript" src="{$scripts}/web_bundle?source">&#160;</script>
 			<xsl:if test="//form|//xhtml:form">
-				<script type="text/javascript" src="{$callimachus}/scripts/form_bundle?source">&#160;</script>
+				<script type="text/javascript" src="{$scripts}/form_bundle?source">&#160;</script>
 			</xsl:if>
 			<xsl:comment>[if lt IE 9]&gt;
 				&lt;script src="//html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;
 				&lt;script src="//ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"&gt;&lt;/script&gt;
-				&lt;script src="<xsl:value-of select="concat($callimachus,'/scripts/ie_bundle?source')" />"&gt;&lt;/script&gt;
+				&lt;script src="<xsl:value-of select="concat($scripts,'/ie_bundle?source')" />"&gt;&lt;/script&gt;
 			&lt;![endif]</xsl:comment>
 			<xsl:apply-templates mode="layout" select="$layout_head/*[local-name()='script']" />
 			<xsl:apply-templates select="*[local-name()='script']" />
@@ -119,15 +99,24 @@
 	</xsl:template>
 
 	<!-- Form -->
-	<xsl:template mode="form" match="@*|comment()|text()">
-		<xsl:copy />
-	</xsl:template>
-
 	<xsl:template mode="form" match="*">
 		<xsl:copy>
 			<xsl:call-template name="data-attributes" />
 			<xsl:apply-templates mode="form" select="@*|node()"/>
 		</xsl:copy>
+	</xsl:template>
+
+	<xsl:template mode="form" match="@*|comment()|text()">
+		<xsl:copy />
+	</xsl:template>
+
+	<xsl:template mode="form" match="@src|@href|@about|@resource">
+		<xsl:attribute name="{name()}">
+			<xsl:call-template name="resolve-path">
+				<xsl:with-param name="relative" select="." />
+				<xsl:with-param name="base" select="$systemId" />
+			</xsl:call-template>
+		</xsl:attribute>
 	</xsl:template>
 
 	<xsl:template name="data-attributes">
@@ -165,7 +154,9 @@
 				<xsl:value-of select="$systemId" />
 				<xsl:text>?search&amp;query=</xsl:text>
 				<xsl:value-of select="$query" />
-				<xsl:text>&amp;element={xptr}&amp;q={searchTerms}</xsl:text>
+				<xsl:text>&amp;element=</xsl:text>
+				<xsl:apply-templates mode="xptr-element" select="." />
+				<xsl:text>&amp;q={searchTerms}</xsl:text>
 			</xsl:attribute>
 		</xsl:if>
 		<xsl:if test="*[@about or @typeof or @resource or @property] and not(@data-add)">
@@ -226,7 +217,7 @@
 		<xsl:attribute name="{name()}">
 			<xsl:call-template name="resolve-path">
 				<xsl:with-param name="relative" select="." />
-				<xsl:with-param name="base" select="$layout_base" />
+				<xsl:with-param name="base" select="$layout" />
 			</xsl:call-template>
 		</xsl:attribute>
 	</xsl:template>
@@ -337,14 +328,14 @@
 	<xsl:template mode="layout" match="xhtml:nav[@id='menu']|nav[@id='menu']">
 		<xsl:copy>
 			<xsl:apply-templates mode="layout" select="@*" />
-			<xsl:copy-of select="document(concat($callimachus, '/menu?items'))/xhtml:html/xhtml:body/node()" />
+			<xsl:copy-of select="document($menu)/xhtml:html/xhtml:body/node()" />
 		</xsl:copy>
 	</xsl:template>
 
 	<xsl:template mode="layout" match="xhtml:p[@id='rights']|p[@id='rights']">
 		<xsl:copy>
 			<xsl:apply-templates mode="layout" select="@*" />
-			<xsl:copy-of select="document(concat($manifest, '?rights'))/*/node()" />
+			<xsl:copy-of select="$rights" />
 		</xsl:copy>
 	</xsl:template>
 

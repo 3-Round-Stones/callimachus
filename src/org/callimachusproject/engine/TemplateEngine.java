@@ -56,7 +56,7 @@ public class TemplateEngine {
 			request.setHeader("Accept",
 					"appliaction/xhtml+xml, application/xml, text/xml");
 			response = client.service(request);
-			redirect = client.redirectLocation(response);
+			redirect = client.redirectLocation(redirect, response);
 		}
 		if (response.getStatusLine().getStatusCode() >= 300)
 			throw ResponseException.create(response);

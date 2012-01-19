@@ -17,7 +17,7 @@ $(document).bind("calliLogin", function(event) {
 		sessionStorage.removeItem('Name');
 		localStorage.removeItem('Authorization');
 	}
-	var options = {type: "GET", url: "/callimachus/accounts?login",
+	var options = {type: "GET", url: "/manifest/accounts?login",
 		success: function(doc) {
 			var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc);
 			if (title) {
@@ -78,7 +78,7 @@ $(document).bind("calliLogin", function(event) {
 
 $(document).bind("calliLogout", function(event) {
 	if (!window.sessionStorage || sessionStorage.getItem('Name')) {
-		window.jQuery.ajax({ type: 'GET', url: "/callimachus/accounts?logout",
+		window.jQuery.ajax({ type: 'GET', url: "/manifest/accounts?logout",
 			username: 'logout', password: 'nil',
 			success: function(data) {
 				location = "/";

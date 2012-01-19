@@ -37,7 +37,8 @@
 # Transaction operations must be authenticated
 <Change> rdfs:subClassOf <Local>, audit:Transaction;
 	rdfs:isDefinedBy </callimachus>;
-	msg:matching </change/*>.
+	msg:matching </change/*>;
+	msg:realm </manifest>.
 
 # transcations are authorized by the user that made the change
 :AuthorizeTransaction owl:intersectionOf (calli:IsAuthorized

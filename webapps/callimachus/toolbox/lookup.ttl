@@ -11,7 +11,7 @@
 @prefix keyword:<http://www.openrdf.org/rdf/2011/keyword#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <../SchemaGraph>.
 
 # anybody with credentials can look something up
 :AuthorizeLookupSearch owl:intersectionOf (calli:IsAuthorized

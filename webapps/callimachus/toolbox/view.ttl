@@ -25,7 +25,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <../SchemaGraph>.
 
 :GetViewPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Viewable];
@@ -35,6 +35,6 @@
 	calli:query "view";
 	calli:type "application/xhtml+xml";
 	calli:header "cache-control:no-cache";
-	calli:transform </callimachus/transforms/TransformXhtml>;
+	calli:transform <../transforms/TransformXhtml>;
 	msg:script <operations.js#getViewPage>.
 

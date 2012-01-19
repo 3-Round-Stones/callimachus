@@ -8,7 +8,7 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 <Menu> rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
 	rdfs:isDefinedBy </callimachus>;
@@ -62,7 +62,7 @@ calli:favicon a owl:ObjectProperty;
 	rdfs:range <java:java.io.InputStream>;
 	calli:type "application/sparql-results+xml".
 
-:PostEditMenu owl:intersectionOf (</callimachus/toolbox/edit.ttl#PostEdit>
+:PostEditMenu owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
 		[owl:onProperty msg:target; owl:allValuesFrom <Menu>]);
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
 	msg:script "HTTPObjectServer.resetAllCache(); return proceed();".

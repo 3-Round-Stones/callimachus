@@ -24,7 +24,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <../SchemaGraph>.
 
 :GetPermissions rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
@@ -92,7 +92,7 @@
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-	msg:imports </callimachus/SchemaGraph>;
+	msg:imports <../SchemaGraph>;
 	msg:script """
 		var before = this.calliAdministrator.empty;
 		var ret = proceed();

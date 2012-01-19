@@ -9,13 +9,13 @@
 @prefix calilmachus_styles:<./>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <../SchemaGraph>.
 
 <TransformLayout> rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";
 	calli:transform <TransformXhtml>;
-	msg:xslt </callimachus/manifest?template>.
+	msg:xslt </manifest?layout>.
 
 <TransformLayout#query> a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain <TransformLayout>;

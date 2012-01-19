@@ -24,7 +24,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 <Photo> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Image>;
@@ -48,7 +48,7 @@
 	msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/File
-:LookupPhotoFile owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
+:LookupPhotoFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <File>]);
 	msg:script """
 		if (type == "image/pjpeg" || type == "image/jpeg") {
@@ -59,7 +59,7 @@
 	""".
 
 # POST ?create=/callimachus/Image
-:LookupPhotoImage owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
+:LookupPhotoImage owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <Image>]);
 	msg:script """
 		if (type == "image/pjpeg" || type == "image/jpeg") {
@@ -70,7 +70,7 @@
 	""".
 
 # POST ?create=/callimachus/Photo
-:PostPhotoCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:PostPhotoCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Photo> ]);
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;

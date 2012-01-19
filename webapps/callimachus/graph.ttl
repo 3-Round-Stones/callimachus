@@ -24,7 +24,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 <SchemaGraph> a owl:Class;
 	rdfs:subClassOf <Local>;
@@ -66,7 +66,7 @@
 	msg:script "return this.openReader(true)".
 
 # POST ?create=/callimachus/File
-:LookupGraphDocument owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
+:LookupGraphDocument owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <File> ]);
 	msg:script """
 		if (type == "text/turtle") {
@@ -77,7 +77,7 @@
 	""".
 
 # POST ?create=/callimachus/GraphDocument
-:CreateGraphDocument owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:CreateGraphDocument owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <GraphDocument> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
@@ -176,7 +176,7 @@
 	calli:type "application/xml".
 
 # POST ?create=/callimachus/File
-:LookupNamedGraphFile owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
+:LookupNamedGraphFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <File> ]);
 	msg:script """
 		if (type == "application/rdf+xml") {
@@ -187,7 +187,7 @@
 	""".
 
 # POST ?create=/callimachus/NamedGraph
-:PostNamedGraphCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:PostNamedGraphCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <NamedGraph> ]);
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;

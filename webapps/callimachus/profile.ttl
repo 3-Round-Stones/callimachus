@@ -22,13 +22,13 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 <Profile> a owl:Class;
 	rdfs:subClassOf <Local>;
 	rdfs:isDefinedBy </callimachus>.
 
-<profile> a </callimachus/Profile>;
+<profile> a <Profile>;
 	rdfs:label "profile";
 	calli:administrator </group/admin>.
 
@@ -120,7 +120,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";
-	calli:transform </callimachus/transforms/TransformLayout>;
+	calli:transform <transforms/TransformLayout>;
 	msg:xslt <profile.xhtml>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;

@@ -22,7 +22,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 <Transform> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf <File>;
@@ -47,7 +47,7 @@
 	msg:script "return this.openReader(true)".
 
 # POST ?create=/callimachus/File
-:LookupTransformFile owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
+:LookupTransformFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <File> ]);
 	msg:script """
 		if (type == "application/xslt+xml" || type == "text/xsl") {
@@ -58,7 +58,7 @@
 	""".
 
 # POST ?create=/callimachus/Transform
-:CreateTransform owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:CreateTransform owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Transform> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;

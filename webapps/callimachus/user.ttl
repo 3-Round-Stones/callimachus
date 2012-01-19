@@ -7,7 +7,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 <User> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:User;
@@ -28,7 +28,7 @@
 rdfs:label a rdf:Property.
 rdfs:comment a rdf:Property.
 
-:PostUserCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:PostUserCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <User> ]);
 	msg:imports <User>;
 	msg:imports </manifest/accounts>;

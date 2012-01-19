@@ -25,7 +25,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <../SchemaGraph>.
 
 :GetEditPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
@@ -34,7 +34,7 @@
 	calli:query "edit";
 	calli:realm </manifest>;
 	calli:type "application/xhtml+xml";
-	calli:transform </callimachus/transforms/TransformXhtml>;
+	calli:transform <../transforms/TransformXhtml>;
 	calli:header "cache-control:no-cache";
 	msg:script <operations.js#getEditPage>.
 

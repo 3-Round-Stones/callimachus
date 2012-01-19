@@ -21,7 +21,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 <CreatableIndex> a owl:Class;
 	rdfs:label "Creatable Index";
@@ -53,7 +53,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <CreatableIndex> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream> ];
 	calli:type "application/xhtml+xml";
-	calli:transform </callimachus/transforms/TransformLayout>;
+	calli:transform <transforms/TransformLayout>;
 	msg:xslt <class-index.xhtml>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;

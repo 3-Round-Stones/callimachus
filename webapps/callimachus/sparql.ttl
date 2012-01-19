@@ -23,7 +23,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 <SparqlService> a <Local>, owl:Class;
 	rdfs:subClassOf <Viewable>, sd:Service;
@@ -203,7 +203,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xml";
-	calli:transform </callimachus/transforms/TransformLayout>;
+	calli:transform <transforms/TransformLayout>;
 	msg:xslt <transforms/sparql.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;

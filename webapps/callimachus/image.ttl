@@ -24,7 +24,7 @@
 @prefix callimachus:<.>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 <Image> a <Creatable>, owl:Class;
 	rdfs:subClassOf foaf:Image, <File>;
@@ -109,7 +109,7 @@
 	msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/File
-:LookupImageFile owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
+:LookupImageFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <File>]);
 	msg:script """
 		var uri = null;
@@ -129,7 +129,7 @@
 	""".
 
 # POST ?create=/callimachus/Image
-:LookupImage owl:intersectionOf (</callimachus/toolbox/create.ttl#LookupConstructor>
+:LookupImage owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <Image>]);
 	msg:script """
 		var uri = null;
@@ -149,7 +149,7 @@
 	""".
 
 # POST ?create=/callimachus/ImageGraphic
-:PostImageCreate owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:PostImageCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:allValuesFrom [owl:oneOf (<NetworkGraphic> <VectorGraphic> <IconGraphic> <AnimatedGraphic>)] ]);
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;

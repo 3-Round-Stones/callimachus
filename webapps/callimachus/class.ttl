@@ -22,7 +22,7 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
 <Class> a <CreatableIndex>, owl:Class;
@@ -76,7 +76,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream> ];
 	calli:type "application/xhtml+xml";
-	calli:transform </callimachus/transforms/TransformLayout>;
+	calli:transform <transforms/TransformLayout>;
 	msg:xslt <class-index.xhtml>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
@@ -85,7 +85,7 @@
 	calli:type "application/sparql-results+xml".
 
 # when a class is created
-:CreateClass owl:intersectionOf (</callimachus/toolbox/create.ttl#PostCreate>
+:CreateClass owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Class> ]);
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
@@ -99,7 +99,7 @@
 		return ret;
 	""".
 
-:PostClassEdit owl:intersectionOf (</callimachus/toolbox/edit.ttl#PostEdit>
+:PostClassEdit owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
 		[owl:onProperty msg:target; owl:allValuesFrom <Class>]);
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;

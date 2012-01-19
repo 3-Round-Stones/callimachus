@@ -9,7 +9,7 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 <Manifest> rdfs:subClassOf <Viewable>, <Editable>, calli:Manifest;
 	rdfs:isDefinedBy </callimachus>;
@@ -72,7 +72,7 @@
 		return sb.join('\\n');
 	""".
 
-:PostEditManifest owl:intersectionOf (</callimachus/toolbox/edit.ttl#PostEdit>
+:PostEditManifest owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
 		[owl:onProperty msg:target; owl:allValuesFrom <Manifest>]);
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
 	msg:script "HTTPObjectServer.resetAllCache(); return proceed();".

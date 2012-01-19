@@ -25,7 +25,7 @@
 @prefix callimachusproject:<http://callimachusproject.org/rdf/2009/>.
 @prefix :<http://callimachusproject.org/rdf/2009/framework/IsAuthorized#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <SchemaGraph>.
 
 ################################
 # Ontology
@@ -103,23 +103,23 @@ calli:ScriptBundle a owl:Class;
 
 calli:Creatable a owl:DeprecatedClass;
 	rdfs:label "Creatable";
-	rdfs:comment "Use </callimachus/Creatable> instead".
+	rdfs:comment "Use <Creatable> instead".
 
 calli:Editable a owl:DeprecatedClass;
 	rdfs:label "Editable";
-	rdfs:comment "Use </callimachus/Editable> instead".
+	rdfs:comment "Use <Editable> instead".
 
 calli:Viewable a owl:DeprecatedClass;
 	rdfs:label "Viewable";
-	rdfs:comment "Use </callimachus/Viewable> instead".
+	rdfs:comment "Use <Viewable> instead".
 
 calli:Page a owl:DeprecatedClass;
 	rdfs:label "Page";
-	rdfs:comment "Use </callimachus/Page> instead".
+	rdfs:comment "Use <Page> instead".
 
 calli:NamedGraph a owl:DeprecatedClass;
 	rdfs:label "Named Graph";
-	rdfs:comment "Use </callimachus/NamedGraph> instead".
+	rdfs:comment "Use <NamedGraph> instead".
 
 ################################
 # Annotation

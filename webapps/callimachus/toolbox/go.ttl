@@ -8,10 +8,10 @@
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
-<> a </callimachus/SchemaGraph>.
+<> a <../SchemaGraph>.
 
 :LookupAndGo rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue </callimachus/go>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../go>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "GET";
 	calli:expect "302-see-other";
@@ -19,7 +19,7 @@
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:imports <java:java.net.URLEncoder>;
-	msg:imports </callimachus/lookup>;
+	msg:imports <../lookup>;
 	msg:imports </diverted>;
 	msg:imports calli:Viewable;
 	msg:script """

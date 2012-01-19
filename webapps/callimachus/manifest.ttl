@@ -44,7 +44,8 @@
 				layout = this.calliTheme.calliLayout;
 			}
 		} catch (e) {
-			e.javaException.printStackTrace();
+			if (e.javaException) e.javaException.printStackTrace();
+			else println(e);
 		}
 		var sb = [];
 		sb.push('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">');
@@ -61,15 +62,28 @@
 		sb.push('<xsl:variable name="rights">');
 		try {
 			if (this.calliRights) {
-				sb.push(new org.openrdf.repository.object.xslt.XSLTransformer().transform(this.calliRights).asString());
+				var xslt = new org.openrdf.repository.object.xslt.XSLTransformer();
+				var p;
+				var rights = this.calliRights;
+				if (rights.childNodes.length == 1 && rights.firstChild.tagName == "p") {
+					var xml = xslt.transform(rights, this.toString()).asString();
+					sb.push(xml.replace(/^.*?<p[^>]*>/,'').replace(/<.p>.*?$/,''));
+				} else {
+					var doc = rights.ownerDocument;
+					p = doc.createElement("p");
+					p.appendChild(rights);
+					var xml = xslt.transform(p, this.toString()).asString();
+					sb.push(xml.replace(/^.*?<p[^>]*>/,'').replace(/<.p>.*?$/,''));
+				}
 			}
 		} catch (e) {
-			e.javaException.printStackTrace();
+			if (e.javaException) e.javaException.printStackTrace();
+			else println(e);
 		}
 		sb.push('</xsl:variable>');
 		sb.push('<xsl:include href="' + layout_xsl + '" />');
 		sb.push('</xsl:stylesheet>');
-		return sb.join('\\n');
+		return sb.join('');
 	""".
 
 :PostEditManifest owl:intersectionOf (<toolbox/edit.ttl#PostEdit>

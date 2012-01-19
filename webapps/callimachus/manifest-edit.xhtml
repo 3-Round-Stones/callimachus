@@ -17,8 +17,6 @@
 			<ul>
 				<li>To replace the icon, click the × button, then the browse icon to open a file upload dialogue</li>
 				<li>The icon should be of type PNG, GIF, or ICO and should be 16×16 or 32×32 pixels in size</li>
-				<li>The logo should be of type PNG or GIF and should be 128x128 pixels in size</li>
-				<li>Include a single &lt;p&gt; element in the rights statement to include in the footer</li>
 			</ul>
 		</aside>
 	</div>
@@ -48,8 +46,8 @@
 			</select>
 		</div>
 		<div>
-			<label for="rights">Rights Statement</label>
-			<textarea id="rights" class="auto-expand" datatype="rdf:XMLLiteral">{calli:rights}</textarea>
+			<label for="rights-field">Rights Statement</label>
+			<textarea id="rights-field" class="auto-expand" datatype="rdf:XMLLiteral">{calli:rights}</textarea>
 		</div>
 		<button id="save" type="submit">Save</button>
 		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>

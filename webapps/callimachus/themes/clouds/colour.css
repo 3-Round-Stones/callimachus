@@ -6,6 +6,7 @@ body {
 	-o-background-size:cover;
 	background-size:cover;
 	background:url(bg.jpg) no-repeat center center fixed;
+	background-color:steelblue;
 }
 	
 #top {

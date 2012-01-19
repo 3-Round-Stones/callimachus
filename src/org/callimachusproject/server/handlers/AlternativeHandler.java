@@ -109,6 +109,8 @@ public class AlternativeHandler implements Handler {
 			return new Response().status(303, "See Other").location(loc);
 		} else if (req.getOperation() == null && ("GET".equals(m) || "HEAD".equals(m))) {
 			return new Response().notFound();
+		} else if (req.findMethodHandlers().isEmpty() && ("GET".equals(m) || "HEAD".equals(m))) {
+			return new Response().notFound();
 		}
 		return null;
 	}

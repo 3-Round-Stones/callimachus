@@ -15,12 +15,6 @@
 	calli:view <menu-view.xhtml>;
 	calli:edit <menu-edit.xhtml>.
 
-calli:logo a owl:ObjectProperty;
-	calli:method "GET"; calli:query "logo"; calli:expect "302-see-other".
-
-calli:favicon a owl:ObjectProperty;
-	calli:method "GET"; calli:query "favicon"; calli:expect "302-see-other".
-
 :GetMenuItems rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/manifest?layout"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xmlns:dc="http://purl.org/dc/elements/1.1/">
+<head>
+	<title about="?this">{rdfs:label}</title>
+</head>
+<body about="?this">
+	<h1 property="rdfs:label" />
+	<div id="sidebar">
+		<aside>
+			<ul>
+				<li>Create a page with a &lt;div id="content /&gt; in the body</li>
+				<li>Place a &lt;nav id="menu /&gt; where the menu should be placed</li>
+				<li>Place a &lt;nav id="access"&gt;&lt;/nav&gt; around &lt;a&gt; links to query string tabs</li>
+				<li>Put the markup <pre>&lt;div id="breadcrumbs"&gt;
+						... &#187; &lt;a class="breadcrumb" href="?up"&gt;Up&lt;/a&gt; &#187; &lt;span class="breadcrumb"&gt;Here&lt;/span&gt;
+					&lt;/div&gt;</pre> where the breadcrubms should be placed</li>
+				<li>Place a &lt;p id="resource-lastmod"&gt; around a &lt;time/&gt; element to subsitute the target resource's last modified date</li>
+				<li>Place a &lt;p id="rights"/&gt; where the manifest rights statement should be placed</li>
+			</ul>
+		</aside>
+	</div>
+	<form id='form' method="POST" action="" enctype="application/sparql-update" about="?this">
+		<div>
+			<label for="label">Label</label>
+			<input id="label" value="{rdfs:label}" class="auto-expand" required="required" />
+		</div>
+		<div id="layout" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+			<label>Layout <a href="Page?create" title="Create Page" onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+			<div rel="calli:layout">
+				<span about="?layout" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+					<span property="rdfs:label" />
+					<a href="{?layout}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+				</span>
+			</div>
+		</div>
+		<button id="save" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+		<button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
+	</form>
+</body>
+</html>

@@ -13,7 +13,7 @@
 <Menu> a <CreatableIndex>, owl:Class;
 	rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
 	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/admin>;
+	calli:author </group/staff>,</group/admin>;
 	calli:view <menu-view.xhtml>;
 	calli:edit <menu-edit.xhtml>;
 	calli:create <menu-create.xhtml>.

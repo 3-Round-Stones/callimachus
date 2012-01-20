@@ -5,10 +5,10 @@
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
-	<title>User Accounts</title>
+	<title about="?this">{rdfs:label}</title>
 </head>
 <body about="?this">
-	<h1>User Accounts</h1>
+	<h1 property="rdfs:label" />
 	<div id="sidebar">
 		<aside>
 			<ul>
@@ -18,10 +18,6 @@
 			</ul>
 		</aside>
 	</div>
-	<ul>
-		<li rel="calli:authNamespace" resource="?folder">
-			<a href="?folder" property="rdfs:label" />
-		</li>
-	</ul>
+	<p>{calli:authName}</p>
 </body>
 </html>

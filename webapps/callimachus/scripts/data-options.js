@@ -60,6 +60,7 @@ function loadOptions(selects) {
 					}
 				});
 			});
+			controls.change();
 		});
 	});
 }

@@ -18,7 +18,7 @@
 ################################
 
 </callimachus> a owl:Ontology;
-	rdfs:label "Local Callimachus Ontology";
+	rdfs:label "Callimachus";
 	rdfs:comment "Vocabulary used to create local Callimachus applications";
 	owl:versionInfo "0.14".
 
@@ -45,6 +45,7 @@
 
 </manifest/accounts> a </callimachus/AccountManager>, calli:AccountManager;
 	rdfs:label "User accounts";
+	calli:administrator </group/admin>;
 	calli:authName </>;
 	calli:authNamespace </user/>.
 
@@ -101,7 +102,7 @@
 ################################
 
 </manifest/menu> a </callimachus/Menu>, calli:Menu;
-	rdfs:label "menu";
+	rdfs:label "Main menu";
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;

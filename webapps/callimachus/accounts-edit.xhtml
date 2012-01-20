@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/manifest?layout"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+<head>
+	<title about="?this">{rdfs:label}</title>
+</head>
+<body about="?this">
+	<h1 property="rdfs:label" />
+	<div id="sidebar">
+		<aside>
+			<ul>
+				<li>The Auth name is used to salt passwords, changing it requires all users to reset their password</li>
+				<li>Only users in the User namespace folder are permitted to authenticate</li>
+			</ul>
+		</aside>
+	</div>
+	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this">
+		<div>
+			<label for="label">Label</label>
+			<input id="label" class="auto-expand" value="{rdfs:label}" />
+		</div>
+		<div>
+			<label for="name">Auth name</label>
+			<input id="name" class="auto-expand" rel="calli:authName" resource="?authName" value="{?authName}" />
+		</div>
+		<button id="save" type="submit">Save</button>
+		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+		<button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
+	</form>
+</body>
+</html>

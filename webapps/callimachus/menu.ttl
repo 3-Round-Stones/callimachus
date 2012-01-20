@@ -10,10 +10,13 @@
 
 <> a <SchemaGraph>.
 
-<Menu> rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
+<Menu> a <CreatableIndex>, owl:Class;
+	rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/admin>;
 	calli:view <menu-view.xhtml>;
-	calli:edit <menu-edit.xhtml>.
+	calli:edit <menu-edit.xhtml>;
+	calli:create <menu-create.xhtml>.
 
 :GetMenuItems rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];

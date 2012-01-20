@@ -6,27 +6,19 @@
 	xmlns:dcterms="http://purl.org/dc/terms/"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title>Manifest</title>
+	<title about="?this">{rdfs:label}</title>
 </head>
 <body about="?this">
-	<h1>Manifest</h1>
+	<h1 property="rdfs:label" />
 
 	<div id="sidebar">
 		<aside>
-			<ul>
-				<li><a rel="calli:authentication" href="?authentication" class="view">{rdfs:label}</a></li>
-				<li class="vbox">
-					<label>Special pages</label>
-					<a rel="calli:unauthorized" href="?unauthorized" class="view">{rdfs:label}</a>
-					<a rel="calli:forbidden" href="?forbidden" class="view">{rdfs:label}</a>
-				</li>
-				<li class="vbox">
-					<label>Theme</label>
-					<a rel="calli:menu" href="?menu" class="view">{rdfs:label}</a>
-					<a rel="calli:theme" href="?theme" class="view">{rdfs:label}</a>
-					<a rel="calli:variation" href="?variation" class="view">{rdfs:label}</a>
-				</li>
-			</ul>
+			<a href="Manifest?create">Create another manifest</a>
+		</aside>
+		<aside class="vbox">
+			<a rel="calli:menu" href="?menu" class="view">{rdfs:label}</a>
+			<a rel="calli:theme" href="?theme" class="view">{rdfs:label}</a>
+			<a rel="calli:variation" href="?variation" class="view">{rdfs:label}</a>
 		</aside>
 	</div>
 

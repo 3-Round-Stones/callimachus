@@ -5,43 +5,20 @@
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title>Main Menu</title>
-	<script type="text/javascript">
-		jQuery(function($){
-			$('a[rel]').each(function() {
-				var label = $(this).siblings("label");
-				$(this).text($(label).text());
-				label.remove();
-			});
-		});
-	</script>
+	<title about="?this">{rdfs:label}</title>
 </head>
 <body about="?this">
-	<h1>Main Menu</h1>
+	<h1 property="rdfs:label" />
 	<ol rel="calli:item" class="sorted">
 		<li typeof="">
 			<span class="asc" property="calli:position" style="display:none" />
 			<label property="rdfs:label" />
-			<a rel="calli:link" href="?link1">(link)</a>
+			<a rel="calli:link" href="?menu">(link)</a>
 			<ol rel="calli:item" class="sorted">
 				<li typeof="">
 					<span class="asc" property="calli:position" style="display:none" />
 					<label property="rdfs:label" />
-					<a rel="calli:link" href="?link2">(link)</a>
-					<ol rel="calli:item" class="sorted">
-						<li typeof="">
-							<span class="asc" property="calli:position" style="display:none" />
-							<label property="rdfs:label" />
-							<a rel="calli:link" href="?link3">(link)</a>
-							<ol rel="calli:item" class="sorted">
-								<li typeof="">
-									<span class="asc" property="calli:position" style="display:none" />
-									<label property="rdfs:label" />
-									<a rel="calli:link" href="?link4">(link)</a>
-								</li>
-							</ol>
-						</li>
-					</ol>
+					<a rel="calli:link" href="?link">(link)</a>
 				</li>
 			</ol>
 		</li>

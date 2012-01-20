@@ -13,9 +13,12 @@
 # Realm
 ################################
 
-<AccountManager> rdfs:subClassOf <Viewable>, calli:AccountManager;
+<AccountManager> a owl:Class;
+	rdfs:subClassOf <Viewable>, <Editable>, calli:AccountManager;
 	rdfs:isDefinedBy </callimachus>;
-	calli:view <accounts-view.xhtml>.
+	calli:view <accounts-view.xhtml>;
+	calli:edit <accounts-edit.xhtml>;
+	calli:create <accounts-create.xhtml>.
 
 ################################
 # login

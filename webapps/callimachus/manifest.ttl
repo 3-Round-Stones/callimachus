@@ -11,10 +11,14 @@
 
 <> a <SchemaGraph>.
 
-<Manifest> rdfs:subClassOf <Viewable>, <Editable>, calli:Manifest;
+<Manifest> a <CreatableIndex>, owl:Class;
+	rdfs:subClassOf <Viewable>, <Editable>, calli:Manifest;
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/admin>;
+	calli:icon <manifest.png>;
 	calli:view <manifest-view.xhtml>;
-	calli:edit <manifest-edit.xhtml>.
+	calli:edit <manifest-edit.xhtml>;
+	calli:create <manifest-create.xhtml>.
 
 :GetOldTemplate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <manifest>];

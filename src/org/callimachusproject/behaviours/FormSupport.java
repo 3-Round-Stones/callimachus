@@ -217,10 +217,15 @@ public abstract class FormSupport implements Page, RDFObject {
 	private XMLEventReader calliConstructXhtml(URI about, String query, String element) 
 	throws Exception {
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
-		Template temp = engine.getTemplate(request("xslt", query, element), toString());
-		MapBindingSet bindings = new MapBindingSet();
-		bindings.addBinding("this", about);
-		return temp.openResultReader(temp.getQuery(), bindings);
+		InputStream in = openRequest("xslt", query, element);
+		try {
+			Template temp = engine.getTemplate(in, toString());
+			MapBindingSet bindings = new MapBindingSet();
+			bindings.addBinding("this", about);
+			return temp.openResultReader(temp.getQuery(), bindings);
+		} finally {
+			in.close();
+		}
 	}
 	
 	private InputStream dataConstruct(URI about, String query, String element) throws Exception {
@@ -255,11 +260,11 @@ public abstract class FormSupport implements Page, RDFObject {
 	protected XMLEventReader xslt(String query, String element)
 			throws IOException, XMLStreamException {
 		XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
-		InputStream in = request("xslt", query, element);
+		InputStream in = openRequest("xslt", query, element);
 		return factory.createXMLEventReader(in);
 	}
 
-	private InputStream request(String operation, String query, String element)
+	private InputStream openRequest(String operation, String query, String element)
 			throws IOException {
 		String uri = getResource().stringValue();
 		StringBuilder sb = new StringBuilder();

@@ -118,6 +118,14 @@
 		} finally {
 			out.close();
 		}
+		var input = this.openInputStream();
+		try {
+			// verify we can parse it as XML
+			var xslt = new org.openrdf.repository.object.xslt.XSLTransformer();
+			xslt.transform(input, this.toString()).asDocument();
+		} finally {
+			input.close();
+		}
 		HTTPObjectServer.resetAllCache();
 	""".
 

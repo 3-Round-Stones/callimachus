@@ -208,11 +208,9 @@
 			<xsl:apply-templates mode="layout" select="@*|*|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
-
 	<xsl:template mode="layout" match="@*|text()|comment()">
 		<xsl:copy />
 	</xsl:template>
-
 	<xsl:template mode="layout" match="@src|@href|@about|@resource">
 		<xsl:attribute name="{name()}">
 			<xsl:call-template name="resolve-path">
@@ -222,23 +220,39 @@
 		</xsl:attribute>
 	</xsl:template>
 
-	<xsl:template mode="layout" match="xhtml:nav[@id='access']|nav[@id='access']">
-		<xsl:if test="xhtml:a[@href=concat('?',$query)]|li/a[@href=concat('?',$query)]">
+	<xsl:template mode="layout" match="*[@id='access']">
+		<xsl:if test="*//@href[.=concat('?',$query)]">
 			<xsl:copy>
-				<xsl:apply-templates mode="layout" select="@*|*|text()|comment()" />
+				<xsl:apply-templates mode="access" select="@*|*|text()|comment()" />
 			</xsl:copy>
 		</xsl:if>
 	</xsl:template>
 
-	<xsl:template mode="layout" match="xhtml:nav[@id='access']/xhtml:a[@href]|nav[@id='access']/a[@href]">
+	<xsl:template mode="access" match="*">
+		<xsl:copy>
+			<xsl:apply-templates mode="access" select="@*|*|text()|comment()" />
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template mode="access" match="@*|text()|comment()">
+		<xsl:copy />
+	</xsl:template>
+	<xsl:template mode="access" match="@src|@href|@about|@resource">
+		<xsl:attribute name="{name()}">
+			<xsl:call-template name="resolve-path">
+				<xsl:with-param name="relative" select="." />
+				<xsl:with-param name="base" select="$layout" />
+			</xsl:call-template>
+		</xsl:attribute>
+	</xsl:template>
+	<xsl:template mode="access" match="xhtml:a[@href]|a[@href]">
 		<xsl:copy>
 			<xsl:if test="@href=concat('?',$query)">
-				<xsl:apply-templates mode="layout" select="@*[name()!='href' and name()!='onclick']" />
+				<xsl:apply-templates mode="access" select="@*[name()!='href' and name()!='onclick']" />
 			</xsl:if>
 			<xsl:if test="not(@href=concat('?',$query))">
-				<xsl:apply-templates mode="layout" select="@*" />
+				<xsl:apply-templates mode="access" select="@*" />
 			</xsl:if>
-			<xsl:apply-templates mode="layout" select="*|text()|comment()" />
+			<xsl:apply-templates mode="access" select="*|text()|comment()" />
 		</xsl:copy>
 	</xsl:template>
 
@@ -332,7 +346,7 @@
 		</xsl:copy>
 	</xsl:template>
 
-	<xsl:template mode="layout" match="xhtml:p[@id='rights']|p[@id='rights']">
+	<xsl:template mode="layout" match="*[@id='rights']">
 		<xsl:copy>
 			<xsl:apply-templates mode="layout" select="@*" />
 			<xsl:copy-of select="$rights" />

@@ -74,20 +74,25 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 		ObjectConnection con = getObjectConnection();
 		String base = about.stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(con);
-		Template temp = engine.getTemplate(request("xslt", query), base);
-		MapBindingSet bindings = new MapBindingSet();
-		bindings.addBinding("this", about);
-		return temp.openResultReader(temp.getQuery(), bindings);
+		InputStream in = openRequest("xslt", query);
+		try {
+			Template temp = engine.getTemplate(in, base);
+			MapBindingSet bindings = new MapBindingSet();
+			bindings.addBinding("this", about);
+			return temp.openResultReader(temp.getQuery(), bindings);
+		} finally {
+			in.close();
+		}
 	}
 
 	private XMLEventReader xslt(String query)
 			throws IOException, XMLStreamException {
 		XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
-		InputStream in = request("xslt", query);
+		InputStream in = openRequest("xslt", query);
 		return factory.createXMLEventReader(in);
 	}
 
-	private InputStream request(String operation, String query)
+	private InputStream openRequest(String operation, String query)
 			throws IOException {
 		String uri = getResource().stringValue();
 		StringBuilder sb = new StringBuilder();

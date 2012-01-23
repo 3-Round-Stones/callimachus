@@ -51,8 +51,8 @@ public class XMLEventMessageWriter implements MessageBodyWriter<XMLEventReader> 
 	private XMLOutputFactory factory;
 	{
 		factory = XMLOutputFactory.newInstance();
-		factory.setProperty("javax.xml.stream.isRepairingNamespaces",
-				Boolean.TRUE);
+		// javax.xml.stream.isRepairingNamespaces can cause xmlns="" 
+		// if first element uses default namespace and has attributes, this leads to NPE when parsed
 	}
 
 	public boolean isText(MessageType mtype) {

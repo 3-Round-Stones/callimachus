@@ -38,6 +38,7 @@
 					var url = origin.toString();
 					if (url.lastIndexOf('/') == url.length - 1) {
 						var label = url.substring(0, url.length - 1);
+						label = label.substring(label.lastIndexOf('/') + 1);
 						con.add(origin, RDFS.LABEL, vf.createLiteral(label), []);
 					}
 				}

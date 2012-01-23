@@ -6,9 +6,11 @@
 <head>
 	<title about="?this">{rdfs:label}</title>
 	<script type="text/javascript">
-		jQuery.get("{?this}", function(text) {
-			$('#pre').text(text);
-		}, "text");
+		jQuery(function($) {
+			$.get("{?this}", function(text) {
+				$('#pre').text(text);
+			}, "text");
+		});
 	</script>
 </head>
 <body>

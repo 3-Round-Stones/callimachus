@@ -33,7 +33,7 @@
 				</h3>
 			</xsl:if>
 			<xsl:if test="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]">
-				<ul>
+				<ul class="children">
 					<xsl:apply-templates select="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]" />
 				</ul>
 			</xsl:if>

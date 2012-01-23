@@ -339,10 +339,15 @@
 		</xsl:if>
 	</xsl:template>
 
-	<xsl:template mode="layout" match="xhtml:nav[@id='menu']|nav[@id='menu']">
+	<xsl:template mode="layout" match="*[@id='menu']">
 		<xsl:copy>
 			<xsl:apply-templates mode="layout" select="@*" />
-			<xsl:copy-of select="document($menu)/xhtml:html/xhtml:body/node()" />
+			<xsl:if test="local-name()='ul'">
+				<xsl:copy-of select="document($menu)/xhtml:html/xhtml:body/*/node()" />
+			</xsl:if>
+			<xsl:if test="not(local-name()='ul')">
+				<xsl:copy-of select="document($menu)/xhtml:html/xhtml:body/node()" />
+			</xsl:if>
 		</xsl:copy>
 	</xsl:template>
 

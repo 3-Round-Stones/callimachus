@@ -47,8 +47,8 @@
 			<link rel="stylesheet" href="{$styles}/normalize.css" />
 			<link rel="stylesheet" href="{$styles}/content.css" />
 			<xsl:comment>[if gt IE 6]&gt;&lt;!</xsl:comment>
-			<xsl:apply-templates mode="layout" select="$layout_head/*[local-name()!='script' and local-name()!='title']|comment()" />
-			<xsl:apply-templates select="*[local-name()!='script']|comment()" />
+			<xsl:apply-templates mode="layout" select="$layout_head/*[local-name()!='script' and local-name()!='title']|comment()|text()" />
+			<xsl:apply-templates select="*[local-name()!='script']|comment()|text()" />
 			<xsl:if test="$variation">
 			<link rel="stylesheet" href="{$variation}" />
 			</xsl:if>

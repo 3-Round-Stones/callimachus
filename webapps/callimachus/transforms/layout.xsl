@@ -41,8 +41,6 @@
 				<xsl:with-param name="one" select="." />
 				<xsl:with-param name="two" select="$layout_head" />
 			</xsl:call-template>
-			<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0,target-densityDpi=device-dpi"/>
-			<meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1" />
 			<link rel="icon" href="{$favicon}" />
 			<link rel="stylesheet" href="{$styles}/normalize.css" />
 			<link rel="stylesheet" href="{$styles}/content.css" />
@@ -58,11 +56,6 @@
 			<xsl:if test="//form|//xhtml:form">
 				<script type="text/javascript" src="{$scripts}/form_bundle?source">&#160;</script>
 			</xsl:if>
-			<xsl:comment>[if lt IE 9]&gt;
-				&lt;script src="//html5shim.googlecode.com/svn/trunk/html5.js"&gt;&lt;/script&gt;
-				&lt;script src="//ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"&gt;&lt;/script&gt;
-				&lt;script src="<xsl:value-of select="concat($scripts,'/ie_bundle?source')" />"&gt;&lt;/script&gt;
-			&lt;![endif]</xsl:comment>
 			<xsl:apply-templates mode="layout" select="$layout_head/*[local-name()='script']" />
 			<xsl:apply-templates select="*[local-name()='script']" />
 		</xsl:copy>

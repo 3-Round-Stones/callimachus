@@ -29,9 +29,6 @@
 	rdf:_18 <placeholder.js>;
 	rdf:_19 <details.js>.
 
-<ie_bundle> a calli:ScriptBundle;
-	rdf:_1 <selectivizr.js>.
-
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;
 	rdf:_1 <jquery-ui.js>;

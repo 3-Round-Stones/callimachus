@@ -73,7 +73,7 @@
 		SELECT DISTINCT ?id ?totalResults ?title ?icon ?summary ?updated
 				?author_uri ?author_name ?reader_uri ?reader_name ?contributor_uri ?contributor_name
 				?editor_uri ?editor_name ?administrator_uri ?administrator_name
-				(if(bound(?folder), ?id, ?folder) as ?link_href) # TODO append '?feed' to ?id
+				(if(bound(?folder), concat(str(?id),"?feed"), ?folder) as ?link_href)
 				(if(bound(?folder), "alternate", ?folder) as ?link_rel)
 				(if(bound(?folder), "application/atom+xml", ?folder) as ?link_type)
 				(?id as ?content_src)
@@ -133,7 +133,7 @@
 				?id a [calli:type ?content_type]
 			} OPTIONAL {
 				?id a ?folder
-				FILTER (?folder = <Folder>)
+				FILTER (?folder = <Folder> || ?folder = <Origin>)
 			}
 		} ORDER BY desc(?totalResults) ?id LIMIT 101 # itself + 100 components
 	""".
@@ -414,7 +414,8 @@
 		SELECT ?component {
 			$this calli:hasComponent+ ?component .
 			?external ?dependent ?component
-			FILTER (!isIRI(?external) || !regex(str(?external), str($this))) # TODO replace with strstarts
+			FILTER (!isIRI(?external) || !strstarts(str(?external), str($this)))
+			FILTER (?dependent != audit:contributedTo && ?dependent != rdf:subject && ?dependent != rdf:object)
 		}
 	""".
 

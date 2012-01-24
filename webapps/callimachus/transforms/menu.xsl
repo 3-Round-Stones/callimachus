@@ -13,30 +13,36 @@
 				<title>Menu</title>
 			</head>
 			<body>
-				<ul>
-					<xsl:apply-templates select="sparql:results/sparql:result[not(sparql:binding/@name='heading')]" />
-				</ul>
+				<xsl:apply-templates mode="nav" select="sparql:results/sparql:result[not(sparql:binding/@name='heading')]" />
 			</body>
 		</html>
 	</xsl:template>
 	<xsl:template match="sparql:result">
 		<xsl:variable name="label" select="sparql:binding[@name='label']/*/text()" />
+		<xsl:if test="sparql:binding[@name='link']">
+			<a href="{sparql:binding[@name='link']/*}">
+				<xsl:value-of select="$label" />
+			</a>
+		</xsl:if>
+		<xsl:if test="not(sparql:binding[@name='link'])">
+			<h3>
+				<xsl:value-of select="$label" />
+			</h3>
+		</xsl:if>
+		<xsl:if test="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]">
+			<ul class="children">
+				<xsl:apply-templates mode="children" select="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]" />
+			</ul>
+		</xsl:if>
+	</xsl:template>
+	<xsl:template mode="nav" match="sparql:result">
+		<nav>
+			<xsl:apply-templates select="." />
+		</nav>
+	</xsl:template>
+	<xsl:template mode="children" match="sparql:result">
 		<li>
-			<xsl:if test="sparql:binding[@name='link']">
-				<a href="{sparql:binding[@name='link']/*}">
-					<xsl:value-of select="$label" />
-				</a>
-			</xsl:if>
-			<xsl:if test="not(sparql:binding[@name='link'])">
-				<h3>
-					<xsl:value-of select="$label" />
-				</h3>
-			</xsl:if>
-			<xsl:if test="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]">
-				<ul class="children">
-					<xsl:apply-templates select="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]" />
-				</ul>
-			</xsl:if>
+			<xsl:apply-templates select="." />
 		</li>
 	</xsl:template>
 </xsl:stylesheet>

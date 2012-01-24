@@ -54,15 +54,15 @@ a[href] {
 	color:#0645ad;
 }
 
-nav#menu>ul>li {
-	border-bottom:1px solid #A8ACB8;
+nav#menu nav {
+	border-top:1px solid #A8ACB8;
 }
 
-nav#menu>ul>li:last-child {
-	border-bottom:none;
+nav#menu nav:first-child {
+	border-top:none;
 }
 
-nav#menu li h3 {
+nav#menu h3 {
 	color:#3F547F;
 }
 
@@ -115,13 +115,13 @@ aside,
 	border:1px solid #A8ACB8;
 }
 
-aside>ul>li,
-.aside>li {
+aside>p,
+.aside>p {
 	border-bottom:1px solid #A8ACB8;
 }
 
-aside>ul>li:last-child,
-.aside>li:last-child {
+aside>p:last-child,
+.aside>p:last-child {
 	border-bottom:none;
 }
 

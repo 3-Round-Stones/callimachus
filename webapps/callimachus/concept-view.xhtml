@@ -14,37 +14,26 @@
 <body about="?this">
 	<h1 property="skos:prefLabel" />
 	<div id="sidebar">
-		<aside>
-			<ul class="optional">
-				<li rel="skos:inScheme" class="optional">
-					<a about="?scheme" property="rdfs:label" href="?scheme"></a>
-				</li>
-				<li rev="skos:narrower" class="optional">
-					<label>Broader</label>
-					<div about="?broader">
-						<a property="skos:prefLabel" href="?broader"></a>
-					</div>
-				</li>
-				<li class="optional">
-					<label>Related</label>
-					<div rel="skos:related">
-						<div about="?related" class="related">
-							<a property="skos:prefLabel" href="?related"></a>
-						</div>
-					</div>
-					<div rev="skos:related">
-						<div about="?revated" class="related">
-							<a property="skos:prefLabel" href="?revated"></a>
-						</div>
-					</div>
-				</li>
-				<li rel="skos:narrower" class="optional">
-					<label>Narrower</label>
-					<div about="?narrower">
-						<a property="skos:prefLabel" href="?narrower"></a>
-					</div>
-				</li>
-			</ul>
+		<aside rev="skos:narrower" class="optional">
+			<h3>Broader</h3>
+			<p about="?broader">
+				<a property="skos:prefLabel" href="?broader"></a>
+			</p>
+		</aside>
+		<aside class="optional">
+			<h3>Related</h3>
+			<p rel="skos:related" resource="?related" class="related">
+				<a property="skos:prefLabel" href="?related"></a>
+			</p>
+			<p rev="skos:related" resource="?revated" class="related">
+				<a property="skos:prefLabel" href="?revated"></a>
+			</p>
+		</aside>
+		<aside rel="skos:narrower" class="optional">
+			<h3>Narrower</h3>
+			<p about="?narrower">
+				<a property="skos:prefLabel" href="?narrower"></a>
+			</p>
 		</aside>
 	</div>
 	<div class="hbox">

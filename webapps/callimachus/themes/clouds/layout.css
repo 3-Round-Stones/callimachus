@@ -216,13 +216,12 @@ iframe.ui-widget-content.ui-dialog-content {
 	padding:0.5em 1em;
 }
 
-nav#menu>ul {
-	list-style:none;
+nav#menu {
 	margin:0;
 	padding:0;
 }
 
-nav#menu>ul>li {
+nav#menu>nav {
 	display:block;
 	float:left;
 	margin:1em;
@@ -234,15 +233,15 @@ nav#menu li {
 	display:block;
 }
 
-nav#menu li h3 {
+nav#menu h3 {
 	text-decoration:none;
 	font-weight:normal;
-	font-size: 1em;
+	font-size:1em;
 	margin:0;
 	padding:0;
 }
 
-nav#menu>ul ul {
+nav#menu ul {
 	list-style:none;
 	margin:0;
 	margin-left:1ex;
@@ -263,28 +262,20 @@ aside,
 	margin-bottom:1em;
 }
 
-aside>ul {
-	padding:0;
+aside h3,
+.aside h3 {
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
-aside>ul,
-ul.aside {
-	list-style:none;
-	margin:0;
+aside p,
+.aside p {
+	padding: 0.5em;
+	margin: 0;
 }
 
-aside>ul>li,
-.aside>li {
-	padding:0.5ex;
-}
-
-aside>ul>li:last-child,
-.aside>li:last-child {
-	border-bottom:none;
-}
-
-aside li ul,
-.aside li ul {
+aside ul,
+.aside ul {
 	padding-left:1em;
 	margin:0;
 }

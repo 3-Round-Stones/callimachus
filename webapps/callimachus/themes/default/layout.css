@@ -6,7 +6,7 @@ body {
 
 #branding,
 #colophon,
-nav#menu>ul>li,
+nav#menu>nav,
 #access>a,
 aside>*,
 .aside>* {
@@ -72,7 +72,7 @@ aside>*,
 	width:10em;
 }
 
-nav#menu>ul {
+nav#menu {
 	float:left;
 	list-style:none;
 	margin:0;
@@ -80,24 +80,26 @@ nav#menu>ul {
 	width:10em;
 }
 
-nav#menu>ul>li {
+nav#menu ul {
 	margin:0 1ex;
 	padding:0.5ex;
 }
 
 nav#menu li {
 	display:block;
+	margin:0 1ex;
+	padding:0 0.5ex;
 }
 
-nav#menu li h3 {
+nav#menu h3 {
 	text-decoration:none;
 	font-weight:normal;
 	font-size: 1em;
-	margin:0;
-	padding:0;
+	margin:0 1ex;
+	padding:0.5ex;
 }
 
-nav#menu>ul ul {
+nav#menu ul {
 	list-style:none;
 	margin:0;
 	margin-left:1ex;
@@ -185,28 +187,20 @@ aside,
 	margin-bottom:1em;
 }
 
-aside>ul,
-ul.aside {
-	list-style:none;
-	margin:0;
+aside h3,
+.aside h3 {
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
-aside>ul {
-	padding:0;
+aside p,
+.aside p {
+	padding: 0.5em;
+	margin: 0;
 }
 
-aside>ul>li,
-.aside>li {
-	padding:0.5ex;
-}
-
-aside>ul>li:last-child,
-.aside>li:last-child {
-	border-bottom:none;
-}
-
-aside li ul,
-.aside li ul {
+aside ul,
+.aside ul {
 	padding-left:1em;
 	margin:0;
 }

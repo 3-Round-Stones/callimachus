@@ -70,11 +70,11 @@ body {
 	color:white;
 }
 
-nav#menu>ul>li {
+nav#menu>nav {
 	border-right:solid 1px #414042;
 }
 
-nav#menu li h3 {
+nav#menu h3 {
 	color:white;
 	font-weight:bold;
 }
@@ -154,13 +154,13 @@ aside,
     zoom: 1;
 }
 
-aside>ul>li,
-.aside>li {
+aside>p,
+.aside>p {
 	border-bottom:1px solid #A8ACB8;
 }
 
-aside>ul>li:last-child,
-.aside>li:last-child {
+aside>p:last-child,
+.aside>p:last-child {
 	border-bottom:none;
 }
 

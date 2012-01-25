@@ -1,3 +1,4 @@
+// resource-iri.js
 /*
    Copyright (c) 2011 Talis Inc, Some Rights Reserved
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
@@ -18,16 +19,13 @@ window.calli.listResourceIRIs = function (text) {
 		if (this.indexOf('>') >= 0 || this.indexOf('<') >= 0) {
 			return false;
 		}
-		if (this.indexOf(']') >= 0 || this.indexOf('[') >= 0) {
-			return false;
-		}
 		if (this.indexOf('}') >= 0 || this.indexOf('{') >= 0) {
 			return false;
 		}
 		if (this.indexOf('\n') >= 0 || this.indexOf('\r') >= 0) {
 			return false;
 		}
-		if (this.indexOf(':') < 0 || this.indexOf('_:') >= 0) {
+		if (this.indexOf(':') < 0 && this.indexOf('/') < 0 || this.indexOf('_:') >= 0) {
 			return false;
 		}
 		return true;

@@ -6,6 +6,7 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
 	exclude-result-prefixes="xhtml sparql">
+	<xsl:output indent="no" method="xml" />
 	<xsl:import href="graph.xsl" />
 	<xsl:param name="this" />
 	<xsl:template match="/">

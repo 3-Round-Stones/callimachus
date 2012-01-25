@@ -83,10 +83,8 @@
 				</h1>
 				<div id="sidebar">
 					<aside>
-						<ul>
-							<li>As <a href="#" id="rdfxml">RDF/XML</a></li>
-							<li>As <a href="#" id="turtle">Turtle</a></li>
-						</ul>
+						<p>As <a href="#" id="rdfxml">RDF/XML</a></p>
+						<p>As <a href="#" id="turtle">Turtle</a></p>
 					</aside>
 				</div>
 				<div id="results">

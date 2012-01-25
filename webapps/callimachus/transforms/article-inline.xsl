@@ -2,7 +2,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:d="http://docbook.org/ns/docbook" exclude-result-prefixes="xsl d xhtml">
 
-<xsl:output method="xml" indent="yes" omit-xml-declaration="yes"/>
+<xsl:output method="xml" indent="no" omit-xml-declaration="yes"/>
 
 <xsl:param name="this" />
 

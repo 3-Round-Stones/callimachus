@@ -1,6 +1,6 @@
 <xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xhtml="http://www.w3.org/1999/xhtml"
 		version="1.0" exclude-result-prefixes="xhtml">
-	<xsl:output method="html" />
+	<xsl:output indent="no" method="html" />
 
 	<xsl:template match="*">
 		<xsl:copy>

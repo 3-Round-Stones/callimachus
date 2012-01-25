@@ -5,7 +5,7 @@
 	xmlns:xhtml="http://www.w3.org/1999/xhtml"
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
 	exclude-result-prefixes="xhtml sparql">
-	<xsl:output method="xml" />
+	<xsl:output indent="no" method="xml" />
 
 	<xsl:template match="sparql:sparql">
 		<html>
@@ -18,31 +18,43 @@
 		</html>
 	</xsl:template>
 	<xsl:template match="sparql:result">
-		<xsl:variable name="label" select="sparql:binding[@name='label']/*/text()" />
-		<xsl:if test="sparql:binding[@name='link']">
-			<a href="{sparql:binding[@name='link']/*}">
-				<xsl:value-of select="$label" />
-			</a>
-		</xsl:if>
-		<xsl:if test="not(sparql:binding[@name='link'])">
-			<h3>
-				<xsl:value-of select="$label" />
-			</h3>
-		</xsl:if>
-		<xsl:if test="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]">
-			<ul class="children">
-				<xsl:apply-templates mode="children" select="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]" />
-			</ul>
-		</xsl:if>
 	</xsl:template>
 	<xsl:template mode="nav" match="sparql:result">
 		<nav>
-			<xsl:apply-templates select="." />
+			<xsl:variable name="label" select="sparql:binding[@name='label']/*/text()" />
+			<h3>
+				<xsl:if test="sparql:binding[@name='link']">
+					<a href="{sparql:binding[@name='link']/*}">
+						<xsl:value-of select="$label" />
+					</a>
+				</xsl:if>
+				<xsl:if test="not(sparql:binding[@name='link'])">
+					<xsl:value-of select="$label" />
+				</xsl:if>
+			</h3>
+			<xsl:if test="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]">
+				<ul>
+					<xsl:apply-templates mode="children" select="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]" />
+				</ul>
+			</xsl:if>
 		</nav>
 	</xsl:template>
 	<xsl:template mode="children" match="sparql:result">
 		<li>
-			<xsl:apply-templates select="." />
+			<xsl:variable name="label" select="sparql:binding[@name='label']/*/text()" />
+			<a>
+				<xsl:if test="sparql:binding[@name='link']">
+					<xsl:attribute name="href">
+						<xsl:value-of select="sparql:binding[@name='link']/*" />
+					</xsl:attribute>
+				</xsl:if>
+				<xsl:value-of select="$label" />
+			</a>
+			<xsl:if test="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]">
+				<ul>
+					<xsl:apply-templates mode="children" select="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]" />
+				</ul>
+			</xsl:if>
 		</li>
 	</xsl:template>
 </xsl:stylesheet>

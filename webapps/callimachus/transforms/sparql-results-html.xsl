@@ -3,7 +3,7 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
 	exclude-result-prefixes="sparql">
-	<xsl:output method="html" encoding="UTF-8"/>
+	<xsl:output indent="no" method="html" encoding="UTF-8"/>
 	<xsl:template match="/">
 		<html>
 			<head>

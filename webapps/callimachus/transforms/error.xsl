@@ -3,7 +3,7 @@
 
 	<xsl:import href="/callimachus/manifest?template" />
 
-	<xsl:output method="html" />
+	<xsl:output indent="no" method="html" />
 
 	<xsl:template match="html|xhtml:html">
 		<xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;&#xA;</xsl:text>

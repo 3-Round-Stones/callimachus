@@ -34,6 +34,7 @@
 	calli:rel "alternate";
 	calli:method "GET";
 	calli:query "index";
+	calli:header "cache-control:no-store";
 	calli:type "application/sparql-results+xml";
 	calli:transform :TransformCreatableIndex;
 	msg:sparql """

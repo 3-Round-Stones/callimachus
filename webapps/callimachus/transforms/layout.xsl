@@ -3,7 +3,7 @@
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:xhtml="http://www.w3.org/1999/xhtml">
-	<xsl:output method="xml" />
+	<xsl:output indent="no" method="xml" />
 
 	<!-- Variables -->
 	<!-- systemId query templat manifest styles scripts layout favicon menu variation rights -->
@@ -334,12 +334,7 @@
 	<xsl:template mode="layout" match="*[@id='menu']">
 		<xsl:copy>
 			<xsl:apply-templates mode="layout" select="@*" />
-			<xsl:if test="local-name()='ul'">
-				<xsl:copy-of select="document($menu)/xhtml:html/xhtml:body/*/node()" />
-			</xsl:if>
-			<xsl:if test="not(local-name()='ul')">
-				<xsl:copy-of select="document($menu)/xhtml:html/xhtml:body/node()" />
-			</xsl:if>
+			<xsl:copy-of select="document($menu)/xhtml:html/xhtml:body/node()" />
 		</xsl:copy>
 	</xsl:template>
 

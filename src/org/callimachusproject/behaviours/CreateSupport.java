@@ -140,7 +140,7 @@ public abstract class CreateSupport implements Page {
 			writer.close();
 			String qry = str.toString();
 			ValueFactory vf = con.getValueFactory();
-			BooleanQuery query = con.prepareBooleanQuery(SPARQL, qry);
+			BooleanQuery query = con.prepareBooleanQuery(SPARQL, qry, this.toString());
 			query.setBinding("this", vf.createURI(about));
 			return query.evaluate();
 		} finally {

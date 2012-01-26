@@ -51,5 +51,5 @@
 :input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PostEdit;
 	rdfs:range <java:java.io.InputStream>;
-	calli:type "multipart/related;type=\"application/rdf+xml\"".
+	calli:type "application/sparql-update".
 

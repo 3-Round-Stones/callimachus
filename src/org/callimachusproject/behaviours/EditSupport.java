@@ -19,20 +19,29 @@ package org.callimachusproject.behaviours;
 
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
 
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.form.helpers.GraphPatternBuilder;
+import org.callimachusproject.form.helpers.StatementExtractor;
 import org.callimachusproject.form.helpers.SubjectTracker;
-import org.callimachusproject.io.MultipartParser;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.traits.VersionedObject;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.query.algebra.Modify;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.UpdateExpr;
+import org.openrdf.query.parser.ParsedUpdate;
+import org.openrdf.query.parser.sparql.SPARQLParser;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
@@ -41,7 +50,6 @@ import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.helpers.RDFHandlerBase;
-import org.openrdf.rio.rdfxml.RDFXMLParser;
 
 /**
  * Removes and saves the provided RDF/XML triples from and into the RDF store
@@ -72,31 +80,64 @@ public abstract class EditSupport implements Page {
 
 	public void calliEditResource(RDFObject target, InputStream in)
 			throws Exception {
-		MultipartParser multipart = new MultipartParser(in);
 		try {
-			RDFXMLParser parser = new RDFXMLParser();
+			String input = readString(in);
+			SPARQLParser parser = new SPARQLParser();
+			ParsedUpdate parsed = parser.parseUpdate(input, target.toString());
+			if (parsed.getUpdateExprs().isEmpty())
+				throw new BadRequest("No input");
+			if (parsed.getUpdateExprs().size() > 1)
+				throw new BadRequest("Multiple update statements");
+			UpdateExpr updateExpr = parsed.getUpdateExprs().get(0);
+			if (!(updateExpr instanceof Modify))
+				throw new BadRequest("Not a DELETE/INSERT statement");
+			Modify modify = (Modify) updateExpr;
+			modify.getWhereExpr().visit(
+					new StatementExtractor(new RDFHandlerBase() {
+						public void handleStatement(Statement st)
+								throws RDFHandlerException {
+							throw new RDFHandlerException(
+									"Where clause must be empty");
+						}
+					}));
 			ObjectConnection con = target.getObjectConnection();
-			remove((URI) target.getResource(), multipart.next(), parser, con);
-			add((URI) target.getResource(), multipart.next(), parser, con);
+			remove((URI) target.getResource(), modify.getDeleteExpr(), con);
+			add((URI) target.getResource(), modify.getInsertExpr(), con);
 			if (target instanceof VersionedObject) {
 				((VersionedObject) target).touchRevision();
 			}
-			assert multipart.next() == null;
 		} catch (RDFHandlerException e) {
 			throw new BadRequest(e);
-		} finally {
-			multipart.close();
 		}
 	}
 
-	private void remove(URI resource, InputStream in, RDFXMLParser parser,
-			ObjectConnection con) throws Exception {
+	private String readString(InputStream in) throws IOException {
+		try {
+			Reader reader = new InputStreamReader(in, "UTF-8");
+			StringWriter writer = new StringWriter(8192);
+			int read;
+			char[] cbuf = new char[1024];
+			while ((read = reader.read(cbuf)) >= 0) {
+				writer.write(cbuf, 0, read);
+				if (writer.getBuffer().length() > 1048576)
+					throw new IOException("Input Stream is too big");
+			}
+			reader.close();
+			return writer.toString();
+		} finally {
+			in.close();
+		}
+	}
+
+	private void remove(URI resource, TupleExpr delete, ObjectConnection con)
+			throws Exception {
 		SubjectTracker remover = createSubjectTracker(resource,
 				new Remover(con), con);
 		remover.addSubject(resource);
 		GraphPatternBuilder pattern = new GraphPatternBuilder();
-		parser.setRDFHandler(pattern);
-		parser.parse(in, resource.stringValue());
+		pattern.startRDF();
+		delete.visit(new StatementExtractor(pattern));
+		pattern.endRDF();
 		if (!pattern.isEmpty()) {
 			String sparql = pattern.toSPARQLQuery();
 			con.prepareGraphQuery(SPARQL, sparql).evaluate(remover);
@@ -113,15 +154,15 @@ public abstract class EditSupport implements Page {
 		}
 	}
 
-	private void add(URI resource, InputStream in, RDFXMLParser parser,
-			ObjectConnection con) throws Exception {
+	private void add(URI resource, TupleExpr insert, ObjectConnection con)
+			throws Exception {
 		SubjectTracker inserter = createSubjectTracker(resource,
 				new RDFInserter(con), con);
 		inserter.addSubject(resource);
 		inserter.accept(changeNoteOf(resource));
-		parser.setValueFactory(con.getValueFactory());
-		parser.setRDFHandler(inserter);
-		parser.parse(in, resource.stringValue());
+		inserter.startRDF();
+		insert.visit(new StatementExtractor(inserter));
+		inserter.endRDF();
 		if (!inserter.isEmpty() && !inserter.isAbout(resource))
 			throw new BadRequest("Wrong Subject");
 		if (!inserter.getTypes(resource).isEmpty())

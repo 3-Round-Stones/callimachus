@@ -32,17 +32,29 @@ function submitRDFForm(form, stored) {
 			var added = revised.except(stored);
 			removed.triples().each(function(){
 				addBoundedDescription(this, stored, removed, added);
-			})
+			});
 			added.triples().each(function(){
 				addBoundedDescription(this, revised, added, removed);
-			})
-			var boundary = "jeseditor-boundary";
-			var type = "multipart/related;boundary=" + boundary + ";type=\"application/rdf+xml\"";
-			var data = "--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
-					+ removed.dump({format:"application/rdf+xml",serialize:true,namespaces:form.xmlns()})
-					+ "\r\n--" + boundary + "\r\n" + "Content-Type: application/rdf+xml\r\n\r\n"
-					+ added.dump({format:"application/rdf+xml",serialize:true,namespaces:form.xmlns()})
-					+ "\r\n--" + boundary + "--";
+			});
+			var type = "application/sparql-update";
+			var writer = new UpdateWriter();
+			var namespaces = form.xmlns();
+			for (var prefix in namespaces) {
+				writer.prefix(prefix, namespaces[prefix].toString());
+			}
+			writer.openDelete();
+			removed.triples().each(function() {
+				writer.triple(this.subject, this.property, this.object);
+			});
+			writer.closeDelete();
+			writer.openInsert();
+			added.triples().each(function() {
+				writer.triple(this.subject, this.property, this.object);
+			});
+			writer.closeInsert();
+			writer.openWhere();
+			writer.closeWhere();
+			var data = writer.toString();
 			patchData(form, form.action, type, data, function(data, textStatus, xhr) {
 				try {
 					var redirect = xhr.getResponseHeader("Location");
@@ -148,6 +160,88 @@ function getPageLocationURL() {
 		return location.href.replace(path, path.replace('#', '%23'));
 	return location.href;
 }
+
+function UpdateWriter() {
+	this.buf = [];
+}
+
+UpdateWriter.prototype = {
+	push: function(str) {
+		return this.buf.push(str);
+	},
+	toString: function() {
+		return this.buf.join('');
+	},
+	prefix: function(prefix, uri) {
+		this.push('PREFIX ');
+		this.push(prefix);
+		this.push(':');
+		this.push('<');
+		this.push(uri);
+		this.push('>');
+		this.push('\n');
+	},
+	openDelete: function() {
+		this.push('DELETE {\n');
+	},
+	closeDelete: function() {
+		this.push('}\n');
+	},
+	openInsert: function() {
+		this.push('INSERT {\n');
+	},
+	closeInsert: function() {
+		this.push('}\n');
+	},
+	openWhere: function() {
+		this.push('WHERE {\n');
+	},
+	closeWhere: function() {
+		this.push('}\n');
+	},
+	triple: function(subject, predicate, object) {
+		this.push('\t');
+		this.term(subject);
+		this.push(' ');
+		this.term(predicate);
+		this.push(' ');
+		this.term(object);
+		this.push(' .\n');
+	},
+	term: function(term) {
+		if (term.type == 'uri') {
+			this.push('<');
+			this.push(term.value.toString().replace(/\\/g, '\\\\').replace(/>/g, '\\>'));
+			this.push('>');
+		} else if (term.type == 'bnode') {
+			this.push(term.value);
+		} else if (term.type == 'literal') {
+			this.push('"');
+			var s = term.value;
+			s = s.replace(/\\/g, "\\\\");
+			s = s.replace(/\t/g, "\\t");
+			s = s.replace(/\n/g, "\\n");
+			s = s.replace(/\r/g, "\\r");
+			s = s.replace(/"/g, '\\"');
+			this.push(s);
+			this.push('"');
+			if (term.datatype !== undefined) {
+				this.push('^^');
+				this.push('<');
+				this.push(term.datatype.toString().replace(/\\/g, '\\\\').replace(/>/g, '\\>'));
+				this.push('>');
+			}
+			if (term.lang !== undefined) {
+				this.push('@');
+				this.push(term.lang.replace(/[^0-9a-zA-Z\-]/g, ''));
+			}
+		} else if (!term.type) {
+			throw "Unknown term: " + term;
+		} else {
+			throw "Unknown term type: " + term.type;
+		}
+	}
+};
 
 });
 

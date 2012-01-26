@@ -112,7 +112,7 @@ public class DocumentFragmentMessageReader implements
 		try {
 			DocumentFragment node = createNode(type);
 			DOMResult result = new DOMResult(node);
-			Source source = createSource(location, in, charset);
+			Source source = createSource(location, in, charset, base);
 			Transformer transformer = factory.newTransformer();
 			ErrorCatcher listener = new ErrorCatcher();
 			transformer.setErrorListener(listener);
@@ -133,17 +133,17 @@ public class DocumentFragmentMessageReader implements
 	}
 
 	private Source createSource(String location, ReadableByteChannel cin,
-			Charset charset) throws TransformerException {
+			Charset charset, String base) throws TransformerException {
 		InputStream in = ChannelUtil.newInputStream(cin);
 		if (charset == null && in != null && location != null)
 			return sourceFactory.createSource(in, location);
 		if (charset == null && in != null && location == null)
-			return sourceFactory.createSource(in);
+			return sourceFactory.createSource(in, base);
 		if (in == null && location != null)
 			return sourceFactory.createSource(location);
 		Reader reader = new InputStreamReader(in, charset);
 		if (location != null)
 			return sourceFactory.createSource(reader, location);
-		return sourceFactory.createSource(reader);
+		return sourceFactory.createSource(reader, base);
 	}
 }

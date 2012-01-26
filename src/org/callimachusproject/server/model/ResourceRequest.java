@@ -123,7 +123,11 @@ public class ResourceRequest extends Request {
 		this.con = repository.getConnection();
 		this.vf = con.getValueFactory();
 		String iri = getIRI();
-		this.uri = vf.createURI(iri);
+		try {
+			this.uri = vf.createURI(iri);
+		} catch (IllegalArgumentException e) {
+			throw new BadRequest(e);
+		}
 	}
 
 	public void begin() throws RepositoryException, QueryEvaluationException,

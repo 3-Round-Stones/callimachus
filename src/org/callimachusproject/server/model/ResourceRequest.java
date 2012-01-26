@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
@@ -56,6 +57,7 @@ import org.apache.http.HttpEntity;
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.concepts.Transaction;
+import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.traits.ProxyObject;
 import org.callimachusproject.server.traits.VersionedObject;
 import org.callimachusproject.server.util.Accepter;
@@ -128,14 +130,18 @@ public class ResourceRequest extends Request {
 			MimeTypeParseException {
 		if (target == null) {
 			con.setAutoCommit(false); // begin()
-			result = con.getObjects(VersionedObject.class, uri);
-			target = result.singleResult();
-			if (target instanceof ProxyObject) {
-				String auth = java.net.URI.create(uri.stringValue()).getAuthority();
-				if (auth == null) {
-					auth = getAuthority();
+			try {
+				result = con.getObjects(VersionedObject.class, uri);
+				target = result.singleResult();
+				if (target instanceof ProxyObject) {
+					String auth = new java.net.URI(uri.stringValue()).getAuthority();
+					if (auth == null) {
+						auth = getAuthority();
+					}
+					((ProxyObject) target).setLocalAuthority(auth);
 				}
-				((ProxyObject) target).setLocalAuthority(auth);
+			} catch (URISyntaxException e) {
+				throw new BadRequest(e);
 			}
 		}
 	}

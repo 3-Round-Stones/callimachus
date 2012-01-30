@@ -1,6 +1,6 @@
 // error.js
 
-(function($){
+(function($, jQuery){
 
 var unloading = false;
 $(window).bind('beforeunload', function() {
@@ -66,5 +66,5 @@ function showError(event, error, detail) {
 	}, 1000);
 }
 
-})(window.jQuery);
+})(jQuery, jQuery);
 

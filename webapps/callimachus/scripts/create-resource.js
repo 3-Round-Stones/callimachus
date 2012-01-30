@@ -4,7 +4,7 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
-(function($){
+(function($, jQuery){
 
 calli.createResource = function(event, href) {
 	event = calli.fixEvent(event);
@@ -108,5 +108,5 @@ function listSearchResults(url, win, button) {
 	});
 }
 
-})(jQuery);
+})(jQuery, jQuery);
 

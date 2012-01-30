@@ -15,7 +15,7 @@ function parseXml(urlOrXml, callback, sync) {
 		};
 	}
 	if (urlOrXml.indexOf('<') < 0) {
-		jQuery.ajax({
+		$.ajax({
 			url: urlOrXml,
 			async: async,
 			success: function(xml) {

@@ -1,6 +1,6 @@
 // accounts.js
 
-(function($){
+(function($,jQuery){
 
 function getPageLocationURL() {
 	// window.location.href needlessly decodes URI-encoded characters in the URI path
@@ -78,7 +78,7 @@ $(document).bind("calliLogin", function(event) {
 
 $(document).bind("calliLogout", function(event) {
 	if (!window.sessionStorage || sessionStorage.getItem('Name')) {
-		window.jQuery.ajax({ type: 'GET', url: "/manifest/accounts?logout",
+		jQuery.ajax({ type: 'GET', url: "/manifest/accounts?logout",
 			username: 'logout', password: 'nil',
 			success: function(data) {
 				location = "/";
@@ -250,5 +250,5 @@ function withCredentials(req) {
 	} catch (e) {}
 }
 
-})(jQuery);
+})(jQuery,jQuery);
 

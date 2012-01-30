@@ -4,7 +4,7 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
-(function($){
+(function($,jQuery){
 
 calli.addTemplate = calli.addResource = function(event, container) {
 	event = calli.fixEvent(event);
@@ -26,5 +26,5 @@ calli.addTemplate = calli.addResource = function(event, container) {
 	return false;
 };
 
-})(jQuery);
+})(jQuery, jQuery);
 

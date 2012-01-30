@@ -1,6 +1,6 @@
 // discussion.js
 
-(function($){
+(function($, jQuery){
 
 function getPageLocationURL() {
 	// window.location.href needlessly decodes URI-encoded characters in the URI path
@@ -52,4 +52,5 @@ function getPageLocationURL() {
 		}
 	}
 	$(document).bind('calliLoggedIn', function(){setTimeout(checkTab,0)});
-})(jQuery);
+})(jQuery, jQuery);
+

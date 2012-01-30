@@ -30,7 +30,7 @@ function createIframeRedirect(iname, finalTarget) {
 			return true;
 		var redirect = $(doc).text();
 		if (redirect && redirect.indexOf('http') == 0) {
-			var event = jQuery.Event("calliRedirect");
+			var event = $.Event("calliRedirect");
 			event.location = window.calli.viewpage(redirect);
 			$(this).trigger(event);
 			if (!event.isDefaultPrevented()) {

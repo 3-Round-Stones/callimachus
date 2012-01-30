@@ -1,6 +1,6 @@
 // text-editor.js
 
-(function($) {
+(function($, jQuery) {
 	$(window).ajaxSend(function(event, XMLHttpRequest, ajaxOptions) {
 		$('#editor').css('background-color', 'lightyellow');
 	});
@@ -13,7 +13,7 @@
 			$('#editor').css('background-color', 'inherit');
 		}, 1000);
 	});
-})(jQuery);
+})(jQuery, jQuery);
 
 jQuery(function($) {
 	var editor = ace.edit("editor");
@@ -71,7 +71,7 @@ jQuery(function($) {
 				}
 			}
 			if (path && !editor.getSession().getValue()) {
-				jQuery.ajax({type: 'GET', url: path, complete: function(xhr) {
+				$.ajax({type: 'GET', url: path, complete: function(xhr) {
 					if (xhr.status == 200 || xhr.status == 304) {
 						contentType = xhr.getResponseHeader('Content-Type');
 						etag = xhr.getResponseHeader('ETag');
@@ -107,7 +107,7 @@ jQuery(function($) {
 		if (saving) return false;
 		saving = true;
 		var text = editor.getSession().getValue();
-		jQuery.ajax({
+		$.ajax({
 			type: 'POST',
 			url: action,
 			contentType: contentType,
@@ -128,7 +128,7 @@ jQuery(function($) {
 		var text = editor.getSession().getValue();
 		if (saving) return false;
 		saving = true;
-		jQuery.ajax({
+		$.ajax({
 			type: 'PUT',
 			url: path,
 			contentType: contentType,

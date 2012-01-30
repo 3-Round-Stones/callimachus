@@ -26,7 +26,7 @@ function submitRDFForm(form, uri, type) {
 		postData(form.action, type, uri, data, function(data, textStatus, xhr) {
 			try {
 				var redirect = xhr.getResponseHeader("Location");
-				var event = jQuery.Event("calliRedirect");
+				var event = $.Event("calliRedirect");
 				event.location = window.calli.viewpage(redirect);
 				$(form).trigger(event);
 				if (!event.isDefaultPrevented()) {

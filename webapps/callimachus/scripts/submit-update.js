@@ -23,7 +23,7 @@ $('form[method="POST"][enctype="application/sparql-update"]').each(function() {
 });
 
 function submitRDFForm(form, stored) {
-	var se = jQuery.Event("calliSubmit");
+	var se = $.Event("calliSubmit");
 	form.trigger(se);
 	if (!se.isDefaultPrevented()) {
 		try {
@@ -65,7 +65,7 @@ function submitRDFForm(form, stored) {
 						}
 					}
 					redirect = redirect + "?view";
-					var event = jQuery.Event("calliRedirect");
+					var event = $.Event("calliRedirect");
 					event.location = redirect;
 					form.trigger(event);
 					if (!event.isDefaultPrevented()) {

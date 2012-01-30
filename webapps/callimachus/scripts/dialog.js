@@ -4,7 +4,7 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
-(function($){
+(function($, jQuery){
 
 if (!window.calli) {
 	window.calli = {};
@@ -187,5 +187,5 @@ window.calli.openDialog = function(url, title, options) {
 	}
 }
 
-})(jQuery);
+})(jQuery, jQuery);
 

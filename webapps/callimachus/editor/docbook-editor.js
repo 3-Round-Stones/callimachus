@@ -1,6 +1,7 @@
 // docbook-editor.js
 
 jQuery(function($) {
+	var jQuery = $;
 	$('.wym_box_0').wymeditor({
 		html: '',
 		lang: "en",

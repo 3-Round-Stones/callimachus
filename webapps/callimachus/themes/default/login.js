@@ -1,6 +1,6 @@
 // login.js
 
-(function($){
+(function($, jQuery){
 
 var loginForm;
 
@@ -84,7 +84,7 @@ function login(event) {
 		if ($("#login-form").length) {
 			showForm($("#login-form"));
 		} else {
-			window.jQuery.ajax({ type: 'GET', url: "/callimachus/themes/default/login.html",
+			jQuery.ajax({ type: 'GET', url: "/callimachus/themes/default/login.html",
 				success: function(data) {
 					if ($(document.documentElement).is(".noauth")) {
 						var form = $(data).find("#login-form").andSelf().filter("#login-form");
@@ -130,5 +130,5 @@ function submitLoginForm(event) {
 	return false;
 }
 
-})(jQuery);
+})(jQuery, jQuery);
 

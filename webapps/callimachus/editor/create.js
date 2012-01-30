@@ -1,6 +1,6 @@
 // create.js
 
-(function($){
+(function($, jQuery){
 	$(window).bind('message', function(event) {
 		if (event.originalEvent.source == $('#iframe')[0].contentWindow && event.originalEvent.data == 'CONNECT calliEditorLoaded') {
 			var template = $('#template').text() || $('#template').html();
@@ -39,7 +39,7 @@
 			$('#iframe')[0].contentWindow.postMessage('PUT disabled\n\nfalse', '*');
 		}
 	});
-})(jQuery);
+})(jQuery, jQuery);
 
 jQuery(function($){
 	$('form[enctype]').submit(function(event) {

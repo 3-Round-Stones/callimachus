@@ -1,6 +1,6 @@
 // folder-view.js
 
-(function($){
+(function($, jQuery){
 	try {
 		if (window.sessionStorage) {
 			sessionStorage.setItem("LastFolder", location.href);
@@ -234,7 +234,7 @@
 			});
 		}
 	});
-})(jQuery);
+})(jQuery, jQuery);
 jQuery(function($){
 	$('a.breadcrumb').addClass("view").trigger("DOMNodeInserted");
 	if (!$('#tfolders').children().length) {

@@ -4,7 +4,7 @@
    Licensed under the Apache License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0
 */
 
-(function($){
+(function($, jQuery){
 
 calli.selectFile = function(node, src) {
 	return calli.selectResource(node, src);
@@ -92,5 +92,5 @@ calli.selectResource = function(event, src) {
 	return false;
 };
 
-})(jQuery);
+})(jQuery, jQuery);
 

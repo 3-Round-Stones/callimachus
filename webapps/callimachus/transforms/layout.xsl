@@ -45,13 +45,11 @@
 			</xsl:if>
 			<link rel="stylesheet" href="{$styles}/normalize.css" media="all" />
 			<link rel="stylesheet" href="{$styles}/content.css" media="all" />
-			<xsl:comment>[if gt IE 6]&gt;&lt;!</xsl:comment>
 			<xsl:apply-templates mode="layout" select="$layout_head/*[local-name()!='script' and local-name()!='title']|comment()|text()" />
 			<xsl:apply-templates select="*[local-name()!='script']|comment()|text()" />
 			<xsl:if test="$variation">
 			<link rel="stylesheet" href="{$variation}" media="all" />
 			</xsl:if>
-			<xsl:comment>&lt;![endif]</xsl:comment>
 
 			<script type="text/javascript" src="{$scripts}/web_bundle?source">&#160;</script>
 			<xsl:if test="//form|//xhtml:form">

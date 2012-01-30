@@ -40,7 +40,9 @@
 				<xsl:with-param name="one" select="." />
 				<xsl:with-param name="two" select="$layout_head" />
 			</xsl:call-template>
+			<xsl:if test="$favicon">
 			<link rel="icon" href="{$favicon}" />
+			</xsl:if>
 			<link rel="stylesheet" href="{$styles}/normalize.css" media="all" />
 			<link rel="stylesheet" href="{$styles}/content.css" media="all" />
 			<xsl:comment>[if gt IE 6]&gt;&lt;!</xsl:comment>

@@ -60,8 +60,8 @@
 		sb.push('<xsl:variable name="styles">' + styles + '</xsl:variable>');
 		sb.push('<xsl:variable name="scripts">' + scripts + '</xsl:variable>');
 		sb.push('<xsl:variable name="layout">' + layout + '</xsl:variable>');
-		sb.push('<xsl:variable name="favicon">' + this.calliFavicon + '</xsl:variable>');
-		sb.push('<xsl:variable name="menu">' + this.calliMenu + '?items</xsl:variable>');
+		sb.push('<xsl:variable name="favicon">' + (this.calliFavicon ? this.calliFavicon : '') + '</xsl:variable>');
+		sb.push('<xsl:variable name="menu">' + (this.calliMenu ? (this.calliMenu + '?items') : '') + '</xsl:variable>');
 		sb.push('<xsl:variable name="variation">' + (this.calliVariation ? this.calliVariation : '') + '</xsl:variable>');
 		sb.push('<xsl:variable name="rights">');
 		try {

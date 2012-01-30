@@ -29,6 +29,7 @@ window.calli.saveResourceAs = function(event, fileName, create) {
 	$(form).find("input").change(); // IE may not have called onchange before onsubmit
 	var about = $(form).attr('about');
 	if (originalSubmit && fileName) { // prompt for a new URI
+		$(form).removeAttr('about');
 		openSaveAsDialog(form, fileName, create, function(ns, local){
 			$(form).attr('about', ns + local.replace(/\+/g,'-').toLowerCase());
 			resubmit(form);

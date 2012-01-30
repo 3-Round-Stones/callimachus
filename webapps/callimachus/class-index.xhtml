@@ -35,6 +35,9 @@
 					}
 				}
 			});
+			if (!$('#_').children('div').length) {
+				$('#_').remove();
+			}
 			$('#index').children().each(function() {
 				if (!$(this.getAttribute('href')).length) {
 					$(this).removeAttr('href');

@@ -115,7 +115,7 @@
 </manifest/menu#site>	calli:position 1; rdfs:label "Site";
 	calli:item </manifest/menu#mainarticle>;
 	calli:item </manifest/menu#homefolder>;
-	calli:item </manifest/menu#contents>;
+	calli:item </manifest/menu#sitemap>;
 	calli:item </manifest/menu#recentchanges>.
 </manifest/menu#resources>	calli:position 8; rdfs:label "Resources";
 	calli:item </manifest/menu#articles>;
@@ -142,7 +142,7 @@
 
 </manifest/menu#mainarticle>	calli:position 1; rdfs:label "Main article"; calli:link </main-article.docbook?view>.
 </manifest/menu#homefolder>	calli:position 2; rdfs:label "Home folder"; calli:link </?view>.
-</manifest/menu#contents>	calli:position 3; rdfs:label "Contents"; calli:link </manifest/menu>.
+</manifest/menu#sitemap>	calli:position 3; rdfs:label "Site map"; calli:link </manifest/menu>.
 </manifest/menu#recentchanges>	calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
 
 </manifest/menu#articles>	calli:position 1; rdfs:label "Articles"; calli:link </callimachus/Article>.

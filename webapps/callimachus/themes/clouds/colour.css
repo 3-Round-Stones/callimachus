@@ -90,7 +90,8 @@ nav#menu h3 {
     zoom: 1;
 }
 
-a[href] {
+a:link,
+a:visited {
 	color:#0645AD;
 }
 
@@ -116,7 +117,8 @@ a[href] {
 	border-right: groove 2px white;
 }
 
-#access>a[href] {
+#access>a:link,
+#access>a:visited {
 	background:transparent;
 }
 

@@ -44,11 +44,11 @@ html.iframe {
 	overflow-y: auto;
 }
 
-a[href] {
+a:link, a:visited {
 	text-decoration:none;
 }
 
-a[href]:hover {
+a:link:hover, a:visited:hover {
 	text-decoration:underline;
 }
 

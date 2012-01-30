@@ -16,7 +16,7 @@ body {
 	background-repeat:no-repeat;
 }
 
-a[href] {
+a:link, a:visited {
 	color:#0645AD;
 }
 

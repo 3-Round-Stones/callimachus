@@ -256,11 +256,11 @@
 	</xsl:template>
 
 	<xsl:template mode="layout" match="xhtml:div[@id='breadcrumbs']|div[@id='breadcrumbs']">
-		<xsl:if test="$template and $query='view'">
-			<xsl:variable name="breadcrumb" select="*[1]" />
+		<xsl:variable name="breadcrumb" select="*[1]" />
+		<xsl:variable name="here" select="*[2]" />
+		<xsl:if test="$template and $query='view' and $breadcrumb and $here">
 			<xsl:variable name="ellipsis" select="$breadcrumb/preceding-sibling::text()[1]" />
 			<xsl:variable name="separator" select="$breadcrumb/following-sibling::text()[1]" />
-			<xsl:variable name="here" select="*[2]" />
 			<xsl:variable name="close" select="$here/following-sibling::text()[1]" />
 			<div xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 					xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"

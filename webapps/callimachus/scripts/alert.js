@@ -5,8 +5,8 @@
 $(document).error(function(event) {
 	var status = event.message;
 	var detail = event.data;
-	if (status) {
-		var msg = $("#errors");
+	if (status && !event.isDefaultPrevented()) {
+		var msg = $("#flash");
 		if (msg.size()) {
 			var widget = $('<div/>');
 			widget.addClass("ui-state-error ui-corner-all");
@@ -26,12 +26,8 @@ $(document).error(function(event) {
 				widget.remove();
 			});
 			button.append(close);
-			var strong = $('<strong/>');
-			strong.css("margin-right", "0.7em");
-			strong.text("Alert:");
 			p.append(icon);
 			p.append(button);
-			p.append(strong);
 			appendTo(status, p);
 			widget.append(p);
 			if (detail) {

@@ -40,7 +40,7 @@
 	msg:imports <transforms/layout.xsl>;
 	msg:imports <styles>;
 	msg:imports <scripts>;
-	msg:imports <themes/default/layout.xhtml>;
+	msg:imports <theme/layout.xhtml>;
 	msg:script """
 		var layout = layout_xhtml;
 		try {

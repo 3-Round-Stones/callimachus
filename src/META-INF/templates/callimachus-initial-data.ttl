@@ -36,7 +36,7 @@
 	calli:authentication </manifest/accounts>;
 	calli:menu </manifest/menu>;
 	calli:favicon </callimachus/images/callimachus-icon.ico> ;
-	calli:theme </callimachus/themes/default/default>;
+	calli:theme </callimachus/theme/default>;
 	calli:hasComponent </manifest/accounts>, </manifest/menu>.
 
 ################################

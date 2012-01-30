@@ -40,7 +40,7 @@ $(document).bind("calliLogInPrompt", function() {
 });
 
 function createLoginButton() {
-	if ($('#profile-link').length) {
+	if ($('#login').length) {
 		var loginForm = $('<form />')[0];
 		$(loginForm).attr('action', $('#profile-link')[0].getAttribute('href'));
 		$(loginForm).css('display', "inline-block");
@@ -50,7 +50,7 @@ function createLoginButton() {
 		button.append(icon);
 		button.append(text);
 		$(loginForm).append(button);
-		$('#profile').before(loginForm);
+		$('#login').append(loginForm);
 		$(loginForm).submit(login);
 		return loginForm;
 	}
@@ -84,7 +84,7 @@ function login(event) {
 		if ($("#login-form").length) {
 			showForm($("#login-form"));
 		} else {
-			jQuery.ajax({ type: 'GET', url: "/callimachus/themes/default/login.html",
+			jQuery.ajax({ type: 'GET', url: "/callimachus/pages/login.html",
 				success: function(data) {
 					if ($(document.documentElement).is(".noauth")) {
 						var form = $(data).find("#login-form").andSelf().filter("#login-form");

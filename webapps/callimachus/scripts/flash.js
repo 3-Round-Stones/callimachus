@@ -1,4 +1,4 @@
-// alert.js
+// flash.js
 
 (function($){
 

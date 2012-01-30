@@ -13,7 +13,7 @@
 	rdf:_2 <iframe.js>;
 	rdf:_3 <wait.js>;
 	rdf:_4 <error.js>;
-	rdf:_5 <alert.js>;
+	rdf:_5 <flash.js>;
 	rdf:_6 <accounts.js>;
 	rdf:_7 <node-inserted.js>;
 	rdf:_8 <breadcrumb.js>;

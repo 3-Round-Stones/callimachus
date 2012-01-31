@@ -9,7 +9,7 @@ $(document).error(function(event) {
 		var msg = $("#flash");
 		if (msg.size()) {
 			var widget = $('<div/>');
-			widget.addClass("ui-state-error ui-corner-all");
+			widget.addClass("ui-state-error ui-corner-all error");
 			widget.css("padding", "1ex");
 			widget.css("margin", "1ex");
 			var p = $('<div/>');

@@ -54,10 +54,10 @@ function expandTextArea(area, contentWidth, innerHeight) {
 	var height = area.rows;
 	var maxCols = Math.min(Math.floor(contentWidth / area.offsetWidth * width - 3), Math.floor(contentWidth / 8 - 3));
 	var maxRows = Math.floor(innerHeight / area.offsetHeight * height - 3);
-	if (!maxCols || maxCols < 2) {
+	if (!maxCols || maxCols < 20) {
 		maxCols = 96;
 	}
-	if (!maxRows || maxRows < 2) {
+	if (!maxRows || maxRows < 3) {
 		maxRows = 43;
 	}
 	var lines = area.value.split("\n");
@@ -121,12 +121,13 @@ function getAvailableWidth(area) {
 function getParentBlock(area) {
 	var parent = null;
 	var parents = $(area).parents();
-	for (var i=parents.length;i--;) {
-		var display = $(parents[i]).css('display');
-		var floatStyle = $(parents[i]).css('float');
-		if (display != 'block' || floatStyle && floatStyle != 'none')
-			break;
+	for (var i=0;i<parents.length;i++) {
 		parent = parents[i];
+		var floatStyle = $(parents[i]).css('float');
+		if (floatStyle && floatStyle != 'none')
+			break;
+		if ($(parents[i]).css('display') == 'block')
+			break;
 	}
 	if (parent)
 		return parent;

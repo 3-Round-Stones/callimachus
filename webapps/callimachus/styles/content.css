@@ -123,7 +123,15 @@ form label[for],label[form] {
 	display:block;
 }
 
-label.input,form label[for].input,label[form].input {
+label.input,
+form label[for].input,
+label[form].input,
+label.radio,
+form label[for].radio,
+label[form].radio,
+label.checkbox,
+form label[for].checkbox,
+label[form].checkbox {
 	display:inline-block;
 	font-weight:normal;
 	margin-top:0;

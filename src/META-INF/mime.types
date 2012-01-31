@@ -11,6 +11,7 @@ application/atomsvc+xml atomsvc
 application/davmount+xml davmount
 application/docbook+xml docbook
 application/docbook+xml dbk
+application/font-woff woff
 application/json json
 application/mac-binhex40 hqx
 application/mbox mbox

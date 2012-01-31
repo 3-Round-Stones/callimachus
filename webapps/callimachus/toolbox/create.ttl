@@ -119,7 +119,7 @@
 			if (!construct.calliIsAuthorized(user, "POST", "create"))
 				throw new Forbidden("You are not permitted to create " + construct + " resources");
 		}
-		var newCopy = construct.PostCreate(bio, location, type);
+		var newCopy = construct.PostCreate(bio, location, ftype);
 		newCopy.calliEditor.addAll(this.FindContributor(newCopy));
 		newCopy.calliReader.addAll(this.SelectAllReaders());
 		newCopy.calliEditor.addAll(this.SelectAllEditors());

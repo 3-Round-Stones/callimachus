@@ -144,6 +144,7 @@
 
 		this.touchRevision();
 		println("Imported " + this);
+		con.recompileSchemaOnClose();
 	""".
 
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
@@ -223,6 +224,7 @@
 		con.add(obj.resource, RDFS.LABEL, label, []);
 
 		this.touchRevision(); // update index page
+		con.recompileSchemaOnClose();
 		return obj;
 	""".
 

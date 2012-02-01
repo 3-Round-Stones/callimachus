@@ -16,9 +16,13 @@
  */
 package org.callimachusproject.form.helpers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.query.algebra.StatementPattern;
@@ -30,9 +34,12 @@ import org.openrdf.rio.RDFHandlerException;
 public class StatementExtractor extends
 		QueryModelVisitorBase<RDFHandlerException> {
 	private final RDFHandler handler;
+	private final ValueFactory vf;
+	private final Map<String,Resource> anonymous = new HashMap<String,Resource>();
 
-	public StatementExtractor(RDFHandler handler) {
+	public StatementExtractor(RDFHandler handler, ValueFactory vf) {
 		this.handler = handler;
+		this.vf = vf;
 	}
 
 	@Override
@@ -43,21 +50,32 @@ public class StatementExtractor extends
 		Value obj = node.getObjectVar().getValue();
 		Var ctxVar = node.getContextVar();
 		Value ctx = ctxVar == null ? null : ctxVar.getValue();
-		if (subj instanceof Resource && pred instanceof URI
-				&& obj instanceof Value) {
-			if (ctx instanceof Resource) {
-				handler.handleStatement(new ContextStatementImpl(
-						(Resource) subj, (URI) pred, obj, (Resource) ctx));
-			} else if (ctx == null) {
-				handler.handleStatement(new StatementImpl((Resource) subj,
-						(URI) pred, obj));
-			} else {
-				throw new RDFHandlerException("Invalid graph: " + ctx);
-			}
-		} else {
-			throw new RDFHandlerException("Not enough bound values: "
-					+ node.toString());
+		if (!(pred instanceof URI))
+			throw new RDFHandlerException("Missing predicate");
+		if (subj == null && node.getSubjectVar().isAnonymous()) {
+			subj = bind(node.getSubjectVar());
 		}
+		if (obj == null && node.getObjectVar().isAnonymous()) {
+			obj = bind(node.getObjectVar());
+		}
+		if (ctx instanceof Resource) {
+			handler.handleStatement(new ContextStatementImpl(
+					(Resource) subj, (URI) pred, obj, (Resource) ctx));
+		} else if (ctx == null) {
+			handler.handleStatement(new StatementImpl((Resource) subj,
+					(URI) pred, obj));
+		} else {
+			throw new RDFHandlerException("Invalid graph: " + ctx);
+		}
+	}
+
+	private synchronized Resource bind(Var var) {
+		String name = var.getName();
+		if (anonymous.containsKey(name))
+			return anonymous.get(name);
+		Resource node = vf.createBNode();
+		anonymous.put(name, node);
+		return node;
 	}
 
 }

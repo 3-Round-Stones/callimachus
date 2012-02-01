@@ -92,6 +92,8 @@ public abstract class EditSupport implements Page {
 			if (!(updateExpr instanceof Modify))
 				throw new BadRequest("Not a DELETE/INSERT statement");
 			Modify modify = (Modify) updateExpr;
+			ObjectConnection con = target.getObjectConnection();
+			ValueFactory vf = con.getValueFactory();
 			modify.getWhereExpr().visit(
 					new StatementExtractor(new RDFHandlerBase() {
 						public void handleStatement(Statement st)
@@ -99,8 +101,7 @@ public abstract class EditSupport implements Page {
 							throw new RDFHandlerException(
 									"Where clause must be empty");
 						}
-					}));
-			ObjectConnection con = target.getObjectConnection();
+					}, vf));
 			remove((URI) target.getResource(), modify.getDeleteExpr(), con);
 			add((URI) target.getResource(), modify.getInsertExpr(), con);
 			if (target instanceof VersionedObject) {
@@ -131,12 +132,13 @@ public abstract class EditSupport implements Page {
 
 	private void remove(URI resource, TupleExpr delete, ObjectConnection con)
 			throws Exception {
+		ValueFactory vf = con.getValueFactory();
 		SubjectTracker remover = createSubjectTracker(resource,
 				new Remover(con), con);
 		remover.addSubject(resource);
 		GraphPatternBuilder pattern = new GraphPatternBuilder();
 		pattern.startRDF();
-		delete.visit(new StatementExtractor(pattern));
+		delete.visit(new StatementExtractor(pattern, vf));
 		pattern.endRDF();
 		if (!pattern.isEmpty()) {
 			String sparql = pattern.toSPARQLQuery();
@@ -156,12 +158,13 @@ public abstract class EditSupport implements Page {
 
 	private void add(URI resource, TupleExpr insert, ObjectConnection con)
 			throws Exception {
+		ValueFactory vf = con.getValueFactory();
 		SubjectTracker inserter = createSubjectTracker(resource,
 				new RDFInserter(con), con);
 		inserter.addSubject(resource);
 		inserter.accept(changeNoteOf(resource));
 		inserter.startRDF();
-		insert.visit(new StatementExtractor(inserter));
+		insert.visit(new StatementExtractor(inserter, vf));
 		inserter.endRDF();
 		if (!inserter.isEmpty() && !inserter.isAbout(resource))
 			throw new BadRequest("Wrong Subject");

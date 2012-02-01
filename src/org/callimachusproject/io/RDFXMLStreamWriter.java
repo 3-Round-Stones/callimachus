@@ -141,7 +141,7 @@ public class RDFXMLStreamWriter implements RDFWriter {
 				writer.writeAttribute("xml:lang", lit.getLanguage());
 			}
 			if (lit.getDatatype() != null) {
-				writer.writeAttribute("rdf", RDF.NAMESPACE, "datatype", base.relativize(lit.getDatatype().stringValue()));
+				writer.writeAttribute("rdf", RDF.NAMESPACE, "datatype", lit.getDatatype().stringValue());
 			}
 			if (ESCAPED.matcher(lit.stringValue()).find()) {
 				writer.writeCData(lit.stringValue());

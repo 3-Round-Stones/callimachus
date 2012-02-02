@@ -39,10 +39,10 @@ PRGDIR=`dirname "$PRG"`
 EXECUTABLE=`basename "$PRG" | perl -pe 's/-\w+.sh/.sh/' 2>/dev/null`
 
 # Check that target executable exists
-if [ ! -f "$PRGDIR"/"$EXECUTABLE" -o "$PRG" = "$PRGDIR/$EXECUTABLE" ]; then
+if [ ! -f "$PRGDIR/$EXECUTABLE" -o "$PRG" = "$PRGDIR/$EXECUTABLE" ]; then
   echo "Cannot find $PRGDIR/$EXECUTABLE"
   echo "This file is needed to run this program"
   exit 1
 fi
 
-exec /bin/sh "$PRGDIR"/"$EXECUTABLE" stop "$@"
+exec /bin/sh "$PRGDIR/$EXECUTABLE" stop "$@"

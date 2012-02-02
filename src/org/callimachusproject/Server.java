@@ -36,6 +36,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.rmi.UnmarshalException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -144,7 +145,8 @@ public class Server implements HTTPObjectAgentMXBean {
 				if (line.hasOption("pid")) {
 					destroyService(args);
 				} else {
-					System.out.println("Missing required pid option.");
+					System.err.println("Missing required pid option.");
+					System.err.println("Arguments: " + Arrays.toString(args));
 					System.exit(1);
 				}
 			} else {
@@ -178,6 +180,7 @@ public class Server implements HTTPObjectAgentMXBean {
 			System.exit(1);
 		} catch (Exception e) {
 			println(e);
+			System.err.println("Arguments: " + Arrays.toString(args));
 			System.exit(1);
 		}
 	}
@@ -412,7 +415,14 @@ public class Server implements HTTPObjectAgentMXBean {
 	public void init(String[] args) {
 		try {
 			CommandLine line = new GnuParser().parse(options, args);
-			if (line.hasOption('h') || line.getArgs().length > 0) {
+			if (line.hasOption('h')) {
+				HelpFormatter formatter = new HelpFormatter();
+				formatter.printHelp("[options]", options);
+				System.exit(0);
+				return;
+			} else if (line.getArgs().length > 0) {
+				System.err.println("Unrecognized option: " + Arrays.toString(line.getArgs()));
+				System.err.println("Arguments: " + Arrays.toString(args));
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp("[options]", options);
 				System.exit(0);
@@ -431,6 +441,7 @@ public class Server implements HTTPObjectAgentMXBean {
 			init(line);
 		} catch (Exception e) {
 			println(e);
+			System.err.println("Arguments: " + Arrays.toString(args));
 			System.exit(2);
 		}
 	}

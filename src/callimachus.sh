@@ -278,7 +278,8 @@ if [ -z "$OPTS" ] ; then
     OPTS="--trust"
   fi
   PORT_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -p $2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -s $2/g' 2>/dev/null)"
-  OPTS="-d \"$BASEDIR\" $PORT_OPTS -o $(echo $ORIGIN |perl -pe 's/(\s)(\S)/ -o $2/g' 2>/dev/null) -r \"$REPOSITORY\" -c \"$REPOSITORY_CONFIG\" $OPTS"
+  ORIGIN_OPTS="-o $(echo $ORIGIN |perl -pe 's/(\s)(\S)/ -o $2/g' 2>/dev/null)"
+  OPTS="$PORT_OPTS $ORIGIN_OPTS $OPTS"
 fi
 
 # For Cygwin, switch paths to Windows format before running java
@@ -323,7 +324,7 @@ if [ ! -z "$DAEMON_USER" ] ; then
   fi
 fi
 
-mkdir -p `dirname "$PID"`
+mkdir -p "$(dirname "$PID")"
 if [ ! -e "$BASEDIR/log" ] ; then
   mkdir "$BASEDIR/log"
 fi
@@ -357,8 +358,8 @@ if [ "$1" = "start" ] ; then ################################
     -Djava.util.logging.config.file="$LOGGING" \
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
-    -user $DAEMON_USER \
-    $JSVC_OPTS $SSL_OPTS $MAINCLASS -q $OPTS "$@"
+    -user "$DAEMON_USER" \
+    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" -c "$REPOSITORY_CONFIG" $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 1
@@ -369,7 +370,7 @@ if [ "$1" = "start" ] ; then ################################
   fi
 
   SLEEP=120
-  ID=`cat $PID`
+  ID=`cat "$PID"`
   while [ $SLEEP -ge 0 ]; do
     kill -0 $ID >/dev/null 2>&1
     if [ $? -gt 0 ]; then
@@ -402,9 +403,9 @@ if [ "$1" = "start" ] ; then ################################
 elif [ "$1" = "stop" ] ; then ################################
 
   if [ -f "$PID" -a -r "$PID" ]; then
-    kill -0 `cat $PID` >/dev/null 2>&1
+    kill -0 `cat "$PID"` >/dev/null 2>&1
     if [ $? -gt 0 ]; then
-      rm -f $PID
+      rm -f "$PID"
       if [ $? -gt 0 ]; then
         echo "PID file ($PID) found but no matching process was found. Stop aborted."
         exit $?
@@ -419,16 +420,16 @@ elif [ "$1" = "stop" ] ; then ################################
     exit 1
   fi
 
-  ID=`cat $PID`
+  ID=`cat "$PID"`
 
   "$EXECUTABLE" -home "$JAVA_HOME" -stop \
-    -pidfile "$PID" $MAINCLASS
+    -pidfile "$PID" "$MAINCLASS"
 
   SLEEP=180
   while [ $SLEEP -ge 0 ]; do 
     kill -0 $ID >/dev/null 2>&1
     if [ $? -gt 0 ]; then
-      rm -f $PID
+      rm -f "$PID"
       break
     fi
     if [ "$SLEEP" = "60" ]; then
@@ -442,12 +443,12 @@ elif [ "$1" = "stop" ] ; then ################################
 
   if [ -f "$PID" ]; then
     echo "Killing: $ID"
-    rm -f $PID
-    kill -9 $ID
+    rm -f "$PID"
+    kill -9 "$ID"
 	sleep 5
     if [ -f "$PID" ]; then
       "$EXECUTABLE" -home "$JAVA_HOME" -stop \
-        -pidfile "$PID" $MAINCLASS >/dev/null 2>&1
+        -pidfile "$PID" "$MAINCLASS" >/dev/null 2>&1
     fi
   fi
 
@@ -486,8 +487,8 @@ else ################################
       -Djava.util.logging.config.file="$LOGGING" \
       -Djava.mail.properties="$MAIL" \
       -classpath "$CLASSPATH" \
-      -user $DAEMON_USER \
-      $JSVC_OPTS $SSL_OPTS $MAINCLASS -q $OPTS "$@"
+      -user "$DAEMON_USER" \
+      $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" -c "$REPOSITORY_CONFIG" $OPTS "$@"
 
     RETURN_VAL=$?
     sleep 1
@@ -503,6 +504,6 @@ else ################################
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
     -classpath "$CLASSPATH" \
-    $JAVA_OPTS $SSL_OPTS $MAINCLASS --pid "$PID" $OPTS "$@"
+    $JAVA_OPTS $SSL_OPTS "$MAINCLASS" --pid "$PID" -d "$BASEDIR" -r "$REPOSITORY" -c "$REPOSITORY_CONFIG" $OPTS "$@"
 fi
 

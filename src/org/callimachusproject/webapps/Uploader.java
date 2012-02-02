@@ -160,7 +160,7 @@ public class Uploader {
 		}
 	}
 
-	public void uploadWebapps(boolean conditional) throws IOException,
+	public void uploadWebapps(boolean upload) throws IOException,
 			JNotifyException, InterruptedException {
 		Thread listenerThread = null;
 		int mask = JNotify.FILE_CREATED | JNotify.FILE_DELETED
@@ -176,7 +176,7 @@ public class Uploader {
 			logger.error(e.getMessage());
 		}
 		boolean deleted = deleteMissingFiles();
-		if (deleted || !conditional) {
+		if (deleted || upload) {
 			notifyStarting();
 			uploadWebApps(webappsDir, "");
 		}

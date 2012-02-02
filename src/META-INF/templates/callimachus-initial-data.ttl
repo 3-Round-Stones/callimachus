@@ -20,7 +20,7 @@
 </callimachus> a owl:Ontology;
 	rdfs:label "Callimachus";
 	rdfs:comment "Vocabulary used to create local Callimachus applications";
-	owl:versionInfo "0.14".
+	owl:versionInfo "0.15".
 
 ################################
 # Manifest

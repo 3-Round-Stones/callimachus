@@ -175,11 +175,12 @@ public class Uploader {
 		} catch (UnsatisfiedLinkError e) {
 			logger.error(e.getMessage());
 		}
-		origins.put(webappsDir, singleton(origin));
-		if (deleteMissingFiles() || !conditional) {
+		boolean deleted = deleteMissingFiles();
+		if (deleted || !conditional) {
 			notifyStarting();
 			uploadWebApps(webappsDir, "");
 		}
+		origins.put(webappsDir, singleton(origin));
 		if (listener != null && listenerThread != null) {
 			listenerThread.start();
 			listener.await();

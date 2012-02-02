@@ -51,6 +51,11 @@ public class MultiValuedFileMap {
 		this.entriesFile = new File(this.entriesDir, list);
 	}
 
+	@Override
+	public String toString() {
+		return entriesFile.toString();
+	}
+
 	public synchronized Set<String> get(File file) throws IOException {
 		Set<String> set = new TreeSet<String>();
 		File valuesFile = getValuesFile(file);

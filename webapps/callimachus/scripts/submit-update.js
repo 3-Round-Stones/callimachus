@@ -9,17 +9,21 @@
 jQuery(function($){
 
 $('form[method="POST"][enctype="application/sparql-update"]').each(function() {
-	var form = $(this);
-	var stored = readRDF(form);
-	form.submit(function(event) {
-		form.find("input").change(); // IE may not have called onchange before onsubmit
-		var about = form.attr('about');
-		if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
-			return true; // about attribute not set
-		event.preventDefault();
-		setTimeout(function(){submitRDFForm(form, stored);}, 0);
-		return false;
-	});
+	try {
+		var form = $(this);
+		var stored = readRDF(form);
+		form.submit(function(event) {
+			form.find("input").change(); // IE may not have called onchange before onsubmit
+			var about = form.attr('about');
+			if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
+				return true; // about attribute not set
+			event.preventDefault();
+			setTimeout(function(){submitRDFForm(form, stored);}, 0);
+			return false;
+		});
+	} catch (e) {
+		throw calli.error(e);
+	}
 });
 
 function submitRDFForm(form, stored) {
@@ -72,11 +76,11 @@ function submitRDFForm(form, stored) {
 						location.replace(event.location);
 					}
 				} catch(e) {
-					form.trigger("calliError", e.description ? e.description : e);
+					throw calli.error(e);
 				}
 			})
 		} catch(e) {
-			form.trigger("calliError", e.description ? e.description : e);
+			throw calli.error(e);
 		}
 	}
 	return false;
@@ -214,10 +218,10 @@ UpdateWriter.prototype = {
 			this.push(term.value.toString().replace(/\\/g, '\\\\').replace(/>/g, '\\>'));
 			this.push('>');
 		} else if (term.type == 'bnode') {
-			this.push(term.value);
+			this.push(term.value.toString());
 		} else if (term.type == 'literal') {
 			this.push('"');
-			var s = term.value;
+			var s = term.value.toString();
 			s = s.replace(/\\/g, "\\\\");
 			s = s.replace(/\t/g, "\\t");
 			s = s.replace(/\n/g, "\\n");
@@ -233,7 +237,7 @@ UpdateWriter.prototype = {
 			}
 			if (term.lang !== undefined) {
 				this.push('@');
-				this.push(term.lang.replace(/[^0-9a-zA-Z\-]/g, ''));
+				this.push(term.lang.toString().replace(/[^0-9a-zA-Z\-]/g, ''));
 			}
 		} else if (!term.type) {
 			throw "Unknown term: " + term;

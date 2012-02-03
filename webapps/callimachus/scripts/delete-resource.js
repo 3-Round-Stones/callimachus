@@ -79,12 +79,12 @@ window.calli.deleteResource = function(event, redirect) {
 						}
 					}
 				} catch(e) {
-					form.trigger("calliError", e.description ? e.description : e);
+					throw calli.error(e);
 				}
 			}})
 		}
 	} catch(e) {
-		form.trigger("calliError", e.description ? e.description : e);
+		calli.error(e);
 	}
 }
 

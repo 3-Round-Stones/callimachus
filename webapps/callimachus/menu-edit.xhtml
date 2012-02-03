@@ -11,6 +11,22 @@
 	<style type="text/css">
 		ol.items { padding-left: 2em; margin-bottom:0; }
 	</style>
+	<script type='text/javascript'>
+		function setAbout(child, label) {
+			var uri = $('body').attr('about')+'#'+label.toLowerCase().replace(/[^a-z0-9]/g, '');
+			var parent = $('*[about="' + uri + '"]');
+			if (!parent.length || parent[0] != $(child).parent()[0]) {
+				if (parent.length) {
+					var suffix = 1;
+					while ($('*[about="' + uri + suffix + '"]').length) {
+						suffix++;
+					}
+					uri = uri + suffix;
+				}
+				$(child).parent().attr('about', uri);
+			}
+		}
+	</script>
 </head>
 <body about="?this">
 	<h1 property="rdfs:label" />
@@ -24,7 +40,7 @@
 				<li about="?item1">
 					<span class="asc" property="calli:position" style="display:none"/>
 					<input value="{rdfs:label}" title="Label"
-								onchange="$(this).parent().attr('about',$('body').attr('about')+'#'+value.toLowerCase().replace(/[^a-z]/g, ''))"
+								onchange="setAbout(this, value)"
 						onblur="var container=$(this).parent().children('.link-container');if(!container.children('input').length)calli.addResource(event,container)" />
 					<span class="link-container">
 						<input rel="calli:link" resource="?menu" value="{?menu}" size="32" title="URL (optional)" placeholder="http://" />
@@ -36,7 +52,7 @@
 						<li about="?item2">
 							<span class="asc" property="calli:position" style="display:none" />
 							<input value="{rdfs:label}" title="Label"
-								onchange="$(this).parent().attr('about',$('body').attr('about')+'#'+value.toLowerCase().replace(/[^a-z]/g, ''))"
+								onchange="setAbout(this, value)"
 								onblur="var container=$(this).parent().children('.link-container');if(!container.children('input').length)calli.addResource(event,container)" />
 							<span class="link-container">
 								<input rel="calli:link" resource="?link" value="{?link}" size="32" title="URL" placeholder="http://" />

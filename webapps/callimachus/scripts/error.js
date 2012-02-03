@@ -2,6 +2,10 @@
 
 (function($, jQuery){
 
+if (!window.calli) {
+	window.calli = {};
+}
+
 var unloading = false;
 $(window).bind('beforeunload', function() {
 	unloading = true;
@@ -9,61 +13,84 @@ $(window).bind('beforeunload', function() {
 
 $(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
 	if (xhr && xhr.status >= 400) {
-		showError(event, xhr.statusText, xhr.responseText);
+		calli.error(xhr.statusText, xhr.responseText);
 	} else if (thrownError) {
-		showError(event, thrownError);
+		calli.error(thrownError);
 	} else if (xhr && xhr.status < 100) {
 		setTimeout(function() {
 			if (!unloading) {
-				showError(event, "Could not connect to server, please try again later");
+				calli.error("Could not connect to server, please try again later");
 			}
 		}, 0);
 	}
 });
 
-$(document).ajaxSuccess(function(event, xhr, ajaxOptions){
-	if (xhr && xhr.status >= 200 && xhr.status < 300) {
-		$(document).trigger('calliSuccess');
-	}
-});
 
-$(document).ready(function() {
-	$('form').bind("submit", function(event) {
-		$(this).trigger('calliSuccess');
-		return true;
-	});
-	$(document).bind("calliError", showError);
-});
-
-function showError(event, error, detail) {
+// calli.error("message");
+// calli.error("message", "stack");
+// calli.error("message", "<html/>");
+// calli.error(<span/>, "stack");
+// calli.error(caught);
+// calli.error({message:getter,stack:getter});
+// calli.error({description:getter});
+window.calli.error = function(message, stack) {
 	setTimeout(function() {
-		try {
-			var e = jQuery.Event("error");
-			if (typeof error == 'object') {
-				jQuery.extend(true, e, error);
-			} else {
-				e.message = error;
+		var e = jQuery.Event("error");
+		if (typeof message == 'object') {
+			if (message.description) {
+				e.message = asHtml(message.description);
 			}
-			if (detail && detail.indexOf('<') == 0) {
-				var h1 = $(detail).find("h1").andSelf().filter("h1").clone();
-				var frag = document.createDocumentFragment();
-				h1.contents().each(function() {
-					frag.appendChild(this);
-				});
-				e.message = frag;
-				e.data = $(detail).find("pre").andSelf().filter("pre").text();
+			if (message.name) {
+				e.name = asHtml(message.name);
 			}
-			if (e.message) {
-				var target = event.target;
-				if (!target) {
-					target = document;
-				}
-				$(target).trigger(e);
+			if (message.message) {
+				e.message = asHtml(message.message);
 			}
-		} catch (e) {
-			alert(error);
+			if (message.stack) {
+				e.stack = asHtml(message.stack);
+			}
+		} else {
+			e.message = asHtml(message);
 		}
-	}, 1000);
+		if (typeof message == 'string' && stack && stack.indexOf('<') == 0) {
+			e.message = $(stack).find("h1").andSelf().filter("h1").html();
+			e.stack = $(stack).find("pre").andSelf().filter("pre").html();
+		} else if (stack) {
+			e.stack = asHtml(stack);
+		}
+		if (e.message) {
+			$(document).trigger(e);
+		}
+	}, 0);
+	if (!message)
+		return undefined;
+	if (message instanceof Error)
+		return message;
+	if (typeof message == 'string')
+		return new Error(message);
+	if (message.nodeType)
+		return new Error($('<p/>').append(message).text());
+	if (typeof message == 'function')
+		return new Error(message.toSource());
+	if (message.message)
+		return new Error(message.message);
+	return new Error(message.toString());
+};
+
+function asHtml(obj) {
+	if (!obj) {
+		return undefined;
+	} else if (typeof obj == 'string') {
+		return $('<p/>').text(obj).html();
+	} else if (obj.nodeType) {
+		return $('<p/>').append(obj).html();
+	} else if (typeof obj.toSource == 'function') {
+		return $('<p/>').text(obj.toSource()).html();
+	} else if (obj.message) {
+		return $('<p/>').text(obj.message).html();
+	} else {
+		return $('<p/>').text(obj.toString()).html();
+	}
 }
 
 })(jQuery, jQuery);

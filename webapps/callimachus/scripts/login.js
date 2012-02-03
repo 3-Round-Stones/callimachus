@@ -125,7 +125,7 @@ function submitLoginForm(event) {
 		event.remember = this.elements['remember'].checked;
 		$(document).trigger(event);
 	} catch (e) {
-		$(event.target).trigger("calliError", e.description ? e.description : e);
+		throw calli.error(e);
 	}
 	return false;
 }

@@ -227,16 +227,16 @@ aside ul,
 	#content { min-height:30em; }
 }
 
-.ie7_html #logo { float:none; position:absolute; top:0; left:0; }
-.ie7_html nav#menu { float:none; position:absolute; top:10em; left:0; }
-.ie7_html #access, .ie7_html #container, .ie7_html #footer { margin-left:10em; }
-.ie7_html #access { clear:none; }
-.ie7_html #content { min-height:28em; }
-.ie7_html .iframe #content {min-height: 0px; }
-.ie7_html hgroup ~ #sidebar { position:relative; top:-6em; }
-.ie7_html h1 ~ #sidebar { position:relative; top:-3.5em; }
-.ie7_html #sidebar { float:right; padding-left:1em; }
-.ie7_html aside, .ie7_html .aside { float:right; }
+.ie #logo { float:none; position:absolute; top:0; left:0; }
+.ie nav#menu { float:none; position:absolute; top:10em; left:0; }
+.ie #access, .ie #container, .ie #footer { margin-left:10em; }
+.ie #access { clear:none; }
+.ie #content { min-height:28em; }
+.ie .iframe #content {min-height: 0px; }
+.ie hgroup ~ #sidebar { position:relative; top:-6em; }
+.ie h1 ~ #sidebar { position:relative; top:-3.5em; }
+.ie #sidebar { float:right; padding-left:1em; }
+.ie aside, .ie .aside { float:right; }
 /* end desktop */
 
 /* start print */

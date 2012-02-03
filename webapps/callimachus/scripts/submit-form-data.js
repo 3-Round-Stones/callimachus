@@ -41,9 +41,13 @@ function createIframeRedirect(iname, finalTarget) {
 				}
 			}
 		} else {
-			var h1 = $(doc).find('h1').html();
-			var pre = $(doc).find('pre').html();
-			$(this).trigger("calliError", h1, pre);
+			var h1 = $(doc).find('h1').clone();
+			var frag = document.createDocumentFragment();
+			h1.contents().each(function() {
+				frag.appendChild(this);
+			});
+			var pre = $(doc).find('pre').text();
+			calli.error(frag, pre);
 		}
 	});
 	iframe.css('display', 'none');

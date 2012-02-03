@@ -20,12 +20,11 @@
 		if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
 			var msg = event.originalEvent.data;
 			if (msg.indexOf('ERROR ') == 0) {
-				var status = msg.substring('ERROR '.length, msg.indexOf('\n\n'));
-				var error = msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2);
-				$(document).trigger("calliError", status, error);
+				var message = msg.substring('ERROR '.length, msg.indexOf('\n\n'));
+				var stack = msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2);
+				calli.error(message, stack);
 			} else if (msg.indexOf('ERROR') == 0) {
-				var error = msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2);
-				$(document).trigger("calliError", error);
+				calli.error(msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2));
 			}
 		}
 	});

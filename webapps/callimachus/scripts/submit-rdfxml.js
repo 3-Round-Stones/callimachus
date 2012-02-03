@@ -33,11 +33,11 @@ function submitRDFForm(form, uri, type) {
 					window.location.replace(event.location);
 				}
 			} catch(e) {
-				$(form).trigger("calliError", e.description ? e.description : e);
+				throw calli.error(e);
 			}
 		});
 	} catch(e) {
-		$(form).trigger("calliError", e.description ? e.description : e);
+		throw calli.error(e);
 	}
 }
 

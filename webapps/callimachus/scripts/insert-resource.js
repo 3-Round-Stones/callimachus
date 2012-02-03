@@ -49,7 +49,7 @@ function addSetItem(uri, script, errorMessage) {
 			de.location = uri;
 			$(input).trigger(de);
 		} else if (errorMessage) {
-			script.trigger("calliError", errorMessage);
+			calli.error(errorMessage);
 		}
 	});
 }

@@ -36,7 +36,7 @@
 		<label for="label">Full name</label>
 		<div>
 			<input id="label" name="label" type="text" class="auto-expand required"
-				onchange="$('#message').val($('#message').val().replace(/Hi[^,]*,/, 'Hi ' + value + ','))" />
+				onchange="$('#message').val($('#message').val().replace(/Hello,/, 'Hello ' + value + ','))" />
 		</div>
 		<label for="comment">Additional information</label>
 		<div>
@@ -48,7 +48,7 @@
 		</div>
 		<label for="message">Welcome message</label>
 		<div>
-			<textarea id="message" class="auto-expand required" name="message">Hi,
+			<textarea id="message" class="auto-expand required" name="message">Hello,
 
 You have a new account.
 

@@ -49,7 +49,8 @@ window.calli.error = function(message, stack) {
 			if (message.stack) {
 				e.stack = asHtml(message.stack);
 			}
-		} else {
+		}
+		if (!e.message) {
 			e.message = asHtml(message);
 		}
 		if (typeof message == 'string' && stack && stack.indexOf('<') == 0) {
@@ -62,19 +63,26 @@ window.calli.error = function(message, stack) {
 			$(document).trigger(e);
 		}
 	}, 0);
-	if (!message)
-		return undefined;
-	if (message instanceof Error)
-		return message;
-	if (typeof message == 'string')
-		return new Error(message);
-	if (message.nodeType)
-		return new Error($('<p/>').append(message).text());
-	if (typeof message == 'function')
-		return new Error(message.toSource());
-	if (message.message)
-		return new Error(message.message);
-	return new Error(message.toString());
+	var error;
+	if (!message) {
+		error = new Error();
+	} else if (message instanceof Error) {
+		error = message;
+	} else if (typeof message == 'string') {
+		error = new Error(message);
+	} else if (message.nodeType) {
+		error = new Error($('<p/>').append($(message).clone()).text());
+	} else if (typeof message == 'function') {
+		error = new Error(message.toSource());
+	} else if (message.message) {
+		error = new Error(message.message);
+	} else {
+		error = new Error(message.toString());
+	}
+	if (window.console && window.console.error) {
+		console.error(error.message);
+	}
+	return error;
 };
 
 function asHtml(obj) {
@@ -83,7 +91,7 @@ function asHtml(obj) {
 	} else if (typeof obj == 'string') {
 		return $('<p/>').text(obj).html();
 	} else if (obj.nodeType) {
-		return $('<p/>').append(obj).html();
+		return $('<p/>').append($(obj).clone()).html();
 	} else if (typeof obj.toSource == 'function') {
 		return $('<p/>').text(obj.toSource()).html();
 	} else if (obj.message) {

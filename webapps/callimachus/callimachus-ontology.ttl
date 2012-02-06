@@ -34,7 +34,7 @@
 <http://callimachusproject.org/rdf/2009/framework> a owl:Ontology;
 	rdfs:label "Callimachus Ontology";
 	rdfs:comment "Vocabulary used to create Callimachus applications";
-	owl:versionInfo "0.13".
+	owl:versionInfo "0.15".
 
 ################################
 # Class
@@ -42,84 +42,103 @@
 
 calli:Composite a owl:Class;
 	rdfs:label "Composite";
-	rdfs:comment "Class of resources that contain nested components, where the component URIs have their parent URI as a prefix".
+	rdfs:comment "Class of resources that contain nested components, where the component URIs have their parent URI as a prefix";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Folder a owl:Class;
 	rdfs:subClassOf calli:Composite;
 	rdfs:label "Folder";
-	rdfs:comment "A resource URI namespace ending in a slash".
+	rdfs:comment "A resource URI namespace ending in a slash";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Origin a owl:Class;
 	rdfs:subClassOf calli:Folder;
 	rdfs:label "Origin";
-	rdfs:comment "A URI with a '/' path that is served by a Callimachus system".
+	rdfs:comment "A URI with a '/' path that is served by a Callimachus system";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:AnybodyRealm a owl:Class;
 	rdfs:label "Anybody Realm";
-	rdfs:comment "A realm that authenticates any agent".
+	rdfs:comment "A realm that authenticates any agent";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:NobodyRealm a owl:Class;
 	rdfs:label "Nobody Realm";
-	rdfs:comment "A realm that forbids all agents".
+	rdfs:comment "A realm that forbids all agents";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:LocalRealm a owl:Class;
 	rdfs:label "Local Realm";
-	rdfs:comment "A realm that only authenticates local agents".
+	rdfs:comment "A realm that only authenticates local agents";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:AccountManager a owl:Class;
 	rdfs:label "Account Manager";
-	rdfs:comment "A managed set of users that can authenticate using HTTP digest credentials".
+	rdfs:comment "A managed set of users that can authenticate using HTTP digest credentials";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Party a owl:Class;
 	rdfs:label "Party";
-	rdfs:comment "A user or group of users".
+	rdfs:comment "A user or group of users";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:User a owl:Class;
 	rdfs:subClassOf calli:Party;
 	rdfs:label "Agent";
-	rdfs:comment "A digest credential with a MD5 algorithm".
+	rdfs:comment "A digest credential with a MD5 algorithm";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Group a owl:Class;
 	rdfs:subClassOf calli:Party;
 	rdfs:label "Group";
-	rdfs:comment "A collection of users".
+	rdfs:comment "A collection of users";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Manifest a owl:Class;
 	rdfs:subClassOf calli:Composite;
 	rdfs:label "Manifest";
-	rdfs:comment "Information about a Web application server".
+	rdfs:comment "Information about a Web application server";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Menu a owl:Class;
 	rdfs:label "Menu";
-	rdfs:comment "A hierarchical menu of human-readable links".
+	rdfs:comment "A hierarchical menu of human-readable links";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Theme a owl:Class;
 	rdfs:label "Theme";
-	rdfs:comment "A Callimachus Web theme of HTML templates, CSS, and JavaScript".
+	rdfs:comment "A Callimachus Web theme of HTML templates, CSS, and JavaScript";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:ScriptBundle a owl:Class;
 	rdfs:label "Script Bundle";
-	rdfs:comment "A collection of JavaScript files that are downloaded and compressed together".
+	rdfs:comment "A collection of JavaScript files that are downloaded and compressed together";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Creatable a owl:DeprecatedClass;
 	rdfs:label "Creatable";
-	rdfs:comment "Use <Creatable> instead".
+	rdfs:comment "Use <Creatable> instead";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Editable a owl:DeprecatedClass;
 	rdfs:label "Editable";
-	rdfs:comment "Use <Editable> instead".
+	rdfs:comment "Use <Editable> instead";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Viewable a owl:DeprecatedClass;
 	rdfs:label "Viewable";
-	rdfs:comment "Use <Viewable> instead".
+	rdfs:comment "Use <Viewable> instead";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Page a owl:DeprecatedClass;
 	rdfs:label "Page";
-	rdfs:comment "Use <Page> instead".
+	rdfs:comment "Use <Page> instead";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:NamedGraph a owl:DeprecatedClass;
 	rdfs:label "Named Graph";
-	rdfs:comment "Use <NamedGraph> instead".
+	rdfs:comment "Use <NamedGraph> instead";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 ################################
 # Annotation
@@ -127,67 +146,83 @@ calli:NamedGraph a owl:DeprecatedClass;
 
 calli:reader a owl:AnnotationProperty;
 	rdfs:label "reader";
-	rdfs:comment "User or group of users that can view individual resources of this class".
+	rdfs:comment "User or group of users that can view individual resources of this class";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:author a owl:AnnotationProperty;
 	rdfs:label "author";
-	rdfs:comment "User or group of users that can create an instance resource of this class".
+	rdfs:comment "User or group of users that can create an instance resource of this class";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:contributor a owl:AnnotationProperty;
 	rdfs:label "contributor";
-	rdfs:comment "User or group of users that can create a resource in this namespace".
+	rdfs:comment "User or group of users that can create a resource in this namespace";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:editor a owl:AnnotationProperty;
 	rdfs:label "editor";
-	rdfs:comment "User or group of users that can create resources in this namespace, can edit this resource, and edit members of this class".
+	rdfs:comment "User or group of users that can create resources in this namespace, can edit this resource, and edit members of this class";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:administrator a owl:AnnotationProperty;
 	rdfs:label "administrator";
-	rdfs:comment "User or group of users that can interact, create and modify this resource and members of this class".
+	rdfs:comment "User or group of users that can interact, create and modify this resource and members of this class";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:edit a owl:AnnotationProperty;
 	rdfs:label "edit";
-	rdfs:comment "The RDFa page template used to edit individual resources of this class using a Web browser".
+	rdfs:comment "The RDFa page template used to edit individual resources of this class using a Web browser";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:view a owl:AnnotationProperty;
 	rdfs:label "view";
-	rdfs:comment "The RDFa page template used to display individual resources of this class in a Web browser".
+	rdfs:comment "The RDFa page template used to display individual resources of this class in a Web browser";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:create a owl:AnnotationProperty;
 	rdfs:label "create";
-	rdfs:comment "The RDFa page template used to create resources of this class using a Web browser".
+	rdfs:comment "The RDFa page template used to create resources of this class using a Web browser";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:type a owl:AnnotationProperty;
 	rdfs:label "type";
-	rdfs:comment "The content type for binary or text representations of resources of this class, property, or message response".
+	rdfs:comment "The content type for binary or text representations of resources of this class, property, or message response";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:expect a owl:AnnotationProperty;
 	rdfs:label "expect";
-	rdfs:comment "Placed on message parameters that should be populated with request headers. Placed on messages to add a response header. Response header of 'cache-control:no-validate' disable server side validation and 'cache-control:cache-range' use strong etag validation".
+	rdfs:comment "Placed on message parameters that should be populated with request headers. Placed on messages to add a response header. Response header of 'cache-control:no-validate' disable server side validation and 'cache-control:cache-range' use strong etag validation";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:method a owl:AnnotationProperty;
 	rdfs:label "method";
-	rdfs:comment "Placed on messages that should be called for the given HTTP method".
+	rdfs:comment "Placed on messages that should be called for the given HTTP method";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:query a owl:AnnotationProperty;
 	rdfs:label "query";
-	rdfs:comment "Placed on messages that should be called when the given request query parameter name is sent without a value. Placed on message properties that should be populated with request GET query parameters".
+	rdfs:comment "Placed on messages that should be called when the given request query parameter name is sent without a value. Placed on message properties that should be populated with request GET query parameters";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:realm a owl:AnnotationProperty;
 	rdfs:label "realm";
-	rdfs:comment "The Realm used to secure members of this class or use of this message".
+	rdfs:comment "The Realm used to secure members of this class or use of this message";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:rel a owl:AnnotationProperty;
 	rdfs:label "rel";
-	rdfs:comment "Placed on properties or messages and describes the relationship between the message target and message response".
+	rdfs:comment "Placed on properties or messages and describes the relationship between the message target and message response";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:title a owl:AnnotationProperty;
 	rdfs:label "title";
-	rdfs:comment "Labels the relationship between message target and message response such that it can be used as identification within a human-readable menu".
+	rdfs:comment "Labels the relationship between message target and message response such that it can be used as identification within a human-readable menu";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:transform a owl:AnnotationProperty;
 	rdfs:label "transform";
-	rdfs:comment "The messages that should be used to transform the parameter or response".
+	rdfs:comment "The messages that should be used to transform the parameter or response";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 ################################
 # Property
@@ -197,126 +232,148 @@ calli:algorithm a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "algorithm";
 	rdfs:comment "A value of 'MD5' indicates this Agent is uses digest authentication";
 	rdfs:domain calli:User;
-	rdfs:range rdf:PlainLiteral.
+	rdfs:range rdf:PlainLiteral;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:encoded a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "encoded";
 	rdfs:comment "The MD5 encoded username:realm:password";
 	rdfs:domain calli:User;
-	rdfs:range xsd:hexBinary.
+	rdfs:range xsd:hexBinary;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:name a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "name";
 	rdfs:comment "The username for this agent";
 	rdfs:domain calli:User;
-	rdfs:range rdf:PlainLiteral.
+	rdfs:range rdf:PlainLiteral;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:email a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "email";
 	rdfs:comment "The primary email address for this user";
 	rdfs:domain calli:User;
-	rdfs:range rdf:PlainLiteral.
+	rdfs:range rdf:PlainLiteral;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:authNamespace a owl:ObjectProperty;
 	rdfs:label "auth namespace";
 	rdfs:comment "Folder of users that can be authenticated by this realm";
 	rdfs:domain calli:AccountManager;
-	rdfs:range calli:Folder.
+	rdfs:range calli:Folder;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:authName a rdf:Property, owl:FunctionalProperty;
 	rdfs:label "auth name";
 	rdfs:comment "A string to be displayed to users so they know which username and password to use. This string should contain at least the name of the host performing the authentication and might additionally indicate the collection of users who might have access. This string is used to encode the passwords and changing it will invalidates existing encoded passwords";
-	rdfs:domain calli:AccountManager.
+	rdfs:domain calli:AccountManager;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:forbidden a owl:ObjectProperty;
 	rdfs:label "forbidden";
 	rdfs:comment "The RDFa page template used when an agent is forbidden from the requested resource";
 	rdfs:domain calli:Manifest;
-	rdfs:range calli:Page.
+	rdfs:range calli:Page;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:unauthorized a owl:ObjectProperty;
 	rdfs:label "authorized";
 	rdfs:comment "The RDFa page template used when an agent is aunothorized from the requested resource";
 	rdfs:domain calli:Manifest;
-	rdfs:range calli:Page.
+	rdfs:range calli:Page;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:authentication a owl:ObjectProperty;
 	rdfs:label "authentication";
 	rdfs:comment "The realm used for authentication";
 	rdfs:domain calli:Manifest;
-	rdfs:range calli:AccountManager.
+	rdfs:range calli:AccountManager;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:variation a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "variation";
 	rdfs:comment "An CSS file that overrides the style of the theme";
-	rdfs:domain calli:Manifest.
+	rdfs:domain calli:Manifest;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:menu a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "menu";
 	rdfs:comment "The menu used in this manifest";
 	rdfs:domain calli:Manifest;
-	rdfs:range calli:Menu.
+	rdfs:range calli:Menu;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:favicon a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "favicon";
 	rdfs:comment "A small logo image that should be shown on pages using the configured theme";
-	rdfs:domain calli:Manifest.
+	rdfs:domain calli:Manifest;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "rights";
 	rdfs:comment "Rights statement for the data in this Web application server";
 	rdfs:domain calli:Manifest;
-	rdfs:range rdf:XMLLiteral.
+	rdfs:range rdf:XMLLiteral;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:member a owl:ObjectProperty;
 	rdfs:label "member";
 	rdfs:comment "Agent that is part of this group";
 	rdfs:domain calli:Group;
-	rdfs:range calli:Agent.
+	rdfs:range calli:Agent;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:hasComponent a owl:ObjectProperty;
 	rdfs:label "has component";
 	rdfs:comment "A nested resource with a URI that starts with this resource URI with one additional path, fragement, or component segment";
-	rdfs:domain calli:Composite.
+	rdfs:domain calli:Composite;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:describedBy a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "described by";
 	rdfs:comment "The target URL to use as a directory index";
-	rdfs:domain calli:Folder.
+	rdfs:domain calli:Folder;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:item a owl:ObjectProperty;
 	rdfs:label "item";
 	rdfs:comment "A menu item that is part of this menu";
 	rdfs:domain calli:Menu;
-	rdfs:range calli:Menu.
+	rdfs:range calli:Menu;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:position a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "position";
 	rdfs:comment "The position this menu item should be placed";
 	rdfs:domain calli:Menu;
-	rdfs:range xsd:integer.
+	rdfs:range xsd:integer;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:link a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "link";
 	rdfs:comment "The target of this menu entry";
-	rdfs:domain calli:Menu.
+	rdfs:domain calli:Menu;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:minified a owl:DatatypeProperty;
 	rdfs:label "minified";
 	rdfs:comment "Level of minification that should be applied to this bundle. Zero represents no minification. One represents minimal minification";
 	rdfs:domain calli:ScriptBundle;
-	rdfs:range xsd:integer.
+	rdfs:range xsd:integer;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:theme a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "theme";
 	rdfs:comment "The primary theme used for this manifest";
 	rdfs:domain calli:Manifest;
-	rdfs:range calli:Theme.
+	rdfs:range calli:Theme;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:layout a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "layout";
 	rdfs:comment "The HTML template used by this theme as the primary page layout";
-	rdfs:domain calli:Theme.
+	rdfs:domain calli:Theme;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 ################################
 # Message
@@ -325,22 +382,27 @@ calli:layout a owl:FunctionalProperty, owl:ObjectProperty;
 # interface method used by ManifestSupport
 calli:IsAuthorized rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean].
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 <http://callimachusproject.org/rdf/2009/framework/IsAuthorized#credential> a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain calli:IsAuthorized.
+	rdfs:domain calli:IsAuthorized;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 <http://callimachusproject.org/rdf/2009/framework/IsAuthorized#method> a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain calli:IsAuthorized;
-	rdfs:range xsd:string;.
+	rdfs:range xsd:string;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 <http://callimachusproject.org/rdf/2009/framework/IsAuthorized#query> a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain calli:IsAuthorized;
-	rdfs:range xsd:string.
+	rdfs:range xsd:string;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 ################################
 # Thing
 ################################
 
-calli:nobody a calli:NobodyRealm.
+calli:nobody a calli:NobodyRealm;
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 

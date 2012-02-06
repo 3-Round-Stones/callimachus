@@ -2,9 +2,9 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-6 December 2011
+6 February 2012
 
-= REQUIREMENTS OF 0.14 =
+= REQUIREMENTS OF 0.15 =
 
 Callimachus works best on browsers that are closely tracking the
 development of HTML5.  At the time of this writing, Callimachus
@@ -12,8 +12,8 @@ works best on Chrome, with Firefox and Safari as second choices.  It is
 recommended that Callimachus users track updates to their browsers for
 the best usage experience.
 
-Chrome 14 has been thoroughly tested.
-Firefox 7 and Safari 5 have no known issues.
+Chrome 16 has been thoroughly tested.
+Firefox 10 and Safari 5 have no known issues.
 Internet Explorer 8 can perform most tasks.
 
 Internet Explorer 7 and 9 can login and read content, but do not work with
@@ -21,27 +21,37 @@ editing operations, including forms.
 
 Callimachus requires Java 6 (server-side) to run.
 
-= NEW IN VERSION 0.14 =
+= NEW IN VERSION 0.15 =
 
-Callimachus 0.14 can export and import folder contents through the edit tab of a folder.
+Callimachus 0.15 support SPARQL 1.1 update statements, supports user created 
+themes, and includes support for blank nodes. Include the attribute @typeof in 
+XHTML+RDFa markup templates to indicate the start of a new blank node. WOFF 
+files are now supported. Multiple manifests and multiple themes can now be used
+by different templates.
 
-= KNOWN ISSUES IN 0.14 =
+= KNOWN ISSUES IN 0.15 =
 
-Blank nodes are not supported. It may be necessary to skolemize blank
-nodes in create and edit forms. See the directory.car sample app for an example
-of this.
+ * Error messages are not shown when using Ctrl-S within an text edit form. Use 
+   the save button to see the error message.
+ * Empty table cell are omitted in from template.
+ * Language tags are not supported with forums.
+ * All possible options in check boxes must have a label.
+ * Trailing whitespace in @typeof attribute is not supported.
+ * Safari browser cannot view Turtle or RDF/XML output in describe tab.
+ * The user can only created new resources in the same authority.
+ * rdf:XMLLiteral on form create auto adds xmlns to elements.
 
-= HOWTO UPGRADE FROM 0.13 =
+= HOWTO UPGRADE FROM 0.14 =
 
 All information saved through a Web browser is saved in the repositories
 directory. This directory should be backup (in the stopped state) before
 attempting to upgrade.
 
-Stop the 0.13 server using the callimachus-stop script in the bin directory.
+Stop the 0.14 server using the callimachus-stop script in the bin directory.
 Remove the lib and tmp directories. Remove the supplied callimachus.war file in
 the webapps directory.
 Backup any configuration files in etc, including etc/callimachus.conf. Unzip
-callimachus-0.14.zip over top of the rest of your existing installation. This
+callimachus-0.15.zip over top of the rest of your existing installation. This
 will restore a lib directory and webapps/callimachus.war. Restore your
 configuration settings in etc/callimachus.conf. Start the server using the new
 callimachus start script in the bin directory with the argument "--update".
@@ -50,12 +60,24 @@ $ callimachus-start.bat --update
 -- OR --
 $ sh callimachus-start.sh --update
 
-All edit and create templates with dropzones should include the attribute
-ondrop="calli.insertResource(event)".
+Change all templates to include the new manifest URL to the top of the file:
 
-All client side javascript calli functions now take the HTML event object
-as the first parameter. Replace this or form parameter with the event object.
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/manifest?layout"?>
+<html xmlns="http://www.w3.org/1999/xhtml" ...
 
-For syntax see http://code.google.com/p/callimachus/wiki/FormAPI
-For examples see http://code.google.com/p/callimachus/wiki/FormPatterns
+Change the markup used for aside boxes in the templates as follows.
+
+Place all aside boxes in a single <div id="sidebar" />. Use the element type
+<aside/> for each box. Include an <h3/> element as a label heading for each box,
+if appropriate. Include one or more block elements, such as <p/>, <ul/>, <dl/>, 
+or <table/>, within each <aside/> element.
+
+Change <label class="input"/> to use the CSS class "radio" or "checkbox" instead.
+
+Use CSS to override the logo image of a theme in the manifest.
+
+Use calli namespace for HTTP annotations in server side request handlers. See 
+http://callimachusproject.org/rdf/2009/framework a list of calli annotations.
+
 

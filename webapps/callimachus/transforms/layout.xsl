@@ -405,23 +405,170 @@
 			<xsl:when test="contains($relative, '{') or contains($relative, ' ') or contains($relative, '&lt;') or contains($relative, '&gt;') or contains($relative, '&quot;') or contains($relative, &quot;'&quot;)">
 				<xsl:value-of select="$relative" />
 			</xsl:when>
-			<xsl:when test="contains($relative, ':') or starts-with($relative,'//')">
+			<xsl:when test="contains($relative, '://') or starts-with($relative,'//')">
 				<xsl:value-of select="$relative" />
 			</xsl:when>
 			<xsl:when test="$relative='' or starts-with($relative,'?') or starts-with($relative,'#')">
 				<xsl:value-of select="$relative" />
 			</xsl:when>
 			<xsl:when test="starts-with($relative, '/')">
-				<xsl:value-of select="concat($scheme, '://', $authority)" />
-				<xsl:value-of select="$relative" />
+				<xsl:call-template name="normalize-uri-path">
+					<xsl:with-param name="uri">
+						<xsl:value-of select="concat($scheme, '://', $authority)" />
+						<xsl:value-of select="$relative" />
+					</xsl:with-param>
+				</xsl:call-template>
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:call-template name="substring-before-last">
-					<xsl:with-param name="arg" select="$base" />
-					<xsl:with-param name="delim" select="'/'" />
+				<xsl:call-template name="normalize-uri-path">
+					<xsl:with-param name="uri">
+						<xsl:call-template name="substring-before-last">
+							<xsl:with-param name="arg" select="$base" />
+							<xsl:with-param name="delim" select="'/'" />
+						</xsl:call-template>
+						<xsl:text>/</xsl:text>
+						<xsl:value-of select="$relative" />
+					</xsl:with-param>
 				</xsl:call-template>
-				<xsl:value-of select="'/'" />
-				<xsl:value-of select="$relative" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
+	<xsl:template name="normalize-uri-path">
+		<xsl:param name="uri" />
+		<xsl:variable name="path" select="concat('/',substring-after(substring-after($uri,'//'),'/'))" />
+		<xsl:choose>
+			<xsl:when test="(contains($uri,'://') or starts-with($uri,'//')) and contains($path, '?')">
+				<xsl:value-of select="substring-before($uri,'//')" />
+				<xsl:text>//</xsl:text>
+				<xsl:value-of select="substring-before(substring-after($uri,'//'),'/')" />
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path" select="substring-before($path,'?')" />
+				</xsl:call-template>
+				<xsl:text>?</xsl:text>
+				<xsl:value-of select="substring-after($uri,'?')" />
+			</xsl:when>
+			<xsl:when test="(contains($uri,'://') or starts-with($uri,'//')) and contains($path, '#')">
+				<xsl:value-of select="substring-before($uri,'//')" />
+				<xsl:text>//</xsl:text>
+				<xsl:value-of select="substring-before(substring-after($uri,'//'),'/')" />
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path" select="substring-before($path,'#')" />
+				</xsl:call-template>
+				<xsl:text>#</xsl:text>
+				<xsl:value-of select="substring-after($uri,'#')" />
+			</xsl:when>
+			<xsl:when test="contains($uri,'://') or starts-with($uri,'//')">
+				<xsl:value-of select="substring-before($uri,'//')" />
+				<xsl:text>//</xsl:text>
+				<xsl:value-of select="substring-before(substring-after($uri,'//'),'/')" />
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path" select="$path" />
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:when test="(starts-with($uri,'/') or starts-with($uri,'.')) and contains($uri, '?')">
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path" select="substring-before($uri,'?')" />
+				</xsl:call-template>
+				<xsl:text>?</xsl:text>
+				<xsl:value-of select="substring-after($uri,'?')" />
+			</xsl:when>
+			<xsl:when test="(starts-with($uri,'/') or starts-with($uri,'.')) and contains($uri, '#')">
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path" select="substring-before($uri,'#')" />
+				</xsl:call-template>
+				<xsl:text>#</xsl:text>
+				<xsl:value-of select="substring-after($uri,'#')" />
+			</xsl:when>
+			<xsl:when test="starts-with($uri,'/') or starts-with($uri,'.')">
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path" select="$uri" />
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$uri" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
+	<xsl:template name="normalize-path">
+		<xsl:param name="path" />
+		<xsl:choose>
+			<!-- A. If the input buffer begins with a prefix of "../" or "./",
+				then remove that prefix from the input buffer; otherwise, -->
+			<xsl:when test="starts-with($path,'../')">
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path" select="substring($path, 4)" />
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:when test="starts-with($path,'./')">
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path" select="substring($path, 3)" />
+				</xsl:call-template>
+			</xsl:when>
+			<!-- B.  if the input buffer begins with a prefix of "/./" or "/.",
+				where "." is a complete path segment, then replace that
+				prefix with "/" in the input buffer; otherwise, -->
+			<xsl:when test="starts-with($path,'/./')">
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path" select="substring($path, 3)" />
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:when test="$path='/.'">
+				<xsl:text>/</xsl:text>
+			</xsl:when>
+			<!-- C.  if the input buffer begins with a prefix of "/../" or "/..",
+				where ".." is a complete path segment, then replace that
+				prefix with "/" in the input buffer and remove the last
+				segment and its preceding "/" (if any) from the output
+				buffer; otherwise, -->
+			<xsl:when test="contains($path,'/../')">
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path">
+						<xsl:call-template name="substring-before-last">
+							<xsl:with-param name="arg" select="substring-before($path,'/../')" />
+							<xsl:with-param name="delim" select="'/'" />
+						</xsl:call-template>
+						<xsl:text>/</xsl:text>
+						<xsl:value-of select="substring-after($path,'/../')" />
+					</xsl:with-param>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:when test="substring($path,string-length($path)-2)='/..'">
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path">
+						<xsl:call-template name="substring-before-last">
+							<xsl:with-param name="arg" select="substring($path,1,string-length($path)-3)" />
+							<xsl:with-param name="delim" select="'/'" />
+						</xsl:call-template>
+						<xsl:text>/</xsl:text>
+					</xsl:with-param>
+				</xsl:call-template>
+			</xsl:when>
+			<!-- D.  if the input buffer consists only of "." or "..", then remove
+			 	that from the input buffer; otherwise, -->
+			<xsl:when test="contains($path,'/./')">
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path">
+						<xsl:value-of select="substring-before($path,'/./')" />
+						<xsl:text>/</xsl:text>
+						<xsl:value-of select="substring-after($path,'/./')" />
+					</xsl:with-param>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:when test="substring($path,string-length($path)-1)='/.'">
+				<xsl:call-template name="normalize-path">
+					<xsl:with-param name="path">
+						<xsl:value-of select="substring($path,string-length($path)-1)" />
+					</xsl:with-param>
+				</xsl:call-template>
+			</xsl:when>
+			<!-- E.  move the first path segment in the input buffer to the end of
+				the output buffer, including the initial "/" character (if
+				any) and any subsequent characters up to, but not including,
+				the next "/" character or the end of the input buffer. -->
+			<xsl:otherwise>
+				<xsl:value-of select="$path" />
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>

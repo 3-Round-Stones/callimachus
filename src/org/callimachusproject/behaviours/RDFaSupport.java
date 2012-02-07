@@ -22,7 +22,6 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
 
 import org.callimachusproject.annotations.method;
@@ -35,6 +34,8 @@ import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateEngineFactory;
 import org.callimachusproject.engine.TemplateException;
+import org.callimachusproject.engine.events.Base;
+import org.callimachusproject.engine.helpers.OverrideBaseReader;
 import org.callimachusproject.engine.helpers.RDFXMLEventReader;
 import org.openrdf.repository.object.RDFObject;
 
@@ -47,8 +48,7 @@ import org.openrdf.repository.object.RDFObject;
  * @author Steve Battle
  * 
  */
-public abstract class RDFaSupport implements Page, RDFObject,
-		FileObject {
+public abstract class RDFaSupport implements Page, RDFObject {
 	private static final TemplateEngineFactory tef = TemplateEngineFactory.newInstance();
 
 	@method("GET")
@@ -56,7 +56,7 @@ public abstract class RDFaSupport implements Page, RDFObject,
 	@type("application/xml")
 	public XMLEventReader xslt(@query("query") String query,
 			@query("element") String element) throws IOException, TemplateException {
-		String base = toUri().toASCIIString();
+		String base = getResource().stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("query", query);
@@ -70,7 +70,7 @@ public abstract class RDFaSupport implements Page, RDFObject,
 	@type("application/rdf+xml")
 	public XMLEventReader triples(@query("query") String query,
 			@query("element") String element) throws Exception {
-		String base = toUri().toASCIIString();
+		String base = getResource().stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("query", query);
@@ -86,7 +86,7 @@ public abstract class RDFaSupport implements Page, RDFObject,
 	public byte[] sparql(@query("about") String about,
 			@query("query") String query, @query("element") String element)
 			throws Exception {
-		String base = toUri().toASCIIString();
+		String base = getResource().stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("query", query);
@@ -97,13 +97,21 @@ public abstract class RDFaSupport implements Page, RDFObject,
 
 	public RDFEventReader openPatternReader(String about, String query,
 			String element) throws IOException, TemplateException {
-		String base = toUri().toASCIIString();
+		String base = getResource().stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("query", query);
 		param.put("template", true);
 		Template temp = engine.getTemplate(base, param).getElement(element);
-		return temp.openQueryReader();
+		RDFEventReader reader = temp.openQueryReader();
+		Base resolver = new Base(base);
+		if (about == null) {
+			reader = new OverrideBaseReader(resolver, null, reader);
+		} else {
+			String uri = resolver.resolve(about);
+			reader = new OverrideBaseReader(resolver, new Base(uri), reader);
+		}
+		return reader;
 	}
 
 }

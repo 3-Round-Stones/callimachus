@@ -335,7 +335,9 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 				}
 				String value = location.getValue();
 				if (value.startsWith("/") || !value.contains(":")) {
-					value = new ParsedURI(base).resolve(value).toString();
+					ParsedURI resolved = new ParsedURI(base).resolve(value);
+					resolved.normalize();
+					value = resolved.toString();
 				}
 				return value;
 			}

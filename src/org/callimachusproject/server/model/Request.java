@@ -33,6 +33,7 @@ import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -160,12 +161,6 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		}
 	}
 
-	public String resolve(String url) {
-		if (url == null)
-			return null;
-		return parseURI(url).toString();
-	}
-
 	public String getResolvedHeader(String name) {
 		String value = getHeader(name);
 		if (value == null)
@@ -236,7 +231,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		if (path.equals("*"))
 			return "*";
 		if (!path.startsWith("/")) {
-			return canonicalize(new ParsedURI(path)).toString();
+			return canonicalize(path);
 		}
 		String qs = null;
 		int qx = path.indexOf('?');
@@ -246,7 +241,9 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		}
 		String scheme = getScheme().toLowerCase();
 		String host = getAuthority().toLowerCase();
-		return new ParsedURI(scheme, host, path, qs, null).toString();
+		// path is already encoded, so use ParsedURI to concat
+		// note that java.net.URI would double encode the path here
+		return canonicalize(new ParsedURI(scheme, host, path, qs, null).toString());
 	}
 
 	public String getIRI() {
@@ -273,10 +270,12 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		return new ParsedURI(scheme, host, path, null, null).toString();
 	}
 
-	public ParsedURI parseURI(String uriSpec) {
+	public String resolve(String url) {
+		if (url == null)
+			return null;
 		ParsedURI base = new ParsedURI(getRequestURI());
-		ParsedURI uri = base.resolve(uriSpec);
-		return canonicalize(uri);
+		ParsedURI uri = base.resolve(url);
+		return canonicalize(uri.toString());
 	}
 
 	public boolean isMessageBody() {
@@ -349,13 +348,23 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		return values;
 	}
 
-	private ParsedURI canonicalize(ParsedURI uri) {
-		String scheme = uri.getScheme().toLowerCase();
-		String frag = uri.getFragment();
-		if (!uri.isHierarchical())
-			return new ParsedURI(scheme, uri.getSchemeSpecificPart(), frag);
-		String auth = uri.getAuthority().toLowerCase();
-		return new ParsedURI(scheme, auth, uri.getPath(), uri.getQuery(), frag);
+	private String canonicalize(String url) {
+		try {
+			URI uri = new java.net.URI(url);
+			uri.normalize();
+			String scheme = uri.getScheme().toLowerCase();
+			String frag = uri.getFragment();
+			if (uri.isOpaque()) {
+				String part = uri.getSchemeSpecificPart();
+				return new java.net.URI(scheme, part, frag).toString();
+			}
+			String auth = uri.getAuthority().toLowerCase();
+			String path = uri.getPath();
+			String qs = uri.getQuery();
+			return new java.net.URI(scheme, auth, path, qs, frag).toString();
+		} catch (URISyntaxException e) {
+			throw new BadRequest(e);
+		}
 	}
 
 	private String getScheme() {

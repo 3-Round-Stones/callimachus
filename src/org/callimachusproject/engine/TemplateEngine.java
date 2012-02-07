@@ -45,11 +45,12 @@ public class TemplateEngine {
 		return getTemplate(url, null);
 	}
 
-	public Template getTemplate(String redirect, Map<String, ?> parameters)
+	public Template getTemplate(String systemId, Map<String, ?> parameters)
 			throws IOException, TemplateException {
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		HttpResponse response = null;
 		String url = null;
+		String redirect = systemId;
 		for (int i = 0; redirect != null && i < 20; i++) {
 			url = redirect;
 			HttpRequest request = new BasicHttpRequest("GET", redirect);

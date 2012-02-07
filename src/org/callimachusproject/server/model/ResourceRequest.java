@@ -176,7 +176,7 @@ public class ResourceRequest extends Request {
 	}
 
 	public URI createURI(String uriSpec) {
-		return vf.createURI(parseURI(uriSpec).toString());
+		return vf.createURI(resolve(uriSpec));
 	}
 
 	public void flush() throws RepositoryException, QueryEvaluationException,

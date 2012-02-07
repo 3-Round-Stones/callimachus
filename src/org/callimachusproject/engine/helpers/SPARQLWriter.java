@@ -30,6 +30,7 @@ import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.VarOrIRI;
+import org.callimachusproject.engine.model.VarOrTerm;
 import org.openrdf.model.vocabulary.RDF;
 
 /**
@@ -173,7 +174,7 @@ public class SPARQLWriter implements Closeable {
 		} else if (event.isStartGraph()) {
 			indent(indent);
 			writer.append("GRAPH ");
-			writer.append(event.asGraph().getGraph().toString());
+			writer.append(term(event.asGraph().getGraph()));
 			writer.append(" {\n");
 			indent++;
 		} else if (event.isEndGraph()) {
@@ -194,16 +195,16 @@ public class SPARQLWriter implements Closeable {
 		} else if (event.isTriplePattern()) {
 			TriplePattern tp = event.asTriplePattern();
 			indent(indent);
-			writer.append(tp.getSubject().toString());
+			writer.append(term(tp.getSubject()));
 			writer.append(" ");
 			VarOrIRI pred = tp.getPredicate();
 			if (pred.isIRI() && pred.stringValue().equals(RDFTYPE)) {
 				writer.append("a");
 			} else {
-				writer.append(pred.toString());
+				writer.append(term(pred));
 			}
 			writer.append(" ");
-			writer.append(tp.getObject().toString());
+			writer.append(term(tp.getObject()));
 			writer.append(" .\n");
 		} else if (event.isStartBuiltInCall()) {
 			writer.append(event.asBuiltInCall().getFunction());
@@ -213,7 +214,7 @@ public class SPARQLWriter implements Closeable {
 			writer.append(")");
 			builtin--;
 		} else if (event.isVarOrTerm()) {
-			writer.append(event.asVarOrTerm().toString());
+			writer.append(term(event.asVarOrTerm()));
 		}
 		else if (event.isStart() || event.isEnd()) {
 			// unknown block
@@ -223,6 +224,10 @@ public class SPARQLWriter implements Closeable {
 			writer.append("\n");
 		}
 		previous = event;
+	}
+
+	private CharSequence term(VarOrTerm term) {
+		return term.toString();
 	}
 
 	private void indent(int indent) throws IOException {

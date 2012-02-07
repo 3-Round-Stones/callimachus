@@ -191,6 +191,11 @@ calli:type a owl:AnnotationProperty;
 
 calli:expect a owl:AnnotationProperty;
 	rdfs:label "expect";
+	rdfs:comment "Placed on a method to indicate the HTTP response status code of a successful response. Possible values include '201-created', '202-accepted', '205-reset-content', '300-multiple-choices', '301-moved-permanently', and '302-found'";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:header a owl:AnnotationProperty;
+	rdfs:label "header";
 	rdfs:comment "Placed on message parameters that should be populated with request headers. Placed on messages to add a response header. Response header of 'cache-control:no-validate' disable server side validation and 'cache-control:cache-range' use strong etag validation";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 

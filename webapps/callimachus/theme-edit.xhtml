@@ -16,12 +16,7 @@
 		<aside>
 			<p>Create a page with a &lt;div id="content /&gt; in the body</p>
 			<p>Place a &lt;div id="menu /&gt; where the menu should be placed</p>
-			<p>Place a &lt;nav id="access"&gt;&lt;/nav&gt; around &lt;a&gt; links to query string tabs</p>
-			<p>Put the markup <pre>&lt;div id="breadcrumbs"&gt;
-					... &#187; &lt;a class="breadcrumb" href="?up"&gt;Up&lt;/a&gt; &#187; &lt;span class="breadcrumb"&gt;Here&lt;/span&gt;
-				&lt;/div&gt;</pre> where the breadcrubms should be placed</p>
 			<p>Place a &lt;div id="flash"/&gt; where error messages and other notifications should be placed</p>
-			<p>Place a &lt;p id="resource-lastmod"&gt; around a &lt;time/&gt; element to subsitute the target resource's last modified date</p>
 			<p>Place a &lt;p id="rights"/&gt; where the manifest rights statement should be placed</p>
 		</aside>
 	</div>
@@ -31,7 +26,7 @@
 			<input id="label" value="{rdfs:label}" class="auto-expand" required="required" />
 		</div>
 		<div id="layout" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-			<label>Layout <a href="Page?create" title="Create Page" onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+			<label>Layout <a href="Page?create#!/callimachus/pages/sample-layout.xhtml" title="Create Page" onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
 			<div rel="calli:layout">
 				<span about="?layout" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
 					<span property="rdfs:label" />

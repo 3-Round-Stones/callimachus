@@ -12,7 +12,7 @@
 <> a <SchemaGraph>.
 
 <Manifest> a <CreatableIndex>, owl:Class;
-	rdfs:subClassOf <Viewable>, <Editable>, calli:Manifest;
+	rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:Manifest;
 	rdfs:isDefinedBy </callimachus>;
 	calli:author </group/admin>;
 	calli:icon <manifest.png>;

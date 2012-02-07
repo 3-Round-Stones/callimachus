@@ -37,6 +37,9 @@ function createIframeRedirect(iname, finalTarget) {
 				if (finalTarget && window.frames[finalTarget]) {
 					window.frames[finalTarget].location.href = event.location;
 				} else {
+					if (window.parent != window && parent.postMessage) {
+						parent.postMessage('PUT src\n\n' + event.location, '*');
+					}
 					window.location.replace(event.location);
 				}
 			}

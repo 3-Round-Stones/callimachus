@@ -30,6 +30,9 @@ function submitRDFForm(form, uri, type) {
 				event.location = window.calli.viewpage(redirect);
 				$(form).trigger(event);
 				if (!event.isDefaultPrevented()) {
+					if (window.parent != window && parent.postMessage) {
+						parent.postMessage('PUT src\n\n' + event.location, '*');
+					}
 					window.location.replace(event.location);
 				}
 			} catch(e) {

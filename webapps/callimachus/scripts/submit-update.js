@@ -73,6 +73,9 @@ function submitRDFForm(form, stored) {
 					event.location = redirect;
 					form.trigger(event);
 					if (!event.isDefaultPrevented()) {
+						if (window.parent != window && parent.postMessage) {
+							parent.postMessage('PUT src\n\n' + event.location, '*');
+						}
 						location.replace(event.location);
 					}
 				} catch(e) {

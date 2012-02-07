@@ -56,6 +56,9 @@ jQuery(function($){
 				if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
 					var url = msg.substring(msg.lastIndexOf('\n\n') + 2);
 					location.replace(url + '?view');
+					if (window.parent != window && parent.postMessage) {
+						parent.postMessage('PUT src\n\n' + url + '?view', '*');
+					}
 				}
 			}
 		});

@@ -158,6 +158,49 @@ DELETE {
 	</callimachus> owl:versionInfo "0.14"
 };
 
+INSERT {
+	?item calli:link </callimachus/TextFile>
+} WHERE {
+	?item calli:link </callimachus/Text>
+	FILTER NOT EXISTS { ?item calli:link </callimachus/TextFile> }
+	</callimachus> owl:versionInfo "0.14"
+};
+DELETE {
+	?item calli:link </callimachus/Text>
+} WHERE {
+	?item calli:link </callimachus/Text> .
+	</callimachus> owl:versionInfo "0.14"
+};
+
+INSERT {
+	?item calli:link </main-article.docbook?view>
+} WHERE {
+	?item calli:link </page/main-page.xhtml?view>
+	FILTER NOT EXISTS { ?item calli:link </main-article.docbook?view> }
+	</callimachus> owl:versionInfo "0.14"
+};
+DELETE {
+	?item calli:link </page/main-page.xhtml?view>
+} WHERE {
+	?item calli:link </page/main-page.xhtml?view> .
+	</callimachus> owl:versionInfo "0.14"
+};
+
+INSERT {
+	?item calli:position 0
+} WHERE {
+	?menu calli:item ?item
+	FILTER NOT EXISTS { ?item calli:position ?p }
+	</callimachus> owl:versionInfo "0.14"
+};
+DELETE {
+	?item calli:position ?gt
+} WHERE {
+	?item calli:position ?lt, ?gt
+	FILTER (?lt < ?gt)
+	</callimachus> owl:versionInfo "0.14"
+};
+
 DELETE {
 	</callimachus> owl:versionInfo "0.14"
 } INSERT {

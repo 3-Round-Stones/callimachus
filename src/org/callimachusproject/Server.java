@@ -40,10 +40,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import javax.management.InstanceAlreadyExistsException;
 import javax.management.JMX;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
@@ -56,6 +59,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.callimachusproject.logging.LoggerBean;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
@@ -151,9 +155,7 @@ public class Server implements HTTPObjectAgentMXBean {
 				}
 			} else {
 				Server server = new Server();
-				MBeanServer mbs = ManagementFactory
-						.getPlatformMBeanServer();
-				mbs.registerMBean(server, getObjectName());
+				registerMBean(server);
 				if (line.hasOption("pid")) {
 					initService(args);
 				}
@@ -183,6 +185,17 @@ public class Server implements HTTPObjectAgentMXBean {
 			System.err.println("Arguments: " + Arrays.toString(args));
 			System.exit(1);
 		}
+	}
+
+	private static void registerMBean(Server server)
+			throws InstanceAlreadyExistsException, MBeanRegistrationException,
+			NotCompliantMBeanException, MalformedObjectNameException {
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		String pkg = Server.class.getPackage().getName();
+		String lname = pkg + ":type=Logger";
+		mbs.registerMBean(new LoggerBean(), new ObjectName(lname));
+		String sname = pkg + ":type=" + Server.class.getSimpleName();
+		mbs.registerMBean(server, new ObjectName(sname));
 	}
 
 	private static void println(Throwable e) {
@@ -285,7 +298,9 @@ public class Server implements HTTPObjectAgentMXBean {
 		JMXServiceURL service = new JMXServiceURL(connectorAddress);
 		JMXConnector connector = JMXConnectorFactory.connect(service);
 		MBeanServerConnection mbsc = connector.getMBeanServerConnection();
-		ObjectName objectName = getObjectName();
+		String pkg = Server.class.getPackage().getName();
+		String name = pkg + ":type=" + Server.class.getSimpleName();
+		ObjectName objectName = new ObjectName(name);
 		HTTPObjectAgentMXBean server = JMX.newMXBeanProxy(mbsc, objectName,
 				HTTPObjectAgentMXBean.class);
 		try {
@@ -301,13 +316,6 @@ public class Server implements HTTPObjectAgentMXBean {
 			// remote JVM has terminated
 			System.out.println("Callimachus server has shutdown"); 
 		}
-	}
-
-	private static ObjectName getObjectName()
-			throws MalformedObjectNameException {
-		String pkg = Server.class.getPackage().getName();
-		String name = pkg + ":type=" + Server.class.getSimpleName();
-		return new ObjectName(name);
 	}
 
 	private CallimachusServer server;

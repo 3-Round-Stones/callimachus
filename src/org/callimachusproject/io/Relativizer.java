@@ -97,7 +97,7 @@ public class Relativizer {
 		String[] seg = path.split("/", Integer.MAX_VALUE);
 		// first segment is empty string
 		int diff = 1;
-		while (diff < paths.length && diff < seg.length
+		while (diff < paths.length && diff < seg.length - 1
 				&& paths[diff].equals(seg[diff])) {
 			diff++;
 		}

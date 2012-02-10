@@ -9,6 +9,16 @@ import org.junit.Test;
 public class RelativizerTest {
 
 	@Test
+	public void testParentFile() throws URISyntaxException {
+		assertEquals("../dir", new Relativizer("http://example.com/dir/dir/file").relativize("http://example.com/dir/dir"));
+	}
+
+	@Test
+	public void testRootFile() throws URISyntaxException {
+		assertEquals("/dir", new Relativizer("http://example.com/dir/dir").relativize("http://example.com/dir"));
+	}
+
+	@Test
 	public void testIdentity() throws URISyntaxException {
 		assertEquals("", new Relativizer("http://example.com/dir/dir/file?qs#frag").relativize("http://example.com/dir/dir/file?qs#frag"));
 	}

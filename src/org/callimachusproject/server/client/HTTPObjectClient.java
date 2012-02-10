@@ -336,7 +336,12 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 				}
 				String value = location.getValue();
 				if (value.startsWith("/") || !value.contains(":")) {
-					value = TermFactory.newInstance(base).reference(value).stringValue();
+					try {
+						value = TermFactory.newInstance(base).reference(value).stringValue();
+					} catch (IllegalArgumentException e) {
+						logger.warn(e.toString(), e);
+						return value;
+					}
 				}
 				return value;
 			}

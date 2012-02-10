@@ -128,11 +128,11 @@ public abstract class URIListReader<URI> implements MessageBodyReader<Object> {
 	protected abstract URI create(ObjectConnection con, String uri)
 			throws MalformedURLException, RepositoryException;
 
-	private String resolve(String base, String location) throws URISyntaxException {
+	private String resolve(String base, String location) {
 		return TermFactory.newInstance(base).reference(location).stringValue();
 	}
 
-	private String canonicalize(String uri) throws URISyntaxException {
+	private String canonicalize(String uri) {
 		return TermFactory.newInstance(uri).getSystemId();
 	}
 

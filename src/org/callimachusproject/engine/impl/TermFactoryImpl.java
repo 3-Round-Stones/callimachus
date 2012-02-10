@@ -160,7 +160,7 @@ public class TermFactoryImpl extends TermFactory {
 			if (net.isOpaque()) {
 				String part = net.getSchemeSpecificPart();
 				net = new java.net.URI(scheme, part, frag);
-				return net.toString(); // IRI
+				return net.toASCIIString(); // URI
 			}
 			String auth = net.getAuthority();
 			if (auth != null) {
@@ -168,7 +168,7 @@ public class TermFactoryImpl extends TermFactory {
 			}
 			String qs = net.getQuery();
 			net = new java.net.URI(scheme, auth, net.getPath(), qs, frag);
-			return net.toString(); // IRI
+			return net.toASCIIString(); // URI
 		} catch (URISyntaxException x) {
 			throw new IllegalArgumentException(x);
 		}

@@ -260,23 +260,31 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	}
 
 	public String getURIFromRequestTarget(String path) {
-		int qx = path.indexOf('?');
-		if (qx > 0) {
-			path = path.substring(0, qx);
+		try {
+			int qx = path.indexOf('?');
+			if (qx > 0) {
+				path = path.substring(0, qx);
+			}
+			if (!path.startsWith("/"))
+				return TermFactory.newInstance(path).getSystemId();
+			String scheme = getScheme().toLowerCase();
+			String host = getAuthority().toLowerCase();
+			String uri = new ParsedURI(scheme, host, path, null, null).toString();
+			return TermFactory.newInstance(uri).getSystemId();
+		} catch (IllegalArgumentException e) {
+			throw new BadRequest(e);
 		}
-		if (!path.startsWith("/"))
-			return TermFactory.newInstance(path).getSystemId();
-		String scheme = getScheme().toLowerCase();
-		String host = getAuthority().toLowerCase();
-		String uri = new ParsedURI(scheme, host, path, null, null).toString();
-		return TermFactory.newInstance(uri).getSystemId();
 	}
 
 	public String resolve(String url) {
 		if (url == null)
 			return null;
-		TermFactory tf = TermFactory.newInstance(getRequestURI());
-		return tf.reference(url).stringValue();
+		try {
+			TermFactory tf = TermFactory.newInstance(getRequestURI());
+			return tf.reference(url).stringValue();
+		} catch (IllegalArgumentException e) {
+			throw new BadRequest(e);
+		}
 	}
 
 	public boolean isMessageBody() {
@@ -350,7 +358,11 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	}
 
 	private String canonicalize(String url) {
-		return TermFactory.newInstance(url).getSystemId();
+		try {
+			return TermFactory.newInstance(url).getSystemId();
+		} catch (IllegalArgumentException e) {
+			throw new BadRequest(e);
+		}
 	}
 
 	private String getScheme() {

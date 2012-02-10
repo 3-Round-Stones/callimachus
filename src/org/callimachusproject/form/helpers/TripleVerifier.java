@@ -192,13 +192,13 @@ public class TripleVerifier {
 					return value;
 				return (V) vf.createURI(iri);
 			}
-		} catch (URISyntaxException e) {
+		} catch (IllegalArgumentException e) {
 			throw new RDFHandlerException(e.toString(), e);
 		}
 		return value;
 	}
 
-	private String canonicalize(String uri) throws URISyntaxException {
+	private String canonicalize(String uri) {
 		return TermFactory.newInstance(uri).getSystemId();
 	}
 

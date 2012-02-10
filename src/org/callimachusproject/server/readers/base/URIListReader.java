@@ -29,8 +29,6 @@
  */
 package org.callimachusproject.server.readers.base;
 
-import info.aduna.net.ParsedURI;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -40,6 +38,7 @@ import java.nio.charset.Charset;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.readers.MessageBodyReader;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.MessageType;
@@ -98,15 +97,14 @@ public abstract class URIListReader<URI> implements MessageBodyReader<Object> {
 				}
 				return mtype.castComponent(url);
 			}
-			ParsedURI rel = null;
+			TermFactory rel = null;
 			if (base != null) {
-				rel = new ParsedURI(canonicalize(base));
+				rel = TermFactory.newInstance(base);
 				if (location != null) {
-					rel = rel.resolve(location);
-					rel = new ParsedURI(canonicalize(rel.toString()));
+					rel.base(location);
 				}
 			} else if (location != null) {
-				rel = new ParsedURI(canonicalize(location));
+				rel = TermFactory.newInstance(location);
 			}
 			Set<URI> set = new LinkedHashSet<URI>();
 			String str;
@@ -115,7 +113,7 @@ public abstract class URIListReader<URI> implements MessageBodyReader<Object> {
 					continue;
 				URI url;
 				if (rel != null) {
-					url = create(con, canonicalize(rel.resolve(str.trim()).toString()));
+					url = create(con, rel.reference(str.trim()).stringValue());
 				} else {
 					url = create(con, canonicalize(str.trim()));
 				}
@@ -131,18 +129,11 @@ public abstract class URIListReader<URI> implements MessageBodyReader<Object> {
 			throws MalformedURLException, RepositoryException;
 
 	private String resolve(String base, String location) throws URISyntaxException {
-		return canonicalize(new ParsedURI(base).resolve(location).toString());
+		return TermFactory.newInstance(base).reference(location).stringValue();
 	}
 
 	private String canonicalize(String uri) throws URISyntaxException {
-		java.net.URI net = new java.net.URI(uri);
-		net.normalize();
-		String scheme = net.getScheme().toLowerCase();
-		String frag = net.getFragment();
-		if (net.isOpaque())
-			return new java.net.URI(scheme, net.getSchemeSpecificPart(), frag).toASCIIString();
-		String auth = net.getAuthority().toLowerCase();
-		return new java.net.URI(scheme, auth, net.getPath(), net.getQuery(), frag).toASCIIString();
+		return TermFactory.newInstance(uri).getSystemId();
 	}
 
 }

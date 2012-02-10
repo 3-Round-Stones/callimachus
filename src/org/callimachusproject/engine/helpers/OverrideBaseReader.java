@@ -30,7 +30,7 @@ import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.Reference;
 import org.callimachusproject.engine.model.Term;
-import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.VarOrIRI;
 import org.callimachusproject.engine.model.VarOrTerm;
 
@@ -41,7 +41,7 @@ import org.callimachusproject.engine.model.VarOrTerm;
  *
  */
 public class OverrideBaseReader extends PipedRDFEventReader {
-	private TermFactory tf = TermFactory.newInstance();
+	private AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 	private Base previously;
 	private Base base;
 	private boolean based;

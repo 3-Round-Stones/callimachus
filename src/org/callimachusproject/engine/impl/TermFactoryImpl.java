@@ -17,9 +17,12 @@
  */
 package org.callimachusproject.engine.impl;
 
-import java.util.concurrent.atomic.AtomicLong;
+import info.aduna.net.ParsedURI;
 
-import org.openrdf.model.vocabulary.RDF;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.callimachusproject.engine.model.CURIE;
 import org.callimachusproject.engine.model.IRI;
@@ -29,18 +32,61 @@ import org.callimachusproject.engine.model.Reference;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.engine.model.TypedLiteral;
 import org.callimachusproject.engine.model.Var;
+import org.openrdf.model.vocabulary.RDF;
 
 /**
  * Contains factory methods for RDF terms.
  * 
  * @author James Leigh
- *
+ * 
  */
 public class TermFactoryImpl extends TermFactory {
 	private static final String prefix = "t"
 			+ Long.toHexString(System.currentTimeMillis()) + "x";
 	private static final AtomicLong seq = new AtomicLong(0);
-	private static CURIE XMLLiteral = new CURIEImpl(RDF.NAMESPACE, "XMLLiteral", "rdf");
+	private static final CURIE XMLLiteral = new CURIEImpl(RDF.NAMESPACE,
+			"XMLLiteral", "rdf");
+	private final Map<String, String> namespaces = new HashMap<String, String>();
+	private final String systemId;
+	private ParsedURI base;
+
+	public TermFactoryImpl(String systemId) {
+		assert systemId != null;
+		this.systemId = canonicalize(systemId);
+		base = new ParsedURI(this.systemId);
+		assert base.isAbsolute() : base;
+	}
+
+	@Override
+	public String getSystemId() {
+		return systemId;
+	}
+
+	@Override
+	public synchronized Reference base(String reference) {
+		String resolved = resolve(reference);
+		base = new ParsedURI(resolved);
+		assert base.isAbsolute() : base;
+		return reference(resolved, reference);
+	}
+
+	@Override
+	public Reference reference(String reference) {
+		return reference(resolve(reference), reference);
+	}
+
+	@Override
+	public synchronized Reference prefix(String prefix, String reference) {
+		String resolved = resolve(reference);
+		namespaces.put(prefix, resolved);
+		return reference(resolved, reference);
+	}
+
+	@Override
+	public synchronized CURIE curie(String prefix, String reference) {
+		String ns = namespaces.get(prefix);
+		return curie(ns, reference, prefix);
+	}
 
 	@Override
 	public CURIE curie(String ns, String reference, String prefix) {
@@ -96,6 +142,127 @@ public class TermFactoryImpl extends TermFactory {
 		if (absolute == null || relative == null)
 			throw new IllegalArgumentException();
 		return new ReferenceImpl(absolute, relative);
+	}
+
+	public synchronized String resolve(String relative) {
+		return canonicalize(resolve(base, new ParsedURI(relative)).toString());
+	}
+
+	private String canonicalize(String iri) {
+		try {
+			java.net.URI net = new java.net.URI(iri);
+			net.normalize();
+			String scheme = net.getScheme();
+			if (scheme != null) {
+				scheme = scheme.toLowerCase();
+			}
+			String frag = net.getFragment();
+			if (net.isOpaque()) {
+				String part = net.getSchemeSpecificPart();
+				net = new java.net.URI(scheme, part, frag);
+				return net.toString(); // IRI
+			}
+			String auth = net.getAuthority();
+			if (auth != null) {
+				auth = auth.toLowerCase();
+			}
+			String qs = net.getQuery();
+			net = new java.net.URI(scheme, auth, net.getPath(), qs, frag);
+			return net.toString(); // IRI
+		} catch (URISyntaxException x) {
+			throw new IllegalArgumentException(x);
+		}
+	}
+
+	/**
+	 * Resolves a relative URI using this URI as the base URI.
+	 */
+	private ParsedURI resolve(ParsedURI baseURI, ParsedURI relURI) {
+		// This algorithm is based on the algorithm specified in chapter 5 of
+		// RFC 2396: URI Generic Syntax. See http://www.ietf.org/rfc/rfc2396.txt
+
+		// RFC, step 3:
+		if (relURI.isAbsolute() || baseURI.isOpaque()) {
+			return relURI;
+		}
+
+		// relURI._scheme == null
+
+		// RFC, step 2:
+		if (relURI.getAuthority() == null && relURI.getQuery() == null
+				&& relURI.getPath().length() == 0) {
+
+			// Inherit any fragment identifier from relURI
+			String fragment = relURI.getFragment();
+
+			return new ParsedURI(baseURI.getScheme(), baseURI.getAuthority(),
+					baseURI.getPath(), baseURI.getQuery(), fragment);
+		} else if (relURI.getAuthority() == null
+				&& relURI.getPath().length() == 0) {
+
+			// Inherit any query or fragment from relURI
+			String query = relURI.getQuery();
+			String fragment = relURI.getFragment();
+
+			return new ParsedURI(baseURI.getScheme(), baseURI.getAuthority(),
+					baseURI.getPath(), query, fragment);
+		}
+
+		// We can start combining the URIs
+		String scheme, authority, path, query, fragment;
+		boolean normalizeURI = false;
+
+		scheme = baseURI.getScheme();
+		query = relURI.getQuery();
+		fragment = relURI.getFragment();
+
+		// RFC, step 4:
+		if (relURI.getAuthority() != null) {
+			authority = relURI.getAuthority();
+			path = relURI.getPath();
+		} else {
+			authority = baseURI.getAuthority();
+
+			// RFC, step 5:
+			if (relURI.getPath().startsWith("/")) {
+				path = relURI.getPath();
+			} else {
+				// RFC, step 6:
+				path = baseURI.getPath();
+
+				if (path == null) {
+					path = "/";
+				} else {
+					if (!path.endsWith("/")) {
+						// Remove the last segment of the path. Note: if
+						// lastSlashIdx is -1, the path will become empty,
+						// which is fixed later.
+						int lastSlashIdx = path.lastIndexOf('/');
+						path = path.substring(0, lastSlashIdx + 1);
+					}
+
+					if (path.length() == 0) {
+						// No path means: start at root.
+						path = "/";
+					}
+				}
+
+				// Append the path of the relative URI
+				path += relURI.getPath();
+
+				// Path needs to be normalized.
+				normalizeURI = true;
+			}
+		}
+
+		ParsedURI result = new ParsedURI(scheme, authority, path, query,
+				fragment);
+
+		if (normalizeURI) {
+			result.normalize();
+		}
+
+		return result;
 	}
 
 }

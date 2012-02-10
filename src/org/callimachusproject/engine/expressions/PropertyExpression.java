@@ -10,16 +10,16 @@ import org.callimachusproject.engine.events.Triple;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.PlainLiteral;
-import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.openrdf.model.Value;
 
 public class PropertyExpression implements Expression {
-	private TermFactory tf;
+	private AbsoluteTermFactory tf;
 	private IRI property;
 	private String origin;
 
 	public PropertyExpression(String curie, Map<String, String> namespaces,
-			TermFactory tf) throws RDFParseException {
+			AbsoluteTermFactory tf) throws RDFParseException {
 		int idx = curie.indexOf(":");
 		assert idx >= 0;
 		// this may not be a curie

@@ -67,6 +67,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.callimachusproject.Version;
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.cache.CachingFilter;
@@ -335,9 +336,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 				}
 				String value = location.getValue();
 				if (value.startsWith("/") || !value.contains(":")) {
-					ParsedURI resolved = new ParsedURI(base).resolve(value);
-					resolved.normalize();
-					value = resolved.toString();
+					value = TermFactory.newInstance(base).reference(value).stringValue();
 				}
 				return value;
 			}

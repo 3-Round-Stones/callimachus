@@ -56,7 +56,7 @@ import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.PlainLiteral;
 import org.callimachusproject.engine.model.Reference;
-import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.TypedLiteral;
 
 /**
@@ -83,7 +83,7 @@ public class RDFaReader extends RDFEventReader {
 	private XMLEventWriter writer;
 	private XMLOutputFactory factory = XMLOutputFactory.newInstance();
 	private XMLEventFactory whites = XMLEventFactory.newInstance();
-	private TermFactory tf = TermFactory.newInstance();
+	private AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 	private IRI XMLLITERAL = tf.iri(RDF + "XMLLiteral");
 	private List<Node> TYPE = Arrays.asList((Node) tf.iri(RDF + "type"));
 	

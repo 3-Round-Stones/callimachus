@@ -32,6 +32,7 @@ import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.Term;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.engine.model.VarOrIRI;
 import org.openrdf.model.Literal;
@@ -52,7 +53,7 @@ import org.openrdf.rio.RDFHandlerException;
  * 
  */
 public class TripleVerifier {
-	private TermFactory tf = TermFactory.newInstance();
+	private AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 	private Set<URI> subjects = new HashSet<URI>();
 	private Set<URI> resources = new HashSet<URI>();
 	private Map<URI, Set<URI>> types = new HashMap<URI, Set<URI>>();
@@ -185,7 +186,11 @@ public class TripleVerifier {
 	private <V extends Value> V canonicalize(V value) throws RDFHandlerException {
 		try {
 			if (value instanceof URI) {
-				return (V) canonicalizeURI((URI) value);
+				String uri = value.stringValue();
+				String iri = canonicalize(uri);
+				if (uri.equals(iri))
+					return value;
+				return (V) vf.createURI(iri);
 			}
 		} catch (URISyntaxException e) {
 			throw new RDFHandlerException(e.toString(), e);
@@ -193,20 +198,8 @@ public class TripleVerifier {
 		return value;
 	}
 
-	private URI canonicalizeURI(URI uri) throws URISyntaxException {
-		java.net.URI net = new java.net.URI(uri.stringValue());
-		net.normalize();
-		String scheme = net.getScheme().toLowerCase();
-		String frag = net.getFragment();
-		if (net.isOpaque()) {
-			String part = net.getSchemeSpecificPart();
-			net = new java.net.URI(scheme, part, frag);
-			return vf.createURI(net.toASCIIString());
-		}
-		String auth = net.getAuthority().toLowerCase();
-		String qs = net.getQuery();
-		net = new java.net.URI(scheme, auth, net.getPath(), qs, frag);
-		return vf.createURI(net.toASCIIString());
+	private String canonicalize(String uri) throws URISyntaxException {
+		return TermFactory.newInstance(uri).getSystemId();
 	}
 
 	private Boolean accept(Resource subj, URI pred, Value obj) {

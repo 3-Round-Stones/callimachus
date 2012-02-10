@@ -42,7 +42,7 @@ import org.callimachusproject.engine.events.Union;
 import org.callimachusproject.engine.events.Where;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Term;
-import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
@@ -64,7 +64,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		
 	private static boolean OPEN = true, CLOSE = false;
 	private Stack<Context> stack = new Stack<Context>();	
-	private TermFactory tf = TermFactory.newInstance();
+	private AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 		
 	// map unique resource IDs to variable labels
 	// resources can be objects or literals

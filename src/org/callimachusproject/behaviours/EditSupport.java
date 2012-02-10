@@ -28,7 +28,7 @@ import java.io.StringWriter;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.IRI;
-import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.form.helpers.GraphPatternBuilder;
 import org.callimachusproject.form.helpers.StatementExtractor;
 import org.callimachusproject.form.helpers.SubjectTracker;
@@ -177,7 +177,7 @@ public abstract class EditSupport implements Page {
 	}
 
 	private TriplePattern changeNoteOf(URI resource) {
-		TermFactory tf = TermFactory.newInstance();
+		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 		IRI subj = tf.iri(resource.stringValue());
 		return new TriplePattern(subj, tf.iri(CHANGE_NOTE), tf.node());
 	}

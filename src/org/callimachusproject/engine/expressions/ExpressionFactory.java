@@ -4,17 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.callimachusproject.engine.RDFParseException;
-import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 
 public class ExpressionFactory {
-	private TermFactory tf = TermFactory.newInstance();
+	private AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 	private Map<String, String> namespaces = new HashMap<String, String>();
 
-	public TermFactory getTermFactory() {
+	public AbsoluteTermFactory getTermFactory() {
 		return tf;
 	}
 
-	public void setTermFactory(TermFactory tf) {
+	public void setTermFactory(AbsoluteTermFactory tf) {
 		this.tf = tf;
 	}
 

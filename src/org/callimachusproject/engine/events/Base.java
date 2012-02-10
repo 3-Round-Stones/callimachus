@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import org.callimachusproject.engine.model.TermFactory;
+
 import info.aduna.net.ParsedURI;
 
 /**
@@ -26,33 +28,28 @@ import info.aduna.net.ParsedURI;
  *
  */
 public class Base extends RDFEvent {
-	private ParsedURI base;
+	private String base;
+	private TermFactory tf;
 
 	public Base(String base) {
 		assert base != null;
-		this.base = new ParsedURI(base);
-		assert this.base.isAbsolute() : base;
+		this.tf = TermFactory.newInstance(base);
+		this.base = tf.reference(base).stringValue();
 	}
 
 	public String getBase() {
-		return base.toString();
+		return base;
 	}
 
 	public String getReference() {
-		String fragment = base.getFragment();
+		String fragment = new ParsedURI(base).getFragment();
 		if (fragment == null)
 			return "";
 		return "#" + fragment;
 	}
 
 	public String resolve(String relative) {
-		if (relative.startsWith("?")) {
-			String iri = base.toString();
-			if (!iri.contains("?") && !iri.contains("#")) {
-				return iri + relative;
-			}
-		}
-		return base.resolve(relative).toString();
+		return tf.reference(relative).stringValue();
 	}
 
 	public String toString() {
@@ -61,7 +58,7 @@ public class Base extends RDFEvent {
 
 	@Override
 	public int hashCode() {
-		return base.hashCode();
+		return getBase().hashCode();
 	}
 
 	@Override

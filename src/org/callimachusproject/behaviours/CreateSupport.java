@@ -34,7 +34,7 @@ import org.callimachusproject.engine.events.Union;
 import org.callimachusproject.engine.events.Where;
 import org.callimachusproject.engine.helpers.SPARQLWriter;
 import org.callimachusproject.engine.model.IRI;
-import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.form.helpers.SubjectTracker;
@@ -101,7 +101,7 @@ public abstract class CreateSupport implements Page {
 
 	private boolean isResourceAlreadyPresent(ObjectConnection con, String about)
 			throws Exception {
-		TermFactory tf = TermFactory.newInstance();
+		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 		RDFEventReader reader = openPatternReader(about, "create", null);
 		try {
 			boolean first = true;

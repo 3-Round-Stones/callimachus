@@ -41,7 +41,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.model.Node;
-import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
@@ -86,7 +86,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	Stack<Context> stack = new Stack<Context>();
 	XMLEventFactory eventFactory = XMLEventFactory.newFactory();
 	ValueFactory valueFactory = new ValueFactoryImpl();
-	TermFactory termFactory = TermFactory.newInstance();
+	AbsoluteTermFactory termFactory = AbsoluteTermFactory.newInstance();
 	Context context = new Context();
 	String skipElement = null;
 	BindingSet bindings;

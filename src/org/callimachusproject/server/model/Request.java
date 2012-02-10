@@ -45,6 +45,7 @@ import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
+import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.traits.Realm;
 import org.openrdf.repository.RepositoryException;
@@ -264,18 +265,18 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 			path = path.substring(0, qx);
 		}
 		if (!path.startsWith("/"))
-			return path;
+			return TermFactory.newInstance(path).getSystemId();
 		String scheme = getScheme().toLowerCase();
 		String host = getAuthority().toLowerCase();
-		return new ParsedURI(scheme, host, path, null, null).toString();
+		String uri = new ParsedURI(scheme, host, path, null, null).toString();
+		return TermFactory.newInstance(uri).getSystemId();
 	}
 
 	public String resolve(String url) {
 		if (url == null)
 			return null;
-		ParsedURI base = new ParsedURI(getRequestURI());
-		ParsedURI uri = base.resolve(url);
-		return canonicalize(uri.toString());
+		TermFactory tf = TermFactory.newInstance(getRequestURI());
+		return tf.reference(url).stringValue();
 	}
 
 	public boolean isMessageBody() {
@@ -349,22 +350,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	}
 
 	private String canonicalize(String url) {
-		try {
-			URI uri = new java.net.URI(url);
-			uri.normalize();
-			String scheme = uri.getScheme().toLowerCase();
-			String frag = uri.getFragment();
-			if (uri.isOpaque()) {
-				String part = uri.getSchemeSpecificPart();
-				return new java.net.URI(scheme, part, frag).toString();
-			}
-			String auth = uri.getAuthority().toLowerCase();
-			String path = uri.getPath();
-			String qs = uri.getQuery();
-			return new java.net.URI(scheme, auth, path, qs, frag).toString();
-		} catch (URISyntaxException e) {
-			throw new BadRequest(e);
-		}
+		return TermFactory.newInstance(url).getSystemId();
 	}
 
 	private String getScheme() {

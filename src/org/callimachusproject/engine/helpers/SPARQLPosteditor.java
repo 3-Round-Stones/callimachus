@@ -37,7 +37,7 @@ import org.callimachusproject.engine.events.Namespace;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.events.VarOrTermExpression;
-import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.openrdf.model.URI;
@@ -46,7 +46,7 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 	private static final String KEYWORD_NS = "http://www.openrdf.org/rdf/2011/keyword#";
 	private static boolean OPEN = true, CLOSE = false;
 
-	private static TermFactory tf = TermFactory.newInstance();
+	private static AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 
 	List<Editor> editors = new LinkedList<Editor>();
 	Map<String, String> origins;

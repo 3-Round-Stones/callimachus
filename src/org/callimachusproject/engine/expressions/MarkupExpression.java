@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.model.Node;
-import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.openrdf.model.Value;
 
 public class MarkupExpression implements Expression {
@@ -34,7 +34,7 @@ public class MarkupExpression implements Expression {
 	private final Expression expression;
 
 	public MarkupExpression(String text, Map<String, String> namespaces,
-			TermFactory tf) throws RDFParseException {
+			AbsoluteTermFactory tf) throws RDFParseException {
 		if (text.indexOf('{') < 0) {
 			expression = new TextExpression(text);
 			exprs = Collections.singletonList(expression);
@@ -83,7 +83,7 @@ public class MarkupExpression implements Expression {
 	}
 
 	private void parse(String text, Map<String, String> namespaces,
-			TermFactory tf) throws RDFParseException {
+			AbsoluteTermFactory tf) throws RDFParseException {
 		if (text.length() < 1)
 			return;
 		Matcher m;

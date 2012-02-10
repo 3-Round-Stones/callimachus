@@ -17,7 +17,7 @@
  */
 package org.callimachusproject.engine.model;
 
-import org.callimachusproject.engine.impl.TermFactoryImpl;
+import org.callimachusproject.engine.impl.AbsoluteTermFactoryImpl;
 
 /**
  * Factory class for RDF terms.
@@ -25,18 +25,28 @@ import org.callimachusproject.engine.impl.TermFactoryImpl;
  * @author James Leigh
  *
  */
-public abstract class TermFactory extends AbsoluteTermFactory {
-	public static TermFactory newInstance(String systemId) {
-		return new TermFactoryImpl(systemId);
+public abstract class AbsoluteTermFactory {
+	public static AbsoluteTermFactory newInstance() {
+		return new AbsoluteTermFactoryImpl();
 	}
+	
+	public abstract Var var(String name);
 
-	public abstract String getSystemId();
+	public abstract IRI iri(String iri);
 
-	public abstract Reference base(String reference);
+	public abstract Reference reference(String absolute, String relative);
 
-	public abstract Reference reference(String reference);
+	public abstract CURIE curie(String ns, String reference, String prefix);
 
-	public abstract Reference prefix(String prefix, String reference);
+	public abstract PlainLiteral literal(String label, String lang);
 
-	public abstract CURIE curie(String prefix, String reference);
+	public abstract TypedLiteral literal(String label, IRI datatype);
+
+	public abstract Node node(String id);
+
+	public abstract Node node();
+
+	public PlainLiteral literal(String label) {
+		return literal(label, (String) null);
+	}
 }

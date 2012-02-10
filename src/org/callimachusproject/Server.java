@@ -155,7 +155,6 @@ public class Server implements HTTPObjectAgentMXBean {
 				}
 			} else {
 				Server server = new Server();
-				registerMBean(server);
 				if (line.hasOption("pid")) {
 					initService(args);
 				}
@@ -185,17 +184,6 @@ public class Server implements HTTPObjectAgentMXBean {
 			System.err.println("Arguments: " + Arrays.toString(args));
 			System.exit(1);
 		}
-	}
-
-	private static void registerMBean(Server server)
-			throws InstanceAlreadyExistsException, MBeanRegistrationException,
-			NotCompliantMBeanException, MalformedObjectNameException {
-		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-		String pkg = Server.class.getPackage().getName();
-		String lname = pkg + ":type=Logger";
-		mbs.registerMBean(new LoggerBean(), new ObjectName(lname));
-		String sname = pkg + ":type=" + Server.class.getSimpleName();
-		mbs.registerMBean(server, new ObjectName(sname));
 	}
 
 	private static void println(Throwable e) {
@@ -479,6 +467,7 @@ public class Server implements HTTPObjectAgentMXBean {
 			server.getRepository().shutDown();
 			server.destroy();
 		}
+		unregisterMBean();
 	}
 
 	private void init(CommandLine line) throws Exception {
@@ -543,6 +532,31 @@ public class Server implements HTTPObjectAgentMXBean {
 			server.printStatus(System.out);
 		}
 		server.listen(ports, sslports);
+		registerMBean();
+	}
+
+	private void registerMBean() throws InstanceAlreadyExistsException,
+			MBeanRegistrationException, NotCompliantMBeanException,
+			MalformedObjectNameException {
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		String pkg = Server.class.getPackage().getName();
+		String lname = pkg + ":type=Logger";
+		String sname = pkg + ":type=" + Server.class.getSimpleName();
+		mbs.registerMBean(new LoggerBean(), new ObjectName(lname));
+		mbs.registerMBean(this, new ObjectName(sname));
+	}
+
+	private void unregisterMBean() {
+		try {
+			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+			String pkg = Server.class.getPackage().getName();
+			String lname = pkg + ":type=Logger";
+			String sname = pkg + ":type=" + Server.class.getSimpleName();
+			mbs.unregisterMBean(new ObjectName(lname));
+			mbs.unregisterMBean(new ObjectName(sname));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private AuditingSail findAuditingSail(Repository repository) {

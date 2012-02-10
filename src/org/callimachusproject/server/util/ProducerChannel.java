@@ -58,7 +58,6 @@ public class ProducerChannel implements ReadableByteChannel {
 	private final Future<Void> task;
 	private final CountDownLatch latch = new CountDownLatch(1);
 	private IOException io;
-	private RuntimeException runtime;
 	private Error error;
 
 	public ProducerChannel(final WritableProducer producer) throws IOException {
@@ -77,7 +76,7 @@ public class ProducerChannel implements ReadableByteChannel {
 				} catch (IOException e) {
 					io = e;
 				} catch (RuntimeException e) {
-					runtime = e;
+					io = new IOException(e);
 				} catch (Error e) {
 					error = e;
 				} finally {
@@ -90,7 +89,7 @@ public class ProducerChannel implements ReadableByteChannel {
 					} catch (IOException e) {
 						io = io == null ? e : io;
 					} catch (RuntimeException e) {
-						runtime = runtime == null ? e : runtime;
+						io = io == null ? new IOException(e) : io;
 					} catch (Error e) {
 						error = error == null ? e : error;
 					} finally {
@@ -142,12 +141,6 @@ public class ProducerChannel implements ReadableByteChannel {
 				throw io;
 		} finally {
 			io = null;
-		}
-		try {
-			if (runtime != null)
-				throw runtime;
-		} finally {
-			runtime = null;
 		}
 		try {
 			if (error != null)

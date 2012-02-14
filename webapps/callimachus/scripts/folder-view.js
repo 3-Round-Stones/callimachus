@@ -71,7 +71,7 @@
 		return td;
 	}
 	function reload() {
-		var url = $('link[type="application/atom+xml"]').attr('href');
+		var url = $('link[rel="contents"][type="application/atom+xml"]').attr('href');
 		jQuery.ajax({
 			url: url,
 			processData: false,

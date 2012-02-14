@@ -670,6 +670,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		InputStream in = cl.getResourceAsStream(name);
 		if (in == null)
 			return version;
+		logger.info("Upgrading store from {}", version);
 		Reader reader = new InputStreamReader(in, "UTF-8");
 		String ru = IOUtil.readString(reader);
 		ObjectConnection con = repository.getConnection();

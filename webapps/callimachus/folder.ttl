@@ -89,72 +89,110 @@
 	calli:header "cache-control:no-cache";
 	calli:transform :TransformIntoAtom;
 	msg:sparql """
-		SELECT DISTINCT ?id ?totalResults ?title ?icon ?summary ?updated
-				?author_uri ?author_name ?reader_uri ?reader_name ?contributor_uri ?contributor_name
-				?editor_uri ?editor_name ?administrator_uri ?administrator_name
-				(if(bound(?folder), concat(str(?id),"?feed"), ?folder) as ?link_href)
-				(if(bound(?folder), "alternate", ?folder) as ?link_rel)
-				(if(bound(?folder), "application/atom+xml", ?folder) as ?link_type)
-				(?id as ?content_src)
-				?content_type {
+		SELECT * {
 			{
 				{
 					SELECT ($this as ?id) (count(?part) as ?totalResults) {
 						$this calli:hasComponent ?part
 					} GROUP BY $this
 				}
-			} UNION {
-				$this calli:hasComponent ?id
-				FILTER (isIRI(?id))
-			} OPTIONAL {
-				?id skos:prefLabel ?title
-			} OPTIONAL {
-				?id foaf:name ?title
-			} OPTIONAL {
-				?id rdfs:label ?title
-			} OPTIONAL {
-				?id skosxl:literalForm ?title
-			} OPTIONAL {
-				?id dcterms:title ?title
-			} OPTIONAL {
-				?id rdfs:comment ?summary
-			} OPTIONAL {
-				?id a [calli:icon ?icon]
-			} OPTIONAL {
-				?id audit:revision ?revision . ?revision audit:committedOn ?updated
-				OPTIONAL {
-					?revision audit:contributor ?author_uri
+				{
+					{} OPTIONAL {
+						$this skos:prefLabel ?title
+					} OPTIONAL {
+						$this foaf:name ?title
+					} OPTIONAL {
+						$this rdfs:label ?title
+					} OPTIONAL {
+						$this skosxl:literalForm ?title
+					} OPTIONAL {
+						$this dcterms:title ?title
+					}
+				} UNION {
+					$this audit:revision ?revision . ?revision audit:committedOn ?updated
 					OPTIONAL {
-						?author_uri rdfs:label ?author_name
+						?revision audit:contributor ?author_uri
+						OPTIONAL {
+							?author_uri rdfs:label ?author_name
+						}
 					}
 				}
-			} OPTIONAL {
-				?id calli:reader ?reader_uri
-				OPTIONAL {
-					?reader_uri rdfs:label ?reader_name
+			} UNION {
+				{
+					SELECT ?id {
+						$this calli:hasComponent ?id
+						FILTER (isIRI(?id))
+					} LIMIT 100
 				}
-			} OPTIONAL {
-				?id calli:contributor ?contributor_uri
-				OPTIONAL {
-					?contributor_uri rdfs:label ?contributor_name
+				{
+					{} OPTIONAL {
+						?id skos:prefLabel ?title
+					} OPTIONAL {
+						?id foaf:name ?title
+					} OPTIONAL {
+						?id rdfs:label ?title
+					} OPTIONAL {
+						?id skosxl:literalForm ?title
+					} OPTIONAL {
+						?id dcterms:title ?title
+					}
+				} UNION {
+					?id audit:revision ?revision . ?revision audit:committedOn ?updated
+					OPTIONAL {
+						?revision audit:contributor ?author_uri
+						OPTIONAL {
+							?author_uri rdfs:label ?author_name
+						}
+					}
+				} UNION {
+					?id rdfs:comment ?summary
+				} UNION {
+					?id a [calli:icon ?icon]
+				} UNION {
+					?id calli:reader ?reader_uri
+					OPTIONAL {
+						?reader_uri rdfs:label ?reader_name
+					}
+				} UNION {
+					?id calli:contributor ?contributor_uri
+					OPTIONAL {
+						?contributor_uri rdfs:label ?contributor_name
+					}
+				} UNION {
+					?id calli:editor ?editor_uri
+					OPTIONAL {
+						?editor_uri rdfs:label ?editor_name
+					}
+				} UNION {
+					?id calli:administrator ?administrator_uri
+					OPTIONAL {
+						?administrator_uri rdfs:label ?administrator_name
+					}
+				} UNION {
+					$this calli:hasComponent ?id
+					BIND (?id as ?content_src)
+					OPTIONAL {
+						?id a [calli:type ?content_type]
+						BIND (?id as ?link_href)
+						BIND ("edit-media" as ?link_rel)
+					}
+				} UNION {
+					$this calli:hasComponent ?id . ?id a <Folder>
+					BIND (concat(str(?id),"?feed") as ?link_href)
+					BIND ("alternate" as ?link_rel)
+					BIND ("application/atom+xml" as ?link_type)
+				} UNION {
+					$this calli:hasComponent ?id
+					BIND (concat(str(?id),"?view") as ?link_href)
+					BIND ("alternate" as ?link_rel)
+					BIND ("text/html" as ?link_type)
+				} UNION {
+					$this calli:hasComponent ?id
+					BIND (concat(str(?id),"?describe") as ?link_href)
+					BIND ("describedby" as ?link_rel)
 				}
-			} OPTIONAL {
-				?id calli:editor ?editor_uri
-				OPTIONAL {
-					?editor_uri rdfs:label ?editor_name
-				}
-			} OPTIONAL {
-				?id calli:administrator ?administrator_uri
-				OPTIONAL {
-					?administrator_uri rdfs:label ?administrator_name
-				}
-			} OPTIONAL {
-				?id a [calli:type ?content_type]
-			} OPTIONAL {
-				?id a ?folder
-				FILTER (?folder = <Folder> || ?folder = <Origin>)
 			}
-		} ORDER BY desc(?totalResults) ?id LIMIT 101 # itself + 100 components
+		} ORDER BY ?id
 	""".
 
 :TransformIntoAtom rdfs:subClassOf msg:Message;

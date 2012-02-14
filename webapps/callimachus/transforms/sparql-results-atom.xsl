@@ -2,6 +2,7 @@
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns="http://www.w3.org/2005/Atom"
+	xmlns:app="http://www.w3.org/2007/app"
 	xmlns:openSearch="http://a9.com/-/spec/opensearch/1.1/"
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
 	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
@@ -182,6 +183,18 @@
 			<email><xsl:value-of select="../sparql:binding[@name='contributor_email']/*" /></email>
 		</xsl:if>
 	</contributor>
+</xsl:template>
+
+<xsl:template match="sparql:binding[@name='collection_href']">
+	<app:collection href="{*}">
+		<xsl:if test="../sparql:binding[@name='collection_title']">
+			<title><xsl:value-of select="../sparql:binding[@name='collection_title']/*" /></title>
+		</xsl:if>
+		<xsl:variable name="id" select="../sparql:binding[@name='id']/*" />
+		<xsl:for-each select="../../sparql:result[sparql:binding[@name='id']/*=$id]/sparql:binding[@name='collection_accept']">
+			<app:accept><xsl:value-of select="*" /></app:accept>
+		</xsl:for-each>
+	</app:collection>
 </xsl:template>
 
 <xsl:template match="sparql:binding[@name='reader_uri']">

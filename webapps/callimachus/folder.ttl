@@ -84,7 +84,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
 	calli:query "feed";
-	calli:rel "alternate";
+	calli:rel "contents";
 	calli:type "application/sparql-results+xml";
 	calli:header "cache-control:no-cache";
 	calli:transform :TransformIntoAtom;
@@ -95,20 +95,17 @@
 					SELECT ($this as ?id) (count(?part) as ?totalResults) {
 						$this calli:hasComponent ?part
 					} GROUP BY $this
-				}
-				{
-					{} OPTIONAL {
-						$this skos:prefLabel ?title
-					} OPTIONAL {
-						$this foaf:name ?title
-					} OPTIONAL {
-						$this rdfs:label ?title
-					} OPTIONAL {
-						$this skosxl:literalForm ?title
-					} OPTIONAL {
-						$this dcterms:title ?title
-					}
-				} UNION {
+				} OPTIONAL {
+					$this skos:prefLabel ?title
+				} OPTIONAL {
+					$this foaf:name ?title
+				} OPTIONAL {
+					$this rdfs:label ?title
+				} OPTIONAL {
+					$this skosxl:literalForm ?title
+				} OPTIONAL {
+					$this dcterms:title ?title
+				} OPTIONAL {
 					$this audit:revision ?revision . ?revision audit:committedOn ?updated
 					OPTIONAL {
 						?revision audit:contributor ?author_uri
@@ -116,6 +113,13 @@
 							?author_uri rdfs:label ?author_name
 						}
 					}
+				}
+				BIND (?title as ?collection_title)
+				BIND (concat(str($this),"?feed") as ?collection_href)
+				{
+					[a <Creatable>] calli:type ?collection_accept
+				} UNION {
+					[a <CreatableIndex>] calli:type ?collection_accept
 				}
 			} UNION {
 				{
@@ -180,7 +184,7 @@
 					$this calli:hasComponent ?id . ?id a <Folder>
 					BIND (concat(str(?id),"?feed") as ?link_href)
 					BIND ("alternate" as ?link_rel)
-					BIND ("application/atom+xml" as ?link_type)
+					BIND ("application/atom+xml;type=feed" as ?link_type)
 				} UNION {
 					$this calli:hasComponent ?id
 					BIND (concat(str(?id),"?view") as ?link_href)

@@ -37,10 +37,12 @@ import javax.activation.MimeTypeParseException;
 
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.title;
+import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
+import org.openrdf.annotations.Iri;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 
@@ -116,9 +118,9 @@ public class LinksHandler implements Handler {
 					sb.append(value).append(" ");
 				}
 				sb.setCharAt(sb.length() - 1, '"');
-				if (m.isAnnotationPresent(type.class)) {
+				String[] values = getResponseType(request, m);
+				if (values != null) {
 					boolean envolope = false;
-					String[] values = m.getAnnotation(type.class).value();
 					if (envelopeType != null) {
 						for (String value : values) {
 							if (value.startsWith(envelopeType)) {
@@ -145,6 +147,41 @@ public class LinksHandler implements Handler {
 			}
 		}
 		return result;
+	}
+
+	private String[] getResponseType(ResourceOperation request, Method m) {
+		Method transform = getTransformMethodOf(request, m);
+		type ann = transform.getAnnotation(type.class);
+		if (ann != null)
+			return ann.value();
+		ann = m.getAnnotation(type.class);
+		if (ann != null)
+			return ann.value();
+		return null;
+	}
+
+	private Method getTransformMethodOf(ResourceOperation request, Method method) {
+		if (method == null)
+			return method;
+		if (method.isAnnotationPresent(transform.class)) {
+			for (String uri : method.getAnnotation(transform.class).value()) {
+				Method transform = getTransform(request, uri);
+				if (transform != null)
+					return getTransformMethodOf(request, transform);
+			}
+		}
+		return method;
+	}
+
+	private Method getTransform(ResourceOperation request, String uri) {
+		for (Method m : request.getRequestedResource().getClass().getMethods()) {
+			if (m.isAnnotationPresent(Iri.class)) {
+				if (uri.equals(m.getAnnotation(Iri.class).value())) {
+					return m;
+				}
+			}
+		}
+		return null;
 	}
 
 }

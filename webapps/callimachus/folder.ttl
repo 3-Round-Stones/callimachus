@@ -48,14 +48,32 @@
 	msg:script """
 		var http11 = new ProtocolVersion("HTTP", 1, 1);
 		var resp = new BasicHttpResponse(http11, 303, "Directory Index");
-		var target = this.calliDescribedBy;
-		if (target) {
-			resp.addHeader("Location", target.toString());
+		var star = false;
+		var atom = false;
+		var iter = acceptHeader.iterator();
+		while (iter.hasNext()) {
+			var hd = iter.next();
+			if (hd && hd.indexOf("*") >= 0) {
+				star = true;
+			}
+			if (hd && hd.indexOf("application/atom+xml") >= 0) {
+				atom = true;
+			}
+		}
+		if (!star && atom) {
+			resp.addHeader("Location", this.toString() + "?feed");
+		} else if (this.calliDescribedBy) {
+			resp.addHeader("Location", this.calliDescribedBy.toString());
 		} else {
 			resp.addHeader("Location", this.toString() + "?view");
 		}
 		return resp;
 	""".
+
+:acceptHeader a owl:DatatypeProperty;
+	rdfs:domain :RedirectToIndex;
+	rdfs:range xsd:string;
+	calli:header "Accept".
 
 ################################
 # List folder contents
@@ -66,6 +84,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
 	calli:query "feed";
+	calli:rel "alternate";
 	calli:type "application/sparql-results+xml";
 	calli:header "cache-control:no-cache";
 	calli:transform :TransformIntoAtom;

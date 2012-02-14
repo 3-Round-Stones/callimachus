@@ -84,7 +84,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	Set<String> extraneous = new HashSet<String>();
 	Set<String> branches = new HashSet<String>();
 	Stack<Context> stack = new Stack<Context>();
-	XMLEventFactory eventFactory = XMLEventFactory.newFactory();
+	XMLEventFactory eventFactory = XMLEventFactory.newInstance();
 	ValueFactory valueFactory = new ValueFactoryImpl();
 	AbsoluteTermFactory termFactory = AbsoluteTermFactory.newInstance();
 	Context context = new Context();

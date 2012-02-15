@@ -249,7 +249,7 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 		w.print("Load average:\t");
 		w.println(mx.getSystemLoadAverage());
 		w.print("Committed memory:\t");
-		w.println(mx.getCommittedVirtualMemorySize());
+		w.println((mx.getCommittedVirtualMemorySize() / 1024 / 1024) + "m");
 		w.print("Swap size:\t");
 		w.println((mx.getTotalSwapSpaceSize() / 1024 / 1024) + "m");
 		w.print("Free swap size:\t");

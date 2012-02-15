@@ -472,14 +472,21 @@ elif [ "$1" = "dump" ] ; then ################################
     exit 1
   fi
 
-  ID=`cat "$PID"`
+  DATE=`date +%Y-%m-%d`
+  DIR="$BASEDIR/log/$DATE"
+  if [ ! -e "$DIR" ] ; then
+    mkdir "$DIR"
+  fi
 
-  exec "$JAVA" -server \
+  exec "$EXECUTABLE" -nodetach -keepstdin -home "$JAVA_HOME" -jvm server -procname "$NAME" \
+    -pidfile "$BASEDIR/run/$NAME-dump.pid" \
     -Duser.home="$BASEDIR" \
     -Djava.library.path="$LIB" \
     -Djava.io.tmpdir="$TMPDIR" \
+    -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH:$JAVA_HOME/lib/tools.jar" \
-    $JAVA_OPTS $SSL_OPTS "$MAINCLASS" --pid "$PID" --dump "$BASEDIR/log"
+    -user "$DAEMON_USER" \
+    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" --pid "$PID" --dump "$DIR"
 
 else ################################
 

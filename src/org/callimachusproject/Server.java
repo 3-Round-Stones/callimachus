@@ -529,6 +529,15 @@ public class Server implements HTTPObjectAgentMXBean {
 				formatter.printHelp("[options]", options);
 				System.exit(0);
 				return;
+			} else if (line.hasOption("dump")) {
+				if (line.hasOption("pid")) {
+					dumpService(args);
+					System.exit(0);
+				} else {
+					System.err.println("Missing required pid option.");
+					System.err.println("Arguments: " + Arrays.toString(args));
+					System.exit(1);
+				}
 			} else if (line.getArgs().length > 0) {
 				System.err.println("Unrecognized option: " + Arrays.toString(line.getArgs()));
 				System.err.println("Arguments: " + Arrays.toString(args));

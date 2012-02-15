@@ -195,6 +195,7 @@ set MAINCLASS=org.callimachusproject.Server
 
 if ""%1"" == ""start"" goto doStart
 if ""%1"" == ""stop"" goto doStop
+if ""%1"" == ""dump"" goto doDump
 
 echo Using BASEDIR:   %BASEDIR%
 echo Using PORT:      %PORT% %SSLPORT%
@@ -243,6 +244,11 @@ goto end
 :doStop
 rem Execute Java with the applicable properties
 "%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MAINCLASS% --stop --pid "%PID%"
+goto end
+
+:doDump
+rem Execute Java with the applicable properties
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MAINCLASS% --dump "%BASEDIR%\log" --pid "%PID%"
 goto end
 
 :end

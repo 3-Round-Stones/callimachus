@@ -50,6 +50,8 @@ public interface HTTPObjectAgentMXBean {
 
 	ConnectionBean[] getConnections();
 
+	void connectionDumpToFile(String outputFile) throws IOException;
+
 	boolean isCacheEnabled();
 
 	void setCacheEnabled(boolean cacheEnabled);

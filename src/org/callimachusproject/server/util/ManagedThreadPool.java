@@ -29,6 +29,7 @@
  */
 package org.callimachusproject.server.util;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.Thread.State;
@@ -53,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.slf4j.Logger;
@@ -66,8 +68,12 @@ import org.slf4j.LoggerFactory;
  */
 public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 	private static final String MXBEAN_TYPE = "org.callimachusproject:type=ManagedThreads";
-	private final Logger logger = LoggerFactory
-			.getLogger(ManagedThreadPool.class);
+
+	public static ObjectName getObjectNamePattern() throws MalformedObjectNameException {
+		return new ObjectName(MXBEAN_TYPE + ",name=*");
+	}
+
+	private final Logger logger = LoggerFactory.getLogger(ManagedThreadPool.class);
 	private ThreadPoolExecutor delegate;
 	private final String oname;
 	private final NamedThreadFactory threads;
@@ -101,6 +107,10 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 		delegate.setThreadFactory(factory);
 		setDelegate(delegate);
 		registerMBean();
+	}
+
+	public String getName() {
+		return getDelegate().getThreadFactory().toString();
 	}
 
 	@Override
@@ -161,15 +171,64 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 		getDelegate().setKeepAliveTime(seconds, TimeUnit.SECONDS);
 	}
 
+	public void threadDumpToFile(String outputFile) throws IOException {
+		PrintWriter writer = new PrintWriter(outputFile);
+		try {
+			writer.print("Active:\t");
+			writer.println(getActiveCount());
+			writer.print("Task count:\t");
+			writer.println(getTaskCount());
+			writer.print("Completed task count:\t");
+			writer.println(getCompletedTaskCount());
+			writer.print("Pool size:\t");
+			writer.println(getPoolSize());
+			writer.print("Core pool size:\t");
+			writer.println(getCorePoolSize());
+			writer.print("Largest pool size:\t");
+			writer.println(getLargestPoolSize());
+			writer.print("Maximum pool size:\t");
+			writer.println(getMaximumPoolSize());
+			writer.print("Keep alive Time:\t");
+			writer.println(getKeepAliveTime());
+			writer.print("Queue size:\t");
+			writer.println(getQueueSize());
+			writer.print("Queue remaining capacity:\t");
+			writer.println(getQueueRemainingCapacity());
+			writer.print("Allow core thread time out:\t");
+			writer.println(isAllowsCoreThreadTimeOut());
+			writer.print("Continue existing periodic tasks after shutdown:\t");
+			writer.println(isContinueExistingPeriodicTasksAfterShutdownPolicy());
+			writer.print("Execute existing delayed tasks after shutdown:\t");
+			writer.println(isExecuteExistingDelayedTasksAfterShutdownPolicy());
+			writer.print("Shutdown:\t");
+			writer.println(isShutdown());
+			writer.print("Terminating:\t");
+			writer.println(isTerminating());
+			writer.print("Terminated:\t");
+			writer.println(isTerminated());
+			writer.println();
+			for (String trace : getActiveStackDump()) {
+				writer.println(trace);
+				writer.println();
+			}
+			for (String pending : getQueueDescription()) {
+				writer.println(pending);
+			}
+		} finally {
+			writer.close();
+		}
+		logger.info("Thread pool dump: {}", outputFile);
+	}
+
 	public String[] getActiveStackDump() {
+		ThreadMXBean mxBean = ManagementFactory.getThreadMXBean();
 		List<String> result = new ArrayList<String>();
 		for (ThreadInfo info : getLiveThreadInfo(Integer.MAX_VALUE)) {
 			if (!isWaitingForNewTask(info)) {
 				StringWriter writer = new StringWriter();
 				PrintWriter s = new PrintWriter(writer);
-				printThread(info, s);
-				printStackTrace(info, s);
-				s.println();
+				printThreadInfo(info, mxBean, s);
+				printStackTrace(info.getStackTrace(), info, s);
 				printLockInfo(info.getLockedSynchronizers(), s);
 				s.flush();
 				result.add(writer.toString());
@@ -374,37 +433,37 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 		return false;
 	}
 
-	private void printThread(ThreadInfo ti, PrintWriter s) {
-		StringBuilder sb = new StringBuilder("Thread " + ti.getThreadName()
-				+ "@" + ti.getThreadId() + " (" + ti.getThreadState() + ")");
-		if (ti.getLockName() != null) {
-			sb.append(" on lock=" + ti.getLockName());
-		}
-		if (ti.isSuspended()) {
-			sb.append(" (suspended)");
-		}
-		if (ti.isInNative()) {
-			sb.append(" (running in native)");
-		}
-		s.println(sb.toString());
-		if (ti.getLockOwnerName() != null) {
-			s.println("\t owned by " + ti.getLockOwnerName() + " Id="
-					+ ti.getLockOwnerId());
-		}
+	private void printThreadInfo(ThreadInfo threadInfo, ThreadMXBean mxBean,
+			PrintWriter writer) {
+		writer.println("    native=" + threadInfo.isInNative() + ", suspended="
+				+ threadInfo.isSuspended() + ", block="
+				+ threadInfo.getBlockedCount() + ", wait="
+				+ threadInfo.getWaitedCount());
+		writer.println("    lock="
+				+ threadInfo.getLockName()
+				+ " owned by "
+				+ threadInfo.getLockOwnerName()
+				+ " ("
+				+ threadInfo.getLockOwnerId()
+				+ "), cpu="
+				+ (mxBean.getThreadCpuTime(threadInfo.getThreadId()) / 1000000L)
+				+ ", user="
+				+ (mxBean.getThreadUserTime(threadInfo.getThreadId()) / 1000000L));
 	}
 
-	private void printStackTrace(ThreadInfo ti, PrintWriter s) {
-		StackTraceElement[] stacktrace = ti.getStackTrace();
-		MonitorInfo[] monitors = ti.getLockedMonitors();
+	private void printStackTrace(StackTraceElement[] stacktrace,
+			ThreadInfo threadInfo, PrintWriter writer) {
+		MonitorInfo[] monitors = threadInfo.getLockedMonitors();
 		for (int i = 0; i < stacktrace.length; i++) {
 			StackTraceElement ste = stacktrace[i];
-			s.println("\tat " + ste.toString());
+			writer.println("\tat " + ste.toString());
 			for (MonitorInfo mi : monitors) {
 				if (mi.getLockedStackDepth() == i) {
-					s.println("\t  - locked " + mi);
+					writer.println("\t  - locked " + mi);
 				}
 			}
 		}
+		writer.println();
 	}
 
 	private void printLockInfo(LockInfo[] locks, PrintWriter s) {

@@ -18,6 +18,8 @@
  */
 package org.callimachusproject.logging;
 
+
+
 /**
  * MXBean interface used by the logging bean.
  * 
@@ -35,4 +37,6 @@ public interface LoggerMXBean {
 	void logInfo(String prefix);
 
 	void logWarn(String prefix);
+
+	String getVMSummary() throws Exception;
 }

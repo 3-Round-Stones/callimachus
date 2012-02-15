@@ -38,6 +38,7 @@ import static org.callimachusproject.server.HTTPObjectRequestHandler.PENDING_ATT
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -520,6 +521,10 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		return sb.toString();
 	}
 
+	public HttpResponse service(HttpRequest request) throws IOException {
+		return service.service(request);
+	}
+
 	public ConnectionBean[] getConnections() {
 		NHttpConnection[] connections = service.getConnections();
 		ConnectionBean[] beans = new ConnectionBean[connections.length];
@@ -588,8 +593,37 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		return beans;
 	}
 
-	public HttpResponse service(HttpRequest request) throws IOException {
-		return service.service(request);
+	public void connectionDumpToFile(String outputFile) throws IOException {
+		PrintWriter writer = new PrintWriter(outputFile);
+		try {
+			writer.println("status,request,consuming,response,pending");
+			for (ConnectionBean connection : getConnections()) {
+				writer.print(toString(connection.getStatus()));
+				writer.print(",");
+				writer.print(toString(connection.getRequest()));
+				writer.print(",");
+				writer.print(toString(connection.getConsuming()));
+				writer.print(",");
+				writer.print(toString(connection.getResponse()));
+				writer.print(",");
+				String[] pending = connection.getPending();
+				if (pending != null) {
+					for(String p : pending) {
+						writer.print(toString(p));
+						writer.print(",");
+					}
+				}
+			}
+		} finally {
+			writer.close();
+		}
+		logger.info("Connection dump: {}", outputFile);
+	}
+
+	private String toString(String string) {
+		if (string == null)
+			return "";
+		return string;
 	}
 
 	private void registerService(HTTPObjectClient client, int port) {

@@ -38,6 +38,7 @@ import info.aduna.net.ParsedURI;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -49,6 +50,7 @@ import java.util.regex.Pattern;
 
 import javax.activation.MimeTypeParseException;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.http.Header;
@@ -118,6 +120,10 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 		}
 		instance = new HTTPObjectClient(dir, maxCapacity);
 		instance.start();
+	}
+
+	public static ObjectName getObjectNamePattern() throws MalformedObjectNameException {
+		return new ObjectName(MXBEAN_TYPE + "*");
 	}
 
 	private Logger logger = LoggerFactory.getLogger(HTTPObjectClient.class);
@@ -273,7 +279,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 		}
 		try {
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-		    mbs.registerMBean(this, new ObjectName(getMXBeanName()));
+		    mbs.registerMBean(this, getMXBeanName());
 		} catch (Exception e) {
 			logger.info(e.toString(), e);
 		}
@@ -355,7 +361,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 		resetConnections();
 		try {
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-		    mbs.unregisterMBean(new ObjectName(getMXBeanName()));
+		    mbs.unregisterMBean(getMXBeanName());
 		} catch (Exception e) {
 			logger.info(e.toString(), e);
 		}
@@ -424,6 +430,39 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 		return beans;
 	}
 
+	public void connectionDumpToFile(String outputFile) throws IOException {
+		PrintWriter writer = new PrintWriter(outputFile);
+		try {
+			writer.println("status,request,consuming,response,pending");
+			for (ConnectionBean connection : getConnections()) {
+				writer.print(toString(connection.getStatus()));
+				writer.print(",");
+				writer.print(toString(connection.getRequest()));
+				writer.print(",");
+				writer.print(toString(connection.getConsuming()));
+				writer.print(",");
+				writer.print(toString(connection.getResponse()));
+				writer.print(",");
+				String[] pending = connection.getPending();
+				if (pending != null) {
+					for(String p : pending) {
+						writer.print(toString(p));
+						writer.print(",");
+					}
+				}
+			}
+		} finally {
+			writer.close();
+		}
+		logger.info("Connection dump: {}", outputFile);
+	}
+
+	private String toString(String string) {
+		if (string == null)
+			return "";
+		return string;
+	}
+
 	private void addMissingHeaders(InetSocketAddress proxy, HttpRequest request) {
 		if (!request.containsHeader("Host")) {
 			String host = proxy.getHostName();
@@ -453,12 +492,12 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 		}
 	}
 
-	private String getMXBeanName() {
+	private ObjectName getMXBeanName() throws MalformedObjectNameException, NullPointerException {
 		String name = MXBEAN_TYPE;
 		if (instance != this) {
 			name += ",instance=" + System.identityHashCode(this);
 		}
-		return name;
+		return new ObjectName(name);
 	}
 
 	private HttpResponse proxy(InetSocketAddress server, HttpRequest request)

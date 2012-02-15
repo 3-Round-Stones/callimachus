@@ -29,6 +29,7 @@
  */
 package org.callimachusproject.server.util;
 
+import java.io.IOException;
 import java.lang.management.ThreadInfo;
 
 /**
@@ -38,7 +39,11 @@ import java.lang.management.ThreadInfo;
  **/
 public interface ThreadPoolMXBean {
 
+	String getName();
+
 	String[] getActiveStackDump();
+
+	void threadDumpToFile(String outputFile) throws IOException;
 
 	ThreadInfo[] getLiveThreadInfo(int maxDepth);
 

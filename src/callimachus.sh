@@ -452,6 +452,35 @@ elif [ "$1" = "stop" ] ; then ################################
     fi
   fi
 
+elif [ "$1" = "dump" ] ; then ################################
+
+  if [ -f "$PID" -a -r "$PID" ]; then
+    kill -0 `cat "$PID"` >/dev/null 2>&1
+    if [ $? -gt 0 ]; then
+      rm -f "$PID"
+      if [ $? -gt 0 ]; then
+        echo "PID file ($PID) found but no matching process was found. Dump aborted."
+        exit $?
+      fi
+      exit $?
+    fi
+  elif [ -f "$PID" ]; then
+    echo "The PID ($PID) exist, but it cannot be read. Dump aborted."
+    exit 1
+  else
+    echo "The PID ($PID) does not exist. Is the server running? Dump aborted."
+    exit 1
+  fi
+
+  ID=`cat "$PID"`
+
+  exec "$JAVA" -server \
+    -Duser.home="$BASEDIR" \
+    -Djava.library.path="$LIB" \
+    -Djava.io.tmpdir="$TMPDIR" \
+    -classpath "$CLASSPATH:$JAVA_HOME/lib/tools.jar" \
+    $JAVA_OPTS $SSL_OPTS "$MAINCLASS" --pid "$PID" --dump "$BASEDIR/log"
+
 else ################################
 
   if [ -f "$PID" ]; then

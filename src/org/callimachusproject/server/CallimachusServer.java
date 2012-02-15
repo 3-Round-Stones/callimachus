@@ -229,6 +229,10 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		return server.getConnections();
 	}
 
+	public void connectionDumpToFile(String outputFile) throws IOException {
+		 server.connectionDumpToFile(outputFile);
+	}
+
 	public void resetConnections() throws IOException {
 		server.resetConnections();
 	}

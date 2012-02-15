@@ -27,7 +27,7 @@
 		<label for="name">Username</label>
 		<div>
 			<input id="name" name="name" type="text" class="auto-expand required" autofocus="autofocus"
-				onchange="$('#message').val($('#message').val().replace(/username is (\w*)/, 'username is ' + value))" />
+				onchange="$('#message').val($('#message').val().replace(/username is (\S+) and /, 'username is ' + value + ' and '))" />
 		</div>
 		<label for="email">E-mail address</label>
 		<div>
@@ -52,7 +52,7 @@
 
 You have a new account.
 
-Your username is  and your password is "@@PASSWORD@@" (without quotes).
+Your username is unknown and your password is "@@PASSWORD@@" (without quotes).
 
 You can sign in at:</textarea>
 		</div>

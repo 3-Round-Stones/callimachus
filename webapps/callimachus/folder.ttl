@@ -64,7 +64,8 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	calli:method "GET";
-	calli:query "export";
+	calli:query "archive";
+	calli:rel calli:archive;
 	calli:realm </manifest>;
 	calli:type "message/x-response";
 	calli:header "cache-control:no-store";
@@ -208,13 +209,40 @@
 		return folder_import_xhtml.calliConstructHTML(this, "import");
 	""".
 
-:UploadFolderComponents rdfs:subClassOf msg:Message;
+:ImportFolderComponents rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
 	calli:method "POST";
 	calli:query "import";
 	calli:realm </manifest>;
 	calli:expect "302-see-other";
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+	msg:script """
+		var bio = new java.io.BufferedInputStream(formData, 65536);
+		var multipart = new org.callimachusproject.io.MultipartParser(bio);
+		var inputStream = multipart.next();
+		try {
+			println("Importing folder content from: " + multipart.headers.get("content-disposition"));
+			this.UploadFolderComponents(inputStream);
+			return this;
+		} finally {
+			inputStream.close();
+			if (multipart.next() != null)
+				throw new BadRequest("Only one file can be uploaded");
+		}
+	""".
+
+:formData a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :ImportFolderComponents;
+	rdfs:range <java:java.io.InputStream>;
+	calli:type "multipart/form-data".
+
+:UploadFolderComponents rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	calli:method "PUT";
+	calli:query "archive";
+	calli:realm </manifest>;
 	msg:imports <Composite>;
 	msg:imports </callimachus>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
@@ -244,9 +272,6 @@
 		}
 		var File = con.getObject(callimachus.toUri().resolve("/callimachus/File").toString());
 		var SchemaGraph = vf.createURI(callimachus.toUri().resolve("/callimachus/SchemaGraph").toString());
-		var bio = new java.io.BufferedInputStream(payload, 65536);
-		var multipart = new org.callimachusproject.io.MultipartParser(bio);
-		var inputStream;
 		var dependency = new java.util.HashSet(this.FindComponentsWithExternalDependent());
 		this.DeleteComponents(); //# remove existing components
 		var iter = dependency.iterator();
@@ -254,65 +279,57 @@
 			if (!con.hasStatement(null, null, iter.next().resource, true, []))
 				iter.remove(); //# no longer a dependency 
 		}
-		while (inputStream = multipart.next()) {
+		var name;
+		var carStream = new org.callimachusproject.io.CarInputStream(payload);
+		while (name = carStream.readEntryName()) {
+			var uri = baseURI + name;
+			var location = con.getObject(uri);
+			var folder = null;
+			var container = this.FindExistingContainer(location);
+			if (!container) {
+				container = folder = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
+				if (!(container instanceof Composite)) {
+					container = folder = this.DesignateAsFolder(container);
+				}
+			}
+			var entryStream = carStream.getEntryStream();
 			try {
-				println("Importing folder content from: " + multipart.headers.get("content-disposition"));
-				var name;
-				var carStream = new org.callimachusproject.io.CarInputStream(inputStream);
-				while (name = carStream.readEntryName()) {
-					var uri = baseURI + name;
-					var location = con.getObject(uri);
-					var folder = null;
-					var container = this.FindExistingContainer(location);
-					if (!container) {
-						container = folder = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
-						if (!(container instanceof Composite)) {
-							container = folder = this.DesignateAsFolder(container);
-						}
+				if (carStream.isFolderEntry()) {
+					this.DesignateAsFolder(location);
+					dependency.remove(location);
+				} else if (carStream.isFileEntry()) {
+					var type = carStream.getEntryType();
+					container.PostFactoryCreate(entryStream, File, null, location, type);
+					dependency.remove(location);
+				} else if (carStream.isResourceEntry()) {
+					readFrom(entryStream, uri, []);
+					if (folder) {
+						folder.calliHasComponent.add(location);
 					}
-					var entryStream = carStream.getEntryStream();
-					try {
-						if (carStream.isFolderEntry()) {
-							this.DesignateAsFolder(location);
-							dependency.remove(location);
-						} else if (carStream.isFileEntry()) {
-							var type = carStream.getEntryType();
-							container.PostFactoryCreate(entryStream, File, null, location, type);
-							dependency.remove(location);
-						} else if (carStream.isResourceEntry()) {
-							readFrom(entryStream, uri, []);
-							if (folder) {
-								folder.calliHasComponent.add(location);
-							}
-							dependency.remove(location);
-						} else if (carStream.isSchemaEntry()) {
-							var graphURI = vf.createURI(uri + ".owl");
-							con.clear([graphURI]);
-							con.add(graphURI, RDF.TYPE, SchemaGraph, [graphURI]);
-							readFrom(entryStream, uri, [graphURI]);
-							if (folder) {
-								folder.calliHasComponent.add(location);
-							}
-							dependency.remove(location);
-							con.recompileSchemaOnClose();
-						}
-					} finally {
-						entryStream.close();
+					dependency.remove(location);
+				} else if (carStream.isSchemaEntry()) {
+					var graphURI = vf.createURI(uri + ".owl");
+					con.clear([graphURI]);
+					con.add(graphURI, RDF.TYPE, SchemaGraph, [graphURI]);
+					readFrom(entryStream, uri, [graphURI]);
+					if (folder) {
+						folder.calliHasComponent.add(location);
 					}
+					dependency.remove(location);
+					con.recompileSchemaOnClose();
 				}
 			} finally {
-				inputStream.close();
+				entryStream.close();
 			}
 		}
 		if (!dependency.isEmpty())
 			throw new BadRequest(dependency.size() + " required resource(s) not present: " + dependency.iterator().next());
-		return this;
 	""".
 
 :payload a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :UploadFolderComponents;
 	rdfs:range <java:java.io.InputStream>;
-	calli:type "multipart/form-data".
+	calli:type "application/zip".
 
 :FindComponentsWithExternalDependent rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];

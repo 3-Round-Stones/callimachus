@@ -135,6 +135,11 @@
 					BIND ("contents" as ?link_rel)
 					BIND ("application/atom+xml" as ?link_type)
 				} UNION {
+					$this calli:hasComponent ?id . ?id a <../Folder>
+					BIND (concat(str(?id),"?archive") as ?link_href)
+					BIND (calli:archive as ?link_rel)
+					BIND ("application/zip" as ?link_type)
+				} UNION {
 					$this calli:hasComponent ?id
 					BIND (concat(str(?id),"?view") as ?link_href)
 					BIND ("alternate" as ?link_rel)
@@ -165,23 +170,15 @@
 					} GROUP BY $this
 				}
 				{
-					{
-						$this rdfs:label ?title
-					} OPTIONAL {
-						$this audit:revision ?revision . ?revision audit:committedOn ?updated
+					$this rdfs:label ?title
+				} OPTIONAL {
+					$this audit:revision ?revision . ?revision audit:committedOn ?updated
+					OPTIONAL {
+						?revision audit:contributor ?author_uri
 						OPTIONAL {
-							?revision audit:contributor ?author_uri
-							OPTIONAL {
-								?author_uri rdfs:label ?author_name
-							}
+							?author_uri rdfs:label ?author_name
 						}
 					}
-					BIND (?title as ?collection_title)
-					BIND (concat(str($this),"?feed") as ?collection_href)
-				} UNION {
-					[a <../Creatable>] calli:type ?collection_accept
-				} UNION {
-					[a <../CreatableIndex>] calli:type ?collection_accept
 				}
 			} UNION {
 				{
@@ -222,19 +219,10 @@
 						BIND ("edit-media" as ?link_rel)
 					}
 				} UNION {
-					$this calli:hasComponent ?id . ?id a <../Folder>
-					BIND (concat(str(?id),"?feed") as ?link_href)
-					BIND ("contents" as ?link_rel)
-					BIND ("application/atom+xml" as ?link_type)
-				} UNION {
 					$this calli:hasComponent ?id
 					BIND (concat(str(?id),"?view") as ?link_href)
 					BIND ("alternate" as ?link_rel)
 					BIND ("text/html" as ?link_type)
-				} UNION {
-					$this calli:hasComponent ?id
-					BIND (concat(str(?id),"?describe") as ?link_href)
-					BIND ("describedby" as ?link_rel)
 				}
 			}
 		} ORDER BY desc(?updated) ?id

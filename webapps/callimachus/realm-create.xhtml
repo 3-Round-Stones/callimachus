@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="/manifest?layout"?>
+<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
@@ -8,32 +8,39 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
 	xmlns:dc="http://purl.org/dc/elements/1.1/">
 <head>
-	<title>New Manifest</title>
+	<title>New Realm</title>
 </head>
 <body>
-	<h1>New Manifest</h1>
+	<h1>New Realm</h1>
 	<div id="sidebar">
 		<aside>
 			<p>The icon should be of type PNG, GIF, or ICO and should be 16×16 or 32×32 pixels in size</p>
 		</aside>
 	</div>
-	<form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Manifest" onsubmit="return calli.saveResourceAs(event)">
+	<form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Realm calli:Folder"
+			onsubmit="$('#label').val($('#label').val().toLowerCase());$(this).attr('about',encodeURI($('#label').val()).replace(/%20/g,'-')+'/');return calli.saveResourceAs(event)">
+		<div>
+			<label for="label">Label</label>
+			<input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+		</div>
 		<div class="hbox">
-			<div>
-				<label for="label">Label</label>
-				<input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
-			</div>
 			<div id="favicon-image" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Icon <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
+				<label>Icon <a href="?view" title="Browse" onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
 				<div rel="calli:favicon">
 					<span about="?favicon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
 						<img src="{?favicon}" />
-						<a href="{?favicon}" title="Remove from manifest" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+						<a href="{?favicon}" title="Don't use this icon" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
 					</span>
 				</div>
 			</div>
 		</div>
 		<div class="hbox">
+			<div>
+				<label for="realm-menu">Menu</label>
+				<select id="realm-menu" rel="calli:menu">
+					<option selected="selected" about="?menu" typeof="calli:Menu" property="rdfs:label" />
+				</select>
+			</div>
 			<div>
 				<label for="theme">Theme</label>
 				<select id="theme" rel="calli:theme">

@@ -28,10 +28,10 @@
 <> a <SchemaGraph>.
 
 <Origin> a owl:Class;
-	rdfs:subClassOf <Folder>, calli:Origin;
+	rdfs:subClassOf <Realm>, calli:Origin;
 	rdfs:label "Origin";
 	rdfs:comment "Root path of an http or https authority";
 	rdfs:isDefinedBy </callimachus>;
-	calli:icon <origin.png>;
+	calli:icon <realm.png>;
 	calli:view <folder-view.xhtml>.
 

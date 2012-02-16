@@ -114,7 +114,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <GraphDocument>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	calli:method "PUT";
-	calli:realm </manifest>;
+	calli:realm </>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:script """

@@ -66,7 +66,7 @@
 	calli:method "GET";
 	calli:query "archive";
 	calli:rel calli:archive;
-	calli:realm </manifest>;
+	calli:realm </>;
 	calli:type "message/x-response";
 	calli:header "cache-control:no-store";
 	msg:imports <java:org.apache.http.ProtocolVersion>;
@@ -203,7 +203,7 @@
 	calli:query "import";
 	calli:type "text/html";
 	calli:header "cache-control:no-cache";
-	calli:realm </manifest>;
+	calli:realm </>;
 	msg:imports <pages/folder-import.xhtml>;
 	msg:script """
 		return folder_import_xhtml.calliConstructHTML(this, "import");
@@ -214,7 +214,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
 	calli:method "POST";
 	calli:query "import";
-	calli:realm </manifest>;
+	calli:realm </>;
 	calli:expect "302-see-other";
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:script """
@@ -242,7 +242,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	calli:method "PUT";
 	calli:query "archive";
-	calli:realm </manifest>;
+	calli:realm </>;
 	msg:imports <Composite>;
 	msg:imports </callimachus>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;

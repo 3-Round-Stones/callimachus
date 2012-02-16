@@ -52,7 +52,7 @@ calli:Folder a owl:Class;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Origin a owl:Class;
-	rdfs:subClassOf calli:Folder;
+	rdfs:subClassOf calli:Realm;
 	rdfs:label "Origin";
 	rdfs:comment "A URI with a '/' path that is served by a Callimachus system";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
@@ -94,10 +94,10 @@ calli:Group a owl:Class;
 	rdfs:comment "A collection of users";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:Manifest a owl:Class;
-	rdfs:subClassOf calli:Composite;
-	rdfs:label "Manifest";
-	rdfs:comment "Information about a Web application server";
+calli:Realm a owl:Class;
+	rdfs:subClassOf calli:Folder;
+	rdfs:label "Realm";
+	rdfs:comment "Web application realm";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Menu a owl:Class;
@@ -277,47 +277,47 @@ calli:authName a rdf:Property, owl:FunctionalProperty;
 calli:forbidden a owl:ObjectProperty;
 	rdfs:label "forbidden";
 	rdfs:comment "The RDFa page template used when an agent is forbidden from the requested resource";
-	rdfs:domain calli:Manifest;
+	rdfs:domain calli:Realm;
 	rdfs:range calli:Page;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:unauthorized a owl:ObjectProperty;
 	rdfs:label "authorized";
 	rdfs:comment "The RDFa page template used when an agent is aunothorized from the requested resource";
-	rdfs:domain calli:Manifest;
+	rdfs:domain calli:Realm;
 	rdfs:range calli:Page;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:authentication a owl:ObjectProperty;
 	rdfs:label "authentication";
 	rdfs:comment "The realm used for authentication";
-	rdfs:domain calli:Manifest;
+	rdfs:domain calli:Realm;
 	rdfs:range calli:AccountManager;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:variation a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "variation";
 	rdfs:comment "An CSS file that overrides the style of the theme";
-	rdfs:domain calli:Manifest;
+	rdfs:domain calli:Realm;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:menu a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "menu";
-	rdfs:comment "The menu used in this manifest";
-	rdfs:domain calli:Manifest;
+	rdfs:comment "The menu used in this realm";
+	rdfs:domain calli:Realm;
 	rdfs:range calli:Menu;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:favicon a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:label "favicon";
 	rdfs:comment "A small logo image that should be shown on pages using the configured theme";
-	rdfs:domain calli:Manifest;
+	rdfs:domain calli:Realm;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:label "rights";
 	rdfs:comment "Rights statement for the data in this Web application server";
-	rdfs:domain calli:Manifest;
+	rdfs:domain calli:Realm;
 	rdfs:range rdf:XMLLiteral;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
@@ -369,8 +369,8 @@ calli:minified a owl:DatatypeProperty;
 
 calli:theme a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "theme";
-	rdfs:comment "The primary theme used for this manifest";
-	rdfs:domain calli:Manifest;
+	rdfs:comment "The primary theme used for this realm";
+	rdfs:domain calli:Realm;
 	rdfs:range calli:Theme;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 

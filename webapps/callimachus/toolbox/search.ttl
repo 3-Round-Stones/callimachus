@@ -14,8 +14,9 @@
 <> a <../SchemaGraph>.
 
 # anybody with credentials can look something up
+# TODO change this to require calli:reader access
 :AuthorizeSearchFolder owl:intersectionOf (calli:IsAuthorized
-		[owl:onProperty msg:target; owl:allValuesFrom <../Folder>]);
+		[owl:onProperty msg:target; owl:allValuesFrom <../Realm>]);
 	msg:sparql  """
 		ASK {
 			?accounts calli:authNamespace [calli:hasComponent $credential]
@@ -25,7 +26,7 @@
 	""".
 
 :SearchDescription rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Folder>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Realm>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
 	calli:query "search";
@@ -43,11 +44,11 @@
 	""".
 
 :SearchFolder rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Folder>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Realm>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
 	calli:query "q";
-	calli:realm </manifest>;
+	calli:realm </>;
 	calli:type "application/sparql-results+xml";
 	calli:header "cache-control:no-store";
 	calli:transform :TransformSearchFolder;
@@ -60,6 +61,7 @@
 				BIND ("feed" as ?type)
 			} UNION {
 				$this audit:revision [audit:committedOn ?updated]
+				BIND (concat(str($this),"?q=",encode_for_uri($q)) as ?id)
 				BIND ("feed" as ?type)
 			} UNION {
 				{
@@ -94,7 +96,7 @@
 						}
 					}
 					GROUP BY ?url
-					ORDER BY ?label ?url ?icon
+					ORDER BY ?title ?id ?icon
 					LIMIT 100
 				}
 				FILTER (bound(?id))
@@ -113,7 +115,7 @@
 	calli:query "q".
 
 :TransformSearchFolder rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Folder>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Realm>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";
 	calli:transform <../transforms/TransformLayout>;
@@ -143,26 +145,32 @@
 				$this rdfs:label ?title
 				BIND (concat(str($this),"?feed") as ?id)
 				BIND ("feed" as ?type)
-				BIND (concat(str($this),"?search") as ?link_href)
-				BIND ("search" as ?link_rel)
-				BIND ("application/opensearchdescription+xml" as ?link_type)
 				BIND (?title as ?collection_title)
 				BIND (concat(str($this),"?feed") as ?collection_href)
 			} UNION {
+				{ $this a <../Realm> } UNION { $this a <../Origin> }
+				BIND (concat(str($this),"?feed") as ?id)
+				BIND (concat(str($this),"?search") as ?link_href)
+				BIND ("search" as ?link_rel)
+				BIND ("application/opensearchdescription+xml" as ?link_type)
+			} UNION {
 				BIND ("feed" as ?type)
+				BIND (concat(str($this),"?feed") as ?id)
 				$this audit:revision [audit:committedOn ?updated]
 				BIND (concat(str($this),"?changes") as ?link_href)
 				BIND ("alternate" as ?link_rel)
 				BIND ("application/atom+xml" as ?link_type)
 			} UNION {
 				BIND ("feed" as ?type)
+				BIND (concat(str($this),"?feed") as ?id)
 				[a <../Creatable>] calli:type ?collection_accept
 			} UNION {
 				BIND ("feed" as ?type)
+				BIND (concat(str($this),"?feed") as ?id)
 				[a <../CreatableIndex>] calli:type ?collection_accept
 			} UNION {
 				{
-					SELECT ($this as ?id) (count(?part) as ?totalResults) ("feed" as ?type) {
+					SELECT (concat(str($this),"?feed") as ?id) (count(?part) as ?totalResults) ("feed" as ?type) {
 						$this calli:hasComponent ?part
 					} GROUP BY $this
 				}
@@ -226,12 +234,12 @@
 						BIND ("edit-media" as ?link_rel)
 					}
 				} UNION {
-					$this calli:hasComponent ?id . ?id a <../Folder>
+					{ ?id a <../Folder> } UNION { ?id a <../Realm> }
 					BIND (concat(str(?id),"?feed") as ?link_href)
 					BIND ("contents" as ?link_rel)
 					BIND ("application/atom+xml" as ?link_type)
 				} UNION {
-					$this calli:hasComponent ?id . ?id a <../Folder>
+					{ ?id a <../Folder> } UNION { ?id a <../Realm> }
 					BIND (concat(str(?id),"?archive") as ?link_href)
 					BIND (calli:archive as ?link_rel)
 					BIND ("application/zip" as ?link_type)
@@ -246,7 +254,7 @@
 					BIND ("describedby" as ?link_rel)
 				}
 			}
-		} ORDER BY ?id
+		} ORDER BY desc(?type) ?id
 	""".
 
 :GetFolderChanges rdfs:subClassOf msg:Message;
@@ -265,7 +273,7 @@
 				BIND ("feed" as ?type)
 			} UNION {
 				$this audit:revision [audit:committedOn ?updated]
-				BIND (concat(str($this),"?feed") as ?id)
+				BIND (concat(str($this),"?changes") as ?id)
 				BIND ("feed" as ?type)
 			} UNION {
 				{
@@ -312,7 +320,7 @@
 					BIND ("text/html" as ?link_type)
 				}
 			}
-		} ORDER BY desc(?updated) ?id
+		} ORDER BY desc(?type) desc(?updated) ?id
 	""".
 
 :TransformIntoAtom rdfs:subClassOf msg:Message;

@@ -32,7 +32,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "create";
-	calli:realm </manifest>;
+	calli:realm </>;
 	calli:type "application/xhtml+xml";
 	calli:transform <../transforms/TransformXhtml>;
 	msg:script """
@@ -49,7 +49,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "create";
-	calli:realm </manifest>;
+	calli:realm </>;
 	calli:type "application/xhtml+xml";
 	calli:transform <../transforms/TransformXhtml>;
 	msg:script """
@@ -70,7 +70,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Local>];
 	calli:method "POST";
 	calli:query "create";
-	calli:realm </manifest>;
+	calli:realm </>;
 	calli:expect "201-created";
 	calli:type "text/plain";
 	msg:script """

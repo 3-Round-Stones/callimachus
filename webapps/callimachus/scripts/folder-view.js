@@ -92,7 +92,7 @@
 					feed.children('entry').each(function() {
 						var entry = $(this);
 						totalEntries++;
-						if (!entry.children('link[type="application/atom+xml"]').length) {
+						if (!entry.children('link[rel="contents"]').length) {
 							var tr = $('<tr/>');
 							var icon = entry.children('icon').text();
 							var title = entry.children('title').text();

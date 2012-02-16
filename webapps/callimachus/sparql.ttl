@@ -28,7 +28,7 @@
 <SparqlService> a <Local>, owl:Class;
 	rdfs:subClassOf <Viewable>, sd:Service;
 	rdfs:isDefinedBy </callimachus>;
-	msg:realm </manifest>;
+	calli:realm </>;
 	calli:view <sparql-view.xhtml>.
 
 :EvaluateSparql rdfs:subClassOf msg:Message;

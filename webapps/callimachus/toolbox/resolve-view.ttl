@@ -14,12 +14,13 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../view>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "GET";
-	calli:query "iri";
+	calli:query "q";
 	calli:expect "302-found";
 	calli:header "cache-control:no-store";
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:imports <java:java.net.URLEncoder>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports </diverted>;
 	msg:imports calli:Viewable;
 	msg:script """
@@ -45,7 +46,7 @@
 					if (uri.isAbsolute())
 						return canonicalize(uri);
 				} else if (string.indexOf("/") == 0) {
-					var origin = java.net.URI.create(this.toString());
+					var origin = java.net.URI.create(diverted.toString());
 					var sch = origin.scheme;
 					var auth = origin.authority;
 					var uri = java.net.URI.create(string);
@@ -54,7 +55,7 @@
 					return canonicalize(uri);
 				}
 			} catch (e) {
-				return null;
+				throw new BadRequest(e);
 			}
 		}
 
@@ -75,16 +76,16 @@
 			}
 		}
 
-		if (iri) {
-			var uri = parseAbsoluteURI(iri);
+		if (q) {
+			var uri = parseAbsoluteURI(q);
 			if (uri) //# absolute URI redirect
 				return redirectURL(uri);
 		}
 		return null; //# 404
 	""".
 
-:iri a owl:DatatypeProperty, owl:FunctionalProperty;
+:q a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :ResolveView;
 	rdfs:range xsd:string;
-	calli:query "iri".
+	calli:query "q".
 

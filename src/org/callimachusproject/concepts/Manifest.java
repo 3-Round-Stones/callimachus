@@ -5,7 +5,7 @@ import java.util.Set;
 import org.callimachusproject.server.traits.Realm;
 import org.openrdf.annotations.Iri;
 
-@Iri("http://callimachusproject.org/rdf/2009/framework#Manifest")
+@Iri("http://callimachusproject.org/rdf/2009/framework#Realm")
 public interface Manifest extends Realm {
 
 	/**

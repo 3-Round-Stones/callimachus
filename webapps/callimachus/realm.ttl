@@ -11,14 +11,13 @@
 
 <> a <SchemaGraph>.
 
-<Manifest> a <CreatableIndex>, owl:Class;
-	rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:Manifest;
+<Realm> a <CreatableIndex>, owl:Class;
+	rdfs:subClassOf <Folder>, calli:Realm;
 	rdfs:isDefinedBy </callimachus>;
 	calli:author </group/admin>;
-	calli:icon <manifest.png>;
-	calli:view <manifest-view.xhtml>;
-	calli:edit <manifest-edit.xhtml>;
-	calli:create <manifest-create.xhtml>.
+	calli:icon <realm.png>;
+	calli:edit <realm-edit.xhtml>;
+	calli:create <realm-create.xhtml>.
 
 :GetOldTemplate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <manifest>];
@@ -28,11 +27,11 @@
 	calli:expect "302-see-other";
 	calli:type "text/uri-list";
 	msg:script """
-		return "/manifest?layout";
+		return "/callimachus/template.xsl";
 	""".
 
 :GetLayout rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Manifest>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "GET";
 	calli:query "layout";
@@ -56,7 +55,7 @@
 		sb.push('<xsl:param name="systemId" />');
 		sb.push('<xsl:param name="query" />');
 		sb.push('<xsl:param name="template" select="false()" />');
-		sb.push('<xsl:variable name="manifest">' + this + '</xsl:variable>');
+		sb.push('<xsl:variable name="realm">' + this + '</xsl:variable>');
 		sb.push('<xsl:variable name="styles">' + styles + '</xsl:variable>');
 		sb.push('<xsl:variable name="scripts">' + scripts + '</xsl:variable>');
 		sb.push('<xsl:variable name="layout">' + layout + '</xsl:variable>');
@@ -90,8 +89,8 @@
 		return sb.join('');
 	""".
 
-:PostEditManifest owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
-		[owl:onProperty msg:target; owl:allValuesFrom <Manifest>]);
+:PostEditRealm owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
+		[owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
 	msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
 

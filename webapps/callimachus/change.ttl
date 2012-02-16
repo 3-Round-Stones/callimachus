@@ -38,7 +38,7 @@
 <Change> rdfs:subClassOf <Local>, audit:Transaction;
 	rdfs:isDefinedBy </callimachus>;
 	msg:matching </change/*>;
-	msg:realm </manifest>.
+	calli:realm </>.
 
 # transcations are authorized by the user that made the change
 :AuthorizeTransaction owl:intersectionOf (calli:IsAuthorized

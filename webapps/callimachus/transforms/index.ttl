@@ -14,7 +14,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";
 	calli:transform <TransformXhtml>;
-	msg:xslt </manifest?layout>.
+	msg:xslt <../template.xsl>.
 
 <TransformLayout#query> a owl:DatatypeProperty; a owl:FunctionalProperty;
 	rdfs:domain <TransformLayout>;

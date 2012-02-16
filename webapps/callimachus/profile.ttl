@@ -94,7 +94,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Profile>];
 	calli:method "POST";
 	calli:expect "303-see-other";
-	calli:realm </manifest>;
+	calli:realm </>;
 	msg:script """
 		var iter = form.entrySet().iterator();
 		while (iter.hasNext()) {

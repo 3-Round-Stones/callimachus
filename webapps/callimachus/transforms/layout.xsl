@@ -6,7 +6,7 @@
 	<xsl:output indent="no" method="xml" />
 
 	<!-- Variables -->
-	<!-- systemId query templat manifest styles scripts layout favicon menu variation rights -->
+	<!-- systemId query templat realm styles scripts layout favicon menu variation rights -->
 	<xsl:variable name="layout_xhtml" select="document($layout)" />
 	<xsl:variable name="layout_html" select="$layout_xhtml/xhtml:html|$layout_xhtml/html" />
 	<xsl:variable name="layout_head" select="$layout_xhtml/xhtml:html/xhtml:head|$layout_xhtml/html/head" />

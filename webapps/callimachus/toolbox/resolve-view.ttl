@@ -10,16 +10,16 @@
 
 <> a <../SchemaGraph>.
 
-:LookupAndGo rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../go>];
+:ResolveView rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../view>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "GET";
-	calli:expect "302-see-other";
+	calli:query "iri";
+	calli:expect "302-found";
 	calli:header "cache-control:no-store";
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:imports <java:java.net.URLEncoder>;
-	msg:imports <../lookup>;
 	msg:imports </diverted>;
 	msg:imports calli:Viewable;
 	msg:script """
@@ -45,7 +45,7 @@
 					if (uri.isAbsolute())
 						return canonicalize(uri);
 				} else if (string.indexOf("/") == 0) {
-					var origin = java.net.URI.create(lookup.toString());
+					var origin = java.net.URI.create(this.toString());
 					var sch = origin.scheme;
 					var auth = origin.authority;
 					var uri = java.net.URI.create(string);
@@ -59,52 +59,32 @@
 		}
 
 		function redirectURL(uri) {
-			var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toString() : null;
-			var iri = uri.toString();
+			var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toASCIIString() : null;
+			var iri = uri.toASCIIString();
 			var viewable = con.getObject(iri) instanceof Viewable;
 			var Origin = vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin");
 			var authority = origin && con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
 			if (viewable && authority && (uri.query || uri.fragment)) { //# complex resource URI
-				var url = origin + "diverted;" + URLEncoder.encode(iri) + '?view';
-				return url;
+				return origin + "diverted;" + URLEncoder.encode(iri) + '?view';
 			} else if (viewable && authority) { //# Self resolving URL
-				var url = iri + '?view';
-				return url;
+				return iri + '?view';
 			} else if (viewable) { //# Foreign IRI, but can be presented here
-				var url = diverted.toString() + ";" + URLEncoder.encode(iri) + '?view';
-				return url;
+				return diverted.toString() + ";" + URLEncoder.encode(iri) + '?view';
 			} else { //# Unknown resource
 				return iri;
 			}
 		}
 
-		if (!q)
-			return lookup;
-		var uri = parseAbsoluteURI(q);
-		if (uri) { //# absolute URI redirect
-			return redirectURL(uri);
+		if (iri) {
+			var uri = parseAbsoluteURI(iri);
+			if (uri) //# absolute URI redirect
+				return redirectURL(uri);
 		}
-		var stmts = con.getStatements(null, null, vf.createLiteral(q), []);
-		try { //# check if there is a resource with this exact label
-			if (stmts.hasNext()) {
-				var st = stmts.next();
-				var uri = st.subject;
-				var pred = st.predicate;
-				if (uri instanceof org.openrdf.model.URI && !stmts.hasNext()
-						&& (RDFS.LABEL.equals(pred)
-						|| pred.stringValue().equals("http://www.w3.org/2004/02/skos/core#prefLabel")
-						|| pred.stringValue().equals("http://xmlns.com/foaf/0.1/name")
-						|| pred.stringValue().equals("http://www.w3.org/2008/05/skos-xl#literalForm")))
-					return redirectURL(java.net.URI.create(uri.stringValue()));
-			}
-		} finally {
-			stmts.close();
-		}
-		return lookup + "?q=" + URLEncoder.encode(q); //# list resources by label prefix
+		return null; //# 404
 	""".
 
-:q a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :LookupAndGo;
+:iri a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :ResolveView;
 	rdfs:range xsd:string;
-	calli:query "q".
+	calli:query "iri".
 

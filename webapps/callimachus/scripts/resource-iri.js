@@ -40,6 +40,19 @@ window.calli.listResourceIRIs = function (text) {
 				uri = uri.substring(0, uri.indexOf('#'));
 			}
 			return decodeURIComponent(uri);
+		} else if (url.indexOf('/callimachus/view?iri=') >= 0) {
+			var uri = url.substring(url.indexOf('/callimachus/view?iri=') + '/callimachus/view?iri='.length);
+			if (uri.indexOf('&') >= 0) {
+				uri = uri.substring(0, uri.indexOf('&'));
+			}
+			if (uri.indexOf('#') >= 0) {
+				uri = uri.substring(0, uri.indexOf('#'));
+			}
+			uri = decodeURIComponent(uri);
+			if (uri.indexOf('/') == 0) {
+				uri = url.substring(0, url.indexOf('/callimachus/view')) + uri;
+			}
+			return uri;
 		} else if (url.indexOf('/callimachus/go?q=') >= 0) {
 			var uri = url.substring(url.indexOf('/callimachus/go?q=') + '/callimachus/go?q='.length);
 			if (uri.indexOf('&') >= 0) {

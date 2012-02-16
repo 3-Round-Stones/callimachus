@@ -14,8 +14,8 @@
 <> a <../SchemaGraph>.
 
 # anybody with credentials can look something up
-:AuthorizeLookupSearch owl:intersectionOf (calli:IsAuthorized
-		[owl:onProperty msg:target; owl:hasValue <../lookup>]);
+:AuthorizeSearchFolder owl:intersectionOf (calli:IsAuthorized
+		[owl:onProperty msg:target; owl:allValuesFrom <../Folder>]);
 	msg:sparql  """
 		ASK {
 			?accounts calli:authNamespace [calli:hasComponent $credential]
@@ -24,19 +24,23 @@
 		}
 	""".
 
-:Lookup rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../lookup>];
+:SearchFolder rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
+	calli:query "q";
 	calli:realm </manifest>;
 	calli:type "application/sparql-results+xml";
 	calli:header "cache-control:no-store";
-	calli:transform :TransformLookup;
+	calli:transform :TransformSearchFolder;
 	msg:sparql  """
 		SELECT DISTINCT (max(?label) as ?label) (max(?comment) as ?comment) (max(?icon) as ?icon) ?url (max(?modified) as ?modified)
 		WHERE {
 			{
 				?url keyword:phone ?soundex
+				FILTER sameTerm(?soundex, keyword:soundex($q))
+				FILTER (isIRI(?url))
+				FILTER strstarts(str(?url), str($this))
 			} OPTIONAL {
 				?url skos:prefLabel ?label
 			} OPTIONAL {
@@ -46,8 +50,6 @@
 			} OPTIONAL {
 				?url skosxl:literalForm ?label
 			}
-			FILTER (isIRI(?url))
-			FILTER sameTerm(?soundex, keyword:soundex($q))
 			FILTER EXISTS {
 				?url ?p ?string
 				FILTER regex(?string, keyword:regex($q))
@@ -64,18 +66,18 @@
 	""".
 
 :q a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :Lookup;
+	rdfs:domain :SearchFolder;
 	rdfs:range xsd:string;
 	calli:query "q".
 
-:TransformLookup rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../lookup>];
+:TransformSearchFolder rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xml";
 	calli:transform <../transforms/TransformLayout>;
-	msg:xslt <lookup.xsl>.
+	msg:xslt <search.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :TransformLookup;
+	rdfs:domain :TransformSearchFolder;
 	rdfs:range <java:java.io.InputStream>.
 

@@ -96,10 +96,16 @@
 	calli:administrator </group/admin>;
 	calli:hasComponent </.well-known/void>.
 
-</.well-known/void> a void:Dataset;
+</.well-known/void> a void:DatasetDescription;
 	rdfs:label "void";
+	foaf:primaryTopic </.well-known/void#dataset>.
+
+</.well-known/void#dataset> a void:Dataset;
 	foaf:homepage </>;
-	void:sparqlEndpoint </sparql>.
+	void:sparqlEndpoint </sparql>;
+	void:rootResource </>;
+	void:openSearchDescription </?search>;
+	void:uriSpace </>.
 
 </sparql> a </callimachus/SparqlService>, sd:Service;
 	rdfs:label "sparql";

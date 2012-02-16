@@ -59,7 +59,7 @@ window.calli.viewpage = function(uri) {
 	if (url.indexOf(prefix) == 0) {
 		url = url.substring(prefix.length - 1);
 	}
-	return prefix + 'callimachus/go?q=' + encodeURIComponent(url).replace(/%2F/g, '/').replace(/%3A/g, ':');
+	return prefix + 'callimachus/view?iri=' + encodeURIComponent(url).replace(/%2F/g, '/').replace(/%3A/g, ':');
 }
 
 window.calli.diverted = function(uri, query) {

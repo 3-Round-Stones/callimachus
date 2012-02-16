@@ -37,7 +37,7 @@
 	</xsl:if>
 </xsl:template>
 
-<xsl:template match="sparql:result[sparql:binding/@name='totalResults']">
+<xsl:template match="sparql:result[sparql:binding[@name='type']/*='feed']">
 	<xsl:variable name="id" select="sparql:binding[@name='id']/*/text()" />
 	<xsl:if test="not(preceding::sparql:result[sparql:binding[@name='id']/*=$id])">
 	<xsl:for-each select="../sparql:result[sparql:binding[@name='id']/*=$id]/sparql:binding">

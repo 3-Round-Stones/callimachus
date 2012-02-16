@@ -24,6 +24,24 @@
 		}
 	""".
 
+:SearchDescription rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	calli:method "GET";
+	calli:query "search";
+	calli:rel "search";
+	calli:type "application/opensearchdescription+xml";
+	msg:script """
+		var sb = [];
+		sb.push('<?xml version="1.0" encoding="UTF-8"?>');
+		sb.push('<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">');
+		sb.push('<ShortName>' + this.rdfsLabel + '</ShortName>');
+		sb.push('<Url type="application/atom+xml" template="' + this + '?q={searchTerms}"/>');
+		sb.push('</OpenSearchDescription>');
+		var xml = sb.join('\\n');
+		return new java.io.ByteArrayInputStream(new java.lang.String(xml).getBytes("UTF-8"));
+	""".
+
 :SearchFolder rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
@@ -33,36 +51,60 @@
 	calli:type "application/sparql-results+xml";
 	calli:header "cache-control:no-store";
 	calli:transform :TransformSearchFolder;
+	calli:transform :TransformIntoAtom;
 	msg:sparql  """
-		SELECT DISTINCT (max(?label) as ?label) (max(?comment) as ?comment) (max(?icon) as ?icon) ?url (max(?modified) as ?modified)
-		WHERE {
+		SELECT * {
 			{
-				?url keyword:phone ?soundex
-				FILTER sameTerm(?soundex, keyword:soundex($q))
-				FILTER (isIRI(?url))
-				FILTER strstarts(str(?url), str($this))
-			} OPTIONAL {
-				?url skos:prefLabel ?label
-			} OPTIONAL {
-				?url foaf:name ?label
-			} OPTIONAL {
-				?url rdfs:label ?label
-			} OPTIONAL {
-				?url skosxl:literalForm ?label
-			}
-			FILTER EXISTS {
-				?url ?p ?string
-				FILTER regex(?string, keyword:regex($q))
-			}
-			OPTIONAL { ?url a [calli:icon ?icon] }
-			OPTIONAL { ?url rdfs:comment ?comment }
-			OPTIONAL { ?url audit:revision ?revision
-				OPTIONAL { ?revision audit:committedOn ?modified }
+				$this rdfs:label ?title
+				BIND (concat(str($this),"?q=",encode_for_uri($q)) as ?id)
+				BIND ("feed" as ?type)
+			} UNION {
+				$this audit:revision [audit:committedOn ?updated]
+				BIND ("feed" as ?type)
+			} UNION {
+				{
+					SELECT DISTINCT (max(?label) as ?title) (max(?comment) as ?summary) (max(?icon) as ?icon) (?url as ?id) (max(?modified) as ?updated) (max(?content_type) as ?content_type)
+					WHERE {
+						{
+							?url keyword:phone ?soundex
+							FILTER sameTerm(?soundex, keyword:soundex($q))
+							FILTER (isIRI(?url))
+							FILTER strstarts(str(?url), str($this))
+						} OPTIONAL {
+							?url skos:prefLabel ?label
+						} OPTIONAL {
+							?url foaf:name ?label
+						} OPTIONAL {
+							?url rdfs:label ?label
+						} OPTIONAL {
+							?url skosxl:literalForm ?label
+						} OPTIONAL {
+							?url dcterms:title ?label
+						}
+						FILTER EXISTS {
+							?url ?p ?string
+							FILTER regex(?string, keyword:regex($q))
+						}
+						OPTIONAL { ?url a [calli:icon ?icon] }
+						OPTIONAL { ?url rdfs:comment ?comment }
+						OPTIONAL { ?url audit:revision ?revision
+							OPTIONAL { ?revision audit:committedOn ?modified }
+						} OPTIONAL {
+							?id a [calli:type ?content_type]
+						}
+					}
+					GROUP BY ?url
+					ORDER BY ?label ?url ?icon
+					LIMIT 100
+				}
+				FILTER (bound(?id))
+				BIND ("entry" as ?type)
+				BIND (concat(str(?id),"?view") as ?link_href)
+				BIND ("alternate" as ?link_rel)
+				BIND ("text/html" as ?link_type)
+				BIND (?id as ?content_src)
 			}
 		}
-		GROUP BY ?url
-		ORDER BY ?label ?url ?icon
-		LIMIT 100
 	""".
 
 :q a owl:DatatypeProperty, owl:FunctionalProperty;
@@ -73,11 +115,214 @@
 :TransformSearchFolder rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:type "application/xml";
+	calli:type "application/xhtml+xml";
 	calli:transform <../transforms/TransformLayout>;
 	msg:xslt <search.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :TransformSearchFolder;
 	rdfs:range <java:java.io.InputStream>.
+
+
+################################
+# List folder contents
+################################
+
+:GetFolderFeed rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	calli:method "GET";
+	calli:query "feed";
+	calli:rel "contents";
+	calli:type "application/sparql-results+xml";
+	calli:header "cache-control:no-cache";
+	calli:transform :TransformIntoAtom;
+	msg:sparql """
+		SELECT * {
+			{
+				$this rdfs:label ?title
+				BIND (concat(str($this),"?feed") as ?id)
+				BIND ("feed" as ?type)
+				BIND (concat(str($this),"?search") as ?link_href)
+				BIND ("search" as ?link_rel)
+				BIND ("application/opensearchdescription+xml" as ?link_type)
+				BIND (?title as ?collection_title)
+				BIND (concat(str($this),"?feed") as ?collection_href)
+			} UNION {
+				BIND ("feed" as ?type)
+				$this audit:revision [audit:committedOn ?updated]
+				BIND (concat(str($this),"?changes") as ?link_href)
+				BIND ("alternate" as ?link_rel)
+				BIND ("application/atom+xml" as ?link_type)
+			} UNION {
+				BIND ("feed" as ?type)
+				[a <../Creatable>] calli:type ?collection_accept
+			} UNION {
+				BIND ("feed" as ?type)
+				[a <../CreatableIndex>] calli:type ?collection_accept
+			} UNION {
+				{
+					SELECT ($this as ?id) (count(?part) as ?totalResults) ("feed" as ?type) {
+						$this calli:hasComponent ?part
+					} GROUP BY $this
+				}
+			} UNION {
+				{
+					SELECT ?id {
+						$this calli:hasComponent ?id
+						FILTER (isIRI(?id))
+					} ORDER BY ?id LIMIT 100
+				}
+				{
+					{} OPTIONAL {
+						?id skos:prefLabel ?title
+					} OPTIONAL {
+						?id foaf:name ?title
+					} OPTIONAL {
+						?id rdfs:label ?title
+					} OPTIONAL {
+						?id skosxl:literalForm ?title
+					} OPTIONAL {
+						?id dcterms:title ?title
+					}
+				} UNION {
+					?id audit:revision ?revision . ?revision audit:committedOn ?updated
+					OPTIONAL {
+						?revision audit:contributor ?author_uri
+						OPTIONAL {
+							?author_uri rdfs:label ?author_name
+						}
+					}
+				} UNION {
+					?id rdfs:comment ?summary
+				} UNION {
+					?id a [calli:icon ?icon]
+				} UNION {
+					?id calli:reader ?reader_uri
+					OPTIONAL {
+						?reader_uri rdfs:label ?reader_name
+					}
+				} UNION {
+					?id calli:contributor ?contributor_uri
+					OPTIONAL {
+						?contributor_uri rdfs:label ?contributor_name
+					}
+				} UNION {
+					?id calli:editor ?editor_uri
+					OPTIONAL {
+						?editor_uri rdfs:label ?editor_name
+					}
+				} UNION {
+					?id calli:administrator ?administrator_uri
+					OPTIONAL {
+						?administrator_uri rdfs:label ?administrator_name
+					}
+				} UNION {
+					$this calli:hasComponent ?id
+					BIND (?id as ?content_src)
+					OPTIONAL {
+						?id a [calli:type ?content_type]
+						BIND (?id as ?link_href)
+						BIND ("edit-media" as ?link_rel)
+					}
+				} UNION {
+					$this calli:hasComponent ?id . ?id a <../Folder>
+					BIND (concat(str(?id),"?feed") as ?link_href)
+					BIND ("contents" as ?link_rel)
+					BIND ("application/atom+xml" as ?link_type)
+				} UNION {
+					$this calli:hasComponent ?id . ?id a <../Folder>
+					BIND (concat(str(?id),"?archive") as ?link_href)
+					BIND (calli:archive as ?link_rel)
+					BIND ("application/zip" as ?link_type)
+				} UNION {
+					$this calli:hasComponent ?id
+					BIND (concat(str(?id),"?view") as ?link_href)
+					BIND ("alternate" as ?link_rel)
+					BIND ("text/html" as ?link_type)
+				} UNION {
+					$this calli:hasComponent ?id
+					BIND (concat(str(?id),"?describe") as ?link_href)
+					BIND ("describedby" as ?link_rel)
+				}
+			}
+		} ORDER BY ?id
+	""".
+
+:GetFolderChanges rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	calli:method "GET";
+	calli:query "changes";
+	calli:rel "alternate";
+	calli:type "application/sparql-results+xml";
+	calli:transform :TransformIntoAtom;
+	msg:sparql """
+		SELECT * {
+			{
+				$this rdfs:label ?title
+				BIND (concat(str($this),"?changes") as ?id)
+				BIND ("feed" as ?type)
+			} UNION {
+				$this audit:revision [audit:committedOn ?updated]
+				BIND (concat(str($this),"?feed") as ?id)
+				BIND ("feed" as ?type)
+			} UNION {
+				{
+					SELECT ?id ?updated ?author_uri ?author_name {
+						$this calli:hasComponent ?id
+						FILTER (isIRI(?id))
+						?id audit:revision ?revision . ?revision audit:committedOn ?updated
+						OPTIONAL {
+							?revision audit:contributor ?author_uri
+							OPTIONAL {
+								?author_uri rdfs:label ?author_name
+							}
+						}
+					} ORDER BY desc(?updated) LIMIT 100
+				}
+				{
+					{} OPTIONAL {
+						?id skos:prefLabel ?title
+					} OPTIONAL {
+						?id foaf:name ?title
+					} OPTIONAL {
+						?id rdfs:label ?title
+					} OPTIONAL {
+						?id skosxl:literalForm ?title
+					} OPTIONAL {
+						?id dcterms:title ?title
+					}
+				} UNION {
+					?id rdfs:comment ?summary
+				} UNION {
+					?id a [calli:icon ?icon]
+				} UNION {
+					$this calli:hasComponent ?id
+					BIND (?id as ?content_src)
+					OPTIONAL {
+						?id a [calli:type ?content_type]
+						BIND (?id as ?link_href)
+						BIND ("edit-media" as ?link_rel)
+					}
+				} UNION {
+					$this calli:hasComponent ?id
+					BIND (concat(str(?id),"?view") as ?link_href)
+					BIND ("alternate" as ?link_rel)
+					BIND ("text/html" as ?link_type)
+				}
+			}
+		} ORDER BY desc(?updated) ?id
+	""".
+
+:TransformIntoAtom rdfs:subClassOf msg:Message;
+   rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Folder>];
+   rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+   calli:type "application/atom+xml";
+   msg:xslt <../transforms/sparql-results-atom.xsl>.
+
+:sparqlResult a owl:FunctionalProperty, owl:ObjectProperty;
+   rdfs:domain :TransformIntoAtom;
+   rdfs:range <java:java.io.InputStream>;
+   calli:type "application/sparql-results+xml".
 

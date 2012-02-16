@@ -4,6 +4,8 @@
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix sd:<http://www.w3.org/ns/sparql-service-description#>.
+@prefix void:<http://rdfs.org/ns/void#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
@@ -53,7 +55,7 @@
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;
-	calli:hasComponent </user/>, </group/>, </sparql>, </manifest>, </callimachus>.
+	calli:hasComponent </.well-known/>, </user/>, </group/>, </sparql>, </manifest>, </callimachus>.
 
 </user/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "user";
@@ -87,6 +89,17 @@
 ################################
 # Services
 ################################
+
+</.well-known/> a </callimachus/Folder>, calli:Folder;
+	rdfs:label ".well known";
+	calli:reader </group/users>,</group/staff>;
+	calli:administrator </group/admin>;
+	calli:hasComponent </.well-known/void>.
+
+</.well-known/void> a void:Dataset;
+	rdfs:label "void";
+	foaf:homepage </>;
+	void:sparqlEndpoint </sparql>.
 
 </sparql> a </callimachus/SparqlService>, sd:Service;
 	rdfs:label "sparql";

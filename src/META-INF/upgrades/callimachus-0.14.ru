@@ -201,6 +201,21 @@ DELETE {
 	</callimachus> owl:versionInfo "0.14"
 };
 
+INSERT DATA {
+</> calli:hasComponent </.well-known/>.
+
+</.well-known/> a </callimachus/Folder>, calli:Folder;
+	rdfs:label ".well known";
+	calli:reader </group/users>,</group/staff>;
+	calli:administrator </group/admin>;
+	calli:hasComponent </.well-known/void>.
+
+</.well-known/void> a void:Dataset;
+	rdfs:label "void";
+	foaf:homepage </>;
+	void:sparqlEndpoint </sparql>.
+};
+
 DELETE {
 	</callimachus> owl:versionInfo "0.14"
 } INSERT {

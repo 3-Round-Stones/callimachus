@@ -147,6 +147,8 @@
 				BIND ("feed" as ?type)
 				BIND (?title as ?collection_title)
 				BIND (concat(str($this),"?feed") as ?collection_href)
+				BIND (concat(str($this),"?describe") as ?link_href)
+				BIND ("describedby" as ?link_rel)
 			} UNION {
 				{ $this a <../Realm> } UNION { $this a <../Origin> }
 				BIND (concat(str($this),"?feed") as ?id)

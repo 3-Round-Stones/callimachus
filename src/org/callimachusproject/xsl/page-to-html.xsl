@@ -44,6 +44,12 @@
 		</xsl:element>
 	</xsl:template>
 
+	<xsl:template match="*[@id='access']" />
+
+	<xsl:template match="*[@id='resource-lastmod']" />
+
+	<xsl:template match="*[@id='breadcrumbs']" />
+
 	<xsl:template match="title|script|style|iframe|noembed|noframes">
 		<!-- Some XSLT engines may not output HTML and this can help an HTML parser parse XML. -->
 		<xsl:element name="{local-name()}">

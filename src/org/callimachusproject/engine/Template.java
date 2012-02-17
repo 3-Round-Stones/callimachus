@@ -4,9 +4,6 @@ import static org.callimachusproject.engine.helpers.SPARQLWriter.toSPARQL;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Map;
@@ -15,7 +12,6 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.engine.helpers.OrderedSparqlReader;
 import org.callimachusproject.engine.helpers.RDFaProducer;
@@ -30,18 +26,8 @@ import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.xslt.XMLEventReaderFactory;
-import org.openrdf.repository.object.xslt.XSLTransformer;
 
 public class Template {
-	static final XSLTransformer HTML_XSLT;
-	static {
-		String path = "org/callimachusproject/xsl/xhtml-to-html.xsl";
-		ClassLoader cl = Template.class.getClassLoader();
-		String url = cl.getResource(path).toExternalForm();
-		InputStream input = cl.getResourceAsStream(path);
-		InputStreamReader reader = new InputStreamReader(input);
-		HTML_XSLT = new XSLTransformer(reader, url);
-	}
 	private final RepositoryConnection con;
 	private final String source;
 	private final String systemId;
@@ -60,16 +46,6 @@ public class Template {
 
 	public String getSource() {
 		return source;
-	}
-
-	public void construct(BindingSet bindings, OutputStream out)
-			throws TemplateException, IOException {
-		XMLEventReader xhtml = openResultReader(getQuery(), bindings);
-		try {
-			HTML_XSLT.transform(xhtml, systemId).toOutputStream(out);
-		} catch (TransformerException e) {
-			throw new TemplateException(e);
-		}
 	}
 
 	public String getQuery() throws TemplateException {

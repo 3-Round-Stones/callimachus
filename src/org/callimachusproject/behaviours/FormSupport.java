@@ -79,7 +79,7 @@ public abstract class FormSupport implements Page, RDFObject {
 	
 	static final XSLTransformer HTML_XSLT;
 	static {
-		String path = "org/callimachusproject/xsl/xhtml-to-html.xsl";
+		String path = "org/callimachusproject/xsl/page-to-html.xsl";
 		ClassLoader cl = ViewSupport.class.getClassLoader();
 		String url = cl.getResource(path).toExternalForm();
 		InputStream input = cl.getResourceAsStream(path);

@@ -4,6 +4,8 @@ PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl:<http://www.w3.org/2002/07/owl#>
 PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
 PREFIX sd:<http://www.w3.org/ns/sparql-service-description#>
+PREFIX void:<http://rdfs.org/ns/void#>
+PREFIX foaf:<http://xmlns.com/foaf/0.1/>
 PREFIX msg:<http://www.openrdf.org/rdf/2011/messaging#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
@@ -61,28 +63,38 @@ DELETE {
 	calli:favicon ?favicon ;
 	calli:theme ?theme.
 } INSERT {
-</> calli:hasComponent </manifest>, </callimachus>.
+
+</> a calli:Realm, calli:Folder;
+	calli:unauthorized </callimachus/pages/unauthorized.xhtml>;
+	calli:forbidden </callimachus/pages/forbidden.xhtml>;
+	calli:authentication </accounts>;
+	calli:menu </menu>;
+	calli:favicon ?favicon ;
+	calli:theme </callimachus/theme/default>;
+	calli:hasComponent </.well-known/>, </accounts>, </menu>, </callimachus>.
 
 </callimachus> a owl:Ontology;
 	rdfs:label "Callimachus";
 	rdfs:comment "Vocabulary used to create local Callimachus applications".
 
-</manifest> a </callimachus/Manifest>, calli:Manifest;
-	rdfs:label "manifest";
-	calli:reader </group/users>;
-	calli:editor </group/staff>;
+</.well-known/> a </callimachus/Folder>, calli:Folder;
+	rdfs:label ".well known";
+	calli:reader </group/users>,</group/staff>;
 	calli:administrator </group/admin>;
-	calli:unauthorized </callimachus/pages/unauthorized.xhtml>;
-	calli:forbidden </callimachus/pages/forbidden.xhtml>;
-	calli:authentication </manifest/accounts>;
-	calli:menu </manifest/menu>;
-	calli:favicon ?favicon ;
-	calli:theme </callimachus/theme/default>;
-	calli:hasComponent </manifest/accounts>, </manifest/menu>.
-	
+	calli:hasComponent </.well-known/void>.
+
+</.well-known/void> a void:DatasetDescription;
+	rdfs:label "void";
+	foaf:primaryTopic </.well-known/void#dataset>.
+
+</.well-known/void#dataset> a void:Dataset;
+	foaf:homepage </>;
+	void:sparqlEndpoint </sparql>;
+	void:rootResource </>;
+	void:openSearchDescription </?search>;
+	void:uriSpace </>.
+
 </sparql> a </callimachus/SparqlService>, sd:Service;
-	rdfs:label "sparql";
-	calli:administrator </group/admin>;
 	sd:endpoint </sparql>;
 	sd:supportedLanguage sd:SPARQL11Query, sd:SPARQL11Update;
 	sd:feature sd:UnionDefaultGraph, sd:BasicFederatedQuery;
@@ -104,8 +116,8 @@ DELETE {
 DELETE {
 	</callimachus/accounts> a ?type; rdfs:label ?label; calli:authName ?authName; calli:authNamespace ?authNamespace
 } INSERT {
-	</manifest/accounts> a ?type; rdfs:label ?label; calli:authName ?authName; calli:authNamespace ?authNamespace .
-	</manifest/accounts> calli:administrator </group/admin>
+	</accounts> a ?type; rdfs:label ?label; calli:authName ?authName; calli:authNamespace ?authNamespace .
+	</accounts> calli:administrator </group/admin>
 } WHERE {
 	</callimachus/accounts> a calli:AccountManager; a ?type; rdfs:label ?label; calli:authName ?authName; calli:authNamespace ?authNamespace .
 	</callimachus> owl:versionInfo "0.14"
@@ -114,7 +126,7 @@ DELETE {
 DELETE {
 	?item calli:link </callimachus/menu>
 } INSERT {
-	?item calli:link </manifest/menu>
+	?item calli:link </menu>
 } WHERE {
 	?item calli:link </callimachus/menu>
 	FILTER strstarts(str(?item), str(</>))
@@ -124,7 +136,7 @@ DELETE {
 DELETE {
 	?item calli:link </callimachus/manifest>
 } INSERT {
-	?item calli:link </manifest>
+	?item calli:link </?edit>
 } WHERE {
 	?item calli:link </callimachus/manifest>
 	FILTER strstarts(str(?item), str(</>))
@@ -138,7 +150,7 @@ DELETE {
 	?menu_item rdfs:label ?menu_item_label; calli:position ?menu_item_position; calli:link ?menu_item_link .
 	?menu_nav calli:link ?menu_nav_ink
 } INSERT {
-	</manifest/menu> a calli:Menu; a ?menu_type; calli:reader ?menu_reader; calli:editor ?menu_editor; calli:administrator ?menu_administrator;
+	</menu> a calli:Menu; a ?menu_type; calli:reader ?menu_reader; calli:editor ?menu_editor; calli:administrator ?menu_administrator;
 		rdfs:label ?menu_label; calli:link ?menu_link; calli:item ?manifest_menu_nav .
 	?manifest_menu_nav rdfs:label ?menu_nav_label; calli:position ?menu_nav_position; calli:item ?manifest_menu_item .
 	?manifest_menu_item rdfs:label ?menu_item_label; calli:position ?menu_item_position; calli:link ?menu_item_link .
@@ -153,8 +165,8 @@ DELETE {
 	}
 	FILTER strstarts(str(?menu_nav), str(</callimachus/>))
 	FILTER strstarts(str(?menu_item), str(</callimachus/>))
-	BIND (iri(concat(str(</manifest/>), strafter(str(?menu_nav), str(</callimachus/>)))) AS ?manifest_menu_nav)
-	BIND (iri(concat(str(</manifest/>), strafter(str(?menu_item), str(</callimachus/>)))) AS ?manifest_menu_item)
+	BIND (iri(concat(str(</>), strafter(str(?menu_nav), str(</callimachus/>)))) AS ?manifest_menu_nav)
+	BIND (iri(concat(str(</>), strafter(str(?menu_item), str(</callimachus/>)))) AS ?manifest_menu_item)
 	</callimachus> owl:versionInfo "0.14"
 };
 
@@ -199,27 +211,6 @@ DELETE {
 	?item calli:position ?lt, ?gt
 	FILTER (?lt < ?gt)
 	</callimachus> owl:versionInfo "0.14"
-};
-
-INSERT DATA {
-</> calli:hasComponent </.well-known/>.
-
-</.well-known/> a </callimachus/Folder>, calli:Folder;
-	rdfs:label ".well known";
-	calli:reader </group/users>,</group/staff>;
-	calli:administrator </group/admin>;
-	calli:hasComponent </.well-known/void>.
-
-</.well-known/void> a void:DatasetDescription;
-	rdfs:label "void";
-	foaf:primaryTopic </.well-known/void#dataset>.
-
-</.well-known/void#dataset> a void:Dataset;
-	foaf:homepage </>;
-	void:sparqlEndpoint </sparql>;
-	void:rootResource </>;
-	void:openSearchDescription </?search>;
-	void:uriSpace </>.
 };
 
 DELETE {

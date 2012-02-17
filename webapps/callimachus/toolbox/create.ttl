@@ -34,14 +34,14 @@
 	calli:query "create";
 	calli:realm </>;
 	calli:type "application/xhtml+xml";
-	calli:transform <../transforms/TransformXhtml>;
+	calli:transform <../transforms/TransformPage>;
 	msg:script """
 		importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
 		if (!this.calliCreate || this.calliCreate.isEmpty())
 			throw new InternalServerError("No create template");
 		if (this.calliCreate.size() != 1)
 			throw new InternalServerError("Multiple create templates");
-		return this.calliCreate.iterator().next().calliConstruct(null, 'create');
+		return this.calliCreate.iterator().next().calliConstruct(null);
 	""".
 
 :GetCreatorPage rdfs:subClassOf msg:Message;
@@ -51,7 +51,7 @@
 	calli:query "create";
 	calli:realm </>;
 	calli:type "application/xhtml+xml";
-	calli:transform <../transforms/TransformXhtml>;
+	calli:transform <../transforms/TransformPage>;
 	msg:script """
 		importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
 		importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
@@ -62,7 +62,7 @@
 			throw new InternalServerError("No create template");
 		if (create.calliCreate.size() != 1)
 			throw new InternalServerError("Multiple create templates");
-		return create.calliCreate.iterator().next().calliConstruct(null, 'create');
+		return create.calliCreate.iterator().next().calliConstruct(null);
 	""".
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;

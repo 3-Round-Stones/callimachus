@@ -34,7 +34,7 @@
 	calli:query "edit";
 	calli:realm </>;
 	calli:type "application/xhtml+xml";
-	calli:transform <../transforms/TransformXhtml>;
+	calli:transform <../transforms/TransformPage>;
 	calli:header "cache-control:no-cache";
 	msg:script <operations.js#getEditPage>.
 

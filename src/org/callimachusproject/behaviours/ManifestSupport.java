@@ -16,9 +16,9 @@ import org.callimachusproject.concepts.AccountManager;
 import org.callimachusproject.concepts.Manifest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.traits.SelfAuthorizingTarget;
+import org.openrdf.annotations.Sparql;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.annotations.Sparql;
 
 public abstract class ManifestSupport implements Manifest, RDFObject {
 	private static final BasicStatusLine _204;
@@ -53,10 +53,7 @@ public abstract class ManifestSupport implements Manifest, RDFObject {
 		Page forbidden = getCalliForbidden();
 		if (forbidden == null)
 			return null;
-		String url = request.get("request-target")[0];
-		ParsedURI parsed = new ParsedURI(url);
-		String query = parsed.getQuery();
-		String html = forbidden.calliConstructHTML(resource, query);
+		String html = forbidden.calliConstructHTML(resource);
 		StringEntity entity = new StringEntity(html, "UTF-8");
 		entity.setContentType("text/html;charset=\"UTF-8\"");
 		HttpResponse resp = new BasicHttpResponse(_403);
@@ -91,10 +88,7 @@ public abstract class ManifestSupport implements Manifest, RDFObject {
 		if (unauthorized == null)
 			return unauth;
 		try {
-			String url = request.get("request-target")[0];
-			ParsedURI parsed = new ParsedURI(url);
-			String query = parsed.getQuery();
-			String html = unauthorized.calliConstructHTML(resource, query);
+			String html = unauthorized.calliConstructHTML(resource);
 			BasicHttpResponse resp;
 			if (unauth == null) {
 				resp = new BasicHttpResponse(_401);

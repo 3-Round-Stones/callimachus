@@ -6,7 +6,8 @@
 	<xsl:output indent="no" method="xml" />
 
 	<!-- Variables -->
-	<!-- systemId query templat realm styles scripts layout favicon menu variation rights -->
+	<!-- $systemId is present only if transforming a template, not for dynamically generated XHTML -->
+	<!-- realm styles scripts layout favicon menu variation rights -->
 	<xsl:variable name="layout_xhtml" select="document($layout)" />
 	<xsl:variable name="layout_html" select="$layout_xhtml/xhtml:html|$layout_xhtml/html" />
 	<xsl:variable name="layout_head" select="$layout_xhtml/xhtml:html/xhtml:head|$layout_xhtml/html/head" />
@@ -113,54 +114,48 @@
 	</xsl:template>
 
 	<xsl:template name="data-attributes">
-		<xsl:apply-templates mode="data-var" select="@*"/>
-		<xsl:apply-templates mode="data-expression" select="@*"/>
-		<xsl:if test="text() and not(*|comment())">
-			<xsl:call-template name="data-text-expression">
-				<xsl:with-param name="text" select="string(.)"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="xhtml:option[@selected='selected'][@about or @resource] or xhtml:label[@about or @resource]/xhtml:input[@checked='checked']">
-			<!-- Called to populate select/radio/checkbox -->
-			<xsl:attribute name="data-options">
-				<xsl:value-of select="$systemId" />
-				<xsl:text>?options&amp;query=</xsl:text>
-				<xsl:value-of select="$query" />
-				<xsl:text>&amp;element=</xsl:text>
-				<xsl:apply-templates mode="xptr-element" select="." />
-			</xsl:attribute>
-		</xsl:if>
-		<xsl:if test="*[@about or @resource] and not(@data-construct)">
-			<!-- Called when a resource URI is dropped to construct its label -->
-			<xsl:attribute name="data-construct">
-				<xsl:value-of select="$systemId" />
-				<xsl:text>?construct&amp;query=</xsl:text>
-				<xsl:value-of select="$query" />
-				<xsl:text>&amp;element=</xsl:text>
-				<xsl:apply-templates mode="xptr-element" select="." />
-				<xsl:text>&amp;about={about}</xsl:text>
-			</xsl:attribute>
-		</xsl:if>
-		<xsl:if test="*[@about or @resource] and not(@data-search)">
-			<!-- Lookup possible members by label -->
-			<xsl:attribute name="data-search">
-				<xsl:value-of select="$systemId" />
-				<xsl:text>?search&amp;query=</xsl:text>
-				<xsl:value-of select="$query" />
-				<xsl:text>&amp;element=</xsl:text>
-				<xsl:apply-templates mode="xptr-element" select="." />
-				<xsl:text>&amp;q={searchTerms}</xsl:text>
-			</xsl:attribute>
-		</xsl:if>
-		<xsl:if test="*[@about or @typeof or @resource or @property] and not(@data-add)">
-			<!-- Called to insert another property value or node -->
-			<xsl:attribute name="data-add">
-				<xsl:value-of select="$systemId" />
-				<xsl:text>?template&amp;query=</xsl:text>
-				<xsl:value-of select="$query" />
-				<xsl:text>&amp;element=</xsl:text>
-				<xsl:apply-templates mode="xptr-element" select="." />
-			</xsl:attribute>
+		<xsl:if test="$systemId">
+			<xsl:apply-templates mode="data-var" select="@*"/>
+			<xsl:apply-templates mode="data-expression" select="@*"/>
+			<xsl:if test="text() and not(*|comment())">
+				<xsl:call-template name="data-text-expression">
+					<xsl:with-param name="text" select="string(.)"/>
+				</xsl:call-template>
+			</xsl:if>
+			<xsl:if test="xhtml:option[@selected='selected'][@about or @resource] or xhtml:label[@about or @resource]/xhtml:input[@checked='checked']">
+				<!-- Called to populate select/radio/checkbox -->
+				<xsl:attribute name="data-options">
+					<xsl:value-of select="$systemId" />
+					<xsl:text>?options&amp;element=</xsl:text>
+					<xsl:apply-templates mode="xptr-element" select="." />
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:if test="*[@about or @resource] and not(@data-construct)">
+				<!-- Called when a resource URI is dropped to construct its label -->
+				<xsl:attribute name="data-construct">
+					<xsl:value-of select="$systemId" />
+					<xsl:text>?construct&amp;element=</xsl:text>
+					<xsl:apply-templates mode="xptr-element" select="." />
+					<xsl:text>&amp;about={about}</xsl:text>
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:if test="*[@about or @resource] and not(@data-search)">
+				<!-- Lookup possible members by label -->
+				<xsl:attribute name="data-search">
+					<xsl:value-of select="$systemId" />
+					<xsl:text>?search&amp;element=</xsl:text>
+					<xsl:apply-templates mode="xptr-element" select="." />
+					<xsl:text>&amp;q={searchTerms}</xsl:text>
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:if test="*[@about or @typeof or @resource or @property] and not(@data-add)">
+				<!-- Called to insert another property value or node -->
+				<xsl:attribute name="data-add">
+					<xsl:value-of select="$systemId" />
+					<xsl:text>?template&amp;element=</xsl:text>
+					<xsl:apply-templates mode="xptr-element" select="." />
+				</xsl:attribute>
+			</xsl:if>
 		</xsl:if>
 	</xsl:template>
 
@@ -213,123 +208,11 @@
 		</xsl:attribute>
 	</xsl:template>
 
-	<xsl:template mode="layout" match="*[@id='access']">
-		<xsl:if test="*//@href[.=concat('?',$query)]">
-			<xsl:copy>
-				<xsl:apply-templates mode="access" select="@*|*|text()|comment()" />
-			</xsl:copy>
-		</xsl:if>
-	</xsl:template>
-
-	<xsl:template mode="access" match="*">
-		<xsl:copy>
-			<xsl:apply-templates mode="access" select="@*|*|text()|comment()" />
-		</xsl:copy>
-	</xsl:template>
-	<xsl:template mode="access" match="@*|text()|comment()">
-		<xsl:copy />
-	</xsl:template>
-	<xsl:template mode="access" match="@src|@href|@about|@resource">
-		<xsl:attribute name="{name()}">
-			<xsl:call-template name="resolve-path">
-				<xsl:with-param name="relative" select="." />
-				<xsl:with-param name="base" select="$layout" />
-			</xsl:call-template>
-		</xsl:attribute>
-	</xsl:template>
-	<xsl:template mode="access" match="xhtml:a[@href]|a[@href]">
-		<xsl:copy>
-			<xsl:if test="@href=concat('?',$query)">
-				<xsl:apply-templates mode="access" select="@*[name()!='href' and name()!='onclick']" />
-			</xsl:if>
-			<xsl:if test="not(@href=concat('?',$query))">
-				<xsl:apply-templates mode="access" select="@*" />
-			</xsl:if>
-			<xsl:apply-templates mode="access" select="*|text()|comment()" />
-		</xsl:copy>
-	</xsl:template>
-
 	<xsl:template mode="layout" match="xhtml:div[@id='content']|div[@id='content']">
 		<xsl:copy>
 			<xsl:apply-templates mode="layout" select="@*" />
 			<xsl:apply-templates select="$template_body/*|$template_body/comment()|$template_body/text()" />
 		</xsl:copy>
-	</xsl:template>
-
-	<xsl:template mode="layout" match="xhtml:div[@id='breadcrumbs']|div[@id='breadcrumbs']">
-		<xsl:variable name="breadcrumb" select="*[1]" />
-		<xsl:variable name="here" select="*[2]" />
-		<xsl:if test="$template and $query='view' and $breadcrumb and $here">
-			<xsl:variable name="ellipsis" select="$breadcrumb/preceding-sibling::text()[1]" />
-			<xsl:variable name="separator" select="$breadcrumb/following-sibling::text()[1]" />
-			<xsl:variable name="close" select="$here/following-sibling::text()[1]" />
-			<div xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-					xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-					rev="calli:hasComponent" resource="?up">
-				<xsl:apply-templates mode="layout" select="@*[name()!='rev' and name()!='rel' and name()!='resource']" />
-				<span>
-					<span rev="calli:hasComponent" resource="?upup">
-						<span rev="calli:hasComponent" resource="?upupup">
-							<span rev="calli:hasComponent" resource="?upupupup">
-								<span rev="calli:hasComponent" resource="?upupupupup">
-									<span rev="calli:hasComponent" resource="?upupupupupup">
-										<xsl:value-of select="$ellipsis" />
-									</span>
-									<xsl:element name="{name($breadcrumb)}">
-										<xsl:attribute name="href"><xsl:text>?upupupupup</xsl:text></xsl:attribute>
-										<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href']" />
-										<span property="rdfs:label" />
-										<span property="skos:prefLabel" />
-										<span property="foaf:name" />
-									</xsl:element>
-									<xsl:value-of select="$separator" />
-								</span>
-								<xsl:element name="{name($breadcrumb)}">
-									<xsl:attribute name="href"><xsl:text>?upupupup</xsl:text></xsl:attribute>
-									<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href']" />
-									<span property="rdfs:label" />
-									<span property="skos:prefLabel" />
-									<span property="foaf:name" />
-								</xsl:element>
-								<xsl:value-of select="$separator" />
-							</span>
-							<xsl:element name="{name($breadcrumb)}">
-								<xsl:attribute name="href"><xsl:text>?upupup</xsl:text></xsl:attribute>
-								<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href']" />
-								<span property="rdfs:label" />
-								<span property="skos:prefLabel" />
-								<span property="foaf:name" />
-							</xsl:element>
-							<xsl:value-of select="$separator" />
-						</span>
-						<xsl:element name="{name($breadcrumb)}">
-							<xsl:attribute name="href"><xsl:text>?upup</xsl:text></xsl:attribute>
-							<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href']" />
-							<span property="rdfs:label" />
-							<span property="skos:prefLabel" />
-							<span property="foaf:name" />
-						</xsl:element>
-						<xsl:value-of select="$separator" />
-					</span>
-					<xsl:element name="{name($breadcrumb)}">
-						<xsl:attribute name="href"><xsl:text>?up</xsl:text></xsl:attribute>
-						<xsl:apply-templates mode="layout" select="$breadcrumb/@*[name()!='href']" />
-						<span property="rdfs:label" />
-						<span property="skos:prefLabel" />
-						<span property="foaf:name" />
-					</xsl:element>
-					<xsl:value-of select="$separator" />
-				</span>
-				<xsl:element name="{name($here)}">
-					<xsl:attribute name="about"><xsl:text>?this</xsl:text></xsl:attribute>
-					<xsl:apply-templates mode="layout" select="$here/@*[name()!='about']" />
-					<span property="rdfs:label" />
-					<span property="skos:prefLabel" />
-					<span property="foaf:name" />
-				</xsl:element>
-				<xsl:value-of select="$close" />
-			</div>
-		</xsl:if>
 	</xsl:template>
 
 	<xsl:template mode="layout" match="*[@id='menu']">
@@ -344,29 +227,6 @@
 			<xsl:apply-templates mode="layout" select="@*" />
 			<xsl:copy-of select="$rights" />
 		</xsl:copy>
-	</xsl:template>
-
-	<xsl:template mode="layout" match="xhtml:p[@id='resource-lastmod']|p[@id='resource-lastmod']">
-		<xsl:if test="$template and ($query='view' or $query='edit' or $query='permissions')">
-			<p xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#" about="?this" rel="audit:revision" resource="?revision">
-				<xsl:apply-templates mode="layout" select="@*" />
-				<xsl:apply-templates mode="time" select="*|text()|comment()" />
-			</p>
-		</xsl:if>
-	</xsl:template>
-
-	<xsl:template mode="time" match="@*|text()|comment()">
-		<xsl:copy />
-	</xsl:template>
-
-	<xsl:template mode="time" match="*">
-		<xsl:copy>
-			<xsl:apply-templates mode="layout" select="@*|*|text()|comment()" />
-		</xsl:copy>
-	</xsl:template>
-
-	<xsl:template mode="time" match="xhtml:time|time">
-		<time pubdate="pubdate" property="audit:committedOn" class="abbreviated" />
 	</xsl:template>
 
 	<!-- Helper Functions -->

@@ -53,8 +53,6 @@
 		var sb = [];
 		sb.push('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">');
 		sb.push('<xsl:param name="systemId" />');
-		sb.push('<xsl:param name="query" />');
-		sb.push('<xsl:param name="template" select="false()" />');
 		sb.push('<xsl:variable name="realm">' + this + '</xsl:variable>');
 		sb.push('<xsl:variable name="styles">' + styles + '</xsl:variable>');
 		sb.push('<xsl:variable name="scripts">' + scripts + '</xsl:variable>');

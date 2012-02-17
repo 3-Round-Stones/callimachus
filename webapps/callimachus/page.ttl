@@ -38,7 +38,7 @@
 :GetPage owl:intersectionOf (<toolbox/view.ttl#GetViewPage>
 		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
 	msg:script """
-		return this.calliConstruct(this, 'view');
+		return this.calliConstruct(this);
 	""".
 
 # GET /page/MainPage.xhtml

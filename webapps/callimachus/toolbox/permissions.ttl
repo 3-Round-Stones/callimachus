@@ -27,15 +27,16 @@
 <> a <../SchemaGraph>.
 
 :GetPermissions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "permissions";
 	calli:realm </>;
-	calli:type "text/html";
+	calli:type "application/xhtml+xml";
 	calli:header "cache-control:no-cache";
+	calli:transform <../transforms/TransformPage>;
 	msg:imports <permissions.xhtml>;
 	msg:script """
-		return permissions_xhtml.calliConstructHTML(this, 'permissions');
+		return permissions_xhtml.calliConstruct(this);
 	""".
 
 # used by permissions.xhtml
@@ -85,7 +86,7 @@
 :input a owl:ObjectProperty; a owl:FunctionalProperty;
 	rdfs:domain :PostPermissions;
 	rdfs:range <java:java.io.InputStream>;
-	calli:type "multipart/related;type=\"application/rdf+xml\"".
+	calli:type "application/sparql-update".
 
 :PostClassPermissions owl:intersectionOf ( :PostPermissions
 		[owl:onProperty msg:target; owl:allValuesFrom owl:Class]);

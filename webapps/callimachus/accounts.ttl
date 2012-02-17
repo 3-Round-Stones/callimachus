@@ -103,15 +103,16 @@
 # Linked from request password email
 :GetForgotPasswordPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "forgotpassword";
-	calli:type "text/html";
+	calli:type "application/xhtml+xml";
 	calli:header "cache-control:no-store";
+	calli:transform <transforms/TransformPage>;
 	calli:realm :anybody;
 	msg:imports <pages/forgot-password.xhtml>;
 	msg:script """
-		return forgot_password_xhtml.calliConstructHTML(this);
+		return forgot_password_xhtml.calliConstruct(this);
 	""".
 
 # Sends request for password reset emails

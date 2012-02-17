@@ -43,18 +43,12 @@ public interface Page {
 	/**
 	 * Populates the page with the properties of the target resource.
 	 */
-	String calliConstructHTML(Object target, String query) throws Exception;
-
-	/**
-	 * Populates the page with the properties of the target resource.
-	 */
-	XMLEventReader calliConstruct(Object target, String query) throws Exception;
+	XMLEventReader calliConstruct(Object target) throws Exception;
 
 	/**
 	 * Reads the template as a graph pattern.
 	 * @throws TemplateException 
 	 */
-	RDFEventReader openPatternReader(String about, String query,
-			String element) throws IOException, TemplateException;
+	RDFEventReader openPatternReader(String about, String element) throws IOException, TemplateException;
 		
 }

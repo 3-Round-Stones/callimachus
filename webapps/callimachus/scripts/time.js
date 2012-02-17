@@ -26,6 +26,7 @@ function changeDateLocale(node, now) {
 			text = node[0].nextSibling.nodeValue;
 			ie8 = true;
 		}
+		if (!text) return;
 		var timestamp = parseDateTime(text, now);
 		if (!isNaN(timestamp)) {
 			node.attr("content", text);

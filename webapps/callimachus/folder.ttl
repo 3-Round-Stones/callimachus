@@ -198,15 +198,16 @@
 
 :GetFolderUploadPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "import";
-	calli:type "text/html";
+	calli:type "application/xhtml+xml";
 	calli:header "cache-control:no-cache";
+	calli:transform <transforms/TransformPage>;
 	calli:realm </>;
 	msg:imports <pages/folder-import.xhtml>;
 	msg:script """
-		return folder_import_xhtml.calliConstructHTML(this, "import");
+		return folder_import_xhtml.calliConstruct(this);
 	""".
 
 :ImportFolderComponents rdfs:subClassOf msg:Message;

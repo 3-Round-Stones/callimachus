@@ -5,11 +5,11 @@ importClass(Packages.calli.view);
 importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
 
 function getViewPage() {
-	return findTemplate(this, view).calliConstruct(this, 'view');
+	return findTemplate(this, view).calliConstruct(this);
 }
 
 function getEditPage() {
-	return findTemplate(this, edit).calliConstruct(this, 'edit');
+	return findTemplate(this, edit).calliConstruct(this);
 }
 
 function postEdit(msg) {

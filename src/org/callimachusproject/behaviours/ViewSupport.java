@@ -38,6 +38,9 @@ import org.callimachusproject.engine.helpers.TemplateReader;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.traits.VersionedObject;
+import org.openrdf.annotations.Bind;
+import org.openrdf.annotations.Sparql;
+import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.object.ObjectConnection;
@@ -53,28 +56,38 @@ import org.openrdf.repository.object.xslt.XMLEventReaderFactory;
  * @author Steve Battle
  * 
  */
-public abstract class ViewSupport implements Page, RDFObject, VersionedObject, FileObject {
-	private static final TemplateEngineFactory tef = TemplateEngineFactory.newInstance();
+public abstract class ViewSupport implements Page, RDFObject, VersionedObject,
+		FileObject {
+	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
+	private static final TemplateEngineFactory tef = TemplateEngineFactory
+			.newInstance();
 
 	/**
 	 * calliConstruct() is used e.g. by the view tab (not exclusively) and
 	 * returns 'application/xhtml+xml'. It returns the complete XHTML page.
 	 */
 	@Override
-	public XMLEventReader calliConstruct(Object target, String query) throws Exception {
+	public XMLEventReader calliConstruct(Object target)
+			throws Exception {
 		if (target == null) {
-			return new TemplateReader(xslt(query));
+			return new TemplateReader(
+			xslt(findRealm(getResource())));
 		}
 		assert target instanceof RDFObject;
 		URI about = (URI) ((RDFObject) target).getResource();
-		return calliConstructXhtml(about, query);
+		return calliConstructXhtml(about);
 	}
 
-	private XMLEventReader calliConstructXhtml(URI about, String query) throws Exception {
+	@Sparql(PREFIX
+			+ "SELECT ?realm { ?realm a calli:Realm; calli:hasComponent* $target } ORDER BY desc(?realm) LIMIT 1")
+	protected abstract RDFObject findRealm(@Bind("target") Resource about);
+
+	private XMLEventReader calliConstructXhtml(URI about)
+			throws Exception {
 		ObjectConnection con = getObjectConnection();
 		String base = about.stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(con);
-		InputStream in = openRequest("xslt", query);
+		InputStream in = openRequest("xslt", findRealm(about));
 		try {
 			Template temp = engine.getTemplate(in, base);
 			MapBindingSet bindings = new MapBindingSet();
@@ -85,23 +98,23 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject, F
 		}
 	}
 
-	private XMLEventReader xslt(String query)
-			throws IOException, XMLStreamException {
+	private XMLEventReader xslt(RDFObject realm) throws IOException,
+			XMLStreamException {
 		XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
-		InputStream in = openRequest("xslt", query);
+		InputStream in = openRequest("xslt", realm);
 		return factory.createXMLEventReader(in);
 	}
 
-	private InputStream openRequest(String operation, String query)
+	private InputStream openRequest(String operation, RDFObject realm)
 			throws IOException {
 		String uri = getResource().stringValue();
 		StringBuilder sb = new StringBuilder();
 		sb.append(uri);
 		sb.append("?");
 		sb.append(URLEncoder.encode(operation, "UTF-8"));
-		if (query != null) {
-			sb.append("&query=");
-			sb.append(URLEncoder.encode(query, "UTF-8"));
+		if (realm != null) {
+			sb.append("&realm=");
+			sb.append(URLEncoder.encode(realm.toString(), "UTF-8"));
 		}
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		HttpRequest request = new BasicHttpRequest("GET", sb.toString());

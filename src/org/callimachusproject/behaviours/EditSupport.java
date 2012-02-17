@@ -189,7 +189,7 @@ public abstract class EditSupport implements Page {
 		tracker.setReverseAllowed(false);
 		tracker.setWildPropertiesAllowed(false);
 		String about = resource.stringValue();
-		tracker.accept(openPatternReader(about, "edit", null));
+		tracker.accept(openPatternReader(about, null));
 		return tracker;
 	}
 }

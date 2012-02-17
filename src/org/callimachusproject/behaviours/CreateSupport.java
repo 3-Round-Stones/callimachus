@@ -73,7 +73,7 @@ public abstract class CreateSupport implements Page {
 			SubjectTracker tracker = new SubjectTracker(new RDFInserter(con), vf);
 			tracker.setWildPropertiesAllowed(false);
 			tracker.setReverseAllowed(false);
-			tracker.accept(openPatternReader(target.toString(), "create", null));
+			tracker.accept(openPatternReader(target.toString(), null));
 			RDFXMLParser parser = new RDFXMLParser();
 			parser.setValueFactory(vf);
 			parser.setRDFHandler(tracker);
@@ -102,7 +102,7 @@ public abstract class CreateSupport implements Page {
 	private boolean isResourceAlreadyPresent(ObjectConnection con, String about)
 			throws Exception {
 		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
-		RDFEventReader reader = openPatternReader(about, "create", null);
+		RDFEventReader reader = openPatternReader(about, null);
 		try {
 			boolean first = true;
 			StringWriter str = new StringWriter();

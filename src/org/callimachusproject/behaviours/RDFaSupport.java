@@ -49,18 +49,18 @@ import org.openrdf.repository.object.RDFObject;
  * 
  */
 public abstract class RDFaSupport implements Page, RDFObject {
-	private static final TemplateEngineFactory tef = TemplateEngineFactory.newInstance();
+	private static final TemplateEngineFactory tef = TemplateEngineFactory
+			.newInstance();
 
 	@method("GET")
 	@query("xslt")
 	@type("application/xml")
-	public XMLEventReader xslt(@query("query") String query,
-			@query("element") String element) throws IOException, TemplateException {
+	public XMLEventReader xslt(@query("element") String element, @query("realm") String realm)
+			throws IOException, TemplateException {
 		String base = getResource().stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
 		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("query", query);
-		param.put("template", true);
+		param.put("realm", realm);
 		Template temp = engine.getTemplate(base, param).getElement(element);
 		return temp.openSourceReader();
 	}
@@ -68,14 +68,11 @@ public abstract class RDFaSupport implements Page, RDFObject {
 	@method("GET")
 	@query("triples")
 	@type("application/rdf+xml")
-	public XMLEventReader triples(@query("query") String query,
-			@query("element") String element) throws Exception {
+	public XMLEventReader triples(@query("element") String element)
+			throws Exception {
 		String base = getResource().stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
-		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("query", query);
-		param.put("template", false);
-		Template temp = engine.getTemplate(base, param).getElement(element);
+		Template temp = engine.getTemplate(base).getElement(element);
 		XMLEventReader doc = temp.openSourceReader();
 		return new RDFXMLEventReader(new RDFaReader(base, doc, toString()));
 	}
@@ -84,25 +81,18 @@ public abstract class RDFaSupport implements Page, RDFObject {
 	@query("sparql")
 	@type("application/sparql-query")
 	public byte[] sparql(@query("about") String about,
-			@query("query") String query, @query("element") String element)
-			throws Exception {
+			@query("element") String element) throws Exception {
 		String base = getResource().stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
-		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("query", query);
-		param.put("template", false);
-		Template temp = engine.getTemplate(base, param).getElement(element);
+		Template temp = engine.getTemplate(base).getElement(element);
 		return temp.getQuery().getBytes(Charset.forName("UTF-8"));
 	}
 
-	public RDFEventReader openPatternReader(String about, String query,
-			String element) throws IOException, TemplateException {
+	public RDFEventReader openPatternReader(String about, String element)
+			throws IOException, TemplateException {
 		String base = getResource().stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
-		Map<String, Object> param = new HashMap<String, Object>();
-		param.put("query", query);
-		param.put("template", true);
-		Template temp = engine.getTemplate(base, param).getElement(element);
+		Template temp = engine.getTemplate(base).getElement(element);
 		RDFEventReader reader = temp.openQueryReader();
 		Base resolver = new Base(base);
 		if (about == null) {

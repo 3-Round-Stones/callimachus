@@ -53,17 +53,18 @@
 
 :GetUserSetup rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Group>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "usersetup";
-	calli:type "text/html";
+	calli:type "application/xhtml+xml";
+	calli:transform <transforms/TransformPage>;
 	calli:realm :local;
 	msg:imports <pages/user-setup.xhtml>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:script """
 		if (!this.HasNoAdministrator())
 			throw new BadRequest("This service has already been setup");
-		return user_setup_xhtml.calliConstructHTML(this, "create");
+		return user_setup_xhtml.calliConstruct(this);
 	""".
 
 rdfs:label a rdf:Property.

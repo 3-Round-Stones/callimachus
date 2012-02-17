@@ -93,20 +93,13 @@ public abstract class FormSupport implements Page, RDFObject {
 	@method("GET")
 	@query("template")
 	@type("text/html")
-	public String template(@query("query") String query,
-			@query("element") String element) throws Exception {
-		return asHtmlString(removeNestedResources(xslt(query, element)));
+	public String template(@query("element") String element) throws Exception {
+		return asHtmlString(removeNestedResources(xslt(element)));
 	}
 
 	@Override
 	public String calliConstructHTML(Object target) throws Exception {
-		return calliConstructHTML(target, null);
-	}
-	
-	@Override
-	public String calliConstructHTML(Object target, String query)
-			throws Exception {
-		return asHtmlString(calliConstruct(target, query));
+		return asHtmlString(calliConstruct(target));
 	}
 
 	/**
@@ -117,18 +110,18 @@ public abstract class FormSupport implements Page, RDFObject {
 	@query("construct")
 	@type("text/html")
 	@header("cache-control:no-store")
-	public InputStream calliConstruct(@query("about") URI about,
-			@query("query") String query, @query("element") String element)
+	public InputStream construct(@query("about") URI about,
+			@query("element") String element)
 			throws Exception {
 		if (about != null && (element == null || element.equals("/1")))
 			throw new BadRequest("Missing element parameter");
 		if (about!=null && element!=null)
-			return dataConstruct(about, query, element);
-		if (about == null && query == null && element == null) {
+			return dataConstruct(about, element);
+		if (about == null && element == null) {
 			ValueFactory vf = getObjectConnection().getValueFactory();
 			about = vf.createURI(this.toString());
 		}
-		XMLEventReader xhtml = calliConstructXhtml(about, query, element);
+		XMLEventReader xhtml = calliConstructXhtml(about, element);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
@@ -142,9 +135,9 @@ public abstract class FormSupport implements Page, RDFObject {
 	@header("cache-control:no-store")
 	
 	public InputStream options
-	(@query("query") String query, @query("element") String element) throws Exception {
+	(@query("element") String element) throws Exception {
 		String base = getResource().stringValue();
-		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
+		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(element));
 		template.mark();
 		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
@@ -174,10 +167,10 @@ public abstract class FormSupport implements Page, RDFObject {
 	@header("cache-control:no-validate,max-age=60")
 	
 	public InputStream constructSearch
-	(@query("query") String query, @query("element") String element, @query("q") String q)
+	(@query("element") String element, @query("q") String q)
 	throws Exception {
 		String base = getResource().stringValue();
-		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
+		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(element));
 		template.mark();
 		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
@@ -214,10 +207,10 @@ public abstract class FormSupport implements Page, RDFObject {
 		return HTML_XSLT.transform(xhtml, this.toString()).asString();
 	}
 	
-	private XMLEventReader calliConstructXhtml(URI about, String query, String element) 
+	private XMLEventReader calliConstructXhtml(URI about, String element) 
 	throws Exception {
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
-		InputStream in = openRequest("xslt", query, element);
+		InputStream in = openRequest("xslt", element);
 		try {
 			Template temp = engine.getTemplate(in, toString());
 			MapBindingSet bindings = new MapBindingSet();
@@ -228,9 +221,9 @@ public abstract class FormSupport implements Page, RDFObject {
 		}
 	}
 	
-	private InputStream dataConstruct(URI about, String query, String element) throws Exception {
+	private InputStream dataConstruct(URI about, String element) throws Exception {
 		String base = getResource().stringValue();
-		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(query, element));
+		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(element));
 		template.mark();
 		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
@@ -257,24 +250,20 @@ public abstract class FormSupport implements Page, RDFObject {
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();		
 	}
 
-	protected XMLEventReader xslt(String query, String element)
+	protected XMLEventReader xslt(String element)
 			throws IOException, XMLStreamException {
 		XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
-		InputStream in = openRequest("xslt", query, element);
+		InputStream in = openRequest("xslt", element);
 		return factory.createXMLEventReader(in);
 	}
 
-	private InputStream openRequest(String operation, String query, String element)
+	private InputStream openRequest(String operation, String element)
 			throws IOException {
 		String uri = getResource().stringValue();
 		StringBuilder sb = new StringBuilder();
 		sb.append(uri);
 		sb.append("?");
 		sb.append(URLEncoder.encode(operation, "UTF-8"));
-		if (query != null) {
-			sb.append("&query=");
-			sb.append(URLEncoder.encode(query, "UTF-8"));
-		}
 		if (element != null) {
 			sb.append("&element=");
 			sb.append(URLEncoder.encode(element, "UTF-8"));

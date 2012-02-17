@@ -40,15 +40,14 @@ public class FormSupportTest extends TestCase {
 		}
 
 		@Override
-		public XMLEventReader calliConstruct(Object target, String query)
+		public XMLEventReader calliConstruct(Object target)
 				throws Exception {
 			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
-		public RDFEventReader openPatternReader(String about, String query,
-				String element) throws IOException, TemplateException {
+		public RDFEventReader openPatternReader(String about, String element) throws IOException, TemplateException {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -64,7 +63,7 @@ public class FormSupportTest extends TestCase {
 		}
 
 		@Override
-		protected XMLEventReader xslt(String query, String element)
+		protected XMLEventReader xslt(String element)
 				throws IOException, XMLStreamException {
 			return xif.createXMLEventReader(new StringReader(xml));
 		}
@@ -88,7 +87,7 @@ public class FormSupportTest extends TestCase {
 		con.add(vf.createURI("urn:test:concept"), RDF.TYPE, vf.createURI(SKOS, "Concept"));
 		con.add(vf.createURI("urn:test:concept"), vf.createURI(SKOS, "prefLabel"), vf.createLiteral("label"));
 		String xml = "<select id='status' rel='skos:topConcept' xmlns:skos='http://www.w3.org/2004/02/skos/core#'><option about='?status' typeof='skos:Concept' property='skos:prefLabel' /></select>";
-		InputStream in = new FormSupportImpl(vf.createURI("urn:test"), xml).options("edit", "/1/2/1/14/1");
+		InputStream in = new FormSupportImpl(vf.createURI("urn:test"), xml).options("/1/2/1/14/1");
 		XMLEventReader options = xif.createFilteredReader(xif.createXMLEventReader(in), new EventFilter() {
 			public boolean accept(XMLEvent event) {
 				return event.isStartElement() && event.asStartElement().getName().getLocalPart().equals("option");
@@ -106,7 +105,7 @@ public class FormSupportTest extends TestCase {
 		con.add(vf.createURI("urn:test:concept2"), RDF.TYPE, vf.createURI(SKOS, "Concept"));
 		con.add(vf.createURI("urn:test:concept2"), vf.createURI(SKOS, "prefLabel"), vf.createLiteral("label"));
 		String xml = "<select id='status' rel='skos:topConcept' xmlns:skos='http://www.w3.org/2004/02/skos/core#'><option about='?status' typeof='skos:Concept' property='skos:prefLabel' /></select>";
-		InputStream in = new FormSupportImpl(vf.createURI("urn:test"), xml).options("edit", "/1/2/1/14/1");
+		InputStream in = new FormSupportImpl(vf.createURI("urn:test"), xml).options("/1/2/1/14/1");
 		XMLEventReader options = xif.createFilteredReader(xif.createXMLEventReader(in), new EventFilter() {
 			public boolean accept(XMLEvent event) {
 				return event.isStartElement() && event.asStartElement().getName().getLocalPart().equals("option");
@@ -127,7 +126,7 @@ public class FormSupportTest extends TestCase {
 		con.add(vf.createURI("urn:test:concept2"), vf.createURI(SKOS, "prefLabel"), vf.createLiteral("label"));
 		con.add(vf.createURI("urn:test:concept3"), RDF.TYPE, vf.createURI(SKOS, "Concept"));
 		String xml = "<select id='status' rel='skos:topConcept' xmlns:skos='http://www.w3.org/2004/02/skos/core#'><option about='?status' typeof='skos:Concept' property='skos:prefLabel' /></select>";
-		InputStream in = new FormSupportImpl(vf.createURI("urn:test"), xml).options("edit", "/1/2/1/14/1");
+		InputStream in = new FormSupportImpl(vf.createURI("urn:test"), xml).options("/1/2/1/14/1");
 		XMLEventReader options = xif.createFilteredReader(xif.createXMLEventReader(in), new EventFilter() {
 			public boolean accept(XMLEvent event) {
 				return event.isStartElement() && event.asStartElement().getName().getLocalPart().equals("option");
@@ -148,7 +147,7 @@ public class FormSupportTest extends TestCase {
 		con.add(vf.createURI("urn:test:concept3"), RDF.TYPE, vf.createURI(SKOS, "Concept"));
 		con.add(vf.createURI("urn:test:concept3"), vf.createURI(SKOS, "prefLabel"), vf.createLiteral("label"));
 		String xml = "<select id='status' rel='skos:topConcept' xmlns:skos='http://www.w3.org/2004/02/skos/core#'><option about='?status' typeof='skos:Concept' property='skos:prefLabel' /></select>";
-		InputStream in = new FormSupportImpl(vf.createURI("urn:test"), xml).options("edit", "/1/2/1/14/1");
+		InputStream in = new FormSupportImpl(vf.createURI("urn:test"), xml).options("/1/2/1/14/1");
 		XMLEventReader options = xif.createFilteredReader(xif.createXMLEventReader(in), new EventFilter() {
 			public boolean accept(XMLEvent event) {
 				return event.isStartElement() && event.asStartElement().getName().getLocalPart().equals("option");

@@ -25,7 +25,7 @@
 
 <> a <SchemaGraph>.
 
-<Concept> a <CreatableIndex>, owl:Class;
+<Concept> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Viewable>, <Editable>, skos:Concept;
 	rdfs:label "Concept";
 	rdfs:comment "Concepts are ideas, meanings, or categories of objects and events";
@@ -35,18 +35,4 @@
 	calli:view <concept-view.xhtml>;
 	calli:edit <concept-edit.xhtml>;
 	calli:create <concept-create.xhtml>.
-
-:GetConceptIndex owl:intersectionOf (<creatable-index.ttl#GetCreatableIndex> [owl:onProperty msg:target; owl:hasValue <Concept> ]);
-	msg:sparql """
-		SELECT REDUCED ?title ?description ?resource ?label (ucase(substr(?label, 1, 1)) as ?index) (regex(?label, "^[a-zA-Z]") as ?letter) {
-			{
-				$this rdfs:label ?title
-				OPTIONAL {
-					$this rdfs:comment ?description
-				}
-			} UNION {
-				?resource a $this; skos:prefLabel ?label
-			}
-		} ORDER BY ?label LIMIT 101
-	""".
 

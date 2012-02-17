@@ -9,7 +9,7 @@
 
 <> a <SchemaGraph>.
 
-<Group> a <CreatableIndex>, owl:Class;
+<Group> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Viewable>, <Editable>, calli:Group;
 	rdfs:label "Group";
 	rdfs:comment "Groups provide a way to assign permissions to a named set of users";

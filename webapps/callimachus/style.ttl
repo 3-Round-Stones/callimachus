@@ -24,7 +24,7 @@
 
 <> a <SchemaGraph>.
 
-<Style> a <CreatableIndex>, owl:Class;
+<Style> a <Creatable>, owl:Class;
 	rdfs:subClassOf <File>;
 	rdfs:label "Style";
 	rdfs:comment "Style files";

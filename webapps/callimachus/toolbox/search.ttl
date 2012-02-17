@@ -167,10 +167,6 @@
 				BIND (concat(str($this),"?feed") as ?id)
 				[a <../Creatable>] calli:type ?collection_accept
 			} UNION {
-				BIND ("feed" as ?type)
-				BIND (concat(str($this),"?feed") as ?id)
-				[a <../CreatableIndex>] calli:type ?collection_accept
-			} UNION {
 				{
 					SELECT (concat(str($this),"?feed") as ?id) (count(?part) as ?totalResults) ("feed" as ?type) {
 						$this calli:hasComponent ?part

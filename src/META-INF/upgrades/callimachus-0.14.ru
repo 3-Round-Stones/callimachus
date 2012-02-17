@@ -214,6 +214,17 @@ DELETE {
 };
 
 DELETE {
+	?item calli:link ?link
+} INSERT {
+	?item calli:link ?link_create
+} WHERE {
+	?item calli:link ?link .
+	?link a </callimachus/Creatable> .
+	FILTER strstarts(str(?link), str(</callimachus/>))
+	BIND (iri(concat(str(?link),"?create")) as ?link_create)
+};
+
+DELETE {
 	</callimachus> owl:versionInfo "0.14"
 } INSERT {
 	</callimachus> owl:versionInfo "0.15"

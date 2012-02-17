@@ -24,7 +24,7 @@
 
 <> a <SchemaGraph>.
 
-<HypertextFile> a <CreatableIndex>, owl:Class;
+<HypertextFile> a <Creatable>, owl:Class;
 	rdfs:subClassOf <File>;
 	rdfs:label "Hypertext File";
 	rdfs:comment "Hypertext files";

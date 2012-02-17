@@ -129,20 +129,6 @@
 	calli:item </menu#homefolder>;
 	calli:item </menu#sitemap>;
 	calli:item </menu#recentchanges>.
-</menu#resources>	calli:position 8; rdfs:label "Resources";
-	calli:item </menu#articles>;
-	calli:item </menu#textfiles>;
-	calli:item </menu#pages>;
-	calli:item </menu#scripts>;
-	calli:item </menu#styles>;
-	calli:item </menu#transforms>;
-	calli:item </menu#concepts>;
-	calli:item </menu#classes>.
-</menu#administration>	calli:position 9; rdfs:label "Administration";
-	calli:item </menu#usergroups>;
-	calli:item </menu#namedqueries>;
-	calli:item </menu#graphdocuments>;
-	calli:item </menu#sparqlquery>.
 </menu#toolbox>	calli:position 10; rdfs:label "Toolbox";
 	calli:item </menu#whatlinkshere>;
 	calli:item </menu#relatedchanges>;
@@ -154,20 +140,6 @@
 </menu#homefolder>	calli:position 2; rdfs:label "Home folder"; calli:link </?view>.
 </menu#sitemap>	calli:position 3; rdfs:label "Site map"; calli:link </menu>.
 </menu#recentchanges>	calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
-
-</menu#articles>	calli:position 1; rdfs:label "Articles"; calli:link </callimachus/Article>.
-</menu#textfiles>	calli:position 2; rdfs:label "Text files"; calli:link </callimachus/TextFile>.
-</menu#pages>	calli:position 3; rdfs:label "Pages"; calli:link </callimachus/Page>.
-</menu#scripts>	calli:position 4; rdfs:label "Scripts"; calli:link </callimachus/Script>.
-</menu#styles>	calli:position 5; rdfs:label "Styles"; calli:link </callimachus/Style>.
-</menu#transforms>	calli:position 6; rdfs:label "Transforms"; calli:link </callimachus/Transform>.
-</menu#concepts>	calli:position 7; rdfs:label "Concepts"; calli:link </callimachus/Concept>.
-</menu#classes>	calli:position 8; rdfs:label "Classes"; calli:link </callimachus/Class>.
-
-</menu#usergroups>	calli:position 1; rdfs:label "User groups"; calli:link </callimachus/Group>.
-</menu#namedqueries>	calli:position 2; rdfs:label "Named queries"; calli:link </callimachus/NamedQuery>.
-</menu#graphdocuments>	calli:position 3; rdfs:label "Graph documents"; calli:link </callimachus/GraphDocument>.
-</menu#sparqlquery>	calli:position 4; rdfs:label "SPARQL query"; calli:link </sparql>.
 
 </menu#whatlinkshere>	calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>.
 </menu#relatedchanges>	calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>.

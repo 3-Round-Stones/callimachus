@@ -11,7 +11,7 @@
 
 <> a <SchemaGraph>.
 
-<Theme> a <CreatableIndex>, owl:Class;
+<Theme> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Viewable>, <Editable>, calli:Theme;
 	rdfs:isDefinedBy </callimachus>;
 	calli:author </group/staff>, </group/admin>;

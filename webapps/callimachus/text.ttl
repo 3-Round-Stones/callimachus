@@ -24,7 +24,7 @@
 
 <> a <SchemaGraph>.
 
-<TextFile> a <CreatableIndex>, owl:Class;
+<TextFile> a <Creatable>, owl:Class;
 	rdfs:subClassOf <File>;
 	rdfs:label "Text File";
 	rdfs:comment "Text files";

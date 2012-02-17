@@ -11,7 +11,7 @@
 
 <> a <SchemaGraph>.
 
-<Realm> a <CreatableIndex>, owl:Class;
+<Realm> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Folder>, calli:Realm;
 	rdfs:isDefinedBy </callimachus>;
 	calli:author </group/admin>;

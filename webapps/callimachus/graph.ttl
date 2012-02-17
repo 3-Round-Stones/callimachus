@@ -31,7 +31,7 @@
 	rdfs:label "Schema Graph";
 	rdfs:isDefinedBy </callimachus>.
 
-<NamedGraph> a <CreatableIndex>, owl:Class;
+<NamedGraph> a <Creatable>, owl:Class;
 	rdfs:subClassOf calli:NamedGraph, <File>, sd:NamedGraph;
 	rdfs:label "Named Graph";
 	rdfs:isDefinedBy </callimachus>;
@@ -40,7 +40,7 @@
 	calli:create <file-create.xhtml>;
 	calli:type "application/rdf+xml".
 
-<GraphDocument> a <CreatableIndex>, owl:Class;
+<GraphDocument> a <Creatable>, owl:Class;
 	rdfs:subClassOf <File>, sd:NamedGraph;
 	rdfs:label "Graph Document";
 	rdfs:comment "Terse RDF Triple documents";

@@ -10,7 +10,7 @@
 
 <> a <SchemaGraph>.
 
-<Menu> a <CreatableIndex>, owl:Class;
+<Menu> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
 	rdfs:isDefinedBy </callimachus>;
 	calli:author </group/staff>,</group/admin>;

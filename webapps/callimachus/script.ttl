@@ -24,7 +24,7 @@
 
 <> a <SchemaGraph>.
 
-<Script> a <CreatableIndex>, owl:Class;
+<Script> a <Creatable>, owl:Class;
 	rdfs:subClassOf <File>;
 	rdfs:label "Script";
 	rdfs:comment "Script files";

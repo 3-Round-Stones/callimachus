@@ -11,6 +11,47 @@
 	<link rel="edit" href="?edit" />
 	<link rel="describedby" href="?describe" />
 	<style type="text/css" media="all">
+		#create-menu {
+			position: absolute;
+			right:0;
+			-webkit-transition: height 0.5s ease-in;
+			-moz-transition: height 0.5s ease-in;
+			transition: height 0.5s ease-in;
+			height: 0px;
+			opacity: 0;
+			visibility: hidden;
+			overflow: hidden;
+		}
+		#create-menu:target {
+			height: 30em;
+			opacity: 1;
+			visibility: visible;
+		}
+		#create-menu ul {
+			list-style: none;
+			padding: 2px;
+			margin: 16px;
+			display: block;
+			outline: none;
+		}
+		#create-menu li {
+			margin: 0;
+			padding: 0;
+			zoom: 1;
+			width: 100%;
+		}
+		#create-menu a {
+			text-decoration: none;
+			display: block;
+			padding: .2em .4em;
+			line-height: 1.5;
+			zoom: 1;
+			font-weight: normal;
+			white-space: nowrap;
+			text-align: left;
+			border-bottom: none;
+		}
+
 		.filecol { width:100% }
 		.ui-grid table tbody td.filecell { text-align: left }
 		#table.small .permission { display:none; }
@@ -28,6 +69,21 @@
 		.ui-grid .ui-icon { float: right; }
 	</style>
 	<script type="text/javascript" src="/callimachus/scripts/folder-view.js"> </script>
+	<script type="text/javascript">
+		jQuery(function($) {
+			$('#create-menu').find('a').click(function() {
+				location.href = '?create=' + this.href;
+				return false;
+			}).hover(
+				function(){ 
+					$(this).addClass("ui-state-hover"); 
+				},
+				function(){ 
+					$(this).removeClass("ui-state-hover"); 
+				}
+			);
+		});
+	</script>
 </head>
 <body about="?this">
 	<div id="box" class="ui-grid ui-widget ui-widget-content ui-corner-all flex" dropzone="copy f:image/pjpeg f:image/x-png f:image/png f:image/jpeg f:image/gif f:image/vnd.microsoft.icon f:application/rdf+xml f:application/sparql-query f:application/xhtml+xml f:text/javascript f:text/css f:text/plain f:application/docbook+xml">
@@ -36,10 +92,25 @@
 				<a href="?parent" class="view ui-icon ui-icon-arrowthick-1-n" property="rdfs:label" content="?plabel" title="Up to {?plabel}" />
 			</span>
 			<span style="float:right">
-				<a href="?create=/callimachus/Folder" class="ui-icon ui-icon-folder-collapsed" title="Create a new Folder" />
-			</span>
-			<span style="float:right">
-				<a href="?create=/callimachus/File" class="ui-icon ui-icon-document" title="Create a new File" />
+				<a href="#create-menu" class="ui-icon ui-icon-gear" title="Create something new"
+					onclick="location.replace(this.href);return false" />
+				<nav id="create-menu" onclick="location.replace('#')">
+					<ul class="ui-widget ui-widget-content ui-corner-all">
+						<li><a class="ui-state-default" href="Folder"><img class="icon" src="folder.png" /> Folder</a></li>
+						<li><a class="ui-state-default" href="File"><img class="icon" src="file.png" /> File</a></li>
+						<li><a class="ui-state-default" href="Article"><img class="icon" src="article.png" /> Article</a></li>
+						<li><a class="ui-state-default" href="TextFile"><img class="icon" src="text.png" /> Text file</a></li>
+						<li><a class="ui-state-default" href="Page"><img class="icon" src="page.png" /> Page</a></li>
+						<li><a class="ui-state-default" href="Script"><img class="icon" src="script.png" /> Script</a></li>
+						<li><a class="ui-state-default" href="Style"><img class="icon" src="style.png" /> Style</a></li>
+						<li><a class="ui-state-default" href="Transform"><img class="icon" src="transform.png" /> Transform</a></li>
+						<li><a class="ui-state-default" href="Concept"><img class="icon" src="concept.png" /> Concept</a></li>
+						<li><a class="ui-state-default" href="Class"><img class="icon" src="class.png" /> Class</a></li>
+						<li><a class="ui-state-default" href="Group"><img class="icon" src="group.png" /> Group</a></li>
+						<li><a class="ui-state-default" href="NamedQuery"><img class="icon" src="query.png" /> Named query</a></li>
+						<li><a class="ui-state-default" href="GraphDocument"><img class="icon" src="graph.png" /> Graph document</a></li>
+					</ul>
+				</nav>
 			</span>
 			<span property="rdfs:label"/>
 		</div>

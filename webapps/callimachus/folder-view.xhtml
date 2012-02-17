@@ -13,7 +13,6 @@
 	<style type="text/css" media="all">
 		#create-menu {
 			position: absolute;
-			right:0;
 			-webkit-transition: height 0.5s ease-in;
 			-moz-transition: height 0.5s ease-in;
 			transition: height 0.5s ease-in;
@@ -31,6 +30,7 @@
 			list-style: none;
 			padding: 2px;
 			margin: 16px;
+			margin-left: 0;
 			display: block;
 			outline: none;
 		}
@@ -66,7 +66,7 @@
 		.ui-grid .ui-grid-header, .ui-grid .ui-grid-footer { padding: .8em .4em; text-align: center; }
 		.ui-grid .ui-grid-footer { background-image: none; font-weight: normal; text-align: left; }
 		.ui-grid table thead a { display: block;  }
-		.ui-grid .ui-icon { float: right; }
+		.ui-grid .ui-icon { float: left; }
 	</style>
 	<script type="text/javascript" src="/callimachus/scripts/folder-view.js"> </script>
 	<script type="text/javascript">
@@ -88,10 +88,10 @@
 <body about="?this">
 	<div id="box" class="ui-grid ui-widget ui-widget-content ui-corner-all flex" dropzone="copy f:image/pjpeg f:image/x-png f:image/png f:image/jpeg f:image/gif f:image/vnd.microsoft.icon f:application/rdf+xml f:application/sparql-query f:application/xhtml+xml f:text/javascript f:text/css f:text/plain f:application/docbook+xml">
 		<div class="ui-grid-header ui-widget-header ui-corner-top">
-			<span style="float:left" rev="calli:hasComponent" resource="?parent">
+			<span rev="calli:hasComponent" resource="?parent">
 				<a href="?parent" class="view ui-icon ui-icon-arrowthick-1-n" property="rdfs:label" content="?plabel" title="Up to {?plabel}" />
 			</span>
-			<span style="float:right">
+			<span>
 				<a href="#create-menu" class="ui-icon ui-icon-gear" title="Create something new"
 					onclick="location.replace(this.href);return false" />
 				<nav id="create-menu" onclick="location.replace('#')">

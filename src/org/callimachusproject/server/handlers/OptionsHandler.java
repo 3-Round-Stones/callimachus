@@ -31,11 +31,11 @@ package org.callimachusproject.server.handlers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
@@ -51,10 +51,13 @@ import org.callimachusproject.server.model.Response;
  */
 public class OptionsHandler implements Handler {
 	private static final String REQUEST_METHOD = "Access-Control-Request-Method";
-	private static final String ALLOW_HEADERS = "Authorization,Host,Cache-Control,Location,Range,"
-			+ "Accept,Accept-Charset,Accept-Encoding,Accept-Language,"
-			+ "Content-Encoding,Content-Language,Content-Length,Content-Location,Content-MD5,Content-Type,"
-			+ "If-Match,If-Modified-Since,If-None-Match,If-Range,If-Unmodified-Since";
+	private static final Set<String> ALLOW_HEADERS = new TreeSet<String>(
+			Arrays.asList("Authorization", "Cache-Control", "Location",
+					"Range", "Accept", "Accept-Charset", "Accept-Encoding",
+					"Accept-Language", "Content-Encoding", "Content-Language",
+					"Content-Length", "Content-Location", "Content-MD5",
+					"Content-Type", "If-Match", "If-Modified-Since",
+					"If-None-Match", "If-Range", "If-Unmodified-Since"));
 	private final Handler delegate;
 
 	public OptionsHandler(Handler delegate) {
@@ -84,10 +87,17 @@ public class OptionsHandler implements Handler {
 				rb = rb.header("Access-Control-Allow-Methods", m);
 			}
 			StringBuilder headers = new StringBuilder();
-			headers.append(ALLOW_HEADERS);
-			for (String header : getAllowedHeaders(m, request)) {
-				headers.append(",");
+			for (String header : ALLOW_HEADERS) {
+				if (headers.length() > 0) {
+					headers.append(",");
+				}
 				headers.append(header);
+			}
+			for (String header : getAllowedHeaders(m, request)) {
+				if (!ALLOW_HEADERS.contains(header)) {
+					headers.append(",");
+					headers.append(header);
+				}
 			}
 			rb = rb.header("Access-Control-Allow-Headers", headers.toString());
 			String max = getMaxAge(request.getRequestedResource().getClass());
@@ -113,7 +123,7 @@ public class OptionsHandler implements Handler {
 	}
 
 	private Collection<String> getAllowedHeaders(String m, ResourceOperation request) {
-		List<String> result = null;
+		Collection<String> result = null;
 		Class<?> type = request.getRequestedResource().getClass();
 		for (Method method : type.getMethods()) {
 			if (m != null && method.isAnnotationPresent(method.class)) {
@@ -125,7 +135,7 @@ public class OptionsHandler implements Handler {
 				for (Annotation ann : anns) {
 					if (ann.annotationType().equals(header.class)) {
 						if (result == null) {
-							result = new ArrayList<String>();
+							result = new TreeSet<String>();
 						}
 						result.addAll(Arrays.asList(((header) ann).value()));
 					}

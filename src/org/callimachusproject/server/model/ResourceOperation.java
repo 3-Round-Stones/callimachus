@@ -45,6 +45,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -533,16 +534,13 @@ public class ResourceOperation extends ResourceRequest {
 		if (method.isAnnotationPresent(expect.class)) {
 			input.addExpects(method.getAnnotation(expect.class).value());
 		}
-		if (follow && method.isAnnotationPresent(transform.class)) {
-			for (String uri : method.getAnnotation(transform.class).value()) {
-				Method transform = getTransform(uri);
-				if (isAcceptable(transform, 0)) {
-					ResponseEntity ret = invoke(transform, getParameters(transform, input),
-							follow);
-					ret.addHeaders(input.getOtherHeaders());
-					ret.addExpects(input.getExpects());
-					return ret;
-				}
+		if (follow) {
+			Method transform = getBestTransformMethod(method);
+			if (transform != null && !transform.equals(method)) {
+				ResponseEntity ret = invoke(transform, getParameters(transform, input), follow);
+				ret.addHeaders(input.getOtherHeaders());
+				ret.addExpects(input.getExpects());
+				return ret;
 			}
 		}
 		return input;
@@ -666,34 +664,48 @@ public class ResourceOperation extends ResourceRequest {
 		if (methods.size() == 1)
 			return methods.iterator().next();
 		for (MimeType accept : getAcceptable()) {
-			Map<MimeType, Method> best = new HashMap<MimeType, Method>();
+			Map<String, Method> best = new LinkedHashMap<String, Method>();
 			for (Method m : methods) {
-				Method method = getTransformMethodOf(m);
-				if (method.isAnnotationPresent(type.class)) {
-					for (String media : method.getAnnotation(type.class).value()) {
-						MimeType server = Accepter.parse(media);
-						if (isCompatible(accept, server)) {
-							best.put(server, m);
-						}
+				for (String type : getAllMimeTypesOf(m)) {
+					MimeType server = Accepter.parse(type);
+					if (!best.containsKey(server.toString()) && isCompatible(accept, server)) {
+						best.put(server.toString(), m);
 					}
-				} else if (!best.containsKey(ANYTHING)) {
-					best.put(ANYTHING, m);
 				}
 			}
 			if (!best.isEmpty()) {
 				Accepter accepter = new Accepter(best.keySet());
-				return best.get(accepter.getAcceptable().first());
+				return best.get(accepter.getAcceptable().first().toString());
 			}
 		}
 		return null;
 
 	}
 
+	private Collection<String> getAllMimeTypesOf(Method m) throws MimeTypeParseException {
+		if (m == null)
+			return null;
+		Collection<String> result = new LinkedHashSet<String>();
+		if (m.isAnnotationPresent(transform.class)) {
+			for (String uri : m.getAnnotation(transform.class).value()) {
+				result.addAll(getAllMimeTypesOf(getTransform(uri)));
+			}
+		}
+		if (m.isAnnotationPresent(type.class)) {
+			for (String media : m.getAnnotation(type.class).value()) {
+				result.add(media);
+			}
+		}
+		if (result.isEmpty()) {
+			result.add("*/*");
+		}
+		return result;
+	}
+
 	private Collection<Method> findAcceptableMethods(Collection<Method> methods)
 			throws MimeTypeParseException {
 		String readable = null;
 		String acceptable = null;
-		Map<MimeType, Method> best = new HashMap(methods.size());
 		Collection<Method> list = new LinkedHashSet(methods.size());
 		BodyEntity body = getBody();
 		loop: for (Method method : methods) {
@@ -725,11 +737,6 @@ public class ResourceOperation extends ResourceRequest {
 			}
 			if (isAcceptable(method, 0)) {
 				list.add(method);
-				for (MimeType t : readableTypes) {
-					if (!best.containsKey(t)) {
-						best.put(t, method);
-					}
-				}
 				continue loop;
 			}
 			acceptable = "Cannot write " + method.getGenericReturnType();
@@ -740,17 +747,7 @@ public class ResourceOperation extends ResourceRequest {
 		if (list.isEmpty() && acceptable != null) {
 			throw new NotAcceptable(acceptable);
 		}
-		if (list.size() == 1)
-			return list;
-		Collection<Method> result = new LinkedHashSet<Method>(list.size());
-		Accepter accepter = new Accepter(best.keySet());
-		for (MimeType t : accepter.getAcceptable()) {
-			Method item = best.get(t);
-			list.remove(item);
-			result.add(item);
-		}
-		result.addAll(list);
-		return result;
+		return list;
 	}
 
 	private boolean isOperationPresent(Method m) {
@@ -859,14 +856,22 @@ public class ResourceOperation extends ResourceRequest {
 
 	private Method getTransformMethodOf(Method method)
 			throws MimeTypeParseException {
+		Method transform = getBestTransformMethod(method);
+		if (transform == null || transform.equals(method))
+			return method;
+		return getTransformMethodOf(transform);
+	}
+
+	private Method getBestTransformMethod(Method method) throws MimeTypeParseException {
 		if (method == null)
 			return method;
 		if (method.isAnnotationPresent(transform.class)) {
+			List<Method> transforms = new ArrayList<Method>();
 			for (String uri : method.getAnnotation(transform.class).value()) {
-				Method transform = getTransform(uri);
-				if (isAcceptable(transform, 0))
-					return getTransformMethodOf(transform);
+				transforms.add(getTransform(uri));
 			}
+			transforms.add(method);
+			return findBestMethod(transforms);
 		}
 		return method;
 	}
@@ -911,9 +916,7 @@ public class ResourceOperation extends ResourceRequest {
 		}
 		if (method.isAnnotationPresent(transform.class)) {
 			for (String uri : method.getAnnotation(transform.class).value()) {
-				Method transform = getTransform(uri);
-				if (isAcceptable(transform, 0))
-					return getHeaderNamesFor(transform, names);
+				getHeaderNamesFor(getTransform(uri), names);
 			}
 		}
 		return names;

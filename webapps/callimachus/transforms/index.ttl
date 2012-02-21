@@ -10,6 +10,17 @@
 
 <> a <../SchemaGraph>.
 
+<TransformIntoAtom> rdfs:subClassOf msg:Message;
+   rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+   calli:type "application/atom+xml;q=0.5";
+   msg:xslt <sparql-results-atom.xsl>.
+
+<TransformIntoAtom#sparqlResult> a owl:FunctionalProperty, owl:ObjectProperty;
+   rdfs:domain <TransformIntoAtom>;
+   rdfs:range <java:java.io.InputStream>;
+   calli:type "application/sparql-results+xml".
+
+
 <TransformLayout> rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";

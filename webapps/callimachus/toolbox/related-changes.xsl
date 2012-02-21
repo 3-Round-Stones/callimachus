@@ -5,7 +5,7 @@
 	xmlns:xhtml="http://www.w3.org/1999/xhtml"
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
 	exclude-result-prefixes="xhtml sparql">
-	<xsl:import href="recent-changes.xsl" />
+	<xsl:import href="changes.xsl" />
 	<xsl:template match="/">
 		<html>
 			<head>
@@ -13,12 +13,7 @@
 			</head>
 			<body>
 				<h1>Related Changes</h1>
-				<xsl:if test="not(/sparql:sparql/sparql:results/sparql:result)">
-					<p>No changes have been made recently.</p>
-				</xsl:if>
-				<xsl:if test="/sparql:sparql/sparql:results/sparql:result">
-					<xsl:apply-templates />
-				</xsl:if>
+				<xsl:apply-templates />
 			</body>
 		</html>
 	</xsl:template>

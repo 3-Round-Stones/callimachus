@@ -15,32 +15,55 @@
 	calli:method "GET";
 	calli:query "history";
 	calli:rel "version-history";
-	calli:type "application/sparql-results+xml";
-	calli:header "cache-control:no-store";
+	calli:type "application/sparql-results+xml;q=0.1";
+	calli:header "cache-control:no-cache";
 	calli:transform :TransformHistory;
+	calli:transform <../transforms/TransformIntoAtom>;
 	msg:sparql  """
-		SELECT REDUCED ?label ?note ?icon ?revision ?modified ?user ?name
-		WHERE {
-			?revision audit:contributedTo $this; audit:committedOn ?modified
-			OPTIONAL { ?revision audit:contributor ?user OPTIONAL { ?user rdfs:label ?name } }
-			OPTIONAL { $this a [calli:icon ?icon] }
-			OPTIONAL { $this skos:prefLabel ?label }
-			OPTIONAL { $this rdfs:label ?label }
-			OPTIONAL {
+		SELECT * {
+			{
+				$this rdfs:label ?title
+				BIND (concat(str($this),"?history") as ?id)
+				BIND ("feed" as ?type)
+			} UNION {
+				$this audit:revision [audit:committedOn ?updated]
+				BIND (concat(str($this),"?history") as ?id)
+				BIND ("feed" as ?type)
+			} UNION {
 				{
-					GRAPH ?revision { $this skos:changeNote ?note }
-				} UNION {
-					?revision audit:contained [rdf:subject $this; rdf:predicate skos:changeNote; rdf:object ?note]
+					SELECT ?id (max(?title) as ?title) (max(?updated) as ?updated) (max(?summary) as ?summary) (max(?icon) as ?icon)
+							("entry" as ?type) (concat(str(?id),"?view") as ?link_view_href)
+							(max(?contributor_uri) as ?contributor_uri) (max(?contributor_name) as ?contributor_name)  {
+						?id audit:contributedTo $this; audit:committedOn ?updated .
+						OPTIONAL {
+							?id audit:contributor ?contributor_uri
+							OPTIONAL {
+								?contributor_uri rdfs:label ?contributor_name
+							}
+						} OPTIONAL {
+							$this skos:prefLabel ?title
+						} OPTIONAL {
+							$this foaf:name ?title
+						} OPTIONAL {
+							$this rdfs:label ?title
+						} OPTIONAL {
+							$this skosxl:literalForm ?title
+						} OPTIONAL {
+							$this dcterms:title ?title
+						} OPTIONAL {
+							GRAPH ?id { $this skos:changeNote ?summary }
+						} OPTIONAL {
+							$this a [calli:icon ?icon]
+						}
+					} GROUP BY ?id ORDER BY desc(?updated) LIMIT 50
 				}
 			}
-		}
-		ORDER BY desc(?modified)
-		LIMIT 50
+		} ORDER BY desc(?type) desc(?updated) ?id
 	""".
 
 :TransformHistory rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:type "application/xml";
+	calli:type "application/xhtml+xml";
 	calli:transform <../transforms/TransformLayout>;
 	msg:xslt <history.xsl>.
 

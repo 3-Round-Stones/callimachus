@@ -35,7 +35,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -48,35 +50,6 @@ import javax.activation.MimeTypeParseException;
  * @author James Leigh
  */
 public class Accepter {
-	private final static class MimeTypeComparator implements Comparator<MimeType> {
-		public int compare(MimeType o1, MimeType o2) {
-			String s1 = o1.getParameter("q");
-			String s2 = o2.getParameter("q");
-			Double q1 = s1 == null ? 1 : Double.valueOf(s1);
-			Double q2 = s2 == null ? 1 : Double.valueOf(s2);
-			int compare = q2.compareTo(q1);
-			if (compare != 0)
-				return compare;
-			if (!"*".equals(o1.getPrimaryType())
-					&& "*".equals(o2.getPrimaryType()))
-				return -1;
-			if ("*".equals(o1.getPrimaryType())
-					&& !"*".equals(o2.getPrimaryType()))
-				return 1;
-			if (!"*".equals(o1.getSubType()) && "*".equals(o2.getSubType()))
-				return -1;
-			if ("*".equals(o1.getSubType()) && !"*".equals(o2.getSubType()))
-				return 1;
-			if (!"*".equals(o1.getSubType()) && "*".equals(o2.getSubType()))
-				return -1;
-			if (o1.getSubType().contains("+") && !o2.getSubType().contains("+"))
-				return -1;
-			if (!o1.getSubType().contains("+") && o2.getSubType().contains("+"))
-				return 1;
-			return o1.toString().compareTo(o2.toString());
-		}
-	}
-
 	public static MimeType parse(String mediaType)
 			throws MimeTypeParseException {
 		if (mediaType == null || mediaType.equals("*")) {
@@ -135,6 +108,7 @@ public class Accepter {
 	}
 
 	private final TreeSet<MimeType> acceptable = newTreeSet();
+	private final Map<MimeType, Integer> index = new HashMap<MimeType, Integer>();
 
 	public Accepter() {
 		// use addMimeType
@@ -152,9 +126,9 @@ public class Accepter {
 		}
 	}
 
-	public Accepter(Collection<MimeType> mediaTypes) {
+	public Accepter(Collection<String> mediaTypes) throws MimeTypeParseException {
 		if (mediaTypes != null) {
-			for (MimeType mediaType : mediaTypes) {
+			for (String mediaType : mediaTypes) {
 				addMimeType(mediaType);
 			}
 		}
@@ -165,6 +139,9 @@ public class Accepter {
 	}
 
 	public void addMimeType(MimeType mediaType) {
+		if (!index.containsKey(mediaType)) {
+			index.put(mediaType, acceptable.size());
+		}
 		acceptable.add(mediaType);
 	}
 
@@ -344,5 +321,38 @@ public class Accepter {
 		TreeSet<MimeType> set = newTreeSet();
 		set.add(single);
 		return set;
+	}
+
+	private final class MimeTypeComparator implements Comparator<MimeType> {
+		public int compare(MimeType o1, MimeType o2) {
+			String s1 = o1.getParameter("q");
+			String s2 = o2.getParameter("q");
+			Double q1 = s1 == null ? 1 : Double.valueOf(s1);
+			Double q2 = s2 == null ? 1 : Double.valueOf(s2);
+			int compare = q2.compareTo(q1);
+			if (compare != 0)
+				return compare;
+			if (!"*".equals(o1.getPrimaryType())
+					&& "*".equals(o2.getPrimaryType()))
+				return -1;
+			if ("*".equals(o1.getPrimaryType())
+					&& !"*".equals(o2.getPrimaryType()))
+				return 1;
+			if (!"*".equals(o1.getSubType()) && "*".equals(o2.getSubType()))
+				return -1;
+			if ("*".equals(o1.getSubType()) && !"*".equals(o2.getSubType()))
+				return 1;
+			if (!"*".equals(o1.getSubType()) && "*".equals(o2.getSubType()))
+				return -1;
+			Integer i1 = index.containsKey(o1) ? index.get(o1) : Integer.MAX_VALUE;
+			Integer i2 = index.containsKey(o2) ? index.get(o2) : Integer.MAX_VALUE;
+			if (i1.compareTo(i2) != 0)
+				return i1.compareTo(i2);
+			if (o1.getSubType().contains("+") && !o2.getSubType().contains("+"))
+				return -1;
+			if (!o1.getSubType().contains("+") && o2.getSubType().contains("+"))
+				return 1;
+			return o1.toString().compareTo(o2.toString());
+		}
 	}
 }

@@ -13,6 +13,7 @@
 			</head>
 			<body>
 				<h1>Recent Changes</h1>
+				<xsl:apply-templates />
 			</body>
 		</html>
 	</xsl:template>

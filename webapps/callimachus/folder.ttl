@@ -57,6 +57,130 @@
 	""".
 
 ################################
+# List folder contents
+################################
+
+:GetFolderFeed rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+	calli:method "GET";
+	calli:query "feed";
+	calli:rel "contents";
+	calli:type "application/sparql-results+xml;q=0.1";
+	calli:header "cache-control:no-cache";
+	calli:transform <transforms/TransformIntoAtom>;
+	msg:sparql """
+		SELECT * {
+			{
+				$this rdfs:label ?title
+				BIND (concat(str($this),"?feed") as ?id)
+				BIND ("feed" as ?type)
+				BIND (?title as ?collection_title)
+				BIND (concat(str($this),"?feed") as ?collection_href)
+				BIND (concat(str($this),"?describe") as ?link_href)
+				BIND ("describedby" as ?link_rel)
+			} UNION {
+				{ $this a <Realm> } UNION { $this a <Origin> }
+				BIND (concat(str($this),"?feed") as ?id)
+				BIND (concat(str($this),"?search") as ?link_href)
+				BIND ("search" as ?link_rel)
+				BIND ("application/opensearchdescription+xml" as ?link_type)
+			} UNION {
+				BIND ("feed" as ?type)
+				BIND (concat(str($this),"?feed") as ?id)
+				$this audit:revision [audit:committedOn ?updated]
+				BIND (concat(str($this),"?changes") as ?link_href)
+				BIND ("alternate" as ?link_rel)
+				BIND ("application/atom+xml" as ?link_type)
+			} UNION {
+				BIND ("feed" as ?type)
+				BIND (concat(str($this),"?feed") as ?id)
+				[a <Creatable>] calli:type ?collection_accept
+			} UNION {
+				{
+					SELECT (concat(str($this),"?feed") as ?id) (count(?part) as ?totalResults) ("feed" as ?type) {
+						$this calli:hasComponent ?part
+					} GROUP BY $this
+				}
+			} UNION {
+				{
+					SELECT ?id {
+						$this calli:hasComponent ?id
+						FILTER (isIRI(?id))
+					} ORDER BY ?id LIMIT 100
+				}
+				{
+					{} OPTIONAL {
+						?id skos:prefLabel ?title
+					} OPTIONAL {
+						?id foaf:name ?title
+					} OPTIONAL {
+						?id rdfs:label ?title
+					} OPTIONAL {
+						?id skosxl:literalForm ?title
+					} OPTIONAL {
+						?id dcterms:title ?title
+					}
+				} UNION {
+					?id audit:revision ?revision . ?revision audit:committedOn ?updated
+					OPTIONAL {
+						?revision audit:contributor ?contributor_uri
+						OPTIONAL {
+							?contributor_uri rdfs:label ?contributor_name
+						}
+					}
+				} UNION {
+					?id rdfs:comment ?summary
+				} UNION {
+					?id a [calli:icon ?icon]
+				} UNION {
+					?id calli:reader ?link_reader_href
+					OPTIONAL {
+						?link_reader_href rdfs:label ?link_reader_title
+					}
+				} UNION {
+					?id calli:contributor ?link_contributor_href
+					OPTIONAL {
+						?link_contributor_href rdfs:label ?link_contributor_title
+					}
+				} UNION {
+					?id calli:editor ?link_editor_href
+					OPTIONAL {
+						?link_editor_href rdfs:label ?link_editor_title
+					}
+				} UNION {
+					?id calli:administrator ?link_administrator_href
+					OPTIONAL {
+						?link_administrator_href rdfs:label ?link_administrator_title
+					}
+				} UNION {
+					$this calli:hasComponent ?id
+					BIND (?id as ?content_src)
+					OPTIONAL {
+						?id a [calli:type ?content_type]
+						BIND (?id as ?link_edit_media_href)
+					}
+				} UNION {
+					{ ?id a <Folder> } UNION { ?id a <Realm> }
+					BIND (concat(str(?id),"?feed") as ?link_href)
+					BIND ("contents" as ?link_rel)
+					BIND ("application/atom+xml" as ?link_type)
+				} UNION {
+					{ ?id a <Folder> } UNION { ?id a <Realm> }
+					BIND (concat(str(?id),"?archive") as ?link_href)
+					BIND (calli:archive as ?link_rel)
+					BIND ("application/zip" as ?link_type)
+				} UNION {
+					$this calli:hasComponent ?id
+					BIND (concat(str(?id),"?view") as ?link_view_href)
+					BIND (concat(str(?id),"?describe") as ?link_describedby_href)
+					BIND (concat(str(?id),"?history") as ?link_history_href)
+				}
+			}
+		} ORDER BY desc(?type) ?id
+	""".
+
+################################
 # Export folder contents
 ################################
 

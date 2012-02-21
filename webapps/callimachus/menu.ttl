@@ -23,7 +23,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
 	calli:query "items";
-	calli:type "application/sparql-results+xml";
+	calli:type "application/sparql-results+xml;q=0.1";
 	calli:transform :TransformMenu;
 	msg:sparql  """
 		SELECT DISTINCT ?heading ?label ?link ?group

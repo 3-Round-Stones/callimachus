@@ -14,6 +14,7 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
 	calli:query "history";
+	calli:rel "version-history";
 	calli:type "application/sparql-results+xml";
 	calli:header "cache-control:no-store";
 	calli:transform :TransformHistory;

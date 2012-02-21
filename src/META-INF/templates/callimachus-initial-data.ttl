@@ -139,7 +139,7 @@
 </menu#mainarticle>	calli:position 1; rdfs:label "Main article"; calli:link </main-article.docbook?view>.
 </menu#homefolder>	calli:position 2; rdfs:label "Home folder"; calli:link </?view>.
 </menu#sitemap>	calli:position 3; rdfs:label "Site map"; calli:link </menu>.
-</menu#recentchanges>	calli:position 4; rdfs:label "Recent changes"; calli:link </callimachus/changes>.
+</menu#recentchanges>	calli:position 4; rdfs:label "Recent changes"; calli:link </?changes>.
 
 </menu#whatlinkshere>	calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>.
 </menu#relatedchanges>	calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>.

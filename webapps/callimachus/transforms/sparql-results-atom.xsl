@@ -121,6 +121,18 @@
 	</link>
 </xsl:template>
 
+<xsl:template match="sparql:binding[@name='link_view_href']">
+	<link rel="alternate" type="text/html" href="{*}" />
+</xsl:template>
+
+<xsl:template match="sparql:binding[@name='link_edit_media_href']">
+	<link rel="edit-media" href="{*}" />
+</xsl:template>
+
+<xsl:template match="sparql:binding[@name='link_history_href']">
+	<link rel="version-history" href="{*}" />
+</xsl:template>
+
 <xsl:template match="sparql:binding[@name='content_src']">
 	<content src="{*}">
 		<xsl:if test="../sparql:binding[@name='content_type']">

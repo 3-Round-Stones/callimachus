@@ -225,6 +225,15 @@ DELETE {
 };
 
 DELETE {
+	?item calli:link </callimachus/changes>
+} INSERT {
+	?item calli:link </?changes>
+} WHERE {
+	?item calli:link </callimachus/changes>
+	</callimachus> owl:versionInfo "0.14"
+};
+
+DELETE {
 	</callimachus> owl:versionInfo "0.14"
 } INSERT {
 	</callimachus> owl:versionInfo "0.15"

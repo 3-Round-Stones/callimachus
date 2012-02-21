@@ -48,14 +48,14 @@
 		}
 		return td;
 	}
-	function createPermissionCell(entry, tagName) {
+	function createPermissionCell(entry, local) {
 		var td = $('<td/>');
 		td.addClass('ui-widget-content');
 		td.addClass('permission');
-		var tags = entry.children().filter(function(){return this.tagName==tagName});
+		var tags = entry.children('link[rel="http://callimachusproject.org/rdf/2009/framework#' + local + '"]');
 		tags.each(function() {
-			var uri = $(this).children('uri').text();
-			var name = $(this).children('name').text();
+			var uri = $(this).attr('href');
+			var name = $(this).attr('title');
 			var a = $('<a/>');
 			if (uri) {
 				a.attr('href', uri);
@@ -101,10 +101,10 @@
 							var type = content.attr('type');
 							tr.append(createTextCell(title, src, type, icon));
 							tr.append(createTimeCell(entry.children('updated').text()));
-							tr.append(createPermissionCell(entry, 'calli:reader'));
+							tr.append(createPermissionCell(entry, 'reader'));
 							tr.append(createPermissionCell(entry, 'contributor'));
-							tr.append(createPermissionCell(entry, 'calli:editor'));
-							tr.append(createPermissionCell(entry, 'calli:administrator'));
+							tr.append(createPermissionCell(entry, 'editor'));
+							tr.append(createPermissionCell(entry, 'administrator'));
 							tbody.append(tr);
 						}
 					});

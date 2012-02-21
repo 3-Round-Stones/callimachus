@@ -133,6 +133,10 @@
 	<link rel="version-history" href="{*}" />
 </xsl:template>
 
+<xsl:template match="sparql:binding[@name='link_describedby_href']">
+	<link rel="describedby" href="{*}" />
+</xsl:template>
+
 <xsl:template match="sparql:binding[@name='content_src']">
 	<content src="{*}">
 		<xsl:if test="../sparql:binding[@name='content_type']">
@@ -209,40 +213,36 @@
 	</app:collection>
 </xsl:template>
 
-<xsl:template match="sparql:binding[@name='reader_uri']">
-	<calli:reader>
-		<xsl:if test="../sparql:binding[@name='reader_name']">
-			<name><xsl:value-of select="../sparql:binding[@name='reader_name']/*" /></name>
+<xsl:template match="sparql:binding[@name='link_reader_href']">
+	<link rel="http://callimachusproject.org/rdf/2009/framework#reader" href="{*}">
+		<xsl:if test="../sparql:binding[@name='link_reader_title']">
+			<xsl:attribute name="title"><xsl:value-of select="../sparql:binding[@name='link_reader_title']/*" /></xsl:attribute>
 		</xsl:if>
-		<uri><xsl:value-of select="*" /></uri>
-		<xsl:if test="../sparql:binding[@name='reader_email']">
-			<email><xsl:value-of select="../sparql:binding[@name='reader_email']/*" /></email>
-		</xsl:if>
-	</calli:reader>
+	</link>
 </xsl:template>
 
-<xsl:template match="sparql:binding[@name='editor_uri']">
-	<calli:editor>
-		<xsl:if test="../sparql:binding[@name='editor_name']">
-			<name><xsl:value-of select="../sparql:binding[@name='editor_name']/*" /></name>
+<xsl:template match="sparql:binding[@name='link_contributor_href']">
+	<link rel="http://callimachusproject.org/rdf/2009/framework#contributor" href="{*}">
+		<xsl:if test="../sparql:binding[@name='link_contributor_title']">
+			<xsl:attribute name="title"><xsl:value-of select="../sparql:binding[@name='link_contributor_title']/*" /></xsl:attribute>
 		</xsl:if>
-		<uri><xsl:value-of select="*" /></uri>
-		<xsl:if test="../sparql:binding[@name='editor_email']">
-			<email><xsl:value-of select="../sparql:binding[@name='editor_email']/*" /></email>
-		</xsl:if>
-	</calli:editor>
+	</link>
 </xsl:template>
 
-<xsl:template match="sparql:binding[@name='administrator_uri']">
-	<calli:administrator>
-		<xsl:if test="../sparql:binding[@name='administrator_name']">
-			<name><xsl:value-of select="../sparql:binding[@name='administrator_name']/*" /></name>
+<xsl:template match="sparql:binding[@name='link_editor_href']">
+	<link rel="http://callimachusproject.org/rdf/2009/framework#editor" href="{*}">
+		<xsl:if test="../sparql:binding[@name='link_editor_title']">
+			<xsl:attribute name="title"><xsl:value-of select="../sparql:binding[@name='link_editor_title']/*" /></xsl:attribute>
 		</xsl:if>
-		<uri><xsl:value-of select="*" /></uri>
-		<xsl:if test="../sparql:binding[@name='administrator_email']">
-			<email><xsl:value-of select="../sparql:binding[@name='administrator_email']/*" /></email>
+	</link>
+</xsl:template>
+
+<xsl:template match="sparql:binding[@name='link_administrator_href']">
+	<link rel="http://callimachusproject.org/rdf/2009/framework#administrator" href="{*}">
+		<xsl:if test="../sparql:binding[@name='link_administrator_title']">
+			<xsl:attribute name="title"><xsl:value-of select="../sparql:binding[@name='link_administrator_title']/*" /></xsl:attribute>
 		</xsl:if>
-	</calli:administrator>
+	</link>
 </xsl:template>
 
 <xsl:template match="sparql:binding" />

@@ -277,32 +277,31 @@
 				} UNION {
 					?id a [calli:icon ?icon]
 				} UNION {
-					?id calli:reader ?reader_uri
+					?id calli:reader ?link_reader_href
 					OPTIONAL {
-						?reader_uri rdfs:label ?reader_name
+						?link_reader_href rdfs:label ?link_reader_title
 					}
 				} UNION {
-					?id calli:contributor ?contributor_uri
+					?id calli:contributor ?link_contributor_href
 					OPTIONAL {
-						?contributor_uri rdfs:label ?contributor_name
+						?link_contributor_href rdfs:label ?link_contributor_title
 					}
 				} UNION {
-					?id calli:editor ?editor_uri
+					?id calli:editor ?link_editor_href
 					OPTIONAL {
-						?editor_uri rdfs:label ?editor_name
+						?link_editor_href rdfs:label ?link_editor_title
 					}
 				} UNION {
-					?id calli:administrator ?administrator_uri
+					?id calli:administrator ?link_administrator_href
 					OPTIONAL {
-						?administrator_uri rdfs:label ?administrator_name
+						?link_administrator_href rdfs:label ?link_administrator_title
 					}
 				} UNION {
 					$this calli:hasComponent ?id
 					BIND (?id as ?content_src)
 					OPTIONAL {
 						?id a [calli:type ?content_type]
-						BIND (?id as ?link_href)
-						BIND ("edit-media" as ?link_rel)
+						BIND (?id as ?link_edit_media_href)
 					}
 				} UNION {
 					{ ?id a <../Folder> } UNION { ?id a <../Realm> }
@@ -316,13 +315,9 @@
 					BIND ("application/zip" as ?link_type)
 				} UNION {
 					$this calli:hasComponent ?id
-					BIND (concat(str(?id),"?view") as ?link_href)
-					BIND ("alternate" as ?link_rel)
-					BIND ("text/html" as ?link_type)
-				} UNION {
-					$this calli:hasComponent ?id
-					BIND (concat(str(?id),"?describe") as ?link_href)
-					BIND ("describedby" as ?link_rel)
+					BIND (concat(str(?id),"?view") as ?link_view_href)
+					BIND (concat(str(?id),"?describe") as ?link_describedby_href)
+					BIND (concat(str(?id),"?history") as ?link_history_href)
 				}
 			}
 		} ORDER BY desc(?type) ?id

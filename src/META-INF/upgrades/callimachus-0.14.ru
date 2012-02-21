@@ -68,10 +68,10 @@ DELETE {
 	calli:unauthorized </callimachus/pages/unauthorized.xhtml>;
 	calli:forbidden </callimachus/pages/forbidden.xhtml>;
 	calli:authentication </accounts>;
-	calli:menu </menu>;
+	calli:menu </main+menu>;
 	calli:favicon ?favicon ;
 	calli:theme </callimachus/theme/default>;
-	calli:hasComponent </.well-known/>, </accounts>, </menu>, </callimachus>.
+	calli:hasComponent </.well-known/>, </accounts>, </main+menu>, </callimachus>.
 
 </callimachus> a owl:Ontology;
 	rdfs:label "Callimachus";
@@ -126,7 +126,7 @@ DELETE {
 DELETE {
 	?item calli:link </callimachus/menu>
 } INSERT {
-	?item calli:link </menu>
+	?item calli:link </main+menu>
 } WHERE {
 	?item calli:link </callimachus/menu>
 	FILTER strstarts(str(?item), str(</>))
@@ -150,7 +150,7 @@ DELETE {
 	?menu_item rdfs:label ?menu_item_label; calli:position ?menu_item_position; calli:link ?menu_item_link .
 	?menu_nav calli:link ?menu_nav_ink
 } INSERT {
-	</menu> a calli:Menu; a ?menu_type; calli:reader ?menu_reader; calli:editor ?menu_editor; calli:administrator ?menu_administrator;
+	</main+menu> a calli:Menu; a ?menu_type; calli:reader ?menu_reader; calli:editor ?menu_editor; calli:administrator ?menu_administrator;
 		rdfs:label ?menu_label; calli:link ?menu_link; calli:item ?manifest_menu_nav .
 	?manifest_menu_nav rdfs:label ?menu_nav_label; calli:position ?menu_nav_position; calli:item ?manifest_menu_item .
 	?manifest_menu_item rdfs:label ?menu_item_label; calli:position ?menu_item_position; calli:link ?menu_item_link .
@@ -165,8 +165,8 @@ DELETE {
 	}
 	FILTER strstarts(str(?menu_nav), str(</callimachus/>))
 	FILTER strstarts(str(?menu_item), str(</callimachus/>))
-	BIND (iri(concat(str(</>), strafter(str(?menu_nav), str(</callimachus/>)))) AS ?manifest_menu_nav)
-	BIND (iri(concat(str(</>), strafter(str(?menu_item), str(</callimachus/>)))) AS ?manifest_menu_item)
+	BIND (iri(concat(str(</main+menu>), strafter(str(?menu_nav), str(</callimachus/menu>)))) AS ?manifest_menu_nav)
+	BIND (iri(concat(str(</main+menu>), strafter(str(?menu_item), str(</callimachus/menu>)))) AS ?manifest_menu_item)
 	</callimachus> owl:versionInfo "0.14"
 };
 

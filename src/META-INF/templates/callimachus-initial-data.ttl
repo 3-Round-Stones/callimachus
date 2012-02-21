@@ -35,10 +35,10 @@
 	calli:unauthorized </callimachus/pages/unauthorized.xhtml>;
 	calli:forbidden </callimachus/pages/forbidden.xhtml>;
 	calli:authentication </accounts>;
-	calli:menu </menu>;
+	calli:menu </main+menu>;
 	calli:favicon </callimachus/images/callimachus-icon.ico> ;
 	calli:theme </callimachus/theme/default>;
-	calli:hasComponent </.well-known/>, </user/>, </group/>, </sparql>, </accounts>, </menu>, </callimachus>.
+	calli:hasComponent </.well-known/>, </user/>, </group/>, </sparql>, </accounts>, </main+menu>, </callimachus>.
 
 ################################
 # Authorization and Groups
@@ -113,37 +113,37 @@
 # Menu
 ################################
 
-</menu> a </callimachus/Menu>, calli:Menu;
+</main+menu> a </callimachus/Menu>, calli:Menu;
 	rdfs:label "Main menu";
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;
 	calli:link </>;
-	calli:item </menu#site>;
-	calli:item </menu#resources>;
-	calli:item </menu#administration>;
-	calli:item </menu#toolbox>.
+	calli:item </main+menu#site>;
+	calli:item </main+menu#resources>;
+	calli:item </main+menu#administration>;
+	calli:item </main+menu#toolbox>.
 
-</menu#site>	calli:position 1; rdfs:label "Site";
-	calli:item </menu#mainarticle>;
-	calli:item </menu#homefolder>;
-	calli:item </menu#sitemap>;
-	calli:item </menu#recentchanges>.
-</menu#toolbox>	calli:position 10; rdfs:label "Toolbox";
-	calli:item </menu#whatlinkshere>;
-	calli:item </menu#relatedchanges>;
-	calli:item </menu#introspectresource>;
-	calli:item </menu#permissions>;
-	calli:item </menu#printthispage>.
+</main+menu#site>	calli:position 1; rdfs:label "Site";
+	calli:item </main+menu#mainarticle>;
+	calli:item </main+menu#homefolder>;
+	calli:item </main+menu#sitemap>;
+	calli:item </main+menu#recentchanges>.
+</main+menu#toolbox>	calli:position 10; rdfs:label "Toolbox";
+	calli:item </main+menu#whatlinkshere>;
+	calli:item </main+menu#relatedchanges>;
+	calli:item </main+menu#introspectresource>;
+	calli:item </main+menu#permissions>;
+	calli:item </main+menu#printthispage>.
 
-</menu#mainarticle>	calli:position 1; rdfs:label "Main article"; calli:link </main-article.docbook?view>.
-</menu#homefolder>	calli:position 2; rdfs:label "Home folder"; calli:link </?view>.
-</menu#sitemap>	calli:position 3; rdfs:label "Site map"; calli:link </menu>.
-</menu#recentchanges>	calli:position 4; rdfs:label "Recent changes"; calli:link </?changes>.
+</main+menu#mainarticle>	calli:position 1; rdfs:label "Main article"; calli:link </main-article.docbook?view>.
+</main+menu#homefolder>	calli:position 2; rdfs:label "Home folder"; calli:link </?view>.
+</main+menu#sitemap>	calli:position 3; rdfs:label "Site map"; calli:link </main+menu>.
+</main+menu#recentchanges>	calli:position 4; rdfs:label "Recent changes"; calli:link </?changes>.
 
-</menu#whatlinkshere>	calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>.
-</menu#relatedchanges>	calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>.
-</menu#introspectresource>	calli:position 3; rdfs:label "Introspect resource"; calli:link <javascript:location='?introspect'>.
-</menu#permissions>	calli:position 3; rdfs:label "Permissions"; calli:link <javascript:location='?permissions'>.
-</menu#printthispage>	calli:position 4; rdfs:label "Print this page"; calli:link <javascript:print()>.
+</main+menu#whatlinkshere>	calli:position 1; rdfs:label "What links here"; calli:link <javascript:location='?whatlinkshere'>.
+</main+menu#relatedchanges>	calli:position 2; rdfs:label "Related changes"; calli:link <javascript:location='?relatedchanges'>.
+</main+menu#introspectresource>	calli:position 3; rdfs:label "Introspect resource"; calli:link <javascript:location='?introspect'>.
+</main+menu#permissions>	calli:position 3; rdfs:label "Permissions"; calli:link <javascript:location='?permissions'>.
+</main+menu#printthispage>	calli:position 4; rdfs:label "Print this page"; calli:link <javascript:print()>.
 

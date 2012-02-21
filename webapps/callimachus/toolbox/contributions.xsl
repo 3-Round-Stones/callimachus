@@ -5,20 +5,15 @@
 	xmlns:xhtml="http://www.w3.org/1999/xhtml"
 	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
 	exclude-result-prefixes="xhtml sparql">
-	<xsl:import href="recent-changes.xsl" />
+	<xsl:import href="changes.xsl" />
 	<xsl:template match="/">
 		<html>
 			<head>
-				<title>Contributions</title>
+				<title>Contributions from <xsl:value-of select="//sparql:binding[@name='contributor_name']/*" /></title>
 			</head>
 			<body>
-				<h1>Contributions</h1>
-				<xsl:if test="not(/sparql:sparql/sparql:results/sparql:result)">
-					<p>No contributions have ever been made.</p>
-				</xsl:if>
-				<xsl:if test="/sparql:sparql/sparql:results/sparql:result">
-					<xsl:apply-templates />
-				</xsl:if>
+				<h1>Contributions from <xsl:value-of select="//sparql:binding[@name='contributor_name']/*" /></h1>
+				<xsl:apply-templates />
 			</body>
 		</html>
 	</xsl:template>

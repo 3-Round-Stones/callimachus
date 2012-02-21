@@ -70,6 +70,7 @@
 						}
 					} GROUP BY ?id ?revision ORDER BY desc(?updated) LIMIT 100
 				}
+				FILTER bound(?id)
 			}
 		} ORDER BY desc(?type) desc(?updated) ?id
 	""".

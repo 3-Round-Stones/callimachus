@@ -38,7 +38,6 @@
 						$this ?rel ?id .
 						?id audit:revision ?revision .
 						?revision audit:committedOn ?updated .
-						FILTER strstarts(str(?id), str($this))
 						OPTIONAL {
 							?revision audit:contributor ?contributor_uri
 							OPTIONAL {
@@ -63,6 +62,7 @@
 						}
 					} GROUP BY ?id ?revision ORDER BY desc(?updated) LIMIT 50
 				}
+				FILTER bound(?id)
 			}
 		} ORDER BY desc(?type) desc(?updated) ?id
 	""".

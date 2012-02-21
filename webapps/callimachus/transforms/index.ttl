@@ -12,7 +12,7 @@
 
 <TransformIntoAtom> rdfs:subClassOf msg:Message;
    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-   calli:type "application/atom+xml";
+   calli:type "application/atom+xml;q=0.5";
    msg:xslt <sparql-results-atom.xsl>.
 
 <TransformIntoAtom#sparqlResult> a owl:FunctionalProperty, owl:ObjectProperty;

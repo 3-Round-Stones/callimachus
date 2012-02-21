@@ -57,6 +57,7 @@
 						}
 					} GROUP BY ?id ORDER BY desc(?updated) LIMIT 50
 				}
+				FILTER bound(?id)
 			}
 		} ORDER BY desc(?type) desc(?updated) ?id
 	""".

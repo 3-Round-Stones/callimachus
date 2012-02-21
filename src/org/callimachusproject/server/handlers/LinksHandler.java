@@ -30,6 +30,9 @@ package org.callimachusproject.server.handlers;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -118,8 +121,8 @@ public class LinksHandler implements Handler {
 					sb.append(value).append(" ");
 				}
 				sb.setCharAt(sb.length() - 1, '"');
-				String[] values = getResponseType(request, m);
-				if (values != null) {
+				Collection<String> values = getResponseType(request, m);
+				if (values != null && !values.isEmpty()) {
 					boolean envolope = false;
 					if (envelopeType != null) {
 						for (String value : values) {
@@ -149,39 +152,38 @@ public class LinksHandler implements Handler {
 		return result;
 	}
 
-	private String[] getResponseType(ResourceOperation request, Method m) {
-		Method transform = getTransformMethodOf(request, m);
-		type ann = transform.getAnnotation(type.class);
-		if (ann != null)
-			return ann.value();
-		ann = m.getAnnotation(type.class);
-		if (ann != null)
-			return ann.value();
-		return null;
-	}
-
-	private Method getTransformMethodOf(ResourceOperation request, Method method) {
-		if (method == null)
-			return method;
-		if (method.isAnnotationPresent(transform.class)) {
-			for (String uri : method.getAnnotation(transform.class).value()) {
-				Method transform = getTransform(request, uri);
-				if (transform != null)
-					return getTransformMethodOf(request, transform);
+	private Collection<String> getResponseType(ResourceOperation request,
+			Method m) {
+		Collection<String> set = new LinkedHashSet<String>();
+		ArrayList<Method> l = new ArrayList<Method>();
+		for (Method transform : getTransformMethodOf(request, m, l)) {
+			type ann = transform.getAnnotation(type.class);
+			if (ann != null) {
+				set.addAll(Arrays.asList(ann.value()));
 			}
 		}
-		return method;
+		return set;
 	}
 
-	private Method getTransform(ResourceOperation request, String uri) {
-		for (Method m : request.getRequestedResource().getClass().getMethods()) {
-			if (m.isAnnotationPresent(Iri.class)) {
-				if (uri.equals(m.getAnnotation(Iri.class).value())) {
-					return m;
+	private Collection<Method> getTransformMethodOf(ResourceOperation request,
+			Method method, Collection<Method> set) {
+		if (method == null)
+			return null;
+		if (method.isAnnotationPresent(transform.class)) {
+			Method[] allMethods = request.getRequestedResource().getClass().getMethods();
+			for (String uri : method.getAnnotation(transform.class).value()) {
+				for (Method m : allMethods) {
+					if (m.isAnnotationPresent(Iri.class)) {
+						if (uri.equals(m.getAnnotation(Iri.class).value())) {
+							set = getTransformMethodOf(request, m, set);
+						}
+					}
 				}
 			}
+		} else {
+			set.add(method);
 		}
-		return null;
+		return set;
 	}
 
 }

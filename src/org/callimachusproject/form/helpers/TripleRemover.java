@@ -93,6 +93,10 @@ public class TripleRemover extends RDFHandlerBase {
 		verifier.addSubject(subj);
 	}
 
+	public Set<URI> getTypes(URI subject) {
+		return verifier.getTypes(subject);
+	}
+
 	public Set<URI> getResources() {
 		return verifier.getResources();
 	}

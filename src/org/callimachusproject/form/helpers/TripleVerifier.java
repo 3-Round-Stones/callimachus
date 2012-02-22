@@ -105,7 +105,7 @@ public class TripleVerifier {
 	}
 
 	public boolean isAbout(Resource about) {
-		return isSingleton() && getSubject().equals(about);
+		return isEmpty() || isSingleton() && getSubject().equals(about);
 	}
 
 	public boolean isEmpty() {

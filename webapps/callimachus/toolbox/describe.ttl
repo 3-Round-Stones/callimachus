@@ -124,6 +124,7 @@
 	msg:imports <java:org.callimachusproject.form.helpers.StatementExtractor>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
 	msg:imports <../Local>;
 	msg:script """
 		var con = this.objectConnection;
@@ -149,13 +150,15 @@
 		
 		//# Verify input
 		if (inserter.isEmpty())
-			throw new BadRequest("Missing Information");
+			throw new BadRequest("Missing data");
 		if (!inserter.isSingleton())
 			throw new BadRequest("Only one entity can be inserted per request");
 		var location = inserter.subject;
 		if (this.toString() != location.namespace)
 			throw new BadRequest("Can only created nested components here");
 		var newCopy = of.createObject(location, inserter.getTypes(location));
+		if (this.calliHasComponent.contains(newCopy))
+			throw new Conflict("Resource already exists");
 		if (!(newCopy instanceof Local))
 			throw new BadRequest("Resource is not Local");
 		var iter = this.FindCreator(newCopy).iterator();
@@ -194,14 +197,85 @@
 	rdfs:range <java:java.io.ByteArrayOutputStream>;
 	calli:type "application/sparql-update".
 
-:IsResourceAlreadyPresent rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
-	msg:sparql """
-		ASK { $resource a ?type }
+################################
+# PATCH DELETE INSERT
+################################
+
+:PatchDeleteInsert rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	calli:method "PATCH";
+	calli:query "describe";
+	calli:realm </>;
+	msg:imports <java:org.callimachusproject.form.helpers.TripleInserter>;
+	msg:imports <java:org.callimachusproject.form.helpers.TripleRemover>;
+	msg:imports <java:org.openrdf.query.parser.sparql.SPARQLParser>;
+	msg:imports <java:org.openrdf.query.algebra.Modify>;
+	msg:imports <java:org.openrdf.query.algebra.SingletonSet>;
+	msg:imports <java:org.callimachusproject.form.helpers.StatementExtractor>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+	msg:imports <../Local>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var of = con.objectFactory;
+
+		//# Parser DELETE INSERT
+		var parser = new SPARQLParser();
+		var string = new java.lang.String(deleteInsert.toByteArray(), "UTF-8");
+		var parsed = parser.parseUpdate(string, this.toString());
+		if (parsed.getUpdateExprs().isEmpty())
+			throw new BadRequest("No input");
+		if (parsed.getUpdateExprs().size() > 1)
+			throw new BadRequest("Multiple update statements");
+		var modify = parsed.getUpdateExprs().get(0);
+		if (!(modify instanceof Modify))
+			throw new BadRequest("Not an DELETE/INSERT statement");
+		if (!(modify.getWhereExpr() instanceof SingletonSet))
+			throw new BadRequest("WHERE clause must be empty");
+		var remover = new TripleRemover(con);
+		remover.startRDF();
+		modify.getDeleteExpr().visit(new StatementExtractor(remover, vf));
+		remover.endRDF();
+		var inserter = new TripleInserter(con);
+		inserter.startRDF();
+		modify.getInsertExpr().visit(new StatementExtractor(inserter, vf));
+		inserter.endRDF();
+		
+		//# Verify input
+		if (inserter.isEmpty() && remover.isEmpty())
+			throw new BadRequest("Missing data");
+		if (!remover.isAbout(this.resource))
+			throw new BadRequest("Can only remove triples of the entity: " + this.toString());
+		if (!inserter.isAbout(this.resource))
+			throw new BadRequest("Can only insert triples of the entity: " + this.toString());
+		var location = remover.isEmpty() ? inserter.subject : remover.subject;
+
+		//# FIXME we shouldn't need to touch anything
+		var iter = remover.getResources().iterator();
+		while (iter.hasNext()) {
+			var partner = iter.next();
+			if (!partner.toString().equals(this.toString())) {
+				con.getObject(partner).touchRevision();
+			}
+		}
+		var iter = inserter.getResources().iterator();
+		while (iter.hasNext()) {
+			var partner = iter.next();
+			if (!partner.toString().equals(this.toString())) {
+				con.getObject(partner).touchRevision();
+			}
+		}
+		var parent = this.SelectParentComposite();
+		if (parent) {
+			parent.touchRevision();
+		}
 	""".
 
-:resource a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :IsResourceAlreadyPresent.
+:deleteInsert a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :PatchDeleteInsert;
+	rdfs:range <java:java.io.ByteArrayOutputStream>;
+	calli:type "application/sparql-update".
 

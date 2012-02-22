@@ -27,10 +27,10 @@ import org.callimachusproject.engine.events.TriplePattern;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.rio.RDFHandler;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.helpers.RDFHandlerWrapper;
+import org.openrdf.rio.helpers.RDFHandlerBase;
 
 /**
  * Track what node the triples are about and ensures they match one of the given
@@ -39,17 +39,22 @@ import org.openrdf.rio.helpers.RDFHandlerWrapper;
  * @author James Leigh
  * 
  */
-public class SubjectTracker extends RDFHandlerWrapper {
+public class TripleRemover extends RDFHandlerBase {
+	private final RepositoryConnection con;
 	private final TripleVerifier verifier;
 
-	public SubjectTracker(RDFHandler delegate, ValueFactory vf) {
-		super(delegate);
-		this.verifier = new TripleVerifier(vf);
+	public TripleRemover(RepositoryConnection con) {
+		this.con = con;
+		this.verifier = new TripleVerifier(con.getValueFactory());
 	}
 
-	@Override
 	public void handleStatement(Statement st) throws RDFHandlerException {
-		super.handleStatement(canonicalize(st));
+		try {
+			verifier.verify(st.getSubject(), st.getPredicate(), st.getObject());
+			con.remove(st.getSubject(), st.getPredicate(), st.getObject());
+		} catch (RepositoryException e) {
+			throw new RDFHandlerException(e);
+		}
 	}
 
 	public void setReverseAllowed(boolean reverseAllowed) {
@@ -88,20 +93,12 @@ public class SubjectTracker extends RDFHandlerWrapper {
 		verifier.addSubject(subj);
 	}
 
-	public Set<URI> getTypes(URI subject) {
-		return verifier.getTypes(subject);
-	}
-
 	public Set<URI> getResources() {
 		return verifier.getResources();
 	}
 
-	public Statement canonicalize(Statement st) throws RDFHandlerException {
-		return verifier.canonicalize(st);
-	}
-
 	public String toString() {
-		return verifier.toString();
+		return con.toString();
 	}
 
 }

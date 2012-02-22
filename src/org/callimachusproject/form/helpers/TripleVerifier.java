@@ -19,7 +19,6 @@
  */
 package org.callimachusproject.form.helpers;
 
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,8 +30,8 @@ import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
-import org.callimachusproject.engine.model.Term;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
+import org.callimachusproject.engine.model.Term;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.engine.model.VarOrIRI;
 import org.openrdf.model.Literal;
@@ -56,7 +55,8 @@ public class TripleVerifier {
 	private AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 	private Set<URI> subjects = new HashSet<URI>();
 	private Set<URI> resources = new HashSet<URI>();
-	private Map<URI, Set<URI>> types = new HashMap<URI, Set<URI>>();
+	private Set<URI> allTypes = new LinkedHashSet<URI>();
+	private Map<Resource, Set<URI>> types = new HashMap<Resource, Set<URI>>();
 	private boolean reverseAllowed = false;
 	private boolean wildPropertiesAllowed = false;
 	private boolean empty = true;
@@ -145,6 +145,10 @@ public class TripleVerifier {
 		subjects.add(canonicalize(subj));
 	}
 
+	public Set<URI> getAllTypes() {
+		return allTypes;
+	}
+
 	public Set<URI> getTypes(URI subject) {
 		if (types.containsKey(subject))
 			return types.get(subject);
@@ -159,6 +163,12 @@ public class TripleVerifier {
 		Resource subj = canonicalize(st.getSubject());
 		URI pred = canonicalize(st.getPredicate());
 		Value obj = canonicalize(st.getObject());
+		verify(subj, pred, obj);
+		return new StatementImpl(subj, pred, obj);
+	}
+
+	public void verify(Resource subj, URI pred, Value obj)
+			throws RDFHandlerException {
 		Boolean rev = accept(subj, pred, obj);
 		if (rev == null)
 			throw new RDFHandlerException("Invalid triple: " + subj + " "
@@ -167,12 +177,13 @@ public class TripleVerifier {
 			addSubject((URI) obj);
 		} else if (!rev && subj instanceof URI) {
 			addSubject((URI) subj);
-			if (RDF.TYPE.equals(pred) && obj instanceof URI) {
-				if (!types.containsKey(subj)) {
-					types.put((URI) subj, new HashSet<URI>());
-				}
-				types.get(subj).add((URI) obj);
+		}
+		if (!rev && RDF.TYPE.equals(pred) && obj instanceof URI) {
+			if (!types.containsKey(subj)) {
+				types.put(subj, new HashSet<URI>());
 			}
+			types.get(subj).add((URI) obj);
+			allTypes.add((URI) obj);
 		}
 		if (rev && subj instanceof URI) {
 			resources.add((URI) subj);
@@ -180,7 +191,6 @@ public class TripleVerifier {
 			resources.add((URI) obj);
 		}
 		empty = false;
-		return new StatementImpl(subj, pred, obj);
 	}
 
 	private <V extends Value> V canonicalize(V value) throws RDFHandlerException {

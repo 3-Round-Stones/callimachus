@@ -16,18 +16,34 @@
  */
 package org.callimachusproject.form.helpers;
 
+import info.aduna.iteration.CloseableIteration;
+import info.aduna.iteration.ConvertingIteration;
+import info.aduna.iteration.EmptyIteration;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.openrdf.model.impl.StatementImpl;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.algebra.Extension;
+import org.openrdf.query.algebra.MultiProjection;
+import org.openrdf.query.algebra.Projection;
+import org.openrdf.query.algebra.Reduced;
+import org.openrdf.query.algebra.SingletonSet;
 import org.openrdf.query.algebra.StatementPattern;
+import org.openrdf.query.algebra.TupleExpr;
 import org.openrdf.query.algebra.Var;
+import org.openrdf.query.algebra.evaluation.TripleSource;
+import org.openrdf.query.algebra.evaluation.impl.EvaluationStrategyImpl;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+import org.openrdf.query.impl.EmptyBindingSet;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 
@@ -35,7 +51,7 @@ public class StatementExtractor extends
 		QueryModelVisitorBase<RDFHandlerException> {
 	private final RDFHandler handler;
 	private final ValueFactory vf;
-	private final Map<String,Resource> anonymous = new HashMap<String,Resource>();
+	private final Map<String, Resource> anonymous = new HashMap<String, Resource>();
 
 	public StatementExtractor(RDFHandler handler, ValueFactory vf) {
 		this.handler = handler;
@@ -59,13 +75,77 @@ public class StatementExtractor extends
 			obj = bind(node.getObjectVar());
 		}
 		if (ctx instanceof Resource) {
-			handler.handleStatement(new ContextStatementImpl(
-					(Resource) subj, (URI) pred, obj, (Resource) ctx));
+			handler.handleStatement(new ContextStatementImpl((Resource) subj,
+					(URI) pred, obj, (Resource) ctx));
 		} else if (ctx == null) {
 			handler.handleStatement(new StatementImpl((Resource) subj,
 					(URI) pred, obj));
 		} else {
 			throw new RDFHandlerException("Invalid graph: " + ctx);
+		}
+	}
+
+	@Override
+	public void meet(Projection node) throws RDFHandlerException {
+		TupleExpr arg = node.getArg();
+		if (arg instanceof Extension) {
+			Extension extension = (Extension) arg;
+			TupleExpr arg2 = extension.getArg();
+			if (arg2 instanceof SingletonSet) {
+				evaluate(node);
+			}
+		}
+	}
+
+	@Override
+	public void meet(MultiProjection node) throws RDFHandlerException {
+		TupleExpr arg = node.getArg();
+		if (arg instanceof Extension) {
+			Extension extension = (Extension) arg;
+			TupleExpr arg2 = extension.getArg();
+			if (arg2 instanceof SingletonSet) {
+				evaluate(node);
+			}
+		}
+	}
+
+	private void evaluate(TupleExpr node) throws RDFHandlerException {
+		EvaluationStrategyImpl strategy = new EvaluationStrategyImpl(new TripleSource() {
+			public ValueFactory getValueFactory() {
+				return vf;
+			}
+			public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(
+					Resource subj, URI pred, Value obj, Resource... contexts)
+					throws QueryEvaluationException {
+				return new EmptyIteration<Statement, QueryEvaluationException>();
+			}
+		});
+		try {
+			CloseableIteration<BindingSet, QueryEvaluationException> bindingsIter;
+			bindingsIter = strategy.evaluate(new Reduced(node.clone()), new EmptyBindingSet());
+			CloseableIteration<Statement, QueryEvaluationException> stIter;
+			stIter = new ConvertingIteration<BindingSet, Statement, QueryEvaluationException>(bindingsIter) {
+
+				@Override
+				protected Statement convert(BindingSet bindingSet) {
+					Resource subject = (Resource)bindingSet.getValue("subject");
+					URI predicate = (URI)bindingSet.getValue("predicate");
+					Value object = bindingSet.getValue("object");
+					Resource context = (Resource)bindingSet.getValue("context");
+
+					if (context == null) {
+						return vf.createStatement(subject, predicate, object);
+					}
+					else {
+						return vf.createStatement(subject, predicate, object, context);
+					}
+				}
+			};
+			while (stIter.hasNext()) {
+				handler.handleStatement(stIter.next());
+			}
+		} catch (QueryEvaluationException e) {
+			throw new RDFHandlerException(e);
 		}
 	}
 

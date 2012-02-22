@@ -27,11 +27,12 @@ import java.io.StringWriter;
 
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.events.TriplePattern;
-import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
+import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.form.helpers.GraphPatternBuilder;
 import org.callimachusproject.form.helpers.StatementExtractor;
-import org.callimachusproject.form.helpers.SubjectTracker;
+import org.callimachusproject.form.helpers.TripleInserter;
+import org.callimachusproject.form.helpers.TripleRemover;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.traits.VersionedObject;
 import org.openrdf.model.Statement;
@@ -42,12 +43,9 @@ import org.openrdf.query.algebra.TupleExpr;
 import org.openrdf.query.algebra.UpdateExpr;
 import org.openrdf.query.parser.ParsedUpdate;
 import org.openrdf.query.parser.sparql.SPARQLParser;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.repository.util.RDFInserter;
-import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 
@@ -59,23 +57,6 @@ import org.openrdf.rio.helpers.RDFHandlerBase;
  * 
  */
 public abstract class EditSupport implements Page {
-
-	private static class Remover extends RDFHandlerBase {
-		private final ObjectConnection con;
-
-		private Remover(ObjectConnection con) {
-			this.con = con;
-		}
-
-		public void handleStatement(Statement st) throws RDFHandlerException {
-			try {
-				con.remove(st.getSubject(), st.getPredicate(), st.getObject());
-			} catch (RepositoryException e) {
-				throw new RDFHandlerException(e);
-			}
-		}
-	}
-
 	private static final String CHANGE_NOTE = "http://www.w3.org/2004/02/skos/core#changeNote";
 
 	public void calliEditResource(RDFObject target, InputStream in)
@@ -133,8 +114,9 @@ public abstract class EditSupport implements Page {
 	private void remove(URI resource, TupleExpr delete, ObjectConnection con)
 			throws Exception {
 		ValueFactory vf = con.getValueFactory();
-		SubjectTracker remover = createSubjectTracker(resource,
-				new Remover(con), con);
+		TripleRemover remover = new TripleRemover(con);
+		String about = resource.stringValue();
+		remover.accept(openPatternReader(about, null));
 		remover.addSubject(resource);
 		GraphPatternBuilder pattern = new GraphPatternBuilder();
 		pattern.startRDF();
@@ -159,8 +141,9 @@ public abstract class EditSupport implements Page {
 	private void add(URI resource, TupleExpr insert, ObjectConnection con)
 			throws Exception {
 		ValueFactory vf = con.getValueFactory();
-		SubjectTracker inserter = createSubjectTracker(resource,
-				new RDFInserter(con), con);
+		TripleInserter inserter = new TripleInserter(con);
+		String about = resource.stringValue();
+		inserter.accept(openPatternReader(about, null));
 		inserter.addSubject(resource);
 		inserter.accept(changeNoteOf(resource));
 		inserter.startRDF();
@@ -180,16 +163,5 @@ public abstract class EditSupport implements Page {
 		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 		IRI subj = tf.iri(resource.stringValue());
 		return new TriplePattern(subj, tf.iri(CHANGE_NOTE), tf.node());
-	}
-
-	private SubjectTracker createSubjectTracker(URI resource,
-			RDFHandler delegate, ObjectConnection con) throws Exception {
-		ValueFactory vf = con.getValueFactory();
-		SubjectTracker tracker = new SubjectTracker(delegate, vf);
-		tracker.setReverseAllowed(false);
-		tracker.setWildPropertiesAllowed(false);
-		String about = resource.stringValue();
-		tracker.accept(openPatternReader(about, null));
-		return tracker;
 	}
 }

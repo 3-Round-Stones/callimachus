@@ -24,6 +24,10 @@
 
 <> a <../SchemaGraph>.
 
+################################
+# GET describedby
+################################
+
 :GetDescription rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
 	calli:title "RDF Describe";
@@ -101,4 +105,103 @@
 	rdfs:domain :TransformDescription;
 	rdfs:range <java:java.io.InputStream>;
 	calli:type "application/rdf+xml".
+
+################################
+# POST INSERT DATA
+################################
+
+:PostInsertData rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Local>];
+	calli:method "POST";
+	calli:query "describe";
+	calli:realm </>;
+	calli:expect "201-created";
+	calli:type "text/plain";
+	msg:imports <java:org.callimachusproject.form.helpers.TripleInserter>;
+	msg:imports <java:org.openrdf.query.parser.sparql.SPARQLParser>;
+	msg:imports <java:org.openrdf.query.algebra.InsertData>;
+	msg:imports <java:org.callimachusproject.form.helpers.StatementExtractor>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+	msg:imports <../Local>;
+	msg:script """
+		var con = this.objectConnection;
+		var vf = con.valueFactory;
+		var of = con.objectFactory;
+
+		//# Parser INSERT DATA
+		var parser = new SPARQLParser();
+		var string = new java.lang.String(insertData.toByteArray(), "UTF-8");
+		var parsed = parser.parseUpdate(string, this.toString());
+		if (parsed.getUpdateExprs().isEmpty())
+			throw new BadRequest("No input");
+		if (parsed.getUpdateExprs().size() > 1)
+			throw new BadRequest("Multiple update statements");
+		var updateExpr = parsed.getUpdateExprs().get(0);
+		if (!(updateExpr instanceof InsertData))
+			throw new BadRequest("Not an INSERT DATA statement");
+		var insertExpr = updateExpr.getInsertExpr();
+		var inserter = new TripleInserter(con);
+		inserter.startRDF();
+		insertExpr.visit(new StatementExtractor(inserter, vf));
+		inserter.endRDF();
+		
+		//# Verify input
+		if (inserter.isEmpty())
+			throw new BadRequest("Missing Information");
+		if (!inserter.isSingleton())
+			throw new BadRequest("Only one entity can be inserted per request");
+		var location = inserter.subject;
+		if (this.toString() != location.namespace)
+			throw new BadRequest("Can only created nested components here");
+		var newCopy = of.createObject(location, inserter.getTypes(location));
+		if (!(newCopy instanceof Local))
+			throw new BadRequest("Resource is not Local");
+		var iter = this.FindCreator(newCopy).iterator();
+		while (iter.hasNext()) {
+			var user = iter.next();
+			var jter = inserter.allTypes.iterator();
+			while (jter.hasNext()) {
+				var type = jter.next();
+				var cls = con.getObject(type);
+				if (cls.calliIsAuthorized && !cls.calliIsAuthorized(user, "POST", "create"))
+					throw new Forbidden("You are not permitted to create " + cls + " resources");
+				if (cls.touchRevision) {
+					cls.touchRevision(); // Update class index
+				}
+			}
+		}
+
+		//# Add permissions and component membership
+		newCopy.calliEditor.addAll(this.FindContributor(newCopy));
+		newCopy.calliReader.addAll(this.SelectAllReaders());
+		newCopy.calliEditor.addAll(this.SelectAllEditors());
+		newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
+		this.calliHasComponent.add(newCopy);
+		var iter = inserter.getResources().iterator();
+		while (iter.hasNext()) {
+			var partner = iter.next();
+			if (!partner.toString().equals(this.toString())) {
+				con.getObject(partner).touchRevision(); // FIXME this shouldn't be needed
+			}
+		}
+		return newCopy;
+	""".
+
+:insertData a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :PostInsertData;
+	rdfs:range <java:java.io.ByteArrayOutputStream>;
+	calli:type "application/sparql-update".
+
+:IsResourceAlreadyPresent rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
+	msg:sparql """
+		ASK { $resource a ?type }
+	""".
+
+:resource a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :IsResourceAlreadyPresent.
 

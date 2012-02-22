@@ -33,11 +33,11 @@ import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.events.Union;
 import org.callimachusproject.engine.events.Where;
 import org.callimachusproject.engine.helpers.SPARQLWriter;
-import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
+import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
-import org.callimachusproject.form.helpers.SubjectTracker;
+import org.callimachusproject.form.helpers.TripleInserter;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.server.traits.VersionedObject;
@@ -47,7 +47,6 @@ import org.openrdf.query.BooleanQuery;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.rdfxml.RDFXMLParser;
 
@@ -69,13 +68,10 @@ public abstract class CreateSupport implements Page {
 				throw new RDFHandlerException("Target resource URI not provided");
 			if (isResourceAlreadyPresent(con, target.toString()))
 				throw new Conflict("Resource already exists: " + target);
-			ValueFactory vf = con.getValueFactory();
-			SubjectTracker tracker = new SubjectTracker(new RDFInserter(con), vf);
-			tracker.setWildPropertiesAllowed(false);
-			tracker.setReverseAllowed(false);
+			TripleInserter tracker = new TripleInserter(con);
 			tracker.accept(openPatternReader(target.toString(), null));
 			RDFXMLParser parser = new RDFXMLParser();
-			parser.setValueFactory(vf);
+			parser.setValueFactory(con.getValueFactory());
 			parser.setRDFHandler(tracker);
 			parser.parse(in, base);
 			if (tracker.isEmpty())

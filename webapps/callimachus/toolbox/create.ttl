@@ -28,7 +28,7 @@
 <> a <../SchemaGraph>.
 
 :GetCreatePage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "create";
@@ -45,7 +45,7 @@
 	""".
 
 :GetCreatorPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "create";
@@ -66,7 +66,7 @@
 	""".
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Local>];
 	calli:method "POST";
 	calli:query "create";
@@ -137,13 +137,13 @@
 
 # override this method for subclass methods
 :LookupConstructor rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Creatable>];
 	msg:script "return this".
 
 # override this method for subclass create methods
 :PostCreate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Local>];
 	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
 	msg:imports <java:org.callimachusproject.server.exceptions.UnsupportedMediaType>;
@@ -184,7 +184,7 @@
 
 # find the user that will create $thing
 :FindCreator rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
 	msg:sparql  """
 		SELECT DISTINCT ?contributor
 		WHERE {
@@ -222,7 +222,7 @@
 	""".
 
 :SelectAllReaders rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
 	msg:sparql  """
 		SELECT DISTINCT ?reader
@@ -236,7 +236,7 @@
 	""".
 
 :SelectAllEditors rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
 	msg:sparql  """
 		SELECT DISTINCT ?editor
@@ -250,7 +250,7 @@
 	""".
 
 :SelectAllAdministrators rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
 	msg:sparql  """
 		SELECT DISTINCT ?admin

@@ -57,6 +57,48 @@
 	""".
 
 ################################
+# POST file
+################################
+
+:PostFileSlug rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <File>];
+	calli:method "POST";
+	calli:query "feed";
+	calli:realm </>;
+	calli:expect "201-created";
+	calli:type "text/plain";
+	msg:imports <folder.ttl>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+	msg:script """
+		if (!slug)
+			throw new BadRequest("Missing Slug HTTP header");
+		if (!contentType)
+			throw new BadRequest("Missing Content-Type HTTP header");
+		if (!content)
+			throw new BadRequest("Missing request content");
+		var con = this.objectConnection;
+		var File = con.getObject(folder_ttl.toUri().resolve("File").toASCIIString());
+		var location = this.toString() + encodeURIComponent(decodeURIComponent(slug)).replace(/%20/g, '-');
+		return this.PostFactoryCreate(content, File, false, con.getObject(location), contentType);
+	""".
+
+:slug a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :PostFileSlug;
+	rdfs:range xsd:string;
+	calli:header "Slug".
+
+:contentType a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :PostFileSlug;
+	rdfs:range xsd:string;
+	calli:header "Content-Type".
+
+:content a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :PostFileSlug;
+	rdfs:range <java:java.io.InputStream>;
+	calli:type "*/*".
+
+################################
 # List folder contents
 ################################
 

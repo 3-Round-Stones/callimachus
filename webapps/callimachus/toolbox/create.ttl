@@ -145,14 +145,14 @@
 :PostCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Local>];
+	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+	msg:imports <java:org.callimachusproject.server.exceptions.UnsupportedMediaType>;
 	msg:script """
-		importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
-		importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
 		var template = this.calliCreate.iterator().next();
 		if (!template)
 			throw new InternalServerError("Cannot create " + this.toString() + " with " + type);
 		if (type != "application/rdf+xml" && type.indexOf("application/rdf+xml;") != 0)
-			throw new BadRequest("File format is not recognized: " + type);
+			throw new UnsupportedMediaType("File format is not recognized: " + type);
 		var newCopy = template.calliCreateResource(body, this.toString(), location);
 		newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
 		return newCopy;

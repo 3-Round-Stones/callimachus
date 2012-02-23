@@ -455,7 +455,7 @@ public class ResourceOperation extends ResourceRequest {
 			}
 		}
 		try {
-			return findBestMethod(methods);
+			return findBestMethod(findAcceptableMethods(methods));
 		} catch (NotAcceptable e) {
 			return null;
 		}
@@ -625,7 +625,7 @@ public class ResourceOperation extends ResourceRequest {
 			List<Method> methods = getOperationMethods(req_method,
 					isResponsePresent).get(name);
 			if (methods != null) {
-				Method method = findBestMethod(methods);
+				Method method = findBestMethod(findAcceptableMethods(methods));
 				if (method != null)
 					return method;
 			}
@@ -658,11 +658,14 @@ public class ResourceOperation extends ResourceRequest {
 
 	private Method findBestMethod(Collection<Method> methods)
 			throws MimeTypeParseException {
-		methods = findAcceptableMethods(methods);
 		if (methods.isEmpty())
 			return null;
-		if (methods.size() == 1)
-			return methods.iterator().next();
+		if (methods.size() == 1) {
+			Method method = methods.iterator().next();
+			if (isAcceptable(method, 0))
+				return method;
+			return null;
+		}
 		for (MimeType accept : getAcceptable()) {
 			Map<String, Method> best = new LinkedHashMap<String, Method>();
 			for (Method m : methods) {
@@ -870,8 +873,10 @@ public class ResourceOperation extends ResourceRequest {
 			for (String uri : method.getAnnotation(transform.class).value()) {
 				transforms.add(getTransform(uri));
 			}
-			transforms.add(method);
-			return findBestMethod(transforms);
+			Method tm = findBestMethod(transforms);
+			if (tm == null)
+				return method;
+			return tm;
 		}
 		return method;
 	}

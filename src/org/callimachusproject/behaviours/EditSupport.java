@@ -28,17 +28,27 @@ import org.callimachusproject.engine.TemplateException;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
+import org.callimachusproject.form.helpers.GraphPatternBuilder;
+import org.callimachusproject.form.helpers.StatementExtractor;
 import org.callimachusproject.form.helpers.TripleAnalyzer;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.traits.VersionedObject;
+import org.openrdf.OpenRDFException;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.UpdateExecutionException;
+import org.openrdf.query.algebra.Modify;
+import org.openrdf.query.algebra.UpdateExpr;
+import org.openrdf.query.parser.ParsedUpdate;
+import org.openrdf.query.parser.sparql.SPARQLParser;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.helpers.RDFHandlerBase;
 
 /**
  * Removes and saves the provided RDF/XML triples from and into the RDF store
@@ -48,6 +58,23 @@ import org.openrdf.rio.RDFHandlerException;
  * 
  */
 public abstract class EditSupport implements Page {
+
+	private static class Remover extends RDFHandlerBase {
+		private final ObjectConnection con;
+
+		private Remover(ObjectConnection con) {
+			this.con = con;
+		}
+
+		public void handleStatement(Statement st) throws RDFHandlerException {
+			try {
+				con.remove(st.getSubject(), st.getPredicate(), st.getObject());
+			} catch (RepositoryException e) {
+				throw new RDFHandlerException(e);
+			}
+		}
+	}
+
 	private static final String CHANGE_NOTE = "http://www.w3.org/2004/02/skos/core#changeNote";
 
 	public void calliEditResource(RDFObject target, InputStream in)
@@ -71,10 +98,40 @@ public abstract class EditSupport implements Page {
 		}
 	}
 
-	private void executeUpdate(String input, String base,
-			ObjectConnection con) throws UpdateExecutionException,
-			MalformedQueryException, RepositoryException {
-		con.prepareUpdate(SPARQL, input, base).execute();
+	private void executeUpdate(String input, String base, ObjectConnection con)
+			throws OpenRDFException {
+		SPARQLParser parser = new SPARQLParser();
+		ParsedUpdate parsed = parser.parseUpdate(input, base);
+		if (parsed.getUpdateExprs().isEmpty())
+			throw new BadRequest("No input");
+		if (parsed.getUpdateExprs().size() > 1)
+			throw new BadRequest("Multiple update statements");
+		UpdateExpr updateExpr = parsed.getUpdateExprs().get(0);
+		if (!(updateExpr instanceof Modify))
+			throw new BadRequest("Not a DELETE/INSERT statement");
+		Modify modify = (Modify) updateExpr;
+		ValueFactory vf = con.getValueFactory();
+		modify.getWhereExpr().visit(
+				new StatementExtractor(new RDFHandlerBase() {
+					public void handleStatement(Statement st)
+							throws RDFHandlerException {
+						throw new RDFHandlerException(
+								"Where clause must be empty");
+					}
+				}, vf));
+		Remover remover = new Remover(con);
+		GraphPatternBuilder pattern = new GraphPatternBuilder();
+		pattern.startRDF();
+		modify.getDeleteExpr().visit(new StatementExtractor(pattern, vf));
+		pattern.endRDF();
+		if (!pattern.isEmpty()) {
+			String sparql = pattern.toSPARQLQuery();
+			con.prepareGraphQuery(SPARQL, sparql).evaluate(remover);
+		}
+		RDFInserter inserter = new RDFInserter(con);
+		inserter.startRDF();
+		modify.getInsertExpr().visit(new StatementExtractor(inserter, vf));
+		inserter.endRDF();
 	}
 
 	private String parseUpdate(InputStream in, RDFObject target,

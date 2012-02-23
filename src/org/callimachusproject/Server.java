@@ -302,7 +302,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		String stamp = df.newXMLGregorianCalendar(now).toXMLFormat();
 		// execute remote VM command
 		executeVMCommand(vm, "remoteDataDump", dir + "threads-" + stamp + ".tdump");
-		executeVMCommand(vm, "dumpHeap", dir + "heap-" + stamp + ".hprof");
+		heapDump(vm, dir + "heap-" + stamp + ".hprof");
 		executeVMCommand(vm, "heapHisto", dir + "heap-" + stamp + ".histo");
 		// dump callimachus info
 		connectionDump(mbsc, dir + "server-" + stamp + ".csv");
@@ -311,11 +311,24 @@ public class Server implements HTTPObjectAgentMXBean {
 		summaryDump(mbsc, dir + "summary-" + stamp + ".txt");
 	}
 
-	private static void executeVMCommand(Object vm, String cmd, String filename)
+	private static void heapDump(Object vm, String hprof) throws Exception {
+		String[] args = { hprof };
+		Method remoteDataDump = vm.getClass().getMethod("dumpHeap", Object[].class);
+		InputStream in = (InputStream) remoteDataDump.invoke(vm,
+				new Object[] { args });
+		try {
+			ChannelUtil.transfer(in, System.out);
+		} finally {
+			in.close();
+		}
+		System.out.println(hprof);
+	}
+
+	private static void executeVMCommand(Object vm, String cmd, String filename, String... args)
 			throws Exception {
 		Method remoteDataDump = vm.getClass().getMethod(cmd, Object[].class);
 		InputStream in = (InputStream) remoteDataDump.invoke(vm,
-				new Object[] { new Object[0] });
+				new Object[] { args });
 		try {
 			FileOutputStream out = new FileOutputStream(filename);
 			try {

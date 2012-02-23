@@ -476,6 +476,12 @@ elif [ "$1" = "dump" ] ; then ################################
   DIR="$BASEDIR/log/$DATE"
   if [ ! -e "$DIR" ] ; then
     mkdir "$DIR"
+    if [ ! -z "$DAEMON_USER" ] ; then
+      chown "$DAEMON_USER" "$DIR"
+      if [ ! -z "$DAEMON_GROUP" ] ; then
+        chown ":$DAEMON_GROUP" "$DIR"
+      fi
+    fi
   fi
 
   exec "$EXECUTABLE" -nodetach -keepstdin -home "$JAVA_HOME" -jvm server -procname "$NAME" \

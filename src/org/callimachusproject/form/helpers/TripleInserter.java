@@ -24,9 +24,13 @@ import java.util.Set;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.TriplePattern;
+import org.callimachusproject.engine.model.TermFactory;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFHandler;
@@ -41,18 +45,21 @@ import org.openrdf.rio.RDFHandlerException;
  */
 public class TripleInserter implements RDFHandler {
 	private final RepositoryConnection con;
-	private final TripleVerifier verifier;
+	private final ValueFactory vf;
+	private final TripleVerifier verifier = new TripleVerifier();
 	private final RDFInserter inserter;
 
 	public TripleInserter(RepositoryConnection con) {
 		this.con = con;
+		this.vf = con.getValueFactory();
 		this.inserter = new RDFInserter(con);
-		this.verifier = new TripleVerifier(con.getValueFactory());
 	}
 
 	@Override
 	public void handleStatement(Statement st) throws RDFHandlerException {
-		inserter.handleStatement(verifier.canonicalize(st));
+		if (st.getContext() != null)
+			throw new RDFHandlerException("Only the default graph can be used");
+		inserter.handleStatement(canonicalize(st));
 	}
 
 	public void setReverseAllowed(boolean reverseAllowed) {
@@ -85,10 +92,6 @@ public class TripleInserter implements RDFHandler {
 
 	public URI getSubject() {
 		return verifier.getSubject();
-	}
-
-	public void addSubject(URI subj) throws RDFHandlerException {
-		verifier.addSubject(subj);
 	}
 
 	public Set<URI> getAllTypes() {
@@ -129,6 +132,33 @@ public class TripleInserter implements RDFHandler {
 
 	public void handleNamespace(String prefix, String name) {
 		inserter.handleNamespace(prefix, name);
+	}
+
+	private Statement canonicalize(Statement st) throws RDFHandlerException {
+		Resource subj = canonicalize(st.getSubject());
+		URI pred = canonicalize(st.getPredicate());
+		Value obj = canonicalize(st.getObject());
+		verifier.verify(subj, pred, obj);
+		return new StatementImpl(subj, pred, obj);
+	}
+
+	private <V extends Value> V canonicalize(V value) throws RDFHandlerException {
+		try {
+			if (value instanceof URI) {
+				String uri = value.stringValue();
+				String iri = canonicalize(uri);
+				if (uri.equals(iri))
+					return value;
+				return (V) vf.createURI(iri);
+			}
+		} catch (IllegalArgumentException e) {
+			throw new RDFHandlerException(e.toString(), e);
+		}
+		return value;
+	}
+
+	private String canonicalize(String uri) {
+		return TermFactory.newInstance(uri).getSystemId();
 	}
 
 }

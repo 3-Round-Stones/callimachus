@@ -32,15 +32,11 @@ import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.Term;
-import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.engine.model.VarOrIRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFHandlerException;
 
@@ -60,12 +56,7 @@ public class TripleVerifier {
 	private boolean reverseAllowed = false;
 	private boolean wildPropertiesAllowed = false;
 	private boolean empty = true;
-	private final ValueFactory vf;
 	private Set<TriplePattern> patterns;
-
-	public TripleVerifier(ValueFactory vf) {
-		this.vf = vf;
-	}
 
 	public void setReverseAllowed(boolean reverseAllowed) {
 		this.reverseAllowed = reverseAllowed;
@@ -142,7 +133,7 @@ public class TripleVerifier {
 	}
 
 	public void addSubject(URI subj) throws RDFHandlerException {
-		subjects.add(canonicalize(subj));
+		subjects.add(subj);
 	}
 
 	public Set<URI> getAllTypes() {
@@ -157,14 +148,6 @@ public class TripleVerifier {
 
 	public Set<URI> getResources() {
 		return resources;
-	}
-
-	public Statement canonicalize(Statement st) throws RDFHandlerException {
-		Resource subj = canonicalize(st.getSubject());
-		URI pred = canonicalize(st.getPredicate());
-		Value obj = canonicalize(st.getObject());
-		verify(subj, pred, obj);
-		return new StatementImpl(subj, pred, obj);
 	}
 
 	public void verify(Resource subj, URI pred, Value obj)
@@ -191,25 +174,6 @@ public class TripleVerifier {
 			resources.add((URI) obj);
 		}
 		empty = false;
-	}
-
-	private <V extends Value> V canonicalize(V value) throws RDFHandlerException {
-		try {
-			if (value instanceof URI) {
-				String uri = value.stringValue();
-				String iri = canonicalize(uri);
-				if (uri.equals(iri))
-					return value;
-				return (V) vf.createURI(iri);
-			}
-		} catch (IllegalArgumentException e) {
-			throw new RDFHandlerException(e.toString(), e);
-		}
-		return value;
-	}
-
-	private String canonicalize(String uri) {
-		return TermFactory.newInstance(uri).getSystemId();
 	}
 
 	private Boolean accept(Resource subj, URI pred, Value obj) {

@@ -118,10 +118,8 @@
 	calli:realm </>;
 	calli:expect "201-created";
 	calli:type "text/plain";
-	msg:imports <java:org.callimachusproject.form.helpers.TripleInserter>;
-	msg:imports <java:org.openrdf.query.parser.sparql.SPARQLParser>;
-	msg:imports <java:org.openrdf.query.algebra.InsertData>;
-	msg:imports <java:org.callimachusproject.form.helpers.StatementExtractor>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
@@ -131,32 +129,19 @@
 		var vf = con.valueFactory;
 		var of = con.objectFactory;
 
-		//# Parser INSERT DATA
-		var parser = new SPARQLParser();
-		var string = new java.lang.String(insertData.toByteArray(), "UTF-8");
-		var parsed = parser.parseUpdate(string, this.toString());
-		if (parsed.getUpdateExprs().isEmpty())
-			throw new BadRequest("No input");
-		if (parsed.getUpdateExprs().size() > 1)
-			throw new BadRequest("Multiple update statements");
-		var updateExpr = parsed.getUpdateExprs().get(0);
-		if (!(updateExpr instanceof InsertData))
-			throw new BadRequest("Not an INSERT DATA statement");
-		var insertExpr = updateExpr.getInsertExpr();
-		var inserter = new TripleInserter(con);
-		inserter.startRDF();
-		insertExpr.visit(new StatementExtractor(inserter, vf));
-		inserter.endRDF();
+		//# Parse INSERT DATA
+		var analyzer = new TripleAnalyzer();
+		var string = analyzer.parseInsertData(insertData, this.toString());
 		
 		//# Verify input
-		if (inserter.isEmpty())
+		if (analyzer.isEmpty())
 			throw new BadRequest("Missing data");
-		if (!inserter.isSingleton())
+		if (!analyzer.isSingleton())
 			throw new BadRequest("Only one entity can be inserted per request");
-		var location = inserter.subject;
+		var location = analyzer.subject;
 		if (this.toString() != location.namespace)
 			throw new BadRequest("Can only created nested components here");
-		var newCopy = of.createObject(location, inserter.getTypes(location));
+		var newCopy = of.createObject(location, analyzer.getTypes(location));
 		if (this.calliHasComponent.contains(newCopy))
 			throw new Conflict("Resource already exists");
 		if (!(newCopy instanceof Local))
@@ -164,7 +149,7 @@
 		var iter = this.FindCreator(newCopy).iterator();
 		while (iter.hasNext()) {
 			var user = iter.next();
-			var jter = inserter.allTypes.iterator();
+			var jter = analyzer.allTypes.iterator();
 			while (jter.hasNext()) {
 				var type = jter.next();
 				var cls = con.getObject(type);
@@ -176,13 +161,18 @@
 			}
 		}
 
+		//# Execute input
+		var update = con.prepareUpdate(QueryLanguage.SPARQL, string, this.toString());
+		update.setBinding("this", this.resource);
+		update.execute();
+
 		//# Add permissions and component membership
 		newCopy.calliEditor.addAll(this.FindContributor(newCopy));
 		newCopy.calliReader.addAll(this.SelectAllReaders());
 		newCopy.calliEditor.addAll(this.SelectAllEditors());
 		newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
 		this.calliHasComponent.add(newCopy);
-		var iter = inserter.getResources().iterator();
+		var iter = analyzer.getResources().iterator();
 		while (iter.hasNext()) {
 			var partner = iter.next();
 			if (!partner.toString().equals(this.toString())) {
@@ -194,7 +184,7 @@
 
 :insertData a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :PostInsertData;
-	rdfs:range <java:java.io.ByteArrayOutputStream>;
+	rdfs:range <java:java.io.InputStream>;
 	calli:type "application/sparql-update".
 
 ################################
@@ -207,67 +197,34 @@
 	calli:method "PATCH";
 	calli:query "describe";
 	calli:realm </>;
-	msg:imports <java:org.callimachusproject.form.helpers.TripleInserter>;
-	msg:imports <java:org.callimachusproject.form.helpers.TripleRemover>;
-	msg:imports <java:org.openrdf.query.parser.sparql.SPARQLParser>;
-	msg:imports <java:org.openrdf.query.algebra.Modify>;
-	msg:imports <java:org.openrdf.query.algebra.SingletonSet>;
-	msg:imports <java:org.callimachusproject.form.helpers.StatementExtractor>;
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
 	msg:imports <../Local>;
 	msg:script """
 		var con = this.objectConnection;
-		var vf = con.valueFactory;
-		var of = con.objectFactory;
 
-		//# Parser DELETE INSERT
-		var parser = new SPARQLParser();
-		var string = new java.lang.String(deleteInsert.toByteArray(), "UTF-8");
-		var parsed = parser.parseUpdate(string, this.toString());
-		if (parsed.getUpdateExprs().isEmpty())
-			throw new BadRequest("No input");
-		if (parsed.getUpdateExprs().size() > 1)
-			throw new BadRequest("Multiple update statements");
-		var modify = parsed.getUpdateExprs().get(0);
-		if (!(modify instanceof Modify))
-			throw new BadRequest("Not an DELETE/INSERT statement");
-		if (!(modify.getWhereExpr() instanceof SingletonSet))
-			throw new BadRequest("WHERE clause must be empty");
-		var remover = new TripleRemover(con);
-		remover.startRDF();
-		modify.getDeleteExpr().visit(new StatementExtractor(remover, vf));
-		remover.endRDF();
-		var inserter = new TripleInserter(con);
-		inserter.startRDF();
-		modify.getInsertExpr().visit(new StatementExtractor(inserter, vf));
-		inserter.endRDF();
+		//# Parse DELETE INSERT
+		var analyzer = new TripleAnalyzer();
+		var string = analyzer.parseUpdate(deleteInsert, this.toString());
 		
 		//# Verify input
-		if (inserter.isEmpty() && remover.isEmpty())
+		if (analyzer.isEmpty())
 			throw new BadRequest("Missing data");
-		if (!remover.isAbout(this.resource))
-			throw new BadRequest("Can only remove triples of the entity: " + this.toString());
-		if (!inserter.isAbout(this.resource))
-			throw new BadRequest("Can only insert triples of the entity: " + this.toString());
-		var location = remover.isEmpty() ? inserter.subject : remover.subject;
+		if (!analyzer.isAbout(this.resource))
+			throw new BadRequest("Can only delete or insert triples of the entity: " + this.toString());
+		if (!analyzer.getTypes(this.resource).isEmpty())
+			throw new BadRequest("Cannot change entity type");
+		//# FIXME possible security hole if hash or blank resources are added with a restricted type
+
+		//# Evaluate input
+		var update = con.prepareUpdate(QueryLanguage.SPARQL, string, this.toString());
+		update.setBinding("this", this.resource);
+		update.execute();
 
 		//# FIXME we shouldn't need to touch anything
-		var iter = remover.getResources().iterator();
-		while (iter.hasNext()) {
-			var partner = iter.next();
-			if (!partner.toString().equals(this.toString())) {
-				con.getObject(partner).touchRevision();
-			}
-		}
-		var iter = inserter.getResources().iterator();
-		while (iter.hasNext()) {
-			var partner = iter.next();
-			if (!partner.toString().equals(this.toString())) {
-				con.getObject(partner).touchRevision();
-			}
-		}
 		var parent = this.SelectParentComposite();
 		if (parent) {
 			parent.touchRevision();

@@ -33,6 +33,8 @@ import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.traits.VersionedObject;
 import org.openrdf.model.URI;
 import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.UpdateExecutionException;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
@@ -55,7 +57,7 @@ public abstract class EditSupport implements Page {
 			TripleAnalyzer analyzer = new TripleAnalyzer();
 			String input = parseUpdate(in, target, analyzer);
 
-			con.prepareUpdate(SPARQL, input, target.toString()).execute();
+			executeUpdate(input, target.toString(), con);
 
 			ObjectFactory of = con.getObjectFactory();
 			for (URI partner : analyzer.getResources()) {
@@ -67,6 +69,12 @@ public abstract class EditSupport implements Page {
 		} catch (RDFHandlerException e) {
 			throw new BadRequest(e);
 		}
+	}
+
+	private void executeUpdate(String input, String base,
+			ObjectConnection con) throws UpdateExecutionException,
+			MalformedQueryException, RepositoryException {
+		con.prepareUpdate(SPARQL, input, base).execute();
 	}
 
 	private String parseUpdate(InputStream in, RDFObject target,

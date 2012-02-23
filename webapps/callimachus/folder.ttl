@@ -112,7 +112,7 @@
 	calli:header "cache-control:no-cache";
 	calli:transform <transforms/TransformIntoAtom>;
 	msg:sparql """
-		SELECT * {
+		SELECT REDUCED * {
 			{
 				$this rdfs:label ?title
 				BIND (concat(str($this),"?feed") as ?id)
@@ -146,24 +146,23 @@
 				}
 			} UNION {
 				{
-					SELECT ?id {
+					SELECT REDUCED ?id ?title {
 						$this calli:hasComponent ?id
 						FILTER (isIRI(?id))
+						OPTIONAL {
+							?id skos:prefLabel ?title
+						} OPTIONAL {
+							?id foaf:name ?title
+						} OPTIONAL {
+							?id rdfs:label ?title
+						} OPTIONAL {
+							?id skosxl:literalForm ?title
+						} OPTIONAL {
+							?id dcterms:title ?title
+						}
 					} ORDER BY ?id LIMIT 100
 				}
 				{
-					{} OPTIONAL {
-						?id skos:prefLabel ?title
-					} OPTIONAL {
-						?id foaf:name ?title
-					} OPTIONAL {
-						?id rdfs:label ?title
-					} OPTIONAL {
-						?id skosxl:literalForm ?title
-					} OPTIONAL {
-						?id dcterms:title ?title
-					}
-				} UNION {
 					?id audit:revision ?revision . ?revision audit:committedOn ?updated
 					OPTIONAL {
 						?revision audit:contributor ?contributor_uri
@@ -419,18 +418,17 @@
 		var con = this.objectConnection;
 		var vf = con.getValueFactory();
 		function readFrom(entryStream, uri, graphs) {
-			var inserter = new org.openrdf.repository.util.RDFInserter(con);
+			var inserter = new org.callimachusproject.form.helpers.TripleInserter(con);
 			inserter.enforceContext(graphs);
-			var tracker = new org.callimachusproject.form.helpers.SubjectTracker(inserter, vf);
 			var parser = new org.openrdf.rio.rdfxml.RDFXMLParser();
 			parser.setValueFactory(vf);
-			parser.setRDFHandler(tracker);
+			parser.setRDFHandler(inserter);
 			parser.parse(entryStream, uri);
-			if (tracker.isEmpty())
+			if (inserter.isEmpty())
 				throw new BadRequest("Missing resource information for: " + uri);
-			if (!tracker.isSingleton())
+			if (!inserter.isSingleton())
 				throw new BadRequest("Multiple resources for: " + uri);
-			if (tracker.getSubject().toString() != uri)
+			if (inserter.getSubject().toString() != uri)
 				throw new BadRequest("Wrong subject for: " + uri);
 		}
 		var baseURI = this.toString();

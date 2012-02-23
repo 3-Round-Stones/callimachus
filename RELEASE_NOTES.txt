@@ -19,7 +19,7 @@ Internet Explorer 8 can perform most tasks.
 Internet Explorer 7 and 9 can login and read content, but do not work with
 editing operations, including forms.
 
-Callimachus requires Java 6 (server-side) to run.
+Callimachus requires Java JDK 1.6.0_20+ (server-side) to run.
 
 = NEW IN VERSION 0.15 =
 
@@ -40,6 +40,8 @@ by different templates.
  * Safari browser cannot view Turtle or RDF/XML output in describe tab.
  * The user can only created new resources in the same authority.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
+ * Blank nodes in INSERT clause are not supported
+ * literals with language tags will not match in keyword search
 
 = HOWTO UPGRADE FROM 0.14 =
 
@@ -60,10 +62,10 @@ $ callimachus-start.bat --update
 -- OR --
 $ sh callimachus-start.sh --update
 
-Change all templates to include the new manifest URL to the top of the file:
+Change all templates to use "/callimachus/template.xsl" at the top of the file:
 
 <?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="/manifest?layout"?>
+<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml" ...
 
 Change the markup used for aside boxes in the templates as follows.

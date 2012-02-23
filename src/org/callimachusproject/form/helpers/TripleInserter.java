@@ -110,6 +110,18 @@ public class TripleInserter implements RDFHandler {
 		return con.toString();
 	}
 
+	public void enforceContext(Resource... contexts) {
+		inserter.enforceContext(contexts);
+	}
+
+	public boolean enforcesContext() {
+		return inserter.enforcesContext();
+	}
+
+	public Resource[] getContexts() {
+		return inserter.getContexts();
+	}
+
 	public void startRDF() throws RDFHandlerException {
 		inserter.startRDF();
 	}

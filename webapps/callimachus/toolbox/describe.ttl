@@ -139,7 +139,16 @@
 		if (!analyzer.isSingleton())
 			throw new BadRequest("Only one entity can be inserted per request");
 		var location = analyzer.subject;
-		if (this.toString() != location.namespace) // FIXME location may equals location.namespace and this may not be a folder
+		if (location.toString().indexOf(this.toString()) != 0)
+			throw new BadRequest("Resource URI must start with: " + this);
+		var local = location.toString().substring(this.toString().length);
+		if (local.indexOf('/') == 0 && this.toString().lastIndexOf('/') != this.toString().length - 1) {
+			local = local.substring(1);
+		}
+		if (local.lastIndexOf('/') == local.length - 1) {
+			local = local.substring(0, local.length -1);
+		}
+		if (local.indexOf('/') >= 0)
 			throw new BadRequest("Can only created nested components here");
 		var newCopy = of.createObject(location, analyzer.getTypes(location));
 		if (this.calliHasComponent.contains(newCopy))
@@ -153,7 +162,7 @@
 			while (jter.hasNext()) {
 				var type = jter.next();
 				var cls = con.getObject(type);
-				if (cls.calliIsAuthorized && !cls.calliIsAuthorized(user, "POST", "create"))
+				if (cls instanceof Local && cls.calliIsAuthorized && !cls.calliIsAuthorized(user, "POST", "create"))
 					throw new Forbidden("You are not permitted to create " + cls + " resources");
 				if (cls.touchRevision) {
 					cls.touchRevision(); // Update class index

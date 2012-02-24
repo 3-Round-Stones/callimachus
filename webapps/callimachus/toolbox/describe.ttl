@@ -242,6 +242,6 @@
 
 :deleteInsert a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain :PatchDeleteInsert;
-	rdfs:range <java:java.io.ByteArrayOutputStream>;
+	rdfs:range <java:java.io.InputStream>;
 	calli:type "application/sparql-update".
 

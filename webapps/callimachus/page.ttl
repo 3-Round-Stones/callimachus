@@ -89,8 +89,6 @@
 		created = con.addDesignation(created, this.toString());
 		created = con.addDesignation(created, Page);
 
-		this.touchRevision(); // update index page
-
 		created.UploadPage(body);
 		return created;
 	""".

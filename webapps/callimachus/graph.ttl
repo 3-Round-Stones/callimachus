@@ -216,15 +216,40 @@
 		var obj = location;
 		var uri = obj.toString();
 
-		println("Parsing " + fileName);
-		con.add(body, uri, format, [obj.resource]);
 		obj = con.addDesignation(obj, this.toString());
 		obj = con.addDesignation(obj, Document);
 		obj = con.addDesignation(obj, NamedGraph);
 		con.add(obj.resource, RDFS.LABEL, label, []);
 
-		this.touchRevision(); // update index page
-		con.recompileSchemaOnClose();
+		obj.UploadNamedGraph(body);
 		return obj;
 	""".
+
+# PUT /graph.rdf
+:UploadNamedGraph rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedGraph>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	calli:method "PUT";
+	calli:realm </>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+	msg:imports <java:org.openrdf.rio.RDFFormat>;
+	msg:script """
+		if (!graphStream)
+			throw new BadRequest("Missing PUT request payload");
+		var con = this.objectConnection;
+		con.clear([this.resource]); //# clear graph
+		var object = this;
+		
+		println("Parsing " + this);
+		con.add(graphStream, this.toString(), RDFFormat.RDFXML, [this.resource]);
+
+		this.touchRevision();
+		println("Imported " + this);
+		con.recompileSchemaOnClose();
+	""".
+
+:graphStream a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :UploadNamedGraph;
+	rdfs:range <java:java.io.InputStream>;
+	calli:type "application/rdf+xml".
 

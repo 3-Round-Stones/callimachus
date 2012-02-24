@@ -29,6 +29,7 @@
  */
 package org.callimachusproject.server.util;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -172,7 +173,7 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 	}
 
 	public void threadDumpToFile(String outputFile) throws IOException {
-		PrintWriter writer = new PrintWriter(outputFile);
+		PrintWriter writer = new PrintWriter(new FileWriter(outputFile, true));
 		try {
 			writer.print("Active:\t");
 			writer.println(getActiveCount());
@@ -214,6 +215,8 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 			for (String pending : getQueueDescription()) {
 				writer.println(pending);
 			}
+			writer.println();
+			writer.println();
 		} finally {
 			writer.close();
 		}

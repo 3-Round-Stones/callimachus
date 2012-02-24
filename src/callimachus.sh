@@ -330,6 +330,7 @@ if [ ! -e "$BASEDIR/log" ] ; then
 fi
 
 MAINCLASS=org.callimachusproject.Server
+MONITORCLASS=org.callimachusproject.ServerMonitor
 
 if [ "$1" = "start" ] ; then ################################
 
@@ -492,7 +493,7 @@ elif [ "$1" = "dump" ] ; then ################################
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH:$JAVA_HOME/lib/tools.jar" \
     -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" --pid "$PID" --dump "$DIR"
+    $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PID" --dump "$DIR"
 
 else ################################
 

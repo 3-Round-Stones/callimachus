@@ -17,46 +17,30 @@
  */
 package org.callimachusproject;
 
-import info.aduna.io.IOUtil;
-
 import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.rmi.UnmarshalException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
 
 import javax.management.InstanceAlreadyExistsException;
-import javax.management.JMX;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-import javax.xml.datatype.DatatypeFactory;
 
 import net.contentobjects.jnotify.JNotify;
 
@@ -66,15 +50,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.callimachusproject.logging.LoggerBean;
-import org.callimachusproject.logging.LoggerMXBean;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.HTTPObjectPolicy;
 import org.callimachusproject.server.client.HTTPObjectClient;
-import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.ManagedThreadPool;
-import org.callimachusproject.server.util.ThreadPoolMXBean;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
 import org.openrdf.model.impl.GraphImpl;
@@ -113,7 +93,6 @@ public class Server implements HTTPObjectAgentMXBean {
 	private static final String CHANGE_PATH = "/change/";
 	private static final String BRAND = "Callimachus Project Server";
 	public static final String NAME = BRAND + '/' + Version.getVersion();
-	private static final String CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
 	private static final String REPOSITORY_TEMPLATE = "META-INF/templates/callimachus-config.ttl";
 
 	private static final Options options = new Options();
@@ -141,11 +120,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		fromOpt.setOptionalArg(true);
 		options.addOption(fromOpt);
 		options.addOption("pid", true,
-				"File to store current process id or process id to stop");
-		options.addOption("dump", true,
-				"Use the PID file to dump the server status in the given directory");
-		options.addOption("stop", false,
-				"Use the PID file to shutdown the server");
+				"File to store current process id");
 		options.addOption("q", "quiet", false,
 				"Don't print status messages to standard output.");
 		options.addOption("h", "help", false,
@@ -157,43 +132,25 @@ public class Server implements HTTPObjectAgentMXBean {
 	public static void main(String[] args) {
 		try {
 			CommandLine line = new GnuParser().parse(options, args);
-			if (line.hasOption("stop")) {
-				if (line.hasOption("pid")) {
-					destroyService(args);
-				} else {
-					System.err.println("Missing required pid option.");
-					System.err.println("Arguments: " + Arrays.toString(args));
-					System.exit(1);
-				}
-			} else if (line.hasOption("dump")) {
-				if (line.hasOption("pid")) {
-					dumpService(args);
-				} else {
-					System.err.println("Missing required pid option.");
-					System.err.println("Arguments: " + Arrays.toString(args));
-					System.exit(1);
-				}
-			} else {
-				Server server = new Server();
-				if (line.hasOption("pid")) {
-					initService(args);
-				}
-				server.init(args);
-				server.start();
-				Thread.sleep(1000);
-				if (server.isRunning() && !line.hasOption('q')) {
-					System.out.println();
-					System.out.println(server.getClass().getSimpleName()
-							+ " is listening on port " + server.getPort()
-							+ " for " + server.getOrigin() + "/");
-					System.out.println("Repository: " + server.getRepository());
-					System.out.println("Webapps: " + server.getWebappsDir());
-					System.out.println("Origin: " + server.getOrigin());
-				} else if (!server.isRunning()) {
-					System.err.println(server.getClass().getSimpleName()
-							+ " could not be started.");
-					System.exit(1);
-				}
+			Server server = new Server();
+			if (line.hasOption("pid")) {
+				storeProcessIdentifier(line.getOptionValue("pid"));
+			}
+			server.init(args);
+			server.start();
+			Thread.sleep(1000);
+			if (server.isRunning() && !line.hasOption('q')) {
+				System.out.println();
+				System.out.println(server.getClass().getSimpleName()
+						+ " is listening on port " + server.getPort()
+						+ " for " + server.getOrigin() + "/");
+				System.out.println("Repository: " + server.getRepository());
+				System.out.println("Webapps: " + server.getWebappsDir());
+				System.out.println("Origin: " + server.getOrigin());
+			} else if (!server.isRunning()) {
+				System.err.println(server.getClass().getSimpleName()
+						+ " could not be started.");
+				System.exit(1);
 			}
 		} catch (ClassNotFoundException e) {
 			System.err.print("Missing jar with: ");
@@ -216,48 +173,11 @@ public class Server implements HTTPObjectAgentMXBean {
 		System.err.println(e.toString());
 	}
 
-	private static void logStdout() {
-		System.setOut(new PrintStream(new OutputStream() {
-			private int ret = "\r".getBytes()[0];
-			private int newline = "\n".getBytes()[0];
-			private Logger logger = LoggerFactory.getLogger("stdout");
-			private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-			public synchronized void write(int b) throws IOException {
-				if (b == ret || b == newline) {
-					if (buffer.size() > 0) {
-						logger.info(buffer.toString());
-						buffer.reset();
-					}
-				} else {
-					buffer.write(b);
-				}
-			}
-		}, true));
-		System.setErr(new PrintStream(new OutputStream() {
-			private int ret = "\r".getBytes()[0];
-			private int newline = "\n".getBytes()[0];
-			private Logger logger = LoggerFactory.getLogger("stderr");
-			private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-			public synchronized void write(int b) throws IOException {
-				if (b == ret || b == newline) {
-					if (buffer.size() > 0) {
-						logger.warn(buffer.toString());
-						buffer.reset();
-					}
-				} else {
-					buffer.write(b);
-				}
-			}
-		}, true));
-	}
-
-	private static void initService(String[] args) throws Exception {
-		CommandLine line = new GnuParser().parse(options, args);
+	private static void storeProcessIdentifier(String pidFile)
+			throws IOException {
 		RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
 		String pid = bean.getName().replaceAll("@.*", "");
-		File file = new File(line.getOptionValue("pid"));
+		File file = new File(pidFile);
 		file.getParentFile().mkdirs();
 		FileWriter writer = new FileWriter(file);
 		try {
@@ -266,166 +186,6 @@ public class Server implements HTTPObjectAgentMXBean {
 			writer.close();
 		}
 		file.deleteOnExit();
-	}
-
-	private static void destroyService(String[] args) throws Exception {
-		CommandLine line = new GnuParser().parse(options, args);
-		String pid = line.getOptionValue("pid");
-		Object vm = getRemoteVirtualMachine(pid);
-		MBeanServerConnection mbsc = getMBeanConnection(vm);
-		HTTPObjectAgentMXBean server = JMX.newMXBeanProxy(mbsc, getMXServerName(),
-				HTTPObjectAgentMXBean.class);
-		try {
-			try {
-				server.stop();
-			} finally {
-				server.destroy();
-			}
-			System.out.println("Callimachus server has stopped");
-		} catch (UnmarshalException e) {
-			if (!(e.getCause() instanceof EOFException))
-				throw e;
-			// remote JVM has terminated
-			System.out.println("Callimachus server has shutdown"); 
-		}
-	}
-
-	private static void dumpService(String[] args) throws Exception {
-		CommandLine line = new GnuParser().parse(options, args);
-		String pid = line.getOptionValue("pid");
-		String dir = line.getOptionValue("dump") + File.separatorChar;
-		Object vm = getRemoteVirtualMachine(pid);
-		MBeanServerConnection mbsc = getMBeanConnection(vm);
-		GregorianCalendar now = new GregorianCalendar(
-				TimeZone.getTimeZone("UTC"));
-		DatatypeFactory df = DatatypeFactory.newInstance();
-		String stamp = df.newXMLGregorianCalendar(now).toXMLFormat();
-		// execute remote VM command
-		executeVMCommand(vm, "remoteDataDump", dir + "threads-" + stamp + ".tdump");
-		heapDump(vm, dir + "heap-" + stamp + ".hprof");
-		executeVMCommand(vm, "heapHisto", dir + "heap-" + stamp + ".histo");
-		// dump callimachus info
-		connectionDump(mbsc, dir + "server-" + stamp + ".csv");
-		clientDump(mbsc, dir, "-" + stamp + ".csv");
-		poolDump(mbsc, dir, "-" + stamp + ".tdump");
-		summaryDump(mbsc, dir + "summary-" + stamp + ".txt");
-	}
-
-	private static void heapDump(Object vm, String hprof) throws Exception {
-		String[] args = { hprof };
-		Method remoteDataDump = vm.getClass().getMethod("dumpHeap", Object[].class);
-		InputStream in = (InputStream) remoteDataDump.invoke(vm,
-				new Object[] { args });
-		try {
-			ChannelUtil.transfer(in, System.out);
-		} finally {
-			in.close();
-		}
-		System.out.println(hprof);
-	}
-
-	private static void executeVMCommand(Object vm, String cmd, String filename, String... args)
-			throws Exception {
-		Method remoteDataDump = vm.getClass().getMethod(cmd, Object[].class);
-		InputStream in = (InputStream) remoteDataDump.invoke(vm,
-				new Object[] { args });
-		try {
-			FileOutputStream out = new FileOutputStream(filename);
-			try {
-				ChannelUtil.transfer(in, out);
-			} finally {
-				out.close();
-			}
-		} finally {
-			in.close();
-		}
-		System.out.println(filename);
-	}
-
-	private static void connectionDump(MBeanServerConnection mbsc,
-			String filename) throws MalformedObjectNameException, IOException {
-		HTTPObjectAgentMXBean server = JMX.newMXBeanProxy(mbsc,
-				getMXServerName(), HTTPObjectAgentMXBean.class);
-		server.connectionDumpToFile(filename);
-		System.out.println(filename);
-	}
-
-	private static void poolDump(MBeanServerConnection mbsc, String dir,
-			String suffix) throws MalformedObjectNameException, IOException {
-		ObjectName mtpp = ManagedThreadPool.getObjectNamePattern();
-		ObjectName[] mons = mbsc.queryNames(mtpp, null).toArray(
-				new ObjectName[0]);
-		for (int i = 0; i < mons.length; i++) {
-			ThreadPoolMXBean pool = JMX.newMXBeanProxy(mbsc, mons[i],
-					ThreadPoolMXBean.class);
-			String filename = dir + pool.getName() + suffix;
-			pool.threadDumpToFile(filename);
-			System.out.println(filename);
-		}
-	}
-
-	private static void clientDump(MBeanServerConnection mbsc, String dir,
-			String suffix) throws MalformedObjectNameException, IOException {
-		ObjectName conp = HTTPObjectClient.getObjectNamePattern();
-		ObjectName[] cons = mbsc.queryNames(conp, null).toArray(
-				new ObjectName[0]);
-		for (int i = 0; i < cons.length; i++) {
-			HTTPObjectAgentMXBean client = JMX.newMXBeanProxy(mbsc, cons[i],
-					HTTPObjectAgentMXBean.class);
-			String filename = dir + "client" + i + suffix;
-			client.connectionDumpToFile(filename);
-			System.out.println(filename);
-		}
-	}
-
-	private static void summaryDump(MBeanServerConnection mbsc, String filename)
-			throws Exception {
-		LoggerMXBean logger = JMX.newMXBeanProxy(mbsc, getMXLoggerName(),
-				LoggerMXBean.class);
-		String summary = logger.getVMSummary();
-		PrintWriter w = new PrintWriter(filename);
-		try {
-			w.println(summary);
-		} finally {
-			w.close();
-		}
-		System.out.println(filename);
-	}
-
-	private static Object getRemoteVirtualMachine(String pidFile)
-			throws ClassNotFoundException, NoSuchMethodException, IOException,
-			IllegalAccessException, InvocationTargetException {
-		Class<?> VM = Class.forName("com.sun.tools.attach.VirtualMachine");
-		Method attach = VM.getDeclaredMethod("attach", String.class);
-		String pid = IOUtil.readString(new File(pidFile)).trim();
-		// attach to the target application
-		return attach.invoke(null, pid);
-	}
-
-	private static MBeanServerConnection getMBeanConnection(Object vm) throws Exception {
-		Method getAgentProperties = vm.getClass().getMethod("getAgentProperties");
-		Method getSystemProperties = vm.getClass().getMethod("getSystemProperties");
-		Method loadAgent = vm.getClass().getMethod("loadAgent", String.class);
-
-		// get the connector address
-		Properties properties = (Properties) getAgentProperties.invoke(vm);
-		String connectorAddress = properties.getProperty(CONNECTOR_ADDRESS);
-
-		// no connector address, so we start the JMX agent
-		if (connectorAddress == null) {
-			properties = (Properties) getSystemProperties.invoke(vm);
-			String agent = properties.getProperty("java.home") + File.separator
-					+ "lib" + File.separator + "management-agent.jar";
-			loadAgent.invoke(vm, agent);
-
-			// agent is started, get the connector address
-			properties = (Properties) getAgentProperties.invoke(vm);
-			connectorAddress = properties.getProperty(CONNECTOR_ADDRESS);
-		}
-
-		JMXServiceURL service = new JMXServiceURL(connectorAddress);
-		JMXConnector connector = JMXConnectorFactory.connect(service);
-		return connector.getMBeanServerConnection();
 	}
 
 	private CallimachusServer server;
@@ -542,15 +302,6 @@ public class Server implements HTTPObjectAgentMXBean {
 				formatter.printHelp("[options]", options);
 				System.exit(0);
 				return;
-			} else if (line.hasOption("dump")) {
-				if (line.hasOption("pid")) {
-					dumpService(args);
-					System.exit(0);
-				} else {
-					System.err.println("Missing required pid option.");
-					System.err.println("Arguments: " + Arrays.toString(args));
-					System.exit(1);
-				}
 			} else if (line.getArgs().length > 0) {
 				System.err.println("Unrecognized option: " + Arrays.toString(line.getArgs()));
 				System.err.println("Arguments: " + Arrays.toString(args));
@@ -603,6 +354,43 @@ public class Server implements HTTPObjectAgentMXBean {
 			server.destroy();
 		}
 		unregisterMBean();
+	}
+
+	private void logStdout() {
+		System.setOut(new PrintStream(new OutputStream() {
+			private int ret = "\r".getBytes()[0];
+			private int newline = "\n".getBytes()[0];
+			private Logger logger = LoggerFactory.getLogger("stdout");
+			private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+	
+			public synchronized void write(int b) throws IOException {
+				if (b == ret || b == newline) {
+					if (buffer.size() > 0) {
+						logger.info(buffer.toString());
+						buffer.reset();
+					}
+				} else {
+					buffer.write(b);
+				}
+			}
+		}, true));
+		System.setErr(new PrintStream(new OutputStream() {
+			private int ret = "\r".getBytes()[0];
+			private int newline = "\n".getBytes()[0];
+			private Logger logger = LoggerFactory.getLogger("stderr");
+			private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+	
+			public synchronized void write(int b) throws IOException {
+				if (b == ret || b == newline) {
+					if (buffer.size() > 0) {
+						logger.warn(buffer.toString());
+						buffer.reset();
+					}
+				} else {
+					buffer.write(b);
+				}
+			}
+		}, true));
 	}
 
 	private void init(CommandLine line) throws Exception {
@@ -670,12 +458,12 @@ public class Server implements HTTPObjectAgentMXBean {
 		registerMBean();
 	}
 
-	private static ObjectName getMXServerName() throws MalformedObjectNameException {
+	private ObjectName getMXServerName() throws MalformedObjectNameException {
 		String pkg = Server.class.getPackage().getName();
 		return new ObjectName(pkg + ":type=" + Server.class.getSimpleName());
 	}
 
-	private static ObjectName getMXLoggerName() throws MalformedObjectNameException {
+	private ObjectName getMXLoggerName() throws MalformedObjectNameException {
 		String pkg = Server.class.getPackage().getName();
 		return new ObjectName(pkg + ":type=Logger");
 	}

@@ -37,6 +37,7 @@ import static org.apache.http.params.CoreConnectionPNames.TCP_NODELAY;
 import info.aduna.net.ParsedURI;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
@@ -431,7 +432,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 	}
 
 	public void connectionDumpToFile(String outputFile) throws IOException {
-		PrintWriter writer = new PrintWriter(outputFile);
+		PrintWriter writer = new PrintWriter(new FileWriter(outputFile, true));
 		try {
 			writer.println("status,request,consuming,response,pending");
 			for (ConnectionBean connection : getConnections()) {
@@ -451,6 +452,8 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 					}
 				}
 			}
+			writer.println();
+			writer.println();
 		} finally {
 			writer.close();
 		}

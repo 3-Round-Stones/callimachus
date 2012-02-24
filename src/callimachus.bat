@@ -192,6 +192,7 @@ set "OPT=%OPT% -s %SSLPORT%"
 rem ----- Execute The Requested Command ---------------------------------------
 
 set MAINCLASS=org.callimachusproject.Server
+set MONITORCLASS=org.callimachusproject.ServerMonitor
 
 if ""%1"" == ""start"" goto doStart
 if ""%1"" == ""stop"" goto doStop
@@ -243,12 +244,12 @@ goto end
 
 :doStop
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MAINCLASS% --stop --pid "%PID%"
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --stop --pid "%PID%"
 goto end
 
 :doDump
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MAINCLASS% --dump "%BASEDIR%\log" --pid "%PID%"
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --dump "%BASEDIR%\log" --pid "%PID%"
 goto end
 
 :end

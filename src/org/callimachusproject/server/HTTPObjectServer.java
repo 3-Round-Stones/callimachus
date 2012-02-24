@@ -37,6 +37,7 @@ import static org.callimachusproject.server.HTTPObjectRequestHandler.HANDLER_ATT
 import static org.callimachusproject.server.HTTPObjectRequestHandler.PENDING_ATTR;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.BindException;
@@ -594,7 +595,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 	}
 
 	public void connectionDumpToFile(String outputFile) throws IOException {
-		PrintWriter writer = new PrintWriter(outputFile);
+		PrintWriter writer = new PrintWriter(new FileWriter(outputFile, true));
 		try {
 			writer.println("status,request,consuming,response,pending");
 			for (ConnectionBean connection : getConnections()) {
@@ -614,6 +615,8 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 					}
 				}
 			}
+			writer.println();
+			writer.println();
 		} finally {
 			writer.close();
 		}

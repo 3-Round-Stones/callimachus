@@ -25,7 +25,7 @@ LIMIT 50
 		</aside>
 	</div>
 	<form action="/sparql" method="POST">
-		<textarea id="sparql" name="query" class="flex required"
+		<textarea id="sparql" name="query" class="flex" required="required"
 			onchange="$(form).find('button').removeAttr('disabled')"></textarea>
 		<div>
 			<button type="submit" onclick="$('#sparql').attr('name', 'query')">Evaluate Query</button>

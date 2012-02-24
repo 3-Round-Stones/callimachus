@@ -26,16 +26,16 @@
 	<form id="form" method="POST" action="" enctype="multipart/form-data" autocomplete="off" onsubmit="return calli.saveResourceAs(event)">
 		<label for="name">Username</label>
 		<div>
-			<input id="name" name="name" type="text" class="auto-expand required" autofocus="autofocus"
+			<input id="name" name="name" type="text" class="auto-expand" required="required" autofocus="autofocus"
 				onchange="$('#message').val($('#message').val().replace(/username is (\S+) and /, 'username is ' + value + ' and '))" />
 		</div>
 		<label for="email">E-mail address</label>
 		<div>
-			<input id="email" name="email" type="email" class="auto-expand required" />
+			<input id="email" name="email" type="email" class="auto-expand" required="required" />
 		</div>
 		<label for="label">Full name</label>
 		<div>
-			<input id="label" name="label" type="text" class="auto-expand required"
+			<input id="label" name="label" type="text" class="auto-expand" required="required"
 				onchange="$('#message').val($('#message').val().replace(/Hello,/, 'Hello ' + value + ','))" />
 		</div>
 		<label for="comment">Additional information</label>
@@ -44,11 +44,11 @@
 		</div>
 		<label for="subject">Welcome subject</label>
 		<div>
-			<input id="subject" name="subject" type="text" class="auto-expand required" value="You have a new account" />
+			<input id="subject" name="subject" type="text" class="auto-expand" required="required" value="You have a new account" />
 		</div>
 		<label for="message">Welcome message</label>
 		<div>
-			<textarea id="message" class="auto-expand required" name="message">Hello,
+			<textarea id="message" class="auto-expand" required="required" name="message">Hello,
 
 You have a new account.
 

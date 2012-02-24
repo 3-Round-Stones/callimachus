@@ -106,20 +106,12 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 	}
 
 	@Override
-	public void startNotifications(String fragment) {
-		boolean found = false;
-		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
-		while (names.hasMoreElements()) {
-			String name = names.nextElement();
-			if (name.contains(fragment)) {
-				Logger logger = Logger.getLogger(name);
-				logger.removeHandler(nh);
-				logger.addHandler(nh);
-				found = true;
-			}
-		}
-		if (!found)
+	public void startNotifications(String loggerName) {
+		Logger logger = LogManager.getLogManager().getLogger(loggerName);
+		if (logger == null)
 			throw new IllegalArgumentException("Not such logger");
+		logger.removeHandler(nh);
+		logger.addHandler(nh);
 	}
 
 	@Override

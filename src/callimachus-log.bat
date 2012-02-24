@@ -84,6 +84,6 @@ shift
 goto setArgs
 :doneSetArgs
 
-call "%EXECUTABLE%" dump %CMD_LINE_ARGS%
+call "%EXECUTABLE%" log %CMD_LINE_ARGS%
 
 :end

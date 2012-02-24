@@ -139,7 +139,7 @@
 		if (!analyzer.isSingleton())
 			throw new BadRequest("Only one entity can be inserted per request");
 		var location = analyzer.subject;
-		if (this.toString() != location.namespace)
+		if (this.toString() != location.namespace) // FIXME location may equals location.namespace and this may not be a folder
 			throw new BadRequest("Can only created nested components here");
 		var newCopy = of.createObject(location, analyzer.getTypes(location));
 		if (this.calliHasComponent.contains(newCopy))

@@ -495,6 +495,36 @@ elif [ "$1" = "dump" ] ; then ################################
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PID" --dump "$DIR"
 
+elif [ "$1" = "reset" ] ; then ################################
+
+  if [ -f "$PID" -a -r "$PID" ]; then
+    kill -0 `cat "$PID"` >/dev/null 2>&1
+    if [ $? -gt 0 ]; then
+      rm -f "$PID"
+      if [ $? -gt 0 ]; then
+        echo "PID file ($PID) found but no matching process was found. Reset aborted."
+        exit $?
+      fi
+      exit $?
+    fi
+  elif [ -f "$PID" ]; then
+    echo "The PID ($PID) exist, but it cannot be read. Reset aborted."
+    exit 1
+  else
+    echo "The PID ($PID) does not exist. Is the server running? Reset aborted."
+    exit 1
+  fi
+
+  exec "$EXECUTABLE" -nodetach -keepstdin -home "$JAVA_HOME" -jvm server -procname "$NAME" \
+    -pidfile "$BASEDIR/run/$NAME-dump.pid" \
+    -Duser.home="$BASEDIR" \
+    -Djava.library.path="$LIB" \
+    -Djava.io.tmpdir="$TMPDIR" \
+    -Djava.mail.properties="$MAIL" \
+    -classpath "$CLASSPATH:$JAVA_HOME/lib/tools.jar" \
+    -user "$DAEMON_USER" \
+    $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PID" --reset
+
 else ################################
 
   if [ -f "$PID" ]; then

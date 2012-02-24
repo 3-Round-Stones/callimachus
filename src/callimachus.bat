@@ -197,6 +197,8 @@ set MONITORCLASS=org.callimachusproject.ServerMonitor
 if ""%1"" == ""start"" goto doStart
 if ""%1"" == ""stop"" goto doStop
 if ""%1"" == ""dump"" goto doDump
+if ""%1"" == ""reset"" goto doReset
+if ""%1"" == ""log"" goto doLog
 
 echo Using BASEDIR:   %BASEDIR%
 echo Using PORT:      %PORT% %SSLPORT%
@@ -244,12 +246,22 @@ goto end
 
 :doStop
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --stop --pid "%PID%"
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --stop
 goto end
 
 :doDump
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --dump "%BASEDIR%\log" --pid "%PID%"
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --dump "%BASEDIR%\log"
+goto end
+
+:doReset
+rem Execute Java with the applicable properties
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --reset
+goto end
+
+:doLog
+rem Execute Java with the applicable properties
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --log
 goto end
 
 :end

@@ -29,12 +29,17 @@ import java.lang.reflect.Method;
 import java.rmi.UnmarshalException;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
+import java.util.LinkedHashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TimeZone;
 
+import javax.management.InstanceNotFoundException;
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
+import javax.management.Notification;
+import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
@@ -70,6 +75,10 @@ public class ServerMonitor {
 		options.getOption("pid").setRequired(true);
 		options.addOption("dump", true,
 				"Use the directory to dump the server status in the given directory");
+		options.addOption("reset", false, "Empty any cache on the server");
+		options.addOption("log", true,
+				"Print log statements from loggers with these names");
+		options.getOption("log").setOptionalArg(true);
 		options.addOption("stop", false,
 				"Use the PID file to shutdown the server");
 		options.addOption("h", "help", false,
@@ -93,6 +102,9 @@ public class ServerMonitor {
 					}
 				}
 			}));
+			synchronized (monitor) {
+				monitor.wait();
+			}
 		} catch (ClassNotFoundException e) {
 			System.err.print("Missing jar with: ");
 			System.err.println(e.toString());
@@ -115,10 +127,14 @@ public class ServerMonitor {
 	}
 
 	private Object vm;
+	private MBeanServerConnection mbsc;
+	private LoggerMXBean logger;
 	private HTTPObjectAgentMXBean server;
+	private boolean reset;
 	private boolean stop;
 	private String dump;
-	private MBeanServerConnection mbsc;
+	private Set<String> log = new LinkedHashSet<String>();
+	private NotificationListener listener;
 
 	public void init(String[] args) {
 		try {
@@ -152,8 +168,17 @@ public class ServerMonitor {
 				mbsc = getMBeanConnection(vm);
 				server = JMX.newMXBeanProxy(mbsc, getMXServerName(),
 						HTTPObjectAgentMXBean.class);
+				logger = JMX.newMXBeanProxy(mbsc, getMXLoggerName(),
+						LoggerMXBean.class);
 				if (line.hasOption("dump")) {
 					dump = line.getOptionValue("dump") + File.separatorChar;
+				}
+				reset = line.hasOption("reset");
+				if (line.hasOption("log")) {
+					log.addAll(Arrays.asList(line.getOptionValues("log")));
+					if (log.isEmpty()) {
+						log.add("");
+					}
 				}
 				stop = line.hasOption("stop");
 			}
@@ -168,18 +193,47 @@ public class ServerMonitor {
 		if (dump != null) {
 			dumpService(dump);
 		}
+		if (reset) {
+			resetCache();
+		}
 		if (stop) {
 			destroyService();
 		}
-		System.exit(0);
+		if (log.isEmpty()) {
+			System.exit(0);
+		} else {
+			logNotifications();
+		}
 	}
 
 	public void stop() throws Exception {
-		// nothing to stop
+		if (!log.isEmpty()) {
+			mbsc.removeNotificationListener(getMXLoggerName(), listener);
+			logger.stopNotifications();
+		}
 	}
 
 	public void destroy() throws Exception {
 		// nothing to destroy
+	}
+
+	private void logNotifications() throws InstanceNotFoundException,
+			IOException, MalformedObjectNameException {
+		listener = new NotificationListener() {
+			public void handleNotification(Notification note, Object handback) {
+				synchronized (this) {
+					System.out.println(note.getMessage());
+					Object userData = note.getUserData();
+					if (userData != null) {
+						System.out.println(userData);
+					}
+				}
+			}
+		};
+		mbsc.addNotificationListener(getMXLoggerName(), listener, null, null);
+		for (String name : log) {
+			logger.startNotifications(name);
+		}
 	}
 
 	private void destroyService() throws Exception {
@@ -195,6 +249,14 @@ public class ServerMonitor {
 				throw e;
 			// remote JVM has terminated
 			System.out.println("Callimachus server has shutdown");
+		}
+	}
+
+	private void resetCache() {
+		try {
+			server.resetCache();
+		} catch (Exception e) {
+			println(e);
 		}
 	}
 
@@ -283,8 +345,6 @@ public class ServerMonitor {
 
 	private void summaryDump(MBeanServerConnection mbsc, String filename)
 			throws Exception {
-		LoggerMXBean logger = JMX.newMXBeanProxy(mbsc, getMXLoggerName(),
-				LoggerMXBean.class);
 		String summary = logger.getVMSummary();
 		PrintWriter w = new PrintWriter(filename);
 		try {
@@ -336,8 +396,7 @@ public class ServerMonitor {
 
 	private ObjectName getMXServerName() throws MalformedObjectNameException {
 		String pkg = Server.class.getPackage().getName();
-		return new ObjectName(pkg + ":type="
-				+ Server.class.getSimpleName());
+		return new ObjectName(pkg + ":type=" + Server.class.getSimpleName());
 	}
 
 	private ObjectName getMXLoggerName() throws MalformedObjectNameException {

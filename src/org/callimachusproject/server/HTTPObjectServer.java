@@ -614,6 +614,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 						writer.print(",");
 					}
 				}
+				writer.println();
 			}
 			writer.println();
 			writer.println();

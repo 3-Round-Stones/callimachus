@@ -29,9 +29,7 @@ import java.lang.reflect.Method;
 import java.rmi.UnmarshalException;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
-import java.util.LinkedHashSet;
 import java.util.Properties;
-import java.util.Set;
 import java.util.TimeZone;
 
 import javax.management.InstanceNotFoundException;
@@ -133,7 +131,7 @@ public class ServerMonitor {
 	private boolean reset;
 	private boolean stop;
 	private String dump;
-	private Set<String> log = new LinkedHashSet<String>();
+	private String[] log;
 	private NotificationListener listener;
 
 	public void init(String[] args) {
@@ -175,9 +173,9 @@ public class ServerMonitor {
 				}
 				reset = line.hasOption("reset");
 				if (line.hasOption("log")) {
-					log.addAll(Arrays.asList(line.getOptionValues("log")));
-					if (log.isEmpty()) {
-						log.add("");
+					log = line.getOptionValues("log");
+					if (log == null || log.length == 0) {
+						log = new String[]{""};
 					}
 				}
 				stop = line.hasOption("stop");
@@ -199,7 +197,7 @@ public class ServerMonitor {
 		if (stop) {
 			destroyService();
 		}
-		if (log.isEmpty()) {
+		if (log == null) {
 			System.exit(0);
 		} else {
 			logNotifications();
@@ -207,7 +205,7 @@ public class ServerMonitor {
 	}
 
 	public void stop() throws Exception {
-		if (!log.isEmpty()) {
+		if (log != null) {
 			mbsc.removeNotificationListener(getMXLoggerName(), listener);
 			logger.stopNotifications();
 		}
@@ -265,6 +263,7 @@ public class ServerMonitor {
 				TimeZone.getTimeZone("UTC"));
 		DatatypeFactory df = DatatypeFactory.newInstance();
 		String stamp = df.newXMLGregorianCalendar(now).toXMLFormat();
+		stamp = stamp.replaceAll("[^0-9]", "");
 		// execute remote VM command
 		executeVMCommand(vm, "remoteDataDump", dir + "threads-" + stamp
 				+ ".tdump");

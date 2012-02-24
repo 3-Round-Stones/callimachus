@@ -175,6 +175,8 @@ public class ManagedThreadPool implements ExecutorService, ThreadPoolMXBean {
 	public void threadDumpToFile(String outputFile) throws IOException {
 		PrintWriter writer = new PrintWriter(new FileWriter(outputFile, true));
 		try {
+			writer.print("Name:\t");
+			writer.println(getName());
 			writer.print("Active:\t");
 			writer.println(getActiveCount());
 			writer.print("Task count:\t");

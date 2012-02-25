@@ -552,7 +552,7 @@ else ################################
       fi
   fi
   if [ -n "$USE_JSVC" ]; then
-    "$EXECUTABLE" -nodetach -keepstdin -home "$JAVA_HOME" -jvm server -procname "$NAME" \
+    exec "$EXECUTABLE" -debug -nodetach -keepstdin -home "$JAVA_HOME" -jvm server -procname "$NAME" \
       -pidfile "$PID" \
       -Duser.home="$BASEDIR" \
       -Djava.library.path="$LIB" \
@@ -562,14 +562,6 @@ else ################################
       -classpath "$CLASSPATH" \
       -user "$DAEMON_USER" \
       $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" -c "$REPOSITORY_CONFIG" $OPTS "$@"
-
-    RETURN_VAL=$?
-    sleep 1
-
-    if [ $RETURN_VAL -gt 0 ]; then
-      echo "The server terminated abnormally, see log files for details."
-    fi
-    exit $RETURN_VAL
   fi
   exec "$JAVA" -server \
     -Duser.home="$BASEDIR" \

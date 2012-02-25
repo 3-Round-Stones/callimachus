@@ -233,6 +233,7 @@
 		update.setBinding("this", this.resource);
 		update.execute();
 
+		this.touchRevision();
 		//# FIXME we shouldn't need to touch anything
 		var parent = this.SelectParentComposite();
 		if (parent) {

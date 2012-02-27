@@ -14,10 +14,8 @@ the best usage experience.
 
 Chrome 16 has been thoroughly tested.
 Firefox 10 and Safari 5 have no known issues.
-Internet Explorer 8 can perform most tasks.
-
-Internet Explorer 7 and 9 can login and read content, but do not work with
-editing operations, including forms.
+Internet Explorer 8 and 9 can login and read content, use the
+edit form, but cannot edit text documents or create complex resources.
 
 Callimachus requires Java JDK 1.6.0_20+ (server-side) to run.
 

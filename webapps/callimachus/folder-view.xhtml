@@ -22,16 +22,15 @@
 			visibility: hidden;
 			overflow: hidden;
 		}
-		#create-menu:target {
-			height: 30em;
+		#create-menu.open {
+			height: 60em;
 			opacity: 1;
 			visibility: visible;
 		}
 		#create-menu ul {
 			list-style: none;
 			padding: 2px;
-			margin: 16px;
-			margin-left: 0;
+			margin-top: 16px;
 			display: block;
 			outline: none;
 		}
@@ -93,9 +92,9 @@
 				<a href="?parent" class="view ui-icon ui-icon-arrowthick-1-n" property="rdfs:label" content="?plabel" title="Up to {?plabel}" />
 			</span>
 			<span>
-				<a href="#create-menu" class="ui-icon ui-icon-gear" title="Create something new"
-					onclick="location.replace(this.href);return false" />
-				<nav id="create-menu" onclick="location.replace('#')">
+				<a href="javascript:void(0)" class="ui-icon ui-icon-gear" title="Create something new"
+					onclick="$('#create-menu').addClass('open');return false" />
+				<nav id="create-menu" onclick="$('#create-menu').removeClass('open')">
 					<ul class="ui-widget ui-widget-content ui-corner-all">
 						<li><a class="ui-state-default" href="Folder"><img class="icon" src="folder.png" /> Folder</a></li>
 						<li><a class="ui-state-default" href="File"><img class="icon" src="file.png" /> File</a></li>

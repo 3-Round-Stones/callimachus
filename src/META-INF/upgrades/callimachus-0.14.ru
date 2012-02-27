@@ -234,6 +234,21 @@ DELETE {
 };
 
 DELETE {
+	?class msg:realm </callimachus/manifest>
+} WHERE {
+	?class calli:realm </>; msg:realm </callimachus/manifest>
+	</callimachus> owl:versionInfo "0.14"
+};
+
+INSERT {
+	?text a </callimachus/TextFile>
+} WHERE {
+	?text a </callimachus/Text>
+	FILTER NOT EXISTS { ?text a </callimachus/TextFile> }
+	</callimachus> owl:versionInfo "0.14"
+};
+
+DELETE {
 	</callimachus> owl:versionInfo "0.14"
 } INSERT {
 	</callimachus> owl:versionInfo "0.15"

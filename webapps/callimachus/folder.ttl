@@ -289,12 +289,15 @@
 				entryStream.close();
 			}
 		}
+		var writtenNames = new java.util.HashSet();
 		var components = this.calliHasComponent.iterator();
 		while (components.hasNext()) {
 			var component = components.next();
 			if (component.toString().indexOf(baseURI) != 0 || !component.auditRevision)
 				continue;
 			var name = component.toString().substring(baseURI.length);
+			if (!writtenNames.add(name))
+				continue;
 			var time = component.auditRevision.getCommittedOn().toGregorianCalendar().getTimeInMillis();
 			if (name.lastIndexOf('/') == name.length - 1 && component instanceof Folder) {
 				//# Export Folder

@@ -68,7 +68,7 @@
 	calli:type "application/sparql-results+xml";
 	calli:header "cache-control:no-store";
 	msg:sparql  """
-		SELECT ?updated ?iri ?label {
+		SELECT DISTINCT ?updated ?iri ?label {
 			{
 				?term audit:revision [audit:committedOn ?updated]
 				FILTER sameTerm(?term,iri($resource))

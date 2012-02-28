@@ -29,7 +29,6 @@
  */
 package org.callimachusproject.server.model;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
@@ -211,7 +210,7 @@ public class ResourceRequest extends Request {
 		super.cleanup();
 	}
 
-	public BodyEntity getBody() throws MimeTypeParseException {
+	public BodyEntity getBody() {
 		if (body != null)
 			return body;
 		String mediaType = getHeader("Content-Type");
@@ -219,27 +218,32 @@ public class ResourceRequest extends Request {
 		if (location != null) {
 			location = createURI(location).stringValue();
 		}
-		Charset charset = getCharset(mediaType);
-		return body = new BodyEntity(mediaType, isMessageBody(), charset, uri
-				.stringValue(), location, con) {
+		try {
+			Charset charset = getCharset(mediaType);
+			return body = new BodyEntity(mediaType, isMessageBody(), charset,
+					uri.stringValue(), location, con) {
 
-			@Override
-			public void close() throws IOException {
-				super.close();
-				HttpEntity entity = getEntity();
-				if (entity != null) {
-					entity.consumeContent();
+				@Override
+				public void close() throws IOException {
+					super.close();
+					HttpEntity entity = getEntity();
+					if (entity != null) {
+						entity.consumeContent();
+					}
 				}
-			}
 
-			@Override
-			protected ReadableByteChannel getReadableByteChannel() throws IOException {
-				HttpEntity entity = getEntity();
-				if (entity == null)
-					return null;
-				return ChannelUtil.newChannel(entity.getContent());
-			}
-		};
+				@Override
+				protected ReadableByteChannel getReadableByteChannel()
+						throws IOException {
+					HttpEntity entity = getEntity();
+					if (entity == null)
+						return null;
+					return ChannelUtil.newChannel(entity.getContent());
+				}
+			};
+		} catch (MimeTypeParseException e) {
+			throw new BadRequest("Invalid mime type: " + mediaType);
+		}
 	}
 
 	public String getContentType(Method method) throws MimeTypeParseException {
@@ -483,15 +487,5 @@ public class ResourceRequest extends Request {
 				return list.toArray(new String[list.size()]);
 			}
 		}
-	}
-
-	private String safe(String path) {
-		if (path == null)
-			return "";
-		path = path.replace('/', File.separatorChar);
-		path = path.replace('\\', File.separatorChar);
-		path = path.replace(':', File.separatorChar);
-		path = path.replaceAll("[^a-zA-Z0-9/\\\\]", "_");
-		return path.toLowerCase();
 	}
 }

@@ -140,7 +140,7 @@
 				[a <Creatable>] calli:type ?collection_accept
 			} UNION {
 				{
-					SELECT (concat(str($this),"?feed") as ?id) (count(?part) as ?totalResults) ("feed" as ?type) {
+					SELECT (concat(str($this),"?feed") as ?id) (count(distinct ?part) as ?totalResults) ("feed" as ?type) {
 						$this calli:hasComponent ?part
 					} GROUP BY $this
 				}

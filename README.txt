@@ -2,7 +2,7 @@ Callimachus Project Installation Instructions
 
 http://callimachusproject.org/
 
-20 July 2010
+28 February 2012
 
 ----------------
 | Introduction |
@@ -33,6 +33,7 @@ The following platforms are supported:
 * Mac on Intel
 * Window XP
 * Window Vista
+* Window 7
 
 If using a 64bit Linux host, you must create your own libjnotify.so file 
 for the server to read runtime changes in the webapps directory.
@@ -76,14 +77,13 @@ or checkout the Subversion repository.
 
 If you download a ZIP archive of a release from http://callimachusproject.org/, 
 extract it into a new directory. Edit etc/callimachus.conf and change the
-authority to the be the same as the hostname and port (if not port 80). Execute
+ORIGIN to the be the same as the hostname and port (if not port 80). Execute
 a callimachus-start script located in the bin/ directory to start the server.
 The server will serve files from the webapps directory that have a known file
 extension.
 
 On Mac and Linux run:
- $ chmod a+x bin/*
- $ bin/callimachus-start.sh
+ $ sh bin/callimachus-start.sh
 
 On Windows run:
  # bin/callimachus-start.bat
@@ -107,8 +107,8 @@ template files for display actions against individuals of the class. See the
 $CALLIMACHUS/webapps/callimachus/callimachus-ontology.ttl file for more details.
 
 The calli Realm classes can be used to declare an authorization realms. Use 
-the http:realm annotation to assign a realm to a message type or class. The 
-default realm is </accounts>. See the callimachus-ontology.ttl file for 
+the calli:realm annotation to assign a realm to a message type or class. The 
+default realm is </>. See the callimachus-ontology.ttl file for 
 details on how to declare them in the RDF store.
 
 The end point "/sparql" accepts ready only application/sparql-query or a form 

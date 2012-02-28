@@ -2,7 +2,7 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-6 February 2012
+28 February 2012
 
 = REQUIREMENTS OF 0.15 =
 
@@ -17,7 +17,7 @@ Firefox 10 and Safari 5 have no known issues.
 Internet Explorer 8 and 9 can login and read content, use the
 edit form, but cannot edit text documents or create complex resources.
 
-Callimachus requires Java JDK 1.6.0_20+ (server-side) to run.
+Callimachus requires Java JDK 1.6.0_20+ (not 1.7) (server-side) to run.
 
 = NEW IN VERSION 0.15 =
 
@@ -52,7 +52,7 @@ Remove the lib and tmp directories. Remove the supplied callimachus.war file in
 the webapps directory.
 Backup any configuration files in etc, including etc/callimachus.conf. Unzip
 callimachus-0.15.zip over top of the rest of your existing installation. This
-will restore a lib directory and webapps/callimachus.war. Restore your
+will create a lib directory and webapps/callimachus.war. Restore your
 configuration settings in etc/callimachus.conf. Start the server using the new
 callimachus start script in the bin directory with the argument "--update".
 

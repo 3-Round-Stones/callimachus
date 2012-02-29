@@ -124,8 +124,8 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 		verifier.accept(pattern);
 	}
 
-	public boolean isDisconnectedNodesPresent() {
-		return verifier.isDisconnectedNodesPresent();
+	public boolean isDisconnectedNodePresent() {
+		return verifier.isDisconnectedNodePresent();
 	}
 
 	public boolean isAbout(Resource about) {

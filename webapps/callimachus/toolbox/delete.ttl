@@ -28,7 +28,7 @@
 <> a <../SchemaGraph>.
 
 :Delete rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Editable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	calli:method "DELETE";
 	calli:realm </>;
@@ -87,7 +87,7 @@
 	""".
 
 :DeleteComposite owl:intersectionOf ( :Delete
-		[owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (calli:Editable calli:Composite)]]);
+		[owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Composite>)]]);
 	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
 	msg:script """
 		if (this.HasComponents())
@@ -96,7 +96,7 @@
 	""".
 
 :HasComponents rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Composite];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
 	msg:sparql """
@@ -106,7 +106,7 @@
 	""".
 
 :DeleteCreatable owl:intersectionOf ( :Delete
-		[owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (calli:Editable calli:Creatable)]]);
+		[owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Creatable>)]]);
 	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
 	msg:script """
 		if (this.HasInstanceChildren())
@@ -115,7 +115,7 @@
 	""".
 
 :HasInstanceChildren rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Creatable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
 	msg:sparql """

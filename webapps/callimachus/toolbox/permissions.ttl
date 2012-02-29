@@ -48,7 +48,7 @@
 	msg:imports <java:org.openrdf.annotations.Iri>;
 	msg:script """
 		function addConcepts(klass, concepts, visited) {
-			if (visited.contains(sup))
+			if (visited.contains(klass))
 				return concepts;
 			visited.add(klass);
 			if (klass.isAnnotationPresent(Iri)) {

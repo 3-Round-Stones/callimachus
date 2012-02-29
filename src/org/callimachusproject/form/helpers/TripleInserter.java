@@ -71,7 +71,7 @@ public class TripleInserter implements RDFHandler {
 	}
 
 	public boolean isDisconnectedNodePresent() {
-		return verifier.isDisconnectedNodesPresent();
+		return verifier.isDisconnectedNodePresent();
 	}
 
 	public boolean isAbout(Resource about) {

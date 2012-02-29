@@ -87,7 +87,7 @@ public class TripleVerifier {
 		patterns.add(pattern);
 	}
 
-	public boolean isDisconnectedNodesPresent() {
+	public boolean isDisconnectedNodePresent() {
 		return !disconnected.isEmpty();
 	}
 

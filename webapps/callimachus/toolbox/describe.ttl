@@ -118,12 +118,14 @@
 	calli:realm </>;
 	calli:expect "201-created";
 	calli:type "text/plain";
+	msg:imports <java:org.openrdf.annotations.Iri>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
 	msg:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
 	msg:imports <../Local>;
+	msg:imports <../Editable>;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
@@ -155,21 +157,33 @@
 		var newCopy = of.createObject(location, analyzer.getTypes(location));
 		if (this.calliHasComponent.contains(newCopy))
 			throw new Conflict("Resource already exists");
-		if (!(newCopy instanceof Local))
-			throw new BadRequest("Resource is not Local");
+		if (!(newCopy instanceof Editable))
+			throw new BadRequest("Resource is not Editable");
 		var iter = this.FindCreator(newCopy).iterator();
 		while (iter.hasNext()) {
 			var user = iter.next();
-			var jter = analyzer.allTypes.iterator();
-			while (jter.hasNext()) {
-				var type = jter.next();
-				var cls = con.getObject(type);
-				if (cls instanceof Local && cls.calliIsAuthorized && !cls.calliIsAuthorized(user, "POST", "create"))
-					throw new Forbidden("You are not permitted to create " + cls + " resources");
-				if (cls.touchRevision) {
-					cls.touchRevision(); // Update class index
+			function findConcepts(klass, visited, callback) {
+				if (visited.contains(klass))
+					return true;
+				visited.add(klass);
+				if (klass.isAnnotationPresent(Iri)) {
+					callback(klass.getAnnotation(Iri).value());
 				}
+				var sup = klass.getSuperclass();
+				if (sup) {
+					findConcepts(sup, visited, callback);
+				}
+				var interfaces = klass.getInterfaces();
+				for (var i = 0; i < interfaces.length; i++) {
+					findConcepts(interfaces[i], visited, callback);
+				}
+				return false;
 			}
+			findConcepts(newCopy.getClass(), new java.util.HashSet(), function(type) {
+				var cls = con.getObject(type);
+				if (cls instanceof Local && !cls.calliIsAuthorized(user, "POST", "create"))
+					throw new Forbidden("You are not permitted to create " + cls + " resources");
+			});
 		}
 
 		//# Execute input

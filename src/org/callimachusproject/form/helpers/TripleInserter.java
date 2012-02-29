@@ -62,20 +62,16 @@ public class TripleInserter implements RDFHandler {
 		inserter.handleStatement(canonicalize(st));
 	}
 
-	public void setReverseAllowed(boolean reverseAllowed) {
-		verifier.setReverseAllowed(reverseAllowed);
-	}
-
-	public void setWildPropertiesAllowed(boolean wildPropertiesAllowed) {
-		verifier.setWildPropertiesAllowed(wildPropertiesAllowed);
-	}
-
 	public void accept(RDFEventReader reader) throws RDFParseException {
 		verifier.accept(reader);
 	}
 
 	public void accept(TriplePattern pattern) {
 		verifier.accept(pattern);
+	}
+
+	public boolean isDisconnectedNodePresent() {
+		return verifier.isDisconnectedNodesPresent();
 	}
 
 	public boolean isAbout(Resource about) {

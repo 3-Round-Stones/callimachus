@@ -433,6 +433,8 @@
 				throw new BadRequest("Multiple resources for: " + uri);
 			if (inserter.getSubject().toString() != uri)
 				throw new BadRequest("Wrong subject for: " + uri);
+			if (inserter.isDisconnectedNodePresent())
+				throw new BadRequest("Blank nodes must be connected in: " + uri);
 		}
 		var baseURI = this.toString();
 		if (baseURI.lastIndexOf('/') != baseURI.length - 1) {

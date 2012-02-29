@@ -78,6 +78,8 @@ public abstract class CreateSupport implements Page {
 				throw new BadRequest("Missing Information");
 			if (!tracker.isSingleton())
 				throw new BadRequest("Wrong Subject");
+			if (tracker.isDisconnectedNodePresent())
+				throw new BadRequest("Blank nodes must be connected");
 			ObjectFactory of = con.getObjectFactory();
 			for (URI partner : tracker.getResources()) {
 				if (!partner.toString().equals(base)) {

@@ -48,23 +48,15 @@ import org.openrdf.rio.RDFHandlerException;
  * 
  */
 public class TripleVerifier {
-	private AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
-	private Set<URI> subjects = new HashSet<URI>();
-	private Set<URI> resources = new HashSet<URI>();
-	private Set<URI> allTypes = new LinkedHashSet<URI>();
-	private Map<Resource, Set<URI>> types = new HashMap<Resource, Set<URI>>();
-	private boolean reverseAllowed = false;
-	private boolean wildPropertiesAllowed = false;
+	private final AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
+	private final Set<URI> subjects = new HashSet<URI>();
+	private final Set<URI> resources = new HashSet<URI>();
+	private final Set<Resource> connected = new HashSet<Resource>();
+	private final Map<Resource, Set<Resource>> disconnected = new HashMap<Resource, Set<Resource>>();
+	private final Set<URI> allTypes = new LinkedHashSet<URI>();
+	private final Map<Resource, Set<URI>> types = new HashMap<Resource, Set<URI>>();
 	private boolean empty = true;
 	private Set<TriplePattern> patterns;
-
-	public void setReverseAllowed(boolean reverseAllowed) {
-		this.reverseAllowed = reverseAllowed;
-	}
-
-	public void setWildPropertiesAllowed(boolean wildPropertiesAllowed) {
-		this.wildPropertiesAllowed = wildPropertiesAllowed;
-	}
 
 	public void accept(RDFEventReader reader) throws RDFParseException {
 		if (patterns == null) {
@@ -76,8 +68,8 @@ public class TripleVerifier {
 				if (next.isTriplePattern()) {
 					TriplePattern tp = next.asTriplePattern();
 					VarOrIRI pred = tp.getPredicate();
-					if (reverseAllowed || !tp.isInverse()) {
-						if (wildPropertiesAllowed || pred.isIRI()) {
+					if (!tp.isInverse()) {
+						if (pred.isIRI()) {
 							accept(tp);
 						}
 					}
@@ -93,6 +85,10 @@ public class TripleVerifier {
 			patterns = new LinkedHashSet<TriplePattern>();
 		}
 		patterns.add(pattern);
+	}
+
+	public boolean isDisconnectedNodesPresent() {
+		return !disconnected.isEmpty();
 	}
 
 	public boolean isAbout(Resource about) {
@@ -168,10 +164,10 @@ public class TripleVerifier {
 			types.get(subj).add((URI) obj);
 			allTypes.add((URI) obj);
 		}
-		if (rev && subj instanceof URI) {
-			resources.add((URI) subj);
-		} else if (!rev && obj instanceof URI) {
-			resources.add((URI) obj);
+		if (rev) {
+			link((Resource) obj, subj);
+		} else if (!rev && obj instanceof Resource) {
+			link(subj, (Resource) obj);
 		}
 		empty = false;
 	}
@@ -219,6 +215,35 @@ public class TripleVerifier {
 			return tf.iri(obj.stringValue());
 		} else {
 			return tf.node(obj.stringValue());
+		}
+	}
+
+	private void link(Resource subj, Resource obj) {
+		boolean subjConnected = subj instanceof URI || connected.contains(subj);
+		if (!subjConnected && !disconnected.containsKey(subj)) {
+			disconnected.put(subj, new HashSet<Resource>());
+		}
+		if (obj instanceof URI) {
+			resources.add((URI) obj);
+		} else if (!connected.contains(obj)) {
+			if (subjConnected) {
+				if (connected.add(obj)) {
+					connect(obj);
+				}
+			} else {
+				disconnected.get(subj).add(obj);
+			}
+		}
+	}
+
+	private void connect(Resource obj) {
+		Set<Resource> removed = disconnected.remove(obj);
+		if (removed != null) {
+			for (Resource connecting : removed) {
+				if (connected.add(connecting)) {
+					connect(connecting);
+				}
+			}
 		}
 	}
 

@@ -138,6 +138,8 @@
 			throw new BadRequest("Missing data");
 		if (!analyzer.isSingleton())
 			throw new BadRequest("Only one entity can be inserted per request");
+		if (analyzer.isDisconnectedNodePresent())
+			throw new BadRequest("Blank nodes must be connected");
 		var location = analyzer.subject;
 		if (location.toString().indexOf(this.toString()) != 0)
 			throw new BadRequest("Resource URI must start with: " + this);
@@ -226,6 +228,8 @@
 			throw new BadRequest("Can only delete or insert triples of the entity: " + this.toString());
 		if (!analyzer.getTypes(this.resource).isEmpty())
 			throw new BadRequest("Cannot change entity type");
+		if (analyzer.isDisconnectedNodePresent())
+			throw new BadRequest("Blank nodes must be connected");
 		//# FIXME possible security hole if hash or blank resources are added with a restricted type
 
 		//# Evaluate input

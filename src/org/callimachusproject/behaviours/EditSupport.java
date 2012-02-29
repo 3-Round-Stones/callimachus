@@ -146,6 +146,8 @@ public abstract class EditSupport implements Page {
 			throw new BadRequest("Wrong Subject");
 		if (!analyzer.getTypes(resource).isEmpty())
 			throw new BadRequest("Cannot change resource type");
+		if (analyzer.isDisconnectedNodesPresent())
+			throw new BadRequest("Blank nodes must be connected");
 		return input;
 	}
 

@@ -116,20 +116,16 @@ public class TripleAnalyzer extends QueryModelVisitorBase<RDFHandlerException> {
 		}
 	}
 
-	public void setReverseAllowed(boolean reverseAllowed) {
-		verifier.setReverseAllowed(reverseAllowed);
-	}
-
-	public void setWildPropertiesAllowed(boolean wildPropertiesAllowed) {
-		verifier.setWildPropertiesAllowed(wildPropertiesAllowed);
-	}
-
 	public void accept(RDFEventReader reader) throws RDFParseException {
 		verifier.accept(reader);
 	}
 
 	public void accept(TriplePattern pattern) {
 		verifier.accept(pattern);
+	}
+
+	public boolean isDisconnectedNodesPresent() {
+		return verifier.isDisconnectedNodesPresent();
 	}
 
 	public boolean isAbout(Resource about) {

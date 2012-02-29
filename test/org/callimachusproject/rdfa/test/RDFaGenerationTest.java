@@ -23,7 +23,6 @@ import static org.callimachusproject.rdfa.test.TestUtility.loadRepository;
 import static org.callimachusproject.rdfa.test.TestUtility.parseRDFa;
 import static org.callimachusproject.rdfa.test.TestUtility.readDocument;
 import static org.callimachusproject.rdfa.test.TestUtility.write;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
@@ -31,9 +30,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -46,17 +44,13 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateEngineFactory;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.TupleQuery;
@@ -79,16 +73,16 @@ import org.xml.sax.InputSource;
  */
 
 // This is a parameterized test that runs over the test directory (test_dir)
-@RunWith(Parameterized.class)
-public class RDFaGenerationTest {
+public class RDFaGenerationTest extends TestCase {
 	// location of the XSLT transform relative to the test directory
-	private static final String TEST_FILE_SUFFIX = "-test";
+	private static final String TEST_FILE_SUFFIX = "-test.xhtml";
+	private static final String FILE_SUFFIX = ".xhtml";
 	private static final String DATA_ATTRIBUTE_TEST_BASE = "http://example.org/test";
 			
 	// private static properties defined in @BeforeClass setUp()
-	private static XMLInputFactory xmlInputFactory;
-	private static XPathFactory xPathFactory;
-	private static Repository repository;
+	private XMLInputFactory xmlInputFactory;
+	private XPathFactory xPathFactory;
+	private Repository repository;
 	
 	// private static flags set in main()
 	private static boolean verbose = false;
@@ -115,18 +109,20 @@ public class RDFaGenerationTest {
 	}
 	
 	// object properties defined in @Before initialize() 
-	RepositoryConnection con;
-	String base;
+	private RepositoryConnection con;
+	private String base;
 	
 	// properties defined by constructor
 	// XHTML RDFa template used to derive SPARQL query 
-	File template;
+	private File template;
 	// target XHTML with embedded RDFa (also used as RDF data source)
-	File target;
+	private File target;
 
-	public RDFaGenerationTest(File template, File target) {
-		this.template = template;
-		this.target = target;
+	public RDFaGenerationTest(String name) {
+		super(name);
+		this.template = new File(name.substring(name.indexOf('!') + 1));
+		this.target = new File(template.getPath().replace(TEST_FILE_SUFFIX,
+				FILE_SUFFIX));
 	}
 	
 	XPathExpression conjoinXPaths(Document fragment, String base) throws Exception {
@@ -198,37 +194,32 @@ public class RDFaGenerationTest {
 	 * A test file serves as an RDFa template
 	 * A target filename has the TEST_FILE_SIGNIFIER removed 
 	 */
-
-	@Parameters
-	public static Collection<Object[]> listCases() {
+	public static TestSuite suite() throws URISyntaxException {
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		System.out.println("list-cases"+cl.toString());
-		String path = cl.getResource(test_dir).getPath();
-		System.out.println(path);
-		File testDir = new File(path);
-		if (testDir.exists() && testDir.isDirectory())
-			return listCases(testDir);
-		return null;
+		URL path = cl.getResource(test_dir);
+		File testDir = new File(path.toURI());
+		if (testDir.exists() && testDir.isDirectory()) {
+			TestSuite suite = listCases(testDir);
+			suite.setName(RDFaGenerationTest.class.getName());
+			return suite;
+		}
+		return new TestSuite(RDFaGenerationTest.class.getName());
 	}
 
-	private static Collection<Object[]> listCases(File dir) {
-		Collection<Object[]> cases = new ArrayList<Object[]>();
+	private static TestSuite listCases(File dir) {
+		TestSuite cases = new TestSuite(dir.getName());
 
 		File[] testFiles = dir.listFiles(new FilenameFilter() {
 			public boolean accept(File file, String filename) {
-				return (filename.endsWith(TEST_FILE_SUFFIX+".xhtml")
+				return (filename.endsWith(TEST_FILE_SUFFIX)
 				|| (new File(file,filename).isDirectory() && !filename.startsWith(".")) ) ;
 		}});
 		// enumerate test files (RDFa templates)
 		for (File f: testFiles) {
-			if (f.isDirectory())
-				cases.addAll(listCases(f));
-			else {
-				// find the corresponding target (if it exists)
-				String target = f.getName();
-				int n = target.lastIndexOf(TEST_FILE_SUFFIX);
-				target = target.substring(0, n)+".xhtml";
-				cases.add(new Object[] { f, new File(dir,target) });
+			if (f.isDirectory()) {
+				cases.addTest(listCases(f));
+			} else {
+				cases.addTest(new RDFaGenerationTest(f.getName() + "!" + f.getPath()));
 			}
 		}
 		return cases;
@@ -293,8 +284,7 @@ public class RDFaGenerationTest {
 		return evalOutput==null && evalTarget==null;
 	}
 
-	@BeforeClass
-	public static void setUp() throws Exception {		
+	public void setUp() throws Exception {		
 		xmlInputFactory = XMLInputFactory.newInstance();
 		xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
 		xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, false);
@@ -307,15 +297,15 @@ public class RDFaGenerationTest {
 		// initialize an in-memory store
 		repository = new SailRepository(new MemoryStore());
 		repository.initialize();
+		initialize();
 	}
 
-	@AfterClass
-	public static void tearDown() throws Exception {		
+	public void tearDown() throws Exception {
+		if (con!=null) con.close();
 		repository.shutDown();
 	}
 	
-	@Before
-	public void initialize() throws Exception {
+	private void initialize() throws Exception {
 		con = repository.getConnection();
 
 		// clear the repository of earlier contexts and namespaces
@@ -337,11 +327,6 @@ public class RDFaGenerationTest {
 		}
 	}
 	
-	@After
-	public void closure() throws Exception {
-		if (con!=null) con.close();	
-	}
-	
 	/* test Processing Instructions */	
 	void testPI(XMLEventReader xml) throws Exception {
 		while (xml.hasNext()) {
@@ -359,9 +344,7 @@ public class RDFaGenerationTest {
 	 * Generate XHTML+RDFa using RDFaProducer.
 	 * Test equivalence of the target and generated output.
 	 */
-	
-	@Test
-	public void test() throws Exception {
+	protected void runTest() throws Exception {
 		assumeTrue(test_set.contains("select"));
 		try {
 			if (verbose || show_rdf || show_sparql || show_xml || show_results) {
@@ -419,7 +402,6 @@ public class RDFaGenerationTest {
 		
 	public static void main(String[] args) {
 		try {
-			RDFaGenerationTest test;
 			
 			for (int i=0; i<args.length; i++) {
 				String arg = args[i];
@@ -436,27 +418,10 @@ public class RDFaGenerationTest {
 				else if (arg.equals("-data")) test_set = "data";
 				else if (!arg.startsWith("-")) test_dir = arg;
 			}
-			if (!new File(test_dir).isDirectory()) {
-				System.out.println("usage: [-verbose] [-show] [-legacy] [-union] [-fragment] [-data] [test_dir]");
-				return;
-			}
-			
-			setUp();
 
 			// run the dynamically generated test-cases
-	        Collection<Object[]> cases = listCases();
-	        Iterator<Object[]> parameters = cases.iterator();
-	        while (parameters.hasNext()) {
-	        	Object[] param = parameters.next();
-	        	test = new RDFaGenerationTest((File)param[0], (File)param[1]);
-				test.initialize();
-				//test.legacyTest();
-				//test.unionConstructTest();
-				test.test();
-				//test.fragmentTest();
-				test.closure();
-	        }
-			tearDown();
+			System.exit(TestRunner.run(RDFaGenerationTest.suite())
+					.wasSuccessful() ? 0 : 1);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

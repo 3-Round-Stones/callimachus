@@ -124,6 +124,7 @@
 		} finally {
 			input.close();
 		}
+		this.touchRevision();
 		HTTPObjectServer.resetAllCache();
 	""".
 

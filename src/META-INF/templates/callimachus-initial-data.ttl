@@ -114,7 +114,7 @@
 ################################
 
 </main+menu> a </callimachus/Menu>, calli:Menu;
-	rdfs:label "Main menu";
+	rdfs:label "main menu";
 	calli:reader </group/users>;
 	calli:editor </group/staff>;
 	calli:administrator </group/admin>;

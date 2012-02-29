@@ -106,6 +106,7 @@
 		} finally {
 			out.close();
 		}
+		this.touchRevision();
 	""".
 
 :stream a owl:DatatypeProperty, owl:FunctionalProperty ;

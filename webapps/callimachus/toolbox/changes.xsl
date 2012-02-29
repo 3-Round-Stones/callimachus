@@ -67,7 +67,7 @@
 			<a href="{sparql:binding[@name='link_href']/*}"><time class="abbreviated time"><xsl:value-of select="sparql:binding[@name='updated']/*" /></time></a>
 			<xsl:text>..</xsl:text>
 			<a>
-				<xsl:if test="sparql:binding[@name='author_uri']">
+				<xsl:if test="sparql:binding[@name='contributor_uri']">
 					<xsl:attribute name="href">
 						<xsl:value-of select="sparql:binding[@name='contributor_uri']/*" />
 					</xsl:attribute>

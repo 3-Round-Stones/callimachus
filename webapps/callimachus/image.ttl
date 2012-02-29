@@ -202,6 +202,7 @@
 		} finally {
 			out.close();
 		}
+		this.touchRevision();
 	""".
 
 :imageStream a owl:DatatypeProperty, owl:FunctionalProperty ;

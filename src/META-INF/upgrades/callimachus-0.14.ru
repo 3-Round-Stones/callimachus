@@ -229,14 +229,14 @@ DELETE {
 } INSERT {
 	?item calli:link </?changes>
 } WHERE {
-	?item calli:link </callimachus/changes>
+	?item calli:link </callimachus/changes> .
 	</callimachus> owl:versionInfo "0.14"
 };
 
 DELETE {
 	?class msg:realm </callimachus/manifest>
 } WHERE {
-	?class calli:realm </>; msg:realm </callimachus/manifest>
+	?class calli:realm </>; msg:realm </callimachus/manifest> .
 	</callimachus> owl:versionInfo "0.14"
 };
 

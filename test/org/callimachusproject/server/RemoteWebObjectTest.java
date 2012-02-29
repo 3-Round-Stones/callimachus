@@ -35,7 +35,7 @@ public class RemoteWebObjectTest extends MetadataServerTestCase {
 
 	private ObjectConnection con;
 
-	@Matching("file:///*")
+	@Matching("http://localhost/*")
 	public static abstract class MyFile implements ProxyObject {
 		private static InetSocketAddress addr;
 
@@ -430,13 +430,9 @@ public class RemoteWebObjectTest extends MetadataServerTestCase {
 				HotChocolate.class);
 		Milk milk = con.addDesignation(con.getObject(uri2), Milk.class);
 		milk.pourInto(chocolate);
+		assertEquals(1, chocolate.getAmountOfMilk());
 		chocolate.consume();
-		try {
-			chocolate.getAmountOfMilk();
-			fail();
-		} catch (MethodNotAllowed e) {
-			// chocolate has already been eaten in another transaction
-		}
+		assertEquals(0, chocolate.getAmountOfMilk());
 	}
 
 	public void testPOST() throws Exception {
@@ -451,7 +447,7 @@ public class RemoteWebObjectTest extends MetadataServerTestCase {
 
 	public void testProxy() throws Exception {
 		MyFile.addr = new InetSocketAddress("localhost", port);
-		WebInterface obj = con.addDesignation(con.getObject("file:///object"),
+		WebInterface obj = con.addDesignation(con.getObject("http://localhost/object"),
 				WebInterface.class);
 		assertEquals("Hello World!", obj.hello());
 		obj.setWorld("Toronto"); // local in-memory property

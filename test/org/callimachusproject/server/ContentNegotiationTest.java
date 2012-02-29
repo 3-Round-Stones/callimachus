@@ -67,11 +67,6 @@ public class ContentNegotiationTest extends MetadataServerTestCase {
 		}
 
 		@query("my")
-		public String postXML(@type("application/xml") InputStream in) {
-			return "xml";
-		}
-
-		@query("my")
 		public String postSPARQL(
 				@type("application/sparql-results+xml") InputStream in) {
 			return "sparql-results+xml";
@@ -147,6 +142,5 @@ public class ContentNegotiationTest extends MetadataServerTestCase {
 		WebResource web = client.path("/").queryParam("my", "");
 		assertEquals("rdf+xml", web.type("application/rdf+xml").post(String.class, "<RDF/>"));
 		assertEquals("sparql-results+xml", web.type("application/sparql-results+xml").post(String.class, "<sparql/>"));
-		assertEquals("xml", web.type("application/xml").post(String.class, "<xml/>"));
 	}
 }

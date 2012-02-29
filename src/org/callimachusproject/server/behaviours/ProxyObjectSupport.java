@@ -119,7 +119,7 @@ public abstract class ProxyObjectSupport implements ProxyObject, RDFObject {
 			authority = authority.substring(authority.indexOf('@') + 1);
 		}
 		String hostname = authority;
-		if (hostname.contains(":")) {
+		if (hostname.contains(":")) { // FIXME this would break with an IPv6 address
 			hostname = hostname.substring(0, hostname.indexOf(':'));
 		}
 		int port = -1;

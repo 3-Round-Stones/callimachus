@@ -198,7 +198,7 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 		w.print(" ");
 		w.println(System.getProperty("java.version"));
 		w.print("Callimachus:\t");
-		w.println(org.callimachusproject.Version.getVersion());
+		w.println(org.callimachusproject.Version.getInstance().getVersion());
 		w.print("User:\t");
 		w.println(System.getProperty("user.name"));
 		w.println();

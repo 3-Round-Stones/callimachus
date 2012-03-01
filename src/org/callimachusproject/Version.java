@@ -11,53 +11,17 @@ import org.slf4j.LoggerFactory;
 
 public class Version {
 	private static final String VERSION_PATH = "META-INF/callimachusproject.properties";
-	private static final String VERSION;
-	private static final int MAJOR;
-	private static final int RELEASE;
-	private static final int MAINTENANCE;
-	private static final String QUALIFIER;
-	private static final int DEVELOPMENT;
+	private static Version instance = new Version(loadVersion(Version.class.getClassLoader(), VERSION_PATH));
 
-	static {
-		VERSION = loadVersion(Version.class.getClassLoader(), VERSION_PATH);
-		Pattern p = Pattern.compile("(\\d+)\\b.*");
-		Matcher m = p.matcher(VERSION);
-		if (m.matches()) {
-			MAJOR = Integer.parseInt(m.group(1));
-		} else {
-			MAJOR = 0;
-		}
-		p = Pattern.compile("\\d+\\.(\\d+)\\b.*");
-		m = p.matcher(VERSION);
-		if (m.matches()) {
-			RELEASE = Integer.parseInt(m.group(1));
-		} else {
-			RELEASE = 0;
-		}
-		p = Pattern.compile("\\d+\\.\\d+\\.(\\d+)\\b.*");
-		m = p.matcher(VERSION);
-		if (m.matches()) {
-			MAINTENANCE = Integer.parseInt(m.group(1));
-		} else {
-			MAINTENANCE = 0;
-		}
-		p = Pattern.compile("[\\d\\.]*-([^\\d-]*).*");
-		m = p.matcher(VERSION);
-		if (m.matches()) {
-			QUALIFIER = m.group(1);
-		} else {
-			QUALIFIER = null;
-		}
-		p = Pattern.compile(".*\\b(\\d+)");
-		m = p.matcher(VERSION);
-		if (m.matches()) {
-			DEVELOPMENT = Integer.parseInt(m.group(1));
-		} else {
-			DEVELOPMENT = 0;
-		}
+	public static void main(String[] args) {
+		System.out.println(Version.getInstance().getVersion());
 	}
 
-	public static String loadVersion(ClassLoader cl, String properties) {
+	public static Version getInstance() {
+		return instance;
+	}
+
+	private static String loadVersion(ClassLoader cl, String properties) {
 		try {
 			InputStream in = cl.getResourceAsStream(properties);
 			if (in != null) {
@@ -78,8 +42,36 @@ public class Version {
 		return "devel";
 	}
 
-	public static void main(String[] args) {
-		System.out.println(getVersion());
+	private final String product = "Callimachus";
+	private final int major;
+	private final int release;
+	private final int maintenance;
+	private final String qualifier;
+	private final int development;
+
+	Version(String version) {
+		major = parseInt(version, "(\\d+)\\b.*");
+		release = parseInt(version, "\\d+\\.(\\d+)\\b.*");
+		maintenance = parseInt(version, "\\d+\\.\\d+\\.(\\d+)\\b.*");
+		qualifier = parseString(version, "[\\d\\.]+-([^\\d-]+)\\d*");
+		development = parseInt(version, "[\\d\\.]+-[^\\d-]*(\\d+)");
+	}
+
+	private int parseInt(String version, String pattern) {
+		String str = parseString(version, pattern);
+		if (str == null)
+			return 0;
+		return Integer.parseInt(str);
+	}
+
+	private String parseString(String version, String pattern) {
+		Pattern p = Pattern.compile(pattern);
+		Matcher m = p.matcher(version);
+		if (m.matches()) {
+			return m.group(1);
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -87,7 +79,7 @@ public class Version {
 	 * 
 	 * @return String denoting our current version
 	 */
-	public static String getVersion() {
+	public CharSequence getVersion() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getProduct());
 		sb.append(" ").append(getMajorVersionNum());
@@ -101,14 +93,14 @@ public class Version {
 		if (getDevelopmentVersionNum() > 0) {
 			sb.append("-").append(getDevelopmentVersionNum());
 		}
-		return sb.toString();
+		return sb;
 	}
 
 	/**
 	 * Name of product: Callimachus.
 	 */
-	public static String getProduct() {
-		return "Callimachus";
+	public String getProduct() {
+		return product;
 	}
 
 	/**
@@ -119,8 +111,8 @@ public class Version {
 	 * Clients should carefully consider the implications of new versions as
 	 * external interfaces and behaviour may have changed.
 	 */
-	public static int getMajorVersionNum() {
-		return MAJOR;
+	public int getMajorVersionNum() {
+		return major;
 
 	}
 
@@ -129,8 +121,8 @@ public class Version {
 	 * functionality is to be added. - API or behaviour change. - its designated
 	 * as a reference release.
 	 */
-	public static int getReleaseVersionNum() {
-		return RELEASE;
+	public int getReleaseVersionNum() {
+		return release;
 	}
 
 	/**
@@ -140,8 +132,8 @@ public class Version {
 	 * contains no API changes. When missing, it designates the final and
 	 * complete development drop for a release.
 	 */
-	public static int getMaintenanceVersionNum() {
-		return MAINTENANCE;
+	public int getMaintenanceVersionNum() {
+		return maintenance;
 	}
 
 	/**
@@ -149,8 +141,8 @@ public class Version {
 	 * releases, and the qualifier is separated from the major, minor, and
 	 * incremental versions by a hyphen.
 	 */
-	public static String getQualifierVersion() {
-		return QUALIFIER;
+	public String getQualifierVersion() {
+		return qualifier;
 	}
 
 	/**
@@ -162,8 +154,8 @@ public class Version {
 	 * aspects of a new feature, which may take several development drops to
 	 * complete.
 	 */
-	public static int getDevelopmentVersionNum() {
-		return DEVELOPMENT;
+	public int getDevelopmentVersionNum() {
+		return development;
 	}
 
 }

@@ -96,6 +96,7 @@
 	calli:realm </>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
+	msg:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <NamedQuery>;
@@ -116,10 +117,9 @@
 		this.touchRevision();
 
 		var con = this.objectConnection;
-		var scanner = new java.util.Scanner(this.openInputStream(), "UTF-8");
-		var query = scanner.useDelimiter("\\\\A").next();
-		scanner.close();
-		con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query, this.toString());
+		var parser = ParameterizedQueryParser.newInstance();
+		var query = parser.parseQuery(this.openInputStream(), this.toString());
+		con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query.toString(), this.toString());
 	""".
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
@@ -136,8 +136,9 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	calli:method "GET";
-	calli:query "tqx";
+	calli:query "tqx", "eval";
 	calli:type "message/x-response";
+	msg:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
 	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
 	msg:imports <java:org.openrdf.query.QueryLanguage>;
 	msg:imports <java:org.apache.http.ProtocolVersion>;
@@ -182,9 +183,10 @@
 			return resp;
 		var entity = null;
 		try {
-			if (nq == null)
-				throw new InternalServerError("SPARQL query is not valid or is missing");
-			var rs = con.prepareTupleQuery(nq.getQueryLanguage(), nq.getQueryString(), nq.getBaseURI()).evaluate();
+			var parser = ParameterizedQueryParser.newInstance();
+			var query = parser.parseQuery(this.openInputStream(), this.toString());
+			var sparql = query.prepare(queryParameters);
+			var rs = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, this.toString()).evaluate();
 			if (map.out == "html") {
 				entity = new InputStreamEntity(this.TransformIntoHtml(rs), -1);
 				entity.contentType = "text/html;charset=UTF-8";
@@ -240,6 +242,11 @@
 	rdfs:domain :GetResult;
 	rdfs:range xsd:string;
 	calli:query "tqx".
+
+:queryParameters a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :GetResult;
+	rdfs:range <java:java.util.Map>;
+	calli:query "*".
 
 :match a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain :GetResult;

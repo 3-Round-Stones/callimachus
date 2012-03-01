@@ -153,7 +153,7 @@
 		formData.append(file.name, file);
 		jQuery.ajax({
 			type:'POST',
-			url:'?create=/callimachus/File&location=' + encodeURI(file.name.toLowerCase()).replace(/%20/g, '-'),
+			url:'?create=/callimachus/File&location=' + encodeURIComponent(encodeURI(file.name.toLowerCase()).replace(/%20/g, '-')),
 			contentType:"multipart/form-data",
 			processData:false,
 			data:formData,

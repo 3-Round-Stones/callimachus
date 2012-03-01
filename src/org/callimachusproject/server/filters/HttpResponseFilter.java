@@ -150,6 +150,10 @@ public class HttpResponseFilter extends Filter {
 		if (body == null && !response.containsHeader("Content-Length")
 				 && !response.containsHeader("Transfer-Encoding")) {
 			response.setHeader("Content-Length", "0");
+		} else if (response.containsHeader("Transfer-Encoding")
+				&& response.getFirstHeader("Transfer-Encoding").getValue()
+						.equals("identity")) {
+			response.setHeader("Transfer-Encoding", "chunked");
 		}
 		return response;
 	}

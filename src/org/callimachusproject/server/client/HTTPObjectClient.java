@@ -95,8 +95,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 	private static final Pattern STARTS_WITH_HTTP = Pattern.compile("^[Hh][Tt][Tt][Pp]");
 	private static final String MXBEAN_TYPE = "org.callimachusproject:type="
 			+ HTTPObjectClient.class.getSimpleName();
-	private static final String APP_NAME = "Callimachus Client";
-	protected static final String DEFAULT_NAME = APP_NAME + "/" + Version.getInstance().getVersion();
+	protected static final String DEFAULT_NAME = Version.getInstance().getVersion();
 	static Executor executor = ManagedExecutors
 			.newCachedPool("HttpObjectClient");
 	private static HTTPObjectClient instance;

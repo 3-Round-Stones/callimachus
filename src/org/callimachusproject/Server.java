@@ -91,8 +91,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Server implements HTTPObjectAgentMXBean {
 	private static final String CHANGE_PATH = "/change/";
-	private static final String BRAND = "Callimachus Project Server";
-	public static final String NAME = BRAND + '/' + Version.getInstance().getVersion();
+	public static final String NAME = Version.getInstance().getVersion();
 	private static final String REPOSITORY_TEMPLATE = "META-INF/templates/callimachus-config.ttl";
 
 	private static final Options options = new Options();

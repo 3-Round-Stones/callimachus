@@ -62,8 +62,7 @@ import org.callimachusproject.server.util.ThreadPoolMXBean;
  * 
  */
 public class ServerMonitor {
-	private static final String BRAND = "Callimachus Project Server";
-	public static final String NAME = BRAND + '/' + Version.getInstance().getVersion();
+	public static final String NAME = Version.getInstance().getVersion();
 	private static final String CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
 
 	private static final Options options = new Options();

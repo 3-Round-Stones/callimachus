@@ -116,8 +116,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
-	private static final String APP_NAME = "Callimachus Server";
-	protected static final String DEFAULT_NAME = APP_NAME + "/" + Version.getInstance().getVersion();
+	protected static final String DEFAULT_NAME = Version.getInstance().getVersion();
 	private static NamedThreadFactory executor = new NamedThreadFactory("HttpObjectServer", false);
 	private static final List<HTTPObjectServer> instances = new ArrayList<HTTPObjectServer>();
 

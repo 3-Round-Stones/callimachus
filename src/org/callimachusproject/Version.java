@@ -53,8 +53,8 @@ public class Version {
 		major = parseInt(version, "(\\d+)\\b.*");
 		release = parseInt(version, "\\d+\\.(\\d+)\\b.*");
 		maintenance = parseInt(version, "\\d+\\.\\d+\\.(\\d+)\\b.*");
-		qualifier = parseString(version, "[\\d\\.]+-([^\\d-]+)\\d*");
-		development = parseInt(version, "[\\d\\.]+-[^\\d-]*(\\d+)");
+		qualifier = parseString(version, "[\\d\\.]+-([^\\d]+)(-\\d+)?");
+		development = parseInt(version, "[\\d\\.]+-[^\\d]*(\\d+)");
 	}
 
 	private int parseInt(String version, String pattern) {
@@ -79,10 +79,10 @@ public class Version {
 	 * 
 	 * @return String denoting our current version
 	 */
-	public CharSequence getVersion() {
+	public String getVersion() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getProduct());
-		sb.append(" ").append(getMajorVersionNum());
+		sb.append("/").append(getMajorVersionNum());
 		sb.append(".").append(getReleaseVersionNum());
 		if (getMaintenanceVersionNum() > 0) {
 			sb.append(".").append(getMaintenanceVersionNum());
@@ -93,7 +93,7 @@ public class Version {
 		if (getDevelopmentVersionNum() > 0) {
 			sb.append("-").append(getDevelopmentVersionNum());
 		}
-		return sb;
+		return sb.toString();
 	}
 
 	/**

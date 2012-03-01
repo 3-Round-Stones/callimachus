@@ -16,6 +16,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 /**
  * SPARQL comment.
  * 
@@ -25,7 +27,8 @@ package org.callimachusproject.engine.events;
 public class Comment extends RDFEvent {
 	String comment;
 
-	public Comment(String comment) {
+	public Comment(String comment, Location location) {
+		super(location);
 		this.comment = comment;
 	}
 

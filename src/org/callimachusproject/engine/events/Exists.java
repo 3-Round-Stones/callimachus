@@ -16,6 +16,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 /**
  * SPARQL keyword.
  * 
@@ -24,12 +26,12 @@ package org.callimachusproject.engine.events;
  */
 public class Exists extends RDFEvent {
 
-	public Exists() {
-		super();
+	public Exists(Location location) {
+		super(location);
 	}
 
-	public Exists(boolean start) {
-		super(start);
+	public Exists(boolean start, Location location) {
+		super(start, location);
 	}
 
 	public String toString() {

@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 /**
  * SPARQL keyword.
  * 
@@ -25,11 +27,11 @@ package org.callimachusproject.engine.events;
  */
 public abstract class Expression extends RDFEvent {
 
-	public Expression() {
-		super();
+	public Expression(Location location) {
+		super(location);
 	}
 
-	public Expression(boolean start) {
-		super(start);
+	public Expression(boolean start, Location location) {
+		super(start, location);
 	}
 }

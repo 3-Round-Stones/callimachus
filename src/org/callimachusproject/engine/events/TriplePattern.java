@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.model.VarOrIRI;
 import org.callimachusproject.engine.model.VarOrTerm;
 
@@ -33,12 +35,16 @@ public class TriplePattern extends RDFEvent {
 	private boolean inverse;
 
 	public TriplePattern(VarOrTerm subject, VarOrIRI predicate, VarOrTerm object) {
-		this(subject, predicate, object, false);
+		this(subject, predicate, object, false, null);
+	}
+
+	public TriplePattern(VarOrTerm subject, VarOrIRI predicate, VarOrTerm object, Location location) {
+		this(subject, predicate, object, false, location);
 	}
 
 	public TriplePattern(VarOrTerm subject, VarOrIRI predicate,
-			VarOrTerm object, boolean inverse) {
-		
+			VarOrTerm object, boolean inverse, Location location) {
+		super(location);
 		this.subject = subject;	
 		this.predicate = predicate;
 		this.object = object;

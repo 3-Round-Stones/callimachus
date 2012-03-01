@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 /**
  * SPARQL keyword.
  * 
@@ -25,12 +27,12 @@ package org.callimachusproject.engine.events;
  */
 public final class Filter extends RDFEvent {
 
-	public Filter() {
-		super();
+	public Filter(Location location) {
+		super(location);
 	}
 
-	public Filter(boolean start) {
-		super(start);
+	public Filter(boolean start, Location location) {
+		super(start, location);
 	}
 
 	public String toString() {

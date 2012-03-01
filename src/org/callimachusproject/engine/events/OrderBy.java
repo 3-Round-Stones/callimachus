@@ -18,12 +18,15 @@ package org.callimachusproject.engine.events;
 
 import java.util.List;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.model.Var;
 
 public class OrderBy extends RDFEvent {
 	private List<Var> vars;
 
-	public OrderBy(List<Var> vars) {
+	public OrderBy(List<Var> vars, Location location) {
+		super(location);
 		assert vars != null && !vars.isEmpty();
 		this.vars = vars;
 	}

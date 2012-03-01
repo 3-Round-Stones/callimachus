@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 /**
  * Assigns a namespace to a prefix in the document.
  * 
@@ -27,7 +29,8 @@ public class Namespace extends RDFEvent {
 	private String prefix;
 	private String namespaceURI;
 
-	public Namespace(String prefix, String namespace) {
+	public Namespace(String prefix, String namespace, Location location) {
+		super(location);
 		assert prefix != null;
 		assert namespace != null;
 		this.prefix = prefix;

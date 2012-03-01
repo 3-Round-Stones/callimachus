@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 /**
  * SPARQL keyword.
  * 
@@ -25,8 +27,8 @@ package org.callimachusproject.engine.events;
  */
 public class Select extends RDFEvent {
 
-	public Select() {
-		super();
+	public Select(Location location) {
+		super(location);
 	}
 
 	public String toString() {

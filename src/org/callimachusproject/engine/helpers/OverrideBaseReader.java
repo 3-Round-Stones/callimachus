@@ -72,25 +72,25 @@ public class OverrideBaseReader extends PipedRDFEventReader {
 		} else if (event.isStartSubject() || event.isEndSubject()) {
 			VarOrTerm term = event.asSubject().getSubject();
 			VarOrTerm ref = relative(term);
-			add(new Subject(event.isStart(), ref));
+			add(new Subject(event.isStart(), ref, event.getLocation()));
 		} else if (event.isStartGraph() || event.isEndGraph()) {
 			VarOrIRI term = event.asGraph().getGraph();
 			VarOrIRI ref = relative(term);
-			add(new Graph(event.isStart(), ref));
+			add(new Graph(event.isStart(), ref, event.getLocation()));
 		} else if (event.isVarOrTerm()) {
-			add(new VarOrTermExpression(relative(event.asVarOrTerm())));
+			add(new VarOrTermExpression(relative(event.asVarOrTerm()), event.getLocation()));
 		} else if (event.isTriple()) {
 			Triple tp = event.asTriple();
 			Node subj = relative(tp.getSubject());
 			IRI pred = relative(tp.getPredicate());
 			Term obj = relative(tp.getObject());
-			add(new Triple(subj, pred, obj, tp.isInverse()));
+			add(new Triple(subj, pred, obj, tp.isInverse(), event.getLocation()));
 		} else if (event.isTriplePattern()) {
 			TriplePattern tp = event.asTriplePattern();
 			VarOrTerm subj = relative(tp.getSubject());
 			VarOrIRI pred = relative(tp.getPredicate());
 			VarOrTerm obj = relative(tp.getObject());
-			add(new TriplePattern(subj, pred, obj, tp.isInverse()));
+			add(new TriplePattern(subj, pred, obj, tp.isInverse(), event.getLocation()));
 		} else {
 			add(event);
 		}

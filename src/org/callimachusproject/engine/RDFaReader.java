@@ -33,6 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
@@ -117,7 +118,7 @@ public class RDFaReader extends RDFEventReader {
 		this.systemId = systemId;
 		this.base = new Base(systemId);
 		if (base != null) {
-			this.base = new Base(this.base.resolve(base));
+			this.base = new Base(this.base.resolve(base), null);
 		}
 		this.document = tf.reference(this.base.getBase(), this.base.getReference());
 	}
@@ -193,11 +194,11 @@ public class RDFaReader extends RDFEventReader {
 	}
 
 	private void processStartDocument(XMLEvent event) {
-		queue.add(new Document(true));
+		queue.add(new Document(true, event.getLocation()));
 	}
 
 	private void processEndDocument(EndDocument event) {
-		queue.add(new Document(false));
+		queue.add(new Document(false, event.getLocation()));
 	}
 
 	private void processStartElement(StartElement event)
@@ -269,9 +270,9 @@ public class RDFaReader extends RDFEventReader {
 		}
 	}
 
-	private Base base(String base) {
+	private Base base(String base, Location location) {
 		String uri = resolve(base);
-		this.base = new Base(uri);
+		this.base = new Base(uri, location);
 		this.document = tf.reference(base, this.base.getReference());
 		return this.base;
 	}
@@ -550,7 +551,7 @@ public class RDFaReader extends RDFEventReader {
 			if ("base".equals(event.getName().getLocalPart())) {
 				String href = attr("href");
 				if (href != null) {
-					queue.add(base(href));
+					queue.add(base(href, getLocation()));
 				}
 			}
 			Iterator<?> nter = event.getNamespaces();
@@ -559,7 +560,7 @@ public class RDFaReader extends RDFEventReader {
 				String uri = ns.getNamespaceURI();
 				if (uri != null) {
 					queue.add(new org.callimachusproject.engine.events.Namespace(
-							ns.getPrefix(), uri));
+							ns.getPrefix(), uri, getLocation()));
 				}
 			}
 
@@ -596,7 +597,7 @@ public class RDFaReader extends RDFEventReader {
 					triple(getResource(), rev, subj, true);
 				}
 				if (isStartResource()) {
-					queue.add(new Subject(true, getResource()));
+					queue.add(new Subject(true, getResource(), getLocation()));
 				}
 			}
 		}
@@ -629,7 +630,7 @@ public class RDFaReader extends RDFEventReader {
 						triple(getCurrentSubject(), rel, subj, false);
 					if (rev != null)
 						triple(subj, rev, getCurrentSubject(), true);
-					queue.add(new Subject(true, subj));
+					queue.add(new Subject(true, subj, getLocation()));
 				}
 				else if (parent.isHanging()) {
 					List<Node> rel = parent.getRel();
@@ -638,13 +639,13 @@ public class RDFaReader extends RDFEventReader {
 						triple(parent.getCurrentSubject(), rel, subj, false);
 					if (rev != null)
 						triple(subj, rev, parent.getCurrentSubject(), true);
-					queue.add(new Subject(true, subj));
+					queue.add(new Subject(true, subj, getLocation()));
 				}
 				
-				queue.add(new Triple(subj, (IRI) c, lit));
+				queue.add(new Triple(subj, (IRI) c, lit, getLocation()));
 				
 				if (isHanging() || parent.isHanging()) {
-					queue.add(new Subject(false, subj));
+					queue.add(new Subject(false, subj, getLocation()));
 				}
 			}
 				
@@ -674,14 +675,14 @@ public class RDFaReader extends RDFEventReader {
 			if (isStartSubject()) {
 				if (!startedSubject) {
 					startedSubject = true;
-					queue.add(new Subject(true, getCurrentSubject()));
+					queue.add(new Subject(true, getCurrentSubject(), getLocation()));
 				}
 			}
 		}
 
 		public void end(EndElement event) throws RDFParseException {
 			if (isStartResource()) {
-				queue.add(new Subject(false, getResource()));
+				queue.add(new Subject(false, getResource(), getLocation()));
 			}
 			Node subj = getCurrentSubject();
 			String property = attr("property");
@@ -699,8 +700,12 @@ public class RDFaReader extends RDFEventReader {
 				}
 			}
 			if (startedSubject) {
-				queue.add(new Subject(false, subj));
+				queue.add(new Subject(false, subj, getLocation()));
 			}
+		}
+
+		private Location getLocation() {
+			return event.getLocation();
 		}
 
 		private boolean isHTML(QName name) {
@@ -793,7 +798,7 @@ public class RDFaReader extends RDFEventReader {
 
 		private void triple(Node subj, List<Node> pred, Node obj, boolean inverse) {
 			for (Node p : pred) {
-				queue.add(new Triple(subj, (IRI) p, obj, inverse));
+				queue.add(new Triple(subj, (IRI) p, obj, inverse, getLocation()));
 			}
 		}
 
@@ -803,7 +808,7 @@ public class RDFaReader extends RDFEventReader {
 			//lit.setOrigin(origin+" "+TEXT_CONTENT);
 			lit.setOrigin(origin+(content.isEmpty()?(" "+TEXT_CONTENT):""));
 			for (Node p : pred) {
-				queue.add(new Triple(subj, (IRI) p, lit));
+				queue.add(new Triple(subj, (IRI) p, lit, getLocation()));
 			}
 		}
 
@@ -813,7 +818,7 @@ public class RDFaReader extends RDFEventReader {
 			//lit.setOrigin(origin+" "+TEXT_CONTENT);
 			lit.setOrigin(origin+(content.isEmpty()?(" "+TEXT_CONTENT):""));
 			for (Node p : pred) {
-				queue.add(new Triple(subj, (IRI) p, lit));
+				queue.add(new Triple(subj, (IRI) p, lit, getLocation()));
 			}
 		}
 

@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.Term;
@@ -29,13 +31,13 @@ import org.callimachusproject.engine.model.Term;
  */
 public class Triple extends TriplePattern {
 
-	public Triple(Node subject, IRI predicate, Term object) {
-		super(subject, predicate, object);
+	public Triple(Node subject, IRI predicate, Term object, Location location) {
+		super(subject, predicate, object, location);
 	}
 
 	public Triple(Node subject, IRI predicate, Term object,
-			boolean inverse) {
-		super(subject, predicate, object, inverse);
+			boolean inverse, Location location) {
+		super(subject, predicate, object, inverse, location);
 	}
 
 	@Override

@@ -63,7 +63,7 @@ public class OrderedSparqlReader extends RDFEventReader {
 			addIfVar(taken.asTriplePattern().getPartner());
 		}
 		if (taken.isEndWhere() && !nested.isEmpty()) {
-			next = new OrderBy(nested);
+			next = new OrderBy(nested, taken.getLocation());
 		}
 	}
 

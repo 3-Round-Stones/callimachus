@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.model.Node;
 import org.openrdf.model.Value;
@@ -32,7 +34,7 @@ public class QuotedString implements Expression {
 	}
 
 	@Override
-	public List<RDFEvent> pattern(Node subject) {
+	public List<RDFEvent> pattern(Node subject, Location location) {
 		return Collections.emptyList();
 	}
 

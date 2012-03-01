@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.Ask;
@@ -40,9 +42,9 @@ import org.callimachusproject.engine.events.Triple;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.events.Union;
 import org.callimachusproject.engine.events.Where;
+import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Term;
-import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
@@ -127,6 +129,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	}
 
 	class Context {
+		private final Location location;
 		CLAUSE clause = CLAUSE.BLOCK;
 		// a block may have a subject (the outermost block does not)
 		VarOrTerm subject;
@@ -135,17 +138,23 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		boolean union = false;
 		
 		/* create a new subject block */
-		Context(VarOrTerm subject) throws RDFParseException {
+		Context(VarOrTerm subject, Location location) throws RDFParseException {
 			this.subject = subject;
+			this.location = location;
 			// triple blocks inherit union status from parent
 			union = stack.isEmpty()?false:stack.peek().union;
 		}
 		
 		/* create a new clause */
-		Context(CLAUSE clause) {
+		Context(CLAUSE clause, Location location) {
 			this.clause = clause;
+			this.location = location;
 			// triple blocks inherit union status from parent
 			union = stack.isEmpty()?false:stack.peek().union;
+		}
+
+		public Location getLocation() {
+			return location;
 		}
 		
 		public String toString() {
@@ -173,19 +182,19 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		/* push the context adding necessary open brackets */
 		Context open() {
 			if (isOptional() && unionForm) {
-				add(new Optional(OPEN));
+				add(new Optional(OPEN, getLocation()));
 				// the first clause of the optional is the LHS of a UNION
 				union = true;
 			}
 			else if (isGroup()) {
 				// the parent group may be a union
 				if (!stack.isEmpty() && stack.peek().union && !initial && unionForm) 
-					add(new Union());
-				openUnion();
+					add(new Union(getLocation()));
+				openUnion(getLocation());
 				// a group (i.e. a UNION sub-clause) represents a conjunction / join
 				union = false;
 			}
-			if (hasSubject()) add(new Subject(OPEN, subject));
+			if (hasSubject()) add(new Subject(OPEN, subject, getLocation()));
 			// triple blocks do not represent the start of a group
 			if (!isBlock()) initial = true;
 			return stack.push(this);
@@ -193,9 +202,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 
 		/* pop the context adding necessary close brackets */
 		Context close() {
-			if (hasSubject()) add(new Subject(CLOSE, subject));
-			if (isOptional() && unionForm) add(new Optional(CLOSE));
-			else if (isGroup()) add(new Group(CLOSE));
+			if (hasSubject()) add(new Subject(CLOSE, subject, getLocation()));
+			if (isOptional() && unionForm) add(new Optional(CLOSE, getLocation()));
+			else if (isGroup()) add(new Group(CLOSE, getLocation()));
 			if (!isBlock()) previousPattern = null;
 			stack.pop();
 			// closing the LHS of a UNION? (UNION keyword required subsequently)
@@ -205,9 +214,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		}
 	}
 	
-	private void openUnion() {
-		if (unionForm) add(new Group(OPEN));
-		else add(new Optional(OPEN));
+	private void openUnion(Location location) {
+		if (unionForm) add(new Group(OPEN, location));
+		else add(new Optional(OPEN, location));
 	}
 
 	protected void process(RDFEvent event) throws RDFParseException {
@@ -220,37 +229,37 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			addPrefixes();
 			// don't open a where clause for construct queries (here)
 			if (isSelectQuery()) {
-				add(new Select());
-				add(new Where(OPEN));
+				add(new Select(event.getLocation()));
+				add(new Where(OPEN, event.getLocation()));
 			}
 			else if (isAskQuery()) {
-				add(new Ask());
-				add(new Where(OPEN));
+				add(new Ask(event.getLocation()));
+				add(new Where(OPEN, event.getLocation()));
 			}
 		}
 		else if (event.isEndDocument()) {
 			// close any remaining open contexts (i.e. the outermost context)
 			while (!stack.isEmpty()) stack.peek().close();
 			if (isSelectQuery() || isAskQuery()) {
-				add(new Where(CLOSE));
+				add(new Where(CLOSE, event.getLocation()));
 				// add annotation comments to record variable origins
 				for (String var: origins.keySet()) {
 					String comment = " "+ORIGIN_ANNOTATION+" "+var+" "+origins.get(var);
-					add(new Comment(comment));
+					add(new Comment(comment, event.getLocation()));
 				}
 			}
 			add(event);
 		}
 		else if (event.isStartSubject()) {
 			VarOrTerm subj = getVarOrTerm(event.asSubject().getSubject(),null,true);
-			Context context = getContext();
+			Context context = getContext(event.getLocation());
 
 			// close any dangling UNION sub-clause if the subject isn't chained to the previous triple
 			if (context.isGroup() && !context.hasSubject() && !chained(previousPattern,subj)) 
 				context = context.close();
 
 			// create a (unbracketed triple block) context for the new subject
-			context = new Context(subj).open();	
+			context = new Context(subj, event.getLocation()).open();	
 			
 			// assemble mandatory conditions at the beginning of the block
 			// if not in a union mandatory triples are inner-joined
@@ -260,7 +269,7 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			// this may be a singleton if no optional properties are defined
 			// in which case the optional is not required
 			if (!context.union && chained(previousPattern,subj) && !singleton(context))
-				context = new Context(CLAUSE.OPTIONAL).open();
+				context = new Context(CLAUSE.OPTIONAL, event.getLocation()).open();
 			
 			previousPattern = null;
 			promotion();
@@ -276,9 +285,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			VarOrTerm o = getVarOrTerm(triple.getObject(),triple,true);
 
 			boolean optional = isOptionalTriple(triple); 	
-			TriplePattern pattern = new TriplePattern(s, p, o, rev);
+			TriplePattern pattern = new TriplePattern(s, p, o, rev, event.getLocation());
 			//String lang = triple.getPartner().asPlainLiteral().getLang();
-			Context context = getContext();
+			Context context = getContext(event.getLocation());
 						
 			// close any dangling UNION sub-clause
 			// i.e don't close if this is a union
@@ -289,11 +298,11 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 			if (optional) {
 				// an optional triple must be within an optional/union clause
 				if (!context.union && unionForm) 
-					context = new Context(CLAUSE.OPTIONAL).open();
+					context = new Context(CLAUSE.OPTIONAL, event.getLocation()).open();
 				
 				// open a group (a UNION sub-clause) unless this is a singleton in an OPTIONAL
 				if (!(initial && singleton(context)) || !context.isOptional())
-					context = new Context(CLAUSE.GROUP).open();
+					context = new Context(CLAUSE.GROUP, event.getLocation()).open();
 				
 				// add the triple pattern
 				add(pattern);
@@ -379,11 +388,11 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		} while (!e.isEndDocument());		
 	}
 
-	private Context getContext() {
+	private Context getContext(Location location) {
 		Context context = null;
 		// the outermost context is a triple block (with no subject)
 		if (stack.isEmpty()) {
-			context = new Context(CLAUSE.BLOCK).open();
+			context = new Context(CLAUSE.BLOCK, location).open();
 			// The outer block a UNION
 			context.union = true;
 		}
@@ -413,9 +422,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 					VarOrTerm o = getVarOrTerm(triple.getObject(),triple,true);
 					
 					if (context.union)
-						context = new Context(CLAUSE.GROUP).open();
+						context = new Context(CLAUSE.GROUP, context.getLocation()).open();
 					
-					TriplePattern pattern = new TriplePattern(s, p, o, rev);			
+					TriplePattern pattern = new TriplePattern(s, p, o, rev, context.getLocation());			
 					add(pattern);
 					previousPattern = pattern;
 					// don't reset 'initial' otherwise the next optional triple will close the group

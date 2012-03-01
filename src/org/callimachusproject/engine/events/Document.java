@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 /**
  * An RDF document containing RDF data and/or RDF queries.
  * 
@@ -25,8 +27,8 @@ package org.callimachusproject.engine.events;
  */
 public class Document extends RDFEvent {
 
-	public Document(boolean start) {
-		super(start);
+	public Document(boolean start, Location location) {
+		super(start, location);
 	}
 
 }

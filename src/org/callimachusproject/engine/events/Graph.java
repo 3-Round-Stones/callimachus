@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.model.VarOrIRI;
 
 /**
@@ -28,8 +30,8 @@ import org.callimachusproject.engine.model.VarOrIRI;
 public class Graph extends RDFEvent {
 	private VarOrIRI graph;
 
-	public Graph(boolean start, VarOrIRI graph) {
-		super(start);
+	public Graph(boolean start, VarOrIRI graph, Location location) {
+		super(start, location);
 		this.graph = graph;
 	}
 

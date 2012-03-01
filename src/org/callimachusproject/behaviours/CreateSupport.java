@@ -112,26 +112,26 @@ public abstract class CreateSupport implements Page {
 					writer.write(next);
 				} else if (first) {
 					first = false;
-					writer.write(new Ask());
-					writer.write(new Where(true));
-					writer.write(new Group(true));
+					writer.write(new Ask(next.getLocation()));
+					writer.write(new Where(true, next.getLocation()));
+					writer.write(new Group(true, next.getLocation()));
 					IRI has = tf.iri(HAS_COMPONENT);
 					Var var = tf.var("calliHasComponent");
-					writer.write(new TriplePattern(var, has, tf.var("this")));
-					writer.write(new Group(false));
+					writer.write(new TriplePattern(var, has, tf.var("this"), next.getLocation()));
+					writer.write(new Group(false, next.getLocation()));
 				}
 				if (next.isTriplePattern()) {
 					VarOrTerm subj = next.asTriplePattern().getSubject();
 					if (subj.isIRI() && subj.stringValue().equals(about)
 							|| subj.isVar()
 							&& subj.stringValue().equals("this")) {
-						writer.write(new Union());
-						writer.write(new Group(true));
+						writer.write(new Union(next.getLocation()));
+						writer.write(new Group(true, next.getLocation()));
 						writer.write(next);
-						writer.write(new Group(false));
+						writer.write(new Group(false, next.getLocation()));
 					}
 				} else if (next.isEndDocument()) {
-					writer.write(new Where(false));
+					writer.write(new Where(false, next.getLocation()));
 					writer.write(next);
 				}
 			}

@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.BuiltInCall;
@@ -80,12 +82,13 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 		}
 		@Override
 		public boolean edit(RDFEvent event) {
+			Location location = event.getLocation();
 			if (!includesNamespace && event.isNamespace()) {
 				if (event.asNamespace().getPrefix().equals("keyword")) {
 					includesNamespace = true;
 				}
 			} else if (!includesNamespace && !event.isStartDocument() && !event.isComment()) {
-				add(new Namespace("keyword", KEYWORD_NS));
+				add(new Namespace("keyword", KEYWORD_NS, location));
 				includesNamespace = true;
 			}
 			if (!event.isEndSubject()) return false;
@@ -94,16 +97,16 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 			&& !vt.asVar().stringValue().startsWith("_") 
 			&& match(subjectPattern,vt)) {
 				Var var = tf.var(vt.stringValue() + "_phone");
-				add(new TriplePattern(vt,tf.curie(KEYWORD_NS, "phone", "keyword"),var));
+				add(new TriplePattern(vt,tf.curie(KEYWORD_NS, "phone", "keyword"),var, location));
 				// eg. FILTER sameTerm(?vt,keyword:soundex(keyword))
-				add(new Filter(OPEN));
-				add(new BuiltInCall(OPEN, "sameTerm"));
-				add(new VarOrTermExpression(var));
-				add(new BuiltInCall(OPEN, "keyword:soundex"));
-				add(new VarOrTermExpression(tf.literal(keyword)));
-				add(new BuiltInCall(CLOSE, "keyword:soundex"));
-				add(new BuiltInCall(CLOSE, "sameTerm"));
-				add(new Filter(CLOSE));
+				add(new Filter(OPEN, location));
+				add(new BuiltInCall(OPEN, "sameTerm", location));
+				add(new VarOrTermExpression(var, location));
+				add(new BuiltInCall(OPEN, "keyword:soundex", location));
+				add(new VarOrTermExpression(tf.literal(keyword), location));
+				add(new BuiltInCall(CLOSE, "keyword:soundex", location));
+				add(new BuiltInCall(CLOSE, "sameTerm", location));
+				add(new Filter(CLOSE, location));
 			}
 			return false;
 		}
@@ -131,24 +134,25 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 			// add the filter exists at the end, use "__" prefix for introduced variables
 			// these variables are extraneous to the template (having no origin)
 			else if (event.isEndWhere() && subject!=null) {
-				add(new Filter(OPEN));
-				add(new Exists(OPEN));
+				Location location = event.getLocation();
+				add(new Filter(OPEN, location));
+				add(new Exists(OPEN, location));
 				
 				VarOrTerm subj = subject;
 				Var pred = tf.var("__label_property");
-				add(new TriplePattern(subj,pred,object));
+				add(new TriplePattern(subj,pred,object, location));
 				// eg. FILTER regex(?object,keyword:regex($keyword))
-				add(new Filter(OPEN));
-				add(new BuiltInCall(OPEN, "regex"));
-				add(new VarOrTermExpression(object));
-				add(new BuiltInCall(OPEN, "keyword:regex"));
-				add(new VarOrTermExpression(tf.literal(keyword)));
-				add(new BuiltInCall(CLOSE, "keyword:regex"));
-				add(new BuiltInCall(CLOSE, "regex"));
-				add(new Filter(CLOSE));
+				add(new Filter(OPEN, location));
+				add(new BuiltInCall(OPEN, "regex", location));
+				add(new VarOrTermExpression(object, location));
+				add(new BuiltInCall(OPEN, "keyword:regex", location));
+				add(new VarOrTermExpression(tf.literal(keyword), location));
+				add(new BuiltInCall(CLOSE, "keyword:regex", location));
+				add(new BuiltInCall(CLOSE, "regex", location));
+				add(new Filter(CLOSE, location));
 
-				add(new Exists(CLOSE));
-				add(new Filter(CLOSE));
+				add(new Exists(CLOSE, location));
+				add(new Filter(CLOSE, location));
 			}
 			return false;
 		}		

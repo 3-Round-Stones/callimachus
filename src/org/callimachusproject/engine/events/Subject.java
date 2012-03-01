@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.model.VarOrTerm;
 
 /**
@@ -28,8 +30,8 @@ import org.callimachusproject.engine.model.VarOrTerm;
 public class Subject extends RDFEvent {
 	private VarOrTerm subject;
 
-	public Subject(boolean start, VarOrTerm subject) {
-		super(start);
+	public Subject(boolean start, VarOrTerm subject, Location location) {
+		super(start, location);
 		this.subject = subject;
 	}
 

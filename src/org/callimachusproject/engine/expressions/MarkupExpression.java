@@ -7,10 +7,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
-import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
+import org.callimachusproject.engine.model.Node;
 import org.openrdf.model.Value;
 
 public class MarkupExpression implements Expression {
@@ -72,12 +74,12 @@ public class MarkupExpression implements Expression {
 	}
 
 	@Override
-	public List<RDFEvent> pattern(Node subject) {
+	public List<RDFEvent> pattern(Node subject, Location location) {
 		if (expression != null)
-			return expression.pattern(subject);
+			return expression.pattern(subject, location);
 		List<RDFEvent> list = new ArrayList<RDFEvent>();
 		for (Expression exp : exprs) {
-			list.addAll(exp.pattern(subject));
+			list.addAll(exp.pattern(subject, location));
 		}
 		return list;
 	}

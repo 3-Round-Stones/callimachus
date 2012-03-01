@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.model.VarOrTerm;
 
 /**
@@ -28,7 +30,8 @@ import org.callimachusproject.engine.model.VarOrTerm;
 public class VarOrTermExpression extends Expression {
 	private VarOrTerm term;
 
-	public VarOrTermExpression(VarOrTerm term) {
+	public VarOrTermExpression(VarOrTerm term, Location location) {
+		super(location);
 		this.term = term;
 	}
 

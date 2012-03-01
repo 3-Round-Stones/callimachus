@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.model.VarOrTerm;
 
 /**
@@ -27,15 +29,27 @@ import org.callimachusproject.engine.model.VarOrTerm;
  *
  */
 public class RDFEvent {
-	private Boolean start;
-	//private String source;
+	private final Boolean start;
+	private final Location location;
 	
-	public RDFEvent() {
+	public RDFEvent(Location location) {
 		this.start = null;
+		this.location = location;
 	}
 
-	public RDFEvent(boolean start) {
+	public RDFEvent(boolean start, Location location) {
 		this.start = start;
+		this.location = location;
+	}
+
+	/**
+	 * Return the location of this event. The Location returned from this method
+	 * is non-volatile and will retain its information.
+	 * 
+	 * @see javax.xml.stream.Location
+	 */
+	public Location getLocation() {
+		return location;
 	}
 
 	public boolean isStart() {

@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 /**
  * SPARQL builtin function call.
  * 
@@ -26,8 +28,8 @@ package org.callimachusproject.engine.events;
 public class BuiltInCall extends Expression {
 	private String function;
 
-	public BuiltInCall(boolean start, String function) {
-		super(start);
+	public BuiltInCall(boolean start, String function, Location location) {
+		super(start, location);
 		this.function = function;
 	}
 

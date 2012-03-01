@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 /**
  * SPARQL keyword.
  * 
@@ -24,6 +26,10 @@ package org.callimachusproject.engine.events;
  *
  */
 public class Union extends RDFEvent {
+
+	public Union(Location location) {
+		super(location);
+	}
 
 	public String toString() {
 		return "UNION";

@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.stream.Location;
+
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.model.Node;
 import org.openrdf.model.Value;
@@ -29,7 +31,7 @@ public class VariableExpression implements Expression {
 	}
 
 	@Override
-	public List<RDFEvent> pattern(Node subject) {
+	public List<RDFEvent> pattern(Node subject, Location location) {
 		return Collections.emptyList();
 	}
 

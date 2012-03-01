@@ -17,9 +17,11 @@
  */
 package org.callimachusproject.engine.events;
 
-import org.callimachusproject.engine.model.TermFactory;
-
 import info.aduna.net.ParsedURI;
+
+import javax.xml.stream.Location;
+
+import org.callimachusproject.engine.model.TermFactory;
 
 /**
  * Establishes the base URI of the document.
@@ -32,6 +34,11 @@ public class Base extends RDFEvent {
 	private TermFactory tf;
 
 	public Base(String base) {
+		this(base, null);
+	}
+
+	public Base(String base, Location location) {
+		super(location);
 		assert base != null;
 		this.tf = TermFactory.newInstance(base);
 		this.base = tf.reference(base).stringValue();

@@ -17,6 +17,8 @@
  */
 package org.callimachusproject.engine.events;
 
+import javax.xml.stream.Location;
+
 /**
  * SPARQL block.
  * 
@@ -25,8 +27,8 @@ package org.callimachusproject.engine.events;
  */
 public class Group extends RDFEvent {
 
-	public Group(boolean start) {
-		super(start);
+	public Group(boolean start, Location location) {
+		super(start, location);
 	}
 
 	public String toString() {

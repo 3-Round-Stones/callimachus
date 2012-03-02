@@ -41,7 +41,6 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
-import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.TermOrigin;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -53,7 +52,6 @@ import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.impl.TupleQueryResultImpl;
-import org.openrdf.repository.RepositoryConnection;
 
 /**
  * Produce XHTML+RDFa events from a streamed template and SPARQL result set 
@@ -92,7 +90,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 	Context context = new Context();
 	String skipElement = null;
 	BindingSet bindings;
-	RepositoryConnection con;
 	XMLEvent previous;
 	
 	class Context {
@@ -114,24 +111,21 @@ public class RDFaProducer extends XMLEventReaderBase {
 			resultOnEntry = result;
 		}
 	}
-	
-	/* FIXME @Param con	required to resolve (datatype) namespace prefixes */
 
-	public RDFaProducer(XMLEventReader reader, RepositoryConnection con)
-			throws QueryEvaluationException, XMLStreamException {
-		this(reader, EMPTY_RESULT, EMPTY_MAP, null, con);
+	public RDFaProducer(XMLEventReader reader) throws QueryEvaluationException,
+			XMLStreamException {
+		this(reader, EMPTY_RESULT, EMPTY_MAP, null);
 	}
 
 	public RDFaProducer(XMLEventReader reader, TupleQueryResult resultSet,
-			Map<String, TermOrigin> origins, BindingSet bindings,
-			RepositoryConnection con) throws QueryEvaluationException,
-			XMLStreamException {
-		this(new XMLEventList(reader), resultSet, origins, bindings, con);
+			Map<String, TermOrigin> origins, BindingSet bindings)
+			throws QueryEvaluationException, XMLStreamException {
+		this(new XMLEventList(reader), resultSet, origins, bindings);
 	}
 
 	private RDFaProducer(XMLEventList list, TupleQueryResult resultSet,
-			Map<String, TermOrigin> origins, BindingSet bindings,
-			RepositoryConnection con) throws QueryEvaluationException {
+			Map<String, TermOrigin> origins, BindingSet bindings)
+			throws QueryEvaluationException {
 		super();
 		this.input = list;
 		this.reader = list.iterator();
@@ -139,7 +133,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 		this.resultSet = resultSet;
 		result = nextResult();
 		this.bindings = bindings;
-		this.con = con;
 
 		for (String name : resultSet.getBindingNames()) {
 			TermOrigin origin = origins.get(name);
@@ -583,20 +576,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 		return val;
 	}
 	
-	Node curie(String curie) {
-		if (curie==null) return null;
-		String[] parts = curie.split(":");
-		if (parts.length!=2) return null;
-		return curie(parts[0],parts[1]);
-	}
-	
-	Node curie(String prefix, String localPart) {
-		NamespaceContext ctx = context.start.getNamespaceContext();
-		String ns = ctx.getNamespaceURI(prefix);
-		if (ns==null) ns = getNamespaceURI(prefix);
-		return termFactory.curie(ns, localPart, prefix);
-	}
-	
 	private String getVar(String property, String path) {
 		for (String name: origins.keySet()) {
 			if (!name.startsWith("_")) continue;
@@ -655,49 +634,12 @@ public class RDFaProducer extends XMLEventReaderBase {
 		return content;
 	}
 	
-	String getNamespaceURI(String prefix) {
-		if (prefix==null) return null;
-		String namespace = null;
-		try {
-			List<org.openrdf.model.Namespace> l = con.getNamespaces().asList();
-			for (int i=0; i<l.size(); i++) {
-				if (prefix.equals(l.get(i).getPrefix())) {
-					namespace = l.get(i).getName();
-					break;
-				}
-			}
-		} 
-		catch (Exception e) {}
-		return namespace;
-	}
-	
 	String getPrefix(String namespace, NamespaceContext ctx) {
 		if (namespace==null) return null;
 		String prefix = ctx.getPrefix(namespace);
 		// deal with problematic namespaces without trailing symbol
 		if (prefix==null && namespace.endsWith("#")) 
 			prefix = ctx.getPrefix(namespace.substring(0,namespace.length()-1));
-		return prefix;
-	}
-	
-	String getPrefix(String namespace, RepositoryConnection con) {
-		if (namespace==null) return null;
-		String prefix = null;
-		try {
-			List<org.openrdf.model.Namespace> l = con.getNamespaces().asList();
-			for (int i=0; i<l.size(); i++) {
-				if (namespace.equals(l.get(i).getName())) {
-					prefix = l.get(i).getPrefix();
-					break;
-				}
-				if (namespace.endsWith("#") 
-				&& l.get(i).getName().equals(namespace.substring(0, namespace.length()-1))) {
-					prefix = l.get(i).getPrefix();
-					break;					
-				}
-			}
-		} 
-		catch (Exception e) {}
 		return prefix;
 	}
 		
@@ -723,8 +665,11 @@ public class RDFaProducer extends XMLEventReaderBase {
 				URI uri = new URIImpl(namespaceURI);
 				String prefix = getPrefix(uri.getNamespace(), ctx);
 				// otherwise use the repository connection to resolve the prefix
-				if (prefix==null) prefix = getPrefix(uri.getNamespace(), con);
-				datatype = prefix+":"+uri.getLocalName();
+				if (prefix==null) {
+					datatype = uri.stringValue();
+				} else {
+					datatype = prefix+":"+uri.getLocalName();
+				}
 			}
 			catch (Exception e) {}
 		}
@@ -840,7 +785,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 				String p = getPrefix(namespaceURI,ctx);
 				// if the namespace is already defined clear it
 				if (p!=null) namespaceURI = null;
-				else prefix = getPrefix(namespaceURI,con);
+				else prefix = null;
 			}
 			nextNamespace = more();
 		}

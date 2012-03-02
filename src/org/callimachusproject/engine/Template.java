@@ -82,7 +82,7 @@ public class Template {
 			TupleQueryResult results = q.evaluate();
 			Map<String, TermOrigin> origins = producer.getOrigins();
 			XMLEventReader xml = openSource();
-			return new RDFaProducer(xml, results, origins, bindings, con);
+			return new RDFaProducer(xml, results, origins, bindings);
 		} catch (MalformedQueryException e) {
 			throw new TemplateException(e);
 		} catch (RepositoryException e) {

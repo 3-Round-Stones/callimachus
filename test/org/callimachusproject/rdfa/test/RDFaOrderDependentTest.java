@@ -339,7 +339,7 @@ public class RDFaOrderDependentTest {
 			TupleQueryResult results = q.evaluate();
 			MapBindingSet bindings = new MapBindingSet();
 			bindings.addBinding("this", self);
-			XMLEventReader xrdfa = new RDFaProducer(xml.iterator(), results, sparql.getOrigins(),bindings,con);
+			XMLEventReader xrdfa = new RDFaProducer(xml.iterator(), results, sparql.getOrigins(),bindings);
 		
 			XMLEventReader targetXML = xmlInputFactory.createXMLEventReader(new FileReader(target));
 			boolean ok = equivalent(xrdfa,targetXML,base);
@@ -358,7 +358,7 @@ public class RDFaOrderDependentTest {
 			if (!ok || verbose || show_xml) {
 				System.out.println("\nOUTPUT:");
 				results = q.evaluate();
-				Document doc = asDocument(new RDFaProducer(xml.iterator(), results, sparql.getOrigins(),bindings,con));
+				Document doc = asDocument(new RDFaProducer(xml.iterator(), results, sparql.getOrigins(),bindings));
 				write(doc,System.out);
 			}
 			if (!ok || verbose || show_results) {

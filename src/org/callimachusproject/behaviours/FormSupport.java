@@ -151,7 +151,7 @@ public abstract class FormSupport implements Page, RDFObject {
 		URI about = vf.createURI(base);
 		MapBindingSet bindings = new MapBindingSet();
 		bindings.addBinding("this", about);
-		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins(), bindings, con);
+		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins(), bindings);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
@@ -191,7 +191,7 @@ public abstract class FormSupport implements Page, RDFObject {
 		URI about = vf.createURI(base);
 		MapBindingSet bindings = new MapBindingSet();
 		bindings.addBinding("this", about);
-		RDFaProducer xhtml = new RDFaProducer(template.iterator(), results, rq.getOrigins(), bindings, con);
+		RDFaProducer xhtml = new RDFaProducer(template.iterator(), results, rq.getOrigins(), bindings);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
@@ -240,7 +240,7 @@ public abstract class FormSupport implements Page, RDFObject {
 		}
 		MapBindingSet bindings = new MapBindingSet();
 		bindings.addBinding("this", about);
-		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins(), bindings, con);
+		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins(), bindings);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();		
 	}
 

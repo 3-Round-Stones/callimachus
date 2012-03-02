@@ -101,15 +101,6 @@ public class RDFaReader extends AbstractRDFEventReader {
 	public static final String PROPERTY_EXP_REGEX = "\\{([" + NCNameChar
 			+ "]*):([" + NCNameChar + "]*?)\\}";
 	
-	// The TEXT_CONTENT signifier is required to distinguish content from property expressions
-	// where the same property is used for both in the same element. 
-	// The content @origin ends with '!', while the property expression ends with the property
-	// This is not used where content is assigned a variable.
-	public static final String TEXT_CONTENT = "!";
-	
-	// The BLANK signifies blank nodes introduced by typeof
-	public static final String BLANK = "_";
-	
 	// The element stack keeps track of the origin of the node
 	private Stack<Integer> elementStack = new Stack<Integer>();
 	private int elementIndex = 1;
@@ -127,12 +118,12 @@ public class RDFaReader extends AbstractRDFEventReader {
 	
 	/* return the elementStack as a string that represents a template path */
 	
-	public String origin() {
-		StringBuffer b = new StringBuffer();
+	public TermOrigin origin() {
+		TermOrigin b = new TermOrigin();
 		for(Iterator<Integer> i=elementStack.iterator(); i.hasNext();) {
-			b.append("/"+i.next());
+			b = b.slash(i.next());
 		}
-		return b.toString();
+		return b;
 	}
 
 	public String toString() {
@@ -292,7 +283,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 		private String content;
 		private Node datatype;
 		private boolean startedSubject;
-		String origin;
+		TermOrigin origin;
 		// record variable nodes as they are declared
 		// the same variable may be re-used within a descendant tag
 		HashMap<String,Node> vars = new HashMap<String,Node>();
@@ -463,13 +454,13 @@ public class RDFaReader extends AbstractRDFEventReader {
 
 		public BlankNode getBlankNode() {
 			BlankNode b = new BlankNode("n" + number);
-			b.setOrigin(new TermOrigin(origin+" "+BLANK));
+			b.setOrigin(origin.blank());
 			return b;
 		}
 
 		public BlankNode getNextBlankNode() {
 			BlankNode b = new BlankNode("n" + (number + 1));
-			b.setOrigin(new TermOrigin(origin));
+			b.setOrigin(origin);
 			return b;
 		}
 
@@ -623,7 +614,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 			while (m.find()) {
 				PlainLiteral lit = tf.literal("");
 				Node c = curie(m.group(1)+":"+m.group(2));
-				lit.setOrigin(new TermOrigin(origin+" "+c));
+				lit.setOrigin(origin.term(c));
 				
 				if (isHanging()) {
 					List<Node> rel = getRel();
@@ -750,11 +741,11 @@ public class RDFaReader extends AbstractRDFEventReader {
 			}
 			if (!value.startsWith("[")) {
 				Reference r = tf.reference(resolve(value), value);
-				r.setOrigin(new TermOrigin(origin));
+				r.setOrigin(origin);
 				return r;
 			}
 			Node c = curie(value.substring(1, value.length() - 1));
-			c.setOrigin(new TermOrigin(origin));
+			c.setOrigin(origin);
 			return c;
 		}
 
@@ -794,7 +785,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 			}
 			String reference = value.substring(idx + 1);
 			Node c = tf.curie(namespaceURI, reference, prefix);
-			c.setOrigin(new TermOrigin(origin));
+			c.setOrigin(origin);
 			return c;
 		}
 
@@ -808,7 +799,11 @@ public class RDFaReader extends AbstractRDFEventReader {
 				String lang) {
 			PlainLiteral lit = tf.literal(content, lang);
 			//lit.setOrigin(origin+" "+TEXT_CONTENT);
-			lit.setOrigin(new TermOrigin(origin+(content.isEmpty()?(" "+TEXT_CONTENT):"")));
+			if (content.isEmpty()) {
+				lit.setOrigin(origin.textContent());
+			} else {
+				lit.setOrigin(origin);
+			}
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit, getLocation()));
 			}
@@ -818,7 +813,11 @@ public class RDFaReader extends AbstractRDFEventReader {
 				IRI datatype) {
 			TypedLiteral lit = tf.literal(content, datatype);
 			//lit.setOrigin(origin+" "+TEXT_CONTENT);
-			lit.setOrigin(new TermOrigin(origin+(content.isEmpty()?(" "+TEXT_CONTENT):"")));
+			if (content.isEmpty()) {
+				lit.setOrigin(origin.textContent());
+			} else {
+				lit.setOrigin(origin);
+			}
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit, getLocation()));
 			}

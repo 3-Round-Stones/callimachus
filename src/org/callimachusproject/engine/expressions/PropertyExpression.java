@@ -19,7 +19,7 @@ import org.openrdf.model.Value;
 public class PropertyExpression implements Expression {
 	private AbsoluteTermFactory tf;
 	private IRI property;
-	private String origin;
+	private TermOrigin origin;
 
 	public PropertyExpression(String curie, Map<String, String> namespaces,
 			AbsoluteTermFactory tf) throws RDFParseException {
@@ -51,7 +51,7 @@ public class PropertyExpression implements Expression {
 	@Override
 	public List<RDFEvent> pattern(Node subject, Location location) {
 		PlainLiteral lit = tf.literal("");
-		lit.setOrigin(new TermOrigin(origin+" "+property));
+		lit.setOrigin(origin.term(property));
 		RDFEvent triple = new Triple(subject, property, lit, location);
 		return Collections.singletonList(triple);
 	}

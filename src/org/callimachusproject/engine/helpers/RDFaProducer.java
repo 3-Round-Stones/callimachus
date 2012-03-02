@@ -388,7 +388,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			List<String> split = Arrays.asList(origin.getString().split(" "));
 			// implicit vars (apart from CONTENT) need not be grounded
 			if (name.startsWith("_") 
-			&& !(split.contains(RDFaReader.TEXT_CONTENT) || split.contains("_"))) 
+			&& !(split.contains(TermOrigin.TEXT_CONTENT) || split.contains("_"))) 
 				continue;
 			if (split.get(0).equals(context.path) && context.assignments.get(name)==null) 
 				return false;
@@ -599,7 +599,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			List<String> origin = Arrays.asList(value.getString().split(" "));
 			if (origin.get(0).equals(context.path)) {
 				// context.property refers to CONTENT
-				if (origin.contains(RDFaReader.TEXT_CONTENT))
+				if (origin.contains(TermOrigin.TEXT_CONTENT))
 					content = b.getValue();
 				if (b.getName().startsWith("_")) {
 					Value val = b.getValue();

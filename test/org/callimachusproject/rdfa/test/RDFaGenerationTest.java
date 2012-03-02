@@ -362,7 +362,7 @@ public class RDFaGenerationTest extends TestCase {
 			//xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
 			MapBindingSet bindings = new MapBindingSet();
 			bindings.addBinding("this", self);
-			XMLEventReader xrdfa = temp.openResultReader(temp.getQuery(), bindings);
+			XMLEventReader xrdfa = temp.openResult(bindings);
 
 			Document outputDoc = asDocument(xrdfa);
 		

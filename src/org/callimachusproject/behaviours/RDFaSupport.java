@@ -62,7 +62,7 @@ public abstract class RDFaSupport implements Page, RDFObject {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("realm", realm);
 		Template temp = engine.getTemplate(base, param).getElement(element);
-		return temp.openSourceReader();
+		return temp.openSource();
 	}
 
 	@method("GET")
@@ -73,7 +73,7 @@ public abstract class RDFaSupport implements Page, RDFObject {
 		String base = getResource().stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
 		Template temp = engine.getTemplate(base).getElement(element);
-		XMLEventReader doc = temp.openSourceReader();
+		XMLEventReader doc = temp.openSource();
 		return new RDFXMLEventReader(new RDFaReader(base, doc, toString()));
 	}
 
@@ -93,7 +93,7 @@ public abstract class RDFaSupport implements Page, RDFObject {
 		String base = getResource().stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
 		Template temp = engine.getTemplate(base).getElement(element);
-		RDFEventReader reader = temp.openQueryReader();
+		RDFEventReader reader = temp.openQuery();
 		Base resolver = new Base(base);
 		if (about == null) {
 			reader = new OverrideBaseReader(resolver, null, reader);

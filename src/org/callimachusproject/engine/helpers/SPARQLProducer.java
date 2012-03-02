@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.Location;
@@ -32,7 +31,6 @@ import javax.xml.stream.Location;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.Ask;
-import org.callimachusproject.engine.events.Comment;
 import org.callimachusproject.engine.events.Group;
 import org.callimachusproject.engine.events.Optional;
 import org.callimachusproject.engine.events.RDFEvent;
@@ -62,7 +60,6 @@ public class SPARQLProducer extends RDFEventPipe {
 		+ "\\u00B7\\u0300-\\u036F\\u203F-\\u2040]+");
 	
 	private static final Pattern WHITE_SPACE = Pattern.compile("\\s*");
-	private static final String ORIGIN_ANNOTATION = "@origin" ;
 		
 	private static boolean OPEN = true, CLOSE = false;
 	private Stack<Context> stack = new Stack<Context>();	
@@ -255,11 +252,6 @@ public class SPARQLProducer extends RDFEventPipe {
 			while (!stack.isEmpty()) stack.peek().close();
 			if (isSelectQuery() || isAskQuery()) {
 				add(new Where(CLOSE, event.getLocation()));
-				// add annotation comments to record variable origins
-				for (String var: origins.keySet()) {
-					String comment = " "+ORIGIN_ANNOTATION+" "+var+" "+origins.get(var);
-					add(new Comment(comment, event.getLocation()));
-				}
 			}
 			add(event);
 		}
@@ -600,20 +592,6 @@ public class SPARQLProducer extends RDFEventPipe {
 	}
 		
 	public Map<String,String> getOrigins() {
-		return origins;
-	}
-	
-	/* extract origins from sparql query annotation */
-	
-	// # @origin ([^\s]+)\s([^\n]+)\n
-	private static final String ORIGIN_REGEX = "# @origin ([^\\s]+)\\s([^\\n]+)\\n";
-	private static final Pattern ORIGIN_PATTERN = Pattern.compile(ORIGIN_REGEX);
-
-	public static Map<String,String> getOrigins(String sparql) {
-		Map<String,String> origins = new LinkedHashMap<String,String>();
-		Matcher m = ORIGIN_PATTERN.matcher(sparql);
-		while (m.find())
-			origins.put(m.group(1), m.group(2));
 		return origins;
 	}
 }

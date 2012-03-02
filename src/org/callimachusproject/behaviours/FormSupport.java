@@ -211,7 +211,7 @@ public abstract class FormSupport implements Page, RDFObject {
 			Template temp = engine.getTemplate(in, toString());
 			MapBindingSet bindings = new MapBindingSet();
 			bindings.addBinding("this", about);
-			return temp.openResultReader(temp.getQuery(), bindings);
+			return temp.openResult(bindings);
 		} finally {
 			in.close();
 		}

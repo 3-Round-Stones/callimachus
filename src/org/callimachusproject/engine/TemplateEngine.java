@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
@@ -82,7 +83,7 @@ public class TemplateEngine {
 		}
 	}
 
-	private String xslt(InputStream in, String systemId,
+	private XMLEventReader xslt(InputStream in, String systemId,
 			Map<String, ?> parameters) throws XMLStreamException,
 			IOException, TransformerException {
 		if (!in.markSupported()) {
@@ -90,7 +91,7 @@ public class TemplateEngine {
 		}
 		String href = readXSLTSource(in);
 		if (href == null)
-			return new XSLTransformer().transform(in, systemId).asString();
+			return new XSLTransformer().transform(in, systemId).asXMLEventReader();
 		String xsl = URI.create(systemId).resolve(href).toASCIIString();
 		XSLTransformer xslt = newXSLTransformer(xsl);
 		TransformBuilder transform = xslt.transform(in, systemId);
@@ -105,7 +106,7 @@ public class TemplateEngine {
 				transform = transform.with(e.getKey(), e.getValue());
 			}
 		}
-		return transform.asString();
+		return transform.asXMLEventReader();
 	}
 
 	private XSLTransformer newXSLTransformer(String xsl) {

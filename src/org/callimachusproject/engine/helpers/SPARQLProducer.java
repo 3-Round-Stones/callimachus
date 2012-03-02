@@ -55,7 +55,7 @@ import org.openrdf.model.impl.URIImpl;
  * @author James Leigh
  * @author Steve Battle
  */
-public class SPARQLProducer extends BufferedRDFEventReader {
+public class SPARQLProducer extends RDFEventPipe {
 	private static final Pattern VAR_REGEX = Pattern
 		.compile("[a-zA-Z0-9_"
 		+ "\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD"
@@ -97,6 +97,9 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	// queries are in union form by default
 	// reset this to select OPTIONAL only form
 	private boolean unionForm = true;
+
+	private RDFEventList input;
+	private RDFEventIterator reader;
 	
 	public boolean isSelectQuery() {
 		return queryType==QUERY.SELECT;
@@ -114,8 +117,18 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 		);
 	}
 	
-	public SPARQLProducer(RDFEventReader reader) {
-		super(reader);
+	public SPARQLProducer(RDFEventReader reader) throws RDFParseException {
+		this(new RDFEventList(reader));
+	}
+	
+	private SPARQLProducer(RDFEventList list) {
+		this(list, list.iterator());
+	}
+	
+	private SPARQLProducer(RDFEventList list, RDFEventIterator iter) {
+		super(iter);
+		this.input = list;
+		this.reader = iter;
 	}
 	
 	public SPARQLProducer setQueryType(QUERY queryType) {
@@ -329,11 +342,11 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	 */
 	
 	private void promotion() throws RDFParseException {
-		int lookAhead=0, depth=0;
+		int lookAhead=reader.nextIndex(), depth=0;
 		String x=null, y;
 		RDFEvent e;
 		do {
-			e = peek(lookAhead++);
+			e = input.get(lookAhead++);
 			if (e.isStartSubject()) {
 				depth++;
 				if (x==null) {
@@ -369,20 +382,20 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	}
 
 	private void addBase() throws RDFParseException {
-		int lookAhead=0;
+		int lookAhead=reader.nextIndex();
 		RDFEvent e;
 		do {
-			e = peek(lookAhead++);
+			e = input.get(lookAhead++);
 			if (e.isBase())
 				add(e);
 		} while (!e.isStart() && !e.isEnd());		
 	}
 
 	private void addPrefixes() throws RDFParseException {
-		int lookAhead=0;
+		int lookAhead=reader.nextIndex();
 		RDFEvent e;
 		do {
-			e = peek(lookAhead++);
+			e = input.get(lookAhead++);
 			if (e.isNamespace())
 				add(e);
 		} while (!e.isEndDocument());		
@@ -406,10 +419,10 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	}
 
 	private Context addMandatoryTriples(Context context) throws RDFParseException {
-		int lookAhead=0, depth=0;
+		int lookAhead=reader.nextIndex(), depth=0;
 		RDFEvent e;
 		while (depth>=0) { // look-ahead until we reach corresponding close subject
-			e = peek(lookAhead++);
+			e = input.get(lookAhead++);
 			if (e.isStartSubject()) depth++;
 			else if (e.isEndSubject()) depth-- ;
 			// don't consider mandatory triples in nested contexts
@@ -435,13 +448,12 @@ public class SPARQLProducer extends BufferedRDFEventReader {
 	}
 	
 	private boolean singleton(Context context) throws RDFParseException {
-		int lookAhead=0, depth=0;
+		int lookAhead=reader.nextIndex(), depth=0;
 		if (outOfLine) return false;
 		boolean singleton=true;
 		RDFEvent e;
-		while (depth>=0 && singleton) {
-			e = peek(lookAhead++);
-			if (e==null) break;
+		while (depth>=0 && singleton && lookAhead < input.size()) {
+			e = input.get(lookAhead++);
 			if (e.isStartSubject()) {
 				singleton = false;				
 				depth++;

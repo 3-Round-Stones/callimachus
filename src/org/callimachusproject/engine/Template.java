@@ -70,8 +70,12 @@ public class Template {
 	public RDFEventReader openQueryReader() throws TemplateException {
 		XMLEventReader xml = openSourceReader();
 		RDFEventReader reader = new RDFaReader(systemId, xml, systemId);
-		RDFEventReader sparql = new SPARQLProducer(reader);
-		return new OrderedSparqlReader(sparql);
+		try {
+			RDFEventReader sparql = new SPARQLProducer(reader);
+			return new OrderedSparqlReader(sparql);
+		} catch (RDFParseException e) {
+			throw new TemplateException(e);
+		}
 	}
 
 	public XMLEventReader openResultReader(String sparql, BindingSet bindings)

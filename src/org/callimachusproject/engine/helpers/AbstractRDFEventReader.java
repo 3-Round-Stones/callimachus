@@ -17,41 +17,43 @@
  */
 package org.callimachusproject.engine.helpers;
 
-import java.util.Iterator;
-
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
 
 /**
- * Converts {@link Iterable} into {@link RDFEventReader}.
+ * Base class for piped RDF readers.
  * 
  * @author James Leigh
  *
  */
-public class IterableRDFEventReader extends RDFEventReader {
-	private Iterable<? extends RDFEvent> list;
-	private Iterator<? extends RDFEvent> iter;
+public abstract class AbstractRDFEventReader implements RDFEventReader {
+	private RDFEvent next;
 
-	public IterableRDFEventReader(Iterable<? extends RDFEvent> list) {
-		this.list = list;
-		this.iter = list.iterator();
+	public final boolean hasNext() throws RDFParseException {
+		if (next == null)
+			return (next = take()) != null;
+		return true;
 	}
 
-	public String toString() {
-		return list.toString();
+	public final RDFEvent peek() throws RDFParseException {
+		if (next == null)
+			return next = take();
+		return next;
 	}
 
-	@Override
-	public void close() throws RDFParseException {
-		// no-op
+	public final RDFEvent next() throws RDFParseException {
+		if (next == null)
+			return take();
+		try {
+			return next;
+		} finally {
+			next = null;
+		}
 	}
 
-	@Override
-	protected RDFEvent take() throws RDFParseException {
-		if (iter.hasNext())
-			return iter.next();
-		return null;
-	}
+	public abstract void close() throws RDFParseException;
+
+	protected abstract RDFEvent take() throws RDFParseException;
 
 }

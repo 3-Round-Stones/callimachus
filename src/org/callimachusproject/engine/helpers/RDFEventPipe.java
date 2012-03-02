@@ -18,7 +18,6 @@
 package org.callimachusproject.engine.helpers;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -28,18 +27,16 @@ import org.callimachusproject.engine.events.RDFEvent;
 
 /**
  * Wraps an {@link RDFEventReader} and provides a {@link Queue} to buffer the output.
- * Provides a {@link Queue} to buffer the input allowing look-ahead to arbitrary depth.
  * 
  * @author James Leigh
  * @author Steve Battle
  *
  */
-public abstract class BufferedRDFEventReader extends RDFEventReader {
+public abstract class RDFEventPipe extends AbstractRDFEventReader {
 	private RDFEventReader reader;
 	private Queue<RDFEvent> queue = new LinkedList<RDFEvent>();
-	private Queue<RDFEvent> buffer = new LinkedList<RDFEvent>();
 
-	public BufferedRDFEventReader(RDFEventReader reader) {
+	public RDFEventPipe(RDFEventReader reader) {
 		assert reader != null;
 		this.reader = reader;
 	}
@@ -55,8 +52,7 @@ public abstract class BufferedRDFEventReader extends RDFEventReader {
 
 	protected final RDFEvent take() throws RDFParseException {
 		while (queue.isEmpty()) {
-			if (!buffer.isEmpty()) process(buffer.remove());
-			else if (reader.hasNext()) process(reader.next());
+			if (reader.hasNext()) process(reader.next());
 			else return null;
 		}
 		return queue.remove();
@@ -68,22 +64,6 @@ public abstract class BufferedRDFEventReader extends RDFEventReader {
 
 	protected final boolean addAll(Collection<? extends RDFEvent> c) {
 		return queue.addAll(c);
-	}
-
-	protected final RDFEvent peekNext() throws RDFParseException {
-		if (buffer.isEmpty()) return reader.peek();
-		else return buffer.peek();
-	}
-	
-	protected final RDFEvent peek(int lookAhead) throws RDFParseException {
-		while (buffer.size()<=lookAhead) {
-			buffer.add(reader.next());
-		}
-		if (buffer.size()==lookAhead) return reader.peek();
-		Iterator<RDFEvent> it = buffer.iterator();
-		RDFEvent e = null;
-		while (lookAhead-->=0) e = (RDFEvent) it.next(); 
-		return e;
 	}
 
 	protected abstract void process(RDFEvent next) throws RDFParseException;

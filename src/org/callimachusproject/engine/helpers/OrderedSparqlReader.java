@@ -12,7 +12,7 @@ import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
 
-public class OrderedSparqlReader extends RDFEventReader {
+public class OrderedSparqlReader extends AbstractRDFEventReader {
 	private final RDFEventReader delegate;
 	private RDFEvent next;
 	private List<List<Var>> parent_vars = new ArrayList<List<Var>>();

@@ -26,12 +26,12 @@ import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.events.RDFEvent;
 
 /**
- * Wraps an {@link RDFEventReader} and provides a {@link Queue} to buffer the output.
+ * Wraps an {@link AbstractRDFEventReader} and provides a {@link Queue} to buffer the output.
  * 
  * @author James Leigh
  *
  */
-public abstract class PipedRDFEventReader extends RDFEventReader {
+public abstract class PipedRDFEventReader extends AbstractRDFEventReader {
 	private RDFEventReader reader;
 	private Queue<RDFEvent> queue = new LinkedList<RDFEvent>();
 

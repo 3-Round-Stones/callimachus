@@ -20,7 +20,7 @@ import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.events.Union;
 import org.callimachusproject.engine.events.Where;
 import org.callimachusproject.engine.helpers.BlankOrLiteralVar;
-import org.callimachusproject.engine.helpers.IterableRDFEventReader;
+import org.callimachusproject.engine.helpers.RDFEventIterator;
 import org.callimachusproject.engine.helpers.OrderedSparqlReader;
 import org.callimachusproject.engine.impl.IRIImpl;
 import org.callimachusproject.engine.impl.VarImpl;
@@ -470,7 +470,7 @@ public class OrderByTest {
 
 	private void assertOrderBy(List<RDFEvent> list, String string)
 			throws RDFParseException, IOException {
-		RDFEventReader sparql = new IterableRDFEventReader(list);
+		RDFEventReader sparql = new RDFEventIterator(list, list.listIterator());
 		String query = toSPARQL(new OrderedSparqlReader(sparql));
 		Assert.assertTrue(query.contains("ORDER BY"));
 		String orderBy = query.substring(query.indexOf("ORDER BY"));

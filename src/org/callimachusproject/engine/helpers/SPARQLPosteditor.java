@@ -44,7 +44,7 @@ import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.openrdf.model.URI;
 
-public class SPARQLPosteditor extends BufferedRDFEventReader {
+public class SPARQLPosteditor extends RDFEventPipe {
 	private static final String KEYWORD_NS = "http://www.openrdf.org/rdf/2011/keyword#";
 	private static boolean OPEN = true, CLOSE = false;
 
@@ -191,12 +191,20 @@ public class SPARQLPosteditor extends BufferedRDFEventReader {
 		return true;
 	}	
 
-	public SPARQLPosteditor(RDFEventReader reader, Map<String, String> origins) {
+	public SPARQLPosteditor(RDFEventReader reader, Map<String, String> origins) throws RDFParseException {
+		this(new RDFEventList(reader), origins);
+	}	
+
+	public SPARQLPosteditor(RDFEventList list, Map<String, String> origins) {
+		this(list, list.iterator(), origins);
+	}	
+
+	public SPARQLPosteditor(RDFEventList input, RDFEventIterator reader, Map<String, String> origins) {
 		super(reader);
 		this.origins = origins;
 	}
 	
-	public SPARQLPosteditor(SPARQLProducer producer) {
+	public SPARQLPosteditor(SPARQLProducer producer) throws RDFParseException {
 		this(producer,producer.getOrigins());
 	}
 	

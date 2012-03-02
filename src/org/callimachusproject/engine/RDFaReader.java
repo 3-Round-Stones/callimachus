@@ -51,6 +51,7 @@ import org.callimachusproject.engine.events.Document;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.Subject;
 import org.callimachusproject.engine.events.Triple;
+import org.callimachusproject.engine.helpers.AbstractRDFEventReader;
 import org.callimachusproject.engine.helpers.NamespaceStartElement;
 import org.callimachusproject.engine.impl.BlankNode;
 import org.callimachusproject.engine.model.IRI;
@@ -67,7 +68,7 @@ import org.callimachusproject.engine.model.TypedLiteral;
  * @author Steve Battle
  * 
  */
-public class RDFaReader extends RDFEventReader {
+public class RDFaReader extends AbstractRDFEventReader {
 	private static final String XML = "http://www.w3.org/XML/1998/namespace";
 	private static final String RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 	private static final String XHV = "http://www.w3.org/1999/xhtml/vocab#";

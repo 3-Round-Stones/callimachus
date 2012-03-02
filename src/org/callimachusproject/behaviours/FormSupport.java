@@ -42,13 +42,13 @@ import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateEngineFactory;
 import org.callimachusproject.engine.events.TriplePattern;
-import org.callimachusproject.engine.helpers.BufferedXMLEventReader;
 import org.callimachusproject.engine.helpers.DeDupedResultSet;
 import org.callimachusproject.engine.helpers.OrderedSparqlReader;
 import org.callimachusproject.engine.helpers.RDFaProducer;
 import org.callimachusproject.engine.helpers.SPARQLPosteditor;
 import org.callimachusproject.engine.helpers.SPARQLProducer;
 import org.callimachusproject.engine.helpers.TemplateReader;
+import org.callimachusproject.engine.helpers.XMLEventList;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.BadRequest;
@@ -137,9 +137,8 @@ public abstract class FormSupport implements Page, RDFObject {
 	public InputStream options
 	(@query("element") String element) throws Exception {
 		String base = getResource().stringValue();
-		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(element));
-		template.mark();
-		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
+		XMLEventList template = new XMLEventList(xslt(element));
+		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template.iterator(), toString()));
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
 		
 		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
@@ -150,10 +149,9 @@ public abstract class FormSupport implements Page, RDFObject {
 		String sparql = toSPARQL(new OrderedSparqlReader(ed)) + "\nLIMIT 1000";
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
 		URI about = vf.createURI(base);
-		template.reset(0);
 		MapBindingSet bindings = new MapBindingSet();
 		bindings.addBinding("this", about);
-		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), bindings, con);
+		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins(), bindings, con);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
@@ -170,9 +168,8 @@ public abstract class FormSupport implements Page, RDFObject {
 	(@query("element") String element, @query("q") String q)
 	throws Exception {
 		String base = getResource().stringValue();
-		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(element));
-		template.mark();
-		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
+		XMLEventList template = new XMLEventList(xslt(element));
+		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template.iterator(), toString()));
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
 		
 		// filter out the outer rel (the button may add additional bnodes that need to be cut out)
@@ -192,10 +189,9 @@ public abstract class FormSupport implements Page, RDFObject {
 		// The edited query may return multiple and/or empty solutions
 		TupleQueryResult results = new DeDupedResultSet(qry.evaluate(),true);
 		URI about = vf.createURI(base);
-		template.reset(0);
 		MapBindingSet bindings = new MapBindingSet();
 		bindings.addBinding("this", about);
-		RDFaProducer xhtml = new RDFaProducer(template, results, rq.getOrigins(), bindings, con);
+		RDFaProducer xhtml = new RDFaProducer(template.iterator(), results, rq.getOrigins(), bindings, con);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
@@ -223,9 +219,8 @@ public abstract class FormSupport implements Page, RDFObject {
 	
 	private InputStream dataConstruct(URI about, String element) throws Exception {
 		String base = getResource().stringValue();
-		BufferedXMLEventReader template = new BufferedXMLEventReader(xslt(element));
-		template.mark();
-		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template, toString()));
+		XMLEventList template = new XMLEventList(xslt(element));
+		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template.iterator(), toString()));
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
 		
 		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
@@ -243,10 +238,9 @@ public abstract class FormSupport implements Page, RDFObject {
 			if (vt.isVar())
 				qry.setBinding(vt.asVar().stringValue(), about);
 		}
-		template.reset(0);
 		MapBindingSet bindings = new MapBindingSet();
 		bindings.addBinding("this", about);
-		RDFaProducer xhtml = new RDFaProducer(template, qry.evaluate(), rq.getOrigins(), bindings, con);
+		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins(), bindings, con);
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();		
 	}
 

@@ -92,6 +92,8 @@ public class Template {
 			throw new TemplateException(e);
 		} catch (QueryEvaluationException e) {
 			throw new TemplateException(e);
+		} catch (XMLStreamException e) {
+			throw new TemplateException(e);
 		}
 	}
 

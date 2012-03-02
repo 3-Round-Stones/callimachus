@@ -53,10 +53,10 @@ import javax.xml.xpath.XPathFactory;
 
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFaReader;
-import org.callimachusproject.engine.helpers.BufferedXMLEventReader;
 import org.callimachusproject.engine.helpers.OrderedSparqlReader;
 import org.callimachusproject.engine.helpers.RDFaProducer;
 import org.callimachusproject.engine.helpers.SPARQLProducer;
+import org.callimachusproject.engine.helpers.XMLEventList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -327,10 +327,9 @@ public class RDFaOrderDependentTest {
 			}
 			// produce SPARQL from the RDFa template
 			XMLEventReader src = xmlInputFactory.createXMLEventReader(new FileReader(template));
-			BufferedXMLEventReader xml = new BufferedXMLEventReader(src);
-			int start = xml.mark();
+			XMLEventList xml = new XMLEventList(src);
 
-			RDFEventReader rdfa = new RDFaReader(base, xml, base);			
+			RDFEventReader rdfa = new RDFaReader(base, xml.iterator(), base);			
 			SPARQLProducer sparql = new SPARQLProducer(rdfa);
 			String query = toSPARQL(new OrderedSparqlReader(sparql));			
 			ValueFactory vf = con.getValueFactory();
@@ -338,10 +337,9 @@ public class RDFaOrderDependentTest {
 			URI self = vf.createURI(base);
 			q.setBinding("this", self);
 			TupleQueryResult results = q.evaluate();
-			xml.reset(start);
 			MapBindingSet bindings = new MapBindingSet();
 			bindings.addBinding("this", self);
-			XMLEventReader xrdfa = new RDFaProducer(xml, results, sparql.getOrigins(),bindings,con);
+			XMLEventReader xrdfa = new RDFaProducer(xml.iterator(), results, sparql.getOrigins(),bindings,con);
 		
 			XMLEventReader targetXML = xmlInputFactory.createXMLEventReader(new FileReader(target));
 			boolean ok = equivalent(xrdfa,targetXML,base);
@@ -359,9 +357,8 @@ public class RDFaOrderDependentTest {
 			}
 			if (!ok || verbose || show_xml) {
 				System.out.println("\nOUTPUT:");
-				xml.reset(start);
 				results = q.evaluate();
-				Document doc = asDocument(new RDFaProducer(xml, results, sparql.getOrigins(),bindings,con));
+				Document doc = asDocument(new RDFaProducer(xml.iterator(), results, sparql.getOrigins(),bindings,con));
 				write(doc,System.out);
 			}
 			if (!ok || verbose || show_results) {

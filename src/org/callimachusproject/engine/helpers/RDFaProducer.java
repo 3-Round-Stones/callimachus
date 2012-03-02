@@ -40,8 +40,8 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.callimachusproject.engine.RDFaReader;
-import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
+import org.callimachusproject.engine.model.Node;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
@@ -75,7 +75,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 	List<String> RDFaVarAttributes = Arrays.asList(RDFA_VAR_ATTRIBUTES);
 
 	// reads the input template
-	BufferedXMLEventReader reader;
+	XMLEventList input;
+	XMLEventIterator reader;
 	Map<String,String> origins;
 	TupleQueryResult resultSet;
 	BindingSet result;
@@ -113,40 +114,44 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 	}
 	
-	/* @Param con	required to resolve (datatype) namespace prefixes */
-	
-	public RDFaProducer
-	(BufferedXMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, BindingSet bindings, RepositoryConnection con) throws QueryEvaluationException {
+	/* FIXME @Param con	required to resolve (datatype) namespace prefixes */
+
+	public RDFaProducer(XMLEventReader reader, RepositoryConnection con)
+			throws QueryEvaluationException, XMLStreamException {
+		this(reader, EMPTY_RESULT, EMPTY_MAP, null, con);
+	}
+
+	public RDFaProducer(XMLEventReader reader, TupleQueryResult resultSet,
+			Map<String, String> origins, BindingSet bindings,
+			RepositoryConnection con) throws QueryEvaluationException,
+			XMLStreamException {
+		this(new XMLEventList(reader), resultSet, origins, bindings, con);
+	}
+
+	private RDFaProducer(XMLEventList list, TupleQueryResult resultSet,
+			Map<String, String> origins, BindingSet bindings,
+			RepositoryConnection con) throws QueryEvaluationException {
 		super();
-		this.reader = reader;
+		this.input = list;
+		this.reader = list.iterator();
 		this.origins = origins;
 		this.resultSet = resultSet;
 		result = nextResult();
 		this.bindings = bindings;
 		this.con = con;
-		
-		for (String name: resultSet.getBindingNames()) {
+
+		for (String name : resultSet.getBindingNames()) {
 			String origin = origins.get(name);
-			if (origin!=null)
+			if (origin != null)
 				branches.add(origin.split(" ")[0]);
-			else extraneous.add(name);
+			else
+				extraneous.add(name);
 		}
-	}
-	
-	public RDFaProducer
-	(XMLEventReader reader, TupleQueryResult resultSet, Map<String,String> origins, BindingSet bindings, RepositoryConnection con) throws QueryEvaluationException {
-		this(new BufferedXMLEventReader(reader), resultSet, origins, bindings, con);
-		this.reader.mark();
-	}
-	
-	public RDFaProducer(XMLEventReader reader, RepositoryConnection con) throws QueryEvaluationException {
-		this(reader, EMPTY_RESULT, EMPTY_MAP, null, con);
-		this.reader.mark();
 	}
 
 	@Override
 	public void close() throws XMLStreamException {
-		reader.close();
+		// do nothing
 	}
 
 	@Override
@@ -238,7 +243,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		context = new Context(context, start);
 		context.path = path();
 		// record the start element position in the stream
-		context.mark = reader.mark()-1;
+		context.mark = reader.nextIndex()-1;
 		
 		// skip element if current result is inconsistent with assignments
 		if (skipElement==null && !consistent() && hasRDFaMarkup(context.path))
@@ -296,7 +301,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			
 			context.position++;
 			if (consistent()) {
-				reader.reset(mark);
+				reader = input.listIterator(mark);
 				context.position--;
 				if (ws!=null) previous = ws;
 			}
@@ -868,8 +873,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		String tag = name.getNamespaceURI()+name.getLocalPart();
 		// only add content if the body is empty or ignorable whitespace
 		boolean hasBody = false;
-		for (int i=0; !hasBody; i++) {
-			XMLEvent e = reader.peek(i);
+		for (int i=reader.nextIndex(); !hasBody; i++) {
+			XMLEvent e = input.get(i);
 			if (e.isEndElement()) break;
 			if (e.isCharacters() && e.toString().trim().isEmpty()) continue;
 			hasBody = true;

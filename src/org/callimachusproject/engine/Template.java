@@ -14,6 +14,7 @@ import org.callimachusproject.engine.helpers.RDFaProducer;
 import org.callimachusproject.engine.helpers.SPARQLProducer;
 import org.callimachusproject.engine.helpers.XMLElementReader;
 import org.callimachusproject.engine.helpers.XMLEventList;
+import org.callimachusproject.engine.model.TermOrigin;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
@@ -79,7 +80,7 @@ public class Template {
 				q.setBinding(bind.getName(), bind.getValue());
 			}
 			TupleQueryResult results = q.evaluate();
-			Map<String, String> origins = producer.getOrigins();
+			Map<String, TermOrigin> origins = producer.getOrigins();
 			XMLEventReader xml = openSource();
 			return new RDFaProducer(xml, results, origins, bindings, con);
 		} catch (MalformedQueryException e) {

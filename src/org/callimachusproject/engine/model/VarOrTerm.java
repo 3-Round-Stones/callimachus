@@ -59,8 +59,8 @@ public interface VarOrTerm {
 
 	String stringValue();
 	
-	void setOrigin(String origin);
+	void setOrigin(TermOrigin origin);
 	
-	String getOrigin();
+	TermOrigin getOrigin();
 
 }

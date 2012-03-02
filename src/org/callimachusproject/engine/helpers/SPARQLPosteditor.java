@@ -40,6 +40,7 @@ import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.events.VarOrTermExpression;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
+import org.callimachusproject.engine.model.TermOrigin;
 import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.openrdf.model.URI;
@@ -51,7 +52,7 @@ public class SPARQLPosteditor extends RDFEventPipe {
 	private static AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 
 	List<Editor> editors = new LinkedList<Editor>();
-	Map<String, String> origins;
+	Map<String, TermOrigin> origins;
 	
 	interface Editor {
 		boolean edit(RDFEvent event);
@@ -185,21 +186,21 @@ public class SPARQLPosteditor extends RDFEventPipe {
 	private boolean match(Pattern p, VarOrTerm vt) {
 		if (p!=null && vt!=null && vt.isVar()) {
 			Var v = vt.asVar();
-			String origin = origins.get(v.stringValue());
-			return p.matcher(origin).matches();
+			TermOrigin origin = origins.get(v.stringValue());
+			return p.matcher(origin.getString()).matches();
 		}
 		return true;
 	}	
 
-	public SPARQLPosteditor(RDFEventReader reader, Map<String, String> origins) throws RDFParseException {
+	public SPARQLPosteditor(RDFEventReader reader, Map<String, TermOrigin> origins) throws RDFParseException {
 		this(new RDFEventList(reader), origins);
 	}	
 
-	public SPARQLPosteditor(RDFEventList list, Map<String, String> origins) {
+	public SPARQLPosteditor(RDFEventList list, Map<String, TermOrigin> origins) {
 		this(list, list.iterator(), origins);
 	}	
 
-	public SPARQLPosteditor(RDFEventList input, RDFEventIterator reader, Map<String, String> origins) {
+	public SPARQLPosteditor(RDFEventList input, RDFEventIterator reader, Map<String, TermOrigin> origins) {
 		super(reader);
 		this.origins = origins;
 	}

@@ -13,6 +13,7 @@ import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.PlainLiteral;
+import org.callimachusproject.engine.model.TermOrigin;
 import org.openrdf.model.Value;
 
 public class PropertyExpression implements Expression {
@@ -50,7 +51,7 @@ public class PropertyExpression implements Expression {
 	@Override
 	public List<RDFEvent> pattern(Node subject, Location location) {
 		PlainLiteral lit = tf.literal("");
-		lit.setOrigin(origin+" "+property);
+		lit.setOrigin(new TermOrigin(origin+" "+property));
 		RDFEvent triple = new Triple(subject, property, lit, location);
 		return Collections.singletonList(triple);
 	}

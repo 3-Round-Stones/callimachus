@@ -42,6 +42,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.Node;
+import org.callimachusproject.engine.model.TermOrigin;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
@@ -65,7 +66,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	private static final String BASE_TAG = "http://www.w3.org/1999/xhtmlbase";
 	private static final List<String> EMPTY_LIST = Collections.emptyList();
 	private static final Iterable<BindingSet> EMPTY_SET = Collections.emptySet();
-	private static final Map<String,String> EMPTY_MAP = Collections.emptyMap();
+	private static final Map<String,TermOrigin> EMPTY_MAP = Collections.emptyMap();
 	private static final TupleQueryResult EMPTY_RESULT = new TupleQueryResultImpl(EMPTY_LIST, EMPTY_SET);
 
 	final static String[] RDFA_OBJECT_ATTRIBUTES = { "about", "resource", "typeof", "content" };
@@ -77,7 +78,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	// reads the input template
 	XMLEventList input;
 	XMLEventIterator reader;
-	Map<String,String> origins;
+	Map<String,TermOrigin> origins;
 	TupleQueryResult resultSet;
 	BindingSet result;
 	Set<Binding> consumed;
@@ -122,14 +123,14 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 
 	public RDFaProducer(XMLEventReader reader, TupleQueryResult resultSet,
-			Map<String, String> origins, BindingSet bindings,
+			Map<String, TermOrigin> origins, BindingSet bindings,
 			RepositoryConnection con) throws QueryEvaluationException,
 			XMLStreamException {
 		this(new XMLEventList(reader), resultSet, origins, bindings, con);
 	}
 
 	private RDFaProducer(XMLEventList list, TupleQueryResult resultSet,
-			Map<String, String> origins, BindingSet bindings,
+			Map<String, TermOrigin> origins, BindingSet bindings,
 			RepositoryConnection con) throws QueryEvaluationException {
 		super();
 		this.input = list;
@@ -141,9 +142,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		this.con = con;
 
 		for (String name : resultSet.getBindingNames()) {
-			String origin = origins.get(name);
+			TermOrigin origin = origins.get(name);
 			if (origin != null)
-				branches.add(origin.split(" ")[0]);
+				branches.add(origin.getString().split(" ")[0]);
 			else
 				extraneous.add(name);
 		}
@@ -328,7 +329,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	private boolean hasRDFaMarkup(String path) {
 		for (String var: origins.keySet()) {
-			String[] origin = origins.get(var).split(" ");
+			String[] origin = origins.get(var).getString().split(" ");
 			// the RDFa may originate in this node or a descendant
 			if (origin[0].startsWith(path)) return true;
 		}
@@ -341,9 +342,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		for (Iterator<?> i=result.iterator(); i.hasNext();) {
 			Binding b = (Binding) i.next();
 			if (context.assignments.containsKey(b.getName())) continue;
-			String value = origins.get(b.getName());
+			TermOrigin value = origins.get(b.getName());
 			if (value == null) continue;
-			String[] origin = value.split(" ");
+			String[] origin = value.getString().split(" ");
 			if (!origin[0].startsWith(context.path)) return false;
 		}
 		return true;
@@ -389,9 +390,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// all explicit variables or content originating from this element must be bound
 		// These origins are the first use of a variable - no need to check subsequent use in descendants
 		for (String name: resultSet.getBindingNames()) {
-			String origin = origins.get(name);
+			TermOrigin origin = origins.get(name);
 			if (origin==null) continue;
-			List<String> split = Arrays.asList(origin.split(" "));
+			List<String> split = Arrays.asList(origin.getString().split(" "));
 			// implicit vars (apart from CONTENT) need not be grounded
 			if (name.startsWith("_") 
 			&& !(split.contains(RDFaReader.TEXT_CONTENT) || split.contains("_"))) 
@@ -407,9 +408,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// excluding property expressions
 		for (String name: resultSet.getBindingNames()) {
 			if (!name.startsWith("_") || extraneous.contains(name)) continue;
-			String value = origins.get(name);
+			TermOrigin value = origins.get(name);
 			if (value == null) continue;
-			String[] origin = value.split(" ");
+			String[] origin = value.getString().split(" ");
 			if (origin[0].equals(context.path) && context.assignments.get(name)==null) 
 				return false;
 		}
@@ -423,9 +424,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		if (result==null) return true;
 		for (Iterator<Binding> i=result.iterator(); i.hasNext();) {
 			Binding b = i.next();
-			String value = origins.get(b.getName());
+			TermOrigin value = origins.get(b.getName());
 			if (value == null) continue;
-			String[] origin = value.split(" ");
+			String[] origin = value.getString().split(" ");
 			// is this a property expression with a curie
 			if (origin.length>1 && origin[1].contains(":")) continue;
 			Value v = context.assignments.get(b.getName());
@@ -456,8 +457,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		// enumerate variables in triples with ?VAR syntax
 		for (String name: resultSet.getBindingNames()) {
-			String origin = origins.get(name);
-			if (origin!=null && context.path.startsWith(origin.split(" ")[0]) 
+			TermOrigin origin = origins.get(name);
+			if (origin!=null && context.path.startsWith(origin.getString().split(" ")[0]) 
 			&& value.startsWith("?") && value.substring(1).equals(name)
 			&& namespace.isEmpty() && RDFaVarAttributes.contains(localPart)) 
 				return context.assignments.get(name);
@@ -599,7 +600,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	private String getVar(String property, String path) {
 		for (String name: origins.keySet()) {
 			if (!name.startsWith("_")) continue;
-			List<String> origin = Arrays.asList(origins.get(name).split(" "));
+			List<String> origin = Arrays.asList(origins.get(name).getString().split(" "));
 			if (origin.get(0).startsWith(path) && origin.contains(property)) 
 				return name;
 		}
@@ -614,9 +615,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// identify implicit variables for this element, not found among the attributes
 		for (Iterator<Binding> i=result.iterator(); i.hasNext();) {
 			Binding b = i.next();
-			String value = origins.get(b.getName());
+			TermOrigin value = origins.get(b.getName());
 			if (value == null) continue;
-			List<String> origin = Arrays.asList(value.split(" "));
+			List<String> origin = Arrays.asList(value.getString().split(" "));
 			if (origin.get(0).equals(context.path)) {
 				// context.property refers to CONTENT
 				if (origin.contains(RDFaReader.TEXT_CONTENT))

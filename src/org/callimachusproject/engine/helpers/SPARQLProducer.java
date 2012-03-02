@@ -43,6 +43,7 @@ import org.callimachusproject.engine.events.Where;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Term;
+import org.callimachusproject.engine.model.TermOrigin;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
@@ -73,7 +74,7 @@ public class SPARQLProducer extends RDFEventPipe {
 	private Map<String,AtomicInteger> varSeq = new HashMap<String,AtomicInteger>();
 	
 	// map variable names to template origin (path)
-	private Map<String,String> origins = new LinkedHashMap<String,String>();
+	private Map<String,TermOrigin> origins = new LinkedHashMap<String,TermOrigin>();
 		
 	// 'initial' controls placement of the 'UNION' keyword
 	private boolean initial = true;
@@ -342,7 +343,7 @@ public class SPARQLProducer extends RDFEventPipe {
 			if (e.isStartSubject()) {
 				depth++;
 				if (x==null) {
-					List<String> origin = Arrays.asList(e.asSubject().getSubject().getOrigin().split(" "));
+					List<String> origin = Arrays.asList(e.asSubject().getSubject().getOrigin().getString().split(" "));
 					x = origin.get(0);
 				}
 			}
@@ -352,7 +353,7 @@ public class SPARQLProducer extends RDFEventPipe {
 			else if (depth==0 && x!=null && e.isTriple()) {
 				Term obj = e.asTriple().getObject();
 				if (obj.isLiteral()) {
-					List<String> origin = Arrays.asList(obj.getOrigin().split(" "));
+					List<String> origin = Arrays.asList(obj.getOrigin().getString().split(" "));
 					y = origin.get(0);
 					if (x.startsWith(y)) {
 						// out of line triple processing must not use lookahead
@@ -591,7 +592,7 @@ public class SPARQLProducer extends RDFEventPipe {
 		return "".equals(str) || WHITE_SPACE.matcher(str).matches();
 	}
 		
-	public Map<String,String> getOrigins() {
+	public Map<String,TermOrigin> getOrigins() {
 		return origins;
 	}
 }

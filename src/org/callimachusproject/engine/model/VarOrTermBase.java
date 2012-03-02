@@ -24,7 +24,7 @@ package org.callimachusproject.engine.model;
  * 
  */
 public abstract class VarOrTermBase implements VarOrTerm {
-	private String origin;
+	private TermOrigin origin;
 
 	public boolean isNode() {
 		return this instanceof Node;
@@ -93,12 +93,12 @@ public abstract class VarOrTermBase implements VarOrTerm {
 
 	public abstract String stringValue();
 
-	public void setOrigin(String origin) {
+	public void setOrigin(TermOrigin origin) {
 		assert this.origin == null;
 		this.origin = origin;
 	}
 
-	public String getOrigin() {
+	public TermOrigin getOrigin() {
 		return origin;
 	}
 

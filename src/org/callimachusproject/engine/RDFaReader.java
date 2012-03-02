@@ -59,6 +59,7 @@ import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.PlainLiteral;
 import org.callimachusproject.engine.model.Reference;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
+import org.callimachusproject.engine.model.TermOrigin;
 import org.callimachusproject.engine.model.TypedLiteral;
 
 /**
@@ -462,13 +463,13 @@ public class RDFaReader extends AbstractRDFEventReader {
 
 		public BlankNode getBlankNode() {
 			BlankNode b = new BlankNode("n" + number);
-			b.setOrigin(origin+" "+BLANK);
+			b.setOrigin(new TermOrigin(origin+" "+BLANK));
 			return b;
 		}
 
 		public BlankNode getNextBlankNode() {
 			BlankNode b = new BlankNode("n" + (number + 1));
-			b.setOrigin(origin);
+			b.setOrigin(new TermOrigin(origin));
 			return b;
 		}
 
@@ -622,7 +623,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 			while (m.find()) {
 				PlainLiteral lit = tf.literal("");
 				Node c = curie(m.group(1)+":"+m.group(2));
-				lit.setOrigin(origin+" "+c);
+				lit.setOrigin(new TermOrigin(origin+" "+c));
 				
 				if (isHanging()) {
 					List<Node> rel = getRel();
@@ -749,11 +750,11 @@ public class RDFaReader extends AbstractRDFEventReader {
 			}
 			if (!value.startsWith("[")) {
 				Reference r = tf.reference(resolve(value), value);
-				r.setOrigin(origin);
+				r.setOrigin(new TermOrigin(origin));
 				return r;
 			}
 			Node c = curie(value.substring(1, value.length() - 1));
-			c.setOrigin(origin);
+			c.setOrigin(new TermOrigin(origin));
 			return c;
 		}
 
@@ -793,7 +794,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 			}
 			String reference = value.substring(idx + 1);
 			Node c = tf.curie(namespaceURI, reference, prefix);
-			c.setOrigin(origin);
+			c.setOrigin(new TermOrigin(origin));
 			return c;
 		}
 
@@ -807,7 +808,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 				String lang) {
 			PlainLiteral lit = tf.literal(content, lang);
 			//lit.setOrigin(origin+" "+TEXT_CONTENT);
-			lit.setOrigin(origin+(content.isEmpty()?(" "+TEXT_CONTENT):""));
+			lit.setOrigin(new TermOrigin(origin+(content.isEmpty()?(" "+TEXT_CONTENT):"")));
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit, getLocation()));
 			}
@@ -817,7 +818,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 				IRI datatype) {
 			TypedLiteral lit = tf.literal(content, datatype);
 			//lit.setOrigin(origin+" "+TEXT_CONTENT);
-			lit.setOrigin(origin+(content.isEmpty()?(" "+TEXT_CONTENT):""));
+			lit.setOrigin(new TermOrigin(origin+(content.isEmpty()?(" "+TEXT_CONTENT):"")));
 			for (Node p : pred) {
 				queue.add(new Triple(subj, (IRI) p, lit, getLocation()));
 			}

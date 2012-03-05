@@ -43,7 +43,6 @@ import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
 import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
-import org.openrdf.model.URI;
 
 public class SPARQLPosteditor extends RDFEventPipe {
 	private static final String KEYWORD_NS = "http://www.openrdf.org/rdf/2011/keyword#";
@@ -59,26 +58,25 @@ public class SPARQLPosteditor extends RDFEventPipe {
 	}
 	
 	public class TriplePatternCutter implements Editor {
-		Pattern about, partner;
-		public TriplePatternCutter(String about, String partner) {
-			if (about!=null) this.about = Pattern.compile(about);
-			if (partner!=null) this.partner = Pattern.compile(partner);
-		}
-		@Override
 		public boolean edit(RDFEvent event) {
 			if (!event.isTriplePattern()) return false;
 			TriplePattern t = event.asTriplePattern();
-			return !(match(about,t.getAbout()) && match(partner,t.getPartner()));
+			VarOrTerm vt = t.getPartner();
+			boolean matches = true;
+			if (vt!=null && vt.isVar()) {
+				Var v = vt.asVar();
+				TermOrigin origin = origins.get(v.stringValue());
+				matches = origin.isAnchor();
+			}
+			return matches;
 		}
 	}
 	
 	public class PhoneMatchInsert implements Editor {
-		Pattern subjectPattern;
 		String keyword;
 		boolean includesNamespace = false;
-		public PhoneMatchInsert(String subjectRegex, String keyword) {
+		public PhoneMatchInsert(String keyword) {
 			super();
-			this.subjectPattern = Pattern.compile(subjectRegex);
 			this.keyword = keyword;
 		}
 		@Override
@@ -96,7 +94,7 @@ public class SPARQLPosteditor extends RDFEventPipe {
 			VarOrTerm vt = event.asSubject().getSubject();
 			if (vt.isVar() 
 			&& !vt.asVar().stringValue().startsWith("_") 
-			&& match(subjectPattern,vt)) {
+			&& match(vt)) {
 				Var var = tf.var(vt.stringValue() + "_phone");
 				add(new TriplePattern(vt,tf.curie(KEYWORD_NS, "phone", "keyword"),var, location));
 				// eg. FILTER sameTerm(?vt,keyword:soundex(keyword))
@@ -114,12 +112,10 @@ public class SPARQLPosteditor extends RDFEventPipe {
 	}
 	
 	public class FilterKeywordExists implements Editor {
-		Pattern subjectPattern;
 		VarOrTerm subject, object;
 		String keyword;
-		public FilterKeywordExists(String subjectRegex, String keyword) {
+		public FilterKeywordExists(String keyword) {
 			super();
-			this.subjectPattern = Pattern.compile(subjectRegex);
 			this.keyword = keyword;
 		}
 		@Override
@@ -127,7 +123,7 @@ public class SPARQLPosteditor extends RDFEventPipe {
 			// the subject of the filter is the first matching subject
 			if (event.isTriplePattern()) {
 				TriplePattern t = event.asTriplePattern();
-				if (subject==null && match(subjectPattern,t.getSubject())) {
+				if (subject==null && match(t.getSubject())) {
 					subject = t.getAbout();
 					object = tf.var("__label");
 				}
@@ -160,21 +156,12 @@ public class SPARQLPosteditor extends RDFEventPipe {
 	}
 	
 	public class TriplePatternRecorder implements Editor {
-		URI pred;
-		Pattern subjectPattern, objectPattern;
 		List<TriplePattern> triples = new LinkedList<TriplePattern>();
-		public TriplePatternRecorder(String subjectRegex, URI pred, String objectRegex) {
-			if (subjectRegex!=null) subjectPattern = Pattern.compile(subjectRegex);
-			if (objectRegex!=null) objectPattern = Pattern.compile(objectRegex);
-			this.pred = pred;
-		}
 		@Override
 		public boolean edit(RDFEvent event) {
 			if (!event.isTriplePattern()) return false;
 			TriplePattern t = event.asTriplePattern();
-			if (match(subjectPattern, t.getSubject())
-			&& (pred==null || t.getPredicate().stringValue().equals(pred.stringValue()))
-			&& match(objectPattern, t.getObject()))
+			if (match(t.getSubject()))
 				triples.add(t);
 			return false;
 		}
@@ -183,13 +170,14 @@ public class SPARQLPosteditor extends RDFEventPipe {
 		}
 	}
 		
-	private boolean match(Pattern p, VarOrTerm vt) {
-		if (p!=null && vt!=null && vt.isVar()) {
+	private boolean match(VarOrTerm vt) {
+		boolean matches = true;
+		if (vt!=null && vt.isVar()) {
 			Var v = vt.asVar();
 			TermOrigin origin = origins.get(v.stringValue());
-			return p.matcher(origin.getString()).matches();
+			matches = origin.isAnchor();
 		}
-		return true;
+		return matches;
 	}	
 
 	public SPARQLPosteditor(RDFEventReader reader, Map<String, TermOrigin> origins) throws RDFParseException {

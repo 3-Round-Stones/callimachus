@@ -1,55 +1,84 @@
 package org.callimachusproject.engine.model;
 
+import java.util.regex.Pattern;
+
 public class TermOrigin {
-	
-	// The TEXT_CONTENT signifier is required to distinguish content from property expressions
-	// where the same property is used for both in the same element. 
-	// The content @origin ends with '!', while the property expression ends with the property
-	// This is not used where content is assigned a variable.
-	public static final String TEXT_CONTENT = "!";
-	
+
+	private final String xptr;
+	private final String property;
 	// The BLANK signifies blank nodes introduced by typeof
-	public static final String BLANK = "_";
-	private final String string;
+	private final boolean blank;
+	// The TEXT_CONTENT signifier is required to distinguish content from property expressions
+	// where the same property is used for both in the same element.
+	// This is not used where content is assigned a variable.
+	private final boolean text;
 
 	public TermOrigin() {
-		this.string = "";
+		this.xptr = "";
+		this.property = null;
+		this.blank = false;
+		this.text = false;
 	}
 
-	private TermOrigin(TermOrigin xptr, Term term) {
-		this.string = xptr.getString() + " " + term.toString();
-	}
-
-	private TermOrigin(TermOrigin xptr, String string) {
-		this.string = xptr.getString() + " " + string;
-	}
-
-	private TermOrigin(TermOrigin parent, Integer next) {
-		this.string = parent.getString() + "/" + next;
-	}
-
-	public String getString() {
-		return string;
-	}
-
-	public String toString() {
-		return string;
+	private TermOrigin(String string, String property, boolean blank, boolean text) {
+		this.xptr = string;
+		this.property = property;
+		this.blank = blank;
+		this.text = text;
 	}
 
 	public TermOrigin textContent() {
-		return new TermOrigin(this, TEXT_CONTENT);
+		return new TermOrigin(xptr, property, false, true);
 	}
 
 	public TermOrigin slash(Integer next) {
-		return new TermOrigin(this, next);
+		return new TermOrigin(xptr + "/" + next, property, blank, text);
 	}
 
-	public TermOrigin term(Node c) {
-		return new TermOrigin(this, c);
+	public TermOrigin term(Node term) {
+		return new TermOrigin(xptr, term.toString(), blank, text);
 	}
 
 	public TermOrigin blank() {
-		return new TermOrigin(this, BLANK);
+		return new TermOrigin(xptr, property, true, text);
+	}
+
+	public boolean pathEquals(String path) {
+		return path.equals(this.xptr);
+	}
+
+	public boolean propertyEquals(String curie) {
+		return curie.equals(property);
+	}
+
+	public boolean startsWith(String path) {
+		return this.xptr.startsWith(path);
+	}
+
+	public boolean isPropertyPresent() {
+		return property != null;
+	}
+
+	public String getPath() {
+		return xptr;
+	}
+
+	public boolean isTextContent() {
+		return text;
+	}
+
+	public boolean isBlankNode() {
+		return blank;
+	}
+
+	public boolean startsWith(TermOrigin y) {
+		return this.xptr.startsWith(y.xptr);
+	}
+
+	public boolean isAnchor() {
+		if (text || blank)
+			return false;
+		return Pattern.compile("^(/\\d+){2}$").matcher(this.xptr).matches();
 	}
 
 }

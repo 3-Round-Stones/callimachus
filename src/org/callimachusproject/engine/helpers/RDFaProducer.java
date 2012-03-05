@@ -137,7 +137,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		for (String name : resultSet.getBindingNames()) {
 			TermOrigin origin = origins.get(name);
 			if (origin != null)
-				branches.add(origin.getString().split(" ")[0]);
+				branches.add(origin.getPath());
 			else
 				extraneous.add(name);
 		}
@@ -322,9 +322,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	private boolean hasRDFaMarkup(String path) {
 		for (String var: origins.keySet()) {
-			String[] origin = origins.get(var).getString().split(" ");
 			// the RDFa may originate in this node or a descendant
-			if (origin[0].startsWith(path)) return true;
+			if (origins.get(var).startsWith(path)) return true;
 		}
 		return false;
 	}
@@ -337,8 +336,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			if (context.assignments.containsKey(b.getName())) continue;
 			TermOrigin value = origins.get(b.getName());
 			if (value == null) continue;
-			String[] origin = value.getString().split(" ");
-			if (!origin[0].startsWith(context.path)) return false;
+			if (!value.startsWith(context.path)) return false;
 		}
 		return true;
 	}
@@ -385,12 +383,11 @@ public class RDFaProducer extends XMLEventReaderBase {
 		for (String name: resultSet.getBindingNames()) {
 			TermOrigin origin = origins.get(name);
 			if (origin==null) continue;
-			List<String> split = Arrays.asList(origin.getString().split(" "));
 			// implicit vars (apart from CONTENT) need not be grounded
 			if (name.startsWith("_") 
-			&& !(split.contains(TermOrigin.TEXT_CONTENT) || split.contains("_"))) 
+			&& !(origin.isTextContent() || origin.isBlankNode())) 
 				continue;
-			if (split.get(0).equals(context.path) && context.assignments.get(name)==null) 
+			if (origin.pathEquals(context.path) && context.assignments.get(name)==null) 
 				return false;
 		}
 		return true;
@@ -403,8 +400,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			if (!name.startsWith("_") || extraneous.contains(name)) continue;
 			TermOrigin value = origins.get(name);
 			if (value == null) continue;
-			String[] origin = value.getString().split(" ");
-			if (origin[0].equals(context.path) && context.assignments.get(name)==null) 
+			if (value.pathEquals(context.path) && context.assignments.get(name)==null) 
 				return false;
 		}
 		return true;
@@ -419,9 +415,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 			Binding b = i.next();
 			TermOrigin value = origins.get(b.getName());
 			if (value == null) continue;
-			String[] origin = value.getString().split(" ");
 			// is this a property expression with a curie
-			if (origin.length>1 && origin[1].contains(":")) continue;
+			if (value.isPropertyPresent()) continue;
 			Value v = context.assignments.get(b.getName());
 			if (v!=null && !b.getValue().equals(v)) return false;
 		}
@@ -451,7 +446,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// enumerate variables in triples with ?VAR syntax
 		for (String name: resultSet.getBindingNames()) {
 			TermOrigin origin = origins.get(name);
-			if (origin!=null && context.path.startsWith(origin.getString().split(" ")[0]) 
+			if (origin!=null && context.path.startsWith(origin.getPath()) 
 			&& value.startsWith("?") && value.substring(1).equals(name)
 			&& namespace.isEmpty() && RDFaVarAttributes.contains(localPart)) 
 				return context.assignments.get(name);
@@ -579,8 +574,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	private String getVar(String property, String path) {
 		for (String name: origins.keySet()) {
 			if (!name.startsWith("_")) continue;
-			List<String> origin = Arrays.asList(origins.get(name).getString().split(" "));
-			if (origin.get(0).startsWith(path) && origin.contains(property)) 
+			if (origins.get(name).startsWith(path) && origins.get(name).propertyEquals(property)) 
 				return name;
 		}
 		return null;
@@ -596,10 +590,9 @@ public class RDFaProducer extends XMLEventReaderBase {
 			Binding b = i.next();
 			TermOrigin value = origins.get(b.getName());
 			if (value == null) continue;
-			List<String> origin = Arrays.asList(value.getString().split(" "));
-			if (origin.get(0).equals(context.path)) {
+			if (value.pathEquals(context.path)) {
 				// context.property refers to CONTENT
-				if (origin.contains(TermOrigin.TEXT_CONTENT))
+				if (value.isTextContent())
 					content = b.getValue();
 				if (b.getName().startsWith("_")) {
 					Value val = b.getValue();

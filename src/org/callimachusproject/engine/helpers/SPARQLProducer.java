@@ -17,10 +17,8 @@
  */
 package org.callimachusproject.engine.helpers;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -336,15 +334,15 @@ public class SPARQLProducer extends RDFEventPipe {
 	
 	private void promotion() throws RDFParseException {
 		int lookAhead=reader.nextIndex(), depth=0;
-		String x=null, y;
+		TermOrigin x=null;
+		TermOrigin y;
 		RDFEvent e;
 		do {
 			e = input.get(lookAhead++);
 			if (e.isStartSubject()) {
 				depth++;
 				if (x==null) {
-					List<String> origin = Arrays.asList(e.asSubject().getSubject().getOrigin().getString().split(" "));
-					x = origin.get(0);
+					x = e.asSubject().getSubject().getOrigin();
 				}
 			}
 			else if (e.isEndSubject()) {
@@ -353,8 +351,7 @@ public class SPARQLProducer extends RDFEventPipe {
 			else if (depth==0 && x!=null && e.isTriple()) {
 				Term obj = e.asTriple().getObject();
 				if (obj.isLiteral()) {
-					List<String> origin = Arrays.asList(obj.getOrigin().getString().split(" "));
-					y = origin.get(0);
+					y = obj.getOrigin();
 					if (x.startsWith(y)) {
 						// out of line triple processing must not use lookahead
 						outOfLine = true;

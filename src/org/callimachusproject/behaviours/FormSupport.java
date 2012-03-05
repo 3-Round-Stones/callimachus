@@ -143,7 +143,7 @@ public abstract class FormSupport implements Page, RDFObject {
 		
 		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
 		// ^(/\d+){3,}$|^(/\d+)*\s.*$
-		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
+		ed.addEditor(ed.new TriplePatternCutter());
 		
 		RepositoryConnection con = getObjectConnection();
 		String sparql = toSPARQL(new OrderedSparqlReader(ed)) + "\nLIMIT 1000";
@@ -173,15 +173,15 @@ public abstract class FormSupport implements Page, RDFObject {
 		SPARQLPosteditor ed = new SPARQLPosteditor(rq);
 		
 		// filter out the outer rel (the button may add additional bnodes that need to be cut out)
-		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
+		ed.addEditor(ed.new TriplePatternCutter());
 		
 		// add soundex conditions to @about siblings on the next level only
 		// The regex should not match properties and property-expressions with info following the xptr
-		ed.addEditor(ed.new PhoneMatchInsert("^(/\\d+){2}$", q));
+		ed.addEditor(ed.new PhoneMatchInsert(q));
 		
 		// add filters to soundex labels at the next level (only direct properties of the top-level subject)
 		//ed.addEditor(ed.new FilterInsert("^(/\\d+){2}$",LABELS,regexStartsWith(q)));
-		ed.addEditor(ed.new FilterKeywordExists("^(/\\d+){2}$", q));
+		ed.addEditor(ed.new FilterKeywordExists(q));
 	
 		RepositoryConnection con = getObjectConnection();
 		String sparql = toSPARQL(new OrderedSparqlReader(ed));
@@ -225,11 +225,11 @@ public abstract class FormSupport implements Page, RDFObject {
 		
 		// only pass object vars (excluding prop-exps and content) beyond a certain depth: 
 		// ^(/\d+){3,}$|^(/\d+)*\s.*$
-		ed.addEditor(ed.new TriplePatternCutter(null,"^(/\\d+){3,}$|^(/\\d+)*\\s.*$"));
+		ed.addEditor(ed.new TriplePatternCutter());
 		
 		// find top-level new subjects to bind
 		SPARQLPosteditor.TriplePatternRecorder rec;
-		ed.addEditor(rec = ed.new TriplePatternRecorder("^(/\\d+){2}$",null,null));
+		ed.addEditor(rec = ed.new TriplePatternRecorder());
 		
 		RepositoryConnection con = getObjectConnection();
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(new OrderedSparqlReader(ed)), base);

@@ -2,12 +2,16 @@
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />
 	<property name="build" location="build" />
+	<property name="build.tests" location="build" />
 	<property name="dist" location="dist" />
 	<property name="lib" location="lib" />
 	<property name="bin" location="bin" />
 	<property name="etc" location="etc" />
 	<property name="log" location="log" />
 	<property name="downloads" location="tmp" />
+	<property name="reports.tests" location="tmp" />
+	<property name="src.tests" location="test" />
+	<property name="lib.tests" location="test/lib" />
 	<property name="webapps" location="webapps" />
 	<property name="home" location="." />
 	<property name="pid" location="run/callimachus.pid" />
@@ -27,6 +31,10 @@
 	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
 	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
 	<property name="compress.url" value="http://archive.apache.org/dist/commons/compress/binaries/commons-compress-1.3-bin.tar.gz" />
+	<property name="junit.url" value="http://repo1.maven.org/maven2/junit/junit/4.10/junit-4.10.jar" />
+	<property name="jersey-client.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-client/1.0.3/jersey-client-1.0.3.jar" />
+	<property name="jersey-core.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-core/1.0.3/jersey-core-1.0.3.jar" />
+	<property name="jsr311-api.url" value="http://download.java.net/maven/2/javax/ws/rs/jsr311-api/1.0/jsr311-api-1.0.jar" />
 	<property name="main" value="org.callimachusproject.Server" />
 	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
 	<property name="args" value="-p 8080 -o http://localhost:8080 -r repositories/callimachus -c etc/callimachus-repository.ttl" />
@@ -36,6 +44,7 @@
 		<tstamp />
 		<mkdir dir="${build}" />
 		<available file="lib" property="lib.present" />
+		<available file="lib.tests" property="lib.tests.present" />
 		<property file="build.properties" />
 	</target>
 
@@ -132,18 +141,31 @@
 		<delete file="${downloads}/daemon-darwin.tar.gz" />
 	</target>
 
+	<target name="test-dependencies" unless="lib.tests.present">
+		<mkdir dir="${lib.tests}" />
+		<parallel>
+			<get src="${junit.url}" dest="${lib.tests}/junit.jar" />
+			<get src="${jersey-client.url}" dest="${lib.tests}/jersey-client.jar" />
+			<get src="${jersey-core.url}" dest="${lib.tests}/jersey-core.jar" />
+			<get src="${jsr311-api.url}" dest="${lib.tests}/jsr311-api.jar" />
+		</parallel>
+	</target>
+
 	<target name="dist-clean" description="clean up everything for a new version" depends="clean">
+		<delete dir="${lib.tests}" />
 		<delete dir="${lib}" />
 		<delete dir="${bin}" />
 	</target>
 
 	<target name="clean" description="clean up">
 		<!-- Delete the directory trees -->
+		<delete dir="${reports.tests}" />
+		<delete dir="${build.tests}" />
 		<delete dir="${build}" />
 		<delete dir="${dist}" />
 	</target>
 
-	<target name="compile" depends="init,dependencies" description="compile the source ">
+	<target name="compile" depends="init,dependencies" description="compile the source">
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}" debug="true" debuglevel="lines,source">
 			<classpath>
@@ -161,6 +183,49 @@
 		<copy todir="${etc}">
 			<fileset dir="${src}" includes="*.conf *.properties *.ttl"/>
 		</copy>
+	</target>
+
+	<target name="test-compile" depends="compile,test-dependencies">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src.tests}" destdir="${build.tests}" debug="true" debuglevel="lines,source">
+			<classpath>
+				<pathelement location="${build}/" />
+				<fileset dir="${lib.tests}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+		<copy todir="${build.tests}">
+			<fileset dir="${src.tests}" excludes="**/*.java"/>
+		</copy>
+	</target>
+
+	<target name="test" depends="test-compile" description="run the tests">
+		<junit printsummary="yes" haltonfailure="yes">
+			<classpath>
+				<pathelement location="${build.tests}/" />
+				<pathelement location="${build}/" />
+				<fileset dir="${lib.tests}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+
+			<formatter type="plain"/>
+
+			<batchtest fork="yes" todir="${reports.tests}">
+			<fileset dir="${src.tests}">
+				<include name="**/*Test*.java"/>
+				<exclude name="**/*TestCase.java"/>
+				<exclude name="**/AllTests.java"/>
+			</fileset>
+			</batchtest>
+		</junit>
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution">
@@ -192,6 +257,9 @@
 			<zipfileset file="${jar.file}" prefix="lib" />
 			<zipfileset file="${dist}/callimachus.war" prefix="webapps" />
 		</zip>
+	</target>
+
+	<target name="package" depends="dist-clean,dist,test" description="Create a package ready for release">
 	</target>
 
 	<target name="start" depends="compile">

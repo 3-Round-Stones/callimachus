@@ -61,7 +61,7 @@ import org.w3c.dom.Document;
 /**
  * @author Steve Battle
  */
-public class TestUtility {
+public class Utility {
 	
 	static XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 	static {

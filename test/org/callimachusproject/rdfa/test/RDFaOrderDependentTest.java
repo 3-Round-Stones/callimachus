@@ -18,12 +18,12 @@
 package org.callimachusproject.rdfa.test;
 
 import static org.callimachusproject.engine.helpers.SPARQLWriter.toSPARQL;
-import static org.callimachusproject.rdfa.test.TestUtility.asDocument;
-import static org.callimachusproject.rdfa.test.TestUtility.exportGraph;
-import static org.callimachusproject.rdfa.test.TestUtility.loadRepository;
-import static org.callimachusproject.rdfa.test.TestUtility.parseRDFa;
-import static org.callimachusproject.rdfa.test.TestUtility.readDocument;
-import static org.callimachusproject.rdfa.test.TestUtility.write;
+import static org.callimachusproject.rdfa.test.Utility.asDocument;
+import static org.callimachusproject.rdfa.test.Utility.exportGraph;
+import static org.callimachusproject.rdfa.test.Utility.loadRepository;
+import static org.callimachusproject.rdfa.test.Utility.parseRDFa;
+import static org.callimachusproject.rdfa.test.Utility.readDocument;
+import static org.callimachusproject.rdfa.test.Utility.write;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;

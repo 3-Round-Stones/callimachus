@@ -28,7 +28,7 @@ public class Version {
 				try {
 					Properties result = new Properties();
 					result.load(in);
-					String version = result.getProperty("version");
+					String version = result.getProperty("Version");
 					if (version != null)
 						return version.trim();
 				} finally {

@@ -45,7 +45,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -84,7 +83,7 @@ import org.slf4j.LoggerFactory;
 
 public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private static final String SCHEMA_GRAPH = "/callimachus/SchemaGraph";
-	private static final String PROPERTIES = "/META-INF/callimachusproject.properties";
+	private static final String INITIAL_GRAPH = "META-INF/templates/callimachus-initial-data.ttl";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
 	private static final String ERROR_XSLT_PATH = "/callimachus/transforms/error.xsl";
@@ -358,37 +357,24 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	}
 
 	private void initializeStore(Repository repository, String origin) {
-		Properties properties = new Properties();
-		InputStream load = CallimachusServer.class
-				.getResourceAsStream(PROPERTIES);
-		if (load == null) {
-			logger.debug("Missing {}", PROPERTIES);
-			return;
-		}
 		try {
-			properties.load(load);
-			String graphs = properties.getProperty("initial-graphs");
-			loadDefaultGraphs(graphs, origin, repository);
+			logger.info("Initializing {} Store", origin);
+			ClassLoader cl = CallimachusServer.class.getClassLoader();
+			loadDefaultGraphs(origin, repository, cl);
 		} catch (IOException e) {
 			logger.debug(e.toString(), e);
 		}
 	}
 
-	private void loadDefaultGraphs(String graphs, String origin,
-			Repository repository) throws IOException {
-		if (graphs == null || graphs.length() < 1) {
-			logger.debug("No initial graphs in {}", PROPERTIES);
-			return;
-		}
-		logger.info("Initializing {} Store", origin);
-		for (String graph : graphs.split("\\s+")) {
-			InputStream in = CallimachusServer.class
-					.getResourceAsStream(graph);
-			if (in == null) {
-				logger.debug("Missing {}", graph);
-				continue;
-			}
-			RDFFormat format = RDFFormat.forFileName(graph, RDFFormat.RDFXML);
+	private void loadDefaultGraphs(String origin, Repository repository,
+			ClassLoader cl) throws IOException {
+		RDFFormat format = RDFFormat.forFileName(INITIAL_GRAPH,
+				RDFFormat.RDFXML);
+		Enumeration<URL> resources = cl.getResources(INITIAL_GRAPH);
+		if (!resources.hasMoreElements())
+			logger.warn("Missing {}", INITIAL_GRAPH);
+		while (resources.hasMoreElements()) {
+			InputStream in = resources.nextElement().openStream();
 			try {
 				RepositoryConnection con = repository.getConnection();
 				try {

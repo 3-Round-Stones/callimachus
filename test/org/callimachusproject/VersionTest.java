@@ -68,7 +68,7 @@ public class VersionTest {
 		try {
 			Properties result = new Properties();
 			result.load(in);
-			version = result.getProperty("version");
+			version = result.getProperty("Version");
 			if (version != null) {
 				version = version.trim();
 			}

@@ -166,7 +166,7 @@
 	<target name="dist" depends="compile" description="generate the distribution">
 		<!-- Create the distribution directory and create the jar -->
 		<mkdir dir="${dist}" />
-		<property name="jar.file" value="${dist}/callimachus-${version}.jar" />
+		<property name="jar.file" value="${dist}/callimachus-${Version}.jar" />
 		<manifestclasspath property="jar.classpath" jarfile="${jar.file}">
 			<classpath>
 				<fileset dir="${lib}">
@@ -184,7 +184,7 @@
 		<war needxmlfile="false" destfile="${dist}/callimachus.war">
 			<zipfileset dir="${webapps}/callimachus" prefix="" />
 		</war>
-		<zip destfile="${dist}/callimachus-${version}.zip">
+		<zip destfile="${dist}/callimachus-${Version}.zip">
 			<zipfileset dir="." includes="*.txt" />
 			<zipfileset dir="${bin}" prefix="bin" />
 			<zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />

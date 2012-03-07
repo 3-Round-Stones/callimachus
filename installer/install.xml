@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+
+<!-- 
+    Callimachus FLOSS installation file.
+    Uses IzPack (see http://izpack.org).
+    
+    To compile the installer JAR file:
+    - Run 'ant floss_installer' from the Callimachus root directory.
+    - The installer JAR will be created in the dist directory.
+
+    David Wood (david @ http://3roundstones.com)
+    6 March 2012
+-->
+
+<installation version="1.0">
+
+    <!-- 
+        The info section.
+        The meaning of the tags should be natural ...
+    -->
+    <info>
+        <appname>Callimachus</appname>
+        <appversion>0.16-SNAPSHOT</appversion>
+        <authors>
+            <author name="3 Round Stones Inc." email="info@3roundstones.com"/>
+        </authors>
+        <url>http://3roundstones.com/</url>
+    </info>
+
+    <!-- 
+        The gui preferences indication.
+        Sets the installer window to 640x480. It will not be able to change the size.
+    -->
+    <guiprefs width="640" height="480" resizable="yes"/>
+
+    <!-- 
+        The locale section.
+        Asks here to include the English and French langpacks.
+    -->
+    <locale>
+        <langpack iso3="eng"/>
+    </locale>
+
+    <!-- 
+        The resources section.
+        The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.
+    -->
+    <resources>
+        <res id="HTMLHelloPanel.hello" src="installer/hello.html"/>
+        <res id="callimachus_logo" src="installer/images/callimachus_logo.png"/>
+        <res id="LicencePanel.licence" src="LICENSE.txt"/>
+        <res id="HTMLInfoPanel.readme" src="README.txt"/>
+        <res id="HTMLInfoPanel.release_notes" src="RELEASE_NOTES.txt"/>
+    </resources>
+
+    <!-- 
+        The panels section.
+        We indicate here which panels we want to use. The order will be respected.
+    -->
+    <panels>
+        <panel classname="HTMLHelloPanel" id="hello"/>
+        <panel classname="HTMLInfoPanel" id="readme"/>
+        <panel classname="HTMLInfoPanel" id="release_notes"/>
+        <panel classname="LicencePanel" id="license"/>
+        <panel classname="TargetPanel"/>
+        <panel classname="PacksPanel"/>
+        <panel classname="InstallPanel"/>
+        <panel classname="FinishPanel"/>
+    </panels>
+
+    <!-- 
+        The packs section.
+    -->
+    <packs>
+        <pack name="Base" required="yes">
+            <description>The base files</description>
+            <file src="README.txt" targetdir="$INSTALL_PATH"/>
+            <file src="RELEASE_NOTES.txt" targetdir="$INSTALL_PATH"/>
+            <file src="LICENSE.txt" targetdir="$INSTALL_PATH"/>
+            <file src="lib" targetdir="$INSTALL_PATH"/>
+            <file src="etc" targetdir="$INSTALL_PATH"/>
+            <!-- The file will be parsed -->
+            <!--
+            <parsable targetfile="$INSTALL_PATH/README.txt"/>
+            -->
+        </pack>
+        <pack name="Scripts" required="yes">
+            <description>Scripts</description>
+            <file src="bin" targetdir="$INSTALL_PATH"/>
+        </pack>
+        <pack name="Source" required="no" preselected="no">
+            <description>Source Code</description>
+            <file src="src" targetdir="$INSTALL_PATH"/>
+        </pack>
+    </packs>
+
+</installation>

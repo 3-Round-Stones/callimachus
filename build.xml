@@ -3,6 +3,7 @@
 	<property name="src" location="src" />
 	<property name="build" location="build" />
 	<property name="build.tests" location="build" />
+	<property name="installer" location="installer" />
 	<property name="dist" location="dist" />
 	<property name="lib" location="lib" />
 	<property name="bin" location="bin" />
@@ -31,6 +32,7 @@
 	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
 	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
 	<property name="compress.url" value="http://archive.apache.org/dist/commons/compress/binaries/commons-compress-1.3-bin.tar.gz" />
+	<property name="izpack.url" value="http://repo1.maven.org/maven2/org/codehaus/izpack/izpack-standalone-compiler/4.3.2/izpack-standalone-compiler-4.3.2.jar" />
 	<property name="junit.url" value="http://repo1.maven.org/maven2/junit/junit/4.10/junit-4.10.jar" />
 	<property name="jersey-client.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-client/1.0.3/jersey-client-1.0.3.jar" />
 	<property name="jersey-core.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-core/1.0.3/jersey-core-1.0.3.jar" />
@@ -62,6 +64,7 @@
 			<get src="${daemon-darwin.url}" dest="${downloads}/daemon-darwin.tar.gz" />
 			<get src="${mail.url}" dest="${lib}/${mail.jar}" />
 			<get src="${compress.url}" dest="${downloads}/compress.tar.gz" />
+			<get src="${izpack.url}" dest="${lib}/izpack-standalone-compiler.jar" />
 		</parallel>
 		<unzip src="${downloads}/openrdf-alibaba.zip" dest="${lib}">
 			<patternset>
@@ -311,6 +314,20 @@
 				</fileset>
 			</classpath>
 		</java>
+	</target>
+
+        <target name="installer" depends="compile">
+                <!-- Allows us to use the IzPack Ant task -->
+                <taskdef name="IzPack" classpath="${lib}/izpack-standalone-compiler.jar"
+                         classname="com.izforge.izpack.ant.IzPackTask"/>
+
+                <!-- Call IzPack to build the installer JAR -->
+                <echo message="Make the FLOSS installer JAR"/>
+		<mkdir dir="${dist}" />
+                <IzPack input="${installer}/install.xml"
+                        output="${dist}/callimachus-${version}-installer.jar"
+                        installerType="standard"
+                        basedir="${home}" />
 	</target>
 
 </project>

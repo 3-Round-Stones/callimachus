@@ -2,8 +2,6 @@ Callimachus Project Installation Instructions
 
 http://callimachusproject.org/
 
-28 February 2012
-
 ----------------
 | Introduction |
 ----------------

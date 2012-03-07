@@ -46,8 +46,10 @@ if $darwin; then
   EXECUTABLE="$PRGDIR/$NAME-darwin"
 elif [ `uname -m` = "x86_64" ]; then
   EXECUTABLE="$PRGDIR/$NAME-linux-x86_64"
-else
+elif [ `uname -m` = "i686" ]; then
   EXECUTABLE="$PRGDIR/$NAME-linux-i686"
+else
+  EXECUTABLE="jsvc"
 fi
 
 # Only set BASEDIR if not already set

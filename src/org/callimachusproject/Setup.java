@@ -101,7 +101,7 @@ public class Setup {
 		options.addOption("r", "repository", true,
 				"The Sesame repository url (relative file: or http:)");
 		options.addOption("c", "config", true,
-						"A repository config (if no repository exists) url (relative file: or http:)");
+				"A repository config (if no repository exists) url (relative file: or http:)");
 		options.addOption("d", "dir", true,
 				"Directory used for data storage and retrieval");
 		options.addOption("s", "silent", false,
@@ -148,25 +148,56 @@ public class Setup {
 	private final Set<String> origins = new HashSet<String>();
 	private final Set<String> realms = new HashSet<String>();
 
+	public File getDirectory() {
+		return dir;
+	}
+
 	public void setDirectory(File dir) {
 		this.dir = dir;
+	}
+
+	public String getRepositoryUrl() {
+		return repositoryUrl;
 	}
 
 	public void setRepositoryUrl(String repositoryUrl) {
 		this.repositoryUrl = repositoryUrl;
 	}
 
+	public URL getRepositoryConfigUrl() {
+		return repositoryConfigUrl;
+	}
+
 	public void setRepositoryConfigUrl(URL repositoryConfigUrl) {
 		this.repositoryConfigUrl = repositoryConfigUrl;
+	}
+
+	public boolean isSilent() {
+		return silent;
 	}
 
 	public void setSilent(boolean silent) {
 		this.silent = silent;
 	}
 
+	public Set<String> getOrigins() {
+		return origins;
+	}
+
 	public void addOrigin(String origin) {
 		assert origin != null;
+		assert !origin.endsWith("/");
 		origins.add(origin);
+	}
+
+	public Set<String> getRealms() {
+		return realms;
+	}
+
+	public void addRealm(String realm) {
+		assert realm != null;
+		assert realm.endsWith("/");
+		realms.add(realm);
 	}
 
 	public void init(String[] args) {
@@ -218,11 +249,15 @@ public class Setup {
 		}
 	}
 
-	public void start() throws Exception {
+	/**
+	 * Uses the currently set properties and setups the repository.
+	 * @return <code>true</code> if the repository was setup or upgraded
+	 */
+	public boolean run() throws OpenRDFException, MalformedURLException,
+			IOException {
 		boolean initialized = false;
-		boolean upgraded = false;
 		ObjectRepository repository = getObjectRepository();
-		for (String origin : origins) {
+		for (String origin : getOrigins()) {
 			String version = getStoreVersion(repository, origin);
 			if (version == null) {
 				initialized = true;
@@ -231,15 +266,20 @@ public class Setup {
 			} else {
 				String newVersion = upgradeStore(repository, origin, version);
 				if (!version.equals(newVersion)) {
-					upgraded = true;
+					initialized = true;
 					importCallimachus(origin, repository);
 				}
 			}
 		}
-		for (String realm : realms) {
+		for (String realm : getRealms()) {
 			createRealm(realm, repository);
 		}
-		if (silent || initialized || upgraded) {
+		return initialized;
+	}
+
+	public void start() throws Exception {
+		boolean initialized = run();
+		if (isSilent() || initialized) {
 			System.exit(0);
 		} else {
 			logger.warn("Repository is already setup");
@@ -257,7 +297,8 @@ public class Setup {
 
 	private ObjectRepository getObjectRepository() throws OpenRDFException,
 			MalformedURLException, IOException {
-		Repository repo = getRepository(repositoryUrl, repositoryConfigUrl, dir);
+		Repository repo = getRepository(getRepositoryUrl(),
+				getRepositoryConfigUrl(), getDirectory());
 		if (repo instanceof ObjectRepository) {
 			return (ObjectRepository) repo;
 		} else {
@@ -265,7 +306,7 @@ public class Setup {
 			ObjectRepositoryConfig config = factory.getConfig();
 			File dataDir = repo.getDataDir();
 			if (dataDir == null) {
-				dataDir = dir;
+				dataDir = getDirectory();
 			}
 			File wwwDir = new File(dataDir, "www");
 			File blobDir = new File(dataDir, "blob");
@@ -281,8 +322,9 @@ public class Setup {
 		}
 	}
 
-	private Repository getRepository(String repositoryUrl, URL repositoryConfigUrl, File dir)
-			throws OpenRDFException, MalformedURLException, IOException {
+	private Repository getRepository(String repositoryUrl,
+			URL repositoryConfigUrl, File dir) throws OpenRDFException,
+			MalformedURLException, IOException {
 		RepositoryManager manager;
 		if (repositoryUrl != null) {
 			String url = repositoryUrl;
@@ -362,7 +404,8 @@ public class Setup {
 		}
 	}
 
-	private void initializeStore(String origin, ObjectRepository repository) throws RepositoryException {
+	private void initializeStore(String origin, ObjectRepository repository)
+			throws RepositoryException {
 		try {
 			ClassLoader cl = CallimachusServer.class.getClassLoader();
 			loadDefaultGraphs(origin, repository, cl);
@@ -396,12 +439,14 @@ public class Setup {
 		}
 	}
 
-	private void addOriginLabel(String origin, ObjectRepository repository) throws RepositoryException {
+	private void addOriginLabel(String origin, ObjectRepository repository)
+			throws RepositoryException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			String label = origin.substring(origin.lastIndexOf('/') + 1);
 			ValueFactory vf = con.getValueFactory();
-			con.add(vf.createURI(origin + "/"), RDFS.LABEL, vf.createLiteral(label));
+			con.add(vf.createURI(origin + "/"), RDFS.LABEL,
+					vf.createLiteral(label));
 		} finally {
 			con.close();
 		}
@@ -415,17 +460,24 @@ public class Setup {
 			URI folder = vf.createURI(origin + "/");
 			URI article = vf.createURI(origin + "/main-article.docbook");
 			logger.info("Uploading main article: {}", article);
-			con.add(article, RDF.TYPE, vf.createURI(origin + "/callimachus/Article"));
-			con.add(article, RDF.TYPE, vf.createURI("http://xmlns.com/foaf/0.1/Document"));
+			con.add(article, RDF.TYPE,
+					vf.createURI(origin + "/callimachus/Article"));
+			con.add(article, RDF.TYPE,
+					vf.createURI("http://xmlns.com/foaf/0.1/Document"));
 			con.add(article, RDFS.LABEL, vf.createLiteral("main article"));
-			con.add(article, vf.createURI(CALLI_READER), vf.createURI(origin + "/group/users"));
-			con.add(article, vf.createURI(CALLI_EDITOR), vf.createURI(origin + "/group/staff"));
-			con.add(article, vf.createURI(CALLI_ADMINISTRATOR), vf.createURI(origin + "/group/admin"));
+			con.add(article, vf.createURI(CALLI_READER),
+					vf.createURI(origin + "/group/users"));
+			con.add(article, vf.createURI(CALLI_EDITOR),
+					vf.createURI(origin + "/group/staff"));
+			con.add(article, vf.createURI(CALLI_ADMINISTRATOR),
+					vf.createURI(origin + "/group/admin"));
 			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), article);
-			con.add(folder, vf.createURI(CALLI_DESCRIBEDBY), vf.createURI(article.toString() + "?view"));
+			con.add(folder, vf.createURI(CALLI_DESCRIBEDBY),
+					vf.createURI(article.toString() + "?view"));
 			InputStream in = cl.getResourceAsStream(MAIN_ARTICLE);
 			try {
-				OutputStream out = con.getBlobObject(article).openOutputStream();
+				OutputStream out = con.getBlobObject(article)
+						.openOutputStream();
 				try {
 					ChannelUtil.transfer(in, out);
 				} finally {
@@ -439,8 +491,8 @@ public class Setup {
 		}
 	}
 
-	private String upgradeStore(ObjectRepository repository, String origin, String version)
-			throws IOException, OpenRDFException {
+	private String upgradeStore(ObjectRepository repository, String origin,
+			String version) throws IOException, OpenRDFException {
 		ClassLoader cl = getClass().getClassLoader();
 		String name = "META-INF/upgrade/callimachus-" + version + ".ru";
 		InputStream in = cl.getResourceAsStream(name);
@@ -469,12 +521,12 @@ public class Setup {
 
 	private void importCallimachus(String origin, ObjectRepository repository) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void createRealm(String realm, ObjectRepository repository) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

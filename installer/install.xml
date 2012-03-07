@@ -5,7 +5,7 @@
     Uses IzPack (see http://izpack.org).
     
     To compile the installer JAR file:
-    - Run 'ant floss_installer' from the Callimachus root directory.
+    - Run 'ant installer' from the Callimachus root directory.
     - The installer JAR will be created in the dist directory.
 
     David Wood (david @ http://3roundstones.com)

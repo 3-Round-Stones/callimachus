@@ -331,18 +331,16 @@
 		</java>
 	</target>
 
-        <target name="installer" depends="compile">
-                <!-- Allows us to use the IzPack Ant task -->
-                <taskdef name="IzPack" classpath="${lib}/izpack-standalone-compiler.jar"
-                         classname="com.izforge.izpack.ant.IzPackTask"/>
-
-                <!-- Call IzPack to build the installer JAR -->
-                <echo message="Make the FLOSS installer JAR"/>
+	<target name="installer" depends="compile">
+		<!-- Allows us to use the IzPack Ant task -->
+		<taskdef name="IzPack" classpath="${lib}/izpack-standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/>
+		<!-- Call IzPack to build the installer JAR -->
+		<echo message="Make the FLOSS installer JAR"/>
 		<mkdir dir="${dist}" />
-                <IzPack input="${installer}/install.xml"
-                        output="${dist}/callimachus-${version}-installer.jar"
-                        installerType="standard"
-                        basedir="${home}" />
+		<IzPack input="${installer}/install.xml"
+			output="${dist}/callimachus-installer-${Version}.jar"
+			installerType="standard"
+			basedir="${home}" />
 	</target>
 
 </project>

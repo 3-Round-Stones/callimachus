@@ -176,7 +176,7 @@ set "ORIGIN=%ORIGIN%:%PORT%"
 :gotOrigin
 
 if not "%OPT%" == "" goto gotOpt
-set "OPT=-d "%BASEDIR%" -o %ORIGIN% -r %REPOSITORY% -c %REPOSITORY_CONFIG%"
+set "OPT=-d "%BASEDIR%" -o %ORIGIN% -r %REPOSITORY%
 if not "%SECURITY_MANAGER%" == "false" goto gotOpt
 set "OPT=%OPT% --trust"
 :gotOpt
@@ -191,11 +191,13 @@ set "OPT=%OPT% -s %SSLPORT%"
 
 rem ----- Execute The Requested Command ---------------------------------------
 
+set SETUPCLASS=org.callimachusproject.Setup
 set MAINCLASS=org.callimachusproject.Server
 set MONITORCLASS=org.callimachusproject.ServerMonitor
 
 if ""%1"" == ""start"" goto doStart
 if ""%1"" == ""stop"" goto doStop
+if ""%1"" == ""setup"" goto doSetup
 if ""%1"" == ""dump"" goto doDump
 if ""%1"" == ""reset"" goto doReset
 if ""%1"" == ""log"" goto doLog
@@ -246,22 +248,27 @@ goto end
 
 :doStop
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --stop
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --stop %CMD_LINE_ARGS%
+goto end
+
+:doSetup
+rem Execute Java with the applicable properties
+"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -d "%BASEDIR%" -o %ORIGIN% -r %REPOSITORY% -c %REPOSITORY_CONFIG% %CMD_LINE_ARGS%
 goto end
 
 :doDump
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --dump "%BASEDIR%\log"
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --dump "%BASEDIR%\log" %CMD_LINE_ARGS%
 goto end
 
 :doReset
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --reset
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --reset %CMD_LINE_ARGS%
 goto end
 
 :doLog
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --log
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --log %CMD_LINE_ARGS%
 goto end
 
 :end

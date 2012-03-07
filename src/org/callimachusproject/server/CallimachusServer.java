@@ -18,8 +18,6 @@
 package org.callimachusproject.server;
 
 import static java.lang.Integer.toHexString;
-import static org.openrdf.query.QueryLanguage.SPARQL;
-import info.aduna.io.IOUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,9 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -60,14 +56,11 @@ import org.callimachusproject.server.util.FileUtil;
 import org.callimachusproject.webapps.BootListener;
 import org.callimachusproject.webapps.ConciseListener;
 import org.callimachusproject.webapps.Uploader;
-import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.OWL;
-import org.openrdf.query.Update;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.config.RepositoryConfigException;
@@ -76,14 +69,12 @@ import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
 import org.openrdf.store.blob.file.FileBlobStoreProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private static final String SCHEMA_GRAPH = "/callimachus/SchemaGraph";
-	private static final String INITIAL_GRAPH = "META-INF/templates/callimachus-initial-data.ttl";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
 	private static final String ERROR_XSLT_PATH = "/callimachus/transforms/error.xsl";
@@ -264,13 +255,10 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		if (!conditional || version == null) {
 			repository.setCompileRepository(false);
 		}
-		String newVersion = version;
 		if (version == null) {
-			initializeStore(repository, origin);
-		} else {
-			newVersion = upgradeStore(repository, origin, version);
+			throw new IllegalStateException("Repository has not been setup");
 		}
-		uploader.uploadWebapps(!conditional || version == null || !version.equals(newVersion));
+		uploader.uploadWebapps(!conditional);
 		repository.setCompileRepository(true);
 		server.start();
 		uploader.started();
@@ -353,40 +341,6 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			}
 		} finally {
 			con.close();
-		}
-	}
-
-	private void initializeStore(Repository repository, String origin) {
-		try {
-			logger.info("Initializing {} Store", origin);
-			ClassLoader cl = CallimachusServer.class.getClassLoader();
-			loadDefaultGraphs(origin, repository, cl);
-		} catch (IOException e) {
-			logger.debug(e.toString(), e);
-		}
-	}
-
-	private void loadDefaultGraphs(String origin, Repository repository,
-			ClassLoader cl) throws IOException {
-		RDFFormat format = RDFFormat.forFileName(INITIAL_GRAPH,
-				RDFFormat.RDFXML);
-		Enumeration<URL> resources = cl.getResources(INITIAL_GRAPH);
-		if (!resources.hasMoreElements())
-			logger.warn("Missing {}", INITIAL_GRAPH);
-		while (resources.hasMoreElements()) {
-			InputStream in = resources.nextElement().openStream();
-			try {
-				RepositoryConnection con = repository.getConnection();
-				try {
-					con.add(in, origin + "/", format);
-				} finally {
-					con.close();
-				}
-			} catch (RepositoryException exc) {
-				logger.warn(exc.toString(), exc);
-			} catch (RDFParseException exc) {
-				logger.warn(exc.toString(), exc);
-			}
 		}
 	}
 
@@ -651,32 +605,6 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 				}
 			}
 		}
-	}
-
-	private String upgradeStore(ObjectRepository repository, String origin, String version)
-			throws IOException, OpenRDFException {
-		ClassLoader cl = getClass().getClassLoader();
-		String name = "META-INF/upgrades/callimachus-" + version + ".ru";
-		InputStream in = cl.getResourceAsStream(name);
-		if (in == null)
-			return version;
-		logger.info("Upgrading store from {}", version);
-		Reader reader = new InputStreamReader(in, "UTF-8");
-		String ru = IOUtil.readString(reader);
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.setAutoCommit(false);
-			Update u = con.prepareUpdate(SPARQL, ru, origin);
-			u.execute();
-			con.setAutoCommit(true);
-		} finally {
-			con.close();
-		}
-		String newVersion = getStoreVersion(repository, origin);
-		logger.info("Upgraded store from {} to {}", version, newVersion);
-		if (!version.equals(newVersion))
-			return upgradeStore(repository, origin, newVersion);
-		return newVersion;
 	}
 
 }

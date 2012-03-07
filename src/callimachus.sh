@@ -275,12 +275,13 @@ if [ -z "$ORIGIN" ] ; then
   fi
 fi
 
+PORT_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -p $2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -s $2/g' 2>/dev/null)"
+ORIGIN_OPTS="-o $(echo $ORIGIN |perl -pe 's/(\s)(\S)/ -o $2/g' 2>/dev/null)"
+
 if [ -z "$OPTS" ] ; then
   if [ "$SECURITY_MANAGER" = "false" ]; then
     OPTS="--trust"
   fi
-  PORT_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -p $2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -s $2/g' 2>/dev/null)"
-  ORIGIN_OPTS="-o $(echo $ORIGIN |perl -pe 's/(\s)(\S)/ -o $2/g' 2>/dev/null)"
   OPTS="$PORT_OPTS $ORIGIN_OPTS $OPTS"
 fi
 
@@ -331,6 +332,7 @@ if [ ! -e "$BASEDIR/log" ] ; then
   mkdir "$BASEDIR/log"
 fi
 
+SETUPCLASS=org.callimachusproject.Setup
 MAINCLASS=org.callimachusproject.Server
 MONITORCLASS=org.callimachusproject.ServerMonitor
 
@@ -351,7 +353,7 @@ if [ "$1" = "start" ] ; then ################################
   fi
 
   shift
-  "$EXECUTABLE" -keepstdin -jvm server \
+  "$EXECUTABLE" -jvm server \
     -procname "$NAME" \
     -home "$JAVA_HOME" \
     -pidfile "$PID" \
@@ -362,13 +364,17 @@ if [ "$1" = "start" ] ; then ################################
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" -c "$REPOSITORY_CONFIG" $OPTS "$@"
+    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 1
 
   if [ $RETURN_VAL -gt 0 -o ! -f "$PID" ]; then
-    echo "The server did not start, see log files for details. Start aborted."
+    if [ "$(ls -A "$BASEDIR/log")" ]; then
+      echo "The server did not start, see log files for details. Start aborted."
+    else
+      echo "The server did not start properly. Ensure it is not running and run $0"
+    fi
     exit $RETURN_VAL
   fi
 
@@ -455,6 +461,26 @@ elif [ "$1" = "stop" ] ; then ################################
     fi
   fi
 
+elif [ "$1" = "setup" ] ; then ################################
+
+  JSVC_LOG="$BASEDIR/log/callimachus-setup.log"
+  if [ -e "$JSVC_LOG" ]; then
+    rm "$JSVC_LOG"
+  fi
+  shift
+  "$EXECUTABLE" -nodetach -outfile "$JSVC_LOG" -errfile '&1' -home "$JAVA_HOME" -jvm server -procname "$NAME" \
+    -pidfile "$BASEDIR/run/$NAME-setup.pid" \
+    -Duser.home="$BASEDIR" \
+    -Djava.library.path="$LIB" \
+    -Djava.io.tmpdir="$TMPDIR" \
+    -Djava.mail.properties="$MAIL" \
+    -classpath "$CLASSPATH" \
+    -user "$DAEMON_USER" \
+    $JSVC_OPTS $SSL_OPTS "$SETUPCLASS" -d "$BASEDIR" -r "$REPOSITORY" -c "$REPOSITORY_CONFIG" $ORIGIN_OPTS "$@"
+  RETURN_VAL=$?
+  cat "$JSVC_LOG"
+  exit $RETURN_VAL
+
 elif [ "$1" = "dump" ] ; then ################################
 
   if [ -f "$PID" -a -r "$PID" ]; then
@@ -487,7 +513,11 @@ elif [ "$1" = "dump" ] ; then ################################
     fi
   fi
 
-  exec "$EXECUTABLE" -nodetach -keepstdin -home "$JAVA_HOME" -jvm server -procname "$NAME" \
+  JSVC_LOG="$BASEDIR/log/callimachus-dump.log"
+  if [ -e "$JSVC_LOG" ]; then
+    rm "$JSVC_LOG"
+  fi
+  "$EXECUTABLE" -nodetach -outfile "$JSVC_LOG" -errfile '&1' -home "$JAVA_HOME" -jvm server -procname "$NAME" \
     -pidfile "$BASEDIR/run/$NAME-dump.pid" \
     -Duser.home="$BASEDIR" \
     -Djava.library.path="$LIB" \
@@ -496,6 +526,9 @@ elif [ "$1" = "dump" ] ; then ################################
     -classpath "$CLASSPATH:$JAVA_HOME/lib/tools.jar" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PID" --dump "$DIR"
+  RETURN_VAL=$?
+  cat "$JSVC_LOG"
+  exit $RETURN_VAL
 
 elif [ "$1" = "reset" ] ; then ################################
 
@@ -517,7 +550,11 @@ elif [ "$1" = "reset" ] ; then ################################
     exit 1
   fi
 
-  exec "$EXECUTABLE" -nodetach -keepstdin -home "$JAVA_HOME" -jvm server -procname "$NAME" \
+  JSVC_LOG="$BASEDIR/log/callimachus-reset.log"
+  if [ -e "$JSVC_LOG" ]; then
+    rm "$JSVC_LOG"
+  fi
+  "$EXECUTABLE" -nodetach -outfile "$JSVC_LOG" -errfile '&1' -home "$JAVA_HOME" -jvm server -procname "$NAME" \
     -pidfile "$BASEDIR/run/$NAME-dump.pid" \
     -Duser.home="$BASEDIR" \
     -Djava.library.path="$LIB" \
@@ -526,6 +563,9 @@ elif [ "$1" = "reset" ] ; then ################################
     -classpath "$CLASSPATH:$JAVA_HOME/lib/tools.jar" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PID" --reset
+  RETURN_VAL=$?
+  cat "$JSVC_LOG"
+  exit $RETURN_VAL
 
 else ################################
 
@@ -554,7 +594,7 @@ else ################################
       fi
   fi
   if [ -n "$USE_JSVC" ]; then
-    exec "$EXECUTABLE" -debug -nodetach -keepstdin -home "$JAVA_HOME" -jvm server -procname "$NAME" \
+    exec "$EXECUTABLE" -debug -nodetach -home "$JAVA_HOME" -jvm server -procname "$NAME" \
       -pidfile "$PID" \
       -Duser.home="$BASEDIR" \
       -Djava.library.path="$LIB" \
@@ -563,7 +603,7 @@ else ################################
       -Djava.mail.properties="$MAIL" \
       -classpath "$CLASSPATH" \
       -user "$DAEMON_USER" \
-      $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" -c "$REPOSITORY_CONFIG" $OPTS "$@"
+      $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" $OPTS "$@"
   fi
   exec "$JAVA" -server \
     -Duser.home="$BASEDIR" \
@@ -571,6 +611,6 @@ else ################################
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
     -classpath "$CLASSPATH" \
-    $JAVA_OPTS $SSL_OPTS "$MAINCLASS" --pid "$PID" -d "$BASEDIR" -r "$REPOSITORY" -c "$REPOSITORY_CONFIG" $OPTS "$@"
+    $JAVA_OPTS $SSL_OPTS "$MAINCLASS" --pid "$PID" -d "$BASEDIR" -r "$REPOSITORY" $OPTS "$@"
 fi
 

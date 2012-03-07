@@ -84,6 +84,6 @@ shift
 goto setArgs
 :doneSetArgs
 
-call "%EXECUTABLE%" reset %CMD_LINE_ARGS%
+"%EXECUTABLE%" reset %CMD_LINE_ARGS%
 
 :end

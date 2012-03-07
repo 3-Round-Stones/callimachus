@@ -28,8 +28,6 @@ import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,28 +53,16 @@ import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.HTTPObjectPolicy;
 import org.callimachusproject.server.client.HTTPObjectClient;
-import org.openrdf.model.Graph;
-import org.openrdf.model.Resource;
-import org.openrdf.model.impl.GraphImpl;
-import org.openrdf.model.util.GraphUtil;
 import org.openrdf.model.util.GraphUtilException;
-import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.DelegatingRepository;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.config.RepositoryConfigSchema;
-import org.openrdf.repository.manager.RepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.StatementCollector;
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.StackableSail;
 import org.openrdf.sail.auditing.AuditingSail;
@@ -92,7 +78,6 @@ import org.slf4j.LoggerFactory;
 public class Server implements HTTPObjectAgentMXBean {
 	private static final String CHANGE_PATH = "/change/";
 	public static final String NAME = Version.getInstance().getVersion();
-	private static final String REPOSITORY_TEMPLATE = "META-INF/templates/callimachus-config.ttl";
 
 	private static final Options options = new Options();
 	static {
@@ -105,8 +90,7 @@ public class Server implements HTTPObjectAgentMXBean {
 				"Secure port the server should listen on");
 		options.addOption("r", "repository", true,
 				"The Sesame repository url (relative file: or http:)");
-		options.addOption("c", "config", true,
-						"A repository config (if no repository exists) url (relative file: or http:)");
+		options.getOption("repository").setRequired(true);
 		options.addOption("d", "dir", true,
 				"Directory used for data storage and retrieval");
 		options.addOption("u", "update", false,
@@ -506,61 +490,15 @@ public class Server implements HTTPObjectAgentMXBean {
 			throws RepositoryException, RepositoryConfigException,
 			MalformedURLException, IOException, RDFParseException,
 			RDFHandlerException, GraphUtilException {
-		RepositoryManager manager;
 		if (line.hasOption('r')) {
 			String url = line.getOptionValue('r');
 			Repository repository = RepositoryProvider.getRepository(url);
 			if (repository != null)
 				return repository;
-			manager = RepositoryProvider.getRepositoryManagerOfRepository(url);
+			throw new IllegalStateException("No repository found");
 		} else {
-			String ref = dir.toURI().toASCIIString();
-			manager = RepositoryProvider.getRepositoryManager(ref);
+			throw new IllegalArgumentException("Option -r is required");
 		}
-		URL config_url;
-		if (line.hasOption('c')) {
-			String ref = line.getOptionValue('c');
-			config_url = new File(".").toURI().resolve(ref).toURL();
-		} else {
-			ClassLoader cl = Server.class.getClassLoader();
-			config_url = cl.getResource(REPOSITORY_TEMPLATE);
-		}
-		Graph graph = parseTurtleGraph(config_url);
-		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
-				RepositoryConfigSchema.REPOSITORY);
-		String id = GraphUtil.getUniqueObjectLiteral(graph, node,
-				RepositoryConfigSchema.REPOSITORYID).stringValue();
-		if (manager.hasRepositoryConfig(id))
-			return manager.getRepository(id);
-		RepositoryConfig config = RepositoryConfig.create(graph, node);
-		config.validate();
-		manager.addRepositoryConfig(config);
-		return manager.getRepository(id);
-	}
-
-	private Graph parseTurtleGraph(URL url) throws IOException,
-			RDFParseException, RDFHandlerException {
-		Graph graph = new GraphImpl();
-		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
-		rdfParser.setRDFHandler(new StatementCollector(graph));
-
-		String base = new File(".").getAbsoluteFile().toURI().toASCIIString();
-		URLConnection con = url.openConnection();
-		StringBuilder sb = new StringBuilder();
-		for (String mimeType : RDFFormat.TURTLE.getMIMETypes()) {
-			if (sb.length() < 1) {
-				sb.append(", ");
-			}
-			sb.append(mimeType);
-		}
-		con.setRequestProperty("Accept", sb.toString());
-		InputStream in = con.getInputStream();
-		try {
-			rdfParser.parse(in, base);
-		} finally {
-			in.close();
-		}
-		return graph;
 	}
 
 	private void applyPolicy(CommandLine line, Repository repository, File dir,

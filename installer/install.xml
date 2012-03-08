@@ -12,7 +12,7 @@
     6 March 2012
 -->
 
-<installation version="1.0">
+<installation version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
     <!-- 
         The info section.
@@ -20,11 +20,21 @@
     -->
     <info>
         <appname>Callimachus</appname>
-        <appversion>0.16-SNAPSHOT</appversion>
+        <appversion>
+			<xi:include href="../tmp/version" parse="text">
+				<xi:fallback>
+					devel
+				</xi:fallback>
+			</xi:include>
+		</appversion>
         <authors>
             <author name="3 Round Stones Inc." email="info@3roundstones.com"/>
         </authors>
         <url>http://3roundstones.com/</url>
+        <javaversion>1.6</javaversion>
+        <requiresjdk>yes</requiresjdk>
+        <writeinstallationinformation>no</writeinstallationinformation>
+        <uninstaller write="no" />
     </info>
 
     <!-- 
@@ -53,7 +63,7 @@
         <res id="HTMLInfoPanel.release_notes" src="RELEASE_NOTES.txt"/>
         <res id="ProcessPanel.Spec.xml" src="installer/ProcessPanel.Spec.xml"/>
     </resources>
-    <jar src="dist/callimachus-installer-0.16-SNAPSHOT.jar" stage="install"/>
+    <jar src="dist/callimachus-configure.jar" stage="install"/>
 
     <!-- 
         The panels section.

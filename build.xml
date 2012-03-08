@@ -291,7 +291,7 @@
 	</target>
 
 	<target name="installer" depends="install-compile">
-		<jar jarfile="${dist}/callimachus-installer-${Version}.jar">
+		<jar jarfile="${dist}/callimachus-configure.jar">
 			<fileset dir="${build.install}" />
 		</jar>
 		<!-- Allows us to use the IzPack Ant task -->
@@ -299,10 +299,12 @@
 		<!-- Call IzPack to build the installer JAR -->
 		<echo message="Make the FLOSS installer JAR"/>
 		<mkdir dir="${dist}" />
+		<echo file="tmp/version" append="false" message="${Version}" />
 		<IzPack input="${installer}/install.xml"
 			output="${dist}/callimachus-setup-${Version}.jar"
 			installerType="standard"
 			basedir="${home}" />
+		<delete file="tmp/version" />
 	</target>
 
 	<target name="package" depends="dist-clean,dist,installer,test" description="Create a package ready for release">

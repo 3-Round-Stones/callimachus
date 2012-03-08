@@ -352,8 +352,13 @@ if [ "$1" = "start" ] ; then ################################
     echo "Using JAVA_HOME: $JAVA_HOME"
   fi
 
+  JSVC_LOG="$BASEDIR/log/callimachus-start.log"
+  if [ -e "$JSVC_LOG" ]; then
+    rm "$JSVC_LOG"
+  fi
   shift
   "$EXECUTABLE" -jvm server \
+    -outfile "$JSVC_LOG" -errfile '&1' \
     -procname "$NAME" \
     -home "$JAVA_HOME" \
     -pidfile "$PID" \
@@ -368,6 +373,7 @@ if [ "$1" = "start" ] ; then ################################
 
   RETURN_VAL=$?
   sleep 1
+  cat "$JSVC_LOG"
 
   if [ $RETURN_VAL -gt 0 -o ! -f "$PID" ]; then
     if [ "$(ls -A "$BASEDIR/log")" ]; then

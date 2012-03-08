@@ -14,19 +14,15 @@
 
 <installation version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
+	<xi:include href="../tmp/variables" />
+
     <!-- 
         The info section.
         The meaning of the tags should be natural ...
     -->
     <info>
         <appname>Callimachus</appname>
-        <appversion>
-			<xi:include href="../tmp/version" parse="text">
-				<xi:fallback>
-					devel
-				</xi:fallback>
-			</xi:include>
-		</appversion>
+        <appversion><xi:include href="../tmp/version" parse="text" /></appversion>
         <authors>
             <author name="3 Round Stones Inc." email="info@3roundstones.com"/>
         </authors>
@@ -100,6 +96,7 @@
             <file src="CONTRIBUTORS.txt" targetdir="$INSTALL_PATH"/>
             <file src="lib" targetdir="$INSTALL_PATH"/>
             <file src="etc" targetdir="$INSTALL_PATH"/>
+            <file src="dist/callimachus-${Version}.jar" targetdir="$INSTALL_PATH/lib/"/>
             <file src="dist/callimachus.war" targetdir="$INSTALL_PATH/webapps/"/>
             <!-- The file will be parsed -->
             <!--

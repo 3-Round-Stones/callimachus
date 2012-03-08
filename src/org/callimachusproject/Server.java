@@ -413,7 +413,9 @@ public class Server implements HTTPObjectAgentMXBean {
 			ports = new int[] { 8080 };
 		}
 		if (line.hasOption('o')) {
-			server.setOrigin(line.getOptionValue('o'));
+			for (String o : line.getOptionValues('o')) {
+				server.addOrigin(o);
+			}
 		}
 		if (line.hasOption('n')) {
 			server.setServerName(line.getOptionValue('n'));

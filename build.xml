@@ -300,10 +300,16 @@
 		<echo message="Make the FLOSS installer JAR"/>
 		<mkdir dir="${dist}" />
 		<echo file="tmp/version" append="false" message="${Version}" />
+		<echo file="tmp/variables" append="false"><![CDATA[
+			<variables>
+				<variable name="Version" value="${Version}"/>
+			</variables>
+		]]></echo>
 		<IzPack input="${installer}/install.xml"
 			output="${dist}/callimachus-setup-${Version}.jar"
 			installerType="standard"
 			basedir="${home}" />
+		<delete file="tmp/variables" />
 		<delete file="tmp/version" />
 	</target>
 

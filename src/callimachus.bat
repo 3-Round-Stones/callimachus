@@ -253,7 +253,7 @@ goto end
 
 :doSetup
 rem Execute Java with the applicable properties
-"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -d "%BASEDIR%" -o %ORIGIN% -r %REPOSITORY% -c %REPOSITORY_CONFIG% %CMD_LINE_ARGS%
+"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -d "%BASEDIR%" -o %ORIGIN% -c %REPOSITORY_CONFIG% %CMD_LINE_ARGS%
 goto end
 
 :doDump

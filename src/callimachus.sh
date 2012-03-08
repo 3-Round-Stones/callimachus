@@ -482,7 +482,7 @@ elif [ "$1" = "setup" ] ; then ################################
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS "$SETUPCLASS" -d "$BASEDIR" -r "$REPOSITORY" -c "$REPOSITORY_CONFIG" $ORIGIN_OPTS "$@"
+    $JSVC_OPTS $SSL_OPTS "$SETUPCLASS" -d "$BASEDIR" -c "$REPOSITORY_CONFIG" $ORIGIN_OPTS "$@"
   RETURN_VAL=$?
   cat "$JSVC_LOG"
   exit $RETURN_VAL

@@ -49,6 +49,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.model.util.GraphUtil;
+import org.openrdf.model.util.ModelUtil;
 import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
@@ -58,8 +59,9 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.config.RepositoryConfig;
+import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.config.RepositoryConfigSchema;
-import org.openrdf.repository.manager.RepositoryManager;
+import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectRepository;
@@ -83,7 +85,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Setup {
 	public static final String NAME = Version.getInstance().getVersion();
-	private static final String REPOSITORY_TEMPLATE = "META-INF/templates/callimachus-config.ttl";
 	private static final String INITIAL_GRAPH = "META-INF/templates/callimachus-initial-data.ttl";
 	private static final String MAIN_ARTICLE = "META-INF/templates/main-article.docbook";
 
@@ -93,15 +94,28 @@ public class Setup {
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
 	private static final String CALLI_EDITOR = CALLI + "editor";
 	private static final String CALLI_READER = CALLI + "reader";
+	private static final String CALLI_ORIGIN = CALLI + "Origin";
+	private static final String CALLI_REALM = CALLI + "Realm";
+	private static final String CALLI_FOLDER = CALLI + "Folder";
+	private static final String CALLI_UNAUTHORIZED = CALLI + "unauthorized";
+	private static final String CALLI_FORBIDDEN = CALLI + "forbidden";
+	private static final String CALLI_AUTHENTICATION = CALLI + "authentication";
+	private static final String CALLI_MENU = CALLI + "menu";
+	private static final String CALLI_FAVICON = CALLI + "favicon";
+	private static final String CALLI_THEME = CALLI + "theme";
 
 	private static final Options options = new Options();
 	static {
 		options.addOption("o", "origin", true,
-				"The scheme, hostname and port ( http://localhost:8080 )");
-		options.addOption("r", "repository", true,
-				"The Sesame repository url (relative file: or http:)");
+				"The scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
+		options.getOption("origin").setRequired(true);
+		options.addOption("h", "virtual", true,
+				"Additional scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
+		options.addOption("r", "realm", true,
+				"The scheme, hostname, port, and path ( http://example.com:8080/ ) that does not resolve to this server");
 		options.addOption("c", "config", true,
 				"A repository config (if no repository exists) url (relative file: or http:)");
+		options.getOption("config").setRequired(true);
 		options.addOption("d", "dir", true,
 				"Directory used for data storage and retrieval");
 		options.addOption("s", "silent", false,
@@ -142,11 +156,11 @@ public class Setup {
 
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
 	private File dir;
-	private String repositoryUrl;
 	private URL repositoryConfigUrl;
 	private boolean silent;
 	private final Set<String> origins = new HashSet<String>();
-	private final Set<String> realms = new HashSet<String>();
+	private final Map<String, String> vhosts = new HashMap<String,String>();
+	private final Map<String,String> realms = new HashMap<String,String>();
 
 	public File getDirectory() {
 		return dir;
@@ -156,20 +170,20 @@ public class Setup {
 		this.dir = dir;
 	}
 
-	public String getRepositoryUrl() {
-		return repositoryUrl;
-	}
-
-	public void setRepositoryUrl(String repositoryUrl) {
-		this.repositoryUrl = repositoryUrl;
-	}
-
 	public URL getRepositoryConfigUrl() {
 		return repositoryConfigUrl;
 	}
 
 	public void setRepositoryConfigUrl(URL repositoryConfigUrl) {
 		this.repositoryConfigUrl = repositoryConfigUrl;
+	}
+
+	public File getRepositoryDir() throws OpenRDFException, IOException {
+		RepositoryConfig config = getRepositoryConfig();
+		LocalRepositoryManager manager = getRepositoryManager();
+		if (config == null || manager == null)
+			return null;
+		return manager.getRepositoryDir(config.getID());
 	}
 
 	public boolean isSilent() {
@@ -190,14 +204,28 @@ public class Setup {
 		origins.add(origin);
 	}
 
-	public Set<String> getRealms() {
+	public Map<String, String> getVirtualHosts() {
+		return vhosts;
+	}
+
+	public void addVirtualHost(String vhost, String origin) {
+		assert vhost != null;
+		assert !vhost.endsWith("/");
+		assert origin != null;
+		assert !origin.endsWith("/");
+		vhosts.put(vhost, origin);
+	}
+
+	public Map<String, String> getRealms() {
 		return realms;
 	}
 
-	public void addRealm(String realm) {
+	public void addRealm(String realm, String origin) {
 		assert realm != null;
 		assert realm.endsWith("/");
-		realms.add(realm);
+		assert origin != null;
+		assert !origin.endsWith("/");
+		realms.put(realm, origin);
 	}
 
 	public void init(String[] args) {
@@ -221,25 +249,32 @@ public class Setup {
 				System.exit(0);
 				return;
 			} else {
-				if (line.hasOption('s')) {
-					setSilent(true);
-				}
+				setSilent(line.hasOption('s'));
 				if (line.hasOption('d')) {
 					setDirectory(new File(line.getOptionValue('d'))
 							.getCanonicalFile());
 				} else {
 					setDirectory(new File("").getCanonicalFile());
 				}
-				if (line.hasOption('r')) {
-					setRepositoryUrl(line.getOptionValue('r'));
-				}
 				if (line.hasOption('c')) {
 					String ref = line.getOptionValue('c');
 					java.net.URI uri = new File(".").toURI().resolve(ref);
 					setRepositoryConfigUrl(uri.toURL());
 				}
-				for (String o : line.getOptionValues('o')) {
-					addOrigin(o);
+				if (line.hasOption('o')) {
+					for (String o : line.getOptionValues('o')) {
+						addOrigin(o);
+					}
+				}
+				if (line.hasOption('h')) {
+					for (String h : line.getOptionValues('h')) {
+						addVirtualHost(h, line.getOptionValue('o'));
+					}
+				}
+				if (line.hasOption('r')) {
+					for (String r : line.getOptionValues('r')) {
+						addRealm(r, line.getOptionValue('o'));
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -255,31 +290,25 @@ public class Setup {
 	 */
 	public boolean run() throws OpenRDFException, MalformedURLException,
 			IOException {
-		boolean initialized = false;
-		ObjectRepository repository = getObjectRepository();
+		boolean changed = false;
+		ObjectRepository repo = getObjectRepository();
+		if (repo == null)
+			throw new IllegalStateException("Missing repository configuration");
 		for (String origin : getOrigins()) {
-			String version = getStoreVersion(repository, origin);
-			if (version == null) {
-				initialized = true;
-				initializeStore(origin, repository);
-				importCallimachus(origin, repository);
-			} else {
-				String newVersion = upgradeStore(repository, origin, version);
-				if (!version.equals(newVersion)) {
-					initialized = true;
-					importCallimachus(origin, repository);
-				}
-			}
+			changed |= createOrigin(origin, repo);
 		}
-		for (String realm : getRealms()) {
-			createRealm(realm, repository);
+		for (Map.Entry<String, String> e : getVirtualHosts().entrySet()) {
+			changed |= createVirtualHost(e.getKey(), e.getValue(), repo);
 		}
-		return initialized;
+		for (Map.Entry<String, String> e : getRealms().entrySet()) {
+			changed |= createRealm(e.getKey(), e.getValue(), repo);
+		}
+		return changed;
 	}
 
 	public void start() throws Exception {
 		boolean initialized = run();
-		if (isSilent() || initialized) {
+		if (initialized || isSilent()) {
 			System.exit(0);
 		} else {
 			logger.warn("Repository is already setup");
@@ -295,64 +324,63 @@ public class Setup {
 		// do nothing
 	}
 
-	private ObjectRepository getObjectRepository() throws OpenRDFException,
-			MalformedURLException, IOException {
-		Repository repo = getRepository(getRepositoryUrl(),
-				getRepositoryConfigUrl(), getDirectory());
-		if (repo instanceof ObjectRepository) {
-			return (ObjectRepository) repo;
-		} else {
-			ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
-			ObjectRepositoryConfig config = factory.getConfig();
-			File dataDir = repo.getDataDir();
-			if (dataDir == null) {
-				dataDir = getDirectory();
-			}
-			File wwwDir = new File(dataDir, "www");
-			File blobDir = new File(dataDir, "blob");
-			if (wwwDir.isDirectory() && !blobDir.isDirectory()) {
-				config.setBlobStore(wwwDir.toURI().toString());
-				Map<String, String> map = new HashMap<String, String>();
-				map.put("provider", FileBlobStoreProvider.class.getName());
-				config.setBlobStoreParameters(map);
-			} else {
-				config.setBlobStore(blobDir.toURI().toString());
-			}
-			return factory.createRepository(config, repo);
-		}
+	private LocalRepositoryManager getRepositoryManager()
+			throws RepositoryConfigException, RepositoryException {
+		if (dir == null)
+			return null;
+		return RepositoryProvider.getRepositoryManager(dir);
 	}
 
-	private Repository getRepository(String repositoryUrl,
-			URL repositoryConfigUrl, File dir) throws OpenRDFException,
-			MalformedURLException, IOException {
-		RepositoryManager manager;
-		if (repositoryUrl != null) {
-			String url = repositoryUrl;
-			Repository repository = RepositoryProvider.getRepository(url);
-			if (repository != null)
-				return repository;
-			manager = RepositoryProvider.getRepositoryManagerOfRepository(url);
-		} else {
-			String ref = dir.toURI().toASCIIString();
-			manager = RepositoryProvider.getRepositoryManager(ref);
-		}
-		URL config_url;
-		if (repositoryConfigUrl != null) {
-			config_url = repositoryConfigUrl;
-		} else {
-			ClassLoader cl = Setup.class.getClassLoader();
-			config_url = cl.getResource(REPOSITORY_TEMPLATE);
-		}
-		Graph graph = parseTurtleGraph(config_url);
+	private RepositoryConfig getRepositoryConfig() throws OpenRDFException, IOException {
+		if (repositoryConfigUrl == null)
+			return null;
+		Graph graph = parseTurtleGraph(repositoryConfigUrl);
 		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
 				RepositoryConfigSchema.REPOSITORY);
-		String id = GraphUtil.getUniqueObjectLiteral(graph, node,
-				RepositoryConfigSchema.REPOSITORYID).stringValue();
+		return RepositoryConfig.create(graph, node);
+	}
+
+	private ObjectRepository getObjectRepository() throws OpenRDFException,
+			MalformedURLException, IOException {
+		Repository repo = getRepository(getRepositoryConfigUrl(), getDirectory());
+		if (repo == null)
+			return null;
+		if (repo instanceof ObjectRepository)
+			return (ObjectRepository) repo;
+		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
+		ObjectRepositoryConfig config = factory.getConfig();
+		File dataDir = repo.getDataDir();
+		if (dataDir == null) {
+			dataDir = getDirectory();
+		}
+		File wwwDir = new File(dataDir, "www");
+		File blobDir = new File(dataDir, "blob");
+		if (wwwDir.isDirectory() && !blobDir.isDirectory()) {
+			config.setBlobStore(wwwDir.toURI().toString());
+			Map<String, String> map = new HashMap<String, String>();
+			map.put("provider", FileBlobStoreProvider.class.getName());
+			config.setBlobStoreParameters(map);
+		} else {
+			config.setBlobStore(blobDir.toURI().toString());
+		}
+		return factory.createRepository(config, repo);
+	}
+
+	private Repository getRepository(URL repositoryConfigUrl, File dir) throws OpenRDFException,
+			MalformedURLException, IOException {
+		RepositoryConfig config = getRepositoryConfig();
+		LocalRepositoryManager manager = getRepositoryManager();
+		if (config == null || manager == null)
+			return null;
+		String id = config.getID();
 		if (manager.hasRepositoryConfig(id)) {
 			logger.warn("Repository already exists: {}", id);
-			return manager.getRepository(id);
+			RepositoryConfig oldConfig = manager.getRepositoryConfig(id);
+			if (equal(config, oldConfig))
+				return manager.getRepository(id);
+			logger.warn("Replacing repository configuration");
+			manager.removeRepositoryConfig(id);
 		}
-		RepositoryConfig config = RepositoryConfig.create(graph, node);
 		config.validate();
 		logger.info("Creating repository: {}", id);
 		manager.addRepositoryConfig(config);
@@ -384,6 +412,32 @@ public class Setup {
 		return graph;
 	}
 
+	private boolean equal(RepositoryConfig c1, RepositoryConfig c2) {
+		GraphImpl g1 = new GraphImpl();
+		GraphImpl g2 = new GraphImpl();
+		c1.export(g1);
+		c2.export(g2);
+		return ModelUtil.equals(g1, g2);
+	}
+
+	private boolean createOrigin(String origin, ObjectRepository repository) throws RepositoryException, IOException,
+			OpenRDFException {
+		createVirtualHost(origin, origin, repository);
+		String version = getStoreVersion(repository, origin);
+		if (version == null) {
+			initializeStore(origin, repository);
+			importCallimachus(origin, repository);
+			return true;
+		} else {
+			String newVersion = upgradeStore(repository, origin, version);
+			if (!version.equals(newVersion)) {
+				importCallimachus(origin, repository);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private String getStoreVersion(ObjectRepository repository, String origin)
 			throws RepositoryException {
 		ObjectConnection con = repository.getConnection();
@@ -409,7 +463,6 @@ public class Setup {
 		try {
 			ClassLoader cl = CallimachusServer.class.getClassLoader();
 			loadDefaultGraphs(origin, repository, cl);
-			addOriginLabel(origin, repository);
 			uploadMainArticle(origin, repository, cl);
 		} catch (IOException e) {
 			logger.debug(e.toString(), e);
@@ -436,19 +489,6 @@ public class Setup {
 			} catch (RDFParseException exc) {
 				logger.warn(exc.toString(), exc);
 			}
-		}
-	}
-
-	private void addOriginLabel(String origin, ObjectRepository repository)
-			throws RepositoryException {
-		ObjectConnection con = repository.getConnection();
-		try {
-			String label = origin.substring(origin.lastIndexOf('/') + 1);
-			ValueFactory vf = con.getValueFactory();
-			con.add(vf.createURI(origin + "/"), RDFS.LABEL,
-					vf.createLiteral(label));
-		} finally {
-			con.close();
 		}
 	}
 
@@ -521,12 +561,69 @@ public class Setup {
 
 	private void importCallimachus(String origin, ObjectRepository repository) {
 		// TODO Auto-generated method stub
-
 	}
 
-	private void createRealm(String realm, ObjectRepository repository) {
-		// TODO Auto-generated method stub
+	private boolean createVirtualHost(String vhost, String origin, ObjectRepository repository) throws RepositoryException {
+		assert !vhost.endsWith("/");
+		ObjectConnection con = repository.getConnection();
+		try {
+			ValueFactory vf = con.getValueFactory();
+			URI subj = vf.createURI(vhost + '/');
+			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_ORIGIN)))
+				return false;
+			logger.info("Adding origin: {} for {}", vhost, origin);
+			con.add(subj, RDF.TYPE, vf.createURI(origin + "/callimachus/Origin"));
+			con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(vhost)));
+			con.add(subj, RDF.TYPE, vf.createURI(CALLI_ORIGIN));
+			addRealm(subj, origin, con);
+			return true;
+		} finally {
+			con.close();
+		}
+	}
 
+	private boolean createRealm(String realm, String origin, ObjectRepository repository) throws RepositoryException {
+		assert realm.endsWith("/");
+		ObjectConnection con = repository.getConnection();
+		try {
+			ValueFactory vf = con.getValueFactory();
+			URI subj = vf.createURI(realm);
+			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_REALM)))
+				return false;
+			logger.info("Adding realm: {} for {}", realm, origin);
+			con.add(subj, RDF.TYPE, vf.createURI(origin + "/callimachus/Realm"));
+			con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(realm)));
+			addRealm(subj, origin, con);
+			return true;
+		} finally {
+			con.close();
+		}
+	}
+
+	private String getLabel(String origin) {
+		String label = origin;
+		if (label.endsWith("/")) {
+			label = label.substring(0, label.lastIndexOf('/'));
+		}
+		if (label.startsWith("http://")) {
+			label = label.substring("http://".length());
+		}
+		return label;
+	}
+
+	private void addRealm(URI subj, String origin, ObjectConnection con) throws RepositoryException {
+		ValueFactory vf = con.getValueFactory();
+		con.add(subj, RDF.TYPE, vf.createURI(CALLI_REALM));
+		con.add(subj, RDF.TYPE, vf.createURI(CALLI_FOLDER));
+		con.add(subj, vf.createURI(CALLI_READER), vf.createURI(origin + "/group/users"));
+		con.add(subj, vf.createURI(CALLI_EDITOR), vf.createURI(origin + "/group/staff"));
+		con.add(subj, vf.createURI(CALLI_ADMINISTRATOR), vf.createURI(origin + "/group/admin"));
+		con.add(subj, vf.createURI(CALLI_UNAUTHORIZED), vf.createURI(origin + "/callimachus/pages/unauthorized.xhtml"));
+		con.add(subj, vf.createURI(CALLI_FORBIDDEN), vf.createURI(origin + "/callimachus/pages/forbidden.xhtml"));
+		con.add(subj, vf.createURI(CALLI_AUTHENTICATION), vf.createURI(origin + "/accounts"));
+		con.add(subj, vf.createURI(CALLI_MENU), vf.createURI(origin + "/main+menu"));
+		con.add(subj, vf.createURI(CALLI_FAVICON), vf.createURI(origin + "/callimachus/images/callimachus-icon.ico"));
+		con.add(subj, vf.createURI(CALLI_THEME), vf.createURI(origin + "/callimachus/theme/default"));
 	}
 
 }

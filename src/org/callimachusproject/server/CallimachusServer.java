@@ -39,9 +39,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
@@ -81,6 +83,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	Logger logger = LoggerFactory.getLogger(CallimachusServer.class);
 	private Uploader uploader;
 	private String origin;
+	private final Set<String> origins = new HashSet<String>();
 	private ObjectRepository repository;
 	private HTTPObjectServer server;
 	private boolean conditional = true;
@@ -121,14 +124,21 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		return origin;
 	}
 
-	public void setOrigin(String origin) throws Exception {
-		this.origin = origin;
-		ValueFactory vf = this.repository.getValueFactory();
-		repository.setSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
-		server.setIdentityPrefix(new String[] { origin + IDENTITY_PATH });
-		server.setErrorXSLT(origin + ERROR_XSLT_PATH);
-		uploader.setProxy(getAuthorityAddress());
-		boot.setProxy(getAuthorityAddress());
+	public void addOrigin(String origin) throws Exception {
+		if (this.origin == null) {
+			this.origin = origin;
+			ValueFactory vf = this.repository.getValueFactory();
+			repository.setSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
+			server.setErrorXSLT(origin + ERROR_XSLT_PATH);
+			uploader.setProxy(getAuthorityAddress(origin));
+			boot.setProxy(getAuthorityAddress(origin));
+		}
+		origins.add(origin);
+		String[] identities = origins.toArray(new String[origins.size()]);
+		for (int i=0;i<identities.length;i++) {
+			identities[i] = identities[i] + IDENTITY_PATH;
+		}
+		server.setIdentityPrefix(identities);
 	}
 
 	public String getServerName() {
@@ -239,9 +249,9 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 			sslports = new int[0];
 		}
 		if (origin == null && ports.length > 0) {
-			setOrigin("http://" + getAuthority(ports[0]));
+			addOrigin("http://" + getAuthority(ports[0]));
 		} else if (origin == null && sslports.length > 0) {
-			setOrigin("https://" + getAuthority(sslports[0]));
+			addOrigin("https://" + getAuthority(sslports[0]));
 		}
 		uploader.setOrigin(origin + "/");
 		server.listen(ports, sslports);
@@ -249,8 +259,10 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	public void start() throws Exception {
 		logger.info("Callimachus is binding to {}", uploader.getOrigin());
-		InetSocketAddress host = getAuthorityAddress();
-		HTTPObjectClient.getInstance().setProxy(host, server);
+		for (String origin : origins) {
+			InetSocketAddress host = getAuthorityAddress(origin);
+			HTTPObjectClient.getInstance().setProxy(host, server);
+		}
 		String version = getStoreVersion(repository, origin);
 		if (!conditional || version == null) {
 			repository.setCompileRepository(false);
@@ -278,8 +290,10 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	public void stop() throws Exception {
 		uploader.stopping();
-		InetSocketAddress host = getAuthorityAddress();
-		HTTPObjectClient.getInstance().removeProxy(host, server);
+		for (String origin : origins) {
+			InetSocketAddress host = getAuthorityAddress(origin);
+			HTTPObjectClient.getInstance().removeProxy(host, server);
+		}
 		uploader.stop();
 		server.stop();
 	}
@@ -288,7 +302,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.destroy();
 	}
 
-	private InetSocketAddress getAuthorityAddress() {
+	private InetSocketAddress getAuthorityAddress(String origin) {
 		InetSocketAddress host;
 		if (origin.indexOf(':') != origin.lastIndexOf(':')) {
 			int slash = origin.lastIndexOf('/');

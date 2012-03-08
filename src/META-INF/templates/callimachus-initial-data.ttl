@@ -19,42 +19,30 @@
 # Version Info
 ################################
 
+</> calli:hasComponent </callimachus>.
 </callimachus> a owl:Ontology;
 	rdfs:label "Callimachus";
 	rdfs:comment "Vocabulary used to create local Callimachus applications";
 	owl:versionInfo "0.15".
 
 ################################
-# Realm
-################################
-
-</> a </callimachus/Origin>, calli:Origin, calli:Realm, calli:Folder;
-	calli:reader </group/users>;
-	calli:editor </group/staff>;
-	calli:administrator </group/admin>;
-	calli:unauthorized </callimachus/pages/unauthorized.xhtml>;
-	calli:forbidden </callimachus/pages/forbidden.xhtml>;
-	calli:authentication </accounts>;
-	calli:menu </main+menu>;
-	calli:favicon </callimachus/images/callimachus-icon.ico> ;
-	calli:theme </callimachus/theme/default>;
-	calli:hasComponent </.well-known/>, </user/>, </group/>, </sparql>, </accounts>, </main+menu>, </callimachus>.
-
-################################
 # Authorization and Groups
 ################################
 
+</> calli:hasComponent </accounts>.
 </accounts> a </callimachus/AccountManager>, calli:AccountManager;
 	rdfs:label "User accounts";
 	calli:administrator </group/admin>;
 	calli:authName </>;
 	calli:authNamespace </user/>.
 
+</> calli:hasComponent </user/>.
 </user/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "user";
 	calli:reader </group/staff>;
 	calli:administrator </group/admin>.
 
+</> calli:hasComponent </group/>.
 </group/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "group";
 	calli:reader </group/staff>;
@@ -83,6 +71,7 @@
 # Services
 ################################
 
+</> calli:hasComponent </.well-known/>.
 </.well-known/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label ".well known";
 	calli:reader </group/users>,</group/staff>;
@@ -100,6 +89,7 @@
 	void:openSearchDescription </?search>;
 	void:uriSpace </>.
 
+</> calli:hasComponent </sparql>.
 </sparql> a </callimachus/SparqlService>, sd:Service;
 	rdfs:label "sparql";
 	calli:administrator </group/admin>;
@@ -113,6 +103,7 @@
 # Menu
 ################################
 
+</> calli:hasComponent </main+menu>.
 </main+menu> a </callimachus/Menu>, calli:Menu;
 	rdfs:label "main menu";
 	calli:reader </group/users>;

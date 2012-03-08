@@ -51,7 +51,9 @@
         <res id="LicencePanel.licence" src="LICENSE.txt"/>
         <res id="HTMLInfoPanel.readme" src="README.txt"/>
         <res id="HTMLInfoPanel.release_notes" src="RELEASE_NOTES.txt"/>
+        <res id="ProcessPanel.Spec.xml" src="installer/ProcessPanel.Spec.xml"/>
     </resources>
+    <jar src="installer/hello.jar" stage="install"/>
 
     <!-- 
         The panels section.
@@ -65,6 +67,7 @@
         <panel classname="TargetPanel"/>
         <panel classname="PacksPanel"/>
         <panel classname="InstallPanel"/>
+        <panel classname="ProcessPanel"/>
         <panel classname="FinishPanel"/>
     </panels>
 

@@ -338,7 +338,7 @@
 		<echo message="Make the FLOSS installer JAR"/>
 		<mkdir dir="${dist}" />
 		<IzPack input="${installer}/install.xml"
-			output="${dist}/callimachus-installer-${Version}.jar"
+			output="${dist}/callimachus-${Version}-installer.jar"
 			installerType="standard"
 			basedir="${home}" />
 	</target>

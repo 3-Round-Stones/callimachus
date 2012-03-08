@@ -290,7 +290,7 @@
 		</javac>
 	</target>
 
-	<target name="installer" depends="install-compile">
+	<target name="installer" depends="dist,install-compile">
 		<jar jarfile="${dist}/callimachus-configure.jar">
 			<fileset dir="${build.install}" />
 		</jar>

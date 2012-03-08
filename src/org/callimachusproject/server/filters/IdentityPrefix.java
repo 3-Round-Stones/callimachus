@@ -91,12 +91,11 @@ public class IdentityPrefix extends Filter {
 				resp.removeHeaders("Location");
 				for (Header hd : headers) {
 					String loc = hd.getValue();
-					int tl = target.length();
-					if (loc.length() > tl && loc.startsWith(target)
-							&& loc.charAt(tl) == '?') {
-						resp.addHeader("Location", uri + loc.substring(tl));
-					} else if (loc.equals(target)) {
+					if (loc.equals(target)) {
 						resp.addHeader("Location", uri);
+					} else if (loc.startsWith(target)) {
+						int tl = target.length();
+						resp.addHeader("Location", uri + loc.substring(tl));
 					} else {
 						resp.addHeader(hd);
 					}

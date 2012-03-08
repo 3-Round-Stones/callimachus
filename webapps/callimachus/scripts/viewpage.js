@@ -59,6 +59,9 @@ window.calli.viewpage = function(uri) {
 	if (url.indexOf(prefix) == 0) {
 		url = url.substring(prefix.length - 1);
 	}
+	if (url.indexOf('/diverted;') == 0) {
+		url = decodeURIComponent(url.substring('/diverted;'.length));
+	}
 	return prefix + 'callimachus/view?q=' + encodeURIComponent(url).replace(/%2F/g, '/').replace(/%3A/g, ':');
 }
 

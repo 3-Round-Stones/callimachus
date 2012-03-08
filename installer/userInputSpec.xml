@@ -1,0 +1,15 @@
+<userInput>
+  <!-- Install -->
+    <panel order="0">
+        <field type="title" txt="Host Configuration" bold="true" size="1" />
+        <field type="divider" align="top"/>
+        <field type="text" align="left" variable="primaryauthority">
+            <spec txt="Primary Authority:" size="25" set="http://localhost:8080"/>
+        </field>
+        <field type="text" align="left" variable="port">
+            <spec txt="Port:" size="25" set="8080"/>
+        </field>
+        <field type="space"/>
+        <field type="divider" align="bottom"/>
+    </panel>
+</userInput>

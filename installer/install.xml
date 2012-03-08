@@ -62,6 +62,7 @@
         <res id="HTMLInfoPanel.readme" src="README.txt"/>
         <res id="HTMLInfoPanel.release_notes" src="RELEASE_NOTES.txt"/>
         <res id="ProcessPanel.Spec.xml" src="installer/ProcessPanel.Spec.xml"/>
+        <res id="userInputSpec.xml" src="installer/userInputSpec.xml" />
         <res id="TargetPanel.dir.mac" src="installer/mac.dir" />
         <res id="TargetPanel.dir.macosx" src="installer/macosx.dir" />
         <res id="TargetPanel.dir.windows" src="installer/windows.dir" />
@@ -78,6 +79,7 @@
         <panel classname="HTMLInfoPanel" id="readme"/>
         <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="LicencePanel" id="license"/>
+        <panel classname="UserInputPanel"/>
         <panel classname="TargetPanel"/>
         <panel classname="PacksPanel"/>
         <panel classname="InstallPanel"/>

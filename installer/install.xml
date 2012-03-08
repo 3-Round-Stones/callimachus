@@ -53,7 +53,7 @@
         <res id="HTMLInfoPanel.release_notes" src="RELEASE_NOTES.txt"/>
         <res id="ProcessPanel.Spec.xml" src="installer/ProcessPanel.Spec.xml"/>
     </resources>
-    <jar src="installer/hello.jar" stage="install"/>
+    <!-- <jar src="installer/hello.jar" stage="install"/> -->
 
     <!-- 
         The panels section.
@@ -80,8 +80,11 @@
             <file src="README.txt" targetdir="$INSTALL_PATH"/>
             <file src="RELEASE_NOTES.txt" targetdir="$INSTALL_PATH"/>
             <file src="LICENSE.txt" targetdir="$INSTALL_PATH"/>
+            <file src="LEGAL.txt" targetdir="$INSTALL_PATH"/>
+            <file src="CONTRIBUTORS.txt" targetdir="$INSTALL_PATH"/>
             <file src="lib" targetdir="$INSTALL_PATH"/>
             <file src="etc" targetdir="$INSTALL_PATH"/>
+            <file src="dist/callimachus.war" targetdir="$INSTALL_PATH/webapps/"/>
             <!-- The file will be parsed -->
             <!--
             <parsable targetfile="$INSTALL_PATH/README.txt"/>

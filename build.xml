@@ -13,6 +13,7 @@
 	<property name="reports.tests" location="tmp" />
 	<property name="src.tests" location="test" />
 	<property name="lib.tests" location="test/lib" />
+	<property name="lib.install" location="installer/lib" />
 	<property name="webapps" location="webapps" />
 	<property name="home" location="." />
 	<property name="pid" location="run/callimachus.pid" />
@@ -47,8 +48,9 @@
 		<!-- Create the time stamp and build directory -->
 		<tstamp />
 		<mkdir dir="${build}" />
-		<available file="lib" property="lib.present" />
-		<available file="lib.tests" property="lib.tests.present" />
+		<available file="${lib}" property="lib.present" />
+		<available file="${lib.tests}" property="lib.tests.present" />
+		<available file="${lib.install}" property="lib.install.present" />
 		<property file="build.properties" />
 	</target>
 
@@ -144,6 +146,11 @@
 			<mapper type="flatten" />
 		</untar>
 		<delete file="${downloads}/daemon-darwin.tar.gz" />
+	</target>
+
+	<target name="install-dependencies" unless="lib.install.present">
+		<mkdir dir="${lib.install}" />
+		<get src="${izpack.url}" dest="${lib.install}/izpack-standalone-compiler.jar" />
 	</target>
 
 	<target name="test-dependencies" unless="lib.tests.present">
@@ -264,7 +271,19 @@
 		</zip>
 	</target>
 
-	<target name="package" depends="dist-clean,dist,test" description="Create a package ready for release">
+	<target name="installer" depends="compile,install-dependencies">
+		<!-- Allows us to use the IzPack Ant task -->
+		<taskdef name="IzPack" classpath="${lib.install}/izpack-standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/>
+		<!-- Call IzPack to build the installer JAR -->
+		<echo message="Make the FLOSS installer JAR"/>
+		<mkdir dir="${dist}" />
+		<IzPack input="${installer}/install.xml"
+			output="${dist}/callimachus-setup-${Version}.jar"
+			installerType="standard"
+			basedir="${home}" />
+	</target>
+
+	<target name="package" depends="dist-clean,dist,installer,test" description="Create a package ready for release">
 	</target>
 
 	<target name="setup" depends="compile">
@@ -329,18 +348,6 @@
 				</fileset>
 			</classpath>
 		</java>
-	</target>
-
-	<target name="installer" depends="compile">
-		<!-- Allows us to use the IzPack Ant task -->
-		<taskdef name="IzPack" classpath="${lib}/izpack-standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/>
-		<!-- Call IzPack to build the installer JAR -->
-		<echo message="Make the FLOSS installer JAR"/>
-		<mkdir dir="${dist}" />
-		<IzPack input="${installer}/install.xml"
-			output="${dist}/callimachus-${Version}-installer.jar"
-			installerType="standard"
-			basedir="${home}" />
 	</target>
 
 </project>

@@ -4,6 +4,9 @@
 	<property name="build" location="build" />
 	<property name="build.tests" location="build" />
 	<property name="installer" location="installer" />
+	<property name="src.install" location="installer" />
+	<property name="build.install" location="installer/build" />
+	<property name="lib.install" location="installer/lib" />
 	<property name="dist" location="dist" />
 	<property name="lib" location="lib" />
 	<property name="bin" location="bin" />
@@ -13,7 +16,6 @@
 	<property name="reports.tests" location="tmp" />
 	<property name="src.tests" location="test" />
 	<property name="lib.tests" location="test/lib" />
-	<property name="lib.install" location="installer/lib" />
 	<property name="webapps" location="webapps" />
 	<property name="home" location="." />
 	<property name="pid" location="run/callimachus.pid" />
@@ -44,6 +46,22 @@
 	<property name="setup.args" value="-s -o http://localhost:8080 -r repositories/callimachus -c etc/callimachus-repository.ttl" />
 	<property name="args" value="-p 8080 -o http://localhost:8080 -r repositories/callimachus --update" />
 
+	<target name="clean" description="clean up">
+		<!-- Delete the directory trees -->
+		<delete dir="${reports.tests}" />
+		<delete dir="${build.tests}" />
+		<delete dir="${build.install}" />
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="dist-clean" description="clean up everything for a new version" depends="clean">
+		<delete dir="${lib.tests}" />
+		<delete dir="${lib.install}" />
+		<delete dir="${lib}" />
+		<delete dir="${bin}" />
+	</target>
+
 	<target name="init">
 		<!-- Create the time stamp and build directory -->
 		<tstamp />
@@ -68,7 +86,6 @@
 			<get src="${daemon-darwin.url}" dest="${downloads}/daemon-darwin.tar.gz" />
 			<get src="${mail.url}" dest="${lib}/${mail.jar}" />
 			<get src="${compress.url}" dest="${downloads}/compress.tar.gz" />
-			<get src="${izpack.url}" dest="${lib}/izpack-standalone-compiler.jar" />
 		</parallel>
 		<unzip src="${downloads}/openrdf-alibaba.zip" dest="${lib}">
 			<patternset>
@@ -148,35 +165,6 @@
 		<delete file="${downloads}/daemon-darwin.tar.gz" />
 	</target>
 
-	<target name="install-dependencies" unless="lib.install.present">
-		<mkdir dir="${lib.install}" />
-		<get src="${izpack.url}" dest="${lib.install}/izpack-standalone-compiler.jar" />
-	</target>
-
-	<target name="test-dependencies" unless="lib.tests.present">
-		<mkdir dir="${lib.tests}" />
-		<parallel>
-			<get src="${junit.url}" dest="${lib.tests}/junit.jar" />
-			<get src="${jersey-client.url}" dest="${lib.tests}/jersey-client.jar" />
-			<get src="${jersey-core.url}" dest="${lib.tests}/jersey-core.jar" />
-			<get src="${jsr311-api.url}" dest="${lib.tests}/jsr311-api.jar" />
-		</parallel>
-	</target>
-
-	<target name="dist-clean" description="clean up everything for a new version" depends="clean">
-		<delete dir="${lib.tests}" />
-		<delete dir="${lib}" />
-		<delete dir="${bin}" />
-	</target>
-
-	<target name="clean" description="clean up">
-		<!-- Delete the directory trees -->
-		<delete dir="${reports.tests}" />
-		<delete dir="${build.tests}" />
-		<delete dir="${build}" />
-		<delete dir="${dist}" />
-	</target>
-
 	<target name="compile" depends="init,dependencies" description="compile the source">
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}" debug="true" debuglevel="lines,source">
@@ -197,7 +185,49 @@
 		</copy>
 	</target>
 
+	<target name="dist" depends="compile" description="generate the distribution">
+		<!-- Create the distribution directory and create the jar -->
+		<mkdir dir="${dist}" />
+		<property name="jar.file" value="${dist}/callimachus-${Version}.jar" />
+		<manifestclasspath property="jar.classpath" jarfile="${jar.file}">
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</manifestclasspath>
+		<jar jarfile="${jar.file}">
+			<fileset dir="${build}" />
+			<manifest>
+				<attribute name="Main-Class" value="${main}" />
+				<attribute name="Class-Path" value="${jar.classpath}" />
+			</manifest>
+		</jar>
+		<war needxmlfile="false" destfile="${dist}/callimachus.war">
+			<zipfileset dir="${webapps}/callimachus" prefix="" />
+		</war>
+		<zip destfile="${dist}/callimachus-${Version}.zip">
+			<zipfileset dir="." includes="*.txt" />
+			<zipfileset dir="${bin}" prefix="bin" />
+			<zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
+			<zipfileset dir="${lib}" prefix="lib" />
+			<zipfileset file="${jar.file}" prefix="lib" />
+			<zipfileset file="${dist}/callimachus.war" prefix="webapps" />
+		</zip>
+	</target>
+
+	<target name="test-dependencies" unless="lib.tests.present">
+		<mkdir dir="${lib.tests}" />
+		<parallel>
+			<get src="${junit.url}" dest="${lib.tests}/junit.jar" />
+			<get src="${jersey-client.url}" dest="${lib.tests}/jersey-client.jar" />
+			<get src="${jersey-core.url}" dest="${lib.tests}/jersey-core.jar" />
+			<get src="${jsr311-api.url}" dest="${lib.tests}/jsr311-api.jar" />
+		</parallel>
+	</target>
+
 	<target name="test-compile" depends="compile,test-dependencies">
+		<mkdir dir="${build.tests}" />
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src.tests}" destdir="${build.tests}" debug="true" debuglevel="lines,source">
 			<classpath>
@@ -240,38 +270,30 @@
 		</junit>
 	</target>
 
-	<target name="dist" depends="compile" description="generate the distribution">
-		<!-- Create the distribution directory and create the jar -->
-		<mkdir dir="${dist}" />
-		<property name="jar.file" value="${dist}/callimachus-${Version}.jar" />
-		<manifestclasspath property="jar.classpath" jarfile="${jar.file}">
+	<target name="install-dependencies" unless="lib.install.present">
+		<mkdir dir="${lib.install}" />
+		<get src="${izpack.url}" dest="${lib.install}/izpack-standalone-compiler.jar" />
+	</target>
+
+	<target name="install-compile" depends="compile,install-dependencies">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<mkdir dir="${build.install}" />
+		<javac srcdir="${src.install}" destdir="${build.install}" debug="true" debuglevel="lines,source">
 			<classpath>
-				<fileset dir="${lib}">
+				<fileset dir="${lib.install}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${lib.install}">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
-		</manifestclasspath>
-		<jar jarfile="${jar.file}">
-			<fileset dir="${build}" />
-			<manifest>
-				<attribute name="Main-Class" value="${main}" />
-				<attribute name="Class-Path" value="${jar.classpath}" />
-			</manifest>
-		</jar>
-		<war needxmlfile="false" destfile="${dist}/callimachus.war">
-			<zipfileset dir="${webapps}/callimachus" prefix="" />
-		</war>
-		<zip destfile="${dist}/callimachus-${Version}.zip">
-			<zipfileset dir="." includes="*.txt" />
-			<zipfileset dir="${bin}" prefix="bin" />
-			<zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
-			<zipfileset dir="${lib}" prefix="lib" />
-			<zipfileset file="${jar.file}" prefix="lib" />
-			<zipfileset file="${dist}/callimachus.war" prefix="webapps" />
-		</zip>
+		</javac>
 	</target>
 
-	<target name="installer" depends="compile,install-dependencies">
+	<target name="installer" depends="install-compile">
+		<jar jarfile="${dist}/callimachus-installer-${Version}.jar">
+			<fileset dir="${build.install}" />
+		</jar>
 		<!-- Allows us to use the IzPack Ant task -->
 		<taskdef name="IzPack" classpath="${lib.install}/izpack-standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/>
 		<!-- Call IzPack to build the installer JAR -->

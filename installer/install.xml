@@ -112,7 +112,16 @@
         </pack>
         <pack name="Scripts" required="yes">
             <description>Scripts</description>
-            <file src="bin" targetdir="$INSTALL_PATH"/>
+            <fileset dir="bin" targetdir="$INSTALL_PATH/bin" casesensitive="yes" os="unix">
+              <include name="*.sh" />
+              <include name="callimachus-linux-*" />
+            </fileset>
+            <fileset dir="bin" targetdir="$INSTALL_PATH/bin" casesensitive="yes" os="mac">
+              <include name="callimachus-darwin" />
+            </fileset>
+            <fileset dir="bin" targetdir="$INSTALL_PATH/bin" casesensitive="yes" os="windows">
+              <include name="*.bat" />
+            </fileset>
         </pack>
         <pack name="Source" required="no" preselected="no">
             <description>Source Code</description>

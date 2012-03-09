@@ -603,10 +603,10 @@ public class Setup {
 	private String getLabel(String origin) {
 		String label = origin;
 		if (label.endsWith("/")) {
-			label = label.substring(0, label.lastIndexOf('/'));
+			label = label.substring(0, label.length() - 1);
 		}
-		if (label.startsWith("http://")) {
-			label = label.substring("http://".length());
+		if (label.contains("://")) {
+			label = label.substring(label.indexOf("://") + 3);
 		}
 		return label;
 	}

@@ -79,7 +79,8 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject,
 	}
 
 	@Sparql(PREFIX
-			+ "SELECT ?realm { ?realm a calli:Realm; calli:hasComponent* $target } ORDER BY desc(?realm) LIMIT 1")
+			+ "SELECT ?realm { ?realm calli:hasComponent* $target FILTER EXISTS {?realm a calli:Realm} }\n"
+			+ "ORDER BY desc(?realm) LIMIT 1")
 	protected abstract RDFObject findRealm(@Bind("target") Resource about);
 
 	private XMLEventReader calliConstructXhtml(URI about)

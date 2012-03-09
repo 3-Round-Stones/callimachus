@@ -53,7 +53,10 @@
     -->
     <resources>
         <res id="HTMLHelloPanel.hello" src="installer/hello.html"/>
+        <res id="HTMLHelloPanel.3rs" src="installer/3rs.html"/>
         <res id="callimachus_logo" src="installer/images/callimachus_logo.png"/>
+        <res id="callimachus_offerings" src="installer/images/callimachus_offerings.png"/>
+        <res id="3roundstones_logo" src="installer/images/3roundstones_logo.png"/>
         <res id="LicencePanel.licence" src="LICENSE.txt"/>
         <res id="HTMLInfoPanel.readme" src="README.txt"/>
         <res id="HTMLInfoPanel.release_notes" src="RELEASE_NOTES.txt"/>
@@ -83,6 +86,7 @@
         <panel classname="PacksPanel"/>
         <panel classname="InstallPanel"/>
         <panel classname="ProcessPanel"/>
+        <panel classname="HTMLHelloPanel" id="3rs"/>
         <panel classname="SimpleFinishPanel"/>
     </panels>
 

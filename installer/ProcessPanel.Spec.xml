@@ -16,6 +16,11 @@
       <arg>$mailauthrequired</arg>
       <arg>$mailusername</arg>
       <arg>$mailpassword</arg>
+      <arg>$repository</arg>
+      <arg>$daemonuser</arg>
+      <arg>$daemongroup</arg>
+      <arg>$callimachususername</arg>
+      <arg>$callimachuspassword</arg>
     </executeclass>
   </job>
   <onFail previous="true" next="false" />

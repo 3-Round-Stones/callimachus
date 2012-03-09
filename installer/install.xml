@@ -77,6 +77,8 @@
         <panel classname="LicencePanel" id="license"/>
         <panel classname="UserInputPanel"/> <!-- host config -->
         <panel classname="UserInputPanel"/> <!-- mail config -->
+        <panel classname="UserInputPanel"/> <!-- repository config -->
+        <panel classname="UserInputPanel"/> <!-- initial user config -->
         <panel classname="TargetPanel"/>
         <panel classname="PacksPanel"/>
         <panel classname="InstallPanel"/>

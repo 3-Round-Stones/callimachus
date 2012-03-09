@@ -20,6 +20,11 @@ public class Configure {
     String mailauthrequired = args[11];
     String mailusername = args[12];
     String mailpassword = args[13];
+    String repository = args[14];
+    String daemonuser = args[15];
+    String daemongroup = args[16];
+    String callimachususername = args[17];
+    String callimachuspassword = args[18];
 
     // Create a log message echoing the arguments to the handler's STDOUT.
     String message = "Primary authority: " + primaryAuthority + "\n";
@@ -37,6 +42,14 @@ public class Configure {
     message += "Mail authentication required: " + mailauthrequired + "\n";
     message += "Mail username: " + mailusername + "\n";
     message += "Mail password: " + mailpassword + "\n";
+    message += "-----------------------------\n";
+    message += "Repository: " + repository + "\n";
+    message += "Daemon username: " + daemonuser + "\n";
+    message += "Daemon group name: " + daemongroup + "\n";
+    message += "Repository: " + repository + "\n";
+    message += "-----------------------------\n";
+    message += "Callimachus username: " + callimachususername + "\n";
+    message += "Callimachus password: " + callimachuspassword + "\n";
     handler.logOutput(message, false);
   }
 

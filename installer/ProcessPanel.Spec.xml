@@ -2,6 +2,7 @@
   <logfiledir>$INSTALL_PATH</logfiledir>
   <job name="setup">
     <executeclass name="org.callimachusproject.Configure">
+      <arg>$INSTALL_PATH</arg>
       <arg>$primaryauthority</arg>
       <arg>$port</arg>
       <arg>$secondaryauthority1</arg>

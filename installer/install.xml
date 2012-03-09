@@ -122,6 +122,7 @@
             <fileset dir="bin" targetdir="$INSTALL_PATH/bin" casesensitive="yes" os="windows">
               <include name="*.bat" />
             </fileset>
+            <file src="etc/logging.properties" targetdir="$INSTALL_PATH/etc"/>
         </pack>
         <pack name="Source" required="no" preselected="no">
             <description>Source Code</description>

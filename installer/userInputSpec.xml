@@ -123,7 +123,8 @@
         <field type="staticText" align="left"
                txt="You will need an initial $APP_NAME user account to log into the $APP_NAME Web user interface.  Choose a strong password if you are using a public server!" />
         <field type="text" align="left" variable="callimachususername">
-            <spec txt="Callimachus username:" size="25" set=""/>
+          <spec txt="Callimachus username:" size="25" set="admin"/>
+          <validator class="com.izforge.izpack.util.NotEmptyValidator" txt="You must enter a username."/>
         </field>
         <field type="password" align="left" variable="callimachuspassword">
           <spec>

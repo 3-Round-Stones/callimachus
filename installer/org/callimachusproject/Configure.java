@@ -6,28 +6,31 @@ public class Configure {
   public void run(AbstractUIProcessHandler handler, String[] args) {
 
     // Get arguments
-    String primaryAuthority = args[0];
-    String port = args[1];
-    String secondaryauthority1 = args[2];
-    String secondaryauthority2 = args[3];
-    String secondaryauthority3 = args[4];
-    String secondaryauthority4 = args[5];
-    String secondaryauthority5 = args[6];
-    String mailprotocol = args[7];
-    String mailfrom = args[8];
-    String mailhost = args[9];
-    String mailport = args[10];
-    String mailauthrequired = args[11];
-    String mailusername = args[12];
-    String mailpassword = args[13];
-    String repository = args[14];
-    String daemonuser = args[15];
-    String daemongroup = args[16];
-    String callimachususername = args[17];
-    String callimachuspassword = args[18];
+    String installdir = args[0];
+    String primaryAuthority = args[1];
+    String port = args[2];
+    String secondaryauthority1 = args[3];
+    String secondaryauthority2 = args[4];
+    String secondaryauthority3 = args[5];
+    String secondaryauthority4 = args[6];
+    String secondaryauthority5 = args[7];
+    String mailprotocol = args[8];
+    String mailfrom = args[9];
+    String mailhost = args[10];
+    String mailport = args[11];
+    String mailauthrequired = args[12];
+    String mailusername = args[13];
+    String mailpassword = args[14];
+    String repository = args[15];
+    String daemonuser = args[16];
+    String daemongroup = args[17];
+    String callimachususername = args[18];
+    String callimachuspassword = args[19];
 
     // Create a log message echoing the arguments to the handler's STDOUT.
-    String message = "Primary authority: " + primaryAuthority + "\n";
+    String message = "Installation directory: " + installdir + "\n";
+    message += "-----------------------------\n";
+    message += "Primary authority: " + primaryAuthority + "\n";
     message += "Port: " + port + "\n";
     message += "Secondary authority 1: " + secondaryauthority1 + "\n";
     message += "Secondary authority 2: " + secondaryauthority2 + "\n";

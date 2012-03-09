@@ -45,14 +45,12 @@
             <choice txt="SMTP" value="smtp" />
           </spec>
         </field>
-        <field type="rule" variable="mailfrom">
-          <spec txt="Email from address:" layout="O:12:U @ O:8:40 . A:4:4"
-                set="0: 1:domain 2:com" resultFormat="displayFormat"
-          />
+        <field type="text" align="left" variable="mailfrom">
+          <spec txt="Email from address:" size="25" set=""/>
           <validator class="com.izforge.izpack.util.RegularExpressionValidator"
                      txt="Your email from address does not appear to be valid.">
             <param name="pattern"
-                   value="[a-zA-Z0-9._-]{3,}@[a-zA-Z0-9._-]+([.][a-zA-Z0-9_-]+)*[.][a-zA-Z0-9._-]{2,4}"
+                   value="[a-zA-Z0-9._-]{3,}@[a-zA-Z0-9._-]+"
             />
           </validator>
         </field>

@@ -16,11 +16,23 @@ function handle(event) {
 }
 
 function breadcrumb(element) {
-	element.children(':not(:first-child)').remove();
 	element.filter(':empty').each(function(i, node){
-		var about = $(node).attr('about') || $(node).attr('href');
+		var about = $(node).attr('href') || $('title').text();
 		$(node).text(about.match(/\/([^\/]*)\/?$/)[1]);
 	});
+	if (location.pathname.indexOf('/diverted;') == 0) {
+		element.each(function(i, node){
+			$(node).mousedown(function() {
+				if (!$(this).attr('resource')) {
+					var href = this.href;
+					$(this).attr('resource', href);
+					var diverted = '/diverted;' + encodeURIComponent(href);
+					diverted = diverted.replace(/%2F/g, '/').replace(/%3A/g, ':');
+					$(this).attr('href', diverted);
+				}
+			});
+		});
+	}
 }
 
 })(window.jQuery);

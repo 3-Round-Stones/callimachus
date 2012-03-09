@@ -43,7 +43,7 @@
 	<property name="setup" value="org.callimachusproject.Setup" />
 	<property name="main" value="org.callimachusproject.Server" />
 	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
-	<property name="setup.args" value="-s -o http://localhost:8080 -r repositories/callimachus -c etc/callimachus-repository.ttl" />
+	<property name="setup.args" value="-s -o http://localhost:8080 -c etc/callimachus-repository.ttl" />
 	<property name="args" value="-p 8080 -o http://localhost:8080 -r repositories/callimachus --update" />
 
 	<target name="clean" description="clean up">

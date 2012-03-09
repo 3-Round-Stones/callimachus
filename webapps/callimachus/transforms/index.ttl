@@ -13,12 +13,23 @@
 <TransformIntoAtom> rdfs:subClassOf msg:Message;
    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
    calli:type "application/atom+xml;q=0.5";
+   calli:transform <TransformAtomLinks>;
    msg:xslt <sparql-results-atom.xsl>.
 
 <TransformIntoAtom#sparqlResult> a owl:FunctionalProperty, owl:ObjectProperty;
    rdfs:domain <TransformIntoAtom>;
    rdfs:range <java:java.io.InputStream>;
    calli:type "application/sparql-results+xml".
+
+<TransformAtomLinks> rdfs:subClassOf msg:Message;
+   rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+   calli:type "application/atom+xml;q=0.5";
+   msg:xslt <divert-atom-links.xsl>.
+
+<TransformAtomLinks#xml> a owl:FunctionalProperty, owl:ObjectProperty;
+   rdfs:domain <TransformAtomLinks>;
+   rdfs:range <java:java.io.InputStream>;
+   calli:type "application/atom+xml".
 
 
 <TransformLayout> rdfs:subClassOf msg:Message;

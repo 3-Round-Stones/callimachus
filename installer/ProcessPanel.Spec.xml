@@ -1,9 +1,21 @@
 <processing>
   <logfiledir>$INSTALL_PATH</logfiledir>
   <job name="setup">
-    <executeclass name="org.callimachusproject.HelloWorld">
+    <executeclass name="org.callimachusproject.Configure">
       <arg>$primaryauthority</arg>
       <arg>$port</arg>
+      <arg>$secondaryauthority1</arg>
+      <arg>$secondaryauthority2</arg>
+      <arg>$secondaryauthority3</arg>
+      <arg>$secondaryauthority4</arg>
+      <arg>$secondaryauthority5</arg>
+      <arg>$mailprotocol</arg>
+      <arg>$mailfrom</arg>
+      <arg>$mailhost</arg>
+      <arg>$mailport</arg>
+      <arg>$mailauthrequired</arg>
+      <arg>$mailusername</arg>
+      <arg>$mailpassword</arg>
     </executeclass>
   </job>
   <onFail previous="true" next="false" />

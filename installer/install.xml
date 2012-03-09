@@ -75,7 +75,8 @@
         <panel classname="HTMLInfoPanel" id="readme"/>
         <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="LicencePanel" id="license"/>
-        <panel classname="UserInputPanel"/>
+        <panel classname="UserInputPanel"/> <!-- host config -->
+        <panel classname="UserInputPanel"/> <!-- mail config -->
         <panel classname="TargetPanel"/>
         <panel classname="PacksPanel"/>
         <panel classname="InstallPanel"/>

@@ -96,9 +96,6 @@
         <panel classname="UserInputPanel"/> <!-- initial user config -->
         <panel classname="PacksPanel"/>
         <panel classname="InstallPanel"/>
-        <!--
-        <panel classname="ProcessPanel"/>
-        -->
         <panel classname="CallimachusWriteConfigurationsPanel"/>
         <panel classname="HTMLHelloPanel" id="3rs"/>
         <panel classname="SimpleFinishPanel"/>

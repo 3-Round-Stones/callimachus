@@ -16,6 +16,16 @@
 
 	<xi:include href="../tmp/variables" />
 
+    <property name="callimachus.PORT" value="8080" />
+    <property name="callimachus.ORIGIN" value="http://localhost:8080" />
+    <property name="callimachus.mail.transport.protocol" value="" />
+    <property name="callimachus.mail.from" value="" />
+    <property name="callimachus.mail.smtps.host" value="" />
+    <property name="callimachus.mail.smtps.port" value="465" />
+    <property name="callimachus.mail.smtps.auth" value="" />
+    <property name="callimachus.mail.user" value="" />
+    <property name="callimachus.mail.password" value="" />
+
     <!-- 
         The info section.
         The meaning of the tags should be natural ...
@@ -79,16 +89,17 @@
         <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="LicencePanel" id="license"/>
         <panel classname="TargetPanel"/>
-        <!--
         <panel classname="CallimachusConfigurationPanel"/>
-        -->
         <panel classname="UserInputPanel"/> <!-- host config -->
         <panel classname="UserInputPanel"/> <!-- mail config -->
         <panel classname="UserInputPanel"/> <!-- repository config -->
         <panel classname="UserInputPanel"/> <!-- initial user config -->
         <panel classname="PacksPanel"/>
         <panel classname="InstallPanel"/>
+        <!--
         <panel classname="ProcessPanel"/>
+        -->
+        <panel classname="CallimachusWriteConfigurationsPanel"/>
         <panel classname="HTMLHelloPanel" id="3rs"/>
         <panel classname="SimpleFinishPanel"/>
     </panels>

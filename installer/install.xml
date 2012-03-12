@@ -89,14 +89,14 @@
         <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="LicencePanel" id="license"/>
         <panel classname="TargetPanel"/>
-        <panel classname="CallimachusConfigurationPanel"/>
+        <panel classname="CallimachusConfigurationPanel" jar="dist/callimachus-configure.jar" />
         <panel classname="UserInputPanel"/> <!-- host config -->
         <panel classname="UserInputPanel"/> <!-- mail config -->
         <panel classname="UserInputPanel"/> <!-- repository config -->
         <panel classname="UserInputPanel"/> <!-- initial user config -->
         <panel classname="PacksPanel"/>
         <panel classname="InstallPanel"/>
-        <panel classname="CallimachusWriteConfigurationsPanel"/>
+        <panel classname="CallimachusWriteConfigurationsPanel" jar="dist/callimachus-configure.jar" />
         <panel classname="HTMLHelloPanel" id="3rs"/>
         <panel classname="SimpleFinishPanel"/>
     </panels>

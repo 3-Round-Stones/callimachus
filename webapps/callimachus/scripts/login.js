@@ -44,7 +44,7 @@ function createLoginButton() {
 		var loginForm = $('<form />')[0];
 		$(loginForm).attr('action', $('#profile-link')[0].getAttribute('href'));
 		$(loginForm).css('display', "inline-block");
-		var button = $('<button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" />');
+		var button = $('<button type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" style="margin:0px" />');
 		var icon = $('<span class="ui-button-icon-primary ui-icon ui-icon-circle-arrow-s" style="position:absolute;top:50%;margin-top:-8px;height:16px;width:16px;"> </span>');
 		var text = $('<span class="ui-button-text" style="padding-left: 22px;">Login</span>');
 		button.append(icon);

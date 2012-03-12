@@ -108,7 +108,7 @@
 							tbody.append(tr);
 						}
 					});
-					var box = $('#box')[0];
+					var box = $('#folder-box')[0];
 					var bottom = box.scrollTop > 0 && box.scrollTop >= box.scrollHeight - box.clientHeight;
 					$('#tfiles').replaceWith(tbody);
 					$('#totalEntries').text(totalEntries);
@@ -220,11 +220,11 @@
 	}
 	jQuery(function(){
 		if (window.FileReader && (window.BlobBuilder || window.MozBlobBuilder || window.WebKitBlobBuilder)) {
-			$('#box').bind('dragenter dragexit dragover', function(event) {
+			$('#folder-box').bind('dragenter dragexit dragover', function(event) {
 				event.stopPropagation();
 				event.preventDefault();
 			});
-			$('#box').bind('drop', function(event) {
+			$('#folder-box').bind('drop', function(event) {
 				event.stopPropagation();
 				event.preventDefault();
 				var files = event.originalEvent.dataTransfer.files;
@@ -243,7 +243,7 @@ jQuery(function($){
 	var tooSmall = 500;
 	var resized = function() {
 		setTimeout(function(){
-			var clientWidth = $('#box').width();
+			var clientWidth = $('#folder-box').width();
 			if (clientWidth < $('#table').width()) {
 				tooSmall = clientWidth;
 				$('#table').addClass('small');

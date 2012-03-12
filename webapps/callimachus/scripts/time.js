@@ -65,7 +65,7 @@ function changeDateLocale(node, now) {
 }
 
 function parseDateTime(text, now) {
-	if (/^\s*\d{4}\s*$/.exec(text))
+	if (/^\s*([\d]+\-?){1,2}\s*$/.exec(text))
 		return NaN;
     var struct = /(?:(\d{4})-?(\d{2})-?(\d{2}))?(?:[T ]?(\d{2}):?(\d{2}):?(\d{2})(?:\.(\d{3,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?/.exec(text);
 	if (!struct)

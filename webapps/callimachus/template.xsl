@@ -1,5 +1,6 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:param name="systemId" />
+	<xsl:param name="xsltId" />
 	<xsl:param name="realm" select="'/'" />
 	<xsl:variable name="styles"><xsl:value-of select="document(concat($realm,'?layout'))/xsl:stylesheet/xsl:variable[@name='styles']/node()" /></xsl:variable>
 	<xsl:variable name="scripts"><xsl:value-of select="document(concat($realm,'?layout'))/xsl:stylesheet/xsl:variable[@name='scripts']/node()" /></xsl:variable>

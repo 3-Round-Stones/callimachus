@@ -124,6 +124,9 @@ function openSaveAsDialog(form, label, create, callback) {
 			} else if (event.data.indexOf('OK\n\nGET url\n\n') == 0) {
 				var data = event.data;
 				var src = data.substring(data.indexOf('\n\n', data.indexOf('\n\n') + 2) + 2);
+				if (src.indexOf('?') >= 0) {
+					src = src.substring(0, src.indexOf('?'));
+				}
 				var composite = calli.listResourceIRIs(src)[0];
 				var ns = composite;
 				if (ns.lastIndexOf('/') != ns.length - 1) {

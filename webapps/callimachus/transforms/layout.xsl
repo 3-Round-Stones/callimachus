@@ -6,13 +6,34 @@
 	<xsl:output indent="no" method="xml" />
 
 	<!-- Variables -->
-	<!-- $systemId is present only if transforming a template, not for dynamically generated XHTML -->
+	<!-- $systemId and $xsltId is present only if transforming a template, not for dynamically generated XHTML -->
 	<!-- realm styles scripts layout favicon menu variation rights -->
 	<xsl:variable name="layout_xhtml" select="document($layout)" />
 	<xsl:variable name="layout_html" select="$layout_xhtml/xhtml:html|$layout_xhtml/html" />
 	<xsl:variable name="layout_head" select="$layout_xhtml/xhtml:html/xhtml:head|$layout_xhtml/html/head" />
 	<xsl:variable name="layout_body" select="$layout_xhtml/xhtml:html/xhtml:body|$layout_xhtml/html/body" />
 	<xsl:variable name="template_body" select="/xhtml:html/xhtml:body|/html/body" />
+	<xsl:variable name="origin">
+		<xsl:if test="$xsltId">
+			<xsl:value-of select="concat(substring-before($xsltId,'://'),'://',substring-before(substring-after($xsltId,'://'),'/'),'/')" />
+		</xsl:if>
+	</xsl:variable>
+	<xsl:variable name="callback">
+		<xsl:choose>
+			<xsl:when test="starts-with($systemId,$origin)">
+				<xsl:value-of select="$systemId" />
+			</xsl:when>
+			<xsl:when test="$origin and $systemId">
+				<xsl:call-template name="divert">
+					<xsl:with-param name="diverted" select="concat($origin,'diverted;')" />
+					<xsl:with-param name="url" select="." />
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$systemId" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
 
 	<!-- Template -->
 	<xsl:template match="*">
@@ -114,7 +135,7 @@
 	</xsl:template>
 
 	<xsl:template name="data-attributes">
-		<xsl:if test="$systemId">
+		<xsl:if test="$callback">
 			<xsl:apply-templates mode="data-var" select="@*"/>
 			<xsl:apply-templates mode="data-expression" select="@*"/>
 			<xsl:if test="text() and not(*|comment())">
@@ -125,7 +146,7 @@
 			<xsl:if test="xhtml:option[@selected='selected'][@about or @resource] or xhtml:label[@about or @resource]/xhtml:input[@checked='checked']">
 				<!-- Called to populate select/radio/checkbox -->
 				<xsl:attribute name="data-options">
-					<xsl:value-of select="$systemId" />
+					<xsl:value-of select="$callback" />
 					<xsl:text>?options&amp;element=</xsl:text>
 					<xsl:apply-templates mode="xptr-element" select="." />
 				</xsl:attribute>
@@ -133,7 +154,7 @@
 			<xsl:if test="*[@about or @resource] and not(@data-construct)">
 				<!-- Called when a resource URI is dropped to construct its label -->
 				<xsl:attribute name="data-construct">
-					<xsl:value-of select="$systemId" />
+					<xsl:value-of select="$callback" />
 					<xsl:text>?construct&amp;element=</xsl:text>
 					<xsl:apply-templates mode="xptr-element" select="." />
 					<xsl:text>&amp;about={about}</xsl:text>
@@ -142,7 +163,7 @@
 			<xsl:if test="*[@about or @resource] and not(@data-search)">
 				<!-- Lookup possible members by label -->
 				<xsl:attribute name="data-search">
-					<xsl:value-of select="$systemId" />
+					<xsl:value-of select="$callback" />
 					<xsl:text>?search&amp;element=</xsl:text>
 					<xsl:apply-templates mode="xptr-element" select="." />
 					<xsl:text>&amp;q={searchTerms}</xsl:text>
@@ -151,7 +172,7 @@
 			<xsl:if test="*[@about or @typeof or @resource or @property] and not(@data-add)">
 				<!-- Called to insert another property value or node -->
 				<xsl:attribute name="data-add">
-					<xsl:value-of select="$systemId" />
+					<xsl:value-of select="$callback" />
 					<xsl:text>?template&amp;element=</xsl:text>
 					<xsl:apply-templates mode="xptr-element" select="." />
 				</xsl:attribute>
@@ -446,6 +467,57 @@
 				</xsl:call-template>
 			</xsl:if>
 		</xsl:if>
+	</xsl:template>
+
+	<xsl:template name="divert">
+		<xsl:param name="diverted" />
+		<xsl:param name="url" />
+		<xsl:variable name="uri">
+			<xsl:choose>
+				<xsl:when test="contains($url,'?')">
+					<xsl:value-of select="substring-before($url,'?')" />
+				</xsl:when>
+				<xsl:when test="contains($url,'#')">
+					<xsl:value-of select="substring-before($url,'#')" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="$url" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:value-of select="$diverted" />
+		<xsl:call-template name="replace-string">
+			<xsl:with-param name="text">
+				<xsl:call-template name="replace-string">
+					<xsl:with-param name="text" select="$uri"/>
+					<xsl:with-param name="replace" select="'%'"/>
+					<xsl:with-param name="with" select="'%25'"/>
+				</xsl:call-template>
+			</xsl:with-param>
+			<xsl:with-param name="replace" select="'+'"/>
+			<xsl:with-param name="with" select="'%2B'"/>
+		</xsl:call-template>
+		<xsl:value-of select="substring-after($url,$uri)" />
+	</xsl:template>
+
+	<xsl:template name="replace-string">
+		<xsl:param name="text"/>
+		<xsl:param name="replace"/>
+		<xsl:param name="with"/>
+		<xsl:choose>
+			<xsl:when test="contains($text,$replace)">
+				<xsl:value-of select="substring-before($text,$replace)"/>
+				<xsl:value-of select="$with"/>
+				<xsl:call-template name="replace-string">
+					<xsl:with-param name="text" select="substring-after($text,$replace)"/>
+					<xsl:with-param name="replace" select="$replace"/>
+					<xsl:with-param name="with" select="$with"/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$text"/>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 
 	<!-- xptr-element -->

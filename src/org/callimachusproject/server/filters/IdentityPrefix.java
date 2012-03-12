@@ -29,6 +29,8 @@
  */
 package org.callimachusproject.server.filters;
 
+import static java.net.URLEncoder.encode;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 
@@ -65,7 +67,7 @@ public class IdentityPrefix extends Filter {
 	public Request filter(Request req) throws IOException {
 		if (prefixes == null)
 			return super.filter(req);
-		String uri = req.getIRI();
+		String uri = req.getRequestURI();
 		for (String prefix : prefixes) {
 			if (uri != null && uri.startsWith(prefix)) {
 				String encoded = uri.substring(prefix.length());
@@ -94,8 +96,17 @@ public class IdentityPrefix extends Filter {
 					if (loc.equals(target)) {
 						resp.addHeader("Location", uri);
 					} else if (loc.startsWith(target)) {
-						int tl = target.length();
-						resp.addHeader("Location", uri + loc.substring(tl));
+						int q = loc.indexOf('?', target.length());
+						if (q > 0) {
+							int tl = target.length();
+							String part = encode(loc.substring(tl, q), "UTF-8");
+							String url = uri + part + loc.substring(q);
+							resp.addHeader("Location", url);
+						} else {
+							int tl = target.length();
+							String part = encode(loc.substring(tl), "UTF-8");
+							resp.addHeader("Location", uri + part);
+						}
 					} else {
 						resp.addHeader(hd);
 					}

@@ -103,6 +103,7 @@ public class LinksHandler implements Handler {
 
 	private List<String> getLinks(ResourceOperation request)
 			throws RepositoryException, QueryEvaluationException {
+		String uri = request.getRequestURI();
 		Map<String, List<Method>> map = request
 				.getOperationMethods("GET", true);
 		List<String> result = new ArrayList<String>(map.size());
@@ -113,7 +114,7 @@ public class LinksHandler implements Handler {
 				if (!m.isAnnotationPresent(rel.class))
 					continue;
 				if (sb.length() == 0) {
-					sb.append("<").append(request.getRequestURI());
+					sb.append("<").append(uri);
 					sb.append("?").append(e.getKey()).append(">");
 				}
 				sb.append("; rel=\"");

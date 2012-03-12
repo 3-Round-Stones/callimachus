@@ -33,7 +33,6 @@ import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -256,7 +255,20 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	}
 
 	public String getRequestURI() {
-		return getURIFromRequestTarget(getRequestLine().getUri());
+		String path = getRequestLine().getUri();
+		try {
+			int qx = path.indexOf('?');
+			if (qx > 0) {
+				path = path.substring(0, qx);
+			}
+			if (!path.startsWith("/"))
+				return path;
+			String scheme = getScheme().toLowerCase();
+			String host = getAuthority().toLowerCase();
+			return new ParsedURI(scheme, host, path, null, null).toString();
+		} catch (IllegalArgumentException e) {
+			throw new BadRequest(e);
+		}
 	}
 
 	public String getURIFromRequestTarget(String path) {

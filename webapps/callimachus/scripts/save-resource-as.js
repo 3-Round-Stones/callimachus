@@ -153,9 +153,9 @@ function updateFormAction(form, target, create) {
 			if (create) {
 				action += create;
 			} else if (m[1]) {
-				action += m[1];
+				action += calli.listResourceIRIs(m[1])[0];
 			} else {
-				action += location.pathname;
+				action += calli.listResourceIRIs(location.pathname)[0];
 			}
 			if (m[2]) {
 				action += m[2];

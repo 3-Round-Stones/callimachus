@@ -8,10 +8,13 @@
 
 jQuery(function($){
 
-$('form[method="POST"][enctype="application/sparql-update"]').each(function() {
+$('form[enctype="application/sparql-update"]').each(function() {
 	try {
 		var form = $(this);
 		var stored = readRDF(form);
+		form.bind('reset', function() {
+			stored = readRDF(form);
+		});
 		form.submit(function(event) {
 			form.find("input").change(); // IE may not have called onchange before onsubmit
 			var about = form.attr('about');
@@ -40,7 +43,6 @@ function submitRDFForm(form, stored) {
 			added.triples().each(function(){
 				addBoundedDescription(this, revised, added, removed);
 			});
-			var type = "application/sparql-update";
 			var writer = new UpdateWriter();
 			var namespaces = form.xmlns();
 			for (var prefix in namespaces) {
@@ -59,7 +61,7 @@ function submitRDFForm(form, stored) {
 			writer.openWhere();
 			writer.closeWhere();
 			var data = writer.toString();
-			patchData(form, form.action, type, data, function(data, textStatus, xhr) {
+			patchData(form[0], data, function(data, textStatus, xhr) {
 				try {
 					var redirect = xhr.getResponseHeader("Location");
 					if (!redirect) {
@@ -138,9 +140,20 @@ function addTriple(triple, store) {
 	return store.size() > size
 }
 
-function patchData(form, url, type, data, callback) {
+function patchData(form, data, callback) {
+	var method = form.getAttribute('method');
+	if (!method) {
+		method = form.method;
+	}
+	if (!method) {
+		method = "POST";
+	}
+	var type = form.getAttribute("enctype");
+	if (!type) {
+		type = "application/sparql-update";
+	}
 	var xhr = null;
-	xhr = $.ajax({ type: "POST", url: url, contentType: type, data: data, beforeSend: function(xhr){
+	xhr = $.ajax({ type: method, url: form.action, contentType: type, data: data, beforeSend: function(xhr){
 		var lastmod = getLastModified();
 		if (lastmod) {
 			xhr.setRequestHeader("If-Unmodified-Since", lastmod);

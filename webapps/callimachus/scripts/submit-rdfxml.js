@@ -8,22 +8,22 @@
 
 jQuery(function($){
 
-$('form[method="POST"][enctype="application/rdf+xml"]').submit(function(event) {
+$('form[enctype="application/rdf+xml"]').submit(function(event) {
 	var form = $(this);
 	form.find("input").change(); // IE may not have called onchange before onsubmit
 	var about = form.attr('about');
 	if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
 		return true; // about attribute not set yet
 	event.preventDefault();
-	setTimeout(function(){submitRDFForm(form[0], form.attr('about'), form.attr('enctype'));}, 0);
+	setTimeout(function(){submitRDFForm(form[0], form.attr('about'));}, 0);
 	return false;
 });
 
-function submitRDFForm(form, uri, type) {
+function submitRDFForm(form, uri) {
 	try {
 		var added = readRDF(uri, form);
-		var data = added.dump({format:type,serialize:true,namespaces:$(form).xmlns()});
-		postData(form.action, type, uri, data, function(data, textStatus, xhr) {
+		var data = added.dump({format:"application/rdf+xml",serialize:true,namespaces:$(form).xmlns()});
+		postData(form, data, function(data, textStatus, xhr) {
 			try {
 				var redirect = xhr.getResponseHeader("Location");
 				var event = $.Event("calliRedirect");
@@ -63,11 +63,22 @@ function readRDF(uri, form) {
 	return store;
 }
 
-function postData(url, type, loc, data, callback) {
+function postData(form, data, callback) {
+	var method = form.getAttribute('method');
+	if (!method) {
+		method = form.method;
+	}
+	if (!method) {
+		method = "POST";
+	}
+	var type = form.getAttribute("enctype");
+	if (!type) {
+		type = "application/rdf+xml";
+	}
 	var xhr = null;
 	xhr = $.ajax({
-		type: "POST",
-		url: url,
+		type: method,
+		url: form.action,
 		contentType: type,
 		data: data,
 		success: function(data, textStatus) {

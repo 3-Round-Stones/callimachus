@@ -84,8 +84,7 @@ public class IdentityPrefix extends Filter {
 		resp = super.filter(req, resp);
 		if (prefixes == null)
 			return resp;
-		String orig = req.getRequestLine().getUri();
-		String uri = req.getURIFromRequestTarget(orig);
+		String uri = req.getRequestURI();
 		for (String prefix : prefixes) {
 			if (uri != null && uri.startsWith(prefix)) {
 				String target = req.getIRI();

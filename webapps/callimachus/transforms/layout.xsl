@@ -26,7 +26,7 @@
 			<xsl:when test="$origin and $systemId">
 				<xsl:call-template name="divert">
 					<xsl:with-param name="diverted" select="concat($origin,'diverted;')" />
-					<xsl:with-param name="url" select="." />
+					<xsl:with-param name="url" select="$systemId" />
 				</xsl:call-template>
 			</xsl:when>
 			<xsl:otherwise>

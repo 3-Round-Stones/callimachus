@@ -127,13 +127,12 @@ function openSaveAsDialog(form, label, create, callback) {
 				if (src.indexOf('?') >= 0) {
 					src = src.substring(0, src.indexOf('?'));
 				}
-				var composite = calli.listResourceIRIs(src)[0];
-				var ns = composite;
+				var ns = calli.listResourceIRIs(src)[0];
 				if (ns.lastIndexOf('/') != ns.length - 1) {
 					ns += '/';
 				}
 				var local = encodeURI(label).replace(/%20/g,'+');
-				updateFormAction(form, composite, create);
+				updateFormAction(form, src, create);
 				callback(ns, local);
 				calli.closeDialog(dialog);
 			}
@@ -142,14 +141,15 @@ function openSaveAsDialog(form, label, create, callback) {
 	return dialog;
 }
 
-function updateFormAction(form, composite, create) {
-	if (form && composite) {
+function updateFormAction(form, target, create) {
+	var action = getFormAction(form);
+	var idx = action.indexOf('?create');
+	if (idx >= 0) {
 		var m;
-		var action = getFormAction(form);
 		if (create) {
-			form.action = composite + '?create=' + create;
+			form.action = target + '?create=' + create;
 		} else if (m = action.match(/^([^\?]*)\?create(&.*)?$/)) {
-			action = composite + '?create=';
+			action = target + '?create=';
 			if (create) {
 				action += create;
 			} else if (m[1]) {
@@ -162,7 +162,7 @@ function updateFormAction(form, composite, create) {
 			}
 			form.action = action;
 		} else if (m = action.match(/^([^\?]*)(\?create=[^&]+)(&.*)?$/)) {
-			action = composite + m[2];
+			action = target + m[2];
 			if (m[3]) {
 				action += m[3];
 			}
@@ -176,10 +176,10 @@ function overrideLocation(form, uri) {
 	if (action.indexOf('&location=') > 0) {
 		var m = action.match(/^(.*&location=)[^&=]*(.*)$/);
 		form.action = m[1] + encodeURIComponent(uri) + m[2];
-	} else {
+	} else if (action.indexOf('?create') >= 0) {
 		form.action = action + '&location=' + encodeURIComponent(uri);
 	}
-	if (action.indexOf('&intermediate=') < 0 && isIntermidate(action)) {
+	if (action.indexOf('?create') >= 0 && action.indexOf('&intermediate=') < 0 && isIntermidate(action)) {
 		form.action += '&intermediate=true';
 	}
 }

@@ -576,10 +576,13 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Folder>];
 	msg:imports <Folder>;
 	msg:imports <Composite>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
+	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:script """
-		var con = this.objectConnection;
 		if (nonFolder instanceof Folder)
 			return nonFolder;
+		var con = this.objectConnection;
+		var vf = con.getValueFactory();
 		var uri = nonFolder.toString();
 		var container = this.FindExistingContainer(nonFolder);
 		if (!container) {
@@ -589,10 +592,13 @@
 			}
 		}
 		var label = decodeURI(uri.substring(uri.lastIndexOf('/', uri.length - 2) + 1, uri.length - 1)).replace(/-/g, ' ');
-		var rdfxml = '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"><calli:Folder rdf:about="' + uri.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '"><rdfs:label>' + label.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</rdfs:label></calli:Folder></rdf:RDF>';
-		var stream = new java.io.ByteArrayInputStream(new java.lang.String(rdfxml).getBytes());
-		var folder = con.getObject(this.toUri().resolve("/callimachus/Folder").toString());
-		return container.PostFactoryCreate(stream, folder, null, nonFolder, "application/rdf+xml");
+		con.add(nonFolder.resource, RDFS.LABEL, vf.createLiteral(label), []);
+		nonFolder.calliEditor.addAll(container.FindContributor(nonFolder));
+		nonFolder.calliReader.addAll(container.SelectAllReaders());
+		nonFolder.calliEditor.addAll(container.SelectAllEditors());
+		nonFolder.calliAdministrator.addAll(container.SelectAllAdministrators());
+		con.add(nonFolder.resource, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Folder"), []);
+		return con.addDesignation(nonFolder, Folder);
 	""".
 
 :nonFolder a owl:FunctionalProperty, owl:ObjectProperty;

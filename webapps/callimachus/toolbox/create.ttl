@@ -124,7 +124,6 @@
 		newCopy.calliReader.addAll(this.SelectAllReaders());
 		newCopy.calliEditor.addAll(this.SelectAllEditors());
 		newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
-		construct.touchRevision(); // Update class index
 		if (intermediate) {
 			var revision = this.auditRevision;
 			this.calliHasComponent.add(newCopy);
@@ -152,7 +151,7 @@
 		if (!template)
 			throw new InternalServerError("Cannot create " + this.toString() + " with " + type);
 		if (type != "application/rdf+xml" && type.indexOf("application/rdf+xml;") != 0)
-			throw new UnsupportedMediaType("File format is not recognized: " + type);
+			throw new UnsupportedMediaType("File format is not recognized: " + type + " for " + location);
 		var newCopy = template.calliCreateResource(body, this.toString(), location);
 		newCopy = newCopy.objectConnection.addDesignation(newCopy, this.toString());
 		return newCopy;

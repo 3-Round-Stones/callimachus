@@ -50,7 +50,7 @@
           <validator class="com.izforge.izpack.util.RegularExpressionValidator"
                      txt="Your email from address does not appear to be valid.">
             <param name="pattern"
-                   value="[a-zA-Z0-9._-]{3,}@[a-zA-Z0-9._-]+"
+                   value="[a-zA-Z0-9.!$%&amp;*+/=?^_{}~-]+@[a-zA-Z0-9.-]+"
             />
           </validator>
         </field>
@@ -59,7 +59,7 @@
           <validator class="com.izforge.izpack.util.RegularExpressionValidator"
                      txt="Your email hostname does not appear to be valid.">
             <param name="pattern"
-                   value="[a-zA-Z0-9._-]+([.][a-zA-Z0-9_-]+)*[.][a-zA-Z0-9._-]{2,9}"
+                   value="[a-zA-Z0-9.-]+"
             />
           </validator>
         </field>

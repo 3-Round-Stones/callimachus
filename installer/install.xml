@@ -72,10 +72,9 @@
         <res id="HTMLInfoPanel.release_notes" src="RELEASE_NOTES.txt"/>
         <res id="ProcessPanel.Spec.xml" src="installer/ProcessPanel.Spec.xml"/>
         <res id="userInputSpec.xml" src="installer/userInputSpec.xml" />
-        <res id="TargetPanel.dir.mac" src="installer/mac.dir" />
-        <res id="TargetPanel.dir.macosx" src="installer/macosx.dir" />
-        <res id="TargetPanel.dir.windows" src="installer/windows.dir" />
-        <res id="TargetPanel.dir.unix" src="installer/unix.dir" />
+        <res id="TargetPanel.dir.macosx" src="tmp/macosx.dir" />
+        <res id="TargetPanel.dir.windows" src="tmp/windows.dir" />
+        <res id="TargetPanel.dir.unix" src="tmp/unix.dir" />
     </resources>
     <xi:include href="../tmp/jars" />
 

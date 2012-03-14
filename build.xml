@@ -288,13 +288,20 @@
 		<echo file="tmp/jars" append="false"><![CDATA[
 			<jar src="dist/callimachus-configure-${Version}.jar" stage="install"/>
 		]]></echo>
+		<echo file="tmp/unix.dir" append="false">/opt/3RoundStones/Callimachus-${Version}</echo>
+		<echo file="tmp/macosx.dir" append="false">/Applications/3RoundStones/Callimachus-${Version}</echo>
+		<echo file="tmp/windows.dir" append="false">C:\Program Files\3RoundStones\Callimachus-${Version}</echo>
 		<IzPack input="${installer}/install.xml"
 			output="${dist}/callimachus-setup-${Version}.jar"
 			installerType="standard"
 			basedir="${home}" />
+		<delete file="tmp/windows.dir" />
+		<delete file="tmp/macosx.dir" />
+		<delete file="tmp/unix.dir" />
 		<delete file="tmp/jars" />
 		<delete file="tmp/variables" />
 		<delete file="tmp/version" />
+		<echo>${dist}/callimachus-setup-${Version}.jar</echo>
 	</target>
 
 	<target name="package" depends="dist-clean,dist,installer,test" description="Create a package ready for release">

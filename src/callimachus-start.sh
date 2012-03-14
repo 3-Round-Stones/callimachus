@@ -45,5 +45,4 @@ if [ ! -f "$PRGDIR/$EXECUTABLE" -o "$PRG" = "$PRGDIR/$EXECUTABLE" ]; then
   exit 1
 fi
 
-/bin/sh "$PRGDIR/$EXECUTABLE" setup -s
-exec /bin/sh "$PRGDIR/$EXECUTABLE" start --update "$@"
+exec /bin/sh "$PRGDIR/$EXECUTABLE" start "$@"

@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.webapps;
+package org.callimachusproject.io;
 
 import java.io.File;
 import java.io.FileInputStream;

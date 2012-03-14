@@ -191,13 +191,11 @@ set "OPT=%OPT% -s %SSLPORT%"
 
 rem ----- Execute The Requested Command ---------------------------------------
 
-set SETUPCLASS=org.callimachusproject.Setup
 set MAINCLASS=org.callimachusproject.Server
 set MONITORCLASS=org.callimachusproject.ServerMonitor
 
 if ""%1"" == ""start"" goto doStart
 if ""%1"" == ""stop"" goto doStop
-if ""%1"" == ""setup"" goto doSetup
 if ""%1"" == ""dump"" goto doDump
 if ""%1"" == ""reset"" goto doReset
 if ""%1"" == ""log"" goto doLog
@@ -249,11 +247,6 @@ goto end
 :doStop
 rem Execute Java with the applicable properties
 "%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --stop %CMD_LINE_ARGS%
-goto end
-
-:doSetup
-rem Execute Java with the applicable properties
-"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -d "%BASEDIR%" -o %ORIGIN% -c %REPOSITORY_CONFIG% %CMD_LINE_ARGS%
 goto end
 
 :doDump

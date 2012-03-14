@@ -25,15 +25,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -117,7 +118,7 @@ public class Setup {
 		options.getOption("config").setRequired(true);
 		options.addOption("a", "car", true,
 				"The callimachus.car file to be installed in the origin");
-		// options.getOption("car").setRequired(true);
+		options.getOption("car").setRequired(true);
 		options.addOption(
 				"o",
 				"origin",
@@ -209,33 +210,26 @@ public class Setup {
 					dir = new File("").getCanonicalFile();
 				}
 				if (line.hasOption('c')) {
-					String ref = line.getOptionValue('c');
-					java.net.URI uri = new File(".").toURI().resolve(ref);
-					config = uri.toURL();
+					config = resolve(line.getOptionValue('c'));
 				}
 				if (line.hasOption('a')) {
-					String ref = line.getOptionValue('a');
-					java.net.URI uri = new File(".").toURI().resolve(ref);
-					callimachus = uri.toURL();
+					callimachus = resolve(line.getOptionValue('a'));
 				}
 				if (line.hasOption('o')) {
 					for (String o : line.getOptionValues('o')) {
-						assert o != null;
-						assert !o.endsWith("/");
+						validateOrigin(o);
 						origins.add(o);
 					}
 					String origin = line.getOptionValue('o');
 					if (line.hasOption('v')) {
-						for (String h : line.getOptionValues('v')) {
-							assert h != null;
-							assert !h.endsWith("/");
-							vhosts.put(h, origin);
+						for (String v : line.getOptionValues('v')) {
+							validateOrigin(v);
+							vhosts.put(v, origin);
 						}
 					}
 					if (line.hasOption('r')) {
 						for (String r : line.getOptionValues('r')) {
-							assert r != null;
-							assert r.endsWith("/");
+							validateRealm(r);
 							realms.put(r, origin);
 						}
 					}
@@ -249,7 +243,8 @@ public class Setup {
 	}
 
 	public void start() throws Exception {
-		System.out.println(connect(dir, config).toURI().toASCIIString());
+		String configString = readContent(config);
+		System.out.println(connect(dir, configString).toURI().toASCIIString());
 		boolean changed = false;
 		for (String origin : origins) {
 			changed |= createOrigin(origin, callimachus, repository);
@@ -276,13 +271,13 @@ public class Setup {
 		// do nothing
 	}
 
-	public File connect(File dir, URL configUrl) throws OpenRDFException,
+	public File connect(File dir, String configString) throws OpenRDFException,
 			MalformedURLException, IOException {
-		repository = getObjectRepository(dir, configUrl);
+		repository = getObjectRepository(dir, configString);
 		if (repository == null)
 			throw new RepositoryConfigException(
 					"Missing repository configuration");
-		RepositoryConfig config = getRepositoryConfig(configUrl);
+		RepositoryConfig config = getRepositoryConfig(configString);
 		LocalRepositoryManager manager = RepositoryProvider
 				.getRepositoryManager(dir);
 		return manager.getRepositoryDir(config.getID());
@@ -293,6 +288,7 @@ public class Setup {
 	}
 
 	public void createOrigin(String origin, URL car) throws Exception {
+		validateOrigin(origin);
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
 		createOrigin(origin, car, repository);
@@ -300,6 +296,8 @@ public class Setup {
 
 	public void createVirtualHost(String virtual, String origin)
 			throws RepositoryException {
+		validateOrigin(virtual);
+		validateOrigin(origin);
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
 		createVirtualHost(virtual, origin, repository);
@@ -307,14 +305,71 @@ public class Setup {
 
 	public void createRealm(String realm, String origin)
 			throws RepositoryException {
+		validateRealm(realm);
+		validateOrigin(origin);
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
 		createRealm(realm, origin, repository);
 	}
 
-	private ObjectRepository getObjectRepository(File dir, URL configUrl)
+	private void validateOrigin(String origin) {
+		if (origin == null)
+			throw new IllegalArgumentException("Missing origin");
+		if (origin.endsWith("/"))
+			throw new IllegalArgumentException("Origins must not include a path");
+		java.net.URI uri = java.net.URI.create(origin + "/");
+		if (uri.isOpaque())
+			throw new IllegalArgumentException("Origins must not be opaque");
+		if (!uri.isAbsolute())
+			throw new IllegalArgumentException("Origins must be absolute");
+		if (!"/".equals(uri.getPath()))
+			throw new IllegalArgumentException("Origins must not include a path");
+		if (uri.getQuery() != null)
+			throw new IllegalArgumentException("Origins must not include a query part");
+		if (uri.getFragment() != null)
+			throw new IllegalArgumentException("Origins must not include a fragment part");
+		if (uri.getUserInfo() != null)
+			throw new IllegalArgumentException("Origins must not include any user info");
+	}
+
+	private void validateRealm(String realm) {
+		if (realm == null)
+			throw new IllegalArgumentException("Missing origin");
+		if (!realm.endsWith("/"))
+			throw new IllegalArgumentException("Realms must end with '/'");
+		java.net.URI uri = java.net.URI.create(realm);
+		if (uri.isOpaque())
+			throw new IllegalArgumentException("Realms must not be opaque");
+		if (!uri.isAbsolute())
+			throw new IllegalArgumentException("Realms must be absolute");
+		if (uri.getQuery() != null)
+			throw new IllegalArgumentException("Realms must not include a query part");
+		if (uri.getFragment() != null)
+			throw new IllegalArgumentException("Realms must not include a fragment part");
+		if (uri.getUserInfo() != null)
+			throw new IllegalArgumentException("Realms must not include any user info");
+	}
+
+	private URL resolve(String file) throws MalformedURLException {
+		try {
+			return new File(".").toURI().resolve(file).toURL();
+		} catch (IllegalArgumentException e) {
+			return new File(file).toURI().toURL();
+		}
+	}
+
+	private String readContent(URL config) throws IOException {
+		InputStream in = config.openStream();
+		try {
+			return new Scanner(in).useDelimiter("\\Z").next();
+		} finally {
+			in.close();
+		}
+	}
+
+	private ObjectRepository getObjectRepository(File dir, String configString)
 			throws OpenRDFException, MalformedURLException, IOException {
-		Repository repo = getRepository(dir, configUrl);
+		Repository repo = getRepository(dir, configString);
 		if (repo == null)
 			return null;
 		if (repo instanceof ObjectRepository)
@@ -338,9 +393,9 @@ public class Setup {
 		return factory.createRepository(config, repo);
 	}
 
-	private Repository getRepository(File dir, URL repositoryConfigUrl)
+	private Repository getRepository(File dir, String configString)
 			throws OpenRDFException, MalformedURLException, IOException {
-		RepositoryConfig config = getRepositoryConfig(repositoryConfigUrl);
+		RepositoryConfig config = getRepositoryConfig(configString);
 		LocalRepositoryManager manager = getRepositoryManager(dir);
 		if (config == null || manager == null)
 			return null;
@@ -359,38 +414,23 @@ public class Setup {
 		return manager.getRepository(id);
 	}
 
-	private RepositoryConfig getRepositoryConfig(URL configUrl)
+	private RepositoryConfig getRepositoryConfig(String configString)
 			throws IOException, RDFParseException, RDFHandlerException,
 			GraphUtilException, RepositoryConfigException {
-		Graph graph = parseTurtleGraph(configUrl);
+		Graph graph = parseTurtleGraph(configString);
 		Resource node = GraphUtil.getUniqueSubject(graph, RDF.TYPE,
 				RepositoryConfigSchema.REPOSITORY);
 		RepositoryConfig config = RepositoryConfig.create(graph, node);
 		return config;
 	}
 
-	private Graph parseTurtleGraph(URL url) throws IOException,
+	private Graph parseTurtleGraph(String configString) throws IOException,
 			RDFParseException, RDFHandlerException {
 		Graph graph = new GraphImpl();
 		RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
 		rdfParser.setRDFHandler(new StatementCollector(graph));
-
 		String base = new File(".").getAbsoluteFile().toURI().toASCIIString();
-		URLConnection con = url.openConnection();
-		StringBuilder sb = new StringBuilder();
-		for (String mimeType : RDFFormat.TURTLE.getMIMETypes()) {
-			if (sb.length() < 1) {
-				sb.append(", ");
-			}
-			sb.append(mimeType);
-		}
-		con.setRequestProperty("Accept", sb.toString());
-		InputStream in = con.getInputStream();
-		try {
-			rdfParser.parse(in, base);
-		} finally {
-			in.close();
-		}
+		rdfParser.parse(new StringReader(configString), base);
 		return graph;
 	}
 
@@ -596,13 +636,9 @@ public class Setup {
 				} else if (carin.getEntryType().startsWith("text/turtle")) {
 					con.add(in, target, RDFFormat.TURTLE, vf.createURI(target));
 				} else {
-					OutputStream out = con.getBlobObject(target)
-							.openOutputStream();
-					try {
-						ChannelUtil.transfer(in, out);
-					} finally {
-						out.close();
-					}
+					byte[] buf = new byte[1024];
+					while (in.read(buf) >= 0)
+						;
 				}
 			} else {
 				byte[] buf = new byte[1024];
@@ -619,7 +655,14 @@ public class Setup {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
-			Object folder = con.getObject(origin + "/callimachus/");
+			ValueFactory vf = con.getValueFactory();
+			URI uri = vf.createURI(origin + "/callimachus/");
+			con.add(vf.createURI(origin + "/"), vf.createURI(CALLI_HASCOMPONENT), uri);
+			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
+			con.add(uri, RDF.TYPE, vf.createURI(origin + "/callimachus/Folder"));
+			con.add(uri, RDFS.LABEL, vf.createLiteral("callimachus"));
+
+			Object folder = con.getObject(uri);
 			String auth = java.net.URI.create(origin + "/").getAuthority();
 			((ProxyObject) folder).setLocalAuthority(auth);
 			Method UploadFolderComponents = folder.getClass().getMethod(

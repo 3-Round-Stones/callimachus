@@ -83,7 +83,6 @@ shift
 goto setArgs
 :doneSetArgs
 
-"%EXECUTABLE%" setup -s
-"%EXECUTABLE%" start --update %CMD_LINE_ARGS%
+"%EXECUTABLE%" start %CMD_LINE_ARGS%
 
 :end

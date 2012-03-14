@@ -102,8 +102,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 	}
 
 	protected HTTPObjectServer createServer() throws Exception {
-		return new HTTPObjectServer(repository, new File(dataDir, "cache"),
-				null);
+		return new HTTPObjectServer(repository, new File(dataDir, "cache"));
 	}
 
 	protected void addContentEncoding(WebResource client) {

@@ -32,7 +32,6 @@ import java.util.GregorianCalendar;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import javax.management.InstanceNotFoundException;
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
@@ -214,8 +213,7 @@ public class ServerMonitor {
 		// nothing to destroy
 	}
 
-	private void logNotifications() throws InstanceNotFoundException,
-			IOException, MalformedObjectNameException {
+	public void logNotifications() throws Exception {
 		listener = new NotificationListener() {
 			public void handleNotification(Notification note, Object handback) {
 				synchronized (this) {
@@ -233,7 +231,7 @@ public class ServerMonitor {
 		}
 	}
 
-	private void destroyService() throws Exception {
+	public void destroyService() throws Exception {
 		try {
 			try {
 				server.stop();
@@ -249,15 +247,11 @@ public class ServerMonitor {
 		}
 	}
 
-	private void resetCache() {
-		try {
-			server.resetCache();
-		} catch (Exception e) {
-			println(e);
-		}
+	public void resetCache() throws Exception {
+		server.resetCache();
 	}
 
-	private void dumpService(String dir) throws Exception {
+	public void dumpService(String dir) throws Exception {
 		GregorianCalendar now = new GregorianCalendar(
 				TimeZone.getTimeZone("UTC"));
 		DatatypeFactory df = DatatypeFactory.newInstance();

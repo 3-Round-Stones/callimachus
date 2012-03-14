@@ -155,8 +155,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 	 * @param basic
 	 *            username:password
 	 */
-	public HTTPObjectServer(ObjectRepository repository, File cacheDir,
-			String basic) throws IOException, NoSuchAlgorithmException {
+	public HTTPObjectServer(ObjectRepository repository, File cacheDir) throws IOException, NoSuchAlgorithmException {
 		this.repository = repository;
 		HttpParams params = new BasicHttpParams();
 		params.setIntParameter(SO_TIMEOUT, timeout);
@@ -173,7 +172,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		handler = remoteCache = new ModifiedSinceHandler(handler);
 		handler = new UnmodifiedSinceHandler(handler);
 		handler = new ContentHeadersHandler(handler);
-		handler = new AuthenticationHandler(handler, basic);
+		handler = new AuthenticationHandler(handler);
 		Filter filter = env = new HttpResponseFilter(null);
 		filter = new DateHeaderFilter(filter);
 		filter = new GZipFilter(filter);

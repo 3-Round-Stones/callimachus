@@ -93,8 +93,6 @@ public class Server implements HTTPObjectAgentMXBean {
 		options.getOption("repository").setRequired(true);
 		options.addOption("d", "dir", true,
 				"Directory used for data storage and retrieval");
-		options.addOption("u", "update", false,
-				"If the server should reload all web resources");
 		options.addOption("trust", false,
 				"Allow all server code to read, write, and execute all files and directories "
 						+ "according to the file system's ACL");
@@ -128,7 +126,6 @@ public class Server implements HTTPObjectAgentMXBean {
 						+ " is listening on port " + server.getPort()
 						+ " for " + server.getOrigin() + "/");
 				System.out.println("Repository: " + server.getRepository());
-				System.out.println("Webapps: " + server.getWebappsDir());
 				System.out.println("Origin: " + server.getOrigin());
 			} else if (!server.isRunning()) {
 				System.err.println(server.getClass().getSimpleName()
@@ -193,12 +190,6 @@ public class Server implements HTTPObjectAgentMXBean {
 		if (server == null)
 			return null;
 		return server.getRepository();
-	}
-
-	public File getWebappsDir() {
-		if (server == null)
-			return null;
-		return server.getWebappsDir();
 	}
 
 	public int getCacheCapacity() {
@@ -378,10 +369,8 @@ public class Server implements HTTPObjectAgentMXBean {
 
 	private void init(CommandLine line) throws Exception {
 		File dir = new File("").getCanonicalFile();
-		File webappsDir = new File(dir, "webapps");
 		if (line.hasOption('d')) {
 			dir = new File(line.getOptionValue('d')).getCanonicalFile();
-			webappsDir = new File(dir, "webapps");
 		}
 		Repository repository = getRepository(line, dir);
 		if (repository.getDataDir() != null) {
@@ -394,7 +383,7 @@ public class Server implements HTTPObjectAgentMXBean {
 			String from = line.getOptionValue("from");
 			HTTPObjectClient.getInstance().setFrom(from == null ? "" : from);
 		}
-		server = new CallimachusServer(repository, webappsDir, dir);
+		server = new CallimachusServer(repository, dir);
 		if (line.hasOption('p')) {
 			String[] values = line.getOptionValues('p');
 			ports = new int[values.length];
@@ -420,9 +409,6 @@ public class Server implements HTTPObjectAgentMXBean {
 		if (line.hasOption('n')) {
 			server.setServerName(line.getOptionValue('n'));
 		}
-		if (line.hasOption('u')) {
-			server.setConditionalRequests(false);
-		}
 		AuditingSail sail = findAuditingSail(repository);
 		if (sail != null) {
 			sail.setNamespace(server.getOrigin() + CHANGE_PATH);
@@ -432,12 +418,8 @@ public class Server implements HTTPObjectAgentMXBean {
 		} catch (UnsatisfiedLinkError e) {
 			System.err.println(e.getMessage());
 		}
-		webappsDir.mkdirs();
 		if (!line.hasOption("trust")) {
-			applyPolicy(line, repository, dir, webappsDir);
-		}
-		if (!line.hasOption('q')) {
-			server.printStatus(System.out);
+			applyPolicy(line, repository, dir);
 		}
 		server.listen(ports, sslports);
 		registerMBean();
@@ -503,13 +485,11 @@ public class Server implements HTTPObjectAgentMXBean {
 		}
 	}
 
-	private void applyPolicy(CommandLine line, Repository repository, File dir,
-			File webappsDir) throws IOException {
+	private void applyPolicy(CommandLine line, Repository repository, File dir) throws IOException {
 		if (!line.hasOption("trust")) {
 			List<File> directories = new ArrayList<File>();
 			directories.addAll(getLoggingDirectories());
 			directories.add(dir);
-			directories.add(webappsDir);
 			if (repository.getDataDir() != null) {
 				directories.add(repository.getDataDir().getParentFile());
 			}

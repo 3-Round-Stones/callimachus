@@ -32,7 +32,6 @@ package org.callimachusproject.server.handlers;
 import static org.openrdf.sail.auditing.vocabulary.Audit.CURRENT_TRX;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.text.DateFormat;
@@ -46,7 +45,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -80,31 +78,27 @@ public class AuthenticationHandler implements Handler {
 	private static final String ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 	private static final String REQUEST_METHOD = "Access-Control-Request-Method";
 	private static final String ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
-    public static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
-    public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
+	public static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
+	public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 	private static final BasicStatusLine _403 = new BasicStatusLine(
 			new ProtocolVersion("HTTP", 1, 1), 403, "Forbidden");
 	private final Logger logger = LoggerFactory
 			.getLogger(AuthenticationHandler.class);
-    private final DateFormat dateformat;
+	private final DateFormat dateformat;
 	private final Handler delegate;
-	private final String basic;
 
-	public AuthenticationHandler(Handler delegate, String basic) {
+	public AuthenticationHandler(Handler delegate) {
 		this.delegate = delegate;
-		this.basic = basic;
-        this.dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
-        this.dateformat.setTimeZone(GMT);
+		this.dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
+		this.dateformat.setTimeZone(GMT);
 	}
 
 	public Response verify(ResourceOperation request) throws Exception {
-		String method = request.getMethod();
-		if (request.isAuthenticating()
-				&& !isBoot(method, request.getHeader("Authorization"))) {
+		if (request.isAuthenticating()) {
 			HttpResponse unauthorized = authorize(request);
 			if (unauthorized != null) {
-				return new Response().unauthorized(unauthorized, request
-						.getObjectConnection());
+				return new Response().unauthorized(unauthorized,
+						request.getObjectConnection());
 			}
 		}
 		return allow(request, delegate.verify(request));
@@ -238,8 +232,8 @@ public class AuthenticationHandler implements Handler {
 				Object cred = credentials.get(i);
 				try {
 					if (cred == null) {
-						unauth = choose(unauth, realm.unauthorized(m, target,
-								map));
+						unauth = choose(unauth,
+								realm.unauthorized(m, target, map));
 					} else {
 						unauth = choose(unauth, realm.forbidden(m, target, map));
 					}
@@ -298,8 +292,8 @@ public class AuthenticationHandler implements Handler {
 		}
 	}
 
-	private Map<String, String[]> getAuthorizationMap(
-			ResourceOperation request) throws IOException {
+	private Map<String, String[]> getAuthorizationMap(ResourceOperation request)
+			throws IOException {
 		long now = request.getReceivedOn();
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		map.put("request-target", new String[] { request.getRequestTarget() });
@@ -385,37 +379,6 @@ public class AuthenticationHandler implements Handler {
 		if (sb.length() < 1)
 			return null;
 		return sb.toString();
-	}
-
-	private boolean isBoot(String method, String auth)
-			throws UnsupportedEncodingException {
-		if (basic == null || auth == null)
-			return false;
-		if (auth.startsWith("Basic")) {
-			byte[] bytes = basic.getBytes("UTF-8");
-			String encoded = new String(Base64.encodeBase64(bytes));
-			return auth.equals("Basic " + encoded);
-		} else if (auth.startsWith("Digest")) {
-			String string = auth.substring("Digest ".length());
-			Map<String, String> options = parseOptions(string);
-			if (options == null)
-				return false;
-			if (!basic.startsWith(options.get("username") + ":"))
-				return false;
-			String realm = options.get("realm");
-			String nonce = options.get("nonce");
-			String response = options.get("response");
-			String a1 = basic.replaceFirst(":", ":" + realm + ":");
-			String a2 = method + ":" + options.get("uri");
-			String legacy = md5(a1) + ":" + nonce + ":" + md5(a2);
-			if (md5(legacy).equals(response))
-				return true;
-			String digest = md5(a1) + ":" + nonce + ":" + options.get("nc")
-					+ ":" + options.get("cnonce") + ":" + options.get("qop")
-					+ ":" + md5(a2);
-			return md5(digest).equals(response);
-		}
-		return false;
 	}
 
 	private String md5(String a2) {

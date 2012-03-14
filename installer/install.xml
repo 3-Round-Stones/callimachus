@@ -77,7 +77,7 @@
         <res id="TargetPanel.dir.windows" src="installer/windows.dir" />
         <res id="TargetPanel.dir.unix" src="installer/unix.dir" />
     </resources>
-    <jar src="dist/callimachus-configure.jar" stage="install"/>
+	<xi:include href="../tmp/jars" />
 
     <!-- 
         The panels section.
@@ -89,14 +89,14 @@
         <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="LicencePanel" id="license"/>
         <panel classname="TargetPanel"/>
-        <panel classname="CallimachusConfigurationPanel" jar="dist/callimachus-configure.jar" />
+        <panel classname="CallimachusConfigurationPanel" />
         <panel classname="UserInputPanel"/> <!-- host config -->
         <panel classname="UserInputPanel"/> <!-- mail config -->
         <panel classname="UserInputPanel"/> <!-- repository config -->
         <panel classname="UserInputPanel"/> <!-- initial user config -->
         <panel classname="PacksPanel"/>
         <panel classname="InstallPanel"/>
-        <panel classname="CallimachusWriteConfigurationsPanel" jar="dist/callimachus-configure.jar" />
+        <panel classname="CallimachusWriteConfigurationsPanel" />
         <panel classname="HTMLHelloPanel" id="3rs"/>
         <panel classname="SimpleFinishPanel"/>
     </panels>
@@ -113,9 +113,7 @@
             <file src="LEGAL.txt" targetdir="$INSTALL_PATH"/>
             <file src="CONTRIBUTORS.txt" targetdir="$INSTALL_PATH"/>
             <file src="lib" targetdir="$INSTALL_PATH"/>
-            <file src="etc" targetdir="$INSTALL_PATH"/>
             <file src="dist/callimachus-${Version}.jar" targetdir="$INSTALL_PATH/lib/"/>
-            <file src="dist/callimachus.war" targetdir="$INSTALL_PATH/webapps/"/>
             <!-- The file will be parsed -->
             <!--
             <parsable targetfile="$INSTALL_PATH/README.txt"/>
@@ -128,12 +126,12 @@
               <include name="callimachus-linux-*" />
             </fileset>
             <fileset dir="bin" targetdir="$INSTALL_PATH/bin" casesensitive="yes" os="mac">
+              <include name="*.sh" />
               <include name="callimachus-darwin" />
             </fileset>
             <fileset dir="bin" targetdir="$INSTALL_PATH/bin" casesensitive="yes" os="windows">
               <include name="*.bat" />
             </fileset>
-            <file src="etc/logging.properties" targetdir="$INSTALL_PATH/etc"/>
         </pack>
         <pack name="Source" required="no" preselected="no">
             <description>Source Code</description>

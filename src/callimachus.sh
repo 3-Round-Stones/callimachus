@@ -332,7 +332,6 @@ if [ ! -e "$BASEDIR/log" ] ; then
   mkdir "$BASEDIR/log"
 fi
 
-SETUPCLASS=org.callimachusproject.Setup
 MAINCLASS=org.callimachusproject.Server
 MONITORCLASS=org.callimachusproject.ServerMonitor
 
@@ -466,26 +465,6 @@ elif [ "$1" = "stop" ] ; then ################################
         -pidfile "$PID" "$MAINCLASS" >/dev/null 2>&1
     fi
   fi
-
-elif [ "$1" = "setup" ] ; then ################################
-
-  JSVC_LOG="$BASEDIR/log/callimachus-setup.log"
-  if [ -e "$JSVC_LOG" ]; then
-    rm "$JSVC_LOG"
-  fi
-  shift
-  "$EXECUTABLE" -nodetach -outfile "$JSVC_LOG" -errfile '&1' -home "$JAVA_HOME" -jvm server -procname "$NAME" \
-    -pidfile "$BASEDIR/run/$NAME-setup.pid" \
-    -Duser.home="$BASEDIR" \
-    -Djava.library.path="$LIB" \
-    -Djava.io.tmpdir="$TMPDIR" \
-    -Djava.mail.properties="$MAIL" \
-    -classpath "$CLASSPATH" \
-    -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS "$SETUPCLASS" -d "$BASEDIR" -c "$REPOSITORY_CONFIG" $ORIGIN_OPTS "$@"
-  RETURN_VAL=$?
-  cat "$JSVC_LOG"
-  exit $RETURN_VAL
 
 elif [ "$1" = "dump" ] ; then ################################
 

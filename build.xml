@@ -203,16 +203,8 @@
 				<attribute name="Class-Path" value="${jar.classpath}" />
 			</manifest>
 		</jar>
-		<war needxmlfile="false" destfile="${dist}/callimachus.war">
+		<zip destfile="${dist}/callimachus-webapp-${Version}.car">
 			<zipfileset dir="${webapps}/callimachus" prefix="" />
-		</war>
-		<zip destfile="${dist}/callimachus-${Version}.zip">
-			<zipfileset dir="." includes="*.txt" />
-			<zipfileset dir="${bin}" prefix="bin" />
-			<zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
-			<zipfileset dir="${lib}" prefix="lib" />
-			<zipfileset file="${jar.file}" prefix="lib" />
-			<zipfileset file="${dist}/callimachus.war" prefix="webapps" />
 		</zip>
 	</target>
 
@@ -291,8 +283,13 @@
 	</target>
 
 	<target name="installer" depends="dist,install-compile">
-		<jar jarfile="${dist}/callimachus-configure.jar">
+		<echo file="${build.install}/META-INF/callimachus-webapps" append="false">callimachus-webapp-${Version}.car</echo>
+		<copy todir="${build.install}/META-INF/">
+			<fileset dir="${src.install}/META-INF/" />
+		</copy>
+		<jar jarfile="${dist}/callimachus-configure-${Version}.jar">
 			<fileset dir="${build.install}" />
+			<zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="" />
 		</jar>
 		<!-- Allows us to use the IzPack Ant task -->
 		<taskdef name="IzPack" classpath="${lib.install}/izpack-standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/>
@@ -305,10 +302,14 @@
 				<variable name="Version" value="${Version}"/>
 			</variables>
 		]]></echo>
+		<echo file="tmp/jars" append="false"><![CDATA[
+			<jar src="dist/callimachus-configure-${Version}.jar" stage="install"/>
+		]]></echo>
 		<IzPack input="${installer}/install.xml"
 			output="${dist}/callimachus-setup-${Version}.jar"
 			installerType="standard"
 			basedir="${home}" />
+		<delete file="tmp/jars" />
 		<delete file="tmp/variables" />
 		<delete file="tmp/version" />
 	</target>

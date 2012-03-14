@@ -158,7 +158,7 @@
 			</classpath>
 		</javac>
 		<copy todir="${build}">
-			<fileset dir="${src}" excludes="**/*.java *.sh *.bat *.conf *.properties *.ttl"/>
+			<fileset dir="${src}" excludes="**/*.java *.run *.sh *.bat *.conf *.properties *.ttl"/>
 		</copy>
 		<copy todir="${bin}">
 			<fileset dir="${src}" includes="*.sh *.bat"/>
@@ -247,7 +247,9 @@
 
 	<target name="install-dependencies" unless="lib.install.present">
 		<mkdir dir="${lib.install}" />
-		<get src="${izpack.url}" dest="${lib.install}/izpack-standalone-compiler.jar" />
+		<parallel>
+			<get src="${izpack.url}" dest="${lib.install}/izpack-standalone-compiler.jar" />
+		</parallel>
 	</target>
 
 	<target name="install-compile" depends="compile,install-dependencies">
@@ -274,8 +276,6 @@
 			<fileset dir="${build.install}" />
 			<zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="" />
 		</jar>
-		<!-- Allows us to use the IzPack Ant task -->
-		<taskdef name="IzPack" classpath="${lib.install}/izpack-standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/>
 		<!-- Call IzPack to build the installer JAR -->
 		<echo message="Make the FLOSS installer JAR"/>
 		<mkdir dir="${dist}" />
@@ -291,6 +291,8 @@
 		<echo file="tmp/unix.dir" append="false">/opt/3RoundStones/Callimachus-${Version}</echo>
 		<echo file="tmp/macosx.dir" append="false">/Applications/3RoundStones/Callimachus-${Version}</echo>
 		<echo file="tmp/windows.dir" append="false">C:\Program Files\3RoundStones\Callimachus-${Version}</echo>
+		<!-- Allows us to use the IzPack Ant task -->
+		<taskdef name="IzPack" classpath="${lib.install}/izpack-standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/>
 		<IzPack input="${installer}/install.xml"
 			output="${dist}/callimachus-setup-${Version}.jar"
 			installerType="standard"
@@ -301,7 +303,11 @@
 		<delete file="tmp/jars" />
 		<delete file="tmp/variables" />
 		<delete file="tmp/version" />
-		<echo>${dist}/callimachus-setup-${Version}.jar</echo>
+		<echo>Building installer: ${dist}/Callimachus-Setup-${Version}.run</echo>
+		<concat destfile="${dist}/Callimachus-Setup-${Version}.run" binary="true">
+			<path path="${src.install}/callimachus-setup.run" />
+			<path path="${dist}/callimachus-setup-${Version}.jar" />
+		</concat>
 	</target>
 
 	<target name="package" depends="dist-clean,dist,installer,test" description="Create a package ready for release">

@@ -40,8 +40,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
-import net.contentobjects.jnotify.JNotify;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -412,11 +410,6 @@ public class Server implements HTTPObjectAgentMXBean {
 		AuditingSail sail = findAuditingSail(repository);
 		if (sail != null) {
 			sail.setNamespace(server.getOrigin() + CHANGE_PATH);
-		}
-		try {
-			JNotify.removeWatch(-1); // load library
-		} catch (UnsatisfiedLinkError e) {
-			System.err.println(e.getMessage());
 		}
 		if (!line.hasOption("trust")) {
 			applyPolicy(line, repository, dir);

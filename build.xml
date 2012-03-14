@@ -27,7 +27,6 @@
 	<property name="mail.jar" value="mail-1.4.1.jar" />
 	<property name="mail.url" value="http://download.java.net/maven/1/javax.mail/jars/mail-1.4.jar" />
 	<property name="jchardet.url" value="http://downloads.sourceforge.net/project/jchardet/jchardet/1.1/jchardet-1.1.zip" />
-	<property name="jnotify.url" value="http://downloads.sourceforge.net/project/jnotify/jnotify/jnotify-0.93/jnotify-lib-0.93.zip" />
 	<property name="closure.url" value="http://closure-compiler.googlecode.com/files/compiler-20100917.zip" />
 	<property name="daemon.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/commons-daemon-1.0.2-bin.zip" />
 	<property name="daemon-linux-i686.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-i386.tar.gz" />
@@ -79,7 +78,6 @@
 			<get src="${alibaba.url}" dest="${downloads}/openrdf-alibaba.zip" />
 			<get src="${jchardet.url}" dest="${downloads}/jchardet.zip" />
 			<get src="${closure.url}" dest="${downloads}/closure.zip" />
-			<get src="${jnotify.url}" dest="${downloads}/jnotify.zip" />
 			<get src="${daemon.url}" dest="${downloads}/daemon.zip" />
 			<get src="${daemon-linux-i686.url}" dest="${downloads}/daemon-linux-i686.tar.gz" />
 			<get src="${download-lunix-x86_64.url}" dest="${downloads}/daemon-linux-x86_64.tar.gz" />
@@ -109,21 +107,6 @@
 			<mapper type="flatten" />
 		</unzip>
 		<delete file="${downloads}/closure.zip" />
-		<unzip src="${downloads}/jnotify.zip" dest="${lib}">
-			<patternset>
-				<include name="*.jar" />
-			</patternset>
-			<mapper type="flatten" />
-		</unzip>
-		<unzip src="${downloads}/jnotify.zip" dest="${lib}">
-			<patternset>
-				<include name="*.so" />
-				<include name="*.dll" />
-				<include name="*.dylib" />
-			</patternset>
-			<mapper type="flatten" />
-		</unzip>
-		<delete file="${downloads}/jnotify.zip" />
 		<unzip src="${downloads}/daemon.zip" dest="${lib}">
 			<patternset>
 				<include name="commons-daemon-*/commons-daemon-*.jar" />

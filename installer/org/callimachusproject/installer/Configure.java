@@ -2,10 +2,12 @@ package org.callimachusproject.installer;
 
 import java.awt.Desktop;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,9 +46,26 @@ public class Configure {
 		return readProperties(file, "META-INF/templates/callimachus.conf");
 	}
 
-	public void setServerConfiguration(Properties properties) throws IOException {
+	public void setServerConfiguration(Properties properties)
+			throws IOException {
 		File file = new File(new File(dir, "etc"), SERVER_CONF);
-		writeProperties(properties, file);
+		file.getParentFile().mkdirs();
+		FileWriter out = new FileWriter(file);
+		try {
+			BufferedWriter bw = new BufferedWriter(out);
+			bw.write("#" + new Date().toString());
+			bw.newLine();
+			Enumeration<?> e = properties.propertyNames();
+			while (e.hasMoreElements()) {
+				String key = (String) e.nextElement();
+				String val = properties.getProperty(key);
+				bw.write(key + "=" + val);
+				bw.newLine();
+			}
+			bw.flush();
+		} finally {
+			out.close();
+		}
 	}
 
 	public Properties getMailProperties() throws IOException {
@@ -212,7 +231,7 @@ public class Configure {
 		file.getParentFile().mkdirs();
 		FileOutputStream out = new FileOutputStream(file);
 		try {
-			properties.store(out, new Date().toString());
+			properties.store(out, null);
 		} finally {
 			out.close();
 		}

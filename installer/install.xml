@@ -16,12 +16,13 @@
 
     <xi:include href="../tmp/variables" />
 
-    <property name="callimachus.PORT" value="8080" />
-    <property name="callimachus.ORIGIN" value="http://localhost:8080" />
+    <!-- Default values stored in Java -->
+    <property name="callimachus.PORT" value="" />
+    <property name="callimachus.ORIGIN" value="" />
     <property name="callimachus.mail.transport.protocol" value="" />
     <property name="callimachus.mail.from" value="" />
     <property name="callimachus.mail.smtps.host" value="" />
-    <property name="callimachus.mail.smtps.port" value="465" />
+    <property name="callimachus.mail.smtps.port" value="" />
     <property name="callimachus.mail.smtps.auth" value="" />
     <property name="callimachus.mail.user" value="" />
     <property name="callimachus.mail.password" value="" />

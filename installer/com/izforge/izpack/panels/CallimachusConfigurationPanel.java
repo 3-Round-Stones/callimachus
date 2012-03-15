@@ -18,7 +18,7 @@ package com.izforge.izpack.panels;
 import java.awt.LayoutManager2;
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.*;
 
 import org.callimachusproject.installer.Configure;
 
@@ -37,6 +37,7 @@ public class CallimachusConfigurationPanel extends IzPanel {
 
 	// Instance vars.
 	protected InstallData idata;
+	protected Map<String,String> defaults = new HashMap<String,String>(20); // Default values for variables.
 	boolean debug = false;  // Set to false for production use.
 
 	/**
@@ -50,6 +51,7 @@ public class CallimachusConfigurationPanel extends IzPanel {
 		// displayed to the end user).
 		this(parent, idata, null);
 		this.idata = idata;
+		initializeDefaults();
 	}
 
 	/**
@@ -63,6 +65,7 @@ public class CallimachusConfigurationPanel extends IzPanel {
 	public CallimachusConfigurationPanel(InstallerFrame parent, InstallData idata, LayoutManager2 layout) {
 		super(parent, idata, layout);
 		this.idata = idata;
+		initializeDefaults();
 	}
 
 	/**
@@ -122,12 +125,28 @@ public class CallimachusConfigurationPanel extends IzPanel {
 		int propertiesLength = properties.length;
 		for (int i = 0; i < propertiesLength; i++) {
 			if ( prop.getProperty(properties[i]) == null ) {
-				tempProperty = "";
+			    tempProperty = defaults.get(properties[i]);
 			} else {
 				tempProperty = prop.getProperty(properties[i]);
 			}
 			idata.setVariable("callimachus." + properties[i], tempProperty);
 		}
+	}
+	
+	/**
+	 * Initializes the default configuration variable values.
+	 *
+	 */
+	private void initializeDefaults() {
+	    defaults.put("PORT", "8080");
+    	defaults.put("ORIGIN", "http://localhost:8080");
+        defaults.put("mail.transport.protocol", "smtps");
+        defaults.put("mail.from", "user@domain.com");
+        defaults.put("mail.smtps.host", "mail.domain.com");
+        defaults.put("mail.smtps.port", "465");
+        defaults.put("mail.smtps.auth", "no");
+        defaults.put("mail.user", "");
+        defaults.put("mail.password", "");
 	}
 
 }

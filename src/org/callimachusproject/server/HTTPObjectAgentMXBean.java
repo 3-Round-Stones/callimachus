@@ -78,6 +78,8 @@ public interface HTTPObjectAgentMXBean {
 
 	void resetConnections() throws IOException;
 
+	boolean isRunning();
+
 	void start() throws Exception;
 
 	void stop() throws Exception;

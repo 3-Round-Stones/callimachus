@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.rmi.UnmarshalException;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
@@ -93,7 +94,7 @@ public class ServerMonitor {
 					try {
 						monitor.stop();
 						monitor.destroy();
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						println(e);
 					}
 				}
@@ -105,7 +106,7 @@ public class ServerMonitor {
 			System.err.print("Missing jar with: ");
 			System.err.println(e.toString());
 			System.exit(1);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			println(e);
 			System.err.println("Arguments: " + Arrays.toString(args));
 			System.exit(1);
@@ -136,7 +137,7 @@ public class ServerMonitor {
 		super();
 	}
 
-	public ServerMonitor(String pidFile) throws Exception {
+	public ServerMonitor(String pidFile) throws Throwable {
 		setPidFile(pidFile);
 	}
 
@@ -181,14 +182,14 @@ public class ServerMonitor {
 				String pid = line.getOptionValue("pid");
 				setPidFile(pid);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			println(e);
 			System.err.println("Arguments: " + Arrays.toString(args));
 			System.exit(2);
 		}
 	}
 
-	public void start() throws Exception {
+	public void start() throws Throwable {
 		if (dump != null) {
 			dumpService(dump);
 		}
@@ -205,10 +206,14 @@ public class ServerMonitor {
 		}
 	}
 
-	public void stop() throws Exception {
-		if (listener != null) {
-			mbsc.removeNotificationListener(getMXLoggerName(), listener);
-			logger.stopNotifications();
+	public void stop() throws Throwable {
+		try {
+			if (listener != null) {
+				mbsc.removeNotificationListener(getMXLoggerName(), listener);
+				logger.stopNotifications();
+			}
+		} catch (UndeclaredThrowableException e) {
+			throw e.getCause();
 		}
 	}
 
@@ -216,7 +221,7 @@ public class ServerMonitor {
 		// nothing to destroy
 	}
 
-	public void logNotifications(String[] log) throws Exception {
+	public void logNotifications(String[] log) throws Throwable {
 		listener = new NotificationListener() {
 			public void handleNotification(Notification note, Object handback) {
 				synchronized (this) {
@@ -228,33 +233,49 @@ public class ServerMonitor {
 				}
 			}
 		};
-		mbsc.addNotificationListener(getMXLoggerName(), listener, null, null);
-		for (String name : log) {
-			logger.startNotifications(name);
-		}
-	}
-
-	public void destroyService() throws Exception {
 		try {
-			try {
-				server.stop();
-			} finally {
-				server.destroy();
+			mbsc.addNotificationListener(getMXLoggerName(), listener, null, null);
+			for (String name : log) {
+				logger.startNotifications(name);
 			}
-			System.out.println("Callimachus server has stopped");
-		} catch (UnmarshalException e) {
-			if (!(e.getCause() instanceof EOFException))
-				throw e;
-			// remote JVM has terminated
-			System.out.println("Callimachus server has shutdown");
+		} catch (UndeclaredThrowableException e) {
+			throw e.getCause();
 		}
 	}
 
-	public void resetCache() throws Exception {
-		server.resetCache();
+	public boolean destroyService() throws Throwable {
+		try {
+			if (!server.isRunning())
+				return false;
+			try {
+				try {
+					server.stop();
+				} finally {
+					server.destroy();
+				}
+				info("Callimachus server has stopped");
+				return true;
+			} catch (UnmarshalException e) {
+				if (!(e.getCause() instanceof EOFException))
+					throw e;
+				// remote JVM has terminated
+				info("Callimachus server has shutdown");
+				return true;
+			}
+		} catch (UndeclaredThrowableException e) {
+			throw e.getCause();
+		}
 	}
 
-	public void dumpService(String dir) throws Exception {
+	public void resetCache() throws Throwable {
+		try {
+			server.resetCache();
+		} catch (UndeclaredThrowableException e) {
+			throw e.getCause();
+		}
+	}
+
+	public void dumpService(String dir) throws Throwable {
 		GregorianCalendar now = new GregorianCalendar(
 				TimeZone.getTimeZone("UTC"));
 		DatatypeFactory df = DatatypeFactory.newInstance();
@@ -272,7 +293,7 @@ public class ServerMonitor {
 		summaryDump(mbsc, dir + "summary-" + stamp + ".txt");
 	}
 
-	private void setPidFile(String pid) throws Exception {
+	private void setPidFile(String pid) throws Throwable {
 		vm = getRemoteVirtualMachine(pid);
 		mbsc = getMBeanConnection(vm);
 		server = JMX.newMXBeanProxy(mbsc, getMXServerName(),
@@ -292,7 +313,7 @@ public class ServerMonitor {
 		} finally {
 			in.close();
 		}
-		System.out.println(hprof);
+		info(hprof);
 	}
 
 	private void executeVMCommand(Object vm, String cmd, String filename,
@@ -310,7 +331,7 @@ public class ServerMonitor {
 		} finally {
 			in.close();
 		}
-		System.out.println(filename);
+		info(filename);
 	}
 
 	private void connectionDump(MBeanServerConnection mbsc, String filename)
@@ -318,7 +339,7 @@ public class ServerMonitor {
 		HTTPObjectAgentMXBean server = JMX.newMXBeanProxy(mbsc,
 				getMXServerName(), HTTPObjectAgentMXBean.class);
 		server.connectionDumpToFile(filename);
-		System.out.println(filename);
+		info(filename);
 	}
 
 	private void poolDump(MBeanServerConnection mbsc, String filename)
@@ -331,7 +352,7 @@ public class ServerMonitor {
 					ThreadPoolMXBean.class);
 			pool.threadDumpToFile(filename);
 		}
-		System.out.println(filename);
+		info(filename);
 	}
 
 	private void clientDump(MBeanServerConnection mbsc, String filename)
@@ -344,29 +365,41 @@ public class ServerMonitor {
 					HTTPObjectAgentMXBean.class);
 			client.connectionDumpToFile(filename);
 		}
-		System.out.println(filename);
+		info(filename);
 	}
 
 	private void summaryDump(MBeanServerConnection mbsc, String filename)
-			throws Exception {
-		String summary = logger.getVMSummary();
-		PrintWriter w = new PrintWriter(filename);
+			throws Throwable {
 		try {
-			w.println(summary);
-		} finally {
-			w.close();
+			String summary = logger.getVMSummary();
+			PrintWriter w = new PrintWriter(filename);
+			try {
+				w.println(summary);
+			} finally {
+				w.close();
+			}
+			info(filename);
+		} catch (UndeclaredThrowableException e) {
+			throw e.getCause();
 		}
-		System.out.println(filename);
 	}
 
 	private Object getRemoteVirtualMachine(String pidFile)
-			throws ClassNotFoundException, NoSuchMethodException, IOException,
-			IllegalAccessException, InvocationTargetException {
+			throws Throwable {
 		Class<?> VM = Class.forName("com.sun.tools.attach.VirtualMachine");
 		Method attach = VM.getDeclaredMethod("attach", String.class);
 		String pid = IOUtil.readString(new File(pidFile)).trim();
 		// attach to the target application
-		return attach.invoke(null, pid);
+		info("Connecting to " + pid);
+		try {
+			return attach.invoke(null, pid);
+		} catch (InvocationTargetException e) {
+			throw e.getCause();
+		}
+	}
+
+	private void info(String message) {
+		System.err.println(message);
 	}
 
 	private MBeanServerConnection getMBeanConnection(Object vm)

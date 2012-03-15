@@ -181,6 +181,7 @@ public class Setup {
 	private final Set<String> origins = new HashSet<String>();
 	private final Map<String, String> vhosts = new HashMap<String, String>();
 	private final Map<String, String> realms = new HashMap<String, String>();
+	private LocalRepositoryManager manager;
 
 	public void init(String[] args) {
 		try {
@@ -278,13 +279,13 @@ public class Setup {
 			throw new RepositoryConfigException(
 					"Missing repository configuration");
 		RepositoryConfig config = getRepositoryConfig(configString);
-		LocalRepositoryManager manager = RepositoryProvider
-				.getRepositoryManager(dir);
+		manager = RepositoryProvider.getRepositoryManager(dir);
 		return manager.getRepositoryDir(config.getID());
 	}
 
 	public void disconnect() {
 		repository = null;
+		manager.shutDown();
 	}
 
 	public void createOrigin(String origin, URL car) throws Exception {

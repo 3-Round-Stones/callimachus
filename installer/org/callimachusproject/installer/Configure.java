@@ -34,6 +34,7 @@ public class Configure {
 	private static final String MAIL_PROPERTIES = "mail.properties";
 	private static final String SERVER_CONF = "callimachus.conf";
 	private static final String START_SCRIPT = "callimachus-start";
+	private static final String STOP_SCRIPT = "callimachus-stop";
 	private final File dir;
 	private SetupProxy setup;
 
@@ -113,17 +114,22 @@ public class Configure {
 		return run.exists() && run.list().length > 0;
 	}
 
-	public void stopServer() throws Exception {
-		File lib = new File(dir, "lib");
-		File run = new File(dir, "run");
-		File[] listFiles = run.listFiles();
-		if (listFiles != null) {
-			for (File f : listFiles) {
-				String p = f.getAbsolutePath();
-				ServerMonitorProxy monitor = new ServerMonitorProxy(p, lib);
-				monitor.destroyService();
+	public boolean stopServer() throws Exception {
+		Process p = exec(STOP_SCRIPT);
+		if (p == null)
+			return false;
+		InputStream in = p.getInputStream();
+		try {
+			int read;
+			byte[] buf = new byte[1024];
+			while ((read = in.read(buf)) >= 0) {
+				System.out.write(buf, 0, read);
 			}
+		} finally {
+			in.close();
 		}
+		Thread.sleep(1000);
+		return p.exitValue() == 0;
 	}
 
 	public boolean startServer() throws Exception {

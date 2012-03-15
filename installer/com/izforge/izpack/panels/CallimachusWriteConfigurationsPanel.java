@@ -73,12 +73,13 @@ public class CallimachusWriteConfigurationsPanel extends IzPanel {
         String installPath = idata.getInstallPath();
         Configure configure = new Configure(new File(installPath));
         
-    	try {
+    	String origin = idata.getVariable("callimachus.ORIGIN");
+		try {
         	// Write Callimachus configuration file.
         	Properties confProperties = configure.getserverConfiguration();
             // NB: Ensure that these var names are correct in install.xml, userInputSpec.xml
             confProperties.setProperty("PORT", idata.getVariable("callimachus.PORT") );
-            confProperties.setProperty("ORIGIN", idata.getVariable("callimachus.ORIGIN") );
+            confProperties.setProperty("ORIGIN", origin );
     		configure.setServerConfiguration(confProperties);
         } catch (IOException e) {
             // This is an unknown error, but there is not much we can do within
@@ -86,6 +87,7 @@ public class CallimachusWriteConfigurationsPanel extends IzPanel {
             // case IzPack was run from the command line.
             // TODO: Perhaps stop the installation process when this happens??
         	e.printStackTrace();
+			System.exit(1);
         }
         
     	try {
@@ -106,16 +108,31 @@ public class CallimachusWriteConfigurationsPanel extends IzPanel {
             // case IzPack was run from the command line.
             // TODO: Perhaps stop the installation process when this happens??
             e.printStackTrace();
+			System.exit(1);
         }
 
     	try {
+    		boolean running = configure.isServerRunning();
+			if (running) {
+    			if (!configure.stopServer()) {
+    				System.err.println("Server must be shutdown to continue");
+    				System.exit(1);
+    			}
+    		}
 			configure.setLoggingProperties(configure.getLoggingProperties());
 			URL config = configure.getRepositoryConfigTemplates().values().iterator().next();
 			configure.connect(config, null);
-			configure.createOrigin(idata.getVariable("callimachus.ORIGIN"));
+			configure.createOrigin(origin);
 			configure.disconnect();
+			if (running) {
+				boolean started = configure.startServer();
+				if (started && configure.isWebBrowserSupported()) {
+					configure.openWebBrowser(origin + "/");
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.exit(1);
 		}
         
         // Go to the next panel; this one should never be displayed to an

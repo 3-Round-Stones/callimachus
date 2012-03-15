@@ -11,20 +11,36 @@ public class ServerMonitorProxy {
 	private final Class<?> ServerMonitor;
 	private final Object monitor;
 
-	public ServerMonitorProxy(ClassLoader cl) throws ClassNotFoundException {
+	public ServerMonitorProxy(String pidFile, ClassLoader cl) throws ClassNotFoundException, Exception {
 		String cname = "org.callimachusproject.ServerMonitor";
 		this.ServerMonitor = Class.forName(cname, true, cl);
 		try {
-			this.monitor = ServerMonitor.newInstance();
+			this.monitor = ServerMonitor.getConstructor(String.class).newInstance(pidFile);
 		} catch (InstantiationException e) {
 			throw new AssertionError(e);
 		} catch (IllegalAccessException e) {
 			throw new AssertionError(e);
+		} catch (IllegalArgumentException e) {
+			throw new AssertionError(e);
+		} catch (SecurityException e) {
+			throw new AssertionError(e);
+		} catch (NoSuchMethodException e) {
+			throw new AssertionError(e);
+		} catch (InvocationTargetException e) {
+			try {
+				throw e.getCause();
+			} catch (Error e1) {
+				throw e1;
+			} catch (Exception e1) {
+				throw e1;
+			} catch (Throwable e1) {
+				throw new AssertionError(e);
+			}
 		}
 	}
 
-	public ServerMonitorProxy(File lib) throws MalformedURLException, ClassNotFoundException {
-		this(new URLClassLoader(list(lib)));
+	public ServerMonitorProxy(String pidFile, File lib) throws MalformedURLException, ClassNotFoundException, Exception {
+		this(pidFile, new URLClassLoader(list(lib)));
 	}
 
 	private static URL[] list(File lib) throws MalformedURLException {
@@ -38,10 +54,10 @@ public class ServerMonitorProxy {
 		return urls;
 	}
 
-	public void logNotifications() throws Exception {
+	public void logNotifications(String log) throws Exception {
 		try {
-			Method logNotifications = ServerMonitor.getMethod("logNotifications");
-			logNotifications.invoke(monitor);
+			Method logNotifications = ServerMonitor.getMethod("logNotifications", String.class);
+			logNotifications.invoke(monitor, log);
 		} catch (SecurityException e) {
 			throw new AssertionError(e);
 		} catch (NoSuchMethodException e) {

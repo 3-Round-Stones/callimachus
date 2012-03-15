@@ -132,6 +132,14 @@ public class ServerMonitor {
 	private String[] log;
 	private NotificationListener listener;
 
+	public ServerMonitor() {
+		super();
+	}
+
+	public ServerMonitor(String pidFile) throws Exception {
+		setPidFile(pidFile);
+	}
+
 	public void init(String[] args) {
 		try {
 			CommandLine line = new GnuParser().parse(options, args);
@@ -159,24 +167,19 @@ public class ServerMonitor {
 				formatter.printHelp("[options]", options);
 				System.exit(0);
 			} else {
-				String pid = line.getOptionValue("pid");
-				vm = getRemoteVirtualMachine(pid);
-				mbsc = getMBeanConnection(vm);
-				server = JMX.newMXBeanProxy(mbsc, getMXServerName(),
-						HTTPObjectAgentMXBean.class);
-				logger = JMX.newMXBeanProxy(mbsc, getMXLoggerName(),
-						LoggerMXBean.class);
 				if (line.hasOption("dump")) {
 					dump = line.getOptionValue("dump") + File.separatorChar;
 				}
-				reset = line.hasOption("reset");
 				if (line.hasOption("log")) {
 					log = line.getOptionValues("log");
 					if (log == null || log.length == 0) {
 						log = new String[]{""};
 					}
 				}
+				reset = line.hasOption("reset");
 				stop = line.hasOption("stop");
+				String pid = line.getOptionValue("pid");
+				setPidFile(pid);
 			}
 		} catch (Exception e) {
 			println(e);
@@ -198,12 +201,12 @@ public class ServerMonitor {
 		if (log == null) {
 			System.exit(0);
 		} else {
-			logNotifications();
+			logNotifications(log);
 		}
 	}
 
 	public void stop() throws Exception {
-		if (log != null) {
+		if (listener != null) {
 			mbsc.removeNotificationListener(getMXLoggerName(), listener);
 			logger.stopNotifications();
 		}
@@ -213,7 +216,7 @@ public class ServerMonitor {
 		// nothing to destroy
 	}
 
-	public void logNotifications() throws Exception {
+	public void logNotifications(String[] log) throws Exception {
 		listener = new NotificationListener() {
 			public void handleNotification(Notification note, Object handback) {
 				synchronized (this) {
@@ -267,6 +270,15 @@ public class ServerMonitor {
 		clientDump(mbsc, dir + "client-" + stamp + ".csv");
 		poolDump(mbsc, dir + "pool-" + stamp + ".tdump");
 		summaryDump(mbsc, dir + "summary-" + stamp + ".txt");
+	}
+
+	private void setPidFile(String pid) throws Exception {
+		vm = getRemoteVirtualMachine(pid);
+		mbsc = getMBeanConnection(vm);
+		server = JMX.newMXBeanProxy(mbsc, getMXServerName(),
+				HTTPObjectAgentMXBean.class);
+		logger = JMX
+				.newMXBeanProxy(mbsc, getMXLoggerName(), LoggerMXBean.class);
 	}
 
 	private void heapDump(Object vm, String hprof) throws Exception {

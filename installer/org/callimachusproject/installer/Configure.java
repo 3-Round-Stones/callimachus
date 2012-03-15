@@ -96,12 +96,21 @@ public class Configure {
 
 	public void stopServer() throws Exception {
 		File lib = new File(dir, "lib");
-		ServerMonitorProxy monitor = new ServerMonitorProxy(lib);
-		monitor.destroyService();
+		File run = new File(dir, "run");
+		File[] listFiles = run.listFiles();
+		if (listFiles != null) {
+			for (File f : listFiles) {
+				String p = f.getAbsolutePath();
+				ServerMonitorProxy monitor = new ServerMonitorProxy(p, lib);
+				monitor.destroyService();
+			}
+		}
 	}
 
 	public boolean startServer() throws Exception {
 		Process p = exec(START_SCRIPT);
+		if (p == null)
+			return false;
 		InputStream in = p.getInputStream();
 		try {
 			int read;
@@ -117,6 +126,8 @@ public class Configure {
 	}
 
 	public boolean isWebBrowserSupported() {
+		if (findInPath("sh") == null)
+			return false;
 		if (!Desktop.isDesktopSupported())
 			return false;
         Desktop desktop = Desktop.getDesktop();
@@ -246,31 +257,35 @@ public class Configure {
 
 	private Process exec(String script) throws IOException {
 		File bin = new File(dir, "bin");
-		if (isWindows()) {
-			String start = new File(bin, script + ".bat").getAbsolutePath();
+		File sh = new File(bin, script + ".sh");
+		File bat = new File(bin, script + ".bat");
+		if (sh.exists() && findInPath("sh") != null) {
+			String start = sh.getAbsolutePath();
+			ProcessBuilder process = new ProcessBuilder("sh", start);
+			process.redirectErrorStream(true);
+			return process.start();
+		} else if (bat.exists() && findInPath("cmd.exe") != null) {
+			String start = bat.getAbsolutePath();
 			ProcessBuilder process = new ProcessBuilder("cmd.exe", "/c", start);
 			process.redirectErrorStream(true);
 			return process.start();
 		} else {
-			String start = new File(bin, script + ".sh").getAbsolutePath();
-			ProcessBuilder process = new ProcessBuilder("sh", start);
-			process.redirectErrorStream(true);
-			return process.start();
+			return null;
 		}
 	}
 
-	private boolean isWindows() {
+	private File findInPath(String exe) {
 		String systemPath = System.getenv("PATH");
 		for (String path : systemPath.split(File.pathSeparator)) {
-			File file = new File(path, "cmd.exe");
+			File file = new File(path, exe);
 			try {
 				if (file.exists())
-					return true;
+					return file;
 			} catch (SecurityException e) {
 				continue;
 			}
 		}
-		return false;
+		return null;
 	}
 
 }

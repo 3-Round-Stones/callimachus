@@ -113,6 +113,10 @@
             <file src="CONTRIBUTORS.txt" targetdir="$INSTALL_PATH"/>
             <file src="lib" targetdir="$INSTALL_PATH"/>
             <file src="dist/callimachus-${Version}.jar" targetdir="$INSTALL_PATH/lib/"/>
+            <updatecheck>
+                <!-- delete other files in the lib directory -->
+                <include name="lib/**" />
+            </updatecheck>
             <!-- The file will be parsed -->
             <!--
             <parsable targetfile="$INSTALL_PATH/README.txt"/>

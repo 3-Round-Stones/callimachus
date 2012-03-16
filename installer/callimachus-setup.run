@@ -46,23 +46,6 @@ if [ ! -z "$JAVA_HOME" -a -x "$JAVA_HOME/bin/java" -a -x "$JAVA_HOME/bin/javac" 
   fi
 fi
 
-# check the base dir for possible java candidates
-if [ -z "$JAVA_HOME" ] && ls "$BASEDIR"/*/bin/javac >/dev/null 2>&1
-then
-  JAVAC=`ls -1 "$BASEDIR"/*/bin/javac | head -n 1`
-  if [ -x "$JAVAC" ] ; then
-    JAVA_HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
-    # verify java instance
-    if [ ! -z "$JAVA_HOME" ] ; then
-      JAVA="$JAVA_HOME/bin/java"
-      VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
-      if [ -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
-        JAVA_HOME=
-      fi
-    fi
-  fi
-fi
-
 # use 'java_home' to search for other possible java candidate
 if [ -z "$JAVA_HOME" -a -x /usr/libexec/java_home ] ; then
   JAVA_HOME=`/usr/libexec/java_home`
@@ -78,41 +61,106 @@ fi
 
 # use 'which' to search for other possible java candidate
 if [ -z "$JAVA_HOME" ] ; then
-  JAVAC=`which javac`
-  if [ -x "$JAVAC" ] ; then
-    while [ -h "$JAVAC" ] ; do
-      ls=`ls -ld "$JAVAC"`
+  JAVA=`which java`
+  if [ -x "$JAVA" ] ; then
+    while [ -h "$JAVA" ] ; do
+      ls=`ls -ld "$JAVA"`
       link=`expr "$ls" : '.*-> \(.*\)$'`
       if expr "$link" : '/.*' > /dev/null; then
-        JAVAC="$link"
+        JAVA="$link"
       else
-        JAVAC=`dirname "$JAVAC"`/"$link"
+        JAVA=`dirname "$JAVA"`/"$link"
       fi
     done
-    HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
+    HOME=`echo "$JAVA" | awk '{ print substr($1, 1, length($1)-9); }'`
     if [ -d "$HOME" ] ; then
       JAVA_HOME="$HOME"
     else
-      JAVA_HOME=`which javac | awk '{ print substr($1, 1, length($1)-10); }'`
+      JAVA_HOME=`which java | awk '{ print substr($1, 1, length($1)-9); }'`
     fi
   fi
-  # verify java instance
-  if [ -z "$JAVA_HOME" ] ; then
-    echo "The JAVA_HOME environment variable is not defined"
-    echo "This environment variable is needed to run this server"
-    exit 1
+fi
+
+# try installing java using yum
+if [ -z "$JAVA_HOME" && -x "`which apt-get`" ] ; then
+  yum -qy install java-1.6.0-openjdk
+  if [ $?_VAL -gt 0 ]; then
+	  echo "The JAVA_HOME environment variable is not defined"
+	  echo "This environment variable is needed to run this server"
+	  exit 1
   fi
-  JAVA="$JAVA_HOME/bin/java"
-  VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
-  if [ ! -x "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
-    echo "The JAVA_HOME environment variable does not point to a $JAVA_VERSION JDK installation"
-    echo "JDK $JAVA_VERSION is needed to run this setup"
-    exit 1
+fi
+
+# use 'which' to search for other possible java candidate
+if [ -z "$JAVA_HOME" ] ; then
+  JAVA=`which java`
+  if [ -x "$JAVA" ] ; then
+    while [ -h "$JAVA" ] ; do
+      ls=`ls -ld "$JAVA"`
+      link=`expr "$ls" : '.*-> \(.*\)$'`
+      if expr "$link" : '/.*' > /dev/null; then
+        JAVA="$link"
+      else
+        JAVA=`dirname "$JAVA"`/"$link"
+      fi
+    done
+    HOME=`echo "$JAVA" | awk '{ print substr($1, 1, length($1)-9); }'`
+    if [ -d "$HOME" ] ; then
+      JAVA_HOME="$HOME"
+    else
+      JAVA_HOME=`which java | awk '{ print substr($1, 1, length($1)-9); }'`
+    fi
   fi
+fi
+
+# try installing java using apt-get
+if [ -z "$JAVA_HOME" && -x "`which apt-get`" ] ; then
+  apt-get -qy install java6-sdk
+  if [ $?_VAL -gt 0 ]; then
+	  echo "The JAVA_HOME environment variable is not defined"
+	  echo "This environment variable is needed to run this server"
+	  exit 1
+  fi
+fi
+
+# use 'which' to search for other possible java candidate
+if [ -z "$JAVA_HOME" ] ; then
+  JAVA=`which java`
+  if [ -x "$JAVA" ] ; then
+    while [ -h "$JAVA" ] ; do
+      ls=`ls -ld "$JAVA"`
+      link=`expr "$ls" : '.*-> \(.*\)$'`
+      if expr "$link" : '/.*' > /dev/null; then
+        JAVA="$link"
+      else
+        JAVA=`dirname "$JAVA"`/"$link"
+      fi
+    done
+    HOME=`echo "$JAVA" | awk '{ print substr($1, 1, length($1)-9); }'`
+    if [ -d "$HOME" ] ; then
+      JAVA_HOME="$HOME"
+    else
+      JAVA_HOME=`which java | awk '{ print substr($1, 1, length($1)-9); }'`
+    fi
+  fi
+fi
+
+# verify java instance
+if [ -z "$JAVA_HOME" ] ; then
+  echo "The JAVA_HOME environment variable is not defined"
+  echo "This environment variable is needed to run this server"
+  exit 1
 fi
 
 if [ -z "$JAVA" ] ; then
   JAVA="$JAVA_HOME/bin/java"
+fi
+
+VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
+if [ ! -x "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
+  echo "The JAVA_HOME environment variable does not point to a $JAVA_VERSION JDK installation"
+  echo "JDK $JAVA_VERSION is needed to run this setup"
+  exit 1
 fi
 
 if $darwin; then

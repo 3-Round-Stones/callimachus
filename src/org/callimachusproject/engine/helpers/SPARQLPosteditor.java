@@ -26,7 +26,6 @@ package org.callimachusproject.engine.helpers;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import javax.xml.stream.Location;
 
@@ -62,13 +61,13 @@ public class SPARQLPosteditor extends RDFEventPipe {
 			if (!event.isTriplePattern()) return false;
 			TriplePattern t = event.asTriplePattern();
 			VarOrTerm vt = t.getPartner();
-			boolean matches = true;
-			if (vt!=null && vt.isVar()) {
-				Var v = vt.asVar();
-				TermOrigin origin = origins.get(v.stringValue());
-				matches = origin.isAnchor();
-			}
-			return matches;
+			if (vt==null || !vt.isVar())
+				return false;
+			Var v = vt.asVar();
+			TermOrigin origin = origins.get(v.stringValue());
+			if (origin.isAnchor())
+				return true;
+			return false;
 		}
 	}
 	

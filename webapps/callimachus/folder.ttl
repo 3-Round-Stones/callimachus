@@ -509,7 +509,8 @@
 			$this calli:hasComponent+ ?component .
 			?external ?dependent ?component
 			FILTER (!isIRI(?external) || !strstarts(str(?external), str($this)))
-			FILTER (?dependent != audit:contributedTo && ?dependent != rdf:subject && ?dependent != rdf:object)
+			FILTER (?dependent != audit:contributedTo && ?dependent != audit:modified)
+			FILTER (?dependent != rdf:subject && ?dependent != rdf:object)
 		}
 	""".
 

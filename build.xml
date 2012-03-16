@@ -68,6 +68,7 @@
 		<available file="${lib}" property="lib.present" />
 		<available file="${lib.tests}" property="lib.tests.present" />
 		<available file="${lib.install}" property="lib.install.present" />
+		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="repositories/callimachus/triples-spoc.dat" property="repositories.uptodate" />
 		<property file="build.properties" />
 	</target>
 
@@ -313,12 +314,12 @@
 	<target name="package" depends="dist-clean,dist,installer,test" description="Create a package ready for release">
 	</target>
 
-	<target name="setup" depends="dist">
+	<target name="setup" depends="dist" unless="repositories.uptodate">
 		<java classname="${setup}" fork="true" failonerror="true">
 			<jvmarg line="${jvmargs}" />
 			<arg line="${setup.args}" />
 			<classpath>
-				<pathelement location="${build}/" />
+				<pathelement location="${jar.file}" />
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />
 				</fileset>
@@ -326,13 +327,13 @@
 		</java>
 	</target>
 
-	<target name="start" depends="setup">
+	<target name="start" depends="dist,setup">
 		<mkdir dir="${log}" />
 		<java classname="${main}" fork="true" spawn="true">
 			<jvmarg line="${jvmargs} -Djava.util.logging.config.file=${logging}" />
 			<arg line="${args} -q --pid ${pid}" />
 			<classpath>
-				<pathelement location="${build}/" />
+				<pathelement location="${jar.file}" />
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />
 				</fileset>
@@ -345,7 +346,7 @@
 			<jvmarg line="${jvmargs}" />
 			<arg line="--stop --pid ${pid}" />
 			<classpath>
-				<pathelement location="${build}/" />
+				<pathelement location="${jar.file}" />
 				<pathelement location="${tools.jar}" />
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />
@@ -364,12 +365,12 @@
 		<echo>Use the run target next time to avoid this message.</echo>
 	</target>
 
-	<target name="run" depends="setup">
+	<target name="run" depends="dist,setup">
 		<java classname="${main}" fork="true" failonerror="true">
 			<jvmarg line="${jvmargs}" />
 			<arg line="${args}" />
 			<classpath>
-				<pathelement location="${build}/" />
+				<pathelement location="${jar.file}" />
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />
 				</fileset>

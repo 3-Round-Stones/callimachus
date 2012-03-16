@@ -449,24 +449,25 @@ public class Setup {
 
 	private boolean createOrigin(String origin, URL car,
 			ObjectRepository repository) throws Exception {
-		createVirtualHost(origin, origin, repository);
+		boolean modified = createVirtualHost(origin, origin, repository);
+		modified |= initializeOrUpgradeStore(repository, origin);
+		if (car != null) {
+			importCallimachus(origin, car, repository);
+		}
+		return modified;
+	}
+
+	private boolean initializeOrUpgradeStore(ObjectRepository repository,
+			String origin) throws RepositoryException, IOException,
+			OpenRDFException {
 		String version = getStoreVersion(repository, origin);
 		if (version == null) {
 			initializeStore(origin, repository);
-			if (car != null) {
-				importCallimachus(origin, car, repository);
-			}
 			return true;
 		} else {
 			String newVersion = upgradeStore(repository, origin, version);
-			if (!version.equals(newVersion)) {
-				if (car != null) {
-					importCallimachus(origin, car, repository);
-				}
-				return true;
-			}
+			return !version.equals(newVersion);
 		}
-		return false;
 	}
 
 	private String getStoreVersion(ObjectRepository repository, String origin)

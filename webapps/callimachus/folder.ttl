@@ -597,6 +597,7 @@
 		nonFolder.calliReader.addAll(container.SelectAllReaders());
 		nonFolder.calliEditor.addAll(container.SelectAllEditors());
 		nonFolder.calliAdministrator.addAll(container.SelectAllAdministrators());
+		container.calliHasComponent.add(nonFolder);
 		con.add(nonFolder.resource, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Folder"), []);
 		return con.addDesignation(nonFolder, Folder);
 	""".

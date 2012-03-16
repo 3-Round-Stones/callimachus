@@ -238,6 +238,10 @@ public class Configure {
 		setup.createRealm(realm, origin);
 	}
 
+	public void mapAllResourcesAsLocal(String origin) throws Exception {
+		setup.mapAllResourcesAsLocal(origin);
+	}
+
 	private Properties readProperties(File file, String path) throws FileNotFoundException,
 			IOException {
 		Properties properties = new Properties();

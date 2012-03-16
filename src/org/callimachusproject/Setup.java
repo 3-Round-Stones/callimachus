@@ -78,6 +78,7 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
+import org.openrdf.sail.auditing.vocabulary.Audit;
 import org.openrdf.store.blob.file.FileBlobStoreProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,6 +136,7 @@ public class Setup {
 				"realm",
 				true,
 				"The scheme, hostname, port, and path ( http://example.com:8080/ ) that does not resolve to this server");
+		options.addOption("e", "everything", false, "Treat all resources as local");
 		options.addOption("s", "silent", false,
 				"If the repository is already setup exit successfully");
 		options.addOption("h", "help", false,
@@ -175,6 +177,7 @@ public class Setup {
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
 	private ObjectRepository repository;
 	private boolean silent;
+	private String everything;
 	private File dir;
 	private URL config;
 	private URL callimachus;
@@ -204,7 +207,7 @@ public class Setup {
 				System.exit(0);
 				return;
 			} else {
-				this.silent = line.hasOption('s');
+				silent = line.hasOption('s');
 				if (line.hasOption('d')) {
 					dir = new File(line.getOptionValue('d')).getCanonicalFile();
 				} else {
@@ -234,6 +237,9 @@ public class Setup {
 							realms.put(r, origin);
 						}
 					}
+					if (line.hasOption('e')) {
+						everything = origin;
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -255,6 +261,9 @@ public class Setup {
 		}
 		for (Map.Entry<String, String> e : realms.entrySet()) {
 			changed |= createRealm(e.getKey(), e.getValue(), repository);
+		}
+		if (everything != null) {
+			changed |= mapAllResourcesAsLocal(everything, repository);
 		}
 		if (changed || silent) {
 			System.exit(0);
@@ -311,6 +320,12 @@ public class Setup {
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
 		createRealm(realm, origin, repository);
+	}
+
+	public boolean mapAllResourcesAsLocal(String origin) throws RepositoryException {
+		if (repository == null)
+			throw new IllegalStateException("Not connected");
+		return mapAllResourcesAsLocal(origin, repository);
 	}
 
 	private void validateOrigin(String origin) {
@@ -756,6 +771,20 @@ public class Setup {
 						+ "/callimachus/images/callimachus-icon.ico"));
 		con.add(subj, vf.createURI(CALLI_THEME),
 				vf.createURI(origin + "/callimachus/theme/default"));
+	}
+
+	private boolean mapAllResourcesAsLocal(String origin, ObjectRepository repository) throws RepositoryException {
+		ObjectConnection con = repository.getConnection();
+		try {
+			ValueFactory vf = con.getValueFactory();
+			if (con.hasStatement(RDFS.RESOURCE, OWL.EQUIVALENTCLASS, vf.createURI(origin + "/callimachus/Local")))
+				return false;
+			con.add(RDFS.RESOURCE, OWL.EQUIVALENTCLASS, vf.createURI(origin + "/callimachus/Local"));
+			con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI(origin + "/callimachus/SchemaGraph"));
+			return true;
+		} finally {
+			con.close();
+		}
 	}
 
 }

@@ -43,8 +43,8 @@ public class SetupProxy {
 
 	public File connect(File dir, String config) throws Exception {
 		try {
-			Method connect = Setup.getMethod("connect", File.class, String.class);
-			return (File) connect.invoke(setup, dir, config);
+			Method m = Setup.getMethod("connect", File.class, String.class);
+			return (File) m.invoke(setup, dir, config);
 		} catch (SecurityException e) {
 			throw new AssertionError(e);
 		} catch (NoSuchMethodException e) {
@@ -70,8 +70,8 @@ public class SetupProxy {
 
 	public void disconnect() {
 		try {
-			Method disconnect = Setup.getMethod("disconnect");
-			disconnect.invoke(setup);
+			Method m = Setup.getMethod("disconnect");
+			m.invoke(setup);
 		} catch (SecurityException e) {
 			throw new AssertionError(e);
 		} catch (NoSuchMethodException e) {
@@ -95,9 +95,8 @@ public class SetupProxy {
 
 	public void createOrigin(String origin, URL car) throws Exception {
 		try {
-			Method createOrigin = Setup.getMethod("createOrigin", String.class,
-					URL.class);
-			createOrigin.invoke(setup, origin, car);
+			Method m = Setup.getMethod("createOrigin", String.class, URL.class);
+			m.invoke(setup, origin, car);
 		} catch (SecurityException e) {
 			throw new AssertionError(e);
 		} catch (NoSuchMethodException e) {
@@ -124,9 +123,9 @@ public class SetupProxy {
 	public void createVirtualHost(String virtual, String origin)
 			throws Exception {
 		try {
-			Method createVirtualHost = Setup.getMethod("createVirtualHost",
-					String.class, String.class);
-			createVirtualHost.invoke(setup, virtual, origin);
+			Method m = Setup.getMethod("createVirtualHost", String.class,
+					String.class);
+			m.invoke(setup, virtual, origin);
 		} catch (SecurityException e) {
 			throw new AssertionError(e);
 		} catch (NoSuchMethodException e) {
@@ -152,9 +151,36 @@ public class SetupProxy {
 
 	public void createRealm(String realm, String origin) throws Exception {
 		try {
-			Method createRealm = Setup.getMethod("createRealm", String.class,
+			Method m = Setup.getMethod("createRealm", String.class,
 					String.class);
-			createRealm.invoke(setup, realm, origin);
+			m.invoke(setup, realm, origin);
+		} catch (SecurityException e) {
+			throw new AssertionError(e);
+		} catch (NoSuchMethodException e) {
+			throw new AssertionError(e);
+		} catch (IllegalArgumentException e) {
+			throw new AssertionError(e);
+		} catch (IllegalAccessException e) {
+			throw new AssertionError(e);
+		} catch (InvocationTargetException e) {
+			try {
+				throw e.getCause();
+			} catch (Error exc) {
+				throw exc;
+			} catch (RuntimeException exc) {
+				throw exc;
+			} catch (Exception exc) {
+				throw exc;
+			} catch (Throwable exc) {
+				throw new AssertionError(e);
+			}
+		}
+	}
+
+	public void mapAllResourcesAsLocal(String origin) throws Exception {
+		try {
+			Method m = Setup.getMethod("mapAllResourcesAsLocal", String.class);
+			m.invoke(setup, origin);
 		} catch (SecurityException e) {
 			throw new AssertionError(e);
 		} catch (NoSuchMethodException e) {

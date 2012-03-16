@@ -68,7 +68,6 @@
 		<available file="${lib}" property="lib.present" />
 		<available file="${lib.tests}" property="lib.tests.present" />
 		<available file="${lib.install}" property="lib.install.present" />
-		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="repositories/callimachus/triples-spoc.dat" property="repositories.uptodate" />
 		<property file="build.properties" />
 	</target>
 
@@ -190,6 +189,7 @@
 		<zip destfile="${dist}/callimachus-webapp-${Version}.car">
 			<zipfileset dir="${webapps}/callimachus" prefix="" />
 		</zip>
+		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="repositories/callimachus/triples-spoc.dat" property="repositories.uptodate" />
 	</target>
 
 	<target name="test-dependencies" unless="lib.tests.present">

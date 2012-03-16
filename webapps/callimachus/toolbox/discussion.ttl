@@ -11,6 +11,7 @@
 <> a <../SchemaGraph>.
 
 :GetDiscussion rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
 	calli:query "discussion";
@@ -37,6 +38,7 @@
 	""".
 
 :PostDiscussion rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "POST";
 	calli:query "discussion";
@@ -56,6 +58,7 @@
 	calli:type "application/x-www-form-urlencoded";.
 
 :TransformDiscussion rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xml";
 	calli:transform <../transforms/TransformLayout>;

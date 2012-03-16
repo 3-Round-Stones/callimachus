@@ -27,6 +27,11 @@
 
 <> a <../SchemaGraph>.
 
+<../Creatable> a owl:Class;
+	rdfs:label "Creatable";
+	rdfs:subClassOf <../Local>;
+	rdfs:isDefinedBy </callimachus>.
+
 :GetCreatePage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
@@ -52,10 +57,10 @@
 	calli:realm </>;
 	calli:type "application/xhtml+xml";
 	calli:transform <../transforms/TransformPage>;
+	msg:imports <../Creatable>;
 	msg:script """
 		importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
 		importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
-		importClass(Packages.calli.Creatable);
 		if (!(create instanceof Creatable))
 			throw new BadRequest("Cannot create this class here: " + create);
 		if (!create.calliCreate || create.calliCreate.isEmpty())
@@ -73,9 +78,9 @@
 	calli:realm </>;
 	calli:expect "201-created";
 	calli:type "text/plain";
+	msg:imports <../Creatable>;
 	msg:script """
 		importClass(Packages.org.callimachusproject.io.MultipartParser);
-		importClass(Packages.calli.Creatable);
 		importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
 		importClass(Packages.org.callimachusproject.server.exceptions.Forbidden);
 		if (!location)
@@ -164,7 +169,7 @@
 
 :create a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:domain [owl:unionOf (:GetCreatorPage :PostFactoryCreate)];
-	rdfs:range calli:Creatable;
+	rdfs:range <../Creatable>;
 	calli:query "create".
 
 :intermediate a owl:FunctionalProperty, owl:DatatypeProperty;

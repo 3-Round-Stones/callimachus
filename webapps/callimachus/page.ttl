@@ -17,6 +17,7 @@
 @prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
@@ -70,7 +71,7 @@
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
 	msg:imports <File>;
-	msg:imports calli:Page;
+	msg:imports foaf:Document;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
@@ -87,7 +88,7 @@
 		con.add(created.resource, RDFS.LABEL, label, []);
 
 		created = con.addDesignation(created, this.toString());
-		created = con.addDesignation(created, Page);
+		created = con.addDesignation(created, Document);
 
 		created.UploadPage(body);
 		return created;
@@ -104,7 +105,6 @@
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports calli:Page;
 	msg:script """
 		var read;
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);

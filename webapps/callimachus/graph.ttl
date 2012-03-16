@@ -32,7 +32,7 @@
 	rdfs:isDefinedBy </callimachus>.
 
 <NamedGraph> a <Creatable>, owl:Class;
-	rdfs:subClassOf calli:NamedGraph, <File>, sd:NamedGraph;
+	rdfs:subClassOf <File>, sd:NamedGraph;
 	rdfs:label "Named Graph";
 	rdfs:isDefinedBy </callimachus>;
 	calli:author </group/admin>;
@@ -157,7 +157,7 @@
 ################################
 
 :GetNamedGraph rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedGraph>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
 	calli:method "GET";
 	calli:type "application/rdf+xml;q=0.4";
@@ -165,7 +165,7 @@
 	msg:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
 
 :TransformNamedGraph rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:NamedGraph];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedGraph>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xml";
 	calli:transform <transforms/TransformLayout>;

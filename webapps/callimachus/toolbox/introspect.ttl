@@ -25,6 +25,7 @@
 <> a <../SchemaGraph>.
 
 :GetIntrospect rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
 	calli:method "GET";
 	calli:query "introspect";

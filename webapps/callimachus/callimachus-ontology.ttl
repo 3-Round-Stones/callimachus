@@ -62,12 +62,7 @@ calli:AnybodyRealm a owl:Class;
 	rdfs:comment "A realm that authenticates any agent";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:NobodyRealm a owl:Class;
-	rdfs:label "Nobody Realm";
-	rdfs:comment "A realm that forbids all agents";
-	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:LocalRealm a owl:Class;
+calli:LocalRealm a owl:DeprecatedClass;
 	rdfs:label "Local Realm";
 	rdfs:comment "A realm that only authenticates local agents";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
@@ -115,29 +110,9 @@ calli:ScriptBundle a owl:Class;
 	rdfs:comment "A collection of JavaScript files that are downloaded and compressed together";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:Creatable a owl:DeprecatedClass;
-	rdfs:label "Creatable";
-	rdfs:comment "Use <Creatable> instead";
-	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:Editable a owl:DeprecatedClass;
-	rdfs:label "Editable";
-	rdfs:comment "Use <Editable> instead";
-	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:Viewable a owl:DeprecatedClass;
-	rdfs:label "Viewable";
-	rdfs:comment "Use <Viewable> instead";
-	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
 calli:Page a owl:DeprecatedClass;
 	rdfs:label "Page";
-	rdfs:comment "Use <Page> instead";
-	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:NamedGraph a owl:DeprecatedClass;
-	rdfs:label "Named Graph";
-	rdfs:comment "Use <NamedGraph> instead";
+	rdfs:comment "Use </callimachus/Page> instead";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 ################################

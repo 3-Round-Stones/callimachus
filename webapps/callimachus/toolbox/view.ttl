@@ -27,8 +27,13 @@
 
 <> a <../SchemaGraph>.
 
+<../Viewable> a owl:Class;
+	rdfs:label "Viewable";
+	rdfs:subClassOf <../Local>;
+	rdfs:isDefinedBy </callimachus>.
+
 :GetViewPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Viewable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Viewable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:rel "alternate";
 	calli:method "GET";

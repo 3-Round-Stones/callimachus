@@ -11,6 +11,7 @@
 <> a <../SchemaGraph>.
 
 :GetRelatedChanges rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
 	calli:query "relatedchanges";
@@ -68,6 +69,7 @@
 	""".
 
 :TransformRelatedChanges rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";
 	calli:transform <../transforms/TransformLayout>;

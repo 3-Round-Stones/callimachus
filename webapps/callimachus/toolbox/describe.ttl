@@ -29,6 +29,7 @@
 ################################
 
 :GetDescription rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
 	calli:title "RDF Describe";
 	calli:rel "describedby";
@@ -96,6 +97,7 @@
 	""".
 
 :TransformDescription rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";
 	calli:transform <../transforms/TransformLayout>;

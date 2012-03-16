@@ -27,8 +27,13 @@
 
 <> a <../SchemaGraph>.
 
+<../Editable> a owl:Class;
+	rdfs:label "Editable";
+	rdfs:subClassOf <../Local>;
+	rdfs:isDefinedBy </callimachus>.
+
 :GetEditPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Editable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "edit";
@@ -39,8 +44,8 @@
 	msg:script <operations.js#getEditPage>.
 
 :PostEdit rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom calli:Editable];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Editable];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Editable>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Editable>];
 	calli:method "POST";
 	calli:query "edit";
 	calli:realm </>;

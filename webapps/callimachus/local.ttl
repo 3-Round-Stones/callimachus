@@ -34,18 +34,3 @@
 	rdfs:subClassOf <Local>, calli:Composite;
 	rdfs:isDefinedBy </callimachus>.
 
-<Creatable> a owl:Class;
-	rdfs:label "Creatable";
-	rdfs:subClassOf <Local>, calli:Creatable;
-	rdfs:isDefinedBy </callimachus>.
-
-<Viewable> a owl:Class;
-	rdfs:label "Viewable";
-	rdfs:subClassOf <Local>, calli:Viewable;
-	rdfs:isDefinedBy </callimachus>.
-
-<Editable> a owl:Class;
-	rdfs:label "Editable";
-	rdfs:subClassOf <Local>, calli:Editable;
-	rdfs:isDefinedBy </callimachus>.
-

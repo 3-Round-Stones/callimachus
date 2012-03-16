@@ -52,6 +52,7 @@ public class CallimachusConfigurationValidator implements DataValidator {
     public DataValidator.Status validateData(AutomatedInstallData adata) {
 
         this.adata = adata;
+        initializeDefaults();
         
         try {
 			String installPath = adata.getInstallPath();
@@ -71,8 +72,9 @@ public class CallimachusConfigurationValidator implements DataValidator {
     		}
 
 			// Set IzPack variables for callimachus.conf:
-			String[] confProperties = {"PORT", "ORIGIN"};
+			String[] confProperties = {"PORT", "acceptallrealms", "otherrealm1", "otherrealm2", "otherrealm3", "otherrealm4", "otherrealm5"};
 			setCallimachusVariables(configure.getServerConfiguration(), confProperties);
+            setOriginVariables(configure.getServerConfiguration());
 
 			// Set IzPack variables for mail.properties:
 			String[] mailProperties = {"mail.transport.protocol", "mail.from", "mail.smtps.host", "mail.smtps.port", "mail.smtps.auth", "mail.user", "mail.password"};
@@ -87,10 +89,9 @@ public class CallimachusConfigurationValidator implements DataValidator {
     }
     
     /**
-	 * Read a Callimachus configuration file, if present, and set IzPack variables
-	 * for each property found in it.
+	 * Set IzPack variables for each property provided.
 	 *
-	 * @param fileName The configuration file to parse.
+	 * @param prop A Java Properties object holding values from a Callimachus config file.
 	 * @param properties A list of property names to convert to IzPack variables.
 	 */
 	private void setCallimachusVariables(Properties prop, String[] properties) {
@@ -108,6 +109,35 @@ public class CallimachusConfigurationValidator implements DataValidator {
 			adata.setVariable("callimachus." + properties[i], tempProperty);
 		}
 	}
+
+    /**
+	 * Set IzPack variables for the origin variable.
+	 *
+	 * @param prop A Java Properties object holding values from a Callimachus config file.
+	 */
+	private void setOriginVariables(Properties prop) {
+	    String origin = prop.getProperty("ORIGIN");
+        if ( origin == null ) {
+            origin = defaults.get("ORIGIN");
+        }
+        String[] origins = origin.split("\\s+");
+        String[] properties = {"ORIGIN", "secondaryauthority1", "secondaryauthority2", "secondaryauthority3", "secondaryauthority4", "secondaryauthority5"};
+		String tempProperty;
+		// Use the on-disk values for any variable.
+		for (int i = 0; i < origins.length; i++) {
+			if ( origins[i] == null ) {
+			    tempProperty = defaults.get(properties[i]);
+			} else {
+				tempProperty = origins[i];
+			}
+    		adata.setVariable("callimachus." + properties[i], tempProperty);
+		}
+		// Write default values for anything not on disk.
+		for (int i = origins.length; i < properties.length; i++) {
+		    tempProperty = defaults.get(properties[i]);
+		    adata.setVariable("callimachus." + properties[i], tempProperty);
+		}
+	}
 	
 	/**
 	 * Initializes the default configuration variable values.
@@ -123,5 +153,16 @@ public class CallimachusConfigurationValidator implements DataValidator {
         defaults.put("mail.smtps.auth", "no");
         defaults.put("mail.user", "");
         defaults.put("mail.password", "");
+        defaults.put("secondaryauthority1", "");
+        defaults.put("secondaryauthority2", "");
+        defaults.put("secondaryauthority3", "");
+        defaults.put("secondaryauthority4", "");
+        defaults.put("secondaryauthority5", "");
+        defaults.put("acceptallrealms", "on");
+        defaults.put("otherrealm1", "");
+        defaults.put("otherrealm2", "");
+        defaults.put("otherrealm3", "");
+        defaults.put("otherrealm4", "");
+        defaults.put("otherrealm5", "");
 	}
 }

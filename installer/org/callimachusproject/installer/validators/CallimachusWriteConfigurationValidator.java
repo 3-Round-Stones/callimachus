@@ -56,12 +56,20 @@ public class CallimachusWriteConfigurationValidator implements DataValidator {
         String installPath = adata.getInstallPath();
         Configure configure = new Configure(new File(installPath));
         
-    	String origin = adata.getVariable("callimachus.ORIGIN");
+    	String primaryAuthority = adata.getVariable("callimachus.ORIGIN");
 		try {
         	// Write Callimachus configuration file.
         	Properties confProperties = configure.getServerConfiguration();
             // NB: Ensure that these var names are correct in install.xml, userInputSpec.xml
             confProperties.setProperty("PORT", adata.getVariable("callimachus.PORT") );
+            // Set the origin on disk to be the space-separated concatenation of the
+            // primary and secondary authorities.
+            String origin = "";
+            String[] authorities = {"ORIGIN", "secondaryauthority1", "secondaryauthority2", "secondaryauthority3", "secondaryauthority4", "secondaryauthority5"};
+            for (int i = 0; i < authorities.length; i++) {
+                if ( origin.length() > 0 ) { origin += " "; }
+                origin += adata.getVariable("callimachus." + authorities[i]);
+            }
             confProperties.setProperty("ORIGIN", origin );
     		configure.setServerConfiguration(confProperties);
         } catch (IOException e) {
@@ -93,7 +101,7 @@ public class CallimachusWriteConfigurationValidator implements DataValidator {
 			configure.setLoggingProperties(configure.getLoggingProperties());
 			URL config = configure.getRepositoryConfigTemplates().values().iterator().next();
 			configure.connect(config, null);
-			configure.createOrigin(origin);
+			configure.createOrigin(primaryAuthority);
 			configure.disconnect();
 			// TODO: Run the server if the user wants.  LEAVE THIS HERE, but make it
 			// optional based on user input.
@@ -102,7 +110,7 @@ public class CallimachusWriteConfigurationValidator implements DataValidator {
 				boolean started = configure.startServer();
 				if (started && configure.isWebBrowserSupported()) {
 				    // TODO: May wish to ask user if they want to do this.
-					configure.openWebBrowser(origin + "/");
+					configure.openWebBrowser(primaryAuthority + "/");
 				}
 			}
 		} catch (Exception e) {

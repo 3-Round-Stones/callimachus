@@ -91,7 +91,9 @@
         <panel classname="TargetPanel">
           <validator classname="org.callimachusproject.installer.validators.CallimachusConfigurationValidator" />
         </panel>
-        <panel classname="UserInputPanel"/> <!-- host config -->
+        <panel classname="UserInputPanel"/> <!-- primary authority config -->
+        <panel classname="UserInputPanel"/> <!-- virtual hosts config -->
+        <panel classname="UserInputPanel"/> <!-- other realms config -->
         <panel classname="UserInputPanel"/> <!-- mail config -->
         <panel classname="UserInputPanel"/> <!-- repository config -->
         <panel classname="UserInputPanel"/> <!-- initial user config -->

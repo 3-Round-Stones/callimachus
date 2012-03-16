@@ -115,7 +115,7 @@ fi
 
 # try installing java using apt-get
 if [ -z "$JAVA_HOME" && -x "`which apt-get`" ] ; then
-  apt-get -qy install java6-sdk
+  apt-get -qy update && apt-get -qy install java6-sdk
   if [ $?_VAL -gt 0 ]; then
 	  echo "The JAVA_HOME environment variable is not defined"
 	  echo "This environment variable is needed to run this server"

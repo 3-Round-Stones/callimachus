@@ -30,6 +30,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -43,6 +48,9 @@ public class Configure {
 	private static final String START_SCRIPT = "callimachus-start";
 	private static final String STOP_SCRIPT = "callimachus-stop";
 	private final File dir;
+	private final ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+	private volatile Exception exception;
+	/** Only access setup through executor */
 	private SetupProxy setup;
 
 	public Configure(File dir) {
@@ -214,32 +222,81 @@ public class Configure {
 		return result;
 	}
 
-	public void connect(URL ctemplate, Map<String,String> parameters) throws ClassNotFoundException, Exception {
-		File lib = new File(dir, "lib");
-		setup = new SetupProxy(lib);
-		setup.connect(dir, new ConfigTemplate(ctemplate).render(parameters));
+	public Future<Void> connect(final URL ctemplate,
+			final Map<String, String> parameters) {
+		return submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				File lib = new File(dir, "lib");
+				setup = new SetupProxy(lib);
+				setup.connect(dir,
+						new ConfigTemplate(ctemplate).render(parameters));
+				return null;
+			}
+		});
 	}
 
-	public void disconnect() {
-		setup.disconnect();
+	public void disconnect() throws Exception {
+		Future<Void> task = executor.submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				try {
+					setup.disconnect();
+					if (exception != null)
+						throw exception;
+					return null;
+				} finally {
+					exception = null;
+				}
+			}
+		});
+		try {
+			task.get();
+		} catch (ExecutionException e) {
+			try {
+				throw e.getCause();
+			} catch (Exception e1) {
+				throw e1;
+			} catch (Throwable e1) {
+				throw e;
+			}
+		}
 	}
 
-	public void createOrigin(String origin) throws Exception {
-		setup.createOrigin(origin, getCallimachusCarUrl());
+	public void createOrigin(final String origin) throws Exception {
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				setup.createOrigin(origin, getCallimachusCarUrl());
+				return null;
+			}
+		});
 	}
 
-	public void createVirtualHost(String virtual, String origin)
+	public void createVirtualHost(final String virtual, final String origin)
 			throws Exception {
-		setup.createVirtualHost(virtual, origin);
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				setup.createVirtualHost(virtual, origin);
+				return null;
+			}
+		});
 	}
 
-	public void createRealm(String realm, String origin)
+	public void createRealm(final String realm, final String origin)
 			throws Exception {
-		setup.createRealm(realm, origin);
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				setup.createRealm(realm, origin);
+				return null;
+			}
+		});
 	}
 
-	public void mapAllResourcesAsLocal(String origin) throws Exception {
-		setup.mapAllResourcesAsLocal(origin);
+	public void mapAllResourcesAsLocal(final String origin) throws Exception {
+		submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				setup.mapAllResourcesAsLocal(origin);
+				return null;
+			}
+		});
 	}
 
 	private Properties readProperties(File file, String path) throws FileNotFoundException,
@@ -388,6 +445,22 @@ public class Configure {
 			}
 			return content;
 		}
+	}
+
+	private Future<Void> submit(final Callable<Void> task) {
+		if (exception != null)
+			return null;
+		return executor.submit(new Callable<Void>() {
+			public Void call() throws Exception {
+				try {
+					return task.call();
+				} catch (Exception e) {
+					exception = e;
+					e.printStackTrace();
+					throw e;
+				}
+			}
+		});
 	}
 
 }

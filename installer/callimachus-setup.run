@@ -116,11 +116,11 @@ if [ -z "$JAVA" ] ; then
 fi
 
 if $darwin; then
-  exec $JAVA -jar "$0" "$@"
+  exec $JAVA -DuseJavaUtilZip -jar "$0" "$@"
 elif [ -z "$DISPLAY" ] ; then
-  exec $JAVA -jar "$0" -console "$@"
+  exec $JAVA -DuseJavaUtilZip -jar "$0" -console "$@"
 else
-  exec $JAVA -jar "$0" "$@"
+  exec $JAVA -DuseJavaUtilZip -jar "$0" "$@"
 fi
 
 ## EOF ##

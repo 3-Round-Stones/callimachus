@@ -21,13 +21,20 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 
 public class Configure {
 	private static final String LOGGING_PROPERTIES = "logging.properties";
@@ -161,6 +168,29 @@ public class Configure {
 
 	public void openWebBrowser(String url) throws IOException {
 		java.awt.Desktop.getDesktop().browse(URI.create(url));
+	}
+
+	public File createBackup() throws IOException, DatatypeConfigurationException {
+		if (!dir.isDirectory())
+			return null;
+		String name = dir.getName() + "_" + timeStamp() + ".zip";
+		File backup = new File(new File(dir, "backups"), name);
+		boolean created = false;
+		backup.getParentFile().mkdirs();
+		ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(backup));
+		try {
+			String base = dir.getAbsolutePath() + "/";
+			created |= putEntries(base, new File(dir, "etc"), zos);
+			created |= putEntries(base, new File(dir, "repositories"), zos);
+			created |= putEntries(base, new File(dir, "www"), zos);
+			created |= putEntries(base, new File(dir, "blob"), zos);
+		} finally {
+			zos.close();
+		}
+		if (created)
+			return backup;
+		backup.delete();
+		return null;
 	}
 
 	public List<String> getDefaultOrigins(String ports) throws SocketException {
@@ -311,6 +341,49 @@ public class Configure {
 			}
 		}
 		return null;
+	}
+
+	private String timeStamp() throws DatatypeConfigurationException {
+		GregorianCalendar now = new GregorianCalendar(
+				TimeZone.getTimeZone("UTC"));
+		DatatypeFactory df = DatatypeFactory.newInstance();
+		String stamp = df.newXMLGregorianCalendar(now).toXMLFormat();
+		return stamp.replaceAll("[^0-9]", "");
+	}
+
+	private boolean putEntries(String base, File file, ZipOutputStream zos)
+			throws IOException {
+		if (file.isFile()) {
+			String path = file.getAbsolutePath();
+			String name = path;
+			if (name.startsWith(base)) {
+				name = name.substring(base.length());
+			}
+			ZipEntry entry = new ZipEntry(path);
+			entry.setTime(file.lastModified());
+			entry.setSize(file.length());
+			zos.putNextEntry(entry);
+			FileInputStream fis = new FileInputStream(file);
+			try {
+				int read = 0;
+				byte[] buf = new byte[2156];
+				while ((read = fis.read(buf)) != -1) {
+					zos.write(buf, 0, read);
+				}
+				return true;
+			} finally {
+				fis.close();
+			}
+		} else {
+			File[] listFiles = file.listFiles();
+			if (listFiles == null)
+				return false;
+			boolean content = false;
+			for (File f : listFiles) {
+				content |= putEntries(base, f, zos);
+			}
+			return content;
+		}
 	}
 
 }

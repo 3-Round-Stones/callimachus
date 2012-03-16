@@ -14,10 +14,14 @@
  * limitations under the License.
  *
  */
-package com.izforge.izpack.validators;
+package org.callimachusproject.installer.validators;
 import com.izforge.izpack.installer.DataValidator;
 import com.izforge.izpack.installer.DataValidator.Status;
 import com.izforge.izpack.installer.AutomatedInstallData;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import org.callimachusproject.installer.Configure;
 
 /**
  * A custom IzPack (see http://izpack.org) validator to validate
@@ -30,6 +34,8 @@ public class CallimachusConfigurationValidator implements DataValidator {
     
     static String DATA_VALIDATOR_CLASSNAME_TAG = "CallimachusConfigurationValidator";
     static String DATA_VALIDATOR_TAG = "CallimachusConfigurationValidator tag";
+	protected AutomatedInstallData adata;
+	protected Map<String,String> defaults = new HashMap<String,String>(20); // Default values for variables.
     
     public boolean getDefaultAnswer() {
         return true;
@@ -44,20 +50,78 @@ public class CallimachusConfigurationValidator implements DataValidator {
     }
     
     public DataValidator.Status validateData(AutomatedInstallData adata) {
-        String exitStatus = adata.getVariable("callimachus.CallimachusConfigurationValidator.exitStatus");
+
+        this.adata = adata;
         
-        // TODO: Remove
-        System.err.println("In validateData(): exitStatus = " + exitStatus);
-        
-        if ( exitStatus.equals("error") ) {
-            return Status.ERROR;
-        } else if ( exitStatus.equals("warning") ) {
-            return Status.WARNING;
-        }
-        
-        // TODO: Remove
-        System.err.println("  Returning OK.");
+        try {
+			String installPath = adata.getInstallPath();
+			Configure configure = new Configure(new File(installPath));
+			
+			try {
+        		boolean running = configure.isServerRunning();
+    			if (running) {
+        			if (!configure.stopServer()) {
+        				System.err.println("Server must be shut down to continue");
+            			return Status.ERROR;
+        			}
+        		}
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    			return Status.ERROR;
+    		}
+
+			// Set IzPack variables for callimachus.conf:
+			String[] confProperties = {"PORT", "ORIGIN"};
+			setCallimachusVariables(configure.getServerConfiguration(), confProperties);
+
+			// Set IzPack variables for mail.properties:
+			String[] mailProperties = {"mail.transport.protocol", "mail.from", "mail.smtps.host", "mail.smtps.port", "mail.smtps.auth", "mail.user", "mail.password"};
+			setCallimachusVariables(configure.getMailProperties(), mailProperties);
+		} catch (IOException e) {
+			// This is an unknown error.
+    		e.printStackTrace();
+			return Status.ERROR;
+		}
         
         return Status.OK;
     }
+    
+    /**
+	 * Read a Callimachus configuration file, if present, and set IzPack variables
+	 * for each property found in it.
+	 *
+	 * @param fileName The configuration file to parse.
+	 * @param properties A list of property names to convert to IzPack variables.
+	 */
+	private void setCallimachusVariables(Properties prop, String[] properties) {
+		// Get the values of relevant properties and convert them to IzPack
+		// variables with the same names but prepended by "callimachus." to
+		// avoid namespace conflicts.
+		String tempProperty;
+		int propertiesLength = properties.length;
+		for (int i = 0; i < propertiesLength; i++) {
+			if ( prop.getProperty(properties[i]) == null ) {
+			    tempProperty = defaults.get(properties[i]);
+			} else {
+				tempProperty = prop.getProperty(properties[i]);
+			}
+			adata.setVariable("callimachus." + properties[i], tempProperty);
+		}
+	}
+	
+	/**
+	 * Initializes the default configuration variable values.
+	 *
+	 */
+	private void initializeDefaults() {
+	    defaults.put("PORT", "8080");
+    	defaults.put("ORIGIN", "http://localhost:8080");
+        defaults.put("mail.transport.protocol", "smtps");
+        defaults.put("mail.from", "user@example.com");
+        defaults.put("mail.smtps.host", "mail.example.com");
+        defaults.put("mail.smtps.port", "465");
+        defaults.put("mail.smtps.auth", "no");
+        defaults.put("mail.user", "");
+        defaults.put("mail.password", "");
+	}
 }

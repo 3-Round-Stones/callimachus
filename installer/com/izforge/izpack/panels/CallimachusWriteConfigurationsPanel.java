@@ -113,20 +113,18 @@ public class CallimachusWriteConfigurationsPanel extends IzPanel {
 
     	try {
     		boolean running = configure.isServerRunning();
-			if (running) {
-    			if (!configure.stopServer()) {
-    				System.err.println("Server must be shutdown to continue");
-    				System.exit(1);
-    			}
-    		}
 			configure.setLoggingProperties(configure.getLoggingProperties());
 			URL config = configure.getRepositoryConfigTemplates().values().iterator().next();
 			configure.connect(config, null);
 			configure.createOrigin(origin);
 			configure.disconnect();
+			// TODO: Run the server if the user wants.  LEAVE THIS HERE, but make it
+			// optional based on user input.
+			// TODO: Write user decisions to config file.
 			if (running) {
 				boolean started = configure.startServer();
 				if (started && configure.isWebBrowserSupported()) {
+				    // TODO: May wish to ask user if they want to do this.
 					configure.openWebBrowser(origin + "/");
 				}
 			}
@@ -141,7 +139,7 @@ public class CallimachusWriteConfigurationsPanel extends IzPanel {
     }
 
     /**
-     * Indicates wether the panel has been validated or not.
+     * Indicates whether the panel has been validated or not.
      *
      * @return Always true.
      */

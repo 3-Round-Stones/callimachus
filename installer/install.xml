@@ -26,6 +26,7 @@
     <property name="callimachus.mail.smtps.auth" value="" />
     <property name="callimachus.mail.user" value="" />
     <property name="callimachus.mail.password" value="" />
+    <property name="callimachus.CallimachusConfigurationValidator.exitStatus" value="ok" />
 
     <!-- 
         The info section.
@@ -89,7 +90,9 @@
         <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="LicencePanel" id="license"/>
         <panel classname="TargetPanel"/>
-        <panel classname="CallimachusConfigurationPanel" />
+        <panel classname="CallimachusConfigurationPanel">
+          <validator classname="com.izforge.izpack.validators.CallimachusConfigurationValidator" />
+        </panel>
         <panel classname="UserInputPanel"/> <!-- host config -->
         <panel classname="UserInputPanel"/> <!-- mail config -->
         <panel classname="UserInputPanel"/> <!-- repository config -->

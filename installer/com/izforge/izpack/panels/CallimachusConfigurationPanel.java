@@ -78,9 +78,31 @@ public class CallimachusConfigurationPanel extends IzPanel {
 	 *      SEE BOTH install.xml AND COMMENTS IN setCallimachusVariables() below.
 	 */
 	public void panelActivate() {
+	    
+	    // TODO: Remove
+	    idata.setVariable("callimachus.CallimachusConfigurationValidator.exitStatus", "error");
+	    System.err.println("In panelActivate(): Error should occur next.");
+	    String exitStatus = idata.getVariable("callimachus.CallimachusConfigurationValidator.exitStatus");
+	    System.err.println("  exitStatus = " + exitStatus);
+	    parent.skipPanel();
+	    
 		try {
 			String installPath = idata.getInstallPath();
 			Configure configure = new Configure(new File(installPath));
+			
+			try {
+        		boolean running = configure.isServerRunning();
+    			if (running) {
+        			if (!configure.stopServer()) {
+        				System.err.println("Server must be shutdown to continue");
+            			System.exit(1);
+        			}
+        		}
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    			// TODO: Inform the user somehow.
+    			System.exit(1);
+    		}
 
 			// Set IzPack variables for callimachus.conf:
 			String[] confProperties = {"PORT", "ORIGIN"};
@@ -102,7 +124,7 @@ public class CallimachusConfigurationPanel extends IzPanel {
 	}
 
 	/**
-	 * Indicates wether the panel has been validated or not.
+	 * Indicates whether the panel has been validated or not.
 	 *
 	 * @return Always true.
 	 */
@@ -141,8 +163,8 @@ public class CallimachusConfigurationPanel extends IzPanel {
 	    defaults.put("PORT", "8080");
     	defaults.put("ORIGIN", "http://localhost:8080");
         defaults.put("mail.transport.protocol", "smtps");
-        defaults.put("mail.from", "user@domain.com");
-        defaults.put("mail.smtps.host", "mail.domain.com");
+        defaults.put("mail.from", "user@example.com");
+        defaults.put("mail.smtps.host", "mail.example.com");
         defaults.put("mail.smtps.port", "465");
         defaults.put("mail.smtps.auth", "no");
         defaults.put("mail.user", "");

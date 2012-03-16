@@ -42,8 +42,8 @@
 	<property name="setup" value="org.callimachusproject.Setup" />
 	<property name="main" value="org.callimachusproject.Server" />
 	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
-	<property name="setup.args" value="-s -o http://localhost:8080 -c etc/callimachus-repository.ttl" />
-	<property name="args" value="-p 8080 -o http://localhost:8080 -r repositories/callimachus --update" />
+	<property name="setup.args" value="-s -o http://localhost:8080 -c ${src.install}/META-INF/templates/callimachus-sesame.ttl -a ${dist}/callimachus-webapp-${Version}.car" />
+	<property name="args" value="-p 8080 -o http://localhost:8080 -r repositories/callimachus" />
 
 	<target name="clean" description="clean up">
 		<!-- Delete the directory trees -->
@@ -313,7 +313,7 @@
 	<target name="package" depends="dist-clean,dist,installer,test" description="Create a package ready for release">
 	</target>
 
-	<target name="setup" depends="compile">
+	<target name="setup" depends="dist">
 		<java classname="${setup}" fork="true" failonerror="true">
 			<jvmarg line="${jvmargs}" />
 			<arg line="${setup.args}" />

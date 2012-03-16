@@ -76,7 +76,7 @@ public class CallimachusWriteConfigurationsPanel extends IzPanel {
     	String origin = idata.getVariable("callimachus.ORIGIN");
 		try {
         	// Write Callimachus configuration file.
-        	Properties confProperties = configure.getserverConfiguration();
+        	Properties confProperties = configure.getServerConfiguration();
             // NB: Ensure that these var names are correct in install.xml, userInputSpec.xml
             confProperties.setProperty("PORT", idata.getVariable("callimachus.PORT") );
             confProperties.setProperty("ORIGIN", origin );

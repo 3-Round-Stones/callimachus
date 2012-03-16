@@ -402,7 +402,6 @@ public class Setup {
 			return null;
 		String id = config.getID();
 		if (manager.hasRepositoryConfig(id)) {
-			logger.warn("Repository already exists: {}", id);
 			RepositoryConfig oldConfig = manager.getRepositoryConfig(id);
 			if (equal(config, oldConfig))
 				return manager.getRepository(id);

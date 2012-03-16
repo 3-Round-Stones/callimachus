@@ -42,7 +42,7 @@ public class Configure {
 		this.dir = dir;
 	}
 
-	public Properties getserverConfiguration() throws IOException {
+	public Properties getServerConfiguration() throws IOException {
 		File file = new File(new File(dir, "etc"), SERVER_CONF);
 		return readProperties(file, "META-INF/templates/callimachus.conf");
 	}

@@ -84,7 +84,7 @@ public class CallimachusConfigurationPanel extends IzPanel {
 
 			// Set IzPack variables for callimachus.conf:
 			String[] confProperties = {"PORT", "ORIGIN"};
-			setCallimachusVariables(configure.getserverConfiguration(), confProperties);
+			setCallimachusVariables(configure.getServerConfiguration(), confProperties);
 
 			// Set IzPack variables for mail.properties:
 			String[] mailProperties = {"mail.transport.protocol", "mail.from", "mail.smtps.host", "mail.smtps.port", "mail.smtps.auth", "mail.user", "mail.password"};

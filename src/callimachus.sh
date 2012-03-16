@@ -79,12 +79,12 @@ fi
 # Check that target is executable
 if [ ! -x "$EXECUTABLE" ]; then
   chmod a+x "$EXECUTABLE"
-    # Check that target is executable
-    if [ ! -x "$EXECUTABLE" ]; then
-      echo "$EXECUTABLE is not executable"
-      echo "This file is needed to run this program"
-      exit 1
-    fi
+  # Check that target is executable
+  if [ ! -x "$EXECUTABLE" ]; then
+    echo "$EXECUTABLE is not executable"
+    echo "This file is needed to run this program"
+    exit 1
+  fi
 fi
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
@@ -298,31 +298,22 @@ if [ ! -z "$DAEMON_GROUP" ] ; then
 fi
 
 if [ ! -z "$DAEMON_USER" ] ; then
-  if [ ! -e "$BASEDIR/repositories" ] ; then
-    mkdir "$BASEDIR/repositories"
-    chown "$DAEMON_USER" "$BASEDIR/repositories"
-    chmod u+s "$BASEDIR/repositories"
-    if [ ! -z "$DAEMON_GROUP" ] ; then
-      chown ":$DAEMON_GROUP" "$BASEDIR/repositories"
-      chmod g+rwxs "$BASEDIR/repositories"
-    fi
+  chown -R --from=root "$DAEMON_USER" "$BASEDIR/repositories"
+  if [ ! -z "$DAEMON_GROUP" ] ; then
+    chown -R --from=:root ":$DAEMON_GROUP" "$BASEDIR/repositories"
   fi
   if [ ! -e "$BASEDIR/log" ] ; then
     mkdir "$BASEDIR/log"
-    chown "$DAEMON_USER" "$BASEDIR/log"
-    chmod u+s "$BASEDIR/log"
-    if [ ! -z "$DAEMON_GROUP" ] ; then
-      chown ":$DAEMON_GROUP" "$BASEDIR/log"
-      chmod g+rwxs "$BASEDIR/log"
-    fi
+  fi
+  chown --from=root "$DAEMON_USER" "$BASEDIR/log"
+  if [ ! -z "$DAEMON_GROUP" ] ; then
+    chown --from=:root ":$DAEMON_GROUP" "$BASEDIR/log"
   fi
   if [ ! -e "$TMPDIR" ] ; then
     mkdir "$TMPDIR"
     chown "$DAEMON_USER" "$TMPDIR"
-    chmod u+s "$TMPDIR"
     if [ ! -z "$DAEMON_GROUP" ] ; then
       chown ":$DAEMON_GROUP" "$TMPDIR"
-      chmod g+rwxs "$TMPDIR"
     fi
   fi
 fi

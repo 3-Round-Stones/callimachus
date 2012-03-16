@@ -7,7 +7,6 @@ org.callimachusproject.behaviours.IntrospectSupport = http://www.w3.org/2000/01/
 org.callimachusproject.behaviours.RDFaSupport
 org.callimachusproject.behaviours.FormSupport
 org.callimachusproject.behaviours.AnybodyRealmSupport = http://callimachusproject.org/rdf/2009/framework#AnybodyRealm
-org.callimachusproject.behaviours.NobodyRealmSupport = http://callimachusproject.org/rdf/2009/framework#NobodyRealm
 org.callimachusproject.behaviours.LocalRealmSupport = http://callimachusproject.org/rdf/2009/framework#LocalRealm
 org.callimachusproject.behaviours.MailSubmitterSupport
 org.callimachusproject.behaviours.ManifestSupport

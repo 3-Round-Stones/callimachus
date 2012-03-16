@@ -55,8 +55,8 @@ public class XHTMLInfoWriter {
 		out.writeEndElement();
 	}
 
-	public void writeLabel(String label) throws XMLStreamException {
-		writeStartElement("label");
+	public void writeSubheading(String label) throws XMLStreamException {
+		writeStartElement("h3");
 		writeCharacters(label);
 		writeEndElement();
 	}
@@ -82,7 +82,7 @@ public class XHTMLInfoWriter {
 		if (value != null) {
 			writeStartElement("li");
 			if (key != null) {
-				writeLabel(key);
+				writeSubheading(key);
 				writeCharacters(" ");
 			}
 			writeStartElement("span");

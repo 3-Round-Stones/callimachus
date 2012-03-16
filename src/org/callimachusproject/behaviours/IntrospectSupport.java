@@ -33,11 +33,11 @@ public class IntrospectSupport {
 				+ " Introspection");
 
 		// table of content
-		out.writeStartElement("ul");
-		out.writeAttribute("class", "aside");
+		out.writeStartElement("div");
+		out.writeAttribute("id", "sidebar");
 
-		out.writeStartElement("li");
-		out.writeLabel("Operations");
+		out.writeStartElement("aside");
+		out.writeSubheading("Operations");
 		out.writeStartElement("ul");
 		for (MethodInfo m : operations) {
 			out.writeStartElement("li");
@@ -45,10 +45,10 @@ public class IntrospectSupport {
 			out.writeEndElement(); //li
 		}
 		out.writeEndElement(); //ul
-		out.writeEndElement(); //li
+		out.writeEndElement(); //aside
 
-		out.writeStartElement("li");
-		out.writeLabel("Properties");
+		out.writeStartElement("aside");
+		out.writeSubheading("Properties");
 		out.writeStartElement("ul");
 		for (PropertyInfo p : properties) {
 			out.writeStartElement("li");
@@ -56,10 +56,10 @@ public class IntrospectSupport {
 			out.writeEndElement(); //li
 		}
 		out.writeEndElement(); //ul
-		out.writeEndElement(); //li
+		out.writeEndElement(); //aside
 
-		out.writeStartElement("li");
-		out.writeLabel("Methods");
+		out.writeStartElement("aside");
+		out.writeSubheading("Methods");
 		out.writeStartElement("ul");
 		for (MethodInfo m : methods) {
 			out.writeStartElement("li");
@@ -67,9 +67,9 @@ public class IntrospectSupport {
 			out.writeEndElement(); //li
 		}
 		out.writeEndElement(); //ul
-		out.writeEndElement(); //li
+		out.writeEndElement(); //aside
 
-		out.writeEndElement(); //ul
+		out.writeEndElement(); //div#sidebar
 
 		// content
 		out.writeStartElement("ul");

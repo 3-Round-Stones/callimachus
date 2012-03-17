@@ -35,6 +35,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -222,9 +224,30 @@ public class Configure {
 		return result;
 	}
 
+	public boolean isError() {
+		return exception != null;
+	}
+
+	public synchronized boolean isIdle(long timeout, TimeUnit unit) throws InterruptedException {
+		try {
+			Future<Void> task = perform(new Callable<Void>() {
+				public Void call() throws Exception {
+					return null;
+				}
+			});
+			Thread.yield();
+			task.get(timeout, unit);
+			return true;
+		} catch (ExecutionException e) {
+			throw new AssertionError(e);
+		} catch (TimeoutException e) {
+			return false;
+		}
+	}
+
 	public Future<Void> connect(final URL ctemplate,
 			final Map<String, String> parameters) {
-		return submit(new Callable<Void>() {
+		return perform(new Callable<Void>() {
 			public Void call() throws Exception {
 				File lib = new File(dir, "lib");
 				setup = new SetupProxy(lib);
@@ -235,7 +258,7 @@ public class Configure {
 		});
 	}
 
-	public void disconnect() throws Exception {
+	public synchronized void disconnect() throws Exception {
 		Future<Void> task = executor.submit(new Callable<Void>() {
 			public Void call() throws Exception {
 				try {
@@ -262,7 +285,7 @@ public class Configure {
 	}
 
 	public void createOrigin(final String origin) throws Exception {
-		submit(new Callable<Void>() {
+		perform(new Callable<Void>() {
 			public Void call() throws Exception {
 				setup.createOrigin(origin, getCallimachusCarUrl());
 				return null;
@@ -272,7 +295,7 @@ public class Configure {
 
 	public void createVirtualHost(final String virtual, final String origin)
 			throws Exception {
-		submit(new Callable<Void>() {
+		perform(new Callable<Void>() {
 			public Void call() throws Exception {
 				setup.createVirtualHost(virtual, origin);
 				return null;
@@ -282,7 +305,7 @@ public class Configure {
 
 	public void createRealm(final String realm, final String origin)
 			throws Exception {
-		submit(new Callable<Void>() {
+		perform(new Callable<Void>() {
 			public Void call() throws Exception {
 				setup.createRealm(realm, origin);
 				return null;
@@ -291,7 +314,7 @@ public class Configure {
 	}
 
 	public void mapAllResourcesAsLocal(final String origin) throws Exception {
-		submit(new Callable<Void>() {
+		perform(new Callable<Void>() {
 			public Void call() throws Exception {
 				setup.mapAllResourcesAsLocal(origin);
 				return null;
@@ -447,7 +470,7 @@ public class Configure {
 		}
 	}
 
-	private Future<Void> submit(final Callable<Void> task) {
+	private synchronized Future<Void> perform(final Callable<Void> task) {
 		if (exception != null)
 			return null;
 		return executor.submit(new Callable<Void>() {

@@ -72,7 +72,7 @@ public class CallimachusConfigurationValidator implements DataValidator {
     		}
 
 			// Set IzPack variables for callimachus.conf:
-			String[] confProperties = {"PORT", "acceptallrealms", "otherrealm1", "otherrealm2", "otherrealm3", "otherrealm4", "otherrealm5"};
+			String[] confProperties = {"PORT", "acceptallrealms", "describeall", "otherrealm1", "otherrealm2", "otherrealm3", "otherrealm4", "otherrealm5"};
 			setCallimachusVariables(configure.getServerConfiguration(), confProperties);
             setOriginVariables(configure.getServerConfiguration());
 
@@ -159,6 +159,7 @@ public class CallimachusConfigurationValidator implements DataValidator {
         defaults.put("secondaryauthority4", "");
         defaults.put("secondaryauthority5", "");
         defaults.put("acceptallrealms", "on");
+        defaults.put("describeall", "on");
         defaults.put("otherrealm1", "");
         defaults.put("otherrealm2", "");
         defaults.put("otherrealm3", "");

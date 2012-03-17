@@ -62,6 +62,13 @@ public class CallimachusWriteConfigurationValidator implements DataValidator {
         	Properties confProperties = configure.getServerConfiguration();
             // NB: Ensure that these var names are correct in install.xml, userInputSpec.xml
             confProperties.setProperty("PORT", adata.getVariable("callimachus.PORT") );
+            confProperties.setProperty("acceptallrealms", adata.getVariable("callimachus.acceptallrealms") );
+            confProperties.setProperty("describeall", adata.getVariable("callimachus.describeall") );
+            confProperties.setProperty("otherrealm1", adata.getVariable("callimachus.otherrealm1") );
+            confProperties.setProperty("otherrealm2", adata.getVariable("callimachus.otherrealm2") );
+            confProperties.setProperty("otherrealm3", adata.getVariable("callimachus.otherrealm3") );
+            confProperties.setProperty("otherrealm4", adata.getVariable("callimachus.otherrealm4") );
+            confProperties.setProperty("otherrealm5", adata.getVariable("callimachus.otherrealm5") );
             // Set the origin on disk to be the space-separated concatenation of the
             // primary and secondary authorities.
             String origin = "";

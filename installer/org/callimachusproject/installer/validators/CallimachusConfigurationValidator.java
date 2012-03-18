@@ -42,37 +42,25 @@ public class CallimachusConfigurationValidator implements DataValidator {
     }
     
     public String getErrorMessageId() {
-        return "CallimachusConfigurationPanel reported an error.  Run this installer from a command line for a full stack trace.";
+        return "CallimachusConfigurationValidator reported an error.  Run this installer from a command line for a full stack trace.";
     }
     
     public String getWarningMessageId() {
-        return "CallimachusConfigurationPanel reported a warning.  Run this installer from a command line for a full stack trace.";
+        return "CallimachusConfigurationValidator reported a warning.  Run this installer from a command line for a full stack trace.";
     }
     
     public DataValidator.Status validateData(AutomatedInstallData adata) {
 
         this.adata = adata;
         initializeDefaults();
+    	String primaryAuthority = adata.getVariable("callimachus.ORIGIN");
         
         try {
 			String installPath = adata.getInstallPath();
 			Configure configure = new Configure(new File(installPath));
-			
-			try {
-        		boolean running = configure.isServerRunning();
-    			if (running) {
-        			if (!configure.stopServer()) {
-        				System.err.println("Server must be shut down to continue");
-            			return Status.ERROR;
-        			}
-        		}
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    			return Status.ERROR;
-    		}
 
 			// Set IzPack variables for callimachus.conf:
-			String[] confProperties = {"PORT", "acceptallrealms", "describeall", "otherrealm1", "otherrealm2", "otherrealm3", "otherrealm4", "otherrealm5"};
+			String[] confProperties = {"PORT", "acceptallrealms", "describeall", "otherrealm1", "otherrealm2", "otherrealm3", "otherrealm4", "otherrealm5", "startserver", "openbrowser"};
 			setCallimachusVariables(configure.getServerConfiguration(), confProperties);
             setOriginVariables(configure.getServerConfiguration());
 
@@ -165,5 +153,7 @@ public class CallimachusConfigurationValidator implements DataValidator {
         defaults.put("otherrealm3", "");
         defaults.put("otherrealm4", "");
         defaults.put("otherrealm5", "");
+        defaults.put("startserver", "on");
+        defaults.put("openbrowser", "on");
 	}
 }

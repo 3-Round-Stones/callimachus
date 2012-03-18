@@ -19,7 +19,6 @@ import com.izforge.izpack.installer.DataValidator;
 import com.izforge.izpack.installer.DataValidator.Status;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Properties;
 import org.callimachusproject.installer.Configure;
 import com.izforge.izpack.installer.AutomatedInstallData;
@@ -42,11 +41,11 @@ public class CallimachusWriteConfigurationValidator implements DataValidator {
     }
     
     public String getErrorMessageId() {
-        return "CallimachusWriteConfigurationPanel reported an error.  Run this installer from a command line for a full stack trace.";
+        return "CallimachusWriteConfigurationValidator reported an error.  Run this installer from a command line for a full stack trace.";
     }
     
     public String getWarningMessageId() {
-        return "CallimachusWriteConfigurationPanel reported a warning.  Run this installer from a command line for a full stack trace.";
+        return "CallimachusWriteConfigurationValidator reported a warning.  Run this installer from a command line for a full stack trace.";
     }
     
     public DataValidator.Status validateData(AutomatedInstallData adata) {
@@ -69,6 +68,8 @@ public class CallimachusWriteConfigurationValidator implements DataValidator {
             confProperties.setProperty("otherrealm3", adata.getVariable("callimachus.otherrealm3") );
             confProperties.setProperty("otherrealm4", adata.getVariable("callimachus.otherrealm4") );
             confProperties.setProperty("otherrealm5", adata.getVariable("callimachus.otherrealm5") );
+            confProperties.setProperty("startserver", adata.getVariable("callimachus.startserver") );
+            confProperties.setProperty("openbrowser", adata.getVariable("callimachus.openbrowser") );
             // Set the origin on disk to be the space-separated concatenation of the
             // primary and secondary authorities.
             String origin = "";
@@ -106,17 +107,10 @@ public class CallimachusWriteConfigurationValidator implements DataValidator {
     	try {
     		boolean running = configure.isServerRunning();
 			configure.setLoggingProperties(configure.getLoggingProperties());
-			URL config = configure.getRepositoryConfigTemplates().values().iterator().next();
-			configure.connect(config, null);
-			configure.createOrigin(primaryAuthority);
 			configure.disconnect();
-			// TODO: Run the server if the user wants.  LEAVE THIS HERE, but make it
-			// optional based on user input.
-			// TODO: Write user decisions to config file.
-			if (running) {
+			if (running && (adata.getVariable("callimachus.startserver")).equals("on") ) {
 				boolean started = configure.startServer();
-				if (started && configure.isWebBrowserSupported()) {
-				    // TODO: May wish to ask user if they want to do this.
+				if (started && configure.isWebBrowserSupported() && (adata.getVariable("callimachus.openbrowser")).equals("on") ) {
 					configure.openWebBrowser(primaryAuthority + "/");
 				}
 			}

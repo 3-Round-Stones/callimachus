@@ -66,7 +66,7 @@
         <res id="HTMLHelloPanel.hello" src="installer/hello.html"/>
         <res id="HTMLHelloPanel.3rs" src="installer/3rs.html"/>
         <res id="callimachus_logo" src="installer/images/callimachus_logo.png"/>
-        <res id="callimachus_offerings" src="installer/images/callimachus_offerings.png"/>
+        <res id="callimachus_enterprise" src="installer/images/Callimachus_Enterprise_Logo.png"/>
         <res id="3roundstones_logo" src="installer/images/3roundstones_logo.png"/>
         <res id="LicencePanel.licence" src="LICENSE.txt"/>
         <res id="HTMLInfoPanel.readme" src="README.txt"/>
@@ -85,23 +85,26 @@
     -->
     <panels>
         <panel classname="HTMLHelloPanel" id="hello"/>
-        <panel classname="HTMLInfoPanel" id="readme"/>
-        <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="LicencePanel" id="license"/>
         <panel classname="TargetPanel">
           <validator classname="org.callimachusproject.installer.validators.CallimachusConfigurationValidator" />
         </panel>
-        <panel classname="UserInputPanel"/> <!-- primary authority config -->
+        <panel classname="UserInputPanel"> <!-- primary authority config -->
+          <validator classname="org.callimachusproject.installer.validators.CallimachusSetupValidator" />
+        </panel>
+				<!-- TODO: Ask about backing up the existing repo -->
+        <panel classname="HTMLInfoPanel" id="readme"/>
+        <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="UserInputPanel"/> <!-- virtual hosts config -->
         <panel classname="UserInputPanel"/> <!-- other realms config -->
         <panel classname="UserInputPanel"/> <!-- mail config -->
         <panel classname="UserInputPanel"/> <!-- repository config -->
         <panel classname="UserInputPanel"/> <!-- initial user config -->
-        <panel classname="PacksPanel"/>
-        <panel classname="InstallPanel">
+        <panel classname="InstallPanel"/>
+        <panel classname="HTMLHelloPanel" id="3rs"/>
+        <panel classname="UserInputPanel"> <!-- optionally start server/open browser -->
           <validator classname="org.callimachusproject.installer.validators.CallimachusWriteConfigurationValidator" />
         </panel>
-        <panel classname="HTMLHelloPanel" id="3rs"/>
         <panel classname="SimpleFinishPanel"/>
     </panels>
 
@@ -122,7 +125,7 @@
                 <!-- delete other files in the lib directory -->
                 <include name="lib/**" />
             </updatecheck>
-            <!-- The file will be parsed -->
+            <!-- These files will be parsed -->
             <!--
             <parsable targetfile="$INSTALL_PATH/README.txt"/>
             -->
@@ -157,10 +160,12 @@
                 <os family="mac"/>
             </executable>
         </pack>
+				<!--
         <pack name="Source" required="no" preselected="no">
             <description>Source Code</description>
             <file src="src" targetdir="$INSTALL_PATH"/>
         </pack>
+				-->
     </packs>
 
 </installation>

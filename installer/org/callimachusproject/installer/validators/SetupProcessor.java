@@ -36,31 +36,44 @@ public class SetupProcessor implements DataValidator {
     }
     
     public String getErrorMessageId() {
-        return "CallimachusSetupValidator reported an error.  Run this installer from a command line for a full stack trace.";
+        return ConfigurationReader.ERROR_MSG;
     }
     
     public String getWarningMessageId() {
-        return "CallimachusSetupValidator reported a warning.  Run this installer from a command line for a full stack trace.";
+        return ConfigurationReader.ERROR_MSG;
     }
     
     public DataValidator.Status validateData(AutomatedInstallData adata) {
-
-    	String primaryAuthority = adata.getVariable("callimachus.PRIMARY_ORIGIN");
-        
-		Configure configure = ConfigurationReader.configure;
-		
 		try {
+	        
+			Configure configure = ConfigurationReader.configure;
+			
 			if (!configure.isConnected()) {
-				URL config = configure.getRepositoryConfigTemplates().values().iterator().next();
+				URL config = configure.getRepositoryConfigTemplates().get("Sesame");
+				assert config != null;
 				configure.connect(config, null);
-				configure.createOrigin(primaryAuthority);
+		    	String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN");
+				for (String origin : primary.split("\\s+")) {
+					configure.createOrigin(origin);
+				}
+
+				if ("".equals(adata.getVariable("callimachus.SECONDARY_ORIGIN"))) {
+					StringBuilder sb = new StringBuilder();
+					String port = adata.getVariable("callimachus.PORT");
+					for (String origin : configure.getDefaultOrigins(port)) {
+						if (!primary.contains(origin)) {
+							sb.append(origin).append("\n");
+						}
+					}
+					adata.setVariable("callimachus.SECONDARY_ORIGIN", sb.toString());
+				}
 			}
+		    
+	        return Status.OK;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Status.ERROR;
 		}
-    
-        return Status.OK;
     }
     
 }

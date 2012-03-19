@@ -16,8 +16,6 @@
  */
 package org.callimachusproject.installer.validators;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.callimachusproject.installer.Configure;
@@ -33,9 +31,7 @@ import com.izforge.izpack.installer.DataValidator;
  * 
  */
 public class ConfigurationReader implements DataValidator {
-    
-	protected AutomatedInstallData adata;
-	protected Map<String,String> defaults = new HashMap<String,String>(20); // Default values for variables.
+	public static final String ERROR_MSG = "There was an error during the install. You must abort this instalation and try again. Run this installer from a command line for a full stack trace.";
 	public static Configure configure;
     
     public boolean getDefaultAnswer() {
@@ -43,18 +39,14 @@ public class ConfigurationReader implements DataValidator {
     }
     
     public String getErrorMessageId() {
-        return "CallimachusConfigurationValidator reported an error.  Run this installer from a command line for a full stack trace.";
+        return ERROR_MSG;
     }
     
     public String getWarningMessageId() {
-        return "CallimachusConfigurationValidator reported a warning.  Run this installer from a command line for a full stack trace.";
+        return ERROR_MSG;
     }
     
     public DataValidator.Status validateData(AutomatedInstallData adata) {
-
-        this.adata = adata;
-        initializeDefaults();
-        
         try {
 			if (configure == null) {
 				String installPath = adata.getInstallPath();
@@ -66,13 +58,16 @@ public class ConfigurationReader implements DataValidator {
 			}
 
 			// Set IzPack variables for callimachus.conf:
-			String[] confProperties = {"PORT", "ALL_LOCAL", "OTHER_REALM"};
-			setCallimachusVariables(configure.getServerConfiguration(), confProperties);
-            setOriginVariables(configure.getServerConfiguration());
+			String[] confProperties = {"PORT", "PRIMARY_ORIGIN", "SECONDARY_ORIGIN", "OTHER_REALM", "ALL_LOCAL"};
+			Properties conf = configure.getServerConfiguration();
+			if (conf.getProperty("PRIMARY_ORIGIN") == null) {
+				conf.setProperty("PRIMARY_ORIGIN", conf.getProperty("ORIGIN"));
+			}
+			setCallimachusVariables(conf, confProperties, adata);
 
 			// Set IzPack variables for mail.properties:
 			String[] mailProperties = {"mail.transport.protocol", "mail.from", "mail.smtps.host", "mail.smtps.port", "mail.smtps.auth", "mail.user", "mail.password"};
-			setCallimachusVariables(configure.getMailProperties(), mailProperties);
+			setCallimachusVariables(configure.getMailProperties(), mailProperties, adata);
 		} catch (Exception e) {
 			// This is an unknown error.
     		e.printStackTrace();
@@ -86,69 +81,21 @@ public class ConfigurationReader implements DataValidator {
 	 * Set IzPack variables for each property provided.
 	 *
 	 * @param prop A Java Properties object holding values from a Callimachus config file.
-	 * @param properties A list of property names to convert to IzPack variables.
+	 * @param names A list of property names to convert to IzPack variables.
 	 */
-	private void setCallimachusVariables(Properties prop, String[] properties) {
+	private void setCallimachusVariables(Properties prop, String[] names, AutomatedInstallData adata) {
 		// Get the values of relevant properties and convert them to IzPack
 		// variables with the same names but prepended by "callimachus." to
 		// avoid namespace conflicts.
-		String tempProperty;
-		int propertiesLength = properties.length;
+		int propertiesLength = names.length;
 		for (int i = 0; i < propertiesLength; i++) {
-			if ( prop.getProperty(properties[i]) == null ) {
-			    tempProperty = defaults.get(properties[i]);
+			String value = prop.getProperty(names[i]);
+			String key = "callimachus." + names[i];
+			if (value == null) {
+				adata.setVariable(key, "");
 			} else {
-				tempProperty = prop.getProperty(properties[i]);
+				adata.setVariable(key, value.replaceAll("\\s+", "\n"));
 			}
-			adata.setVariable("callimachus." + properties[i], tempProperty);
 		}
-	}
-
-    /**
-	 * Set IzPack variables for the origin variable.
-	 *
-	 * @param prop A Java Properties object holding values from a Callimachus config file.
-	 */
-	private void setOriginVariables(Properties prop) {
-	    String origin = prop.getProperty("PRIMARY_ORIGIN");
-        if ( origin == null ) {
-            origin = defaults.get("PRIMARY_ORIGIN");
-        }
-        String[] origins = origin.split("\\s+");
-        String[] properties = {"PRIMARY_ORIGIN", "SECONDARY_ORIGIN"};
-		String tempProperty;
-		// Use the on-disk values for any variable.
-		for (int i = 0; i < origins.length; i++) {
-			if ( origins[i] == null ) {
-			    tempProperty = defaults.get(properties[i]);
-			} else {
-				tempProperty = origins[i];
-			}
-    		adata.setVariable("callimachus." + properties[i], tempProperty);
-		}
-		// Write default values for anything not on disk.
-		for (int i = origins.length; i < properties.length; i++) {
-		    tempProperty = defaults.get(properties[i]);
-		    adata.setVariable("callimachus." + properties[i], tempProperty);
-		}
-	}
-	
-	/**
-	 * Initializes the default configuration variable values.
-	 *
-	 */
-	private void initializeDefaults() {
-	    defaults.put("PORT", "8080");
-    	defaults.put("PRIMARY_ORIGIN", "http://localhost:8080");
-        defaults.put("mail.transport.protocol", "smtps");
-        defaults.put("mail.from", "user@example.com");
-        defaults.put("mail.smtps.host", "mail.example.com");
-        defaults.put("mail.smtps.port", "465");
-        defaults.put("mail.smtps.auth", "no");
-        defaults.put("mail.user", "");
-        defaults.put("mail.password", "");
-        defaults.put("SECONDARY_ORIGIN", "");
-        defaults.put("ALL_LOCAL", "true");
-        defaults.put("OTHER_REALM", "");
 	}
 }

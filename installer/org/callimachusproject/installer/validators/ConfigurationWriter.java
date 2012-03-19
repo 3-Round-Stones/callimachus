@@ -37,78 +37,109 @@ public class ConfigurationWriter implements DataValidator {
     }
     
     public String getErrorMessageId() {
-        return "CallimachusWriteConfigurationValidator reported an error.  Run this installer from a command line for a full stack trace.";
+        return ConfigurationReader.ERROR_MSG;
     }
     
     public String getWarningMessageId() {
-        return "CallimachusWriteConfigurationValidator reported a warning.  Run this installer from a command line for a full stack trace.";
+        return ConfigurationReader.ERROR_MSG;
     }
     
     public DataValidator.Status validateData(AutomatedInstallData adata) {
-        
-        Configure configure = ConfigurationReader.configure;
-        
-    	String primaryAuthority = adata.getVariable("callimachus.PRIMARY_ORIGIN");
 		try {
-        	// Write Callimachus configuration file.
-        	Properties confProperties = configure.getServerConfiguration();
-            // NB: Ensure that these var names are correct in install.xml, userInputSpec.xml
-            confProperties.setProperty("PORT", adata.getVariable("callimachus.PORT") );
-            confProperties.setProperty("ALL_LOCAL", adata.getVariable("callimachus.ALL_LOCAL") );
-            confProperties.setProperty("OTHER_REALM", adata.getVariable("callimachus.OTHER_REALM") );
-            // Set the origin on disk to be the space-separated concatenation of the
-            // primary and secondary authorities.
-            String origin = "";
-            String[] authorities = {"PRIMARY_ORIGIN", "SECONDARY_ORIGIN"};
-            for (int i = 0; i < authorities.length; i++) {
-                if ( origin.length() > 0 ) { origin += " "; }
-                origin += adata.getVariable("callimachus." + authorities[i]);
-            }
-            confProperties.setProperty("ORIGIN", origin );
-    		configure.setServerConfiguration(confProperties);
-    		configure.setLoggingProperties(configure.getLoggingProperties());
-        } catch (IOException e) {
-            // This is an unknown error.
-        	e.printStackTrace();
-			return Status.ERROR;
-        }
-        
-    	try {
-            // Write Callimachus mail properties file.\
-        	Properties mailProperties = configure.getMailProperties();
-            // NB: Ensure that these var names are correct in install.xml, userInputSpec.xml
-            mailProperties.setProperty("mail.transport.protocol", adata.getVariable("callimachus.mail.transport.protocol") );
-            mailProperties.setProperty("mail.from", adata.getVariable("callimachus.mail.from") );
-            mailProperties.setProperty("mail.smtps.host", adata.getVariable("callimachus.mail.smtps.host") );
-            mailProperties.setProperty("mail.smtps.port", adata.getVariable("callimachus.mail.smtps.port") );
-            mailProperties.setProperty("mail.smtps.auth", adata.getVariable("callimachus.mail.smtps.auth") );
-            mailProperties.setProperty("mail.user", adata.getVariable("callimachus.mail.user") );
-            mailProperties.setProperty("mail.password", adata.getVariable("callimachus.mail.password") );
-    		configure.setMailProperties(mailProperties);
-        } catch (IOException e) {
-            // This is an unknown error.
-            e.printStackTrace();
-			return Status.ERROR;
-        }
 
-    	try {
-			configure.setLoggingProperties(configure.getLoggingProperties());
+	        Configure configure = ConfigurationReader.configure;
+	        
+            saveConfig(adata, configure);
+            saveMail(adata, configure);
+    		saveLogging(configure);
+
 			if (configure.isConnected()) {
+		    	String primary = configureOrigins(adata, configure);
+
 				configure.disconnect();
-				if ("true".equals(adata.getVariable("callimachus.startserver")) ) {
+				if ("true".equals(getSingleLine(adata, "callimachus.startserver")) ) {
 					boolean started = configure.startServer();
-					if (started && configure.isWebBrowserSupported() && "true".equals(adata.getVariable("callimachus.openbrowser")) ) {
-						configure.openWebBrowser(primaryAuthority + "/");
+					if (started && configure.isWebBrowserSupported() && "true".equals(getSingleLine(adata, "callimachus.openbrowser")) ) {
+						configure.openWebBrowser(primary + "/");
 					}
 				}
 			}
+
+	        return Status.OK;
 		} catch (Exception e) {
 			// This is an unknown error.
     		e.printStackTrace();
 			return Status.ERROR;
 		}
-        
-        return Status.OK;
     }
+
+	private String configureOrigins(AutomatedInstallData adata,
+			Configure configure) throws Exception {
+		String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN").split("\\s+")[0];
+		String secondary = adata.getVariable("callimachus.SECONDARY_ORIGIN");
+		for (String origin : secondary.split("\\s+")) {
+			if (origin.length() > 0) {
+				configure.createVirtualHost(origin, primary);
+			}
+		}
+		String other = adata.getVariable("callimachus.OTHER_REALM");
+		for (String realm : other.split("\\s+")) {
+			if (realm.length() > 0) {
+				configure.createRealm(realm, primary);
+			}
+		}
+		if ("true".equals(adata.getVariable("callimachus.ALL_LOCAL"))) {
+			configure.mapAllResourcesAsLocal(primary);
+		}
+		return primary;
+	}
+
+	private void saveConfig(AutomatedInstallData adata, Configure configure)
+			throws IOException {
+		// Write Callimachus callimachus.conf file.
+		String primary = getSingleLine(adata, "callimachus.PRIMARY_ORIGIN");
+		String secondary = getSingleLine(adata, "callimachus.SECONDARY_ORIGIN");
+		String other = getSingleLine(adata, "callimachus.OTHER_REALM");
+		Properties confProperties = configure.getServerConfiguration();
+		confProperties.setProperty("PORT", getSingleLine(adata, "callimachus.PORT"));
+		confProperties.setProperty("PRIMARY_ORIGIN", primary);
+		confProperties.setProperty("SECONDARY_ORIGIN", secondary);
+		confProperties.setProperty("OTHER_REALM", other);
+		confProperties.setProperty("ALL_LOCAL", getSingleLine(adata, "callimachus.ALL_LOCAL"));
+		// Set the origin on disk to be the space-separated concatenation of origins
+		StringBuilder origin = new StringBuilder();
+		origin.append(primary).append(" ");
+		origin.append(secondary).append(" ");
+		origin.append(other.replaceAll("(://[^/]*)/\\S*", "$1")).append(" ");
+		confProperties.setProperty("ORIGIN", origin.toString().trim());
+		configure.setServerConfiguration(confProperties);
+	}
+
+	private void saveMail(AutomatedInstallData adata, Configure configure)
+			throws IOException {
+		// Write Callimachus mail.properties file.
+		Properties mailProperties = configure.getMailProperties();
+		// NB: Ensure that these var names are correct in install.xml, userInputSpec.xml
+		mailProperties.setProperty("mail.transport.protocol", getSingleLine(adata, "callimachus.mail.transport.protocol") );
+		mailProperties.setProperty("mail.from", getSingleLine(adata, "callimachus.mail.from") );
+		mailProperties.setProperty("mail.smtps.host", getSingleLine(adata, "callimachus.mail.smtps.host") );
+		mailProperties.setProperty("mail.smtps.port", getSingleLine(adata, "callimachus.mail.smtps.port") );
+		mailProperties.setProperty("mail.smtps.auth", getSingleLine(adata, "callimachus.mail.smtps.auth") );
+		mailProperties.setProperty("mail.user", getSingleLine(adata, "callimachus.mail.user") );
+		mailProperties.setProperty("mail.password", getSingleLine(adata, "callimachus.mail.password") );
+		configure.setMailProperties(mailProperties);
+	}
+
+	private void saveLogging(Configure configure) throws IOException {
+		// Write Callimachus logging.properties file
+		configure.setLoggingProperties(configure.getLoggingProperties());
+	}
+
+	private String getSingleLine(AutomatedInstallData adata, String key) {
+		String value = adata.getVariable(key);
+		if (value == null)
+			return "";
+		return value.trim().replaceAll("\\s+", " ");
+	}
        
 }

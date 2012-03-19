@@ -62,7 +62,20 @@ public class Configure {
 
 	public Properties getServerConfiguration() throws IOException {
 		File file = new File(new File(dir, "etc"), SERVER_CONF);
-		return readProperties(file, "META-INF/templates/callimachus.conf");
+		Properties properties = readProperties(file, "META-INF/templates/callimachus.conf");
+		Enumeration<?> e = properties.propertyNames();
+		while (e.hasMoreElements()) {
+			String name = (String) e.nextElement();
+			String value = properties.getProperty(name);
+			if (value.startsWith("\"") && value.endsWith("\"")) {
+				value = value.substring(1, value.length() - 1);
+				value = value.replace("\\n", "\n");
+				value = value.replace("\\t", "\t");
+				value = value.replace("\\", "");
+			}
+			properties.setProperty(name, value);
+		}
+		return properties;
 	}
 
 	public void setServerConfiguration(Properties properties)
@@ -78,7 +91,7 @@ public class Configure {
 			while (e.hasMoreElements()) {
 				String key = (String) e.nextElement();
 				String val = properties.getProperty(key);
-				bw.write(key + "=" + val);
+				bw.write(key + "=\"" + val + "\"");
 				bw.newLine();
 			}
 			bw.flush();
@@ -374,6 +387,7 @@ public class Configure {
 			while (raddrs.hasMoreElements()) {
 				InetAddress raddr = raddrs.nextElement();
 				set.add(raddr.getCanonicalHostName());
+				set.remove(raddr.getHostAddress());
 			}
 			Enumeration<NetworkInterface> virtualIfaces = iface
 					.getSubInterfaces();

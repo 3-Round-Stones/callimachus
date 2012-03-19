@@ -52,7 +52,7 @@ public class CallimachusWriteConfigurationValidator implements DataValidator {
 
         this.adata = adata;
         
-        Configure configure = CallimachusSetupValidator.configure;
+        Configure configure = CallimachusConfigurationValidator.configure;
         
     	String primaryAuthority = adata.getVariable("callimachus.ORIGIN");
 		try {
@@ -79,6 +79,7 @@ public class CallimachusWriteConfigurationValidator implements DataValidator {
             }
             confProperties.setProperty("ORIGIN", origin );
     		configure.setServerConfiguration(confProperties);
+    		configure.setLoggingProperties(configure.getLoggingProperties());
         } catch (IOException e) {
             // This is an unknown error.
         	e.printStackTrace();
@@ -104,13 +105,14 @@ public class CallimachusWriteConfigurationValidator implements DataValidator {
         }
 
     	try {
-    		boolean running = configure.isServerRunning();
 			configure.setLoggingProperties(configure.getLoggingProperties());
-			configure.disconnect();
-			if (running && (adata.getVariable("callimachus.startserver")).equals("on") ) {
-				boolean started = configure.startServer();
-				if (started && configure.isWebBrowserSupported() && (adata.getVariable("callimachus.openbrowser")).equals("on") ) {
-					configure.openWebBrowser(primaryAuthority + "/");
+			if (configure.isConnected()) {
+				configure.disconnect();
+				if ("on".equals(adata.getVariable("callimachus.startserver")) ) {
+					boolean started = configure.startServer();
+					if (started && configure.isWebBrowserSupported() && "on".equals(adata.getVariable("callimachus.openbrowser")) ) {
+						configure.openWebBrowser(primaryAuthority + "/");
+					}
 				}
 			}
 		} catch (Exception e) {

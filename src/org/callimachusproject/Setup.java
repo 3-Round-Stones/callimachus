@@ -283,6 +283,8 @@ public class Setup {
 
 	public File connect(File dir, String configString) throws OpenRDFException,
 			MalformedURLException, IOException {
+		if (repository != null)
+			throw new IllegalStateException("Must call disconnect before connect can be called again");
 		repository = getObjectRepository(dir, configString);
 		if (repository == null)
 			throw new RepositoryConfigException(

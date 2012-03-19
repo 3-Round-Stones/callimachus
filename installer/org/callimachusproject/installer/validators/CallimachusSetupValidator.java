@@ -37,7 +37,6 @@ public class CallimachusSetupValidator implements DataValidator {
     static String DATA_VALIDATOR_TAG = "CallimachusSetupValidator tag";
 	protected AutomatedInstallData adata;
 	protected Map<String,String> defaults = new HashMap<String,String>(20); // Default values for variables.
-	public static Configure configure;
     
     public boolean getDefaultAnswer() {
         return true;
@@ -56,21 +55,14 @@ public class CallimachusSetupValidator implements DataValidator {
         this.adata = adata;
     	String primaryAuthority = adata.getVariable("callimachus.ORIGIN");
         
-		String installPath = adata.getInstallPath();
-		configure = new Configure(new File(installPath));
+		Configure configure = CallimachusConfigurationValidator.configure;
 		
 		try {
-    		boolean running = configure.isServerRunning();
-			configure.setLoggingProperties(configure.getLoggingProperties());
-			if (running) {
-    			if (!configure.stopServer()) {
-    				System.err.println("Server must be shut down to continue");
-        			return Status.ERROR;
-    			}
-    		}
-			URL config = configure.getRepositoryConfigTemplates().values().iterator().next();
-			configure.connect(config, null);
-			configure.createOrigin(primaryAuthority);
+			if (!configure.isConnected()) {
+				URL config = configure.getRepositoryConfigTemplates().values().iterator().next();
+				configure.connect(config, null);
+				configure.createOrigin(primaryAuthority);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Status.ERROR;

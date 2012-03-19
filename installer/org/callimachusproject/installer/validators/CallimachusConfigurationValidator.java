@@ -36,6 +36,7 @@ public class CallimachusConfigurationValidator implements DataValidator {
     static String DATA_VALIDATOR_TAG = "CallimachusConfigurationValidator tag";
 	protected AutomatedInstallData adata;
 	protected Map<String,String> defaults = new HashMap<String,String>(20); // Default values for variables.
+	public static Configure configure;
     
     public boolean getDefaultAnswer() {
         return true;
@@ -56,8 +57,14 @@ public class CallimachusConfigurationValidator implements DataValidator {
     	String primaryAuthority = adata.getVariable("callimachus.ORIGIN");
         
         try {
-			String installPath = adata.getInstallPath();
-			Configure configure = new Configure(new File(installPath));
+			if (configure == null) {
+				String installPath = adata.getInstallPath();
+				configure = new Configure(new File(installPath));
+				if (configure.isServerRunning() && !configure.stopServer()) {
+					System.err.println("Server must be shut down to continue");
+	    			return Status.ERROR;
+	    		}
+			}
 
 			// Set IzPack variables for callimachus.conf:
 			String[] confProperties = {"PORT", "acceptallrealms", "describeall", "otherrealm1", "otherrealm2", "otherrealm3", "otherrealm4", "otherrealm5", "startserver", "openbrowser"};
@@ -67,7 +74,7 @@ public class CallimachusConfigurationValidator implements DataValidator {
 			// Set IzPack variables for mail.properties:
 			String[] mailProperties = {"mail.transport.protocol", "mail.from", "mail.smtps.host", "mail.smtps.port", "mail.smtps.auth", "mail.user", "mail.password"};
 			setCallimachusVariables(configure.getMailProperties(), mailProperties);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// This is an unknown error.
     		e.printStackTrace();
 			return Status.ERROR;

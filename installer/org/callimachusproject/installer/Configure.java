@@ -54,6 +54,7 @@ public class Configure {
 	private volatile Exception exception;
 	/** Only access setup through executor */
 	private SetupProxy setup;
+	private boolean connected;
 
 	public Configure(File dir) {
 		this.dir = dir;
@@ -245,8 +246,13 @@ public class Configure {
 		}
 	}
 
-	public Future<Void> connect(final URL ctemplate,
+	public synchronized boolean isConnected() {
+		return connected;
+	}
+
+	public synchronized Future<Void> connect(final URL ctemplate,
 			final Map<String, String> parameters) {
+		connected = true;
 		return perform(new Callable<Void>() {
 			public Void call() throws Exception {
 				File lib = new File(dir, "lib");
@@ -259,6 +265,7 @@ public class Configure {
 	}
 
 	public synchronized void disconnect() throws Exception {
+		connected = false;
 		Future<Void> task = executor.submit(new Callable<Void>() {
 			public Void call() throws Exception {
 				try {

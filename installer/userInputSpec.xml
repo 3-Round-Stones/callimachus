@@ -169,31 +169,8 @@
                      txt="Both passwords must match." />
         </field>
     </panel>
-  <!-- Panel 4: Repository configuration -->
+  <!-- Panel 4: Initial user configuration -->
     <panel order="4">
-        <field type="title" txt="Repository Configuration" bold="true" size="1" />
-        <field type="divider" align="top"/>
-        <field type="staticText" align="left"
-               txt="Choose the RDF database that $APP_NAME will use.  Caution: Callimachus only ships with Sesame.  Alternative repositories should already be configured; if not, exit the installer and do that first." />
-        <field type="combo" variable="repository">
-          <description align="left" txt="RDF repository:" />
-          <spec>
-            <choice txt="Sesame" value="sesame" set="true" />
-            <choice txt="OWLIM" value="owlim" />
-            <choice txt="AllegroGraph" value="allegrograph" />
-          </spec>
-        </field>
-        <field type="divider" align="top" os="unix" />
-        <field type="text" align="left" variable="daemonuser" os="unix">
-            <spec txt="Daemon username:" size="15" set="callimachus"/>
-        </field>
-        <field type="text" align="left" variable="daemongroup" os="unix">
-            <spec txt="Daemon group name:" size="15" set="callimachus"/>
-        </field>
-        <field type="divider" align="top"/>
-    </panel>
-  <!-- Panel 5: Initial user configuration -->
-    <panel order="5">
         <field type="title" txt="Initial User Configuration" bold="true" size="1" />
         <field type="divider" align="top"/>
         <field type="staticText" align="left"
@@ -213,8 +190,8 @@
         </field>
         <field type="divider" align="top"/>
     </panel>
-  <!-- Panel 6: Start server/open browser configuation -->
-    <panel order="6">
+  <!-- Panel 5: Start server/open browser configuation -->
+    <panel order="5">
         <field type="title" txt="Start server?" bold="true" size="1" />
         <field type="divider" align="top"/>
         <field type="staticText" align="left"

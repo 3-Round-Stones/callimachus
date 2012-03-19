@@ -71,7 +71,6 @@
         <res id="LicencePanel.licence" src="LICENSE.txt"/>
         <res id="HTMLInfoPanel.readme" src="README.txt"/>
         <res id="HTMLInfoPanel.release_notes" src="RELEASE_NOTES.txt"/>
-        <res id="ProcessPanel.Spec.xml" src="installer/ProcessPanel.Spec.xml"/>
         <res id="userInputSpec.xml" src="installer/userInputSpec.xml" />
         <res id="TargetPanel.dir.macosx" src="tmp/macosx.dir" />
         <res id="TargetPanel.dir.windows" src="tmp/windows.dir" />
@@ -89,18 +88,17 @@
         <panel classname="TargetPanel">
           <validator classname="org.callimachusproject.installer.validators.CallimachusConfigurationValidator" />
         </panel>
-        <panel classname="InstallPanel"/>
-        <panel classname="UserInputPanel"> <!-- primary authority config -->
+				<!-- TODO: Ask about backing up the existing repo -->
+        <panel classname="UserInputPanel"/> <!-- primary authority config -->
+        <panel classname="InstallPanel">
           <validator classname="org.callimachusproject.installer.validators.CallimachusSetupValidator" />
         </panel>
-				<!-- TODO: Ask about backing up the existing repo -->
         <panel classname="HTMLInfoPanel" id="readme"/>
-        <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="UserInputPanel"/> <!-- virtual hosts config -->
         <panel classname="UserInputPanel"/> <!-- other realms config -->
         <panel classname="UserInputPanel"/> <!-- mail config -->
-        <panel classname="UserInputPanel"/> <!-- repository config -->
         <panel classname="UserInputPanel"/> <!-- initial user config -->
+        <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="HTMLHelloPanel" id="3rs"/>
         <panel classname="UserInputPanel"> <!-- optionally start server/open browser -->
           <validator classname="org.callimachusproject.installer.validators.CallimachusWriteConfigurationValidator" />

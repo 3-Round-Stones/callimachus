@@ -15,14 +15,14 @@
  *
  */
 package org.callimachusproject.installer.validators;
-import com.izforge.izpack.installer.DataValidator;
-import com.izforge.izpack.installer.DataValidator.Status;
-import com.izforge.izpack.installer.AutomatedInstallData;
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.callimachusproject.installer.Configure;
+
+import com.izforge.izpack.installer.AutomatedInstallData;
+import com.izforge.izpack.installer.DataValidator;
 
 /**
  * A custom IzPack (see http://izpack.org) validator to validate
@@ -31,7 +31,7 @@ import org.callimachusproject.installer.Configure;
  * @author David Wood (david @ http://3roundstones.com)
  * 
  */
-public class CallimachusSetupValidator implements DataValidator {
+public class SetupProcessor implements DataValidator {
     
     static String DATA_VALIDATOR_CLASSNAME_TAG = "CallimachusSetupValidator";
     static String DATA_VALIDATOR_TAG = "CallimachusSetupValidator tag";
@@ -55,7 +55,7 @@ public class CallimachusSetupValidator implements DataValidator {
         this.adata = adata;
     	String primaryAuthority = adata.getVariable("callimachus.ORIGIN");
         
-		Configure configure = CallimachusConfigurationValidator.configure;
+		Configure configure = ConfigurationReader.configure;
 		
 		try {
 			if (!configure.isConnected()) {

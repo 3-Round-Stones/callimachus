@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <userInput>
-  <!-- Panel 0: Primary authority and port configuration -->
+  <!-- Primary authority and port configuration -->
   <panel order="0">
     <field type="title" txt="Host Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
@@ -22,7 +22,7 @@
     <field type="staticText" align="left" txt="WARNING: A primary authority cannot be changed during or after an installation, ensure the host name entered is correct before continuing."/>
     <field type="divider" align="bottom"/>
   </panel>
-  <!-- Panel 1: Virtual hosts configuration -->
+  <!-- Virtual hosts configuration -->
   <panel order="1">
     <field type="title" txt="Virtual Hosts Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
@@ -43,7 +43,7 @@
     <field type="space"/>
     <field type="divider" align="bottom"/>
   </panel>
-  <!-- Panel 2: Other realms configuation -->
+  <!-- Other realms configuration -->
   <panel order="2">
     <field type="title" txt="Other Realms Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
@@ -64,7 +64,7 @@
     <field type="space"/>
     <field type="divider" align="bottom"/>
   </panel>
-  <!-- Panel 3: All local configuation -->
+  <!-- All local configuration -->
   <panel order="3">
     <field type="title" txt="Local Resource Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
@@ -74,8 +74,28 @@
     </field>
     <field type="divider" align="bottom"/>
   </panel>
-  <!-- Panel 4: Mail configuration -->
+  <!-- Daemon configuration -->
   <panel order="4">
+    <field type="title" txt="Daemon Configuration" bold="true" size="1"/>
+    <field type="divider" align="top"/>
+    <field type="text" align="left" variable="callimachus.DAEMON_USER">
+      <description align="left" txt="$APP_NAME must run with reduce privileges."/>
+      <spec txt="Daemon user:" size="25" set="${callimachus.DAEMON_USER}"/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Daemon user is required.">
+        <param name="pattern" value="^[a-z][-a-z0-9]*$"/>
+      </validator>
+    </field>
+    <field type="text" align="left" variable="callimachus.DAEMON_GROUP">
+      <description align="left" txt="$APP_NAME must run with reduce privileges."/>
+      <spec txt="Daemon group:" size="25" set="${callimachus.DAEMON_GROUP}"/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Daemon group is required.">
+        <param name="pattern" value="^[a-z][-a-z0-9]*$"/>
+      </validator>
+    </field>
+    <field type="divider" align="bottom"/>
+  </panel>
+  <!-- Mail configuration -->
+  <panel order="5">
     <field type="title" txt="Mail Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="staticText" align="left" txt="$APP_NAME uses email to inform new users of their initial password and instructions on how to reset their passwords."/>
@@ -124,8 +144,8 @@
     </field>
     <field type="divider" align="bottom"/>
   </panel>
-  <!-- Panel 5: Initial user configuration -->
-  <panel order="5">
+  <!-- Initial user configuration -->
+  <panel order="6">
     <field type="title" txt="Initial User Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="staticText" align="left" txt="If this is a new install, you will need an initial $APP_NAME user account to log into the $APP_NAME Web user interface. Complete all fields to create an admin user account. Choose a strong password if you are using a public server!"/>
@@ -145,8 +165,8 @@
     </field>
     <field type="divider" align="bottom"/>
   </panel>
-  <!-- Panel 6: Start server/open browser configuation -->
-  <panel order="6">
+  <!-- Start server/open browser configuration -->
+  <panel order="7">
     <field type="title" txt="Start Server" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="check" variable="callimachus.startserver">

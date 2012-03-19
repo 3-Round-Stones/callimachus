@@ -52,6 +52,13 @@
         <langpack iso3="eng"/>
     </locale>
 
+    <conditions>
+        <condition type="variable" id="isroot">
+            <name>USER_NAME</name>
+            <value>root</value>
+        </condition>
+    </conditions>
+
     <!-- 
         The resources section.
         The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.
@@ -93,6 +100,7 @@
         <panel classname="UserInputPanel"/> <!-- virtual hosts config -->
         <panel classname="UserInputPanel"/> <!-- other realms config -->
         <panel classname="UserInputPanel"/> <!-- all resources config -->
+        <panel classname="UserInputPanel" condition="isroot"/> <!-- daemon config -->
         <panel classname="UserInputPanel"> <!-- mail config -->
           <validator classname="org.callimachusproject.installer.validators.MailServerValidator" />
         </panel>

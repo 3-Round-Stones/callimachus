@@ -33,6 +33,7 @@ import com.izforge.izpack.installer.DataValidator;
 public class ConfigurationReader implements DataValidator {
 	public static final String ERROR_MSG = "There was an error during the install. You must abort this instalation and try again. Run this installer from a command line for a full stack trace.";
 	public static Configure configure;
+	private boolean abort;
     
     public boolean getDefaultAnswer() {
         return true;
@@ -47,6 +48,8 @@ public class ConfigurationReader implements DataValidator {
     }
     
     public DataValidator.Status validateData(AutomatedInstallData adata) {
+    	if (abort)
+    		return Status.ERROR;
         try {
 			if (configure == null) {
 				String installPath = adata.getInstallPath();
@@ -69,6 +72,7 @@ public class ConfigurationReader implements DataValidator {
 			String[] mailProperties = {"mail.transport.protocol", "mail.from", "mail.smtps.host", "mail.smtps.port", "mail.smtps.auth", "mail.user", "mail.password"};
 			setCallimachusVariables(configure.getMailProperties(), mailProperties, adata);
 		} catch (Exception e) {
+			abort = true;
 			// This is an unknown error.
     		e.printStackTrace();
 			return Status.ERROR;

@@ -31,6 +31,7 @@ import com.izforge.izpack.installer.DataValidator;
  * 
  */
 public class ConfigurationWriter implements DataValidator {
+	private boolean abort;
     
     public boolean getDefaultAnswer() {
         return true;
@@ -45,6 +46,8 @@ public class ConfigurationWriter implements DataValidator {
     }
     
     public DataValidator.Status validateData(AutomatedInstallData adata) {
+    	if (abort)
+    		return Status.ERROR;
 		try {
 
 	        Configure configure = ConfigurationReader.configure;
@@ -57,9 +60,11 @@ public class ConfigurationWriter implements DataValidator {
 		    	String primary = configureOrigins(adata, configure);
 
 				configure.disconnect();
-				if ("true".equals(getSingleLine(adata, "callimachus.startserver")) ) {
+				String startserver = adata.getVariable("callimachus.startserver");
+				if ("true".equals(startserver) ) {
 					boolean started = configure.startServer();
-					if (started && configure.isWebBrowserSupported() && "true".equals(getSingleLine(adata, "callimachus.openbrowser")) ) {
+					String openbrowser = adata.getVariable("callimachus.openbrowser");
+					if (started && configure.isWebBrowserSupported() && "true".equals(openbrowser) ) {
 						configure.openWebBrowser(primary + "/");
 					}
 				}
@@ -67,6 +72,7 @@ public class ConfigurationWriter implements DataValidator {
 
 	        return Status.OK;
 		} catch (Exception e) {
+			abort = true;
 			// This is an unknown error.
     		e.printStackTrace();
 			return Status.ERROR;

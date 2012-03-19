@@ -68,7 +68,7 @@
   <panel order="3">
     <field type="title" txt="Local Resource Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
-    <field type="check" variable="${callimachus.ALL_LOCAL}">
+    <field type="check" variable="callimachus.ALL_LOCAL">
       <description align="left" txt="Leave this box checked if you want $APP_NAME to provide navigational pages for all loaded RDF resources. Deselect this box if you want $APP_NAME to only serve resources with configured templates."/>
       <spec txt="Serve all RDF resources" true="true" false="false" set="${callimachus.ALL_LOCAL}"/>
     </field>
@@ -147,11 +147,11 @@
   <panel order="6">
     <field type="title" txt="Start Server" bold="true" size="1"/>
     <field type="divider" align="top"/>
-    <field type="check" variable="${callimachus.startserver}">
+    <field type="check" variable="callimachus.startserver">
       <description align="left" txt="$APP_NAME may be started at this time."/>
       <spec txt="Start server" true="true" false="false" set="true"/>
     </field>
-    <field type="check" variable="${callimachus.openbrowser}">
+    <field type="check" variable="callimachus.openbrowser">
       <spec txt="Open welcome page in a Web brower?" true="true" false="false" set="true"/>
     </field>
     <field type="divider" align="bottom"/>

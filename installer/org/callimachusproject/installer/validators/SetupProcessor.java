@@ -30,6 +30,7 @@ import com.izforge.izpack.installer.DataValidator;
  * 
  */
 public class SetupProcessor implements DataValidator {
+	private boolean abort;
     
     public boolean getDefaultAnswer() {
         return true;
@@ -44,6 +45,8 @@ public class SetupProcessor implements DataValidator {
     }
     
     public DataValidator.Status validateData(AutomatedInstallData adata) {
+    	if (abort)
+    		return Status.ERROR;
 		try {
 	        
 			Configure configure = ConfigurationReader.configure;
@@ -71,6 +74,7 @@ public class SetupProcessor implements DataValidator {
 		    
 	        return Status.OK;
 		} catch (Exception e) {
+			abort = true;
 			e.printStackTrace();
 			return Status.ERROR;
 		}

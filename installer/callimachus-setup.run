@@ -82,7 +82,7 @@ if [ -z "$JAVA_HOME" ] ; then
 fi
 
 # try installing java using yum
-if [ -z "$JAVA_HOME" && -x "`which apt-get`" ] ; then
+if [ -z "$JAVA_HOME" -a -x "`which apt-get`" ] ; then
   yum -qy install java-1.6.0-openjdk
   if [ $?_VAL -gt 0 ]; then
 	  echo "The JAVA_HOME environment variable is not defined"
@@ -114,7 +114,7 @@ if [ -z "$JAVA_HOME" ] ; then
 fi
 
 # try installing java using apt-get
-if [ -z "$JAVA_HOME" && -x "`which apt-get`" ] ; then
+if [ -z "$JAVA_HOME" -a -x "`which apt-get`" ] ; then
   apt-get -qy update && apt-get -qy install java6-sdk
   if [ $?_VAL -gt 0 ]; then
 	  echo "The JAVA_HOME environment variable is not defined"
@@ -165,10 +165,17 @@ fi
 
 if $darwin; then
   exec $JAVA -DuseJavaUtilZip -jar "$0" "$@"
-elif [ -z "$DISPLAY" ] ; then
-  exec $JAVA -DuseJavaUtilZip -jar "$0" -console "$@"
-else
+elif [ ! -z "$DISPLAY" ] ; then
   exec $JAVA -DuseJavaUtilZip -jar "$0" "$@"
+else
+  LOG="callimachus-installer.log"
+  $JAVA -DuseJavaUtilZip -jar "$0" -console "$@" 2> "$LOG"
+  RETURN_VAL=$?
+  if [ $RETURN_VAL -gt 0 ]; then
+    cat "$LOG" >&2
+  fi
+  rm "$LOG"
+  exit $RETURN_VAL
 fi
 
 ## EOF ##

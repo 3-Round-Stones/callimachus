@@ -139,11 +139,11 @@
 			}
 		});
 		
-		println("Parsing " + this);
+		java.lang.System.err.println("Parsing " + this);
 		con.add(inputStream, this.toString(), RDFFormat.TURTLE, [this.resource]);
 
 		this.touchRevision();
-		println("Imported " + this);
+		java.lang.System.err.println("Imported " + this);
 		con.recompileSchemaOnClose();
 	""".
 
@@ -240,11 +240,11 @@
 		con.clear([this.resource]); //# clear graph
 		var object = this;
 		
-		println("Parsing " + this);
+		java.lang.System.err.println("Parsing " + this);
 		con.add(graphStream, this.toString(), RDFFormat.RDFXML, [this.resource]);
 
 		this.touchRevision();
-		println("Imported " + this);
+		java.lang.System.err.println("Imported " + this);
 		con.recompileSchemaOnClose();
 	""".
 

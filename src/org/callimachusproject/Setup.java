@@ -251,7 +251,7 @@ public class Setup {
 
 	public void start() throws Exception {
 		String configString = readContent(config);
-		System.out.println(connect(dir, configString).toURI().toASCIIString());
+		System.err.println(connect(dir, configString).toURI().toASCIIString());
 		boolean changed = false;
 		for (String origin : origins) {
 			changed |= createOrigin(origin, callimachus, repository);

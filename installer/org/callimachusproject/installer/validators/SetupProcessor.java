@@ -15,6 +15,7 @@
  *
  */
 package org.callimachusproject.installer.validators;
+import java.net.SocketException;
 import java.net.URL;
 
 import org.callimachusproject.installer.Configure;
@@ -48,8 +49,10 @@ public class SetupProcessor implements DataValidator {
     	if (abort)
     		return Status.ERROR;
 		try {
-	        
-			Configure configure = ConfigurationReader.configure;
+
+        	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+
+			setupSecondaryOrigin(adata);
 			
 			if (!configure.isConnected()) {
 				URL config = configure.getRepositoryConfigTemplates().get("Sesame");
@@ -58,17 +61,6 @@ public class SetupProcessor implements DataValidator {
 		    	String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN");
 				for (String origin : primary.split("\\s+")) {
 					configure.createOrigin(origin);
-				}
-
-				if ("".equals(adata.getVariable("callimachus.SECONDARY_ORIGIN"))) {
-					StringBuilder sb = new StringBuilder();
-					String port = adata.getVariable("callimachus.PORT");
-					for (String origin : configure.getDefaultOrigins(port)) {
-						if (!primary.contains(origin)) {
-							sb.append(origin).append("\n");
-						}
-					}
-					adata.setVariable("callimachus.SECONDARY_ORIGIN", sb.toString());
 				}
 			}
 		    
@@ -79,5 +71,20 @@ public class SetupProcessor implements DataValidator {
 			return Status.ERROR;
 		}
     }
+
+	private void setupSecondaryOrigin(AutomatedInstallData adata) throws SocketException {
+    	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+    	String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN");
+		if ("".equals(adata.getVariable("callimachus.SECONDARY_ORIGIN"))) {
+			StringBuilder sb = new StringBuilder();
+			String port = adata.getVariable("callimachus.PORT");
+			for (String origin : configure.getDefaultOrigins(port)) {
+				if (!primary.contains(origin)) {
+					sb.append(origin).append("\n");
+				}
+			}
+			adata.setVariable("callimachus.SECONDARY_ORIGIN", sb.toString());
+		}
+	}
     
 }

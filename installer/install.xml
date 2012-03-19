@@ -70,7 +70,8 @@
         <res id="TargetPanel.dir.windows" src="tmp/windows.dir" />
         <res id="TargetPanel.dir.unix" src="tmp/unix.dir" />
     </resources>
-    <xi:include href="../tmp/jars" />
+    <xi:include href="../tmp/jar" />
+    <xi:include href="../tmp/mail-jar" />
 
     <!-- 
         The panels section.
@@ -92,7 +93,9 @@
         <panel classname="UserInputPanel"/> <!-- virtual hosts config -->
         <panel classname="UserInputPanel"/> <!-- other realms config -->
         <panel classname="UserInputPanel"/> <!-- all resources config -->
-        <panel classname="UserInputPanel"/> <!-- mail config -->
+        <panel classname="UserInputPanel"> <!-- mail config -->
+          <validator classname="org.callimachusproject.installer.validators.MailServerValidator" />
+        </panel>
         <panel classname="UserInputPanel"/> <!-- initial user config -->
         <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="HTMLHelloPanel" id="3rs"/>

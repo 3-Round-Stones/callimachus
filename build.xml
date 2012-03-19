@@ -261,8 +261,8 @@
 				<fileset dir="${lib.install}">
 					<include name="**/*.jar" />
 				</fileset>
-				<fileset dir="${lib.install}">
-					<include name="**/*.jar" />
+				<fileset dir="${lib}">
+					<include name="${mail.jar}" />
 				</fileset>
 			</classpath>
 		</javac>
@@ -286,8 +286,11 @@
 				<variable name="Version" value="${Version}"/>
 			</variables>
 		]]></echo>
-		<echo file="tmp/jars" append="false"><![CDATA[
+		<echo file="tmp/jar" append="false"><![CDATA[
 			<jar src="dist/callimachus-configure-${Version}.jar" stage="install"/>
+		]]></echo>
+		<echo file="tmp/mail-jar" append="false"><![CDATA[
+			<jar src="${lib}/${mail.jar}" stage="install"/>
 		]]></echo>
 		<echo file="tmp/unix.dir" append="false">/opt/3RoundStones/Callimachus-${Version}</echo>
 		<echo file="tmp/macosx.dir" append="false">/Applications/3RoundStones/Callimachus-${Version}</echo>
@@ -301,7 +304,8 @@
 		<delete file="tmp/windows.dir" />
 		<delete file="tmp/macosx.dir" />
 		<delete file="tmp/unix.dir" />
-		<delete file="tmp/jars" />
+		<delete file="tmp/mail-jar" />
+		<delete file="tmp/jar" />
 		<delete file="tmp/variables" />
 		<delete file="tmp/version" />
 		<echo>Building installer: ${dist}/Callimachus-Setup-${Version}.run</echo>

@@ -32,7 +32,6 @@ import com.izforge.izpack.installer.DataValidator;
  */
 public class ConfigurationReader implements DataValidator {
 	public static final String ERROR_MSG = "There was an error during the install. You must abort this instalation and try again. Run this installer from a command line for a full stack trace.";
-	public static Configure configure;
 	private boolean abort;
     
     public boolean getDefaultAnswer() {
@@ -51,9 +50,11 @@ public class ConfigurationReader implements DataValidator {
     	if (abort)
     		return Status.ERROR;
         try {
+        	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
 			if (configure == null) {
 				String installPath = adata.getInstallPath();
 				configure = new Configure(new File(installPath));
+				adata.setAttribute(Configure.class.getName(), configure);
 				if (configure.isServerRunning() && !configure.stopServer()) {
 					System.err.println("Server must be shut down to continue");
 	    			return Status.ERROR;

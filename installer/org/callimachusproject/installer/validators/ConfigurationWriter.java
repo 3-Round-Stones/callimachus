@@ -33,32 +33,35 @@ import com.izforge.izpack.installer.DataValidator;
  */
 public class ConfigurationWriter implements DataValidator {
 	private boolean abort;
-    
-    public boolean getDefaultAnswer() {
-        return true;
-    }
-    
-    public String getErrorMessageId() {
-        return ConfigurationReader.ERROR_MSG;
-    }
-    
-    public String getWarningMessageId() {
-        return ConfigurationReader.ERROR_MSG;
-    }
-    
-    public DataValidator.Status validateData(AutomatedInstallData adata) {
-    	if (abort)
-    		return Status.ERROR;
+
+	public boolean getDefaultAnswer() {
+		return true;
+	}
+
+	public String getErrorMessageId() {
+		return ConfigurationReader.ERROR_MSG;
+	}
+
+	public String getWarningMessageId() {
+		return ConfigurationReader.ERROR_MSG;
+	}
+
+	public DataValidator.Status validateData(AutomatedInstallData adata) {
+		if (abort)
+			return Status.ERROR;
 		try {
 
-	        Configure configure = ConfigurationReader.configure;
-	        
-            saveConfig(adata, configure);
-            saveMail(adata, configure);
-    		saveLogging(configure);
+        	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+
+			// Write Callimachus callimachus.conf file.
+			configure.setServerConfiguration(getServerConfiguration(adata));
+			// Write Callimachus mail.properties file.
+			configure.setMailProperties(getMailProperties(adata));
+			// Write Callimachus logging.properties file
+			configure.setLoggingProperties(getLoggingProperties(adata));
 
 			if (configure.isConnected()) {
-		    	String primary = configureOrigins(adata, configure);
+				String primary = configureOrigins(adata);
 
 				configure.disconnect();
 				String startserver = adata.getVariable("callimachus.startserver");
@@ -71,39 +74,17 @@ public class ConfigurationWriter implements DataValidator {
 				}
 			}
 
-	        return Status.OK;
+			return Status.OK;
 		} catch (Exception e) {
 			abort = true;
 			// This is an unknown error.
-    		e.printStackTrace();
+			e.printStackTrace();
 			return Status.ERROR;
 		}
-    }
-
-	private String configureOrigins(AutomatedInstallData adata,
-			Configure configure) throws Exception {
-		String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN").split("\\s+")[0];
-		String secondary = adata.getVariable("callimachus.SECONDARY_ORIGIN");
-		for (String origin : secondary.split("\\s+")) {
-			if (origin.length() > 0) {
-				configure.createVirtualHost(origin, primary);
-			}
-		}
-		String other = adata.getVariable("callimachus.OTHER_REALM");
-		for (String realm : other.split("\\s+")) {
-			if (realm.length() > 0) {
-				configure.createRealm(realm, primary);
-			}
-		}
-		if ("true".equals(adata.getVariable("callimachus.ALL_LOCAL"))) {
-			configure.mapAllResourcesAsLocal(primary);
-		}
-		return primary;
 	}
 
-	private void saveConfig(AutomatedInstallData adata, Configure configure)
-			throws IOException {
-		// Write Callimachus callimachus.conf file.
+	public Properties getServerConfiguration(AutomatedInstallData adata) throws IOException {
+    	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
 		String primary = getSingleLine(adata, "callimachus.PRIMARY_ORIGIN");
 		String secondary = getSingleLine(adata, "callimachus.SECONDARY_ORIGIN");
 		String other = getSingleLine(adata, "callimachus.OTHER_REALM");
@@ -130,12 +111,13 @@ public class ConfigurationWriter implements DataValidator {
 				conf.setProperty("JAVA_HOME", jre.getAbsolutePath());
 			}
 		}
-		configure.setServerConfiguration(conf);
+		return conf;
 	}
 
-	private void saveMail(AutomatedInstallData adata, Configure configure)
-			throws IOException {
-		// Write Callimachus mail.properties file.
+	public Properties getMailProperties(AutomatedInstallData adata) throws IOException {
+		if ("true".equals(adata.getVariable("callimachus.later.mail")))
+			return new Properties();
+    	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
 		Properties mailProperties = configure.getMailProperties();
 		// NB: Ensure that these var names are correct in install.xml, userInputSpec.xml
 		mailProperties.setProperty("mail.transport.protocol", getSingleLine(adata, "callimachus.mail.transport.protocol") );
@@ -145,12 +127,13 @@ public class ConfigurationWriter implements DataValidator {
 		mailProperties.setProperty("mail.smtps.auth", getSingleLine(adata, "callimachus.mail.smtps.auth") );
 		mailProperties.setProperty("mail.user", getSingleLine(adata, "callimachus.mail.user") );
 		mailProperties.setProperty("mail.password", getSingleLine(adata, "callimachus.mail.password") );
-		configure.setMailProperties(mailProperties);
+		return mailProperties;
 	}
 
-	private void saveLogging(Configure configure) throws IOException {
-		// Write Callimachus logging.properties file
-		configure.setLoggingProperties(configure.getLoggingProperties());
+	public Properties getLoggingProperties(AutomatedInstallData adata)
+			throws IOException {
+    	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+		return configure.getLoggingProperties();
 	}
 
 	private String getSingleLine(AutomatedInstallData adata, String key) {
@@ -159,5 +142,26 @@ public class ConfigurationWriter implements DataValidator {
 			return "";
 		return value.trim().replaceAll("\\s+", " ");
 	}
-       
+
+	private String configureOrigins(AutomatedInstallData adata) throws Exception {
+    	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+		String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN").split("\\s+")[0];
+		String secondary = adata.getVariable("callimachus.SECONDARY_ORIGIN");
+		for (String origin : secondary.split("\\s+")) {
+			if (origin.length() > 0) {
+				configure.createVirtualHost(origin, primary);
+			}
+		}
+		String other = adata.getVariable("callimachus.OTHER_REALM");
+		for (String realm : other.split("\\s+")) {
+			if (realm.length() > 0) {
+				configure.createRealm(realm, primary);
+			}
+		}
+		if ("true".equals(adata.getVariable("callimachus.ALL_LOCAL"))) {
+			configure.mapAllResourcesAsLocal(primary);
+		}
+		return primary;
+	}
+
 }

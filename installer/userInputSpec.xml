@@ -19,6 +19,7 @@
     </field>
     <field type="space"/>
     <field type="staticText" align="left" txt="The Primary authority will be the beginning of the URL that will usually appear in the address bar of the browser when connect to this server."/>
+    <field type="staticText" align="left" txt="WARNING: A primary authority cannot be changed during or after an installation, ensure the host name entered is correct before continuing."/>
     <field type="divider" align="bottom"/>
   </panel>
   <!-- Panel 1: Virtual hosts configuration -->

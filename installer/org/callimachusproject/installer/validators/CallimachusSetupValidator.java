@@ -37,6 +37,7 @@ public class CallimachusSetupValidator implements DataValidator {
     static String DATA_VALIDATOR_TAG = "CallimachusSetupValidator tag";
 	protected AutomatedInstallData adata;
 	protected Map<String,String> defaults = new HashMap<String,String>(20); // Default values for variables.
+	public static Configure configure;
     
     public boolean getDefaultAnswer() {
         return true;
@@ -56,7 +57,7 @@ public class CallimachusSetupValidator implements DataValidator {
     	String primaryAuthority = adata.getVariable("callimachus.ORIGIN");
         
 		String installPath = adata.getInstallPath();
-		Configure configure = new Configure(new File(installPath));
+		configure = new Configure(new File(installPath));
 		
 		try {
     		boolean running = configure.isServerRunning();

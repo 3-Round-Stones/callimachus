@@ -52,8 +52,7 @@ public class CallimachusWriteConfigurationValidator implements DataValidator {
 
         this.adata = adata;
         
-        String installPath = adata.getInstallPath();
-        Configure configure = new Configure(new File(installPath));
+        Configure configure = CallimachusSetupValidator.configure;
         
     	String primaryAuthority = adata.getVariable("callimachus.ORIGIN");
 		try {

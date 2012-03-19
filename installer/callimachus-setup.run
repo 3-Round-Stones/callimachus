@@ -38,7 +38,7 @@ fi
 JAVA_VERSION_INT=`echo "$JAVA_VERSION" | perl -pe 's;\.;0;g' 2>/dev/null`
 
 # Check JAVA_HOME directory to see if Java version is adequate
-if [ ! -z "$JAVA_HOME" -a -x "$JAVA_HOME/bin/java" -a -x "$JAVA_HOME/bin/javac" ] ; then
+if [ ! -z "$JAVA_HOME" -a -x "$JAVA_HOME/bin/java" ] ; then
   JAVA="$JAVA_HOME/bin/java"
   VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
   if [ -L "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then

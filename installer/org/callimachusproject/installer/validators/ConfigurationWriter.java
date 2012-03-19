@@ -15,6 +15,7 @@
  *
  */
 package org.callimachusproject.installer.validators;
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -106,19 +107,30 @@ public class ConfigurationWriter implements DataValidator {
 		String primary = getSingleLine(adata, "callimachus.PRIMARY_ORIGIN");
 		String secondary = getSingleLine(adata, "callimachus.SECONDARY_ORIGIN");
 		String other = getSingleLine(adata, "callimachus.OTHER_REALM");
-		Properties confProperties = configure.getServerConfiguration();
-		confProperties.setProperty("PORT", getSingleLine(adata, "callimachus.PORT"));
-		confProperties.setProperty("PRIMARY_ORIGIN", primary);
-		confProperties.setProperty("SECONDARY_ORIGIN", secondary);
-		confProperties.setProperty("OTHER_REALM", other);
-		confProperties.setProperty("ALL_LOCAL", getSingleLine(adata, "callimachus.ALL_LOCAL"));
+		Properties conf = configure.getServerConfiguration();
+		conf.setProperty("PORT", getSingleLine(adata, "callimachus.PORT"));
+		conf.setProperty("PRIMARY_ORIGIN", primary);
+		conf.setProperty("SECONDARY_ORIGIN", secondary);
+		conf.setProperty("OTHER_REALM", other);
+		conf.setProperty("ALL_LOCAL", getSingleLine(adata, "callimachus.ALL_LOCAL"));
 		// Set the origin on disk to be the space-separated concatenation of origins
 		StringBuilder origin = new StringBuilder();
 		origin.append(primary).append(" ");
 		origin.append(secondary).append(" ");
 		origin.append(other.replaceAll("(://[^/]*)/\\S*", "$1")).append(" ");
-		confProperties.setProperty("ORIGIN", origin.toString().trim());
-		configure.setServerConfiguration(confProperties);
+		conf.setProperty("ORIGIN", origin.toString().trim());
+		// save JAVA_HOME
+		String jdk = adata.getVariable("JDKPath");
+		if (conf.getProperty("JAVA_HOME") == null && jdk != null) {
+			File jre = new File(jdk, "jre");
+			File bin = new File(jre, "bin");
+			File java = new File(bin, "java");
+			File java_exe = new File(bin, "java.exe");
+			if (java.isFile() || java_exe.isFile()) {
+				conf.setProperty("JAVA_HOME", jre.getAbsolutePath());
+			}
+		}
+		configure.setServerConfiguration(conf);
 	}
 
 	private void saveMail(AutomatedInstallData adata, Configure configure)

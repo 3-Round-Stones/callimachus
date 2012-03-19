@@ -14,18 +14,12 @@
 
 <installation version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
-    <xi:include href="../tmp/variables" />
-
-    <!-- Default values stored in Java -->
-    <property name="callimachus.PORT" value="" />
-    <property name="callimachus.ORIGIN" value="" />
-    <property name="callimachus.mail.transport.protocol" value="" />
-    <property name="callimachus.mail.from" value="" />
-    <property name="callimachus.mail.smtps.host" value="" />
-    <property name="callimachus.mail.smtps.port" value="" />
-    <property name="callimachus.mail.smtps.auth" value="" />
-    <property name="callimachus.mail.user" value="" />
-    <property name="callimachus.mail.password" value="" />
+    <variables>
+        <variable name="JDKPathPanel.minVersion" value="1.6.0_20" />
+        <variable name="JDKPathPanel.maxVersion" value="1.6.99" />
+        <variable name="JDKPathPanel.skipIfValid" value="yes" />
+        <xi:include href="../tmp/variables" xpointer="element(/1/1)" />
+    </variables>
 
     <!-- 
         The info section.
@@ -85,6 +79,7 @@
     <panels>
         <panel classname="HTMLHelloPanel" id="hello"/>
         <panel classname="LicencePanel" id="license"/>
+        <panel classname="JDKPathPanel"/>
         <panel classname="TargetPanel">
           <validator classname="org.callimachusproject.installer.validators.ConfigurationReader" />
         </panel>

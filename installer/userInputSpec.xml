@@ -1,207 +1,158 @@
+<?xml version="1.0"?>
 <userInput>
   <!-- Panel 0: Primary authority and port configuration -->
-    <panel order="0">
-        <field type="title" txt="Host Configuration" bold="true" size="1" />
-        <field type="divider" align="top"/>
-        <field type="staticText" align="left"
-               txt="$APP_NAME will be accessed at the Web address given in the Primary Authority field and will bind to the port specified.  Change these values to match your intended deployment." />
-        <field type="text" align="left" variable="callimachus.ORIGIN">
-            <spec txt="Primary Authority:" size="25" set="${callimachus.ORIGIN}"/>
-						<validator class="com.izforge.izpack.util.RegularExpressionValidator"
-						           txt="The primary authority must start with 'http://' and must not contain a path.">
-						  <param name="pattern" value="^http://([^/])*"/>
-						</validator>
-        </field>
-        <field type="text" align="left" variable="callimachus.PORT">
-            <spec txt="Port:" size="25" set="${callimachus.PORT}"/>
-        </field>
-        <field type="space"/>
-        <field type="divider" align="bottom"/>
-    </panel>
+  <panel order="0">
+    <field type="title" txt="Host Configuration" bold="true" size="1"/>
+    <field type="divider" align="top"/>
+    <field type="text" align="left" variable="callimachus.PRIMARY_ORIGIN">
+      <description align="left" txt="$APP_NAME will be accessed at the Web address given in the Primary Authority field and will bind to the port specified.  Change these values to match your intended deployment."/>
+      <spec txt="Primary authority:" size="25" set="${callimachus.PRIMARY_ORIGIN}"/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="The primary authority must start with 'http://' and must not contain a path.">
+        <param name="pattern" value="^(https?://[a-zA-Z0-9:.-]+\s*)*$"/>
+      </validator>
+    </field>
+    <field type="text" align="left" variable="callimachus.PORT">
+      <spec txt="Port:" size="25" set="${callimachus.PORT}"/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="The server must listen on a numerical port.">
+        <param name="pattern" value="^([0-9]{1,5}\s*)*$"/>
+      </validator>
+    </field>
+    <field type="space"/>
+    <field type="staticText" align="left" txt="The Primary authority will be the beginning of the URL that will usually appear in the address bar of the browser."/>
+    <field type="divider" align="bottom"/>
+  </panel>
   <!-- Panel 1: Virtual hosts configuration -->
-    <panel order="1">
-        <field type="title" txt="Virtual Hosts Configuration" bold="true" size="1" />
-        <field type="divider" align="top"/>
-        <field type="staticText" align="left"
-               txt="$APP_NAME can also answer to alternate HTTP authorities.  Add them here if you want your server to answer to various hostnames." />
-        <field type="text" align="left" variable="callimachus.secondaryauthority1">
-            <spec txt="Secondary Authority 1:" size="25" set="${callimachus.secondaryauthority1}"/>
-						<validator class="com.izforge.izpack.util.RegularExpressionValidator"
-						           txt="Authority 1 must start with 'http://' and must not contain a path.">
-						  <param name="pattern" value="^($|http://([^/])*)"/>
-						</validator>
-        </field>
-        <field type="text" align="left" variable="callimachus.secondaryauthority2">
-            <spec txt="Secondary Authority 2:" size="25" set="${callimachus.secondaryauthority2}"/>
-						<validator class="com.izforge.izpack.util.RegularExpressionValidator"
-						           txt="Authority 2 must start with 'http://' and must not contain a path.">
-						  <param name="pattern" value="^($|http://([^/])*)"/>
-						</validator>
-        </field>
-        <field type="text" align="left" variable="callimachus.secondaryauthority3">
-            <spec txt="Secondary Authority 3:" size="25" set="${callimachus.secondaryauthority3}"/>
-						<validator class="com.izforge.izpack.util.RegularExpressionValidator"
-						           txt="Authority 3 must start with 'http://' and must not contain a path.">
-						  <param name="pattern" value="^($|http://([^/])*)"/>
-						</validator>
-        </field>
-        <field type="text" align="left" variable="callimachus.secondaryauthority4">
-            <spec txt="Secondary Authority 4:" size="25" set="${callimachus.secondaryauthority4}"/>
-						<validator class="com.izforge.izpack.util.RegularExpressionValidator"
-						           txt="Authority 4 must start with 'http://' and must not contain a path.">
-						  <param name="pattern" value="^($|http://([^/])*)"/>
-						</validator>
-        </field>
-        <field type="text" align="left" variable="callimachus.secondaryauthority5">
-            <spec txt="Secondary Authority 5:" size="25" set="${callimachus.secondaryauthority5}"/>
-						<validator class="com.izforge.izpack.util.RegularExpressionValidator"
-						           txt="Authority 5 must start with 'http://' and must not contain a path.">
-						  <param name="pattern" value="^($|http://([^/])*)"/>
-						</validator>
-        </field>
-        <field type="divider" align="bottom"/>
-    </panel>
+  <panel order="1">
+    <field type="title" txt="Virtual Hosts Configuration" bold="true" size="1"/>
+    <field type="divider" align="top"/>
+    <field type="text" align="left" variable="callimachus.SECONDARY_ORIGIN">
+      <description align="left" txt="$APP_NAME can also serve alternate HTTP authorities, also known as virtual hosts.  Add other authorities (one on each line) that will resolve to this server."/>
+      <spec txt="Secondary authority:" size="25" rows="5" set="${callimachus.SECONDARY_ORIGIN}"/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Secondary authority must start with 'http://' and must not contain a path.">
+        <param name="pattern" value="^(https?://[a-zA-Z0-9:.-]+\s*)*$"/>
+      </validator>
+    </field>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="divider" align="bottom"/>
+  </panel>
   <!-- Panel 2: Other realms configuation -->
-    <panel order="2">
-        <field type="title" txt="Other Realms Configuration" bold="true" size="1" />
-        <field type="divider" align="top"/>
-        <field type="staticText" align="left"
-               txt="$APP_NAME realms are used to represent the authorities of RDF resources in URIs.  Add them here if your server hosts RDF resources with different authorities and you wish $APP_NAME to serve them.  It is not necessary to explicitly list other realms if 'Accept all realms' is checked." />
-        <field type="check" variable="${callimachus.acceptallrealms}">
-          <spec txt="Accept all realms?" true="on" false="off" set="true"/>
-        </field>	
-		    <field type="check" variable="${callimachus.describeall}">
-		      <spec txt="Provide descriptions for all resources?" true="on" false="off" set="true"/>
-		    </field>
-        <field type="text" align="left" variable="callimachus.otherrealm1">
-            <spec txt="Other Realm 1:" size="25" set="${callimachus.otherrealm1}"/>
-						<validator class="com.izforge.izpack.util.RegularExpressionValidator"
-						           txt="Realm 1 must start with 'http://' and must contain a path.">
-						  <param name="pattern" value="^($|http://.+/.*)"/>
-						</validator>
-        </field>
-        <field type="text" align="left" variable="callimachus.otherrealm2">
-            <spec txt="Other Realm 2:" size="25" set="${callimachus.otherrealm2}"/>
-						<validator class="com.izforge.izpack.util.RegularExpressionValidator"
-						           txt="Realm 2 must start with 'http://' and must contain a path.">
-						  <param name="pattern" value="^($|http://.+/.*)"/>
-						</validator>
-        </field>
-        <field type="text" align="left" variable="callimachus.otherrealm3">
-            <spec txt="Other Realm 3:" size="25" set="${callimachus.otherrealm3}"/>
-						<validator class="com.izforge.izpack.util.RegularExpressionValidator"
-						           txt="Realm 3 must start with 'http://' and must contain a path.">
-						  <param name="pattern" value="^($|http://.+/.*)"/>
-						</validator>
-        </field>
-        <field type="text" align="left" variable="callimachus.otherrealm4">
-            <spec txt="Other Realm 4:" size="25" set="${callimachus.otherrealm4}"/>
-						<validator class="com.izforge.izpack.util.RegularExpressionValidator"
-						           txt="Realm 4 must start with 'http://' and must contain a path.">
-						  <param name="pattern" value="^($|http://.+/.*)"/>
-						</validator>
-        </field>
-        <field type="text" align="left" variable="callimachus.otherrealm5">
-            <spec txt="Other Realm 5:" size="25" set="${callimachus.otherrealm5}"/>
-						<validator class="com.izforge.izpack.util.RegularExpressionValidator"
-						           txt="Realm 5 must start with 'http://' and must contain a path.">
-						  <param name="pattern" value="^($|http://.+/.*)"/>
-						</validator>
-        </field>
-        <field type="divider" align="top"/>
-    </panel>
-  <!-- Panel 3: Mail configuration -->
-    <panel order="3">
-        <field type="title" txt="Mail Configuration" bold="true" size="1" />
-        <field type="divider" align="top"/>
-        <field type="staticText" align="left"
-               txt="$APP_NAME uses email to inform new users of their initial password." />
-        <field type="combo" variable="callimachus.mail.transport.protocol">
-          <description align="left" txt="Email transport protocol:" />
-          <spec>
-            <choice txt="SMTPS" value="smtps" set="${callimachus.mail.transport.protocol}" />
-            <choice txt="SMTP" value="smtp" />
-          </spec>
-        </field>
-        <field type="text" align="left" variable="callimachus.mail.from">
-          <spec txt="Email from address:" size="25" set="${callimachus.mail.from}"/>
-          <validator class="com.izforge.izpack.util.RegularExpressionValidator"
-                     txt="Your email from address does not appear to be valid.">
-            <param name="pattern"
-                   value="[a-zA-Z0-9.!$%&amp;*+/=?^_{}~-]+@[a-zA-Z0-9.-]+"
-            />
-          </validator>
-        </field>
-        <field type="text" align="left" variable="callimachus.mail.smtps.host">
-          <spec txt="Email hostname:" size="25" set="${callimachus.mail.smtps.host}"/>
-          <validator class="com.izforge.izpack.util.RegularExpressionValidator"
-                     txt="Your email hostname does not appear to be valid.">
-            <param name="pattern"
-                   value="[a-zA-Z0-9.-]+"
-            />
-          </validator>
-        </field>
-        <field type="text" align="left" variable="callimachus.mail.smtps.port">
-          <spec txt="Email host port:" size="6" set="${callimachus.mail.smtps.port}"/>
-          <validator class="com.izforge.izpack.util.RegularExpressionValidator"
-                     txt="Your port does not appear to be valid (it should be 1-5 digits).">
-            <param name="pattern"
-                   value="[0-9]{1,5}"
-            />
-          </validator>
-        </field>
-        <field type="combo" variable="callimachus.mail.smtps.auth">
-          <description align="left" txt="Authentication required:" />
-          <spec>
-            <choice txt="yes" value="yes" set="${callimachus.mail.smtps.auth}" />
-            <choice txt="no" value="no"/>
-          </spec>
-        </field>
-        <field type="text" align="left" variable="callimachus.mail.user">
-            <spec txt="Auth username:" size="25" set="${callimachus.mail.user}"/>
-        </field>
-        <field type="password" align="left" variable="callimachus.mail.password">
-          <spec>
-            <pwd txt="Password:" size="25" set="${callimachus.mail.password}"/>
-            <pwd txt="Retype Password:" size="25" set=""/>
-          </spec>
-          <validator class="com.izforge.izpack.util.PasswordEqualityValidator"
-                     txt="Both passwords must match." />
-        </field>
-    </panel>
-  <!-- Panel 4: Initial user configuration -->
-    <panel order="4">
-        <field type="title" txt="Initial User Configuration" bold="true" size="1" />
-        <field type="divider" align="top"/>
-        <field type="staticText" align="left"
-               txt="You will need an initial $APP_NAME user account to log into the $APP_NAME Web user interface.  Choose a strong password if you are using a public server!" />
-        <field type="text" align="left" variable="callimachususername">
-          <spec txt="Callimachus username:" size="25" set="admin"/>
-          <validator class="com.izforge.izpack.util.NotEmptyValidator" txt="You must enter a username."/>
-        </field>
-        <field type="password" align="left" variable="callimachuspassword">
-          <spec>
-            <pwd txt="Password:" size="25" set=""/>
-            <pwd txt="Retype Password:" size="25" set=""/>
-          </spec>
-          <validator class="com.izforge.izpack.util.PasswordEqualityValidator"
-                     txt="Both passwords must match." />
-					<validator class="com.izforge.izpack.util.NotEmptyValidator" txt="You must enter a password."/>
-        </field>
-        <field type="divider" align="top"/>
-    </panel>
-  <!-- Panel 5: Start server/open browser configuation -->
-    <panel order="5">
-        <field type="title" txt="Start server?" bold="true" size="1" />
-        <field type="divider" align="top"/>
-        <field type="staticText" align="left"
-               txt="$APP_NAME may be optionally started at this time." />
-        <field type="check" variable="${callimachus.startserver}">
-          <spec txt="Start server?" true="on" false="off" set="true"/>
-        </field>	
-		    <field type="check" variable="${callimachus.openbrowser}">
-		      <spec txt="Open welcome page in a Web brower?" true="on" false="off" set="true"/>
-		    </field>
-        <field type="divider" align="top"/>
-    </panel>
+  <panel order="2">
+    <field type="title" txt="Other Realms Configuration" bold="true" size="1"/>
+    <field type="divider" align="top"/>
+    <field type="text" align="left" variable="callimachus.OTHER_REALM">
+      <description align="left" txt="List the hierarchical URI spaces of resources this server can create, that do not resolve to this server. List a URI space on each line and include a path."/>
+      <spec txt="Other Realm:" size="25" rows="5" set="${callimachus.OTHER_REALM}"/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Realms must absolute hierarchical URIs with a path.">
+        <param name="pattern" value="^([a-z]+://[a-zA-Z0-9:.-]+/\S*\s*)*$"/>
+      </validator>
+    </field>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="space"/>
+    <field type="divider" align="bottom"/>
+  </panel>
+  <!-- Panel 3: All local configuation -->
+  <panel order="3">
+    <field type="title" txt="Local Resource Configuration" bold="true" size="1"/>
+    <field type="divider" align="top"/>
+    <field type="check" variable="${callimachus.ALL_LOCAL}">
+      <description align="left" txt="Leave this box checked if you want $APP_NAME to provide navigational pages for all loaded RDF resources. Deselect this box if you only want $APP_NAME to serve resources with configured templates."/>
+      <spec txt="Serve all RDF resources" true="true" false="false" set="${callimachus.ALL_LOCAL}"/>
+    </field>
+    <field type="divider" align="bottom"/>
+  </panel>
+  <!-- Panel 4: Mail configuration -->
+  <panel order="4">
+    <field type="title" txt="Mail Configuration" bold="true" size="1"/>
+    <field type="divider" align="top"/>
+    <field type="staticText" align="left" txt="$APP_NAME uses email to inform new users of their initial password and instructions on how to reset their passwords."/>
+    <field type="combo" variable="callimachus.mail.transport.protocol">
+      <description align="left" txt="Email transport protocol:"/>
+      <spec>
+        <choice txt="SMTPS" value="smtps" set="${callimachus.mail.transport.protocol}"/>
+        <choice txt="SMTP" value="smtp"/>
+      </spec>
+    </field>
+    <field type="text" align="left" variable="callimachus.mail.from">
+      <spec txt="Email from address:" size="25" set="${callimachus.mail.from}"/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Your email from address does not appear to be valid.">
+        <param name="pattern" value="[a-zA-Z0-9.!$%&amp;*+/=?^_{}~-]+@[a-zA-Z0-9.-]+"/>
+      </validator>
+    </field>
+    <field type="text" align="left" variable="callimachus.mail.smtps.host">
+      <spec txt="Email hostname:" size="25" set="${callimachus.mail.smtps.host}"/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Your email hostname does not appear to be valid.">
+        <param name="pattern" value="[a-zA-Z0-9.-]+"/>
+      </validator>
+    </field>
+    <field type="text" align="left" variable="callimachus.mail.smtps.port">
+      <spec txt="Email host port:" size="6" set="${callimachus.mail.smtps.port}"/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Your port does not appear to be valid (it should be 1-5 digits).">
+        <param name="pattern" value="[0-9]{1,5}"/>
+      </validator>
+    </field>
+    <field type="combo" variable="callimachus.mail.smtps.auth">
+      <spec txt="Authentication required:">
+        <choice txt="yes" value="yes" set="${callimachus.mail.smtps.auth}"/>
+        <choice txt="no" value="no"/>
+      </spec>
+    </field>
+    <field type="text" align="left" variable="callimachus.mail.user">
+      <spec txt="Auth username:" size="25" set="${callimachus.mail.user}"/>
+    </field>
+    <field type="password" align="left" variable="callimachus.mail.password">
+      <spec>
+        <pwd txt="Password:" size="25" set="${callimachus.mail.password}"/>
+        <pwd txt="Retype Password:" size="25" set=""/>
+      </spec>
+      <validator class="com.izforge.izpack.util.PasswordEqualityValidator" txt="Both passwords must match."/>
+    </field>
+    <field type="divider" align="bottom"/>
+  </panel>
+  <!-- Panel 5: Initial user configuration -->
+  <panel order="5">
+    <field type="title" txt="Initial User Configuration" bold="true" size="1"/>
+    <field type="divider" align="top"/>
+    <field type="staticText" align="left" txt="If this is a new install, you will need an initial $APP_NAME user account to log into the $APP_NAME Web user interface. Complete all fields to create an admin user account. Choose a strong password if you are using a public server!"/>
+    <field type="text" align="left" variable="callimachus.fullname">
+      <spec txt="Full name:" size="25" set=""/>
+    </field>
+    <field type="text" align="left" variable="callimachus.email">
+      <spec txt="E-mail:" size="25" set=""/>
+    </field>
+    <field type="text" align="left" variable="callimachus.username">
+      <spec txt="Username:" size="25" set=""/>
+    </field>
+    <field type="password" align="left" variable="callimachus.password">
+      <spec>
+        <pwd txt="Password:" size="25" set=""/>
+      </spec>
+    </field>
+    <field type="divider" align="bottom"/>
+  </panel>
+  <!-- Panel 6: Start server/open browser configuation -->
+  <panel order="6">
+    <field type="title" txt="Start Server" bold="true" size="1"/>
+    <field type="divider" align="top"/>
+    <field type="check" variable="${callimachus.startserver}">
+      <description align="left" txt="$APP_NAME may be started at this time."/>
+      <spec txt="Start server" true="true" false="false" set="true"/>
+    </field>
+    <field type="check" variable="${callimachus.openbrowser}">
+      <spec txt="Open welcome page in a Web brower?" true="true" false="false" set="true"/>
+    </field>
+    <field type="divider" align="bottom"/>
+  </panel>
 </userInput>

@@ -34,8 +34,6 @@ import com.izforge.izpack.installer.DataValidator;
  */
 public class ConfigurationReader implements DataValidator {
     
-    static String DATA_VALIDATOR_CLASSNAME_TAG = "CallimachusConfigurationValidator";
-    static String DATA_VALIDATOR_TAG = "CallimachusConfigurationValidator tag";
 	protected AutomatedInstallData adata;
 	protected Map<String,String> defaults = new HashMap<String,String>(20); // Default values for variables.
 	public static Configure configure;
@@ -68,7 +66,7 @@ public class ConfigurationReader implements DataValidator {
 			}
 
 			// Set IzPack variables for callimachus.conf:
-			String[] confProperties = {"PORT", "acceptallrealms", "describeall", "otherrealm1", "otherrealm2", "otherrealm3", "otherrealm4", "otherrealm5", "startserver", "openbrowser"};
+			String[] confProperties = {"PORT", "ALL_LOCAL", "OTHER_REALM"};
 			setCallimachusVariables(configure.getServerConfiguration(), confProperties);
             setOriginVariables(configure.getServerConfiguration());
 
@@ -112,12 +110,12 @@ public class ConfigurationReader implements DataValidator {
 	 * @param prop A Java Properties object holding values from a Callimachus config file.
 	 */
 	private void setOriginVariables(Properties prop) {
-	    String origin = prop.getProperty("ORIGIN");
+	    String origin = prop.getProperty("PRIMARY_ORIGIN");
         if ( origin == null ) {
-            origin = defaults.get("ORIGIN");
+            origin = defaults.get("PRIMARY_ORIGIN");
         }
         String[] origins = origin.split("\\s+");
-        String[] properties = {"ORIGIN", "secondaryauthority1", "secondaryauthority2", "secondaryauthority3", "secondaryauthority4", "secondaryauthority5"};
+        String[] properties = {"PRIMARY_ORIGIN", "SECONDARY_ORIGIN"};
 		String tempProperty;
 		// Use the on-disk values for any variable.
 		for (int i = 0; i < origins.length; i++) {
@@ -141,7 +139,7 @@ public class ConfigurationReader implements DataValidator {
 	 */
 	private void initializeDefaults() {
 	    defaults.put("PORT", "8080");
-    	defaults.put("ORIGIN", "http://localhost:8080");
+    	defaults.put("PRIMARY_ORIGIN", "http://localhost:8080");
         defaults.put("mail.transport.protocol", "smtps");
         defaults.put("mail.from", "user@example.com");
         defaults.put("mail.smtps.host", "mail.example.com");
@@ -149,19 +147,8 @@ public class ConfigurationReader implements DataValidator {
         defaults.put("mail.smtps.auth", "no");
         defaults.put("mail.user", "");
         defaults.put("mail.password", "");
-        defaults.put("secondaryauthority1", "");
-        defaults.put("secondaryauthority2", "");
-        defaults.put("secondaryauthority3", "");
-        defaults.put("secondaryauthority4", "");
-        defaults.put("secondaryauthority5", "");
-        defaults.put("acceptallrealms", "on");
-        defaults.put("describeall", "on");
-        defaults.put("otherrealm1", "");
-        defaults.put("otherrealm2", "");
-        defaults.put("otherrealm3", "");
-        defaults.put("otherrealm4", "");
-        defaults.put("otherrealm5", "");
-        defaults.put("startserver", "on");
-        defaults.put("openbrowser", "on");
+        defaults.put("SECONDARY_ORIGIN", "");
+        defaults.put("ALL_LOCAL", "true");
+        defaults.put("OTHER_REALM", "");
 	}
 }

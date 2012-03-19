@@ -65,8 +65,8 @@
     <resources>
         <res id="HTMLHelloPanel.hello" src="installer/hello.html"/>
         <res id="HTMLHelloPanel.3rs" src="installer/3rs.html"/>
-        <res id="callimachus_logo" src="installer/images/callimachus_logo.png"/>
-        <res id="callimachus_enterprise" src="installer/images/Callimachus_Enterprise_Logo.png"/>
+        <res id="callimachus_logo" src="installer/images/callimachus-logo.png"/>
+        <res id="callimachus_enterprise" src="installer/images/callimachus-enterprise-logo.png"/>
         <res id="3roundstones_logo" src="installer/images/3roundstones_logo.png"/>
         <res id="LicencePanel.licence" src="LICENSE.txt"/>
         <res id="HTMLInfoPanel.readme" src="README.txt"/>
@@ -96,6 +96,7 @@
         <panel classname="HTMLInfoPanel" id="readme"/>
         <panel classname="UserInputPanel"/> <!-- virtual hosts config -->
         <panel classname="UserInputPanel"/> <!-- other realms config -->
+        <panel classname="UserInputPanel"/> <!-- all resources config -->
         <panel classname="UserInputPanel"/> <!-- mail config -->
         <panel classname="UserInputPanel"/> <!-- initial user config -->
         <panel classname="HTMLInfoPanel" id="release_notes"/>

@@ -32,10 +32,6 @@ import com.izforge.izpack.installer.DataValidator;
  */
 public class ConfigurationWriter implements DataValidator {
     
-    static String DATA_VALIDATOR_CLASSNAME_TAG = "CallimachusWriteConfigurationValidator";
-    static String DATA_VALIDATOR_TAG = "CallimachusWriteConfigurationValidator tag";
-	protected AutomatedInstallData adata;
-    
     public boolean getDefaultAnswer() {
         return true;
     }
@@ -49,30 +45,21 @@ public class ConfigurationWriter implements DataValidator {
     }
     
     public DataValidator.Status validateData(AutomatedInstallData adata) {
-
-        this.adata = adata;
         
         Configure configure = ConfigurationReader.configure;
         
-    	String primaryAuthority = adata.getVariable("callimachus.ORIGIN");
+    	String primaryAuthority = adata.getVariable("callimachus.PRIMARY_ORIGIN");
 		try {
         	// Write Callimachus configuration file.
         	Properties confProperties = configure.getServerConfiguration();
             // NB: Ensure that these var names are correct in install.xml, userInputSpec.xml
             confProperties.setProperty("PORT", adata.getVariable("callimachus.PORT") );
-            confProperties.setProperty("acceptallrealms", adata.getVariable("callimachus.acceptallrealms") );
-            confProperties.setProperty("describeall", adata.getVariable("callimachus.describeall") );
-            confProperties.setProperty("otherrealm1", adata.getVariable("callimachus.otherrealm1") );
-            confProperties.setProperty("otherrealm2", adata.getVariable("callimachus.otherrealm2") );
-            confProperties.setProperty("otherrealm3", adata.getVariable("callimachus.otherrealm3") );
-            confProperties.setProperty("otherrealm4", adata.getVariable("callimachus.otherrealm4") );
-            confProperties.setProperty("otherrealm5", adata.getVariable("callimachus.otherrealm5") );
-            confProperties.setProperty("startserver", adata.getVariable("callimachus.startserver") );
-            confProperties.setProperty("openbrowser", adata.getVariable("callimachus.openbrowser") );
+            confProperties.setProperty("ALL_LOCAL", adata.getVariable("callimachus.ALL_LOCAL") );
+            confProperties.setProperty("OTHER_REALM", adata.getVariable("callimachus.OTHER_REALM") );
             // Set the origin on disk to be the space-separated concatenation of the
             // primary and secondary authorities.
             String origin = "";
-            String[] authorities = {"ORIGIN", "secondaryauthority1", "secondaryauthority2", "secondaryauthority3", "secondaryauthority4", "secondaryauthority5"};
+            String[] authorities = {"PRIMARY_ORIGIN", "SECONDARY_ORIGIN"};
             for (int i = 0; i < authorities.length; i++) {
                 if ( origin.length() > 0 ) { origin += " "; }
                 origin += adata.getVariable("callimachus." + authorities[i]);
@@ -108,9 +95,9 @@ public class ConfigurationWriter implements DataValidator {
 			configure.setLoggingProperties(configure.getLoggingProperties());
 			if (configure.isConnected()) {
 				configure.disconnect();
-				if ("on".equals(adata.getVariable("callimachus.startserver")) ) {
+				if ("true".equals(adata.getVariable("callimachus.startserver")) ) {
 					boolean started = configure.startServer();
-					if (started && configure.isWebBrowserSupported() && "on".equals(adata.getVariable("callimachus.openbrowser")) ) {
+					if (started && configure.isWebBrowserSupported() && "true".equals(adata.getVariable("callimachus.openbrowser")) ) {
 						configure.openWebBrowser(primaryAuthority + "/");
 					}
 				}

@@ -34,7 +34,7 @@
 	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
 	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
 	<property name="compress.url" value="http://archive.apache.org/dist/commons/compress/binaries/commons-compress-1.3-bin.tar.gz" />
-	<property name="izpack.url" value="http://repo1.maven.org/maven2/org/codehaus/izpack/izpack-standalone-compiler/4.3.2/izpack-standalone-compiler-4.3.2.jar" />
+	<property name="izpack.url" value="http://repo1.maven.org/maven2/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/izpack-standalone-compiler-4.3.5.jar" />
 	<property name="junit.url" value="http://repo1.maven.org/maven2/junit/junit/4.10/junit-4.10.jar" />
 	<property name="jersey-client.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-client/1.0.3/jersey-client-1.0.3.jar" />
 	<property name="jersey-core.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-core/1.0.3/jersey-core-1.0.3.jar" />

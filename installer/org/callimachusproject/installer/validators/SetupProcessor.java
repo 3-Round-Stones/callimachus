@@ -16,8 +16,6 @@
  */
 package org.callimachusproject.installer.validators;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.callimachusproject.installer.Configure;
 
@@ -33,11 +31,6 @@ import com.izforge.izpack.installer.DataValidator;
  */
 public class SetupProcessor implements DataValidator {
     
-    static String DATA_VALIDATOR_CLASSNAME_TAG = "CallimachusSetupValidator";
-    static String DATA_VALIDATOR_TAG = "CallimachusSetupValidator tag";
-	protected AutomatedInstallData adata;
-	protected Map<String,String> defaults = new HashMap<String,String>(20); // Default values for variables.
-    
     public boolean getDefaultAnswer() {
         return true;
     }
@@ -52,8 +45,7 @@ public class SetupProcessor implements DataValidator {
     
     public DataValidator.Status validateData(AutomatedInstallData adata) {
 
-        this.adata = adata;
-    	String primaryAuthority = adata.getVariable("callimachus.ORIGIN");
+    	String primaryAuthority = adata.getVariable("callimachus.PRIMARY_ORIGIN");
         
 		Configure configure = ConfigurationReader.configure;
 		

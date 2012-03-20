@@ -98,8 +98,6 @@
 # User forgot password
 ################################
 
-:anybody a calli:AnybodyRealm.
-
 # Linked from request password email
 :GetForgotPasswordPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
@@ -109,7 +107,6 @@
 	calli:type "application/xhtml+xml";
 	calli:header "cache-control:no-store";
 	calli:transform <transforms/TransformPage>;
-	calli:realm :anybody;
 	msg:imports <pages/forgot-password.xhtml>;
 	msg:script """
 		return forgot_password_xhtml.calliConstruct(this);

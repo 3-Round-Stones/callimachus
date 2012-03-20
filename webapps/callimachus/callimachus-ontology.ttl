@@ -51,15 +51,16 @@ calli:Folder a owl:Class;
 	rdfs:comment "A resource URI namespace ending in a slash";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:Realm a owl:Class;
+	rdfs:subClassOf calli:Folder;
+	rdfs:label "Realm";
+	rdfs:comment "Web application realm";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:Origin a owl:Class;
 	rdfs:subClassOf calli:Realm;
 	rdfs:label "Origin";
 	rdfs:comment "A URI with a '/' path that is served by a Callimachus system";
-	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:AnybodyRealm a owl:Class;
-	rdfs:label "Anybody Realm";
-	rdfs:comment "A realm that authenticates any agent";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:AccountManager a owl:Class;
@@ -82,12 +83,6 @@ calli:Group a owl:Class;
 	rdfs:subClassOf calli:Party;
 	rdfs:label "Group";
 	rdfs:comment "A collection of users";
-	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-calli:Realm a owl:Class;
-	rdfs:subClassOf calli:Folder;
-	rdfs:label "Realm";
-	rdfs:comment "Web application realm";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Menu a owl:Class;

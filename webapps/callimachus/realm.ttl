@@ -82,6 +82,19 @@
 		return this.calliAuthentication.iterator().next() + "?contributions";
 	""".
 
+:GetForgotPasswordPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	calli:method "GET";
+	calli:query "forgotpassword";
+	calli:expect "302-found";
+	calli:type "text/uri-list";
+	msg:script """
+		if (this.calliAuthentication.isEmpty())
+			return null;
+		return this.calliAuthentication.iterator().next() + "?forgotpassword";
+	""".
+
 :GetLayout rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];

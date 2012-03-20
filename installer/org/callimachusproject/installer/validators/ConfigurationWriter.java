@@ -43,7 +43,9 @@ public class ConfigurationWriter implements DataValidator {
 	}
 
 	public String getWarningMessageId() {
-		return ConfigurationReader.ERROR_MSG;
+		return "The server could not be started.\n"
+		+ " Please run this installer again and ensure the port and primary authority are correct.\n"
+		+ " If the problem persists check the log file and seek help.";
 	}
 
 	public DataValidator.Status validateData(AutomatedInstallData adata) {
@@ -66,9 +68,11 @@ public class ConfigurationWriter implements DataValidator {
 				configure.disconnect();
 				String startserver = adata.getVariable("callimachus.startserver");
 				if ("true".equals(startserver) ) {
-					boolean started = configure.startServer();
+					boolean started = configure.startServer(primary);
+					if (!started)
+						return Status.WARNING;
 					String openbrowser = adata.getVariable("callimachus.openbrowser");
-					if (started && configure.isWebBrowserSupported() && "true".equals(openbrowser) ) {
+					if (configure.isWebBrowserSupported() && "true".equals(openbrowser) ) {
 						configure.openWebBrowser(primary + "/");
 					}
 				}

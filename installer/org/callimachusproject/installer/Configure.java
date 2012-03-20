@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
@@ -146,39 +147,37 @@ public class Configure {
 	}
 
 	public boolean stopServer() throws Exception {
-		Process p = exec(STOP_SCRIPT);
-		if (p == null)
-			return false;
-		InputStream in = p.getInputStream();
-		try {
-			int read;
-			byte[] buf = new byte[1024];
-			while ((read = in.read(buf)) >= 0) {
-				System.out.write(buf, 0, read);
-			}
-		} finally {
-			in.close();
-		}
-		Thread.sleep(1000);
-		return p.exitValue() == 0;
+		return launch(STOP_SCRIPT);
 	}
 
-	public boolean startServer() throws Exception {
-		Process p = exec(START_SCRIPT);
-		if (p == null)
+	public boolean startServer(String origin) throws Exception {
+		boolean success = launch(START_SCRIPT);
+		if (!success)
 			return false;
-		InputStream in = p.getInputStream();
-		try {
-			int read;
-			byte[] buf = new byte[1024];
-			while ((read = in.read(buf)) >= 0) {
-				System.out.write(buf, 0, read);
+		for (int i = 0; i < 120; i++) {
+			try {
+				request(origin + "/");
+				request(origin + "/callimachus/scripts/web_bundle?source");
+				return true;
+			} catch (FileNotFoundException e) {
+				return true;
+			} catch (IOException e) {
+				Thread.sleep(2000);
 			}
+		}
+		return false;
+	}
+
+	private void request(String url) throws IOException,
+			MalformedURLException {
+		InputStream in = new URL(url).openStream();
+		try {
+			byte[] buf = new byte[1024];
+			while (in.read(buf) >= 0)
+				;
 		} finally {
 			in.close();
 		}
-		Thread.sleep(1000);
-		return p.exitValue() == 0;
 	}
 
 	public boolean isWebBrowserSupported() {
@@ -413,6 +412,24 @@ public class Configure {
 		} finally {
 			in.close();
 		}
+	}
+
+	private boolean launch(String script) throws Exception {
+		Process p = exec(script);
+		if (p == null)
+			return false;
+		InputStream in = p.getInputStream();
+		try {
+			int read;
+			byte[] buf = new byte[1024];
+			while ((read = in.read(buf)) >= 0) {
+				System.out.write(buf, 0, read);
+			}
+		} finally {
+			in.close();
+		}
+		Thread.sleep(1000);
+		return p.exitValue() == 0;
 	}
 
 	private Process exec(String script) throws IOException {

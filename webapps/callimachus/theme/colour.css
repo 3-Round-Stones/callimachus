@@ -24,6 +24,7 @@ a:link, a:visited {
 	background-image:url(/callimachus/images/callimachus-logo.png);
 	background-position:50% 50%;
 	background-repeat:no-repeat;
+	background-size:contain;
 }
 
 #header .ui-button {

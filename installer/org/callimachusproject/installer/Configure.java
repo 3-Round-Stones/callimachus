@@ -333,10 +333,10 @@ public class Configure {
 		});
 	}
 
-	public void mapAllResourcesAsLocal(final String origin) throws Exception {
+	public void setResourcesAsLocalTo(final String origin) throws Exception {
 		perform(new Callable<Void>() {
 			public Void call() throws Exception {
-				setup.mapAllResourcesAsLocal(origin);
+				setup.setResourcesAsLocalTo(origin);
 				return null;
 			}
 		});

@@ -78,7 +78,6 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.openrdf.sail.auditing.vocabulary.Audit;
 import org.openrdf.store.blob.file.FileBlobStoreProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +89,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Setup {
+	private static final String SCHEMA_GRAPH = "/callimachus/SchemaGraph";
+	private static final String LOCAL = "/callimachus/Local";
 	public static final String NAME = Version.getInstance().getVersion();
 	private static final String INITIAL_GRAPH = "META-INF/templates/callimachus-initial-data.ttl";
 	private static final String MAIN_ARTICLE = "META-INF/templates/main-article.docbook";
@@ -262,9 +263,7 @@ public class Setup {
 		for (Map.Entry<String, String> e : realms.entrySet()) {
 			changed |= createRealm(e.getKey(), e.getValue(), repository);
 		}
-		if (everything != null) {
-			changed |= mapAllResourcesAsLocal(everything, repository);
-		}
+		changed |= setResourcesAsLocalTo(everything, repository);
 		if (changed || silent) {
 			System.exit(0);
 		} else {
@@ -324,10 +323,10 @@ public class Setup {
 		createRealm(realm, origin, repository);
 	}
 
-	public boolean mapAllResourcesAsLocal(String origin) throws RepositoryException {
+	public boolean setResourcesAsLocalTo(String origin) throws RepositoryException {
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
-		return mapAllResourcesAsLocal(origin, repository);
+		return setResourcesAsLocalTo(origin, repository);
 	}
 
 	private void validateOrigin(String origin) {
@@ -613,7 +612,7 @@ public class Setup {
 		importSchema(car, origin, repository);
 		ValueFactory vf = repository.getValueFactory();
 		repository.setSchemaGraphType(vf.createURI(origin
-				+ "/callimachus/SchemaGraph"));
+				+ SCHEMA_GRAPH));
 		repository.setCompileRepository(true);
 		importArchive(car, origin, repository);
 	}
@@ -775,15 +774,33 @@ public class Setup {
 				vf.createURI(origin + "/callimachus/theme/default"));
 	}
 
-	private boolean mapAllResourcesAsLocal(String origin, ObjectRepository repository) throws RepositoryException {
+	private boolean setResourcesAsLocalTo(String origin, ObjectRepository repository) throws RepositoryException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
-			if (con.hasStatement(RDFS.RESOURCE, OWL.EQUIVALENTCLASS, vf.createURI(origin + "/callimachus/Local")))
-				return false;
-			con.add(RDFS.RESOURCE, OWL.EQUIVALENTCLASS, vf.createURI(origin + "/callimachus/Local"));
-			con.add(Audit.CURRENT_TRX, RDF.TYPE, vf.createURI(origin + "/callimachus/SchemaGraph"));
-			return true;
+			boolean modified = false;
+			URI localUri = origin == null ? null : vf.createURI(origin + LOCAL);
+			RepositoryResult<Statement> stmts = con.getStatements(null, OWL.EQUIVALENTCLASS, RDFS.RESOURCE);
+			try {
+				while (stmts.hasNext()) {
+					Statement st = stmts.next();
+					String local = st.getSubject().stringValue();
+					if (local.endsWith(LOCAL) && !local.equals(localUri)) {
+						con.remove(st, st.getContext());
+						String schemaGraph = local.substring(0, local.lastIndexOf(LOCAL)) + SCHEMA_GRAPH;
+						con.remove(st.getContext(), RDF.TYPE, vf.createURI(schemaGraph));
+						modified = true;
+					}
+				}
+			} finally {
+				stmts.close();
+			}
+			if (localUri != null && !con.hasStatement(localUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE)) {
+				con.add(localUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE, localUri);
+				con.add(localUri, RDF.TYPE, vf.createURI(origin + SCHEMA_GRAPH));
+				return true;
+			}
+			return modified;
 		} finally {
 			con.close();
 		}

@@ -102,7 +102,7 @@ fi
 JAVA_VERSION_INT=`echo "$JAVA_VERSION" | perl -pe 's;\.;0;g' 2>/dev/null`
 
 # Check JAVA_HOME directory to see if Java version is adequate
-if [ ! -z "$JAVA_HOME" -a -x "$JAVA_HOME/bin/java" -a -x "$JAVA_HOME/bin/javac" ] ; then
+if [ ! -z "$JAVA_HOME" -a -x "$JAVA_HOME/bin/java" -a -x "$JAVA_HOME/../bin/javac" ] ; then
   JAVA="$JAVA_HOME/bin/java"
   VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
   if [ -L "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
@@ -115,7 +115,8 @@ if [ -z "$JAVA_HOME" ] && ls "$BASEDIR"/*/bin/javac >/dev/null 2>&1
 then
   JAVAC=`ls -1 "$BASEDIR"/*/bin/javac | head -n 1`
   if [ -x "$JAVAC" ] ; then
-    JAVA_HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
+    JDK_HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
+    JAVA_HOME="$JDK_HOME/jre"
     # verify java instance
     if [ ! -z "$JAVA_HOME" ] ; then
       JAVA="$JAVA_HOME/bin/java"
@@ -153,11 +154,12 @@ if [ -z "$JAVA_HOME" ] ; then
         JAVAC=`dirname "$JAVAC"`/"$link"
       fi
     done
-    HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
-    if [ -d "$HOME" ] ; then
-      JAVA_HOME="$HOME"
+    JDK_HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
+    if [ -d "$JDK_HOME" ] ; then
+      JAVA_HOME="$JDK_HOME/jre"
     else
-      JAVA_HOME=`which javac | awk '{ print substr($1, 1, length($1)-10); }'`
+      JDK_HOME=`which javac | awk '{ print substr($1, 1, length($1)-10); }'`
+      JAVA_HOME="$JDK_HOME/jre"
     fi
   fi
   # verify java instance
@@ -175,13 +177,13 @@ if [ -z "$JAVA_HOME" ] ; then
   fi
 fi
 
-if [ ! -x "$JAVA_HOME/bin/jrunscript" ]; then
+if [ ! -x "$JAVA_HOME/../bin/jrunscript" ]; then
     echo "The JAVA_HOME environment variable does not point to a JDK installation with scripting support"
     echo "JDK jrunscript is needed to run this server"
     exit 1
 fi
 
-if ! "$JAVA_HOME/bin/jrunscript" -q 2>&1 |grep ECMAScript >/dev/null; then
+if ! "$JAVA_HOME/../bin/jrunscript" -q 2>&1 |grep ECMAScript >/dev/null; then
     echo "The JAVA_HOME environment variable does not point to a JDK installation with ECMAScript support"
     echo "JDK with ECMAScript support is needed to run this server"
     exit 1
@@ -193,10 +195,6 @@ fi
 
 if [ -z "$PID" ] ; then
   PID="$BASEDIR/run/$NAME.pid"
-fi
-
-if [ -z "$LIB" ] ; then
-  LIB="$BASEDIR"/lib
 fi
 
 if [ -z "$TMPDIR" ] ; then
@@ -353,7 +351,6 @@ if [ "$1" = "start" ] ; then ################################
     -home "$JAVA_HOME" \
     -pidfile "$PID" \
     -Duser.home="$BASEDIR" \
-    -Djava.library.path="$LIB" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
     -Djava.mail.properties="$MAIL" \
@@ -496,10 +493,9 @@ elif [ "$1" = "dump" ] ; then ################################
   "$EXECUTABLE" -nodetach -outfile "$JSVC_LOG" -errfile '&1' -home "$JAVA_HOME" -jvm server -procname "$NAME" \
     -pidfile "$BASEDIR/run/$NAME-dump.pid" \
     -Duser.home="$BASEDIR" \
-    -Djava.library.path="$LIB" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
-    -classpath "$CLASSPATH:$JAVA_HOME/lib/tools.jar" \
+    -classpath "$CLASSPATH:$JAVA_HOME/../lib/tools.jar" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PID" --dump "$DIR"
   RETURN_VAL=$?
@@ -533,10 +529,9 @@ elif [ "$1" = "reset" ] ; then ################################
   "$EXECUTABLE" -nodetach -outfile "$JSVC_LOG" -errfile '&1' -home "$JAVA_HOME" -jvm server -procname "$NAME" \
     -pidfile "$BASEDIR/run/$NAME-dump.pid" \
     -Duser.home="$BASEDIR" \
-    -Djava.library.path="$LIB" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
-    -classpath "$CLASSPATH:$JAVA_HOME/lib/tools.jar" \
+    -classpath "$CLASSPATH:$JAVA_HOME/../lib/tools.jar" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PID" --reset
   RETURN_VAL=$?
@@ -573,7 +568,6 @@ else ################################
     exec "$EXECUTABLE" -debug -nodetach -home "$JAVA_HOME" -jvm server -procname "$NAME" \
       -pidfile "$PID" \
       -Duser.home="$BASEDIR" \
-      -Djava.library.path="$LIB" \
       -Djava.io.tmpdir="$TMPDIR" \
       -Djava.util.logging.config.file="$LOGGING" \
       -Djava.mail.properties="$MAIL" \
@@ -583,7 +577,6 @@ else ################################
   fi
   exec "$JAVA" -server \
     -Duser.home="$BASEDIR" \
-    -Djava.library.path="$LIB" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
     -classpath "$CLASSPATH" \

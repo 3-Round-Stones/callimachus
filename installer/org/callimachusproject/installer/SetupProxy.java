@@ -177,9 +177,9 @@ public class SetupProxy {
 		}
 	}
 
-	public void mapAllResourcesAsLocal(String origin) throws Exception {
+	public void setResourcesAsLocalTo(String origin) throws Exception {
 		try {
-			Method m = Setup.getMethod("mapAllResourcesAsLocal", String.class);
+			Method m = Setup.getMethod("setResourcesAsLocalTo", String.class);
 			m.invoke(setup, origin);
 		} catch (SecurityException e) {
 			throw new AssertionError(e);

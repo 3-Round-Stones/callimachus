@@ -88,7 +88,7 @@ rem Read relative config paths from BASEDIR
 cd "%BASEDIR%"
 
 rem check for a JDK in the BASEDIR
-for /d %%i in ("%BASEDIR%\jdk*") do set JAVA_HOME=%%i
+for /d %%i in ("%BASEDIR%\jdk*") do set JAVA_HOME=%%i/jre
 
 rem Lookup the JDK in the registry
 if not "%JAVA_HOME%" == "" goto gotJdkHome
@@ -109,10 +109,6 @@ set "JAVAW=%JAVA_HOME%\bin\javaw"
 if not "%PID%" == "" goto gotOut
 set "PID=%BASEDIR%\run\%NAME%.pid"
 :gotOut
-
-if not "%LIB%" == "" goto gotLib
-set "LIB=%BASEDIR%\lib"
-:gotLib
 
 if not "%TMPDIR%" == "" goto gotTmpdir
 set "TMPDIR=%BASEDIR%\tmp"
@@ -153,7 +149,7 @@ set "REPOSITORY_CONFIG=etc/%NAME%-repository.ttl"
 :gotRepositoryConfig
 
 setlocal ENABLEDELAYEDEXPANSION
-for /r "%LIB%" %%a IN (*.jar) do set CLASSPATH=!CLASSPATH!;%%a
+for /r "lib" %%a IN (*.jar) do set CLASSPATH=!CLASSPATH!;%%a
 
 if not "%JAVA_OPTS%" == "" goto gotJavaOpts
 set "JAVA_OPTS=-Xmx512m"
@@ -218,7 +214,7 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" %OPT% %CMD_LINE_ARGS%
+"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStart
@@ -241,27 +237,27 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-start "%NAME%" "%JAVAW%" -server "-Duser.home=%BASEDIR%" "-Djava.library.path=%LIB%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
+start "%NAME%" "%JAVAW%" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStop
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --stop %CMD_LINE_ARGS%
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\..\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --stop %CMD_LINE_ARGS%
 goto end
 
 :doDump
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --dump "%BASEDIR%\log" %CMD_LINE_ARGS%
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\..\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --dump "%BASEDIR%\log" %CMD_LINE_ARGS%
 goto end
 
 :doReset
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --reset %CMD_LINE_ARGS%
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\..\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --reset %CMD_LINE_ARGS%
 goto end
 
 :doLog
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --log %CMD_LINE_ARGS%
+"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\..\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --log %CMD_LINE_ARGS%
 goto end
 
 :end

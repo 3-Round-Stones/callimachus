@@ -115,19 +115,20 @@ public class ConfigurationWriter implements DataValidator {
 	}
 
 	public Properties getMailProperties(AutomatedInstallData adata) throws IOException {
-		if ("true".equals(adata.getVariable("callimachus.later.mail")))
-			return new Properties();
     	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
-		Properties mailProperties = configure.getMailProperties();
-		// NB: Ensure that these var names are correct in install.xml, userInputSpec.xml
-		mailProperties.setProperty("mail.transport.protocol", getSingleLine(adata, "callimachus.mail.transport.protocol") );
-		mailProperties.setProperty("mail.from", getSingleLine(adata, "callimachus.mail.from") );
-		mailProperties.setProperty("mail.smtps.host", getSingleLine(adata, "callimachus.mail.smtps.host") );
-		mailProperties.setProperty("mail.smtps.port", getSingleLine(adata, "callimachus.mail.smtps.port") );
-		mailProperties.setProperty("mail.smtps.auth", getSingleLine(adata, "callimachus.mail.smtps.auth") );
-		mailProperties.setProperty("mail.user", getSingleLine(adata, "callimachus.mail.user") );
-		mailProperties.setProperty("mail.password", getSingleLine(adata, "callimachus.mail.password") );
-		return mailProperties;
+		Properties mail = configure.getMailProperties();
+		if ("true".equals(adata.getVariable("callimachus.later.mail"))) {
+			mail.remove("mail.transport.protocol");
+		} else {
+			mail.setProperty("mail.transport.protocol", getSingleLine(adata, "callimachus.mail.transport.protocol") );
+		}
+		mail.setProperty("mail.from", getSingleLine(adata, "callimachus.mail.from") );
+		mail.setProperty("mail.smtps.host", getSingleLine(adata, "callimachus.mail.smtps.host") );
+		mail.setProperty("mail.smtps.port", getSingleLine(adata, "callimachus.mail.smtps.port") );
+		mail.setProperty("mail.smtps.auth", getSingleLine(adata, "callimachus.mail.smtps.auth") );
+		mail.setProperty("mail.user", getSingleLine(adata, "callimachus.mail.user") );
+		mail.setProperty("mail.password", getSingleLine(adata, "callimachus.mail.password") );
+		return mail;
 	}
 
 	public Properties getLoggingProperties(AutomatedInstallData adata)
@@ -159,7 +160,9 @@ public class ConfigurationWriter implements DataValidator {
 			}
 		}
 		if ("true".equals(adata.getVariable("callimachus.ALL_LOCAL"))) {
-			configure.mapAllResourcesAsLocal(primary);
+			configure.setResourcesAsLocalTo(primary);
+		} else {
+			configure.setResourcesAsLocalTo(null);
 		}
 		return primary;
 	}

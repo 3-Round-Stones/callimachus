@@ -62,11 +62,6 @@ calli:AnybodyRealm a owl:Class;
 	rdfs:comment "A realm that authenticates any agent";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:LocalRealm a owl:DeprecatedClass;
-	rdfs:label "Local Realm";
-	rdfs:comment "A realm that only authenticates local agents";
-	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
 calli:AccountManager a owl:Class;
 	rdfs:label "Account Manager";
 	rdfs:comment "A managed set of users that can authenticate using HTTP digest credentials";

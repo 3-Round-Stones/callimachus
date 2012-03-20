@@ -341,6 +341,17 @@ public class Configure {
 		});
 	}
 
+	public void createAdmin(final String name, final String email,
+			final String username, final String password, final String origin)
+			throws Exception {
+		perform(new Callable<Void>() {
+			public Void call() throws Exception {
+				setup.createAdmin(name, email, username, password, origin);
+				return null;
+			}
+		});
+	}
+
 	private Properties readProperties(File file, String path) throws FileNotFoundException,
 			IOException {
 		Properties properties = new Properties();

@@ -33,22 +33,28 @@ import com.izforge.izpack.installer.DataValidator;
  */
 public class ConfigurationWriter implements DataValidator {
 	private boolean abort;
+	private String warning;
+	private String error;
 
 	public boolean getDefaultAnswer() {
 		return true;
 	}
 
-	public String getErrorMessageId() {
-		return ConfigurationReader.ERROR_MSG;
+	public synchronized String getErrorMessageId() {
+		if (error == null)
+			return ConfigurationReader.ERROR_MSG;
+		try {
+			return error;
+		} finally {
+			error = null;
+		}
 	}
 
-	public String getWarningMessageId() {
-		return "The server could not be started.\n"
-		+ " Please run this installer again and ensure the port and primary authority are correct.\n"
-		+ " If the problem persists check the log file and seek help.";
+	public synchronized String getWarningMessageId() {
+		return warning;
 	}
 
-	public DataValidator.Status validateData(AutomatedInstallData adata) {
+	public synchronized DataValidator.Status validateData(AutomatedInstallData adata) {
 		if (abort)
 			return Status.ERROR;
 		try {
@@ -63,14 +69,25 @@ public class ConfigurationWriter implements DataValidator {
 			configure.setLoggingProperties(getLoggingProperties(adata));
 
 			if (configure.isConnected()) {
-				String primary = configureOrigins(adata);
+				String primary = getPrimaryOrigin(adata);
+
+				if (!setupAdminUser(adata, primary)) {
+					error = "The password provided is not valid. Please use a longer password.";
+					return Status.ERROR;
+				}
+
+				configureOrigins(adata, primary);
 
 				configure.disconnect();
 				String startserver = adata.getVariable("callimachus.startserver");
 				if ("true".equals(startserver) ) {
 					boolean started = configure.startServer(primary);
-					if (!started)
+					if (!started) {
+						warning = "The server could not be started.\n"
+								+ " Please run this installer again and ensure the port and primary authority are correct.\n"
+								+ " If the problem persists check the log file and seek help.";
 						return Status.WARNING;
+					}
 					String openbrowser = adata.getVariable("callimachus.openbrowser");
 					if (configure.isWebBrowserSupported() && "true".equals(openbrowser) ) {
 						configure.openWebBrowser(primary + "/");
@@ -148,9 +165,12 @@ public class ConfigurationWriter implements DataValidator {
 		return value.trim().replaceAll("\\s+", " ");
 	}
 
-	private String configureOrigins(AutomatedInstallData adata) throws Exception {
+	private String getPrimaryOrigin(AutomatedInstallData adata) {
+		return adata.getVariable("callimachus.PRIMARY_ORIGIN").split("\\s+")[0];
+	}
+
+	private void configureOrigins(AutomatedInstallData adata, String primary) throws Exception {
     	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
-		String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN").split("\\s+")[0];
 		String secondary = adata.getVariable("callimachus.SECONDARY_ORIGIN");
 		for (String origin : secondary.split("\\s+")) {
 			if (origin.length() > 0) {
@@ -168,7 +188,20 @@ public class ConfigurationWriter implements DataValidator {
 		} else {
 			configure.setResourcesAsLocalTo(null);
 		}
-		return primary;
+	}
+
+	private boolean setupAdminUser(AutomatedInstallData adata, String origin) throws Exception {
+		String name = adata.getVariable("callimachus.fullname");
+		String email = adata.getVariable("callimachus.email");
+		String username = adata.getVariable("callimachus.username");
+		String password = adata.getVariable("callimachus.password");
+		if (username != null && username.length() > 0) {
+			if (password == null || password.length() < 3)
+				return false;
+	    	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+			configure.createAdmin(name, email, username, password, origin);
+		}
+		return true;
 	}
 
 }

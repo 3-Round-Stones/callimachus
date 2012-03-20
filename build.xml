@@ -318,10 +318,10 @@
 	<target name="package" depends="dist-clean,dist,installer,test" description="Create a package ready for release">
 	</target>
 
-	<target name="setup" depends="dist" unless="repositories.uptodate">
-		<java classname="${setup}" fork="true" failonerror="true">
+	<target name="setup" depends="dist" if="callimachus.username" unless="repositories.uptodate">
+		<java classname="${setup}" fork="true" failonerror="true" inputstring="${callimachus.password}">
 			<jvmarg line="${jvmargs}" />
-			<arg line="${setup.args}" />
+			<arg line="${setup.args} -u ${callimachus.username}" />
 			<classpath>
 				<pathelement location="${jar.file}" />
 				<fileset dir="${lib}">

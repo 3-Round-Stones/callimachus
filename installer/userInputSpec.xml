@@ -154,9 +154,15 @@
     </field>
     <field type="text" align="left" variable="callimachus.email">
       <spec txt="E-mail:" size="25" set=""/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Your email from address does not appear to be valid.">
+        <param name="pattern" value="^$|^[a-zA-Z0-9.!$%&amp;*+/=?^_{}~-]+@[a-zA-Z0-9.-]+"/>
+      </validator>
     </field>
     <field type="text" align="left" variable="callimachus.username">
       <spec txt="Username:" size="25" set=""/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Username must be in lowercase.">
+        <param name="pattern" value="^$|^[a-z][-a-z0-9]*$"/>
+      </validator>
     </field>
     <field type="password" align="left" variable="callimachus.password">
       <spec>

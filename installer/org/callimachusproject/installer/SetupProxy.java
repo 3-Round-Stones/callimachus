@@ -204,4 +204,33 @@ public class SetupProxy {
 		}
 	}
 
+	public void createAdmin(String name, String email, String username,
+			String password, String origin) throws Exception {
+		try {
+			Method m = Setup.getMethod("createAdmin", String.class,
+					String.class, String.class, String.class, String.class);
+			m.invoke(setup, name, email, username, password, origin);
+		} catch (SecurityException e) {
+			throw new AssertionError(e);
+		} catch (NoSuchMethodException e) {
+			throw new AssertionError(e);
+		} catch (IllegalArgumentException e) {
+			throw new AssertionError(e);
+		} catch (IllegalAccessException e) {
+			throw new AssertionError(e);
+		} catch (InvocationTargetException e) {
+			try {
+				throw e.getCause();
+			} catch (Error exc) {
+				throw exc;
+			} catch (RuntimeException exc) {
+				throw exc;
+			} catch (Exception exc) {
+				throw exc;
+			} catch (Throwable exc) {
+				throw new AssertionError(e);
+			}
+		}
+	}
+
 }

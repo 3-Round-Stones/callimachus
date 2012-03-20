@@ -93,8 +93,11 @@ run time behaviour of Callimachus.
 
 If you want to check out the source code, see the directions at:
   http://code.google.com/p/callimachus/source/checkout
-Once you have the source code checked out, you can execute 'ant run' from a 
-command line in the top directory to run the server.
+Once you have the source code checked out, you will need to provide a username
+and password. Create a build.properties file in the same directory as build.xml.
+Put the variables "callimachus.username" and "callimachus.password" followed by
+'=' and their value. You can then execute 'ant run' from a 
+command line in this top directory to run the server.
 
 Files with the extension .ttl, .ttl.gz, .rdf, or .rdf.gz will be loaded as 
 graphs into the RDF store. Any RDF Schema or OWL ontologies in .ttl will be

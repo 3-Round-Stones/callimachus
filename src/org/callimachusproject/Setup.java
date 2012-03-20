@@ -19,6 +19,7 @@ package org.callimachusproject;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 import info.aduna.io.IOUtil;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,9 +27,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -41,12 +44,14 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.callimachusproject.io.CarInputStream;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.traits.ProxyObject;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -69,6 +74,7 @@ import org.openrdf.repository.config.RepositoryConfigSchema;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
@@ -110,6 +116,15 @@ public class Setup {
 	private static final String CALLI_MENU = CALLI + "menu";
 	private static final String CALLI_FAVICON = CALLI + "favicon";
 	private static final String CALLI_THEME = CALLI + "theme";
+	private static final String CALLI_ENCODED = CALLI + "encoded";
+	private static final String CALLI_AUTHNAME = CALLI + "authName";
+	private static final String CALLI_AUTHNAMESPACE = CALLI + "authNamespace";
+	private static final String CALLI_USER = CALLI + "User";
+	private static final String CALLI_PARTY = CALLI + "Party";
+	private static final String CALLI_NAME = CALLI + "name";
+	private static final String CALLI_EMAIL = CALLI + "email";
+	private static final String CALLI_ALGORITHM = CALLI + "algorithm";
+	private static final String CALLI_MEMBER = CALLI + "member";
 
 	private static final Options options = new Options();
 	static {
@@ -121,23 +136,21 @@ public class Setup {
 		options.addOption("a", "car", true,
 				"The callimachus.car file to be installed in the origin");
 		options.getOption("car").setRequired(true);
-		options.addOption(
-				"o",
-				"origin",
-				true,
+		options.addOption("o", "origin", true,
 				"The scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
 		options.getOption("origin").setRequired(true);
-		options.addOption(
-				"v",
-				"virtual",
-				true,
+		options.addOption("v", "virtual", true,
 				"Additional scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
-		options.addOption(
-				"r",
-				"realm",
-				true,
+		options.addOption("r", "realm", true,
 				"The scheme, hostname, port, and path ( http://example.com:8080/ ) that does not resolve to this server");
 		options.addOption("e", "everything", false, "Treat all resources as local");
+		options.addOption("u", "user", true,
+				"Create the given user and prompt for a password, or append the password separated by a colon");
+		options.getOption("user").setOptionalArg(true);
+		options.addOption("n", "name", true,
+				"If creating a new user use this full name");
+		options.addOption("e", "email", true,
+				"If creating a new user use this email address");
 		options.addOption("s", "silent", false,
 				"If the repository is already setup exit successfully");
 		options.addOption("h", "help", false,
@@ -186,6 +199,11 @@ public class Setup {
 	private final Map<String, String> vhosts = new HashMap<String, String>();
 	private final Map<String, String> realms = new HashMap<String, String>();
 	private LocalRepositoryManager manager;
+	private String origin;
+	private String name;
+	private String email;
+	private String username;
+	private String password;
 
 	public void init(String[] args) {
 		try {
@@ -241,6 +259,28 @@ public class Setup {
 					if (line.hasOption('e')) {
 						everything = origin;
 					}
+					if (line.hasOption('u')) {
+						String u = line.getOptionValue('u');
+						if (u != null && u.contains(":")) {
+							username = u.substring(0, u.indexOf(':'));
+							password = u.substring(u.indexOf(':') + 1);
+						} else {
+							Reader reader = new InputStreamReader(System.in);
+							if (u == null) {
+								System.out.print("Enter a username: ");
+								username = new BufferedReader(reader).readLine();
+							} else {
+								username = u;
+							}
+							System.out.print("Enter password for user ");
+							System.out.print(u);
+							System.out.print(": ");
+							password = new BufferedReader(reader).readLine();
+						}
+						this.origin = origin;
+						this.name = line.getOptionValue('n');
+						this.email = line.getOptionValue('e');
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -264,6 +304,9 @@ public class Setup {
 			changed |= createRealm(e.getKey(), e.getValue(), repository);
 		}
 		changed |= setResourcesAsLocalTo(everything, repository);
+		if (password != null) {
+			changed |= createAdmin(name, email, username, password, origin, repository);
+		}
 		if (changed || silent) {
 			System.exit(0);
 		} else {
@@ -323,10 +366,17 @@ public class Setup {
 		createRealm(realm, origin, repository);
 	}
 
-	public boolean setResourcesAsLocalTo(String origin) throws RepositoryException {
+	public void setResourcesAsLocalTo(String origin) throws RepositoryException {
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
-		return setResourcesAsLocalTo(origin, repository);
+		setResourcesAsLocalTo(origin, repository);
+	}
+
+	public void createAdmin(String name, String email, String username, String password, String origin)
+			throws RepositoryException, UnsupportedEncodingException {
+		if (repository == null)
+			throw new IllegalStateException("Not connected");
+		createAdmin(name, email, username, password, origin, repository);
 	}
 
 	private void validateOrigin(String origin) {
@@ -786,6 +836,7 @@ public class Setup {
 					Statement st = stmts.next();
 					String local = st.getSubject().stringValue();
 					if (local.endsWith(LOCAL) && !local.equals(localUri)) {
+						logger.info("All resources are no longer {}", st.getSubject());
 						con.remove(st, st.getContext());
 						String schemaGraph = local.substring(0, local.lastIndexOf(LOCAL)) + SCHEMA_GRAPH;
 						con.remove(st.getContext(), RDF.TYPE, vf.createURI(schemaGraph));
@@ -796,6 +847,7 @@ public class Setup {
 				stmts.close();
 			}
 			if (localUri != null && !con.hasStatement(localUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE)) {
+				logger.info("All resources are now {}", localUri);
 				con.add(localUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE, localUri);
 				con.add(localUri, RDF.TYPE, vf.createURI(origin + SCHEMA_GRAPH));
 				return true;
@@ -804,6 +856,80 @@ public class Setup {
 		} finally {
 			con.close();
 		}
+	}
+
+	private boolean createAdmin(String name, String email, String username, String password,
+			String origin, ObjectRepository repository)
+			throws UnsupportedEncodingException, RepositoryException {
+		if (username == null || !username.toLowerCase().equals(username))
+			throw new IllegalArgumentException("Username must be in lowercase");
+		if (URLEncoder.encode(username, "UTF-8") != username)
+			throw new IllegalArgumentException("Invalid username: '" + username
+					+ "'");
+		ObjectConnection con = repository.getConnection();
+		try {
+			ValueFactory vf = con.getValueFactory();
+			ObjectFactory of = con.getObjectFactory();
+			boolean modified = false;
+			for (Statement st1 : con.getStatements(vf.createURI(origin + "/"),
+					vf.createURI(CALLI_AUTHENTICATION), null).asList()) {
+				Resource accounts = (Resource) st1.getObject();
+				for (Statement st2 : con.getStatements(accounts,
+						vf.createURI(CALLI_AUTHNAME), null).asList()) {
+					String authName = st2.getObject().stringValue();
+					String decoded = username + ":" + authName + ":" + password;
+					byte[] encoded = DigestUtils.md5(decoded);
+					Literal lit = of.createLiteral(encoded);
+					for (Statement st3 : con.getStatements(accounts,
+							vf.createURI(CALLI_AUTHNAMESPACE), null).asList()) {
+						Resource user = (Resource) st3.getObject();
+						URI subj = vf.createURI(user.stringValue() + username);
+						modified |= changeAdminPassword(origin, user, subj,
+								name, email, username, lit, con);
+					}
+				}
+			}
+			return modified;
+		} finally {
+			con.close();
+		}
+	}
+
+	private boolean changeAdminPassword(String origin, Resource folder, URI subj,
+			String name, String email, String username, Literal encoded, ObjectConnection con)
+			throws RepositoryException {
+		ValueFactory vf = con.getValueFactory();
+		if (con.hasStatement(subj, vf.createURI(CALLI_ENCODED), encoded))
+			return false;
+		if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_USER))) {
+			logger.info("Changing password of {}", username);
+			con.remove(subj, vf.createURI(CALLI_ENCODED), null);
+			con.add(subj, vf.createURI(CALLI_ENCODED), encoded);
+		} else {
+			logger.info("Creating user {}", username);
+			URI staff = vf.createURI(origin + "/group/staff");
+			URI admin = vf.createURI(origin + "/group/admin");
+			con.add(subj, RDF.TYPE, vf.createURI(origin + "/callimachus/User"));
+			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
+			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
+			con.add(subj, vf.createURI(CALLI_NAME), vf.createLiteral(username));
+			con.add(subj, vf.createURI(CALLI_ALGORITHM),
+					vf.createLiteral("MD5"));
+			con.add(subj, vf.createURI(CALLI_ENCODED), encoded);
+			if (name == null || name.length() == 0) {
+				con.add(subj, RDFS.LABEL, vf.createLiteral(username));
+			} else {
+				con.add(subj, RDFS.LABEL, vf.createLiteral(name));
+			}
+			con.add(subj, vf.createURI(CALLI_READER), staff);
+			con.add(subj, vf.createURI(CALLI_ADMINISTRATOR), admin);
+			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), subj);
+			con.add(admin, vf.createURI(CALLI_MEMBER), subj);
+			if (email != null && email.length() > 2) {
+				con.add(subj, vf.createURI(CALLI_EMAIL), vf.createLiteral(email));
+			}
+		}
+		return true;
 	}
 
 }

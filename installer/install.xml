@@ -102,8 +102,6 @@
         </panel>
         <panel classname="HTMLInfoPanel" id="readme"/>
         <panel classname="UserInputPanel"/> <!-- virtual hosts config -->
-        <panel classname="UserInputPanel"/> <!-- other realms config -->
-        <panel classname="UserInputPanel"/> <!-- all resources config -->
         <panel classname="UserInputPanel" condition="isroot"> <!-- daemon config -->
           <validator classname="org.callimachusproject.installer.validators.DaemonAccountValidator" />
         </panel>

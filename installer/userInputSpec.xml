@@ -5,7 +5,7 @@
     <field type="title" txt="Host Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="text" align="left" variable="callimachus.PRIMARY_ORIGIN">
-      <description align="left" txt="$APP_NAME will be accessed at the Web address given in the Primary authority field.  Change these values to match your intended deployment."/>
+      <description align="left" txt="$APP_NAME will be accessed at the Web address given in the Primary authority field.  Change the value to match your intended deployment."/>
       <spec txt="Primary authority:" size="25" set="${callimachus.PRIMARY_ORIGIN}"/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="The primary authority must start with 'http://' and must not contain a path.">
         <param name="pattern" value="^(https?://[a-zA-Z0-9:.-]+\s*)+$"/>
@@ -18,11 +18,11 @@
   </panel>
   <!-- Virtual hosts configuration -->
   <panel order="1">
-    <field type="title" txt="Virtual Hosts Configuration" bold="true" size="1"/>
+    <field type="title" txt="Virtual Hosts Configuration for ${callimachus.PRIMARY_ORIGIN}" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="text" align="left" variable="callimachus.SECONDARY_ORIGIN">
-      <description align="left" txt="$APP_NAME can also serve alternate HTTP authorities, also known as virtual hosts.  Add other authorities (one on each line) that will resolve to this server."/>
-      <spec txt="Secondary authority:" size="25" rows="5" set="${callimachus.SECONDARY_ORIGIN}"/>
+      <description align="left" txt="Add other authorities that will resolve to this server."/>
+      <spec txt="Secondary authority:" size="25" rows="3" set="${callimachus.SECONDARY_ORIGIN}"/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Secondary authority must start with 'http://' and must not contain a path.">
         <param name="pattern" value="^(https?://[a-zA-Z0-9:.-]+\s*)*$"/>
       </validator>
@@ -31,19 +31,9 @@
     <field type="space"/>
     <field type="space"/>
     <field type="space"/>
-    <field type="space"/>
-    <field type="space"/>
-    <field type="space"/>
-    <field type="space"/>
-    <field type="divider" align="bottom"/>
-  </panel>
-  <!-- Other realms configuration -->
-  <panel order="2">
-    <field type="title" txt="Other Realms Configuration" bold="true" size="1"/>
-    <field type="divider" align="top"/>
     <field type="text" align="left" variable="callimachus.OTHER_REALM">
-      <description align="left" txt="List the hierarchical URI spaces of resources this server can create, that do not resolve to this server. List a URI space on each line and include a path."/>
-      <spec txt="Other Realm:" size="25" rows="5" set="${callimachus.OTHER_REALM}"/>
+      <description align="left" txt="List other top hierarchical resource URI spaces this server can create."/>
+      <spec txt="Other Realm:" size="25" rows="3" set="${callimachus.OTHER_REALM}"/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Realms must absolute hierarchical URIs with a path.">
         <param name="pattern" value="^([a-z]+://[a-zA-Z0-9:.-]+/\S*\s*)*$"/>
       </validator>
@@ -52,16 +42,6 @@
     <field type="space"/>
     <field type="space"/>
     <field type="space"/>
-    <field type="space"/>
-    <field type="space"/>
-    <field type="space"/>
-    <field type="space"/>
-    <field type="divider" align="bottom"/>
-  </panel>
-  <!-- All local configuration -->
-  <panel order="3">
-    <field type="title" txt="Local Resource Configuration" bold="true" size="1"/>
-    <field type="divider" align="top"/>
     <field type="check" variable="callimachus.ALL_LOCAL">
       <description align="left" txt="Leave this box checked if you want $APP_NAME to provide navigational pages for all loaded RDF resources. Deselect this box if you want $APP_NAME to only serve resources with configured templates."/>
       <spec txt="Serve all RDF resources" true="true" false="false" set="${callimachus.ALL_LOCAL}"/>
@@ -69,7 +49,7 @@
     <field type="divider" align="bottom"/>
   </panel>
   <!-- Daemon configuration -->
-  <panel order="4">
+  <panel order="2">
     <field type="title" txt="Daemon Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="text" align="left" variable="callimachus.DAEMON_USER">
@@ -91,11 +71,11 @@
     <field type="divider" align="bottom"/>
   </panel>
   <!-- Port configuration -->
-  <panel order="5">
+  <panel order="3">
     <field type="title" txt="Port Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="text" align="left" variable="callimachus.PORT">
-      <description align="left" txt="$APP_NAME will bind to the port specified. Change these values to match your intended deployment."/>
+      <description align="left" txt="$APP_NAME will bind to the port specified. Change the value to match your intended deployment."/>
       <spec txt="Port:" size="25" set="${callimachus.PORT}"/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="The server must listen on a numerical port.">
         <param name="pattern" value="^([0-9]{1,5}\s*)+$"/>
@@ -104,7 +84,7 @@
     <field type="divider" align="bottom"/>
   </panel>
   <!-- Mail configuration -->
-  <panel order="6">
+  <panel order="4">
     <field type="title" txt="Mail Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="staticText" align="left" txt="$APP_NAME uses email to inform new users of their initial password and instructions on how to reset their passwords."/>
@@ -154,7 +134,7 @@
     <field type="divider" align="bottom"/>
   </panel>
   <!-- Initial user configuration -->
-  <panel order="7">
+  <panel order="5">
     <field type="title" txt="Initial User Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="staticText" align="left" txt="If this is a new install, you will need an initial $APP_NAME user account to log into the $APP_NAME Web user interface. Complete all fields to create an admin user account. Choose a strong password if you are using a public server!"/>
@@ -181,7 +161,7 @@
     <field type="divider" align="bottom"/>
   </panel>
   <!-- Start server/open browser configuration -->
-  <panel order="8">
+  <panel order="6">
     <field type="title" txt="Start Server" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="check" variable="callimachus.startserver">

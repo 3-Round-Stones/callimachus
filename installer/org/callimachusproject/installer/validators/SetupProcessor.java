@@ -16,6 +16,8 @@
  */
 package org.callimachusproject.installer.validators;
 import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.callimachusproject.installer.Configure;
@@ -72,19 +74,43 @@ public class SetupProcessor implements DataValidator {
 		}
     }
 
-	private void setupSecondaryOrigin(AutomatedInstallData adata) throws SocketException {
+	private void setupSecondaryOrigin(AutomatedInstallData adata)
+			throws SocketException, URISyntaxException {
     	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
     	String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN");
 		if ("".equals(adata.getVariable("callimachus.SECONDARY_ORIGIN"))) {
 			StringBuilder sb = new StringBuilder();
-			String port = adata.getVariable("callimachus.PORT");
+			String port = getDefaultPort(primary);
 			for (String origin : configure.getDefaultOrigins(port)) {
 				if (!primary.contains(origin)) {
 					sb.append(origin).append("\n");
 				}
 			}
+			adata.setVariable("callimachus.PORT", port);
 			adata.setVariable("callimachus.SECONDARY_ORIGIN", sb.toString());
 		}
+	}
+
+	private String getDefaultPort(String origins) throws URISyntaxException {
+		StringBuilder sb = new StringBuilder();
+		for (String origin : origins.split("\\s+")) {
+			URI uri = new URI(origin + "/");
+			int port = uri.getPort();
+			if (port < 0 && "http".equalsIgnoreCase(uri.getScheme())) {
+				port = 80;
+			} else if (port < 0 && "https".equalsIgnoreCase(uri.getScheme())) {
+				port = 443;
+			}
+			if (port > 0) {
+				if (sb.length() > 0) {
+					sb.append(" ");
+				}
+				sb.append(port);
+			}
+		}
+		if (sb.length() == 0)
+			return "8080";
+		return sb.toString();
 	}
     
 }

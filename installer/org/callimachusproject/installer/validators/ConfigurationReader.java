@@ -16,6 +16,7 @@
  */
 package org.callimachusproject.installer.validators;
 import java.io.File;
+import java.net.SocketException;
 import java.util.Properties;
 
 import org.callimachusproject.installer.Configure;
@@ -64,8 +65,16 @@ public class ConfigurationReader implements DataValidator {
 			// Set IzPack variables for callimachus.conf:
 			String[] confProperties = {"PORT", "PRIMARY_ORIGIN", "SECONDARY_ORIGIN", "OTHER_REALM", "ALL_LOCAL", "DAEMON_USER", "DAEMON_GROUP"};
 			Properties conf = configure.getServerConfiguration();
-			if (conf.getProperty("PRIMARY_ORIGIN") == null) {
+			if (conf.getProperty("PRIMARY_ORIGIN") == null && conf.getProperty("ORIGIN") == null) {
+				// new install
+				conf.setProperty("PRIMARY_ORIGIN", getDefaultPrimaryOrigin(configure));
+				adata.setVariable("callimachus.upgrading", "false");
+			} else if (conf.getProperty("PRIMARY_ORIGIN") == null) {
+				// upgrading from 0.15
 				conf.setProperty("PRIMARY_ORIGIN", conf.getProperty("ORIGIN"));
+				adata.setVariable("callimachus.upgrading", "true");
+			} else {
+				adata.setVariable("callimachus.upgrading", "true");
 			}
 			setCallimachusVariables(conf, confProperties, adata);
 
@@ -81,6 +90,18 @@ public class ConfigurationReader implements DataValidator {
         
         return Status.OK;
     }
+
+	private String getDefaultPrimaryOrigin(Configure configure)
+			throws SocketException {
+		for (String origin : configure.getDefaultOrigins("80")) {
+			if (origin.matches("\\.([A-Z]{2}|com|org|net|biz|info|name|aero|biz|info|jobs|museum|name)$")) {
+				if ("root".equals(System.getProperty("user.name")))
+					return origin;
+				return origin + ":8080";
+			}
+		}
+		return "http://localhost:8080";
+	}
     
     /**
 	 * Set IzPack variables for each property provided.

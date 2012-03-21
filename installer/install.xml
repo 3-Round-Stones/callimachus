@@ -57,6 +57,10 @@
             <name>USER_NAME</name>
             <value>root</value>
         </condition>
+        <condition type="variable" id="newinstall">
+            <name>callimachus.upgrading</name>
+            <value>false</value>
+        </condition>
     </conditions>
 
     <!-- 
@@ -92,7 +96,7 @@
           <validator classname="org.callimachusproject.installer.validators.ConfigurationReader" />
         </panel>
 				<!-- TODO: Ask about backing up the existing repo -->
-        <panel classname="UserInputPanel"/> <!-- primary authority config -->
+        <panel classname="UserInputPanel" condition="newinstall"/> <!-- primary authority config -->
         <panel classname="InstallPanel">
           <validator classname="org.callimachusproject.installer.validators.SetupProcessor" />
         </panel>
@@ -103,6 +107,7 @@
         <panel classname="UserInputPanel" condition="isroot"> <!-- daemon config -->
           <validator classname="org.callimachusproject.installer.validators.DaemonAccountValidator" />
         </panel>
+        <panel classname="UserInputPanel"/> <!-- port config -->
         <panel classname="UserInputPanel"> <!-- mail config -->
           <validator classname="org.callimachusproject.installer.validators.MailServerValidator" />
         </panel>

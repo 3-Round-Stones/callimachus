@@ -235,7 +235,7 @@
 		var token = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
 		if (token != resetForm.get("token")[0])
 			throw new BadRequest("Request is No Longer Valid");
-		var password = user.generatePassword();
+		var password = this.generatePassword();
 		var decoded = user.calliName + ":" + this.calliAuthName + ":" + password;
 		user.calliAlgorithm = "MD5";
 		user.calliEncoded = DigestUtils.md5(new java.lang.String(decoded).getBytes("UTF-8"));

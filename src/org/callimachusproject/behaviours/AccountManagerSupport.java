@@ -41,6 +41,7 @@ import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.concepts.AccountManager;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.traits.VersionedObject;
+import org.callimachusproject.util.PasswordGenerator;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
@@ -82,6 +83,10 @@ public abstract class AccountManagerSupport implements AccountManager, RDFObject
 		DIGEST_OPTS.put("response", null);
 	}
 	private Logger logger = LoggerFactory.getLogger(AccountManagerSupport.class);
+
+	public String generatePassword() {
+		return PasswordGenerator.generatePassword();
+	}
 
 	@Override
 	public HttpResponse unauthorized(String method, Object resource,

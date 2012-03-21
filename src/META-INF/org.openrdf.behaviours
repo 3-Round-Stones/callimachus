@@ -8,7 +8,6 @@ org.callimachusproject.behaviours.RDFaSupport
 org.callimachusproject.behaviours.FormSupport
 org.callimachusproject.behaviours.MailSubmitterSupport
 org.callimachusproject.behaviours.ManifestSupport
-org.callimachusproject.behaviours.PasswordGenerator = http://callimachusproject.org/rdf/2009/framework#User
 org.callimachusproject.behaviours.ScriptBundleSupport
 org.callimachusproject.behaviours.ClassAuthorizationSupport = http://www.w3.org/2000/01/rdf-schema#Resource
 org.callimachusproject.behaviours.ResourceAuthorizationSupport = http://www.w3.org/2000/01/rdf-schema#Resource

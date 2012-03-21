@@ -89,7 +89,7 @@ rdfs:comment a rdf:Property.
 		}
 
 		//# generate and save a password
-		var password = newUser.generatePassword();
+		var password = accounts.generatePassword();
 		var token = username + ":" + accounts.calliAuthName + ":" + password;
 		newUser.calliAlgorithm = "MD5";
 		newUser.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));

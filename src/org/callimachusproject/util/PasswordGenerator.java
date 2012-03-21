@@ -14,22 +14,22 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.behaviours;
+package org.callimachusproject.util;
 
 import java.security.SecureRandom;
 import java.util.Random;
 
 /**
- * Generates a random alphanumeric string with some punctuation that can be used
- * as a password.
+ * Generates a random string of printable characters that can be used as a
+ * password.
  * 
  * @author James Leigh
  * 
  */
 public class PasswordGenerator {
 	private static final Random rnd = new SecureRandom();
-	private static final int LENGTH_MIN = 15;
-	private static final int LENGTH_MAX = 20;
+	private static final int LENGTH_MIN = 25;
+	private static final int LENGTH_MAX = 35;
 	private static final String[] WORD_POOL = { "a", "ability", "able",
 			"about", "above", "academic", "accept", "accepted", "according",
 			"account", "achieved", "achievement", "across", "act", "acting",
@@ -336,7 +336,16 @@ public class PasswordGenerator {
 			"wrote", "yards", "year", "years", "Yes", "yesterday", "yet",
 			"York", "you", "young", "your", "yourself", "Youth" };
 
-	public String generatePassword() {
+	/**
+	 * This algorithm selects from a word pool of 1916 words. This gives an
+	 * entropy of 11 bits per word. The average word length is 6. The average
+	 * entropy of each password generated is 55 bits.
+	 * 
+	 * The entropy of a 8 character password of random [A-Za-z0-9] is 48 bits.
+	 * 
+	 * @return a random pass-phrase
+	 */
+	public static String generatePassword() {
 		int length = LENGTH_MIN + rnd.nextInt(LENGTH_MAX - LENGTH_MIN + 1);
 		StringBuilder sb = new StringBuilder();
 		while (sb.length() < length) {
@@ -349,6 +358,6 @@ public class PasswordGenerator {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(new PasswordGenerator().generatePassword());
+		System.out.println(generatePassword());
 	}
 }

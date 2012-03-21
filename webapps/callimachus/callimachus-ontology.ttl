@@ -226,7 +226,7 @@ calli:email a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:range rdf:PlainLiteral;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:authNamespace a owl:ObjectProperty;
+calli:authNamespace a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "auth namespace";
 	rdfs:comment "Folder of users that can be authenticated by this realm";
 	rdfs:domain calli:AccountManager;

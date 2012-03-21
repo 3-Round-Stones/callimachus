@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.zip.ZipEntry;
@@ -51,7 +52,14 @@ public class Configure {
 	private static final String START_SCRIPT = "callimachus-start";
 	private static final String STOP_SCRIPT = "callimachus-stop";
 	private final File dir;
-	private final ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+	private final ExecutorService executor = Executors
+			.newSingleThreadScheduledExecutor(new ThreadFactory() {
+				public Thread newThread(Runnable r) {
+					Thread t = new Thread(r, "Callimachus-Configure-Setup-Queue");
+					t.setDaemon(true);
+					return t;
+				}
+			});
 	private volatile Exception exception;
 	/** Only access setup through executor */
 	private SetupProxy setup;
@@ -434,13 +442,12 @@ public class Configure {
 			int read;
 			byte[] buf = new byte[1024];
 			while ((read = in.read(buf)) >= 0) {
-				System.out.write(buf, 0, read);
+				System.err.write(buf, 0, read);
 			}
 		} finally {
 			in.close();
 		}
-		Thread.sleep(1000);
-		return p.exitValue() == 0;
+		return p.waitFor() == 0;
 	}
 
 	private Process exec(String script) throws IOException {

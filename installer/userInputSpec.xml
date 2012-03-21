@@ -86,11 +86,13 @@
       </validator>
     </field>
     <field type="text" align="left" variable="callimachus.DAEMON_GROUP">
-      <description align="left" txt="$APP_NAME must run with reduce privileges."/>
       <spec txt="Daemon group:" size="25" set="${callimachus.DAEMON_GROUP}"/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Daemon group is required.">
         <param name="pattern" value="^[a-z][-a-z0-9]*$"/>
       </validator>
+    </field>
+    <field type="check" variable="callimachus.daemon.autocreate">
+      <spec txt="Create this system account now" true="true" false="false" set="false"/>
     </field>
     <field type="divider" align="bottom"/>
   </panel>

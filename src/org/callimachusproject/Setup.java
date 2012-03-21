@@ -660,10 +660,6 @@ public class Setup {
 	private void importCallimachus(String origin, URL car,
 			ObjectRepository repository) throws Exception {
 		importSchema(car, origin, repository);
-		ValueFactory vf = repository.getValueFactory();
-		repository.setSchemaGraphType(vf.createURI(origin
-				+ SCHEMA_GRAPH));
-		repository.setCompileRepository(true);
 		importArchive(car, origin, repository);
 	}
 
@@ -719,10 +715,12 @@ public class Setup {
 
 	private void importArchive(URL car, String origin,
 			ObjectRepository repository) throws Exception {
+		ValueFactory vf = repository.getValueFactory();
+		repository.setSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
+		repository.setCompileRepository(true);
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
-			ValueFactory vf = con.getValueFactory();
 			URI uri = vf.createURI(origin + "/callimachus/");
 			con.add(vf.createURI(origin + "/"), vf.createURI(CALLI_HASCOMPONENT), uri);
 			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
@@ -740,6 +738,7 @@ public class Setup {
 			} finally {
 				in.close();
 			}
+			repository.setCompileRepository(false);
 			con.setAutoCommit(true);
 		} finally {
 			con.close();

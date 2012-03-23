@@ -124,14 +124,14 @@ public class ConfigurationWriter implements DataValidator {
 		origin.append(other.replaceAll("(://[^/]*)/\\S*", "$1")).append(" ");
 		conf.setProperty("ORIGIN", origin.toString().trim());
 		// save JAVA_HOME
-		String jdk = adata.getVariable("JDKPath");
-		if (conf.getProperty("JAVA_HOME") == null && jdk != null) {
+		String path = adata.getVariable("JDKPath");
+		if (conf.getProperty("JAVA_HOME") == null && path != null) {
+			File jdk = new File(path);
 			File jre = new File(jdk, "jre");
-			File bin = new File(jre, "bin");
-			File java = new File(bin, "java");
-			File java_exe = new File(bin, "java.exe");
-			if (java.isFile() || java_exe.isFile()) {
+			if (isJavaHome(jre)) {
 				conf.setProperty("JAVA_HOME", jre.getAbsolutePath());
+			} else if (isJavaHome(jdk)) {
+				conf.setProperty("JAVA_HOME", jdk.getAbsolutePath());
 			}
 		}
 		return conf;
@@ -165,6 +165,13 @@ public class ConfigurationWriter implements DataValidator {
 		if (value == null)
 			return "";
 		return value.trim().replaceAll("\\s+", " ");
+	}
+
+	private boolean isJavaHome(File jre) {
+		File bin = new File(jre, "bin");
+		File java = new File(bin, "java");
+		File java_exe = new File(bin, "java.exe");
+		return java.isFile() || java_exe.isFile();
 	}
 
 	private String getPrimaryOrigin(AutomatedInstallData adata) {

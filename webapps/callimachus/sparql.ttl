@@ -1,13 +1,13 @@
-# 
+#
 #    Portions Copyright (c) 2009-10 Zepheira LLC, Some Rights Reserved
 #    Portions Copyright (c) 2010-11 Talis Inc, Some Rights Reserved
-# 
+#
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
 #    You may obtain a copy of the License at
-# 
+#
 #        http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #    Unless required by applicable law or agreed to in writing, software
 #    distributed under the License is distributed on an "AS IS" BASIS,
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -53,23 +53,8 @@
 		if (!qry)
 			throw new BadRequest("Missing query");
 		try {
-			var query;
+			var query = this.AddPrefix(qry);
 			var con = this.objectConnection;
-			if (qry.search(/\\bPREFIX\\b/i) >= 0) {
-				query = qry;
-			} else {
-				var sb = new java.lang.StringBuilder();
-				var namespaces = con.namespaces.asList();
-				for (var i = 0; i < namespaces.size(); i++) {
-					var prefix = namespaces.get(i).prefix;
-					var uri = namespaces.get(i).name;
-					if (qry.indexOf(prefix) >= 0) {
-						sb.append("PREFIX ").append(prefix);
-						sb.append(":<").append(uri).append(">\\n");
-					}
-				}
-				query = sb.append(qry).toString();
-			}
 			var mime;
 			var rs;
 			var type;
@@ -110,6 +95,50 @@
 	rdfs:domain :EvaluateSparql;
 	rdfs:range xsd:string.
 
+# POST application/sparql-query
+:PostQuery rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+	msg:method "POST";
+	msg:type "message/x-response";
+	msg:transform :TransformResult;
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:script """
+		if (!query)
+			throw new BadRequest("Missing query body");
+		return this.EvaluateSparql(new java.lang.String(query, "UTF-8"));
+	""".
+
+:query a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :PostQuery;
+	rdfs:range xsd:hexBinary;
+	msg:type "application/sparql-query".
+
+# POST application/sparql-update
+:PostUpdate rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:method "POST";
+	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:script """
+		if (!update)
+			throw new BadRequest("Missing update body");
+		try {
+			var query = this.AddPrefix(update);
+			var con = this.objectConnection;
+			var base = this.resource.stringValue();
+			con.prepareUpdate(QueryLanguage.SPARQL, query, base).execute();
+			return null;
+		} catch (e if e.javaException instanceof MalformedQueryException) {
+			throw new BadRequest(e.javaException.toString());
+		}
+	""".
+
+:update a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :PostUpdate;
+	rdfs:range xsd:hexBinary;
+	msg:type "application/sparql-update".
+
 # POST application/x-www-form-urlencoded
 :PostForm rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
@@ -130,23 +159,8 @@
 			throw new org.callimachusproject.server.exceptions.BadRequest("Missing query");
 		var qry = map.get("update")[0];
 		try {
-			var query;
+			var query = this.AddPrefix(qry);
 			var con = this.objectConnection;
-			if (qry.search(/\\bPREFIX\\b/i) >= 0) {
-				query = qry;
-			} else {
-				var sb = new java.lang.StringBuilder();
-				var namespaces = con.namespaces.asList();
-				for (var i = 0; i < namespaces.size(); i++) {
-					var prefix = namespaces.get(i).prefix;
-					var uri = namespaces.get(i).name;
-					if (qry.indexOf(prefix) >= 0) {
-						sb.append("PREFIX ").append(prefix);
-						sb.append(":<").append(uri).append(">\\n");
-					}
-				}
-				query = sb.append(qry).toString();
-			}
 			var base = this.resource.stringValue();
 			con.prepareUpdate(QueryLanguage.SPARQL, query, base).execute();
 			return null;
@@ -185,6 +199,30 @@
 	rdfs:domain :GetQueryResult;
 	rdfs:range xsd:string;
 	calli:query "query".
+
+:AddPrefix rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	msg:script """
+		if (inputString.search(/^[^#]*\\bPREFIX\\b/im) >= 0)
+			return inputString;
+		var sb = new java.lang.StringBuilder();
+		var con = this.objectConnection;
+		var namespaces = con.namespaces.asList();
+		for (var i = 0; i < namespaces.size(); i++) {
+			var prefix = namespaces.get(i).prefix;
+			var uri = namespaces.get(i).name;
+			if (qry.indexOf(prefix) >= 0) {
+				sb.append("PREFIX ").append(prefix);
+				sb.append(":<").append(uri).append(">\\n");
+			}
+		}
+		return sb.append(inputString).toString();
+	""".
+
+:inputString a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :AddPrefix;
+	rdfs:rang xsd:string.
 
 # Transformers
 :TransformResult rdfs:subClassOf msg:Message;

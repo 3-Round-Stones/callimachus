@@ -140,6 +140,8 @@ if [ -z "$JDK_HOME" -a -x "$JAVA_HOME/../lib/tools.jar" ]; then
   JDK_HOME="$JAVA_HOME/.."
 elif [ -z "$JDK_HOME" -a -x "$JAVA_HOME/lib/tools.jar" ]; then
   JDK_HOME="$JAVA_HOME"
+elif [ -z "$JDK_HOME" -a -x "$JAVA_HOME/../Classes/classes.jar" ]; then
+  JDK_HOME="$JAVA_HOME"
 fi
 
 # use 'which' to search for other possible java candidate
@@ -466,7 +468,7 @@ elif [ "$1" = "dump" ] ; then ################################
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
-    -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar" \
+    -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar:$JDK_HOME/../Classes/classes.jar" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PID" --dump "$DIR"
   RETURN_VAL=$?
@@ -502,7 +504,7 @@ elif [ "$1" = "reset" ] ; then ################################
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
-    -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar" \
+    -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar:$JDK_HOME/../Classes/classes.jar" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PID" --reset
   RETURN_VAL=$?

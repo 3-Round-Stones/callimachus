@@ -88,23 +88,25 @@ rem Read relative config paths from BASEDIR
 cd "%BASEDIR%"
 
 rem check for a JDK in the BASEDIR
+for /d %%i in ("%BASEDIR%\jdk*") do set JDK_HOME=%%i
 for /d %%i in ("%BASEDIR%\jdk*") do set JAVA_HOME=%%i/jre
 
 rem Lookup the JDK in the registry
-if not "%JAVA_HOME%" == "" goto gotJdkHome
-set "KeyName=HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit"
+if not "%JAVA_HOME%" == "" goto gotJavaHome
+set "KeyName=HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit\1.6"
 set Cmd=reg query "%KeyName%" /s
 for /f "tokens=2*" %%i in ('%Cmd% ^| find "JavaHome"') do set JAVA_HOME=%%j
 
 rem Make sure prerequisite environment variable is set
-if not "%JAVA_HOME%" == "" goto gotJdkHome
+if not "%JAVA_HOME%" == "" goto gotJavaHome
 echo The JAVA_HOME environment variable is not defined
 echo The JAVA_HOME environment variable is needed to run this server
 goto exit
-:gotJdkHome
+:gotJavaHome
 
-set "JAVA=%JAVA_HOME%\bin\java"
-set "JAVAW=%JAVA_HOME%\bin\javaw"
+if not "%JDK_HOME%" == "" goto gotJdkHome
+set "JDK_HOME=%JAVA_HOME\.."
+:gotJdkHome
 
 if not "%PID%" == "" goto gotOut
 set "PID=%BASEDIR%\run\%NAME%.pid"
@@ -200,6 +202,7 @@ echo Using BASEDIR:   %BASEDIR%
 echo Using PORT:      %PORT% %SSLPORT%
 echo Using ORIGIN:    %ORIGIN%
 echo Using JAVA_HOME: %JAVA_HOME%
+echo Using JDK_HOME:  %JDK_HOME%
 
 rem Get remaining unshifted command line arguments and save them in the
 set CMD_LINE_ARGS=
@@ -214,7 +217,7 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-"%JAVA%" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" %OPT% %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStart
@@ -222,6 +225,7 @@ echo Using BASEDIR:   %BASEDIR%
 echo Using PORT:      %PORT% %SSLPORT%
 echo Using ORIGIN:    %ORIGIN%
 echo Using JAVA_HOME: %JAVA_HOME%
+echo Using JDK_HOME:  %JDK_HOME%
 
 rem Get remaining command line arguments
 shift
@@ -237,27 +241,27 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-start "%NAME%" "%JAVAW%" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
+start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStop
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\..\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --stop %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --stop %CMD_LINE_ARGS%
 goto end
 
 :doDump
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\..\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --dump "%BASEDIR%\log" %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --dump "%BASEDIR%\log" %CMD_LINE_ARGS%
 goto end
 
 :doReset
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\..\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --reset %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --reset %CMD_LINE_ARGS%
 goto end
 
 :doLog
 rem Execute Java with the applicable properties
-"%JAVA%" -server -classpath "%CLASSPATH%;%JAVA_HOME%\..\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --log %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --log %CMD_LINE_ARGS%
 goto end
 
 :end

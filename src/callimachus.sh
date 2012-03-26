@@ -94,36 +94,17 @@ if $cygwin; then
   [ -n "$CLASSPATH" ] && CLASSPATH=`cygpath --path --unix "$CLASSPATH"`
 fi
 
-if [ -z "$JAVA_VERSION" ] ; then
-  JAVA_VERSION=1.6
-fi
-
-# Transform the required version string into an integer that can be used in comparisons
-JAVA_VERSION_INT=`echo "$JAVA_VERSION" | perl -pe 's;\.;0;g' 2>/dev/null`
-
-# Check JAVA_HOME directory to see if Java version is adequate
-if [ ! -z "$JAVA_HOME" -a -x "$JAVA_HOME/bin/java" -a -x "$JAVA_HOME/../bin/javac" ] ; then
-  JAVA="$JAVA_HOME/bin/java"
-  VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
-  if [ -L "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
-    JAVA_HOME=
-  fi
-fi
-
 # check the base dir for possible java candidates
-if [ -z "$JAVA_HOME" ] && ls "$BASEDIR"/*/bin/javac >/dev/null 2>&1
+if [ -z "$JDK_HOME" ] && ls "$BASEDIR"/*/lib/tools.jar >/dev/null 2>&1
 then
-  JAVAC=`ls -1 "$BASEDIR"/*/bin/javac | head -n 1`
-  if [ -x "$JAVAC" ] ; then
-    JDK_HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
-    JAVA_HOME="$JDK_HOME/jre"
+  TOOLS=`ls -1 "$BASEDIR"/*/lib/tools.jar | head -n 1`
+  if [ -e "$TOOLS" ] ; then
+    JDK_HOME=$(dirname "$(dirname "$TOOLS")")
     # verify java instance
-    if [ ! -z "$JAVA_HOME" ] ; then
-      JAVA="$JAVA_HOME/bin/java"
-      VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
-      if [ -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
-        JAVA_HOME=
-      fi
+    if [ -x "$JDK_HOME/jre/bin/java" ] ; then
+      JAVA_HOME="$JDK_HOME/jre"
+    elif [ -x "$JDK_HOME/bin/java" ] ; then
+      JAVA_HOME="$JDK_HOME"
     fi
   fi
 fi
@@ -131,18 +112,38 @@ fi
 # use 'java_home' to search for other possible java candidate
 if [ -z "$JAVA_HOME" -a -x /usr/libexec/java_home ] ; then
   JAVA_HOME=`/usr/libexec/java_home`
-  # verify java instance
-  if [ ! -z "$JAVA_HOME" ] ; then
-    JAVA="$JAVA_HOME/bin/java"
-    VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
-    if [ -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
-      JAVA_HOME=
-    fi
-  fi
 fi
 
 # use 'which' to search for other possible java candidate
 if [ -z "$JAVA_HOME" ] ; then
+  JAVA=`which java`
+  if [ -x "$JAVA" ] ; then
+    while [ -h "$JAVA" ] ; do
+      ls=`ls -ld "$JAVA"`
+      link=`expr "$ls" : '.*-> \(.*\)$'`
+      if expr "$link" : '/.*' > /dev/null; then
+        JAVA="$link"
+      else
+        JAVA=`dirname "$JAVA"`/"$link"
+      fi
+    done
+    HOME=`echo "$JAVA" | awk '{ print substr($1, 1, length($1)-9); }'`
+    if [ -d "$HOME" ] ; then
+      JAVA_HOME="$HOME"
+    else
+      JAVA_HOME=`which java | awk '{ print substr($1, 1, length($1)-9); }'`
+    fi
+  fi
+fi
+
+if [ -z "$JDK_HOME" -a -x "$JAVA_HOME/../lib/tools.jar" ]; then
+  JDK_HOME="$JAVA_HOME/.."
+elif [ -z "$JDK_HOME" -a -x "$JAVA_HOME/lib/tools.jar" ]; then
+  JDK_HOME="$JAVA_HOME"
+fi
+
+# use 'which' to search for other possible java candidate
+if [ -z "$JDK_HOME" ] ; then
   JAVAC=`which javac`
   if [ -x "$JAVAC" ] ; then
     while [ -h "$JAVAC" ] ; do
@@ -154,43 +155,13 @@ if [ -z "$JAVA_HOME" ] ; then
         JAVAC=`dirname "$JAVAC"`/"$link"
       fi
     done
-    JDK_HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
-    if [ -d "$JDK_HOME" ] ; then
-      JAVA_HOME="$JDK_HOME/jre"
+    HOME=`echo "$JAVAC" | awk '{ print substr($1, 1, length($1)-10); }'`
+    if [ -d "$HOME" ] ; then
+      JDK_HOME="$HOME"
     else
       JDK_HOME=`which javac | awk '{ print substr($1, 1, length($1)-10); }'`
-      JAVA_HOME="$JDK_HOME/jre"
     fi
   fi
-  # verify java instance
-  if [ -z "$JAVA_HOME" ] ; then
-    echo "The JAVA_HOME environment variable is not defined"
-    echo "This environment variable is needed to run this server"
-    exit 1
-  fi
-  JAVA="$JAVA_HOME/bin/java"
-  VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
-  if [ ! -x "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
-    echo "The JAVA_HOME environment variable does not point to a $JAVA_VERSION JDK installation"
-    echo "JDK $JAVA_VERSION is needed to run this server"
-    exit 1
-  fi
-fi
-
-if [ ! -x "$JAVA_HOME/../bin/jrunscript" ]; then
-    echo "The JAVA_HOME environment variable does not point to a JDK installation with scripting support"
-    echo "JDK jrunscript is needed to run this server"
-    exit 1
-fi
-
-if ! "$JAVA_HOME/../bin/jrunscript" -q 2>&1 |grep ECMAScript >/dev/null; then
-    echo "The JAVA_HOME environment variable does not point to a JDK installation with ECMAScript support"
-    echo "JDK with ECMAScript support is needed to run this server"
-    exit 1
-fi
-
-if [ -z "$JAVA" ] ; then
-  JAVA="$JAVA_HOME/bin/java"
 fi
 
 if [ -z "$PID" ] ; then
@@ -286,6 +257,7 @@ fi
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
+  JDK_HOME=`cygpath --absolute --windows "$JDK_HOME"`
   BASEDIR=`cygpath --absolute --windows "$BASEDIR"`
   TMPDIR=`cygpath --absolute --windows "$TMPDIR"`
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
@@ -338,6 +310,7 @@ if [ "$1" = "start" ] ; then ################################
     echo "Using PORT:      $PORT $SSLPORT"
     echo "Using ORIGIN:    $ORIGIN"
     echo "Using JAVA_HOME: $JAVA_HOME"
+    echo "Using JDK_HOME:  $JDK_HOME"
   fi
 
   JSVC_LOG="$BASEDIR/log/callimachus-start.log"
@@ -495,7 +468,7 @@ elif [ "$1" = "dump" ] ; then ################################
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
-    -classpath "$CLASSPATH:$JAVA_HOME/../lib/tools.jar" \
+    -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PID" --dump "$DIR"
   RETURN_VAL=$?
@@ -531,7 +504,7 @@ elif [ "$1" = "reset" ] ; then ################################
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
-    -classpath "$CLASSPATH:$JAVA_HOME/../lib/tools.jar" \
+    -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PID" --reset
   RETURN_VAL=$?
@@ -550,36 +523,17 @@ else ################################
     echo "Using PORT:      $PORT $SSLPORT"
     echo "Using ORIGIN:    $ORIGIN"
     echo "Using JAVA_HOME: $JAVA_HOME"
+    echo "Using JDK_HOME:  $JDK_HOME"
   fi
 
-  if [ -z "$DAEMON_USER" -o "$DAEMON_USER" != "root" ]; then
-	  if [ -n "$PORT" ]; then
-	    if [ "$PORT" -le 1024 ]; then
-          USE_JSVC=true
-        fi
-      fi
-	  if [ -n "$SSLPORT" ]; then
-	    if [ "$SSLPORT" -le 1024 ]; then
-          USE_JSVC=true
-        fi
-      fi
-  fi
-  if [ -n "$USE_JSVC" ]; then
-    exec "$EXECUTABLE" -debug -nodetach -home "$JAVA_HOME" -jvm server -procname "$NAME" \
-      -pidfile "$PID" \
-      -Duser.home="$BASEDIR" \
-      -Djava.io.tmpdir="$TMPDIR" \
-      -Djava.util.logging.config.file="$LOGGING" \
-      -Djava.mail.properties="$MAIL" \
-      -classpath "$CLASSPATH" \
-      -user "$DAEMON_USER" \
-      $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" $OPTS "$@"
-  fi
-  exec "$JAVA" -server \
+  exec "$EXECUTABLE" -debug -showversion -nodetach -home "$JAVA_HOME" -jvm server -procname "$NAME" \
+    -pidfile "$PID" \
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
+    -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
-    $JAVA_OPTS $SSL_OPTS "$MAINCLASS" --pid "$PID" -d "$BASEDIR" -r "$REPOSITORY" $OPTS "$@"
+    -user "$DAEMON_USER" \
+    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" $OPTS "$@"
 fi
 

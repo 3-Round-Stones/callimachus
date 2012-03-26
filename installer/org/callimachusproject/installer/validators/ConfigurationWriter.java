@@ -133,6 +133,9 @@ public class ConfigurationWriter implements DataValidator {
 			} else if (isJavaHome(jdk)) {
 				conf.setProperty("JAVA_HOME", jdk.getAbsolutePath());
 			}
+			if (isJdkHome(jdk)) {
+				conf.setProperty("JDK_HOME", jre.getAbsolutePath());
+			}
 		}
 		return conf;
 	}
@@ -172,6 +175,10 @@ public class ConfigurationWriter implements DataValidator {
 		File java = new File(bin, "java");
 		File java_exe = new File(bin, "java.exe");
 		return java.isFile() || java_exe.isFile();
+	}
+
+	private boolean isJdkHome(File jre) {
+		return new File(new File(jre, "lib"), "tools.jar").isFile();
 	}
 
 	private String getPrimaryOrigin(AutomatedInstallData adata) {

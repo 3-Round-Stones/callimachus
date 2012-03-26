@@ -30,33 +30,9 @@ if $cygwin; then
   [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
 fi
 
-if [ -z "$JAVA_VERSION" ] ; then
-  JAVA_VERSION=1.6
-fi
-
-# Transform the required version string into an integer that can be used in comparisons
-JAVA_VERSION_INT=`echo "$JAVA_VERSION" | perl -pe 's;\.;0;g' 2>/dev/null`
-
-# Check JAVA_HOME directory to see if Java version is adequate
-if [ ! -z "$JAVA_HOME" -a -x "$JAVA_HOME/bin/java" ] ; then
-  JAVA="$JAVA_HOME/bin/java"
-  VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
-  if [ -L "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
-    JAVA_HOME=
-  fi
-fi
-
 # use 'java_home' to search for other possible java candidate
 if [ -z "$JAVA_HOME" -a -x /usr/libexec/java_home ] ; then
   JAVA_HOME=`/usr/libexec/java_home`
-  # verify java instance
-  if [ ! -z "$JAVA_HOME" ] ; then
-    JAVA="$JAVA_HOME/bin/java"
-    VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
-    if [ -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
-      JAVA_HOME=
-    fi
-  fi
 fi
 
 # use 'which' to search for other possible java candidate
@@ -152,21 +128,10 @@ if [ -z "$JAVA_HOME" ] ; then
   exit 1
 fi
 
-if [ -z "$JAVA" ] ; then
-  JAVA="$JAVA_HOME/bin/java"
-fi
-
-VERSION=`"$JAVA" -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }' | awk '{ print substr($1, 1, 3); }' | perl -pe 's;\.;0;g' 2>/dev/null`
-if [ ! -x "$JAVA" -o -z "$VERSION" -o "$VERSION" -lt "$JAVA_VERSION_INT" ] ; then
-  echo "The JAVA_HOME environment variable does not point to a $JAVA_VERSION JDK installation"
-  echo "JDK $JAVA_VERSION is needed to run this setup"
-  exit 1
-fi
-
 if $darwin; then
-  exec $JAVA -DuseJavaUtilZip -jar "$0" "$@"
+  exec $JAVA_HOME/bin/java -DuseJavaUtilZip -jar "$0" "$@"
 elif [ ! -z "$DISPLAY" ] ; then
-  exec $JAVA -DuseJavaUtilZip -jar "$0" "$@"
+  exec $JAVA_HOME/bin/java -DuseJavaUtilZip -jar "$0" "$@"
 else
   LOG="callimachus-installer.log"
   $JAVA -DuseJavaUtilZip -jar "$0" -console "$@" 2> "$LOG"

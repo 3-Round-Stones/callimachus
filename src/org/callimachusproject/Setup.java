@@ -78,17 +78,12 @@ import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
-import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.auditing.AuditingSail;
-import org.openrdf.sail.optimistic.OptimisticRepository;
-import org.openrdf.sail.optimistic.OptimisticSail;
 import org.openrdf.store.blob.file.FileBlobStoreProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,7 +143,7 @@ public class Setup {
 				"Additional scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
 		options.addOption("r", "realm", true,
 				"The scheme, hostname, port, and path ( http://example.com:8080/ ) that does not resolve to this server");
-		options.addOption("e", "everything", false, "Treat all resources as local");
+		options.addOption("l", "local", false, "Treat all resources as local");
 		options.addOption("u", "user", true,
 				"Create the given user and prompt for a password, or append the password separated by a colon");
 		options.getOption("user").setOptionalArg(true);
@@ -196,7 +191,7 @@ public class Setup {
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
 	private ObjectRepository repository;
 	private boolean silent;
-	private String everything;
+	private String local;
 	private File dir;
 	private URL config;
 	private URL callimachus;
@@ -261,8 +256,8 @@ public class Setup {
 							realms.put(r, origin);
 						}
 					}
-					if (line.hasOption('e')) {
-						everything = origin;
+					if (line.hasOption('l')) {
+						local = origin;
 					}
 					if (line.hasOption('u')) {
 						String u = line.getOptionValue('u');
@@ -308,7 +303,7 @@ public class Setup {
 		for (Map.Entry<String, String> e : realms.entrySet()) {
 			changed |= createRealm(e.getKey(), e.getValue(), repository);
 		}
-		changed |= setResourcesAsLocalTo(everything, repository);
+		changed |= setResourcesAsLocalTo(local, repository);
 		if (password != null) {
 			changed |= createAdmin(name, email, username, password, origin, repository);
 		}

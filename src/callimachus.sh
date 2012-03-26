@@ -300,8 +300,20 @@ if [ "$1" = "start" ] ; then ################################
 
   if [ ! -z "$PID" ]; then
     if [ -f "$PID" ]; then
-      echo "PID file ($PID) found. Is the server still running? Start aborted."
+      echo "PID file ($PID) found. Is the server still running? Start aborted." 2>&1
       exit 1
+    fi
+  fi
+
+  if [ -n "$PORT" ]; then
+    if netstat -ltpn 2>/dev/null |grep -qe ":$PORT\b" ; then
+      echo "Cannot bind to port $PORT, please ensure nothing is listening on this port" 2>&1
+      exit 2
+    fi
+  elif [ -n "$SSLPORT" ]; then
+    if netstat -ltpn 2>/dev/null |grep -qe ":$SSLPORT\b" ; then
+      echo "Cannot bind to port $SSLPORT, please ensure nothing is listening on this port" 2>&1
+      exit 2
     fi
   fi
 
@@ -337,9 +349,9 @@ if [ "$1" = "start" ] ; then ################################
 
   if [ $RETURN_VAL -gt 0 -o ! -f "$PID" ]; then
     if [ "$(ls -A "$BASEDIR/log")" ]; then
-      echo "The server did not start, see log files for details. Start aborted."
+      echo "The server did not start, see log files for details. Start aborted." 2>&1
     else
-      echo "The server did not start properly. Ensure it is not running and run $0"
+      echo "The server did not start properly. Ensure it is not running and run $0" 2>&1
     fi
     exit $RETURN_VAL
   fi
@@ -349,7 +361,7 @@ if [ "$1" = "start" ] ; then ################################
   while [ $SLEEP -ge 0 ]; do
     kill -0 $ID >/dev/null 2>&1
     if [ $? -gt 0 ]; then
-      echo "The server is not running, see log files for details. Start aborted."
+      echo "The server is not running, see log files for details. Start aborted." 2>&1
       exit 1
     fi
     if [ -n "$PORT" ]; then
@@ -368,7 +380,7 @@ if [ "$1" = "start" ] ; then ################################
     fi
     if [ $SLEEP -eq 0 ]; then
       if [ "`tty`" != "not a tty" ]; then
-        echo "The server is still starting up, check log files for possible errors."
+        echo "The server is still starting up, check log files for possible errors." 2>&1
       fi
       break
     fi
@@ -382,16 +394,16 @@ elif [ "$1" = "stop" ] ; then ################################
     if [ $? -gt 0 ]; then
       rm -f "$PID"
       if [ $? -gt 0 ]; then
-        echo "PID file ($PID) found but no matching process was found. Stop aborted."
+        echo "PID file ($PID) found but no matching process was found. Stop aborted." 2>&1
         exit $?
       fi
       exit $?
     fi
   elif [ -f "$PID" ]; then
-    echo "The PID ($PID) exist, but it cannot be read. Stop aborted."
+    echo "The PID ($PID) exist, but it cannot be read. Stop aborted." 2>&1
     exit 1
   else
-    echo "The PID ($PID) does not exist. Is the server running? Stop aborted."
+    echo "The PID ($PID) does not exist. Is the server running? Stop aborted." 2>&1
     exit 1
   fi
 
@@ -434,16 +446,16 @@ elif [ "$1" = "dump" ] ; then ################################
     if [ $? -gt 0 ]; then
       rm -f "$PID"
       if [ $? -gt 0 ]; then
-        echo "PID file ($PID) found but no matching process was found. Dump aborted."
+        echo "PID file ($PID) found but no matching process was found. Dump aborted." 2>&1
         exit $?
       fi
       exit $?
     fi
   elif [ -f "$PID" ]; then
-    echo "The PID ($PID) exist, but it cannot be read. Dump aborted."
+    echo "The PID ($PID) exist, but it cannot be read. Dump aborted." 2>&1
     exit 1
   else
-    echo "The PID ($PID) does not exist. Is the server running? Dump aborted."
+    echo "The PID ($PID) does not exist. Is the server running? Dump aborted." 2>&1
     exit 1
   fi
 
@@ -482,16 +494,16 @@ elif [ "$1" = "reset" ] ; then ################################
     if [ $? -gt 0 ]; then
       rm -f "$PID"
       if [ $? -gt 0 ]; then
-        echo "PID file ($PID) found but no matching process was found. Reset aborted."
+        echo "PID file ($PID) found but no matching process was found. Reset aborted." 2>&1
         exit $?
       fi
       exit $?
     fi
   elif [ -f "$PID" ]; then
-    echo "The PID ($PID) exist, but it cannot be read. Reset aborted."
+    echo "The PID ($PID) exist, but it cannot be read. Reset aborted." 2>&1
     exit 1
   else
-    echo "The PID ($PID) does not exist. Is the server running? Reset aborted."
+    echo "The PID ($PID) does not exist. Is the server running? Reset aborted." 2>&1
     exit 1
   fi
 
@@ -514,7 +526,7 @@ elif [ "$1" = "reset" ] ; then ################################
 else ################################
 
   if [ -f "$PID" ]; then
-    echo "PID file ($PID) found. Is the server still running? Run aborted."
+    echo "PID file ($PID) found. Is the server still running? Run aborted." 2>&1
     exit 1
    fi
 

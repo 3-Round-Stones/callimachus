@@ -22,7 +22,7 @@
 	msg:imports <java:java.net.URLEncoder>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports </diverted>;
-	msg:imports calli:Viewable;
+	msg:imports <../Viewable>;
 	msg:script """
 		var con = this.objectConnection;
 		var vf = con.valueFactory;
@@ -41,18 +41,19 @@
 
 		function parseAbsoluteURI(string) {
 			try {
-				if (string.indexOf(":") > 0) {
-					var uri = java.net.URI.create(string);
-					if (uri.isAbsolute())
-						return canonicalize(uri);
-				} else if (string.indexOf("/") == 0) {
-					var origin = java.net.URI.create(diverted.toString());
+				if (string.indexOf("/") == 0) {
+					var origin = java.net.URI.create(this.toString());
 					var sch = origin.scheme;
 					var auth = origin.authority;
 					var uri = java.net.URI.create(string);
 					var frag = uri.fragment;
 					uri = new java.net.URI(sch, auth, uri.path, uri.query, frag);
 					return canonicalize(uri);
+				} else {
+					var uri = java.net.URI.create(string);
+					if (uri.isAbsolute())
+						return canonicalize(uri);
+					return null;
 				}
 			} catch (e) {
 				throw new BadRequest(e);

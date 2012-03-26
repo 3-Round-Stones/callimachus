@@ -12,6 +12,7 @@ import java.net.URLEncoder;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
@@ -40,7 +41,7 @@ public class ParameterizedQueryParser {
 
 		ParameterScanner(String systemId) {
 			this.systemId = systemId;
-			space = new ParsedURI(systemId).resolve("?").toString();
+			space = new ParsedURI(systemId).resolve("$").toString();
 		}
 
 		public BindingSet scan(String sparql) throws MalformedQueryException {
@@ -66,7 +67,7 @@ public class ParameterizedQueryParser {
 			super.meet(node);
 			Value value = node.getValue();
 			if (value instanceof Literal) {
-				if (((Literal) value).getLabel().startsWith("?")) {
+				if (((Literal) value).getLabel().startsWith("$")) {
 					String name = ((Literal) value).getLabel().substring(1);
 					addParameter(name, value);
 				}
@@ -101,7 +102,7 @@ public class ParameterizedQueryParser {
 		private void addParameter(String name, Value value) throws MalformedQueryException {
 			if (value.equals(parameters.getValue(name)))
 				throw new MalformedQueryException("Multiple bindings for: " + name);
-			if (name.indexOf('?') >= 0)
+			if (name.indexOf('$') >= 0 || name.indexOf('?') >= 0 || name.indexOf('&') >= 0 || name.indexOf('=') >= 0)
 				throw new MalformedQueryException("Invalide parameter name: " + name);
 			try {
 				if (!name.equals(URLEncoder.encode(name, "UTF-8")))
@@ -131,10 +132,10 @@ public class ParameterizedQueryParser {
 		BindingSet parameters = new ParameterScanner(systemId).scan(sparql);
 		for (String name : parameters.getBindingNames()) {
 			if (parameters.getValue(name) instanceof Literal) {
-				String pattern = "\"\\?" + name + "\"(^^<[^\\s>]*>|^^\\S*:\\S*\\b|@\\w+\\b)?";
+				String pattern = "\"\\$" + Pattern.quote(name) + "\"(^^<[^\\s>]*>|^^\\S*:\\S*\\b|@\\w+\\b)?";
 				sparql = sparql.replaceAll(pattern, Matcher.quoteReplacement("$" + name));
 			} else {
-				String pattern = "<\\?" + name + ">";
+				String pattern = "<\\$" + Pattern.quote(name) + ">";
 				sparql = sparql.replaceAll(pattern, Matcher.quoteReplacement("$" + name));
 			}
 		}

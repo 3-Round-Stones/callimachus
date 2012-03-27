@@ -29,9 +29,9 @@ The following platforms are supported:
 * Linux i386
 * Linux 64bit
 * Mac on Intel
-* Window XP
-* Window Vista
-* Window 7
+* Windows XP
+* Windows Vista
+* Windows 7
 
 If using a 64bit Linux host and you want to use the webapps directory (not required),
 you must create your own libjnotify.so file for the server to read
@@ -51,7 +51,7 @@ http://jnotify.sourceforge.net/
 -----------------
 
 An SMTP server is required to send an invite email and password and reset user's password.
-The SMTP server can be configured in etc/mail.properties (not provided).
+The SMTP server can be configured via the installer or in the file etc/mail.properties.
 A typical file might contain the following block:
 
 mail.transport.protocol = smtp
@@ -71,8 +71,18 @@ For more options see:
 | Installation |
 ----------------
 
-There are two ways to acquire and run Callimachus:  Download the ZIP archive 
-or checkout the Subversion repository.
+There are three ways to acquire and run Callimachus:  Download the installer
+(preferred), download the ZIP archive or checkout the Subversion repository.
+
+Callimachus has a graphical installer that is the primary way to
+install and configure Callimachus.  The installer may be re-run any time
+you need to change your Callimachus configuration.  You may also re-run the
+installer to change the password for the initial user.
+
+Execute the installer by running its JAR file:
+[[
+$ java -jar callimachus-setup-<version>.jar
+]]
 
 If you download a ZIP archive of a release from http://callimachusproject.org/, 
 extract it into a new directory. Edit etc/callimachus.conf and change the

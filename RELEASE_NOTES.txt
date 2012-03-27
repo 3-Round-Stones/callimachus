@@ -2,9 +2,9 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-28 February 2012
+2 April 2012
 
-= REQUIREMENTS OF 0.15 =
+= REQUIREMENTS OF 0.16 =
 
 Callimachus works best on browsers that are closely tracking the
 development of HTML5.  At the time of this writing, Callimachus
@@ -12,12 +12,42 @@ works best on Chrome, with Firefox and Safari as second choices.  It is
 recommended that Callimachus users track updates to their browsers for
 the best usage experience.
 
-Chrome 16 has been thoroughly tested.
-Firefox 10 and Safari 5 have no known issues.
+Chrome 17 has been thoroughly tested.
+Firefox 10+ and Safari 5 have no known issues.
 Internet Explorer 8 and 9 can login and read content, use the
 edit form, but cannot edit text documents or create complex resources.
+However, IE 9 with Chrome Frame should act like Chrome.
 
-Callimachus requires Java JDK 1.6.0_20+ (not 1.7) (server-side) to run.
+The Callimachus server requires Java JDK 1.6.0_20+ (not 1.7) (server-side)
+to run.
+
+= NEW IN VERSION 0.16 =
+
+Callimachus 0.16 has a new graphical installer that is the primary way to
+install *and configure* Callimachus.  The installer may be re-run any time
+you need to change your Callimachus configuration.  You may also re-run the
+installer to change the password for the initial user.
+
+Execute the installer by running its JAR file:
+[[
+$ java -jar callimachus-setup-0.16.jar
+]]
+
+Callimachus may now serve multiple HTTP/HTTPS authorities (like Apache
+virtual hosts).  Multiple authorities are configured using the installer.
+
+Named queries in Callimachus may now include parameters to facilitate their
+reuse.  For example, a simple SPARQL DESCRIBE query may now be created once
+and used with different parameters, like this:
+[[
+DESCRIBE <$param>
+]]
+
+Text searches in Callimachus search various RDF labels.  As of 0.16, text
+searches apply to all labels if the "Serve all RDF resources" option is
+enabled during installation.  That option is selected by default.  If that
+option is turned off, searches only apply to labels associated with the
+HTTP authority you accessed Callimachus on.
 
 = NEW IN VERSION 0.15 =
 

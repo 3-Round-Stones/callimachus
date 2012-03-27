@@ -42,7 +42,7 @@
 		function parseAbsoluteURI(string) {
 			try {
 				if (string.indexOf("/") == 0) {
-					var origin = java.net.URI.create(this.toString());
+					var origin = java.net.URI.create(diverted.toString());
 					var sch = origin.scheme;
 					var auth = origin.authority;
 					var uri = java.net.URI.create(string);

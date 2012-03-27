@@ -50,7 +50,7 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testMissingParameters() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label \"?label\" }";
+		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label \"$label\" }";
 		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(null);
 
 		con.add(vf.createURI("urn:test:thing"), RDFS.LABEL, vf.createLiteral("Thing"));
@@ -61,7 +61,7 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testLiteralParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label \"?label\" }";
+		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label \"$label\" }";
 		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"Thing"});
 		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
@@ -75,7 +75,7 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testUriParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { <?thing> rdfs:label ?label }";
+		String labelQuery = PREFIX + "SELECT * { <$thing> rdfs:label ?label }";
 		Map<String, String[]> parameters = Collections.singletonMap("thing", new String[]{"urn:test:thing"});
 		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
@@ -89,7 +89,7 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testSelectParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT ?thing ?label { ?thing rdfs:label \"?label\" }";
+		String labelQuery = PREFIX + "SELECT ?thing ?label { ?thing rdfs:label \"$label\" }";
 		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"Thing"});
 		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 

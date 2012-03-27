@@ -71,7 +71,22 @@
 							?url keyword:phone ?soundex
 							FILTER sameTerm(?soundex, keyword:soundex($q))
 							FILTER (isIRI(?url))
-							FILTER strstarts(str(?url), str($this))
+							FILTER (
+								strstarts(str(?url), str($this)) ||
+								$this = </> && (
+									EXISTS {
+										{
+											?realm a <../Origin>
+											FILTER strstarts(str(?url), str(?realm))
+										} UNION {
+											?realm a <../Realm>
+											FILTER strstarts(str(?url), str(?realm))
+										} UNION {
+											<../Local> owl:equivalentClass rdfs:Resource
+										}
+									}
+								)
+							)
 						} OPTIONAL {
 							?url skos:prefLabel ?label
 						} OPTIONAL {

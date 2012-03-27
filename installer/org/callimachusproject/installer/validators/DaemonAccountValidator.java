@@ -11,7 +11,7 @@ public class DaemonAccountValidator implements DataValidator {
 	private String warning;
 
 	public boolean getDefaultAnswer() {
-		return true;
+		return false;
 	}
 
 	public synchronized String getErrorMessageId() {

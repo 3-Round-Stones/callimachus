@@ -36,7 +36,7 @@ public class ConfigurationReader implements DataValidator {
 	private boolean abort;
     
     public boolean getDefaultAnswer() {
-        return true;
+        return false;
     }
     
     public String getErrorMessageId() {

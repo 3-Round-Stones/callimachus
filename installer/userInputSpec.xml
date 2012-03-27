@@ -77,9 +77,7 @@
     <field type="text" align="left" variable="callimachus.PORT">
       <description align="left" txt="$APP_NAME will bind to the port specified. Change the value to match your intended deployment."/>
       <spec txt="Port:" size="25" set="${callimachus.PORT}"/>
-      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="The server must listen on a numerical port.">
-        <param name="pattern" value="^([0-9]{1,5}\s*)+$"/>
-      </validator>
+      <validator class="org.callimachusproject.installer.validators.PortAvailabilityValidator" txt="Please choose a different numerical port, this one is already in use" />
     </field>
     <field type="divider" align="bottom"/>
   </panel>
@@ -140,13 +138,37 @@
     <field type="staticText" align="left" txt="If this is a new install, you will need an initial $APP_NAME user account to log into the $APP_NAME Web user interface. Complete all fields to create an admin user account. Choose a strong password if you are using a public server!"/>
     <field type="text" align="left" variable="callimachus.fullname">
       <spec txt="Full name:" size="25" set=""/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Please use your full name">
+        <param name="pattern" value="^\S+[\S ]*$"/>
+      </validator>
     </field>
     <field type="text" align="left" variable="callimachus.email">
       <spec txt="E-mail:" size="25" set=""/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Your email from address does not appear to be valid.">
-        <param name="pattern" value="^$|^[a-zA-Z0-9.!$%&amp;*+/=?^_{}~-]+@[a-zA-Z0-9.-]+"/>
+        <param name="pattern" value="^[a-zA-Z0-9.!$%&amp;*+/=?^_{}~-]+@[a-zA-Z0-9.-]+"/>
       </validator>
     </field>
+    <field type="text" align="left" variable="callimachus.username">
+      <spec txt="Username:" size="25" set=""/>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Username must be in lowercase.">
+        <param name="pattern" value="^[a-z][-a-z0-9]*$"/>
+      </validator>
+    </field>
+    <field type="password" align="left" variable="callimachus.password">
+      <spec>
+        <pwd txt="Password:" size="25" set=""/>
+      </spec>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Please enter a valid password">
+        <param name="pattern" value="^\S{3,}$"/>
+      </validator>
+    </field>
+    <field type="divider" align="bottom"/>
+  </panel>
+  <!-- Change user password -->
+  <panel order="6">
+    <field type="title" txt="Reset User Password" bold="true" size="1"/>
+    <field type="divider" align="top"/>
+    <field type="staticText" align="left" txt="If you have forgotten your password you can reset it here or create a new account"/>
     <field type="text" align="left" variable="callimachus.username">
       <spec txt="Username:" size="25" set=""/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Username must be in lowercase.">
@@ -157,11 +179,14 @@
       <spec>
         <pwd txt="Password:" size="25" set=""/>
       </spec>
+      <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Please enter a valid password">
+        <param name="pattern" value="^$|^\S{3,}$"/>
+      </validator>
     </field>
     <field type="divider" align="bottom"/>
   </panel>
   <!-- Start server/open browser configuration -->
-  <panel order="6">
+  <panel order="7">
     <field type="title" txt="Start Server" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="check" variable="callimachus.startserver">
@@ -171,6 +196,7 @@
     <field type="check" variable="callimachus.openbrowser">
       <spec txt="Open welcome page in a Web brower?" true="true" false="false" set="true"/>
     </field>
+    <field type="staticText" align="left" txt="$APP_NAME may take a few minutes to startup"/>
     <field type="divider" align="bottom"/>
   </panel>
 </userInput>

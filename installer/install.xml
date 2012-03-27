@@ -97,30 +97,30 @@
         <panel classname="LicencePanel" id="license"/>
         <panel classname="JDKPathPanel"/>
         <panel classname="TargetPanel">
-          <validator classname="org.callimachusproject.installer.validators.ConfigurationReader" />
+          <validator classname="org.callimachusproject.installer.ConfigurationReader" />
         </panel>
 				<!-- TODO: Ask about backing up the existing repo -->
         <panel classname="UserInputPanel" condition="newinstall"> <!-- primary authority config -->
-          <validator classname="org.callimachusproject.installer.validators.PrimaryOriginValidator" />
+          <validator classname="org.callimachusproject.installer.PrimaryOriginValidator" />
         </panel>
         <panel classname="InstallPanel">
-          <validator classname="org.callimachusproject.installer.validators.SetupProcessor" />
+          <validator classname="org.callimachusproject.installer.SetupProcessor" />
         </panel>
         <panel classname="HTMLInfoPanel" id="readme"/>
         <panel classname="UserInputPanel"/> <!-- virtual hosts config -->
         <panel classname="UserInputPanel" condition="isroot"> <!-- daemon config -->
-          <validator classname="org.callimachusproject.installer.validators.DaemonAccountValidator" />
+          <validator classname="org.callimachusproject.installer.DaemonAccountValidator" />
         </panel>
         <panel classname="UserInputPanel"/> <!-- port config -->
         <panel classname="UserInputPanel"> <!-- mail config -->
-          <validator classname="org.callimachusproject.installer.validators.MailServerValidator" />
+          <validator classname="org.callimachusproject.installer.MailServerValidator" />
         </panel>
         <panel classname="UserInputPanel" condition="newinstall"/> <!-- initial user config -->
         <panel classname="UserInputPanel" condition="upgrading"/> <!-- change password -->
         <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="HTMLHelloPanel" id="3rs"/>
         <panel classname="UserInputPanel"> <!-- optionally start server/open browser -->
-          <validator classname="org.callimachusproject.installer.validators.ConfigurationWriter" />
+          <validator classname="org.callimachusproject.installer.ConfigurationWriter" />
         </panel>
         <panel classname="SimpleFinishPanel"/>
     </panels>

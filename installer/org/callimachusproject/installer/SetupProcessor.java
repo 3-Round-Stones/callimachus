@@ -14,12 +14,12 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.installer.validators;
+package org.callimachusproject.installer;
 
 import java.net.SocketException;
 import java.net.URL;
 
-import org.callimachusproject.installer.Configure;
+import org.callimachusproject.installer.helpers.Configure;
 
 import com.izforge.izpack.installer.AutomatedInstallData;
 import com.izforge.izpack.installer.DataValidator;

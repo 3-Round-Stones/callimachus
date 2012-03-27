@@ -1,4 +1,4 @@
-package org.callimachusproject.installer;
+package org.callimachusproject.installer.helpers;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;

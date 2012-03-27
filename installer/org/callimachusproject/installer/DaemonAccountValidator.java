@@ -1,4 +1,4 @@
-package org.callimachusproject.installer.validators;
+package org.callimachusproject.installer;
 
 import java.io.IOException;
 import java.io.InputStream;

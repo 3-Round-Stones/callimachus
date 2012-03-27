@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.installer.validators;
+package org.callimachusproject.installer;
 
 import java.net.URI;
 import java.net.URISyntaxException;

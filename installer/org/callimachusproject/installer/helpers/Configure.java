@@ -1,4 +1,4 @@
-package org.callimachusproject.installer;
+package org.callimachusproject.installer.helpers;
 
 import java.awt.Desktop;
 import java.io.BufferedReader;
@@ -159,9 +159,10 @@ public class Configure {
 	}
 
 	public boolean startServer(String origin) throws Exception {
-		boolean success = launch(START_SCRIPT);
-		if (!success)
-			return false;
+		return launch(START_SCRIPT);
+	}
+
+	public boolean primeServer(String origin) throws InterruptedException {
 		for (int i = 0; i < 120; i++) {
 			try {
 				request(origin + "/");

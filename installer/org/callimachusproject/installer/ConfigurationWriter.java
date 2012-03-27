@@ -14,12 +14,12 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.installer.validators;
+package org.callimachusproject.installer;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.callimachusproject.installer.Configure;
+import org.callimachusproject.installer.helpers.Configure;
 
 import com.izforge.izpack.installer.AutomatedInstallData;
 import com.izforge.izpack.installer.DataValidator;
@@ -86,6 +86,15 @@ public class ConfigurationWriter implements DataValidator {
 						warning = "The server could not be started.\n"
 								+ " Please run this installer again and ensure the port and primary authority are correct.\n"
 								+ " If the problem persists check the log file and seek help.";
+						return Status.WARNING;
+					}
+					boolean primed = configure.primeServer(primary);
+					if (!primed) {
+						warning = "The server could not be be reached.\n"
+								+ " Please ensure the port and primary authority are correct.\n"
+								+ " If the problem persists check the log file and seek help.\n"
+								+ " The server is listening on port " + adata.getVariable("callimachus.PORT")
+								+ " for " + primary;
 						return Status.WARNING;
 					}
 					String openbrowser = adata.getVariable("callimachus.openbrowser");

@@ -1,4 +1,4 @@
-package org.callimachusproject.installer;
+package org.callimachusproject.installer.helpers;
 
 import java.io.IOException;
 import java.io.InputStream;

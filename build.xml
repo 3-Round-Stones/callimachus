@@ -287,7 +287,7 @@
 			</variables>
 		]]></echo>
 		<echo file="tmp/jar" append="false"><![CDATA[
-			<jar src="dist/callimachus-configure-${Version}.jar" stage="install"/>
+			<jar src="${dist}/callimachus-configure-${Version}.jar" stage="install"/>
 		]]></echo>
 		<echo file="tmp/mail-jar" append="false"><![CDATA[
 			<jar src="${lib}/${mail.jar}" stage="install"/>
@@ -316,6 +316,8 @@
 	</target>
 
 	<target name="package" depends="dist-clean,dist,installer,test" description="Create a package ready for release">
+		<echo>Installer ready: ${dist}/callimachus-setup-${Version}.jar</echo>
+		<echo>Installer ready: ${dist}/Callimachus-Setup-${Version}.run</echo>
 	</target>
 
 	<target name="setup" depends="dist" if="callimachus.username" unless="repositories.uptodate">

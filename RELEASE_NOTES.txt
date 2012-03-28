@@ -52,6 +52,11 @@ enabled during installation.  That option is selected by default.  If that
 option is turned off, searches only apply to labels associated with the
 HTTP authority you accessed Callimachus on.
 
+Callimachus 0.16 removes the old "webapps" directory and support for it.
+Users of the webapps directory should start Callimachus 0.16, create a
+folder and import the contents of their old webapps directory into that
+folder.
+
 = NEW IN VERSION 0.15 =
 
 Callimachus 0.15 support SPARQL 1.1 update statements, supports user created 

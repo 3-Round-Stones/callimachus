@@ -84,6 +84,13 @@ Execute the installer by running its JAR file:
 $ java -jar callimachus-setup-<version>.jar
 ]]
 
+For headless installations on a Linux server, you can run the installer
+in console mode.  You must redirect STDERR to a file to ensure that
+error messages do not interfere with the display:
+[[
+java -jar callimachus-setup-<version>.jar -console 2> install.log
+]]
+
 If you download a ZIP archive of a release from http://callimachusproject.org/, 
 extract it into a new directory. Edit etc/callimachus.conf and change the
 ORIGIN to the be the same as the hostname and port (if not port 80). Execute

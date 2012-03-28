@@ -30,8 +30,11 @@ installer to change the password for the initial user.
 
 Execute the installer by running its JAR file:
 [[
-$ java -jar callimachus-setup-0.16.jar
+$ java -jar callimachus-setup-<version>.jar
 ]]
+
+The installer may also be run in console mode for headless installations
+on Linux servers.  Please see README.txt for details.
 
 Callimachus may now serve multiple HTTP/HTTPS authorities (like Apache
 virtual hosts).  Multiple authorities are configured using the installer.

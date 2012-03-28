@@ -79,11 +79,11 @@
         <res id="3roundstones_logo" src="installer/images/3roundstones_logo.png"/>
         <res id="LicencePanel.licence" src="LICENSE.txt"/>
         <res id="HTMLInfoPanel.readme" src="README.txt"/>
-        <res id="HTMLInfoPanel.release_notes" src="RELEASE_NOTES.txt"/>
         <res id="userInputSpec.xml" src="installer/userInputSpec.xml" />
         <res id="TargetPanel.dir.macosx" src="tmp/macosx.dir" />
         <res id="TargetPanel.dir.windows" src="tmp/windows.dir" />
         <res id="TargetPanel.dir.unix" src="tmp/unix.dir" />
+        <res id="ProcessPanel.Spec.xml" src="installer/ProcessPanel.Spec.xml" />
     </resources>
     <xi:include href="../tmp/jar" />
     <xi:include href="../tmp/mail-jar" />
@@ -111,17 +111,17 @@
         <panel classname="UserInputPanel" condition="isroot"> <!-- daemon config -->
           <validator classname="org.callimachusproject.installer.DaemonAccountValidator" />
         </panel>
-        <panel classname="UserInputPanel"/> <!-- port config -->
+        <panel classname="UserInputPanel" /> <!-- port config -->
         <panel classname="UserInputPanel"> <!-- mail config -->
           <validator classname="org.callimachusproject.installer.MailServerValidator" />
         </panel>
         <panel classname="UserInputPanel" condition="newinstall"/> <!-- initial user config -->
         <panel classname="UserInputPanel" condition="upgrading"/> <!-- change password -->
-        <panel classname="HTMLInfoPanel" id="release_notes"/>
         <panel classname="HTMLHelloPanel" id="3rs"/>
         <panel classname="UserInputPanel"> <!-- optionally start server/open browser -->
           <validator classname="org.callimachusproject.installer.ConfigurationWriter" />
         </panel>
+        <panel classname="ProcessPanel" />
         <panel classname="SimpleFinishPanel"/>
     </panels>
 

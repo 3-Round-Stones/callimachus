@@ -32,6 +32,7 @@ import com.izforge.izpack.installer.DataValidator;
  * 
  */
 public class ConfigurationWriter implements DataValidator {
+	public static AutomatedInstallData automatedInstallData;
 	private boolean abort;
 	private String warning;
 	private String error;
@@ -57,9 +58,10 @@ public class ConfigurationWriter implements DataValidator {
 	public synchronized DataValidator.Status validateData(AutomatedInstallData adata) {
 		if (abort)
 			return Status.ERROR;
+		automatedInstallData = adata;
 		try {
 
-        	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+        	Configure configure = Configure.getInstance(adata.getInstallPath());
 
 			// Write Callimachus callimachus.conf file.
 			configure.setServerConfiguration(getServerConfiguration(adata));
@@ -67,42 +69,6 @@ public class ConfigurationWriter implements DataValidator {
 			configure.setMailProperties(getMailProperties(adata));
 			// Write Callimachus logging.properties file
 			configure.setLoggingProperties(getLoggingProperties(adata));
-
-			if (configure.isConnected()) {
-				String primary = getPrimaryOrigin(adata);
-
-				if (!setupAdminUser(adata, primary)) {
-					error = "The password provided is not valid. Please use a longer password.";
-					return Status.ERROR;
-				}
-
-				configureOrigins(adata, primary);
-
-				configure.disconnect();
-				String startserver = adata.getVariable("callimachus.startserver");
-				if ("true".equals(startserver) ) {
-					boolean started = configure.startServer(primary);
-					if (!started) {
-						warning = "The server could not be started.\n"
-								+ " Please run this installer again and ensure the port and primary authority are correct.\n"
-								+ " If the problem persists check the log file and seek help.";
-						return Status.WARNING;
-					}
-					boolean primed = configure.primeServer(primary);
-					if (!primed) {
-						warning = "The server could not be be reached.\n"
-								+ " Please ensure the port and primary authority are correct.\n"
-								+ " If the problem persists check the log file and seek help.\n"
-								+ " The server is listening on port " + adata.getVariable("callimachus.PORT")
-								+ " for " + primary;
-						return Status.WARNING;
-					}
-					String openbrowser = adata.getVariable("callimachus.openbrowser");
-					if (configure.isWebBrowserSupported() && "true".equals(openbrowser) ) {
-						configure.openWebBrowser(primary + "/");
-					}
-				}
-			}
 
 			return Status.OK;
 		} catch (Exception e) {
@@ -114,7 +80,7 @@ public class ConfigurationWriter implements DataValidator {
 	}
 
 	public Properties getServerConfiguration(AutomatedInstallData adata) throws IOException {
-    	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+    	Configure configure = Configure.getInstance(adata.getInstallPath());
 		String primary = getSingleLine(adata, "callimachus.PRIMARY_ORIGIN");
 		String secondary = getSingleLine(adata, "callimachus.SECONDARY_ORIGIN");
 		String other = getSingleLine(adata, "callimachus.OTHER_REALM");
@@ -150,7 +116,7 @@ public class ConfigurationWriter implements DataValidator {
 	}
 
 	public Properties getMailProperties(AutomatedInstallData adata) throws IOException {
-    	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+    	Configure configure = Configure.getInstance(adata.getInstallPath());
 		Properties mail = configure.getMailProperties();
 		if ("true".equals(adata.getVariable("callimachus.later.mail"))) {
 			mail.remove("mail.transport.protocol");
@@ -168,7 +134,7 @@ public class ConfigurationWriter implements DataValidator {
 
 	public Properties getLoggingProperties(AutomatedInstallData adata)
 			throws IOException {
-    	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+    	Configure configure = Configure.getInstance(adata.getInstallPath());
 		return configure.getLoggingProperties();
 	}
 
@@ -190,45 +156,6 @@ public class ConfigurationWriter implements DataValidator {
 		if (new File(new File(jdk, "lib"), "tools.jar").isFile())
 			return true;
 		return new File(new File(jdk.getParentFile(), "Classes"), "classes.jar").isFile();
-	}
-
-	private String getPrimaryOrigin(AutomatedInstallData adata) {
-		return adata.getVariable("callimachus.PRIMARY_ORIGIN").split("\\s+")[0];
-	}
-
-	private void configureOrigins(AutomatedInstallData adata, String primary) throws Exception {
-    	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
-		String secondary = adata.getVariable("callimachus.SECONDARY_ORIGIN");
-		for (String origin : secondary.split("\\s+")) {
-			if (origin.length() > 0) {
-				configure.createVirtualHost(origin, primary);
-			}
-		}
-		String other = adata.getVariable("callimachus.OTHER_REALM");
-		for (String realm : other.split("\\s+")) {
-			if (realm.length() > 0) {
-				configure.createRealm(realm, primary);
-			}
-		}
-		if ("true".equals(adata.getVariable("callimachus.ALL_LOCAL"))) {
-			configure.setResourcesAsLocalTo(primary);
-		} else {
-			configure.setResourcesAsLocalTo(null);
-		}
-	}
-
-	private boolean setupAdminUser(AutomatedInstallData adata, String origin) throws Exception {
-		String name = adata.getVariable("callimachus.fullname");
-		String email = adata.getVariable("callimachus.email");
-		String username = adata.getVariable("callimachus.username");
-		String password = adata.getVariable("callimachus.password");
-		if (username != null && username.length() > 0) {
-			if (password == null || password.length() < 3)
-				return false;
-	    	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
-			configure.createAdmin(name, email, username, password, origin);
-		}
-		return true;
 	}
 
 }

@@ -15,7 +15,6 @@
  *
  */
 package org.callimachusproject.installer;
-import java.io.File;
 import java.net.SocketException;
 import java.util.Properties;
 
@@ -51,16 +50,11 @@ public class ConfigurationReader implements DataValidator {
     	if (abort)
     		return Status.ERROR;
         try {
-        	Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
-			if (configure == null) {
-				String installPath = adata.getInstallPath();
-				configure = new Configure(new File(installPath));
-				adata.setAttribute(Configure.class.getName(), configure);
-				if (configure.isServerRunning() && !configure.stopServer()) {
-					System.err.println("Server must be shut down to continue");
-	    			return Status.ERROR;
-	    		}
-			}
+        	Configure configure = Configure.getInstance(adata.getInstallPath());
+			if (configure.isServerRunning() && !configure.stopServer()) {
+				System.err.println("Server must be shut down to continue");
+    			return Status.ERROR;
+    		}
 
 			// Set IzPack variables for callimachus.conf:
 			String[] confProperties = {"PORT", "PRIMARY_ORIGIN", "SECONDARY_ORIGIN", "OTHER_REALM", "ALL_LOCAL", "DAEMON_USER", "DAEMON_GROUP"};

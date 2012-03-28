@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -51,6 +52,20 @@ public class Configure {
 	private static final String SERVER_CONF = "callimachus.conf";
 	private static final String START_SCRIPT = "callimachus-start";
 	private static final String STOP_SCRIPT = "callimachus-stop";
+	private static final Map<String,Configure> instances = new HashMap<String, Configure>();
+
+	public static Configure getInstance(String installPath) {
+		synchronized (instances) {
+			File dir = new File(installPath);
+			String key = dir.getAbsolutePath();
+			Configure c = instances.get(key);
+			if (c == null) {
+				instances.put(key, c = new Configure(dir));
+			}
+			return c;
+		}
+	}
+
 	private final File dir;
 	private final ExecutorService executor = Executors
 			.newSingleThreadScheduledExecutor(new ThreadFactory() {
@@ -65,7 +80,7 @@ public class Configure {
 	private SetupProxy setup;
 	private boolean connected;
 
-	public Configure(File dir) {
+	private Configure(File dir) {
 		this.dir = dir;
 	}
 
@@ -158,7 +173,7 @@ public class Configure {
 		return launch(STOP_SCRIPT);
 	}
 
-	public boolean startServer(String origin) throws Exception {
+	public boolean startServer() throws Exception {
 		return launch(START_SCRIPT);
 	}
 

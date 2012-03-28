@@ -51,7 +51,7 @@ public class SetupProcessor implements DataValidator {
 			return Status.ERROR;
 		try {
 
-			Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+        	Configure configure = Configure.getInstance(adata.getInstallPath());
 
 			setDefaultSecondaryOrigin(adata);
 
@@ -75,7 +75,7 @@ public class SetupProcessor implements DataValidator {
 
 	private void setDefaultSecondaryOrigin(AutomatedInstallData adata)
 			throws SocketException {
-		Configure configure = (Configure) adata.getAttribute(Configure.class.getName());
+    	Configure configure = Configure.getInstance(adata.getInstallPath());
 		String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN");
 		if ("".equals(adata.getVariable("callimachus.SECONDARY_ORIGIN"))) {
 			StringBuilder sb = new StringBuilder();

@@ -117,11 +117,11 @@
         </panel>
         <panel classname="UserInputPanel" condition="newinstall"/> <!-- initial user config -->
         <panel classname="UserInputPanel" condition="upgrading"/> <!-- change password -->
-        <panel classname="HTMLHelloPanel" id="3rs"/>
         <panel classname="UserInputPanel"> <!-- optionally start server/open browser -->
           <validator classname="org.callimachusproject.installer.ConfigurationWriter" />
         </panel>
         <panel classname="ProcessPanel" />
+        <panel classname="HTMLHelloPanel" id="3rs"/>
         <panel classname="SimpleFinishPanel"/>
     </panels>
 

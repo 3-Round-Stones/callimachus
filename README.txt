@@ -33,19 +33,6 @@ The following platforms are supported:
 * Windows Vista
 * Windows 7
 
-If using a 64bit Linux host and you want to use the webapps directory (not required),
-you must create your own libjnotify.so file for the server to read
-runtime changes in the webapps directory.
-- 1) Download http://sourceforge.net/projects/jnotify/files/jnotify/jnotify-0.93/jnotify-lib-0.93.zip
-- 2) Extract jnotify-native-linux-0.93-src.zip
-- 3) Edit the JDK include paths in Release/subdir.mk
-- 4) Move the include statement for "unistd.h" up above "sys/time.h" in net_contentobjects_jnotify_linux_JNotify_linux.c
-- 5) cd Release && make
-- 6) Edit etc/callimachus.conf
-- 7) Change the LIB variable to point to the Release directory above
-More detailed instructions for creating your own libjnotify.so file can be found at
-http://jnotify.sourceforge.net/
-
 -----------------
 | Configuration |
 -----------------
@@ -71,8 +58,8 @@ For more options see:
 | Installation |
 ----------------
 
-There are three ways to acquire and run Callimachus:  Download the installer
-(preferred), download the ZIP archive or checkout the Subversion repository.
+There are two ways to acquire and run Callimachus:  Download the installer
+(preferred) or checkout the Subversion repository.
 
 Callimachus has a graphical installer that is the primary way to
 install and configure Callimachus.  The installer may be re-run any time
@@ -91,12 +78,8 @@ error messages do not interfere with the display:
 java -jar callimachus-setup-<version>.jar -console 2> install.log
 ]]
 
-If you download a ZIP archive of a release from http://callimachusproject.org/, 
-extract it into a new directory. Edit etc/callimachus.conf and change the
-ORIGIN to the be the same as the hostname and port (if not port 80). Execute
-a callimachus-start script located in the bin/ directory to start the server.
-The server will serve files from the webapps directory that have a known file
-extension.
+Once Callimachus is installed, you can start the server by executing the
+callimachus-start script located in the bin/ directory.
 
 On Mac and Linux run:
  $ sh bin/callimachus-start.sh
@@ -104,36 +87,18 @@ On Mac and Linux run:
 On Windows run:
  # bin/callimachus-start.bat
 
-In some environments, Callimachus may log "An exception has occurred in the compiler...FilePermission" exceptions. This is 
-often due to an issue in the embedded Java compiler and if so has no impact on the 
-run time behaviour of Callimachus.
+In some environments, Callimachus may log "An exception has occurred in the
+compiler...FilePermission" exceptions. This is often due to an issue in the
+embedded Java compiler and if so has no impact on the run time behaviour of
+Callimachus.
 
 If you want to check out the source code, see the directions at:
   http://code.google.com/p/callimachus/source/checkout
 Once you have the source code checked out, you will need to provide a username
 and password. Create a build.properties file in the same directory as build.xml.
 Put the variables "callimachus.username" and "callimachus.password" followed by
-'=' and their value. You can then execute 'ant run' from a 
+'=' and their value on their own line. You can then execute 'ant run' from a 
 command line in this top directory to run the server.
-
-Files with the extension .ttl, .ttl.gz, .rdf, or .rdf.gz will be loaded as 
-graphs into the RDF store. Any RDF Schema or OWL ontologies in .ttl will be
-compiled as defined in AliBaba (http://www.openrdf.org/).
-
-Classes that are subclasses of calli:Viewable (and other calli-able classes) 
-should use calli annotations, such as calli:view to identify XHTML+RDFa 
-template files for display actions against individuals of the class. See the 
-$CALLIMACHUS/webapps/callimachus/callimachus-ontology.ttl file for more details.
-
-The calli Realm classes can be used to declare an authorization realms. Use 
-the calli:realm annotation to assign a realm to a message type or class. The 
-default realm is </>. See the callimachus-ontology.ttl file for 
-details on how to declare them in the RDF store.
-
-The end point "/sparql" accepts ready only application/sparql-query or a form 
-and returns the result. The operation "?describe" can be appended to any IRI 
-to receive an RDF bounded description of it. The path prefix "/diverted;" 
-identifies percent encoded RDF IRI resources.
 
 Additional documentation regarding usage and application development may
 be found on the project's wiki at:

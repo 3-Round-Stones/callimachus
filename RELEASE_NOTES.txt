@@ -2,7 +2,7 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-2 April 2012
+28 March 2012
 
 = REQUIREMENTS OF 0.16 =
 
@@ -13,13 +13,13 @@ recommended that Callimachus users track updates to their browsers for
 the best usage experience.
 
 Chrome 17 has been thoroughly tested.
-Firefox 10+ and Safari 5 have no known issues.
+Firefox 10 and Safari 5 have no known issues.
 Internet Explorer 8 and 9 can login and read content, use the
 edit form, but cannot edit text documents or create complex resources.
 However, IE 9 with Chrome Frame should act like Chrome.
 
-The Callimachus server requires Java JDK 1.6.0_20+ (not 1.7) (server-side)
-to run.
+The Callimachus server requires Java JDK 1.6.0_20+ (before 1.7) on the
+server to run.
 
 = NEW IN VERSION 0.16 =
 
@@ -40,82 +40,48 @@ Callimachus may now serve multiple HTTP/HTTPS authorities (like Apache
 virtual hosts).  Multiple authorities are configured using the installer.
 
 Named queries in Callimachus may now include parameters to facilitate their
-reuse.  For example, a simple SPARQL DESCRIBE query may now be created once
+reuse.  For example, a simple SPARQL SELECT query may now be created once
 and used with different parameters, like this:
 [[
-DESCRIBE <$param>
+SELECT * { <$param> ?p ?o }
 ]]
 
 Text searches in Callimachus search various RDF labels.  As of 0.16, text
 searches apply to all labels if the "Serve all RDF resources" option is
 enabled during installation.  That option is selected by default.  If that
 option is turned off, searches only apply to labels associated with the
-HTTP authority you accessed Callimachus on.
+HTTP authority you accessed Callimachus on, unless it is the primary authority,
+in which case secondary authorities are also searched.
 
-Callimachus 0.16 removes the old "webapps" directory and support for it.
-Users of the webapps directory should start Callimachus 0.16, create a
-folder and import the contents of their old webapps directory into that
-folder.
-
-= NEW IN VERSION 0.15 =
-
-Callimachus 0.15 support SPARQL 1.1 update statements, supports user created 
-themes, and includes support for blank nodes. Include the attribute @typeof in 
-XHTML+RDFa markup templates to indicate the start of a new blank node. WOFF 
-files are now supported. Multiple manifests and multiple themes can now be used
-by different templates.
-
-= KNOWN ISSUES IN 0.15 =
+= KNOWN ISSUES IN 0.16 =
 
  * Error messages are not shown when using Ctrl-S within an text edit form. Use 
    the save button to see the error message.
  * Empty table cell are omitted in from template.
- * Language tags are not supported with forums.
+ * Language tags are not supported with forms.
  * All possible options in check boxes must have a label.
  * Trailing whitespace in @typeof attribute is not supported.
  * Safari browser cannot view Turtle or RDF/XML output in describe tab.
- * The user can only created new resources in the same authority.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
  * Blank nodes in INSERT clause are not supported
  * literals with language tags will not match in keyword search
 
-= HOWTO UPGRADE FROM 0.14 =
+= HOWTO UPGRADE FROM 0.15 =
 
 All information saved through a Web browser is saved in the repositories
 directory. This directory should be backup (in the stopped state) before
 attempting to upgrade.
 
-Stop the 0.14 server using the callimachus-stop script in the bin directory.
-Remove the lib and tmp directories. Remove the supplied callimachus.war file in
-the webapps directory.
-Backup any configuration files in etc, including etc/callimachus.conf. Unzip
-callimachus-0.15.zip over top of the rest of your existing installation. This
-will create a lib directory and webapps/callimachus.war. Restore your
-configuration settings in etc/callimachus.conf. Start the server using the new
-callimachus start script in the bin directory with the argument "--update".
+All files and folders in the webapps/ (not in webapps/callimachus/) must be
+removed while the 0.15 server is running. Folders can be compressed to a ZIP
+file and imported into a newly created (empty) folder using the Web interface.
+Files can be dragged or uploading to the home folder.
 
-$ callimachus-start.bat --update
--- OR --
-$ sh callimachus-start.sh --update
+Stop the 0.15 server using the callimachus-stop script in the bin directory.
+Remove the lib, bin, tmp, webapps directories. Backup any configuration files
+in etc, including etc/callimachus.conf.
 
-Change all templates to use "/callimachus/template.xsl" at the top of the file:
-
-<?xml version="1.0" encoding="UTF-8" ?>
-<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
-<html xmlns="http://www.w3.org/1999/xhtml" ...
-
-Change the markup used for aside boxes in the templates as follows.
-
-Place all aside boxes in a single <div id="sidebar" />. Use the element type
-<aside/> for each box. Include an <h3/> element as a label heading for each box,
-if appropriate. Include one or more block elements, such as <p/>, <ul/>, <dl/>, 
-or <table/>, within each <aside/> element.
-
-Change <label class="input"/> to use the CSS class "radio" or "checkbox" instead.
-
-Use CSS to override the logo image of a theme in the manifest.
-
-Use calli namespace for HTTP annotations in server side request handlers. See 
-http://callimachusproject.org/rdf/2009/framework a list of calli annotations.
-
+Download and run the callimachus-setup-0.16.jar installer (see README.txt for
+details). Choose the same install path and provide your configuration settings
+to complete the upgrade.
 

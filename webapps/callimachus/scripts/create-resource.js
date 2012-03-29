@@ -83,7 +83,7 @@ function listSearchResults(url, win, button) {
 			});
 			var html = ul.html();
 			if (html) {
-	            var doc = win.document;
+				var doc = win.document;
 				doc.open();
 				doc.write("<ul>" + html + "</ul>");
 				doc.close();
@@ -99,7 +99,7 @@ function listSearchResults(url, win, button) {
 					return true;
 				});
 			} else {
-	            var doc = win.document;
+				var doc = win.document;
 				doc.open();
 				doc.write('<p style="text-align:center">No match found</p>');
 				doc.close();

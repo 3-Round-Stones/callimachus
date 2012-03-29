@@ -135,7 +135,7 @@
   <panel order="5">
     <field type="title" txt="Initial User Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
-    <field type="staticText" align="left" txt="If this is a new install, you will need an initial $APP_NAME user account to log into the $APP_NAME Web user interface. Complete all fields to create an admin user account. Choose a strong password if you are using a public server!"/>
+    <field type="staticText" align="left" txt="You will need an initial $APP_NAME user account to log into the $APP_NAME Web user interface. Complete all fields to create an admin user account. Choose a strong password if you are using a public server!"/>
     <field type="text" align="left" variable="callimachus.fullname">
       <spec txt="Full name:" size="25" set=""/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Please use your full name">

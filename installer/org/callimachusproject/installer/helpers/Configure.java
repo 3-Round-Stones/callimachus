@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.NetworkInterface;
@@ -67,14 +68,15 @@ public class Configure {
 	}
 
 	private final File dir;
+	private final ThreadFactory tfactory = new ThreadFactory() {
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(r, "Callimachus-Configure-Setup-Queue");
+			t.setDaemon(true);
+			return t;
+		}
+	};
 	private final ExecutorService executor = Executors
-			.newSingleThreadScheduledExecutor(new ThreadFactory() {
-				public Thread newThread(Runnable r) {
-					Thread t = new Thread(r, "Callimachus-Configure-Setup-Queue");
-					t.setDaemon(true);
-					return t;
-				}
-			});
+			.newSingleThreadScheduledExecutor(tfactory);
 	private volatile Exception exception;
 	/** Only access setup through executor */
 	private SetupProxy setup;
@@ -86,18 +88,28 @@ public class Configure {
 
 	public Properties getServerConfiguration() throws IOException {
 		File file = new File(new File(dir, "etc"), SERVER_CONF);
-		Properties properties = readProperties(file, "META-INF/templates/callimachus.conf");
-		Enumeration<?> e = properties.propertyNames();
-		while (e.hasMoreElements()) {
-			String name = (String) e.nextElement();
-			String value = properties.getProperty(name);
-			if (value.startsWith("\"") && value.endsWith("\"")) {
-				value = value.substring(1, value.length() - 1);
-				value = value.replace("\\n", "\n");
-				value = value.replace("\\t", "\t");
-				value = value.replace("\\", "");
+		Properties properties = new Properties();
+		InputStream in = openServerConfiguration(file);
+		if (in != null) {
+			try {
+				BufferedReader rd = new BufferedReader(new InputStreamReader(in));
+				String line;
+				while ((line = rd.readLine()) != null) {
+					if (line.matches("^\\s*#.*$"))
+						continue;
+					int eq = line.indexOf('=');
+					if (eq < 0)
+						continue;
+					String name = line.substring(0, eq).trim();
+					String value = line.substring(eq + 1).trim();
+					if (value.startsWith("\"") && value.endsWith("\"")) {
+						value = value.substring(1, value.length() - 1);
+					}
+					properties.setProperty(name, value);
+				}
+			} finally {
+				in.close();
 			}
-			properties.setProperty(name, value);
 		}
 		return properties;
 	}
@@ -192,21 +204,7 @@ public class Configure {
 		return false;
 	}
 
-	private void request(String url) throws IOException,
-			MalformedURLException {
-		InputStream in = new URL(url).openStream();
-		try {
-			byte[] buf = new byte[1024];
-			while (in.read(buf) >= 0)
-				;
-		} finally {
-			in.close();
-		}
-	}
-
 	public boolean isWebBrowserSupported() {
-		if (findInPath("sh") == null)
-			return false;
 		if (!Desktop.isDesktopSupported())
 			return false;
         Desktop desktop = Desktop.getDesktop();
@@ -248,13 +246,15 @@ public class Configure {
 		List<String> result = new ArrayList<String>(hosts.size()
 				* numbers.size());
 		for (String host : hosts) {
-			for (String port : numbers) {
-				if ("80".equals(port)) {
-					result.add("http://" + host);
-				} else if ("443".equals(port)) {
-					result.add("https://" + host);
-				} else {
-					result.add("http://" + host + ":" + port);
+			if (host.matches("^[a-zA-Z0-9.-]+$")) {
+				for (String port : numbers) {
+					if ("80".equals(port)) {
+						result.add("http://" + host.toLowerCase());
+					} else if ("443".equals(port)) {
+						result.add("https://" + host.toLowerCase());
+					} else {
+						result.add("http://" + host.toLowerCase() + ":" + port);
+					}
 				}
 			}
 		}
@@ -376,6 +376,26 @@ public class Configure {
 		});
 	}
 
+	private InputStream openServerConfiguration(File file)
+			throws FileNotFoundException {
+		if (file.exists())
+			return new FileInputStream(file);
+		ClassLoader cl = getClass().getClassLoader();
+		return cl.getResourceAsStream("META-INF/templates/callimachus.conf");
+	}
+
+	private void request(String url) throws IOException,
+			MalformedURLException {
+		InputStream in = new URL(url).openStream();
+		try {
+			byte[] buf = new byte[1024];
+			while (in.read(buf) >= 0)
+				;
+		} finally {
+			in.close();
+		}
+	}
+
 	private Properties readProperties(File file, String path) throws FileNotFoundException,
 			IOException {
 		Properties properties = new Properties();
@@ -453,17 +473,32 @@ public class Configure {
 		Process p = exec(script);
 		if (p == null)
 			return false;
-		InputStream in = p.getInputStream();
-		try {
-			int read;
-			byte[] buf = new byte[1024];
-			while ((read = in.read(buf)) >= 0) {
-				System.err.write(buf, 0, read);
-			}
-		} finally {
-			in.close();
-		}
+		transfer(p.getInputStream(), System.err);
+		transfer(p.getErrorStream(), System.err);
+		p.getOutputStream().close();
 		return p.waitFor() == 0;
+	}
+
+	private void transfer(final InputStream in, final PrintStream out) {
+		if (in != null) {
+			tfactory.newThread(new Runnable() {
+				public void run() {
+					try {
+						try {
+							int read;
+							byte[] buf = new byte[1024];
+							while ((read = in.read(buf)) >= 0) {
+								out.write(buf, 0, read);
+							}
+						} finally {
+							in.close();
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+		}
 	}
 
 	private Process exec(String script) throws IOException {

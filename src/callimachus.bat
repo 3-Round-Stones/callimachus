@@ -89,7 +89,7 @@ cd "%BASEDIR%"
 
 rem check for a JDK in the BASEDIR
 for /d %%i in ("%BASEDIR%\jdk*") do set JDK_HOME=%%i
-for /d %%i in ("%BASEDIR%\jdk*") do set JAVA_HOME=%%i/jre
+for /d %%i in ("%BASEDIR%\jdk*") do set JAVA_HOME=%%i\jre
 
 rem Lookup the JDK in the registry
 if not "%JAVA_HOME%" == "" goto gotJavaHome
@@ -105,7 +105,7 @@ goto exit
 :gotJavaHome
 
 if not "%JDK_HOME%" == "" goto gotJdkHome
-set "JDK_HOME=%JAVA_HOME\.."
+set "JDK_HOME=%JAVA_HOME%\.."
 :gotJdkHome
 
 if not "%PID%" == "" goto gotOut
@@ -146,10 +146,6 @@ if not "%REPOSITORY%" == "" goto gotRepository
 set "REPOSITORY=repositories/%NAME%"
 :gotRepository
 
-if not "%REPOSITORY_CONFIG%" == "" goto gotRepositoryConfig
-set "REPOSITORY_CONFIG=etc/%NAME%-repository.ttl"
-:gotRepositoryConfig
-
 setlocal ENABLEDELAYEDEXPANSION
 for /r "lib" %%a IN (*.jar) do set CLASSPATH=!CLASSPATH!;%%a
 
@@ -174,7 +170,6 @@ set "ORIGIN=%ORIGIN%:%PORT%"
 :gotOrigin
 
 if not "%OPT%" == "" goto gotOpt
-set "OPT=-d "%BASEDIR%" -o %ORIGIN% -r %REPOSITORY%
 if not "%SECURITY_MANAGER%" == "false" goto gotOpt
 set "OPT=%OPT% --trust"
 :gotOpt
@@ -217,7 +212,7 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" %OPT% %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -d "%BASEDIR%" -o "%ORIGIN%" -r "%REPOSITORY%" %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStart
@@ -241,7 +236,12 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q %OPT% %CMD_LINE_ARGS%
+start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -d "%BASEDIR%" -o "%ORIGIN%" -r "%REPOSITORY%" %OPT% %CMD_LINE_ARGS%
+
+:notListening
+REM | CHOICE /C:AB /T:A,2 > NUL
+netstat -ano |find /i "LISTENING" |find "%PORT%"
+IF ERRORLEVEL 1 GOTO notListening
 goto end
 
 :doStop

@@ -20,6 +20,7 @@ public class StartServerProcess {
 				handler.logOutput(line, true);
 			}
 			handler.emitErrorAndBlockNext(e.toString(), e.getMessage());
+			throw e;
 		}
 	}
 

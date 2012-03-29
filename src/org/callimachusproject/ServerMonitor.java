@@ -18,7 +18,6 @@ package org.callimachusproject;
 
 import info.aduna.io.IOUtil;
 
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -256,7 +255,7 @@ public class ServerMonitor {
 				info("Callimachus server has stopped");
 				return true;
 			} catch (UnmarshalException e) {
-				if (!(e.getCause() instanceof EOFException))
+				if (!(e.getCause() instanceof IOException))
 					throw e;
 				// remote JVM has terminated
 				info("Callimachus server has shutdown");

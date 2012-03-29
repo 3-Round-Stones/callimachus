@@ -20,13 +20,13 @@ public class PrimeServerProcess {
 				handler.logOutput(line, true);
 			}
 			handler.emitErrorAndBlockNext(e.toString(), e.getMessage());
+			throw e;
 		}
 	}
 
 	public void processData(AutomatedInstallData adata) throws Exception {
-    	Configure configure = Configure.getInstance(adata.getInstallPath());
-		String openbrowser = adata.getVariable("callimachus.openbrowser");
-		if (configure.isWebBrowserSupported() && "true".equals(openbrowser)) {
+		Configure configure = Configure.getInstance(adata.getInstallPath());
+		if ("true".equals(adata.getVariable("callimachus.startserver"))) {
 			if (!configure.primeServer(getPrimaryOrigin(adata))) {
 				throw new InstallerException(
 						"The server could not be be reached.\n"
@@ -36,7 +36,10 @@ public class PrimeServerProcess {
 								+ adata.getVariable("callimachus.PORT")
 								+ " for " + getPrimaryOrigin(adata));
 			}
-			configure.openWebBrowser(getPrimaryOrigin(adata) + "/");
+			String openbrowser = adata.getVariable("callimachus.openbrowser");
+			if (configure.isWebBrowserSupported() && "true".equals(openbrowser)) {
+				configure.openWebBrowser(getPrimaryOrigin(adata) + "/");
+			}
 		}
 	}
 

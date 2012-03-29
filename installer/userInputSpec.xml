@@ -2,7 +2,6 @@
 <userInput>
   <!-- Primary authority configuration -->
   <panel order="0">
-    <field type="title" txt="Host Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="text" align="left" variable="callimachus.PRIMARY_ORIGIN">
       <description align="left" txt="$APP_NAME will be accessed at the Web address given in the Primary authority field.  Change the value to match your intended deployment."/>
@@ -18,7 +17,6 @@
   </panel>
   <!-- Virtual hosts configuration -->
   <panel order="1">
-    <field type="title" txt="Virtual Hosts Configuration for ${callimachus.PRIMARY_ORIGIN}" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="text" align="left" variable="callimachus.SECONDARY_ORIGIN">
       <description align="left" txt="Add other authorities that will resolve to this server."/>
@@ -50,7 +48,6 @@
   </panel>
   <!-- Daemon configuration -->
   <panel order="2">
-    <field type="title" txt="Daemon Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="text" align="left" variable="callimachus.DAEMON_USER">
       <description align="left" txt="$APP_NAME must run with reduce privileges."/>
@@ -72,7 +69,6 @@
   </panel>
   <!-- Port configuration -->
   <panel order="3">
-    <field type="title" txt="Port Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="text" align="left" variable="callimachus.PORT">
       <description align="left" txt="$APP_NAME will bind to the port specified. Change the value to match your intended deployment."/>
@@ -83,9 +79,7 @@
   </panel>
   <!-- Mail configuration -->
   <panel order="4">
-    <field type="title" txt="Mail Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
-    <field type="staticText" align="left" txt="$APP_NAME uses email to inform new users of their initial password and instructions on how to reset their passwords."/>
     <field type="check" variable="callimachus.later.mail">
       <spec txt="Setup mail later" true="true" false="false" set="false"/>
     </field>
@@ -133,7 +127,6 @@
   </panel>
   <!-- Initial user configuration -->
   <panel order="5">
-    <field type="title" txt="Initial User Configuration" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="staticText" align="left" txt="You will need an initial $APP_NAME user account to log into the $APP_NAME Web user interface. Complete all fields to create an admin user account. Choose a strong password if you are using a public server!"/>
     <field type="text" align="left" variable="callimachus.fullname">
@@ -166,7 +159,6 @@
   </panel>
   <!-- Change user password -->
   <panel order="6">
-    <field type="title" txt="Reset User Password" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="staticText" align="left" txt="If you have forgotten your password you can reset it here or create a new account"/>
     <field type="text" align="left" variable="callimachus.username">
@@ -187,7 +179,6 @@
   </panel>
   <!-- Start server/open browser configuration -->
   <panel order="7">
-    <field type="title" txt="Start Server" bold="true" size="1"/>
     <field type="divider" align="top"/>
     <field type="check" variable="callimachus.startserver">
       <description align="left" txt="$APP_NAME may be started at this time."/>

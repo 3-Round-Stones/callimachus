@@ -42,7 +42,17 @@
         The gui preferences indication.
         Sets the installer window to 640x480. It will not be able to change the size.
     -->
-    <guiprefs width="640" height="480" resizable="yes"/>
+    <guiprefs width="640" height="480" resizable="yes">
+        <modifier key="layoutAnchor" value="CENTER"/>
+        <modifier key="useHeadingPanel" value="yes"/>
+        <modifier key="useHeadingForSummary" value="yes"/>
+        <modifier key="headingImageOnLeft" value="yes"/>
+        <modifier key="headingLineCount" value="2"/>
+        <modifier key="headingFontSize" value="1.5"/>
+        <modifier key="headingBackgroundColor" value="0x00ffffff"/>
+        <modifier key="headingPanelCounter" value="text"/>
+        <modifier key="headingPanelCounterPos" value="inHeading"/>
+    </guiprefs>
 
     <!-- 
         The locale section.
@@ -77,6 +87,7 @@
         <res id="callimachus_logo" src="installer/images/callimachus-logo.png"/>
         <res id="callimachus_enterprise" src="installer/images/callimachus-enterprise-logo.png"/>
         <res id="3roundstones_logo" src="installer/images/3roundstones_logo.png"/>
+        <res id="Heading.image" src="installer/images/callimachus-logo-wide.png"/>
         <res id="LicencePanel.licence" src="LICENSE.txt"/>
         <res id="HTMLInfoPanel.readme" src="README.txt"/>
         <res id="userInputSpec.xml" src="installer/userInputSpec.xml" />
@@ -84,6 +95,7 @@
         <res id="TargetPanel.dir.windows" src="tmp/windows.dir" />
         <res id="TargetPanel.dir.unix" src="tmp/unix.dir" />
         <res id="ProcessPanel.Spec.xml" src="installer/ProcessPanel.Spec.xml" />
+        <res id="CustomLangpack.xml_eng" src="installer/CustomLangpack.xml"/>
     </resources>
     <xi:include href="../tmp/jar" />
     <xi:include href="../tmp/mail-jar" />
@@ -100,24 +112,24 @@
           <validator classname="org.callimachusproject.installer.ConfigurationReader" />
         </panel>
 				<!-- TODO: Ask about backing up the existing repo -->
-        <panel classname="UserInputPanel" condition="newinstall"> <!-- primary authority config -->
+        <panel classname="UserInputPanel" id="primary" condition="newinstall"> <!-- primary authority config -->
           <validator classname="org.callimachusproject.installer.PrimaryOriginValidator" />
         </panel>
         <panel classname="InstallPanel">
           <validator classname="org.callimachusproject.installer.SetupProcessor" />
         </panel>
         <panel classname="HTMLInfoPanel" id="readme"/>
-        <panel classname="UserInputPanel"/> <!-- virtual hosts config -->
-        <panel classname="UserInputPanel" condition="isroot"> <!-- daemon config -->
+        <panel classname="UserInputPanel" id="secondary" /> <!-- virtual hosts config -->
+        <panel classname="UserInputPanel" id="daemon" condition="isroot"> <!-- daemon config -->
           <validator classname="org.callimachusproject.installer.DaemonAccountValidator" />
         </panel>
-        <panel classname="UserInputPanel" /> <!-- port config -->
-        <panel classname="UserInputPanel"> <!-- mail config -->
+        <panel classname="UserInputPanel" id="port" /> <!-- port config -->
+        <panel classname="UserInputPanel" id="mail"> <!-- mail config -->
           <validator classname="org.callimachusproject.installer.MailServerValidator" />
         </panel>
-        <panel classname="UserInputPanel" condition="newinstall"/> <!-- initial user config -->
-        <panel classname="UserInputPanel" condition="upgrading"/> <!-- change password -->
-        <panel classname="UserInputPanel"> <!-- optionally start server/open browser -->
+        <panel classname="UserInputPanel" id="usersetup" condition="newinstall"/> <!-- initial user config -->
+        <panel classname="UserInputPanel" id="userpassword" condition="upgrading"/> <!-- change password -->
+        <panel classname="UserInputPanel" id="browser"> <!-- optionally start server/open browser -->
           <validator classname="org.callimachusproject.installer.ConfigurationWriter" />
         </panel>
         <panel classname="ProcessPanel" />

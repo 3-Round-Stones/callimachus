@@ -129,12 +129,12 @@ if [ -z "$JAVA_HOME" ] ; then
 fi
 
 if $darwin; then
-  exec $JAVA_HOME/bin/java -DuseJavaUtilZip -jar "$0" "$@"
+  exec "$JAVA_HOME/bin/java" -Xms64m -Xmx768m -Dfile.encoding=UTF-8 -DuseJavaUtilZip -jar "$0" "$@"
 elif [ ! -z "$DISPLAY" ] ; then
-  exec $JAVA_HOME/bin/java -DuseJavaUtilZip -jar "$0" "$@"
+  exec "$JAVA_HOME/bin/java" -Xms64m -Xmx768m -Dfile.encoding=UTF-8 -DuseJavaUtilZip -jar "$0" "$@"
 else
-  LOG="callimachus-installer.log"
-  $JAVA -DuseJavaUtilZip -jar "$0" -console "$@" 2> "$LOG"
+  LOG="callimachus-install.log"
+  "$JAVA_HOME/bin/java" -Xms64m -Xmx768m -Dfile.encoding=UTF-8 -DuseJavaUtilZip -jar "$0" -console "$@" 2> "$LOG"
   RETURN_VAL=$?
   if [ $RETURN_VAL -gt 0 ]; then
     cat "$LOG" >&2

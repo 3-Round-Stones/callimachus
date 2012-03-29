@@ -1,0 +1,22 @@
+<langpack>
+	<str id="HTMLInfoPanel.headline" /><!-- no heading panel -->
+	<str id="LicencePanel.headline.license" txt="License" />
+	<str id="JDKPathPanel.headline" txt="JDK Path" />
+	<str id="TargetPanel.headline" txt="Target Path" />
+	<str id="UserInputPanel.headline.primary" txt="Host Configuration"/>
+	<str id="UserInputPanel.headinfo0..." txt=""/>
+	<str id="UserInputPanel.headinfo1..." txt=""/>
+	<str id="InstallPanel.headline" txt="Installing Libraries" />
+	<str id="HTMLInfoPanel.headline.readme" txt="Please Read Carefully" />
+	<str id="UserInputPanel.headline.secondary" txt="Virtual Hosts Configuration"/>
+	<str id="UserInputPanel.headinfo0.secondary" txt="${callimachus.PRIMARY_ORIGIN}"/>
+	<str id="UserInputPanel.headline.daemon" txt="Daemon Configuration"/>
+	<str id="UserInputPanel.headline.port" txt="Port Configuration"/>
+	<str id="UserInputPanel.headline.mail" txt="Mail Configuration"/>
+	<str id="UserInputPanel.headinfo0.mail" txt="$APP_NAME uses email to distribute passwords"/>
+	<str id="UserInputPanel.headline.usersetup" txt="Initial User Configuration"/>
+	<str id="UserInputPanel.headline.password" txt="Reset User Password"/>
+	<str id="UserInputPanel.headline.browser" txt="Start Server"/>
+	<str id="ProcessPanel.headline" txt="Release Notes"/>
+	<str id="SimpleFinishPanel.headline" txt="Completed"/>
+</langpack>

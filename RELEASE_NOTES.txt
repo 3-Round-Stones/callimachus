@@ -55,9 +55,9 @@ in which case secondary authorities are also searched.
 
 = KNOWN ISSUES IN 0.16 =
 
- * Error messages are not shown when using Ctrl-S within an text edit form. Use 
+ * Error messages are not shown when using Ctrl-S within a text edit form. Use 
    the save button to see the error message.
- * Empty table cell are omitted in from template.
+ * Empty table cells are omitted in from template.
  * Language tags are not supported with forms.
  * All possible options in check boxes must have a label.
  * Trailing whitespace in @typeof attribute is not supported.
@@ -69,13 +69,13 @@ in which case secondary authorities are also searched.
 = HOWTO UPGRADE FROM 0.15 =
 
 All information saved through a Web browser is saved in the repositories
-directory. This directory should be backup (in the stopped state) before
+directory. This directory should be backed up (in the stopped state) before
 attempting to upgrade.
 
-All files and folders in the webapps/ (not in webapps/callimachus/) must be
-removed while the 0.15 server is running. Folders can be compressed to a ZIP
+All files and folders in the webapps/ dir (not in webapps/callimachus/) must
+be removed while the 0.15 server is running. Folders can be compressed to a ZIP
 file and imported into a newly created (empty) folder using the Web interface.
-Files can be dragged or uploading to the home folder.
+Files can be dragged or uploaded to the home folder.
 
 Stop the 0.15 server using the callimachus-stop script in the bin directory.
 Remove the lib, bin, tmp, webapps directories. Backup any configuration files

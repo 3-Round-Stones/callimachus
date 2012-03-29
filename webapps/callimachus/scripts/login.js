@@ -2,19 +2,22 @@
 
 (function($, jQuery){
 
+$(document).ready(function() {
+	$("#logout-link").click(function(event) {
+		$(document).trigger(jQuery.Event("calliLogout"));
+		if (event.preventDefault) {
+			event.preventDefault();
+		}
+		return false;
+	});
+});
+
 var loginForm;
 
 $(document).bind("calliLoggedIn", function(event) {
 	$(document).ready(function() {
 		var title = event.title;
 		$("#profile-link").text(title);
-		$("#logout-link").click(function(event) {
-			$(document).trigger(jQuery.Event("calliLogout"));
-			if (event.preventDefault) {
-				event.preventDefault();
-			}
-			return false;
-		});
 		if (loginForm) {
 			$(loginForm).remove();
 			$("#login-form").remove();

@@ -11,14 +11,42 @@ function getPageLocationURL() {
 	return location.href;
 }
 
+if (!window.calli) {
+	window.calli = {};
+}
+window.calli.getUserIri = function() {
+	var iri = null;
+	if (window.sessionStorage) {
+		iri = sessionStorage.getItem('UserIri');
+		if (iri)
+			return iri;
+	}
+	jQuery.ajax({ url: "/?login", async: false,
+		success: function(doc) {
+			iri = /resource="([^" >]*)"/i.exec(doc)[1];
+		}
+	});
+	return iri;
+};
+
 $(document).bind("calliLogin", function(event) {
 	// remove bogus data
 	if (window.sessionStorage) {
 		sessionStorage.removeItem('Name');
+		sessionStorage.removeItem('UserIri');
 		localStorage.removeItem('Authorization');
 	}
-	var options = {type: "GET", url: "/?login",
+	var options = {type: "GET", url: "/accounts?login",
 		success: function(doc) {
+			var iri = /resource="([^" >]*)"/i.exec(doc);
+			if (iri) {
+				try {
+					if (window.sessionStorage) {
+						// now logged in
+						sessionStorage.setItem("UserIri", iri[1]);
+					}
+				} catch (e) { }
+			}
 			var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc);
 			if (title) {
 				try {
@@ -78,7 +106,7 @@ $(document).bind("calliLogin", function(event) {
 
 $(document).bind("calliLogout", function(event) {
 	if (!window.sessionStorage || sessionStorage.getItem('Name')) {
-		jQuery.ajax({ type: 'GET', url: "/?logout",
+		jQuery.ajax({ type: 'GET', url: "/accounts?logout",
 			username: 'logout', password: 'nil',
 			success: function(data) {
 				location = "/";

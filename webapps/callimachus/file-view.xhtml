@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-	<head>
-		<title about="?this">{rdfs:label}</title>
-	<link rel="edit" href="?edit" />
-	<link rel="describedby" href="?describe" />
-	<link rel="version-history" href="?history" />
-	</head>
-	<body about="?this">
-		<p>A file has been uploaded to <a href="{?this}">{rdfs:label}</a>.</p>
-	</body>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+<head>
+	<title about="?this">{rdfs:label}</title>
+<link rel="edit" href="?edit" />
+<link rel="describedby" href="?describe" />
+<link rel="version-history" href="?history" />
+</head>
+<body about="?this">
+	<p>A file has been uploaded to <a href="{?this}">{rdfs:label}</a>.</p>
+</body>
 </html>

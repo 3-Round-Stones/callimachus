@@ -28,14 +28,6 @@ install *and configure* Callimachus.  The installer may be re-run any time
 you need to change your Callimachus configuration.  You may also re-run the
 installer to change the password for the initial user.
 
-Execute the installer by running its JAR file:
-[[
-$ java -jar callimachus-setup-<version>.jar
-]]
-
-The installer may also be run in console mode for headless installations
-on Linux servers.  Please see README.txt for details.
-
 Callimachus may now serve multiple HTTP/HTTPS authorities (like Apache
 virtual hosts).  Multiple authorities are configured using the installer.
 
@@ -46,7 +38,7 @@ and used with different parameters, like this:
 SELECT * { <$param> ?p ?o }
 ]]
 
-Text searches in Callimachus search various RDF labels.  As of 0.16, text
+Text searches in Callimachus, search various RDF labels.  As of 0.16, text
 searches apply to all labels if the "Serve all RDF resources" option is
 enabled during installation.  That option is selected by default.  If that
 option is turned off, searches only apply to labels associated with the
@@ -81,7 +73,7 @@ Stop the 0.15 server using the callimachus-stop script in the bin directory.
 Remove the lib, bin, tmp, webapps directories. Backup any configuration files
 in etc, including etc/callimachus.conf.
 
-Download and run the callimachus-setup-0.16.jar installer (see README.txt for
-details). Choose the same install path and provide your configuration settings
-to complete the upgrade.
+Download and run the Callimachus-Setup-0.16.exe or (.run) installer (see
+README.txt for details). Choose the same install path and provide your
+configuration settings to complete the upgrade.
 

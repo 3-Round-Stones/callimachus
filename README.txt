@@ -23,7 +23,7 @@ installation directory.
 | prerequisites |
 -----------------
 
-You must have Java 6 installed and available.
+You must have Java 6 JDK installed and available.
 
 The following platforms are supported:
 * Linux i386
@@ -66,23 +66,14 @@ install and configure Callimachus.  The installer may be re-run any time
 you need to change your Callimachus configuration.  You may also re-run the
 installer to change the password for the initial user.
 
-Execute the installer by running its JAR file:
-[[
-$ java -jar callimachus-setup-<version>.jar
-]]
+Execute the installer by running the Callimachus-Setup.exe on windows or
+Calilmachus-Setup.run on Mac and Linux.
 
-For headless installations on a Linux server, you can run the installer
-in console mode.  You must redirect STDERR to a file to ensure that
-error messages do not interfere with the display:
-[[
-java -jar callimachus-setup-<version>.jar -console 2> install.log
-]]
-
-Once Callimachus is installed, you can start the server by executing the
-callimachus-start script located in the bin/ directory.
+Once Callimachus is installed, you can start the server (if not already running)
+by executing the callimachus-start script located in the bin/ directory.
 
 On Mac and Linux run:
- $ sh bin/callimachus-start.sh
+ $ bin/callimachus-start.sh
 
 On Windows run:
  # bin/callimachus-start.bat
@@ -92,7 +83,8 @@ compiler...FilePermission" exceptions. This is often due to an issue in the
 embedded Java compiler and if so has no impact on the run time behaviour of
 Callimachus.
 
-If you want to check out the source code, see the directions at:
+
+Alternatively, if you want to check out the source code, see the directions at:
   http://code.google.com/p/callimachus/source/checkout
 Once you have the source code checked out, you will need to provide a username
 and password. Create a build.properties file in the same directory as build.xml.
@@ -100,11 +92,13 @@ Put the variables "callimachus.username" and "callimachus.password" followed by
 '=' and their value on their own line. You can then execute 'ant run' from a 
 command line in this top directory to run the server.
 
+
 Additional documentation regarding usage and application development may
 be found on the project's wiki at:
-  http://code.google.com/p/callimachus/w/list
+  http://code.google.com/p/callimachus/wiki/GettingStarted
+
 
 Share your experience or ask questions on the mailing list: callimachus-
 discuss@googlegroups.com.  You can sign up at 
-http://groups.google.com/group/callimachus-discuss.
+  http://groups.google.com/group/callimachus-discuss.
 

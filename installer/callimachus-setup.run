@@ -134,7 +134,7 @@ elif [ ! -z "$DISPLAY" ] ; then
   exec "$JAVA_HOME/bin/java" -Xms64m -Xmx768m -Dswing.aatext=true -Dfile.encoding=UTF-8 -DuseJavaUtilZip -jar "$0" "$@"
 else
   LOG="callimachus-install.log"
-  "$JAVA_HOME/bin/java" -Xms64m -Xmx768m -Dswing.aatext=true -Dfile.encoding=UTF-8 -DuseJavaUtilZip -jar "$0" -console "$@" 2> "$LOG"
+  "$JAVA_HOME/bin/java" -Xms64m -Xmx768m -Djava.awt.headless=true -Dfile.encoding=UTF-8 -DuseJavaUtilZip -jar "$0" -console "$@" 2> "$LOG"
   RETURN_VAL=$?
   if [ $RETURN_VAL -gt 0 ]; then
     cat "$LOG" >&2

@@ -81,7 +81,7 @@ public class RepositorySetupProcess {
 		} catch (SecurityException e) {
 			// ignore
 		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
+			// console mode
 		}
 		return null;
 	}

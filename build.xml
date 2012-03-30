@@ -7,6 +7,7 @@
 	<property name="src.install" location="installer" />
 	<property name="build.install" location="installer/build" />
 	<property name="lib.install" location="installer/lib" />
+	<property name="launch4j.dir" location="launch4j" />
 	<property name="dist" location="dist" />
 	<property name="lib" location="lib" />
 	<property name="bin" location="bin" />
@@ -39,6 +40,9 @@
 	<property name="jersey-client.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-client/1.0.3/jersey-client-1.0.3.jar" />
 	<property name="jersey-core.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-core/1.0.3/jersey-core-1.0.3.jar" />
 	<property name="jsr311-api.url" value="http://download.java.net/maven/2/javax/ws/rs/jsr311-api/1.0/jsr311-api-1.0.jar" />
+	<property name="launch4j-linux.url" value="http://sourceforge.net/projects/launch4j/files/launch4j-3/3.0.2/launch4j-3.0.2-linux.tgz" />
+	<property name="launch4j-mac.url" value="http://sourceforge.net/projects/launch4j/files/launch4j-3/3.0.2/launch4j-3.0.2-macosx.tgz" />
+	<property name="launch4j-win32.url" value="http://sourceforge.net/projects/launch4j/files/launch4j-3/3.0.2/launch4j-3.0.2-win32.zip" />
 	<property name="setup" value="org.callimachusproject.Setup" />
 	<property name="main" value="org.callimachusproject.Server" />
 	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
@@ -59,6 +63,7 @@
 		<delete dir="${lib.install}" />
 		<delete dir="${lib}" />
 		<delete dir="${bin}" />
+		<delete dir="${launch4j.dir}" />
 	</target>
 
 	<target name="init">
@@ -68,7 +73,22 @@
 		<available file="${lib}" property="lib.present" />
 		<available file="${lib.tests}" property="lib.tests.present" />
 		<available file="${lib.install}" property="lib.install.present" />
+		<available file="${launch4j.dir}" property="launch4j.dir.present" />
 		<property file="build.properties" />
+		<condition property="os.mac">
+			<os family="mac"/>
+		</condition>
+		<condition property="os.windows">
+			<os family="windows"/>
+		</condition>
+		<condition property="os.linux">
+			<and>
+				<os family="unix"/>
+				<not>
+					<os family="mac"/>
+				</not>
+			</and>
+		</condition>
 	</target>
 
 	<target name="dependencies" unless="lib.present">
@@ -246,7 +266,35 @@
 		</junit>
 	</target>
 
-	<target name="install-dependencies" unless="lib.install.present">
+	<target name="install-launch4j-windows" if="os.windows" unless="launch4j.dir.present">
+		<mkdir dir="${downloads}" />
+		<get src="${launch4j-windows.url}" dest="${downloads}/launch4j-windows.zip" />
+		<mkdir dir="${launch4j.dir}" />
+		<unzip src="${downloads}/launch4j-windows.zip" dest="${launch4j.dir}" />
+		<delete file="${downloads}/launch4j-windows.zip" />
+	</target>
+
+	<target name="install-launch4j-linux" if="os.linux" unless="launch4j.dir.present">
+		<mkdir dir="${downloads}" />
+		<get src="${launch4j-linux.url}" dest="${downloads}/launch4j-linux.tgz" />
+		<mkdir dir="${launch4j.dir}" />
+		<untar compression="gzip" src="${downloads}/launch4j-linux.tgz" dest="${launch4j.dir}" />
+		<chmod file="${launch4j.dir}/launch4j/bin/ld" perm="ugo+rx"/>
+		<chmod file="${launch4j.dir}/launch4j/bin/windres" perm="ugo+rx"/>
+		<delete file="${downloads}/launch4j-linux.tgz" />
+	</target>
+
+	<target name="install-launch4j-mac" if="os.mac" unless="launch4j.dir.present">
+		<mkdir dir="${downloads}" />
+		<get src="${launch4j-mac.url}" dest="${downloads}/launch4j-mac.tgz" />
+		<mkdir dir="${launch4j.dir}" />
+		<untar compression="gzip" src="${downloads}/launch4j-mac.tgz" dest="${launch4j.dir}" />
+		<chmod file="${launch4j.dir}/launch4j/bin/ld" perm="ugo+rx"/>
+		<chmod file="${launch4j.dir}/launch4j/bin/windres" perm="ugo+rx"/>
+		<delete file="${downloads}/launch4j-mac.tgz" />
+	</target>
+
+	<target name="install-dependencies" depends="install-launch4j-windows,install-launch4j-linux,install-launch4j-mac" unless="lib.install.present">
 		<mkdir dir="${lib.install}" />
 		<parallel>
 			<get src="${izpack.url}" dest="${lib.install}/izpack-standalone-compiler.jar" />
@@ -308,11 +356,18 @@
 		<delete file="tmp/jar" />
 		<delete file="tmp/variables" />
 		<delete file="tmp/version" />
+		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.dir}/launch4j/launch4j.jar:${launch4j.dir}/launch4j/lib/xstream.jar" />
+		<launch4j configFile="${installer}/launch4jConfig.xml"
+			jar="${dist}/callimachus-setup-${Version}.jar"
+			outfile="${dist}/Callimachus-Setup-${Version}.exe"
+			txtProductVersion="${Version}" txtFileVersion="${Version}"
+			productVersion="0.0.0.0" fileVersion="0.0.0.0" tmpdir="tmp" />
 		<echo>Building installer: ${dist}/Callimachus-Setup-${Version}.run</echo>
 		<concat destfile="${dist}/Callimachus-Setup-${Version}.run" binary="true">
 			<path path="${src.install}/callimachus-setup.run" />
 			<path path="${dist}/callimachus-setup-${Version}.jar" />
 		</concat>
+		<chmod file="${dist}/Callimachus-Setup-${Version}.run" perm="ugo+rx"/>
 	</target>
 
 	<target name="package" depends="dist-clean,dist,installer,test" description="Create a package ready for release">

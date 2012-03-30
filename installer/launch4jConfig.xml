@@ -1,0 +1,40 @@
+<launch4jConfig>
+  <headerType>gui</headerType>
+  <outfile>Callimachus-Setup.exe</outfile>
+  <dontWrapJar>false</dontWrapJar>
+  <errTitle>Callimachus Setup</errTitle>
+  <supportUrl>http://callimachusproject.org/</supportUrl>
+  <priority>normal</priority>
+  <customProcName>true</customProcName>
+  <stayAlive>true</stayAlive>
+  <icon>images/callimachus.ico</icon>
+  <singleInstance>
+    <mutexName>Callimachus Setup</mutexName>
+    <windowTitle>Callimachus Setup</windowTitle>
+  </singleInstance> 
+  <jre>
+    <minVersion>1.6.0_20</minVersion>
+    <maxVersion>1.6.9_00</maxVersion>
+    <jdkPreference>preferJdk</jdkPreference>
+    <!-- Heap sizes in MB and % of free memory -->
+    <initialHeapSize>64</initialHeapSize>
+    <maxHeapSize>768</maxHeapSize>
+    <opt>-Dswing.aatext=true</opt>
+    <opt>-Dfile.encoding=UTF-8</opt>
+    <opt>-DuseJavaUtilZip</opt>
+  </jre>
+  <versionInfo>
+    <fileDescription>Callimachus Setup Tool</fileDescription>
+    <copyright>Copyright 2012 3 Round Stones Inc.</copyright>
+    <productName>Callimachus Setup</productName>
+    <companyName>3 Round Stones Inc.</companyName>
+    <internalName>Callimachus-Setup</internalName>
+    <originalFilename>Callimachus-Setup.exe</originalFilename>
+  </versionInfo>
+  <messages>
+    <startupErr>Callimachus Setup could not be started</startupErr>
+    <bundledJreErr>Could not find the bundled JRE</bundledJreErr>
+    <jreVersionErr>Callimachus requires the latest JDK 1.6</jreVersionErr>
+    <launcherErr>Callimachus Setup did not start</launcherErr>
+  </messages>
+</launch4jConfig>

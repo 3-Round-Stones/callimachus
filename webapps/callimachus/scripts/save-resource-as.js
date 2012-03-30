@@ -143,8 +143,7 @@ function openSaveAsDialog(form, label, create, callback) {
 
 function updateFormAction(form, target, create) {
 	var action = getFormAction(form);
-	var idx = action.indexOf('?create');
-	if (idx >= 0) {
+	if (action.indexOf('?create') >= 0 || action.indexOf('?edit') >= 0) {
 		var m;
 		if (create) {
 			form.action = target + '?create=' + create;

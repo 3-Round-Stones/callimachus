@@ -71,6 +71,7 @@
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
 	msg:imports <File>;
+	msg:imports calli:Page;
 	msg:imports foaf:Document;
 	msg:script """
 		var con = this.objectConnection;
@@ -88,6 +89,7 @@
 		con.add(created.resource, RDFS.LABEL, label, []);
 
 		created = con.addDesignation(created, this.toString());
+		created = con.addDesignation(created, Page);
 		created = con.addDesignation(created, Document);
 
 		created.UploadPage(body);

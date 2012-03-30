@@ -371,7 +371,7 @@
 	</target>
 
 	<target name="package" depends="dist-clean,dist,installer,test" description="Create a package ready for release">
-		<echo>Installer ready: ${dist}/callimachus-setup-${Version}.jar</echo>
+		<echo>Installer ready: ${dist}/Callimachus-Setup-${Version}.exe</echo>
 		<echo>Installer ready: ${dist}/Callimachus-Setup-${Version}.run</echo>
 	</target>
 

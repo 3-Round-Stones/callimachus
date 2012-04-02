@@ -18,3 +18,12 @@ DELETE {
 	?item calli:position ?position
 	FILTER (datatype(1) != datatype(?position))
 };
+
+DELETE {
+	</callimachus> owl:versionInfo "0.15"
+} INSERT {
+	</callimachus> owl:versionInfo "0.16"
+} WHERE {
+	</callimachus> owl:versionInfo "0.15"
+};
+

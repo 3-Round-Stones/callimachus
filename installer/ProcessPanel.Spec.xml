@@ -1,4 +1,7 @@
 <processing>
+	<job name="Display Release Notes">
+		<executeclass name="org.callimachusproject.installer.DisplayReleaseNotesProcess" />
+	</job>
 	<job name="Setting Up Repository">
 		<executeclass name="org.callimachusproject.installer.RepositorySetupProcess" />
 	</job>

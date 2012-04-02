@@ -32,9 +32,9 @@
     <originalFilename>Callimachus-Setup.exe</originalFilename>
   </versionInfo>
   <messages>
-    <startupErr>Callimachus Setup could not be started</startupErr>
-    <bundledJreErr>Could not find the bundled JRE</bundledJreErr>
-    <jreVersionErr>Callimachus requires the latest JDK 1.6</jreVersionErr>
-    <launcherErr>Callimachus Setup did not start</launcherErr>
+    <startupErr>Callimachus Setup could not be started in this environment.</startupErr>
+    <bundledJreErr>This application was configured to use a bundled Java Environment but it is missing or corrupted.</bundledJreErr>
+    <jreVersionErr>Before you can run this tool you must install Java JDK</jreVersionErr>
+    <launcherErr>The registry refers to a nonexistent Java installation or it is corrupted. Please unistall all Java software and install Java again before running this tool</launcherErr>
   </messages>
 </launch4jConfig>

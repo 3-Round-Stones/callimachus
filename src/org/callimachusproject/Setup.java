@@ -472,7 +472,6 @@ public class Setup {
 			if (equal(config, oldConfig))
 				return manager.getRepository(id);
 			logger.warn("Replacing repository configuration");
-			manager.removeRepositoryConfig(id);
 		}
 		config.validate();
 		logger.info("Creating repository: {}", id);

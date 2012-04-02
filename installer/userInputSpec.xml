@@ -100,8 +100,8 @@
     </field>
     <field type="combo" variable="callimachus.mail.smtps.auth">
       <spec txt="Authentication required:">
-        <choice txt="yes" value="yes" set="${callimachus.mail.smtps.auth}"/>
-        <choice txt="no" value="no"/>
+        <choice txt="Authentication required" value="yes" set="${callimachus.mail.smtps.auth}"/>
+        <choice txt="No authentication" value="no"/>
       </spec>
     </field>
     <field type="text" align="left" variable="callimachus.mail.user">

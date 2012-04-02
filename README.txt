@@ -23,7 +23,7 @@ installation directory.
 | prerequisites |
 -----------------
 
-You must have Java 6 JDK installed and available.
+You must have Java 6 JDK (1.6.0_18+) installed and available.
 
 The following platforms are supported:
 * Linux i386

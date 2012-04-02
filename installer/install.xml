@@ -15,8 +15,8 @@
 <installation version="1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 
     <variables>
-        <variable name="JDKPathPanel.minVersion" value="1.6.0_20" />
-        <variable name="JDKPathPanel.maxVersion" value="1.6.99" />
+        <variable name="JDKPathPanel.minVersion" value="1.6.0_18" />
+        <variable name="JDKPathPanel.maxVersion" value="1.6.9_99" />
         <variable name="JDKPathPanel.skipIfValid" value="yes" />
         <xi:include href="../tmp/variables" xpointer="element(/1/1)" />
     </variables>

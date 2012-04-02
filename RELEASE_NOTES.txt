@@ -18,7 +18,7 @@ Internet Explorer 8 and 9 can login and read content, use the
 edit form, but cannot edit text documents or create complex resources.
 However, IE 9 with Chrome Frame should act like Chrome.
 
-The Callimachus server requires Java JDK 1.6.0_20+ (before 1.7) on the
+The Callimachus server requires Java JDK 1.6.0_18+ (before 1.7) on the
 server to run.
 
 = NEW IN VERSION 0.16 =

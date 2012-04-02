@@ -13,8 +13,8 @@
     <windowTitle>Callimachus Setup</windowTitle>
   </singleInstance> 
   <jre>
-    <minVersion>1.6.0_20</minVersion>
-    <maxVersion>1.6.9_00</maxVersion>
+    <minVersion>1.6.0_18</minVersion>
+    <maxVersion>1.6.9_99</maxVersion>
     <jdkPreference>preferJdk</jdkPreference>
     <!-- Heap sizes in MB and % of free memory -->
     <initialHeapSize>64</initialHeapSize>

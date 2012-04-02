@@ -63,9 +63,9 @@ public class RepositorySetupProcess {
 	}
 
 	private void setupAdminUser(AutomatedInstallData adata, String origin) throws Exception {
-		String name = adata.getVariable("callimachus.fullname");
-		String email = adata.getVariable("callimachus.email");
-		String username = adata.getVariable("callimachus.username");
+		String name = adata.getVariable("callimachus.FULLNAME");
+		String email = adata.getVariable("callimachus.EMAIL");
+		String username = adata.getVariable("callimachus.USERNAME");
 		String password = adata.getVariable("callimachus.password");
 		if (username != null && username.length() > 0) {
         	Configure configure = Configure.getInstance(adata.getInstallPath());

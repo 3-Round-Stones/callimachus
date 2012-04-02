@@ -118,19 +118,19 @@
   <!-- Initial user configuration -->
   <panel order="5">
     <field type="staticText" align="left" txt="You will need an initial $APP_NAME user account to log into the $APP_NAME Web user interface. Complete all fields to create an admin user account. Choose a strong password if you are using a public server!"/>
-    <field type="text" align="left" variable="callimachus.fullname">
+    <field type="text" align="left" variable="callimachus.FULLNAME">
       <spec txt="Full name:" size="25" set=""/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Please use your full name">
         <param name="pattern" value="^\S+[\S ]*$"/>
       </validator>
     </field>
-    <field type="text" align="left" variable="callimachus.email">
+    <field type="text" align="left" variable="callimachus.EMAIL">
       <spec txt="E-mail:" size="25" set=""/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Your email from address does not appear to be valid.">
         <param name="pattern" value="^[a-zA-Z0-9.!$%&amp;*+/=?^_{}~-]+@[a-zA-Z0-9.-]+"/>
       </validator>
     </field>
-    <field type="text" align="left" variable="callimachus.username">
+    <field type="text" align="left" variable="callimachus.USERNAME">
       <spec txt="Username:" size="25" set=""/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Username must be in lowercase.">
         <param name="pattern" value="^[a-z][-a-z0-9]*$"/>
@@ -148,7 +148,7 @@
   <!-- Change user password -->
   <panel order="6">
     <field type="staticText" align="left" txt="If you have forgotten your password you can reset it here or create a new account"/>
-    <field type="text" align="left" variable="callimachus.username">
+    <field type="text" align="left" variable="callimachus.USERNAME">
       <spec txt="Username:" size="25" set=""/>
       <validator class="com.izforge.izpack.util.RegularExpressionValidator" txt="Username must be in lowercase.">
         <param name="pattern" value="^$|^[a-z][-a-z0-9]*$"/>

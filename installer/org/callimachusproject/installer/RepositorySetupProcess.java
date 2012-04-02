@@ -67,7 +67,7 @@ public class RepositorySetupProcess {
 		String email = adata.getVariable("callimachus.EMAIL");
 		String username = adata.getVariable("callimachus.USERNAME");
 		String password = adata.getVariable("callimachus.password");
-		if (username != null && username.length() > 0) {
+		if (password != null && password.length() > 0) {
         	Configure configure = Configure.getInstance(adata.getInstallPath());
 			configure.createAdmin(name, email, username, password, origin);
 		}

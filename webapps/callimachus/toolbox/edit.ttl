@@ -29,7 +29,7 @@
 
 <../Editable> a owl:Class;
 	rdfs:label "Editable";
-	rdfs:subClassOf <../Local>;
+	rdfs:subClassOf <../Serviceable>;
 	rdfs:isDefinedBy </callimachus>.
 
 :GetEditPage rdfs:subClassOf msg:Message;

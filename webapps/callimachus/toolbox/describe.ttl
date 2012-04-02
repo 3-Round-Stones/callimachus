@@ -29,7 +29,7 @@
 ################################
 
 :GetDescription rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
 	calli:title "RDF Describe";
 	calli:rel "describedby";
@@ -97,7 +97,7 @@
 	""".
 
 :TransformDescription rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";
 	calli:transform <../transforms/TransformLayout>;
@@ -114,7 +114,7 @@
 
 :PostInsertData rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Serviceable>];
 	calli:method "POST";
 	calli:query "describe";
 	calli:realm </>;
@@ -126,7 +126,7 @@
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-	msg:imports <../Local>;
+	msg:imports <../Serviceable>;
 	msg:imports <../Editable>;
 	msg:script """
 		var con = this.objectConnection;
@@ -183,7 +183,7 @@
 			}
 			findConcepts(newCopy.getClass(), new java.util.HashSet(), function(type) {
 				var cls = con.getObject(type);
-				if (cls instanceof Local && !cls.calliIsAuthorized(user, "POST", "create"))
+				if (cls instanceof Serviceable && !cls.calliIsAuthorized(user, "POST", "create"))
 					throw new Forbidden("You are not permitted to create " + cls + " resources");
 			});
 		}
@@ -219,7 +219,7 @@
 ################################
 
 :PatchDeleteInsert rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	calli:method "PATCH";
 	calli:query "describe";
@@ -229,7 +229,7 @@
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-	msg:imports <../Local>;
+	msg:imports <../Serviceable>;
 	msg:script """
 		var con = this.objectConnection;
 

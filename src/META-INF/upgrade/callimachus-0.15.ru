@@ -20,6 +20,22 @@ DELETE {
 };
 
 DELETE {
+	?resource ?rel </callimachus/Local>
+} INSERT {
+	?resource ?rel </callimachus/Serviceable>
+} WHERE {
+	?resource ?rel </callimachus/Local>
+};
+
+DELETE {
+	</callimachus/Local> ?property ?content
+} INSERT {
+	</callimachus/Serviceable> ?property ?content
+} WHERE {
+	</callimachus/Local> ?property ?content
+};
+
+DELETE {
 	</callimachus> owl:versionInfo "0.15"
 } INSERT {
 	</callimachus> owl:versionInfo "0.16"

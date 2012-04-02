@@ -96,7 +96,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Setup {
 	private static final String SCHEMA_GRAPH = "/callimachus/SchemaGraph";
-	private static final String LOCAL = "/callimachus/Local";
+	private static final String SERVICEABLE = "/callimachus/Serviceable";
 	public static final String NAME = Version.getInstance().getVersion();
 	private static final String INITIAL_GRAPH = "META-INF/templates/callimachus-initial-data.ttl";
 	private static final String MAIN_ARTICLE = "META-INF/templates/main-article.docbook";
@@ -143,7 +143,7 @@ public class Setup {
 				"Additional scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
 		options.addOption("r", "realm", true,
 				"The scheme, hostname, port, and path ( http://example.com:8080/ ) that does not resolve to this server");
-		options.addOption("l", "local", false, "Treat all resources as local");
+		options.addOption("l", "serve-all", false, "Serve all resources");
 		options.addOption("u", "user", true,
 				"Create the given user and prompt for a password, or append the password separated by a colon");
 		options.getOption("user").setOptionalArg(true);
@@ -191,7 +191,7 @@ public class Setup {
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
 	private ObjectRepository repository;
 	private boolean silent;
-	private String local;
+	private String serveAllAs;
 	private File dir;
 	private URL config;
 	private URL callimachus;
@@ -257,7 +257,7 @@ public class Setup {
 						}
 					}
 					if (line.hasOption('l')) {
-						local = origin;
+						serveAllAs = origin;
 					}
 					if (line.hasOption('u')) {
 						String u = line.getOptionValue('u');
@@ -303,7 +303,7 @@ public class Setup {
 		for (Map.Entry<String, String> e : realms.entrySet()) {
 			changed |= createRealm(e.getKey(), e.getValue(), repository);
 		}
-		changed |= setResourcesAsLocalTo(local, repository);
+		changed |= setServeAllResourcesAs(serveAllAs, repository);
 		if (password != null) {
 			changed |= createAdmin(name, email, username, password, origin, repository);
 		}
@@ -369,7 +369,7 @@ public class Setup {
 	public void setResourcesAsLocalTo(String origin) throws RepositoryException {
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
-		setResourcesAsLocalTo(origin, repository);
+		setServeAllResourcesAs(origin, repository);
 	}
 
 	public void createAdmin(String name, String email, String username, String password, String origin)
@@ -823,21 +823,21 @@ public class Setup {
 				vf.createURI(origin + "/callimachus/theme/default"));
 	}
 
-	private boolean setResourcesAsLocalTo(String origin, ObjectRepository repository) throws RepositoryException {
+	private boolean setServeAllResourcesAs(String origin, ObjectRepository repository) throws RepositoryException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
-			URI localUri = origin == null ? null : vf.createURI(origin + LOCAL);
+			URI ableUri = origin == null ? null : vf.createURI(origin + SERVICEABLE);
 			RepositoryResult<Statement> stmts = con.getStatements(null, OWL.EQUIVALENTCLASS, RDFS.RESOURCE);
 			try {
 				while (stmts.hasNext()) {
 					Statement st = stmts.next();
-					String local = st.getSubject().stringValue();
-					if (local.endsWith(LOCAL) && !local.equals(localUri)) {
-						logger.info("All resources are no longer {}", st.getSubject());
+					String serve = st.getSubject().stringValue();
+					if (serve.endsWith(SERVICEABLE) && !serve.equals(ableUri)) {
+						logger.info("All resources are no longer served as {}", st.getSubject());
 						con.remove(st, st.getContext());
-						String schemaGraph = local.substring(0, local.lastIndexOf(LOCAL)) + SCHEMA_GRAPH;
+						String schemaGraph = serve.substring(0, serve.lastIndexOf(SERVICEABLE)) + SCHEMA_GRAPH;
 						con.remove(st.getContext(), RDF.TYPE, vf.createURI(schemaGraph));
 						modified = true;
 					}
@@ -845,10 +845,10 @@ public class Setup {
 			} finally {
 				stmts.close();
 			}
-			if (localUri != null && !con.hasStatement(localUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE)) {
-				logger.info("All resources are now {}", localUri);
-				con.add(localUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE, localUri);
-				con.add(localUri, RDF.TYPE, vf.createURI(origin + SCHEMA_GRAPH));
+			if (ableUri != null && !con.hasStatement(ableUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE)) {
+				logger.info("All resources are now served as {}", ableUri);
+				con.add(ableUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE, ableUri);
+				con.add(ableUri, RDF.TYPE, vf.createURI(origin + SCHEMA_GRAPH));
 				return true;
 			}
 			return modified;

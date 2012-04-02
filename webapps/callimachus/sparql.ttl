@@ -25,7 +25,7 @@
 
 <> a <SchemaGraph>.
 
-<SparqlService> a <Local>, owl:Class;
+<SparqlService> a <Serviceable>, owl:Class;
 	rdfs:subClassOf <Viewable>, sd:Service;
 	rdfs:isDefinedBy </callimachus>;
 	calli:realm </>;

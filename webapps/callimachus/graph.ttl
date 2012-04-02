@@ -27,7 +27,7 @@
 <> a <SchemaGraph>.
 
 <SchemaGraph> a owl:Class;
-	rdfs:subClassOf <Local>;
+	rdfs:subClassOf <Serviceable>;
 	rdfs:label "Schema Graph";
 	rdfs:isDefinedBy </callimachus>.
 

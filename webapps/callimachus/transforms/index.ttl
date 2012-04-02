@@ -11,7 +11,7 @@
 <> a <../SchemaGraph>.
 
 <TransformIntoAtom> rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
    calli:type "application/atom+xml;q=0.5";
    calli:transform <TransformAtomLinks>;
@@ -23,7 +23,7 @@
    calli:type "application/sparql-results+xml".
 
 <TransformAtomLinks> rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
    calli:type "application/atom+xml;q=0.5";
    msg:xslt <divert-atom-links.xsl>.
@@ -35,7 +35,7 @@
 
 
 <TransformLayout> rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";
 	calli:transform <TransformPage>;
@@ -48,7 +48,7 @@
 
 
 <TransformPage> rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xhtml+xml";
 	calli:transform <TransformXhtml>;
@@ -66,7 +66,7 @@
 
 
 <TransformXhtml> rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
 	calli:type "text/html";
 	msg:xslt <xhtml-to-html.xsl>.

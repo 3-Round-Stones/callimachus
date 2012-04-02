@@ -503,7 +503,7 @@
 
 :FindComponentsWithExternalDependent rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Local>];
+	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Serviceable>];
 	msg:sparql """
 		SELECT ?component {
 			$this calli:hasComponent+ ?component .

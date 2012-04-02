@@ -29,7 +29,7 @@
 
 <../Creatable> a owl:Class;
 	rdfs:label "Creatable";
-	rdfs:subClassOf <../Local>;
+	rdfs:subClassOf <../Serviceable>;
 	rdfs:isDefinedBy </callimachus>.
 
 :GetCreatePage rdfs:subClassOf msg:Message;
@@ -72,7 +72,7 @@
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Serviceable>];
 	calli:method "POST";
 	calli:query "create";
 	calli:realm </>;
@@ -148,7 +148,7 @@
 # override this method for subclass create methods
 :PostCreate rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Serviceable>];
 	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
 	msg:imports <java:org.callimachusproject.server.exceptions.UnsupportedMediaType>;
 	msg:script """

@@ -35,7 +35,7 @@
 ################################
 
 # Transaction operations must be authenticated
-<Change> rdfs:subClassOf <Local>, audit:Transaction;
+<Change> rdfs:subClassOf <Serviceable>, audit:Transaction;
 	rdfs:isDefinedBy </callimachus>;
 	msg:matching </change/*>;
 	calli:realm </>.

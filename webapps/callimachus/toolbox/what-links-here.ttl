@@ -11,7 +11,7 @@
 <> a <../SchemaGraph>.
 
 :GetWhatLinksHere rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
 	calli:query "whatlinkshere";
@@ -20,7 +20,7 @@
 	msg:sparql <what-links-here.rq>.
 
 :TransformWhatLinksHere rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:type "application/xml";
 	calli:transform <../transforms/TransformLayout>;

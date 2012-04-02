@@ -29,7 +29,7 @@
 
 <../Viewable> a owl:Class;
 	rdfs:label "Viewable";
-	rdfs:subClassOf <../Local>;
+	rdfs:subClassOf <../Serviceable>;
 	rdfs:isDefinedBy </callimachus>.
 
 :GetViewPage rdfs:subClassOf msg:Message;

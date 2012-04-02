@@ -27,7 +27,7 @@
 <> a <../SchemaGraph>.
 
 :GetPermissions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "permissions";
@@ -42,7 +42,7 @@
 
 # used by permissions.xhtml
 :GetRdfTypes rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:literalSet; owl:allValuesFrom xsd:string];
 	calli:method "GET";
 	calli:query "rdftype";
@@ -70,7 +70,7 @@
 	""".
 
 :PostPermissions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
 	calli:method "POST";
 	calli:query "permissions";
@@ -114,7 +114,7 @@
 	""".
 
 :SelectParentComposite rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Local>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Composite];
 	msg:sparql """
 		SELECT ?composite

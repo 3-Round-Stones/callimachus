@@ -25,7 +25,7 @@
 <> a <SchemaGraph>.
 
 <Profile> a owl:Class;
-	rdfs:subClassOf <Local>;
+	rdfs:subClassOf <Serviceable>;
 	rdfs:isDefinedBy </callimachus>.
 
 <profile> a <Profile>;

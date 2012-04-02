@@ -82,7 +82,7 @@
 											?realm a <../Realm>
 											FILTER strstarts(str(?url), str(?realm))
 										} UNION {
-											<../Local> owl:equivalentClass rdfs:Resource
+											<../Serviceable> owl:equivalentClass rdfs:Resource
 										}
 									}
 								)

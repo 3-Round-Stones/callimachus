@@ -24,13 +24,13 @@
 
 <> a <SchemaGraph>.
 
-<Local> a owl:Class;
-	rdfs:label "Local";
+<Serviceable> a owl:Class;
+	rdfs:label "Serviceable";
 	rdfs:comment "All resources served by this host";
 	rdfs:isDefinedBy </callimachus>.
 
 <Composite> a owl:Class;
 	rdfs:label "Composite";
-	rdfs:subClassOf <Local>, calli:Composite;
+	rdfs:subClassOf <Serviceable>, calli:Composite;
 	rdfs:isDefinedBy </callimachus>.
 

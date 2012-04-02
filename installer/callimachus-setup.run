@@ -136,10 +136,11 @@ else
   LOG="callimachus-install.log"
   "$JAVA_HOME/bin/java" -Xms64m -Xmx768m -Djava.awt.headless=true -Dfile.encoding=UTF-8 -DuseJavaUtilZip -jar "$0" -console "$@" 2> "$LOG"
   RETURN_VAL=$?
-  if [ $RETURN_VAL -gt 0 ]; then
-    cat "$LOG" >&2
-  fi
+  cat "$LOG" >&2
   rm "$LOG"
+  if [ $RETURN_VAL -eq 0 ]; then
+    echo "Callimachus was installed successfully" >&2
+  fi
   exit $RETURN_VAL
 fi
 

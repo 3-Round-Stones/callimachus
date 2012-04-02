@@ -144,6 +144,10 @@ public class Configure {
 	public void setMailProperties(Properties properties) throws IOException {
 		File file = new File(new File(dir, "etc"), MAIL_PROPERTIES);
 		writeProperties(properties, file);
+		file.setReadable(false, false);
+		file.setReadable(true, true);
+		file.setWritable(false, false);
+		file.setWritable(true, true);
 	}
 
 	public Properties getLoggingProperties() throws IOException {

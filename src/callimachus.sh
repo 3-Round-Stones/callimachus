@@ -307,8 +307,9 @@ if [ "$1" = "start" ] ; then ################################
     fi
   fi
 
+  LSOF="$(which lsof)"
   LSOF_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null)"
-  if lsof $LSOF_OPTS ; then
+  if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS ; then
     echo "Cannot bind to port $PORT $SSLPORT please ensure nothing is already listening on this port" 2>&1
     exit 2
   fi
@@ -360,7 +361,9 @@ if [ "$1" = "start" ] ; then ################################
       echo "The server is not running, see log files for details. Start aborted." 2>&1
       exit 1
     fi
-    if lsof $LSOF_OPTS |grep -qe "\b$ID\b"; then
+    if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS |grep -qe "\b$ID\b"; then
+      break
+    elif netstat -ltpn 2>/dev/null |grep -e ":$SSLPORT\b" |grep -qe "\b$ID\b"; then
       break
     fi
     if [ $SLEEP -gt 0 ]; then

@@ -77,7 +77,6 @@
     <field type="combo" variable="callimachus.mail.transport.protocol">
       <spec txt="Email transport protocol:">
         <choice txt="SMTPS" value="smtps" set="${callimachus.mail.transport.protocol}"/>
-        <choice txt="SMTP" value="smtp"/>
       </spec>
     </field>
     <field type="text" align="left" variable="callimachus.mail.from">
@@ -100,8 +99,8 @@
     </field>
     <field type="combo" variable="callimachus.mail.smtps.auth">
       <spec txt="Authentication required:">
-        <choice txt="Authentication required" value="yes" set="${callimachus.mail.smtps.auth}"/>
-        <choice txt="No authentication" value="no"/>
+        <choice txt="Authentication required" value="true" set="${callimachus.mail.smtps.auth}"/>
+        <choice txt="No authentication" value="false"/>
       </spec>
     </field>
     <field type="text" align="left" variable="callimachus.mail.user">

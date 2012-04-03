@@ -1,4 +1,5 @@
 <langpack>
+	<str id="TargetPanel.warn" txt="This directory already exists. Would you like to upgrade this installation?" />
 	<str id="HTMLInfoPanel.headline" /><!-- no heading panel -->
 	<str id="LicencePanel.headline.license" txt="License" />
 	<str id="JDKPathPanel.headline" txt="JDK Path" />

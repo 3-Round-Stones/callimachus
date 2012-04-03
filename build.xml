@@ -209,6 +209,14 @@
 		<zip destfile="${dist}/callimachus-webapp-${Version}.car">
 			<zipfileset dir="${webapps}/callimachus" prefix="" />
 		</zip>
+		<zip destfile="${dist}/callimachus-${Version}.zip">
+			<zipfileset dir="." includes="*.txt" />
+			<zipfileset dir="${lib}" prefix="lib" />
+			<zipfileset dir="${src}" prefix="src" />
+			<zipfileset file="${dist}/callimachus-${Version}.jar" prefix="dist" />
+			<zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="dist" />
+			<zipfileset file="${dist}/callimachus-configure-${Version}.jar" prefix="dist" />
+		</zip>
 		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="repositories/callimachus/triples-spoc.dat" property="repositories.uptodate" />
 	</target>
 

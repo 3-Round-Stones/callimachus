@@ -95,8 +95,9 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Setup {
-	private static final String SCHEMA_GRAPH = "/callimachus/SchemaGraph";
-	private static final String SERVICEABLE = "/callimachus/Serviceable";
+	private static final String CALLIMACHUS = "/callimachus/";
+	private static final String SCHEMA_GRAPH = CALLIMACHUS + "SchemaGraph";
+	private static final String SERVICEABLE = CALLIMACHUS + "Serviceable";
 	public static final String NAME = Version.getInstance().getVersion();
 	private static final String INITIAL_GRAPH = "META-INF/templates/callimachus-initial-data.ttl";
 	private static final String MAIN_ARTICLE = "META-INF/templates/main-article.docbook";
@@ -598,7 +599,7 @@ public class Setup {
 			URI article = vf.createURI(origin + "/main-article.docbook");
 			logger.info("Uploading main article: {}", article);
 			con.add(article, RDF.TYPE,
-					vf.createURI(origin + "/callimachus/Article"));
+					vf.createURI(origin + CALLIMACHUS + "Article"));
 			con.add(article, RDF.TYPE,
 					vf.createURI("http://xmlns.com/foaf/0.1/Document"));
 			con.add(article, RDFS.LABEL, vf.createLiteral("main article"));
@@ -668,6 +669,19 @@ public class Setup {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
+			ValueFactory vf = con.getValueFactory();
+			RepositoryResult<Statement> stmts;
+			stmts = con.getStatements(null, RDF.TYPE, vf.createURI(origin + SCHEMA_GRAPH));
+			try {
+				while (stmts.hasNext()) {
+					Resource graph = stmts.next().getSubject();
+					if (graph.stringValue().startsWith(origin + CALLIMACHUS)) {
+						con.clear(graph);
+					}
+				}
+			} finally {
+				stmts.close();
+			}
 			CarInputStream carin = new CarInputStream(car.openStream());
 			try {
 				while (carin.readEntryName() != null) {
@@ -686,7 +700,7 @@ public class Setup {
 			ObjectConnection con) throws IOException, RDFParseException,
 			RepositoryException {
 		ValueFactory vf = con.getValueFactory();
-		String target = origin + "/callimachus/" + carin.readEntryName();
+		String target = origin + CALLIMACHUS + carin.readEntryName();
 		InputStream in = carin.getEntryStream();
 		try {
 			if (carin.isSchemaEntry()) {
@@ -720,10 +734,10 @@ public class Setup {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
-			URI uri = vf.createURI(origin + "/callimachus/");
+			URI uri = vf.createURI(origin + CALLIMACHUS);
 			con.add(vf.createURI(origin + "/"), vf.createURI(CALLI_HASCOMPONENT), uri);
 			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
-			con.add(uri, RDF.TYPE, vf.createURI(origin + "/callimachus/Folder"));
+			con.add(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Folder"));
 			con.add(uri, RDFS.LABEL, vf.createLiteral("callimachus"));
 
 			Object folder = con.getObject(uri);
@@ -755,7 +769,7 @@ public class Setup {
 				return false;
 			logger.info("Adding origin: {} for {}", vhost, origin);
 			con.add(subj, RDF.TYPE,
-					vf.createURI(origin + "/callimachus/Origin"));
+					vf.createURI(origin + CALLIMACHUS + "Origin"));
 			con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(vhost)));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_ORIGIN));
 			addRealm(subj, origin, con);
@@ -775,7 +789,7 @@ public class Setup {
 			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_REALM)))
 				return false;
 			logger.info("Adding realm: {} for {}", realm, origin);
-			con.add(subj, RDF.TYPE, vf.createURI(origin + "/callimachus/Realm"));
+			con.add(subj, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Realm"));
 			con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(realm)));
 			addRealm(subj, origin, con);
 			return true;
@@ -807,9 +821,9 @@ public class Setup {
 		con.add(subj, vf.createURI(CALLI_ADMINISTRATOR),
 				vf.createURI(origin + "/group/admin"));
 		con.add(subj, vf.createURI(CALLI_UNAUTHORIZED),
-				vf.createURI(origin + "/callimachus/pages/unauthorized.xhtml"));
+				vf.createURI(origin + CALLIMACHUS + "pages/unauthorized.xhtml"));
 		con.add(subj, vf.createURI(CALLI_FORBIDDEN),
-				vf.createURI(origin + "/callimachus/pages/forbidden.xhtml"));
+				vf.createURI(origin + CALLIMACHUS + "pages/forbidden.xhtml"));
 		con.add(subj, vf.createURI(CALLI_AUTHENTICATION),
 				vf.createURI(origin + "/accounts"));
 		con.add(subj, vf.createURI(CALLI_MENU),
@@ -817,9 +831,9 @@ public class Setup {
 		con.add(subj,
 				vf.createURI(CALLI_FAVICON),
 				vf.createURI(origin
-						+ "/callimachus/images/callimachus-icon.ico"));
+						+ CALLIMACHUS + "images/callimachus-icon.ico"));
 		con.add(subj, vf.createURI(CALLI_THEME),
-				vf.createURI(origin + "/callimachus/theme/default"));
+				vf.createURI(origin + CALLIMACHUS + "theme/default"));
 	}
 
 	private boolean setServeAllResourcesAs(String origin, ObjectRepository repository) throws RepositoryException {
@@ -907,7 +921,7 @@ public class Setup {
 			logger.info("Creating user {}", username);
 			URI staff = vf.createURI(origin + "/group/staff");
 			URI admin = vf.createURI(origin + "/group/admin");
-			con.add(subj, RDF.TYPE, vf.createURI(origin + "/callimachus/User"));
+			con.add(subj, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "User"));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
 			con.add(subj, vf.createURI(CALLI_NAME), vf.createLiteral(username));

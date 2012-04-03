@@ -69,10 +69,10 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	public void addOrigin(String origin) throws Exception {
 		if (this.origin == null) {
 			this.origin = origin;
-			ValueFactory vf = this.repository.getValueFactory();
-			repository.setSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
 			server.setErrorXSLT(origin + ERROR_XSLT_PATH);
 		}
+		ValueFactory vf = this.repository.getValueFactory();
+		repository.addSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
 		origins.add(origin);
 		String[] identities = origins.toArray(new String[origins.size()]);
 		for (int i = 0; i < identities.length; i++) {

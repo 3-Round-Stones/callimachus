@@ -250,6 +250,7 @@
 	</target>
 
 	<target name="test" depends="test-compile" description="run the tests">
+		<mkdir dir="${reports.tests}" />
 		<junit printsummary="yes" haltonfailure="yes">
 			<classpath>
 				<pathelement location="${build.tests}/" />

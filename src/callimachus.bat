@@ -163,9 +163,8 @@ if "%AUTHORITY%" == "" goto noAuthority
 set "ORIGIN=http://%AUTHORITY%"
 goto gotOrigin
 :noAuthority
-for /f %%i in ('hostname') do set "ORIGIN=%%i"
+for /f %%i in ('hostname') do set "ORIGIN=http://%%i"
 if "%PORT%" == "80" goto gotOrigin
-if "%SSLPORT%" == "443" goto gotOrigin
 set "ORIGIN=%ORIGIN%:%PORT%"
 :gotOrigin
 
@@ -175,12 +174,15 @@ set "OPT=%OPT% --trust"
 :gotOpt
 
 if "%PORT%" == "" goto gotPortOpt
-set "OPT=%OPT% -p %PORT%"
+set "OPT=%OPT% -p %PORT: = -p %"
 :gotPortOpt
 
 if "%SSLPORT%" == "" goto gotSslPortOpt
-set "OPT=%OPT% -s %SSLPORT%"
+set "OPT=%OPT% -p %SSLPORT: = -p %"
 :gotSslPortOpt
+
+set "OPT=%OPT% -o %ORIGIN: = -o %"
+
 
 rem ----- Execute The Requested Command ---------------------------------------
 
@@ -212,7 +214,7 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -d "%BASEDIR%" -o "%ORIGIN%" -r "%REPOSITORY%" %OPT% %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -d "%BASEDIR%" -r "%REPOSITORY%" %OPT% %CMD_LINE_ARGS%
 goto end
 
 :doStart
@@ -236,7 +238,7 @@ IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
 rem Execute Java with the applicable properties
-start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -d "%BASEDIR%" -o "%ORIGIN%" -r "%REPOSITORY%" %OPT% %CMD_LINE_ARGS%
+start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -d "%BASEDIR%" -r "%REPOSITORY%" %OPT% %CMD_LINE_ARGS%
 
 :notListening
 REM | CHOICE /C:AB /T:A,2 > NUL

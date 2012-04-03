@@ -159,7 +159,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 
 	private int nextPort() {
 		int range = (MAX_PORT - MIN_PORT) / 2;
-		seed += this.getClass().hashCode();
+		seed += this.getClass().getName().hashCode();
 		return (seed % range) + range + MIN_PORT;
 	}
 

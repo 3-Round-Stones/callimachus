@@ -40,11 +40,13 @@ public class PortAvailabilityValidator implements Validator {
 		if (ports.length < 1)
 			return true;
 		for (String p : ports) {
-			try {
-				if (!validate(Integer.parseInt(p)))
+			if (p.length() > 0) {
+				try {
+					if (!validate(Integer.parseInt(p)))
+						return false;
+				} catch (NumberFormatException e) {
 					return false;
-			} catch (NumberFormatException e) {
-				return false;
+				}
 			}
 		}
 		return true;

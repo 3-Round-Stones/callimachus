@@ -212,7 +212,7 @@
 		for (var i = 0; i < namespaces.size(); i++) {
 			var prefix = namespaces.get(i).prefix;
 			var uri = namespaces.get(i).name;
-			if (qry.indexOf(prefix) >= 0) {
+			if (inputString.indexOf(prefix) >= 0) {
 				sb.append("PREFIX ").append(prefix);
 				sb.append(":<").append(uri).append(">\\n");
 			}

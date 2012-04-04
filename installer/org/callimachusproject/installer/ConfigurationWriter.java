@@ -93,6 +93,9 @@ public class ConfigurationWriter implements DataValidator {
 		conf.setProperty("SECONDARY_ORIGIN", secondary);
 		conf.setProperty("OTHER_REALM", other);
 		conf.setProperty("ALL_SERVICEABLE", getSingleLine(adata, "callimachus.ALL_SERVICEABLE"));
+		conf.setProperty("FULLNAME", getSingleLine(adata, "callimachus.FULLNAME"));
+		conf.setProperty("EMAIL", getSingleLine(adata, "callimachus.EMAIL"));
+		conf.setProperty("USERNAME", getSingleLine(adata, "callimachus.USERNAME"));
 		// Set the origin on disk to be the space-separated concatenation of origins
 		StringBuilder origin = new StringBuilder();
 		origin.append(primary).append(" ");

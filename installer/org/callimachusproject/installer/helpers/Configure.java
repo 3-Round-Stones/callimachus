@@ -360,10 +360,10 @@ public class Configure {
 		});
 	}
 
-	public void setResourcesAsLocalTo(final String origin) throws Exception {
+	public void setServeAllResourcesAs(final String origin) throws Exception {
 		perform(new Callable<Void>() {
 			public Void call() throws Exception {
-				setup.setResourcesAsLocalTo(origin);
+				setup.setServeAllResourcesAs(origin);
 				return null;
 			}
 		});

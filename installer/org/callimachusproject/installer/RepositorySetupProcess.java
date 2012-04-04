@@ -55,10 +55,10 @@ public class RepositorySetupProcess {
 				configure.createRealm(realm, primary);
 			}
 		}
-		if ("true".equals(adata.getVariable("callimachus.ALL_LOCAL"))) {
-			configure.setResourcesAsLocalTo(primary);
+		if ("true".equals(adata.getVariable("callimachus.ALL_SERVICEABLE"))) {
+			configure.setServeAllResourcesAs(primary);
 		} else {
-			configure.setResourcesAsLocalTo(null);
+			configure.setServeAllResourcesAs(null);
 		}
 	}
 

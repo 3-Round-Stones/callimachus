@@ -333,7 +333,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 	public String redirectLocation(String base, HttpResponse resp) throws IOException,
 			GatewayTimeout {
 		int code = resp.getStatusLine().getStatusCode();
-		if (code == 301 || code == 302 || code == 307) {
+		if (code == 301 || code == 302 || code == 307 || code == 308) {
 			Header location = resp.getFirstHeader("Location");
 			if (location != null) {
 				HttpEntity entity = resp.getEntity();

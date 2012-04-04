@@ -367,7 +367,7 @@ public class Setup {
 		createRealm(realm, origin, repository);
 	}
 
-	public void setResourcesAsLocalTo(String origin) throws RepositoryException {
+	public void setServeAllResourcesAs(String origin) throws RepositoryException {
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
 		setServeAllResourcesAs(origin, repository);

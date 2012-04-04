@@ -57,7 +57,7 @@ public class ConfigurationReader implements DataValidator {
     		}
 
 			// Set IzPack variables for callimachus.conf:
-			String[] confProperties = {"PORT", "PRIMARY_ORIGIN", "SECONDARY_ORIGIN", "OTHER_REALM", "ALL_LOCAL", "DAEMON_USER", "DAEMON_GROUP", "FULLNAME", "EMAIL", "USERNAME"};
+			String[] confProperties = {"PORT", "PRIMARY_ORIGIN", "SECONDARY_ORIGIN", "OTHER_REALM", "ALL_SERVICEABLE", "DAEMON_USER", "DAEMON_GROUP", "FULLNAME", "EMAIL", "USERNAME"};
 			Properties conf = configure.getServerConfiguration();
 			if (conf.getProperty("PRIMARY_ORIGIN") == null && conf.getProperty("ORIGIN") == null) {
 				// new install

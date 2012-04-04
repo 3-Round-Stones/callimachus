@@ -91,7 +91,7 @@ public class ConfigurationWriter implements DataValidator {
 		conf.setProperty("PRIMARY_ORIGIN", primary);
 		conf.setProperty("SECONDARY_ORIGIN", secondary);
 		conf.setProperty("OTHER_REALM", other);
-		conf.setProperty("ALL_LOCAL", getSingleLine(adata, "callimachus.ALL_LOCAL"));
+		conf.setProperty("ALL_SERVICEABLE", getSingleLine(adata, "callimachus.ALL_SERVICEABLE"));
 		// Set the origin on disk to be the space-separated concatenation of origins
 		StringBuilder origin = new StringBuilder();
 		origin.append(primary).append(" ");

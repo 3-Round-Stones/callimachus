@@ -37,9 +37,9 @@
     <field type="space"/>
     <field type="space"/>
     <field type="space"/>
-    <field type="check" variable="callimachus.ALL_LOCAL">
+    <field type="check" variable="callimachus.ALL_SERVICEABLE">
       <description align="left" txt="Leave this box checked if you want $APP_NAME to provide navigational pages for all loaded RDF resources. Deselect this box if you want $APP_NAME to only serve resources with configured templates."/>
-      <spec txt="Serve all RDF resources" true="true" false="false" set="${callimachus.ALL_LOCAL}"/>
+      <spec txt="Serve all RDF resources" true="true" false="false" set="${callimachus.ALL_SERVICEABLE}"/>
     </field>
   </panel>
   <!-- Daemon configuration -->

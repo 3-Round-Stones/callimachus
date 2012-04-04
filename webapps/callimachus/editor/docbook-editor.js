@@ -7,24 +7,15 @@ jQuery(function($) {
 		lang: "en",
 		initSkin: false,
 		loadSkin: false,
-		basePath: '/callimachus/editor/wymeditor/',
-		skinPath: '/callimachus/editor/wymeditor/',
-		jQueryPath: '/callimachus/scripts/jquery.js',
-		wymPath: '/callimachus/editor/wymeditor/jquery.wymeditor.js',
+		basePath: calli.getCallimachusURL('editor/wymeditor/'),
+		skinPath: calli.getCallimachusURL('editor/wymeditor/'),
+		jQueryPath: calli.getCallimachusURL('scripts/jquery.js'),
+		wymPath: calli.getCallimachusURL('editor/wymeditor/jquery.wymeditor.js'),
 		dialogFeatures: navigator.appName == 'Microsoft Internet Explorer' ? undefined : 'jQuery.dialog',
 		dialogFeaturesPreview: navigator.appName == 'Microsoft Internet Explorer' ? undefined : 'jQuery.dialog'
 	});
 	$('#wym-iframe').one('load', function() {
 		WYMeditor.INSTANCES[0].initIframe(this);
-
-		function getPageLocationURL() {
-			// window.location.href needlessly decodes URI-encoded characters in the URI path
-			// https://bugs.webkit.org/show_bug.cgi?id=30225
-			var path = location.pathname;
-			if (path.match(/#/))
-				return location.href.replace(path, path.replace('#', '%23'));
-			return location.href;
-		}
 
 		var editor = jQuery.wymeditors(0);
 		var path = null;
@@ -191,5 +182,5 @@ jQuery(function($) {
 			parent.postMessage('CONNECT calliEditorLoaded', '*');
 		}
 	});
-	$('#wym-iframe')[0].src = "/callimachus/editor/wymeditor/wymiframe.html";
+	$('#wym-iframe')[0].src = calli.getCallimachusURL("editor/wymeditor/wymiframe.html");
 });

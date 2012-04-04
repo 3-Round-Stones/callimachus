@@ -10,25 +10,26 @@
 
 <web_bundle> a calli:ScriptBundle;
 	rdf:_1 <jquery.js>;
-	rdf:_2 <iframe.js>;
-	rdf:_3 <wait.js>;
-	rdf:_4 <error.js>;
-	rdf:_5 <flash.js>;
-	rdf:_6 <accounts.js>;
-	rdf:_7 <node-inserted.js>;
-	rdf:_8 <breadcrumb.js>;
-	rdf:_9 <referrer.js>;
-	rdf:_10 <viewpage.js>;
-	rdf:_11 <optional.js>;
-	rdf:_12 <time.js>;
-	rdf:_13 <auto-expand.js>;
-	rdf:_14 <hbox.js>;
-	rdf:_15 <vbox.js>;
-	rdf:_16 <sorted.js>;
-	rdf:_17 <creole.js>;
-	rdf:_18 <wiki.js>;
-	rdf:_19 <placeholder.js>;
-	rdf:_20 <details.js>.
+	rdf:_2 <location.js>;
+	rdf:_3 <iframe.js>;
+	rdf:_4 <wait.js>;
+	rdf:_5 <error.js>;
+	rdf:_6 <flash.js>;
+	rdf:_7 <accounts.js>;
+	rdf:_8 <node-inserted.js>;
+	rdf:_9 <breadcrumb.js>;
+	rdf:_10 <referrer.js>;
+	rdf:_11 <viewpage.js>;
+	rdf:_12 <optional.js>;
+	rdf:_13 <time.js>;
+	rdf:_14 <auto-expand.js>;
+	rdf:_15 <hbox.js>;
+	rdf:_16 <vbox.js>;
+	rdf:_17 <sorted.js>;
+	rdf:_18 <creole.js>;
+	rdf:_19 <wiki.js>;
+	rdf:_20 <placeholder.js>;
+	rdf:_21 <details.js>.
 
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;

@@ -71,7 +71,7 @@ window.calli.saveResourceAs = function(event, fileName, create) {
 
 function promptIfNeeded(form, label, create, callback) {
 	if (label && label.search(/^[\w\.\-\_ ]*\/?$/) == 0 && location.search.search(/\?\w+=/) >= 0) {
-		var ns = calli.listResourceIRIs(getPageLocationURL())[0];
+		var ns = calli.listResourceIRIs(calli.getPageURL())[0];
 		if (ns.lastIndexOf('/') != ns.length - 1) {
 			ns += '/';
 		}
@@ -89,9 +89,9 @@ function promptIfNeeded(form, label, create, callback) {
 }
 
 function openSaveAsDialog(form, label, create, callback) {
-	var src = "/callimachus/pages/location-prompt.html#" + encodeURIComponent(label.replace(/!/g,''));
+	var src = calli.getCallimachusURL("pages/location-prompt.html#") + encodeURIComponent(label.replace(/!/g,''));
 	if (location.search.search(/\?\w+=/) == 0) {
-		src += '!' + calli.listResourceIRIs(getPageLocationURL())[0];
+		src += '!' + calli.listResourceIRIs(calli.getPageURL())[0];
 	} else if (window.sessionStorage) {
 		try {
 			var url = sessionStorage.getItem("LastFolder");
@@ -208,19 +208,10 @@ function isIntermidate(url) {
 function getFormAction(form) {
 	if (form.getAttribute("action"))
 		return form.action;
-	var url = getPageLocationURL();
+	var url = calli.getPageURL();
 	if (url.indexOf('#') > 0)
 		return url.substring(0, url.indexOf('#'));
 	return url;
-}
-
-function getPageLocationURL() {
-	// window.location.href needlessly decodes URI-encoded characters in the URI path
-	// https://bugs.webkit.org/show_bug.cgi?id=30225
-	var path = location.pathname;
-	if (path.match(/#/))
-		return location.href.replace(path, path.replace('#', '%23'));
-	return location.href;
 }
 
 function removeDiacritics(str) {

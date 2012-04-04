@@ -27,7 +27,7 @@ window.calli.deleteResource = function(event, redirect) {
 		var de = jQuery.Event("calliDelete");
 		form.trigger(de);
 		if (!de.isDefaultPrevented()) {
-			var url = getPageLocationURL();
+			var url = calli.getPageURL();
 			if (url.indexOf('?') > 0) {
 				url = url.substring(0, url.indexOf('?'));
 			}
@@ -51,7 +51,7 @@ window.calli.deleteResource = function(event, redirect) {
 							event.location = document.referrer;
 						}
 						if (event.location) {
-							var href = getPageLocationURL();
+							var href = calli.getPageURL();
 							if (href.indexOf('?') > 0) {
 								href = href.substring(0, href.indexOf('?'));
 							}
@@ -95,15 +95,6 @@ function getLastModified() {
 	} catch (e) {
 		return null;
 	}
-}
-
-function getPageLocationURL() {
-	// window.location.href needlessly decodes URI-encoded characters in the URI path
-	// https://bugs.webkit.org/show_bug.cgi?id=30225
-	var path = location.pathname;
-	if (path.match(/#/))
-		return location.href.replace(path, path.replace('#', '%23'));
-	return location.href;
 }
 
 })(jQuery, jQuery);

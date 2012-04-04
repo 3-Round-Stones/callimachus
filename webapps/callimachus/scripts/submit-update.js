@@ -65,7 +65,7 @@ function submitRDFForm(form, stored) {
 				try {
 					var redirect = xhr.getResponseHeader("Location");
 					if (!redirect) {
-						redirect = getPageLocationURL();
+						redirect = calli.getPageURL();
 						if (redirect.indexOf('?') > 0) {
 							redirect = redirect.substring(0, redirect.indexOf('?'));
 						}
@@ -170,15 +170,6 @@ function getLastModified() {
 	} catch (e) {
 		return null;
 	}
-}
-
-function getPageLocationURL() {
-	// window.location.href needlessly decodes URI-encoded characters in the URI path
-	// https://bugs.webkit.org/show_bug.cgi?id=30225
-	var path = location.pathname;
-	if (path.match(/#/))
-		return location.href.replace(path, path.replace('#', '%23'));
-	return location.href;
 }
 
 function UpdateWriter() {

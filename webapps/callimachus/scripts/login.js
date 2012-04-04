@@ -87,7 +87,7 @@ function login(event) {
 		if ($("#login-form").length) {
 			showForm($("#login-form"));
 		} else {
-			jQuery.ajax({ type: 'GET', url: "/callimachus/pages/login.html",
+			jQuery.ajax({ type: 'GET', url: calli.getCallimachusURL("pages/login.html"),
 				success: function(data) {
 					if ($(document.documentElement).is(".noauth")) {
 						var form = $(data).find("#login-form").andSelf().filter("#login-form");

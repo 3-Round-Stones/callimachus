@@ -2,15 +2,6 @@
 
 (function($,jQuery){
 
-function getPageLocationURL() {
-	// window.location.href needlessly decodes URI-encoded characters in the URI path
-	// https://bugs.webkit.org/show_bug.cgi?id=30225
-	var path = location.pathname;
-	if (path.match(/#/))
-		return location.href.replace(path, path.replace('#', '%23'));
-	return location.href;
-}
-
 if (!window.calli) {
 	window.calli = {};
 }
@@ -36,7 +27,7 @@ $(document).bind("calliLogin", function(event) {
 		sessionStorage.removeItem('UserIri');
 		localStorage.removeItem('Authorization');
 	}
-	var options = {type: "GET", url: "/accounts?login",
+	var options = {type: "GET", url: calli.getCallimachusURL("/accounts?login"),
 		success: function(doc) {
 			var iri = /resource="([^" >]*)"/i.exec(doc);
 			if (iri) {
@@ -106,7 +97,7 @@ $(document).bind("calliLogin", function(event) {
 
 $(document).bind("calliLogout", function(event) {
 	if (!window.sessionStorage || sessionStorage.getItem('Name')) {
-		jQuery.ajax({ type: 'GET', url: "/accounts?logout",
+		jQuery.ajax({ type: 'GET', url: calli.getCallimachusURL("/accounts?logout"),
 			username: 'logout', password: 'nil',
 			success: function(data) {
 				location = "/";
@@ -246,7 +237,7 @@ if (window.sessionStorage && sessionStorage.getItem("Name")) {
 		}
 	}
 	// hasn't logged in using the login form; is this page protected?
-	var xhr = jQuery.ajax({type: 'GET', url: getPageLocationURL(),
+	var xhr = jQuery.ajax({type: 'GET', url: calli.getPageURL(),
 		beforeSend: withCredentials,
 		success: function() {
 			if (xhr.getResponseHeader("Authentication-Info")) { 
@@ -254,7 +245,7 @@ if (window.sessionStorage && sessionStorage.getItem("Name")) {
 				event.preventDefault(); // don't reload page
 				$(document).trigger(event);
 			} else if (!xhr.getAllResponseHeaders()) { // Opera sends empty response; try again w/o cache
-				xhr = jQuery.ajax({type: 'GET', url: getPageLocationURL(),
+				xhr = jQuery.ajax({type: 'GET', url: calli.getPageURL(),
 					beforeSend: function(xhr) {
 						xhr.setRequestHeader('Cache-Control', 'no-cache');
 						withCredentials(xhr);

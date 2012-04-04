@@ -20,19 +20,38 @@ DELETE {
 };
 
 DELETE {
-	?resource ?rel </callimachus/Local>
+	GRAPH ?g { ?resource ?rel </callimachus/Local> }
 } INSERT {
-	?resource ?rel </callimachus/Serviceable>
+	GRAPH ?g { ?resource ?rel </callimachus/Serviceable> }
 } WHERE {
-	?resource ?rel </callimachus/Local>
+	GRAPH ?g { ?resource ?rel </callimachus/Local> }
 };
 
 DELETE {
-	</callimachus/Local> ?property ?content
+	GRAPH ?g { ?cls rdfs:subClassOf calli:Viewable }
 } INSERT {
-	</callimachus/Serviceable> ?property ?content
+	GRAPH ?g { ?cls rdfs:subClassOf </callimachus/Viewable> }
 } WHERE {
-	</callimachus/Local> ?property ?content
+	GRAPH ?g { ?cls rdfs:subClassOf calli:Viewable }
+	FILTER strstarts(str(?cls),str(</>))
+};
+
+DELETE {
+	GRAPH ?g { ?cls rdfs:subClassOf calli:Editable }
+} INSERT {
+	GRAPH ?g { ?cls rdfs:subClassOf </callimachus/Editable> }
+} WHERE {
+	GRAPH ?g { ?cls rdfs:subClassOf calli:Editable }
+	FILTER strstarts(str(?cls),str(</>))
+};
+
+DELETE {
+	GRAPH ?g { ?cls rdfs:subClassOf calli:Composite }
+} INSERT {
+	GRAPH ?g { ?cls rdfs:subClassOf </callimachus/Composite> }
+} WHERE {
+	GRAPH ?g { ?cls rdfs:subClassOf calli:Composite }
+	FILTER strstarts(str(?cls),str(</>))
 };
 
 DELETE {

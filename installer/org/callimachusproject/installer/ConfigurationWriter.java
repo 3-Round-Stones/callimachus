@@ -88,6 +88,7 @@ public class ConfigurationWriter implements DataValidator {
 		conf.setProperty("DAEMON_GROUP", getSingleLine(adata, "callimachus.DAEMON_GROUP"));
 		conf.setProperty("DAEMON_USER", getSingleLine(adata, "callimachus.DAEMON_USER"));
 		conf.setProperty("PORT", getSingleLine(adata, "callimachus.PORT"));
+		conf.setProperty("SSLPORT", getSingleLine(adata, "callimachus.SSLPORT"));
 		conf.setProperty("PRIMARY_ORIGIN", primary);
 		conf.setProperty("SECONDARY_ORIGIN", secondary);
 		conf.setProperty("OTHER_REALM", other);

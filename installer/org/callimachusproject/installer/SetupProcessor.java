@@ -18,6 +18,8 @@ package org.callimachusproject.installer;
 
 import java.net.SocketException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 import org.callimachusproject.installer.helpers.Configure;
 
@@ -76,12 +78,15 @@ public class SetupProcessor implements DataValidator {
 	private void setDefaultSecondaryOrigin(AutomatedInstallData adata)
 			throws SocketException {
     	Configure configure = Configure.getInstance(adata.getInstallPath());
-		String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN");
 		if ("".equals(adata.getVariable("callimachus.SECONDARY_ORIGIN"))) {
 			StringBuilder sb = new StringBuilder();
+			String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN");
+			List<String> primaryOrigins = Arrays.asList(primary.split("\\s+"));
 			String port = adata.getVariable("callimachus.PORT");
-			for (String origin : configure.getDefaultOrigins(port)) {
-				if (!primary.contains(origin)) {
+			String sslport = adata.getVariable("callimachus.SSLPORT");
+			String ports = port + " " + sslport;
+			for (String origin : configure.getDefaultOrigins(ports)) {
+				if (!primaryOrigins.contains(origin)) {
 					sb.append(origin).append("\n");
 				}
 			}

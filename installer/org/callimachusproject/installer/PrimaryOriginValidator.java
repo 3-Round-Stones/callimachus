@@ -43,9 +43,10 @@ public class PrimaryOriginValidator implements DataValidator {
 			return Status.ERROR;
 		try {
 			String primary = adata.getVariable("callimachus.PRIMARY_ORIGIN");
-			String port = getDefaultPort(primary);
-			adata.setVariable("callimachus.PORT", port);
+			adata.setVariable("callimachus.PORT", getDefaultPort(primary, false));
+			adata.setVariable("callimachus.SSLPORT", getDefaultPort(primary, true));
 
+			String port = getDefaultPort(primary, null);
 			if (!new PortAvailabilityValidator().validate(port)) {
 				warning = "Port " + port + " is currently in use by another process";
 				return Status.WARNING;
@@ -59,10 +60,14 @@ public class PrimaryOriginValidator implements DataValidator {
 		}
 	}
 
-	private String getDefaultPort(String origins) throws URISyntaxException {
+	private String getDefaultPort(String origins, Boolean ssl) throws URISyntaxException {
 		StringBuilder sb = new StringBuilder();
 		for (String origin : origins.split("\\s+")) {
 			URI uri = new URI(origin + "/");
+			if (ssl != null && ssl && !"https".equalsIgnoreCase(uri.getScheme()))
+				continue;
+			if (ssl != null && !ssl && "https".equalsIgnoreCase(uri.getScheme()))
+				continue;
 			int port = uri.getPort();
 			if (port < 0 && "http".equalsIgnoreCase(uri.getScheme())) {
 				port = 80;

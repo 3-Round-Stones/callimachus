@@ -68,6 +68,11 @@
       <spec txt="Port:" size="25" set="${callimachus.PORT}"/>
       <validator class="org.callimachusproject.installer.PortAvailabilityValidator" txt="Please choose a different numerical port, this one is already in use" />
     </field>
+    <field type="text" align="left" variable="callimachus.SSLPORT">
+      <description align="left" txt="$APP_NAME will bind to the port specified. Change the value to match your intended deployment."/>
+      <spec txt="SSL Port:" size="25" set="${callimachus.SSLPORT}"/>
+      <validator class="org.callimachusproject.installer.PortAvailabilityValidator" txt="Please choose a different numerical port, this one is already in use" />
+    </field>
   </panel>
   <!-- Mail configuration -->
   <panel order="4">

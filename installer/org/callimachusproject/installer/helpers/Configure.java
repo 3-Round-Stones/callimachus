@@ -455,6 +455,7 @@ public class Configure {
 				while (vaddrs.hasMoreElements()) {
 					InetAddress vaddr = vaddrs.nextElement();
 					set.add(vaddr.getCanonicalHostName());
+					set.remove(vaddr.getHostAddress());
 				}
 			}
 		}

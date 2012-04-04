@@ -33,7 +33,8 @@ public class PrimeServerProcess {
 								+ " Please ensure the port and primary authority are correct.\n"
 								+ " If the problem persists check the log file and seek help.\n"
 								+ " The server is listening on port "
-								+ adata.getVariable("callimachus.PORT")
+								+ adata.getVariable("callimachus.PORT") + " "
+								+ adata.getVariable("callimachus.SSLPORT")
 								+ " for " + getPrimaryOrigin(adata));
 			}
 			String openbrowser = adata.getVariable("callimachus.openbrowser");

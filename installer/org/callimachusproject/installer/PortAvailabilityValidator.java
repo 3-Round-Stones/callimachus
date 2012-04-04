@@ -35,10 +35,10 @@ public class PortAvailabilityValidator implements Validator {
 
 	public boolean validate(String port) {
 		if (port == null)
-			return false;
+			return true;
 		String[] ports = port.trim().split("\\s+");
 		if (ports.length < 1)
-			return false;
+			return true;
 		for (String p : ports) {
 			try {
 				if (!validate(Integer.parseInt(p)))

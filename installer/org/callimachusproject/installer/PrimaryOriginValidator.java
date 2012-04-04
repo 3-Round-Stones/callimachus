@@ -81,7 +81,7 @@ public class PrimaryOriginValidator implements DataValidator {
 				sb.append(port);
 			}
 		}
-		if (sb.length() == 0)
+		if (sb.length() == 0 && (ssl == null || !ssl))
 			return "8080";
 		return sb.toString();
 	}

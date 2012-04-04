@@ -109,9 +109,7 @@
     <field type="password" align="left" variable="callimachus.mail.password">
       <spec>
         <pwd txt="Password:" size="25" set="${callimachus.mail.password}"/>
-        <pwd txt="Retype Password:" size="25" set=""/>
       </spec>
-      <validator class="com.izforge.izpack.util.PasswordEqualityValidator" txt="Both passwords must match."/>
     </field>
   </panel>
   <!-- Initial user configuration -->

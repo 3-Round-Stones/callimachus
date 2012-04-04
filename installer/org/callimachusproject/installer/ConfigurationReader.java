@@ -66,6 +66,7 @@ public class ConfigurationReader implements DataValidator {
 			} else if (conf.getProperty("PRIMARY_ORIGIN") == null) {
 				// upgrading from 0.15
 				conf.setProperty("PRIMARY_ORIGIN", conf.getProperty("ORIGIN"));
+				conf.setProperty("ALL_SERVICEABLE", "true");
 				adata.setVariable("callimachus.upgrading", "true");
 			} else {
 				adata.setVariable("callimachus.upgrading", "true");

@@ -55,6 +55,15 @@ DELETE {
 };
 
 DELETE {
+	GRAPH ?g { ?cls a calli:SchemaGraph }
+} INSERT {
+	GRAPH ?g { ?cls a </callimachus/SchemaGraph> }
+} WHERE {
+	GRAPH ?g { ?cls a calli:SchemaGraph }
+	FILTER strstarts(str(?cls),str(</>))
+};
+
+DELETE {
 	</callimachus> owl:versionInfo "0.15"
 } INSERT {
 	</callimachus> owl:versionInfo "0.16"

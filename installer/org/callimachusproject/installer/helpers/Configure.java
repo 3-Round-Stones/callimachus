@@ -215,8 +215,16 @@ public class Configure {
         return desktop.isSupported(Desktop.Action.BROWSE);
 	}
 
-	public void openWebBrowser(String url) throws IOException {
-		java.awt.Desktop.getDesktop().browse(URI.create(url));
+	public boolean openWebBrowser(String url) {
+		if (!isWebBrowserSupported())
+			return false;
+		try {
+			java.awt.Desktop.getDesktop().browse(URI.create(url));
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	public File createBackup() throws IOException, DatatypeConfigurationException {

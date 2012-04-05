@@ -108,14 +108,12 @@ function local(date, now, node) {
 		} else if (!node || date.getHours() > 0 || date.getMinutes() > 0) {
 			minutes = ':0' + date.getMinutes();
 		}
-		if (date.getHours() > 12) {
-			locale = (date.getHours() - 12) + minutes + " pm";
-		} else if (date.getHours() == 12) {
-			locale = "12" + minutes + " pm";
+		if (date.getHours() >= 10) {
+			locale = date.getHours() + minutes;
 		} else if (date.getHours() > 0) {
-			locale = date.getHours() + minutes + " am";
+			locale = "0" + date.getHours() + minutes;
 		} else if (minutes) {
-			locale = "12" + minutes + " am";
+			locale = "00" + minutes;
 		}
 	}
 	if (!node || !node.is('.time')) {

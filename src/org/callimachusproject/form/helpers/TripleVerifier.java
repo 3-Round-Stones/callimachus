@@ -37,6 +37,7 @@ import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFHandlerException;
 
@@ -92,7 +93,16 @@ public class TripleVerifier {
 	}
 
 	public boolean isAbout(Resource about) {
-		return isEmpty() || isSingleton() && getSubject().equals(about);
+		if (isEmpty())
+			return true;
+		if (!isSingleton())
+			return false;
+		URI subject = getSubject();
+		if (subject.equals(about))
+			return true;
+		if (subject.getNamespace().equals(about.stringValue() + '#'))
+			return true;
+		return false;
 	}
 
 	public boolean isEmpty() {
@@ -119,11 +129,14 @@ public class TripleVerifier {
 	public URI getSubject() {
 		URI about = null;
 		for (URI subj : subjects) {
-			if (about == null) {
-				about = subj;
-			}
-			if (!subj.getNamespace().endsWith("#"))
+			String ns = subj.getNamespace();
+			if (!ns.endsWith("#")) {
 				return subj;
+			} else if (about == null) {
+				about = subj;
+			} else if (ns.equals(about.getNamespace())) {
+				return new URIImpl(ns.substring(0, ns.length() - 1));
+			}
 		}
 		return about;
 	}

@@ -5,9 +5,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 
 public class TestTripleAnalyzer {
 	private static final String PREFIX = "PREFIX foaf:<http://xmlns.com/foaf/0.1/>\n";
+	private final ValueFactory vf = ValueFactoryImpl.getInstance();
 
 	@Before
 	public void setUp() throws Exception {
@@ -23,6 +26,7 @@ public class TestTripleAnalyzer {
 		TripleAnalyzer analyzer = new TripleAnalyzer();
 		analyzer.analyzeUpdate(input, "http://example.com/");
 		Assert.assertFalse(analyzer.isEmpty());
+		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
 	}
 
 	@Test
@@ -31,6 +35,7 @@ public class TestTripleAnalyzer {
 		TripleAnalyzer analyzer = new TripleAnalyzer();
 		analyzer.analyzeInsertData(input, "http://example.com/");
 		Assert.assertFalse(analyzer.isEmpty());
+		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
 	}
 
 	@Test
@@ -39,6 +44,7 @@ public class TestTripleAnalyzer {
 		TripleAnalyzer analyzer = new TripleAnalyzer();
 		analyzer.analyzeInsertData(input, "http://example.com/");
 		Assert.assertFalse(analyzer.isEmpty());
+		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
 	}
 
 	@Test
@@ -47,6 +53,7 @@ public class TestTripleAnalyzer {
 		TripleAnalyzer analyzer = new TripleAnalyzer();
 		analyzer.analyzeInsertData(input, "http://example.com/");
 		Assert.assertFalse(analyzer.isEmpty());
+		Assert.assertTrue(analyzer.isAbout(vf.createURI("http://example.com/")));
 	}
 
 }

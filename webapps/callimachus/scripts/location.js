@@ -16,9 +16,10 @@ window.calli.getPageURL = function() {
 };
 
 window.calli.getCallimachusURL = function(suffix) {
-	var home = $('link[rel="home"]')[0].href;
-	if (!home) {
-		home = location.protocol + '//' + location.host + '/';
+	var home = location.protocol + '//' + location.host + '/';
+	var link = $('link[rel="home"]');
+	if (link[0] && link[0].href) {
+		home = link[0].href;
 	}
 	if (typeof suffix == 'string' && suffix.indexOf('/') == 0)
 		return home + suffix.substring(1);

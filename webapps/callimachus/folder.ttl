@@ -64,7 +64,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <File>];
 	calli:method "POST";
-	calli:query "index";
+	calli:query "contents";
 	calli:realm </>;
 	calli:expect "201-created";
 	calli:type "text/plain";
@@ -106,8 +106,8 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
-	calli:query "index";
-	calli:rel "index";
+	calli:query "contents";
+	calli:rel "contents";
 	calli:type "application/sparql-results+xml;q=0.1";
 	calli:header "cache-control:no-cache";
 	calli:transform <transforms/TransformIntoAtom>;
@@ -115,32 +115,32 @@
 		SELECT REDUCED * {
 			{
 				$this rdfs:label ?title
-				BIND (concat(str($this),"?index") as ?id)
+				BIND (concat(str($this),"?contents") as ?id)
 				BIND ("feed" as ?type)
 				BIND (?title as ?collection_title)
-				BIND (concat(str($this),"?index") as ?collection_href)
+				BIND (concat(str($this),"?contents") as ?collection_href)
 				BIND (concat(str($this),"?describe") as ?link_href)
 				BIND ("describedby" as ?link_rel)
 			} UNION {
 				{ $this a <Realm> } UNION { $this a <Origin> }
-				BIND (concat(str($this),"?index") as ?id)
+				BIND (concat(str($this),"?contents") as ?id)
 				BIND (concat(str($this),"?search") as ?link_href)
 				BIND ("search" as ?link_rel)
 				BIND ("application/opensearchdescription+xml" as ?link_type)
 			} UNION {
 				BIND ("feed" as ?type)
-				BIND (concat(str($this),"?index") as ?id)
+				BIND (concat(str($this),"?contents") as ?id)
 				$this audit:revision [audit:committedOn ?updated]
 				BIND (concat(str($this),"?changes") as ?link_href)
 				BIND ("alternate" as ?link_rel)
 				BIND ("application/atom+xml" as ?link_type)
 			} UNION {
 				BIND ("feed" as ?type)
-				BIND (concat(str($this),"?index") as ?id)
+				BIND (concat(str($this),"?contents") as ?id)
 				[a <Creatable>] calli:type ?collection_accept
 			} UNION {
 				{
-					SELECT (concat(str($this),"?index") as ?id) (count(distinct ?part) as ?totalResults) ("feed" as ?type) {
+					SELECT (concat(str($this),"?contents") as ?id) (count(distinct ?part) as ?totalResults) ("feed" as ?type) {
 						$this calli:hasComponent ?part
 					} GROUP BY $this
 				}
@@ -203,8 +203,8 @@
 					}
 				} UNION {
 					{ ?id a <Folder> } UNION { ?id a <Realm> }
-					BIND (concat(str(?id),"?index") as ?link_href)
-					BIND ("index" as ?link_rel)
+					BIND (concat(str(?id),"?contents") as ?link_href)
+					BIND ("contents" as ?link_rel)
 					BIND ("application/atom+xml" as ?link_type)
 				} UNION {
 					{ ?id a <Folder> } UNION { ?id a <Realm> }

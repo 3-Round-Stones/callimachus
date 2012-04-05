@@ -37,6 +37,7 @@
         <requiresjdk>yes</requiresjdk>
         <writeinstallationinformation>no</writeinstallationinformation>
         <uninstaller write="no" />
+        <pack200 />
     </info>
 
     <!-- 

@@ -3,6 +3,7 @@
   <outfile>Callimachus-Setup.exe</outfile>
   <dontWrapJar>false</dontWrapJar>
   <errTitle>Callimachus Setup</errTitle>
+  <downloadUrl>http://java.sun.com/javase/downloads/widget/jdk6.jsp</downloadUrl>
   <supportUrl>http://callimachusproject.org/</supportUrl>
   <priority>normal</priority>
   <customProcName>true</customProcName>

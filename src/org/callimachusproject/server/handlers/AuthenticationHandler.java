@@ -45,7 +45,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
@@ -379,33 +378,6 @@ public class AuthenticationHandler implements Handler {
 		if (sb.length() < 1)
 			return null;
 		return sb.toString();
-	}
-
-	private String md5(String a2) {
-		return DigestUtils.md5Hex(a2);
-	}
-
-	private Map<String, String> parseOptions(String options) {
-		Map<String, String> result = new HashMap<String, String>();
-		for (String keyvalue : options.split("\\s*,\\s*")) {
-			int idx = keyvalue.indexOf('=');
-			if (idx < 0)
-				return null;
-			String key = keyvalue.substring(0, idx);
-			if (idx == keyvalue.length() - 1) {
-				result.put(key, "");
-			} else if (keyvalue.charAt(idx + 1) == '"') {
-				int eq = keyvalue.lastIndexOf('"');
-				if (eq <= idx + 2)
-					return null;
-				String value = keyvalue.substring(idx + 2, eq);
-				result.put(key, value);
-			} else {
-				String value = keyvalue.substring(idx + 1);
-				result.put(key, value);
-			}
-		}
-		return result;
 	}
 
 }

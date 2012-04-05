@@ -1,5 +1,6 @@
 package org.callimachusproject.behaviours;
 
+import static org.openrdf.query.QueryLanguage.SPARQL;
 import info.aduna.net.ParsedURI;
 
 import java.util.Map;
@@ -16,11 +17,18 @@ import org.callimachusproject.concepts.AccountManager;
 import org.callimachusproject.concepts.Manifest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.traits.SelfAuthorizingTarget;
+import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Sparql;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ManifestSupport implements Manifest, RDFObject {
+	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final BasicStatusLine _204;
 	private static final BasicStatusLine _401;
 	private static final BasicStatusLine _403;
@@ -30,10 +38,36 @@ public abstract class ManifestSupport implements Manifest, RDFObject {
 		_401 = new BasicStatusLine(HTTP11, 401, "Unauthorized");
 		_403 = new BasicStatusLine(HTTP11, 403, "Forbidden");
 	}
+	private Logger logger = LoggerFactory.getLogger(ManifestSupport.class);
 
-	@Sparql("SELECT (group_concat(?origin;separator=',') as ?domain)\n"
-			+ "WHERE { ?origin a </callimachus/Origin> }")
-	public abstract String allowOrigin();
+	public String allowOrigin() {
+		// TODO filter ?domain to have same </callimachus/Realm> as $this resource
+		String sparql = PREFIX + "SELECT ?domain WHERE { ?domain a calli:Origin }";
+		ObjectConnection con = getObjectConnection();
+		try {
+			TupleQuery tq = con.prepareTupleQuery(SPARQL, sparql);
+			TupleQueryResult result = tq.evaluate();
+			try {
+				StringBuilder sb = new StringBuilder();
+				while (result.hasNext()) {
+					String uri = result.next().getValue("domain").stringValue();
+					if (uri.contains("://")) {
+						int idx = uri.indexOf('/', uri.indexOf("://") + 3);
+						if (sb.length() > 0) {
+							sb.append(',');
+						}
+						sb.append(uri, 0, idx);
+					}
+				}
+				return sb.toString();
+			} finally {
+				result.close();
+			}
+		} catch (OpenRDFException e) {
+			logger.error(e.toString(), e);
+			return "";
+		}
+	}
 
 	@Override
 	public final boolean withAgentCredentials(String origin) {

@@ -71,7 +71,7 @@
 		return td;
 	}
 	function reload() {
-		var url = $('link[rel="contents"][type="application/atom+xml"]').attr('href');
+		var url = $('link[rel="index"][type="application/atom+xml"]').attr('href');
 		jQuery.ajax({
 			url: url,
 			processData: false,
@@ -92,7 +92,7 @@
 					feed.children('entry').each(function() {
 						var entry = $(this);
 						totalEntries++;
-						if (!entry.children('link[rel="contents"]').length) {
+						if (!entry.children('link[rel="index"]').length) {
 							var tr = $('<tr/>');
 							var icon = entry.children('icon').text();
 							var title = entry.children('title').text();

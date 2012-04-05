@@ -82,8 +82,8 @@
 					}
 				} UNION {
 					{ ?id a <Origin> } UNION { ?id a <Realm> }
-					BIND (concat(str(?id),"?feed") as ?link_href)
-					BIND ("contents" as ?link_rel)
+					BIND (concat(str(?id),"?index") as ?link_href)
+					BIND ("index" as ?link_rel)
 					BIND ("application/atom+xml" as ?link_type)
 				} UNION {
 					{ ?id a <Origin> } UNION { ?id a <Realm> }

@@ -288,6 +288,10 @@ if [ ! -z "$DAEMON_USER" ] ; then
       chown ":$DAEMON_GROUP" "$TMPDIR"
     fi
   fi
+  if [ -e "$MAIL" ] ; then
+    chown --from=root "$DAEMON_USER" "$MAIL"
+    chown --from=:root ":$DAEMON_GROUP" "$MAIL"
+  fi
 fi
 
 mkdir -p "$(dirname "$PID")"

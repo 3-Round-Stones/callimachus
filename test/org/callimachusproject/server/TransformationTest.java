@@ -33,21 +33,21 @@ public class TransformationTest extends MetadataServerTestCase {
 	}
 
 	public void testTransformation() {
-		WebResource client = Client.create().resource("http://" + host);
+		WebResource client = Client.create().resource(getOrigin());
 		WebResource service = client.path("service").queryParam("hlo", "");
 		service.addFilter(new GZIPContentEncodingFilter(true));
 		assertEquals("hello world!", service.get(String.class));
 	}
 
 	public void testNoTransformationResponse() {
-		WebResource client = Client.create().resource("http://" + host);
+		WebResource client = Client.create().resource(getOrigin());
 		WebResource service = client.path("service").queryParam("hello", "");
 		assertEquals("hello world!", service.header("Accept-Encoding", "gzip")
 				.get(String.class));
 	}
 
 	public void testNoTransformationRequest() {
-		WebResource client = Client.create().resource("http://" + host);
+		WebResource client = Client.create().resource(getOrigin());
 		WebResource service = client.path("service").queryParam("hlo", "");
 		assertEquals("hello world!", service.header("Accept-Encoding", "identity,*;q=0")
 				.get(String.class));

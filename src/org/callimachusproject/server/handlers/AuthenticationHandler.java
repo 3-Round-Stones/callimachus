@@ -54,11 +54,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.annotations.realm;
+import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.server.concepts.Transaction;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
-import org.callimachusproject.server.traits.Realm;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
@@ -164,14 +164,9 @@ public class AuthenticationHandler implements Handler {
 			RepositoryException {
 		String origin = request.getVaryHeader("Origin");
 		String[] values = method.getAnnotation(realm.class).value();
-		ObjectConnection con = target.getObjectConnection();
-		List<?> list = con.getObjects(Realm.class, values).asList();
-		for (Object r : list) {
-			if (request.isRealm(r)) {
-				Realm realm = (Realm) r;
-				if (realm.withAgentCredentials(origin)) {
-					return true;
-				}
+		for (Realm realm : request.getRealms(values)) {
+			if (realm.withAgentCredentials(origin)) {
+				return true;
 			}
 		}
 		return false;
@@ -352,24 +347,18 @@ public class AuthenticationHandler implements Handler {
 		}
 		if ("OPTIONS".equals(request.getMethod())) {
 			String m = request.getVaryHeader(REQUEST_METHOD);
-			RDFObject target = request.getRequestedResource();
 			for (Method method : request.findMethodHandlers(m)) {
 				if (method.isAnnotationPresent(realm.class)) {
 					String[] values = method.getAnnotation(realm.class).value();
-					ObjectConnection con = target.getObjectConnection();
-					List<?> list = con.getObjects(Realm.class, values).asList();
-					for (Object r : list) {
-						if (request.isRealm(r)) {
-							Realm realm = (Realm) r;
-							if (sb.length() > 0) {
-								sb.append(", ");
-							}
-							String origin = realm.allowOrigin();
-							if ("*".equals(origin))
-								return origin;
-							if (origin != null && origin.length() > 0) {
-								sb.append(origin);
-							}
+					for (Realm realm : request.getRealms(values)) {
+						if (sb.length() > 0) {
+							sb.append(", ");
+						}
+						String origin = realm.allowOrigin();
+						if ("*".equals(origin))
+							return origin;
+						if (origin != null && origin.length() > 0) {
+							sb.append(origin);
 						}
 					}
 				}

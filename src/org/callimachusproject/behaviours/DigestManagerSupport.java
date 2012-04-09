@@ -38,20 +38,20 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.callimachusproject.concepts.AccountManager;
+import org.callimachusproject.concepts.DigestManager;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.traits.VersionedObject;
 import org.callimachusproject.util.PasswordGenerator;
-import org.openrdf.repository.object.RDFObject;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
+import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Validates HTTP digest authorization.
  */
-public abstract class AccountManagerSupport implements AccountManager, RDFObject {
+public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 	private static final Pattern TOKENS_REGEX = Pattern
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"([^\"]*)\"|([^,\"]*)))?\\s*,?");
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
@@ -82,7 +82,7 @@ public abstract class AccountManagerSupport implements AccountManager, RDFObject
 		DIGEST_OPTS.put("nc", null);
 		DIGEST_OPTS.put("response", null);
 	}
-	private Logger logger = LoggerFactory.getLogger(AccountManagerSupport.class);
+	private Logger logger = LoggerFactory.getLogger(DigestManagerSupport.class);
 
 	public String generatePassword() {
 		return PasswordGenerator.generatePassword();
@@ -229,9 +229,9 @@ public abstract class AccountManagerSupport implements AccountManager, RDFObject
 		return encodings.get(0)[0];
 	}
 
-	@Sparql("SELECT (group_concat(?origin;separator=' ') as ?domain)\n"
-			+ "WHERE { ?origin a </callimachus/Origin> }")
-	public abstract String protectionDomain();
+	@Sparql(PREFIX + "SELECT (group_concat(?realm;separator=' ') as ?domain)\n"
+			+ "WHERE { ?realm calli:authentication $this }")
+	protected abstract String protectionDomain();
 
 	@Sparql(PREFIX
 			+ "SELECT ?user ?encoded\n"

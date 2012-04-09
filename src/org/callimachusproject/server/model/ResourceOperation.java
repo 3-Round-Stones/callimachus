@@ -44,7 +44,6 @@ import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -64,12 +63,12 @@ import org.callimachusproject.annotations.realm;
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
+import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.server.concepts.Transaction;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.exceptions.UnsupportedMediaType;
-import org.callimachusproject.server.traits.Realm;
 import org.callimachusproject.server.util.Accepter;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.ParameterTypes;
@@ -314,36 +313,23 @@ public class ResourceOperation extends ResourceRequest {
 		if (realms != null)
 			return realms;
 		String[] values = getRealmURIs();
-		if (values.length == 0)
-			return Collections.emptyList();
-		ObjectConnection con = getObjectConnection();
-		List<Realm> list = con.getObjects(Realm.class, values).asList();
-		Iterator<?> iter = list.iterator();
-		while (iter.hasNext()) {
-			Object r = iter.next();
-			if (!isRealm(r)) {
-				iter.remove();
-			}
-		}
-		return realms = list;
+		return realms = getRealms(values);
 	}
 
-	public boolean isRealm(Object r) {
-		if (r instanceof Realm) {
-			Realm realm = (Realm) r;
-			String domains = realm.protectionDomain();
-			if (domains == null)
-				return true;
-			String url = getRequestURL();
-			for (String domain : domains.split("\\s+")) {
-				if (domain.startsWith("/")) {
-					domain = resolve(domain);
-				}
-				if (url.startsWith(domain))
-					return true;
+	public List<Realm> getRealms(String[] values)
+			throws QueryEvaluationException, RepositoryException {
+		if (values.length == 0)
+			return Collections.emptyList();
+		List<String> array = new ArrayList<String>(values.length);
+		String iri = getIRI();
+		for (String v : values) {
+			if (iri.startsWith(v)) {
+				array.add(v);
 			}
 		}
-		return false;
+		String[] a = array.toArray(new String[array.size()]);
+		ObjectConnection con = getObjectConnection();
+		return con.getObjects(Realm.class, a).asList();
 	}
 
 	public Set<String> getAllowedMethods() throws RepositoryException {

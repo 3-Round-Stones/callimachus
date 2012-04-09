@@ -30,8 +30,8 @@
 ################################
 
 </> calli:hasComponent </accounts>.
-</accounts> a </callimachus/AccountManager>, calli:AccountManager;
-	rdfs:label "User accounts";
+</accounts> a </callimachus/DigestManager>, calli:DigestManager;
+	rdfs:label "accounts";
 	calli:administrator </group/admin>;
 	calli:authName </>;
 	calli:authNamespace </user/>.

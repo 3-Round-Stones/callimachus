@@ -1,6 +1,7 @@
 package org.callimachusproject.server;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
@@ -9,10 +10,14 @@ import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.realm;
 import org.callimachusproject.annotations.type;
+import org.callimachusproject.behaviours.RealmSupport;
+import org.callimachusproject.concepts.AuthenticationManager;
+import org.callimachusproject.concepts.Page;
+import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.server.base.MetadataServerTestCase;
-import org.callimachusproject.server.traits.Realm;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.Matching;
+import org.openrdf.annotations.Precedes;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 
@@ -20,13 +25,25 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 public class AuthenticationTest extends MetadataServerTestCase {
+	private static final int PORT = 59322;
+	private static final String ORIGIN = "http://localhost:" + PORT;
+	private static final String REALM = ORIGIN + "/";
 
-	@Matching("urn:test:my_realm")
-	public static class MyRealm implements Realm {
+	@Override
+	protected int getPort() {
+		return PORT;
+	}
 
-		public String protectionDomain() {
-			return null;
-		}
+	@Override
+	protected String getOrigin() {
+		return ORIGIN;
+	}
+
+	@Matching(REALM)
+	public interface MyRealm extends Realm {}
+
+	@Precedes(RealmSupport.class)
+	public static class MyRealmSupport implements MyRealm {
 
 		public String allowOrigin() {
 			return "*";
@@ -67,6 +84,43 @@ public class AuthenticationTest extends MetadataServerTestCase {
 			return null;
 		}
 
+		@Override
+		public Set<AuthenticationManager> getCalliAuthentications() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void setCalliAuthentications(
+				Set<? extends AuthenticationManager> authentications) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public Page getCalliForbidden() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void setCalliForbidden(Page forbidden) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public Page getCalliUnauthorized() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void setCalliUnauthorized(Page unauthorized) {
+			// TODO Auto-generated method stub
+			
+		}
+
 	}
 
 	@Iri("urn:test:MyProtectedResource")
@@ -74,7 +128,7 @@ public class AuthenticationTest extends MetadataServerTestCase {
 		public static String body = "body";
 
 		@method("GET")
-		@realm("urn:test:my_realm")
+		@realm(REALM)
 		@type("text/plain")
 		@header("Cache-Control:max-age=5")
 		public String getResponse() {
@@ -103,6 +157,7 @@ public class AuthenticationTest extends MetadataServerTestCase {
 		config.addConcept(MyResource.class);
 		config.addConcept(MyProtectedResource.class);
 		config.addConcept(MyRealm.class);
+		config.addBehaviour(MyRealmSupport.class);
 		super.setUp();
 		ObjectConnection con = repository.getConnection();
 		try {

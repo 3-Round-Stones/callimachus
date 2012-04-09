@@ -209,7 +209,7 @@ public class RoundTripTest extends MetadataServerTestCase {
 		config.addConcept(Trip.class, "urn:test:Trip");
 		super.setUp();
 		con = repository.getConnection();
-		trip = con.addDesignation(con.getObject("http://" + host + "/trip"),
+		trip = con.addDesignation(con.getObject(getOrigin() + "/trip"),
 				Trip.class);
 	}
 

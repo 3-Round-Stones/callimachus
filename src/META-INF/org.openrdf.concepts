@@ -1,5 +1,6 @@
-org.callimachusproject.concepts.AccountManager
-org.callimachusproject.concepts.Manifest
+org.callimachusproject.concepts.AuthenticationManager
+org.callimachusproject.concepts.DigestManager
+org.callimachusproject.concepts.Realm
 org.callimachusproject.concepts.Group
 org.callimachusproject.concepts.ScriptBundle
 org.callimachusproject.concepts.Page

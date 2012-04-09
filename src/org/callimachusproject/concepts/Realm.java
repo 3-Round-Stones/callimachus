@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2009, James Leigh All rights reserved.
  * Copyright (c) 2011 Talis Inc., Some rights reserved.
+ * Copyright (c) 2012 3 Round Stones Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,26 +28,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.traits;
+package org.callimachusproject.concepts;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
+import org.openrdf.annotations.Iri;
 import org.openrdf.repository.RepositoryException;
 
 /**
  * A common set of services all realms must implement.
  */
+@Iri("http://callimachusproject.org/rdf/2009/framework#Realm")
 public interface Realm {
-
-	/**
-	 * The set of URL prefixes that this realm protects.
-	 * 
-	 * @return a space separated list of URL prefixes or path prefixes or null
-	 *         for all request targets.
-	 */
-	String protectionDomain();
 
 	/**
 	 * The script's origins that are permitted to send requests to this realm as
@@ -174,4 +170,32 @@ public interface Realm {
 	HttpMessage authenticationInfo(String method, Object resource,
 			Map<String, String[]> request);
 
+	/**
+	 * The realm used for authentication
+	 */
+	@Iri("http://callimachusproject.org/rdf/2009/framework#authentication")
+	Set<AuthenticationManager> getCalliAuthentications();
+
+	@Iri("http://callimachusproject.org/rdf/2009/framework#authentication")
+	void setCalliAuthentications(Set<? extends AuthenticationManager> authentications);
+
+	/**
+	 * The RDFa template used when an agent is forbidden from the requested
+	 * resource.
+	 */
+	@Iri("http://callimachusproject.org/rdf/2009/framework#forbidden")
+	Page getCalliForbidden();
+
+	@Iri("http://callimachusproject.org/rdf/2009/framework#forbidden")
+	void setCalliForbidden(Page forbidden);
+
+	/**
+	 * The RDFa template used when an agent is aunothorized from the requested
+	 * resource.
+	 */
+	@Iri("http://callimachusproject.org/rdf/2009/framework#unauthorized")
+	Page getCalliUnauthorized();
+
+	@Iri("http://callimachusproject.org/rdf/2009/framework#unauthorized")
+	void setCalliUnauthorized(Page unauthorized);
 }

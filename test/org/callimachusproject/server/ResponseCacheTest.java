@@ -9,9 +9,9 @@ import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.realm;
 import org.callimachusproject.annotations.type;
+import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
-import org.callimachusproject.server.traits.Realm;
 import org.openrdf.annotations.Iri;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.repository.RepositoryException;
@@ -21,6 +21,19 @@ import org.openrdf.repository.object.RDFObject;
 import com.sun.jersey.api.client.WebResource;
 
 public class ResponseCacheTest extends MetadataServerTestCase {
+	private static final int PORT = 56031;
+	private static final String ORIGIN = "http://localhost:" + PORT;
+	private static final String REALM = ORIGIN + "/";
+
+	@Override
+	protected int getPort() {
+		return PORT;
+	}
+
+	@Override
+	protected String getOrigin() {
+		return ORIGIN;
+	}
 
 	private WebResource display;
 	private WebResource clock;
@@ -80,7 +93,7 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 			return Long.toHexString(seq.incrementAndGet());
 		}
 
-		@realm("urn:test:digest")
+		@realm(REALM)
 		@query("auth")
 		@type("text/plain")
 		@header("Cache-Control:max-age=10")
@@ -88,7 +101,7 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 			return Long.toHexString(seq.incrementAndGet());
 		}
 
-		@realm("urn:test:digest")
+		@realm(REALM)
 		@query("private")
 		@type("text/plain")
 		@header("Cache-Control:private")
@@ -169,7 +182,7 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 		super.setUp();
 		ObjectConnection con = repository.getConnection();
 		try {
-			con.addDesignations(con.getObject("urn:test:digest"), type);
+			con.addDesignations(con.getObject(REALM), type);
 		} finally {
 			con.close();
 		}

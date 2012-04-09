@@ -811,29 +811,30 @@ public class Setup {
 
 	private void addRealm(URI subj, String origin, ObjectConnection con)
 			throws RepositoryException {
+		String c = origin + CALLIMACHUS;
+		add(con, subj, RDF.TYPE, CALLI_REALM);
+		add(con, subj, RDF.TYPE, CALLI_FOLDER);
+		add(con, subj, CALLI_READER, origin + "/group/users");
+		add(con, subj, CALLI_EDITOR, origin + "/group/staff");
+		add(con, subj, CALLI_ADMINISTRATOR, origin + "/group/admin");
+		add(con, subj, CALLI_UNAUTHORIZED, c + "pages/unauthorized.xhtml");
+		add(con, subj, CALLI_FORBIDDEN, c + "pages/forbidden.xhtml");
+		add(con, subj, CALLI_AUTHENTICATION, origin + "/accounts");
+		add(con, subj, CALLI_MENU, origin + "/main+menu");
+		add(con, subj, CALLI_FAVICON, c + "images/callimachus-icon.ico");
+		add(con, subj, CALLI_THEME, c + "theme/default");
+	}
+
+	private void add(ObjectConnection con, URI subj, URI pred, String resource)
+			throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
-		con.add(subj, RDF.TYPE, vf.createURI(CALLI_REALM));
-		con.add(subj, RDF.TYPE, vf.createURI(CALLI_FOLDER));
-		con.add(subj, vf.createURI(CALLI_READER),
-				vf.createURI(origin + "/group/users"));
-		con.add(subj, vf.createURI(CALLI_EDITOR),
-				vf.createURI(origin + "/group/staff"));
-		con.add(subj, vf.createURI(CALLI_ADMINISTRATOR),
-				vf.createURI(origin + "/group/admin"));
-		con.add(subj, vf.createURI(CALLI_UNAUTHORIZED),
-				vf.createURI(origin + CALLIMACHUS + "pages/unauthorized.xhtml"));
-		con.add(subj, vf.createURI(CALLI_FORBIDDEN),
-				vf.createURI(origin + CALLIMACHUS + "pages/forbidden.xhtml"));
-		con.add(subj, vf.createURI(CALLI_AUTHENTICATION),
-				vf.createURI(origin + "/accounts"));
-		con.add(subj, vf.createURI(CALLI_MENU),
-				vf.createURI(origin + "/main+menu"));
-		con.add(subj,
-				vf.createURI(CALLI_FAVICON),
-				vf.createURI(origin
-						+ CALLIMACHUS + "images/callimachus-icon.ico"));
-		con.add(subj, vf.createURI(CALLI_THEME),
-				vf.createURI(origin + CALLIMACHUS + "theme/default"));
+		con.add(subj, pred, vf.createURI(resource));
+	}
+
+	private void add(ObjectConnection con, URI subj, String pred,
+			String resource) throws RepositoryException {
+		ValueFactory vf = con.getValueFactory();
+		con.add(subj, vf.createURI(pred), vf.createURI(resource));
 	}
 
 	private boolean setServeAllResourcesAs(String origin, ObjectRepository repository) throws RepositoryException {

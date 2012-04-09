@@ -44,9 +44,9 @@ import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
+import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.traits.Realm;
 import org.openrdf.repository.RepositoryException;
 
 /**

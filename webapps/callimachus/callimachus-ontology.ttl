@@ -34,7 +34,7 @@
 <http://callimachusproject.org/rdf/2009/framework> a owl:Ontology;
 	rdfs:label "Callimachus Ontology";
 	rdfs:comment "Vocabulary used to create Callimachus applications";
-	owl:versionInfo "0.15".
+	owl:versionInfo "0.17".
 
 ################################
 # Class
@@ -63,8 +63,14 @@ calli:Origin a owl:Class;
 	rdfs:comment "A URI with a '/' path that is served by a Callimachus system";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:AccountManager a owl:Class;
-	rdfs:label "Account Manager";
+calli:AuthenticationManager a owl:Class;
+	rdfs:label "Authentication Manager";
+	rdfs:comment "A managed set of users that can authenticate using HTTP digest credentials";
+	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:DigestManager a owl:Class;
+	rdfs:subClassOf calli:AuthenticationManager;
+	rdfs:label "Digest Manager";
 	rdfs:comment "A managed set of users that can authenticate using HTTP digest credentials";
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
@@ -229,14 +235,14 @@ calli:email a owl:DatatypeProperty, owl:FunctionalProperty;
 calli:authNamespace a owl:FunctionalProperty, owl:ObjectProperty;
 	rdfs:label "auth namespace";
 	rdfs:comment "Folder of users that can be authenticated by this realm";
-	rdfs:domain calli:AccountManager;
+	rdfs:domain calli:DigestManager;
 	rdfs:range calli:Folder;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:authName a rdf:Property, owl:FunctionalProperty;
 	rdfs:label "auth name";
 	rdfs:comment "A string to be displayed to users so they know which username and password to use. This string should contain at least the name of the host performing the authentication and might additionally indicate the collection of users who might have access. This string is used to encode the passwords and changing it will invalidates existing encoded passwords";
-	rdfs:domain calli:AccountManager;
+	rdfs:domain calli:DigestManager;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:forbidden a owl:ObjectProperty;
@@ -257,7 +263,7 @@ calli:authentication a owl:ObjectProperty;
 	rdfs:label "authentication";
 	rdfs:comment "The realm used for authentication";
 	rdfs:domain calli:Realm;
-	rdfs:range calli:AccountManager;
+	rdfs:range calli:AuthenticationManager;
 	rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:variation a owl:FunctionalProperty, owl:ObjectProperty;

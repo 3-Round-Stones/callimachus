@@ -111,8 +111,6 @@
 	calli:administrator </group/admin>;
 	calli:link </>;
 	calli:item </main+menu#site>;
-	calli:item </main+menu#resources>;
-	calli:item </main+menu#administration>;
 	calli:item </main+menu#toolbox>.
 
 </main+menu#site>	calli:position 1; rdfs:label "Site";

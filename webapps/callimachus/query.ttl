@@ -136,7 +136,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	calli:method "GET";
-	calli:query "result", "tqx";
+	calli:query "result", "tqx", "eval";
 	calli:type "message/x-response";
 	msg:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
 	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;

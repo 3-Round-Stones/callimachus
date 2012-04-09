@@ -292,13 +292,25 @@ public class AuthenticationHandler implements Handler {
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		map.put("request-target", new String[] { request.getRequestTarget() });
 		map.put("date", new String[] { this.dateformat.format(new Date(now)) });
-		String au = request.getHeader("Authorization");
-		if (au != null) {
-			map.put("authorization", new String[] { au });
+		Header[] au = request.getHeaders("Authorization");
+		if (au != null && au.length > 0) {
+			map.put("authorization", toStringArray(au));
+		}
+		Header[] co = request.getHeaders("Cookie");
+		if (co != null && co.length > 0) {
+			map.put("cookie", toStringArray(co));
 		}
 		String via = getRequestSource(request);
 		map.put("via", via.split("\\s*,\\s*"));
 		return Collections.unmodifiableMap(map);
+	}
+
+	private String[] toStringArray(Header[] au) {
+		String[] result = new String[au.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = au[i].getValue();
+		}
+		return result;
 	}
 
 	private String getRequestSource(ResourceOperation request) {

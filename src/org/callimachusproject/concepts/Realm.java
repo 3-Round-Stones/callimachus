@@ -75,10 +75,11 @@ public interface Realm {
 	 * @param request
 	 *            A map with "request-target" that was used in the request line,
 	 *            "authorization" that is the HTTP request header of the same
-	 *            name if present, "origin" that is the scheme and authority the
-	 *            agent script was loaded from (if applicable), and "via" that is a
-	 *            list of hosts or pseudonym and their HTTP version that sent or
-	 *            forwarded this request.
+	 *            name if present, "cookie" that is the HTTP request header of
+	 *            the same name if present, "origin" that is the scheme and
+	 *            authority the agent script was loaded from (if applicable),
+	 *            and "via" that is a list of hosts or pseudonym and their HTTP
+	 *            version that sent or forwarded this request.
 	 * @return The authenticated credentials or a null result if invalid
 	 *         credentials.
 	 */
@@ -96,10 +97,11 @@ public interface Realm {
 	 * @param request
 	 *            A map with "request-target" that was used in the request line,
 	 *            "authorization" that is the HTTP request header of the same
-	 *            name if present, "origin" that is the scheme and authority the
-	 *            agent script was loaded from (if applicable), and "via" that is a
-	 *            list of hosts or pseudonym and their HTTP version that sent or
-	 *            forwarded this request.
+	 *            name if present, "cookie" that is the HTTP request header of
+	 *            the same name if present, "origin" that is the scheme and
+	 *            authority the agent script was loaded from (if applicable),
+	 *            and "via" that is a list of hosts or pseudonym and their HTTP
+	 *            version that sent or forwarded this request.
 	 * 
 	 * @return An HTTP response
 	 */
@@ -118,10 +120,11 @@ public interface Realm {
 	 * @param request
 	 *            A map with "request-target" that was used in the request line,
 	 *            "authorization" that is the HTTP request header of the same
-	 *            name if present, "origin" that is the scheme and authority the
-	 *            agent script was loaded from (if applicable), and "via" that is a
-	 *            list of hosts or pseudonym and their HTTP version that sent or
-	 *            forwarded this request.
+	 *            name if present, "cookie" that is the HTTP request header of
+	 *            the same name if present, "origin" that is the scheme and
+	 *            authority the agent script was loaded from (if applicable),
+	 *            and "via" that is a list of hosts or pseudonym and their HTTP
+	 *            version that sent or forwarded this request.
 	 * @return <code>true</code> if the credentials are authorized on this
 	 *         resource
 	 */
@@ -140,10 +143,11 @@ public interface Realm {
 	 * @param request
 	 *            A map with "request-target" that was used in the request line,
 	 *            "authorization" that is the HTTP request header of the same
-	 *            name if present, "origin" that is the scheme and authority the
-	 *            agent script was loaded from (if applicable), and "via" that is a
-	 *            list of hosts or pseudonym and their HTTP version that sent or
-	 *            forwarded this request.
+	 *            name if present, "cookie" that is the HTTP request header of
+	 *            the same name if present, "origin" that is the scheme and
+	 *            authority the agent script was loaded from (if applicable),
+	 *            and "via" that is a list of hosts or pseudonym and their HTTP
+	 *            version that sent or forwarded this request.
 	 * 
 	 * @return An HTTP response
 	 */
@@ -160,10 +164,11 @@ public interface Realm {
 	 * @param request
 	 *            A map with "request-target" that was used in the request line,
 	 *            "authorization" that is the HTTP request header of the same
-	 *            name if present, "origin" that is the scheme and authority the
-	 *            agent script was loaded from (if applicable), and "via" that is a
-	 *            list of hosts or pseudonym and their HTTP version that sent or
-	 *            forwarded this request.
+	 *            name if present, "cookie" that is the HTTP request header of
+	 *            the same name if present, "origin" that is the scheme and
+	 *            authority the agent script was loaded from (if applicable),
+	 *            and "via" that is a list of hosts or pseudonym and their HTTP
+	 *            version that sent or forwarded this request.
 	 * 
 	 * @return Set of HTTP headers
 	 */
@@ -177,7 +182,8 @@ public interface Realm {
 	Set<AuthenticationManager> getCalliAuthentications();
 
 	@Iri("http://callimachusproject.org/rdf/2009/framework#authentication")
-	void setCalliAuthentications(Set<? extends AuthenticationManager> authentications);
+	void setCalliAuthentications(
+			Set<? extends AuthenticationManager> authentications);
 
 	/**
 	 * The RDFa template used when an agent is forbidden from the requested

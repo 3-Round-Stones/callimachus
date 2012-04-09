@@ -648,6 +648,9 @@ public class CachingFilter extends Filter {
 		if (upstream != null && upstream.containsHeader("Authentication-Info")) {
 			response.addHeader(upstream.getFirstHeader("Authentication-Info"));
 		}
+		if (upstream != null && upstream.containsHeader("Set-Cookie")) {
+			response.addHeader(upstream.getFirstHeader("Set-Cookie"));
+		}
 	}
 
 	private void sendContentHeaders(CachedEntity cached, HttpResponse res) {

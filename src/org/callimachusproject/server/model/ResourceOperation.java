@@ -547,7 +547,7 @@ public class ResourceOperation extends ResourceRequest {
 			for (Annotation ann : anns) {
 				if (ann.annotationType().equals(header.class)) {
 					for (String hd : ((header)ann).value()) {
-						if (hd.equalsIgnoreCase("Authorization"))
+						if (hd.equalsIgnoreCase("Authorization") || hd.equalsIgnoreCase("Cookie"))
 							return true;
 					}
 				}

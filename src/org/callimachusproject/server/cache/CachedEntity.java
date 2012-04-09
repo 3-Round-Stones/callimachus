@@ -564,6 +564,8 @@ public class CachedEntity {
 			// ignore
 		} else if ("Authentication-Info".equalsIgnoreCase(name)) {
 			// ignore
+		} else if ("Set-Cookie".equalsIgnoreCase(name)) {
+			// ignore
 		} else if (value == null || value.length() < 1) {
 			headers.remove(name.toLowerCase());
 		} else {

@@ -34,7 +34,6 @@
         </authors>
         <url>http://3roundstones.com/</url>
         <javaversion>1.6</javaversion>
-        <requiresjdk>yes</requiresjdk>
         <writeinstallationinformation>no</writeinstallationinformation>
         <uninstaller write="no" />
         <pack200 />

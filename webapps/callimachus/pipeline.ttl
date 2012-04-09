@@ -1,5 +1,5 @@
 # 
-#    Copyright (c) 2011 3 Round Stones Inc., Some rights reserved
+#    Copyright (c) 2012 3 Round Stones Inc., Some rights reserved
 # 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -24,60 +24,42 @@
 
 <> a <SchemaGraph>.
 
-<Article> a <Creatable>, owl:Class;
+<Pipeline> a <Creatable>, owl:Class;
 	rdfs:subClassOf <File>;
-	rdfs:label "Article";
-	rdfs:comment "New articles can be created from a folder";
+	rdfs:label "Pipeline";
+	rdfs:comment "New pipelines can be created from a folder";
 	rdfs:isDefinedBy </callimachus>;
 	calli:author </group/users>,</group/staff>,</group/admin>;
-	calli:icon <article.png>;
-	calli:view <article-view.xhtml>;
-	calli:edit <article-edit.xhtml>;
-	calli:create <article-create.xhtml>;
-	calli:type "application/docbook+xml".
+	calli:icon <pipeline.png>;
+	calli:view <pipeline-view.xhtml>;
+	calli:edit <pipeline-edit.xhtml>;
+	calli:create <pipeline-create.xhtml>;
+	calli:type "application/xproc+xml".
 
-# GET /article/main-article.xml
-:GetArticleSource rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
+# GET /pipeline/pipe.xpl
+:GetPipelineSource rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
 	calli:method "GET";
-	calli:type "application/docbook+xml";
+	calli:type "application/xproc+xml";
 	calli:header "cache-control:no-cache";
 	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
-# GET /article/main-article.xml?view
-:GetPage owl:intersectionOf (<toolbox/view.ttl#GetViewPage>
-		[owl:onProperty msg:target; owl:allValuesFrom <Article>]);
-	msg:script """
-		return this.InlineArticle(proceed());
-	""".
-
-:InlineArticle rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	calli:type "application/xhtml+xml";
-	msg:xslt <transforms/article-inline.xsl>.
-
-:xmlInput a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :InlineArticle;
-	rdfs:range <java:javax.xml.stream.XMLEventReader>;
-	calli:type "application/xhtml+xml".
-
 # POST ?create=/callimachus/File
-:LookupArticleFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
+:LookupPipelineFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
 		[owl:onProperty msg:target; owl:hasValue <File> ]);
 	msg:script """
-		if (type == "application/docbook+xml") {
-			var uri = this.toUri().resolve("/callimachus/Article").toString();
+		if (type == "application/xproc+xml") {
+			var uri = this.toUri().resolve("/callimachus/Pipeline").toString();
 			return this.objectConnection.getObject(uri);
 		}
 		return proceed();
 	""".
 
-# POST ?create=/callimachus/Article
+# POST ?create=/callimachus/Pipeline
 :CreateArticle owl:intersectionOf (<toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Article> ]);
+		[owl:onProperty msg:target; owl:hasValue <Pipeline> ]);
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
 	msg:imports <java:java.net.URLDecoder>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
@@ -101,14 +83,13 @@
 		created = con.addDesignation(created, this.toString());
 		created = con.addDesignation(created, Document);
 
-		created.UploadArticle(body);
+		created.UploadPipeline(body);
 		return created;
 	""".
 
-# PUT /page/MainArticle.xhtml
-# Called by client, copy operation, create operation, and MainArticle initialization
-:UploadArticle rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
+# PUT /pipeline/pipe.xpl
+:UploadPipeline rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	calli:method "PUT";
 	calli:realm </>;
@@ -122,7 +103,7 @@
 		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
 		var out = this.openOutputStream();
 		try {
-			while ((read = docbookStream.read(buf)) >= 0) {
+			while ((read = xprocStream.read(buf)) >= 0) {
 				out.write(buf, 0, read);
 			}
 		} finally {
@@ -131,8 +112,8 @@
 		this.touchRevision();
 	""".
 
-:docbookStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :UploadArticle;
+:xprocStream a owl:ObjectProperty; a owl:FunctionalProperty;
+	rdfs:domain :UploadPipeline;
 	rdfs:range <java:java.io.InputStream>;
-	calli:type "application/docbook+xml".
+	calli:type "application/xproc+xml".
 

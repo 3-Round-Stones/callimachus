@@ -24,6 +24,7 @@ import static org.openrdf.query.QueryLanguage.SPARQL;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import javax.xml.stream.XMLEventReader;
@@ -206,9 +207,10 @@ public abstract class FormSupport implements Page, RDFObject {
 	private XMLEventReader calliConstructXhtml(URI about, String element) 
 	throws Exception {
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
-		InputStream in = openRequest("xslt", element);
+		String url = url("xslt", element);
+		InputStream in = openRequest(url);
 		try {
-			Template temp = engine.getTemplate(in, toString());
+			Template temp = engine.getTemplate(in, url);
 			MapBindingSet bindings = new MapBindingSet();
 			bindings.addBinding("this", about);
 			return temp.openResult(bindings);
@@ -247,12 +249,13 @@ public abstract class FormSupport implements Page, RDFObject {
 	protected XMLEventReader xslt(String element)
 			throws IOException, XMLStreamException {
 		XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
-		InputStream in = openRequest("xslt", element);
-		return factory.createXMLEventReader(in);
+		String url = url("xslt", element);
+		InputStream in = openRequest(url);
+		return factory.createXMLEventReader(url, in);
 	}
 
-	private InputStream openRequest(String operation, String element)
-			throws IOException {
+	private String url(String operation, String element)
+			throws UnsupportedEncodingException {
 		String uri = getResource().stringValue();
 		StringBuilder sb = new StringBuilder();
 		sb.append(uri);
@@ -262,13 +265,16 @@ public abstract class FormSupport implements Page, RDFObject {
 			sb.append("&element=");
 			sb.append(URLEncoder.encode(element, "UTF-8"));
 		}
+		return sb.toString();
+	}
+
+	private InputStream openRequest(String url) throws IOException {
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpRequest request = new BasicHttpRequest("GET", sb.toString());
+		HttpRequest request = new BasicHttpRequest("GET", url);
 		HttpResponse response = client.service(request);
 		if (response.getStatusLine().getStatusCode() >= 300)
 			throw ResponseException.create(response);
-		InputStream in = response.getEntity().getContent();
-		return in;
+		return response.getEntity().getContent();
 	}
 
 }

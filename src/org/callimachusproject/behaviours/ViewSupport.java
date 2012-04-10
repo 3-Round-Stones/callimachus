@@ -21,6 +21,7 @@ package org.callimachusproject.behaviours;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import javax.tools.FileObject;
@@ -86,11 +87,11 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject,
 	private XMLEventReader calliConstructXhtml(URI about)
 			throws Exception {
 		ObjectConnection con = getObjectConnection();
-		String base = about.stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(con);
-		InputStream in = openRequest("xslt", findRealm(about));
+		String url = url("xslt", findRealm(about));
+		InputStream in = openRequest(url);
 		try {
-			Template temp = engine.getTemplate(in, base);
+			Template temp = engine.getTemplate(in, url);
 			MapBindingSet bindings = new MapBindingSet();
 			bindings.addBinding("this", about);
 			return temp.openResult(bindings);
@@ -102,12 +103,13 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject,
 	private XMLEventReader xslt(RDFObject realm) throws IOException,
 			XMLStreamException {
 		XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
-		InputStream in = openRequest("xslt", realm);
-		return factory.createXMLEventReader(in);
+		String url = url("xslt", realm);
+		InputStream in = openRequest(url);
+		return factory.createXMLEventReader(url, in);
 	}
 
-	private InputStream openRequest(String operation, RDFObject realm)
-			throws IOException {
+	private String url(String operation, RDFObject realm)
+			throws UnsupportedEncodingException {
 		String uri = getResource().stringValue();
 		StringBuilder sb = new StringBuilder();
 		sb.append(uri);
@@ -117,8 +119,12 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject,
 			sb.append("&realm=");
 			sb.append(URLEncoder.encode(realm.toString(), "UTF-8"));
 		}
+		return sb.toString();
+	}
+
+	private InputStream openRequest(String url) throws IOException {
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpRequest request = new BasicHttpRequest("GET", sb.toString());
+		HttpRequest request = new BasicHttpRequest("GET", url);
 		HttpResponse response = client.service(request);
 		if (response.getStatusLine().getStatusCode() >= 300)
 			throw ResponseException.create(response);

@@ -25,7 +25,7 @@
 ################################
 
 :GetAuthorization rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>].
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>].
 
 :authorization a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :GetAuthorization;
@@ -56,7 +56,7 @@
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage owl:intersectionOf (calli:IsAuthorized
-		[owl:onProperty msg:target; owl:allValuesFrom <AccountManager>]);
+		[owl:onProperty msg:target; owl:allValuesFrom <DigestManager>]);
 	msg:sparql  """
 		ASK {
 			$this calli:authNamespace [calli:hasComponent $credential]
@@ -100,7 +100,7 @@
 
 # Linked from request password email
 :GetForgotPasswordPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "forgotpassword";
@@ -115,7 +115,7 @@
 # Sends request for password reset emails
 # Submitted by form in the unauthorized page
 :PostForgotPassword rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	calli:method "POST";
 	calli:query "forgotpassword";
@@ -155,7 +155,7 @@
 # Looks up user by email address
 # Used to request password reset
 :FindUsersByEmail rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:User];
 	msg:sparql  """
 		SELECT REDUCED ?user
@@ -175,7 +175,7 @@
 
 # Linked from request password email
 :GetResetPassword rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
 	calli:method "GET";
 	calli:query "resetpassword";
@@ -214,7 +214,7 @@
 
 # Confirms token and resets their password
 :PostResetPassword rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AccountManager>];
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	calli:method "POST";
 	calli:query "resetpassword";

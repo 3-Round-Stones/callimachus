@@ -11,9 +11,13 @@
 	<link rel="version-history" href="?history" />
 	<script type="text/javascript">
 		jQuery(function($) {
-			$.get("{?this}", function(text) {
-				$('#pre').text(text);
-			}, "text");
+			$.ajax({
+				url: "{?this}",
+				success: function(text) {
+					$('#pre').text(text);
+				},
+				dataType: "text"
+			});
 		});
 	</script>
 </head>

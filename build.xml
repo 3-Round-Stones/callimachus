@@ -1,4 +1,4 @@
-<project name="project" default="dist" basedir=".">
+<project name="project" default="help" basedir=".">
 	<!-- set global properties for this build -->
 	<property name="src" location="src" />
 	<property name="build" location="build" />
@@ -54,8 +54,26 @@
 	<property name="main" value="org.callimachusproject.Server" />
 	<property name="main-monitor" value="org.callimachusproject.ServerMonitor" />
 	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
+	<property name="curl" value="curl" />
+	<property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/?archive" />
 	<property name="setup.args" value="-s -o http://localhost:8080 -c ${src.install}/META-INF/templates/callimachus-sesame.ttl -a ${dist}/callimachus-webapp-${Version}.car -l" />
 	<property name="args" value="-p 8080 -o http://localhost:8080 -r repositories/callimachus" />
+
+	<target name="help" description="Usage information">
+		<echo message="Callimachus Builder" />
+		<echo message="========================" />
+		<echo message="The purpose of this Ant build file is to build and package Callimachus." />
+		<echo message=" " />
+		<echo message="Available targets: " />
+		<echo message=" " />
+		<echo message="  clean                          : cleans targets" />
+		<echo message="  dist-clean                     : cleans targets and dependencies" />
+		<echo message="  dist                           : compiles classes and creates artifacts" />
+		<echo message="  test                           : runs test suites" />
+		<echo message="  package                        : cleans and packages for release" />
+		<echo message="  start                          : starts server" />
+		<echo message="  stop                           : stops server" />
+	</target>
 
 	<target name="clean" description="clean up">
 		<!-- Delete the directory trees -->
@@ -82,6 +100,7 @@
 		<available file="${lib.tests}" property="lib.tests.present" />
 		<available file="${lib.install}" property="lib.install.present" />
 		<available file="${launch4j.dir}" property="launch4j.dir.present" />
+		<available file="${pid}" property="pid.present" />
 		<property file="build.properties" />
 		<condition property="os.mac">
 			<os family="mac"/>
@@ -274,7 +293,14 @@
 			<zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="dist" />
 			<zipfileset file="${dist}/callimachus-configure-${Version}.jar" prefix="dist" />
 		</zip>
-		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="repositories/callimachus/triples-spoc.dat" property="repositories.uptodate" />
+		<condition property="setup.unless">
+			<or>
+				<not>
+					<available file="${pid}" />
+				</not>
+				<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="repositories/callimachus/triples-spoc.dat" />
+			</or>
+		</condition>
 	</target>
 
 	<target name="test-dependencies" unless="lib.tests.present">
@@ -443,7 +469,7 @@
 		<echo>Installer ready: ${dist}/Callimachus-Setup-${Version}.run</echo>
 	</target>
 
-	<target name="setup" depends="dist" if="callimachus.username" unless="repositories.uptodate">
+	<target name="setup" depends="dist" if="callimachus.username" unless="setup.unless">
 		<java classname="${setup}" fork="true" failonerror="true" inputstring="${callimachus.password}">
 			<jvmarg line="${jvmargs}" />
 			<arg line="${setup.args} -u ${callimachus.username}" />
@@ -456,7 +482,7 @@
 		</java>
 	</target>
 
-	<target name="start" depends="dist,setup">
+	<target name="start" depends="dist,setup" unless="pid.present">
 		<mkdir dir="${log}" />
 		<java classname="${main}" fork="true" spawn="true">
 			<jvmarg line="${jvmargs} -Djava.util.logging.config.file=${logging}" />
@@ -470,7 +496,16 @@
 		</java>
 	</target>
 
-	<target name="stop" depends="dist">
+	<target name="pull" depends="start">
+		<mkdir dir="${downloads}" />
+		<exec executable="${curl}" output="${downloads}/callimachus.car" logError="true" failonerror="true">
+			<arg line="--user ${callimachus.username}:${callimachus.password} ${curl.args}" />
+		</exec>
+		<unzip src="${downloads}/callimachus.car" dest="${webapps}/callimachus" />
+		<delete file="${downloads}/callimachus.car" />
+	</target>
+
+	<target name="stop" depends="pull">
 		<java classname="${main-monitor}" fork="true" resultproperty="ret">
 			<jvmarg line="${jvmargs}" />
 			<arg line="--stop --pid ${pid}" />

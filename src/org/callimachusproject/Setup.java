@@ -739,6 +739,7 @@ public class Setup {
 			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
 			con.add(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Folder"));
 			con.add(uri, RDFS.LABEL, vf.createLiteral("callimachus"));
+			add(con, uri, CALLI_ADMINISTRATOR, origin + "/group/admin");
 
 			Object folder = con.getObject(uri);
 			String auth = java.net.URI.create(origin + "/").getAuthority();
@@ -768,10 +769,9 @@ public class Setup {
 			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_ORIGIN)))
 				return false;
 			logger.info("Adding origin: {} for {}", vhost, origin);
-			con.add(subj, RDF.TYPE,
-					vf.createURI(origin + CALLIMACHUS + "Origin"));
+			add(con, subj, RDF.TYPE, origin + CALLIMACHUS + "Origin");
+			add(con, subj, RDF.TYPE, CALLI_ORIGIN);
 			con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(vhost)));
-			con.add(subj, RDF.TYPE, vf.createURI(CALLI_ORIGIN));
 			addRealm(subj, origin, con);
 			return true;
 		} finally {

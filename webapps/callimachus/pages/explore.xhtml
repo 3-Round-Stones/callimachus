@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Explore Classes</title>
+    <style>
+		.describe { font-size: xx-small; }
+    </style>
+    <script src="https://www.google.com/jsapi" type="text/javascript"> </script>
+    <script type="text/javascript">
+      // <![CDATA[
+      var folderURL = window.location.hash.substring(2,window.location.hash.length-5); // strip '#!' and '?view'
+      var authpattern = new RegExp("http.*:\/\/.*?/"); // could be 'http://' or 'https://'
+      var authority = authpattern.exec(folderURL);
+      google.load("visualization", "1.0", {callback:function() {
+        new google.visualization.Query("/callimachus/findclasses.rq?eval&folder="+folderURL).send(function(result){
+          var tbody = $('#classtable tbody');
+          var data = result.getDataTable();
+          var rows = data.getNumberOfRows();
+          for (var i=0; i<rows; i++) {
+            var trow = $('<tr/>');
+            tbody.append(trow);
+            var tdata = $('<td/>');
+            // Add link to class
+            var anchor = $('<a/>');
+            anchor.attr('href', "/callimachus/view?q=" + escape(data.getValue(i, 0)));
+            anchor.attr('title', "class description");
+            anchor.text(data.getValue(i, 1));
+            tdata.append(anchor);
+						// Add "assign templates" link
+            var classcreate = $('<span/>');
+            classcreate.attr('class', 'describe');
+            classcreate.text(' (');
+            var classcreateanchor = $('<a/>');
+            classcreateanchor.attr('href', folderURL + "?create=" + authority + "callimachus/Class#!" + escape(data.getValue(i, 0)));
+            classcreateanchor.attr('title', "create templates for this class");
+            classcreateanchor.text("assign templates");
+            classcreate.append(classcreateanchor);
+            classcreate.append(')');
+            tdata.append(classcreate);
+            trow.append(tdata)
+            // Add comment
+            var tdatad = $('<td/>');
+            tdatad.text(data.getValue(i, 2));
+            trow.append(tdatad);
+          }
+        });
+      }});
+      // ]]>
+    </script>
+</head>
+<body>
+	<h1>Explore Classes</h1>
+    <form>
+        <table id="classtable" class="ui-grid-content ui-widget-content" border="1">
+            <thead>
+                <tr>
+                    <th class="ui-state-default">Class</th>
+                    <th class="ui-state-default">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </form>
+</body>
+</html>

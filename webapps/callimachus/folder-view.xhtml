@@ -85,6 +85,9 @@
 				}
 			);
 		});
+		function explore() {
+			open("/callimachus/pages/explore.xhtml?view#!" + window.location);
+		}
 	</script>
 </head>
 <body about="?this">
@@ -114,6 +117,9 @@
 						<li><a class="ui-state-default" href="GraphDocument"><img class="icon" src="graph.png" /> Graph document</a></li>
 					</ul>
 				</nav>
+			</span>
+			<span>
+				<a id="exploreanchor" href="javascript:void(0)" class="ui-icon ui-icon-wrench" title="Explore RDF in this folder" onclick="explore();" />
 			</span>
 			<span property="rdfs:label"/>
 		</div>

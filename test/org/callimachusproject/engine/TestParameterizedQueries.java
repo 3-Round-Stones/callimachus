@@ -323,8 +323,8 @@ public class TestParameterizedQueries extends TestCase {
 		result.close();
 	}
 
-	public void testLimitExpressionParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label ?label } ORDER BY ?thing OFFSET ${$position - 1}";
+	public void testOffsetExpressionParameter() throws Exception {
+		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label ?label } ORDER BY ?thing OFFSET ${$position - 1} LIMIT 1";
 		Map<String, String[]> parameters = Collections.singletonMap("position", new String[]{"2"});
 		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 

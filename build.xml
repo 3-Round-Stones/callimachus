@@ -461,7 +461,8 @@
 		<echo>Installer ready: ${dist}/Callimachus-Setup-${Version}.run</echo>
 	</target>
 
-	<target name="setup" depends="dist" if="callimachus.username" unless="repositories.uptodate">
+	<target name="setup" depends="dist" unless="repositories.uptodate">
+		<fail message="build.properties is not setup properly, please read README.txt" unless="callimachus.username" />
 		<java classname="${setup}" fork="true" failonerror="true" inputstring="${callimachus.password}">
 			<jvmarg line="${jvmargs}" />
 			<arg line="${setup.args} -u ${callimachus.username}" />

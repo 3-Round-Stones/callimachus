@@ -1,20 +1,35 @@
 package org.callimachusproject.engine;
 
+import info.aduna.iteration.CloseableIteration;
+import info.aduna.iteration.EmptyIteration;
 import info.aduna.text.ASCIIUtil;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.callimachusproject.engine.model.TermFactory;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.XMLSchema;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.evaluation.QueryBindingSet;
+import org.openrdf.query.algebra.evaluation.TripleSource;
+import org.openrdf.query.algebra.evaluation.impl.EvaluationStrategyImpl;
+import org.openrdf.query.parser.sparql.SPARQLParser;
 import org.openrdf.rio.turtle.TurtleUtil;
 
 public class ParameterizedQuery {
@@ -26,7 +41,7 @@ public class ParameterizedQuery {
 	private final Map<String, Value> bindings;
 	private final TermFactory tf;
 
-	public ParameterizedQuery(String sparql, String systemId,
+	ParameterizedQuery(String sparql, String systemId,
 			Map<String, String> prefixes, Map<String, Value> bindings) {
 		assert sparql != null;
 		assert systemId != null;
@@ -72,6 +87,66 @@ public class ParameterizedQuery {
 	}
 
 	public String prepare(Map<String, String[]> parameters) throws IllegalArgumentException {
+		String sparql = this.sparql;
+		if (sparql.contains("${")) {
+			try {
+				sparql = inlineExpressions(sparql, parameters);
+			} catch (QueryEvaluationException e) {
+				throw new IllegalArgumentException(e);
+			} catch (MalformedQueryException e) {
+				throw new IllegalArgumentException(e);
+			}
+		}
+		return appendBindings(sparql, parameters);
+	}
+
+	private String inlineExpressions(String sparql,
+			Map<String, String[]> parameters) throws QueryEvaluationException, MalformedQueryException {
+		StringBuilder sb = new StringBuilder(sparql);
+		Matcher m = Pattern.compile("\\$\\{([^}]*)\\}").matcher(sb);
+		String prologue = getPrologue();
+		while (m.find()) {
+			String expression = m.group(1);
+			String select = prologue + "SELECT (" + expression + " AS ?_value) {} LIMIT 1";
+			String qry = appendBindings(select, parameters);
+			TupleExpr expr = new SPARQLParser().parseQuery(qry, systemId).getTupleExpr();
+			CloseableIteration<BindingSet, QueryEvaluationException> iter;
+			iter = new EvaluationStrategyImpl(new TripleSource() {
+				public ValueFactory getValueFactory() {
+					return vf;
+				}
+				public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(
+						Resource subj, URI pred, Value obj, Resource... contexts)
+						throws QueryEvaluationException {
+					return new EmptyIteration<Statement, QueryEvaluationException>();
+				}
+			}).evaluate(expr, new QueryBindingSet());
+			try {
+				if (!iter.hasNext())
+					throw new IllegalArgumentException("No value for expression: " + expression);
+				Value value = iter.next().getValue("_value");
+				if (value == null)
+					throw new IllegalArgumentException("No value for expression: " + expression);
+				CharSequence str = writeValue(value);
+				sb.replace(m.start(), m.end(), str.toString());
+			} finally {
+				iter.close();
+			}
+		}
+		return sb.toString();
+	}
+
+	private String getPrologue() {
+		StringBuilder sb = new StringBuilder();
+		for (Map.Entry<String, String> e : prefixes.entrySet()) {
+			sb.append("PREFIX ").append(e.getKey());
+			sb.append(":<").append(e.getValue()).append(">\n");
+		}
+		return sb.toString();
+	}
+
+	private String appendBindings(String sparql,
+			Map<String, String[]> parameters) {
 		if (bindings.isEmpty())
 			return sparql;
 		StringBuilder sb = new StringBuilder(sparql);
@@ -85,10 +160,8 @@ public class ParameterizedQuery {
 			for (Value value : values) {
 				if (value == null) {
 					sb.append("UNDEF");
-				} else if (value instanceof Literal) {
-					writeLiteral(sb, value);
 				} else {
-					writeURI(sb, value);
+					sb.append(writeValue(value));
 				}
 				sb.append(" ");
 			}
@@ -153,10 +226,25 @@ public class ParameterizedQuery {
 		}
 	}
 
-	private void writeLiteral(StringBuilder sb, Value value) {
-		Literal lit = (Literal) value;
+	private CharSequence writeValue(Value value) {
+		if (value instanceof Literal) {
+			return writeLiteral((Literal) value);
+		} else {
+			return writeURI(value);
+		}
+	}
+
+	private CharSequence writeLiteral(Literal lit) {
+		StringBuilder sb = new StringBuilder();
+		if (XMLSchema.INTEGER.equals(lit.getDatatype())) {
+			try {
+				return new BigInteger(lit.getLabel()).toString();
+			} catch (NumberFormatException e) {
+				// continue
+			}
+		}
 		sb.append("\"");
-		String label = value.stringValue();
+		String label = lit.stringValue();
 		sb.append(TurtleUtil.encodeString(label));
 		sb.append("\"");
 		if (lit.getLanguage() != null) {
@@ -166,15 +254,18 @@ public class ParameterizedQuery {
 		} else if (lit.getDatatype() != null) {
 			// Append the literal's datatype
 			sb.append("^^");
-			writeURI(sb, lit.getDatatype());
+			sb.append(writeURI(lit.getDatatype()));
 		}
+		return sb;
 	}
 
-	private void writeURI(StringBuilder sb, Value value) {
+	private CharSequence writeURI(Value value) {
+		StringBuilder sb = new StringBuilder();
 		sb.append("<");
 		String uri = value.stringValue();
 		sb.append(TurtleUtil.encodeURIString(uri));
 		sb.append(">");
+		return sb;
 	}
 
 	/**

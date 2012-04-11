@@ -66,10 +66,11 @@ public class ParameterizedQueryParser {
 		public synchronized Map<String,Value> scan(String sparql) throws MalformedQueryException {
 			variables.clear();
 			parameters.clear();
-			ParsedQuery parsed = parseParsedQuery(sparql, systemId);
+			ParsedQuery parsed = parseParsedQuery(sparql.replaceAll("\\$\\{[^}]*\\}", "0"), systemId);
 			if (!(parsed instanceof ParsedTupleQuery))
 				throw new MalformedQueryException("Only SELECT queries are supported");
 			parsed.getTupleExpr().visit(this);
+			visitExpressions(sparql);
 			for (String varname : variables) {
 				if (!parameters.containsKey(varname)) {
 					String pattern = Matcher.quoteReplacement("$" + varname) + "\\b";
@@ -132,9 +133,29 @@ public class ParameterizedQueryParser {
 			variables.add(node.getName());
 		}
 
+		private void visitExpressions(String sparql)
+				throws MalformedQueryException {
+			Matcher m = Pattern.compile("\\$\\{([^}]*)\\}").matcher(sparql);
+			String prologue = getPrologue();
+			while (m.find()) {
+				String expression = m.group(1);
+				String select = prologue + "SELECT (" + expression + " AS ?_value) {}";
+				parseParsedQuery(select, systemId).getTupleExpr().visit(this);
+			}
+		}
+
+		private String getPrologue() {
+			StringBuilder sb = new StringBuilder();
+			for (Map.Entry<String, String> e : prefixes.entrySet()) {
+				sb.append("PREFIX ").append(e.getKey());
+				sb.append(":<").append(e.getValue()).append(">\n");
+			}
+			return sb.toString();
+		}
+
 		private void addParameter(String name, Value value) throws MalformedQueryException {
-			if (value.equals(parameters.get(name)))
-				throw new MalformedQueryException("Multiple bindings for: " + name);
+			if (parameters.containsKey(name) && !value.equals(parameters.get(name)))
+				throw new MalformedQueryException("Multiple bindings for: " + name + " " + parameters.get(name) + " and " + value);
 			if (name.indexOf('$') >= 0 || name.indexOf('?') >= 0 || name.indexOf('&') >= 0 || name.indexOf('=') >= 0)
 				throw new MalformedQueryException("Invalide parameter name: " + name);
 			try {

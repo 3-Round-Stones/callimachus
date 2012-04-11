@@ -100,7 +100,6 @@
 		<available file="${lib.tests}" property="lib.tests.present" />
 		<available file="${lib.install}" property="lib.install.present" />
 		<available file="${launch4j.dir}" property="launch4j.dir.present" />
-		<available file="${pid}" property="pid.present" />
 		<property file="build.properties" />
 		<condition property="os.mac">
 			<os family="mac"/>
@@ -293,14 +292,7 @@
 			<zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="dist" />
 			<zipfileset file="${dist}/callimachus-configure-${Version}.jar" prefix="dist" />
 		</zip>
-		<condition property="setup.unless">
-			<or>
-				<not>
-					<available file="${pid}" />
-				</not>
-				<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="repositories/callimachus/triples-spoc.dat" />
-			</or>
-		</condition>
+		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="repositories/callimachus/triples-spoc.dat" property="repositories.uptodate" />
 	</target>
 
 	<target name="test-dependencies" unless="lib.tests.present">
@@ -469,7 +461,7 @@
 		<echo>Installer ready: ${dist}/Callimachus-Setup-${Version}.run</echo>
 	</target>
 
-	<target name="setup" depends="dist" if="callimachus.username" unless="setup.unless">
+	<target name="setup" depends="dist" if="callimachus.username" unless="repositories.uptodate">
 		<java classname="${setup}" fork="true" failonerror="true" inputstring="${callimachus.password}">
 			<jvmarg line="${jvmargs}" />
 			<arg line="${setup.args} -u ${callimachus.username}" />
@@ -482,7 +474,7 @@
 		</java>
 	</target>
 
-	<target name="start" depends="dist,setup" unless="pid.present">
+	<target name="start" depends="dist,setup">
 		<mkdir dir="${log}" />
 		<java classname="${main}" fork="true" spawn="true">
 			<jvmarg line="${jvmargs} -Djava.util.logging.config.file=${logging}" />
@@ -496,7 +488,7 @@
 		</java>
 	</target>
 
-	<target name="pull" depends="start">
+	<target name="pull" depends="dist">
 		<mkdir dir="${downloads}" />
 		<exec executable="${curl}" output="${downloads}/callimachus.car" logError="true" failonerror="true">
 			<arg line="--user ${callimachus.username}:${callimachus.password} ${curl.args}" />

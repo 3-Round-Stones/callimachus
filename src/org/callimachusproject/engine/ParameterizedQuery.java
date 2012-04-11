@@ -1,34 +1,40 @@
 package org.callimachusproject.engine;
 
+import info.aduna.text.ASCIIUtil;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.callimachusproject.engine.model.TermFactory;
+import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
+import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.query.BindingSet;
+import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.rio.turtle.TurtleUtil;
 
 public class ParameterizedQuery {
 	private static ValueFactory vf = ValueFactoryImpl.getInstance();
 	private final String sparql;
 	private final String systemId;
+	private final Map<String, String> prefixes;
 	private final List<String> bindingNames;
-	private final BindingSet bindings;
+	private final Map<String, Value> bindings;
 	private final TermFactory tf;
 
 	public ParameterizedQuery(String sparql, String systemId,
-			BindingSet bindings) {
+			Map<String, String> prefixes, Map<String, Value> bindings) {
 		assert sparql != null;
 		assert systemId != null;
 		assert bindings != null;
 		this.sparql = sparql;
 		this.systemId = systemId;
-		this.bindingNames = new ArrayList<String>(bindings.getBindingNames());
+		this.prefixes = prefixes;
+		this.bindingNames = new ArrayList<String>(bindings.keySet());
 		this.bindings = bindings;
 		this.tf = TermFactory.newInstance(systemId);
 	}
@@ -65,8 +71,8 @@ public class ParameterizedQuery {
 		return true;
 	}
 
-	public String prepare(Map<String, String[]> parameters) {
-		if (bindings.getBindingNames().isEmpty())
+	public String prepare(Map<String, String[]> parameters) throws IllegalArgumentException {
+		if (bindings.isEmpty())
 			return sparql;
 		StringBuilder sb = new StringBuilder(sparql);
 		sb.append("\nBINDINGS");
@@ -101,7 +107,7 @@ public class ParameterizedQuery {
 			if (strings == null || strings.length == 0) {
 				List<List<Value>> list;
 				list = new ArrayList<List<Value>>(bindingValues.size());
-				appendBinding(bindingValues, bindings.getValue(name), list);
+				appendBinding(bindingValues, bindings.get(name), list);
 				bindingValues = list;
 			} else {
 				List<List<Value>> list;
@@ -109,6 +115,8 @@ public class ParameterizedQuery {
 				list = new ArrayList<List<Value>>(size);
 				for (String string : strings) {
 					Value value = resolve(name, string);
+					if (value == null)
+						throw new IllegalArgumentException("Invalid parameter value: " + string);
 					appendBinding(bindingValues, value, list);
 				}
 				bindingValues = list;
@@ -118,7 +126,7 @@ public class ParameterizedQuery {
 	}
 
 	private Value resolve(String name, String value) {
-		Value sample = bindings.getValue(name);
+		Value sample = bindings.get(name);
 		if (sample instanceof Literal) {
 			Literal lit = (Literal) sample;
 			if (lit.getLanguage() != null) {
@@ -128,8 +136,10 @@ public class ParameterizedQuery {
 			} else {
 				return vf.createLiteral(value);
 			}
-		} else {
+		} else if (sample instanceof URI) {
 			return vf.createURI(tf.reference(value).stringValue());
+		} else {
+			return parseValue(value);
 		}
 	}
 
@@ -165,6 +175,151 @@ public class ParameterizedQuery {
 		String uri = value.stringValue();
 		sb.append(TurtleUtil.encodeURIString(uri));
 		sb.append(">");
+	}
+
+	/**
+	 * Parses an RDF value. This method parses uriref, qname, node ID, quoted
+	 * literal, integer, double and boolean.
+	 */
+	private Value parseValue(String string) {
+		char c = string.charAt(0);
+
+		if (c == '<') {
+			// uriref, e.g. <foo://bar>
+			return parseURI(string);
+		} else if (c == ':' || TurtleUtil.isPrefixStartChar(c)) {
+			// qname or boolean
+			return parseQNameOrBoolean(string);
+		} else if (c == '_') {
+			// node ID, e.g. _:n1
+			return parseNodeID(string);
+		} else if (c == '"') {
+			// quoted literal, e.g. "foo" or """foo"""
+			return parseQuotedLiteral(string);
+		} else if (ASCIIUtil.isNumber(c) || c == '.' || c == '+' || c == '-') {
+			// integer or double, e.g. 123 or 1.2e3
+			return parseNumber(string);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Parses a quoted string, optionally followed by a language tag or
+	 * datatype.
+	 */
+	private Literal parseQuotedLiteral(String string) {
+		String label = parseQuotedString(string);
+		if (label == null)
+			return null;
+
+		// Check for presence of a language tag or datatype
+		int idx = string.lastIndexOf('"');
+		if (idx < 1)
+			return null;
+		if (idx == string.length() - 1)
+			return vf.createLiteral(label);
+
+		if (string.length() > idx + 2 && string.charAt(idx + 1) == '@') {
+			// Read language
+			return vf.createLiteral(label, string.substring(idx + 2));
+		}
+		if (string.length() > idx + 3 && string.charAt(idx + 1) == '^'
+				&& string.charAt(idx + 2) == '^') {
+			// Read datatype
+			Value datatype = parseValue(string.substring(idx + 3));
+			if (datatype instanceof URI)
+				return vf.createLiteral(label, (URI) datatype);
+		}
+		return null;
+	}
+
+	/**
+	 * Parses a quoted string, which is either a "normal string" or a """long
+	 * string""".
+	 */
+	private String parseQuotedString(String string) {
+		String result = null;
+
+		// First character should be '"'
+		assert string.charAt(0) == '"';
+
+		// Check for long-string, which starts and ends with three double quotes
+		if (string.length() > 6 && string.startsWith("\"\"\"")) {
+			// Long string
+			int idx = string.lastIndexOf("\"\"\"");
+			if (idx < 1)
+				return null;
+			result = string.substring(3, idx);
+		} else {
+			// Normal string
+			int idx = string.lastIndexOf('"');
+			if (idx < 0)
+				return null;
+			result = string.substring(1, idx);
+		}
+
+		// Unescape any escape sequences
+		try {
+			if (result != null)
+				return TurtleUtil.decodeString(result);
+		} catch (IllegalArgumentException e) {
+			// ignore
+		}
+		return null;
+	}
+
+	private Literal parseNumber(String string) {
+		if (string.contains("e") || string.contains("E"))
+			return vf.createLiteral(string, XMLSchema.DOUBLE);
+		if (string.contains("."))
+			return vf.createLiteral(string, XMLSchema.DECIMAL);
+		return vf.createLiteral(string, XMLSchema.INTEGER);
+	}
+
+	private URI parseURI(String string) {
+		// First character should be '<'
+		assert string.charAt(0) == '<';
+
+		int idx = string.indexOf('>');
+		if (idx < 0 || idx != string.length() - 1)
+			return null;
+
+		String uri = string.substring(1, idx);
+
+		// Unescape any escape sequences
+		try {
+			String ref = TurtleUtil.decodeString(uri);
+			return vf.createURI(tf.reference(ref).stringValue());
+		} catch (IllegalArgumentException e) {
+			// ignore
+		}
+		return null;
+	}
+
+	/**
+	 * Parses boolean values or CURIES
+	 */
+	private Value parseQNameOrBoolean(String value) {
+		if (value.equals("true") || value.equals("false"))
+			return vf.createLiteral(value, XMLSchema.BOOLEAN);
+		int idx = value.indexOf(':');
+		if (idx < 0)
+			return null;
+		String ns = prefixes.get(value.substring(0, idx));
+		if (ns == null)
+			return null;
+		return vf.createURI(ns + value.substring(idx + 1));
+	}
+
+	/**
+	 * Parses a blank node ID, e.g. <tt>_:node1</tt>.
+	 */
+	private BNode parseNodeID(String string) {
+		// Node ID should start with "_:"
+		assert string.startsWith("_:");
+
+		return vf.createBNode(string.substring(3));
 	}
 
 }

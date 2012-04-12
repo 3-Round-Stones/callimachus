@@ -71,7 +71,7 @@ window.calli.saveResourceAs = function(event, fileName, create) {
 
 function promptIfNeeded(form, label, create, callback) {
 	if (label && label.search(/^[\w\.\-\_ ]*\/?$/) == 0 && location.search.search(/\?\w+=/) >= 0) {
-		var ns = calli.listResourceIRIs(calli.getPageURL())[0];
+		var ns = calli.listResourceIRIs(calli.getPageUrl())[0];
 		if (ns.lastIndexOf('/') != ns.length - 1) {
 			ns += '/';
 		}
@@ -89,9 +89,9 @@ function promptIfNeeded(form, label, create, callback) {
 }
 
 function openSaveAsDialog(form, label, create, callback) {
-	var src = calli.getCallimachusURL("pages/location-prompt.html#") + encodeURIComponent(label.replace(/!/g,''));
+	var src = calli.getCallimachusUrl("pages/location-prompt.html#") + encodeURIComponent(label.replace(/!/g,''));
 	if (location.search.search(/\?\w+=/) == 0) {
-		src += '!' + calli.listResourceIRIs(calli.getPageURL())[0];
+		src += '!' + calli.listResourceIRIs(calli.getPageUrl())[0];
 	} else if (window.sessionStorage) {
 		try {
 			var url = sessionStorage.getItem("LastFolder");
@@ -208,7 +208,7 @@ function isIntermidate(url) {
 function getFormAction(form) {
 	if (form.getAttribute("action"))
 		return form.action;
-	var url = calli.getPageURL();
+	var url = calli.getPageUrl();
 	if (url.indexOf('#') > 0)
 		return url.substring(0, url.indexOf('#'));
 	return url;

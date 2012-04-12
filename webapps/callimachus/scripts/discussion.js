@@ -4,7 +4,7 @@
 
 	function checkTab() {
 		if (location.search == '?discussion') {
-			var url = calli.getPageURL();
+			var url = calli.getPageUrl();
 			var posts = $(".comment").parent().find("time").map(function(){ return $(this).attr("content"); });
 			try {
 				if (window.localStorage && posts.length) {

@@ -6,7 +6,7 @@ if (!window.calli) {
 	window.calli = {};
 }
 
-window.calli.getPageURL = function() {
+window.calli.getPageUrl = function() {
 	// window.location.href needlessly decodes URI-encoded characters in the URI path
 	// https://bugs.webkit.org/show_bug.cgi?id=30225
 	var path = location.pathname;
@@ -15,7 +15,7 @@ window.calli.getPageURL = function() {
 	return location.href;
 };
 
-window.calli.getCallimachusURL = function(suffix) {
+window.calli.getCallimachusUrl = function(suffix) {
 	var home = location.protocol + '//' + location.host + '/';
 	var link = $('link[rel="home"]');
 	if (link[0] && link[0].href) {

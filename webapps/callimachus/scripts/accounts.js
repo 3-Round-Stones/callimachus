@@ -27,7 +27,7 @@ $(document).bind("calliLogin", function(event) {
 		sessionStorage.removeItem('UserIri');
 		localStorage.removeItem('Authorization');
 	}
-	var options = {type: "GET", url: calli.getCallimachusURL("/accounts?login"),
+	var options = {type: "GET", url: calli.getCallimachusUrl("/accounts?login"),
 		success: function(doc) {
 			var iri = /resource="([^" >]*)"/i.exec(doc);
 			if (iri) {
@@ -97,7 +97,7 @@ $(document).bind("calliLogin", function(event) {
 
 $(document).bind("calliLogout", function(event) {
 	if (!window.sessionStorage || sessionStorage.getItem('Name')) {
-		jQuery.ajax({ type: 'GET', url: calli.getCallimachusURL("/accounts?logout"),
+		jQuery.ajax({ type: 'GET', url: calli.getCallimachusUrl("/accounts?logout"),
 			username: 'logout', password: 'nil',
 			success: function(data) {
 				location = "/";
@@ -237,7 +237,7 @@ if (window.sessionStorage && sessionStorage.getItem("Name")) {
 		}
 	}
 	// hasn't logged in using the login form; is this page protected?
-	var xhr = jQuery.ajax({type: 'GET', url: calli.getPageURL(),
+	var xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
 		beforeSend: withCredentials,
 		success: function() {
 			if (xhr.getResponseHeader("Authentication-Info")) { 
@@ -245,7 +245,7 @@ if (window.sessionStorage && sessionStorage.getItem("Name")) {
 				event.preventDefault(); // don't reload page
 				$(document).trigger(event);
 			} else if (!xhr.getAllResponseHeaders()) { // Opera sends empty response; try again w/o cache
-				xhr = jQuery.ajax({type: 'GET', url: calli.getPageURL(),
+				xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
 					beforeSend: function(xhr) {
 						xhr.setRequestHeader('Cache-Control', 'no-cache');
 						withCredentials(xhr);

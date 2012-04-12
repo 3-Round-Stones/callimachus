@@ -5,7 +5,7 @@
 try {
 	/** Store the top previous page about a different resource */
 	if (window.sessionStorage && window.parent == window) {
-		var here = ' ' + calli.getPageURL();
+		var here = ' ' + calli.getPageUrl();
 		if (here.indexOf('?') >= 0) {
 			here = here.substring(0, here.indexOf('?'));
 		}

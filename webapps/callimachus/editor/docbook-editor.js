@@ -7,10 +7,10 @@ jQuery(function($) {
 		lang: "en",
 		initSkin: false,
 		loadSkin: false,
-		basePath: calli.getCallimachusURL('editor/wymeditor/'),
-		skinPath: calli.getCallimachusURL('editor/wymeditor/'),
-		jQueryPath: calli.getCallimachusURL('scripts/jquery.js'),
-		wymPath: calli.getCallimachusURL('editor/wymeditor/jquery.wymeditor.js'),
+		basePath: calli.getCallimachusUrl('editor/wymeditor/'),
+		skinPath: calli.getCallimachusUrl('editor/wymeditor/'),
+		jQueryPath: calli.getCallimachusUrl('scripts/jquery.js'),
+		wymPath: calli.getCallimachusUrl('editor/wymeditor/jquery.wymeditor.js'),
 		dialogFeatures: navigator.appName == 'Microsoft Internet Explorer' ? undefined : 'jQuery.dialog',
 		dialogFeaturesPreview: navigator.appName == 'Microsoft Internet Explorer' ? undefined : 'jQuery.dialog'
 	});
@@ -182,5 +182,5 @@ jQuery(function($) {
 			parent.postMessage('CONNECT calliEditorLoaded', '*');
 		}
 	});
-	$('#wym-iframe')[0].src = calli.getCallimachusURL("editor/wymeditor/wymiframe.html");
+	$('#wym-iframe')[0].src = calli.getCallimachusUrl("editor/wymeditor/wymiframe.html");
 });

@@ -55,19 +55,19 @@ window.calli.viewpage = function(uri) {
 	        }
 	    }
 	}
-    var prefix = calli.getCallimachusURL('/');
+    var prefix = calli.getCallimachusUrl('/');
 	if (url.indexOf(prefix) == 0) {
 		url = url.substring(prefix.length - 1);
 	}
 	if (url.indexOf('/diverted;') == 0) {
 		url = decodeURIComponent(url.substring('/diverted;'.length));
 	}
-	return calli.getCallimachusURL('view?q=' + encodeURIComponent(url).replace(/%2F/g, '/').replace(/%3A/g, ':'));
+	return calli.getCallimachusUrl('view?q=' + encodeURIComponent(url).replace(/%2F/g, '/').replace(/%3A/g, ':'));
 }
 
 window.calli.diverted = function(uri, query) {
 	var url = uri;
-    var prefix = calli.getCallimachusURL('/');
+    var prefix = calli.getCallimachusUrl('/');
 	if (url.indexOf(prefix) != 0 && url.indexOf(':') > 0 || url.indexOf('?') > 0 || url.indexOf('#') > 0) {
 		if (url.indexOf(':') < 0) {
 		    if (document.baseURIObject && document.baseURIObject.resolve) {

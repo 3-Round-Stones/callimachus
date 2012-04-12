@@ -11,7 +11,7 @@
 	}
 	function createTextCell(text, url, type, src) {
 		if (!src) {
-			src = calli.getCallimachusURL('images/rdf-icon.png');
+			src = calli.getCallimachusUrl('images/rdf-icon.png');
 		}
 		var td = $('<td/>');
 		td.addClass('ui-widget-content');

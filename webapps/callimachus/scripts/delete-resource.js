@@ -27,7 +27,7 @@ window.calli.deleteResource = function(event, redirect) {
 		var de = jQuery.Event("calliDelete");
 		form.trigger(de);
 		if (!de.isDefaultPrevented()) {
-			var url = calli.getPageURL();
+			var url = calli.getPageUrl();
 			if (url.indexOf('?') > 0) {
 				url = url.substring(0, url.indexOf('?'));
 			}
@@ -51,7 +51,7 @@ window.calli.deleteResource = function(event, redirect) {
 							event.location = document.referrer;
 						}
 						if (event.location) {
-							var href = calli.getPageURL();
+							var href = calli.getPageUrl();
 							if (href.indexOf('?') > 0) {
 								href = href.substring(0, href.indexOf('?'));
 							}

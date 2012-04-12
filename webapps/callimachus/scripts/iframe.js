@@ -34,7 +34,7 @@
 		var src = null;
 		var postSource = function() {
 			if (window.location.search == '?view' && parent.postMessage) {
-				var url = calli.getPageURL();
+				var url = calli.getPageUrl();
 				if (url != src) {
 					src = url;
 					parent.postMessage('PUT src\n\n' + url, '*');

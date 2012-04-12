@@ -64,7 +64,7 @@ function xslt(xslUrl, xmlUrl, callback, sync) {
 
 WYMeditor.editor.prototype.docbook = function(xml) {
 	if (xml && typeof xml == 'string') {
-		var xhtml = xslt(calli.getCallimachusURL("editor/docbook2xhtml.xsl"), xml);
+		var xhtml = xslt(calli.getCallimachusUrl("editor/docbook2xhtml.xsl"), xml);
 		xhtml = xhtml.match(/<body[^>]*>([\s\S]*)<\/body>/)[1];
 		this.html(xhtml);
 	} else if (typeof xml == 'string') {
@@ -73,7 +73,7 @@ WYMeditor.editor.prototype.docbook = function(xml) {
 		var xhtml = this.xhtml();
 		if (typeof xhtml != 'string') return xhtml;
 		xhtml = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title></head><body>' + xhtml + '</body></html>';
-		return xslt(calli.getCallimachusURL("editor/xhtml2docbook.xsl"), xhtml);
+		return xslt(calli.getCallimachusUrl("editor/xhtml2docbook.xsl"), xhtml);
 	}
 };
 

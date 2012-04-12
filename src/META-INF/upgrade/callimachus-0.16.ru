@@ -28,5 +28,6 @@ INSERT {
 	?manager a </callimachus/DigestManager>, calli:DigestManager
 } WHERE {
 	?manager a </callimachus/AccountManager>, calli:AccountManager
+	FILTER NOT EXISTS { ?manager a </callimachus/DigestManager> }
 };
 

@@ -19,8 +19,6 @@ import com.sun.jersey.api.client.WebResource.Builder;
 
 public class DOMProviderTest extends MetadataServerTestCase {
 
-	private static final String XML_NO = "<?xml version=\"1.0\" encoding=\""
-			+ Charset.defaultCharset().name() + "\" standalone=\"no\"?>";
 	private static final String XML = "<?xml version=\"1.0\" encoding=\""
 			+ Charset.defaultCharset().name() + "\"?>";
 
@@ -125,7 +123,7 @@ public class DOMProviderTest extends MetadataServerTestCase {
 	}
 
 	public void testDocument() throws Exception {
-		assertEquals(XML_NO + "<document/>", getString("document"));
+		assertTrue(getString("document").trim().endsWith("<document/>"));
 		putString("document", "<document/>");
 	}
 
@@ -137,16 +135,6 @@ public class DOMProviderTest extends MetadataServerTestCase {
 	public void testFragment() throws Exception {
 		assertEquals("<fragment/>", getString("fragment"));
 		putString("fragment", "<fragment/>");
-	}
-
-	public void testFragmentDual() throws Exception {
-		assertEquals("<first/><second/>", getString("fragment-dual"));
-		putString("fragment-dual", "<first/><second/>");
-	}
-
-	public void testFragmentWhitespace() throws Exception {
-		assertEquals(" <fragment/>", getString("fragment-whitespace"));
-		putString("fragment-whitespace", " <fragment/>");
 	}
 
 	private String getString(String operation) {

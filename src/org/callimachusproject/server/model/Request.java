@@ -62,7 +62,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	private InetAddress remoteAddr;
 	private String iri;
 	private Realm realm;
-	private Object credential;
+	private String credential;
 
 	public Request(Request request) {
 		this(request, request.getRemoteAddr());
@@ -92,14 +92,14 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		this.realm = realm;
 	}
 
-	public Object getCredential() {
+	public String getCredential() {
 		if (credential == null && getEnclosingRequest() instanceof Request) {
 			return ((Request) getEnclosingRequest()).getCredential();
 		}
 		return credential;
 	}
 
-	public void setCredential(Object cred) {
+	public void setCredential(String cred) {
 		this.credential = cred;
 		if (getEnclosingRequest() instanceof Request) {
 			((Request) getEnclosingRequest()).setCredential(cred);
@@ -349,6 +349,24 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		throw new BadRequest("Missing Host Header");
 	}
 
+	public String getScheme() {
+		String uri = getRequestLine().getUri();
+		if (uri != null && !uri.equals("*") && !uri.startsWith("/")) {
+			try {
+				String scheme = new java.net.URI(uri).getScheme();
+				if (scheme != null)
+					return scheme;
+			} catch (URISyntaxException e) {
+				// try the host header
+			}
+		}
+		// Set by custom HTTP(S)ServerIOEventDispatch
+		Object scheme = getParams().getParameter("http.protocol.scheme");
+		if (scheme == null)
+			return "http";
+		return (String) scheme;
+	}
+
 	public Enumeration getHeaderEnumeration(String name) {
 		Vector values = new Vector();
 		for (Header hd : getHeaders(name)) {
@@ -375,24 +393,6 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		} catch (IllegalArgumentException e) {
 			throw new BadRequest(e);
 		}
-	}
-
-	private String getScheme() {
-		String uri = getRequestLine().getUri();
-		if (uri != null && !uri.equals("*") && !uri.startsWith("/")) {
-			try {
-				String scheme = new java.net.URI(uri).getScheme();
-				if (scheme != null)
-					return scheme;
-			} catch (URISyntaxException e) {
-				// try the host header
-			}
-		}
-		// Set by custom HTTP(S)ServerIOEventDispatch
-		Object scheme = getParams().getParameter("http.protocol.scheme");
-		if (scheme == null)
-			return "http";
-		return (String) scheme;
 	}
 
 	private int getCacheControl(String directive, int def) {

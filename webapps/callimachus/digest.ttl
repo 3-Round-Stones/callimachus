@@ -13,9 +13,10 @@
 # Realm
 ################################
 
-<DigestManager> a owl:Class;
+<DigestManager> a <Creatable>, owl:Class;
 	rdfs:subClassOf <Viewable>, <Editable>, calli:DigestManager;
 	rdfs:isDefinedBy </callimachus>;
+	calli:author </group/admin>;
 	calli:view <digest-view.xhtml>;
 	calli:edit <digest-edit.xhtml>;
 	calli:create <digest-create.xhtml>.

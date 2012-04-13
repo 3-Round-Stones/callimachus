@@ -53,7 +53,7 @@ public class AuthenticationTest extends MetadataServerTestCase {
 			return false;
 		}
 
-		public Object authenticateRequest(String method, Object resource,
+		public String authenticateRequest(String method, Object resource,
 				Map<String, String[]> request) throws RepositoryException {
 			if (request.containsKey("authorization")
 					&& !"bad".equals(request.get("authorization")[0]))
@@ -61,7 +61,7 @@ public class AuthenticationTest extends MetadataServerTestCase {
 			return null;
 		}
 
-		public boolean authorizeCredential(Object credential, String method,
+		public boolean authorizeCredential(String credential, String method,
 				Object resource, Map<String, String[]> request) {
 			return true;
 		}

@@ -174,7 +174,7 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 	}
 
 	@Override
-	public Object authenticateRequest(String method, Object resource,
+	public String authenticateRequest(String method, Object resource,
 			Map<String, String[]> map) {
 		String url = map.get("request-target")[0];
 		String[] auth = map.get("authorization");
@@ -215,7 +215,7 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		}
 	}
 
-	public Object findCredential(String authorization) {
+	public String findCredential(String authorization) {
 		if (authorization == null || !authorization.startsWith("Digest"))
 			return null;
 		String string = authorization.substring("Digest ".length());
@@ -226,15 +226,15 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		List<Object[]> encodings = findDigest(username);
 		if (encodings.isEmpty())
 			return null;
-		return encodings.get(0)[0];
+		return (String) encodings.get(0)[0];
 	}
 
 	@Sparql(PREFIX + "SELECT (group_concat(?realm;separator=' ') as ?domain)\n"
-			+ "WHERE { ?realm calli:authentication $this }")
+			+ "WHERE { SELECT DISTINCT ?realm { ?realm calli:authentication $this } }")
 	protected abstract String protectionDomain();
 
 	@Sparql(PREFIX
-			+ "SELECT ?user ?encoded\n"
+			+ "SELECT (str(?user) AS ?id) ?encoded\n"
 			+ "WHERE { ?user calli:name $name .\n"
 			+ "$this calli:authNamespace ?folder .\n"
 			+ "?folder calli:hasComponent ?user .\n"
@@ -242,7 +242,7 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" } }")
 	protected abstract List<Object[]> findDigest(@Bind("name") String username);
 
-	private Object authenticatedCredential(String method,
+	private String authenticatedCredential(String method,
 			Map<String, String> options) throws UnsupportedEncodingException {
 		String qop = options.get("qop");
 		String uri = options.get("uri");
@@ -278,11 +278,11 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			String ha1 = new String(Hex.encodeHex(a1));
 			String legacy = ha1 + ":" + nonce + ":" + ha2;
 			if (qop == null && md5(legacy).equals(response))
-				return row[0];
+				return (String) row[0];
 			String expected = ha1 + ":" + nonce + ":" + options.get("nc") + ":"
 					+ options.get("cnonce") + ":" + qop + ":" + ha2;
 			if (md5(expected).equals(response))
-				return row[0];
+				return (String) row[0];
 		}
 		if (encoding) {
 			logger.info("Passwords don't match for: {}", username);

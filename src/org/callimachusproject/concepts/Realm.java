@@ -67,41 +67,63 @@ public interface Realm {
 
 	/**
 	 * Authenticates a request to determine the authenticated credential.
+	 * <DL>
+	 * <DT>request-target
+	 * <dd>from the request line
+	 * <DT>request-scheme
+	 * <dd>"http" or "https"
+	 * <DT>authorization
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>cookie
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>host
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>origin
+	 * <dd>scheme and authority the agent script was loaded from (if applicable)
+	 * <DT>via
+	 * <dd>list of hosts or pseudonym and their HTTP version that sent or
+	 * forwarded this request
+	 * </DL>
 	 * 
 	 * @param method
 	 *            The HTTP request method.
 	 * @param resource
 	 *            The target resource of a request.
 	 * @param request
-	 *            A map with "request-target" that was used in the request line,
-	 *            "authorization" that is the HTTP request header of the same
-	 *            name if present, "cookie" that is the HTTP request header of
-	 *            the same name if present, "origin" that is the scheme and
-	 *            authority the agent script was loaded from (if applicable),
-	 *            and "via" that is a list of hosts or pseudonym and their HTTP
-	 *            version that sent or forwarded this request.
+	 *            A map with the above conditional keys
 	 * @return The authenticated credentials or a null result if invalid
 	 *         credentials.
 	 */
-	Object authenticateRequest(String method, Object resource,
+	String authenticateRequest(String method, Object resource,
 			Map<String, String[]> request) throws RepositoryException;
 
 	/**
 	 * The response that should be returned when the request could not be
 	 * authenticated.
+	 * <DL>
+	 * <DT>request-target
+	 * <dd>from the request line
+	 * <DT>request-scheme
+	 * <dd>"http" or "https"
+	 * <DT>authorization
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>cookie
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>host
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>origin
+	 * <dd>scheme and authority the agent script was loaded from (if applicable)
+	 * <DT>via
+	 * <dd>list of hosts or pseudonym and their HTTP version that sent or
+	 * forwarded this request
+	 * </DL>
 	 * 
 	 * @param method
 	 *            The HTTP request method.
 	 * @param resource
 	 *            The target resource of a request.
 	 * @param request
-	 *            A map with "request-target" that was used in the request line,
-	 *            "authorization" that is the HTTP request header of the same
-	 *            name if present, "cookie" that is the HTTP request header of
-	 *            the same name if present, "origin" that is the scheme and
-	 *            authority the agent script was loaded from (if applicable),
-	 *            and "via" that is a list of hosts or pseudonym and their HTTP
-	 *            version that sent or forwarded this request.
+	 *            A map with the above conditional keys
 	 * 
 	 * @return An HTTP response
 	 */
@@ -110,44 +132,67 @@ public interface Realm {
 
 	/**
 	 * Called after a request has been authenticate.
+	 * <DL>
+	 * <DT>request-target
+	 * <dd>from the request line
+	 * <DT>request-scheme
+	 * <dd>"http" or "https"
+	 * <DT>authorization
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>cookie
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>host
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>origin
+	 * <dd>scheme and authority the agent script was loaded from (if applicable)
+	 * <DT>via
+	 * <dd>list of hosts or pseudonym and their HTTP version that sent or
+	 * forwarded this request
+	 * </DL>
 	 * 
 	 * @param credential
-	 *            Response from authenticateAgent or authenticateRequest.
+	 *            Response from authenticateRequest.
 	 * @param method
 	 *            The HTTP request method.
 	 * @param resource
 	 *            The target resource of a request.
 	 * @param request
-	 *            A map with "request-target" that was used in the request line,
-	 *            "authorization" that is the HTTP request header of the same
-	 *            name if present, "cookie" that is the HTTP request header of
-	 *            the same name if present, "origin" that is the scheme and
-	 *            authority the agent script was loaded from (if applicable),
-	 *            and "via" that is a list of hosts or pseudonym and their HTTP
-	 *            version that sent or forwarded this request.
+	 *            A map with the above conditional keys
 	 * @return <code>true</code> if the credentials are authorized on this
 	 *         resource
+	 * @throws RepositoryException 
 	 */
-	boolean authorizeCredential(Object credential, String method,
-			Object resource, Map<String, String[]> request);
+	boolean authorizeCredential(String credential, String method,
+			Object resource, Map<String, String[]> request) throws RepositoryException;
 
 	/**
 	 * The response that should be returned when the request is authenticated,
 	 * but could not be authorised or the request originated from an invalid
 	 * origin.
+	 * <DL>
+	 * <DT>request-target
+	 * <dd>from the request line
+	 * <DT>request-scheme
+	 * <dd>"http" or "https"
+	 * <DT>authorization
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>cookie
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>host
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>origin
+	 * <dd>scheme and authority the agent script was loaded from (if applicable)
+	 * <DT>via
+	 * <dd>list of hosts or pseudonym and their HTTP version that sent or
+	 * forwarded this request
+	 * </DL>
 	 * 
 	 * @param method
 	 *            The HTTP request method.
 	 * @param resource
 	 *            The target resource of a request.
 	 * @param request
-	 *            A map with "request-target" that was used in the request line,
-	 *            "authorization" that is the HTTP request header of the same
-	 *            name if present, "cookie" that is the HTTP request header of
-	 *            the same name if present, "origin" that is the scheme and
-	 *            authority the agent script was loaded from (if applicable),
-	 *            and "via" that is a list of hosts or pseudonym and their HTTP
-	 *            version that sent or forwarded this request.
+	 *            A map with the above conditional keys
 	 * 
 	 * @return An HTTP response
 	 */
@@ -156,19 +201,30 @@ public interface Realm {
 
 	/**
 	 * Response headers that should be included in the response.
+	 * <DL>
+	 * <DT>request-target
+	 * <dd>from the request line
+	 * <DT>request-scheme
+	 * <dd>"http" or "https"
+	 * <DT>authorization
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>cookie
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>host
+	 * <dd>HTTP request header of the same name, if present
+	 * <DT>origin
+	 * <dd>scheme and authority the agent script was loaded from (if applicable)
+	 * <DT>via
+	 * <dd>list of hosts or pseudonym and their HTTP version that sent or
+	 * forwarded this request
+	 * </DL>
 	 * 
 	 * @param method
 	 *            The HTTP request method.
 	 * @param resource
 	 *            The target resource of a request.
 	 * @param request
-	 *            A map with "request-target" that was used in the request line,
-	 *            "authorization" that is the HTTP request header of the same
-	 *            name if present, "cookie" that is the HTTP request header of
-	 *            the same name if present, "origin" that is the scheme and
-	 *            authority the agent script was loaded from (if applicable),
-	 *            and "via" that is a list of hosts or pseudonym and their HTTP
-	 *            version that sent or forwarded this request.
+	 *            A map with the above conditional keys
 	 * 
 	 * @return Set of HTTP headers
 	 */

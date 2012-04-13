@@ -145,12 +145,12 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 			return false;
 		}
 
-		public Object authenticateRequest(String method, Object resource,
+		public String authenticateRequest(String method, Object resource,
 				Map<String, String[]> request) throws RepositoryException {
-			return getObjectConnection().getObject("urn:test:anybody");
+			return "urn:test:anybody";
 		}
 
-		public boolean authorizeCredential(Object credential, String method,
+		public boolean authorizeCredential(String credential, String method,
 				Object resource, Map<String, String[]> request) {
 			return true;
 		}

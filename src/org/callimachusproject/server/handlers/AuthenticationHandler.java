@@ -37,7 +37,6 @@ import java.net.InetAddress;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -180,14 +179,14 @@ public class AuthenticationHandler implements Handler {
 		Map<String, String[]> map = getAuthorizationMap(request);
 		// loop through first to see if further authorisation is needed
 		List<Realm> realms = request.getRealms();
-		List<Object> credentials = new ArrayList<Object>(realms.size());
+		List<String> credentials = new ArrayList<String>(realms.size());
 		for (int i = 0, n = realms.size(); i < n; i++) {
 			Realm realm = realms.get(i);
 			try {
 				String allowed = realm.allowOrigin();
 				if (or != null && !isOriginAllowed(allowed, or))
 					continue;
-				Object cred = realm.authenticateRequest(m, target, map);
+				String cred = realm.authenticateRequest(m, target, map);
 				credentials.add(cred);
 				if (cred != null
 						&& realm.authorizeCredential(cred, m, target, map)) {
@@ -196,7 +195,7 @@ public class AuthenticationHandler implements Handler {
 						ObjectFactory of = con.getObjectFactory();
 						Transaction trans = of.createObject(CURRENT_TRX,
 								Transaction.class);
-						trans.setAuditContributor(cred);
+						trans.setAuditContributor(of.createObject(cred));
 					}
 					request.setRealm(realm);
 					request.setCredential(cred);
@@ -291,6 +290,7 @@ public class AuthenticationHandler implements Handler {
 		long now = request.getReceivedOn();
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		map.put("request-target", new String[] { request.getRequestTarget() });
+		map.put("request-scheme", new String[] { request.getScheme() });
 		map.put("date", new String[] { this.dateformat.format(new Date(now)) });
 		Header[] au = request.getHeaders("Authorization");
 		if (au != null && au.length > 0) {
@@ -300,9 +300,13 @@ public class AuthenticationHandler implements Handler {
 		if (co != null && co.length > 0) {
 			map.put("cookie", toStringArray(co));
 		}
+		Header[] ho = request.getHeaders("Host");
+		if (ho != null && ho.length > 0) {
+			map.put("host", toStringArray(ho));
+		}
 		String via = getRequestSource(request);
 		map.put("via", via.split("\\s*,\\s*"));
-		return Collections.unmodifiableMap(map);
+		return map;
 	}
 
 	private String[] toStringArray(Header[] au) {

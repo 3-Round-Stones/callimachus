@@ -16,7 +16,8 @@
 			<p>Only users in the User namespace folder are permitted to authenticate</p>
 		</aside>
 	</div>
-	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this">
+	<form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="owl:Class"
+			onsubmit="updateAbout();return calli.saveResourceAs(event)">
 		<div>
 			<label for="label">Label</label>
 			<input id="label" class="auto-expand" value="{rdfs:label}" />

@@ -33,6 +33,7 @@ import org.openrdf.query.parser.sparql.SPARQLParser;
 import org.openrdf.rio.turtle.TurtleUtil;
 
 public class ParameterizedQuery {
+	private static final Pattern PARAM_EXPRESSION = Pattern.compile("\\$\\{([^}]*)\\}");
 	private static ValueFactory vf = ValueFactoryImpl.getInstance();
 	private final String sparql;
 	private final String systemId;
@@ -102,9 +103,10 @@ public class ParameterizedQuery {
 
 	private String inlineExpressions(String sparql,
 			Map<String, String[]> parameters) throws QueryEvaluationException, MalformedQueryException {
-		StringBuilder sb = new StringBuilder(sparql);
-		Matcher m = Pattern.compile("\\$\\{([^}]*)\\}").matcher(sb);
+		StringBuilder sb = new StringBuilder();
+		Matcher m = PARAM_EXPRESSION.matcher(sparql);
 		String prologue = getPrologue();
+		int position = 0;
 		while (m.find()) {
 			String expression = m.group(1);
 			String select = prologue + "SELECT (" + expression + " AS ?_value) {} LIMIT 1";
@@ -127,12 +129,14 @@ public class ParameterizedQuery {
 				Value value = iter.next().getValue("_value");
 				if (value == null)
 					throw new IllegalArgumentException("No value for expression: " + expression);
-				CharSequence str = writeValue(value);
-				sb.replace(m.start(), m.end(), str.toString());
+				sb.append(sparql, position, m.start());
+				sb.append(writeValue(value));
+				position = m.end();
 			} finally {
 				iter.close();
 			}
 		}
+		sb.append(sparql, position, sparql.length());
 		return sb.toString();
 	}
 

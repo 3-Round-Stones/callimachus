@@ -40,8 +40,23 @@
 	msg:script """
 		if (this.calliAuthentication.isEmpty())
 			return null;
-		return this.calliAuthentication.iterator().next() + "?login";
+		var login = this.calliAuthentication.iterator().next() + "?login&continue=";
+		if (loginContinue)
+			return login + encodeURIComponent(loginContinue);
+		if (loginReferer)
+			return login + encodeURIComponent(loginReferer);
+		return login + encodeURIComponent(this.toString());
 	""".
+
+:loginReferer a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :GetLogin;
+	rdfs:range xsd:string;
+	calli:header "Referer".
+
+:loginContinue a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :GetLogin;
+	rdfs:range xsd:string;
+	calli:query "continue".
 
 :GetLogout rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
@@ -53,8 +68,18 @@
 	msg:script """
 		if (this.calliAuthentication.isEmpty())
 			return null;
-		return this.calliAuthentication.iterator().next() + "?logout";
+		var logout = this.calliAuthentication.iterator().next() + "?logout&continue=";
+		if (logoutContinue)
+			return logout + encodeURIComponent(logoutContinue);
+		var url = this.toString();
+		url = url.substring(0, url.indexOf("/", url.indexOf("://") + 3) + 1);
+		return logout + encodeURIComponent(url);
 	""".
+
+:logoutContinue a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :GetLogout;
+	rdfs:range xsd:string;
+	calli:query "continue".
 
 :GetSettings rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];

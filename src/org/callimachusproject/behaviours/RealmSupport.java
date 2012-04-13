@@ -42,7 +42,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 
 	public String allowOrigin() {
 		String sparql = PREFIX
-				+ "SELECT ?domain WHERE { ?domain a calli:Origin, ?origin . $this a ?realm\n"
+				+ "SELECT DISTINCT ?domain WHERE { ?domain a calli:Origin, ?origin . $this a ?realm\n"
 				+ "FILTER contains(str(?realm),\"/callimachus/\")\n"
 				+ "FILTER (?origin = ?realm || EXISTS { ?origin rdfs:subClassOf ?realm }) }";
 		ObjectConnection con = getObjectConnection();
@@ -99,12 +99,13 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	}
 
 	@Override
-	public boolean authorizeCredential(Object credential, String method,
-			Object resource, Map<String, String[]> request) {
+	public boolean authorizeCredential(String credential, String method,
+			Object resource, Map<String, String[]> request) throws RepositoryException {
 		String query = new ParsedURI(request.get("request-target")[0]).getQuery();
 		assert resource instanceof SelfAuthorizingTarget;
 		SelfAuthorizingTarget target = (SelfAuthorizingTarget) resource;
-		return target.calliIsAuthorized(credential, method, query);
+		Object account = getObjectConnection().getObject(credential);
+		return target.calliIsAuthorized(account, method, query);
 	}
 
 	@Override
@@ -150,10 +151,10 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	}
 
 	@Override
-	public Object authenticateRequest(String method, Object resource,
+	public String authenticateRequest(String method, Object resource,
 			Map<String, String[]> request) throws RepositoryException {
 		for (AuthenticationManager realm : getCalliAuthentications()) {
-			Object ret = realm.authenticateRequest(method, resource, request);
+			String ret = realm.authenticateRequest(method, resource, request);
 			if (ret != null)
 				return ret;
 		}

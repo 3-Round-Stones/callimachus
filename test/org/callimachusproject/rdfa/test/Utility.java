@@ -16,6 +16,8 @@
  */
 package org.callimachusproject.rdfa.test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -28,14 +30,18 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stax.StAXResult;
-import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.callimachusproject.engine.RDFEventReader;
@@ -54,6 +60,7 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.object.xslt.XMLSourceFactory;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.w3c.dom.Document;
@@ -158,7 +165,7 @@ public class Utility {
 		Transformer transformer = transformerFactory.newTransformer();
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty(INDENT_AMOUNT, "2");
-		transformer.transform (new StAXSource(xml), new StreamResult(out));
+		transformer.transform (newSource(xml), new StreamResult(out));
 		out.write('\n');
 	}
 	
@@ -167,7 +174,7 @@ public class Utility {
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty(INDENT_AMOUNT, "2");
 		Document doc = documentBuilderFactory.newDocumentBuilder().newDocument();
-		transformer.transform (new StAXSource(xml), new DOMResult(doc));
+		transformer.transform (newSource(xml), new DOMResult(doc));
 		return doc;
 	}
 	
@@ -205,8 +212,38 @@ public class Utility {
 		
 	public static Document transform(XMLEventReader xml, Transformer transformer) throws Exception {
 		Document doc = documentBuilderFactory.newDocumentBuilder().newDocument();
-		transformer.transform(new StAXSource(xml), new DOMResult(doc));
+		transformer.transform(newSource(xml), new DOMResult(doc));
 		return doc;
+	}
+
+	private static Source newSource(XMLEventReader xml)
+			throws XMLStreamException, TransformerException {
+		return XMLSourceFactory.newInstance().createSource(
+				toByteArrayInputStream(xml), null);
+	}
+
+	private static ByteArrayInputStream toByteArrayInputStream(XMLEventReader reader)
+			throws TransformerException {
+		if (reader == null)
+			return null;
+		ByteArrayOutputStream output = new ByteArrayOutputStream(8192);
+		try {
+			XMLEventWriter writer = XMLOutputFactory.newInstance().createXMLEventWriter(output);
+			try {
+				writer.add(reader);
+			} finally {
+				reader.close();
+				writer.close();
+				output.close();
+			}
+		} catch (XMLStreamException e) {
+			throw new TransformerException(e);
+		} catch (IOException e) {
+			throw new TransformerException(e);
+		}
+		ByteArrayInputStream input = new ByteArrayInputStream(
+				output.toByteArray());
+		return input;
 	}
 	
 }

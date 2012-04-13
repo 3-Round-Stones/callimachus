@@ -152,7 +152,7 @@ rdfs:comment a rdf:Property.
 		var email = form.get("email") ? form.get("email")[0] : null;
 		var current = form.get("current") ? form.get("current")[0] : null;
 		var password = form.get("password") ? form.get("password")[0] : null;
-		if (this.equals(credential)) {
+		if (this.toString().equals(credential.toString())) {
 			//# check if they know their own password
 			if (!current)
 				throw new BadRequest("What is your current password?");

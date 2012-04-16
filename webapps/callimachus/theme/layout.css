@@ -230,13 +230,16 @@ aside ul,
 .ie #logo { float:none; position:absolute; top:0; left:0; }
 .ie nav#menu { float:none; position:absolute; top:10em; left:0; }
 .ie #access, .ie #container, .ie #footer { margin-left:10em; }
+.ie.iframe #access, .ie.iframe #container, .ie.iframe #footer { margin-left:0; }
 .ie #access { clear:none; }
 .ie #content { min-height:28em; }
 .ie .iframe #content {min-height: 0px; }
 .ie hgroup ~ #sidebar { position:relative; top:-6em; }
 .ie h1 ~ #sidebar { position:relative; top:-3.5em; }
 .ie #sidebar { float:right; padding-left:1em; }
+.ie.iframe #sidebar { float:none; }
 .ie aside, .ie .aside { float:right; }
+.ie.iframe aside, .ie.iframe .aside { float:none; }
 /* end desktop */
 
 /* start print */

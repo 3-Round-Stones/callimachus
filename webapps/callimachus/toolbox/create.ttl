@@ -96,7 +96,7 @@
 			throw new BadRequest("Fragement or name resources are not supported");
 		var ftype = type;
 		var bio = new java.io.BufferedInputStream(body, 65536);
-		if (type.indexOf("multipart/form-data") == 0) {
+		if (type && type.indexOf("multipart/form-data") == 0) {
 			bio.mark(1024);
 			var parser = new MultipartParser(bio);
 			var file = parser.next();
@@ -108,14 +108,18 @@
 				if (xml || ftype == "application/octet-stream" || ftype.indexOf("application/x-") == 0) {
 					var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
 					var mimetypes = new javax.activation.MimetypesFileTypeMap();
-					if (!"application/octet-stream".equals(mimetypes.getContentType(fileName))) {
-						ftype = mimetypes.getContentType(fileName);
+					var mtype = mimetypes.getContentType(fileName);
+					if (!"application/octet-stream".equals(mtype)) {
+						ftype = mtype;
 					}
 				}
 				bio = file;
 			} else { // not a file upload
 				bio.reset();
 			}
+		} else if (!ftype) {
+			var mimetypes = new javax.activation.MimetypesFileTypeMap();
+			ftype = mimetypes.getContentType(location.toString());
 		}
 		var construct = create.LookupConstructor(ftype);
 		var iter = this.FindCreator(location).iterator();

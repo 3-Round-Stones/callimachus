@@ -240,7 +240,7 @@ if (window.sessionStorage && sessionStorage.getItem("Name")) {
 	var xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
 		beforeSend: withCredentials,
 		success: function() {
-			if (xhr.getResponseHeader("Authentication-Info") || xhr.getResponseHeader("Set-Cookie")) { 
+			if (xhr.getResponseHeader("Authentication-Info")) { 
 				var event = jQuery.Event("calliLogin");
 				event.preventDefault(); // don't reload page
 				$(document).trigger(event);
@@ -251,7 +251,7 @@ if (window.sessionStorage && sessionStorage.getItem("Name")) {
 						withCredentials(xhr);
 					},
 					success: function() {
-						if (xhr.getResponseHeader("Authentication-Info") || xhr.getResponseHeader("Set-Cookie")) {
+						if (xhr.getResponseHeader("Authentication-Info")) {
 							var event = jQuery.Event("calliLogin");
 							event.preventDefault(); // don't reload page
 							$(document).trigger(event);

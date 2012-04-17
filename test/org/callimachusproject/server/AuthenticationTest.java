@@ -1,5 +1,7 @@
 package org.callimachusproject.server;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,8 +47,8 @@ public class AuthenticationTest extends MetadataServerTestCase {
 	@Precedes(RealmSupport.class)
 	public static class MyRealmSupport implements MyRealm {
 
-		public String allowOrigin() {
-			return "*";
+		public Collection<String> allowOrigin() {
+			return Collections.singleton("*");
 		}
 
 		public boolean withAgentCredentials(String origin) {

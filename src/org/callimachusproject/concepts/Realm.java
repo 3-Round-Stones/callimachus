@@ -30,6 +30,7 @@
  */
 package org.callimachusproject.concepts;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,11 +49,11 @@ public interface Realm {
 	 * The script's origins that are permitted to send requests to this realm as
 	 * defined in the HTTP header Access-Control-Allow-Origin.
 	 * 
-	 * @return a comma separated list of acceptable scheme + '://' + authroity
+	 * @return a set of acceptable scheme + '://' + authroity
 	 *         or "*" if any script is allowed or null if no scripts are
 	 *         allowed.
 	 */
-	String allowOrigin();
+	Collection<String> allowOrigin();
 
 	/**
 	 * If scripts from the given origin can use their agent's credentials.

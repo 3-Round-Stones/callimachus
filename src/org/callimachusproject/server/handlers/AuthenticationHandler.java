@@ -37,11 +37,17 @@ import java.net.InetAddress;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.http.Header;
@@ -76,6 +82,11 @@ public class AuthenticationHandler implements Handler {
 	private static final String ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 	private static final String REQUEST_METHOD = "Access-Control-Request-Method";
 	private static final String ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+	private static final String EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+	private static final String[] PUBLIC_HEADERS = { "Content-Type",
+			"Content-Length", "Content-Encoding", "Date", "Server" };
+	private static final Set<String> PRIVATE_HEADERS = new HashSet<String>(
+			Arrays.asList("set-cookie", "set-cookie2"));
 	public static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 	private static final BasicStatusLine _403 = new BasicStatusLine(
@@ -134,6 +145,12 @@ public class AuthenticationHandler implements Handler {
 				}
 			}
 		}
+		if (!rb.containsHeader(EXPOSE_HEADERS)) {
+			String exposed = exposeHeaders(rb);
+			if (exposed != null) {
+				rb.setHeader(EXPOSE_HEADERS, exposed);
+			}
+		}
 		return rb;
 	}
 
@@ -183,7 +200,7 @@ public class AuthenticationHandler implements Handler {
 		for (int i = 0, n = realms.size(); i < n; i++) {
 			Realm realm = realms.get(i);
 			try {
-				String allowed = realm.allowOrigin();
+				Collection<String> allowed = realm.allowOrigin();
 				if (or != null && !isOriginAllowed(allowed, or))
 					continue;
 				String cred = realm.authenticateRequest(m, target, map);
@@ -212,7 +229,7 @@ public class AuthenticationHandler implements Handler {
 			Realm realm = realms.get(i);
 			noRealm = false;
 			try {
-				String allowed = realm.allowOrigin();
+				Collection<String> allowed = realm.allowOrigin();
 				if (or != null && !isOriginAllowed(allowed, or)) {
 					try {
 						unauth = choose(unauth, realm.forbidden(m, target, map));
@@ -333,10 +350,10 @@ public class AuthenticationHandler implements Handler {
 		return via.toString();
 	}
 
-	private boolean isOriginAllowed(String allowed, String o) {
+	private boolean isOriginAllowed(Collection<String> allowed, String o) {
 		if (allowed == null)
 			return false;
-		for (String ao : allowed.split("\\s*,\\s*")) {
+		for (String ao : allowed) {
 			if (ao.equals("*") || o.startsWith(ao) || ao.startsWith(o)
 					&& ao.charAt(o.length()) == '/')
 				return true;
@@ -346,20 +363,15 @@ public class AuthenticationHandler implements Handler {
 
 	private String allowOrigin(ResourceOperation request)
 			throws QueryEvaluationException, RepositoryException {
-		StringBuilder sb = new StringBuilder();
+		Set<String> set = new LinkedHashSet<String>();
 		List<Realm> realms = request.getRealms();
 		if (realms.isEmpty())
 			return "*";
 		for (Realm realm : realms) {
-			if (sb.length() > 0) {
-				sb.append(", ");
-			}
-			String origin = realm.allowOrigin();
-			if ("*".equals(origin))
-				return origin;
-			if (origin != null && origin.length() > 0) {
-				sb.append(origin);
-			}
+			Collection<String> origins = realm.allowOrigin();
+			if (origins.contains("*"))
+				return "*";
+			set.addAll(origins);
 		}
 		if ("OPTIONS".equals(request.getMethod())) {
 			String m = request.getVaryHeader(REQUEST_METHOD);
@@ -367,21 +379,47 @@ public class AuthenticationHandler implements Handler {
 				if (method.isAnnotationPresent(realm.class)) {
 					String[] values = method.getAnnotation(realm.class).value();
 					for (Realm realm : request.getRealms(values)) {
-						if (sb.length() > 0) {
-							sb.append(", ");
-						}
-						String origin = realm.allowOrigin();
-						if ("*".equals(origin))
-							return origin;
-						if (origin != null && origin.length() > 0) {
-							sb.append(origin);
-						}
+						Collection<String> origins = realm.allowOrigin();
+						if (origins.contains("*"))
+							return "*";
+						set.addAll(origins);
 					}
 				}
 			}
 		}
-		if (sb.length() < 1)
+		if (set.isEmpty())
 			return null;
+		StringBuilder sb = new StringBuilder();
+		for (String s : set) {
+			if (sb.length() > 0) {
+				sb.append(" ");
+			}
+			sb.append(s);
+		}
+		return sb.toString();
+	}
+
+	private String exposeHeaders(HttpMessage rb) {
+		Map<String,String> map = new LinkedHashMap<String,String>();
+		for (Header hd : rb.getAllHeaders()) {
+			String lc = hd.getName().toLowerCase();
+			if (!PRIVATE_HEADERS.contains(lc)) {
+				map.put(lc, hd.getName());
+			}
+		}
+		for (String name : PUBLIC_HEADERS) {
+			String lc = name.toLowerCase();
+			if (!PRIVATE_HEADERS.contains(lc)) {
+				map.put(lc, name);
+			}
+		}
+		StringBuilder sb = new StringBuilder();
+		for (String name : map.values()) {
+			if (sb.length() > 0) {
+				sb.append(", ");
+			}
+			sb.append(name);
+		}
 		return sb.toString();
 	}
 

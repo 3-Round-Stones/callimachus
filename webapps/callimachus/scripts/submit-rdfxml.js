@@ -26,6 +26,12 @@ function submitRDFForm(form, uri) {
 		postData(form, data, function(data, textStatus, xhr) {
 			try {
 				var redirect = xhr.getResponseHeader("Location");
+				if (!redirect) {
+					redirect = calli.getPageUrl();
+					if (redirect.indexOf('?') > 0) {
+						redirect = redirect.substring(0, redirect.indexOf('?'));
+					}
+				}
 				var event = $.Event("calliRedirect");
 				event.location = window.calli.viewpage(redirect);
 				$(form).trigger(event);

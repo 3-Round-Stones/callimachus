@@ -1,5 +1,7 @@
 package org.callimachusproject.server;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -137,8 +139,8 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 			return null;
 		}
 
-		public String allowOrigin() {
-			return "*";
+		public Collection<String> allowOrigin() {
+			return Collections.singleton("*");
 		}
 
 		public boolean withAgentCredentials(String origin) {

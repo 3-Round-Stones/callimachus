@@ -3,7 +3,11 @@ package org.callimachusproject.behaviours;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 import info.aduna.net.ParsedURI;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -40,7 +44,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	}
 	private Logger logger = LoggerFactory.getLogger(RealmSupport.class);
 
-	public String allowOrigin() {
+	public Collection<String> allowOrigin() {
 		String sparql = PREFIX
 				+ "SELECT DISTINCT ?domain WHERE { ?domain a calli:Origin, ?origin . $this a ?realm\n"
 				+ "FILTER contains(str(?realm),\"/callimachus/\")\n"
@@ -50,30 +54,27 @@ public abstract class RealmSupport implements Realm, RDFObject {
 			TupleQuery tq = con.prepareTupleQuery(SPARQL, sparql);
 			TupleQueryResult result = tq.evaluate();
 			try {
-				StringBuilder sb = new StringBuilder();
+				Set<String> set = new LinkedHashSet<String>();
 				while (result.hasNext()) {
 					String uri = result.next().getValue("domain").stringValue();
 					if (uri.contains("://")) {
 						int idx = uri.indexOf('/', uri.indexOf("://") + 3);
-						if (sb.length() > 0) {
-							sb.append(',');
-						}
-						sb.append(uri, 0, idx);
+						set.add(uri.substring(0, idx));
 					}
 				}
-				return sb.toString();
+				return set;
 			} finally {
 				result.close();
 			}
 		} catch (OpenRDFException e) {
 			logger.error(e.toString(), e);
-			return "";
+			return Collections.emptySet();
 		}
 	}
 
 	@Override
 	public final boolean withAgentCredentials(String origin) {
-		for (Object script : this.allowOrigin().split(",")) {
+		for (Object script : this.allowOrigin()) {
 			String ao = script.toString();
 			// must be explicitly listed ('*' does not qualify)
 			if (origin.startsWith(ao) || ao.startsWith(origin)

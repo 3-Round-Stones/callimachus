@@ -171,7 +171,7 @@ jQuery(function($) {
 				contentType = m[3];
 			}
 			postFile(action, function(xhr) {
-				if (xhr.status < 300 || xhr.status == 1223) {
+				if ((xhr.status < 300 || xhr.status == 1223) && xhr.getResponseHeader('Location')) {
 					parent.postMessage('OK\n\n' + header + '\n\n' + xhr.getResponseHeader('Location'), '*');
 				} else {
 					parent.postMessage('ERROR ' + xhr.statusText + '\n\n' + header + '\n\n' + xhr.responseText, '*');

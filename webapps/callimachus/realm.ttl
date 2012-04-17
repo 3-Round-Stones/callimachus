@@ -30,51 +30,101 @@
 		return "/callimachus/template.xsl";
 	""".
 
+################################
+# login
+################################
+
+# anybody with credentials can login
+:AuthorizeLogin owl:intersectionOf (calli:IsAuthorized
+		[owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
+	msg:sparql  """
+		ASK {
+			$this a <Realm>
+			FILTER ($method = "GET" || $method = "HEAD")
+			FILTER ($query = "login")
+		}
+	""".
+
 :GetLogin rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "GET";
 	calli:query "login";
-	calli:expect "302-found";
-	calli:type "text/uri-list";
+	calli:realm </>;
+	calli:header "cache-control:max-age:3600";
+	calli:type "text/html";
 	msg:script """
-		if (this.calliAuthentication.isEmpty())
-			return null;
-		var login = this.calliAuthentication.iterator().next() + "?login&continue=";
-		if (loginContinue)
-			return login + encodeURIComponent(loginContinue);
-		if (loginReferer)
-			return login + encodeURIComponent(loginReferer);
-		return login + encodeURIComponent(this.toString());
+		var iter = this.calliAuthentication.iterator();
+		while (iter.hasNext()) {
+			var manager = iter.next();
+			var credential = manager.findCredential(cookies);
+			if (credential) {
+				var title = manager.findCredentialLabel(cookies);
+				return '<html><head><title>' + title + '</title>'
+					+ '<meta http-equiv="REFRESH" content="0; url=' + credential + '"/></head>'
+					+ '<body resource="' + credential + '">' + title  + '</body></html>';
+			}
+		}
+		return null;
 	""".
 
-:loginReferer a owl:FunctionalProperty, owl:DatatypeProperty;
+:cookies a owl:DatatypeProperty;
 	rdfs:domain :GetLogin;
 	rdfs:range xsd:string;
-	calli:header "Referer".
+	calli:header "Authorization", "Cookie".
 
-:loginContinue a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :GetLogin;
-	rdfs:range xsd:string;
-	calli:query "continue".
+################################
+# logout
+################################
 
-:GetLogout rdfs:subClassOf msg:Message;
+# Prompts the browser to login using bogus credentials (to forget legitimate onces)
+# Available to user when logged in
+:GetLogout  rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	calli:method "GET";
 	calli:query "logout";
-	calli:expect "302-found";
-	calli:type "text/uri-list";
+	calli:type "message/x-response";
+	msg:imports <java:org.apache.http.ProtocolVersion>;
+	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
 	msg:script """
-		if (this.calliAuthentication.isEmpty())
-			return null;
-		var logout = this.calliAuthentication.iterator().next() + "?logout&continue=";
-		if (logoutContinue)
-			return logout + encodeURIComponent(logoutContinue);
-		var url = this.toString();
-		url = url.substring(0, url.indexOf("/", url.indexOf("://") + 3) + 1);
-		return logout + encodeURIComponent(url);
+		var ver = new ProtocolVersion("HTTP", 1, 1);
+		if (!authorization || authorization.indexOf('username="logout"') < 0) {
+			var iter = this.calliAuthentication.iterator();
+			while (iter.hasNext()) {
+				var manager = iter.next();
+				if (manager.calliAuthName) {
+					//# the browser must send invalid credentials to logout
+					var resp = new BasicHttpResponse(ver, 401, "Unauthorized");
+					var hd = 'Digest realm="' + manager.calliAuthName + '", domain="'
+						+ manager.protectionDomain() + '", nonce="logout", algorithm="MD5", qop="auth"';
+					resp.setHeader('WWW-Authenticate', hd);
+					return resp;
+				}
+			}
+		}
+		//# bogus credentials received or not needed
+		var resp = new BasicHttpResponse(ver, 303, "See Other");
+		if (logoutContinue) {
+			resp.setHeader("Location", logoutContinue);
+		} else {
+			resp.setHeader("Location", "/");
+		}
+		var iter = this.calliAuthentication.iterator();
+		while (iter.hasNext()) {
+			var manager = iter.next();
+			var headers = manager.logout().getAllHeaders();
+			for (var i=0; i<headers.length; i++) {
+				resp.addHeadecr(headers[i]);
+			}
+		}
+		return resp;
 	""".
+
+:authorization a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :GetLogout;
+	rdfs:range xsd:string;
+	calli:header "Authorization".
 
 :logoutContinue a owl:FunctionalProperty, owl:DatatypeProperty;
 	rdfs:domain :GetLogout;

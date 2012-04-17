@@ -20,6 +20,7 @@ package org.callimachusproject.behaviours;
 import info.aduna.net.ParsedURI;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +45,11 @@ import org.callimachusproject.server.traits.VersionedObject;
 import org.callimachusproject.util.PasswordGenerator;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
+import org.openrdf.model.Statement;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDFS;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,18 +221,44 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		}
 	}
 
-	public String findCredential(String authorization) {
-		if (authorization == null || !authorization.startsWith("Digest"))
+	@Override
+	public String findCredential(Collection<String> tokens) {
+		for (String authorization : tokens) {
+			if (authorization == null || !authorization.startsWith("Digest"))
+				continue;
+			String string = authorization.substring("Digest ".length());
+			Map<String, String> options = parseOptions(string);
+			String username = options.get("username");
+			if (username == null)
+				throw new BadRequest("Missing username");
+			List<Object[]> encodings = findDigest(username);
+			if (encodings.isEmpty())
+				continue;
+			return (String) encodings.get(0)[0];
+		}
+		return null;
+	}
+
+	@Override
+	public String findCredentialLabel(Collection<String> tokens) {
+		String iri = findCredential(tokens);
+		if (iri == null)
 			return null;
-		String string = authorization.substring("Digest ".length());
-		Map<String, String> options = parseOptions(string);
-		String username = options.get("username");
-		if (username == null)
-			throw new BadRequest("Missing username");
-		List<Object[]> encodings = findDigest(username);
-		if (encodings.isEmpty())
+		try {
+			ObjectConnection con = getObjectConnection();
+			ValueFactory vf = con.getValueFactory();
+			List<Statement> result = con.getStatements(vf.createURI(iri), RDFS.LABEL, null).asList();
+			if (result.isEmpty())
+				return iri;
+			return result.get(0).getObject().stringValue();
+		} catch (RepositoryException e) {
+			logger.error(e.toString(), e);
 			return null;
-		return (String) encodings.get(0)[0];
+		}
+	}
+
+	public HttpMessage logout() {
+		return new BasicHttpResponse(_204);
 	}
 
 	@Sparql(PREFIX + "SELECT (group_concat(?realm;separator=' ') as ?domain)\n"

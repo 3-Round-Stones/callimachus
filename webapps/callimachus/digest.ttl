@@ -25,17 +25,10 @@
 # login
 ################################
 
-:GetAuthorization rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>].
-
-:authorization a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :GetAuthorization;
-	rdfs:range xsd:string;
-	calli:header "Authorization".
-
 # Redirection to the authorized user
 # Used to login
-:GetLoginPage rdfs:subClassOf :GetAuthorization;
+:GetLoginPage rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	calli:method "GET";
 	calli:query "login", "settings", "contributions";
@@ -44,11 +37,16 @@
 	calli:header "cache-control:max-age:3600";
 	msg:script """
 		if ("settings" == query)
-			return this.findCredential(authorization) + "?edit";
+			return this.findCredential(cookie) + "?edit";
 		if ("contributions" == query)
-			return this.findCredential(authorization) + "?contributions";
-		return this.findCredential(authorization).toString();
+			return this.findCredential(cookie) + "?contributions";
+		return this.findCredential(cookie).toString(); //# login Deprecated
 	""".
+
+:cookie a owl:DatatypeProperty;
+	rdfs:domain :GetLoginPage;
+	rdfs:range xsd:string;
+	calli:header "Authorization", "Cookie".
 
 :query a owl:DatatypeProperty, owl:FunctionalProperty;
 	rdfs:domain :GetLoginPage;
@@ -67,12 +65,13 @@
 	""".
 
 ################################
-# logout
+# logout Deprecated
 ################################
 
 # Prompts the browser to login using bogus credentials (to forget legitimate onces)
 # Available to user when logged in
-:GetLogout rdfs:subClassOf :GetAuthorization;
+:GetLogout  rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
 	calli:method "GET";
 	calli:query "logout";
@@ -94,6 +93,11 @@
 		resp.setHeader('WWW-Authenticate', hd);
 		return resp;
 	""".
+
+:authorization a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :GetLogout;
+	rdfs:range xsd:string;
+	calli:header "Authorization".
 
 ################################
 # User forgot password

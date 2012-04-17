@@ -684,8 +684,16 @@ public class Setup {
 			}
 			CarInputStream carin = new CarInputStream(car.openStream());
 			try {
-				while (carin.readEntryName() != null) {
-					importSchemaGraphEntry(carin, origin, con);
+				String name;
+				while ((name = carin.readEntryName()) != null) {
+					try {
+						importSchemaGraphEntry(carin, origin, con);
+					} catch (RDFParseException e) {
+						String msg = e.getMessage() + " in " + name;
+						RDFParseException pe = new RDFParseException(msg, e.getLineNumber(), e.getColumnNumber());
+						pe.initCause(e);
+						throw pe;
+					}
 				}
 			} finally {
 				carin.close();

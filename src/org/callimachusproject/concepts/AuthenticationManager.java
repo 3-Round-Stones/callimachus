@@ -29,6 +29,7 @@
  */
 package org.callimachusproject.concepts;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.http.HttpMessage;
@@ -140,4 +141,29 @@ public interface AuthenticationManager {
 	 */
 	HttpMessage authenticationInfo(String method, Object resource,
 			Map<String, String[]> request);
+
+	/**
+	 * Retrieve the current user credential IRI
+	 * 
+	 * @param tokens
+	 *            value of both "Authorization" and "Cookie" request headers
+	 * @return unique credential identifier
+	 */
+	String findCredential(Collection<String> tokens);
+
+	/**
+	 * Retrieve the current user label
+	 * 
+	 * @param tokens
+	 *            value of both "Authorization" and "Cookie" request headers
+	 * @return human friendly credential label
+	 */
+	String findCredentialLabel(Collection<String> tokens);
+
+	/**
+	 * Include any Set-Cookie header to clear the session
+	 * 
+	 * @return set of HTTP headers
+	 */
+	HttpMessage logout();
 }

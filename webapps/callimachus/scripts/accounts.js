@@ -27,7 +27,7 @@ $(document).bind("calliLogin", function(event) {
 		sessionStorage.removeItem('UserIri');
 		localStorage.removeItem('Authorization');
 	}
-	var options = {type: "GET", url: calli.getCallimachusUrl("/accounts?login"),
+	var options = {type: "GET", url: "/?login",
 		success: function(doc) {
 			var iri = /resource="([^" >]*)"/i.exec(doc);
 			if (iri) {
@@ -55,7 +55,7 @@ $(document).bind("calliLogin", function(event) {
 					$(document).trigger(e);
 				});
 			}
-			if (window.localStorage) {
+			if (window.localStorage && event.username) {
 				var auth = "User " + event.username;
 				if (event.remember) {
 					auth = event.username + ":" + event.password;
@@ -97,8 +97,8 @@ $(document).bind("calliLogin", function(event) {
 
 $(document).bind("calliLogout", function(event) {
 	if (!window.sessionStorage || sessionStorage.getItem('Name')) {
-		jQuery.ajax({ type: 'GET', url: calli.getCallimachusUrl("/accounts?logout"),
-			username: 'logout', password: 'nil',
+		jQuery.ajax({ type: 'GET', url: "/?logout",
+			username: 'logout', password: 'please',
 			success: function(data) {
 				location = "/";
 			}
@@ -240,7 +240,7 @@ if (window.sessionStorage && sessionStorage.getItem("Name")) {
 	var xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
 		beforeSend: withCredentials,
 		success: function() {
-			if (xhr.getResponseHeader("Authentication-Info")) { 
+			if (xhr.getResponseHeader("Authentication-Info") || xhr.getResponseHeader("Set-Cookie")) { 
 				var event = jQuery.Event("calliLogin");
 				event.preventDefault(); // don't reload page
 				$(document).trigger(event);
@@ -251,7 +251,7 @@ if (window.sessionStorage && sessionStorage.getItem("Name")) {
 						withCredentials(xhr);
 					},
 					success: function() {
-						if (xhr.getResponseHeader("Authentication-Info")) {
+						if (xhr.getResponseHeader("Authentication-Info") || xhr.getResponseHeader("Set-Cookie")) {
 							var event = jQuery.Event("calliLogin");
 							event.preventDefault(); // don't reload page
 							$(document).trigger(event);

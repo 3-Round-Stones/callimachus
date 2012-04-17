@@ -176,8 +176,8 @@ rdfs:comment a rdf:Property.
 	rdfs:range <java:java.util.Map>;
 	calli:type "application/x-www-form-urlencoded".
 
-:authorization a owl:DatatypeProperty, owl:FunctionalProperty;
+:authorization a owl:DatatypeProperty;
 	rdfs:domain :PostUserPassword;
 	rdfs:range xsd:string;
-	calli:header "Authorization".
+	calli:header "Authorization", "Cookie".
 

@@ -468,6 +468,8 @@
 					this.DesignateAsFolder(location);
 					dependency.remove(location);
 				} else if (carStream.isFileEntry()) {
+					if (!(container instanceof Composite))
+						throw new BadRequest("Schema data about " + container + " must be imported before " + uri);
 					var type = carStream.getEntryType();
 					container.PostFactoryCreate(entryStream, File, null, location, type);
 					dependency.remove(location);
@@ -562,7 +564,7 @@
 
 :FindExistingContainer rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Composite>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
 	msg:sparql """
 		SELECT ?composite {
 			?composite calli:hasComponent $component
@@ -579,6 +581,7 @@
 	msg:imports <Composite>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:script """
 		if (nonFolder instanceof Folder)
 			return nonFolder;
@@ -592,6 +595,8 @@
 				container = this.DesignateAsFolder(container);
 			}
 		}
+		if (!(container instanceof Composite))
+			throw new BadRequest("Schema data about " + container + " must be imported before " + uri);
 		var label = decodeURI(uri.substring(uri.lastIndexOf('/', uri.length - 2) + 1, uri.length - 1)).replace(/-/g, ' ');
 		con.add(nonFolder.resource, RDFS.LABEL, vf.createLiteral(label), []);
 		nonFolder.calliEditor.addAll(container.FindContributor(nonFolder));

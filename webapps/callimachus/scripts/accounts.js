@@ -13,6 +13,7 @@ window.calli.getUserIri = function() {
 			return iri;
 	}
 	jQuery.ajax({ url: "/?login", async: false,
+		beforeSend: withCredentials,
 		success: function(doc) {
 			iri = /resource="([^" >]*)"/i.exec(doc)[1];
 		}

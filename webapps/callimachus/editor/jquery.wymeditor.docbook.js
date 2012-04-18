@@ -18,6 +18,7 @@ function parseXml(urlOrXml, callback, sync) {
 		$.ajax({
 			url: urlOrXml,
 			async: async,
+			beforeSend: withCredentials,
 			success: function(xml) {
 				if (typeof xml == 'string') {
 					parseXml(xml, callback, sync);
@@ -60,6 +61,12 @@ function xslt(xslUrl, xmlUrl, callback, sync) {
 		}, !async);
 	}, !async);
 	return ret;
+}
+
+function withCredentials(req) {
+	try {
+		req.withCredentials = true;
+	} catch (e) {}
 }
 
 WYMeditor.editor.prototype.docbook = function(xml) {

@@ -5,7 +5,7 @@
 		if (event.originalEvent.source == $('#iframe')[0].contentWindow && event.originalEvent.data == 'CONNECT calliEditorLoaded') {
 			var template = $('#template').text() || $('#template').html();
 			if (window.location.hash.indexOf('#!') == 0) {
-				jQuery.ajax({type: 'GET', url: window.location.hash.substring(2), complete: function(xhr) {
+				jQuery.ajax({type: 'GET', url: window.location.hash.substring(2), beforeSend: withCredentials, complete: function(xhr) {
 					if (xhr.status == 200 || xhr.status == 304) {
 						var text = xhr.responseText;
 						$('#iframe')[0].contentWindow.postMessage('POST template\n\n' + text, '*');
@@ -38,6 +38,11 @@
 			$('#iframe')[0].contentWindow.postMessage('PUT disabled\n\nfalse', '*');
 		}
 	});
+	function withCredentials(req) {
+		try {
+			req.withCredentials = true;
+		} catch (e) {}
+	}
 })(jQuery, jQuery);
 
 jQuery(function($){

@@ -71,7 +71,7 @@ jQuery(function($) {
 				}
 			}
 			if (path && !editor.getSession().getValue()) {
-				$.ajax({type: 'GET', url: path, complete: function(xhr) {
+				$.ajax({type: 'GET', url: path, beforeSend: withCredentials, complete: function(xhr) {
 					if (xhr.status == 200 || xhr.status == 304) {
 						contentType = xhr.getResponseHeader('Content-Type');
 						etag = xhr.getResponseHeader('ETag');
@@ -112,6 +112,7 @@ jQuery(function($) {
 			url: action,
 			contentType: contentType,
 			data: text,
+			beforeSend: withCredentials,
 			complete: function(xhr) {
 				saving = false;
 				if (xhr.status == 204 || xhr.status == 1223) {
@@ -136,6 +137,7 @@ jQuery(function($) {
 				if (etag) {
 					xhr.setRequestHeader('If-Match', etag);
 				}
+				withCredentials(xhr);
 			},
 			data: text,
 			complete: function(xhr) {
@@ -149,6 +151,11 @@ jQuery(function($) {
 			}
 		});
 		return true;
+	}
+	function withCredentials(req) {
+		try {
+			req.withCredentials = true;
+		} catch (e) {}
 	}
 	require('pilot/canon').addCommand({
 		name: 'save',

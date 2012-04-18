@@ -88,6 +88,7 @@ function login(event) {
 			showForm($("#login-form"));
 		} else {
 			jQuery.ajax({ type: 'GET', url: calli.getCallimachusUrl("pages/login.html"),
+				beforeSend: withCredentials,
 				success: function(data) {
 					if ($(document.documentElement).is(".noauth")) {
 						var form = $(data).find("#login-form").andSelf().filter("#login-form");
@@ -131,6 +132,12 @@ function submitLoginForm(event) {
 		throw calli.error(e);
 	}
 	return false;
+}
+
+function withCredentials(req) {
+	try {
+		req.withCredentials = true;
+	} catch (e) {}
 }
 
 })(jQuery, jQuery);

@@ -158,9 +158,15 @@ function patchData(form, data, callback) {
 		if (lastmod) {
 			xhr.setRequestHeader("If-Unmodified-Since", lastmod);
 		}
+		withCredentials(xhr);
 	}, success: function(data, textStatus) {
 		callback(data, textStatus, xhr);
-	}})
+	}});
+	function withCredentials(req) {
+		try {
+			req.withCredentials = true;
+		} catch (e) {}
+	}
 }
 
 function getLastModified() {

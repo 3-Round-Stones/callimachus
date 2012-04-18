@@ -87,10 +87,17 @@ function postData(form, data, callback) {
 		url: form.action,
 		contentType: type,
 		data: data,
+		beforeSend: withCredentials,
 		success: function(data, textStatus) {
 			callback(data, textStatus, xhr);
 		}
 	});
+}
+
+function withCredentials(req) {
+	try {
+		req.withCredentials = true;
+	} catch (e) {}
 }
 
 });

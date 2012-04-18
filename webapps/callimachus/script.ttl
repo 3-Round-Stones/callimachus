@@ -112,6 +112,18 @@
 		} finally {
 			out.close();
 		}
+		var con = this.objectConnection;
+		var bundles = con.getStatements(null, null, this.resource, true, []);
+		try {
+			while (bundles.hasNext()) {
+				var st = bundles.next();
+				if (st.predicate.stringValue().indexOf("http://www.w3.org/1999/02/22-rdf-syntax-ns#_") == 0) {
+					con.getObject(st.subject).touchRevision();
+				}
+			}
+		} finally {
+			bundles.close();
+		}
 		this.touchRevision();
 	""".
 

@@ -68,8 +68,9 @@ public class CachedEntity {
 	private static final String[] CONTENT_HEADERS = { "Content-Type",
 			"Content-Encoding", "Content-MD5", "Content-Location", "Location",
 			"Content-Language", "Cache-Control", "Allow", "Vary", "Link",
-			"Access-Control-Allow-Origin", "Access-Control-Allow-Methods",
-			"Access-Control-Allow-Headers", "Access-Control-Max-Age" };
+			"Access-Control-Allow-Origin", "Access-Control-Allow-Credentials",
+			"Access-Control-Allow-Methods", "Access-Control-Allow-Headers",
+			"Access-Control-Expose-Headers", "Access-Control-Max-Age" };
 
 	public static String getURL(File head) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(head));

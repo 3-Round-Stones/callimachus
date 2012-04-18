@@ -60,6 +60,9 @@ jQuery(function($){
 				var msg = event.originalEvent.data;
 				if (msg.indexOf('OK\n\n' + header + '\n\n') == 0) {
 					var url = msg.substring(msg.lastIndexOf('\n\n') + 2);
+					if (!url) {
+						url = about; // Chrome 18 doesn't support Access-Control-Expose-Headers
+					}
 					location.replace(url + '?view');
 					if (window.parent != window && parent.postMessage) {
 						parent.postMessage('PUT src\n\n' + url + '?view', '*');

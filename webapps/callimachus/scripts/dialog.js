@@ -12,10 +12,20 @@ if (!window.calli) {
 
 window.calli.closeDialog = function(iframe) {
 	var e = jQuery.Event("calliCloseDialog");
-	$(iframe.frameElement).trigger(e);
+	var frameElement = findFrameElement(iframe);
+	$(frameElement).trigger(e);
 	if (!e.isDefaultPrevented()) {
-		$(iframe.frameElement).dialog('close');
+		$(frameElement).dialog('close');
 	}
+}
+
+function findFrameElement(iframe) {
+	var elements = $('iframe').filter(function() {
+		return iframe == this.contentWindow;
+	});
+	if (elements.length)
+		return elements[0];
+	return iframe.frameElement;
 }
 
 window.calli.openDialog = function(url, title, options) {

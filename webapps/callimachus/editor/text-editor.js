@@ -180,6 +180,8 @@ jQuery(function($) {
 			postFile(action, function(xhr) {
 				if ((xhr.status < 300 || xhr.status == 1223) && xhr.getResponseHeader('Location')) {
 					parent.postMessage('OK\n\n' + header + '\n\n' + xhr.getResponseHeader('Location'), '*');
+				} else if (xhr.status < 300 || xhr.status == 1223) {
+					parent.postMessage('OK\n\n' + header + '\n\n', '*');
 				} else {
 					parent.postMessage('ERROR ' + xhr.statusText + '\n\n' + header + '\n\n' + xhr.responseText, '*');
 				}

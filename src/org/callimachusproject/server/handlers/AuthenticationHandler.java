@@ -364,29 +364,23 @@ public class AuthenticationHandler implements Handler {
 	private String allowOrigin(ResourceOperation request)
 			throws QueryEvaluationException, RepositoryException {
 		Set<String> set = new LinkedHashSet<String>();
-		List<Realm> realms = request.getRealms();
-		if (realms.isEmpty())
-			return "*";
-		for (Realm realm : realms) {
-			Collection<String> origins = realm.allowOrigin();
-			if (origins.contains("*"))
-				return "*";
-			set.addAll(origins);
-		}
 		if ("OPTIONS".equals(request.getMethod())) {
 			String m = request.getVaryHeader(REQUEST_METHOD);
 			for (Method method : request.findMethodHandlers(m)) {
 				if (method.isAnnotationPresent(realm.class)) {
 					String[] values = method.getAnnotation(realm.class).value();
 					for (Realm realm : request.getRealms(values)) {
-						Collection<String> origins = realm.allowOrigin();
-						if (origins.contains("*"))
-							return "*";
-						set.addAll(origins);
+						set.addAll(realm.allowOrigin());
 					}
 				}
 			}
 		}
+		List<Realm> realms = request.getRealms();
+		for (Realm realm : realms) {
+			set.addAll(realm.allowOrigin());
+		}
+		if (set.isEmpty() && realms.isEmpty())
+			return "*";
 		if (set.isEmpty())
 			return null;
 		StringBuilder sb = new StringBuilder();

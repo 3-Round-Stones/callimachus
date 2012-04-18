@@ -49,9 +49,9 @@ public interface Realm {
 	 * The script's origins that are permitted to send requests to this realm as
 	 * defined in the HTTP header Access-Control-Allow-Origin.
 	 * 
-	 * @return a set of acceptable scheme + '://' + authroity
-	 *         or "*" if any script is allowed or null if no scripts are
-	 *         allowed.
+	 * @return a set of acceptable scheme + '://' + authority or '*' if any
+	 *         script is allowed without agent credentials or an empty set if no
+	 *         scripts are allowed.
 	 */
 	Collection<String> allowOrigin();
 
@@ -161,10 +161,11 @@ public interface Realm {
 	 *            A map with the above conditional keys
 	 * @return <code>true</code> if the credentials are authorized on this
 	 *         resource
-	 * @throws RepositoryException 
+	 * @throws RepositoryException
 	 */
 	boolean authorizeCredential(String credential, String method,
-			Object resource, Map<String, String[]> request) throws RepositoryException;
+			Object resource, Map<String, String[]> request)
+			throws RepositoryException;
 
 	/**
 	 * The response that should be returned when the request is authenticated,

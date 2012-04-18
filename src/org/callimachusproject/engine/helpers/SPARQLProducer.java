@@ -552,7 +552,7 @@ public class SPARQLProducer extends RDFEventPipe {
 			return term;
 		if (term.isLiteral() && isEmpty(term.stringValue())) {
 			String name = "_"+mapSeq(label,true);
-			if (label!=null && addOrigin) origins.put(name,term.getOrigin());
+			if (label!=null && addOrigin) addOrigin(name, term);
 			return new BlankOrLiteralVar(name);
 		}
 		// a non-empty literal may represent a literal variable
@@ -561,7 +561,7 @@ public class SPARQLProducer extends RDFEventPipe {
 				String name = term.stringValue().substring(1);
 				VarOrTerm v = tf.var(name);
 				v.setOrigin(term.getOrigin());
-				if (addOrigin) origins.put(name,term.getOrigin());
+				if (addOrigin) addOrigin(name, term);
 				return v;
 			}
 			else return term;
@@ -569,7 +569,7 @@ public class SPARQLProducer extends RDFEventPipe {
 		
 		if (!term.isIRI()) {
 			String name = "_" + mapVar(term.stringValue(),label);
-			if (label!=null && addOrigin) origins.put(name,term.getOrigin());
+			if (label!=null && addOrigin) addOrigin(name, term);
 			return new BlankOrLiteralVar(name);
 		}
 		if (term.isCURIE())
@@ -581,7 +581,7 @@ public class SPARQLProducer extends RDFEventPipe {
 		String name = var.substring(1);
 		if (!VAR_REGEX.matcher(name).matches())
 			throw new RDFParseException("Invalid Variable Name: " + name);
-		if (label!=null && addOrigin) origins.put(name,term.getOrigin());
+		if (label!=null && addOrigin) addOrigin(name, term);
 		return tf.var(name);
 	}
 
@@ -591,5 +591,10 @@ public class SPARQLProducer extends RDFEventPipe {
 		
 	public Map<String,TermOrigin> getOrigins() {
 		return origins;
+	}
+
+	private void addOrigin(String name, VarOrTerm term) {
+		if (!origins.containsKey(name))
+			origins.put(name,term.getOrigin());
 	}
 }

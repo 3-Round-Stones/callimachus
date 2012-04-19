@@ -3,10 +3,6 @@
 	<property name="src" location="src" />
 	<property name="build" location="build" />
 	<property name="build.tests" location="build" />
-	<property name="installer" location="installer" />
-	<property name="src.install" location="installer" />
-	<property name="build.install" location="installer/build" />
-	<property name="lib.install" location="installer/lib" />
 	<property name="launch4j.dir" location="launch4j" />
 	<property name="dist" location="dist" />
 	<property name="lib" location="lib" />
@@ -41,14 +37,10 @@
 	<property name="tagsoup.jar" value="tagsoup-1.2.1.jar" />
 	<property name="tagsoup.url" value="http://home.ccil.org/~cowan/XML/tagsoup/tagsoup-1.2.1.jar" />
 	<property name="fop.url" value="http://www.apache.org/dist/xmlgraphics/fop/binaries/fop-1.0-bin.zip" />
-	<property name="izpack.url" value="http://repo1.maven.org/maven2/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/izpack-standalone-compiler-4.3.5.jar" />
 	<property name="junit.url" value="http://repo1.maven.org/maven2/junit/junit/4.10/junit-4.10.jar" />
 	<property name="jersey-client.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-client/1.0.3/jersey-client-1.0.3.jar" />
 	<property name="jersey-core.url" value="http://download.java.net/maven/2/com/sun/jersey/jersey-core/1.0.3/jersey-core-1.0.3.jar" />
 	<property name="jsr311-api.url" value="http://download.java.net/maven/2/javax/ws/rs/jsr311-api/1.0/jsr311-api-1.0.jar" />
-	<property name="launch4j-linux.url" value="http://sourceforge.net/projects/launch4j/files/launch4j-3/3.0.2/launch4j-3.0.2-linux.tgz" />
-	<property name="launch4j-mac.url" value="http://sourceforge.net/projects/launch4j/files/launch4j-3/3.0.2/launch4j-3.0.2-macosx.tgz" />
-	<property name="launch4j-win32.url" value="http://sourceforge.net/projects/launch4j/files/launch4j-3/3.0.2/launch4j-3.0.2-win32.zip" />
 	<property name="alibaba.snapshot" value="2.0-SNAPSHOT" />
 	<property name="setup" value="org.callimachusproject.Setup" />
 	<property name="main" value="org.callimachusproject.Server" />
@@ -56,7 +48,7 @@
 	<property name="jvmargs" value="-ea -server -mx512m -Dfile.encoding=UTF-8 -Djava.library.path=${lib} -Duser.home=${home} -Djava.mail.properties=${mail} -Djava.awt.headless=true -Dcom.sun.management.jmxremote" />
 	<property name="curl" value="curl" />
 	<property name="curl.args" value="-fSs --digest http://localhost:8080/callimachus/?archive" />
-	<property name="setup.args" value="-s -o http://localhost:8080 -c ${src.install}/META-INF/templates/callimachus-sesame.ttl -a ${dist}/callimachus-webapp-${Version}.car -l" />
+	<property name="setup.args" value="-s -o http://localhost:8080 -c etc/callimachus-repository.ttl -a ${dist}/callimachus-webapp-${Version}.car -l" />
 	<property name="args" value="-p 8080 -o http://localhost:8080 -r repositories/callimachus" />
 
 	<target name="help" description="Usage information">
@@ -79,17 +71,14 @@
 		<!-- Delete the directory trees -->
 		<delete dir="${reports.tests}" />
 		<delete dir="${build.tests}" />
-		<delete dir="${build.install}" />
 		<delete dir="${build}" />
 		<delete dir="${dist}" />
 	</target>
 
 	<target name="dist-clean" description="clean up everything for a new version" depends="clean">
 		<delete dir="${lib.tests}" />
-		<delete dir="${lib.install}" />
 		<delete dir="${lib}" />
 		<delete dir="${bin}" />
-		<delete dir="${launch4j.dir}" />
 	</target>
 
 	<target name="init">
@@ -98,7 +87,6 @@
 		<mkdir dir="${build}" />
 		<available file="${lib}" property="lib.present" />
 		<available file="${lib.tests}" property="lib.tests.present" />
-		<available file="${lib.install}" property="lib.install.present" />
 		<available file="${launch4j.dir}" property="launch4j.dir.present" />
 		<property file="build.properties" />
 		<condition property="os.mac">
@@ -116,6 +104,8 @@
 			</and>
 		</condition>
 	</target>
+
+	<target name="dependencies" depends="dist-dependencies,test-dependencies" />
 
 	<target name="dist-dependencies" unless="lib.present">
 		<mkdir dir="${lib}" />
@@ -255,12 +245,13 @@
 		<copy todir="${build}">
 			<fileset dir="${src}" excludes="**/*.java *.run *.sh *.bat *.conf *.properties *.ttl"/>
 		</copy>
-		<copy todir="${bin}">
-			<fileset dir="${src}" includes="*.sh *.bat"/>
-		</copy>
 		<copy todir="${etc}">
 			<fileset dir="${src}" includes="*.conf *.properties *.ttl"/>
 		</copy>
+		<copy todir="${bin}">
+			<fileset dir="${src}" includes="*.sh *.bat"/>
+		</copy>
+		<chmod dir="${bin}" includes="*.sh,callimachus-linux*,callimachus-darwin*" perm="ugo+rx"/>
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution">
@@ -286,11 +277,13 @@
 		</zip>
 		<zip destfile="${dist}/callimachus-${Version}.zip">
 			<zipfileset dir="." includes="*.txt" />
+			<zipfileset dir="${src}" prefix="src" includes="*.sh,callimachus-linux*,callimachus-darwin*" filemode="755" />
+			<zipfileset dir="${src}" prefix="src" excludes="*.sh,callimachus-linux*,callimachus-darwin*" />
+			<zipfileset dir="${bin}" prefix="bin" />
+			<zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
 			<zipfileset dir="${lib}" prefix="lib" />
-			<zipfileset dir="${src}" prefix="src" />
-			<zipfileset file="${dist}/callimachus-${Version}.jar" prefix="dist" />
-			<zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="dist" />
-			<zipfileset file="${dist}/callimachus-configure-${Version}.jar" prefix="dist" />
+			<zipfileset file="${jar.file}" prefix="lib" />
+			<zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="lib" />
 		</zip>
 		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="repositories/callimachus/triples-spoc.dat" property="repositories.uptodate" />
 	</target>
@@ -350,115 +343,8 @@
 		</junit>
 	</target>
 
-	<target name="install-launch4j-windows" if="os.windows" unless="launch4j.dir.present">
-		<mkdir dir="${downloads}" />
-		<get src="${launch4j-windows.url}" dest="${downloads}/launch4j-windows.zip" />
-		<mkdir dir="${launch4j.dir}" />
-		<unzip src="${downloads}/launch4j-windows.zip" dest="${launch4j.dir}" />
-		<delete file="${downloads}/launch4j-windows.zip" />
-	</target>
-
-	<target name="install-launch4j-linux" if="os.linux" unless="launch4j.dir.present">
-		<mkdir dir="${downloads}" />
-		<get src="${launch4j-linux.url}" dest="${downloads}/launch4j-linux.tgz" />
-		<mkdir dir="${launch4j.dir}" />
-		<untar compression="gzip" src="${downloads}/launch4j-linux.tgz" dest="${launch4j.dir}" />
-		<chmod file="${launch4j.dir}/launch4j/bin/ld" perm="ugo+rx"/>
-		<chmod file="${launch4j.dir}/launch4j/bin/windres" perm="ugo+rx"/>
-		<delete file="${downloads}/launch4j-linux.tgz" />
-	</target>
-
-	<target name="install-launch4j-mac" if="os.mac" unless="launch4j.dir.present">
-		<mkdir dir="${downloads}" />
-		<get src="${launch4j-mac.url}" dest="${downloads}/launch4j-mac.tgz" />
-		<mkdir dir="${launch4j.dir}" />
-		<untar compression="gzip" src="${downloads}/launch4j-mac.tgz" dest="${launch4j.dir}" />
-		<chmod file="${launch4j.dir}/launch4j/bin/ld" perm="ugo+rx"/>
-		<chmod file="${launch4j.dir}/launch4j/bin/windres" perm="ugo+rx"/>
-		<delete file="${downloads}/launch4j-mac.tgz" />
-	</target>
-
-	<target name="install-dependencies" depends="install-launch4j-windows,install-launch4j-linux,install-launch4j-mac" unless="lib.install.present">
-		<mkdir dir="${lib.install}" />
-		<parallel>
-			<get src="${izpack.url}" dest="${lib.install}/izpack-standalone-compiler.jar" />
-		</parallel>
-	</target>
-
-	<target name="dependencies" depends="dist-dependencies,test-dependencies,install-dependencies" />
-
-	<target name="install-compile" depends="compile,install-dependencies">
-		<!-- Compile the java code from ${src} into ${build} -->
-		<mkdir dir="${build.install}" />
-		<javac srcdir="${src.install}" destdir="${build.install}" debug="true" debuglevel="lines,source">
-			<classpath>
-				<fileset dir="${lib.install}">
-					<include name="**/*.jar" />
-				</fileset>
-				<fileset dir="${lib}">
-					<include name="${mail.jar}" />
-				</fileset>
-			</classpath>
-		</javac>
-	</target>
-
-	<target name="installer" depends="dist,install-compile">
-		<echo file="${build.install}/META-INF/callimachus-webapps" append="false">callimachus-webapp-${Version}.car</echo>
-		<copy todir="${build.install}/META-INF/">
-			<fileset dir="${src.install}/META-INF/" />
-		</copy>
-		<jar jarfile="${dist}/callimachus-configure-${Version}.jar">
-			<fileset dir="${build.install}" />
-			<zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="" />
-		</jar>
-		<!-- Call IzPack to build the installer JAR -->
-		<echo message="Make the FLOSS installer JAR"/>
-		<mkdir dir="${dist}" />
-		<echo file="tmp/version" append="false" message="${Version}" />
-		<echo file="tmp/variables" append="false"><![CDATA[
-			<variables>
-				<variable name="Version" value="${Version}"/>
-			</variables>
-		]]></echo>
-		<echo file="tmp/jar" append="false"><![CDATA[
-			<jar src="${dist}/callimachus-configure-${Version}.jar" stage="install"/>
-		]]></echo>
-		<echo file="tmp/mail-jar" append="false"><![CDATA[
-			<jar src="${lib}/${mail.jar}" stage="install"/>
-		]]></echo>
-		<echo file="tmp/unix.dir" append="false">/opt/3RoundStones/Callimachus-${Version}</echo>
-		<echo file="tmp/macosx.dir" append="false">/Applications/3RoundStones/Callimachus-${Version}</echo>
-		<echo file="tmp/windows.dir" append="false">C:\Program Files\3RoundStones\Callimachus-${Version}</echo>
-		<!-- Allows us to use the IzPack Ant task -->
-		<taskdef name="IzPack" classpath="${lib.install}/izpack-standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask"/>
-		<IzPack input="${installer}/install.xml"
-			output="${dist}/callimachus-setup-${Version}.jar"
-			installerType="standard"
-			basedir="${home}" />
-		<delete file="tmp/windows.dir" />
-		<delete file="tmp/macosx.dir" />
-		<delete file="tmp/unix.dir" />
-		<delete file="tmp/mail-jar" />
-		<delete file="tmp/jar" />
-		<delete file="tmp/variables" />
-		<delete file="tmp/version" />
-		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.dir}/launch4j/launch4j.jar:${launch4j.dir}/launch4j/lib/xstream.jar" />
-		<launch4j configFile="${installer}/launch4jConfig.xml"
-			jar="${dist}/callimachus-setup-${Version}.jar"
-			outfile="${dist}/Callimachus-Setup-${Version}.exe"
-			txtProductVersion="${Version}" txtFileVersion="${Version}"
-			productVersion="0.0.0.0" fileVersion="0.0.0.0" tmpdir="tmp" />
-		<echo>Building installer: ${dist}/Callimachus-Setup-${Version}.run</echo>
-		<concat destfile="${dist}/Callimachus-Setup-${Version}.run" binary="true">
-			<path path="${src.install}/callimachus-setup.run" />
-			<path path="${dist}/callimachus-setup-${Version}.jar" />
-		</concat>
-		<chmod file="${dist}/Callimachus-Setup-${Version}.run" perm="ugo+rx"/>
-	</target>
-
-	<target name="package" depends="dist-clean,dist,installer,test" description="Create a package ready for release">
-		<echo>Installer ready: ${dist}/Callimachus-Setup-${Version}.exe</echo>
-		<echo>Installer ready: ${dist}/Callimachus-Setup-${Version}.run</echo>
+	<target name="package" depends="dist-clean,dist,test" description="Create a package ready for release">
+		<echo>Artifact ready: ${dist}/Callimachus-${Version}.zip</echo>
 	</target>
 
 	<target name="setup" depends="dist" unless="repositories.uptodate">

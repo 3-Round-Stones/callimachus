@@ -187,10 +187,12 @@ set "OPT=%OPT% -o %ORIGIN: = -o %"
 rem ----- Execute The Requested Command ---------------------------------------
 
 set MAINCLASS=org.callimachusproject.Server
+set SETUPCLASS=org.callimachusproject.Setup
 set MONITORCLASS=org.callimachusproject.ServerMonitor
 
 if ""%1"" == ""start"" goto doStart
 if ""%1"" == ""stop"" goto doStop
+if ""%1"" == ""setup"" goto doSetup
 if ""%1"" == ""dump"" goto doDump
 if ""%1"" == ""reset"" goto doReset
 if ""%1"" == ""log"" goto doLog
@@ -249,6 +251,11 @@ goto end
 :doStop
 rem Execute Java with the applicable properties
 "%JAVA_HOME%\bin\java" -server -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --stop %CMD_LINE_ARGS%
+goto end
+
+:doSetup
+rem Execute Java with the applicable properties
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -o "%ORIGIN%" -c "etc\callimachus-repository.ttl" -a lib\callimachus*.car -l -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
 goto end
 
 :doDump

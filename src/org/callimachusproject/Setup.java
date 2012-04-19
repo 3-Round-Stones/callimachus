@@ -305,7 +305,7 @@ public class Setup {
 			changed |= createRealm(e.getKey(), e.getValue(), repository);
 		}
 		changed |= setServeAllResourcesAs(serveAllAs, repository);
-		if (password != null) {
+		if (password != null && password.length() > 0) {
 			changed |= createAdmin(name, email, username, password, origin, repository);
 		}
 		if (changed || silent) {

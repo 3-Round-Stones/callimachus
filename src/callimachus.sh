@@ -300,6 +300,7 @@ if [ ! -e "$BASEDIR/log" ] ; then
 fi
 
 MAINCLASS=org.callimachusproject.Server
+SETUPCLASS=org.callimachusproject.Setup
 MONITORCLASS=org.callimachusproject.ServerMonitor
 
 if [ "$1" = "start" ] ; then ################################
@@ -433,6 +434,48 @@ elif [ "$1" = "stop" ] ; then ################################
         -pidfile "$PID" "$MAINCLASS" >/dev/null 2>&1
     fi
   fi
+
+elif [ "$1" = "setup" ] ; then ################################
+
+  if [ ! -z "$PID" ]; then
+    if [ -f "$PID" ]; then
+      echo "PID file ($PID) found. Is the server still running? Setup aborted." 2>&1
+      exit 1
+    fi
+  fi
+
+  if [ "`tty`" != "not a tty" ]; then
+    echo "Using BASEDIR:   $BASEDIR"
+    echo "Using PORT:      $PORT $SSLPORT"
+    echo "Using ORIGIN:    $ORIGIN"
+    echo "Using JAVA_HOME: $JAVA_HOME"
+    echo "Using JDK_HOME:  $JDK_HOME"
+  fi
+
+  if [ -n "$ORIGIN" -a -n "$USERNAME" ]; then
+    read -p "Please provide a password for user $USERNAME (or ENTER to skip):" PASSWORD
+  fi
+
+  JSVC_LOG="$BASEDIR/log/callimachus-setup.log"
+  if [ -e "$JSVC_LOG" ]; then
+    rm "$JSVC_LOG"
+  fi
+  shift
+  "$EXECUTABLE" -nodetach -jvm server \
+    -keepstdin -outfile "$JSVC_LOG" -errfile '&1' \
+    -procname "$NAME" \
+    -home "$JAVA_HOME" \
+    -pidfile "$BASEDIR/run/$NAME-setup.pid" \
+    -Duser.home="$BASEDIR" \
+    -Djava.io.tmpdir="$TMPDIR" \
+    -Djava.mail.properties="$MAIL" \
+    -classpath "$CLASSPATH" \
+    -user "$DAEMON_USER" \
+    $JSVC_OPTS $SSL_OPTS "$SETUPCLASS" -o "$ORIGIN" -c "etc/callimachus-repository.ttl" -a lib/callimachus*.car -l -u "$USERNAME:$PASSWORD" -e "$EMAIL" -n "$FULLNAME" "$@"
+
+  RETURN_VAL=$?
+  cat "$JSVC_LOG"
+  exit $RETURN_VAL
 
 elif [ "$1" = "dump" ] ; then ################################
 

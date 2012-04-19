@@ -115,11 +115,13 @@ jQuery(function($) {
 			beforeSend: withCredentials,
 			complete: function(xhr) {
 				saving = false;
-				if (xhr.status == 204 || xhr.status == 1223) {
-					etag = xhr.getResponseHeader('ETag');
-				}
-				if (typeof callback == 'function') {
-					callback(xhr);
+				if (xhr.status < 300 || xhr.status == 1223) {
+					if (xhr.status == 204 || xhr.status == 1223) {
+						etag = xhr.getResponseHeader('ETag');
+					}
+					if (typeof callback == 'function') {
+						callback(xhr);
+					}
 				}
 			}
 		});
@@ -142,11 +144,13 @@ jQuery(function($) {
 			data: text,
 			complete: function(xhr) {
 				saving = false;
-				if (xhr.status == 204 || xhr.status == 1223) {
-					etag = xhr.getResponseHeader('ETag');
-				}
-				if (typeof callback == 'function') {
-					callback(xhr);
+				if (xhr.status < 300 || xhr.status == 1223) {
+					if (xhr.status == 204 || xhr.status == 1223) {
+						etag = xhr.getResponseHeader('ETag');
+					}
+					if (typeof callback == 'function') {
+						callback(xhr);
+					}
 				}
 			}
 		});
@@ -178,22 +182,17 @@ jQuery(function($) {
 				contentType = m[3];
 			}
 			postFile(action, function(xhr) {
-				if ((xhr.status < 300 || xhr.status == 1223) && xhr.getResponseHeader('Location')) {
-					parent.postMessage('OK\n\n' + header + '\n\n' + xhr.getResponseHeader('Location'), '*');
-				} else if (xhr.status < 300 || xhr.status == 1223) {
-					parent.postMessage('OK\n\n' + header + '\n\n', '*');
+				var hd = xhr.getResponseHeader('Location');
+				if (hd) {
+					parent.postMessage('OK\n\n' + header + '\n\n' + hd, '*');
 				} else {
-					parent.postMessage('ERROR ' + xhr.statusText + '\n\n' + header + '\n\n' + xhr.responseText, '*');
+					parent.postMessage('OK\n\n' + header + '\n\n', '*');
 				}
 			});
 			return false; // don't respond yet
 		} else if (header == 'POST save') {
 			putFile(function(xhr) {
-				if (xhr.status < 300 || xhr.status == 1223) {
-					parent.postMessage('OK\n\n' + header, '*');
-				} else {
-					parent.postMessage('ERROR ' + xhr.statusText + '\n\n' + header + '\n\n' + xhr.responseText, '*');
-				}
+				parent.postMessage('OK\n\n' + header, '*');
 			});
 			return false; // don't respond yet
 		} else if (header == 'POST template' && body) {
@@ -231,7 +230,7 @@ jQuery(function($) {
 					parent.postMessage('OK\n\n' + header, '*');
 				}
 			} catch (e) {
-				parent.postMessage('ERROR\n\n' + header + '\n\n' + e, '*');
+				calli.error(e);
 			}
 		}
 	});

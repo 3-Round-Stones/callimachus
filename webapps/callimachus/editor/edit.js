@@ -1,18 +1,6 @@
 // edit.js
 
 (function($){
-	$(window).bind('message', function(event) {
-		if (event.originalEvent.source == $('#iframe')[0].contentWindow) {
-			var msg = event.originalEvent.data;
-			if (msg.indexOf('ERROR ') == 0) {
-				var message = msg.substring('ERROR '.length, msg.indexOf('\n\n'));
-				var stack = msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2);
-				calli.error(message, stack);
-			} else if (msg.indexOf('ERROR') == 0) {
-				calli.error(msg.substring(msg.indexOf('\n\n', msg.indexOf('\n\n') + 2) + 2));
-			}
-		}
-	});
 	$(document).bind('calliOpenDialog', function(event) {
 		if (!event.isDefaultPrevented()) {
 			$('#iframe')[0].contentWindow.postMessage('PUT disabled\n\ntrue', '*');

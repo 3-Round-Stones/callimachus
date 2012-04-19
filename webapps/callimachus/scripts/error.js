@@ -25,6 +25,21 @@ $(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
 	}
 });
 
+$(window).bind('message', function(event) {
+	if ($('iframe').filter(function(){return this.contentWindow == event.originalEvent.source}).length) {
+		var msg = event.originalEvent.data;
+		if (msg.indexOf('ERROR ') == 0) {
+			if (msg.indexOf('\n\n') > 0) {
+				var message = msg.substring('ERROR '.length, msg.indexOf('\n\n'));
+				var stack = msg.substring(msg.indexOf('\n\n') + 2);
+				calli.error(message, stack);
+			} else {
+				calli.error(msg.substring('ERROR '.length));
+			}
+		}
+	}
+});
+
 
 // calli.error("message");
 // calli.error("message", "stack");
@@ -34,35 +49,37 @@ $(document).ajaxError(function(event, xhr, ajaxOptions, thrownError){
 // calli.error({message:getter,stack:getter});
 // calli.error({description:getter});
 window.calli.error = function(message, stack) {
-	setTimeout(function() {
-		var e = jQuery.Event("error");
-		if (typeof message == 'object') {
-			if (message.description) {
-				e.message = asHtml(message.description);
-			}
-			if (message.name) {
-				e.name = asHtml(message.name);
-			}
-			if (message.message) {
-				e.message = asHtml(message.message);
-			}
-			if (message.stack) {
-				e.stack = asHtml(message.stack);
-			}
+	var e = jQuery.Event("error");
+	if (typeof message == 'object') {
+		if (message.description) {
+			e.message = asHtml(message.description);
 		}
-		if (!e.message) {
-			e.message = asHtml(message);
+		if (message.name) {
+			e.name = asHtml(message.name);
 		}
-		if (typeof message == 'string' && stack && stack.indexOf('<') == 0) {
-			e.message = $(stack).find("h1").andSelf().filter("h1").html();
-			e.stack = $(stack).find("pre").andSelf().filter("pre").html();
-		} else if (stack) {
-			e.stack = asHtml(stack);
+		if (message.message) {
+			e.message = asHtml(message.message);
 		}
-		if (e.message) {
+		if (message.stack) {
+			e.stack = asHtml(message.stack);
+		}
+	}
+	if (!e.message) {
+		e.message = asHtml(message);
+	}
+	if (typeof message == 'string' && stack && stack.indexOf('<') == 0) {
+		e.message = $(stack).find("h1").andSelf().filter("h1").html();
+		e.stack = $(stack).find("pre").andSelf().filter("pre").html();
+	} else if (stack) {
+		e.stack = asHtml(stack);
+	}
+	if (e.message) {
+		try {
 			$(document).trigger(e);
+		} catch (e) {
+			setTimeout(function(){throw e}, 0);
 		}
-	}, 0);
+	}
 	var error;
 	if (!message) {
 		error = new Error();
@@ -81,6 +98,13 @@ window.calli.error = function(message, stack) {
 	}
 	if (window.console && window.console.error) {
 		console.error(error.message);
+	}
+	if (!e.isPropagationStopped() && parent) {
+		if (stack) {
+			parent.postMessage('ERROR ' + error.message + '\n\n' + stack, '*');
+		} else {
+			parent.postMessage('ERROR ' + error.message, '*');
+		}
 	}
 	return error;
 };

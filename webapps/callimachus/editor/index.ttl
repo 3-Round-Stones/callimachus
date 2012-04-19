@@ -26,8 +26,9 @@
 	rdf:_15 <ace/xml_highlight_rules.js>;
 	rdf:_16 <ace/xml_mode.js>;
 	rdf:_17 <../scripts/jquery.js>;
-	rdf:_18 <../scripts/location.js>;
-	rdf:_19 <text-editor.js>.
+	rdf:_18 <../scripts/error.js>;
+	rdf:_19 <../scripts/location.js>;
+	rdf:_20 <text-editor.js>.
 
 <docbook_bundle> a calli:ScriptBundle; calli:minified 1 ;
 	rdf:_1 <../scripts/jquery.js>;
@@ -35,7 +36,8 @@
 	rdf:_3 <wymeditor/jquery.wymeditor.js>;
 	rdf:_4 <wymeditor/en.js>;
 	rdf:_5 <wymeditor/skin.js>;
-	rdf:_6 <../scripts/location.js>;
-	rdf:_7 <jquery.wymeditor.docbook.js>;
-	rdf:_8 <docbook-editor.js>.
+	rdf:_6 <../scripts/error.js>;
+	rdf:_7 <../scripts/location.js>;
+	rdf:_8 <jquery.wymeditor.docbook.js>;
+	rdf:_9 <docbook-editor.js>.
 

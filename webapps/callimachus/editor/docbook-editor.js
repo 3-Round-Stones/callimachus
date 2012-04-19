@@ -18,13 +18,8 @@ jQuery(function($) {
 		WYMeditor.INSTANCES[0].initIframe(this);
 
 		var editor = jQuery.wymeditors(0);
-		var path = null;
-		var contentType = null;
-		var etag = null;
 
-		if ($('#wym-iframe')[0].contentWindow.document.body) {
-			onhashchange();
-		} else {
+		if (!$('#wym-iframe')[0].contentWindow.document.body) {
 			setTimeout(function(){
 				if (!$('body', $('#wym-iframe')[0].contentWindow.document).children().length) {
 					// IE need this called twice on first load
@@ -42,125 +37,43 @@ jQuery(function($) {
 					};
 					setFullHeight();
 				}
-				onhashchange();
 			}, 1000);
 		}
 
-		// loading
-		$(window).bind('hashchange', onhashchange);
-		function onhashchange() {
-			if (location.hash && location.hash.length > 1) {
-				if (location.hash.indexOf('!') > 0) {
-					path = location.hash.substring(location.hash.indexOf('!') + 1);
-				}
-				var html = editor.html();
-				if (path && !(html && html.replace(/<[^>]*>/,'').replace(/\s+/,''))) {
-					jQuery.ajax({type: 'GET', url: path, beforeSend: withCredentials, complete: function(xhr) {
-						if (xhr.status == 200 || xhr.status == 304) {
-							contentType = xhr.getResponseHeader('Content-Type');
-							etag = xhr.getResponseHeader('ETag');
-							var body = xhr.responseText;
-							if (body != editor.docbook()) {
-								editor.docbook(body);
-							}
-						}
-					}});
-				}
-			}
-		}
-
-		// saving
-		var saving = false;
-		function postFile(action, callback) {
-			if (saving) return false;
-			saving = true;
-			var text = editor.docbook();
-			jQuery.ajax({
-				type: 'POST',
-				url: action,
-				contentType: contentType,
-				data: text,
-				beforeSend: withCredentials,
-				complete: function(xhr) {
-					saving = false;
-					if (xhr.status < 300 || xhr.status == 1223) {
-						if (xhr.status == 204 || xhr.status == 1223) {
-							etag = xhr.getResponseHeader('ETag');
-						}
-						if (typeof callback == 'function') {
-							callback(xhr);
-						}
-					}
-				}
-			});
-			return true;
-		}
-		function putFile(callback) {
-			var text = editor.docbook();
-			if (saving) return false;
-			saving = true;
-			jQuery.ajax({
-				type: 'PUT',
-				url: path,
-				contentType: contentType,
-				beforeSend: function(xhr) {
-					if (etag) {
-						xhr.setRequestHeader('If-Match', etag);
-					}
-					withCredentials(xhr);
-				},
-				data: text,
-				complete: function(xhr) {
-					saving = false;
-					if (xhr.status < 300 || xhr.status == 1223) {
-						if (xhr.status == 204 || xhr.status == 1223) {
-							etag = xhr.getResponseHeader('ETag');
-						}
-						if (typeof callback == 'function') {
-							callback(xhr);
-						}
-					}
-				}
-			});
-			return true;
-		}
-		function withCredentials(req) {
-			try {
-				req.withCredentials = true;
-			} catch (e) {}
-		}
+        var saved = null;
+        window.onbeforeunload = function(event){
+            event = event || window.event;
+            if (editor && editor.docbook() != saved) {
+                if (event) {
+                    event.returnValue = 'There are unsaved changes';
+                }
+                return 'There are unsaved changes';
+            }
+        };
 
 		// messaging
 		function handleMessage(header, body) {
-			if (header.indexOf('POST create\n') == 0) {
-				var m = header.match(/^POST create\s+Action:\s*(\S*)(\s+Content-Type:\s*(\S*))?\b/i);
-				var action = m[1];
-				if (m[3]) {
-					contentType = m[3];
-				}
-				postFile(action, function(xhr) {
-					var hd = xhr.getResponseHeader('Location');
-					if (hd) {
-						parent.postMessage('OK\n\n' + header + '\n\n' + hd, '*');
-					} else {
-						parent.postMessage('OK\n\n' + header + '\n\n', '*');
-					}
-				});
-				return false; // don't respond yet
-			} else if (header == 'POST save') {
-				putFile(function(xhr) {
-					parent.postMessage('OK\n\n' + header, '*');
-				});
-				return false; // don't respond yet
-			} else if (header == 'POST template' && body) {
+			if (header == 'PUT src\nIf-None-Match: *' && body) {
 				if (!editor.html()) {
 					editor.docbook(body);
+                    saved = editor.docbook();
 				}
 				return true;
+    		} else if (header == 'PUT src' && body) {
+    		    editor.docbook(body);
+                saved = editor.docbook();
+                return true;
+        	} else if (header == 'GET src') {
+                saved = editor.docbook();
+                return saved;
+    		} else if (header == 'PUT line.column') {
+                return true;
 			} else if (header == 'GET line.column') {
 				return '';
+    	    } else if (header == 'PUT disabled' && body) {
+			    return true;
 			}
-			return true; // empty response
+			return false; // Not Found
 		};
 
 		$(window).bind('message', function(event) {
@@ -175,7 +88,7 @@ jQuery(function($) {
 				try {
 					var response = handleMessage(header, body);
 					if (!response && typeof response == 'boolean') {
-						// respond later
+    					parent.postMessage('Not Found\n\n' + header, '*');
 					} else if (response && typeof response != 'boolean') {
 						parent.postMessage('OK\n\n' + header + '\n\n' + response, '*');
 					} else {

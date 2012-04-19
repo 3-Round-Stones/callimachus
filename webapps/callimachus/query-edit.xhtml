@@ -9,10 +9,10 @@
 	<script type="text/javascript" src="/callimachus/editor/edit.js"> </script>
 </head>
 <body>
-	<form id="form" method="POST" action="" enctype="application/sparql-query">
+	<form id="form" method="PUT" action="{?this}" enctype="application/sparql-query">
 		<iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#sparql"> </iframe>
         <button type="submit">Save</button>
-		<button type="button" onclick="calli.saveResourceAs(event, 'untitled query.rq', '/callimachus/NamedQuery')">Save as...</button>
+		<button type="button" onclick="calli.saveResourceAs(event, 'untitled query.rq', calli.getCallimachusUrl('NamedQuery'))">Save as...</button>
 		<button type="button" onclick="location.replace('?view')">Cancel</button>
 		<button type="button" onclick="calli.deleteResource(event)">Delete</button>
 	</form>

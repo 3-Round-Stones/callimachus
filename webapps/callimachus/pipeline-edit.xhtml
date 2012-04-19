@@ -9,10 +9,10 @@
 	<script type="text/javascript" src="/callimachus/editor/edit.js"> </script>
 </head>
 <body>
-	<form id="form" method="POST" action="" enctype="application/xproc+xml">
+	<form id="form" method="PUT" action="{?this}" enctype="application/xproc+xml">
 		<iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#xml"> </iframe>
         <button type="submit">Save</button>
-		<button type="button" onclick="calli.saveResourceAs(event, 'untitled pipeline.xpl', '/callimachus/Pipeline')">Save as...</button>
+		<button type="button" onclick="calli.saveResourceAs(event, 'untitled pipeline.xpl', calli.getCallimachusUrl('Pipeline'))">Save as...</button>
 		<button type="button" onclick="location.replace('?view')">Cancel</button>
 		<button type="button" onclick="calli.deleteResource(event)">Delete</button>
 	</form>

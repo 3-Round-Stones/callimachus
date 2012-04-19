@@ -30,6 +30,7 @@ window.calli.saveResourceAs = function(event, fileName, create) {
 	var about = $(form).attr('about');
 	if (originalSubmit && fileName) { // prompt for a new URI
 		$(form).removeAttr('about');
+		$(form).removeAttr('action');
 		openSaveAsDialog(form, fileName, create, function(ns, local){
 			$(form).attr('about', ns + local.replace(/\+/g,'-').toLowerCase());
 			resubmit(form);
@@ -146,6 +147,7 @@ function updateFormAction(form, target, create) {
 	if (action.indexOf('?create') >= 0 || action.indexOf('?edit') >= 0) {
 		var m;
 		if (create) {
+            form.setAttribute("method", "POST");
 			form.action = target + '?create=' + create;
 		} else if (m = action.match(/^([^\?]*)\?create(&.*)?$/)) {
 			action = target + '?create=';
@@ -159,12 +161,14 @@ function updateFormAction(form, target, create) {
 			if (m[2]) {
 				action += m[2];
 			}
+            form.setAttribute("method", "POST");
 			form.action = action;
 		} else if (m = action.match(/^([^\?]*)(\?create=[^&]+)(&.*)?$/)) {
 			action = target + m[2];
 			if (m[3]) {
 				action += m[3];
 			}
+            form.setAttribute("method", "POST");
 			form.action = action;
 		}
 	}

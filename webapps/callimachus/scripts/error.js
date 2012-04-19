@@ -99,7 +99,7 @@ window.calli.error = function(message, stack) {
 	if (window.console && window.console.error) {
 		console.error(error.message);
 	}
-	if (!e.isPropagationStopped() && parent) {
+	if (!e.isPropagationStopped() && parent != window && parent.postMessage) {
 		if (stack) {
 			parent.postMessage('ERROR ' + error.message + '\n\n' + stack, '*');
 		} else {

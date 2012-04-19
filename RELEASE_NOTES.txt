@@ -47,8 +47,6 @@ in which case secondary authorities are also searched.
 
 = KNOWN ISSUES IN 0.16 =
 
- * Error messages are not shown when using Ctrl-S within a text edit form. Use 
-   the save button to see the error message.
  * Empty table cells are omitted in from template.
  * Language tags are not supported with forms.
  * All possible options in check boxes must have a label.

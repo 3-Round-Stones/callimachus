@@ -9,10 +9,10 @@
 	<script type="text/javascript" src="/callimachus/editor/edit.js"> </script>
 </head>
 <body>
-	<form id="form" method="POST" action="" enctype="text/plain">
+	<form id="form" method="PUT" action="{?this}" enctype="text/plain">
 		<iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html"> </iframe>
         <button type="submit">Save</button>
-		<button type="button" onclick="calli.saveResourceAs(event, 'untitled text.txt', '/callimachus/TextFile')">Save as...</button>
+		<button type="button" onclick="calli.saveResourceAs(event, 'untitled text.txt', calli.getCallimachusUrl('TextFile'))">Save as...</button>
 		<button type="button" onclick="location.replace('?view')">Cancel</button>
 		<button type="button" onclick="calli.deleteResource(event)">Delete</button>
 	</form>

@@ -58,24 +58,23 @@ For more options see:
 | Installation |
 ----------------
 
-There are two ways to acquire and run Callimachus:  Download the installer
-(preferred) or checkout the Subversion repository.
+There are two ways to acquire and run Callimachus:  Download the ZIP archive 
+or checkout the Subversion repository.
 
-Callimachus has a graphical installer that is the primary way to
-install and configure Callimachus.  The installer may be re-run any time
-you need to change your Callimachus configuration.  You may also re-run the
-installer to change the password for the initial user.
-
-Execute the installer by running the Callimachus-Setup.exe on windows or
-Calilmachus-Setup.run on Mac and Linux.
-
-Once Callimachus is installed, you can start the server (if not already running)
-by executing the callimachus-start script located in the bin/ directory.
+If you download a ZIP archive of a release from http://callimachusproject.org/, 
+extract it into a new directory. Copy etc/callimachus-defaults.conf to
+etc/callimachus.conf; change the ORIGIN and PORT to the be the same as the
+hostname and port (if not port 80); add an initial user as instructed.
+Execute a callimachus-setup script located in the bin/ directory to initialize
+the repository. The script will ask for a password for the initial user. Execute
+a callimachus-start script located in the bin/ directory to start the server.
 
 On Mac and Linux run:
- $ bin/callimachus-start.sh
+ $ sh bin/callimachus-setup.sh
+ $ sh bin/callimachus-start.sh
 
 On Windows run:
+ # bin/callimachus-setup.bat
  # bin/callimachus-start.bat
 
 In some environments, Callimachus may log "An exception has occurred in the

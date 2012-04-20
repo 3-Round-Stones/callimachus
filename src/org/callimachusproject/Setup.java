@@ -19,7 +19,7 @@ package org.callimachusproject;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 import info.aduna.io.IOUtil;
 
-import java.io.BufferedReader;
+import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -204,7 +204,7 @@ public class Setup {
 	private String name;
 	private String email;
 	private String username;
-	private String password;
+	private char[] password;
 
 	public void init(String[] args) {
 		try {
@@ -264,19 +264,15 @@ public class Setup {
 						String u = line.getOptionValue('u');
 						if (u != null && u.contains(":")) {
 							username = u.substring(0, u.indexOf(':'));
-							password = u.substring(u.indexOf(':') + 1);
+							password = u.substring(u.indexOf(':') + 1).toCharArray();
 						} else {
-							Reader reader = new InputStreamReader(System.in);
+							Console console = System.console();
 							if (u == null) {
-								System.out.print("Enter a username: ");
-								username = new BufferedReader(reader).readLine();
+								username = console.readLine("Enter a username: ");
 							} else {
 								username = u;
 							}
-							System.out.print("Enter password for user ");
-							System.out.print(u);
-							System.out.print(": ");
-							password = new BufferedReader(reader).readLine();
+							password = console.readPassword("Enter password for user %s: ", u);
 						}
 						this.origin = origin;
 						this.name = line.getOptionValue('n');
@@ -305,8 +301,9 @@ public class Setup {
 			changed |= createRealm(e.getKey(), e.getValue(), repository);
 		}
 		changed |= setServeAllResourcesAs(serveAllAs, repository);
-		if (password != null && password.length() > 0) {
+		if (password != null && password.length > 0) {
 			changed |= createAdmin(name, email, username, password, origin, repository);
+			Arrays.fill(password, '*');
 		}
 		if (changed || silent) {
 			System.exit(0);
@@ -373,7 +370,7 @@ public class Setup {
 		setServeAllResourcesAs(origin, repository);
 	}
 
-	public void createAdmin(String name, String email, String username, String password, String origin)
+	public void createAdmin(String name, String email, String username, char[] password, String origin)
 			throws RepositoryException, UnsupportedEncodingException {
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
@@ -879,7 +876,7 @@ public class Setup {
 		}
 	}
 
-	private boolean createAdmin(String name, String email, String username, String password,
+	private boolean createAdmin(String name, String email, String username, char[] password,
 			String origin, ObjectRepository repository)
 			throws UnsupportedEncodingException, RepositoryException {
 		if (username == null || !username.toLowerCase().equals(username))
@@ -898,7 +895,7 @@ public class Setup {
 				for (Statement st2 : con.getStatements(accounts,
 						vf.createURI(CALLI_AUTHNAME), null).asList()) {
 					String authName = st2.getObject().stringValue();
-					String decoded = username + ":" + authName + ":" + password;
+					String decoded = username + ":" + authName + ":" + String.valueOf(password);
 					byte[] encoded = DigestUtils.md5(decoded);
 					Literal lit = of.createLiteral(encoded);
 					for (Statement st3 : con.getStatements(accounts,

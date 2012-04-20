@@ -62,6 +62,10 @@ if [ -z "$CONFIG" ] ; then
   CONFIG="$BASEDIR/etc/$NAME.conf"
 fi
 
+if [ ! -r "$CONFIG" ]; then
+  CONFIG="$BASEDIR/etc/$NAME-defaults.conf"
+fi
+
 if [ -r "$CONFIG" ]; then
   . "$CONFIG" 2>/dev/null
 fi
@@ -199,6 +203,10 @@ if [ -z "$REPOSITORY_CONFIG" ] ; then
   REPOSITORY_CONFIG="$BASEDIR/etc/$NAME-repository.ttl"
 fi
 
+if [ -z "$REPOSITORY_CONFIG" ] ; then
+  REPOSITORY_CONFIG="$BASEDIR/etc/$NAME-repository.ttl"
+fi
+
 for JAR in "$BASEDIR"/lib/*.jar ; do
   if [ ! -z "$CLASSPATH" ] ; then
     CLASSPATH="$CLASSPATH":
@@ -269,17 +277,24 @@ if [ ! -z "$DAEMON_GROUP" ] ; then
   umask 002
 fi
 
+mkdir -p "$(dirname "$PID")"
+if [ ! -e "$BASEDIR/log" ] ; then
+  mkdir "$BASEDIR/log"
+fi
+
 if [ ! -z "$DAEMON_USER" ] ; then
-  chown -R --from=root "$DAEMON_USER" "$BASEDIR/repositories"
-  if [ ! -z "$DAEMON_GROUP" ] ; then
-    chown -R --from=:root ":$DAEMON_GROUP" "$BASEDIR/repositories"
-  fi
   if [ ! -e "$BASEDIR/log" ] ; then
     mkdir "$BASEDIR/log"
   fi
   chown --from=root "$DAEMON_USER" "$BASEDIR/log"
   if [ ! -z "$DAEMON_GROUP" ] ; then
     chown --from=:root ":$DAEMON_GROUP" "$BASEDIR/log"
+  fi
+  if [ -e "$BASEDIR/repositories" ]; then
+    chown -R --from=root "$DAEMON_USER" "$BASEDIR/repositories"
+    if [ ! -z "$DAEMON_GROUP" ] ; then
+      chown -R --from=:root ":$DAEMON_GROUP" "$BASEDIR/repositories"
+    fi
   fi
   if [ ! -e "$TMPDIR" ] ; then
     mkdir "$TMPDIR"
@@ -292,11 +307,6 @@ if [ ! -z "$DAEMON_USER" ] ; then
     chown --from=root "$DAEMON_USER" "$MAIL"
     chown --from=:root ":$DAEMON_GROUP" "$MAIL"
   fi
-fi
-
-mkdir -p "$(dirname "$PID")"
-if [ ! -e "$BASEDIR/log" ] ; then
-  mkdir "$BASEDIR/log"
 fi
 
 MAINCLASS=org.callimachusproject.Server
@@ -317,6 +327,11 @@ if [ "$1" = "start" ] ; then ################################
   if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS ; then
     echo "Cannot bind to port $PORT $SSLPORT please ensure nothing is already listening on this port" 2>&1
     exit 2
+  fi
+
+  if [ ! -e "$REPOSITORY" ]; then
+    echo "The repository does not exist, please run the setup script first" 2>&1
+    exit 3
   fi
 
   if [ "`tty`" != "not a tty" ]; then
@@ -367,9 +382,18 @@ if [ "$1" = "start" ] ; then ################################
       exit 1
     fi
     if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS |grep -qe "\b$ID\b"; then
+      sleep 4
       break
-    elif netstat -ltpn 2>/dev/null |grep -e ":$SSLPORT\b" |grep -qe "\b$ID\b"; then
-      break
+    elif [ -n "$PORT" ]; then
+      if netstat -ltpn 2>/dev/null |grep -e ":$PORT\b" |grep -qe "\b$ID\b"; then
+        sleep 4
+        break
+      fi
+    elif [ -n "$SSLPORT" ]; then
+      if netstat -ltpn 2>/dev/null |grep -e ":$SSLPORT\b" |grep -qe "\b$ID\b"; then
+        sleep 4
+        break
+      fi
     fi
     if [ $SLEEP -gt 0 ]; then
       sleep 2
@@ -452,30 +476,13 @@ elif [ "$1" = "setup" ] ; then ################################
     echo "Using JDK_HOME:  $JDK_HOME"
   fi
 
-  if [ -n "$ORIGIN" -a -n "$USERNAME" ]; then
-    read -p "Please provide a password for user $USERNAME (or ENTER to skip):" PASSWORD
-  fi
-
-  JSVC_LOG="$BASEDIR/log/callimachus-setup.log"
-  if [ -e "$JSVC_LOG" ]; then
-    rm "$JSVC_LOG"
-  fi
   shift
-  "$EXECUTABLE" -nodetach -jvm server \
-    -keepstdin -outfile "$JSVC_LOG" -errfile '&1' \
-    -procname "$NAME" \
-    -home "$JAVA_HOME" \
-    -pidfile "$BASEDIR/run/$NAME-setup.pid" \
+  exec "$JAVA_HOME/bin/java" \
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
-    -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS "$SETUPCLASS" -o "$ORIGIN" -c "etc/callimachus-repository.ttl" -a lib/callimachus*.car -l -u "$USERNAME:$PASSWORD" -e "$EMAIL" -n "$FULLNAME" "$@"
-
-  RETURN_VAL=$?
-  cat "$JSVC_LOG"
-  exit $RETURN_VAL
+    $JAVA_OPTS $SSL_OPTS "$SETUPCLASS" -o "$ORIGIN" -c "$REPOSITORY_CONFIG" -a lib/$NAME*.car -l -u "$USERNAME" -e "$EMAIL" -n "$FULLNAME" "$@"
 
 elif [ "$1" = "dump" ] ; then ################################
 

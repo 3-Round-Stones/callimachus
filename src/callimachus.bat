@@ -72,6 +72,10 @@ if not "%CONFIG%" == "" goto gotConfigFile
 set "CONFIG=%BASEDIR%/etc/%NAME%.conf"
 :gotConfigFile
 
+if exist "%CONFIG%" goto readConfig
+set "CONFIG=%BASEDIR%/etc/%NAME%-defaults.conf"
+:readConfig
+
 rem Get standard environment variables
 if not exist "%CONFIG%" goto okConfig
 setlocal EnableDelayedExpansion
@@ -146,6 +150,10 @@ if not "%REPOSITORY%" == "" goto gotRepository
 set "REPOSITORY=repositories/%NAME%"
 :gotRepository
 
+if not "%REPOSITORY_CONFIG%" == "" goto gotRepositoryConfig
+set "REPOSITORY_CONFIG=etc/%NAME%-repository.ttl"
+:gotRepositoryConfig
+
 setlocal ENABLEDELAYEDEXPANSION
 for /r "lib" %%a IN (*.jar) do set CLASSPATH=!CLASSPATH!;%%a
 
@@ -215,6 +223,8 @@ goto setRunArgs
 IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
+if not exist "%REPOSITORY%" goto runSetup
+
 rem Execute Java with the applicable properties
 "%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -d "%BASEDIR%" -r "%REPOSITORY%" %OPT% %CMD_LINE_ARGS%
 goto end
@@ -239,6 +249,8 @@ goto setStartArgs
 IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
+if not exist "%REPOSITORY%" goto runSetup
+
 rem Execute Java with the applicable properties
 start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -d "%BASEDIR%" -r "%REPOSITORY%" %OPT% %CMD_LINE_ARGS%
 
@@ -255,7 +267,7 @@ goto end
 
 :doSetup
 rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -o "%ORIGIN%" -c "etc\callimachus-repository.ttl" -a lib\callimachus*.car -l -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -o "%ORIGIN%" -c "%REPOSITORY_CONFIG%" -a lib\%NAME%*.car -l -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
 goto end
 
 :doDump
@@ -272,6 +284,10 @@ goto end
 rem Execute Java with the applicable properties
 "%JAVA_HOME%\bin\java" -server -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --log %CMD_LINE_ARGS%
 goto end
+
+:runSetup
+echo The repository does not exist, please run the setup script first
+goto exit
 
 :end
 

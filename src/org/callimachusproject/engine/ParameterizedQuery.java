@@ -87,6 +87,11 @@ public class ParameterizedQuery {
 		return true;
 	}
 
+	public String prepare() throws IllegalArgumentException {
+		Map<String, String[]> parameters = Collections.emptyMap();
+		return prepare(parameters);
+	}
+
 	public String prepare(Map<String, String[]> parameters) throws IllegalArgumentException {
 		String sparql = this.sparql;
 		if (sparql.contains("${")) {
@@ -109,35 +114,43 @@ public class ParameterizedQuery {
 		int position = 0;
 		while (m.find()) {
 			String expression = m.group(1);
-			String select = prologue + "SELECT (" + expression + " AS ?_value) {} LIMIT 1";
-			String qry = appendBindings(select, parameters);
-			TupleExpr expr = new SPARQLParser().parseQuery(qry, systemId).getTupleExpr();
-			CloseableIteration<BindingSet, QueryEvaluationException> iter;
-			iter = new EvaluationStrategyImpl(new TripleSource() {
-				public ValueFactory getValueFactory() {
-					return vf;
-				}
-				public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(
-						Resource subj, URI pred, Value obj, Resource... contexts)
-						throws QueryEvaluationException {
-					return new EmptyIteration<Statement, QueryEvaluationException>();
-				}
-			}).evaluate(expr, new QueryBindingSet());
-			try {
-				if (!iter.hasNext())
-					throw new IllegalArgumentException("No value for expression: " + expression);
-				Value value = iter.next().getValue("_value");
-				if (value == null)
-					throw new IllegalArgumentException("No value for expression: " + expression);
-				sb.append(sparql, position, m.start());
-				sb.append(writeValue(value));
-				position = m.end();
-			} finally {
-				iter.close();
-			}
+			Value value = evaluate(prologue, expression, parameters);
+			sb.append(sparql, position, m.start());
+			sb.append(writeValue(value));
+			position = m.end();
 		}
 		sb.append(sparql, position, sparql.length());
 		return sb.toString();
+	}
+
+	private Value evaluate(String prologue, String expression,
+			Map<String, String[]> parameters) throws MalformedQueryException,
+			QueryEvaluationException {
+		Literal defaultValue = vf.createLiteral("0", XMLSchema.INTEGER);
+		String select = prologue + "SELECT (" + expression + " AS ?_value) {} LIMIT 1";
+		String qry = appendBindings(select, parameters);
+		TupleExpr expr = new SPARQLParser().parseQuery(qry, systemId).getTupleExpr();
+		CloseableIteration<BindingSet, QueryEvaluationException> iter;
+		iter = new EvaluationStrategyImpl(new TripleSource() {
+			public ValueFactory getValueFactory() {
+				return vf;
+			}
+			public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(
+					Resource subj, URI pred, Value obj, Resource... contexts)
+					throws QueryEvaluationException {
+				return new EmptyIteration<Statement, QueryEvaluationException>();
+			}
+		}).evaluate(expr, new QueryBindingSet());
+		try {
+			if (!iter.hasNext())
+				return defaultValue;
+			Value value = iter.next().getValue("_value");
+			if (value == null)
+				return defaultValue;
+			return value;
+		} finally {
+			iter.close();
+		}
 	}
 
 	private String getPrologue() {

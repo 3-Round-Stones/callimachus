@@ -19,6 +19,7 @@ package org.callimachusproject;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 import info.aduna.io.IOUtil;
 
+import java.io.BufferedReader;
 import java.io.Console;
 import java.io.File;
 import java.io.IOException;
@@ -267,12 +268,20 @@ public class Setup {
 							password = u.substring(u.indexOf(':') + 1).toCharArray();
 						} else {
 							Console console = System.console();
-							if (u == null) {
+							if (u == null && console == null) {
+								Reader reader = new InputStreamReader(System.in);
+								username = new BufferedReader(reader).readLine();
+							} else if (u == null) {
 								username = console.readLine("Enter a username: ");
 							} else {
 								username = u;
 							}
-							password = console.readPassword("Enter password for user %s: ", u);
+							if (console == null) {
+								Reader reader = new InputStreamReader(System.in);
+								password = new BufferedReader(reader).readLine().toCharArray();
+							} else {
+								password = console.readPassword("Enter password for user %s: ", username);
+							}
 						}
 						this.origin = origin;
 						this.name = line.getOptionValue('n');

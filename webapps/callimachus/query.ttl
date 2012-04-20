@@ -119,7 +119,7 @@
 		var con = this.objectConnection;
 		var parser = ParameterizedQueryParser.newInstance();
 		var query = parser.parseQuery(this.openInputStream(), this.toString());
-		con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query.toString(), this.toString());
+		con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query.prepare(), this.toString());
 	""".
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;

@@ -28,6 +28,23 @@ function findFrameElement(iframe) {
 	return iframe.frameElement;
 }
 
+function asName(title) {
+	if (!title)
+		return "iframe";
+	return title.toLowerCase().replace(/^\s+/,'').replace(/\s+$/,'').replace(/\s/g,'-').replace(/[^\-\w]/g,'_');
+}
+
+function asUniqueName(title) {
+	var name = asName(title);
+	if (!frames[name] || frames[name].name != name)
+		return name;
+	var i = 1;
+	while (frames[name + i] && frames[name + i].name == name + i) {
+		i++;
+	}
+	return name + i;
+}
+
 window.calli.openDialog = function(url, title, options) {
 	var width = 450;
 	var height = 500;
@@ -61,6 +78,7 @@ window.calli.openDialog = function(url, title, options) {
 	}, options);
 	var iframe = $("<iframe></iframe>");
 	iframe.attr('src', 'about:blank');
+	iframe.attr('name', asUniqueName(title));
 	iframe.addClass('dialog');
 	iframe.dialog(settings);
 	var requestedHeight = height;

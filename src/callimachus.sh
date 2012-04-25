@@ -120,7 +120,7 @@ fi
 
 # use 'which' to search for other possible java candidate
 if [ -z "$JAVA_HOME" ] ; then
-  JAVA=`which java`
+  JAVA=`which java 2>/dev/null`
   if [ -x "$JAVA" ] ; then
     while [ -h "$JAVA" ] ; do
       ls=`ls -ld "$JAVA"`
@@ -135,7 +135,7 @@ if [ -z "$JAVA_HOME" ] ; then
     if [ -d "$HOME" ] ; then
       JAVA_HOME="$HOME"
     else
-      JAVA_HOME=`which java | awk '{ print substr($1, 1, length($1)-9); }'`
+      JAVA_HOME=`which java 2>/dev/null | awk '{ print substr($1, 1, length($1)-9); }'`
     fi
   fi
 fi
@@ -150,7 +150,7 @@ fi
 
 # use 'which' to search for other possible java candidate
 if [ -z "$JDK_HOME" ] ; then
-  JAVAC=`which javac`
+  JAVAC=`which javac 2>/dev/null`
   if [ -x "$JAVAC" ] ; then
     while [ -h "$JAVAC" ] ; do
       ls=`ls -ld "$JAVAC"`
@@ -165,7 +165,7 @@ if [ -z "$JDK_HOME" ] ; then
     if [ -d "$HOME" ] ; then
       JDK_HOME="$HOME"
     else
-      JDK_HOME=`which javac | awk '{ print substr($1, 1, length($1)-10); }'`
+      JDK_HOME=`which javac 2>/dev/null | awk '{ print substr($1, 1, length($1)-10); }'`
     fi
   fi
 fi
@@ -322,7 +322,7 @@ if [ "$1" = "start" ] ; then ################################
     fi
   fi
 
-  LSOF="$(which lsof)"
+  LSOF="$(which lsof 2>/dev/null)"
   LSOF_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null)"
   if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS ; then
     echo "Cannot bind to port $PORT $SSLPORT please ensure nothing is already listening on this port" 2>&1

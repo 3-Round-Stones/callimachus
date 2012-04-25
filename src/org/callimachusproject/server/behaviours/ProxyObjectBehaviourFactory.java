@@ -45,15 +45,15 @@ import org.callimachusproject.annotations.query;
 import org.callimachusproject.server.traits.ProxyObject;
 import org.openrdf.annotations.ParameterTypes;
 import org.openrdf.annotations.Precedes;
-import org.openrdf.repository.object.composition.BehaviourFactory;
 import org.openrdf.repository.object.composition.ClassTemplate;
 import org.openrdf.repository.object.composition.MethodBuilder;
+import org.openrdf.repository.object.composition.helpers.AbstractBehaviourProvider;
 import org.openrdf.repository.object.exceptions.ObjectStoreConfigException;
 
 /**
  * Creates dynamic behaviours based on @method and @operation annotations.
  */
-public class ProxyObjectBehaviourFactory extends BehaviourFactory {
+public class ProxyObjectBehaviourFactory extends AbstractBehaviourProvider {
 
 	@Override
 	protected boolean isEnhanceable(Class<?> role)

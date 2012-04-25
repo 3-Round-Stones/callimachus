@@ -262,12 +262,17 @@ public class TestParameterizedQueries extends TestCase {
 
 	public void testMissingExpressionParameters() throws Exception {
 		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label ${$label} }";
-		try {
-			parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(null);
-			fail();
-		} catch (IllegalArgumentException e) {
-			// success
-		}
+		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(null);
+
+		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
+		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
+		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
+		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
+		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		assertEquals(Arrays.asList("thing"), result.getBindingNames());
+		assertFalse(result.hasNext());
+		result.close();
+	
 	}
 
 	public void testLiteralExpressionParameter() throws Exception {

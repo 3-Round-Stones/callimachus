@@ -201,7 +201,6 @@ public class Setup {
 	private final Map<String, String> vhosts = new HashMap<String, String>();
 	private final Map<String, String> realms = new HashMap<String, String>();
 	private LocalRepositoryManager manager;
-	private String origin;
 	private String name;
 	private String email;
 	private String username;
@@ -258,7 +257,7 @@ public class Setup {
 							realms.put(r, origin);
 						}
 					}
-					if (line.hasOption('l')) {
+					if (line.hasOption('l') && line.getOptionValues('o').length == 1) {
 						serveAllAs = origin;
 					}
 					if (line.hasOption('u')) {
@@ -283,7 +282,6 @@ public class Setup {
 								password = console.readPassword("Enter password for user %s: ", username);
 							}
 						}
-						this.origin = origin;
 						this.name = line.getOptionValue('n');
 						this.email = line.getOptionValue('e');
 					}
@@ -311,7 +309,9 @@ public class Setup {
 		}
 		changed |= setServeAllResourcesAs(serveAllAs, repository);
 		if (password != null && password.length > 0) {
-			changed |= createAdmin(name, email, username, password, origin, repository);
+			for (String origin : origins) {
+				changed |= createAdmin(name, email, username, password, origin, repository);
+			}
 			Arrays.fill(password, '*');
 		}
 		if (changed || silent) {

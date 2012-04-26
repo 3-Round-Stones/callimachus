@@ -55,9 +55,17 @@ public class OrderedSparqlReader extends AbstractRDFEventReader {
 			if (!nested.isEmpty()) {
 				vars.addAll(nested);
 			}
-			nested = parent_nested.remove(parent_nested.size() - 1);
+			if (parent_nested.isEmpty()) {
+				nested = new ArrayList<Var>();
+			} else {
+				nested = parent_nested.remove(parent_nested.size() - 1);
+			}
 			nested.addAll(0, vars);
-			vars = parent_vars.remove(parent_vars.size() - 1);
+			if (parent_nested.isEmpty()) {
+				vars = new ArrayList<Var>();
+			} else {
+				vars = parent_vars.remove(parent_vars.size() - 1);
+			}
 		} else if (taken.isTriplePattern()) {
 			addIfVar(taken.asTriplePattern().getAbout());
 			addIfVar(taken.asTriplePattern().getPartner());

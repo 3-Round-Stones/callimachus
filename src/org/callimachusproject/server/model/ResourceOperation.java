@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -325,6 +326,21 @@ public class ResourceOperation extends ResourceRequest {
 		for (String v : values) {
 			if (iri.startsWith(v)) {
 				array.add(v);
+			}
+		}
+		if (array.size() > 1) {
+			Collections.sort(array, new Comparator<String>() {
+				public int compare(String o1, String o2) {
+					return o2.length() < o1.length() ? -1 : (o2.length() == o1
+							.length() ? 0 : 1);
+				}
+			});
+		}
+		if (array.size() < values.length) {
+			for (String v : values) {
+				if (!iri.startsWith(v)) {
+					array.add(v);
+				}
 			}
 		}
 		String[] a = array.toArray(new String[array.size()]);

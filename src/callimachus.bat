@@ -186,7 +186,7 @@ set "OPT=%OPT% -p %PORT: = -p %"
 :gotPortOpt
 
 if "%SSLPORT%" == "" goto gotSslPortOpt
-set "OPT=%OPT% -p %SSLPORT: = -p %"
+set "OPT=%OPT% -s %SSLPORT: = -s %"
 :gotSslPortOpt
 
 set "OPT=%OPT% -o %ORIGIN: = -o %"
@@ -256,6 +256,8 @@ start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.i
 
 :notListening
 REM | CHOICE /C:AB /T:A,2 > NUL
+netstat -ano |find /i "LISTENING" |find "%SSLPORT%"
+IF ERRORLEVEL 0 GOTO end
 netstat -ano |find /i "LISTENING" |find "%PORT%"
 IF ERRORLEVEL 1 GOTO notListening
 goto end

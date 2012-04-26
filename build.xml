@@ -319,7 +319,7 @@
 
 	<target name="test" depends="test-compile" description="run the tests">
 		<mkdir dir="${reports.tests}" />
-		<junit printsummary="yes" haltonfailure="yes">
+		<junit printsummary="yes" haltonfailure="yes" tempdir="${tmp}">
 			<classpath>
 				<pathelement location="${build.tests}/" />
 				<pathelement location="${build}/" />

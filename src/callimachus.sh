@@ -296,6 +296,19 @@ if [ ! -z "$DAEMON_USER" ] ; then
       chown -R --from=:root ":$DAEMON_GROUP" "$BASEDIR/repositories"
     fi
   fi
+  if [ -e "$SSL" ]; then
+    chown -R --from=root "$DAEMON_USER" "$SSL"
+    if [ ! -z "$DAEMON_GROUP" ] ; then
+      chown -R --from=:root ":$DAEMON_GROUP" "$SSL"
+    fi
+    KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
+    if [ -n "$KEYSTORE" -a -e "$BASEDIR/$KEYSTORE" ]; then
+      chown -R --from=root "$DAEMON_USER" "$BASEDIR/$KEYSTORE"
+      if [ ! -z "$DAEMON_GROUP" ] ; then
+        chown -R --from=:root ":$DAEMON_GROUP" "$BASEDIR/$KEYSTORE"
+      fi
+    fi
+  fi
   if [ ! -e "$TMPDIR" ] ; then
     mkdir "$TMPDIR"
     chown "$DAEMON_USER" "$TMPDIR"

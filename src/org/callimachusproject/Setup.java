@@ -279,7 +279,7 @@ public class Setup {
 								Reader reader = new InputStreamReader(System.in);
 								password = new BufferedReader(reader).readLine().toCharArray();
 							} else {
-								password = console.readPassword("Enter password for user %s: ", username);
+								password = console.readPassword("Enter a new password for user %s: ", username);
 							}
 						}
 						this.name = line.getOptionValue('n');

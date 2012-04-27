@@ -15,6 +15,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+### BEGIN INIT INFO
+# Provides:          callimachus
+# Required-Start:    $remote_fs $network
+# Required-Stop:     $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Linked Data Management System
+# Description:       Callimachus is a framework for data-driven applications based on Linked Data principles.
+### END INIT INFO
+
+if [ -e /lib/lsb/init-functions ]; then
+  . /lib/lsb/init-functions
+else
+  log_success_msg () {
+    echo $1
+  }
+  log_failure_msg () {
+    echo $1 2>&1
+  }
+  log_warning_msg () {
+    echo $1 2>&1
+  }
+fi
 
 cygwin=false
 darwin=false
@@ -75,9 +98,9 @@ cd "$BASEDIR"
 
 # Check that target executable exists
 if [ ! -f "$EXECUTABLE" ]; then
-  echo "Cannot find $EXECUTABLE"
-  echo "This file is needed to run this program"
-  exit 1
+  log_failure_msg "Cannot find $EXECUTABLE"
+  log_failure_msg "This file is needed to run this program"
+  exit 5
 fi
 
 # Check that target is executable
@@ -85,9 +108,9 @@ if [ ! -x "$EXECUTABLE" ]; then
   chmod a+x "$EXECUTABLE"
   # Check that target is executable
   if [ ! -x "$EXECUTABLE" ]; then
-    echo "$EXECUTABLE is not executable"
-    echo "This file is needed to run this program"
-    exit 1
+    log_failure_msg "$EXECUTABLE is not executable"
+    log_failure_msg "This file is needed to run this program"
+    exit 5
   fi
 fi
 
@@ -330,29 +353,29 @@ if [ "$1" = "start" ] ; then ################################
 
   if [ ! -z "$PID" ]; then
     if [ -f "$PID" ]; then
-      echo "PID file ($PID) found. Is the server still running? Start aborted." 2>&1
-      exit 1
+      log_warning_msg "PID file ($PID) found. Is the server still running? Start aborted."
+      exit 0
     fi
   fi
 
   LSOF="$(which lsof 2>/dev/null)"
   LSOF_OPTS="$(echo $PORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null) $(echo $SSLPORT |perl -pe 's/(^|\s)(\S)/ -i :$2/g' 2>/dev/null)"
   if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS ; then
-    echo "Cannot bind to port $PORT $SSLPORT please ensure nothing is already listening on this port" 2>&1
-    exit 2
+    log_failure_msg "Cannot bind to port $PORT $SSLPORT please ensure nothing is already listening on this port"
+    exit 150
   fi
 
   if [ ! -e "$REPOSITORY" ]; then
-    echo "The repository does not exist, please run the setup script first" 2>&1
-    exit 3
+    log_failure_msg "The repository does not exist, please run the setup script first"
+    exit 6
   fi
 
   if [ "`tty`" != "not a tty" ]; then
-    echo "Using BASEDIR:   $BASEDIR"
-    echo "Using PORT:      $PORT $SSLPORT"
-    echo "Using ORIGIN:    $ORIGIN"
-    echo "Using JAVA_HOME: $JAVA_HOME"
-    echo "Using JDK_HOME:  $JDK_HOME"
+    log_success_msg "Using BASEDIR:   $BASEDIR"
+    log_success_msg "Using PORT:      $PORT $SSLPORT"
+    log_success_msg "Using ORIGIN:    $ORIGIN"
+    log_success_msg "Using JAVA_HOME: $JAVA_HOME"
+    log_success_msg "Using JDK_HOME:  $JDK_HOME"
   fi
 
   JSVC_LOG="$BASEDIR/log/callimachus-start.log"
@@ -379,9 +402,9 @@ if [ "$1" = "start" ] ; then ################################
 
   if [ $RETURN_VAL -gt 0 -o ! -f "$PID" ]; then
     if [ "$(ls -A "$BASEDIR/log")" ]; then
-      echo "The server did not start, see log files for details. Start aborted." 2>&1
+      log_failure_msg "The server did not start, see log files for details. Start aborted."
     else
-      echo "The server did not start properly. Ensure it is not running and run $0" 2>&1
+      log_failure_msg "The server did not start properly. Ensure it is not running and run $0"
     fi
     exit $RETURN_VAL
   fi
@@ -391,8 +414,8 @@ if [ "$1" = "start" ] ; then ################################
   while [ $SLEEP -ge 0 ]; do
     kill -0 $ID >/dev/null 2>&1
     if [ $? -gt 0 ]; then
-      echo "The server is not running, see log files for details. Start aborted." 2>&1
-      exit 1
+      log_failure_msg "The server is not running, see log files for details. Start aborted."
+      exit 7
     fi
     if [ -n "$LSOF" ] && "$LSOF" $LSOF_OPTS |grep -qe "\b$ID\b"; then
       sleep 4
@@ -413,7 +436,7 @@ if [ "$1" = "start" ] ; then ################################
     fi
     if [ $SLEEP -eq 0 ]; then
       if [ "`tty`" != "not a tty" ]; then
-        echo "The server is still starting up, check log files for possible errors." 2>&1
+        log_warning_msg "The server is still starting up, check log files for possible errors."
       fi
       break
     fi
@@ -427,17 +450,17 @@ elif [ "$1" = "stop" ] ; then ################################
     if [ $? -gt 0 ]; then
       rm -f "$PID"
       if [ $? -gt 0 ]; then
-        echo "PID file ($PID) found but no matching process was found. Stop aborted." 2>&1
-        exit $?
+        log_failure_msg "PID file ($PID) found but no matching process was found. Stop aborted."
+        exit 4
       fi
-      exit $?
+      exit 0
     fi
   elif [ -f "$PID" ]; then
-    echo "The PID ($PID) exist, but it cannot be read. Stop aborted." 2>&1
-    exit 1
+    log_failure_msg "The PID ($PID) exist, but it cannot be read. Stop aborted."
+    exit 4
   else
-    echo "The PID ($PID) does not exist. Is the server running? Stop aborted." 2>&1
-    exit 1
+    log_warning_msg "The PID ($PID) does not exist. Is the server running? Stop aborted."
+    exit 0
   fi
 
   ID=`cat "$PID"`
@@ -462,7 +485,7 @@ elif [ "$1" = "stop" ] ; then ################################
   done
 
   if [ -f "$PID" ]; then
-    echo "Killing: $ID"
+    log_warning_msg "Killing: $ID"
     rm -f "$PID"
     kill -9 "$ID"
 	sleep 5
@@ -472,21 +495,69 @@ elif [ "$1" = "stop" ] ; then ################################
     fi
   fi
 
+elif [ "$1" = "restart" -o "$1" = "force-reload" ] ; then ################################
+
+  if [ -f "$PID" ]; then
+    /bin/sh "$PRG" stop
+    if [ $? -gt 0 ]; then
+      exit $?
+    fi
+  fi
+
+  sleep 2
+  shift
+  exec /bin/sh "$PRG" start "$@"
+
+elif [ "$1" = "try-restart" ] ; then ################################
+
+  if [ -f "$PID" ]; then
+    /bin/sh "$PRG" stop
+    if [ $? -gt 0 ]; then
+      exit $?
+    fi
+    sleep 2
+    shift
+    exec /bin/sh "$PRG" start "$@"
+  fi
+
+elif [ "$1" = "reload" ] ; then ################################
+
+  log_failure_msg "reload is not implemented"
+  exit 3
+
+
+elif [ "$1" = "status" ] ; then ################################
+
+  if [ -f "$PID" -a -r "$PID" ]; then
+    kill -0 `cat "$PID"` >/dev/null 2>&1
+    if [ $? -gt 0 ]; then
+      log_failure_msg "PID file ($PID) found but no matching process was found."
+      exit 1
+    fi
+    exit 0
+  elif [ -f "$PID" ]; then
+    log_failure_msg "The PID ($PID) exist, but it cannot be read."
+    exit 4
+  else
+    log_failure_msg "The PID ($PID) does not exist."
+    exit 3
+  fi
+
 elif [ "$1" = "setup" ] ; then ################################
 
   if [ ! -z "$PID" ]; then
     if [ -f "$PID" ]; then
-      echo "PID file ($PID) found. Is the server still running? Setup aborted." 2>&1
-      exit 1
+      log_failure_msg "PID file ($PID) found. Is the server still running? Setup aborted."
+      exit 151
     fi
   fi
 
   if [ "`tty`" != "not a tty" ]; then
-    echo "Using BASEDIR:   $BASEDIR"
-    echo "Using PORT:      $PORT $SSLPORT"
-    echo "Using ORIGIN:    $ORIGIN"
-    echo "Using JAVA_HOME: $JAVA_HOME"
-    echo "Using JDK_HOME:  $JDK_HOME"
+    log_success_msg "Using BASEDIR:   $BASEDIR"
+    log_success_msg "Using PORT:      $PORT $SSLPORT"
+    log_success_msg "Using ORIGIN:    $ORIGIN"
+    log_success_msg "Using JAVA_HOME: $JAVA_HOME"
+    log_success_msg "Using JDK_HOME:  $JDK_HOME"
   fi
 
   shift
@@ -502,19 +573,15 @@ elif [ "$1" = "dump" ] ; then ################################
   if [ -f "$PID" -a -r "$PID" ]; then
     kill -0 `cat "$PID"` >/dev/null 2>&1
     if [ $? -gt 0 ]; then
-      rm -f "$PID"
-      if [ $? -gt 0 ]; then
-        echo "PID file ($PID) found but no matching process was found. Dump aborted." 2>&1
-        exit $?
-      fi
-      exit $?
+      log_failure_msg "PID file ($PID) found but no matching process was found. Dump aborted."
+      exit 7
     fi
   elif [ -f "$PID" ]; then
-    echo "The PID ($PID) exist, but it cannot be read. Dump aborted." 2>&1
-    exit 1
+    log_failure_msg "The PID ($PID) exist, but it cannot be read. Dump aborted."
+    exit 4
   else
-    echo "The PID ($PID) does not exist. Is the server running? Dump aborted." 2>&1
-    exit 1
+    log_failure_msg "The PID ($PID) does not exist. Is the server running? Dump aborted."
+    exit 7
   fi
 
   DATE=`date +%Y-%m-%d`
@@ -550,19 +617,15 @@ elif [ "$1" = "reset" ] ; then ################################
   if [ -f "$PID" -a -r "$PID" ]; then
     kill -0 `cat "$PID"` >/dev/null 2>&1
     if [ $? -gt 0 ]; then
-      rm -f "$PID"
-      if [ $? -gt 0 ]; then
-        echo "PID file ($PID) found but no matching process was found. Reset aborted." 2>&1
-        exit $?
-      fi
-      exit $?
+      log_failure_msg "PID file ($PID) found but no matching process was found. Dump aborted."
+      exit 7
     fi
   elif [ -f "$PID" ]; then
-    echo "The PID ($PID) exist, but it cannot be read. Reset aborted." 2>&1
-    exit 1
+    log_failure_msg "The PID ($PID) exist, but it cannot be read. Dump aborted."
+    exit 4
   else
-    echo "The PID ($PID) does not exist. Is the server running? Reset aborted." 2>&1
-    exit 1
+    log_failure_msg "The PID ($PID) does not exist. Is the server running? Dump aborted."
+    exit 7
   fi
 
   JSVC_LOG="$BASEDIR/log/callimachus-reset.log"
@@ -584,16 +647,16 @@ elif [ "$1" = "reset" ] ; then ################################
 else ################################
 
   if [ -f "$PID" ]; then
-    echo "PID file ($PID) found. Is the server still running? Run aborted." 2>&1
-    exit 1
+    log_failure_msg "PID file ($PID) found. Is the server still running? Run aborted."
+    exit 152
    fi
 
   if [ "`tty`" != "not a tty" ]; then
-    echo "Using BASEDIR:   $BASEDIR"
-    echo "Using PORT:      $PORT $SSLPORT"
-    echo "Using ORIGIN:    $ORIGIN"
-    echo "Using JAVA_HOME: $JAVA_HOME"
-    echo "Using JDK_HOME:  $JDK_HOME"
+    log_success_msg "Using BASEDIR:   $BASEDIR"
+    log_success_msg "Using PORT:      $PORT $SSLPORT"
+    log_success_msg "Using ORIGIN:    $ORIGIN"
+    log_success_msg "Using JAVA_HOME: $JAVA_HOME"
+    log_success_msg "Using JDK_HOME:  $JDK_HOME"
   fi
 
   exec "$EXECUTABLE" -debug -showversion -nodetach -home "$JAVA_HOME" -jvm server -procname "$NAME" \

@@ -104,7 +104,7 @@ public class ServerMonitor {
 		} catch (ClassNotFoundException e) {
 			System.err.print("Missing jar with: ");
 			System.err.println(e.toString());
-			System.exit(1);
+			System.exit(5);
 		} catch (Throwable e) {
 			println(e);
 			System.err.println("Arguments: " + Arrays.toString(args));
@@ -158,14 +158,14 @@ public class ServerMonitor {
 				System.err.println("Arguments: " + Arrays.toString(args));
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp("[options]", options);
-				System.exit(0);
+				System.exit(2);
 				return;
 			} else if (!line.hasOption("pid")) {
 				System.err.println("Missing pid option");
 				System.err.println("Arguments: " + Arrays.toString(args));
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp("[options]", options);
-				System.exit(0);
+				System.exit(2);
 			} else {
 				if (line.hasOption("dump")) {
 					dump = line.getOptionValue("dump") + File.separatorChar;
@@ -184,7 +184,7 @@ public class ServerMonitor {
 		} catch (Throwable e) {
 			println(e);
 			System.err.println("Arguments: " + Arrays.toString(args));
-			System.exit(2);
+			System.exit(1);
 		}
 	}
 

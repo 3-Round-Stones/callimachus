@@ -171,7 +171,7 @@ public class Setup {
 		} catch (ClassNotFoundException e) {
 			System.err.print("Missing jar with: ");
 			System.err.println(e.toString());
-			System.exit(1);
+			System.exit(5);
 		} catch (Exception e) {
 			println(e);
 			System.err.println("Arguments: " + Arrays.toString(args));
@@ -220,7 +220,7 @@ public class Setup {
 				System.err.println("Arguments: " + Arrays.toString(args));
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp("[options]", options);
-				System.exit(0);
+				System.exit(2);
 				return;
 			} else if (line.hasOption('V')) {
 				System.out.println(NAME);
@@ -298,7 +298,7 @@ public class Setup {
 		} catch (Exception e) {
 			println(e);
 			System.err.println("Arguments: " + Arrays.toString(args));
-			System.exit(2);
+			System.exit(1);
 		}
 	}
 
@@ -335,7 +335,7 @@ public class Setup {
 			System.exit(0);
 		} else {
 			logger.warn("Repository is already setup");
-			System.exit(1); // already setup
+			System.exit(166); // already setup
 		}
 	}
 

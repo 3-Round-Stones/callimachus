@@ -68,7 +68,7 @@ set "NAME=%NAME:~0,-1%"
 rem Ensure that any user defined CLASSPATH variables are not used on startup.
 set CLASSPATH=
 
-if not "%CONFIG%" == "" goto gotConfigFile
+if exist "%CONFIG%" goto gotConfigFile
 set "CONFIG=%BASEDIR%/etc/%NAME%.conf"
 :gotConfigFile
 
@@ -96,10 +96,14 @@ for /d %%i in ("%BASEDIR%\jdk*") do set JDK_HOME=%%i
 for /d %%i in ("%BASEDIR%\jdk*") do set JAVA_HOME=%%i\jre
 
 rem Lookup the JDK in the registry
-if not "%JAVA_HOME%" == "" goto gotJavaHome
+if exist "%JAVA_HOME%" goto gotJavaHome
 set "KeyName=HKEY_LOCAL_MACHINE\SOFTWARE\JavaSoft\Java Development Kit\1.6"
 set Cmd=reg query "%KeyName%" /s
-for /f "tokens=2*" %%i in ('%Cmd% ^| find "JavaHome"') do set JAVA_HOME=%%j
+for /f "tokens=2*" %%i in ('%Cmd% ^| find "JavaHome"') do set JDK_HOME=%%j
+
+if not exist "%JDK_HOME%" goto gotNoHome
+set "JAVA_HOME=%JDK_HOME%\jre"
+:gotNoHome
 
 rem Make sure prerequisite environment variable is set
 if not "%JAVA_HOME%" == "" goto gotJavaHome
@@ -108,7 +112,7 @@ echo The JAVA_HOME environment variable is needed to run this server
 goto exit
 :gotJavaHome
 
-if not "%JDK_HOME%" == "" goto gotJdkHome
+if exist "%JDK_HOME%" goto gotJdkHome
 set "JDK_HOME=%JAVA_HOME%\.."
 :gotJdkHome
 
@@ -268,8 +272,16 @@ rem Execute Java with the applicable properties
 goto end
 
 :doSetup
+
+echo Using BASEDIR:   %BASEDIR%
+echo Using PORT:      %PORT% %SSLPORT%
+echo Using ORIGIN:    %ORIGIN%
+echo Using JAVA_HOME: %JAVA_HOME%
+echo Using JDK_HOME:  %JDK_HOME%
+
 rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -o "%ORIGIN%" -c "%REPOSITORY_CONFIG%" -a lib\%NAME%*.car -l -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
+FOR /F "tokens=1 delims=" %%A in ('dir /b lib\%NAME%*.car') do SET "CAR_FILE=%%A"
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -o "%ORIGIN%" -c "%REPOSITORY_CONFIG%" -f "/callimachus/=lib\%CAR_FILE%" -l -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
 goto end
 
 :doDump

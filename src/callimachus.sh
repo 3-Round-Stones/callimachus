@@ -495,7 +495,7 @@ elif [ "$1" = "setup" ] ; then ################################
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
-    $JAVA_OPTS $SSL_OPTS "$SETUPCLASS" -o "$ORIGIN" -c "$REPOSITORY_CONFIG" -a lib/$NAME*.car -l -u "$USERNAME" -e "$EMAIL" -n "$FULLNAME" "$@"
+    $JAVA_OPTS $SSL_OPTS "$SETUPCLASS" -o "$ORIGIN" -c "$REPOSITORY_CONFIG" -f "/callimachus/=$(ls lib/$NAME*.car)" -l -u "$USERNAME" -e "$EMAIL" -n "$FULLNAME" "$@"
 
 elif [ "$1" = "dump" ] ; then ################################
 

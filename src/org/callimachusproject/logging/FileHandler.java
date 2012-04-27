@@ -200,6 +200,8 @@ public class FileHandler extends StreamHandler {
                         }
                         renameTo(files[i - 1], files[i]);
                     }
+                } else {
+                	files[0].getParentFile().mkdirs();
                 }
                 FileOutputStream fileStream = new FileOutputStream(fileName
                         + LCK_EXT);

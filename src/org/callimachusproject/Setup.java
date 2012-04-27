@@ -135,8 +135,8 @@ public class Setup {
 		options.addOption("c", "config", true,
 				"A repository config url (relative file: or http:)");
 		options.getOption("config").setRequired(true);
-		options.addOption("a", "car", true,
-				"The callimachus.car file to be installed in the origin");
+		options.addOption("f", "car", true,
+				"Target and CAR URL pairs, separated by equals, that should be installed for each primary origin");
 		options.getOption("car").setRequired(true);
 		options.addOption("o", "origin", true,
 				"The scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
@@ -196,7 +196,7 @@ public class Setup {
 	private String serveAllAs;
 	private File dir;
 	private URL config;
-	private URL callimachus;
+	private final Map<String, URL> cars = new HashMap<String, URL>();
 	private final Set<String> origins = new HashSet<String>();
 	private final Map<String, String> vhosts = new HashMap<String, String>();
 	private final Map<String, String> realms = new HashMap<String, String>();
@@ -236,13 +236,21 @@ public class Setup {
 				if (line.hasOption('c')) {
 					config = resolve(line.getOptionValue('c'));
 				}
-				if (line.hasOption('a')) {
-					callimachus = resolve(line.getOptionValue('a'));
-				}
 				if (line.hasOption('o')) {
 					for (String o : line.getOptionValues('o')) {
 						validateOrigin(o);
 						origins.add(o);
+					}
+					if (line.hasOption('f')) {
+						for (String pair : line.getOptionValues('f')) {
+							int idx = pair.indexOf('=');
+							String path = pair.substring(0, idx);
+							URL url = resolve(pair.substring(idx + 1));
+							for (String origin : origins) {
+								java.net.URI uri = java.net.URI.create(origin + "/");
+								cars.put(uri.resolve(path).toASCIIString(), url);
+							}
+						}
 					}
 					String origin = line.getOptionValue('o');
 					if (line.hasOption('v')) {
@@ -299,13 +307,22 @@ public class Setup {
 		System.err.println(connect(dir, configString).toURI().toASCIIString());
 		boolean changed = false;
 		for (String origin : origins) {
-			changed |= createOrigin(origin, callimachus, repository);
+			changed |= createOrigin(origin, repository);
 		}
 		for (Map.Entry<String, String> e : vhosts.entrySet()) {
 			changed |= createVirtualHost(e.getKey(), e.getValue(), repository);
 		}
 		for (Map.Entry<String, String> e : realms.entrySet()) {
 			changed |= createRealm(e.getKey(), e.getValue(), repository);
+		}
+		for (Map.Entry<String, URL> e : cars.entrySet()) {
+			String origin = origins.iterator().next();
+			for (String o : origins) {
+				if (e.getKey().startsWith(o + "/")) {
+					origin = o;
+				}
+			}
+			changed |= importCar(e.getValue(), e.getKey(), origin, repository);
 		}
 		changed |= setServeAllResourcesAs(serveAllAs, repository);
 		if (password != null && password.length > 0) {
@@ -348,11 +365,18 @@ public class Setup {
 		manager.shutDown();
 	}
 
-	public void createOrigin(String origin, URL car) throws Exception {
+	public void createOrigin(String origin) throws Exception {
 		validateOrigin(origin);
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
-		createOrigin(origin, car, repository);
+		createOrigin(origin, repository);
+	}
+
+	public void importCar(URL car, String folder, String origin) throws Exception {
+		validateOrigin(origin);
+		if (repository == null)
+			throw new IllegalStateException("Not connected");
+		importCar(car, folder, origin, repository);
 	}
 
 	public void createVirtualHost(String virtual, String origin)
@@ -519,13 +543,10 @@ public class Setup {
 		return ModelUtil.equals(g1, g2);
 	}
 
-	private boolean createOrigin(String origin, URL car,
+	private boolean createOrigin(String origin,
 			ObjectRepository repository) throws Exception {
 		boolean modified = createVirtualHost(origin, origin, repository);
 		modified |= initializeOrUpgradeStore(repository, origin);
-		if (car != null) {
-			importCallimachus(origin, car, repository);
-		}
 		return modified;
 	}
 
@@ -663,13 +684,14 @@ public class Setup {
 		return newVersion;
 	}
 
-	private void importCallimachus(String origin, URL car,
+	private boolean importCar(URL car, String folder, String origin,
 			ObjectRepository repository) throws Exception {
-		importSchema(car, origin, repository);
-		importArchive(car, origin, repository);
+		importSchema(car, folder, origin, repository);
+		importArchive(car, folder, origin, repository);
+		return true;
 	}
 
-	private void importSchema(URL car, String origin,
+	private void importSchema(URL car, String folder, String origin,
 			ObjectRepository repository) throws RepositoryException,
 			IOException, RDFParseException {
 		ObjectConnection con = repository.getConnection();
@@ -681,7 +703,7 @@ public class Setup {
 			try {
 				while (stmts.hasNext()) {
 					Resource graph = stmts.next().getSubject();
-					if (graph.stringValue().startsWith(origin + CALLIMACHUS)) {
+					if (graph.stringValue().startsWith(folder)) {
 						con.clear(graph);
 					}
 				}
@@ -693,7 +715,7 @@ public class Setup {
 				String name;
 				while ((name = carin.readEntryName()) != null) {
 					try {
-						importSchemaGraphEntry(carin, origin, con);
+						importSchemaGraphEntry(carin, folder, con);
 					} catch (RDFParseException e) {
 						String msg = e.getMessage() + " in " + name;
 						RDFParseException pe = new RDFParseException(msg, e.getLineNumber(), e.getColumnNumber());
@@ -710,11 +732,11 @@ public class Setup {
 		}
 	}
 
-	private void importSchemaGraphEntry(CarInputStream carin, String origin,
+	private void importSchemaGraphEntry(CarInputStream carin, String folder,
 			ObjectConnection con) throws IOException, RDFParseException,
 			RepositoryException {
 		ValueFactory vf = con.getValueFactory();
-		String target = origin + CALLIMACHUS + carin.readEntryName();
+		String target = folder + carin.readEntryName();
 		InputStream in = carin.getEntryStream();
 		try {
 			if (carin.isSchemaEntry()) {
@@ -740,7 +762,7 @@ public class Setup {
 		}
 	}
 
-	private void importArchive(URL car, String origin,
+	private void importArchive(URL car, String folderUri, String origin,
 			ObjectRepository repository) throws Exception {
 		ValueFactory vf = repository.getValueFactory();
 		repository.setSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
@@ -748,7 +770,7 @@ public class Setup {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
-			URI uri = vf.createURI(origin + CALLIMACHUS);
+			URI uri = vf.createURI(folderUri);
 			con.add(vf.createURI(origin + "/"), vf.createURI(CALLI_HASCOMPONENT), uri);
 			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
 			con.add(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Folder"));

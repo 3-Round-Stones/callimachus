@@ -34,9 +34,47 @@ NAME=`basename "$PRG" | perl -pe 's/-\w+.sh//' 2>/dev/null`
 
 # Check that target executable exists
 if [ ! -f "$PRGDIR/$NAME.sh" -o "$PRG" = "$PRGDIR/$NAME.sh" ]; then
-  echo "Cannot find $PRGDIR/$NAME.sh"
-  echo "This file is needed to run this program"
+  echo "Cannot find $PRGDIR/$NAME.sh" 2>&1
+  echo "This file is needed to run this program" 2>&1
   exit 5
 fi
 
-exec /bin/sh "$PRGDIR/$NAME.sh" stop "$@"
+# resolve links - /etc/init.d/callimachus may be a softlink
+TARGET="/etc/init.d/callimachus"
+
+while [ -h "$TARGET" ] ; do
+  ls=`ls -ld "$TARGET"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    TARGET="$link"
+  else
+    TARGET=`dirname "$TARGET"`/"$link"
+  fi
+done
+
+if [ ! "$PRGDIR/$NAME.sh" -ef "$TARGET" -o ! -e "$TARGET" ]; then
+  echo "This program is not installed" 2>&1
+  exit 0
+fi
+
+"/etc/init.d/$NAME" stop  > /dev/null 2>&1
+if [ -x /usr/lib/lsb/remove_initd ]; then
+  /usr/lib/lsb/install_initd "/etc/init.d/$NAME"
+elif [ -x /sbin/chkconfig ]; then
+  /sbin/chkconfig --del "$NAME"
+elif [ -x /usr/sbin/update-rc.d ]; then
+  /usr/sbin/update-rc.d -f "$NAME" remove
+else
+  rm -f /etc/rc.d/rc?.d/???$NAME
+fi
+
+if [ $? -gt 0 ]; then
+  exit $?
+fi
+
+rm "/etc/init.d/$NAME"
+
+if [ $? -gt 0 ]; then
+  exit 4
+fi
+

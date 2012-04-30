@@ -16,12 +16,6 @@
 # limitations under the License.
 #
 
-darwin=false
-case "`uname`" in
-CYGWIN*) cygwin=true;;
-Darwin*) darwin=true;;
-esac
-
 # resolve links - $0 may be a softlink
 PRG="$0"
 
@@ -34,15 +28,15 @@ while [ -h "$PRG" ] ; do
     PRG=`dirname "$PRG"`/"$link"
   fi
 done
- 
-PRGDIR=`dirname "$PRG"`
-EXECUTABLE=`basename "$PRG" | perl -pe 's/-\w+.sh/.sh/' 2>/dev/null`
+
+PRGDIR=$(cd `dirname "$PRG"`;pwd)
+NAME=`basename "$PRG" | perl -pe 's/-\w+.sh//' 2>/dev/null`
 
 # Check that target executable exists
-if [ ! -f "$PRGDIR/$EXECUTABLE" -o "$PRG" = "$PRGDIR/$EXECUTABLE" ]; then
-  echo "Cannot find $PRGDIR/$EXECUTABLE"
+if [ ! -f "$PRGDIR/$NAME.sh" -o "$PRG" = "$PRGDIR/$NAME.sh" ]; then
+  echo "Cannot find $PRGDIR/$NAME.sh"
   echo "This file is needed to run this program"
-  exit 1
+  exit 5
 fi
 
-exec /bin/sh "$PRGDIR/$EXECUTABLE" start "$@"
+exec /bin/sh "$PRGDIR/$NAME.sh" start "$@"

@@ -275,18 +275,18 @@ public class Setup {
 							password = u.substring(u.indexOf(':') + 1).toCharArray();
 						} else {
 							Console console = System.console();
-							if (u == null && console == null) {
+							if (u != null && u.length() > 0) {
+								username = u;
+							} else if (console == null) {
 								Reader reader = new InputStreamReader(System.in);
 								username = new BufferedReader(reader).readLine();
-							} else if (u == null) {
-								username = console.readLine("Enter a username: ");
 							} else {
-								username = u;
+								username = console.readLine("Enter a username: ");
 							}
-							if (console == null) {
+							if (console == null && username != null && username.length() > 0) {
 								Reader reader = new InputStreamReader(System.in);
 								password = new BufferedReader(reader).readLine().toCharArray();
-							} else {
+							} else if (username != null && username.length() > 0) {
 								password = console.readPassword("Enter a new password for user %s: ", username);
 							}
 						}

@@ -34,9 +34,37 @@ NAME=`basename "$PRG" | perl -pe 's/-\w+.sh//' 2>/dev/null`
 
 # Check that target executable exists
 if [ ! -f "$PRGDIR/$NAME.sh" -o "$PRG" = "$PRGDIR/$NAME.sh" ]; then
-  echo "Cannot find $PRGDIR/$NAME.sh"
-  echo "This file is needed to run this program"
+  echo "Cannot find $PRGDIR/$NAME.sh" 2>&1
+  echo "This file is needed to run this program" 2>&1
   exit 5
 fi
 
-exec /bin/sh "$PRGDIR/$NAME.sh" stop "$@"
+if [ ! -d /etc/init.d ]; then
+  echo "Cannot find directory /etc/init.d" 2>&1
+  echo "This directory is needed to install this program" 2>&1
+  exit 5
+fi
+
+chmod 755 "$PRGDIR/$NAME.sh"
+
+ln -sf "$PRGDIR/$NAME.sh" "/etc/init.d/$NAME"
+
+if [ $? -gt 0 ]; then
+  exit 4
+fi
+
+if [ -x /usr/lib/lsb/install_initd ]; then
+  exec /usr/lib/lsb/install_initd "/etc/init.d/$NAME"
+elif [ -x /sbin/chkconfig ]; then
+  exec /sbin/chkconfig --add "$NAME"
+elif [ -x /usr/sbin/update-rc.d ]; then
+  exec /usr/sbin/update-rc.d "$NAME" defaults 90 10
+else
+   for i in 2 3 4 5; do
+        ln -sf "/etc/init.d/$NAME" "/etc/rc.d/rc${i}.d/S90$NAME"
+   done
+   for i in 1 6; do
+        ln -sf "/etc/init.d/$NAME" "/etc/rc.d/rc${i}.d/K10$NAME"
+   done
+fi
+

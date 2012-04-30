@@ -494,12 +494,15 @@ do_stop()
 # Function that loads the configuration and prompts for a password
 #
 do_setup() {
-  exec "$JAVA_HOME/bin/java" \
+  "$JAVA_HOME/bin/java" \
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
-    $JAVA_OPTS $SSL_OPTS "$SETUPCLASS" -o "$ORIGIN" -c "$REPOSITORY_CONFIG" -f "/callimachus/=$(ls lib/$NAME*.car)" -l -u "$USERNAME" -e "$EMAIL" -n "$FULLNAME" "$@"
+    $JAVA_OPTS $SSL_OPTS "$SETUPCLASS" \
+    $ORIGIN_OPTS -c "$REPOSITORY_CONFIG" -f "/callimachus/=$(ls lib/$NAME*.car)" -l \
+    -e "$EMAIL" -n "$FULLNAME" "$@"
+  return $?
 }
 
 #
@@ -662,13 +665,22 @@ case "$1" in
       [ "$VERBOSE" != no ] && log_success_msg "$NAME is running"
       exit 0
     elif [ -f "$PIDFILE" ]; then
-      [ "$VERBOSE" != no ] && log_failure_msg "pid file exists, but cannot be read"
+      [ "$VERBOSE" != no ] && log_failure_msg "$NAME pid file exists, but cannot be read"
       exit 4
     else
       [ "$VERBOSE" != no ] && log_warning_msg "$NAME is not running"
       exit 3
     fi
     ;;
+  probe)
+	## Optional: Probe for the necessity of a reload,
+	## give out the argument which is required for a reload.
+
+    if [ -r "$PIDFILE" -a "$CONFIG" -nt "$PIDFILE" ]; then
+      echo restart
+    fi
+    exit 0
+	;;
   restart|force-reload)
     if [ -f "$PIDFILE" ]; then
       [ "$VERBOSE" != no ] && log_success_msg "Restarting $NAME"
@@ -700,16 +712,10 @@ case "$1" in
     exit 0
     ;;
   reload)
-    log_failure_msg "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload|try-restart}"
+    log_failure_msg "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload|try-restart|probe}"
     exit 3
     ;;
   setup)
-    if [ ! -z "$PIDFILE" ]; then
-      if [ -f "$PIDFILE" ]; then
-        log_failure_msg "PID file ($PIDFILE) found. Is the server still running? Setup aborted."
-        exit 151
-      fi
-    fi
     if [ "$VERBOSE" != no ]; then
       log_success_msg "Using BASEDIR:   $BASEDIR"
       log_success_msg "Using PORT:      $PORT $SSLPORT"
@@ -717,9 +723,27 @@ case "$1" in
       log_success_msg "Using JAVA_HOME: $JAVA_HOME"
       log_success_msg "Using JDK_HOME:  $JDK_HOME"
     fi
+    AUTO_START=
+    if [ -f "$PIDFILE" -a -r "$PIDFILE" ]; then
+      kill -0 `cat "$PIDFILE"` >/dev/null 2>&1
+      if [ $? -eq 0 ]; then
+        [ "$VERBOSE" != no ] && log_success_msg "Stopping $NAME"
+        do_stop
+        if [ $? -eq 0 ]; then
+          AUTO_START=true
+        fi
+      fi
+    fi
     [ "$VERBOSE" != no ] && log_success_msg "Setting up $NAME"
+    if [ "$USERNAME" = "root" -a -n "$SUDO_USER" ]; then
+      USERNAME="$SUDO_USER"
+    fi
     shift
-    do_setup "$@"
+    do_setup -u "$USERNAME" "$@"
+    if [ $? -eq 0 -a -n "$AUTO_START" ]; then
+      [ "$VERBOSE" != no ] && log_success_msg "Starting $NAME"
+      do_start
+    fi
     exit $?
     ;;
   dump)

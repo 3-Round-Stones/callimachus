@@ -107,7 +107,7 @@
 
 	<target name="dependencies" depends="dist-dependencies,test-dependencies" />
 
-	<target name="dist-dependencies" unless="lib.present">
+	<target name="dist-dependencies" depends="init" unless="lib.present">
 		<mkdir dir="${lib}" />
 		<mkdir dir="${downloads}" />
 		<parallel>
@@ -118,6 +118,7 @@
 			<get src="${daemon-linux-i686.url}" dest="${downloads}/daemon-linux-i686.tar.gz" />
 			<get src="${download-lunix-x86_64.url}" dest="${downloads}/daemon-linux-x86_64.tar.gz" />
 			<get src="${daemon-darwin.url}" dest="${downloads}/daemon-darwin.tar.gz" />
+			<get src="${daemon-windows.url}" dest="${downloads}/daemon-windows.zip" />
 			<get src="${mail.url}" dest="${lib}/${mail.jar}" />
 			<get src="${compress.url}" dest="${downloads}/compress.tar.gz" />
 			<get src="${calabash.url}" dest="${downloads}/calabash.zip" />
@@ -178,6 +179,19 @@
 			<mapper type="glob" from="jsvc" to="callimachus-darwin" />
 		</untar>
 		<delete file="${downloads}/daemon-darwin.tar.gz" />
+		<unzip src="${downloads}/daemon-windows.zip" dest="${bin}">
+			<patternset>
+				<include name="prunsrv.exe" />
+				<include name="amd64/prunsrv.exe" />
+				<include name="ia64/prunsrv.exe" />
+			</patternset>
+			<mapper>
+				<mapper type="glob" from="prunsrv.exe" to="callimachus-windows-x86.exe" />
+				<mapper type="glob" from="amd64/prunsrv.exe" to="callimachus-windows-amd64.exe" />
+				<mapper type="glob" from="ia64/prunsrv.exe" to="callimachus-windows-ia64.exe" />
+			</mapper>
+		</unzip>
+		<delete file="${downloads}/daemon-windows.zip" />
 		<untar compression="gzip" src="${downloads}/compress.tar.gz" dest="${lib}">
 			<patternset>
 				<include name="commons-compress-*/commons-compress-*.jar" />
@@ -288,7 +302,7 @@
 		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="repositories/callimachus/triples-spoc.dat" property="repositories.uptodate" />
 	</target>
 
-	<target name="test-dependencies" unless="lib.tests.present">
+	<target name="test-dependencies" depends="init" unless="lib.tests.present">
 		<mkdir dir="${lib.tests}" />
 		<parallel>
 			<get src="${junit.url}" dest="${lib.tests}/junit.jar" />

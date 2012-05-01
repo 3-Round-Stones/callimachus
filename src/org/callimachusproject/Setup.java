@@ -273,6 +273,7 @@ public class Setup {
 						if (u != null && u.contains(":")) {
 							username = u.substring(0, u.indexOf(':'));
 							password = u.substring(u.indexOf(':') + 1).toCharArray();
+							validateName(username);
 						} else {
 							Console console = System.console();
 							if (u != null && u.length() > 0) {
@@ -283,6 +284,7 @@ public class Setup {
 							} else {
 								username = console.readLine("Enter a username: ");
 							}
+							validateName(username);
 							if (console == null && username != null && username.length() > 0) {
 								Reader reader = new InputStreamReader(System.in);
 								password = new BufferedReader(reader).readLine().toCharArray();
@@ -295,6 +297,9 @@ public class Setup {
 					}
 				}
 			}
+		} catch (IllegalArgumentException e) {
+			println(e);
+			System.exit(1);
 		} catch (Exception e) {
 			println(e);
 			System.err.println("Arguments: " + Arrays.toString(args));
@@ -910,11 +915,7 @@ public class Setup {
 	private boolean createAdmin(String name, String email, String username, char[] password,
 			String origin, ObjectRepository repository)
 			throws UnsupportedEncodingException, RepositoryException {
-		if (username == null || !username.toLowerCase().equals(username))
-			throw new IllegalArgumentException("Username must be in lowercase");
-		if (URLEncoder.encode(username, "UTF-8") != username)
-			throw new IllegalArgumentException("Invalid username: '" + username
-					+ "'");
+		validateName(username);
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
@@ -942,6 +943,15 @@ public class Setup {
 		} finally {
 			con.close();
 		}
+	}
+
+	private void validateName(String username) throws IllegalArgumentException,
+			UnsupportedEncodingException {
+		if (username == null || !username.toLowerCase().equals(username))
+			throw new IllegalArgumentException("Username must be in lowercase");
+		if (URLEncoder.encode(username, "UTF-8") != username)
+			throw new IllegalArgumentException("Invalid username: '" + username
+					+ "'");
 	}
 
 	private boolean changeAdminPassword(String origin, Resource folder, URI subj,

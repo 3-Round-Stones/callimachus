@@ -26,11 +26,11 @@
 	<property name="mail.url" value="http://download.java.net/maven/1/javax.mail/jars/mail-1.4.jar" />
 	<property name="jchardet.url" value="http://downloads.sourceforge.net/project/jchardet/jchardet/1.1/jchardet-1.1.zip" />
 	<property name="closure.url" value="http://closure-compiler.googlecode.com/files/compiler-20100917.zip" />
-	<property name="daemon.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/commons-daemon-1.0.2-bin.zip" />
-	<property name="daemon-linux-i686.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-i386.tar.gz" />
-	<property name="download-lunix-x86_64.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-x86_64.tar.gz" />
-	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
-	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/windows/commons-daemon-1.0.2-bin-windows.zip" />
+	<property name="daemon.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.5/commons-daemon-1.0.5-bin.zip" />
+	<property name="daemon-linux-i686.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.5/linux/commons-daemon-1.0.5-bin-linux-i686.tar.gz" />
+	<property name="download-lunix-x86_64.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.5/linux/commons-daemon-1.0.5-bin-linux-x86_64.tar.gz" />
+	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.5/darwin/commons-daemon-1.0.5-bin-darwin-universal.tar.gz" />
+	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.5/windows/commons-daemon-1.0.5-bin-windows.zip" />
 	<property name="compress.url" value="http://archive.apache.org/dist/commons/compress/binaries/commons-compress-1.3-bin.tar.gz" />
 	<property name="calabash.url" value="http://xmlcalabash.com/download/calabash-1.0.2-94.zip" />
 	<property name="jing.url" value="http://jing-trang.googlecode.com/files/jing-20091111.zip" />

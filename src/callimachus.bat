@@ -278,12 +278,17 @@ goto end
 
 :doServiceStart
 rem ---- Service Start ---------------------------------------------------------
-"%DAEMON%" "//ES//%NAME%"
+rem "%DAEMON%" "//ES//%NAME%"
+sc start "%NAME%"
+CHOICE /C:YN /D:N /T:10 > NUL
+sc query "%NAME%"
 goto end
 
 :doServiceStop
 rem ---- Service Stop ----------------------------------------------------------
 "%DAEMON%" "//SS//%NAME%"
+
+sc query "%NAME%"
 goto end
 
 :doStart
@@ -371,6 +376,8 @@ set "PRUN_JAVA_OPTS=%PRUN_JAVA_OPTS:;==%"
 set "PRUN_OPTS=%OPTS: =;%"
 
 "%DAEMON%" "//IS//%NAME%" "--DisplayName=%NAME%" "--Install=%DAEMON%" --Startup=auto "--StartPath=%BASEDIR%" "--LogPath=%BASEDIR%\log" "--LogPrefix=callimachus-service" "--StdOutput=auto" "--StdError=auto" "--JavaHome=%JAVA_HOME%" "--Jvm=%JAVA_HOME%\bin\server\jvm.dll" --StartMode=jvm --StopMode=jvm --JvmMs=64 --JvmMx=768 "--JvmOptions=-Djava.io.tmpdir=%TMPDIR%" "++JvmOptions=-Duser.home=%BASEDIR%" "++JvmOptions=-Djava.util.logging.config.file=%LOGGING%" "++JvmOptions=-Djava.mail.properties=%MAIL%" %PRUN_JAVA_OPTS% %PRUN_SSL_OPTS% "--Classpath=%CLASSPATH%;%JDK_HOME%\lib\tools.jar" --StartClass=%MAINCLASS% "--StartParams=--pid;%PID%;-q;-d;%BASEDIR%;-r;%REPOSITORY%;%PRUN_OPTS%;%PRUN_CMD_LINE_PARAMS%" --StopClass=%MONITORCLASS% "--StopParams=--pid;%PID%;--stop"
+
+sc query "%NAME%"
 goto end
 
 :doUninstall

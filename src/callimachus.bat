@@ -239,6 +239,8 @@ echo Using JDK_HOME:  %JDK_HOME%
 if not "%SERVICE_PATH%" == "%BASEDIR%" goto manualAction
 if ""%1"" == ""start"" goto doServiceStart
 if ""%1"" == ""stop"" goto doServiceStop
+if ""%1"" == ""dump"" goto doServiceDump
+if ""%1"" == ""reset"" goto doServiceReset
 
 :manualAction
 if ""%1"" == ""install"" goto doInstall
@@ -273,21 +275,6 @@ goto setStartArgs
 
 rem Execute Java with the applicable properties
 "%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -d "%BASEDIR%" -r "%REPOSITORY%" %OPTS% %CMD_LINE_ARGS%
-goto end
-
-:doServiceStart
-rem ---- Service Start ---------------------------------------------------------
-rem "%DAEMON%" "//ES//%NAME%"
-sc start "%NAME%"
-CHOICE /C:YN /D:N /T:10 > NUL
-sc query "%NAME%"
-goto end
-
-:doServiceStop
-rem ---- Service Stop ----------------------------------------------------------
-"%DAEMON%" "//SS//%NAME%"
-
-sc query "%NAME%"
 goto end
 
 :doStart
@@ -353,6 +340,42 @@ FOR /F "tokens=1 delims=" %%A in ('dir /b lib\%NAME%*.car') do SET "CAR_FILE=%%A
 "%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -o "%ORIGIN%" -c "%REPOSITORY_CONFIG%" -f "/callimachus/=lib\%CAR_FILE%" -l -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
 goto end
 
+:doDump
+rem ---- Dump ------------------------------------------------------------------
+
+rem Get remaining command line arguments
+shift
+set CMD_LINE_ARGS=
+set CMD_LINE_PARAMS=
+:setStartArgs
+if ""%1""=="""" goto doneSetStartArgs
+set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
+shift
+goto setStartArgs
+:doneSetStartArgs
+
+rem Execute Java with the applicable properties
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --dump "%BASEDIR%\log" %CMD_LINE_ARGS%
+goto end
+
+:doReset
+rem ---- Reset -----------------------------------------------------------------
+
+rem Get remaining command line arguments
+shift
+set CMD_LINE_ARGS=
+set CMD_LINE_PARAMS=
+:setStartArgs
+if ""%1""=="""" goto doneSetStartArgs
+set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
+shift
+goto setStartArgs
+:doneSetStartArgs
+
+rem Execute Java with the applicable properties
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --reset %CMD_LINE_ARGS%
+goto end
+
 :doInstall
 rem ---- Install ---------------------------------------------------------------
 
@@ -391,40 +414,39 @@ echo This service is not installed
 CHOICE /C:YN /D:N /T:2 > NUL
 goto end
 
-:doDump
-rem ---- Dump ------------------------------------------------------------------
+:doServiceStart
+rem ---- Service Start ---------------------------------------------------------
+rem "%DAEMON%" "//ES//%NAME%"
+sc start "%NAME%"
+CHOICE /C:YN /D:N /T:10 > NUL
 
-rem Get remaining command line arguments
-shift
-set CMD_LINE_ARGS=
-set CMD_LINE_PARAMS=
-:setStartArgs
-if ""%1""=="""" goto doneSetStartArgs
-set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
-shift
-goto setStartArgs
-:doneSetStartArgs
+:notListening
+CHOICE /C:YN /D:N /T:2 > NUL
+netstat -ano |find /i "LISTENING" |find "%SSLPORT%"
+IF ERRORLEVEL 0 GOTO end
+netstat -ano |find /i "LISTENING" |find "%PORT%"
+IF ERRORLEVEL 1 GOTO notListening
 
-rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --dump "%BASEDIR%\log" %CMD_LINE_ARGS%
+sc query "%NAME%"
 goto end
 
-:doReset
-rem ---- Reset -----------------------------------------------------------------
+:doServiceStop
+rem ---- Service Stop ----------------------------------------------------------
+"%DAEMON%" "//SS//%NAME%"
 
-rem Get remaining command line arguments
-shift
-set CMD_LINE_ARGS=
-set CMD_LINE_PARAMS=
-:setStartArgs
-if ""%1""=="""" goto doneSetStartArgs
-set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
-shift
-goto setStartArgs
-:doneSetStartArgs
+sc query "%NAME%"
+goto end
 
-rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --reset %CMD_LINE_ARGS%
+:doServiceDump
+rem ---- Service Dump ---------------------------------------------------------
+echo dump is not available when running as a service
+CHOICE /C:YN /D:N /T:2 > NUL
+goto end
+
+:doServiceReset
+rem ---- Service Reset ---------------------------------------------------------
+echo reset is not available when running as a service
+CHOICE /C:YN /D:N /T:2 > NUL
 goto end
 
 :runSetup

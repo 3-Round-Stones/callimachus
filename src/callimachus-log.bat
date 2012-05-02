@@ -66,7 +66,7 @@ rem strip dash (-)
 set "NAME=%NAME:~0,-1%"
 :gotName
 
-set "LOGFILE=log\%NAME%.log.0"
+set "LOGFILE=%BASEDIR%\log\%NAME%.log.0"
 
 set "SKIP=0"
 
@@ -75,7 +75,7 @@ for /f "tokens=1 delims=[]" %%i in ('find /N "#Date:" "%LOGFILE%"') do (
 )
 
 :tail
-for /f "skip=%SKIP% tokens=1 delims=[]" %%i in ('type "%LOGFILE%"') do (
+for /f "skip=%SKIP% tokens=*" %%i in ('type "%LOGFILE%"') do (
   set /A "SKIP+=1"
   echo %%i
 )

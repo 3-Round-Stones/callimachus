@@ -691,6 +691,7 @@ public class Setup {
 
 	private boolean importCar(URL car, String folder, String origin,
 			ObjectRepository repository) throws Exception {
+		createFolder(folder, origin, repository);
 		importSchema(car, folder, origin, repository);
 		importArchive(car, folder, origin, repository);
 		return true;
@@ -775,14 +776,7 @@ public class Setup {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
-			URI uri = vf.createURI(folderUri);
-			con.add(vf.createURI(origin + "/"), vf.createURI(CALLI_HASCOMPONENT), uri);
-			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
-			con.add(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Folder"));
-			con.add(uri, RDFS.LABEL, vf.createLiteral("callimachus"));
-			add(con, uri, CALLI_ADMINISTRATOR, origin + "/group/admin");
-
-			Object folder = con.getObject(uri);
+			Object folder = con.getObject(folderUri);
 			String auth = java.net.URI.create(origin + "/").getAuthority();
 			((ProxyObject) folder).setLocalAuthority(auth);
 			Method UploadFolderComponents = folder.getClass().getMethod(
@@ -795,6 +789,42 @@ public class Setup {
 			}
 			repository.setCompileRepository(false);
 			con.setAutoCommit(true);
+		} finally {
+			con.close();
+		}
+	}
+
+	private boolean createFolder(String folder, String origin,
+			ObjectRepository repository) throws RepositoryException {
+		boolean modified = false;
+		int idx = folder.lastIndexOf('/', folder.length() - 2);
+		String parent = folder.substring(0, idx + 1);
+		if (parent.endsWith("://")) {
+			parent = null;
+		} else {
+			modified = createFolder(parent, origin, repository);
+		}
+		ValueFactory vf = repository.getValueFactory();
+		ObjectConnection con = repository.getConnection();
+		try {
+			con.setAutoCommit(false);
+			URI uri = vf.createURI(folder);
+			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Origin")))
+				return modified;
+			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Realm")))
+				return modified;
+			if (con.hasStatement(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Folder")))
+				return modified;
+			if (parent == null)
+				throw new IllegalStateException("Can only import a CAR within a previously defined origin or realm");
+			String label = folder.substring(parent.length()).replace("/$", "").replace('-', ' ');
+			con.add(vf.createURI(parent), vf.createURI(CALLI_HASCOMPONENT), uri);
+			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
+			con.add(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Folder"));
+			con.add(uri, RDFS.LABEL, vf.createLiteral(label));
+			add(con, uri, CALLI_ADMINISTRATOR, origin + "/group/admin");
+			con.setAutoCommit(true);
+			return true;
 		} finally {
 			con.close();
 		}

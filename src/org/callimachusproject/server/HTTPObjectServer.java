@@ -196,9 +196,13 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		dispatch = new HTTPServerIOEventDispatch(async, params);
 		server = new DefaultListeningIOReactor(n, params);
 		if (System.getProperty("javax.net.ssl.keyStore") != null) {
-			SSLContext ssl = SSLContext.getDefault();
-			ssldispatch = new HTTPSServerIOEventDispatch(async, ssl, params);
-			sslserver = new DefaultListeningIOReactor(n, params);
+			try {
+				SSLContext ssl = SSLContext.getDefault();
+				ssldispatch = new HTTPSServerIOEventDispatch(async, ssl, params);
+				sslserver = new DefaultListeningIOReactor(n, params);
+			} catch (NoSuchAlgorithmException e) {
+				logger.warn(e.toString(), e);
+			}
 		}
 		repository.addSchemaListener(new Runnable() {
 			public String toString() {

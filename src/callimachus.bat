@@ -248,7 +248,6 @@ if ""%1"" == ""stop"" goto doStop
 if ""%1"" == ""setup"" goto doSetup
 if ""%1"" == ""dump"" goto doDump
 if ""%1"" == ""reset"" goto doReset
-if ""%1"" == ""log"" goto doLog
 
 
 if not "%SERVICE_PATH%" == "%BASEDIR%" goto doRun
@@ -426,24 +425,6 @@ goto setStartArgs
 
 rem Execute Java with the applicable properties
 "%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --reset %CMD_LINE_ARGS%
-goto end
-
-:doLog
-rem ---- Log -------------------------------------------------------------------
-
-rem Get remaining command line arguments
-shift
-set CMD_LINE_ARGS=
-set CMD_LINE_PARAMS=
-:setStartArgs
-if ""%1""=="""" goto doneSetStartArgs
-set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
-shift
-goto setStartArgs
-:doneSetStartArgs
-
-rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --log %CMD_LINE_ARGS%
 goto end
 
 :runSetup

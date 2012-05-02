@@ -66,24 +66,20 @@ rem strip dash (-)
 set "NAME=%NAME:~0,-1%"
 :gotName
 
-set "EXECUTABLE=%BASEDIR%\bin\%NAME%.bat"
+set "LOGFILE=log\%NAME%.log.0"
 
-rem Check that target executable exists
-if exist "%EXECUTABLE%" goto okExec
-echo Cannot find "%EXECUTABLE%"
-echo This file is needed to run this program
-goto end
-:okExec
+set "SKIP=0"
 
-rem Get remaining unshifted command line arguments and save them in the
-set CMD_LINE_ARGS=
-:setArgs
-if ""%1""=="""" goto doneSetArgs
-set CMD_LINE_ARGS=%CMD_LINE_ARGS% %1
-shift
-goto setArgs
-:doneSetArgs
+for /f "tokens=1 delims=[]" %%i in ('find /N "#Date:" "%LOGFILE%"') do (
+  set "SKIP=%%i"
+)
 
-"%EXECUTABLE%" log %CMD_LINE_ARGS%
+:tail
+for /f "skip=%SKIP% tokens=1 delims=[]" %%i in ('type "%LOGFILE%"') do (
+  set /A "SKIP+=1"
+  echo %%i
+)
+CHOICE /C:YN /D:N /T:1 > NUL
+goto tail
 
 :end

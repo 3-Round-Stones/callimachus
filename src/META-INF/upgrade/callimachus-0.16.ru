@@ -31,3 +31,10 @@ INSERT {
 	FILTER NOT EXISTS { ?manager a </callimachus/DigestManager> }
 };
 
+DELETE {
+	</callimachus/> rdfs:label "callimachus/"
+} INSERT {
+	</callimachus/> rdfs:label "callimachus"
+} WHERE {
+	</callimachus/> rdfs:label "callimachus/"
+};

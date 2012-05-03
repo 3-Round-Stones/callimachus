@@ -239,6 +239,8 @@ public class ResourceOperation extends ResourceRequest {
 	}
 
 	public long getLastModified() throws MimeTypeParseException {
+		if (isNoValidate())
+			return System.currentTimeMillis() / 1000 * 1000;
 		RDFObject target = getRequestedResource();
 		try {
 			if (target instanceof FileObject)

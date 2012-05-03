@@ -130,7 +130,7 @@
 			<patternset>
 				<include name="lib/*.jar" />
 				<include name="dist/*.jar" />
-				<exclude name="dist/commons-codec-*.jar" />
+				<exclude name="lib/commons-codec-*.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>

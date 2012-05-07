@@ -381,6 +381,8 @@ public class Setup {
 		validateOrigin(origin);
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
+		if (car == null)
+			throw new IllegalArgumentException("No CAR provided");
 		importCar(car, folder, origin, repository);
 	}
 
@@ -561,11 +563,9 @@ public class Setup {
 		String version = getStoreVersion(repository, origin);
 		if (version == null) {
 			initializeStore(origin, repository);
-			return true;
-		} else {
-			String newVersion = upgradeStore(repository, origin, version);
-			return !version.equals(newVersion);
 		}
+		String newVersion = upgradeStore(repository, origin);
+		return version == null || !newVersion.equals(version);
 	}
 
 	private String getStoreVersion(ObjectRepository repository, String origin)
@@ -661,31 +661,31 @@ public class Setup {
 		}
 	}
 
-	private String upgradeStore(ObjectRepository repository, String origin,
-			String version) throws IOException, OpenRDFException {
+	private String upgradeStore(ObjectRepository repository, String origin) throws IOException, OpenRDFException {
+		String version = getStoreVersion(repository, origin);
 		ClassLoader cl = getClass().getClassLoader();
 		String name = "META-INF/upgrade/callimachus-" + version + ".ru";
-		InputStream in = cl.getResourceAsStream(name);
-		if (in == null)
-			return version;
-		logger.info("Upgrading store from {}", version);
-		Reader reader = new InputStreamReader(in, "UTF-8");
-		String ru = IOUtil.readString(reader);
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.setAutoCommit(false);
-			Update u = con.prepareUpdate(SPARQL, ru, origin);
-			u.execute();
-			con.setAutoCommit(true);
-		} finally {
-			con.close();
+		Enumeration<URL> resources = cl.getResources(name);
+		while (resources.hasMoreElements()) {
+			InputStream in = resources.nextElement().openStream();
+			logger.info("Upgrading store from {}", version);
+			Reader reader = new InputStreamReader(in, "UTF-8");
+			String ru = IOUtil.readString(reader);
+			ObjectConnection con = repository.getConnection();
+			try {
+				con.setAutoCommit(false);
+				Update u = con.prepareUpdate(SPARQL, ru, origin);
+				u.execute();
+				con.setAutoCommit(true);
+			} finally {
+				con.close();
+			}
 		}
 		String newVersion = getStoreVersion(repository, origin);
 		if (version != null && !version.equals(newVersion)) {
 			logger.info("Upgraded store from {} to {}", version, newVersion);
+			return upgradeStore(repository, origin);
 		}
-		if (!version.equals(newVersion))
-			return upgradeStore(repository, origin, newVersion);
 		return newVersion;
 	}
 

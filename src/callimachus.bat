@@ -121,7 +121,7 @@ rem Make sure prerequisite environment variable is set
 if not "%JAVA_HOME%" == "" goto gotJavaHome
 echo The JAVA_HOME environment variable is not defined
 echo The JAVA_HOME environment variable is needed to run this server
-goto exit
+goto end
 :gotJavaHome
 
 if exist "%JDK_HOME%" goto gotJdkHome
@@ -295,14 +295,6 @@ goto setStartArgs
 rem Execute Java with the applicable properties
 start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -d "%BASEDIR%" -r "%REPOSITORY%" %OPTS% %CMD_LINE_ARGS%
 
-:notListening
-CHOICE /C:YN /D:N /T:2 > NUL
-netstat -ano |find /i "LISTENING" |find "%SSLPORT%"
-IF ERRORLEVEL 0 GOTO end
-netstat -ano |find /i "LISTENING" |find "%PORT%"
-IF ERRORLEVEL 1 GOTO notListening
-goto end
-
 :doStop
 rem ---- Stop ------------------------------------------------------------------
 
@@ -379,7 +371,7 @@ goto end
 :doInstall
 rem ---- Install ---------------------------------------------------------------
 
-if not exist "%REPOSITORY%" goto runSetup
+if not exist "%REPOSITORY%" echo The repository does not exist, run the setup script before starting the service
 
 rem Get remaining command line arguments
 shift
@@ -411,23 +403,12 @@ goto end
 
 :notInstalled
 echo This service is not installed
-CHOICE /C:YN /D:N /T:2 > NUL
 goto end
 
 :doServiceStart
 rem ---- Service Start ---------------------------------------------------------
 rem "%DAEMON%" "//ES//%NAME%"
 sc start "%NAME%"
-CHOICE /C:YN /D:N /T:10 > NUL
-
-:notListening
-CHOICE /C:YN /D:N /T:2 > NUL
-netstat -ano |find /i "LISTENING" |find "%SSLPORT%"
-IF ERRORLEVEL 0 GOTO end
-netstat -ano |find /i "LISTENING" |find "%PORT%"
-IF ERRORLEVEL 1 GOTO notListening
-
-sc query "%NAME%"
 goto end
 
 :doServiceStop
@@ -440,21 +421,17 @@ goto end
 :doServiceDump
 rem ---- Service Dump ---------------------------------------------------------
 echo dump is not available when running as a service
-CHOICE /C:YN /D:N /T:2 > NUL
 goto end
 
 :doServiceReset
 rem ---- Service Reset ---------------------------------------------------------
 echo reset is not available when running as a service
-CHOICE /C:YN /D:N /T:2 > NUL
 goto end
 
 :runSetup
 rem ---- Setup Required --------------------------------------------------------
 echo The repository does not exist, please run the setup script first
-CHOICE /C:YN /D:N /T:2 > NUL
 goto end
 
 :end
-CHOICE /C:YN /D:N /T:2 > NUL
 

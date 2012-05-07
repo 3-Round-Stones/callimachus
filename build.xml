@@ -265,6 +265,7 @@
 		<copy todir="${bin}">
 			<fileset dir="${src}" includes="*.sh *.bat"/>
 		</copy>
+		<fixcrlf srcdir="${bin}" includes="*.bat" eol="crlf" />
 		<chmod dir="${bin}" includes="*.sh,callimachus-linux*,callimachus-darwin*" perm="ugo+rx"/>
 	</target>
 

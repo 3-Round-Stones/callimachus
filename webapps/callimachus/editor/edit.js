@@ -91,7 +91,7 @@
 		saving = true;
 		$.ajax({
 			type: form.getAttribute('method'),
-			url: form.action,
+			url: calli.getFormAction(form),
 			contentType: form.getAttribute("enctype"),
 			data: text,
 			beforeSend: function(xhr) {
@@ -133,7 +133,7 @@ jQuery(function($){
 				} else if (about) {
 					loadEditor(about + '?edit');
 				} else {
-					location.replace(form.action + '?view');
+					location.replace('?view');
 				}
 			});
 		});

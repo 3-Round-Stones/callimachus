@@ -84,7 +84,7 @@ function postData(form, data, callback) {
 	var xhr = null;
 	xhr = $.ajax({
 		type: method,
-		url: form.action,
+		url: calli.getFormAction(form),
 		contentType: type,
 		data: data,
 		beforeSend: withCredentials,

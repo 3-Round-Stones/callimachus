@@ -57,7 +57,7 @@
 		saving = true;
 		$.ajax({
 			type: form.getAttribute('method'),
-			url: form.action,
+			url: calli.getFormAction(form),
 			contentType: form.getAttribute("enctype"),
 			data: text,
 			beforeSend: withCredentials,

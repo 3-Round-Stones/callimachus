@@ -143,7 +143,7 @@ function openSaveAsDialog(form, label, create, callback) {
 }
 
 function updateFormAction(form, target, create) {
-	var action = getFormAction(form);
+	var action = calli.getFormAction(form);
 	if (action.indexOf('?create') >= 0 || action.indexOf('?edit') >= 0) {
 		var m;
 		if (create) {
@@ -175,7 +175,7 @@ function updateFormAction(form, target, create) {
 }
 
 function overrideLocation(form, uri) {
-	var action = getFormAction(form);
+	var action = calli.getFormAction(form);
 	if (action.indexOf('&location=') > 0) {
 		var m = action.match(/^(.*&location=)[^&=]*(.*)$/);
 		form.action = m[1] + encodeURIComponent(uri) + m[2];
@@ -207,15 +207,6 @@ function isIntermidate(url) {
 		}
 	}
 	return false;
-}
-
-function getFormAction(form) {
-	if (form.getAttribute("action"))
-		return form.action;
-	var url = calli.getPageUrl();
-	if (url.indexOf('#') > 0)
-		return url.substring(0, url.indexOf('#'));
-	return url;
 }
 
 function removeDiacritics(str) {

@@ -34,4 +34,13 @@ window.calli.getCallimachusUrl = function(suffix) {
 	return home + 'callimachus/';
 };
 
+window.calli.getFormAction = function(form) {
+	if (form.getAttribute("action"))
+		return form.action;
+	var url = calli.getPageUrl();
+	if (url.indexOf('#') > 0)
+		return url.substring(0, url.indexOf('#'));
+	return url;
+}
+
 })(jQuery,jQuery);

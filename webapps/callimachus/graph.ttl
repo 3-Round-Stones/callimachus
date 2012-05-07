@@ -143,7 +143,6 @@
 		con.add(inputStream, this.toString(), RDFFormat.TURTLE, [this.resource]);
 
 		this.touchRevision();
-		java.lang.System.err.println("Imported " + this);
 		con.recompileSchemaOnClose();
 	""".
 

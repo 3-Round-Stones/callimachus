@@ -393,6 +393,7 @@
 		try {
 			println("Importing folder content from: " + multipart.headers.get("content-disposition"));
 			this.UploadFolderComponents(inputStream);
+			println("Imported folder content for: " + this);
 			return this;
 		} finally {
 			inputStream.close();

@@ -17,7 +17,6 @@
  */
 package org.callimachusproject.io;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +39,7 @@ public class MultipartParser {
 
 	public MultipartParser(InputStream in) throws IOException {
 		this.boundary = readBoundary(in);
-		this.in = (in.markSupported() ? in : new BufferedInputStream(in,
+		this.in = (in.markSupported() ? in : new LatencyInputStream(in,
 				boundary.length + 4));
 		this.buffer = new byte[boundary.length];
 		this.partEnd = true;

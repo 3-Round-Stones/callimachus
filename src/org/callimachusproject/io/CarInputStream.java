@@ -119,7 +119,7 @@ public class CarInputStream implements Closeable {
 			return null;
 		}
 		final ZipArchiveEntry openEntry = entry;
-		entryStream = new BufferedInputStream(new FilterInputStream(zipStream) {
+		entryStream = new LatencyInputStream(new FilterInputStream(zipStream) {
 			public void close() throws IOException {
 				if (openEntry == entry) {
 					entry = null;

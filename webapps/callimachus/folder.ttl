@@ -387,7 +387,7 @@
 	calli:expect "302-see-other";
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:script """
-		var bio = new java.io.BufferedInputStream(formData, 65536);
+		var bio = new org.callimachusproject.io.LatencyInputStream(formData);
 		var multipart = new org.callimachusproject.io.MultipartParser(bio);
 		var inputStream = multipart.next();
 		try {

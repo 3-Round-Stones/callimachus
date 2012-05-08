@@ -95,7 +95,7 @@
 		if (createdUri.search(/[\\s\\#\\?]/) >= 0 || createdUri.search(/^\\w+:\\/\\/\\S+/) != 0)
 			throw new BadRequest("Fragement or name resources are not supported");
 		var ftype = type;
-		var bio = new java.io.BufferedInputStream(body, 65536);
+		var bio = new org.callimachusproject.io.LatencyInputStream(body);
 		if (type && type.indexOf("multipart/form-data") == 0) {
 			bio.mark(1024);
 			var parser = new MultipartParser(bio);

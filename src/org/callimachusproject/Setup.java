@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -784,6 +785,16 @@ public class Setup {
 			InputStream in = car.openStream();
 			try {
 				UploadFolderComponents.invoke(folder, in);
+			} catch (InvocationTargetException e) {
+				try {
+					throw e.getCause();
+				} catch (Exception cause) {
+					throw cause;
+				} catch (Error cause) {
+					throw cause;
+				} catch (Throwable cause) {
+					throw e;
+				}
 			} finally {
 				in.close();
 			}

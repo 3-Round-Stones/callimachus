@@ -30,7 +30,6 @@
 package org.callimachusproject.server.behaviours;
 
 import static org.callimachusproject.server.behaviours.ProxyObjectSupport.GET_PROXY_ADDRESS;
-import static org.openrdf.repository.object.composition.helpers.InvocationMessageContext.PARAMETERS;
 import static org.openrdf.repository.object.composition.helpers.InvocationMessageContext.PROCEED;
 import static org.openrdf.repository.object.composition.helpers.InvocationMessageContext.selectMessageType;
 
@@ -144,7 +143,7 @@ public class ProxyObjectBehaviourFactory extends AbstractBehaviourProvider {
 		}
 		code.code("(").castObject(ProxyObject.class).code(BEAN_FIELD_NAME);
 		code.code(").invokeRemote(").insert(conceptMethod);
-		code.code(", $1." + PARAMETERS + "())").semi();
+		code.code(", $1.getParameters())").semi();
 		code.code("}");
 		if (rt.isPrimitive() && !Void.TYPE.equals(rt)) {
 			if (Boolean.TYPE.equals(rt)) {

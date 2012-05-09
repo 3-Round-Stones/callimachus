@@ -17,7 +17,23 @@
 	calli:query "whatlinkshere";
 	calli:type "application/sparql-results+xml;q=0.1";
 	calli:transform :TransformWhatLinksHere;
-	msg:sparql <what-links-here.rq>.
+	msg:sparql """
+		SELECT DISTINCT ?label ?comment ?icon ?url ?modified
+		WHERE {
+			?url ?rel $this
+			FILTER (isIRI(?url))
+			FILTER (?rel != audit:contributor)
+			OPTIONAL { ?url a [calli:icon ?icon] }
+			OPTIONAL { ?url skos:prefLabel ?label }
+			OPTIONAL { ?url rdfs:label ?label }
+			OPTIONAL { ?url rdfs:comment ?comment }
+			OPTIONAL { ?url audit:revision ?revision
+				OPTIONAL { ?revision audit:committedOn ?modified }
+			}
+		}
+		ORDER BY ?label ?url ?icon
+		LIMIT 100
+	""".
 
 :TransformWhatLinksHere rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];

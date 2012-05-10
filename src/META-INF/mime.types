@@ -26,6 +26,7 @@ application/pkix-crl crl
 application/postscript ai
 application/postscript eps
 application/postscript ps
+application/relax-ng-compact-syntax rnc
 application/rdf+xml rdf
 application/rdf+xml owl
 application/rtf rtf

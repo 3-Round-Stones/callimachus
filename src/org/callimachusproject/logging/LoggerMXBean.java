@@ -18,6 +18,8 @@
  */
 package org.callimachusproject.logging;
 
+import java.io.IOException;
+
 
 
 /**
@@ -39,4 +41,12 @@ public interface LoggerMXBean {
 	void logWarn(String prefix);
 
 	String getVMSummary() throws Exception;
+
+	String[] getActiveCallTraces();
+
+	boolean activeCallTraceDumpToFile(String outputFile) throws IOException;
+
+	String[] getTopCallTraces();
+
+	boolean topCallTraceDumpToFile(String outputFile) throws IOException;
 }

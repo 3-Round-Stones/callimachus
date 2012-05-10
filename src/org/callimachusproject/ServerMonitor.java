@@ -289,6 +289,8 @@ public class ServerMonitor {
 		connectionDump(mbsc, dir + "server-" + stamp + ".csv");
 		clientDump(mbsc, dir + "client-" + stamp + ".csv");
 		poolDump(mbsc, dir + "pool-" + stamp + ".tdump");
+		activeTraceDump(mbsc, dir + "trace-" + stamp + ".txt");
+		topTraceDump(mbsc, dir + "trace-top-" + stamp + ".txt");
 		summaryDump(mbsc, dir + "summary-" + stamp + ".txt");
 	}
 
@@ -365,6 +367,18 @@ public class ServerMonitor {
 			client.connectionDumpToFile(filename);
 		}
 		info(filename);
+	}
+
+	private void activeTraceDump(MBeanServerConnection mbsc2, String filename) throws IOException {
+		if (logger.activeCallTraceDumpToFile(filename)) {
+			info(filename);
+		}
+	}
+
+	private void topTraceDump(MBeanServerConnection mbsc2, String filename) throws IOException {
+		if (logger.topCallTraceDumpToFile(filename)) {
+			info(filename);
+		}
 	}
 
 	private void summaryDump(MBeanServerConnection mbsc, String filename)

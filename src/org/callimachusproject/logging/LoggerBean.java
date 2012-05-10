@@ -19,6 +19,8 @@
 package org.callimachusproject.logging;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ClassLoadingMXBean;
@@ -26,13 +28,16 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -45,6 +50,9 @@ import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+
+import org.callimachusproject.logging.trace.MethodCall;
+import org.slf4j.LoggerFactory;
 
 import com.sun.management.OperatingSystemMXBean;
 
@@ -125,47 +133,17 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 
 	@Override
 	public void logAll(String fragment) {
-		boolean found = false;
-		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
-		while (names.hasMoreElements()) {
-			String name = names.nextElement();
-			if (name.contains(fragment)) {
-				Logger.getLogger(name).setLevel(Level.ALL);
-				found = true;
-			}
-		}
-		if (!found)
-			throw new IllegalArgumentException("Not such logger");
+		setLoggerLevel(fragment, Level.ALL);
 	}
 
 	@Override
 	public void logInfo(String fragment) {
-		boolean found = false;
-		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
-		while (names.hasMoreElements()) {
-			String name = names.nextElement();
-			if (name.contains(fragment)) {
-				Logger.getLogger(name).setLevel(Level.INFO);
-				found = true;
-			}
-		}
-		if (!found)
-			throw new IllegalArgumentException("Not such logger");
+		setLoggerLevel(fragment, Level.INFO);
 	}
 
 	@Override
 	public void logWarn(String fragment) {
-		boolean found = false;
-		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
-		while (names.hasMoreElements()) {
-			String name = names.nextElement();
-			if (name.contains(fragment)) {
-				Logger.getLogger(name).setLevel(Level.WARNING);
-				found = true;
-			}
-		}
-		if (!found)
-			throw new IllegalArgumentException("Not such logger");
+		setLoggerLevel(fragment, Level.WARNING);
 	}
 
 	public String getVMSummary() throws Exception {
@@ -181,6 +159,132 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 		printVariables(w);
 		w.flush();
 		return sw.toString();
+	}
+
+	@Override
+	public boolean activeCallTraceDumpToFile(String outputFile) throws IOException {
+		String[] traces = getActiveCallTraces();
+		if (traces == null || traces.length == 0)
+			return false;
+		PrintWriter writer = new PrintWriter(new FileWriter(outputFile, true));
+		try {
+			for (String trace : traces) {
+				writer.println(trace);
+				writer.println();
+			}
+			writer.println();
+			writer.println();
+		} finally {
+			writer.close();
+		}
+		LoggerFactory.getLogger(LoggerBean.class).info("Call trace dump: {}", outputFile);
+		return true;
+	}
+
+	@Override
+	public String[] getActiveCallTraces() {
+		long now = System.nanoTime();
+		MethodCall[] threads = MethodCall.getActiveCallTraces();
+		String[] result = new String[threads.length];
+		for (int i=0; i<threads.length; i++) {
+			StringWriter sw = new StringWriter();
+			PrintWriter w = new PrintWriter(sw);
+		
+			MethodCall call = threads[i];
+			print(call, now, "        ", "%7.2f ", w);
+			w.flush();
+			result[i] = sw.toString();
+		}
+		return result;
+	}
+
+	@Override
+	public boolean topCallTraceDumpToFile(String outputFile) throws IOException {
+		String[] traces = getTopCallTraces();
+		if (traces == null || traces.length == 0)
+			return false;
+		PrintWriter writer = new PrintWriter(new FileWriter(outputFile, true));
+		try {
+			for (String trace : traces) {
+				writer.println(trace);
+				writer.println();
+			}
+			writer.println();
+			writer.println();
+		} finally {
+			writer.close();
+		}
+		LoggerFactory.getLogger(LoggerBean.class).info("Call trace dump: {}", outputFile);
+		return true;
+	}
+
+	@Override
+	public String[] getTopCallTraces() {
+		long now = System.nanoTime();
+		MethodCall[] traces = MethodCall.getTopCallTraces();
+		Set<MethodCall> set = new LinkedHashSet<MethodCall>(Arrays.asList(traces));
+		for (MethodCall call : traces) {
+			MethodCall parent = call;
+			while ((parent = parent.getParent()) != null) {
+				set.remove(parent);
+			}
+		}
+		Iterator<MethodCall> iter = set.iterator();
+		String[] result = new String[set.size()];
+		for (int i=0; i<result.length; i++) {
+			StringWriter sw = new StringWriter();
+			PrintWriter w = new PrintWriter(sw);
+		
+			MethodCall call = iter.next();
+			print(call, now, "", "", w);
+			w.println("// " + call.getCallTimeOfResponse() + "s");
+			w.flush();
+			result[i] = sw.toString();
+		}
+		return result;
+	}
+
+	private static void print(MethodCall call, long now, String indent, String format, PrintWriter w) {
+		if (call.getParent() != null) {
+			print(call.getParent(), now, indent, format, w);
+		}
+		double since = call.getCallTimeSince(now);
+		for (String assign : call.getAssignments()) {
+			w.print(indent);
+			w.println(assign.replace("\n", "\n" + indent));
+		}
+		w.printf(format, since);
+		w.println(call.toString());
+	}
+
+	private void setLoggerLevel(String fragment, Level level) {
+		boolean found = false;
+		Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
+		while (names.hasMoreElements()) {
+			String name = names.nextElement();
+			if (name.contains(fragment)) {
+				Logger logger = Logger.getLogger(name);
+				logger.setLevel(level);
+				setHandlerLevel(logger, level);
+				found = true;
+			}
+		}
+		if (!found)
+			throw new IllegalArgumentException("Not such logger");
+	}
+
+	private void setHandlerLevel(Logger logger, Level level) {
+		if (logger.getParent() != null) {
+			setHandlerLevel(logger.getParent(), level);
+		}
+		Handler[] handlers = logger.getHandlers();
+		if (handlers != null) {
+			for (Handler handler : handlers) {
+				if (handler.getLevel().intValue() > level.intValue()) {
+					handler.setLevel(level);
+				}
+			}
+		}
 	}
 
 	private void printJVMVersion(PrintWriter w) {

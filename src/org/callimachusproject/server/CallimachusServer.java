@@ -32,6 +32,7 @@ import java.util.Set;
 
 import javax.activation.MimeTypeParseException;
 
+import org.callimachusproject.logging.trace.TracerService;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.util.FileUtil;
 import org.openrdf.model.ValueFactory;
@@ -59,6 +60,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	public CallimachusServer(Repository repository, File dataDir)
 			throws Exception {
 		this.repository = createObjectRepository(dataDir, repository);
+		trace(this.repository);
 		server = createServer(dataDir, this.repository);
 	}
 
@@ -217,6 +219,13 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	public void destroy() throws Exception {
 		server.destroy();
+	}
+
+	private void trace(ObjectRepository repository) {
+		Repository delegate = repository.getDelegate();
+		TracerService service = TracerService.newInstance();
+		Repository traced = service.trace(delegate, Repository.class);
+		repository.setDelegate(traced);
 	}
 
 	private InetSocketAddress getAuthorityAddress(String origin) {

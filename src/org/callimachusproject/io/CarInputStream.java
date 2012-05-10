@@ -39,8 +39,9 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.openrdf.rio.rdfxml.RDFXMLParser;
 
 public class CarInputStream implements Closeable {
 	private static final int RDFS_PEEK_SIZE = 1024 * 1024;
@@ -128,13 +129,14 @@ public class CarInputStream implements Closeable {
 				}
 			}
 		}, RDFS_PEEK_SIZE);
+		String type = ContentTypeExtraField.parseExtraField(entry);
 		entryMetaType = MetaTypeExtraField.parseExtraField(entry);
 		if (entryMetaType == null) {
 			if (entry.isDirectory()) {
 				entryMetaType = MetaTypeExtraField.FOLDER;
 			} else if (FILE_NAME.matcher(entry.getName()).find()) {
 				entryMetaType = MetaTypeExtraField.FILE;
-			} else if (scanForClass(entryStream)) {
+			} else if (scanForClass(entryStream, type)) {
 				entryMetaType = MetaTypeExtraField.RDFS;
 			} else {
 				entryMetaType = MetaTypeExtraField.RDF;
@@ -143,7 +145,7 @@ public class CarInputStream implements Closeable {
 		return entry;
 	}
 
-	private boolean scanForClass(BufferedInputStream in) throws IOException {
+	private boolean scanForClass(BufferedInputStream in, String type) throws IOException {
 		byte[] peek = new byte[RDFS_PEEK_SIZE];
 		in.mark(RDFS_PEEK_SIZE);
 		int len = IOUtil.readBytes(in, peek);
@@ -151,7 +153,8 @@ public class CarInputStream implements Closeable {
 		URI uri = new URIImpl("http://example.com/" + entry.getName());
 		LinkedHashModel model = new LinkedHashModel();
 		try {
-			RDFXMLParser parser = new RDFXMLParser();
+			RDFParserRegistry registry = org.openrdf.rio.RDFParserRegistry.getInstance();
+			RDFParser parser = registry.get(registry.getFileFormatForMIMEType(type)).getParser();
 			parser.setRDFHandler(new StatementCollector(model));
 			parser.parse(new ByteArrayInputStream(peek, 0, len), uri.toString());
 		} catch (RDFParseException e) {

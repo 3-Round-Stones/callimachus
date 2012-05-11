@@ -162,60 +162,62 @@
 						}
 					} ORDER BY ?id LIMIT 100
 				}
-				{
-					?id audit:revision ?revision . ?revision audit:committedOn ?updated
-					OPTIONAL {
-						?revision audit:contributor ?contributor_uri
+				OPTIONAL {
+					{
+						?id audit:revision ?revision . ?revision audit:committedOn ?updated
 						OPTIONAL {
-							?contributor_uri rdfs:label ?contributor_name
+							?revision audit:contributor ?contributor_uri
+							OPTIONAL {
+								?contributor_uri rdfs:label ?contributor_name
+							}
 						}
+					} UNION {
+						?id rdfs:comment ?summary
+					} UNION {
+						?id a [calli:icon ?icon]
+					} UNION {
+						?id calli:reader ?link_reader_href
+						OPTIONAL {
+							?link_reader_href rdfs:label ?link_reader_title
+						}
+					} UNION {
+						?id calli:contributor ?link_contributor_href
+						OPTIONAL {
+							?link_contributor_href rdfs:label ?link_contributor_title
+						}
+					} UNION {
+						?id calli:editor ?link_editor_href
+						OPTIONAL {
+							?link_editor_href rdfs:label ?link_editor_title
+						}
+					} UNION {
+						?id calli:administrator ?link_administrator_href
+						OPTIONAL {
+							?link_administrator_href rdfs:label ?link_administrator_title
+						}
+					} UNION {
+						$this calli:hasComponent ?id
+						BIND (?id as ?content_src)
+						OPTIONAL {
+							?id a [calli:type ?content_type]
+							BIND (?id as ?link_edit_media_href)
+						}
+					} UNION {
+						{ ?id a <Folder> } UNION { ?id a <Realm> }
+						BIND (concat(str(?id),"?contents") as ?link_href)
+						BIND ("contents" as ?link_rel)
+						BIND ("application/atom+xml" as ?link_type)
+					} UNION {
+						{ ?id a <Folder> } UNION { ?id a <Realm> }
+						BIND (concat(str(?id),"?archive") as ?link_href)
+						BIND (calli:archive as ?link_rel)
+						BIND ("application/zip" as ?link_type)
+					} UNION {
+						$this calli:hasComponent ?id
+						BIND (concat(str(?id),"?view") as ?link_view_href)
+						BIND (concat(str(?id),"?describe") as ?link_describedby_href)
+						BIND (concat(str(?id),"?history") as ?link_history_href)
 					}
-				} UNION {
-					?id rdfs:comment ?summary
-				} UNION {
-					?id a [calli:icon ?icon]
-				} UNION {
-					?id calli:reader ?link_reader_href
-					OPTIONAL {
-						?link_reader_href rdfs:label ?link_reader_title
-					}
-				} UNION {
-					?id calli:contributor ?link_contributor_href
-					OPTIONAL {
-						?link_contributor_href rdfs:label ?link_contributor_title
-					}
-				} UNION {
-					?id calli:editor ?link_editor_href
-					OPTIONAL {
-						?link_editor_href rdfs:label ?link_editor_title
-					}
-				} UNION {
-					?id calli:administrator ?link_administrator_href
-					OPTIONAL {
-						?link_administrator_href rdfs:label ?link_administrator_title
-					}
-				} UNION {
-					$this calli:hasComponent ?id
-					BIND (?id as ?content_src)
-					OPTIONAL {
-						?id a [calli:type ?content_type]
-						BIND (?id as ?link_edit_media_href)
-					}
-				} UNION {
-					{ ?id a <Folder> } UNION { ?id a <Realm> }
-					BIND (concat(str(?id),"?contents") as ?link_href)
-					BIND ("contents" as ?link_rel)
-					BIND ("application/atom+xml" as ?link_type)
-				} UNION {
-					{ ?id a <Folder> } UNION { ?id a <Realm> }
-					BIND (concat(str(?id),"?archive") as ?link_href)
-					BIND (calli:archive as ?link_rel)
-					BIND ("application/zip" as ?link_type)
-				} UNION {
-					$this calli:hasComponent ?id
-					BIND (concat(str(?id),"?view") as ?link_view_href)
-					BIND (concat(str(?id),"?describe") as ?link_describedby_href)
-					BIND (concat(str(?id),"?history") as ?link_history_href)
 				}
 			}
 		} ORDER BY desc(?type) ?id

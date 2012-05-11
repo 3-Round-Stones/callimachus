@@ -52,6 +52,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		ObjectConnection con = getObjectConnection();
 		try {
 			TupleQuery tq = con.prepareTupleQuery(SPARQL, sparql);
+			tq.setBinding("this", this.getResource());
 			TupleQueryResult result = tq.evaluate();
 			try {
 				Set<String> set = new LinkedHashSet<String>();

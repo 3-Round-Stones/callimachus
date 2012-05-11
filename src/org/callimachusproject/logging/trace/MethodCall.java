@@ -59,14 +59,15 @@ public class MethodCall {
 	}
 
 	public MethodCall(Class<?> returnType, String methodName, Object... args) {
-		this(null, returnType, methodName, args);
+		this(null, returnType, methodName, null, args);
 	}
 
 	public MethodCall(MethodCall returnedTarget, Method method, Object... args) {
-		this(returnedTarget, method.getReturnType(), method.getName(), args);
+		this(returnedTarget, method.getReturnType(), method.getName(), method.getParameterTypes(), args);
 	}
 
-	public MethodCall(MethodCall returnedTarget, Class<?> returnType, String methodName, Object... args) {
+	public MethodCall(MethodCall returnedTarget, Class<?> returnType,
+			String methodName, Class<?>[] types, Object... args) {
 		if (returnedTarget != null) {
 			returnedTarget.done();
 		}
@@ -79,7 +80,7 @@ public class MethodCall {
 			vargs = "";
 		} else {
 			this.assignments = new ArrayList<String>(args.length);
-			vargs = assign(args);
+			vargs = assign(args, types);
 		}
 	}
 
@@ -206,20 +207,26 @@ public class MethodCall {
 		return sb.toString();
 	}
 
-	private String assign(Object[] args) {
+	private String assign(Object[] args, Class<?>[] types) {
 		StringBuilder sb = new StringBuilder();
 		if (args != null) {
-			for (int i=0;i<args.length;i++) {
+			for (int i = 0; i < args.length; i++) {
 				if (i > 0) {
 					sb.append(", ");
 				}
-				sb.append(assign(args[i]));
+				Class<?> type = Object.class;
+				if (types != null) {
+					type = types[i];
+				} else if (args[i] != null) {
+					type= args[i].getClass();
+				}
+				sb.append(assign(args[i], type));
 			}
 		}
 		return sb.toString();
 	}
 
-	private String assign(Object arg) {
+	private String assign(Object arg, Class<?> type) {
 		if (arg == null)
 			return "null";
 		String ref = getReference(arg, arg.getClass());
@@ -230,9 +237,13 @@ public class MethodCall {
 			assignments.add("String " + var + " = " + str((String) arg) + ";");
 			return var;
 		}
-		String simple = arg.getClass().getSimpleName();
+		String simple = type.getSimpleName();
 		String var = var(simple);
-		assignments.add(simple + " " + var + " = new " + simple + "(" + str(arg.toString()) +");");
+		StringBuilder sb = new StringBuilder();
+		sb.append(simple).append(" ").append(var).append(" = new ");
+		sb.append(arg.getClass().getSimpleName()).append("(");
+		sb.append(str(arg.toString())).append(");");
+		assignments.add(sb.toString());
 		return var;
 	}
 
@@ -283,13 +294,19 @@ public class MethodCall {
 				}
 			}
 		}
+		if (arg instanceof String) {
+			if (arg.toString().indexOf('\n') < 0
+					&& arg.toString().length() < 80) {
+				return str((String) arg);
+			}
+		}
 		return null;
 	}
 
 	private String str(String string) {
 		if (string == null)
 			return "null";
-		if (string.length() > 80 && string.indexOf('\n')  >= 0) {
+		if (string.length() > 80 && string.indexOf('\n') >= 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("\"\"\"");
 			sb.append(string.replace("\\", "\\\\"));
@@ -297,14 +314,15 @@ public class MethodCall {
 			return sb.toString();
 		} else {
 			StringBuilder sb = new StringBuilder();
-			String e = string.replace("\\", "\\\\").replace("\n", "\\n").replace("\"", "\\\"");
+			String e = string.replace("\\", "\\\\").replace("\n", "\\n")
+					.replace("\"", "\\\"");
 			sb.append('"').append(e).append('"');
 			return sb.toString();
 		}
 	}
 
 	private String var(String method) {
-		String name = name(method);
+		String name = name(method.replaceAll("\\W", ""));
 		Integer count = count(name);
 		return name + count;
 	}
@@ -322,7 +340,7 @@ public class MethodCall {
 	}
 
 	private String name(String method) {
-		for (int i=0,n=method.length() - 1; i<n; i++) {
+		for (int i = 0, n = method.length() - 1; i < n; i++) {
 			char chr = method.charAt(i);
 			if (Character.isUpperCase(chr)) {
 				return Character.toLowerCase(chr) + method.substring(i + 1);

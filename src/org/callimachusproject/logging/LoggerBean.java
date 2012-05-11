@@ -237,7 +237,6 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 		
 			MethodCall call = iter.next();
 			print(call, now, "", "", w);
-			w.println("// " + call.getCallTimeOfResponse() + "s");
 			w.flush();
 			result[i] = sw.toString();
 		}
@@ -255,6 +254,8 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 		}
 		w.printf(format, since);
 		w.println(call.toString());
+		w.print(indent);
+		w.println("// " + call.getCallTimeOfResponse() + "s");
 	}
 
 	private void setLoggerLevel(String fragment, Level level) {

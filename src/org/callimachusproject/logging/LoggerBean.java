@@ -52,6 +52,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
 import org.callimachusproject.logging.trace.MethodCall;
+import org.callimachusproject.logging.trace.Trace;
+import org.callimachusproject.logging.trace.TraceAnalyser;
 import org.slf4j.LoggerFactory;
 
 import com.sun.management.OperatingSystemMXBean;
@@ -162,36 +164,15 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 	}
 
 	@Override
-	public boolean activeCallTraceDumpToFile(String outputFile) throws IOException {
-		String[] traces = getActiveCallTraces();
-		if (traces == null || traces.length == 0)
-			return false;
-		PrintWriter writer = new PrintWriter(new FileWriter(outputFile, true));
-		try {
-			for (String trace : traces) {
-				writer.println(trace);
-				writer.println();
-			}
-			writer.println();
-			writer.println();
-		} finally {
-			writer.close();
-		}
-		LoggerFactory.getLogger(LoggerBean.class).info("Call trace dump: {}", outputFile);
-		return true;
-	}
-
-	@Override
 	public String[] getActiveCallTraces() {
-		long now = System.nanoTime();
-		MethodCall[] threads = MethodCall.getActiveCallTraces();
+		Trace[] threads = MethodCall.getActiveCallTraces();
 		String[] result = new String[threads.length];
 		for (int i=0; i<threads.length; i++) {
 			StringWriter sw = new StringWriter();
 			PrintWriter w = new PrintWriter(sw);
 		
-			MethodCall call = threads[i];
-			print(call, now, "        ", "%7.2f ", w);
+			Trace call = threads[i];
+			print(call, w);
 			w.flush();
 			result[i] = sw.toString();
 		}
@@ -199,14 +180,25 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 	}
 
 	@Override
-	public boolean topCallTraceDumpToFile(String outputFile) throws IOException {
-		String[] traces = getTopCallTraces();
-		if (traces == null || traces.length == 0)
-			return false;
+	public void resetTraceAnalyser() {
+		TraceAnalyser analyser = TraceAnalyser.getInstance();
+		analyser.reset();
+	}
+
+	@Override
+	public void traceDumpToFile(String outputFile) throws IOException {
+		TraceAnalyser analyser = TraceAnalyser.getInstance();
+		Trace[] traces1 = MethodCall.getActiveCallTraces();
+		Trace[] traces2 = analyser.getTracesByAverageTime();
+		Trace[] traces3 = analyser.getTracesByTotalTime();
+		Set<Trace> set = new LinkedHashSet<Trace>(traces1.length + traces2.length + traces3.length);
+		addEach(traces1, set);
+		addEach(traces2, set);
+		addEach(traces3, set);
 		PrintWriter writer = new PrintWriter(new FileWriter(outputFile, true));
 		try {
-			for (String trace : traces) {
-				writer.println(trace);
+			for (Trace trace : set) {
+				print(trace, writer);
 				writer.println();
 			}
 			writer.println();
@@ -215,47 +207,26 @@ public class LoggerBean extends NotificationBroadcasterSupport implements
 			writer.close();
 		}
 		LoggerFactory.getLogger(LoggerBean.class).info("Call trace dump: {}", outputFile);
-		return true;
 	}
 
-	@Override
-	public String[] getTopCallTraces() {
-		long now = System.nanoTime();
-		MethodCall[] traces = MethodCall.getTopCallTraces();
-		Set<MethodCall> set = new LinkedHashSet<MethodCall>(Arrays.asList(traces));
-		for (MethodCall call : traces) {
-			MethodCall parent = call;
-			while ((parent = parent.getParent()) != null) {
+	private void addEach(Trace[] traces, Set<Trace> set) {
+		set.addAll(Arrays.asList(traces));
+		for (Trace call : traces) {
+			Trace parent = call;
+			while ((parent = parent.getPreviousTrace()) != null) {
 				set.remove(parent);
 			}
 		}
-		Iterator<MethodCall> iter = set.iterator();
-		String[] result = new String[set.size()];
-		for (int i=0; i<result.length; i++) {
-			StringWriter sw = new StringWriter();
-			PrintWriter w = new PrintWriter(sw);
-		
-			MethodCall call = iter.next();
-			print(call, now, "", "", w);
-			w.flush();
-			result[i] = sw.toString();
-		}
-		return result;
 	}
 
-	private static void print(MethodCall call, long now, String indent, String format, PrintWriter w) {
-		if (call.getParent() != null) {
-			print(call.getParent(), now, indent, format, w);
+	private static void print(Trace call, PrintWriter w) {
+		if (call.getPreviousTrace() != null) {
+			print(call.getPreviousTrace(), w);
 		}
-		double since = call.getCallTimeSince(now);
 		for (String assign : call.getAssignments()) {
-			w.print(indent);
-			w.println(assign.replace("\n", "\n" + indent));
+			w.println(assign);
 		}
-		w.printf(format, since);
 		w.println(call.toString());
-		w.print(indent);
-		w.println("// " + call.getCallTimeOfResponse() + "s");
 	}
 
 	private void setLoggerLevel(String fragment, Level level) {

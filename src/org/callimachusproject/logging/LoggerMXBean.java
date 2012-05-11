@@ -44,9 +44,7 @@ public interface LoggerMXBean {
 
 	String[] getActiveCallTraces();
 
-	boolean activeCallTraceDumpToFile(String outputFile) throws IOException;
+	void resetTraceAnalyser();
 
-	String[] getTopCallTraces();
-
-	boolean topCallTraceDumpToFile(String outputFile) throws IOException;
+	void traceDumpToFile(String outputFile) throws IOException;
 }

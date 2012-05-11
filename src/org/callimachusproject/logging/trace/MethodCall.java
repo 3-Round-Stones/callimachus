@@ -1,58 +1,25 @@
 package org.callimachusproject.logging.trace;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MethodCall {
+public class MethodCall extends AbstractTrace {
 	private static final Map<String, Integer> variables = new HashMap<String, Integer>();
 	private static final List<MethodCall> active = new ArrayList<MethodCall>();
-	private static final int KEEP_TOP = 100;
-	private static long min_top_duration;
-	private static final Comparator<MethodCall> comparator = new Comparator<MethodCall>() {
-		public int compare(MethodCall o1, MethodCall o2) {
-			long d1 = o1.getReturnedCallDuration();
-			long d2 = o2.getReturnedCallDuration();
-			if (d1 > d2)
-				return -1;
-			if (d1 == d2)
-				return 0;
-			return 1;
-		}
-	};
-	private static final List<MethodCall> top = new ArrayList<MethodCall>();
 
-	public static MethodCall[] getActiveCallTraces() {
+	public static Trace[] getActiveCallTraces() {
 		synchronized (active) {
-			return active.toArray(new MethodCall[active.size()]);
+			return active.toArray(new Trace[active.size()]);
 		}
 	}
 
-	public static MethodCall[] getTopCallTraces() {
-		synchronized (top) {
-			return top.toArray(new MethodCall[top.size()]);
-		}
-	}
-
-	private final MethodCall returnedTarget;
-	private final String methodName;
-	private final String returnType;
-	private final boolean returnPrimitive;
-	private final List<String> assignments;
-	private final String vargs;
+	private final TraceAggregate aggregate;
 	private long started;
 	private long ended;
-	private long spent;
 	private String threw;
-	private String returnName;
 
 	public MethodCall(Method method, Object... args) {
 		this(null, method, args);
@@ -66,26 +33,25 @@ public class MethodCall {
 		this(returnedTarget, method.getReturnType(), method.getName(), method.getParameterTypes(), args);
 	}
 
-	public MethodCall(MethodCall returnedTarget, Class<?> returnType,
+	public MethodCall(MethodCall previous, Class<?> returnType,
 			String methodName, Class<?>[] types, Object... args) {
-		if (returnedTarget != null) {
-			returnedTarget.done();
+		super(previous, returnType, methodName, types, args);
+		TraceAggregate trace = null;
+		if (previous != null) {
+			previous.done();
+			trace = previous.getTraceAggregate();
 		}
-		this.returnedTarget = returnedTarget;
-		this.methodName = methodName;
-		this.returnType = returnType.getSimpleName();
-		this.returnPrimitive = returnType.isPrimitive();
-		if (args == null) {
-			this.assignments = new ArrayList<String>();
-			vargs = "";
-		} else {
-			this.assignments = new ArrayList<String>(args.length);
-			vargs = assign(args, types);
-		}
+		TraceAnalyser a = TraceAnalyser.getInstance();
+		aggregate = a.getAggregate(trace, returnType, methodName, types, args);
 	}
 
-	public MethodCall getParent() {
-		return returnedTarget;
+	public TraceAggregate getTraceAggregate() {
+		return aggregate;
+	}
+
+	@Override
+	public MethodCall getPreviousTrace() {
+		return (MethodCall) super.getPreviousTrace();
 	}
 
 	public synchronized void calling() {
@@ -100,42 +66,11 @@ public class MethodCall {
 	public synchronized void done() {
 		if (ended == 0) {
 			ended = System.nanoTime();
+			getTraceAggregate().spent(ended - started);
 			synchronized (active) {
 				active.remove(this);
 			}
-			if (returnedTarget != null) {
-				returnedTarget.returnedCallDuration(ended - started);
-			}
 		}
-	}
-
-	public void returnedCallDuration(long returnedCallDuration) {
-		if (returnedTarget != null) {
-			synchronized (top) {
-				spent += returnedCallDuration;
-				if (spent > min_top_duration && !top.contains(this)) {
-					top.add(this);
-					Collections.sort(top, comparator);
-					if (top.size() > KEEP_TOP) {
-						MethodCall last = top.remove(top.size() - 1);
-						min_top_duration = last.getReturnedCallDuration();
-					}
-				}
-			}
-		}
-	}
-
-	public long getReturnedCallDuration() {
-		if (returnedTarget == null)
-			return 0;
-		synchronized (top) {
-			return spent;
-		}
-	}
-
-	public double getCallTimeOfResponse() {
-		long duration = getReturnedCallDuration();
-		return (duration / 1000000) / 1000.0;
 	}
 
 	public synchronized Throwable threw(Throwable threw) {
@@ -174,31 +109,20 @@ public class MethodCall {
 		return ended > 0;
 	}
 
-	public synchronized String getReturnName() {
-		if (returnName == null && !returnPrimitive) {
-			returnName = var(methodName);
-		}
-		return returnName;
-	}
-
-	public List<String> getAssignments() {
-		return assignments;
-	}
-
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		String threw = getThrown();
 		if (isDone() && threw == null) {
-			if (!returnPrimitive) {
-				sb.append(returnType).append(" ");
-				sb.append(getReturnName()).append(" = ");
+			if (getReturnVariable() != null) {
+				sb.append(getReturnType()).append(" ");
+				sb.append(getReturnVariable()).append(" = ");
 			}
 		}
-		if (returnedTarget != null) {
-			sb.append(returnedTarget.getReturnName()).append(".");
+		if (getPreviousTrace() != null) {
+			sb.append(getPreviousTrace().getReturnVariable()).append(".");
 		}
-		sb.append(methodName).append("(");
-		sb.append(vargs).append(")");
+		sb.append(getMethodName()).append("(");
+		sb.append(getParameters()).append(")");
 		if (threw != null) {
 			sb.append(" threw ").append(threw);
 		}
@@ -207,127 +131,8 @@ public class MethodCall {
 		return sb.toString();
 	}
 
-	private String assign(Object[] args, Class<?>[] types) {
-		StringBuilder sb = new StringBuilder();
-		if (args != null) {
-			for (int i = 0; i < args.length; i++) {
-				if (i > 0) {
-					sb.append(", ");
-				}
-				Class<?> type = Object.class;
-				if (types != null) {
-					type = types[i];
-				} else if (args[i] != null) {
-					type= args[i].getClass();
-				}
-				sb.append(assign(args[i], type));
-			}
-		}
-		return sb.toString();
-	}
-
-	private String assign(Object arg, Class<?> type) {
-		if (arg == null)
-			return "null";
-		String ref = getReference(arg, arg.getClass());
-		if (ref != null)
-			return ref;
-		if (arg instanceof String) {
-			String var = var("string");
-			assignments.add("String " + var + " = " + str((String) arg) + ";");
-			return var;
-		}
-		String simple = type.getSimpleName();
-		String var = var(simple);
-		StringBuilder sb = new StringBuilder();
-		sb.append(simple).append(" ").append(var).append(" = new ");
-		sb.append(arg.getClass().getSimpleName()).append("(");
-		sb.append(str(arg.toString())).append(");");
-		assignments.add(sb.toString());
-		return var;
-	}
-
-	private String getReference(Object arg, Class<?> type) {
-		if (arg instanceof Proxy) {
-			if (Proxy.isProxyClass(type)) {
-				InvocationHandler handler = Proxy.getInvocationHandler(arg);
-				if (handler instanceof Tracer) {
-					Tracer tracer = (Tracer) handler;
-					String name = tracer.getName();
-					if (name != null)
-						return name;
-					if (!tracer.getDeclaredType().equals(type))
-						return getReference(arg, tracer.getDeclaredType());
-				}
-			}
-		}
-		if (arg instanceof Enum<?>)
-			return type.getSimpleName() + "." + arg.toString();
-		if (arg instanceof Boolean)
-			return arg.toString();
-		if (arg instanceof Character)
-			return str(arg.toString());
-		if (arg instanceof Byte)
-			return arg.toString();
-		if (arg instanceof Short)
-			return arg.toString();
-		if (arg instanceof Integer)
-			return arg.toString();
-		if (arg instanceof Long)
-			return arg.toString() + "l";
-		if (arg instanceof Float)
-			return arg.toString() + "f";
-		if (arg instanceof Double)
-			return arg.toString();
-		if (arg instanceof Void)
-			return "void";
-		for (Field field : type.getFields()) {
-			if (Modifier.isStatic(field.getModifiers())) {
-				try {
-					if (arg.equals(field.get(null))) {
-						return type.getSimpleName() + "." + field.getName();
-					}
-				} catch (IllegalArgumentException e) {
-					throw new AssertionError(e);
-				} catch (IllegalAccessException e) {
-					throw new AssertionError(e);
-				}
-			}
-		}
-		if (arg instanceof String) {
-			if (arg.toString().indexOf('\n') < 0
-					&& arg.toString().length() < 80) {
-				return str((String) arg);
-			}
-		}
-		return null;
-	}
-
-	private String str(String string) {
-		if (string == null)
-			return "null";
-		if (string.length() > 80 && string.indexOf('\n') >= 0) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("\"\"\"");
-			sb.append(string.replace("\\", "\\\\"));
-			sb.append("\"\"\"");
-			return sb.toString();
-		} else {
-			StringBuilder sb = new StringBuilder();
-			String e = string.replace("\\", "\\\\").replace("\n", "\\n")
-					.replace("\"", "\\\"");
-			sb.append('"').append(e).append('"');
-			return sb.toString();
-		}
-	}
-
-	private String var(String method) {
-		String name = name(method.replaceAll("\\W", ""));
-		Integer count = count(name);
-		return name + count;
-	}
-
-	private Integer count(String name) {
+	@Override
+	protected String getVariableSuffix(String name) {
 		synchronized (variables) {
 			Integer count = variables.get(name);
 			if (count == null) {
@@ -335,18 +140,13 @@ public class MethodCall {
 			} else {
 				variables.put(name, count += 1);
 			}
-			return count;
+			return count.toString();
 		}
 	}
 
-	private String name(String method) {
-		for (int i = 0, n = method.length() - 1; i < n; i++) {
-			char chr = method.charAt(i);
-			if (Character.isUpperCase(chr)) {
-				return Character.toLowerCase(chr) + method.substring(i + 1);
-			}
-		}
-		return Character.toLowerCase(method.charAt(0)) + method.substring(1);
+	@Override
+	protected String getReturnVariableOf(MethodCall call) {
+		return call.getReturnVariable();
 	}
 
 }

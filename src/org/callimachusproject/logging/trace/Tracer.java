@@ -29,10 +29,8 @@ public class Tracer implements InvocationHandler {
 		return declaredType;
 	}
 
-	public String getName() {
-		if (returnedFrom != null)
-			return returnedFrom.getReturnName();
-		return null;
+	public MethodCall getFactoryMethod() {
+		return returnedFrom;
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args)

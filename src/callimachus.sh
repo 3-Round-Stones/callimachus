@@ -402,6 +402,7 @@ do_start()
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
+    -XX:OnOutOfMemoryError="kill -9 %p" \
     $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" $OPTS "$@"
 
   RETURN_VAL=$?
@@ -499,6 +500,7 @@ do_setup() {
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
     -classpath "$CLASSPATH" \
+    -XX:OnOutOfMemoryError="kill -9 %p" \
     $JAVA_OPTS $SSL_OPTS "$SETUPCLASS" \
     $ORIGIN_OPTS -c "$REPOSITORY_CONFIG" -f "/callimachus/=$(ls lib/$NAME*.car)" -l \
     -e "$EMAIL" -n "$FULLNAME" "$@"
@@ -530,6 +532,7 @@ do_dump() {
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
+    -XX:OnOutOfMemoryError="kill -9 %p" \
     -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar:$JDK_HOME/../Classes/classes.jar" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PIDFILE" --dump "$DIR"
@@ -551,6 +554,7 @@ do_reset() {
     -Duser.home="$BASEDIR" \
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.mail.properties="$MAIL" \
+    -XX:OnOutOfMemoryError="kill -9 %p" \
     -classpath "$CLASSPATH:$JDK_HOME/lib/tools.jar:$JDK_HOME/../Classes/classes.jar" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MONITORCLASS" --pid "$PIDFILE" --reset
@@ -569,6 +573,7 @@ do_run() {
     -Djava.io.tmpdir="$TMPDIR" \
     -Djava.util.logging.config.file="$LOGGING" \
     -Djava.mail.properties="$MAIL" \
+    -XX:OnOutOfMemoryError="kill -9 %p" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
     $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" $OPTS "$@"

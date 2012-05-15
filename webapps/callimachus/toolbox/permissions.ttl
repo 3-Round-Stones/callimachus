@@ -117,6 +117,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Composite];
 	msg:sparql """
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT ?composite
 		WHERE {
 			?composite calli:hasComponent $this

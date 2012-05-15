@@ -194,6 +194,10 @@
 :FindCreator rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
 	msg:sparql  """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT DISTINCT ?contributor
 		WHERE {
 			audit:current-trx audit:contributor ?contributor
@@ -206,6 +210,10 @@
 # find the user that created $thing if they are not otherwise editors
 :FindContributor rdfs:subClassOf :FindCreator;
 	msg:sparql  """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT DISTINCT ?contributor
 		WHERE {
 			{
@@ -233,6 +241,10 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
 	msg:sparql  """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT DISTINCT ?reader
 		WHERE {
 			{
@@ -247,6 +259,10 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
 	msg:sparql  """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT DISTINCT ?editor
 		WHERE {
 			{
@@ -261,6 +277,10 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
 	msg:sparql  """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT DISTINCT ?admin
 		WHERE {
 			{

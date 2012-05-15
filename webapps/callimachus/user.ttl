@@ -107,6 +107,7 @@ rdfs:comment a rdf:Property.
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:User];
 	msg:sparql  """
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
 		SELECT ?contributor
 		WHERE {
 			{

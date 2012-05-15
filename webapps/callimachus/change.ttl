@@ -44,6 +44,11 @@
 :AuthorizeTransaction owl:intersectionOf (calli:IsAuthorized
 		[owl:onProperty msg:target; owl:allValuesFrom <Change>]);
 	msg:sparql  """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		ASK {
 			{
 				# they created this transaction
@@ -108,6 +113,11 @@
 :ListSubjectsOfTransaction rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
 	msg:sparql  """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT DISTINCT ?subj
 		WHERE {
 			{
@@ -131,6 +141,11 @@
 	calli:type "application/sparql-results+xml";
 	calli:transform :TransformChangesetView;
 	msg:sparql  """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT REDUCED ?modified ?user ?name ?previous ?subsequent ?removed ?added ?subject ?predicate ?object
 		WHERE {
 			{

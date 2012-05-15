@@ -18,6 +18,11 @@
 	calli:type "application/sparql-results+xml;q=0.1";
 	calli:transform :TransformWhatLinksHere;
 	msg:sparql """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT DISTINCT ?label ?comment ?icon ?url ?modified
 		WHERE {
 			?url ?rel $this

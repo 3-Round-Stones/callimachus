@@ -112,6 +112,15 @@
 	calli:header "cache-control:no-cache";
 	calli:transform <transforms/TransformIntoAtom>;
 	msg:sparql """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+		PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
+		PREFIX dc:<http://purl.org/dc/elements/1.1/>
+		PREFIX dcterms:<http://purl.org/dc/terms/>
+		PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT REDUCED * {
 			{
 				$this rdfs:label ?title
@@ -510,6 +519,15 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Serviceable>];
 	msg:sparql """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+		PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
+		PREFIX dc:<http://purl.org/dc/elements/1.1/>
+		PREFIX dcterms:<http://purl.org/dc/terms/>
+		PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT ?component {
 			$this calli:hasComponent+ ?component .
 			?external ?dependent ?component
@@ -569,6 +587,15 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
 	msg:sparql """
+		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+		PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
+		PREFIX dc:<http://purl.org/dc/elements/1.1/>
+		PREFIX dcterms:<http://purl.org/dc/terms/>
+		PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT ?composite {
 			?composite calli:hasComponent $component
 		}

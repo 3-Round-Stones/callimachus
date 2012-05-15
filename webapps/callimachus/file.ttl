@@ -37,6 +37,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
 	msg:sparql """
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT DISTINCT ?type { $this a [calli:type ?type] }
 	""".
 

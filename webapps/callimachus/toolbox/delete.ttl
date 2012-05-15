@@ -100,6 +100,7 @@
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
 	msg:sparql """
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		ASK {
 			$this calli:hasComponent ?child
 		}
@@ -119,6 +120,7 @@
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
 	msg:sparql """
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		ASK {
 			?child a $this
 		}

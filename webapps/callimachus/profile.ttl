@@ -37,7 +37,8 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
 	calli:method "GET";
 	calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
-	calli:header "cache-control:no-store";
+	calli:header "cache-control:no-validate";
+	calli:header "cache-control:max-age=300";
 	calli:transform :TransformProfile;
 	msg:imports <java:org.openrdf.model.impl.LinkedHashModel>;
 	msg:script """
@@ -65,7 +66,8 @@
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
 	calli:method "GET";
 	calli:type "application/json;q=0.3";
-	calli:header "cache-control:no-store";
+	calli:header "cache-control:no-validate";
+	calli:header "cache-control:max-age=60";
 	msg:imports <java:java.io.ByteArrayOutputStream>;
 	msg:script """
 		var output = new java.io.ByteArrayOutputStream();

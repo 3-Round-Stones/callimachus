@@ -57,6 +57,7 @@
 :AuthorizeLoginPage owl:intersectionOf (calli:IsAuthorized
 		[owl:onProperty msg:target; owl:allValuesFrom <DigestManager>]);
 	msg:sparql  """
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		ASK {
 			$this calli:authNamespace [calli:hasComponent $credential]
 			FILTER ($method = "GET" || $method = "HEAD")
@@ -163,6 +164,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:User];
 	msg:sparql  """
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 		SELECT REDUCED ?user
 		WHERE {
 			$this calli:authNamespace [calli:hasComponent ?user] .

@@ -39,7 +39,7 @@ import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.util.ManagedExecutors;
 import org.openrdf.repository.object.ObjectRepository;
-import org.openrdf.repository.object.xslt.XSLTransformer;
+import org.callimachusproject.xslt.XSLTransformer;
 
 /**
  * Executes tasks in a thread pool or in the current thread.

@@ -1,8 +1,6 @@
 package org.callimachusproject.server;
 
 import java.io.InputStream;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -10,7 +8,9 @@ import javax.xml.stream.XMLStreamException;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
+import org.callimachusproject.annotations.xslt;
 import org.callimachusproject.server.base.MetadataServerTestCase;
+import org.callimachusproject.xslt.XMLEventReaderFactory;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.Matching;
 import org.openrdf.model.Model;
@@ -20,8 +20,6 @@ import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.repository.object.vocabulary.MSG;
-import org.openrdf.repository.object.xslt.XMLEventReaderFactory;
 
 import com.sun.jersey.api.client.WebResource;
 
@@ -32,12 +30,6 @@ public class TransformTest extends MetadataServerTestCase {
 			+ "<xsl:template match='echo'>"
 			+ "<xsl:copy-of select='node()'/>"
 			+ "</xsl:template></xsl:stylesheet>";
-
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface Xsl {
-		@Iri(MSG.NAMESPACE + "xslt")
-		String value();
-	}
 
 	@Matching("/service")
 	public static abstract class Service {
@@ -56,7 +48,7 @@ public class TransformTest extends MetadataServerTestCase {
 
 		@type("text/plain")
 		@Iri("urn:test:execute")
-		@Xsl(XSLT_EXECUTE)
+		@xslt(XSLT_EXECUTE)
 		public abstract String execute(@type("text/xml") String xml);
 
 		@query("turtle")

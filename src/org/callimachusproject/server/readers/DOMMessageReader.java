@@ -42,7 +42,7 @@ import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.MessageType;
-import org.openrdf.repository.object.xslt.DocumentFactory;
+import org.callimachusproject.xslt.DocumentFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

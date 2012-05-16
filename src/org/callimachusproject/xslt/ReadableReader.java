@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2009, James Leigh All rights reserved.
- * Copyright (c) 2011 Talis Inc., Some rights reserved.
+ * Copyright (c) 2010, Zepheira LLC, Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,44 +26,39 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.readers;
+package org.callimachusproject.xslt;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
-
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-
-import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
-import org.callimachusproject.xslt.XMLEventReaderFactory;
+import java.io.Reader;
+import java.nio.CharBuffer;
 
 /**
- * Converts an InputStream into a XMLEventReader.
+ * Wraps a Readable object as a Reader.
+ *
+ * @author James Leigh
  */
-public class XMLEventMessageReader implements MessageBodyReader<XMLEventReader> {
-	private XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
+class ReadableReader extends Reader {
+	private final Readable reader;
 
-	public boolean isReadable(MessageType mtype) {
-		String mediaType = mtype.getMimeType();
-		if (mediaType != null && !mediaType.startsWith("text/")
-				&& !mediaType.startsWith("application/"))
-			return false;
-		return mtype.clas().isAssignableFrom(XMLEventReader.class);
+	ReadableReader(Readable reader) {
+		this.reader = reader;
 	}
 
-	public XMLEventReader readFrom(MessageType mtype, ReadableByteChannel in,
-			Charset charset, String base, String location) throws IOException,
-			XMLStreamException {
-		if (in == null)
-			return null;
-		InputStream in1 = ChannelUtil.newInputStream(in);
-		if (charset == null && location != null)
-			return factory.createXMLEventReader(location, in1);
-		if (charset == null)
-			return factory.createXMLEventReader(in1);
-		return factory.createXMLEventReader(in1, charset.name());
+	@Override
+	public void close() throws IOException {
+		if (reader instanceof Closeable) {
+			((Closeable) reader).close();
+		}
+	}
+
+	@Override
+	public int read(char[] cbuf, int off, int len) throws IOException {
+		return reader.read(CharBuffer.wrap(cbuf, off, len));
+	}
+
+	@Override
+	public int read(CharBuffer cbuf) throws IOException {
+		return reader.read(cbuf);
 	}
 }

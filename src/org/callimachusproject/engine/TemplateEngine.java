@@ -22,8 +22,8 @@ import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.object.xslt.TransformBuilder;
-import org.openrdf.repository.object.xslt.XSLTransformer;
+import org.callimachusproject.xslt.TransformBuilder;
+import org.callimachusproject.xslt.XSLTransformer;
 
 public class TemplateEngine {
 	private static final int XML_BUF = 2048;

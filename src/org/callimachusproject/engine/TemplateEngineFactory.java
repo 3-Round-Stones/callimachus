@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.object.xslt.XSLTransformer;
+import org.callimachusproject.xslt.XSLTransformer;
 
 public class TemplateEngineFactory {
 	private static final int MAX_XSLT = 16;

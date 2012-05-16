@@ -44,8 +44,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -57,7 +57,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Comment;
 import javax.xml.stream.events.XMLEvent;
 
-import org.openrdf.repository.object.xslt.XSLTransformer;
+import org.callimachusproject.xslt.XSLTransformer;
 
 /**
  * An XMLEvent queue that can be read using an XMLEventReader.

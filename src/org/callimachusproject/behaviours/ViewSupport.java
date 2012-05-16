@@ -46,7 +46,7 @@ import org.openrdf.model.URI;
 import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.repository.object.xslt.XMLEventReaderFactory;
+import org.callimachusproject.xslt.XMLEventReaderFactory;
 
 /**
  * Extracts parts of this template and constructs the RDF needed for this

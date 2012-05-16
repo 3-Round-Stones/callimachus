@@ -146,6 +146,9 @@ public class CarInputStream implements Closeable {
 	}
 
 	private boolean scanForClass(BufferedInputStream in, String type) throws IOException {
+		if (type == null) {
+			type = "application/rdf+xml";
+		}
 		byte[] peek = new byte[RDFS_PEEK_SIZE];
 		in.mark(RDFS_PEEK_SIZE);
 		int len = IOUtil.readBytes(in, peek);

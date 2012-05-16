@@ -66,7 +66,7 @@ import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
-import org.openrdf.repository.object.xslt.XSLTransformer;
+import org.callimachusproject.xslt.XSLTransformer;
 import org.openrdf.sail.optimistic.exceptions.ConcurrencyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

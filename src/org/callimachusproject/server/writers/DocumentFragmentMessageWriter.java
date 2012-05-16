@@ -56,7 +56,7 @@ import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.MessageType;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
-import org.openrdf.repository.object.xslt.DocumentFactory;
+import org.callimachusproject.xslt.DocumentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;

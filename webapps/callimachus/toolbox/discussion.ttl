@@ -41,6 +41,8 @@
 		LIMIT 100
 	""".
 
+skos:editorialNote a owl:AnnotationProperty.
+
 :PostDiscussion rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
@@ -48,11 +50,9 @@
 	calli:query "discussion";
 	calli:realm </>;
 	calli:expect "303-see-other";
-	msg:imports skos:editorialNote;
 	msg:script """
 		var vf = this.objectConnection.valueFactory;
-		var lit = vf.createLiteral(form.get('note')[0]);
-		this.objectConnection.add(this.resource, editorialNote.resource, lit, []);
+		this.skosEditorialNote.add(form.get('note')[0]);
 		return this.resource + "?discussion";
 	""".
 

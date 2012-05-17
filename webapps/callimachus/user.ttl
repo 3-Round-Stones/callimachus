@@ -31,7 +31,6 @@ rdfs:comment a rdf:Property.
 :PostUserCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <User> ]);
 	msg:imports <User>;
-	msg:imports </accounts>;
 	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
 	msg:imports <java:javax.mail.internet.MimeMultipart>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
@@ -89,6 +88,7 @@ rdfs:comment a rdf:Property.
 		}
 
 		//# generate and save a password
+		var accounts = this.FindAuthenticationManager();
 		var password = accounts.generatePassword();
 		var token = username + ":" + accounts.calliAuthName + ":" + password;
 		newUser.calliAlgorithm = "MD5";
@@ -119,6 +119,17 @@ rdfs:comment a rdf:Property.
 		} LIMIT 1
 	""".
 
+:FindAuthenticationManager rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:AuthenticationManager];
+	msg:sparql """
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+		SELECT ?manager {
+			?namespace calli:hasComponent $this .
+			?manager calli:authNamespace ?namespace .
+		} LIMIT 1
+	""".
+
 ################################
 # User password
 ################################
@@ -144,10 +155,10 @@ rdfs:comment a rdf:Property.
 	calli:query "password";
 	calli:realm </>;
 	calli:expect "201-modified";
-	msg:imports </accounts>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.apache.commons.codec.binary.Hex>;
 	msg:script """
+		var accounts = this.FindAuthenticationManager();
 		var credential = accounts.findCredential(authorization);
 		//# read form
 		var email = form.get("email") ? form.get("email")[0] : null;

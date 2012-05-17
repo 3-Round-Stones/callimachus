@@ -46,7 +46,7 @@ function asUniqueName(title) {
 }
 
 window.calli.openDialog = function(url, title, options) {
-	var width = 450;
+	/* var width = 450; */
 	var height = 500;
 	height += 50; // title bar
 	if (options.buttons) {

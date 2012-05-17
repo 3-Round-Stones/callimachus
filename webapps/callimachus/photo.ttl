@@ -178,8 +178,11 @@
 :ResizePhoto rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	msg:imports <java:java.awt>;
-	msg:imports <java:java.awt.image>;
+	msg:imports <java:java.awt.AlphaComposite>;
+	msg:imports <java:java.awt.RenderingHints>;
+	msg:imports <java:java.awt.image.BufferedImage>;
+	msg:imports <java:java.awt.image.ConvolveOp>;
+	msg:imports <java:java.awt.image.Kernel>;
 	msg:imports <java:javax.imageio.ImageIO>;
 	msg:imports <java:java.io.ByteArrayOutputStream>;
 	msg:script """

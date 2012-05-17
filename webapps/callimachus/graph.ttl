@@ -197,7 +197,6 @@
 	msg:imports <File>;
 	msg:imports foaf:Document;
 	msg:imports sd:NamedGraph;
-	msg:imports <graph-uploaded.xhtml>;
 	msg:script """
 		if (!location)
 			throw new BadRequest("No graph location provided");

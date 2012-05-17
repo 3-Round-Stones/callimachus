@@ -102,7 +102,7 @@
 	msg:method "POST";
 	msg:type "message/x-response";
 	msg:transform :TransformResult;
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:script """
 		if (!query)
 			throw new BadRequest("Missing query body");
@@ -119,7 +119,7 @@
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
 	msg:method "POST";
-	msg:imports <java:org.openrdf.http.object.exceptions.BadRequest>;
+	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:script """
 		if (!update)
 			throw new BadRequest("Missing update body");

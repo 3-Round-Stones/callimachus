@@ -203,7 +203,7 @@
 		sb.push('<xsl:variable name="rights">');
 		try {
 			if (this.calliRights) {
-				var xslt = new org.openrdf.repository.object.xslt.XSLTransformer();
+				var xslt = new org.callimachusproject.xslt.XSLTransformer();
 				var p;
 				var rights = this.calliRights;
 				if (rights.childNodes.length == 1 && rights.firstChild.tagName == "p") {

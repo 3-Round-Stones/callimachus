@@ -100,7 +100,7 @@ public abstract class ProxyObjectSupport implements ProxyObject, RDFObject {
 	}
 
 	@ParameterTypes( {})
-	public InetSocketAddress getProxyObjectInetAddress(ObjectMessage msg) {
+	public InetSocketAddress getProxyObjectInetAddress(ObjectMessage msg) throws Exception {
 		if (addr != null)
 			return addr;
 		InetSocketAddress inet = (InetSocketAddress) msg.proceed();

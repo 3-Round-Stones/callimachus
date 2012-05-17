@@ -173,13 +173,11 @@
 :GetLayout rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
 	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+	rdfs:subClassOf [owl:onProperty :layout_xhtml; owl:hasValue <theme/layout.xhtml>];
+	rdfs:subClassOf [owl:onProperty :baseDir; owl:hasValue <./>];
 	calli:method "GET";
 	calli:query "layout";
 	calli:type "text/xsl";
-	msg:imports <transforms/layout.xsl>;
-	msg:imports <styles>;
-	msg:imports <scripts>;
-	msg:imports <theme/layout.xhtml>;
 	msg:script """
 		var layout = layout_xhtml;
 		try {
@@ -194,8 +192,8 @@
 		sb.push('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">');
 		sb.push('<xsl:param name="systemId" />');
 		sb.push('<xsl:variable name="realm">' + this + '</xsl:variable>');
-		sb.push('<xsl:variable name="styles">' + styles + '</xsl:variable>');
-		sb.push('<xsl:variable name="scripts">' + scripts + '</xsl:variable>');
+		sb.push('<xsl:variable name="styles">' + baseDir + 'styles</xsl:variable>');
+		sb.push('<xsl:variable name="scripts">' + baseDir + 'scripts</xsl:variable>');
 		sb.push('<xsl:variable name="layout">' + layout + '</xsl:variable>');
 		sb.push('<xsl:variable name="favicon">' + (this.calliFavicon ? this.calliFavicon : '') + '</xsl:variable>');
 		sb.push('<xsl:variable name="menu">' + (this.calliMenu ? (this.calliMenu + '?items') : '') + '</xsl:variable>');
@@ -222,10 +220,16 @@
 			else println(e);
 		}
 		sb.push('</xsl:variable>');
-		sb.push('<xsl:include href="' + layout_xsl + '" />');
+		sb.push('<xsl:include href="' + baseDir + 'transforms/layout.xsl" />');
 		sb.push('</xsl:stylesheet>');
 		return sb.join('');
 	""".
+
+:layout_xhtml a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :GetLayout.
+
+:baseDir a owl:FunctionalProperty, owl:DatatypeProperty;
+	rdfs:domain :GetLayout.
 
 :PostEditRealm owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
 		[owl:onProperty msg:target; owl:allValuesFrom <Realm>]);

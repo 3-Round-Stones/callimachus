@@ -108,26 +108,29 @@
 :GetForgotPasswordPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+	rdfs:subClassOf [owl:onProperty :forgot_password_xhtml; owl:hasValue <pages/forgot-password.xhtml>];
 	calli:method "GET";
 	calli:query "forgotpassword";
 	calli:type "application/xhtml+xml";
 	calli:header "cache-control:no-store";
 	calli:transform <transforms/TransformPage>;
-	msg:imports <pages/forgot-password.xhtml>;
 	msg:script """
 		return forgot_password_xhtml.calliConstruct(this);
 	""".
+
+:forgot_password_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :GetForgotPasswordPage.
 
 # Sends request for password reset emails
 # Submitted by form in the unauthorized page
 :PostForgotPassword rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty :mail_request_password_xhtml; owl:hasValue <pages/mail-request-password.xhtml>];
 	calli:method "POST";
 	calli:query "forgotpassword";
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-	msg:imports <pages/mail-request-password.xhtml>;
 	msg:imports <java:java.io.CharArrayWriter>;
 	msg:imports <java:java.util.Random>;
 	msg:imports <java:java.lang.Integer>;
@@ -158,6 +161,9 @@
 	rdfs:range xsd:string;
 	calli:type "text/plain".
 
+:mail_request_password_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :PostForgotPassword.
+
 # Looks up user by email address
 # Used to request password reset
 :FindUsersByEmail rdfs:subClassOf msg:Message;
@@ -184,6 +190,7 @@
 :GetResetPassword rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+	rdfs:subClassOf [owl:onProperty :reset_password_xhtml; owl:hasValue <pages/reset-password.xhtml>];
 	calli:method "GET";
 	calli:query "resetpassword";
 	calli:type "application/xhtml+xml";
@@ -191,7 +198,6 @@
 	calli:transform <transforms/TransformPage>;
 	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <pages/reset-password.xhtml>;
 	msg:script """
 		if (!nonce || !token || !username)
 			throw new BadRequest("Missing nonce and/or token and/or username");
@@ -219,14 +225,17 @@
 	rdfs:range xsd:string;
 	calli:query "username".
 
+:reset_password_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :GetResetPassword.
+
 # Confirms token and resets their password
 :PostResetPassword rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty :mail_password_xhtml; owl:hasValue <pages/mail-password.xhtml>];
 	calli:method "POST";
 	calli:query "resetpassword";
 	calli:header "cache-control:no-store";
-	msg:imports <pages/mail-password.xhtml>;
 	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:java.io.CharArrayWriter>;
@@ -256,4 +265,7 @@
 	rdfs:domain :PostResetPassword;
 	rdfs:range <java:java.util.Map>;
 	calli:type "application/x-www-form-urlencoded".
+
+:mail_password_xhtml a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :PostResetPassword.
 

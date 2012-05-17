@@ -29,16 +29,19 @@
 :GetPermissions rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+	rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <permissions.xhtml>];
 	calli:method "GET";
 	calli:query "permissions";
 	calli:realm </>;
 	calli:type "application/xhtml+xml";
 	calli:header "cache-control:no-cache";
 	calli:transform <../transforms/TransformPage>;
-	msg:imports <permissions.xhtml>;
 	msg:script """
 		return permissions_xhtml.calliConstruct(this);
 	""".
+
+:permissions_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain [owl:unionOf (:GetPermissions :PostPermissions)].
 
 # used by permissions.xhtml
 :GetRdfTypes rdfs:subClassOf msg:Message;
@@ -72,11 +75,11 @@
 :PostPermissions rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
+	rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <permissions.xhtml>];
 	calli:method "POST";
 	calli:query "permissions";
 	calli:realm </>;
 	calli:expect "201-modified";
-	msg:imports <permissions.xhtml>;
 	msg:script """
 		permissions_xhtml.calliEditResource(this, msg.input);
 		var parent = this.SelectParentComposite();

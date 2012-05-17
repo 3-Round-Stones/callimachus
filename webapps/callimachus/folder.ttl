@@ -63,12 +63,12 @@
 :PostFileSlug rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <File>];
+	rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>];
 	calli:method "POST";
 	calli:query "contents";
 	calli:realm </>;
 	calli:expect "201-created";
 	calli:type "text/plain";
-	msg:imports <folder.ttl>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:script """
 		if (!slug)
@@ -78,9 +78,8 @@
 		if (!content)
 			throw new BadRequest("Missing request content");
 		var con = this.objectConnection;
-		var File = con.getObject(folder_ttl.toUri().resolve("File").toASCIIString());
 		var location = this.toString() + encodeURIComponent(decodeURIComponent(slug)).replace(/%20/g, '-');
-		return this.PostFactoryCreate(content, File, false, con.getObject(location), contentType);
+		return this.PostFactoryCreate(content, fileClass, false, con.getObject(location), contentType);
 	""".
 
 :slug a owl:FunctionalProperty, owl:DatatypeProperty;
@@ -97,6 +96,9 @@
 	rdfs:domain :PostFileSlug;
 	rdfs:range <java:java.io.InputStream>;
 	calli:type "*/*".
+
+:fileClass a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :PostFileSlug.
 
 ################################
 # List folder contents
@@ -378,16 +380,19 @@
 :GetFolderUploadPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+	rdfs:subClassOf [owl:onProperty :folder_import_xhtml; owl:hasValue <pages/folder-import.xhtml>];
 	calli:method "GET";
 	calli:query "import";
 	calli:type "application/xhtml+xml";
 	calli:header "cache-control:no-cache";
 	calli:transform <transforms/TransformPage>;
 	calli:realm </>;
-	msg:imports <pages/folder-import.xhtml>;
 	msg:script """
 		return folder_import_xhtml.calliConstruct(this);
 	""".
+
+:folder_import_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :GetFolderUploadPage.
 
 :ImportFolderComponents rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
@@ -403,7 +408,7 @@
 		var inputStream = multipart.next();
 		try {
 			println("Importing folder content from: " + multipart.headers.get("content-disposition"));
-			this.UploadFolderComponents(inputStream);
+			this.UploadFolderComponents(inputStream, null, null);
 			println("Imported folder content for: " + this);
 			return this;
 		} finally {
@@ -421,11 +426,12 @@
 :UploadFolderComponents rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	rdfs:subClassOf [owl:onProperty :uploadFileClass; owl:hasValue <File>];
+	rdfs:subClassOf [owl:onProperty :schemaGraphClass; owl:hasValue <SchemaGraph>];
 	calli:method "PUT";
 	calli:query "archive";
 	calli:realm </>;
 	msg:imports <Composite>;
-	msg:imports </callimachus>;
 	msg:imports <java:org.openrdf.rio.RDFFormat>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
@@ -452,8 +458,8 @@
 		if (baseURI.lastIndexOf('/') != baseURI.length - 1) {
 			baseURI = baseURI + '/';
 		}
-		var File = con.getObject(callimachus.toUri().resolve("/callimachus/File").toString());
-		var SchemaGraph = vf.createURI(callimachus.toUri().resolve("/callimachus/SchemaGraph").toString());
+		var File = uploadFileClass;
+		var SchemaGraph = schemaGraphClass;
 		var dependency = new java.util.HashSet(this.FindComponentsWithExternalDependent());
 		this.DeleteComponents(); //# remove existing components
 		var iter = dependency.iterator();
@@ -514,6 +520,12 @@
 	rdfs:domain :UploadFolderComponents;
 	rdfs:range <java:java.io.InputStream>;
 	calli:type "application/zip".
+
+:uploadFileClass a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :UploadFolderComponents.
+
+:schemaGraphClass a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:domain :UploadFolderComponents.
 
 :FindComponentsWithExternalDependent rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];

@@ -137,16 +137,19 @@ rdfs:comment a rdf:Property.
 :GetUserPasswordPage rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+	rdfs:subClassOf [owl:onProperty :user_password_xhtml; owl:hasValue <pages/user-password.xhtml>];
 	calli:method "GET";
 	calli:query "password";
 	calli:type "application/xhtml+xml";
 	calli:header "cache-control:no-cache";
 	calli:transform <transforms/TransformPage>;
 	calli:realm </>;
-	msg:imports <pages/user-password.xhtml>;
 	msg:script """
 		return user_password_xhtml.calliConstruct(this);
 	""".
+
+:user_password_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain :GetUserPasswordPage.
 
 :PostUserPassword rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];

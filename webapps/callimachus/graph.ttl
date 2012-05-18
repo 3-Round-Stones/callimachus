@@ -155,6 +155,7 @@
 # Named Graph
 ################################
 
+# GET /graph.rdf
 :GetNamedGraph rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedGraph>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
@@ -162,13 +163,6 @@
 	calli:type "application/rdf+xml;q=0.4";
 	calli:transform :TransformNamedGraph;
 	msg:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
-
-:TransformNamedGraph rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedGraph>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:type "application/xml";
-	calli:transform <transforms/TransformLayout>;
-	msg:xslt <transforms/graph.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
 	rdfs:domain :TransformNamedGraph;

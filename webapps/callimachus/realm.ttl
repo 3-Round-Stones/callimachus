@@ -30,20 +30,21 @@
 		return "/callimachus/template.xsl";
 	""".
 
-################################
-# login
-################################
-
-# anybody with credentials can login
-:AuthorizeLogin owl:intersectionOf (calli:IsAuthorized
-		[owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
+# anybody with credentials can look something up
+# TODO change this to require calli:reader access
+:AuthorizeRealmAccess owl:intersectionOf (calli:IsAuthorized
+		[owl:onProperty msg:target; owl:allValuesFrom <../Realm>]);
 	msg:sparql  """
 		ASK {
 			$this a <Realm>
 			FILTER ($method = "GET" || $method = "HEAD")
-			FILTER ($query = "login")
+			FILTER ($query = "login" || substr($query,1,2) = "q=")
 		}
 	""".
+
+################################
+# login
+################################
 
 :GetLogin rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];

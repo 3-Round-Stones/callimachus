@@ -38,6 +38,12 @@
 # GET /page/MainPage.xhtml?view
 :GetPage owl:intersectionOf (<toolbox/view.ttl#GetViewPage>
 		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
+	calli:rel "alternate";
+	calli:method "GET";
+	calli:query "view";
+	calli:type "application/xhtml+xml";
+	calli:header "cache-control:no-cache";
+	calli:transform <transforms/TransformPage>;
 	msg:script """
 		return this.calliConstruct(this);
 	""".
@@ -51,17 +57,6 @@
 	calli:header "cache-control:no-cache";
 	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
-
-# POST ?create=/callimachus/File
-:LookupPage owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
-		[owl:onProperty msg:target; owl:hasValue <File> ]);
-	msg:script """
-		if (type == "application/xhtml+xml") {
-			var uri = this.toUri().resolve("/callimachus/Page").toString();
-			return this.objectConnection.getObject(uri);
-		}
-		return proceed();
-	""".
 
 # POST ?create=/callimachus/Page
 :CreatePage owl:intersectionOf (<toolbox/create.ttl#PostCreate>

@@ -46,17 +46,6 @@
 	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
-# POST ?create=/callimachus/File
-:LookupPipelineFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
-		[owl:onProperty msg:target; owl:hasValue <File> ]);
-	msg:script """
-		if (type == "application/xproc+xml") {
-			var uri = this.toUri().resolve("/callimachus/Pipeline").toString();
-			return this.objectConnection.getObject(uri);
-		}
-		return proceed();
-	""".
-
 # POST ?create=/callimachus/Pipeline
 :CreatePipeline owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Pipeline> ]);

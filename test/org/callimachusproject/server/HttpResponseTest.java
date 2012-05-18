@@ -54,7 +54,7 @@ public class HttpResponseTest extends MetadataServerTestCase {
 	public void testEcho() throws Exception {
 		Echo echo = (Echo) con.getObject(client.path("/echo").toString());
 		HttpResponse resp = echo.echo("text/alpha", "abc");
-		assertEquals("text/alpha", resp.getFirstHeader("Content-Type").getValue());
+		assertEquals("text/alpha", resp.getEntity().getContentType().getValue());
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		HttpEntity entity = resp.getEntity();
 		try {

@@ -1,0 +1,36 @@
+@prefix msg  :<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix owl  :<http://www.w3.org/2002/07/owl#>.
+@prefix rdfs :<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rdf  :<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix xsd  :<http://www.w3.org/2001/XMLSchema#>.
+@prefix :<#>.
+
+:throwRepositoryException rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <urn:test:object>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:script "throw new org.openrdf.repository.RepositoryException('exception message')".
+
+:throwObjectStoreException rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <urn:test:object>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:script "throw new org.openrdf.repository.object.exceptions.ObjectStoreException('runtime message')".
+
+:callMalformedQueryException rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <urn:test:object>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:imports <java:org.openrdf.query.QueryLanguage>;
+	msg:script "this.objectConnection.prepareTupleQuery(QueryLanguage.SPARQL, 'invalid')".
+
+<urn:test:integerProperty> a owl:ObjectProperty, owl:FunctionalProperty;
+	rdfs:range xsd:int;
+	rdfs:domain [owl:oneOf (<urn:test:object>);
+		rdfs:subClassOf [owl:onProperty <urn:test:integerProperty>;
+			owl:cardinality 1]].
+
+<urn:test:object> <urn:test:integerProperty> "one".
+
+:callClassCastException rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <urn:test:object>];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:script "java.lang.System.out.println(''+ this.getIntegerProperty())".
+

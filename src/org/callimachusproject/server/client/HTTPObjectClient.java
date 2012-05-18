@@ -226,12 +226,12 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 
 	public void invalidateCache() throws IOException, InterruptedException {
 		cache.invalidate();
-		HTTPCacheObjectResolver.invalidateCache();
+		ObjectResolver.invalidateCache();
 	}
 
 	public void resetCache() throws IOException, InterruptedException {
 		cache.reset();
-		HTTPCacheObjectResolver.resetCache();
+		ObjectResolver.resetCache();
 	}
 
 	public String getFrom() {

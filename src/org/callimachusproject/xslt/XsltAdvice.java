@@ -42,7 +42,7 @@ public class XsltAdvice implements Advice {
 	}
 
 	public Object intercept(ObjectMessage message) throws Throwable {
-		Object target = message.getMsgTarget();
+		Object target = message.getTarget();
 		Resource self = ((RDFObject) target).getResource();
 		Object[] args = message.getParameters();
 		TransformBuilder tb = transform(inputIdx < 0 ? null : args[inputIdx],

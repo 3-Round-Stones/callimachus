@@ -1,5 +1,5 @@
 /*
- * Copyright 2010, Zepheira LLC Some rights reserved.
+ * Copyright (c) 2011 Talis Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,24 +26,43 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.traits;
+package org.callimachusproject.script;
 
-import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
- * An internal interface for remote method invocation.
- * 
+ * Stores imports and return type for a script block.
+ *
  * @author James Leigh
- * 
- */
-public interface ProxyObject {
+ **/
+public class EmbeddedScriptContext {
+	private final Set<String> classes = new LinkedHashSet<String>();
+	private final Set<String> bindingNames = new LinkedHashSet<String>();
+	private Class<?> returnType = Object.class;
 
-	String getLocalAuthority();
+	public void importClass(String className) {
+		classes.add(className);
+	}
 
-	void setLocalAuthority(String authority);
+	public Set<String> getClasses() {
+		return classes;
+	}
 
-	InetSocketAddress getProxyObjectInetAddress();
+	public void addBindingName(String name) {
+		bindingNames.add(name);
+	}
 
-	Object invokeRemote(Method method, Object[] parameters) throws Exception;
+	public Set<String> getBindingNames() {
+		return bindingNames;
+	}
+
+	public Class<?> getReturnType() {
+		return returnType;
+	}
+
+	public void setReturnType(Class<?> returnType) {
+		this.returnType = returnType;
+	}
+
 }

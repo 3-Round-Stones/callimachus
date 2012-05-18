@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2010, Zepheira LLC, Some rights reserved.
- * Copyright (c) 2011, Talis Inc., Some rights reserved.
+ * Copyright (c) 2011 Talis Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,28 +31,62 @@ package org.callimachusproject.server.client;
 import static java.lang.Integer.parseInt;
 import static java.lang.System.currentTimeMillis;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.server.exceptions.ResponseException;
-import org.openrdf.repository.object.util.ObjectResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Uses {@link HTTPObjectClient} caching the result in a Java Object.
+ * Using the supplied factory, caches a Java object from URL.
  * 
  * @author James Leigh
- * 
- */
-public class HTTPCacheObjectResolver<T> extends ObjectResolver<T> {
+ **/
+public class ObjectResolver<T> {
+	public interface ObjectFactory<T> {
+
+		String[] getContentTypes();
+
+		boolean isReusable();
+
+		T create(String systemId, InputStream in) throws Exception;
+
+		T create(String systemId, Reader in) throws Exception;
+	}
+
+	public static ObjectResolver<?> newInstance() {
+		return new ObjectResolver<Object>();
+	}
+
+	public static ObjectResolver<?> newInstance(ClassLoader cl) {
+		return new ObjectResolver<Object>();
+	}
+
+	public static <N> ObjectResolver<N> newInstance(ObjectFactory<N> factory) {
+		ObjectResolver<N> ret = (ObjectResolver<N>) newInstance();
+		ret.setObjectFactory(factory);
+		return ret;
+	}
+
+	public static <N> ObjectResolver<N> newInstance(ClassLoader cl,
+			ObjectFactory<N> factory) {
+		ObjectResolver<N> ret = (ObjectResolver<N>) newInstance(cl);
+		ret.setObjectFactory(factory);
+		return ret;
+	}
 
 	public static void resetCache() {
 		resetCount++;
@@ -71,7 +104,10 @@ public class HTTPCacheObjectResolver<T> extends ObjectResolver<T> {
 			.compile("\\bcharset\\s*=\\s*([\\w-:]+)");
 	private static volatile int invalidateCount;
 	private static volatile int resetCount;
-	private static Logger logger = LoggerFactory.getLogger(HTTPCacheObjectResolver.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(ObjectResolver.class);
+
+	private ObjectFactory<T> factory;
 	private int invalidateLastCount = invalidateCount;
 	private int resetLastCount = resetCount;
 	private String uri;
@@ -80,10 +116,9 @@ public class HTTPCacheObjectResolver<T> extends ObjectResolver<T> {
 	private long expires;
 	private T object;
 
-	@Override
 	public T resolve(String systemId) throws Exception {
 		if (!systemId.startsWith("http:") && !systemId.startsWith("https:"))
-			return super.resolve(systemId);
+			return resolveWithURLConnection(systemId);
 		T cached = null;
 		String ifNonMatch = null;
 		synchronized (this) {
@@ -114,6 +149,84 @@ public class HTTPCacheObjectResolver<T> extends ObjectResolver<T> {
 		return cacheResponse(systemId, resp, cached);
 	}
 
+	public ObjectFactory<T> getObjectFactory() {
+		return factory;
+	}
+
+	public void setObjectFactory(ObjectFactory<T> factory) {
+		this.factory = factory;
+	}
+
+	/**
+	 * returns null for 404 resources.
+	 */
+	public synchronized T resolveWithURLConnection(String systemId)
+			throws Exception {
+		if (uri == null || !uri.equals(systemId)) {
+			uri = systemId;
+			object = null;
+			tag = null;
+			expires = 0;
+			maxage = null;
+		} else if (object != null
+				&& (expires == 0 || expires > currentTimeMillis())) {
+			return object;
+		}
+		URLConnection con = new URL(systemId).openConnection();
+		con.addRequestProperty("Accept", join(getObjectFactory()
+				.getContentTypes()));
+		con.addRequestProperty("Accept-Encoding", "gzip");
+		if (tag != null && object != null) {
+			con.addRequestProperty("If-None-Match", tag);
+		}
+		try {
+			if (isStorable(con.getHeaderField("Cache-Control"))) {
+				return object = createObject(con);
+			} else {
+				object = null;
+				tag = null;
+				expires = 0;
+				maxage = 0;
+				return createObject(con);
+			}
+		} catch (FileNotFoundException e) {
+			object = null;
+			tag = null;
+			expires = 0;
+			maxage = 0;
+			return null;
+		}
+	}
+
+	private T createObject(URLConnection con) throws Exception {
+		String cacheControl = con.getHeaderField("Cache-Control");
+		long date = con.getHeaderFieldDate("Expires", expires);
+		expires = getExpires(cacheControl, date);
+		if (con instanceof HttpURLConnection) {
+			int status = ((HttpURLConnection) con).getResponseCode();
+			if (status == 304 || status == 412) {
+				return object; // Not Modified
+			}
+		}
+		if (getObjectFactory().isReusable()) {
+			logger.info("Compiling {}", con.getURL());
+		}
+		tag = con.getHeaderField("ETag");
+		String base = con.getURL().toExternalForm();
+		String type = con.getContentType();
+		String encoding = con.getHeaderField("Content-Encoding");
+		InputStream in = con.getInputStream();
+		if (encoding != null && encoding.contains("gzip")) {
+			in = new GZIPInputStream(in);
+		}
+		Matcher m = CHARSET.matcher(type);
+		if (m.find()) {
+			Reader reader = new InputStreamReader(in, m.group(1));
+			return getObjectFactory().create(base, reader);
+		}
+		return getObjectFactory().create(base, in);
+	}
+
 	private synchronized boolean resetCache(String systemId) {
 		if (uri == null || !uri.equals(systemId)
 				|| resetLastCount != resetCount) {
@@ -136,8 +249,8 @@ public class HTTPCacheObjectResolver<T> extends ObjectResolver<T> {
 		return null;
 	}
 
-	private synchronized T cacheResponse(String systemId, HttpResponse resp, T cached)
-			throws Exception {
+	private synchronized T cacheResponse(String systemId, HttpResponse resp,
+			T cached) throws Exception {
 		if (isStorable(getHeader(resp, "Cache-Control"))) {
 			return object = createObject(systemId, resp, cached);
 		} else {
@@ -178,7 +291,8 @@ public class HTTPCacheObjectResolver<T> extends ObjectResolver<T> {
 				&& (!cc.contains("private") || cc.contains("public"));
 	}
 
-	private T createObject(String systemId, HttpResponse con, T cached) throws Exception {
+	private T createObject(String systemId, HttpResponse con, T cached)
+			throws Exception {
 		HttpEntity entity = con.getEntity();
 		InputStream in = entity == null ? null : entity.getContent();
 		String type = getHeader(con, "Content-Type");
@@ -190,7 +304,8 @@ public class HTTPCacheObjectResolver<T> extends ObjectResolver<T> {
 				in.close();
 			}
 			return object = cached; // Not Modified
-		} else if (status == 404 || status == 405 || status == 410 || status == 204) {
+		} else if (status == 404 || status == 405 || status == 410
+				|| status == 204) {
 			if (in != null) {
 				in.close();
 			}

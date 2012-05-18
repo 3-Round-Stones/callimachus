@@ -847,10 +847,9 @@ public class ResourceOperation extends ResourceRequest {
 
 	private Method getTransform(String uri) {
 		for (Method m : getRequestedResource().getClass().getMethods()) {
-			if (m.isAnnotationPresent(Iri.class)) {
-				if (uri.equals(m.getAnnotation(Iri.class).value())) {
-					return m;
-				}
+			Iri iri = m.getAnnotation(Iri.class);
+			if (iri != null && uri.equals(iri.value())) {
+				return m;
 			}
 		}
 		logger.warn("Method not found: {}", uri);
@@ -917,6 +916,8 @@ public class ResourceOperation extends ResourceRequest {
 
 	private Set<String> getHeaderNamesFor(Method method, Set<String> names)
 			throws MimeTypeParseException {
+		if (method == null)
+			return names;
 		for (Annotation[] anns : method.getParameterAnnotations()) {
 			String[] ar = getHeaderNames(anns);
 			if (ar != null) {

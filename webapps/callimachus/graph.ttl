@@ -65,17 +65,6 @@
 	calli:header "cache-control:cache-range";
 	msg:script "return this.openReader(true)".
 
-# POST ?create=/callimachus/File
-:LookupGraphDocument owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
-		[owl:onProperty msg:target; owl:hasValue <File> ]);
-	msg:script """
-		if (type == "text/turtle") {
-			var uri = this.toUri().resolve("/callimachus/GraphDocument").toString();
-			return this.objectConnection.getObject(uri);
-		}
-		return proceed();
-	""".
-
 # POST ?create=/callimachus/GraphDocument
 :CreateGraphDocument owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <GraphDocument> ]);
@@ -168,17 +157,6 @@
 	rdfs:domain :TransformNamedGraph;
 	rdfs:range <java:java.io.InputStream>;
 	calli:type "application/xml".
-
-# POST ?create=/callimachus/File
-:LookupNamedGraphFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
-		[owl:onProperty msg:target; owl:hasValue <File> ]);
-	msg:script """
-		if (type == "application/rdf+xml") {
-			var uri = this.toUri().resolve("/callimachus/NamedGraph").toString();
-			return this.objectConnection.getObject(uri);
-		}
-		return proceed();
-	""".
 
 # POST ?create=/callimachus/NamedGraph
 :PostNamedGraphCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>

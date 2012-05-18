@@ -53,18 +53,9 @@ public class XsltAdviceFactory implements AdviceProvider, AdviceFactory {
 	private XSLTransformer createXSLTransformer(Method m) {
 		String xslt = getXslValue(m);
 		if (NOT_URI.matcher(xslt).find()) {
-			return new XSLTransformer(new StringReader(xslt), getBaseIri(m));
+			return new XSLTransformer(new StringReader(xslt), getSystemId(m));
 		}
 		return new XSLTransformer(resolve(xslt, m));
-	}
-
-	private String resolve(String xslt, Method method) {
-		if (URI.create(xslt).isAbsolute())
-			return xslt;
-		URL url = method.getDeclaringClass().getResource(xslt);
-		if (url != null)
-			return url.toExternalForm();
-		return URI.create(getBaseIri(method)).resolve(xslt).toASCIIString();
 	}
 
 	private String getXslValue(Method m) {
@@ -73,7 +64,16 @@ public class XsltAdviceFactory implements AdviceProvider, AdviceFactory {
 		return null;
 	}
 
-	private String getBaseIri(Method m) {
+	private String resolve(String xslt, Method method) {
+		if (URI.create(xslt).isAbsolute())
+			return xslt;
+		URL url = method.getDeclaringClass().getResource(xslt);
+		if (url != null)
+			return url.toExternalForm();
+		return URI.create(getSystemId(method)).resolve(xslt).toASCIIString();
+	}
+
+	private String getSystemId(Method m) {
 		if (m.isAnnotationPresent(Iri.class))
 			return m.getAnnotation(Iri.class).value();
 		Class<?> dclass = m.getDeclaringClass();

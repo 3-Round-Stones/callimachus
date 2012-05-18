@@ -46,17 +46,6 @@
 	calli:header "cache-control:cache-range";
 	msg:script "return this.openReader(true)".
 
-# POST ?create=/callimachus/File
-:LookupStyleFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
-		[owl:onProperty msg:target; owl:hasValue <File> ]);
-	msg:script """
-		if (type == "text/css") {
-			var uri = this.toUri().resolve("/callimachus/Style").toString();
-			return this.objectConnection.getObject(uri);
-		}
-		return proceed();
-	""".
-
 # POST ?create=/callimachus/Style
 :CreateStyle owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Style> ]);

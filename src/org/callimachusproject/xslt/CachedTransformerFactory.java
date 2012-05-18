@@ -49,8 +49,8 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
-import org.openrdf.repository.object.util.ObjectResolver;
-import org.openrdf.repository.object.util.ObjectResolver.ObjectFactory;
+import org.callimachusproject.server.client.ObjectResolver;
+import org.callimachusproject.server.client.ObjectResolver.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 

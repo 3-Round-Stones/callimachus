@@ -1,0 +1,108 @@
+package org.callimachusproject.script;
+
+import java.util.Set;
+
+import javax.script.SimpleBindings;
+
+import org.callimachusproject.script.EmbededScriptEngine.ScriptResult;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.LiteralImpl;
+import org.openrdf.model.impl.URIImpl;
+import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.ObjectFactory;
+import org.openrdf.repository.object.RDFObject;
+import org.openrdf.repository.object.advice.Advice;
+import org.openrdf.repository.object.composition.helpers.InvocationMessageContext;
+import org.openrdf.repository.object.traits.MessageContext;
+import org.openrdf.repository.object.traits.ObjectMessage;
+
+public class ScriptAdvice implements Advice {
+	private final EmbededScriptEngine engine;
+	private final Class<?> rty;
+	private final String[][] bindingNames;
+	private final String[] defaults;
+
+	public ScriptAdvice(EmbededScriptEngine engine, Class<?> returnClass,
+			String[][] bindingNames, String[] defaultValues) {
+		assert bindingNames.length == defaultValues.length;
+		this.engine = engine;
+		this.rty = returnClass;
+		this.bindingNames = bindingNames;
+		this.defaults = defaultValues;
+	}
+
+	@Override
+	public Object intercept(ObjectMessage message) throws Throwable {
+		MessageContext msg = ((InvocationMessageContext) message).returns(rty);
+		return cast(engine.eval(msg, getBindings(message)));
+	}
+
+	private SimpleBindings getBindings(ObjectMessage message) {
+		SimpleBindings bindings = new SimpleBindings();
+		Object target = message.getTarget();
+		ObjectConnection con = null;
+		if (target instanceof RDFObject) {
+			con = ((RDFObject) target).getObjectConnection();
+		}
+		Object[] parameters = message.getParameters();
+		Class<?>[] ptypes = message.getMethod().getParameterTypes();
+		assert parameters.length == ptypes.length;
+		assert parameters.length == bindingNames.length;
+		for (int i=0; i<bindingNames.length; i++) {
+			for (String name : bindingNames[i]) {
+				Object value = parameters[i];
+				String defaultValue = defaults[i];
+				if (value == null && defaultValue != null && con != null) {
+					Class<?> vtype = ptypes[i];
+					value = getDefaultObject(defaultValue, vtype, con);
+				}
+				bindings.put(name, value);
+			}
+		}
+		return bindings;
+	}
+
+	private Object getDefaultObject(String value, Class<?> type, ObjectConnection con) {
+		if (Set.class.equals(type))
+			return null;
+		ValueFactory vf = con.getValueFactory();
+		ObjectFactory of = con.getObjectFactory();
+		if (of.isDatatype(type)) {
+			URIImpl datatype = new URIImpl("java:" + type.getName());
+			return of.createObject(new LiteralImpl(value, datatype));
+		}
+		return of.createObject(vf.createURI(value), type);
+	}
+
+	private Object cast(ScriptResult result) {
+		if (Set.class.equals(rty)) {
+			return result.asSet();
+
+		} else if (Void.class.equals(rty) || Void.TYPE.equals(rty)) {
+			return result.asVoidObject();
+		} else if (Boolean.class.equals(rty) || Boolean.TYPE.equals(rty)) {
+			return result.asBoolean();
+		} else if (Byte.class.equals(rty) || Byte.TYPE.equals(rty)) {
+			return result.asByte();
+		} else if (Character.class.equals(rty) || Character.TYPE.equals(rty)) {
+			return result.asChar();
+		} else if (Double.class.equals(rty) || Double.TYPE.equals(rty)) {
+			return result.asDouble();
+		} else if (Float.class.equals(rty) || Float.TYPE.equals(rty)) {
+			return result.asFloat();
+		} else if (Integer.class.equals(rty) || Integer.TYPE.equals(rty)) {
+			return result.asInt();
+		} else if (Long.class.equals(rty) || Long.TYPE.equals(rty)) {
+			return result.asLong();
+		} else if (Short.class.equals(rty) || Short.TYPE.equals(rty)) {
+			return result.asShort();
+
+		} else if (Number.class.equals(rty)) {
+			return result.asNumberObject();
+
+		} else {
+			return result.asObject();
+		}
+	}
+
+}

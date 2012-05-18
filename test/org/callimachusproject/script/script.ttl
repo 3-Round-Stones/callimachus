@@ -1,0 +1,134 @@
+@prefix msg  :<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix owl  :<http://www.w3.org/2002/07/owl#>.
+@prefix rdfs :<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rdf  :<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix xsd  :<http://www.w3.org/2001/XMLSchema#>.
+@prefix :<#>.
+
+:test a :ScriptTest.
+
+:ScriptTest a owl:Class; owl:definedBy <>.
+
+<> a owl:Ontology.
+
+:testCase rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom :ScriptTest];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+	msg:script "this.assertTrue(true);".
+
+:testSelf rdfs:subClassOf :testCase;
+	rdfs:subClassOf [owl:onProperty :testValue; owl:hasValue :test];
+	msg:script "this.assertEquals(this, testValue)".
+
+:testValue a owl:FunctionalProperty, owl:ObjectProperty;
+	rdfs:domain [owl:unionOf (:testSelf :testObjectEquals :testObjectParameter)].
+
+:testObjectEquals rdfs:subClassOf :testCase;
+	rdfs:subClassOf [owl:onProperty :testValue; owl:hasValue :test];
+	msg:script "this.assertFalse(this == testValue)".
+
+:testMethodCall rdfs:subClassOf :testCase;
+	msg:script "this.assertEquals('Hello World', this.hello())".
+
+:hello rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom :ScriptTest];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdf:PlainLiteral];
+	msg:script "return 'Hello World'".
+
+:testLiteralParameter rdfs:subClassOf :testCase;
+	msg:script "this.assertEquals('Hello World', this.helloTo('World'))".
+
+:helloTo rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom :ScriptTest];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdf:PlainLiteral];
+	msg:script "return 'Hello ' + helloToYou".
+
+:helloToYou a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :helloTo;
+	rdfs:range rdf:PlainLiteral.
+
+:testObjectParameter rdfs:subClassOf :testCase;
+	rdfs:subClassOf [owl:onProperty :testValue; owl:hasValue :test];
+	msg:script "this.assertEquals('Hello ' + testValue, this.helloToObject(this))".
+
+:helloToObject rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom :ScriptTest];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdf:PlainLiteral];
+	msg:script "return 'Hello ' + helloToThis.resource.stringValue()".
+
+:helloToThis a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :helloToObject;
+	rdfs:range :ScriptTest.
+
+:testImportsClass rdfs:subClassOf :testCase;
+	msg:imports <java:java.lang.Integer>;
+	msg:script "this.assertEquals(new Integer('5').intValue(), 5)".
+
+:testReturnSet rdfs:subClassOf :testCase;
+	msg:script "this.assertTrue(this.createSet() instanceof java.util.Set)".
+
+:testReturnSetEquals rdfs:subClassOf :testCase;
+	msg:script "this.assertEquals(java.util.Collections.singleton(this), this.createSet())".
+
+:createSet rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom :ScriptTest];
+	msg:sparql "PREFIX :<#> SELECT ?self WHERE { ?self a :ScriptTest }".
+
+:testRecursion rdfs:subClassOf :testCase;
+	msg:script "this.assertEquals(120, this.factorial(5))".
+
+:factorial rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom :ScriptTest];
+	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:int];
+	msg:script """
+		if (n < 1)
+			return 1;
+		return n * this.factorial(n - 1);
+	""".
+
+:n a owl:DatatypeProperty, owl:FunctionalProperty;
+	rdfs:domain :factorial;
+	rdfs:range xsd:int.
+
+:testFibonacci rdfs:subClassOf :testCase;
+	msg:script """
+		function fibonacci(fib) {
+			if (fib <= 0)
+				return 0;
+			if (fib <= 1)
+				return 1;
+			return fibonacci(fib - 1) + fibonacci(fib - 2);
+		}
+		
+		this.assertEquals(55, fibonacci(10));
+	""".
+
+:myProperty a rdf:Property.
+
+:testProperty rdfs:subClassOf :testCase;
+	msg:script "this.assertFalse(!this.myProperty)".
+
+:myAnnotationProperty a owl:AnnotationProperty.
+
+:testAnnotationProperty rdfs:subClassOf :testCase;
+	msg:script "this.assertFalse(!this.myAnnotationProperty)".
+
+:testJavaScriptString rdfs:subClassOf :testCase;
+	msg:script "this.assertTrue(java.lang.System.getProperty('java.vendor').length > 0)".
+
+:testBooleanObject rdfs:subClassOf :testCase;
+	msg:script """
+		if (java.lang.Boolean.valueOf('false')) {
+			this.fail("false is true");
+		}
+	""".
+
+:MyScriptTest owl:equivalentClass :ScriptTest.
+
+:testEquivalentMethodCall rdfs:subClassOf :testCase;
+	msg:script "this.assertEquals('Hello World', this.myHello())".
+
+:myHello rdfs:subClassOf msg:Message;
+	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom :MyScriptTest];
+	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdf:PlainLiteral];
+	msg:script "return 'Hello World'".

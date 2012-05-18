@@ -96,6 +96,10 @@
 
 :PostClassPermissions owl:intersectionOf ( :PostPermissions
 		[owl:onProperty msg:target; owl:allValuesFrom <../Class>]);
+	calli:method "POST";
+	calli:query "permissions";
+	calli:realm </>;
+	calli:expect "201-modified";
 	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
 	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
 	msg:imports <java:org.openrdf.model.vocabulary.RDF>;

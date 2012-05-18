@@ -43,17 +43,6 @@
 	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
-# POST ?create=/callimachus/File
-:LookupFontFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
-		[owl:onProperty msg:target; owl:hasValue <File>]);
-	msg:script """
-		if (type == "application/font-woff") {
-			var uri = this.toUri().resolve("/callimachus/Font");
-			return this.objectConnection.getObject(uri.toString());
-		}
-		return proceed();
-	""".
-
 # POST ?create=/callimachus/Font
 :PostFontCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <Font> ]);

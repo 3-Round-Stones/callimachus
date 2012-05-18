@@ -46,17 +46,6 @@
 	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
-# POST ?create=/callimachus/File
-:LookupNamedQueryFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
-		[owl:onProperty msg:target; owl:hasValue <File> ]);
-	msg:script """
-		if (type == "application/sparql-query") {
-			var uri = this.toUri().resolve("/callimachus/NamedQuery").toString();
-			return this.objectConnection.getObject(uri);
-		}
-		return proceed();
-	""".
-
 # POST ?create=/callimachus/NamedQuery
 :CreateNamedQuery owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:hasValue <NamedQuery> ]);

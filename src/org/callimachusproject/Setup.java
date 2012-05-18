@@ -49,7 +49,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.callimachusproject.io.CarInputStream;
 import org.callimachusproject.server.CallimachusServer;
-import org.callimachusproject.server.traits.ProxyObject;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
@@ -778,13 +777,12 @@ public class Setup {
 		try {
 			con.setAutoCommit(false);
 			Object folder = con.getObject(folderUri);
-			String auth = java.net.URI.create(origin + "/").getAuthority();
-			((ProxyObject) folder).setLocalAuthority(auth);
-			Method UploadFolderComponents = folder.getClass().getMethod(
-					"UploadFolderComponents", InputStream.class);
+			Method UploadFolderComponents = findUploadFolderComponents(folder);
 			InputStream in = car.openStream();
 			try {
-				UploadFolderComponents.invoke(folder, in);
+				Object[] args = new Object[UploadFolderComponents.getParameterTypes().length];
+				args[0] = in;
+				UploadFolderComponents.invoke(folder, args);
 			} catch (InvocationTargetException e) {
 				try {
 					throw e.getCause();
@@ -803,6 +801,15 @@ public class Setup {
 		} finally {
 			con.close();
 		}
+	}
+
+	private Method findUploadFolderComponents(Object folder)
+			throws NoSuchMethodException {
+		for (Method method : folder.getClass().getMethods()) {
+			if ("UploadFolderComponents".equals(method.getName()))
+				return method;
+		}
+		throw new AbstractMethodError("UploadFolderComponents");
 	}
 
 	private boolean createFolder(String folder, String origin,

@@ -8,3 +8,5 @@ org.callimachusproject.annotations.realm = http://www.openrdf.org/rdf/2011/messa
 org.callimachusproject.annotations.transform = http://www.openrdf.org/rdf/2011/messaging#transform
 org.callimachusproject.annotations.expect = http://www.openrdf.org/rdf/2011/messaging#expect
 org.callimachusproject.annotations.xslt = http://www.openrdf.org/rdf/2011/messaging#xslt
+org.callimachusproject.annotations.script = http://www.openrdf.org/rdf/2011/messaging#script
+org.callimachusproject.annotations.imports = http://www.openrdf.org/rdf/2011/messaging#imports

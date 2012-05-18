@@ -49,6 +49,12 @@
 # GET /article/main-article.xml?view
 :GetPage owl:intersectionOf (<toolbox/view.ttl#GetViewPage>
 		[owl:onProperty msg:target; owl:allValuesFrom <Article>]);
+	calli:rel "alternate";
+	calli:method "GET";
+	calli:query "view";
+	calli:type "application/xhtml+xml";
+	calli:header "cache-control:no-cache";
+	calli:transform <transforms/TransformPage>;
 	msg:script """
 		return this.InlineArticle(proceed());
 	""".
@@ -63,17 +69,6 @@
 	rdfs:domain :InlineArticle;
 	rdfs:range <java:javax.xml.stream.XMLEventReader>;
 	calli:type "application/xhtml+xml".
-
-# POST ?create=/callimachus/File
-:LookupArticleFile owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
-		[owl:onProperty msg:target; owl:hasValue <File> ]);
-	msg:script """
-		if (type == "application/docbook+xml") {
-			var uri = this.toUri().resolve("/callimachus/Article").toString();
-			return this.objectConnection.getObject(uri);
-		}
-		return proceed();
-	""".
 
 # POST ?create=/callimachus/Article
 :CreateArticle owl:intersectionOf (<toolbox/create.ttl#PostCreate>

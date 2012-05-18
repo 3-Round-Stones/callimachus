@@ -48,7 +48,6 @@ import org.openrdf.annotations.Iri;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
-import org.openrdf.repository.object.util.GenericType;
 
 /**
  * Utility class for dealing with generic types.

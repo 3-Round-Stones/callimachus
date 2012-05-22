@@ -41,7 +41,7 @@ public class XsltAdvice implements Advice {
 		this.bindingNames = bindingNames;
 	}
 
-	public Object intercept(ObjectMessage message) throws Throwable {
+	public Object intercept(ObjectMessage message) throws Exception {
 		Object target = message.getTarget();
 		Resource self = ((RDFObject) target).getResource();
 		Object[] args = message.getParameters();

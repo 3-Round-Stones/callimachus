@@ -32,7 +32,7 @@ public class ScriptAdvice implements Advice {
 	}
 
 	@Override
-	public Object intercept(ObjectMessage message) throws Throwable {
+	public Object intercept(ObjectMessage message) throws Exception {
 		MessageContext msg = ((InvocationMessageContext) message).returns(rty);
 		return cast(engine.eval(msg, getBindings(message)));
 	}
@@ -81,21 +81,21 @@ public class ScriptAdvice implements Advice {
 		} else if (Void.class.equals(rty) || Void.TYPE.equals(rty)) {
 			return result.asVoidObject();
 		} else if (Boolean.class.equals(rty) || Boolean.TYPE.equals(rty)) {
-			return result.asBoolean();
+			return result.asBooleanObject();
 		} else if (Byte.class.equals(rty) || Byte.TYPE.equals(rty)) {
-			return result.asByte();
+			return result.asByteObject();
 		} else if (Character.class.equals(rty) || Character.TYPE.equals(rty)) {
-			return result.asChar();
+			return result.asCharacterObject();
 		} else if (Double.class.equals(rty) || Double.TYPE.equals(rty)) {
-			return result.asDouble();
+			return result.asDoubleObject();
 		} else if (Float.class.equals(rty) || Float.TYPE.equals(rty)) {
-			return result.asFloat();
+			return result.asFloatObject();
 		} else if (Integer.class.equals(rty) || Integer.TYPE.equals(rty)) {
-			return result.asInt();
+			return result.asIntegerObject();
 		} else if (Long.class.equals(rty) || Long.TYPE.equals(rty)) {
-			return result.asLong();
+			return result.asLongObject();
 		} else if (Short.class.equals(rty) || Short.TYPE.equals(rty)) {
-			return result.asShort();
+			return result.asShortObject();
 
 		} else if (Number.class.equals(rty)) {
 			return result.asNumberObject();

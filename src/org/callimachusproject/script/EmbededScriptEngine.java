@@ -101,11 +101,11 @@ public class EmbededScriptEngine {
 		}
 
 		public boolean asBoolean() {
-			return ((Boolean) asObject()).booleanValue();
+			return asBooleanObject().booleanValue();
 		}
 
 		public char asChar() {
-			return ((Character) asObject()).charValue();
+			return asCharacterObject().charValue();
 		}
 
 		public byte asByte() {
@@ -136,11 +136,19 @@ public class EmbededScriptEngine {
 			return (Number) asObject();
 		}
 
+		public Boolean asBooleanObject() {
+			return (Boolean) asObject();
+		}
+
 		public Byte asByteObject() {
 			Number number = asNumberObject();
 			if (number == null)
 				return null;
 			return new Byte(number.byteValue());
+		}
+
+		public Character asCharacterObject() {
+			return (Character) asObject();
 		}
 
 		public Short asShortObject() {

@@ -29,28 +29,16 @@
  */
 package org.callimachusproject.xslt;
 
-import info.aduna.net.ParsedURI;
-
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
-import org.callimachusproject.server.client.ObjectResolver;
-import org.callimachusproject.server.client.ObjectResolver.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -62,103 +50,19 @@ import org.w3c.dom.Node;
  * 
  */
 public class CachedTransformerFactory extends TransformerFactory {
-	private final String systemId;
 	private final TransformerFactory delegate;
 	private URIResolver resolver;
-	private final ObjectResolver<Templates> code;
-	private DocumentFactory df;
-	private static XMLSourceFactory sourceFactory = XMLSourceFactory.newInstance();
+	private final TemplatesResolver code;
 
 	public CachedTransformerFactory(String base) {
 		this(TransformerFactory.newInstance(), base);
-		df = DocumentFactory.newInstance();
 	}
 
 	public CachedTransformerFactory(final TransformerFactory delegate, String base) {
 		this.delegate = delegate;
-		this.systemId = base;
-		ClassLoader cl = getClass().getClassLoader();
-		final ObjectResolver<Source> xml = ObjectResolver.newInstance(cl, new ObjectFactory<Source>() {
-			public String[] getContentTypes() {
-				return new String[] { "application/xml",
-						"application/xslt+xml", "text/xml", "text/xsl" };
-			}
-
-			public boolean isReusable() {
-				return false;
-			}
-
-			public Source create(String systemId, Reader in) throws Exception {
-				return sourceFactory.createSource(in, systemId);
-			}
-
-			public Source create(String systemId, InputStream in)
-					throws Exception {
-				return sourceFactory.createSource(in, systemId);
-			}
-		});
-		this.resolver = new URIResolver() {
-			public Source resolve(String href, String base)
-					throws TransformerException {
-				try {
-					String url = resolveURI(href, base);
-					Source source = xml.resolve(url);
-					if (source == null) {
-						// use empty node-set
-						Document doc = df.newDocument();
-						return new DOMSource(doc, url);
-					}
-					return source;
-				} catch (Exception e) {
-					throw new TransformerException(e);
-				}
-			}
-		};
+		this.resolver = new DOMSourceURIResolver(base);
 		delegate.setURIResolver(resolver);
-		this.code = ObjectResolver.newInstance(cl, new ObjectFactory<Templates>() {
-			public String[] getContentTypes() {
-				return new String[] { "application/xslt+xml", "text/xsl",
-						"application/xml", "text/xml" };
-			}
-
-			public boolean isReusable() {
-				return true;
-			}
-
-			public Templates create(String systemId, Reader in)
-					throws Exception {
-				ErrorCatcher error = new ErrorCatcher(systemId);
-				delegate.setErrorListener(error);
-				try {
-					Source source = sourceFactory.createSource(in, systemId);
-					try {
-						return newTemplates(delegate, source);
-					} finally {
-						in.close();
-					}
-				} finally {
-					if (error.isFatal())
-						throw error.getFatalError();
-				}
-			}
-
-			public Templates create(String systemId, InputStream in)
-					throws Exception {
-				ErrorCatcher error = new ErrorCatcher(systemId);
-				delegate.setErrorListener(error);
-				try {
-					Source source = sourceFactory.createSource(in, systemId);
-					try {
-						return newTemplates(delegate, source);
-					} finally {
-						in.close();
-					}
-				} finally {
-					if (error.isFatal())
-						throw error.getFatalError();
-				}
-			}
-		});
+		this.code = new TemplatesResolver();
 	}
 
 	public Source getAssociatedStylesheet(Source source, String media,
@@ -236,53 +140,6 @@ public class CachedTransformerFactory extends TransformerFactory {
 			}
 		}
 		return delegate.newTemplates(source);
-	}
-
-	private Templates newTemplates(TransformerFactory delegate,
-			Source source) throws TransformerConfigurationException,
-			IOException {
-		final List<Closeable> opened = new ArrayList<Closeable>();
-		final URIResolver resolver = delegate.getURIResolver();
-		delegate.setURIResolver(new URIResolver() {
-			public Source resolve(String href, String base)
-					throws TransformerException {
-				Source source = resolver.resolve(href, base);
-				if (source instanceof StreamSource) {
-					InputStream in = ((StreamSource) source).getInputStream();
-					if (in != null) {
-						synchronized (opened) {
-							opened.add(in);
-						}
-					}
-				}
-				return source;
-			}
-		});
-		try {
-			return delegate.newTemplates(source);
-		} finally {
-			for (Closeable closeable : opened) {
-				closeable.close();
-			}
-			delegate.setURIResolver(resolver);
-		}
-	}
-
-	private String resolveURI(String href, String base) {
-		ParsedURI parsed = null;
-		if (href != null) {
-			parsed = new ParsedURI(href);
-			if (parsed.isAbsolute())
-				return href;
-		}
-		ParsedURI abs = new ParsedURI(systemId);
-		if (base != null) {
-			abs = abs.resolve(base);
-		}
-		if (parsed != null) {
-			abs = abs.resolve(parsed);
-		}
-		return abs.toString();
 	}
 
 }

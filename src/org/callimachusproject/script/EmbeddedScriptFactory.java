@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
@@ -46,14 +48,18 @@ import javax.script.ScriptException;
 
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.repository.object.exceptions.ObjectStoreConfigException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates a CompiledScript from source code with a given context.
  *
  * @author James Leigh
  **/
-public class EmbeddedScriptFactory extends FunctionScriptFactory {
+public class EmbeddedScriptFactory {
 	private static final String BEHAVIOUR = BehaviourException.class.getName();
+	private static final Pattern KEYWORDS = Pattern
+			.compile("(?:var\\s+|\\.)(break|case|catch|const|continue|default|delete|do|else|export|finally|for|function|if|in|instanceof|import|name|new|return|switch|this|throw|try|typeof|var|void|while|with)\b");
 	private static final Map<Class<?>, String> primitives = new HashMap<Class<?>, String>();
 	static {
 		primitives.put(Boolean.TYPE, ".booleanValue()");
@@ -65,11 +71,11 @@ public class EmbeddedScriptFactory extends FunctionScriptFactory {
 		primitives.put(Float.TYPE, ".floatValue()");
 		primitives.put(Double.TYPE, ".doubleValue()");
 	}
+	private final Logger logger = LoggerFactory.getLogger(EmbeddedScriptFactory.class);
 	private final ClassLoader cl;
 	private EmbeddedScriptContext context;
 
 	public EmbeddedScriptFactory(ClassLoader cl, EmbeddedScriptContext context) {
-		super(cl);
 		this.cl = cl;
 		this.context = context;
 	}
@@ -165,5 +171,12 @@ public class EmbeddedScriptFactory extends FunctionScriptFactory {
 
 	private String getInvokeName() {
 		return "_invoke" + Math.abs(hashCode());
+	}
+
+	private void warnIfKeywordUsed(String code) {
+		Matcher m = KEYWORDS.matcher(code);
+		if (m.find()) {
+			logger.warn("{} is a ECMA script keyword", m.group(1));
+		}
 	}
 }

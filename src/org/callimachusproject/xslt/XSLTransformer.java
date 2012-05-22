@@ -82,7 +82,7 @@ public class XSLTransformer {
 	private final Templates xslt;
 	private final String systemId;
 	private final XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
-	private final XMLSourceFactory sourceFactory = XMLSourceFactory
+	private final DOMSourceFactory sourceFactory = DOMSourceFactory
 			.newInstance();
 	private final DocumentFactory builder = DocumentFactory.newInstance();
 	private String systemSourceId;
@@ -540,9 +540,9 @@ public class XSLTransformer {
 
 	private TransformBuilder transform(final Source source)
 			throws TransformerException {
-		TransformBuilder tb = new XSLTransformBuilder(newTransformer(), source,
-				tfactory.getURIResolver());
 		String xsltId = getSystemId();
+		TransformBuilder tb = new XSLTransformBuilder(newTransformer(), source,
+				new CachedURIResolver(xsltId, tfactory.getURIResolver()));
 		if (xsltId != null) {
 			tb = tb.with("xsltId", xsltId);
 		}

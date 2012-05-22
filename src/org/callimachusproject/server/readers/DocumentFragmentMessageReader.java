@@ -49,7 +49,7 @@ import javax.xml.transform.dom.DOMResult;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.MessageType;
 import org.callimachusproject.xslt.DocumentFactory;
-import org.callimachusproject.xslt.XMLSourceFactory;
+import org.callimachusproject.xslt.DOMSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -60,7 +60,7 @@ import org.w3c.dom.DocumentFragment;
  */
 public class DocumentFragmentMessageReader implements
 		MessageBodyReader<DocumentFragment> {
-	private static XMLSourceFactory sourceFactory = XMLSourceFactory.newInstance();
+	private static DOMSourceFactory sourceFactory = DOMSourceFactory.newInstance();
 
 	private static class ErrorCatcher implements ErrorListener {
 		private Logger logger = LoggerFactory.getLogger(ErrorCatcher.class);

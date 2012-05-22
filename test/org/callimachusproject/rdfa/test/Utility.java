@@ -52,7 +52,7 @@ import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.PlainLiteral;
 import org.callimachusproject.engine.model.Term;
 import org.callimachusproject.engine.model.TypedLiteral;
-import org.callimachusproject.xslt.XMLSourceFactory;
+import org.callimachusproject.xslt.DOMSourceFactory;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -218,7 +218,7 @@ public class Utility {
 
 	private static Source newSource(XMLEventReader xml)
 			throws XMLStreamException, TransformerException {
-		return XMLSourceFactory.newInstance().createSource(
+		return DOMSourceFactory.newInstance().createSource(
 				toByteArrayInputStream(xml), null);
 	}
 

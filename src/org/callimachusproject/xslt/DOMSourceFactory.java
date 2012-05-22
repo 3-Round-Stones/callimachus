@@ -31,6 +31,9 @@ package org.callimachusproject.xslt;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -46,16 +49,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-public class XMLSourceFactory {
-	public static XMLSourceFactory newInstance() {
+public class DOMSourceFactory {
+	public static DOMSourceFactory newInstance() {
 		// StreamSource loads external DTD
 		// XML Stream/Event to StAXSource drops comments
-		return new XMLSourceFactory(DocumentFactory.newInstance());
+		return new DOMSourceFactory(DocumentFactory.newInstance());
 	}
 
 	private DocumentFactory factory;
 
-	protected XMLSourceFactory(DocumentFactory factory) {
+	protected DOMSourceFactory(DocumentFactory factory) {
 		this.factory = factory;
 	}
 
@@ -86,11 +89,25 @@ public class XMLSourceFactory {
 		}
 	}
 
-	public Source createSource(String systemId) throws TransformerException {
-		return new StreamSource(systemId);
+	public DOMSource createSource(String systemId) throws TransformerException {
+		try {
+			URLConnection con = new URL(systemId).openConnection();
+			if (con instanceof HttpURLConnection) {
+				((HttpURLConnection) con).setInstanceFollowRedirects(true);
+			}
+			con.addRequestProperty("Accept", "application/xml, text/xml");
+			InputStream in = con.getInputStream();
+			try {
+				return createSource(in, systemId);
+			} finally {
+				in.close();
+			}
+		} catch (IOException e) {
+			throw new TransformerException(e);
+		}
 	}
 
-	public Source createSource(InputStream in, String systemId)
+	public DOMSource createSource(InputStream in, String systemId)
 			throws TransformerException {
 		try {
 			try {
@@ -109,7 +126,7 @@ public class XMLSourceFactory {
 		}
 	}
 
-	public Source createSource(Reader reader, String systemId)
+	public DOMSource createSource(Reader reader, String systemId)
 			throws TransformerException {
 		try {
 			try {
@@ -128,7 +145,7 @@ public class XMLSourceFactory {
 		}
 	}
 
-	public Source createSource(Node node, String systemId) throws TransformerException {
+	public DOMSource createSource(Node node, String systemId) throws TransformerException {
 		if (node instanceof Document) {
 			return createSource((Document) node, systemId);
 		} else if (node instanceof DocumentFragment) {
@@ -146,7 +163,7 @@ public class XMLSourceFactory {
 		}
 	}
 
-	public Source createSource(Document node, String systemId) {
+	public DOMSource createSource(Document node, String systemId) {
 		if (systemId == null){
 			String documentURI = ((Document)node).getDocumentURI();
 			if (documentURI != null)

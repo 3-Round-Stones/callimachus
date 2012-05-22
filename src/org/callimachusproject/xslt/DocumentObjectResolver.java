@@ -26,12 +26,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.client;
+package org.callimachusproject.xslt;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.System.currentTimeMillis;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -42,10 +43,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import javax.xml.transform.TransformerException;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
+import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,39 +59,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author James Leigh
  **/
-public class ObjectResolver<T> {
-	public interface ObjectFactory<T> {
-
-		String[] getContentTypes();
-
-		boolean isReusable();
-
-		T create(String systemId, InputStream in) throws Exception;
-
-		T create(String systemId, Reader in) throws Exception;
-	}
-
-	public static ObjectResolver<?> newInstance() {
-		return new ObjectResolver<Object>();
-	}
-
-	public static ObjectResolver<?> newInstance(ClassLoader cl) {
-		return new ObjectResolver<Object>();
-	}
-
-	public static <N> ObjectResolver<N> newInstance(ObjectFactory<N> factory) {
-		ObjectResolver<N> ret = (ObjectResolver<N>) newInstance();
-		ret.setObjectFactory(factory);
-		return ret;
-	}
-
-	public static <N> ObjectResolver<N> newInstance(ClassLoader cl,
-			ObjectFactory<N> factory) {
-		ObjectResolver<N> ret = (ObjectResolver<N>) newInstance(cl);
-		ret.setObjectFactory(factory);
-		return ret;
-	}
-
+public abstract class DocumentObjectResolver<T> {
 	public static void resetCache() {
 		resetCount++;
 	}
@@ -105,9 +77,8 @@ public class ObjectResolver<T> {
 	private static volatile int invalidateCount;
 	private static volatile int resetCount;
 	private static Logger logger = LoggerFactory
-			.getLogger(ObjectResolver.class);
+			.getLogger(DocumentObjectResolver.class);
 
-	private ObjectFactory<T> factory;
 	private int invalidateLastCount = invalidateCount;
 	private int resetLastCount = resetCount;
 	private String uri;
@@ -116,7 +87,7 @@ public class ObjectResolver<T> {
 	private long expires;
 	private T object;
 
-	public T resolve(String systemId) throws Exception {
+	public T resolve(String systemId) throws IOException, TransformerException {
 		if (!systemId.startsWith("http:") && !systemId.startsWith("https:"))
 			return resolveWithURLConnection(systemId);
 		T cached = null;
@@ -135,7 +106,7 @@ public class ObjectResolver<T> {
 		String redirect = systemId;
 		HttpResponse resp = null;
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		String accept = join(getObjectFactory().getContentTypes());
+		String accept = join(getContentTypes());
 		for (int i = 0; i < 20 && redirect != null; i++) {
 			systemId = redirect;
 			HttpRequest req = new BasicHttpRequest("GET", redirect);
@@ -149,19 +120,20 @@ public class ObjectResolver<T> {
 		return cacheResponse(systemId, resp, cached);
 	}
 
-	public ObjectFactory<T> getObjectFactory() {
-		return factory;
-	}
+	protected abstract String[] getContentTypes();
 
-	public void setObjectFactory(ObjectFactory<T> factory) {
-		this.factory = factory;
-	}
+	protected abstract boolean isReusable();
+
+	protected abstract T create(String systemId, InputStream in) throws IOException, TransformerException;
+
+	protected abstract T create(String systemId, Reader in) throws IOException, TransformerException;
 
 	/**
 	 * returns null for 404 resources.
+	 * @throws TransformerException 
 	 */
-	public synchronized T resolveWithURLConnection(String systemId)
-			throws Exception {
+	private synchronized T resolveWithURLConnection(String systemId)
+			throws IOException, TransformerException {
 		if (uri == null || !uri.equals(systemId)) {
 			uri = systemId;
 			object = null;
@@ -173,8 +145,7 @@ public class ObjectResolver<T> {
 			return object;
 		}
 		URLConnection con = new URL(systemId).openConnection();
-		con.addRequestProperty("Accept", join(getObjectFactory()
-				.getContentTypes()));
+		con.addRequestProperty("Accept", join(getContentTypes()));
 		con.addRequestProperty("Accept-Encoding", "gzip");
 		if (tag != null && object != null) {
 			con.addRequestProperty("If-None-Match", tag);
@@ -198,7 +169,7 @@ public class ObjectResolver<T> {
 		}
 	}
 
-	private T createObject(URLConnection con) throws Exception {
+	private T createObject(URLConnection con) throws IOException, TransformerException {
 		String cacheControl = con.getHeaderField("Cache-Control");
 		long date = con.getHeaderFieldDate("Expires", expires);
 		expires = getExpires(cacheControl, date);
@@ -208,7 +179,7 @@ public class ObjectResolver<T> {
 				return object; // Not Modified
 			}
 		}
-		if (getObjectFactory().isReusable()) {
+		if (isReusable()) {
 			logger.info("Compiling {}", con.getURL());
 		}
 		tag = con.getHeaderField("ETag");
@@ -222,9 +193,9 @@ public class ObjectResolver<T> {
 		Matcher m = CHARSET.matcher(type);
 		if (m.find()) {
 			Reader reader = new InputStreamReader(in, m.group(1));
-			return getObjectFactory().create(base, reader);
+			return create(base, reader);
 		}
-		return getObjectFactory().create(base, in);
+		return create(base, in);
 	}
 
 	private synchronized boolean resetCache(String systemId) {
@@ -250,7 +221,7 @@ public class ObjectResolver<T> {
 	}
 
 	private synchronized T cacheResponse(String systemId, HttpResponse resp,
-			T cached) throws Exception {
+			T cached) throws IOException, TransformerException {
 		if (isStorable(getHeader(resp, "Cache-Control"))) {
 			return object = createObject(systemId, resp, cached);
 		} else {
@@ -285,14 +256,14 @@ public class ObjectResolver<T> {
 	}
 
 	private boolean isStorable(String cc) {
-		if (!getObjectFactory().isReusable())
+		if (!isReusable())
 			return false;
 		return cc == null || !cc.contains("no-store")
 				&& (!cc.contains("private") || cc.contains("public"));
 	}
 
 	private T createObject(String systemId, HttpResponse con, T cached)
-			throws Exception {
+			throws IOException, TransformerException {
 		HttpEntity entity = con.getEntity();
 		InputStream in = entity == null ? null : entity.getContent();
 		String type = getHeader(con, "Content-Type");
@@ -313,16 +284,16 @@ public class ObjectResolver<T> {
 		} else if (status >= 300) {
 			throw ResponseException.create(con, systemId);
 		}
-		if (getObjectFactory().isReusable()) {
+		if (isReusable()) {
 			logger.info("Compiling {}", systemId);
 		}
 		tag = getHeader(con, "ETag");
 		Matcher m = CHARSET.matcher(type);
 		if (m.find()) {
 			Reader reader = new InputStreamReader(in, m.group(1));
-			return getObjectFactory().create(systemId, reader);
+			return create(systemId, reader);
 		}
-		return getObjectFactory().create(systemId, in);
+		return create(systemId, in);
 	}
 
 	private long getExpires(String cacheControl, long defaultValue) {

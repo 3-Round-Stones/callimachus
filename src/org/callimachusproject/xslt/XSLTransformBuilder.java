@@ -74,7 +74,7 @@ public class XSLTransformBuilder extends TransformBuilder {
 	private Transformer transformer;
 	private ErrorCatcher listener;
 	private DocumentFactory builder = DocumentFactory.newInstance();
-	private final XMLSourceFactory sourceFactory = XMLSourceFactory
+	private final DOMSourceFactory sourceFactory = DOMSourceFactory
 			.newInstance();
 
 	public XSLTransformBuilder(Transformer transformer, final Source source,

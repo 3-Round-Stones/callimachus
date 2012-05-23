@@ -121,6 +121,9 @@
 			var mimetypes = new javax.activation.MimetypesFileTypeMap();
 			ftype = mimetypes.getContentType(location.toString());
 		}
+		if (!ftype) {
+			ftype = "application/octet-stream";
+		}
 		var construct = create.LookupConstructor(ftype);
 		var iter = this.FindCreator(location).iterator();
 		while (iter.hasNext()) {
@@ -143,11 +146,44 @@
 		return newCopy;
 	""".
 
-# override this method for subclass methods
+# POST ?create=/callimachus/File
 :LookupConstructor rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Creatable>];
-	msg:script "return this".
+	msg:sparql """
+		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+		SELECT REDUCED ?class {
+			{
+				?class rdfs:subClassOf+ $this; calli:type $type
+				BIND (1 AS ?preference)
+			} UNION {
+				?class rdfs:subClassOf+ $this; calli:type ?typ2
+				{
+					FILTER (sameTerm($type,"application/javascript") || sameTerm($type,"text/javascript"))
+					FILTER (sameTerm(?typ2,"application/javascript") || sameTerm(?typ2,"text/javascript"))
+				} UNION {
+					FILTER (sameTerm($type,"application/xslt+xml") || sameTerm($type,"text/xsl"))
+					FILTER (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
+				} UNION {
+					FILTER (sameTerm($type,"image/x-png") || sameTerm($type,"image/png"))
+					FILTER (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
+				} UNION {
+					FILTER (sameTerm($type,"image/pjpeg") || sameTerm($type,"image/jpeg"))
+					FILTER (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
+				}
+				BIND (2 AS ?preference)
+			} UNION {
+				# boot strap graphs before calli:type triples are loaded
+				BIND (<../GraphDocument> AS ?class)
+				FILTER sameTerm($type,"text/turtle")
+				BIND (3 AS ?preference)
+			} UNION {
+				BIND ($this AS ?class)
+				BIND (4 AS ?preference)
+			}
+		} ORDER BY ?preference LIMIT 1
+	""".
 
 # override this method for subclass create methods
 :PostCreate rdfs:subClassOf msg:Message;

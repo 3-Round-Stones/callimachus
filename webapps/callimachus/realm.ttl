@@ -234,6 +234,11 @@
 
 :PostEditRealm owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
 		[owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
+    calli:method "POST";
+	calli:query "edit";
+	calli:realm </>;
+	calli:expect "201-modified";
+	calli:type "text/uri-list";
 	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
 	msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
 

@@ -107,26 +107,6 @@
 	calli:header "cache-control:cache-range";
 	msg:script "return this.openInputStream()".
 
-# POST ?create=/callimachus/Image
-:LookupImage owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
-		[owl:onProperty msg:target; owl:hasValue <Image>]);
-	msg:script """
-		var uri = null;
-		if (type == "image/x-png" || type == "image/png") {
-			uri = this.toUri().resolve("/callimachus/NetworkGraphic");
-		} else if (type == "image/svg+xml") {
-			uri = this.toUri().resolve("/callimachus/VectorGraphic");
-		} else if (type == "image/vnd.microsoft.icon") {
-			uri = this.toUri().resolve("/callimachus/IconGraphic");
-		} else if (type == "image/gif") {
-			uri = this.toUri().resolve("/callimachus/AnimatedGraphic");
-		}
-		if (uri) {
-			return this.objectConnection.getObject(uri.toString());
-		}
-		return proceed();
-	""".
-
 # POST ?create=/callimachus/ImageGraphic
 :PostImageCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
 		[owl:onProperty msg:target; owl:allValuesFrom [owl:oneOf (<NetworkGraphic> <VectorGraphic> <IconGraphic> <AnimatedGraphic>)] ]);

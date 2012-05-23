@@ -41,34 +41,6 @@
 		SELECT DISTINCT ?type { $this a [calli:type ?type] }
 	""".
 
-# POST ?create=/callimachus/File
-:LookupFileClassByType owl:intersectionOf (<toolbox/create.ttl#LookupConstructor>
-		[owl:onProperty msg:target; owl:hasValue <File>]);
-	msg:sparql """
-		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT ?class {
-			{
-				?class rdfs:subClassOf+ $this; calli:type $type
-			} UNION {
-				?class rdfs:subClassOf+ $this; calli:type ?altType
-				{
-					FILTER (sameTerm($type,"application/javascript") || sameTerm($type,"text/javascript"))
-					FILTER (sameTerm(?altType,"application/javascript") || sameTerm(?altType,"text/javascript"))
-				} UNION {
-					FILTER (sameTerm($type,"application/xslt+xml") || sameTerm($type,"text/xsl"))
-					FILTER (sameTerm(?altType,"application/xslt+xml") || sameTerm(?altType,"text/xsl"))
-				} UNION {
-					FILTER (sameTerm($type,"image/x-png") || sameTerm($type,"image/png"))
-					FILTER (sameTerm(?altType,"image/x-png") || sameTerm(?altType,"image/png"))
-				} UNION {
-					FILTER (sameTerm($type,"image/pjpeg") || sameTerm($type,"image/jpeg"))
-					FILTER (sameTerm(?altType,"image/pjpeg") || sameTerm(?altType,"image/jpeg"))
-				}
-			}
-		}
-	""".
-
 :RemoveFile rdfs:subClassOf msg:Message;
 	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
 	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];

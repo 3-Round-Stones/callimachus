@@ -88,6 +88,8 @@
 
 :DeleteComposite owl:intersectionOf ( :Delete
 		[owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Composite>)]]);
+    calli:method "DELETE";
+    calli:realm </>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
 	msg:script """
 		if (this.HasComponents())
@@ -108,6 +110,8 @@
 
 :DeleteCreatable owl:intersectionOf ( :Delete
 		[owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Creatable>)]]);
+    calli:method "DELETE";
+    calli:realm </>;
 	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
 	msg:script """
 		if (this.HasInstanceChildren())

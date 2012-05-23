@@ -32,7 +32,6 @@ import java.io.StringReader;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.script.CompiledScript;
 import javax.script.ScriptEngineManager;
 import javax.script.SimpleBindings;
 
@@ -81,6 +80,11 @@ public class EmbededScriptEngine {
 
 		public ScriptResult(Object result) {
 			this.result = result;
+		}
+
+		@Override
+		public String toString() {
+			return String.valueOf(result);
 		}
 
 		public Object asObject() {
@@ -189,7 +193,7 @@ public class EmbededScriptEngine {
 
 	private final Logger logger = LoggerFactory.getLogger(EmbededScriptEngine.class);
 	private final String code;
-	private CompiledScript engine;
+	private EmbeddedScript engine;
 	private final String systemId;
 	private final String filename;
 	private final EmbeddedScriptFactory factory;
@@ -204,6 +208,11 @@ public class EmbededScriptEngine {
 		this.context = new EmbeddedScriptContext();
 		this.factory = new EmbeddedScriptFactory(cl, context);
 		this.code = code;
+	}
+
+	@Override
+	public String toString() {
+		return code;
 	}
 
 	public EmbededScriptEngine importClass(String className) {
@@ -224,9 +233,7 @@ public class EmbededScriptEngine {
 	public ScriptResult eval(MessageContext msg, SimpleBindings bindings) {
 		Class<?> context = enter();
 		try {
-			bindings.put("msg", msg);
-			bindings.put("systemId", systemId);
-			Object ret = getCompiledScript().eval(bindings);
+			Object ret = getCompiledScript().eval(msg, bindings);
 			if (ret instanceof BehaviourException) {
 				BehaviourException exc = (BehaviourException) ret;
 				if (exc.getCause() instanceof RuntimeException)
@@ -282,7 +289,7 @@ public class EmbededScriptEngine {
 		}
 	}
 
-	private synchronized CompiledScript getCompiledScript() throws Exception {
+	private synchronized EmbeddedScript getCompiledScript() throws Exception {
 		if (engine != null)
 			return engine;
 		try {

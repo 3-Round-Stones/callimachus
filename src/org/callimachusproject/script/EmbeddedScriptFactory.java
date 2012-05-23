@@ -32,16 +32,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.script.Bindings;
-import javax.script.CompiledScript;
-import javax.script.Invocable;
-import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -80,7 +74,7 @@ public class EmbeddedScriptFactory {
 		this.context = context;
 	}
 
-	public CompiledScript create(String systemId, Reader in) throws Exception {
+	public EmbeddedScript create(String systemId, Reader in) throws Exception {
 		try {
 			return createCompiledScript(cl, systemId, read(in));
 		} finally {
@@ -126,7 +120,7 @@ public class EmbeddedScriptFactory {
 		return out.toString();
 	}
 
-	private CompiledScript createCompiledScript(ClassLoader cl,
+	private EmbeddedScript createCompiledScript(ClassLoader cl,
 			String systemId, String code) throws ObjectStoreConfigException,
 			ScriptException {
 		warnIfKeywordUsed(code);
@@ -138,35 +132,7 @@ public class EmbeddedScriptFactory {
 		current.setContextClassLoader(previously);
 		engine.put(ScriptEngine.FILENAME, systemId);
 		engine.eval(code);
-		return new CompiledScript() {
-			public ScriptEngine getEngine() {
-				return engine;
-			}
-
-			public Object eval(ScriptContext ctx) throws ScriptException {
-				Bindings bindings = ctx.getBindings(ScriptContext.ENGINE_SCOPE);
-
-				Object[] args = getArguments(bindings.get("msg"), bindings);
-				try {
-					return ((Invocable) engine).invokeFunction(getInvokeName(),
-							args);
-				} catch (NoSuchMethodException e) {
-					throw new BehaviourException(e, String.valueOf(bindings.get("systemId")));
-				}
-			}
-
-			private Object[] getArguments(Object msg, Bindings bindings) {
-				Set<String> bindingNames = context.getBindingNames();
-				Object[] args = new Object[bindingNames.size() + 1];
-				args[0] = msg;
-
-				Iterator<String> iter = bindingNames.iterator();
-				for (int i=1; i<args.length; i++) {
-					args[i] = bindings.get(iter.next());
-				}
-				return args;
-			}
-		};
+		return new EmbeddedScript(engine, getInvokeName(), context.getBindingNames(), systemId);
 	}
 
 	private String getInvokeName() {

@@ -32,6 +32,11 @@ public class ScriptAdvice implements Advice {
 	}
 
 	@Override
+	public String toString() {
+		return engine.toString();
+	}
+
+	@Override
 	public Object intercept(ObjectMessage message) throws Exception {
 		MessageContext msg = ((InvocationMessageContext) message).returns(rty);
 		return cast(engine.eval(msg, getBindings(message)));

@@ -278,7 +278,7 @@ goto setStartArgs
 :doneSetStartArgs
 
 rem Execute Java with the applicable properties
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -d "%BASEDIR%" -r "%REPOSITORY%" %OPTS% %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -d "%BASEDIR%" -r "%REPOSITORY%" %OPTS% %CMD_LINE_ARGS%
 goto end
 
 :doStart
@@ -297,7 +297,8 @@ goto setStartArgs
 :doneSetStartArgs
 
 rem Execute Java with the applicable properties
-start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -d "%BASEDIR%" -r "%REPOSITORY%" %OPTS% %CMD_LINE_ARGS%
+start "%NAME%" "%JAVA_HOME%\bin\javaw" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %MAINCLASS% --pid "%PID%" -q -d "%BASEDIR%" -r "%REPOSITORY%" %OPTS% %CMD_LINE_ARGS%
+goto end
 
 :doStop
 rem ---- Stop ------------------------------------------------------------------
@@ -333,7 +334,7 @@ goto setStartArgs
 
 rem Execute Java with the applicable properties
 FOR /F "tokens=1 delims=" %%A in ('dir /b lib\%NAME%*.car') do SET "CAR_FILE=%%A"
-"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %p" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -o %PRIMARY_ORIGIN: = -o % -c "%REPOSITORY_CONFIG%" -f "/callimachus/=lib\%CAR_FILE%" -l -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
+"%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" "-Djava.util.logging.config.file=%LOGGING%" "-Djava.mail.properties=%MAIL%" -classpath "%CLASSPATH%" -XX:OnOutOfMemoryError="taskkill /F /PID %%p" %JAVA_OPTS% %SSL_OPTS% %SETUPCLASS% -o %PRIMARY_ORIGIN: = -o % -c "%REPOSITORY_CONFIG%" -f "/callimachus/=lib\%CAR_FILE%" -l -u "%USERNAME%" -e "%EMAIL%" -n "%FULLNAME%" %CMD_LINE_ARGS%
 goto end
 
 :doDump
@@ -393,7 +394,7 @@ set "PRUN_JAVA_OPTS=%PRUN_JAVA_OPTS:;==%"
 
 set "PRUN_OPTS=%OPTS: =;%"
 
-"%DAEMON%" "//IS//%NAME%" "--DisplayName=%NAME%" "--Install=%DAEMON%" --Startup=auto "--StartPath=%BASEDIR%" "--LogPath=%BASEDIR%\log" "--LogPrefix=callimachus-service" "--StdOutput=auto" "--StdError=auto" "--JavaHome=%JAVA_HOME%" "--Jvm=%JAVA_HOME%\bin\server\jvm.dll" --StartMode=jvm --StopMode=jvm --JvmMs=64 --JvmMx=768 "--JvmOptions=-Djava.io.tmpdir=%TMPDIR%" "++JvmOptions=-Duser.home=%BASEDIR%" "++JvmOptions=-Djava.util.logging.config.file=%LOGGING%" "++JvmOptions=-Djava.mail.properties=%MAIL%" "++JvmOptions=-XX:OnOutOfMemoryError=taskkill /F /PID %p" %PRUN_JAVA_OPTS% %PRUN_SSL_OPTS% "--Classpath=%CLASSPATH%;%JDK_HOME%\lib\tools.jar" --StartClass=%MAINCLASS% "--StartParams=--pid;%PID%;-q;-d;%BASEDIR%;-r;%REPOSITORY%;%PRUN_OPTS%;%PRUN_CMD_LINE_PARAMS%" --StopClass=%MONITORCLASS% "--StopParams=--pid;%PID%;--stop"
+"%DAEMON%" "//IS//%NAME%" "--DisplayName=%NAME%" "--Install=%DAEMON%" --Startup=auto "--StartPath=%BASEDIR%" "--LogPath=%BASEDIR%\log" "--LogPrefix=callimachus-service" "--StdOutput=auto" "--StdError=auto" "--JavaHome=%JAVA_HOME%" "--Jvm=%JAVA_HOME%\bin\server\jvm.dll" --StartMode=jvm --StopMode=jvm --JvmMs=64 --JvmMx=768 "--JvmOptions=-Djava.io.tmpdir=%TMPDIR%" "++JvmOptions=-Duser.home=%BASEDIR%" "++JvmOptions=-Djava.util.logging.config.file=%LOGGING%" "++JvmOptions=-Djava.mail.properties=%MAIL%" "++JvmOptions=-XX:OnOutOfMemoryError=taskkill /F /PID %%p" %PRUN_JAVA_OPTS% %PRUN_SSL_OPTS% "--Classpath=%CLASSPATH%;%JDK_HOME%\lib\tools.jar" --StartClass=%MAINCLASS% "--StartParams=--pid;%PID%;-q;-d;%BASEDIR%;-r;%REPOSITORY%;%PRUN_OPTS%;%PRUN_CMD_LINE_PARAMS%" --StopClass=%MONITORCLASS% "--StopParams=--pid;%PID%;--stop"
 
 sc query "%NAME%"
 goto end

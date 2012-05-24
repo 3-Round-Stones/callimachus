@@ -459,7 +459,7 @@
             baseURI = baseURI + '/';
         }
         var File = uploadFileClass;
-        var SchemaGraph = schemaGraphClass;
+        var SchemaGraph = schemaGraphClass.resource;
         var dependency = new java.util.HashSet(this.FindComponentsWithExternalDependent());
         this.DeleteComponents(); //# remove existing components
         var iter = dependency.iterator();

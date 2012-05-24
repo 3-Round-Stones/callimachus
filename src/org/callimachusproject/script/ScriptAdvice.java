@@ -8,6 +8,8 @@ import org.callimachusproject.script.EmbededScriptEngine.ScriptResult;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
@@ -42,7 +44,8 @@ public class ScriptAdvice implements Advice {
 		return cast(engine.eval(msg, getBindings(message)));
 	}
 
-	private SimpleBindings getBindings(ObjectMessage message) {
+	private SimpleBindings getBindings(ObjectMessage message)
+			throws RepositoryException, QueryEvaluationException {
 		SimpleBindings bindings = new SimpleBindings();
 		Object target = message.getTarget();
 		ObjectConnection con = null;
@@ -53,7 +56,7 @@ public class ScriptAdvice implements Advice {
 		Class<?>[] ptypes = message.getMethod().getParameterTypes();
 		assert parameters.length == ptypes.length;
 		assert parameters.length == bindingNames.length;
-		for (int i=0; i<bindingNames.length; i++) {
+		for (int i = 0; i < bindingNames.length; i++) {
 			for (String name : bindingNames[i]) {
 				Object value = parameters[i];
 				String defaultValue = defaults[i];
@@ -67,7 +70,9 @@ public class ScriptAdvice implements Advice {
 		return bindings;
 	}
 
-	private Object getDefaultObject(String value, Class<?> type, ObjectConnection con) {
+	private Object getDefaultObject(String value, Class<?> type,
+			ObjectConnection con) throws RepositoryException,
+			QueryEvaluationException {
 		if (Set.class.equals(type))
 			return null;
 		ValueFactory vf = con.getValueFactory();
@@ -76,7 +81,7 @@ public class ScriptAdvice implements Advice {
 			URIImpl datatype = new URIImpl("java:" + type.getName());
 			return of.createObject(new LiteralImpl(value, datatype));
 		}
-		return of.createObject(vf.createURI(value), type);
+		return con.getObject(type, value);
 	}
 
 	private Object cast(ScriptResult result) {

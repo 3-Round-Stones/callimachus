@@ -7,11 +7,13 @@
 (function($){
 
 $(document).ready(function () {
+    addTextAreaPropertyExpression($("textarea[property]"));
     bindInputChange($("input[data-expression-value]"));
     bindTextAreaChange($("textarea[data-text-expression]"));
 });
 
 $(document).bind("DOMNodeInserted", function (event) {
+    addTextAreaPropertyExpression(select(event.target, "textarea[property]"));
     bindInputChange(select(event.target, "input[data-expression-value]"));
     bindTextAreaChange(select(event.target, "textarea[data-text-expression]"));
 });
@@ -36,6 +38,15 @@ function bindTextAreaChange(areas) {
         propagate(area, expression, area.val());
     });
     areas.change();
+}
+
+function addTextAreaPropertyExpression(areas) {
+    var texts = areas.not("textarea[data-text-expression]").not("textarea[content]");
+    texts.each(function(){
+        var text = $(this);
+        text.attr("data-text-expression", text.attr("property"));
+        text.removeAttr("property");
+    });
 }
 
 function propagate(node, expression, value) {

@@ -63,20 +63,20 @@
     calli:type "text/turtle";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";
-    msg:script "return this.openReader(true)".
+    calli:script "return this.openReader(true)".
 
 # POST ?create=/callimachus/GraphDocument
 :CreateGraphDocument owl:intersectionOf (<toolbox/create.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <GraphDocument> ]);
-    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    msg:imports <java:java.net.URLDecoder>;
-    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    msg:imports <File>;
-    msg:imports foaf:Document;
-    msg:imports sd:NamedGraph;
-    msg:script """
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <File>;
+    calli:imports foaf:Document;
+    calli:imports sd:NamedGraph;
+    calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
         if (!location)
@@ -104,9 +104,9 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.openrdf.rio.RDFFormat>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.rio.RDFFormat>;
+    calli:script """
         if (!reader)
             throw new BadRequest("Missing PUT request payload");
         var con = this.objectConnection;
@@ -161,15 +161,15 @@
 # POST ?create=/callimachus/NamedGraph
 :PostNamedGraphCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <NamedGraph> ]);
-    msg:imports <java:java.net.URLEncoder>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    msg:imports <java:org.openrdf.rio.RDFFormat>;
-    msg:imports <java:org.callimachusproject.io.MultipartParser>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <File>;
-    msg:imports foaf:Document;
-    msg:imports sd:NamedGraph;
-    msg:script """
+    calli:imports <java:java.net.URLEncoder>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:org.openrdf.rio.RDFFormat>;
+    calli:imports <java:org.callimachusproject.io.MultipartParser>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <File>;
+    calli:imports foaf:Document;
+    calli:imports sd:NamedGraph;
+    calli:script """
         if (!location)
             throw new BadRequest("No graph location provided");
         if (location instanceof File) {
@@ -200,9 +200,9 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.openrdf.rio.RDFFormat>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.rio.RDFFormat>;
+    calli:script """
         if (!graphStream)
             throw new BadRequest("Missing PUT request payload");
         var con = this.objectConnection;

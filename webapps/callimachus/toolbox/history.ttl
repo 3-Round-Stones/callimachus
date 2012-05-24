@@ -77,7 +77,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xhtml+xml";
     calli:transform <../transforms/TransformLayout>;
-    msg:xslt <history.xsl>.
+    calli:xslt <history.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :TransformHistory;

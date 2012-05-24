@@ -34,22 +34,22 @@
 :EvaluateSparql rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.openrdf.query.QueryLanguage>;
-    msg:imports <java:org.openrdf.query.parser.QueryParserRegistry>;
-    msg:imports <java:org.openrdf.query.parser.ParsedBooleanQuery>;
-    msg:imports <java:org.openrdf.query.parser.ParsedGraphQuery>;
-    msg:imports <java:org.openrdf.query.parser.ParsedTupleQuery>;
-    msg:imports <java:org.openrdf.query.GraphQueryResult>;
-    msg:imports <java:org.openrdf.query.TupleQueryResult>;
-    msg:imports <java:org.apache.http.ProtocolVersion>;
-    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-    msg:imports <java:org.openrdf.query.MalformedQueryException>;
-    msg:imports <java:org.callimachusproject.server.writers.AggregateWriter>;
-    msg:imports <java:org.callimachusproject.server.util.MessageType>;
-    msg:imports <java:org.callimachusproject.server.model.ReadableHttpEntityChannel>;
-    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:imports <java:org.openrdf.query.parser.QueryParserRegistry>;
+    calli:imports <java:org.openrdf.query.parser.ParsedBooleanQuery>;
+    calli:imports <java:org.openrdf.query.parser.ParsedGraphQuery>;
+    calli:imports <java:org.openrdf.query.parser.ParsedTupleQuery>;
+    calli:imports <java:org.openrdf.query.GraphQueryResult>;
+    calli:imports <java:org.openrdf.query.TupleQueryResult>;
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:imports <java:org.openrdf.query.MalformedQueryException>;
+    calli:imports <java:org.callimachusproject.server.writers.AggregateWriter>;
+    calli:imports <java:org.callimachusproject.server.util.MessageType>;
+    calli:imports <java:org.callimachusproject.server.model.ReadableHttpEntityChannel>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:script """
         if (!qry)
             throw new BadRequest("Missing query");
         try {
@@ -102,8 +102,8 @@
     msg:method "POST";
     msg:type "message/x-response";
     msg:transform :TransformResult;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
         if (!query)
             throw new BadRequest("Missing query body");
         return this.EvaluateSparql(new java.lang.String(query, "UTF-8"));
@@ -119,8 +119,8 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     msg:method "POST";
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
         if (!update)
             throw new BadRequest("Missing update body");
         try {
@@ -146,13 +146,13 @@
     calli:method "POST";
     calli:type "message/x-response";
     calli:transform :TransformResult;
-    msg:imports <java:org.apache.http.ProtocolVersion>;
-    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-    msg:imports <java:org.apache.http.entity.StringEntity>;
-    msg:imports <java:org.openrdf.query.MalformedQueryException>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.openrdf.query.QueryLanguage>;
-    msg:script """
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:imports <java:org.apache.http.entity.StringEntity>;
+    calli:imports <java:org.openrdf.query.MalformedQueryException>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:script """
         if (map && map.containsKey("query"))
             return this.EvaluateSparql(map.get("query")[0]);
         if (!map || !map.containsKey("update"))
@@ -182,10 +182,10 @@
     calli:query "query";
     calli:type "message/x-response";
     calli:header "cache-control:no-validate";
-    msg:imports <java:org.apache.http.ProtocolVersion>;
-    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-    msg:imports <java:org.apache.http.entity.StringEntity>;
-    msg:script """
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:imports <java:org.apache.http.entity.StringEntity>;
+    calli:script """
         if (queryStr)
             return this.EvaluateSparql(queryStr);
         var http11 = new ProtocolVersion("HTTP", 1, 1);
@@ -203,7 +203,7 @@
 :AddPrefix rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    msg:script """
+    calli:script """
         if (inputString.search(/^[^#]*\\bPREFIX\\b/im) >= 0)
             return inputString;
         var sb = new java.lang.StringBuilder();
@@ -230,7 +230,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xml";
     calli:transform :TransformXml;
-    msg:script "return msg && msg.entity ? msg.entity.content : null".
+    calli:script "return msg && msg.entity ? msg.entity.content : null".
 
 :msg a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformResult;
@@ -242,7 +242,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xml";
     calli:transform <transforms/TransformLayout>;
-    msg:xslt <transforms/sparql.xsl>.
+    calli:xslt <transforms/sparql.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformXml;

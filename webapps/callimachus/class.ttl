@@ -82,7 +82,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream> ];
     calli:type "application/xhtml+xml";
     calli:transform <transforms/TransformLayout>;
-    msg:xslt <class-index.xhtml>.
+    calli:xslt <class-index.xhtml>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :TransformClassIndex;
@@ -92,10 +92,10 @@
 # when a class is created
 :CreateClass owl:intersectionOf (<toolbox/create.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Class> ]);
-    msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-    msg:imports <SchemaGraph>;
-    msg:script """
+    calli:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
+    calli:imports <SchemaGraph>;
+    calli:script """
         var ret = proceed();
         var con = this.objectConnection;
         var of = con.objectFactory;
@@ -111,10 +111,10 @@
     calli:realm </>;
     calli:expect "201-modified";
     calli:type "text/uri-list";
-    msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-    msg:imports <SchemaGraph>;
-    msg:script """
+    calli:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
+    calli:imports <SchemaGraph>;
+    calli:script """
         var ret = proceed();
         var con = this.objectConnection;
         var of = con.objectFactory;

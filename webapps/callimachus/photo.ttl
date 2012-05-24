@@ -45,20 +45,20 @@
     calli:method "GET";
     calli:type "image/jpeg";
     calli:header "cache-control:cache-range";
-    msg:script "return this.openInputStream()".
+    calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Photo
 :PostPhotoCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Photo> ]);
-    msg:imports <java:java.net.URLEncoder>;
-    msg:imports <java:javax.mail.util.ByteArrayDataSource>;
-    msg:imports <java:javax.mail.internet.MimeMultipart>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    msg:imports <File>;
-    msg:imports foaf:Image ;
-    msg:script """
+    calli:imports <java:java.net.URLEncoder>;
+    calli:imports <java:javax.mail.util.ByteArrayDataSource>;
+    calli:imports <java:javax.mail.internet.MimeMultipart>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <File>;
+    calli:imports foaf:Image ;
+    calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
 
@@ -90,7 +90,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
-    msg:script """
+    calli:script """
         var out = this.openOutputStream() ;
         var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
         var read;
@@ -119,7 +119,7 @@
     calli:method "GET";
     calli:query "large";
     calli:type "image/png";
-    msg:script """
+    calli:script """
         return this.ResizePhoto(this.openInputStream(), 1080);
     """.
 
@@ -129,7 +129,7 @@
     calli:method "GET";
     calli:query "medium";
     calli:type "image/png";
-    msg:script """
+    calli:script """
         return this.ResizePhoto(this.GetPhotoLarge(), 480);
     """.
 
@@ -139,7 +139,7 @@
     calli:method "GET";
     calli:query "small";
     calli:type "image/png";
-    msg:script """
+    calli:script """
         return this.ResizePhoto(this.GetPhotoMedium(), 240);
     """.
 
@@ -149,21 +149,21 @@
     calli:method "GET";
     calli:query "thumbnail";
     calli:type "image/png";
-    msg:script """
+    calli:script """
         return this.ResizePhoto(this.GetPhotoSmall(), 64);
     """.
 
 :ResizePhoto rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    msg:imports <java:java.awt.AlphaComposite>;
-    msg:imports <java:java.awt.RenderingHints>;
-    msg:imports <java:java.awt.image.BufferedImage>;
-    msg:imports <java:java.awt.image.ConvolveOp>;
-    msg:imports <java:java.awt.image.Kernel>;
-    msg:imports <java:javax.imageio.ImageIO>;
-    msg:imports <java:java.io.ByteArrayOutputStream>;
-    msg:script """
+    calli:imports <java:java.awt.AlphaComposite>;
+    calli:imports <java:java.awt.RenderingHints>;
+    calli:imports <java:java.awt.image.BufferedImage>;
+    calli:imports <java:java.awt.image.ConvolveOp>;
+    calli:imports <java:java.awt.image.Kernel>;
+    calli:imports <java:javax.imageio.ImageIO>;
+    calli:imports <java:java.io.ByteArrayOutputStream>;
+    calli:script """
         var image = ImageIO.read(inputStream);
         var height = Math.min(minSize, image.getHeight());
         var width = image.getWidth() * height / image.getHeight();
@@ -213,7 +213,7 @@
 # Users can view resized images or photos if they can view the image itself
 :AuthorizeImageResize owl:intersectionOf (calli:IsAuthorized
         [owl:onProperty msg:target; owl:allValuesFrom <Photo>]);
-    msg:script  """
+    calli:script  """
         if (query == "large" || query == "medium" || query == "small" || query == "thumbnail") {
             if (method == "GET" || method == "HEAD") {
                 if (this.calliIsAuthorized(credential, method, null))

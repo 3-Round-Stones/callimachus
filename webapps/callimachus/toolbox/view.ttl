@@ -41,8 +41,8 @@
     calli:type "application/xhtml+xml";
     calli:header "cache-control:no-cache";
     calli:transform <../transforms/TransformPage>;
-    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:script """
         function findTemplate(obj, ann) {
             var annotated = findAnnotatedClass(obj.getClass(), ann);
             if (annotated) {

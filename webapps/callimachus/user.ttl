@@ -30,14 +30,14 @@ rdfs:comment a rdf:Property.
 
 :PostUserCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <User> ]);
-    msg:imports <User>;
-    msg:imports <java:javax.mail.util.ByteArrayDataSource>;
-    msg:imports <java:javax.mail.internet.MimeMultipart>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-    msg:imports <java:java.net.URLEncoder>;
-    msg:script """
+    calli:imports <User>;
+    calli:imports <java:javax.mail.util.ByteArrayDataSource>;
+    calli:imports <java:javax.mail.internet.MimeMultipart>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+    calli:imports <java:java.net.URLEncoder>;
+    calli:script """
         var ds = new ByteArrayDataSource(body, "multipart/form-data") ;
         var multipart = new MimeMultipart(ds);
         //# read form
@@ -144,7 +144,7 @@ rdfs:comment a rdf:Property.
     calli:header "cache-control:no-cache";
     calli:transform <transforms/TransformPage>;
     calli:realm </>;
-    msg:script """
+    calli:script """
         return user_password_xhtml.calliConstruct(this);
     """.
 
@@ -158,9 +158,9 @@ rdfs:comment a rdf:Property.
     calli:query "password";
     calli:realm </>;
     calli:expect "201-modified";
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.apache.commons.codec.binary.Hex>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.apache.commons.codec.binary.Hex>;
+    calli:script """
         var accounts = this.FindAuthenticationManager();
         var credential = accounts.findCredential(authorization);
         //# read form

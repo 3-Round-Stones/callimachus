@@ -82,7 +82,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xhtml+xml";
     calli:transform <../transforms/TransformLayout>;
-    msg:xslt <related-changes.xsl>.
+    calli:xslt <related-changes.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :TransformRelatedChanges;

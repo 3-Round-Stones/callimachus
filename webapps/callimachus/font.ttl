@@ -41,19 +41,19 @@
     calli:method "GET";
     calli:type "application/font-woff";
     calli:header "cache-control:cache-range";
-    msg:script "return this.openInputStream()".
+    calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Font
 :PostFontCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Font> ]);
-    msg:imports <java:java.net.URLEncoder>;
-    msg:imports <java:javax.mail.util.ByteArrayDataSource>;
-    msg:imports <java:javax.mail.internet.MimeMultipart>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    msg:imports <File>;
-    msg:script """
+    calli:imports <java:java.net.URLEncoder>;
+    calli:imports <java:javax.mail.util.ByteArrayDataSource>;
+    calli:imports <java:javax.mail.internet.MimeMultipart>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <File>;
+    calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
 
@@ -83,7 +83,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
-    msg:script """
+    calli:script """
         var out = this.openOutputStream() ;
         var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
         var read;

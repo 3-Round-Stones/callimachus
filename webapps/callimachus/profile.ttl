@@ -40,8 +40,8 @@
     calli:header "cache-control:no-validate";
     calli:header "cache-control:max-age=300";
     calli:transform :TransformProfile;
-    msg:imports <java:org.openrdf.model.impl.LinkedHashModel>;
-    msg:script """
+    calli:imports <java:org.openrdf.model.impl.LinkedHashModel>;
+    calli:script """
         var vf = this.objectConnection.valueFactory;
         var xsd = "http://www.w3.org/2001/XMLSchema#";
         var rdfa = "http://www.w3.org/ns/rdfa#";
@@ -68,8 +68,8 @@
     calli:type "application/json;q=0.3";
     calli:header "cache-control:no-validate";
     calli:header "cache-control:max-age=60";
-    msg:imports <java:java.io.ByteArrayOutputStream>;
-    msg:script """
+    calli:imports <java:java.io.ByteArrayOutputStream>;
+    calli:script """
         var output = new java.io.ByteArrayOutputStream();
         var writer = new java.io.OutputStreamWriter(output, "UTF-8");
         var namespaces = this.objectConnection.namespaces.asList();
@@ -97,7 +97,7 @@
     calli:method "POST";
     calli:expect "303-see-other";
     calli:realm </>;
-    msg:script """
+    calli:script """
         var iter = form.entrySet().iterator();
         while (iter.hasNext()) {
             var entry = iter.next();
@@ -123,7 +123,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xhtml+xml";
     calli:transform <transforms/TransformLayout>;
-    msg:xslt <profile.xhtml>.
+    calli:xslt <profile.xhtml>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformProfile;

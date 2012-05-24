@@ -50,7 +50,7 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:query "discussion";
     calli:realm </>;
     calli:expect "303-see-other";
-    msg:script """
+    calli:script """
         var vf = this.objectConnection.valueFactory;
         this.skosEditorialNote.add(form.get('note')[0]);
         return this.resource + "?discussion";
@@ -66,7 +66,7 @@ skos:editorialNote a owl:AnnotationProperty.
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xml";
     calli:transform <../transforms/TransformLayout>;
-    msg:xslt <discussion.xhtml>.
+    calli:xslt <discussion.xhtml>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :TransformDiscussion;

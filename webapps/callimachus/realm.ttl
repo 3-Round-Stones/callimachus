@@ -26,7 +26,7 @@
     calli:query "template";
     calli:expect "302-found";
     calli:type "text/uri-list";
-    msg:script """
+    calli:script """
         return "/callimachus/template.xsl";
     """.
 
@@ -54,7 +54,7 @@
     calli:realm </>;
     calli:header "cache-control:max-age:3600";
     calli:type "text/html";
-    msg:script """
+    calli:script """
         var iter = this.calliAuthentication.iterator();
         while (iter.hasNext()) {
             var manager = iter.next();
@@ -86,9 +86,9 @@
     calli:method "GET";
     calli:query "logout";
     calli:type "message/x-response";
-    msg:imports <java:org.apache.http.ProtocolVersion>;
-    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-    msg:script """
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:script """
         var ver = new ProtocolVersion("HTTP", 1, 1);
         if (!authorization || authorization.indexOf('username="logout"') < 0) {
             var iter = this.calliAuthentication.iterator();
@@ -139,7 +139,7 @@
     calli:query "settings";
     calli:expect "302-found";
     calli:type "text/uri-list";
-    msg:script """
+    calli:script """
         if (this.calliAuthentication.isEmpty())
             return null;
         return this.calliAuthentication.iterator().next() + "?settings";
@@ -152,7 +152,7 @@
     calli:query "contributions";
     calli:expect "302-found";
     calli:type "text/uri-list";
-    msg:script """
+    calli:script """
         if (this.calliAuthentication.isEmpty())
             return null;
         return this.calliAuthentication.iterator().next() + "?contributions";
@@ -165,7 +165,7 @@
     calli:query "forgotpassword";
     calli:expect "302-found";
     calli:type "text/uri-list";
-    msg:script """
+    calli:script """
         if (this.calliAuthentication.isEmpty())
             return null;
         return this.calliAuthentication.iterator().next() + "?forgotpassword";
@@ -179,7 +179,7 @@
     calli:method "GET";
     calli:query "layout";
     calli:type "text/xsl";
-    msg:script """
+    calli:script """
         var layout = layout_xhtml;
         try {
             if (this.calliTheme) {
@@ -239,6 +239,6 @@
     calli:realm </>;
     calli:expect "201-modified";
     calli:type "text/uri-list";
-    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-    msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:script "HTTPObjectServer.resetAllCache(); return proceed();".
 

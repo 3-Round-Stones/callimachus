@@ -35,7 +35,7 @@
     calli:realm </>;
     calli:expect "302-found";
     calli:header "cache-control:max-age:3600";
-    msg:script """
+    calli:script """
         if ("settings" == query)
             return this.findCredential(cookie) + "?edit";
         if ("contributions" == query)
@@ -77,9 +77,9 @@
     calli:method "GET";
     calli:query "logout";
     calli:type "message/x-response";
-    msg:imports <java:org.apache.http.ProtocolVersion>;
-    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-    msg:script """
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:script """
         var ver = new ProtocolVersion("HTTP", 1, 1);
         if (authorization && authorization.indexOf('username="logout"') > 0) {
             //# bogus credentials received
@@ -114,7 +114,7 @@
     calli:type "application/xhtml+xml";
     calli:header "cache-control:no-store";
     calli:transform <transforms/TransformPage>;
-    msg:script """
+    calli:script """
         return forgot_password_xhtml.calliConstruct(this);
     """.
 
@@ -129,13 +129,13 @@
     rdfs:subClassOf [owl:onProperty :mail_request_password_xhtml; owl:hasValue <pages/mail-request-password.xhtml>];
     calli:method "POST";
     calli:query "forgotpassword";
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-    msg:imports <java:java.io.CharArrayWriter>;
-    msg:imports <java:java.util.Random>;
-    msg:imports <java:java.lang.Integer>;
-    msg:imports <java:java.lang.System>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+    calli:imports <java:java.io.CharArrayWriter>;
+    calli:imports <java:java.util.Random>;
+    calli:imports <java:java.lang.Integer>;
+    calli:imports <java:java.lang.System>;
+    calli:script """
         if (!formEmail)
             throw new BadRequest("Missing Email");
         var iter = this.FindUsersByEmail(formEmail).iterator();
@@ -196,9 +196,9 @@
     calli:type "application/xhtml+xml";
     calli:header "cache-control:no-store";
     calli:transform <transforms/TransformPage>;
-    msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:script """
+    calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
         if (!nonce || !token || !username)
             throw new BadRequest("Missing nonce and/or token and/or username");
         var user = this.objectConnection.getObject(this.calliAuthNamespace + username);
@@ -236,12 +236,12 @@
     calli:method "POST";
     calli:query "resetpassword";
     calli:header "cache-control:no-store";
-    msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:java.io.CharArrayWriter>;
-    msg:imports <java:java.util.Random>;
-    msg:imports <java:java.lang.Integer>;
-    msg:script """
+    calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:java.io.CharArrayWriter>;
+    calli:imports <java:java.util.Random>;
+    calli:imports <java:java.lang.Integer>;
+    calli:script """
         if (!resetForm.get('nonce') || !resetForm.get("token") || !resetForm.get("username"))
             throw new BadRequest("Missing nonce and/or token and/or username");
         var user = this.objectConnection.getObject(this.calliAuthNamespace + resetForm.get('username')[0]);

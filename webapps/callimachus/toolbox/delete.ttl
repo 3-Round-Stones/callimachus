@@ -32,11 +32,11 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "DELETE";
     calli:realm </>;
-    msg:imports <java:org.openrdf.model.BNode>;
-    msg:imports <java:org.openrdf.model.URI>;
-    msg:imports <java:javax.tools.FileObject>;
-    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    msg:script """
+    calli:imports <java:org.openrdf.model.BNode>;
+    calli:imports <java:org.openrdf.model.URI>;
+    calli:imports <java:javax.tools.FileObject>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:script """
         var con = this.objectConnection;
         var stmts = con.getStatements(null, null, this.resource, []);
         try {
@@ -90,8 +90,8 @@
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Composite>)]]);
     calli:method "DELETE";
     calli:realm </>;
-    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:script """
         if (this.HasComponents())
             throw new Conflict("Child resources must be deleted first");
         return proceed();
@@ -112,8 +112,8 @@
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Creatable>)]]);
     calli:method "DELETE";
     calli:realm </>;
-    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:script """
         if (this.HasInstanceChildren())
             throw new Conflict("Member resources must be deleted first");
         return proceed();

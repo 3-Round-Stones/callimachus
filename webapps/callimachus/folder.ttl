@@ -43,9 +43,9 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     calli:method "GET";
     calli:type "message/x-response";
-    msg:imports <java:org.apache.http.ProtocolVersion>;
-    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-    msg:script """
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:script """
         var http11 = new ProtocolVersion("HTTP", 1, 1);
         var resp = new BasicHttpResponse(http11, 303, "Directory Index");
         if (this.calliDescribedBy) {
@@ -69,8 +69,8 @@
     calli:realm </>;
     calli:expect "201-created";
     calli:type "text/plain";
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
         if (!slug)
             throw new BadRequest("Missing Slug HTTP header");
         if (!contentType)
@@ -247,10 +247,10 @@
     calli:realm </>;
     calli:type "message/x-response";
     calli:header "cache-control:no-store";
-    msg:imports <java:org.apache.http.ProtocolVersion>;
-    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-    msg:imports <java:org.apache.http.entity.InputStreamEntity>;
-    msg:script """
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:imports <java:org.apache.http.entity.InputStreamEntity>;
+    calli:script """
         var http11 = new ProtocolVersion("HTTP", 1, 1);
         var resp = new BasicHttpResponse(http11, 200, "OK");
         var name = this.resource.localName;
@@ -273,11 +273,11 @@
 :ExportComponents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    msg:imports <Folder>;
-    msg:imports <Composite>;
-    msg:imports <File>;
-    msg:imports <Class>;
-    msg:script """
+    calli:imports <Folder>;
+    calli:imports <Composite>;
+    calli:imports <File>;
+    calli:imports <Class>;
+    calli:script """
         var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
         var xf = new org.callimachusproject.io.RDFXMLStreamWriterFactory();
         function writeTo(triples, entryStream) {
@@ -387,7 +387,7 @@
     calli:header "cache-control:no-cache";
     calli:transform <transforms/TransformPage>;
     calli:realm </>;
-    msg:script """
+    calli:script """
         return folder_import_xhtml.calliConstruct(this);
     """.
 
@@ -401,8 +401,8 @@
     calli:query "import";
     calli:realm </>;
     calli:expect "302-see-other";
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
         var bio = new org.callimachusproject.io.LatencyInputStream(formData);
         var multipart = new org.callimachusproject.io.MultipartParser(bio);
         var inputStream = multipart.next();
@@ -431,11 +431,11 @@
     calli:method "PUT";
     calli:query "archive";
     calli:realm </>;
-    msg:imports <Composite>;
-    msg:imports <java:org.openrdf.rio.RDFFormat>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:script """
+    calli:imports <Composite>;
+    calli:imports <java:org.openrdf.rio.RDFFormat>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
         function readFrom(entryStream, uri, graphs) {
@@ -552,11 +552,11 @@
 :DeleteComponents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    msg:imports <Composite>;
-    msg:imports <java:org.openrdf.model.BNode>;
-    msg:imports <java:org.openrdf.model.URI>;
-    msg:imports <java:javax.tools.FileObject>;
-    msg:script """
+    calli:imports <Composite>;
+    calli:imports <java:org.openrdf.model.BNode>;
+    calli:imports <java:org.openrdf.model.URI>;
+    calli:imports <java:javax.tools.FileObject>;
+    calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
         function removeTriples(subject, hash) {
@@ -619,12 +619,12 @@
 :DesignateAsFolder rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Folder>];
-    msg:imports <Folder>;
-    msg:imports <Composite>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:script """
+    calli:imports <Folder>;
+    calli:imports <Composite>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
         if (nonFolder instanceof Folder)
             return nonFolder;
         var con = this.objectConnection;

@@ -44,7 +44,7 @@
 :RemoveFile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    msg:script """
+    calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
         var hasComponent = vf.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent");

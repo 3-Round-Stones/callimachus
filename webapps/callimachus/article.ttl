@@ -44,7 +44,7 @@
     calli:type "application/docbook+xml";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";
-    msg:script "return this.openInputStream()".
+    calli:script "return this.openInputStream()".
 
 # GET /article/main-article.xml?view
 :GetPage owl:intersectionOf (<toolbox/view.ttl#GetViewPage>
@@ -55,7 +55,7 @@
     calli:type "application/xhtml+xml";
     calli:header "cache-control:no-cache";
     calli:transform <transforms/TransformPage>;
-    msg:script """
+    calli:script """
         return this.InlineArticle(proceed());
     """.
 
@@ -63,7 +63,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
     calli:type "application/xhtml+xml";
-    msg:xslt <transforms/article-inline.xsl>.
+    calli:xslt <transforms/article-inline.xsl>.
 
 :xmlInput a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :InlineArticle;
@@ -73,13 +73,13 @@
 # POST ?create=/callimachus/Article
 :CreateArticle owl:intersectionOf (<toolbox/create.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Article> ]);
-    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    msg:imports <java:java.net.URLDecoder>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    msg:imports <File>;
-    msg:imports foaf:Document;
-    msg:script """
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <File>;
+    calli:imports foaf:Document;
+    calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
         if (!location)
@@ -107,12 +107,12 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    msg:imports <java:java.net.URLDecoder>;
-    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports foaf:Document;
-    msg:script """
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports foaf:Document;
+    calli:script """
         var read;
         var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
         var out = this.openOutputStream();

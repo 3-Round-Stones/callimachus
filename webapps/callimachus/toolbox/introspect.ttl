@@ -31,7 +31,7 @@
     calli:query "introspect";
     calli:type "application/xhtml+xml";
     calli:transform <../transforms/TransformLayout>;
-    msg:script """
+    calli:script """
         return this.calliIntrospect(this);
     """.
 

@@ -44,19 +44,19 @@
     calli:type "application/sparql-query";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";
-    msg:script "return this.openInputStream()".
+    calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/NamedQuery
 :CreateNamedQuery owl:intersectionOf (<toolbox/create.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <NamedQuery> ]);
-    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    msg:imports <java:java.net.URLDecoder>;
-    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    msg:imports <File>;
-    msg:imports foaf:Document;
-    msg:script """
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <File>;
+    calli:imports foaf:Document;
+    calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
         if (!location)
@@ -83,14 +83,14 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    msg:imports <java:java.net.URLDecoder>;
-    msg:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
-    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <NamedQuery>;
-    msg:imports <java:org.openrdf.query.QueryLanguage>;
-    msg:script """
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <NamedQuery>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:script """
         if (!stream)
             throw new BadRequest("Missing PUT request payload");
         var read;
@@ -124,7 +124,7 @@
         [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>]);
     calli:method "DELETE";
     calli:realm </>;
-    msg:script """
+    calli:script """
         var con = this.objectConnection;
         con.repository.removeNamedQuery(this.resource);
         return proceed();
@@ -141,16 +141,16 @@
     calli:method "GET";
     calli:query "results", "tqx", "eval";
     calli:type "message/x-response";
-    msg:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
-    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    msg:imports <java:org.openrdf.query.QueryLanguage>;
-    msg:imports <java:org.apache.http.ProtocolVersion>;
-    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-    msg:imports <java:org.apache.http.entity.InputStreamEntity>;
-    msg:imports <java:org.apache.http.entity.StringEntity>;
-    msg:imports <java:java.lang.IllegalArgumentException>;
-    msg:imports <java:org.openrdf.query.MalformedQueryException>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:imports <java:org.apache.http.entity.InputStreamEntity>;
+    calli:imports <java:org.apache.http.entity.StringEntity>;
+    calli:imports <java:java.lang.IllegalArgumentException>;
+    calli:imports <java:org.openrdf.query.MalformedQueryException>;
+    calli:script """
         var map = {};
         if (tqx) {
             var pairs = tqx.split(';');
@@ -279,19 +279,19 @@
 
 :TransformIntoHtml rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/csv;charset=UTF-8";
-    msg:xslt <transforms/sparql-results-html.xsl>.
+    calli:xslt <transforms/sparql-results-html.xsl>.
 
 :TransformIntoCSV rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/csv;charset=UTF-8";
-    msg:xslt <transforms/sparql-results-csv.xsl>.
+    calli:xslt <transforms/sparql-results-csv.xsl>.
 
 :TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/csv;charset=UTF-8";
-    msg:xslt <transforms/sparql-results-tsv.xsl>.
+    calli:xslt <transforms/sparql-results-tsv.xsl>.
 
 :TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/javascript;charset=UTF-8";
-    msg:xslt <transforms/sparql-results-wire.xsl>.
+    calli:xslt <transforms/sparql-results-wire.xsl>.
 
 :handler a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :TransformIntoWire;

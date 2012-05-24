@@ -44,7 +44,7 @@
     calli:type "application/xhtml+xml";
     calli:header "cache-control:no-cache";
     calli:transform <transforms/TransformPage>;
-    msg:script """
+    calli:script """
         return this.calliConstruct(this);
     """.
 
@@ -56,19 +56,19 @@
     calli:type "application/xhtml+xml";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";
-    msg:script "return this.openInputStream()".
+    calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Page
 :CreatePage owl:intersectionOf (<toolbox/create.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Page> ]);
-    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    msg:imports <java:java.net.URLDecoder>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    msg:imports <File>;
-    msg:imports calli:Page;
-    msg:imports foaf:Document;
-    msg:script """
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <File>;
+    calli:imports calli:Page;
+    calli:imports foaf:Document;
+    calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
         if (!location)
@@ -98,11 +98,11 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    msg:imports <java:java.net.URLDecoder>;
-    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:script """
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:java.net.URLDecoder>;
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
         var read;
         var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
         var out = this.openOutputStream();

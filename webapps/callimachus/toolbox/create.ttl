@@ -40,7 +40,7 @@
     calli:realm </>;
     calli:type "application/xhtml+xml";
     calli:transform <../transforms/TransformPage>;
-    msg:script """
+    calli:script """
         importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
         if (!this.calliCreate || this.calliCreate.isEmpty())
             throw new InternalServerError("No create template");
@@ -57,8 +57,8 @@
     calli:realm </>;
     calli:type "application/xhtml+xml";
     calli:transform <../transforms/TransformPage>;
-    msg:imports <../Creatable>;
-    msg:script """
+    calli:imports <../Creatable>;
+    calli:script """
         importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
         importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
         if (!(create instanceof Creatable))
@@ -78,8 +78,8 @@
     calli:realm </>;
     calli:expect "201-created";
     calli:type "text/plain";
-    msg:imports <../Creatable>;
-    msg:script """
+    calli:imports <../Creatable>;
+    calli:script """
         importClass(Packages.org.callimachusproject.io.MultipartParser);
         importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
         importClass(Packages.org.callimachusproject.server.exceptions.Forbidden);
@@ -189,9 +189,9 @@
 :PostCreate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Serviceable>];
-    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    msg:imports <java:org.callimachusproject.server.exceptions.UnsupportedMediaType>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.callimachusproject.server.exceptions.UnsupportedMediaType>;
+    calli:script """
         var template = this.calliCreate.iterator().next();
         if (!template)
             throw new InternalServerError("Cannot create " + this.toString() + " with " + type);

@@ -55,7 +55,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xhtml+xml";
-    msg:xslt <transforms/menu.xsl>.
+    calli:xslt <transforms/menu.xsl>.
 
 :xml a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :TransformMenu;
@@ -69,6 +69,6 @@
     calli:realm </>;
     calli:expect "201-modified";
     calli:type "text/uri-list";
-    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-    msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:script "HTTPObjectServer.resetAllCache(); return proceed();".
 

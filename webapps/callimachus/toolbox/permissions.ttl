@@ -36,7 +36,7 @@
     calli:type "application/xhtml+xml";
     calli:header "cache-control:no-cache";
     calli:transform <../transforms/TransformPage>;
-    msg:script """
+    calli:script """
         return permissions_xhtml.calliConstruct(this);
     """.
 
@@ -50,8 +50,8 @@
     calli:method "GET";
     calli:query "rdftype";
     calli:type "text/uri-list";
-    msg:imports <java:org.openrdf.annotations.Iri>;
-    msg:script """
+    calli:imports <java:org.openrdf.annotations.Iri>;
+    calli:script """
         function addConcepts(klass, concepts, visited) {
             if (visited.contains(klass))
                 return concepts;
@@ -80,7 +80,7 @@
     calli:query "permissions";
     calli:realm </>;
     calli:expect "201-modified";
-    msg:script """
+    calli:script """
         permissions_xhtml.calliEditResource(this, msg.input);
         var parent = this.SelectParentComposite();
         if (parent) {
@@ -100,11 +100,11 @@
     calli:query "permissions";
     calli:realm </>;
     calli:expect "201-modified";
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
-    msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-    msg:imports <../SchemaGraph>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
+    calli:imports <../SchemaGraph>;
+    calli:script """
         var before = this.calliAdministrator.empty;
         var ret = proceed();
         if (!before) {

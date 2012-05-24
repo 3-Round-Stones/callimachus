@@ -15,7 +15,7 @@
    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
    calli:type "application/atom+xml;q=0.5";
    calli:transform <TransformAtomLinks>;
-   msg:xslt <sparql-results-atom.xsl>.
+   calli:xslt <sparql-results-atom.xsl>.
 
 <TransformIntoAtom#sparqlResult> a owl:FunctionalProperty, owl:ObjectProperty;
    rdfs:domain <TransformIntoAtom>;
@@ -26,7 +26,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
    calli:type "application/atom+xml;q=0.5";
-   msg:xslt <divert-atom-links.xsl>.
+   calli:xslt <divert-atom-links.xsl>.
 
 <TransformAtomLinks#xml> a owl:FunctionalProperty, owl:ObjectProperty;
    rdfs:domain <TransformAtomLinks>;
@@ -39,7 +39,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xhtml+xml";
     calli:transform <TransformPage>;
-    msg:xslt <../template.xsl>.
+    calli:xslt <../template.xsl>.
 
 <TransformLayout#xml> a owl:ObjectProperty; a owl:FunctionalProperty;
     calli:type "application/xhtml+xml";
@@ -52,7 +52,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xhtml+xml";
     calli:transform <TransformXhtml>;
-    msg:xslt <page.xsl>.
+    calli:xslt <page.xsl>.
 
 <TransformPage#query> a owl:DatatypeProperty; a owl:FunctionalProperty;
     rdfs:domain <TransformPage>;
@@ -69,7 +69,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:type "text/html";
-    msg:xslt <xhtml-to-html.xsl>.
+    calli:xslt <xhtml-to-html.xsl>.
 
 <TransformXhtml#xhtml> a owl:ObjectProperty; a owl:FunctionalProperty;
     calli:type "application/xhtml+xml";

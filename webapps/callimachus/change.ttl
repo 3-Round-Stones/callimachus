@@ -66,8 +66,8 @@
 # transcations are authorized by the objects modified
 :AuthorizeTransactionView rdfs:subClassOf calli:IsAuthorized;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Change>];
-    msg:imports <java:org.callimachusproject.annotations.realm>;
-    msg:script """
+    calli:imports <java:org.callimachusproject.annotations.realm>;
+    calli:script """
         function findAnnotatedClass(klass, ann) {
             if (klass.isAnnotationPresent(ann)) {
                 return [klass];
@@ -196,7 +196,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xml";
     calli:transform <transforms/TransformLayout>;
-    msg:xslt <transforms/change.xsl>.
+    calli:xslt <transforms/change.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :TransformChangesetView;

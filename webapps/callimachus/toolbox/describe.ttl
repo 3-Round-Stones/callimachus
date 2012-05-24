@@ -37,7 +37,7 @@
     calli:query "describe";
     calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
     calli:transform :TransformDescription;
-    msg:script """
+    calli:script """
         var queue = [];
         queue.push(this.resource);
         var con = this.objectConnection;
@@ -101,7 +101,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xhtml+xml";
     calli:transform <../transforms/TransformLayout>;
-    msg:xslt <describe.xsl>.
+    calli:xslt <describe.xsl>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformDescription;
@@ -120,15 +120,15 @@
     calli:realm </>;
     calli:expect "201-created";
     calli:type "text/plain";
-    msg:imports <java:org.openrdf.annotations.Iri>;
-    msg:imports <java:org.openrdf.query.QueryLanguage>;
-    msg:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
-    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    msg:imports <../Serviceable>;
-    msg:imports <../Editable>;
-    msg:script """
+    calli:imports <java:org.openrdf.annotations.Iri>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <../Serviceable>;
+    calli:imports <../Editable>;
+    calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;
         var of = con.objectFactory;
@@ -224,13 +224,13 @@
     calli:method "PATCH";
     calli:query "describe";
     calli:realm </>;
-    msg:imports <java:org.openrdf.query.QueryLanguage>;
-    msg:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
-    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    msg:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
-    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    msg:imports <../Serviceable>;
-    msg:script """
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <../Serviceable>;
+    calli:script """
         var con = this.objectConnection;
 
         //# Parse DELETE INSERT

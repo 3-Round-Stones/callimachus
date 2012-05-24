@@ -20,7 +20,7 @@
     calli:query "search";
     calli:rel "search";
     calli:type "application/opensearchdescription+xml";
-    msg:script """
+    calli:script """
         var sb = [];
         sb.push('<?xml version="1.0" encoding="UTF-8"?>');
         sb.push('<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">');
@@ -133,7 +133,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xhtml+xml";
     calli:transform <../transforms/TransformLayout>;
-    msg:xslt <search.xsl>.
+    calli:xslt <search.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :TransformSearchFolder;

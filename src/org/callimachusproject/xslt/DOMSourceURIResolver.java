@@ -4,7 +4,7 @@ import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
 import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -109,7 +109,7 @@ public class DOMSourceURIResolver implements URIResolver {
 					return resolver;
 			}
 			DOMSourceResolver resolver = getStaticResolver(url);
-			instanceResolvers.put(url, new WeakReference<DOMSourceResolver>(
+			instanceResolvers.put(url, new SoftReference<DOMSourceResolver>(
 					resolver));
 			return resolver;
 		}
@@ -134,7 +134,7 @@ public class DOMSourceURIResolver implements URIResolver {
 					return resolver;
 			}
 			DOMSourceResolver resolver = new DOMSourceResolver();
-			staticResolvers.put(url, new WeakReference<DOMSourceResolver>(
+			staticResolvers.put(url, new SoftReference<DOMSourceResolver>(
 					resolver));
 			return resolver;
 		}

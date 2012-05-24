@@ -58,7 +58,8 @@ public class CachedTransformerFactory extends TransformerFactory {
 		this(TransformerFactory.newInstance(), base);
 	}
 
-	public CachedTransformerFactory(final TransformerFactory delegate, String base) {
+	public CachedTransformerFactory(final TransformerFactory delegate,
+			String base) {
 		this.delegate = delegate;
 		this.resolver = new DOMSourceURIResolver(base);
 		delegate.setURIResolver(resolver);

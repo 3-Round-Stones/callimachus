@@ -59,7 +59,7 @@ public class XMLEventTransform extends TransformBuilder {
 		this.systemId = systemId;
 	}
 
-	public void close() throws TransformerException {
+	public void close() throws TransformerException, IOException {
 		try {
 			source.close();
 		} catch (XMLStreamException e) {
@@ -68,7 +68,7 @@ public class XMLEventTransform extends TransformBuilder {
 	}
 
 	@Override
-	public Document asDocument() throws TransformerException {
+	public Document asDocument() throws TransformerException, IOException {
 		InputStream in = asInputStream();
 		try {
 			try {
@@ -81,7 +81,7 @@ public class XMLEventTransform extends TransformBuilder {
 				in.close();
 			}
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (TransformerException e) {
 			throw handle(e);
 		} catch (RuntimeException e) {
@@ -92,12 +92,13 @@ public class XMLEventTransform extends TransformBuilder {
 	}
 
 	@Override
-	public XMLEventReader asXMLEventReader() throws TransformerException {
+	public XMLEventReader asXMLEventReader() throws TransformerException,
+			IOException {
 		return source;
 	}
 
 	@Override
-	public InputStream asInputStream() throws TransformerException {
+	public InputStream asInputStream() throws TransformerException, IOException {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
 			try {
@@ -107,7 +108,7 @@ public class XMLEventTransform extends TransformBuilder {
 			}
 			return new ByteArrayInputStream(baos.toByteArray());
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (TransformerException e) {
 			throw handle(e);
 		} catch (RuntimeException e) {
@@ -118,13 +119,13 @@ public class XMLEventTransform extends TransformBuilder {
 	}
 
 	@Override
-	public Reader asReader() throws TransformerException {
+	public Reader asReader() throws TransformerException, IOException {
 		try {
 			CharArrayWriter caw = new CharArrayWriter(8192);
 			try {
 				toWriter(caw);
 			} catch (IOException e) {
-				throw handle(new TransformerException(e));
+				throw handle(e);
 			} finally {
 				caw.close();
 			}

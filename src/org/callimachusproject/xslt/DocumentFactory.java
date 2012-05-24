@@ -97,8 +97,8 @@ public class DocumentFactory {
 		return factory.newDocumentBuilder().parse(is);
 	}
 
-	public Document parse(Reader reader) throws SAXException,
-			IOException, ParserConfigurationException {
+	public Document parse(Reader reader) throws SAXException, IOException,
+			ParserConfigurationException {
 		return factory.newDocumentBuilder().parse(new InputSource(reader));
 	}
 

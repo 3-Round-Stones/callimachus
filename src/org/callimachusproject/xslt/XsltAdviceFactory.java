@@ -15,7 +15,8 @@ import org.openrdf.repository.object.advice.AdviceFactory;
 import org.openrdf.repository.object.advice.AdviceProvider;
 
 public class XsltAdviceFactory implements AdviceProvider, AdviceFactory {
-	private static final Pattern NOT_URI = Pattern.compile("\\s|\\}|\\]|\\>|\"");
+	private static final Pattern NOT_URI = Pattern
+			.compile("\\s|\\}|\\]|\\>|\"");
 
 	@Override
 	public AdviceFactory getAdviserFactory(Class<?> annotationType) {
@@ -29,7 +30,7 @@ public class XsltAdviceFactory implements AdviceProvider, AdviceFactory {
 		Annotation[][] anns = m.getParameterAnnotations();
 		String[][] bindingNames = new String[anns.length][];
 		int input = -1;
-		loop: for (int i=0; i<anns.length; i++) {
+		loop: for (int i = 0; i < anns.length; i++) {
 			bindingNames[i] = new String[0];
 			for (Annotation ann : anns[i]) {
 				if (Bind.class.equals(ann.annotationType())) {
@@ -47,7 +48,8 @@ public class XsltAdviceFactory implements AdviceProvider, AdviceFactory {
 			inputClass = m.getParameterTypes()[input];
 		}
 		XSLTransformer xslt = createXSLTransformer(m);
-		return new XsltAdvice(xslt, m.getReturnType(), inputClass, input, bindingNames);
+		return new XsltAdvice(xslt, m.getReturnType(), inputClass, input,
+				bindingNames);
 	}
 
 	private XSLTransformer createXSLTransformer(Method m) {

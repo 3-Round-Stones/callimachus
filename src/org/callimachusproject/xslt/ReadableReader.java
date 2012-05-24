@@ -35,7 +35,7 @@ import java.nio.CharBuffer;
 
 /**
  * Wraps a Readable object as a Reader.
- *
+ * 
  * @author James Leigh
  */
 class ReadableReader extends Reader {

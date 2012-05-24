@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Stores XSLT errors.
- *
+ * 
  * @author James Leigh
  */
 public class ErrorCatcher implements ErrorListener {

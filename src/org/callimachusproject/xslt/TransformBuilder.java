@@ -70,7 +70,7 @@ public abstract class TransformBuilder {
 	private final DocumentFactory builder = DocumentFactory.newInstance();
 
 	public final TransformBuilder with(String name, Object value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		if (value == null)
 			return this;
 		if (value instanceof CharSequence)
@@ -101,7 +101,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Set<?> value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, parse(value));
 			return this;
@@ -113,7 +113,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, String value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -125,7 +125,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, CharSequence value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -137,7 +137,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, boolean value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -149,7 +149,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, byte value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -161,7 +161,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, short value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -173,7 +173,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, int value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -185,7 +185,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, long value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -197,7 +197,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, float value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -209,7 +209,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, double value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -221,7 +221,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Boolean value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -233,7 +233,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Byte value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -245,7 +245,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Short value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -257,7 +257,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Integer value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -269,7 +269,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Long value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -281,7 +281,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Float value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -293,7 +293,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Double value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -305,7 +305,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, BigInteger value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -317,7 +317,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, BigDecimal value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -329,7 +329,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Document value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, new DOMSource(value));
 			return this;
@@ -341,7 +341,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Element value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, new DOMSource(value));
 			return this;
@@ -353,7 +353,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, DocumentFragment value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, new DOMSource(value));
 			return this;
@@ -365,7 +365,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Node value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, new DOMSource(value));
 			return this;
@@ -377,7 +377,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, NodeList value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -389,7 +389,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Number value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, value);
 			return this;
@@ -401,7 +401,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Character value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			if (value == null)
 				return this;
@@ -415,7 +415,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, char value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			setParameter(name, String.valueOf(value));
 			return this;
@@ -427,41 +427,42 @@ public abstract class TransformBuilder {
 	}
 
 	public final TransformBuilder with(String name, Readable value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		return with(name, parse(value));
 	}
 
 	public final TransformBuilder with(String name, byte[] value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		return with(name, parse(value));
 	}
 
 	public final TransformBuilder with(String name, ReadableByteChannel value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		return with(name, parse(value));
 	}
 
 	public final TransformBuilder with(String name, ByteArrayOutputStream value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		return with(name, parse(value));
 	}
 
 	public final TransformBuilder with(final String name,
-			final XMLEventReader value) throws TransformerException {
+			final XMLEventReader value) throws TransformerException,
+			IOException {
 		return with(name, parse(value));
 	}
 
 	public final TransformBuilder with(String name, InputStream value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		return with(name, parse(value));
 	}
 
 	public final TransformBuilder with(String name, Reader value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		return with(name, parse(value));
 	}
 
-	public final String asString() throws TransformerException {
+	public final String asString() throws TransformerException, IOException {
 		try {
 			CharSequence seq = asCharSequence();
 			if (seq == null)
@@ -476,13 +477,14 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	public final CharSequence asCharSequence() throws TransformerException {
+	public final CharSequence asCharSequence() throws TransformerException,
+			IOException {
 		try {
 			StringWriter output = new StringWriter();
 			try {
 				toWriter(output);
 			} catch (IOException e) {
-				throw handle(new TransformerException(e));
+				throw handle(e);
 			}
 			StringBuffer buffer = output.getBuffer();
 			if (buffer.length() < 100 && isEmpty(buffer.toString()))
@@ -497,11 +499,11 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	public final Readable asReadable() throws TransformerException {
+	public final Readable asReadable() throws TransformerException, IOException {
 		return asReader();
 	}
 
-	public final byte[] asByteArray() throws TransformerException {
+	public final byte[] asByteArray() throws TransformerException, IOException {
 		try {
 			ByteArrayOutputStream output = asByteArrayOutputStream();
 			if (output == null)
@@ -517,7 +519,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final ReadableByteChannel asReadableByteChannel()
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			InputStream input = asInputStream();
 			if (input == null)
@@ -533,7 +535,7 @@ public abstract class TransformBuilder {
 	}
 
 	public final ByteArrayOutputStream asByteArrayOutputStream()
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			ByteArrayOutputStream output = new ByteArrayOutputStream(8192);
 			toOutputStream(output);
@@ -544,7 +546,7 @@ public abstract class TransformBuilder {
 		} catch (TransformerException e) {
 			throw handle(e);
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (RuntimeException e) {
 			throw handle(e);
 		} catch (Error e) {
@@ -553,12 +555,13 @@ public abstract class TransformBuilder {
 	}
 
 	public final CharArrayWriter asCharArrayWriter()
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			CharArrayWriter output = new CharArrayWriter(8192);
 			toWriter(output);
 			if (output.size() < 200) {
-				byte[] bytes = new String(output.toCharArray()).getBytes("UTF-8");
+				byte[] bytes = new String(output.toCharArray())
+						.getBytes("UTF-8");
 				if (isEmpty(bytes, bytes.length))
 					return null;
 			}
@@ -566,7 +569,7 @@ public abstract class TransformBuilder {
 		} catch (TransformerException e) {
 			throw handle(e);
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (RuntimeException e) {
 			throw handle(e);
 		} catch (Error e) {
@@ -574,22 +577,23 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	public final Object asObject() throws TransformerException {
+	public final Object asObject() throws TransformerException, IOException {
 		return asDocumentFragment();
 	}
 
-	public final Node asNode() throws TransformerException {
+	public final Node asNode() throws TransformerException, IOException {
 		return asDocument();
 	}
 
-	public final Element asElement() throws TransformerException {
+	public final Element asElement() throws TransformerException, IOException {
 		Document doc = asDocument();
 		if (doc == null)
 			return null;
 		return doc.getDocumentElement();
 	}
 
-	public DocumentFragment asDocumentFragment() throws TransformerException {
+	public DocumentFragment asDocumentFragment() throws TransformerException,
+			IOException {
 		try {
 			Document doc = asDocument();
 			if (doc == null)
@@ -606,14 +610,16 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	public abstract Document asDocument() throws TransformerException;
+	public abstract Document asDocument() throws TransformerException,
+			IOException;
 
 	public abstract XMLEventReader asXMLEventReader()
-			throws TransformerException;
+			throws TransformerException, IOException;
 
-	public abstract InputStream asInputStream() throws TransformerException;
+	public abstract InputStream asInputStream() throws TransformerException,
+			IOException;
 
-	public abstract Reader asReader() throws TransformerException;
+	public abstract Reader asReader() throws TransformerException, IOException;
 
 	public void toOutputStream(OutputStream out) throws IOException,
 			TransformerException {
@@ -663,12 +669,16 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	public abstract void close() throws TransformerException;
+	public abstract void close() throws TransformerException, IOException;
 
-	protected IOException handle(IOException cause) throws TransformerException {
+	protected IOException handle(IOException cause)
+			throws TransformerException, IOException {
 		try {
 			close();
 			return cause;
+		} catch (IOException e) {
+			e.initCause(cause);
+			throw e;
 		} catch (TransformerException e) {
 			e.initCause(cause);
 			throw e;
@@ -682,10 +692,13 @@ public abstract class TransformBuilder {
 	}
 
 	protected TransformerException handle(TransformerException cause)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			close();
 			return cause;
+		} catch (IOException e) {
+			e.initCause(cause);
+			throw e;
 		} catch (TransformerException e) {
 			e.initCause(cause);
 			throw e;
@@ -699,10 +712,13 @@ public abstract class TransformBuilder {
 	}
 
 	protected RuntimeException handle(RuntimeException cause)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			close();
 			return cause;
+		} catch (IOException e) {
+			e.initCause(cause);
+			throw e;
 		} catch (TransformerException e) {
 			e.initCause(cause);
 			throw e;
@@ -715,10 +731,14 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	protected Error handle(Error cause) throws TransformerException {
+	protected Error handle(Error cause) throws TransformerException,
+			IOException {
 		try {
 			close();
 			return cause;
+		} catch (IOException e) {
+			e.initCause(cause);
+			throw e;
 		} catch (TransformerException e) {
 			e.initCause(cause);
 			throw e;
@@ -733,7 +753,8 @@ public abstract class TransformBuilder {
 
 	protected abstract void setParameter(String name, Object value);
 
-	private NodeList parse(Set<?> values) throws TransformerException {
+	private NodeList parse(Set<?> values) throws TransformerException,
+			IOException {
 		try {
 			if (values == null)
 				return null;
@@ -784,7 +805,8 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	private Document parse(Readable value) throws TransformerException {
+	private Document parse(Readable value) throws TransformerException,
+			IOException {
 		try {
 			if (value == null)
 				return null;
@@ -800,7 +822,8 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	private Document parse(byte[] value) throws TransformerException {
+	private Document parse(byte[] value) throws TransformerException,
+			IOException {
 		try {
 			if (value == null)
 				return null;
@@ -815,7 +838,7 @@ public abstract class TransformBuilder {
 	}
 
 	private Document parse(ReadableByteChannel value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			if (value == null)
 				return null;
@@ -830,7 +853,7 @@ public abstract class TransformBuilder {
 	}
 
 	private Document parse(ByteArrayOutputStream value)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		try {
 			if (value == null)
 				return null;
@@ -844,7 +867,8 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	private Document parse(XMLEventReader value) throws TransformerException {
+	private Document parse(XMLEventReader value) throws TransformerException,
+			IOException {
 		try {
 			if (value == null)
 				return null;
@@ -859,7 +883,7 @@ public abstract class TransformBuilder {
 			}
 			return parse(output);
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (XMLStreamException e) {
 			throw handle(new TransformerException(e));
 		} catch (TransformerException e) {
@@ -871,7 +895,8 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	private Document parse(InputStream value) throws TransformerException {
+	private Document parse(InputStream value) throws TransformerException,
+			IOException {
 		try {
 			if (value == null)
 				return null;
@@ -885,7 +910,7 @@ public abstract class TransformBuilder {
 		} catch (ParserConfigurationException e) {
 			throw handle(new TransformerException(e));
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (RuntimeException e) {
 			throw handle(e);
 		} catch (Error e) {
@@ -893,7 +918,8 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	private Document parse(Reader value) throws TransformerException {
+	private Document parse(Reader value) throws TransformerException,
+			IOException {
 		try {
 			if (value == null)
 				return null;
@@ -907,7 +933,7 @@ public abstract class TransformBuilder {
 		} catch (ParserConfigurationException e) {
 			throw handle(new TransformerException(e));
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (RuntimeException e) {
 			throw handle(e);
 		} catch (Error e) {

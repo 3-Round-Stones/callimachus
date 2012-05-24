@@ -107,7 +107,7 @@ public class XsltAdvice implements Advice {
 	}
 
 	private TransformBuilder with(TransformBuilder tb, String name, Object arg)
-			throws TransformerException {
+			throws TransformerException, IOException {
 		if (arg instanceof Value)
 			return tb.with(name, ((Value) arg).stringValue());
 		if (arg instanceof RDFObject)
@@ -116,7 +116,7 @@ public class XsltAdvice implements Advice {
 	}
 
 	private Object as(TransformBuilder result, Class<?> rclass)
-			throws TransformerException {
+			throws TransformerException, IOException {
 
 		if (Document.class.equals(rclass)) {
 			return result.asDocument();

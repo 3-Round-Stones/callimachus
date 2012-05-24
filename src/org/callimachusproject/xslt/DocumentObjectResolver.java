@@ -87,6 +87,11 @@ public abstract class DocumentObjectResolver<T> {
 	private long expires;
 	private T object;
 
+	@Override
+	public String toString() {
+		return String.valueOf(uri);
+	}
+
 	public T resolve(String systemId) throws IOException, TransformerException {
 		if (!systemId.startsWith("http:") && !systemId.startsWith("https:"))
 			return resolveWithURLConnection(systemId);
@@ -124,13 +129,16 @@ public abstract class DocumentObjectResolver<T> {
 
 	protected abstract boolean isReusable();
 
-	protected abstract T create(String systemId, InputStream in) throws IOException, TransformerException;
+	protected abstract T create(String systemId, InputStream in)
+			throws IOException, TransformerException;
 
-	protected abstract T create(String systemId, Reader in) throws IOException, TransformerException;
+	protected abstract T create(String systemId, Reader in) throws IOException,
+			TransformerException;
 
 	/**
 	 * returns null for 404 resources.
-	 * @throws TransformerException 
+	 * 
+	 * @throws TransformerException
 	 */
 	private synchronized T resolveWithURLConnection(String systemId)
 			throws IOException, TransformerException {
@@ -169,7 +177,8 @@ public abstract class DocumentObjectResolver<T> {
 		}
 	}
 
-	private T createObject(URLConnection con) throws IOException, TransformerException {
+	private T createObject(URLConnection con) throws IOException,
+			TransformerException {
 		String cacheControl = con.getHeaderField("Cache-Control");
 		long date = con.getHeaderFieldDate("Expires", expires);
 		expires = getExpires(cacheControl, date);

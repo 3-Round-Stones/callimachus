@@ -63,16 +63,16 @@ public class StreamTransform extends TransformBuilder {
 		this.systemId = systemId;
 	}
 
-	public void close() throws TransformerException {
+	public void close() throws TransformerException, IOException {
 		try {
 			source.close();
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		}
 	}
 
 	@Override
-	public Document asDocument() throws TransformerException {
+	public Document asDocument() throws TransformerException, IOException {
 		InputStream in = asInputStream();
 		try {
 			try {
@@ -87,7 +87,7 @@ public class StreamTransform extends TransformBuilder {
 				in.close();
 			}
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (TransformerException e) {
 			throw handle(e);
 		} catch (RuntimeException e) {
@@ -98,7 +98,8 @@ public class StreamTransform extends TransformBuilder {
 	}
 
 	@Override
-	public XMLEventReader asXMLEventReader() throws TransformerException {
+	public XMLEventReader asXMLEventReader() throws TransformerException,
+			IOException {
 		try {
 			if (systemId == null)
 				return inFactory.createXMLEventReader(source);
@@ -113,18 +114,18 @@ public class StreamTransform extends TransformBuilder {
 	}
 
 	@Override
-	public InputStream asInputStream() throws TransformerException {
+	public InputStream asInputStream() throws TransformerException, IOException {
 		return source;
 	}
 
 	@Override
-	public Reader asReader() throws TransformerException {
+	public Reader asReader() throws TransformerException, IOException {
 		try {
 			CharArrayWriter caw = new CharArrayWriter(8192);
 			try {
 				toWriter(caw);
 			} catch (IOException e) {
-				throw handle(new TransformerException(e));
+				throw handle(e);
 			} finally {
 				caw.close();
 			}

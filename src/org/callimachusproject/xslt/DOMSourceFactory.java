@@ -62,7 +62,7 @@ public class DOMSourceFactory {
 		this.factory = factory;
 	}
 
-	public void close(Source source) throws TransformerException {
+	public void close(Source source) throws IOException, TransformerException {
 		try {
 			if (source instanceof StreamSource) {
 				StreamSource ss = (StreamSource) source;
@@ -82,8 +82,6 @@ public class DOMSourceFactory {
 					stax.getXMLStreamReader().close();
 				}
 			}
-		} catch (IOException e) {
-			throw new TransformerException(e);
 		} catch (XMLStreamException e) {
 			throw new TransformerException(e);
 		}
@@ -145,7 +143,8 @@ public class DOMSourceFactory {
 		}
 	}
 
-	public DOMSource createSource(Node node, String systemId) throws TransformerException {
+	public DOMSource createSource(Node node, String systemId)
+			throws TransformerException {
 		if (node instanceof Document) {
 			return createSource((Document) node, systemId);
 		} else if (node instanceof DocumentFragment) {
@@ -155,7 +154,7 @@ public class DOMSourceFactory {
 			Element root = doc.createElement("root");
 			root.appendChild(doc.importNode(node, true));
 			doc.appendChild(root);
-			return new DOMSource(doc, systemId);
+			return createSource(doc, systemId);
 		} else {
 			Document doc = newDocument();
 			doc.appendChild(doc.importNode(node, true));
@@ -164,10 +163,10 @@ public class DOMSourceFactory {
 	}
 
 	public DOMSource createSource(Document node, String systemId) {
-		if (systemId == null){
-			String documentURI = ((Document)node).getDocumentURI();
+		if (systemId == null) {
+			String documentURI = ((Document) node).getDocumentURI();
 			if (documentURI != null)
-				return new DOMSource(node, documentURI);
+				return createSource(node, documentURI);
 		}
 		if (systemId == null)
 			return new DOMSource(node);

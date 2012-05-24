@@ -54,7 +54,9 @@ public class XMLEventReaderFactory {
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		factory.setProperty(XMLInputFactory.IS_VALIDATING, false);
 		factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-		factory.setProperty("http://java.sun.com/xml/stream/properties/ignore-external-dtd", true);
+		factory.setProperty(
+				"http://java.sun.com/xml/stream/properties/ignore-external-dtd",
+				true);
 		return new XMLEventReaderFactory(factory);
 	}
 

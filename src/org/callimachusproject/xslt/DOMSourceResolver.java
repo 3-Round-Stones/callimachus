@@ -13,15 +13,16 @@ public class DOMSourceResolver extends DocumentObjectResolver<DOMSource> {
 	}
 
 	protected String[] getContentTypes() {
-		return new String[] { "application/xml",
-				"application/xslt+xml", "text/xml", "text/xsl" };
+		return new String[] { "application/xml", "application/xslt+xml",
+				"text/xml", "text/xsl" };
 	}
 
 	protected boolean isReusable() {
 		return true;
 	}
 
-	protected DOMSource create(String systemId, Reader in) throws TransformerException {
+	protected DOMSource create(String systemId, Reader in)
+			throws TransformerException {
 		return sourceFactory.createSource(in, systemId);
 	}
 
@@ -29,6 +30,5 @@ public class DOMSourceResolver extends DocumentObjectResolver<DOMSource> {
 			throws TransformerException {
 		return sourceFactory.createSource(in, systemId);
 	}
-
 
 }

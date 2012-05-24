@@ -34,7 +34,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,8 +42,6 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -58,7 +55,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
@@ -70,7 +66,7 @@ import org.w3c.dom.DocumentFragment;
  */
 public class XSLTransformBuilder extends TransformBuilder {
 	private Source source;
-	private final List<Closeable> opened = new ArrayList<Closeable>();
+	private final CloseableURIResolver opened;
 	private Transformer transformer;
 	private ErrorCatcher listener;
 	private DocumentFactory builder = DocumentFactory.newInstance();
@@ -78,37 +74,15 @@ public class XSLTransformBuilder extends TransformBuilder {
 			.newInstance();
 
 	public XSLTransformBuilder(Transformer transformer, final Source source,
-			final URIResolver resolver) throws TransformerException {
-		this.source = source;
-		this.opened.add(new Closeable() {
-			public void close() throws IOException {
-				try {
-					sourceFactory.close(source);
-				} catch (TransformerException e) {
-					throw new IOException(e);
-				}
-			}
-		});
+			final URIResolver resolver) throws TransformerException,
+			IOException {
 		try {
+			this.source = source;
 			this.transformer = transformer;
 			listener = new ErrorCatcher(source.getSystemId());
+			opened = new CloseableURIResolver(resolver);
 			transformer.setErrorListener(listener);
-			transformer.setURIResolver(new URIResolver() {
-				public Source resolve(String href, String base)
-						throws TransformerException {
-					Source source = resolver.resolve(href, base);
-					if (source instanceof StreamSource) {
-						InputStream in = ((StreamSource) source)
-								.getInputStream();
-						if (in != null) {
-							synchronized (opened) {
-								opened.add(in);
-							}
-						}
-					}
-					return source;
-				}
-			});
+			transformer.setURIResolver(opened);
 		} catch (RuntimeException e) {
 			throw handle(e);
 		} catch (Error e) {
@@ -116,17 +90,9 @@ public class XSLTransformBuilder extends TransformBuilder {
 		}
 	}
 
-	public void close() throws TransformerException {
-		synchronized (opened) {
-			for (Closeable closeable : opened) {
-				try {
-					closeable.close();
-				} catch (IOException e) {
-					listener.ioException(e);
-				}
-			}
-			opened.clear();
-		}
+	public void close() throws IOException, TransformerException {
+		sourceFactory.close(source);
+		opened.close();
 	}
 
 	protected void fatalError(TransformerException exception) {
@@ -137,7 +103,8 @@ public class XSLTransformBuilder extends TransformBuilder {
 		listener.ioException(exception);
 	}
 
-	public DocumentFragment asDocumentFragment() throws TransformerException {
+	public DocumentFragment asDocumentFragment() throws TransformerException,
+			IOException {
 		try {
 			Document doc = builder.newDocument();
 			DocumentFragment frag = doc.createDocumentFragment();
@@ -147,7 +114,7 @@ public class XSLTransformBuilder extends TransformBuilder {
 				return frag;
 			return null;
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (ParserConfigurationException e) {
 			throw handle(new TransformerException(e));
 		} catch (TransformerException e) {
@@ -159,7 +126,7 @@ public class XSLTransformBuilder extends TransformBuilder {
 		}
 	}
 
-	public Document asDocument() throws TransformerException {
+	public Document asDocument() throws TransformerException, IOException {
 		try {
 			Document doc = builder.newDocument();
 			DOMResult output = new DOMResult(doc);
@@ -172,7 +139,7 @@ public class XSLTransformBuilder extends TransformBuilder {
 				return doc;
 			return null;
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (ParserConfigurationException e) {
 			throw handle(new TransformerException(e));
 		} catch (TransformerException e) {
@@ -184,7 +151,8 @@ public class XSLTransformBuilder extends TransformBuilder {
 		}
 	}
 
-	public XMLEventReader asXMLEventReader() throws TransformerException {
+	public XMLEventReader asXMLEventReader() throws TransformerException,
+			IOException {
 		XMLEventReaderFactory infactory = XMLEventReaderFactory.newInstance();
 		try {
 			Reader reader = asReader();
@@ -205,7 +173,7 @@ public class XSLTransformBuilder extends TransformBuilder {
 		}
 	}
 
-	public InputStream asInputStream() throws TransformerException {
+	public InputStream asInputStream() throws TransformerException, IOException {
 		try {
 			ByteArrayOutputStream output = new ByteArrayOutputStream(8192);
 			toOutputStream(output);
@@ -228,7 +196,7 @@ public class XSLTransformBuilder extends TransformBuilder {
 			buffer.reset();
 			return buffer;
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (TransformerException e) {
 			throw handle(e);
 		} catch (RuntimeException e) {
@@ -238,7 +206,7 @@ public class XSLTransformBuilder extends TransformBuilder {
 		}
 	}
 
-	public Reader asReader() throws TransformerException {
+	public Reader asReader() throws TransformerException, IOException {
 		try {
 			CharArrayWriter writer = new CharArrayWriter(8192);
 			toWriter(writer);
@@ -257,7 +225,7 @@ public class XSLTransformBuilder extends TransformBuilder {
 			reader.reset();
 			return reader;
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (TransformerException e) {
 			throw handle(e);
 		} catch (RuntimeException e) {
@@ -286,7 +254,8 @@ public class XSLTransformBuilder extends TransformBuilder {
 			try {
 				if (listener.isFatal())
 					throw listener.getFatalError();
-				transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+				transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
+						"yes");
 				transformer.transform(source, new StreamResult(writer));
 				if (listener.isFatal())
 					throw listener.getFatalError();

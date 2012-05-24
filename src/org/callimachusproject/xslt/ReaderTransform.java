@@ -63,16 +63,16 @@ public class ReaderTransform extends TransformBuilder {
 		this.systemId = systemId;
 	}
 
-	public void close() throws TransformerException {
+	public void close() throws TransformerException, IOException {
 		try {
 			source.close();
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		}
 	}
 
 	@Override
-	public Document asDocument() throws TransformerException {
+	public Document asDocument() throws TransformerException, IOException {
 		Reader reader = asReader();
 		try {
 			try {
@@ -87,7 +87,7 @@ public class ReaderTransform extends TransformBuilder {
 				reader.close();
 			}
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (TransformerException e) {
 			throw handle(e);
 		} catch (RuntimeException e) {
@@ -98,7 +98,8 @@ public class ReaderTransform extends TransformBuilder {
 	}
 
 	@Override
-	public XMLEventReader asXMLEventReader() throws TransformerException {
+	public XMLEventReader asXMLEventReader() throws TransformerException,
+			IOException {
 		try {
 			if (systemId == null)
 				return inFactory.createXMLEventReader(source);
@@ -113,7 +114,7 @@ public class ReaderTransform extends TransformBuilder {
 	}
 
 	@Override
-	public InputStream asInputStream() throws TransformerException {
+	public InputStream asInputStream() throws TransformerException, IOException {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
 			try {
@@ -123,7 +124,7 @@ public class ReaderTransform extends TransformBuilder {
 			}
 			return new ByteArrayInputStream(baos.toByteArray());
 		} catch (IOException e) {
-			throw handle(new TransformerException(e));
+			throw handle(e);
 		} catch (TransformerException e) {
 			throw handle(e);
 		} catch (RuntimeException e) {
@@ -134,7 +135,7 @@ public class ReaderTransform extends TransformBuilder {
 	}
 
 	@Override
-	public Reader asReader() throws TransformerException {
+	public Reader asReader() throws TransformerException, IOException {
 		return source;
 	}
 

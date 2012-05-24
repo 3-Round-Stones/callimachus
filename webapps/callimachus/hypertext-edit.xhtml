@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title about="?this">{rdfs:label}</title>
-	<script type="text/javascript" src="/callimachus/editor/edit.js"> </script>
+    <title about="?this">{rdfs:label}</title>
+    <script type="text/javascript" src="/callimachus/editor/edit.js"> </script>
 </head>
 <body>
-	<form id="form" method="PUT" action="{?this}" enctype="text/plain">
-		<iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#html"> </iframe>
+    <form id="form" method="PUT" action="{?this}" enctype="text/plain">
+        <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#html"> </iframe>
         <button type="submit">Save</button>
-		<button type="button" onclick="calli.saveResourceAs(event, 'untitled.html', calli.getCallimachusUrl('HypertextFile'))">Save as...</button>
-		<button type="button" onclick="location.replace('?view')">Cancel</button>
-		<button type="button" onclick="calli.deleteResource(event)">Delete</button>
-	</form>
+        <button type="button" onclick="calli.saveResourceAs(event, 'untitled.html', calli.getCallimachusUrl('HypertextFile'))">Save as...</button>
+        <button type="button" onclick="location.replace('?view')">Cancel</button>
+        <button type="button" onclick="calli.deleteResource(event)">Delete</button>
+    </form>
 </body>
 </html>
 

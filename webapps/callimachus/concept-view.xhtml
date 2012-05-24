@@ -1,56 +1,56 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-	xmlns:foaf="http://xmlns.com/foaf/0.1/">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
-	<title about="?this">{skos:prefLabel}</title>
-	<link rel="edit" href="?edit" />
-	<link rel="describedby" href="?describe" />
-	<link rel="version-history" href="?history" />
-	<style>
-		img { border-style:none; }
-	</style>
+    <title about="?this">{skos:prefLabel}</title>
+    <link rel="edit" href="?edit" />
+    <link rel="describedby" href="?describe" />
+    <link rel="version-history" href="?history" />
+    <style>
+        img { border-style:none; }
+    </style>
 </head>
 <body about="?this">
-	<h1 property="skos:prefLabel" />
-	<div id="sidebar">
-		<aside rev="skos:narrower" class="optional">
-			<h3>Broader</h3>
-			<p about="?broader">
-				<a property="skos:prefLabel" href="?broader"></a>
-			</p>
-		</aside>
-		<aside class="optional">
-			<h3>Related</h3>
-			<p rel="skos:related" resource="?related" class="related">
-				<a property="skos:prefLabel" href="?related"></a>
-			</p>
-			<p rev="skos:related" resource="?revated" class="related">
-				<a property="skos:prefLabel" href="?revated"></a>
-			</p>
-		</aside>
-		<aside rel="skos:narrower" class="optional">
-			<h3>Narrower</h3>
-			<p about="?narrower">
-				<a property="skos:prefLabel" href="?narrower"></a>
-			</p>
-		</aside>
-	</div>
-	<div class="hbox">
-		<div class="vbox">
-			<pre property="skos:definition" class="wiki"></pre>
-			<pre property="skos:example" class="wiki"></pre>
-			<pre property="skos:historyNote" class="wiki"></pre>
-			<pre property="skos:scopeNote" class="wiki"></pre>
-		</div>
-		<div id="image" rel="foaf:depiction" resource="?image" style="max-width:33%">
-			<a href="?image" class="view"><img src="?image" style="max-width:100%;max-height:75%" /></a>
-			<p property="rdfs:comment" />
-		</div>
-	</div>
+    <h1 property="skos:prefLabel" />
+    <div id="sidebar">
+        <aside rev="skos:narrower" class="optional">
+            <h3>Broader</h3>
+            <p about="?broader">
+                <a property="skos:prefLabel" href="?broader"></a>
+            </p>
+        </aside>
+        <aside class="optional">
+            <h3>Related</h3>
+            <p rel="skos:related" resource="?related" class="related">
+                <a property="skos:prefLabel" href="?related"></a>
+            </p>
+            <p rev="skos:related" resource="?revated" class="related">
+                <a property="skos:prefLabel" href="?revated"></a>
+            </p>
+        </aside>
+        <aside rel="skos:narrower" class="optional">
+            <h3>Narrower</h3>
+            <p about="?narrower">
+                <a property="skos:prefLabel" href="?narrower"></a>
+            </p>
+        </aside>
+    </div>
+    <div class="hbox">
+        <div class="vbox">
+            <pre property="skos:definition" class="wiki"></pre>
+            <pre property="skos:example" class="wiki"></pre>
+            <pre property="skos:historyNote" class="wiki"></pre>
+            <pre property="skos:scopeNote" class="wiki"></pre>
+        </div>
+        <div id="image" rel="foaf:depiction" resource="?image" style="max-width:33%">
+            <a href="?image" class="view"><img src="?image" style="max-width:100%;max-height:75%" /></a>
+            <p property="rdfs:comment" />
+        </div>
+    </div>
 </body>
 </html>

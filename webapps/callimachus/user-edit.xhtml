@@ -1,81 +1,81 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:foaf="http://xmlns.com/foaf/0.1/">
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
-	<title about="?this">{rdfs:label}</title>
-	<script type="text/javascript">//<![CDATA[
-		$(document).ready(function() {
-			var uri = $("form[about]").attr("about");
-			var credential = null;
-			jQuery.ajax({type: "GET",  url: "/accounts?login",
-				beforeSend: function(req) {
-					try {
-						req.withCredentials = true;
-					} catch (e) {}
-				},
-				success: function(doc) {
-					credential = /about="([^" >]*)"/i.exec(doc)[1];
-				}
-			});
-			var deleted = false;
-			$(document).bind("calliDelete", function(event) {
-				if (credential && credential == uri) {
-					deleted = true;
-				}
-				return true;
-			});
-			$(document).bind("calliRedirect", function(event) {
-				if (deleted && credential && credential == uri) {
-					// need to log user out gracefully since they deleted themselves
-					$(document).trigger("calliLogout");
-					event.preventDefault();
-					return false;
-				}
-				return true;
-			});
-		});
-		// ]]>
-	</script>
+    <title about="?this">{rdfs:label}</title>
+    <script type="text/javascript">//<![CDATA[
+        $(document).ready(function() {
+            var uri = $("form[about]").attr("about");
+            var credential = null;
+            jQuery.ajax({type: "GET",  url: "/accounts?login",
+                beforeSend: function(req) {
+                    try {
+                        req.withCredentials = true;
+                    } catch (e) {}
+                },
+                success: function(doc) {
+                    credential = /about="([^" >]*)"/i.exec(doc)[1];
+                }
+            });
+            var deleted = false;
+            $(document).bind("calliDelete", function(event) {
+                if (credential && credential == uri) {
+                    deleted = true;
+                }
+                return true;
+            });
+            $(document).bind("calliRedirect", function(event) {
+                if (deleted && credential && credential == uri) {
+                    // need to log user out gracefully since they deleted themselves
+                    $(document).trigger("calliLogout");
+                    event.preventDefault();
+                    return false;
+                }
+                return true;
+            });
+        });
+        // ]]>
+    </script>
 </head>
 <body about="?this">
-	<h1 property="rdfs:label" />
-	<div id="sidebar">
-		<aside>
-			<p><a href="?password">Change password or email</a></p>
-		</aside>
-		<aside>
-			<p>Enter your full name</p>
-			<p>Upload a small photo of yourself so others can recognize you using the photo icon</p>
-			<p>Additional information is to provide additional contact information and is viewable to all authenticated users</p>
-			<p>Your e-mail address is used to reset your password</p>
-		</aside>
-	</div>
-	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this" autocomplete="off">
-		<label for="label">Full name</label>
-		<div>
-			<input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" />
-		</div>
-	 	<div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-			<label>Photo <a href="?create=/callimachus/Photo" title="Upload"
-					onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-			<div rel="foaf:depiction">
-				<span about="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
-					<img src="{?img}?small" />
-				</span>
-			</div>
-		</div>
-		<label for="comment">Additional information</label>
-		<div>
-			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
-		</div>
-		<button id="save" type="submit">Save</button>
-		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
-	</form>
+    <h1 property="rdfs:label" />
+    <div id="sidebar">
+        <aside>
+            <p><a href="?password">Change password or email</a></p>
+        </aside>
+        <aside>
+            <p>Enter your full name</p>
+            <p>Upload a small photo of yourself so others can recognize you using the photo icon</p>
+            <p>Additional information is to provide additional contact information and is viewable to all authenticated users</p>
+            <p>Your e-mail address is used to reset your password</p>
+        </aside>
+    </div>
+    <form id="form" method="POST" action="" enctype="application/sparql-update" about="?this" autocomplete="off">
+        <label for="label">Full name</label>
+        <div>
+            <input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" />
+        </div>
+         <div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+            <label>Photo <a href="?create=/callimachus/Photo" title="Upload"
+                    onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+            <div rel="foaf:depiction">
+                <span about="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
+                    <img src="{?img}?small" />
+                </span>
+            </div>
+        </div>
+        <label for="comment">Additional information</label>
+        <div>
+            <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+        </div>
+        <button id="save" type="submit">Save</button>
+        <button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+        <button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
+    </form>
 </body>
 </html>

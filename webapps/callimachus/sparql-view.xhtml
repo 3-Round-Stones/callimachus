@@ -2,18 +2,18 @@
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<title>SPARQL Query</title>
-	<link rel="describedby" href="?describe" />
-	<link rel="version-history" href="?history" />
+    <title>SPARQL Query</title>
+    <link rel="describedby" href="?describe" />
+    <link rel="version-history" href="?history" />
 </head>
 <body about="?this">
-	<h1>SPARQL Query</h1>
-	<div id="sidebar">
-		<aside>
-			<p>Query the database using the SPARQL language</p>
-			<p>Namespace prefixes are optional and if omitted the default <a href="/callimachus/profile">SPARQL Profile</a> will be used</p>
-			<p>Additional RDF graphs can be uploaded using the <a href="/callimachus/NamedGraph">RDF Graph Interface</a></p>
-			<p>To get started (if your database isn't too big) try listing some of the different types available in the database</p>
+    <h1>SPARQL Query</h1>
+    <div id="sidebar">
+        <aside>
+            <p>Query the database using the SPARQL language</p>
+            <p>Namespace prefixes are optional and if omitted the default <a href="/callimachus/profile">SPARQL Profile</a> will be used</p>
+            <p>Additional RDF graphs can be uploaded using the <a href="/callimachus/NamedGraph">RDF Graph Interface</a></p>
+            <p>To get started (if your database isn't too big) try listing some of the different types available in the database</p>
 <pre>
 SELECT DISTINCT ?type
 WHERE {
@@ -22,16 +22,16 @@ WHERE {
 ORDER BY ?type
 LIMIT 50
 </pre>
-		</aside>
-	</div>
-	<form action="/sparql" method="POST">
-		<textarea id="sparql" name="query" class="flex" required="required"
-			onchange="$(form).find('button').removeAttr('disabled')"></textarea>
-		<div>
-			<button type="submit" onclick="$('#sparql').attr('name', 'query')">Evaluate Query</button>
-			<button type="submit" onclick="$('#sparql').attr('name', 'update')">Execute Update</button>
-			<button type="button" onclick="history.back()">Cancel</button>
-		</div>
-	</form>
+        </aside>
+    </div>
+    <form action="/sparql" method="POST">
+        <textarea id="sparql" name="query" class="flex" required="required"
+            onchange="$(form).find('button').removeAttr('disabled')"></textarea>
+        <div>
+            <button type="submit" onclick="$('#sparql').attr('name', 'query')">Evaluate Query</button>
+            <button type="submit" onclick="$('#sparql').attr('name', 'update')">Execute Update</button>
+            <button type="button" onclick="history.back()">Cancel</button>
+        </div>
+    </form>
 </body>
 </html>

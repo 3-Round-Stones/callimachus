@@ -25,108 +25,108 @@
 <> a <SchemaGraph>.
 
 <Page> a <Creatable>, owl:Class;
-	rdfs:subClassOf calli:Page, <File>;
-	rdfs:label "Page";
-	rdfs:comment "New pages can be created in a folder";
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/staff>,</group/admin>;
-	calli:icon <page.png>;
-	calli:edit <page-edit.xhtml>;
-	calli:create <page-create.xhtml>;
-	calli:type "application/xhtml+xml".
+    rdfs:subClassOf calli:Page, <File>;
+    rdfs:label "Page";
+    rdfs:comment "New pages can be created in a folder";
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/staff>,</group/admin>;
+    calli:icon <page.png>;
+    calli:edit <page-edit.xhtml>;
+    calli:create <page-create.xhtml>;
+    calli:type "application/xhtml+xml".
 
 # GET /page/MainPage.xhtml?view
 :GetPage owl:intersectionOf (<toolbox/view.ttl#GetViewPage>
-		[owl:onProperty msg:target; owl:allValuesFrom <Page>]);
-	calli:rel "alternate";
-	calli:method "GET";
-	calli:query "view";
-	calli:type "application/xhtml+xml";
-	calli:header "cache-control:no-cache";
-	calli:transform <transforms/TransformPage>;
-	msg:script """
-		return this.calliConstruct(this);
-	""".
+        [owl:onProperty msg:target; owl:allValuesFrom <Page>]);
+    calli:rel "alternate";
+    calli:method "GET";
+    calli:query "view";
+    calli:type "application/xhtml+xml";
+    calli:header "cache-control:no-cache";
+    calli:transform <transforms/TransformPage>;
+    msg:script """
+        return this.calliConstruct(this);
+    """.
 
 # GET /page/MainPage.xhtml
 :GetPageSource rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:method "GET";
-	calli:type "application/xhtml+xml";
-	calli:header "cache-control:no-cache";
-	calli:header "cache-control:cache-range";
-	msg:script "return this.openInputStream()".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:type "application/xhtml+xml";
+    calli:header "cache-control:no-cache";
+    calli:header "cache-control:cache-range";
+    msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Page
 :CreatePage owl:intersectionOf (<toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Page> ]);
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-	msg:imports <File>;
-	msg:imports calli:Page;
-	msg:imports foaf:Document;
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.valueFactory;
-		if (!location)
-			throw new BadRequest("Missing location request header");
+        [owl:onProperty msg:target; owl:hasValue <Page> ]);
+    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    msg:imports <java:java.net.URLDecoder>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    msg:imports <File>;
+    msg:imports calli:Page;
+    msg:imports foaf:Document;
+    msg:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        if (!location)
+            throw new BadRequest("Missing location request header");
 
-		if (location instanceof File) {
-			location = location.RemoveFile();
-		}
-		var created = location;
+        if (location instanceof File) {
+            location = location.RemoveFile();
+        }
+        var created = location;
 
-		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
-		con.add(created.resource, RDFS.LABEL, label, []);
+        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
+        con.add(created.resource, RDFS.LABEL, label, []);
 
-		created = con.addDesignation(created, this.toString());
-		created = con.addDesignation(created, Page);
-		created = con.addDesignation(created, Document);
+        created = con.addDesignation(created, this.toString());
+        created = con.addDesignation(created, Page);
+        created = con.addDesignation(created, Document);
 
-		created.UploadPage(body);
-		return created;
-	""".
+        created.UploadPage(body);
+        return created;
+    """.
 
 # PUT /page/MainPage.xhtml
 # Called by client, copy operation, create operation, and MainPage initialization
 :UploadPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	calli:method "PUT";
-	calli:realm </>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:script """
-		var read;
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var out = this.openOutputStream();
-		try {
-			while ((read = xhtmlStream.read(buf)) >= 0) {
-				out.write(buf, 0, read);
-			}
-		} finally {
-			out.close();
-		}
-		var input = this.openInputStream();
-		try {
-			// verify we can parse it as XML
-			var xslt = new org.callimachusproject.xslt.XSLTransformer();
-			xslt.transform(input, this.toString()).asDocument();
-		} finally {
-			input.close();
-		}
-		this.touchRevision();
-		HTTPObjectServer.resetAllCache();
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:realm </>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    msg:imports <java:java.net.URLDecoder>;
+    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:script """
+        var read;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var out = this.openOutputStream();
+        try {
+            while ((read = xhtmlStream.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        var input = this.openInputStream();
+        try {
+            // verify we can parse it as XML
+            var xslt = new org.callimachusproject.xslt.XSLTransformer();
+            xslt.transform(input, this.toString()).asDocument();
+        } finally {
+            input.close();
+        }
+        this.touchRevision();
+        HTTPObjectServer.resetAllCache();
+    """.
 
 :xhtmlStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :UploadPage;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "application/xhtml+xml".
+    rdfs:domain :UploadPage;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/xhtml+xml".
 

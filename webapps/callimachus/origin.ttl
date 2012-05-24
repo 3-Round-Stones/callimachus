@@ -28,74 +28,74 @@
 <> a <SchemaGraph>.
 
 <Origin> a owl:Class;
-	rdfs:subClassOf <Realm>, calli:Origin;
-	rdfs:label "Origin";
-	rdfs:comment "Root path of an http or https authority";
-	rdfs:isDefinedBy </callimachus>;
-	calli:icon <realm.png>;
-	calli:view <folder-view.xhtml>.
+    rdfs:subClassOf <Realm>, calli:Origin;
+    rdfs:label "Origin";
+    rdfs:comment "Root path of an http or https authority";
+    rdfs:isDefinedBy </callimachus>;
+    calli:icon <realm.png>;
+    calli:view <folder-view.xhtml>.
 
 ################################
 # List realms defined by <Realm>
 ################################
 
 :GetListOfRealms rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Origin>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:method "GET";
-	calli:query "realms";
-	calli:rel calli:realms;
-	calli:type "application/sparql-results+xml;q=0.1";
-	calli:header "cache-control:no-cache";
-	calli:transform <transforms/TransformIntoAtom>;
-	msg:sparql """
-		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT REDUCED * {
-			{
-				$this rdfs:label ?title
-				BIND (concat(str($this),"?realms") as ?id)
-				BIND ("feed" as ?type)
-			} UNION {
-				{ ?id a <Origin> } UNION { ?id a <Realm> }
-				{
-					?id rdfs:label ?title
-				} UNION {
-					?id audit:revision ?revision . ?revision audit:committedOn ?updated
-					OPTIONAL {
-						?revision audit:contributor ?contributor_uri
-						OPTIONAL {
-							?contributor_uri rdfs:label ?contributor_name
-						}
-					}
-				} UNION {
-					?id rdfs:comment ?summary
-				} UNION {
-					?id a [calli:icon ?icon]
-				} UNION {
-					{ ?id a <Origin> } UNION { ?id a <Realm> }
-					BIND (concat(str(?id),"?view") as ?link_view_href)
-					BIND (concat(str(?id),"?describe") as ?link_describedby_href)
-					BIND (concat(str(?id),"?history") as ?link_history_href)
-					BIND (?id as ?content_src)
-					OPTIONAL {
-						?id a [calli:type ?content_type]
-						BIND (?id as ?link_edit_media_href)
-					}
-				} UNION {
-					{ ?id a <Origin> } UNION { ?id a <Realm> }
-					BIND (concat(str(?id),"?contents") as ?link_href)
-					BIND ("contents" as ?link_rel)
-					BIND ("application/atom+xml" as ?link_type)
-				} UNION {
-					{ ?id a <Origin> } UNION { ?id a <Realm> }
-					BIND (concat(str(?id),"?archive") as ?link_href)
-					BIND (calli:archive as ?link_rel)
-					BIND ("application/zip" as ?link_type)
-				}
-			}
-		}
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Origin>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "realms";
+    calli:rel calli:realms;
+    calli:type "application/sparql-results+xml;q=0.1";
+    calli:header "cache-control:no-cache";
+    calli:transform <transforms/TransformIntoAtom>;
+    msg:sparql """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT REDUCED * {
+            {
+                $this rdfs:label ?title
+                BIND (concat(str($this),"?realms") as ?id)
+                BIND ("feed" as ?type)
+            } UNION {
+                { ?id a <Origin> } UNION { ?id a <Realm> }
+                {
+                    ?id rdfs:label ?title
+                } UNION {
+                    ?id audit:revision ?revision . ?revision audit:committedOn ?updated
+                    OPTIONAL {
+                        ?revision audit:contributor ?contributor_uri
+                        OPTIONAL {
+                            ?contributor_uri rdfs:label ?contributor_name
+                        }
+                    }
+                } UNION {
+                    ?id rdfs:comment ?summary
+                } UNION {
+                    ?id a [calli:icon ?icon]
+                } UNION {
+                    { ?id a <Origin> } UNION { ?id a <Realm> }
+                    BIND (concat(str(?id),"?view") as ?link_view_href)
+                    BIND (concat(str(?id),"?describe") as ?link_describedby_href)
+                    BIND (concat(str(?id),"?history") as ?link_history_href)
+                    BIND (?id as ?content_src)
+                    OPTIONAL {
+                        ?id a [calli:type ?content_type]
+                        BIND (?id as ?link_edit_media_href)
+                    }
+                } UNION {
+                    { ?id a <Origin> } UNION { ?id a <Realm> }
+                    BIND (concat(str(?id),"?contents") as ?link_href)
+                    BIND ("contents" as ?link_rel)
+                    BIND ("application/atom+xml" as ?link_type)
+                } UNION {
+                    { ?id a <Origin> } UNION { ?id a <Realm> }
+                    BIND (concat(str(?id),"?archive") as ?link_href)
+                    BIND (calli:archive as ?link_rel)
+                    BIND ("application/zip" as ?link_type)
+                }
+            }
+        }
+    """.
 

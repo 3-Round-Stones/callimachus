@@ -27,108 +27,108 @@
 <> a <../SchemaGraph>.
 
 :GetPermissions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <permissions.xhtml>];
-	calli:method "GET";
-	calli:query "permissions";
-	calli:realm </>;
-	calli:type "application/xhtml+xml";
-	calli:header "cache-control:no-cache";
-	calli:transform <../transforms/TransformPage>;
-	msg:script """
-		return permissions_xhtml.calliConstruct(this);
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+    rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <permissions.xhtml>];
+    calli:method "GET";
+    calli:query "permissions";
+    calli:realm </>;
+    calli:type "application/xhtml+xml";
+    calli:header "cache-control:no-cache";
+    calli:transform <../transforms/TransformPage>;
+    msg:script """
+        return permissions_xhtml.calliConstruct(this);
+    """.
 
 :permissions_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain [owl:unionOf (:GetPermissions :PostPermissions)].
+    rdfs:domain [owl:unionOf (:GetPermissions :PostPermissions)].
 
 # used by permissions.xhtml
 :GetRdfTypes rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:literalSet; owl:allValuesFrom xsd:string];
-	calli:method "GET";
-	calli:query "rdftype";
-	calli:type "text/uri-list";
-	msg:imports <java:org.openrdf.annotations.Iri>;
-	msg:script """
-		function addConcepts(klass, concepts, visited) {
-			if (visited.contains(klass))
-				return concepts;
-			visited.add(klass);
-			if (klass.isAnnotationPresent(Iri)) {
-				concepts.add(klass.getAnnotation(Iri).value());
-			}
-			var sup = klass.getSuperclass();
-			if (sup) {
-				addConcepts(sup, concepts, visited);
-			}
-			var interfaces = klass.getInterfaces();
-			for (var i = 0; i < interfaces.length; i++) {
-				addConcepts(interfaces[i], concepts, visited);
-			}
-			return concepts;
-		}
-		return addConcepts(this.getClass(), new java.util.TreeSet(), new java.util.HashSet());
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:literalSet; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "rdftype";
+    calli:type "text/uri-list";
+    msg:imports <java:org.openrdf.annotations.Iri>;
+    msg:script """
+        function addConcepts(klass, concepts, visited) {
+            if (visited.contains(klass))
+                return concepts;
+            visited.add(klass);
+            if (klass.isAnnotationPresent(Iri)) {
+                concepts.add(klass.getAnnotation(Iri).value());
+            }
+            var sup = klass.getSuperclass();
+            if (sup) {
+                addConcepts(sup, concepts, visited);
+            }
+            var interfaces = klass.getInterfaces();
+            for (var i = 0; i < interfaces.length; i++) {
+                addConcepts(interfaces[i], concepts, visited);
+            }
+            return concepts;
+        }
+        return addConcepts(this.getClass(), new java.util.TreeSet(), new java.util.HashSet());
+    """.
 
 :PostPermissions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
-	rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <permissions.xhtml>];
-	calli:method "POST";
-	calli:query "permissions";
-	calli:realm </>;
-	calli:expect "201-modified";
-	msg:script """
-		permissions_xhtml.calliEditResource(this, msg.input);
-		var parent = this.SelectParentComposite();
-		if (parent) {
-			parent.touchRevision();
-		}
-		return this;
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
+    rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <permissions.xhtml>];
+    calli:method "POST";
+    calli:query "permissions";
+    calli:realm </>;
+    calli:expect "201-modified";
+    msg:script """
+        permissions_xhtml.calliEditResource(this, msg.input);
+        var parent = this.SelectParentComposite();
+        if (parent) {
+            parent.touchRevision();
+        }
+        return this;
+    """.
 
 :input a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :PostPermissions;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "application/sparql-update".
+    rdfs:domain :PostPermissions;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-update".
 
 :PostClassPermissions owl:intersectionOf ( :PostPermissions
-		[owl:onProperty msg:target; owl:allValuesFrom <../Class>]);
-	calli:method "POST";
-	calli:query "permissions";
-	calli:realm </>;
-	calli:expect "201-modified";
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-	msg:imports <../SchemaGraph>;
-	msg:script """
-		var before = this.calliAdministrator.empty;
-		var ret = proceed();
-		if (!before) {
-			var obj = this.objectConnection.getObject(this.resource);
-			if (obj.calliAdministrator.empty) {
-				throw new BadRequest("Cannot remove all class administrators");
-			}
-		}
-		var con = this.objectConnection;
-		var of = con.objectFactory;
-		con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
-		con.recompileSchemaOnClose();
-		return ret;
-	""".
+        [owl:onProperty msg:target; owl:allValuesFrom <../Class>]);
+    calli:method "POST";
+    calli:query "permissions";
+    calli:realm </>;
+    calli:expect "201-modified";
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDF>;
+    msg:imports <../SchemaGraph>;
+    msg:script """
+        var before = this.calliAdministrator.empty;
+        var ret = proceed();
+        if (!before) {
+            var obj = this.objectConnection.getObject(this.resource);
+            if (obj.calliAdministrator.empty) {
+                throw new BadRequest("Cannot remove all class administrators");
+            }
+        }
+        var con = this.objectConnection;
+        var of = con.objectFactory;
+        con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
+        con.recompileSchemaOnClose();
+        return ret;
+    """.
 
 :SelectParentComposite rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Composite];
-	msg:sparql """
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT ?composite
-		WHERE {
-			?composite calli:hasComponent $this
-		}
-		LIMIT 1
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Composite];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?composite
+        WHERE {
+            ?composite calli:hasComponent $this
+        }
+        LIMIT 1
+    """.
 

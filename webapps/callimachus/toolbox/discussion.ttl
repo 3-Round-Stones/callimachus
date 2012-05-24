@@ -11,65 +11,65 @@
 <> a <../SchemaGraph>.
 
 :GetDiscussion rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:method "GET";
-	calli:query "discussion";
-	calli:type "application/sparql-results+xml;q=0.1";
-	calli:transform :TransformDiscussion;
-	msg:sparql  """
-		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
-		SELECT REDUCED ?label ?note ?revision ?modified ?user ?name
-		WHERE {
-			{
-				$this skos:prefLabel ?label
-			} UNION {
-				$this rdfs:label ?label
-			} UNION {
-				GRAPH ?revision { $this skos:editorialNote ?note }
-				?revision audit:committedOn ?modified
-				OPTIONAL { ?revision audit:contributor ?user
-					OPTIONAL { ?user skos:prefLabel ?name }
-					OPTIONAL { ?user rdfs:label ?name }
-				}
-			}
-		}
-		ORDER BY ?modified
-		LIMIT 100
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "discussion";
+    calli:type "application/sparql-results+xml;q=0.1";
+    calli:transform :TransformDiscussion;
+    msg:sparql  """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        SELECT REDUCED ?label ?note ?revision ?modified ?user ?name
+        WHERE {
+            {
+                $this skos:prefLabel ?label
+            } UNION {
+                $this rdfs:label ?label
+            } UNION {
+                GRAPH ?revision { $this skos:editorialNote ?note }
+                ?revision audit:committedOn ?modified
+                OPTIONAL { ?revision audit:contributor ?user
+                    OPTIONAL { ?user skos:prefLabel ?name }
+                    OPTIONAL { ?user rdfs:label ?name }
+                }
+            }
+        }
+        ORDER BY ?modified
+        LIMIT 100
+    """.
 
 skos:editorialNote a owl:AnnotationProperty.
 
 :PostDiscussion rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	calli:method "POST";
-	calli:query "discussion";
-	calli:realm </>;
-	calli:expect "303-see-other";
-	msg:script """
-		var vf = this.objectConnection.valueFactory;
-		this.skosEditorialNote.add(form.get('note')[0]);
-		return this.resource + "?discussion";
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "POST";
+    calli:query "discussion";
+    calli:realm </>;
+    calli:expect "303-see-other";
+    msg:script """
+        var vf = this.objectConnection.valueFactory;
+        this.skosEditorialNote.add(form.get('note')[0]);
+        return this.resource + "?discussion";
+    """.
 
 :form a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :PostDiscussion;
-	rdfs:range <java:java.util.Map>;
-	calli:type "application/x-www-form-urlencoded";.
+    rdfs:domain :PostDiscussion;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded";.
 
 :TransformDiscussion rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:type "application/xml";
-	calli:transform <../transforms/TransformLayout>;
-	msg:xslt <discussion.xhtml>.
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:type "application/xml";
+    calli:transform <../transforms/TransformLayout>;
+    msg:xslt <discussion.xhtml>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :TransformDiscussion;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "application/sparql-results+xml".
+    rdfs:domain :TransformDiscussion;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-results+xml".
 

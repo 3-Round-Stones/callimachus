@@ -26,100 +26,100 @@
 
 # Note instances of <Class> are creatable and <Class> itself is also creatable
 <Class> a <Creatable>, owl:Class;
-	rdfs:subClassOf <Creatable>, <Viewable>, <Editable>, owl:Class;
-	rdfs:label "Class";
-	rdfs:comment "A class is a construct that is used as a blueprint (or template) to create and edit resources of that class";
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/staff>,</group/admin>;
-	calli:icon <class.png>;
-	calli:view <class-view.xhtml>;
-	calli:edit <class-edit.xhtml>;
-	calli:create <class-create.xhtml>.
+    rdfs:subClassOf <Creatable>, <Viewable>, <Editable>, owl:Class;
+    rdfs:label "Class";
+    rdfs:comment "A class is a construct that is used as a blueprint (or template) to create and edit resources of that class";
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/staff>,</group/admin>;
+    calli:icon <class.png>;
+    calli:view <class-view.xhtml>;
+    calli:edit <class-edit.xhtml>;
+    calli:create <class-create.xhtml>.
 
 :GetClassIndex rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class> ];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream> ];
-	calli:method "GET";
-	calli:query "index";
-	calli:type "application/sparql-results+xml;q=0.1";
-	calli:transform :TransformClassIndex;
-	msg:sparql """
-		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-		PREFIX owl:<http://www.w3.org/2002/07/owl#>
-		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-		PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-		SELECT REDUCED ?title ?description ?resource ?label (ucase(substr(?label, 1, 1)) as ?index) (regex(?label, "^[a-zA-Z]") as ?letter) {
-			{
-				$this rdfs:label ?title
-				OPTIONAL {
-					$this rdfs:comment ?description
-				}
-			} UNION {
-				?resource a $this
-				OPTIONAL {
-					?resource skos:prefLabel ?label
-				} OPTIONAL {
-					?resource rdfs:label ?label
-				} OPTIONAL {
-					?resource foaf:name ?label
-				}
-			} UNION {
-				$this owl:equivalentClass ?type . ?resource a ?type
-				OPTIONAL {
-					?resource skos:prefLabel ?label
-				} OPTIONAL {
-					?resource rdfs:label ?label
-				} OPTIONAL {
-					?resource foaf:name ?label
-				}
-			}
-		} ORDER BY ?label ?resource LIMIT 101
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class> ];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream> ];
+    calli:method "GET";
+    calli:query "index";
+    calli:type "application/sparql-results+xml;q=0.1";
+    calli:transform :TransformClassIndex;
+    msg:sparql """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX owl:<http://www.w3.org/2002/07/owl#>
+        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+        PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+        SELECT REDUCED ?title ?description ?resource ?label (ucase(substr(?label, 1, 1)) as ?index) (regex(?label, "^[a-zA-Z]") as ?letter) {
+            {
+                $this rdfs:label ?title
+                OPTIONAL {
+                    $this rdfs:comment ?description
+                }
+            } UNION {
+                ?resource a $this
+                OPTIONAL {
+                    ?resource skos:prefLabel ?label
+                } OPTIONAL {
+                    ?resource rdfs:label ?label
+                } OPTIONAL {
+                    ?resource foaf:name ?label
+                }
+            } UNION {
+                $this owl:equivalentClass ?type . ?resource a ?type
+                OPTIONAL {
+                    ?resource skos:prefLabel ?label
+                } OPTIONAL {
+                    ?resource rdfs:label ?label
+                } OPTIONAL {
+                    ?resource foaf:name ?label
+                }
+            }
+        } ORDER BY ?label ?resource LIMIT 101
+    """.
 
 :TransformClassIndex rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class> ];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream> ];
-	calli:type "application/xhtml+xml";
-	calli:transform <transforms/TransformLayout>;
-	msg:xslt <class-index.xhtml>.
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class> ];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream> ];
+    calli:type "application/xhtml+xml";
+    calli:transform <transforms/TransformLayout>;
+    msg:xslt <class-index.xhtml>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :TransformClassIndex;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "application/sparql-results+xml".
+    rdfs:domain :TransformClassIndex;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-results+xml".
 
 # when a class is created
 :CreateClass owl:intersectionOf (<toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Class> ]);
-	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-	msg:imports <SchemaGraph>;
-	msg:script """
-		var ret = proceed();
-		var con = this.objectConnection;
-		var of = con.objectFactory;
-		con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
-		con.recompileSchemaOnClose();
-		return ret;
-	""".
+        [owl:onProperty msg:target; owl:hasValue <Class> ]);
+    msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDF>;
+    msg:imports <SchemaGraph>;
+    msg:script """
+        var ret = proceed();
+        var con = this.objectConnection;
+        var of = con.objectFactory;
+        con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
+        con.recompileSchemaOnClose();
+        return ret;
+    """.
 
 :PostClassEdit owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
-		[owl:onProperty msg:target; owl:allValuesFrom <Class>]);
-	calli:method "POST";
-	calli:query "edit";
-	calli:realm </>;
-	calli:expect "201-modified";
-	calli:type "text/uri-list";
-	msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-	msg:imports <SchemaGraph>;
-	msg:script """
-		var ret = proceed();
-		var con = this.objectConnection;
-		var of = con.objectFactory;
-		con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
-		con.recompileSchemaOnClose();
-		return ret;
-	""".
+        [owl:onProperty msg:target; owl:allValuesFrom <Class>]);
+    calli:method "POST";
+    calli:query "edit";
+    calli:realm </>;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    msg:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDF>;
+    msg:imports <SchemaGraph>;
+    msg:script """
+        var ret = proceed();
+        var con = this.objectConnection;
+        var of = con.objectFactory;
+        con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
+        con.recompileSchemaOnClose();
+        return ret;
+    """.
 

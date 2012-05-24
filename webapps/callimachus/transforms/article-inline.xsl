@@ -9,19 +9,19 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" 
 <xsl:param name="this" />
 
 <xsl:template match="xhtml:*">
-	<xsl:copy>
-		<xsl:apply-templates select="@*|*|text()|comment()" />
-	</xsl:copy>
+    <xsl:copy>
+        <xsl:apply-templates select="@*|*|text()|comment()" />
+    </xsl:copy>
 </xsl:template>
 
 <xsl:template match="@*|comment()">
-	<xsl:copy />
+    <xsl:copy />
 </xsl:template>
 
 <xsl:template match="xhtml:article">
-	<article>
-		<xsl:apply-templates select="document($this)/d:article/*" />
-	</article>
+    <article>
+        <xsl:apply-templates select="document($this)/d:article/*" />
+    </article>
 </xsl:template>
 
 </xsl:stylesheet>

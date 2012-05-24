@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title about="?this">{rdfs:label}</title>
-	<link rel="edit" href="?edit" />
-	<link rel="describedby" href="?describe" />
-	<link rel="version-history" href="?history" />
+    <title about="?this">{rdfs:label}</title>
+    <link rel="edit" href="?edit" />
+    <link rel="describedby" href="?describe" />
+    <link rel="version-history" href="?history" />
 </head>
 <body about="?this">
-	<h1 property="rdfs:label" />
-	<ol rel="calli:item" class="sorted">
-		<li typeof="">
-			<span class="asc" property="calli:position" style="display:none" />
-			<label property="rdfs:label" />
-			<a rel="calli:link" href="?menu">(link)</a>
-			<ol rel="calli:item" class="sorted">
-				<li typeof="">
-					<span class="asc" property="calli:position" style="display:none" />
-					<label property="rdfs:label" />
-					<a rel="calli:link" href="?link">(link)</a>
-				</li>
-			</ol>
-		</li>
-	</ol>
+    <h1 property="rdfs:label" />
+    <ol rel="calli:item" class="sorted">
+        <li typeof="">
+            <span class="asc" property="calli:position" style="display:none" />
+            <label property="rdfs:label" />
+            <a rel="calli:link" href="?menu">(link)</a>
+            <ol rel="calli:item" class="sorted">
+                <li typeof="">
+                    <span class="asc" property="calli:position" style="display:none" />
+                    <label property="rdfs:label" />
+                    <a rel="calli:link" href="?link">(link)</a>
+                </li>
+            </ol>
+        </li>
+    </ol>
 </body>
 </html>

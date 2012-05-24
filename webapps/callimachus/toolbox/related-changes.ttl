@@ -11,81 +11,81 @@
 <> a <../SchemaGraph>.
 
 :GetRelatedChanges rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:method "GET";
-	calli:query "relatedchanges";
-	calli:type "application/sparql-results+xml;q=0.1";
-	calli:header "cache-control:no-store";
-	calli:transform :TransformRelatedChanges;
-	calli:transform <../transforms/TransformIntoAtom>;
-	msg:sparql  """
-		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-		PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
-		PREFIX dc:<http://purl.org/dc/elements/1.1/>
-		PREFIX dcterms:<http://purl.org/dc/terms/>
-		PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT * {
-			{
-				$this rdfs:label ?title
-				BIND (concat(str($this),"?relatedchanges") as ?id)
-				BIND ("feed" as ?type)
-			} UNION {
-				$this audit:revision [audit:committedOn ?updated]
-				BIND (concat(str($this),"?relatedchanges") as ?id)
-				BIND ("feed" as ?type)
-			} UNION {
-				{
-					SELECT ?id (max(?title)  as ?title) (max(?updated) as ?updated) (max(?summary) as ?summary) (max(?icon) as ?icon)
-							(?id as ?content_src) (max(?content_type) as ?content_type) ("entry" as ?type)
-							(?id as ?link_edit_media_href) (concat(str(?id),"?view") as ?link_view_href) (concat(str(?id),"?history") as ?link_history_href)
-							(concat(str(?revision),"?view") as ?link_href) (audit:revision as ?link_rel) ("text/html" as ?link_type)
-							(max(?contributor_uri) as ?contributor_uri) (max(?contributor_name) as ?contributor_name)  {
-						$this ?rel ?id .
-						?id audit:revision ?revision .
-						?revision audit:committedOn ?updated .
-						OPTIONAL {
-							?revision audit:contributor ?contributor_uri
-							OPTIONAL {
-								?contributor_uri rdfs:label ?contributor_name
-							}
-						} OPTIONAL {
-							?id skos:prefLabel ?title
-						} OPTIONAL {
-							?id foaf:name ?title
-						} OPTIONAL {
-							?id rdfs:label ?title
-						} OPTIONAL {
-							?id skosxl:literalForm ?title
-						} OPTIONAL {
-							?id dcterms:title ?title
-						} OPTIONAL {
-							GRAPH ?revision { ?id skos:changeNote ?summary }
-						} OPTIONAL {
-							?id a [calli:icon ?icon]
-						} OPTIONAL {
-							?id a [calli:type ?content_type]
-						}
-					} GROUP BY ?id ?revision ORDER BY desc(?updated) LIMIT 50
-				}
-				FILTER bound(?id)
-			}
-		} ORDER BY desc(?type) desc(?updated) ?id
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "relatedchanges";
+    calli:type "application/sparql-results+xml;q=0.1";
+    calli:header "cache-control:no-store";
+    calli:transform :TransformRelatedChanges;
+    calli:transform <../transforms/TransformIntoAtom>;
+    msg:sparql  """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+        PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
+        PREFIX dc:<http://purl.org/dc/elements/1.1/>
+        PREFIX dcterms:<http://purl.org/dc/terms/>
+        PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT * {
+            {
+                $this rdfs:label ?title
+                BIND (concat(str($this),"?relatedchanges") as ?id)
+                BIND ("feed" as ?type)
+            } UNION {
+                $this audit:revision [audit:committedOn ?updated]
+                BIND (concat(str($this),"?relatedchanges") as ?id)
+                BIND ("feed" as ?type)
+            } UNION {
+                {
+                    SELECT ?id (max(?title)  as ?title) (max(?updated) as ?updated) (max(?summary) as ?summary) (max(?icon) as ?icon)
+                            (?id as ?content_src) (max(?content_type) as ?content_type) ("entry" as ?type)
+                            (?id as ?link_edit_media_href) (concat(str(?id),"?view") as ?link_view_href) (concat(str(?id),"?history") as ?link_history_href)
+                            (concat(str(?revision),"?view") as ?link_href) (audit:revision as ?link_rel) ("text/html" as ?link_type)
+                            (max(?contributor_uri) as ?contributor_uri) (max(?contributor_name) as ?contributor_name)  {
+                        $this ?rel ?id .
+                        ?id audit:revision ?revision .
+                        ?revision audit:committedOn ?updated .
+                        OPTIONAL {
+                            ?revision audit:contributor ?contributor_uri
+                            OPTIONAL {
+                                ?contributor_uri rdfs:label ?contributor_name
+                            }
+                        } OPTIONAL {
+                            ?id skos:prefLabel ?title
+                        } OPTIONAL {
+                            ?id foaf:name ?title
+                        } OPTIONAL {
+                            ?id rdfs:label ?title
+                        } OPTIONAL {
+                            ?id skosxl:literalForm ?title
+                        } OPTIONAL {
+                            ?id dcterms:title ?title
+                        } OPTIONAL {
+                            GRAPH ?revision { ?id skos:changeNote ?summary }
+                        } OPTIONAL {
+                            ?id a [calli:icon ?icon]
+                        } OPTIONAL {
+                            ?id a [calli:type ?content_type]
+                        }
+                    } GROUP BY ?id ?revision ORDER BY desc(?updated) LIMIT 50
+                }
+                FILTER bound(?id)
+            }
+        } ORDER BY desc(?type) desc(?updated) ?id
+    """.
 
 :TransformRelatedChanges rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:type "application/xhtml+xml";
-	calli:transform <../transforms/TransformLayout>;
-	msg:xslt <related-changes.xsl>.
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:type "application/xhtml+xml";
+    calli:transform <../transforms/TransformLayout>;
+    msg:xslt <related-changes.xsl>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :TransformRelatedChanges;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "application/sparql-results+xml".
+    rdfs:domain :TransformRelatedChanges;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-results+xml".
 

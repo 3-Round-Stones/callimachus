@@ -1,398 +1,398 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <html xmlns="http://www.w3.org/1999/xhtml" xsl:version="1.0"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	xmlns:sparql="http://www.w3.org/2005/sparql-results#"
-	exclude-result-prefixes="sparql"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:sparql="http://www.w3.org/2005/sparql-results#"
+    exclude-result-prefixes="sparql"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /></title>
-	<script type="text/javascript">//<![CDATA[
-		jQuery(function($){
-			$('#_').children('div').each(function() {
-				var child = $(this).children('a');
-				var uri = child[0].getAttribute('href');
-				if (uri == child.text()) {
-					var m = uri.match(/[^\/#:]+[\/#]*$/);
-					if (m) {
-						var label = m[0];
-						child.text(label);
-						if (label.match(/^[A-Za-z]/)) {
-							var letter = label.substring(0, 1).toUpperCase();
-							var container = $('#' + letter);
-							if (!container.length) {
-								container = $('<div/>');
-								container.attr('id', letter);
-								var h2 = $('<h2/>');
-								h2.text(letter);
-								container.append(h2);
-								$('#results').append(container);
-							}
-							container.append($(this));
-						}
-					}
-				}
-			});
-			if (!$('#_').children('div').length) {
-				$('#_').remove();
-			}
-			$('#index').children().each(function() {
-				if (!$(this.getAttribute('href')).length) {
-					$(this).removeAttr('href');
-				}
-			});
-		});
-		// ]]>
-	</script>
+    <title><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /></title>
+    <script type="text/javascript">//<![CDATA[
+        jQuery(function($){
+            $('#_').children('div').each(function() {
+                var child = $(this).children('a');
+                var uri = child[0].getAttribute('href');
+                if (uri == child.text()) {
+                    var m = uri.match(/[^\/#:]+[\/#]*$/);
+                    if (m) {
+                        var label = m[0];
+                        child.text(label);
+                        if (label.match(/^[A-Za-z]/)) {
+                            var letter = label.substring(0, 1).toUpperCase();
+                            var container = $('#' + letter);
+                            if (!container.length) {
+                                container = $('<div/>');
+                                container.attr('id', letter);
+                                var h2 = $('<h2/>');
+                                h2.text(letter);
+                                container.append(h2);
+                                $('#results').append(container);
+                            }
+                            container.append($(this));
+                        }
+                    }
+                }
+            });
+            if (!$('#_').children('div').length) {
+                $('#_').remove();
+            }
+            $('#index').children().each(function() {
+                if (!$(this.getAttribute('href')).length) {
+                    $(this).removeAttr('href');
+                }
+            });
+        });
+        // ]]>
+    </script>
 </head>
 <body>
-	<h1><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /> Resources</h1>
-	<div id="sidebar">
-		<aside id="create-link" class="protected">		
-			<p><a href="?create">Create a new <xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /></a></p>
-		</aside>
-		<xsl:if test="//sparql:result[1]/sparql:binding[@name='description']/*">
-			<aside>
-				<p><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='description']/*"/></p>
-			</aside>
-		</xsl:if>
-	</div>
-	<div id="index">
-		<a href="#A">A</a><xsl:text> </xsl:text>
-		<a href="#B">B</a><xsl:text> </xsl:text>
-		<a href="#C">C</a><xsl:text> </xsl:text>
-		<a href="#D">D</a><xsl:text> </xsl:text>
-		<a href="#E">E</a><xsl:text> </xsl:text>
-		<a href="#F">F</a><xsl:text> </xsl:text>
-		<a href="#G">G</a><xsl:text> </xsl:text>
-		<a href="#H">H</a><xsl:text> </xsl:text>
-		<a href="#I">I</a><xsl:text> </xsl:text>
-		<a href="#J">J</a><xsl:text> </xsl:text>
-		<a href="#K">K</a><xsl:text> </xsl:text>
-		<a href="#L">L</a><xsl:text> </xsl:text>
-		<a href="#M">M</a><xsl:text> </xsl:text>
-		<a href="#N">N</a><xsl:text> </xsl:text>
-		<a href="#O">O</a><xsl:text> </xsl:text>
-		<a href="#P">P</a><xsl:text> </xsl:text>
-		<a href="#Q">Q</a><xsl:text> </xsl:text>
-		<a href="#R">R</a><xsl:text> </xsl:text>
-		<a href="#S">S</a><xsl:text> </xsl:text>
-		<a href="#T">T</a><xsl:text> </xsl:text>
-		<a href="#U">U</a><xsl:text> </xsl:text>
-		<a href="#V">V</a><xsl:text> </xsl:text>
-		<a href="#W">W</a><xsl:text> </xsl:text>
-		<a href="#X">X</a><xsl:text> </xsl:text>
-		<a href="#Y">Y</a><xsl:text> </xsl:text>
-		<a href="#Z">Z</a><xsl:text> </xsl:text>
-		<a href="#_">#</a><xsl:text> </xsl:text>
-	</div>
-	<xsl:if test="count(sparql:sparql/sparql:results/sparql:result) &gt; 100">
-		<p>Not all resources are shown</p>
-	</xsl:if>
-	<div id="results" class="hbox">
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['A'=sparql:binding[@name='index']/*]">
-			<div id="A"><h2>A</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['A'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['B'=sparql:binding[@name='index']/*]">
-			<div id="B"><h2>B</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['B'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['C'=sparql:binding[@name='index']/*]">
-			<div id="C"><h2>C</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['C'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['D'=sparql:binding[@name='index']/*]">
-			<div id="D"><h2>D</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['D'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['E'=sparql:binding[@name='index']/*]">
-			<div id="E"><h2>E</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['E'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['F'=sparql:binding[@name='index']/*]">
-			<div id="F"><h2>F</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['F'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['G'=sparql:binding[@name='index']/*]">
-			<div id="G"><h2>G</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['G'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['H'=sparql:binding[@name='index']/*]">
-			<div id="H"><h2>H</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['H'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['I'=sparql:binding[@name='index']/*]">
-			<div id="I"><h2>I</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['I'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['J'=sparql:binding[@name='index']/*]">
-			<div id="J"><h2>J</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['J'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['K'=sparql:binding[@name='index']/*]">
-			<div id="K"><h2>K</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['K'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['L'=sparql:binding[@name='index']/*]">
-			<div id="L"><h2>L</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['L'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['M'=sparql:binding[@name='index']/*]">
-			<div id="M"><h2>M</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['M'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['N'=sparql:binding[@name='index']/*]">
-			<div id="N"><h2>N</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['N'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['O'=sparql:binding[@name='index']/*]">
-			<div id="O"><h2>O</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['O'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['P'=sparql:binding[@name='index']/*]">
-			<div id="P"><h2>P</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['P'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['Q'=sparql:binding[@name='index']/*]">
-			<div id="Q"><h2>Q</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['Q'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['R'=sparql:binding[@name='index']/*]">
-			<div id="R"><h2>R</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['R'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['S'=sparql:binding[@name='index']/*]">
-			<div id="S"><h2>S</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['S'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['T'=sparql:binding[@name='index']/*]">
-			<div id="T"><h2>T</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['T'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['U'=sparql:binding[@name='index']/*]">
-			<div id="U"><h2>U</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['U'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['V'=sparql:binding[@name='index']/*]">
-			<div id="V"><h2>V</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['V'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['W'=sparql:binding[@name='index']/*]">
-			<div id="W"><h2>W</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['W'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['X'=sparql:binding[@name='index']/*]">
-			<div id="X"><h2>X</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['X'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['Y'=sparql:binding[@name='index']/*]">
-			<div id="Y"><h2>Y</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['Y'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result['Z'=sparql:binding[@name='index']/*]">
-			<div id="Z"><h2>Z</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result['Z'=sparql:binding[@name='index']/*]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-		<xsl:if test="sparql:sparql/sparql:results/sparql:result[not('true'=sparql:binding[@name='letter']/*) and not(sparql:binding[@name='title'])]">
-			<div id="_"><h2>#</h2>
-				<xsl:for-each select="sparql:sparql/sparql:results/sparql:result[not('true'=sparql:binding[@name='letter']/*) and not(sparql:binding[@name='title'])]">
-					<div class="result">
-						<a href="{sparql:binding[@name='resource']/*}" class="view">
-							<xsl:value-of select="sparql:binding[@name='label']/*" />
-							<xsl:if test="not(sparql:binding[@name='label']/*)">
-								<xsl:value-of select="sparql:binding[@name='resource']/*" />
-							</xsl:if>
-						</a>
-					</div>
-				</xsl:for-each>
-			</div>
-		</xsl:if>
-	</div>
+    <h1><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /> Resources</h1>
+    <div id="sidebar">
+        <aside id="create-link" class="protected">		
+            <p><a href="?create">Create a new <xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /></a></p>
+        </aside>
+        <xsl:if test="//sparql:result[1]/sparql:binding[@name='description']/*">
+            <aside>
+                <p><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='description']/*"/></p>
+            </aside>
+        </xsl:if>
+    </div>
+    <div id="index">
+        <a href="#A">A</a><xsl:text> </xsl:text>
+        <a href="#B">B</a><xsl:text> </xsl:text>
+        <a href="#C">C</a><xsl:text> </xsl:text>
+        <a href="#D">D</a><xsl:text> </xsl:text>
+        <a href="#E">E</a><xsl:text> </xsl:text>
+        <a href="#F">F</a><xsl:text> </xsl:text>
+        <a href="#G">G</a><xsl:text> </xsl:text>
+        <a href="#H">H</a><xsl:text> </xsl:text>
+        <a href="#I">I</a><xsl:text> </xsl:text>
+        <a href="#J">J</a><xsl:text> </xsl:text>
+        <a href="#K">K</a><xsl:text> </xsl:text>
+        <a href="#L">L</a><xsl:text> </xsl:text>
+        <a href="#M">M</a><xsl:text> </xsl:text>
+        <a href="#N">N</a><xsl:text> </xsl:text>
+        <a href="#O">O</a><xsl:text> </xsl:text>
+        <a href="#P">P</a><xsl:text> </xsl:text>
+        <a href="#Q">Q</a><xsl:text> </xsl:text>
+        <a href="#R">R</a><xsl:text> </xsl:text>
+        <a href="#S">S</a><xsl:text> </xsl:text>
+        <a href="#T">T</a><xsl:text> </xsl:text>
+        <a href="#U">U</a><xsl:text> </xsl:text>
+        <a href="#V">V</a><xsl:text> </xsl:text>
+        <a href="#W">W</a><xsl:text> </xsl:text>
+        <a href="#X">X</a><xsl:text> </xsl:text>
+        <a href="#Y">Y</a><xsl:text> </xsl:text>
+        <a href="#Z">Z</a><xsl:text> </xsl:text>
+        <a href="#_">#</a><xsl:text> </xsl:text>
+    </div>
+    <xsl:if test="count(sparql:sparql/sparql:results/sparql:result) &gt; 100">
+        <p>Not all resources are shown</p>
+    </xsl:if>
+    <div id="results" class="hbox">
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['A'=sparql:binding[@name='index']/*]">
+            <div id="A"><h2>A</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['A'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['B'=sparql:binding[@name='index']/*]">
+            <div id="B"><h2>B</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['B'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['C'=sparql:binding[@name='index']/*]">
+            <div id="C"><h2>C</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['C'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['D'=sparql:binding[@name='index']/*]">
+            <div id="D"><h2>D</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['D'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['E'=sparql:binding[@name='index']/*]">
+            <div id="E"><h2>E</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['E'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['F'=sparql:binding[@name='index']/*]">
+            <div id="F"><h2>F</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['F'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['G'=sparql:binding[@name='index']/*]">
+            <div id="G"><h2>G</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['G'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['H'=sparql:binding[@name='index']/*]">
+            <div id="H"><h2>H</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['H'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['I'=sparql:binding[@name='index']/*]">
+            <div id="I"><h2>I</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['I'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['J'=sparql:binding[@name='index']/*]">
+            <div id="J"><h2>J</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['J'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['K'=sparql:binding[@name='index']/*]">
+            <div id="K"><h2>K</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['K'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['L'=sparql:binding[@name='index']/*]">
+            <div id="L"><h2>L</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['L'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['M'=sparql:binding[@name='index']/*]">
+            <div id="M"><h2>M</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['M'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['N'=sparql:binding[@name='index']/*]">
+            <div id="N"><h2>N</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['N'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['O'=sparql:binding[@name='index']/*]">
+            <div id="O"><h2>O</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['O'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['P'=sparql:binding[@name='index']/*]">
+            <div id="P"><h2>P</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['P'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['Q'=sparql:binding[@name='index']/*]">
+            <div id="Q"><h2>Q</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['Q'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['R'=sparql:binding[@name='index']/*]">
+            <div id="R"><h2>R</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['R'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['S'=sparql:binding[@name='index']/*]">
+            <div id="S"><h2>S</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['S'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['T'=sparql:binding[@name='index']/*]">
+            <div id="T"><h2>T</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['T'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['U'=sparql:binding[@name='index']/*]">
+            <div id="U"><h2>U</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['U'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['V'=sparql:binding[@name='index']/*]">
+            <div id="V"><h2>V</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['V'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['W'=sparql:binding[@name='index']/*]">
+            <div id="W"><h2>W</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['W'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['X'=sparql:binding[@name='index']/*]">
+            <div id="X"><h2>X</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['X'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['Y'=sparql:binding[@name='index']/*]">
+            <div id="Y"><h2>Y</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['Y'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result['Z'=sparql:binding[@name='index']/*]">
+            <div id="Z"><h2>Z</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result['Z'=sparql:binding[@name='index']/*]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+        <xsl:if test="sparql:sparql/sparql:results/sparql:result[not('true'=sparql:binding[@name='letter']/*) and not(sparql:binding[@name='title'])]">
+            <div id="_"><h2>#</h2>
+                <xsl:for-each select="sparql:sparql/sparql:results/sparql:result[not('true'=sparql:binding[@name='letter']/*) and not(sparql:binding[@name='title'])]">
+                    <div class="result">
+                        <a href="{sparql:binding[@name='resource']/*}" class="view">
+                            <xsl:value-of select="sparql:binding[@name='label']/*" />
+                            <xsl:if test="not(sparql:binding[@name='label']/*)">
+                                <xsl:value-of select="sparql:binding[@name='resource']/*" />
+                            </xsl:if>
+                        </a>
+                    </div>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+    </div>
 </body>
 </html>

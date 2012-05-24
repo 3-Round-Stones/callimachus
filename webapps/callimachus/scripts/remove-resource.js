@@ -7,16 +7,16 @@
 (function($){
 
 calli.removeResource = function(event) {
-	event = calli.fixEvent(event);
-	var node = event.target;
-	var parents = $(node).add($(node).parents());
-	for (var i=0; i<parents.length; i++) {
-		if ($(parents[i]).is("[data-var-about],[data-var-resource],[data-var-href],[data-var-src],[typeof],[typeof='']")) {
-			$(parents[i]).remove();
-			return false;
-		}
-	}
-	return true;
+    event = calli.fixEvent(event);
+    var node = event.target;
+    var parents = $(node).add($(node).parents());
+    for (var i=0; i<parents.length; i++) {
+        if ($(parents[i]).is("[data-var-about],[data-var-resource],[data-var-href],[data-var-src],[typeof],[typeof='']")) {
+            $(parents[i]).remove();
+            return false;
+        }
+    }
+    return true;
 };
 
 })(jQuery);

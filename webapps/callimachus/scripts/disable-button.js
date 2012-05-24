@@ -6,27 +6,27 @@ $(document).ready(handle);
 $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {
-	$("button", event.target).click(flashButton);
-	if ($(event.target).is("button")) {
-		$(event.target).click(flashButton);
-	}
+    $("button", event.target).click(flashButton);
+    if ($(event.target).is("button")) {
+        $(event.target).click(flashButton);
+    }
 }
 
 function flashButton(event) {
-	var button = $(this);
-	setTimeout(function() {
-		if (!button.attr('disabled')) {
-			button.attr('disabled', 'disabled');
-			setTimeout(function() {
-				button.removeAttr('disabled');
-			}, 5000);
-			button.focus(function() {
-				button.removeAttr('disabled');
-				return true;
-			});
-		}
-	}, 0); // yield
-	return true;
+    var button = $(this);
+    setTimeout(function() {
+        if (!button.attr('disabled')) {
+            button.attr('disabled', 'disabled');
+            setTimeout(function() {
+                button.removeAttr('disabled');
+            }, 5000);
+            button.focus(function() {
+                button.removeAttr('disabled');
+                return true;
+            });
+        }
+    }, 0); // yield
+    return true;
 }
 
 })(window.jQuery);

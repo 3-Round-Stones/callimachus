@@ -8,44 +8,44 @@
 (function($, jQuery){
 
 $(document).ready(function() {
-	initDropArea($("[data-construct]"));
+    initDropArea($("[data-construct]"));
 });
 
 $(document).bind('DOMNodeInserted', function (event) {
-	initDropArea($(event.target).find("[data-construct]").andSelf().filter("[data-construct]"));
+    initDropArea($(event.target).find("[data-construct]").andSelf().filter("[data-construct]"));
 });
 
 function initDropArea(construct) {
-	var dropzone = construct.add(construct.parents()).filter('[dropzone]');
-	dropzone.bind('dragenter dragover', function(event) {
-		if (!$(this).hasClass("drag-over")) {
-			$(this).addClass("drag-over");
-		}
-		event.preventDefault();
-		return false;
-	});
-	dropzone.bind('dragleave', function(event) {
-		$(this).removeClass("drag-over");
-		event.preventDefault();
-		return false;
-	});
-	dropzone.bind('drop', function(event) {
-		$(this).removeClass("drag-over");
-		event.preventDefault();
-		if (typeof dropzone.attr('ondrop') == 'function') {
-			return false; // event registered
-		} else if (typeof dropzone.attr('ondrop') == 'string') {
-			return eval('(function(){' + dropzone.attr('ondrop') + '})()');
-		} else {
-			return calli.insertResource(event);
-		}
-	});
-	dropzone.bind('calliLink', function(event) {
-		var de = jQuery.Event('drop');
-		de.dataTransfer = {getData:function(){return event.location}};
-		de.errorMessage = "Invalid Relationship";
-		$(event.target).trigger(de);
-	});
+    var dropzone = construct.add(construct.parents()).filter('[dropzone]');
+    dropzone.bind('dragenter dragover', function(event) {
+        if (!$(this).hasClass("drag-over")) {
+            $(this).addClass("drag-over");
+        }
+        event.preventDefault();
+        return false;
+    });
+    dropzone.bind('dragleave', function(event) {
+        $(this).removeClass("drag-over");
+        event.preventDefault();
+        return false;
+    });
+    dropzone.bind('drop', function(event) {
+        $(this).removeClass("drag-over");
+        event.preventDefault();
+        if (typeof dropzone.attr('ondrop') == 'function') {
+            return false; // event registered
+        } else if (typeof dropzone.attr('ondrop') == 'string') {
+            return eval('(function(){' + dropzone.attr('ondrop') + '})()');
+        } else {
+            return calli.insertResource(event);
+        }
+    });
+    dropzone.bind('calliLink', function(event) {
+        var de = jQuery.Event('drop');
+        de.dataTransfer = {getData:function(){return event.location}};
+        de.errorMessage = "Invalid Relationship";
+        $(event.target).trigger(de);
+    });
 }
 
 })(jQuery, jQuery);

@@ -25,108 +25,108 @@
 <> a <SchemaGraph>.
 
 <Profile> a owl:Class;
-	rdfs:subClassOf <Serviceable>;
-	rdfs:isDefinedBy </callimachus>.
+    rdfs:subClassOf <Serviceable>;
+    rdfs:isDefinedBy </callimachus>.
 
 <profile> a <Profile>;
-	rdfs:label "profile";
-	calli:administrator </group/admin>.
+    rdfs:label "profile";
+    calli:administrator </group/admin>.
 
 :GetProfile rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
-	calli:method "GET";
-	calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
-	calli:header "cache-control:no-validate";
-	calli:header "cache-control:max-age=300";
-	calli:transform :TransformProfile;
-	msg:imports <java:org.openrdf.model.impl.LinkedHashModel>;
-	msg:script """
-		var vf = this.objectConnection.valueFactory;
-		var xsd = "http://www.w3.org/2001/XMLSchema#";
-		var rdfa = "http://www.w3.org/ns/rdfa#";
-		var token = vf.createURI(xsd, "NMTOKEN");
-		var anyURI = vf.createURI(xsd, "anyURI");
-		var ns = this.resource + "#";
-		var namespaces = this.objectConnection.namespaces.asList();
-		var model = new LinkedHashModel();
-		for (var i = 0; i < namespaces.size(); i++) {
-			var prefix = namespaces.get(i).prefix;
-			var uri = namespaces.get(i).name;
-			var node = vf.createURI(ns, prefix);
-			model.setNamespace(prefix, uri);
-			model.add(node, vf.createURI(rdfa, "prefix"), vf.createLiteral(prefix, token), []);
-			model.add(node, vf.createURI(rdfa, "uri"), vf.createLiteral(uri, anyURI), []);
-		}
-		return model;
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
+    calli:method "GET";
+    calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+    calli:header "cache-control:no-validate";
+    calli:header "cache-control:max-age=300";
+    calli:transform :TransformProfile;
+    msg:imports <java:org.openrdf.model.impl.LinkedHashModel>;
+    msg:script """
+        var vf = this.objectConnection.valueFactory;
+        var xsd = "http://www.w3.org/2001/XMLSchema#";
+        var rdfa = "http://www.w3.org/ns/rdfa#";
+        var token = vf.createURI(xsd, "NMTOKEN");
+        var anyURI = vf.createURI(xsd, "anyURI");
+        var ns = this.resource + "#";
+        var namespaces = this.objectConnection.namespaces.asList();
+        var model = new LinkedHashModel();
+        for (var i = 0; i < namespaces.size(); i++) {
+            var prefix = namespaces.get(i).prefix;
+            var uri = namespaces.get(i).name;
+            var node = vf.createURI(ns, prefix);
+            model.setNamespace(prefix, uri);
+            model.add(node, vf.createURI(rdfa, "prefix"), vf.createLiteral(prefix, token), []);
+            model.add(node, vf.createURI(rdfa, "uri"), vf.createLiteral(uri, anyURI), []);
+        }
+        return model;
+    """.
 
 :GetJsonProfile rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
-	calli:method "GET";
-	calli:type "application/json;q=0.3";
-	calli:header "cache-control:no-validate";
-	calli:header "cache-control:max-age=60";
-	msg:imports <java:java.io.ByteArrayOutputStream>;
-	msg:script """
-		var output = new java.io.ByteArrayOutputStream();
-		var writer = new java.io.OutputStreamWriter(output, "UTF-8");
-		var namespaces = this.objectConnection.namespaces.asList();
-		writer.write("{");
-		for (var i = 0; i < namespaces.size(); i++) {
-			var prefix = namespaces.get(i).prefix;
-			var uri = namespaces.get(i).name;
-			writer.write('"');
-			writer.write(prefix);
-			writer.write('":"');
-			writer.write(uri);
-			writer.write('"');
-			if (i < namespaces.size() - 1) {
-				writer.write(",\\n");
-			}
-		}
-		writer.write("}");
-		writer.flush();
-		return output;
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+    calli:method "GET";
+    calli:type "application/json;q=0.3";
+    calli:header "cache-control:no-validate";
+    calli:header "cache-control:max-age=60";
+    msg:imports <java:java.io.ByteArrayOutputStream>;
+    msg:script """
+        var output = new java.io.ByteArrayOutputStream();
+        var writer = new java.io.OutputStreamWriter(output, "UTF-8");
+        var namespaces = this.objectConnection.namespaces.asList();
+        writer.write("{");
+        for (var i = 0; i < namespaces.size(); i++) {
+            var prefix = namespaces.get(i).prefix;
+            var uri = namespaces.get(i).name;
+            writer.write('"');
+            writer.write(prefix);
+            writer.write('":"');
+            writer.write(uri);
+            writer.write('"');
+            if (i < namespaces.size() - 1) {
+                writer.write(",\\n");
+            }
+        }
+        writer.write("}");
+        writer.flush();
+        return output;
+    """.
 
 :PostProfile rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Profile>];
-	calli:method "POST";
-	calli:expect "303-see-other";
-	calli:realm </>;
-	msg:script """
-		var iter = form.entrySet().iterator();
-		while (iter.hasNext()) {
-			var entry = iter.next();
-			this.objectConnection.setNamespace(entry.key, entry.value[0]);
-		}
-		var namespaces = this.objectConnection.namespaces.asList();
-		for (var i = 0; i < namespaces.size(); i++) {
-			var prefix = namespaces.get(i).prefix;
-			if (!form.containsKey(prefix)) {
-				this.objectConnection.removeNamespace(prefix);
-			}
-		}
-		return this;
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Profile>];
+    calli:method "POST";
+    calli:expect "303-see-other";
+    calli:realm </>;
+    msg:script """
+        var iter = form.entrySet().iterator();
+        while (iter.hasNext()) {
+            var entry = iter.next();
+            this.objectConnection.setNamespace(entry.key, entry.value[0]);
+        }
+        var namespaces = this.objectConnection.namespaces.asList();
+        for (var i = 0; i < namespaces.size(); i++) {
+            var prefix = namespaces.get(i).prefix;
+            if (!form.containsKey(prefix)) {
+                this.objectConnection.removeNamespace(prefix);
+            }
+        }
+        return this;
+    """.
 
 :form a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :PostProfile;
-	rdfs:range <java:java.util.Map>;
-	calli:type "application/x-www-form-urlencoded".
+    rdfs:domain :PostProfile;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded".
 
 :TransformProfile rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:type "application/xhtml+xml";
-	calli:transform <transforms/TransformLayout>;
-	msg:xslt <profile.xhtml>.
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:type "application/xhtml+xml";
+    calli:transform <transforms/TransformLayout>;
+    msg:xslt <profile.xhtml>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :TransformProfile;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "application/rdf+xml".
+    rdfs:domain :TransformProfile;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/rdf+xml".
 

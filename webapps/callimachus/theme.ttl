@@ -12,11 +12,11 @@
 <> a <SchemaGraph>.
 
 <Theme> a <Creatable>, owl:Class;
-	rdfs:subClassOf <Viewable>, <Editable>, calli:Theme;
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/staff>, </group/admin>;
-	calli:icon <theme.png>;
-	calli:view <theme-view.xhtml>;
-	calli:edit <theme-edit.xhtml>;
-	calli:create <theme-create.xhtml>.
+    rdfs:subClassOf <Viewable>, <Editable>, calli:Theme;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/staff>, </group/admin>;
+    calli:icon <theme.png>;
+    calli:view <theme-view.xhtml>;
+    calli:edit <theme-edit.xhtml>;
+    calli:create <theme-create.xhtml>.
 

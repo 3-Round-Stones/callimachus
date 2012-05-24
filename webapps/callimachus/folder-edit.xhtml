@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title about="?this">{rdfs:label}</title>
-	<script type="text/javascript">
-		// <![CDATA[
-		jQuery(function($){
-			if (!$('#describedBy').length) {
-				$('#field').append('<input id="describedBy" data-var-resource="?describedBy" class="auto-expand" rel="calli:describedBy" data-expression-value="?describedBy" />');
-			}
-		});
-		// ]]>
-	</script>
+    <title about="?this">{rdfs:label}</title>
+    <script type="text/javascript">
+        // <![CDATA[
+        jQuery(function($){
+            if (!$('#describedBy').length) {
+                $('#field').append('<input id="describedBy" data-var-resource="?describedBy" class="auto-expand" rel="calli:describedBy" data-expression-value="?describedBy" />');
+            }
+        });
+        // ]]>
+    </script>
 </head>
 <body about="?this">
-	<div id="sidebar">
-		<aside>
-			<p><a href="?archive">Export folder contents</a></p>
-			<p><a href="?import">Import folder contents</a></p>
-		</aside>
-	</div>
-	<h1 property="rdfs:label" />
-	<form method="POST" action="" enctype="application/sparql-update" about="?this">
-		<div id="field">
-			<label for="describedBy">Directory index target</label>
-			<input id="describedBy" class="auto-expand" rel="calli:describedBy" resource="?describedBy" value="{?describedBy}" />
-		</div>
-		<button id="save" type="submit">Save</button>
-		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" onclick="calli.deleteResource(event, location.pathname.replace(/[^\/]*\/$/,''))">Delete</button>
-	</form>
+    <div id="sidebar">
+        <aside>
+            <p><a href="?archive">Export folder contents</a></p>
+            <p><a href="?import">Import folder contents</a></p>
+        </aside>
+    </div>
+    <h1 property="rdfs:label" />
+    <form method="POST" action="" enctype="application/sparql-update" about="?this">
+        <div id="field">
+            <label for="describedBy">Directory index target</label>
+            <input id="describedBy" class="auto-expand" rel="calli:describedBy" resource="?describedBy" value="{?describedBy}" />
+        </div>
+        <button id="save" type="submit">Save</button>
+        <button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+        <button id="delete" type="button" onclick="calli.deleteResource(event, location.pathname.replace(/[^\/]*\/$/,''))">Delete</button>
+    </form>
 </body>
 </html>

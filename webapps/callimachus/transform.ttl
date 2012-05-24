@@ -25,87 +25,87 @@
 <> a <SchemaGraph>.
 
 <Transform> a <Creatable>, owl:Class;
-	rdfs:subClassOf <File>;
-	rdfs:label "Transform";
-	rdfs:comment "Transform files";
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/staff>,</group/admin>;
-	calli:icon <transform.png>;
-	calli:view <transform-view.xhtml>;
-	calli:edit <transform-edit.xhtml>;
-	calli:create <transform-create.xhtml>;
-	calli:type "text/xsl".
+    rdfs:subClassOf <File>;
+    rdfs:label "Transform";
+    rdfs:comment "Transform files";
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/staff>,</group/admin>;
+    calli:icon <transform.png>;
+    calli:view <transform-view.xhtml>;
+    calli:edit <transform-edit.xhtml>;
+    calli:create <transform-create.xhtml>;
+    calli:type "text/xsl".
 
 # GET /transform.xsl
 :GetTransform rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-	calli:method "GET";
-	calli:type "text/xsl";
-	calli:header "cache-control:no-cache";
-	calli:header "cache-control:cache-range";
-	msg:script "return this.openReader(true)".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:type "text/xsl";
+    calli:header "cache-control:no-cache";
+    calli:header "cache-control:cache-range";
+    msg:script "return this.openReader(true)".
 
 # POST ?create=/callimachus/Transform
 :CreateTransform owl:intersectionOf (<toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Transform> ]);
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-	msg:imports <File>;
-	msg:imports foaf:Document;
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.valueFactory;
-		if (!location)
-			throw new BadRequest("Missing location request header");
-		if (location instanceof File) {
-			location = location.RemoveFile();
-		}
-		var created = location;
+        [owl:onProperty msg:target; owl:hasValue <Transform> ]);
+    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    msg:imports <java:java.net.URLDecoder>;
+    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    msg:imports <File>;
+    msg:imports foaf:Document;
+    msg:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        if (!location)
+            throw new BadRequest("Missing location request header");
+        if (location instanceof File) {
+            location = location.RemoveFile();
+        }
+        var created = location;
 
-		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
-		con.add(created.resource, RDFS.LABEL, label, []);
+        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
+        con.add(created.resource, RDFS.LABEL, label, []);
 
-		created = con.addDesignation(created, this.toString());
-		created = con.addDesignation(created, Document);
+        created = con.addDesignation(created, this.toString());
+        created = con.addDesignation(created, Document);
 
-		created.UploadTransform(new java.io.InputStreamReader(body, "UTF-8"));
-		return created;
-	""".
+        created.UploadTransform(new java.io.InputStreamReader(body, "UTF-8"));
+        return created;
+    """.
 
 # PUT /transform.xsl
 :UploadTransform rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	calli:method "PUT";
-	calli:realm </>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <java:org.openrdf.query.QueryLanguage>;
-	msg:script """
-		if (!reader)
-			throw new BadRequest("Missing PUT request payload");
-		var read;
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
-		var out = this.openWriter();
-		try {
-			while ((read = reader.read(buf)) >= 0) {
-				out.write(buf, 0, read);
-			}
-		} finally {
-			out.close();
-		}
-		this.touchRevision();
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:realm </>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    msg:imports <java:java.net.URLDecoder>;
+    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <java:org.openrdf.query.QueryLanguage>;
+    msg:script """
+        if (!reader)
+            throw new BadRequest("Missing PUT request payload");
+        var read;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
+        var out = this.openWriter();
+        try {
+            while ((read = reader.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        this.touchRevision();
+    """.
 
 :reader a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :UploadTransform;
-	rdfs:range <java:java.io.Reader>;
-	calli:type "text/xsl".
+    rdfs:domain :UploadTransform;
+    rdfs:range <java:java.io.Reader>;
+    calli:type "text/xsl".
 

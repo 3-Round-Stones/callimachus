@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
-	<title about="?this">{rdfs:label}</title>
-	<link rel="edit" href="?edit" />
-	<link rel="describedby" href="?describe" />
-	<link rel="version-history" href="?history" />
+    <title about="?this">{rdfs:label}</title>
+    <link rel="edit" href="?edit" />
+    <link rel="describedby" href="?describe" />
+    <link rel="version-history" href="?history" />
 </head>
 <body about="?this">
-	<h1 property="rdfs:label" />
-	<div id="sidebar">
-		<aside>
-			<h3>User accounts</h3>
-			<p rel="calli:authNamespace" resource="?authNamespace"><a href="{?authNamespace}">{rdfs:label}</a></p>
-		</aside>
-		<aside>
-			<p>Callimachus splits access control into two steps: authentication and authorization</p>
-			<p>Authentication authorizes user accounts based on a username and password that are in the folders listed here</p>
-			<p>Authorization is done by matching authenticated users or their groups to resource and class settings</p>
-		</aside>
-	</div>
-	<p>{calli:authName}</p>
+    <h1 property="rdfs:label" />
+    <div id="sidebar">
+        <aside>
+            <h3>User accounts</h3>
+            <p rel="calli:authNamespace" resource="?authNamespace"><a href="{?authNamespace}">{rdfs:label}</a></p>
+        </aside>
+        <aside>
+            <p>Callimachus splits access control into two steps: authentication and authorization</p>
+            <p>Authentication authorizes user accounts based on a username and password that are in the folders listed here</p>
+            <p>Authorization is done by matching authenticated users or their groups to resource and class settings</p>
+        </aside>
+    </div>
+    <p>{calli:authName}</p>
 </body>
 </html>

@@ -10,16 +10,16 @@
 <> a <SchemaGraph>.
 
 <User> a <Creatable>, owl:Class;
-	rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:User;
-	rdfs:label "User";
-	rdfs:comment "Username and password associated with an email address";
-	rdfs:isDefinedBy </callimachus>;
-	calli:realm </>;
-	calli:author </group/admin>;
-	calli:icon <user.png>;
-	calli:view <user-view.xhtml>;
-	calli:edit <user-edit.xhtml>;
-	calli:create <user-create.xhtml>.
+    rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:User;
+    rdfs:label "User";
+    rdfs:comment "Username and password associated with an email address";
+    rdfs:isDefinedBy </callimachus>;
+    calli:realm </>;
+    calli:author </group/admin>;
+    calli:icon <user.png>;
+    calli:view <user-view.xhtml>;
+    calli:edit <user-edit.xhtml>;
+    calli:create <user-create.xhtml>.
 
 ################################
 # User create
@@ -29,170 +29,170 @@ rdfs:label a rdf:Property.
 rdfs:comment a rdf:Property.
 
 :PostUserCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <User> ]);
-	msg:imports <User>;
-	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
-	msg:imports <java:javax.mail.internet.MimeMultipart>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-	msg:imports <java:java.net.URLEncoder>;
-	msg:script """
-		var ds = new ByteArrayDataSource(body, "multipart/form-data") ;
-		var multipart = new MimeMultipart(ds);
-		//# read form
-		var username = multipart.getBodyPart(0).content;
-		var email = multipart.getBodyPart(1).content;
-		var label = multipart.getBodyPart(2).content;
-		var comment = multipart.getBodyPart(3).content;
-		var subject = multipart.getBodyPart(4).content;
-		var body5 = multipart.getBodyPart(5).content;
-		if (!label)
-			throw new BadRequest("Missing label");
-		if (!username)
-			throw new BadRequest("Missing name");
-		if (!email)
-			throw new BadRequest("Missing email");
-		if (!subject)
-			throw new BadRequest("Missing subject");
-		if (!body5)
-			throw new BadRequest("Missing message");
+        [owl:onProperty msg:target; owl:hasValue <User> ]);
+    msg:imports <User>;
+    msg:imports <java:javax.mail.util.ByteArrayDataSource>;
+    msg:imports <java:javax.mail.internet.MimeMultipart>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+    msg:imports <java:java.net.URLEncoder>;
+    msg:script """
+        var ds = new ByteArrayDataSource(body, "multipart/form-data") ;
+        var multipart = new MimeMultipart(ds);
+        //# read form
+        var username = multipart.getBodyPart(0).content;
+        var email = multipart.getBodyPart(1).content;
+        var label = multipart.getBodyPart(2).content;
+        var comment = multipart.getBodyPart(3).content;
+        var subject = multipart.getBodyPart(4).content;
+        var body5 = multipart.getBodyPart(5).content;
+        if (!label)
+            throw new BadRequest("Missing label");
+        if (!username)
+            throw new BadRequest("Missing name");
+        if (!email)
+            throw new BadRequest("Missing email");
+        if (!subject)
+            throw new BadRequest("Missing subject");
+        if (!body5)
+            throw new BadRequest("Missing message");
 
-		var newUser = location;
-		if (!newUser)
-			throw new BadRequest("Missing resource location");
-		if (newUser instanceof User)
-			throw new Conflict("User already exists: " + newUser);
-		if (username.toLowerCase() != username)
-			throw new BadRequest("Username must be in lowercase");
-		if (URLEncoder.encode(username, "UTF-8") != username)
-			throw new BadRequest("Invalid username: '" + username + "'");
-		if (newUser.resource.localName != username)
-			throw new BadRequest("Invalid username: '" + username + "'");
+        var newUser = location;
+        if (!newUser)
+            throw new BadRequest("Missing resource location");
+        if (newUser instanceof User)
+            throw new Conflict("User already exists: " + newUser);
+        if (username.toLowerCase() != username)
+            throw new BadRequest("Username must be in lowercase");
+        if (URLEncoder.encode(username, "UTF-8") != username)
+            throw new BadRequest("Invalid username: '" + username + "'");
+        if (newUser.resource.localName != username)
+            throw new BadRequest("Invalid username: '" + username + "'");
 
-		var folder = location.resource.namespace;
-		var con = this.objectConnection;
-		var vf = con.valueFactory;
-		if (!con.hasStatement(null, vf.createURI("http://callimachusproject.org/rdf/2009/framework#authNamespace"), vf.createURI(folder), []))
-			throw new BadRequest("Cannot create a user here");
-		newUser = con.addDesignation(newUser, User);
-		newUser = con.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#Party");
-		newUser = con.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#User");
+        var folder = location.resource.namespace;
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        if (!con.hasStatement(null, vf.createURI("http://callimachusproject.org/rdf/2009/framework#authNamespace"), vf.createURI(folder), []))
+            throw new BadRequest("Cannot create a user here");
+        newUser = con.addDesignation(newUser, User);
+        newUser = con.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#Party");
+        newUser = con.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#User");
 
-		//# populate resource
-		newUser.calliName = username;
-		newUser.calliEmail = email;
-		newUser.rdfsLabel.add(label);
-		if (comment) {
-			newUser.rdfsComment.add(comment);
-		}
+        //# populate resource
+        newUser.calliName = username;
+        newUser.calliEmail = email;
+        newUser.rdfsLabel.add(label);
+        if (comment) {
+            newUser.rdfsComment.add(comment);
+        }
 
-		//# generate and save a password
-		var accounts = this.FindAuthenticationManager();
-		var password = accounts.generatePassword();
-		var token = username + ":" + accounts.calliAuthName + ":" + password;
-		newUser.calliAlgorithm = "MD5";
-		newUser.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));
-		//# email the password to the email address provided
-		var fromUser = newUser.FindUserCreator();
-		if (!fromUser || !fromUser.sendMessage)
-			throw new BadRequest("Could not find administrator");
-		body5 = body5.replace(/@@PASSWORD@@/g, password);
-		fromUser.sendMessage(subject + '\\n' + body5, label + " <" + email + ">");
-		return newUser;
-	""".
+        //# generate and save a password
+        var accounts = this.FindAuthenticationManager();
+        var password = accounts.generatePassword();
+        var token = username + ":" + accounts.calliAuthName + ":" + password;
+        newUser.calliAlgorithm = "MD5";
+        newUser.calliEncoded = DigestUtils.md5(new java.lang.String(token).getBytes("UTF-8"));
+        //# email the password to the email address provided
+        var fromUser = newUser.FindUserCreator();
+        if (!fromUser || !fromUser.sendMessage)
+            throw new BadRequest("Could not find administrator");
+        body5 = body5.replace(/@@PASSWORD@@/g, password);
+        fromUser.sendMessage(subject + '\\n' + body5, label + " <" + email + ">");
+        return newUser;
+    """.
 
 # find the user that created $this
 :FindUserCreator rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:User];
-	msg:sparql  """
-		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
-		SELECT ?contributor
-		WHERE {
-			{
-				audit:current-trx audit:contributor ?contributor
-			} UNION {
-				GRAPH ?graph { $this a ?type }
-				?graph audit:contributor ?contributor
-			}
-		} LIMIT 1
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:User];
+    msg:sparql  """
+        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        SELECT ?contributor
+        WHERE {
+            {
+                audit:current-trx audit:contributor ?contributor
+            } UNION {
+                GRAPH ?graph { $this a ?type }
+                ?graph audit:contributor ?contributor
+            }
+        } LIMIT 1
+    """.
 
 :FindAuthenticationManager rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:AuthenticationManager];
-	msg:sparql """
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT ?manager {
-			?namespace calli:hasComponent $this .
-			?manager calli:authNamespace ?namespace .
-		} LIMIT 1
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:AuthenticationManager];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?manager {
+            ?namespace calli:hasComponent $this .
+            ?manager calli:authNamespace ?namespace .
+        } LIMIT 1
+    """.
 
 ################################
 # User password
 ################################
 
 :GetUserPasswordPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	rdfs:subClassOf [owl:onProperty :user_password_xhtml; owl:hasValue <pages/user-password.xhtml>];
-	calli:method "GET";
-	calli:query "password";
-	calli:type "application/xhtml+xml";
-	calli:header "cache-control:no-cache";
-	calli:transform <transforms/TransformPage>;
-	calli:realm </>;
-	msg:script """
-		return user_password_xhtml.calliConstruct(this);
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+    rdfs:subClassOf [owl:onProperty :user_password_xhtml; owl:hasValue <pages/user-password.xhtml>];
+    calli:method "GET";
+    calli:query "password";
+    calli:type "application/xhtml+xml";
+    calli:header "cache-control:no-cache";
+    calli:transform <transforms/TransformPage>;
+    calli:realm </>;
+    msg:script """
+        return user_password_xhtml.calliConstruct(this);
+    """.
 
 :user_password_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :GetUserPasswordPage.
+    rdfs:domain :GetUserPasswordPage.
 
 :PostUserPassword rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	calli:method "POST";
-	calli:query "password";
-	calli:realm </>;
-	calli:expect "201-modified";
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <java:org.apache.commons.codec.binary.Hex>;
-	msg:script """
-		var accounts = this.FindAuthenticationManager();
-		var credential = accounts.findCredential(authorization);
-		//# read form
-		var email = form.get("email") ? form.get("email")[0] : null;
-		var current = form.get("current") ? form.get("current")[0] : null;
-		var password = form.get("password") ? form.get("password")[0] : null;
-		if (this.toString().equals(credential.toString())) {
-			//# check if they know their own password
-			if (!current)
-				throw new BadRequest("What is your current password?");
-			var encoded = Hex.decodeHex(new java.lang.String(current).toCharArray());
-			if (!java.util.Arrays.equals(this.calliEncoded, encoded))
-				throw new BadRequest("That is not your current password");
-		}
-		//# save email
-		if (email && email != this.calliEmail) {
-			this.calliEmail = email;
-		}
-		//# save password
-		if (password) {
-			this.calliEncoded = Hex.decodeHex(new java.lang.String(password).toCharArray());
-		}
-		return this + "?view";
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "POST";
+    calli:query "password";
+    calli:realm </>;
+    calli:expect "201-modified";
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <java:org.apache.commons.codec.binary.Hex>;
+    msg:script """
+        var accounts = this.FindAuthenticationManager();
+        var credential = accounts.findCredential(authorization);
+        //# read form
+        var email = form.get("email") ? form.get("email")[0] : null;
+        var current = form.get("current") ? form.get("current")[0] : null;
+        var password = form.get("password") ? form.get("password")[0] : null;
+        if (this.toString().equals(credential.toString())) {
+            //# check if they know their own password
+            if (!current)
+                throw new BadRequest("What is your current password?");
+            var encoded = Hex.decodeHex(new java.lang.String(current).toCharArray());
+            if (!java.util.Arrays.equals(this.calliEncoded, encoded))
+                throw new BadRequest("That is not your current password");
+        }
+        //# save email
+        if (email && email != this.calliEmail) {
+            this.calliEmail = email;
+        }
+        //# save password
+        if (password) {
+            this.calliEncoded = Hex.decodeHex(new java.lang.String(password).toCharArray());
+        }
+        return this + "?view";
+    """.
 
 :form a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :PostUserPassword;
-	rdfs:range <java:java.util.Map>;
-	calli:type "application/x-www-form-urlencoded".
+    rdfs:domain :PostUserPassword;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded".
 
 :authorization a owl:DatatypeProperty;
-	rdfs:domain :PostUserPassword;
-	rdfs:range xsd:string;
-	calli:header "Authorization", "Cookie".
+    rdfs:domain :PostUserPassword;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
 

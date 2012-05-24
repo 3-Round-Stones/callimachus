@@ -26,13 +26,13 @@
 <> a <SchemaGraph>.
 
 <Concept> a <Creatable>, owl:Class;
-	rdfs:subClassOf <Viewable>, <Editable>, skos:Concept;
-	rdfs:label "Concept";
-	rdfs:comment "Concepts are ideas, meanings, or categories of objects and events";
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/users>,</group/staff>,</group/admin>;
-	calli:icon <concept.png>;
-	calli:view <concept-view.xhtml>;
-	calli:edit <concept-edit.xhtml>;
-	calli:create <concept-create.xhtml>.
+    rdfs:subClassOf <Viewable>, <Editable>, skos:Concept;
+    rdfs:label "Concept";
+    rdfs:comment "Concepts are ideas, meanings, or categories of objects and events";
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:icon <concept.png>;
+    calli:view <concept-view.xhtml>;
+    calli:edit <concept-edit.xhtml>;
+    calli:create <concept-create.xhtml>.
 

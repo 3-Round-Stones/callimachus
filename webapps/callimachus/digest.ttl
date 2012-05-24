@@ -14,12 +14,12 @@
 ################################
 
 <DigestManager> a <Creatable>, owl:Class;
-	rdfs:subClassOf <Viewable>, <Editable>, calli:DigestManager;
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/admin>;
-	calli:view <digest-view.xhtml>;
-	calli:edit <digest-edit.xhtml>;
-	calli:create <digest-create.xhtml>.
+    rdfs:subClassOf <Viewable>, <Editable>, calli:DigestManager;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/admin>;
+    calli:view <digest-view.xhtml>;
+    calli:edit <digest-edit.xhtml>;
+    calli:create <digest-create.xhtml>.
 
 ################################
 # login
@@ -28,42 +28,42 @@
 # Redirection to the authorized user
 # Used to login
 :GetLoginPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	calli:method "GET";
-	calli:query "login", "settings", "contributions";
-	calli:realm </>;
-	calli:expect "302-found";
-	calli:header "cache-control:max-age:3600";
-	msg:script """
-		if ("settings" == query)
-			return this.findCredential(cookie) + "?edit";
-		if ("contributions" == query)
-			return this.findCredential(cookie) + "?contributions";
-		return this.findCredential(cookie).toString(); //# login Deprecated
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "login", "settings", "contributions";
+    calli:realm </>;
+    calli:expect "302-found";
+    calli:header "cache-control:max-age:3600";
+    msg:script """
+        if ("settings" == query)
+            return this.findCredential(cookie) + "?edit";
+        if ("contributions" == query)
+            return this.findCredential(cookie) + "?contributions";
+        return this.findCredential(cookie).toString(); //# login Deprecated
+    """.
 
 :cookie a owl:DatatypeProperty;
-	rdfs:domain :GetLoginPage;
-	rdfs:range xsd:string;
-	calli:header "Authorization", "Cookie".
+    rdfs:domain :GetLoginPage;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
 
 :query a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :GetLoginPage;
-	rdfs:range xsd:string;
-	calli:query "*".
+    rdfs:domain :GetLoginPage;
+    rdfs:range xsd:string;
+    calli:query "*".
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage owl:intersectionOf (calli:IsAuthorized
-		[owl:onProperty msg:target; owl:allValuesFrom <DigestManager>]);
-	msg:sparql  """
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		ASK {
-			$this calli:authNamespace [calli:hasComponent $credential]
-			FILTER ($method = "GET" || $method = "HEAD")
-			FILTER ($query = "login" || $query = "settings" || $query = "contributions")
-		}
-	""".
+        [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>]);
+    msg:sparql  """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        ASK {
+            $this calli:authNamespace [calli:hasComponent $credential]
+            FILTER ($method = "GET" || $method = "HEAD")
+            FILTER ($query = "login" || $query = "settings" || $query = "contributions")
+        }
+    """.
 
 ################################
 # logout Deprecated
@@ -72,33 +72,33 @@
 # Prompts the browser to login using bogus credentials (to forget legitimate onces)
 # Available to user when logged in
 :GetLogout  rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	calli:method "GET";
-	calli:query "logout";
-	calli:type "message/x-response";
-	msg:imports <java:org.apache.http.ProtocolVersion>;
-	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-	msg:script """
-		var ver = new ProtocolVersion("HTTP", 1, 1);
-		if (authorization && authorization.indexOf('username="logout"') > 0) {
-			//# bogus credentials received
-			var resp = new BasicHttpResponse(ver, 303, "See Other");
-			resp.setHeader("Location", "/");
-			return resp;
-		}
-		//# the browser must send invalid credentials to logout
-		var resp = new BasicHttpResponse(ver, 401, "Unauthorized");
-		var hd = 'Digest realm="' + this.calliAuthName + '", domain="'
-			+ this.protectionDomain() + '", nonce="logout", algorithm="MD5", qop="auth"';
-		resp.setHeader('WWW-Authenticate', hd);
-		return resp;
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "GET";
+    calli:query "logout";
+    calli:type "message/x-response";
+    msg:imports <java:org.apache.http.ProtocolVersion>;
+    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+    msg:script """
+        var ver = new ProtocolVersion("HTTP", 1, 1);
+        if (authorization && authorization.indexOf('username="logout"') > 0) {
+            //# bogus credentials received
+            var resp = new BasicHttpResponse(ver, 303, "See Other");
+            resp.setHeader("Location", "/");
+            return resp;
+        }
+        //# the browser must send invalid credentials to logout
+        var resp = new BasicHttpResponse(ver, 401, "Unauthorized");
+        var hd = 'Digest realm="' + this.calliAuthName + '", domain="'
+            + this.protectionDomain() + '", nonce="logout", algorithm="MD5", qop="auth"';
+        resp.setHeader('WWW-Authenticate', hd);
+        return resp;
+    """.
 
 :authorization a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :GetLogout;
-	rdfs:range xsd:string;
-	calli:header "Authorization".
+    rdfs:domain :GetLogout;
+    rdfs:range xsd:string;
+    calli:header "Authorization".
 
 ################################
 # User forgot password
@@ -106,81 +106,81 @@
 
 # Linked from request password email
 :GetForgotPasswordPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	rdfs:subClassOf [owl:onProperty :forgot_password_xhtml; owl:hasValue <pages/forgot-password.xhtml>];
-	calli:method "GET";
-	calli:query "forgotpassword";
-	calli:type "application/xhtml+xml";
-	calli:header "cache-control:no-store";
-	calli:transform <transforms/TransformPage>;
-	msg:script """
-		return forgot_password_xhtml.calliConstruct(this);
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+    rdfs:subClassOf [owl:onProperty :forgot_password_xhtml; owl:hasValue <pages/forgot-password.xhtml>];
+    calli:method "GET";
+    calli:query "forgotpassword";
+    calli:type "application/xhtml+xml";
+    calli:header "cache-control:no-store";
+    calli:transform <transforms/TransformPage>;
+    msg:script """
+        return forgot_password_xhtml.calliConstruct(this);
+    """.
 
 :forgot_password_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :GetForgotPasswordPage.
+    rdfs:domain :GetForgotPasswordPage.
 
 # Sends request for password reset emails
 # Submitted by form in the unauthorized page
 :PostForgotPassword rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	rdfs:subClassOf [owl:onProperty :mail_request_password_xhtml; owl:hasValue <pages/mail-request-password.xhtml>];
-	calli:method "POST";
-	calli:query "forgotpassword";
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-	msg:imports <java:java.io.CharArrayWriter>;
-	msg:imports <java:java.util.Random>;
-	msg:imports <java:java.lang.Integer>;
-	msg:imports <java:java.lang.System>;
-	msg:script """
-		if (!formEmail)
-			throw new BadRequest("Missing Email");
-		var iter = this.FindUsersByEmail(formEmail).iterator();
-		if (!iter.hasNext()) {
-			println("No users with email " + formEmail + " found");
-		}
-		while (iter.hasNext()) {
-			var user = iter.next();
-			var ha1 = DigestUtils.md5Hex(user.calliEncoded);
-			var nonce = Integer.toHexString(new Random(System.nanoTime()).nextInt());
-			var ha2 = DigestUtils.md5Hex(user.toString());
-			var token = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
-			var qs = "?resetpassword&amp;nonce=" + nonce + "&amp;token=" + token + "&amp;username=" + user.calliName;
-			var body = mail_request_password_xhtml.calliConstructHTML(user);
-			body = body.replace(/\\?resetpassword/g, qs);
-			user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + formEmail + ">");
-		}
-		java.lang.Thread.sleep(new java.util.Random().nextInt() % 2000 + 2000);
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    rdfs:subClassOf [owl:onProperty :mail_request_password_xhtml; owl:hasValue <pages/mail-request-password.xhtml>];
+    calli:method "POST";
+    calli:query "forgotpassword";
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+    msg:imports <java:java.io.CharArrayWriter>;
+    msg:imports <java:java.util.Random>;
+    msg:imports <java:java.lang.Integer>;
+    msg:imports <java:java.lang.System>;
+    msg:script """
+        if (!formEmail)
+            throw new BadRequest("Missing Email");
+        var iter = this.FindUsersByEmail(formEmail).iterator();
+        if (!iter.hasNext()) {
+            println("No users with email " + formEmail + " found");
+        }
+        while (iter.hasNext()) {
+            var user = iter.next();
+            var ha1 = DigestUtils.md5Hex(user.calliEncoded);
+            var nonce = Integer.toHexString(new Random(System.nanoTime()).nextInt());
+            var ha2 = DigestUtils.md5Hex(user.toString());
+            var token = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
+            var qs = "?resetpassword&amp;nonce=" + nonce + "&amp;token=" + token + "&amp;username=" + user.calliName;
+            var body = mail_request_password_xhtml.calliConstructHTML(user);
+            body = body.replace(/\\?resetpassword/g, qs);
+            user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + formEmail + ">");
+        }
+        java.lang.Thread.sleep(new java.util.Random().nextInt() % 2000 + 2000);
+    """.
 
 :formEmail a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :PostForgotPassword;
-	rdfs:range xsd:string;
-	calli:type "text/plain".
+    rdfs:domain :PostForgotPassword;
+    rdfs:range xsd:string;
+    calli:type "text/plain".
 
 :mail_request_password_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :PostForgotPassword.
+    rdfs:domain :PostForgotPassword.
 
 # Looks up user by email address
 # Used to request password reset
 :FindUsersByEmail rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:User];
-	msg:sparql  """
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT REDUCED ?user
-		WHERE {
-			$this calli:authNamespace [calli:hasComponent ?user] .
-			?user calli:email $email .
-		}
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:User];
+    msg:sparql  """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT REDUCED ?user
+        WHERE {
+            $this calli:authNamespace [calli:hasComponent ?user] .
+            ?user calli:email $email .
+        }
+    """.
 
 :email a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :FindUsersByEmail;
-	rdfs:range xsd:string.
+    rdfs:domain :FindUsersByEmail;
+    rdfs:range xsd:string.
 
 ################################
 # User reset password
@@ -188,84 +188,84 @@
 
 # Linked from request password email
 :GetResetPassword rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	rdfs:subClassOf [owl:onProperty :reset_password_xhtml; owl:hasValue <pages/reset-password.xhtml>];
-	calli:method "GET";
-	calli:query "resetpassword";
-	calli:type "application/xhtml+xml";
-	calli:header "cache-control:no-store";
-	calli:transform <transforms/TransformPage>;
-	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:script """
-		if (!nonce || !token || !username)
-			throw new BadRequest("Missing nonce and/or token and/or username");
-		var user = this.objectConnection.getObject(this.calliAuthNamespace + username);
-		var ha1 = DigestUtils.md5Hex(user.calliEncoded);
-		var ha2 = DigestUtils.md5Hex(user.toString());
-		var hex = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
-		if (token != hex)
-			throw new BadRequest("Request is No Longer Valid");
-		return reset_password_xhtml.calliConstruct(user);
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+    rdfs:subClassOf [owl:onProperty :reset_password_xhtml; owl:hasValue <pages/reset-password.xhtml>];
+    calli:method "GET";
+    calli:query "resetpassword";
+    calli:type "application/xhtml+xml";
+    calli:header "cache-control:no-store";
+    calli:transform <transforms/TransformPage>;
+    msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:script """
+        if (!nonce || !token || !username)
+            throw new BadRequest("Missing nonce and/or token and/or username");
+        var user = this.objectConnection.getObject(this.calliAuthNamespace + username);
+        var ha1 = DigestUtils.md5Hex(user.calliEncoded);
+        var ha2 = DigestUtils.md5Hex(user.toString());
+        var hex = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
+        if (token != hex)
+            throw new BadRequest("Request is No Longer Valid");
+        return reset_password_xhtml.calliConstruct(user);
+    """.
 
 :nonce a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :GetResetPassword;
-	rdfs:range xsd:string;
-	calli:query "nonce".
+    rdfs:domain :GetResetPassword;
+    rdfs:range xsd:string;
+    calli:query "nonce".
 
 :token a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :GetResetPassword;
-	rdfs:range xsd:string;
-	calli:query "token".
+    rdfs:domain :GetResetPassword;
+    rdfs:range xsd:string;
+    calli:query "token".
 
 :username a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :GetResetPassword;
-	rdfs:range xsd:string;
-	calli:query "username".
+    rdfs:domain :GetResetPassword;
+    rdfs:range xsd:string;
+    calli:query "username".
 
 :reset_password_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :GetResetPassword.
+    rdfs:domain :GetResetPassword.
 
 # Confirms token and resets their password
 :PostResetPassword rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	rdfs:subClassOf [owl:onProperty :mail_password_xhtml; owl:hasValue <pages/mail-password.xhtml>];
-	calli:method "POST";
-	calli:query "resetpassword";
-	calli:header "cache-control:no-store";
-	msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <java:java.io.CharArrayWriter>;
-	msg:imports <java:java.util.Random>;
-	msg:imports <java:java.lang.Integer>;
-	msg:script """
-		if (!resetForm.get('nonce') || !resetForm.get("token") || !resetForm.get("username"))
-			throw new BadRequest("Missing nonce and/or token and/or username");
-		var user = this.objectConnection.getObject(this.calliAuthNamespace + resetForm.get('username')[0]);
-		var ha1 = DigestUtils.md5Hex(user.calliEncoded);
-		var nonce = resetForm.get('nonce')[0];
-		var ha2 = DigestUtils.md5Hex(user.toString());
-		var token = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
-		if (token != resetForm.get("token")[0])
-			throw new BadRequest("Request is No Longer Valid");
-		var password = this.generatePassword();
-		var decoded = user.calliName + ":" + this.calliAuthName + ":" + password;
-		user.calliAlgorithm = "MD5";
-		user.calliEncoded = DigestUtils.md5(new java.lang.String(decoded).getBytes("UTF-8"));
-		var body = mail_password_xhtml.calliConstructHTML(user);
-		body = body.replace(/@@USERNAME@@/g, user.calliName);
-		body = body.replace(/@@PASSWORD@@/g, password);
-		user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + user.calliEmail + ">");
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    rdfs:subClassOf [owl:onProperty :mail_password_xhtml; owl:hasValue <pages/mail-password.xhtml>];
+    calli:method "POST";
+    calli:query "resetpassword";
+    calli:header "cache-control:no-store";
+    msg:imports <java:org.apache.commons.codec.digest.DigestUtils>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <java:java.io.CharArrayWriter>;
+    msg:imports <java:java.util.Random>;
+    msg:imports <java:java.lang.Integer>;
+    msg:script """
+        if (!resetForm.get('nonce') || !resetForm.get("token") || !resetForm.get("username"))
+            throw new BadRequest("Missing nonce and/or token and/or username");
+        var user = this.objectConnection.getObject(this.calliAuthNamespace + resetForm.get('username')[0]);
+        var ha1 = DigestUtils.md5Hex(user.calliEncoded);
+        var nonce = resetForm.get('nonce')[0];
+        var ha2 = DigestUtils.md5Hex(user.toString());
+        var token = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
+        if (token != resetForm.get("token")[0])
+            throw new BadRequest("Request is No Longer Valid");
+        var password = this.generatePassword();
+        var decoded = user.calliName + ":" + this.calliAuthName + ":" + password;
+        user.calliAlgorithm = "MD5";
+        user.calliEncoded = DigestUtils.md5(new java.lang.String(decoded).getBytes("UTF-8"));
+        var body = mail_password_xhtml.calliConstructHTML(user);
+        body = body.replace(/@@USERNAME@@/g, user.calliName);
+        body = body.replace(/@@PASSWORD@@/g, password);
+        user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + user.calliEmail + ">");
+    """.
 
 :resetForm a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :PostResetPassword;
-	rdfs:range <java:java.util.Map>;
-	calli:type "application/x-www-form-urlencoded".
+    rdfs:domain :PostResetPassword;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded".
 
 :mail_password_xhtml a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :PostResetPassword.
+    rdfs:domain :PostResetPassword.
 

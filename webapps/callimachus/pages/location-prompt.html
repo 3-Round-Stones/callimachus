@@ -1,79 +1,79 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Save as...</title>
-	<style type="text/css">
-		html,body { padding:0;margin:0;overflow:hidden; }
-		label { height:1.5em;display:block;width:100%; }
-		#label { float:right; }
-		iframe { border:none; }
-		#form { padding:0; }
-	</style>
-	<script src="/callimachus/scripts/web_bundle?source" type="text/javascript"> </script>
-	<script type="text/javascript">
-	// <![CDATA[
-		jQuery(function($) {
-			$('#form').submit(function(event){
-				event.preventDefault();
-				parent.postMessage('POST save', '*');
-				return false;
-			});
-			if (location.hash) {
-				var i = location.hash.indexOf('!');
-				if (i > 0) {
-					var uri = location.hash.substring(i + 1);
-					var url = calli.viewpage(uri);
-					jQuery.ajax({
-						type:"GET",
-						url:url,
-						complete:function(xhr) {
-							if (xhr.status == 200 || xhr.status == 304) {
-								$('#iframe')[0].src = url;
-							} else {
-								$('#iframe')[0].src = "/?view";
-							}
-						}
-					});
-					var label = decodeURIComponent(location.hash.substring(1, i));
-					$('#label').val(label);
-				} else {
-					var label = decodeURIComponent(location.hash.substring(1));
-					$('#label').val(label);
-					$('#iframe')[0].src = "/?view";
-				}
-			} else {
-				$('#iframe')[0].src = "/?view";
-			}
-			var src = $('#iframe')[0].src;
-			$(window).bind('message', function(event) {
-				var data = event.originalEvent.data;
-				if (event.originalEvent.source == $('#iframe')[0].contentWindow && data.indexOf('PUT src\n\n') == 0) {
-					src = data.substring(data.indexOf('\n\n') + 2);
-				} else if (event.originalEvent.source == parent && data == 'GET label') {
-					parent.postMessage('OK\n\nGET label\n\n' + $('#label').val(), '*');
-				} else if (event.originalEvent.source == parent && data == 'GET url') {
-					parent.postMessage('OK\n\nGET url\n\n' + src, '*');
-				}
-			});
-			var i=$('#label').val().search(/[\.\/]/);
-			if (i>0) {
-				try {
-					$('#label')[0].setSelectionRange(0, i);
-				} catch(e) {
-					$('#label')[0].select();
-				}
-			} else {
-				$('#label')[0].select();
-			}
-		});
-	// ]]>
-	</script>
+    <title>Save as...</title>
+    <style type="text/css">
+        html,body { padding:0;margin:0;overflow:hidden; }
+        label { height:1.5em;display:block;width:100%; }
+        #label { float:right; }
+        iframe { border:none; }
+        #form { padding:0; }
+    </style>
+    <script src="/callimachus/scripts/web_bundle?source" type="text/javascript"> </script>
+    <script type="text/javascript">
+    // <![CDATA[
+        jQuery(function($) {
+            $('#form').submit(function(event){
+                event.preventDefault();
+                parent.postMessage('POST save', '*');
+                return false;
+            });
+            if (location.hash) {
+                var i = location.hash.indexOf('!');
+                if (i > 0) {
+                    var uri = location.hash.substring(i + 1);
+                    var url = calli.viewpage(uri);
+                    jQuery.ajax({
+                        type:"GET",
+                        url:url,
+                        complete:function(xhr) {
+                            if (xhr.status == 200 || xhr.status == 304) {
+                                $('#iframe')[0].src = url;
+                            } else {
+                                $('#iframe')[0].src = "/?view";
+                            }
+                        }
+                    });
+                    var label = decodeURIComponent(location.hash.substring(1, i));
+                    $('#label').val(label);
+                } else {
+                    var label = decodeURIComponent(location.hash.substring(1));
+                    $('#label').val(label);
+                    $('#iframe')[0].src = "/?view";
+                }
+            } else {
+                $('#iframe')[0].src = "/?view";
+            }
+            var src = $('#iframe')[0].src;
+            $(window).bind('message', function(event) {
+                var data = event.originalEvent.data;
+                if (event.originalEvent.source == $('#iframe')[0].contentWindow && data.indexOf('PUT src\n\n') == 0) {
+                    src = data.substring(data.indexOf('\n\n') + 2);
+                } else if (event.originalEvent.source == parent && data == 'GET label') {
+                    parent.postMessage('OK\n\nGET label\n\n' + $('#label').val(), '*');
+                } else if (event.originalEvent.source == parent && data == 'GET url') {
+                    parent.postMessage('OK\n\nGET url\n\n' + src, '*');
+                }
+            });
+            var i=$('#label').val().search(/[\.\/]/);
+            if (i>0) {
+                try {
+                    $('#label')[0].setSelectionRange(0, i);
+                } catch(e) {
+                    $('#label')[0].select();
+                }
+            } else {
+                $('#label')[0].select();
+            }
+        });
+    // ]]>
+    </script>
 </head>
 <body>
-	<form id="form">
-		<label for="label"><input class="auto-expand" id="label" type="text" autofocus="autofocus" />Name: </label>
-		<iframe id="iframe" class="flex"></iframe>
-	</form>
+    <form id="form">
+        <label for="label"><input class="auto-expand" id="label" type="text" autofocus="autofocus" />Name: </label>
+        <iframe id="iframe" class="flex"></iframe>
+    </form>
 </body>
 </html>
 

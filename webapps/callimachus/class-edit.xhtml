@@ -1,159 +1,159 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-	xmlns:foaf="http://xmlns.com/foaf/0.1/">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
-	<title about="?this">{rdfs:label}</title>
-	<link rel="group" href="/group/users" />
-	<link rel="group" href="/group/staff" />
-	<link rel="group" href="/group/admin" />
-	<link rel="viewable" href="/callimachus/Viewable" />
-	<link rel="editable" href="/callimachus/Editable" />
-	<link rel="composite" href="/callimachus/Composite" />
-	<script type="text/javascript"> // <![CDATA[
-	jQuery(function($){
-		$('#create').bind('calliLinked', function() {
-			$('link[rel="group"]').each(function(){
-				var href = this.href;
-				var de = jQuery.Event('drop');
-				de.dataTransfer = {getData:function(){return href}};
-				$('#authors').trigger(de);
-			});
-		});
-		$('#view').bind('calliLinked', function() {
-			$('link[rel="viewable"]').each(function(){
-				var href = this.href;
-				var de = jQuery.Event('drop');
-				de.dataTransfer = {getData:function(){return href}};
-				$('#subClassOf').trigger(de);
-			});
-		});
-		$('#edit').bind('calliLinked', function() {
-			$('link[rel="editable"]').each(function(){
-				var href = this.href;
-				var de = jQuery.Event('drop');
-				de.dataTransfer = {getData:function(){return href}};
-				$('#subClassOf').trigger(de);
-			});
-		});
-		$('#composite').click(function(){
-			$('link[rel="composite"]').each(function(){
-				var composite = $('#subClassOf').find('[about$="' + this.href + '"]');
-				if ($('#composite').is(':checked')) {
-					if (!composite.length) {
-						var href = this.href;
-						var de = jQuery.Event('drop');
-						de.dataTransfer = {getData:function(){return href}};
-						$('#subClassOf').trigger(de);
-					}
-				} else {
-					composite.remove();
-				}
-			});
-		});
-		if ($('#subClassOf').find('[about$="Composite"]').length) {
-			$('#composite').attr('checked','checked');
-		}
-	}); // ]]>
-	</script>
+    <title about="?this">{rdfs:label}</title>
+    <link rel="group" href="/group/users" />
+    <link rel="group" href="/group/staff" />
+    <link rel="group" href="/group/admin" />
+    <link rel="viewable" href="/callimachus/Viewable" />
+    <link rel="editable" href="/callimachus/Editable" />
+    <link rel="composite" href="/callimachus/Composite" />
+    <script type="text/javascript"> // <![CDATA[
+    jQuery(function($){
+        $('#create').bind('calliLinked', function() {
+            $('link[rel="group"]').each(function(){
+                var href = this.href;
+                var de = jQuery.Event('drop');
+                de.dataTransfer = {getData:function(){return href}};
+                $('#authors').trigger(de);
+            });
+        });
+        $('#view').bind('calliLinked', function() {
+            $('link[rel="viewable"]').each(function(){
+                var href = this.href;
+                var de = jQuery.Event('drop');
+                de.dataTransfer = {getData:function(){return href}};
+                $('#subClassOf').trigger(de);
+            });
+        });
+        $('#edit').bind('calliLinked', function() {
+            $('link[rel="editable"]').each(function(){
+                var href = this.href;
+                var de = jQuery.Event('drop');
+                de.dataTransfer = {getData:function(){return href}};
+                $('#subClassOf').trigger(de);
+            });
+        });
+        $('#composite').click(function(){
+            $('link[rel="composite"]').each(function(){
+                var composite = $('#subClassOf').find('[about$="' + this.href + '"]');
+                if ($('#composite').is(':checked')) {
+                    if (!composite.length) {
+                        var href = this.href;
+                        var de = jQuery.Event('drop');
+                        de.dataTransfer = {getData:function(){return href}};
+                        $('#subClassOf').trigger(de);
+                    }
+                } else {
+                    composite.remove();
+                }
+            });
+        });
+        if ($('#subClassOf').find('[about$="Composite"]').length) {
+            $('#composite').attr('checked','checked');
+        }
+    }); // ]]>
+    </script>
 </head>
 <body about="?this">
-	<h1 property="rdfs:label" />
-	<div id="sidebar">
-		<aside>
-			<p>Icon is used when looking up resources. To add an icon, click the browse icon to open a file upload dialogue</p>
-			<p>Authors are permitted to create new resources of this class</p>
-			<p>Use a super class to inherit or override page templates</p>
-			<p>Templates are used for page or form structure on each operation</p>
-		</aside>
-	</div>
-	<form method="POST" action="" enctype="application/sparql-update" about="?this" typeof="owl:Class">
-		<div class="hbox">
-			<div>
-				<label for="label">Label</label>
-				<input id="label" value="{rdfs:label}" class="auto-expand" required="required" />
-			</div>
-			<div id="icon" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Icon <a href="/?view" title="Browse"
-						onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
-				<div rel="calli:icon">
-					<span about="?icon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
-						<img src="{?icon}" />
-						<a href="{?icon}" title="Remove from class" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-		</div>
-		<div>
-			<label for="comment">Comment</label>
-			<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
-		</div>
-		<div class="hbox">
-			<div id="authors" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Authors <a href="/callimachus/Group" title="Select Group"
-						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="calli:author" class="vbox">
-					<span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-			<div id="subClassOf" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Super <a href="/callimachus/Class" title="Create"
-						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="rdfs:subClassOf" class="vbox">
-					<span about="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?subClassOf}" title="Remove relationship" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-		</div>
-		<div>
-			<label for="composite">Nested resources</label>
-			<label class="input"><input id="composite" type="checkbox" /> These resources contain other resources</label>
-		</div>
-		<hr />
-		<h2>Page Templates</h2>
-		<div class="hbox">
-			<div id="create" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Create template <a href="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" title="Create"
-						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="calli:create">
-					<span about="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?create}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-			<div id="view" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>View template <a href="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" title="Create"
-						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="calli:view">
-					<span about="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?view}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-			<div id="edit" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Edit template <a href="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" title="Create"
-						onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="calli:edit">
-					<span about="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?edit}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-		</div>
-		<button id="save" type="submit">Save</button>
-		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
-	</form>
+    <h1 property="rdfs:label" />
+    <div id="sidebar">
+        <aside>
+            <p>Icon is used when looking up resources. To add an icon, click the browse icon to open a file upload dialogue</p>
+            <p>Authors are permitted to create new resources of this class</p>
+            <p>Use a super class to inherit or override page templates</p>
+            <p>Templates are used for page or form structure on each operation</p>
+        </aside>
+    </div>
+    <form method="POST" action="" enctype="application/sparql-update" about="?this" typeof="owl:Class">
+        <div class="hbox">
+            <div>
+                <label for="label">Label</label>
+                <input id="label" value="{rdfs:label}" class="auto-expand" required="required" />
+            </div>
+            <div id="icon" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Icon <a href="/?view" title="Browse"
+                        onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
+                <div rel="calli:icon">
+                    <span about="?icon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
+                        <img src="{?icon}" />
+                        <a href="{?icon}" title="Remove from class" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div>
+            <label for="comment">Comment</label>
+            <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+        </div>
+        <div class="hbox">
+            <div id="authors" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Authors <a href="/callimachus/Group" title="Select Group"
+                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:author" class="vbox">
+                    <span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+            <div id="subClassOf" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Super <a href="/callimachus/Class" title="Create"
+                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="rdfs:subClassOf" class="vbox">
+                    <span about="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?subClassOf}" title="Remove relationship" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div>
+            <label for="composite">Nested resources</label>
+            <label class="input"><input id="composite" type="checkbox" /> These resources contain other resources</label>
+        </div>
+        <hr />
+        <h2>Page Templates</h2>
+        <div class="hbox">
+            <div id="create" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Create template <a href="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" title="Create"
+                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:create">
+                    <span about="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?create}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+            <div id="view" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>View template <a href="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" title="Create"
+                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:view">
+                    <span about="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?view}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+            <div id="edit" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Edit template <a href="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" title="Create"
+                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:edit">
+                    <span about="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?edit}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+        </div>
+        <button id="save" type="submit">Save</button>
+        <button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+        <button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
+    </form>
 </body>
 </html>

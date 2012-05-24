@@ -28,105 +28,105 @@
 <> a <../SchemaGraph>.
 
 :Delete rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Editable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	calli:method "DELETE";
-	calli:realm </>;
-	msg:imports <java:org.openrdf.model.BNode>;
-	msg:imports <java:org.openrdf.model.URI>;
-	msg:imports <java:javax.tools.FileObject>;
-	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-	msg:script """
-		var con = this.objectConnection;
-		var stmts = con.getStatements(null, null, this.resource, []);
-		try {
-			while (stmts.hasNext()) {
-				var st = stmts.next();
-				var subj = st.subject;
-				var pred = st.predicate.stringValue();
-				if (pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject"
-						&& pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#object") {
-					//# Don't allow removal if used in a complex structure (like an rdf:List)
-					if (subj instanceof BNode)
-						throw new Conflict("This resource is currently is use and cannot be removed");
-					if (subj.stringValue().indexOf('#') >= 0)
-						throw new Conflict("This resource is currently referenced: " + subj);
-					con.remove(st, []);
-				}
-			}
-		} finally {
-			stmts.close();
-		}
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Editable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "DELETE";
+    calli:realm </>;
+    msg:imports <java:org.openrdf.model.BNode>;
+    msg:imports <java:org.openrdf.model.URI>;
+    msg:imports <java:javax.tools.FileObject>;
+    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    msg:script """
+        var con = this.objectConnection;
+        var stmts = con.getStatements(null, null, this.resource, []);
+        try {
+            while (stmts.hasNext()) {
+                var st = stmts.next();
+                var subj = st.subject;
+                var pred = st.predicate.stringValue();
+                if (pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject"
+                        && pred != "http://www.w3.org/1999/02/22-rdf-syntax-ns#object") {
+                    //# Don't allow removal if used in a complex structure (like an rdf:List)
+                    if (subj instanceof BNode)
+                        throw new Conflict("This resource is currently is use and cannot be removed");
+                    if (subj.stringValue().indexOf('#') >= 0)
+                        throw new Conflict("This resource is currently referenced: " + subj);
+                    con.remove(st, []);
+                }
+            }
+        } finally {
+            stmts.close();
+        }
 
-		function removeTriples(subject, hash) {
-			var stmts = con.getStatements(subject, null, null, []);
-			try {
-				while (stmts.hasNext()) {
-					var st = stmts.next();
-					if (st.object instanceof BNode && !st.object.equals(subject)) {
-						removeTriples(st.object, hash);
-					} else if (st.object instanceof URI && !st.object.equals(subject)) {
-						if (st.object.stringValue().indexOf(hash) == 0) {
-							removeTriples(st.object, hash);
-						} else {
-							con.getObjectFactory().createObject(st.object).touchRevision();
-						}
-					}
-					con.remove(st, []);
-				}
-			} finally {
-				stmts.close();
-			}
-		}
+        function removeTriples(subject, hash) {
+            var stmts = con.getStatements(subject, null, null, []);
+            try {
+                while (stmts.hasNext()) {
+                    var st = stmts.next();
+                    if (st.object instanceof BNode && !st.object.equals(subject)) {
+                        removeTriples(st.object, hash);
+                    } else if (st.object instanceof URI && !st.object.equals(subject)) {
+                        if (st.object.stringValue().indexOf(hash) == 0) {
+                            removeTriples(st.object, hash);
+                        } else {
+                            con.getObjectFactory().createObject(st.object).touchRevision();
+                        }
+                    }
+                    con.remove(st, []);
+                }
+            } finally {
+                stmts.close();
+            }
+        }
 
-		con.clear([this.resource]); //# clear graph
-		removeTriples(this.resource, this.resource.stringValue() + '#'); //# follow blank and hash references
-		if (this instanceof FileObject) {
-			this['delete'](); //# remove document
-		}
-	""".
+        con.clear([this.resource]); //# clear graph
+        removeTriples(this.resource, this.resource.stringValue() + '#'); //# follow blank and hash references
+        if (this instanceof FileObject) {
+            this['delete'](); //# remove document
+        }
+    """.
 
 :DeleteComposite owl:intersectionOf ( :Delete
-		[owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Composite>)]]);
+        [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Composite>)]]);
     calli:method "DELETE";
     calli:realm </>;
-	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-	msg:script """
-		if (this.HasComponents())
-			throw new Conflict("Child resources must be deleted first");
-		return proceed();
-	""".
+    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    msg:script """
+        if (this.HasComponents())
+            throw new Conflict("Child resources must be deleted first");
+        return proceed();
+    """.
 
 :HasComponents rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
-	msg:sparql """
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		ASK {
-			$this calli:hasComponent ?child
-		}
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        ASK {
+            $this calli:hasComponent ?child
+        }
+    """.
 
 :DeleteCreatable owl:intersectionOf ( :Delete
-		[owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Creatable>)]]);
+        [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Creatable>)]]);
     calli:method "DELETE";
     calli:realm </>;
-	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-	msg:script """
-		if (this.HasInstanceChildren())
-			throw new Conflict("Member resources must be deleted first");
-		return proceed();
-	""".
+    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    msg:script """
+        if (this.HasInstanceChildren())
+            throw new Conflict("Member resources must be deleted first");
+        return proceed();
+    """.
 
 :HasInstanceChildren rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
-	msg:sparql """
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		ASK {
-			?child a $this
-		}
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        ASK {
+            ?child a $this
+        }
+    """.
 

@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title>New Pipeline</title>
-	<script type="text/javascript" src="/callimachus/editor/create.js"> </script>
-	<script id="template" type="application/xproc+xml"><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
+    <title>New Pipeline</title>
+    <script type="text/javascript" src="/callimachus/editor/create.js"> </script>
+    <script id="template" type="application/xproc+xml"><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
 <p:pipeline version="1.0"
-		xmlns:p="http://www.w3.org/ns/xproc"
-		xmlns:c="http://www.w3.org/ns/xproc-step"
-		xmlns:l="http://xproc.org/library">
+        xmlns:p="http://www.w3.org/ns/xproc"
+        xmlns:c="http://www.w3.org/ns/xproc-step"
+        xmlns:l="http://xproc.org/library">
 
 <p:identity />
 
 </p:pipeline>]]></script>
 </head>
 <body>
-	<form id="form" method="POST" action="" enctype="application/xproc+xml" onsubmit="return calli.saveResourceAs(event,'untitled pipeline.xpl')">
-		<iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#xml"> </iframe>
-		<button type="submit">Create</button>
-	</form>
+    <form id="form" method="POST" action="" enctype="application/xproc+xml" onsubmit="return calli.saveResourceAs(event,'untitled pipeline.xpl')">
+        <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#xml"> </iframe>
+        <button type="submit">Create</button>
+    </form>
 </body>
 </html>
 

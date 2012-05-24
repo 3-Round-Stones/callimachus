@@ -3,22 +3,22 @@
 (function($) {
 
 $(document).ready(function(event) {
-	if (!('open' in document.createElement('details'))) {
-		$(document).bind("DOMNodeInserted", handle);
-		handle(event);
-	}
+    if (!('open' in document.createElement('details'))) {
+        $(document).bind("DOMNodeInserted", handle);
+        handle(event);
+    }
 });
 
 function select(node, selector) {
-	var set = $(node).find(selector);
-	if (node && $(node).is(selector)) {
-		set = set.add(node);
-	}
-	return set;
+    var set = $(node).find(selector);
+    if (node && $(node).is(selector)) {
+        set = set.add(node);
+    }
+    return set;
 }
 
 function notSummary(){
-	return this.tagName != 'summary' && this.tagName != 'SUMMARY';
+    return this.tagName != 'summary' && this.tagName != 'SUMMARY';
 }
 
 function handle(event) {
@@ -34,7 +34,7 @@ function handle(event) {
           // This will be used later to look for direct child text nodes
           $detailsNotSummaryContents = $details.contents().filter(notSummary);
 
-	$detailsSummary.css("display", "list-item").css("margin-left", "1em").css("outline", "none");
+    $detailsSummary.css("display", "list-item").css("margin-left", "1em").css("outline", "none");
 
       // If there is no `summary` in the current `details` element…
       if (!$detailsSummary.length) {

@@ -25,84 +25,84 @@
 <> a <SchemaGraph>.
 
 <Pipeline> a <Creatable>, owl:Class;
-	rdfs:subClassOf <File>;
-	rdfs:label "Pipeline";
-	rdfs:comment "New pipelines can be created from a folder";
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/users>,</group/staff>,</group/admin>;
-	calli:icon <pipeline.png>;
-	calli:view <pipeline-view.xhtml>;
-	calli:edit <pipeline-edit.xhtml>;
-	calli:create <pipeline-create.xhtml>;
-	calli:type "application/xproc+xml".
+    rdfs:subClassOf <File>;
+    rdfs:label "Pipeline";
+    rdfs:comment "New pipelines can be created from a folder";
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:icon <pipeline.png>;
+    calli:view <pipeline-view.xhtml>;
+    calli:edit <pipeline-edit.xhtml>;
+    calli:create <pipeline-create.xhtml>;
+    calli:type "application/xproc+xml".
 
 # GET /pipeline/pipe.xpl
 :GetPipelineSource rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:method "GET";
-	calli:type "application/xproc+xml";
-	calli:header "cache-control:no-cache";
-	calli:header "cache-control:cache-range";
-	msg:script "return this.openInputStream()".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:type "application/xproc+xml";
+    calli:header "cache-control:no-cache";
+    calli:header "cache-control:cache-range";
+    msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Pipeline
 :CreatePipeline owl:intersectionOf (<toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Pipeline> ]);
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-	msg:imports <File>;
-	msg:imports foaf:Document;
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.valueFactory;
-		if (!location)
-			throw new BadRequest("Missing location request header");
-		if (location instanceof File) {
-			location = location.RemoveFile();
-		}
-		var created = location;
+        [owl:onProperty msg:target; owl:hasValue <Pipeline> ]);
+    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    msg:imports <java:java.net.URLDecoder>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    msg:imports <File>;
+    msg:imports foaf:Document;
+    msg:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        if (!location)
+            throw new BadRequest("Missing location request header");
+        if (location instanceof File) {
+            location = location.RemoveFile();
+        }
+        var created = location;
 
-		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
-		con.add(created.resource, RDFS.LABEL, label, []);
+        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
+        con.add(created.resource, RDFS.LABEL, label, []);
 
-		created = con.addDesignation(created, this.toString());
-		created = con.addDesignation(created, Document);
+        created = con.addDesignation(created, this.toString());
+        created = con.addDesignation(created, Document);
 
-		created.UploadPipeline(body);
-		return created;
-	""".
+        created.UploadPipeline(body);
+        return created;
+    """.
 
 # PUT /pipeline/pipe.xpl
 :UploadPipeline rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	calli:method "PUT";
-	calli:realm </>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports foaf:Document;
-	msg:script """
-		var read;
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var out = this.openOutputStream();
-		try {
-			while ((read = xprocStream.read(buf)) >= 0) {
-				out.write(buf, 0, read);
-			}
-		} finally {
-			out.close();
-		}
-		this.touchRevision();
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:realm </>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    msg:imports <java:java.net.URLDecoder>;
+    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports foaf:Document;
+    msg:script """
+        var read;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var out = this.openOutputStream();
+        try {
+            while ((read = xprocStream.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        this.touchRevision();
+    """.
 
 :xprocStream a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :UploadPipeline;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "application/xproc+xml".
+    rdfs:domain :UploadPipeline;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/xproc+xml".
 

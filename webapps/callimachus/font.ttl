@@ -26,79 +26,79 @@
 <> a <SchemaGraph>.
 
 <Font> a <Creatable>, owl:Class;
-	rdfs:subClassOf <File>;
-	rdfs:label "Font" ;
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/users>,</group/staff>,</group/admin>;
-	calli:icon <font.png>;
-	calli:create <file-create.xhtml>;
-	calli:type "application/font-woff".
+    rdfs:subClassOf <File>;
+    rdfs:label "Font" ;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:icon <font.png>;
+    calli:create <file-create.xhtml>;
+    calli:type "application/font-woff".
 
 # GET /font.woff
 :GetFont rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Font>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:method "GET";
-	calli:type "application/font-woff";
-	calli:header "cache-control:cache-range";
-	msg:script "return this.openInputStream()".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Font>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:type "application/font-woff";
+    calli:header "cache-control:cache-range";
+    msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Font
 :PostFontCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <Font> ]);
-	msg:imports <java:java.net.URLEncoder>;
-	msg:imports <java:javax.mail.util.ByteArrayDataSource>;
-	msg:imports <java:javax.mail.internet.MimeMultipart>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <File>;
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.getValueFactory();
+        [owl:onProperty msg:target; owl:hasValue <Font> ]);
+    msg:imports <java:java.net.URLEncoder>;
+    msg:imports <java:javax.mail.util.ByteArrayDataSource>;
+    msg:imports <java:javax.mail.internet.MimeMultipart>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    msg:imports <File>;
+    msg:script """
+        var con = this.objectConnection;
+        var vf = con.getValueFactory();
 
-		//# font resource
-		if (location instanceof File) {
-			location = location.RemoveFile();
-		}
-		var obj = location;
-		if (!obj)
-			throw new BadRequest("Missing location");
+        //# font resource
+        if (location instanceof File) {
+            location = location.RemoveFile();
+        }
+        var obj = location;
+        if (!obj)
+            throw new BadRequest("Missing location");
 
-		obj = con.addDesignation(obj, this.toString()) ;
+        obj = con.addDesignation(obj, this.toString()) ;
 
-		//# add the font label
-		var fileName = location.resource.localName;
-		var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
+        //# add the font label
+        var fileName = location.resource.localName;
+        var label = fileName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+        con.add(obj.resource, RDFS.LABEL, vf.createLiteral(label), []);
 
-		//# load font data
-		var out = obj.PutFont(body) ;
+        //# load font data
+        var out = obj.PutFont(body) ;
 
-		return obj;
-	""".
+        return obj;
+    """.
 
 :PutFont rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Font> ];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	calli:method "PUT";
-	calli:realm </>;
-	msg:script """
-		var out = this.openOutputStream() ;
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var read;
-		try {
-			while ((read = stream.read(buf)) >= 0) {
-				out.write(buf, 0, read);
-			}
-		} finally {
-			out.close();
-		}
-		this.touchRevision();
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Font> ];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:realm </>;
+    msg:script """
+        var out = this.openOutputStream() ;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var read;
+        try {
+            while ((read = stream.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        this.touchRevision();
+    """.
 
 :stream a owl:DatatypeProperty, owl:FunctionalProperty ;
-	rdfs:domain :PutFont ;
-	rdfs:range <java:java.io.InputStream> ;
-	calli:type "application/font-woff" .
+    rdfs:domain :PutFont ;
+    rdfs:range <java:java.io.InputStream> ;
+    calli:type "application/font-woff" .
 

@@ -1,69 +1,69 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title about="?this">{rdfs:label}</title>
-	<link rel="edit" href="?edit" />
-	<link rel="describedby" href="?describe" />
-	<link rel="version-history" href="?history" />
-	<script type="text/javascript">
-		jQuery(function($){
-			if (!$('#create-template').length) {
-				$('#create-link').hide();
-			}
-		});
-	</script>
+    <title about="?this">{rdfs:label}</title>
+    <link rel="edit" href="?edit" />
+    <link rel="describedby" href="?describe" />
+    <link rel="version-history" href="?history" />
+    <script type="text/javascript">
+        jQuery(function($){
+            if (!$('#create-template').length) {
+                $('#create-link').hide();
+            }
+        });
+    </script>
 </head>
 <body about="?this">
-	<h1>
-		<div id="icon" rel="calli:icon" resource="?icon" style="float:left;max-width:1em;padding-right:1ex;">
-			<a href="{?icon}" class="view"><img src="{?icon}" style="max-width:1em;max-height:2em" /></a>
-		</div>
-		<a property="rdfs:label" href="?this" />
-	</h1>
-	<div id="sidebar">
-		<aside>
-			<p id="create-link" class="protected">
-				<a href="?create">Create a new <span about="?this" property="rdfs:label"/></a>
-			</p>
-			<p>
-				<a href="?index"><span about="?this" property="rdfs:label"/> resources</a>
-			</p>
-		</aside>
-		<aside rel="rdfs:subClassOf" class="optional">
-			<h3>Super class</h3>
-			<p about="?subClassOf" typeof="owl:Class">
-				<a href="?subClassOf" property="rdfs:label" class="view" />
-			</p>
-		</aside>
-		<aside rev="owl:equivalentClass" class="optional">
-			<h3>Equivalent class</h3>
-			<p about="?equivalentClass" typeof="owl:Class">
-				<a href="?equivalentClass" property="rdfs:label" class="view" />
-			</p>
-		</aside>
-		<aside rev="rdfs:subClassOf" class="optional">
-			<h3>Sub class</h3>
-			<p about="?subClass" typeof="owl:Class">
-				<a href="?subClass" property="rdfs:label" class="view" />
-			</p>
-		</aside>
-		<aside class="optional">
-			<h3>Templates</h3>
-			<p rel="calli:create">
-				<a id="create-template" href="?create" property="rdfs:label" class="view" />
-			</p>
-			<p rel="calli:view">
-				<a href="?view" property="rdfs:label" class="view" />
-			</p>
-			<p rel="calli:edit">
-				<a href="?edit" property="rdfs:label" class="view" />
-			</p>
-		</aside>
-	</div>
-	<pre property="rdfs:comment" class="wiki"></pre>
+    <h1>
+        <div id="icon" rel="calli:icon" resource="?icon" style="float:left;max-width:1em;padding-right:1ex;">
+            <a href="{?icon}" class="view"><img src="{?icon}" style="max-width:1em;max-height:2em" /></a>
+        </div>
+        <a property="rdfs:label" href="?this" />
+    </h1>
+    <div id="sidebar">
+        <aside>
+            <p id="create-link" class="protected">
+                <a href="?create">Create a new <span about="?this" property="rdfs:label"/></a>
+            </p>
+            <p>
+                <a href="?index"><span about="?this" property="rdfs:label"/> resources</a>
+            </p>
+        </aside>
+        <aside rel="rdfs:subClassOf" class="optional">
+            <h3>Super class</h3>
+            <p about="?subClassOf" typeof="owl:Class">
+                <a href="?subClassOf" property="rdfs:label" class="view" />
+            </p>
+        </aside>
+        <aside rev="owl:equivalentClass" class="optional">
+            <h3>Equivalent class</h3>
+            <p about="?equivalentClass" typeof="owl:Class">
+                <a href="?equivalentClass" property="rdfs:label" class="view" />
+            </p>
+        </aside>
+        <aside rev="rdfs:subClassOf" class="optional">
+            <h3>Sub class</h3>
+            <p about="?subClass" typeof="owl:Class">
+                <a href="?subClass" property="rdfs:label" class="view" />
+            </p>
+        </aside>
+        <aside class="optional">
+            <h3>Templates</h3>
+            <p rel="calli:create">
+                <a id="create-template" href="?create" property="rdfs:label" class="view" />
+            </p>
+            <p rel="calli:view">
+                <a href="?view" property="rdfs:label" class="view" />
+            </p>
+            <p rel="calli:edit">
+                <a href="?edit" property="rdfs:label" class="view" />
+            </p>
+        </aside>
+    </div>
+    <pre property="rdfs:comment" class="wiki"></pre>
 </body>
 </html>

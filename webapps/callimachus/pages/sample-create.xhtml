@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
-	<title>New Resource</title>
+    <title>New Resource</title>
 </head>
 <body>
-	<h1>New Resource</h1>
-	<form method="POST" action="" enctype="application/rdf+xml" onsubmit="return calli.saveResourceAs(event)">
-		<div class="vbox">
-			<div class="input field">
-				<label for="label">Label</label>
-				<input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
-			</div>
-			<div class="text field">
-				<label for="comment">Comment</label>
-				<textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
-			</div>
-		</div>
-		<button type="submit">Create</button>
-	</form>
+    <h1>New Resource</h1>
+    <form method="POST" action="" enctype="application/rdf+xml" onsubmit="return calli.saveResourceAs(event)">
+        <div class="vbox">
+            <div class="input field">
+                <label for="label">Label</label>
+                <input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+            </div>
+            <div class="text field">
+                <label for="comment">Comment</label>
+                <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+            </div>
+        </div>
+        <button type="submit">Create</button>
+    </form>
 </body>
 </html>

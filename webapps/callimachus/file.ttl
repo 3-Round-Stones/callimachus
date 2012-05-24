@@ -25,34 +25,34 @@
 <> a <SchemaGraph>.
 
 <File> a <Creatable>, owl:Class;
-	rdfs:label "File";
-	rdfs:subClassOf <Viewable>, <Editable>, foaf:Document;
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/users>,</group/staff>,</group/admin>;
-	calli:create <file-create.xhtml>;
-	calli:view <file-view.xhtml>;
-	calli:edit <file-edit.xhtml>.
+    rdfs:label "File";
+    rdfs:subClassOf <Viewable>, <Editable>, foaf:Document;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
+    calli:create <file-create.xhtml>;
+    calli:view <file-view.xhtml>;
+    calli:edit <file-edit.xhtml>.
 
 :GetFileContentType rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	msg:sparql """
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT DISTINCT ?type { $this a [calli:type ?type] }
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT DISTINCT ?type { $this a [calli:type ?type] }
+    """.
 
 :RemoveFile rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.getValueFactory();
-		var hasComponent = vf.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent");
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    msg:script """
+        var con = this.objectConnection;
+        var vf = con.getValueFactory();
+        var hasComponent = vf.createURI("http://callimachusproject.org/rdf/2009/framework#hasComponent");
 
-		con.clear([this.resource]); //# clear graph
-		con.remove(this.resource, null, null, []); //# delete out bound triples
-		con.remove(null, hasComponent, this.resource, []); //# remove from parent folder
-		//#TODO this['delete'](); //# remove document
-		return con.getObjectFactory().createObject(this.resource);
-	""".
+        con.clear([this.resource]); //# clear graph
+        con.remove(this.resource, null, null, []); //# delete out bound triples
+        con.remove(null, hasComponent, this.resource, []); //# remove from parent folder
+        //#TODO this['delete'](); //# remove document
+        return con.getObjectFactory().createObject(this.resource);
+    """.
 

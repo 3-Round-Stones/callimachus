@@ -12,67 +12,67 @@
 <> a <SchemaGraph>.
 
 <Realm> a <Creatable>, owl:Class;
-	rdfs:subClassOf <Folder>, calli:Realm;
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/admin>;
-	calli:icon <realm.png>;
-	calli:edit <realm-edit.xhtml>;
-	calli:create <realm-create.xhtml>.
+    rdfs:subClassOf <Folder>, calli:Realm;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/admin>;
+    calli:icon <realm.png>;
+    calli:edit <realm-edit.xhtml>;
+    calli:create <realm-create.xhtml>.
 
 :GetOldTemplate rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <manifest>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	calli:method "GET";
-	calli:query "template";
-	calli:expect "302-found";
-	calli:type "text/uri-list";
-	msg:script """
-		return "/callimachus/template.xsl";
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <manifest>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "template";
+    calli:expect "302-found";
+    calli:type "text/uri-list";
+    msg:script """
+        return "/callimachus/template.xsl";
+    """.
 
 # anybody with credentials can look something up
 # TODO change this to require calli:reader access
 :AuthorizeRealmAccess owl:intersectionOf (calli:IsAuthorized
-		[owl:onProperty msg:target; owl:allValuesFrom <../Realm>]);
-	msg:sparql  """
-		ASK {
-			$this a <Realm>
-			FILTER ($method = "GET" || $method = "HEAD")
-			FILTER ($query = "login" || substr($query,1,2) = "q=")
-		}
-	""".
+        [owl:onProperty msg:target; owl:allValuesFrom <../Realm>]);
+    msg:sparql  """
+        ASK {
+            $this a <Realm>
+            FILTER ($method = "GET" || $method = "HEAD")
+            FILTER ($query = "login" || substr($query,1,2) = "q=")
+        }
+    """.
 
 ################################
 # login
 ################################
 
 :GetLogin rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	calli:method "GET";
-	calli:query "login";
-	calli:realm </>;
-	calli:header "cache-control:max-age:3600";
-	calli:type "text/html";
-	msg:script """
-		var iter = this.calliAuthentication.iterator();
-		while (iter.hasNext()) {
-			var manager = iter.next();
-			var credential = manager.findCredential(cookies);
-			if (credential) {
-				var title = manager.findCredentialLabel(cookies);
-				return '<html><head><title>' + title + '</title>'
-					+ '<meta http-equiv="REFRESH" content="0; url=' + credential + '"/></head>'
-					+ '<body resource="' + credential + '">' + title  + '</body></html>';
-			}
-		}
-		return null;
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "login";
+    calli:realm </>;
+    calli:header "cache-control:max-age:3600";
+    calli:type "text/html";
+    msg:script """
+        var iter = this.calliAuthentication.iterator();
+        while (iter.hasNext()) {
+            var manager = iter.next();
+            var credential = manager.findCredential(cookies);
+            if (credential) {
+                var title = manager.findCredentialLabel(cookies);
+                return '<html><head><title>' + title + '</title>'
+                    + '<meta http-equiv="REFRESH" content="0; url=' + credential + '"/></head>'
+                    + '<body resource="' + credential + '">' + title  + '</body></html>';
+            }
+        }
+        return null;
+    """.
 
 :cookies a owl:DatatypeProperty;
-	rdfs:domain :GetLogin;
-	rdfs:range xsd:string;
-	calli:header "Authorization", "Cookie".
+    rdfs:domain :GetLogin;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
 
 ################################
 # logout
@@ -81,164 +81,164 @@
 # Prompts the browser to login using bogus credentials (to forget legitimate onces)
 # Available to user when logged in
 :GetLogout  rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	calli:method "GET";
-	calli:query "logout";
-	calli:type "message/x-response";
-	msg:imports <java:org.apache.http.ProtocolVersion>;
-	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-	msg:script """
-		var ver = new ProtocolVersion("HTTP", 1, 1);
-		if (!authorization || authorization.indexOf('username="logout"') < 0) {
-			var iter = this.calliAuthentication.iterator();
-			while (iter.hasNext()) {
-				var manager = iter.next();
-				if (manager.calliAuthName) {
-					//# the browser must send invalid credentials to logout
-					var resp = new BasicHttpResponse(ver, 401, "Unauthorized");
-					var hd = 'Digest realm="' + manager.calliAuthName + '", domain="'
-						+ manager.protectionDomain() + '", nonce="logout", algorithm="MD5", qop="auth"';
-					resp.setHeader('WWW-Authenticate', hd);
-					return resp;
-				}
-			}
-		}
-		//# bogus credentials received or not needed
-		var resp = new BasicHttpResponse(ver, 303, "See Other");
-		if (logoutContinue) {
-			resp.setHeader("Location", logoutContinue);
-		} else {
-			resp.setHeader("Location", "/");
-		}
-		var iter = this.calliAuthentication.iterator();
-		while (iter.hasNext()) {
-			var manager = iter.next();
-			var headers = manager.logout().getAllHeaders();
-			for (var i=0; i<headers.length; i++) {
-				resp.addHeadecr(headers[i]);
-			}
-		}
-		return resp;
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "GET";
+    calli:query "logout";
+    calli:type "message/x-response";
+    msg:imports <java:org.apache.http.ProtocolVersion>;
+    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+    msg:script """
+        var ver = new ProtocolVersion("HTTP", 1, 1);
+        if (!authorization || authorization.indexOf('username="logout"') < 0) {
+            var iter = this.calliAuthentication.iterator();
+            while (iter.hasNext()) {
+                var manager = iter.next();
+                if (manager.calliAuthName) {
+                    //# the browser must send invalid credentials to logout
+                    var resp = new BasicHttpResponse(ver, 401, "Unauthorized");
+                    var hd = 'Digest realm="' + manager.calliAuthName + '", domain="'
+                        + manager.protectionDomain() + '", nonce="logout", algorithm="MD5", qop="auth"';
+                    resp.setHeader('WWW-Authenticate', hd);
+                    return resp;
+                }
+            }
+        }
+        //# bogus credentials received or not needed
+        var resp = new BasicHttpResponse(ver, 303, "See Other");
+        if (logoutContinue) {
+            resp.setHeader("Location", logoutContinue);
+        } else {
+            resp.setHeader("Location", "/");
+        }
+        var iter = this.calliAuthentication.iterator();
+        while (iter.hasNext()) {
+            var manager = iter.next();
+            var headers = manager.logout().getAllHeaders();
+            for (var i=0; i<headers.length; i++) {
+                resp.addHeadecr(headers[i]);
+            }
+        }
+        return resp;
+    """.
 
 :authorization a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :GetLogout;
-	rdfs:range xsd:string;
-	calli:header "Authorization".
+    rdfs:domain :GetLogout;
+    rdfs:range xsd:string;
+    calli:header "Authorization".
 
 :logoutContinue a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :GetLogout;
-	rdfs:range xsd:string;
-	calli:query "continue".
+    rdfs:domain :GetLogout;
+    rdfs:range xsd:string;
+    calli:query "continue".
 
 :GetSettings rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	calli:method "GET";
-	calli:query "settings";
-	calli:expect "302-found";
-	calli:type "text/uri-list";
-	msg:script """
-		if (this.calliAuthentication.isEmpty())
-			return null;
-		return this.calliAuthentication.iterator().next() + "?settings";
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "settings";
+    calli:expect "302-found";
+    calli:type "text/uri-list";
+    msg:script """
+        if (this.calliAuthentication.isEmpty())
+            return null;
+        return this.calliAuthentication.iterator().next() + "?settings";
+    """.
 
 :GetContributions rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	calli:method "GET";
-	calli:query "contributions";
-	calli:expect "302-found";
-	calli:type "text/uri-list";
-	msg:script """
-		if (this.calliAuthentication.isEmpty())
-			return null;
-		return this.calliAuthentication.iterator().next() + "?contributions";
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "contributions";
+    calli:expect "302-found";
+    calli:type "text/uri-list";
+    msg:script """
+        if (this.calliAuthentication.isEmpty())
+            return null;
+        return this.calliAuthentication.iterator().next() + "?contributions";
+    """.
 
 :GetForgotPasswordPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	calli:method "GET";
-	calli:query "forgotpassword";
-	calli:expect "302-found";
-	calli:type "text/uri-list";
-	msg:script """
-		if (this.calliAuthentication.isEmpty())
-			return null;
-		return this.calliAuthentication.iterator().next() + "?forgotpassword";
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "forgotpassword";
+    calli:expect "302-found";
+    calli:type "text/uri-list";
+    msg:script """
+        if (this.calliAuthentication.isEmpty())
+            return null;
+        return this.calliAuthentication.iterator().next() + "?forgotpassword";
+    """.
 
 :GetLayout rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	rdfs:subClassOf [owl:onProperty :layout_xhtml; owl:hasValue <theme/layout.xhtml>];
-	rdfs:subClassOf [owl:onProperty :baseDir; owl:hasValue <./>];
-	calli:method "GET";
-	calli:query "layout";
-	calli:type "text/xsl";
-	msg:script """
-		var layout = layout_xhtml;
-		try {
-			if (this.calliTheme) {
-				layout = this.calliTheme.calliLayout;
-			}
-		} catch (e) {
-			if (e.javaException) e.javaException.printStackTrace();
-			else println(e);
-		}
-		var sb = [];
-		sb.push('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">');
-		sb.push('<xsl:param name="systemId" />');
-		sb.push('<xsl:variable name="realm">' + this + '</xsl:variable>');
-		sb.push('<xsl:variable name="styles">' + baseDir + 'styles</xsl:variable>');
-		sb.push('<xsl:variable name="scripts">' + baseDir + 'scripts</xsl:variable>');
-		sb.push('<xsl:variable name="layout">' + layout + '</xsl:variable>');
-		sb.push('<xsl:variable name="favicon">' + (this.calliFavicon ? this.calliFavicon : '') + '</xsl:variable>');
-		sb.push('<xsl:variable name="menu">' + (this.calliMenu ? (this.calliMenu + '?items') : '') + '</xsl:variable>');
-		sb.push('<xsl:variable name="variation">' + (this.calliVariation ? this.calliVariation : '') + '</xsl:variable>');
-		sb.push('<xsl:variable name="rights">');
-		try {
-			if (this.calliRights) {
-				var xslt = new org.callimachusproject.xslt.XSLTransformer();
-				var p;
-				var rights = this.calliRights;
-				if (rights.childNodes.length == 1 && rights.firstChild.tagName == "p") {
-					var xml = xslt.transform(rights, this.toString()).asString();
-					sb.push(xml.replace(/^.*?<p[^>]*>/,'').replace(/<.p>.*?$/,''));
-				} else {
-					var doc = rights.ownerDocument;
-					p = doc.createElement("p");
-					p.appendChild(rights);
-					var xml = xslt.transform(p, this.toString()).asString();
-					sb.push(xml.replace(/^.*?<p[^>]*>/,'').replace(/<.p>.*?$/,''));
-				}
-			}
-		} catch (e) {
-			if (e.javaException) e.javaException.printStackTrace();
-			else println(e);
-		}
-		sb.push('</xsl:variable>');
-		sb.push('<xsl:include href="' + baseDir + 'transforms/layout.xsl" />');
-		sb.push('</xsl:stylesheet>');
-		return sb.join('');
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :layout_xhtml; owl:hasValue <theme/layout.xhtml>];
+    rdfs:subClassOf [owl:onProperty :baseDir; owl:hasValue <./>];
+    calli:method "GET";
+    calli:query "layout";
+    calli:type "text/xsl";
+    msg:script """
+        var layout = layout_xhtml;
+        try {
+            if (this.calliTheme) {
+                layout = this.calliTheme.calliLayout;
+            }
+        } catch (e) {
+            if (e.javaException) e.javaException.printStackTrace();
+            else println(e);
+        }
+        var sb = [];
+        sb.push('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">');
+        sb.push('<xsl:param name="systemId" />');
+        sb.push('<xsl:variable name="realm">' + this + '</xsl:variable>');
+        sb.push('<xsl:variable name="styles">' + baseDir + 'styles</xsl:variable>');
+        sb.push('<xsl:variable name="scripts">' + baseDir + 'scripts</xsl:variable>');
+        sb.push('<xsl:variable name="layout">' + layout + '</xsl:variable>');
+        sb.push('<xsl:variable name="favicon">' + (this.calliFavicon ? this.calliFavicon : '') + '</xsl:variable>');
+        sb.push('<xsl:variable name="menu">' + (this.calliMenu ? (this.calliMenu + '?items') : '') + '</xsl:variable>');
+        sb.push('<xsl:variable name="variation">' + (this.calliVariation ? this.calliVariation : '') + '</xsl:variable>');
+        sb.push('<xsl:variable name="rights">');
+        try {
+            if (this.calliRights) {
+                var xslt = new org.callimachusproject.xslt.XSLTransformer();
+                var p;
+                var rights = this.calliRights;
+                if (rights.childNodes.length == 1 && rights.firstChild.tagName == "p") {
+                    var xml = xslt.transform(rights, this.toString()).asString();
+                    sb.push(xml.replace(/^.*?<p[^>]*>/,'').replace(/<.p>.*?$/,''));
+                } else {
+                    var doc = rights.ownerDocument;
+                    p = doc.createElement("p");
+                    p.appendChild(rights);
+                    var xml = xslt.transform(p, this.toString()).asString();
+                    sb.push(xml.replace(/^.*?<p[^>]*>/,'').replace(/<.p>.*?$/,''));
+                }
+            }
+        } catch (e) {
+            if (e.javaException) e.javaException.printStackTrace();
+            else println(e);
+        }
+        sb.push('</xsl:variable>');
+        sb.push('<xsl:include href="' + baseDir + 'transforms/layout.xsl" />');
+        sb.push('</xsl:stylesheet>');
+        return sb.join('');
+    """.
 
 :layout_xhtml a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :GetLayout.
+    rdfs:domain :GetLayout.
 
 :baseDir a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :GetLayout.
+    rdfs:domain :GetLayout.
 
 :PostEditRealm owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
-		[owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
+        [owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
     calli:method "POST";
-	calli:query "edit";
-	calli:realm </>;
-	calli:expect "201-modified";
-	calli:type "text/uri-list";
-	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-	msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
+    calli:query "edit";
+    calli:realm </>;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
 

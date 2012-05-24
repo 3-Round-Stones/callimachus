@@ -11,64 +11,64 @@
 <> a <SchemaGraph>.
 
 <Menu> a <Creatable>, owl:Class;
-	rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/staff>,</group/admin>;
-	calli:view <menu-view.xhtml>;
-	calli:edit <menu-edit.xhtml>;
-	calli:create <menu-create.xhtml>.
+    rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/staff>,</group/admin>;
+    calli:view <menu-view.xhtml>;
+    calli:edit <menu-edit.xhtml>;
+    calli:create <menu-create.xhtml>.
 
 :GetMenuItems rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:method "GET";
-	calli:query "items";
-	calli:type "application/sparql-results+xml;q=0.1";
-	calli:transform :TransformMenu;
-	msg:sparql  """
-		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT DISTINCT ?heading ?label ?link ?group
-		WHERE {
-			{
-				$this calli:item ?item
-			} UNION {
-				$this calli:item [rdfs:label ?heading; calli:item ?item]
-			}
-			?item rdfs:label ?label.
-			OPTIONAL {
-				?item calli:position ?position
-			}
-			OPTIONAL {
-				?item calli:link ?link
-			}
-			OPTIONAL {
-				?item calli:group ?group
-			}
-		}
-		ORDER BY ?position ?label
-		LIMIT 100
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "items";
+    calli:type "application/sparql-results+xml;q=0.1";
+    calli:transform :TransformMenu;
+    msg:sparql  """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT DISTINCT ?heading ?label ?link ?group
+        WHERE {
+            {
+                $this calli:item ?item
+            } UNION {
+                $this calli:item [rdfs:label ?heading; calli:item ?item]
+            }
+            ?item rdfs:label ?label.
+            OPTIONAL {
+                ?item calli:position ?position
+            }
+            OPTIONAL {
+                ?item calli:link ?link
+            }
+            OPTIONAL {
+                ?item calli:group ?group
+            }
+        }
+        ORDER BY ?position ?label
+        LIMIT 100
+    """.
 
 :TransformMenu rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:type "application/xhtml+xml";
-	msg:xslt <transforms/menu.xsl>.
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:type "application/xhtml+xml";
+    msg:xslt <transforms/menu.xsl>.
 
 :xml a owl:ObjectProperty; a owl:FunctionalProperty;
-	rdfs:domain :TransformMenu;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "application/sparql-results+xml".
+    rdfs:domain :TransformMenu;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-results+xml".
 
 :PostEditMenu owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
-		[owl:onProperty msg:target; owl:allValuesFrom <Menu>]);
-	calli:method "POST";
-	calli:query "edit";
-	calli:realm </>;
-	calli:expect "201-modified";
-	calli:type "text/uri-list";
-	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-	msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
+        [owl:onProperty msg:target; owl:allValuesFrom <Menu>]);
+    calli:method "POST";
+    calli:query "edit";
+    calli:realm </>;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    msg:script "HTTPObjectServer.resetAllCache(); return proceed();".
 

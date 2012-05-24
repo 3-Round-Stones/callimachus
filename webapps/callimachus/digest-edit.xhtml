@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title about="?this">{rdfs:label}</title>
+    <title about="?this">{rdfs:label}</title>
 </head>
 <body about="?this">
-	<h1 property="rdfs:label" />
-	<div id="sidebar">
-		<aside>
-			<p>The Auth name is used to salt passwords, changing it requires all users to reset their password</p>
-			<p>Only users in the User namespace folder are permitted to authenticate</p>
-		</aside>
-	</div>
-	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this">
-		<div>
-			<label for="label">Label</label>
-			<input id="label" class="auto-expand" value="{rdfs:label}" />
-		</div>
-		<div>
-			<label for="name">Auth name</label>
-			<input id="name" class="auto-expand" rel="calli:authName" resource="?authName" value="{?authName}" />
-		</div>
-		<div id="authNamespace" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-			<label for="authNamespace">User folder</label>
-			<div rel="calli:authNamespace">
-				<span about="?authNamespace" typeof="calli:Folder" class="ui-state-highlight ui-corner-all">
-					<span property="rdfs:label" />
-					<a href="{?authNamespace}" title="Don't use users in this folder" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-				</span>
-			</div>
-		</div>
-		<button id="save" type="submit">Save</button>
-		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
-	</form>
+    <h1 property="rdfs:label" />
+    <div id="sidebar">
+        <aside>
+            <p>The Auth name is used to salt passwords, changing it requires all users to reset their password</p>
+            <p>Only users in the User namespace folder are permitted to authenticate</p>
+        </aside>
+    </div>
+    <form id="form" method="POST" action="" enctype="application/sparql-update" about="?this">
+        <div>
+            <label for="label">Label</label>
+            <input id="label" class="auto-expand" value="{rdfs:label}" />
+        </div>
+        <div>
+            <label for="name">Auth name</label>
+            <input id="name" class="auto-expand" rel="calli:authName" resource="?authName" value="{?authName}" />
+        </div>
+        <div id="authNamespace" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+            <label for="authNamespace">User folder</label>
+            <div rel="calli:authNamespace">
+                <span about="?authNamespace" typeof="calli:Folder" class="ui-state-highlight ui-corner-all">
+                    <span property="rdfs:label" />
+                    <a href="{?authNamespace}" title="Don't use users in this folder" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                </span>
+            </div>
+        </div>
+        <button id="save" type="submit">Save</button>
+        <button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+        <button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
+    </form>
 </body>
 </html>

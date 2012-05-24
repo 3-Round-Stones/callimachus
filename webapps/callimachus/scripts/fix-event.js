@@ -16,34 +16,34 @@
  */
  
 (function($,jQuery){
-	// tell jQuery to copy the dataTransfer property from events over if it exists
- 	jQuery.event.props.push("dataTransfer");
- 	jQuery.event.props.push("source");
- 	jQuery.event.props.push("data");
+    // tell jQuery to copy the dataTransfer property from events over if it exists
+     jQuery.event.props.push("dataTransfer");
+     jQuery.event.props.push("source");
+     jQuery.event.props.push("data");
  
-	if (!window.calli) window.calli = {};
-	window.calli.fixEvent = function(event) {
-		if (event && event.originalEvent)
-			return event; // already a jQuery Event
-		if (event && !event.type) {
-			// an element or CSS selector was passed
-			var evt = jQuery.Event('click');
-			evt.target = $(event)[0];
-			event = evt;
-		}
-		if (!event && window.event) event = window.event;
-		if (!event || window.event && event.type == window.event.type) {
-			// event variable was lost or might be the wrong one (IE!)
-			// go find it up the stack trace
-			var caller = arguments.callee.caller;
-			var evt = caller.arguments[0];
-			while (caller && (!evt || !evt.type || evt == event || evt == window.event)) {
-				evt = caller.arguments[0];
-				caller = caller.arguments.callee.caller;
-			}
-			if (caller) event = evt;
-			if (!event) return event; // couldn't find anything
-		}
-		return jQuery.event.fix(event);
-	};
+    if (!window.calli) window.calli = {};
+    window.calli.fixEvent = function(event) {
+        if (event && event.originalEvent)
+            return event; // already a jQuery Event
+        if (event && !event.type) {
+            // an element or CSS selector was passed
+            var evt = jQuery.Event('click');
+            evt.target = $(event)[0];
+            event = evt;
+        }
+        if (!event && window.event) event = window.event;
+        if (!event || window.event && event.type == window.event.type) {
+            // event variable was lost or might be the wrong one (IE!)
+            // go find it up the stack trace
+            var caller = arguments.callee.caller;
+            var evt = caller.arguments[0];
+            while (caller && (!evt || !evt.type || evt == event || evt == window.event)) {
+                evt = caller.arguments[0];
+                caller = caller.arguments.callee.caller;
+            }
+            if (caller) event = evt;
+            if (!event) return event; // couldn't find anything
+        }
+        return jQuery.event.fix(event);
+    };
 })(jQuery,jQuery);

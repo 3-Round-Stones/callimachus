@@ -1,182 +1,182 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:dcterms="http://purl.org/dc/terms/"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
 <head>
-	<title about="?this">{rdfs:label}</title>
-	<link href="?changes" type="application/atom+xml" rel="alternate" title="ATOM Feed" />
-	<link href="?contents" type="application/atom+xml" rel="contents" title="ATOM Feed" />
-	<link rel="edit" href="?edit" />
-	<link rel="describedby" href="?describe" />
-	<link rel="version-history" href="?history" />
-	<link id="file-class-link" href="/callimachus/File" />
-	<style type="text/css" media="all">
-		#create-menu {
-			position: absolute;
-			-webkit-transition: height 0.5s ease-in;
-			-moz-transition: height 0.5s ease-in;
-			transition: height 0.5s ease-in;
-			height: 0px;
-			opacity: 0;
-			visibility: hidden;
-			overflow: hidden;
-		}
-		#create-menu.open {
-			height: 60em;
-			opacity: 1;
-			visibility: visible;
-		}
-		#create-menu ul {
-			list-style: none;
-			padding: 2px;
-			margin-top: 16px;
-			display: block;
-			outline: none;
-		}
-		#create-menu li {
-			margin: 0;
-			padding: 0;
-			zoom: 1;
-			width: 100%;
-		}
-		#create-menu a {
-			text-decoration: none;
-			display: block;
-			padding: .2em .4em;
-			line-height: 1.5;
-			zoom: 1;
-			font-weight: normal;
-			white-space: nowrap;
-			text-align: left;
-			border-bottom: none;
-		}
+    <title about="?this">{rdfs:label}</title>
+    <link href="?changes" type="application/atom+xml" rel="alternate" title="ATOM Feed" />
+    <link href="?contents" type="application/atom+xml" rel="contents" title="ATOM Feed" />
+    <link rel="edit" href="?edit" />
+    <link rel="describedby" href="?describe" />
+    <link rel="version-history" href="?history" />
+    <link id="file-class-link" href="/callimachus/File" />
+    <style type="text/css" media="all">
+        #create-menu {
+            position: absolute;
+            -webkit-transition: height 0.5s ease-in;
+            -moz-transition: height 0.5s ease-in;
+            transition: height 0.5s ease-in;
+            height: 0px;
+            opacity: 0;
+            visibility: hidden;
+            overflow: hidden;
+        }
+        #create-menu.open {
+            height: 60em;
+            opacity: 1;
+            visibility: visible;
+        }
+        #create-menu ul {
+            list-style: none;
+            padding: 2px;
+            margin-top: 16px;
+            display: block;
+            outline: none;
+        }
+        #create-menu li {
+            margin: 0;
+            padding: 0;
+            zoom: 1;
+            width: 100%;
+        }
+        #create-menu a {
+            text-decoration: none;
+            display: block;
+            padding: .2em .4em;
+            line-height: 1.5;
+            zoom: 1;
+            font-weight: normal;
+            white-space: nowrap;
+            text-align: left;
+            border-bottom: none;
+        }
 
-		.filecol { width:100% }
-		.ui-grid table tbody td.filecell { text-align: left }
-		#table.small .permission { display:none; }
+        .filecol { width:100% }
+        .ui-grid table tbody td.filecell { text-align: left }
+        #table.small .permission { display:none; }
 
-		/* Grid
-		----------------------------------*/
-		.ui-grid { font-size:small}
-		.ui-grid .ui-grid-content { width: 100%; border-collapse: collapse; border-spacing:0; }
-		.ui-grid table thead th { white-space:nowrap; }
-		.ui-grid table tbody td { text-align: right; white-space:nowrap; }
-		.ui-grid table tbody td, .ui-grid .ui-grid-header, .ui-grid table thead a { padding: .4em;  }
-		.ui-grid .ui-grid-header, .ui-grid .ui-grid-footer { padding: .8em .4em; text-align: center; }
-		.ui-grid .ui-grid-footer { background-image: none; font-weight: normal; text-align: left; }
-		.ui-grid table thead a { display: block;  }
-		.ui-grid .ui-icon { float: left; }
-	</style>
-	<script type="text/javascript" src="/callimachus/scripts/folder-view.js"> </script>
-	<script type="text/javascript">
-		jQuery(function($) {
-			$('#create-menu').find('a').click(function() {
-				location.href = '?create=' + this.href;
-				return false;
-			}).hover(
-				function(){ 
-					$(this).addClass("ui-state-hover"); 
-				},
-				function(){ 
-					$(this).removeClass("ui-state-hover"); 
-				}
-			);
-		});
-	</script>
+        /* Grid
+        ----------------------------------*/
+        .ui-grid { font-size:small}
+        .ui-grid .ui-grid-content { width: 100%; border-collapse: collapse; border-spacing:0; }
+        .ui-grid table thead th { white-space:nowrap; }
+        .ui-grid table tbody td { text-align: right; white-space:nowrap; }
+        .ui-grid table tbody td, .ui-grid .ui-grid-header, .ui-grid table thead a { padding: .4em;  }
+        .ui-grid .ui-grid-header, .ui-grid .ui-grid-footer { padding: .8em .4em; text-align: center; }
+        .ui-grid .ui-grid-footer { background-image: none; font-weight: normal; text-align: left; }
+        .ui-grid table thead a { display: block;  }
+        .ui-grid .ui-icon { float: left; }
+    </style>
+    <script type="text/javascript" src="/callimachus/scripts/folder-view.js"> </script>
+    <script type="text/javascript">
+        jQuery(function($) {
+            $('#create-menu').find('a').click(function() {
+                location.href = '?create=' + this.href;
+                return false;
+            }).hover(
+                function(){ 
+                    $(this).addClass("ui-state-hover"); 
+                },
+                function(){ 
+                    $(this).removeClass("ui-state-hover"); 
+                }
+            );
+        });
+    </script>
 </head>
 <body about="?this">
-	<div id="folder-box" class="ui-grid ui-widget ui-widget-content ui-corner-all flex" dropzone="copy f:image/pjpeg f:image/x-png f:image/png f:image/jpeg f:image/gif f:image/vnd.microsoft.icon f:application/rdf+xml f:application/sparql-query f:application/xhtml+xml f:text/javascript f:text/css f:text/plain f:application/docbook+xml">
-		<div class="ui-grid-header ui-widget-header ui-corner-top">
-			<span rev="calli:hasComponent" resource="?parent">
-				<a href="?parent" class="view ui-icon ui-icon-arrowthick-1-n" property="rdfs:label" content="?plabel" title="Up to {?plabel}" />
-			</span>
-			<span>
-				<a href="javascript:void(0)" class="ui-icon ui-icon-gear" title="Create something new"
-					onclick="$('#create-menu').toggleClass('open');return false" />
-				<nav id="create-menu" onclick="$('#create-menu').removeClass('open')">
-					<ul class="ui-widget ui-widget-content ui-corner-all">
-						<li><a class="ui-state-default" href="Folder"><img class="icon" src="folder.png" /> Folder</a></li>
-						<li><a class="ui-state-default" href="File"><img class="icon" src="file.png" /> File</a></li>
-						<li><a class="ui-state-default" href="Article"><img class="icon" src="article.png" /> Article</a></li>
-						<li><a class="ui-state-default" href="TextFile"><img class="icon" src="text.png" /> Text file</a></li>
-						<li><a class="ui-state-default" href="Page"><img class="icon" src="page.png" /> Page</a></li>
-						<li><a class="ui-state-default" href="Script"><img class="icon" src="script.png" /> Script</a></li>
-						<li><a class="ui-state-default" href="Style"><img class="icon" src="style.png" /> Style</a></li>
-						<li><a class="ui-state-default" href="Pipeline"><img class="icon" src="pipeline.png" /> Pipeline</a></li>
-						<li><a class="ui-state-default" href="Transform"><img class="icon" src="transform.png" /> Transform</a></li>
-						<li><a class="ui-state-default" href="Concept"><img class="icon" src="concept.png" /> Concept</a></li>
-						<li><a class="ui-state-default" href="Class"><img class="icon" src="class.png" /> Class</a></li>
-						<li><a class="ui-state-default" href="Group"><img class="icon" src="group.png" /> Group</a></li>
-						<li><a class="ui-state-default" href="NamedQuery"><img class="icon" src="query.png" /> Named query</a></li>
-						<li><a class="ui-state-default" href="GraphDocument"><img class="icon" src="graph.png" /> Graph document</a></li>
-					</ul>
-				</nav>
-			</span>
-			<span>
-				<a id="exploreanchor" href="/callimachus/pages/explore.xhtml?view" class="ui-icon ui-icon-lightbulb" title="Explore RDF in this folder"
+    <div id="folder-box" class="ui-grid ui-widget ui-widget-content ui-corner-all flex" dropzone="copy f:image/pjpeg f:image/x-png f:image/png f:image/jpeg f:image/gif f:image/vnd.microsoft.icon f:application/rdf+xml f:application/sparql-query f:application/xhtml+xml f:text/javascript f:text/css f:text/plain f:application/docbook+xml">
+        <div class="ui-grid-header ui-widget-header ui-corner-top">
+            <span rev="calli:hasComponent" resource="?parent">
+                <a href="?parent" class="view ui-icon ui-icon-arrowthick-1-n" property="rdfs:label" content="?plabel" title="Up to {?plabel}" />
+            </span>
+            <span>
+                <a href="javascript:void(0)" class="ui-icon ui-icon-gear" title="Create something new"
+                    onclick="$('#create-menu').toggleClass('open');return false" />
+                <nav id="create-menu" onclick="$('#create-menu').removeClass('open')">
+                    <ul class="ui-widget ui-widget-content ui-corner-all">
+                        <li><a class="ui-state-default" href="Folder"><img class="icon" src="folder.png" /> Folder</a></li>
+                        <li><a class="ui-state-default" href="File"><img class="icon" src="file.png" /> File</a></li>
+                        <li><a class="ui-state-default" href="Article"><img class="icon" src="article.png" /> Article</a></li>
+                        <li><a class="ui-state-default" href="TextFile"><img class="icon" src="text.png" /> Text file</a></li>
+                        <li><a class="ui-state-default" href="Page"><img class="icon" src="page.png" /> Page</a></li>
+                        <li><a class="ui-state-default" href="Script"><img class="icon" src="script.png" /> Script</a></li>
+                        <li><a class="ui-state-default" href="Style"><img class="icon" src="style.png" /> Style</a></li>
+                        <li><a class="ui-state-default" href="Pipeline"><img class="icon" src="pipeline.png" /> Pipeline</a></li>
+                        <li><a class="ui-state-default" href="Transform"><img class="icon" src="transform.png" /> Transform</a></li>
+                        <li><a class="ui-state-default" href="Concept"><img class="icon" src="concept.png" /> Concept</a></li>
+                        <li><a class="ui-state-default" href="Class"><img class="icon" src="class.png" /> Class</a></li>
+                        <li><a class="ui-state-default" href="Group"><img class="icon" src="group.png" /> Group</a></li>
+                        <li><a class="ui-state-default" href="NamedQuery"><img class="icon" src="query.png" /> Named query</a></li>
+                        <li><a class="ui-state-default" href="GraphDocument"><img class="icon" src="graph.png" /> Graph document</a></li>
+                    </ul>
+                </nav>
+            </span>
+            <span>
+                <a id="exploreanchor" href="/callimachus/pages/explore.xhtml?view" class="ui-icon ui-icon-lightbulb" title="Explore RDF in this folder"
                         onmousedown="if(this.href.indexOf('#')&lt;0)this.href+='#!'+$('body').attr('about')" />
-			</span>
-			<span property="rdfs:label"/>
-		</div>
-		<table id="table" class="ui-grid-content ui-widget-content">
-			<colgroup class="filecol" />
-			<thead>
-				<tr>
-					<th class="ui-state-default">File</th>
-					<th class="ui-state-default">Updated</th>
-					<th class="ui-state-default permission">Readers</th>
-					<th class="ui-state-default permission">Contributors</th>
-					<th class="ui-state-default permission">Editors</th>
-					<th class="ui-state-default permission">Administrators</th>
-				</tr>
-			</thead>
-			<tbody id="tfolders" rel="calli:hasComponent">
-				<tr about="?folder" typeof="calli:Folder">
-					<td class="ui-widget-content filecell">
-						<a class="view" href="?folder" property="rdfs:label" content="?flabel">
-							<img class="icon" src="/callimachus/folder.png" />
-							<span>{?flabel}</span>
-						</a>
-					</td>
-					<td class="ui-widget-content timecell">
-						<span rel="audit:revision" resource="?revision">
-							<time class="abbreviated" property="audit:committedOn"/>
-						</span>
-					</td>
-					<td class="ui-widget-content permission">
-						<a rel="calli:reader" href="?reader">
-							<span property="rdfs:label"/>
-						</a>
-					</td>
-					<td class="ui-widget-content permission">
-						<a rel="calli:contributor" href="?contributor">
-							<span property="rdfs:label"/>
-						</a>
-					</td>
-					<td class="ui-widget-content permission">
-						<a rel="calli:editor" href="?editor">
-							<span property="rdfs:label"/>
-						</a>
-					</td>
-					<td class="ui-widget-content permission">
-						<a rel="calli:administrator" href="?administrator">
-							<span property="rdfs:label"/>
-						</a>
-					</td>
-				</tr>
-			</tbody>
-			<tbody id="tfiles">
-			</tbody>
-		</table>
-		<div class="ui-grid-footer ui-widget-header ui-corner-bottom">
-			<div id="result-status" class="ui-grid-results">
-				<span>Showing results <span id="totalEntries" /> of <span id="totalResults" /></span>
-			</div>
-		</div>
-	</div>
+            </span>
+            <span property="rdfs:label"/>
+        </div>
+        <table id="table" class="ui-grid-content ui-widget-content">
+            <colgroup class="filecol" />
+            <thead>
+                <tr>
+                    <th class="ui-state-default">File</th>
+                    <th class="ui-state-default">Updated</th>
+                    <th class="ui-state-default permission">Readers</th>
+                    <th class="ui-state-default permission">Contributors</th>
+                    <th class="ui-state-default permission">Editors</th>
+                    <th class="ui-state-default permission">Administrators</th>
+                </tr>
+            </thead>
+            <tbody id="tfolders" rel="calli:hasComponent">
+                <tr about="?folder" typeof="calli:Folder">
+                    <td class="ui-widget-content filecell">
+                        <a class="view" href="?folder" property="rdfs:label" content="?flabel">
+                            <img class="icon" src="/callimachus/folder.png" />
+                            <span>{?flabel}</span>
+                        </a>
+                    </td>
+                    <td class="ui-widget-content timecell">
+                        <span rel="audit:revision" resource="?revision">
+                            <time class="abbreviated" property="audit:committedOn"/>
+                        </span>
+                    </td>
+                    <td class="ui-widget-content permission">
+                        <a rel="calli:reader" href="?reader">
+                            <span property="rdfs:label"/>
+                        </a>
+                    </td>
+                    <td class="ui-widget-content permission">
+                        <a rel="calli:contributor" href="?contributor">
+                            <span property="rdfs:label"/>
+                        </a>
+                    </td>
+                    <td class="ui-widget-content permission">
+                        <a rel="calli:editor" href="?editor">
+                            <span property="rdfs:label"/>
+                        </a>
+                    </td>
+                    <td class="ui-widget-content permission">
+                        <a rel="calli:administrator" href="?administrator">
+                            <span property="rdfs:label"/>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody id="tfiles">
+            </tbody>
+        </table>
+        <div class="ui-grid-footer ui-widget-header ui-corner-bottom">
+            <div id="result-status" class="ui-grid-results">
+                <span>Showing results <span id="totalEntries" /> of <span id="totalResults" /></span>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 

@@ -25,110 +25,110 @@
 <> a <SchemaGraph>.
 
 <NamedQuery> a <Creatable>, owl:Class;
-	rdfs:subClassOf <File>;
-	rdfs:label "Query";
-	rdfs:comment "Saved SPARQL queries";
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/admin>;
-	calli:icon <query.png>;
-	calli:view <query-view.xhtml>;
-	calli:edit <query-edit.xhtml>;
-	calli:create <query-create.xhtml>;
-	calli:type "application/sparql-query".
+    rdfs:subClassOf <File>;
+    rdfs:label "Query";
+    rdfs:comment "Saved SPARQL queries";
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/admin>;
+    calli:icon <query.png>;
+    calli:view <query-view.xhtml>;
+    calli:edit <query-edit.xhtml>;
+    calli:create <query-create.xhtml>;
+    calli:type "application/sparql-query".
 
 # GET /query/my-query.rq
 :GetNamedQuery rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:method "GET";
-	calli:type "application/sparql-query";
-	calli:header "cache-control:no-cache";
-	calli:header "cache-control:cache-range";
-	msg:script "return this.openInputStream()".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:type "application/sparql-query";
+    calli:header "cache-control:no-cache";
+    calli:header "cache-control:cache-range";
+    msg:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/NamedQuery
 :CreateNamedQuery owl:intersectionOf (<toolbox/create.ttl#PostCreate>
-		[owl:onProperty msg:target; owl:hasValue <NamedQuery> ]);
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-	msg:imports <File>;
-	msg:imports foaf:Document;
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.valueFactory;
-		if (!location)
-			throw new BadRequest("Missing location request header");
-		if (location instanceof File) {
-			location = location.RemoveFile();
-		}
-		var created = location;
+        [owl:onProperty msg:target; owl:hasValue <NamedQuery> ]);
+    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    msg:imports <java:java.net.URLDecoder>;
+    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    msg:imports <File>;
+    msg:imports foaf:Document;
+    msg:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        if (!location)
+            throw new BadRequest("Missing location request header");
+        if (location instanceof File) {
+            location = location.RemoveFile();
+        }
+        var created = location;
 
-		var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
-		var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
-		con.add(created.resource, RDFS.LABEL, label, []);
+        var filename = created.resource.localName.replace(/([a-zA-Z_0-9])\\.[a-zA-Z]+$/, "$1");
+        var label = vf.createLiteral(URLDecoder.decode(filename, "UTF-8").replace(/-/g, " "));
+        con.add(created.resource, RDFS.LABEL, label, []);
 
-		created = con.addDesignation(created, this.toString());
-		created = con.addDesignation(created, Document);
+        created = con.addDesignation(created, this.toString());
+        created = con.addDesignation(created, Document);
 
-		created.UploadNamedQuery(body);
-		return created;
-	""".
+        created.UploadNamedQuery(body);
+        return created;
+    """.
 
 # PUT /query/my-query.rq
 :UploadNamedQuery rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	calli:method "PUT";
-	calli:realm </>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <java:java.net.URLDecoder>;
-	msg:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
-	msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <NamedQuery>;
-	msg:imports <java:org.openrdf.query.QueryLanguage>;
-	msg:script """
-		if (!stream)
-			throw new BadRequest("Missing PUT request payload");
-		var read;
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var out = this.openOutputStream();
-		try {
-			while ((read = stream.read(buf)) >= 0) {
-				out.write(buf, 0, read);
-			}
-		} finally {
-			out.close();
-		}
-		this.touchRevision();
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PUT";
+    calli:realm </>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    msg:imports <java:java.net.URLDecoder>;
+    msg:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
+    msg:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <NamedQuery>;
+    msg:imports <java:org.openrdf.query.QueryLanguage>;
+    msg:script """
+        if (!stream)
+            throw new BadRequest("Missing PUT request payload");
+        var read;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var out = this.openOutputStream();
+        try {
+            while ((read = stream.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        this.touchRevision();
 
-		var con = this.objectConnection;
-		var parser = ParameterizedQueryParser.newInstance();
-		var query = parser.parseQuery(this.openInputStream(), this.toString());
+        var con = this.objectConnection;
+        var parser = ParameterizedQueryParser.newInstance();
+        var query = parser.parseQuery(this.openInputStream(), this.toString());
         if (query.isParameterPresent()) {
             con.repository.removeNamedQuery(this.resource);
         } else {
-		    con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query.prepare(), this.toString());
+            con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query.prepare(), this.toString());
         }
-	""".
+    """.
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :UploadNamedQuery;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "application/sparql-query".
+    rdfs:domain :UploadNamedQuery;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-query".
 
 :DeleteNamedQuery owl:intersectionOf ( <toolbox/delete.ttl#Delete>
-    	[owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>]);
+        [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>]);
     calli:method "DELETE";
     calli:realm </>;
-	msg:script """
-		var con = this.objectConnection;
+    msg:script """
+        var con = this.objectConnection;
         con.repository.removeNamedQuery(this.resource);
-		return proceed();
-	""".
+        return proceed();
+    """.
 
 
 ################################
@@ -136,55 +136,55 @@
 ################################
 
 :GetResult rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	calli:method "GET";
-	calli:query "results", "tqx", "eval";
-	calli:type "message/x-response";
-	msg:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
-	msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-	msg:imports <java:org.openrdf.query.QueryLanguage>;
-	msg:imports <java:org.apache.http.ProtocolVersion>;
-	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-	msg:imports <java:org.apache.http.entity.InputStreamEntity>;
-	msg:imports <java:org.apache.http.entity.StringEntity>;
-	msg:imports <java:java.lang.IllegalArgumentException>;
-	msg:imports <java:org.openrdf.query.MalformedQueryException>;
-	msg:script """
-		var map = {};
-		if (tqx) {
-			var pairs = tqx.split(';');
-			for (var i = 0; i < pairs.length; i++) {
-				var pair = pairs[i].split(':', 2);
-				map[pair[0]] = pair[1];
-			}
-		}
-		if (!map.responseHandler) {
-			map.responseHandler = 'google.visualization.Query.setResponse';
-		}
-		if (!map.reqId) {
-			map.reqId = '0';
-		}
-		var con = this.objectConnection;
-		var nq = con.repository.getNamedQuery(this.resource);
-		var etag = "";
-		var http11 = new ProtocolVersion("HTTP", 1, 1);
-		var resp = new BasicHttpResponse(http11, 200, "OK");
-		if (nq) {
-			etag = 'W/"' + nq.getResultTag() + '"';
-			if (match == etag) {
-				resp = new BasicHttpResponse(http11, 304, "Not Modified");
-			}
-			resp.setHeader("Last-Modified", nq.getResultLastModifiedString());
-			resp.setHeader("ETag", etag);
-		}
-		if (map.outFileName) {
-			resp.setHeader("Content-Disposition", 'inline;filename="' + map.outFileName + '"');
-		}
-		var entity = null;
-		try {
-			var parser = ParameterizedQueryParser.newInstance();
-			var query = parser.parseQuery(this.openInputStream(), this.toString());
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "GET";
+    calli:query "results", "tqx", "eval";
+    calli:type "message/x-response";
+    msg:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
+    msg:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    msg:imports <java:org.openrdf.query.QueryLanguage>;
+    msg:imports <java:org.apache.http.ProtocolVersion>;
+    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+    msg:imports <java:org.apache.http.entity.InputStreamEntity>;
+    msg:imports <java:org.apache.http.entity.StringEntity>;
+    msg:imports <java:java.lang.IllegalArgumentException>;
+    msg:imports <java:org.openrdf.query.MalformedQueryException>;
+    msg:script """
+        var map = {};
+        if (tqx) {
+            var pairs = tqx.split(';');
+            for (var i = 0; i < pairs.length; i++) {
+                var pair = pairs[i].split(':', 2);
+                map[pair[0]] = pair[1];
+            }
+        }
+        if (!map.responseHandler) {
+            map.responseHandler = 'google.visualization.Query.setResponse';
+        }
+        if (!map.reqId) {
+            map.reqId = '0';
+        }
+        var con = this.objectConnection;
+        var nq = con.repository.getNamedQuery(this.resource);
+        var etag = "";
+        var http11 = new ProtocolVersion("HTTP", 1, 1);
+        var resp = new BasicHttpResponse(http11, 200, "OK");
+        if (nq) {
+            etag = 'W/"' + nq.getResultTag() + '"';
+            if (match == etag) {
+                resp = new BasicHttpResponse(http11, 304, "Not Modified");
+            }
+            resp.setHeader("Last-Modified", nq.getResultLastModifiedString());
+            resp.setHeader("ETag", etag);
+        }
+        if (map.outFileName) {
+            resp.setHeader("Content-Disposition", 'inline;filename="' + map.outFileName + '"');
+        }
+        var entity = null;
+        try {
+            var parser = ParameterizedQueryParser.newInstance();
+            var query = parser.parseQuery(this.openInputStream(), this.toString());
             var control = query.getCacheControl();
             if (!control && nq) {
                 control = "no-cache";
@@ -194,110 +194,110 @@
                 control += ",no-validate"; //# server side directive
             }
             resp.setHeader("Cache-Control", control);
-        	if (nq && match == etag)
-    			return resp;
-			var sparql = query.prepare(queryParameters);
-			var rs = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, this.toString()).evaluate();
-			if (map.out == "html") {
-				entity = new InputStreamEntity(this.TransformIntoHtml(rs), -1);
-				entity.contentType = "text/html;charset=UTF-8";
-			} else if (map.out == "csv") {
-				entity = new InputStreamEntity(this.TransformIntoCSV(rs), -1);
-				entity.contentType = "text/csv;charset=UTF-8";
-			} else if (map.out == "tsv-excel") {
-				entity = new InputStreamEntity(this.TransformIntoTSV(rs), -1);
-				entity.contentType = "text/tab-separated-values;charset=UTF-16";
-			} else {
-				var out = this.TransformIntoWire(map.responseHandler, map.reqId, rs);
-				entity = new InputStreamEntity(out, -1);
-				entity.contentType = "text/javascript;charset=UTF-8";
-			}
-		} catch(e) {
-			if (e.javaException) {
-				e = e.javaException;
-			}
-			if (!map.out || map.out == "json") {
-				var reason = null;
-				var msg = e.message;
-				if (!msg) {
-					msg = e.toString();
-				}
-				msg = msg.replace(/\\n[\\s\\S]*/, '').replace(/'/g, '"');
-				if (e instanceof MalformedQueryException) {
-					reason = "reason:'invalid_query',message:'" + msg + "'";
-				} else if (e instanceof IllegalArgumentException) {
-					reason = "reason:'not_supported',message:'" + msg + "'";
-				} else {
-					reason = "reason:'internal_error',message:'" + msg + "'";
-				}
-				var sw = new java.io.StringWriter();
-				var print = new java.io.PrintWriter(sw);
-				e.printStackTrace(print);
-				print.close();
-				var trace = sw.toString().replace(/\\n/g, '\\\\n').replace(/'/g, '"');
-				reason = reason + ",detailed_message:'" + trace + "'";
-				var json = map.responseHandler + "({reqId:'" + map.reqId + "',status:'error',errors:[{" + reason + "}]})";
-				var resp = new BasicHttpResponse(http11, 200, "Internal Server Error");
-				entity = new StringEntity(json);
-				entity.contentType = "text/javascript;charset=UTF-8";
-				e.printStackTrace(); // log the error
-			} else {
-				throw new InternalServerError(e.toString(), e);
-			}
-		}
-		resp.setEntity(entity);
-		return resp;
-	""".
+            if (nq && match == etag)
+                return resp;
+            var sparql = query.prepare(queryParameters);
+            var rs = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, this.toString()).evaluate();
+            if (map.out == "html") {
+                entity = new InputStreamEntity(this.TransformIntoHtml(rs), -1);
+                entity.contentType = "text/html;charset=UTF-8";
+            } else if (map.out == "csv") {
+                entity = new InputStreamEntity(this.TransformIntoCSV(rs), -1);
+                entity.contentType = "text/csv;charset=UTF-8";
+            } else if (map.out == "tsv-excel") {
+                entity = new InputStreamEntity(this.TransformIntoTSV(rs), -1);
+                entity.contentType = "text/tab-separated-values;charset=UTF-16";
+            } else {
+                var out = this.TransformIntoWire(map.responseHandler, map.reqId, rs);
+                entity = new InputStreamEntity(out, -1);
+                entity.contentType = "text/javascript;charset=UTF-8";
+            }
+        } catch(e) {
+            if (e.javaException) {
+                e = e.javaException;
+            }
+            if (!map.out || map.out == "json") {
+                var reason = null;
+                var msg = e.message;
+                if (!msg) {
+                    msg = e.toString();
+                }
+                msg = msg.replace(/\\n[\\s\\S]*/, '').replace(/'/g, '"');
+                if (e instanceof MalformedQueryException) {
+                    reason = "reason:'invalid_query',message:'" + msg + "'";
+                } else if (e instanceof IllegalArgumentException) {
+                    reason = "reason:'not_supported',message:'" + msg + "'";
+                } else {
+                    reason = "reason:'internal_error',message:'" + msg + "'";
+                }
+                var sw = new java.io.StringWriter();
+                var print = new java.io.PrintWriter(sw);
+                e.printStackTrace(print);
+                print.close();
+                var trace = sw.toString().replace(/\\n/g, '\\\\n').replace(/'/g, '"');
+                reason = reason + ",detailed_message:'" + trace + "'";
+                var json = map.responseHandler + "({reqId:'" + map.reqId + "',status:'error',errors:[{" + reason + "}]})";
+                var resp = new BasicHttpResponse(http11, 200, "Internal Server Error");
+                entity = new StringEntity(json);
+                entity.contentType = "text/javascript;charset=UTF-8";
+                e.printStackTrace(); // log the error
+            } else {
+                throw new InternalServerError(e.toString(), e);
+            }
+        }
+        resp.setEntity(entity);
+        return resp;
+    """.
 
 :tqx a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :GetResult;
-	rdfs:range xsd:string;
-	calli:query "tqx".
+    rdfs:domain :GetResult;
+    rdfs:range xsd:string;
+    calli:query "tqx".
 
 :queryParameters a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :GetResult;
-	rdfs:range <java:java.util.Map>;
-	calli:query "*".
+    rdfs:domain :GetResult;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*".
 
 :match a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :GetResult;
-	rdfs:range xsd:string;
-	calli:header "If-None-Match".
+    rdfs:domain :GetResult;
+    rdfs:range xsd:string;
+    calli:header "If-None-Match".
 
 ################################
 # XSL Transformation methods
 ################################
 
 :TransformSparqlResult rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>].
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>].
 
 :xml a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :TransformSparqlResult;
-	rdfs:range <java:org.openrdf.query.TupleQueryResult>;
-	calli:type "application/sparql-results+xml".
+    rdfs:domain :TransformSparqlResult;
+    rdfs:range <java:org.openrdf.query.TupleQueryResult>;
+    calli:type "application/sparql-results+xml".
 
 :TransformIntoHtml rdfs:subClassOf :TransformSparqlResult;
-	calli:type "text/csv;charset=UTF-8";
-	msg:xslt <transforms/sparql-results-html.xsl>.
+    calli:type "text/csv;charset=UTF-8";
+    msg:xslt <transforms/sparql-results-html.xsl>.
 
 :TransformIntoCSV rdfs:subClassOf :TransformSparqlResult;
-	calli:type "text/csv;charset=UTF-8";
-	msg:xslt <transforms/sparql-results-csv.xsl>.
+    calli:type "text/csv;charset=UTF-8";
+    msg:xslt <transforms/sparql-results-csv.xsl>.
 
 :TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
-	calli:type "text/csv;charset=UTF-8";
-	msg:xslt <transforms/sparql-results-tsv.xsl>.
+    calli:type "text/csv;charset=UTF-8";
+    msg:xslt <transforms/sparql-results-tsv.xsl>.
 
 :TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
-	calli:type "text/javascript;charset=UTF-8";
-	msg:xslt <transforms/sparql-results-wire.xsl>.
+    calli:type "text/javascript;charset=UTF-8";
+    msg:xslt <transforms/sparql-results-wire.xsl>.
 
 :handler a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :TransformIntoWire;
-	rdfs:range xsd:string.
+    rdfs:domain :TransformIntoWire;
+    rdfs:range xsd:string.
 
 :reqId a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :TransformIntoWire;
-	rdfs:range xsd:string.
+    rdfs:domain :TransformIntoWire;
+    rdfs:range xsd:string.
 

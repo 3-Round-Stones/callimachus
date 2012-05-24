@@ -25,13 +25,13 @@
 <> a <../SchemaGraph>.
 
 :GetIntrospect rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
-	calli:method "GET";
-	calli:query "introspect";
-	calli:type "application/xhtml+xml";
-	calli:transform <../transforms/TransformLayout>;
-	msg:script """
-		return this.calliIntrospect(this);
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+    calli:method "GET";
+    calli:query "introspect";
+    calli:type "application/xhtml+xml";
+    calli:transform <../transforms/TransformLayout>;
+    msg:script """
+        return this.calliIntrospect(this);
+    """.
 

@@ -11,85 +11,85 @@
 <> a <../SchemaGraph>.
 
 :ResolveView rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../view>];
-	rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-	rdfs:subClassOf [owl:onProperty :diverted; owl:hasValue </diverted>];
-	calli:method "GET";
-	calli:query "q";
-	calli:expect "302-found";
-	calli:header "cache-control:no-store";
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-	msg:imports <java:java.net.URLEncoder>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:imports <../Viewable>;
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.valueFactory;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../view>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :diverted; owl:hasValue </diverted>];
+    calli:method "GET";
+    calli:query "q";
+    calli:expect "302-found";
+    calli:header "cache-control:no-store";
+    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDF>;
+    msg:imports <java:java.net.URLEncoder>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:imports <../Viewable>;
+    msg:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
 
-		function canonicalize(uri) {
-			uri = uri.normalize();
-			var sch = uri.scheme.toLowerCase();
-			var frag = uri.fragment;
-			if (uri.isOpaque()) {
-				return new java.net.URI(sch, uri.schemeSpecificPart, frag);
-			} else {
-				var auth = uri.authority.toLowerCase();
-				return new java.net.URI(sch, auth, uri.path, uri.query, frag);
-			}
-		}
+        function canonicalize(uri) {
+            uri = uri.normalize();
+            var sch = uri.scheme.toLowerCase();
+            var frag = uri.fragment;
+            if (uri.isOpaque()) {
+                return new java.net.URI(sch, uri.schemeSpecificPart, frag);
+            } else {
+                var auth = uri.authority.toLowerCase();
+                return new java.net.URI(sch, auth, uri.path, uri.query, frag);
+            }
+        }
 
-		function parseAbsoluteURI(string) {
-			try {
-				if (string.indexOf("/") == 0) {
-					var origin = java.net.URI.create(diverted.toString());
-					var sch = origin.scheme;
-					var auth = origin.authority;
-					var uri = java.net.URI.create(string);
-					var frag = uri.fragment;
-					uri = new java.net.URI(sch, auth, uri.path, uri.query, frag);
-					return canonicalize(uri);
-				} else {
-					var uri = java.net.URI.create(string);
-					if (uri.isAbsolute())
-						return canonicalize(uri);
-					return null;
-				}
-			} catch (e) {
-				throw new BadRequest(e);
-			}
-		}
+        function parseAbsoluteURI(string) {
+            try {
+                if (string.indexOf("/") == 0) {
+                    var origin = java.net.URI.create(diverted.toString());
+                    var sch = origin.scheme;
+                    var auth = origin.authority;
+                    var uri = java.net.URI.create(string);
+                    var frag = uri.fragment;
+                    uri = new java.net.URI(sch, auth, uri.path, uri.query, frag);
+                    return canonicalize(uri);
+                } else {
+                    var uri = java.net.URI.create(string);
+                    if (uri.isAbsolute())
+                        return canonicalize(uri);
+                    return null;
+                }
+            } catch (e) {
+                throw new BadRequest(e);
+            }
+        }
 
-		function redirectURL(uri) {
-			var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toASCIIString() : null;
-			var iri = uri.toASCIIString();
-			var viewable = con.getObject(iri) instanceof Viewable;
-			var Origin = vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin");
-			var authority = origin && con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
-			if (viewable && authority && (uri.query || uri.fragment)) { //# complex resource URI
-				return origin + "diverted;" + URLEncoder.encode(iri) + '?view';
-			} else if (viewable && authority) { //# Self resolving URL
-				return iri + '?view';
-			} else if (viewable) { //# Foreign IRI, but can be presented here
-				return diverted.toString() + ";" + URLEncoder.encode(iri) + '?view';
-			} else { //# Unknown resource
-				return iri;
-			}
-		}
+        function redirectURL(uri) {
+            var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toASCIIString() : null;
+            var iri = uri.toASCIIString();
+            var viewable = con.getObject(iri) instanceof Viewable;
+            var Origin = vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin");
+            var authority = origin && con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
+            if (viewable && authority && (uri.query || uri.fragment)) { //# complex resource URI
+                return origin + "diverted;" + URLEncoder.encode(iri) + '?view';
+            } else if (viewable && authority) { //# Self resolving URL
+                return iri + '?view';
+            } else if (viewable) { //# Foreign IRI, but can be presented here
+                return diverted.toString() + ";" + URLEncoder.encode(iri) + '?view';
+            } else { //# Unknown resource
+                return iri;
+            }
+        }
 
-		if (q) {
-			var uri = parseAbsoluteURI(q);
-			if (uri) //# absolute URI redirect
-				return redirectURL(uri);
-		}
-		return null; //# 404
-	""".
+        if (q) {
+            var uri = parseAbsoluteURI(q);
+            if (uri) //# absolute URI redirect
+                return redirectURL(uri);
+        }
+        return null; //# 404
+    """.
 
 :q a owl:DatatypeProperty, owl:FunctionalProperty;
-	rdfs:domain :ResolveView;
-	rdfs:range xsd:string;
-	calli:query "q".
+    rdfs:domain :ResolveView;
+    rdfs:range xsd:string;
+    calli:query "q".
 
 :diverted a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :ResolveView.
+    rdfs:domain :ResolveView.
 

@@ -11,7 +11,7 @@
 <> a <../SchemaGraph>.
 
 <TransformIntoAtom> rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
    calli:type "application/atom+xml;q=0.5";
    calli:transform <TransformAtomLinks>;
@@ -23,7 +23,7 @@
    calli:type "application/sparql-results+xml".
 
 <TransformAtomLinks> rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
    calli:type "application/atom+xml;q=0.5";
    msg:xslt <divert-atom-links.xsl>.
@@ -35,88 +35,88 @@
 
 
 <TransformLayout> rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:type "application/xhtml+xml";
-	calli:transform <TransformPage>;
-	msg:xslt <../template.xsl>.
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:type "application/xhtml+xml";
+    calli:transform <TransformPage>;
+    msg:xslt <../template.xsl>.
 
 <TransformLayout#xml> a owl:ObjectProperty; a owl:FunctionalProperty;
-	calli:type "application/xhtml+xml";
-	rdfs:domain <TransformLayout>;
-	rdfs:range <java:java.io.InputStream>.
+    calli:type "application/xhtml+xml";
+    rdfs:domain <TransformLayout>;
+    rdfs:range <java:java.io.InputStream>.
 
 
 <TransformPage> rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:type "application/xhtml+xml";
-	calli:transform <TransformXhtml>;
-	msg:xslt <page.xsl>.
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:type "application/xhtml+xml";
+    calli:transform <TransformXhtml>;
+    msg:xslt <page.xsl>.
 
 <TransformPage#query> a owl:DatatypeProperty; a owl:FunctionalProperty;
-	rdfs:domain <TransformPage>;
-	rdfs:range xsd:string;
-	calli:query "*".
+    rdfs:domain <TransformPage>;
+    rdfs:range xsd:string;
+    calli:query "*".
 
 <TransformPage#xhtml> a owl:ObjectProperty; a owl:FunctionalProperty;
-	calli:type "application/xhtml+xml";
-	rdfs:domain <TransformPage>;
-	rdfs:range <java:java.io.InputStream>.
+    calli:type "application/xhtml+xml";
+    rdfs:domain <TransformPage>;
+    rdfs:range <java:java.io.InputStream>.
 
 
 <TransformXhtml> rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-	calli:type "text/html";
-	msg:xslt <xhtml-to-html.xsl>.
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:type "text/html";
+    msg:xslt <xhtml-to-html.xsl>.
 
 <TransformXhtml#xhtml> a owl:ObjectProperty; a owl:FunctionalProperty;
-	calli:type "application/xhtml+xml";
-	rdfs:domain <TransformXhtml>;
-	rdfs:range <java:java.io.InputStream>.
+    calli:type "application/xhtml+xml";
+    rdfs:domain <TransformXhtml>;
+    rdfs:range <java:java.io.InputStream>.
 
 
 :ResourceInfo rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <page-info>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:method "GET";
-	calli:type "application/sparql-results+xml";
-	calli:header "cache-control:no-store";
-	msg:sparql  """
-		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-		PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
-		PREFIX dc:<http://purl.org/dc/elements/1.1/>
-		PREFIX dcterms:<http://purl.org/dc/terms/>
-		PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT DISTINCT ?updated ?iri ?label {
-			{
-				?term audit:revision [audit:committedOn ?updated]
-				FILTER sameTerm(?term,iri($resource))
-			} UNION {
-				?iri calli:hasComponent* ?term
-				FILTER sameTerm(?term,iri($resource))
-				OPTIONAL {
-					?iri skos:prefLabel ?label
-				} OPTIONAL {
-					?iri foaf:name ?label
-				} OPTIONAL {
-					?iri rdfs:label ?label
-				} OPTIONAL {
-					?iri skosxl:literalForm ?label
-				} OPTIONAL {
-					?iri dcterms:title ?label
-				}
-			}
-		} ORDER BY ?iri
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <page-info>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:type "application/sparql-results+xml";
+    calli:header "cache-control:no-store";
+    msg:sparql  """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+        PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
+        PREFIX dc:<http://purl.org/dc/elements/1.1/>
+        PREFIX dcterms:<http://purl.org/dc/terms/>
+        PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT DISTINCT ?updated ?iri ?label {
+            {
+                ?term audit:revision [audit:committedOn ?updated]
+                FILTER sameTerm(?term,iri($resource))
+            } UNION {
+                ?iri calli:hasComponent* ?term
+                FILTER sameTerm(?term,iri($resource))
+                OPTIONAL {
+                    ?iri skos:prefLabel ?label
+                } OPTIONAL {
+                    ?iri foaf:name ?label
+                } OPTIONAL {
+                    ?iri rdfs:label ?label
+                } OPTIONAL {
+                    ?iri skosxl:literalForm ?label
+                } OPTIONAL {
+                    ?iri dcterms:title ?label
+                }
+            }
+        } ORDER BY ?iri
+    """.
 
 :resource a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :ResourceInfo;
-	rdfs:range xsd:string;
-	calli:query "*".
+    rdfs:domain :ResourceInfo;
+    rdfs:range xsd:string;
+    calli:query "*".
 

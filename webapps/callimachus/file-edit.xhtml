@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 <head>
-	<title about="?this">{rdfs:label}</title>
+    <title about="?this">{rdfs:label}</title>
 </head>
 <body about="?this">
-	<h1 property="rdfs:label" />
-	<pre>{?this}</pre>
-	<form method="POST" action="" enctype="application/sparql-update" about="?this">
-		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
-	</form>
+    <h1 property="rdfs:label" />
+    <pre>{?this}</pre>
+    <form method="POST" action="" enctype="application/sparql-update" about="?this">
+        <button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+        <button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
+    </form>
 </body>
 </html>

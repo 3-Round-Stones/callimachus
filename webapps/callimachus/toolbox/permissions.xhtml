@@ -1,132 +1,132 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:msg="http://www.openrdf.org/rdf/2011/messaging#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:msg="http://www.openrdf.org/rdf/2011/messaging#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title about="?this">{rdfs:label} Permissions</title>
-	<script type="text/javascript"><![CDATA[
-	(function($) {
-		jQuery.ajax({type: 'GET', url:'?rdftype', complete: function(xhr) {
-			if (xhr.status == 200) {
-				jQuery(function($) {
-					var text = xhr.responseText;
-					var list = text.split('\r\n');
-					var calli = "http://callimachusproject.org/rdf/2009/framework#";
-					if (jQuery.inArray(calli + 'Creatable', list) < 0) {
-						$('.creatable').hide();
-					}
-					if (jQuery.inArray('http://www.w3.org/2002/07/owl#Class', list) >= 0) {
-						$('.class').show();
-						$('.private').show();
-					} else {
-						$('.class').hide();
-						var control = xhr.getResponseHeader('Cache-Control');
-						if (control && control.indexOf('public') >= 0) {
-							$('.private').hide();
-						}
-					}
-					if (jQuery.inArray(calli + 'Composite', list) >= 0) {
-						$('.composite').show();
-					} else {
-						$('.composite').hide();
-					}
-				});
-			}
-		}});
-		$(document).bind('calliRedirect', function(event) {
-			event.location = calli.viewpage($('body').attr('about'));
-			return true;
-		});
-	})(jQuery);
-	// ]]>
-	</script>
+    <title about="?this">{rdfs:label} Permissions</title>
+    <script type="text/javascript"><![CDATA[
+    (function($) {
+        jQuery.ajax({type: 'GET', url:'?rdftype', complete: function(xhr) {
+            if (xhr.status == 200) {
+                jQuery(function($) {
+                    var text = xhr.responseText;
+                    var list = text.split('\r\n');
+                    var calli = "http://callimachusproject.org/rdf/2009/framework#";
+                    if (jQuery.inArray(calli + 'Creatable', list) < 0) {
+                        $('.creatable').hide();
+                    }
+                    if (jQuery.inArray('http://www.w3.org/2002/07/owl#Class', list) >= 0) {
+                        $('.class').show();
+                        $('.private').show();
+                    } else {
+                        $('.class').hide();
+                        var control = xhr.getResponseHeader('Cache-Control');
+                        if (control && control.indexOf('public') >= 0) {
+                            $('.private').hide();
+                        }
+                    }
+                    if (jQuery.inArray(calli + 'Composite', list) >= 0) {
+                        $('.composite').show();
+                    } else {
+                        $('.composite').hide();
+                    }
+                });
+            }
+        }});
+        $(document).bind('calliRedirect', function(event) {
+            event.location = calli.viewpage($('body').attr('about'));
+            return true;
+        });
+    })(jQuery);
+    // ]]>
+    </script>
 </head>
 <body about="?this">
-	<h1><span property="rdfs:label" /> Permissions</h1>
-	<div id="sidebar">
-		<aside>
-			<p class="composite">Readers, Editors and Administrators propagate to new resources created in this container</p>
-			<p class="class">Readers, Editors and Administrators apply to this resource and all resources of this class</p>
-			<p>Readers can <span class="private">view, see the history, and </span>discuss the resource<span class="class">s</span></p>
-			<p class="creatable">Authors can create new member resources and edit them</p>
-			<p class="composite">Contributors can create new resources here and edit them</p>
-			<p>Editors can make changes using the edit tab and create new resources here</p>
-			<p>Administrators can view, create and modify using any available operation</p>
-		</aside>
-	</div>
-	<form id="form" method="POST" action="" enctype="application/sparql-update" about="?this">
-		<div class="class">
-			<label for="realm">Authentication of resources of this class</label>
-			<div id="realm">
-				<label class="input">
-					<input type="radio" name="realm" checked="checked" />
-					<span>Public</span>
-				</label>
-				<label class="input" rel="msg:realm" resource="?realm">
-					<input type="radio" name="realm" checked="checked" />
-					<span rel="rdf:type" resource="http://callimachusproject.org/rdf/2009/framework#Realm">Protected</span>
-					<span property="rdfs:label" content="?realm_label">by {?realm_label}</span>
-				</label>
-			</div>
-		</div>
-		<div class="hbox">
-			<div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Reader <a href="/group/" title="Select Group"
-						onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="calli:reader" class="vbox">
-					<span about="?reader" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?reader}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-			<div class="creatable" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Author <a href="/group/" title="Select Group"
-						onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="calli:author" class="vbox">
-					<span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-			<div class="composite class" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Contributor <a href="/group/" title="Select Group"
-						onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="calli:contributor" class="vbox">
-					<span about="?contributor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?contributor}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-			<div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Editor <a href="/group/" title="Select Group"
-						onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="calli:editor" class="vbox">
-					<span about="?editor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?editor}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-			<div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Administrator <a href="/group/" title="Select Group"
-						onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="calli:administrator" class="vbox">
-					<span about="?administrator" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?administrator}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-		</div>
-		<button id="save" type="submit">Save</button>
-		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-	</form>
+    <h1><span property="rdfs:label" /> Permissions</h1>
+    <div id="sidebar">
+        <aside>
+            <p class="composite">Readers, Editors and Administrators propagate to new resources created in this container</p>
+            <p class="class">Readers, Editors and Administrators apply to this resource and all resources of this class</p>
+            <p>Readers can <span class="private">view, see the history, and </span>discuss the resource<span class="class">s</span></p>
+            <p class="creatable">Authors can create new member resources and edit them</p>
+            <p class="composite">Contributors can create new resources here and edit them</p>
+            <p>Editors can make changes using the edit tab and create new resources here</p>
+            <p>Administrators can view, create and modify using any available operation</p>
+        </aside>
+    </div>
+    <form id="form" method="POST" action="" enctype="application/sparql-update" about="?this">
+        <div class="class">
+            <label for="realm">Authentication of resources of this class</label>
+            <div id="realm">
+                <label class="input">
+                    <input type="radio" name="realm" checked="checked" />
+                    <span>Public</span>
+                </label>
+                <label class="input" rel="msg:realm" resource="?realm">
+                    <input type="radio" name="realm" checked="checked" />
+                    <span rel="rdf:type" resource="http://callimachusproject.org/rdf/2009/framework#Realm">Protected</span>
+                    <span property="rdfs:label" content="?realm_label">by {?realm_label}</span>
+                </label>
+            </div>
+        </div>
+        <div class="hbox">
+            <div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Reader <a href="/group/" title="Select Group"
+                        onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:reader" class="vbox">
+                    <span about="?reader" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?reader}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+            <div class="creatable" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Author <a href="/group/" title="Select Group"
+                        onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:author" class="vbox">
+                    <span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+            <div class="composite class" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Contributor <a href="/group/" title="Select Group"
+                        onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:contributor" class="vbox">
+                    <span about="?contributor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?contributor}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+            <div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Editor <a href="/group/" title="Select Group"
+                        onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:editor" class="vbox">
+                    <span about="?editor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?editor}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+            <div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Administrator <a href="/group/" title="Select Group"
+                        onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:administrator" class="vbox">
+                    <span about="?administrator" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?administrator}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+        </div>
+        <button id="save" type="submit">Save</button>
+        <button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+    </form>
 </body>
 </html>

@@ -1,75 +1,75 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-	xmlns:foaf="http://xmlns.com/foaf/0.1/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 <head>
-	<title about="?this">{rdfs:label}</title>
-	<style type="text/css">
-		ol.items { padding-left: 2em; margin-bottom:0; }
-	</style>
-	<script type='text/javascript'>
-		function setAbout(child, label) {
-			var uri = $('body').attr('about')+'#'+label.toLowerCase().replace(/[^a-z0-9]/g, '');
-			var parent = $('*[about="' + uri + '"]');
-			if (!parent.length || parent[0] != $(child).parent()[0]) {
-				if (parent.length) {
-					var suffix = 1;
-					while ($('*[about="' + uri + suffix + '"]').length) {
-						suffix++;
-					}
-					uri = uri + suffix;
-				}
-				$(child).parent().attr('about', uri);
-			}
-		}
-	</script>
+    <title about="?this">{rdfs:label}</title>
+    <style type="text/css">
+        ol.items { padding-left: 2em; margin-bottom:0; }
+    </style>
+    <script type='text/javascript'>
+        function setAbout(child, label) {
+            var uri = $('body').attr('about')+'#'+label.toLowerCase().replace(/[^a-z0-9]/g, '');
+            var parent = $('*[about="' + uri + '"]');
+            if (!parent.length || parent[0] != $(child).parent()[0]) {
+                if (parent.length) {
+                    var suffix = 1;
+                    while ($('*[about="' + uri + suffix + '"]').length) {
+                        suffix++;
+                    }
+                    uri = uri + suffix;
+                }
+                $(child).parent().attr('about', uri);
+            }
+        }
+    </script>
 </head>
 <body about="?this">
-	<h1 property="rdfs:label" />
-	<form id='form' method="POST" action="" enctype="application/sparql-update" about="?this">
-		<div>
-			<label for="label">Label</label>
-			<input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" />
-		</div>
-		<div>
-			<ol id="items" rel="calli:item" class="items sorted">
-				<li about="?item1">
-					<span class="asc" property="calli:position" style="display:none"/>
-					<input value="{rdfs:label}" title="Label"
-								onchange="setAbout(this, value)"
-						onblur="var container=$(this).parent().children('.link-container');if(!container.children('input').length)calli.addResource(event,container)" />
-					<span class="link-container">
-						<input rel="calli:link" resource="?menu" value="{?menu}" size="32" title="URL (optional)" placeholder="http://" />
-					</span>
-					<input value="{calli:position}" datatype="xsd:integer" type="number" title="Relative Position" size="1" placeholder="9" style="max-width:2em"
-						onchange="$(this).parent().children('.asc').text(value)" />
-					<a href="{?item1}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					<ol rel="calli:item" class="items sorted">
-						<li about="?item2">
-							<span class="asc" property="calli:position" style="display:none" />
-							<input value="{rdfs:label}" title="Label"
-								onchange="setAbout(this, value)"
-								onblur="var container=$(this).parent().children('.link-container');if(!container.children('input').length)calli.addResource(event,container)" />
-							<span class="link-container">
-								<input rel="calli:link" resource="?link" value="{?link}" size="32" title="URL" placeholder="http://" />
-							</span>
-							<input value="{calli:position}" datatype="xsd:integer" type="number" title="Relative Position" size="1" placeholder="9" style="max-width:2em"
-								onchange="$(this).parent().children('.asc').text(value)" />
-							<a href="{?item2}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-						</li>
-					</ol>
-					<a href="javascript:void(0)" title="More" onclick="return calli.addResource(event,$(this).parent().children('ol'))" class="ui-icon ui-icon-plus" />
-				</li>
-			</ol>
-			<a href="javascript:void(0)" title="More" onclick="return calli.addResource(event,$(this).parent().children('ol'))" class="ui-icon ui-icon-plus" />
-		</div>
-		<button id="save" type="submit">Save</button>
-		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
-	</form>
+    <h1 property="rdfs:label" />
+    <form id='form' method="POST" action="" enctype="application/sparql-update" about="?this">
+        <div>
+            <label for="label">Label</label>
+            <input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" />
+        </div>
+        <div>
+            <ol id="items" rel="calli:item" class="items sorted">
+                <li about="?item1">
+                    <span class="asc" property="calli:position" style="display:none"/>
+                    <input value="{rdfs:label}" title="Label"
+                                onchange="setAbout(this, value)"
+                        onblur="var container=$(this).parent().children('.link-container');if(!container.children('input').length)calli.addResource(event,container)" />
+                    <span class="link-container">
+                        <input rel="calli:link" resource="?menu" value="{?menu}" size="32" title="URL (optional)" placeholder="http://" />
+                    </span>
+                    <input value="{calli:position}" datatype="xsd:integer" type="number" title="Relative Position" size="1" placeholder="9" style="max-width:2em"
+                        onchange="$(this).parent().children('.asc').text(value)" />
+                    <a href="{?item1}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    <ol rel="calli:item" class="items sorted">
+                        <li about="?item2">
+                            <span class="asc" property="calli:position" style="display:none" />
+                            <input value="{rdfs:label}" title="Label"
+                                onchange="setAbout(this, value)"
+                                onblur="var container=$(this).parent().children('.link-container');if(!container.children('input').length)calli.addResource(event,container)" />
+                            <span class="link-container">
+                                <input rel="calli:link" resource="?link" value="{?link}" size="32" title="URL" placeholder="http://" />
+                            </span>
+                            <input value="{calli:position}" datatype="xsd:integer" type="number" title="Relative Position" size="1" placeholder="9" style="max-width:2em"
+                                onchange="$(this).parent().children('.asc').text(value)" />
+                            <a href="{?item2}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                        </li>
+                    </ol>
+                    <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event,$(this).parent().children('ol'))" class="ui-icon ui-icon-plus" />
+                </li>
+            </ol>
+            <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event,$(this).parent().children('ol'))" class="ui-icon ui-icon-plus" />
+        </div>
+        <button id="save" type="submit">Save</button>
+        <button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+        <button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
+    </form>
 </body>
 </html>

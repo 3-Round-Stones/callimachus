@@ -9,28 +9,28 @@
 var currentlyLoading = 0;
 
 $(document).ready(function () {
-	calliReady();
+    calliReady();
 });
 
 $(document).ajaxSend(function(event, xhr, options){
-	currentlyLoading++;
+    currentlyLoading++;
 });
 
 $(document).ajaxComplete(function(event, xhr, options){
-	currentlyLoading--;
-	calliReady();
+    currentlyLoading--;
+    calliReady();
 });
 
 function calliReady(node) {
-	if (!currentlyLoading) {
-		setTimeout(function() {
-			// wait until all other events have fired
-			if (!currentlyLoading) {
-				currentlyLoading++; // don't run this again
-				$(document).trigger("calliReady");
-			}
-		}, 0);
-	}
+    if (!currentlyLoading) {
+        setTimeout(function() {
+            // wait until all other events have fired
+            if (!currentlyLoading) {
+                currentlyLoading++; // don't run this again
+                $(document).trigger("calliReady");
+            }
+        }, 0);
+    }
 }
 
 })(jQuery);

@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-	<title about="?this">{rdfs:label}</title>
-	<link rel="edit" href="?edit" />
-	<link rel="describedby" href="?describe" />
-	<link rel="version-history" href="?history" />
+    <title about="?this">{rdfs:label}</title>
+    <link rel="edit" href="?edit" />
+    <link rel="describedby" href="?describe" />
+    <link rel="version-history" href="?history" />
     <script type='text/javascript' src='https://www.google.com/jsapi'></script>
-	<script type="text/javascript">
-	  google.load('visualization', '1.0', {packages: ['table']});
-	  function drawVisualization() {
-		google.visualization.drawChart({
-		   "containerId": "visualization",
-		   "dataSourceUrl": "{?this}",
-		   "chartType": "Table",
-		   "options": {
-		      "alternatingRowStyle": true,
-		   }
-		 });
-	  }
-	  google.setOnLoadCallback(drawVisualization);
-	</script>
+    <script type="text/javascript">
+      google.load('visualization', '1.0', {packages: ['table']});
+      function drawVisualization() {
+        google.visualization.drawChart({
+           "containerId": "visualization",
+           "dataSourceUrl": "{?this}",
+           "chartType": "Table",
+           "options": {
+              "alternatingRowStyle": true,
+           }
+         });
+      }
+      google.setOnLoadCallback(drawVisualization);
+    </script>
 </head>
 <body>
-	<h1 property="rdfs:label"></h1>
-	<div id="visualization" />
+    <h1 property="rdfs:label"></h1>
+    <div id="visualization" />
 </body>
 </html>
 

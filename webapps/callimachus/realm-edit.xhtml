@@ -1,89 +1,89 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
-	xmlns:foaf="http://xmlns.com/foaf/0.1/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	xmlns:dc="http://purl.org/dc/elements/1.1/">
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/">
 <head>
-	<title about="?this">{rdfs:label}</title>
-	<script type="text/javascript">
-		// <![CDATA[
-		jQuery(function($){
-			if (!$('#describedBy').length) {
-				$('#field').append('<input id="describedBy" data-var-resource="?describedBy" class="auto-expand" rel="calli:describedBy" data-expression-value="?describedBy" />');
-			}
-		});
-		// ]]>
-	</script>
+    <title about="?this">{rdfs:label}</title>
+    <script type="text/javascript">
+        // <![CDATA[
+        jQuery(function($){
+            if (!$('#describedBy').length) {
+                $('#field').append('<input id="describedBy" data-var-resource="?describedBy" class="auto-expand" rel="calli:describedBy" data-expression-value="?describedBy" />');
+            }
+        });
+        // ]]>
+    </script>
 </head>
 <body about="?this">
-	<h1 property="rdfs:label" />
-	<div id="sidebar">
-		<aside>
-			<p><a href="?archive">Export folder contents</a></p>
-			<p><a href="?import">Import folder contents</a></p>
-		</aside>
-		<aside>
-			<p><a href="/callimachus/Theme?create">Create a new theme</a></p>
-			<p><a href="/callimachus/Realm?create">Create another realm</a></p>
-		</aside>
-		<aside>
-			<p>To replace the icon, click the × button, then the browse icon to open a file upload dialogue</p>
-			<p>The icon should be of type PNG, GIF, or ICO and should be 16×16 or 32×32 pixels in size</p>
-		</aside>
-	</div>
-	<form id='form' method="POST" action="" enctype="application/sparql-update" about="?this">
-		<div id="field">
-			<label for="describedBy">Directory index target</label>
-			<input id="describedBy" class="auto-expand" rel="calli:describedBy" resource="?describedBy" value="{?describedBy}" />
-		</div>
-		<div class="hbox">
-			<div id="realm-menu" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Menu <a href="/callimachus/Menu?create" title="Create" onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="calli:menu">
-					<span about="?menu" typeof="calli:Menu" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?menu}" title="Don't use this menu here" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-			<div id="favicon-image" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Icon <a href="?view" title="Browse" onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
-				<div rel="calli:favicon">
-					<span about="?favicon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
-						<img src="{?favicon}" />
-						<a href="{?favicon}" title="Don't use this icon" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-		</div>
-		<div class="hbox">
-			<div>
-				<label for="theme">Theme</label>
-				<select id="theme" rel="calli:theme">
-					<option selected="selected" about="?theme" typeof="calli:Theme" property="rdfs:label" />
-				</select>
-			</div>
-			<div id="variation" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-				<label>Custom CSS <a href="/callimachus/Style?create" title="Create" onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-				<div rel="calli:variation">
-					<span about="?variation" typeof="foaf:Document" class="ui-state-highlight ui-corner-all">
-						<span property="rdfs:label" />
-						<a href="{?variation}" title="Don't use this CSS here" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-					</span>
-				</div>
-			</div>
-		</div>
-		<div>
-			<label for="rights-field">Rights Statement</label>
-			<textarea id="rights-field" class="auto-expand" datatype="rdf:XMLLiteral">{calli:rights}</textarea>
-		</div>
-		<button id="save" type="submit">Save</button>
-		<button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-		<button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
-	</form>
+    <h1 property="rdfs:label" />
+    <div id="sidebar">
+        <aside>
+            <p><a href="?archive">Export folder contents</a></p>
+            <p><a href="?import">Import folder contents</a></p>
+        </aside>
+        <aside>
+            <p><a href="/callimachus/Theme?create">Create a new theme</a></p>
+            <p><a href="/callimachus/Realm?create">Create another realm</a></p>
+        </aside>
+        <aside>
+            <p>To replace the icon, click the × button, then the browse icon to open a file upload dialogue</p>
+            <p>The icon should be of type PNG, GIF, or ICO and should be 16×16 or 32×32 pixels in size</p>
+        </aside>
+    </div>
+    <form id='form' method="POST" action="" enctype="application/sparql-update" about="?this">
+        <div id="field">
+            <label for="describedBy">Directory index target</label>
+            <input id="describedBy" class="auto-expand" rel="calli:describedBy" resource="?describedBy" value="{?describedBy}" />
+        </div>
+        <div class="hbox">
+            <div id="realm-menu" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Menu <a href="/callimachus/Menu?create" title="Create" onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:menu">
+                    <span about="?menu" typeof="calli:Menu" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?menu}" title="Don't use this menu here" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+            <div id="favicon-image" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Icon <a href="?view" title="Browse" onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
+                <div rel="calli:favicon">
+                    <span about="?favicon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
+                        <img src="{?favicon}" />
+                        <a href="{?favicon}" title="Don't use this icon" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="hbox">
+            <div>
+                <label for="theme">Theme</label>
+                <select id="theme" rel="calli:theme">
+                    <option selected="selected" about="?theme" typeof="calli:Theme" property="rdfs:label" />
+                </select>
+            </div>
+            <div id="variation" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
+                <label>Custom CSS <a href="/callimachus/Style?create" title="Create" onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:variation">
+                    <span about="?variation" typeof="foaf:Document" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?variation}" title="Don't use this CSS here" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div>
+            <label for="rights-field">Rights Statement</label>
+            <textarea id="rights-field" class="auto-expand" datatype="rdf:XMLLiteral">{calli:rights}</textarea>
+        </div>
+        <button id="save" type="submit">Save</button>
+        <button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
+        <button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
+    </form>
 </body>
 </html>

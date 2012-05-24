@@ -28,628 +28,628 @@
 <> a <SchemaGraph>.
 
 <Folder> a <Creatable>, owl:Class;
-	rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:Folder;
-	rdfs:label "Folder";
-	rdfs:comment "A folder of resources";
-	rdfs:isDefinedBy </callimachus>;
-	calli:author </group/staff>,</group/admin>;
-	calli:icon <folder.png>;
-	calli:view <folder-view.xhtml>;
-	calli:edit <folder-edit.xhtml>;
-	calli:create <folder-create.xhtml>.
+    rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:Folder;
+    rdfs:label "Folder";
+    rdfs:comment "A folder of resources";
+    rdfs:isDefinedBy </callimachus>;
+    calli:author </group/staff>,</group/admin>;
+    calli:icon <folder.png>;
+    calli:view <folder-view.xhtml>;
+    calli:edit <folder-edit.xhtml>;
+    calli:create <folder-create.xhtml>.
 
 :RedirectToIndex rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	calli:method "GET";
-	calli:type "message/x-response";
-	msg:imports <java:org.apache.http.ProtocolVersion>;
-	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-	msg:script """
-		var http11 = new ProtocolVersion("HTTP", 1, 1);
-		var resp = new BasicHttpResponse(http11, 303, "Directory Index");
-		if (this.calliDescribedBy) {
-			resp.addHeader("Location", this.calliDescribedBy.toString());
-		} else {
-			resp.addHeader("Location", this.toString() + "?view");
-		}
-		return resp;
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "GET";
+    calli:type "message/x-response";
+    msg:imports <java:org.apache.http.ProtocolVersion>;
+    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+    msg:script """
+        var http11 = new ProtocolVersion("HTTP", 1, 1);
+        var resp = new BasicHttpResponse(http11, 303, "Directory Index");
+        if (this.calliDescribedBy) {
+            resp.addHeader("Location", this.calliDescribedBy.toString());
+        } else {
+            resp.addHeader("Location", this.toString() + "?view");
+        }
+        return resp;
+    """.
 
 ################################
 # POST file
 ################################
 
 :PostFileSlug rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <File>];
-	rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>];
-	calli:method "POST";
-	calli:query "contents";
-	calli:realm </>;
-	calli:expect "201-created";
-	calli:type "text/plain";
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:script """
-		if (!slug)
-			throw new BadRequest("Missing Slug HTTP header");
-		if (!contentType)
-			throw new BadRequest("Missing Content-Type HTTP header");
-		if (!content)
-			throw new BadRequest("Missing request content");
-		var con = this.objectConnection;
-		var location = this.toString() + encodeURIComponent(decodeURIComponent(slug)).replace(/%20/g, '-');
-		return this.PostFactoryCreate(content, fileClass, false, con.getObject(location), contentType);
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <File>];
+    rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>];
+    calli:method "POST";
+    calli:query "contents";
+    calli:realm </>;
+    calli:expect "201-created";
+    calli:type "text/plain";
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:script """
+        if (!slug)
+            throw new BadRequest("Missing Slug HTTP header");
+        if (!contentType)
+            throw new BadRequest("Missing Content-Type HTTP header");
+        if (!content)
+            throw new BadRequest("Missing request content");
+        var con = this.objectConnection;
+        var location = this.toString() + encodeURIComponent(decodeURIComponent(slug)).replace(/%20/g, '-');
+        return this.PostFactoryCreate(content, fileClass, false, con.getObject(location), contentType);
+    """.
 
 :slug a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :PostFileSlug;
-	rdfs:range xsd:string;
-	calli:header "Slug".
+    rdfs:domain :PostFileSlug;
+    rdfs:range xsd:string;
+    calli:header "Slug".
 
 :contentType a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :PostFileSlug;
-	rdfs:range xsd:string;
-	calli:header "Content-Type".
+    rdfs:domain :PostFileSlug;
+    rdfs:range xsd:string;
+    calli:header "Content-Type".
 
 :content a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :PostFileSlug;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "*/*".
+    rdfs:domain :PostFileSlug;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "*/*".
 
 :fileClass a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :PostFileSlug.
+    rdfs:domain :PostFileSlug.
 
 ################################
 # List folder contents
 ################################
 
 :GetFolderFeed rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-	calli:method "GET";
-	calli:query "contents";
-	calli:rel "contents";
-	calli:type "application/sparql-results+xml;q=0.1";
-	calli:header "cache-control:no-cache";
-	calli:transform <transforms/TransformIntoAtom>;
-	msg:sparql """
-		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-		PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
-		PREFIX dc:<http://purl.org/dc/elements/1.1/>
-		PREFIX dcterms:<http://purl.org/dc/terms/>
-		PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT REDUCED * {
-			{
-				$this rdfs:label ?title
-				BIND (concat(str($this),"?contents") as ?id)
-				BIND ("feed" as ?type)
-				BIND (?title as ?collection_title)
-				BIND (concat(str($this),"?contents") as ?collection_href)
-				BIND (concat(str($this),"?describe") as ?link_href)
-				BIND ("describedby" as ?link_rel)
-			} UNION {
-				{ $this a <Realm> } UNION { $this a <Origin> }
-				BIND (concat(str($this),"?contents") as ?id)
-				BIND (concat(str($this),"?search") as ?link_href)
-				BIND ("search" as ?link_rel)
-				BIND ("application/opensearchdescription+xml" as ?link_type)
-			} UNION {
-				BIND ("feed" as ?type)
-				BIND (concat(str($this),"?contents") as ?id)
-				$this audit:revision [audit:committedOn ?updated]
-				BIND (concat(str($this),"?changes") as ?link_href)
-				BIND ("alternate" as ?link_rel)
-				BIND ("application/atom+xml" as ?link_type)
-			} UNION {
-				BIND ("feed" as ?type)
-				BIND (concat(str($this),"?contents") as ?id)
-				[a <Creatable>] calli:type ?collection_accept
-			} UNION {
-				{
-					SELECT (concat(str($this),"?contents") as ?id) (count(distinct ?part) as ?totalResults) ("feed" as ?type) {
-						$this calli:hasComponent ?part
-					} GROUP BY $this
-				}
-			} UNION {
-				{
-					SELECT REDUCED ?id ?title {
-						$this calli:hasComponent ?id
-						FILTER (isIRI(?id))
-						OPTIONAL {
-							?id skos:prefLabel ?title
-						} OPTIONAL {
-							?id foaf:name ?title
-						} OPTIONAL {
-							?id rdfs:label ?title
-						} OPTIONAL {
-							?id skosxl:literalForm ?title
-						} OPTIONAL {
-							?id dcterms:title ?title
-						}
-					} ORDER BY ?id LIMIT 100
-				}
-				OPTIONAL {
-					{
-						?id audit:revision ?revision . ?revision audit:committedOn ?updated
-						OPTIONAL {
-							?revision audit:contributor ?contributor_uri
-							OPTIONAL {
-								?contributor_uri rdfs:label ?contributor_name
-							}
-						}
-					} UNION {
-						?id rdfs:comment ?summary
-					} UNION {
-						?id a [calli:icon ?icon]
-					} UNION {
-						?id calli:reader ?link_reader_href
-						OPTIONAL {
-							?link_reader_href rdfs:label ?link_reader_title
-						}
-					} UNION {
-						?id calli:contributor ?link_contributor_href
-						OPTIONAL {
-							?link_contributor_href rdfs:label ?link_contributor_title
-						}
-					} UNION {
-						?id calli:editor ?link_editor_href
-						OPTIONAL {
-							?link_editor_href rdfs:label ?link_editor_title
-						}
-					} UNION {
-						?id calli:administrator ?link_administrator_href
-						OPTIONAL {
-							?link_administrator_href rdfs:label ?link_administrator_title
-						}
-					} UNION {
-						$this calli:hasComponent ?id
-						BIND (?id as ?content_src)
-						OPTIONAL {
-							?id a [calli:type ?content_type]
-							BIND (?id as ?link_edit_media_href)
-						}
-					} UNION {
-						{ ?id a <Folder> } UNION { ?id a <Realm> }
-						BIND (concat(str(?id),"?contents") as ?link_href)
-						BIND ("contents" as ?link_rel)
-						BIND ("application/atom+xml" as ?link_type)
-					} UNION {
-						{ ?id a <Folder> } UNION { ?id a <Realm> }
-						BIND (concat(str(?id),"?archive") as ?link_href)
-						BIND (calli:archive as ?link_rel)
-						BIND ("application/zip" as ?link_type)
-					} UNION {
-						$this calli:hasComponent ?id
-						BIND (concat(str(?id),"?view") as ?link_view_href)
-						BIND (concat(str(?id),"?describe") as ?link_describedby_href)
-						BIND (concat(str(?id),"?history") as ?link_history_href)
-					}
-				}
-			}
-		} ORDER BY desc(?type) ?id
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "contents";
+    calli:rel "contents";
+    calli:type "application/sparql-results+xml;q=0.1";
+    calli:header "cache-control:no-cache";
+    calli:transform <transforms/TransformIntoAtom>;
+    msg:sparql """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+        PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
+        PREFIX dc:<http://purl.org/dc/elements/1.1/>
+        PREFIX dcterms:<http://purl.org/dc/terms/>
+        PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT REDUCED * {
+            {
+                $this rdfs:label ?title
+                BIND (concat(str($this),"?contents") as ?id)
+                BIND ("feed" as ?type)
+                BIND (?title as ?collection_title)
+                BIND (concat(str($this),"?contents") as ?collection_href)
+                BIND (concat(str($this),"?describe") as ?link_href)
+                BIND ("describedby" as ?link_rel)
+            } UNION {
+                { $this a <Realm> } UNION { $this a <Origin> }
+                BIND (concat(str($this),"?contents") as ?id)
+                BIND (concat(str($this),"?search") as ?link_href)
+                BIND ("search" as ?link_rel)
+                BIND ("application/opensearchdescription+xml" as ?link_type)
+            } UNION {
+                BIND ("feed" as ?type)
+                BIND (concat(str($this),"?contents") as ?id)
+                $this audit:revision [audit:committedOn ?updated]
+                BIND (concat(str($this),"?changes") as ?link_href)
+                BIND ("alternate" as ?link_rel)
+                BIND ("application/atom+xml" as ?link_type)
+            } UNION {
+                BIND ("feed" as ?type)
+                BIND (concat(str($this),"?contents") as ?id)
+                [a <Creatable>] calli:type ?collection_accept
+            } UNION {
+                {
+                    SELECT (concat(str($this),"?contents") as ?id) (count(distinct ?part) as ?totalResults) ("feed" as ?type) {
+                        $this calli:hasComponent ?part
+                    } GROUP BY $this
+                }
+            } UNION {
+                {
+                    SELECT REDUCED ?id ?title {
+                        $this calli:hasComponent ?id
+                        FILTER (isIRI(?id))
+                        OPTIONAL {
+                            ?id skos:prefLabel ?title
+                        } OPTIONAL {
+                            ?id foaf:name ?title
+                        } OPTIONAL {
+                            ?id rdfs:label ?title
+                        } OPTIONAL {
+                            ?id skosxl:literalForm ?title
+                        } OPTIONAL {
+                            ?id dcterms:title ?title
+                        }
+                    } ORDER BY ?id LIMIT 100
+                }
+                OPTIONAL {
+                    {
+                        ?id audit:revision ?revision . ?revision audit:committedOn ?updated
+                        OPTIONAL {
+                            ?revision audit:contributor ?contributor_uri
+                            OPTIONAL {
+                                ?contributor_uri rdfs:label ?contributor_name
+                            }
+                        }
+                    } UNION {
+                        ?id rdfs:comment ?summary
+                    } UNION {
+                        ?id a [calli:icon ?icon]
+                    } UNION {
+                        ?id calli:reader ?link_reader_href
+                        OPTIONAL {
+                            ?link_reader_href rdfs:label ?link_reader_title
+                        }
+                    } UNION {
+                        ?id calli:contributor ?link_contributor_href
+                        OPTIONAL {
+                            ?link_contributor_href rdfs:label ?link_contributor_title
+                        }
+                    } UNION {
+                        ?id calli:editor ?link_editor_href
+                        OPTIONAL {
+                            ?link_editor_href rdfs:label ?link_editor_title
+                        }
+                    } UNION {
+                        ?id calli:administrator ?link_administrator_href
+                        OPTIONAL {
+                            ?link_administrator_href rdfs:label ?link_administrator_title
+                        }
+                    } UNION {
+                        $this calli:hasComponent ?id
+                        BIND (?id as ?content_src)
+                        OPTIONAL {
+                            ?id a [calli:type ?content_type]
+                            BIND (?id as ?link_edit_media_href)
+                        }
+                    } UNION {
+                        { ?id a <Folder> } UNION { ?id a <Realm> }
+                        BIND (concat(str(?id),"?contents") as ?link_href)
+                        BIND ("contents" as ?link_rel)
+                        BIND ("application/atom+xml" as ?link_type)
+                    } UNION {
+                        { ?id a <Folder> } UNION { ?id a <Realm> }
+                        BIND (concat(str(?id),"?archive") as ?link_href)
+                        BIND (calli:archive as ?link_rel)
+                        BIND ("application/zip" as ?link_type)
+                    } UNION {
+                        $this calli:hasComponent ?id
+                        BIND (concat(str(?id),"?view") as ?link_view_href)
+                        BIND (concat(str(?id),"?describe") as ?link_describedby_href)
+                        BIND (concat(str(?id),"?history") as ?link_history_href)
+                    }
+                }
+            }
+        } ORDER BY desc(?type) ?id
+    """.
 
 ################################
 # Export folder contents
 ################################
 
 :DownloadFolderComponents rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-	calli:method "GET";
-	calli:query "archive";
-	calli:rel calli:archive;
-	calli:realm </>;
-	calli:type "message/x-response";
-	calli:header "cache-control:no-store";
-	msg:imports <java:org.apache.http.ProtocolVersion>;
-	msg:imports <java:org.apache.http.message.BasicHttpResponse>;
-	msg:imports <java:org.apache.http.entity.InputStreamEntity>;
-	msg:script """
-		var http11 = new ProtocolVersion("HTTP", 1, 1);
-		var resp = new BasicHttpResponse(http11, 200, "OK");
-		var name = this.resource.localName;
-		var filename = this.toUri().path.substring(1).replace(/\\//g, '-') + this.toUri().authority.replace(/:.*/,'') + '.car';
-		resp.setHeader("Content-Disposition", 'attachment;filename="' + filename + '"');
-		var baseURI = this.toString();
-		if (this.calliHasComponent.isEmpty() || baseURI.charAt(baseURI.length - 1) != '/')
-			return null;
-		var component = this;
-		var entity = new InputStreamEntity(new org.callimachusproject.server.util.ProducerStream(function(outputStream) {
-			var carStream = new org.callimachusproject.io.CarOutputStream(outputStream);
-			component.ExportComponents(baseURI, carStream);
-			carStream.finish();
-		}), -1);
-		entity.contentType = "application/zip";
-		resp.setEntity(entity);
-		return resp;
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "GET";
+    calli:query "archive";
+    calli:rel calli:archive;
+    calli:realm </>;
+    calli:type "message/x-response";
+    calli:header "cache-control:no-store";
+    msg:imports <java:org.apache.http.ProtocolVersion>;
+    msg:imports <java:org.apache.http.message.BasicHttpResponse>;
+    msg:imports <java:org.apache.http.entity.InputStreamEntity>;
+    msg:script """
+        var http11 = new ProtocolVersion("HTTP", 1, 1);
+        var resp = new BasicHttpResponse(http11, 200, "OK");
+        var name = this.resource.localName;
+        var filename = this.toUri().path.substring(1).replace(/\\//g, '-') + this.toUri().authority.replace(/:.*/,'') + '.car';
+        resp.setHeader("Content-Disposition", 'attachment;filename="' + filename + '"');
+        var baseURI = this.toString();
+        if (this.calliHasComponent.isEmpty() || baseURI.charAt(baseURI.length - 1) != '/')
+            return null;
+        var component = this;
+        var entity = new InputStreamEntity(new org.callimachusproject.server.util.ProducerStream(function(outputStream) {
+            var carStream = new org.callimachusproject.io.CarOutputStream(outputStream);
+            component.ExportComponents(baseURI, carStream);
+            carStream.finish();
+        }), -1);
+        entity.contentType = "application/zip";
+        resp.setEntity(entity);
+        return resp;
+    """.
 
 :ExportComponents rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:imports <Folder>;
-	msg:imports <Composite>;
-	msg:imports <File>;
-	msg:imports <Class>;
-	msg:script """
-		var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-		var xf = new org.callimachusproject.io.RDFXMLStreamWriterFactory();
-		function writeTo(triples, entryStream) {
-			try {
-				var writer = xf.createWriter(entryStream, component.toString());
-				writer.startRDF();
-				var namespaces = component.objectConnection.getNamespaces();
-				while (namespaces.hasNext()) {
-					var ns = namespaces.next();
-					writer.handleNamespace(ns.getPrefix(), ns.getName());
-				}
-				while (triples.hasNext()) {
-					var st = triples.next();
-					var pred = st.predicate.toString();
-					if (pred != "http://www.openrdf.org/rdf/2009/auditing#revision"
-							&& pred != "http://www.openrdf.org/rdf/2011/keyword#phone") {
-						writer.handleStatement(st);
-					}
-				}
-				writer.endRDF();
-			} finally {
-				entryStream.close();
-			}
-		}
-		var writtenNames = new java.util.HashSet();
-		var components = this.calliHasComponent.iterator();
-		while (components.hasNext()) {
-			var component = components.next();
-			if (component.toString().indexOf(baseURI) != 0 || !component.auditRevision)
-				continue;
-			var name = component.toString().substring(baseURI.length);
-			if (!writtenNames.add(name))
-				continue;
-			var time = component.auditRevision.getCommittedOn().toGregorianCalendar().getTimeInMillis();
-			if (name.lastIndexOf('/') == name.length - 1 && component instanceof Folder) {
-				//# Export Folder
-				carStream.writeFolderEntry(name, time).close();
-			} else if (component instanceof File) {
-				//# Export File
-				var content = component.openInputStream();
-				if (content) {
-					try {
-						var entryStream = carStream.writeFileEntry(name, time, component.GetFileContentType());
-						try {
-							var read;
-							while ((read = content.read(buf)) >= 0) {
-								entryStream.write(buf, 0, read);
-							}
-						} finally {
-							entryStream.close();
-						}
-					} finally {
-						content.close();
-					}
-				} else if (component.objectConnection.hasStatement(null, null, null, false, [component.resource])) {
-					//# Export Graph
-					var triples = component.objectConnection.getStatements(null, null, null, false, [component.resource]);
-					try {
-						writeTo(triples, carStream.writeFileEntry(name, time, "application/rdf+xml"));
-					} finally {
-						triples.close();
-					}
-				}
-			} else if (component instanceof Class) {
-				//# Export Schema
-				var triples = component.GetDescription();
-				try {
-					writeTo(triples, carStream.writeSchemaEntry(name, time, "application/rdf+xml"));
-				} finally {
-					triples.close();
-				}
-			} else {
-				//# Export Triples
-				var triples = component.GetDescription();
-				try {
-					writeTo(triples, carStream.writeResourceEntry(name, time, "application/rdf+xml"));
-				} finally {
-					triples.close();
-				}
-			}
-			//# Export nested components
-			if (component instanceof Composite) {
-				component.ExportComponents(baseURI, carStream);
-			}
-		}
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    msg:imports <Folder>;
+    msg:imports <Composite>;
+    msg:imports <File>;
+    msg:imports <Class>;
+    msg:script """
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var xf = new org.callimachusproject.io.RDFXMLStreamWriterFactory();
+        function writeTo(triples, entryStream) {
+            try {
+                var writer = xf.createWriter(entryStream, component.toString());
+                writer.startRDF();
+                var namespaces = component.objectConnection.getNamespaces();
+                while (namespaces.hasNext()) {
+                    var ns = namespaces.next();
+                    writer.handleNamespace(ns.getPrefix(), ns.getName());
+                }
+                while (triples.hasNext()) {
+                    var st = triples.next();
+                    var pred = st.predicate.toString();
+                    if (pred != "http://www.openrdf.org/rdf/2009/auditing#revision"
+                            && pred != "http://www.openrdf.org/rdf/2011/keyword#phone") {
+                        writer.handleStatement(st);
+                    }
+                }
+                writer.endRDF();
+            } finally {
+                entryStream.close();
+            }
+        }
+        var writtenNames = new java.util.HashSet();
+        var components = this.calliHasComponent.iterator();
+        while (components.hasNext()) {
+            var component = components.next();
+            if (component.toString().indexOf(baseURI) != 0 || !component.auditRevision)
+                continue;
+            var name = component.toString().substring(baseURI.length);
+            if (!writtenNames.add(name))
+                continue;
+            var time = component.auditRevision.getCommittedOn().toGregorianCalendar().getTimeInMillis();
+            if (name.lastIndexOf('/') == name.length - 1 && component instanceof Folder) {
+                //# Export Folder
+                carStream.writeFolderEntry(name, time).close();
+            } else if (component instanceof File) {
+                //# Export File
+                var content = component.openInputStream();
+                if (content) {
+                    try {
+                        var entryStream = carStream.writeFileEntry(name, time, component.GetFileContentType());
+                        try {
+                            var read;
+                            while ((read = content.read(buf)) >= 0) {
+                                entryStream.write(buf, 0, read);
+                            }
+                        } finally {
+                            entryStream.close();
+                        }
+                    } finally {
+                        content.close();
+                    }
+                } else if (component.objectConnection.hasStatement(null, null, null, false, [component.resource])) {
+                    //# Export Graph
+                    var triples = component.objectConnection.getStatements(null, null, null, false, [component.resource]);
+                    try {
+                        writeTo(triples, carStream.writeFileEntry(name, time, "application/rdf+xml"));
+                    } finally {
+                        triples.close();
+                    }
+                }
+            } else if (component instanceof Class) {
+                //# Export Schema
+                var triples = component.GetDescription();
+                try {
+                    writeTo(triples, carStream.writeSchemaEntry(name, time, "application/rdf+xml"));
+                } finally {
+                    triples.close();
+                }
+            } else {
+                //# Export Triples
+                var triples = component.GetDescription();
+                try {
+                    writeTo(triples, carStream.writeResourceEntry(name, time, "application/rdf+xml"));
+                } finally {
+                    triples.close();
+                }
+            }
+            //# Export nested components
+            if (component instanceof Composite) {
+                component.ExportComponents(baseURI, carStream);
+            }
+        }
+    """.
 
 :baseURI a owl:FunctionalProperty, owl:DatatypeProperty;
-	rdfs:domain :ExportComponents;
-	rdfs:range xsd:string.
+    rdfs:domain :ExportComponents;
+    rdfs:range xsd:string.
 
 :carStream a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :ExportComponents;
-	rdfs:range <java:org.callimachusproject.io.CarOutputStream>.
+    rdfs:domain :ExportComponents;
+    rdfs:range <java:org.callimachusproject.io.CarOutputStream>.
 
 ################################
 # Import folder contents
 ################################
 
 :GetFolderUploadPage rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-	rdfs:subClassOf [owl:onProperty :folder_import_xhtml; owl:hasValue <pages/folder-import.xhtml>];
-	calli:method "GET";
-	calli:query "import";
-	calli:type "application/xhtml+xml";
-	calli:header "cache-control:no-cache";
-	calli:transform <transforms/TransformPage>;
-	calli:realm </>;
-	msg:script """
-		return folder_import_xhtml.calliConstruct(this);
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+    rdfs:subClassOf [owl:onProperty :folder_import_xhtml; owl:hasValue <pages/folder-import.xhtml>];
+    calli:method "GET";
+    calli:query "import";
+    calli:type "application/xhtml+xml";
+    calli:header "cache-control:no-cache";
+    calli:transform <transforms/TransformPage>;
+    calli:realm </>;
+    msg:script """
+        return folder_import_xhtml.calliConstruct(this);
+    """.
 
 :folder_import_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :GetFolderUploadPage.
+    rdfs:domain :GetFolderUploadPage.
 
 :ImportFolderComponents rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	calli:method "POST";
-	calli:query "import";
-	calli:realm </>;
-	calli:expect "302-see-other";
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:script """
-		var bio = new org.callimachusproject.io.LatencyInputStream(formData);
-		var multipart = new org.callimachusproject.io.MultipartParser(bio);
-		var inputStream = multipart.next();
-		try {
-			println("Importing folder content from: " + multipart.headers.get("content-disposition"));
-			this.UploadFolderComponents(inputStream, null, null);
-			println("Imported folder content for: " + this);
-			return this;
-		} finally {
-			inputStream.close();
-			if (multipart.next() != null)
-				throw new BadRequest("Only one file can be uploaded");
-		}
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "POST";
+    calli:query "import";
+    calli:realm </>;
+    calli:expect "302-see-other";
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:script """
+        var bio = new org.callimachusproject.io.LatencyInputStream(formData);
+        var multipart = new org.callimachusproject.io.MultipartParser(bio);
+        var inputStream = multipart.next();
+        try {
+            println("Importing folder content from: " + multipart.headers.get("content-disposition"));
+            this.UploadFolderComponents(inputStream, null, null);
+            println("Imported folder content for: " + this);
+            return this;
+        } finally {
+            inputStream.close();
+            if (multipart.next() != null)
+                throw new BadRequest("Only one file can be uploaded");
+        }
+    """.
 
 :formData a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :ImportFolderComponents;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "multipart/form-data".
+    rdfs:domain :ImportFolderComponents;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "multipart/form-data".
 
 :UploadFolderComponents rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	rdfs:subClassOf [owl:onProperty :uploadFileClass; owl:hasValue <File>];
-	rdfs:subClassOf [owl:onProperty :schemaGraphClass; owl:hasValue <SchemaGraph>];
-	calli:method "PUT";
-	calli:query "archive";
-	calli:realm </>;
-	msg:imports <Composite>;
-	msg:imports <java:org.openrdf.rio.RDFFormat>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.getValueFactory();
-		function readFrom(entryStream, uri, graphs) {
-			var inserter = new org.callimachusproject.form.helpers.TripleInserter(con);
-			inserter.enforceContext(graphs);
-			var parser = new org.openrdf.rio.rdfxml.RDFXMLParser();
-			parser.setValueFactory(vf);
-			parser.setRDFHandler(inserter);
-			parser.parse(entryStream, uri);
-			if (inserter.isEmpty())
-				throw new BadRequest("Missing resource information for: " + uri);
-			if (!inserter.isSingleton())
-				throw new BadRequest("Multiple resources for: " + uri);
-			if (inserter.getSubject().toString() != uri)
-				throw new BadRequest("Wrong subject for: " + uri);
-			if (inserter.isDisconnectedNodePresent())
-				throw new BadRequest("Blank nodes must be connected in: " + uri);
-		}
-		var baseURI = this.toString();
-		if (baseURI.lastIndexOf('/') != baseURI.length - 1) {
-			baseURI = baseURI + '/';
-		}
-		var File = uploadFileClass;
-		var SchemaGraph = schemaGraphClass;
-		var dependency = new java.util.HashSet(this.FindComponentsWithExternalDependent());
-		this.DeleteComponents(); //# remove existing components
-		var iter = dependency.iterator();
-		while (iter.hasNext()) {
-			if (!con.hasStatement(null, null, iter.next().resource, true, []))
-				iter.remove(); //# no longer a dependency 
-		}
-		var name;
-		var carStream = new org.callimachusproject.io.CarInputStream(payload);
-		while (name = carStream.readEntryName()) {
-			var uri = baseURI + name;
-			var location = con.getObject(uri);
-			var folder = null;
-			var container = this.FindExistingContainer(location);
-			if (!container) {
-				container = folder = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
-				if (!(container instanceof Composite)) {
-					container = folder = this.DesignateAsFolder(container);
-				}
-			}
-			var entryStream = carStream.getEntryStream();
-			try {
-				if (carStream.isFolderEntry()) {
-					this.DesignateAsFolder(location);
-					dependency.remove(location);
-				} else if (carStream.isFileEntry()) {
-					if (!(container instanceof Composite))
-						throw new BadRequest("Schema data about " + container + " must be imported before " + uri);
-					var type = carStream.getEntryType();
-					container.PostFactoryCreate(entryStream, File, null, location, type);
-					dependency.remove(location);
-				} else if (carStream.isResourceEntry()) {
-					readFrom(entryStream, uri, []);
-					if (folder) {
-						folder.calliHasComponent.add(location);
-					}
-					dependency.remove(location);
-				} else if (carStream.isSchemaEntry()) {
-					var graphURI = vf.createURI(uri + ".owl");
-					con.clear([graphURI]);
-					con.add(graphURI, RDF.TYPE, SchemaGraph, [graphURI]);
-					readFrom(entryStream, uri, [graphURI]);
-					if (folder) {
-						folder.calliHasComponent.add(location);
-					}
-					dependency.remove(location);
-					con.recompileSchemaOnClose();
-				}
-			} finally {
-				entryStream.close();
-			}
-		}
-		if (!dependency.isEmpty())
-			throw new BadRequest(dependency.size() + " required resource(s) not present: " + dependency.iterator().next());
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    rdfs:subClassOf [owl:onProperty :uploadFileClass; owl:hasValue <File>];
+    rdfs:subClassOf [owl:onProperty :schemaGraphClass; owl:hasValue <SchemaGraph>];
+    calli:method "PUT";
+    calli:query "archive";
+    calli:realm </>;
+    msg:imports <Composite>;
+    msg:imports <java:org.openrdf.rio.RDFFormat>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDF>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:script """
+        var con = this.objectConnection;
+        var vf = con.getValueFactory();
+        function readFrom(entryStream, uri, graphs) {
+            var inserter = new org.callimachusproject.form.helpers.TripleInserter(con);
+            inserter.enforceContext(graphs);
+            var parser = new org.openrdf.rio.rdfxml.RDFXMLParser();
+            parser.setValueFactory(vf);
+            parser.setRDFHandler(inserter);
+            parser.parse(entryStream, uri);
+            if (inserter.isEmpty())
+                throw new BadRequest("Missing resource information for: " + uri);
+            if (!inserter.isSingleton())
+                throw new BadRequest("Multiple resources for: " + uri);
+            if (inserter.getSubject().toString() != uri)
+                throw new BadRequest("Wrong subject for: " + uri);
+            if (inserter.isDisconnectedNodePresent())
+                throw new BadRequest("Blank nodes must be connected in: " + uri);
+        }
+        var baseURI = this.toString();
+        if (baseURI.lastIndexOf('/') != baseURI.length - 1) {
+            baseURI = baseURI + '/';
+        }
+        var File = uploadFileClass;
+        var SchemaGraph = schemaGraphClass;
+        var dependency = new java.util.HashSet(this.FindComponentsWithExternalDependent());
+        this.DeleteComponents(); //# remove existing components
+        var iter = dependency.iterator();
+        while (iter.hasNext()) {
+            if (!con.hasStatement(null, null, iter.next().resource, true, []))
+                iter.remove(); //# no longer a dependency 
+        }
+        var name;
+        var carStream = new org.callimachusproject.io.CarInputStream(payload);
+        while (name = carStream.readEntryName()) {
+            var uri = baseURI + name;
+            var location = con.getObject(uri);
+            var folder = null;
+            var container = this.FindExistingContainer(location);
+            if (!container) {
+                container = folder = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
+                if (!(container instanceof Composite)) {
+                    container = folder = this.DesignateAsFolder(container);
+                }
+            }
+            var entryStream = carStream.getEntryStream();
+            try {
+                if (carStream.isFolderEntry()) {
+                    this.DesignateAsFolder(location);
+                    dependency.remove(location);
+                } else if (carStream.isFileEntry()) {
+                    if (!(container instanceof Composite))
+                        throw new BadRequest("Schema data about " + container + " must be imported before " + uri);
+                    var type = carStream.getEntryType();
+                    container.PostFactoryCreate(entryStream, File, null, location, type);
+                    dependency.remove(location);
+                } else if (carStream.isResourceEntry()) {
+                    readFrom(entryStream, uri, []);
+                    if (folder) {
+                        folder.calliHasComponent.add(location);
+                    }
+                    dependency.remove(location);
+                } else if (carStream.isSchemaEntry()) {
+                    var graphURI = vf.createURI(uri + ".owl");
+                    con.clear([graphURI]);
+                    con.add(graphURI, RDF.TYPE, SchemaGraph, [graphURI]);
+                    readFrom(entryStream, uri, [graphURI]);
+                    if (folder) {
+                        folder.calliHasComponent.add(location);
+                    }
+                    dependency.remove(location);
+                    con.recompileSchemaOnClose();
+                }
+            } finally {
+                entryStream.close();
+            }
+        }
+        if (!dependency.isEmpty())
+            throw new BadRequest(dependency.size() + " required resource(s) not present: " + dependency.iterator().next());
+    """.
 
 :payload a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :UploadFolderComponents;
-	rdfs:range <java:java.io.InputStream>;
-	calli:type "application/zip".
+    rdfs:domain :UploadFolderComponents;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/zip".
 
 :uploadFileClass a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :UploadFolderComponents.
+    rdfs:domain :UploadFolderComponents.
 
 :schemaGraphClass a owl:ObjectProperty, owl:FunctionalProperty;
-	rdfs:domain :UploadFolderComponents.
+    rdfs:domain :UploadFolderComponents.
 
 :FindComponentsWithExternalDependent rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Serviceable>];
-	msg:sparql """
-		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-		PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
-		PREFIX dc:<http://purl.org/dc/elements/1.1/>
-		PREFIX dcterms:<http://purl.org/dc/terms/>
-		PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT ?component {
-			$this calli:hasComponent+ ?component .
-			?external ?dependent ?component
-			FILTER (!isIRI(?external) || !strstarts(str(?external), str($this)))
-			FILTER (?dependent != audit:contributedTo && ?dependent != audit:modified)
-			FILTER (?dependent != rdf:subject && ?dependent != rdf:object)
-		}
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom <Serviceable>];
+    msg:sparql """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+        PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
+        PREFIX dc:<http://purl.org/dc/elements/1.1/>
+        PREFIX dcterms:<http://purl.org/dc/terms/>
+        PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?component {
+            $this calli:hasComponent+ ?component .
+            ?external ?dependent ?component
+            FILTER (!isIRI(?external) || !strstarts(str(?external), str($this)))
+            FILTER (?dependent != audit:contributedTo && ?dependent != audit:modified)
+            FILTER (?dependent != rdf:subject && ?dependent != rdf:object)
+        }
+    """.
 
 :DeleteComponents rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-	msg:imports <Composite>;
-	msg:imports <java:org.openrdf.model.BNode>;
-	msg:imports <java:org.openrdf.model.URI>;
-	msg:imports <java:javax.tools.FileObject>;
-	msg:script """
-		var con = this.objectConnection;
-		var vf = con.getValueFactory();
-		function removeTriples(subject, hash) {
-			var stmts = con.getStatements(subject, null, null, []);
-			try {
-				while (stmts.hasNext()) {
-					var st = stmts.next();
-					if (st.object instanceof BNode && !st.object.equals(subject)) {
-						removeTriples(st.object, hash);
-					} else if (st.object instanceof URI && !st.object.equals(subject)) {
-						if (st.object.stringValue().indexOf(hash) == 0) {
-							removeTriples(st.object, hash);
-						} else {
-							con.getObjectFactory().createObject(st.object).touchRevision();
-						}
-					}
-					con.remove(st, []);
-				}
-			} finally {
-				stmts.close();
-			}
-		}
-		var components = this.calliHasComponent.iterator();
-		while (components.hasNext()) {
-			var component = components.next();
-			if (component instanceof Composite) {
-				component.DeleteComponents();
-			}
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    msg:imports <Composite>;
+    msg:imports <java:org.openrdf.model.BNode>;
+    msg:imports <java:org.openrdf.model.URI>;
+    msg:imports <java:javax.tools.FileObject>;
+    msg:script """
+        var con = this.objectConnection;
+        var vf = con.getValueFactory();
+        function removeTriples(subject, hash) {
+            var stmts = con.getStatements(subject, null, null, []);
+            try {
+                while (stmts.hasNext()) {
+                    var st = stmts.next();
+                    if (st.object instanceof BNode && !st.object.equals(subject)) {
+                        removeTriples(st.object, hash);
+                    } else if (st.object instanceof URI && !st.object.equals(subject)) {
+                        if (st.object.stringValue().indexOf(hash) == 0) {
+                            removeTriples(st.object, hash);
+                        } else {
+                            con.getObjectFactory().createObject(st.object).touchRevision();
+                        }
+                    }
+                    con.remove(st, []);
+                }
+            } finally {
+                stmts.close();
+            }
+        }
+        var components = this.calliHasComponent.iterator();
+        while (components.hasNext()) {
+            var component = components.next();
+            if (component instanceof Composite) {
+                component.DeleteComponents();
+            }
 
-			con.clear([component.resource]); //# clear graph
-			removeTriples(component.resource, component.resource.stringValue() + '#'); //# follow blank and hash references
-			if (component instanceof FileObject) {
-				component['delete'](); //# remove document
-			}
-			components.remove();
-		}
-	""".
+            con.clear([component.resource]); //# clear graph
+            removeTriples(component.resource, component.resource.stringValue() + '#'); //# follow blank and hash references
+            if (component instanceof FileObject) {
+                component['delete'](); //# remove document
+            }
+            components.remove();
+        }
+    """.
 
 :FindExistingContainer rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-	msg:sparql """
-		PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-		PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-		PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-		PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
-		PREFIX dc:<http://purl.org/dc/elements/1.1/>
-		PREFIX dcterms:<http://purl.org/dc/terms/>
-		PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-		PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
-		PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-		SELECT ?composite {
-			?composite calli:hasComponent $component
-		}
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    msg:sparql """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+        PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
+        PREFIX dc:<http://purl.org/dc/elements/1.1/>
+        PREFIX dcterms:<http://purl.org/dc/terms/>
+        PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?composite {
+            ?composite calli:hasComponent $component
+        }
+    """.
 
 :component a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :FindExistingContainer.
+    rdfs:domain :FindExistingContainer.
 
 :DesignateAsFolder rdfs:subClassOf msg:Message;
-	rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-	rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Folder>];
-	msg:imports <Folder>;
-	msg:imports <Composite>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDF>;
-	msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
-	msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-	msg:script """
-		if (nonFolder instanceof Folder)
-			return nonFolder;
-		var con = this.objectConnection;
-		var vf = con.getValueFactory();
-		var uri = nonFolder.toString();
-		var container = this.FindExistingContainer(nonFolder);
-		if (!container) {
-			container = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
-			if (!(container instanceof Folder)) {
-				container = this.DesignateAsFolder(container);
-			}
-		}
-		if (!(container instanceof Composite))
-			throw new BadRequest("Schema data about " + container + " must be imported before " + uri);
-		var label = decodeURI(uri.substring(uri.lastIndexOf('/', uri.length - 2) + 1, uri.length - 1)).replace(/-/g, ' ');
-		con.add(nonFolder.resource, RDFS.LABEL, vf.createLiteral(label), []);
-		nonFolder.calliEditor.addAll(container.FindContributor(nonFolder));
-		nonFolder.calliReader.addAll(container.SelectAllReaders());
-		nonFolder.calliEditor.addAll(container.SelectAllEditors());
-		nonFolder.calliAdministrator.addAll(container.SelectAllAdministrators());
-		container.calliHasComponent.add(nonFolder);
-		con.add(nonFolder.resource, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Folder"), []);
-		return con.addDesignation(nonFolder, Folder);
-	""".
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Folder>];
+    msg:imports <Folder>;
+    msg:imports <Composite>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDF>;
+    msg:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    msg:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    msg:script """
+        if (nonFolder instanceof Folder)
+            return nonFolder;
+        var con = this.objectConnection;
+        var vf = con.getValueFactory();
+        var uri = nonFolder.toString();
+        var container = this.FindExistingContainer(nonFolder);
+        if (!container) {
+            container = con.getObject(uri.substring(0, uri.lastIndexOf('/', uri.length - 2) + 1));
+            if (!(container instanceof Folder)) {
+                container = this.DesignateAsFolder(container);
+            }
+        }
+        if (!(container instanceof Composite))
+            throw new BadRequest("Schema data about " + container + " must be imported before " + uri);
+        var label = decodeURI(uri.substring(uri.lastIndexOf('/', uri.length - 2) + 1, uri.length - 1)).replace(/-/g, ' ');
+        con.add(nonFolder.resource, RDFS.LABEL, vf.createLiteral(label), []);
+        nonFolder.calliEditor.addAll(container.FindContributor(nonFolder));
+        nonFolder.calliReader.addAll(container.SelectAllReaders());
+        nonFolder.calliEditor.addAll(container.SelectAllEditors());
+        nonFolder.calliAdministrator.addAll(container.SelectAllAdministrators());
+        container.calliHasComponent.add(nonFolder);
+        con.add(nonFolder.resource, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Folder"), []);
+        return con.addDesignation(nonFolder, Folder);
+    """.
 
 :nonFolder a owl:FunctionalProperty, owl:ObjectProperty;
-	rdfs:domain :DesignateAsFolder.
+    rdfs:domain :DesignateAsFolder.
 

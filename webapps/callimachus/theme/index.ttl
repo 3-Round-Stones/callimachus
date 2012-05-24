@@ -6,6 +6,6 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 
 <default> a calli:Theme;
-	rdfs:label "Default Theme";
-	calli:layout <layout.xhtml>.
+    rdfs:label "Default Theme";
+    calli:layout <layout.xhtml>.
 

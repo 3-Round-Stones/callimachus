@@ -116,6 +116,16 @@
 	rdfs:range <java:java.io.InputStream>;
 	calli:type "application/sparql-query".
 
+:DeleteNamedQuery owl:intersectionOf ( <toolbox/delete.ttl#Delete>
+    	[owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>]);
+    calli:method "DELETE";
+    calli:realm </>;
+	msg:script """
+		var con = this.objectConnection;
+        con.repository.removeNamedQuery(this.resource);
+		return proceed();
+	""".
+
 
 ################################
 # Google Chart Wire Protocol 0.6

@@ -33,7 +33,8 @@ import org.openrdf.query.parser.sparql.SPARQLParser;
 import org.openrdf.rio.turtle.TurtleUtil;
 
 public class ParameterizedQuery {
-	private static final Pattern PARAM_EXPRESSION = Pattern.compile("\\$\\{([^}]*)\\}");
+	private static final Pattern CACHE_CONTROL = Pattern.compile("(?:^|\n)\\s*#\\s*@Cache-Control\\s*:\\s*([\\w ,=\\-\"]+)\\s*(?:\n|$)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PARAM_EXPRESSION = Pattern.compile("[^\\\\]\\$\\{([^}]*)\\}");
 	private static ValueFactory vf = ValueFactoryImpl.getInstance();
 	private final String sparql;
 	private final String systemId;
@@ -87,6 +88,24 @@ public class ParameterizedQuery {
 		return true;
 	}
 
+	public boolean isParameterPresent() {
+		return !bindings.isEmpty();
+	}
+
+	public String getCacheControl() {
+		StringBuilder sb = new StringBuilder();
+		Matcher matcher = CACHE_CONTROL.matcher(sparql);
+		while (matcher.find()) {
+			if (sb.length() > 0) {
+				sb.append(",");
+			}
+			sb.append(matcher.group(1));
+		}
+		if (sb.length() == 0)
+			return null;
+		return sb.toString();
+	}
+
 	public String prepare() throws IllegalArgumentException {
 		Map<String, String[]> parameters = Collections.emptyMap();
 		return prepare(parameters);
@@ -94,7 +113,7 @@ public class ParameterizedQuery {
 
 	public String prepare(Map<String, String[]> parameters) throws IllegalArgumentException {
 		String sparql = this.sparql;
-		if (sparql.contains("${")) {
+		if (isExpressionPresent()) {
 			try {
 				sparql = inlineExpressions(sparql, parameters);
 			} catch (QueryEvaluationException e) {
@@ -104,6 +123,10 @@ public class ParameterizedQuery {
 			}
 		}
 		return appendBindings(sparql, parameters);
+	}
+
+	private boolean isExpressionPresent() {
+		return this.sparql.contains("${");
 	}
 
 	private String inlineExpressions(String sparql,
@@ -164,7 +187,7 @@ public class ParameterizedQuery {
 
 	private String appendBindings(String sparql,
 			Map<String, String[]> parameters) {
-		if (bindings.isEmpty())
+		if (!isParameterPresent())
 			return sparql;
 		StringBuilder sb = new StringBuilder(sparql);
 		sb.append("\nBINDINGS");

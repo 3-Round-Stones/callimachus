@@ -108,7 +108,11 @@
 		var con = this.objectConnection;
 		var parser = ParameterizedQueryParser.newInstance();
 		var query = parser.parseQuery(this.openInputStream(), this.toString());
-		con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query.prepare(), this.toString());
+        if (query.isParameterPresent()) {
+            con.repository.removeNamedQuery(this.resource);
+        } else {
+		    con.repository.createNamedQuery(this.resource, QueryLanguage.SPARQL, query.prepare(), this.toString());
+        }
 	""".
 
 :stream a owl:FunctionalProperty, owl:ObjectProperty;
@@ -174,16 +178,24 @@
 			resp.setHeader("Last-Modified", nq.getResultLastModifiedString());
 			resp.setHeader("ETag", etag);
 		}
-		resp.setHeader("Cache-Control", "no-cache");
 		if (map.outFileName) {
 			resp.setHeader("Content-Disposition", 'inline;filename="' + map.outFileName + '"');
 		}
-		if (nq && match == etag)
-			return resp;
 		var entity = null;
 		try {
 			var parser = ParameterizedQueryParser.newInstance();
 			var query = parser.parseQuery(this.openInputStream(), this.toString());
+            var control = query.getCacheControl();
+            if (!control && nq) {
+                control = "no-cache";
+            } else if (!control) {
+                control = "no-store";
+            } else if (!nq) {
+                control += ",no-validate"; //# server side directive
+            }
+            resp.setHeader("Cache-Control", control);
+        	if (nq && match == etag)
+    			return resp;
 			var sparql = query.prepare(queryParameters);
 			var rs = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, this.toString()).evaluate();
 			if (map.out == "html") {

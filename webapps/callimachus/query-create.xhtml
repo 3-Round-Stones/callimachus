@@ -7,7 +7,10 @@
 <head>
 	<title>New Named Query</title>
 	<script type="text/javascript" src="/callimachus/editor/create.js"> </script>
-	<script id="template" type="application/xhtml+xml"><![CDATA[PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+	<script id="template" type="application/xhtml+xml"><![CDATA[#
+# @Cache-Control:
+#
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
@@ -27,7 +30,9 @@ PREFIX msg: <http://www.openrdf.org/rdf/2011/messaging#>
 PREFIX calli: <http://callimachusproject.org/rdf/2009/framework#>
 PREFIX : <#>
 
-SELECT ]]></script>
+SELECT * {
+}
+]]></script>
 </head>
 <body>
 	<form id="form" method="POST" action="" enctype="application/sparql-query" onsubmit="return calli.saveResourceAs(event, 'untitled query.rq')">

@@ -306,6 +306,8 @@ public abstract class DocumentObjectResolver<T> {
 	}
 
 	private long getExpires(String cacheControl, long defaultValue) {
+		if (cacheControl.contains("no-cache"))
+			return -1;
 		if (cacheControl != null && cacheControl.contains("s-maxage")) {
 			try {
 				Matcher m = SMAXAGE.matcher(cacheControl);

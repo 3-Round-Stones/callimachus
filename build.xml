@@ -293,9 +293,10 @@
 		</zip>
 		<zip destfile="${dist}/callimachus-${Version}.zip">
 			<zipfileset dir="." includes="*.txt" />
-			<zipfileset dir="${src}" prefix="src" includes="*.sh,callimachus-linux*,callimachus-darwin*" filemode="755" />
-			<zipfileset dir="${src}" prefix="src" excludes="*.sh,callimachus-linux*,callimachus-darwin*" />
-			<zipfileset dir="${bin}" prefix="bin" />
+			<zipfileset dir="${src}" prefix="src" />
+			<zipfileset dir="${webapps}/callimachus" prefix="src/callimachus-webapp" />
+			<zipfileset dir="${bin}" prefix="bin" includes="*.sh,callimachus-linux*,callimachus-darwin*" filemode="755" />
+			<zipfileset dir="${bin}" prefix="bin" excludes="*.sh,callimachus-linux*,callimachus-darwin*" />
 			<zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
 			<zipfileset dir="${lib}" prefix="lib" />
 			<zipfileset file="${jar.file}" prefix="lib" />

@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<html version="XHTML+RDFa 1.1" xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+<html version="XHTML+RDFa 1.1" xmlns="http://www.w3.org/1999/xhtml" 
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title>Test member-list</title>
+		<title>Test about-typeof</title>
 	</head>
 	<body>
 		<div about="concept1" typeof="skos:Concept">
 			<a href="concept1" property="skos:prefLabel">Concept1</a>
-			<span property="rdfs:comment">Comment1</span>
-		</div>
+		</div>	
 		<div about="concept2" typeof="skos:Concept">
 			<a href="concept2" property="skos:prefLabel">Concept2</a>
-		</div>
+		</div>	
+		<div about="concept3" typeof="skos:Concept" />
+		<div about="scheme1" typeof="skos:ConceptScheme">
+			<a href="scheme1" property="skos:prefLabel">Scheme1</a>
+		</div>	
 	</body>
 </html>

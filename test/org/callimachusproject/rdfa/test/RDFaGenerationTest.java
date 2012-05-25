@@ -25,6 +25,7 @@ import static org.callimachusproject.rdfa.test.Utility.readDocument;
 import static org.callimachusproject.rdfa.test.Utility.write;
 import static org.junit.Assume.assumeTrue;
 import static org.openrdf.query.QueryLanguage.SPARQL;
+import info.aduna.text.StringUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +33,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -44,13 +46,17 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
+import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateEngineFactory;
+import org.callimachusproject.engine.helpers.XMLEventList;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.TupleQuery;
@@ -58,7 +64,9 @@ import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.repository.util.RepositoryUtil;
 import org.openrdf.sail.memory.MemoryStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -75,14 +83,17 @@ import org.xml.sax.InputSource;
 // This is a parameterized test that runs over the test directory (test_dir)
 public class RDFaGenerationTest extends TestCase {
 	// location of the XSLT transform relative to the test directory
-	private static final String TEST_FILE_SUFFIX = "-test.xhtml";
-	private static final String FILE_SUFFIX = ".xhtml";
+	private static final String TEMPLATE_FILE_SUFFIX = "-test.xhtml";
+	private static final String SOURCE_FILE_SUFFIX = "-source.xhtml";
+	private static final String EXPECTED_FILE_SUFFIX = ".xhtml";
 	private static final String DATA_ATTRIBUTE_TEST_BASE = "http://example.org/test";
 			
 	// private static properties defined in @BeforeClass setUp()
 	private XMLInputFactory xmlInputFactory;
 	private XPathFactory xPathFactory;
-	private Repository repository;
+	private Repository sourceRepository;
+	private Repository expectedRepository;
+	private Repository actualRepository;
 	
 	// private static flags set in main()
 	private static boolean verbose = false;
@@ -109,20 +120,29 @@ public class RDFaGenerationTest extends TestCase {
 	}
 	
 	// object properties defined in @Before initialize() 
-	private RepositoryConnection con;
+	private RepositoryConnection source;
+	private RepositoryConnection expected;
+	private RepositoryConnection actual;
 	private String base;
 	
 	// properties defined by constructor
 	// XHTML RDFa template used to derive SPARQL query 
 	private File template;
-	// target XHTML with embedded RDFa (also used as RDF data source)
-	private File target;
+	// expectedFile XHTML with embedded RDFa
+	private File expectedFile;
+	// source XHTML with embedded RDFa used as RDF data source
+	private File sourceFile;
 
 	public RDFaGenerationTest(String name) {
 		super(name);
 		this.template = new File(name.substring(name.indexOf('!') + 1));
-		this.target = new File(template.getPath().replace(TEST_FILE_SUFFIX,
-				FILE_SUFFIX));
+		this.expectedFile = new File(template.getPath().replace(TEMPLATE_FILE_SUFFIX,
+				EXPECTED_FILE_SUFFIX));
+		this.sourceFile = new File(template.getPath().replace(TEMPLATE_FILE_SUFFIX,
+				SOURCE_FILE_SUFFIX));
+		if (!sourceFile.exists()) {
+			sourceFile = expectedFile;
+		}
 	}
 	
 	XPathExpression conjoinXPaths(Document fragment, String base) throws Exception {
@@ -188,11 +208,11 @@ public class RDFaGenerationTest extends TestCase {
 		};
 	}
 		
-	/* define dynamically generated parameters {{ template, target } ... } passed to the constructor
+	/* define dynamically generated parameters {{ template, expectedFile } ... } passed to the constructor
 	 * list test-cases by enumerating test files in the test directory 
 	 * A test file has the TEST_FILE_SIGNIFIER in the filename 
 	 * A test file serves as an RDFa template
-	 * A target filename has the TEST_FILE_SIGNIFIER removed 
+	 * A expectedFile filename has the TEST_FILE_SIGNIFIER removed 
 	 */
 	public static TestSuite suite() throws URISyntaxException {
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -211,7 +231,7 @@ public class RDFaGenerationTest extends TestCase {
 
 		File[] testFiles = dir.listFiles(new FilenameFilter() {
 			public boolean accept(File file, String filename) {
-				return (filename.endsWith(TEST_FILE_SUFFIX)
+				return (filename.endsWith(TEMPLATE_FILE_SUFFIX)
 				|| (new File(file,filename).isDirectory() && !filename.startsWith(".")) ) ;
 		}});
 		// enumerate test files (RDFa templates)
@@ -254,34 +274,35 @@ public class RDFaGenerationTest extends TestCase {
 	}
 	
 	/* order independent equivalence */
-	/* check that all elements in the target appear in the output, and vice versa */
+	/* check that all elements in the expectedFile appear in the output, and vice versa */
 	
-	boolean equivalent(Document outputDoc, Document targetDoc, String base) throws Exception {
-		XPathExpression evalOutput=null, evalTarget=null;
+	void assertEqualDocuments(Document expectedDoc, Document actualDoc, String base) throws Exception {
+		XPathExpression unexpected=null, missing=null;
+		assertNotNull(actualDoc);
+		assertNotNull(expectedDoc);
 		
-		if (outputDoc==null || targetDoc==null) return false;
-		
-		// Match output to target
-		evalOutput = evaluateXPaths(new XPathIterator(outputDoc,base), targetDoc) ;
+		// Match actual to expectedFile
+		unexpected = evaluateXPaths(new XPathIterator(actualDoc,base), expectedDoc) ;
 
 		if (verbose) System.out.println();
-		// Match target to output
-		evalTarget = evaluateXPaths(new XPathIterator(targetDoc,base), outputDoc) ;
+		// Match expectedFile to actual
+		missing = evaluateXPaths(new XPathIterator(expectedDoc,base), actualDoc) ;
 
-		if ((evalOutput!=null || evalTarget!=null || verbose) && !show_sparql) {
+		if ((unexpected!=null || missing!=null || verbose) && !show_sparql) {
 			if (!verbose) System.out.println("\nTEST: "+template);
 			
 			System.out.println("\nOUTPUT");
-			if (evalOutput!=null) System.out.println("FAILS: "+evalOutput);
-			write(outputDoc,System.out);
+			if (unexpected!=null) System.out.println("UNEXPECTED: "+unexpected);
+			write(actualDoc,System.out);
 			System.out.println();
 			
-			System.out.println("\nTARGET: "+target);
-			if (evalTarget!=null) System.out.println("FAILS: "+evalTarget);
-			write(targetDoc,System.out);
+			System.out.println("\nEXPECTED: "+expectedFile);
+			if (missing!=null) System.out.println("MISSING: "+missing);
+			write(expectedDoc,System.out);
 			System.out.println();
 		}
-		return evalOutput==null && evalTarget==null;
+		assertEquals(null, unexpected);
+		assertEquals(null, missing);
 	}
 
 	public void setUp() throws Exception {		
@@ -295,35 +316,40 @@ public class RDFaGenerationTest extends TestCase {
 		xPathFactory = XPathFactory.newInstance();
 
 		// initialize an in-memory store
-		repository = new SailRepository(new MemoryStore());
-		repository.initialize();
+		sourceRepository = new SailRepository(new MemoryStore());
+		sourceRepository.initialize();
+		source = sourceRepository.getConnection();
+		expectedRepository = new SailRepository(new MemoryStore());
+		expectedRepository.initialize();
+		expected = expectedRepository.getConnection();
+		actualRepository = new SailRepository(new MemoryStore());
+		actualRepository.initialize();
+		actual = actualRepository.getConnection();
 		initialize();
 	}
 
 	public void tearDown() throws Exception {
-		if (con!=null) con.close();
-		repository.shutDown();
+		source.close();
+		expected.close();
+		actual.close();
+		sourceRepository.shutDown();
+		expectedRepository.shutDown();
+		actualRepository.shutDown();
 	}
 	
 	private void initialize() throws Exception {
-		con = repository.getConnection();
-
-		// clear the repository of earlier contexts and namespaces
-		con.clear();
-		con.clearNamespaces();
-		
-		// used in tests of undefined namespaces
-		con.setNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
-		
-		// use the target filename as the base URL if not 'legacy', 'construct' or 'fragment' (all construct queries) ;
+		// use the expectedFile filename as the base URL if not 'legacy', 'construct' or 'fragment' (all construct queries) ;
 		if (!test_set.contains("legacy") && !test_set.contains("construct") && !test_set.contains("fragment")) 
 			base = DATA_ATTRIBUTE_TEST_BASE;
-		else base = target.toURI().toURL().toString();
+		else base = expectedFile.toURI().toURL().toString();
 		
-		// if the target is supplied parse it for RDF and load the repository
-		if (target.exists()) {
-			loadRepository(con, parseRDFa(target, base));
-			testPI(xmlInputFactory.createXMLEventReader(new FileReader(target)));
+		// if the sourceFile is supplied parse it for RDF and load the sourceRepository
+		if (sourceFile.exists()) {
+			loadRepository(source, parseRDFa(sourceFile, base));
+			testPI(xmlInputFactory.createXMLEventReader(new FileReader(sourceFile)));
+		}
+		if (expectedFile.exists()) {
+			loadRepository(expected, parseRDFa(expectedFile, base));
 		}
 	}
 	
@@ -334,7 +360,7 @@ public class RDFaGenerationTest extends TestCase {
 			if (e.isProcessingInstruction()) {
 				if (e.toString().contains("repository clear") 
 					|| e.toString().contains("clear repository")) {
-					con.clear();
+					source.clear();
 				}
 			}
 		}
@@ -342,34 +368,44 @@ public class RDFaGenerationTest extends TestCase {
 
 	/* Produce SPARQL from the RDFa template using SPARQLProducer.
 	 * Generate XHTML+RDFa using RDFaProducer.
-	 * Test equivalence of the target and generated output.
+	 * Test equivalence of the expectedFile and generated output.
 	 */
 	protected void runTest() throws Exception {
 		assumeTrue(test_set.contains("select"));
+		if (verbose || show_rdf || show_sparql || show_xml || show_results) {
+			System.out.println("\nUNION SELECT TEST: "+template);
+			write(readDocument(template),System.out);
+		}
+		// produce SPARQL from the RDFa template
+		TemplateEngineFactory tef = TemplateEngineFactory.newInstance();
+		TemplateEngine engine = tef.createTemplateEngine(source);
+		Template temp = engine.getTemplate(new FileInputStream(template), base);
+
+		//XMLEventReader xml = xmlInputFactory.createXMLEventReader(src); 
+		ValueFactory vf = source.getValueFactory();
+		URI self = vf.createURI(base);
+		//xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
+		MapBindingSet bindings = new MapBindingSet();
+		bindings.addBinding("this", self);
+		XMLEventList xrdfa = new XMLEventList(temp.openResult(bindings));
+
+		loadRepository(actual, new RDFaReader(base, xrdfa.iterator(), base));
+		Document outputDoc = asDocument(xrdfa.iterator());
+
+		AssertionFailedError failed = null;
 		try {
-			if (verbose || show_rdf || show_sparql || show_xml || show_results) {
-				System.out.println("\nUNION SELECT TEST: "+template);
-				write(readDocument(template),System.out);
-			}
-			// produce SPARQL from the RDFa template
-			TemplateEngineFactory tef = TemplateEngineFactory.newInstance();
-			TemplateEngine engine = tef.createTemplateEngine(con);
-			Template temp = engine.getTemplate(new FileInputStream(template), base);
-
-			//XMLEventReader xml = xmlInputFactory.createXMLEventReader(src); 
-			ValueFactory vf = con.getValueFactory();
-			URI self = vf.createURI(base);
-			//xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
-			MapBindingSet bindings = new MapBindingSet();
-			bindings.addBinding("this", self);
-			XMLEventReader xrdfa = temp.openResult(bindings);
-
-			Document outputDoc = asDocument(xrdfa);
-		
-			boolean ok = equivalent(outputDoc,readDocument(target),base);
+			assertEqualDocuments(readDocument(expectedFile),outputDoc,base);
+			assertEqualRepositories(expected, actual);
+		}
+		catch (AssertionFailedError e) {
+			failed = e;
+			System.out.println("UNION SELECT TEST: "+template);
+			throw e;
+		} finally {
+			boolean ok = failed == null;
 			if (!ok || verbose || show_rdf) {
-				System.out.println("RDF (from target):");
-				write(exportGraph(con), System.out);
+				System.out.println("RDF (from expectedFile):");
+				write(exportGraph(source), System.out);
 			}
 			if (!ok) {
 				System.out.println("\nTEMPLATE:");
@@ -385,18 +421,49 @@ public class RDFaGenerationTest extends TestCase {
 			}
 			if (!ok || verbose || show_results) {
 				System.out.println("\nRESULTS:");
-				TupleQuery q = con.prepareTupleQuery(SPARQL, temp.getQuery(), base);
+				TupleQuery q = source.prepareTupleQuery(SPARQL, temp.getQuery(), base);
 				q.setBinding("this", self);
 				TupleQueryResult results = q.evaluate();
 				results = q.evaluate();
 				while (results.hasNext()) System.out.println(results.next());
 			}
-			if (!show_rdf && !show_sparql && !show_xml && !show_results) 
-				assertTrue(ok);
 		}
-		catch (Exception e) {
-			System.out.println("UNION SELECT TEST: "+template);
-			throw e;
+	}
+
+	private void assertEqualRepositories(RepositoryConnection expected,
+			RepositoryConnection actual) throws RepositoryException {
+		if (!RepositoryUtil.equals(expected.getRepository(), actual.getRepository())) {
+			List<Statement> expectedList = expected.getStatements(null, null, null, true).asList();
+			List<Statement> actualList = actual.getStatements(null, null, null, true).asList();
+			StringBuilder message = new StringBuilder(128);
+			message.append("\n============ ");
+			message.append(getName());
+			message.append(" =======================\n");
+			message.append("Expected: \n");
+			for (Statement st : expectedList) {
+				message.append(st.toString());
+				if (!actualList.contains(st)) {
+					message.append("*");
+				}
+				message.append("\n");
+			}
+			message.append("=============");
+			StringUtil.appendN('=', getName().length(), message);
+			message.append("========================\n");
+
+			message.append("Actual: \n");
+			for (Statement st : actualList) {
+				message.append(st.toString());
+				if (!expectedList.contains(st)) {
+					message.append("*");
+				}
+				message.append("\n");
+			}
+			message.append("=============");
+			StringUtil.appendN('=', getName().length(), message);
+			message.append("========================\n");
+
+			fail(message.toString());
 		}
 	}
 		

@@ -79,6 +79,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 	private Base base;
 	private Reference document;
 	private Tag tag;
+	private final LinkedList<XMLEvent> peek = new LinkedList<XMLEvent>();
 	private Queue<RDFEvent> queue = new LinkedList<RDFEvent>();
 	private int number;
 	private int contentDepth = -1;
@@ -143,9 +144,26 @@ public class RDFaReader extends AbstractRDFEventReader {
 	protected RDFEvent take() throws RDFParseException {
 		try {
 			while (queue.isEmpty()) {
-				if (!reader.hasNext())
+				while (peek.size() < 2 && reader.hasNext()) {
+					while (reader.hasNext()) {
+						XMLEvent next = reader.nextEvent();
+						peek.add(next);
+						if (!next.isCharacters())
+							break;
+					}
+				}
+				if (peek.isEmpty())
 					return null;
-				process(reader.nextEvent());
+				XMLEvent event = peek.remove();
+				if (!peek.isEmpty() && event.isStartElement() && peek.getLast().isEndElement()) {
+					StringBuilder sb = new StringBuilder();
+					for (int i=0; peek.get(i).isCharacters(); i++) {
+						sb.append(peek.get(i).asCharacters().getData());
+					}
+					process(event, sb);
+				} else {
+					process(event, null);
+				}
 			}
 			return queue.remove();
 		} catch (XMLStreamException e) {
@@ -155,7 +173,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 		}
 	}
 
-	private void process(XMLEvent event) throws XMLStreamException,
+	private void process(XMLEvent event, CharSequence characterData) throws XMLStreamException,
 			IOException, RDFParseException {
 		if (event.isStartDocument()) {
 			processStartDocument(event);
@@ -164,7 +182,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 		} else if (event.isStartElement()) {
 			elementStack.push(elementIndex);
 			elementIndex=1;
-			processStartElement(event.asStartElement());
+			processStartElement(event.asStartElement(), characterData);
 		} else if (event.isEndElement()) {
 			processEndElement(event.asEndElement());
 			if (!elementStack.isEmpty()) elementIndex = elementStack.pop();
@@ -194,7 +212,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 		queue.add(new Document(false, event.getLocation()));
 	}
 
-	private void processStartElement(StartElement event)
+	private void processStartElement(StartElement event, CharSequence characterData)
 			throws XMLStreamException, RDFParseException {
 		if (contentDepth >= 0) {
 
@@ -214,7 +232,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 				}
 			}
 		} else {			
-			tag = new Tag(tag, event, reader.peek().isEndElement(), ++number);
+			tag = new Tag(tag, event, characterData, ++number);
 			tag.started();
 
 			if (tag.isContent()) {
@@ -288,10 +306,10 @@ public class RDFaReader extends AbstractRDFEventReader {
 		// the same variable may be re-used within a descendant tag
 		HashMap<String,Node> vars = new HashMap<String,Node>();
 
-		public Tag(Tag parent, StartElement event, boolean empty, int number) {
+		public Tag(Tag parent, StartElement event, CharSequence characterData, int number) {
 			this.parent = parent;
 			this.event = event;
-			this.empty = empty;
+			this.empty = characterData != null && !PROPERTY_EXP_PATTERN.matcher(characterData).find();
 			this.number = number;
 			this.origin = origin();
 			if (parent!=null) vars.putAll(parent.vars);
@@ -598,17 +616,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 		// Property expression
 		private final Pattern PROPERTY_EXP_PATTERN = Pattern.compile(PROPERTY_EXP_REGEX);
 		
-		private void addPropertyExpressions(Node subj, StartElement start) 
-		throws RDFParseException {
-			Iterator<?> i = start.getAttributes();
-			while (i.hasNext()) {
-				Attribute a = (Attribute) i.next();
-				String value = a.getValue();
-				addPropertyExpressions(subj, value);
-			}
-		}
-
-		private void addPropertyExpressions(Node subj, String value) throws RDFParseException {
+		void addPropertyExpressions(Node subj, CharSequence value) throws RDFParseException {
 			if (subj==null) return;
 			Matcher m = PROPERTY_EXP_PATTERN.matcher(value);
 			while (m.find()) {
@@ -643,6 +651,18 @@ public class RDFaReader extends AbstractRDFEventReader {
 			}
 				
 		}
+
+		private void addPropertyExpressions(Node subj, StartElement start) 
+		throws RDFParseException {
+			Iterator<?> i = start.getAttributes();
+			while (i.hasNext()) {
+				Attribute a = (Attribute) i.next();
+				String value = a.getValue();
+				addPropertyExpressions(subj, value);
+			}
+		}
+
+		
 		
 		/* Add @content on start tag */
 		

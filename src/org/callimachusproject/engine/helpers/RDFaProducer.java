@@ -42,6 +42,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
+import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
@@ -668,16 +669,10 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		return datatype;
 	}
-	
-	// ^"[^\"]*"\@(.*)$
-	private static final String LANG_REGEX = "^\"[^\\\"]*\"\\@(.*)$";
-	private static final Pattern LANG_PATTERN = Pattern.compile(LANG_REGEX);
 
 	private String getLang(Value content) {
-		if (content!=null) {
-			// use toString() to include lang
-			Matcher m = LANG_PATTERN.matcher(content.toString());
-			if (m.matches()) return m.group(1);
+		if (content instanceof Literal) {
+			return ((Literal) content).getLanguage();
 		}
 		return null;
 	}
@@ -694,6 +689,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		String path, tag;
 		Attribute nextAttribute;
 		boolean hasBody;
+		NamespaceContext ctx;
 		
 		public AttributeIterator
 		(String tag,Iterator<?> attributes, Value content, String path, boolean hasBody, NamespaceContext ctx) {
@@ -705,6 +701,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			datatype = getDatatypeCurie(content,ctx);
 			lang = getLang(content);
 			nextAttribute = more();
+			this.ctx = ctx;
 		}
 		@Override
 		public boolean hasNext() {
@@ -725,8 +722,17 @@ public class RDFaProducer extends XMLEventReaderBase {
 				Value newValue = substituteValue(tag,attr);
 				if (newValue!=null) {
 					// clear content to prevent it being added as text
-					if (namespace.isEmpty() && localPart.equals("content")) 
+					if (namespace.isEmpty() && localPart.equals("content")) {
 						context.content = null;
+						if (newValue instanceof Literal) {
+							if (datatype == null) {
+								datatype = getDatatypeCurie(newValue,ctx);
+							}
+							if (lang == null) {
+								lang = getLang(newValue);
+							}
+						}
+					}
 					return eventFactory.createAttribute(attr.getName(), newValue.stringValue());
 				}
 				else return attr;

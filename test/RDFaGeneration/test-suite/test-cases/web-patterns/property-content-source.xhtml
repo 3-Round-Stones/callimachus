@@ -3,15 +3,24 @@
 	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:skos="http://www.w3.org/2004/02/skos/core#">
 	<head>
-		<title>Test member-list</title>
+		<title>Test property-content</title>
 	</head>
 	<body>
 		<div about="concept1" typeof="skos:Concept">
+			<span property="rdfs:value" content="true" />
 			<a href="concept1" property="skos:prefLabel">Concept1</a>
-			<span property="rdfs:comment">Comment1</span>
-		</div>
+		</div>	
 		<div about="concept2" typeof="skos:Concept">
+			<span property="rdfs:value" content="true" />
 			<a href="concept2" property="skos:prefLabel">Concept2</a>
 		</div>
+		<div about="concept3" typeof="skos:Concept">
+			<span property="rdfs:value" content="false" />
+			<a href="concept3" property="skos:prefLabel">Concept3</a>
+		</div>	
+		<div about="concept4" typeof="skos:Concept">
+			<span property="rdfs:value">false</span>
+			<a href="concept4" property="skos:prefLabel">Concept4</a>
+		</div>	
 	</body>
 </html>

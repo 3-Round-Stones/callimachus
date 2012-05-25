@@ -66,7 +66,7 @@ public class ParameterizedQueryParser {
 		public synchronized Map<String,Value> scan(String sparql) throws MalformedQueryException {
 			variables.clear();
 			parameters.clear();
-			ParsedQuery parsed = parseParsedQuery(sparql.replaceAll("\\$\\{[^}]*\\}", "0"), systemId);
+			ParsedQuery parsed = parseParsedQuery(sparql.replaceAll("(?<!\\\\)\\$\\{[^}]*\\}", "0"), systemId);
 			if (!(parsed instanceof ParsedTupleQuery))
 				throw new MalformedQueryException("Only SELECT queries are supported");
 			parsed.getTupleExpr().visit(this);

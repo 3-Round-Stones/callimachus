@@ -34,7 +34,7 @@ import org.openrdf.rio.turtle.TurtleUtil;
 
 public class ParameterizedQuery {
 	private static final Pattern CACHE_CONTROL = Pattern.compile("(?:^|\n)\\s*#\\s*@Cache-Control\\s*:\\s*([\\w ,=\\-\"]+)\\s*(?:\n|$)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern PARAM_EXPRESSION = Pattern.compile("[^\\\\]\\$\\{([^}]*)\\}");
+	private static final Pattern PARAM_EXPRESSION = Pattern.compile("(?<!\\\\)\\$\\{([^}]*)\\}");
 	private static ValueFactory vf = ValueFactoryImpl.getInstance();
 	private final String sparql;
 	private final String systemId;

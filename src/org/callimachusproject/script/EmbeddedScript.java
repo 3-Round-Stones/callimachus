@@ -9,7 +9,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 import org.openrdf.repository.object.exceptions.BehaviourException;
-import org.openrdf.repository.object.traits.MessageContext;
+import org.openrdf.repository.object.traits.ObjectMessage;
 
 final class EmbeddedScript {
 	private final String systemId;
@@ -24,11 +24,16 @@ final class EmbeddedScript {
 		this.systemId = systemId;
 	}
 
+	@Override
+	public String toString() {
+		return String.valueOf(systemId);
+	}
+
 	public ScriptEngine getEngine() {
 		return engine;
 	}
 
-	public Object eval(MessageContext msg, Bindings bindings) throws ScriptException {
+	public Object eval(ObjectMessage msg, Bindings bindings) throws ScriptException {
 		Object[] args = getArguments(msg, bindings);
 		try {
 			return ((Invocable) engine).invokeFunction(invoke, args);
@@ -37,7 +42,7 @@ final class EmbeddedScript {
 		}
 	}
 
-	private Object[] getArguments(Object msg, Bindings bindings) {
+	private Object[] getArguments(ObjectMessage msg, Bindings bindings) {
 		Object[] args = new Object[bindingNames.size() + 1];
 		args[0] = msg;
 

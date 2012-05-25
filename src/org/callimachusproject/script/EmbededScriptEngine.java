@@ -37,7 +37,7 @@ import javax.script.SimpleBindings;
 
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.repository.object.exceptions.ObjectCompositionException;
-import org.openrdf.repository.object.traits.MessageContext;
+import org.openrdf.repository.object.traits.ObjectMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -230,7 +230,7 @@ public class EmbededScriptEngine {
 		return this;
 	}
 
-	public ScriptResult eval(MessageContext msg, SimpleBindings bindings) {
+	public ScriptResult eval(ObjectMessage msg, SimpleBindings bindings) {
 		Class<?> context = enter();
 		try {
 			Object ret = getCompiledScript().eval(msg, bindings);

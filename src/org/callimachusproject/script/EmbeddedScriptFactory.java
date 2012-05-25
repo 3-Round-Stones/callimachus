@@ -31,8 +31,6 @@ package org.callimachusproject.script;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,17 +52,7 @@ public class EmbeddedScriptFactory {
 	private static final String BEHAVIOUR = BehaviourException.class.getName();
 	private static final Pattern KEYWORDS = Pattern
 			.compile("(?:var\\s+|\\.)(break|case|catch|const|continue|default|delete|do|else|export|finally|for|function|if|in|instanceof|import|name|new|return|switch|this|throw|try|typeof|var|void|while|with)\b");
-	private static final Map<Class<?>, String> primitives = new HashMap<Class<?>, String>();
-	static {
-		primitives.put(Boolean.TYPE, ".booleanValue()");
-		primitives.put(Character.TYPE, ".charValue()");
-		primitives.put(Byte.TYPE, ".byteValue()");
-		primitives.put(Short.TYPE, ".shortValue()");
-		primitives.put(Integer.TYPE, ".intValue()");
-		primitives.put(Long.TYPE, ".longValue()");
-		primitives.put(Float.TYPE, ".floatValue()");
-		primitives.put(Double.TYPE, ".doubleValue()");
-	}
+
 	private final Logger logger = LoggerFactory.getLogger(EmbeddedScriptFactory.class);
 	private final ClassLoader cl;
 	private EmbeddedScriptContext context;
@@ -128,7 +116,7 @@ public class EmbeddedScriptFactory {
 		ClassLoader previously = current.getContextClassLoader();
 		current.setContextClassLoader(cl);
 		ScriptEngineManager man = new ScriptEngineManager();
-		final ScriptEngine engine = man.getEngineByName("rhino");
+		ScriptEngine engine = man.getEngineByName("rhino");
 		current.setContextClassLoader(previously);
 		engine.put(ScriptEngine.FILENAME, systemId);
 		engine.eval(code);

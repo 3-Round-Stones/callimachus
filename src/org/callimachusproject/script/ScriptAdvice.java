@@ -5,7 +5,6 @@ import java.util.Set;
 import javax.script.SimpleBindings;
 
 import org.callimachusproject.script.EmbededScriptEngine.ScriptResult;
-import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.query.QueryEvaluationException;
@@ -40,8 +39,7 @@ public class ScriptAdvice implements Advice {
 
 	@Override
 	public Object intercept(ObjectMessage message) throws Exception {
-		MessageContext msg = ((InvocationMessageContext) message).returns(rty);
-		return cast(engine.eval(msg, getBindings(message)));
+		return cast(engine.eval(message, getBindings(message)));
 	}
 
 	private SimpleBindings getBindings(ObjectMessage message)
@@ -75,7 +73,6 @@ public class ScriptAdvice implements Advice {
 			QueryEvaluationException {
 		if (Set.class.equals(type))
 			return null;
-		ValueFactory vf = con.getValueFactory();
 		ObjectFactory of = con.getObjectFactory();
 		if (of.isDatatype(type)) {
 			URIImpl datatype = new URIImpl("java:" + type.getName());

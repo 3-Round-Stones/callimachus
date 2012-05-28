@@ -12,6 +12,7 @@
         ol.items { padding-left: 2em; margin-bottom:0; }
     </style>
     <script type='text/javascript'>
+        // <![CDATA[
         function setAbout(child, label) {
             var uri = $('body').attr('about')+'#'+label.toLowerCase().replace(/[^a-z0-9]/g, '');
             var parent = $('*[about="' + uri + '"]');
@@ -26,6 +27,17 @@
                 $(child).parent().attr('about', uri);
             }
         }
+        var loaded = null;
+        function loadLinkInput(labelInput) {
+            if (loaded != labelInput) {
+                var container=$(labelInput).parent().children('.link-container');
+                if(!container.children('input').length) {
+                    loaded = labelInput;
+                    calli.addResource(event,container);
+                }
+            }
+        }
+        // ]]>
     </script>
 </head>
 <body about="?this">
@@ -39,9 +51,8 @@
             <ol id="items" rel="calli:item" class="items sorted">
                 <li about="?item1">
                     <span class="asc" property="calli:position" style="display:none"/>
-                    <input value="{rdfs:label}" title="Label"
-                                onchange="setAbout(this, value)"
-                        onblur="var container=$(this).parent().children('.link-container');if(!container.children('input').length)calli.addResource(event,container)" />
+                    <input value="{rdfs:label}" title="Label" required="required"
+                        onchange="setAbout(this, value);if(value)loadLinkInput(this)" />
                     <span class="link-container">
                         <input rel="calli:link" resource="?menu" value="{?menu}" size="32" title="URL (optional)" placeholder="http://" />
                     </span>
@@ -51,9 +62,8 @@
                     <ol rel="calli:item" class="items sorted">
                         <li about="?item2">
                             <span class="asc" property="calli:position" style="display:none" />
-                            <input value="{rdfs:label}" title="Label"
-                                onchange="setAbout(this, value)"
-                                onblur="var container=$(this).parent().children('.link-container');if(!container.children('input').length)calli.addResource(event,container)" />
+                            <input value="{rdfs:label}" title="Label" required="required"
+                                onchange="setAbout(this, value);if(value)loadLinkInput(this)" />
                             <span class="link-container">
                                 <input rel="calli:link" resource="?link" value="{?link}" size="32" title="URL" placeholder="http://" />
                             </span>

@@ -23,21 +23,23 @@ function select(node, selector) {
 }
 
 function bindInputChange(inputs) {
-    inputs.change(function(event) {
+    var onchange = function() {
         var input = $(this);
         var expression = input.attr("data-expression-value");
         propagate(input, expression, input.val());
-    });
-    inputs.change();
+    };
+    inputs.change(onchange);
+    inputs.each(onchange);
 }
 
 function bindTextAreaChange(areas) {
-    areas.change(function(event) {
+    var onchange = function() {
         var area = $(this);
         var expression = area.attr("data-text-expression");
         propagate(area, expression, area.val());
-    });
-    areas.change();
+    };
+    areas.change(onchange);
+    areas.each(onchange);
 }
 
 function addTextAreaPropertyExpression(areas) {

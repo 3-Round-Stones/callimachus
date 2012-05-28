@@ -80,14 +80,17 @@ public class EmbeddedScriptFactory {
 		}
 		out.write("function ");
 		out.write(getInvokeName());
-		out.write("(msg");
+		out.write("(");
+		out.write(getMessageName());
 		for (String name : context.getBindingNames()) {
 			out.write(", ");
 			out.write(name);
 		}
 		out.write(") { ");
 		out.write("try { ");
-		out.write("function proceed(){return msg.proceed();} ");
+		out.write("function proceed(){return ");
+		out.write(getMessageName());
+		out.write(".proceed();} ");
 		out.write("return (function() {");
 		int read;
 		char[] cbuf = new char[1024];
@@ -95,7 +98,9 @@ public class EmbeddedScriptFactory {
 			out.write(cbuf, 0, read);
 		}
 		out.write("\n\t");
-		out.write("}).call(msg.target);\n");
+		out.write("}).call(");
+		out.write(getMessageName());
+		out.write(".target);\n");
 		out.write("} catch (e if e instanceof java.lang.Throwable) {\n\t\t");
 		out.append("return new Packages.").append(BEHAVIOUR);
 		out.append("(e);\n\t");
@@ -125,6 +130,10 @@ public class EmbeddedScriptFactory {
 
 	private String getInvokeName() {
 		return "_invoke" + Math.abs(hashCode());
+	}
+
+	private String getMessageName() {
+		return "_msg" + Math.abs(hashCode());
 	}
 
 	private void warnIfKeywordUsed(String code) {

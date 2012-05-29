@@ -94,6 +94,7 @@ image/vnd.microsoft.icon ico
 text/cache-manifest appcache
 text/calendar ics
 text/css css
+text/css less
 text/csv csv
 text/html htm
 text/html html

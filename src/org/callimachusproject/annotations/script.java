@@ -11,5 +11,5 @@ import org.openrdf.annotations.Iri;
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
 public @interface script {
 	@Iri("http://callimachusproject.org/rdf/2009/framework#script")
-	String value();
+	String[] value();
 }

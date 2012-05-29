@@ -39,7 +39,6 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.openrdf.repository.object.exceptions.BehaviourException;
-import org.openrdf.repository.object.exceptions.ObjectStoreConfigException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +61,8 @@ public class EmbeddedScriptFactory {
 		this.context = context;
 	}
 
-	public EmbeddedScript create(String systemId, Reader in) throws Exception {
+	public EmbeddedScript create(String systemId, Reader in)
+			throws IOException, ScriptException {
 		try {
 			return createCompiledScript(cl, systemId, read(in));
 		} finally {
@@ -114,8 +114,7 @@ public class EmbeddedScriptFactory {
 	}
 
 	private EmbeddedScript createCompiledScript(ClassLoader cl,
-			String systemId, String code) throws ObjectStoreConfigException,
-			ScriptException {
+			String systemId, String code) throws ScriptException {
 		warnIfKeywordUsed(code);
 		Thread current = Thread.currentThread();
 		ClassLoader previously = current.getContextClassLoader();

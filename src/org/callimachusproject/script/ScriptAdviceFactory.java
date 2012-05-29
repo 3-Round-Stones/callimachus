@@ -47,8 +47,8 @@ public class ScriptAdviceFactory implements AdviceFactory, AdviceProvider {
 
 	private EmbededScriptEngine createEmbededScriptEngine(Method method) {
 		ClassLoader cl = method.getDeclaringClass().getClassLoader();
-		String script = method.getAnnotation(script.class).value();
-		return EmbededScriptEngine.newInstance(cl, script, getSystemId(method));
+		String[] script = method.getAnnotation(script.class).value();
+		return EmbededScriptEngine.newInstance(cl, getSystemId(method), script);
 	}
 
 	private String getSystemId(Method m) {

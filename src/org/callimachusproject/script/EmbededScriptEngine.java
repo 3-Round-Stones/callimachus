@@ -28,15 +28,29 @@
  */
 package org.callimachusproject.script;
 
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.message.BasicHttpRequest;
+import org.callimachusproject.server.client.HTTPObjectClient;
+import org.callimachusproject.server.exceptions.ResponseException;
 import org.openrdf.repository.object.exceptions.BehaviourException;
-import org.openrdf.repository.object.exceptions.ObjectCompositionException;
 import org.openrdf.repository.object.traits.ObjectMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,9 +84,9 @@ public class EmbededScriptEngine {
 			throw new AssertionError("Could not find rhino context");
 	}
 
-	public static EmbededScriptEngine newInstance(ClassLoader cl, String code,
-			String systemId) {
-		return new EmbededScriptEngine(cl, code, systemId);
+	public static EmbededScriptEngine newInstance(ClassLoader cl,
+			String systemId, String... code) {
+		return new EmbededScriptEngine(cl, systemId, code);
 	}
 
 	public static class ScriptResult {
@@ -192,27 +206,31 @@ public class EmbededScriptEngine {
 	}
 
 	private final Logger logger = LoggerFactory.getLogger(EmbededScriptEngine.class);
-	private final String code;
+	private final String[] scripts;
 	private EmbeddedScript engine;
 	private final String systemId;
 	private final String filename;
 	private final EmbeddedScriptFactory factory;
 	private final EmbeddedScriptContext context;
 
-	public EmbededScriptEngine(ClassLoader cl, String code, String systemId) {
+	public EmbededScriptEngine(ClassLoader cl, String systemId, String... scripts) {
 		assert cl != null;
-		assert code != null;
+		assert scripts != null && scripts.length > 0;
 		assert systemId != null;
 		this.systemId = systemId;
 		this.filename = systemId;
 		this.context = new EmbeddedScriptContext();
 		this.factory = new EmbeddedScriptFactory(cl, context);
-		this.code = code;
+		this.scripts = scripts;
 	}
 
 	@Override
 	public String toString() {
-		return code;
+		StringBuilder sb = new StringBuilder();
+		for (String src : scripts) {
+			sb.append(src);
+		}
+		return sb.toString();
 	}
 
 	public EmbededScriptEngine importClass(String className) {
@@ -289,14 +307,64 @@ public class EmbededScriptEngine {
 		}
 	}
 
-	private synchronized EmbeddedScript getCompiledScript() throws Exception {
+	private synchronized EmbeddedScript getCompiledScript() throws IOException,
+			ScriptException {
 		if (engine != null)
 			return engine;
+		Reader in = getScriptReader();
+		return engine = factory.create(filename, in);
+	}
+
+	private Reader getScriptReader() throws IOException {
+		if (scripts.length == 1 && !isAbsoluteUri(scripts[0]))
+			return new StringReader(scripts[0]);
+		CharArrayWriter writer = new CharArrayWriter(65536);
+		for (String src : scripts) {
+			if (isAbsoluteUri(src)) {
+				readUrlInto(src, writer);
+			} else {
+				writer.append(src);
+			}
+		}
+		return new CharArrayReader(writer.toCharArray());
+	}
+
+	private boolean isAbsoluteUri(String uri) {
 		try {
-			StringReader in = new StringReader(code);
-			return engine = factory.create(filename, in);
-		} catch (Exception e) {
-			throw new ObjectCompositionException(e);
+			return new URI(uri).isAbsolute();
+		} catch (URISyntaxException e) {
+			return false;
+		}
+	}
+
+	private void readUrlInto(String systemId, CharArrayWriter writer)
+			throws IOException, UnsupportedEncodingException {
+		String redirect = systemId;
+		HttpResponse resp = null;
+		HTTPObjectClient client = HTTPObjectClient.getInstance();
+		for (int i = 0; i < 20 && redirect != null; i++) {
+		    systemId = redirect;
+		    HttpRequest req = new BasicHttpRequest("GET", redirect);
+		    req.setHeader("Accept", "text/javascript, application/javascript");
+		    req.setHeader("Accept-Charset", "UTF-8");
+		    resp = client.service(req);
+		    redirect = client.redirectLocation(redirect, resp);
+		}
+		if (resp.getStatusLine().getStatusCode() >= 300)
+			throw ResponseException.create(resp);
+		if (resp.getEntity() != null) {
+			InputStream in = resp.getEntity().getContent();
+			try {
+				InputStreamReader reader = new InputStreamReader(in,
+						"UTF-8");
+				int read;
+				char[] cbuf = new char[1024];
+				while ((read = reader.read(cbuf)) >= 0) {
+					writer.write(cbuf, 0, read);
+				}
+			} finally {
+				in.close();
+			}
 		}
 	}
 }

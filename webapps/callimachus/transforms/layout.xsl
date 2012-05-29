@@ -66,8 +66,6 @@
             <xsl:if test="$favicon">
             <link rel="icon" href="{$favicon}" />
             </xsl:if>
-            <link rel="stylesheet" href="{$styles}/normalize.css" media="all" />
-            <link rel="stylesheet" href="{$styles}/content.css" media="all" />
             <xsl:apply-templates mode="layout" select="$layout_head/*[local-name()!='script' and local-name()!='title' and local-name()!='meta']|$layout_head/comment()|$layout_head/text()" />
             <xsl:apply-templates select="*[local-name()!='script']|comment()|text()" />
             <xsl:if test="$variation">

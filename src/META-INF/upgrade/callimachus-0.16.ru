@@ -38,3 +38,34 @@ DELETE {
 } WHERE {
 	</callimachus/> rdfs:label "callimachus/"
 };
+
+DELETE {
+    ?item calli:position ?pos2
+} WHERE {
+    ?item calli:position ?pos1, ?pos2
+    FILTER (?pos1 < ?pos2)
+};
+
+DELETE {
+    ?item calli:link ?link2
+} WHERE {
+    ?item calli:link ?link1, ?link2
+    FILTER (?link1 < ?link2)
+};
+
+DELETE {
+    ?item rdfs:label ?label2
+} WHERE {
+    ?menu calli:item ?item .
+    ?item rdfs:label ?label1, ?label2
+    FILTER (?label1 < ?label2)
+};
+
+DELETE {
+    ?menu2 calli:item ?item
+} WHERE {
+    ?menu1 calli:item ?item .
+    ?menu2 calli:item ?item
+    FILTER (str(?menu1) < str(?menu2))
+};
+

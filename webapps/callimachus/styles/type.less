@@ -12,7 +12,7 @@ p {
   font-size: @baseFontSize;
   line-height: @baseLineHeight;
   small {
-    font-size: @baseFontSize - 2;
+    font-size: @baseFontSize / 1.2;
     color: @grayLight;
   }
 }
@@ -78,7 +78,7 @@ h6 {
 
 // Page header
 .page-header {
-  padding-bottom: @baseLineHeight - 1;
+  padding-bottom: @baseLineHeight / 1.1;
   margin: @baseLineHeight 0;
   border-bottom: 1px solid @grayLighter;
 }
@@ -127,7 +127,7 @@ dd {
 }
 dt {
   font-weight: bold;
-  line-height: @baseLineHeight - 1; // fix jank Helvetica Neue font bug
+  line-height: @baseLineHeight / 1.1; // fix jank Helvetica Neue font bug
 }
 dd {
   margin-left: @baseLineHeight / 2;

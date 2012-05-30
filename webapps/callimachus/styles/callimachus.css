@@ -1,0 +1,56 @@
+/* callimachus.css */
+
+.noauth .protected {
+    display: none !important;
+}
+
+.wait,.wait * {
+    cursor:wait;
+}
+
+.drag-over {
+    cursor:copy;
+}
+
+time {
+    white-space:nowrap;
+}
+
+[dropzone] .ui-state-highlight {
+    white-space:nowrap;
+}
+
+iframe.ui-widget-content.ui-dialog-content {
+    margin:0;
+    padding:0;
+}
+
+html.iframe {
+    overflow-y: auto;
+}
+
+pre {
+    white-space:pre-wrap;
+}
+
+img.icon {
+    max-height:1em;
+    padding-right:2pt;
+    vertical-align:text-top;
+}
+
+.flex {
+    display:block;
+}
+
+.summary {
+    line-height:1em;
+    max-height:3.1em;
+    overflow:hidden;
+}
+
+.summary * {
+    margin:0;
+    padding:0;
+}
+

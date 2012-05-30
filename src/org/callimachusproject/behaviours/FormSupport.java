@@ -273,7 +273,7 @@ public abstract class FormSupport implements Page, RDFObject {
 		HttpRequest request = new BasicHttpRequest("GET", url);
 		HttpResponse response = client.service(request);
 		if (response.getStatusLine().getStatusCode() >= 300)
-			throw ResponseException.create(response);
+			throw ResponseException.create(response, url);
 		return response.getEntity().getContent();
 	}
 

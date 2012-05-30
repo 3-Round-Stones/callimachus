@@ -259,6 +259,25 @@ public class EmbededScriptEngine {
 				if (exc.getCause() instanceof Error)
 					throw (Error) exc.getCause();
 				throw exc;
+			} else if (ret instanceof ScriptException) {
+				ScriptException se = (ScriptException) ret;
+				String m = se.getMessage();
+				String f = se.getFileName();
+				int l = se.getLineNumber();
+				int c = se.getColumnNumber();
+				StringBuilder sb = new StringBuilder(m);
+				if (f != null) {
+					sb.append(" in ").append(f);
+				}
+				if (l > 0) {
+					sb.append(" on line ").append(l);
+				}
+				if (c > 0) {
+					sb.append(" at column ").append(c);
+				}
+				ScriptException exec = new ScriptException(sb.toString(), f, l, c);
+				exec.initCause(se);
+				throw se;
 			}
 			return new ScriptResult(ret);
 		} catch (NullPointerException e) {
@@ -351,7 +370,7 @@ public class EmbededScriptEngine {
 		    redirect = client.redirectLocation(redirect, resp);
 		}
 		if (resp.getStatusLine().getStatusCode() >= 300)
-			throw ResponseException.create(resp);
+			throw ResponseException.create(resp, systemId);
 		if (resp.getEntity() != null) {
 			InputStream in = resp.getEntity().getContent();
 			try {

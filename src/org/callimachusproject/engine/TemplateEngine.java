@@ -61,7 +61,7 @@ public class TemplateEngine {
 			redirect = client.redirectLocation(redirect, response);
 		}
 		if (response.getStatusLine().getStatusCode() >= 300)
-			throw ResponseException.create(response);
+			throw ResponseException.create(response, url);
 		InputStream in = response.getEntity().getContent();
 		return getTemplate(in, url, parameters);
 	}

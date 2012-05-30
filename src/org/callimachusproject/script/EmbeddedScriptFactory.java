@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
  **/
 public class EmbeddedScriptFactory {
 	private static final String BEHAVIOUR = BehaviourException.class.getName();
+	private static final String SCRIPT_EXCEPTION = ScriptException.class.getName();
 	private static final Pattern KEYWORDS = Pattern
 			.compile("(?:var\\s+|\\.)(break|case|catch|const|continue|default|delete|do|else|export|finally|for|function|if|in|instanceof|import|name|new|return|switch|this|throw|try|typeof|var|void|while|with)\b");
 
@@ -108,6 +109,18 @@ public class EmbeddedScriptFactory {
 				.write("} catch (e if e.javaException instanceof java.lang.Throwable) {\n\t\t");
 		out.append("return new Packages.").append(BEHAVIOUR);
 		out.append("(e.javaException);\n\t");
+		out.write("} catch (e if e.message && e.fileName && e.lineNumber) {\n\t\t");
+		out.append("return new Packages.").append(SCRIPT_EXCEPTION);
+		out.append("(e.message, e.fileName, e.lineNumber);\n\t");
+		out.write("} catch (e if e.message && e.filename && e.line) {\n\t\t");
+		out.append("return new Packages.").append(SCRIPT_EXCEPTION);
+		out.append("(e.message, e.filename, e.line);\n\t");
+		out.write("} catch (e if e.message) {\n\t\t");
+		out.append("return new Packages.").append(SCRIPT_EXCEPTION);
+		out.append("(e.message);\n\t");
+		out.write("} catch (e if e.description) {\n\t\t");
+		out.append("return new Packages.").append(SCRIPT_EXCEPTION);
+		out.append("(e.description);\n\t");
 		out.write("}\n");
 		out.write("}\n");
 		return out.toString();

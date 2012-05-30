@@ -116,7 +116,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 			String location = resp.getHeaders("Location")[0].getValue();
 			return openJavaScriptReader(location, max--, client);
 		} else {
-			throw ResponseException.create(resp);
+			throw ResponseException.create(resp, url);
 		}
 	}
 

@@ -2248,16 +2248,16 @@ tree.Import = function (path, imports, features, index) {
     this._path = path;
     this.features = features && new(tree.Value)(features);
 
-    // The '.less' extension is optional
+    // The '.less' extension is not optional
     if (path instanceof tree.Quoted) {
-        this.path = /\.(le?|c)ss(\?.*)?$/.test(path.value) ? path.value : path.value + '.less';
+        this.path = path.value;
     } else {
         this.path = path.value.value || path.value;
     }
 
-    this.css = /css(\?.*)?$/.test(this.path);
+    this.css = false;
 
-    // Only pre-compile .less files
+    // pre-compile all files
     if (! this.css) {
         imports.push(this.path, function (e, root) {
             if (e) { e.index = index }

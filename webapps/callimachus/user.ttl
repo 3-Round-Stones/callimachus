@@ -73,11 +73,13 @@ rdfs:comment a rdf:Property.
         var folder = location.resource.namespace;
         var con = this.objectConnection;
         var vf = con.valueFactory;
-        if (!con.hasStatement(null, vf.createURI("http://callimachusproject.org/rdf/2009/framework#authNamespace"), vf.createURI(folder), []))
+        var calli = "http://callimachusproject.org/rdf/2009/framework#";
+        var managers = con.getStatements(null, vf.createURI(calli + "authNamespace"), vf.createURI(folder), []).asList();
+        if (managers.isEmpty())
             throw new BadRequest("Cannot create a user here");
         newUser = con.addDesignation(newUser, User);
-        newUser = con.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#Party");
-        newUser = con.addDesignation(newUser, "http://callimachusproject.org/rdf/2009/framework#User");
+        newUser = con.addDesignation(newUser, calli + "Party");
+        newUser = con.addDesignation(newUser, calli + "User");
 
         //# populate resource
         newUser.calliName = username;
@@ -88,7 +90,7 @@ rdfs:comment a rdf:Property.
         }
 
         //# generate and save a password
-        var accounts = this.FindAuthenticationManager();
+        var accounts = con.getObject(managers.get(0).subject);
         var password = accounts.generatePassword();
         var token = username + ":" + accounts.calliAuthName + ":" + password;
         newUser.calliAlgorithm = "MD5";
@@ -116,17 +118,6 @@ rdfs:comment a rdf:Property.
                 GRAPH ?graph { $this a ?type }
                 ?graph audit:contributor ?contributor
             }
-        } LIMIT 1
-    """.
-
-:FindAuthenticationManager rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:AuthenticationManager];
-    msg:sparql """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT ?manager {
-            ?namespace calli:hasComponent $this .
-            ?manager calli:authNamespace ?namespace .
         } LIMIT 1
     """.
 
@@ -196,3 +187,13 @@ rdfs:comment a rdf:Property.
     rdfs:range xsd:string;
     calli:header "Authorization", "Cookie".
 
+:FindAuthenticationManager rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:AuthenticationManager];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?manager {
+            ?namespace calli:hasComponent $this .
+            ?manager calli:authNamespace ?namespace .
+        } LIMIT 1
+    """.

@@ -21,7 +21,7 @@
 	<property name="tools.jar" location="${java.home}/../lib/tools.jar" />
 	<property file="src/META-INF/callimachusproject.properties" />
 	<property name="m2.repository" value="http://repo.aduna-software.org/maven2/snapshots" />
-	<property name="alibaba.url" value="http://downloads.sourceforge.net/project/sesame/AliBabaElmo/2.0-rc2/openrdf-alibaba-2.0-rc2.zip" />
+	<property name="alibaba.url" value="http://downloads.sourceforge.net/project/sesame/AliBabaElmo/2.0-rc3/openrdf-alibaba-2.0-rc3.zip" />
 	<property name="mail.jar" value="mail-1.4.1.jar" />
 	<property name="mail.url" value="http://download.java.net/maven/1/javax.mail/jars/mail-1.4.jar" />
 	<property name="jchardet.url" value="http://downloads.sourceforge.net/project/jchardet/jchardet/1.1/jchardet-1.1.zip" />
@@ -32,7 +32,7 @@
 	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
 	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.5/windows/commons-daemon-1.0.5-bin-windows.zip" />
 	<property name="compress.url" value="http://archive.apache.org/dist/commons/compress/binaries/commons-compress-1.3-bin.tar.gz" />
-	<property name="calabash.url" value="http://xmlcalabash.com/download/calabash-1.0.2-94.zip" />
+	<property name="calabash.url" value="http://xmlcalabash.com/download/calabash-1.0.3-94.zip" />
 	<property name="jing.url" value="http://jing-trang.googlecode.com/files/jing-20091111.zip" />
 	<property name="tagsoup.jar" value="tagsoup-1.2.1.jar" />
 	<property name="tagsoup.url" value="http://home.ccil.org/~cowan/XML/tagsoup/tagsoup-1.2.1.jar" />
@@ -203,10 +203,10 @@
 		<delete file="${downloads}/daemon-darwin.tar.gz" />
 		<unzip src="${downloads}/calabash.zip" dest="${lib}">
 			<patternset>
-				<include name="calabash*/lib/saxon*.jar" />
-				<include name="calabash*/lib/commons-codec-*.jar" />
-				<include name="calabash*/lib/commons-io-*.jar" />
-				<include name="calabash*/calabash*.jar" />
+				<include name="*/lib/saxon*.jar" />
+				<include name="*/lib/commons-codec-*.jar" />
+				<include name="*/lib/commons-io-*.jar" />
+				<include name="*/calabash*.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>

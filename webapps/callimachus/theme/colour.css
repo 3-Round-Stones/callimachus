@@ -38,7 +38,7 @@ a:link, a:visited {
 }
 
 #header .ui-icon-search {
-    background-image: url(images/ui-icons_2e83ff_256x240.png);
+    background-image: url(../images/ui-icons_2e83ff_256x240.png);
     background-position: -160px -112px;
     background-repeat: no-repeat;
 }
@@ -50,7 +50,8 @@ a:link, a:visited {
 }
 
 #header .ui-state-default {
-    background:#eeeeee url(images/ui-bg_flat_100_eeeeee_40x100.png) 50% 50% repeat-x;
+    background-color:#eeeeee;
+    background-image: none;
     border:1px solid #a8acb8;
     color:#0645ad;
 }

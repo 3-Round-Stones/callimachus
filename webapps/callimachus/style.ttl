@@ -122,11 +122,14 @@
     calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
     calli:script ("""
         var window = {};
+
         var location = {port:0};
+
         var document = {
             getElementsByTagName: function(){return []},
             getElementById: function(){return null}
         };
+
     """
     <scripts/less.js>
     """

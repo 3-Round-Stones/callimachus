@@ -23,7 +23,7 @@
         <xsl:text> Discussion</xsl:text>
     </h1>
     <p>The purpose of this forum is to provide space for editors to discuss changes to this resource, post reminders of editorial work still to be done, or warnings in the event that future changes to this resource that might be made. This should not be used by editors for their personal views on a subject.</p>
-    <ul class="thread">
+    <ul class="unstyled thread">
         <xsl:for-each select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='note']">
             <li class="note">
                 <div class="ui-state-default ui-corner-top" >

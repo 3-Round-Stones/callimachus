@@ -29,8 +29,9 @@ if (typeof define === "function" && define.amd) {
 //
 // Array
 //
-if (!Array.isArray) {
-    Array.isArray = function(obj) {
+var isArray = Array.isArray;
+if (!isArray) {
+    isArray = function(obj) {
         return Object.prototype.toString.call(obj) === "[object Array]" ||
                (obj instanceof Array);
     };
@@ -71,8 +72,9 @@ if (!Array.prototype.filter) {
         return values;
     };
 }
-if (!Array.prototype.reduce) {
-    Array.prototype.reduce = function(fun /*, initial*/) {
+var reduce = Array.prototype.reduce;
+if (!reduce) {
+    reduce = function(fun /*, initial*/) {
         var len = this.length >>> 0;
         var i = 0;
 
@@ -119,8 +121,9 @@ if (!Array.prototype.indexOf) {
 //
 // Object
 //
-if (!Object.keys) {
-    Object.keys = function (object) {
+var keys = Object.keys;
+if (!keys) {
+    keys = function (object) {
         var keys = [];
         for (var name in object) {
             if (Object.prototype.hasOwnProperty.call(object, name)) {
@@ -134,9 +137,12 @@ if (!Object.keys) {
 //
 // String
 //
+var trim = function(string){
+    return string.trim();
+};
 if (!String.prototype.trim) {
-    String.prototype.trim = function () {
-        return String(this).replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+    trim = function (string) {
+        return String(string).replace(/^\s\s*/, '').replace(/\s\s*$/, '');
     };
 }
 var less, tree;
@@ -504,8 +510,8 @@ less.Parser = function Parser(env) {
                     //     ])
                     //   )
                     //
-                    if (typeof(variables) === 'object' && !Array.isArray(variables)) {
-                        variables = Object.keys(variables).map(function (k) {
+                    if (typeof(variables) === 'object' && !isArray(variables)) {
+                        variables = keys(variables).map(function (k) {
                             var value = variables[k];
 
                             if (! (value instanceof tree.Value)) {
@@ -1268,7 +1274,7 @@ less.Parser = function Parser(env) {
                 if (value = $(this['import']) || $(this.media)) {
                     return value;
                 } else if (name = $(/^@page|@keyframes/) || $(/^@(?:-webkit-|-moz-|-o-|-ms-)[a-z0-9-]+/)) {
-                    types = ($(/^[^{]+/) || '').trim();
+                    types = trim($(/^[^{]+/) || '');
                     if (rules = $(this.block)) {
                         return new(tree.Directive)(name + " " + types, rules);
                     }
@@ -1928,7 +1934,7 @@ tree.Color = function (rgb, a) {
     //
     // This facilitates operations and conversions.
     //
-    if (Array.isArray(rgb)) {
+    if (isArray(rgb)) {
         this.rgb = rgb;
     } else if (rgb.length == 6) {
         this.rgb = rgb.match(/.{2}/g).map(function (c) {
@@ -2035,7 +2041,7 @@ tree.Comment.prototype = {
 (function (tree) {
 
 tree.Condition = function (op, l, r, i, negate) {
-    this.op = op.trim();
+    this.op = trim(op);
     this.lvalue = l;
     this.rvalue = r;
     this.index = i;
@@ -2128,7 +2134,7 @@ tree.Dimension.prototype = {
 tree.Directive = function (name, value, features) {
     this.name = name;
 
-    if (Array.isArray(value)) {
+    if (isArray(value)) {
         this.ruleset = new(tree.Ruleset)([], value);
         this.ruleset.allowImports = true;
     } else {
@@ -2140,7 +2146,7 @@ tree.Directive.prototype = {
         if (this.ruleset) {
             this.ruleset.root = true;
             return this.name + (env.compress ? '{' : ' {\n  ') +
-                   this.ruleset.toCSS(ctx, env).trim().replace(/\n/g, '\n  ') +
+                   trim(this.ruleset.toCSS(ctx, env)).replace(/\n/g, '\n  ') +
                                (env.compress ? '}': '\n}\n');
         } else {
             return this.name + ' ' + this.value.toCSS() + ';\n';
@@ -2165,7 +2171,7 @@ tree.Element = function (combinator, value, index) {
                       combinator : new(tree.Combinator)(combinator);
 
     if (typeof(value) === 'string') {
-        this.value = value.trim();
+        this.value = trim(value);
     } else if (value) {
         this.value = value;
     } else {
@@ -2188,7 +2194,7 @@ tree.Combinator = function (value) {
     } else if (value === '& ') {
         this.value = '& ';
     } else {
-        this.value = value ? value.trim() : "";
+        this.value = value ? trim(value) : "";
     }
 };
 tree.Combinator.prototype.toCSS = function (env) {
@@ -2348,7 +2354,7 @@ tree.JavaScript.prototype = {
         }
         if (typeof(result) === 'string') {
             return new(tree.Quoted)('"' + result + '"', result, this.escaped, this.index);
-        } else if (Array.isArray(result)) {
+        } else if (isArray(result)) {
             return new(tree.Anonymous)(result.join(', '));
         } else {
             return new(tree.Anonymous)(result);
@@ -2393,7 +2399,7 @@ tree.Media.prototype = {
 
         this.ruleset.root = (ctx.length === 0 || ctx[0].multiMedia);
         return '@media ' + features + (env.compress ? '{' : ' {\n  ') +
-               this.ruleset.toCSS(ctx, env).trim().replace(/\n/g, '\n  ') +
+               trim(this.ruleset.toCSS(ctx, env)).replace(/\n/g, '\n  ') +
                            (env.compress ? '}': '\n}\n');
     },
     eval: function (env) {
@@ -2447,7 +2453,7 @@ tree.Media.prototype = {
         for (i = 0; i < path.length; i++) {
             value = path[i].features instanceof tree.Value ?
                         path[i].features.value : path[i].features;
-            path[i] = Array.isArray(value) ? value : [value];
+            path[i] = isArray(value) ? value : [value];
         }
 
         // Trace all permutations to generate the resulting media-query.
@@ -2524,7 +2530,7 @@ tree.mixin.Call.prototype = {
                 } else {
                     throw { type:    'Runtime',
                             message: 'No matching definition was found for `' +
-                                      this.selector.toCSS().trim() + '('      +
+                                      trim(this.selector.toCSS()) + '('      +
                                       this.arguments.map(function (a) {
                                           return a.toCSS();
                                       }).join(', ') + ")`",
@@ -2533,7 +2539,7 @@ tree.mixin.Call.prototype = {
             }
         }
         throw { type: 'Name',
-                message: this.selector.toCSS().trim() + " is undefined",
+                message: trim(this.selector.toCSS()) + " is undefined",
                 index: this.index, filename: this.filename };
     }
 };
@@ -2547,7 +2553,7 @@ tree.mixin.Definition = function (name, params, rules, condition, variadic) {
     this.arity = params.length;
     this.rules = rules;
     this._lookups = {};
-    this.required = params.reduce(function (count, p) {
+    this.required = reduce.call(params, function (count, p) {
         if (!p.name || (p.name && !p.value)) { return count + 1 }
         else                                 { return count }
     }, 0);
@@ -2629,7 +2635,7 @@ tree.mixin.Definition.prototype = {
 (function (tree) {
 
 tree.Operation = function (op, operands) {
-    this.op = op.trim();
+    this.op = trim(op);
     this.operands = operands;
 };
 tree.Operation.prototype.eval = function (env) {
@@ -2708,7 +2714,7 @@ tree.Quoted.prototype = {
 tree.Rule = function (name, value, important, index, inline) {
     this.name = name;
     this.value = (value instanceof tree.Value) ? value : new(tree.Value)([value]);
-    this.important = important ? ' ' + important.trim() : '';
+    this.important = important ? ' ' + trim(important) : '';
     this.index = index;
     this.inline = inline || false;
 
@@ -2810,7 +2816,7 @@ tree.Ruleset.prototype = {
     variables: function () {
         if (this._variables) { return this._variables }
         else {
-            return this._variables = this.rules.reduce(function (hash, r) {
+            return this._variables = reduce.call(this.rules, function (hash, r) {
                 if (r instanceof tree.Rule && r.variable === true) {
                     hash[r.name] = r;
                 }
@@ -2907,9 +2913,9 @@ tree.Ruleset.prototype = {
         } else {
             if (rules.length > 0) {
                 selector = paths.map(function (p) {
-                    return p.map(function (s) {
+                    return trim(p.map(function (s) {
                         return s.toCSS(env);
-                    }).join('').trim();
+                    }).join(''));
                 }).join( env.compress ? ',' : ',\n');
 
                 css.push(selector,
@@ -2995,7 +3001,7 @@ tree.Selector.prototype.toCSS = function (env) {
 
     return this._css = this.elements.map(function (e) {
         if (typeof(e) === 'string') {
-            return ' ' + e.trim();
+            return ' ' + trim(e);
         } else {
             return e.toCSS(env);
         }
@@ -3087,7 +3093,7 @@ tree.find = function (obj, fun) {
     return null;
 };
 tree.jsify = function (obj) {
-    if (Array.isArray(obj.value) && (obj.value.length > 1)) {
+    if (isArray(obj.value) && (obj.value.length > 1)) {
         return '[' + obj.value.map(function (v) { return v.toCSS(false) }).join(', ') + ']';
     } else {
         return obj.toCSS(false);

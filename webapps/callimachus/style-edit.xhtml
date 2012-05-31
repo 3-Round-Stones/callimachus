@@ -11,10 +11,10 @@
 <body>
     <form id="form" method="PUT" action="{?this}" enctype="text/css">
         <iframe id="iframe" class="flex" src="/callimachus/editor/text-editor.html#css"> </iframe>
-        <button type="submit">Save</button>
-        <button type="button" onclick="calli.saveResourceAs(event, 'untitled style.css', calli.getCallimachusUrl('Style'))">Save as...</button>
-        <button type="button" onclick="location.replace('?view')">Cancel</button>
-        <button type="button" onclick="calli.deleteResource(event)">Delete</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" onclick="calli.saveResourceAs(event, 'untitled style.css', calli.getCallimachusUrl('Style'))" class="btn btn-info">Save as...</button>
+        <button type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
+        <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
     </form>
 </body>
 </html>

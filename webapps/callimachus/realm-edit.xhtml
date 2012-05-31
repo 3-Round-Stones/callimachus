@@ -81,9 +81,9 @@
             <label for="rights-field">Rights Statement</label>
             <textarea id="rights-field" class="auto-expand" datatype="rdf:XMLLiteral">{calli:rights}</textarea>
         </div>
-        <button id="save" type="submit">Save</button>
-        <button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-        <button id="delete" type="button" onclick="calli.deleteResource(event)">Delete</button>
+        <button id="save" type="submit" class="btn btn-primary">Save</button>
+        <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
+        <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
     </form>
 </body>
 </html>

@@ -28,9 +28,9 @@
             <label for="describedBy">Directory index target</label>
             <input id="describedBy" class="auto-expand" rel="calli:describedBy" resource="?describedBy" value="{?describedBy}" />
         </div>
-        <button id="save" type="submit">Save</button>
-        <button id="cancel" type="button" onclick="location.replace('?view')">Cancel</button>
-        <button id="delete" type="button" onclick="calli.deleteResource(event, location.pathname.replace(/[^\/]*\/$/,''))">Delete</button>
+        <button id="save" type="submit" class="btn btn-primary">Save</button>
+        <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
+        <button id="delete" type="button" onclick="calli.deleteResource(event, location.pathname.replace(/[^\/]*\/$/,''))" class="btn btn-danger">Delete</button>
     </form>
 </body>
 </html>

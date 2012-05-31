@@ -130,44 +130,52 @@
     """
     <scripts/less.js>
     """
-	    window.less.Parser.importer = function(path, paths, callback, env) {
-		    if (path != null) {
-	            var systemId = new java.net.URI(paths[0]).resolve(path).normalize().toASCIIString();
-		        var redirect = systemId;
-		        var resp = null;
-		        var client = HTTPObjectClient.getInstance();
-		        for (var i = 0; i < 20 && redirect != null; i++) {
-			        systemId = redirect;
-			        var req = new BasicHttpRequest("GET", redirect);
-			        req.setHeader("Accept", "text/css");
-			        req.setHeader("Accept-Charset", "UTF-8");
-			        resp = client.service(req);
-			        redirect = client.redirectLocation(redirect, resp);
-		        }
-            	if (resp.statusLine.statusCode >= 300)
-        			throw ResponseException.create(resp, systemId);
-	            var content = '';
-    	        if (resp.entity && resp.entity.content) {
-        	        try {
-        	            var scanner = new java.util.Scanner(resp.entity.content, "UTF-8");
-        	            content = scanner.useDelimiter("\\\\A").next().replace(/\\r/g, '');
-        	        } finally {
-    	                resp.entity.content.close();
-    	            }
-    	        }
-                var dir = new java.net.URI(systemId).resolve(".").normalize().toASCIIString();
-			    var parser = new(window.less.Parser)({optimization:3,filename:systemId,paths:[dir]});
-			    parser.parse(content, function (e, root) {
-				    if (e) throw e;
+        var contents = {};
+        window.less.Parser.importer = function(path, paths, callback, env) {
+            if (path != null) {
+                var systemId = new java.net.URI(paths[0]).resolve(path).normalize().toASCIIString();
+                var redirect = systemId;
+                var resp = null;
+                var client = HTTPObjectClient.getInstance();
+                for (var i = 0; i < 20 && redirect != null; i++) {
+                    systemId = redirect;
+                    var req = new BasicHttpRequest("GET", redirect);
+                    req.setHeader("Accept", "text/css");
+                    req.setHeader("Accept-Charset", "UTF-8");
+                    resp = client.service(req);
+                    redirect = client.redirectLocation(redirect, resp);
+                }
+                if (resp.statusLine.statusCode >= 300)
+                    throw ResponseException.create(resp, systemId);
+                var content = '';
+                if (resp.entity && resp.entity.content) {
+                    try {
+                        var scanner = new java.util.Scanner(resp.entity.content, "UTF-8");
+                        content = scanner.useDelimiter("\\\\A").next().replace(/\\r/g, '');
+                    } finally {
+                        resp.entity.content.close();
+                    }
+                }
+                var dir = new java.net.URI(systemId).resolve(".").normalize();
+                var file = dir.relativize(new java.net.URI(systemId)).toASCIIString();
+                contents[file] = content;
+                var parser = new(window.less.Parser)({
+                    optimization:3,
+                    filename:file,
+                    paths:[dir.toASCIIString()]
+                });
+                parser.imports.contents = contents;
+                parser.parse(content, function (e, root) {
+                    if (e) throw e;
                     callback(e, root, content);
-			    });
-		    }
-	    };
+                });
+            }
+        };
         var result = '';
-	    window.less.Parser.importer(this.toString(), [this.toString()], function (e, root, content) {
-		    if (e) throw e;
-		    result = root.toCSS();
-	    });
-	    return result;
+        window.less.Parser.importer(this.toString(), [this.toString()], function (e, root, content) {
+            if (e) throw e;
+            result = root.toCSS();
+        });
+        return result;
     """).
 

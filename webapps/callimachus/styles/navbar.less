@@ -202,6 +202,8 @@
 }
 
 // Links
+.navbar .nav > span,
+.navbar .nav > a,
 .navbar .nav > li > a {
   float: none;
   // Vertically center the text given @navbarHeight
@@ -211,6 +213,11 @@
   color: @navbarLinkColor;
   text-decoration: none;
   text-shadow: 0 -1px 0 rgba(0,0,0,.25);
+}
+.navbar .nav > span,
+.navbar .nav > a {
+  display: block;
+  float: left;
 }
 // Buttons
 .navbar .btn {
@@ -228,6 +235,7 @@
   padding: ((@navbarHeight - @elementHeight) / 2 - 1) 5px ((@navbarHeight - @elementHeight) / 2);
 }
 // Hover
+.navbar .nav > a:hover,
 .navbar .nav > li > a:hover {
   background-color: @navbarLinkBackgroundHover; // "transparent" is default to differentiate :hover from .active
   color: @navbarLinkColorHover;
@@ -235,6 +243,8 @@
 }
 
 // Active nav items
+.navbar .nav > a.active,
+.navbar .nav > a.active:hover,
 .navbar .nav .active > a,
 .navbar .nav .active > a:hover {
   color: @navbarLinkColorActive;

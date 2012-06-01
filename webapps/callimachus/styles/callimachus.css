@@ -12,8 +12,21 @@ html {
     cursor:copy;
 }
 
-.noauth .protected {
+html.logout .protected,
+html.logout .hidden-logout {
     display: none !important;
+}
+
+html.login .hidden-login {
+    display: none !important;
+}
+
+html.iframe .hidden-iframe {
+    display: none !important;
+}
+
+html.iframe {
+    overflow-y: auto;
 }
 
 time {
@@ -29,10 +42,6 @@ iframe.ui-widget-content.ui-dialog-content {
     padding:0;
 }
 
-html.iframe {
-    overflow-y: auto;
-}
-
 pre {
     white-space:pre-wrap;
 }
@@ -41,6 +50,11 @@ img.icon {
     max-height:1em;
     padding-right:2pt;
     vertical-align:text-top;
+}
+
+a.ui-icon {
+    display:inline-block;
+    vertical-align:text-bottom;
 }
 
 .flex {

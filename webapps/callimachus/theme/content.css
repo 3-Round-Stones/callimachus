@@ -165,7 +165,8 @@ label.error {
     font-style:italic;
 }
 
-.noauth .protected {
+html.logout .protected,
+html.logout .hidden-logout {
     display: none !important;
 }
 

@@ -89,7 +89,7 @@ function login(event) {
         } else {
             jQuery.ajax({ type: 'GET', url: calli.getCallimachusUrl("pages/login.html"),
                 success: function(data) {
-                    if ($(document.documentElement).is(".noauth")) {
+                    if ($(document.documentElement).is(".logout")) {
                         var form = $(data).find("#login-form").andSelf().filter("#login-form");
                         form.css('position', "absolute");
                         form.css('top', link.offset().top + link.outerHeight(false));

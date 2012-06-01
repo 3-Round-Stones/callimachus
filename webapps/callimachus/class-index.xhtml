@@ -51,7 +51,7 @@
 <body>
     <h1><xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /> Resources</h1>
     <div id="sidebar">
-        <aside id="create-link" class="protected">		
+        <aside id="create-link" class="hidden-logout">		
             <p><a href="?create">Create a new <xsl:value-of select="//sparql:result[1]/sparql:binding[@name='title']/*" /></a></p>
         </aside>
         <xsl:if test="//sparql:result[1]/sparql:binding[@name='description']/*">

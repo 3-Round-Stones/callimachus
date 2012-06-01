@@ -26,7 +26,7 @@
                         <!-- #login element is used by the login.js script -->
                         <span id="login" />
                         <!-- #profile-link and #logout-link is used by the login.js script -->
-                        <span class="protected">
+                        <span class="hidden-logout">
                             <a id="profile-link" href="/?login">Profile</a>
                             <span> | </span>
                             <a href="/?settings">Settings</a>
@@ -49,7 +49,7 @@
 
             <div id="main">
 
-                <nav id="access" class="protected">
+                <nav id="access" class="hidden-logout">
                     <!-- within #access any @href that matches the query string is omitted -->
                     <a tabindex="1" href="?view" onclick="location.replace(href);return false">View</a>
                     <a tabindex="2" href="?edit" onclick="location.replace(href);return false">Edit</a>

@@ -17,15 +17,23 @@
         </aside>
     </div>
     <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Party calli:Group" onsubmit="return calli.saveResourceAs(event)">
-        <label for="label">Name</label>
-        <div>
-            <input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" autofocus="autofocus" />
-        </div>
-        <label for="comment">Description</label>
-        <div>
-            <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
-        </div>
-        <button id="create" type="submit" class="btn btn-success">Create</button>
+        <fieldset>
+            <div class="control-group">
+                <label for="label" class="control-label">Name</label>
+                <div class="controls">
+                    <input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" autofocus="autofocus" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="comment" class="control-label">Description</label>
+                <div class="controls">
+                    <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button id="create" type="submit" class="btn btn-success">Create</button>
+            </div>
+        </fieldset>
     </form>
 </body>
 </html>

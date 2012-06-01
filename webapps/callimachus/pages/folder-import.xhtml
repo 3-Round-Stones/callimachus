@@ -12,11 +12,18 @@
         </aside>
     </div>
     <form id="form" method="POST" action="" enctype="multipart/form-data">
-        <label for="image">Content</label>
-        <input type="file" id="file" name="file" multiple="multiple" />
-        <br/>
-        <button type="submit" class="btn btn-primary" id="import">Import</button>
-        <button type="button" id="cancel" onclick="location.replace('?view')" class="btn">Cancel</button>
+        <fieldset>
+            <div class="control-group">
+                <label for="image" class="control-label">Content</label>
+                <div class="controls">
+                    <input type="file" id="file" name="file" multiple="multiple" />
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="import">Import</button>
+                <button type="button" id="cancel" onclick="location.replace('?view')" class="btn">Cancel</button>
+            </div>
+        </fieldset>
     </form>
 </body>
 </html>

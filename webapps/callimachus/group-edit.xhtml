@@ -31,28 +31,37 @@
     </div>
     <form id="form" method="POST" action="" enctype="application/sparql-update" about="?this"
             onsubmit="saveChangeNote()">
-        <label for="comment">Description</label>
-        <div>
-            <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
-        </div>
-        <div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-            <label>Members <a href="/user/?create=/callimachus/User" title="Invite"
+        <fieldset class="control-group">
+            <label for="comment" class="control-label">Description</label>
+            <div class="controls">
+                <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+            </div>
+        </fieldset>
+        <fieldset dropzone="link s:text/uri-list" class="control-group"
+                ondrop="return calli.insertResource(event)">
+            <label class="control-label">Members <a href="/user/?create=/callimachus/User" title="Invite"
                     onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-            <div rel="calli:member" class="vbox">
+            <div rel="calli:member" class="vbox controls">
                 <span about="?member" typeof="calli:User" class="ui-state-highlight ui-corner-all">
                     <span property="rdfs:label" />
                     <a href="{?member}" title="Remove user from group" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                 </span>
             </div>
-        </div>
+        </fieldset>
         <hr />
-        <label for="note">Change summary</label>
-        <div>
-            <input type="text" id="note" maxlength="140" class="auto-expand" />
-        </div>
-        <button id="save" type="submit" class="btn btn-primary">Save</button>
-        <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
-        <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+        <fieldset>
+            <div class="control-group">
+                <label for="note" class="control-label">Change summary</label>
+                <div class="controls">
+                    <input type="text" id="note" maxlength="140" class="auto-expand" />
+                </div>
+            </div>
+            <div class="form-actions">
+                <button id="save" type="submit" class="btn btn-primary">Save</button>
+                <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
+                <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+            </div>
+        </fieldset>
     </form>
 </body>
 </html>

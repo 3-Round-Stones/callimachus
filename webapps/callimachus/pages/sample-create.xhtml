@@ -10,17 +10,23 @@
 <body>
     <h1>New Resource</h1>
     <form method="POST" action="" enctype="application/rdf+xml" onsubmit="return calli.saveResourceAs(event)">
-        <div class="vbox">
-            <div class="input field">
-                <label for="label">Label</label>
-                <input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+        <fieldset>
+            <div class="control-group">
+                <label for="label" class="control-label">Label</label>
+                <div class="controls">
+                    <input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+                </div>
             </div>
-            <div class="text field">
-                <label for="comment">Comment</label>
-                <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+            <div class="control-group">
+                <label for="comment" class="control-label">Comment</label>
+                <div class="controls">
+                    <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+                </div>
             </div>
-        </div>
-        <button type="submit" class="btn btn-success">Create</button>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">Create</button>
+            </div>
+        </fieldset>
     </form>
 </body>
 </html>

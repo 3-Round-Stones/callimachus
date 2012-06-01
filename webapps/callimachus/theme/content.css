@@ -109,8 +109,11 @@ time {
     white-space:nowrap;
 }
 
-form {
+form,
+fieldset {
     margin:0;
+    padding:0;
+    border:0;
 }
 
 label {

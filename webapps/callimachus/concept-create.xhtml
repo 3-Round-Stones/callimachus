@@ -17,36 +17,38 @@
         </aside>
     </div>
     <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="skos:Concept" onsubmit="return calli.saveResourceAs(event)">
-        <div class="hbox">
-            <div>
-                <label for="label">Label</label>
-                <div>
+        <fieldset class="hbox">
+            <div class="control-group">
+                <label for="label" class="control-label">Label</label>
+                <div class="controls">
                     <input id="label" value="{skos:prefLabel}" class="auto-expand" required="required" autofocus="autofocus" />
                 </div>
             </div>
-            <div>
-                <label for="altLabel">Alternate label</label>
-                <div>
+            <div class="control-group">
+                <label for="altLabel" class="control-label">Alternate label</label>
+                <div class="controls">
                     <input id="altLabel" property="skos:altLabel" content="?alt" value="{?alt}" class="auto-expand" />
                     <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="ui-icon ui-icon-plus" />
                 </div>
             </div>
-        </div>
-        <div class="hbox">
-            <div>
-                <label for="definition">Definition</label>
-                <div>
+        </fieldset>
+        <fieldset class="hbox">
+            <div class="control-group">
+                <label for="definition" class="control-label">Definition</label>
+                <div class="controls">
                     <textarea id="definition" class="auto-expand">{skos:definition}</textarea>
                 </div>
             </div>
-            <div>
-                <label for="example">Example</label>
-                <div>
+            <div class="control-group">
+                <label for="example" class="control-label">Example</label>
+                <div class="controls">
                     <textarea id="example" class="auto-expand">{skos:example}</textarea>
                 </div>
             </div>
-        </div>
-        <button id="create" type="submit" class="btn btn-success">Create</button>
+        </fieldset>
+        <fieldset class="form-actions">
+            <button id="create" type="submit" class="btn btn-success">Create</button>
+        </fieldset>
     </form>
 </body>
 </html>

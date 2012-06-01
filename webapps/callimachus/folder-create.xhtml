@@ -16,14 +16,18 @@
     </div>
     <form method="POST" action="" enctype="application/rdf+xml" typeof="calli:Folder"
             onsubmit="$('#label').val($('#label').val().toLowerCase());$(this).attr('about',encodeURI($('#label').val()).replace(/%20/g,'-')+'/');return calli.saveResourceAs(event)">
-        <div class="vbox">
-            <div class="input field">
-                <label for="label">Name</label>
-                <input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+        <fieldset>
+            <div class="control-group">
+                <label for="label" class="control-label">Name</label>
+                <div class="controls">
+                    <input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+                </div>
             </div>
-        </div>
-        <button type="submit" class="btn btn-success">Create</button>
-        <button id="cancel" type="button" onclick="history.back()" class="btn">Cancel</button>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">Create</button>
+                <button id="cancel" type="button" onclick="history.back()" class="btn">Cancel</button>
+            </div>
+        </fieldset>
     </form>
 </body>
 </html>

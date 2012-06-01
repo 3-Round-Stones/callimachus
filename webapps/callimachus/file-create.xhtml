@@ -7,10 +7,17 @@
 <body>
     <h1>Upload File</h1>
     <form id="form" method="POST" action="" enctype="multipart/form-data" onsubmit="return calli.saveResourceAs(event)">
-        <label for="image">File</label>
-        <input type="file" id="file" name="file" autofocus="autofocus" />
-        <br/>
-        <button type="submit" class="btn btn-primary" id="upload">Upload</button>
+        <fieldset>
+            <div class="control-group">
+                <label for="image" class="control-label">File</label>
+                <div class="controls">
+                    <input type="file" id="file" name="file" autofocus="autofocus" />
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="upload">Upload</button>
+            </div>
+        </fieldset>
     </form>
 </body>
 </html>

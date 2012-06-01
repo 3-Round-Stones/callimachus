@@ -31,90 +31,99 @@
     </div>
     <form id="form" method="POST" action="" enctype="application/sparql-update" about="?this"
             onsubmit="saveChangeNote()">
-        <div class="hbox">
-            <div>
-                <label for="label">Label</label>
-                <div>
+        <fieldset class="hbox">
+            <div class="control-group">
+                <label for="label" class="control-label">Label</label>
+                <div class="controls">
                     <input id="label" value="{skos:prefLabel}" class="auto-expand" />
                 </div>
             </div>
-            <div>
-                <label for="altLabel">Alternate label</label>
-                <div>
+            <div class="control-group">
+                <label for="altLabel" class="control-label">Alternate label</label>
+                <div class="controls">
                     <input id="altLabel" property="skos:altLabel" content="?alt" value="{?alt}" class="auto-expand" />
                     <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="ui-icon ui-icon-plus" />
                 </div>
             </div>
-        </div>
-        <div class="hbox">
-            <div>
-                <label for="definition">Definition</label>
-                <div>
+        </fieldset>
+        <fieldset class="hbox">
+            <div class="control-group">
+                <label for="definition" class="control-label">Definition</label>
+                <div class="controls">
                     <textarea id="definition" class="auto-expand">{skos:definition}</textarea>
                 </div>
             </div>
-            <div>
-                <label for="example">Example</label>
-                <div>
+            <div class="control-group">
+                <label for="example" class="control-label">Example</label>
+                <div class="controls">
                     <textarea id="example" class="auto-expand">{skos:example}</textarea>
                 </div>
             </div>
-        </div>
-        <div class="hbox">
-            <div>
-                <label for="scopeNote">Scope</label>
-                <div>
+        </fieldset>
+        <fieldset class="hbox">
+            <div class="control-group">
+                <label for="scopeNote" class="control-label">Scope</label>
+                <div class="controls">
                     <textarea id="scopeNote" class="auto-expand">{skos:scopeNote}</textarea>
                 </div>
             </div>
-            <div>
-                <label for="historyNote">History</label>
-                <div>
+            <div class="control-group">
+                <label for="historyNote" class="control-label">History</label>
+                <div class="controls">
                     <textarea id="historyNote" class="auto-expand">{skos:historyNote}</textarea>
                 </div>
             </div>
-        </div>
+        </fieldset>
         <hr />
-        <div class="hbox">
-            <div id="related" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Related <a href="/callimachus/Concept?create" title="Create"
+        <fieldset class="hbox">
+            <div id="related" dropzone="link s:text/uri-list" class="control-group"
+                    ondrop="return calli.insertResource(event)">
+                <label class="control-label">Related <a href="/callimachus/Concept?create" title="Create"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="skos:related" class="vbox">
+                <div rel="skos:related" class="controls vbox">
                     <span about="?related" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
                         <span property="skos:prefLabel" />
                         <a href="{?related}" title="Remove relationship" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
                 </div>
             </div>
-            <div id="narrower" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Narrower <a href="/callimachus/Concept?create" title="Create"
+            <div id="narrower" dropzone="link s:text/uri-list" class="control-group"
+                    ondrop="return calli.insertResource(event)">
+                <label class="control-label">Narrower <a href="/callimachus/Concept?create" title="Create"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="skos:narrower" class="vbox">
+                <div rel="skos:narrower" class="controls vbox">
                     <span about="?narrower" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
                         <span property="skos:prefLabel" />
                         <a href="{?narrower}" title="Remove relationship" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
                 </div>
             </div>
-        </div>
+        </fieldset>
         <hr />
-        <div id="image" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-            <label>Image <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
-             <div rel="foaf:depiction">
+        <fieldset id="image" dropzone="link s:text/uri-list" class="control-group"
+                ondrop="return calli.insertResource(event)">
+            <label class="control-label">Image <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
+             <div rel="foaf:depiction" class="controls">
                 <span about="?depiction" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
                     <img src="{?depiction}?small" />
                     <a href="{?depiction}" title="Remove from this concept" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                 </span>
             </div>
-        </div>
+        </fieldset>
         <hr />
-        <label for="note">Change note</label>
-        <div>
-            <input type="text" id="note" maxlength="140" class="auto-expand" />
-        </div>
-        <button id="save" type="submit" class="btn btn-primary">Save</button>
-        <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
-        <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+        <fieldset>
+            <div class="control-group">
+                <label for="note" class="control-label">Change note</label>
+                <div class="controls">
+                    <input type="text" id="note" maxlength="140" class="auto-expand" />
+                </div>
+            </div>
+            <div class="form-actions">
+                <button id="save" type="submit" class="btn btn-primary">Save</button>
+                <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
+                <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+            </div>
+        </fieldset>
     </form>
 </body>
 </html>

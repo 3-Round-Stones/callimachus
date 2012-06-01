@@ -71,89 +71,105 @@
         </aside>
     </div>
     <form method="POST" action="" enctype="application/sparql-update" about="?this" typeof="owl:Class">
-        <div class="hbox">
-            <div>
-                <label for="label">Label</label>
-                <input id="label" value="{rdfs:label}" class="auto-expand" required="required" />
+        <fieldset class="hbox">
+            <div class="control-group">
+                <label for="label" class="control-label">Label</label>
+                <div class="controls">
+                    <input id="label" value="{rdfs:label}" class="auto-expand" required="required" />
+                </div>
             </div>
-            <div id="icon" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Icon <a href="/?view" title="Browse"
+            <div id="icon" dropzone="link s:text/uri-list" class="control-group"
+                    ondrop="return calli.insertResource(event)">
+                <label class="control-label">Icon <a href="/?view" title="Browse"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
-                <div rel="calli:icon">
+                <div rel="calli:icon" class="controls">
                     <span about="?icon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
                         <img src="{?icon}" />
                         <a href="{?icon}" title="Remove from class" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
                 </div>
             </div>
-        </div>
-        <div>
-            <label for="comment">Comment</label>
-            <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
-        </div>
-        <div class="hbox">
-            <div id="authors" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Authors <a href="/callimachus/Group" title="Select Group"
+        </fieldset>
+        <fieldset class="control-group">
+            <label for="comment" class="control-label">Comment</label>
+            <div class="controls">
+                <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+            </div>
+        </fieldset>
+        <fieldset class="hbox">
+            <div id="authors" dropzone="link s:text/uri-list" class="control-group"
+                    ondrop="return calli.insertResource(event)">
+                <label class="control-label">Authors <a href="/callimachus/Group" title="Select Group"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="calli:author" class="vbox">
+                <div rel="calli:author" class="vbox controls">
                     <span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
                 </div>
             </div>
-            <div id="subClassOf" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Super <a href="/callimachus/Class" title="Create"
+            <div id="subClassOf" dropzone="link s:text/uri-list" class="control-group"
+                    ondrop="return calli.insertResource(event)">
+                <label class="control-label">Super <a href="/callimachus/Class" title="Create"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="rdfs:subClassOf" class="vbox">
+                <div rel="rdfs:subClassOf" class="vbox controls">
                     <span about="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?subClassOf}" title="Remove relationship" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
                 </div>
             </div>
-        </div>
-        <div>
-            <label for="composite">Nested resources</label>
-            <label class="input"><input id="composite" type="checkbox" /> These resources contain other resources</label>
-        </div>
+        </fieldset>
+        <fieldset class="control-gorup">
+            <label for="composite" class="control-label">Nested resources</label>
+            <div class="controls">
+                <label class="checkbox"><input id="composite" type="checkbox" /> These resources contain other resources</label>
+            </div>
+        </fieldset>
         <hr />
-        <h2>Page Templates</h2>
-        <div class="hbox">
-            <div id="create" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Create template <a href="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" title="Create"
-                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="calli:create">
-                    <span about="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
-                        <a href="{?create}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-                    </span>
+        <fieldset>
+            <legend>Page Templates</legend>
+            <div class="hbox">
+                <div id="create" dropzone="link s:text/uri-list" class="control-group"
+                        ondrop="return calli.insertResource(event)">
+                    <label class="control-label">Create template <a href="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" title="Create"
+                            onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                    <div rel="calli:create" class="controls">
+                        <span about="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                            <span property="rdfs:label" />
+                            <a href="{?create}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                        </span>
+                    </div>
+                </div>
+                <div id="view" dropzone="link s:text/uri-list" class="control-group"
+                        ondrop="return calli.insertResource(event)">
+                    <label class="control-label">View template <a href="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" title="Create"
+                            onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                    <div rel="calli:view" class="controls">
+                        <span about="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                            <span property="rdfs:label" />
+                            <a href="{?view}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                        </span>
+                    </div>
+                </div>
+                <div id="edit" dropzone="link s:text/uri-list" class="control-group"
+                        ondrop="return calli.insertResource(event)">
+                    <label class="control-label">Edit template <a href="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" title="Create"
+                            onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                    <div rel="calli:edit" class="controls">
+                        <span about="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                            <span property="rdfs:label" />
+                            <a href="{?edit}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                        </span>
+                    </div>
                 </div>
             </div>
-            <div id="view" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>View template <a href="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" title="Create"
-                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="calli:view">
-                    <span about="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
-                        <a href="{?view}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-                    </span>
-                </div>
-            </div>
-            <div id="edit" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Edit template <a href="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" title="Create"
-                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="calli:edit">
-                    <span about="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-                        <span property="rdfs:label" />
-                        <a href="{?edit}" title="Stop using template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-                    </span>
-                </div>
-            </div>
-        </div>
-        <button id="save" type="submit" class="btn btn-primary">Save</button>
-        <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
-        <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+        </fieldset>
+        <fieldset class="form-actions">
+            <button id="save" type="submit" class="btn btn-primary">Save</button>
+            <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
+            <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+        </fieldset>
     </form>
 </body>
 </html>

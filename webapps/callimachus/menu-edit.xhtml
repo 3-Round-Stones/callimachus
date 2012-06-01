@@ -43,43 +43,49 @@
 <body about="?this">
     <h1 property="rdfs:label" />
     <form id='form' method="POST" action="" enctype="application/sparql-update" about="?this">
-        <div>
-            <label for="label">Label</label>
-            <input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" />
-        </div>
-        <div>
-            <ol id="items" rel="calli:item" class="items sorted">
-                <li about="?item1">
-                    <span class="asc" property="calli:position" style="display:none"/>
-                    <input value="{rdfs:label}" title="Label" required="required"
-                        onchange="setAbout(this, value);if(value)loadLinkInput(this)" />
-                    <span class="link-container">
-                        <input rel="calli:link" resource="?menu" value="{?menu}" size="32" title="URL (optional)" placeholder="http://" />
-                    </span>
-                    <input value="{calli:position}" datatype="xsd:integer" type="number" title="Relative Position" size="1" placeholder="9" style="max-width:2em"
-                        onchange="$(this).parent().children('.asc').text(value)" />
-                    <a href="{?item1}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-                    <ol rel="calli:item" class="items sorted">
-                        <li about="?item2">
-                            <span class="asc" property="calli:position" style="display:none" />
-                            <input value="{rdfs:label}" title="Label" required="required"
-                                onchange="setAbout(this, value);if(value)loadLinkInput(this)" />
-                            <span class="link-container">
-                                <input rel="calli:link" resource="?link" value="{?link}" size="32" title="URL" placeholder="http://" />
-                            </span>
-                            <input value="{calli:position}" datatype="xsd:integer" type="number" title="Relative Position" size="1" placeholder="9" style="max-width:2em"
-                                onchange="$(this).parent().children('.asc').text(value)" />
-                            <a href="{?item2}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-                        </li>
-                    </ol>
-                    <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event,$(this).parent().children('ol'))" class="ui-icon ui-icon-plus" />
-                </li>
-            </ol>
-            <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event,$(this).parent().children('ol'))" class="ui-icon ui-icon-plus" />
-        </div>
-        <button id="save" type="submit" class="btn btn-primary">Save</button>
-        <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
-        <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+        <fieldset class="control-group">
+            <label for="label" class="control-label">Label</label>
+            <div class="controls">
+                <input id="label" value="{rdfs:label}" type="text" class="auto-expand" required="required" />
+            </div>
+        </fieldset>
+        <fieldset class="control-group">
+            <div class="controls">
+                <ol id="items" rel="calli:item" class="items sorted">
+                    <li about="?item1">
+                        <span class="asc" property="calli:position" style="display:none"/>
+                        <input value="{rdfs:label}" title="Label" required="required"
+                            onchange="setAbout(this, value);if(value)loadLinkInput(this)" />
+                        <span class="link-container">
+                            <input rel="calli:link" resource="?menu" value="{?menu}" size="32" title="URL (optional)" placeholder="http://" />
+                        </span>
+                        <input value="{calli:position}" datatype="xsd:integer" type="number" title="Relative Position" size="1" placeholder="9" style="max-width:2em"
+                            onchange="$(this).parent().children('.asc').text(value)" />
+                        <a href="{?item1}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                        <ol rel="calli:item" class="items sorted">
+                            <li about="?item2">
+                                <span class="asc" property="calli:position" style="display:none" />
+                                <input value="{rdfs:label}" title="Label" required="required"
+                                    onchange="setAbout(this, value);if(value)loadLinkInput(this)" />
+                                <span class="link-container">
+                                    <input rel="calli:link" resource="?link" value="{?link}" size="32" title="URL" placeholder="http://" />
+                                </span>
+                                <input value="{calli:position}" datatype="xsd:integer" type="number" title="Relative Position" size="1" placeholder="9" style="max-width:2em"
+                                    onchange="$(this).parent().children('.asc').text(value)" />
+                                <a href="{?item2}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                            </li>
+                        </ol>
+                        <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event,$(this).parent().children('ol'))" class="ui-icon ui-icon-plus" />
+                    </li>
+                </ol>
+                <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event,$(this).parent().children('ol'))" class="ui-icon ui-icon-plus" />
+            </div>
+        </fieldset>
+        <fieldset class="form-actions">
+            <button id="save" type="submit" class="btn btn-primary">Save</button>
+            <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
+            <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
+        </fieldset>
     </form>
 </body>
 </html>

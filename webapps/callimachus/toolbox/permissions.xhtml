@@ -59,74 +59,81 @@
         </aside>
     </div>
     <form id="form" method="POST" action="" enctype="application/sparql-update" about="?this">
-        <div class="class">
-            <label for="realm">Authentication of resources of this class</label>
-            <div id="realm">
-                <label class="input">
+        <fieldset class="class control-group">
+            <label for="realm" class="control-label">Authentication of resources of this class</label>
+            <div id="realm" class="controls">
+                <label class="inline radio">
                     <input type="radio" name="realm" checked="checked" />
                     <span>Public</span>
                 </label>
-                <label class="input" rel="msg:realm" resource="?realm">
+                <label class="inline radio" rel="msg:realm" resource="?realm">
                     <input type="radio" name="realm" checked="checked" />
                     <span rel="rdf:type" resource="http://callimachusproject.org/rdf/2009/framework#Realm">Protected</span>
                     <span property="rdfs:label" content="?realm_label">by {?realm_label}</span>
                 </label>
             </div>
-        </div>
-        <div class="hbox">
-            <div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Reader <a href="/group/" title="Select Group"
+        </fieldset>
+        <fieldset class="hbox">
+            <div dropzone="link s:text/uri-list" class="control-group"
+                    ondrop="return calli.insertResource(event)">
+                <label class="control-label">Reader <a href="/group/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="calli:reader" class="vbox">
+                <div rel="calli:reader" class="vbox controls">
                     <span about="?reader" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?reader}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
                 </div>
             </div>
-            <div class="creatable" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Author <a href="/group/" title="Select Group"
+            <div class="creatable control-group" dropzone="link s:text/uri-list"
+                    ondrop="return calli.insertResource(event)">
+                <label class="control-label">Author <a href="/group/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="calli:author" class="vbox">
+                <div rel="calli:author" class="vbox controls">
                     <span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
                 </div>
             </div>
-            <div class="composite class" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Contributor <a href="/group/" title="Select Group"
+            <div class="composite class control-group" dropzone="link s:text/uri-list"
+                    ondrop="return calli.insertResource(event)">
+                <label class="control-label">Contributor <a href="/group/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="calli:contributor" class="vbox">
+                <div rel="calli:contributor" class="vbox controls">
                     <span about="?contributor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?contributor}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
                 </div>
             </div>
-            <div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Editor <a href="/group/" title="Select Group"
+            <div dropzone="link s:text/uri-list" class="control-group"
+                    ondrop="return calli.insertResource(event)">
+                <label class="control-label">Editor <a href="/group/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="calli:editor" class="vbox">
+                <div rel="calli:editor" class="vbox controls">
                     <span about="?editor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?editor}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
                 </div>
             </div>
-            <div dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-                <label>Administrator <a href="/group/" title="Select Group"
+            <div dropzone="link s:text/uri-list" class="control-group"
+                    ondrop="return calli.insertResource(event)">
+                <label class="control-label">Administrator <a href="/group/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
-                <div rel="calli:administrator" class="vbox">
+                <div rel="calli:administrator" class="vbox controls">
                     <span about="?administrator" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?administrator}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
                 </div>
             </div>
-        </div>
-        <button id="save" type="submit" class="btn btn-primary">Save</button>
-        <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
+        </fieldset>
+        <fieldset class="form-actions">
+            <button id="save" type="submit" class="btn btn-primary">Save</button>
+            <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
+        </fieldset>
     </form>
 </body>
 </html>

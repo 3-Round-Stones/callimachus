@@ -22,21 +22,28 @@
         </aside>
     </div>
     <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Theme" onsubmit="return calli.saveResourceAs(event)">
-        <div>
-            <label for="label">Label</label>
-            <input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
-        </div>
-        <div id="layout" dropzone="link s:text/uri-list" ondrop="return calli.insertResource(event)">
-            <label>Layout <a href="Page?create#!/callimachus/pages/sample-layout.xhtml" title="Create Page"
-                onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-            <div rel="calli:layout">
-                <span about="?layout" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
-                    <span property="rdfs:label" />
-                    <a href="{?layout}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-                </span>
+        <fieldset>
+            <div class="control-group">
+                <label for="label" class="control-label">Label</label>
+                <div class="controls">
+                    <input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+                </div>
             </div>
-        </div>
-        <button id="create" type="submit" class="btn btn-success">Create</button>
+            <div id="layout" dropzone="link s:text/uri-list" class="control-group"
+                    ondrop="return calli.insertResource(event)">
+                <label class="control-label">Layout <a href="Page?create#!/callimachus/pages/sample-layout.xhtml" title="Create Page"
+                    onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <div rel="calli:layout" class="controls">
+                    <span about="?layout" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                        <span property="rdfs:label" />
+                        <a href="{?layout}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                    </span>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button id="create" type="submit" class="btn btn-success">Create</button>
+            </div>
+        </fieldset>
     </form>
 </body>
 </html>

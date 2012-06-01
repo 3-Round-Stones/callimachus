@@ -35,7 +35,14 @@
     <xsl:template mode="access" match="xhtml:a[@href]|a[@href]">
         <xsl:copy>
             <xsl:if test="@href=concat('?',$query)">
-                <xsl:apply-templates mode="access" select="@*[name()!='href' and name()!='onclick']" />
+                <xsl:apply-templates mode="access" select="@*[name()!='href' and name()!='class' and name()!='onclick']" />
+                <xsl:attribute name="class">
+                    <xsl:if test="@class">
+                        <xsl:value-of select="@class" />
+                        <xsl:text> </xsl:text>
+                    </xsl:if>
+                    <xsl:text>active</xsl:text>
+                </xsl:attribute>
             </xsl:if>
             <xsl:if test="not(@href=concat('?',$query))">
                 <xsl:apply-templates mode="access" select="@*" />
@@ -81,13 +88,13 @@
         </xsl:copy>
     </xsl:template>
 
-    <xsl:template mode="layout" match="xhtml:div[@id='breadcrumbs']|div[@id='breadcrumbs']">
+    <xsl:template mode="layout" match="*[@id='breadcrumbs']">
         <xsl:call-template name="breadcrumbs">
             <xsl:with-param name="node" select="." />
         </xsl:call-template>
     </xsl:template>
 
-    <xsl:template match="xhtml:div[@id='breadcrumbs']|div[@id='breadcrumbs']">
+    <xsl:template match="*[@id='breadcrumbs']">
         <xsl:call-template name="breadcrumbs">
             <xsl:with-param name="node" select="." />
         </xsl:call-template>
@@ -96,12 +103,13 @@
     <xsl:template name="breadcrumbs">
         <xsl:param name="node" />
         <xsl:variable name="url" select="concat('page-info?',$this)" />
-        <xsl:variable name="breadcrumb" select="$node/*[1]" />
-        <xsl:variable name="here" select="$node/*[2]" />
+        <xsl:variable name="links" select="$node/xhtml:a|$node/a" />
+        <xsl:variable name="breadcrumb" select="$links[1]" />
+        <xsl:variable name="active" select="$node/*[2]|$node/*[contains(@class,'active')]" />
+        <xsl:variable name="here" select="$active[last()]" />
         <xsl:if test="$breadcrumb and $here and count(document($url)//sparql:result[sparql:binding/@name='iri']) > 1">
-            <xsl:variable name="ellipsis" select="$breadcrumb/preceding-sibling::text()[1]" />
-            <xsl:variable name="separator" select="$breadcrumb/following-sibling::text()[1]" />
-            <xsl:variable name="close" select="$here/following-sibling::text()[1]" />
+            <xsl:variable name="separator" select="$breadcrumb/following-sibling::node()[1]|$breadcrumb/following-sibling::*[contains(@class,'divider')]" />
+            <xsl:variable name="close" select="$here/following-sibling::node()" />
             <xsl:copy>
                 <xsl:apply-templates select="@*" />
                 <xsl:for-each select="document($url)//sparql:result[sparql:binding/@name='iri']">
@@ -117,7 +125,7 @@
                                 </xsl:call-template>
                             </xsl:if>
                         </xsl:element>
-                        <xsl:value-of select="$separator" />
+                        <xsl:copy-of select="$separator" />
                     </xsl:if>
                     <xsl:if test="$this=sparql:binding[@name='iri']/*">
                         <xsl:element name="{name($here)}">
@@ -130,7 +138,7 @@
                                 </xsl:call-template>
                             </xsl:if>
                         </xsl:element>
-                        <xsl:value-of select="$close" />
+                        <xsl:copy-of select="$close" />
                     </xsl:if>
                 </xsl:for-each>
             </xsl:copy>

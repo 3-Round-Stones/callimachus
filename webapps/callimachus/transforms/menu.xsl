@@ -22,7 +22,7 @@
     <xsl:template mode="nav" match="sparql:result">
         <nav>
             <xsl:variable name="label" select="sparql:binding[@name='label']/*/text()" />
-            <h3>
+            <h3 class="nav-header">
                 <xsl:if test="sparql:binding[@name='link']">
                     <a href="{sparql:binding[@name='link']/*}">
                         <xsl:value-of select="$label" />
@@ -33,7 +33,7 @@
                 </xsl:if>
             </h3>
             <xsl:if test="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]">
-                <ul>
+                <ul class="nav nav-list">
                     <xsl:apply-templates mode="children" select="../sparql:result[sparql:binding[@name='heading']/*/text()=$label]" />
                 </ul>
             </xsl:if>

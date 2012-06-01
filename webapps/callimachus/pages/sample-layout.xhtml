@@ -35,7 +35,7 @@
                             <span> | </span>
                             <a id="logout-link" href="/?logout">Logout</a>
                         </span>
-                        <form id="search" class="form-search textarea" method="GET" action="/">
+                        <form id="search" class="form-search textarea hidden-logout" method="GET" action="/">
                             <input type="text" name="q" placeholder="Lookup..." class="search-query" />
                             <button type="submit" class="btn ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only">
                                 <span class="ui-button-icon-primary ui-icon ui-icon-search"> </span>
@@ -49,7 +49,7 @@
 
             <div id="main">
 
-                <nav id="access" class="hidden-logout">
+                <nav id="access" class="hidden-logout nav nav-tabs">
                     <!-- within #access any @href that matches the query string is omitted -->
                     <a tabindex="1" href="?view" onclick="location.replace(href);return false">View</a>
                     <a tabindex="2" href="?edit" onclick="location.replace(href);return false">Edit</a>
@@ -62,8 +62,10 @@
                     <!-- #flash is used to place error messages on the screen -->
                     <div id="flash" />
                     <!-- #breadcrumbs to replaced with breadcrumbs of the resource or omitted -->
-                    <div id="breadcrumbs">
-                        ... &#187; <a class="breadcrumb" href="?up">Up</a> &#187; <span class="breadcrumb">Here</span>
+                    <div id="breadcrumb">
+                        <a href="/">Home</a>
+                        <span class="divider">&#187;</span>
+                        <span class="active">Here</span>
                     </div>
                     <div id="content">
                         <!-- #content is required -->

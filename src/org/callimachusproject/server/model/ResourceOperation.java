@@ -513,8 +513,10 @@ public class ResourceOperation extends ResourceRequest {
 		Object[] args = new Object[ptypes.length];
 		for (int i = 0; i < args.length; i++) {
 			String[] types = getParameterMediaTypes(anns[i]);
-			args[i] = getParameter(anns[i], ptypes[i], input).read(ptypes[i],
-					gtypes[i], types);
+			Entity entity = getParameter(anns[i], ptypes[i], input);
+			if (entity != null) {
+				args[i] = entity.read(ptypes[i], gtypes[i], types);
+			}
 		}
 		return args;
 	}
@@ -778,7 +780,9 @@ public class ResourceOperation extends ResourceRequest {
 		String[] names = getParameterNames(anns);
 		String[] headers = getHeaderNames(anns);
 		String[] types = getParameterMediaTypes(anns);
-		if (names == null && headers == null) {
+		if (names == null && headers == null && types == null) {
+			return null;
+		} else if (names == null && headers == null) {
 			return getValue(anns, input);
 		} else if (headers != null && names != null) {
 			return getValue(anns, getHeaderAndQuery(types, headers, names));
@@ -1017,18 +1021,22 @@ public class ResourceOperation extends ResourceRequest {
 		Object[] args = new Object[ptypes.length];
 		if (args.length == 0)
 			return Collections.singleton(ANYTHING);
-		Collection<? extends MimeType> set;
+		int empty = 0;
 		List<MimeType> readable = new ArrayList<MimeType>();
 		for (int i = 0; i < args.length; i++) {
+			Collection<? extends MimeType> set;
 			set = getReadableTypes(input, anns[i], ptypes[i], gtypes[i], depth,
 					typeRequired);
-			if (set.isEmpty())
-				return Collections.emptySet();
+			if (set.isEmpty()) {
+				empty++;
+			}
 			if (getHeaderNames(anns[i]) == null
 					&& getParameterNames(anns[i]) == null) {
 				readable.addAll(set);
 			}
 		}
+		if (empty > 0 && empty == args.length)
+			return Collections.emptySet();
 		if (readable.isEmpty())
 			return Collections.singleton(ANYTHING);
 		return readable;

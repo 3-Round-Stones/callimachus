@@ -84,7 +84,7 @@ less.Parser = function Parser(env) {
             // Import a file asynchronously
             //
             less.Parser.importer(path, this.paths, function (e, root, contents) {
-                that.queue.splice(that.queue.indexOf(path), 1); // Remove the path from the queue
+                that.queue.splice(tree.indexOf.call(that.queue, path), 1); // Remove the path from the queue
                 that.files[path] = root;                        // Store the root
                 that.contents[path] = contents;
 
@@ -325,7 +325,7 @@ less.Parser = function Parser(env) {
                     }, env);
                 }
 
-                return chunks.map(function (c) { return c.join('') });;
+                return tree.map.call(chunks, function (c) { return c.join('') });;
             })([[]]);
 
             if (error) {
@@ -363,8 +363,8 @@ less.Parser = function Parser(env) {
                     //     ])
                     //   )
                     //
-                    if (typeof(variables) === 'object' && !Array.isArray(variables)) {
-                        variables = Object.keys(variables).map(function (k) {
+                    if (typeof(variables) === 'object' && !tree.isArray(variables)) {
+                        variables = tree.map.call(tree.keys(variables), function (k) {
                             var value = variables[k];
 
                             if (! (value instanceof tree.Value)) {
@@ -1127,7 +1127,7 @@ less.Parser = function Parser(env) {
                 if (value = $(this['import']) || $(this.media)) {
                     return value;
                 } else if (name = $(/^@page|@keyframes/) || $(/^@(?:-webkit-|-moz-|-o-|-ms-)[a-z0-9-]+/)) {
-                    types = ($(/^[^{]+/) || '').trim();
+                    types = tree.trim.call($(/^[^{]+/) || '');
                     if (rules = $(this.block)) {
                         return new(tree.Directive)(name + " " + types, rules);
                     }

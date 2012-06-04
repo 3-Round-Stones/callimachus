@@ -334,26 +334,26 @@ if [ ! -z "$DAEMON_USER" ] ; then
   if [ ! -e "$BASEDIR/log" ] ; then
     mkdir "$BASEDIR/log"
   fi
-  chown --from=root "$DAEMON_USER" "$BASEDIR/log"
+  chown "$DAEMON_USER" "$BASEDIR/log"
   if [ ! -z "$DAEMON_GROUP" ] ; then
-    chown --from=:root ":$DAEMON_GROUP" "$BASEDIR/log"
+    chown ":$DAEMON_GROUP" "$BASEDIR/log"
   fi
   if [ -e "$BASEDIR/repositories" ]; then
-    chown -R --from=root "$DAEMON_USER" "$BASEDIR/repositories"
+    chown -R "$DAEMON_USER" "$BASEDIR/repositories"
     if [ ! -z "$DAEMON_GROUP" ] ; then
-      chown -R --from=:root ":$DAEMON_GROUP" "$BASEDIR/repositories"
+      chown -R ":$DAEMON_GROUP" "$BASEDIR/repositories"
     fi
   fi
   if [ -e "$SSL" ]; then
-    chown -R --from=root "$DAEMON_USER" "$SSL"
+    chown -R "$DAEMON_USER" "$SSL"
     if [ ! -z "$DAEMON_GROUP" ] ; then
-      chown -R --from=:root ":$DAEMON_GROUP" "$SSL"
+      chown -R ":$DAEMON_GROUP" "$SSL"
     fi
     KEYSTORE=$(grep -E '^javax.net.ssl.keyStore=' $SSL |perl -pe 's/^javax.net.ssl.keyStore=(.*)/$1/' 2>/dev/null)
     if [ -n "$KEYSTORE" -a -e "$BASEDIR/$KEYSTORE" ]; then
-      chown -R --from=root "$DAEMON_USER" "$BASEDIR/$KEYSTORE"
+      chown -R "$DAEMON_USER" "$BASEDIR/$KEYSTORE"
       if [ ! -z "$DAEMON_GROUP" ] ; then
-        chown -R --from=:root ":$DAEMON_GROUP" "$BASEDIR/$KEYSTORE"
+        chown -R ":$DAEMON_GROUP" "$BASEDIR/$KEYSTORE"
       fi
     fi
   fi
@@ -365,8 +365,8 @@ if [ ! -z "$DAEMON_USER" ] ; then
     fi
   fi
   if [ -e "$MAIL" ] ; then
-    chown --from=root "$DAEMON_USER" "$MAIL"
-    chown --from=:root ":$DAEMON_GROUP" "$MAIL"
+    chown "$DAEMON_USER" "$MAIL"
+    chown ":$DAEMON_GROUP" "$MAIL"
   fi
 fi
 

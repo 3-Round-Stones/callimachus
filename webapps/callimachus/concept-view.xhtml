@@ -7,7 +7,7 @@
     xmlns:skos="http://www.w3.org/2004/02/skos/core#"
     xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
-    <title about="?this">{skos:prefLabel}</title>
+    <title resource="?this">{skos:prefLabel}</title>
     <link rel="edit" href="?edit" />
     <link rel="describedby" href="?describe" />
     <link rel="version-history" href="?history" />
@@ -15,12 +15,12 @@
         img { border-style:none; }
     </style>
 </head>
-<body about="?this">
+<body resource="?this">
     <h1 property="skos:prefLabel" />
     <div id="sidebar">
-        <aside rev="skos:narrower" class="optional">
+        <aside class="optional">
             <h3>Broader</h3>
-            <p about="?broader">
+            <p rev="skos:narrower" resource="?broader">
                 <a property="skos:prefLabel" href="?broader"></a>
             </p>
         </aside>
@@ -33,9 +33,9 @@
                 <a property="skos:prefLabel" href="?revated"></a>
             </p>
         </aside>
-        <aside rel="skos:narrower" class="optional">
+        <aside class="optional">
             <h3>Narrower</h3>
-            <p about="?narrower">
+            <p rel="skos:narrower" resource="?narrower">
                 <a property="skos:prefLabel" href="?narrower"></a>
             </p>
         </aside>

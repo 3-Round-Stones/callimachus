@@ -7,7 +7,7 @@
     xmlns:foaf="http://xmlns.com/foaf/0.1/"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 <head>
-    <title about="?this">{rdfs:label}</title>
+    <title resource="?this">{rdfs:label}</title>
     <style type="text/css">
         ol.items { padding-left: 2em; margin-bottom:0; }
     </style>
@@ -40,7 +40,7 @@
         // ]]>
     </script>
 </head>
-<body about="?this">
+<body resource="?this">
     <h1 property="rdfs:label" />
     <form id='form' method="POST" action="" enctype="application/sparql-update" about="?this">
         <fieldset class="control-group">
@@ -51,8 +51,8 @@
         </fieldset>
         <fieldset class="control-group">
             <div class="controls">
-                <ol id="items" rel="calli:item" class="items sorted">
-                    <li about="?item1">
+                <ol id="items" class="items sorted">
+                    <li rel="calli:item" resource="?item1">
                         <span class="asc" property="calli:position" style="display:none"/>
                         <input value="{rdfs:label}" title="Label" required="required"
                             onchange="setAbout(this, value);if(value)loadLinkInput(this)" />
@@ -62,8 +62,8 @@
                         <input value="{calli:position}" datatype="xsd:integer" type="number" title="Relative Position" size="1" placeholder="9" style="max-width:2em"
                             onchange="$(this).parent().children('.asc').text(value)" />
                         <a href="{?item1}" title="Remove" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-                        <ol rel="calli:item" class="items sorted">
-                            <li about="?item2">
+                        <ol class="items sorted">
+                            <li rel="calli:item" resource="?item2">
                                 <span class="asc" property="calli:position" style="display:none" />
                                 <input value="{rdfs:label}" title="Label" required="required"
                                     onchange="setAbout(this, value);if(value)loadLinkInput(this)" />

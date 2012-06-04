@@ -7,7 +7,7 @@
     xmlns:msg="http://www.openrdf.org/rdf/2011/messaging#"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-    <title about="?this">{rdfs:label} Permissions</title>
+    <title resource="?this">{rdfs:label} Permissions</title>
     <script type="text/javascript"><![CDATA[
     (function($) {
         jQuery.ajax({type: 'GET', url:'?rdftype', complete: function(xhr) {
@@ -45,7 +45,7 @@
     // ]]>
     </script>
 </head>
-<body about="?this">
+<body resource="?this">
     <h1><span property="rdfs:label" /> Permissions</h1>
     <div id="sidebar">
         <aside>

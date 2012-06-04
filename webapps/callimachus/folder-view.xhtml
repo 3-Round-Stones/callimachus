@@ -6,7 +6,7 @@
     xmlns:dcterms="http://purl.org/dc/terms/"
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
 <head>
-    <title about="?this">{rdfs:label}</title>
+    <title resource="?this">{rdfs:label}</title>
     <link href="?changes" type="application/atom+xml" rel="alternate" title="ATOM Feed" />
     <link href="?contents" type="application/atom+xml" rel="contents" title="ATOM Feed" />
     <link rel="edit" href="?edit" />
@@ -87,7 +87,7 @@
         });
     </script>
 </head>
-<body about="?this">
+<body resource="?this">
     <div id="folder-box" class="ui-grid ui-widget ui-widget-content ui-corner-all flex" dropzone="copy f:image/pjpeg f:image/x-png f:image/png f:image/jpeg f:image/gif f:image/vnd.microsoft.icon f:application/rdf+xml f:application/sparql-query f:application/xhtml+xml f:text/javascript f:text/css f:text/plain f:application/docbook+xml">
         <div class="ui-grid-header ui-widget-header ui-corner-top">
             <span rev="calli:hasComponent" resource="?parent">

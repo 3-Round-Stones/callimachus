@@ -5,7 +5,7 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
-    <title about="?this">{rdfs:label}</title>
+    <title resource="?this">{rdfs:label}</title>
     <link rel="edit" href="?edit" />
     <link rel="describedby" href="?describe" />
     <link rel="version-history" href="?history" />
@@ -17,7 +17,7 @@
         });
     </script>
 </head>
-<body about="?this">
+<body resource="?this">
     <h1>
         <div id="icon" rel="calli:icon" resource="?icon" style="float:left;max-width:1em;padding-right:1ex;">
             <a href="{?icon}" class="view"><img src="{?icon}" style="max-width:1em;max-height:2em" /></a>

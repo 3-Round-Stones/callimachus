@@ -96,7 +96,7 @@ public class RDFaGenerationTest extends TestCase {
 	private Repository actualRepository;
 	
 	// private static flags set in main()
-	private static boolean verbose = false;
+	private static boolean verbose = true;
 	private static boolean show_rdf = false;
 	private static boolean show_sparql = false;
 	private static boolean show_xml = false;

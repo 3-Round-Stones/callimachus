@@ -446,8 +446,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 		}
 		// enumerate variables in triples with ?VAR syntax
 		for (String name: resultSet.getBindingNames()) {
-			TermOrigin origin = origins.get(name);
-			if (origin!=null && context.path.startsWith(origin.getPath()) 
+			if (context.assignments.get(name) != null 
 			&& value.startsWith("?") && value.substring(1).equals(name)
 			&& namespace.isEmpty() && RDFaVarAttributes.contains(localPart)) 
 				return context.assignments.get(name);

@@ -1055,7 +1055,7 @@ less.Parser = function Parser(env) {
                     (path = $(this.entities.quoted) || $(this.entities.url))) {
                     features = $(this.mediaFeatures);
                     if ($(';')) {
-                        return new(tree.Import)(path, imports, features, index);
+                        return new(tree.Import)(path, imports, features, index, env);
                     }
                 }
             },

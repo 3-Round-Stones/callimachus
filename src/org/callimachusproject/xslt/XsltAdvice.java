@@ -41,6 +41,11 @@ public class XsltAdvice implements Advice {
 		this.bindingNames = bindingNames;
 	}
 
+	@Override
+	public String toString() {
+		return xslt.toString();
+	}
+
 	public Object intercept(ObjectMessage message) throws Exception {
 		Object target = message.getTarget();
 		Resource self = ((RDFObject) target).getResource();

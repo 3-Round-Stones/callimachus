@@ -71,6 +71,13 @@ public class FormSupportTest {
 				throws IOException, XMLStreamException {
 			return xif.createXMLEventReader(new StringReader(xml));
 		}
+
+		@Override
+		public XMLEventReader calliConstructTemplate(Object target)
+				throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
 		
 	}
 

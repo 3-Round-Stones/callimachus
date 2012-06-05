@@ -13,8 +13,6 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.advice.Advice;
-import org.openrdf.repository.object.composition.helpers.InvocationMessageContext;
-import org.openrdf.repository.object.traits.MessageContext;
 import org.openrdf.repository.object.traits.ObjectMessage;
 
 public class ScriptAdvice implements Advice {

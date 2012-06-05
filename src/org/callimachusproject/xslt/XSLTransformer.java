@@ -336,6 +336,10 @@ public class XSLTransformer {
 
 	public TransformBuilder transform(XMLEventReader reader, String systemId)
 			throws TransformerException, IOException {
+		if (reader == null)
+			return transform();
+		if (isIdentityTransform())
+			return new XMLEventTransform(reader, systemId);
 		return transform(toByteArrayInputStream(reader), systemId);
 	}
 

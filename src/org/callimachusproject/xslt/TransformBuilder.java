@@ -751,7 +751,9 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	protected abstract void setParameter(String name, Object value);
+	protected void setParameter(String name, Object value) {
+		// no parameters
+	}
 
 	private NodeList parse(Set<?> values) throws TransformerException,
 			IOException {

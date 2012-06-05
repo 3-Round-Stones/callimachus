@@ -42,7 +42,9 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.util.LinkedHashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
@@ -65,11 +67,12 @@ import org.w3c.dom.DocumentFragment;
  * @author James Leigh
  */
 public class XSLTransformBuilder extends TransformBuilder {
-	private Source source;
+	private final Source source;
 	private final CloseableURIResolver opened;
-	private Transformer transformer;
-	private ErrorCatcher listener;
-	private DocumentFactory builder = DocumentFactory.newInstance();
+	private final Transformer transformer;
+	private final Set<String> parameters = new LinkedHashSet<String>();
+	private final ErrorCatcher listener;
+	private final DocumentFactory builder = DocumentFactory.newInstance();
 	private final DOMSourceFactory sourceFactory = DOMSourceFactory
 			.newInstance();
 
@@ -88,6 +91,19 @@ public class XSLTransformBuilder extends TransformBuilder {
 		} catch (Error e) {
 			throw handle(e);
 		}
+	}
+
+	@Override
+	public synchronized String toString() {
+		StringBuilder sb = new StringBuilder();
+		if (source.getSystemId() != null) {
+			sb.append(source.getSystemId());
+		}
+		for (String name : parameters) {
+			sb.append("\n").append(name).append("=");
+			sb.append(transformer.getParameter(name));
+		}
+		return sb.toString();
 	}
 
 	public void close() throws IOException, TransformerException {
@@ -275,9 +291,10 @@ public class XSLTransformBuilder extends TransformBuilder {
 		}
 	}
 
-	protected void setParameter(String name, Object value) {
+	protected synchronized void setParameter(String name, Object value) {
 		if (value != null && transformer != null) {
 			transformer.setParameter(name, value);
+			parameters.add(name);
 		}
 	}
 

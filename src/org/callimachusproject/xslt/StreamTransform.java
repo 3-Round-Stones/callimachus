@@ -63,6 +63,13 @@ public class StreamTransform extends TransformBuilder {
 		this.systemId = systemId;
 	}
 
+	@Override
+	public String toString() {
+		if (systemId == null)
+			return source.toString();
+		return systemId;
+	}
+
 	public void close() throws TransformerException, IOException {
 		try {
 			source.close();
@@ -158,11 +165,6 @@ public class StreamTransform extends TransformBuilder {
 		} catch (Error e) {
 			throw handle(e);
 		}
-	}
-
-	@Override
-	protected void setParameter(String name, Object value) {
-		// no parameters
 	}
 
 }

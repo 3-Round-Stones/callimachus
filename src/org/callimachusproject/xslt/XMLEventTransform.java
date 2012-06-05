@@ -49,14 +49,22 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 public class XMLEventTransform extends TransformBuilder {
-	private XMLEventReader source;
+	private final XMLEventReader source;
 	private final String systemId;
 	private final XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
 	private final DocumentFactory builder = DocumentFactory.newInstance();
 
 	public XMLEventTransform(XMLEventReader source, String systemId) {
+		assert source != null;
 		this.source = source;
 		this.systemId = systemId;
+	}
+
+	@Override
+	public String toString() {
+		if (systemId == null)
+			return source.toString();
+		return systemId;
 	}
 
 	public void close() throws TransformerException, IOException {
@@ -180,11 +188,6 @@ public class XMLEventTransform extends TransformBuilder {
 		} catch (Error e) {
 			throw handle(e);
 		}
-	}
-
-	@Override
-	protected void setParameter(String name, Object value) {
-		// no parameters
 	}
 
 }

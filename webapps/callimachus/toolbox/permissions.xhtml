@@ -38,7 +38,7 @@
             }
         }});
         $(document).bind('calliRedirect', function(event) {
-            event.location = calli.viewpage($('body').attr('about'));
+            event.location = calli.viewpage($('body').attr('resource'));
             return true;
         });
     })(jQuery);

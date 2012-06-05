@@ -19,7 +19,7 @@
                     } catch (e) {}
                 },
                 success: function(doc) {
-                    credential = /about="([^" >]*)"/i.exec(doc)[1];
+                    credential = /resource="([^" >]*)"/i.exec(doc)[1];
                 }
             });
             var deleted = false;

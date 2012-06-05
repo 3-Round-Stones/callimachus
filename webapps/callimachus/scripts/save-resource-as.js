@@ -11,8 +11,8 @@ function resubmit(form) {
     var previously = originalSubmit;
     originalSubmit = false;
     try {
-        overrideLocation(form, $(form).attr('about'));
-        $(form).submit(); // this time with an about attribute
+        overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
+        $(form).submit(); // this time with a resource attribute
     } finally {
         originalSubmit = previously;
     }
@@ -27,21 +27,23 @@ window.calli.saveResourceAs = function(event, fileName, create) {
     if(!$(form).is('form')) form = $(form).closest('form')[0];
 
     $(form).find("input").change(); // IE may not have called onchange before onsubmit
-    var about = $(form).attr('about');
+    var resource = $(form).attr('about') || $(form).attr('resource');
     if (originalSubmit && fileName) { // prompt for a new URI
         $(form).removeAttr('about');
+        $(form).removeAttr('resource');
         $(form).removeAttr('action');
         openSaveAsDialog(form, fileName, create, function(ns, local){
-            $(form).attr('about', ns + local.replace(/\+/g,'-').toLowerCase());
+            $(form).attr('resource', ns + local.replace(/\+/g,'-').toLowerCase());
             resubmit(form);
         });
         return false;
-    } else if (about && about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0) {
-        return promptIfNeeded(form, decodeURI(about), create, function(ns, local){
-            $(form).attr('about', ns + local);
+    } else if (resource && resource.indexOf(':') < 0 && resource.indexOf('/') != 0 && resource.indexOf('?') != 0) {
+        return promptIfNeeded(form, decodeURI(resource), create, function(ns, local){
+            $(form).removeAttr('about');
+            $(form).attr('resource', ns + local);
         });
-    } else if (about) { // absolute about attribute already set
-        overrideLocation(form, $(form).attr('about'));
+    } else if (resource) { // absolute resource attribute already set
+        overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
         return true;
     } else { // no identifier at all
         var field = $($(form).find('input:not(:checkbox,:disabled,:button,:password,:radio)')[0]);
@@ -49,11 +51,13 @@ window.calli.saveResourceAs = function(event, fileName, create) {
         if (input) {
             var onchange = function() {
                 if (input != $(field).val()) {
-                    // restore the about attribute when this field changes
-                    if (about) {
-                        $(form).attr('about', about);
+                    // restore the resource attribute when this field changes
+                    if (resource) {
+                        $(form).removeAttr('about');
+                        $(form).attr('resource', resource);
                     } else {
                         $(form).removeAttr('about');
+                        $(form).removeAttr('resource');
                     }
                     field.unbind('change', onchange);
                 }
@@ -65,7 +69,8 @@ window.calli.saveResourceAs = function(event, fileName, create) {
             label = label.substring(label.lastIndexOf('\\') + 1);
         }
         return promptIfNeeded(form, removeDiacritics(label), create, function(ns, local){
-            $(form).attr('about', ns + local.toLowerCase());
+            $(form).removeAttr('about');
+            $(form).attr('resource', ns + local.toLowerCase());
         });
     }
 };
@@ -78,12 +83,12 @@ function promptIfNeeded(form, label, create, callback) {
         }
         var local = encodeURI(label).replace(/%20/g, '+');
         callback(ns, local);
-        overrideLocation(form, $(form).attr('about'));
+        overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
         return true;
     } else {
         openSaveAsDialog(form, label, create, function(ns, local) {
             callback(ns, local);
-            resubmit(form); // this time with an about attribute
+            resubmit(form); // this time with an resource attribute
         });
         return false;
     }

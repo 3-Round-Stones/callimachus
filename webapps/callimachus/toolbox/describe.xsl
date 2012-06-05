@@ -29,13 +29,13 @@
                 // <![CDATA[
                 jQuery(function($) {
                     var index = {};
-                    $($('#results').children('div[about]').get()).each(function() {
-                        var first = index[this.getAttribute('about')];
+                    $($('#results').children('div[resource]').get()).each(function() {
+                        var first = index[this.getAttribute('resource')];
                         if (first && $(first).children('ul')) {
                             $(this).children('ul').contents().appendTo($(first).children('ul'));
                             $(this).remove();
                         } else {
-                            index[this.getAttribute('about')] = this;
+                            index[this.getAttribute('resource')] = this;
                         }
                     });
                     $('#rdfxml').click(function(event) {

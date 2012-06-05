@@ -123,15 +123,15 @@
 jQuery(function($){
     $('form[enctype]').submit(function(event) {
         var form = this;
-        var about = $(form).attr('about');
+        var resource = $(form).attr('about') || $(form).attr('resource');
         event.preventDefault();
         getSource(function(text) {
             saveFile(form, text, function(xhr) {
                 var url = xhr.getResponseHeader('Location');
                 if (url) {
                     loadEditor(url + '?edit');
-                } else if (about) {
-                    loadEditor(about + '?edit');
+                } else if (resource) {
+                    loadEditor(resource + '?edit');
                 } else {
                     location.replace('?view');
                 }

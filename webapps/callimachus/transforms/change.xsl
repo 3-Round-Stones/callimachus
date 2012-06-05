@@ -78,7 +78,7 @@
             </a>
             <xsl:text disable-output-escaping="yes">&lt;ul&gt;</xsl:text>
         </xsl:if>
-        <li about="{$subject}">
+        <li resource="{$subject}">
             <label class="predicate">
                 <xsl:call-template name="iriref">
                     <xsl:with-param name="iri" select="$predicate"/>

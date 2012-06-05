@@ -159,7 +159,7 @@
                     <xsl:value-of select="$callback" />
                     <xsl:text>?construct&amp;element=</xsl:text>
                     <xsl:apply-templates mode="xptr-element" select="." />
-                    <xsl:text>&amp;about={about}</xsl:text>
+                    <xsl:text>&amp;resource={resource}</xsl:text>
                 </xsl:attribute>
             </xsl:if>
             <xsl:if test="*[@about or @resource] and not(@data-search)">

@@ -9,9 +9,9 @@ jQuery(function($){
 var iframe_counter = 0;
 $('form[method="POST"][enctype="multipart/form-data"],form[method="POST"][enctype="application/x-www-form-urlencoded"]').submit(function(event) {
     var form = $(this);
-    var about = form.attr('about');
-    if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
-        return true; // about attribute not set yet
+    var resource = form.attr('about') || form.attr('resource');
+    if (!resource || resource.indexOf(':') < 0 && resource.indexOf('/') != 0 && resource.indexOf('?') != 0)
+        return true; // resource attribute not set yet
     if (!this.target || this.target.indexOf('iframe-redirect-') != 0) {
         var iname = null;
         while (window.frames[iname = 'iframe-redirect-' + (++iframe_counter)]);

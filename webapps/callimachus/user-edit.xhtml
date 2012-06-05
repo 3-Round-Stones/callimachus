@@ -10,7 +10,7 @@
     <title resource="?this">{rdfs:label}</title>
     <script type="text/javascript">//<![CDATA[
         $(document).ready(function() {
-            var uri = $("form[about]").attr("about");
+            var uri = $("form[resource]").attr("resource");
             var credential = null;
             jQuery.ajax({type: "GET",  url: "/accounts?login",
                 beforeSend: function(req) {
@@ -55,7 +55,7 @@
             <p>Your e-mail address is used to reset your password</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/sparql-update" about="?this" autocomplete="off">
+    <form id="form" method="POST" action="" enctype="application/sparql-update" resource="?this" autocomplete="off">
         <fieldset>
             <div class="control-group">
                 <label for="label" class="control-label">Full name</label>
@@ -67,7 +67,7 @@
                 <label class="control-label">Photo <a href="?create=/callimachus/Photo" title="Upload"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="foaf:depiction" class="controls">
-                    <span about="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
+                    <span resource="?img" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
                         <img src="{?img}?small" />
                     </span>
                 </div>

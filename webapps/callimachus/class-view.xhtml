@@ -27,27 +27,27 @@
     <div id="sidebar">
         <aside>
             <p id="create-link" class="hidden-logout">
-                <a href="?create">Create a new <span about="?this" property="rdfs:label"/></a>
+                <a href="?create">Create a new <span resource="?this" property="rdfs:label"/></a>
             </p>
             <p>
-                <a href="?index"><span about="?this" property="rdfs:label"/> resources</a>
+                <a href="?index"><span resource="?this" property="rdfs:label"/> resources</a>
             </p>
         </aside>
         <aside rel="rdfs:subClassOf" class="optional">
             <h3>Super class</h3>
-            <p about="?subClassOf" typeof="owl:Class">
+            <p resource="?subClassOf" typeof="owl:Class">
                 <a href="?subClassOf" property="rdfs:label" class="view" />
             </p>
         </aside>
         <aside rev="owl:equivalentClass" class="optional">
             <h3>Equivalent class</h3>
-            <p about="?equivalentClass" typeof="owl:Class">
+            <p resource="?equivalentClass" typeof="owl:Class">
                 <a href="?equivalentClass" property="rdfs:label" class="view" />
             </p>
         </aside>
         <aside rev="rdfs:subClassOf" class="optional">
             <h3>Sub class</h3>
-            <p about="?subClass" typeof="owl:Class">
+            <p resource="?subClass" typeof="owl:Class">
                 <a href="?subClass" property="rdfs:label" class="view" />
             </p>
         </aside>

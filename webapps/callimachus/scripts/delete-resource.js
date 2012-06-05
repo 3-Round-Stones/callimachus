@@ -18,7 +18,7 @@ window.calli.deleteResource = function(event, redirect) {
         return;
     
     if (!form || !form.length) {
-        form = $("form[about]");
+        form = $("form[about],form[resource]");
     }
     if (!form.length) {
         form = $(document);

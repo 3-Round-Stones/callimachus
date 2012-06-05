@@ -11,11 +11,11 @@ jQuery(function($){
 $('form[enctype="application/rdf+xml"]').submit(function(event) {
     var form = $(this);
     form.find("input").change(); // IE may not have called onchange before onsubmit
-    var about = form.attr('about');
-    if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
-        return true; // about attribute not set yet
+    var resource = form.attr('about') || form.attr('resource');
+    if (!resource || resource.indexOf(':') < 0 && resource.indexOf('/') != 0 && resource.indexOf('?') != 0)
+        return true; // resource attribute not set yet
     event.preventDefault();
-    setTimeout(function(){submitRDFForm(form[0], form.attr('about'));}, 0);
+    setTimeout(function(){submitRDFForm(form[0], form.attr('about') || form.attr('resource'));}, 0);
     return false;
 });
 

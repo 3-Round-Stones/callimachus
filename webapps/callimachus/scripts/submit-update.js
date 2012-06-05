@@ -17,9 +17,9 @@ $('form[enctype="application/sparql-update"]').each(function() {
         });
         form.submit(function(event) {
             form.find("input").change(); // IE may not have called onchange before onsubmit
-            var about = form.attr('about');
-            if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
-                return true; // about attribute not set
+            var resource = form.attr('about') || form.attr('resource');
+            if (!resource || resource.indexOf(':') < 0 && resource.indexOf('/') != 0 && resource.indexOf('?') != 0)
+                return true; // resource attribute not set
             event.preventDefault();
             setTimeout(function(){submitRDFForm(form, stored);}, 0);
             return false;
@@ -93,8 +93,9 @@ function submitRDFForm(form, stored) {
 
 function readRDF(form) {
     var subj = $.uri.base()
-    if ($(form).attr("about")) {
-        subj = subj.resolve($(form).attr("about"))
+    var resource = $(form).attr("about") || $(form).attr("resource");
+    if (resource) {
+        subj = subj.resolve(resource)
     }
     var store = form.rdf().databank
     store.triples().each(function(){

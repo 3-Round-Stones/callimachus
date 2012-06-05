@@ -29,7 +29,7 @@
             <p>To delete a user account: click the user link on the view tab and use the edit tab of the user account</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/sparql-update" about="?this"
+    <form id="form" method="POST" action="" enctype="application/sparql-update" resource="?this"
             onsubmit="saveChangeNote()">
         <fieldset class="control-group">
             <label for="comment" class="control-label">Description</label>
@@ -42,7 +42,7 @@
             <label class="control-label">Members <a href="/user/?create=/callimachus/User" title="Invite"
                     onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
             <div rel="calli:member" class="vbox controls">
-                <span about="?member" typeof="calli:User" class="ui-state-highlight ui-corner-all">
+                <span resource="?member" typeof="calli:User" class="ui-state-highlight ui-corner-all">
                     <span property="rdfs:label" />
                     <a href="{?member}" title="Remove user from group" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                 </span>

@@ -84,7 +84,7 @@
         </a>
     </xsl:template>
     <xsl:template match="sparql:bnode">
-        <a class="bnode" about="_:{text()}" name="{text()}">
+        <a class="bnode" resource="_:{text()}" name="{text()}">
             <xsl:text>_:</xsl:text>
             <xsl:value-of select="text()" />
         </a>

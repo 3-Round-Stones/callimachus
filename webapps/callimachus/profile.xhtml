@@ -33,7 +33,7 @@
             </thead>
             <tbody class="sorted">
                 <xsl:for-each select="rdf:RDF/rdf:Description">
-                    <tr about="{@rdf:about}">
+                    <tr resource="{@rdf:about}">
                         <td property="rdfa:prefix" class="asc">
                             <xsl:value-of select="rdfa:prefix" />
                         </td>

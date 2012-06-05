@@ -67,15 +67,12 @@ function listSearchResults(url, win, button) {
             result.find(':input').remove();
             var ul = $("<ul/>");
             result.each(function() {
-                var about = $(this).attr("about");
-                if (!about) {
-                    about = $(this).attr("resource");
-                }
-                if (about && about.indexOf('[') < 0) {
+                var resource = $(this).attr("about") || $(this).attr("resource");
+                if (resource && resource.indexOf('[') < 0) {
                     var li = $("<li/>");
                     var link = $('<a/>');
                     link.attr("class", "option");
-                    link.attr("href", about);
+                    link.attr("href", resource);
                     link.append($(this).html());
                     li.append(link);
                     ul.append(li);

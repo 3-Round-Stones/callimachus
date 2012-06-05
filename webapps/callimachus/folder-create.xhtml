@@ -15,7 +15,7 @@
         </aside>
     </div>
     <form method="POST" action="" enctype="application/rdf+xml" typeof="calli:Folder"
-            onsubmit="$('#label').val($('#label').val().toLowerCase());$(this).attr('about',encodeURI($('#label').val()).replace(/%20/g,'-')+'/');return calli.saveResourceAs(event)">
+            onsubmit="$('#label').val($('#label').val().toLowerCase());$(this).attr('resource',encodeURI($('#label').val()).replace(/%20/g,'-')+'/');return calli.saveResourceAs(event)">
         <fieldset>
             <div class="control-group">
                 <label for="label" class="control-label">Name</label>

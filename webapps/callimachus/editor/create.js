@@ -81,9 +81,9 @@
 jQuery(function($){
     $('form[enctype]').submit(function(event) {
         var form = this;
-        var about = $(form).attr('about');
-        if (!about || about.indexOf(':') < 0 && about.indexOf('/') != 0 && about.indexOf('?') != 0)
-            return true; // about attribute not set yet
+        var resource = $(form).attr('about') || $(form).attr('resource');
+        if (!resource || resource.indexOf(':') < 0 && resource.indexOf('/') != 0 && resource.indexOf('?') != 0)
+            return true; // resource attribute not set yet
         event.preventDefault();
         getSource(function(text) {
             saveFile(form, text, function(xhr) {
@@ -93,11 +93,11 @@ jQuery(function($){
                         parent.postMessage('PUT src\n\n' + url + '?view', '*');
                     }
                     location.replace(url + '?view');
-                } else if (about) {
+                } else if (resource) {
                     if (window.parent != window && parent.postMessage) {
-                        parent.postMessage('PUT src\n\n' + about + '?view', '*');
+                        parent.postMessage('PUT src\n\n' + resource + '?view', '*');
                     }
-                    location.replace(about + '?view');
+                    location.replace(resource + '?view');
                 }
             });
         });

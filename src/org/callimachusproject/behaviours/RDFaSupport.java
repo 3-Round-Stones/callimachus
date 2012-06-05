@@ -80,7 +80,7 @@ public abstract class RDFaSupport implements Page, RDFObject {
 	@method("GET")
 	@query("sparql")
 	@type("application/sparql-query")
-	public byte[] sparql(@query("about") String about,
+	public byte[] sparql(@query("resource") String about,
 			@query("element") String element) throws Exception {
 		String base = getResource().stringValue();
 		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());

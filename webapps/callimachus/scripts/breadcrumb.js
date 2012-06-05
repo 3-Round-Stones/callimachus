@@ -17,8 +17,8 @@ function handle(event) {
 
 function breadcrumb(element) {
     element.filter(':empty').each(function(i, node){
-        var about = $(node).attr('href') || $('title').text();
-        $(node).text(about.match(/\/([^\/]*)\/?$/)[1]);
+        var label = $(node).attr('href') || $('title').text();
+        $(node).text(label.match(/\/([^\/]*)\/?$/)[1]);
     });
     if (location.pathname.indexOf('/diverted;') == 0) {
         element.each(function(i, node){

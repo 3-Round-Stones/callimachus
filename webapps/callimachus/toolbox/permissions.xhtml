@@ -58,7 +58,7 @@
             <p>Administrators can view, create and modify using any available operation</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/sparql-update" about="?this">
+    <form id="form" method="POST" action="" enctype="application/sparql-update" resource="?this">
         <fieldset class="class control-group">
             <label for="realm" class="control-label">Authentication of resources of this class</label>
             <div id="realm" class="controls">
@@ -79,7 +79,7 @@
                 <label class="control-label">Reader <a href="/group/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="calli:reader" class="vbox controls">
-                    <span about="?reader" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                    <span resource="?reader" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?reader}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
@@ -90,7 +90,7 @@
                 <label class="control-label">Author <a href="/group/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="calli:author" class="vbox controls">
-                    <span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                    <span resource="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
@@ -101,7 +101,7 @@
                 <label class="control-label">Contributor <a href="/group/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="calli:contributor" class="vbox controls">
-                    <span about="?contributor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                    <span resource="?contributor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?contributor}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
@@ -112,7 +112,7 @@
                 <label class="control-label">Editor <a href="/group/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="calli:editor" class="vbox controls">
-                    <span about="?editor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                    <span resource="?editor" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?editor}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
@@ -123,7 +123,7 @@
                 <label class="control-label">Administrator <a href="/group/" title="Select Group"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="calli:administrator" class="vbox controls">
-                    <span about="?administrator" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                    <span resource="?administrator" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?administrator}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>

@@ -7,7 +7,7 @@
     xmlns:skos="http://www.w3.org/2004/02/skos/core#"
     xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
-    <title about="?this" property="skos:prefLabel"></title>
+    <title resource="?this">{skos:prefLabel}</title>
     <script type="text/javascript">
         function saveChangeNote() {
             var note = document.getElementById('note')
@@ -29,7 +29,7 @@
             <p>To add an image, click the browse icon to open a file upload dialogue</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/sparql-update" about="?this"
+    <form id="form" method="POST" action="" enctype="application/sparql-update" resource="?this"
             onsubmit="saveChangeNote()">
         <fieldset class="hbox">
             <div class="control-group">
@@ -81,7 +81,7 @@
                 <label class="control-label">Related <a href="/callimachus/Concept?create" title="Create"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="skos:related" class="controls vbox">
-                    <span about="?related" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
+                    <span resource="?related" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
                         <span property="skos:prefLabel" />
                         <a href="{?related}" title="Remove relationship" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
@@ -92,7 +92,7 @@
                 <label class="control-label">Narrower <a href="/callimachus/Concept?create" title="Create"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="skos:narrower" class="controls vbox">
-                    <span about="?narrower" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
+                    <span resource="?narrower" typeof="skos:Concept" class="ui-state-highlight ui-corner-all">
                         <span property="skos:prefLabel" />
                         <a href="{?narrower}" title="Remove relationship" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
@@ -104,7 +104,7 @@
                 ondrop="return calli.insertResource(event)">
             <label class="control-label">Image <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
              <div rel="foaf:depiction" class="controls">
-                <span about="?depiction" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
+                <span resource="?depiction" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
                     <img src="{?depiction}?small" />
                     <a href="{?depiction}" title="Remove from this concept" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                 </span>

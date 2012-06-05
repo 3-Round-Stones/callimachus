@@ -111,7 +111,7 @@ public abstract class FormSupport implements Page, RDFObject {
 	@query("construct")
 	@type("text/html")
 	@header("cache-control:no-store")
-	public InputStream construct(@query("about") URI about,
+	public InputStream construct(@query("resource") URI about,
 			@query("element") String element)
 			throws Exception {
 		if (about != null && (element == null || element.equals("/1")))

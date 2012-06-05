@@ -82,11 +82,11 @@
     }); // ]]>
     </script>
     <script type="text/javascript">//<![CDATA[
-        function updateAbout() {
+        function updateResource() {
             var label = $('#label').val();
             label = label.replace(/([a-z])\s([A-Z])/g, '$1$2');
             var local = encodeURI(label).replace(/%20/g,'_');
-            $('#form').attr('about', local);
+            $('#form').attr('resource', local);
             return true;
         }
         // ]]>
@@ -106,7 +106,7 @@
         </aside>
     </div>
     <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="owl:Class"
-            onsubmit="updateAbout();return calli.saveResourceAs(event)">
+            onsubmit="updateResource();return calli.saveResourceAs(event)">
         <fieldset class="hbox">
             <div class="control-group">
                 <label for="label" class="control-label">Label</label>
@@ -119,7 +119,7 @@
                 <label class="control-label">Icon <a href="/?view" title="Browse"
                         onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
                 <div rel="calli:icon" class="controls">
-                    <span about="?icon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
+                    <span resource="?icon" typeof="foaf:Image" class="ui-state-highlight ui-corner-all">
                         <img src="{?icon}" />
                         <a href="{?icon}" title="Remove from class" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
@@ -138,7 +138,7 @@
                 <label class="control-label">Authors <a href="/callimachus/Group" title="Select Group"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="calli:author" class="vbox controls">
-                    <span about="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
+                    <span resource="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?author}" title="Remove permission" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
@@ -149,7 +149,7 @@
                 <label class="control-label">Super <a href="/callimachus/Class" title="Create"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="rdfs:subClassOf" class="vbox controls">
-                    <span about="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
+                    <span resource="?subClassOf" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />
                         <a href="{?subClassOf}" title="Don't extend" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                     </span>
@@ -160,7 +160,7 @@
                 <label class="control-label">Equivalent <a href="/callimachus/NamedGraph" title="Create"
                         onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="owl:equivalentClass" class="vbox controls">
-                    <span about="?equivalentClass" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
+                    <span resource="?equivalentClass" typeof="owl:Class" class="ui-state-highlight ui-corner-all">
                         <span class="equivalentLabel" property="rdfs:label" />
                         <span style="display:none" class="equivalentComment">{rdfs:comment}</span>
                         <a href="{?equivalentClass}" title="Not equivalent" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
@@ -183,7 +183,7 @@
                     <label class="control-label">Create template <a href="/callimachus/Page?create#!/callimachus/pages/sample-create.xhtml" title="Create"
                             onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                     <div rel="calli:create" class="controls">
-                        <span about="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                        <span resource="?create" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
                             <span property="rdfs:label" />
                             <a href="{?create}" title="Don't use this template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                         </span>
@@ -194,7 +194,7 @@
                     <label class="control-label">View template <a href="/callimachus/Page?create#!/callimachus/pages/sample-view.xhtml" title="Create"
                             onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                     <div rel="calli:view" class="controls">
-                        <span about="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                        <span resource="?view" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
                             <span property="rdfs:label" />
                             <a href="{?view}" title="Don't use this template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                         </span>
@@ -205,7 +205,7 @@
                     <label class="control-label">Edit template <a href="/callimachus/Page?create#!/callimachus/pages/sample-edit.xhtml" title="Create"
                             onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
                     <div rel="calli:edit" class="controls">
-                        <span about="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
+                        <span resource="?edit" typeof="calli:Page" class="ui-state-highlight ui-corner-all">
                             <span property="rdfs:label" />
                             <a href="{?edit}" title="Don't use this template" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
                         </span>

@@ -224,7 +224,7 @@
         </li>
     </xsl:template>
     <xsl:template match="*[@rdf:about]">
-        <div about="{@rdf:about}">
+        <div resource="{@rdf:about}">
             <xsl:attribute name="typeof">
                 <xsl:call-template name="iriref">
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
@@ -247,7 +247,7 @@
         </div>
     </xsl:template>
     <xsl:template match="*[@rdf:ID]">
-        <div about="#{@rdf:ID}">
+        <div resource="#{@rdf:ID}">
             <xsl:attribute name="typeof">
                 <xsl:call-template name="iriref">
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
@@ -268,7 +268,7 @@
         </div>
     </xsl:template>
     <xsl:template match="*[@rdf:nodeID][*]">
-        <div about="_:{@rdf:nodeID}">
+        <div resource="_:{@rdf:nodeID}">
             <xsl:attribute name="typeof">
                 <xsl:call-template name="iriref">
                     <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
@@ -290,7 +290,7 @@
         </div>
     </xsl:template>
     <xsl:template match="rdf:Description[@rdf:about]">
-        <div about="{@rdf:about}">
+        <div resource="{@rdf:about}">
             <a href="{@rdf:about}" class="view uri">
                 <xsl:if test="substring-before(@rdf:about, '#')=$this">
                     <xsl:attribute name="name"><xsl:value-of select="substring-after(@rdf:about, '#')" /></xsl:attribute>
@@ -305,7 +305,7 @@
         </div>
     </xsl:template>
     <xsl:template match="rdf:Description[@rdf:ID]">
-        <div about="#{@rdf:ID}">
+        <div resource="#{@rdf:ID}">
             <a href="#{@rdf:ID}" class="view uri" name="{@rdf:ID}">
                 <xsl:value-of select="@rdf:ID"/>
             </a>
@@ -315,7 +315,7 @@
         </div>
     </xsl:template>
     <xsl:template match="rdf:Description[@rdf:nodeID]">
-        <div about="_:{@rdf:nodeID}">
+        <div resource="_:{@rdf:nodeID}">
             <a name="{@rdf:nodeID}" id="{@rdf:nodeID}" class="bnode">
                 <xsl:text>_:</xsl:text>
                 <xsl:value-of select="@rdf:nodeID" />

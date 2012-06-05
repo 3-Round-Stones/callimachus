@@ -41,6 +41,12 @@ public interface Page {
 	String calliConstructHTML(Object target) throws Exception;
 
 	/**
+	 * Strips out nested templates for use with the create form. Uses the realm
+	 * of the given target.
+	 */
+	XMLEventReader calliConstructTemplate(Object target) throws Exception;
+
+	/**
 	 * Populates the page with the properties of the target resource.
 	 */
 	XMLEventReader calliConstruct(Object target) throws Exception;

@@ -46,7 +46,7 @@
             throw new InternalServerError("No create template");
         if (this.calliCreate.size() != 1)
             throw new InternalServerError("Multiple create templates");
-        return this.calliCreate.iterator().next().calliConstruct(null);
+        return this.calliCreate.iterator().next().calliConstructTemplate(this);
     """.
 
 :GetCreatorPage rdfs:subClassOf msg:Message;
@@ -67,7 +67,7 @@
             throw new InternalServerError("No create template");
         if (create.calliCreate.size() != 1)
             throw new InternalServerError("Multiple create templates");
-        return create.calliCreate.iterator().next().calliConstruct(null);
+        return create.calliCreate.iterator().next().calliConstructTemplate(this);
     """.
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;

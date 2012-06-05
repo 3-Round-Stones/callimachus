@@ -26,7 +26,6 @@ import java.net.URLEncoder;
 
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -35,7 +34,6 @@ import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateEngineFactory;
-import org.callimachusproject.engine.helpers.TemplateReader;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.traits.VersionedObject;
@@ -46,7 +44,6 @@ import org.openrdf.model.URI;
 import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
-import org.callimachusproject.xslt.XMLEventReaderFactory;
 
 /**
  * Extracts parts of this template and constructs the RDF needed for this
@@ -70,10 +67,6 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject,
 	@Override
 	public XMLEventReader calliConstruct(Object target)
 			throws Exception {
-		if (target == null) {
-			return new TemplateReader(
-			xslt(findRealm(getResource())));
-		}
 		assert target instanceof RDFObject;
 		URI about = (URI) ((RDFObject) target).getResource();
 		return calliConstructXhtml(about);
@@ -98,14 +91,6 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject,
 		} finally {
 			in.close();
 		}
-	}
-
-	private XMLEventReader xslt(RDFObject realm) throws IOException,
-			XMLStreamException {
-		XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
-		String url = url("xslt", realm);
-		InputStream in = openRequest(url);
-		return factory.createXMLEventReader(url, in);
 	}
 
 	private String url(String operation, RDFObject realm)

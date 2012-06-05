@@ -42,7 +42,8 @@ public class TransformTest extends MetadataServerTestCase {
 
 		@query("hello")
 		@type("text/plain")
-		public String hello(@transform("urn:test:execute") @type("text/plain") String world) {
+		public String hello(
+				@transform("urn:test:execute") @type("text/plain") String world) {
 			return "hello " + world + "!";
 		}
 
@@ -54,7 +55,7 @@ public class TransformTest extends MetadataServerTestCase {
 		@query("turtle")
 		@type("application/x-turtle")
 		public Model turtle(
-				@transform("urn:test:rdfvalue") @type( { "application/rdf+xml",
+				@transform("urn:test:rdfvalue") @type({ "application/rdf+xml",
 						"application/x-turtle" }) GraphQueryResult result)
 				throws QueryEvaluationException {
 			Model model = new LinkedHashModel();
@@ -80,7 +81,7 @@ public class TransformTest extends MetadataServerTestCase {
 		}
 
 		@Iri("urn:test:decrypt")
-		public int decrypt(String number) {
+		public int decrypt(@type("text/plain") String number) {
 			return Integer.parseInt(number, 2);
 		}
 
@@ -97,7 +98,7 @@ public class TransformTest extends MetadataServerTestCase {
 		@transform("urn:test:execute")
 		@type("text/xml")
 		@Iri("urn:test:serialize")
-		public String serialize(Model model) {
+		public String serialize(@type("application/x-turtle") Model model) {
 			return "<echo>" + model.objectString() + "</echo>";
 		}
 
@@ -111,14 +112,15 @@ public class TransformTest extends MetadataServerTestCase {
 
 		@type("text/plain")
 		@Iri("urn:test:parse")
-		public String parseModel(@transform("urn:test:read") Model model)
+		public String parseModel(
+				@transform("urn:test:read") @type("application/x-turtle") Model model)
 				throws QueryEvaluationException {
 			return model.objectString();
 		}
 
 		@type("application/x-turtle")
 		@Iri("urn:test:read")
-		public Model read(Model input) {
+		public Model read(@type("application/x-turtle") Model input) {
 			Model model = new LinkedHashModel();
 			model.add(new URIImpl("urn:test:hello"), RDF.VALUE,
 					new LiteralImpl("hello " + input.objectString() + "!"));
@@ -126,7 +128,7 @@ public class TransformTest extends MetadataServerTestCase {
 		}
 
 		@query("post")
-		@type("text/plain")
+		@type("application/x-turtle")
 		@transform("urn:test:parse")
 		public Model post(@type("*/*") String input) {
 			Model model = new LinkedHashModel();
@@ -145,7 +147,8 @@ public class TransformTest extends MetadataServerTestCase {
 		}
 
 		@Iri("urn:test:toxml")
-		public XMLEventReader xml(@type("application/rdf+xml") InputStream in) throws XMLStreamException {
+		public XMLEventReader xml(@type("application/rdf+xml") InputStream in)
+				throws XMLStreamException {
 			XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
 			return factory.createXMLEventReader(in);
 		}

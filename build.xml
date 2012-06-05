@@ -9,6 +9,7 @@
 	<property name="bin" location="bin" />
 	<property name="etc" location="etc" />
 	<property name="log" location="log" />
+	<property name="tmp" location="tmp" />
 	<property name="downloads" location="tmp" />
 	<property name="reports.tests" location="tmp" />
 	<property name="src.tests" location="test" />

@@ -41,10 +41,27 @@
     calli:transform <TransformPage>;
     calli:xslt <../template.xsl>.
 
+<TransformLayout#realm> a owl:ObjectProperty; a owl:FunctionalProperty;
+    calli:transform <FindRealm>;
+    rdfs:domain <TransformLayout>;
+    rdfs:range <../Realm>.
+
 <TransformLayout#xml> a owl:ObjectProperty; a owl:FunctionalProperty;
     calli:type "application/xhtml+xml";
     rdfs:domain <TransformLayout>;
     rdfs:range <java:java.io.InputStream>.
+
+<FindRealm> rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Realm>];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?realm {
+            ?realm calli:hasComponent* $this
+            FILTER EXISTS {?realm a calli:Realm}
+        }
+        ORDER BY desc(?realm) LIMIT 1
+    """.
 
 
 <TransformPage> rdfs:subClassOf msg:Message;

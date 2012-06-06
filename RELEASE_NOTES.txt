@@ -2,9 +2,9 @@ Callimachus Project Release Notes
 
 http://callimachusproject.org/
 
-28 March 2012
+5 June 2012
 
-= REQUIREMENTS OF 0.16 =
+= REQUIREMENTS OF 0.17 =
 
 Callimachus works best on browsers that are closely tracking the
 development of HTML5.  At the time of this writing, Callimachus
@@ -16,7 +16,6 @@ Chrome 17 has been thoroughly tested.
 Firefox 10 and Safari 5 have no known issues.
 Internet Explorer 8 and 9 can login and read content, use the
 edit form, but cannot edit text documents or create complex resources.
-However, IE 9 with Chrome Frame should act like Chrome.
 
 The Callimachus server requires Java JDK 1.6.0_18+ (before 1.7) on the
 server to run.

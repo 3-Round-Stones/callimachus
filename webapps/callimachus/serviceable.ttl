@@ -33,24 +33,3 @@
     rdfs:label "Composite";
     rdfs:subClassOf <Serviceable>, calli:Composite;
     rdfs:isDefinedBy </callimachus>.
-
-:GetRealmLayout rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:method "GET";
-    calli:query "realm";
-    calli:expect "301-moved-permanently";
-    calli:type "text/uri-list";
-    msg:sparql """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT (concat(str(?realm),'?layout') AS ?layout) {
-            {
-                ?realm calli:hasComponent* $this
-                FILTER EXISTS {?realm a calli:Realm}
-            } UNION {
-                BIND (</> AS ?realm)
-                FILTER NOT EXISTS { ?folder calli:hasComponent $this }
-            }
-        }
-    	ORDER BY desc(?layout) LIMIT 1
-    """.

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 
+import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
@@ -152,6 +153,25 @@ public class TransformTest extends MetadataServerTestCase {
 			XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
 			return factory.createXMLEventReader(in);
 		}
+
+		@method("GET")
+		@query("computeParam")
+		@type("text/plain")
+		@transform("urn:test:computeParam")
+		@Iri("urn:test:computeTransformParam")
+		public String computeTransformParam() {
+			return "world";
+		}
+
+		@Iri("urn:test:computeParam")
+		public String computeParam(@transform("urn:test:computeHello") String hello, @type("text/plain") String world) {
+			return hello + " " + world + "!";
+		}
+
+		@Iri("urn:test:computeHello")
+		public String computeHello() {
+			return "Hello";
+		}
 	}
 
 	public void setUp() throws Exception {
@@ -236,6 +256,12 @@ public class TransformTest extends MetadataServerTestCase {
 		WebResource service = client.path("service").queryParam("toxml", "");
 		String body = service.get(String.class);
 		assertTrue(body.contains("rdf:RDF"));
+	}
+
+	public void testComputeTransformParam() {
+		WebResource service = client.path("service").queryParam("computeParam", "");
+		String body = service.get(String.class);
+		assertTrimEquals("Hello world!", body);
 	}
 
 	private void assertTrimEquals(String expected, String actual) {

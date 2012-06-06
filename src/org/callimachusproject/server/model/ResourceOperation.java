@@ -781,7 +781,7 @@ public class ResourceOperation extends ResourceRequest {
 		String[] headers = getHeaderNames(anns);
 		String[] types = getParameterMediaTypes(anns);
 		if (names == null && headers == null && types == null) {
-			return null;
+			return getValue(anns, new NullEntity(getObjectConnection()));
 		} else if (names == null && headers == null) {
 			return getValue(anns, input);
 		} else if (headers != null && names != null) {

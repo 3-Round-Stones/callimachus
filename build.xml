@@ -201,7 +201,7 @@
 			</patternset>
 			<mapper type="flatten" />
 		</untar>
-		<delete file="${downloads}/daemon-darwin.tar.gz" />
+		<delete file="${downloads}/compress.tar.gz" />
 		<unzip src="${downloads}/calabash.zip" dest="${lib}">
 			<patternset>
 				<include name="*/lib/saxon*.jar" />

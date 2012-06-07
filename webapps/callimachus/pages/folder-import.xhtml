@@ -3,6 +3,41 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Import Folder Contents</title>
+    <script type="text/javascript">
+    // <![CDATA[
+    jQuery(function($){
+        window.deleteFolder = function(event,redirect) {
+            var xhr = $.ajax({
+                type: 'DELETE',
+                url: '?archive', 
+                beforeSend: function(xhr){
+                    var lastmod = getLastModified();
+                    if (lastmod) {
+                        xhr.setRequestHeader("If-Unmodified-Since", lastmod);
+                    }
+                    withCredentials(xhr);
+                }, success: function(data, textStatus) {
+                    location.replace(redirect);
+                }
+            });
+        }
+        function withCredentials(req) {
+            try {
+                req.withCredentials = true;
+            } catch (e) {}
+        }
+
+        function getLastModified() {
+            try {
+                var committedOn = $('#resource-lastmod').find('[property=audit:committedOn]').attr('content');
+                return new Date(committedOn).toGMTString();
+            } catch (e) {
+                return null;
+            }
+        }
+    });
+    // ]]>
+    </script>
 </head>
 <body>
     <h1>Import Folder Contents</h1>
@@ -22,6 +57,7 @@
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary" id="import">Import</button>
                 <button type="button" id="cancel" onclick="location.replace('?view')" class="btn">Cancel</button>
+                <button type="button" id="delete" onclick="deleteFolder(event,'?view')" class="btn btn-danger">Delete</button>
             </div>
         </fieldset>
     </form>

@@ -423,6 +423,39 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "multipart/form-data".
 
+:DeleteFolderContents rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "DELETE";
+    calli:query "archive";
+    calli:realm </>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:script """
+        var con = this.objectConnection;
+        var dependency = new java.util.HashSet(this.FindComponentsWithExternalDependent());
+        this.DeleteComponents(); //# remove existing components
+        var iter = dependency.iterator();
+        while (iter.hasNext()) {
+            var stmts = con.getStatements(null, null, iter.next().resource, true, []);
+            try {
+                while (stmts.hasNext()) {
+                    var st = stmts.next();
+                    var pred = st.predicate;
+                    if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(pred.namespace))
+                        continue;
+                    if ("http://www.openrdf.org/rdf/2009/auditing#".equals(pred.namespace))
+                        continue;
+                    var subj = st.subject;
+                    if (subj instanceof org.openrdf.model.URI)
+                        throw new BadRequest("The folder contents cannot be deleted as they are required by at least: " + subj);
+                    throw new BadRequest("The folder contents cannot be deleted as they are required by other resources");
+                }
+            } finally {
+                stmts.close();
+            }
+        }
+    """.
+
 :UploadFolderComponents rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
@@ -462,11 +495,6 @@
         var SchemaGraph = schemaGraphClass.resource;
         var dependency = new java.util.HashSet(this.FindComponentsWithExternalDependent());
         this.DeleteComponents(); //# remove existing components
-        var iter = dependency.iterator();
-        while (iter.hasNext()) {
-            if (!con.hasStatement(null, null, iter.next().resource, true, []))
-                iter.remove(); //# no longer a dependency 
-        }
         var name;
         var carStream = new org.callimachusproject.io.CarInputStream(payload);
         while (name = carStream.readEntryName()) {
@@ -512,8 +540,23 @@
                 entryStream.close();
             }
         }
-        if (!dependency.isEmpty())
-            throw new BadRequest(dependency.size() + " required resource(s) not present: " + dependency.iterator().next());
+        var iter = dependency.iterator();
+        while (iter.hasNext()) {
+            var stmts = con.getStatements(null, null, iter.next().resource, true, []);
+            try {
+                while (stmts.hasNext()) {
+                    var st = stmts.next();
+                    var pred = st.predicate;
+                    if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(pred.namespace))
+                        continue;
+                    if ("http://www.openrdf.org/rdf/2009/auditing#".equals(pred.namespace))
+                        continue;
+                    throw new BadRequest("Required resource(s) not present, including: " + st.object);
+                }
+            } finally {
+                stmts.close();
+            }
+        }
     """.
 
 :payload a owl:ObjectProperty, owl:FunctionalProperty;

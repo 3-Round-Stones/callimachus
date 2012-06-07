@@ -69,3 +69,11 @@ DELETE {
     FILTER (str(?menu1) < str(?menu2))
 };
 
+DELETE {
+	</callimachus> owl:versionInfo "0.16"
+} INSERT {
+	</callimachus> owl:versionInfo "0.17"
+} WHERE {
+	</callimachus> owl:versionInfo "0.16"
+};
+

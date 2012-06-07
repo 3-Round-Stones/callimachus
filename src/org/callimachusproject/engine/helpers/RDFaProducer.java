@@ -42,6 +42,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
+import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -732,6 +733,8 @@ public class RDFaProducer extends XMLEventReaderBase {
 							}
 						}
 					}
+					if (newValue instanceof BNode)
+						return eventFactory.createAttribute(attr.getName(), "[_:" + newValue.stringValue() + "]");
 					return eventFactory.createAttribute(attr.getName(), newValue.stringValue());
 				}
 				else return attr;

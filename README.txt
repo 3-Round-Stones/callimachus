@@ -77,6 +77,9 @@ On Windows run:
  # bin/callimachus-setup.bat
  # bin/callimachus-start.bat
 
+To register a Callimachus service with the operating system (to stop Callimachus
+on shut down) run the bin/callimachus-install.sh/.bat script.
+
 In some environments, Callimachus may log "An exception has occurred in the
 compiler...FilePermission" exceptions. This is often due to an issue in the
 embedded Java compiler and if so has no impact on the run time behaviour of

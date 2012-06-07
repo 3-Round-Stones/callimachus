@@ -20,15 +20,7 @@ edit form, but cannot edit text documents or create complex resources.
 The Callimachus server requires Java JDK 1.6.0_18+ (before 1.7) on the
 server to run.
 
-= NEW IN VERSION 0.16 =
-
-Callimachus 0.16 has a new graphical installer that is the primary way to
-install *and configure* Callimachus.  The installer may be re-run any time
-you need to change your Callimachus configuration.  You may also re-run the
-installer to change the password for the initial user.
-
-Callimachus may now serve multiple HTTP/HTTPS authorities (like Apache
-virtual hosts).  Multiple authorities are configured using the installer.
+= NEW IN VERSION 0.17 =
 
 Named queries in Callimachus may now include parameters to facilitate their
 reuse.  For example, a simple SPARQL SELECT query may now be created once
@@ -37,40 +29,33 @@ and used with different parameters, like this:
 SELECT * { <$param> ?p ?o }
 ]]
 
-Text searches in Callimachus, search various RDF labels.  As of 0.16, text
-searches apply to all labels if the "Serve all RDF resources" option is
-enabled during installation.  That option is selected by default.  If that
-option is turned off, searches only apply to labels associated with the
-HTTP authority you accessed Callimachus on, unless it is the primary authority,
-in which case secondary authorities are also searched.
+Named queries can also now specify their max cache age. Include a comment in the
+query string of "# @Cache-Control: max-age=600" to cache query results for 10
+minutes. Most Response Cache-Control Directives can be used here to control how
+query results should be cached.
 
-= KNOWN ISSUES IN 0.16 =
+= KNOWN ISSUES IN 0.17 =
 
  * Empty table cells are omitted in from template.
- * Language tags are not supported with forms.
  * All possible options in check boxes must have a label.
  * Trailing whitespace in @typeof attribute is not supported.
- * Safari browser cannot view Turtle or RDF/XML output in describe tab.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
- * Blank nodes in INSERT clause are not supported
- * literals with language tags will not match in keyword search
+ * When resource labels are updated, referencing resource may not display new
+   label until they are modified.
+ * Safari browser cannot view Turtle or RDF/XML output in describe tab.
+ * Safari does not retain the login state in all cases.
 
-= HOWTO UPGRADE FROM 0.15 =
+= HOWTO UPGRADE FROM 0.16 =
 
 All information saved through a Web browser is saved in the repositories
 directory. This directory should be backed up (in the stopped state) before
 attempting to upgrade.
 
-All files and folders in the webapps/ dir (not in webapps/callimachus/) must
-be removed while the 0.15 server is running. Folders can be compressed to a ZIP
-file and imported into a newly created (empty) folder using the Web interface.
-Files can be dragged or uploaded to the home folder.
+Stop the 0.16 server using the callimachus-stop script in the bin directory.
+Remove the lib, bin, tmp, src directories.
 
-Stop the 0.15 server using the callimachus-stop script in the bin directory.
-Remove the lib, bin, tmp, webapps directories. Backup any configuration files
-in etc, including etc/callimachus.conf.
-
-Download and run the Callimachus-Setup-0.16.exe or (.run) installer (see
-README.txt for details). Choose the same install path and provide your
-configuration settings to complete the upgrade.
+Download and unzip the callimachus-0.17.zip file in the install directory of
+the Callimachus 0.16 instance. Run the bin/callimachus-setup.sh/.bat script to
+upgrade the repositories directory. Run the bin/callimachus-start.sh/.bat script
+to start Callimachus.
 

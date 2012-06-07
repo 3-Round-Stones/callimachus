@@ -14,7 +14,7 @@ tree.mixin.Call.prototype = {
 
         for (var i = 0; i < env.frames.length; i++) {
             if ((mixins = env.frames[i].find(this.selector)).length > 0) {
-                args = this.arguments && tree.map.call(this.arguments, function (a) { return a.eval(env) });
+                args = this.arguments ? tree.map.call(this.arguments, function (a) { return a.eval(env) }) : null;
                 for (var m = 0; m < mixins.length; m++) {
                     if (mixins[m].match(args, env)) {
                         try {

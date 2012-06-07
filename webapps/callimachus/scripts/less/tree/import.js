@@ -16,13 +16,13 @@ tree.Import = function (path, imports, features, index, env) {
 
     this.index = index;
     this._path = path;
-    this.features = features && new(tree.Value)(features);
+    this.features = features ? new(tree.Value)(features) : null;
 
     // The '.less' extension is optional
     if (path instanceof tree.Quoted && (!env || !env.opaque)) {
         this.path = /\.(le?|c)ss(\?.*)?$/.test(path.value) ? path.value : path.value + '.less';
     } else {
-        this.path = path.value.value || path.value;
+        this.path = path.value.value ? path.value.value : path.value;
     }
 
     this.css = /css(\?.*)?$/.test(this.path) && (!env || !env.opaque);
@@ -31,7 +31,7 @@ tree.Import = function (path, imports, features, index, env) {
     if (! this.css) {
         imports.push(this.path, function (e, root) {
             if (e) { e.index = index }
-            that.root = root || new(tree.Ruleset)([], []);
+            that.root = root ? root : new(tree.Ruleset)([], []);
         });
     }
 };
@@ -56,7 +56,7 @@ tree.Import.prototype = {
         }
     },
     eval: function (env) {
-        var ruleset, features = this.features && this.features.eval(env);
+        var ruleset, features = this.features ? this.features.eval(env) : null;
 
         if (this.css) {
             return this;

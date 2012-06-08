@@ -11,12 +11,8 @@ if (!window.calli) {
 }
 
 window.calli.closeDialog = function(iframe) {
-    var e = jQuery.Event("calliCloseDialog");
     var frameElement = findFrameElement(iframe);
-    $(frameElement).trigger(e);
-    if (!e.isDefaultPrevented()) {
-        $(frameElement).dialog('close');
-    }
+    $(frameElement).dialog('close');
 }
 
 function findFrameElement(iframe) {
@@ -165,6 +161,12 @@ window.calli.openDialog = function(url, title, options) {
             iframe.dialog("option", "position", ['center', 'center']);
         }, 0);
     });
+    iframe.bind("dialogbeforeclose", function(event, ui) {
+        var e = jQuery.Event("calliCloseDialog");
+        var frameElement = findFrameElement(iframe);
+        $(frameElement).trigger(e);
+        return !e.isDefaultPrevented();
+    });
     iframe.bind("dialogclose", function(event, ui) {
         $(window).unbind('message', handle);
         $(window).unbind('resize', onresize);
@@ -177,7 +179,7 @@ window.calli.openDialog = function(url, title, options) {
     var e = jQuery.Event("calliOpenDialog");
     iframe.trigger(e);
     if (e.isDefaultPrevented()) {
-        iframe.trigger("dialogclose");
+        iframe.dialog('close');
         return null;
     } else {
         iframe.dialog("open");

@@ -67,7 +67,9 @@ etc/callimachus.conf; change the ORIGIN and PORT to the be the same as the
 hostname and port (if not port 80); add an initial user as instructed.
 
 To register a Callimachus service with the operating system (to stop Callimachus
-on shut down) run the bin/callimachus-install.sh/.bat script.
+on shut down) run the bin/callimachus-install.sh/.bat script. Otherwise, the
+window scripts will report "ERROR: The system was unable to find the specified
+registry key or value".
 
 Execute a callimachus-setup script located in the bin/ directory to initialize
 the repository. The script will ask for a password for the initial user. Execute

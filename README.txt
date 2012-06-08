@@ -65,20 +65,23 @@ If you download a ZIP archive of a release from http://callimachusproject.org/,
 extract it into a new directory. Copy etc/callimachus-defaults.conf to
 etc/callimachus.conf; change the ORIGIN and PORT to the be the same as the
 hostname and port (if not port 80); add an initial user as instructed.
+
+To register a Callimachus service with the operating system (to stop Callimachus
+on shut down) run the bin/callimachus-install.sh/.bat script.
+
 Execute a callimachus-setup script located in the bin/ directory to initialize
 the repository. The script will ask for a password for the initial user. Execute
 a callimachus-start script located in the bin/ directory to start the server.
 
 On Mac and Linux run:
  $ bin/callimachus-setup.sh
+ $ bin/callimachus-install.sh
  $ bin/callimachus-start.sh
 
 On Windows run:
  # bin/callimachus-setup.bat
+ # bin/callimachus-install.bat
  # bin/callimachus-start.bat
-
-To register a Callimachus service with the operating system (to stop Callimachus
-on shut down) run the bin/callimachus-install.sh/.bat script.
 
 In some environments, Callimachus may log "An exception has occurred in the
 compiler...FilePermission" exceptions. This is often due to an issue in the

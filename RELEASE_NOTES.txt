@@ -41,9 +41,14 @@ query results should be cached.
  * Trailing whitespace in @typeof attribute is not supported.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
  * When resource labels are updated, referencing resource may not display new
-   label until they are modified.
+   label until they are modified as well or the callimachus-reset script is run.
  * Safari browser cannot view Turtle or RDF/XML output in describe tab.
  * Safari does not retain the login state in all cases.
+
+In some environments, Callimachus may log "An exception has occurred in the
+compiler...FilePermission" exceptions. This is often due to an issue in the
+embedded Java compiler and if so has no impact on the run time behaviour of
+Callimachus.
 
 = HOWTO UPGRADE FROM 0.16 =
 

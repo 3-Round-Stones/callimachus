@@ -67,28 +67,32 @@ etc/callimachus.conf; change the ORIGIN and PORT to the be the same as the
 hostname and port (if not port 80); add an initial user as instructed.
 
 To register a Callimachus service with the operating system (to stop Callimachus
-on shut down) run the bin/callimachus-install.sh/.bat script. Otherwise, the
-window scripts will report "ERROR: The system was unable to find the specified
-registry key or value".
+on machine shut down) run the bin/callimachus-install.sh/.bat script. The
+Callimachus service is only available for Linux and Windows. If you do not run
+the install script, the window scripts will report "ERROR: The system was
+unable to find the specified registry key or value".
 
 Execute a callimachus-setup script located in the bin/ directory to initialize
 the repository. The script will ask for a password for the initial user. Execute
 a callimachus-start script located in the bin/ directory to start the server.
 
-On Mac and Linux run:
- $ bin/callimachus-setup.sh
+On Linux run:
  $ bin/callimachus-install.sh
+ $ bin/callimachus-setup.sh
  $ bin/callimachus-start.sh
 
 On Windows run:
- # bin/callimachus-setup.bat
  # bin/callimachus-install.bat
+ # bin/callimachus-setup.bat
  # bin/callimachus-start.bat
 
-In some environments, Callimachus may log "An exception has occurred in the
-compiler...FilePermission" exceptions. This is often due to an issue in the
-embedded Java compiler and if so has no impact on the run time behaviour of
-Callimachus.
+On Mac run:
+ $ bin/callimachus-setup.sh
+ $ bin/callimachus-start.sh
+
+To monitor the activity of the server watch the log/callimachus.log.0 file for
+log messages. Windows users may find the callimachus-log.bat script useful to
+monitor the activity without locking the log file.
 
 
 Alternatively, if you want to check out the source code, see the directions at:

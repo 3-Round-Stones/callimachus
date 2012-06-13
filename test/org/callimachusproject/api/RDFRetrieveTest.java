@@ -28,9 +28,19 @@ public class RDFRetrieveTest extends TestCase {
 			" WHERE { \n </test/> rdfs:label ?label . \n }";
 	private String compareText = "/test/";
 
+	public RDFRetrieveTest(String name) throws Exception {
+		super(name);
+		temporaryServer = TemporaryServer.newInstance();
+	}
+
+	@Override
+	public void finalize() throws Exception {
+		temporaryServer.destroy();
+	}
+
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer = TemporaryServer.start();
+		temporaryServer.start();
 		Authenticator.setDefault(new Authenticator() {
 		     protected PasswordAuthentication getPasswordAuthentication() {
 		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 

@@ -2,7 +2,6 @@ package org.callimachusproject.api;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -16,9 +15,19 @@ public class KeywordSearchTest extends TestCase {
 	
 	private TemporaryServer temporaryServer;
 
+	public KeywordSearchTest(String name) throws Exception {
+		super(name);
+		temporaryServer = TemporaryServer.newInstance();
+	}
+
+	@Override
+	public void finalize() throws Exception {
+		temporaryServer.destroy();
+	}
+
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer = TemporaryServer.start();
+		temporaryServer.start();
 		Authenticator.setDefault(new Authenticator() {
 		     protected PasswordAuthentication getPasswordAuthentication() {
 		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 

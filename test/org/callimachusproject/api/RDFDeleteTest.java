@@ -1,7 +1,6 @@
 package org.callimachusproject.api;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
@@ -28,9 +27,19 @@ public class RDFDeleteTest extends TestCase {
 			" WHERE { \n </test/> rdfs:label ?label . \n }";
 	private String compareText = "/test/";
 
+	public RDFDeleteTest(String name) throws Exception {
+		super(name);
+		temporaryServer = TemporaryServer.newInstance();
+	}
+
+	@Override
+	public void finalize() throws Exception {
+		temporaryServer.destroy();
+	}
+
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer = TemporaryServer.start();
+		temporaryServer.start();
 		Authenticator.setDefault(new Authenticator() {
 		     protected PasswordAuthentication getPasswordAuthentication() {
 		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 

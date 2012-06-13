@@ -6,7 +6,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLConnection;
 
 import junit.framework.TestCase;
 
@@ -14,9 +13,19 @@ public class FolderContentsTest extends TestCase {
 	
 	private TemporaryServer temporaryServer;
 
+	public FolderContentsTest(String name) throws Exception {
+		super(name);
+		temporaryServer = TemporaryServer.newInstance();
+	}
+
+	@Override
+	public void finalize() throws Exception {
+		temporaryServer.destroy();
+	}
+
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer = TemporaryServer.start();
+		temporaryServer.start();
 	}
 
 	public void tearDown() throws Exception {

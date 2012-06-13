@@ -21,9 +21,19 @@ public class RDFCreateTest extends TestCase {
 			" INSERT DATA {  \n <test/> a </callimachus/Folder> ;  \n" +
 			" rdfs:label \"test\" . }";
 
+	public RDFCreateTest(String name) throws Exception {
+		super(name);
+		temporaryServer = TemporaryServer.newInstance();
+	}
+
+	@Override
+	public void finalize() throws Exception {
+		temporaryServer.destroy();
+	}
+
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer = TemporaryServer.start();
+		temporaryServer.start();
 		Authenticator.setDefault(new Authenticator() {
 		     protected PasswordAuthentication getPasswordAuthentication() {
 		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 

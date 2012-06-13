@@ -20,9 +20,19 @@ public class BLOBDeleteTest extends TestCase {
 	private String requestContentType = "text/html";
 	private String outputString = "<html><head><title>Output Page</title></head><body></body></html>";
 
+	public BLOBDeleteTest(String name) throws Exception {
+		super(name);
+		temporaryServer = TemporaryServer.newInstance();
+	}
+
+	@Override
+	public void finalize() throws Exception {
+		temporaryServer.destroy();
+	}
+
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer = TemporaryServer.start();
+		temporaryServer.start();
 		Authenticator.setDefault(new Authenticator() {
 		     protected PasswordAuthentication getPasswordAuthentication() {
 		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 

@@ -12,8 +12,8 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 public class RDFCreateTest extends TestCase {
-	
-	private TemporaryServer temporaryServer;
+
+	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
 	private String connectionContentType = "application/sparql-update";
 	private String createQuery = "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
 			" prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
@@ -23,17 +23,11 @@ public class RDFCreateTest extends TestCase {
 
 	public RDFCreateTest(String name) throws Exception {
 		super(name);
-		temporaryServer = TemporaryServer.newInstance();
-	}
-
-	@Override
-	public void finalize() throws Exception {
-		temporaryServer.destroy();
 	}
 
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer.start();
+		temporaryServer.resume();
 		Authenticator.setDefault(new Authenticator() {
 		     protected PasswordAuthentication getPasswordAuthentication() {
 		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 
@@ -43,7 +37,7 @@ public class RDFCreateTest extends TestCase {
 
 	public void tearDown() throws Exception {
 		super.tearDown();
-		temporaryServer.stop();
+		temporaryServer.pause();
 	}
 	
 	private String getRDFContents() throws MalformedURLException, IOException,

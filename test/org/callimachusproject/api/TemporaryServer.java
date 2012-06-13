@@ -4,6 +4,8 @@ import info.aduna.io.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import org.callimachusproject.Server;
@@ -12,12 +14,17 @@ import org.callimachusproject.Setup;
 public class TemporaryServer {
 	private static final String DEFAULT_USERNAME = "test";
 	private static final char[] DEFAULT_PASSWORD = "test".toCharArray();
-	private static int DEFAULT_PORT = 49152;
+	private static final int DEFAULT_PORT = 49152;
+	private static final Map<Integer, TemporaryServer> running = new LinkedHashMap<Integer, TemporaryServer>();
 
-	public static synchronized TemporaryServer newInstance() throws Exception {
-		String origin = "http://localhost:" + DEFAULT_PORT;
-		File dataDir = createCallimachus(origin);
-		return new TemporaryServer(origin, DEFAULT_PORT, dataDir, true);
+	public static synchronized TemporaryServer newInstance() {
+		try {
+			String origin = "http://localhost:" + DEFAULT_PORT;
+			File dataDir = createCallimachus(origin);
+			return new TemporaryServer(origin, DEFAULT_PORT, dataDir, true);
+		} catch (Exception e) {
+			throw new AssertionError(e);
+		}
 	}
 
 	private static File createCallimachus(String origin) throws Exception {
@@ -86,6 +93,8 @@ public class TemporaryServer {
 	private final int port;
 	private final File dir;
 	private final boolean delete;
+	private boolean stopped;
+	private boolean paused;
 
 	public TemporaryServer(String origin, int port, File dir, boolean delete) throws Exception {
 		this.origin = origin;
@@ -95,24 +104,53 @@ public class TemporaryServer {
 		server = new Server();
 	}
 
-	public void start() throws Exception {
+	public synchronized void start() throws InterruptedException, Exception {
 		File dataDir = new File(new File(dir, "repositories"), "callimachus");
 		String uri = dataDir.toURI().toASCIIString();
 		String p = String.valueOf(port);
 		Thread.sleep(500);
 		server.init(new String[] { "-p", p, "-o", origin, "-r", uri, "-trust" });
 		server.start();
+		Thread.yield();
 	}
 
-	public void stop() throws Exception {
-		server.stop();
+	public synchronized void pause() throws Exception {
+		paused = true;
 	}
 
-	public void destroy() throws Exception {
+	public synchronized void resume() throws Exception {
+		if (paused) {
+			paused = false;
+		} else {
+			synchronized (running) {
+				if (running.containsKey(port)) {
+					running.get(port).stop();
+				}
+				start();
+				running.put(port, this);
+			}
+		}
+	}
+
+	public synchronized void stop() throws Exception {
+		if (!stopped) {
+			server.stop();
+			stopped = true;
+			paused = false;
+		}
+	}
+
+	public synchronized void destroy() throws Exception {
+		stop();
 		server.destroy();
 		if (delete) {
 			FileUtil.deltree(dir);
 		}
+	}
+
+	@Override
+	protected void finalize() throws Exception {
+		destroy();
 	}
 
 	public String getOrigin() {

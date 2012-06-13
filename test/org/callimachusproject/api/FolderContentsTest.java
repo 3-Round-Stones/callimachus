@@ -10,27 +10,21 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 public class FolderContentsTest extends TestCase {
-	
-	private TemporaryServer temporaryServer;
+
+	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
 
 	public FolderContentsTest(String name) throws Exception {
 		super(name);
-		temporaryServer = TemporaryServer.newInstance();
-	}
-
-	@Override
-	public void finalize() throws Exception {
-		temporaryServer.destroy();
 	}
 
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer.start();
+		temporaryServer.resume();
 	}
 
 	public void tearDown() throws Exception {
 		super.tearDown();
-		temporaryServer.stop();
+		temporaryServer.pause();
 	}
 	
 	public void test() throws Exception {

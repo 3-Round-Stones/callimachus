@@ -125,14 +125,13 @@ public class BLOBCreateTest extends TestCase {
         return suite;
     }
 	
-	private TemporaryServer temporaryServer;
+	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
 	private String requestSlug;
 	private String requestContentType;
 	private String outputString;
 
 	public BLOBCreateTest(String name) throws Exception {
 		super(name);
-		temporaryServer = TemporaryServer.newInstance();
 		String [] args = parameters.get(name);
 		requestSlug = args[0];
 		requestContentType = args[1];
@@ -146,7 +145,7 @@ public class BLOBCreateTest extends TestCase {
 
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer.start();
+		temporaryServer.resume();
 		Authenticator.setDefault(new Authenticator() {
 		     protected PasswordAuthentication getPasswordAuthentication() {
 		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 
@@ -156,7 +155,7 @@ public class BLOBCreateTest extends TestCase {
 
 	public void tearDown() throws Exception {
 		super.tearDown();
-		temporaryServer.stop();
+		temporaryServer.pause();
 	}
 	
 	private String getCollection() throws Exception {

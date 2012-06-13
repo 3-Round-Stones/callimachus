@@ -14,7 +14,7 @@ import junit.framework.TestCase;
 
 public class BLOBDeleteTest extends TestCase {
 	
-	private TemporaryServer temporaryServer;
+	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
 	private String collectionAccept = "application/atom+xml";
 	private String requestSlug = "myLogo.html";
 	private String requestContentType = "text/html";
@@ -22,17 +22,11 @@ public class BLOBDeleteTest extends TestCase {
 
 	public BLOBDeleteTest(String name) throws Exception {
 		super(name);
-		temporaryServer = TemporaryServer.newInstance();
-	}
-
-	@Override
-	public void finalize() throws Exception {
-		temporaryServer.destroy();
 	}
 
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer.start();
+		temporaryServer.resume();
 		Authenticator.setDefault(new Authenticator() {
 		     protected PasswordAuthentication getPasswordAuthentication() {
 		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 
@@ -42,7 +36,7 @@ public class BLOBDeleteTest extends TestCase {
 
 	public void tearDown() throws Exception {
 		super.tearDown();
-		temporaryServer.stop();
+		temporaryServer.pause();
 	}
 	
 	private String getCollection() throws Exception {

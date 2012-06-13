@@ -12,8 +12,8 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 public class RDFDeleteTest extends TestCase {
-	
-	private TemporaryServer temporaryServer;
+
+	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
 	private String connectionContentType = "application/sparql-update";
 	private String requestContentType = "text/turtle";
 	private String createQuery = "prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
@@ -29,17 +29,11 @@ public class RDFDeleteTest extends TestCase {
 
 	public RDFDeleteTest(String name) throws Exception {
 		super(name);
-		temporaryServer = TemporaryServer.newInstance();
-	}
-
-	@Override
-	public void finalize() throws Exception {
-		temporaryServer.destroy();
 	}
 
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer.start();
+		temporaryServer.resume();
 		Authenticator.setDefault(new Authenticator() {
 		     protected PasswordAuthentication getPasswordAuthentication() {
 		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 
@@ -49,7 +43,7 @@ public class RDFDeleteTest extends TestCase {
 
 	public void tearDown() throws Exception {
 		super.tearDown();
-		temporaryServer.stop();
+		temporaryServer.pause();
 	}
 	
 	private String getRDFContents() throws MalformedURLException, IOException,

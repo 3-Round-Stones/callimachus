@@ -32,9 +32,12 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.activation.MimeTypeParseException;
 
@@ -107,50 +110,78 @@ public class LinksHandler implements Handler {
 		Map<String, List<Method>> map = request
 				.getOperationMethods("GET", true);
 		List<String> result = new ArrayList<String>(map.size());
-		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<String, List<Method>> e : map.entrySet()) {
-			sb.delete(0, sb.length());
+			String query = e.getKey();
+			Set<String> rels = new LinkedHashSet<String>();
+			Set<String> types = new LinkedHashSet<String>();
+			Set<String> titles = new LinkedHashSet<String>();
 			for (Method m : e.getValue()) {
-				if (!m.isAnnotationPresent(rel.class))
-					continue;
-				if (sb.length() == 0) {
-					sb.append("<").append(uri);
-					sb.append("?").append(e.getKey()).append(">");
-				}
-				sb.append("; rel=\"");
-				for (String value : m.getAnnotation(rel.class).value()) {
-					sb.append(value).append(" ");
-				}
-				sb.setCharAt(sb.length() - 1, '"');
-				Collection<String> values = getResponseType(request, m);
-				if (values != null && !values.isEmpty()) {
-					boolean envolope = false;
-					if (envelopeType != null) {
-						for (String value : values) {
-							if (value.startsWith(envelopeType)) {
-								envolope = true;
-							}
-						}
-					}
-					if (!envolope) {
-						sb.append("; type=\"");
-						for (String value : values) {
-							sb.append(value).append(" ");
-						}
-						sb.setCharAt(sb.length() - 1, '"');
-					}
-				}
-				if (m.isAnnotationPresent(title.class)) {
-					for (String value : m.getAnnotation(title.class).value()) {
-						sb.append("; title=\"").append(value).append("\"");
-					}
+				Collection<String> mrel = getMethodRel(m);
+				if (!mrel.isEmpty()) {
+					rels.addAll(mrel);
+					types.addAll(getMethodResponseTypes(m, request));
+					titles.addAll(getMethodTitles(m));
 				}
 			}
-			if (sb.length() > 0) {
-				result.add(sb.toString());
+			if (!rels.isEmpty()) {
+				result.add(serialize(uri, query, rels, types, titles));
 			}
 		}
 		return result;
+	}
+
+	private String serialize(String uri, String query, Set<String> rels,
+			Set<String> types, Set<String> titles) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<").append(uri);
+		if (query != null && query.length() > 0) {
+			sb.append("?").append(query);
+		}
+		sb.append(">");
+		sb.append("; rel=\"");
+		for (String rel : rels) {
+			sb.append(rel).append(" ");
+		}
+		sb.setCharAt(sb.length() - 1, '"');
+		if (!types.isEmpty()) {
+			sb.append("; type=\"");
+			for (String type : types) {
+				sb.append(type).append(" ");
+			}
+			sb.setCharAt(sb.length() - 1, '"');
+		}
+		for (String title : titles) {
+			sb.append("; title=\"").append(title).append("\"");
+		}
+		return sb.toString();
+	}
+
+	private Collection<String> getMethodRel(Method method) {
+		if (method.isAnnotationPresent(rel.class))
+			return Arrays.asList(method.getAnnotation(rel.class).value());
+		return Collections.emptyList();
+	}
+
+	private Collection<String> getMethodTitles(Method method) {
+		if (method.isAnnotationPresent(title.class))
+			return Arrays.asList(method.getAnnotation(title.class).value());
+		return Collections.emptyList();
+	}
+
+	private Collection<String> getMethodResponseTypes(Method method,
+			ResourceOperation request) {
+		Collection<String> values = getResponseType(request, method);
+		if (values != null && !values.isEmpty()) {
+			if (envelopeType != null) {
+				Iterator<String> iter = values.iterator();
+				while (iter.hasNext()) {
+					if (iter.next().startsWith(envelopeType)) {
+						iter.remove();
+					}
+				}
+			}
+		}
+		return values;
 	}
 
 	private Collection<String> getResponseType(ResourceOperation request,

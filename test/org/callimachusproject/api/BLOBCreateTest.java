@@ -56,7 +56,7 @@ public class BLOBCreateTest extends TestCase {
 							"<head> <title> Wikipedia </title> </head> \n" +
 							"<body> <p> Wikipedia is a great website. </p> </body> </html>" 
 			});
-        	/*
+        	
         	put("animatedGraphic", new String[] { "graphic.gif", "image/gif",
 							"binary" 
 			});
@@ -113,7 +113,7 @@ public class BLOBCreateTest extends TestCase {
 						    "<table border=\"1\"> <tr bgcolor=\"#9acd32\"> <th>Title</th> \n" +
 						    "<th>Artist</th>  </tr> </table> </body> </html> </xsl:template> \n" +
 						    "</xsl:stylesheet>" 
-			});*/
+			});
         }
     };
 
@@ -125,7 +125,7 @@ public class BLOBCreateTest extends TestCase {
         return suite;
     }
 	
-	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
+	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();;
 	private String requestSlug;
 	private String requestContentType;
 	private String outputString;
@@ -136,11 +136,6 @@ public class BLOBCreateTest extends TestCase {
 		requestSlug = args[0];
 		requestContentType = args[1];
 		outputString = args[2];
-	}
-	
-	@Override
-	public void finalize() throws Exception {
-		temporaryServer.destroy();
 	}
 
 	public void setUp() throws Exception {

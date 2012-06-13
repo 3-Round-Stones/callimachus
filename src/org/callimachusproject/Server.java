@@ -431,9 +431,13 @@ public class Server implements HTTPObjectAgentMXBean {
 	private void registerMBean() throws InstanceAlreadyExistsException,
 			MBeanRegistrationException, NotCompliantMBeanException,
 			MalformedObjectNameException {
-		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-		mbs.registerMBean(new LoggerBean(), getMXLoggerName());
-		mbs.registerMBean(this, getMXServerName());
+		try {
+			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+			mbs.registerMBean(new LoggerBean(), getMXLoggerName());
+			mbs.registerMBean(this, getMXServerName());
+		} catch (Exception e) {
+			// ignore
+		}
 	}
 
 	private void unregisterMBean() {
@@ -442,7 +446,7 @@ public class Server implements HTTPObjectAgentMXBean {
 			mbs.unregisterMBean(getMXLoggerName());
 			mbs.unregisterMBean(getMXServerName());
 		} catch (Exception e) {
-			e.printStackTrace();
+			// ignore
 		}
 	}
 

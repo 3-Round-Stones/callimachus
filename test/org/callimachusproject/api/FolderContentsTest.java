@@ -12,11 +12,11 @@ import junit.framework.TestCase;
 
 public class FolderContentsTest extends TestCase {
 	
-	private TemporaryServer temporaryServer = TemporaryServer.getInstance();
+	private TemporaryServer temporaryServer;
 
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer.start();
+		temporaryServer = TemporaryServer.start();
 	}
 
 	public void tearDown() throws Exception {

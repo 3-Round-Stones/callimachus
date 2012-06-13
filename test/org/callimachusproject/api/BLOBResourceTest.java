@@ -14,11 +14,16 @@ import junit.framework.TestCase;
 
 public class BLOBResourceTest extends TestCase {
 	
-	private TemporaryServer temporaryServer = TemporaryServer.getInstance();
+	private TemporaryServer temporaryServer;
 
 	public void setUp() throws Exception {
 		super.setUp();
-		temporaryServer.start();
+		temporaryServer = TemporaryServer.start();
+		Authenticator.setDefault(new Authenticator() {
+		     protected PasswordAuthentication getPasswordAuthentication() {
+		       return new PasswordAuthentication(temporaryServer.getUsername(), temporaryServer.getPassword()); 
+		     }
+		 });
 	}
 
 	public void tearDown() throws Exception {
@@ -56,12 +61,6 @@ public class BLOBResourceTest extends TestCase {
 	}
 	
 	private String getLocation() throws Exception {
-		Authenticator.setDefault(new Authenticator() {
-		     protected PasswordAuthentication getPasswordAuthentication() {
-		       return new PasswordAuthentication("admin", "admin".toCharArray()); 
-		     }
-		 });
-		
 		URL url = new java.net.URL(getCollection());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
@@ -88,12 +87,6 @@ public class BLOBResourceTest extends TestCase {
 	}
 	
 	public void testCreate() throws MalformedURLException, Exception {
-		Authenticator.setDefault(new Authenticator() {
-		     protected PasswordAuthentication getPasswordAuthentication() {
-		       return new PasswordAuthentication("admin", "admin".toCharArray()); 
-		     }
-		 });
-		
 		URL url = new java.net.URL(getCollection());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
@@ -119,12 +112,6 @@ public class BLOBResourceTest extends TestCase {
 	}
 	
 	public void testUpdate() throws Exception {
-		Authenticator.setDefault(new Authenticator() {
-		     protected PasswordAuthentication getPasswordAuthentication() {
-		       return new PasswordAuthentication("admin", "admin".toCharArray()); 
-		     }
-		 });
-		
 		URL url = new java.net.URL(getLocation());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("PUT");
@@ -138,12 +125,6 @@ public class BLOBResourceTest extends TestCase {
 	}
 	
 	public void testDelete() throws Exception {
-		Authenticator.setDefault(new Authenticator() {
-		     protected PasswordAuthentication getPasswordAuthentication() {
-		       return new PasswordAuthentication("admin", "admin".toCharArray()); 
-		     }
-		 });
-		
 		URL url = new java.net.URL(getLocation());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("DELETE");

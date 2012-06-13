@@ -12,9 +12,14 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
-public class BLOBResourceTest extends TestCase {
+public class BLOBRetrieveTest extends TestCase {
 	
 	private TemporaryServer temporaryServer;
+	private String collectionAccept = "application/atom+xml";
+	private String requestSlug = "myLogo.html";
+	private String requestContentType = "text/html";
+	private String outputString = "<html><head><title>Output Page</title></head><body></body></html>";
+	
 
 	public void setUp() throws Exception {
 		super.setUp();
@@ -37,7 +42,7 @@ public class BLOBResourceTest extends TestCase {
 		URL contentsURL = new java.net.URL(contents);
 		HttpURLConnection contentsConnection = (HttpURLConnection) contentsURL.openConnection();
 		contentsConnection.setRequestMethod("GET");
-		contentsConnection.setRequestProperty("ACCEPT", "application/atom+xml");
+		contentsConnection.setRequestProperty("ACCEPT", collectionAccept);
 		InputStream stream = contentsConnection.getInputStream();
 		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
 		int app = text.indexOf("<app:collection");
@@ -64,11 +69,11 @@ public class BLOBResourceTest extends TestCase {
 		URL url = new java.net.URL(getCollection());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Slug", "myLogo.html");
-		connection.setRequestProperty("Content-Type", "text/html");
+		connection.setRequestProperty("Slug", requestSlug);
+		connection.setRequestProperty("Content-Type", requestContentType);
 		connection.setDoOutput(true);
 		OutputStream output = connection.getOutputStream();
-		output.write("<html><head><title>Output Page</title></head><body></body></html>".getBytes());
+		output.write(outputString.getBytes());
 		output.close();
 		String header = connection.getHeaderField("Location");
 		return header;
@@ -86,49 +91,15 @@ public class BLOBResourceTest extends TestCase {
 		return contents;
 	}
 	
-	public void testCreate() throws MalformedURLException, Exception {
-		URL url = new java.net.URL(getCollection());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Slug", "myLogo.html");
-		connection.setRequestProperty("Content-Type", "text/html");
-		connection.setDoOutput(true);
-		OutputStream output = connection.getOutputStream();
-		output.write("<html><head><title>Output Page</title></head><body></body></html>".getBytes());
-		output.close();
-		int code = connection.getResponseCode();
-		assertEquals(201, code);
-	}
-	
 	public void testRetrieve() throws Exception {
 		
-		URL url = new java.net.URL(getLocation());
+		URL url = new java.net.URL(getEditMedia());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
-		connection.setRequestProperty("ACCEPT", "text/html");
+		connection.setRequestProperty("ACCEPT", requestContentType);
 		InputStream stream = connection.getInputStream();
 		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
-		assertEquals("<html><head><title>Output Page</title></head><body></body></html>", text);
+		assertEquals(outputString, text);
 	}
-	
-	public void testUpdate() throws Exception {
-		URL url = new java.net.URL(getLocation());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("PUT");
-		connection.setRequestProperty("CONTENT-TYPE", "text/html");
-		connection.setDoOutput(true);
-		OutputStream output = connection.getOutputStream();
-		output.write("<html><head><title>Updated Page</title></head><body></body></html>".getBytes());
-		output.close();
-		int code = connection.getResponseCode();
-		assertEquals(204, code);
-	}
-	
-	public void testDelete() throws Exception {
-		URL url = new java.net.URL(getLocation());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("DELETE");
-		int code = connection.getResponseCode();
-		assertEquals(204, code);
-	}
+
 }

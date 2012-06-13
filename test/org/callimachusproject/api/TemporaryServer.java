@@ -17,7 +17,6 @@ public class TemporaryServer {
 	public static synchronized TemporaryServer start() throws Exception {
 		String origin = "http://localhost:" + DEFAULT_PORT;
 		File dataDir = createCallimachus(origin);
-		Thread.yield();
 		return new TemporaryServer(origin, DEFAULT_PORT, dataDir, true);
 	}
 
@@ -25,10 +24,11 @@ public class TemporaryServer {
 		String name = TemporaryServer.class.getSimpleName();
 		File dir = createDirectory(name);
 		File car = findCallimachusWebappCar();
-		if (!dir.exists() || car.lastModified() > dir.lastModified()) {
-			if (dir.exists()) {
+		if (!dir.isDirectory() || car.lastModified() > dir.lastModified()) {
+			if (dir.isDirectory()) {
 				FileUtil.deleteDir(dir);
 			}
+			dir.delete();
 			String config = new Scanner(TemporaryServer.class
 					.getResourceAsStream("/callimachus-repository.ttl")).useDelimiter("\\A").next();
 			Setup setup = new Setup();
@@ -83,19 +83,18 @@ public class TemporaryServer {
 
 	private final Server server;
 	private final String origin;
-	private final int port;
 	private final File dir;
 	private final boolean delete;
 
 	public TemporaryServer(String origin, int port, File dir, boolean delete) throws Exception {
 		this.origin = origin;
-		this.port = port;
 		this.dir = dir;
 		this.delete = delete;
 		server = new Server();
 		File dataDir = new File(new File(dir, "repositories"), "callimachus");
 		String uri = dataDir.toURI().toASCIIString();
 		String p = String.valueOf(port);
+		Thread.yield();
 		server.init(new String[] { "-p", p, "-o", origin, "-r", uri, "-trust" });
 		server.start();
 	}

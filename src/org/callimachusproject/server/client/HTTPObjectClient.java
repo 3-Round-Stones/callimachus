@@ -69,6 +69,7 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.Version;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.ConnectionBean;
@@ -337,10 +338,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 		if (code == 301 || code == 302 || code == 307 || code == 308) {
 			Header location = resp.getFirstHeader("Location");
 			if (location != null) {
-				HttpEntity entity = resp.getEntity();
-				if (entity != null) {
-					entity.consumeContent();
-				}
+				EntityUtils.consume(resp.getEntity());
 				String value = location.getValue();
 				if (value.startsWith("/") || !value.contains(":")) {
 					try {

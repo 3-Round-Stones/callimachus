@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.ConnectException;
+import java.util.Random;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
@@ -33,6 +34,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.GZIPContentEncodingFilter;
 
 public abstract class MetadataServerTestCase extends TestCase {
+
 	static {
 		if (System.getProperty("ebug") != null) {
 			Logger logger = Logger.getLogger("");
@@ -72,6 +74,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 	private static int MIN_PORT = 49152;
 	private static int MAX_PORT = 65535;
 	private static volatile int seed = 0;
+	private final Random rand = new Random();
 	private int port;
 	protected ObjectRepository repository;
 	protected ObjectRepositoryConfig config = new ObjectRepositoryConfig();
@@ -162,7 +165,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 		if (port > MIN_PORT)
 			return port;
 		int range = (MAX_PORT - MIN_PORT) / 2;
-		seed += this.getClass().getName().hashCode();
+		seed += this.getClass().getName().hashCode() + rand.nextInt();
 		return port = (seed % range) + range + MIN_PORT;
 	}
 

@@ -42,8 +42,8 @@ import java.util.Vector;
 import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
@@ -110,10 +110,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	 * Request has been fully read and response status is determined.
 	 */
 	public void cleanup() throws IOException, RepositoryException {
-		HttpEntity entity = getEntity();
-		if (entity != null) {
-			entity.consumeContent();
-		}
+		EntityUtils.consume(getEntity());
 		if (getEnclosingRequest() instanceof Request) {
 			((Request) getEnclosingRequest()).cleanup();
 		}

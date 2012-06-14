@@ -48,6 +48,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.readers.AggregateReader;
@@ -156,20 +157,7 @@ public class RemoteConnection {
 	 */
 	public void close() throws IOException {
 		if (resp != null) {
-			try {
-				HttpEntity entity = resp.getEntity();
-				if (entity != null) {
-					entity.consumeContent();
-				}
-			} catch (RuntimeException cause) {
-				throw cause;
-			} catch (IOException cause) {
-				throw cause;
-			} catch (Error cause) {
-				throw cause;
-			} catch (Throwable cause) {
-				throw new IOException(cause);
-			}
+			EntityUtils.consume(resp.getEntity());
 		}
 	}
 
@@ -183,7 +171,7 @@ public class RemoteConnection {
 		return new FilterInputStream(in) {
 			public void close() throws IOException {
 				super.close();
-				getHttpResponse().getEntity().consumeContent();
+				EntityUtils.consume(getHttpResponse().getEntity());
 			}
 		};
 	}
@@ -207,7 +195,7 @@ public class RemoteConnection {
 
 				public void close() throws IOException {
 					delegate.close();
-					getHttpResponse().getEntity().consumeContent();
+					EntityUtils.consume(getHttpResponse().getEntity());
 				}
 
 				public int read(ByteBuffer dst) throws IOException {

@@ -41,6 +41,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.util.ChannelUtil;
 
 /**
@@ -193,7 +194,7 @@ public class HttpEntityWrapper implements ProducingNHttpEntity {
 			if (entity instanceof ProducingNHttpEntity) {
 				((ProducingNHttpEntity) entity).finish();
 			} else if (entity != null) {
-				entity.consumeContent();
+				EntityUtils.consume(entity);
 			}
 		} finally {
 			entity = null;

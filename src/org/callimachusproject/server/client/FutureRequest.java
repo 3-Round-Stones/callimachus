@@ -38,6 +38,7 @@ import java.util.concurrent.TimeoutException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.model.Request;
 import org.slf4j.Logger;
@@ -107,7 +108,7 @@ public class FutureRequest implements Future<HttpResponse> {
 		this.result = result;
 		HttpEntity entity = result.getEntity();
 		if ("HEAD".equals(req.getRequestLine().getMethod()) && entity != null) {
-			entity.consumeContent();
+			EntityUtils.consume(entity);
 			result.setEntity(null);
 		} else if (entity != null && source != null) {
 			result.setEntity(new TrackedHttpEntity(entity, source));

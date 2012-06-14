@@ -56,6 +56,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.protocol.NHttpResponseTrigger;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.HTTPObjectServer;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
@@ -65,8 +66,8 @@ import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.OpenRDFException;
 import org.callimachusproject.xslt.XSLTransformer;
+import org.openrdf.OpenRDFException;
 import org.openrdf.sail.optimistic.exceptions.ConcurrencyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -221,13 +222,10 @@ public abstract class Task implements Runnable {
 		cleanup();
 		close();
 		if (resp != null) {
-			HttpEntity entity = resp.getEntity();
-			if (entity != null) {
-				try {
-					entity.consumeContent();
-				} catch (IOException e) {
-					logger.error(e.toString(), e);
-				}
+			try {
+				EntityUtils.consume(resp.getEntity());
+			} catch (IOException e) {
+				logger.error(e.toString(), e);
 			}
 			resp.setEntity(null);
 		}
@@ -242,10 +240,7 @@ public abstract class Task implements Runnable {
 
 	public synchronized void cleanup() {
 		try {
-			HttpEntity entity = req.getEntity();
-			if (entity != null) {
-				entity.consumeContent();
-			}
+			EntityUtils.consume(req.getEntity());
 		} catch (IOException e) {
 			logger.error(e.toString(), e);
 		}
@@ -338,18 +333,16 @@ public abstract class Task implements Runnable {
 			HttpResponse resp = filter(req, response);
 			HttpEntity entity = resp.getEntity();
 			if ("HEAD".equals(req.getMethod()) && entity != null) {
-				entity.consumeContent();
+				EntityUtils.consume(entity);
 				resp.setEntity(null);
 			}
 			synchronized (this) {
 				if (triggered || aborted || this.resp != null) {
 					abort();
-					if (entity != null) {
-						try {
-							entity.consumeContent();
-						} catch (IOException e) {
-							logger.error(e.toString(), e);
-						}
+					try {
+						EntityUtils.consume(entity);
+					} catch (IOException e) {
+						logger.error(e.toString(), e);
 					}
 					resp.setEntity(null);
 				} else {

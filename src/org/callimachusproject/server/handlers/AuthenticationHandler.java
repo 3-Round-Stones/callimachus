@@ -51,13 +51,13 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.annotations.realm;
 import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.server.concepts.Transaction;
@@ -288,16 +288,10 @@ public class AuthenticationHandler implements Handler {
 			return unauthorized;
 		int code = unauthorized.getStatusLine().getStatusCode();
 		if (auth.getStatusLine().getStatusCode() < code) {
-			HttpEntity entity = unauthorized.getEntity();
-			if (entity != null) {
-				entity.consumeContent();
-			}
+			EntityUtils.consume(unauthorized.getEntity());
 			return auth;
 		} else {
-			HttpEntity entity = auth.getEntity();
-			if (entity != null) {
-				entity.consumeContent();
-			}
+			EntityUtils.consume(auth.getEntity());
 			return unauthorized;
 		}
 	}

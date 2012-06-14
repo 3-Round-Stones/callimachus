@@ -13,7 +13,7 @@ import org.callimachusproject.Server;
 import org.callimachusproject.Setup;
 
 public class TemporaryServerFactory {
-	private static final TemporaryServerFactory instance = new TemporaryServerFactory("http://localhost:49152", 49152, "test", "test".toCharArray());
+	private static final TemporaryServerFactory instance = new TemporaryServerFactory("http://localhost:49151", 49151, "test", "test".toCharArray());
 
 	public static TemporaryServerFactory getInstance() {
 		return instance;
@@ -165,8 +165,7 @@ public class TemporaryServerFactory {
 				FileUtil.deleteDir(dir);
 			}
 			dir.delete();
-			String config = new Scanner(TemporaryServer.class
-					.getResourceAsStream("/callimachus-repository.ttl")).useDelimiter("\\A").next();
+			String config = new Scanner(new File("src", "callimachus-repository.ttl")).useDelimiter("\\A").next();
 			Setup setup = new Setup();
 			setup.connect(dir, config);
 			setup.createOrigin(origin);

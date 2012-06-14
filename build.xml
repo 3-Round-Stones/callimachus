@@ -33,6 +33,7 @@
 	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
 	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.5/windows/commons-daemon-1.0.5-bin-windows.zip" />
 	<property name="compress.url" value="http://archive.apache.org/dist/commons/compress/binaries/commons-compress-1.3-bin.tar.gz" />
+	<property name="httpcore.url" value="http://www.apache.org/dist/httpcomponents/httpcore/binary/httpcomponents-core-4.2.1-bin.zip" />
 	<property name="calabash.url" value="http://xmlcalabash.com/download/calabash-1.0.3-94.zip" />
 	<property name="jing.url" value="http://jing-trang.googlecode.com/files/jing-20091111.zip" />
 	<property name="tagsoup.jar" value="tagsoup-1.2.1.jar" />
@@ -126,16 +127,25 @@
 			<get src="${jing.url}" dest="${downloads}/jing.zip" />
 			<get src="${fop.url}" dest="${downloads}/fop.zip" />
 			<get src="${tagsoup.url}" dest="${lib}/${tagsoup.jar}" />
+			<get src="${httpcore.url}" dest="${downloads}/httpcore.zip" />
 		</parallel>
 		<unzip src="${downloads}/openrdf-alibaba.zip" dest="${lib}">
 			<patternset>
 				<include name="lib/*.jar" />
 				<include name="dist/*.jar" />
 				<exclude name="lib/commons-codec-*.jar" />
+				<exclude name="lib/httpcore*.jar" />
 			</patternset>
 			<mapper type="flatten" />
 		</unzip>
 		<delete file="${downloads}/openrdf-alibaba.zip" />
+		<unzip src="${downloads}/httpcore.zip" dest="${lib}">
+			<patternset>
+				<include name="**/lib/*.jar" />
+			</patternset>
+			<mapper type="flatten" />
+		</unzip>
+		<delete file="${downloads}/httpcore.zip" />
 		<unzip src="${downloads}/jchardet.zip" dest="${lib}">
 			<patternset>
 				<include name="*/dist/lib/*.jar" />
@@ -335,9 +345,9 @@
 		</copy>
 	</target>
 
-	<target name="test" depends="test-compile" description="run the tests">
+	<target name="test" depends="dist,test-compile" description="run the tests">
 		<mkdir dir="${reports.tests}" />
-		<junit printsummary="yes" haltonfailure="yes" tempdir="${tmp}">
+		<junit printsummary="on" haltonfailure="on" tempdir="${tmp}">
 			<classpath>
 				<pathelement location="${build.tests}/" />
 				<pathelement location="${build}/" />
@@ -349,7 +359,7 @@
 				</fileset>
 			</classpath>
 
-			<formatter type="plain"/>
+			<formatter type="brief"/>
 
 			<batchtest fork="yes" todir="${reports.tests}">
 			<fileset dir="${src.tests}">

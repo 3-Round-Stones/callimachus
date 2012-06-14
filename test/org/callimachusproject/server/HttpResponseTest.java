@@ -9,6 +9,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.type;
@@ -60,7 +61,7 @@ public class HttpResponseTest extends MetadataServerTestCase {
 		try {
 			entity.writeTo(out);
 		} finally {
-			entity.consumeContent();
+			EntityUtils.consume(entity);
 		}
 		assertEquals("abc", out.toString("UTF-8"));
 	}

@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpInetConnection;
@@ -53,6 +52,7 @@ import org.apache.http.nio.protocol.NHttpResponseTrigger;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.client.HTTPService;
 import org.callimachusproject.server.model.ConsumingHttpEntity;
 import org.callimachusproject.server.model.Filter;
@@ -135,13 +135,10 @@ public class HTTPObjectRequestHandler implements NHttpRequestHandler,
 			return trigger.response;
 		} catch (IOException io) {
 			if (trigger.response != null) {
-				HttpEntity entity = trigger.response.getEntity();
-				if (entity != null) {
-					try {
-						entity.consumeContent();
-					} catch (IOException e) {
-						logger.debug(e.toString(), e);
-					}
+				try {
+					EntityUtils.consume(trigger.response.getEntity());
+				} catch (IOException e) {
+					logger.debug(e.toString(), e);
 				}
 			}
 			throw io;
@@ -293,24 +290,18 @@ public class HTTPObjectRequestHandler implements NHttpRequestHandler,
 		abort(conn.getContext());
 		HttpRequest req = conn.getHttpRequest();
 		if (req != null && req instanceof HttpEntityEnclosingRequest) {
-			HttpEntity entity = ((HttpEntityEnclosingRequest)req).getEntity();
-			if (entity != null) {
-				try {
-					entity.consumeContent();
-				} catch (IOException e) {
-					logger.warn(e.toString(), e);
-				}
+			try {
+				EntityUtils.consume(((HttpEntityEnclosingRequest)req).getEntity());
+			} catch (IOException e) {
+				logger.warn(e.toString(), e);
 			}
 		}
 		HttpResponse resp = conn.getHttpResponse();
 		if (resp != null) {
-			HttpEntity entity = resp.getEntity();
-			if (entity != null) {
-				try {
-					entity.consumeContent();
-				} catch (IOException e) {
-					logger.warn(e.toString(), e);
-				}
+			try {
+				EntityUtils.consume(resp.getEntity());
+			} catch (IOException e) {
+				logger.warn(e.toString(), e);
 			}
 		}
 		synchronized (connections) {
@@ -333,13 +324,10 @@ public class HTTPObjectRequestHandler implements NHttpRequestHandler,
 			ResponseTrigger trigger = new ResponseTrigger();
 			task.setTrigger(trigger);
 			if (trigger.response != null) {
-				HttpEntity entity = trigger.response.getEntity();
-				if (entity != null) {
-					try {
-						entity.consumeContent();
-					} catch (IOException e) {
-						logger.debug(e.toString(), e);
-					}
+				try {
+					EntityUtils.consume(trigger.response.getEntity());
+				} catch (IOException e) {
+					logger.debug(e.toString(), e);
 				}
 			}
 			if (trigger.io != null) {

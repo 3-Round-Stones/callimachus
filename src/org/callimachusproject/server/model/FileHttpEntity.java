@@ -30,6 +30,7 @@ package org.callimachusproject.server.model;
 
 import java.io.File;
 
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 
 /**
@@ -42,7 +43,7 @@ public class FileHttpEntity extends FileEntity {
 	private File file;
 
 	public FileHttpEntity(File file, String contentType) {
-		super(file, contentType);
+		super(file, ContentType.create(contentType));
 		this.file = file;
 	}
 

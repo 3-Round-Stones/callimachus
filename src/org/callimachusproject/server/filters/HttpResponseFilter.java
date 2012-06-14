@@ -40,6 +40,7 @@ import javax.activation.MimeTypeParseException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.readers.HttpMessageReader;
@@ -130,7 +131,7 @@ public class HttpResponseFilter extends Filter {
 				return cin.isOpen();
 			}
 			public void close() throws IOException {
-				entity.consumeContent();
+				EntityUtils.consume(entity);
 			}
 			public int read(ByteBuffer dst) throws IOException {
 				return cin.read(dst);

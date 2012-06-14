@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ public class EntityRemovedHttpResponse extends BasicHttpResponse {
 		HttpEntity previously = getEntity();
 		if (entity == null && previously != null) {
 			try {
-				previously.consumeContent();
+				EntityUtils.consume(previously);
 			} catch (IOException e) {
 				logger.warn(e.toString(), e);
 			}

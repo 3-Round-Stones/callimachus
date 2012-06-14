@@ -57,6 +57,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentDecoder;
@@ -66,6 +67,7 @@ import org.apache.http.nio.entity.ConsumingNHttpEntityTemplate;
 import org.apache.http.nio.entity.ContentListener;
 import org.apache.http.nio.entity.NFileEntity;
 import org.apache.http.protocol.HttpDateGenerator;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.server.model.EntityRemovedHttpResponse;
 import org.callimachusproject.server.model.FileHttpEntity;
 import org.callimachusproject.server.model.Filter;
@@ -268,10 +270,7 @@ public class CachingFilter extends Filter {
 					} else if (cached == null) {
 						return resp;
 					} else {
-						HttpEntity entity = resp.getEntity();
-						if (entity != null) {
-							entity.consumeContent();
-						}
+						EntityUtils.consume(resp.getEntity());
 						HttpResponse result = respondWithCache(now, request, cached, resp);
 						result.addHeader("Warning", WARN_111);
 						logger.warn(resp.getStatusLine().getReasonPhrase());
@@ -380,7 +379,7 @@ public class CachingFilter extends Filter {
 			}
 		} finally {
 			out.close();
-			entity.consumeContent();
+			EntityUtils.consume(entity);
 		}
 		byte[] hash = Base64.encodeBase64(digest.digest());
 		String contentMD5 = new String(hash, "UTF-8");
@@ -754,19 +753,10 @@ public class CachingFilter extends Filter {
 			} else {
 				final Lock inUse = cached.open();
 				final File file = cached.getBody();
-				res.setEntity(new NFileEntity(file, type, true) {
+				res.setEntity(new NFileEntity(file, ContentType.create(type), true) {
 					
 					public String toString() {
 						return file.toString();
-					}
-
-					public void consumeContent() throws IOException,
-							UnsupportedOperationException {
-						try {
-							super.consumeContent();
-						} finally {
-							inUse.release();
-						}
 					}
 
 					public InputStream getContent() throws IOException {
@@ -787,9 +777,9 @@ public class CachingFilter extends Filter {
 						});
 					}
 
-					public void finish() {
+					public void close() throws IOException {
 						try {
-							super.finish();
+							super.close();
 						} finally {
 							inUse.release();
 						}

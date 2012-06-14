@@ -41,6 +41,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Base class for HTTP exceptions.
@@ -146,7 +147,7 @@ public abstract class ResponseException extends RuntimeException {
 		} catch (IOException e) {
 			return new String[]{defaultTitle, null};
 		} finally {
-			entity.consumeContent();
+			EntityUtils.consume(entity);
 		}
 	}
 

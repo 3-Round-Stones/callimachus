@@ -30,6 +30,7 @@
 package org.callimachusproject.server;
 
 import static org.apache.http.params.CoreConnectionPNames.SOCKET_BUFFER_SIZE;
+import static org.apache.http.params.CoreConnectionPNames.SO_KEEPALIVE;
 import static org.apache.http.params.CoreConnectionPNames.SO_TIMEOUT;
 import static org.apache.http.params.CoreConnectionPNames.STALE_CONNECTION_CHECK;
 import static org.apache.http.params.CoreConnectionPNames.TCP_NODELAY;
@@ -159,6 +160,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		this.repository = repository;
 		HttpParams params = new BasicHttpParams();
 		params.setIntParameter(SO_TIMEOUT, timeout);
+		params.setBooleanParameter(SO_KEEPALIVE, true);
 		params.setIntParameter(SOCKET_BUFFER_SIZE, 8 * 1024);
 		params.setBooleanParameter(STALE_CONNECTION_CHECK, false);
 		params.setBooleanParameter(TCP_NODELAY, false);

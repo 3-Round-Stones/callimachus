@@ -52,6 +52,7 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.concepts.Transaction;
@@ -213,10 +214,7 @@ public class ResourceRequest extends Request {
 				@Override
 				public void close() throws IOException {
 					super.close();
-					HttpEntity entity = getEntity();
-					if (entity != null) {
-						entity.consumeContent();
-					}
+					EntityUtils.consume(getEntity());
 				}
 
 				@Override

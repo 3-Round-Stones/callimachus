@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.concepts.AuthenticationManager;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.concepts.Realm;
@@ -144,10 +144,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 			return resp;
 		} finally {
 			if (unauth != null) {
-				HttpEntity entity = unauth.getEntity();
-				if (entity != null) {
-					entity.consumeContent();
-				}
+				EntityUtils.consume(unauth.getEntity());
 			}
 		}
 	}

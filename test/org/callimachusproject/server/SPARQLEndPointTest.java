@@ -101,15 +101,6 @@ public class SPARQLEndPointTest extends MetadataServerTestCase {
 						return new BasicHeader("Content-Type",
 								"application/rdf+xml");
 					}
-
-					public void writeTo(OutputStream outstream)
-							throws IOException {
-						try {
-							super.writeTo(outstream);
-						} finally {
-							consumeContent();
-						}
-					}
 				});
 			} else if (query instanceof TupleQuery) {
 				final TupleQueryResult result = ((TupleQuery) query).evaluate();
@@ -149,15 +140,6 @@ public class SPARQLEndPointTest extends MetadataServerTestCase {
 						return new BasicHeader("Content-Type",
 								"application/sparql-results+xml");
 					}
-
-					public void writeTo(OutputStream outstream)
-							throws IOException {
-						try {
-							super.writeTo(outstream);
-						} finally {
-							consumeContent();
-						}
-					}
 				});
 			} else if (query instanceof BooleanQuery) {
 				final boolean result = ((BooleanQuery) query).evaluate();
@@ -180,15 +162,6 @@ public class SPARQLEndPointTest extends MetadataServerTestCase {
 					public Header getContentType() {
 						return new BasicHeader("Content-Type",
 								"application/sparql-results+xml");
-					}
-
-					public void writeTo(OutputStream outstream)
-							throws IOException {
-						try {
-							super.writeTo(outstream);
-						} finally {
-							consumeContent();
-						}
 					}
 				});
 			} else {

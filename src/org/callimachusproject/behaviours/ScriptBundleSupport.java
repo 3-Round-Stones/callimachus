@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.concepts.ScriptBundle;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
@@ -112,7 +113,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 		if (code < 300) {
 			return new InputStreamReader(entity.getContent(), "UTF-8");
 		} else if (code < 400 && resp.containsHeader("Location") && max > 0) {
-			entity.consumeContent();
+			EntityUtils.consume(entity);
 			String location = resp.getHeaders("Location")[0].getValue();
 			return openJavaScriptReader(location, max--, client);
 		} else {

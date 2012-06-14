@@ -103,11 +103,20 @@ public class BLOBDeleteTest extends TestCase {
 						    "<th>Artist</th>  </tr> </table> </body> </html> </xsl:template> \n" +
 						    "</xsl:stylesheet>" 
 			});
+            
+            put("pipeline", new String[] { "pipeline.xpl", "application/xproc+xml",
+            		"<?xml version=\"1.0\" encoding=\"UTF-8\" ?> \n" +
+            	    "<p:pipeline version=\"1.0\" \n" +
+                    "xmlns:p=\"http://www.w3.org/ns/xproc\" \n " + 
+                    "xmlns:c=\"http://www.w3.org/ns/xproc-step\" \n" +
+                    "xmlns:l=\"http://xproc.org/library\"> \n " +
+                    "<p:identity /> </p:pipeline> " 
+            });
         }
     };
     
     public static TestSuite suite() throws Exception{
-        TestSuite suite = new TestSuite(BLOBCreateTest.class.getName());
+        TestSuite suite = new TestSuite(BLOBDeleteTest.class.getName());
         for (String name : parameters.keySet()) {
             suite.addTest(new BLOBDeleteTest(name));
         }

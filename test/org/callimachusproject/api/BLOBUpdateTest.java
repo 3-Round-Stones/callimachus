@@ -144,6 +144,21 @@ public class BLOBUpdateTest extends TestCase {
 						    "<th>UPDATED Artist</th>  </tr> </table> </body> </html> </xsl:template> \n" +
 						    "</xsl:stylesheet>"
 			});
+            
+            put("pipeline", new String[] { "pipeline.xpl", "application/xproc+xml",
+            		"<?xml version=\"1.0\" encoding=\"UTF-8\" ?> \n" +
+            	    "<p:pipeline version=\"1.0\" \n" +
+                    "xmlns:p=\"http://www.w3.org/ns/xproc\" \n " + 
+                    "xmlns:c=\"http://www.w3.org/ns/xproc-step\" \n" +
+                    "xmlns:l=\"http://xproc.org/library\"> \n " +
+                    "<p:identity /> </p:pipeline> ", //End original
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?> \n" + //Begin update
+            	    "<p:pipeline version=\"1.0\" \n" +
+                    "xmlns:pUPDATED=\"http://www.w3.org/ns/xproc\" \n " + 
+                    "xmlns:cUPDATED=\"http://www.w3.org/ns/xproc-step\" \n" +
+                    "xmlns:lUPDATED=\"http://xproc.org/library\"> \n " +
+                    "<p:identity /> </p:pipeline> ",
+            });
         }
     };
 

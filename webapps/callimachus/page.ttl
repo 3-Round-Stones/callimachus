@@ -53,6 +53,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
+    calli:rel "edit-media";
     calli:type "application/xhtml+xml";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";

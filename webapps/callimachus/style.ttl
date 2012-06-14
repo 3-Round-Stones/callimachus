@@ -41,6 +41,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Style>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
+    calli:rel "edit-media";
     calli:type "text/css";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";

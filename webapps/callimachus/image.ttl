@@ -76,6 +76,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <AnimatedGraphic>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
+    calli:rel "edit-media";
     calli:type "image/gif";
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".
@@ -85,6 +86,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <IconGraphic>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
+    calli:rel "edit-media";
     calli:type "image/vnd.microsoft.icon";
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".
@@ -94,6 +96,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NetworkGraphic>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
+    calli:rel "edit-media";
     calli:type "image/png";
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".
@@ -103,6 +106,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <VectorGraphic>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
+    calli:rel "edit-media";
     calli:type "image/svg+xml";
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".

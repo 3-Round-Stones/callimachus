@@ -60,6 +60,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <GraphDocument>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
+    calli:rel "edit-media";
     calli:type "text/turtle";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";
@@ -149,6 +150,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedGraph>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
     calli:method "GET";
+    calli:rel "edit-media";
     calli:type "application/rdf+xml;q=0.4";
     calli:transform :TransformNamedGraph;
     msg:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".

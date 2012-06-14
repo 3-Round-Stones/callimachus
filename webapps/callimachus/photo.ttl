@@ -43,6 +43,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
+    calli:rel "edit-media";
     calli:type "image/jpeg";
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".

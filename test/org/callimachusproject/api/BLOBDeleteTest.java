@@ -32,16 +32,6 @@ public class BLOBDeleteTest extends TestCase {
         					"url(fonts/GenR102.ttf) format(\"truetype\"); }"
         	});
         	
-        	put("namedGraph", new String[] { "named.xml", "application/rdf+xml",
-							"<rdf:RDF \n" +
-        					"xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" \n" +
-        					"xmlns:dcterms=\"http://purl.org/dc/terms/\"> \n" +
-        				    "<rdf:Description rdf:about=\"urn:x-states:New%20York\"> \n" +
-        				    "<dcterms:alternative>NY</dcterms:alternative> \n" +
-        				    "</rdf:Description> \n" +
-        				    "</rdf:RDF>" 
-        	});
-        	
         	put("namedQuery", new String[] { "query.sparql", "application/sparql-query",
 							"SELECT ?title WHERE { \n" +
 							"<http://example.org/book/book1> <http://purl.org/dc/elements/1.1/title> ?title . \n" +
@@ -159,6 +149,7 @@ public class BLOBDeleteTest extends TestCase {
 		HttpURLConnection contentsConnection = (HttpURLConnection) contentsURL.openConnection();
 		contentsConnection.setRequestMethod("GET");
 		contentsConnection.setRequestProperty("ACCEPT", "application/atom+xml");
+		assertEquals(contentsConnection.getResponseMessage(), 200, contentsConnection.getResponseCode());
 		InputStream stream = contentsConnection.getInputStream();
 		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
 		int app = text.indexOf("<app:collection");
@@ -173,6 +164,7 @@ public class BLOBDeleteTest extends TestCase {
 		URL url = new java.net.URL(temporaryServer.getOrigin() + "/");
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("OPTIONS");
+		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
 		String header = connection.getHeaderField("LINK");
 		int rel = header.indexOf("rel=\"contents\"");
 		int end = header.lastIndexOf(">", rel);
@@ -191,6 +183,7 @@ public class BLOBDeleteTest extends TestCase {
 		OutputStream output = connection.getOutputStream();
 		output.write(outputString.getBytes());
 		output.close();
+		assertEquals(connection.getResponseMessage(), 201, connection.getResponseCode());
 		String header = connection.getHeaderField("Location");
 		return header;
 	}
@@ -199,6 +192,7 @@ public class BLOBDeleteTest extends TestCase {
 		URL url = new java.net.URL(getLocation());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("OPTIONS");
+		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
 		String header = connection.getHeaderField("LINK");
 		int rel = header.indexOf("rel=\"edit-media\"");
 		int end = header.lastIndexOf(">", rel);
@@ -207,12 +201,10 @@ public class BLOBDeleteTest extends TestCase {
 		return contents;
 	}
 	
-	public void testDelete() throws Exception {
+	public void runTest() throws Exception {
 		URL url = new java.net.URL(getEditMedia());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("DELETE");
-		int code = connection.getResponseCode();
-		assertEquals(204, code);
+		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
 	}
-
 }

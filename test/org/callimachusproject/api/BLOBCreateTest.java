@@ -33,16 +33,6 @@ public class BLOBCreateTest extends TestCase {
         					"url(fonts/GenR102.ttf) format(\"truetype\"); }"
         	});
         	
-        	put("namedGraph", new String[] { "named.xml", "application/rdf+xml",
-							"<rdf:RDF \n" +
-        					"xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" \n" +
-        					"xmlns:dcterms=\"http://purl.org/dc/terms/\"> \n" +
-        				    "<rdf:Description rdf:about=\"urn:x-states:New%20York\"> \n" +
-        				    "<dcterms:alternative>NY</dcterms:alternative> \n" +
-        				    "</rdf:Description> \n" +
-        				    "</rdf:RDF>" 
-        	});
-        	
         	put("namedQuery", new String[] { "query.sparql", "application/sparql-query",
 							"SELECT ?title WHERE { \n" +
 							"<http://example.org/book/book1> <http://purl.org/dc/elements/1.1/title> ?title . \n" +

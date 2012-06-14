@@ -77,7 +77,7 @@ public class BLOBUpdateTest extends TestCase {
 							"<head> <title> Wikipedia has been UPDATED </title> </head> \n" +
 							"<body> <p> The UPDATED Wikipedia is a great website. </p> </body> </html>"
 			});
-        	/*
+        	
         	put("animatedGraphic", new String[] { "graphic.gif", "image/gif",
 							"binary", //End original 
 							"UPDATED BINARY" //Begin update
@@ -92,7 +92,7 @@ public class BLOBUpdateTest extends TestCase {
 							"binary", //End original 
 							"UPDATED BINARY" //Begin update
 			});
-        	*/
+        	
         	put("vectorGraphic", new String[] { "vector.svg", "image/svg+xml",
 							"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">" +
 							"<circle cx=\"100\" cy=\"50\" r=\"40\" stroke=\"black\"" +
@@ -101,12 +101,12 @@ public class BLOBUpdateTest extends TestCase {
 							"<circle cx=\"100\" cy=\"50\" r=\"40\" stroke=\"black\"" +
 							"stroke-width=\"2\" fill=\"red\" /> </svg> \n "
 			});
-        	/*
+        	
         	put("iconGraphic", new String[] { "logo.image", "image/vnd.microsoft.icon",
 							"binary", //End original 
 							"UPDATED BINARY" //Begin update
 			});
-        	*/
+        	
         	put("style", new String[] { "style.css", "text/css",
 							"hr {color:sienna;} \n" +
 						    "p {margin-left:20px;} \n" +

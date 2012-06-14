@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 
 public class FolderContentsTest extends TestCase {
 
-	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
+	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 
 	public FolderContentsTest(String name) throws Exception {
 		super(name);

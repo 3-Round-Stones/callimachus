@@ -124,7 +124,7 @@ public class BLOBCreateTest extends TestCase {
         return suite;
     }
 	
-	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();;
+	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 	private String requestSlug;
 	private String requestContentType;
 	private String outputString;

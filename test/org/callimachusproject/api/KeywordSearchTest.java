@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 
 public class KeywordSearchTest extends TestCase {
 
-	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
+	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 
 	public KeywordSearchTest(String name) throws Exception {
 		super(name);

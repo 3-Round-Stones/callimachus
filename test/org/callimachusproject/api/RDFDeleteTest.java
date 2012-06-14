@@ -79,7 +79,7 @@ public class RDFDeleteTest extends TestCase {
         return suite;
     }
 	
-	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
+	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 	private String query;
 	
 	public RDFDeleteTest(String name) throws Exception {

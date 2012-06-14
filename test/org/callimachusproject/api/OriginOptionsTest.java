@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 public class OriginOptionsTest extends TestCase {
 
-	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
+	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 
 	public OriginOptionsTest(String name) throws Exception {
 		super(name);

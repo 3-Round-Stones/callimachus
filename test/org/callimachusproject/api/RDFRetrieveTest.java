@@ -86,7 +86,7 @@ public class RDFRetrieveTest extends TestCase {
         return suite;
     }
 	
-	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
+	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 	private String query;
 	private String compareText;
 

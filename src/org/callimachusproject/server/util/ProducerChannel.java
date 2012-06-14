@@ -57,6 +57,7 @@ public class ProducerChannel implements ReadableByteChannel {
 	private final SourceChannel ch;
 	private final Future<Void> task;
 	private final CountDownLatch latch = new CountDownLatch(1);
+	private volatile boolean started;
 	private IOException io;
 	private Error error;
 
@@ -68,6 +69,7 @@ public class ProducerChannel implements ReadableByteChannel {
 		task = executor.submit(new Runnable() {
 			public void run() {
 				try {
+					started = true;
 					producer.produce(sink);
 				} catch (InterruptedIOException e) {
 					// exit
@@ -121,7 +123,9 @@ public class ProducerChannel implements ReadableByteChannel {
 		}
 		verify();
 		try {
-			latch.await();
+			if (!task.isCancelled() || started) {
+				latch.await();
+			}
 		} catch (InterruptedException e) {
 			InterruptedIOException exc;
 			exc = new InterruptedIOException(e.toString());

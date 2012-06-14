@@ -1,4 +1,4 @@
-package org.callimachusproject.api;
+package org.callimachusproject.server.api;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,11 +15,12 @@ import java.util.Map;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class BLOBDeleteTest extends TestCase {
-
+public class BLOBCreateTest extends TestCase {
+	
 	private static Map<String, String[]> parameters = new LinkedHashMap<String, String[]>() {
-        private static final long serialVersionUID = -4308917786147773821L; {
-        	
+        private static final long serialVersionUID = -4308917786147773821L;
+
+        {
         	put("article", new String[] { "article.docbook", "application/docbook+xml",
         					"<section id=\"ls\"> \n <title>LS command</title> \n " +
         					"<para>This command is a synonym for <link linkend=\"dir\"> <command>DIR</command></link> command. \n" +
@@ -114,11 +115,11 @@ public class BLOBDeleteTest extends TestCase {
             });
         }
     };
-    
+
     public static TestSuite suite() throws Exception{
-        TestSuite suite = new TestSuite(BLOBDeleteTest.class.getName());
+        TestSuite suite = new TestSuite(BLOBCreateTest.class.getName());
         for (String name : parameters.keySet()) {
-            suite.addTest(new BLOBDeleteTest(name));
+            suite.addTest(new BLOBCreateTest(name));
         }
         return suite;
     }
@@ -128,7 +129,7 @@ public class BLOBDeleteTest extends TestCase {
 	private String requestContentType;
 	private String outputString;
 
-	public BLOBDeleteTest(String name) throws Exception {
+	public BLOBCreateTest(String name) throws Exception {
 		super(name);
 		String [] args = parameters.get(name);
 		requestSlug = args[0];
@@ -182,7 +183,7 @@ public class BLOBDeleteTest extends TestCase {
 		return contents;
 	}
 	
-	private String getLocation() throws Exception {
+	public void runTest() throws MalformedURLException, Exception {
 		URL url = new java.net.URL(getCollection());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
@@ -193,27 +194,6 @@ public class BLOBDeleteTest extends TestCase {
 		output.write(outputString.getBytes());
 		output.close();
 		assertEquals(connection.getResponseMessage(), 201, connection.getResponseCode());
-		String header = connection.getHeaderField("Location");
-		return header;
 	}
-	
-	private String getEditMedia() throws Exception {
-		URL url = new java.net.URL(getLocation());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("OPTIONS");
-		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
-		String header = connection.getHeaderField("LINK");
-		int rel = header.indexOf("rel=\"edit-media\"");
-		int end = header.lastIndexOf(">", rel);
-		int start = header.lastIndexOf("<", rel);
-		String contents = header.substring(start + 1, end);
-		return contents;
-	}
-	
-	public void runTest() throws Exception {
-		URL url = new java.net.URL(getEditMedia());
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("DELETE");
-		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
-	}
+
 }

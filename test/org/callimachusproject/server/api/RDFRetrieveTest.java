@@ -1,6 +1,7 @@
-package org.callimachusproject.api;
+package org.callimachusproject.server.api;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
@@ -14,8 +15,8 @@ import java.util.Map;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class RDFCreateTest extends TestCase {
-	
+public class RDFRetrieveTest extends TestCase {
+
 	private static Map<String, String[]> parameters = new LinkedHashMap<String, String[]>() {
         private static final long serialVersionUID = -4308917786147773821L;
 
@@ -26,7 +27,8 @@ public class RDFCreateTest extends TestCase {
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         		    " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n " + 
         			" INSERT DATA {  \n <concept> a skos:Concept, </callimachus/Concept> ;  \n" +
-        			" skos:prefLabel \"concept\" . }"
+        			" skos:prefLabel \"concept\" . }",
+        			"concept"
         	});
         	
         	put("Folder", new String[] {
@@ -34,7 +36,8 @@ public class RDFCreateTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <test/> a calli:Folder, </callimachus/Folder> ;  \n" +
-        			" rdfs:label \"test\" . }"
+        			" rdfs:label \"test\" . }",
+        			"test"
         	});
         	
         	put("Group", new String[] {
@@ -42,7 +45,8 @@ public class RDFCreateTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <testGroup/> a calli:Party, calli:Group, </callimachus/Group> ;  \n" +
-        			" rdfs:label \"testGroup\" . }"
+        			" rdfs:label \"testGroup\" . }",
+        			"testGroup"
         	});
         	
         	put("Menu", new String[] {
@@ -50,7 +54,8 @@ public class RDFCreateTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <menu/> a calli:Menu, </callimachus/Menu> ;  \n" +
-        			" rdfs:label \"menu\" . }"
+        			" rdfs:label \"menu\" . }",
+        			"menu"
         	});
         	
         	put("Theme", new String[] {
@@ -58,7 +63,8 @@ public class RDFCreateTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <theme/> a calli:Theme, </callimachus/Theme> ;  \n" +
-        			" rdfs:label \"theme\" . }"
+        			" rdfs:label \"theme\" . }",
+        			"theme"
         	});
         	
         	put("User", new String[] {
@@ -66,26 +72,29 @@ public class RDFCreateTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <user> a calli:Party, calli:User, </callimachus/User> ;  \n" +
-        			" rdfs:label \"user\" . }"
+        			" rdfs:label \"user\" . }",
+        			"user"
         	});
         }
     };
-
+    
 	public static TestSuite suite() throws Exception{
-        TestSuite suite = new TestSuite(RDFCreateTest.class.getName());
+        TestSuite suite = new TestSuite(RDFRetrieveTest.class.getName());
         for (String name : parameters.keySet()) {
-            suite.addTest(new RDFCreateTest(name));
+            suite.addTest(new RDFRetrieveTest(name));
         }
         return suite;
     }
 	
 	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 	private String query;
+	private String compareText;
 
-	public RDFCreateTest(String name) throws Exception {
+	public RDFRetrieveTest(String name) throws Exception {
 		super(name);
 		String [] args = parameters.get(name);
 		query = args[0];
+		compareText = args[1];
 	}
 
 	public void setUp() throws Exception {
@@ -117,7 +126,8 @@ public class RDFCreateTest extends TestCase {
 		return contents;
 	}
 	
-	public void runTest() throws MalformedURLException, Exception {
+	private String getLocation() throws Exception {
+		
 		URL url = new java.net.URL(getRDFContents());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
@@ -127,6 +137,30 @@ public class RDFCreateTest extends TestCase {
 		output.write(("BASE <" + temporaryServer.getOrigin() + "/> \n" + query).getBytes());
 		output.close();
 		assertEquals(connection.getResponseMessage(), 201, connection.getResponseCode());
+		String header = connection.getHeaderField("Location");
+		return header;
 	}
-
+	
+	private String getDescribedBy() throws Exception {
+		URL url = new java.net.URL(getLocation());
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("OPTIONS");
+		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
+		String header = connection.getHeaderField("LINK");
+		int rel = header.indexOf("rel=\"describedby\"");
+		int end = header.lastIndexOf(">", rel);
+		int start = header.lastIndexOf("<", rel);
+		String contents = header.substring(start + 1, end);
+		return contents;
+	}
+	
+	public void runTest() throws Exception {
+		URL url = new java.net.URL(getDescribedBy());
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.setRequestProperty("ACCEPT", "text/turtle");
+		InputStream stream = connection.getInputStream();
+		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
+		assertTrue(connection.getResponseMessage(), text.contains(compareText));
+	}
 }

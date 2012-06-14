@@ -1,4 +1,4 @@
-package org.callimachusproject.api;
+package org.callimachusproject.server.api;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,8 +15,8 @@ import java.util.Map;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class BLOBCreateTest extends TestCase {
-	
+public class BLOBRetrieveTest extends TestCase {
+
 	private static Map<String, String[]> parameters = new LinkedHashMap<String, String[]>() {
         private static final long serialVersionUID = -4308917786147773821L;
 
@@ -117,9 +117,9 @@ public class BLOBCreateTest extends TestCase {
     };
 
     public static TestSuite suite() throws Exception{
-        TestSuite suite = new TestSuite(BLOBCreateTest.class.getName());
+        TestSuite suite = new TestSuite(BLOBRetrieveTest.class.getName());
         for (String name : parameters.keySet()) {
-            suite.addTest(new BLOBCreateTest(name));
+            suite.addTest(new BLOBRetrieveTest(name));
         }
         return suite;
     }
@@ -129,7 +129,7 @@ public class BLOBCreateTest extends TestCase {
 	private String requestContentType;
 	private String outputString;
 
-	public BLOBCreateTest(String name) throws Exception {
+	public BLOBRetrieveTest(String name) throws Exception {
 		super(name);
 		String [] args = parameters.get(name);
 		requestSlug = args[0];
@@ -183,7 +183,7 @@ public class BLOBCreateTest extends TestCase {
 		return contents;
 	}
 	
-	public void runTest() throws MalformedURLException, Exception {
+	private String getLocation() throws Exception {
 		URL url = new java.net.URL(getCollection());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
@@ -194,6 +194,31 @@ public class BLOBCreateTest extends TestCase {
 		output.write(outputString.getBytes());
 		output.close();
 		assertEquals(connection.getResponseMessage(), 201, connection.getResponseCode());
+		String header = connection.getHeaderField("Location");
+		return header;
+	}
+	
+	private String getEditMedia() throws Exception {
+		URL url = new java.net.URL(getLocation());
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("OPTIONS");
+		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
+		String header = connection.getHeaderField("LINK");
+		int rel = header.indexOf("rel=\"edit-media\"");
+		int end = header.lastIndexOf(">", rel);
+		int start = header.lastIndexOf("<", rel);
+		String contents = header.substring(start + 1, end);
+		return contents;
+	}
+	
+	public void runTest() throws Exception {
+		URL url = new java.net.URL(getEditMedia());
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.setRequestProperty("ACCEPT", requestContentType);
+		InputStream stream = connection.getInputStream();
+		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
+		assertEquals(connection.getResponseMessage(), outputString, text);
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.callimachusproject.api;
+package org.callimachusproject.server.api;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,12 +15,11 @@ import java.util.Map;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class BLOBRetrieveTest extends TestCase {
+public class BLOBDeleteTest extends TestCase {
 
 	private static Map<String, String[]> parameters = new LinkedHashMap<String, String[]>() {
-        private static final long serialVersionUID = -4308917786147773821L;
-
-        {
+        private static final long serialVersionUID = -4308917786147773821L; {
+        	
         	put("article", new String[] { "article.docbook", "application/docbook+xml",
         					"<section id=\"ls\"> \n <title>LS command</title> \n " +
         					"<para>This command is a synonym for <link linkend=\"dir\"> <command>DIR</command></link> command. \n" +
@@ -115,11 +114,11 @@ public class BLOBRetrieveTest extends TestCase {
             });
         }
     };
-
+    
     public static TestSuite suite() throws Exception{
-        TestSuite suite = new TestSuite(BLOBRetrieveTest.class.getName());
+        TestSuite suite = new TestSuite(BLOBDeleteTest.class.getName());
         for (String name : parameters.keySet()) {
-            suite.addTest(new BLOBRetrieveTest(name));
+            suite.addTest(new BLOBDeleteTest(name));
         }
         return suite;
     }
@@ -129,7 +128,7 @@ public class BLOBRetrieveTest extends TestCase {
 	private String requestContentType;
 	private String outputString;
 
-	public BLOBRetrieveTest(String name) throws Exception {
+	public BLOBDeleteTest(String name) throws Exception {
 		super(name);
 		String [] args = parameters.get(name);
 		requestSlug = args[0];
@@ -214,11 +213,7 @@ public class BLOBRetrieveTest extends TestCase {
 	public void runTest() throws Exception {
 		URL url = new java.net.URL(getEditMedia());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("ACCEPT", requestContentType);
-		InputStream stream = connection.getInputStream();
-		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
-		assertEquals(connection.getResponseMessage(), outputString, text);
+		connection.setRequestMethod("DELETE");
+		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
 	}
-
 }

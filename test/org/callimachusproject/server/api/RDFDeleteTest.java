@@ -1,7 +1,6 @@
-package org.callimachusproject.api;
+package org.callimachusproject.server.api;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
@@ -15,7 +14,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class RDFRetrieveTest extends TestCase {
+public class RDFDeleteTest extends TestCase {
 
 	private static Map<String, String[]> parameters = new LinkedHashMap<String, String[]>() {
         private static final long serialVersionUID = -4308917786147773821L;
@@ -27,8 +26,7 @@ public class RDFRetrieveTest extends TestCase {
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         		    " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n " + 
         			" INSERT DATA {  \n <concept> a skos:Concept, </callimachus/Concept> ;  \n" +
-        			" skos:prefLabel \"concept\" . }",
-        			"concept"
+        			" skos:prefLabel \"concept\" . }"
         	});
         	
         	put("Folder", new String[] {
@@ -36,8 +34,7 @@ public class RDFRetrieveTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <test/> a calli:Folder, </callimachus/Folder> ;  \n" +
-        			" rdfs:label \"test\" . }",
-        			"test"
+        			" rdfs:label \"test\" . }"
         	});
         	
         	put("Group", new String[] {
@@ -45,8 +42,7 @@ public class RDFRetrieveTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <testGroup/> a calli:Party, calli:Group, </callimachus/Group> ;  \n" +
-        			" rdfs:label \"testGroup\" . }",
-        			"testGroup"
+        			" rdfs:label \"testGroup\" . }"
         	});
         	
         	put("Menu", new String[] {
@@ -54,8 +50,7 @@ public class RDFRetrieveTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <menu/> a calli:Menu, </callimachus/Menu> ;  \n" +
-        			" rdfs:label \"menu\" . }",
-        			"menu"
+        			" rdfs:label \"menu\" . }"
         	});
         	
         	put("Theme", new String[] {
@@ -63,8 +58,7 @@ public class RDFRetrieveTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <theme/> a calli:Theme, </callimachus/Theme> ;  \n" +
-        			" rdfs:label \"theme\" . }",
-        			"theme"
+        			" rdfs:label \"theme\" . }"
         	});
         	
         	put("User", new String[] {
@@ -72,29 +66,26 @@ public class RDFRetrieveTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         			" INSERT DATA {  \n <user> a calli:Party, calli:User, </callimachus/User> ;  \n" +
-        			" rdfs:label \"user\" . }",
-        			"user"
+        			" rdfs:label \"user\" . }"
         	});
         }
     };
     
 	public static TestSuite suite() throws Exception{
-        TestSuite suite = new TestSuite(RDFRetrieveTest.class.getName());
+        TestSuite suite = new TestSuite(RDFDeleteTest.class.getName());
         for (String name : parameters.keySet()) {
-            suite.addTest(new RDFRetrieveTest(name));
+            suite.addTest(new RDFDeleteTest(name));
         }
         return suite;
     }
 	
 	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
 	private String query;
-	private String compareText;
-
-	public RDFRetrieveTest(String name) throws Exception {
+	
+	public RDFDeleteTest(String name) throws Exception {
 		super(name);
 		String [] args = parameters.get(name);
 		query = args[0];
-		compareText = args[1];
 	}
 
 	public void setUp() throws Exception {
@@ -127,7 +118,6 @@ public class RDFRetrieveTest extends TestCase {
 	}
 	
 	private String getLocation() throws Exception {
-		
 		URL url = new java.net.URL(getRDFContents());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
@@ -157,10 +147,7 @@ public class RDFRetrieveTest extends TestCase {
 	public void runTest() throws Exception {
 		URL url = new java.net.URL(getDescribedBy());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("ACCEPT", "text/turtle");
-		InputStream stream = connection.getInputStream();
-		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
-		assertTrue(connection.getResponseMessage(), text.contains(compareText));
+		connection.setRequestMethod("DELETE");
+		assertEquals(connection.getResponseMessage(), 204, connection.getResponseCode());
 	}
 }

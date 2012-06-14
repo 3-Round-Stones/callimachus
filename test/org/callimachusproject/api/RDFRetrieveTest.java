@@ -21,57 +21,57 @@ public class RDFRetrieveTest extends TestCase {
         private static final long serialVersionUID = -4308917786147773821L;
 
         {
-        	put("SKOSConcept", new String[] { "application/sparql-update",
+        	put("SKOSConcept", new String[] {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         		    " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n " + 
-        			" INSERT DATA {  \n <concept> a </callimachus/Concept> ;  \n" +
+        			" INSERT DATA {  \n <concept> a skos:Concept, </callimachus/Concept> ;  \n" +
         			" skos:prefLabel \"concept\" . }",
         			"concept"
         	});
         	
-        	put("Folder", new String[] { "application/sparql-update",
+        	put("Folder", new String[] {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <test/> a </callimachus/Folder> ;  \n" +
+        			" INSERT DATA {  \n <test/> a calli:Folder, </callimachus/Folder> ;  \n" +
         			" rdfs:label \"test\" . }",
         			"test"
         	});
         	
-        	put("Group", new String[] { "application/sparql-update",
+        	put("Group", new String[] {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <testGroup/> a </callimachus/Group> ;  \n" +
+        			" INSERT DATA {  \n <testGroup/> a calli:Party, calli:Group, </callimachus/Group> ;  \n" +
         			" rdfs:label \"testGroup\" . }",
         			"testGroup"
         	});
         	
-        	put("Menu", new String[] { "application/sparql-update",
+        	put("Menu", new String[] {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <menu/> a </callimachus/Menu> ;  \n" +
+        			" INSERT DATA {  \n <menu/> a calli:Menu, </callimachus/Menu> ;  \n" +
         			" rdfs:label \"menu\" . }",
         			"menu"
         	});
         	
-        	put("Theme", new String[] { "application/sparql-update",
+        	put("Theme", new String[] {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <theme/> a </callimachus/Theme> ;  \n" +
+        			" INSERT DATA {  \n <theme/> a calli:Theme, </callimachus/Theme> ;  \n" +
         			" rdfs:label \"theme\" . }",
         			"theme"
         	});
         	
-        	put("User", new String[] { "application/sparql-update",
+        	put("User", new String[] {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <user> a </callimachus/User> ;  \n" +
+        			" INSERT DATA {  \n <user> a calli:Party, calli:User, </callimachus/User> ;  \n" +
         			" rdfs:label \"user\" . }",
         			"user"
         	});
@@ -87,16 +87,14 @@ public class RDFRetrieveTest extends TestCase {
     }
 	
 	private static TemporaryServer temporaryServer = TemporaryServer.newInstance();
-	private String connectionContentType;
 	private String query;
 	private String compareText;
 
 	public RDFRetrieveTest(String name) throws Exception {
 		super(name);
 		String [] args = parameters.get(name);
-		connectionContentType = args[0];
-		query = args[1];
-		compareText = args[2];
+		query = args[0];
+		compareText = args[1];
 	}
 
 	public void setUp() throws Exception {
@@ -133,10 +131,10 @@ public class RDFRetrieveTest extends TestCase {
 		URL url = new java.net.URL(getRDFContents());
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", connectionContentType);
+		connection.setRequestProperty("Content-Type", "application/sparql-update");
 		connection.setDoOutput(true);
 		OutputStream output = connection.getOutputStream();
-		output.write(query.getBytes());
+		output.write(("BASE <" + temporaryServer.getOrigin() + "/> \n" + query).getBytes());
 		output.close();
 		assertEquals(connection.getResponseMessage(), 201, connection.getResponseCode());
 		String header = connection.getHeaderField("Location");

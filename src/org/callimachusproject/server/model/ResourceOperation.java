@@ -478,8 +478,7 @@ public class ResourceOperation extends ResourceRequest {
 			if (m.isAnnotationPresent(query.class)) {
 				query = m.getAnnotation(query.class).value();
 			}
-			if (query == null || query.length == 0 || query[0] == null
-					|| query[0].length() == 0) {
+			if (query == null || query.length == 0) {
 				if (m.isAnnotationPresent(method.class)) {
 					query = new String[]{null};
 				} else {

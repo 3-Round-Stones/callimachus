@@ -7,6 +7,8 @@
     // <![CDATA[
     jQuery(function($){
         window.deleteFolder = function(event,redirect) {
+            if (!confirm("Are you sure you want to delete the contents of this folder?"))
+                return false;
             var xhr = $.ajax({
                 type: 'DELETE',
                 url: '?archive', 

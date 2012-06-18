@@ -217,6 +217,8 @@ aside ul,
 }
 
 @media screen and (min-width:36em) {
+    h1 { padding-right: 12em; }
+    .nosidebar h1 { padding-right: 0; }
     hgroup ~ #sidebar { position:relative; top:-6em; }
     h1 ~ #sidebar { position:relative; top:-3.5em; }
     #sidebar { float:right; padding-left:1em; }

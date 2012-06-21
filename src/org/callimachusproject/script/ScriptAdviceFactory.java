@@ -25,7 +25,7 @@ public class ScriptAdviceFactory implements AdviceFactory, AdviceProvider {
 	}
 
 	@Override
-	public Advice createAdviser(Method method) {
+	public Advice createAdvice(Method method) {
 		EmbededScriptEngine engine = createEmbededScriptEngine(method);
 		if (method.isAnnotationPresent(imports.class)) {
 			for (Class<?> imports : method.getAnnotation(imports.class).value()) {

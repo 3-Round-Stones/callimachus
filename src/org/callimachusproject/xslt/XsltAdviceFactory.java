@@ -26,7 +26,7 @@ public class XsltAdviceFactory implements AdviceProvider, AdviceFactory {
 	}
 
 	@Override
-	public Advice createAdviser(Method m) {
+	public Advice createAdvice(Method m) {
 		Annotation[][] anns = m.getParameterAnnotations();
 		String[][] bindingNames = new String[anns.length][];
 		int input = -1;

@@ -65,18 +65,6 @@ rem strip period (.)
 set "NAME=%NAME:~0,-1%"
 :gotName
 
-if not "%DAEMON%" == "" goto gotDaemon
-if "%PROCESSOR_ARCHITECTURE%" == "AMD64" set "DAEMON=%BASEDIR%\bin\%NAME%-windows-amd64.exe"
-if not "%DAEMON%" == "" goto gotDaemon
-if "%PROCESSOR_ARCHITEW6432%" == "AMD64" set "DAEMON=%BASEDIR%\bin\%NAME%-windows-amd64.exe"
-if not "%DAEMON%" == "" goto gotDaemon
-if "%PROCESSOR_ARCHITECTURE%" == "IA64" set "DAEMON=%BASEDIR%\bin\%NAME%-windows-ia64.exe"
-if not "%DAEMON%" == "" goto gotDaemon
-if "%PROCESSOR_ARCHITEW6432%" == "IA64" set "DAEMON=%BASEDIR%\bin\%NAME%-windows-ia64.exe"
-if not "%DAEMON%" == "" goto gotDaemon
-set "DAEMON=%BASEDIR%\bin\%NAME%-windows-x86.exe"
-:gotDaemon
-
 rem Ensure that any user defined CLASSPATH variables are not used on startup.
 set CLASSPATH=
 
@@ -220,11 +208,6 @@ set "OPTS=%OPTS% -s %SSLPORT: = -s %"
 
 set "OPTS=%OPTS% -o %ORIGIN: = -o %"
 
-rem Lookup the service path in the registry
-set "KeyName=HKEY_LOCAL_MACHINE\SOFTWARE\Apache Software Foundation\Procrun 2.0\%NAME%\Parameters\Start"
-set Cmd=reg query "%KeyName%" /s
-for /f "tokens=2*" %%i in ('%Cmd% ^| find "WorkingPath"') do set SERVICE_PATH=%%j
-
 IF NOT EXIST "%BASEDIR%\log" MKDIR "%BASEDIR%\log"
 IF NOT EXIST "%BASEDIR%\run" MKDIR "%BASEDIR%\run"
 
@@ -240,26 +223,11 @@ echo Using ORIGIN:    %ORIGIN%
 echo Using JAVA_HOME: %JAVA_HOME%
 echo Using JDK_HOME:  %JDK_HOME%
 
-if not "%SERVICE_PATH%" == "%BASEDIR%" goto manualAction
-if ""%1"" == ""start"" goto doServiceStart
-if ""%1"" == ""stop"" goto doServiceStop
-if ""%1"" == ""dump"" goto doServiceDump
-if ""%1"" == ""reset"" goto doServiceReset
-
-:manualAction
-if ""%1"" == ""install"" goto doInstall
-if ""%1"" == ""uninstall"" goto doUninstall
 if ""%1"" == ""start"" goto doStart
 if ""%1"" == ""stop"" goto doStop
 if ""%1"" == ""setup"" goto doSetup
 if ""%1"" == ""dump"" goto doDump
 if ""%1"" == ""reset"" goto doReset
-
-
-if not "%SERVICE_PATH%" == "%BASEDIR%" goto doRun
-rem ---- Service Run -----------------------------------------------------------
-"%DAEMON%" "//TS//%NAME%"
-goto end
 
 :doRun
 rem ---- Run -------------------------------------------------------------------
@@ -371,66 +339,6 @@ goto setStartArgs
 
 rem Execute Java with the applicable properties
 "%JAVA_HOME%\bin\java" -server "-Duser.home=%BASEDIR%" "-Djava.io.tmpdir=%TMPDIR%" -classpath "%CLASSPATH%;%JDK_HOME%\lib\tools.jar" %MONITORCLASS% --pid "%PID%" --reset %CMD_LINE_ARGS%
-goto end
-
-:doInstall
-rem ---- Install ---------------------------------------------------------------
-
-if not exist "%REPOSITORY%" echo The repository does not exist, run the setup script before starting the service
-
-rem Get remaining command line arguments
-shift
-set CMD_LINE_ARGS=
-set CMD_LINE_PARAMS=
-:setStartArgs
-if ""%1""=="""" goto doneSetStartArgs
-set "PRUN_CMD_LINE_PARAMS=%PRUN_CMD_LINE_PARAMS%;%1"
-shift
-goto setStartArgs
-:doneSetStartArgs
-
-set "PRUN_JAVA_OPTS=++JvmOptions;%JAVA_OPTS: = ++JvmOptions;%"
-set "PRUN_JAVA_OPTS=%PRUN_JAVA_OPTS:;==%"
-
-set "PRUN_OPTS=%OPTS: =;%"
-
-"%DAEMON%" "//IS//%NAME%" "--DisplayName=%NAME%" "--Install=%DAEMON%" --Startup=auto "--StartPath=%BASEDIR%" "--LogPath=%BASEDIR%\log" "--LogPrefix=callimachus-service" "--StdOutput=auto" "--StdError=auto" "--JavaHome=%JAVA_HOME%" "--Jvm=%JAVA_HOME%\bin\server\jvm.dll" --StartMode=jvm --StopMode=jvm --JvmMs=64 --JvmMx=768 "--JvmOptions=-Djava.io.tmpdir=%TMPDIR%" "++JvmOptions=-Duser.home=%BASEDIR%" "++JvmOptions=-Djava.util.logging.config.file=%LOGGING%" "++JvmOptions=-Djava.mail.properties=%MAIL%" "++JvmOptions=-XX:OnOutOfMemoryError=taskkill /F /PID %%p" %PRUN_JAVA_OPTS% %PRUN_SSL_OPTS% "--Classpath=%CLASSPATH%;%JDK_HOME%\lib\tools.jar" --StartClass=%MAINCLASS% "--StartParams=--pid;%PID%;-q;-d;%BASEDIR%;-r;%REPOSITORY%;%PRUN_OPTS%;%PRUN_CMD_LINE_PARAMS%" --StopClass=%MONITORCLASS% "--StopParams=--pid;%PID%;--stop"
-
-sc query "%NAME%"
-goto end
-
-:doUninstall
-rem ---- Uninstall -------------------------------------------------------------
-
-if not "%SERVICE_PATH%" == "" if not "%SERVICE_PATH%" == "%BASEDIR%" goto notInstalled
-"%DAEMON%" "//DS//%NAME%"
-goto end
-
-:notInstalled
-echo This service is not installed
-goto end
-
-:doServiceStart
-rem ---- Service Start ---------------------------------------------------------
-rem "%DAEMON%" "//ES//%NAME%"
-sc start "%NAME%"
-goto end
-
-:doServiceStop
-rem ---- Service Stop ----------------------------------------------------------
-"%DAEMON%" "//SS//%NAME%"
-
-sc query "%NAME%"
-goto end
-
-:doServiceDump
-rem ---- Service Dump ---------------------------------------------------------
-echo dump is not available when running as a service
-goto end
-
-:doServiceReset
-rem ---- Service Reset ---------------------------------------------------------
-echo reset is not available when running as a service
 goto end
 
 :runSetup

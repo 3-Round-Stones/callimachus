@@ -66,11 +66,9 @@ extract it into a new directory. Copy etc/callimachus-defaults.conf to
 etc/callimachus.conf; change the ORIGIN and PORT to the be the same as the
 hostname and port (if not port 80); add an initial user as instructed.
 
-To register a Callimachus service with the operating system (to stop Callimachus
-on machine shut down) run the bin/callimachus-install.sh/.bat script. The
-Callimachus service is only available for Linux and Windows. If you do not run
-the install script, the window scripts will report "ERROR: The system was
-unable to find the specified registry key or value".
+To register a Callimachus daemon with the Linux system (to stop Callimachus
+on machine shut down) run the bin/callimachus-install.sh script. The
+Callimachus daemon is only available for Linux.
 
 Execute a callimachus-setup script located in the bin/ directory to initialize
 the repository. The script will ask for a password for the initial user. Execute
@@ -82,7 +80,6 @@ On Linux run:
  $ bin/callimachus-start.sh
 
 On Windows run:
- # bin/callimachus-install.bat
  # bin/callimachus-setup.bat
  # bin/callimachus-start.bat
 

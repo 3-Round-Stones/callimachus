@@ -31,7 +31,6 @@
 	<property name="daemon-linux-i686.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-i386.tar.gz" />
 	<property name="download-lunix-x86_64.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-x86_64.tar.gz" />
 	<property name="daemon-darwin.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/darwin/commons-daemon-1.0.2-bin-darwin-universal.tar.gz" />
-	<property name="daemon-windows.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.5/windows/commons-daemon-1.0.5-bin-windows.zip" />
 	<property name="compress.url" value="http://archive.apache.org/dist/commons/compress/binaries/commons-compress-1.3-bin.tar.gz" />
 	<property name="httpcore.url" value="http://www.apache.org/dist/httpcomponents/httpcore/binary/httpcomponents-core-4.2.1-bin.zip" />
 	<property name="calabash.url" value="http://xmlcalabash.com/download/calabash-1.0.3-94.zip" />
@@ -120,7 +119,6 @@
 			<get src="${daemon-linux-i686.url}" dest="${downloads}/daemon-linux-i686.tar.gz" />
 			<get src="${download-lunix-x86_64.url}" dest="${downloads}/daemon-linux-x86_64.tar.gz" />
 			<get src="${daemon-darwin.url}" dest="${downloads}/daemon-darwin.tar.gz" />
-			<get src="${daemon-windows.url}" dest="${downloads}/daemon-windows.zip" />
 			<get src="${mail.url}" dest="${lib}/${mail.jar}" />
 			<get src="${compress.url}" dest="${downloads}/compress.tar.gz" />
 			<get src="${calabash.url}" dest="${downloads}/calabash.zip" />
@@ -189,19 +187,6 @@
 			<mapper type="glob" from="jsvc" to="callimachus-darwin" />
 		</untar>
 		<delete file="${downloads}/daemon-darwin.tar.gz" />
-		<unzip src="${downloads}/daemon-windows.zip" dest="${bin}">
-			<patternset>
-				<include name="prunsrv.exe" />
-				<include name="amd64/prunsrv.exe" />
-				<include name="ia64/prunsrv.exe" />
-			</patternset>
-			<mapper>
-				<mapper type="glob" from="prunsrv.exe" to="callimachus-windows-x86.exe" />
-				<mapper type="glob" from="amd64/prunsrv.exe" to="callimachus-windows-amd64.exe" />
-				<mapper type="glob" from="ia64/prunsrv.exe" to="callimachus-windows-ia64.exe" />
-			</mapper>
-		</unzip>
-		<delete file="${downloads}/daemon-windows.zip" />
 		<untar compression="gzip" src="${downloads}/compress.tar.gz" dest="${lib}">
 			<patternset>
 				<include name="commons-compress-*/commons-compress-*.jar" />

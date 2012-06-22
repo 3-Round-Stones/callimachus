@@ -184,7 +184,10 @@
                 if (resp.entity && resp.entity.content) {
                     try {
                         var scanner = new java.util.Scanner(resp.entity.content, "UTF-8");
-                        content = scanner.useDelimiter("\\\\A").next().replace(/\\r/g, '');
+                        scanner = scanner.useDelimiter("\\\\A");
+                        if (scanner.hasNext()) {
+                            content = scanner.next().replace(/\\r/g, '');
+                        }
                     } finally {
                         resp.entity.content.close();
                     }

@@ -15,7 +15,7 @@
       function drawVisualization() {
         google.visualization.drawChart({
            "containerId": "visualization",
-           "dataSourceUrl": "{?this}",
+           "dataSourceUrl": location.href.replace('?view','?results'),
            "chartType": "Table",
            "options": {
               "alternatingRowStyle": true,

@@ -81,7 +81,7 @@
     calli:realm </>;
     calli:expect "201-modified";
     calli:script """
-        permissions_xhtml.calliEditResource(this, msg.input);
+        permissions_xhtml.calliEditResource(this, inputStream);
         var parent = this.SelectParentComposite();
         if (parent) {
             parent.touchRevision();
@@ -89,7 +89,7 @@
         return this;
     """.
 
-:input a owl:ObjectProperty; a owl:FunctionalProperty;
+:inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PostPermissions;
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/sparql-update".

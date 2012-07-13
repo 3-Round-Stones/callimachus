@@ -26,11 +26,10 @@ public class CallimachusRepository extends RepositoryWrapper {
 	private final AuditingRepository auditing;
 	private final ObjectRepository object;
 
-	public CallimachusRepository(Repository repository)
+	public CallimachusRepository(Repository repository, File dataDir)
 			throws RepositoryConfigException, RepositoryException,
 			IOException {
-		assert repository.getDataDir() != null;
-		object = createObjectRepository(repository.getDataDir(), repository);
+		object = createObjectRepository(dataDir, repository);
 		auditing = findAuditingRepository(repository, object);
 		trace(auditing);
 		setDelegate(object);
@@ -88,14 +87,16 @@ public class CallimachusRepository extends RepositoryWrapper {
 		repository.setDelegate(traced);
 	}
 
-	private ObjectRepository createObjectRepository(File dir,
-			Repository repository) throws RepositoryConfigException, RepositoryException, IOException {
+	private ObjectRepository createObjectRepository(File dataDir,
+			Repository repository) throws RepositoryConfigException,
+			RepositoryException, IOException {
 		if (repository instanceof ObjectRepository)
 			return (ObjectRepository) repository;
 		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
 		ObjectRepositoryConfig config = factory.getConfig();
-		File wwwDir = new File(dir, "www");
-		File blobDir = new File(dir, "blob");
+		config.setObjectDataDir(dataDir);
+		File wwwDir = new File(dataDir, "www");
+		File blobDir = new File(dataDir, "blob");
 		if (wwwDir.isDirectory() && !blobDir.isDirectory()) {
 			config.setBlobStore(wwwDir.toURI().toString());
 			Map<String, String> map = new HashMap<String, String>();

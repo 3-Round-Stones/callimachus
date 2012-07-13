@@ -7,7 +7,7 @@
 @prefix sr: <http://www.openrdf.org/config/repository/sail#>.
 @prefix sail: <http://www.openrdf.org/config/sail#>.
 @prefix ns: <http://www.openrdf.org/config/sail/native#>.
-@prefix audit: <http://www.openrdf.org/config/sail/auditing#>.
+@prefix audit: <http://www.openrdf.org/config/repository/auditing#>.
 @prefix opt: <http://www.openrdf.org/config/repository/optimistic#>.
 
 [] a rep:Repository ;

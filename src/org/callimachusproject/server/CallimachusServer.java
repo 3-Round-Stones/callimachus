@@ -46,9 +46,9 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private CallimachusRepository repository;
 	private HTTPObjectServer server;
 
-	public CallimachusServer(Repository repository) throws Exception {
-		this.repository = new CallimachusRepository(repository);
-		server = createServer(this.repository.getDataDir(), this.repository);
+	public CallimachusServer(Repository repository, File dataDir) throws Exception {
+		this.repository = new CallimachusRepository(repository, dataDir);
+		server = createServer(dataDir, this.repository);
 	}
 
 	public void addOrigin(String origin) throws Exception {

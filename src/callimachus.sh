@@ -388,7 +388,7 @@ do_start()
   fi
 
   if [ ! -e "$REPOSITORY" ]; then
-    log_failure_msg "The repository does not exist, please run the setup script first"
+    log_failure_msg "The repository $REPOSITORY does not exist, please run the setup script first"
     return 6
   fi
 

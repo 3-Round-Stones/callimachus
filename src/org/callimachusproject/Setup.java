@@ -469,18 +469,23 @@ public class Setup {
 		}
 	}
 
-	private CallimachusRepository getCallimachusRepository(File dir, String configString)
-			throws OpenRDFException, MalformedURLException, IOException {
-		Repository repo = getRepository(dir, configString);
-		if (repo == null)
-			return null;
-		return new CallimachusRepository(repo);
-	}
-
-	private Repository getRepository(File dir, String configString)
+	private CallimachusRepository getCallimachusRepository(File baseDir, String configString)
 			throws OpenRDFException, MalformedURLException, IOException {
 		RepositoryConfig config = getRepositoryConfig(configString);
-		LocalRepositoryManager manager = getRepositoryManager(dir);
+		Repository repo = getRepository(baseDir, config);
+		if (repo == null)
+			return null;
+		File dataDir = repo.getDataDir();
+		if (dataDir == null) {
+			LocalRepositoryManager manager = getRepositoryManager(baseDir);
+			dataDir = manager.getRepositoryDir(config.getID());
+		}
+		return new CallimachusRepository(repo, dataDir);
+	}
+
+	private Repository getRepository(File baseDir, RepositoryConfig config)
+			throws OpenRDFException, MalformedURLException, IOException {
+		LocalRepositoryManager manager = getRepositoryManager(baseDir);
 		if (config == null || manager == null)
 			return null;
 		String id = config.getID();

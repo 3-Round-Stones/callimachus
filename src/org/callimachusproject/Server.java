@@ -17,6 +17,9 @@
  */
 package org.callimachusproject;
 
+import static org.openrdf.repository.manager.RepositoryProvider.getRepositoryIdOfRepository;
+import static org.openrdf.repository.manager.RepositoryProvider.getRepositoryManagerOfRepository;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +30,6 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,13 +53,12 @@ import org.callimachusproject.server.ConnectionBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.HTTPObjectPolicy;
 import org.callimachusproject.server.client.HTTPObjectClient;
-import org.openrdf.model.util.GraphUtilException;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfigException;
+import org.openrdf.repository.manager.LocalRepositoryManager;
+import org.openrdf.repository.manager.RepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -363,22 +364,29 @@ public class Server implements HTTPObjectAgentMXBean {
 	}
 
 	private void init(CommandLine line) throws Exception {
-		File dir = new File("").getCanonicalFile();
+		String rurl = getRepositoryUrl(line);
+		Repository repository = RepositoryProvider.getRepository(rurl);
+		File dataDir = repository.getDataDir();
 		if (line.hasOption('d')) {
-			dir = new File(line.getOptionValue('d')).getCanonicalFile();
+			dataDir = new File(line.getOptionValue('d')).getCanonicalFile();
 		}
-		Repository repository = getRepository(line, dir);
-		if (repository.getDataDir() == null) {
-			repository.setDataDir(dir);
+		if (dataDir == null) {
+			RepositoryManager manager = getRepositoryManagerOfRepository(rurl);
+			if (manager instanceof LocalRepositoryManager) {
+				String id = getRepositoryIdOfRepository(rurl);
+				dataDir = ((LocalRepositoryManager) manager).getRepositoryDir(id);
+			} else {
+				dataDir = new File("").getCanonicalFile();
+			}
 		}
-		File cacheDir = new File(dir, "cache");
+		File cacheDir = new File(dataDir, "cache");
 		File in = new File(cacheDir, "client");
 		HTTPObjectClient.setInstance(in, 1024);
 		if (line.hasOption("from")) {
 			String from = line.getOptionValue("from");
 			HTTPObjectClient.getInstance().setFrom(from == null ? "" : from);
 		}
-		server = new CallimachusServer(repository);
+		server = new CallimachusServer(repository, dataDir);
 		if (line.hasOption('p')) {
 			String[] values = line.getOptionValues('p');
 			ports = new int[values.length];
@@ -411,7 +419,7 @@ public class Server implements HTTPObjectAgentMXBean {
 			server.setServerName(line.getOptionValue('n'));
 		}
 		if (!line.hasOption("trust")) {
-			applyPolicy(line, repository, dir);
+			applyPolicy(line, repository, dataDir);
 		}
 		server.listen(ports, sslports);
 		registerMBean();
@@ -449,15 +457,13 @@ public class Server implements HTTPObjectAgentMXBean {
 		}
 	}
 
-	private Repository getRepository(CommandLine line, File dir)
-			throws RepositoryException, RepositoryConfigException,
-			MalformedURLException, IOException, RDFParseException,
-			RDFHandlerException, GraphUtilException {
+	private String getRepositoryUrl(CommandLine line)
+			throws RepositoryException, RepositoryConfigException {
 		if (line.hasOption('r')) {
 			String url = line.getOptionValue('r');
 			Repository repository = RepositoryProvider.getRepository(url);
 			if (repository != null)
-				return repository;
+				return url;
 			throw new IllegalStateException("No repository found");
 		} else {
 			throw new IllegalArgumentException("Option -r is required");

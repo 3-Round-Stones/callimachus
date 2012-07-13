@@ -5,7 +5,7 @@
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix :<#>.
 
 <> a <../SchemaGraph>.
@@ -108,11 +108,11 @@
         PREFIX dc:<http://purl.org/dc/elements/1.1/>
         PREFIX dcterms:<http://purl.org/dc/terms/>
         PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT DISTINCT ?updated ?iri ?label {
             {
-                ?term audit:revision [audit:committedOn ?updated]
+                ?term prov:wasGeneratedBy [prov:endedAtTime ?updated]
                 FILTER sameTerm(?term,iri($resource))
             } UNION {
                 ?iri calli:hasComponent* ?term

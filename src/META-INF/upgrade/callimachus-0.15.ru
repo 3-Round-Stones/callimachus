@@ -8,7 +8,6 @@ PREFIX void:<http://rdfs.org/ns/void#>
 PREFIX foaf:<http://xmlns.com/foaf/0.1/>
 PREFIX msg:<http://www.openrdf.org/rdf/2011/messaging#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
 
 DELETE {
 	?item calli:position ?position

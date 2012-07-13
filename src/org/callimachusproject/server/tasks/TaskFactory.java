@@ -34,11 +34,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.util.ManagedExecutors;
-import org.openrdf.repository.object.ObjectRepository;
 import org.callimachusproject.xslt.XSLTransformer;
 
 /**
@@ -88,12 +88,12 @@ public class TaskFactory {
 		};
 	}
 
-	private ObjectRepository repo;
+	private CallimachusRepository repo;
 	private Filter filter;
 	private Handler handler;
 	private XSLTransformer transformer;
 
-	public TaskFactory(ObjectRepository repository,
+	public TaskFactory(CallimachusRepository repository,
 			Filter filter, Handler handler) {
 		this.repo = repository;
 		this.filter = filter;

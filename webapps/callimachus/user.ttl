@@ -3,7 +3,7 @@
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
 @prefix owl:<http://www.w3.org/2002/07/owl#>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
@@ -109,15 +109,10 @@ rdfs:comment a rdf:Property.
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:User];
     msg:sparql  """
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
         SELECT ?contributor
         WHERE {
-            {
-                audit:current-trx audit:contributor ?contributor
-            } UNION {
-                GRAPH ?graph { $this a ?type }
-                ?graph audit:contributor ?contributor
-            }
+            $this prov:wasGeneratedBy [prov:wasAssociatedWith ?contributor]
         } LIMIT 1
     """.
 

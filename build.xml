@@ -235,6 +235,7 @@
 			<get src="${openrdf}/alibaba-repository-object/${alibaba.snapshot}/alibaba-repository-object-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-object-${alibaba.snapshot}.jar" />
 			<get src="${openrdf}/alibaba-repository-optimistic/${alibaba.snapshot}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-optimistic-${alibaba.snapshot}.jar" />
 			<get src="${openrdf}/alibaba-runtime/${alibaba.snapshot}/alibaba-runtime-${alibaba.snapshot}.jar" dest="${lib}/alibaba-runtime-${alibaba.snapshot}.jar" />
+			<get src="${openrdf}/alibaba-repository-auditing/${alibaba.snapshot}/alibaba-repository-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-repository-auditing-${alibaba.snapshot}.jar" />
 			<get src="${openrdf}/alibaba-sail-auditing/${alibaba.snapshot}/alibaba-sail-auditing-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-auditing-${alibaba.snapshot}.jar" />
 			<get src="${openrdf}/alibaba-store-blob/${alibaba.snapshot}/alibaba-store-blob-${alibaba.snapshot}.jar" dest="${lib}/alibaba-store-blob-${alibaba.snapshot}.jar" />
 			<get src="${openrdf}/alibaba-sail-keyword/${alibaba.snapshot}/alibaba-sail-keyword-${alibaba.snapshot}.jar" dest="${lib}/alibaba-sail-keyword-${alibaba.snapshot}.jar" />

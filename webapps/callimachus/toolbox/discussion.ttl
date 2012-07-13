@@ -5,7 +5,7 @@
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix :<#>.
 
 <> a <../SchemaGraph>.
@@ -21,7 +21,7 @@
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
         PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
         SELECT REDUCED ?label ?note ?revision ?modified ?user ?name
         WHERE {
             {
@@ -30,8 +30,8 @@
                 $this rdfs:label ?label
             } UNION {
                 GRAPH ?revision { $this skos:editorialNote ?note }
-                ?revision audit:committedOn ?modified
-                OPTIONAL { ?revision audit:contributor ?user
+                ?revision prov:endedAtTime ?modified
+                OPTIONAL { ?revision prov:wasAssociatedWith ?user
                     OPTIONAL { ?user skos:prefLabel ?name }
                     OPTIONAL { ?user rdfs:label ?name }
                 }

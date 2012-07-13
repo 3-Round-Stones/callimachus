@@ -4,7 +4,7 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:dcterms="http://purl.org/dc/terms/"
-    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#">
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#" xmlns:prov="http://www.w3.org/ns/prov#">
 <head>
     <title resource="?this">{rdfs:label}</title>
     <link href="?changes" type="application/atom+xml" rel="alternate" title="ATOM Feed" />
@@ -142,8 +142,8 @@
                         </a>
                     </td>
                     <td class="ui-widget-content timecell">
-                        <span rel="audit:revision" resource="?revision">
-                            <time class="abbreviated" property="audit:committedOn"/>
+                        <span rel="prov:wasGeneratedBy" resource="?activity">
+                            <time class="abbreviated" property="prov:endedAtTime"/>
                         </span>
                     </td>
                     <td class="ui-widget-content permission">

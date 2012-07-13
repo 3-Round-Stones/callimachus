@@ -29,8 +29,6 @@
  */
 package org.callimachusproject.server.handlers;
 
-import static org.openrdf.sail.auditing.vocabulary.Audit.CURRENT_TRX;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -60,14 +58,11 @@ import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.annotations.realm;
 import org.callimachusproject.concepts.Realm;
-import org.callimachusproject.server.concepts.Transaction;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,13 +202,6 @@ public class AuthenticationHandler implements Handler {
 				credentials.add(cred);
 				if (cred != null
 						&& realm.authorizeCredential(cred, m, target, map)) {
-					if (!request.isSafe()) {
-						ObjectConnection con = request.getObjectConnection();
-						ObjectFactory of = con.getObjectFactory();
-						Transaction trans = of.createObject(CURRENT_TRX,
-								Transaction.class);
-						trans.setAuditContributor(of.createObject(cred));
-					}
 					request.setRealm(realm);
 					request.setCredential(cred);
 					return null; // this request is good

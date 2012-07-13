@@ -7,8 +7,9 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix keyword:<http://www.openrdf.org/rdf/2011/keyword#>.
+@prefix audit:<http://www.openrdf.org/rdf/2012/auditing#>.
 @prefix :<#>.
 
 <> a <../SchemaGraph>.
@@ -34,15 +35,16 @@
         PREFIX dc:<http://purl.org/dc/elements/1.1/>
         PREFIX dcterms:<http://purl.org/dc/terms/>
         PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        PREFIX audit:<http://www.openrdf.org/rdf/2012/auditing#>
         SELECT * {
             {
-                $this rdfs:label ?title
+                $this prov:wasGeneratedBy [prov:endedAtTime ?updated]
                 BIND (concat(str($this),"?changes") as ?id)
                 BIND ("feed" as ?type)
             } UNION {
-                $this audit:revision [audit:committedOn ?updated]
+                $this rdfs:label ?title
                 BIND (concat(str($this),"?changes") as ?id)
                 BIND ("feed" as ?type)
             } UNION {
@@ -50,13 +52,13 @@
                     SELECT ?id (max(?title)  as ?title) (max(?updated) as ?updated) (max(?summary) as ?summary) (max(?icon) as ?icon)
                             (?id as ?content_src) (max(?content_type) as ?content_type) ("entry" as ?type)
                             (?id as ?link_edit_media_href) (concat(str(?id),"?view") as ?link_view_href) (concat(str(?id),"?history") as ?link_history_href)
-                            (concat(str(?revision),"?view") as ?link_href) (audit:revision as ?link_rel) ("text/html" as ?link_type)
+                            (concat(str(?revision),"?view") as ?link_href) (prov:wasGeneratedBy as ?link_rel) ("text/html" as ?link_type)
                             (max(?contributor_uri) as ?contributor_uri) (max(?contributor_name) as ?contributor_name)  {
-                        ?revision a audit:RecentTransaction; audit:committedOn ?updated .
-                        ?id audit:revision ?revision .
+                        ?revision a audit:RecentActivity; prov:endedAtTime ?updated .
+                        ?id prov:wasGeneratedBy ?revision .
                         FILTER strstarts(str(?id), str($this))
                         OPTIONAL {
-                            ?revision audit:contributor ?contributor_uri
+                            ?revision prov:wasAssociatedWith ?contributor_uri
                             OPTIONAL {
                                 ?contributor_uri rdfs:label ?contributor_name
                             }

@@ -162,6 +162,12 @@
             throw new Conflict("Resource already exists");
         if (!(newCopy instanceof Editable))
             throw new BadRequest("Resource is not Editable");
+
+        //# Execute input
+        var update = con.prepareUpdate(QueryLanguage.SPARQL, string, this.toString());
+        update.setBinding("this", this.resource);
+        update.execute();
+
         var iter = this.FindCreator(newCopy).iterator();
         if (!iter.hasNext())
             throw new InternalServerError("Could not find user");
@@ -196,11 +202,6 @@
             if (!creatable)
                 throw new Forbidden("You are not permitted to create this type of resource");
         }
-
-        //# Execute input
-        var update = con.prepareUpdate(QueryLanguage.SPARQL, string, this.toString());
-        update.setBinding("this", this.resource);
-        update.execute();
 
         //# Add permissions and component membership
         newCopy.calliEditor.addAll(this.FindContributor(newCopy));

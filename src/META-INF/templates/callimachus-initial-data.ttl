@@ -8,7 +8,6 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
 ################################################################
@@ -35,6 +34,11 @@
 	calli:administrator </group/admin>;
 	calli:authName </>;
 	calli:authNamespace </user/>.
+
+</> calli:hasComponent </activity/>.
+</activity/> a </callimachus/Folder>, calli:Folder;
+	rdfs:label "activity";
+	calli:reader </group/admin>.
 
 </> calli:hasComponent </user/>.
 </user/> a </callimachus/Folder>, calli:Folder;

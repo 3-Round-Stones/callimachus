@@ -52,18 +52,12 @@ import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.HTTPObjectPolicy;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.openrdf.model.util.GraphUtilException;
-import org.openrdf.repository.DelegatingRepository;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.manager.RepositoryProvider;
-import org.openrdf.repository.object.ObjectRepository;
-import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.StackableSail;
-import org.openrdf.sail.auditing.AuditingSail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +68,10 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Server implements HTTPObjectAgentMXBean {
-	private static final String CHANGE_PATH = "/change/";
+	private static final String ACTIVITY_PATH = "/activity/";
+	private static final String ACTIVITY_TYPE = "/callimachus/Activity";
+	private static final String FOLDER_TYPE = "/callimachus/Folder";
+	private static final String ERROR_XSLT_PATH = "/callimachus/transforms/error.xsl";
 	public static final String NAME = Version.getInstance().getVersion();
 
 	private static final Options options = new Options();
@@ -122,9 +119,9 @@ public class Server implements HTTPObjectAgentMXBean {
 				System.out.println();
 				System.out.println(server.getClass().getSimpleName()
 						+ " is listening on port " + server.getPort()
-						+ " for " + server.getOrigin() + "/");
+						+ " for " + server.toString() + "/");
 				System.out.println("Repository: " + server.getRepository());
-				System.out.println("Origin: " + server.getOrigin());
+				System.out.println("Origin: " + server.toString());
 			} else if (!server.isRunning()) {
 				System.err.println(server.getClass().getSimpleName()
 						+ " could not be started.");
@@ -170,10 +167,10 @@ public class Server implements HTTPObjectAgentMXBean {
 	private int[] ports = new int[0];
 	private int[] sslports = new int[0];
 
-	public String getOrigin() {
+	public String toString() {
 		if (server == null)
-			return null;
-		return server.getOrigin();
+			return super.toString();
+		return server.toString();
 	}
 
 	public Integer getPort() {
@@ -184,7 +181,7 @@ public class Server implements HTTPObjectAgentMXBean {
 		return null;
 	}
 
-	public ObjectRepository getRepository() {
+	public Repository getRepository() {
 		if (server == null)
 			return null;
 		return server.getRepository();
@@ -371,8 +368,8 @@ public class Server implements HTTPObjectAgentMXBean {
 			dir = new File(line.getOptionValue('d')).getCanonicalFile();
 		}
 		Repository repository = getRepository(line, dir);
-		if (repository.getDataDir() != null) {
-			dir = repository.getDataDir();
+		if (repository.getDataDir() == null) {
+			repository.setDataDir(dir);
 		}
 		File cacheDir = new File(dir, "cache");
 		File in = new File(cacheDir, "client");
@@ -381,7 +378,7 @@ public class Server implements HTTPObjectAgentMXBean {
 			String from = line.getOptionValue("from");
 			HTTPObjectClient.getInstance().setFrom(from == null ? "" : from);
 		}
-		server = new CallimachusServer(repository, dir);
+		server = new CallimachusServer(repository);
 		if (line.hasOption('p')) {
 			String[] values = line.getOptionValues('p');
 			ports = new int[values.length];
@@ -399,17 +396,19 @@ public class Server implements HTTPObjectAgentMXBean {
 		if (!line.hasOption('p') && !line.hasOption('s')) {
 			ports = new int[] { 8080 };
 		}
+		boolean primary = true;
 		if (line.hasOption('o')) {
 			for (String o : line.getOptionValues('o')) {
+				if (primary) {
+					server.setActivityFolderAndType(o + ACTIVITY_PATH, o + ACTIVITY_TYPE, o + FOLDER_TYPE);
+					server.setErrorXSLT(o + ERROR_XSLT_PATH);
+					primary = false;
+				}
 				server.addOrigin(o);
 			}
 		}
 		if (line.hasOption('n')) {
 			server.setServerName(line.getOptionValue('n'));
-		}
-		AuditingSail sail = findAuditingSail(repository);
-		if (sail != null) {
-			sail.setNamespace(server.getOrigin() + CHANGE_PATH);
 		}
 		if (!line.hasOption("trust")) {
 			applyPolicy(line, repository, dir);
@@ -448,23 +447,6 @@ public class Server implements HTTPObjectAgentMXBean {
 		} catch (Exception e) {
 			// ignore
 		}
-	}
-
-	private AuditingSail findAuditingSail(Repository repository) {
-		if (repository instanceof SailRepository)
-			return findAuditingSail(((SailRepository) repository).getSail());
-		if (repository instanceof DelegatingRepository)
-			return findAuditingSail(((DelegatingRepository) repository)
-					.getDelegate());
-		return null;
-	}
-
-	private AuditingSail findAuditingSail(Sail sail) {
-		if (sail instanceof AuditingSail)
-			return (AuditingSail) sail;
-		if (sail instanceof StackableSail)
-			return findAuditingSail(((StackableSail) sail).getBaseSail());
-		return null;
 	}
 
 	private Repository getRepository(CommandLine line, File dir)

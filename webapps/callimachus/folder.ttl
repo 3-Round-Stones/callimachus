@@ -22,7 +22,7 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix :<#>.
 
 <> a <SchemaGraph>.
@@ -121,7 +121,7 @@
         PREFIX dc:<http://purl.org/dc/elements/1.1/>
         PREFIX dcterms:<http://purl.org/dc/terms/>
         PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT REDUCED * {
             {
@@ -141,7 +141,7 @@
             } UNION {
                 BIND ("feed" as ?type)
                 BIND (concat(str($this),"?contents") as ?id)
-                $this audit:revision [audit:committedOn ?updated]
+                $this prov:wasGeneratedBy [prov:endedAtTime ?updated]
                 BIND (concat(str($this),"?changes") as ?link_href)
                 BIND ("alternate" as ?link_rel)
                 BIND ("application/atom+xml" as ?link_type)
@@ -175,9 +175,9 @@
                 }
                 OPTIONAL {
                     {
-                        ?id audit:revision ?revision . ?revision audit:committedOn ?updated
+                        ?id prov:wasGeneratedBy ?revision . ?revision prov:endedAtTime ?updated
                         OPTIONAL {
-                            ?revision audit:contributor ?contributor_uri
+                            ?revision prov:wasAssociatedWith ?contributor_uri
                             OPTIONAL {
                                 ?contributor_uri rdfs:label ?contributor_name
                             }
@@ -292,7 +292,7 @@
                 while (triples.hasNext()) {
                     var st = triples.next();
                     var pred = st.predicate.toString();
-                    if (pred != "http://www.openrdf.org/rdf/2009/auditing#revision"
+                    if (pred != "http://www.w3.org/ns/prov#wasGeneratedBy"
                             && pred != "http://www.openrdf.org/rdf/2011/keyword#phone") {
                         writer.handleStatement(st);
                     }
@@ -306,12 +306,12 @@
         var components = this.calliHasComponent.iterator();
         while (components.hasNext()) {
             var component = components.next();
-            if (component.toString().indexOf(baseURI) != 0 || !component.auditRevision)
+            if (component.toString().indexOf(baseURI) != 0 || !component.provWasGeneratedBy)
                 continue;
             var name = component.toString().substring(baseURI.length);
             if (!writtenNames.add(name))
                 continue;
-            var time = component.auditRevision.getCommittedOn().toGregorianCalendar().getTimeInMillis();
+            var time = component.provWasGeneratedBy.provEndedAtTime.toGregorianCalendar().getTimeInMillis();
             if (name.lastIndexOf('/') == name.length - 1 && component instanceof Folder) {
                 //# Export Folder
                 carStream.writeFolderEntry(name, time).close();
@@ -443,7 +443,7 @@
                     var pred = st.predicate;
                     if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(pred.namespace))
                         continue;
-                    if ("http://www.openrdf.org/rdf/2009/auditing#".equals(pred.namespace))
+                    if ("http://www.w3.org/ns/prov#".equals(pred.namespace))
                         continue;
                     var subj = st.subject;
                     if (subj instanceof org.openrdf.model.URI)
@@ -549,7 +549,7 @@
                     var pred = st.predicate;
                     if ("http://www.w3.org/1999/02/22-rdf-syntax-ns#".equals(pred.namespace))
                         continue;
-                    if ("http://www.openrdf.org/rdf/2009/auditing#".equals(pred.namespace))
+                    if ("http://www.w3.org/ns/prov#".equals(pred.namespace))
                         continue;
                     throw new BadRequest("Required resource(s) not present, including: " + st.object);
                 }
@@ -581,13 +581,13 @@
         PREFIX dc:<http://purl.org/dc/elements/1.1/>
         PREFIX dcterms:<http://purl.org/dc/terms/>
         PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT ?component {
             $this calli:hasComponent+ ?component .
             ?external ?dependent ?component
             FILTER (!isIRI(?external) || !strstarts(str(?external), str($this)))
-            FILTER (?dependent != audit:contributedTo && ?dependent != audit:modified)
+            FILTER (?dependent != prov:used && ?dependent != prov:wasInformedBy)
             FILTER (?dependent != rdf:subject && ?dependent != rdf:object)
         }
     """.
@@ -649,7 +649,6 @@
         PREFIX dc:<http://purl.org/dc/elements/1.1/>
         PREFIX dcterms:<http://purl.org/dc/terms/>
         PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT ?composite {
             ?composite calli:hasComponent $component

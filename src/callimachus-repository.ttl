@@ -14,22 +14,23 @@
    rep:repositoryID "callimachus" ;
    rdfs:label "Callimachus Repository" ;
    rep:repositoryImpl [
-      rep:repositoryType "openrdf:OptimisticRepository" ;
-      opt:snapshot false ;
-      opt:serializable false ;
-      sr:sailImpl [
-         sail:sailType "openrdf:AuditingSail" ;
-         audit:archiving false ;
-         audit:maximumArchiveTriples 100 ;
-         audit:purgeObsoleteTransactionsAfter "P30D"^^xsd:dayTimeDuration ;
-         audit:minimumRecentTransactions 100 ;
-         audit:maximumRecentTransactions 1000 ;
-         sail:delegate [
-            sail:sailType "openrdf:KeywordSail" ;
-            sail:delegate [
-              sail:sailType "openrdf:NativeStore" ;
-              ns:tripleIndexes "spoc,pocs,oscp,cspo"
-            ]
-         ]
-      ]
+      rep:repositoryType "openrdf:AuditingRepository" ;
+      audit:purgeObsoleteActivitiesAfter "P30D"^^xsd:dayTimeDuration ;
+      audit:minimumRecentActivities 100 ;
+      audit:maximumRecentActivities 1000 ;
+      rep:delegate [
+	      rep:repositoryType "openrdf:OptimisticRepository" ;
+	      opt:snapshot false ;
+	      opt:serializable false ;
+	      sr:sailImpl [
+	         sail:sailType "openrdf:AuditingSail" ;
+	         sail:delegate [
+	            sail:sailType "openrdf:KeywordSail" ;
+	            sail:delegate [
+	              sail:sailType "openrdf:NativeStore" ;
+	              ns:tripleIndexes "spoc,pocs,oscp,cspo"
+	            ]
+	         ]
+	      ]
+	   ]
    ].

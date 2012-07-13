@@ -105,7 +105,6 @@ import org.callimachusproject.server.tasks.Task;
 import org.callimachusproject.server.util.ManagedExecutors;
 import org.callimachusproject.server.util.NamedThreadFactory;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.object.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +137,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 	private IOEventDispatch dispatch;
 	private ListeningIOReactor sslserver;
 	private IOEventDispatch ssldispatch;
-	private ObjectRepository repository;
+	private CallimachusRepository repository;
 	private int[] ports;
 	private int[] sslports;
 	private ServerNameFilter name;
@@ -156,7 +155,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 	 * @param basic
 	 *            username:password
 	 */
-	public HTTPObjectServer(ObjectRepository repository, File cacheDir) throws IOException, NoSuchAlgorithmException {
+	public HTTPObjectServer(CallimachusRepository repository, File cacheDir) throws IOException, NoSuchAlgorithmException {
 		this.repository = repository;
 		HttpParams params = new BasicHttpParams();
 		params.setIntParameter(SO_TIMEOUT, timeout);

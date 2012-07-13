@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:audit="http://www.openrdf.org/rdf/2009/auditing#"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:prov="http://www.w3.org/ns/prov#"
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     xmlns:sparql="http://www.w3.org/2005/sparql-results#"
@@ -38,7 +38,7 @@
             </head>
             <body>
                 <p><xsl:text>Revised on </xsl:text>
-                    <time property="audit:committedOn">
+                    <time property="prov:endedAtTime">
                         <xsl:value-of select="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='modified']/*" />
                     </time>
                     <xsl:text> by </xsl:text>

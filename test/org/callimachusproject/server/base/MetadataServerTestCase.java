@@ -15,12 +15,14 @@ import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
+import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.HTTPObjectServer;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.object.ObjectRepository;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
+import org.openrdf.rio.trig.TriGWriter;
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.auditing.AuditingSail;
 import org.openrdf.sail.memory.MemoryStore;
@@ -76,7 +78,8 @@ public abstract class MetadataServerTestCase extends TestCase {
 	private static volatile int seed = 0;
 	private final Random rand = new Random();
 	private int port;
-	protected ObjectRepository repository;
+	private boolean failed;
+	protected CallimachusRepository repository;
 	protected ObjectRepositoryConfig config = new ObjectRepositoryConfig();
 	protected HTTPObjectServer server;
 	protected File dataDir;
@@ -86,6 +89,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 
 	@Override
 	public void setUp() throws Exception {
+		failed = false;
 		dataDir = FileUtil.createTempDir("metadata");
 		if (config.getBlobStore() == null) {
 			config.setBlobStore(dataDir.toURI().toString());
@@ -113,6 +117,14 @@ public abstract class MetadataServerTestCase extends TestCase {
 	public void tearDown() throws Exception {
 		server.stop();
 		server.destroy();
+		if (failed) {
+			ObjectConnection con = repository.getConnection();
+			try {
+				con.export(new TriGWriter(System.out));
+			} finally {
+				con.close();
+			}
+		}
 		repository.shutDown();
 		FileUtil.deltree(dataDir);
 	}
@@ -120,20 +132,25 @@ public abstract class MetadataServerTestCase extends TestCase {
 	@Override
 	protected void runTest() throws Throwable {
 		try {
-			super.runTest();
-		} catch (UniformInterfaceException cause) {
-			ClientResponse msg = cause.getResponse();
-			String body = msg.getEntity(String.class);
-			System.out.println(body);
-			UniformInterfaceException e = new UniformInterfaceException(body, msg);
-			e.initCause(cause);
-			throw e;
-		} catch (ClientHandlerException e) {
-			if (e.getCause() instanceof ConnectException) {
-				System.out.println("Could not connect to port "
-						+ port);
+			try {
+				super.runTest();
+			} catch (UniformInterfaceException cause) {
+				ClientResponse msg = cause.getResponse();
+				String body = msg.getEntity(String.class);
+				System.out.println(body);
+				UniformInterfaceException e = new UniformInterfaceException(body, msg);
+				e.initCause(cause);
+				throw e;
+			} catch (ClientHandlerException e) {
+				if (e.getCause() instanceof ConnectException) {
+					System.out.println("Could not connect to port "
+							+ port);
+				}
+				throw e;
 			}
-			throw e;
+		} catch (Throwable t) {
+			failed = true;
+			throw t;
 		}
 	}
 
@@ -169,13 +186,14 @@ public abstract class MetadataServerTestCase extends TestCase {
 		return port = (seed % range) + range + MIN_PORT;
 	}
 
-	private ObjectRepository createRepository() throws Exception {
-		Sail sail = new MemoryStore();
+	private CallimachusRepository createRepository() throws Exception {
+		Sail sail = new MemoryStore(dataDir);
 		sail = new AuditingSail(sail);
 		Repository repo = new OptimisticRepository(sail);
 		repo.initialize();
 		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
-		return factory.createRepository(config, repo);
+		repo = factory.createRepository(config, repo);
+		return new CallimachusRepository(repo);
 	}
 
 }

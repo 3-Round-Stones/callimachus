@@ -39,8 +39,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -50,12 +52,16 @@ import java.util.regex.Pattern;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+import javax.tools.FileObject;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.type;
-import org.callimachusproject.server.concepts.Transaction;
+import org.callimachusproject.server.CallimachusRepository;
+import org.callimachusproject.server.concepts.Activity;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.traits.VersionedObject;
 import org.callimachusproject.server.util.Accepter;
@@ -65,12 +71,17 @@ import org.callimachusproject.server.writers.AggregateWriter;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.auditing.ActivityFactory;
+import org.openrdf.repository.auditing.AuditingRepositoryConnection;
+import org.openrdf.repository.base.RepositoryConnectionWrapper;
 import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.traits.RDFObjectBehaviour;
 import org.openrdf.result.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tracks the target resource with the request.
@@ -90,6 +101,7 @@ public class ResourceRequest extends Request {
 			throw new AssertionError(e);
 		}
 	}
+	private final Logger logger = LoggerFactory.getLogger(ResourceRequest.class);
 	private ValueFactory vf;
 	private ObjectConnection con;
 	private VersionedObject target;
@@ -101,7 +113,7 @@ public class ResourceRequest extends Request {
 	private Result<VersionedObject> result;
 	private boolean closed;
 
-	public ResourceRequest(Request request, ObjectRepository repository)
+	public ResourceRequest(Request request, CallimachusRepository repository)
 			throws QueryEvaluationException, RepositoryException,
 			MimeTypeParseException {
 		super(request);
@@ -129,8 +141,11 @@ public class ResourceRequest extends Request {
 	}
 
 	public void begin() throws RepositoryException, QueryEvaluationException,
-			MimeTypeParseException {
+			MimeTypeParseException, DatatypeConfigurationException {
 		if (target == null) {
+			if (!this.isSafe()) {
+				initiateActivity();
+			}
 			con.setAutoCommit(false); // begin()
 			result = con.getObjects(VersionedObject.class, uri);
 			target = result.singleResult();
@@ -169,7 +184,6 @@ public class ResourceRequest extends Request {
 	public void flush() throws RepositoryException, QueryEvaluationException,
 			IOException {
 		ObjectConnection con = getObjectConnection();
-		con.commit(); // flush()
 		this.target = con.getObject(VersionedObject.class, getRequestedResource().getResource());
 	}
 
@@ -323,11 +337,29 @@ public class ResourceRequest extends Request {
 	}
 
 	public RDFObject getRequestedResource() {
-		return (RDFObject) target;
+		return target;
 	}
 
-	public Transaction getRevision() {
-		return target.getAuditRevision();
+	public long getLastModified() throws MimeTypeParseException {
+		if (target instanceof FileObject) {
+			long lastModified = ((FileObject) target).getLastModified();
+			if (lastModified > 0)
+				return lastModified / 1000 * 1000;
+		}
+		try {
+			Activity trans = target.getProvWasGeneratedBy();
+			if (trans != null) {
+				XMLGregorianCalendar xgc = trans.getProvEndedAtTime();
+				if (xgc != null) {
+					GregorianCalendar cal = xgc.toGregorianCalendar();
+					cal.set(Calendar.MILLISECOND, 0);
+					return cal.getTimeInMillis() / 1000 * 1000;
+				}
+			}
+		} catch (ClassCastException e) {
+			logger.warn(e.toString(), e);
+		}
+		return 0;
 	}
 
 	public String revision() {
@@ -472,5 +504,25 @@ public class ResourceRequest extends Request {
 				return list.toArray(new String[list.size()]);
 			}
 		}
+	}
+
+	private void initiateActivity() throws RepositoryException,
+			DatatypeConfigurationException {
+		AuditingRepositoryConnection audit = findAuditing(con);
+		if (audit != null) {
+			final ActivityFactory delegate = audit.getActivityFactory();
+			final URI activity = delegate.createActivityURI(audit.getValueFactory());
+			con.setActivityURI(activity); // use the same URI for blob version
+			audit.setActivityFactory(new RequestActivityFactory(activity, delegate, this));
+		}
+	}
+
+	private AuditingRepositoryConnection findAuditing(
+			RepositoryConnection con) throws RepositoryException {
+		if (con instanceof AuditingRepositoryConnection)
+			return (AuditingRepositoryConnection) con;
+		if (con instanceof RepositoryConnectionWrapper)
+			return findAuditing(((RepositoryConnectionWrapper) con).getDelegate());
+		return null;
 	}
 }

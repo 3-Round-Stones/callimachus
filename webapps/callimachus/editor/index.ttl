@@ -5,7 +5,6 @@
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
 <text_bundle> a calli:ScriptBundle;

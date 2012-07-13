@@ -48,6 +48,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.callimachusproject.io.CarInputStream;
+import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
@@ -76,16 +77,12 @@ import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
-import org.openrdf.repository.object.ObjectRepository;
-import org.openrdf.repository.object.config.ObjectRepositoryConfig;
-import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
-import org.openrdf.store.blob.file.FileBlobStoreProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -191,7 +188,7 @@ public class Setup {
 	}
 
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
-	private ObjectRepository repository;
+	private CallimachusRepository repository;
 	private boolean silent;
 	private String serveAllAs;
 	private File dir;
@@ -356,7 +353,7 @@ public class Setup {
 			MalformedURLException, IOException {
 		if (repository != null)
 			throw new IllegalStateException("Must call disconnect before connect can be called again");
-		repository = getObjectRepository(dir, configString);
+		repository = getCallimachusRepository(dir, configString);
 		if (repository == null)
 			throw new RepositoryConfigException(
 					"Missing repository configuration");
@@ -472,30 +469,12 @@ public class Setup {
 		}
 	}
 
-	private ObjectRepository getObjectRepository(File dir, String configString)
+	private CallimachusRepository getCallimachusRepository(File dir, String configString)
 			throws OpenRDFException, MalformedURLException, IOException {
 		Repository repo = getRepository(dir, configString);
 		if (repo == null)
 			return null;
-		if (repo instanceof ObjectRepository)
-			return (ObjectRepository) repo;
-		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
-		ObjectRepositoryConfig config = factory.getConfig();
-		File dataDir = repo.getDataDir();
-		if (dataDir == null) {
-			dataDir = dir;
-		}
-		File wwwDir = new File(dataDir, "www");
-		File blobDir = new File(dataDir, "blob");
-		if (wwwDir.isDirectory() && !blobDir.isDirectory()) {
-			config.setBlobStore(wwwDir.toURI().toString());
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("provider", FileBlobStoreProvider.class.getName());
-			config.setBlobStoreParameters(map);
-		} else {
-			config.setBlobStore(blobDir.toURI().toString());
-		}
-		return factory.createRepository(config, repo);
+		return new CallimachusRepository(repo);
 	}
 
 	private Repository getRepository(File dir, String configString)
@@ -551,13 +530,13 @@ public class Setup {
 	}
 
 	private boolean createOrigin(String origin,
-			ObjectRepository repository) throws Exception {
+			CallimachusRepository repository) throws Exception {
 		boolean modified = createVirtualHost(origin, origin, repository);
 		modified |= initializeOrUpgradeStore(repository, origin);
 		return modified;
 	}
 
-	private boolean initializeOrUpgradeStore(ObjectRepository repository,
+	private boolean initializeOrUpgradeStore(CallimachusRepository repository,
 			String origin) throws RepositoryException, IOException,
 			OpenRDFException {
 		String version = getStoreVersion(repository, origin);
@@ -568,7 +547,7 @@ public class Setup {
 		return version == null || !newVersion.equals(version);
 	}
 
-	private String getStoreVersion(ObjectRepository repository, String origin)
+	private String getStoreVersion(CallimachusRepository repository, String origin)
 			throws RepositoryException {
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -588,7 +567,7 @@ public class Setup {
 		}
 	}
 
-	private void initializeStore(String origin, ObjectRepository repository)
+	private void initializeStore(String origin, CallimachusRepository repository)
 			throws RepositoryException {
 		try {
 			ClassLoader cl = CallimachusServer.class.getClassLoader();
@@ -622,7 +601,7 @@ public class Setup {
 		}
 	}
 
-	private void uploadMainArticle(String origin, ObjectRepository repository,
+	private void uploadMainArticle(String origin, CallimachusRepository repository,
 			ClassLoader cl) throws RepositoryException, IOException {
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -661,7 +640,7 @@ public class Setup {
 		}
 	}
 
-	private String upgradeStore(ObjectRepository repository, String origin) throws IOException, OpenRDFException {
+	private String upgradeStore(CallimachusRepository repository, String origin) throws IOException, OpenRDFException {
 		String version = getStoreVersion(repository, origin);
 		ClassLoader cl = getClass().getClassLoader();
 		String name = "META-INF/upgrade/callimachus-" + version + ".ru";
@@ -690,7 +669,7 @@ public class Setup {
 	}
 
 	private boolean importCar(URL car, String folder, String origin,
-			ObjectRepository repository) throws Exception {
+			CallimachusRepository repository) throws Exception {
 		createFolder(folder, origin, repository);
 		importSchema(car, folder, origin, repository);
 		importArchive(car, folder, origin, repository);
@@ -698,7 +677,7 @@ public class Setup {
 	}
 
 	private void importSchema(URL car, String folder, String origin,
-			ObjectRepository repository) throws RepositoryException,
+			CallimachusRepository repository) throws RepositoryException,
 			IOException, RDFParseException {
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -769,9 +748,9 @@ public class Setup {
 	}
 
 	private void importArchive(URL car, String folderUri, String origin,
-			ObjectRepository repository) throws Exception {
+			CallimachusRepository repository) throws Exception {
 		ValueFactory vf = repository.getValueFactory();
-		repository.setSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
+		repository.addSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
 		repository.setCompileRepository(true);
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -813,7 +792,7 @@ public class Setup {
 	}
 
 	private boolean createFolder(String folder, String origin,
-			ObjectRepository repository) throws RepositoryException {
+			CallimachusRepository repository) throws RepositoryException {
 		boolean modified = false;
 		int idx = folder.lastIndexOf('/', folder.length() - 2);
 		String parent = folder.substring(0, idx + 1);
@@ -849,7 +828,7 @@ public class Setup {
 	}
 
 	private boolean createVirtualHost(String vhost, String origin,
-			ObjectRepository repository) throws RepositoryException {
+			CallimachusRepository repository) throws RepositoryException {
 		assert !vhost.endsWith("/");
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -869,7 +848,7 @@ public class Setup {
 	}
 
 	private boolean createRealm(String realm, String origin,
-			ObjectRepository repository) throws RepositoryException {
+			CallimachusRepository repository) throws RepositoryException {
 		assert realm.endsWith("/");
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -926,7 +905,7 @@ public class Setup {
 		con.add(subj, vf.createURI(pred), vf.createURI(resource));
 	}
 
-	private boolean setServeAllResourcesAs(String origin, ObjectRepository repository) throws RepositoryException {
+	private boolean setServeAllResourcesAs(String origin, CallimachusRepository repository) throws RepositoryException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
@@ -961,7 +940,7 @@ public class Setup {
 	}
 
 	private boolean createAdmin(String name, String email, String username, char[] password,
-			String origin, ObjectRepository repository)
+			String origin, CallimachusRepository repository)
 			throws UnsupportedEncodingException, RepositoryException {
 		validateName(username);
 		ObjectConnection con = repository.getConnection();

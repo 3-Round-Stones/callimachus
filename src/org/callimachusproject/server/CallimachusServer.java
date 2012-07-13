@@ -22,27 +22,18 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.activation.MimeTypeParseException;
+import javax.xml.datatype.DatatypeConfigurationException;
 
-import org.callimachusproject.logging.trace.TracerService;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.util.FileUtil;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.object.ObjectRepository;
-import org.openrdf.repository.object.config.ObjectRepositoryConfig;
-import org.openrdf.repository.object.config.ObjectRepositoryFactory;
-import org.openrdf.store.blob.file.FileBlobStoreProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,29 +41,17 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	private static final String SCHEMA_GRAPH = "/callimachus/SchemaGraph";
 	private static final String ENVELOPE_TYPE = "message/x-response";
 	private static final String IDENTITY_PATH = "/diverted;";
-	private static final String ERROR_XSLT_PATH = "/callimachus/transforms/error.xsl";
 	Logger logger = LoggerFactory.getLogger(CallimachusServer.class);
-	private String origin;
 	private final Set<String> origins = new HashSet<String>();
-	private ObjectRepository repository;
+	private CallimachusRepository repository;
 	private HTTPObjectServer server;
 
-	public CallimachusServer(Repository repository, File dataDir)
-			throws Exception {
-		this.repository = createObjectRepository(dataDir, repository);
-		trace(this.repository);
-		server = createServer(dataDir, this.repository);
-	}
-
-	public String getOrigin() {
-		return origin;
+	public CallimachusServer(Repository repository) throws Exception {
+		this.repository = new CallimachusRepository(repository);
+		server = createServer(this.repository.getDataDir(), this.repository);
 	}
 
 	public void addOrigin(String origin) throws Exception {
-		if (this.origin == null) {
-			this.origin = origin;
-			server.setErrorXSLT(origin + ERROR_XSLT_PATH);
-		}
 		ValueFactory vf = this.repository.getValueFactory();
 		repository.addSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
 		origins.add(origin);
@@ -91,7 +70,20 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.setName(serverName);
 	}
 
-	public ObjectRepository getRepository() {
+	public void setActivityFolderAndType(String uriSpace, String activityType, String folderType)
+			throws DatatypeConfigurationException {
+		repository.setActivityFolderAndType(uriSpace, activityType, folderType);
+	}
+
+	public String getErrorXSLT() {
+		return server.getErrorXSLT();
+	}
+
+	public void setErrorXSLT(String url) {
+		server.setErrorXSLT(url);
+	}
+
+	public Repository getRepository() {
 		return repository;
 	}
 
@@ -179,16 +171,16 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		} else if (sslports == null) {
 			sslports = new int[0];
 		}
-		if (origin == null && ports.length > 0) {
+		if (origins.isEmpty() && ports.length > 0) {
 			addOrigin("http://" + getAuthority(ports[0]));
-		} else if (origin == null && sslports.length > 0) {
+		} else if (origins.isEmpty() && sslports.length > 0) {
 			addOrigin("https://" + getAuthority(sslports[0]));
 		}
 		server.listen(ports, sslports);
 	}
 
 	public void start() throws Exception {
-		logger.info("Callimachus is binding to {}", origin);
+		logger.info("Callimachus is binding to {}", toString());
 		for (String origin : origins) {
 			InetSocketAddress host = getAuthorityAddress(origin);
 			HTTPObjectClient.getInstance().setProxy(host, server);
@@ -199,6 +191,16 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		Thread.yield();
 		long uptime = ManagementFactory.getRuntimeMXBean().getUptime();
 		logger.info("Callimachus started in {} seconds", uptime / 1000.0);
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (String origin : origins) {
+			sb.append(origin).append(" ");
+		}
+		if (sb.length() == 0)
+			return super.toString();
+		return sb.substring(0, sb.length() - 1);
 	}
 
 	public String getStatus() {
@@ -219,13 +221,6 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 
 	public void destroy() throws Exception {
 		server.destroy();
-	}
-
-	private void trace(ObjectRepository repository) {
-		Repository delegate = repository.getDelegate();
-		TracerService service = TracerService.newInstance();
-		Repository traced = service.trace(delegate, Repository.class);
-		repository.setDelegate(traced);
 	}
 
 	private InetSocketAddress getAuthorityAddress(String origin) {
@@ -265,7 +260,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		return hostname + ":" + port;
 	}
 
-	private HTTPObjectServer createServer(File dir, ObjectRepository or)
+	private HTTPObjectServer createServer(File dir, CallimachusRepository or)
 			throws IOException, MimeTypeParseException,
 			NoSuchAlgorithmException {
 		File cacheDir = new File(dir, "cache");
@@ -275,26 +270,6 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		server.setEnvelopeType(ENVELOPE_TYPE);
 		HTTPObjectClient.getInstance().setEnvelopeType(ENVELOPE_TYPE);
 		return server;
-	}
-
-	private ObjectRepository createObjectRepository(File dir,
-			Repository repository) throws URISyntaxException,
-			RepositoryConfigException, RepositoryException, IOException {
-		if (repository instanceof ObjectRepository)
-			return (ObjectRepository) repository;
-		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
-		ObjectRepositoryConfig config = factory.getConfig();
-		File wwwDir = new File(dir, "www");
-		File blobDir = new File(dir, "blob");
-		if (wwwDir.isDirectory() && !blobDir.isDirectory()) {
-			config.setBlobStore(wwwDir.toURI().toString());
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("provider", FileBlobStoreProvider.class.getName());
-			config.setBlobStoreParameters(map);
-		} else {
-			config.setBlobStore(blobDir.toURI().toString());
-		}
-		return factory.createRepository(config, repository);
 	}
 
 }

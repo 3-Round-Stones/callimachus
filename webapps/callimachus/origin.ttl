@@ -22,7 +22,7 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix :<#>.
 
 <> a <SchemaGraph>.
@@ -51,7 +51,7 @@
     msg:sparql """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT REDUCED * {
             {
@@ -63,9 +63,9 @@
                 {
                     ?id rdfs:label ?title
                 } UNION {
-                    ?id audit:revision ?revision . ?revision audit:committedOn ?updated
+                    ?id prov:wasGeneratedBy ?revision . ?revision prov:endedAtTime ?updated
                     OPTIONAL {
-                        ?revision audit:contributor ?contributor_uri
+                        ?revision prov:wasAssociatedWith ?contributor_uri
                         OPTIONAL {
                             ?contributor_uri rdfs:label ?contributor_name
                         }

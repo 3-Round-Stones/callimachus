@@ -20,7 +20,7 @@
 @prefix skos:<http://www.w3.org/2004/02/skos/core#>.
 @prefix dc:<http://purl.org/dc/elements/1.1/>.
 @prefix dcterms:<http://purl.org/dc/terms/>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
@@ -125,13 +125,13 @@
             ftype = "application/octet-stream";
         }
         var construct = create.LookupConstructor(ftype);
-        var iter = this.FindCreator(location).iterator();
+        var newCopy = construct.PostCreate(bio, location, ftype);
+        var iter = this.FindCreator(newCopy).iterator();
         while (iter.hasNext()) {
             var user = iter.next();
             if (!construct.calliIsAuthorized(user, "POST", "create"))
                 throw new Forbidden("You are not permitted to create " + construct + " resources");
         }
-        var newCopy = construct.PostCreate(bio, location, ftype);
         newCopy.calliEditor.addAll(this.FindContributor(newCopy));
         newCopy.calliReader.addAll(this.SelectAllReaders());
         newCopy.calliEditor.addAll(this.SelectAllEditors());
@@ -232,11 +232,11 @@
     msg:sparql  """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT DISTINCT ?contributor
         WHERE {
-            audit:current-trx audit:contributor ?contributor
+            $thing prov:wasGeneratedBy [prov:wasAssociatedWith ?contributor]
         }
     """.
 
@@ -248,16 +248,12 @@
     msg:sparql  """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT DISTINCT ?contributor
         WHERE {
-            {
-                audit:current-trx audit:contributor ?contributor
-            } UNION {
-                GRAPH ?graph { $thing a ?type }
-                ?graph audit:contributor ?contributor
-            } OPTIONAL {
+            ?activity prov:used $thing; prov:wasAssociatedWith ?contributor
+            FILTER NOT EXISTS {
                 {
                     $this ?editor ?contributor
                 } UNION {
@@ -269,7 +265,6 @@
                 }
                 FILTER (?editor = calli:editor || ?editor = calli:administrator)
             }
-            FILTER (!bound(?editor))
         }
     """.
 
@@ -279,7 +274,6 @@
     msg:sparql  """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT DISTINCT ?reader
         WHERE {
@@ -297,7 +291,6 @@
     msg:sparql  """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT DISTINCT ?editor
         WHERE {
@@ -315,7 +308,6 @@
     msg:sparql  """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT DISTINCT ?admin
         WHERE {

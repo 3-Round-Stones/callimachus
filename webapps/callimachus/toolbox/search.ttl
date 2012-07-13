@@ -7,7 +7,7 @@
 @prefix foaf:<http://xmlns.com/foaf/0.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
+@prefix prov:<http://www.w3.org/ns/prov#>.
 @prefix keyword:<http://www.openrdf.org/rdf/2011/keyword#>.
 @prefix :<#>.
 
@@ -51,7 +51,7 @@
         PREFIX dcterms:<http://purl.org/dc/terms/>
         PREFIX foaf:<http://xmlns.com/foaf/0.1/>
         PREFIX keyword:<http://www.openrdf.org/rdf/2011/keyword#>
-        PREFIX audit:<http://www.openrdf.org/rdf/2009/auditing#>
+        PREFIX prov:<http://www.w3.org/ns/prov#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT * {
             {
@@ -59,7 +59,7 @@
                 BIND (concat(str($this),"?q=",encode_for_uri($q)) as ?id)
                 BIND ("feed" as ?type)
             } UNION {
-                $this audit:revision [audit:committedOn ?updated]
+                $this prov:wasGeneratedBy [prov:endedAtTime ?updated]
                 BIND (concat(str($this),"?q=",encode_for_uri($q)) as ?id)
                 BIND ("feed" as ?type)
             } UNION {
@@ -103,8 +103,8 @@
                         }
                         OPTIONAL { ?url a [calli:icon ?icon] }
                         OPTIONAL { ?url rdfs:comment ?comment }
-                        OPTIONAL { ?url audit:revision ?revision
-                            OPTIONAL { ?revision audit:committedOn ?modified }
+                        OPTIONAL { ?url prov:wasGeneratedBy ?revision
+                            OPTIONAL { ?revision prov:endedAtTime ?modified }
                         } OPTIONAL {
                             ?id a [calli:type ?content_type]
                         }

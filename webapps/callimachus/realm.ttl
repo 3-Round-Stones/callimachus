@@ -6,7 +6,6 @@
 @prefix dc:<http://purl.org/dc/elements/1.1/>.
 @prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
-@prefix audit:<http://www.openrdf.org/rdf/2009/auditing#>.
 @prefix :<#>.
 
 <> a <SchemaGraph>.

@@ -28,32 +28,23 @@
  */
 package org.callimachusproject.server.traits;
 
-import org.callimachusproject.server.concepts.Transaction;
+import org.callimachusproject.server.concepts.Activity;
 import org.openrdf.annotations.Iri;
+import org.openrdf.repository.object.RDFObject;
 
 /**
  * An interface that exposes the auditing SAIL's revision.
  */
-public interface VersionedObject {
+public interface VersionedObject extends RDFObject {
 
-	@Iri("http://www.openrdf.org/rdf/2009/auditing#revision")
-	Transaction getAuditRevision();
+	@Iri("http://www.w3.org/ns/prov#wasGeneratedBy")
+	Activity getProvWasGeneratedBy();
 
-	@Iri("http://www.openrdf.org/rdf/2009/auditing#revision")
-	void setAuditRevision(Transaction revision);
+	@Iri("http://www.w3.org/ns/prov#wasGeneratedBy")
+	void setProvWasGeneratedBy(Activity activity);
 
 	void touchRevision();
 
 	String revision();
-
-	/**
-	 * @deprecated compute from revision()
-	 */
-	String revisionTag(int code);
-
-	/**
-	 * @deprecated compute from revision()
-	 */
-	String variantTag(String mediaType, int code);
 
 }

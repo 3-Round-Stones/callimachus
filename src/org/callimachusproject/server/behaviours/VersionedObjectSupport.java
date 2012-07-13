@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2009, James Leigh All rights reserved.
+ * Copyright (c) 2009, James Leigh, Some rights reserved.
+ * Copyright (c) 2012 3 Round Stones Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,11 +31,11 @@ package org.callimachusproject.server.behaviours;
 
 import static java.lang.Integer.toHexString;
 
-import org.callimachusproject.server.concepts.Transaction;
+import org.callimachusproject.server.concepts.Activity;
 import org.callimachusproject.server.traits.VersionedObject;
+import org.openrdf.model.URI;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.sail.auditing.vocabulary.Audit;
 
 /**
  * Causes this object's revision to be increased, even if no triples are modified.
@@ -43,37 +44,20 @@ public abstract class VersionedObjectSupport implements VersionedObject, RDFObje
 
 	public void touchRevision() {
 		ObjectFactory of = getObjectConnection().getObjectFactory();
-		setAuditRevision(of.createObject(Audit.CURRENT_TRX, Transaction.class));
+		URI activityURI = getObjectConnection().getActivityURI();
+		if (activityURI == null) {
+			setProvWasGeneratedBy(null);
+		} else {
+			setProvWasGeneratedBy(of.createObject(activityURI, Activity.class));
+		}
 	}
 
 	public String revision() {
-		Transaction trans = getAuditRevision();
-		if (trans == null)
+		Activity activity = getProvWasGeneratedBy();
+		if (activity == null)
 			return null;
-		String uri = ((RDFObject) trans).getResource().stringValue();
+		String uri = ((RDFObject) activity).getResource().stringValue();
 		return toHexString(uri.hashCode());
-	}
-
-	public String revisionTag(int code) {
-		String revision = revision();
-		if (revision == null)
-			return null;
-		if (code == 0)
-			return "W/" + '"' + revision + '"';
-		return "W/" + '"' + revision + '-' + toHexString(code) + '"';
-	}
-
-	public String variantTag(String mediaType, int code) {
-		if (mediaType == null)
-			return revisionTag(code);
-		String revision = revision();
-		if (revision == null)
-			return null;
-		String cd = toHexString(code);
-		String v = toHexString(mediaType.hashCode());
-		if (code == 0)
-			return "W/" + '"' + revision + '-' + v + '"';
-		return "W/" + '"' + revision + '-' + cd + '-' + v + '"';
 	}
 
 }

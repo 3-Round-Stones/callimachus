@@ -37,12 +37,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -53,8 +51,7 @@ import java.util.Set;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
-import javax.tools.FileObject;
-import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.header;
@@ -65,7 +62,7 @@ import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.concepts.Realm;
-import org.callimachusproject.server.concepts.Transaction;
+import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
@@ -76,7 +73,6 @@ import org.openrdf.annotations.ParameterTypes;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.ObjectRepository;
 import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,14 +104,14 @@ public class ResourceOperation extends ResourceRequest {
 	private List<Realm> realms;
 	private String[] realmURIs;
 
-	public ResourceOperation(Request request, ObjectRepository repository)
+	public ResourceOperation(Request request, CallimachusRepository repository)
 			throws QueryEvaluationException, RepositoryException,
 			MimeTypeParseException {
 		super(request, repository);
 	}
 
 	public void begin() throws MimeTypeParseException, RepositoryException,
-			QueryEvaluationException {
+			QueryEvaluationException, DatatypeConfigurationException {
 		super.begin();
 		if (method == null) {
 			try {
@@ -241,23 +237,7 @@ public class ResourceOperation extends ResourceRequest {
 	public long getLastModified() throws MimeTypeParseException {
 		if (isNoValidate())
 			return System.currentTimeMillis() / 1000 * 1000;
-		RDFObject target = getRequestedResource();
-		try {
-			if (target instanceof FileObject)
-				return ((FileObject) target).getLastModified() / 1000 * 1000;
-			Transaction trans = getRevision();
-			if (trans != null) {
-				XMLGregorianCalendar xgc = trans.getCommittedOn();
-				if (xgc != null) {
-					GregorianCalendar cal = xgc.toGregorianCalendar();
-					cal.set(Calendar.MILLISECOND, 0);
-					return cal.getTimeInMillis() / 1000 * 1000;
-				}
-			}
-		} catch (ClassCastException e) {
-			logger.warn(e.toString(), e);
-		}
-		return 0;
+		return super.getLastModified();
 	}
 
 	public String getResponseCacheControl() throws QueryEvaluationException,

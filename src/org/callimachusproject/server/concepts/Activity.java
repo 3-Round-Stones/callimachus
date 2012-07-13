@@ -34,28 +34,28 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.openrdf.annotations.Iri;
 
 /**
- * Exposes the auditing SAIL's committed on property of a transaction.
+ * Exposes the auditing SAIL's committed on property of an activity.
  */
-@Iri("http://www.openrdf.org/rdf/2009/auditing#Transaction")
-public interface Transaction {
+@Iri("http://www.w3.org/ns/prov#Activity")
+public interface Activity {
 
-	@Iri("http://www.openrdf.org/rdf/2009/auditing#committedOn")
-	XMLGregorianCalendar getCommittedOn();
+	@Iri("http://www.w3.org/ns/prov#startedAtTime")
+	XMLGregorianCalendar getProvStartedAtTime();
 
-	@Iri("http://www.openrdf.org/rdf/2009/auditing#committedOn")
-	void setCommittedOn(XMLGregorianCalendar committedOn);
+	@Iri("http://www.w3.org/ns/prov#startedAtTime")
+	void setProvStartedAtTime(XMLGregorianCalendar startedAtTime);
 
-	@Iri("http://www.openrdf.org/rdf/2009/auditing#contributor")
-	Object getAuditContributor();
 
-	@Iri("http://www.openrdf.org/rdf/2009/auditing#contributor")
-	void setAuditContributor(Object msgContributor);
+	@Iri("http://www.w3.org/ns/prov#endedAtTime")
+	XMLGregorianCalendar getProvEndedAtTime();
 
-	@Deprecated
-	@Iri("http://www.openrdf.org/rdf/2009/auditing#contributor")
-	Object getHttpAuthorized();
+	@Iri("http://www.w3.org/ns/prov#endedAtTime")
+	void setProvEndedAtTime(XMLGregorianCalendar endedAtTime);
 
-	@Deprecated
-	@Iri("http://www.openrdf.org/rdf/2009/auditing#contributor")
-	void setHttpAuthorized(Object httpAuthorized);
+
+	@Iri("http://www.w3.org/ns/prov#wasAssociatedWith")
+	Object getProvWasAssociatedWith();
+
+	@Iri("http://www.w3.org/ns/prov#wasAssociatedWith")
+	void setProvWasAssociatedWith(Object wasAssociatedWith);
 }

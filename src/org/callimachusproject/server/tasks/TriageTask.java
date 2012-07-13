@@ -34,12 +34,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpResponse;
+import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.object.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,10 +54,10 @@ public final class TriageTask extends Task {
 	private Request req;
 	private Filter filter;
 	private Handler handler;
-	private ObjectRepository repository;
+	private CallimachusRepository repository;
 	private CountDownLatch latch = new CountDownLatch(1);
 
-	public TriageTask(ObjectRepository repository,
+	public TriageTask(CallimachusRepository repository,
 			Request request, Filter filter, Handler handler) {
 		super(request, filter);
 		this.repository = repository;

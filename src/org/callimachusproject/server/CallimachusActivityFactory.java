@@ -2,9 +2,12 @@ package org.callimachusproject.server;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -13,12 +16,15 @@ import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.Update;
 import org.openrdf.query.UpdateExecutionException;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.auditing.ActivityFactory;
 
 public final class CallimachusActivityFactory implements ActivityFactory {
+	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 	private static final String ACTIVITY = "http://www.w3.org/ns/prov#Activity";
+	private static final String ENDED_AT = "http://www.w3.org/ns/prov#endedAtTime";
 	private static final String INSERT_FOLDER = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
 			+ "INSERT {\n"
@@ -36,20 +42,27 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 	private final String uid = "t"
 			+ Long.toHexString(System.currentTimeMillis()) + "x";
 	private final AtomicLong seq = new AtomicLong(0);
+	private final Repository repository;
 	private final String uriSpace;
 	private final String activityType;
 	private final String folderType;
+	private final DatatypeFactory df;
 	private String namespace;
 	private GregorianCalendar date;
 	private String folder;
 
-	public CallimachusActivityFactory(String uriSpace, String activityType, String folderType) throws DatatypeConfigurationException {
+	public CallimachusActivityFactory(Repository repository, String uriSpace,
+			String activityType, String folderType)
+			throws DatatypeConfigurationException {
+		assert repository != null;
 		assert uriSpace != null;
 		assert activityType != null;
 		assert folderType != null;
+		this.repository = repository;
 		this.uriSpace = uriSpace;
 		this.activityType = activityType;
 		this.folderType = folderType;
+		this.df = DatatypeFactory.newInstance();
 		assert uriSpace.endsWith("/");
 	}
 
@@ -58,21 +71,40 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 		return vf.createURI(getNamespace(), local);
 	}
 
-	public void activityStarted(URI activity, RepositoryConnection con) throws RepositoryException {
+	public void activityStarted(URI activity, RepositoryConnection con)
+			throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
-		con.add(vf.createURI(activity.getNamespace()), vf.createURI(CALLI_HASCOMPONENT), activity, activity);
+		con.add(vf.createURI(activity.getNamespace()),
+				vf.createURI(CALLI_HASCOMPONENT), activity, activity);
 		con.add(activity, RDF.TYPE, vf.createURI(activityType), activity);
 		con.add(activity, RDF.TYPE, vf.createURI(ACTIVITY), activity);
 	}
 
-	public synchronized void activityEnded(URI activity, RepositoryConnection con) throws RepositoryException {
+	public void activityEnded(URI act, RepositoryConnection con)
+			throws RepositoryException {
+		ValueFactory vf = con.getValueFactory();
+		XMLGregorianCalendar now = df
+				.newXMLGregorianCalendar(new GregorianCalendar(UTC));
+		con.add(act, vf.createURI(ENDED_AT), vf.createLiteral(now), act);
+		createFolder(act);
+	}
+
+	private synchronized void createFolder(URI activity)
+			throws RepositoryException {
 		if (folder == null || !folder.equals(activity.getNamespace())) {
-			ValueFactory vf = con.getValueFactory();
-			createFolder(vf.createURI(folder = activity.getNamespace()), con);
+			folder = activity.getNamespace();
+			RepositoryConnection con = repository.getConnection();
+			try {
+				ValueFactory vf = con.getValueFactory();
+				createFolder(vf.createURI(folder), con);
+			} finally {
+				con.close();
+			}
 		}
 	}
 
-	private boolean createFolder(URI folder, RepositoryConnection con) throws RepositoryException {
+	private boolean createFolder(URI folder, RepositoryConnection con)
+			throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
 		if (con.hasStatement(folder, RDF.TYPE, null, true))
 			return false;
@@ -81,11 +113,13 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 		int split = str.lastIndexOf('/', str.length() - 2);
 		if (split < 0)
 			return false;
-		String label = str.substring(split + 1, str.length() - 1).replace('-', ' ');
+		String label = str.substring(split + 1, str.length() - 1).replace('-',
+				' ');
 		URI parent = vf.createURI(str.substring(0, split + 1));
 		createFolder(parent, con);
 		try {
-			Update update = con.prepareUpdate(QueryLanguage.SPARQL, INSERT_FOLDER);
+			Update update = con.prepareUpdate(QueryLanguage.SPARQL,
+					INSERT_FOLDER);
 			update.setBinding("folder", folder);
 			update.setBinding("parent", parent);
 			update.setBinding("folderType", vf.createURI(folderType));

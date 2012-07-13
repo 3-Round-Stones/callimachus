@@ -39,7 +39,7 @@ public class CallimachusRepository extends RepositoryWrapper {
 	public void setActivityFolderAndType(String uriSpace, String activityType,
 			String folderType) throws DatatypeConfigurationException {
 		if (auditing != null) {
-			auditing.setActivityFactory(new CallimachusActivityFactory(
+			auditing.setActivityFactory(new CallimachusActivityFactory(object,
 					uriSpace, activityType, folderType));
 		}
 	}

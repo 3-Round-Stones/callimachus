@@ -159,19 +159,21 @@
                 BIND (1 AS ?preference)
             } UNION {
                 ?class rdfs:subClassOf+ $this; calli:type ?typ2
-                {
-                    FILTER (sameTerm($type,"application/javascript") || sameTerm($type,"text/javascript"))
-                    FILTER (sameTerm(?typ2,"application/javascript") || sameTerm(?typ2,"text/javascript"))
-                } UNION {
-                    FILTER (sameTerm($type,"application/xslt+xml") || sameTerm($type,"text/xsl"))
-                    FILTER (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
-                } UNION {
-                    FILTER (sameTerm($type,"image/x-png") || sameTerm($type,"image/png"))
-                    FILTER (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
-                } UNION {
-                    FILTER (sameTerm($type,"image/pjpeg") || sameTerm($type,"image/jpeg"))
-                    FILTER (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
-                }
+                FILTER (
+                    (
+                        (sameTerm($type,"application/javascript") || sameTerm($type,"text/javascript"))
+                        && (sameTerm(?typ2,"application/javascript") || sameTerm(?typ2,"text/javascript"))
+                    ) || (
+                        (sameTerm($type,"application/xslt+xml") || sameTerm($type,"text/xsl"))
+                        && (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
+                    ) || (
+                        (sameTerm($type,"image/x-png") || sameTerm($type,"image/png"))
+                        && (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
+                    ) || (
+                        (sameTerm($type,"image/pjpeg") || sameTerm($type,"image/jpeg"))
+                        && (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
+                    )
+                )
                 BIND (2 AS ?preference)
             } UNION {
                 # boot strap graphs before calli:type triples are loaded

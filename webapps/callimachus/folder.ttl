@@ -536,6 +536,9 @@
                     dependency.remove(location);
                     con.recompileSchemaOnClose();
                 }
+            } catch (e) {
+                println("Could not import " + name + " a " + type + " into " + container);
+                throw e;
             } finally {
                 entryStream.close();
             }

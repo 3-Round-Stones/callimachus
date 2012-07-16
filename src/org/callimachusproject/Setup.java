@@ -764,6 +764,7 @@ public class Setup {
 			Method UploadFolderComponents = findUploadFolderComponents(folder);
 			InputStream in = car.openStream();
 			try {
+				logger.info("Importing {} into {}", car, folderUri);
 				Object[] args = new Object[UploadFolderComponents.getParameterTypes().length];
 				args[0] = in;
 				UploadFolderComponents.invoke(folder, args);

@@ -193,7 +193,7 @@ public abstract class MetadataServerTestCase extends TestCase {
 		repo.initialize();
 		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
 		repo = factory.createRepository(config, repo);
-		return new CallimachusRepository(repo);
+		return new CallimachusRepository(repo, dataDir);
 	}
 
 }

@@ -64,7 +64,8 @@ or checkout the Subversion repository.
 If you download a ZIP archive of a release from http://callimachusproject.org/, 
 extract it into a new directory. Copy etc/callimachus-defaults.conf to
 etc/callimachus.conf; change the ORIGIN and PORT to the be the same as the
-hostname and port (if not port 80); add an initial user as instructed.
+hostname and port (if not port 80); add an initial user as instructed. Be sure
+to remove the preceding comment character ('#') in the .conf file.
 
 To register a Callimachus daemon with the Linux system (to stop Callimachus
 on machine shut down) run the bin/callimachus-install.sh script. The

@@ -408,7 +408,7 @@ do_start()
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
     -XX:OnOutOfMemoryError="kill -9 %p" \
-    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" $OPTS "$@"
+    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -r "$REPOSITORY" $OPTS "$@"
 
   RETURN_VAL=$?
   sleep 1
@@ -581,7 +581,7 @@ do_run() {
     -XX:OnOutOfMemoryError="kill -9 %p" \
     -classpath "$CLASSPATH" \
     -user "$DAEMON_USER" \
-    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -d "$BASEDIR" -r "$REPOSITORY" $OPTS "$@"
+    $JSVC_OPTS $SSL_OPTS "$MAINCLASS" -q -r "$REPOSITORY" $OPTS "$@"
 }
 
 case "$1" in

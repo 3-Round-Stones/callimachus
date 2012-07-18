@@ -538,7 +538,7 @@ public abstract class Task implements Runnable {
 			while (m.find()) {
 				String url = m.group();
 				sb.append(enc(string.substring(end, m.start())));
-				sb.append("<a href='").append(url).append("'>");
+				sb.append("<a href='").append(enc(url)).append("'>");
 				int path = url.indexOf('/', url.indexOf("://") + 3);
 				String label = url.substring(path);
 				sb.append(enc(label));

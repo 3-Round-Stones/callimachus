@@ -364,7 +364,10 @@ public class Setup {
 
 	public void disconnect() {
 		repository = null;
-		manager.shutDown();
+		if (manager != null) {
+			manager.shutDown();
+			manager = null;
+		}
 	}
 
 	public void createOrigin(String origin) throws Exception {

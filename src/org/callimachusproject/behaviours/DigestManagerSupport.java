@@ -41,7 +41,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.concepts.DigestManager;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.traits.VersionedObject;
+import org.callimachusproject.traits.VersionedObject;
 import org.callimachusproject.util.PasswordGenerator;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;

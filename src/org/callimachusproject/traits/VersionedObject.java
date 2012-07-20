@@ -26,9 +26,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.traits;
+package org.callimachusproject.traits;
 
-import org.callimachusproject.server.concepts.Activity;
+import org.callimachusproject.concepts.Activity;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.RDFObject;
 

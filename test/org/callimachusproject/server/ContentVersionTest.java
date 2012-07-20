@@ -7,7 +7,7 @@ import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
-import org.callimachusproject.server.traits.VersionedObject;
+import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.ObjectConnection;
 

@@ -31,7 +31,7 @@ package org.callimachusproject.server.concepts;
 
 import javax.tools.FileObject;
 
-import org.callimachusproject.server.traits.VersionedObject;
+import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.annotations.Matching;
 
 /**

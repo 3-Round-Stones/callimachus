@@ -36,7 +36,7 @@ import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateEngineFactory;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.ResponseException;
-import org.callimachusproject.server.traits.VersionedObject;
+import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
 import org.openrdf.model.Resource;

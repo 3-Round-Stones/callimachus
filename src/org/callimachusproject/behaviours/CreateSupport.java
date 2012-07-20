@@ -52,7 +52,7 @@ import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.server.exceptions.ResponseException;
-import org.callimachusproject.server.traits.VersionedObject;
+import org.callimachusproject.traits.VersionedObject;
 import org.callimachusproject.xslt.XMLEventReaderFactory;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;

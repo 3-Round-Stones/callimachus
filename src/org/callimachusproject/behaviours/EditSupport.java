@@ -32,7 +32,7 @@ import org.callimachusproject.form.helpers.GraphPatternBuilder;
 import org.callimachusproject.form.helpers.StatementExtractor;
 import org.callimachusproject.form.helpers.TripleAnalyzer;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.traits.VersionedObject;
+import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;

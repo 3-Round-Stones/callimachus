@@ -11,5 +11,5 @@ org.callimachusproject.behaviours.RealmSupport
 org.callimachusproject.behaviours.ScriptBundleSupport
 org.callimachusproject.behaviours.ClassAuthorizationSupport = http://www.w3.org/2000/01/rdf-schema#Resource
 org.callimachusproject.behaviours.ResourceAuthorizationSupport = http://www.w3.org/2000/01/rdf-schema#Resource
-org.callimachusproject.server.behaviours.FileObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
-org.callimachusproject.server.behaviours.VersionedObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
+org.callimachusproject.behaviours.FileObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource
+org.callimachusproject.behaviours.VersionedObjectSupport = http://www.w3.org/2000/01/rdf-schema#Resource

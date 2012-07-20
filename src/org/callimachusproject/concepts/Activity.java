@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009, James Leigh, Some rights reserved.
- * Copyright (c) 2012 3 Round Stones Inc., Some rights reserved.
+ * Copyright (c) 2009, James Leigh All rights reserved.
+ * Copyright (c) 2011 Talis Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,37 +27,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.behaviours;
+package org.callimachusproject.concepts;
 
-import static java.lang.Integer.toHexString;
+import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.callimachusproject.server.concepts.Activity;
-import org.callimachusproject.server.traits.VersionedObject;
-import org.openrdf.model.URI;
-import org.openrdf.repository.object.ObjectFactory;
-import org.openrdf.repository.object.RDFObject;
+import org.openrdf.annotations.Iri;
 
 /**
- * Causes this object's revision to be increased, even if no triples are modified.
+ * Exposes the auditing SAIL's committed on property of an activity.
  */
-public abstract class VersionedObjectSupport implements VersionedObject, RDFObject {
+@Iri("http://www.w3.org/ns/prov#Activity")
+public interface Activity {
 
-	public void touchRevision() {
-		ObjectFactory of = getObjectConnection().getObjectFactory();
-		URI activityURI = getObjectConnection().getActivityURI();
-		if (activityURI == null) {
-			setProvWasGeneratedBy(null);
-		} else {
-			setProvWasGeneratedBy(of.createObject(activityURI, Activity.class));
-		}
-	}
+	@Iri("http://www.w3.org/ns/prov#startedAtTime")
+	XMLGregorianCalendar getProvStartedAtTime();
 
-	public String revision() {
-		Activity activity = getProvWasGeneratedBy();
-		if (activity == null)
-			return null;
-		String uri = ((RDFObject) activity).getResource().stringValue();
-		return toHexString(uri.hashCode());
-	}
+	@Iri("http://www.w3.org/ns/prov#startedAtTime")
+	void setProvStartedAtTime(XMLGregorianCalendar startedAtTime);
 
+
+	@Iri("http://www.w3.org/ns/prov#endedAtTime")
+	XMLGregorianCalendar getProvEndedAtTime();
+
+	@Iri("http://www.w3.org/ns/prov#endedAtTime")
+	void setProvEndedAtTime(XMLGregorianCalendar endedAtTime);
+
+
+	@Iri("http://www.w3.org/ns/prov#wasAssociatedWith")
+	Object getProvWasAssociatedWith();
+
+	@Iri("http://www.w3.org/ns/prov#wasAssociatedWith")
+	void setProvWasAssociatedWith(Object wasAssociatedWith);
 }

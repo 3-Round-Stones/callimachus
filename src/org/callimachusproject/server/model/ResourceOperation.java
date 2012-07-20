@@ -490,52 +490,6 @@ public class ResourceOperation extends ResourceRequest {
 		return map;
 	}
 
-	public Object[] getParameters(Method method, Entity input) throws Exception {
-		Class<?>[] ptypes = method.getParameterTypes();
-		Annotation[][] anns = method.getParameterAnnotations();
-		Type[] gtypes = method.getGenericParameterTypes();
-		Object[] args = new Object[ptypes.length];
-		for (int i = 0; i < args.length; i++) {
-			String[] types = getParameterMediaTypes(anns[i]);
-			Entity entity = getParameter(anns[i], ptypes[i], input);
-			if (entity != null) {
-				args[i] = entity.read(ptypes[i], gtypes[i], types);
-			}
-		}
-		return args;
-	}
-
-	public ResponseEntity invoke(Method method, Object[] args, boolean follow)
-			throws Exception {
-		Object result = method.invoke(getRequestedResource(), args);
-		ResponseEntity input = createResultEntity(result, method
-				.getReturnType(), method.getGenericReturnType(),
-				getTypes(method));
-		if (method.isAnnotationPresent(header.class)) {
-			for (String header : method.getAnnotation(header.class).value()) {
-				int idx = header.indexOf(':');
-				if (idx <= 0)
-					continue;
-				String name = header.substring(0, idx);
-				String value = header.substring(idx + 1);
-				input.addHeader(name, value);
-			}
-		}
-		if (method.isAnnotationPresent(expect.class)) {
-			input.addExpects(method.getAnnotation(expect.class).value());
-		}
-		if (follow) {
-			Method transform = getBestTransformMethod(method);
-			if (transform != null && !transform.equals(method)) {
-				ResponseEntity ret = invoke(transform, getParameters(transform, input), follow);
-				ret.addHeaders(input.getOtherHeaders());
-				ret.addExpects(input.getExpects());
-				return ret;
-			}
-		}
-		return input;
-	}
-
 	public boolean isRequestBody(Method method) {
 		for (Annotation[] anns : method.getParameterAnnotations()) {
 			if (getParameterNames(anns) == null && getHeaderNames(anns) == null)
@@ -588,7 +542,7 @@ public class ResourceOperation extends ResourceRequest {
 		return weak + '"' + revision + '-' + cd + '-' + v + '"';
 	}
 
-	private String[] getTypes(Method method) {
+	public String[] getTypes(Method method) {
 		if (method.isAnnotationPresent(type.class))
 			return method.getAnnotation(type.class).value();
 		return new String[0];
@@ -700,7 +654,7 @@ public class ResourceOperation extends ResourceRequest {
 		String readable = null;
 		String acceptable = null;
 		Collection<Method> list = new LinkedHashSet(methods.size());
-		BodyEntity body = getBody();
+		BodyParameter body = getBody();
 		loop: for (Method method : methods) {
 			Collection<? extends MimeType> readableTypes;
 			readableTypes = getReadableTypes(body, method, 0, true);
@@ -759,38 +713,7 @@ public class ResourceOperation extends ResourceRequest {
 		return false;
 	}
 
-	private Entity getParameter(Annotation[] anns, Class<?> ptype, Entity input)
-			throws Exception {
-		String[] names = getParameterNames(anns);
-		String[] headers = getHeaderNames(anns);
-		String[] types = getParameterMediaTypes(anns);
-		if (names == null && headers == null && types == null) {
-			return getValue(anns, new NullEntity(getObjectConnection()));
-		} else if (names == null && headers == null) {
-			return getValue(anns, input);
-		} else if (headers != null && names != null) {
-			return getValue(anns, getHeaderAndQuery(types, headers, names));
-		} else if (headers != null) {
-			return getValue(anns, getHeader(types, headers));
-		} else if (names.length == 1 && names[0].equals("*")) {
-			return getValue(anns, getQueryString(types));
-		} else {
-			return getValue(anns, getParameter(types, names));
-		}
-	}
-
-	private Entity getValue(Annotation[] anns, Entity input) throws Exception {
-		for (String uri : getTransforms(anns)) {
-			Method transform = getTransform(uri);
-			if (!getReadableTypes(input, transform, 0, false).isEmpty()) {
-				Object[] args = getParameters(transform, input);
-				return invoke(transform, args, false);
-			}
-		}
-		return input;
-	}
-
-	private String[] getParameterNames(Annotation[] annotations) {
+	public String[] getParameterNames(Annotation[] annotations) {
 		for (int i = 0; i < annotations.length; i++) {
 			if (annotations[i].annotationType().equals(query.class))
 				return ((query) annotations[i]).value();
@@ -798,7 +721,7 @@ public class ResourceOperation extends ResourceRequest {
 		return null;
 	}
 
-	private String[] getHeaderNames(Annotation[] annotations) {
+	public String[] getHeaderNames(Annotation[] annotations) {
 		for (int i = 0; i < annotations.length; i++) {
 			if (annotations[i].annotationType().equals(header.class))
 				return ((header) annotations[i]).value();
@@ -806,7 +729,7 @@ public class ResourceOperation extends ResourceRequest {
 		return null;
 	}
 
-	private String[] getParameterMediaTypes(Annotation[] annotations) {
+	public String[] getParameterMediaTypes(Annotation[] annotations) {
 		for (int i = 0; i < annotations.length; i++) {
 			if (annotations[i].annotationType().equals(type.class))
 				return ((type) annotations[i]).value();
@@ -833,7 +756,7 @@ public class ResourceOperation extends ResourceRequest {
 		return map;
 	}
 
-	private Method getTransform(String uri) {
+	public Method getTransform(String uri) {
 		for (Method m : getRequestedResource().getClass().getMethods()) {
 			Iri iri = m.getAnnotation(Iri.class);
 			if (iri != null && uri.equals(iri.value())) {
@@ -856,7 +779,7 @@ public class ResourceOperation extends ResourceRequest {
 		return getTransformMethodOf(transform);
 	}
 
-	private Method getBestTransformMethod(Method method) throws MimeTypeParseException {
+	public Method getBestTransformMethod(Method method) throws MimeTypeParseException {
 		if (method == null)
 			return method;
 		if (method.isAnnotationPresent(transform.class)) {
@@ -872,7 +795,7 @@ public class ResourceOperation extends ResourceRequest {
 		return method;
 	}
 
-	private String[] getTransforms(Annotation[] anns) {
+	public String[] getTransforms(Annotation[] anns) {
 		for (Annotation ann : anns) {
 			if (ann.annotationType().equals(transform.class)) {
 				return ((transform) ann).value();
@@ -969,7 +892,7 @@ public class ResourceOperation extends ResourceRequest {
 		}
 	}
 
-	private Collection<? extends MimeType> getReadableTypes(Entity input, Annotation[] anns, Class<?> ptype,
+	private Collection<? extends MimeType> getReadableTypes(Parameter input, Annotation[] anns, Class<?> ptype,
 			Type gtype, int depth, boolean typeRequired) throws MimeTypeParseException {
 		if (getHeaderNames(anns) != null)
 			return Collections.singleton(ANYTHING);
@@ -990,7 +913,7 @@ public class ResourceOperation extends ResourceRequest {
 		return readable;
 	}
 
-	private Collection<? extends MimeType> getReadableTypes(Entity input,
+	public Collection<? extends MimeType> getReadableTypes(Parameter input,
 			Method method, int depth, boolean typeRequired)
 			throws MimeTypeParseException {
 		if (method == null)

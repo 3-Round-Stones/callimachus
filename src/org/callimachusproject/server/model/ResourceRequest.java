@@ -37,15 +37,12 @@ import java.net.URLDecoder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.regex.Pattern;
@@ -78,7 +75,6 @@ import org.openrdf.repository.auditing.AuditingRepositoryConnection;
 import org.openrdf.repository.base.RepositoryConnectionWrapper;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
-import org.openrdf.repository.object.traits.RDFObjectBehaviour;
 import org.openrdf.result.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,22 +88,13 @@ import org.slf4j.LoggerFactory;
 public class ResourceRequest extends Request {
 	private static final Pattern EXPECT_REDIRECT = Pattern.compile("^(301|302|303|307)\\b");
 	private static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
-	private static Type parameterMapType;
-	static {
-		try {
-			parameterMapType = ResourceRequest.class.getDeclaredMethod(
-					"getParameterMap").getGenericReturnType();
-		} catch (NoSuchMethodException e) {
-			throw new AssertionError(e);
-		}
-	}
 	private final Logger logger = LoggerFactory.getLogger(ResourceRequest.class);
 	private ValueFactory vf;
 	private ObjectConnection con;
 	private VersionedObject target;
 	private URI uri;
 	private AggregateWriter writer = AggregateWriter.getInstance();
-	private BodyEntity body;
+	private BodyParameter body;
 	private Accepter accepter;
 	private Set<String> vary = new LinkedHashSet<String>();
 	private Result<VersionedObject> result;
@@ -168,15 +155,6 @@ public class ResourceRequest extends Request {
 		return vary;
 	}
 
-	public ResponseEntity createResultEntity(Object result, Class<?> ctype,
-			Type gtype, String[] mimeTypes) {
-		if (result instanceof RDFObjectBehaviour) {
-			result = ((RDFObjectBehaviour) result).getBehaviourDelegate();
-		}
-		return new ResponseEntity(mimeTypes, result, ctype, gtype, uri
-				.stringValue(), con);
-	}
-
 	public URI createURI(String uriSpec) {
 		return vf.createURI(resolve(uriSpec));
 	}
@@ -212,7 +190,7 @@ public class ResourceRequest extends Request {
 		super.cleanup();
 	}
 
-	public BodyEntity getBody() {
+	public BodyParameter getBody() {
 		if (body != null)
 			return body;
 		String mediaType = getHeader("Content-Type");
@@ -222,7 +200,7 @@ public class ResourceRequest extends Request {
 		}
 		try {
 			Charset charset = getCharset(mediaType);
-			return body = new BodyEntity(mediaType, isMessageBody(), charset,
+			return body = new BodyParameter(mediaType, isMessageBody(), charset,
 					uri.stringValue(), location, con) {
 
 				@Override
@@ -295,44 +273,21 @@ public class ResourceRequest extends Request {
 		return "";
 	}
 
-	public Entity getHeader(String[] mediaTypes, String... names) {
+	public Parameter getHeader(String[] mediaTypes, String... names) {
 		List<String> list = getVaryHeaders(names);
 		String[] values = list.toArray(new String[list.size()]);
-		return new ParameterEntity(mediaTypes, "text/plain", values, uri
+		return new StringParameter(mediaTypes, "text/plain", values, uri
 				.stringValue(), con);
 	}
 
-	public Entity getParameter(String[] mediaTypes, String... names) {
-		String[] values = getParameterValues(names);
-		return new ParameterEntity(mediaTypes, "text/plain", values, uri
-				.stringValue(), con);
-	}
-
-	public Entity getHeaderAndQuery(String[] mediaTypes, String[] headers,
-			String[] queries) {
-		String[] qvalues = getParameterValues(queries);
-		if (qvalues == null)
-			return getHeader(mediaTypes, headers);
-		List<String> hvalues = getVaryHeaders(headers);
-		int size = qvalues.length + hvalues.size();
-		List<String> list = new ArrayList<String>(size);
-		if (qvalues.length > 0) {
-			list.addAll(Arrays.asList(qvalues));
-		}
-		list.addAll(hvalues);
-		String[] values = list.toArray(new String[list.size()]);
-		return new ParameterEntity(mediaTypes, "text/plain", values, uri
-				.stringValue(), con);
-	}
-
-	public Entity getQueryString(String[] mediaTypes) {
+	public Parameter getQueryString(String[] mediaTypes) {
 		String mimeType = "application/x-www-form-urlencoded";
 		String value = getQueryString();
 		if (value == null) {
-			return new ParameterEntity(mediaTypes, mimeType, new String[0], uri
+			return new StringParameter(mediaTypes, mimeType, new String[0], uri
 					.stringValue(), con);
 		}
-		return new ParameterEntity(mediaTypes, mimeType,
+		return new StringParameter(mediaTypes, mimeType,
 				new String[] { value }, uri.stringValue(), con);
 	}
 
@@ -476,34 +431,6 @@ public class ResourceRequest extends Request {
 			}
 		}
 		return 1;
-	}
-
-	private Map<String, String[]> getParameterMap() {
-		try {
-			return getQueryString(null).read(Map.class, parameterMapType,
-					new String[] { "application/x-www-form-urlencoded" });
-		} catch (Exception e) {
-			return Collections.emptyMap();
-		}
-	}
-
-	private String[] getParameterValues(String... names) {
-		if (names.length == 0) {
-			return new String[0];
-		} else {
-			Map<String, String[]> map = getParameterMap();
-			if (map == null) {
-				return null;
-			} else if (names.length == 1) {
-				return map.get(names[0]);
-			} else {
-				List<String> list = new ArrayList<String>(names.length * 2);
-				for (String name : names) {
-					list.addAll(Arrays.asList(map.get(name)));
-				}
-				return list.toArray(new String[list.size()]);
-			}
-		}
 	}
 
 	private void initiateActivity() throws RepositoryException,

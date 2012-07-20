@@ -67,21 +67,20 @@ import org.xml.sax.SAXException;
 /**
  * Wraps a message response to output to an HTTP response.
  */
-public class ResponseEntity implements Entity {
-	private AggregateWriter writer = AggregateWriter.getInstance();
-	private AggregateReader reader = AggregateReader.getInstance();
-	private String[] mimeTypes;
-	private Object result;
-	private Class<?> type;
-	private Type genericType;
-	private String base;
-	private ObjectConnection con;
+public class ResponseParameter implements Parameter {
+	private final AggregateWriter writer = AggregateWriter.getInstance();
+	private final AggregateReader reader = AggregateReader.getInstance();
+	private final String[] mimeTypes;
+	private final Object result;
+	private final Class<?> type;
+	private final Type genericType;
+	private final String base;
+	private final ObjectConnection con;
 	private final Map<String, String> headers = new HashMap<String, String>();
 	private final List<String> expects = new ArrayList<String>();
 
-	public ResponseEntity(String[] mimeTypes, Object result, Class<?> type,
+	public ResponseParameter(String[] mimeTypes, Object result, Class<?> type,
 			Type genericType, String base, ObjectConnection con) {
-		this.mimeTypes = mimeTypes;
 		this.result = result;
 		this.type = type;
 		this.genericType = genericType;
@@ -89,6 +88,8 @@ public class ResponseEntity implements Entity {
 		this.con = con;
 		if (mimeTypes == null || mimeTypes.length < 1) {
 			this.mimeTypes = new String[] { "*/*" };
+		} else {
+			this.mimeTypes = mimeTypes;
 		}
 	}
 

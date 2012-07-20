@@ -58,16 +58,16 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
 
 /**
- * Provides an entity interface for a query parameter.
+ * Provides an {@link Parameter} interface for a query parameter or header value.
  */
-public class ParameterEntity implements Entity {
-	private AggregateReader reader = AggregateReader.getInstance();
-	private String[] values;
-	private String base;
-	private ObjectConnection con;
-	private String[] mediaTypes;
+public class StringParameter implements Parameter {
+	private final AggregateReader reader = AggregateReader.getInstance();
+	private final String[] values;
+	private final String base;
+	private final ObjectConnection con;
+	private final String[] mediaTypes;
 
-	public ParameterEntity(String[] mediaTypes, String mimeType,
+	public StringParameter(String[] mediaTypes, String mimeType,
 			String[] values, String base, ObjectConnection con) {
 		if (mediaTypes == null || mediaTypes.length == 0) {
 			this.mediaTypes = new String[] { mimeType };

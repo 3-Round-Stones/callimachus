@@ -64,7 +64,7 @@ import org.openrdf.sail.optimistic.exceptions.ConcurrencyException;
  * @author James Leigh
  */
 public class Response extends AbstractHttpMessage {
-	private ResponseEntity entity;
+	private final ResponseParameter entity;
 	private ResponseException exception;
 	private long lastModified;
 	private Class<?> type;
@@ -72,16 +72,16 @@ public class Response extends AbstractHttpMessage {
 	private String phrase = "No Content";
 	private List<Runnable> onclose = new LinkedList<Runnable>();
 
-	public Response onClose(Runnable task) {
-		onclose.add(task);
-		return this;
+	public Response() {
+		this.entity = null;
 	}
 
-	public List<Runnable> getOnClose() {
-		return onclose;
+	public Response(ResponseParameter entity) {
+		this.entity = entity;
+		status(200, "OK");
 	}
 
-	public Response unauthorized(HttpResponse message, ObjectConnection con)
+	public Response(HttpResponse message, ObjectConnection con)
 			throws IOException {
 		StatusLine status = message.getStatusLine();
 		status(status.getStatusCode(), status.getReasonPhrase());
@@ -92,7 +92,9 @@ public class Response extends AbstractHttpMessage {
 			addHeader(hd);
 		}
 		HttpEntity entity = message.getEntity();
-		if (entity != null) {
+		if (entity == null) {
+			this.entity = null;
+		} else {
 			String[] mimeTypes = new String[0];
 			Header encoding = entity.getContentEncoding();
 			if (encoding != null) {
@@ -109,16 +111,24 @@ public class Response extends AbstractHttpMessage {
 			}
 			InputStream in = entity.getContent();
 			this.type = InputStream.class;
-			this.entity = new ResponseEntity(mimeTypes, in, this.type,
+			this.entity = new ResponseParameter(mimeTypes, in, this.type,
 					this.type, null, con);
 		}
+	}
+
+	public Response onClose(Runnable task) {
+		onclose.add(task);
 		return this;
+	}
+
+	public List<Runnable> getOnClose() {
+		return onclose;
 	}
 
 	public Response exception(ResponseException e) {
 		status(e.getStatusCode(), e.getShortMessage());
 		this.exception = e;
-		this.entity = null;
+		assert this.entity == null;
 		return this;
 	}
 
@@ -128,18 +138,6 @@ public class Response extends AbstractHttpMessage {
 
 	public Response conflict(ConcurrencyException e) {
 		return exception(new Conflict(e));
-	}
-
-	public Response entity(ResponseEntity entity) {
-		if (status == 204) {
-			status(200, "OK");
-		}
-		this.entity = entity;
-		return this;
-	}
-
-	public ResponseEntity getResponseEntity() {
-		return entity;
 	}
 
 	public Class<?> getEntityType() {
@@ -226,7 +224,7 @@ public class Response extends AbstractHttpMessage {
 
 	public Response noContent() {
 		status(204, "No Content");
-		this.entity = null;
+		assert this.entity == null;
 		return this;
 	}
 
@@ -236,19 +234,19 @@ public class Response extends AbstractHttpMessage {
 
 	public Response notModified() {
 		status(304, "Not Modified");
-		this.entity = null;
+		assert this.entity == null;
 		return this;
 	}
 
 	public Response preconditionFailed() {
 		status(412, "Precondition Failed");
-		this.entity = null;
+		assert this.entity == null;
 		return this;
 	}
 
 	public Response preconditionFailed(String notice) {
 		status(412, notice);
-		this.entity = null;
+		assert this.entity == null;
 		return this;
 	}
 

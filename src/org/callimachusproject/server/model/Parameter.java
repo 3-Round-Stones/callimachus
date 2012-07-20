@@ -45,9 +45,9 @@ import org.openrdf.OpenRDFException;
 import org.xml.sax.SAXException;
 
 /**
- * Basic interface for an input or output entity.
+ * Basic interface for an input parameter.
  */
-public interface Entity {
+public interface Parameter {
 
 	Collection<? extends MimeType> getReadableTypes(Class<?> class1, Type type,
 			Accepter mediaTypes) throws MimeTypeParseException;

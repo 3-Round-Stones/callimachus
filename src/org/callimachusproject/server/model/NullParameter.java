@@ -44,13 +44,13 @@ import org.callimachusproject.server.util.MessageType;
 import org.openrdf.repository.object.ObjectConnection;
 
 /**
- * Provides an entity interface for a query parameter.
+ * Parameter with no value
  */
-public class NullEntity implements Entity {
-	private AggregateReader reader = AggregateReader.getInstance();
-	private ObjectConnection con;
+public class NullParameter implements Parameter {
+	private final AggregateReader reader = AggregateReader.getInstance();
+	private final ObjectConnection con;
 
-	public NullEntity(ObjectConnection con) {
+	public NullParameter(ObjectConnection con) {
 		this.con = con;
 	}
 

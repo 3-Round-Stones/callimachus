@@ -55,18 +55,18 @@ import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
 
 /**
- * Wraps messages readers for a set of headers.
+ * Wraps an HttpEntity is a parameter.
  */
-public abstract class BodyEntity implements Entity {
-	private MessageBodyReader<?> reader = AggregateReader.getInstance();
-	private String mimeType;
-	private boolean stream;
-	private Charset charset;
-	private String base;
-	private String location;
-	private ObjectConnection con;
+public abstract class BodyParameter implements Parameter {
+	private final MessageBodyReader<?> reader = AggregateReader.getInstance();
+	private final String mimeType;
+	private final boolean stream;
+	private final Charset charset;
+	private final String base;
+	private final String location;
+	private final ObjectConnection con;
 
-	public BodyEntity(String mimeType, boolean stream, Charset charset,
+	public BodyParameter(String mimeType, boolean stream, Charset charset,
 			String base, String location, ObjectConnection con) {
 		this.mimeType = mimeType;
 		this.stream = stream;

@@ -180,7 +180,7 @@
     calli:script """
         var layout = layout_xhtml;
         try {
-            if (this.calliTheme) {
+            if (this.calliTheme && this.calliTheme.calliLayout) {
                 layout = this.calliTheme.calliLayout;
             }
         } catch (e) {
@@ -224,10 +224,10 @@
         return sb.join('');
     """.
 
-:layout_xhtml a owl:FunctionalProperty, owl:DatatypeProperty;
+:layout_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetLayout.
 
-:baseDir a owl:FunctionalProperty, owl:DatatypeProperty;
+:baseDir a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetLayout.
 
 :PostEditRealm owl:intersectionOf (<toolbox/edit.ttl#PostEdit>

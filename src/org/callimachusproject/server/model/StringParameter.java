@@ -49,7 +49,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.server.readers.AggregateReader;
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.server.util.Accepter;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.MessageType;
@@ -61,7 +61,7 @@ import org.xml.sax.SAXException;
  * Provides an {@link Parameter} interface for a query parameter or header value.
  */
 public class StringParameter implements Parameter {
-	private final AggregateReader reader = AggregateReader.getInstance();
+	private final AbstractFluid reader = AbstractFluid.getInstance();
 	private final String[] values;
 	private final String base;
 	private final ObjectConnection con;
@@ -164,7 +164,7 @@ public class StringParameter implements Parameter {
 		Charset charset = Charset.forName("UTF-16");
 		byte[] buf = value.getBytes(charset);
 		ReadableByteChannel in = ChannelUtil.newChannel(buf);
-		Object result = reader.readFrom(type, in, charset, base, null);
+		Object result = reader.produce(type, in, charset, base, null);
 		return (T) type.cast(result);
 	}
 

@@ -58,12 +58,12 @@ import org.apache.http.util.EntityUtils;
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.concepts.Activity;
+import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.util.Accepter;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.MessageType;
-import org.callimachusproject.server.writers.AggregateWriter;
 import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -93,7 +93,7 @@ public class ResourceRequest extends Request {
 	private ObjectConnection con;
 	private VersionedObject target;
 	private URI uri;
-	private AggregateWriter writer = AggregateWriter.getInstance();
+	private FluidFactory writer = FluidFactory.getInstance();
 	private BodyParameter body;
 	private Accepter accepter;
 	private Set<String> vary = new LinkedHashSet<String>();
@@ -362,14 +362,13 @@ public class ResourceRequest extends Request {
 
 	private String getContentType(Class<?> type, Type genericType, MimeType m) {
 		m.removeParameter("q");
-		if (writer.isText(new MessageType(m.toString(), type, genericType, con))) {
+		if (new MessageType(m.toString(), type, genericType, con).isText()) {
 			Charset charset = null;
 			String cname = m.getParameters().get("charset");
 			try {
 				if (cname != null) {
 					charset = Charset.forName(cname);
-					return writer.getContentType(new MessageType(m.toString(), type,
-							genericType, con), charset);
+					return writer.consume(new MessageType(m.toString(), type, genericType, con), null, null, charset).getContentType();
 				}
 			} catch (UnsupportedCharsetException e) {
 				// ignore
@@ -377,11 +376,9 @@ public class ResourceRequest extends Request {
 			if (charset == null) {
 				charset = getPreferredCharset();
 			}
-			return writer.getContentType(new MessageType(m.toString(), type,
-					genericType, con), charset);
+			return writer.consume(new MessageType(m.toString(), type, genericType, con), null, null, charset).getContentType();
 		} else {
-			return writer.getContentType(new MessageType(m.toString(), type,
-					genericType, con), null);
+			return writer.consume(new MessageType(m.toString(), type, genericType, con), null, null, null).getContentType();
 		}
 	}
 

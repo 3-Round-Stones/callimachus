@@ -38,7 +38,7 @@ import java.util.Set;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
-import org.callimachusproject.server.readers.AggregateReader;
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.server.util.Accepter;
 import org.callimachusproject.server.util.MessageType;
 import org.openrdf.repository.object.ObjectConnection;
@@ -47,7 +47,7 @@ import org.openrdf.repository.object.ObjectConnection;
  * Parameter with no value
  */
 public class NullParameter implements Parameter {
-	private final AggregateReader reader = AggregateReader.getInstance();
+	private final AbstractFluid reader = AbstractFluid.getInstance();
 	private final ObjectConnection con;
 
 	public NullParameter(ObjectConnection con) {

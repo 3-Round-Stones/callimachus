@@ -45,9 +45,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.server.exceptions.UnsupportedMediaType;
-import org.callimachusproject.server.readers.AggregateReader;
-import org.callimachusproject.server.readers.MessageBodyReader;
 import org.callimachusproject.server.util.Accepter;
 import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
@@ -58,7 +57,7 @@ import org.xml.sax.SAXException;
  * Wraps an HttpEntity is a parameter.
  */
 public abstract class BodyParameter implements Parameter {
-	private final MessageBodyReader<?> reader = AggregateReader.getInstance();
+	private final AbstractFluid reader = AbstractFluid.getInstance();
 	private final String mimeType;
 	private final boolean stream;
 	private final Charset charset;
@@ -127,10 +126,10 @@ public abstract class BodyParameter implements Parameter {
 			MessageType mtype = type.as(media.toString());
 			if (!reader.isReadable(mtype))
 				continue;
-			return (T) (reader.readFrom(mtype, in, charset, base, location));
+			return (T) (reader.produce(mtype, in, charset, base, location));
 		}
 		if (reader.isReadable(type))
-			return (T) (reader.readFrom(type, in, charset, base, location));
+			return (T) (reader.produce(type, in, charset, base, location));
 		if (type.isSetOrArray()) {
 			Type cgtype = type.getComponentType();
 			Class<?> cctype = type.getComponentClass();
@@ -139,12 +138,12 @@ public abstract class BodyParameter implements Parameter {
 				MessageType mctype = type.as(media.toString());
 				if (!reader.isReadable(mctype))
 					continue;
-				return (T) type.castComponent(reader.readFrom(mctype, in,
+				return (T) type.castComponent(reader.produce(mctype, in,
 						charset, base, location));
 			}
 			MessageType mmtype = type.component();
 			if (reader.isReadable(mmtype))
-				return (T) type.castComponent(reader.readFrom(mmtype, in,
+				return (T) type.castComponent(reader.produce(mmtype, in,
 						charset, base, location));
 		}
 		throw new UnsupportedMediaType();

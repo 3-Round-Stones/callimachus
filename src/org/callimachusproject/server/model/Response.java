@@ -278,7 +278,7 @@ public class Response extends AbstractHttpMessage {
 	public ReadableByteChannel write(String mimeType, Charset charset)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException {
-		return entity.write(mimeType, charset);
+		return entity.write(mimeType, charset).asChannel();
 	}
 
 	public int getStatusCode() {

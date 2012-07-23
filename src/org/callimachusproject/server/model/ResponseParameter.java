@@ -54,10 +54,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.server.readers.AggregateReader;
+import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.server.util.Accepter;
 import org.callimachusproject.server.util.MessageType;
-import org.callimachusproject.server.writers.AggregateWriter;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
 import org.openrdf.repository.object.ObjectConnection;
@@ -68,8 +69,8 @@ import org.xml.sax.SAXException;
  * Wraps a message response to output to an HTTP response.
  */
 public class ResponseParameter implements Parameter {
-	private final AggregateWriter writer = AggregateWriter.getInstance();
-	private final AggregateReader reader = AggregateReader.getInstance();
+	private final FluidFactory writer = FluidFactory.getInstance();
+	private final AbstractFluid reader = AbstractFluid.getInstance();
 	private final String[] mimeTypes;
 	private final Object result;
 	private final Class<?> type;
@@ -134,7 +135,7 @@ public class ResponseParameter implements Parameter {
 				String mime = removeParamaters(contentType);
 				Charset charset = getCharset(contentType);
 				if (isReadable(type, genericType, mime)) {
-					ReadableByteChannel in = write(mimeType.toString(), null);
+					ReadableByteChannel in = write(mimeType.toString(), null).asChannel();
 					return (T) (readFrom(type, genericType, mime, charset, in));
 				}
 			}
@@ -182,15 +183,11 @@ public class ResponseParameter implements Parameter {
 	}
 
 	public long getSize(String mimeType, Charset charset) {
-		return writer.getSize(
-				new MessageType(mimeType, type, genericType, con), result,
-				charset);
+		return write(mimeType, charset).getByteStreamSize();
 	}
 
-	public ReadableByteChannel write(String mimeType, Charset charset)
-			throws IOException, OpenRDFException, XMLStreamException,
-			TransformerException, ParserConfigurationException {
-		return writer.write(new MessageType(mimeType, type, genericType, con),
+	public Fluid write(String mimeType, Charset charset) {
+		return writer.consume(new MessageType(mimeType, type, genericType, con),
 				result, base, charset);
 	}
 
@@ -241,13 +238,12 @@ public class ResponseParameter implements Parameter {
 			throws TransformerConfigurationException, OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerException, URISyntaxException {
-		return reader.readFrom(new MessageType(mime, type, genericType, con),
+		return reader.produce(new MessageType(mime, type, genericType, con),
 				in, charset, base, null);
 	}
 
 	private String getContentType(String mimeType) {
-		return writer.getContentType(new MessageType(mimeType, type,
-				genericType, con), null);
+		return write(mimeType, null).getContentType();
 	}
 
 	private String removeParamaters(String mediaType) {

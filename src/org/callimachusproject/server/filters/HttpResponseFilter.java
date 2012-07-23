@@ -41,9 +41,9 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.callimachusproject.fluid.producers.HttpMessageReader;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
-import org.callimachusproject.server.readers.HttpMessageReader;
 import org.callimachusproject.server.util.Accepter;
 import org.callimachusproject.server.util.ChannelUtil;
 

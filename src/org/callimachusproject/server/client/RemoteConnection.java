@@ -49,13 +49,14 @@ import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.util.EntityUtils;
+import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
-import org.callimachusproject.server.readers.AggregateReader;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ErrorWritableByteChannel;
 import org.callimachusproject.server.util.MessageType;
-import org.callimachusproject.server.writers.AggregateWriter;
 import org.openrdf.repository.object.ObjectConnection;
 
 /**
@@ -63,8 +64,8 @@ import org.openrdf.repository.object.ObjectConnection;
  */
 public class RemoteConnection {
 	private static final Executor executor = HTTPObjectClient.executor;
-	private AggregateReader reader = AggregateReader.getInstance();
-	private AggregateWriter writer = AggregateWriter.getInstance();
+	private AbstractFluid reader = AbstractFluid.getInstance();
+	private FluidFactory writer = FluidFactory.getInstance();
 	private String uri;
 	private ObjectConnection oc;
 	private HttpRequest req;
@@ -125,11 +126,13 @@ public class RemoteConnection {
 
 	public void write(String media, Class<?> ptype, Type gtype, Object result)
 			throws Exception {
-		String mediaType = writer.getContentType(new MessageType(media, ptype, gtype, oc), null);
+		Fluid fluid = writer.consume(new MessageType(media, ptype, gtype, oc),
+				result, uri, null);
+		String mediaType = fluid.getContentType();
 		if (mediaType != null && !req.containsHeader("Content-Type")) {
 			req.addHeader("Content-Type", mediaType);
 		}
-		long size = writer.getSize(new MessageType(null, ptype, gtype, oc), result, null);
+		long size = fluid.getByteStreamSize();
 		if (size >= 0 && !req.containsHeader("Content-Length")) {
 			req.addHeader("Content-Length", String.valueOf(size));
 		} else if (size < 0) {
@@ -139,8 +142,7 @@ public class RemoteConnection {
 			req.addHeader("Expect", "100-continue");
 		}
 		HttpEntityEnclosingRequest heer = getHttpEntityRequest();
-		ReadableByteChannel in = writer.write(new MessageType(mediaType, ptype, gtype, oc),
-				result, uri, null);
+		ReadableByteChannel in = fluid.asChannel();
 		heer.setEntity(new ReadableHttpEntityChannel(mediaType, size, in));
 	}
 
@@ -208,7 +210,7 @@ public class RemoteConnection {
 				}
 			};
 		}
-		return reader.readFrom(new MessageType(rtype, gtype, media, oc), cin, null, uri, loc);
+		return reader.produce(new MessageType(rtype, gtype, media, oc), cin, null, uri, loc);
 	}
 
 	private HttpEntityEnclosingRequest getHttpEntityRequest() {

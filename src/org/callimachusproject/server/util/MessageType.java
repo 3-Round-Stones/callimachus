@@ -288,4 +288,8 @@ public class MessageType extends GenericType {
 		return cast(iter.next());
 	}
 
+	public boolean isText() {
+		return mimeType != null && mimeType.startsWith("text/");
+	}
+
 }

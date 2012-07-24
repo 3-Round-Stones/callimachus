@@ -26,6 +26,29 @@ import org.callimachusproject.fluid.consumers.StringBodyWriter;
 import org.callimachusproject.fluid.consumers.TupleMessageWriter;
 import org.callimachusproject.fluid.consumers.URIListWriter;
 import org.callimachusproject.fluid.consumers.XMLEventMessageWriter;
+import org.callimachusproject.fluid.producers.BooleanMessageReader;
+import org.callimachusproject.fluid.producers.ByteArrayMessageReader;
+import org.callimachusproject.fluid.producers.ByteArrayStreamMessageReader;
+import org.callimachusproject.fluid.producers.DOMMessageReader;
+import org.callimachusproject.fluid.producers.DatatypeReader;
+import org.callimachusproject.fluid.producers.DocumentFragmentMessageReader;
+import org.callimachusproject.fluid.producers.FormMapMessageReader;
+import org.callimachusproject.fluid.producers.FormStringMessageReader;
+import org.callimachusproject.fluid.producers.GraphMessageReader;
+import org.callimachusproject.fluid.producers.HttpMessageReader;
+import org.callimachusproject.fluid.producers.InputStreamBodyReader;
+import org.callimachusproject.fluid.producers.ModelMessageReader;
+import org.callimachusproject.fluid.producers.NetURIReader;
+import org.callimachusproject.fluid.producers.PrimitiveBodyReader;
+import org.callimachusproject.fluid.producers.RDFObjectURIReader;
+import org.callimachusproject.fluid.producers.ReadableBodyReader;
+import org.callimachusproject.fluid.producers.ReadableByteChannelBodyReader;
+import org.callimachusproject.fluid.producers.StringBodyReader;
+import org.callimachusproject.fluid.producers.StringURIReader;
+import org.callimachusproject.fluid.producers.TupleMessageReader;
+import org.callimachusproject.fluid.producers.URIReader;
+import org.callimachusproject.fluid.producers.URLReader;
+import org.callimachusproject.fluid.producers.XMLEventMessageReader;
 import org.openrdf.model.URI;
 import org.openrdf.repository.object.ObjectConnection;
 
@@ -40,6 +63,7 @@ public class FluidFactory {
 	}
 
 	private List<Consumer> consumers = new ArrayList<Consumer>();
+	private List<Producer> producers = new ArrayList<Producer>();
 	private void init() {
 		consumers.add(new RDFObjectURIWriter());
 		consumers.add(new BooleanMessageWriter());
@@ -68,10 +92,33 @@ public class FluidFactory {
 		} catch (TransformerConfigurationException e) {
 			throw new AssertionError(e);
 		}
+		producers.add(new URIReader());
+		producers.add(new URLReader());
+		producers.add(new StringURIReader());
+		producers.add(new NetURIReader());
+		producers.add(new RDFObjectURIReader());
+		producers.add(new ModelMessageReader());
+		producers.add(new GraphMessageReader());
+		producers.add(new TupleMessageReader());
+		producers.add(new BooleanMessageReader());
+		producers.add(new DatatypeReader());
+		producers.add(new StringBodyReader());
+		producers.add(new PrimitiveBodyReader());
+		producers.add(new FormMapMessageReader());
+		producers.add(new FormStringMessageReader());
+		producers.add(new HttpMessageReader());
+		producers.add(new InputStreamBodyReader());
+		producers.add(new ReadableBodyReader());
+		producers.add(new ReadableByteChannelBodyReader());
+		producers.add(new XMLEventMessageReader());
+		producers.add(new ByteArrayMessageReader());
+		producers.add(new ByteArrayStreamMessageReader());
+		producers.add(new DOMMessageReader());
+		producers.add(new DocumentFragmentMessageReader());
 	}
 
 	public FluidBuilder builder(ObjectConnection con) {
-		return new FluidBuilder(consumers, con);
+		return new FluidBuilder(consumers, producers, con);
 	}
 
 }

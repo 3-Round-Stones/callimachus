@@ -31,6 +31,8 @@ package org.callimachusproject.fluid.consumers;
 
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
 
 import org.callimachusproject.fluid.consumers.base.ResultMessageWriterBase;
 import org.callimachusproject.server.util.ChannelUtil;
@@ -39,6 +41,7 @@ import org.openrdf.query.QueryResultUtil;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
+import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultWriterFactory;
 import org.openrdf.query.resultio.TupleQueryResultWriterRegistry;
 import org.openrdf.repository.object.ObjectConnection;
@@ -63,8 +66,14 @@ public class TupleMessageWriter
 			TupleQueryResult result, WritableByteChannel out, Charset charset,
 			String base, ObjectConnection con) throws TupleQueryResultHandlerException,
 			QueryEvaluationException {
-		QueryResultUtil.report(result, factory.getWriter(ChannelUtil
-				.newOutputStream(out)));
+		TupleQueryResultWriter handler = factory.getWriter(ChannelUtil.newOutputStream(out));
+		if (result == null) {
+			List<String> emptyList = Collections.emptyList();
+			handler.startQueryResult(emptyList);
+			handler.endQueryResult();
+		} else {
+			QueryResultUtil.report(result, handler);
+		}
 	}
 
 	@Override

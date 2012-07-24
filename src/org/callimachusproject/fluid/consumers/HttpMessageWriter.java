@@ -101,8 +101,10 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 		} else if (result instanceof HttpRequest) {
 			print(cat, ((HttpRequest) result).getRequestLine());
 		}
-		for (Header hd : result.getAllHeaders()) {
-			print(cat, hd);
+		if (result != null) {
+			for (Header hd : result.getAllHeaders()) {
+				print(cat, hd);
+			}
 		}
 		HttpEntity entity = getEntity(result);
 		if (entity == null) {

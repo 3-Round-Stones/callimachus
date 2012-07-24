@@ -32,7 +32,6 @@ package org.callimachusproject.server.model;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.channels.ReadableByteChannel;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -52,6 +51,7 @@ import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.NotFound;
 import org.callimachusproject.server.exceptions.ResponseException;
+import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.exceptions.BehaviourException;
@@ -139,10 +139,6 @@ public class Response extends AbstractHttpMessage {
 		return exception(new Conflict(e));
 	}
 
-	public Class<?> getEntityType() {
-		return type;
-	}
-
 	public ResponseException getException() {
 		return exception;
 	}
@@ -158,16 +154,25 @@ public class Response extends AbstractHttpMessage {
 		return lastModified;
 	}
 
-	public long getSize(String mimeType) {
-		return entity.getSize(mimeType);
-	}
-
 	public int getStatus() {
 		return getStatusCode();
 	}
 
 	public String getMessage() {
 		return phrase;
+	}
+
+	public HttpEntity asHttpEntity() throws IOException, OpenRDFException,
+			XMLStreamException, TransformerException,
+			ParserConfigurationException {
+		String media = getHeader("Content-Type");
+		if (media == null) {
+			media = "*/*";
+		}
+		HttpEntity http = entity.asHttpEntity(media);
+		return new ReadableHttpEntityChannel(http.getContentType().getValue(),
+				http.getContentLength(), ChannelUtil.newChannel(http
+						.getContent()), getOnClose());
 	}
 
 	public Response header(String header, String value) {
@@ -272,12 +277,6 @@ public class Response extends AbstractHttpMessage {
 
 	public String toString() {
 		return phrase;
-	}
-
-	public ReadableByteChannel write(String mimeType)
-			throws IOException, OpenRDFException, XMLStreamException,
-			TransformerException, ParserConfigurationException {
-		return entity.write(mimeType).asChannel();
 	}
 
 	public int getStatusCode() {

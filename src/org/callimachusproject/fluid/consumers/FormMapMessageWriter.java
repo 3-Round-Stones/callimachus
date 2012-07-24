@@ -169,7 +169,7 @@ public class FormMapMessageWriter implements
 			mtype = mtype.as(value.getClass());
 		}
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-		ReadableByteChannel in = delegate.consume(mtype.as(mtype.getMediaType(), cs), value, base).asChannel();
+		ReadableByteChannel in = delegate.consume(mtype, value, base).asChannel("text/plain;charset=ISO-8859-1");
 		try {
 			ChannelUtil.transfer(in, out);
 		} finally {

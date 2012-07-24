@@ -32,18 +32,24 @@ package org.callimachusproject.fluid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.net.URISyntaxException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.http.HttpEntity;
 import org.callimachusproject.server.exceptions.BadRequest;
+import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
+import org.xml.sax.SAXException;
 
 /**
  * Delegates to other {@link Consumer}s.
@@ -52,13 +58,16 @@ import org.openrdf.repository.object.ObjectConnection;
  * 
  */
 public class FluidBuilder {
-	private final List<Consumer> writers;
+	private final List<Consumer> consumers;
+	private List<Producer> producers;
 	private final ObjectConnection con;
 
-	public FluidBuilder(List<Consumer> consumers, ObjectConnection con) {
+	public FluidBuilder(List<Consumer> consumers, List<Producer> producers, ObjectConnection con) {
 		assert consumers != null;
+		assert producers != null;
 		assert con != null;
-		this.writers = consumers;
+		this.consumers = consumers;
+		this.producers = producers;
 		this.con = con;
 	}
 
@@ -120,15 +129,74 @@ public class FluidBuilder {
 		return fluid(writer, mtype.component(), result, base);
 	}
 
-	private Fluid fluid(final Consumer writer, FluidType mtype,
+	private Fluid fluid(final Consumer writer, final FluidType mtype,
 			final Object result, final String base) {
-		final Charset charset = mtype.getCharset();
-		String contentType = writer.getContentType(mtype, charset);
-		final FluidType media = mtype.as(contentType);
-		long size = writer.getSize(media, con, result, charset);
-		return new AbstractFluid(con, media, base, size) {
-			public ReadableByteChannel asChannel() throws IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
-				return writer.write(media, con, result, base, charset);
+		return new AbstractFluid() {
+			public HttpEntity asHttpEntity(String mediaType) throws IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
+				FluidType ftype = mtype.as(mediaType);
+				Charset charset = ftype.getCharset();
+				String contentType = writer.getContentType(ftype, charset);
+				FluidType media = ftype.as(contentType);
+				long size = writer.getSize(media, con, result, charset);
+				return new ReadableHttpEntityChannel(contentType, size, writer.write(media, con, result, base, charset));
+			}
+
+			public boolean isProducible(FluidType mtype) {
+				return findReader(mtype) != null;
+			}
+
+			public Object produce(FluidType mtype)
+					throws TransformerConfigurationException, OpenRDFException,
+					IOException, XMLStreamException, ParserConfigurationException,
+					SAXException, TransformerException, URISyntaxException {
+				HttpEntity entity = asHttpEntity(mtype.getMediaType());
+				String contentType = entity.getContentType().getValue();
+				ReadableByteChannel in = asChannel(contentType);
+				Charset charset = new FluidType(contentType, ReadableByteChannel.class).getCharset();
+				Producer reader = findRawReader(mtype);
+				if (reader != null)
+					return reader.readFrom(mtype, con, in, charset, base, null);
+				if (mtype.isSet()) {
+					reader = findComponentReader(mtype);
+					if (reader == null && in == null)
+						return Collections.emptySet();
+				}
+				Class<? extends Object> type = mtype.getClassType();
+				if (reader == null && !type.isPrimitive() && in == null)
+					return null;
+				String mime = mtype.getMediaType();
+				Type genericType = mtype.getGenericType();
+				if (reader == null)
+					throw new BadRequest("Cannot read " + mime + " into " + genericType);
+				Object o = reader.readFrom(mtype.component(), con, in, charset,
+						base, null);
+				if (o == null)
+					return Collections.emptySet();
+				if (o instanceof Set)
+					return o;
+				return Collections.singleton(o);
+			}
+
+			private Producer findReader(FluidType mtype) {
+				Producer reader = findRawReader(mtype);
+				if (reader != null)
+					return reader;
+				if (mtype.isSet())
+					return findComponentReader(mtype);
+				return null;
+			}
+
+			private Producer findRawReader(FluidType mtype) {
+				for (Producer reader : producers) {
+					if (reader.isReadable(mtype, con)) {
+						return reader;
+					}
+				}
+				return null;
+			}
+
+			private Producer findComponentReader(FluidType mtype) {
+				return findRawReader(mtype.component());
 			}
 		};
 	}
@@ -145,7 +213,7 @@ public class FluidBuilder {
 	}
 
 	private Consumer findRawWriter(FluidType mtype) {
-		for (Consumer w : writers) {
+		for (Consumer w : consumers) {
 			if (w.isWriteable(mtype, con)) {
 				return w;
 			}

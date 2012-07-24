@@ -49,7 +49,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
@@ -119,27 +118,6 @@ public class RemoteConnection {
 			}
 		});
 		return ChannelUtil.newOutputStream(sink);
-	}
-
-	public void write(String media, Class<?> ptype, Type gtype, Object result)
-			throws Exception {
-		Fluid fluid = ff.builder(oc).consume(media, ptype, gtype, result, uri);
-		String mediaType = fluid.getFluidType().getMediaType();
-		if (mediaType != null && !req.containsHeader("Content-Type")) {
-			req.addHeader("Content-Type", mediaType);
-		}
-		long size = fluid.getByteStreamSize();
-		if (size >= 0 && !req.containsHeader("Content-Length")) {
-			req.addHeader("Content-Length", String.valueOf(size));
-		} else if (size < 0) {
-			req.addHeader("Transfer-Encoding", "chunked");
-		}
-		if (size > 500) {
-			req.addHeader("Expect", "100-continue");
-		}
-		HttpEntityEnclosingRequest heer = getHttpEntityRequest();
-		ReadableByteChannel in = fluid.asChannel();
-		heer.setEntity(new ReadableHttpEntityChannel(mediaType, size, in));
 	}
 
 	public int getResponseCode() throws IOException {

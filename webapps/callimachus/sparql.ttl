@@ -81,7 +81,7 @@
             var resp = new BasicHttpResponse(http11, 200, "OK");
             var writer = FluidFactory.getInstance().builder(con);
             var body = writer.consume(mime, type, type, rs, base);
-            resp.setEntity(new ReadableHttpEntityChannel(mime, -1, body.asChannel()));
+            resp.setEntity(new ReadableHttpEntityChannel(mime, -1, body.asChannel(mime)));
             return resp;
         } catch (e if e.javaException instanceof MalformedQueryException) {
             throw new BadRequest(e.javaException.toString());

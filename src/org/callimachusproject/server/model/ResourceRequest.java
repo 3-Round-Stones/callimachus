@@ -346,7 +346,14 @@ public class ResourceRequest extends Request {
 
 	private String getContentType(Class<?> type, Type genericType, MimeType m) {
 		m.removeParameter("q");
-		return writer.nil(m.toString(), type, genericType).getFluidType().getMediaType();
+		try {
+			return writer.nil(m.toString(), type, genericType).asHttpEntity(m.toString()).getContentType().getValue();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.warn(e.toString(), e);
+			return null;
+		}
 	}
 
 	private void initiateActivity() throws RepositoryException,

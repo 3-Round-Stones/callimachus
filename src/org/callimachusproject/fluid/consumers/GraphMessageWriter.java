@@ -116,7 +116,7 @@ public class GraphMessageWriter extends
 		// namespaces in the first place
 		boolean trimNamespaces = rdfFormat.supportsNamespaces();
 
-		if (trimNamespaces) {
+		if (trimNamespaces && result != null) {
 			// Gather the first few statements
 			for (int i = 0; result.hasNext() && i < SMALL; i++) {
 				firstStatements.add(result.next());
@@ -168,7 +168,7 @@ public class GraphMessageWriter extends
 			writer.handleStatement(st);
 		}
 
-		while (result.hasNext()) {
+		while (result != null && result.hasNext()) {
 			Statement st = result.next();
 			writer.handleStatement(st);
 		}

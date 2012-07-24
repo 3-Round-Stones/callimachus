@@ -76,8 +76,10 @@ public class ModelMessageWriter implements Consumer<Model> {
 
 	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
 			Model model, String base, Charset charset) throws IOException, OpenRDFException {
-		GraphQueryResult result = new GraphQueryResultImpl(model
-				.getNamespaces(), model);
+		GraphQueryResult result = null;
+		if (model != null) {
+			result = new GraphQueryResultImpl(model.getNamespaces(), model);
+		}
 		return delegate.write(mtype.as(GraphQueryResult.class), con, result, base,
 				charset);
 	}

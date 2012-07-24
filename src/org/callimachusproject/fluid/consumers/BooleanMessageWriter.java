@@ -67,7 +67,7 @@ public class BooleanMessageWriter
 	public void writeTo(BooleanQueryResultWriterFactory factory,
 			Boolean result, WritableByteChannel out, Charset charset,
 			String base, ObjectConnection con) throws IOException {
-		factory.getWriter(ChannelUtil.newOutputStream(out)).write(result);
+		factory.getWriter(ChannelUtil.newOutputStream(out)).write(result != null && result);
 	}
 
 	@Override

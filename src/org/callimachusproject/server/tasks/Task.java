@@ -453,17 +453,15 @@ public abstract class Task implements Runnable {
 					onClose);
 			response.setEntity(entity);
 		} else if (resp.isContent()) {
-			String type = resp.getHeader("Content-Type");
-			long size = resp.getSize(type);
+			HttpEntity entity = resp.asHttpEntity();
+			String type = entity.getContentType().getValue();
+			response.setHeader("Content-Type", type);
+			long size = entity.getContentLength();
 			if (size >= 0) {
 				response.setHeader("Content-Length", String.valueOf(size));
 			} else if (!response.containsHeader("Content-Length")) {
 				response.setHeader("Transfer-Encoding", "chunked");
 			}
-			ReadableByteChannel in = resp.write(type);
-			List<Runnable> onClose = resp.getOnClose();
-			HttpEntity entity = new ReadableHttpEntityChannel(type, size, in,
-					onClose);
 			response.setEntity(entity);
 		} else {
 			response.setHeader("Content-Length", "0");

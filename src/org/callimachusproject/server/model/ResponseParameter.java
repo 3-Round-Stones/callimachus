@@ -34,7 +34,6 @@ import static java.util.Collections.singleton;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,6 +52,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.http.HttpEntity;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
@@ -68,12 +68,11 @@ import org.xml.sax.SAXException;
  */
 public class ResponseParameter implements Parameter {
 	private final FluidFactory ff = FluidFactory.getInstance();
-	private final FluidBuilder writer;
+	private final Fluid writer;
 	private final String[] mimeTypes;
 	private final Object result;
 	private final Class<?> type;
 	private final Type genericType;
-	private final String base;
 	private final Map<String, String> headers = new HashMap<String, String>();
 	private final List<String> expects = new ArrayList<String>();
 
@@ -82,21 +81,31 @@ public class ResponseParameter implements Parameter {
 		this.result = result;
 		this.type = type;
 		this.genericType = genericType;
-		this.base = base;
 		if (mimeTypes == null || mimeTypes.length < 1) {
 			this.mimeTypes = new String[] { "*/*" };
 		} else {
 			this.mimeTypes = mimeTypes;
 		}
-		this.writer = ff.builder(con);
+		FluidBuilder builder = ff.builder(con);
+		Fluid fluid = null;
+		for (String media : this.mimeTypes) {
+			if (builder.isConsumable(media, type, genericType)) {
+				fluid = builder.consume(media, type, genericType, result, base);
+				break;
+			}
+		}
+		if (fluid == null)
+			throw new ClassCastException(type.getSimpleName()
+					+ " cannot be converted into " + Arrays.toString(this.mimeTypes));
+		this.writer = fluid;
 	}
 
 	public String toString() {
 		return String.valueOf(result);
 	}
 
-	public Object getEntity() {
-		return result;
+	public HttpEntity asHttpEntity(String media) throws IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
+		return writer.asHttpEntity(media);
 	}
 
 	public Collection<? extends MimeType> getReadableTypes(Class<?> type,
@@ -107,12 +116,8 @@ public class ResponseParameter implements Parameter {
 			return accepter.getAcceptable();
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType mimeType : accepter.getAcceptable(mimeTypes)) {
-			if (isWriteable(mimeType.toString())) {
-				Fluid in = write(mimeType.toString());
-				String contentType = in.getFluidType().getMediaType();
-				if (isReadable(in, type, genericType, contentType)) {
-					acceptable.add(mimeType);
-				}
+			if (writer.isProducible(mimeType.toString(), type, genericType)) {
+				acceptable.add(mimeType);
 			}
 		}
 		return acceptable;
@@ -127,12 +132,8 @@ public class ResponseParameter implements Parameter {
 			return (T) (result);
 		Accepter accepter = new Accepter(mediaTypes);
 		for (final MimeType mimeType : accepter.getAcceptable(mimeTypes)) {
-			if (isWriteable(mimeType.toString())) {
-				Fluid in = write(mimeType.toString());
-				String contentType = in.getFluidType().getMediaType();
-				if (isReadable(in, type, genericType, contentType)) {
-					return (T) (readFrom(type, genericType, contentType, in));
-				}
+			if (writer.isProducible(mimeType.toString(), type, genericType)) {
+				return writer.produce(mimeType.toString(), type, genericType);
 			}
 		}
 		throw new ClassCastException(String.valueOf(result)
@@ -177,15 +178,6 @@ public class ResponseParameter implements Parameter {
 		return null;
 	}
 
-	public long getSize(String mimeType) {
-		return write(mimeType).getByteStreamSize();
-	}
-
-	public Fluid write(String mimeType) {
-		return writer.consume(mimeType, type, genericType,
-				result, base);
-	}
-
 	public Map<String, String> getOtherHeaders() {
 		return headers;
 	}
@@ -217,32 +209,6 @@ public class ResponseParameter implements Parameter {
 
 	public void addExpects(List<String> expects) {
 		this.expects.addAll(expects);
-	}
-
-	private boolean isReadable(Fluid fluid, Class<?> type, Type genericType, String mime) {
-		return fluid.isProducible(mime, type, genericType);
-	}
-
-	private boolean isWriteable(String mimeType) {
-		return writer.isConsumable(mimeType, type, genericType);
-	}
-
-	private <T> Object readFrom(Class<T> type, Type genericType, String mime,
-			Fluid fluid)
-			throws TransformerConfigurationException, OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerException, URISyntaxException {
-		return fluid.produce(mime, type, genericType);
-	}
-
-	private Charset getCharset(String mediaType) throws MimeTypeParseException {
-		if (mediaType == null)
-			return null;
-		MimeType m = new MimeType(mediaType);
-		String name = m.getParameters().get("charset");
-		if (name == null)
-			return null;
-		return Charset.forName(name);
 	}
 
 }

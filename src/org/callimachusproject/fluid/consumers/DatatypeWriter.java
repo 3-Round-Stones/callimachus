@@ -40,9 +40,10 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 
 /**
@@ -54,20 +55,20 @@ import org.openrdf.repository.object.RDFObject;
 public class DatatypeWriter implements Consumer<Object> {
 	private StringBodyWriter delegate = new StringBodyWriter();
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return delegate.isText(mtype.as(String.class));
 	}
 
-	public long getSize(MessageType mtype, Object result, Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con, Object result, Charset charset) {
 		if (result == null)
 			return 0;
-		String label = mtype.getObjectFactory().createLiteral(result)
+		String label = con.getObjectFactory().createLiteral(result)
 				.getLabel();
-		return delegate.getSize(mtype.as(String.class), label, charset);
+		return delegate.getSize(mtype.as(String.class), con, label, charset);
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		Class<?> type = mtype.clas();
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		Class<?> type = mtype.getClassType();
 		if (Set.class.equals(type))
 			return false;
 		if (Object.class.equals(type))
@@ -76,29 +77,29 @@ public class DatatypeWriter implements Consumer<Object> {
 			return false;
 		if (type.isArray() && Byte.TYPE.equals(type.getComponentType()))
 			return false;
-		if (!delegate.isWriteable(mtype.as(String.class)))
+		if (!delegate.isWriteable(mtype.as(String.class), con))
 			return false;
-		return mtype.isDatatype(type);
+		return con.getObjectFactory().isDatatype(type);
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
+	public String getContentType(FluidType mtype, Charset charset) {
 		return delegate.getContentType(mtype.as(String.class), charset);
 	}
 
-	public ReadableByteChannel write(MessageType mtype, Object result,
-			String base, Charset charset) throws IOException, OpenRDFException,
+	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
+			Object result, String base, Charset charset) throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
 			ParserConfigurationException {
 		if (result == null)
 			return ChannelUtil.emptyChannel();
-		String label = mtype.getObjectFactory().createLiteral(result)
+		String label = con.getObjectFactory().createLiteral(result)
 				.getLabel();
-		return delegate.write(mtype.as(String.class), label, base, charset);
+		return delegate.write(mtype.as(String.class), con, label, base, charset);
 	}
 
-	public void writeTo(MessageType mtype, Object object, String base,
-			Charset charset, OutputStream out, int bufSize) throws IOException {
-		String label = mtype.getObjectFactory().createLiteral(object)
+	public void writeTo(FluidType mtype, ObjectConnection con, Object object,
+			String base, Charset charset, OutputStream out, int bufSize) throws IOException {
+		String label = con.getObjectFactory().createLiteral(object)
 				.getLabel();
 		delegate.writeTo(mtype, label, base, charset, out, bufSize);
 	}

@@ -48,11 +48,13 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
+import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
 
 /**
@@ -63,32 +65,33 @@ import org.xml.sax.SAXException;
  */
 public final class FormMapMessageReader implements
 		Producer<Map<String, Object>> {
-	private AbstractFluid delegate = AbstractFluid.getInstance();
+	private final FluidFactory ff = FluidFactory.getInstance();
 
-	public boolean isReadable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		Fluid delegate = ff.builder(con).nil("text/plain");
+		String mimeType = mtype.getMediaType();
 		if (!mtype.isMap())
 			return false;
-		MessageType kt = mtype.getKeyGenericType();
+		FluidType kt = mtype.getKeyGenericType();
 		if (!kt.isUnknown()) {
-			if (!delegate.isReadable(mtype.key("text/plain")))
+			if (!delegate.isProducible(mtype.key("text/plain")))
 				return false;
 		}
-		MessageType vt = mtype.component("text/plain");
+		FluidType vt = mtype.component("text/plain");
 		if (vt.isSetOrArray()) {
-			if (!delegate.isReadable(vt.component("text/plain")))
+			if (!delegate.isProducible(vt.component("text/plain")))
 				return false;
 		} else if (!vt.isUnknown()) {
-			if (!delegate.isReadable(vt))
+			if (!delegate.isProducible(vt))
 				return false;
 		}
 		return mimeType != null
 				&& mimeType.startsWith("application/x-www-form-urlencoded");
 	}
 
-	public Map<String, Object> readFrom(MessageType mtype,
-			ReadableByteChannel in, Charset charset, String base,
-			String location) throws TransformerConfigurationException,
+	public Map<String, Object> readFrom(FluidType mtype,
+			ObjectConnection con, ReadableByteChannel in, Charset charset,
+			String base, String location) throws TransformerConfigurationException,
 			OpenRDFException, IOException, XMLStreamException,
 			ParserConfigurationException, SAXException, TransformerException,
 			URISyntaxException {
@@ -96,7 +99,7 @@ public final class FormMapMessageReader implements
 			if (charset == null) {
 				charset = Charset.forName("ISO-8859-1");
 			}
-			MessageType vtype = mtype.component("text/plain");
+			FluidType vtype = mtype.component("text/plain");
 			if (vtype.isUnknown()) {
 				vtype = vtype.as(String[].class);
 				mtype = mtype.as(Map.class, new ParameterizedType() {
@@ -113,7 +116,7 @@ public final class FormMapMessageReader implements
 					}
 				});
 			}
-			MessageType ktype = mtype.key("text/plain");
+			FluidType ktype = mtype.key("text/plain");
 			Class<?> kc = mtype.getKeyClass();
 			if (Object.class.equals(kc)) {
 				kc = String.class;
@@ -129,7 +132,8 @@ public final class FormMapMessageReader implements
 				String name = decode(nameValue[0]);
 				ReadableByteChannel kin = ChannelUtil.newChannel(name
 						.getBytes(charset));
-				Object key = delegate.produce(ktype, kin, charset, base, null);
+				Fluid kf = ff.builder(con).channel("text/plain;charset=" + charset.name(), kin, base);
+				Object key = kf.produce(ktype.getMediaType(), ktype.getClassType(), ktype.getGenericType());
 				if (nameValue.length < 2) {
 					if (!parameters.containsKey(key)) {
 						parameters.put(key, new ArrayList());
@@ -142,13 +146,12 @@ public final class FormMapMessageReader implements
 					}
 					ReadableByteChannel vin = ChannelUtil.newChannel(value
 							.getBytes(charset));
+					Fluid vf = ff.builder(con).channel("text/plain;charset=" + charset.name(), vin, base);
 					if (vtype.isSetOrArray()) {
-						values.add(delegate.produce(vtype
-								.component("text/plain"), vin, charset, base,
-								null));
+						FluidType cvtype = vtype.component("text/plain");
+						values.add(vf.produce(cvtype));
 					} else {
-						values.add(delegate.produce(vtype, vin, charset, base,
-								null));
+						values.add(vf.produce(vtype));
 					}
 				}
 			}

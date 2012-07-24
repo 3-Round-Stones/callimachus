@@ -34,7 +34,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
 import org.callimachusproject.fluid.Consumer;
-import org.callimachusproject.server.util.MessageType;
+import org.callimachusproject.fluid.FluidType;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Converts an OutputStream into a ReadableByteChannel.
@@ -42,18 +43,18 @@ import org.callimachusproject.server.util.MessageType;
 public class ReadableByteChannelBodyWriter implements
 		Consumer<ReadableByteChannel> {
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return false;
 	}
 
-	public long getSize(MessageType mtype, ReadableByteChannel result,
-			Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con,
+			ReadableByteChannel result, Charset charset) {
 		return -1;
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
-		if (!ReadableByteChannel.class.isAssignableFrom((Class<?>) mtype.clas()))
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		String mimeType = mtype.getMediaType();
+		if (!ReadableByteChannel.class.isAssignableFrom((Class<?>) mtype.getClassType()))
 			return false;
 		if (mimeType != null && mimeType.contains("*")
 				&& !mimeType.startsWith("*")
@@ -62,16 +63,16 @@ public class ReadableByteChannelBodyWriter implements
 		return true;
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
-		String mimeType = mtype.getMimeType();
+	public String getContentType(FluidType mtype, Charset charset) {
+		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("application/*"))
 			return "application/octet-stream";
 		return mimeType;
 	}
 
-	public ReadableByteChannel write(MessageType mtype,
-			ReadableByteChannel result, String base, Charset charset)
+	public ReadableByteChannel write(FluidType mtype,
+			ObjectConnection con, ReadableByteChannel result, String base, Charset charset)
 			throws IOException {
 		return result;
 	}

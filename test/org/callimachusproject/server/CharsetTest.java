@@ -43,19 +43,6 @@ public class CharsetTest extends MetadataServerTestCase {
 		super.setUp();
 	}
 
-	public void testCharsetString() throws Exception {
-		client.path("/hello").put("resource");
-		WebResource web = client.path("/hello").queryParam("string", "");
-		ClientResponse put = web.type("text/plain;charset=UTF-8").put(
-				ClientResponse.class, "put as utf8");
-		String tag = put.getEntityTag().toString();
-		ClientResponse get = web.header("Accept-Charset", "ISO-8859-1").get(
-				ClientResponse.class);
-		assertEquals("text/plain;charset=ISO-8859-1", get.getHeaders()
-				.getFirst("Content-Type"));
-		assertFalse(tag.equals(get.getEntityTag().toString()));
-	}
-
 	public void testCharsetStream() throws Exception {
 		client.path("/hello").put("resource");
 		WebResource web = client.path("/hello").queryParam("stream", "");

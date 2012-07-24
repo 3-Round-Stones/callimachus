@@ -36,25 +36,26 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes an InputStream into an OutputStream.
  */
 public class InputStreamBodyWriter implements Consumer<InputStream> {
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return false;
 	}
 
-	public long getSize(MessageType mtype, InputStream result, Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con, InputStream result, Charset charset) {
 		return -1;
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
-		if (!InputStream.class.isAssignableFrom((Class<?>) mtype.clas()))
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		String mimeType = mtype.getMediaType();
+		if (!InputStream.class.isAssignableFrom((Class<?>) mtype.getClassType()))
 			return false;
 		if (mimeType != null && mimeType.contains("*")
 				&& !mimeType.startsWith("*")
@@ -63,20 +64,20 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 		return true;
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
-		String mimeType = mtype.getMimeType();
+	public String getContentType(FluidType mtype, Charset charset) {
+		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				| mimeType.startsWith("application/*"))
 			return "application/octet-stream";
 		return mimeType;
 	}
 
-	public ReadableByteChannel write(MessageType mtype, InputStream result,
-			String base, Charset charset) throws IOException {
+	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
+			InputStream result, String base, Charset charset) throws IOException {
 		return ChannelUtil.newChannel(result);
 	}
 
-	public void writeTo(MessageType mtype, InputStream result, String base,
+	public void writeTo(FluidType mtype, InputStream result, String base,
 			Charset charset, OutputStream out, int bufSize) throws IOException {
 		byte[] buf = new byte[bufSize];
 		int read;

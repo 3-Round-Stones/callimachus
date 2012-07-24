@@ -35,8 +35,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -58,12 +56,12 @@ import org.apache.http.util.EntityUtils;
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.concepts.Activity;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.util.Accepter;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -87,16 +85,16 @@ import org.slf4j.LoggerFactory;
  */
 public class ResourceRequest extends Request {
 	private static final Pattern EXPECT_REDIRECT = Pattern.compile("^(301|302|303|307)\\b");
-	private static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
+	private final FluidFactory ff = FluidFactory.getInstance();
 	private final Logger logger = LoggerFactory.getLogger(ResourceRequest.class);
-	private ValueFactory vf;
-	private ObjectConnection con;
+	private final ValueFactory vf;
+	private final ObjectConnection con;
 	private VersionedObject target;
-	private URI uri;
-	private FluidFactory writer = FluidFactory.getInstance();
+	private final URI uri;
+	private final FluidBuilder writer;
 	private BodyParameter body;
-	private Accepter accepter;
-	private Set<String> vary = new LinkedHashSet<String>();
+	private final Accepter accepter;
+	private final Set<String> vary = new LinkedHashSet<String>();
 	private Result<VersionedObject> result;
 	private boolean closed;
 
@@ -119,6 +117,7 @@ public class ResourceRequest extends Request {
 		}
 		this.con = repository.getConnection();
 		this.vf = con.getValueFactory();
+		this.writer = ff.builder(con);
 		String iri = getIRI();
 		try {
 			this.uri = vf.createURI(iri);
@@ -198,29 +197,24 @@ public class ResourceRequest extends Request {
 		if (location != null) {
 			location = createURI(location).stringValue();
 		}
-		try {
-			Charset charset = getCharset(mediaType);
-			return body = new BodyParameter(mediaType, isMessageBody(), charset,
-					uri.stringValue(), location, con) {
+		return body = new BodyParameter(mediaType, isMessageBody(),
+				uri.stringValue(), location, con) {
 
-				@Override
-				public void close() throws IOException {
-					super.close();
-					EntityUtils.consume(getEntity());
-				}
+			@Override
+			public void close() throws IOException {
+				super.close();
+				EntityUtils.consume(getEntity());
+			}
 
-				@Override
-				protected ReadableByteChannel getReadableByteChannel()
-						throws IOException {
-					HttpEntity entity = getEntity();
-					if (entity == null)
-						return null;
-					return ChannelUtil.newChannel(entity.getContent());
-				}
-			};
-		} catch (MimeTypeParseException e) {
-			throw new BadRequest("Invalid mime type: " + mediaType);
-		}
+			@Override
+			protected ReadableByteChannel getReadableByteChannel()
+					throws IOException {
+				HttpEntity entity = getEntity();
+				if (entity == null)
+					return null;
+				return ChannelUtil.newChannel(entity.getContent());
+			}
+		};
 	}
 
 	public String getContentType(Method method) throws MimeTypeParseException {
@@ -229,7 +223,7 @@ public class ResourceRequest extends Request {
 		if (method.isAnnotationPresent(type.class)) {
 			String[] mediaTypes = method.getAnnotation(type.class).value();
 			for (MimeType m : accepter.getAcceptable(mediaTypes)) {
-				if (writer.isWriteable(new MessageType(m.toString(), type, genericType, con))) {
+				if (writer.isConsumable(m.toString(), type, genericType)) {
 					return getContentType(type, genericType, m);
 				}
 			}
@@ -242,7 +236,7 @@ public class ResourceRequest extends Request {
 				}
 			}
 			for (MimeType m : accepter.getAcceptable()) {
-				if (writer.isWriteable(new MessageType(m.toString(), type, genericType, con))) {
+				if (writer.isConsumable(m.toString(), type, genericType)) {
 					return getContentType(type, genericType, m);
 				}
 			}
@@ -340,7 +334,7 @@ public class ResourceRequest extends Request {
 		if (type == null)
 			return accepter.isAcceptable(mediaType);
 		for (MimeType accept : accepter.getAcceptable(mediaType)) {
-			if (writer.isWriteable(new MessageType(accept.toString(), type, genericType, con)))
+			if (writer.isConsumable(accept.toString(), type, genericType))
 				return true;
 		}
 		return false;
@@ -350,84 +344,9 @@ public class ResourceRequest extends Request {
 		return getQueryString() != null;
 	}
 
-	private Charset getCharset(String mediaType) throws MimeTypeParseException {
-		if (mediaType == null)
-			return null;
-		MimeType m = new MimeType(mediaType);
-		String name = m.getParameters().get("charset");
-		if (name == null)
-			return null;
-		return Charset.forName(name);
-	}
-
 	private String getContentType(Class<?> type, Type genericType, MimeType m) {
 		m.removeParameter("q");
-		if (new MessageType(m.toString(), type, genericType, con).isText()) {
-			Charset charset = null;
-			String cname = m.getParameters().get("charset");
-			try {
-				if (cname != null) {
-					charset = Charset.forName(cname);
-					return writer.consume(new MessageType(m.toString(), type, genericType, con), null, null, charset).getContentType();
-				}
-			} catch (UnsupportedCharsetException e) {
-				// ignore
-			}
-			if (charset == null) {
-				charset = getPreferredCharset();
-			}
-			return writer.consume(new MessageType(m.toString(), type, genericType, con), null, null, charset).getContentType();
-		} else {
-			return writer.consume(new MessageType(m.toString(), type, genericType, con), null, null, null).getContentType();
-		}
-	}
-
-	private Charset getPreferredCharset() {
-		Charset charset = null;
-		int rating = 0;
-		for (String value : getVaryHeaders("Accept-Charset")) {
-			String header = value.replaceAll("\\s", "");
-			for (String item : header.split(",")) {
-				int q = 1;
-				String name = item;
-				int c = item.indexOf(';');
-				if (c > 0) {
-					name = item.substring(0, c);
-					if ("*".equals(name))
-						return DEFAULT_CHARSET;
-					q = getQuality(item);
-				}
-				if (q > rating) {
-					try {
-						charset = Charset.forName(name);
-						rating = q;
-						if (DEFAULT_CHARSET.equals(charset))
-							return DEFAULT_CHARSET;
-					} catch (UnsupportedCharsetException e) {
-						// ignore
-					}
-				} else if (name.equalsIgnoreCase(DEFAULT_CHARSET.name())) {
-					return DEFAULT_CHARSET;
-				}
-			}
-		}
-		return charset;
-	}
-
-	private int getQuality(String item) {
-		int s = item.indexOf(";q=");
-		if (s > 0) {
-			int e = item.indexOf(';', s + 1);
-			if (e < 0) {
-				e = item.length();
-			}
-			try {
-				return Integer.parseInt(item.substring(s + 3, e));
-			} catch (NumberFormatException exc) {
-				// ignore q
-			}
-		}
-		return 1;
+		return writer.nil(m.toString(), type, genericType).getFluidType().getMediaType();
 	}
 
 	private void initiateActivity() throws RepositoryException,

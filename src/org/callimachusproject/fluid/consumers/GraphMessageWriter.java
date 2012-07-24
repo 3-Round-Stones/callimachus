@@ -39,9 +39,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.consumers.base.ResultMessageWriterBase;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -92,11 +92,11 @@ public class GraphMessageWriter extends
 	}
 
 	@Override
-	public boolean isWriteable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		String mimeType = mtype.getMediaType();
 		if (mimeType != null && mimeType.startsWith("text/plain"))
 			return false;
-		return super.isWriteable(mtype);
+		return super.isWriteable(mtype, con);
 	}
 
 	@Override

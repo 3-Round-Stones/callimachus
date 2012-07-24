@@ -58,11 +58,9 @@ import org.callimachusproject.fluid.producers.InputStreamBodyReader;
 import org.callimachusproject.fluid.producers.ModelMessageReader;
 import org.callimachusproject.fluid.producers.NetURIReader;
 import org.callimachusproject.fluid.producers.PrimitiveBodyReader;
-import org.callimachusproject.fluid.producers.RDFObjectReader;
 import org.callimachusproject.fluid.producers.RDFObjectURIReader;
 import org.callimachusproject.fluid.producers.ReadableBodyReader;
 import org.callimachusproject.fluid.producers.ReadableByteChannelBodyReader;
-import org.callimachusproject.fluid.producers.SetOfRDFObjectReader;
 import org.callimachusproject.fluid.producers.StringBodyReader;
 import org.callimachusproject.fluid.producers.StringURIReader;
 import org.callimachusproject.fluid.producers.TupleMessageReader;
@@ -70,8 +68,8 @@ import org.callimachusproject.fluid.producers.URIReader;
 import org.callimachusproject.fluid.producers.URLReader;
 import org.callimachusproject.fluid.producers.XMLEventMessageReader;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
+import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
 
 /**
@@ -81,15 +79,6 @@ import org.xml.sax.SAXException;
  * 
  */
 public abstract class AbstractFluid implements Fluid {
-	private static AbstractFluid instance = new AbstractFluid(null){
-	public ReadableByteChannel asChannel() {
-		throw new UnsupportedOperationException();
-	}};
-
-	public static AbstractFluid getInstance() {
-		return instance;
-	}
-
 	private static List<Producer> readers = new ArrayList<Producer>();
 
 	static {
@@ -103,8 +92,6 @@ public abstract class AbstractFluid implements Fluid {
 		readers.add(new TupleMessageReader());
 		readers.add(new BooleanMessageReader());
 		readers.add(new DatatypeReader());
-		readers.add(new SetOfRDFObjectReader());
-		readers.add(new RDFObjectReader());
 		readers.add(new StringBodyReader());
 		readers.add(new PrimitiveBodyReader());
 		readers.add(new FormMapMessageReader());
@@ -119,69 +106,80 @@ public abstract class AbstractFluid implements Fluid {
 		readers.add(new DOMMessageReader());
 		readers.add(new DocumentFragmentMessageReader());
 	}
-	private final String contentType;
+	private final ObjectConnection con;
+	private final FluidType fluidType;
+	private final String base;
 	private final long size;
-	private final boolean text;
 
-	public AbstractFluid(String contentType) {
-		this(contentType, -1, false);
-	}
-
-	public AbstractFluid(String contentType, long size) {
-		this(contentType, size, false);
-		}
-
-	public AbstractFluid(String contentType, boolean text) {
-		this(contentType, -1, text);
-		}
-
-	public AbstractFluid(String contentType, long size, boolean text) {
-		this.contentType = contentType;
+	public AbstractFluid(ObjectConnection con, FluidType fluidType, String base, long size) {
+		assert con != null;
+		assert fluidType != null;
+		this.con = con;
+		this.fluidType = fluidType;
+		this.base = base;
 		this.size = size;
-		this.text = text;
 	}
 
-	public boolean isText() {
-		return text;
+	@Override
+	public String toString() {
+		return fluidType.toString();
+	}
+
+	public FluidType getFluidType() {
+		return fluidType;
 	}
 
 	public long getByteStreamSize() {
 		return size;
 	}
 
-	public String getContentType() {
-		return contentType;
+	public Charset getCharset() {
+		return fluidType.getCharset();
 	}
 
 	public abstract ReadableByteChannel asChannel() throws IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException;
 
-	public boolean isReadable(MessageType mtype) {
+	@Override
+	public boolean isProducible(String media, Class<?> ctype, Type gtype) {
+		return isProducible(new FluidType(media, ctype, gtype));
+	}
+
+	@Override
+	public Object produce(String media, Class<?> ctype, Type gtype)
+			throws OpenRDFException, IOException, XMLStreamException,
+			ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException,
+			URISyntaxException {
+		return produce(new FluidType(media, ctype, gtype));
+	}
+
+	public boolean isProducible(FluidType mtype) {
 		return findReader(mtype) != null;
 	}
 
-	public Object produce(MessageType mtype, ReadableByteChannel in,
-			Charset charset, String base, String location)
+	public Object produce(FluidType mtype)
 			throws TransformerConfigurationException, OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerException, URISyntaxException {
+		ReadableByteChannel in = asChannel();
+		Charset charset = mtype.getCharset();
 		Producer reader = findRawReader(mtype);
 		if (reader != null)
-			return reader.readFrom(mtype, in, charset, base, location);
+			return reader.readFrom(mtype, con, in, charset, base, null);
 		if (mtype.isSet()) {
 			reader = findComponentReader(mtype);
-			if (reader == null && location == null && in == null)
+			if (reader == null && in == null)
 				return Collections.emptySet();
 		}
-		Class<? extends Object> type = mtype.clas();
-		if (reader == null && !type.isPrimitive() && location == null
-				&& in == null)
+		Class<? extends Object> type = mtype.getClassType();
+		if (reader == null && !type.isPrimitive() && in == null)
 			return null;
-		String mime = mtype.getMimeType();
-		Type genericType = mtype.type();
+		String mime = mtype.getMediaType();
+		Type genericType = mtype.getGenericType();
 		if (reader == null)
 			throw new BadRequest("Cannot read " + mime + " into " + genericType);
-		Object o = reader.readFrom(mtype.component(), in, charset, base,
-				location);
+		Object o = reader.readFrom(mtype.component(), con, in, charset,
+				base, null);
 		if (o == null)
 			return Collections.emptySet();
 		if (o instanceof Set)
@@ -189,7 +187,7 @@ public abstract class AbstractFluid implements Fluid {
 		return Collections.singleton(o);
 	}
 
-	private Producer findReader(MessageType mtype) {
+	private Producer findReader(FluidType mtype) {
 		Producer reader = findRawReader(mtype);
 		if (reader != null)
 			return reader;
@@ -198,16 +196,16 @@ public abstract class AbstractFluid implements Fluid {
 		return null;
 	}
 
-	private Producer findRawReader(MessageType mtype) {
+	private Producer findRawReader(FluidType mtype) {
 		for (Producer reader : readers) {
-			if (reader.isReadable(mtype)) {
+			if (reader.isReadable(mtype, con)) {
 				return reader;
 			}
 		}
 		return null;
 	}
 
-	private Producer findComponentReader(MessageType mtype) {
+	private Producer findComponentReader(FluidType mtype) {
 		return findRawReader(mtype.component());
 	}
 

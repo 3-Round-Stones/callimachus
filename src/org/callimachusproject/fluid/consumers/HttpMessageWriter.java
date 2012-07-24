@@ -48,10 +48,11 @@ import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHeader;
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.CatReadableByteChannel;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes {@link HttpMessage} objects to message/http streams.
@@ -61,17 +62,17 @@ import org.openrdf.OpenRDFException;
  */
 public class HttpMessageWriter implements Consumer<HttpMessage> {
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return false;
 	}
 
-	public long getSize(MessageType mtype, HttpMessage result, Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con, HttpMessage result, Charset charset) {
 		return -1;
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
-		Class<?> type = mtype.clas();
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		String mimeType = mtype.getMediaType();
+		Class<?> type = mtype.getClassType();
 		if (Object.class.equals(type) && mimeType != null)
 			return mimeType.startsWith("message/http");
 		return HttpResponse.class.equals(type)
@@ -80,8 +81,8 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 				|| HttpEntityEnclosingRequest.class.equals(type);
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
-		String mimeType = mtype.getMimeType();
+	public String getContentType(FluidType mtype, Charset charset) {
+		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("message/*"))
 			return "message/http";
@@ -90,8 +91,8 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 		return mimeType;
 	}
 
-	public ReadableByteChannel write(MessageType mtype, HttpMessage result,
-			String base, Charset charset) throws IOException, OpenRDFException,
+	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
+			HttpMessage result, String base, Charset charset) throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
 			ParserConfigurationException {
 		CatReadableByteChannel cat = new CatReadableByteChannel();

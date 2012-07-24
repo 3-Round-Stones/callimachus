@@ -34,9 +34,10 @@ import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Converts an InputStream into a byte[].
@@ -44,13 +45,13 @@ import org.callimachusproject.server.util.MessageType;
 public class ByteArrayStreamMessageReader implements
 		Producer<ByteArrayOutputStream> {
 
-	public boolean isReadable(MessageType mtype) {
-		return mtype.clas().equals(ByteArrayOutputStream.class);
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		return mtype.getClassType().equals(ByteArrayOutputStream.class);
 	}
 
-	public ByteArrayOutputStream readFrom(MessageType mtype,
-			ReadableByteChannel in, Charset charset, String base,
-			String location) throws IOException {
+	public ByteArrayOutputStream readFrom(FluidType mtype,
+			ObjectConnection con, ReadableByteChannel in, Charset charset,
+			String base, String location) throws IOException {
 		if (in == null)
 			return null;
 		try {

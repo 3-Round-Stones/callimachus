@@ -1,37 +1,44 @@
 package org.callimachusproject.fluid;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
 import org.xml.sax.SAXException;
 
 public interface Fluid {
 
-	boolean isText();
+	FluidType getFluidType();
 
 	long getByteStreamSize();
 
-	String getContentType();
-
 	ReadableByteChannel asChannel() throws IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException;
 
-	boolean isReadable(MessageType mtype);
+	boolean isProducible(String media, Class<?> ctype, Type gtype);
 
 	/**
 	 * Must close InputStream or return an object that will later close the
 	 * InputStream.
 	 */
-	Object produce(MessageType mtype, ReadableByteChannel in, Charset charset,
-			String base, String location) throws OpenRDFException, IOException,
+	Object produce(String media, Class<?> ctype, Type gtype) throws OpenRDFException, IOException,
+			XMLStreamException, ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException,
+			URISyntaxException;
+
+	boolean isProducible(FluidType mtype);
+
+	/**
+	 * Must close InputStream or return an object that will later close the
+	 * InputStream.
+	 */
+	Object produce(FluidType mtype) throws OpenRDFException, IOException,
 			XMLStreamException, ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException,
 			URISyntaxException;

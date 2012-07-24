@@ -32,7 +32,20 @@ import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.title;
 import org.callimachusproject.annotations.type;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.query.GraphQuery;
+import org.openrdf.query.GraphQueryResult;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 
 /**
@@ -42,15 +55,55 @@ import org.openrdf.repository.object.RDFObject;
  *
  */
 public abstract class DescribeSupport implements RDFObject {
+	private static final String DEFINE_SELF = "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n"
+			+ "CONSTRUCT {$self ?pred ?obj . ?thing rdfs:isDefinedBy $self . ?thing ?p ?o}\n"
+			+ "WHERE {{$self ?pred ?obj} UNION {?thing rdfs:isDefinedBy $self OPTIONAL { ?thing ?p ?o }}}";
+	private static final String DESCRIBE_SELF = "CONSTRUCT {$self ?pred ?obj}\n"
+			+ "WHERE {$self ?pred ?obj}";
 
 	@title("RDF Describe")
 	@rel("describedby")
 	@query("describe")
 	@type( { "application/rdf+xml", "application/x-turtle", "text/rdf+n3",
 		"application/trix", "application/x-trig" })
-	public RDFObject metaDescribe() throws RepositoryException {
-		if (getObjectConnection().hasStatement(getResource(), null, null))
-			return this;
-		return null;
+	public Model metaDescribe() throws RepositoryException, MalformedQueryException, QueryEvaluationException {
+		Model model = new LinkedHashModel();
+		describeInto(getObjectConnection(), DEFINE_SELF, getResource(), model);
+		return model;
+	}
+
+	private void describeInto(ObjectConnection con, String qry,
+			Resource resource, Model model) throws MalformedQueryException,
+			RepositoryException, QueryEvaluationException {
+		String ns = null;
+		if (resource instanceof URI) {
+			String uri = resource.stringValue();
+			if (uri.contains("#")) {
+				ns = uri.substring(0, uri.indexOf('#') + 1);
+			} else {
+				ns = uri + "#";
+			}
+		}
+		GraphQuery query = con.prepareGraphQuery(QueryLanguage.SPARQL, qry);
+		query.setBinding("self", resource);
+		GraphQueryResult result = query.evaluate();
+		try {
+			while (result.hasNext()) {
+				Statement st = result.next();
+				if (model.add(st)) {
+					Value obj = st.getObject();
+					if (!resource.equals(obj) && isBNodeOrLocal(obj, ns)) {
+						describeInto(con, DESCRIBE_SELF, (Resource) obj, model);
+					}
+				}
+			}
+		} finally {
+			result.close();
+		}
+	}
+
+	private boolean isBNodeOrLocal(Value obj, String ns) {
+		return obj instanceof BNode || ns != null && obj instanceof URI
+				&& ((URI) obj).getNamespace().equals(ns);
 	}
 }

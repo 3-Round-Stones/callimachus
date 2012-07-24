@@ -38,7 +38,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
-import org.callimachusproject.server.util.MessageType;
+import org.callimachusproject.fluid.FluidType;
+import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,10 +66,10 @@ public abstract class ResultMessageWriterBase<FF extends FileFormat, S, T extend
 	}
 
 	@Override
-	public ReadableByteChannel write(MessageType mtype, final T result,
-			String base, Charset charset) throws IOException {
+	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
+			final T result, String base, Charset charset) throws IOException {
 		final ReadableByteChannel delegate;
-		delegate = super.write(mtype, result, base, charset);
+		delegate = super.write(mtype, con, result, base, charset);
 		return new ReadableByteChannel() {
 			public String toString() {
 				return delegate.toString();

@@ -47,10 +47,11 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
+import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -92,17 +93,17 @@ public class DOMMessageWriter implements Consumer<Node> {
 
 	private TransformerFactory factory = TransformerFactory.newInstance();
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return true;
 	}
 
-	public long getSize(MessageType mtype, Node result, Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con, Node result, Charset charset) {
 		return -1;
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		String mediaType = mtype.getMimeType();
-		Class<?> type = mtype.clas();
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		String mediaType = mtype.getMediaType();
+		Class<?> type = mtype.getClassType();
 		if (!Document.class.isAssignableFrom(type)
 				&& !Element.class.isAssignableFrom(type))
 			return false;
@@ -113,8 +114,8 @@ public class DOMMessageWriter implements Consumer<Node> {
 		return true;
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
-		String mimeType = mtype.getMimeType();
+	public String getContentType(FluidType mtype, Charset charset) {
+		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("application/*"))
 			return "application/xml";
@@ -129,8 +130,8 @@ public class DOMMessageWriter implements Consumer<Node> {
 		return mimeType;
 	}
 
-	public ReadableByteChannel write(final MessageType mtype,
-			final Node result, final String base, final Charset charset)
+	public ReadableByteChannel write(final FluidType mtype,
+			ObjectConnection con, final Node result, final String base, final Charset charset)
 			throws IOException {
 		return new ProducerChannel(new WritableProducer() {
 			public void produce(WritableByteChannel out) throws IOException {
@@ -151,7 +152,7 @@ public class DOMMessageWriter implements Consumer<Node> {
 		});
 	}
 
-	public void writeTo(MessageType mtype, Node node, String base,
+	public void writeTo(FluidType mtype, Node node, String base,
 			Charset charset, WritableByteChannel out, int bufSize)
 			throws IOException, TransformerException,
 			ParserConfigurationException {

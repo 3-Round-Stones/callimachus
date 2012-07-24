@@ -33,8 +33,9 @@ import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.callimachusproject.server.util.MessageType;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Converts an InputStream to a ReadableByteChannel.
@@ -42,13 +43,13 @@ import org.callimachusproject.server.util.MessageType;
 public class ReadableByteChannelBodyReader implements
 		Producer<ReadableByteChannel> {
 
-	public boolean isReadable(MessageType mtype) {
-		return mtype.clas().isAssignableFrom(ReadableByteChannel.class);
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		return mtype.getClassType().isAssignableFrom(ReadableByteChannel.class);
 	}
 
-	public ReadableByteChannel readFrom(MessageType mtype,
-			ReadableByteChannel in, Charset charset, String base,
-			String location) throws IOException {
+	public ReadableByteChannel readFrom(FluidType mtype,
+			ObjectConnection con, ReadableByteChannel in, Charset charset,
+			String base, String location) throws IOException {
 		return in;
 	}
 }

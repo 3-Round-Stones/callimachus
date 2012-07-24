@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -45,10 +44,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.exceptions.UnsupportedMediaType;
 import org.callimachusproject.server.util.Accepter;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
@@ -57,19 +57,17 @@ import org.xml.sax.SAXException;
  * Wraps an HttpEntity is a parameter.
  */
 public abstract class BodyParameter implements Parameter {
-	private final AbstractFluid reader = AbstractFluid.getInstance();
+	private final FluidFactory ff = FluidFactory.getInstance();
 	private final String mimeType;
 	private final boolean stream;
-	private final Charset charset;
 	private final String base;
 	private final String location;
 	private final ObjectConnection con;
 
-	public BodyParameter(String mimeType, boolean stream, Charset charset,
+	public BodyParameter(String mimeType, boolean stream,
 			String base, String location, ObjectConnection con) {
 		this.mimeType = mimeType;
 		this.stream = stream;
-		this.charset = charset;
 		this.base = base;
 		this.location = location;
 		this.con = con;
@@ -85,6 +83,7 @@ public abstract class BodyParameter implements Parameter {
 
 	public Collection<MimeType> getReadableTypes(Class<?> ctype, Type gtype,
 			Accepter accepter) throws MimeTypeParseException {
+		Fluid reader = ff.builder(con).nil(mimeType);
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType media : accepter.getAcceptable(mimeType)) {
 			if (!stream && location == null && mimeType == null) {
@@ -95,14 +94,13 @@ public abstract class BodyParameter implements Parameter {
 				acceptable.add(media);
 				continue;
 			}
-			MessageType mtype = new MessageType(media.toString(), ctype, gtype,
-					con);
-			if (reader.isReadable(mtype)) {
+			if (reader.isProducible(media.toString(), ctype, gtype)) {
 				acceptable.add(media);
 				continue;
 			}
+			FluidType mtype = new FluidType(media.toString(), ctype, gtype);
 			if (mtype.isSetOrArray()) {
-				if (reader.isReadable(mtype.component())) {
+				if (reader.isProducible(mtype.component())) {
 					acceptable.add(media);
 					continue;
 				}
@@ -116,35 +114,41 @@ public abstract class BodyParameter implements Parameter {
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerException, MimeTypeParseException,
 			URISyntaxException {
-		MessageType type = new MessageType(mimeType, ctype, gtype, con);
+		FluidType type = new FluidType(mimeType, ctype, gtype);
 		if (location == null && !stream && mimeType == null)
 			return null;
 		ReadableByteChannel in = getReadableByteChannel();
+		Fluid reader;
+		if (location == null) {
+			reader = ff.builder(con).channel(mimeType, in, base);
+		} else {
+			if (in != null) {
+				in.close();
+			}
+			reader = ff.builder(con).uri(location, base);
+		}
 		if (stream && type.isOrIsSetOf(ReadableByteChannel.class))
 			return (T) type.castComponent(in);
 		for (MimeType media : new Accepter(mediaTypes).getAcceptable(mimeType)) {
-			MessageType mtype = type.as(media.toString());
-			if (!reader.isReadable(mtype))
+			if (!reader.isProducible(media.toString(), ctype, gtype))
 				continue;
-			return (T) (reader.produce(mtype, in, charset, base, location));
+			return (T) (reader.produce(media.toString(), ctype, gtype));
 		}
-		if (reader.isReadable(type))
-			return (T) (reader.produce(type, in, charset, base, location));
+		if (reader.isProducible(type))
+			return (T) (reader.produce(type));
 		if (type.isSetOrArray()) {
 			Type cgtype = type.getComponentType();
 			Class<?> cctype = type.getComponentClass();
 			for (MimeType media : new Accepter(mediaTypes)
 					.getAcceptable(mimeType)) {
-				MessageType mctype = type.as(media.toString());
-				if (!reader.isReadable(mctype))
+				FluidType mctype = type.as(media.toString());
+				if (!reader.isProducible(mctype))
 					continue;
-				return (T) type.castComponent(reader.produce(mctype, in,
-						charset, base, location));
+				return (T) type.castComponent(reader.produce(mctype));
 			}
-			MessageType mmtype = type.component();
-			if (reader.isReadable(mmtype))
-				return (T) type.castComponent(reader.produce(mmtype, in,
-						charset, base, location));
+			FluidType mmtype = type.component();
+			if (reader.isProducible(mmtype))
+				return (T) type.castComponent(reader.produce(mmtype));
 		}
 		throw new UnsupportedMediaType();
 	}

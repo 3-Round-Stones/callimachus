@@ -35,8 +35,9 @@ import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.callimachusproject.server.util.MessageType;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Reads primitive types and their wrappers.
@@ -59,19 +60,19 @@ public class PrimitiveBodyReader implements Producer<Object> {
 		wrappers.add(Void.class);
 	}
 
-	public boolean isReadable(MessageType mtype) {
-		Class<?> type = mtype.clas();
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		Class<?> type = mtype.getClassType();
 		if (type.isPrimitive() || !type.isInterface()
 				&& wrappers.contains(type))
-			return delegate.isReadable(mtype.as(String.class));
+			return delegate.isReadable(mtype.as(String.class), con);
 		return false;
 	}
 
-	public Object readFrom(MessageType mtype, ReadableByteChannel in,
-			Charset charset, String base, String location) throws IOException {
-		Class<?> type = mtype.clas();
-		String value = delegate.readFrom(mtype.as(String.class), in, charset,
-				base, location);
+	public Object readFrom(FluidType mtype, ObjectConnection con,
+			ReadableByteChannel in, Charset charset, String base, String location) throws IOException {
+		Class<?> type = mtype.getClassType();
+		String value = delegate.readFrom(mtype.as(String.class), con, in,
+				charset, base, location);
 		if (Boolean.TYPE.equals(type) || Boolean.class.equals(type))
 			return (Boolean.valueOf(value));
 		if (Character.TYPE.equals(type) || Character.class.equals(type))

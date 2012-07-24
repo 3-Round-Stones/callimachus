@@ -35,9 +35,10 @@ import java.io.StringWriter;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Reads a {@link String}.
@@ -47,14 +48,14 @@ import org.callimachusproject.server.util.MessageType;
  */
 public class StringBodyReader implements Producer<String> {
 
-	public boolean isReadable(MessageType mtype) {
-		String mediaType = mtype.getMimeType();
-		return String.class.equals(mtype.clas()) && mediaType != null
-				&& mediaType.startsWith("text/");
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		String mediaType = mtype.getMediaType();
+		return String.class.equals(mtype.getClassType()) && mediaType != null
+				&& (mediaType.startsWith("text/") || mediaType.startsWith("*/"));
 	}
 
-	public String readFrom(MessageType mtype, ReadableByteChannel in,
-			Charset charset, String base, String location) throws IOException {
+	public String readFrom(FluidType mtype, ObjectConnection con,
+			ReadableByteChannel in, Charset charset, String base, String location) throws IOException {
 		if (charset == null) {
 			charset = Charset.forName("ISO-8859-1");
 		}

@@ -28,8 +28,8 @@
  */
 package org.callimachusproject.fluid.producers;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.producers.base.URIListReader;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.repository.object.ObjectConnection;
 
 /**
@@ -41,12 +41,12 @@ public class StringURIReader extends URIListReader<String> {
 	}
 
 	@Override
-	public boolean isReadable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		String mimeType = mtype.getMediaType();
 		if (!mtype.isSetOrArray()
 				&& (mimeType == null || !mimeType.startsWith("text/uri-list")))
 			return false;
-		return super.isReadable(mtype);
+		return super.isReadable(mtype, con);
 	}
 
 	@Override

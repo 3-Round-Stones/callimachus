@@ -38,7 +38,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
 import org.callimachusproject.fluid.Consumer;
-import org.callimachusproject.server.util.MessageType;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
 import org.openrdf.OpenRDFException;
@@ -70,22 +70,22 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 		this.type = type;
 	}
 
-	public boolean isText(MessageType mtype) {
-		return getFormat(mtype.getMimeType()).hasCharset();
+	public boolean isText(FluidType mtype) {
+		return getFormat(mtype.getMediaType()).hasCharset();
 	}
 
-	public long getSize(MessageType mtype, T result, Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con, T result, Charset charset) {
 		return -1;
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		if (!this.type.isAssignableFrom((Class<?>) mtype.clas()))
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		if (!this.type.isAssignableFrom((Class<?>) mtype.getClassType()))
 			return false;
-		return getFactory(mtype.getMimeType()) != null;
+		return getFactory(mtype.getMediaType()) != null;
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
-		String mimeType = mtype.getMimeType();
+	public String getContentType(FluidType mtype, Charset charset) {
+		String mimeType = mtype.getMediaType();
 		FF format = getFormat(mimeType);
 		String contentType = null;
 		if (mimeType != null) {
@@ -105,12 +105,12 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 		return contentType;
 	}
 
-	public ReadableByteChannel write(final MessageType mtype, final T result,
-			final String base, final Charset charset) throws IOException {
+	public ReadableByteChannel write(final FluidType mtype, final ObjectConnection con,
+			final T result, final String base, final Charset charset) throws IOException {
 		return new ProducerChannel(new WritableProducer() {
 			public void produce(WritableByteChannel out) throws IOException {
 				try {
-					writeTo(mtype, result, base, charset, out, 1024);
+					writeTo(mtype, con, result, base, charset, out, 1024);
 				} catch (OpenRDFException e) {
 					throw new IOException(e);
 				} finally {
@@ -124,16 +124,15 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 		});
 	}
 
-	public void writeTo(MessageType mtype, T result, String base,
-			Charset charset, WritableByteChannel out, int bufSize)
+	public void writeTo(FluidType mtype, ObjectConnection con, T result,
+			String base, Charset charset, WritableByteChannel out, int bufSize)
 			throws IOException, OpenRDFException {
-		String mimeType = mtype.getMimeType();
+		String mimeType = mtype.getMediaType();
 		FF format = getFormat(mimeType);
 		if (format.hasCharset()) {
 			charset = getCharset(format, charset);
 		}
 		try {
-			ObjectConnection con = mtype.getObjectConnection();
 			writeTo(getFactory(mimeType), result, out, charset, base, con);
 		} catch (RDFHandlerException e) {
 			Throwable cause = e.getCause();

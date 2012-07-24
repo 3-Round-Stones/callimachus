@@ -40,10 +40,11 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes an XMLEventReader into an OutputStream.
@@ -56,18 +57,18 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 		// if first element uses default namespace and has attributes, this leads to NPE when parsed
 	}
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return true;
 	}
 
-	public long getSize(MessageType mtype, XMLEventReader result,
-			Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con,
+			XMLEventReader result, Charset charset) {
 		return -1;
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		String mediaType = mtype.getMimeType();
-		if (!XMLEventReader.class.isAssignableFrom((Class<?>) mtype.clas()))
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		String mediaType = mtype.getMediaType();
+		if (!XMLEventReader.class.isAssignableFrom((Class<?>) mtype.getClassType()))
 			return false;
 		if (mediaType != null && !mediaType.startsWith("*")
 				&& !mediaType.startsWith("text/")
@@ -76,8 +77,8 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 		return true;
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
-		String mimeType = mtype.getMimeType();
+	public String getContentType(FluidType mtype, Charset charset) {
+		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("application/*"))
 			return "application/xml";
@@ -92,9 +93,9 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 		return mimeType;
 	}
 
-	public ReadableByteChannel write(final MessageType mtype,
-			final XMLEventReader result, final String base,
-			final Charset charset) throws IOException {
+	public ReadableByteChannel write(final FluidType mtype,
+			ObjectConnection con, final XMLEventReader result,
+			final String base, final Charset charset) throws IOException {
 		if (result == null)
 			return null;
 		return new ProducerChannel(new WritableProducer() {
@@ -114,7 +115,7 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 		});
 	}
 
-	public void writeTo(MessageType mtype, XMLEventReader result, String base,
+	public void writeTo(FluidType mtype, XMLEventReader result, String base,
 			Charset charset, WritableByteChannel out, int bufSize)
 			throws IOException, XMLStreamException {
 		try {

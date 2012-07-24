@@ -33,9 +33,9 @@ import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.consumers.base.MessageWriterBase;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.query.resultio.BooleanQueryResultFormat;
 import org.openrdf.query.resultio.BooleanQueryResultWriterFactory;
 import org.openrdf.query.resultio.BooleanQueryResultWriterRegistry;
@@ -56,11 +56,11 @@ public class BooleanMessageWriter
 	}
 
 	@Override
-	public boolean isWriteable(MessageType mtype) {
-		Class<?> type = mtype.clas();
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		Class<?> type = mtype.getClassType();
 		if (!Boolean.class.equals(type) && !Boolean.TYPE.equals(type))
 			return false;
-		return getFactory(mtype.getMimeType()) != null;
+		return getFactory(mtype.getMediaType()) != null;
 	}
 
 	@Override

@@ -53,11 +53,12 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
 import org.callimachusproject.xslt.DocumentFactory;
+import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -111,18 +112,18 @@ public class DocumentFragmentMessageWriter implements
 		builder = DocumentFactory.newInstance();
 	}
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return true;
 	}
 
-	public long getSize(MessageType mtype, DocumentFragment result,
-			Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con,
+			DocumentFragment result, Charset charset) {
 		return -1;
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		String mediaType = mtype.getMimeType();
-		if (DocumentFragment.class.equals(mtype.clas()))
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		String mediaType = mtype.getMediaType();
+		if (DocumentFragment.class.equals(mtype.getClassType()))
 			return true;
 		if (mediaType == null)
 			return false;
@@ -133,11 +134,11 @@ public class DocumentFragmentMessageWriter implements
 		if (mtype.isUnknown() && (mediaType.contains("+xml")
 				|| mediaType.contains("/xml")))
 			return true;
-		return DocumentFragment.class.isAssignableFrom((Class<?>) mtype.clas());
+		return DocumentFragment.class.isAssignableFrom((Class<?>) mtype.getClassType());
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
-		String mimeType = mtype.getMimeType();
+	public String getContentType(FluidType mtype, Charset charset) {
+		String mimeType = mtype.getMediaType();
 		if (charset == null) {
 			charset = Charset.defaultCharset();
 		}
@@ -151,9 +152,9 @@ public class DocumentFragmentMessageWriter implements
 		return mimeType;
 	}
 
-	public ReadableByteChannel write(final MessageType mtype,
-			final DocumentFragment result, final String base,
-			final Charset charset) throws IOException {
+	public ReadableByteChannel write(final FluidType mtype,
+			ObjectConnection con, final DocumentFragment result,
+			final String base, final Charset charset) throws IOException {
 		return new ProducerChannel(new WritableProducer() {
 			public void produce(WritableByteChannel out) throws IOException {
 				try {
@@ -173,7 +174,7 @@ public class DocumentFragmentMessageWriter implements
 		});
 	}
 
-	public void writeTo(MessageType mtype, DocumentFragment node, String base,
+	public void writeTo(FluidType mtype, DocumentFragment node, String base,
 			Charset charset, WritableByteChannel out, int bufSize)
 			throws IOException, TransformerException,
 			ParserConfigurationException {

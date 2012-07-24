@@ -37,7 +37,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.callimachusproject.fluid.Consumer;
-import org.callimachusproject.server.util.MessageType;
+import org.callimachusproject.fluid.FluidType;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes primitives and their wrappers.
@@ -60,34 +61,34 @@ public class PrimitiveBodyWriter implements Consumer<Object> {
 		wrappers.add(Void.class);
 	}
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return delegate.isText(mtype.as(String.class));
 	}
 
-	public long getSize(MessageType mtype, Object result, Charset charset) {
-		return delegate.getSize(mtype.as(String.class), String.valueOf(result),
-				charset);
+	public long getSize(FluidType mtype, ObjectConnection con, Object result, Charset charset) {
+		return delegate.getSize(mtype.as(String.class), con,
+				String.valueOf(result), charset);
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		Class<?> type = mtype.clas();
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		Class<?> type = mtype.getClassType();
 		if (type.isPrimitive() || !type.isInterface()
 				&& wrappers.contains(type))
-			return delegate.isWriteable(mtype.as(String.class));
+			return delegate.isWriteable(mtype.as(String.class), con);
 		return false;
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
+	public String getContentType(FluidType mtype, Charset charset) {
 		return delegate.getContentType(mtype.as(String.class), charset);
 	}
 
-	public ReadableByteChannel write(MessageType mtype, Object result,
-			String base, Charset charset) throws IOException {
-		return delegate.write(mtype.as(String.class), String.valueOf(result),
-				base, charset);
+	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
+			Object result, String base, Charset charset) throws IOException {
+		return delegate.write(mtype.as(String.class), con,
+				String.valueOf(result), base, charset);
 	}
 
-	public void writeTo(MessageType mtype, Object result, String base,
+	public void writeTo(FluidType mtype, Object result, String base,
 			Charset charset, OutputStream out, int bufSize) throws IOException {
 		delegate.writeTo(mtype.as(String.class), String.valueOf(result), base,
 				charset, out, bufSize);

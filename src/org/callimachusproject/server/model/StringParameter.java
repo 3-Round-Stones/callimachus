@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,10 +48,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.Accepter;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
@@ -61,10 +62,9 @@ import org.xml.sax.SAXException;
  * Provides an {@link Parameter} interface for a query parameter or header value.
  */
 public class StringParameter implements Parameter {
-	private final AbstractFluid reader = AbstractFluid.getInstance();
-	private final String[] values;
-	private final String base;
-	private final ObjectConnection con;
+	private final FluidFactory ff = FluidFactory.getInstance();
+	private final Fluid sample;
+	private final Fluid[] values;
 	private final String[] mediaTypes;
 
 	public StringParameter(String[] mediaTypes, String mimeType,
@@ -74,26 +74,35 @@ public class StringParameter implements Parameter {
 		} else {
 			this.mediaTypes = mediaTypes;
 		}
-		this.values = values;
-		this.base = base;
-		this.con = con;
+		FluidBuilder fb = ff.builder(con);
+		if (values == null || values.length == 0) {
+			this.values = new Fluid[0];
+			this.sample = fb.nil("text/plain");
+		} else {
+			Charset charset = Charset.forName("UTF-8");
+			this.values = new Fluid[values.length];
+			for (int i=0; i<values.length; i++) {
+				this.values[i] = fb.channel("text/plain;charset=" + charset.name(), ChannelUtil.newChannel(values[i].getBytes(charset)), base);
+			}
+			this.sample = this.values[0];
+		}
 	}
 
 	public Collection<? extends MimeType> getReadableTypes(Class<?> ctype,
 			Type gtype, Accepter accepter) throws MimeTypeParseException {
 		if (!accepter.isAcceptable(this.mediaTypes))
 			return Collections.emptySet();
-		MessageType type = new MessageType(null, ctype, gtype, con);
+		FluidType type = new FluidType(null, ctype, gtype);
 		if (type.is(String.class))
 			return accepter.getAcceptable(this.mediaTypes);
 		if (type.isSetOrArrayOf(String.class))
 			return accepter.getAcceptable(this.mediaTypes);
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType m : accepter.getAcceptable(this.mediaTypes)) {
-			if (reader.isReadable(type.as(m.toString()))) {
+			if (sample.isProducible(m.toString(), ctype, gtype)) {
 				acceptable.add(m);
 			} else if (type.isSetOrArray()) {
-				if (reader.isReadable(type.component(m.toString()))) {
+				if (sample.isProducible(type.component(m.toString()))) {
 					acceptable.add(m);
 				}
 			}
@@ -106,10 +115,10 @@ public class StringParameter implements Parameter {
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerException, MimeTypeParseException,
 			URISyntaxException {
-		MessageType type = new MessageType(null, ctype, genericType, con);
+		FluidType type = new FluidType(null, ctype, genericType);
 		if (type.is(String.class)) {
 			if (values != null && values.length > 0)
-				return (T) type.cast(values[0]);
+				return (T) type.cast(values[0].produce("text/plain", String.class, String.class));
 			return null;
 		}
 		if (type.isSetOrArrayOf(String.class)) {
@@ -154,33 +163,28 @@ public class StringParameter implements Parameter {
 		return result;
 	}
 
-	private <T> T read(String value, Class<T> ctype, Type genericType,
+	private <T> T read(Fluid value, Class<T> ctype, Type genericType,
 			String... mediaTypes) throws TransformerConfigurationException,
 			OpenRDFException, IOException, XMLStreamException,
 			ParserConfigurationException, SAXException, TransformerException,
 			MimeTypeParseException, URISyntaxException {
 		String media = getMediaType(ctype, genericType, mediaTypes);
-		MessageType type = new MessageType(media, ctype, genericType, con);
-		Charset charset = Charset.forName("UTF-16");
-		byte[] buf = value.getBytes(charset);
-		ReadableByteChannel in = ChannelUtil.newChannel(buf);
-		Object result = reader.produce(type, in, charset, base, null);
-		return (T) type.cast(result);
+		return (T) value.produce(media, ctype, genericType);
 	}
 
 	private boolean isReadable(Class<?> componentType, String[] mediaTypes)
 			throws MimeTypeParseException {
 		String media = getMediaType(componentType, componentType, mediaTypes);
-		return reader.isReadable(new MessageType(media, componentType,
-				componentType, con));
+		return sample.isProducible(media, componentType,
+				componentType);
 	}
 
 	private String getMediaType(Class<?> type, Type genericType,
 			String[] mediaTypes) throws MimeTypeParseException {
 		Accepter accepter = new Accepter(mediaTypes);
 		for (MimeType m : accepter.getAcceptable(this.mediaTypes)) {
-			if (reader.isReadable(new MessageType(m.toString(), type,
-					genericType, con)))
+			if (sample.isProducible(m.toString(), type,
+					genericType))
 				return m.toString();
 		}
 		return null;

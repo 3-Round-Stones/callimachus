@@ -38,8 +38,9 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes a {@link String}.
@@ -51,11 +52,11 @@ public class StringBodyWriter implements Consumer<String> {
 	static final boolean SINGLE_BYTE = 1f == java.nio.charset.Charset
 			.defaultCharset().newEncoder().maxBytesPerChar();
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return true;
 	}
 
-	public long getSize(MessageType mtype, String result, Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con, String result, Charset charset) {
 		if (result == null)
 			return 0;
 		if (charset == null && SINGLE_BYTE)
@@ -65,16 +66,16 @@ public class StringBodyWriter implements Consumer<String> {
 		return charset.encode(result).limit();
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
-		if (!String.class.equals(mtype.clas()))
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		String mimeType = mtype.getMediaType();
+		if (!String.class.equals(mtype.getClassType()))
 			return false;
 		return mimeType == null || mimeType.startsWith("text/")
 				|| mimeType.startsWith("*");
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
-		String mimeType = mtype.getMimeType();
+	public String getContentType(FluidType mtype, Charset charset) {
+		String mimeType = mtype.getMediaType();
 		if (charset == null) {
 			charset = Charset.defaultCharset();
 		}
@@ -87,14 +88,14 @@ public class StringBodyWriter implements Consumer<String> {
 		return mimeType + ";charset=" + charset.name();
 	}
 
-	public ReadableByteChannel write(MessageType mtype, String result,
-			String base, Charset charset) throws IOException {
+	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
+			String result, String base, Charset charset) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
 		writeTo(mtype, result, base, charset, out, 1024);
 		return ChannelUtil.newChannel(out.toByteArray());
 	}
 
-	public void writeTo(MessageType mtype, String result, String base,
+	public void writeTo(FluidType mtype, String result, String base,
 			Charset charset, OutputStream out, int bufSize) throws IOException {
 		if (charset == null) {
 			charset = Charset.defaultCharset();

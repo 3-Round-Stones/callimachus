@@ -33,15 +33,16 @@ import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.producers.base.MessageReaderBase;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.BooleanQueryResultFormat;
 import org.openrdf.query.resultio.BooleanQueryResultParserFactory;
 import org.openrdf.query.resultio.BooleanQueryResultParserRegistry;
 import org.openrdf.query.resultio.QueryResultParseException;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Reads a boolean query result.
@@ -58,9 +59,9 @@ public class BooleanMessageReader
 	}
 
 	@Override
-	public boolean isReadable(MessageType mtype) {
-		Class<?> type = mtype.clas();
-		String mimeType = mtype.getMimeType();
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		Class<?> type = mtype.getClassType();
+		String mimeType = mtype.getMediaType();
 		if (Object.class.equals(type))
 			return false;
 		if (!type.equals(Boolean.class) && !type.equals(Boolean.TYPE))

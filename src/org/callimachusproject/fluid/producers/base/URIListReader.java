@@ -39,9 +39,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.QueryResultParseException;
@@ -55,12 +55,18 @@ public abstract class URIListReader<URI> implements Producer<Object> {
 	private Class<URI> componentType;
 
 	public URIListReader(Class<URI> componentType) {
+		assert componentType != null;
 		this.componentType = componentType;
 	}
 
-	public boolean isReadable(MessageType mtype) {
-		Class<?> ctype = mtype.clas();
-		String mediaType = mtype.getMimeType();
+	@Override
+	public String toString() {
+		return componentType.getName();
+	}
+
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		Class<?> ctype = mtype.getClassType();
+		String mediaType = mtype.getMediaType();
 		if (componentType != null) {
 			if (!componentType.equals(ctype) && Object.class.equals(ctype))
 				return false;
@@ -75,14 +81,13 @@ public abstract class URIListReader<URI> implements Producer<Object> {
 				return false;
 			}
 		}
-		return mediaType != null && mediaType.startsWith("text/");
+		return mediaType != null && (mediaType.startsWith("text/") || mediaType.startsWith("*/"));
 	}
 
-	public Object readFrom(MessageType mtype, ReadableByteChannel in,
-			Charset charset, String base, String location)
+	public Object readFrom(FluidType mtype, ObjectConnection con,
+			ReadableByteChannel in, Charset charset, String base, String location)
 			throws QueryResultParseException, TupleQueryResultHandlerException,
 			IOException, QueryEvaluationException, RepositoryException, URISyntaxException {
-		ObjectConnection con = mtype.getObjectConnection();
 		if (charset == null) {
 			charset = Charset.forName("ISO-8859-1");
 		}

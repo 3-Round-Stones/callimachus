@@ -51,11 +51,6 @@ public class ExceptionTest extends MetadataServerTestCase {
 		public String postXML(@type("application/xml") XMLEventReader xml) {
 			return "xml";
 		}
-
-		@query("rdf")
-		public void setObject(@type("*/*") Object o) {
-
-		}
 	}
 
 	@Override
@@ -123,16 +118,6 @@ public class ExceptionTest extends MetadataServerTestCase {
 			fail();
 		} catch (UniformInterfaceException e) {
 			assertEquals(415, e.getResponse().getStatus());
-		}
-	}
-
-	public void testBadRequest() throws Exception {
-		try {
-			client.path("/").queryParam("rdf", "").type("application/rdf+xml")
-					.put("garbage");
-			fail();
-		} catch (UniformInterfaceException e) {
-			assertEquals(400, e.getResponse().getStatus());
 		}
 	}
 

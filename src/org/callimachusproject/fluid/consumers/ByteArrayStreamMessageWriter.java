@@ -36,8 +36,9 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Reads an ByteArrayOutputStream to an {@link ReadableByteChannel}.
@@ -45,43 +46,43 @@ import org.callimachusproject.server.util.MessageType;
 public class ByteArrayStreamMessageWriter implements
 		Consumer<ByteArrayOutputStream> {
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return false;
 	}
 
-	public long getSize(MessageType mtype, ByteArrayOutputStream result,
-			Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con,
+			ByteArrayOutputStream result, Charset charset) {
 		if (result == null)
 			return 0;
 		return result.size();
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
-		if (!ByteArrayOutputStream.class.equals(mtype.clas()))
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		String mimeType = mtype.getMediaType();
+		if (!ByteArrayOutputStream.class.equals(mtype.getClassType()))
 			return false;
 		return mimeType == null || !mimeType.contains("*")
 				|| mimeType.startsWith("*")
 				|| mimeType.startsWith("application/*");
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
-		String mimeType = mtype.getMimeType();
+	public String getContentType(FluidType mtype, Charset charset) {
+		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("application/*"))
 			return "application/octet-stream";
 		return mimeType;
 	}
 
-	public ReadableByteChannel write(MessageType mtype,
-			ByteArrayOutputStream result, String base, Charset charset)
+	public ReadableByteChannel write(FluidType mtype,
+			ObjectConnection con, ByteArrayOutputStream result, String base, Charset charset)
 			throws IOException {
 		if (result == null)
 			return ChannelUtil.emptyChannel();
 		return ChannelUtil.newChannel(result.toByteArray());
 	}
 
-	public void writeTo(MessageType mtype, ByteArrayOutputStream result,
+	public void writeTo(FluidType mtype, ByteArrayOutputStream result,
 			String base, Charset charset, OutputStream out, int bufSize)
 			throws IOException {
 		result.writeTo(out);

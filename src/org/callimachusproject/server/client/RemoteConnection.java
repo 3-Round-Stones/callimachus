@@ -49,14 +49,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ErrorWritableByteChannel;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.repository.object.ObjectConnection;
 
 /**
@@ -64,8 +62,7 @@ import org.openrdf.repository.object.ObjectConnection;
  */
 public class RemoteConnection {
 	private static final Executor executor = HTTPObjectClient.executor;
-	private AbstractFluid reader = AbstractFluid.getInstance();
-	private FluidFactory writer = FluidFactory.getInstance();
+	private final FluidFactory ff = FluidFactory.getInstance();
 	private String uri;
 	private ObjectConnection oc;
 	private HttpRequest req;
@@ -126,9 +123,8 @@ public class RemoteConnection {
 
 	public void write(String media, Class<?> ptype, Type gtype, Object result)
 			throws Exception {
-		Fluid fluid = writer.consume(new MessageType(media, ptype, gtype, oc),
-				result, uri, null);
-		String mediaType = fluid.getContentType();
+		Fluid fluid = ff.builder(oc).consume(media, ptype, gtype, result, uri);
+		String mediaType = fluid.getFluidType().getMediaType();
 		if (mediaType != null && !req.containsHeader("Content-Type")) {
 			req.addHeader("Content-Type", mediaType);
 		}
@@ -210,7 +206,12 @@ public class RemoteConnection {
 				}
 			};
 		}
-		return reader.produce(new MessageType(rtype, gtype, media, oc), cin, null, uri, loc);
+		if (loc == null) {
+			return ff.builder(oc).channel(media, cin, uri).produce(media, rtype, gtype);
+		} else {
+			cin.close();
+			return ff.builder(oc).uri(loc, uri).produce(media, rtype, gtype);
+		}
 	}
 
 	private HttpEntityEnclosingRequest getHttpEntityRequest() {

@@ -37,10 +37,11 @@ import java.nio.charset.Charset;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.callimachusproject.xslt.XMLEventReaderFactory;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Converts an InputStream into a XMLEventReader.
@@ -48,16 +49,17 @@ import org.callimachusproject.xslt.XMLEventReaderFactory;
 public class XMLEventMessageReader implements Producer<XMLEventReader> {
 	private XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
 
-	public boolean isReadable(MessageType mtype) {
-		String mediaType = mtype.getMimeType();
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		String mediaType = mtype.getMediaType();
 		if (mediaType != null && !mediaType.startsWith("text/")
-				&& !mediaType.startsWith("application/"))
+				&& !mediaType.startsWith("application/")
+				&& !mediaType.startsWith("*/"))
 			return false;
-		return mtype.clas().isAssignableFrom(XMLEventReader.class);
+		return mtype.getClassType().isAssignableFrom(XMLEventReader.class);
 	}
 
-	public XMLEventReader readFrom(MessageType mtype, ReadableByteChannel in,
-			Charset charset, String base, String location) throws IOException,
+	public XMLEventReader readFrom(FluidType mtype, ObjectConnection con,
+			ReadableByteChannel in, Charset charset, String base, String location) throws IOException,
 			XMLStreamException {
 		if (in == null)
 			return null;

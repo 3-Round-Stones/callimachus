@@ -44,9 +44,10 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
+import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,13 +64,13 @@ public class URIListWriter<URI> implements Consumer<URI> {
 		this.componentType = componentType;
 	}
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return true;
 	}
 
-	public long getSize(MessageType mtype, URI result, Charset charset) {
-		String mimeType = mtype.getMimeType();
-		Class<?> ctype = mtype.clas();
+	public long getSize(FluidType mtype, ObjectConnection con, URI result, Charset charset) {
+		String mimeType = mtype.getMediaType();
+		Class<?> ctype = mtype.getClassType();
 		if (result == null)
 			return 0;
 		if (Set.class.equals(ctype))
@@ -100,12 +101,12 @@ public class URIListWriter<URI> implements Consumer<URI> {
 			return out.size();
 		} else {
 			Class<String> t = String.class;
-			return delegate.getSize(mtype.as(t), toString(result), charset);
+			return delegate.getSize(mtype.as(t), con, toString(result), charset);
 		}
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		Class<?> ctype = mtype.clas();
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		Class<?> ctype = mtype.getClassType();
 		if (componentType != null) {
 			if (!componentType.equals(ctype) && Object.class.equals(ctype))
 				return false;
@@ -121,11 +122,11 @@ public class URIListWriter<URI> implements Consumer<URI> {
 				return false;
 			}
 		}
-		return delegate.isWriteable(mtype.as(String.class));
+		return delegate.isWriteable(mtype.as(String.class), con);
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
-		String mimeType = mtype.getMimeType();
+	public String getContentType(FluidType mtype, Charset charset) {
+		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("text/*")) {
 			mimeType = "text/uri-list";
@@ -134,11 +135,11 @@ public class URIListWriter<URI> implements Consumer<URI> {
 		return delegate.getContentType(mtype.as(t), charset);
 	}
 
-	public ReadableByteChannel write(MessageType mtype, URI result,
-			String base, Charset charset) throws IOException, OpenRDFException,
+	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
+			URI result, String base, Charset charset) throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
 			ParserConfigurationException {
-		String mimeType = mtype.getMimeType();
+		String mimeType = mtype.getMediaType();
 		if (result == null)
 			return null;
 		if (mimeType == null || mimeType.startsWith("*")
@@ -161,17 +162,17 @@ public class URIListWriter<URI> implements Consumer<URI> {
 			writer.flush();
 			return ChannelUtil.newChannel(out.toByteArray());
 		} else {
-			return delegate.write(mtype.as(String.class), toString(result), base, charset);
+			return delegate.write(mtype.as(String.class), con, toString(result), base, charset);
 		}
 	}
 
-	public void writeTo(MessageType mtype, URI result, String base,
+	public void writeTo(FluidType mtype, URI result, String base,
 			Charset charset, OutputStream out, int bufSize) throws IOException,
 			OpenRDFException, XMLStreamException, TransformerException,
 			ParserConfigurationException {
 		if (result == null)
 			return;
-		String mimeType = mtype.getMimeType();
+		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("text/*")) {
 			mimeType = "text/uri-list";

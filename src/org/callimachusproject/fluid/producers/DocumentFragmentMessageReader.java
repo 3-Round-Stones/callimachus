@@ -46,11 +46,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.callimachusproject.xslt.DocumentFactory;
 import org.callimachusproject.xslt.DOMSourceFactory;
+import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -94,20 +95,20 @@ public class DocumentFragmentMessageReader implements
 	private TransformerFactory factory = TransformerFactory.newInstance();
 	private DocumentFactory builder = DocumentFactory.newInstance();
 
-	public boolean isReadable(MessageType mtype) {
-		Class<?> type = mtype.clas();
-		String mediaType = mtype.getMimeType();
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		Class<?> type = mtype.getClassType();
+		String mediaType = mtype.getMediaType();
 		if (mediaType != null && !mediaType.startsWith("application/")
 				&& !mediaType.contains("xml"))
 			return false;
 		return type.isAssignableFrom(DocumentFragment.class);
 	}
 
-	public DocumentFragment readFrom(MessageType mtype, ReadableByteChannel in,
-			Charset charset, String base, String location)
+	public DocumentFragment readFrom(FluidType mtype, ObjectConnection con,
+			ReadableByteChannel in, Charset charset, String base, String location)
 			throws TransformerConfigurationException, TransformerException,
 			ParserConfigurationException, IOException, XMLStreamException {
-		Class<?> type = mtype.clas();
+		Class<?> type = mtype.getClassType();
 		if (in == null)
 			return null;
 		try {

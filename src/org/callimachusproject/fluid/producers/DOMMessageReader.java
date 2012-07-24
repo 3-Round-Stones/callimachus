@@ -40,10 +40,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.callimachusproject.xslt.DocumentFactory;
+import org.openrdf.repository.object.ObjectConnection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -57,22 +58,23 @@ public class DOMMessageReader implements Producer<Node> {
 
 	private DocumentFactory builder = DocumentFactory.newInstance();
 
-	public boolean isReadable(MessageType mtype) {
-		Class<?> type = mtype.clas();
-		String mediaType = mtype.getMimeType();
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		Class<?> type = mtype.getClassType();
+		String mediaType = mtype.getMediaType();
 		if (mediaType != null && !mediaType.startsWith("text/")
 				&& !mediaType.startsWith("application/")
+				&& !mediaType.startsWith("*/")
 				&& !mediaType.contains("xml"))
 			return false;
 		return type.isAssignableFrom(Document.class)
 				|| type.isAssignableFrom(Element.class);
 	}
 
-	public Node readFrom(MessageType mtype, ReadableByteChannel cin,
-			Charset charset, String base, String location)
+	public Node readFrom(FluidType mtype, ObjectConnection con,
+			ReadableByteChannel cin, Charset charset, String base, String location)
 			throws TransformerConfigurationException, TransformerException,
 			ParserConfigurationException, IOException, SAXException {
-		Class<?> type = mtype.clas();
+		Class<?> type = mtype.getClassType();
 		if (cin == null)
 			return null;
 		Document doc = createDocument(cin, charset, location);

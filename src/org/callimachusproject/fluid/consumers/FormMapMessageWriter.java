@@ -45,11 +45,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes a percent encoded form from a {@link Map}.
@@ -59,32 +61,33 @@ import org.openrdf.OpenRDFException;
  */
 public class FormMapMessageWriter implements
 		Consumer<Map<String, Object>> {
-	private FluidFactory delegate = FluidFactory.getInstance();
+	private final FluidFactory ff = FluidFactory.getInstance();
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return true;
 	}
 
-	public long getSize(MessageType mtype, Map<String, Object> result,
-			Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con,
+			Map<String, Object> result, Charset charset) {
 		return -1;
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		FluidBuilder delegate = ff.builder(con);
+		String mimeType = mtype.getMediaType();
 		if (!mtype.isMap())
 			return false;
-		MessageType kt = mtype.getKeyGenericType();
+		FluidType kt = mtype.getKeyGenericType();
 		if (!kt.isUnknown()) {
-			if (!delegate.isWriteable(mtype.key("text/plain")))
+			if (!delegate.isConsumable(mtype.key("text/plain")))
 				return false;
 		}
-		MessageType vt = mtype.component("text/plain");
+		FluidType vt = mtype.component("text/plain");
 		if (vt.isSetOrArray()) {
-			if (!delegate.isWriteable(vt.component()))
+			if (!delegate.isConsumable(vt.component()))
 				return false;
 		} else if (!vt.isUnknown()) {
-			if (!delegate.isWriteable(vt))
+			if (!delegate.isConsumable(vt))
 				return false;
 		}
 		return mimeType == null || mimeType.startsWith("*")
@@ -92,31 +95,31 @@ public class FormMapMessageWriter implements
 				|| mimeType.startsWith("application/x-www-form-urlencoded");
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
+	public String getContentType(FluidType mtype, Charset charset) {
 		return "application/x-www-form-urlencoded";
 	}
 
-	public ReadableByteChannel write(MessageType mtype,
-			Map<String, Object> result, String base, Charset charset)
+	public ReadableByteChannel write(FluidType mtype,
+			ObjectConnection con, Map<String, Object> result, String base, Charset charset)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-		writeTo(mtype, result, base, charset, out, 1024);
+		writeTo(mtype, con, result, base, charset, out, 1024);
 		return ChannelUtil.newChannel(out.toByteArray());
 	}
 
-	public void writeTo(MessageType mtype, Map<String, Object> result,
-			String base, Charset charset, OutputStream out, int bufSize)
+	public void writeTo(FluidType mtype, ObjectConnection con,
+			Map<String, Object> result, String base, Charset charset, OutputStream out, int bufSize)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException {
 		if (charset == null) {
 			charset = Charset.forName("ISO-8859-1");
 		}
-		MessageType vtype = mtype.component("text/plain");
+		FluidType vtype = mtype.component("text/plain");
 		if (vtype.isUnknown()) {
 			vtype = vtype.as(String[].class);
 		}
-		MessageType vctype = vtype;
+		FluidType vctype = vtype;
 		if (vctype.isSetOrArray()) {
 			vctype = vctype.component();
 		}
@@ -128,7 +131,7 @@ public class FormMapMessageWriter implements
 			for (Map.Entry<String, Object> e : result.entrySet()) {
 				if (e.getKey() != null) {
 					String name = enc(writeTo(mtype.key("text/plain"), e
-							.getKey(), base));
+							.getKey(), base, con));
 					Iterator<?> iter = vtype.iteratorOf(e.getValue());
 					if (first) {
 						first = false;
@@ -142,7 +145,7 @@ public class FormMapMessageWriter implements
 						writer.append("&").append(name);
 						Object value = iter.next();
 						if (value != null) {
-							String str = writeTo(vctype, value, base);
+							String str = writeTo(vctype, value, base, con);
 							writer.append("=").append(enc(str));
 						}
 					}
@@ -157,15 +160,16 @@ public class FormMapMessageWriter implements
 		return URLEncoder.encode(value, "UTF-8");
 	}
 
-	private String writeTo(MessageType mtype, Object value, String base)
+	private String writeTo(FluidType mtype, Object value, String base, ObjectConnection con)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException {
+		FluidBuilder delegate = ff.builder(con);
 		Charset cs = Charset.forName("ISO-8859-1");
 		if (mtype.isUnknown() && value != null) {
 			mtype = mtype.as(value.getClass());
 		}
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-		ReadableByteChannel in = delegate.consume(mtype, value, base, cs).asChannel();
+		ReadableByteChannel in = delegate.consume(mtype.as(mtype.getMediaType(), cs), value, base).asChannel();
 		try {
 			ChannelUtil.transfer(in, out);
 		} finally {

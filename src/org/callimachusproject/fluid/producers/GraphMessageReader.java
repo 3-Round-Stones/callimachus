@@ -34,12 +34,13 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.concurrent.Executor;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.producers.base.MessageReaderBase;
 import org.callimachusproject.server.util.BackgroundGraphResult;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ManagedExecutors;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.query.GraphQueryResult;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.RDFParserFactory;
@@ -80,11 +81,11 @@ public class GraphMessageReader extends
 	}
 
 	@Override
-	public boolean isReadable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		String mimeType = mtype.getMediaType();
 		if (mimeType != null && mimeType.startsWith("text/plain"))
 			return false;
-		return super.isReadable(mtype);
+		return super.isReadable(mtype, con);
 	}
 
 	@Override

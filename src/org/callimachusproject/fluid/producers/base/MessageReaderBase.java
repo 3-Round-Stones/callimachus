@@ -36,11 +36,12 @@ import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.QueryResultParseException;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Base class for readers that use a {@link FileFormat}.
@@ -65,10 +66,10 @@ public abstract class MessageReaderBase<FF extends FileFormat, S, T> implements
 		this.type = type;
 	}
 
-	public boolean isReadable(MessageType mtype) {
-		Class<?> type = mtype.clas();
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		Class<?> type = mtype.getClassType();
 		String mimeType = mtype
-				.getMimeType();
+				.getMediaType();
 		if (Object.class.equals(type))
 			return false;
 		if (!type.equals(this.type))
@@ -79,14 +80,14 @@ public abstract class MessageReaderBase<FF extends FileFormat, S, T> implements
 		return getFactory(mimeType) != null;
 	}
 
-	public T readFrom(MessageType mtype, ReadableByteChannel in,
-			Charset charset, String base, String location)
+	public T readFrom(FluidType mtype, ObjectConnection con,
+			ReadableByteChannel in, Charset charset, String base, String location)
 			throws QueryResultParseException, TupleQueryResultHandlerException,
 			IOException, QueryEvaluationException {
 		if (location != null) {
 			base = location;
 		}
-		return readFrom(getFactory(mtype.getMimeType()), in, charset, base);
+		return readFrom(getFactory(mtype.getMediaType()), in, charset, base);
 	}
 
 	public abstract T readFrom(S factory, ReadableByteChannel in,

@@ -37,8 +37,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Interface for HTTP message body writers.
@@ -48,16 +48,16 @@ import org.openrdf.OpenRDFException;
  */
 public interface Consumer<T> {
 
-	boolean isText(MessageType mtype);
+	boolean isText(FluidType mtype);
 
-	boolean isWriteable(MessageType mtype);
+	boolean isWriteable(FluidType mtype, ObjectConnection con);
 
-	long getSize(MessageType mtype, T result, Charset charset);
+	long getSize(FluidType mtype, ObjectConnection con, T result, Charset charset);
 
-	String getContentType(MessageType mtype, Charset charset);
+	String getContentType(FluidType mtype, Charset charset);
 
-	ReadableByteChannel write(MessageType mtype, T result, String base,
-			Charset charset) throws IOException, OpenRDFException,
+	ReadableByteChannel write(FluidType mtype, ObjectConnection con, T result,
+			String base, Charset charset) throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
 			ParserConfigurationException;
 }

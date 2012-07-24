@@ -57,9 +57,10 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.params.BasicHttpParams;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
+import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +73,9 @@ import org.slf4j.LoggerFactory;
 public class HttpMessageReader implements Producer<HttpMessage> {
 	private Logger logger = LoggerFactory.getLogger(HttpMessageReader.class);
 
-	public boolean isReadable(MessageType mtype) {
-		Class<?> type = mtype.clas();
-		String mimeType = mtype.getMimeType();
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		Class<?> type = mtype.getClassType();
+		String mimeType = mtype.getMediaType();
 		if (Object.class.equals(type) && mimeType != null)
 			return mimeType.startsWith("message/http");
 		return HttpResponse.class.equals(type)
@@ -83,9 +84,9 @@ public class HttpMessageReader implements Producer<HttpMessage> {
 				|| HttpEntityEnclosingRequest.class.equals(type);
 	}
 
-	public HttpMessage readFrom(MessageType mtype, ReadableByteChannel in,
-			Charset charset, String base, String location) throws IOException {
-		return readFrom(mtype.getMimeType(), in);
+	public HttpMessage readFrom(FluidType mtype, ObjectConnection con,
+			ReadableByteChannel in, Charset charset, String base, String location) throws IOException {
+		return readFrom(mtype.getMediaType(), in);
 	}
 
 	public HttpMessage readFrom(String mimeType, ReadableByteChannel in)

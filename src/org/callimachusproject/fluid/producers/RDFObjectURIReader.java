@@ -29,10 +29,13 @@
  */
 package org.callimachusproject.fluid.producers;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.producers.base.URIListReader;
-import org.callimachusproject.server.util.MessageType;
+import org.openrdf.annotations.Iri;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
@@ -44,18 +47,15 @@ import org.openrdf.repository.object.RDFObject;
  * 
  */
 public class RDFObjectURIReader extends URIListReader<Object> {
-	private RDFObjectReader neighbour = new RDFObjectReader();
 
 	public RDFObjectURIReader() {
 		super(null);
 	}
 
-	public boolean isReadable(MessageType mtype) {
-		if (neighbour.isReadable(mtype))
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		if (!super.isReadable(mtype, con))
 			return false;
-		if (!super.isReadable(mtype))
-			return false;
-		Class<?> c = mtype.clas();
+		Class<?> c = mtype.getClassType();
 		if (mtype.isSetOrArray()) {
 			c = mtype.getComponentClass();
 		}
@@ -63,7 +63,7 @@ public class RDFObjectURIReader extends URIListReader<Object> {
 			return true;
 		if (RDFObject.class.isAssignableFrom(c))
 			return true;
-		return mtype.isConcept(c);
+		return isConcept(c, con);
 	}
 
 	@Override
@@ -75,6 +75,16 @@ public class RDFObjectURIReader extends URIListReader<Object> {
 			return con.getObject(con.getValueFactory().createBNode(
 					uri.substring(2)));
 		return con.getObject(uri);
+	}
+
+	private boolean isConcept(Class<?> component, ObjectConnection con) {
+		for (Annotation ann : component.getAnnotations()) {
+			for (Method m : ann.annotationType().getDeclaredMethods()) {
+				if (m.isAnnotationPresent(Iri.class))
+					return true;
+			}
+		}
+		return con.getObjectFactory().isNamedConcept(component);
 	}
 
 }

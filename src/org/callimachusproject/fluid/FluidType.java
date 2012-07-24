@@ -27,12 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.util;
+package org.callimachusproject.fluid;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,97 +43,85 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openrdf.annotations.Iri;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.ObjectFactory;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 
 /**
  * Utility class for dealing with generic types.
  * 
  * @author James Leigh
  */
-public class MessageType extends GenericType {
-	private String mimeType;
-	private ObjectConnection con;
+public class FluidType extends GenericType {
+	private final String mediaType;
+	private final Charset charset;
 
-	@Deprecated
-	public MessageType(Class<?> type, Type genericType, String mimeType,
-			ObjectConnection con) {
-		this(mimeType, type, genericType, con);
+	public FluidType(String media, Class<?> ctype) {
+		this(media, ctype, ctype);
 	}
 
-	public MessageType(String media, Class<?> ptype, Type gtype,
-			ObjectConnection con) {
-		super(gtype == null ? ptype : gtype);
-		assert con != null;
-		this.mimeType = media;
-		this.con = con;
+	public FluidType(String media, Class<?> ctype, Type gtype) {
+		this(media, ctype, gtype, null);
 	}
 
-	public String getMimeType() {
-		return mimeType;
+	public FluidType(String media, Class<?> ctype, Charset charset) {
+		this(media, ctype, ctype, charset);
 	}
 
-	public ObjectConnection getObjectConnection() {
-		return con;
-	}
-
-	public ObjectFactory getObjectFactory() {
-		return con.getObjectFactory();
-	}
-
-	public ValueFactory getValueFactory() {
-		return con.getValueFactory();
-	}
-
-	public Class<?> clas() {
-		return getClassType();
-	}
-
-	public Type type() {
-		return getGenericType();
-	}
-
-	public boolean isConcept(Class<?> component) {
-		for (Annotation ann : component.getAnnotations()) {
-			for (Method m : ann.annotationType().getDeclaredMethods()) {
-				if (m.isAnnotationPresent(Iri.class))
-					return true;
+	public FluidType(String media, Class<?> ctype, Type gtype, Charset charset) {
+		super(gtype == null ? ctype : gtype);
+		this.mediaType = media;
+		Charset cs = charset;
+		if (media != null && media.startsWith("text/")) {
+			try {
+				MimeType m = new MimeType(getMediaType());
+				String name = m.getParameters().get("charset");
+				if (name != null) {
+					cs = Charset.forName(name);
+				}
+			} catch (MimeTypeParseException e) {
+				// ignore
 			}
 		}
-		return getObjectFactory().isNamedConcept(component);
+		this.charset = cs;
 	}
 
-	public boolean isDatatype(Class<?> type2) {
-		return getObjectFactory().isDatatype(type2);
+	public String getMediaType() {
+		return mediaType;
 	}
 
-	public MessageType as(Class<?> t) {
-		return new MessageType(mimeType, t, t, con);
+	public Charset getCharset() {
+		return charset;
 	}
 
-	public MessageType key(String mimetype) {
-		MessageType kt = getKeyGenericType();
-		return new MessageType(mimetype, kt.clas(), kt.type(), con);
+	public FluidType as(String mediaType) {
+		return new FluidType(mediaType, getClassType(), getGenericType(), getCharset());
 	}
 
-	public MessageType component() {
-		MessageType gtype = getComponentGenericType();
-		return new MessageType(mimeType, gtype.clas(), gtype.type(), con);
+	public FluidType as(String mediaType, Charset charset) {
+		return new FluidType(mediaType, getClassType(), getGenericType(), charset);
 	}
 
-	public MessageType component(String mimetype) {
-		MessageType vt = getComponentGenericType();
-		return new MessageType(mimetype, vt.clas(), vt.type(), con);
+	public FluidType as(Class<?> t) {
+		return new FluidType(getMediaType(), t, t, getCharset());
 	}
 
-	public MessageType as(String mimetype) {
-		return new MessageType(mimeType, clas(), type(), con);
+	public FluidType key(String mediaType) {
+		FluidType kt = getKeyGenericType();
+		return new FluidType(mediaType, kt.getClassType(), kt.getGenericType(), getCharset());
 	}
 
-	public MessageType as(Class<?> clas, Type type) {
-		return new MessageType(mimeType, clas, type, con);
+	public FluidType component() {
+		FluidType gtype = getComponentGenericType();
+		return new FluidType(getMediaType(), gtype.getClassType(), gtype.getGenericType(), getCharset());
+	}
+
+	public FluidType component(String mediaType) {
+		FluidType vt = getComponentGenericType();
+		return new FluidType(mediaType, vt.getClassType(), vt.getGenericType(), getCharset());
+	}
+
+	public FluidType as(Class<?> clas, Type type) {
+		return new FluidType(getMediaType(), clas, type, getCharset());
 	}
 
 	public boolean isSetOrArray() {
@@ -153,20 +140,20 @@ public class MessageType extends GenericType {
 		return type.equals(getComponentType());
 	}
 
-	public MessageType getKeyGenericType() {
-		return new MessageType(mimeType, getKeyClass(), getKeyType(), con);
+	public FluidType getKeyGenericType() {
+		return new FluidType(getMediaType(), getKeyClass(), getKeyType(), getCharset());
 	}
 
 	public Object cast(Object obj) {
 		if (obj == null)
 			return nil();
 		try {
-			if (clas().isPrimitive())
+			if (getClassType().isPrimitive())
 				return obj;
-			return clas().cast(obj);
+			return getClassType().cast(obj);
 		} catch (ClassCastException e) {
 			ClassCastException cce;
-			String msg = "Cannot cast " + obj + " to " + clas().getSimpleName();
+			String msg = "Cannot cast " + obj + " to " + getClassType().getSimpleName();
 			cce = new ClassCastException(msg);
 			cce.initCause(e);
 			throw cce;
@@ -210,8 +197,8 @@ public class MessageType extends GenericType {
 		if (map == null || map.isEmpty())
 			return nil();
 		if (isMap()) {
-			MessageType keyType = getKeyGenericType();
-			MessageType valueType = getComponentGenericType();
+			FluidType keyType = getKeyGenericType();
+			FluidType valueType = getComponentGenericType();
 			Map result = new LinkedHashMap();
 			for (Map.Entry<?, Collection<?>> e : map.entrySet()) {
 				Object key = keyType.cast(e.getKey());
@@ -253,9 +240,9 @@ public class MessageType extends GenericType {
 		return componentType.equals(getComponentType());
 	}
 
-	private MessageType getComponentGenericType() {
-		return new MessageType(mimeType, getComponentClass(),
-				getComponentType(), con);
+	private FluidType getComponentGenericType() {
+		return new FluidType(getMediaType(), getComponentClass(),
+				getComponentType(), getCharset());
 	}
 
 	private Object nil() {
@@ -286,10 +273,6 @@ public class MessageType extends GenericType {
 		}
 		Iterator<?> iter = list.iterator();
 		return cast(iter.next());
-	}
-
-	public boolean isText() {
-		return mimeType != null && mimeType.startsWith("text/");
 	}
 
 }

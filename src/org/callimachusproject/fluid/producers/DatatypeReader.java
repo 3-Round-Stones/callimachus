@@ -34,8 +34,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.Set;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -43,6 +43,7 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.QueryResultParseException;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 
@@ -55,8 +56,8 @@ import org.openrdf.repository.object.RDFObject;
 public class DatatypeReader implements Producer<Object> {
 	private StringBodyReader delegate = new StringBodyReader();
 
-	public boolean isReadable(MessageType mtype) {
-		Class<?> type = mtype.clas();
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		Class<?> type = mtype.getClassType();
 		if (Set.class.equals(type))
 			return false;
 		if (Object.class.equals(type))
@@ -65,20 +66,20 @@ public class DatatypeReader implements Producer<Object> {
 			return false;
 		if (type.isArray() && Byte.TYPE.equals(type.getComponentType()))
 			return false;
-		if (!delegate.isReadable(mtype.as(String.class)))
+		if (!delegate.isReadable(mtype.as(String.class), con))
 			return false;
-		return mtype.isDatatype(type);
+		return con.getObjectFactory().isDatatype(type);
 	}
 
-	public Object readFrom(MessageType mtype, ReadableByteChannel in,
-			Charset charset, String base, String location)
+	public Object readFrom(FluidType mtype, ObjectConnection con,
+			ReadableByteChannel in, Charset charset, String base, String location)
 			throws QueryResultParseException, TupleQueryResultHandlerException,
 			IOException, QueryEvaluationException, RepositoryException {
-		Class<?> type = mtype.clas();
-		String value = delegate.readFrom(mtype.as(String.class), in, charset,
-				base, location);
-		ValueFactory vf = mtype.getValueFactory();
-		ObjectFactory of = mtype.getObjectFactory();
+		Class<?> type = mtype.getClassType();
+		String value = delegate.readFrom(mtype.as(String.class), con, in,
+				charset, base, location);
+		ValueFactory vf = con.getValueFactory();
+		ObjectFactory of = con.getObjectFactory();
 		URI datatype = vf.createURI("java:", type.getName());
 		Literal lit = vf.createLiteral(value, datatype);
 		return type.cast(of.createObject(lit));

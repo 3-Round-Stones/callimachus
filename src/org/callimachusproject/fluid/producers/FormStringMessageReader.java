@@ -35,9 +35,10 @@ import java.io.StringWriter;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Reads a {@link String}.
@@ -47,14 +48,14 @@ import org.callimachusproject.server.util.MessageType;
  */
 public class FormStringMessageReader implements Producer<String> {
 
-	public boolean isReadable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
-		return String.class.equals(mtype.clas()) && mimeType != null
+	public boolean isReadable(FluidType mtype, ObjectConnection con) {
+		String mimeType = mtype.getMediaType();
+		return String.class.equals(mtype.getClassType()) && mimeType != null
 				&& mimeType.startsWith("application/x-www-form-urlencoded");
 	}
 
-	public String readFrom(MessageType mtype, ReadableByteChannel in,
-			Charset charset, String base, String location) throws IOException {
+	public String readFrom(FluidType mtype, ObjectConnection con,
+			ReadableByteChannel in, Charset charset, String base, String location) throws IOException {
 		if (charset == null) {
 			charset = Charset.forName("ISO-8859-1");
 		}

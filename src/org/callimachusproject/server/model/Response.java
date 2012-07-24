@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -159,8 +158,8 @@ public class Response extends AbstractHttpMessage {
 		return lastModified;
 	}
 
-	public long getSize(String mimeType, Charset charset) {
-		return entity.getSize(mimeType, charset);
+	public long getSize(String mimeType) {
+		return entity.getSize(mimeType);
 	}
 
 	public int getStatus() {
@@ -275,10 +274,10 @@ public class Response extends AbstractHttpMessage {
 		return phrase;
 	}
 
-	public ReadableByteChannel write(String mimeType, Charset charset)
+	public ReadableByteChannel write(String mimeType)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException {
-		return entity.write(mimeType, charset).asChannel();
+		return entity.write(mimeType).asChannel();
 	}
 
 	public int getStatusCode() {

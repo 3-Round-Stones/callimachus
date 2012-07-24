@@ -34,7 +34,6 @@ import static java.util.Collections.singleton;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,11 +53,10 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.server.util.Accepter;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.URI;
 import org.openrdf.repository.object.ObjectConnection;
@@ -69,14 +67,13 @@ import org.xml.sax.SAXException;
  * Wraps a message response to output to an HTTP response.
  */
 public class ResponseParameter implements Parameter {
-	private final FluidFactory writer = FluidFactory.getInstance();
-	private final AbstractFluid reader = AbstractFluid.getInstance();
+	private final FluidFactory ff = FluidFactory.getInstance();
+	private final FluidBuilder writer;
 	private final String[] mimeTypes;
 	private final Object result;
 	private final Class<?> type;
 	private final Type genericType;
 	private final String base;
-	private final ObjectConnection con;
 	private final Map<String, String> headers = new HashMap<String, String>();
 	private final List<String> expects = new ArrayList<String>();
 
@@ -86,12 +83,12 @@ public class ResponseParameter implements Parameter {
 		this.type = type;
 		this.genericType = genericType;
 		this.base = base;
-		this.con = con;
 		if (mimeTypes == null || mimeTypes.length < 1) {
 			this.mimeTypes = new String[] { "*/*" };
 		} else {
 			this.mimeTypes = mimeTypes;
 		}
+		this.writer = ff.builder(con);
 	}
 
 	public String toString() {
@@ -111,9 +108,9 @@ public class ResponseParameter implements Parameter {
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType mimeType : accepter.getAcceptable(mimeTypes)) {
 			if (isWriteable(mimeType.toString())) {
-				String contentType = getContentType(mimeType.toString());
-				String mime = removeParamaters(contentType);
-				if (isReadable(type, genericType, mime)) {
+				Fluid in = write(mimeType.toString());
+				String contentType = in.getFluidType().getMediaType();
+				if (isReadable(in, type, genericType, contentType)) {
 					acceptable.add(mimeType);
 				}
 			}
@@ -131,12 +128,10 @@ public class ResponseParameter implements Parameter {
 		Accepter accepter = new Accepter(mediaTypes);
 		for (final MimeType mimeType : accepter.getAcceptable(mimeTypes)) {
 			if (isWriteable(mimeType.toString())) {
-				String contentType = getContentType(mimeType.toString());
-				String mime = removeParamaters(contentType);
-				Charset charset = getCharset(contentType);
-				if (isReadable(type, genericType, mime)) {
-					ReadableByteChannel in = write(mimeType.toString(), null).asChannel();
-					return (T) (readFrom(type, genericType, mime, charset, in));
+				Fluid in = write(mimeType.toString());
+				String contentType = in.getFluidType().getMediaType();
+				if (isReadable(in, type, genericType, contentType)) {
+					return (T) (readFrom(type, genericType, contentType, in));
 				}
 			}
 		}
@@ -182,13 +177,13 @@ public class ResponseParameter implements Parameter {
 		return null;
 	}
 
-	public long getSize(String mimeType, Charset charset) {
-		return write(mimeType, charset).getByteStreamSize();
+	public long getSize(String mimeType) {
+		return write(mimeType).getByteStreamSize();
 	}
 
-	public Fluid write(String mimeType, Charset charset) {
-		return writer.consume(new MessageType(mimeType, type, genericType, con),
-				result, base, charset);
+	public Fluid write(String mimeType) {
+		return writer.consume(mimeType, type, genericType,
+				result, base);
 	}
 
 	public Map<String, String> getOtherHeaders() {
@@ -224,35 +219,20 @@ public class ResponseParameter implements Parameter {
 		this.expects.addAll(expects);
 	}
 
-	private boolean isReadable(Class<?> type, Type genericType, String mime) {
-		return reader.isReadable(new MessageType(mime, type, genericType, con));
+	private boolean isReadable(Fluid fluid, Class<?> type, Type genericType, String mime) {
+		return fluid.isProducible(mime, type, genericType);
 	}
 
 	private boolean isWriteable(String mimeType) {
-		return writer.isWriteable(new MessageType(mimeType, type, genericType,
-				con));
+		return writer.isConsumable(mimeType, type, genericType);
 	}
 
 	private <T> Object readFrom(Class<T> type, Type genericType, String mime,
-			Charset charset, ReadableByteChannel in)
+			Fluid fluid)
 			throws TransformerConfigurationException, OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerException, URISyntaxException {
-		return reader.produce(new MessageType(mime, type, genericType, con),
-				in, charset, base, null);
-	}
-
-	private String getContentType(String mimeType) {
-		return write(mimeType, null).getContentType();
-	}
-
-	private String removeParamaters(String mediaType) {
-		if (mediaType == null)
-			return null;
-		int idx = mediaType.indexOf(';');
-		if (idx > 0)
-			return mediaType.substring(0, idx);
-		return mediaType;
+		return fluid.produce(mime, type, genericType);
 	}
 
 	private Charset getCharset(String mediaType) throws MimeTypeParseException {

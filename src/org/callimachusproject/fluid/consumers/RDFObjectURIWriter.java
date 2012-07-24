@@ -29,10 +29,15 @@
  */
 package org.callimachusproject.fluid.consumers;
 
-import org.callimachusproject.server.util.MessageType;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
+import org.callimachusproject.fluid.FluidType;
+import org.openrdf.annotations.Iri;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.query.QueryResult;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 
 /**
@@ -42,18 +47,15 @@ import org.openrdf.repository.object.RDFObject;
  * 
  */
 public class RDFObjectURIWriter extends URIListWriter<Object> {
-	private RDFObjectWriter neighbour = new RDFObjectWriter();
 
 	public RDFObjectURIWriter() {
 		super(Object.class);
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		if (!super.isWriteable(mtype))
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		if (!super.isWriteable(mtype, con))
 			return false;
-		if (neighbour.isWriteable(mtype))
-			return false;
-		Class<?> c = mtype.clas();
+		Class<?> c = mtype.getClassType();
 		if (mtype.isSetOrArray()) {
 			c = mtype.getComponentClass();
 		}
@@ -61,7 +63,7 @@ public class RDFObjectURIWriter extends URIListWriter<Object> {
 			return false;
 		if (Object.class.equals(c) || RDFObject.class.equals(c))
 			return true;
-		return mtype.isConcept(c);
+		return isConcept(c, con);
 	}
 
 	@Override
@@ -70,6 +72,16 @@ public class RDFObjectURIWriter extends URIListWriter<Object> {
 		if (resource instanceof URI)
 			return resource.stringValue();
 		return "_:" + resource.stringValue();
+	}
+
+	private boolean isConcept(Class<?> component, ObjectConnection con) {
+		for (Annotation ann : component.getAnnotations()) {
+			for (Method m : ann.annotationType().getDeclaredMethods()) {
+				if (m.isAnnotationPresent(Iri.class))
+					return true;
+			}
+		}
+		return con.getObjectFactory().isNamedConcept(component);
 	}
 
 }

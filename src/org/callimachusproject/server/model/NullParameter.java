@@ -38,31 +38,32 @@ import java.util.Set;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.Accepter;
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Parameter with no value
  */
 public class NullParameter implements Parameter {
-	private final AbstractFluid reader = AbstractFluid.getInstance();
-	private final ObjectConnection con;
+	private final FluidFactory ff = FluidFactory.getInstance();
+	private final Fluid reader;
 
 	public NullParameter(ObjectConnection con) {
-		this.con = con;
+		reader = ff.builder(con).nil("*/*");
 	}
 
 	public Collection<? extends MimeType> getReadableTypes(Class<?> ctype,
 			Type gtype, Accepter accepter) throws MimeTypeParseException {
-		MessageType type = new MessageType(null, ctype, gtype, con);
+		FluidType type = new FluidType(null, ctype, gtype);
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType m : accepter.getAcceptable("*/*")) {
-			if (reader.isReadable(type.as(m.toString()))) {
+			if (reader.isProducible(m.toString(), ctype, gtype)) {
 				acceptable.add(m);
 			} else if (type.isSetOrArray()) {
-				if (reader.isReadable(type.component(m.toString()))) {
+				if (reader.isProducible(type.component(m.toString()))) {
 					acceptable.add(m);
 				}
 			}
@@ -72,7 +73,7 @@ public class NullParameter implements Parameter {
 
 	public <T> T read(Class<T> ctype, Type genericType, String[] mediaTypes)
 			throws MimeTypeParseException {
-		MessageType type = new MessageType(null, ctype, genericType, con);
+		FluidType type = new FluidType(null, ctype, genericType);
 		Class<?> componentType = type.getComponentClass();
 		if (type.isArray() && isReadable(componentType, mediaTypes))
 			return (T) type.castArray(readArray(componentType, mediaTypes));
@@ -92,16 +93,16 @@ public class NullParameter implements Parameter {
 	private boolean isReadable(Class<?> componentType, String[] mediaTypes)
 			throws MimeTypeParseException {
 		String media = getMediaType(componentType, componentType, mediaTypes);
-		return reader.isReadable(new MessageType(media, componentType,
-				componentType, con));
+		return reader.isProducible(media, componentType,
+				componentType);
 	}
 
 	private String getMediaType(Class<?> type, Type genericType,
 			String[] mediaTypes) throws MimeTypeParseException {
 		Accepter accepter = new Accepter(mediaTypes);
 		for (MimeType m : accepter.getAcceptable("*/*")) {
-			if (reader.isReadable(new MessageType(m.toString(), type,
-					genericType, con)))
+			if (reader.isProducible(m.toString(), type,
+					genericType))
 				return m.toString();
 		}
 		return null;

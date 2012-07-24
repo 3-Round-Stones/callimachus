@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.server.util;
+package org.callimachusproject.fluid;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;

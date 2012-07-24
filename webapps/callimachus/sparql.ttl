@@ -46,7 +46,6 @@
     calli:imports <java:org.apache.http.message.BasicHttpResponse>;
     calli:imports <java:org.openrdf.query.MalformedQueryException>;
     calli:imports <java:org.callimachusproject.fluid.FluidFactory>;
-    calli:imports <java:org.callimachusproject.server.util.MessageType>;
     calli:imports <java:org.callimachusproject.server.model.ReadableHttpEntityChannel>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:script """
@@ -80,8 +79,8 @@
             }
             var http11 = new ProtocolVersion("HTTP", 1, 1);
             var resp = new BasicHttpResponse(http11, 200, "OK");
-            var writer = FluidFactory.getInstance();
-            var body = writer.consume(new MessageType(mime, type, type, con), rs, base, null);
+            var writer = FluidFactory.getInstance().builder(con);
+            var body = writer.consume(mime, type, type, rs, base);
             resp.setEntity(new ReadableHttpEntityChannel(mime, -1, body.asChannel()));
             return resp;
         } catch (e if e.javaException instanceof MalformedQueryException) {

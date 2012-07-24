@@ -39,8 +39,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.server.util.MessageType;
 import org.openrdf.OpenRDFException;
+import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
 
 /**
@@ -51,14 +51,15 @@ import org.xml.sax.SAXException;
  */
 public interface Producer<T> {
 
-	boolean isReadable(MessageType mtype);
+	boolean isReadable(FluidType mtype, ObjectConnection con);
 
 	/**
 	 * Must close InputStream or return an object that will later close the
 	 * InputStream.
+	 * @param con TODO
 	 */
-	T readFrom(MessageType mtype, ReadableByteChannel in, Charset charset,
-			String base, String location) throws OpenRDFException, IOException,
+	T readFrom(FluidType mtype, ObjectConnection con, ReadableByteChannel in,
+			Charset charset, String base, String location) throws OpenRDFException, IOException,
 			XMLStreamException, ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException,
 			URISyntaxException;

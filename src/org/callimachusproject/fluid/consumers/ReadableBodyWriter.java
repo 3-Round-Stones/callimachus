@@ -39,34 +39,35 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.server.util.MessageType;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes a Readable object into an OutputStream.
  */
 public class ReadableBodyWriter implements Consumer<Readable> {
 
-	public boolean isText(MessageType mtype) {
+	public boolean isText(FluidType mtype) {
 		return true;
 	}
 
-	public long getSize(MessageType mtype, Readable result, Charset charset) {
+	public long getSize(FluidType mtype, ObjectConnection con, Readable result, Charset charset) {
 		return -1;
 	}
 
-	public boolean isWriteable(MessageType mtype) {
-		String mimeType = mtype.getMimeType();
-		if (!Readable.class.isAssignableFrom((Class<?>) mtype.clas()))
+	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+		String mimeType = mtype.getMediaType();
+		if (!Readable.class.isAssignableFrom((Class<?>) mtype.getClassType()))
 			return false;
 		return mimeType == null || mimeType.startsWith("text/")
 				|| mimeType.startsWith("*");
 	}
 
-	public String getContentType(MessageType mtype, Charset charset) {
-		String mimeType = mtype.getMimeType();
+	public String getContentType(FluidType mtype, Charset charset) {
+		String mimeType = mtype.getMediaType();
 		if (charset == null) {
 			charset = Charset.defaultCharset();
 		}
@@ -79,8 +80,8 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 		return mimeType + ";charset=" + charset.name();
 	}
 
-	public ReadableByteChannel write(final MessageType mtype,
-			final Readable result, final String base, final Charset charset)
+	public ReadableByteChannel write(final FluidType mtype,
+			ObjectConnection con, final Readable result, final String base, final Charset charset)
 			throws IOException {
 		return new ProducerChannel(new WritableProducer() {
 			public void produce(WritableByteChannel out) throws IOException {
@@ -100,7 +101,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 		});
 	}
 
-	public void writeTo(MessageType mtype, Readable result, String base,
+	public void writeTo(FluidType mtype, Readable result, String base,
 			Charset charset, WritableByteChannel out, int bufSize)
 			throws IOException {
 		try {

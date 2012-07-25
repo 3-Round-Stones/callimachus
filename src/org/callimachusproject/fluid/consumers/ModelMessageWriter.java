@@ -29,18 +29,13 @@
  */
 package org.callimachusproject.fluid.consumers;
 
-import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.nio.charset.Charset;
-
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.openrdf.OpenRDFException;
 import org.openrdf.model.Model;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.impl.GraphQueryResultImpl;
-import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes RDF from a {@link Model}.
@@ -55,45 +50,22 @@ public class ModelMessageWriter implements Consumer<Model> {
 		delegate = new GraphMessageWriter();
 	}
 
-	public boolean isText(FluidType mtype) {
-		return delegate.isText(mtype.as(GraphQueryResult.class));
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con, Model result, Charset charset) {
-		return -1;
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		if (!Model.class.isAssignableFrom((Class<?>) mtype.getClassType()))
 			return false;
-		return delegate.isWriteable(mtype.as(GraphQueryResult.class), con);
+		return delegate.isConsumable(mtype.as(GraphQueryResult.class), builder);
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
-		return delegate.getContentType(mtype.as(GraphQueryResult.class),
-				charset);
-	}
-
-	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
-			Model model, String base, Charset charset) throws IOException, OpenRDFException {
+	public Fluid consume(final FluidType ftype, final Model model, final String base,
+			final FluidBuilder builder) {
 		GraphQueryResult result = null;
 		if (model != null) {
 			result = new GraphQueryResultImpl(model.getNamespaces(), model);
 		}
-		return delegate.write(mtype.as(GraphQueryResult.class), con, result, base,
-				charset);
+		return delegate.consume(ftype.as(GraphQueryResult.class), result, base, builder);
 	}
 
 	public String toString() {
 		return delegate.toString();
-	}
-
-	public void writeTo(FluidType mtype, ObjectConnection con, Model model,
-			String base, Charset charset, WritableByteChannel out, int bufSize)
-			throws IOException, OpenRDFException {
-		GraphQueryResult result = new GraphQueryResultImpl(model
-				.getNamespaces(), model);
-		delegate.writeTo(mtype.as(GraphQueryResult.class), con, result,
-				base, charset, out, bufSize);
 	}
 }

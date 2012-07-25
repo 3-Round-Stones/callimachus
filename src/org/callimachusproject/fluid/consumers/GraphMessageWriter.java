@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.consumers.base.ResultMessageWriterBase;
 import org.callimachusproject.server.util.ChannelUtil;
@@ -92,11 +93,11 @@ public class GraphMessageWriter extends
 	}
 
 	@Override
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
 		if (mimeType != null && mimeType.startsWith("text/plain"))
 			return false;
-		return super.isWriteable(mtype, con);
+		return super.isConsumable(mtype, builder);
 	}
 
 	@Override

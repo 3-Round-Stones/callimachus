@@ -45,13 +45,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.FluidBuilder;
+import org.apache.http.HttpEntity;
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
-import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
-import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes a percent encoded form from a {@link Map}.
@@ -61,19 +63,8 @@ import org.openrdf.repository.object.ObjectConnection;
  */
 public class FormMapMessageWriter implements
 		Consumer<Map<String, Object>> {
-	private final FluidFactory ff = FluidFactory.getInstance();
 
-	public boolean isText(FluidType mtype) {
-		return true;
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con,
-			Map<String, Object> result, Charset charset) {
-		return -1;
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
-		FluidBuilder delegate = ff.builder(con);
+	public boolean isConsumable(FluidType mtype, FluidBuilder delegate) {
 		String mimeType = mtype.getMediaType();
 		if (!mtype.isMap())
 			return false;
@@ -95,23 +86,40 @@ public class FormMapMessageWriter implements
 				|| mimeType.startsWith("application/x-www-form-urlencoded");
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
+	private String getMediaType(FluidType mtype, FluidBuilder builder) {
 		return "application/x-www-form-urlencoded";
 	}
 
-	public ReadableByteChannel write(FluidType mtype,
-			ObjectConnection con, Map<String, Object> result, String base, Charset charset)
+	public Fluid consume(final FluidType ftype, final Map<String, Object> result, final String base,
+			final FluidBuilder builder) {
+		return new AbstractFluid(builder) {
+			public HttpEntity asHttpEntity(String media) throws IOException,
+					OpenRDFException, XMLStreamException, TransformerException,
+					ParserConfigurationException {
+				String mediaType = getMediaType(ftype.as(media), builder);
+				return new ReadableHttpEntityChannel(mediaType, -1, write(ftype.as(mediaType), result, base, builder));
+			}
+
+			public String toString() {
+				return result.toString();
+			}
+		};
+	}
+
+	private ReadableByteChannel write(FluidType mtype,
+			Map<String, Object> result, String base, FluidBuilder builder)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-		writeTo(mtype, con, result, base, charset, out, 1024);
+		writeTo(mtype, result, base, builder, out, 1024);
 		return ChannelUtil.newChannel(out.toByteArray());
 	}
 
-	public void writeTo(FluidType mtype, ObjectConnection con,
-			Map<String, Object> result, String base, Charset charset, OutputStream out, int bufSize)
+	private void writeTo(FluidType mtype, Map<String, Object> result,
+			String base, FluidBuilder builder, OutputStream out, int bufSize)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException {
+		Charset charset = mtype.getCharset();
 		if (charset == null) {
 			charset = Charset.forName("ISO-8859-1");
 		}
@@ -131,7 +139,7 @@ public class FormMapMessageWriter implements
 			for (Map.Entry<String, Object> e : result.entrySet()) {
 				if (e.getKey() != null) {
 					String name = enc(writeTo(mtype.key("text/plain"), e
-							.getKey(), base, con));
+							.getKey(), base, builder));
 					Iterator<?> iter = vtype.iteratorOf(e.getValue());
 					if (first) {
 						first = false;
@@ -145,7 +153,7 @@ public class FormMapMessageWriter implements
 						writer.append("&").append(name);
 						Object value = iter.next();
 						if (value != null) {
-							String str = writeTo(vctype, value, base, con);
+							String str = writeTo(vctype, value, base, builder);
 							writer.append("=").append(enc(str));
 						}
 					}
@@ -160,10 +168,9 @@ public class FormMapMessageWriter implements
 		return URLEncoder.encode(value, "UTF-8");
 	}
 
-	private String writeTo(FluidType mtype, Object value, String base, ObjectConnection con)
+	private String writeTo(FluidType mtype, Object value, String base, FluidBuilder delegate)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException {
-		FluidBuilder delegate = ff.builder(con);
 		Charset cs = Charset.forName("ISO-8859-1");
 		if (mtype.isUnknown() && value != null) {
 			mtype = mtype.as(value.getClass());

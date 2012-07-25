@@ -40,6 +40,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -52,13 +53,18 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.http.HttpEntity;
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
 import org.callimachusproject.xslt.DocumentFactory;
-import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.OpenRDFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -112,16 +118,7 @@ public class DocumentFragmentMessageWriter implements
 		builder = DocumentFactory.newInstance();
 	}
 
-	public boolean isText(FluidType mtype) {
-		return true;
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con,
-			DocumentFragment result, Charset charset) {
-		return -1;
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mediaType = mtype.getMediaType();
 		if (DocumentFragment.class.equals(mtype.getClassType()))
 			return true;
@@ -137,8 +134,9 @@ public class DocumentFragmentMessageWriter implements
 		return DocumentFragment.class.isAssignableFrom((Class<?>) mtype.getClassType());
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
+	private String getMediaType(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
+		Charset charset = mtype.getCharset();
 		if (charset == null) {
 			charset = Charset.defaultCharset();
 		}
@@ -152,13 +150,28 @@ public class DocumentFragmentMessageWriter implements
 		return mimeType;
 	}
 
-	public ReadableByteChannel write(final FluidType mtype,
-			ObjectConnection con, final DocumentFragment result,
-			final String base, final Charset charset) throws IOException {
+	public Fluid consume(final FluidType ftype, final DocumentFragment result, final String base,
+			final FluidBuilder builder) {
+		return new AbstractFluid(builder) {
+			public HttpEntity asHttpEntity(String media) throws IOException,
+					OpenRDFException, XMLStreamException, TransformerException,
+					ParserConfigurationException {
+				String mediaType = getMediaType(ftype.as(media), builder);
+				return new ReadableHttpEntityChannel(mediaType, -1, write(ftype.as(mediaType), result, base));
+			}
+
+			public String toString() {
+				return result.toString();
+			}
+		};
+	}
+
+	private ReadableByteChannel write(final FluidType mtype,
+			final DocumentFragment result, final String base) throws IOException {
 		return new ProducerChannel(new WritableProducer() {
 			public void produce(WritableByteChannel out) throws IOException {
 				try {
-					writeTo(mtype, result, base, charset, out, 1024);
+					writeTo(mtype, result, base, out, 1024);
 				} catch (TransformerException e) {
 					throw new IOException(e);
 				} catch (ParserConfigurationException e) {
@@ -174,10 +187,11 @@ public class DocumentFragmentMessageWriter implements
 		});
 	}
 
-	public void writeTo(FluidType mtype, DocumentFragment node, String base,
-			Charset charset, WritableByteChannel out, int bufSize)
+	private void writeTo(FluidType mtype, DocumentFragment node, String base,
+			WritableByteChannel out, int bufSize)
 			throws IOException, TransformerException,
 			ParserConfigurationException {
+		Charset charset = mtype.getCharset();
 		if (charset == null) {
 			charset = Charset.defaultCharset();
 		}

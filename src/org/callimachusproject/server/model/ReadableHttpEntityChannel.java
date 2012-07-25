@@ -68,10 +68,12 @@ public class ReadableHttpEntityChannel implements ProducingNHttpEntity {
 	}
 
 	public ReadableHttpEntityChannel(String type, long length,
-			final ReadableByteChannel in, final List<Runnable> onClose) {
-		assert in != null;
+			ReadableByteChannel in, final List<Runnable> onClose) {
 		this.contentType = type;
 		this.contentLength = length;
+		if (in == null) {
+			in = ChannelUtil.newChannel(new byte[0]);
+		}
 		this.cin = new AutoCloseChannel(in) {
 			public void close() throws IOException {
 				try {

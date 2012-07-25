@@ -32,6 +32,7 @@ package org.callimachusproject.fluid.consumers;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.openrdf.annotations.Iri;
 import org.openrdf.model.Resource;
@@ -52,8 +53,8 @@ public class RDFObjectURIWriter extends URIListWriter<Object> {
 		super(Object.class);
 	}
 
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
-		if (!super.isWriteable(mtype, con))
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
+		if (!super.isConsumable(mtype, builder))
 			return false;
 		Class<?> c = mtype.getClassType();
 		if (mtype.isSetOrArray()) {
@@ -63,7 +64,7 @@ public class RDFObjectURIWriter extends URIListWriter<Object> {
 			return false;
 		if (Object.class.equals(c) || RDFObject.class.equals(c))
 			return true;
-		return isConcept(c, con);
+		return isConcept(c, builder.getObjectConnection());
 	}
 
 	@Override

@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.consumers.base.MessageWriterBase;
 import org.callimachusproject.server.util.ChannelUtil;
@@ -56,7 +57,7 @@ public class BooleanMessageWriter
 	}
 
 	@Override
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		Class<?> type = mtype.getClassType();
 		if (!Boolean.class.equals(type) && !Boolean.TYPE.equals(type))
 			return false;

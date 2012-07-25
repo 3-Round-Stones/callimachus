@@ -31,32 +31,30 @@ package org.callimachusproject.fluid.consumers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.Iterator;
-import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.http.HttpEntity;
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
-import org.openrdf.repository.object.ObjectConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Writes text/uri-list files.
  */
 public class URIListWriter<URI> implements Consumer<URI> {
 	private static final Charset USASCII = Charset.forName("US-ASCII");
-	private Logger logger = LoggerFactory.getLogger(URIListWriter.class);
 	private StringBodyWriter delegate = new StringBodyWriter();
 	private Class<URI> componentType;
 
@@ -64,48 +62,7 @@ public class URIListWriter<URI> implements Consumer<URI> {
 		this.componentType = componentType;
 	}
 
-	public boolean isText(FluidType mtype) {
-		return true;
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con, URI result, Charset charset) {
-		String mimeType = mtype.getMediaType();
-		Class<?> ctype = mtype.getClassType();
-		if (result == null)
-			return 0;
-		if (Set.class.equals(ctype))
-			return -1;
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("text/*")) {
-			mimeType = "text/uri-list";
-		}
-		if (mtype.isSetOrArray()) {
-			if (charset == null) {
-				charset = USASCII;
-			}
-			ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-			try {
-				Writer writer = new OutputStreamWriter(out, charset);
-				Iterator<URI> iter = (Iterator<URI>) mtype.iteratorOf(result);
-				while (iter.hasNext()) {
-					writer.write(toString(iter.next()));
-					if (iter.hasNext()) {
-						writer.write("\r\n");
-					}
-				}
-				writer.flush();
-			} catch (IOException e) {
-				logger.error(e.toString(), e);
-				return -1;
-			}
-			return out.size();
-		} else {
-			Class<String> t = String.class;
-			return delegate.getSize(mtype.as(t), con, toString(result), charset);
-		}
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		Class<?> ctype = mtype.getClassType();
 		if (componentType != null) {
 			if (!componentType.equals(ctype) && Object.class.equals(ctype))
@@ -122,21 +79,49 @@ public class URIListWriter<URI> implements Consumer<URI> {
 				return false;
 			}
 		}
-		return delegate.isWriteable(mtype.as(String.class), con);
+		return delegate.isConsumable(mtype.as(String.class), builder);
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
+	private String getMediaType(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("text/*")) {
 			mimeType = "text/uri-list";
 		}
-		Class<String> t = String.class;
-		return delegate.getContentType(mtype.as(t), charset);
+		Charset charset = mtype.getCharset();
+		if (charset == null) {
+			charset = Charset.defaultCharset();
+		}
+		if (mimeType.contains("charset=") || !mimeType.startsWith("text/"))
+			return mimeType;
+		return mimeType + ";charset=" + charset.name();
+	
 	}
 
-	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
-			URI result, String base, Charset charset) throws IOException, OpenRDFException,
+	public Fluid consume(final FluidType ftype, final URI result, final String base,
+			final FluidBuilder builder) {
+		if (result == null)
+			return delegate.consume(ftype.as(String.class), null, base, builder);
+		if (!ftype.isSetOrArray()) {
+			return delegate.consume(ftype.as(String.class), toString(result), base, builder);
+		}
+		return new AbstractFluid(builder) {
+			public HttpEntity asHttpEntity(String media) throws IOException,
+					OpenRDFException, XMLStreamException, TransformerException,
+					ParserConfigurationException {
+				String mediaType = getMediaType(ftype.as(media), builder);
+				byte[] buf = write(ftype.as(mediaType), result, base);
+				return new ReadableHttpEntityChannel(mediaType, buf.length, ChannelUtil.newChannel(buf));
+			}
+
+			public String toString() {
+				return result.toString();
+			}
+		};
+	}
+
+	private byte[] write(FluidType mtype, URI result,
+			String base) throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
 			ParserConfigurationException {
 		String mimeType = mtype.getMediaType();
@@ -146,54 +131,25 @@ public class URIListWriter<URI> implements Consumer<URI> {
 				|| mimeType.startsWith("text/*")) {
 			mimeType = "text/uri-list";
 		}
-		if (mtype.isSetOrArray()) {
-			if (charset == null) {
-				charset = USASCII;
-			}
-			ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-			Writer writer = new OutputStreamWriter(out, charset);
-			Iterator<URI> iter = (Iterator<URI>) mtype.iteratorOf(result);
-			while (iter.hasNext()) {
-				writer.write(toString(iter.next()));
-				if (iter.hasNext()) {
-					writer.write("\r\n");
-				}
-			}
-			writer.flush();
-			return ChannelUtil.newChannel(out.toByteArray());
-		} else {
-			return delegate.write(mtype.as(String.class), con, toString(result), base, charset);
-		}
+		return write(mtype, result);
 	}
 
-	public void writeTo(FluidType mtype, URI result, String base,
-			Charset charset, OutputStream out, int bufSize) throws IOException,
-			OpenRDFException, XMLStreamException, TransformerException,
-			ParserConfigurationException {
-		if (result == null)
-			return;
-		String mimeType = mtype.getMediaType();
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("text/*")) {
-			mimeType = "text/uri-list";
+	private byte[] write(FluidType mtype, URI result) throws IOException {
+		Charset charset = mtype.getCharset();
+		if (charset == null) {
+			charset = USASCII;
 		}
-		if (mtype.isSetOrArray()) {
-			if (charset == null) {
-				charset = USASCII;
+		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
+		Writer writer = new OutputStreamWriter(out, charset);
+		Iterator<URI> iter = (Iterator<URI>) mtype.iteratorOf(result);
+		while (iter.hasNext()) {
+			writer.write(toString(iter.next()));
+			if (iter.hasNext()) {
+				writer.write("\r\n");
 			}
-			Writer writer = new OutputStreamWriter(out, charset);
-			Iterator<URI> iter = (Iterator<URI>) mtype.iteratorOf(result);
-			while (iter.hasNext()) {
-				writer.write(toString(iter.next()));
-				if (iter.hasNext()) {
-					writer.write("\r\n");
-				}
-			}
-			writer.flush();
-		} else {
-			delegate.writeTo(mtype.as(String.class),
-					toString(result), base, charset, out, bufSize);
 		}
+		writer.flush();
+		return out.toByteArray();
 	}
 
 	protected String toString(URI result) {

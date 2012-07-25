@@ -31,7 +31,6 @@ package org.callimachusproject.fluid.consumers;
 
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -47,12 +46,15 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHeader;
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.CatReadableByteChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
-import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes {@link HttpMessage} objects to message/http streams.
@@ -62,15 +64,7 @@ import org.openrdf.repository.object.ObjectConnection;
  */
 public class HttpMessageWriter implements Consumer<HttpMessage> {
 
-	public boolean isText(FluidType mtype) {
-		return false;
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con, HttpMessage result, Charset charset) {
-		return -1;
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
 		Class<?> type = mtype.getClassType();
 		if (Object.class.equals(type) && mimeType != null)
@@ -81,7 +75,7 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 				|| HttpEntityEnclosingRequest.class.equals(type);
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
+	private String getMediaType(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("message/*"))
@@ -91,8 +85,24 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 		return mimeType;
 	}
 
-	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
-			HttpMessage result, String base, Charset charset) throws IOException, OpenRDFException,
+	public Fluid consume(final FluidType ftype, final HttpMessage result, final String base,
+			final FluidBuilder builder) {
+		return new AbstractFluid(builder) {
+			public HttpEntity asHttpEntity(String media) throws IOException,
+					OpenRDFException, XMLStreamException, TransformerException,
+					ParserConfigurationException {
+				String mediaType = getMediaType(ftype.as(media), builder);
+				return new ReadableHttpEntityChannel(mediaType, -1, write(ftype.as(mediaType), result, base));
+			}
+
+			public String toString() {
+				return result.toString();
+			}
+		};
+	}
+
+	private ReadableByteChannel write(FluidType mtype, HttpMessage result,
+			String base) throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
 			ParserConfigurationException {
 		CatReadableByteChannel cat = new CatReadableByteChannel();

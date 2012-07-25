@@ -31,11 +31,19 @@ package org.callimachusproject.fluid.consumers;
 
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerException;
+
+import org.apache.http.HttpEntity;
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.openrdf.repository.object.ObjectConnection;
+import org.callimachusproject.server.model.ReadableHttpEntityChannel;
+import org.openrdf.OpenRDFException;
 
 /**
  * Converts an OutputStream into a ReadableByteChannel.
@@ -43,16 +51,7 @@ import org.openrdf.repository.object.ObjectConnection;
 public class ReadableByteChannelBodyWriter implements
 		Consumer<ReadableByteChannel> {
 
-	public boolean isText(FluidType mtype) {
-		return false;
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con,
-			ReadableByteChannel result, Charset charset) {
-		return -1;
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
 		if (!ReadableByteChannel.class.isAssignableFrom((Class<?>) mtype.getClassType()))
 			return false;
@@ -63,7 +62,7 @@ public class ReadableByteChannelBodyWriter implements
 		return true;
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
+	private String getMediaType(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("application/*"))
@@ -71,9 +70,19 @@ public class ReadableByteChannelBodyWriter implements
 		return mimeType;
 	}
 
-	public ReadableByteChannel write(FluidType mtype,
-			ObjectConnection con, ReadableByteChannel result, String base, Charset charset)
-			throws IOException {
-		return result;
+	public Fluid consume(final FluidType ftype, final ReadableByteChannel result, final String base,
+			final FluidBuilder builder) {
+		return new AbstractFluid(builder) {
+			public HttpEntity asHttpEntity(String media) throws IOException,
+					OpenRDFException, XMLStreamException, TransformerException,
+					ParserConfigurationException {
+				String mediaType = getMediaType(ftype.as(media), builder);
+				return new ReadableHttpEntityChannel(mediaType, -1, result);
+			}
+
+			public String toString() {
+				return result.toString();
+			}
+		};
 	}
 }

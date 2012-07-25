@@ -64,6 +64,7 @@ public class FluidFactory {
 
 	private List<Consumer> consumers = new ArrayList<Consumer>();
 	private List<Producer> producers = new ArrayList<Producer>();
+
 	private void init() {
 		consumers.add(new RDFObjectURIWriter());
 		consumers.add(new BooleanMessageWriter());

@@ -29,18 +29,23 @@
  */
 package org.callimachusproject.fluid.consumers;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerException;
+
+import org.apache.http.HttpEntity;
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.OpenRDFException;
 
 /**
  * Writes a {@link String}.
@@ -52,21 +57,7 @@ public class StringBodyWriter implements Consumer<String> {
 	static final boolean SINGLE_BYTE = 1f == java.nio.charset.Charset
 			.defaultCharset().newEncoder().maxBytesPerChar();
 
-	public boolean isText(FluidType mtype) {
-		return true;
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con, String result, Charset charset) {
-		if (result == null)
-			return 0;
-		if (charset == null && SINGLE_BYTE)
-			return result.length();
-		if (charset == null)
-			return Charset.defaultCharset().encode(result).limit();
-		return charset.encode(result).limit();
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
 		if (!String.class.equals(mtype.getClassType()))
 			return false;
@@ -74,8 +65,9 @@ public class StringBodyWriter implements Consumer<String> {
 				|| mimeType.startsWith("*");
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
+	private String getMediaType(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
+		Charset charset = mtype.getCharset();
 		if (charset == null) {
 			charset = Charset.defaultCharset();
 		}
@@ -88,22 +80,42 @@ public class StringBodyWriter implements Consumer<String> {
 		return mimeType + ";charset=" + charset.name();
 	}
 
-	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
-			String result, String base, Charset charset) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-		writeTo(mtype, result, base, charset, out, 1024);
-		return ChannelUtil.newChannel(out.toByteArray());
+	public Fluid consume(final FluidType ftype, final String result, final String base,
+			final FluidBuilder builder) {
+		return new AbstractFluid(builder) {
+			public HttpEntity asHttpEntity(String media) throws IOException,
+					OpenRDFException, XMLStreamException, TransformerException,
+					ParserConfigurationException {
+				String mediaType = getMediaType(ftype.as(media), builder);
+				FluidType as = ftype.as(mediaType);
+				long size = getSize(result, as.getCharset());
+				return new ReadableHttpEntityChannel(mediaType, size, write(as, result, base));
+			}
+
+			public String toString() {
+				return result.toString();
+			}
+		};
 	}
 
-	public void writeTo(FluidType mtype, String result, String base,
-			Charset charset, OutputStream out, int bufSize) throws IOException {
+	private long getSize(String result, Charset charset) {
+		if (result == null)
+			return 0;
+		if (charset == null && SINGLE_BYTE)
+			return result.length();
+		if (charset == null)
+			return Charset.defaultCharset().encode(result).limit();
+		return charset.encode(result).limit();
+	}
+
+	private ReadableByteChannel write(FluidType mtype, String result,
+			String base) throws IOException {
+		Charset charset = mtype.getCharset();
 		if (charset == null) {
 			charset = Charset.defaultCharset();
 		}
-		Writer writer = new OutputStreamWriter(out, charset);
-		if (result != null) {
-			writer.write(result);
-		}
-		writer.flush();
+		if (result == null)
+			return ChannelUtil.newChannel(new byte[0]);
+		return ChannelUtil.newChannel(result.getBytes(charset));
 	}
 }

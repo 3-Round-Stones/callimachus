@@ -56,11 +56,14 @@ public interface Producer<T> {
 	/**
 	 * Must close InputStream or return an object that will later close the
 	 * InputStream.
-	 * @param con TODO
+	 * 
+	 * @param con
+	 *            TODO
 	 */
 	T readFrom(FluidType mtype, ObjectConnection con, ReadableByteChannel in,
-			Charset charset, String base, String location) throws OpenRDFException, IOException,
-			XMLStreamException, ParserConfigurationException, SAXException,
+			Charset charset, String base, String location)
+			throws OpenRDFException, IOException, XMLStreamException,
+			ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException,
 			URISyntaxException;
 }

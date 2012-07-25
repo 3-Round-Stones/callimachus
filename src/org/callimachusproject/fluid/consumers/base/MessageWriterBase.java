@@ -37,8 +37,17 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerException;
+
+import org.apache.http.HttpEntity;
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
 import org.openrdf.OpenRDFException;
@@ -70,21 +79,13 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 		this.type = type;
 	}
 
-	public boolean isText(FluidType mtype) {
-		return getFormat(mtype.getMediaType()).hasCharset();
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con, T result, Charset charset) {
-		return -1;
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		if (!this.type.isAssignableFrom((Class<?>) mtype.getClassType()))
 			return false;
 		return getFactory(mtype.getMediaType()) != null;
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
+	private String getMediaType(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
 		FF format = getFormat(mimeType);
 		String contentType = null;
@@ -99,18 +100,35 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 			contentType = format.getDefaultMIMEType();
 		}
 		if (contentType.startsWith("text/") && format.hasCharset()) {
+			Charset charset = mtype.getCharset();
 			charset = getCharset(format, charset);
 			contentType += ";charset=" + charset.name();
 		}
 		return contentType;
 	}
 
-	public ReadableByteChannel write(final FluidType mtype, final ObjectConnection con,
-			final T result, final String base, final Charset charset) throws IOException {
+	public Fluid consume(final FluidType ftype, final T result, final String base,
+			final FluidBuilder builder) {
+		return new AbstractFluid(builder) {
+			public HttpEntity asHttpEntity(String media) throws IOException,
+					OpenRDFException, XMLStreamException, TransformerException,
+					ParserConfigurationException {
+				String mediaType = getMediaType(ftype.as(media), builder);
+				return new ReadableHttpEntityChannel(mediaType, -1, write(ftype.as(mediaType), builder.getObjectConnection(), result, base));
+			}
+
+			public String toString() {
+				return result.toString();
+			}
+		};
+	}
+
+	protected ReadableByteChannel write(final FluidType mtype, final ObjectConnection con,
+			final T result, final String base) throws IOException {
 		return new ProducerChannel(new WritableProducer() {
 			public void produce(WritableByteChannel out) throws IOException {
 				try {
-					writeTo(mtype, con, result, base, charset, out, 1024);
+					writeTo(mtype, con, result, base, out, 1024);
 				} catch (OpenRDFException e) {
 					throw new IOException(e);
 				} finally {
@@ -125,8 +143,9 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 	}
 
 	public void writeTo(FluidType mtype, ObjectConnection con, T result,
-			String base, Charset charset, WritableByteChannel out, int bufSize)
+			String base, WritableByteChannel out, int bufSize)
 			throws IOException, OpenRDFException {
+		Charset charset = mtype.getCharset();
 		String mimeType = mtype.getMediaType();
 		FF format = getFormat(mimeType);
 		if (format.hasCharset()) {

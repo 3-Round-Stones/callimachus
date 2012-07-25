@@ -85,6 +85,11 @@ public class FluidType extends GenericType {
 		this.charset = cs;
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + " " + mediaType;
+	}
+
 	public String getMediaType() {
 		return mediaType;
 	}
@@ -94,11 +99,13 @@ public class FluidType extends GenericType {
 	}
 
 	public FluidType as(String mediaType) {
-		return new FluidType(mediaType, getClassType(), getGenericType(), getCharset());
+		return new FluidType(mediaType, getClassType(), getGenericType(),
+				getCharset());
 	}
 
 	public FluidType as(String mediaType, Charset charset) {
-		return new FluidType(mediaType, getClassType(), getGenericType(), charset);
+		return new FluidType(mediaType, getClassType(), getGenericType(),
+				charset);
 	}
 
 	public FluidType as(Class<?> t) {
@@ -107,17 +114,20 @@ public class FluidType extends GenericType {
 
 	public FluidType key(String mediaType) {
 		FluidType kt = getKeyGenericType();
-		return new FluidType(mediaType, kt.getClassType(), kt.getGenericType(), getCharset());
+		return new FluidType(mediaType, kt.getClassType(), kt.getGenericType(),
+				getCharset());
 	}
 
 	public FluidType component() {
 		FluidType gtype = getComponentGenericType();
-		return new FluidType(getMediaType(), gtype.getClassType(), gtype.getGenericType(), getCharset());
+		return new FluidType(getMediaType(), gtype.getClassType(),
+				gtype.getGenericType(), getCharset());
 	}
 
 	public FluidType component(String mediaType) {
 		FluidType vt = getComponentGenericType();
-		return new FluidType(mediaType, vt.getClassType(), vt.getGenericType(), getCharset());
+		return new FluidType(mediaType, vt.getClassType(), vt.getGenericType(),
+				getCharset());
 	}
 
 	public FluidType as(Class<?> clas, Type type) {
@@ -141,7 +151,8 @@ public class FluidType extends GenericType {
 	}
 
 	public FluidType getKeyGenericType() {
-		return new FluidType(getMediaType(), getKeyClass(), getKeyType(), getCharset());
+		return new FluidType(getMediaType(), getKeyClass(), getKeyType(),
+				getCharset());
 	}
 
 	public Object cast(Object obj) {
@@ -153,7 +164,8 @@ public class FluidType extends GenericType {
 			return getClassType().cast(obj);
 		} catch (ClassCastException e) {
 			ClassCastException cce;
-			String msg = "Cannot cast " + obj + " to " + getClassType().getSimpleName();
+			String msg = "Cannot cast " + obj + " to "
+					+ getClassType().getSimpleName();
 			cce = new ClassCastException(msg);
 			cce.initCause(e);
 			throw cce;

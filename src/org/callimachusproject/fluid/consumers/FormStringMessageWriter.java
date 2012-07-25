@@ -41,11 +41,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
+import org.apache.http.HttpEntity;
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
-import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes application/x-www-form-urlencoded from {@link String} objects.
@@ -55,17 +59,7 @@ import org.openrdf.repository.object.ObjectConnection;
  */
 public class FormStringMessageWriter implements Consumer<String> {
 
-	public boolean isText(FluidType mtype) {
-		return true;
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con, String result, Charset charset) {
-		if (charset == null)
-			return result.length(); // ISO-8859-1
-		return charset.encode(result).limit();
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
 		if (!String.class.equals(mtype.getClassType()))
 			return false;
@@ -74,23 +68,47 @@ public class FormStringMessageWriter implements Consumer<String> {
 				|| mimeType.startsWith("application/x-www-form-urlencoded");
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
+	private String getMediaType(FluidType mtype, FluidBuilder builder) {
 		return "application/x-www-form-urlencoded";
 	}
 
-	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
-			String result, String base, Charset charset) throws IOException, OpenRDFException,
+	public Fluid consume(final FluidType ftype, final String result, final String base,
+			final FluidBuilder builder) {
+		return new AbstractFluid(builder) {
+			public HttpEntity asHttpEntity(String media) throws IOException,
+					OpenRDFException, XMLStreamException, TransformerException,
+					ParserConfigurationException {
+				String mediaType = getMediaType(ftype.as(media), builder);
+				return new ReadableHttpEntityChannel(mediaType, getSize(ftype, result), write(ftype.as(mediaType), result, base));
+			}
+
+			public String toString() {
+				return result.toString();
+			}
+		};
+	}
+
+	private long getSize(FluidType mtype, String result) {
+		Charset charset = mtype.getCharset();
+		if (charset == null)
+			return result.length(); // ISO-8859-1
+		return charset.encode(result).limit();
+	}
+
+	private ReadableByteChannel write(FluidType mtype, String result,
+			String base) throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
 			ParserConfigurationException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-		writeTo(mtype, result, base, charset, out, 1024);
+		writeTo(mtype, result, base, out, 1024);
 		return ChannelUtil.newChannel(out.toByteArray());
 	}
 
-	public void writeTo(FluidType mtype, String result, String base,
-			Charset charset, OutputStream out, int bufSize) throws IOException,
+	private void writeTo(FluidType mtype, String result, String base,
+			OutputStream out, int bufSize) throws IOException,
 			OpenRDFException, XMLStreamException, TransformerException,
 			ParserConfigurationException {
+		Charset charset = mtype.getCharset();
 		if (charset == null) {
 			charset = Charset.forName("ISO-8859-1");
 		}

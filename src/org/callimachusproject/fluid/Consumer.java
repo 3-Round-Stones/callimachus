@@ -29,17 +29,6 @@
  */
 package org.callimachusproject.fluid;
 
-import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
-
-import org.openrdf.OpenRDFException;
-import org.openrdf.repository.object.ObjectConnection;
-
 /**
  * Interface for HTTP message body writers.
  * 
@@ -48,16 +37,7 @@ import org.openrdf.repository.object.ObjectConnection;
  */
 public interface Consumer<T> {
 
-	boolean isText(FluidType mtype);
+	boolean isConsumable(FluidType ftype, FluidBuilder builder);
 
-	boolean isWriteable(FluidType mtype, ObjectConnection con);
-
-	long getSize(FluidType mtype, ObjectConnection con, T result, Charset charset);
-
-	String getContentType(FluidType mtype, Charset charset);
-
-	ReadableByteChannel write(FluidType mtype, ObjectConnection con, T result,
-			String base, Charset charset) throws IOException, OpenRDFException,
-			XMLStreamException, TransformerException,
-			ParserConfigurationException;
+	Fluid consume(FluidType ftype, T result, String base, FluidBuilder builder);
 }

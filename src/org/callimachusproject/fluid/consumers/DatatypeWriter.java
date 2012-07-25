@@ -29,21 +29,13 @@
  */
 package org.callimachusproject.fluid.consumers;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 import java.util.Set;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.OpenRDFException;
-import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 
 /**
@@ -55,19 +47,7 @@ import org.openrdf.repository.object.RDFObject;
 public class DatatypeWriter implements Consumer<Object> {
 	private StringBodyWriter delegate = new StringBodyWriter();
 
-	public boolean isText(FluidType mtype) {
-		return delegate.isText(mtype.as(String.class));
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con, Object result, Charset charset) {
-		if (result == null)
-			return 0;
-		String label = con.getObjectFactory().createLiteral(result)
-				.getLabel();
-		return delegate.getSize(mtype.as(String.class), con, label, charset);
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		Class<?> type = mtype.getClassType();
 		if (Set.class.equals(type))
 			return false;
@@ -77,31 +57,20 @@ public class DatatypeWriter implements Consumer<Object> {
 			return false;
 		if (type.isArray() && Byte.TYPE.equals(type.getComponentType()))
 			return false;
-		if (!delegate.isWriteable(mtype.as(String.class), con))
+		if (!delegate.isConsumable(mtype.as(String.class), builder))
 			return false;
-		return con.getObjectFactory().isDatatype(type);
+		return builder.getObjectConnection().getObjectFactory().isDatatype(type);
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
-		return delegate.getContentType(mtype.as(String.class), charset);
+	public Fluid consume(FluidType ftype, Object result, String base, FluidBuilder builder) {
+		String label = asString(result, builder);
+		return delegate.consume(ftype.as(String.class), label, base, builder);
 	}
 
-	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
-			Object result, String base, Charset charset) throws IOException, OpenRDFException,
-			XMLStreamException, TransformerException,
-			ParserConfigurationException {
+	private String asString(Object result, FluidBuilder builder) {
 		if (result == null)
-			return ChannelUtil.emptyChannel();
-		String label = con.getObjectFactory().createLiteral(result)
-				.getLabel();
-		return delegate.write(mtype.as(String.class), con, label, base, charset);
-	}
-
-	public void writeTo(FluidType mtype, ObjectConnection con, Object object,
-			String base, Charset charset, OutputStream out, int bufSize) throws IOException {
-		String label = con.getObjectFactory().createLiteral(object)
-				.getLabel();
-		delegate.writeTo(mtype, label, base, charset, out, bufSize);
+			return null;
+		return builder.getObjectConnection().getObjectFactory().createLiteral(result).getLabel();
 	}
 
 }

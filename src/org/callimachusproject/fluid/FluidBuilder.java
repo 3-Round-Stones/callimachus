@@ -47,6 +47,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.http.HttpEntity;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
+import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
@@ -62,7 +63,8 @@ public class FluidBuilder {
 	private List<Producer> producers;
 	private final ObjectConnection con;
 
-	public FluidBuilder(List<Consumer> consumers, List<Producer> producers, ObjectConnection con) {
+	public FluidBuilder(List<Consumer> consumers, List<Producer> producers,
+			ObjectConnection con) {
 		assert consumers != null;
 		assert producers != null;
 		assert con != null;
@@ -76,6 +78,10 @@ public class FluidBuilder {
 		return con.toString();
 	}
 
+	public ObjectConnection getObjectConnection() {
+		return con;
+	}
+
 	public boolean isConsumable(String media, Class<?> ptype, Type gtype) {
 		return isConsumable(new FluidType(media, ptype, gtype));
 	}
@@ -85,7 +91,7 @@ public class FluidBuilder {
 	}
 
 	public Fluid nil(String media) {
-		return nil(media, InputStream.class, InputStream.class);
+		return channel(media, null, null);
 	}
 
 	public Fluid nil(String media, Class<?> ctype, Type gtype) {
@@ -96,63 +102,31 @@ public class FluidBuilder {
 		return consume(new FluidType("text/uri-list", String.class), uri, base);
 	}
 
-	public Fluid channel(String media, ReadableByteChannel in, String base) {
-		return consume(new FluidType(media, ReadableByteChannel.class), in, base);
-	}
-
-	public Fluid stream(String media, InputStream in, String base) {
-		return consume(new FluidType(media, InputStream.class, InputStream.class), in, base);
-	}
-
-	public Fluid consume(String media, Class<?> ptype, Type gtype, Object result, String base) {
-		return consume(new FluidType(media, ptype, gtype), result, base);
-	}
-
-	public Fluid consume(FluidType mtype, Object result, String base) {
-		Consumer writer;
-		writer = findRawWriter(mtype);
-		if (writer != null)
-			return fluid(writer, mtype, result, base);
-		if (writer == null && mtype.isSet()) {
-			writer = findComponentWriter(mtype);
-		}
-		String mimeType = mtype.getMediaType();
-		Type genericType = mtype.getGenericType();
-		if (writer == null)
-			throw new BadRequest("Cannot write " + genericType + " into "
-					+ mimeType);
-		if (((Set) result).isEmpty()) {
-			result = null;
-		} else {
-			result = ((Set) result).toArray()[0];
-		}
-		return fluid(writer, mtype.component(), result, base);
-	}
-
-	private Fluid fluid(final Consumer writer, final FluidType mtype,
-			final Object result, final String base) {
-		return new AbstractFluid() {
-			public HttpEntity asHttpEntity(String mediaType) throws IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
-				FluidType ftype = mtype.as(mediaType);
-				Charset charset = ftype.getCharset();
-				String contentType = writer.getContentType(ftype, charset);
-				FluidType media = ftype.as(contentType);
-				long size = writer.getSize(media, con, result, charset);
-				return new ReadableHttpEntityChannel(contentType, size, writer.write(media, con, result, base, charset));
+	public Fluid channel(final String media, final ReadableByteChannel in,
+			final String base) {
+		return new AbstractFluid(this) {
+			public HttpEntity asHttpEntity(String mediaType)
+					throws IOException, OpenRDFException, XMLStreamException,
+					TransformerException, ParserConfigurationException {
+				return new ReadableHttpEntityChannel(mediaType, -1, in);
 			}
 
+			@Override
 			public boolean isProducible(FluidType mtype) {
 				return findReader(mtype) != null;
 			}
 
+			@Override
 			public Object produce(FluidType mtype)
 					throws TransformerConfigurationException, OpenRDFException,
-					IOException, XMLStreamException, ParserConfigurationException,
-					SAXException, TransformerException, URISyntaxException {
+					IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerException, URISyntaxException {
 				HttpEntity entity = asHttpEntity(mtype.getMediaType());
 				String contentType = entity.getContentType().getValue();
 				ReadableByteChannel in = asChannel(contentType);
-				Charset charset = new FluidType(contentType, ReadableByteChannel.class).getCharset();
+				Charset charset = new FluidType(contentType,
+						ReadableByteChannel.class).getCharset();
 				Producer reader = findRawReader(mtype);
 				if (reader != null)
 					return reader.readFrom(mtype, con, in, charset, base, null);
@@ -167,7 +141,8 @@ public class FluidBuilder {
 				String mime = mtype.getMediaType();
 				Type genericType = mtype.getGenericType();
 				if (reader == null)
-					throw new BadRequest("Cannot read " + mime + " into " + genericType);
+					throw new BadRequest("Cannot read " + mime + " into "
+							+ genericType);
 				Object o = reader.readFrom(mtype.component(), con, in, charset,
 						base, null);
 				if (o == null)
@@ -201,6 +176,37 @@ public class FluidBuilder {
 		};
 	}
 
+	public Fluid stream(final String media, final InputStream in,
+			final String base) {
+		return channel(media, ChannelUtil.newChannel(in), base);
+	}
+
+	public Fluid consume(String media, Class<?> ptype, Type gtype,
+			Object result, String base) {
+		return consume(new FluidType(media, ptype, gtype), result, base);
+	}
+
+	public Fluid consume(FluidType mtype, Object result, String base) {
+		Consumer writer;
+		writer = findRawWriter(mtype);
+		if (writer != null)
+			return writer.consume(mtype, result, base, this);
+		if (writer == null && mtype.isSet()) {
+			writer = findComponentWriter(mtype);
+		}
+		String mimeType = mtype.getMediaType();
+		Type genericType = mtype.getGenericType();
+		if (writer == null)
+			throw new BadRequest("Cannot write " + genericType + " into "
+					+ mimeType);
+		if (((Set) result).isEmpty()) {
+			result = null;
+		} else {
+			result = ((Set) result).toArray()[0];
+		}
+		return writer.consume(mtype.component(), result, base, this);
+	}
+
 	private Consumer findWriter(FluidType mtype) {
 		Class<?> type = mtype.getClassType();
 		Consumer writer;
@@ -214,7 +220,7 @@ public class FluidBuilder {
 
 	private Consumer findRawWriter(FluidType mtype) {
 		for (Consumer w : consumers) {
-			if (w.isWriteable(mtype, con)) {
+			if (w.isConsumable(mtype, this)) {
 				return w;
 			}
 		}

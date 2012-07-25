@@ -36,7 +36,6 @@ import info.aduna.lang.service.FileFormatServiceRegistry;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 
 import org.callimachusproject.fluid.FluidType;
 import org.openrdf.repository.object.ObjectConnection;
@@ -66,10 +65,10 @@ public abstract class ResultMessageWriterBase<FF extends FileFormat, S, T extend
 	}
 
 	@Override
-	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
-			final T result, String base, Charset charset) throws IOException {
+	protected ReadableByteChannel write(final FluidType mtype, final ObjectConnection con,
+			final T result, final String base) throws IOException {
 		final ReadableByteChannel delegate;
-		delegate = super.write(mtype, con, result, base, charset);
+		delegate = super.write(mtype, con, result, base);
 		return new ReadableByteChannel() {
 			public String toString() {
 				return delegate.toString();

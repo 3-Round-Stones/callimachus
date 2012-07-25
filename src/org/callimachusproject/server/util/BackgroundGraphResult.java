@@ -75,6 +75,9 @@ public class BackgroundGraphResult implements
 
 	public BackgroundGraphResult(QueueCursor<Statement> queue,
 			RDFParser parser, InputStream in, Charset charset, String baseURI) {
+		if (baseURI == null) {
+			baseURI = "";
+		}
 		this.queue = queue;
 		this.parser = parser;
 		this.in = in;

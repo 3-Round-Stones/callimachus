@@ -31,14 +31,21 @@ package org.callimachusproject.fluid.consumers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerException;
+
+import org.apache.http.HttpEntity;
+import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.OpenRDFException;
 
 /**
  * Reads an ByteArrayOutputStream to an {@link ReadableByteChannel}.
@@ -46,18 +53,7 @@ import org.openrdf.repository.object.ObjectConnection;
 public class ByteArrayStreamMessageWriter implements
 		Consumer<ByteArrayOutputStream> {
 
-	public boolean isText(FluidType mtype) {
-		return false;
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con,
-			ByteArrayOutputStream result, Charset charset) {
-		if (result == null)
-			return 0;
-		return result.size();
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
 		if (!ByteArrayOutputStream.class.equals(mtype.getClassType()))
 			return false;
@@ -66,7 +62,7 @@ public class ByteArrayStreamMessageWriter implements
 				|| mimeType.startsWith("application/*");
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
+	private String getMediaType(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("application/*"))
@@ -74,17 +70,31 @@ public class ByteArrayStreamMessageWriter implements
 		return mimeType;
 	}
 
-	public ReadableByteChannel write(FluidType mtype,
-			ObjectConnection con, ByteArrayOutputStream result, String base, Charset charset)
+	public Fluid consume(final FluidType ftype, final ByteArrayOutputStream result, final String base, final FluidBuilder builder) {
+		return new AbstractFluid(builder) {
+			public HttpEntity asHttpEntity(String media) throws IOException,
+					OpenRDFException, XMLStreamException, TransformerException,
+					ParserConfigurationException {
+				String mediaType = getMediaType(ftype.as(media), builder);
+				return new ReadableHttpEntityChannel(mediaType, getSize(result), write(result));
+			}
+
+			public String toString() {
+				return result.toString();
+			}
+		};
+	}
+
+	private long getSize(ByteArrayOutputStream result) {
+		if (result == null)
+			return 0;
+		return result.size();
+	}
+
+	private ReadableByteChannel write(ByteArrayOutputStream result)
 			throws IOException {
 		if (result == null)
 			return ChannelUtil.emptyChannel();
 		return ChannelUtil.newChannel(result.toByteArray());
-	}
-
-	public void writeTo(FluidType mtype, ByteArrayOutputStream result,
-			String base, Charset charset, OutputStream out, int bufSize)
-			throws IOException {
-		result.writeTo(out);
 	}
 }

@@ -29,16 +29,14 @@
  */
 package org.callimachusproject.fluid.consumers;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 
+
 import org.callimachusproject.fluid.Consumer;
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Writes primitives and their wrappers.
@@ -61,36 +59,16 @@ public class PrimitiveBodyWriter implements Consumer<Object> {
 		wrappers.add(Void.class);
 	}
 
-	public boolean isText(FluidType mtype) {
-		return delegate.isText(mtype.as(String.class));
-	}
-
-	public long getSize(FluidType mtype, ObjectConnection con, Object result, Charset charset) {
-		return delegate.getSize(mtype.as(String.class), con,
-				String.valueOf(result), charset);
-	}
-
-	public boolean isWriteable(FluidType mtype, ObjectConnection con) {
+	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		Class<?> type = mtype.getClassType();
 		if (type.isPrimitive() || !type.isInterface()
 				&& wrappers.contains(type))
-			return delegate.isWriteable(mtype.as(String.class), con);
+			return delegate.isConsumable(mtype.as(String.class), builder);
 		return false;
 	}
 
-	public String getContentType(FluidType mtype, Charset charset) {
-		return delegate.getContentType(mtype.as(String.class), charset);
-	}
-
-	public ReadableByteChannel write(FluidType mtype, ObjectConnection con,
-			Object result, String base, Charset charset) throws IOException {
-		return delegate.write(mtype.as(String.class), con,
-				String.valueOf(result), base, charset);
-	}
-
-	public void writeTo(FluidType mtype, Object result, String base,
-			Charset charset, OutputStream out, int bufSize) throws IOException {
-		delegate.writeTo(mtype.as(String.class), String.valueOf(result), base,
-				charset, out, bufSize);
+	public Fluid consume(FluidType ftype, Object result, String base,
+			FluidBuilder builder) {
+		return delegate.consume(ftype.as(String.class), String.valueOf(result), base, builder);
 	}
 }

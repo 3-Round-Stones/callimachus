@@ -60,7 +60,7 @@ public class BooleanMessageReader
 
 	@Override
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		String mimeType = mtype.getMediaType();
 		if (Object.class.equals(type))
 			return false;

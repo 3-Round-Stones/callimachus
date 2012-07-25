@@ -60,7 +60,7 @@ public class PrimitiveBodyWriter implements Consumer<Object> {
 	}
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		if (type.isPrimitive() || !type.isInterface()
 				&& wrappers.contains(type))
 			return delegate.isConsumable(mtype.as(String.class), builder);

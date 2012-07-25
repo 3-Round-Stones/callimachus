@@ -55,7 +55,7 @@ public class XMLEventMessageReader implements Producer<XMLEventReader> {
 				&& !mediaType.startsWith("application/")
 				&& !mediaType.startsWith("*/"))
 			return false;
-		return mtype.getClassType().isAssignableFrom(XMLEventReader.class);
+		return mtype.asClass().isAssignableFrom(XMLEventReader.class);
 	}
 
 	public XMLEventReader readFrom(FluidType mtype, ObjectConnection con,

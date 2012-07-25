@@ -45,7 +45,7 @@ public class ByteArrayMessageReader implements Producer<byte[]> {
 	private ByteArrayStreamMessageReader delegate = new ByteArrayStreamMessageReader();
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		if (!type.isArray() || !Byte.TYPE.equals(type.getComponentType()))
 			return false;
 		Class<?> t = ByteArrayOutputStream.class;

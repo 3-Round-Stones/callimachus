@@ -48,7 +48,7 @@ public class DatatypeWriter implements Consumer<Object> {
 	private StringBodyWriter delegate = new StringBodyWriter();
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		if (Set.class.equals(type))
 			return false;
 		if (Object.class.equals(type))

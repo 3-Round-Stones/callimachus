@@ -89,8 +89,8 @@ public class ResponseParameter implements Parameter {
 		FluidBuilder builder = ff.builder(con);
 		Fluid fluid = null;
 		for (String media : this.mimeTypes) {
-			if (builder.isConsumable(media, type, genericType)) {
-				fluid = builder.consume(media, type, genericType, result, base);
+			if (builder.isConsumable(genericType, media)) {
+				fluid = builder.consume(genericType, media, result, base);
 				break;
 			}
 		}
@@ -116,7 +116,7 @@ public class ResponseParameter implements Parameter {
 			return accepter.getAcceptable();
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType mimeType : accepter.getAcceptable(mimeTypes)) {
-			if (writer.isProducible(mimeType.toString(), type, genericType)) {
+			if (writer.isProducible(genericType, mimeType.toString())) {
 				acceptable.add(mimeType);
 			}
 		}
@@ -132,8 +132,8 @@ public class ResponseParameter implements Parameter {
 			return (T) (result);
 		Accepter accepter = new Accepter(mediaTypes);
 		for (final MimeType mimeType : accepter.getAcceptable(mimeTypes)) {
-			if (writer.isProducible(mimeType.toString(), type, genericType)) {
-				return writer.produce(mimeType.toString(), type, genericType);
+			if (writer.isProducible(genericType, mimeType.toString())) {
+				return writer.produce(genericType, mimeType.toString());
 			}
 		}
 		throw new ClassCastException(String.valueOf(result)

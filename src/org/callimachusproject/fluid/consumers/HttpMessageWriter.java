@@ -66,7 +66,7 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		if (Object.class.equals(type) && mimeType != null)
 			return mimeType.startsWith("message/http");
 		return HttpResponse.class.equals(type)

@@ -50,7 +50,7 @@ public class FormStringMessageReader implements Producer<String> {
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
 		String mimeType = mtype.getMediaType();
-		return String.class.equals(mtype.getClassType()) && mimeType != null
+		return String.class.equals(mtype.asClass()) && mimeType != null
 				&& mimeType.startsWith("application/x-www-form-urlencoded");
 	}
 

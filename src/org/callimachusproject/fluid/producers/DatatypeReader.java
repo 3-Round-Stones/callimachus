@@ -57,7 +57,7 @@ public class DatatypeReader implements Producer<Object> {
 	private StringBodyReader delegate = new StringBodyReader();
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		if (Set.class.equals(type))
 			return false;
 		if (Object.class.equals(type))
@@ -75,7 +75,7 @@ public class DatatypeReader implements Producer<Object> {
 			ReadableByteChannel in, Charset charset, String base, String location)
 			throws QueryResultParseException, TupleQueryResultHandlerException,
 			IOException, QueryEvaluationException, RepositoryException {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		String value = delegate.readFrom(mtype.as(String.class), con, in,
 				charset, base, location);
 		ValueFactory vf = con.getValueFactory();

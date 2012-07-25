@@ -59,7 +59,7 @@ public class StringBodyWriter implements Consumer<String> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
-		if (!String.class.equals(mtype.getClassType()))
+		if (!String.class.equals(mtype.asClass()))
 			return false;
 		return mimeType == null || mimeType.startsWith("text/")
 				|| mimeType.startsWith("*");

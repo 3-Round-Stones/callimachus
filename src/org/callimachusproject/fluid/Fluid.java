@@ -24,17 +24,16 @@ public interface Fluid {
 			OpenRDFException, XMLStreamException, TransformerException,
 			ParserConfigurationException;
 
-	boolean isProducible(String media, Class<?> ctype, Type gtype);
+	boolean isProducible(Type gtype, String media);
 
 	/**
 	 * Must close InputStream or return an object that will later close the
 	 * InputStream.
 	 */
-	<T> T produce(String media, Class<T> ctype, Type gtype)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException,
-			URISyntaxException;
+	<T> T produce(Type gtype, String media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException, URISyntaxException;
 
 	boolean isProducible(FluidType mtype);
 

@@ -45,7 +45,7 @@ import org.openrdf.repository.object.ObjectConnection;
 public class InputStreamBodyReader implements Producer<InputStream> {
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		return mtype.getClassType().isAssignableFrom(InputStream.class);
+		return mtype.asClass().isAssignableFrom(InputStream.class);
 	}
 
 	public InputStream readFrom(FluidType mtype, ObjectConnection con,

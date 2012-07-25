@@ -61,7 +61,7 @@ public class PrimitiveBodyReader implements Producer<Object> {
 	}
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		if (type.isPrimitive() || !type.isInterface()
 				&& wrappers.contains(type))
 			return delegate.isReadable(mtype.as(String.class), con);
@@ -70,7 +70,7 @@ public class PrimitiveBodyReader implements Producer<Object> {
 
 	public Object readFrom(FluidType mtype, ObjectConnection con,
 			ReadableByteChannel in, Charset charset, String base, String location) throws IOException {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		String value = delegate.readFrom(mtype.as(String.class), con, in,
 				charset, base, location);
 		if (Boolean.TYPE.equals(type) || Boolean.class.equals(type))

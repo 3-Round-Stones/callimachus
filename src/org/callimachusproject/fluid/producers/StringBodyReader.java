@@ -50,7 +50,7 @@ public class StringBodyReader implements Producer<String> {
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
 		String mediaType = mtype.getMediaType();
-		return String.class.equals(mtype.getClassType()) && mediaType != null
+		return String.class.equals(mtype.asClass()) && mediaType != null
 				&& (mediaType.startsWith("text/") || mediaType.startsWith("*/"));
 	}
 

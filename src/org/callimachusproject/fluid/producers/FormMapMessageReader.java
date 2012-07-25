@@ -72,8 +72,7 @@ public final class FormMapMessageReader implements
 		String mimeType = mtype.getMediaType();
 		if (!mtype.isMap())
 			return false;
-		FluidType kt = mtype.getKeyGenericType();
-		if (!kt.isUnknown()) {
+		if (!mtype.key().isUnknown()) {
 			if (!delegate.isProducible(mtype.key("text/plain")))
 				return false;
 		}
@@ -102,7 +101,7 @@ public final class FormMapMessageReader implements
 			FluidType vtype = mtype.component("text/plain");
 			if (vtype.isUnknown()) {
 				vtype = vtype.as(String[].class);
-				mtype = mtype.as(Map.class, new ParameterizedType() {
+				mtype = mtype.as(new ParameterizedType() {
 					public Type getRawType() {
 						return Map.class;
 					}
@@ -117,7 +116,7 @@ public final class FormMapMessageReader implements
 				});
 			}
 			FluidType ktype = mtype.key("text/plain");
-			Class<?> kc = mtype.getKeyClass();
+			Class<?> kc = mtype.key().asClass();
 			if (Object.class.equals(kc)) {
 				kc = String.class;
 				ktype = ktype.as(String.class);
@@ -133,7 +132,7 @@ public final class FormMapMessageReader implements
 				ReadableByteChannel kin = ChannelUtil.newChannel(name
 						.getBytes(charset));
 				Fluid kf = ff.builder(con).channel("text/plain;charset=" + charset.name(), kin, base);
-				Object key = kf.produce(ktype.getMediaType(), ktype.getClassType(), ktype.getGenericType());
+				Object key = kf.produce(ktype.asType(), ktype.getMediaType());
 				if (nameValue.length < 2) {
 					if (!parameters.containsKey(key)) {
 						parameters.put(key, new ArrayList());

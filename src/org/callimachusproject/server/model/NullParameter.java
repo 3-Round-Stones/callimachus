@@ -57,10 +57,10 @@ public class NullParameter implements Parameter {
 
 	public Collection<? extends MimeType> getReadableTypes(Class<?> ctype,
 			Type gtype, Accepter accepter) throws MimeTypeParseException {
-		FluidType type = new FluidType(null, ctype, gtype);
+		FluidType type = new FluidType(gtype, null);
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType m : accepter.getAcceptable("*/*")) {
-			if (reader.isProducible(m.toString(), ctype, gtype)) {
+			if (reader.isProducible(gtype, m.toString())) {
 				acceptable.add(m);
 			} else if (type.isSetOrArray()) {
 				if (reader.isProducible(type.component(m.toString()))) {
@@ -73,8 +73,8 @@ public class NullParameter implements Parameter {
 
 	public <T> T read(Class<T> ctype, Type genericType, String[] mediaTypes)
 			throws MimeTypeParseException {
-		FluidType type = new FluidType(null, ctype, genericType);
-		Class<?> componentType = type.getComponentClass();
+		FluidType type = new FluidType(genericType, null);
+		Class<?> componentType = type.component().asClass();
 		if (type.isArray() && isReadable(componentType, mediaTypes))
 			return (T) type.castArray(readArray(componentType, mediaTypes));
 		if (type.isSet() && isReadable(componentType, mediaTypes))
@@ -93,16 +93,14 @@ public class NullParameter implements Parameter {
 	private boolean isReadable(Class<?> componentType, String[] mediaTypes)
 			throws MimeTypeParseException {
 		String media = getMediaType(componentType, componentType, mediaTypes);
-		return reader.isProducible(media, componentType,
-				componentType);
+		return reader.isProducible(componentType, media);
 	}
 
 	private String getMediaType(Class<?> type, Type genericType,
 			String[] mediaTypes) throws MimeTypeParseException {
 		Accepter accepter = new Accepter(mediaTypes);
 		for (MimeType m : accepter.getAcceptable("*/*")) {
-			if (reader.isProducible(m.toString(), type,
-					genericType))
+			if (reader.isProducible(genericType, m.toString()))
 				return m.toString();
 		}
 		return null;

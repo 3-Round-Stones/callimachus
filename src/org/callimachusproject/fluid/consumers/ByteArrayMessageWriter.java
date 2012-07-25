@@ -53,7 +53,7 @@ public class ByteArrayMessageWriter implements Consumer<byte[]> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		if (!type.isArray() || !Byte.TYPE.equals(type.getComponentType()))
 			return false;
 		return mimeType == null || !mimeType.contains("*")

@@ -223,7 +223,7 @@ public class ResourceRequest extends Request {
 		if (method.isAnnotationPresent(type.class)) {
 			String[] mediaTypes = method.getAnnotation(type.class).value();
 			for (MimeType m : accepter.getAcceptable(mediaTypes)) {
-				if (writer.isConsumable(m.toString(), type, genericType)) {
+				if (writer.isConsumable(genericType, m.toString())) {
 					return getContentType(type, genericType, m);
 				}
 			}
@@ -236,7 +236,7 @@ public class ResourceRequest extends Request {
 				}
 			}
 			for (MimeType m : accepter.getAcceptable()) {
-				if (writer.isConsumable(m.toString(), type, genericType)) {
+				if (writer.isConsumable(genericType, m.toString())) {
 					return getContentType(type, genericType, m);
 				}
 			}
@@ -334,7 +334,7 @@ public class ResourceRequest extends Request {
 		if (type == null)
 			return accepter.isAcceptable(mediaType);
 		for (MimeType accept : accepter.getAcceptable(mediaType)) {
-			if (writer.isConsumable(accept.toString(), type, genericType))
+			if (writer.isConsumable(genericType, accept.toString()))
 				return true;
 		}
 		return false;
@@ -347,7 +347,7 @@ public class ResourceRequest extends Request {
 	private String getContentType(Class<?> type, Type genericType, MimeType m) {
 		m.removeParameter("q");
 		try {
-			return writer.nil(m.toString(), type, genericType).asHttpEntity(m.toString()).getContentType().getValue();
+			return writer.nil(genericType, m.toString()).asHttpEntity(m.toString()).getContentType().getValue();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {

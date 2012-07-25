@@ -82,8 +82,8 @@ public class FluidBuilder {
 		return con;
 	}
 
-	public boolean isConsumable(String media, Class<?> ptype, Type gtype) {
-		return isConsumable(new FluidType(media, ptype, gtype));
+	public boolean isConsumable(Type gtype, String media) {
+		return isConsumable(new FluidType(gtype, media));
 	}
 
 	public boolean isConsumable(FluidType mtype) {
@@ -94,12 +94,12 @@ public class FluidBuilder {
 		return channel(media, null, null);
 	}
 
-	public Fluid nil(String media, Class<?> ctype, Type gtype) {
-		return consume(new FluidType(media, ctype, gtype), null, null);
+	public Fluid nil(Type gtype, String media) {
+		return consume(new FluidType(gtype, media), null, null);
 	}
 
 	public Fluid uri(String uri, String base) {
-		return consume(new FluidType("text/uri-list", String.class), uri, base);
+		return consume(new FluidType(String.class, "text/uri-list"), uri, base);
 	}
 
 	public Fluid channel(final String media, final ReadableByteChannel in,
@@ -125,8 +125,8 @@ public class FluidBuilder {
 				HttpEntity entity = asHttpEntity(mtype.getMediaType());
 				String contentType = entity.getContentType().getValue();
 				ReadableByteChannel in = asChannel(contentType);
-				Charset charset = new FluidType(contentType,
-						ReadableByteChannel.class).getCharset();
+				Charset charset = new FluidType(ReadableByteChannel.class,
+						contentType).getCharset();
 				Producer reader = findRawReader(mtype);
 				if (reader != null)
 					return reader.readFrom(mtype, con, in, charset, base, null);
@@ -135,11 +135,11 @@ public class FluidBuilder {
 					if (reader == null && in == null)
 						return Collections.emptySet();
 				}
-				Class<? extends Object> type = mtype.getClassType();
+				Class<? extends Object> type = mtype.asClass();
 				if (reader == null && !type.isPrimitive() && in == null)
 					return null;
 				String mime = mtype.getMediaType();
-				Type genericType = mtype.getGenericType();
+				Type genericType = mtype.asType();
 				if (reader == null)
 					throw new BadRequest("Cannot read " + mime + " into "
 							+ genericType);
@@ -181,9 +181,8 @@ public class FluidBuilder {
 		return channel(media, ChannelUtil.newChannel(in), base);
 	}
 
-	public Fluid consume(String media, Class<?> ptype, Type gtype,
-			Object result, String base) {
-		return consume(new FluidType(media, ptype, gtype), result, base);
+	public Fluid consume(Type gtype, String media, Object result, String base) {
+		return consume(new FluidType(gtype, media), result, base);
 	}
 
 	public Fluid consume(FluidType mtype, Object result, String base) {
@@ -195,7 +194,7 @@ public class FluidBuilder {
 			writer = findComponentWriter(mtype);
 		}
 		String mimeType = mtype.getMediaType();
-		Type genericType = mtype.getGenericType();
+		Type genericType = mtype.asType();
 		if (writer == null)
 			throw new BadRequest("Cannot write " + genericType + " into "
 					+ mimeType);
@@ -208,7 +207,7 @@ public class FluidBuilder {
 	}
 
 	private Consumer findWriter(FluidType mtype) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		Consumer writer;
 		writer = findRawWriter(mtype);
 		if (writer != null)

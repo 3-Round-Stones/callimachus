@@ -54,7 +54,7 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
-		if (!InputStream.class.isAssignableFrom((Class<?>) mtype.getClassType()))
+		if (!InputStream.class.isAssignableFrom((Class<?>) mtype.asClass()))
 			return false;
 		if (mimeType != null && mimeType.contains("*")
 				&& !mimeType.startsWith("*")

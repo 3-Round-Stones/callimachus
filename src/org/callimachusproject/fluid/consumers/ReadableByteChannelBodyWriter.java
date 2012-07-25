@@ -53,7 +53,7 @@ public class ReadableByteChannelBodyWriter implements
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
-		if (!ReadableByteChannel.class.isAssignableFrom((Class<?>) mtype.getClassType()))
+		if (!ReadableByteChannel.class.isAssignableFrom((Class<?>) mtype.asClass()))
 			return false;
 		if (mimeType != null && mimeType.contains("*")
 				&& !mimeType.startsWith("*")

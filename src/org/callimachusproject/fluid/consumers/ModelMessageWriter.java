@@ -51,7 +51,7 @@ public class ModelMessageWriter implements Consumer<Model> {
 	}
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		if (!Model.class.isAssignableFrom((Class<?>) mtype.getClassType()))
+		if (!Model.class.isAssignableFrom((Class<?>) mtype.asClass()))
 			return false;
 		return delegate.isConsumable(mtype.as(GraphQueryResult.class), builder);
 	}

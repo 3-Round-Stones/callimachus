@@ -92,14 +92,14 @@ public class StringParameter implements Parameter {
 			Type gtype, Accepter accepter) throws MimeTypeParseException {
 		if (!accepter.isAcceptable(this.mediaTypes))
 			return Collections.emptySet();
-		FluidType type = new FluidType(null, ctype, gtype);
+		FluidType type = new FluidType(gtype, null);
 		if (type.is(String.class))
 			return accepter.getAcceptable(this.mediaTypes);
 		if (type.isSetOrArrayOf(String.class))
 			return accepter.getAcceptable(this.mediaTypes);
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType m : accepter.getAcceptable(this.mediaTypes)) {
-			if (sample.isProducible(m.toString(), ctype, gtype)) {
+			if (sample.isProducible(gtype, m.toString())) {
 				acceptable.add(m);
 			} else if (type.isSetOrArray()) {
 				if (sample.isProducible(type.component(m.toString()))) {
@@ -115,16 +115,16 @@ public class StringParameter implements Parameter {
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerException, MimeTypeParseException,
 			URISyntaxException {
-		FluidType type = new FluidType(null, ctype, genericType);
+		FluidType type = new FluidType(genericType, null);
 		if (type.is(String.class)) {
 			if (values != null && values.length > 0)
-				return (T) type.cast(values[0].produce("text/plain", String.class, String.class));
+				return (T) type.cast(values[0].produce(String.class, "text/plain"));
 			return null;
 		}
 		if (type.isSetOrArrayOf(String.class)) {
 			return (T) type.castArray(values);
 		}
-		Class<?> componentType = type.getComponentClass();
+		Class<?> componentType = type.component().asClass();
 		if (type.isArray() && isReadable(componentType, mediaTypes))
 			return (T) type.castArray(readArray(componentType, mediaTypes));
 		if (type.isSet() && isReadable(componentType, mediaTypes))
@@ -169,22 +169,20 @@ public class StringParameter implements Parameter {
 			ParserConfigurationException, SAXException, TransformerException,
 			MimeTypeParseException, URISyntaxException {
 		String media = getMediaType(ctype, genericType, mediaTypes);
-		return (T) value.produce(media, ctype, genericType);
+		return (T) value.produce(genericType, media);
 	}
 
 	private boolean isReadable(Class<?> componentType, String[] mediaTypes)
 			throws MimeTypeParseException {
 		String media = getMediaType(componentType, componentType, mediaTypes);
-		return sample.isProducible(media, componentType,
-				componentType);
+		return sample.isProducible(componentType, media);
 	}
 
 	private String getMediaType(Class<?> type, Type genericType,
 			String[] mediaTypes) throws MimeTypeParseException {
 		Accepter accepter = new Accepter(mediaTypes);
 		for (MimeType m : accepter.getAcceptable(this.mediaTypes)) {
-			if (sample.isProducible(m.toString(), type,
-					genericType))
+			if (sample.isProducible(genericType, m.toString()))
 				return m.toString();
 		}
 		return null;

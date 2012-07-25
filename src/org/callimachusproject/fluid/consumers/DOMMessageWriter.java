@@ -101,7 +101,7 @@ public class DOMMessageWriter implements Consumer<Node> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mediaType = mtype.getMediaType();
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		if (!Document.class.isAssignableFrom(type)
 				&& !Element.class.isAssignableFrom(type))
 			return false;

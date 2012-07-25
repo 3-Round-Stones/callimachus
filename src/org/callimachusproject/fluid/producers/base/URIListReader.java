@@ -65,13 +65,13 @@ public abstract class URIListReader<URI> implements Producer<Object> {
 	}
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> ctype = mtype.getClassType();
+		Class<?> ctype = mtype.asClass();
 		String mediaType = mtype.getMediaType();
 		if (componentType != null) {
 			if (!componentType.equals(ctype) && Object.class.equals(ctype))
 				return false;
 			if (mtype.isSetOrArray()) {
-				Class<?> component = mtype.getComponentClass();
+				Class<?> component = mtype.component().asClass();
 				if (!componentType.equals(component)
 						&& Object.class.equals(component))
 					return false;

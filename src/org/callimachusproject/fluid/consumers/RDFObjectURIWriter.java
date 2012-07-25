@@ -56,9 +56,9 @@ public class RDFObjectURIWriter extends URIListWriter<Object> {
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		if (!super.isConsumable(mtype, builder))
 			return false;
-		Class<?> c = mtype.getClassType();
+		Class<?> c = mtype.asClass();
 		if (mtype.isSetOrArray()) {
-			c = mtype.getComponentClass();
+			c = mtype.component().asClass();
 		}
 		if (QueryResult.class.isAssignableFrom(c))
 			return false;

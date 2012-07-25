@@ -74,7 +74,7 @@ public class HttpMessageReader implements Producer<HttpMessage> {
 	private Logger logger = LoggerFactory.getLogger(HttpMessageReader.class);
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		String mimeType = mtype.getMediaType();
 		if (Object.class.equals(type) && mimeType != null)
 			return mimeType.startsWith("message/http");

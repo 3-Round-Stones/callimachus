@@ -66,7 +66,7 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mediaType = mtype.getMediaType();
-		if (!XMLEventReader.class.isAssignableFrom((Class<?>) mtype.getClassType()))
+		if (!XMLEventReader.class.isAssignableFrom((Class<?>) mtype.asClass()))
 			return false;
 		if (mediaType != null && !mediaType.startsWith("*")
 				&& !mediaType.startsWith("text/")

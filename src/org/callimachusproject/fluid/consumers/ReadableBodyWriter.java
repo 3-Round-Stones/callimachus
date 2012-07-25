@@ -61,7 +61,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
-		if (!Readable.class.isAssignableFrom((Class<?>) mtype.getClassType()))
+		if (!Readable.class.isAssignableFrom((Class<?>) mtype.asClass()))
 			return false;
 		return mimeType == null || mimeType.startsWith("text/")
 				|| mimeType.startsWith("*");

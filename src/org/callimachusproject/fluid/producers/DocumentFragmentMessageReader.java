@@ -96,7 +96,7 @@ public class DocumentFragmentMessageReader implements
 	private DocumentFactory builder = DocumentFactory.newInstance();
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		String mediaType = mtype.getMediaType();
 		if (mediaType != null && !mediaType.startsWith("application/")
 				&& !mediaType.contains("xml"))
@@ -108,7 +108,7 @@ public class DocumentFragmentMessageReader implements
 			ReadableByteChannel in, Charset charset, String base, String location)
 			throws TransformerConfigurationException, TransformerException,
 			ParserConfigurationException, IOException, XMLStreamException {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		if (in == null)
 			return null;
 		try {

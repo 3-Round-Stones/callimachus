@@ -63,12 +63,12 @@ public class URIListWriter<URI> implements Consumer<URI> {
 	}
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		Class<?> ctype = mtype.getClassType();
+		Class<?> ctype = mtype.asClass();
 		if (componentType != null) {
 			if (!componentType.equals(ctype) && Object.class.equals(ctype))
 				return false;
 			if (mtype.isSetOrArray()) {
-				Class<?> component = mtype.getComponentClass();
+				Class<?> component = mtype.component().asClass();
 				if (!componentType.equals(component)
 						&& Object.class.equals(component))
 					return false;

@@ -28,16 +28,15 @@ public abstract class AbstractFluid implements Fluid {
 		return ChannelUtil.newChannel(asHttpEntity(media).getContent());
 	}
 
-	public boolean isProducible(String media, Class<?> ctype, Type gtype) {
-		return isProducible(new FluidType(media, ctype, gtype));
+	public boolean isProducible(Type gtype, String media) {
+		return isProducible(new FluidType(gtype, media));
 	}
 
-	public <T> T produce(String media, Class<T> ctype, Type gtype)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException,
-			URISyntaxException {
-		return (T) produce(new FluidType(media, ctype, gtype));
+	public <T> T produce(Type gtype, String media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException, URISyntaxException {
+		return (T) produce(new FluidType(gtype, media));
 	}
 
 	public boolean isProducible(FluidType mtype) {

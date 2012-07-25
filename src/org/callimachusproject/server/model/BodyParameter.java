@@ -94,11 +94,11 @@ public abstract class BodyParameter implements Parameter {
 				acceptable.add(media);
 				continue;
 			}
-			if (reader.isProducible(media.toString(), ctype, gtype)) {
+			if (reader.isProducible(gtype, media.toString())) {
 				acceptable.add(media);
 				continue;
 			}
-			FluidType mtype = new FluidType(media.toString(), ctype, gtype);
+			FluidType mtype = new FluidType(gtype, media.toString());
 			if (mtype.isSetOrArray()) {
 				if (reader.isProducible(mtype.component())) {
 					acceptable.add(media);
@@ -114,7 +114,7 @@ public abstract class BodyParameter implements Parameter {
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerException, MimeTypeParseException,
 			URISyntaxException {
-		FluidType type = new FluidType(mimeType, ctype, gtype);
+		FluidType type = new FluidType(gtype, mimeType);
 		if (location == null && !stream && mimeType == null)
 			return null;
 		ReadableByteChannel in = getReadableByteChannel();
@@ -130,15 +130,15 @@ public abstract class BodyParameter implements Parameter {
 		if (stream && type.isOrIsSetOf(ReadableByteChannel.class))
 			return (T) type.castComponent(in);
 		for (MimeType media : new Accepter(mediaTypes).getAcceptable(mimeType)) {
-			if (!reader.isProducible(media.toString(), ctype, gtype))
+			if (!reader.isProducible(gtype, media.toString()))
 				continue;
-			return (T) (reader.produce(media.toString(), ctype, gtype));
+			return (T) (reader.produce(gtype, media.toString()));
 		}
 		if (reader.isProducible(type))
 			return (T) (reader.produce(type));
 		if (type.isSetOrArray()) {
-			Type cgtype = type.getComponentType();
-			Class<?> cctype = type.getComponentClass();
+			Type cgtype = type.component().asType();
+			Class<?> cctype = type.component().asClass();
 			for (MimeType media : new Accepter(mediaTypes)
 					.getAcceptable(mimeType)) {
 				FluidType mctype = type.as(media.toString());

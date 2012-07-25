@@ -44,7 +44,7 @@ public class ReadableByteChannelBodyReader implements
 		Producer<ReadableByteChannel> {
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		return mtype.getClassType().isAssignableFrom(ReadableByteChannel.class);
+		return mtype.asClass().isAssignableFrom(ReadableByteChannel.class);
 	}
 
 	public ReadableByteChannel readFrom(FluidType mtype,

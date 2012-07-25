@@ -45,7 +45,7 @@ import org.openrdf.repository.object.ObjectConnection;
 public class ReadableBodyReader implements Producer<Readable> {
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		return mtype.getClassType().isAssignableFrom(InputStreamReader.class)
+		return mtype.asClass().isAssignableFrom(InputStreamReader.class)
 				&& (mtype.getMediaType().startsWith("text/") || mtype.getMediaType().startsWith("*/"));
 	}
 

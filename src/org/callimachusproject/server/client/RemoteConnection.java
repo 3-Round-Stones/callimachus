@@ -185,10 +185,10 @@ public class RemoteConnection {
 			};
 		}
 		if (loc == null) {
-			return ff.builder(oc).channel(media, cin, uri).produce(media, rtype, gtype);
+			return ff.builder(oc).channel(media, cin, uri).produce(gtype, media);
 		} else {
 			cin.close();
-			return ff.builder(oc).uri(loc, uri).produce(media, rtype, gtype);
+			return ff.builder(oc).uri(loc, uri).produce(gtype, media);
 		}
 	}
 

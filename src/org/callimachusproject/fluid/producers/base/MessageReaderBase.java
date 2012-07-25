@@ -67,7 +67,7 @@ public abstract class MessageReaderBase<FF extends FileFormat, S, T> implements
 	}
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		String mimeType = mtype
 				.getMediaType();
 		if (Object.class.equals(type))

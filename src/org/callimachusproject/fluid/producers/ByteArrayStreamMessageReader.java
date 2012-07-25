@@ -46,7 +46,7 @@ public class ByteArrayStreamMessageReader implements
 		Producer<ByteArrayOutputStream> {
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		return mtype.getClassType().equals(ByteArrayOutputStream.class);
+		return mtype.asClass().equals(ByteArrayOutputStream.class);
 	}
 
 	public ByteArrayOutputStream readFrom(FluidType mtype,

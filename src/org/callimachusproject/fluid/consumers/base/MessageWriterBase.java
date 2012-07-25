@@ -80,7 +80,7 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 	}
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		if (!this.type.isAssignableFrom((Class<?>) mtype.getClassType()))
+		if (!this.type.isAssignableFrom((Class<?>) mtype.asClass()))
 			return false;
 		return getFactory(mtype.getMediaType()) != null;
 	}

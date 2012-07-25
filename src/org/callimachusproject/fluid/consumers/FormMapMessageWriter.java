@@ -68,8 +68,7 @@ public class FormMapMessageWriter implements
 		String mimeType = mtype.getMediaType();
 		if (!mtype.isMap())
 			return false;
-		FluidType kt = mtype.getKeyGenericType();
-		if (!kt.isUnknown()) {
+		if (!mtype.key().isUnknown()) {
 			if (!delegate.isConsumable(mtype.key("text/plain")))
 				return false;
 		}

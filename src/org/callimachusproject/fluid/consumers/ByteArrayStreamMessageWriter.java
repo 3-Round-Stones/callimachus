@@ -55,7 +55,7 @@ public class ByteArrayStreamMessageWriter implements
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mimeType = mtype.getMediaType();
-		if (!ByteArrayOutputStream.class.equals(mtype.getClassType()))
+		if (!ByteArrayOutputStream.class.equals(mtype.asClass()))
 			return false;
 		return mimeType == null || !mimeType.contains("*")
 				|| mimeType.startsWith("*")

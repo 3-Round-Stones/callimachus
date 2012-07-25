@@ -58,7 +58,7 @@ public class BooleanMessageWriter
 
 	@Override
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		if (!Boolean.class.equals(type) && !Boolean.TYPE.equals(type))
 			return false;
 		return getFactory(mtype.getMediaType()) != null;

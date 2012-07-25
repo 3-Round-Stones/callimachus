@@ -59,7 +59,7 @@ public class DOMMessageReader implements Producer<Node> {
 	private DocumentFactory builder = DocumentFactory.newInstance();
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		String mediaType = mtype.getMediaType();
 		if (mediaType != null && !mediaType.startsWith("text/")
 				&& !mediaType.startsWith("application/")
@@ -74,7 +74,7 @@ public class DOMMessageReader implements Producer<Node> {
 			ReadableByteChannel cin, Charset charset, String base, String location)
 			throws TransformerConfigurationException, TransformerException,
 			ParserConfigurationException, IOException, SAXException {
-		Class<?> type = mtype.getClassType();
+		Class<?> type = mtype.asClass();
 		if (cin == null)
 			return null;
 		Document doc = createDocument(cin, charset, location);

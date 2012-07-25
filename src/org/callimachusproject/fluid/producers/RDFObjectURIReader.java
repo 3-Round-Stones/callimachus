@@ -55,9 +55,9 @@ public class RDFObjectURIReader extends URIListReader<Object> {
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
 		if (!super.isReadable(mtype, con))
 			return false;
-		Class<?> c = mtype.getClassType();
+		Class<?> c = mtype.asClass();
 		if (mtype.isSetOrArray()) {
-			c = mtype.getComponentClass();
+			c = mtype.component().asClass();
 		}
 		if (Object.class.equals(c))
 			return true;

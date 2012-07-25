@@ -120,7 +120,7 @@ public class DocumentFragmentMessageWriter implements
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		String mediaType = mtype.getMediaType();
-		if (DocumentFragment.class.equals(mtype.getClassType()))
+		if (DocumentFragment.class.equals(mtype.asClass()))
 			return true;
 		if (mediaType == null)
 			return false;
@@ -131,7 +131,7 @@ public class DocumentFragmentMessageWriter implements
 		if (mtype.isUnknown() && (mediaType.contains("+xml")
 				|| mediaType.contains("/xml")))
 			return true;
-		return DocumentFragment.class.isAssignableFrom((Class<?>) mtype.getClassType());
+		return DocumentFragment.class.isAssignableFrom((Class<?>) mtype.asClass());
 	}
 
 	private String getMediaType(FluidType mtype, FluidBuilder builder) {

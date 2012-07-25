@@ -68,24 +68,38 @@ public class FormStringMessageWriter implements Consumer<String> {
 				|| mimeType.startsWith("application/x-www-form-urlencoded");
 	}
 
-	private String getMediaType(FluidType mtype, FluidBuilder builder) {
-		return "application/x-www-form-urlencoded";
-	}
-
-	public Fluid consume(final FluidType ftype, final String result, final String base,
-			final FluidBuilder builder) {
+	public Fluid consume(final FluidType ftype, final String result,
+			final String base, final FluidBuilder builder) {
 		return new AbstractFluid(builder) {
+			public String toChannelMedia(String media) {
+				return getMediaType(media);
+			}
+
+			public ReadableByteChannel asChannel(String media)
+					throws IOException, OpenRDFException, XMLStreamException,
+					TransformerException, ParserConfigurationException {
+				return write(ftype.as(getMediaType(media)), result, base);
+			}
+
 			public HttpEntity asHttpEntity(String media) throws IOException,
 					OpenRDFException, XMLStreamException, TransformerException,
 					ParserConfigurationException {
-				String mediaType = getMediaType(ftype.as(media), builder);
-				return new ReadableHttpEntityChannel(mediaType, getSize(ftype, result), write(ftype.as(mediaType), result, base));
+				String mediaType = toHttpEntityMedia(media);
+				if (mediaType == null)
+					return null;
+				return new ReadableHttpEntityChannel(mediaType, getSize(
+						ftype.as(getMediaType(media)), result),
+						asChannel(mediaType));
 			}
 
 			public String toString() {
 				return result.toString();
 			}
 		};
+	}
+
+	private String getMediaType(String media) {
+		return "application/x-www-form-urlencoded";
 	}
 
 	private long getSize(FluidType mtype, String result) {

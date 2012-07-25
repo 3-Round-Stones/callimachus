@@ -33,12 +33,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.Iterator;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpEntity;
 import org.callimachusproject.fluid.AbstractFluid;
@@ -48,7 +45,6 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.OpenRDFException;
 
 /**
  * Writes text/uri-list files.
@@ -82,13 +78,43 @@ public class URIListWriter<URI> implements Consumer<URI> {
 		return delegate.isConsumable(mtype.as(String.class), builder);
 	}
 
-	private String getMediaType(FluidType mtype, FluidBuilder builder) {
-		String mimeType = mtype.getMediaType();
+	public Fluid consume(final FluidType ftype, final URI result, final String base,
+			final FluidBuilder builder) {
+		if (result == null)
+			return delegate.consume(ftype.as(String.class), null, base, builder);
+		if (!ftype.isSetOrArray()) {
+			return delegate.consume(ftype.as(String.class), toString(result), base, builder);
+		}
+		return new AbstractFluid(builder) {
+			public String toChannelMedia(String media) {
+				return getMediaType(media);
+			}
+
+			public ReadableByteChannel asChannel(String media)
+					throws IOException {
+				return ChannelUtil.newChannel(write(ftype.as(getMediaType(media)), result, base));
+			}
+
+			public HttpEntity asHttpEntity(String media) throws IOException {
+				String mediaType = toHttpEntityMedia(media);
+				if (mediaType == null)
+					return null;
+				int size = write(ftype.as(mediaType), result, base).length;
+				return new ReadableHttpEntityChannel(mediaType, size, asChannel(mediaType));
+			}
+	
+			public String toString() {
+				return result.toString();
+			}
+		};
+	}
+
+	private String getMediaType(String mimeType) {
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("text/*")) {
 			mimeType = "text/uri-list";
 		}
-		Charset charset = mtype.getCharset();
+		Charset charset = new FluidType(Object.class, mimeType).getCharset();
 		if (charset == null) {
 			charset = Charset.defaultCharset();
 		}
@@ -98,32 +124,8 @@ public class URIListWriter<URI> implements Consumer<URI> {
 	
 	}
 
-	public Fluid consume(final FluidType ftype, final URI result, final String base,
-			final FluidBuilder builder) {
-		if (result == null)
-			return delegate.consume(ftype.as(String.class), null, base, builder);
-		if (!ftype.isSetOrArray()) {
-			return delegate.consume(ftype.as(String.class), toString(result), base, builder);
-		}
-		return new AbstractFluid(builder) {
-			public HttpEntity asHttpEntity(String media) throws IOException,
-					OpenRDFException, XMLStreamException, TransformerException,
-					ParserConfigurationException {
-				String mediaType = getMediaType(ftype.as(media), builder);
-				byte[] buf = write(ftype.as(mediaType), result, base);
-				return new ReadableHttpEntityChannel(mediaType, buf.length, ChannelUtil.newChannel(buf));
-			}
-
-			public String toString() {
-				return result.toString();
-			}
-		};
-	}
-
 	private byte[] write(FluidType mtype, URI result,
-			String base) throws IOException, OpenRDFException,
-			XMLStreamException, TransformerException,
-			ParserConfigurationException {
+			String base) throws IOException {
 		String mimeType = mtype.getMediaType();
 		if (result == null)
 			return null;
@@ -141,9 +143,9 @@ public class URIListWriter<URI> implements Consumer<URI> {
 		}
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
 		Writer writer = new OutputStreamWriter(out, charset);
-		Iterator<URI> iter = (Iterator<URI>) mtype.iteratorOf(result);
+		Iterator<?> iter = mtype.iteratorOf(result);
 		while (iter.hasNext()) {
-			writer.write(toString(iter.next()));
+			writer.write(toString((URI) iter.next()));
 			if (iter.hasNext()) {
 				writer.write("\r\n");
 			}

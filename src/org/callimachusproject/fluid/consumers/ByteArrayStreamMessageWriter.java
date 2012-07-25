@@ -33,10 +33,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
-
 import org.apache.http.HttpEntity;
 import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
@@ -45,7 +41,6 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.OpenRDFException;
 
 /**
  * Reads an ByteArrayOutputStream to an {@link ReadableByteChannel}.
@@ -62,27 +57,36 @@ public class ByteArrayStreamMessageWriter implements
 				|| mimeType.startsWith("application/*");
 	}
 
-	private String getMediaType(FluidType mtype, FluidBuilder builder) {
-		String mimeType = mtype.getMediaType();
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("application/*"))
-			return "application/octet-stream";
-		return mimeType;
-	}
-
 	public Fluid consume(final FluidType ftype, final ByteArrayOutputStream result, final String base, final FluidBuilder builder) {
 		return new AbstractFluid(builder) {
-			public HttpEntity asHttpEntity(String media) throws IOException,
-					OpenRDFException, XMLStreamException, TransformerException,
-					ParserConfigurationException {
-				String mediaType = getMediaType(ftype.as(media), builder);
-				return new ReadableHttpEntityChannel(mediaType, getSize(result), write(result));
+			public String toChannelMedia(String media) {
+				return getMediaType(media);
+			}
+
+			public ReadableByteChannel asChannel(String media)
+					throws IOException {
+				return write(result);
+			}
+
+			public HttpEntity asHttpEntity(String media) throws IOException {
+				String mediaType = toHttpEntityMedia(media);
+				if (mediaType == null)
+					return null;
+				return new ReadableHttpEntityChannel(mediaType,
+						getSize(result), asChannel(mediaType));
 			}
 
 			public String toString() {
 				return result.toString();
 			}
 		};
+	}
+
+	private String getMediaType(String mimeType) {
+		if (mimeType == null || mimeType.startsWith("*")
+				|| mimeType.startsWith("application/*"))
+			return "application/octet-stream";
+		return mimeType;
 	}
 
 	private long getSize(ByteArrayOutputStream result) {

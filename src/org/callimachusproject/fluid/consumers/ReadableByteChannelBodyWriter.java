@@ -36,13 +36,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.http.HttpEntity;
 import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.openrdf.OpenRDFException;
 
 /**
@@ -62,27 +60,29 @@ public class ReadableByteChannelBodyWriter implements
 		return true;
 	}
 
-	private String getMediaType(FluidType mtype, FluidBuilder builder) {
-		String mimeType = mtype.getMediaType();
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("application/*"))
-			return "application/octet-stream";
-		return mimeType;
-	}
-
 	public Fluid consume(final FluidType ftype, final ReadableByteChannel result, final String base,
 			final FluidBuilder builder) {
 		return new AbstractFluid(builder) {
-			public HttpEntity asHttpEntity(String media) throws IOException,
-					OpenRDFException, XMLStreamException, TransformerException,
-					ParserConfigurationException {
-				String mediaType = getMediaType(ftype.as(media), builder);
-				return new ReadableHttpEntityChannel(mediaType, -1, result);
+			public String toChannelMedia(String media) {
+				return getMediaType(media);
 			}
 
+			public ReadableByteChannel asChannel(String media)
+					throws IOException, OpenRDFException, XMLStreamException,
+					TransformerException, ParserConfigurationException {
+				return result;
+			}
+	
 			public String toString() {
 				return result.toString();
 			}
 		};
+	}
+
+	private String getMediaType(String mimeType) {
+		if (mimeType == null || mimeType.startsWith("*")
+				|| mimeType.startsWith("application/*"))
+			return "application/octet-stream";
+		return mimeType;
 	}
 }

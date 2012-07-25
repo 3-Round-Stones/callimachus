@@ -46,7 +46,6 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpEntity;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
@@ -90,7 +89,7 @@ public class FluidBuilder {
 		return findWriter(mtype) != null;
 	}
 
-	public Fluid nil(String media) {
+	public Fluid media(String media) {
 		return channel(media, null, null);
 	}
 
@@ -105,45 +104,57 @@ public class FluidBuilder {
 	public Fluid channel(final String media, final ReadableByteChannel in,
 			final String base) {
 		return new AbstractFluid(this) {
-			public HttpEntity asHttpEntity(String mediaType)
+
+			@Override
+			public String toChannelMedia(String media) {
+				// TODO check that the media types are compatible
+				return media;
+			}
+
+			@Override
+			public ReadableByteChannel asChannel(String media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
-				return new ReadableHttpEntityChannel(mediaType, -1, in);
+				return in;
 			}
 
 			@Override
-			public boolean isProducible(FluidType mtype) {
-				return findReader(mtype) != null;
+			public String toMedia(FluidType ftype) {
+				// TODO check that the media types are compatible
+				Producer reader = findReader(ftype);
+				if (reader == null)
+					return null;
+				return ftype.getMediaType();
 			}
 
 			@Override
-			public Object produce(FluidType mtype)
+			public Object as(FluidType ftype)
 					throws TransformerConfigurationException, OpenRDFException,
 					IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerException, URISyntaxException {
-				HttpEntity entity = asHttpEntity(mtype.getMediaType());
+				HttpEntity entity = asHttpEntity(ftype.getMediaType());
 				String contentType = entity.getContentType().getValue();
 				ReadableByteChannel in = asChannel(contentType);
 				Charset charset = new FluidType(ReadableByteChannel.class,
 						contentType).getCharset();
-				Producer reader = findRawReader(mtype);
+				Producer reader = findRawReader(ftype);
 				if (reader != null)
-					return reader.readFrom(mtype, con, in, charset, base, null);
-				if (mtype.isSet()) {
-					reader = findComponentReader(mtype);
+					return reader.readFrom(ftype, con, in, charset, base, null);
+				if (ftype.isSet()) {
+					reader = findComponentReader(ftype);
 					if (reader == null && in == null)
 						return Collections.emptySet();
 				}
-				Class<? extends Object> type = mtype.asClass();
+				Class<? extends Object> type = ftype.asClass();
 				if (reader == null && !type.isPrimitive() && in == null)
 					return null;
-				String mime = mtype.getMediaType();
-				Type genericType = mtype.asType();
+				String mime = ftype.getMediaType();
+				Type genericType = ftype.asType();
 				if (reader == null)
 					throw new BadRequest("Cannot read " + mime + " into "
 							+ genericType);
-				Object o = reader.readFrom(mtype.component(), con, in, charset,
+				Object o = reader.readFrom(ftype.component(), con, in, charset,
 						base, null);
 				if (o == null)
 					return Collections.emptySet();

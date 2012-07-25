@@ -37,7 +37,6 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -47,17 +46,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.http.HttpEntity;
 import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
-import org.openrdf.OpenRDFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -112,13 +108,30 @@ public class DOMMessageWriter implements Consumer<Node> {
 		return true;
 	}
 
-	private String getMediaType(FluidType mtype, FluidBuilder builder) {
-		String mimeType = mtype.getMediaType();
+	public Fluid consume(final FluidType ftype, final Node result, final String base,
+			final FluidBuilder builder) {
+		return new AbstractFluid(builder) {
+			public String toChannelMedia(String media) {
+				return getMediaType(media);
+			}
+
+			public ReadableByteChannel asChannel(String media)
+					throws IOException {
+				return write(ftype.as(getMediaType(media)), result, base);
+			}
+	
+			public String toString() {
+				return result.toString();
+			}
+		};
+	}
+
+	private String getMediaType(String mimeType) {
 		if (mimeType == null || mimeType.startsWith("*")
 				|| mimeType.startsWith("application/*"))
 			return "application/xml";
 		if (mimeType.startsWith("text/")) {
-			Charset charset = mtype.getCharset();
+			Charset charset = new FluidType(Object.class, mimeType).getCharset();
 			if (charset == null) {
 				charset = Charset.defaultCharset();
 			}
@@ -127,22 +140,6 @@ public class DOMMessageWriter implements Consumer<Node> {
 			return mimeType + ";charset=" + charset.name();
 		}
 		return mimeType;
-	}
-
-	public Fluid consume(final FluidType ftype, final Node result, final String base,
-			final FluidBuilder builder) {
-		return new AbstractFluid(builder) {
-			public HttpEntity asHttpEntity(String media) throws IOException,
-					OpenRDFException, XMLStreamException, TransformerException,
-					ParserConfigurationException {
-				String mediaType = getMediaType(ftype.as(media), builder);
-				return new ReadableHttpEntityChannel(mediaType, -1, write(ftype.as(mediaType), result, base));
-			}
-
-			public String toString() {
-				return result.toString();
-			}
-		};
 	}
 
 	private ReadableByteChannel write(final FluidType mtype,

@@ -33,10 +33,6 @@ import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
-
 import org.apache.http.HttpEntity;
 import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
@@ -45,7 +41,6 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.OpenRDFException;
 
 /**
  * Writes a {@link String}.
@@ -65,9 +60,34 @@ public class StringBodyWriter implements Consumer<String> {
 				|| mimeType.startsWith("*");
 	}
 
-	private String getMediaType(FluidType mtype, FluidBuilder builder) {
-		String mimeType = mtype.getMediaType();
-		Charset charset = mtype.getCharset();
+	public Fluid consume(final FluidType ftype, final String result, final String base,
+			final FluidBuilder builder) {
+		return new AbstractFluid(builder) {
+			public String toChannelMedia(String media) {
+				return getMediaType(media);
+			}
+
+			public ReadableByteChannel asChannel(String media)
+					throws IOException {
+				return write(ftype.as(getMediaType(media)), result, base);
+			}
+
+			public HttpEntity asHttpEntity(String media) throws IOException {
+				String mediaType = toHttpEntityMedia(media);
+				if (mediaType == null)
+					return null;
+				return new ReadableHttpEntityChannel(mediaType,
+						getSize(result, new FluidType(Object.class, mediaType).getCharset()), asChannel(mediaType));
+			}
+	
+			public String toString() {
+				return result.toString();
+			}
+		};
+	}
+
+	private String getMediaType(String mimeType) {
+		Charset charset = new FluidType(Object.class, mimeType).getCharset();
 		if (charset == null) {
 			charset = Charset.defaultCharset();
 		}
@@ -78,24 +98,6 @@ public class StringBodyWriter implements Consumer<String> {
 		if (mimeType.contains("charset=") || !mimeType.startsWith("text/"))
 			return mimeType;
 		return mimeType + ";charset=" + charset.name();
-	}
-
-	public Fluid consume(final FluidType ftype, final String result, final String base,
-			final FluidBuilder builder) {
-		return new AbstractFluid(builder) {
-			public HttpEntity asHttpEntity(String media) throws IOException,
-					OpenRDFException, XMLStreamException, TransformerException,
-					ParserConfigurationException {
-				String mediaType = getMediaType(ftype.as(media), builder);
-				FluidType as = ftype.as(mediaType);
-				long size = getSize(result, as.getCharset());
-				return new ReadableHttpEntityChannel(mediaType, size, write(as, result, base));
-			}
-
-			public String toString() {
-				return result.toString();
-			}
-		};
 	}
 
 	private long getSize(String result, Charset charset) {

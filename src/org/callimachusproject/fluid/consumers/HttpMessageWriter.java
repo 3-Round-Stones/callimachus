@@ -51,7 +51,6 @@ import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.CatReadableByteChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
@@ -75,30 +74,32 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 				|| HttpEntityEnclosingRequest.class.equals(type);
 	}
 
-	private String getMediaType(FluidType mtype, FluidBuilder builder) {
-		String mimeType = mtype.getMediaType();
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("message/*"))
-			return "message/http";
-		if (mimeType.startsWith("application/*"))
-			return "application/http";
-		return mimeType;
-	}
-
-	public Fluid consume(final FluidType ftype, final HttpMessage result, final String base,
-			final FluidBuilder builder) {
+	public Fluid consume(final FluidType ftype, final HttpMessage result,
+			final String base, final FluidBuilder builder) {
 		return new AbstractFluid(builder) {
-			public HttpEntity asHttpEntity(String media) throws IOException,
-					OpenRDFException, XMLStreamException, TransformerException,
-					ParserConfigurationException {
-				String mediaType = getMediaType(ftype.as(media), builder);
-				return new ReadableHttpEntityChannel(mediaType, -1, write(ftype.as(mediaType), result, base));
+			public String toChannelMedia(String media) {
+				return getMediaType(media);
+			}
+
+			public ReadableByteChannel asChannel(String media)
+					throws IOException, OpenRDFException, XMLStreamException,
+					TransformerException, ParserConfigurationException {
+				return write(ftype.as(getMediaType(media)), result, base);
 			}
 
 			public String toString() {
 				return result.toString();
 			}
 		};
+	}
+
+	private String getMediaType(String mimeType) {
+		if (mimeType == null || mimeType.startsWith("*")
+				|| mimeType.startsWith("message/*"))
+			return "message/http";
+		if (mimeType.startsWith("application/*"))
+			return "application/http";
+		return mimeType;
 	}
 
 	private ReadableByteChannel write(FluidType mtype, HttpMessage result,

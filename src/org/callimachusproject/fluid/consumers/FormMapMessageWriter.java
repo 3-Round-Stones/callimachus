@@ -45,13 +45,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.http.HttpEntity;
 import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 
@@ -61,8 +59,7 @@ import org.openrdf.OpenRDFException;
  * @author James Leigh
  * 
  */
-public class FormMapMessageWriter implements
-		Consumer<Map<String, Object>> {
+public class FormMapMessageWriter implements Consumer<Map<String, Object>> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder delegate) {
 		String mimeType = mtype.getMediaType();
@@ -85,24 +82,29 @@ public class FormMapMessageWriter implements
 				|| mimeType.startsWith("application/x-www-form-urlencoded");
 	}
 
-	private String getMediaType(FluidType mtype, FluidBuilder builder) {
-		return "application/x-www-form-urlencoded";
-	}
-
-	public Fluid consume(final FluidType ftype, final Map<String, Object> result, final String base,
+	public Fluid consume(final FluidType ftype,
+			final Map<String, Object> result, final String base,
 			final FluidBuilder builder) {
 		return new AbstractFluid(builder) {
-			public HttpEntity asHttpEntity(String media) throws IOException,
-					OpenRDFException, XMLStreamException, TransformerException,
-					ParserConfigurationException {
-				String mediaType = getMediaType(ftype.as(media), builder);
-				return new ReadableHttpEntityChannel(mediaType, -1, write(ftype.as(mediaType), result, base, builder));
+			public String toChannelMedia(String media) {
+				return getMediaType(media);
+			}
+
+			public ReadableByteChannel asChannel(String media)
+					throws IOException, OpenRDFException, XMLStreamException,
+					TransformerException, ParserConfigurationException {
+				return write(ftype.as(getMediaType(media)), result, base,
+						builder);
 			}
 
 			public String toString() {
 				return result.toString();
 			}
 		};
+	}
+
+	private String getMediaType(String media) {
+		return "application/x-www-form-urlencoded";
 	}
 
 	private ReadableByteChannel write(FluidType mtype,
@@ -137,8 +139,8 @@ public class FormMapMessageWriter implements
 			boolean first = true;
 			for (Map.Entry<String, Object> e : result.entrySet()) {
 				if (e.getKey() != null) {
-					String name = enc(writeTo(mtype.key("text/plain"), e
-							.getKey(), base, builder));
+					String name = enc(writeTo(mtype.key("text/plain"),
+							e.getKey(), base, builder));
 					Iterator<?> iter = vtype.iteratorOf(e.getValue());
 					if (first) {
 						first = false;
@@ -167,15 +169,16 @@ public class FormMapMessageWriter implements
 		return URLEncoder.encode(value, "UTF-8");
 	}
 
-	private String writeTo(FluidType mtype, Object value, String base, FluidBuilder delegate)
-			throws IOException, OpenRDFException, XMLStreamException,
-			TransformerException, ParserConfigurationException {
-		Charset cs = Charset.forName("ISO-8859-1");
+	private String writeTo(FluidType mtype, Object value, String base,
+			FluidBuilder delegate) throws IOException, OpenRDFException,
+			XMLStreamException, TransformerException,
+			ParserConfigurationException {
 		if (mtype.isUnknown() && value != null) {
 			mtype = mtype.as(value.getClass());
 		}
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-		ReadableByteChannel in = delegate.consume(mtype, value, base).asChannel("text/plain;charset=ISO-8859-1");
+		ReadableByteChannel in = delegate.consume(mtype, value, base)
+				.asChannel("text/plain;charset=ISO-8859-1");
 		try {
 			ChannelUtil.transfer(in, out);
 		} finally {

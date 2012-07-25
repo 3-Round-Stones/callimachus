@@ -68,22 +68,9 @@ public final class FormMapMessageReader implements
 	private final FluidFactory ff = FluidFactory.getInstance();
 
 	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Fluid delegate = ff.builder(con).nil("text/plain");
 		String mimeType = mtype.getMediaType();
 		if (!mtype.isMap())
 			return false;
-		if (!mtype.key().isUnknown()) {
-			if (!delegate.isProducible(mtype.key("text/plain")))
-				return false;
-		}
-		FluidType vt = mtype.component("text/plain");
-		if (vt.isSetOrArray()) {
-			if (!delegate.isProducible(vt.component("text/plain")))
-				return false;
-		} else if (!vt.isUnknown()) {
-			if (!delegate.isProducible(vt))
-				return false;
-		}
 		return mimeType != null
 				&& mimeType.startsWith("application/x-www-form-urlencoded");
 	}
@@ -132,7 +119,7 @@ public final class FormMapMessageReader implements
 				ReadableByteChannel kin = ChannelUtil.newChannel(name
 						.getBytes(charset));
 				Fluid kf = ff.builder(con).channel("text/plain;charset=" + charset.name(), kin, base);
-				Object key = kf.produce(ktype.asType(), ktype.getMediaType());
+				Object key = kf.as(ktype.asType(), ktype.getMediaType());
 				if (nameValue.length < 2) {
 					if (!parameters.containsKey(key)) {
 						parameters.put(key, new ArrayList());
@@ -148,9 +135,9 @@ public final class FormMapMessageReader implements
 					Fluid vf = ff.builder(con).channel("text/plain;charset=" + charset.name(), vin, base);
 					if (vtype.isSetOrArray()) {
 						FluidType cvtype = vtype.component("text/plain");
-						values.add(vf.produce(cvtype));
+						values.add(vf.as(cvtype));
 					} else {
-						values.add(vf.produce(vtype));
+						values.add(vf.as(vtype));
 					}
 				}
 			}

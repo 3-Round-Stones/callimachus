@@ -77,7 +77,7 @@ public class StringParameter implements Parameter {
 		FluidBuilder fb = ff.builder(con);
 		if (values == null || values.length == 0) {
 			this.values = new Fluid[0];
-			this.sample = fb.nil("text/plain");
+			this.sample = fb.media("text/plain");
 		} else {
 			Charset charset = Charset.forName("UTF-8");
 			this.values = new Fluid[values.length];
@@ -99,10 +99,10 @@ public class StringParameter implements Parameter {
 			return accepter.getAcceptable(this.mediaTypes);
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType m : accepter.getAcceptable(this.mediaTypes)) {
-			if (sample.isProducible(gtype, m.toString())) {
+			if (sample.toMedia(gtype, m.toString()) != null) {
 				acceptable.add(m);
 			} else if (type.isSetOrArray()) {
-				if (sample.isProducible(type.component(m.toString()))) {
+				if (sample.toMedia(type.component(m.toString())) != null) {
 					acceptable.add(m);
 				}
 			}
@@ -118,7 +118,7 @@ public class StringParameter implements Parameter {
 		FluidType type = new FluidType(genericType, null);
 		if (type.is(String.class)) {
 			if (values != null && values.length > 0)
-				return (T) type.cast(values[0].produce(String.class, "text/plain"));
+				return (T) type.cast(values[0].as(String.class, "text/plain"));
 			return null;
 		}
 		if (type.isSetOrArrayOf(String.class)) {
@@ -169,20 +169,20 @@ public class StringParameter implements Parameter {
 			ParserConfigurationException, SAXException, TransformerException,
 			MimeTypeParseException, URISyntaxException {
 		String media = getMediaType(ctype, genericType, mediaTypes);
-		return (T) value.produce(genericType, media);
+		return (T) value.as(genericType, media);
 	}
 
 	private boolean isReadable(Class<?> componentType, String[] mediaTypes)
 			throws MimeTypeParseException {
 		String media = getMediaType(componentType, componentType, mediaTypes);
-		return sample.isProducible(componentType, media);
+		return sample.toMedia(componentType, media) != null;
 	}
 
 	private String getMediaType(Class<?> type, Type genericType,
 			String[] mediaTypes) throws MimeTypeParseException {
 		Accepter accepter = new Accepter(mediaTypes);
 		for (MimeType m : accepter.getAcceptable(this.mediaTypes)) {
-			if (sample.isProducible(genericType, m.toString()))
+			if (sample.toMedia(genericType, m.toString()) != null)
 				return m.toString();
 		}
 		return null;

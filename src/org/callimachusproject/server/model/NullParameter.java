@@ -28,6 +28,7 @@
  */
 package org.callimachusproject.server.model;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,11 +38,15 @@ import java.util.Set;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.Accepter;
+import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
 
 /**
@@ -49,10 +54,10 @@ import org.openrdf.repository.object.ObjectConnection;
  */
 public class NullParameter implements Parameter {
 	private final FluidFactory ff = FluidFactory.getInstance();
-	private final Fluid reader;
+	private final FluidBuilder fb;
 
 	public NullParameter(ObjectConnection con) {
-		reader = ff.builder(con).nil("*/*");
+		fb = ff.builder(con);
 	}
 
 	public Collection<? extends MimeType> getReadableTypes(Class<?> ctype,
@@ -60,10 +65,10 @@ public class NullParameter implements Parameter {
 		FluidType type = new FluidType(gtype, null);
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType m : accepter.getAcceptable("*/*")) {
-			if (reader.isProducible(gtype, m.toString())) {
+			if (fb.media("*/*").toMedia(gtype, m.toString()) != null) {
 				acceptable.add(m);
 			} else if (type.isSetOrArray()) {
-				if (reader.isProducible(type.component(m.toString()))) {
+				if (fb.media("*/*").toMedia(type.component(m.toString())) != null) {
 					acceptable.add(m);
 				}
 			}
@@ -72,7 +77,7 @@ public class NullParameter implements Parameter {
 	}
 
 	public <T> T read(Class<T> ctype, Type genericType, String[] mediaTypes)
-			throws MimeTypeParseException {
+			throws MimeTypeParseException, IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
 		FluidType type = new FluidType(genericType, null);
 		Class<?> componentType = type.component().asClass();
 		if (type.isArray() && isReadable(componentType, mediaTypes))
@@ -91,17 +96,18 @@ public class NullParameter implements Parameter {
 	}
 
 	private boolean isReadable(Class<?> componentType, String[] mediaTypes)
-			throws MimeTypeParseException {
+			throws MimeTypeParseException, IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
 		String media = getMediaType(componentType, componentType, mediaTypes);
-		return reader.isProducible(componentType, media);
+		return fb.media("*/*").toMedia(componentType, media) != null;
 	}
 
 	private String getMediaType(Class<?> type, Type genericType,
-			String[] mediaTypes) throws MimeTypeParseException {
+			String[] mediaTypes) throws MimeTypeParseException, IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
 		Accepter accepter = new Accepter(mediaTypes);
 		for (MimeType m : accepter.getAcceptable("*/*")) {
-			if (reader.isProducible(genericType, m.toString()))
-				return m.toString();
+			String media = fb.media("*/*").toMedia(genericType, m.toString());
+			if (media != null)
+				return media;
 		}
 		return null;
 	}

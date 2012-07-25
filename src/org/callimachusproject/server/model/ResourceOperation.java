@@ -542,12 +542,6 @@ public class ResourceOperation extends ResourceRequest {
 		return weak + '"' + revision + '-' + cd + '-' + v + '"';
 	}
 
-	public String[] getTypes(Method method) {
-		if (method.isAnnotationPresent(type.class))
-			return method.getAnnotation(type.class).value();
-		return new String[0];
-	}
-
 	private Method findMethod(String method) throws MimeTypeParseException, RepositoryException {
 		return findMethod(method, null);
 	}

@@ -30,6 +30,7 @@
 package org.callimachusproject.server.model;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -224,7 +225,7 @@ public class ResourceRequest extends Request {
 			String[] mediaTypes = method.getAnnotation(type.class).value();
 			for (MimeType m : accepter.getAcceptable(mediaTypes)) {
 				if (writer.isConsumable(genericType, m.toString())) {
-					return getContentType(type, genericType, m);
+					return getContentType(type, genericType, getTypes(method), m);
 				}
 			}
 		} else {
@@ -237,11 +238,17 @@ public class ResourceRequest extends Request {
 			}
 			for (MimeType m : accepter.getAcceptable()) {
 				if (writer.isConsumable(genericType, m.toString())) {
-					return getContentType(type, genericType, m);
+					return getContentType(type, genericType, getTypes(method), m);
 				}
 			}
 		}
 		return null;
+	}
+
+	public String[] getTypes(Method method) {
+		if (method.isAnnotationPresent(type.class))
+			return method.getAnnotation(type.class).value();
+		return new String[0];
 	}
 
 	public ObjectConnection getObjectConnection() {
@@ -344,16 +351,14 @@ public class ResourceRequest extends Request {
 		return getQueryString() != null;
 	}
 
-	private String getContentType(Class<?> type, Type genericType, MimeType m) {
+	private String getContentType(Class<?> type, Type genericType, String[] mediaTypes, MimeType m) {
 		m.removeParameter("q");
-		try {
-			return writer.nil(genericType, m.toString()).asHttpEntity(m.toString()).getContentType().getValue();
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Exception e) {
-			logger.warn(e.toString(), e);
-			return null;
+		String media = "*/*";
+		if (mediaTypes != null && mediaTypes.length > 0) {
+			media = mediaTypes[0];
 		}
+		// TODO change to accept multiple mediaTypes
+		return writer.nil(genericType, media).toHttpEntityMedia(m.toString());
 	}
 
 	private void initiateActivity() throws RepositoryException,

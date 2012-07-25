@@ -45,6 +45,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.exceptions.UnsupportedMediaType;
@@ -57,12 +58,11 @@ import org.xml.sax.SAXException;
  * Wraps an HttpEntity is a parameter.
  */
 public abstract class BodyParameter implements Parameter {
-	private final FluidFactory ff = FluidFactory.getInstance();
 	private final String mimeType;
 	private final boolean stream;
 	private final String base;
 	private final String location;
-	private final ObjectConnection con;
+	private final FluidBuilder fb;
 
 	public BodyParameter(String mimeType, boolean stream,
 			String base, String location, ObjectConnection con) {
@@ -70,7 +70,7 @@ public abstract class BodyParameter implements Parameter {
 		this.stream = stream;
 		this.base = base;
 		this.location = location;
-		this.con = con;
+		this.fb = FluidFactory.getInstance().builder(con);
 	}
 
 	public void close() throws IOException {
@@ -83,7 +83,6 @@ public abstract class BodyParameter implements Parameter {
 
 	public Collection<MimeType> getReadableTypes(Class<?> ctype, Type gtype,
 			Accepter accepter) throws MimeTypeParseException {
-		Fluid reader = ff.builder(con).nil(mimeType);
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType media : accepter.getAcceptable(mimeType)) {
 			if (!stream && location == null && mimeType == null) {
@@ -94,13 +93,13 @@ public abstract class BodyParameter implements Parameter {
 				acceptable.add(media);
 				continue;
 			}
-			if (reader.isProducible(gtype, media.toString())) {
+			if (fb.media(mimeType).toMedia(gtype, media.toString()) != null) {
 				acceptable.add(media);
 				continue;
 			}
 			FluidType mtype = new FluidType(gtype, media.toString());
 			if (mtype.isSetOrArray()) {
-				if (reader.isProducible(mtype.component())) {
+				if (fb.media(mimeType).toMedia(mtype.component()) != null) {
 					acceptable.add(media);
 					continue;
 				}
@@ -120,35 +119,35 @@ public abstract class BodyParameter implements Parameter {
 		ReadableByteChannel in = getReadableByteChannel();
 		Fluid reader;
 		if (location == null) {
-			reader = ff.builder(con).channel(mimeType, in, base);
+			reader = fb.channel(mimeType, in, base);
 		} else {
 			if (in != null) {
 				in.close();
 			}
-			reader = ff.builder(con).uri(location, base);
+			reader = fb.uri(location, base);
 		}
 		if (stream && type.isOrIsSetOf(ReadableByteChannel.class))
 			return (T) type.castComponent(in);
 		for (MimeType media : new Accepter(mediaTypes).getAcceptable(mimeType)) {
-			if (!reader.isProducible(gtype, media.toString()))
+			if (reader.toMedia(gtype, media.toString()) == null)
 				continue;
-			return (T) (reader.produce(gtype, media.toString()));
+			return (T) (reader.as(gtype, media.toString()));
 		}
-		if (reader.isProducible(type))
-			return (T) (reader.produce(type));
+		if (reader.toMedia(type) != null)
+			return (T) (reader.as(type));
 		if (type.isSetOrArray()) {
 			Type cgtype = type.component().asType();
 			Class<?> cctype = type.component().asClass();
 			for (MimeType media : new Accepter(mediaTypes)
 					.getAcceptable(mimeType)) {
 				FluidType mctype = type.as(media.toString());
-				if (!reader.isProducible(mctype))
+				if (reader.toMedia(mctype) == null)
 					continue;
-				return (T) type.castComponent(reader.produce(mctype));
+				return (T) type.castComponent(reader.as(mctype));
 			}
 			FluidType mmtype = type.component();
-			if (reader.isProducible(mmtype))
-				return (T) type.castComponent(reader.produce(mmtype));
+			if (reader.toMedia(mmtype) != null)
+				return (T) type.castComponent(reader.as(mmtype));
 		}
 		throw new UnsupportedMediaType();
 	}

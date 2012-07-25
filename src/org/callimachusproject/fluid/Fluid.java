@@ -16,32 +16,36 @@ import org.xml.sax.SAXException;
 
 public interface Fluid {
 
+	String toHttpEntityMedia(String media);
+
 	HttpEntity asHttpEntity(String media) throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
 			ParserConfigurationException;
+
+	String toChannelMedia(String media);
 
 	ReadableByteChannel asChannel(String media) throws IOException,
 			OpenRDFException, XMLStreamException, TransformerException,
 			ParserConfigurationException;
 
-	boolean isProducible(Type gtype, String media);
+	String toMedia(Type gtype, String media);
 
 	/**
 	 * Must close InputStream or return an object that will later close the
 	 * InputStream.
 	 */
-	<T> T produce(Type gtype, String media) throws OpenRDFException,
+	Object as(Type gtype, String media) throws OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException,
 			TransformerException, URISyntaxException;
 
-	boolean isProducible(FluidType mtype);
+	String toMedia(FluidType ftype);
 
 	/**
 	 * Must close InputStream or return an object that will later close the
 	 * InputStream.
 	 */
-	Object produce(FluidType mtype) throws OpenRDFException, IOException,
+	Object as(FluidType ftype) throws OpenRDFException, IOException,
 			XMLStreamException, ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException,
 			URISyntaxException;

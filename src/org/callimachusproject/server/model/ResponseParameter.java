@@ -116,7 +116,7 @@ public class ResponseParameter implements Parameter {
 			return accepter.getAcceptable();
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType mimeType : accepter.getAcceptable(mimeTypes)) {
-			if (writer.isProducible(genericType, mimeType.toString())) {
+			if (writer.toMedia(genericType, mimeType.toString()) != null) {
 				acceptable.add(mimeType);
 			}
 		}
@@ -132,8 +132,8 @@ public class ResponseParameter implements Parameter {
 			return (T) (result);
 		Accepter accepter = new Accepter(mediaTypes);
 		for (final MimeType mimeType : accepter.getAcceptable(mimeTypes)) {
-			if (writer.isProducible(genericType, mimeType.toString())) {
-				return writer.produce(genericType, mimeType.toString());
+			if (writer.toMedia(genericType, mimeType.toString()) != null) {
+				return (T) writer.as(genericType, mimeType.toString());
 			}
 		}
 		throw new ClassCastException(String.valueOf(result)

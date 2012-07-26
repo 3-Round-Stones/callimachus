@@ -29,13 +29,11 @@
  */
 package org.callimachusproject.fluid.producers;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.producers.base.URIListReader;
-import org.openrdf.annotations.Iri;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
@@ -52,18 +50,18 @@ public class RDFObjectURIReader extends URIListReader<Object> {
 		super(null);
 	}
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		if (!super.isReadable(mtype, con))
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		if (!super.isProducable(ftype, builder))
 			return false;
-		Class<?> c = mtype.asClass();
-		if (mtype.isSetOrArray()) {
-			c = mtype.component().asClass();
+		Class<?> c = ftype.asClass();
+		if (ftype.isSetOrArray()) {
+			c = ftype.component().asClass();
 		}
 		if (Object.class.equals(c))
 			return true;
 		if (RDFObject.class.isAssignableFrom(c))
 			return true;
-		return isConcept(c, con);
+		return builder.isConcept(c);
 	}
 
 	@Override
@@ -75,16 +73,6 @@ public class RDFObjectURIReader extends URIListReader<Object> {
 			return con.getObject(con.getValueFactory().createBNode(
 					uri.substring(2)));
 		return con.getObject(uri);
-	}
-
-	private boolean isConcept(Class<?> component, ObjectConnection con) {
-		for (Annotation ann : component.getAnnotations()) {
-			for (Method m : ann.annotationType().getDeclaredMethods()) {
-				if (m.isAnnotationPresent(Iri.class))
-					return true;
-			}
-		}
-		return con.getObjectFactory().isNamedConcept(component);
 	}
 
 }

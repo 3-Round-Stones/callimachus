@@ -46,6 +46,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.util.EntityUtils;
 import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
@@ -54,6 +55,7 @@ import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.CatReadableByteChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
+import org.xml.sax.SAXException;
 
 /**
  * Writes {@link HttpMessage} objects to message/http streams.
@@ -64,45 +66,70 @@ import org.openrdf.OpenRDFException;
 public class HttpMessageWriter implements Consumer<HttpMessage> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		String mimeType = mtype.getMediaType();
-		Class<?> type = mtype.asClass();
-		if (Object.class.equals(type) && mimeType != null)
-			return mimeType.startsWith("message/http");
-		return HttpResponse.class.equals(type)
-				|| HttpMessage.class.equals(type)
-				|| HttpRequest.class.equals(type)
-				|| HttpEntityEnclosingRequest.class.equals(type);
+		if (mtype.is(HttpResponse.class) || mtype.is(HttpMessage.class)
+				|| mtype.is(HttpRequest.class)
+				|| mtype.is(HttpEntityEnclosingRequest.class))
+			return true;
+		return mtype.isUnknown() && mtype.is("message/http");
 	}
 
-	public Fluid consume(final FluidType ftype, final HttpMessage result,
-			final String base, final FluidBuilder builder) {
-		return new AbstractFluid(builder) {
-			public String toChannelMedia(String media) {
-				return getMediaType(media);
+	public Fluid consume(final HttpMessage result, final String base,
+			final FluidType ftype, final FluidBuilder builder) {
+		return new AbstractFluid() {
+			public String getSystemId() {
+				return base;
 			}
 
-			public ReadableByteChannel asChannel(String media)
+			public FluidType getFluidType() {
+				return ftype;
+			}
+
+			public void asVoid() throws IOException {
+				HttpEntity entity = getEntity(result);
+				if (entity != null) {
+					EntityUtils.consume(entity);
+				}
+			}
+
+			public String toChannelMedia(String... media) {
+				return getMediaType(ftype.as(media));
+			}
+
+			public ReadableByteChannel asChannel(String... media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
-				return write(ftype.as(getMediaType(media)), result, base);
+				try {
+					return write(ftype.as(toChannelMedia(media)), result,
+							base);
+				} finally {
+					asVoid();
+				}
+			}
+
+			public String toHttpResponseMedia(String... media) {
+				if (result instanceof HttpResponse)
+					return ftype.as(media).preferred();
+				return null;
+			}
+
+			public HttpResponse asHttpResponse(String... media)
+					throws IOException, OpenRDFException, XMLStreamException,
+					TransformerException, ParserConfigurationException,
+					SAXException {
+				return (HttpResponse) result;
 			}
 
 			public String toString() {
-				return result.toString();
+				return String.valueOf(result);
 			}
 		};
 	}
 
-	private String getMediaType(String mimeType) {
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("message/*"))
-			return "message/http";
-		if (mimeType.startsWith("application/*"))
-			return "application/http";
-		return mimeType;
+	String getMediaType(FluidType ftype) {
+		return ftype.as("message/http", "application/http", "*/*").preferred();
 	}
 
-	private ReadableByteChannel write(FluidType mtype, HttpMessage result,
+	ReadableByteChannel write(FluidType mtype, HttpMessage result,
 			String base) throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
 			ParserConfigurationException {
@@ -150,7 +177,7 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 		return cat;
 	}
 
-	private HttpEntity getEntity(HttpMessage msg) {
+	HttpEntity getEntity(HttpMessage msg) {
 		if (msg instanceof HttpResponse) {
 			return ((HttpResponse) msg).getEntity();
 		} else if (msg instanceof HttpEntityEnclosingRequest) {

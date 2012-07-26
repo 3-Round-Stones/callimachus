@@ -148,6 +148,7 @@ public class TransformTest extends MetadataServerTestCase {
 		}
 
 		@Iri("urn:test:toxml")
+		@type("application/xml")
 		public XMLEventReader xml(@type("application/rdf+xml") InputStream in)
 				throws XMLStreamException {
 			XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();

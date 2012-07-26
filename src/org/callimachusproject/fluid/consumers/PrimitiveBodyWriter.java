@@ -67,8 +67,8 @@ public class PrimitiveBodyWriter implements Consumer<Object> {
 		return false;
 	}
 
-	public Fluid consume(FluidType ftype, Object result, String base,
+	public Fluid consume(Object result, String base, FluidType ftype,
 			FluidBuilder builder) {
-		return delegate.consume(ftype.as(String.class), String.valueOf(result), base, builder);
+		return delegate.consume(String.valueOf(result), base, ftype.as(String.class), builder);
 	}
 }

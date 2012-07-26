@@ -46,12 +46,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.xslt.DocumentFactory;
 import org.callimachusproject.xslt.DOMSourceFactory;
-import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -61,7 +61,7 @@ import org.w3c.dom.DocumentFragment;
  * Parses a DocumentFragment from an InputStream.
  */
 public class DocumentFragmentMessageReader implements
-		Producer<DocumentFragment> {
+		Producer {
 	private static DOMSourceFactory sourceFactory = DOMSourceFactory.newInstance();
 
 	private static class ErrorCatcher implements ErrorListener {
@@ -95,26 +95,24 @@ public class DocumentFragmentMessageReader implements
 	private TransformerFactory factory = TransformerFactory.newInstance();
 	private DocumentFactory builder = DocumentFactory.newInstance();
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.asClass();
-		String mediaType = mtype.getMediaType();
-		if (mediaType != null && !mediaType.startsWith("application/")
-				&& !mediaType.contains("xml"))
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		Class<?> type = ftype.asClass();
+		if (!ftype.is("*/xml"))
 			return false;
 		return type.isAssignableFrom(DocumentFragment.class);
 	}
 
-	public DocumentFragment readFrom(FluidType mtype, ObjectConnection con,
-			ReadableByteChannel in, Charset charset, String base, String location)
+	public DocumentFragment produce(FluidType ftype, ReadableByteChannel in,
+			Charset charset, String base, FluidBuilder builder)
 			throws TransformerConfigurationException, TransformerException,
 			ParserConfigurationException, IOException, XMLStreamException {
-		Class<?> type = mtype.asClass();
+		Class<?> type = ftype.asClass();
 		if (in == null)
 			return null;
 		try {
 			DocumentFragment node = createNode(type);
 			DOMResult result = new DOMResult(node);
-			Source source = createSource(location, in, charset, base);
+			Source source = createSource(in, charset, base);
 			Transformer transformer = factory.newTransformer();
 			ErrorCatcher listener = new ErrorCatcher();
 			transformer.setErrorListener(listener);
@@ -134,18 +132,12 @@ public class DocumentFragmentMessageReader implements
 		return doc.createDocumentFragment();
 	}
 
-	private Source createSource(String location, ReadableByteChannel cin,
-			Charset charset, String base) throws TransformerException {
+	private Source createSource(ReadableByteChannel cin, Charset charset,
+			String base) throws TransformerException {
 		InputStream in = ChannelUtil.newInputStream(cin);
-		if (charset == null && in != null && location != null)
-			return sourceFactory.createSource(in, location);
-		if (charset == null && in != null && location == null)
+		if (charset == null && in != null)
 			return sourceFactory.createSource(in, base);
-		if (in == null && location != null)
-			return sourceFactory.createSource(location);
 		Reader reader = new InputStreamReader(in, charset);
-		if (location != null)
-			return sourceFactory.createSource(reader, location);
 		return sourceFactory.createSource(reader, base);
 	}
 }

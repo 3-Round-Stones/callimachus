@@ -78,65 +78,63 @@ public class URIListWriter<URI> implements Consumer<URI> {
 		return delegate.isConsumable(mtype.as(String.class), builder);
 	}
 
-	public Fluid consume(final FluidType ftype, final URI result, final String base,
+	public Fluid consume(final URI result, final String base, final FluidType ftype,
 			final FluidBuilder builder) {
 		if (result == null)
-			return delegate.consume(ftype.as(String.class), null, base, builder);
+			return delegate.consume(null, base, ftype.as(String.class), builder);
 		if (!ftype.isSetOrArray()) {
-			return delegate.consume(ftype.as(String.class), toString(result), base, builder);
+			return delegate.consume(toString(result), base, ftype.as(String.class), builder);
 		}
-		return new AbstractFluid(builder) {
-			public String toChannelMedia(String media) {
-				return getMediaType(media);
+		return new AbstractFluid() {
+			public String getSystemId() {
+				return base;
 			}
 
-			public ReadableByteChannel asChannel(String media)
+			public FluidType getFluidType() {
+				return ftype;
+			}
+
+			public void asVoid() {
+				// no-op
+			}
+
+			public String toChannelMedia(String... media) {
+				return getMediaType(ftype.as(media));
+			}
+
+			public ReadableByteChannel asChannel(String... media)
 					throws IOException {
-				return ChannelUtil.newChannel(write(ftype.as(getMediaType(media)), result, base));
+				return ChannelUtil.newChannel(write(ftype.as(toChannelMedia(media)), result, base));
 			}
 
-			public HttpEntity asHttpEntity(String media) throws IOException {
+			public String toHttpEntityMedia(String... media) {
+				return toChannelMedia(media);
+			}
+
+			public HttpEntity asHttpEntity(String... media) throws IOException {
 				String mediaType = toHttpEntityMedia(media);
-				if (mediaType == null)
-					return null;
 				int size = write(ftype.as(mediaType), result, base).length;
 				return new ReadableHttpEntityChannel(mediaType, size, asChannel(mediaType));
 			}
 	
 			public String toString() {
-				return result.toString();
+				return String.valueOf(result);
 			}
 		};
 	}
 
-	private String getMediaType(String mimeType) {
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("text/*")) {
-			mimeType = "text/uri-list";
-		}
-		Charset charset = new FluidType(Object.class, mimeType).getCharset();
-		if (charset == null) {
-			charset = Charset.defaultCharset();
-		}
-		if (mimeType.contains("charset=") || !mimeType.startsWith("text/"))
+	String getMediaType(FluidType ftype) {
+		String mimeType = ftype.as("text/uri-list", "text/*").preferred();
+		if (mimeType.contains("charset="))
 			return mimeType;
-		return mimeType + ";charset=" + charset.name();
+		return mimeType + ";charset=" + Charset.defaultCharset().name();
 	
 	}
 
-	private byte[] write(FluidType mtype, URI result,
+	byte[] write(FluidType mtype, URI result,
 			String base) throws IOException {
-		String mimeType = mtype.getMediaType();
 		if (result == null)
 			return null;
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("text/*")) {
-			mimeType = "text/uri-list";
-		}
-		return write(mtype, result);
-	}
-
-	private byte[] write(FluidType mtype, URI result) throws IOException {
 		Charset charset = mtype.getCharset();
 		if (charset == null) {
 			charset = USASCII;
@@ -145,7 +143,7 @@ public class URIListWriter<URI> implements Consumer<URI> {
 		Writer writer = new OutputStreamWriter(out, charset);
 		Iterator<?> iter = mtype.iteratorOf(result);
 		while (iter.hasNext()) {
-			writer.write(toString((URI) iter.next()));
+			writer.write(toString(componentType.cast(iter.next())));
 			if (iter.hasNext()) {
 				writer.write("\r\n");
 			}

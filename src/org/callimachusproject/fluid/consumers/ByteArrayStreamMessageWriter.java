@@ -49,56 +49,50 @@ public class ByteArrayStreamMessageWriter implements
 		Consumer<ByteArrayOutputStream> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		String mimeType = mtype.getMediaType();
-		if (!ByteArrayOutputStream.class.equals(mtype.asClass()))
+		if (!mtype.is(ByteArrayOutputStream.class))
 			return false;
-		return mimeType == null || !mimeType.contains("*")
-				|| mimeType.startsWith("*")
-				|| mimeType.startsWith("application/*");
+		return mtype.is("application/*");
 	}
 
-	public Fluid consume(final FluidType ftype, final ByteArrayOutputStream result, final String base, final FluidBuilder builder) {
-		return new AbstractFluid(builder) {
-			public String toChannelMedia(String media) {
-				return getMediaType(media);
+	public Fluid consume(final ByteArrayOutputStream result, final String base, final FluidType ftype, final FluidBuilder builder) {
+		return new AbstractFluid() {
+			public String getSystemId() {
+				return base;
 			}
 
-			public ReadableByteChannel asChannel(String media)
+			public FluidType getFluidType() {
+				return ftype;
+			}
+
+			public void asVoid() {
+				// no-op
+			}
+
+			public String toChannelMedia(String... media) {
+				return ftype.as(media).preferred();
+			}
+
+			public ReadableByteChannel asChannel(String... media)
 					throws IOException {
-				return write(result);
+				if (result == null)
+					return ChannelUtil.emptyChannel();
+				return ChannelUtil.newChannel(result.toByteArray());
 			}
 
-			public HttpEntity asHttpEntity(String media) throws IOException {
+			public String toHttpEntityMedia(String... media) {
+				return toChannelMedia(media);
+			}
+
+			public HttpEntity asHttpEntity(String... media) throws IOException {
 				String mediaType = toHttpEntityMedia(media);
-				if (mediaType == null)
-					return null;
+				long size = (long) (result == null ? 0 :result.size());
 				return new ReadableHttpEntityChannel(mediaType,
-						getSize(result), asChannel(mediaType));
+						size, asChannel(mediaType));
 			}
 
 			public String toString() {
-				return result.toString();
+				return String.valueOf(result);
 			}
 		};
-	}
-
-	private String getMediaType(String mimeType) {
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("application/*"))
-			return "application/octet-stream";
-		return mimeType;
-	}
-
-	private long getSize(ByteArrayOutputStream result) {
-		if (result == null)
-			return 0;
-		return result.size();
-	}
-
-	private ReadableByteChannel write(ByteArrayOutputStream result)
-			throws IOException {
-		if (result == null)
-			return ChannelUtil.emptyChannel();
-		return ChannelUtil.newChannel(result.toByteArray());
 	}
 }

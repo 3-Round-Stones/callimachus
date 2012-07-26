@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2010, Zepheira LLC, Some rights reserved.
  * Copyright (c) 2011, Talis Inc., Some rights reserved.
+ * Copyright (c) 2012, 3 Round Stones Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -199,7 +200,7 @@ public class GenericType {
 			return nil();
 		if (isSet()) {
 			int len = Array.getLength(ar);
-			Set set = new HashSet(len);
+			Set<Object> set = new HashSet<Object>(len);
 			for (int i = 0; i < len; i++) {
 				set.add(Array.get(ar, i));
 			}
@@ -210,22 +211,22 @@ public class GenericType {
 		return cast(Array.get(ar, 0));
 	}
 
-	public Object castMap(Map<?, Collection<?>> map) {
+	public Object castMap(Map<Object, Collection<Object>> map) {
 		if (map == null || map.isEmpty())
 			return nil();
 		if (isMap()) {
 			GenericType keyType = key();
 			GenericType valueType = component();
-			Map result = new LinkedHashMap();
-			for (Map.Entry<?, Collection<?>> e : map.entrySet()) {
+			Map<Object, Object> result = new LinkedHashMap<Object, Object>();
+			for (Map.Entry<Object, Collection<Object>> e : map.entrySet()) {
 				Object key = keyType.cast(e.getKey());
 				Object value = valueType.castCollection(e.getValue());
 				result.put(key, value);
 			}
 			return cast(result);
 		}
-		List list = new ArrayList();
-		for (Map.Entry<?, Collection<?>> e : map.entrySet()) {
+		List<Object> list = new ArrayList<Object>();
+		for (Map.Entry<Object, Collection<Object>> e : map.entrySet()) {
 			list.addAll(e.getValue());
 		}
 		return castCollection(list);
@@ -233,7 +234,7 @@ public class GenericType {
 
 	public Iterator<?> iteratorOf(Object obj) {
 		if (isSet())
-			return ((Set) obj).iterator();
+			return ((Set<?>) obj).iterator();
 		if (isArray()) {
 			int len = Array.getLength(obj);
 			List<Object> list = new ArrayList<Object>(len);
@@ -263,11 +264,11 @@ public class GenericType {
 		if (isSet()) {
 			if (list instanceof Set)
 				return cast(list);
-			return cast(new LinkedHashSet(list));
+			return cast(new LinkedHashSet<Object>(list));
 		} else if (isArray()) {
 			int len = list.size();
 			Object result = Array.newInstance(component().asClass(), len);
-			Iterator iter = list.iterator();
+			Iterator<?> iter = list.iterator();
 			for (int i = 0; i < len; i++) {
 				Array.set(result, i, iter.next());
 			}

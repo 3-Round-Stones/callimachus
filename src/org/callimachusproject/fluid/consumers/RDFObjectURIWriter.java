@@ -29,16 +29,11 @@
  */
 package org.callimachusproject.fluid.consumers;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.openrdf.annotations.Iri;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.query.QueryResult;
-import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 
 /**
@@ -64,25 +59,16 @@ public class RDFObjectURIWriter extends URIListWriter<Object> {
 			return false;
 		if (Object.class.equals(c) || RDFObject.class.equals(c))
 			return true;
-		return isConcept(c, builder.getObjectConnection());
+		return builder.isConcept(c);
 	}
 
 	@Override
 	protected String toString(Object result) {
 		Resource resource = ((RDFObject) result).getResource();
+		assert resource != null;
 		if (resource instanceof URI)
 			return resource.stringValue();
 		return "_:" + resource.stringValue();
-	}
-
-	private boolean isConcept(Class<?> component, ObjectConnection con) {
-		for (Annotation ann : component.getAnnotations()) {
-			for (Method m : ann.annotationType().getDeclaredMethods()) {
-				if (m.isAnnotationPresent(Iri.class))
-					return true;
-			}
-		}
-		return con.getObjectFactory().isNamedConcept(component);
 	}
 
 }

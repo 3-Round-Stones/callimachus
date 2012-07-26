@@ -115,55 +115,56 @@ public class DocumentFragmentMessageWriter implements
 	}
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		String mediaType = mtype.getMediaType();
-		if (DocumentFragment.class.equals(mtype.asClass()))
+		if (mtype.is(DocumentFragment.class))
 			return true;
-		if (mediaType == null)
-			return false;
-		if (!mediaType.startsWith("text/")
-				&& !mediaType.startsWith("application/")
-				&& !mediaType.startsWith("*"))
-			return false;
-		if (mtype.isUnknown() && (mediaType.contains("+xml")
-				|| mediaType.contains("/xml")))
+		if (mtype.isUnknown() && mtype.is("application/xml-external-parsed-entity", "text/xml-external-parsed-entity", "application/xml", "text/xml"))
 			return true;
-		return DocumentFragment.class.isAssignableFrom((Class<?>) mtype.asClass());
+		return DocumentFragment.class.isAssignableFrom(mtype.asClass());
 	}
 
-	public Fluid consume(final FluidType ftype, final DocumentFragment result, final String base,
+	public Fluid consume(final DocumentFragment result, final String base, final FluidType ftype,
 			final FluidBuilder builder) {
-		return new AbstractFluid(builder) {
-			public String toChannelMedia(String media) {
-				return getMediaType(media);
+		return new AbstractFluid() {
+			public String getSystemId() {
+				return base;
 			}
 
-			public ReadableByteChannel asChannel(String media)
+			public FluidType getFluidType() {
+				return ftype;
+			}
+
+			public void asVoid() {
+				// no-op
+			}
+
+			public String toChannelMedia(String... media) {
+				return getMediaType(ftype.as(media));
+			}
+
+			public ReadableByteChannel asChannel(String... media)
 					throws IOException {
-				return write(ftype.as(getMediaType(media)), result, base);
+				return write(ftype.as(getMediaType(ftype.as(media))), result, base);
 			}
 	
 			public String toString() {
-				return result.toString();
+				return String.valueOf(result);
 			}
 		};
 	}
 
-	private String getMediaType(String mimeType) {
-		Charset charset = new FluidType(Object.class, mimeType).getCharset();
-		if (charset == null) {
-			charset = Charset.defaultCharset();
-		}
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("text/*"))
-			return "text/xml-external-parsed-entity;charset=" + charset.name();
-		if (mimeType.startsWith("text/"))
+	String getMediaType(FluidType ftype) {
+		String mimeType = ftype.as("application/xml-external-parsed-entity", "text/xml-external-parsed-entity", "application/xml", "text/xml").preferred();
+		if (mimeType.startsWith("text/") && !mimeType.contains("charset=")) {
+			Charset charset = ftype.getCharset();
+			if (charset == null) {
+				charset = Charset.defaultCharset();
+			}
 			return mimeType + ";charset=" + charset.name();
-		if (mimeType.startsWith("application/*"))
-			return "application/xml-external-parsed-entity";
+		}
 		return mimeType;
 	}
 
-	private ReadableByteChannel write(final FluidType mtype,
+	ReadableByteChannel write(final FluidType mtype,
 			final DocumentFragment result, final String base) throws IOException {
 		return new ProducerChannel(new WritableProducer() {
 			public void produce(WritableByteChannel out) throws IOException {
@@ -179,6 +180,8 @@ public class DocumentFragmentMessageWriter implements
 			}
 
 			public String toString() {
+				if (result == null)
+					return super.toString();
 				return result.toString();
 			}
 		});
@@ -206,6 +209,8 @@ public class DocumentFragmentMessageWriter implements
 
 	private DOMSource createSource(DocumentFragment node, String base)
 			throws ParserConfigurationException {
+		if (node == null)
+			return new DOMSource(builder.newDocument(), base);
 		if (node.getChildNodes().getLength() == 1)
 			return new DOMSource(node.getFirstChild(), base);
 		Document doc = builder.newDocument();

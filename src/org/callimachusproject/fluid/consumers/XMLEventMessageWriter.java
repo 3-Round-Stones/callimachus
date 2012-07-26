@@ -60,51 +60,55 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 	}
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		String mediaType = mtype.getMediaType();
-		if (!XMLEventReader.class.isAssignableFrom((Class<?>) mtype.asClass()))
+		if (!XMLEventReader.class.isAssignableFrom(mtype.asClass()))
 			return false;
-		if (mediaType != null && !mediaType.startsWith("*")
-				&& !mediaType.startsWith("text/")
-				&& !mediaType.startsWith("application/"))
-			return false;
-		return true;
+		return mtype.is("application/*", "text/*");
 	}
 
-	public Fluid consume(final FluidType ftype, final XMLEventReader result, final String base,
+	public Fluid consume(final XMLEventReader result, final String base, final FluidType ftype,
 			final FluidBuilder builder) {
-		return new AbstractFluid(builder) {
-			public String toChannelMedia(String media) {
-				return getMediaType(media);
+		return new AbstractFluid() {
+			public String getSystemId() {
+				return base;
 			}
 
-			public ReadableByteChannel asChannel(String media)
+			public FluidType getFluidType() {
+				return ftype;
+			}
+
+			public void asVoid() {
+				// no-op
+			}
+
+			public String toChannelMedia(String... media) {
+				return getMediaType(ftype.as(media));
+			}
+
+			public ReadableByteChannel asChannel(String... media)
 					throws IOException {
-				return write(ftype.as(getMediaType(media)), result, base);
+				return write(ftype.as(toChannelMedia(media)), result, base);
 			}
 	
 			public String toString() {
-				return result.toString();
+				return String.valueOf(result);
 			}
 		};
 	}
 
-	private String getMediaType(String mimeType) {
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("application/*"))
-			return "application/xml";
-		if (mimeType.startsWith("text/")) {
-			Charset charset = new FluidType(Object.class, mimeType).getCharset();
+	String getMediaType(FluidType ftype) {
+		FluidType xml = ftype.as("application/xml", "text/xml", "application/*", "text/*");
+		String mimeType = xml.preferred();
+		if (mimeType.startsWith("text/") && !mimeType.contains("charset=")) {
+			Charset charset = xml.getCharset();
 			if (charset == null) {
 				charset = Charset.defaultCharset();
 			}
-			if (mimeType.startsWith("text/*"))
-				return "text/xml;charset=" + charset.name();
 			return mimeType + ";charset=" + charset.name();
 		}
 		return mimeType;
 	}
 
-	private ReadableByteChannel write(final FluidType mtype,
+	ReadableByteChannel write(final FluidType mtype,
 			final XMLEventReader result, final String base) throws IOException {
 		if (result == null)
 			return null;

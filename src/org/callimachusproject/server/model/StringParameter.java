@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,9 +50,8 @@ import javax.xml.transform.TransformerException;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
-import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.fluid.GenericType;
 import org.callimachusproject.server.util.Accepter;
-import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
@@ -77,12 +75,11 @@ public class StringParameter implements Parameter {
 		FluidBuilder fb = ff.builder(con);
 		if (values == null || values.length == 0) {
 			this.values = new Fluid[0];
-			this.sample = fb.media("text/plain");
+			this.sample = fb.media(mimeType);
 		} else {
-			Charset charset = Charset.forName("UTF-8");
 			this.values = new Fluid[values.length];
 			for (int i=0; i<values.length; i++) {
-				this.values[i] = fb.channel("text/plain;charset=" + charset.name(), ChannelUtil.newChannel(values[i].getBytes(charset)), base);
+				this.values[i] = fb.consume(values[i], base, String.class, mimeType);
 			}
 			this.sample = this.values[0];
 		}
@@ -92,7 +89,7 @@ public class StringParameter implements Parameter {
 			Type gtype, Accepter accepter) throws MimeTypeParseException {
 		if (!accepter.isAcceptable(this.mediaTypes))
 			return Collections.emptySet();
-		FluidType type = new FluidType(gtype, null);
+		GenericType type = new GenericType(gtype);
 		if (type.is(String.class))
 			return accepter.getAcceptable(this.mediaTypes);
 		if (type.isSetOrArrayOf(String.class))
@@ -102,7 +99,7 @@ public class StringParameter implements Parameter {
 			if (sample.toMedia(gtype, m.toString()) != null) {
 				acceptable.add(m);
 			} else if (type.isSetOrArray()) {
-				if (sample.toMedia(type.component(m.toString())) != null) {
+				if (sample.toMedia(type.component().asType(), m.toString()) != null) {
 					acceptable.add(m);
 				}
 			}
@@ -115,10 +112,10 @@ public class StringParameter implements Parameter {
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerException, MimeTypeParseException,
 			URISyntaxException {
-		FluidType type = new FluidType(genericType, null);
+		GenericType type = new GenericType(genericType);
 		if (type.is(String.class)) {
 			if (values != null && values.length > 0)
-				return (T) type.cast(values[0].as(String.class, "text/plain"));
+				return ctype.cast(values[0].asString());
 			return null;
 		}
 		if (type.isSetOrArrayOf(String.class)) {

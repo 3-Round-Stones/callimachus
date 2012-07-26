@@ -34,25 +34,25 @@ import java.io.InputStreamReader;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Converts an InputStream into a Readable string.
  */
-public class ReadableBodyReader implements Producer<Readable> {
+public class ReadableBodyReader implements Producer {
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		return mtype.asClass().isAssignableFrom(InputStreamReader.class)
-				&& (mtype.getMediaType().startsWith("text/") || mtype.getMediaType().startsWith("*/"));
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		return ftype.asClass().isAssignableFrom(InputStreamReader.class)
+				&& ftype.is("text/*");
 	}
 
-	public Readable readFrom(FluidType mtype, ObjectConnection con,
-			ReadableByteChannel in, Charset charset, String base, String location) throws IOException {
+	public Readable produce(FluidType ftype, ReadableByteChannel in,
+			Charset charset, String base, FluidBuilder builder) throws IOException {
 		if (charset == null) {
-			charset = Charset.forName("ISO-8859-1");
+			charset = Charset.defaultCharset();
 		}
 		return ChannelUtil.newReader(in, charset);
 	}

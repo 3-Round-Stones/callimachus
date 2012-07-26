@@ -159,7 +159,6 @@ public class ModelMessageProvider implements MessageBodyReader<Model>,
 			}
 			return null;
 		}
-		// FIXME FileFormat does not understand MIME parameters
 		String mimeType = media.getType() + "/" + media.getSubtype();
 		return parsers.getFileFormatForMIMEType(mimeType);
 	}
@@ -188,7 +187,6 @@ public class ModelMessageProvider implements MessageBodyReader<Model>,
 			}
 			return null;
 		}
-		// FIXME FileFormat does not understand MIME parameters
 		String mimeType = media.getType() + "/" + media.getSubtype();
 		return writers.getFileFormatForMIMEType(mimeType);
 	}

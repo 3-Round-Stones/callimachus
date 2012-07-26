@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
@@ -49,12 +48,10 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.fluid.Fluid;
-import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
-import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
 
 /**
@@ -63,32 +60,27 @@ import org.xml.sax.SAXException;
  * @author James Leigh
  * 
  */
-public final class FormMapMessageReader implements
-		Producer<Map<String, Object>> {
-	private final FluidFactory ff = FluidFactory.getInstance();
+public final class FormMapMessageReader implements Producer {
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		String mimeType = mtype.getMediaType();
-		if (!mtype.isMap())
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		if (!ftype.isMap())
 			return false;
-		return mimeType != null
-				&& mimeType.startsWith("application/x-www-form-urlencoded");
+		return ftype.is("application/x-www-form-urlencoded");
 	}
 
-	public Map<String, Object> readFrom(FluidType mtype,
-			ObjectConnection con, ReadableByteChannel in, Charset charset,
-			String base, String location) throws TransformerConfigurationException,
-			OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException, TransformerException,
-			URISyntaxException {
+	public Object produce(FluidType ftype, ReadableByteChannel in,
+			Charset charset, String base, FluidBuilder builder)
+			throws TransformerConfigurationException, OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerException {
 		try {
 			if (charset == null) {
 				charset = Charset.forName("ISO-8859-1");
 			}
-			FluidType vtype = mtype.component("text/plain");
+			FluidType vtype = ftype.component("text/plain");
 			if (vtype.isUnknown()) {
 				vtype = vtype.as(String[].class);
-				mtype = mtype.as(new ParameterizedType() {
+				ftype = ftype.as(new ParameterizedType() {
 					public Type getRawType() {
 						return Map.class;
 					}
@@ -102,13 +94,13 @@ public final class FormMapMessageReader implements
 					}
 				});
 			}
-			FluidType ktype = mtype.key("text/plain");
-			Class<?> kc = mtype.key().asClass();
+			FluidType ktype = ftype.key("text/plain");
+			Class<?> kc = ftype.key().asClass();
 			if (Object.class.equals(kc)) {
 				kc = String.class;
 				ktype = ktype.as(String.class);
 			}
-			Map parameters = new LinkedHashMap();
+			Map<Object,Collection<Object>> parameters = new LinkedHashMap<Object,Collection<Object>>();
 			Scanner scanner = new Scanner(in, charset.name());
 			scanner.useDelimiter("&");
 			while (scanner.hasNext()) {
@@ -116,32 +108,27 @@ public final class FormMapMessageReader implements
 				if (nameValue.length == 0 || nameValue.length > 2)
 					continue;
 				String name = decode(nameValue[0]);
-				ReadableByteChannel kin = ChannelUtil.newChannel(name
-						.getBytes(charset));
-				Fluid kf = ff.builder(con).channel("text/plain;charset=" + charset.name(), kin, base);
-				Object key = kf.as(ktype.asType(), ktype.getMediaType());
+				Fluid kf = builder.consume(name, base, String.class, "text/plain", "text/*");
+				Object key = kf.as(ktype);
 				if (nameValue.length < 2) {
 					if (!parameters.containsKey(key)) {
-						parameters.put(key, new ArrayList());
+						parameters.put(key, new ArrayList<Object>());
 					}
 				} else {
 					String value = decode(nameValue[1]);
-					Collection values = (Collection) parameters.get(key);
+					Collection<Object> values = parameters.get(key);
 					if (values == null) {
-						parameters.put(key, values = new ArrayList());
+						parameters.put(key, values = new ArrayList<Object>());
 					}
-					ReadableByteChannel vin = ChannelUtil.newChannel(value
-							.getBytes(charset));
-					Fluid vf = ff.builder(con).channel("text/plain;charset=" + charset.name(), vin, base);
+					Fluid vf = builder.consume(value, base, String.class, "text/plain", "text/*");
 					if (vtype.isSetOrArray()) {
-						FluidType cvtype = vtype.component("text/plain");
-						values.add(vf.as(cvtype));
+						values.add(vf.as(vtype.component("text/plain")));
 					} else {
 						values.add(vf.as(vtype));
 					}
 				}
 			}
-			return (Map<String, Object>) mtype.castMap(parameters);
+			return ftype.castMap(parameters);
 		} catch (UnsupportedEncodingException e) {
 			throw new AssertionError(e);
 		} finally {

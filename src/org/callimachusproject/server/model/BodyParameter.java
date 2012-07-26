@@ -119,7 +119,7 @@ public abstract class BodyParameter implements Parameter {
 		ReadableByteChannel in = getReadableByteChannel();
 		Fluid reader;
 		if (location == null) {
-			reader = fb.channel(mimeType, in, base);
+			reader = fb.channel(in, base, mimeType);
 		} else {
 			if (in != null) {
 				in.close();

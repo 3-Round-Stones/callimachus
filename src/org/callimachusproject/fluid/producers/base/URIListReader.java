@@ -32,13 +32,13 @@ package org.callimachusproject.fluid.producers.base;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.callimachusproject.engine.model.TermFactory;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
@@ -51,7 +51,7 @@ import org.openrdf.repository.object.ObjectConnection;
 /**
  * Parses text/uri-list messages.
  */
-public abstract class URIListReader<URI> implements Producer<Object> {
+public abstract class URIListReader<URI> implements Producer {
 	private Class<URI> componentType;
 
 	public URIListReader(Class<URI> componentType) {
@@ -64,14 +64,13 @@ public abstract class URIListReader<URI> implements Producer<Object> {
 		return componentType.getName();
 	}
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> ctype = mtype.asClass();
-		String mediaType = mtype.getMediaType();
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		Class<?> ctype = ftype.asClass();
 		if (componentType != null) {
 			if (!componentType.equals(ctype) && Object.class.equals(ctype))
 				return false;
-			if (mtype.isSetOrArray()) {
-				Class<?> component = mtype.component().asClass();
+			if (ftype.isSetOrArray()) {
+				Class<?> component = ftype.component().asClass();
 				if (!componentType.equals(component)
 						&& Object.class.equals(component))
 					return false;
@@ -81,35 +80,21 @@ public abstract class URIListReader<URI> implements Producer<Object> {
 				return false;
 			}
 		}
-		return mediaType != null && (mediaType.startsWith("text/") || mediaType.startsWith("*/"));
+		return ftype.is("text/*");
 	}
 
-	public Object readFrom(FluidType mtype, ObjectConnection con,
-			ReadableByteChannel in, Charset charset, String base, String location)
+	public Object produce(FluidType ftype, ReadableByteChannel in,
+			Charset charset, String base, FluidBuilder builder)
 			throws QueryResultParseException, TupleQueryResultHandlerException,
-			IOException, QueryEvaluationException, RepositoryException, URISyntaxException {
+			IOException, QueryEvaluationException, RepositoryException {
 		if (charset == null) {
 			charset = Charset.forName("ISO-8859-1");
 		}
 		BufferedReader reader = ChannelUtil.newReader(in, charset);
 		try {
-			if (location != null && in == null) {
-				URI url;
-				if (base == null) {
-					url = create(con, canonicalize(location));
-				} else {
-					url = create(con, resolve(base, location));
-				}
-				return mtype.castComponent(url);
-			}
 			TermFactory rel = null;
 			if (base != null) {
 				rel = TermFactory.newInstance(base);
-				if (location != null) {
-					rel.base(location);
-				}
-			} else if (location != null) {
-				rel = TermFactory.newInstance(location);
 			}
 			Set<URI> set = new LinkedHashSet<URI>();
 			String str;
@@ -118,13 +103,13 @@ public abstract class URIListReader<URI> implements Producer<Object> {
 					continue;
 				URI url;
 				if (rel != null) {
-					url = create(con, rel.reference(str.trim()).stringValue());
+					url = create(builder.getObjectConnection(), rel.reference(str.trim()).stringValue());
 				} else {
-					url = create(con, canonicalize(str.trim()));
+					url = create(builder.getObjectConnection(), canonicalize(str.trim()));
 				}
 				set.add(url);
 			}
-			return mtype.castSet(set);
+			return ftype.castSet(set);
 		} finally {
 			reader.close();
 		}
@@ -132,10 +117,6 @@ public abstract class URIListReader<URI> implements Producer<Object> {
 
 	protected abstract URI create(ObjectConnection con, String uri)
 			throws MalformedURLException, RepositoryException;
-
-	private String resolve(String base, String location) {
-		return TermFactory.newInstance(base).reference(location).stringValue();
-	}
 
 	private String canonicalize(String uri) {
 		return TermFactory.newInstance(uri).getSystemId();

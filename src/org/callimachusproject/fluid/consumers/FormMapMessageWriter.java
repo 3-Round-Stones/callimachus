@@ -52,6 +52,7 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
+import org.xml.sax.SAXException;
 
 /**
  * Writes a percent encoded form from a {@link Map}.
@@ -62,7 +63,6 @@ import org.openrdf.OpenRDFException;
 public class FormMapMessageWriter implements Consumer<Map<String, Object>> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder delegate) {
-		String mimeType = mtype.getMediaType();
 		if (!mtype.isMap())
 			return false;
 		if (!mtype.key().isUnknown()) {
@@ -77,40 +77,50 @@ public class FormMapMessageWriter implements Consumer<Map<String, Object>> {
 			if (!delegate.isConsumable(vt))
 				return false;
 		}
-		return mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("application/*")
-				|| mimeType.startsWith("application/x-www-form-urlencoded");
+		return mtype.is(getMediaType());
 	}
 
-	public Fluid consume(final FluidType ftype,
-			final Map<String, Object> result, final String base,
+	public Fluid consume(final Map<String, Object> result,
+			final String base, final FluidType ftype,
 			final FluidBuilder builder) {
-		return new AbstractFluid(builder) {
-			public String toChannelMedia(String media) {
-				return getMediaType(media);
+		return new AbstractFluid() {
+			public String getSystemId() {
+				return base;
 			}
 
-			public ReadableByteChannel asChannel(String media)
+			public FluidType getFluidType() {
+				return ftype;
+			}
+
+			public void asVoid() {
+				// no-op
+			}
+
+			public String toChannelMedia(String... media) {
+				return ftype.as(getMediaType()).as(media).preferred();
+			}
+
+			public ReadableByteChannel asChannel(String... media)
 					throws IOException, OpenRDFException, XMLStreamException,
-					TransformerException, ParserConfigurationException {
-				return write(ftype.as(getMediaType(media)), result, base,
+					TransformerException, ParserConfigurationException, SAXException {
+				return write(ftype.as(getMediaType()), result, base,
 						builder);
 			}
 
 			public String toString() {
-				return result.toString();
+				return String.valueOf(result);
 			}
 		};
 	}
 
-	private String getMediaType(String media) {
+	String getMediaType() {
 		return "application/x-www-form-urlencoded";
 	}
 
-	private ReadableByteChannel write(FluidType mtype,
+	ReadableByteChannel write(FluidType mtype,
 			Map<String, Object> result, String base, FluidBuilder builder)
 			throws IOException, OpenRDFException, XMLStreamException,
-			TransformerException, ParserConfigurationException {
+			TransformerException, ParserConfigurationException, SAXException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
 		writeTo(mtype, result, base, builder, out, 1024);
 		return ChannelUtil.newChannel(out.toByteArray());
@@ -119,7 +129,7 @@ public class FormMapMessageWriter implements Consumer<Map<String, Object>> {
 	private void writeTo(FluidType mtype, Map<String, Object> result,
 			String base, FluidBuilder builder, OutputStream out, int bufSize)
 			throws IOException, OpenRDFException, XMLStreamException,
-			TransformerException, ParserConfigurationException {
+			TransformerException, ParserConfigurationException, SAXException {
 		Charset charset = mtype.getCharset();
 		if (charset == null) {
 			charset = Charset.forName("ISO-8859-1");
@@ -172,12 +182,12 @@ public class FormMapMessageWriter implements Consumer<Map<String, Object>> {
 	private String writeTo(FluidType mtype, Object value, String base,
 			FluidBuilder delegate) throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
-			ParserConfigurationException {
+			ParserConfigurationException, SAXException {
 		if (mtype.isUnknown() && value != null) {
 			mtype = mtype.as(value.getClass());
 		}
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-		ReadableByteChannel in = delegate.consume(mtype, value, base)
+		ReadableByteChannel in = delegate.consume(value, base, mtype)
 				.asChannel("text/plain;charset=ISO-8859-1");
 		try {
 			ChannelUtil.transfer(in, out);

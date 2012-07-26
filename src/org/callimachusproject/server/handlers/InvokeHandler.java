@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.activation.MimeTypeParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 
@@ -69,7 +70,8 @@ public class InvokeHandler implements Handler {
 	static {
 		try {
 			parameterMapType = InvokeHandler.class.getDeclaredMethod(
-					"getParameterMap", ResourceOperation.class).getGenericReturnType();
+					"getParameterMap", ResourceOperation.class)
+					.getGenericReturnType();
 		} catch (NoSuchMethodException e) {
 			throw new AssertionError(e);
 		}
@@ -103,7 +105,7 @@ public class InvokeHandler implements Handler {
 				return new Response().badRequest(e);
 			}
 			try {
-				ResponseParameter entity = invoke(req, method, args, true);
+				ResponseParameter entity = invoke(req, method, args, true, getResponseTypes(req, method));
 				if (!safe) {
 					req.flush();
 				}
@@ -130,12 +132,12 @@ public class InvokeHandler implements Handler {
 		}
 	}
 
-	private ResponseParameter invoke(ResourceOperation req, Method method, Object[] args, boolean follow)
-			throws Exception {
+	private ResponseParameter invoke(ResourceOperation req, Method method,
+			Object[] args, boolean follow, String... responseTypes) throws Exception {
 		Object result = method.invoke(req.getRequestedResource(), args);
-		ResponseParameter input = createResultEntity(req, result, method
-				.getReturnType(), method.getGenericReturnType(),
-				req.getTypes(method));
+		ResponseParameter input = createResultEntity(req, result,
+				method.getReturnType(), method.getGenericReturnType(),
+				responseTypes);
 		if (method.isAnnotationPresent(header.class)) {
 			for (String header : method.getAnnotation(header.class).value()) {
 				int idx = header.indexOf(':');
@@ -152,7 +154,8 @@ public class InvokeHandler implements Handler {
 		if (follow) {
 			Method transform = req.getBestTransformMethod(method);
 			if (transform != null && !transform.equals(method)) {
-				ResponseParameter ret = invoke(req, transform, getParameters(req, transform, input), follow);
+				ResponseParameter ret = invoke(req, transform,
+						getParameters(req, transform, input), follow, getResponseTypes(req, transform));
 				ret.addHeaders(input.getOtherHeaders());
 				ret.addExpects(input.getExpects());
 				return ret;
@@ -161,28 +164,42 @@ public class InvokeHandler implements Handler {
 		return input;
 	}
 
-	private Parameter getValue(ResourceOperation req, Annotation[] anns, Parameter input) throws Exception {
+	private String[] getResponseTypes(ResourceOperation req, Method method) throws MimeTypeParseException {
+		String preferred = req.getContentType(method);
+		String[] types = req.getTypes(method);
+		if (preferred == null)
+			return types;
+		String[] result = new String[types.length + 1];
+		result[0] = preferred;
+		System.arraycopy(types, 0, result, 1, types.length);
+		return result;
+	}
+
+	private Parameter getValue(ResourceOperation req, Annotation[] anns,
+			Parameter input) throws Exception {
 		for (String uri : req.getTransforms(anns)) {
 			Method transform = req.getTransform(uri);
 			if (!req.getReadableTypes(input, transform, 0, false).isEmpty()) {
 				Object[] args = getParameters(req, transform, input);
-				return invoke(req, transform, args, false);
+				return invoke(req, transform, args, false, req.getTypes(transform));
 			}
 		}
 		return input;
 	}
 
-	private Parameter getParameter(ResourceOperation req, Annotation[] anns, Class<?> ptype, Parameter input)
-			throws Exception {
+	private Parameter getParameter(ResourceOperation req, Annotation[] anns,
+			Class<?> ptype, Parameter input) throws Exception {
 		String[] names = req.getParameterNames(anns);
 		String[] headers = req.getHeaderNames(anns);
 		String[] types = req.getParameterMediaTypes(anns);
 		if (names == null && headers == null && types == null) {
-			return getValue(req, anns, new NullParameter(req.getObjectConnection()));
+			return getValue(req, anns,
+					new NullParameter(req.getObjectConnection()));
 		} else if (names == null && headers == null) {
 			return getValue(req, anns, input);
 		} else if (headers != null && names != null) {
-			return getValue(req, anns, getHeaderAndQuery(req, types, headers, names));
+			return getValue(req, anns,
+					getHeaderAndQuery(req, types, headers, names));
 		} else if (headers != null) {
 			return getValue(req, anns, req.getHeader(types, headers));
 		} else if (names.length == 1 && names[0].equals("*")) {
@@ -192,8 +209,8 @@ public class InvokeHandler implements Handler {
 		}
 	}
 
-	private Parameter getHeaderAndQuery(ResourceOperation req, String[] mediaTypes, String[] headers,
-			String[] queries) {
+	private Parameter getHeaderAndQuery(ResourceOperation req,
+			String[] mediaTypes, String[] headers, String[] queries) {
 		String[] qvalues = getParameterValues(req, queries);
 		if (qvalues == null)
 			return req.getHeader(mediaTypes, headers);
@@ -205,12 +222,15 @@ public class InvokeHandler implements Handler {
 		}
 		list.addAll(hvalues);
 		String[] values = list.toArray(new String[list.size()]);
-		return new StringParameter(mediaTypes, "text/plain", values, req.getIRI(), req.getObjectConnection());
+		return new StringParameter(mediaTypes, "text/plain", values,
+				req.getIRI(), req.getObjectConnection());
 	}
 
-	private Parameter getParameter(ResourceOperation req, String[] mediaTypes, String... names) {
+	private Parameter getParameter(ResourceOperation req, String[] mediaTypes,
+			String... names) {
 		String[] values = getParameterValues(req, names);
-		return new StringParameter(mediaTypes, "text/plain", values, req.getIRI(), req.getObjectConnection());
+		return new StringParameter(mediaTypes, "text/plain", values,
+				req.getIRI(), req.getObjectConnection());
 	}
 
 	private String[] getParameterValues(ResourceOperation req, String... names) {
@@ -241,7 +261,8 @@ public class InvokeHandler implements Handler {
 		}
 	}
 
-	private Object[] getParameters(ResourceOperation req, Method method, Parameter input) throws Exception {
+	private Object[] getParameters(ResourceOperation req, Method method,
+			Parameter input) throws Exception {
 		Class<?>[] ptypes = method.getParameterTypes();
 		Annotation[][] anns = method.getParameterAnnotations();
 		Type[] gtypes = method.getGenericParameterTypes();
@@ -256,15 +277,17 @@ public class InvokeHandler implements Handler {
 		return args;
 	}
 
-	private ResponseParameter createResultEntity(ResourceOperation req, Object result, Class<?> ctype,
-			Type gtype, String[] mimeTypes) {
+	private ResponseParameter createResultEntity(ResourceOperation req,
+			Object result, Class<?> ctype, Type gtype, String[] mimeTypes) {
 		if (result instanceof RDFObjectBehaviour) {
 			result = ((RDFObjectBehaviour) result).getBehaviourDelegate();
 		}
-		return new ResponseParameter(mimeTypes, result, ctype, gtype, req.getIRI(), req.getObjectConnection());
+		return new ResponseParameter(mimeTypes, result, ctype, gtype,
+				req.getIRI(), req.getObjectConnection());
 	}
 
-	public Response createResponse(ResourceOperation req, Method method, ResponseParameter resp) throws Exception {
+	public Response createResponse(ResourceOperation req, Method method,
+			ResponseParameter resp) throws Exception {
 		Response rb;
 		if (resp.isNoContent()) {
 			rb = new Response().noContent();

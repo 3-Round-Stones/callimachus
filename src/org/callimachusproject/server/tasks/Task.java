@@ -71,6 +71,7 @@ import org.openrdf.OpenRDFException;
 import org.openrdf.sail.optimistic.exceptions.ConcurrencyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * A step for handling a request that can be performed in isolation.
@@ -433,7 +434,7 @@ public abstract class Task implements Runnable {
 	private HttpResponse createHttpResponse(Request req, Response resp)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException,
-			MimeTypeParseException {
+			MimeTypeParseException, SAXException {
 		ProtocolVersion ver = HTTP11;
 		int code = resp.getStatus();
 		String phrase = resp.getMessage();
@@ -454,8 +455,10 @@ public abstract class Task implements Runnable {
 			response.setEntity(entity);
 		} else if (resp.isContent()) {
 			HttpEntity entity = resp.asHttpEntity();
-			String type = entity.getContentType().getValue();
-			response.setHeader("Content-Type", type);
+			Header hd = entity.getContentType();
+			if (hd != null) {
+				response.setHeader("Content-Type", hd.getValue());
+			}
 			long size = entity.getContentLength();
 			if (size >= 0) {
 				response.setHeader("Content-Length", String.valueOf(size));

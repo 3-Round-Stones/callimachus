@@ -30,7 +30,6 @@
 package org.callimachusproject.server.model;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -353,12 +352,7 @@ public class ResourceRequest extends Request {
 
 	private String getContentType(Class<?> type, Type genericType, String[] mediaTypes, MimeType m) {
 		m.removeParameter("q");
-		String media = "*/*";
-		if (mediaTypes != null && mediaTypes.length > 0) {
-			media = mediaTypes[0];
-		}
-		// TODO change to accept multiple mediaTypes
-		return writer.nil(genericType, media).toHttpEntityMedia(m.toString());
+		return writer.nil(genericType, mediaTypes).toHttpEntityMedia(m.toString());
 	}
 
 	private void initiateActivity() throws RepositoryException,

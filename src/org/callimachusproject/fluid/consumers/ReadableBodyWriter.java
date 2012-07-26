@@ -58,47 +58,57 @@ import org.openrdf.OpenRDFException;
 public class ReadableBodyWriter implements Consumer<Readable> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		String mimeType = mtype.getMediaType();
-		if (!Readable.class.isAssignableFrom((Class<?>) mtype.asClass()))
+		if (!Readable.class.isAssignableFrom(mtype.asClass()))
 			return false;
-		return mimeType == null || mimeType.startsWith("text/")
-				|| mimeType.startsWith("*");
+		return mtype.is("text/*");
 	}
 
-	public Fluid consume(final FluidType ftype, final Readable result, final String base,
+	public Fluid consume(final Readable result, final String base, final FluidType ftype,
 			final FluidBuilder builder) {
-		return new AbstractFluid(builder) {
-			public String toChannelMedia(String media) {
-				return getMediaType(media);
+		return new AbstractFluid() {
+			public String getSystemId() {
+				return base;
 			}
 
-			public ReadableByteChannel asChannel(String media)
+			public FluidType getFluidType() {
+				return ftype;
+			}
+
+			public void asVoid() throws IOException {
+				if (result instanceof Closeable) {
+					((Closeable) result).close();
+				}
+			}
+
+			public String toChannelMedia(String... media) {
+				return getMediaType(ftype.as(media));
+			}
+
+			public ReadableByteChannel asChannel(String... media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
-				return write(ftype.as(getMediaType(media)), result, base);
+				return write(ftype.as(toChannelMedia(media)), result, base);
 			}
 	
 			public String toString() {
-				return result.toString();
+				return String.valueOf(result);
 			}
 		};
 	}
 
-	private String getMediaType(String mimeType) {
-		Charset charset = new FluidType(Object.class, mimeType).getCharset();
+	String getMediaType(FluidType ftype) {
+		ftype = ftype.as("text/plain", "text/*");
+		String mimeType = ftype.preferred();
+		Charset charset = ftype.getCharset();
 		if (charset == null) {
 			charset = Charset.defaultCharset();
-		}
-		if (mimeType == null || mimeType.startsWith("*")
-				|| mimeType.startsWith("text/*")) {
-			mimeType = "text/plain";
 		}
 		if (mimeType.contains("charset="))
 			return mimeType;
 		return mimeType + ";charset=" + charset.name();
 	}
 
-	private ReadableByteChannel write(final FluidType mtype,
+	ReadableByteChannel write(final FluidType mtype,
 			final Readable result, final String base)
 			throws IOException {
 		return new ProducerChannel(new WritableProducer() {

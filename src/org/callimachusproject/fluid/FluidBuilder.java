@@ -1,40 +1,29 @@
 /*
- * Copyright (c) 2009-2011, James Leigh All rights reserved.
- * Copyright (c) 2011 Talis Inc., Some rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- * - Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
- * - Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution. 
- * - Neither the name of the openrdf.org nor the names of its contributors may
- *   be used to endorse or promote products derived from this software without
- *   specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- * 
+   Copyright (c) 2012 3 Round Stones Inc, Some Rights Reserved
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
  */
 package org.callimachusproject.fluid;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.net.URISyntaxException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -44,25 +33,33 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.http.HttpEntity;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
+import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
 
 /**
- * Delegates to other {@link Consumer}s.
+ * Converts Java Objects (of supported types) to other media types.
  * 
  * @author James Leigh
  * 
  */
 public class FluidBuilder {
-	private final List<Consumer> consumers;
+	private final List<Consumer<?>> consumers;
 	private List<Producer> producers;
 	private final ObjectConnection con;
 
-	public FluidBuilder(List<Consumer> consumers, List<Producer> producers,
+	public FluidBuilder(List<Consumer<?>> consumers, List<Producer> producers) {
+		assert consumers != null;
+		assert producers != null;
+		this.consumers = consumers;
+		this.producers = producers;
+		this.con = null;
+	}
+
+	public FluidBuilder(List<Consumer<?>> consumers, List<Producer> producers,
 			ObjectConnection con) {
 		assert consumers != null;
 		assert producers != null;
@@ -81,7 +78,27 @@ public class FluidBuilder {
 		return con;
 	}
 
-	public boolean isConsumable(Type gtype, String media) {
+	public boolean isDatatype(Class<?> type) {
+		if (con == null)
+			return false;
+		return con.getObjectFactory().isDatatype(type);
+	}
+
+	public boolean isConcept(Class<?> component) {
+		if (con == null)
+			return false;
+		if (component.isAnnotationPresent(Iri.class))
+			return true;
+		for (Annotation ann : component.getAnnotations()) {
+			for (Method m : ann.annotationType().getDeclaredMethods()) {
+				if (m.isAnnotationPresent(Iri.class))
+					return true;
+			}
+		}
+		return con.getObjectFactory().isNamedConcept(component);
+	}
+
+	public boolean isConsumable(Type gtype, String... media) {
 		return isConsumable(new FluidType(gtype, media));
 	}
 
@@ -89,73 +106,95 @@ public class FluidBuilder {
 		return findWriter(mtype) != null;
 	}
 
-	public Fluid media(String media) {
-		return channel(media, null, null);
+	public Fluid media(String... media) {
+		return channel(null, null, media);
 	}
 
-	public Fluid nil(Type gtype, String media) {
-		return consume(new FluidType(gtype, media), null, null);
+	public Fluid nil(Type gtype, String... media) {
+		return nil(new FluidType(gtype, media));
+	}
+
+	public Fluid nil(FluidType ftype) {
+		return consume(null, null, ftype);
 	}
 
 	public Fluid uri(String uri, String base) {
-		return consume(new FluidType(String.class, "text/uri-list"), uri, base);
+		return consume(uri, base, new FluidType(String.class, "text/uri-list"));
 	}
 
-	public Fluid channel(final String media, final ReadableByteChannel in,
-			final String base) {
-		return new AbstractFluid(this) {
+	public Fluid channel(final ReadableByteChannel in, final String base,
+			final String... mediaTypes) {
+		final FluidType inType = new FluidType(ReadableByteChannel.class,
+				mediaTypes);
+		return new AbstractFluid() {
 
 			@Override
-			public String toChannelMedia(String media) {
-				// TODO check that the media types are compatible
-				return media;
+			public String getSystemId() {
+				return base;
 			}
 
 			@Override
-			public ReadableByteChannel asChannel(String media)
+			public FluidType getFluidType() {
+				return inType;
+			}
+
+			@Override
+			public String toString() {
+				return String.valueOf(in) + " " + Arrays.toString(mediaTypes);
+			}
+
+			@Override
+			public void asVoid() throws IOException {
+				if (in != null) {
+					in.close();
+				}
+			}
+
+			@Override
+			public String toChannelMedia(String... media) {
+				return inType.as(media).preferred();
+			}
+
+			@Override
+			public ReadableByteChannel asChannel(String... media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
 				return in;
 			}
 
 			@Override
-			public String toMedia(FluidType ftype) {
-				// TODO check that the media types are compatible
-				Producer reader = findReader(ftype);
+			protected String toProducedMedia(FluidType ftype) {
+				FluidType outType = inType.as(ftype);
+				Producer reader = findReader(outType);
 				if (reader == null)
 					return null;
-				return ftype.getMediaType();
+				return outType.preferred();
 			}
 
 			@Override
-			public Object as(FluidType ftype)
+			protected Object produce(FluidType ftype)
 					throws TransformerConfigurationException, OpenRDFException,
 					IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
-					TransformerException, URISyntaxException {
-				HttpEntity entity = asHttpEntity(ftype.getMediaType());
-				String contentType = entity.getContentType().getValue();
-				ReadableByteChannel in = asChannel(contentType);
-				Charset charset = new FluidType(ReadableByteChannel.class,
-						contentType).getCharset();
-				Producer reader = findRawReader(ftype);
+					TransformerException {
+				Charset charset = inType.getCharset();
+				FluidType outType = inType.as(ftype);
+				Producer reader = findRawReader(outType);
 				if (reader != null)
-					return reader.readFrom(ftype, con, in, charset, base, null);
-				if (ftype.isSet()) {
-					reader = findComponentReader(ftype);
+					return reader.produce(outType, in, charset, base,
+							FluidBuilder.this);
+				if (outType.isSet()) {
+					reader = findComponentReader(outType);
 					if (reader == null && in == null)
 						return Collections.emptySet();
 				}
-				Class<? extends Object> type = ftype.asClass();
-				if (reader == null && !type.isPrimitive() && in == null)
+				if (reader == null && !outType.isPrimitive() && in == null)
 					return null;
-				String mime = ftype.getMediaType();
-				Type genericType = ftype.asType();
 				if (reader == null)
-					throw new BadRequest("Cannot read " + mime + " into "
-							+ genericType);
-				Object o = reader.readFrom(ftype.component(), con, in, charset,
-						base, null);
+					throw new BadRequest("Cannot read " + inType + " into "
+							+ outType);
+				Object o = reader.produce(outType.component(), in, charset,
+						base, FluidBuilder.this);
 				if (o == null)
 					return Collections.emptySet();
 				if (o instanceof Set)
@@ -174,7 +213,7 @@ public class FluidBuilder {
 
 			private Producer findRawReader(FluidType mtype) {
 				for (Producer reader : producers) {
-					if (reader.isReadable(mtype, con)) {
+					if (reader.isProducable(mtype, FluidBuilder.this)) {
 						return reader;
 					}
 				}
@@ -187,39 +226,41 @@ public class FluidBuilder {
 		};
 	}
 
-	public Fluid stream(final String media, final InputStream in,
-			final String base) {
-		return channel(media, ChannelUtil.newChannel(in), base);
+	public Fluid stream(final InputStream in, final String base,
+			final String... media) {
+		return channel(ChannelUtil.newChannel(in), base, media);
 	}
 
-	public Fluid consume(Type gtype, String media, Object result, String base) {
-		return consume(new FluidType(gtype, media), result, base);
+	public Fluid consume(Object result, String base, Type gtype,
+			String... media) {
+		return consume(result, base, new FluidType(gtype, media));
 	}
 
-	public Fluid consume(FluidType mtype, Object result, String base) {
-		Consumer writer;
-		writer = findRawWriter(mtype);
+	public Fluid consume(Object result, String base, FluidType mtype) {
+		Consumer writer = findRawWriter(mtype);
 		if (writer != null)
-			return writer.consume(mtype, result, base, this);
+			return new ChannelFluid(writer.consume(result, base, mtype, this),
+					this);
 		if (writer == null && mtype.isSet()) {
 			writer = findComponentWriter(mtype);
 		}
-		String mimeType = mtype.getMediaType();
+		String mimeType = mtype.preferred();
 		Type genericType = mtype.asType();
 		if (writer == null)
 			throw new BadRequest("Cannot write " + genericType + " into "
 					+ mimeType);
-		if (((Set) result).isEmpty()) {
+		if (((Set<?>) result).isEmpty()) {
 			result = null;
 		} else {
-			result = ((Set) result).toArray()[0];
+			result = ((Set<?>) result).toArray()[0];
 		}
-		return writer.consume(mtype.component(), result, base, this);
+		return new ChannelFluid(writer.consume(result, base, mtype.component(),
+				this), this);
 	}
 
-	private Consumer findWriter(FluidType mtype) {
+	private Consumer<?> findWriter(FluidType mtype) {
 		Class<?> type = mtype.asClass();
-		Consumer writer;
+		Consumer<?> writer;
 		writer = findRawWriter(mtype);
 		if (writer != null)
 			return writer;
@@ -228,8 +269,8 @@ public class FluidBuilder {
 		return null;
 	}
 
-	private Consumer findRawWriter(FluidType mtype) {
-		for (Consumer w : consumers) {
+	private Consumer<?> findRawWriter(FluidType mtype) {
+		for (Consumer<?> w : consumers) {
 			if (w.isConsumable(mtype, this)) {
 				return w;
 			}
@@ -237,7 +278,7 @@ public class FluidBuilder {
 		return null;
 	}
 
-	private Consumer findComponentWriter(FluidType mtype) {
+	private Consumer<?> findComponentWriter(FluidType mtype) {
 		if (mtype.isSet()) {
 			return findRawWriter(mtype.component());
 		}

@@ -1,96 +1,216 @@
 /*
- * Copyright (c) 2010, Zepheira LLC, Some rights reserved.
- * Copyright (c) 2011 Talis Inc., Some rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- * - Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
- * - Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution. 
- * - Neither the name of the openrdf.org nor the names of its contributors may
- *   be used to endorse or promote products derived from this software without
- *   specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- * 
+   Copyright (c) 2012 3 Round Stones Inc, Some Rights Reserved
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
  */
 package org.callimachusproject.fluid;
 
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 /**
- * Utility class for dealing with generic types.
+ * Represents a Java type and possible media types for serialisation.
  * 
  * @author James Leigh
  */
 public class FluidType extends GenericType {
-	private final String mediaType;
+	private final TreeSet<MediaType> mediaTypes = new TreeSet<MediaType>(
+			new MediaTypeComparator());
+	private final Map<MediaType, Integer> index = new HashMap<MediaType, Integer>();
+
+	public FluidType(Type gtype) {
+		super(gtype);
+	}
 
 	public FluidType(Type gtype, String media) {
+		this(gtype, media == null ? null : media.split("\\s*,\\s*"));
+	}
+
+	public FluidType(Type gtype, String... media) {
 		super(gtype);
-		this.mediaType = media;
+		if (media != null && media.length == 0) {
+			media = new String[] { "*/*" };
+		}
+		if (media == null) {
+			media = new String[0];
+		}
+		for (String m : media) {
+			MediaType mediaType = MediaType.valueOf(m);
+			if (!index.containsKey(mediaType)) {
+				index.put(mediaType, mediaTypes.size());
+			}
+			mediaTypes.add(mediaType);
+		}
+	}
+
+	private FluidType(Type gtype, Collection<MediaType> media, boolean nonEmpty) {
+		this(gtype);
+		assert media != null && !media.isEmpty();
+		for (MediaType mediaType : media) {
+			if (!index.containsKey(mediaType)) {
+				index.put(mediaType, mediaTypes.size());
+			}
+			mediaTypes.add(mediaType);
+		}
 	}
 
 	@Override
 	public String toString() {
-		return super.toString() + " " + mediaType;
+		String list = mediaTypes.toString();
+		return super.toString() + " " + list.substring(1, list.length() - 1);
 	}
 
-	public String getMediaType() {
-		return mediaType;
+	public String[] media() {
+		String[] media = new String[mediaTypes.size()];
+		Iterator<MediaType> iter = mediaTypes.iterator();
+		for (int i = 0; i < media.length; i++) {
+			media[i] = iter.next().toString();
+		}
+		return media;
+	}
+
+	public String preferred() {
+		if (mediaTypes.isEmpty())
+			return null;
+		for (MediaType mime : mediaTypes) {
+			if (!"*".equals(mime.getPrimaryType())
+					&& !"*".equals(mime.getSubType()))
+				return mime.toString();
+		}
+		return null;
 	}
 
 	public Charset getCharset() {
-		Charset cs = null;
-		if (getMediaType() != null && getMediaType().startsWith("text/")) {
-			try {
-				MimeType m = new MimeType(getMediaType());
-				String name = m.getParameters().get("charset");
-				if (name != null) {
-					cs = Charset.forName(name);
-				}
-			} catch (MimeTypeParseException e) {
-				// ignore
+		for (MediaType m : mediaTypes) {
+			String name = m.getParameter("charset");
+			if (name != null) {
+				return Charset.forName(name);
 			}
 		}
-		return cs;
+		return null;
+	}
+
+	public boolean isText() {
+		return is("text/*");
+	}
+
+	public boolean is(String... acceptable) {
+		if (acceptable == null || acceptable.length == 0)
+			return true;
+		for (String a : acceptable) {
+			MediaType accept = MediaType.valueOf(a);
+			for (MediaType mime : mediaTypes) {
+				if (mime.match(accept))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean is(FluidType ftype) {
+		if (!is(ftype.asType()))
+			return false;
+		for (MediaType accept : ftype.mediaTypes) {
+			for (MediaType mime : mediaTypes) {
+				if (mime.match(accept))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	public FluidType as(Type type) {
-		return new FluidType(type, getMediaType());
+		return new FluidType(type, mediaTypes, true);
 	}
 
-	public FluidType as(String mediaType) {
-		return new FluidType(asType(), mediaType);
+	public FluidType as(String... acceptable) {
+		if (acceptable == null || acceptable.length == 0
+				|| mediaTypes.isEmpty())
+			return this;
+		return as(asType(), acceptable);
 	}
 
-	public FluidType key(String mediaType) {
+	public FluidType as(Type type, String... acceptable) {
+		return as(new FluidType(type, acceptable));
+	}
+
+	public FluidType as(FluidType acceptable) {
+		List<MediaType> combined = new ArrayList<MediaType>(mediaTypes.size());
+		for (MediaType accept : acceptable.mediaTypes) {
+			for (MediaType mime : mediaTypes) {
+				if (mime.match(accept)) {
+					combined.add(mime.combine(accept));
+				}
+			}
+		}
+		if (combined.isEmpty()) {
+			return new FluidType(acceptable.asType());
+		}
+		return new FluidType(acceptable.asType(), combined, true);
+	}
+
+	public FluidType key(String... mediaType) {
 		return new FluidType(key().asType(), mediaType);
 	}
 
 	public FluidType component() {
-		return new FluidType(super.component().asType(), getMediaType());
+		return new FluidType(super.component().asType(), mediaTypes, true);
 	}
 
-	public FluidType component(String mediaType) {
+	public FluidType component(String... mediaType) {
 		return new FluidType(super.component().asType(), mediaType);
+	}
+
+	private final class MediaTypeComparator implements Comparator<MediaType> {
+		public int compare(MediaType o1, MediaType o2) {
+			Double q1 = o1.getQuality();
+			Double q2 = o2.getQuality();
+			int compare = q2.compareTo(q1);
+			if (compare != 0)
+				return compare;
+			if (!"*".equals(o1.getPrimaryType())
+					&& "*".equals(o2.getPrimaryType()))
+				return -1;
+			if ("*".equals(o1.getPrimaryType())
+					&& !"*".equals(o2.getPrimaryType()))
+				return 1;
+			if (!"*".equals(o1.getSubType()) && "*".equals(o2.getSubType()))
+				return -1;
+			if ("*".equals(o1.getSubType()) && !"*".equals(o2.getSubType()))
+				return 1;
+			if (!"*".equals(o1.getSubType()) && "*".equals(o2.getSubType()))
+				return -1;
+			Integer i1 = index.containsKey(o1) ? index.get(o1)
+					: Integer.MAX_VALUE;
+			Integer i2 = index.containsKey(o2) ? index.get(o2)
+					: Integer.MAX_VALUE;
+			if (i1.compareTo(i2) != 0)
+				return i1.compareTo(i2);
+			if (o1.getSubType().contains("+") && !o2.getSubType().contains("+"))
+				return -1;
+			if (!o1.getSubType().contains("+") && o2.getSubType().contains("+"))
+				return 1;
+			return o1.toString().compareTo(o2.toString());
+		}
 	}
 
 }

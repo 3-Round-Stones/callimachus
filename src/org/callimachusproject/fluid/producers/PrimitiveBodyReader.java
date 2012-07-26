@@ -35,9 +35,9 @@ import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Reads primitive types and their wrappers.
@@ -45,7 +45,7 @@ import org.openrdf.repository.object.ObjectConnection;
  * @author James Leigh
  * 
  */
-public class PrimitiveBodyReader implements Producer<Object> {
+public class PrimitiveBodyReader implements Producer {
 	private StringBodyReader delegate = new StringBodyReader();
 	private Set<Class<?>> wrappers = new HashSet<Class<?>>();
 	{
@@ -60,19 +60,19 @@ public class PrimitiveBodyReader implements Producer<Object> {
 		wrappers.add(Void.class);
 	}
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.asClass();
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		Class<?> type = ftype.asClass();
 		if (type.isPrimitive() || !type.isInterface()
 				&& wrappers.contains(type))
-			return delegate.isReadable(mtype.as(String.class), con);
+			return delegate.isProducable(ftype.as(String.class), builder);
 		return false;
 	}
 
-	public Object readFrom(FluidType mtype, ObjectConnection con,
-			ReadableByteChannel in, Charset charset, String base, String location) throws IOException {
-		Class<?> type = mtype.asClass();
-		String value = delegate.readFrom(mtype.as(String.class), con, in,
-				charset, base, location);
+	public Object produce(FluidType ftype, ReadableByteChannel in,
+			Charset charset, String base, FluidBuilder builder) throws IOException {
+		Class<?> type = ftype.asClass();
+		String value = delegate.produce(ftype.as(String.class), in, charset,
+				base, builder);
 		if (Boolean.TYPE.equals(type) || Boolean.class.equals(type))
 			return (Boolean.valueOf(value));
 		if (Character.TYPE.equals(type) || Character.class.equals(type))

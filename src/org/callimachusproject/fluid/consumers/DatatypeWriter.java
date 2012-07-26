@@ -59,12 +59,12 @@ public class DatatypeWriter implements Consumer<Object> {
 			return false;
 		if (!delegate.isConsumable(mtype.as(String.class), builder))
 			return false;
-		return builder.getObjectConnection().getObjectFactory().isDatatype(type);
+		return builder.isDatatype(type);
 	}
 
-	public Fluid consume(FluidType ftype, Object result, String base, FluidBuilder builder) {
+	public Fluid consume(Object result, String base, FluidType ftype, FluidBuilder builder) {
 		String label = asString(result, builder);
-		return delegate.consume(ftype.as(String.class), label, base, builder);
+		return delegate.consume(label, base, ftype.as(String.class), builder);
 	}
 
 	private String asString(Object result, FluidBuilder builder) {

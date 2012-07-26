@@ -41,8 +41,9 @@ import java.util.Set;
 
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.fluid.consumers.base.ResultMessageWriterBase;
+import org.callimachusproject.fluid.consumers.base.MessageWriterBase;
 import org.callimachusproject.server.util.ChannelUtil;
+import org.openrdf.OpenRDFException;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -66,7 +67,7 @@ import org.openrdf.rio.turtle.TurtleWriterFactory;
  * 
  */
 public class GraphMessageWriter extends
-		ResultMessageWriterBase<RDFFormat, RDFWriterFactory, GraphQueryResult> {
+		MessageWriterBase<RDFFormat, RDFWriterFactory, GraphQueryResult> {
 	private static final int SMALL = 16;
 	static {
 		RDFFormat format = RDFFormat.forMIMEType("text/turtle");
@@ -94,16 +95,22 @@ public class GraphMessageWriter extends
 
 	@Override
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		String mimeType = mtype.getMediaType();
+		String mimeType = mtype.preferred();
 		if (mimeType != null && mimeType.startsWith("text/plain"))
 			return false;
 		return super.isConsumable(mtype, builder);
 	}
 
 	@Override
+	protected void close(GraphQueryResult result) throws OpenRDFException {
+		result.close();
+	}
+
+	@Override
 	public void writeTo(RDFWriterFactory factory, GraphQueryResult result,
-			WritableByteChannel out, Charset charset, String base, ObjectConnection con)
-			throws RDFHandlerException, QueryEvaluationException {
+			WritableByteChannel out, Charset charset, String base,
+			ObjectConnection con) throws RDFHandlerException,
+			QueryEvaluationException {
 		RDFFormat rdfFormat = factory.getRDFFormat();
 		RDFWriter writer = getWriter(ChannelUtil.newOutputStream(out), charset,
 				factory);
@@ -137,7 +144,8 @@ public class GraphMessageWriter extends
 			}
 
 			// Report namespace prefixes
-			for (Map.Entry<String, String> ns : result.getNamespaces().entrySet()) {
+			for (Map.Entry<String, String> ns : result.getNamespaces()
+					.entrySet()) {
 				String prefix = ns.getKey();
 				String namespace = ns.getValue();
 				if (!trimNamespaces || firstNamespaces.contains(namespace)) {
@@ -147,7 +155,7 @@ public class GraphMessageWriter extends
 			}
 
 			// Report other namespace
-			if (!firstNamespaces.isEmpty()) {
+			if (!firstNamespaces.isEmpty() && con != null) {
 				try {
 					RepositoryResult<Namespace> names = con.getNamespaces();
 					while (names.hasNext()) {

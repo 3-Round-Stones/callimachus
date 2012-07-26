@@ -34,6 +34,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.Set;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.openrdf.model.Literal;
@@ -43,7 +44,6 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.QueryResultParseException;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 
@@ -53,11 +53,11 @@ import org.openrdf.repository.object.RDFObject;
  * @author James Leigh
  * 
  */
-public class DatatypeReader implements Producer<Object> {
+public class DatatypeReader implements Producer {
 	private StringBodyReader delegate = new StringBodyReader();
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.asClass();
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		Class<?> type = ftype.asClass();
 		if (Set.class.equals(type))
 			return false;
 		if (Object.class.equals(type))
@@ -66,20 +66,20 @@ public class DatatypeReader implements Producer<Object> {
 			return false;
 		if (type.isArray() && Byte.TYPE.equals(type.getComponentType()))
 			return false;
-		if (!delegate.isReadable(mtype.as(String.class), con))
+		if (!delegate.isProducable(ftype.as(String.class), builder))
 			return false;
-		return con.getObjectFactory().isDatatype(type);
+		return builder.isDatatype(type);
 	}
 
-	public Object readFrom(FluidType mtype, ObjectConnection con,
-			ReadableByteChannel in, Charset charset, String base, String location)
+	public Object produce(FluidType ftype, ReadableByteChannel in,
+			Charset charset, String base, FluidBuilder builder)
 			throws QueryResultParseException, TupleQueryResultHandlerException,
 			IOException, QueryEvaluationException, RepositoryException {
-		Class<?> type = mtype.asClass();
-		String value = delegate.readFrom(mtype.as(String.class), con, in,
-				charset, base, location);
-		ValueFactory vf = con.getValueFactory();
-		ObjectFactory of = con.getObjectFactory();
+		Class<?> type = ftype.asClass();
+		String value = delegate.produce(ftype.as(String.class), in, charset,
+				base, builder);
+		ValueFactory vf = builder.getObjectConnection().getValueFactory();
+		ObjectFactory of = builder.getObjectConnection().getObjectFactory();
 		URI datatype = vf.createURI("java:", type.getName());
 		Literal lit = vf.createLiteral(value, datatype);
 		return type.cast(of.createObject(lit));

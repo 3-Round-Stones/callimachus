@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -53,6 +55,8 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.rio.RDFHandlerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for writers that use a {@link FileFormat}.
@@ -68,62 +72,85 @@ import org.openrdf.rio.RDFHandlerException;
  */
 public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 		Consumer<T> {
-	private FileFormatServiceRegistry<FF, S> registry;
-	private Class<T> type;
+	private final Logger logger = LoggerFactory.getLogger(MessageWriterBase.class);
+	private final FileFormatServiceRegistry<FF, S> registry;
+	private final String[] mimeTypes;
+	private final Class<T> type;
 
 	public MessageWriterBase(FileFormatServiceRegistry<FF, S> registry,
 			Class<T> type) {
 		this.registry = registry;
 		this.type = type;
+		Set<String> set = new LinkedHashSet<String>();
+		for (FF format : registry.getKeys()) {
+			set.addAll(format.getMIMETypes());
+		}
+		mimeTypes = set.toArray(new String[set.size()]);
 	}
 
-	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		if (!this.type.isAssignableFrom((Class<?>) mtype.asClass()))
+	public boolean isConsumable(FluidType ftype, FluidBuilder builder) {
+		if (!isAssignableFrom(ftype.asClass()))
 			return false;
-		return getFactory(mtype.getMediaType()) != null;
+		FluidType possible = new FluidType(ftype.asType(), mimeTypes).as(ftype);
+		return getFactory(possible.preferred()) != null;
 	}
 
-	public Fluid consume(final FluidType ftype, final T result, final String base,
+	public Fluid consume(final T result, final String base, final FluidType ftype,
 			final FluidBuilder builder) {
-		return new AbstractFluid(builder) {
-			public String toChannelMedia(String media) {
-				return getMediaType(media);
+		return new AbstractFluid() {
+			public String getSystemId() {
+				return base;
 			}
 
-			public ReadableByteChannel asChannel(String media)
+			public FluidType getFluidType() {
+				return ftype;
+			}
+
+			public void asVoid() throws OpenRDFException {
+				if (result != null) {
+					close(result);
+				}
+			}
+
+			public String toChannelMedia(String... media) {
+				return getMediaType(ftype.as(media));
+			}
+
+			public ReadableByteChannel asChannel(String... media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
-				return write(ftype.as(getMediaType(media)), builder.getObjectConnection(), result, base);
+				return write(ftype.as(toChannelMedia(media)), builder.getObjectConnection(), result, base);
 			}
 
 			public String toString() {
-				return result.toString();
+				return String.valueOf(result);
 			}
 		};
 	}
 
-	private String getMediaType(String mimeType) {
-		FF format = getFormat(mimeType);
-		String contentType = null;
-		if (mimeType != null) {
-			for (String content : format.getMIMETypes()) {
-				if (mimeType.startsWith(content)) {
-					contentType = content;
-				}
-			}
-		}
-		if (contentType == null) {
-			contentType = format.getDefaultMIMEType();
-		}
-		if (contentType.startsWith("text/") && format.hasCharset()) {
-			Charset charset = new FluidType(Object.class, mimeType).getCharset();
+	String getMediaType(FluidType ftype) {
+		FluidType possible = new FluidType(ftype.asType(), mimeTypes).as(ftype);
+		String contentType = possible.preferred();
+		if (contentType == null)
+			return null;
+		FF format = getFormat(contentType);
+		if (format.hasCharset() && contentType.startsWith("text/") && !contentType.contains("charset=")) {
+			Charset charset = possible.getCharset();
 			charset = getCharset(format, charset);
 			contentType += ";charset=" + charset.name();
 		}
 		return contentType;
 	}
 
-	protected ReadableByteChannel write(final FluidType mtype, final ObjectConnection con,
+	protected boolean isAssignableFrom(Class<?> type) {
+		return this.type.isAssignableFrom(type);
+	}
+
+	protected void close(T result) throws OpenRDFException {
+		// no-op
+	}
+
+	final ReadableByteChannel write(final FluidType mtype, final ObjectConnection con,
 			final T result, final String base) throws IOException {
 		return new ProducerChannel(new WritableProducer() {
 			public void produce(WritableByteChannel out) throws IOException {
@@ -132,7 +159,15 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 				} catch (OpenRDFException e) {
 					throw new IOException(e);
 				} finally {
-					out.close();
+					try {
+						if (result != null) {
+							close(result);
+						}
+					} catch (OpenRDFException e) {
+						logger.error(e.toString(), e);
+					} finally {
+						out.close();
+					}
 				}
 			}
 
@@ -142,13 +177,13 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 		});
 	}
 
-	public void writeTo(FluidType mtype, ObjectConnection con, T result,
+	private void writeTo(FluidType mtype, ObjectConnection con, T result,
 			String base, WritableByteChannel out, int bufSize)
 			throws IOException, OpenRDFException {
 		Charset charset = mtype.getCharset();
-		String mimeType = mtype.getMediaType();
+		String mimeType = mtype.preferred();
 		FF format = getFormat(mimeType);
-		if (format.hasCharset()) {
+		if (charset == null && format.hasCharset()) {
 			charset = getCharset(format, charset);
 		}
 		try {
@@ -187,12 +222,14 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 		return charset;
 	}
 
-	public abstract void writeTo(S factory, T result, WritableByteChannel out,
+	protected abstract void writeTo(S factory, T result, WritableByteChannel out,
 			Charset charset, String base, ObjectConnection con) throws IOException,
 			RDFHandlerException, QueryEvaluationException,
 			TupleQueryResultHandlerException;
 
 	protected S getFactory(String mimeType) {
+		if (mimeType == null)
+			return null;
 		FF format = getFormat(mimeType);
 		if (format == null)
 			return null;

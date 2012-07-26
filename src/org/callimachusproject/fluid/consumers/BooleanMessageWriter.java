@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
-import org.callimachusproject.fluid.FluidBuilder;
-import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.consumers.base.MessageWriterBase;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.query.resultio.BooleanQueryResultFormat;
@@ -57,18 +55,15 @@ public class BooleanMessageWriter
 	}
 
 	@Override
-	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		Class<?> type = mtype.asClass();
-		if (!Boolean.class.equals(type) && !Boolean.TYPE.equals(type))
-			return false;
-		return getFactory(mtype.getMediaType()) != null;
-	}
-
-	@Override
 	public void writeTo(BooleanQueryResultWriterFactory factory,
 			Boolean result, WritableByteChannel out, Charset charset,
 			String base, ObjectConnection con) throws IOException {
 		factory.getWriter(ChannelUtil.newOutputStream(out)).write(result != null && result);
+	}
+
+	@Override
+	protected boolean isAssignableFrom(Class<?> type) {
+		return Boolean.class.equals(type) || Boolean.TYPE.equals(type);
 	}
 
 	@Override

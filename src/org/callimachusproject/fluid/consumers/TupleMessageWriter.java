@@ -34,8 +34,9 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
-import org.callimachusproject.fluid.consumers.base.ResultMessageWriterBase;
+import org.callimachusproject.fluid.consumers.base.MessageWriterBase;
 import org.callimachusproject.server.util.ChannelUtil;
+import org.openrdf.OpenRDFException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryResultUtil;
 import org.openrdf.query.TupleQueryResult;
@@ -54,7 +55,7 @@ import org.openrdf.repository.object.ObjectConnection;
  */
 public class TupleMessageWriter
 		extends
-		ResultMessageWriterBase<TupleQueryResultFormat, TupleQueryResultWriterFactory, TupleQueryResult> {
+		MessageWriterBase<TupleQueryResultFormat, TupleQueryResultWriterFactory, TupleQueryResult> {
 
 	public TupleMessageWriter() {
 		super(TupleQueryResultWriterRegistry.getInstance(),
@@ -62,11 +63,17 @@ public class TupleMessageWriter
 	}
 
 	@Override
+	protected void close(TupleQueryResult result) throws OpenRDFException {
+		result.close();
+	}
+
+	@Override
 	public void writeTo(TupleQueryResultWriterFactory factory,
 			TupleQueryResult result, WritableByteChannel out, Charset charset,
-			String base, ObjectConnection con) throws TupleQueryResultHandlerException,
-			QueryEvaluationException {
-		TupleQueryResultWriter handler = factory.getWriter(ChannelUtil.newOutputStream(out));
+			String base, ObjectConnection con)
+			throws TupleQueryResultHandlerException, QueryEvaluationException {
+		TupleQueryResultWriter handler = factory.getWriter(ChannelUtil
+				.newOutputStream(out));
 		if (result == null) {
 			List<String> emptyList = Collections.emptyList();
 			handler.startQueryResult(emptyList);

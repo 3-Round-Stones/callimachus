@@ -1,3 +1,19 @@
+/*
+   Copyright (c) 2012 3 Round Stones Inc, Some Rights Reserved
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+ */
 package org.callimachusproject.fluid;
 
 import java.net.URL;
@@ -15,6 +31,7 @@ import org.callimachusproject.fluid.consumers.DocumentFragmentMessageWriter;
 import org.callimachusproject.fluid.consumers.FormMapMessageWriter;
 import org.callimachusproject.fluid.consumers.FormStringMessageWriter;
 import org.callimachusproject.fluid.consumers.GraphMessageWriter;
+import org.callimachusproject.fluid.consumers.HttpEntityWriter;
 import org.callimachusproject.fluid.consumers.HttpMessageWriter;
 import org.callimachusproject.fluid.consumers.InputStreamBodyWriter;
 import org.callimachusproject.fluid.consumers.ModelMessageWriter;
@@ -35,6 +52,7 @@ import org.callimachusproject.fluid.producers.DocumentFragmentMessageReader;
 import org.callimachusproject.fluid.producers.FormMapMessageReader;
 import org.callimachusproject.fluid.producers.FormStringMessageReader;
 import org.callimachusproject.fluid.producers.GraphMessageReader;
+import org.callimachusproject.fluid.producers.HttpEntityReader;
 import org.callimachusproject.fluid.producers.HttpMessageReader;
 import org.callimachusproject.fluid.producers.InputStreamBodyReader;
 import org.callimachusproject.fluid.producers.ModelMessageReader;
@@ -52,6 +70,12 @@ import org.callimachusproject.fluid.producers.XMLEventMessageReader;
 import org.openrdf.model.URI;
 import org.openrdf.repository.object.ObjectConnection;
 
+/**
+ * Creates {@link FluidBuilder} to convert between media types.
+ * 
+ * @author James Leigh
+ * 
+ */
 public class FluidFactory {
 	private static final FluidFactory instance = new FluidFactory();
 	static {
@@ -62,7 +86,7 @@ public class FluidFactory {
 		return instance;
 	}
 
-	private List<Consumer> consumers = new ArrayList<Consumer>();
+	private List<Consumer<?>> consumers = new ArrayList<Consumer<?>>();
 	private List<Producer> producers = new ArrayList<Producer>();
 
 	private void init() {
@@ -84,10 +108,11 @@ public class FluidFactory {
 		consumers.add(new DOMMessageWriter());
 		consumers.add(new FormMapMessageWriter());
 		consumers.add(new FormStringMessageWriter());
-		consumers.add(new URIListWriter(String.class));
-		consumers.add(new URIListWriter(URI.class));
-		consumers.add(new URIListWriter(URL.class));
-		consumers.add(new URIListWriter(java.net.URI.class));
+		consumers.add(new HttpEntityWriter());
+		consumers.add(new URIListWriter<String>(String.class));
+		consumers.add(new URIListWriter<URI>(URI.class));
+		consumers.add(new URIListWriter<URL>(URL.class));
+		consumers.add(new URIListWriter<java.net.URI>(java.net.URI.class));
 		try {
 			consumers.add(new DocumentFragmentMessageWriter());
 		} catch (TransformerConfigurationException e) {
@@ -116,6 +141,11 @@ public class FluidFactory {
 		producers.add(new ByteArrayStreamMessageReader());
 		producers.add(new DOMMessageReader());
 		producers.add(new DocumentFragmentMessageReader());
+		producers.add(new HttpEntityReader());
+	}
+
+	public FluidBuilder builder() {
+		return new FluidBuilder(consumers, producers);
 	}
 
 	public FluidBuilder builder(ObjectConnection con) {

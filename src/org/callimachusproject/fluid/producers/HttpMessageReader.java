@@ -57,10 +57,10 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.params.BasicHttpParams;
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.repository.object.ObjectConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,23 +70,22 @@ import org.slf4j.LoggerFactory;
  * @author James Leigh
  * 
  */
-public class HttpMessageReader implements Producer<HttpMessage> {
+public class HttpMessageReader implements Producer {
 	private Logger logger = LoggerFactory.getLogger(HttpMessageReader.class);
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.asClass();
-		String mimeType = mtype.getMediaType();
-		if (Object.class.equals(type) && mimeType != null)
-			return mimeType.startsWith("message/http");
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		Class<?> type = ftype.asClass();
+		if (Object.class.equals(type))
+			return ftype.is("message/http");
 		return HttpResponse.class.equals(type)
 				|| HttpMessage.class.equals(type)
 				|| HttpRequest.class.equals(type)
 				|| HttpEntityEnclosingRequest.class.equals(type);
 	}
 
-	public HttpMessage readFrom(FluidType mtype, ObjectConnection con,
-			ReadableByteChannel in, Charset charset, String base, String location) throws IOException {
-		return readFrom(mtype.getMediaType(), in);
+	public HttpMessage produce(FluidType ftype, ReadableByteChannel in,
+			Charset charset, String base, FluidBuilder builder) throws IOException {
+		return readFrom(ftype.as("message/http", "application/http").preferred(), in);
 	}
 
 	public HttpMessage readFrom(String mimeType, ReadableByteChannel in)
@@ -195,7 +194,6 @@ public class HttpMessageReader implements Producer<HttpMessage> {
 
 	private LineParser getParser(String mimeType) {
 		try {
-			BasicLineParser parser = null;
 			if (mimeType == null)
 				return new BasicLineParser();
 			if (!mimeType.startsWith("message/http")
@@ -213,10 +211,7 @@ public class HttpMessageReader implements Producer<HttpMessage> {
 			int major = Integer.parseInt(version.substring(0, idx));
 			int minor = Integer.parseInt(version.substring(idx + 1));
 			ProtocolVersion ver = new ProtocolVersion("HTTP", major, minor);
-			parser = new BasicLineParser(ver);
-			if (parser == null)
-				return new BasicLineParser();
-			return parser;
+			return new BasicLineParser(ver);
 		} catch (MimeTypeParseException e) {
 			logger.debug(e.toString(), e);
 			return new BasicLineParser();

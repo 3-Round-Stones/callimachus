@@ -69,7 +69,7 @@ import org.xml.sax.SAXException;
 public class ResponseParameter implements Parameter {
 	private final FluidFactory ff = FluidFactory.getInstance();
 	private final Fluid writer;
-	private final String[] mimeTypes;
+	private final String[] mediaTypes;
 	private final Object result;
 	private final Class<?> type;
 	private final Type genericType;
@@ -82,40 +82,36 @@ public class ResponseParameter implements Parameter {
 		this.type = type;
 		this.genericType = genericType;
 		if (mimeTypes == null || mimeTypes.length < 1) {
-			this.mimeTypes = new String[] { "*/*" };
+			this.mediaTypes = new String[] { "*/*" };
 		} else {
-			this.mimeTypes = mimeTypes;
+			this.mediaTypes = mimeTypes;
 		}
 		FluidBuilder builder = ff.builder(con);
-		Fluid fluid = null;
-		for (String media : this.mimeTypes) {
-			if (builder.isConsumable(genericType, media)) {
-				fluid = builder.consume(genericType, media, result, base);
-				break;
-			}
-		}
-		if (fluid == null)
+		if (!builder.isConsumable(genericType, this.mediaTypes))
 			throw new ClassCastException(type.getSimpleName()
-					+ " cannot be converted into " + Arrays.toString(this.mimeTypes));
-		this.writer = fluid;
+					+ " cannot be converted into " + this.mediaTypes);
+		this.writer = builder
+				.consume(result, base, genericType, this.mediaTypes);
 	}
 
 	public String toString() {
 		return String.valueOf(result);
 	}
 
-	public HttpEntity asHttpEntity(String media) throws IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
+	public HttpEntity asHttpEntity(String media) throws IOException,
+			OpenRDFException, XMLStreamException, TransformerException,
+			ParserConfigurationException, SAXException {
 		return writer.asHttpEntity(media);
 	}
 
 	public Collection<? extends MimeType> getReadableTypes(Class<?> type,
 			Type genericType, Accepter accepter) throws MimeTypeParseException {
-		if (!accepter.isAcceptable(mimeTypes))
+		if (!accepter.isAcceptable(mediaTypes))
 			return Collections.emptySet();
 		if (this.type.equals(type) && this.genericType.equals(genericType))
 			return accepter.getAcceptable();
 		List<MimeType> acceptable = new ArrayList<MimeType>();
-		for (MimeType mimeType : accepter.getAcceptable(mimeTypes)) {
+		for (MimeType mimeType : accepter.getAcceptable(this.mediaTypes)) {
 			if (writer.toMedia(genericType, mimeType.toString()) != null) {
 				acceptable.add(mimeType);
 			}
@@ -131,7 +127,7 @@ public class ResponseParameter implements Parameter {
 		if (this.type.equals(type) && this.genericType.equals(genericType))
 			return (T) (result);
 		Accepter accepter = new Accepter(mediaTypes);
-		for (final MimeType mimeType : accepter.getAcceptable(mimeTypes)) {
+		for (final MimeType mimeType : accepter.getAcceptable(this.mediaTypes)) {
 			if (writer.toMedia(genericType, mimeType.toString()) != null) {
 				return (T) writer.as(genericType, mimeType.toString());
 			}

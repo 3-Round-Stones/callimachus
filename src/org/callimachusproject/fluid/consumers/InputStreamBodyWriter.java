@@ -35,6 +35,7 @@ import java.nio.channels.ReadableByteChannel;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.fluid.AbstractFluid;
@@ -44,6 +45,7 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
+import org.xml.sax.SAXException;
 
 /**
  * Writes an InputStream into an OutputStream.
@@ -51,44 +53,50 @@ import org.openrdf.OpenRDFException;
 public class InputStreamBodyWriter implements Consumer<InputStream> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		String mimeType = mtype.getMediaType();
-		if (!InputStream.class.isAssignableFrom((Class<?>) mtype.asClass()))
-			return false;
-		if (mimeType != null && mimeType.contains("*")
-				&& !mimeType.startsWith("*")
-				&& !mimeType.startsWith("application/*"))
-			return false;
-		return true;
+		return InputStream.class.isAssignableFrom(mtype.asClass());
 	}
 
-	public Fluid consume(final FluidType ftype, final InputStream result, final String base,
+	public Fluid consume(final InputStream result, final String base, final FluidType ftype,
 			final FluidBuilder builder) {
-		return new AbstractFluid(builder) {
-			public String toChannelMedia(String media) {
-				return getMediaType(media);
+		return new AbstractFluid() {
+			public String getSystemId() {
+				return base;
 			}
 
-			public ReadableByteChannel asChannel(String media)
+			public FluidType getFluidType() {
+				return ftype;
+			}
+
+			public void asVoid() throws IOException {
+				if (result != null) {
+					result.close();
+				}
+			}
+
+			public String toChannelMedia(String... media) {
+				return ftype.as(media).preferred();
+			}
+
+			public ReadableByteChannel asChannel(String... media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
-				return write(ftype.as(getMediaType(media)), result, base);
+				return ChannelUtil.newChannel(result);
 			}
 	
+			public String toStreamMedia(String... media) {
+				return ftype.as(media).preferred();
+			}
+
+			public InputStream asStream(String... media)
+					throws OpenRDFException, IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerConfigurationException, TransformerException {
+				return result;
+			}
+
 			public String toString() {
-				return result.toString();
+				return String.valueOf(result);
 			}
 		};
-	}
-
-	private String getMediaType(String mimeType) {
-		if (mimeType == null || mimeType.startsWith("*")
-				| mimeType.startsWith("application/*"))
-			return "application/octet-stream";
-		return mimeType;
-	}
-
-	private ReadableByteChannel write(FluidType mtype, InputStream result,
-			String base) throws IOException {
-		return ChannelUtil.newChannel(result);
 	}
 }

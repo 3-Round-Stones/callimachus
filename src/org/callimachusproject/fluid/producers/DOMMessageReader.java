@@ -40,11 +40,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.xslt.DocumentFactory;
-import org.openrdf.repository.object.ObjectConnection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -54,54 +54,40 @@ import org.xml.sax.SAXException;
 /**
  * Parses a DOM Node from an InputStream.
  */
-public class DOMMessageReader implements Producer<Node> {
+public class DOMMessageReader implements Producer {
 
 	private DocumentFactory builder = DocumentFactory.newInstance();
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.asClass();
-		String mediaType = mtype.getMediaType();
-		if (mediaType != null && !mediaType.startsWith("text/")
-				&& !mediaType.startsWith("application/")
-				&& !mediaType.startsWith("*/")
-				&& !mediaType.contains("xml"))
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		Class<?> type = ftype.asClass();
+		if (!ftype.is("text/*", "application/*", "*/xml"))
 			return false;
 		return type.isAssignableFrom(Document.class)
 				|| type.isAssignableFrom(Element.class);
 	}
 
-	public Node readFrom(FluidType mtype, ObjectConnection con,
-			ReadableByteChannel cin, Charset charset, String base, String location)
+	public Node produce(FluidType ftype, ReadableByteChannel cin,
+			Charset charset, String base, FluidBuilder builder)
 			throws TransformerConfigurationException, TransformerException,
 			ParserConfigurationException, IOException, SAXException {
-		Class<?> type = mtype.asClass();
+		Class<?> type = ftype.asClass();
 		if (cin == null)
 			return null;
-		Document doc = createDocument(cin, charset, location);
+		Document doc = createDocument(cin, charset);
 		if (type.isAssignableFrom(Element.class))
 			return doc.getDocumentElement();
 		return doc;
 	}
 
-	private Document createDocument(ReadableByteChannel cin, Charset charset,
-			String location) throws ParserConfigurationException, SAXException,
+	private Document createDocument(ReadableByteChannel cin, Charset charset) throws ParserConfigurationException, SAXException,
 			IOException {
 		try {
 			InputStream in = ChannelUtil.newInputStream(cin);
-			if (charset == null && in != null && location != null) {
-				return builder.parse(in, location);
-			}
-			if (charset == null && in != null && location == null) {
+			if (charset == null && in != null) {
 				return builder.parse(in);
-			}
-			if (in == null && location != null) {
-				return builder.parse(location);
 			}
 			Reader reader = new InputStreamReader(in, charset);
 			InputSource is = new InputSource(reader);
-			if (location != null) {
-				is.setSystemId(location);
-			}
 			return builder.parse(is);
 		} finally {
 			if (cin != null) {

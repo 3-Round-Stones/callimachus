@@ -56,6 +56,7 @@ import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.exceptions.BehaviourException;
 import org.openrdf.sail.optimistic.exceptions.ConcurrencyException;
+import org.xml.sax.SAXException;
 
 /**
  * Builds an HTTP response.
@@ -164,13 +165,18 @@ public class Response extends AbstractHttpMessage {
 
 	public HttpEntity asHttpEntity() throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
-			ParserConfigurationException {
+			ParserConfigurationException, SAXException {
 		String media = getHeader("Content-Type");
 		if (media == null) {
 			media = "*/*";
 		}
 		HttpEntity http = entity.asHttpEntity(media);
-		return new ReadableHttpEntityChannel(http.getContentType().getValue(),
+		String contentType = null;
+		Header hd = http.getContentType();
+		if (hd != null) {
+			contentType = hd.getValue();
+		}
+		return new ReadableHttpEntityChannel(contentType,
 				http.getContentLength(), ChannelUtil.newChannel(http
 						.getContent()), getOnClose());
 	}

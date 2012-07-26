@@ -33,23 +33,22 @@ import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Converts an InputStream to a ReadableByteChannel.
  */
 public class ReadableByteChannelBodyReader implements
-		Producer<ReadableByteChannel> {
+		Producer {
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		return mtype.asClass().isAssignableFrom(ReadableByteChannel.class);
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		return ftype.asClass().isAssignableFrom(ReadableByteChannel.class);
 	}
 
-	public ReadableByteChannel readFrom(FluidType mtype,
-			ObjectConnection con, ReadableByteChannel in, Charset charset,
-			String base, String location) throws IOException {
+	public ReadableByteChannel produce(FluidType ftype,
+			ReadableByteChannel in, Charset charset, String base, FluidBuilder builder) throws IOException {
 		return in;
 	}
 }

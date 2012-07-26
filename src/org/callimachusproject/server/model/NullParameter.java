@@ -44,7 +44,7 @@ import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
-import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.fluid.GenericType;
 import org.callimachusproject.server.util.Accepter;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
@@ -62,13 +62,13 @@ public class NullParameter implements Parameter {
 
 	public Collection<? extends MimeType> getReadableTypes(Class<?> ctype,
 			Type gtype, Accepter accepter) throws MimeTypeParseException {
-		FluidType type = new FluidType(gtype, null);
+		GenericType type = new GenericType(gtype);
 		List<MimeType> acceptable = new ArrayList<MimeType>();
 		for (MimeType m : accepter.getAcceptable("*/*")) {
 			if (fb.media("*/*").toMedia(gtype, m.toString()) != null) {
 				acceptable.add(m);
 			} else if (type.isSetOrArray()) {
-				if (fb.media("*/*").toMedia(type.component(m.toString())) != null) {
+				if (fb.media("*/*").toMedia(type.component().asType(), m.toString()) != null) {
 					acceptable.add(m);
 				}
 			}
@@ -78,7 +78,7 @@ public class NullParameter implements Parameter {
 
 	public <T> T read(Class<T> ctype, Type genericType, String[] mediaTypes)
 			throws MimeTypeParseException, IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
-		FluidType type = new FluidType(genericType, null);
+		GenericType type = new GenericType(genericType);
 		Class<?> componentType = type.component().asClass();
 		if (type.isArray() && isReadable(componentType, mediaTypes))
 			return (T) type.castArray(readArray(componentType, mediaTypes));

@@ -37,37 +37,32 @@ import java.nio.charset.Charset;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.xslt.XMLEventReaderFactory;
-import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Converts an InputStream into a XMLEventReader.
  */
-public class XMLEventMessageReader implements Producer<XMLEventReader> {
+public class XMLEventMessageReader implements Producer {
 	private XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		String mediaType = mtype.getMediaType();
-		if (mediaType != null && !mediaType.startsWith("text/")
-				&& !mediaType.startsWith("application/")
-				&& !mediaType.startsWith("*/"))
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		if (!ftype.is("text/*", "application/*"))
 			return false;
-		return mtype.asClass().isAssignableFrom(XMLEventReader.class);
+		return ftype.asClass().isAssignableFrom(XMLEventReader.class);
 	}
 
-	public XMLEventReader readFrom(FluidType mtype, ObjectConnection con,
-			ReadableByteChannel in, Charset charset, String base, String location) throws IOException,
+	public XMLEventReader produce(FluidType ftype, ReadableByteChannel in,
+			Charset charset, String base, FluidBuilder builder) throws IOException,
 			XMLStreamException {
 		if (in == null)
 			return null;
-		InputStream in1 = ChannelUtil.newInputStream(in);
-		if (charset == null && location != null)
-			return factory.createXMLEventReader(location, in1);
+		InputStream stream = ChannelUtil.newInputStream(in);
 		if (charset == null)
-			return factory.createXMLEventReader(in1);
-		return factory.createXMLEventReader(in1, charset.name());
+			return factory.createXMLEventReader(stream);
+		return factory.createXMLEventReader(stream, charset.name());
 	}
 }

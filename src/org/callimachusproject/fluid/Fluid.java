@@ -1,8 +1,24 @@
+/*
+   Copyright (c) 2012 3 Round Stones Inc, Some Rights Reserved
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+ */
 package org.callimachusproject.fluid;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.net.URISyntaxException;
 import java.nio.channels.ReadableByteChannel;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -11,42 +27,90 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.openrdf.OpenRDFException;
 import org.xml.sax.SAXException;
 
+/**
+ * Intermediate converting format.
+ * 
+ * @author James Leigh
+ * 
+ */
 public interface Fluid {
 
-	String toHttpEntityMedia(String media);
+	FluidType getFluidType();
 
-	HttpEntity asHttpEntity(String media) throws IOException, OpenRDFException,
-			XMLStreamException, TransformerException,
-			ParserConfigurationException;
+	String getSystemId();
 
-	String toChannelMedia(String media);
-
-	ReadableByteChannel asChannel(String media) throws IOException,
-			OpenRDFException, XMLStreamException, TransformerException,
-			ParserConfigurationException;
-
-	String toMedia(Type gtype, String media);
+	void asVoid() throws OpenRDFException, IOException, XMLStreamException,
+			ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException;
 
 	/**
-	 * Must close InputStream or return an object that will later close the
-	 * InputStream.
+	 * {@link ReadableByteChannel}
 	 */
-	Object as(Type gtype, String media) throws OpenRDFException,
+	String toChannelMedia(String... media);
+
+	ReadableByteChannel asChannel(String... media) throws OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException,
-			TransformerException, URISyntaxException;
-
-	String toMedia(FluidType ftype);
+			TransformerException;
 
 	/**
-	 * Must close InputStream or return an object that will later close the
-	 * InputStream.
+	 * {@link InputStream}
 	 */
+	String toStreamMedia(String... media);
+
+	InputStream asStream(String... media) throws OpenRDFException, IOException,
+			XMLStreamException, ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException;
+
+	/**
+	 * {@link String}
+	 */
+	String toStringMedia(String... media);
+
+	String asString(String... media) throws OpenRDFException, IOException,
+			XMLStreamException, ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException;
+
+	/**
+	 * {@link HttpEntity}
+	 */
+	String toHttpEntityMedia(String... media);
+
+	HttpEntity asHttpEntity(String... media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException;
+
+	/**
+	 * {@link HttpResponse}
+	 */
+	String toHttpResponseMedia(String... media);
+
+	HttpResponse asHttpResponse(String... media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException;
+
+	/**
+	 * {@link Type}
+	 */
+	String toMedia(Type gtype, String... media);
+
+	Object as(Type gtype, String... media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException;
+
+	/**
+	 * {@link FluidType}
+	 */
+	String toMedia(FluidType ftype);
+
 	Object as(FluidType ftype) throws OpenRDFException, IOException,
 			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException,
-			URISyntaxException;
+			TransformerConfigurationException, TransformerException;
 }

@@ -185,7 +185,7 @@ public class RemoteConnection {
 			};
 		}
 		if (loc == null) {
-			return ff.builder(oc).channel(media, cin, uri).as(gtype, media);
+			return ff.builder(oc).channel(cin, uri, media).as(gtype, media);
 		} else {
 			cin.close();
 			return ff.builder(oc).uri(loc, uri).as(gtype, media);

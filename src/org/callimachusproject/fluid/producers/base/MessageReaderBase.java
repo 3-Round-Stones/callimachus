@@ -35,13 +35,15 @@ import info.aduna.lang.service.FileFormatServiceRegistry;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.QueryResultParseException;
-import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Base class for readers that use a {@link FileFormat}.
@@ -56,38 +58,38 @@ import org.openrdf.repository.object.ObjectConnection;
  *            Java type returned
  */
 public abstract class MessageReaderBase<FF extends FileFormat, S, T> implements
-		Producer<T> {
+		Producer {
 	private FileFormatServiceRegistry<FF, S> registry;
+	private final String[] mimeTypes;
 	private Class<T> type;
 
 	public MessageReaderBase(FileFormatServiceRegistry<FF, S> registry,
 			Class<T> type) {
 		this.registry = registry;
 		this.type = type;
+		Set<String> set = new LinkedHashSet<String>();
+		for (FF format : registry.getKeys()) {
+			set.addAll(format.getMIMETypes());
+		}
+		mimeTypes = set.toArray(new String[set.size()]);
 	}
 
-	public boolean isReadable(FluidType mtype, ObjectConnection con) {
-		Class<?> type = mtype.asClass();
-		String mimeType = mtype
-				.getMediaType();
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		Class<?> type = ftype.asClass();
 		if (Object.class.equals(type))
 			return false;
-		if (!type.equals(this.type))
+		if (!classEquals(type))
 			return false;
-		if (mimeType == null || mimeType.contains("*")
-				|| "application/octet-stream".equals(mimeType))
-			return false;
-		return getFactory(mimeType) != null;
+		FluidType possible = new FluidType(ftype.asType(), mimeTypes).as(ftype);
+		return getFactory(possible.preferred()) != null;
 	}
 
-	public T readFrom(FluidType mtype, ObjectConnection con,
-			ReadableByteChannel in, Charset charset, String base, String location)
+	public Object produce(FluidType ftype, ReadableByteChannel in,
+			Charset charset, String base, FluidBuilder builder)
 			throws QueryResultParseException, TupleQueryResultHandlerException,
 			IOException, QueryEvaluationException {
-		if (location != null) {
-			base = location;
-		}
-		return readFrom(getFactory(mtype.getMediaType()), in, charset, base);
+		FluidType possible = new FluidType(ftype.asType(), mimeTypes).as(ftype);
+		return readFrom(getFactory(possible.preferred()), in, charset, base);
 	}
 
 	public abstract T readFrom(S factory, ReadableByteChannel in,
@@ -95,7 +97,13 @@ public abstract class MessageReaderBase<FF extends FileFormat, S, T> implements
 			TupleQueryResultHandlerException, IOException,
 			QueryEvaluationException;
 
+	protected boolean classEquals(Class<?> type) {
+		return type.equals(this.type);
+	}
+
 	protected S getFactory(String mime) {
+		if (mime == null)
+			return null;
 		FF format = getFormat(mime);
 		if (format == null)
 			return null;

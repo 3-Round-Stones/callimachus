@@ -56,7 +56,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import javax.activation.MimeTypeParseException;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpException;
@@ -265,7 +264,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		return env.getEnvelopeType();
 	}
 
-	public void setEnvelopeType(String type) throws MimeTypeParseException {
+	public void setEnvelopeType(String type) {
 		env.setEnvelopeType(type);
 		links.setEnvelopeType(type);
 	}

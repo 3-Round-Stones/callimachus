@@ -42,25 +42,20 @@ import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.regex.Pattern;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.tools.FileObject;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.concepts.Activity;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.util.Accepter;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.model.URI;
@@ -84,7 +79,6 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class ResourceRequest extends Request {
-	private static final Pattern EXPECT_REDIRECT = Pattern.compile("^(301|302|303|307)\\b");
 	private final FluidFactory ff = FluidFactory.getInstance();
 	private final Logger logger = LoggerFactory.getLogger(ResourceRequest.class);
 	private final ValueFactory vf;
@@ -93,27 +87,26 @@ public class ResourceRequest extends Request {
 	private final URI uri;
 	private final FluidBuilder writer;
 	private BodyParameter body;
-	private final Accepter accepter;
+	private final FluidType accepter;
 	private final Set<String> vary = new LinkedHashSet<String>();
 	private Result<VersionedObject> result;
 	private boolean closed;
 
 	public ResourceRequest(Request request, CallimachusRepository repository)
-			throws QueryEvaluationException, RepositoryException,
-			MimeTypeParseException {
+			throws QueryEvaluationException, RepositoryException {
 		super(request);
 		List<String> headers = getVaryHeaders("Accept");
 		if (headers.isEmpty()) {
-			accepter = new Accepter();
+			accepter = new FluidType(HttpEntity.class);
 		} else {
 			StringBuilder sb = new StringBuilder();
 			for (String hd : headers) {
 				if (sb.length() > 0) {
-					sb.append(", ");
+					sb.append(",");
 				}
 				sb.append(hd);
 			}
-			accepter = new Accepter(sb.toString());
+			accepter = new FluidType(HttpEntity.class, sb.toString().split("\\s*,\\s*"));
 		}
 		this.con = repository.getConnection();
 		this.vf = con.getValueFactory();
@@ -127,7 +120,7 @@ public class ResourceRequest extends Request {
 	}
 
 	public void begin() throws RepositoryException, QueryEvaluationException,
-			MimeTypeParseException, DatatypeConfigurationException {
+			DatatypeConfigurationException {
 		if (target == null) {
 			if (!this.isSafe()) {
 				initiateActivity();
@@ -217,31 +210,10 @@ public class ResourceRequest extends Request {
 		};
 	}
 
-	public String getContentType(Method method) throws MimeTypeParseException {
-		Class<?> type = method.getReturnType();
+	public String getContentType(Method method) {
 		Type genericType = method.getGenericReturnType();
-		if (method.isAnnotationPresent(type.class)) {
-			String[] mediaTypes = method.getAnnotation(type.class).value();
-			for (MimeType m : accepter.getAcceptable(mediaTypes)) {
-				if (writer.isConsumable(genericType, m.toString())) {
-					return getContentType(type, genericType, getTypes(method), m);
-				}
-			}
-		} else {
-			if (method.isAnnotationPresent(expect.class)) {
-				for (String expect : method.getAnnotation(expect.class).value()) {
-					if (EXPECT_REDIRECT.matcher(expect).find()) {
-						return "text/uri-list";
-					}
-				}
-			}
-			for (MimeType m : accepter.getAcceptable()) {
-				if (writer.isConsumable(genericType, m.toString())) {
-					return getContentType(type, genericType, getTypes(method), m);
-				}
-			}
-		}
-		return null;
+		String[] mediaTypes = getTypes(method);
+		return writer.nil(new FluidType(genericType, mediaTypes)).toMedia(accepter);
 	}
 
 	public String[] getTypes(Method method) {
@@ -273,29 +245,29 @@ public class ResourceRequest extends Request {
 		return "";
 	}
 
-	public Parameter getHeader(String[] mediaTypes, String... names) {
+	public Parameter getHeader(String... names) {
 		List<String> list = getVaryHeaders(names);
 		String[] values = list.toArray(new String[list.size()]);
-		return new StringParameter(mediaTypes, "text/plain", values, uri
-				.stringValue(), con);
+		return new StringParameter(values, uri
+				.stringValue(), con, "text/plain", "text/*");
 	}
 
-	public Parameter getQueryString(String[] mediaTypes) {
-		String mimeType = "application/x-www-form-urlencoded";
+	public Parameter getQueryStringParameter() {
+		String[] mimeType = {"application/x-www-form-urlencoded", "text/*"};
 		String value = getQueryString();
 		if (value == null) {
-			return new StringParameter(mediaTypes, mimeType, new String[0], uri
-					.stringValue(), con);
+			return new StringParameter(new String[0], uri
+					.stringValue(), con, mimeType);
 		}
-		return new StringParameter(mediaTypes, mimeType,
-				new String[] { value }, uri.stringValue(), con);
+		return new StringParameter(new String[] { value }, uri.stringValue(),
+				con, mimeType);
 	}
 
 	public RDFObject getRequestedResource() {
 		return target;
 	}
 
-	public long getLastModified() throws MimeTypeParseException {
+	public long getLastModified() {
 		if (target instanceof FileObject) {
 			long lastModified = ((FileObject) target).getLastModified();
 			if (lastModified > 0)
@@ -321,38 +293,26 @@ public class ResourceRequest extends Request {
 		return target.revision();
 	}
 
-	public SortedSet<? extends MimeType> getAcceptable()
-			throws MimeTypeParseException {
-		return accepter.getAcceptable();
+	public FluidType getAcceptable() {
+		return accepter;
 	}
 
-	public boolean isAcceptable(Class<?> type, Type genericType)
-			throws MimeTypeParseException {
-		return isAcceptable(null, type, genericType);
+	public boolean isAcceptable(Class<?> type, Type genericType) {
+		return isAcceptable("*/*", type, genericType);
 	}
 
-	public boolean isAcceptable(String mediaType) throws MimeTypeParseException {
+	public boolean isAcceptable(String mediaType) {
 		return isAcceptable(mediaType, null, null);
 	}
 
 	public boolean isAcceptable(String mediaType, Class<?> type,
-			Type genericType) throws MimeTypeParseException {
-		if (type == null)
-			return accepter.isAcceptable(mediaType);
-		for (MimeType accept : accepter.getAcceptable(mediaType)) {
-			if (writer.isConsumable(genericType, accept.toString()))
-				return true;
-		}
-		return false;
+			Type genericType) {
+		FluidType ftype = new FluidType(genericType, mediaType);
+		return writer.isConsumable(ftype) && writer.nil(ftype).toMedia(accepter) != null;
 	}
 
 	public boolean isQueryStringPresent() {
 		return getQueryString() != null;
-	}
-
-	private String getContentType(Class<?> type, Type genericType, String[] mediaTypes, MimeType m) {
-		m.removeParameter("q");
-		return writer.nil(genericType, mediaTypes).toHttpEntityMedia(m.toString());
 	}
 
 	private void initiateActivity() throws RepositoryException,

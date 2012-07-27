@@ -29,24 +29,16 @@
  */
 package org.callimachusproject.server.model;
 
-import static java.util.Collections.singleton;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -56,23 +48,24 @@ import org.apache.http.HttpEntity;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
-import org.callimachusproject.server.util.Accepter;
+import org.callimachusproject.fluid.FluidType;
 import org.openrdf.OpenRDFException;
-import org.openrdf.model.URI;
 import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.RDFObject;
 import org.xml.sax.SAXException;
 
 /**
  * Wraps a message response to output to an HTTP response.
  */
 public class ResponseParameter implements Parameter {
+	private interface SetString extends Set<String> {
+	}
+
+	private static Type setOfStringType = SetString.class
+			.getGenericInterfaces()[0];
 	private final FluidFactory ff = FluidFactory.getInstance();
 	private final Fluid writer;
-	private final String[] mediaTypes;
 	private final Object result;
 	private final Class<?> type;
-	private final Type genericType;
 	private final Map<String, String> headers = new HashMap<String, String>();
 	private final List<String> expects = new ArrayList<String>();
 
@@ -80,22 +73,18 @@ public class ResponseParameter implements Parameter {
 			Type genericType, String base, ObjectConnection con) {
 		this.result = result;
 		this.type = type;
-		this.genericType = genericType;
 		if (mimeTypes == null || mimeTypes.length < 1) {
-			this.mediaTypes = new String[] { "*/*" };
-		} else {
-			this.mediaTypes = mimeTypes;
+			mimeTypes = new String[] { "*/*" };
 		}
 		FluidBuilder builder = ff.builder(con);
-		if (!builder.isConsumable(genericType, this.mediaTypes))
+		if (!builder.isConsumable(genericType, mimeTypes))
 			throw new ClassCastException(type.getSimpleName()
-					+ " cannot be converted into " + this.mediaTypes);
-		this.writer = builder
-				.consume(result, base, genericType, this.mediaTypes);
+					+ " cannot be converted into " + mimeTypes);
+		this.writer = builder.consume(result, base, genericType, mimeTypes);
 	}
 
 	public String toString() {
-		return String.valueOf(result);
+		return String.valueOf(writer);
 	}
 
 	public HttpEntity asHttpEntity(String media) throws IOException,
@@ -104,36 +93,18 @@ public class ResponseParameter implements Parameter {
 		return writer.asHttpEntity(media);
 	}
 
-	public Collection<? extends MimeType> getReadableTypes(Class<?> type,
-			Type genericType, Accepter accepter) throws MimeTypeParseException {
-		if (!accepter.isAcceptable(mediaTypes))
-			return Collections.emptySet();
-		if (this.type.equals(type) && this.genericType.equals(genericType))
-			return accepter.getAcceptable();
-		List<MimeType> acceptable = new ArrayList<MimeType>();
-		for (MimeType mimeType : accepter.getAcceptable(this.mediaTypes)) {
-			if (writer.toMedia(genericType, mimeType.toString()) != null) {
-				acceptable.add(mimeType);
-			}
-		}
-		return acceptable;
+	public String getMediaType(FluidType ftype) {
+		return writer.toMedia(ftype);
 	}
 
-	public <T> T read(Class<T> type, Type genericType, String[] mediaTypes)
+	public Object read(FluidType ftype)
 			throws OpenRDFException, TransformerConfigurationException,
 			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerException, MimeTypeParseException,
-			URISyntaxException {
-		if (this.type.equals(type) && this.genericType.equals(genericType))
-			return (T) (result);
-		Accepter accepter = new Accepter(mediaTypes);
-		for (final MimeType mimeType : accepter.getAcceptable(this.mediaTypes)) {
-			if (writer.toMedia(genericType, mimeType.toString()) != null) {
-				return (T) writer.as(genericType, mimeType.toString());
-			}
-		}
-		throw new ClassCastException(String.valueOf(result)
-				+ " cannot be converted into " + type.getSimpleName());
+			SAXException, TransformerException, URISyntaxException {
+		if (writer.toMedia(ftype) == null)
+			throw new ClassCastException(String.valueOf(result)
+					+ " cannot be converted into " + type.getSimpleName());
+		return writer.as(ftype);
 	}
 
 	public boolean isNoContent() {
@@ -141,37 +112,13 @@ public class ResponseParameter implements Parameter {
 				&& ((Set<?>) result).isEmpty();
 	}
 
-	public Set<String> getLocations() {
-		if (result instanceof String)
-			return singleton((String) result);
-		if (result instanceof URI)
-			return singleton(((URI) result).stringValue());
-		if (result instanceof RDFObject)
-			return singleton(((RDFObject) result).getResource().stringValue());
-		if (result instanceof Set<?>) {
-			if (Set.class.equals(type)) {
-				Set<?> set = (Set<?>) result;
-				Iterator<?> iter = set.iterator();
-				try {
-					Set<String> locations = new LinkedHashSet<String>();
-					while (iter.hasNext()) {
-						Object object = iter.next();
-						if (object instanceof RDFObject) {
-							locations.add(((RDFObject) object).getResource()
-									.stringValue());
-						} else if (object instanceof URI) {
-							locations.add(((URI) object).stringValue());
-						} else if (object instanceof String) {
-							locations.add((String) object);
-						}
-					}
-					return locations;
-				} finally {
-					ObjectConnection.close(iter);
-				}
-			}
-		}
-		return null;
+	public Set<String> getLocations() throws TransformerConfigurationException,
+			OpenRDFException, IOException, XMLStreamException,
+			ParserConfigurationException, SAXException, TransformerException {
+		FluidType ftype = new FluidType(setOfStringType, "text/uri-list");
+		if (writer.toMedia(ftype) == null)
+			return null;
+		return (Set<String>) writer.as(ftype);
 	}
 
 	public Map<String, String> getOtherHeaders() {

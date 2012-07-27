@@ -31,8 +31,6 @@ package org.callimachusproject.server.handlers;
 
 import java.util.Enumeration;
 
-import javax.activation.MimeTypeParseException;
-
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
@@ -94,8 +92,7 @@ public class ModifiedSinceHandler implements Handler {
 		return resp;
 	}
 
-	private String modifiedSince(ResourceOperation req, String entityTag)
-			throws MimeTypeParseException {
+	private String modifiedSince(ResourceOperation req, String entityTag) {
 		long lastModified = Math.max(reset, req.getLastModified());
 		boolean notModified = false;
 		try {

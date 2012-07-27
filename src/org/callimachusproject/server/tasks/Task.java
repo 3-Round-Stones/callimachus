@@ -36,15 +36,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
@@ -290,7 +287,8 @@ public abstract class Task implements Runnable {
 				response = createHttpResponse(req, new Response().exception(e));
 			} catch (ConcurrencyException e) {
 				response = createHttpResponse(req, new Response().conflict(e));
-			} catch (MimeTypeParseException e) {
+			} catch (IllegalArgumentException e) {
+				// FIXME is this to general?
 				response = createHttpResponse(req,
 						new Response().status(406, "Not Acceptable"));
 			} catch (Exception e) {
@@ -434,7 +432,7 @@ public abstract class Task implements Runnable {
 	private HttpResponse createHttpResponse(Request req, Response resp)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException,
-			MimeTypeParseException, SAXException {
+			SAXException {
 		ProtocolVersion ver = HTTP11;
 		int code = resp.getStatus();
 		String phrase = resp.getMessage();
@@ -557,20 +555,5 @@ public abstract class Task implements Runnable {
 		result = result.replace("<", "&lt;");
 		result = result.replace(">", "&gt;");
 		return result;
-	}
-
-	private Charset getCharset(String type) {
-		if (type == null)
-			return null;
-		try {
-			MimeType m = new MimeType(type);
-			String name = m.getParameters().get("charset");
-			if (name == null)
-				return null;
-			return Charset.forName(name);
-		} catch (MimeTypeParseException e) {
-			logger.debug(e.toString(), e);
-			return null;
-		}
 	}
 }

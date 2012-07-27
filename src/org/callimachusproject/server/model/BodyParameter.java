@@ -30,15 +30,9 @@
 package org.callimachusproject.server.model;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.nio.channels.ReadableByteChannel;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -49,7 +43,6 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.exceptions.UnsupportedMediaType;
-import org.callimachusproject.server.util.Accepter;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
@@ -64,8 +57,8 @@ public abstract class BodyParameter implements Parameter {
 	private final String location;
 	private final FluidBuilder fb;
 
-	public BodyParameter(String mimeType, boolean stream,
-			String base, String location, ObjectConnection con) {
+	public BodyParameter(String mimeType, boolean stream, String base,
+			String location, ObjectConnection con) {
 		this.mimeType = mimeType;
 		this.stream = stream;
 		this.base = base;
@@ -81,39 +74,16 @@ public abstract class BodyParameter implements Parameter {
 		return mimeType;
 	}
 
-	public Collection<MimeType> getReadableTypes(Class<?> ctype, Type gtype,
-			Accepter accepter) throws MimeTypeParseException {
-		List<MimeType> acceptable = new ArrayList<MimeType>();
-		for (MimeType media : accepter.getAcceptable(mimeType)) {
-			if (!stream && location == null && mimeType == null) {
-				acceptable.add(media);
-				continue; // reads null
-			}
-			if (stream && ReadableByteChannel.class.equals(ctype)) {
-				acceptable.add(media);
-				continue;
-			}
-			if (fb.media(mimeType).toMedia(gtype, media.toString()) != null) {
-				acceptable.add(media);
-				continue;
-			}
-			FluidType mtype = new FluidType(gtype, media.toString());
-			if (mtype.isSetOrArray()) {
-				if (fb.media(mimeType).toMedia(mtype.component()) != null) {
-					acceptable.add(media);
-					continue;
-				}
-			}
-		}
-		return acceptable;
+	public String getMediaType(FluidType ftype) {
+		if (location == null && !stream && mimeType == null)
+			return fb.media().toMedia(ftype);
+		return fb.media(mimeType).toMedia(ftype);
 	}
 
-	public <T> T read(Class<T> ctype, Type gtype, String[] mediaTypes)
+	public Object read(FluidType ftype)
 			throws TransformerConfigurationException, OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerException, MimeTypeParseException,
-			URISyntaxException {
-		FluidType type = new FluidType(gtype, mimeType);
+			SAXException, TransformerException, URISyntaxException {
 		if (location == null && !stream && mimeType == null)
 			return null;
 		ReadableByteChannel in = getReadableByteChannel();
@@ -126,30 +96,9 @@ public abstract class BodyParameter implements Parameter {
 			}
 			reader = fb.uri(location, base);
 		}
-		if (stream && type.isOrIsSetOf(ReadableByteChannel.class))
-			return (T) type.castComponent(in);
-		for (MimeType media : new Accepter(mediaTypes).getAcceptable(mimeType)) {
-			if (reader.toMedia(gtype, media.toString()) == null)
-				continue;
-			return (T) (reader.as(gtype, media.toString()));
-		}
-		if (reader.toMedia(type) != null)
-			return (T) (reader.as(type));
-		if (type.isSetOrArray()) {
-			Type cgtype = type.component().asType();
-			Class<?> cctype = type.component().asClass();
-			for (MimeType media : new Accepter(mediaTypes)
-					.getAcceptable(mimeType)) {
-				FluidType mctype = type.as(media.toString());
-				if (reader.toMedia(mctype) == null)
-					continue;
-				return (T) type.castComponent(reader.as(mctype));
-			}
-			FluidType mmtype = type.component();
-			if (reader.toMedia(mmtype) != null)
-				return (T) type.castComponent(reader.as(mmtype));
-		}
-		throw new UnsupportedMediaType();
+		if (reader.toMedia(ftype) == null)
+			throw new UnsupportedMediaType();
+		return reader.as(ftype);
 	}
 
 	protected abstract ReadableByteChannel getReadableByteChannel()

@@ -29,18 +29,14 @@
 package org.callimachusproject.server.model;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URISyntaxException;
-import java.util.Collection;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.server.util.Accepter;
+import org.callimachusproject.fluid.FluidType;
 import org.openrdf.OpenRDFException;
 import org.xml.sax.SAXException;
 
@@ -49,13 +45,11 @@ import org.xml.sax.SAXException;
  */
 public interface Parameter {
 
-	Collection<? extends MimeType> getReadableTypes(Class<?> class1, Type type,
-			Accepter mediaTypes) throws MimeTypeParseException;
+	String getMediaType(FluidType mediaTypes);
 
-	<T> T read(Class<T> class1, Type type, String[] mediaTypes)
-			throws TransformerConfigurationException, IOException,
-			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerException, MimeTypeParseException, OpenRDFException,
+	Object read(FluidType ftype) throws TransformerConfigurationException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerException, OpenRDFException,
 			URISyntaxException;
 
 }

@@ -31,8 +31,6 @@ package org.callimachusproject.server.handlers;
 
 import java.util.Enumeration;
 
-import javax.activation.MimeTypeParseException;
-
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
@@ -65,8 +63,7 @@ public class UnmodifiedSinceHandler implements Handler {
 		return delegate.handle(request);
 	}
 
-	private boolean unmodifiedSince(ResourceOperation request, String entityTag)
-			throws MimeTypeParseException {
+	private boolean unmodifiedSince(ResourceOperation request, String entityTag) {
 		long lastModified = request.getLastModified();
 		Enumeration matchs = request.getHeaderEnumeration("If-Match");
 		boolean mustMatch = matchs.hasMoreElements();

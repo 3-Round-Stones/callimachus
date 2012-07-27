@@ -30,7 +30,6 @@
 package org.callimachusproject.server.model;
 
 import static java.lang.Integer.toHexString;
-import static org.callimachusproject.server.util.Accepter.isCompatible;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -43,14 +42,11 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.callimachusproject.annotations.expect;
@@ -62,12 +58,12 @@ import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.concepts.Realm;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.exceptions.UnsupportedMediaType;
-import org.callimachusproject.server.util.Accepter;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.ParameterTypes;
 import org.openrdf.query.QueryEvaluationException;
@@ -84,14 +80,6 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class ResourceOperation extends ResourceRequest {
-	private static final MimeType ANYTHING;
-	static {
-		try {
-			ANYTHING = new MimeType("*", "*");
-		} catch (MimeTypeParseException e) {
-			throw new AssertionError(e);
-		}
-	}
 	private static int MAX_TRANSFORM_DEPTH = 100;
 	private Logger logger = LoggerFactory.getLogger(ResourceOperation.class);
 
@@ -105,12 +93,11 @@ public class ResourceOperation extends ResourceRequest {
 	private String[] realmURIs;
 
 	public ResourceOperation(Request request, CallimachusRepository repository)
-			throws QueryEvaluationException, RepositoryException,
-			MimeTypeParseException {
+			throws QueryEvaluationException, RepositoryException {
 		super(request, repository);
 	}
 
-	public void begin() throws MimeTypeParseException, RepositoryException,
+	public void begin() throws RepositoryException,
 			QueryEvaluationException, DatatypeConfigurationException {
 		super.begin();
 		if (method == null) {
@@ -136,7 +123,7 @@ public class ResourceOperation extends ResourceRequest {
 		}
 	}
 
-	public String getResponseContentType() throws MimeTypeParseException {
+	public String getResponseContentType() {
 		Method m = getTransformMethod();
 		if (m == null || m.getReturnType().equals(Void.TYPE))
 			return null;
@@ -144,7 +131,7 @@ public class ResourceOperation extends ResourceRequest {
 	}
 
 	public String getEntityTag(String revision, String cache, String contentType)
-			throws MimeTypeParseException, RepositoryException, QueryEvaluationException {
+			throws RepositoryException, QueryEvaluationException {
 		Method m = this.method;
 		int headers = getHeaderCodeFor(m);
 		boolean strong = cache != null && cache.contains("cache-range");
@@ -201,7 +188,7 @@ public class ResourceOperation extends ResourceRequest {
 		return null;
 	}
 
-	public Class<?> getEntityType() throws MimeTypeParseException {
+	public Class<?> getEntityType() {
 		String method = getMethod();
 		Method m = getTransformMethod();
 		if (m == null || "PUT".equals(method) || "DELETE".equals(method)
@@ -234,7 +221,7 @@ public class ResourceOperation extends ResourceRequest {
 		return noValidate(target.getClass());
 	}
 
-	public long getLastModified() throws MimeTypeParseException {
+	public long getLastModified() {
 		if (isNoValidate())
 			return System.currentTimeMillis() / 1000 * 1000;
 		return super.getLastModified();
@@ -410,7 +397,7 @@ public class ResourceOperation extends ResourceRequest {
 		return methods;
 	}
 
-	public Method getAlternativeMethod(String rel) throws MimeTypeParseException {
+	public Method getAlternativeMethod(String rel) {
 		List<Method> methods = new ArrayList<Method>();
 		for (Method m : getRequestedResource().getClass().getMethods()) {
 			if (m.isAnnotationPresent(ParameterTypes.class))
@@ -542,12 +529,12 @@ public class ResourceOperation extends ResourceRequest {
 		return weak + '"' + revision + '-' + cd + '-' + v + '"';
 	}
 
-	private Method findMethod(String method) throws MimeTypeParseException, RepositoryException {
+	private Method findMethod(String method) throws RepositoryException {
 		return findMethod(method, null);
 	}
 
 	private Method findMethod(String req_method, Boolean isResponsePresent)
-			throws MimeTypeParseException, RepositoryException {
+			throws RepositoryException {
 		Method method = findMethodIfPresent(req_method, isResponsePresent);
 		if (method == null)
 			throw new MethodNotAllowed("No such method for this resource");
@@ -555,7 +542,7 @@ public class ResourceOperation extends ResourceRequest {
 	}
 
 	private Method findMethodIfPresent(String req_method,
-			Boolean isResponsePresent) throws MimeTypeParseException {
+			Boolean isResponsePresent) {
 		String name = getOperation();
 		RDFObject target = getRequestedResource();
 		if (name != null) {
@@ -594,8 +581,7 @@ public class ResourceOperation extends ResourceRequest {
 		return null;
 	}
 
-	private Method findBestMethod(Collection<Method> methods)
-			throws MimeTypeParseException {
+	private Method findBestMethod(Collection<Method> methods) {
 		if (methods.isEmpty())
 			return null;
 		if (methods.size() == 1) {
@@ -604,26 +590,26 @@ public class ResourceOperation extends ResourceRequest {
 				return method;
 			return null;
 		}
-		for (MimeType accept : getAcceptable()) {
-			Map<String, Method> best = new LinkedHashMap<String, Method>();
-			for (Method m : methods) {
-				for (String type : getAllMimeTypesOf(m)) {
-					MimeType server = Accepter.parse(type);
-					if (!best.containsKey(server.toString()) && isCompatible(accept, server)) {
-						best.put(server.toString(), m);
-					}
-				}
-			}
-			if (!best.isEmpty()) {
-				Accepter accepter = new Accepter(best.keySet());
-				return best.get(accepter.getAcceptable().first().toString());
-			}
+		FluidType acceptable = getAcceptable();
+		Set<String> possible = new LinkedHashSet<String>();
+		for (Method m : methods) {
+			possible.addAll(getAllMimeTypesOf(m));
+		}
+		String[] mediaTypes = possible.toArray(new String[possible.size()]);
+		FluidType ftype = new FluidType(acceptable.asType(), mediaTypes);
+		String preferred = ftype.as(acceptable).preferred();
+		for (Method m : methods) {
+			possible.clear();
+			possible.addAll(getAllMimeTypesOf(m));
+			String[] media = possible.toArray(new String[possible.size()]);
+			if (new FluidType(acceptable.asType(), media).is(preferred))
+				return m;
 		}
 		return null;
 
 	}
 
-	private Collection<String> getAllMimeTypesOf(Method m) throws MimeTypeParseException {
+	private Collection<String> getAllMimeTypesOf(Method m) {
 		if (m == null)
 			return null;
 		Collection<String> result = new LinkedHashSet<String>();
@@ -643,28 +629,26 @@ public class ResourceOperation extends ResourceRequest {
 		return result;
 	}
 
-	private Collection<Method> findAcceptableMethods(Collection<Method> methods)
-			throws MimeTypeParseException {
+	private Collection<Method> findAcceptableMethods(Collection<Method> methods) {
 		String readable = null;
 		String acceptable = null;
-		Collection<Method> list = new LinkedHashSet(methods.size());
+		Collection<Method> list = new LinkedHashSet<Method>(methods.size());
 		BodyParameter body = getBody();
 		loop: for (Method method : methods) {
-			Collection<? extends MimeType> readableTypes;
+			Collection<String> readableTypes;
 			readableTypes = getReadableTypes(body, method, 0, true);
 			if (readableTypes.isEmpty()) {
 				String contentType = body.getContentType();
 				Annotation[][] anns = method.getParameterAnnotations();
 				for (int i = 0; i < anns.length; i++) {
 					String[] types = getParameterMediaTypes(anns[i]);
-					Accepter accepter = new Accepter(types);
-					if (!accepter.isAcceptable(contentType)) {
+					Type gtype = method.getGenericParameterTypes()[i];
+					if (body.getMediaType(new FluidType(gtype, types)) == null) {
 						if (contentType == null) {
-							readable = "Cannot read unknown body into "
-									+ method.getGenericParameterTypes()[i];
+							readable = "Cannot read unknown body into " + gtype;
 						} else {
 							readable = "Cannot read " + contentType + " into "
-									+ method.getGenericParameterTypes()[i];
+									+ gtype;
 						}
 						continue loop;
 					}
@@ -728,7 +712,7 @@ public class ResourceOperation extends ResourceRequest {
 			if (annotations[i].annotationType().equals(type.class))
 				return ((type) annotations[i]).value();
 		}
-		return null;
+		return new String[0];
 	}
 
 	private Map<String, List<Method>> getPostMethods(RDFObject target) {
@@ -765,15 +749,14 @@ public class ResourceOperation extends ResourceRequest {
 		return transformMethod;
 	}
 
-	private Method getTransformMethodOf(Method method)
-			throws MimeTypeParseException {
+	private Method getTransformMethodOf(Method method) {
 		Method transform = getBestTransformMethod(method);
 		if (transform == null || transform.equals(method))
 			return method;
 		return getTransformMethodOf(transform);
 	}
 
-	public Method getBestTransformMethod(Method method) throws MimeTypeParseException {
+	public Method getBestTransformMethod(Method method) {
 		if (method == null)
 			return method;
 		if (method.isAnnotationPresent(transform.class)) {
@@ -798,7 +781,7 @@ public class ResourceOperation extends ResourceRequest {
 		return new String[0];
 	}
 
-	private int getHeaderCodeFor(Method method) throws MimeTypeParseException {
+	private int getHeaderCodeFor(Method method) {
 		if (method == null)
 			return 0;
 		Set<String> names = getHeaderNamesFor(method, new HashSet<String>());
@@ -819,8 +802,7 @@ public class ResourceOperation extends ResourceRequest {
 		return headers.hashCode();
 	}
 
-	private Set<String> getHeaderNamesFor(Method method, Set<String> names)
-			throws MimeTypeParseException {
+	private Set<String> getHeaderNamesFor(Method method, Set<String> names) {
 		if (method == null)
 			return names;
 		for (Annotation[] anns : method.getParameterAnnotations()) {
@@ -837,8 +819,7 @@ public class ResourceOperation extends ResourceRequest {
 		return names;
 	}
 
-	private boolean isAcceptable(Method method, int depth)
-			throws MimeTypeParseException {
+	private boolean isAcceptable(Method method, int depth) {
 		if (method == null)
 			return false;
 		if (method.getReturnType().equals(Void.TYPE))
@@ -856,8 +837,7 @@ public class ResourceOperation extends ResourceRequest {
 		return getAcceptable(method, depth) != null;
 	}
 
-	private String getAcceptable(Method method, int depth)
-			throws MimeTypeParseException {
+	private String getAcceptable(Method method, int depth) {
 		if (method == null)
 			return null;
 		if (depth > MAX_TRANSFORM_DEPTH) {
@@ -886,30 +866,31 @@ public class ResourceOperation extends ResourceRequest {
 		}
 	}
 
-	private Collection<? extends MimeType> getReadableTypes(Parameter input, Annotation[] anns, Class<?> ptype,
-			Type gtype, int depth, boolean typeRequired) throws MimeTypeParseException {
+	private Collection<String> getReadableTypes(Parameter input, Annotation[] anns, Class<?> ptype,
+			Type gtype, int depth, boolean typeRequired) {
 		if (getHeaderNames(anns) != null)
-			return Collections.singleton(ANYTHING);
+			return Collections.singleton("*/*");
 		if (getParameterNames(anns) != null)
-			return Collections.singleton(ANYTHING);
-		Collection<? extends MimeType> set;
-		List<MimeType> readable = new ArrayList<MimeType>();
+			return Collections.singleton("*/*");
+		Collection<String> set;
+		List<String> readable = new ArrayList<String>();
 		String[] types = getParameterMediaTypes(anns);
-		if (types == null && typeRequired)
+		if (types.length == 0 && typeRequired)
 			return Collections.emptySet();
 		for (String uri : getTransforms(anns)) {
 			set = getReadableTypes(input, getTransform(uri), ++depth, false);
 			readable.addAll(set);
 		}
-		Accepter accepter = new Accepter(types);
-		set = input.getReadableTypes(ptype, gtype, accepter);
-		readable.addAll(accepter.getCompatible(set));
+		FluidType accepter = new FluidType(gtype, types);
+		String media = input.getMediaType(new FluidType(gtype, types));
+		if (media != null && accepter.is(media)) {
+			readable.add(media);
+		}
 		return readable;
 	}
 
-	public Collection<? extends MimeType> getReadableTypes(Parameter input,
-			Method method, int depth, boolean typeRequired)
-			throws MimeTypeParseException {
+	public Collection<String> getReadableTypes(Parameter input,
+			Method method, int depth, boolean typeRequired) {
 		if (method == null)
 			return Collections.emptySet();
 		if (depth > MAX_TRANSFORM_DEPTH) {
@@ -921,11 +902,11 @@ public class ResourceOperation extends ResourceRequest {
 		Type[] gtypes = method.getGenericParameterTypes();
 		Object[] args = new Object[ptypes.length];
 		if (args.length == 0)
-			return Collections.singleton(ANYTHING);
+			return Collections.singleton("*/*");
 		int empty = 0;
-		List<MimeType> readable = new ArrayList<MimeType>();
+		List<String> readable = new ArrayList<String>();
 		for (int i = 0; i < args.length; i++) {
-			Collection<? extends MimeType> set;
+			Collection<String> set;
 			set = getReadableTypes(input, anns[i], ptypes[i], gtypes[i], depth,
 					typeRequired);
 			if (set.isEmpty()) {
@@ -939,7 +920,7 @@ public class ResourceOperation extends ResourceRequest {
 		if (empty > 0 && empty == args.length)
 			return Collections.emptySet();
 		if (readable.isEmpty())
-			return Collections.singleton(ANYTHING);
+			return Collections.singleton("*/*");
 		return readable;
 	}
 

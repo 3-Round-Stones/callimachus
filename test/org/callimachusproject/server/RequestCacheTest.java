@@ -26,6 +26,7 @@ public class RequestCacheTest extends MetadataServerTestCase {
 		private Display display;
 
 		@query("display")
+		@type("text/uri-list")
 		public Display getDisplay() {
 			return display;
 		}
@@ -51,23 +52,27 @@ public class RequestCacheTest extends MetadataServerTestCase {
 		@query("date")
 		@header("Cache-Control:max-age=3")
 		@Iri("urn:test:date")
+		@type("text/plain")
 		String getDate();
 
 		void setDate(String date);
 
 		@query("time")
 		@Iri("urn:test:time")
+		@type("text/plain")
 		String getTime();
 
 		void setTime(String time);
 
 		@rel("alternate")
 		@query("construct")
+		@type("application/rdf+xml")
 		@Sparql("DESCRIBE $this")
 		GraphQueryResult construct();
 
 		@rel("alternate")
 		@query("select")
+		@type("application/sparql-results+xml")
 		@Sparql("SELECT ?date ?time WHERE { $this <urn:test:date> ?date ; <urn:test:time> ?time }")
 		TupleQueryResult select();
 	}
@@ -81,8 +86,7 @@ public class RequestCacheTest extends MetadataServerTestCase {
 		display.type("application/display").put("display");
 		clock = client.path("/clock");
 		clock.type("application/clock").put("clock");
-		clock.queryParam("display", "").header("Content-Location",
-				display.getURI()).put();
+		clock.queryParam("display", "").type("text/uri-list").put(display.getURI().toASCIIString());
 	}
 
 	protected void addContentEncoding(WebResource client) {
@@ -91,11 +95,11 @@ public class RequestCacheTest extends MetadataServerTestCase {
 	}
 
 	public void testStale() throws Exception {
-		clock.queryParam("time", "").put("earlier");
+		clock.queryParam("time", "").type("text/plain").put("earlier");
 		WebResource time = display.queryParam("time", "");
 		String now = time.get(String.class);
 		Thread.sleep(1000);
-		clock.queryParam("time", "").put("later");
+		clock.queryParam("time", "").type("text/plain").put("later");
 		assertFalse(now.equals(time.get(String.class)));
 	}
 
@@ -184,13 +188,14 @@ public class RequestCacheTest extends MetadataServerTestCase {
 	}
 
 	public void testInvalidate() throws Exception {
-		clock.queryParam("date", "").put("earlier");
+		clock.queryParam("date", "").type("text/plain").put("earlier");
 		WebResource date = display.queryParam("date", "");
-		String now = date.get(String.class);
-		clock.queryParam("date", "").put("later");
+		String earlier = date.get(String.class);
+		clock.queryParam("date", "").type("text/plain").put("later");
 		clock.queryParam("display", "").header("Content-Location",
-				display.getURI()).put();
-		assertFalse(now.equals(date.get(String.class)));
+				display.getURI()).type("text/uri-list").put(display.getURI().toASCIIString());
+		String later = date.get(String.class);
+		assertFalse(earlier.equals(later));
 	}
 
 }

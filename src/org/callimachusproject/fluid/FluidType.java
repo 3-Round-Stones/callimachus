@@ -37,14 +37,15 @@ public class FluidType extends GenericType {
 			new MediaTypeComparator());
 	private final Map<MediaType, Integer> index = new HashMap<MediaType, Integer>();
 
-	public FluidType(Type gtype) {
-		super(gtype);
-	}
-
-	public FluidType(Type gtype, String media) {
-		this(gtype, media == null ? null : media.split("\\s*,\\s*"));
-	}
-
+	/**
+	 * Constructs a new FluidType with the given Java and media types.
+	 * 
+	 * @param gtype
+	 *            generic Java class type
+	 * @param media
+	 *            If omitted it is equivalent to a wild media type. If null
+	 *            there is no media type.
+	 */
 	public FluidType(Type gtype, String... media) {
 		super(gtype);
 		if (media != null && media.length == 0) {
@@ -54,16 +55,18 @@ public class FluidType extends GenericType {
 			media = new String[0];
 		}
 		for (String m : media) {
-			MediaType mediaType = MediaType.valueOf(m);
-			if (!index.containsKey(mediaType)) {
-				index.put(mediaType, mediaTypes.size());
+			if (m != null) {
+				MediaType mediaType = MediaType.valueOf(m);
+				if (!index.containsKey(mediaType)) {
+					index.put(mediaType, mediaTypes.size());
+				}
+				mediaTypes.add(mediaType);
 			}
-			mediaTypes.add(mediaType);
 		}
 	}
 
 	private FluidType(Type gtype, Collection<MediaType> media, boolean nonEmpty) {
-		this(gtype);
+		super(gtype);
 		assert media != null && !media.isEmpty();
 		for (MediaType mediaType : media) {
 			if (!index.containsKey(mediaType)) {
@@ -114,13 +117,17 @@ public class FluidType extends GenericType {
 	}
 
 	public boolean is(String... acceptable) {
-		if (acceptable == null || acceptable.length == 0)
+		if (acceptable == null)
+			return false;
+		if (acceptable.length == 0)
 			return true;
 		for (String a : acceptable) {
-			MediaType accept = MediaType.valueOf(a);
-			for (MediaType mime : mediaTypes) {
-				if (mime.match(accept))
-					return true;
+			if (a != null) {
+				MediaType accept = MediaType.valueOf(a);
+				for (MediaType mime : mediaTypes) {
+					if (mime.match(accept))
+						return true;
+				}
 			}
 		}
 		return false;
@@ -143,8 +150,9 @@ public class FluidType extends GenericType {
 	}
 
 	public FluidType as(String... acceptable) {
-		if (acceptable == null || acceptable.length == 0
-				|| mediaTypes.isEmpty())
+		if (acceptable == null)
+			return new FluidType(asType(), (String[]) null);
+		if (acceptable.length == 0 || mediaTypes.isEmpty())
 			return this;
 		return as(asType(), acceptable);
 	}
@@ -163,7 +171,7 @@ public class FluidType extends GenericType {
 			}
 		}
 		if (combined.isEmpty()) {
-			return new FluidType(acceptable.asType());
+			return new FluidType(acceptable.asType(), (String[]) null);
 		}
 		return new FluidType(acceptable.asType(), combined, true);
 	}

@@ -171,5 +171,5 @@
 :imageStream a owl:DatatypeProperty, owl:FunctionalProperty ;
     rdfs:domain :PutImage ;
     rdfs:range <java:java.io.InputStream> ;
-    calli:type "application/octet-stream" .
+    calli:type "image/*" .
 

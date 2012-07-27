@@ -40,6 +40,7 @@ public class ContentNegotiationTest extends MetadataServerTestCase {
 		}
 
 		@query("my")
+		@type({"application/rdf+xml", "text/turtle", "application/x-turtle"})
 		public Model getMyModel() {
 			LinkedHashModel model = new LinkedHashModel();
 			URI uri = new URIImpl("urn:root");
@@ -53,6 +54,7 @@ public class ContentNegotiationTest extends MetadataServerTestCase {
 		}
 
 		@query("my")
+		@type({"application/sparql-results+xml", "text/plain"})
 		public boolean getMyBoolean() {
 			return true;
 		}
@@ -67,6 +69,7 @@ public class ContentNegotiationTest extends MetadataServerTestCase {
 		}
 
 		@query("my")
+		@type("text/plain")
 		public String postSPARQL(
 				@type("application/sparql-results+xml") InputStream in) {
 			return "sparql-results+xml";

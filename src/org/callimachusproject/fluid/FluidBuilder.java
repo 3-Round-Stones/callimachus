@@ -183,10 +183,10 @@ public class FluidBuilder {
 				if (reader != null)
 					return reader.produce(outType, in, charset, base,
 							FluidBuilder.this);
-				if (outType.isSet()) {
+				if (outType.isSetOrArray()) {
 					reader = findComponentReader(outType);
 					if (reader == null && in == null)
-						return Collections.emptySet();
+						return outType.castSet(Collections.emptySet());
 				}
 				if (reader == null && !outType.isPrimitive() && in == null)
 					return null;
@@ -196,10 +196,10 @@ public class FluidBuilder {
 				Object o = reader.produce(outType.component(), in, charset,
 						base, FluidBuilder.this);
 				if (o == null)
-					return Collections.emptySet();
+					return outType.castSet(Collections.emptySet());
 				if (o instanceof Set)
 					return o;
-				return Collections.singleton(o);
+				return outType.castComponent(o);
 			}
 
 			private Producer findReader(FluidType mtype) {

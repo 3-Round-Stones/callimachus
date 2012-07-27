@@ -68,7 +68,7 @@
     calli:query "contents";
     calli:realm </>;
     calli:expect "201-created";
-    calli:type "text/plain";
+    calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         if (!slug)

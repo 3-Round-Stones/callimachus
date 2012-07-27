@@ -119,7 +119,7 @@
     calli:query "describe";
     calli:realm </>;
     calli:expect "201-created";
-    calli:type "text/plain";
+    calli:type "text/uri-list";
     calli:imports <java:org.openrdf.annotations.Iri>;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;

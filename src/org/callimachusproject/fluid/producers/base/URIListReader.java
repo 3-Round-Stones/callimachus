@@ -87,6 +87,8 @@ public abstract class URIListReader<URI> implements Producer {
 			Charset charset, String base, FluidBuilder builder)
 			throws QueryResultParseException, TupleQueryResultHandlerException,
 			IOException, QueryEvaluationException, RepositoryException {
+		if (in == null)
+			return null;
 		if (charset == null) {
 			charset = Charset.forName("ISO-8859-1");
 		}

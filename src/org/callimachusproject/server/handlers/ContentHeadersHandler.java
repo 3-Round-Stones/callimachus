@@ -29,8 +29,6 @@
  */
 package org.callimachusproject.server.handlers;
 
-import javax.activation.MimeTypeParseException;
-
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
@@ -77,8 +75,7 @@ public class ContentHeadersHandler implements Handler {
 
 	private void addHeaders(ResourceOperation request, Class<?> type,
 			String contentType, String derived, String cache, Response rb)
-			throws MimeTypeParseException, RepositoryException,
-			QueryEvaluationException {
+			throws RepositoryException, QueryEvaluationException {
 		String version = request.isSafe() ? derived : request.revision();
 		String entityTag = request.getEntityTag(version, cache, contentType);
 		long lastModified = request.getLastModified();

@@ -27,7 +27,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.activation.MimeTypeParseException;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.callimachusproject.server.client.HTTPObjectClient;
@@ -261,8 +260,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 	}
 
 	private HTTPObjectServer createServer(File dir, CallimachusRepository or)
-			throws IOException, MimeTypeParseException,
-			NoSuchAlgorithmException {
+			throws IOException, NoSuchAlgorithmException {
 		File cacheDir = new File(dir, "cache");
 		FileUtil.deleteOnExit(cacheDir);
 		File out = new File(cacheDir, "server");

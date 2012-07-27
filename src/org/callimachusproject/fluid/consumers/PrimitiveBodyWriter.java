@@ -29,10 +29,6 @@
  */
 package org.callimachusproject.fluid.consumers;
 
-import java.util.HashSet;
-import java.util.Set;
-
-
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -45,30 +41,45 @@ import org.callimachusproject.fluid.FluidType;
  * 
  */
 public class PrimitiveBodyWriter implements Consumer<Object> {
-	private StringBodyWriter delegate = new StringBodyWriter();
-	private Set<Class<?>> wrappers = new HashSet<Class<?>>();
-	{
-		wrappers.add(Boolean.class);
-		wrappers.add(Character.class);
-		wrappers.add(Byte.class);
-		wrappers.add(Short.class);
-		wrappers.add(Integer.class);
-		wrappers.add(Long.class);
-		wrappers.add(Float.class);
-		wrappers.add(Double.class);
-		wrappers.add(Void.class);
+
+	@Override
+	public boolean isConsumable(FluidType ftype, FluidBuilder builder) {
+		return isPrimitive(ftype.asClass()) && ftype.is("text/*");
 	}
 
-	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		Class<?> type = mtype.asClass();
-		if (type.isPrimitive() || !type.isInterface()
-				&& wrappers.contains(type))
-			return delegate.isConsumable(mtype.as(String.class), builder);
+	@Override
+	public Fluid consume(Object result, String base, FluidType ftype,
+			FluidBuilder builder) {
+		if (result == null && ftype.is(Boolean.TYPE)) {
+			result = "false";
+		} else if (result == null && ftype.isPrimitive()) {
+			result = "0";
+		}
+		return builder.consume(result.toString(), base, ftype.as(String.class));
+	}
+
+	private boolean isPrimitive(Class<?> asClass) {
+		return asClass.isPrimitive() || isPrimitiveWrapper(asClass);
+	}
+
+	private boolean isPrimitiveWrapper(Class<?> asClass) {
+		if (Boolean.class.equals(asClass))
+			return true;
+		if (Byte.class.equals(asClass))
+			return true;
+		if (Short.class.equals(asClass))
+			return true;
+		if (Character.class.equals(asClass))
+			return true;
+		if (Integer.class.equals(asClass))
+			return true;
+		if (Long.class.equals(asClass))
+			return true;
+		if (Float.class.equals(asClass))
+			return true;
+		if (Double.class.equals(asClass))
+			return true;
 		return false;
 	}
 
-	public Fluid consume(Object result, String base, FluidType ftype,
-			FluidBuilder builder) {
-		return delegate.consume(String.valueOf(result), base, ftype.as(String.class), builder);
-	}
 }

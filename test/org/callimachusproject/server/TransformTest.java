@@ -76,12 +76,14 @@ public class TransformTest extends MetadataServerTestCase {
 		}
 
 		@query("increment")
+		@type("text/plain")
 		public int increment(
 				@transform("urn:test:decrypt") @query("number") int base) {
 			return base + 1;
 		}
 
 		@Iri("urn:test:decrypt")
+		@type("text/plain")
 		public int decrypt(@type("text/plain") String number) {
 			return Integer.parseInt(number, 2);
 		}
@@ -140,6 +142,7 @@ public class TransformTest extends MetadataServerTestCase {
 
 		@query("toxml")
 		@transform("urn:test:toxml")
+		@type("application/rdf+xml")
 		public Model toxml() {
 			Model model = new LinkedHashModel();
 			model.add(new URIImpl("urn:test:hello"), RDF.VALUE,
@@ -165,11 +168,13 @@ public class TransformTest extends MetadataServerTestCase {
 		}
 
 		@Iri("urn:test:computeParam")
+		@type("text/plain")
 		public String computeParam(@transform("urn:test:computeHello") String hello, @type("text/plain") String world) {
 			return hello + " " + world + "!";
 		}
 
 		@Iri("urn:test:computeHello")
+		@type("text/plain")
 		public String computeHello() {
 			return "Hello";
 		}

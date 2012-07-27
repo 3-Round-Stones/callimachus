@@ -35,16 +35,14 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.activation.MimeTypeParseException;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.callimachusproject.fluid.MediaType;
 import org.callimachusproject.fluid.producers.HttpMessageReader;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
-import org.callimachusproject.server.util.Accepter;
 import org.callimachusproject.server.util.ChannelUtil;
 
 /**
@@ -58,7 +56,7 @@ public class HttpResponseFilter extends Filter {
 	private static final List<String> CONTENT_HD = Arrays.asList(
 			"Content-Type", "Content-Length", "Transfer-Encoding");
 	private static final HttpMessageReader reader = new HttpMessageReader();
-	private Accepter envelopeType;
+	private MediaType envelopeType;
 	private String core;
 	private String accept;
 
@@ -72,13 +70,13 @@ public class HttpResponseFilter extends Filter {
 		return envelopeType.toString();
 	}
 
-	public void setEnvelopeType(String type) throws MimeTypeParseException {
+	public void setEnvelopeType(String type) {
 		if (type == null) {
 			envelopeType = null;
 			core = null;
 			accept = null;
 		} else {
-			envelopeType = new Accepter(type);
+			envelopeType = MediaType.valueOf(type);
 			accept = envelopeType + ";q=0.1";
 			core = type;
 			if (core.contains(";")) {
@@ -107,10 +105,10 @@ public class HttpResponseFilter extends Filter {
 		Header type = response.getFirstHeader("Content-Type");
 		if (type != null && type.getValue().startsWith(core)) {
 			try {
-				if (envelopeType.isAcceptable(type.getValue())) {
+				if (envelopeType.match(type.getValue())) {
 					return unwrap(request, type.getValue(), response);
 				}
-			} catch (MimeTypeParseException e) {
+			} catch (IllegalArgumentException e) {
 				return response;
 			} catch (IOException e) {
 				return response;

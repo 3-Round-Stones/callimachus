@@ -49,7 +49,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.regex.Pattern;
 
-import javax.activation.MimeTypeParseException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -178,7 +177,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 		return envelopeType;
 	}
 
-	public void setEnvelopeType(String type) throws MimeTypeParseException {
+	public void setEnvelopeType(String type) {
 		this.envelopeType = type;
 	}
 

@@ -40,7 +40,10 @@ import org.xml.sax.SAXException;
 public abstract class AbstractFluid implements Fluid {
 
 	public String toString() {
-		return getFluidType().toString();
+		String systemId = getSystemId();
+		if (systemId == null)
+			return String.valueOf(getFluidType());
+		return systemId + " " + String.valueOf(getFluidType());
 	}
 
 	/**

@@ -31,17 +31,10 @@ package org.callimachusproject.server.model;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.lang.reflect.Type;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -50,139 +43,94 @@ import javax.xml.transform.TransformerException;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
-import org.callimachusproject.fluid.GenericType;
-import org.callimachusproject.server.util.Accepter;
+import org.callimachusproject.fluid.FluidType;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.xml.sax.SAXException;
 
 /**
- * Provides an {@link Parameter} interface for a query parameter or header value.
+ * Provides an {@link Parameter} interface for a query parameter or header
+ * value.
  */
 public class StringParameter implements Parameter {
 	private final FluidFactory ff = FluidFactory.getInstance();
 	private final Fluid sample;
 	private final Fluid[] values;
-	private final String[] mediaTypes;
 
-	public StringParameter(String[] mediaTypes, String mimeType,
-			String[] values, String base, ObjectConnection con) {
-		if (mediaTypes == null || mediaTypes.length == 0) {
-			this.mediaTypes = new String[] { mimeType };
-		} else {
-			this.mediaTypes = mediaTypes;
-		}
+	public StringParameter(String[] values, String base, ObjectConnection con,
+			String... mimeType) {
 		FluidBuilder fb = ff.builder(con);
 		if (values == null || values.length == 0) {
 			this.values = new Fluid[0];
 			this.sample = fb.media(mimeType);
 		} else {
 			this.values = new Fluid[values.length];
-			for (int i=0; i<values.length; i++) {
-				this.values[i] = fb.consume(values[i], base, String.class, mimeType);
+			for (int i = 0; i < values.length; i++) {
+				this.values[i] = fb.consume(values[i], base, String.class,
+						mimeType);
 			}
 			this.sample = this.values[0];
 		}
 	}
 
-	public Collection<? extends MimeType> getReadableTypes(Class<?> ctype,
-			Type gtype, Accepter accepter) throws MimeTypeParseException {
-		if (!accepter.isAcceptable(this.mediaTypes))
-			return Collections.emptySet();
-		GenericType type = new GenericType(gtype);
-		if (type.is(String.class))
-			return accepter.getAcceptable(this.mediaTypes);
-		if (type.isSetOrArrayOf(String.class))
-			return accepter.getAcceptable(this.mediaTypes);
-		List<MimeType> acceptable = new ArrayList<MimeType>();
-		for (MimeType m : accepter.getAcceptable(this.mediaTypes)) {
-			if (sample.toMedia(gtype, m.toString()) != null) {
-				acceptable.add(m);
-			} else if (type.isSetOrArray()) {
-				if (sample.toMedia(type.component().asType(), m.toString()) != null) {
-					acceptable.add(m);
-				}
-			}
-		}
-		return acceptable;
+	public String getMediaType(FluidType ftype) {
+		return sample.toMedia(ftype);
 	}
 
-	public <T> T read(Class<T> ctype, Type genericType, String[] mediaTypes)
+	public Object read(FluidType type)
 			throws TransformerConfigurationException, OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerException, MimeTypeParseException,
-			URISyntaxException {
-		GenericType type = new GenericType(genericType);
+			SAXException, TransformerException, URISyntaxException {
 		if (type.is(String.class)) {
 			if (values != null && values.length > 0)
-				return ctype.cast(values[0].asString());
+				return type.cast(values[0].asString());
 			return null;
 		}
 		if (type.isSetOrArrayOf(String.class)) {
-			return (T) type.castArray(values);
+			return type.castArray(values);
 		}
-		Class<?> componentType = type.component().asClass();
-		if (type.isArray() && isReadable(componentType, mediaTypes))
-			return (T) type.castArray(readArray(componentType, mediaTypes));
-		if (type.isSet() && isReadable(componentType, mediaTypes))
-			return (T) type.castSet(readSet(componentType, mediaTypes));
+		if (type.isArray() && isReadable(type.component()))
+			return type.castArray(readArray(type.component()));
+		if (type.isSet() && isReadable(type.component()))
+			return type.castSet(readSet(type.component()));
 		if (values != null && values.length > 0)
-			return read(values[0], ctype, genericType, mediaTypes);
+			return read(values[0], type);
 		return null;
 	}
 
-	private <T> T[] readArray(Class<T> componentType, String[] mediaTypes)
+	private Object readArray(FluidType ftype)
 			throws TransformerConfigurationException, OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerException, MimeTypeParseException,
-			URISyntaxException {
+			SAXException, TransformerException, URISyntaxException {
 		if (values == null)
 			return null;
-		T[] result = (T[]) Array.newInstance(componentType, values.length);
+		Object result = Array.newInstance(ftype.asClass(), values.length);
 		for (int i = 0; i < values.length; i++) {
-			result[i] = read(values[i], componentType, componentType,
-					mediaTypes);
+			Array.set(result, i, read(values[i], ftype));
 		}
 		return result;
 	}
 
-	private <T> Set<T> readSet(Class<T> componentType, String[] mediaTypes)
+	private Set<Object> readSet(FluidType ftype)
 			throws TransformerConfigurationException, OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerException, MimeTypeParseException,
-			URISyntaxException {
-		Set<T> result = new LinkedHashSet<T>(values.length);
+			SAXException, TransformerException, URISyntaxException {
+		Set<Object> result = new LinkedHashSet<Object>(values.length);
 		for (int i = 0; i < values.length; i++) {
-			result
-					.add(read(values[i], componentType, componentType,
-							mediaTypes));
+			result.add(read(values[i], ftype));
 		}
 		return result;
 	}
 
-	private <T> T read(Fluid value, Class<T> ctype, Type genericType,
-			String... mediaTypes) throws TransformerConfigurationException,
-			OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException, TransformerException,
-			MimeTypeParseException, URISyntaxException {
-		String media = getMediaType(ctype, genericType, mediaTypes);
-		return (T) value.as(genericType, media);
+	private Object read(Fluid value, FluidType ftype)
+			throws TransformerConfigurationException, OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerException {
+		return value.as(ftype);
 	}
 
-	private boolean isReadable(Class<?> componentType, String[] mediaTypes)
-			throws MimeTypeParseException {
-		String media = getMediaType(componentType, componentType, mediaTypes);
-		return sample.toMedia(componentType, media) != null;
-	}
-
-	private String getMediaType(Class<?> type, Type genericType,
-			String[] mediaTypes) throws MimeTypeParseException {
-		Accepter accepter = new Accepter(mediaTypes);
-		for (MimeType m : accepter.getAcceptable(this.mediaTypes)) {
-			if (sample.toMedia(genericType, m.toString()) != null)
-				return m.toString();
-		}
-		return null;
+	private boolean isReadable(FluidType ftype) {
+		return sample.toMedia(ftype) != null;
 	}
 
 }

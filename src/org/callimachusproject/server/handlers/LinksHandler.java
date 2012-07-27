@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.activation.MimeTypeParseException;
-
 import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.title;
 import org.callimachusproject.annotations.transform;
@@ -94,8 +92,7 @@ public class LinksHandler implements Handler {
 	}
 
 	private Response addLinks(ResourceOperation request, Response rb)
-			throws RepositoryException, QueryEvaluationException,
-			MimeTypeParseException {
+			throws RepositoryException, QueryEvaluationException {
 		if (!request.isQueryStringPresent()) {
 			for (String link : getLinks(request)) {
 				rb = rb.header("Link", link);

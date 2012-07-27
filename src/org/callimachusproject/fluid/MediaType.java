@@ -27,12 +27,20 @@ import javax.activation.MimeTypeParseException;
  */
 public class MediaType implements Serializable {
 	private static final long serialVersionUID = 2653020125056041502L;
+	private static final MediaType WILD;
+	static {
+		try {
+			WILD = new MediaType("*/*", new MimeType("*/*"));
+		} catch (MimeTypeParseException e) {
+			throw new AssertionError(e);
+		}
+	}
 
 	public static MediaType valueOf(String mediaType)
 			throws IllegalArgumentException {
 		try {
-			if (mediaType == null || mediaType.equals("*")) {
-				return new MediaType("*/*", new MimeType("*/*"));
+			if (mediaType == null || mediaType.equals("*/*") || mediaType.equals("*")) {
+				return WILD;
 			}
 			if (mediaType.indexOf('/') < 0) {
 				int dash = mediaType.indexOf('-');
@@ -128,7 +136,7 @@ public class MediaType implements Serializable {
 	}
 
 	public MediaType combine(MediaType accept) {
-		if (accept == null)
+		if (accept == null || toString().equals(accept.toString()))
 			return this;
 		try {
 			MimeType mime = new MimeType(normal);
@@ -151,7 +159,7 @@ public class MediaType implements Serializable {
 		}
 	}
 
-	public boolean match(String rawdata) {
+	public boolean match(String rawdata) throws IllegalArgumentException {
 		return match(valueOf(rawdata));
 	}
 

@@ -195,7 +195,7 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 		clock = client.path("/clock");
 		clock.type("application/clock").put("clock");
 		clock.queryParam("display", "").header("Content-Location",
-				display.getURI()).put();
+				display.getURI()).type("text/uri-list").put(display.getURI().toASCIIString());
 	}
 
 	protected void addContentEncoding(WebResource client) {

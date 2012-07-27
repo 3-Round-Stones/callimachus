@@ -29,15 +29,24 @@
  */
 package org.callimachusproject.fluid.producers;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
-import java.util.HashSet;
-import java.util.Set;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
+import org.callimachusproject.server.util.ChannelUtil;
+import org.openrdf.OpenRDFException;
+import org.xml.sax.SAXException;
 
 /**
  * Reads primitive types and their wrappers.
@@ -46,33 +55,63 @@ import org.callimachusproject.fluid.Producer;
  * 
  */
 public class PrimitiveBodyReader implements Producer {
-	private StringBodyReader delegate = new StringBodyReader();
-	private Set<Class<?>> wrappers = new HashSet<Class<?>>();
-	{
-		wrappers.add(Boolean.class);
-		wrappers.add(Character.class);
-		wrappers.add(Byte.class);
-		wrappers.add(Short.class);
-		wrappers.add(Integer.class);
-		wrappers.add(Long.class);
-		wrappers.add(Float.class);
-		wrappers.add(Double.class);
-		wrappers.add(Void.class);
+
+	@Override
+	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		return isPrimitive(ftype.asClass()) && ftype.is("text/*");
 	}
 
-	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
-		Class<?> type = ftype.asClass();
-		if (type.isPrimitive() || !type.isInterface()
-				&& wrappers.contains(type))
-			return delegate.isProducable(ftype.as(String.class), builder);
+	@Override
+	public Object produce(FluidType ftype, ReadableByteChannel in,
+			Charset charset, String base, FluidBuilder builder)
+			throws OpenRDFException, IOException, XMLStreamException,
+			ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException {
+		if (in == null && ftype.is(Boolean.TYPE))
+			return Boolean.FALSE;
+		if (in == null && ftype.isPrimitive())
+			return valueOf("0", ftype.asClass());
+		if (in == null)
+			return null;
+		if (charset == null) {
+			charset = Charset.defaultCharset();
+		}
+		InputStream stream = ChannelUtil.newInputStream(in);
+		InputStreamReader isr = new InputStreamReader(stream, charset);
+		BufferedReader reader = new BufferedReader(isr);
+		try {
+			String value = reader.readLine();
+			return valueOf(value, ftype.asClass());
+		} finally {
+			reader.close();
+		}
+	}
+
+	private boolean isPrimitive(Class<?> asClass) {
+		return asClass.isPrimitive() || isPrimitiveWrapper(asClass);
+	}
+
+	private boolean isPrimitiveWrapper(Class<?> asClass) {
+		if (Boolean.class.equals(asClass))
+			return true;
+		if (Byte.class.equals(asClass))
+			return true;
+		if (Short.class.equals(asClass))
+			return true;
+		if (Character.class.equals(asClass))
+			return true;
+		if (Integer.class.equals(asClass))
+			return true;
+		if (Long.class.equals(asClass))
+			return true;
+		if (Float.class.equals(asClass))
+			return true;
+		if (Double.class.equals(asClass))
+			return true;
 		return false;
 	}
 
-	public Object produce(FluidType ftype, ReadableByteChannel in,
-			Charset charset, String base, FluidBuilder builder) throws IOException {
-		Class<?> type = ftype.asClass();
-		String value = delegate.produce(ftype.as(String.class), in, charset,
-				base, builder);
+	private Object valueOf(String value, Class<?> type) {
 		if (Boolean.TYPE.equals(type) || Boolean.class.equals(type))
 			return (Boolean.valueOf(value));
 		if (Character.TYPE.equals(type) || Character.class.equals(type))
@@ -91,4 +130,5 @@ public class PrimitiveBodyReader implements Producer {
 			return (Double.valueOf(value));
 		return null;
 	}
+
 }

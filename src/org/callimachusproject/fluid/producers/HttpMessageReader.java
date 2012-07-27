@@ -35,9 +35,6 @@ import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpMessage;
@@ -59,6 +56,7 @@ import org.apache.http.message.LineParser;
 import org.apache.http.params.BasicHttpParams;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.fluid.MediaType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.slf4j.Logger;
@@ -85,7 +83,7 @@ public class HttpMessageReader implements Producer {
 
 	public HttpMessage produce(FluidType ftype, ReadableByteChannel in,
 			Charset charset, String base, FluidBuilder builder) throws IOException {
-		return readFrom(ftype.as("message/http", "application/http").preferred(), in);
+		return readFrom(ftype.as("message/http", "application/http", "message/*").preferred(), in);
 	}
 
 	public HttpMessage readFrom(String mimeType, ReadableByteChannel in)
@@ -201,7 +199,7 @@ public class HttpMessageReader implements Producer {
 				return new BasicLineParser();
 			if (!mimeType.contains("version"))
 				return new BasicLineParser();
-			MimeType m = new MimeType(mimeType);
+			MediaType m = MediaType.valueOf(mimeType);
 			String version = m.getParameter("version");
 			if (version == null)
 				return new BasicLineParser();
@@ -212,10 +210,7 @@ public class HttpMessageReader implements Producer {
 			int minor = Integer.parseInt(version.substring(idx + 1));
 			ProtocolVersion ver = new ProtocolVersion("HTTP", major, minor);
 			return new BasicLineParser(ver);
-		} catch (MimeTypeParseException e) {
-			logger.debug(e.toString(), e);
-			return new BasicLineParser();
-		} catch (NumberFormatException e) {
+		} catch (IllegalArgumentException e) {
 			logger.debug(e.toString(), e);
 			return new BasicLineParser();
 		}

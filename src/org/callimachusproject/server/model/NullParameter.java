@@ -29,25 +29,18 @@
 package org.callimachusproject.server.model;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
-import org.callimachusproject.fluid.GenericType;
-import org.callimachusproject.server.util.Accepter;
+import org.callimachusproject.fluid.FluidType;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
+import org.xml.sax.SAXException;
 
 /**
  * Parameter with no value
@@ -60,56 +53,15 @@ public class NullParameter implements Parameter {
 		fb = ff.builder(con);
 	}
 
-	public Collection<? extends MimeType> getReadableTypes(Class<?> ctype,
-			Type gtype, Accepter accepter) throws MimeTypeParseException {
-		GenericType type = new GenericType(gtype);
-		List<MimeType> acceptable = new ArrayList<MimeType>();
-		for (MimeType m : accepter.getAcceptable("*/*")) {
-			if (fb.media("*/*").toMedia(gtype, m.toString()) != null) {
-				acceptable.add(m);
-			} else if (type.isSetOrArray()) {
-				if (fb.media("*/*").toMedia(type.component().asType(), m.toString()) != null) {
-					acceptable.add(m);
-				}
-			}
-		}
-		return acceptable;
+	public String getMediaType(FluidType ftype) {
+		return fb.media("*/*").toMedia(ftype);
 	}
 
-	public <T> T read(Class<T> ctype, Type genericType, String[] mediaTypes)
-			throws MimeTypeParseException, IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
-		GenericType type = new GenericType(genericType);
-		Class<?> componentType = type.component().asClass();
-		if (type.isArray() && isReadable(componentType, mediaTypes))
-			return (T) type.castArray(readArray(componentType, mediaTypes));
-		if (type.isSet() && isReadable(componentType, mediaTypes))
-			return (T) type.castSet(readSet(componentType, mediaTypes));
-		return null;
-	}
-
-	private <T> T[] readArray(Class<T> componentType, String[] mediaTypes) {
-		return null;
-	}
-
-	private <T> Set<T> readSet(Class<T> componentType, String[] mediaTypes) {
-		return Collections.emptySet();
-	}
-
-	private boolean isReadable(Class<?> componentType, String[] mediaTypes)
-			throws MimeTypeParseException, IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
-		String media = getMediaType(componentType, componentType, mediaTypes);
-		return fb.media("*/*").toMedia(componentType, media) != null;
-	}
-
-	private String getMediaType(Class<?> type, Type genericType,
-			String[] mediaTypes) throws MimeTypeParseException, IOException, OpenRDFException, XMLStreamException, TransformerException, ParserConfigurationException {
-		Accepter accepter = new Accepter(mediaTypes);
-		for (MimeType m : accepter.getAcceptable("*/*")) {
-			String media = fb.media("*/*").toMedia(genericType, m.toString());
-			if (media != null)
-				return media;
-		}
-		return null;
+	public Object read(FluidType ftype)
+			throws TransformerConfigurationException, OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerException {
+		return fb.media().as(ftype);
 	}
 
 }

@@ -33,6 +33,7 @@ import org.callimachusproject.fluid.consumers.FormStringMessageWriter;
 import org.callimachusproject.fluid.consumers.GraphMessageWriter;
 import org.callimachusproject.fluid.consumers.HttpEntityWriter;
 import org.callimachusproject.fluid.consumers.HttpMessageWriter;
+import org.callimachusproject.fluid.consumers.HttpResponseWriter;
 import org.callimachusproject.fluid.consumers.InputStreamBodyWriter;
 import org.callimachusproject.fluid.consumers.ModelMessageWriter;
 import org.callimachusproject.fluid.consumers.PrimitiveBodyWriter;
@@ -99,6 +100,7 @@ public class FluidFactory {
 		consumers.add(new StringBodyWriter());
 		consumers.add(new PrimitiveBodyWriter());
 		consumers.add(new HttpMessageWriter());
+		consumers.add(new HttpResponseWriter());
 		consumers.add(new InputStreamBodyWriter());
 		consumers.add(new ReadableBodyWriter());
 		consumers.add(new ReadableByteChannelBodyWriter());

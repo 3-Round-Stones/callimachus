@@ -77,7 +77,7 @@
     calli:query "create";
     calli:realm </>;
     calli:expect "201-created";
-    calli:type "text/plain";
+    calli:type "text/uri-list";
     calli:imports <../Creatable>;
     calli:script """
         importClass(Packages.org.callimachusproject.io.MultipartParser);

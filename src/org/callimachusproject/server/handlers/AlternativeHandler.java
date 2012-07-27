@@ -31,8 +31,6 @@ package org.callimachusproject.server.handlers;
 
 import java.lang.reflect.Method;
 
-import javax.activation.MimeTypeParseException;
-
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
@@ -94,7 +92,7 @@ public class AlternativeHandler implements Handler {
 	}
 
 	private Response findAlternate(ResourceOperation req)
-			throws MimeTypeParseException, RepositoryException,
+			throws RepositoryException,
 			QueryEvaluationException {
 		String m = req.getMethod();
 		if (req.getOperation() != null

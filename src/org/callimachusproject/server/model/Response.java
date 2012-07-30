@@ -30,7 +30,6 @@
 package org.callimachusproject.server.model;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
@@ -64,10 +63,9 @@ import org.xml.sax.SAXException;
  * @author James Leigh
  */
 public class Response extends AbstractHttpMessage {
-	private final ResponseParameter entity;
+	private final HttpEntity entity;
 	private ResponseException exception;
 	private long lastModified;
-	private Class<?> type;
 	private int status = 204;
 	private String phrase = "No Content";
 	private List<Runnable> onclose = new LinkedList<Runnable>();
@@ -76,7 +74,7 @@ public class Response extends AbstractHttpMessage {
 		this.entity = null;
 	}
 
-	public Response(ResponseParameter entity) {
+	public Response(HttpEntity entity) {
 		this.entity = entity;
 		status(200, "OK");
 	}
@@ -91,29 +89,7 @@ public class Response extends AbstractHttpMessage {
 		for (Header hd : message.getAllHeaders()) {
 			addHeader(hd);
 		}
-		HttpEntity entity = message.getEntity();
-		if (entity == null) {
-			this.entity = null;
-		} else {
-			String[] mimeTypes = new String[0];
-			Header encoding = entity.getContentEncoding();
-			if (encoding != null) {
-				setHeader(encoding);
-			}
-			Header type = entity.getContentType();
-			if (type != null) {
-				setHeader(type);
-				mimeTypes = new String[] { type.getValue() };
-			}
-			long length = entity.getContentLength();
-			if (length >= 0) {
-				setHeader("Content-Length", Long.toString(length));
-			}
-			InputStream in = entity.getContent();
-			this.type = InputStream.class;
-			this.entity = new ResponseParameter(mimeTypes, in, this.type,
-					this.type, null, con);
-		}
+		this.entity = message.getEntity();
 	}
 
 	public Response onClose(Runnable task) {
@@ -166,11 +142,7 @@ public class Response extends AbstractHttpMessage {
 	public HttpEntity asHttpEntity() throws IOException, OpenRDFException,
 			XMLStreamException, TransformerException,
 			ParserConfigurationException, SAXException {
-		String media = getHeader("Content-Type");
-		if (media == null) {
-			media = "*/*";
-		}
-		HttpEntity http = entity.asHttpEntity(media);
+		HttpEntity http = entity;
 		String contentType = null;
 		Header hd = http.getContentType();
 		if (hd != null) {
@@ -265,10 +237,6 @@ public class Response extends AbstractHttpMessage {
 			server((Exception) error.getCause());
 		}
 		return exception(new InternalServerError(error));
-	}
-
-	public void setEntityType(Class<?> type) {
-		this.type = type;
 	}
 
 	public Response status(int status, String msg) {

@@ -54,6 +54,8 @@ public class StringBodyReader implements Producer {
 
 	public String produce(FluidType ftype, ReadableByteChannel in,
 			Charset charset, String base, FluidBuilder builder) throws IOException {
+		if (in == null)
+			return null;
 		if (charset == null) {
 			charset = Charset.forName("ISO-8859-1");
 		}

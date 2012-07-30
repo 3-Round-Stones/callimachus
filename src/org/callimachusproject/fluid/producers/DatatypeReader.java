@@ -78,6 +78,8 @@ public class DatatypeReader implements Producer {
 		Class<?> type = ftype.asClass();
 		String value = delegate.produce(ftype.as(String.class), in, charset,
 				base, builder);
+		if (value == null)
+			return null;
 		ValueFactory vf = builder.getObjectConnection().getValueFactory();
 		ObjectFactory of = builder.getObjectConnection().getObjectFactory();
 		URI datatype = vf.createURI("java:", type.getName());

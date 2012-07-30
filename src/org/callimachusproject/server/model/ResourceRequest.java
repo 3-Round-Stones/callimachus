@@ -34,7 +34,6 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
-import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -48,15 +47,14 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.util.EntityUtils;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.concepts.Activity;
+import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.exceptions.BadRequest;
-import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -86,7 +84,7 @@ public class ResourceRequest extends Request {
 	private VersionedObject target;
 	private final URI uri;
 	private final FluidBuilder writer;
-	private BodyParameter body;
+	private Fluid body;
 	private final FluidType accepter;
 	private final Set<String> vary = new LinkedHashSet<String>();
 	private Result<VersionedObject> result;
@@ -182,32 +180,18 @@ public class ResourceRequest extends Request {
 		super.cleanup();
 	}
 
-	public BodyParameter getBody() {
+	public Fluid getBody() {
 		if (body != null)
 			return body;
 		String mediaType = getHeader("Content-Type");
 		String location = getResolvedHeader("Content-Location");
-		if (location != null) {
+		if (location == null) {
+			location = getIRI();
+		} else {
 			location = createURI(location).stringValue();
 		}
-		return body = new BodyParameter(isMessageBody(), uri.stringValue(),
-				mediaType, con) {
-
-			@Override
-			public void close() throws IOException {
-				super.close();
-				EntityUtils.consume(getEntity());
-			}
-
-			@Override
-			protected ReadableByteChannel getReadableByteChannel()
-					throws IOException {
-				HttpEntity entity = getEntity();
-				if (entity == null)
-					return null;
-				return ChannelUtil.newChannel(entity.getContent());
-			}
-		};
+		FluidType ftype = new FluidType(HttpEntity.class, mediaType);
+		return getFluidBuilder().consume(getEntity(), location, ftype);
 	}
 
 	public String getContentType(Method method) {
@@ -224,6 +208,10 @@ public class ResourceRequest extends Request {
 
 	public ObjectConnection getObjectConnection() {
 		return con;
+	}
+
+	public FluidBuilder getFluidBuilder() {
+		return FluidFactory.getInstance().builder(con);
 	}
 
 	public String getOperation() {
@@ -245,22 +233,19 @@ public class ResourceRequest extends Request {
 		return "";
 	}
 
-	public Parameter getHeader(String... names) {
+	public Fluid getHeader(String... names) {
 		List<String> list = getVaryHeaders(names);
 		String[] values = list.toArray(new String[list.size()]);
-		return new StringParameter(values, uri
-				.stringValue(), con, "text/plain", "text/*");
+		FluidType ftype = new FluidType(String[].class, "text/plain", "text/*");
+		FluidBuilder fb = FluidFactory.getInstance().builder(con);
+		return fb.consume(values, getIRI(), ftype);
 	}
 
-	public Parameter getQueryStringParameter() {
-		String[] mimeType = {"application/x-www-form-urlencoded", "text/*"};
+	public Fluid getQueryStringParameter() {
 		String value = getQueryString();
-		if (value == null) {
-			return new StringParameter(new String[0], uri
-					.stringValue(), con, mimeType);
-		}
-		return new StringParameter(new String[] { value }, uri.stringValue(),
-				con, mimeType);
+		FluidType ftype = new FluidType(String.class, "application/x-www-form-urlencoded", "text/*");
+		FluidBuilder fb = FluidFactory.getInstance().builder(con);
+		return fb.consume(value, getIRI(), ftype);
 	}
 
 	public RDFObject getRequestedResource() {

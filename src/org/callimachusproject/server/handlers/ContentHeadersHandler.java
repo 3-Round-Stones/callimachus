@@ -54,27 +54,25 @@ public class ContentHeadersHandler implements Handler {
 	public Response verify(ResourceOperation request) throws Exception {
 		Response rb = delegate.verify(request);
 		if (rb != null) {
-			Class<?> type = request.getEntityType();
 			String contentType = request.getResponseContentType();
 			String version = request.revision();
 			String cache = request.getResponseCacheControl();
-			addHeaders(request, type, contentType, version, cache, rb);
+			addHeaders(request, contentType, version, cache, rb);
 		}
 		return rb;
 	}
 
 	public Response handle(ResourceOperation request) throws Exception {
-		Class<?> type = request.getEntityType();
 		String contentType = request.getResponseContentType();
 		String derived = request.revision();
 		String cache = request.getResponseCacheControl();
 		Response rb = delegate.handle(request);
-		addHeaders(request, type, contentType, derived, cache, rb);
+		addHeaders(request, contentType, derived, cache, rb);
 		return rb;
 	}
 
-	private void addHeaders(ResourceOperation request, Class<?> type,
-			String contentType, String derived, String cache, Response rb)
+	private void addHeaders(ResourceOperation request, String contentType,
+			String derived, String cache, Response rb)
 			throws RepositoryException, QueryEvaluationException {
 		String version = request.isSafe() ? derived : request.revision();
 		String entityTag = request.getEntityTag(version, cache, contentType);
@@ -103,7 +101,6 @@ public class ContentHeadersHandler implements Handler {
 		if (lastModified > 0) {
 			rb.lastModified(lastModified, format.format(lastModified));
 		}
-		rb.setEntityType(type);
 	}
 
 }

@@ -58,6 +58,7 @@ import org.callimachusproject.annotations.rel;
 import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.concepts.Realm;
+import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.exceptions.BadRequest;
@@ -186,15 +187,6 @@ public class ResourceOperation extends ResourceRequest {
 			}
 		}
 		return null;
-	}
-
-	public Class<?> getEntityType() {
-		String method = getMethod();
-		Method m = getTransformMethod();
-		if (m == null || "PUT".equals(method) || "DELETE".equals(method)
-				|| "OPTIONS".equals(method))
-			return null;
-		return m.getReturnType();
 	}
 
 	public boolean isNoValidate() {
@@ -633,17 +625,17 @@ public class ResourceOperation extends ResourceRequest {
 		String readable = null;
 		String acceptable = null;
 		Collection<Method> list = new LinkedHashSet<Method>(methods.size());
-		BodyParameter body = getBody();
+		Fluid body = getBody();
 		loop: for (Method method : methods) {
 			Collection<String> readableTypes;
 			readableTypes = getReadableTypes(body, method, 0, true);
 			if (readableTypes.isEmpty()) {
-				String contentType = body.getContentType();
+				String contentType = body.getFluidType().preferred();
 				Annotation[][] anns = method.getParameterAnnotations();
 				for (int i = 0; i < anns.length; i++) {
 					String[] types = getParameterMediaTypes(anns[i]);
 					Type gtype = method.getGenericParameterTypes()[i];
-					if (body.getMediaType(new FluidType(gtype, types)) == null) {
+					if (body.toMedia(new FluidType(gtype, types)) == null) {
 						if (contentType == null) {
 							readable = "Cannot read unknown body into " + gtype;
 						} else {
@@ -866,7 +858,7 @@ public class ResourceOperation extends ResourceRequest {
 		}
 	}
 
-	private Collection<String> getReadableTypes(Parameter input, Annotation[] anns, Class<?> ptype,
+	private Collection<String> getReadableTypes(Fluid input, Annotation[] anns, Class<?> ptype,
 			Type gtype, int depth, boolean typeRequired) {
 		if (getHeaderNames(anns) != null)
 			return Collections.singleton("*/*");
@@ -882,14 +874,14 @@ public class ResourceOperation extends ResourceRequest {
 			readable.addAll(set);
 		}
 		FluidType accepter = new FluidType(gtype, types);
-		String media = input.getMediaType(new FluidType(gtype, types));
+		String media = input.toMedia(new FluidType(gtype, types));
 		if (media != null && accepter.is(media)) {
 			readable.add(media);
 		}
 		return readable;
 	}
 
-	public Collection<String> getReadableTypes(Parameter input,
+	public Collection<String> getReadableTypes(Fluid input,
 			Method method, int depth, boolean typeRequired) {
 		if (method == null)
 			return Collections.emptySet();

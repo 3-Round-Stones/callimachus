@@ -53,6 +53,8 @@ public class HttpEntityWriter implements Consumer<HttpEntity> {
 			public ReadableByteChannel asChannel(String... media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
+				if (result == null)
+					return null;
 				return ChannelUtil.newChannel(result.getContent());
 			}
 

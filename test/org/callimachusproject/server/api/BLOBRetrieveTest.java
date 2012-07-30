@@ -98,7 +98,8 @@ public class BLOBRetrieveTest extends TestCase {
 			});
             
             put("transform", new String[] { "transform.xsl", "text/xsl",
-							"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \n" +
+							"<?xml version=\"1.0\"?>" +
+						    "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns=\"http://www.w3.org/1999/xhtml\" version=\"1.0\"> \n" +
 						    "<xsl:template match=\"/\"> <html> <body> <h2>My CD Collection</h2> \n" +
 						    "<table border=\"1\"> <tr bgcolor=\"#9acd32\"> <th>Title</th> \n" +
 						    "<th>Artist</th>  </tr> </table> </body> </html> </xsl:template> \n" +
@@ -106,7 +107,7 @@ public class BLOBRetrieveTest extends TestCase {
 			});
             
             put("pipeline", new String[] { "pipeline.xpl", "application/xproc+xml",
-            		"<?xml version=\"1.0\" encoding=\"UTF-8\" ?> \n" +
+            		"<?xml version=\"1.0\"?> \n" +
             	    "<p:pipeline version=\"1.0\" \n" +
                     "xmlns:p=\"http://www.w3.org/ns/xproc\" \n " + 
                     "xmlns:c=\"http://www.w3.org/ns/xproc-step\" \n" +

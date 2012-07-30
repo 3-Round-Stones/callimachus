@@ -671,68 +671,8 @@ public abstract class TransformBuilder {
 
 	public abstract void close() throws TransformerException, IOException;
 
-	protected IOException handle(IOException cause)
+	protected <E extends Throwable> E handle(E cause)
 			throws TransformerException, IOException {
-		try {
-			close();
-			return cause;
-		} catch (IOException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (TransformerException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (RuntimeException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (Error e) {
-			e.initCause(cause);
-			throw e;
-		}
-	}
-
-	protected TransformerException handle(TransformerException cause)
-			throws TransformerException, IOException {
-		try {
-			close();
-			return cause;
-		} catch (IOException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (TransformerException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (RuntimeException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (Error e) {
-			e.initCause(cause);
-			throw e;
-		}
-	}
-
-	protected RuntimeException handle(RuntimeException cause)
-			throws TransformerException, IOException {
-		try {
-			close();
-			return cause;
-		} catch (IOException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (TransformerException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (RuntimeException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (Error e) {
-			e.initCause(cause);
-			throw e;
-		}
-	}
-
-	protected Error handle(Error cause) throws TransformerException,
-			IOException {
 		try {
 			close();
 			return cause;

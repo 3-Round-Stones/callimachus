@@ -48,7 +48,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.http.HttpEntity;
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.fluid.AbstractFluid;
@@ -107,7 +106,7 @@ public class InvokeHandler implements Handler {
 				return new Response().badRequest(e);
 			}
 			try {
-				ResponseParameter entity = invoke(req, method, args, true,
+				ResponseFluid entity = invoke(req, method, args, true,
 						getResponseTypes(req, method));
 				if (!safe) {
 					req.flush();
@@ -135,11 +134,11 @@ public class InvokeHandler implements Handler {
 		}
 	}
 
-	private ResponseParameter invoke(ResourceOperation req, Method method,
+	private ResponseFluid invoke(ResourceOperation req, Method method,
 			Object[] args, boolean follow, String... responseTypes)
 			throws Exception {
 		Object result = method.invoke(req.getRequestedResource(), args);
-		ResponseParameter input = createResultEntity(req, result,
+		ResponseFluid input = createResultEntity(req, result,
 				method.getReturnType(), method.getGenericReturnType(),
 				responseTypes);
 		if (method.isAnnotationPresent(header.class)) {
@@ -158,7 +157,7 @@ public class InvokeHandler implements Handler {
 		if (follow) {
 			Method transform = req.getBestTransformMethod(method);
 			if (transform != null && !transform.equals(method)) {
-				ResponseParameter ret = invoke(req, transform,
+				ResponseFluid ret = invoke(req, transform,
 						getParameters(req, transform, input), follow,
 						getResponseTypes(req, transform));
 				ret.addHeaders(input.getOtherHeaders());
@@ -180,8 +179,8 @@ public class InvokeHandler implements Handler {
 		return result;
 	}
 
-	private Fluid getValue(ResourceOperation req, Annotation[] anns,
-			Fluid input) throws Exception {
+	private Fluid getValue(ResourceOperation req, Annotation[] anns, Fluid input)
+			throws Exception {
 		for (String uri : req.getTransforms(anns)) {
 			Method transform = req.getTransform(uri);
 			if (!req.getReadableTypes(input, transform, 0, false).isEmpty()) {
@@ -203,8 +202,7 @@ public class InvokeHandler implements Handler {
 		} else if (names == null && headers == null) {
 			return getValue(req, anns, input);
 		} else if (headers != null && names != null) {
-			return getValue(req, anns,
-					getHeaderAndQuery(req, headers, names));
+			return getValue(req, anns, getHeaderAndQuery(req, headers, names));
 		} else if (headers != null) {
 			return getValue(req, anns, req.getHeader(headers));
 		} else if (names.length == 1 && names[0].equals("*")) {
@@ -214,8 +212,8 @@ public class InvokeHandler implements Handler {
 		}
 	}
 
-	private Fluid getHeaderAndQuery(ResourceOperation req,
-			String[] headers, String[] queries) {
+	private Fluid getHeaderAndQuery(ResourceOperation req, String[] headers,
+			String[] queries) {
 		String[] qvalues = getParameterValues(req, queries);
 		if (qvalues == null)
 			return req.getHeader(headers);
@@ -261,7 +259,8 @@ public class InvokeHandler implements Handler {
 	public Map<String, String[]> getParameterMap(ResourceOperation req) {
 		try {
 			return (Map<String, String[]>) req.getQueryStringParameter().as(
-					new FluidType(mapOfStringArrayType, "application/x-www-form-urlencoded"));
+					new FluidType(mapOfStringArrayType,
+							"application/x-www-form-urlencoded"));
 		} catch (Exception e) {
 			return Collections.emptyMap();
 		}
@@ -283,22 +282,22 @@ public class InvokeHandler implements Handler {
 		return args;
 	}
 
-	private ResponseParameter createResultEntity(ResourceOperation req,
+	private ResponseFluid createResultEntity(ResourceOperation req,
 			Object result, Class<?> ctype, Type gtype, String[] mimeTypes) {
 		if (result instanceof RDFObjectBehaviour) {
 			result = ((RDFObjectBehaviour) result).getBehaviourDelegate();
 		}
-		return new ResponseParameter(mimeTypes, result, ctype, gtype,
-				req.getIRI(), req.getObjectConnection());
+		return new ResponseFluid(mimeTypes, result, ctype, gtype, req.getIRI(),
+				req.getObjectConnection());
 	}
 
 	public Response createResponse(ResourceOperation req, Method method,
-			ResponseParameter resp) throws Exception {
+			ResponseFluid resp) throws Exception {
 		Response rb;
 		if (resp.isNoContent()) {
 			rb = new Response().noContent();
 		} else {
-			rb = new Response(resp.asHttpEntity(req.getContentType(method)));
+			rb = new Response(resp.asHttpEntity(req.getResponseContentType()));
 		}
 		for (Map.Entry<String, String> e : resp.getOtherHeaders().entrySet()) {
 			rb.header(e.getKey(), e.getValue());
@@ -353,10 +352,11 @@ public class InvokeHandler implements Handler {
 		}
 		return rb;
 	}
+
 	/**
 	 * Wraps a message response to output to an HTTP response.
 	 */
-	private static class ResponseParameter extends AbstractFluid {
+	private static class ResponseFluid extends AbstractFluid {
 		private interface SetString extends Set<String> {
 		}
 
@@ -369,7 +369,7 @@ public class InvokeHandler implements Handler {
 		private final Map<String, String> headers = new HashMap<String, String>();
 		private final List<String> expects = new ArrayList<String>();
 
-		public ResponseParameter(String[] mimeTypes, Object result, Class<?> type,
+		public ResponseFluid(String[] mimeTypes, Object result, Class<?> type,
 				Type genericType, String base, ObjectConnection con) {
 			this.result = result;
 			this.type = type;
@@ -392,9 +392,10 @@ public class InvokeHandler implements Handler {
 					&& ((Set<?>) result).isEmpty();
 		}
 
-		public Set<String> getLocations() throws TransformerConfigurationException,
-				OpenRDFException, IOException, XMLStreamException,
-				ParserConfigurationException, SAXException, TransformerException {
+		public Set<String> getLocations()
+				throws TransformerConfigurationException, OpenRDFException,
+				IOException, XMLStreamException, ParserConfigurationException,
+				SAXException, TransformerException {
 			FluidType ftype = new FluidType(setOfStringType, "text/uri-list");
 			if (writer.toMedia(ftype) == null)
 				return null;
@@ -463,7 +464,7 @@ public class InvokeHandler implements Handler {
 				TransformerException {
 			if (writer.toMedia(ftype) == null)
 				throw new ClassCastException(String.valueOf(result)
-						+ " cannot be converted into " + type.getSimpleName());
+						+ " cannot be converted into " + ftype);
 			return writer.as(ftype);
 		}
 	}

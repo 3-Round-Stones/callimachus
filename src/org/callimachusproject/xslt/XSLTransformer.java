@@ -242,7 +242,7 @@ public class XSLTransformer {
 		if (reader == null)
 			return transform();
 		if (isIdentityTransform())
-			return new ReaderTransform(reader);
+			return new IdentityTransform(reader, null, Reader.class);
 		return transform(sourceFactory.createSource(reader, null));
 	}
 
@@ -251,7 +251,7 @@ public class XSLTransformer {
 		if (reader == null)
 			return transform();
 		if (isIdentityTransform())
-			return new ReaderTransform(reader, systemId);
+			return new IdentityTransform(reader, systemId, Reader.class);
 		return transform(sourceFactory.createSource(reader, systemId));
 	}
 
@@ -302,7 +302,7 @@ public class XSLTransformer {
 		if (in == null)
 			return transform();
 		if (isIdentityTransform())
-			return new StreamTransform(in);
+			return new IdentityTransform(in, InputStream.class);
 		return transform(sourceFactory.createSource(in, null));
 	}
 
@@ -311,7 +311,7 @@ public class XSLTransformer {
 		if (in == null)
 			return transform();
 		if (isIdentityTransform())
-			return new StreamTransform(in, systemId);
+			return new IdentityTransform(in, systemId, InputStream.class);
 		return transform(sourceFactory.createSource(in, systemId));
 	}
 
@@ -339,7 +339,7 @@ public class XSLTransformer {
 		if (reader == null)
 			return transform();
 		if (isIdentityTransform())
-			return new XMLEventTransform(reader, systemId);
+			return new IdentityTransform(reader, systemId, XMLEventReader.class);
 		return transform(toByteArrayInputStream(reader), systemId);
 	}
 

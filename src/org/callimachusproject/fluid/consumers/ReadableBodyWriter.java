@@ -31,7 +31,10 @@ package org.callimachusproject.fluid.consumers;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.nio.CharBuffer;
 import java.nio.channels.ReadableByteChannel;
@@ -39,7 +42,11 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.fluid.AbstractFluid;
@@ -50,12 +57,22 @@ import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
+import org.callimachusproject.server.util.ProducerStream;
+import org.callimachusproject.server.util.ProducerStream.OutputProducer;
+import org.callimachusproject.xslt.DocumentFactory;
+import org.callimachusproject.xslt.XMLEventReaderFactory;
 import org.openrdf.OpenRDFException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * Writes a Readable object into an OutputStream.
  */
 public class ReadableBodyWriter implements Consumer<Readable> {
+	private final DocumentFactory docFactory = DocumentFactory.newInstance();
+	private final XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
+	private final XMLEventReaderFactory inFactory = XMLEventReaderFactory
+			.newInstance();
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		if (!Readable.class.isAssignableFrom(mtype.asClass()))
@@ -63,8 +80,9 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 		return mtype.is("text/*");
 	}
 
-	public Fluid consume(final Readable result, final String base, final FluidType ftype,
-			final FluidBuilder builder) {
+	public Fluid consume(final Readable result, final String base,
+			FluidType type, final FluidBuilder builder) {
+		final FluidType ftype = type.as("text/plain", "text/*");
 		return new AbstractFluid() {
 			public String getSystemId() {
 				return base;
@@ -81,75 +99,162 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 			}
 
 			public String toChannelMedia(String... media) {
-				return getMediaType(ftype.as(media));
+				return toStreamMedia(media);
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			public ReadableByteChannel asChannel(final String... media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
-				return write(ftype.as(toChannelMedia(media)), result, base);
-			}
-	
-			public String toString() {
-				return String.valueOf(result);
-			}
-		};
-	}
-
-	String getMediaType(FluidType ftype) {
-		ftype = ftype.as("text/plain", "text/*");
-		String mimeType = ftype.preferred();
-		Charset charset = ftype.getCharset();
-		if (charset == null) {
-			charset = Charset.defaultCharset();
-		}
-		if (mimeType.contains("charset="))
-			return mimeType;
-		return mimeType + ";charset=" + charset.name();
-	}
-
-	ReadableByteChannel write(final FluidType mtype,
-			final Readable result, final String base)
-			throws IOException {
-		return new ProducerChannel(new WritableProducer() {
-			public void produce(WritableByteChannel out) throws IOException {
-				try {
-					writeTo(mtype, result, base, out, 1024);
-				} finally {
-					if (result instanceof Closeable) {
-						((Closeable) result).close();
+				return new ProducerChannel(new WritableProducer() {
+					public void produce(WritableByteChannel out)
+							throws IOException {
+						try {
+							asStream(ChannelUtil.newOutputStream(out), media);
+						} catch (XMLStreamException e) {
+							throw new IOException(e);
+						}
 					}
-					out.close();
+
+					public String toString() {
+						return String.valueOf(result);
+					}
+				});
+			}
+
+			public String toStreamMedia(String... media) {
+				FluidType ctype = ftype.as(media);
+				String mimeType = ctype.preferred();
+				Charset charset = ctype.getCharset();
+				if (charset == null) {
+					charset = Charset.defaultCharset();
+				}
+				if (mimeType == null || mimeType.contains("charset="))
+					return mimeType;
+				return mimeType + ";charset=" + charset.name();
+
+			}
+
+			public InputStream asStream(final String... media)
+					throws OpenRDFException, IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerConfigurationException, TransformerException {
+				return new ProducerStream(new OutputProducer() {
+					public void produce(OutputStream out) throws IOException {
+						try {
+							asStream(out, media);
+						} catch (XMLStreamException e) {
+							throw new IOException(e);
+						}
+					}
+
+					public String toString() {
+						return String.valueOf(result);
+					}
+				});
+			}
+
+			public void asStream(OutputStream out, String... media)
+					throws IOException, XMLStreamException {
+				if (result == null)
+					return;
+				try {
+					FluidType ctype = ftype.as(media);
+					Charset charset = ctype.getCharset();
+					if (charset == null) {
+						charset = Charset.defaultCharset();
+					}
+					if (!ctype.isXML()) {
+						Writer writer = new OutputStreamWriter(out, charset);
+						CharBuffer cb = CharBuffer.allocate(1024);
+						while (result.read(cb) >= 0) {
+							cb.flip();
+							writer.write(cb.array(), cb.position(), cb.limit());
+							cb.clear();
+						}
+						writer.flush();
+					} else {
+						XMLEventReader reader = asXMLEventReader();
+						if (reader == null)
+							return;
+						try {
+							XMLEventWriter writer = outFactory
+									.createXMLEventWriter(out, charset.name());
+							writer.add(reader);
+							writer.flush();
+						} finally {
+							reader.close();
+						}
+					}
+				} finally {
+					asVoid();
+				}
+			}
+
+			public String toReaderMedia(String... media) {
+				return ftype.as("text/plain", "text/*").as(media).preferred();
+			}
+
+			@Override
+			public Reader asReader(String... media) {
+				if (result instanceof Reader)
+					return (Reader) result;
+				return new Reader() {
+					public void close() throws IOException {
+						asVoid();
+					}
+
+					public int read(char[] cbuf, int off, int len)
+							throws IOException {
+						return result.read(CharBuffer.wrap(cbuf, off, len));
+					}
+
+					public int read(CharBuffer cbuf) throws IOException {
+						return result.read(cbuf);
+					}
+
+					public String toString() {
+						return String.valueOf(result);
+					}
+				};
+			}
+
+			public String toXMLEventReaderMedia(String... media) {
+				return ftype.asXML().as(media).preferred();
+			}
+
+			public XMLEventReader asXMLEventReader(String... media)
+					throws XMLStreamException {
+				Reader source = asReader(media);
+				if (source == null)
+					return null;
+				if (base == null)
+					return inFactory.createXMLEventReader(source);
+				return inFactory.createXMLEventReader(base, source);
+			}
+
+			public String toDocumentMedia(String... media) {
+				return toXMLEventReaderMedia(media);
+			}
+
+			public Document asDocument(String... media)
+					throws OpenRDFException, IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerConfigurationException, TransformerException {
+				Reader reader = asReader();
+				if (reader == null)
+					return null;
+				try {
+					if (base == null)
+						return docFactory.parse(reader);
+					return docFactory.parse(reader, base);
+				} finally {
+					asVoid();
 				}
 			}
 
 			public String toString() {
-				return result.toString();
+				return String.valueOf(result);
 			}
-		});
-	}
-
-	private void writeTo(FluidType mtype, Readable result, String base,
-			WritableByteChannel out, int bufSize)
-			throws IOException {
-		try {
-			Charset charset = mtype.getCharset();
-			if (charset == null) {
-				charset = Charset.defaultCharset();
-			}
-			Writer writer = new OutputStreamWriter(ChannelUtil
-					.newOutputStream(out), charset);
-			CharBuffer cb = CharBuffer.allocate(bufSize);
-			while (result.read(cb) >= 0) {
-				cb.flip();
-				writer.write(cb.array(), cb.position(), cb.limit());
-				cb.clear();
-			}
-			writer.flush();
-		} finally {
-			if (result instanceof Closeable) {
-				((Closeable) result).close();
-			}
-		}
+		};
 	}
 }

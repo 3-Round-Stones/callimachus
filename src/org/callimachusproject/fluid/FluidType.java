@@ -25,12 +25,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.w3c.dom.Document;
+
 /**
  * Represents a Java type and possible media types for serialisation.
  * 
  * @author James Leigh
  */
 public class FluidType extends GenericType {
+	private final static FluidType XML = new FluidType(Document.class,
+			"application/xml", "text/xml", "image/xml", "text/xsl",
+			"application/xml-external-parsed-entity");
 	private final TreeSet<MediaType> mediaTypes = new TreeSet<MediaType>(
 			new MediaTypeComparator());
 
@@ -165,6 +170,14 @@ public class FluidType extends GenericType {
 			return new FluidType(acceptable.asType(), (String[]) null);
 		}
 		return new FluidType(acceptable.asType(), combined, true);
+	}
+
+	public boolean isXML() {
+		return is(XML.as(asType()));
+	}
+
+	public FluidType asXML() {
+		return as(XML.as(asType()));
 	}
 
 	public FluidType key(String... mediaType) {

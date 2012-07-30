@@ -18,17 +18,23 @@ package org.callimachusproject.fluid;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
@@ -75,6 +81,45 @@ public abstract class AbstractFluid implements Fluid {
 		return (InputStream) produce(new FluidType(InputStream.class, media));
 	}
 
+	public void asStream(OutputStream out, String... media)
+			throws OpenRDFException, IOException, XMLStreamException,
+			ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException {
+		ChannelUtil.transfer(asStream(media), out);
+	}
+
+	/**
+	 * {@link Reader}
+	 */
+	public String toReaderMedia(String... media) {
+		return toProducedMedia(new FluidType(Reader.class, media));
+	}
+
+	public Reader asReader(String... media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException {
+		return (Reader) produce(new FluidType(Reader.class, media));
+	}
+
+	public void asWriter(Writer writer, String... media)
+			throws OpenRDFException, IOException, XMLStreamException,
+			ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException {
+		Reader reader = asReader(media);
+		if (reader == null)
+			return;
+		try {
+			int read;
+			char[] cbuf = new char[1024];
+			while ((read = reader.read(cbuf)) >= 0) {
+				writer.write(cbuf, 0, read);
+			}
+		} finally {
+			reader.close();
+		}
+	}
+
 	/**
 	 * {@link String}
 	 */
@@ -116,6 +161,35 @@ public abstract class AbstractFluid implements Fluid {
 	}
 
 	/**
+	 * {@link XMLEventReader}
+	 */
+	public String toXMLEventReaderMedia(String... media) {
+		return toProducedMedia(new FluidType(XMLEventReader.class, media));
+	}
+
+	public XMLEventReader asXMLEventReader(String... media)
+			throws OpenRDFException, IOException, XMLStreamException,
+			ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException {
+		return (XMLEventReader) produce(new FluidType(XMLEventReader.class,
+				media));
+	}
+
+	/**
+	 * {@link Document}
+	 */
+	public String toDocumentMedia(String... media) {
+		return toProducedMedia(new FluidType(Document.class, media));
+	}
+
+	public Document asDocument(String... media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException {
+		return (Document) produce(new FluidType(Document.class, media));
+	}
+
+	/**
 	 * {@link Type}
 	 */
 	public final String toMedia(Type gtype, String... media) {
@@ -140,6 +214,9 @@ public abstract class AbstractFluid implements Fluid {
 		if (ftype.is(InputStream.class))
 			return toStreamMedia(ftype.media());
 
+		if (ftype.is(Reader.class))
+			return toReaderMedia(ftype.media());
+
 		if (ftype.is(String.class))
 			return toStringMedia(ftype.media());
 
@@ -148,6 +225,12 @@ public abstract class AbstractFluid implements Fluid {
 
 		if (ftype.is(HttpResponse.class))
 			return toHttpResponseMedia(ftype.media());
+
+		if (ftype.is(XMLEventReader.class))
+			return toXMLEventReaderMedia(ftype.media());
+
+		if (ftype.is(Document.class))
+			return toDocumentMedia(ftype.media());
 
 		return toProducedMedia(ftype);
 	}
@@ -163,6 +246,9 @@ public abstract class AbstractFluid implements Fluid {
 		if (ftype.is(InputStream.class))
 			return asStream(ftype.media());
 
+		if (ftype.is(Reader.class))
+			return asReader(ftype.media());
+
 		if (ftype.is(String.class))
 			return asString(ftype.media());
 
@@ -171,6 +257,12 @@ public abstract class AbstractFluid implements Fluid {
 
 		if (ftype.is(HttpResponse.class))
 			return asHttpResponse(ftype.media());
+
+		if (ftype.is(XMLEventReader.class))
+			return asXMLEventReader(ftype.media());
+
+		if (ftype.is(Document.class))
+			return asDocument(ftype.media());
 
 		return produce(ftype);
 	}

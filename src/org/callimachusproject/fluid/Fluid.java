@@ -18,10 +18,14 @@ package org.callimachusproject.fluid;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -29,6 +33,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.openrdf.OpenRDFException;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
@@ -66,6 +71,25 @@ public interface Fluid {
 			XMLStreamException, ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException;
 
+	void asStream(OutputStream out, String... media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException;
+
+	/**
+	 * {@link Reader}
+	 */
+	String toReaderMedia(String... media);
+
+	Reader asReader(String... media) throws OpenRDFException, IOException,
+			XMLStreamException, ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException;
+
+	void asWriter(Writer writer, String... media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException;
+
 	/**
 	 * {@link String}
 	 */
@@ -94,6 +118,25 @@ public interface Fluid {
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException,
 			TransformerException;
+
+	/**
+	 * {@link XMLEventReader}
+	 */
+	String toXMLEventReaderMedia(String... media);
+
+	XMLEventReader asXMLEventReader(String... media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException;
+
+	/**
+	 * {@link Document}
+	 */
+	String toDocumentMedia(String... media);
+
+	Document asDocument(String... media) throws OpenRDFException, IOException,
+			XMLStreamException, ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException;
 
 	/**
 	 * {@link Type}

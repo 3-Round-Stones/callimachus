@@ -17,8 +17,6 @@
 package org.callimachusproject.fluid;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,8 +24,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.openrdf.OpenRDFException;
 import org.xml.sax.SAXException;
 
@@ -39,7 +35,7 @@ import org.xml.sax.SAXException;
  * @author James Leigh
  * 
  */
-class ChannelFluid implements Fluid {
+class ChannelFluid extends AbstractFluid {
 	private final Fluid fluid;
 	private final FluidBuilder builder;
 
@@ -68,157 +64,88 @@ class ChannelFluid implements Fluid {
 		fluid.asVoid();
 	}
 
-	/**
-	 * {@link ReadableByteChannel}
-	 */
-	public String toChannelMedia(String... media) {
-		String ret = fluid.toChannelMedia(media);
-		if (ret != null)
-			return ret;
-		return toMediaFluid(media).toChannelMedia(media);
-	}
-
-	public ReadableByteChannel asChannel(String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
-		if (fluid.toChannelMedia(media) != null)
-			return fluid.asChannel(media);
-		return asChannelFluid(media).asChannel(media);
-	}
-
-	/**
-	 * {@link InputStream}
-	 */
-	public String toStreamMedia(String... media) {
-		String ret = fluid.toStreamMedia(media);
-		if (ret != null)
-			return ret;
-		return toMediaFluid(media).toStreamMedia(media);
-	}
-
-	public InputStream asStream(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
-		if (fluid.toStreamMedia(media) != null)
-			return fluid.asStream(media);
-		return asChannelFluid(media).asStream(media);
-	}
-
-	/**
-	 * {@link String}
-	 */
-	public String toStringMedia(String... media) {
-		String ret = fluid.toStringMedia(media);
-		if (ret != null)
-			return ret;
-		return toMediaFluid(media).toStringMedia(media);
-	}
-
-	public String asString(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
-		if (fluid.toStringMedia(media) != null)
-			return fluid.asString(media);
-		return asChannelFluid(media).asString(media);
-	}
-
-	/**
-	 * {@link HttpEntity}
-	 */
-	public String toHttpEntityMedia(String... media) {
-		String ret = fluid.toHttpEntityMedia(media);
-		if (ret != null)
-			return ret;
-		return toMediaFluid(media).toHttpEntityMedia(media);
-	}
-
-	public HttpEntity asHttpEntity(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
-		if (fluid.toHttpEntityMedia(media) != null)
-			return fluid.asHttpEntity(media);
-		return asChannelFluid(media).asHttpEntity(media);
-	}
-
-	/**
-	 * {@link HttpResponse}
-	 */
-	public String toHttpResponseMedia(String... media) {
-		String ret = fluid.toHttpResponseMedia(media);
-		if (ret != null)
-			return ret;
-		return toMediaFluid(media).toHttpResponseMedia(media);
-	}
-
-	public HttpResponse asHttpResponse(String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
-		if (fluid.toHttpResponseMedia(media) != null)
-			return fluid.asHttpResponse(media);
-		return asChannelFluid(media).asHttpResponse(media);
-	}
-
-	/**
-	 * {@link Type}
-	 */
-	public String toMedia(Type gtype, String... media) {
-		String ret = fluid.toMedia(gtype, media);
-		if (ret != null)
-			return ret;
-		return toMediaFluid(media).toMedia(gtype, media);
-	}
-
-	public Object as(Type gtype, String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
-		if (fluid.toMedia(gtype, media) != null)
-			return fluid.as(gtype, media);
-		return asChannelFluid(media).as(gtype, media);
-	}
-
-	/**
-	 * {@link FluidType}
-	 */
-	public String toMedia(FluidType ftype) {
+	@Override
+	public String toProducedMedia(FluidType ftype) {
 		String ret = fluid.toMedia(ftype);
 		if (ret != null)
 			return ret;
-		return toMediaFluid(ftype.media()).toMedia(ftype);
+		String[] cmt = getChannelMedia(ftype.media());
+		return builder.media(cmt).toMedia(ftype);
 	}
 
-	public Object as(FluidType ftype) throws OpenRDFException, IOException,
-			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
-		if (fluid.toMedia(ftype) != null)
-			return fluid.as(ftype);
-		return asChannelFluid(ftype.media()).as(ftype);
-	}
-
-	/**
-	 * {@link Fluid}
-	 */
-	private Fluid toMediaFluid(String[] media) {
-		return builder.media(getChannelMedia(media));
-	}
-
-	private Fluid asChannelFluid(String[] media) throws OpenRDFException,
+	@Override
+	public Object produce(FluidType ftype) throws OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException,
 			TransformerException {
-		String[] cmt = getChannelMedia(media);
-		return builder.channel(fluid.asChannel(cmt), fluid.getSystemId(), cmt);
+		try {
+			if (fluid.toMedia(ftype) != null)
+				return fluid.as(ftype);
+			String[] cmt = getChannelMedia(ftype.media());
+			ReadableByteChannel in = fluid.asChannel(cmt);
+			return builder.channel(in, fluid.getSystemId(), cmt).as(ftype);
+		} catch (RuntimeException e) {
+			throw handle(e);
+		} catch (Error e) {
+			throw handle(e);
+		} catch (OpenRDFException e) {
+			throw handle(e);
+		} catch (XMLStreamException e) {
+			throw handle(e);
+		} catch (ParserConfigurationException e) {
+			throw handle(e);
+		} catch (SAXException e) {
+			throw handle(e);
+		} catch (TransformerConfigurationException e) {
+			throw handle(e);
+		} catch (IOException e) {
+			throw handle(e);
+		} catch (TransformerException e) {
+			throw handle(e);
+		}
 	}
 
 	private String[] getChannelMedia(String[] media) {
 		if (getFluidType().is(media))
 			return getFluidType().as(media).media();
 		return getFluidType().media();
+	}
+
+	protected <E extends Throwable> E handle(E cause) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException {
+		try {
+			asVoid();
+			return cause;
+		} catch (RuntimeException e) {
+			e.initCause(cause);
+			throw e;
+		} catch (Error e) {
+			e.initCause(cause);
+			throw e;
+		} catch (OpenRDFException e) {
+			e.initCause(cause);
+			throw e;
+		} catch (XMLStreamException e) {
+			e.initCause(cause);
+			throw e;
+		} catch (ParserConfigurationException e) {
+			e.initCause(cause);
+			throw e;
+		} catch (SAXException e) {
+			e.initCause(cause);
+			throw e;
+		} catch (TransformerConfigurationException e) {
+			e.initCause(cause);
+			throw e;
+		} catch (IOException e) {
+			e.initCause(cause);
+			throw e;
+		} catch (TransformerException e) {
+			e.initCause(cause);
+			throw e;
+		}
 	}
 
 }

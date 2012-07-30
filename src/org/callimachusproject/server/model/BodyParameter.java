@@ -54,15 +54,13 @@ public abstract class BodyParameter implements Parameter {
 	private final String mimeType;
 	private final boolean stream;
 	private final String base;
-	private final String location;
 	private final FluidBuilder fb;
 
-	public BodyParameter(String mimeType, boolean stream, String base,
-			String location, ObjectConnection con) {
+	public BodyParameter(boolean stream, String base, String mimeType,
+			ObjectConnection con) {
 		this.mimeType = mimeType;
 		this.stream = stream;
 		this.base = base;
-		this.location = location;
 		this.fb = FluidFactory.getInstance().builder(con);
 	}
 
@@ -75,7 +73,7 @@ public abstract class BodyParameter implements Parameter {
 	}
 
 	public String getMediaType(FluidType ftype) {
-		if (location == null && !stream && mimeType == null)
+		if (!stream && mimeType == null)
 			return fb.media().toMedia(ftype);
 		return fb.media(mimeType).toMedia(ftype);
 	}
@@ -84,18 +82,10 @@ public abstract class BodyParameter implements Parameter {
 			throws TransformerConfigurationException, OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerException, URISyntaxException {
-		if (location == null && !stream && mimeType == null)
+		if (!stream && mimeType == null)
 			return null;
 		ReadableByteChannel in = getReadableByteChannel();
-		Fluid reader;
-		if (location == null) {
-			reader = fb.channel(in, base, mimeType);
-		} else {
-			if (in != null) {
-				in.close();
-			}
-			reader = fb.uri(location, base);
-		}
+		Fluid reader = fb.channel(in, base, mimeType);
 		if (reader.toMedia(ftype) == null)
 			throw new UnsupportedMediaType();
 		return reader.as(ftype);

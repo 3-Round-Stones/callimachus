@@ -80,7 +80,7 @@ public abstract class URIListReader<URI> implements Producer {
 				return false;
 			}
 		}
-		return ftype.is("text/*");
+		return ftype.is("text/uri-list");
 	}
 
 	public Object produce(FluidType ftype, ReadableByteChannel in,

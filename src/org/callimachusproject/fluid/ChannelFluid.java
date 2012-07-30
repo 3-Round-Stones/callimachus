@@ -39,7 +39,7 @@ import org.xml.sax.SAXException;
  * @author James Leigh
  * 
  */
-public class ChannelFluid implements Fluid {
+class ChannelFluid implements Fluid {
 	private final Fluid fluid;
 	private final FluidBuilder builder;
 

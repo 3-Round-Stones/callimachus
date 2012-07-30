@@ -30,7 +30,7 @@ public class MediaType implements Serializable {
 	private static final MediaType WILD;
 	static {
 		try {
-			WILD = new MediaType("*/*", new MimeType("*/*"));
+			WILD = new MediaType("*/*", new MimeType("*/*"), 1.0);
 		} catch (MimeTypeParseException e) {
 			throw new AssertionError(e);
 		}
@@ -39,7 +39,8 @@ public class MediaType implements Serializable {
 	public static MediaType valueOf(String mediaType)
 			throws IllegalArgumentException {
 		try {
-			if (mediaType == null || mediaType.equals("*/*") || mediaType.equals("*")) {
+			if (mediaType == null || mediaType.equals("*/*")
+					|| mediaType.equals("*")) {
 				return WILD;
 			}
 			if (mediaType.indexOf('/') < 0) {
@@ -47,15 +48,18 @@ public class MediaType implements Serializable {
 				if (dash >= 0) {
 					String primary = mediaType.substring(0, dash);
 					String rest = mediaType.substring(dash + 1);
-					return new MediaType(new MimeType(primary + "/" + rest));
+					String lexical = primary + "/" + rest;
+					return new MediaType(lexical, new MimeType(lexical));
 				}
 				int colon = mediaType.indexOf(';');
 				if (colon > 0) {
 					String primary = mediaType.substring(0, colon);
 					String param = mediaType.substring(colon);
-					return new MediaType(new MimeType(primary + "/*" + param));
+					String lexical = primary + "/*" + param;
+					return new MediaType(lexical, new MimeType(lexical));
 				}
-				return new MediaType(new MimeType(mediaType, "*"));
+				String lexical = mediaType + "/*";
+				return new MediaType(lexical, new MimeType(mediaType, "*"));
 			}
 			return new MediaType(mediaType, new MimeType(mediaType));
 		} catch (MimeTypeParseException e) {
@@ -68,15 +72,6 @@ public class MediaType implements Serializable {
 	private final double quality;
 	private final MimeType parsed;
 
-	private MediaType(MimeType mime) {
-		assert mime != null;
-		String q = mime.getParameter("q");
-		mime.removeParameter("q");
-		this.quality = q == null ? 1 : Double.valueOf(q);
-		this.parsed = mime;
-		this.normal = mime.toString();
-	}
-
 	private MediaType(String media, MimeType mime) {
 		assert mime != null;
 		String q = mime.getParameter("q");
@@ -85,6 +80,12 @@ public class MediaType implements Serializable {
 		this.parsed = mime;
 		String lexical = mime.toString();
 		this.normal = lexical.equals(media) ? media : lexical;
+	}
+
+	private MediaType(String media, MimeType mime, double quality) {
+		this.quality = quality;
+		this.parsed = mime;
+		this.normal = media;
 	}
 
 	public String toString() {
@@ -130,14 +131,21 @@ public class MediaType implements Serializable {
 		return quality;
 	}
 
+	public MediaType multiply(double multiplier) { 
+		return new MediaType(normal, parsed, quality * multiplier);
+	}
+
 	@SuppressWarnings("unchecked")
 	public Enumeration<String> getParameterNames() {
 		return parsed.getParameters().getNames();
 	}
 
 	public MediaType combine(MediaType accept) {
-		if (accept == null || toString().equals(accept.toString()))
+		assert accept != null;
+		if (toString().equals(accept.toString()) && accept.getQuality() == 1.0)
 			return this;
+		if (toString().equals(accept.toString()))
+			return multiply(accept.getQuality());
 		try {
 			MimeType mime = new MimeType(normal);
 			if ("*".equals(mime.getPrimaryType())) {
@@ -149,11 +157,13 @@ public class MediaType implements Serializable {
 			Enumeration<String> e = accept.getParameterNames();
 			while (e.hasMoreElements()) {
 				String p = e.nextElement();
-				if (!"q".equals(p) && mime.getParameter(p) == null) {
+				assert !"q".equals(p);
+				if (mime.getParameter(p) == null) {
 					mime.setParameter(p, accept.getParameter(p));
 				}
 			}
-			return new MediaType(mime);
+			return new MediaType(mime.toString(), mime, getQuality()
+					* accept.getQuality());
 		} catch (MimeTypeParseException e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -165,7 +175,7 @@ public class MediaType implements Serializable {
 
 	public boolean match(MediaType accept) {
 		if (accept == null)
-			return true;
+			return false;
 		if (equals(accept))
 			return true;
 		if (parsed.match(accept.parsed))

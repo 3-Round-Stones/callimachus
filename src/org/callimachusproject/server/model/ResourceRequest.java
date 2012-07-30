@@ -190,8 +190,8 @@ public class ResourceRequest extends Request {
 		if (location != null) {
 			location = createURI(location).stringValue();
 		}
-		return body = new BodyParameter(mediaType, isMessageBody(),
-				uri.stringValue(), location, con) {
+		return body = new BodyParameter(isMessageBody(), uri.stringValue(),
+				mediaType, con) {
 
 			@Override
 			public void close() throws IOException {

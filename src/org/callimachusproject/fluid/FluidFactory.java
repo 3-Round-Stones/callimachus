@@ -63,7 +63,6 @@ import org.callimachusproject.fluid.producers.RDFObjectURIReader;
 import org.callimachusproject.fluid.producers.ReadableBodyReader;
 import org.callimachusproject.fluid.producers.ReadableByteChannelBodyReader;
 import org.callimachusproject.fluid.producers.StringBodyReader;
-import org.callimachusproject.fluid.producers.StringURIReader;
 import org.callimachusproject.fluid.producers.TupleMessageReader;
 import org.callimachusproject.fluid.producers.URIReader;
 import org.callimachusproject.fluid.producers.URLReader;
@@ -111,7 +110,6 @@ public class FluidFactory {
 		consumers.add(new FormMapMessageWriter());
 		consumers.add(new FormStringMessageWriter());
 		consumers.add(new HttpEntityWriter());
-		consumers.add(new URIListWriter<String>(String.class));
 		consumers.add(new URIListWriter<URI>(URI.class));
 		consumers.add(new URIListWriter<URL>(URL.class));
 		consumers.add(new URIListWriter<java.net.URI>(java.net.URI.class));
@@ -122,7 +120,6 @@ public class FluidFactory {
 		}
 		producers.add(new URIReader());
 		producers.add(new URLReader());
-		producers.add(new StringURIReader());
 		producers.add(new NetURIReader());
 		producers.add(new RDFObjectURIReader());
 		producers.add(new ModelMessageReader());

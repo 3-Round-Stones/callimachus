@@ -30,10 +30,7 @@
 package org.callimachusproject.server.model;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URISyntaxException;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -54,83 +51,24 @@ import org.xml.sax.SAXException;
  */
 public class StringParameter implements Parameter {
 	private final FluidFactory ff = FluidFactory.getInstance();
-	private final Fluid sample;
-	private final Fluid[] values;
+	private final Fluid fluid;
 
 	public StringParameter(String[] values, String base, ObjectConnection con,
 			String... mimeType) {
+		FluidType ftype = new FluidType(String[].class, mimeType);
 		FluidBuilder fb = ff.builder(con);
-		if (values == null || values.length == 0) {
-			this.values = new Fluid[0];
-			this.sample = fb.media(mimeType);
-		} else {
-			this.values = new Fluid[values.length];
-			for (int i = 0; i < values.length; i++) {
-				this.values[i] = fb.consume(values[i], base, String.class,
-						mimeType);
-			}
-			this.sample = this.values[0];
-		}
+		this.fluid = fb.consume(values, base, ftype);
 	}
 
 	public String getMediaType(FluidType ftype) {
-		return sample.toMedia(ftype);
+		return fluid.toMedia(ftype);
 	}
 
 	public Object read(FluidType type)
 			throws TransformerConfigurationException, OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerException, URISyntaxException {
-		if (type.is(String.class)) {
-			if (values != null && values.length > 0)
-				return type.cast(values[0].asString());
-			return null;
-		}
-		if (type.isSetOrArrayOf(String.class)) {
-			return type.castArray(values);
-		}
-		if (type.isArray() && isReadable(type.component()))
-			return type.castArray(readArray(type.component()));
-		if (type.isSet() && isReadable(type.component()))
-			return type.castSet(readSet(type.component()));
-		if (values != null && values.length > 0)
-			return read(values[0], type);
-		return null;
-	}
-
-	private Object readArray(FluidType ftype)
-			throws TransformerConfigurationException, OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerException, URISyntaxException {
-		if (values == null)
-			return null;
-		Object result = Array.newInstance(ftype.asClass(), values.length);
-		for (int i = 0; i < values.length; i++) {
-			Array.set(result, i, read(values[i], ftype));
-		}
-		return result;
-	}
-
-	private Set<Object> readSet(FluidType ftype)
-			throws TransformerConfigurationException, OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerException, URISyntaxException {
-		Set<Object> result = new LinkedHashSet<Object>(values.length);
-		for (int i = 0; i < values.length; i++) {
-			result.add(read(values[i], ftype));
-		}
-		return result;
-	}
-
-	private Object read(Fluid value, FluidType ftype)
-			throws TransformerConfigurationException, OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerException {
-		return value.as(ftype);
-	}
-
-	private boolean isReadable(FluidType ftype) {
-		return sample.toMedia(ftype) != null;
+		return fluid.as(type);
 	}
 
 }

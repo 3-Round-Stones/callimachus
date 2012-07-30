@@ -37,7 +37,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -115,12 +114,20 @@ public class GenericType {
 		return Set.class.equals(asClass());
 	}
 
+	public boolean isList() {
+		return List.class.equals(asClass());
+	}
+
 	public boolean isArray() {
 		return asClass().isArray();
 	}
 
 	public boolean isUnknown() {
 		return Object.class.equals(asClass());
+	}
+
+	public boolean isCollection() {
+		return isSetOrArray() || is(List.class) || is(Collection.class);
 	}
 
 	public boolean isSetOrArray() {
@@ -161,6 +168,34 @@ public class GenericType {
 		return new GenericType(Object.class);
 	}
 
+	public Object toArray(Object obj) {
+		if (obj == null)
+			return Array.newInstance(component().asClass(), 0);
+		if (isArray())
+			return castArray(obj);
+		if (isCollection()) {
+			Collection<?> set = (Collection<?>) obj;
+			Object[] array = (Object[]) Array.newInstance(
+					component().asClass(), set.size());
+			return set.toArray(array);
+		}
+		Object array = Array.newInstance(asClass(), 1);
+		Array.set(array, 0, obj);
+		return array;
+	}
+
+	public Object nil() {
+		if (isArray())
+			return cast(Array.newInstance(component().asClass(), 0));
+		if (isList())
+			return cast(Collections.emptyList());
+		if (isSet() || isCollection())
+			return cast(Collections.emptySet());
+		if (isMap())
+			return cast(Collections.emptyMap());
+		return null;
+	}
+
 	public Object cast(Object obj) {
 		if (obj == null)
 			return nil();
@@ -181,12 +216,14 @@ public class GenericType {
 	public Object castComponent(Object obj) {
 		if (obj == null)
 			return nil();
-		if (isSet()) {
-			return cast(Collections.singleton(obj));
-		} else if (isArray()) {
+		if (isArray()) {
 			Object result = Array.newInstance(component().asClass(), 1);
 			Array.set(result, 0, obj);
 			return cast(result);
+		} else if (isList()) {
+			return cast(Collections.singletonList(obj));
+		} else if (isSet() || isCollection()) {
+			return cast(Collections.singleton(obj));
 		}
 		return cast(obj);
 	}
@@ -198,15 +235,27 @@ public class GenericType {
 	public Object castArray(Object ar) {
 		if (ar == null || Array.getLength(ar) == 0)
 			return nil();
-		if (isSet()) {
-			int len = Array.getLength(ar);
-			Set<Object> set = new HashSet<Object>(len);
+		int len = Array.getLength(ar);
+		if (isArray()) {
+			if (asClass().isAssignableFrom(ar.getClass()))
+				return cast(ar);
+			Object result = Array.newInstance(component().asClass(), len);
+			for (int i=0; i<len; i++) {
+				Array.set(result, i, Array.get(ar, i));
+			}
+			return cast(result);
+		} else if (isSet()) {
+			Set<Object> set = new LinkedHashSet<Object>(len);
 			for (int i = 0; i < len; i++) {
 				set.add(Array.get(ar, i));
 			}
 			return cast(set);
-		} else if (isArray()) {
-			return cast(ar);
+		} else if (isList() || isCollection()) {
+			List<Object> set = new ArrayList<Object>(len);
+			for (int i = 0; i < len; i++) {
+				set.add(Array.get(ar, i));
+			}
+			return cast(set);
 		}
 		return cast(Array.get(ar, 0));
 	}
@@ -233,8 +282,6 @@ public class GenericType {
 	}
 
 	public Iterator<?> iteratorOf(Object obj) {
-		if (isSet())
-			return ((Set<?>) obj).iterator();
 		if (isArray()) {
 			int len = Array.getLength(obj);
 			List<Object> list = new ArrayList<Object>(len);
@@ -243,6 +290,8 @@ public class GenericType {
 			}
 			return list.iterator();
 		}
+		if (isCollection())
+			return ((Set<?>) obj).iterator();
 		return Collections.singleton(obj).iterator();
 	}
 
@@ -261,11 +310,7 @@ public class GenericType {
 	private Object castCollection(Collection<?> list) {
 		if (list == null || list.isEmpty())
 			return nil();
-		if (isSet()) {
-			if (list instanceof Set)
-				return cast(list);
-			return cast(new LinkedHashSet<Object>(list));
-		} else if (isArray()) {
+		if (isArray()) {
 			int len = list.size();
 			Object result = Array.newInstance(component().asClass(), len);
 			Iterator<?> iter = list.iterator();
@@ -273,19 +318,19 @@ public class GenericType {
 				Array.set(result, i, iter.next());
 			}
 			return cast(result);
+		} else if (isSet()) {
+			if (list instanceof Set)
+				return cast(list);
+			return cast(new LinkedHashSet<Object>(list));
+		} else if (isList()) {
+			if (list instanceof List)
+				return cast(list);
+			return cast(new ArrayList<Object>(list));
+		} else if (isCollection()) {
+			return cast(list);
 		}
 		Iterator<?> iter = list.iterator();
 		return cast(iter.next());
-	}
-
-	private Object nil() {
-		if (isSet())
-			return cast(Collections.emptySet());
-		if (isArray())
-			return cast(Array.newInstance(component().asClass(), 0));
-		if (isMap())
-			return cast(Collections.emptyMap());
-		return null;
 	}
 
 	private Class<?> toClass(Type type) {

@@ -21,10 +21,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 
 /**
@@ -35,7 +33,6 @@ import java.util.TreeSet;
 public class FluidType extends GenericType {
 	private final TreeSet<MediaType> mediaTypes = new TreeSet<MediaType>(
 			new MediaTypeComparator());
-	private final Map<MediaType, Integer> index = new HashMap<MediaType, Integer>();
 
 	/**
 	 * Constructs a new FluidType with the given Java and media types.
@@ -57,10 +54,7 @@ public class FluidType extends GenericType {
 		for (String m : media) {
 			if (m != null) {
 				MediaType mediaType = MediaType.valueOf(m);
-				if (!index.containsKey(mediaType)) {
-					index.put(mediaType, mediaTypes.size());
-				}
-				mediaTypes.add(mediaType);
+				mediaTypes.add(mediaType.multiply(1.0 - mediaTypes.size() / 100));
 			}
 		}
 	}
@@ -69,10 +63,7 @@ public class FluidType extends GenericType {
 		super(gtype);
 		assert media != null && !media.isEmpty();
 		for (MediaType mediaType : media) {
-			if (!index.containsKey(mediaType)) {
-				index.put(mediaType, mediaTypes.size());
-			}
-			mediaTypes.add(mediaType);
+			mediaTypes.add(mediaType.multiply(1.0 - mediaTypes.size() / 1000.0));
 		}
 	}
 
@@ -207,12 +198,6 @@ public class FluidType extends GenericType {
 				return 1;
 			if (!"*".equals(o1.getSubType()) && "*".equals(o2.getSubType()))
 				return -1;
-			Integer i1 = index.containsKey(o1) ? index.get(o1)
-					: Integer.MAX_VALUE;
-			Integer i2 = index.containsKey(o2) ? index.get(o2)
-					: Integer.MAX_VALUE;
-			if (i1.compareTo(i2) != 0)
-				return i1.compareTo(i2);
 			if (o1.getSubType().contains("+") && !o2.getSubType().contains("+"))
 				return -1;
 			if (!o1.getSubType().contains("+") && o2.getSubType().contains("+"))

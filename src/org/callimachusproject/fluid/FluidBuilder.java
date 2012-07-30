@@ -19,6 +19,7 @@ package org.callimachusproject.fluid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
@@ -26,7 +27,6 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -103,7 +103,12 @@ public class FluidBuilder {
 	}
 
 	public boolean isConsumable(FluidType mtype) {
-		return findWriter(mtype) != null;
+		if (mtype.isCollection()) {
+			Consumer<?> writer = findRawWriter(mtype.component());
+			if (writer != null)
+				return true;
+		}
+		return findRawWriter(mtype) != null;
 	}
 
 	public Fluid media(String... media) {
@@ -183,8 +188,8 @@ public class FluidBuilder {
 				if (reader != null)
 					return reader.produce(outType, in, charset, base,
 							FluidBuilder.this);
-				if (outType.isSetOrArray()) {
-					reader = findComponentReader(outType);
+				if (outType.isCollection()) {
+					reader = findRawReader(outType.component());
 					if (reader == null && in == null)
 						return outType.castSet(Collections.emptySet());
 				}
@@ -195,10 +200,6 @@ public class FluidBuilder {
 							+ outType);
 				Object o = reader.produce(outType.component(), in, charset,
 						base, FluidBuilder.this);
-				if (o == null)
-					return outType.castSet(Collections.emptySet());
-				if (o instanceof Set)
-					return o;
 				return outType.castComponent(o);
 			}
 
@@ -206,8 +207,8 @@ public class FluidBuilder {
 				Producer reader = findRawReader(mtype);
 				if (reader != null)
 					return reader;
-				if (mtype.isSet())
-					return findComponentReader(mtype);
+				if (mtype.isCollection())
+					return findRawReader(mtype.component());
 				return null;
 			}
 
@@ -218,10 +219,6 @@ public class FluidBuilder {
 					}
 				}
 				return null;
-			}
-
-			private Producer findComponentReader(FluidType mtype) {
-				return findRawReader(mtype.component());
 			}
 		};
 	}
@@ -238,35 +235,23 @@ public class FluidBuilder {
 
 	public Fluid consume(Object result, String base, FluidType mtype) {
 		Consumer writer = findRawWriter(mtype);
-		if (writer != null)
-			return new ChannelFluid(writer.consume(result, base, mtype, this),
-					this);
-		if (writer == null && mtype.isSet()) {
-			writer = findComponentWriter(mtype);
+		if (writer == null && mtype.isCollection()) {
+			writer = findRawWriter(mtype.component());
+			if (writer != null) {
+				Object array = mtype.toArray(result);
+				int len = Array.getLength(array);
+				Fluid[] fluids = new Fluid[len];
+				for (int i = 0; i < len; i++) {
+					fluids[i] = consume(Array.get(array, i), base,
+							mtype.component());
+				}
+				return new FluidArray(fluids, nil(mtype.component()), base, mtype);
+			}
 		}
-		String mimeType = mtype.preferred();
-		Type genericType = mtype.asType();
 		if (writer == null)
-			throw new BadRequest("Cannot write " + genericType + " into "
-					+ mimeType);
-		if (((Set<?>) result).isEmpty()) {
-			result = null;
-		} else {
-			result = ((Set<?>) result).toArray()[0];
-		}
-		return new ChannelFluid(writer.consume(result, base, mtype.component(),
-				this), this);
-	}
-
-	private Consumer<?> findWriter(FluidType mtype) {
-		Class<?> type = mtype.asClass();
-		Consumer<?> writer;
-		writer = findRawWriter(mtype);
-		if (writer != null)
-			return writer;
-		if (Set.class.equals(type))
-			return findComponentWriter(mtype);
-		return null;
+			throw new BadRequest("Cannot write " + mtype.asType() + " into "
+					+ mtype.preferred());
+		return new ChannelFluid(writer.consume(result, base, mtype, this), this);
 	}
 
 	private Consumer<?> findRawWriter(FluidType mtype) {
@@ -274,13 +259,6 @@ public class FluidBuilder {
 			if (w.isConsumable(mtype, this)) {
 				return w;
 			}
-		}
-		return null;
-	}
-
-	private Consumer<?> findComponentWriter(FluidType mtype) {
-		if (mtype.isSet()) {
-			return findRawWriter(mtype.component());
 		}
 		return null;
 	}

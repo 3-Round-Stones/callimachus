@@ -75,7 +75,7 @@ public class URIListWriter<URI> implements Consumer<URI> {
 				return false;
 			}
 		}
-		return delegate.isConsumable(mtype.as(String.class), builder);
+		return mtype.is("text/uri-list");
 	}
 
 	public Fluid consume(final URI result, final String base, final FluidType ftype,
@@ -125,7 +125,7 @@ public class URIListWriter<URI> implements Consumer<URI> {
 
 	String getMediaType(FluidType ftype) {
 		String mimeType = ftype.as("text/uri-list", "text/*").preferred();
-		if (mimeType.contains("charset="))
+		if (mimeType == null || mimeType.contains("charset="))
 			return mimeType;
 		return mimeType + ";charset=" + Charset.defaultCharset().name();
 	

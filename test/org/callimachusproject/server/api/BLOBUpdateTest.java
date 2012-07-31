@@ -208,7 +208,7 @@ public class BLOBUpdateTest extends TestCase {
 		HttpURLConnection contentsConnection = (HttpURLConnection) contentsURL.openConnection();
 		contentsConnection.setRequestMethod("GET");
 		contentsConnection.setRequestProperty("ACCEPT", "application/atom+xml");
-		assertEquals(contentsConnection.getResponseMessage(), 200, contentsConnection.getResponseCode());
+		assertEquals(contentsConnection.getResponseMessage(), 203, contentsConnection.getResponseCode());
 		InputStream stream = contentsConnection.getInputStream();
 		String text = new java.util.Scanner(stream).useDelimiter("\\A").next();
 		int app = text.indexOf("<app:collection");

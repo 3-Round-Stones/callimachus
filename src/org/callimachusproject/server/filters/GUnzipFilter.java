@@ -36,6 +36,8 @@ import java.net.UnknownHostException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Request;
 
@@ -44,6 +46,8 @@ import org.callimachusproject.server.model.Request;
  * accepts gzip.
  */
 public class GUnzipFilter extends Filter {
+	private static final BasicStatusLine STATUS_203 = new BasicStatusLine(
+			HttpVersion.HTTP_1_1, 203, "Non-Authoritative Information");
 	private static String hostname;
 	static {
 		try {
@@ -111,7 +115,11 @@ public class GUnzipFilter extends Filter {
 				resp.removeHeaders("Content-Length");
 				resp.setHeader("Content-Encoding", "identity");
 				resp.addHeader("Transfer-Encoding", "chunked");
-				resp.addHeader("Warning", WARN_214);
+				if (resp.getStatusLine().getStatusCode() == 200) {
+					resp.setStatusLine(STATUS_203);
+				} else {
+					resp.addHeader("Warning", WARN_214);
+				}
 				if (entity instanceof GZipEntity) {
 					resp.setEntity(((GZipEntity) entity).getEntityDelegate());
 				} else {

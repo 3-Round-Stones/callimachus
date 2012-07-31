@@ -23,6 +23,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.callimachusproject.annotations.xslt;
+import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Iri;
 import org.openrdf.model.vocabulary.RDF;

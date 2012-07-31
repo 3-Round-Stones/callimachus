@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.xslt;
+package org.callimachusproject.xml;
 
 import java.io.Closeable;
 import java.io.InputStream;
@@ -38,6 +38,7 @@ import javax.xml.stream.XMLReporter;
 import javax.xml.stream.XMLResolver;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.util.XMLEventAllocator;
+
 
 /**
  * Wraps a XMLInputFactory, but closes input streams when the XMLEventReader is

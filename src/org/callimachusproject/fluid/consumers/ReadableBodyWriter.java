@@ -59,8 +59,8 @@ import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
 import org.callimachusproject.server.util.ProducerStream;
 import org.callimachusproject.server.util.ProducerStream.OutputProducer;
-import org.callimachusproject.xslt.DocumentFactory;
-import org.callimachusproject.xslt.XMLEventReaderFactory;
+import org.callimachusproject.xml.DocumentFactory;
+import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -109,7 +109,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 					public void produce(WritableByteChannel out)
 							throws IOException {
 						try {
-							asStream(ChannelUtil.newOutputStream(out), media);
+							streamTo(ChannelUtil.newOutputStream(out), media);
 						} catch (XMLStreamException e) {
 							throw new IOException(e);
 						}
@@ -141,7 +141,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 				return new ProducerStream(new OutputProducer() {
 					public void produce(OutputStream out) throws IOException {
 						try {
-							asStream(out, media);
+							streamTo(out, media);
 						} catch (XMLStreamException e) {
 							throw new IOException(e);
 						}
@@ -153,7 +153,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 				});
 			}
 
-			public void asStream(OutputStream out, String... media)
+			public void streamTo(OutputStream out, String... media)
 					throws IOException, XMLStreamException {
 				if (result == null)
 					return;

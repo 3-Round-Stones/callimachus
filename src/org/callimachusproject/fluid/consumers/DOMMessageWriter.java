@@ -32,15 +32,19 @@ package org.callimachusproject.fluid.consumers;
 import static javax.xml.transform.OutputKeys.ENCODING;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -54,16 +58,24 @@ import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
+import org.callimachusproject.server.util.ProducerStream;
+import org.callimachusproject.server.util.ProducerStream.OutputProducer;
+import org.callimachusproject.xml.DocumentFactory;
+import org.openrdf.OpenRDFException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 /**
  * Prints DOM Node into an OutputStream.
  */
 public class DOMMessageWriter implements Consumer<Node> {
+	private static final DocumentFactory docFactory = DocumentFactory
+			.newInstance();
 
 	private static class ErrorCatcher implements ErrorListener {
 		private Logger logger = LoggerFactory.getLogger(ErrorCatcher.class);
@@ -97,14 +109,12 @@ public class DOMMessageWriter implements Consumer<Node> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		Class<?> type = mtype.asClass();
-		if (!Document.class.isAssignableFrom(type)
-				&& !Element.class.isAssignableFrom(type))
-			return false;
-		return mtype.is("application/*", "text/*");
+		return mtype.isXML() && Document.class.isAssignableFrom(type)
+				|| Element.class.isAssignableFrom(type);
 	}
 
-	public Fluid consume(final Node result, final String base, final FluidType ftype,
-			final FluidBuilder builder) {
+	public Fluid consume(final Node node, final String base,
+			final FluidType ftype, final FluidBuilder builder) {
 		return new AbstractFluid() {
 			public String getSystemId() {
 				return base;
@@ -119,73 +129,142 @@ public class DOMMessageWriter implements Consumer<Node> {
 			}
 
 			public String toChannelMedia(String... media) {
-				return getMediaType(ftype.as(media));
+				FluidType xml = ftype.as(media);
+				String mimeType = xml.preferred();
+				if (mimeType != null && mimeType.startsWith("text/")
+						&& !mimeType.contains("charset=")) {
+					Charset charset = xml.getCharset();
+					if (charset == null) {
+						charset = Charset.defaultCharset();
+					}
+					return mimeType + ";charset=" + charset.name();
+				}
+				return mimeType;
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			public ReadableByteChannel asChannel(final String... media)
 					throws IOException {
-				return write(ftype.as(toChannelMedia(media)), result, base);
-			}
-	
-			public String toString() {
-				return String.valueOf(result);
-			}
-		};
-	}
+				return new ProducerChannel(new WritableProducer() {
+					public void produce(WritableByteChannel out)
+							throws IOException {
+						try {
+							streamTo(ChannelUtil.newOutputStream(out), media);
+						} catch (TransformerException e) {
+							throw new IOException(e);
+						} finally {
+							out.close();
+						}
+					}
 
-	String getMediaType(FluidType ftype) {
-		FluidType xml = ftype.as("application/xml", "application/*", "text/xml", "text/*");
-		String mimeType = xml.preferred();
-		if (mimeType.startsWith("text/") && !mimeType.contains("charset=")) {
-			Charset charset = xml.getCharset();
-			if (charset == null) {
-				charset = Charset.defaultCharset();
+					public String toString() {
+						return String.valueOf(node);
+					}
+				});
 			}
-			return mimeType + ";charset=" + charset.name();
-		}
-		return mimeType;
-	}
 
-	ReadableByteChannel write(final FluidType mtype,
-			final Node result, final String base)
-			throws IOException {
-		return new ProducerChannel(new WritableProducer() {
-			public void produce(WritableByteChannel out) throws IOException {
-				try {
-					writeTo(mtype, result, base, out, 1024);
-				} catch (TransformerException e) {
-					throw new IOException(e);
-				} catch (ParserConfigurationException e) {
-					throw new IOException(e);
-				} finally {
-					out.close();
+			public void transferTo(WritableByteChannel out, String... media)
+					throws IOException, TransformerException {
+				streamTo(ChannelUtil.newOutputStream(out), media);
+			}
+
+			@Override
+			public String toStreamMedia(String... media) {
+				return toChannelMedia(media);
+			}
+
+			@Override
+			public InputStream asStream(final String... media)
+					throws IOException {
+				return new ProducerStream(new OutputProducer() {
+					public void produce(OutputStream out) throws IOException {
+						try {
+							streamTo(out, media);
+						} catch (TransformerException e) {
+							throw new IOException(e);
+						} finally {
+							out.close();
+						}
+					}
+
+					public String toString() {
+						return String.valueOf(node);
+					}
+				});
+			}
+
+			public void streamTo(OutputStream out, String... media)
+					throws TransformerException {
+				Charset charset = ftype.as(toChannelMedia(media)).getCharset();
+				if (charset == null) {
+					charset = Charset.defaultCharset();
+				}
+				Source source = new DOMSource(node, base);
+				Result result = new StreamResult(out);
+				Transformer transformer = factory.newTransformer();
+				transformer.setOutputProperty(ENCODING, charset.name());
+				ErrorCatcher listener = new ErrorCatcher();
+				transformer.setErrorListener(listener);
+				transformer.transform(source, result);
+				if (listener.isFatal())
+					throw listener.getFatalError();
+			}
+
+			public String toDocumentMedia(String... media) {
+				return ftype.as(media).preferred();
+			}
+
+			public Document asDocument(String... media)
+					throws OpenRDFException, IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerConfigurationException, TransformerException {
+				if (node instanceof Document) {
+					return (Document) node;
+				} else if (node instanceof DocumentFragment) {
+					Document doc = docFactory.newDocument();
+					if (node.getChildNodes().getLength() == 1) {
+						doc.appendChild(doc.importNode(node.getFirstChild(),
+								true));
+					} else {
+						Element root = doc.createElement("root");
+						root.appendChild(doc.importNode(node, true));
+						doc.appendChild(root);
+					}
+					return doc;
+				} else {
+					Document doc = docFactory.newDocument();
+					doc.appendChild(doc.importNode(node, true));
+					return doc;
+				}
+			}
+
+			public String toDocumentFragmentMedia(String... media) {
+				return ftype.as(media).preferred();
+			}
+
+			public DocumentFragment asDocumentFragment(String... media)
+					throws OpenRDFException, IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerConfigurationException, TransformerException {
+				if (node == null)
+					return null;
+				if (node instanceof DocumentFragment)
+					return (DocumentFragment) node;
+				if (node instanceof Document) {
+					Document doc = (Document) node;
+					DocumentFragment frag = doc.createDocumentFragment();
+					frag.appendChild(doc.getDocumentElement());
+					return frag;
+				} else {
+					Document doc = node.getOwnerDocument();
+					DocumentFragment frag = doc.createDocumentFragment();
+					frag.appendChild(node);
+					return frag;
 				}
 			}
 
 			public String toString() {
-				if (result == null)
-					return super.toString();
-				return result.toString();
+				return String.valueOf(node);
 			}
-		});
-	}
-
-	private void writeTo(FluidType mtype, Node node, String base,
-			WritableByteChannel out, int bufSize)
-			throws IOException, TransformerException,
-			ParserConfigurationException {
-		Charset charset = mtype.getCharset();
-		if (charset == null) {
-			charset = Charset.defaultCharset();
-		}
-		Source source = new DOMSource(node, base);
-		Result result = new StreamResult(ChannelUtil.newOutputStream(out));
-		Transformer transformer = factory.newTransformer();
-		transformer.setOutputProperty(ENCODING, charset.name());
-		ErrorCatcher listener = new ErrorCatcher();
-		transformer.setErrorListener(listener);
-		transformer.transform(source, result);
-		if (listener.isFatal())
-			throw listener.getFatalError();
+		};
 	}
 }

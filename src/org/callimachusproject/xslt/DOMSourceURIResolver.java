@@ -15,6 +15,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 
+import org.callimachusproject.xml.DocumentFactory;
 import org.w3c.dom.Document;
 
 public class DOMSourceURIResolver implements URIResolver {

@@ -15,7 +15,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
-import org.callimachusproject.xslt.XMLEventReaderFactory;
+import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.openrdf.model.vocabulary.RDFS;
 
 public class XMLEventProviderTest extends MetadataServerTestCase {

@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.xslt;
+package org.callimachusproject.xml;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.System.currentTimeMillis;

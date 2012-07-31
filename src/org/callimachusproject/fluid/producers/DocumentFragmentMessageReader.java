@@ -37,32 +37,29 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
 
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.xslt.DocumentFactory;
-import org.callimachusproject.xslt.DOMSourceFactory;
+import org.callimachusproject.xml.DocumentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
+import org.xml.sax.SAXException;
 
 /**
  * Parses a DocumentFragment from an InputStream.
  */
-public class DocumentFragmentMessageReader implements
-		Producer {
-	private static DOMSourceFactory sourceFactory = DOMSourceFactory.newInstance();
+public class DocumentFragmentMessageReader implements Producer {
 
 	private static class ErrorCatcher implements ErrorListener {
 		private Logger logger = LoggerFactory.getLogger(ErrorCatcher.class);
@@ -97,15 +94,15 @@ public class DocumentFragmentMessageReader implements
 
 	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
 		Class<?> type = ftype.asClass();
-		if (!ftype.is("*/xml"))
+		if (!ftype.isXML())
 			return false;
 		return type.isAssignableFrom(DocumentFragment.class);
 	}
 
 	public DocumentFragment produce(FluidType ftype, ReadableByteChannel in,
 			Charset charset, String base, FluidBuilder builder)
-			throws TransformerConfigurationException, TransformerException,
-			ParserConfigurationException, IOException, XMLStreamException {
+			throws TransformerException, SAXException, IOException,
+			ParserConfigurationException {
 		Class<?> type = ftype.asClass();
 		if (in == null)
 			return null;
@@ -127,17 +124,32 @@ public class DocumentFragmentMessageReader implements
 		}
 	}
 
-	private DocumentFragment createNode(Class<?> type) throws ParserConfigurationException {
+	private DocumentFragment createNode(Class<?> type)
+			throws ParserConfigurationException {
 		Document doc = builder.newDocument();
 		return doc.createDocumentFragment();
 	}
 
 	private Source createSource(ReadableByteChannel cin, Charset charset,
-			String base) throws TransformerException {
+			String base) throws TransformerException, SAXException,
+			IOException, ParserConfigurationException {
 		InputStream in = ChannelUtil.newInputStream(cin);
-		if (charset == null && in != null)
-			return sourceFactory.createSource(in, base);
+		if (charset == null) {
+			try {
+				if (base == null)
+					return new DOMSource(builder.parse(in));
+				return new DOMSource(builder.parse(in, base), base);
+			} finally {
+				in.close();
+			}
+		}
 		Reader reader = new InputStreamReader(in, charset);
-		return sourceFactory.createSource(reader, base);
+		try {
+			if (base == null)
+				return new DOMSource(builder.parse(reader));
+			return new DOMSource(builder.parse(reader, base), base);
+		} finally {
+			reader.close();
+		}
 	}
 }

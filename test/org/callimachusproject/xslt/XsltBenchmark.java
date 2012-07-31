@@ -27,6 +27,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.xml.sax.InputSource;
 
 public class XsltBenchmark extends TestCase {

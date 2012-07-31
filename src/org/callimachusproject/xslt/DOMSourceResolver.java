@@ -6,6 +6,8 @@ import java.io.Reader;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 
+import org.callimachusproject.xml.DocumentObjectResolver;
+
 public class DOMSourceResolver extends DocumentObjectResolver<DOMSource> {
 	private DOMSourceFactory sourceFactory = DOMSourceFactory.newInstance();
 

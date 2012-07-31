@@ -53,6 +53,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 
+import org.callimachusproject.xml.DocumentFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
@@ -592,23 +593,8 @@ public abstract class TransformBuilder {
 		return doc.getDocumentElement();
 	}
 
-	public DocumentFragment asDocumentFragment() throws TransformerException,
-			IOException {
-		try {
-			Document doc = asDocument();
-			if (doc == null)
-				return null;
-			DocumentFragment frag = doc.createDocumentFragment();
-			frag.appendChild(doc.getDocumentElement());
-			return frag;
-		} catch (TransformerException e) {
-			throw handle(e);
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
+	public abstract DocumentFragment asDocumentFragment() throws TransformerException,
+			IOException;
 
 	public abstract Document asDocument() throws TransformerException,
 			IOException;
@@ -621,57 +607,15 @@ public abstract class TransformBuilder {
 
 	public abstract Reader asReader() throws TransformerException, IOException;
 
-	public void toOutputStream(OutputStream out) throws IOException,
-			TransformerException {
-		try {
-			InputStream in = asInputStream();
-			try {
-				int read;
-				byte[] buf = new byte[1024];
-				while ((read = in.read(buf)) >= 0) {
-					out.write(buf, 0, read);
-				}
-			} finally {
-				in.close();
-			}
-		} catch (IOException e) {
-			throw handle(e);
-		} catch (TransformerException e) {
-			throw handle(e);
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
+	public abstract void toOutputStream(OutputStream out) throws IOException,
+			TransformerException;
 
-	public void toWriter(Writer writer) throws IOException,
-			TransformerException {
-		try {
-			Reader reader = asReader();
-			try {
-				int read;
-				char[] cbuf = new char[1024];
-				while ((read = reader.read(cbuf)) >= 0) {
-					writer.write(cbuf, 0, read);
-				}
-			} finally {
-				reader.close();
-			}
-		} catch (IOException e) {
-			throw handle(e);
-		} catch (TransformerException e) {
-			throw handle(e);
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
+	public abstract void toWriter(Writer writer) throws IOException,
+			TransformerException;
 
 	public abstract void close() throws TransformerException, IOException;
 
-	protected <E extends Throwable> E handle(E cause)
+	protected final <E extends Throwable> E handle(E cause)
 			throws TransformerException, IOException {
 		try {
 			close();

@@ -41,7 +41,7 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.xslt.XMLEventReaderFactory;
+import org.callimachusproject.xml.XMLEventReaderFactory;
 
 /**
  * Converts an InputStream into a XMLEventReader.

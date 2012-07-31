@@ -58,7 +58,7 @@ import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
-import org.callimachusproject.xslt.DocumentFactory;
+import org.callimachusproject.xml.DocumentFactory;
 import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -128,7 +128,7 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 					return null;
 				ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
 				try {
-					asStream(baos, media);
+					streamTo(baos, media);
 				} finally {
 					baos.close();
 				}
@@ -136,7 +136,7 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			}
 
 			@Override
-			public void asStream(OutputStream out, String... media)
+			public void streamTo(OutputStream out, String... media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -172,7 +172,7 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 					return null;
 				CharArrayWriter caw = new CharArrayWriter(8192);
 				try {
-					asWriter(caw, media);
+					writeTo(caw, media);
 				} finally {
 					caw.close();
 				}
@@ -180,7 +180,7 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			}
 
 			@Override
-			public void asWriter(Writer writer, String... media)
+			public void writeTo(Writer writer, String... media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {

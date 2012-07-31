@@ -58,6 +58,8 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stream.StreamResult;
 
+import org.callimachusproject.xml.DocumentFactory;
+import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 

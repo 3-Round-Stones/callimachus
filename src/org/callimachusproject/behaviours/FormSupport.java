@@ -62,7 +62,7 @@ import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.object.RDFObject;
-import org.callimachusproject.xslt.XMLEventReaderFactory;
+import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.callimachusproject.xslt.XSLTransformer;
 
 /**

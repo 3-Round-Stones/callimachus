@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.xslt;
+package org.callimachusproject.xml;
 
 import java.io.Closeable;
 import java.io.IOException;

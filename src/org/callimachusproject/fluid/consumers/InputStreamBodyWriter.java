@@ -53,8 +53,8 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.xslt.DocumentFactory;
-import org.callimachusproject.xslt.XMLEventReaderFactory;
+import org.callimachusproject.xml.DocumentFactory;
+import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -130,7 +130,7 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 				} else {
 					CharArrayWriter caw = new CharArrayWriter(8192);
 					try {
-						asWriter(caw, media);
+						writeTo(caw, media);
 					} finally {
 						caw.close();
 					}
@@ -139,7 +139,7 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 			}
 
 			@Override
-			public void asWriter(Writer writer, String... media)
+			public void writeTo(Writer writer, String... media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {

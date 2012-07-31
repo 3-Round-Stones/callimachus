@@ -35,7 +35,7 @@ import org.w3c.dom.Document;
 public class FluidType extends GenericType {
 	private final static FluidType XML = new FluidType(Document.class,
 			"application/xml", "text/xml", "image/xml", "text/xsl",
-			"application/xml-external-parsed-entity");
+			"application/xml-external-parsed-entity", "text/xml-external-parsed-entity");
 	private final TreeSet<MediaType> mediaTypes = new TreeSet<MediaType>(
 			new MediaTypeComparator());
 
@@ -76,6 +76,28 @@ public class FluidType extends GenericType {
 	public String toString() {
 		String list = mediaTypes.toString();
 		return super.toString() + " " + list.substring(1, list.length() - 1);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + mediaTypes.hashCode();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FluidType other = (FluidType) obj;
+		if (!mediaTypes.equals(other.mediaTypes))
+			return false;
+		return true;
 	}
 
 	public String[] media() {

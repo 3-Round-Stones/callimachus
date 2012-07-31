@@ -53,7 +53,7 @@ import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.traits.VersionedObject;
-import org.callimachusproject.xslt.XMLEventReaderFactory;
+import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
 import org.openrdf.model.Resource;

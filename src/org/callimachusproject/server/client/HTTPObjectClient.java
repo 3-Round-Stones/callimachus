@@ -81,7 +81,7 @@ import org.callimachusproject.server.filters.ClientMD5ValidationFilter;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.util.FileUtil;
 import org.callimachusproject.server.util.ManagedExecutors;
-import org.callimachusproject.xslt.DocumentObjectResolver;
+import org.callimachusproject.xml.DocumentObjectResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

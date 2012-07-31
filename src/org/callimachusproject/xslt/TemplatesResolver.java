@@ -11,6 +11,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
+import org.callimachusproject.xml.DocumentObjectResolver;
+
 public class TemplatesResolver extends DocumentObjectResolver<Templates> {
 	private TransformerFactory delegate = TransformerFactory.newInstance();
 	private DOMSourceFactory sourceFactory = DOMSourceFactory.newInstance();

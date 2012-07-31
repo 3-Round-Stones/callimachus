@@ -15,6 +15,7 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidFactory;
 import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentFragment;
 import org.xml.sax.SAXException;
 
 public class IdentityTransform extends TransformBuilder {
@@ -37,6 +38,22 @@ public class IdentityTransform extends TransformBuilder {
 	public Document asDocument() throws TransformerException, IOException {
 		try {
 			return fluid.asDocument();
+		} catch (OpenRDFException e) {
+			throw new TransformerException(e);
+		} catch (XMLStreamException e) {
+			throw new TransformerException(e);
+		} catch (ParserConfigurationException e) {
+			throw new TransformerException(e);
+		} catch (SAXException e) {
+			throw new TransformerException(e);
+		}
+	}
+
+	@Override
+	public DocumentFragment asDocumentFragment() throws TransformerException,
+			IOException {
+		try {
+			return fluid.asDocumentFragment();
 		} catch (OpenRDFException e) {
 			throw new TransformerException(e);
 		} catch (XMLStreamException e) {
@@ -98,7 +115,7 @@ public class IdentityTransform extends TransformBuilder {
 	public void toOutputStream(OutputStream out) throws IOException,
 			TransformerException {
 		try {
-			fluid.asStream(out);
+			fluid.streamTo(out);
 		} catch (OpenRDFException e) {
 			throw new TransformerException(e);
 		} catch (XMLStreamException e) {
@@ -114,7 +131,7 @@ public class IdentityTransform extends TransformBuilder {
 	public void toWriter(Writer writer) throws IOException,
 			TransformerException {
 		try {
-			fluid.asWriter(writer);
+			fluid.writeTo(writer);
 		} catch (OpenRDFException e) {
 			throw new TransformerException(e);
 		} catch (XMLStreamException e) {

@@ -11,7 +11,7 @@ import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.annotations.xslt;
 import org.callimachusproject.server.base.MetadataServerTestCase;
-import org.callimachusproject.xslt.XMLEventReaderFactory;
+import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.Matching;
 import org.openrdf.model.Model;

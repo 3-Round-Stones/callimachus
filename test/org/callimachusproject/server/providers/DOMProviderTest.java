@@ -62,30 +62,6 @@ public class DOMProviderTest extends MetadataServerTestCase {
 			return frag;
 		}
 
-		@query("fragment-dual")
-		@type("application/xml")
-		public DocumentFragment fragmentDual() throws ParserConfigurationException {
-			Document doc = builder.newDocumentBuilder().newDocument();
-			DocumentFragment frag = doc.createDocumentFragment();
-			Element first = doc.createElement("first");
-			Element second = doc.createElement("second");
-			frag.appendChild(first);
-			frag.appendChild(second);
-			return frag;
-		}
-
-		@query("fragment-whitespace")
-		@type("application/xml")
-		public DocumentFragment fragmentWhite() throws ParserConfigurationException {
-			Document doc = builder.newDocumentBuilder().newDocument();
-			DocumentFragment frag = doc.createDocumentFragment();
-			Text space = doc.createTextNode(" ");
-			Element element = doc.createElement("fragment");
-			frag.appendChild(space);
-			frag.appendChild(element);
-			return frag;
-		}
-
 		@query("document")
 		public void document(@type("*/*") Document document) throws ParserConfigurationException {
 			assert document.hasChildNodes();
@@ -99,16 +75,6 @@ public class DOMProviderTest extends MetadataServerTestCase {
 		@query("fragment")
 		public void fragment(@type("*/*") DocumentFragment frag) throws ParserConfigurationException {
 			assert frag.hasChildNodes();
-		}
-
-		@query("fragment-dual")
-		public void fragmentDual(@type("*/*") DocumentFragment frag) throws ParserConfigurationException {
-			assertEquals(2, frag.getChildNodes().getLength());
-		}
-
-		@query("fragment-whitespace")
-		public void fragmentWhite(@type("*/*") DocumentFragment frag) throws ParserConfigurationException {
-			assertEquals(2, frag.getChildNodes().getLength());
 		}
 	}
 

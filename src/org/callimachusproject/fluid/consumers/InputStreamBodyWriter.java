@@ -47,7 +47,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -72,9 +72,9 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 		return InputStream.class.isAssignableFrom(mtype.asClass());
 	}
 
-	public Fluid consume(final InputStream result, final String base, final FluidType ftype,
-			final FluidBuilder builder) {
-		return new AbstractFluid() {
+	public Fluid consume(final InputStream result, final String base,
+			final FluidType ftype, final FluidBuilder builder) {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -89,21 +89,25 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 				}
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
 				return ChannelUtil.newChannel(result);
 			}
-	
-			public String toStreamMedia(String... media) {
+
+			@Override
+			protected String toStreamMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
-			public InputStream asStream(String... media)
+			@Override
+			protected InputStream asStream(FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -111,12 +115,12 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 			}
 
 			@Override
-			public String toReaderMedia(String... media) {
+			protected String toReaderMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
 			@Override
-			public Reader asReader(String... media) throws OpenRDFException,
+			protected Reader asReader(FluidType media) throws OpenRDFException,
 					IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -139,7 +143,7 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 			}
 
 			@Override
-			public void writeTo(Writer writer, String... media)
+			protected void writeTo(Writer writer, FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -161,7 +165,8 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 					if (reader == null)
 						return;
 					try {
-						XMLEventWriter xml = outFactory.createXMLEventWriter(writer);
+						XMLEventWriter xml = outFactory
+								.createXMLEventWriter(writer);
 						xml.add(reader);
 						xml.flush();
 					} finally {
@@ -171,12 +176,12 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 			}
 
 			@Override
-			public String toXMLEventReaderMedia(String... media) {
+			protected String toXMLEventReaderMedia(FluidType media) {
 				return ftype.asXML().as(media).preferred();
 			}
 
 			@Override
-			public XMLEventReader asXMLEventReader(String... media)
+			protected XMLEventReader asXMLEventReader(FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -189,12 +194,12 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 			}
 
 			@Override
-			public String toDocumentMedia(String... media) {
+			protected String toDocumentMedia(FluidType media) {
 				return ftype.asXML().as(media).preferred();
 			}
 
 			@Override
-			public Document asDocument(String... media)
+			protected Document asDocument(FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {

@@ -47,7 +47,7 @@ import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -75,7 +75,7 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 
 	public Fluid consume(final HttpMessage result, final String base,
 			final FluidType ftype, final FluidBuilder builder) {
-		return new AbstractFluid() {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -91,28 +91,31 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 				}
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				return getMediaType(ftype.as(media));
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
 				try {
-					return write(ftype.as(toChannelMedia(media)), result,
-							base);
+					return write(ftype.as(toChannelMedia(media)), result, base);
 				} finally {
 					asVoid();
 				}
 			}
 
-			public String toHttpResponseMedia(String... media) {
+			@Override
+			protected String toHttpResponseMedia(FluidType media) {
 				if (result instanceof HttpResponse)
 					return ftype.as(media).preferred();
 				return null;
 			}
 
-			public HttpResponse asHttpResponse(String... media)
+			@Override
+			protected HttpResponse asHttpResponse(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException,
 					SAXException {
@@ -129,10 +132,9 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 		return ftype.as("message/http", "application/http", "*/*").preferred();
 	}
 
-	ReadableByteChannel write(FluidType mtype, HttpMessage result,
-			String base) throws IOException, OpenRDFException,
-			XMLStreamException, TransformerException,
-			ParserConfigurationException {
+	ReadableByteChannel write(FluidType mtype, HttpMessage result, String base)
+			throws IOException, OpenRDFException, XMLStreamException,
+			TransformerException, ParserConfigurationException {
 		CatReadableByteChannel cat = new CatReadableByteChannel();
 		if (result instanceof HttpResponse) {
 			print(cat, ((HttpResponse) result).getStatusLine());

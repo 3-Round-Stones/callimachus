@@ -56,13 +56,14 @@ public class ModelMessageWriter implements Consumer<Model> {
 		return delegate.isConsumable(mtype.as(GraphQueryResult.class), builder);
 	}
 
-	public Fluid consume(final Model model, final String base, final FluidType ftype,
-			final FluidBuilder builder) {
+	public Fluid consume(final Model model, final String base,
+			final FluidType ftype, final FluidBuilder builder) {
 		GraphQueryResult result = null;
 		if (model != null) {
 			result = new GraphQueryResultImpl(model.getNamespaces(), model);
 		}
-		return delegate.consume(result, base, ftype.as(GraphQueryResult.class), builder);
+		return delegate.consume(result, base, ftype.as(GraphQueryResult.class),
+				builder);
 	}
 
 	public String toString() {

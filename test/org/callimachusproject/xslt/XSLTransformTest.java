@@ -2,13 +2,10 @@ package org.callimachusproject.xslt;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
@@ -264,15 +261,6 @@ public class XSLTransformTest extends TestCase {
 		@xslt(XSLT_ECHO)
 		String toString(byte[] input);
 
-		@xslt(XSLT_ECHO)
-		String echo(XMLFile input);
-
-		@xslt(XSLT_ECHO)
-		String echo(File input);
-
-		@xslt(XSLT_ECHO)
-		String echo(URL input);
-
 		@xslt(XSLT_HELLO_WORLD)
 		Element hello();
 
@@ -384,54 +372,6 @@ public class XSLTransformTest extends TestCase {
 
 	public void testByteArray() throws Exception {
 		assertEquals(XML_STRING, concept.toString(concept.echo(XML_BYTES)));
-	}
-
-	public void testFile() throws Exception {
-		File tmp = File.createTempFile("transform", "xslt");
-		try {
-			FileOutputStream out = new FileOutputStream(tmp);
-			try {
-				out.write(XML_BYTES);
-			} finally {
-				out.close();
-			}
-			assertEquals(XML_STRING, concept.echo(tmp));
-		} finally {
-			tmp.delete();
-		}
-	}
-
-	public void testURL() throws Exception {
-		File tmp = File.createTempFile("transform", "xslt");
-		try {
-			FileOutputStream out = new FileOutputStream(tmp);
-			try {
-				out.write(XML_BYTES);
-			} finally {
-				out.close();
-			}
-			assertEquals(XML_STRING, concept.echo(tmp.toURI().toURL()));
-		} finally {
-			tmp.delete();
-		}
-	}
-
-	public void testConcept() throws Exception {
-		File tmp = File.createTempFile("transform", "xslt");
-		try {
-			FileOutputStream out = new FileOutputStream(tmp);
-			try {
-				out.write(XML_BYTES);
-			} finally {
-				out.close();
-			}
-			String uri = tmp.toURI().toASCIIString();
-			XMLFile file = con
-					.addDesignation(con.getObject(uri), XMLFile.class);
-			assertEquals(XML_STRING, concept.echo(file));
-		} finally {
-			tmp.delete();
-		}
 	}
 
 	public void testNoInput() throws Exception {

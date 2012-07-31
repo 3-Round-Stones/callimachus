@@ -65,7 +65,7 @@ class ChannelFluid extends AbstractFluid {
 	}
 
 	@Override
-	public String toProducedMedia(FluidType ftype) {
+	public String toMedia(FluidType ftype) {
 		String ret = fluid.toMedia(ftype);
 		if (ret != null)
 			return ret;
@@ -74,7 +74,7 @@ class ChannelFluid extends AbstractFluid {
 	}
 
 	@Override
-	public Object produce(FluidType ftype) throws OpenRDFException,
+	public Object as(FluidType ftype) throws OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException,
 			TransformerException {

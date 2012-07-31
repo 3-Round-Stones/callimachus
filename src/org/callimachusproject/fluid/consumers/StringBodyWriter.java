@@ -39,7 +39,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -65,9 +65,9 @@ public class StringBodyWriter implements Consumer<String> {
 		return mtype.is("text/*");
 	}
 
-	public Fluid consume(final String result, final String base, final FluidType ftype,
-			final FluidBuilder builder) {
-		return new AbstractFluid() {
+	public Fluid consume(final String result, final String base,
+			final FluidType ftype, final FluidBuilder builder) {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -80,30 +80,37 @@ public class StringBodyWriter implements Consumer<String> {
 				// no-op
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				return getMediaType(ftype.as(media));
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException {
 				return write(ftype.as(toChannelMedia(media)), result, base);
 			}
 
-			public String toHttpEntityMedia(String... media) {
+			@Override
+			protected String toHttpEntityMedia(FluidType media) {
 				return toChannelMedia(media);
 			}
 
-			public HttpEntity asHttpEntity(String... media) throws IOException {
-				String mediaType = toHttpEntityMedia(media);
-				return new ReadableHttpEntityChannel(mediaType,
-						getSize(result, ftype.as(mediaType).getCharset()), asChannel(mediaType));
+			@Override
+			protected HttpEntity asHttpEntity(FluidType media)
+					throws IOException {
+				String mediaType = toChannelMedia(media);
+				return new ReadableHttpEntityChannel(mediaType, getSize(result,
+						ftype.as(mediaType).getCharset()), asChannel(media));
 			}
-	
-			public String toStringMedia(String... media) {
+
+			@Override
+			protected String toStringMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
-			public String asString(String... media) throws OpenRDFException,
+			@Override
+			protected String asString(FluidType media) throws OpenRDFException,
 					IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -140,8 +147,8 @@ public class StringBodyWriter implements Consumer<String> {
 		return charset.encode(result).limit();
 	}
 
-	ReadableByteChannel write(FluidType mtype, String result,
-			String base) throws IOException {
+	ReadableByteChannel write(FluidType mtype, String result, String base)
+			throws IOException {
 		Charset charset = mtype.getCharset();
 		if (charset == null) {
 			charset = Charset.defaultCharset();

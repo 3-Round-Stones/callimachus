@@ -49,7 +49,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -83,7 +83,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 	public Fluid consume(final Readable result, final String base,
 			FluidType type, final FluidBuilder builder) {
 		final FluidType ftype = type.as("text/plain", "text/*");
-		return new AbstractFluid() {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -98,11 +98,13 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 				}
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				return toStreamMedia(media);
 			}
 
-			public ReadableByteChannel asChannel(final String... media)
+			@Override
+			protected ReadableByteChannel asChannel(final FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
 				return new ProducerChannel(new WritableProducer() {
@@ -121,7 +123,8 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 				});
 			}
 
-			public String toStreamMedia(String... media) {
+			@Override
+			protected String toStreamMedia(FluidType media) {
 				FluidType ctype = ftype.as(media);
 				String mimeType = ctype.preferred();
 				Charset charset = ctype.getCharset();
@@ -134,7 +137,8 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 
 			}
 
-			public InputStream asStream(final String... media)
+			@Override
+			protected InputStream asStream(final FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -153,7 +157,8 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 				});
 			}
 
-			public void streamTo(OutputStream out, String... media)
+			@Override
+			protected void streamTo(OutputStream out, FluidType media)
 					throws IOException, XMLStreamException {
 				if (result == null)
 					return;
@@ -173,7 +178,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 						}
 						writer.flush();
 					} else {
-						XMLEventReader reader = asXMLEventReader();
+						XMLEventReader reader = asXMLEventReader(media);
 						if (reader == null)
 							return;
 						try {
@@ -190,12 +195,13 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 				}
 			}
 
-			public String toReaderMedia(String... media) {
+			@Override
+			protected String toReaderMedia(FluidType media) {
 				return ftype.as("text/plain", "text/*").as(media).preferred();
 			}
 
 			@Override
-			public Reader asReader(String... media) {
+			protected Reader asReader(FluidType media) {
 				if (result instanceof Reader)
 					return (Reader) result;
 				return new Reader() {
@@ -218,11 +224,13 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 				};
 			}
 
-			public String toXMLEventReaderMedia(String... media) {
+			@Override
+			protected String toXMLEventReaderMedia(FluidType media) {
 				return ftype.asXML().as(media).preferred();
 			}
 
-			public XMLEventReader asXMLEventReader(String... media)
+			@Override
+			protected XMLEventReader asXMLEventReader(FluidType media)
 					throws XMLStreamException {
 				Reader source = asReader(media);
 				if (source == null)
@@ -232,11 +240,13 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 				return inFactory.createXMLEventReader(base, source);
 			}
 
-			public String toDocumentMedia(String... media) {
+			@Override
+			protected String toDocumentMedia(FluidType media) {
 				return toXMLEventReaderMedia(media);
 			}
 
-			public Document asDocument(String... media)
+			@Override
+			protected Document asDocument(FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {

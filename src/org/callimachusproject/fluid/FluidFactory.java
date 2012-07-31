@@ -43,6 +43,7 @@ import org.callimachusproject.fluid.consumers.ReadableByteChannelBodyWriter;
 import org.callimachusproject.fluid.consumers.StringBodyWriter;
 import org.callimachusproject.fluid.consumers.TupleMessageWriter;
 import org.callimachusproject.fluid.consumers.URIListWriter;
+import org.callimachusproject.fluid.consumers.VoidWriter;
 import org.callimachusproject.fluid.consumers.XMLEventMessageWriter;
 import org.callimachusproject.fluid.producers.BooleanMessageReader;
 import org.callimachusproject.fluid.producers.ByteArrayMessageReader;
@@ -66,6 +67,7 @@ import org.callimachusproject.fluid.producers.StringBodyReader;
 import org.callimachusproject.fluid.producers.TupleMessageReader;
 import org.callimachusproject.fluid.producers.URIReader;
 import org.callimachusproject.fluid.producers.URLReader;
+import org.callimachusproject.fluid.producers.VoidReader;
 import org.callimachusproject.fluid.producers.XMLEventMessageReader;
 import org.openrdf.model.URI;
 import org.openrdf.repository.object.ObjectConnection;
@@ -97,6 +99,7 @@ public class FluidFactory {
 		consumers.add(new TupleMessageWriter());
 		consumers.add(new DatatypeWriter());
 		consumers.add(new StringBodyWriter());
+		consumers.add(new VoidWriter());
 		consumers.add(new PrimitiveBodyWriter());
 		consumers.add(new HttpMessageWriter());
 		consumers.add(new HttpResponseWriter());
@@ -106,7 +109,6 @@ public class FluidFactory {
 		consumers.add(new XMLEventMessageWriter());
 		consumers.add(new ByteArrayMessageWriter());
 		consumers.add(new ByteArrayStreamMessageWriter());
-		consumers.add(new DOMMessageWriter());
 		consumers.add(new FormMapMessageWriter());
 		consumers.add(new FormStringMessageWriter());
 		consumers.add(new HttpEntityWriter());
@@ -115,6 +117,7 @@ public class FluidFactory {
 		consumers.add(new URIListWriter<java.net.URI>(java.net.URI.class));
 		try {
 			consumers.add(new DocumentFragmentMessageWriter());
+			consumers.add(new DOMMessageWriter());
 		} catch (TransformerConfigurationException e) {
 			throw new AssertionError(e);
 		}
@@ -128,6 +131,7 @@ public class FluidFactory {
 		producers.add(new BooleanMessageReader());
 		producers.add(new DatatypeReader());
 		producers.add(new StringBodyReader());
+		producers.add(new VoidReader());
 		producers.add(new PrimitiveBodyReader());
 		producers.add(new FormMapMessageReader());
 		producers.add(new FormStringMessageReader());

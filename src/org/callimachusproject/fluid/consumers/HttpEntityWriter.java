@@ -10,7 +10,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -26,7 +26,7 @@ public class HttpEntityWriter implements Consumer<HttpEntity> {
 
 	public Fluid consume(final HttpEntity result, final String base,
 			final FluidType ftype, final FluidBuilder builder) {
-		return new AbstractFluid() {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -41,7 +41,8 @@ public class HttpEntityWriter implements Consumer<HttpEntity> {
 				}
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				if (result == null)
 					return ftype.as(media).preferred();
 				Header hd = result.getContentType();
@@ -50,7 +51,8 @@ public class HttpEntityWriter implements Consumer<HttpEntity> {
 				return ftype.as(hd.getValue()).as(media).preferred();
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
 				if (result == null)

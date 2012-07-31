@@ -50,7 +50,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -68,6 +68,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -109,13 +110,12 @@ public class DOMMessageWriter implements Consumer<Node> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
 		Class<?> type = mtype.asClass();
-		return mtype.isXML() && Document.class.isAssignableFrom(type)
-				|| Element.class.isAssignableFrom(type);
+		return mtype.isXML() && Node.class.isAssignableFrom(type);
 	}
 
 	public Fluid consume(final Node node, final String base,
 			final FluidType ftype, final FluidBuilder builder) {
-		return new AbstractFluid() {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -128,7 +128,8 @@ public class DOMMessageWriter implements Consumer<Node> {
 				// no-op
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				FluidType xml = ftype.as(media);
 				String mimeType = xml.preferred();
 				if (mimeType != null && mimeType.startsWith("text/")
@@ -142,8 +143,11 @@ public class DOMMessageWriter implements Consumer<Node> {
 				return mimeType;
 			}
 
-			public ReadableByteChannel asChannel(final String... media)
+			@Override
+			protected ReadableByteChannel asChannel(final FluidType media)
 					throws IOException {
+				if (node == null)
+					return null;
 				return new ProducerChannel(new WritableProducer() {
 					public void produce(WritableByteChannel out)
 							throws IOException {
@@ -162,19 +166,22 @@ public class DOMMessageWriter implements Consumer<Node> {
 				});
 			}
 
-			public void transferTo(WritableByteChannel out, String... media)
+			@Override
+			protected void transferTo(WritableByteChannel out, FluidType media)
 					throws IOException, TransformerException {
 				streamTo(ChannelUtil.newOutputStream(out), media);
 			}
 
 			@Override
-			public String toStreamMedia(String... media) {
+			protected String toStreamMedia(FluidType media) {
 				return toChannelMedia(media);
 			}
 
 			@Override
-			public InputStream asStream(final String... media)
+			protected InputStream asStream(final FluidType media)
 					throws IOException {
+				if (node == null)
+					return null;
 				return new ProducerStream(new OutputProducer() {
 					public void produce(OutputStream out) throws IOException {
 						try {
@@ -192,8 +199,11 @@ public class DOMMessageWriter implements Consumer<Node> {
 				});
 			}
 
-			public void streamTo(OutputStream out, String... media)
+			@Override
+			protected void streamTo(OutputStream out, FluidType media)
 					throws TransformerException {
+				if (node == null)
+					return;
 				Charset charset = ftype.as(toChannelMedia(media)).getCharset();
 				if (charset == null) {
 					charset = Charset.defaultCharset();
@@ -209,19 +219,25 @@ public class DOMMessageWriter implements Consumer<Node> {
 					throw listener.getFatalError();
 			}
 
-			public String toDocumentMedia(String... media) {
+			@Override
+			protected String toDocumentMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
-			public Document asDocument(String... media)
+			@Override
+			protected Document asDocument(FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
+				if (node == null)
+					return null;
 				if (node instanceof Document) {
 					return (Document) node;
 				} else if (node instanceof DocumentFragment) {
+					NodeList nodes = node.getChildNodes();
 					Document doc = docFactory.newDocument();
-					if (node.getChildNodes().getLength() == 1) {
+					if (nodes.getLength() == 1
+							&& node.getFirstChild().getNodeType() == 1) {
 						doc.appendChild(doc.importNode(node.getFirstChild(),
 								true));
 					} else {
@@ -237,11 +253,13 @@ public class DOMMessageWriter implements Consumer<Node> {
 				}
 			}
 
-			public String toDocumentFragmentMedia(String... media) {
+			@Override
+			protected String toDocumentFragmentMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
-			public DocumentFragment asDocumentFragment(String... media)
+			@Override
+			protected DocumentFragment asDocumentFragment(FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {

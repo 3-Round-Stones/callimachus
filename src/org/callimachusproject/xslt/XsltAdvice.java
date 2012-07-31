@@ -2,11 +2,10 @@ package org.callimachusproject.xslt;
 
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.net.URL;
+import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,8 +14,6 @@ import javax.xml.transform.TransformerException;
 
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
-import org.openrdf.query.GraphQueryResult;
-import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.traits.ObjectMessage;
@@ -28,12 +25,12 @@ import org.w3c.dom.Node;
 public class XsltAdvice implements Advice {
 	private final XSLTransformer xslt;
 	private final Class<?> returnClass;
-	private final Class<?> inputClass;
+	private final Type inputClass;
 	private final int inputIdx;
 	private final String[][] bindingNames;
 
 	public XsltAdvice(XSLTransformer xslt, Class<?> returnClass,
-			Class<?> inputClass, int inputIdx, String[][] bindingNames) {
+			Type inputClass, int inputIdx, String[][] bindingNames) {
 		this.xslt = xslt;
 		this.returnClass = returnClass;
 		this.inputClass = inputClass;
@@ -61,54 +58,12 @@ public class XsltAdvice implements Advice {
 		return as(tb, returnClass);
 	}
 
-	private TransformBuilder transform(Object input, Class<?> cls)
+	private TransformBuilder transform(Object input, Type cls)
 			throws TransformerException, IOException,
 			ParserConfigurationException {
-		if (File.class.equals(cls))
-			return xslt.transform((File) input);
-		if (URL.class.equals(cls))
-			return xslt.transform((URL) input);
-
-		if (String.class.equals(cls))
-			return xslt.transform((String) input);
-		if (CharSequence.class.equals(cls))
-			return xslt.transform((CharSequence) input);
-		if (Readable.class.equals(cls))
-			return xslt.transform((Readable) input);
-		if (Reader.class.equals(cls))
-			return xslt.transform((Reader) input);
-		if (ByteArrayOutputStream.class.equals(cls))
-			return xslt.transform((ByteArrayOutputStream) input);
-		if (byte[].class.equals(cls))
-			return xslt.transform((byte[]) input);
-		if (ReadableByteChannel.class.equals(cls))
-			return xslt.transform((ReadableByteChannel) input);
-		if (InputStream.class.equals(cls))
-			return xslt.transform((InputStream) input);
-		if (XMLEventReader.class.equals(cls))
-			return xslt.transform((XMLEventReader) input);
-
-		if (Document.class.equals(cls))
-			return xslt.transform((Document) input);
-		if (DocumentFragment.class.equals(cls))
-			return xslt.transform((DocumentFragment) input);
-		if (Element.class.equals(cls))
-			return xslt.transform((Element) input);
-		if (Node.class.equals(cls))
-			return xslt.transform((Node) input);
-
-		if (GraphQueryResult.class.equals(cls))
-			return xslt.transform((GraphQueryResult) input);
-		if (TupleQueryResult.class.equals(cls))
-			return xslt.transform((TupleQueryResult) input);
-		if (Boolean.class.equals(cls))
-			return xslt.transform((Boolean) input);
-		if (input == null)
+		if (cls == null || Object.class.equals(cls) && input == null)
 			return xslt.transform();
-		if (input instanceof RDFObject)
-			return xslt.transform((RDFObject) input);
-		throw new IllegalArgumentException("Unknown input type: "
-				+ cls.getName());
+		return xslt.transform(input, null, cls);
 	}
 
 	private TransformBuilder with(TransformBuilder tb, String name, Object arg)

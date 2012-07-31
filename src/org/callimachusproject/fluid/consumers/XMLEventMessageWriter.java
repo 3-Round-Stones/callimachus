@@ -50,7 +50,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -71,8 +71,9 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 	private XMLOutputFactory factory;
 	{
 		factory = XMLOutputFactory.newInstance();
-		// javax.xml.stream.isRepairingNamespaces can cause xmlns="" 
-		// if first element uses default namespace and has attributes, this leads to NPE when parsed
+		// javax.xml.stream.isRepairingNamespaces can cause xmlns=""
+		// if first element uses default namespace and has attributes, this
+		// leads to NPE when parsed
 	}
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
@@ -81,9 +82,9 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 		return mtype.is("application/*", "text/*", "image/xml");
 	}
 
-	public Fluid consume(final XMLEventReader result, final String base, final FluidType ftype,
-			final FluidBuilder builder) {
-		return new AbstractFluid() {
+	public Fluid consume(final XMLEventReader result, final String base,
+			final FluidType ftype, final FluidBuilder builder) {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -96,10 +97,12 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 				// no-op
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				FluidType ctype = ftype.as(media);
 				String mimeType = ctype.preferred();
-				if (mimeType != null && mimeType.startsWith("text/") && !mimeType.contains("charset=")) {
+				if (mimeType != null && mimeType.startsWith("text/")
+						&& !mimeType.contains("charset=")) {
 					Charset charset = ctype.getCharset();
 					if (charset == null) {
 						charset = Charset.defaultCharset();
@@ -109,18 +112,19 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 				return mimeType;
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException {
 				return write(ftype.as(toChannelMedia(media)), result, base);
 			}
-	
+
 			@Override
-			public String toStreamMedia(String... media) {
+			protected String toStreamMedia(FluidType media) {
 				return toChannelMedia(media);
 			}
 
 			@Override
-			public InputStream asStream(String... media)
+			protected InputStream asStream(FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -136,7 +140,7 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			}
 
 			@Override
-			public void streamTo(OutputStream out, String... media)
+			protected void streamTo(OutputStream out, FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -159,12 +163,12 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			}
 
 			@Override
-			public String toReaderMedia(String... media) {
+			protected String toReaderMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
 			@Override
-			public Reader asReader(String... media) throws OpenRDFException,
+			protected Reader asReader(FluidType media) throws OpenRDFException,
 					IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -180,7 +184,7 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			}
 
 			@Override
-			public void writeTo(Writer writer, String... media)
+			protected void writeTo(Writer writer, FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -197,12 +201,12 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			}
 
 			@Override
-			public String toXMLEventReaderMedia(String... media) {
+			protected String toXMLEventReaderMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
 			@Override
-			public XMLEventReader asXMLEventReader(String... media)
+			protected XMLEventReader asXMLEventReader(FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -210,12 +214,12 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			}
 
 			@Override
-			public String toDocumentMedia(String... media) {
+			protected String toDocumentMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
 			@Override
-			public Document asDocument(String... media)
+			protected Document asDocument(FluidType media)
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -224,7 +228,7 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 					return null;
 				try {
 					if (base == null)
-						docFactory.parse(in);
+						return docFactory.parse(in);
 					return docFactory.parse(in, base);
 				} finally {
 					in.close();
@@ -259,15 +263,15 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 	}
 
 	private void writeTo(FluidType mtype, XMLEventReader result, String base,
-			WritableByteChannel out, int bufSize)
-			throws IOException, XMLStreamException {
+			WritableByteChannel out, int bufSize) throws IOException,
+			XMLStreamException {
 		try {
 			Charset charset = mtype.getCharset();
 			if (charset == null) {
 				charset = Charset.defaultCharset();
 			}
-			XMLEventWriter writer = factory.createXMLEventWriter(ChannelUtil
-					.newOutputStream(out), charset.name());
+			XMLEventWriter writer = factory.createXMLEventWriter(
+					ChannelUtil.newOutputStream(out), charset.name());
 			try {
 				writer.add(result);
 				writer.flush();

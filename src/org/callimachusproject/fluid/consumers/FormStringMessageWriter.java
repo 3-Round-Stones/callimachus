@@ -43,7 +43,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -69,7 +69,7 @@ public class FormStringMessageWriter implements Consumer<String> {
 
 	public Fluid consume(final String result, final String base,
 			final FluidType ftype, final FluidBuilder builder) {
-		return new AbstractFluid() {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -82,38 +82,43 @@ public class FormStringMessageWriter implements Consumer<String> {
 				// no-op
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				return ftype.as(getMediaType()).as(media).preferred();
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
 				return write(ftype.as(getMediaType()), result, base);
 			}
 
-			public String toStringMedia(String... media) {
+			@Override
+			protected String toStringMedia(FluidType media) {
 				return ftype.as(getMediaType()).as(media).preferred();
 			}
 
-			public String asString(String... media) throws OpenRDFException,
+			@Override
+			protected String asString(FluidType media) throws OpenRDFException,
 					IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
 				return result;
 			}
 
-			public String toHttpEntityMedia(String... media) {
+			@Override
+			protected String toHttpEntityMedia(FluidType media) {
 				return toChannelMedia(media);
 			}
 
-			public HttpEntity asHttpEntity(String... media) throws IOException,
-					OpenRDFException, XMLStreamException, TransformerException,
-					ParserConfigurationException {
-				String mediaType = toHttpEntityMedia(media);
+			@Override
+			protected HttpEntity asHttpEntity(FluidType media)
+					throws IOException, OpenRDFException, XMLStreamException,
+					TransformerException, ParserConfigurationException {
+				String mediaType = toChannelMedia(media);
 				return new ReadableHttpEntityChannel(mediaType, getSize(
-						ftype.as(getMediaType()), result),
-						asChannel(mediaType));
+						ftype.as(getMediaType()), result), asChannel(media));
 			}
 
 			public String toString() {
@@ -133,10 +138,9 @@ public class FormStringMessageWriter implements Consumer<String> {
 		return charset.encode(result).limit();
 	}
 
-	ReadableByteChannel write(FluidType mtype, String result,
-			String base) throws IOException, OpenRDFException,
-			XMLStreamException, TransformerException,
-			ParserConfigurationException {
+	ReadableByteChannel write(FluidType mtype, String result, String base)
+			throws IOException, OpenRDFException, XMLStreamException,
+			TransformerException, ParserConfigurationException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
 		writeTo(mtype, result, base, out, 1024);
 		return ChannelUtil.newChannel(out.toByteArray());

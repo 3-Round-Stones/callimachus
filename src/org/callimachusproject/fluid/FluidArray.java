@@ -44,14 +44,14 @@ class FluidArray extends AbstractFluid {
 	}
 
 	@Override
-	protected String toProducedMedia(FluidType ftype) {
+	public String toMedia(FluidType ftype) {
 		if (ftype.isCollection())
 			return sample.toMedia(ftype.component());
 		return sample.toMedia(ftype);
 	}
 
 	@Override
-	protected Object produce(FluidType ftype) throws OpenRDFException,
+	public Object as(FluidType ftype) throws OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException,
 			TransformerException {

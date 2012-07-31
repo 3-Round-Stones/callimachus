@@ -33,6 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.channels.ReadableByteChannel;
@@ -486,7 +487,7 @@ public abstract class Task implements Runnable {
 				String iri = req.getIRI();
 				try {
 					inError.set(true);
-					body = transformer.transform(body, null).with("this", iri)
+					body = transformer.transform(new StringReader(body), null).with("this", iri)
 							.with("query", req.getQueryString()).asString();
 				} catch (Throwable exc) {
 					logger.error(exc.toString(), exc);

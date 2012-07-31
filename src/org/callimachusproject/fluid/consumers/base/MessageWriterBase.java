@@ -43,7 +43,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -72,7 +72,8 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 		Consumer<T> {
-	private final Logger logger = LoggerFactory.getLogger(MessageWriterBase.class);
+	private final Logger logger = LoggerFactory
+			.getLogger(MessageWriterBase.class);
 	private final FileFormatServiceRegistry<FF, S> registry;
 	private final String[] mimeTypes;
 	private final Class<T> type;
@@ -95,9 +96,9 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 		return getFactory(possible.preferred()) != null;
 	}
 
-	public Fluid consume(final T result, final String base, final FluidType ftype,
-			final FluidBuilder builder) {
-		return new AbstractFluid() {
+	public Fluid consume(final T result, final String base,
+			final FluidType ftype, final FluidBuilder builder) {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -112,34 +113,35 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 				}
 			}
 
-			public String toChannelMedia(String... media) {
-				return getMediaType(ftype.as(media));
+			@Override
+			protected String toChannelMedia(FluidType media) {
+				FluidType possible = new FluidType(ftype.asType(), mimeTypes)
+						.as(ftype).as(media);
+				String contentType = possible.preferred();
+				if (contentType == null)
+					return null;
+				FF format = getFormat(contentType);
+				if (format.hasCharset() && contentType.startsWith("text/")
+						&& !contentType.contains("charset=")) {
+					Charset charset = possible.getCharset();
+					charset = getCharset(format, charset);
+					contentType += ";charset=" + charset.name();
+				}
+				return contentType;
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
-				return write(ftype.as(toChannelMedia(media)), builder.getObjectConnection(), result, base);
+				return write(ftype.as(toChannelMedia(media)),
+						builder.getObjectConnection(), result, base);
 			}
 
 			public String toString() {
 				return String.valueOf(result);
 			}
 		};
-	}
-
-	String getMediaType(FluidType ftype) {
-		FluidType possible = new FluidType(ftype.asType(), mimeTypes).as(ftype);
-		String contentType = possible.preferred();
-		if (contentType == null)
-			return null;
-		FF format = getFormat(contentType);
-		if (format.hasCharset() && contentType.startsWith("text/") && !contentType.contains("charset=")) {
-			Charset charset = possible.getCharset();
-			charset = getCharset(format, charset);
-			contentType += ";charset=" + charset.name();
-		}
-		return contentType;
 	}
 
 	protected boolean isAssignableFrom(Class<?> type) {
@@ -150,8 +152,9 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 		// no-op
 	}
 
-	final ReadableByteChannel write(final FluidType mtype, final ObjectConnection con,
-			final T result, final String base) throws IOException {
+	final ReadableByteChannel write(final FluidType mtype,
+			final ObjectConnection con, final T result, final String base)
+			throws IOException {
 		return new ProducerChannel(new WritableProducer() {
 			public void produce(WritableByteChannel out) throws IOException {
 				try {
@@ -222,10 +225,10 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 		return charset;
 	}
 
-	protected abstract void writeTo(S factory, T result, WritableByteChannel out,
-			Charset charset, String base, ObjectConnection con) throws IOException,
-			RDFHandlerException, QueryEvaluationException,
-			TupleQueryResultHandlerException;
+	protected abstract void writeTo(S factory, T result,
+			WritableByteChannel out, Charset charset, String base,
+			ObjectConnection con) throws IOException, RDFHandlerException,
+			QueryEvaluationException, TupleQueryResultHandlerException;
 
 	protected S getFactory(String mimeType) {
 		if (mimeType == null)

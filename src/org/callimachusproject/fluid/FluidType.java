@@ -21,8 +21,10 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.w3c.dom.Document;
@@ -56,10 +58,14 @@ public class FluidType extends GenericType {
 		if (media == null) {
 			media = new String[0];
 		}
+		Set<String> set = new HashSet<String>();
 		for (String m : media) {
-			if (m != null) {
+			if (m != null && !set.contains(m)) {
 				MediaType mediaType = MediaType.valueOf(m);
-				mediaTypes.add(mediaType.multiply(1.0 - mediaTypes.size() / 100));
+				if (!set.contains(mediaType.toExternal())) {
+					set.add(mediaType.toExternal());
+					mediaTypes.add(mediaType.multiply(1.0 - mediaTypes.size() / 10000000.0));
+				}
 			}
 		}
 	}
@@ -67,8 +73,12 @@ public class FluidType extends GenericType {
 	private FluidType(Type gtype, Collection<MediaType> media, boolean nonEmpty) {
 		super(gtype);
 		assert media != null && !media.isEmpty();
+		Set<String> set = new HashSet<String>();
 		for (MediaType mediaType : media) {
-			mediaTypes.add(mediaType.multiply(1.0 - mediaTypes.size() / 1000.0));
+			if (!set.contains(mediaType.toExternal())) {
+				set.add(mediaType.toExternal());
+				mediaTypes.add(mediaType.multiply(1.0 - mediaTypes.size() / 10000000.0));
+			}
 		}
 	}
 
@@ -104,7 +114,7 @@ public class FluidType extends GenericType {
 		String[] media = new String[mediaTypes.size()];
 		Iterator<MediaType> iter = mediaTypes.iterator();
 		for (int i = 0; i < media.length; i++) {
-			media[i] = iter.next().toString();
+			media[i] = iter.next().toExternal();
 		}
 		return media;
 	}
@@ -115,7 +125,7 @@ public class FluidType extends GenericType {
 		for (MediaType mime : mediaTypes) {
 			if (!"*".equals(mime.getPrimaryType())
 					&& !"*".equals(mime.getSubType()))
-				return mime.toString();
+				return mime.toExternal();
 		}
 		return null;
 	}
@@ -237,7 +247,7 @@ public class FluidType extends GenericType {
 				return -1;
 			if (!o1.getSubType().contains("+") && o2.getSubType().contains("+"))
 				return 1;
-			return o1.toString().compareTo(o2.toString());
+			return o1.toExternal().compareTo(o2.toExternal());
 		}
 	}
 

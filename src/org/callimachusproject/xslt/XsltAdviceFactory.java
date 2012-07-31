@@ -3,6 +3,7 @@ package org.callimachusproject.xslt;
 import java.io.StringReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -42,10 +43,10 @@ public class XsltAdviceFactory implements AdviceProvider, AdviceFactory {
 			}
 			input = i;
 		}
-		Class<?> inputClass = null;
+		Type inputClass = null;
 		if (input >= 0) {
 			bindingNames[input] = new String[0];
-			inputClass = m.getParameterTypes()[input];
+			inputClass = m.getGenericParameterTypes()[input];
 		}
 		XSLTransformer xslt = createXSLTransformer(m);
 		return new XsltAdvice(xslt, m.getReturnType(), inputClass, input,

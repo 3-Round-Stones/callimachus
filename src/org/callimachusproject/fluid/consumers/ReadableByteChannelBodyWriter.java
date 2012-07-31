@@ -36,7 +36,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -53,9 +53,9 @@ public class ReadableByteChannelBodyWriter implements
 		return ReadableByteChannel.class.isAssignableFrom(mtype.asClass());
 	}
 
-	public Fluid consume(final ReadableByteChannel result, final String base, final FluidType ftype,
-			final FluidBuilder builder) {
-		return new AbstractFluid() {
+	public Fluid consume(final ReadableByteChannel result, final String base,
+			final FluidType ftype, final FluidBuilder builder) {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -70,16 +70,18 @@ public class ReadableByteChannelBodyWriter implements
 				}
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
 				return result;
 			}
-	
+
 			public String toString() {
 				return String.valueOf(result);
 			}

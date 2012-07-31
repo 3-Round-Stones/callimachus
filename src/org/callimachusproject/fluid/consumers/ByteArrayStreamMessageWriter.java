@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -54,8 +54,9 @@ public class ByteArrayStreamMessageWriter implements
 		return mtype.is("application/*");
 	}
 
-	public Fluid consume(final ByteArrayOutputStream result, final String base, final FluidType ftype, final FluidBuilder builder) {
-		return new AbstractFluid() {
+	public Fluid consume(final ByteArrayOutputStream result, final String base,
+			final FluidType ftype, final FluidBuilder builder) {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -68,26 +69,31 @@ public class ByteArrayStreamMessageWriter implements
 				// no-op
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException {
 				if (result == null)
 					return ChannelUtil.emptyChannel();
 				return ChannelUtil.newChannel(result.toByteArray());
 			}
 
-			public String toHttpEntityMedia(String... media) {
+			@Override
+			protected String toHttpEntityMedia(FluidType media) {
 				return toChannelMedia(media);
 			}
 
-			public HttpEntity asHttpEntity(String... media) throws IOException {
-				String mediaType = toHttpEntityMedia(media);
-				long size = (long) (result == null ? 0 :result.size());
-				return new ReadableHttpEntityChannel(mediaType,
-						size, asChannel(mediaType));
+			@Override
+			protected HttpEntity asHttpEntity(FluidType media)
+					throws IOException {
+				String mediaType = toChannelMedia(media);
+				long size = (long) (result == null ? 0 : result.size());
+				return new ReadableHttpEntityChannel(mediaType, size,
+						asChannel(media));
 			}
 
 			public String toString() {

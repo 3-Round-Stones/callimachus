@@ -45,7 +45,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -80,10 +80,9 @@ public class FormMapMessageWriter implements Consumer<Map<String, Object>> {
 		return mtype.is(getMediaType());
 	}
 
-	public Fluid consume(final Map<String, Object> result,
-			final String base, final FluidType ftype,
-			final FluidBuilder builder) {
-		return new AbstractFluid() {
+	public Fluid consume(final Map<String, Object> result, final String base,
+			final FluidType ftype, final FluidBuilder builder) {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -96,15 +95,17 @@ public class FormMapMessageWriter implements Consumer<Map<String, Object>> {
 				// no-op
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				return ftype.as(getMediaType()).as(media).preferred();
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
-					TransformerException, ParserConfigurationException, SAXException {
-				return write(ftype.as(getMediaType()), result, base,
-						builder);
+					TransformerException, ParserConfigurationException,
+					SAXException {
+				return write(ftype.as(getMediaType()), result, base, builder);
 			}
 
 			public String toString() {
@@ -117,10 +118,10 @@ public class FormMapMessageWriter implements Consumer<Map<String, Object>> {
 		return "application/x-www-form-urlencoded";
 	}
 
-	ReadableByteChannel write(FluidType mtype,
-			Map<String, Object> result, String base, FluidBuilder builder)
-			throws IOException, OpenRDFException, XMLStreamException,
-			TransformerException, ParserConfigurationException, SAXException {
+	ReadableByteChannel write(FluidType mtype, Map<String, Object> result,
+			String base, FluidBuilder builder) throws IOException,
+			OpenRDFException, XMLStreamException, TransformerException,
+			ParserConfigurationException, SAXException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
 		writeTo(mtype, result, base, builder, out, 1024);
 		return ChannelUtil.newChannel(out.toByteArray());

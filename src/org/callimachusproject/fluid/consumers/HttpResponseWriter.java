@@ -47,7 +47,7 @@ import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -73,7 +73,7 @@ public class HttpResponseWriter implements Consumer<HttpResponse> {
 
 	public Fluid consume(final HttpResponse result, final String base,
 			final FluidType ftype, final FluidBuilder builder) {
-		return new AbstractFluid() {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -89,26 +89,29 @@ public class HttpResponseWriter implements Consumer<HttpResponse> {
 				}
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				return getMediaType(ftype.as(media));
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
 				try {
-					return write(ftype.as(toChannelMedia(media)), result,
-							base);
+					return write(ftype.as(toChannelMedia(media)), result, base);
 				} finally {
 					asVoid();
 				}
 			}
 
-			public String toHttpResponseMedia(String... media) {
+			@Override
+			protected String toHttpResponseMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
-			public HttpResponse asHttpResponse(String... media)
+			@Override
+			protected HttpResponse asHttpResponse(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException,
 					SAXException {
@@ -125,10 +128,9 @@ public class HttpResponseWriter implements Consumer<HttpResponse> {
 		return ftype.as("message/x-response").preferred();
 	}
 
-	ReadableByteChannel write(FluidType mtype, HttpMessage result,
-			String base) throws IOException, OpenRDFException,
-			XMLStreamException, TransformerException,
-			ParserConfigurationException {
+	ReadableByteChannel write(FluidType mtype, HttpMessage result, String base)
+			throws IOException, OpenRDFException, XMLStreamException,
+			TransformerException, ParserConfigurationException {
 		CatReadableByteChannel cat = new CatReadableByteChannel();
 		if (result instanceof HttpResponse) {
 			print(cat, ((HttpResponse) result).getStatusLine());

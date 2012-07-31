@@ -453,12 +453,12 @@ public class InvokeHandler implements Handler {
 		}
 
 		@Override
-		protected String toProducedMedia(FluidType ftype) {
+		public String toMedia(FluidType ftype) {
 			return writer.toMedia(ftype);
 		}
 
 		@Override
-		protected Object produce(FluidType ftype) throws OpenRDFException,
+		public Object as(FluidType ftype) throws OpenRDFException,
 				IOException, XMLStreamException, ParserConfigurationException,
 				SAXException, TransformerConfigurationException,
 				TransformerException {

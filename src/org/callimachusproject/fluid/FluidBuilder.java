@@ -115,10 +115,6 @@ public class FluidBuilder {
 		return channel(null, null, media);
 	}
 
-	public Fluid nil(Type gtype, String... media) {
-		return nil(new FluidType(gtype, media));
-	}
-
 	public Fluid nil(FluidType ftype) {
 		return consume(null, null, ftype);
 	}
@@ -156,19 +152,7 @@ public class FluidBuilder {
 			}
 
 			@Override
-			public String toChannelMedia(String... media) {
-				return inType.as(media).preferred();
-			}
-
-			@Override
-			public ReadableByteChannel asChannel(String... media)
-					throws IOException, OpenRDFException, XMLStreamException,
-					TransformerException, ParserConfigurationException {
-				return in;
-			}
-
-			@Override
-			protected String toProducedMedia(FluidType ftype) {
+			public String toMedia(FluidType ftype) {
 				FluidType outType = inType.as(ftype);
 				Producer reader = findReader(outType);
 				if (reader == null)
@@ -177,7 +161,7 @@ public class FluidBuilder {
 			}
 
 			@Override
-			protected Object produce(FluidType ftype)
+			public Object as(FluidType ftype)
 					throws TransformerConfigurationException, OpenRDFException,
 					IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,

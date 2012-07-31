@@ -38,7 +38,7 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.fluid.AbstractFluid;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -78,14 +78,16 @@ public class URIListWriter<URI> implements Consumer<URI> {
 		return mtype.is("text/uri-list");
 	}
 
-	public Fluid consume(final URI result, final String base, final FluidType ftype,
-			final FluidBuilder builder) {
+	public Fluid consume(final URI result, final String base,
+			final FluidType ftype, final FluidBuilder builder) {
 		if (result == null)
-			return delegate.consume(null, base, ftype.as(String.class), builder);
+			return delegate
+					.consume(null, base, ftype.as(String.class), builder);
 		if (!ftype.isSetOrArray()) {
-			return delegate.consume(toString(result), base, ftype.as(String.class), builder);
+			return delegate.consume(toString(result), base,
+					ftype.as(String.class), builder);
 		}
-		return new AbstractFluid() {
+		return new Vapor() {
 			public String getSystemId() {
 				return base;
 			}
@@ -98,25 +100,32 @@ public class URIListWriter<URI> implements Consumer<URI> {
 				// no-op
 			}
 
-			public String toChannelMedia(String... media) {
+			@Override
+			protected String toChannelMedia(FluidType media) {
 				return getMediaType(ftype.as(media));
 			}
 
-			public ReadableByteChannel asChannel(String... media)
+			@Override
+			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException {
-				return ChannelUtil.newChannel(write(ftype.as(toChannelMedia(media)), result, base));
+				return ChannelUtil.newChannel(write(
+						ftype.as(toChannelMedia(media)), result, base));
 			}
 
-			public String toHttpEntityMedia(String... media) {
+			@Override
+			protected String toHttpEntityMedia(FluidType media) {
 				return toChannelMedia(media);
 			}
 
-			public HttpEntity asHttpEntity(String... media) throws IOException {
-				String mediaType = toHttpEntityMedia(media);
+			@Override
+			protected HttpEntity asHttpEntity(FluidType media)
+					throws IOException {
+				String mediaType = toChannelMedia(media);
 				int size = write(ftype.as(mediaType), result, base).length;
-				return new ReadableHttpEntityChannel(mediaType, size, asChannel(mediaType));
+				return new ReadableHttpEntityChannel(mediaType, size,
+						asChannel(media));
 			}
-	
+
 			public String toString() {
 				return String.valueOf(result);
 			}
@@ -128,11 +137,10 @@ public class URIListWriter<URI> implements Consumer<URI> {
 		if (mimeType == null || mimeType.contains("charset="))
 			return mimeType;
 		return mimeType + ";charset=" + Charset.defaultCharset().name();
-	
+
 	}
 
-	byte[] write(FluidType mtype, URI result,
-			String base) throws IOException {
+	byte[] write(FluidType mtype, URI result, String base) throws IOException {
 		if (result == null)
 			return null;
 		Charset charset = mtype.getCharset();

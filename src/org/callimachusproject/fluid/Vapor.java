@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
-import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
@@ -40,37 +39,101 @@ import org.w3c.dom.DocumentFragment;
 import org.xml.sax.SAXException;
 
 /**
- * Abstract class that redirects many calls to {@link #toMedia(FluidType)} and
- * {@link #as(FluidType)}.
+ * Abstract class that redirects {@link #toMedia(FluidType)} and
+ * {@link #as(FluidType)} to more specific typed methods that can be overridden.
  * 
  * @author James Leigh
  * 
  */
-public abstract class AbstractFluid implements Fluid {
+public abstract class Vapor extends AbstractFluid {
 
-	public String toString() {
-		String systemId = getSystemId();
-		if (systemId == null)
-			return String.valueOf(getFluidType());
-		return systemId + " " + String.valueOf(getFluidType());
+	/**
+	 * {@link FluidType}
+	 */
+	public final String toMedia(FluidType ftype) {
+
+		if (ftype.is(ReadableByteChannel.class))
+			return toChannelMedia(ftype);
+
+		if (ftype.is(InputStream.class))
+			return toStreamMedia(ftype);
+
+		if (ftype.is(Reader.class))
+			return toReaderMedia(ftype);
+
+		if (ftype.is(String.class))
+			return toStringMedia(ftype);
+
+		if (ftype.is(HttpEntity.class))
+			return toHttpEntityMedia(ftype);
+
+		if (ftype.is(HttpResponse.class))
+			return toHttpResponseMedia(ftype);
+
+		if (ftype.is(XMLEventReader.class))
+			return toXMLEventReaderMedia(ftype);
+
+		if (ftype.is(Document.class))
+			return toDocumentMedia(ftype);
+
+		if (ftype.is(DocumentFragment.class))
+			return toDocumentFragmentMedia(ftype);
+
+		return null;
+	}
+
+	public final Object as(FluidType ftype) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException {
+
+		if (ftype.is(ReadableByteChannel.class))
+			return asChannel(ftype);
+
+		if (ftype.is(InputStream.class))
+			return asStream(ftype);
+
+		if (ftype.is(Reader.class))
+			return asReader(ftype);
+
+		if (ftype.is(String.class))
+			return asString(ftype);
+
+		if (ftype.is(HttpEntity.class))
+			return asHttpEntity(ftype);
+
+		if (ftype.is(HttpResponse.class))
+			return asHttpResponse(ftype);
+
+		if (ftype.is(XMLEventReader.class))
+			return asXMLEventReader(ftype);
+
+		if (ftype.is(Document.class))
+			return asDocument(ftype);
+
+		if (ftype.is(DocumentFragment.class))
+			return asDocumentFragment(ftype);
+
+		asVoid();
+		return null;
 	}
 
 	/**
 	 * {@link ReadableByteChannel}
 	 */
-	public final String toChannelMedia(String... media) {
-		return toMedia(new FluidType(ReadableByteChannel.class, media));
+	protected String toChannelMedia(FluidType media) {
+		return null;
 	}
 
-	public final ReadableByteChannel asChannel(String... media)
+	protected ReadableByteChannel asChannel(FluidType media)
 			throws OpenRDFException, IOException, XMLStreamException,
 			ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException {
-		return (ReadableByteChannel) as(new FluidType(
-				ReadableByteChannel.class, media));
+		asVoid();
+		return null;
 	}
 
-	public final void transferTo(WritableByteChannel out, String... media)
+	protected void transferTo(WritableByteChannel out, FluidType media)
 			throws OpenRDFException, IOException, XMLStreamException,
 			ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException {
@@ -80,18 +143,19 @@ public abstract class AbstractFluid implements Fluid {
 	/**
 	 * {@link InputStream}
 	 */
-	public final String toStreamMedia(String... media) {
-		return toMedia(new FluidType(InputStream.class, media));
+	protected String toStreamMedia(FluidType media) {
+		return null;
 	}
 
-	public final InputStream asStream(String... media) throws OpenRDFException,
+	protected InputStream asStream(FluidType media) throws OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException,
 			TransformerException {
-		return (InputStream) as(new FluidType(InputStream.class, media));
+		asVoid();
+		return null;
 	}
 
-	public final void streamTo(OutputStream out, String... media)
+	protected void streamTo(OutputStream out, FluidType media)
 			throws OpenRDFException, IOException, XMLStreamException,
 			ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException {
@@ -101,18 +165,19 @@ public abstract class AbstractFluid implements Fluid {
 	/**
 	 * {@link Reader}
 	 */
-	public final String toReaderMedia(String... media) {
-		return toMedia(new FluidType(Reader.class, media));
+	protected String toReaderMedia(FluidType media) {
+		return null;
 	}
 
-	public final Reader asReader(String... media) throws OpenRDFException,
+	protected Reader asReader(FluidType media) throws OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException,
 			TransformerException {
-		return (Reader) as(new FluidType(Reader.class, media));
+		asVoid();
+		return null;
 	}
 
-	public final void writeTo(Writer writer, String... media)
+	protected void writeTo(Writer writer, FluidType media)
 			throws OpenRDFException, IOException, XMLStreamException,
 			ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException {
@@ -133,98 +198,89 @@ public abstract class AbstractFluid implements Fluid {
 	/**
 	 * {@link String}
 	 */
-	public final String toStringMedia(String... media) {
-		return toMedia(new FluidType(String.class, media));
+	protected String toStringMedia(FluidType media) {
+		return null;
 	}
 
-	public final String asString(String... media) throws OpenRDFException,
+	protected String asString(FluidType media) throws OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException,
 			TransformerException {
-		return (String) as(new FluidType(String.class, media));
+		asVoid();
+		return null;
 	}
 
 	/**
 	 * {@link HttpEntity}
 	 */
-	public final String toHttpEntityMedia(String... media) {
-		return toMedia(new FluidType(HttpEntity.class, media));
+	protected String toHttpEntityMedia(FluidType media) {
+		return null;
 	}
 
-	public final HttpEntity asHttpEntity(String... media) throws IOException,
+	protected HttpEntity asHttpEntity(FluidType media) throws IOException,
 			OpenRDFException, XMLStreamException, TransformerException,
 			ParserConfigurationException, SAXException {
-		return (HttpEntity) as(new FluidType(HttpEntity.class, media));
+		asVoid();
+		return null;
 	}
 
 	/**
 	 * {@link HttpResponse}
 	 */
-	public final String toHttpResponseMedia(String... media) {
-		return toMedia(new FluidType(HttpResponse.class, media));
+	protected String toHttpResponseMedia(FluidType media) {
+		return null;
 	}
 
-	public final HttpResponse asHttpResponse(String... media)
-			throws IOException, OpenRDFException, XMLStreamException,
-			TransformerException, ParserConfigurationException, SAXException {
-		return (HttpResponse) as(new FluidType(HttpResponse.class, media));
+	protected HttpResponse asHttpResponse(FluidType media) throws IOException,
+			OpenRDFException, XMLStreamException, TransformerException,
+			ParserConfigurationException, SAXException {
+		asVoid();
+		return null;
 	}
 
 	/**
 	 * {@link XMLEventReader}
 	 */
-	public final String toXMLEventReaderMedia(String... media) {
-		return toMedia(new FluidType(XMLEventReader.class, media));
+	protected String toXMLEventReaderMedia(FluidType media) {
+		return null;
 	}
 
-	public final XMLEventReader asXMLEventReader(String... media)
+	protected XMLEventReader asXMLEventReader(FluidType media)
 			throws OpenRDFException, IOException, XMLStreamException,
 			ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException {
-		return (XMLEventReader) as(new FluidType(XMLEventReader.class, media));
+		asVoid();
+		return null;
 	}
 
 	/**
 	 * {@link Document}
 	 */
-	public final String toDocumentMedia(String... media) {
-		return toMedia(new FluidType(Document.class, media));
+	protected String toDocumentMedia(FluidType media) {
+		return null;
 	}
 
-	public final Document asDocument(String... media) throws OpenRDFException,
+	protected Document asDocument(FluidType media) throws OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException,
 			TransformerException {
-		return (Document) as(new FluidType(Document.class, media));
+		asVoid();
+		return null;
 	}
 
 	/**
 	 * {@link DocumentFragment}
 	 */
-	public final String toDocumentFragmentMedia(String... media) {
-		return toMedia(new FluidType(DocumentFragment.class, media));
+	protected String toDocumentFragmentMedia(FluidType media) {
+		return null;
 	}
 
-	public final DocumentFragment asDocumentFragment(String... media)
+	protected DocumentFragment asDocumentFragment(FluidType media)
 			throws OpenRDFException, IOException, XMLStreamException,
 			ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException {
-		return (DocumentFragment) as(new FluidType(DocumentFragment.class,
-				media));
-	}
-
-	/**
-	 * {@link Type}
-	 */
-	public final String toMedia(Type gtype, String... media) {
-		return toMedia(new FluidType(gtype, media));
-	}
-
-	public final Object as(Type gtype, String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
-		return as(new FluidType(gtype, media));
+		asVoid();
+		return null;
 	}
 
 }

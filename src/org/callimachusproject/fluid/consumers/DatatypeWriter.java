@@ -31,7 +31,6 @@ package org.callimachusproject.fluid.consumers;
 
 import java.util.Set;
 
-
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
@@ -62,7 +61,8 @@ public class DatatypeWriter implements Consumer<Object> {
 		return builder.isDatatype(type);
 	}
 
-	public Fluid consume(Object result, String base, FluidType ftype, FluidBuilder builder) {
+	public Fluid consume(Object result, String base, FluidType ftype,
+			FluidBuilder builder) {
 		String label = asString(result, builder);
 		return delegate.consume(label, base, ftype.as(String.class), builder);
 	}
@@ -70,7 +70,8 @@ public class DatatypeWriter implements Consumer<Object> {
 	private String asString(Object result, FluidBuilder builder) {
 		if (result == null)
 			return null;
-		return builder.getObjectConnection().getObjectFactory().createLiteral(result).getLabel();
+		return builder.getObjectConnection().getObjectFactory()
+				.createLiteral(result).getLabel();
 	}
 
 }

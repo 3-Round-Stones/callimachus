@@ -76,7 +76,17 @@ public class MediaType implements Serializable {
 		assert mime != null;
 		String q = mime.getParameter("q");
 		mime.removeParameter("q");
-		this.quality = q == null ? 1 : Double.valueOf(q);
+		double quality = q == null ? 1 : Double.valueOf(q);
+		if ("*".equals(mime.getPrimaryType())) {
+			quality -= 0.00003;
+		}
+		if ("*".equals(mime.getSubType())) {
+			quality -= 0.00002;
+		}
+		if (!mime.getSubType().contains("+")) {
+			quality -= 0.00001;
+		}
+		this.quality = quality;
 		this.parsed = mime;
 		String lexical = mime.toString();
 		this.normal = lexical.equals(media) ? media : lexical;
@@ -89,6 +99,12 @@ public class MediaType implements Serializable {
 	}
 
 	public String toString() {
+		if (quality == 1.0)
+			return toExternal();
+		return normal + ";q=" + quality;
+	}
+
+	public String toExternal() {
 		return normal;
 	}
 
@@ -142,9 +158,9 @@ public class MediaType implements Serializable {
 
 	public MediaType combine(MediaType accept) {
 		assert accept != null;
-		if (toString().equals(accept.toString()) && accept.getQuality() == 1.0)
+		if (toExternal().equals(accept.toExternal()) && accept.getQuality() == 1.0)
 			return this;
-		if (toString().equals(accept.toString()))
+		if (toExternal().equals(accept.toExternal()))
 			return multiply(accept.getQuality());
 		try {
 			MimeType mime = new MimeType(normal);

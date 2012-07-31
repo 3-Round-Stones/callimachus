@@ -39,8 +39,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.lang.reflect.Type;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Set;
@@ -53,7 +52,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 
+import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.xml.DocumentFactory;
+import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
@@ -70,343 +73,30 @@ public abstract class TransformBuilder {
 	private final XMLOutputFactory factory = XMLOutputFactory.newInstance();
 	private final DocumentFactory builder = DocumentFactory.newInstance();
 
+	public final TransformBuilder with(String name, String value)
+			throws TransformerException, IOException {
+		return with(name, value, String.class, "text/plain");
+	}
+
 	public final TransformBuilder with(String name, Object value)
 			throws TransformerException, IOException {
 		if (value == null)
 			return this;
-		if (value instanceof CharSequence)
-			return with(name, (CharSequence) value);
-		if (value instanceof Character)
-			return with(name, (Character) value);
-		if (value instanceof Boolean)
-			return with(name, (Boolean) value);
-		if (value instanceof Number)
-			return with(name, (Number) value);
-		if (value instanceof Node)
-			return with(name, (Node) value);
-		if (value instanceof NodeList)
-			return with(name, (NodeList) value);
-		if (value instanceof ReadableByteChannel)
-			return with(name, (ReadableByteChannel) value);
-		if (value instanceof ByteArrayOutputStream)
-			return with(name, (ByteArrayOutputStream) value);
-		if (value instanceof XMLEventReader)
-			return with(name, (XMLEventReader) value);
-		if (value instanceof InputStream)
-			return with(name, (InputStream) value);
-		if (value instanceof Reader)
-			return with(name, (Reader) value);
-		if (value instanceof Set)
-			return with(name, (Set<?>) value);
-		return with(name, value.toString());
+		return with(name, value, value.getClass(), "text/plain");
 	}
 
-	public final TransformBuilder with(String name, Set<?> value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, parse(value));
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, String value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, CharSequence value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, boolean value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, byte value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, short value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, int value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, long value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, float value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, double value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Boolean value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Byte value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Short value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Integer value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Long value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Float value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Double value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, BigInteger value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, BigDecimal value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Document value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, new DOMSource(value));
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Element value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, new DOMSource(value));
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, DocumentFragment value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, new DOMSource(value));
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Node value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, new DOMSource(value));
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, NodeList value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Number value)
-			throws TransformerException, IOException {
-		try {
-			setParameter(name, value);
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public final TransformBuilder with(String name, Character value)
+	public final TransformBuilder with(String name, Object value, Type valueType, String... media)
 			throws TransformerException, IOException {
 		try {
 			if (value == null)
 				return this;
-			setParameter(name, String.valueOf(value));
+			FluidType ftype = new FluidType(valueType, media);
+			if (ftype.isXML()) {
+				Document doc = document(value, ftype);
+				setParameter(name, new DOMSource(doc));
+			} else {
+				setParameter(name, String.valueOf(value));
+			}
 			return this;
 		} catch (RuntimeException e) {
 			throw handle(e);
@@ -415,52 +105,20 @@ public abstract class TransformBuilder {
 		}
 	}
 
-	public final TransformBuilder with(String name, char value)
-			throws TransformerException, IOException {
+	private Document document(Object value, FluidType ftype)
+			throws IOException, TransformerException {
+		FluidBuilder fb = FluidFactory.getInstance().builder();
 		try {
-			setParameter(name, String.valueOf(value));
-			return this;
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
+			return fb.consume(value, null, ftype).asDocument();
+		} catch (OpenRDFException e) {
+			throw new TransformerException(e);
+		} catch (XMLStreamException e) {
+			throw new TransformerException(e);
+		} catch (ParserConfigurationException e) {
+			throw new TransformerException(e);
+		} catch (SAXException e) {
+			throw new TransformerException(e);
 		}
-	}
-
-	public final TransformBuilder with(String name, Readable value)
-			throws TransformerException, IOException {
-		return with(name, parse(value));
-	}
-
-	public final TransformBuilder with(String name, byte[] value)
-			throws TransformerException, IOException {
-		return with(name, parse(value));
-	}
-
-	public final TransformBuilder with(String name, ReadableByteChannel value)
-			throws TransformerException, IOException {
-		return with(name, parse(value));
-	}
-
-	public final TransformBuilder with(String name, ByteArrayOutputStream value)
-			throws TransformerException, IOException {
-		return with(name, parse(value));
-	}
-
-	public final TransformBuilder with(final String name,
-			final XMLEventReader value) throws TransformerException,
-			IOException {
-		return with(name, parse(value));
-	}
-
-	public final TransformBuilder with(String name, InputStream value)
-			throws TransformerException, IOException {
-		return with(name, parse(value));
-	}
-
-	public final TransformBuilder with(String name, Reader value)
-			throws TransformerException, IOException {
-		return with(name, parse(value));
 	}
 
 	public final String asString() throws TransformerException, IOException {
@@ -684,23 +342,6 @@ public abstract class TransformBuilder {
 			return frag.getChildNodes();
 		} catch (ParserConfigurationException e) {
 			throw handle(new TransformerException(e));
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	private Document parse(Readable value) throws TransformerException,
-			IOException {
-		try {
-			if (value == null)
-				return null;
-			if (value instanceof Reader)
-				return parse((Reader) value);
-			return parse(new ReadableReader(value));
-		} catch (TransformerException e) {
-			throw handle(e);
 		} catch (RuntimeException e) {
 			throw handle(e);
 		} catch (Error e) {

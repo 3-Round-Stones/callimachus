@@ -5,6 +5,7 @@ import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 
@@ -12,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.transform.TransformerException;
 
+import org.callimachusproject.annotations.type;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
 import org.openrdf.repository.object.RDFObject;
@@ -46,16 +48,32 @@ public class XsltAdvice implements Advice {
 	public Object intercept(ObjectMessage message) throws Exception {
 		Object target = message.getTarget();
 		Resource self = ((RDFObject) target).getResource();
+		Type[] ptypes = message.getMethod().getGenericParameterTypes();
+		String[][] mediaTypes = getMediaTypes(message.getMethod().getParameterAnnotations());
 		Object[] args = message.getParameters();
+		assert args.length == ptypes.length;
 		TransformBuilder tb = transform(inputIdx < 0 ? null : args[inputIdx],
 				inputClass);
 		tb = tb.with("this", self.stringValue());
 		for (int i = 0; i < bindingNames.length; i++) {
 			for (String name : bindingNames[i]) {
-				tb = with(tb, name, args[i]);
+				tb = with(tb, name, args[i], ptypes[i], mediaTypes[i]);
 			}
 		}
 		return as(tb, returnClass);
+	}
+
+	private String[][] getMediaTypes(Annotation[][] anns) {
+		String[][] result = new String[anns.length][];
+		for (int i=0; i<anns.length; i++) {
+			for (int j=0; j<anns[i].length; j++) {
+				if (anns[i][j] instanceof type) {
+					result[i] = ((type) anns[i][j]).value();
+					break;
+				}
+			}
+		}
+		return result;
 	}
 
 	private TransformBuilder transform(Object input, Type cls)
@@ -66,13 +84,13 @@ public class XsltAdvice implements Advice {
 		return xslt.transform(input, null, cls);
 	}
 
-	private TransformBuilder with(TransformBuilder tb, String name, Object arg)
+	private TransformBuilder with(TransformBuilder tb, String name, Object arg, Type type, String... media)
 			throws TransformerException, IOException {
 		if (arg instanceof Value)
 			return tb.with(name, ((Value) arg).stringValue());
 		if (arg instanceof RDFObject)
 			return tb.with(name, ((RDFObject) arg).getResource().stringValue());
-		return tb.with(name, arg);
+		return tb.with(name, arg, type, media);
 	}
 
 	private Object as(TransformBuilder result, Class<?> rclass)

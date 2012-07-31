@@ -77,7 +77,7 @@ public class HttpResponseFilter extends Filter {
 			accept = null;
 		} else {
 			envelopeType = MediaType.valueOf(type);
-			accept = envelopeType + ";q=0.1";
+			accept = envelopeType.toExternal() + ";q=0.1";
 			core = type;
 			if (core.contains(";")) {
 				core = core.substring(0, core.indexOf(';'));

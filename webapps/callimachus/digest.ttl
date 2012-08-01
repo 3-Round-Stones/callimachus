@@ -33,6 +33,7 @@
     calli:query "login", "settings", "contributions";
     calli:realm </>;
     calli:expect "302-found";
+    calli:type "text/uri-list";
     calli:header "cache-control:max-age:3600";
     calli:script """
         if ("settings" == query)

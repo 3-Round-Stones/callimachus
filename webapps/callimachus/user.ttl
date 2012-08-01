@@ -144,6 +144,7 @@ rdfs:comment a rdf:Property.
     calli:query "password";
     calli:realm </>;
     calli:expect "201-modified";
+    calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.apache.commons.codec.binary.Hex>;
     calli:script """

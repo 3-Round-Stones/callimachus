@@ -401,6 +401,7 @@
     calli:query "import";
     calli:realm </>;
     calli:expect "302-see-other";
+    calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         var bio = new org.callimachusproject.io.LatencyInputStream(formData);

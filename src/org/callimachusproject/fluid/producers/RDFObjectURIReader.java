@@ -51,6 +51,8 @@ public class RDFObjectURIReader extends URIListReader<Object> {
 	}
 
 	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
+		if (builder.getObjectConnection() == null)
+			return false;
 		if (!super.isProducable(ftype, builder))
 			return false;
 		Class<?> c = ftype.asClass();

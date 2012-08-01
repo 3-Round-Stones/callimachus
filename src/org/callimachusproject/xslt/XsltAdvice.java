@@ -48,7 +48,7 @@ public class XsltAdvice implements Advice {
 		Object[] args = message.getParameters();
 		assert args.length == ptypes.length;
 		TransformBuilder tb = transform(inputIdx < 0 ? null : args[inputIdx],
-				inputClass);
+				inputClass, mediaTypes[inputIdx]);
 		tb = tb.with("this", self.stringValue());
 		for (int i = 0; i < bindingNames.length; i++) {
 			for (String name : bindingNames[i]) {
@@ -71,12 +71,12 @@ public class XsltAdvice implements Advice {
 		return result;
 	}
 
-	private TransformBuilder transform(Object input, Type cls)
+	private TransformBuilder transform(Object input, Type cls, String... media)
 			throws TransformerException, IOException,
 			ParserConfigurationException {
 		if (cls == null || Object.class.equals(cls) && input == null)
 			return xslt.transform();
-		return xslt.transform(input, null, cls);
+		return xslt.transform(input, null, cls, media);
 	}
 
 	private TransformBuilder with(TransformBuilder tb, String name, Object arg, Type type, String... media)

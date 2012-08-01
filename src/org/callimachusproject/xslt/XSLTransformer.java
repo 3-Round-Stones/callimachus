@@ -128,9 +128,9 @@ public class XSLTransformer {
 		return transform(source, systemId, XMLEventReader.class);
 	}
 
-	public TransformBuilder transform(Object source, String systemId, Type sourceType) throws TransformerException,
+	public TransformBuilder transform(Object source, String systemId, Type sourceType, String... media) throws TransformerException,
 			IOException {
-		Document doc = document(source, systemId, sourceType);
+		Document doc = document(source, systemId, sourceType, media);
 		if (doc == null)
 			return transform();
 		if (systemId == null) {
@@ -142,10 +142,10 @@ public class XSLTransformer {
 		return transform(new DOMSource(doc, systemId));
 	}
 
-	private Document document(Object source, String systemId, Type type) throws IOException, TransformerException {
+	private Document document(Object source, String systemId, Type type, String... media) throws IOException, TransformerException {
 		try {
 			FluidBuilder fb = FluidFactory.getInstance().builder();
-			FluidType xml = new FluidType(type).asXML();
+			FluidType xml = new FluidType(type, media).asXML();
 			return fb.consume(source, systemId, xml).asDocument();
 		} catch (TransformerConfigurationException e) {
 			throw new TransformerException(e);

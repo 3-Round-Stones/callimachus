@@ -73,7 +73,7 @@ public class FluidType extends GenericType {
 
 	private FluidType(Type gtype, Collection<MediaType> media, boolean nonEmpty) {
 		super(gtype);
-		assert media != null && !media.isEmpty();
+		assert media != null;
 		Set<String> set = new HashSet<String>();
 		for (MediaType mediaType : media) {
 			if (!set.contains(mediaType.toExternal())) {
@@ -146,20 +146,7 @@ public class FluidType extends GenericType {
 	}
 
 	public boolean is(String... acceptable) {
-		if (acceptable == null)
-			return false;
-		if (acceptable.length == 0)
-			return true;
-		for (String a : acceptable) {
-			if (a != null) {
-				MediaType accept = MediaType.valueOf(a);
-				for (MediaType mime : mediaTypes) {
-					if (mime.match(accept))
-						return true;
-				}
-			}
-		}
-		return false;
+		return is(new FluidType(asType(), acceptable));
 	}
 
 	public boolean is(FluidType ftype) {
@@ -167,7 +154,9 @@ public class FluidType extends GenericType {
 			return false;
 		for (MediaType accept : ftype.mediaTypes) {
 			for (MediaType mime : mediaTypes) {
-				if (mime.match(accept))
+				if (mime.match(accept)
+						&& (!accept.getSubType().contains("+") || mime
+								.getSubType().contains("+")))
 					return true;
 			}
 		}

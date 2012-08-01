@@ -628,7 +628,7 @@ public class ResourceOperation extends ResourceRequest {
 		Fluid body = getBody();
 		loop: for (Method method : methods) {
 			Collection<String> readableTypes;
-			readableTypes = getReadableTypes(body, method, 0, true);
+			readableTypes = getReadableTypes(body, method, 0, isMessageBody());
 			if (readableTypes.isEmpty()) {
 				String contentType = body.getFluidType().preferred();
 				Annotation[][] anns = method.getParameterAnnotations();
@@ -845,18 +845,15 @@ public class ResourceOperation extends ResourceRequest {
 			return Collections.singleton("*/*");
 		if (getParameterNames(anns) != null)
 			return Collections.singleton("*/*");
-		Collection<String> set;
 		List<String> readable = new ArrayList<String>();
 		String[] types = getParameterMediaTypes(anns);
 		if (types.length == 0 && typeRequired)
 			return Collections.emptySet();
 		for (String uri : getTransforms(anns)) {
-			set = getReadableTypes(input, getTransform(uri), ++depth, false);
-			readable.addAll(set);
+			readable.addAll(getReadableTypes(input, getTransform(uri), ++depth, false));
 		}
-		FluidType accepter = new FluidType(gtype, types);
 		String media = input.toMedia(new FluidType(gtype, types));
-		if (media != null && accepter.is(media)) {
+		if (media != null) {
 			readable.add(media);
 		}
 		return readable;
@@ -874,7 +871,7 @@ public class ResourceOperation extends ResourceRequest {
 		Annotation[][] anns = method.getParameterAnnotations();
 		Type[] gtypes = method.getGenericParameterTypes();
 		Object[] args = new Object[ptypes.length];
-		if (args.length == 0)
+		if (args.length == 0 && !typeRequired)
 			return Collections.singleton("*/*");
 		int empty = 0;
 		List<String> readable = new ArrayList<String>();
@@ -890,9 +887,9 @@ public class ResourceOperation extends ResourceRequest {
 				readable.addAll(set);
 			}
 		}
-		if (empty > 0 && empty == args.length)
+		if (empty > 0 && empty == args.length && typeRequired)
 			return Collections.emptySet();
-		if (readable.isEmpty())
+		if (readable.isEmpty() && !typeRequired)
 			return Collections.singleton("*/*");
 		return readable;
 	}

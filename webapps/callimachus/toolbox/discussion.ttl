@@ -50,6 +50,7 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:query "discussion";
     calli:realm </>;
     calli:expect "303-see-other";
+    calli:type "text/uri-list";
     calli:script """
         var vf = this.objectConnection.valueFactory;
         this.skosEditorialNote.add(form.get('note')[0]);

@@ -3,9 +3,12 @@ package org.callimachusproject.behaviours;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 import info.aduna.net.ParsedURI;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -115,7 +118,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 			Map<String, String[]> request) throws Exception {
 		HttpResponse unauth = null;
 		Page unauthorized = getCalliUnauthorized();
-		for (AuthenticationManager realm : getCalliAuthentications()) {
+		for (AuthenticationManager realm : getAuthenticationManagers()) {
 			unauth = realm.unauthorized(method, resource, request);
 			if (unauth != null)
 				break;
@@ -152,7 +155,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	@Override
 	public String authenticateRequest(String method, Object resource,
 			Map<String, String[]> request) throws RepositoryException {
-		for (AuthenticationManager realm : getCalliAuthentications()) {
+		for (AuthenticationManager realm : getAuthenticationManagers()) {
 			String ret = realm.authenticateRequest(method, resource, request);
 			if (ret != null)
 				return ret;
@@ -164,7 +167,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	public HttpMessage authenticationInfo(String method, Object resource,
 			Map<String, String[]> request) {
 		HttpMessage msg = new BasicHttpResponse(_204);
-		for (AuthenticationManager realm : getCalliAuthentications()) {
+		for (AuthenticationManager realm : getAuthenticationManagers()) {
 			HttpMessage resp = realm.authenticationInfo(method, resource, request);
 			if (resp != null) {
 				for (Header hd : resp.getAllHeaders()) {
@@ -173,6 +176,20 @@ public abstract class RealmSupport implements Realm, RDFObject {
 			}
 		}
 		return msg;
+	}
+
+	private Iterable<AuthenticationManager> getAuthenticationManagers() {
+		List<AuthenticationManager> result = new ArrayList<AuthenticationManager>();
+		Iterator<?> iter = getCalliAuthentications().iterator();
+		while (iter.hasNext()) {
+			Object next = iter.next();
+			if (next instanceof AuthenticationManager) {
+				result.add((AuthenticationManager) next);
+			} else {
+				logger.error("{} is not an AuthenticationManager", next);
+			}
+		}
+		return result;
 	}
 
 }

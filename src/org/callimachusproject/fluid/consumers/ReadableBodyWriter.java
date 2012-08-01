@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.CharBuffer;
 import java.nio.channels.ReadableByteChannel;
@@ -49,11 +50,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
@@ -107,6 +108,8 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 			protected ReadableByteChannel asChannel(final FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
+				if (result == null)
+					return null;
 				return new ProducerChannel(new WritableProducer() {
 					public void produce(WritableByteChannel out)
 							throws IOException {
@@ -142,6 +145,8 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 					throws OpenRDFException, IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
+				if (result == null)
+					return null;
 				return new ProducerStream(new OutputProducer() {
 					public void produce(OutputStream out) throws IOException {
 						try {
@@ -196,12 +201,31 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 			}
 
 			@Override
+			protected String toCharSequenceMedia(FluidType media) {
+				return ftype.as("text/plain", "text/*").as(media).preferred();
+			}
+
+			@Override
+			protected CharSequence asCharSequence(FluidType media) throws OpenRDFException,
+					IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerConfigurationException, TransformerException {
+				if (result == null)
+					return null;
+				StringWriter output = new StringWriter();
+				writeTo(output);
+				return output.getBuffer();
+			}
+
+			@Override
 			protected String toReaderMedia(FluidType media) {
 				return ftype.as("text/plain", "text/*").as(media).preferred();
 			}
 
 			@Override
 			protected Reader asReader(FluidType media) {
+				if (result == null)
+					return null;
 				if (result instanceof Reader)
 					return (Reader) result;
 				return new Reader() {
@@ -222,6 +246,25 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 						return String.valueOf(result);
 					}
 				};
+			}
+
+			@Override
+			protected void writeTo(Writer writer, FluidType media)
+					throws OpenRDFException, IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerConfigurationException, TransformerException {
+				Reader reader = asReader(media);
+				if (reader == null)
+					return;
+				try {
+					int read;
+					char[] cbuf = new char[1024];
+					while ((read = reader.read(cbuf)) >= 0) {
+						writer.write(cbuf, 0, read);
+					}
+				} finally {
+					reader.close();
+				}
 			}
 
 			@Override

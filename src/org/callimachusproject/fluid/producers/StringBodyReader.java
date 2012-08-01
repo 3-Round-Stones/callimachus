@@ -49,7 +49,10 @@ import org.callimachusproject.server.util.ChannelUtil;
 public class StringBodyReader implements Producer {
 
 	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
-		return String.class.equals(ftype.asClass()) && ftype.is("text/*");
+		Class<?> cls = ftype.asClass();
+		if (Object.class.equals(cls))
+			return false;
+		return cls.isAssignableFrom(String.class) && ftype.is("text/*");
 	}
 
 	public String produce(FluidType ftype, ReadableByteChannel in,
@@ -57,7 +60,7 @@ public class StringBodyReader implements Producer {
 		if (in == null)
 			return null;
 		if (charset == null) {
-			charset = Charset.forName("ISO-8859-1");
+			charset = Charset.defaultCharset();
 		}
 		Reader reader = ChannelUtil.newReader(in, charset);
 		try {

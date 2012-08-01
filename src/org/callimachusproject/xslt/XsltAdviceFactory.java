@@ -49,7 +49,7 @@ public class XsltAdviceFactory implements AdviceProvider, AdviceFactory {
 			inputClass = m.getGenericParameterTypes()[input];
 		}
 		XSLTransformer xslt = createXSLTransformer(m);
-		return new XsltAdvice(xslt, m.getReturnType(), inputClass, input,
+		return new XsltAdvice(xslt, m.getGenericReturnType(), inputClass, input,
 				bindingNames);
 	}
 

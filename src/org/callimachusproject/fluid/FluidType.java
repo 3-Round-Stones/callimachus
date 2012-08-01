@@ -19,6 +19,7 @@ package org.callimachusproject.fluid;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -84,7 +85,7 @@ public class FluidType extends GenericType {
 
 	@Override
 	public String toString() {
-		String list = mediaTypes.toString();
+		String list = Arrays.toString(media());
 		return super.toString() + " " + list.substring(1, list.length() - 1);
 	}
 

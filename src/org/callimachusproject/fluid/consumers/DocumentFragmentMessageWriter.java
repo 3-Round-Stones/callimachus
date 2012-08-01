@@ -276,6 +276,28 @@ public class DocumentFragmentMessageWriter implements
 				return node;
 			}
 
+			@Override
+			protected String toElementMedia(FluidType media) {
+				return ftype.as(media).preferred();
+			}
+
+			@Override
+			protected Element asElement(FluidType media)
+					throws OpenRDFException, IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerConfigurationException, TransformerException {
+				if (node == null)
+					return null;
+				NodeList nodes = node.getChildNodes();
+				if (nodes.getLength() == 1
+						&& node.getFirstChild() instanceof Element)
+					return (Element) node.getFirstChild();
+				Document doc = asDocument(media);
+				if (doc == null)
+					return null;
+				return doc.getDocumentElement();
+			}
+
 			public String toString() {
 				return String.valueOf(node);
 			}

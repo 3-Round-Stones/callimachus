@@ -1,16 +1,10 @@
 package org.callimachusproject.xslt;
 
-import java.io.ByteArrayOutputStream;
-import java.io.CharArrayWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.nio.channels.ReadableByteChannel;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLEventReader;
 import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.annotations.type;
@@ -19,19 +13,15 @@ import org.openrdf.model.Value;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.traits.ObjectMessage;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentFragment;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class XsltAdvice implements Advice {
 	private final XSLTransformer xslt;
-	private final Class<?> returnClass;
+	private final Type returnClass;
 	private final Type inputClass;
 	private final int inputIdx;
 	private final String[][] bindingNames;
 
-	public XsltAdvice(XSLTransformer xslt, Class<?> returnClass,
+	public XsltAdvice(XSLTransformer xslt, Type returnClass,
 			Type inputClass, int inputIdx, String[][] bindingNames) {
 		this.xslt = xslt;
 		this.returnClass = returnClass;
@@ -50,6 +40,11 @@ public class XsltAdvice implements Advice {
 		Resource self = ((RDFObject) target).getResource();
 		Type[] ptypes = message.getMethod().getGenericParameterTypes();
 		String[][] mediaTypes = getMediaTypes(message.getMethod().getParameterAnnotations());
+		String[] returnMedia = new String[0];
+		type returnType = message.getMethod().getAnnotation(type.class);
+		if (returnType != null) {
+			returnMedia = returnType.value();
+		}
 		Object[] args = message.getParameters();
 		assert args.length == ptypes.length;
 		TransformBuilder tb = transform(inputIdx < 0 ? null : args[inputIdx],
@@ -60,7 +55,7 @@ public class XsltAdvice implements Advice {
 				tb = with(tb, name, args[i], ptypes[i], mediaTypes[i]);
 			}
 		}
-		return as(tb, returnClass);
+		return as(tb, returnClass, returnMedia);
 	}
 
 	private String[][] getMediaTypes(Annotation[][] anns) {
@@ -93,43 +88,9 @@ public class XsltAdvice implements Advice {
 		return tb.with(name, arg, type, media);
 	}
 
-	private Object as(TransformBuilder result, Class<?> rclass)
+	private Object as(TransformBuilder result, Type rclass, String... media)
 			throws TransformerException, IOException {
-
-		if (Document.class.equals(rclass)) {
-			return result.asDocument();
-		} else if (DocumentFragment.class.equals(rclass)) {
-			return result.asDocumentFragment();
-		} else if (Element.class.equals(rclass)) {
-			return result.asElement();
-		} else if (Node.class.equals(rclass)) {
-			return result.asNode();
-
-		} else if (byte[].class.equals(rclass)) {
-			return result.asByteArray();
-		} else if (CharSequence.class.equals(rclass)) {
-			return result.asCharSequence();
-		} else if (Readable.class.equals(rclass)) {
-			return result.asReadable();
-		} else if (String.class.equals(rclass)) {
-			return result.asString();
-
-		} else if (Reader.class.equals(rclass)) {
-			return result.asReader();
-		} else if (CharArrayWriter.class.equals(rclass)) {
-			return result.asCharArrayWriter();
-		} else if (ByteArrayOutputStream.class.equals(rclass)) {
-			return result.asByteArrayOutputStream();
-		} else if (ReadableByteChannel.class.equals(rclass)) {
-			return result.asReadableByteChannel();
-		} else if (InputStream.class.equals(rclass)) {
-			return result.asInputStream();
-		} else if (XMLEventReader.class.equals(rclass)) {
-			return result.asXMLEventReader();
-
-		} else {
-			return result.asObject();
-		}
+		return result.as(rclass, media);
 	}
 
 }

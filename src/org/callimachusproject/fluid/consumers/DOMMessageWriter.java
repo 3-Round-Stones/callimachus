@@ -280,6 +280,24 @@ public class DOMMessageWriter implements Consumer<Node> {
 				}
 			}
 
+			@Override
+			protected String toElementMedia(FluidType media) {
+				return ftype.as(media).preferred();
+			}
+
+			@Override
+			protected Element asElement(FluidType media)
+					throws OpenRDFException, IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerConfigurationException, TransformerException {
+				if (node instanceof Element)
+					return (Element) node;
+				Document doc = asDocument(media);
+				if (doc == null)
+					return null;
+				return doc.getDocumentElement();
+			}
+
 			public String toString() {
 				return String.valueOf(node);
 			}

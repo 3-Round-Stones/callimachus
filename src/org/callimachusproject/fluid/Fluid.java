@@ -36,6 +36,7 @@ import org.apache.http.HttpResponse;
 import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
@@ -107,6 +108,16 @@ public interface Fluid {
 			TransformerConfigurationException, TransformerException;
 
 	/**
+	 * {@link CharSequence}
+	 */
+	String toCharSequenceMedia(String... media);
+
+	CharSequence asCharSequence(String... media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException;
+
+	/**
 	 * {@link HttpEntity}
 	 */
 	String toHttpEntityMedia(String... media);
@@ -150,7 +161,17 @@ public interface Fluid {
 	 */
 	String toDocumentFragmentMedia(String... media);
 
-	DocumentFragment asDocumentFragment(String... media) throws OpenRDFException, IOException,
+	DocumentFragment asDocumentFragment(String... media)
+			throws OpenRDFException, IOException, XMLStreamException,
+			ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException;
+
+	/**
+	 * {@link Element}
+	 */
+	String toElementMedia(String... media);
+
+	Element asElement(String... media) throws OpenRDFException, IOException,
 			XMLStreamException, ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException;
 

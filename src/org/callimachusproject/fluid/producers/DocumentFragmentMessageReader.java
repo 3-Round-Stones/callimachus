@@ -99,17 +99,18 @@ public class DocumentFragmentMessageReader implements Producer {
 		return type.isAssignableFrom(DocumentFragment.class);
 	}
 
-	public DocumentFragment produce(FluidType ftype, ReadableByteChannel in,
+	public DocumentFragment produce(FluidType ftype, ReadableByteChannel ch,
 			Charset charset, String base, FluidBuilder builder)
 			throws TransformerException, SAXException, IOException,
 			ParserConfigurationException {
-		Class<?> type = ftype.asClass();
-		if (in == null)
-			return null;
 		try {
-			DocumentFragment node = createNode(type);
+			InputStream in = ChannelUtil.newInputStream(ch);
+			Document doc = createDocument(in, charset, base);
+			if (doc == null)
+				return null;
+			DocumentFragment node = createNode();
 			DOMResult result = new DOMResult(node);
-			Source source = createSource(in, charset, base);
+			Source source = createSource(base, doc);
 			Transformer transformer = factory.newTransformer();
 			ErrorCatcher listener = new ErrorCatcher();
 			transformer.setErrorListener(listener);
@@ -118,27 +119,31 @@ public class DocumentFragmentMessageReader implements Producer {
 				throw listener.getFatalError();
 			return node;
 		} finally {
-			if (in != null) {
-				in.close();
+			if (ch != null) {
+				ch.close();
 			}
 		}
 	}
 
-	private DocumentFragment createNode(Class<?> type)
-			throws ParserConfigurationException {
+	private DOMSource createSource(String base, Document doc) {
+		if (base == null)
+			return new DOMSource(doc);
+		return new DOMSource(doc, base);
+	}
+
+	private DocumentFragment createNode() throws ParserConfigurationException {
 		Document doc = builder.newDocument();
 		return doc.createDocumentFragment();
 	}
 
-	private Source createSource(ReadableByteChannel cin, Charset charset,
+	private Document createDocument(InputStream in, Charset charset,
 			String base) throws TransformerException, SAXException,
 			IOException, ParserConfigurationException {
-		InputStream in = ChannelUtil.newInputStream(cin);
 		if (charset == null) {
 			try {
 				if (base == null)
-					return new DOMSource(builder.parse(in));
-				return new DOMSource(builder.parse(in, base), base);
+					return builder.parse(in);
+				return builder.parse(in, base);
 			} finally {
 				in.close();
 			}
@@ -146,8 +151,8 @@ public class DocumentFragmentMessageReader implements Producer {
 		Reader reader = new InputStreamReader(in, charset);
 		try {
 			if (base == null)
-				return new DOMSource(builder.parse(reader));
-			return new DOMSource(builder.parse(reader, base), base);
+				return builder.parse(reader);
+			return builder.parse(reader, base);
 		} finally {
 			reader.close();
 		}

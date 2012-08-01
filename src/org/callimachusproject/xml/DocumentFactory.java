@@ -28,9 +28,14 @@
  */
 package org.callimachusproject.xml;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -72,26 +77,25 @@ public class DocumentFactory {
 
 	public Document parse(InputStream in, String systemId) throws SAXException,
 			IOException, ParserConfigurationException {
+		in = checkForVoidXML(in);
+		if (in == null)
+			return null;
 		return factory.newDocumentBuilder().parse(in, systemId);
 	}
 
 	public Document parse(InputStream in) throws SAXException, IOException,
 			ParserConfigurationException {
+		in = checkForVoidXML(in);
+		if (in == null)
+			return null;
 		return factory.newDocumentBuilder().parse(in);
-	}
-
-	public Document parse(String url) throws SAXException, IOException,
-			ParserConfigurationException {
-		return factory.newDocumentBuilder().parse(url);
-	}
-
-	public Document parse(InputSource is) throws SAXException, IOException,
-			ParserConfigurationException {
-		return factory.newDocumentBuilder().parse(is);
 	}
 
 	public Document parse(Reader reader, String systemId) throws SAXException,
 			IOException, ParserConfigurationException {
+		reader = checkForVoidXML(reader);
+		if (reader == null)
+			return null;
 		InputSource is = new InputSource(reader);
 		is.setSystemId(systemId);
 		return factory.newDocumentBuilder().parse(is);
@@ -99,7 +103,126 @@ public class DocumentFactory {
 
 	public Document parse(Reader reader) throws SAXException, IOException,
 			ParserConfigurationException {
+		reader = checkForVoidXML(reader);
+		if (reader == null)
+			return null;
 		return factory.newDocumentBuilder().parse(new InputSource(reader));
+	}
+
+	private Reader checkForVoidXML(Reader reader) throws IOException {
+		if (reader == null)
+			return null;
+		if (!reader.markSupported()) {
+			reader = new BufferedReader(reader);
+		}
+		CharBuffer cbuf = CharBuffer.allocate(100);
+		reader.mark(cbuf.limit());
+		while (cbuf.hasRemaining()) {
+			int read = reader.read(cbuf);
+			if (read < 0)
+				break;
+		}
+		if (cbuf.hasRemaining() && isEmpty(cbuf.flip().toString())) {
+			reader.close();
+			return null;
+		}
+		reader.reset();
+		return reader;
+	}
+
+	private InputStream checkForVoidXML(InputStream input) throws IOException {
+		if (input == null)
+			return null;
+		if (!input.markSupported()) {
+			input = new BufferedInputStream(input);
+		}
+		ByteBuffer buf = ByteBuffer.allocate(200);
+		input.mark(buf.limit());
+		while (buf.hasRemaining()) {
+			int read = input.read(buf.array(), buf.position(),
+					buf.remaining());
+			if (read < 0)
+				break;
+			buf.position(buf.position() + read);
+		}
+		if (buf.hasRemaining() && isEmpty(buf.array(), buf.position())) {
+			input.close();
+			return null;
+		}
+		input.reset();
+		return input;
+	}
+
+	private boolean isEmpty(byte[] buf, int len) {
+		if (len == 0)
+			return true;
+		String xml = decodeXML(buf, len);
+		if (xml == null)
+			return false; // Don't start with < in UTF-8 or UTF-16
+		return isEmpty(xml);
+	}
+
+	private boolean isEmpty(String xml) {
+		if (xml == null || xml.length() < 1 || xml.trim().length() < 1)
+			return true;
+		if (xml.length() < 2)
+			return false;
+		if (xml.charAt(0) != '<' || xml.charAt(1) != '?')
+			return false;
+		if (xml.charAt(xml.length() - 2) != '?'
+				|| xml.charAt(xml.length() - 1) != '>')
+			return false;
+		for (int i = 1, n = xml.length() - 2; i < n; i++) {
+			if (xml.charAt(i) == '<')
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Decodes the stream just enough to read the &lt;?xml declaration. This
+	 * method can distinguish between UTF-16, UTF-8, and EBCDIC xml files, but
+	 * not UTF-32.
+	 * 
+	 * @return a string starting with &lt; or null
+	 */
+	private String decodeXML(byte[] buf, int len) {
+		StringBuilder sb = new StringBuilder(len);
+		for (int i = 0; i < len; i++) {
+			sb.append((char) buf[i]);
+		}
+		String s = sb.toString();
+		String APPFcharset = null; // 'charset' according to XML APP. F
+		int byteOrderMark = 0;
+		if (s.startsWith("\u00FE\u00FF")) {
+			APPFcharset = "UTF-16BE";
+			byteOrderMark = 2;
+		} else if (s.startsWith("\u00FF\u00FE")) {
+			APPFcharset = "UTF-16LE";
+			byteOrderMark = 2;
+		} else if (s.startsWith("\u00EF\u00BB\u00BF")) {
+			APPFcharset = "UTF-8";
+			byteOrderMark = 3;
+		} else if (s.startsWith("\u0000<")) {
+			APPFcharset = "UTF-16BE";
+		} else if (s.startsWith("<\u0000")) {
+			APPFcharset = "UTF-16LE";
+		} else if (s.startsWith("<")) {
+			APPFcharset = "US-ASCII";
+		} else if (s.startsWith("\u004C\u006F\u00A7\u0094")) {
+			APPFcharset = "CP037"; // EBCDIC
+		} else {
+			return null;
+		}
+		try {
+			byte[] bytes = s.substring(byteOrderMark).getBytes("iso-8859-1");
+			String xml = new String(bytes, APPFcharset);
+			if (xml.startsWith("<"))
+				return xml;
+			return null;
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 }

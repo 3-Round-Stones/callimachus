@@ -55,12 +55,13 @@ public abstract class URIListReader<URI> implements Producer {
 	private Class<URI> componentType;
 
 	public URIListReader(Class<URI> componentType) {
-		assert componentType != null;
 		this.componentType = componentType;
 	}
 
 	@Override
 	public String toString() {
+		if (componentType == null)
+			return super.toString();
 		return componentType.getName();
 	}
 

@@ -32,7 +32,6 @@ package org.callimachusproject.fluid.producers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
@@ -48,7 +47,6 @@ import org.callimachusproject.xml.DocumentFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -70,28 +68,24 @@ public class DOMMessageReader implements Producer {
 			Charset charset, String base, FluidBuilder builder)
 			throws TransformerConfigurationException, TransformerException,
 			ParserConfigurationException, IOException, SAXException {
-		Class<?> type = ftype.asClass();
-		if (cin == null)
-			return null;
-		Document doc = createDocument(cin, charset);
-		if (type.isAssignableFrom(Element.class))
-			return doc.getDocumentElement();
-		return doc;
+		InputStream in = ChannelUtil.newInputStream(cin);
+		Document doc = createDocument(in, charset);
+		if (doc == null || ftype.asClass().isAssignableFrom(Document.class))
+			return doc;
+		return doc.getDocumentElement();
 	}
 
-	private Document createDocument(ReadableByteChannel cin, Charset charset) throws ParserConfigurationException, SAXException,
+	private Document createDocument(InputStream in, Charset charset) throws ParserConfigurationException, SAXException,
 			IOException {
 		try {
-			InputStream in = ChannelUtil.newInputStream(cin);
-			if (charset == null && in != null) {
+			if (in == null)
+				return null;
+			if (charset == null)
 				return builder.parse(in);
-			}
-			Reader reader = new InputStreamReader(in, charset);
-			InputSource is = new InputSource(reader);
-			return builder.parse(is);
+			return builder.parse(new InputStreamReader(in, charset));
 		} finally {
-			if (cin != null) {
-				cin.close();
+			if (in != null) {
+				in.close();
 			}
 		}
 	}

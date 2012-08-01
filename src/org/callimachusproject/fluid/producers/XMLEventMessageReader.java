@@ -63,6 +63,6 @@ public class XMLEventMessageReader implements Producer {
 		InputStream stream = ChannelUtil.newInputStream(in);
 		if (charset == null)
 			return factory.createXMLEventReader(stream);
-		return factory.createXMLEventReader(stream, charset.name());
+		return factory.createXMLEventReader(stream, charset);
 	}
 }

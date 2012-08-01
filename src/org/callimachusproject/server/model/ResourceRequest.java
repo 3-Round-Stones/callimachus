@@ -282,16 +282,7 @@ public class ResourceRequest extends Request {
 		return accepter;
 	}
 
-	public boolean isAcceptable(Class<?> type, Type genericType) {
-		return isAcceptable("*/*", type, genericType);
-	}
-
-	public boolean isAcceptable(String mediaType) {
-		return isAcceptable(mediaType, null, null);
-	}
-
-	public boolean isAcceptable(String mediaType, Class<?> type,
-			Type genericType) {
+	public boolean isAcceptable(Type genericType, String... mediaType) {
 		FluidType ftype = new FluidType(genericType, mediaType);
 		return writer.isConsumable(ftype) && writer.nil(ftype).toMedia(accepter) != null;
 	}

@@ -30,6 +30,7 @@ package org.callimachusproject.server.util;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.Pipe;
@@ -58,8 +59,7 @@ public class ProducerChannel implements ReadableByteChannel {
 	private final Future<Void> task;
 	private final CountDownLatch started = new CountDownLatch(1);
 	private final CountDownLatch stopped = new CountDownLatch(1);
-	private IOException io;
-	private Error error;
+	private Throwable throwable;
 
 	public ProducerChannel(final WritableProducer producer) throws IOException {
 		this.producer = producer;
@@ -76,11 +76,11 @@ public class ProducerChannel implements ReadableByteChannel {
 				} catch (ClosedChannelException e) {
 					// exit
 				} catch (IOException e) {
-					io = e;
+					throwable = e;
 				} catch (RuntimeException e) {
-					io = new IOException(e);
+					throwable = e;
 				} catch (Error e) {
-					error = e;
+					throwable = e;
 				} finally {
 					try {
 						sink.close();
@@ -89,11 +89,11 @@ public class ProducerChannel implements ReadableByteChannel {
 					} catch (ClosedChannelException e) {
 						// exit
 					} catch (IOException e) {
-						io = io == null ? e : io;
+						throwable = throwable == null ? e : throwable;
 					} catch (RuntimeException e) {
-						io = io == null ? new IOException(e) : io;
+						throwable = throwable == null ? e : throwable;
 					} catch (Error e) {
-						error = error == null ? e : error;
+						throwable = throwable == null ? e : throwable;
 					} finally {
 						stopped.countDown();
 					}
@@ -143,16 +143,14 @@ public class ProducerChannel implements ReadableByteChannel {
 
 	private void verify() throws IOException {
 		try {
-			if (io != null)
-				throw io;
+			if (throwable instanceof Error)
+				throw (Error) throwable;
+			if (throwable instanceof IOException)
+				throw new IOException(throwable);
+			if (throwable != null)
+				throw new UndeclaredThrowableException(throwable);
 		} finally {
-			io = null;
-		}
-		try {
-			if (error != null)
-				throw error;
-		} finally {
-			error = null;
+			throwable = null;
 		}
 	}
 }

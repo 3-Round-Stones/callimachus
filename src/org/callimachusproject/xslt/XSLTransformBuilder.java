@@ -40,14 +40,13 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.LinkedHashSet;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
@@ -58,10 +57,15 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stream.StreamResult;
 
+import org.callimachusproject.fluid.Fluid;
+import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.xml.DocumentFactory;
-import org.callimachusproject.xml.XMLEventReaderFactory;
+import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
+import org.xml.sax.SAXException;
 
 /**
  * Helper class to run XSLT with parameters.
@@ -113,12 +117,22 @@ public class XSLTransformBuilder extends TransformBuilder {
 		opened.close();
 	}
 
-	protected void fatalError(TransformerException exception) {
-		listener.fatalError(exception);
-	}
-
-	protected void ioException(IOException exception) {
-		listener.ioException(exception);
+	@Override
+	public Object as(Type type, String... media) throws TransformerException,
+			IOException {
+		try {
+			FluidType ftype = new FluidType(type, media);
+			Fluid f = asFluid(ftype);
+			return f.as(ftype);
+		} catch (OpenRDFException e) {
+			throw new TransformerException(e);
+		} catch (XMLStreamException e) {
+			throw new TransformerException(e);
+		} catch (ParserConfigurationException e) {
+			throw new TransformerException(e);
+		} catch (SAXException e) {
+			throw new TransformerException(e);
+		}
 	}
 
 	public DocumentFragment asDocumentFragment() throws TransformerException,
@@ -159,28 +173,6 @@ public class XSLTransformBuilder extends TransformBuilder {
 		} catch (IOException e) {
 			throw handle(e);
 		} catch (ParserConfigurationException e) {
-			throw handle(new TransformerException(e));
-		} catch (TransformerException e) {
-			throw handle(e);
-		} catch (RuntimeException e) {
-			throw handle(e);
-		} catch (Error e) {
-			throw handle(e);
-		}
-	}
-
-	public XMLEventReader asXMLEventReader() throws TransformerException,
-			IOException {
-		XMLEventReaderFactory infactory = XMLEventReaderFactory.newInstance();
-		try {
-			Reader reader = asReader();
-			if (reader == null)
-				return null;
-			Properties oformat = new Properties();
-			oformat.put("method", "xml");
-			transformer.setOutputProperties(oformat);
-			return infactory.createXMLEventReader(reader);
-		} catch (XMLStreamException e) {
 			throw handle(new TransformerException(e));
 		} catch (TransformerException e) {
 			throw handle(e);
@@ -300,6 +292,49 @@ public class XSLTransformBuilder extends TransformBuilder {
 		}
 	}
 
+	private Fluid asFluid(FluidType ftype) throws TransformerException,
+			IOException {
+		if (ftype.is(String.class) || ftype.is(CharSequence.class)
+				|| ftype.is(Reader.class) || ftype.is(Readable.class))
+			return asReaderFluid();
+		if (ftype.is("application/*") || !ftype.is("text/*"))
+			return asStreamFluid();
+		return asReaderFluid();
+	}
+
+	private Fluid asReaderFluid() throws TransformerException, IOException {
+		FluidBuilder fb = FluidFactory.getInstance().builder();
+		FluidType ftype = new FluidType(Reader.class, "text/xml", "text/xsl",
+				"text/xml-external-parsed-entity", "text/*");
+		return fb.consume(asReader(), source.getSystemId(), ftype);
+	}
+
+	private Fluid asStreamFluid() throws TransformerException, IOException {
+		FluidBuilder fb = FluidFactory.getInstance().builder();
+		FluidType ftype = new FluidType(InputStream.class, "application/xml",
+				"image/xml", "application/xml-external-parsed-entity",
+				"text/xml", "text/xsl", "text/xml-external-parsed-entity",
+				"text/*");
+		return fb.consume(asInputStream(), source.getSystemId(), ftype);
+	}
+
+	private void transform(Result result) throws IOException,
+			TransformerException {
+		try {
+			if (listener.isFatal())
+				throw listener.getFatalError();
+			transformer.transform(source, result);
+			if (listener.isFatal())
+				throw listener.getFatalError();
+			if (listener.isIOException())
+				throw listener.getIOException();
+		} catch (TransformerException e) {
+			throw e;
+		} finally {
+			close();
+		}
+	}
+
 	private boolean isEmpty(byte[] buf, int len) {
 		if (len == 0)
 			return true;
@@ -324,23 +359,6 @@ public class XSLTransformBuilder extends TransformBuilder {
 				return false;
 		}
 		return true;
-	}
-
-	private void transform(Result result) throws IOException,
-			TransformerException {
-		try {
-			if (listener.isFatal())
-				throw listener.getFatalError();
-			transformer.transform(source, result);
-			if (listener.isFatal())
-				throw listener.getFatalError();
-			if (listener.isIOException())
-				throw listener.getIOException();
-		} catch (TransformerException e) {
-			throw e;
-		} finally {
-			close();
-		}
 	}
 
 	/**

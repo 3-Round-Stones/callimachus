@@ -181,7 +181,7 @@ public class FluidBuilder {
 					return null;
 				if (reader == null)
 					throw new BadRequest("Cannot read " + inType + " into "
-							+ outType);
+							+ ftype);
 				Object o = reader.produce(outType.component(), in, charset,
 						base, FluidBuilder.this);
 				return outType.castComponent(o);
@@ -233,8 +233,8 @@ public class FluidBuilder {
 			}
 		}
 		if (writer == null)
-			throw new BadRequest("Cannot write " + mtype.asType() + " into "
-					+ mtype.preferred());
+			throw new BadRequest("Cannot write " + mtype + " into "
+					+ mtype);
 		return new ChannelFluid(writer.consume(result, base, mtype, this), this);
 	}
 

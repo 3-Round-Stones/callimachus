@@ -5,9 +5,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Type;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
@@ -35,6 +35,22 @@ public class IdentityTransform extends TransformBuilder {
 	}
 
 	@Override
+	public Object as(Type type, String... media) throws TransformerException,
+			IOException {
+		try {
+			return fluid.as(type, media);
+		} catch (OpenRDFException e) {
+			throw new TransformerException(e);
+		} catch (XMLStreamException e) {
+			throw new TransformerException(e);
+		} catch (ParserConfigurationException e) {
+			throw new TransformerException(e);
+		} catch (SAXException e) {
+			throw new TransformerException(e);
+		}
+	}
+
+	@Override
 	public Document asDocument() throws TransformerException, IOException {
 		try {
 			return fluid.asDocument();
@@ -54,22 +70,6 @@ public class IdentityTransform extends TransformBuilder {
 			IOException {
 		try {
 			return fluid.asDocumentFragment();
-		} catch (OpenRDFException e) {
-			throw new TransformerException(e);
-		} catch (XMLStreamException e) {
-			throw new TransformerException(e);
-		} catch (ParserConfigurationException e) {
-			throw new TransformerException(e);
-		} catch (SAXException e) {
-			throw new TransformerException(e);
-		}
-	}
-
-	@Override
-	public XMLEventReader asXMLEventReader() throws TransformerException,
-			IOException {
-		try {
-			return fluid.asXMLEventReader();
 		} catch (OpenRDFException e) {
 			throw new TransformerException(e);
 		} catch (XMLStreamException e) {
@@ -156,6 +156,11 @@ public class IdentityTransform extends TransformBuilder {
 		} catch (SAXException e) {
 			throw new TransformerException(e);
 		}
+	}
+
+	@Override
+	protected void setParameter(String name, Object value) {
+		// no parameters
 	}
 
 }

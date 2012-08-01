@@ -36,6 +36,8 @@ import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -58,11 +60,11 @@ public abstract class Vapor extends AbstractFluid {
 		if (ftype.is(InputStream.class))
 			return toStreamMedia(ftype);
 
-		if (ftype.is(Reader.class))
+		if (ftype.is(Reader.class) || ftype.is(Readable.class))
 			return toReaderMedia(ftype);
 
-		if (ftype.is(String.class))
-			return toStringMedia(ftype);
+		if (ftype.is(String.class) || ftype.is(CharSequence.class))
+			return toCharSequenceMedia(ftype);
 
 		if (ftype.is(HttpEntity.class))
 			return toHttpEntityMedia(ftype);
@@ -73,11 +75,14 @@ public abstract class Vapor extends AbstractFluid {
 		if (ftype.is(XMLEventReader.class))
 			return toXMLEventReaderMedia(ftype);
 
-		if (ftype.is(Document.class))
+		if (ftype.is(Document.class) || ftype.is(Node.class))
 			return toDocumentMedia(ftype);
 
 		if (ftype.is(DocumentFragment.class))
 			return toDocumentFragmentMedia(ftype);
+
+		if (ftype.is(Element.class))
+			return toElementMedia(ftype);
 
 		return null;
 	}
@@ -93,11 +98,18 @@ public abstract class Vapor extends AbstractFluid {
 		if (ftype.is(InputStream.class))
 			return asStream(ftype);
 
-		if (ftype.is(Reader.class))
+		if (ftype.is(Reader.class) || ftype.is(Readable.class))
 			return asReader(ftype);
 
-		if (ftype.is(String.class))
-			return asString(ftype);
+		if (ftype.is(CharSequence.class))
+			return asCharSequence(ftype);
+
+		if (ftype.is(String.class)) {
+			CharSequence cs = asCharSequence(ftype);
+			if (cs == null)
+				return null;
+			return cs.toString();
+		}
 
 		if (ftype.is(HttpEntity.class))
 			return asHttpEntity(ftype);
@@ -108,11 +120,14 @@ public abstract class Vapor extends AbstractFluid {
 		if (ftype.is(XMLEventReader.class))
 			return asXMLEventReader(ftype);
 
-		if (ftype.is(Document.class))
+		if (ftype.is(Document.class) || ftype.is(Node.class))
 			return asDocument(ftype);
 
 		if (ftype.is(DocumentFragment.class))
 			return asDocumentFragment(ftype);
+
+		if (ftype.is(Element.class))
+			return asElement(ftype);
 
 		asVoid();
 		return null;
@@ -196,13 +211,13 @@ public abstract class Vapor extends AbstractFluid {
 	}
 
 	/**
-	 * {@link String}
+	 * {@link CharSequence}
 	 */
-	protected String toStringMedia(FluidType media) {
+	protected String toCharSequenceMedia(FluidType media) {
 		return null;
 	}
 
-	protected String asString(FluidType media) throws OpenRDFException,
+	protected CharSequence asCharSequence(FluidType media) throws OpenRDFException,
 			IOException, XMLStreamException, ParserConfigurationException,
 			SAXException, TransformerConfigurationException,
 			TransformerException {
@@ -279,6 +294,21 @@ public abstract class Vapor extends AbstractFluid {
 			throws OpenRDFException, IOException, XMLStreamException,
 			ParserConfigurationException, SAXException,
 			TransformerConfigurationException, TransformerException {
+		asVoid();
+		return null;
+	}
+
+	/**
+	 * {@link Element}
+	 */
+	protected String toElementMedia(FluidType media) {
+		return null;
+	}
+
+	protected Element asElement(FluidType media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException {
 		asVoid();
 		return null;
 	}

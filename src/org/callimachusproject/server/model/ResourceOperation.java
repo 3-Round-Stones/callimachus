@@ -826,36 +826,17 @@ public class ResourceOperation extends ResourceRequest {
 					return true; // no content
 			}
 		}
-		return getAcceptable(method, depth) != null;
-	}
-
-	private String getAcceptable(Method method, int depth) {
-		if (method == null)
-			return null;
 		if (depth > MAX_TRANSFORM_DEPTH) {
 			logger.error("Max transform depth exceeded: {}", method.getName());
-			return null;
+			return false;
 		}
 		if (method.isAnnotationPresent(transform.class)) {
 			for (String uri : method.getAnnotation(transform.class).value()) {
-				String str = getAcceptable(getTransform(uri), ++depth);
-				if (str != null)
-					return str;
+				if (isAcceptable(getTransform(uri), ++depth))
+					return true;
 			}
 		}
-		if (method.isAnnotationPresent(type.class)) {
-			for (String media : getTypes(method)) {
-				if (isAcceptable(media, method.getReturnType(), method
-						.getGenericReturnType()))
-					return media;
-			}
-			return null;
-		} else if (isAcceptable(method.getReturnType(), method
-				.getGenericReturnType())) {
-			return "*/*";
-		} else {
-			return null;
-		}
+		return isAcceptable(method.getGenericReturnType(), getTypes(method));
 	}
 
 	private Collection<String> getReadableTypes(Fluid input, Annotation[] anns, Class<?> ptype,

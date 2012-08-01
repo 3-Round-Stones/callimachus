@@ -37,6 +37,7 @@ import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
@@ -145,6 +146,20 @@ public abstract class AbstractFluid implements Fluid {
 	}
 
 	/**
+	 * {@link CharSequence}
+	 */
+	public String toCharSequenceMedia(String... media) {
+		return toMedia(new FluidType(CharSequence.class, media));
+	}
+
+	public CharSequence asCharSequence(String... media)
+			throws OpenRDFException, IOException, XMLStreamException,
+			ParserConfigurationException, SAXException,
+			TransformerConfigurationException, TransformerException {
+		return (CharSequence) as(new FluidType(CharSequence.class, media));
+	}
+
+	/**
 	 * {@link HttpEntity}
 	 */
 	public final String toHttpEntityMedia(String... media) {
@@ -211,6 +226,20 @@ public abstract class AbstractFluid implements Fluid {
 			TransformerConfigurationException, TransformerException {
 		return (DocumentFragment) as(new FluidType(DocumentFragment.class,
 				media));
+	}
+
+	/**
+	 * {@link Element}
+	 */
+	public String toElementMedia(String... media) {
+		return toMedia(new FluidType(Element.class, media));
+	}
+
+	public Element asElement(String... media) throws OpenRDFException,
+			IOException, XMLStreamException, ParserConfigurationException,
+			SAXException, TransformerConfigurationException,
+			TransformerException {
+		return (Element) as(new FluidType(Element.class, media));
 	}
 
 	/**

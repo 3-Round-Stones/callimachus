@@ -59,15 +59,17 @@ import org.xml.sax.SAXException;
  * @author James Leigh
  * 
  */
-public class FormStringMessageWriter implements Consumer<String> {
+public class FormStringMessageWriter implements Consumer<CharSequence> {
+
+	private static final String FORM_URLENCODED = "application/x-www-form-urlencoded";
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		if (!String.class.equals(mtype.asClass()))
+		if (!CharSequence.class.isAssignableFrom(mtype.asClass()))
 			return false;
-		return mtype.is("application/x-www-form-urlencoded");
+		return mtype.is(FORM_URLENCODED);
 	}
 
-	public Fluid consume(final String result, final String base,
+	public Fluid consume(final CharSequence result, final String base,
 			final FluidType ftype, final FluidBuilder builder) {
 		return new Vapor() {
 			public String getSystemId() {
@@ -84,23 +86,23 @@ public class FormStringMessageWriter implements Consumer<String> {
 
 			@Override
 			protected String toChannelMedia(FluidType media) {
-				return ftype.as(getMediaType()).as(media).preferred();
+				return ftype.as(FORM_URLENCODED).as(media).preferred();
 			}
 
 			@Override
 			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
-				return write(ftype.as(getMediaType()), result, base);
+				return write(ftype.as(FORM_URLENCODED), result, base);
 			}
 
 			@Override
-			protected String toStringMedia(FluidType media) {
-				return ftype.as(getMediaType()).as(media).preferred();
+			protected String toCharSequenceMedia(FluidType media) {
+				return ftype.as(FORM_URLENCODED).as(media).preferred();
 			}
 
 			@Override
-			protected String asString(FluidType media) throws OpenRDFException,
+			protected CharSequence asCharSequence(FluidType media) throws OpenRDFException,
 					IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -118,7 +120,7 @@ public class FormStringMessageWriter implements Consumer<String> {
 					TransformerException, ParserConfigurationException {
 				String mediaType = toChannelMedia(media);
 				return new ReadableHttpEntityChannel(mediaType, getSize(
-						ftype.as(getMediaType()), result), asChannel(media));
+						ftype.as(FORM_URLENCODED), result), asChannel(media));
 			}
 
 			public String toString() {
@@ -127,18 +129,14 @@ public class FormStringMessageWriter implements Consumer<String> {
 		};
 	}
 
-	String getMediaType() {
-		return "application/x-www-form-urlencoded";
-	}
-
-	long getSize(FluidType mtype, String result) {
+	long getSize(FluidType mtype, CharSequence result) {
 		Charset charset = mtype.getCharset();
 		if (charset == null)
 			return result.length(); // ISO-8859-1
-		return charset.encode(result).limit();
+		return charset.encode(result.toString()).limit();
 	}
 
-	ReadableByteChannel write(FluidType mtype, String result, String base)
+	ReadableByteChannel write(FluidType mtype, CharSequence result, String base)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
@@ -146,7 +144,7 @@ public class FormStringMessageWriter implements Consumer<String> {
 		return ChannelUtil.newChannel(out.toByteArray());
 	}
 
-	private void writeTo(FluidType mtype, String result, String base,
+	private void writeTo(FluidType mtype, CharSequence result, String base,
 			OutputStream out, int bufSize) throws IOException,
 			OpenRDFException, XMLStreamException, TransformerException,
 			ParserConfigurationException {
@@ -155,7 +153,7 @@ public class FormStringMessageWriter implements Consumer<String> {
 			charset = Charset.forName("ISO-8859-1");
 		}
 		Writer writer = new OutputStreamWriter(out, charset);
-		writer.write(result);
+		writer.append(result);
 		writer.flush();
 	}
 

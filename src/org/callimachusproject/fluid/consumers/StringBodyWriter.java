@@ -55,17 +55,17 @@ import org.xml.sax.SAXException;
  * @author James Leigh
  * 
  */
-public class StringBodyWriter implements Consumer<String> {
+public class StringBodyWriter implements Consumer<CharSequence> {
 	static final boolean SINGLE_BYTE = 1f == java.nio.charset.Charset
 			.defaultCharset().newEncoder().maxBytesPerChar();
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		if (!mtype.is(String.class))
+		if (!mtype.is("text/*"))
 			return false;
-		return mtype.is("text/*");
+		return CharSequence.class.isAssignableFrom(mtype.asClass());
 	}
 
-	public Fluid consume(final String result, final String base,
+	public Fluid consume(final CharSequence result, final String base,
 			final FluidType ftype, final FluidBuilder builder) {
 		return new Vapor() {
 			public String getSystemId() {
@@ -105,12 +105,12 @@ public class StringBodyWriter implements Consumer<String> {
 			}
 
 			@Override
-			protected String toStringMedia(FluidType media) {
+			protected String toCharSequenceMedia(FluidType media) {
 				return ftype.as(media).preferred();
 			}
 
 			@Override
-			protected String asString(FluidType media) throws OpenRDFException,
+			protected CharSequence asCharSequence(FluidType media) throws OpenRDFException,
 					IOException, XMLStreamException,
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
@@ -137,17 +137,17 @@ public class StringBodyWriter implements Consumer<String> {
 		return mimeType + ";charset=" + charset.name();
 	}
 
-	long getSize(String result, Charset charset) {
+	long getSize(CharSequence result, Charset charset) {
 		if (result == null)
 			return 0;
 		if (charset == null && SINGLE_BYTE)
 			return result.length();
 		if (charset == null)
-			return Charset.defaultCharset().encode(result).limit();
-		return charset.encode(result).limit();
+			return Charset.defaultCharset().encode(result.toString()).limit();
+		return charset.encode(result.toString()).limit();
 	}
 
-	ReadableByteChannel write(FluidType mtype, String result, String base)
+	ReadableByteChannel write(FluidType mtype, CharSequence result, String base)
 			throws IOException {
 		Charset charset = mtype.getCharset();
 		if (charset == null) {
@@ -155,6 +155,6 @@ public class StringBodyWriter implements Consumer<String> {
 		}
 		if (result == null)
 			return ChannelUtil.newChannel(new byte[0]);
-		return ChannelUtil.newChannel(result.getBytes(charset));
+		return ChannelUtil.newChannel(result.toString().getBytes(charset));
 	}
 }

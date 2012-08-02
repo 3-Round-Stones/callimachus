@@ -148,7 +148,7 @@ public class ProducerChannel implements ReadableByteChannel {
 			if (throwable instanceof IOException)
 				throw new IOException(throwable);
 			if (throwable != null)
-				throw new UndeclaredThrowableException(throwable);
+				throw new IOException(throwable);
 		} finally {
 			throwable = null;
 		}

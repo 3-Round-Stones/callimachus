@@ -94,7 +94,7 @@
     rdfs:domain <TransformXhtml>;
     rdfs:range <java:java.io.InputStream>.
 
-
+# GET /callimachus/transforms/page-info?http://localhost:8080/main-article.docbook
 :ResourceInfo rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <page-info>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
@@ -113,11 +113,9 @@
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT DISTINCT ?updated ?iri ?label {
             {
-                ?term prov:wasGeneratedBy [prov:endedAtTime ?updated]
-                FILTER sameTerm(?term,iri($resource))
+                $resource prov:wasGeneratedBy [prov:endedAtTime ?updated]
             } UNION {
-                ?iri calli:hasComponent* ?term
-                FILTER sameTerm(?term,iri($resource))
+                ?iri calli:hasComponent* $resource
                 OPTIONAL {
                     ?iri skos:prefLabel ?label
                 } OPTIONAL {
@@ -133,8 +131,7 @@
         } ORDER BY ?iri
     """.
 
-:resource a owl:FunctionalProperty, owl:DatatypeProperty;
+:resource a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :ResourceInfo;
-    rdfs:range xsd:string;
     calli:query "*".
 

@@ -306,12 +306,17 @@
         var components = this.calliHasComponent.iterator();
         while (components.hasNext()) {
             var component = components.next();
-            if (component.toString().indexOf(baseURI) != 0 || !component.provWasGeneratedBy)
+            if (component.toString().indexOf(baseURI) != 0)
                 continue;
             var name = component.toString().substring(baseURI.length);
             if (!writtenNames.add(name))
                 continue;
-            var time = component.provWasGeneratedBy.provEndedAtTime.toGregorianCalendar().getTimeInMillis();
+            var time = 0;
+            if (component.provWasGeneratedBy && component.provWasGeneratedBy.provEndedAtTime) {
+                time = component.provWasGeneratedBy.provEndedAtTime.toGregorianCalendar().getTimeInMillis();
+            } else {
+                time = java.lang.System.currentTimeMillis();
+            }
             if (name.lastIndexOf('/') == name.length - 1 && component instanceof Folder) {
                 //# Export Folder
                 carStream.writeFolderEntry(name, time).close();

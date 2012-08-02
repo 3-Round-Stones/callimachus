@@ -100,11 +100,7 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
-				try {
-					return write(ftype.as(toChannelMedia(media)), result, base);
-				} finally {
-					asVoid();
-				}
+				return write(ftype.as(toChannelMedia(media)), result, base);
 			}
 
 			@Override

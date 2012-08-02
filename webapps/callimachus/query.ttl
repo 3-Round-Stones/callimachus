@@ -208,16 +208,20 @@
             } else if (map.out == "tsv-excel") {
                 entity = new InputStreamEntity(this.TransformIntoTSV(rs), -1);
                 entity.contentType = "text/tab-separated-values;charset=UTF-16";
-            } else {
+            } else if (tqx) {
                 var out = this.TransformIntoWire(map.responseHandler, map.reqId, rs);
                 entity = new InputStreamEntity(out, -1);
                 entity.contentType = "text/javascript;charset=UTF-8";
+            } else {
+                var type = "application/sparql-results+xml";
+                var factory = org.callimachusproject.fluid.FluidFactory.getInstance();
+                entity = factory.builder(con).consume(rs, this.toString(), rs.getClass(), [type]).asHttpEntity([type]);
             }
         } catch(e) {
             if (e.javaException) {
                 e = e.javaException;
             }
-            if (!map.out || map.out == "json") {
+            if (tqx && (!map.out || map.out == "json")) {
                 var reason = null;
                 var msg = e.message;
                 if (!msg) {

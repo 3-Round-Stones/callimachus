@@ -17,6 +17,7 @@ import javax.xml.transform.dom.DOMSource;
 
 import org.callimachusproject.xml.DocumentFactory;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 public class DOMSourceURIResolver implements URIResolver {
 	private static final DocumentFactory df = DocumentFactory.newInstance();
@@ -63,6 +64,8 @@ public class DOMSourceURIResolver implements URIResolver {
 		} catch (IOException e) {
 			throw new TransformerException(e);
 		} catch (ParserConfigurationException e) {
+			throw new TransformerException(e);
+		} catch (SAXException e) {
 			throw new TransformerException(e);
 		}
 	}

@@ -43,8 +43,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import javax.xml.transform.TransformerException;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -59,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author James Leigh
  **/
-public abstract class DocumentObjectResolver<T> {
+public abstract class DocumentObjectResolver<T, E extends Exception> {
 	public static void resetCache() {
 		resetCount++;
 	}
@@ -92,7 +90,7 @@ public abstract class DocumentObjectResolver<T> {
 		return String.valueOf(uri);
 	}
 
-	public T resolve(String systemId) throws IOException, TransformerException {
+	public T resolve(String systemId) throws IOException, E {
 		if (!systemId.startsWith("http:") && !systemId.startsWith("https:"))
 			return resolveWithURLConnection(systemId);
 		T cached = null;
@@ -130,18 +128,18 @@ public abstract class DocumentObjectResolver<T> {
 	protected abstract boolean isReusable();
 
 	protected abstract T create(String systemId, InputStream in)
-			throws IOException, TransformerException;
+			throws IOException, E;
 
 	protected abstract T create(String systemId, Reader in) throws IOException,
-			TransformerException;
+			E;
 
 	/**
 	 * returns null for 404 resources.
 	 * 
-	 * @throws TransformerException
+	 * @throws E
 	 */
 	private synchronized T resolveWithURLConnection(String systemId)
-			throws IOException, TransformerException {
+			throws IOException, E {
 		if (uri == null || !uri.equals(systemId)) {
 			uri = systemId;
 			object = null;
@@ -177,8 +175,7 @@ public abstract class DocumentObjectResolver<T> {
 		}
 	}
 
-	private T createObject(URLConnection con) throws IOException,
-			TransformerException {
+	private T createObject(URLConnection con) throws IOException, E {
 		String cacheControl = con.getHeaderField("Cache-Control");
 		long date = con.getHeaderFieldDate("Expires", expires);
 		expires = getExpires(cacheControl, date);
@@ -230,7 +227,7 @@ public abstract class DocumentObjectResolver<T> {
 	}
 
 	private synchronized T cacheResponse(String systemId, HttpResponse resp,
-			T cached) throws IOException, TransformerException {
+			T cached) throws IOException, E {
 		if (isStorable(getHeader(resp, "Cache-Control"))) {
 			return object = createObject(systemId, resp, cached);
 		} else {
@@ -272,7 +269,7 @@ public abstract class DocumentObjectResolver<T> {
 	}
 
 	private T createObject(String systemId, HttpResponse con, T cached)
-			throws IOException, TransformerException {
+			throws IOException, E {
 		HttpEntity entity = con.getEntity();
 		InputStream in = entity == null ? null : entity.getContent();
 		String type = getHeader(con, "Content-Type");

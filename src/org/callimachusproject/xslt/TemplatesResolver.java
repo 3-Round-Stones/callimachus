@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
@@ -12,8 +13,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
 import org.callimachusproject.xml.DocumentObjectResolver;
+import org.xml.sax.SAXException;
 
-public class TemplatesResolver extends DocumentObjectResolver<Templates> {
+public class TemplatesResolver extends DocumentObjectResolver<Templates, TransformerException> {
 	private TransformerFactory delegate = TransformerFactory.newInstance();
 	private DOMSourceFactory sourceFactory = DOMSourceFactory.newInstance();
 
@@ -37,6 +39,10 @@ public class TemplatesResolver extends DocumentObjectResolver<Templates> {
 			} finally {
 				in.close();
 			}
+		} catch (SAXException e) {
+			throw new TransformerException(e);
+		} catch (ParserConfigurationException e) {
+			throw new TransformerException(e);
 		} finally {
 			if (error.isFatal())
 				throw error.getFatalError();
@@ -54,6 +60,10 @@ public class TemplatesResolver extends DocumentObjectResolver<Templates> {
 			} finally {
 				in.close();
 			}
+		} catch (SAXException e) {
+			throw new TransformerException(e);
+		} catch (ParserConfigurationException e) {
+			throw new TransformerException(e);
 		} finally {
 			if (error.isFatal())
 				throw error.getFatalError();

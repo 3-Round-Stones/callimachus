@@ -97,6 +97,10 @@ public class XSLTransformer {
 			throw new ObjectCompositionException(e);
 		} catch (IOException e) {
 			throw new ObjectCompositionException(e);
+		} catch (SAXException e) {
+			throw new ObjectCompositionException(e);
+		} catch (ParserConfigurationException e) {
+			throw new ObjectCompositionException(e);
 		}
 	}
 
@@ -162,7 +166,7 @@ public class XSLTransformer {
 		}
 	}
 
-	private TransformBuilder transform(final Source source)
+	private TransformBuilder transform(final DOMSource source)
 			throws TransformerException, IOException {
 		String xsltId = getSystemId();
 		TransformBuilder tb = new XSLTransformBuilder(newTransformer(), source,

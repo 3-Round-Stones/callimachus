@@ -50,11 +50,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
-import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.callimachusproject.fluid.Fluid;
@@ -73,16 +73,14 @@ import org.xml.sax.SAXException;
  * @author James Leigh
  */
 public class XSLTransformBuilder extends TransformBuilder {
-	private final Source source;
+	private final DOMSource source;
 	private final CloseableURIResolver opened;
 	private final Transformer transformer;
 	private final Set<String> parameters = new LinkedHashSet<String>();
 	private final ErrorCatcher listener;
 	private final DocumentFactory builder = DocumentFactory.newInstance();
-	private final DOMSourceFactory sourceFactory = DOMSourceFactory
-			.newInstance();
 
-	public XSLTransformBuilder(Transformer transformer, final Source source,
+	public XSLTransformBuilder(Transformer transformer, final DOMSource source,
 			final URIResolver resolver) throws TransformerException,
 			IOException {
 		try {
@@ -113,7 +111,6 @@ public class XSLTransformBuilder extends TransformBuilder {
 	}
 
 	public void close() throws IOException, TransformerException {
-		sourceFactory.close(source);
 		opened.close();
 	}
 

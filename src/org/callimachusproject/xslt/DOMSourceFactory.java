@@ -36,12 +36,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stax.StAXSource;
-import javax.xml.transform.stream.StreamSource;
 
 import org.callimachusproject.xml.DocumentFactory;
 import org.w3c.dom.Document;
@@ -63,89 +58,42 @@ public class DOMSourceFactory {
 		this.factory = factory;
 	}
 
-	public void close(Source source) throws IOException, TransformerException {
-		try {
-			if (source instanceof StreamSource) {
-				StreamSource ss = (StreamSource) source;
-				if (ss.getReader() != null) {
-					ss.getReader().close();
-				}
-				if (ss.getInputStream() != null) {
-					ss.getInputStream().close();
-				}
-			}
-			if (source instanceof StAXSource) {
-				final StAXSource stax = (StAXSource) source;
-				if (stax.getXMLEventReader() != null) {
-					stax.getXMLEventReader().close();
-				}
-				if (stax.getXMLStreamReader() != null) {
-					stax.getXMLStreamReader().close();
-				}
-			}
-		} catch (XMLStreamException e) {
-			throw new TransformerException(e);
+	public DOMSource createSource(String systemId) throws IOException, SAXException, ParserConfigurationException {
+		URLConnection con = new URL(systemId).openConnection();
+		if (con instanceof HttpURLConnection) {
+			((HttpURLConnection) con).setInstanceFollowRedirects(true);
 		}
-	}
-
-	public DOMSource createSource(String systemId) throws TransformerException {
+		con.addRequestProperty("Accept", "application/xml, text/xml");
+		InputStream in = con.getInputStream();
 		try {
-			URLConnection con = new URL(systemId).openConnection();
-			if (con instanceof HttpURLConnection) {
-				((HttpURLConnection) con).setInstanceFollowRedirects(true);
-			}
-			con.addRequestProperty("Accept", "application/xml, text/xml");
-			InputStream in = con.getInputStream();
-			try {
-				return createSource(in, systemId);
-			} finally {
-				in.close();
-			}
-		} catch (IOException e) {
-			throw new TransformerException(e);
+			return createSource(in, systemId);
+		} finally {
+			in.close();
 		}
 	}
 
 	public DOMSource createSource(InputStream in, String systemId)
-			throws TransformerException {
+			throws IOException, SAXException, ParserConfigurationException {
 		try {
-			try {
-				if (systemId == null)
-					return createSource(factory.parse(in), null);
-				return createSource(factory.parse(in, systemId), systemId);
-			} finally {
-				in.close();
-			}
-		} catch (SAXException e) {
-			throw new TransformerException(e);
-		} catch (IOException e) {
-			throw new TransformerException(e);
-		} catch (ParserConfigurationException e) {
-			throw new TransformerException(e);
+			if (systemId == null)
+				return createSource(factory.parse(in), null);
+			return createSource(factory.parse(in, systemId), systemId);
+		} finally {
+			in.close();
 		}
 	}
 
-	public DOMSource createSource(Reader reader, String systemId)
-			throws TransformerException {
+	public DOMSource createSource(Reader reader, String systemId) throws IOException, SAXException, ParserConfigurationException {
 		try {
-			try {
-				if (systemId == null)
-					return createSource(factory.parse(reader), null);
-				return createSource(factory.parse(reader, systemId), systemId);
-			} finally {
-				reader.close();
-			}
-		} catch (SAXException e) {
-			throw new TransformerException(e);
-		} catch (IOException e) {
-			throw new TransformerException(e);
-		} catch (ParserConfigurationException e) {
-			throw new TransformerException(e);
+			if (systemId == null)
+				return createSource(factory.parse(reader), null);
+			return createSource(factory.parse(reader, systemId), systemId);
+		} finally {
+			reader.close();
 		}
 	}
 
-	public DOMSource createSource(Node node, String systemId)
-			throws TransformerException {
+	public DOMSource createSource(Node node, String systemId) throws ParserConfigurationException {
 		if (node instanceof Document) {
 			return createSource((Document) node, systemId);
 		} else if (node instanceof DocumentFragment) {
@@ -174,12 +122,8 @@ public class DOMSourceFactory {
 		return new DOMSource(node, systemId);
 	}
 
-	private Document newDocument() throws TransformerException {
-		try {
-			return factory.newDocument();
-		} catch (ParserConfigurationException e) {
-			throw new TransformerException(e);
-		}
+	private Document newDocument() throws ParserConfigurationException {
+		return factory.newDocument();
 	}
 
 }

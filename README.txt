@@ -25,7 +25,7 @@ installation directory.
 
 You must have Java 6 JDK (1.6.0_18+) installed and available.
 
-The following platforms are supported:
+Callimachus is expected to work on the following server platforms:
 * Linux i386
 * Linux 64bit
 * Mac on Intel

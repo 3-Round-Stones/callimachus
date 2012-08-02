@@ -38,7 +38,7 @@ query results should be cached.
 
  * Empty table cells are omitted in from template.
  * All possible options in check boxes must have a label.
- * Trailing whitespace in @typeof attribute is not supported.
+ * Trailing whitespace in @typeof attribute causes unexpected behaviour.
  * rdf:XMLLiteral on form create auto adds xmlns to elements.
  * When resource labels are updated, referencing resource may not display new
    label until they are modified as well or the callimachus-reset script is run.

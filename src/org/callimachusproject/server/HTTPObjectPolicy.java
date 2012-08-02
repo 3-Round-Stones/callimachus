@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.lang.management.ManagementPermission;
 import java.lang.reflect.ReflectPermission;
 import java.net.MalformedURLException;
+import java.net.NetPermission;
 import java.net.SocketPermission;
 import java.security.CodeSource;
 import java.security.Permission;
@@ -109,6 +110,7 @@ public class HTTPObjectPolicy extends Policy {
 		plugins.add(new RuntimePermission("getenv.*"));
 		plugins.add(new SocketPermission("*", "connect,resolve"));
 		plugins.add(new SocketPermission("*", "accept,listen"));
+		plugins.add(new NetPermission("getProxySelector"));
 		plugins.add(new ReflectPermission("suppressAccessChecks"));
 		plugins.add(new MBeanServerPermission("createMBeanServer"));
 		plugins.add(new SecurityPermission("putProviderProperty.*"));

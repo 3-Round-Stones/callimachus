@@ -1,4 +1,4 @@
-package org.callimachusproject.xslt;
+package org.callimachusproject.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,9 +7,14 @@ import java.io.Reader;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.dom.DOMSource;
 
-import org.callimachusproject.xml.DocumentObjectResolver;
 import org.xml.sax.SAXException;
 
+/**
+ * Converts (and revalidates) one XML systemId into a {@link DOMSource}.
+ * 
+ * @author James Leigh
+ *
+ */
 public class DOMSourceResolver extends DocumentObjectResolver<DOMSource, SAXException> {
 	private DOMSourceFactory sourceFactory = DOMSourceFactory.newInstance();
 

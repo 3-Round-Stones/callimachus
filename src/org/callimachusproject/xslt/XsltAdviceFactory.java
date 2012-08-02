@@ -18,6 +18,7 @@ import org.openrdf.repository.object.advice.AdviceProvider;
 public class XsltAdviceFactory implements AdviceProvider, AdviceFactory {
 	private static final Pattern NOT_URI = Pattern
 			.compile("\\s|\\}|\\]|\\>|\"");
+	private final XSLTransformerFactory xsltFactory = XSLTransformerFactory.getInstance();
 
 	@Override
 	public AdviceFactory getAdviserFactory(Class<?> annotationType) {
@@ -56,9 +57,9 @@ public class XsltAdviceFactory implements AdviceProvider, AdviceFactory {
 	private XSLTransformer createXSLTransformer(Method m) {
 		String xslt = getXslValue(m);
 		if (NOT_URI.matcher(xslt).find()) {
-			return new XSLTransformer(new StringReader(xslt), getSystemId(m));
+			return xsltFactory.createTransformer(new StringReader(xslt), getSystemId(m));
 		}
-		return new XSLTransformer(resolve(xslt, m));
+		return xsltFactory.createTransformer(resolve(xslt, m));
 	}
 
 	private String getXslValue(Method m) {

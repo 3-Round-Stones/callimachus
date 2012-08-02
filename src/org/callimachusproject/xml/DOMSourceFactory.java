@@ -26,25 +26,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.xslt;
+package org.callimachusproject.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.dom.DOMSource;
 
-import org.callimachusproject.xml.DocumentFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+/**
+ * Parses streams into {@link DOMSource}.
+ * 
+ * @author James Leigh
+ *
+ */
 public class DOMSourceFactory {
 	public static DOMSourceFactory newInstance() {
 		// StreamSource loads external DTD
@@ -56,20 +58,6 @@ public class DOMSourceFactory {
 
 	protected DOMSourceFactory(DocumentFactory factory) {
 		this.factory = factory;
-	}
-
-	public DOMSource createSource(String systemId) throws IOException, SAXException, ParserConfigurationException {
-		URLConnection con = new URL(systemId).openConnection();
-		if (con instanceof HttpURLConnection) {
-			((HttpURLConnection) con).setInstanceFollowRedirects(true);
-		}
-		con.addRequestProperty("Accept", "application/xml, text/xml");
-		InputStream in = con.getInputStream();
-		try {
-			return createSource(in, systemId);
-		} finally {
-			in.close();
-		}
 	}
 
 	public DOMSource createSource(InputStream in, String systemId)

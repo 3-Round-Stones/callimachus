@@ -107,3 +107,61 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xproc+xml".
 
+################################
+# Execute Pipeline             #
+################################
+
+# GET /pipeline.xpl?result
+:GetResult rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "result";
+    calli:type "application/xml";
+    calli:script """
+        return this.PostResult(queryGetParameters, null);
+    """.
+
+:queryGetParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetResult;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*".
+
+# POST /pipeline.xpl?result
+:PostResult rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "POST";
+    calli:query "result";
+    calli:type "application/xml";
+    calli:imports <java:org.callimachusproject.xproc.PipelineFactory>;
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:imports <java:org.apache.http.entity.InputStreamEntity>;
+    calli:script """
+        var factory = PipelineFactory.getInstance();
+        var pipeline = factory.createPipeline(this.openInputStream(), this.toString());
+        var pipe = pipeline.pipeStream(sourcePort);
+        var iterator = queryPostParameters.keySet().iterator();
+        while(iterator.hasNext()){
+            var key = iterator.next();
+            var value = queryPostParameters.get(key);
+            if (key != "result" && value && value.length){
+                pipe.setParameter(key, value[0]);
+            } else if (value && value.length > 1) {
+                pipe.setParameter(key, value[1]);
+            }
+        }
+        return pipe.asStream();
+""".
+
+:queryPostParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostResult;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*".
+
+:sourcePort a owl:ObjectProperty; a owl:FunctionalProperty;
+    rdfs:domain :PostResult;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/xml".
+

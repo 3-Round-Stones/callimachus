@@ -117,7 +117,7 @@
         var input = this.openInputStream();
         try {
             // verify we can parse it as XML
-            var xslt = new org.callimachusproject.xslt.XSLTransformer();
+            var xslt = org.callimachusproject.xslt.XSLTransformerFactory.getInstance().createTransformer();
             xslt.transform(input, this.toString()).asDocument();
         } finally {
             input.close();

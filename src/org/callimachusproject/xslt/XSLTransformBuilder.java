@@ -61,6 +61,7 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.xml.CloseableURIResolver;
 import org.callimachusproject.xml.DocumentFactory;
 import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;

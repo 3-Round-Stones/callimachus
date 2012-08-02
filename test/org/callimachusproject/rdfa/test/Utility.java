@@ -52,7 +52,7 @@ import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.PlainLiteral;
 import org.callimachusproject.engine.model.Term;
 import org.callimachusproject.engine.model.TypedLiteral;
-import org.callimachusproject.xslt.DOMSourceFactory;
+import org.callimachusproject.xml.DOMSourceFactory;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -64,6 +64,7 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * @author Steve Battle
@@ -216,8 +217,8 @@ public class Utility {
 		return doc;
 	}
 
-	private static Source newSource(XMLEventReader xml)
-			throws XMLStreamException, TransformerException {
+	private static Source newSource(XMLEventReader xml) throws IOException,
+			SAXException, ParserConfigurationException, TransformerException {
 		return DOMSourceFactory.newInstance().createSource(
 				toByteArrayInputStream(xml), null);
 	}

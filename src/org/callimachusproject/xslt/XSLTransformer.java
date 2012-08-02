@@ -48,6 +48,8 @@ import javax.xml.transform.dom.DOMSource;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.xml.AggressiveCachedURIResolver;
+import org.callimachusproject.xml.DOMSourceFactory;
 import org.callimachusproject.xml.DocumentFactory;
 import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.exceptions.ObjectCompositionException;
@@ -67,21 +69,21 @@ public class XSLTransformer {
 	private final DocumentFactory builder = DocumentFactory.newInstance();
 	private String systemSourceId;
 
-	public XSLTransformer() {
-		this(null);
+	XSLTransformer(TransformerFactory factory) {
+		this(null, factory);
 	}
 
-	public XSLTransformer(String url) {
+	XSLTransformer(String url, TransformerFactory factory) {
 		this.systemId = url;
-		tfactory = new CachedTransformerFactory(url);
+		tfactory = factory;
 		xslt = null;
 	}
 
-	public XSLTransformer(Reader r, String systemId) {
+	XSLTransformer(Reader r, String systemId, TransformerFactory factory) {
 		try {
 			try {
 				this.systemId = systemId;
-				tfactory = new CachedTransformerFactory(systemId);
+				tfactory = factory;
 				ErrorCatcher error = new ErrorCatcher(systemId);
 				tfactory.setErrorListener(error);
 				Source source = sourceFactory.createSource(r, systemId);
@@ -170,7 +172,7 @@ public class XSLTransformer {
 			throws TransformerException, IOException {
 		String xsltId = getSystemId();
 		TransformBuilder tb = new XSLTransformBuilder(newTransformer(), source,
-				new CachedURIResolver(xsltId, tfactory.getURIResolver()));
+				new AggressiveCachedURIResolver(xsltId, tfactory.getURIResolver()));
 		if (xsltId != null) {
 			tb = tb.with("xsltId", xsltId);
 		}

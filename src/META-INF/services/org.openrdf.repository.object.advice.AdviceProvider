@@ -1,2 +1,3 @@
 org.callimachusproject.xslt.XsltAdviceFactory
 org.callimachusproject.script.ScriptAdviceFactory
+org.callimachusproject.xproc.XprocAdviceFactory

@@ -51,7 +51,7 @@ public class XsltCommentTest extends TestCase {
 	}
 
 	public void testXSLT() throws Exception {
-		new XSLTransformer(new StringReader(XSLT_ECHO), "http://example.com/").transform(input, "http://example.com/").toOutputStream(output);
+		XSLTransformerFactory.getInstance().createTransformer(new StringReader(XSLT_ECHO), "http://example.com/").transform(input, "http://example.com/").toOutputStream(output);
 		verifyResult();
 	}
 

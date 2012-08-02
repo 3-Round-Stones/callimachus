@@ -1,4 +1,4 @@
-package org.callimachusproject.xslt;
+package org.callimachusproject.xml;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -12,6 +12,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 
+/**
+ * Force any open {@link StreamSource}; inteded to be used within an operation.
+ * 
+ * @author James Leigh
+ *
+ */
 public final class CloseableURIResolver implements URIResolver, Closeable {
 	private final URIResolver resolver;
 	private final List<Closeable> opened = new ArrayList<Closeable>();;

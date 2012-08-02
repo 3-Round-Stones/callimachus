@@ -40,6 +40,7 @@ import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.util.ManagedExecutors;
 import org.callimachusproject.xslt.XSLTransformer;
+import org.callimachusproject.xslt.XSLTransformerFactory;
 
 /**
  * Executes tasks in a thread pool or in the current thread.
@@ -105,7 +106,7 @@ public class TaskFactory {
 	}
 
 	public void setErrorXSLT(String url) {
-		this.transformer = new XSLTransformer(url);
+		this.transformer = XSLTransformerFactory.getInstance().createTransformer(url);
 	}
 
 	public Task createBackgroundTask(Request req) {

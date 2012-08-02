@@ -39,6 +39,7 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
+import org.callimachusproject.xml.DOMSourceURIResolver;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -54,14 +55,13 @@ public class CachedTransformerFactory extends TransformerFactory {
 	private URIResolver resolver;
 	private final TemplatesResolver code;
 
-	public CachedTransformerFactory(String base) {
-		this(TransformerFactory.newInstance(), base);
+	public CachedTransformerFactory() {
+		this(TransformerFactory.newInstance());
 	}
 
-	public CachedTransformerFactory(final TransformerFactory delegate,
-			String base) {
+	public CachedTransformerFactory(TransformerFactory delegate) {
 		this.delegate = delegate;
-		this.resolver = new DOMSourceURIResolver(base);
+		this.resolver = new DOMSourceURIResolver();
 		delegate.setURIResolver(resolver);
 		this.code = new TemplatesResolver();
 	}

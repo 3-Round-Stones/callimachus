@@ -12,6 +12,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
 
+import org.callimachusproject.xml.CloseableURIResolver;
+import org.callimachusproject.xml.DOMSourceFactory;
 import org.callimachusproject.xml.DocumentObjectResolver;
 import org.xml.sax.SAXException;
 

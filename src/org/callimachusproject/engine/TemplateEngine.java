@@ -24,6 +24,7 @@ import org.callimachusproject.server.exceptions.ResponseException;
 import org.openrdf.repository.RepositoryConnection;
 import org.callimachusproject.xslt.TransformBuilder;
 import org.callimachusproject.xslt.XSLTransformer;
+import org.callimachusproject.xslt.XSLTransformerFactory;
 
 public class TemplateEngine {
 	private static final int XML_BUF = 2048;
@@ -91,7 +92,7 @@ public class TemplateEngine {
 		}
 		String href = readXSLTSource(in);
 		if (href == null)
-			return new XSLTransformer().transform(in, systemId).asXMLEventReader();
+			return XSLTransformerFactory.getInstance().createTransformer().transform(in, systemId).asXMLEventReader();
 		String xsl = URI.create(systemId).resolve(href).toASCIIString();
 		XSLTransformer xslt = newXSLTransformer(xsl);
 		TransformBuilder transform = xslt.transform(in, systemId);
@@ -117,7 +118,7 @@ public class TemplateEngine {
 				if (xslt != null)
 					return xslt;
 			}
-			XSLTransformer xslt = new XSLTransformer(xsl);
+			XSLTransformer xslt = XSLTransformerFactory.getInstance().createTransformer(xsl);
 			transformers.put(xsl, new SoftReference<XSLTransformer>(xslt));
 			return xslt;
 		}

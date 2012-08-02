@@ -64,6 +64,7 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.callimachusproject.xslt.XSLTransformer;
+import org.callimachusproject.xslt.XSLTransformerFactory;
 
 /**
  * Implements the construct search method to lookup resources by label prefix
@@ -85,7 +86,7 @@ public abstract class FormSupport implements Page, RDFObject {
 		String url = cl.getResource(path).toExternalForm();
 		InputStream input = cl.getResourceAsStream(path);
 		InputStreamReader reader = new InputStreamReader(input);
-		HTML_XSLT = new XSLTransformer(reader, url);
+		HTML_XSLT = XSLTransformerFactory.getInstance().createTransformer(reader, url);
 	}
 
 	/**

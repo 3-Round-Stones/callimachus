@@ -386,12 +386,12 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
     rdfs:subClassOf [owl:onProperty :folder_import_xhtml; owl:hasValue <pages/folder-import.xhtml>];
+    calli:realm </>;
     calli:method "GET";
     calli:query "import";
     calli:type "application/xhtml+xml";
     calli:header "cache-control:no-cache";
     calli:transform <transforms/TransformPage>;
-    calli:realm </>;
     calli:script """
         return folder_import_xhtml.calliConstruct(this);
     """.

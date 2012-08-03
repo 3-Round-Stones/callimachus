@@ -39,8 +39,8 @@
     calli:query "edit";
     calli:realm </>;
     calli:type "application/xhtml+xml";
-    calli:transform <../transforms/TransformPage>;
     calli:header "cache-control:no-cache";
+    calli:transform <../transforms/TransformPage>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:script """
         function findTemplate(obj, ann) {

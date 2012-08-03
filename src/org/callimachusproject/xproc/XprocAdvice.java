@@ -62,7 +62,7 @@ public class XprocAdvice implements Advice {
 			Type gtype = method.getGenericParameterTypes()[i];
 			String[] media = getMediaTypes(method.getParameterAnnotations()[i]);
 			String value = asString(parameters[i], gtype, media);
-			pb.setParameter(bindingNames[i], value);
+			pb.passOption(bindingNames[i], value);
 		}
 	}
 

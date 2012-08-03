@@ -43,10 +43,8 @@ public class PipelineBuilder {
 		runtime.setURIResolver(new AggressiveCachedURIResolver(systemId, this.resolver));
 	}
 
-	public void setParameter(String key, String value) {
-		for (String port : pipeline.getParameterPorts()) {
-			pipeline.setParameter(port, new QName(key), new RuntimeValue(value));
-		}
+	public void passOption(String key, String value) {
+		pipeline.passOption(new QName(key), new RuntimeValue(value));
 	}
 
 	public void streamTo(OutputStream out) throws XProcException, IOException {

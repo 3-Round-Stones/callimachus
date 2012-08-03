@@ -147,9 +147,9 @@
             var key = iterator.next();
             var value = queryPostParameters.get(key);
             if (key != "result" && value && value.length){
-                pipe.setParameter(key, value[0]);
+                pipe.passOption(key, value[0]);
             } else if (value && value.length > 1) {
-                pipe.setParameter(key, value[1]);
+                pipe.passOption(key, value[1]);
             }
         }
         return pipe.asStream();

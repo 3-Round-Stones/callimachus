@@ -11,3 +11,6 @@ org.callimachusproject.annotations.xslt = http://www.openrdf.org/rdf/2011/messag
 org.callimachusproject.annotations.xproc
 org.callimachusproject.annotations.script = http://www.openrdf.org/rdf/2011/messaging#script
 org.callimachusproject.annotations.imports = http://www.openrdf.org/rdf/2011/messaging#imports
+org.callimachusproject.annotations.pattern
+org.callimachusproject.annotations.location
+org.callimachusproject.annotations.flag

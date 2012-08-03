@@ -233,7 +233,7 @@ public class FluidBuilder {
 			}
 		}
 		if (writer == null)
-			throw new BadRequest("Cannot write " + mtype + " into "
+			throw new BadRequest("Cannot write " + result + " into "
 					+ mtype);
 		return new ChannelFluid(writer.consume(result, base, mtype, this), this);
 	}

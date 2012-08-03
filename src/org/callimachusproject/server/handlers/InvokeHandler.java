@@ -179,11 +179,11 @@ public class InvokeHandler implements Handler {
 		return result;
 	}
 
-	private Fluid getValue(ResourceOperation req, Annotation[] anns, Fluid input)
+	private Fluid getValue(ResourceOperation req, Annotation[] anns, Fluid input, boolean typeRequired)
 			throws Exception {
 		for (String uri : req.getTransforms(anns)) {
 			Method transform = req.getTransform(uri);
-			if (!req.getReadableTypes(input, transform, 0, false).isEmpty()) {
+			if (!req.getReadableTypes(input, transform, 0, typeRequired).isEmpty()) {
 				Object[] args = getParameters(req, transform, input);
 				return invoke(req, transform, args, false,
 						req.getTypes(transform));
@@ -198,17 +198,17 @@ public class InvokeHandler implements Handler {
 		String[] headers = req.getHeaderNames(anns);
 		String[] types = req.getParameterMediaTypes(anns);
 		if (names == null && headers == null && types.length == 0) {
-			return getValue(req, anns, req.getFluidBuilder().media("*/*"));
+			return getValue(req, anns, req.getFluidBuilder().media("*/*"), false);
 		} else if (names == null && headers == null) {
-			return getValue(req, anns, input);
+			return getValue(req, anns, input, true);
 		} else if (headers != null && names != null) {
-			return getValue(req, anns, getHeaderAndQuery(req, headers, names));
+			return getValue(req, anns, getHeaderAndQuery(req, headers, names), true);
 		} else if (headers != null) {
-			return getValue(req, anns, req.getHeader(headers));
+			return getValue(req, anns, req.getHeader(headers), true);
 		} else if (names.length == 1 && names[0].equals("*")) {
-			return getValue(req, anns, req.getQueryStringParameter());
+			return getValue(req, anns, req.getQueryStringParameter(), true);
 		} else {
-			return getValue(req, anns, getParameter(req, names));
+			return getValue(req, anns, getParameter(req, names), true);
 		}
 	}
 

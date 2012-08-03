@@ -44,9 +44,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,8 +106,7 @@ public class CachedEntity {
 	private String[] vary;
 	private String warning;
 	private Map<String, String> headers = new HashMap<String, String>();
-	private Queue<Lock> openLocks = new LinkedList<Lock>();
-	private Queue<Lock> matchingLocks = new LinkedList<Lock>();
+	private LockCleanupManager matchingLocks = new LockCleanupManager(false);
 
 	public CachedEntity(File head, File body, LockCleanupManager cacheLocker) throws IOException {
 		this.head = head;
@@ -173,44 +170,16 @@ public class CachedEntity {
 	}
 
 	public Lock matching() throws InterruptedException {
-		synchronized (matchingLocks) {
-			return new Lock(){
-				boolean active = true;
-				{
-					matchingLocks.add(this);
-				}
-				public boolean isActive() {
-					return active;
-				}
-
-				public void release() {
-					active = false;
-					synchronized (matchingLocks) {
-						matchingLocks.remove(this);
-					}
-				}
-			};
-		}
+		return matchingLocks.getReadLock(getURL());
 	}
 
 	public boolean inUse() {
-		synchronized (matchingLocks) {
-			if (!matchingLocks.isEmpty())
-				return true;
-		}
-		synchronized (openLocks) {
-			if (!openLocks.isEmpty())
-				return true;
-		}
-		return false;
+		return matchingLocks.isActiveLock() || entityLocker.isActiveLock();
 	}
 
 	public Lock open() throws InterruptedException {
 		final Lock cache = cacheLocker.getReadLock(getURL());
 		final Lock entity = entityLocker.getReadLock(getURL());
-		synchronized (openLocks) {
-			openLocks.add(entity);
-		}
 		return new Lock() {
 			public boolean isActive() {
 				return entity.isActive();
@@ -219,9 +188,6 @@ public class CachedEntity {
 			public void release() {
 				entity.release();
 				cache.release();
-				synchronized (openLocks) {
-					openLocks.remove(entity);
-				}
 			}
 		};
 	}

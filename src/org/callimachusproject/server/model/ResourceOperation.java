@@ -109,7 +109,7 @@ public class ResourceOperation extends ResourceRequest {
 				} else if ("PUT".equals(m) || "DELETE".equals(m)) {
 					method = findMethod(m, false);
 				} else {
-					method = findMethod(m);
+					method = findMethod();
 				}
 				transformMethod = getTransformMethodOf(method);
 			} catch (MethodNotAllowed e) {
@@ -162,7 +162,7 @@ public class ResourceOperation extends ResourceRequest {
 			Method get;
 			try {
 				headers = 0;
-				get = findMethodIfPresent("GET", true);
+				get = findMethodIfPresent("GET", false, true);
 				if (get != null) {
 					headers = getHeaderCodeFor(get);
 					get = getTransformMethodOf(get);
@@ -418,7 +418,7 @@ public class ResourceOperation extends ResourceRequest {
 			}
 		}
 		try {
-			return findBestMethod(findAcceptableMethods(methods));
+			return findBestMethod(findAcceptableMethods(methods, false));
 		} catch (NotAcceptable e) {
 			return null;
 		}
@@ -521,19 +521,22 @@ public class ResourceOperation extends ResourceRequest {
 		return weak + '"' + revision + '-' + cd + '-' + v + '"';
 	}
 
-	private Method findMethod(String method) throws RepositoryException {
-		return findMethod(method, null);
-	}
-
-	private Method findMethod(String req_method, Boolean isResponsePresent)
-			throws RepositoryException {
-		Method method = findMethodIfPresent(req_method, isResponsePresent);
+	private Method findMethod() throws RepositoryException {
+		Method method = findMethodIfPresent(getMethod(), isMessageBody(), null);
 		if (method == null)
 			throw new MethodNotAllowed("No such method for this resource");
 		return method;
 	}
 
-	private Method findMethodIfPresent(String req_method,
+	private Method findMethod(String req_method, Boolean isResponsePresent)
+			throws RepositoryException {
+		Method method = findMethodIfPresent(req_method, isMessageBody(), isResponsePresent);
+		if (method == null)
+			throw new MethodNotAllowed("No such method for this resource");
+		return method;
+	}
+
+	private Method findMethodIfPresent(String req_method, boolean messageBody,
 			Boolean isResponsePresent) {
 		String name = getOperation();
 		RDFObject target = getRequestedResource();
@@ -542,7 +545,7 @@ public class ResourceOperation extends ResourceRequest {
 			List<Method> methods = getOperationMethods(req_method,
 					isResponsePresent).get(name);
 			if (methods != null) {
-				Method method = findBestMethod(findAcceptableMethods(methods));
+				Method method = findBestMethod(findAcceptableMethods(methods, messageBody));
 				if (method != null)
 					return method;
 			}
@@ -621,14 +624,14 @@ public class ResourceOperation extends ResourceRequest {
 		return result;
 	}
 
-	private Collection<Method> findAcceptableMethods(Collection<Method> methods) {
+	private Collection<Method> findAcceptableMethods(Collection<Method> methods, boolean messageBody) {
 		String readable = null;
 		String acceptable = null;
 		Collection<Method> list = new LinkedHashSet<Method>(methods.size());
 		Fluid body = getBody();
 		loop: for (Method method : methods) {
 			Collection<String> readableTypes;
-			readableTypes = getReadableTypes(body, method, 0, isMessageBody());
+			readableTypes = getReadableTypes(body, method, 0, messageBody);
 			if (readableTypes.isEmpty()) {
 				String contentType = body.getFluidType().preferred();
 				Annotation[][] anns = method.getParameterAnnotations();

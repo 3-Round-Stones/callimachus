@@ -52,6 +52,7 @@ import org.callimachusproject.server.util.ChannelUtil;
  */
 public class HttpEntityWrapper implements ProducingNHttpEntity {
 	private HttpEntity entity;
+	private InputStream in;
 	private ReadableByteChannel cin;
 	private ByteBuffer buf;
 	private boolean chunked;
@@ -109,11 +110,13 @@ public class HttpEntityWrapper implements ProducingNHttpEntity {
 		finish();
 	}
 
-	public final InputStream getContent() throws IOException, IllegalStateException {
-		final InputStream in = getDelegateContent();
-		if (ChannelUtil.isChannel(in)) {
-			final ReadableByteChannel delegate = ChannelUtil.newChannel(in);
-			return ChannelUtil.newInputStream(new ReadableByteChannel() {
+	public final synchronized InputStream getContent() throws IOException, IllegalStateException {
+		if (in != null)
+			return in;
+		final InputStream stream = getDelegateContent();
+		if (ChannelUtil.isChannel(stream)) {
+			final ReadableByteChannel delegate = ChannelUtil.newChannel(stream);
+			return in = ChannelUtil.newInputStream(new ReadableByteChannel() {
 
 				public boolean isOpen() {
 					return delegate.isOpen();
@@ -132,7 +135,7 @@ public class HttpEntityWrapper implements ProducingNHttpEntity {
 				}
 			});
 		} else {
-			return new FilterInputStream(in) {
+			return in = new FilterInputStream(stream) {
 				public void close() throws IOException {
 					try {
 						super.close();
@@ -169,7 +172,7 @@ public class HttpEntityWrapper implements ProducingNHttpEntity {
 		}
 	}
 
-	public final void produceContent(ContentEncoder encoder, IOControl ioctrl)
+	public final synchronized void produceContent(ContentEncoder encoder, IOControl ioctrl)
 			throws IOException {
 		if (cin == null) {
 			cin = ChannelUtil.newChannel(getContent());

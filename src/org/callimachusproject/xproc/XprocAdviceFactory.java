@@ -17,14 +17,12 @@ import org.xml.sax.SAXException;
 public class XprocAdviceFactory implements AdviceProvider, AdviceFactory {
 	private final PipelineFactory factory = PipelineFactory.getInstance();
 
-	@Override
 	public AdviceFactory getAdviserFactory(Class<?> annotationType) {
 		if (xproc.class.equals(annotationType))
 			return this;
 		return null;
 	}
 
-	@Override
 	public Advice createAdvice(Method m) {
 		Annotation[][] anns = m.getParameterAnnotations();
 		String[] bindingNames = new String[anns.length];

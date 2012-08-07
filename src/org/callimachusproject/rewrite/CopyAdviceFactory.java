@@ -3,37 +3,27 @@ package org.callimachusproject.rewrite;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import org.callimachusproject.annotations.flag;
-import org.callimachusproject.annotations.location;
-import org.callimachusproject.annotations.pattern;
+import org.callimachusproject.annotations.canonical;
+import org.callimachusproject.annotations.copies;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.advice.AdviceFactory;
 import org.openrdf.repository.object.advice.AdviceProvider;
 
-public class RewriteAdviceFactory implements AdviceProvider, AdviceFactory {
+public class CopyAdviceFactory implements AdviceProvider, AdviceFactory {
 
 	@Override
 	public AdviceFactory getAdviserFactory(Class<?> annotationType) {
-		if (location.class.equals(annotationType))
+		if (copies.class.equals(annotationType))
 			return this;
 		return null;
 	}
 
 	@Override
 	public Advice createAdvice(Method method) {
-		String[] patterns = getPatterns(method);
 		String[] bindingNames = getBindingNames(method);
-		String location = getLocation(method);
-		String[] flags = getFlags(method);
-		return new RewriteAdvice(patterns, bindingNames, location, flags);
-	}
-
-	private String[] getPatterns(Method method) {
-		pattern ann = method.getAnnotation(pattern.class);
-		if (ann == null)
-			return new String[0];
-		return ann.value();
+		Substitution[] replacers = createSubstitution(getCommands(method));
+		return new CopyAdvice(bindingNames, replacers, method);
 	}
 
 	private String[] getBindingNames(Method method) {
@@ -49,15 +39,18 @@ public class RewriteAdviceFactory implements AdviceProvider, AdviceFactory {
 		return bindingNames;
 	}
 
-	private String getLocation(Method method) {
-		return method.getAnnotation(location.class).value();
+	private String[] getCommands(Method method) {
+		return method.getAnnotation(canonical.class).value();
 	}
 
-	private String[] getFlags(Method method) {
-		flag ann = method.getAnnotation(flag.class);
-		if (ann == null)
-			return new String[0];
-		return ann.value();
+	private Substitution[] createSubstitution(String[] commands) {
+		if (commands == null)
+			return null;
+		Substitution[] result = new Substitution[commands.length];
+		for (int i=0; i<result.length; i++) {
+			result[i] = Substitution.compile(commands[i]);
+		}
+		return result;
 	}
 
 	private String local(String iri) {

@@ -9,7 +9,7 @@ import org.openrdf.annotations.Iri;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
-public @interface location {
-	@Iri("http://callimachusproject.org/rdf/2009/framework#location")
-	String value();
+public @interface canonical {
+	@Iri("http://callimachusproject.org/rdf/2009/framework#canonical")
+	String[] value();
 }

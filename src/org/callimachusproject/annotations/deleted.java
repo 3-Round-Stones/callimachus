@@ -9,7 +9,7 @@ import org.openrdf.annotations.Iri;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
-public @interface flag {
-	@Iri("http://callimachusproject.org/rdf/2009/framework#flag")
+public @interface deleted {
+	@Iri("http://callimachusproject.org/rdf/2009/framework#deleted")
 	String[] value();
 }

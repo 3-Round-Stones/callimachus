@@ -9,7 +9,7 @@ import org.openrdf.annotations.Iri;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
-public @interface pattern {
-	@Iri("http://callimachusproject.org/rdf/2009/framework#pattern")
+public @interface disabled {
+	@Iri("http://callimachusproject.org/rdf/2009/framework#disabled")
 	String[] value();
 }

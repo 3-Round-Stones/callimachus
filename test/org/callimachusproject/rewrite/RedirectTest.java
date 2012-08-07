@@ -3,9 +3,7 @@ package org.callimachusproject.rewrite;
 import junit.framework.TestCase;
 
 import org.apache.http.HttpResponse;
-import org.callimachusproject.annotations.flag;
-import org.callimachusproject.annotations.location;
-import org.callimachusproject.annotations.pattern;
+import org.callimachusproject.annotations.alternate;
 import org.callimachusproject.xslt.XSLTransformTest.XMLFile;
 import org.junit.After;
 import org.junit.Before;
@@ -22,33 +20,26 @@ import org.openrdf.repository.object.config.ObjectRepositoryFactory;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
 
-public class RewriteTest extends TestCase {
+public class RedirectTest extends TestCase {
 
 	@Iri("urn:test:Concept")
 	public interface Concept {
-		@location("http://example.com/")
+		@alternate("http://example.com/")
 		HttpResponse literal();
 
-		@pattern("^/(.*)")
-		@location("http://example.com/$1")
+		@alternate("^/(.*) http://example.com/$1")
 		HttpResponse samepath();
 
-		@pattern("^http://(.*).example.com/(.*)")
-		@location("http://example.com/$1/$2")
+		@alternate("^http://(.*).example.com/(.*) http://example.com/$1/$2")
 		HttpResponse readDomain();
 
-		@pattern("^/(.*)")
-		@location("/$1#%{frag}")
-		@flag("NE")
+		@alternate("^/(.*) /$1#{frag}")
 		HttpResponse frag(@Iri("urn:test:frag") String frag);
 
-		@pattern("^/(.*)")
-		@location("/$1?%{query}")
-		@flag("NE")
+		@alternate("^/(.*) /$1?{query}")
 		HttpResponse replaceQuery(@Iri("urn:test:query") String query);
 
-		@location("?param=%{value}")
-		@flag({"B", "NE"})
+		@alternate("?param={value}")
 		HttpResponse param(@Iri("urn:test:value") String value);
 	}
 

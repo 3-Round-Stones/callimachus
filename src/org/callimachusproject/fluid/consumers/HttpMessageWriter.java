@@ -131,6 +131,8 @@ public class HttpMessageWriter implements Consumer<HttpMessage> {
 	ReadableByteChannel write(FluidType mtype, HttpMessage result, String base)
 			throws IOException, OpenRDFException, XMLStreamException,
 			TransformerException, ParserConfigurationException {
+		if (result == null)
+			return null;
 		CatReadableByteChannel cat = new CatReadableByteChannel();
 		if (result instanceof HttpResponse) {
 			print(cat, ((HttpResponse) result).getStatusLine());

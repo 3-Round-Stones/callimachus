@@ -57,6 +57,8 @@ public class RedirectAdviceFactory implements AdviceProvider, AdviceFactory {
 	}
 
 	private String[] getCommands(Method method) {
+		if (method.isAnnotationPresent(canonical.class))
+			return method.getAnnotation(canonical.class).value();
 		if (method.isAnnotationPresent(alternate.class))
 			return method.getAnnotation(alternate.class).value();
 		if (method.isAnnotationPresent(describedby.class))

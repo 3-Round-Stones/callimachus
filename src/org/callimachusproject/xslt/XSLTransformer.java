@@ -79,6 +79,33 @@ public class XSLTransformer {
 		xslt = null;
 	}
 
+	XSLTransformer(InputStream in, String systemId, TransformerFactory factory) {
+		try {
+			try {
+				this.systemId = systemId;
+				tfactory = factory;
+				ErrorCatcher error = new ErrorCatcher(systemId);
+				tfactory.setErrorListener(error);
+				Source source = sourceFactory.createSource(in, systemId);
+				xslt = tfactory.newTemplates(source);
+				if (error.isFatal())
+					throw error.getFatalError();
+			} finally {
+				in.close();
+			}
+		} catch (TransformerConfigurationException e) {
+			throw new ObjectCompositionException(e);
+		} catch (TransformerException e) {
+			throw new ObjectCompositionException(e);
+		} catch (IOException e) {
+			throw new ObjectCompositionException(e);
+		} catch (SAXException e) {
+			throw new ObjectCompositionException(e);
+		} catch (ParserConfigurationException e) {
+			throw new ObjectCompositionException(e);
+		}
+	}
+
 	XSLTransformer(Reader r, String systemId, TransformerFactory factory) {
 		try {
 			try {

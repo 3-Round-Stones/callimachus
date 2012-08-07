@@ -79,6 +79,7 @@ public class CopyAdvice implements Advice {
 				for (String media : returnMedia) {
 					req.addHeader("Accept", media);
 				}
+				req.addHeader("Accept", "*/*");
 			}
 			resp = client.service(req);
 			redirect = client.redirectLocation(redirect, resp);

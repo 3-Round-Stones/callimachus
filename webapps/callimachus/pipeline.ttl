@@ -118,6 +118,7 @@
     calli:method "GET";
     calli:query "result";
     calli:type "application/xml";
+    calli:header "cache-control:no-store";
     calli:script """
         return this.PostResult(queryGetParameters, null);
     """.
@@ -134,6 +135,7 @@
     calli:method "POST";
     calli:query "result";
     calli:type "application/xml";
+    calli:header "cache-control:no-store";
     calli:imports <java:org.callimachusproject.xproc.PipelineFactory>;
     calli:imports <java:org.apache.http.ProtocolVersion>;
     calli:imports <java:org.apache.http.message.BasicHttpResponse>;

@@ -1,16 +1,21 @@
+org.callimachusproject.annotations.alternate
+org.callimachusproject.annotations.canonical
+org.callimachusproject.annotations.copies
+org.callimachusproject.annotations.deleted
+org.callimachusproject.annotations.describedby
+org.callimachusproject.annotations.disabled
+org.callimachusproject.annotations.expect = http://www.openrdf.org/rdf/2011/messaging#expect
 org.callimachusproject.annotations.header = http://www.openrdf.org/rdf/2011/messaging#header
-org.callimachusproject.annotations.rel = http://www.openrdf.org/rdf/2011/messaging#rel
-org.callimachusproject.annotations.title = http://www.openrdf.org/rdf/2011/messaging#title
-org.callimachusproject.annotations.type = http://www.openrdf.org/rdf/2011/messaging#type
+org.callimachusproject.annotations.imports = http://www.openrdf.org/rdf/2011/messaging#imports
 org.callimachusproject.annotations.method = http://www.openrdf.org/rdf/2011/messaging#method
+org.callimachusproject.annotations.moved
 org.callimachusproject.annotations.query = http://www.openrdf.org/rdf/2011/messaging#query
 org.callimachusproject.annotations.realm = http://www.openrdf.org/rdf/2011/messaging#realm
-org.callimachusproject.annotations.transform = http://www.openrdf.org/rdf/2011/messaging#transform
-org.callimachusproject.annotations.expect = http://www.openrdf.org/rdf/2011/messaging#expect
-org.callimachusproject.annotations.xslt = http://www.openrdf.org/rdf/2011/messaging#xslt
-org.callimachusproject.annotations.xproc
+org.callimachusproject.annotations.rel = http://www.openrdf.org/rdf/2011/messaging#rel
+org.callimachusproject.annotations.resides
 org.callimachusproject.annotations.script = http://www.openrdf.org/rdf/2011/messaging#script
-org.callimachusproject.annotations.imports = http://www.openrdf.org/rdf/2011/messaging#imports
-org.callimachusproject.annotations.pattern
-org.callimachusproject.annotations.alternate
-org.callimachusproject.annotations.flag
+org.callimachusproject.annotations.title = http://www.openrdf.org/rdf/2011/messaging#title
+org.callimachusproject.annotations.transform = http://www.openrdf.org/rdf/2011/messaging#transform
+org.callimachusproject.annotations.type = http://www.openrdf.org/rdf/2011/messaging#type
+org.callimachusproject.annotations.xproc
+org.callimachusproject.annotations.xslt = http://www.openrdf.org/rdf/2011/messaging#xslt

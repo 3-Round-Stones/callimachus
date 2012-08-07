@@ -3,7 +3,6 @@ package org.callimachusproject.rewrite;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import org.callimachusproject.annotations.canonical;
 import org.callimachusproject.annotations.copies;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.advice.Advice;
@@ -40,7 +39,7 @@ public class CopyAdviceFactory implements AdviceProvider, AdviceFactory {
 	}
 
 	private String[] getCommands(Method method) {
-		return method.getAnnotation(canonical.class).value();
+		return method.getAnnotation(copies.class).value();
 	}
 
 	private Substitution[] createSubstitution(String[] commands) {

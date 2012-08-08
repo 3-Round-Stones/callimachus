@@ -133,5 +133,6 @@
 
 :resource a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :ResourceInfo;
-    calli:query "*".
+    calli:query "*";
+    calli:type "text/uri-list".
 

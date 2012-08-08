@@ -50,9 +50,7 @@ public class XMLEventMessageReader implements Producer {
 	private XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
 
 	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
-		if (!ftype.is("text/*", "application/*"))
-			return false;
-		return ftype.asClass().isAssignableFrom(XMLEventReader.class);
+		return ftype.asClass().isAssignableFrom(XMLEventReader.class) && ftype.isXML();
 	}
 
 	public XMLEventReader produce(FluidType ftype, ReadableByteChannel in,

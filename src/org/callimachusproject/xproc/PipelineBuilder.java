@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -17,6 +19,7 @@ import net.sf.saxon.s9api.SaxonApiException;
 
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.xml.AggressiveCachedURIResolver;
 import org.callimachusproject.xml.CloseableURIResolver;
 import org.openrdf.OpenRDFException;
@@ -35,26 +38,57 @@ public class PipelineBuilder {
 	private final XProcRuntime runtime;
 	private final CloseableURIResolver resolver;
 	private final XPipeline pipeline;
+	private final Serialization serial;
 
-	PipelineBuilder(XProcRuntime runtime, URIResolver resolver, XPipeline pipeline, String systemId) {
+	PipelineBuilder(XProcRuntime runtime, URIResolver resolver,
+			XPipeline pipeline, String systemId) {
 		this.runtime = runtime;
 		this.pipeline = pipeline;
 		this.resolver = new CloseableURIResolver(resolver);
-		runtime.setURIResolver(new AggressiveCachedURIResolver(systemId, this.resolver));
+		runtime.setURIResolver(new AggressiveCachedURIResolver(systemId,
+				this.resolver));
+		Serialization serialization = pipeline.getSerialization("result");
+		if (serialization == null) {
+			this.serial = new Serialization(runtime, null);
+		} else {
+			this.serial = serialization;
+		}
+		String encoding = serial.getEncoding();
+		if (encoding == null) {
+			serial.setEncoding(encoding = Charset.defaultCharset().name());
+		}
+		String mediaType = serial.getMediaType();
+		if (mediaType == null) {
+			serial.setMediaType(mediaType = "application/xml");
+		} else if (mediaType.startsWith("text/")
+				&& !mediaType.contains("charset=")) {
+			serial.setMediaType(mediaType + ";charset=" + encoding);
+		}
 	}
 
 	public void passOption(String key, String value) {
 		pipeline.passOption(new QName(key), new RuntimeValue(value));
 	}
 
+	public String getMediaType() {
+		return serial.getMediaType();
+	}
+
+	public void setMediaType(String mediaType) {
+		serial.setMediaType(mediaType);
+	}
+
+	public String getEncoding() {
+		return serial.getEncoding();
+	}
+
+	public void setEncoding(String encoding) {
+		serial.setEncoding(encoding);
+	}
+
 	public void streamTo(OutputStream out) throws XProcException, IOException {
 		try {
 			pipeline.run();
-			Serialization serial = pipeline.getSerialization("result");
-			if (serial == null) {
-				// The node's a hack
-				serial = new Serialization(runtime, pipeline.getNode());
-			}
 			WritableDocument wd = new WritableDocument(runtime, null, serial,
 					out);
 			ReadablePipe rpipe = pipeline.readFrom("result");
@@ -68,16 +102,17 @@ public class PipelineBuilder {
 		}
 	}
 
-	public InputStream asStream() throws XProcException, IOException  {
+	public InputStream asStream() throws XProcException, IOException {
 		return (InputStream) as(InputStream.class);
 	}
 
-	public Object as(Type type, String... media) throws XProcException, IOException {
-		ByteArrayOutputStream outStream = new ByteArrayOutputStream(8192);
-		streamTo(outStream);
+	public Object as(Type type, String... media) throws XProcException,
+			IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream(8192);
+		streamTo(out);
 		try {
-			return fb.consume(outStream, null, ByteArrayOutputStream.class).as(
-					type, media);
+			ReadableByteChannel ch = ChannelUtil.newChannel(out.toByteArray());
+			return fb.channel(ch, null, getMediaType()).as(type, media);
 		} catch (TransformerConfigurationException e) {
 			throw new XProcException(e);
 		} catch (OpenRDFException e) {

@@ -106,8 +106,9 @@ class ChannelFluid extends AbstractFluid {
 	}
 
 	private String[] getChannelMedia(String[] media) {
-		if (getFluidType().is(media))
-			return getFluidType().as(media).media();
+		String channelMedia = fluid.toChannelMedia(media);
+		if (channelMedia != null)
+			return new String[] { channelMedia };
 		return getFluidType().media();
 	}
 

@@ -114,10 +114,10 @@
 # GET /pipeline.xpl?result
 :GetResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     calli:method "GET";
     calli:query "result";
-    calli:type "application/xml";
+    calli:type "message/x-response";
     calli:header "cache-control:no-store";
     calli:script """
         return this.PostResult(queryGetParameters, null);
@@ -126,15 +126,16 @@
 :queryGetParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetResult;
     rdfs:range <java:java.util.Map>;
-    calli:query "*".
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
 
 # POST /pipeline.xpl?result
 :PostResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     calli:method "POST";
     calli:query "result";
-    calli:type "application/xml";
+    calli:type "message/x-response";
     calli:header "cache-control:no-store";
     calli:imports <java:org.callimachusproject.xproc.PipelineFactory>;
     calli:imports <java:org.apache.http.ProtocolVersion>;
@@ -154,13 +155,19 @@
                 pipe.passOption(key, value[1]);
             }
         }
-        return pipe.asStream();
+        var http11 = new ProtocolVersion("HTTP", 1, 1);
+        var resp = new BasicHttpResponse(http11, 200, "OK");
+        var entity = new InputStreamEntity(pipe.asStream(), -1);
+        entity.contentType = pipe.getMediaType();
+        resp.setEntity(entity);
+        return resp;
 """.
 
 :queryPostParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :PostResult;
     rdfs:range <java:java.util.Map>;
-    calli:query "*".
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
 
 :sourcePort a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PostResult;

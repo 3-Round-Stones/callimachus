@@ -58,7 +58,7 @@ public class DOMMessageReader implements Producer {
 
 	public boolean isProducable(FluidType ftype, FluidBuilder builder) {
 		Class<?> type = ftype.asClass();
-		if (!ftype.is("text/*", "application/*", "*/xml"))
+		if (!ftype.isXML())
 			return false;
 		return type.isAssignableFrom(Document.class)
 				|| type.isAssignableFrom(Element.class);

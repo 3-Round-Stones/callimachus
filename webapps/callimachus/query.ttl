@@ -262,7 +262,8 @@
 :queryParameters a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetResult;
     rdfs:range <java:java.util.Map>;
-    calli:query "*".
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
 
 :match a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetResult;

@@ -20,16 +20,19 @@ import javax.xml.transform.URIResolver;
  *
  */
 public abstract class DedicatedURIResolver implements URIResolver {
-	private static final Map<String, Reference<URIResolver>> staticResolvers = new LinkedHashMap<String, Reference<URIResolver>>(
-			16, 0.75f, true) {
-		private static final long serialVersionUID = 1362917757653811798L;
+	protected static LinkedHashMap<String, Reference<URIResolver>> newStaticResolver() {
+		return new LinkedHashMap<String, Reference<URIResolver>>(
+				16, 0.75f, true) {
+			private static final long serialVersionUID = 1362917757653811798L;
 
-		protected boolean removeEldestEntry(
-				Map.Entry<String, Reference<URIResolver>> eldest) {
-			return size() > 1024;
-		}
-	};
+			protected boolean removeEldestEntry(
+					Map.Entry<String, Reference<URIResolver>> eldest) {
+				return size() > 1024;
+			}
+		};
+	}
 
+	private final Map<String, Reference<URIResolver>> staticResolvers;
 	private final Map<String, Reference<URIResolver>> instanceResolvers = new LinkedHashMap<String, Reference<URIResolver>>(
 			16, 0.75f, true) {
 		private static final long serialVersionUID = 1362917757653811798L;
@@ -39,6 +42,11 @@ public abstract class DedicatedURIResolver implements URIResolver {
 			return size() > 16;
 		}
 	};
+
+	public DedicatedURIResolver(
+			Map<String, Reference<URIResolver>> staticResolvers) {
+		this.staticResolvers = staticResolvers;
+	}
 
 	public Source resolve(String href, String base)
 			throws TransformerException {

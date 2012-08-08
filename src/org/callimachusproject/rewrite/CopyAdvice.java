@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.openrdf.OpenRDFException;
+import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.advice.Advice;
@@ -38,6 +40,7 @@ public class CopyAdvice implements Advice {
 	private final String[] bindingNames;
 	private final Type returnType;
 	private final String[] returnMedia;
+	private final TermFactory systemId;
 
 	public CopyAdvice(String[] bindingNames, Substitution[] replacers,
 			Method method) {
@@ -45,14 +48,14 @@ public class CopyAdvice implements Advice {
 		this.bindingNames = bindingNames;
 		this.returnType = method.getGenericReturnType();
 		this.returnMedia = getMediaType(method);
+		this.systemId = TermFactory.newInstance(getSystemId(method));
 	}
 
 	public Object intercept(ObjectMessage message) throws Exception {
 		Object target = message.getTarget();
 		String uri = target.toString();
 		Object[] parameters = message.getParameters();
-		String path = substitute(uri, getVariables(parameters));
-		String location = resolve(uri, path);
+		String location = resolve(substitute(uri, getVariables(parameters)));
 		ObjectConnection con = null;
 		if (target instanceof RDFObject) {
 			con = ((RDFObject) target).getObjectConnection();
@@ -95,6 +98,24 @@ public class CopyAdvice implements Advice {
 		return fb.stream(content, systemId, contentType);
 	}
 
+	private String getSystemId(Method m) {
+		if (m.isAnnotationPresent(Iri.class))
+			return m.getAnnotation(Iri.class).value();
+		Class<?> dclass = m.getDeclaringClass();
+		String mame = m.getName();
+		if (dclass.isAnnotationPresent(Iri.class)) {
+			String url = dclass.getAnnotation(Iri.class).value();
+			if (url.indexOf('#') >= 0)
+				return url.substring(0, url.indexOf('#') + 1) + mame;
+			return url + "#" + mame;
+		}
+		String name = dclass.getSimpleName() + ".class";
+		URL url = dclass.getResource(name);
+		if (url != null)
+			return url.toExternalForm() + "#" + mame;
+		return "java:" + dclass.getName() + "#" + mame;
+	}
+
 	private String[] getMediaType(Method method) {
 		if (method.isAnnotationPresent(type.class))
 			return method.getAnnotation(type.class).value();
@@ -135,10 +156,10 @@ public class CopyAdvice implements Advice {
 		return null;
 	}
 
-	private String resolve(String base, String path) {
+	private String resolve(String path) {
 		if (path == null)
 			return null;
-		return TermFactory.newInstance(base).reference(path).stringValue();
+		return systemId.reference(path).stringValue();
 	}
 
 }

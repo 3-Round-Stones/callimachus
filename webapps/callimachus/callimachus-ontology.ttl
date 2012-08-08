@@ -200,6 +200,46 @@ calli:transform a owl:AnnotationProperty;
     rdfs:comment "The messages that should be used to transform the parameter or response";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:copies a owl:AnnotationProperty;
+    rdfs:label "copies";
+    rdfs:comment "Target template URI that this request handler proxies to";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:canonical a owl:AnnotationProperty;
+    rdfs:label "canonical";
+    rdfs:comment "Target template URI that this request handler (301) redirects to";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:alternate a owl:AnnotationProperty;
+    rdfs:label "alternate";
+    rdfs:comment "Target template URI that this request handler (302) redirects to";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:describedby a owl:AnnotationProperty;
+    rdfs:label "describedby";
+    rdfs:comment "Target template URI that this request handler (303) redirects to";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:resides a owl:AnnotationProperty;
+    rdfs:label "resides";
+    rdfs:comment "Target template URI that this request handler (307) redirects to";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:moved a owl:AnnotationProperty;
+    rdfs:label "moved";
+    rdfs:comment "Target template URI that this request handler (308) redirects to";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:disabled a owl:AnnotationProperty;
+    rdfs:label "disabled";
+    rdfs:comment "Short user message describing that this request handler is disabled";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:deleted a owl:AnnotationProperty;
+    rdfs:label "deleted";
+    rdfs:comment "Short user message describing that this request handler is gone";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 ################################
 # Property
 ################################

@@ -12,7 +12,6 @@ import org.openrdf.annotations.Matching;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
-import org.w3c.dom.Text;
 
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
@@ -85,17 +84,17 @@ public class DOMProviderTest extends MetadataServerTestCase {
 
 	public void testDocument() throws Exception {
 		assertTrue(getString("document").trim().endsWith("<document/>"));
-		putString("document", "<document/>");
+		putXML("document", "<document/>");
 	}
 
 	public void testElement() throws Exception {
 		assertEquals(XML + "<element/>", getString("element"));
-		putString("element", "<element/>");
+		putXML("element", "<element/>");
 	}
 
 	public void testFragment() throws Exception {
 		assertEquals("<fragment/>", getString("fragment"));
-		putString("fragment", "<fragment/>");
+		putXML("fragment", "<fragment/>");
 	}
 
 	private String getString(String operation) {
@@ -104,10 +103,10 @@ public class DOMProviderTest extends MetadataServerTestCase {
 		return req.get(String.class);
 	}
 
-	private void putString(String operation, String data) {
+	private void putXML(String operation, String data) {
 		WebResource path = client.path("/").queryParam(operation, "");
 		Builder req = path.header("Accept-Encoding", "gzip;q=0");
-		req.put(data);
+		req.header("Content-Type", "text/xml").put(data);
 	}
 
 }

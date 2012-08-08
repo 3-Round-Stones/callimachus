@@ -1,6 +1,6 @@
 <xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xhtml="http://www.w3.org/1999/xhtml"
         version="1.0" exclude-result-prefixes="xhtml">
-    <xsl:output indent="no" method="html" />
+    <xsl:output indent="no" method="html" doctype-system="about:legacy-compat" />
 
     <xsl:template match="*">
         <xsl:copy>
@@ -13,7 +13,6 @@
     </xsl:template>
 
     <xsl:template match="html|xhtml:html">
-        <xsl:text disable-output-escaping='yes'>&lt;!DOCTYPE html&gt;&#xA;</xsl:text>
         <xsl:copy>
             <xsl:if test="@xml:lang and not(@lang)">
                 <xsl:attribute name="lang">

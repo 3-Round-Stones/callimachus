@@ -152,13 +152,7 @@
     calli:method "GET";
     calli:rel "edit-media";
     calli:type "application/rdf+xml;q=0.4";
-    calli:transform :TransformNamedGraph;
     msg:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
-
-:inputStream a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain :TransformNamedGraph;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "application/xml".
 
 # POST ?create=/callimachus/NamedGraph
 :PostNamedGraphCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>

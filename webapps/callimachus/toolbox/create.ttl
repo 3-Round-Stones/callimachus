@@ -212,7 +212,8 @@
 :create a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain [owl:unionOf (:GetCreatorPage :PostFactoryCreate)];
     rdfs:range <../Creatable>;
-    calli:query "create".
+    calli:query "create";
+    calli:type "text/uri-list".
 
 :intermediate a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :PostFactoryCreate;
@@ -221,7 +222,8 @@
 
 :location a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
-    calli:query "location".
+    calli:query "location";
+    calli:type "text/uri-list".
 
 :type a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain [owl:unionOf (:LookupConstructor :PostCreate :PostFactoryCreate)];

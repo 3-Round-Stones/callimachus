@@ -33,11 +33,9 @@ public interface VarOrTerm {
 
 	boolean isCURIE();
 
-	boolean isLiteral();
-
 	boolean isPlainLiteral();
 
-	boolean isTypedLiteral();
+	boolean isLiteral();
 
 	boolean isXMLLiteral();
 
@@ -53,7 +51,7 @@ public interface VarOrTerm {
 
 	PlainLiteral asPlainLiteral();
 
-	TypedLiteral asTypedLiteral();
+	Literal asLiteral();
 
 	XMLLiteral asXMLLiteral();
 

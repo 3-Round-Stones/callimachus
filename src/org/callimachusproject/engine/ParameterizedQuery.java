@@ -4,6 +4,7 @@ import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.EmptyIteration;
 import info.aduna.text.ASCIIUtil;
 
+import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -107,11 +108,11 @@ public class ParameterizedQuery {
 	}
 
 	public String prepare() throws IllegalArgumentException {
-		Map<String, String[]> parameters = Collections.emptyMap();
+		Map<String, ?> parameters = Collections.emptyMap();
 		return prepare(parameters);
 	}
 
-	public String prepare(Map<String, String[]> parameters) throws IllegalArgumentException {
+	public String prepare(Map<String, ?> parameters) throws IllegalArgumentException {
 		String sparql = this.sparql;
 		if (isExpressionPresent()) {
 			try {
@@ -130,7 +131,7 @@ public class ParameterizedQuery {
 	}
 
 	private String inlineExpressions(String sparql,
-			Map<String, String[]> parameters) throws QueryEvaluationException, MalformedQueryException {
+			Map<String, ?> parameters) throws QueryEvaluationException, MalformedQueryException {
 		StringBuilder sb = new StringBuilder();
 		Matcher m = PARAM_EXPRESSION.matcher(sparql);
 		String prologue = getPrologue();
@@ -147,7 +148,7 @@ public class ParameterizedQuery {
 	}
 
 	private Value evaluate(String prologue, String expression,
-			Map<String, String[]> parameters) throws MalformedQueryException,
+			Map<String, ?> parameters) throws MalformedQueryException,
 			QueryEvaluationException {
 		Literal defaultValue = vf.createLiteral("0", XMLSchema.INTEGER);
 		String select = prologue + "SELECT (" + expression + " AS ?_value) {} LIMIT 1";
@@ -186,7 +187,7 @@ public class ParameterizedQuery {
 	}
 
 	private String appendBindings(String sparql,
-			Map<String, String[]> parameters) {
+			Map<String, ?> parameters) {
 		if (!isParameterPresent())
 			return sparql;
 		StringBuilder sb = new StringBuilder(sparql);
@@ -212,11 +213,11 @@ public class ParameterizedQuery {
 	}
 
 	private List<List<Value>> getParameterBindingValues(
-			Map<String, String[]> parameters) {
+			Map<String, ?> parameters) {
 		List<List<Value>> bindingValues = Collections.singletonList(Collections
 				.<Value> emptyList());
 		for (String name : bindingNames) {
-			String[] strings = parameters == null ? null : parameters.get(name);
+			String[] strings = getStrings(parameters, name);
 			if (strings == null || strings.length == 0) {
 				List<List<Value>> list;
 				list = new ArrayList<List<Value>>(bindingValues.size());
@@ -236,6 +237,24 @@ public class ParameterizedQuery {
 			}
 		}
 		return bindingValues;
+	}
+
+	private String[] getStrings(Map<String, ?> parameters, String name) {
+		if (parameters == null)
+			return null;
+		Object value = parameters.get(name);
+		if (value == null)
+			return null;
+		if (value instanceof String[])
+			return (String[]) value;
+		if (!value.getClass().isArray())
+			return new String[] { value.toString() };
+		String[] result = new String[Array.getLength(value)];
+		for (int i = 0; i < result.length; i++) {
+			Object element = Array.get(value, i);
+			result[i] = element == null ? null : element.toString();
+		}
+		return result;
 	}
 
 	private Value resolve(String name, String value) {

@@ -12,12 +12,14 @@ public class TermOrigin {
 	// where the same property is used for both in the same element.
 	// This is not used where content is assigned a variable.
 	private final boolean text;
+	private final boolean anonymous;
 
 	public TermOrigin() {
 		this.xptr = "";
 		this.property = null;
 		this.blank = false;
 		this.text = false;
+		this.anonymous = false;
 	}
 
 	private TermOrigin(String string, String property, boolean blank, boolean text) {
@@ -25,6 +27,15 @@ public class TermOrigin {
 		this.property = property;
 		this.blank = blank;
 		this.text = text;
+		this.anonymous = false;
+	}
+
+	private TermOrigin(String string, String property, boolean blank, boolean text, boolean anonymous) {
+		this.xptr = string;
+		this.property = property;
+		this.blank = blank;
+		this.text = text;
+		this.anonymous = anonymous;
 	}
 
 	public TermOrigin textContent() {
@@ -79,6 +90,14 @@ public class TermOrigin {
 		if (text || blank)
 			return false;
 		return Pattern.compile("^(/\\d+){2}$").matcher(this.xptr).matches();
+	}
+
+	public boolean isAnonymous() {
+		return anonymous;
+	}
+
+	public TermOrigin anonymous() {
+		return new TermOrigin(xptr, property, blank, text, true);
 	}
 
 }

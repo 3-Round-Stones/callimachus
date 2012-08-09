@@ -18,7 +18,7 @@
 package org.callimachusproject.engine.impl;
 
 import org.callimachusproject.engine.model.IRI;
-import org.callimachusproject.engine.model.TypedLiteral;
+import org.callimachusproject.engine.model.Literal;
 
 /**
  * A value as a string and its datatype.
@@ -26,9 +26,9 @@ import org.callimachusproject.engine.model.TypedLiteral;
  * @author James Leigh
  *
  */
-public class TypedLiteralImpl extends TypedLiteral {
-	private String label;
-	private IRI datatype;
+public class TypedLiteralImpl extends Literal {
+	private final String label;
+	private final IRI datatype;
 
 	public TypedLiteralImpl(String label, IRI datatype) {
 		assert label != null;

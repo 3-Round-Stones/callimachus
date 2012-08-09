@@ -23,7 +23,7 @@ package org.callimachusproject.engine.model;
  * @author James Leigh
  *
  */
-public abstract class PlainLiteral extends VarOrTermBase implements Literal {
+public abstract class PlainLiteral extends Literal {
 
 	public abstract String getLang();
 

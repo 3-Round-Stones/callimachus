@@ -33,7 +33,6 @@ import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
-import org.callimachusproject.engine.TemplateEngineFactory;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.traits.VersionedObject;
@@ -57,8 +56,7 @@ import org.openrdf.repository.object.RDFObject;
 public abstract class ViewSupport implements Page, RDFObject, VersionedObject,
 		FileObject {
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
-	private static final TemplateEngineFactory tef = TemplateEngineFactory
-			.newInstance();
+	private static final TemplateEngine ENGINE = TemplateEngine.newInstance();
 
 	/**
 	 * calliConstruct() is used e.g. by the view tab (not exclusively) and
@@ -80,14 +78,13 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject,
 	private XMLEventReader calliConstructXhtml(URI about)
 			throws Exception {
 		ObjectConnection con = getObjectConnection();
-		TemplateEngine engine = tef.createTemplateEngine(con);
 		String url = url("xslt", findRealm(about));
 		InputStream in = openRequest(url);
 		try {
-			Template temp = engine.getTemplate(in, url);
+			Template temp = ENGINE.getTemplate(in, url);
 			MapBindingSet bindings = new MapBindingSet();
 			bindings.addBinding("this", about);
-			return temp.openResult(bindings);
+			return temp.openResult(bindings, con);
 		} finally {
 			in.close();
 		}

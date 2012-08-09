@@ -35,10 +35,12 @@ import org.callimachusproject.engine.model.XMLLiteral;
  */
 public class XMLLiteralImpl extends XMLLiteral {
 	private static XMLInputFactory factory = XMLInputFactory.newInstance();
-	private String xml;
-	private IRI xmlliteral;
+	private final String xml;
+	private final IRI xmlliteral;
 
 	public XMLLiteralImpl(String xml, IRI xmlliteral) {
+		assert xml != null;
+		assert xmlliteral != null;
 		this.xml = xml;
 		this.xmlliteral = xmlliteral;
 	}

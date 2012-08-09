@@ -33,6 +33,11 @@ public class BlankOrLiteralVar extends Var {
 	}
 
 	@Override
+	public String prefix() {
+		return "?";
+	}
+
+	@Override
 	public String stringValue() {
 		return name;
 	}

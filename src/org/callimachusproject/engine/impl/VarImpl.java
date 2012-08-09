@@ -26,11 +26,23 @@ import org.callimachusproject.engine.model.Var;
  *
  */
 public class VarImpl extends Var {
-	private String name;
+	private final String prefix;
+	private final String name;
 
 	public VarImpl(String name) {
+		this('?', name);
+	}
+
+	public VarImpl(char prefix, String name) {
+		assert prefix == '?' || prefix == '$';
 		assert name != null;
+		this.prefix = Character.toString(prefix);
 		this.name = name;
+	}
+
+	@Override
+	public String prefix() {
+		return prefix;
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,26 +22,37 @@ import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.ResponseException;
-import org.openrdf.repository.RepositoryConnection;
 import org.callimachusproject.xslt.TransformBuilder;
 import org.callimachusproject.xslt.XSLTransformer;
 import org.callimachusproject.xslt.XSLTransformerFactory;
 
 public class TemplateEngine {
+
+	public static TemplateEngine newInstance() {
+		return new TemplateEngine();
+	}
+
+	public static TemplateEngine getInstance() {
+		return instance;
+	}
+
+	private static final TemplateEngine instance = newInstance();
 	private static final int XML_BUF = 2048;
 	private static final String XSS = "<?xml-stylesheet";
 	private static final Pattern TYPE_XSLT = Pattern
 			.compile("\\btype=[\"'](text/xsl|application/xslt+xml)[\"']");
 	private static final Pattern HREF_XSLT = Pattern
 			.compile("<?xml-stylesheet\\b[^>]*\\bhref=[\"']([^\"']*)[\"']");
-	private final RepositoryConnection con;
-	private final Map<String, Reference<XSLTransformer>> transformers;
 
-	protected TemplateEngine(RepositoryConnection con,
-			Map<String, Reference<XSLTransformer>> transformers) {
-		this.con = con;
-		this.transformers = transformers;
-	}
+	private final Map<String, Reference<XSLTransformer>> transformers = new LinkedHashMap<String, Reference<XSLTransformer>>(
+			16, 0.75f, true) {
+		private static final long serialVersionUID = 1362917757653811798L;
+
+		protected boolean removeEldestEntry(
+				Map.Entry<String, Reference<XSLTransformer>> eldest) {
+			return size() > 16;
+		}
+	};
 
 	public Template getTemplate(String url) throws IOException,
 			TemplateException {
@@ -76,7 +88,7 @@ public class TemplateEngine {
 			Map<String, ?> parameters) throws IOException,
 			TemplateException {
 		try {
-			return new Template(xslt(in, systemId, parameters), systemId, con);
+			return new Template(xslt(in, systemId, parameters), systemId);
 		} catch (XMLStreamException e) {
 			throw new TemplateException(e);
 		} catch (TransformerException e) {

@@ -26,6 +26,6 @@ import javax.xml.stream.XMLStreamException;
  * @author James Leigh
  *
  */
-public abstract class XMLLiteral extends TypedLiteral {
+public abstract class XMLLiteral extends Literal {
 	public abstract XMLEventReader openXMLEventReader() throws XMLStreamException;
 }

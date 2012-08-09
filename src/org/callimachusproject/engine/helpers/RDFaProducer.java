@@ -386,7 +386,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 			TermOrigin origin = origins.get(name);
 			if (origin==null) continue;
 			// implicit vars (apart from CONTENT) need not be grounded
-			if (name.startsWith("_") 
+			if (isAnonymous(name) 
 			&& !(origin.isTextContent() || origin.isBlankNode())) 
 				continue;
 			if (origin.pathEquals(context.path) && context.assignments.get(name)==null) 
@@ -399,13 +399,18 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// all implicit variables originating from this element must be bound
 		// excluding property expressions
 		for (String name: resultSet.getBindingNames()) {
-			if (!name.startsWith("_") || extraneous.contains(name)) continue;
+			if (!isAnonymous(name) || extraneous.contains(name)) continue;
 			TermOrigin value = origins.get(name);
 			if (value == null) continue;
 			if (value.pathEquals(context.path) && context.assignments.get(name)==null) 
 				return false;
 		}
 		return true;
+	}
+
+	private boolean isAnonymous(String name) {
+		TermOrigin origin = origins.get(name);
+		return origin != null && origin.isAnonymous();
 	}
 
 	/* is the result set consistent with assignments to this point 
@@ -574,7 +579,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 	
 	private String getVar(String property, String path) {
 		for (String name: origins.keySet()) {
-			if (!name.startsWith("_")) continue;
+			if (!isAnonymous(name)) continue;
 			if (origins.get(name).startsWith(path) && origins.get(name).propertyEquals(property)) 
 				return name;
 		}
@@ -595,7 +600,7 @@ public class RDFaProducer extends XMLEventReaderBase {
 				// context.property refers to CONTENT
 				if (value.isTextContent())
 					content = b.getValue();
-				if (b.getName().startsWith("_")) {
+				if (isAnonymous(b.getName())) {
 					Value val = b.getValue();
 					Value current = context.assignments.get(b.getName());
 					if (current!=null) {

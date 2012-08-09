@@ -20,6 +20,7 @@ package org.callimachusproject.engine.impl;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.XMLSchema;
 
 import org.callimachusproject.engine.model.CURIE;
 import org.callimachusproject.engine.model.IRI;
@@ -27,7 +28,7 @@ import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.PlainLiteral;
 import org.callimachusproject.engine.model.Reference;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
-import org.callimachusproject.engine.model.TypedLiteral;
+import org.callimachusproject.engine.model.Literal;
 import org.callimachusproject.engine.model.Var;
 
 /**
@@ -41,6 +42,8 @@ public class AbsoluteTermFactoryImpl extends AbsoluteTermFactory {
 			+ Long.toHexString(System.currentTimeMillis()) + "x";
 	private static final AtomicLong seq = new AtomicLong(0);
 	private static final CURIE XMLLiteral = new CURIEImpl(RDF.NAMESPACE, "XMLLiteral", "rdf");
+	private static final CURIE STRING = new CURIEImpl(XMLSchema.NAMESPACE, "string", "xsd");
+	private static final CURIE LANGSTRING = new CURIEImpl(RDF.NAMESPACE, "LangString", "rdf");
 
 	@Override
 	public CURIE curie(String ns, String reference, String prefix) {
@@ -60,11 +63,13 @@ public class AbsoluteTermFactoryImpl extends AbsoluteTermFactory {
 	public PlainLiteral literal(String label, String lang) {
 		if (label == null)
 			throw new IllegalArgumentException();
-		return new PlainLiteralImpl(label, lang);
+		if (lang == null)
+			return new PlainLiteralImpl(label, STRING);
+		return new PlainLiteralImpl(label, LANGSTRING, lang);
 	}
 
 	@Override
-	public TypedLiteral literal(String label, IRI datatype) {
+	public Literal literal(String label, IRI datatype) {
 		if (label == null)
 			throw new IllegalArgumentException();
 		if (XMLLiteral.equals(datatype))
@@ -74,9 +79,14 @@ public class AbsoluteTermFactoryImpl extends AbsoluteTermFactory {
 
 	@Override
 	public Var var(String name) {
+		return var('?', name);
+	}
+
+	@Override
+	public Var var(char prefix, String name) {
 		if (name == null)
 			throw new IllegalArgumentException();
-		return new VarImpl(name);
+		return new VarImpl(prefix, name);
 	}
 
 	@Override

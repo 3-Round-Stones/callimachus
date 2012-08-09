@@ -92,7 +92,6 @@ public class SPARQLPosteditor extends RDFEventPipe {
 			if (!event.isEndSubject()) return false;
 			VarOrTerm vt = event.asSubject().getSubject();
 			if (vt.isVar() 
-			&& !vt.asVar().stringValue().startsWith("_") 
 			&& match(vt)) {
 				Var var = tf.var(vt.stringValue() + "_phone");
 				add(new TriplePattern(vt,tf.curie(KEYWORD_NS, "phone", "keyword"),var, location));

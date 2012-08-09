@@ -30,6 +30,8 @@ public abstract class AbsoluteTermFactory {
 		return new AbsoluteTermFactoryImpl();
 	}
 	
+	public abstract Var var(char prefix, String name);
+	
 	public abstract Var var(String name);
 
 	public abstract IRI iri(String iri);
@@ -40,7 +42,7 @@ public abstract class AbsoluteTermFactory {
 
 	public abstract PlainLiteral literal(String label, String lang);
 
-	public abstract TypedLiteral literal(String label, IRI datatype);
+	public abstract Literal literal(String label, IRI datatype);
 
 	public abstract Node node(String id);
 

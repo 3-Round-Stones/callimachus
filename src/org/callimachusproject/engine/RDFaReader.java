@@ -60,7 +60,7 @@ import org.callimachusproject.engine.model.PlainLiteral;
 import org.callimachusproject.engine.model.Reference;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
-import org.callimachusproject.engine.model.TypedLiteral;
+import org.callimachusproject.engine.model.Literal;
 
 /**
  * RDFa parser.
@@ -831,7 +831,7 @@ public class RDFaReader extends AbstractRDFEventReader {
 
 		private void typed(Node subj, List<Node> pred, String content,
 				IRI datatype) {
-			TypedLiteral lit = tf.literal(content, datatype);
+			Literal lit = tf.literal(content, datatype);
 			//lit.setOrigin(origin+" "+TEXT_CONTENT);
 			if (content.isEmpty()) {
 				lit.setOrigin(origin.textContent());

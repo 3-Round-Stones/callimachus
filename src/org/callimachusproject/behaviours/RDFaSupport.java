@@ -32,7 +32,6 @@ import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
-import org.callimachusproject.engine.TemplateEngineFactory;
 import org.callimachusproject.engine.TemplateException;
 import org.callimachusproject.engine.events.Base;
 import org.callimachusproject.engine.helpers.OverrideBaseReader;
@@ -49,8 +48,8 @@ import org.openrdf.repository.object.RDFObject;
  * 
  */
 public abstract class RDFaSupport implements Page, RDFObject {
-	private static final TemplateEngineFactory tef = TemplateEngineFactory
-			.newInstance();
+
+	private static final TemplateEngine ENGINE = TemplateEngine.newInstance();
 
 	@method("GET")
 	@query("xslt")
@@ -58,10 +57,9 @@ public abstract class RDFaSupport implements Page, RDFObject {
 	public XMLEventReader xslt(@query("element") String element, @query("realm") String realm)
 			throws IOException, TemplateException {
 		String base = getResource().stringValue();
-		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("realm", realm);
-		Template temp = engine.getTemplate(base, param).getElement(element);
+		Template temp = ENGINE.getTemplate(base, param).getElement(element);
 		return temp.openSource();
 	}
 
@@ -71,8 +69,7 @@ public abstract class RDFaSupport implements Page, RDFObject {
 	public XMLEventReader triples(@query("element") String element)
 			throws Exception {
 		String base = getResource().stringValue();
-		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
-		Template temp = engine.getTemplate(base).getElement(element);
+		Template temp = ENGINE.getTemplate(base).getElement(element);
 		XMLEventReader doc = temp.openSource();
 		return new RDFXMLEventReader(new RDFaReader(base, doc, toString()));
 	}
@@ -83,16 +80,14 @@ public abstract class RDFaSupport implements Page, RDFObject {
 	public byte[] sparql(@query("resource") String about,
 			@query("element") String element) throws Exception {
 		String base = getResource().stringValue();
-		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
-		Template temp = engine.getTemplate(base).getElement(element);
+		Template temp = ENGINE.getTemplate(base).getElement(element);
 		return temp.getQuery().getBytes(Charset.forName("UTF-8"));
 	}
 
 	public RDFEventReader openPatternReader(String about, String element)
 			throws IOException, TemplateException {
 		String base = getResource().stringValue();
-		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
-		Template temp = engine.getTemplate(base).getElement(element);
+		Template temp = ENGINE.getTemplate(base).getElement(element);
 		RDFEventReader reader = temp.openQuery();
 		Base resolver = new Base(base);
 		if (about == null) {

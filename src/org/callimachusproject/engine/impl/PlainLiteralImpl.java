@@ -17,6 +17,7 @@
  */
 package org.callimachusproject.engine.impl;
 
+import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.PlainLiteral;
 
 /**
@@ -26,21 +27,29 @@ import org.callimachusproject.engine.model.PlainLiteral;
  *
  */
 public class PlainLiteralImpl extends PlainLiteral {
-	private String label;
-	private String lang;
+	private final String label;
+	private final IRI datatype;
+	private final String lang;
 
-	public PlainLiteralImpl(String label) {
-		this(label, null);
+	public PlainLiteralImpl(String label, IRI string) {
+		this(label, string, null);
 	}
 
-	public PlainLiteralImpl(String label, String lang) {
+	public PlainLiteralImpl(String label, IRI langString, String lang) {
 		assert label != null;
+		assert langString != null;
 		this.label = label;
+		this.datatype = langString;
 		this.lang = lang;
 	}
 
 	public String getLang() {
 		return lang;
+	}
+
+	@Override
+	public IRI getDatatype() {
+		return datatype;
 	}
 
 	@Override

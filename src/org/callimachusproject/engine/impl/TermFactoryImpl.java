@@ -30,9 +30,10 @@ import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.PlainLiteral;
 import org.callimachusproject.engine.model.Reference;
 import org.callimachusproject.engine.model.TermFactory;
-import org.callimachusproject.engine.model.TypedLiteral;
+import org.callimachusproject.engine.model.Literal;
 import org.callimachusproject.engine.model.Var;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.XMLSchema;
 
 /**
  * Contains factory methods for RDF terms.
@@ -46,6 +47,8 @@ public class TermFactoryImpl extends TermFactory {
 	private static final AtomicLong seq = new AtomicLong(0);
 	private static final CURIE XMLLiteral = new CURIEImpl(RDF.NAMESPACE,
 			"XMLLiteral", "rdf");
+	private static final CURIE STRING = new CURIEImpl(XMLSchema.NAMESPACE, "string", "xsd");
+	private static final CURIE LANGSTRING = new CURIEImpl(RDF.NAMESPACE, "langString", "rdf");
 	private final Map<String, String> namespaces = new HashMap<String, String>();
 	private final String systemId;
 	private ParsedURI base;
@@ -106,11 +109,13 @@ public class TermFactoryImpl extends TermFactory {
 	public PlainLiteral literal(String label, String lang) {
 		if (label == null)
 			throw new IllegalArgumentException();
-		return new PlainLiteralImpl(label, lang);
+		if (lang == null)
+			return new PlainLiteralImpl(label, STRING);
+		return new PlainLiteralImpl(label, LANGSTRING, lang);
 	}
 
 	@Override
-	public TypedLiteral literal(String label, IRI datatype) {
+	public Literal literal(String label, IRI datatype) {
 		if (label == null)
 			throw new IllegalArgumentException();
 		if (XMLLiteral.equals(datatype))
@@ -120,9 +125,14 @@ public class TermFactoryImpl extends TermFactory {
 
 	@Override
 	public Var var(String name) {
+		return var('?', name);
+	}
+
+	@Override
+	public Var var(char prefix, String name) {
 		if (name == null)
 			throw new IllegalArgumentException();
-		return new VarImpl(name);
+		return new VarImpl(prefix, name);
 	}
 
 	@Override

@@ -41,7 +41,6 @@ import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
-import org.callimachusproject.engine.TemplateEngineFactory;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.helpers.DeDupedResultSet;
 import org.callimachusproject.engine.helpers.OrderedSparqlReader;
@@ -54,6 +53,9 @@ import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.ResponseException;
+import org.callimachusproject.xml.XMLEventReaderFactory;
+import org.callimachusproject.xslt.XSLTransformer;
+import org.callimachusproject.xslt.XSLTransformerFactory;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -62,9 +64,6 @@ import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.impl.MapBindingSet;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.object.RDFObject;
-import org.callimachusproject.xml.XMLEventReaderFactory;
-import org.callimachusproject.xslt.XSLTransformer;
-import org.callimachusproject.xslt.XSLTransformerFactory;
 
 /**
  * Implements the construct search method to lookup resources by label prefix
@@ -75,11 +74,13 @@ import org.callimachusproject.xslt.XSLTransformerFactory;
  * 
  */
 public abstract class FormSupport implements Page, RDFObject {
-	private static final TemplateEngineFactory tef = TemplateEngineFactory.newInstance();
 	private static ValueFactory vf = new ValueFactoryImpl();
+	private static final TemplateEngine ENGINE = TemplateEngine.newInstance();
 	
 	
 	static final XSLTransformer HTML_XSLT;
+
+
 	static {
 		String path = "org/callimachusproject/xsl/page-to-html.xsl";
 		ClassLoader cl = ViewSupport.class.getClassLoader();
@@ -112,12 +113,12 @@ public abstract class FormSupport implements Page, RDFObject {
 	@query("construct")
 	@type("text/html")
 	@header("cache-control:no-store")
-	public InputStream construct(@query("resource") URI about,
-			@query("element") String element)
-			throws Exception {
+	public InputStream construct(
+			@query("resource") @type("text/uri-list") URI about,
+			@query("element") String element) throws Exception {
 		if (about != null && (element == null || element.equals("/1")))
 			throw new BadRequest("Missing element parameter");
-		if (about!=null && element!=null)
+		if (about != null && element != null)
 			return dataConstruct(about, element);
 		if (about == null && element == null) {
 			ValueFactory vf = getObjectConnection().getValueFactory();
@@ -207,14 +208,13 @@ public abstract class FormSupport implements Page, RDFObject {
 	
 	private XMLEventReader calliConstructXhtml(URI about, String element) 
 	throws Exception {
-		TemplateEngine engine = tef.createTemplateEngine(getObjectConnection());
 		String url = url("xslt", element);
 		InputStream in = openRequest(url);
 		try {
-			Template temp = engine.getTemplate(in, url);
+			Template temp = ENGINE.getTemplate(in, url);
 			MapBindingSet bindings = new MapBindingSet();
 			bindings.addBinding("this", about);
-			return temp.openResult(bindings);
+			return temp.openResult(bindings, getObjectConnection());
 		} finally {
 			in.close();
 		}

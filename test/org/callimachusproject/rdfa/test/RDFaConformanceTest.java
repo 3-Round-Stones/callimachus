@@ -29,7 +29,7 @@ import org.callimachusproject.engine.events.Triple;
 import org.callimachusproject.engine.model.Node;
 import org.callimachusproject.engine.model.PlainLiteral;
 import org.callimachusproject.engine.model.Term;
-import org.callimachusproject.engine.model.TypedLiteral;
+import org.callimachusproject.engine.model.Literal;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -172,8 +172,8 @@ public class RDFaConformanceTest {
 		else if (term.isNode()) {
 			o = f.createBNode(term.stringValue());
 		}
-		else if (term.isTypedLiteral()) {
-			TypedLiteral typed = term.asTypedLiteral();
+		else if (term.isLiteral()) {
+			Literal typed = term.asLiteral();
 			URI uri = f.createURI(typed.getDatatype().stringValue());
 			o = f.createLiteral(typed.stringValue(), uri);
 		}

@@ -18,10 +18,46 @@
 package org.callimachusproject.engine.model;
 
 /**
- * RDF Literal (plain or typed).
+ * RDF typed literal.
  * 
  * @author James Leigh
  *
  */
-public interface Literal extends Term {
+public abstract class Literal extends VarOrTermBase implements Term {
+
+	public abstract IRI getDatatype();
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append('"').append(stringValue().replace("\\", "\\\\").replace("\n", "\\n").replace("\"", "\\\"")).append('"');
+		sb.append("^^").append(getDatatype().toString());
+		return sb.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return stringValue().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Literal))
+			return false;
+		Literal other = (Literal) obj;
+		if (getDatatype() == null) {
+			if (other.getDatatype() != null)
+				return false;
+		} else if (!getDatatype().equals(other.getDatatype()))
+			return false;
+		if (stringValue() == null) {
+			if (other.stringValue() != null)
+				return false;
+		} else if (!stringValue().equals(other.stringValue()))
+			return false;
+		return true;
+	}
 }

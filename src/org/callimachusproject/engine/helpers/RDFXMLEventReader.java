@@ -173,8 +173,8 @@ public class RDFXMLEventReader extends XMLEventReaderBase {
 				reader.close();
 			}
 			add(factory.createEndElement(pred, ns.iterator()));
-		} else if (obj.isTypedLiteral()) {
-			IRI dt = obj.asTypedLiteral().getDatatype();
+		} else if (obj.isLiteral()) {
+			IRI dt = obj.asLiteral().getDatatype();
 			attrs.add(factory.createAttribute(DATATYPE, dt.stringValue()));
 			add(factory.createStartElement(pred, attrs.iterator(), ns.iterator()));
 			add(factory.createCharacters(obj.stringValue()));

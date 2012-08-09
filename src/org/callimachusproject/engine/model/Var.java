@@ -48,6 +48,8 @@ public abstract class Var extends VarOrTermBase implements VarOrIRI {
 	}
 
 	public String toString() {
-		return "?" + stringValue();
+		return prefix() + stringValue();
 	}
+
+	public abstract String prefix();
 }

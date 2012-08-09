@@ -54,7 +54,6 @@ import junit.textui.TestRunner;
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
-import org.callimachusproject.engine.TemplateEngineFactory;
 import org.callimachusproject.engine.helpers.XMLEventList;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -377,8 +376,7 @@ public class RDFaGenerationTest extends TestCase {
 			write(readDocument(template),System.out);
 		}
 		// produce SPARQL from the RDFa template
-		TemplateEngineFactory tef = TemplateEngineFactory.newInstance();
-		TemplateEngine engine = tef.createTemplateEngine(source);
+		TemplateEngine engine = TemplateEngine.newInstance();
 		Template temp = engine.getTemplate(new FileInputStream(template), base);
 
 		//XMLEventReader xml = xmlInputFactory.createXMLEventReader(src); 
@@ -387,7 +385,7 @@ public class RDFaGenerationTest extends TestCase {
 		//xml = xmlInputFactory.createXMLEventReader(new FileReader(template));
 		MapBindingSet bindings = new MapBindingSet();
 		bindings.addBinding("this", self);
-		XMLEventList xrdfa = new XMLEventList(temp.openResult(bindings));
+		XMLEventList xrdfa = new XMLEventList(temp.openResult(bindings, source));
 
 		loadRepository(actual, new RDFaReader(base, xrdfa.iterator(), base));
 		Document outputDoc = asDocument(xrdfa.iterator());

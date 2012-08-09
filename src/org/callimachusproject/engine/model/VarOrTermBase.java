@@ -50,10 +50,6 @@ public abstract class VarOrTermBase implements VarOrTerm {
 		return this instanceof PlainLiteral;
 	}
 
-	public boolean isTypedLiteral() {
-		return this instanceof TypedLiteral;
-	}
-
 	public boolean isXMLLiteral() {
 		return this instanceof XMLLiteral;
 	}
@@ -83,8 +79,8 @@ public abstract class VarOrTermBase implements VarOrTerm {
 		return (PlainLiteral) this;
 	}
 
-	public TypedLiteral asTypedLiteral() {
-		return (TypedLiteral) this;
+	public Literal asLiteral() {
+		return (Literal) this;
 	}
 
 	public XMLLiteral asXMLLiteral() {

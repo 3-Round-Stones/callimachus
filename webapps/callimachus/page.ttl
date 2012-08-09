@@ -131,3 +131,29 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xhtml+xml".
 
+:GetResults rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.TupleQueryResult>];
+    calli:method "GET";
+    calli:query "results";
+    calli:type "application/sparql-results+xml";
+    calli:header "cache-control:no-store";
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:imports <java:org.apache.http.entity.InputStreamEntity>;
+    calli:script """
+        var engine = org.callimachusproject.engine.TemplateEngine.getInstance();
+        var url = this.toString() + "?xslt";
+        var realm = this.FindRealm();
+        if (realm) {
+            url = url + "&realm=" + encodeURIComponent(realm.toString());
+        }
+        var template = engine.getTemplate(url);
+        return template.evaluate(queryParameters, this.toString(), this.objectConnection);
+    """.
+
+:queryParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetResults;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".

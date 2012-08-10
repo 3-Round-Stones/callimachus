@@ -1,6 +1,7 @@
 package org.callimachusproject.engine;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -96,18 +97,60 @@ public class TemplateEngine {
 		}
 	}
 
+	public Template getTemplate(Reader in, String systemId) throws IOException,
+			TemplateException {
+		return getTemplate(in, systemId, null);
+	}
+
+	public Template getTemplate(Reader in, String systemId,
+			Map<String, ?> parameters) throws IOException,
+			TemplateException {
+		try {
+			return new Template(xslt(in, systemId, parameters), systemId);
+		} catch (XMLStreamException e) {
+			throw new TemplateException(e);
+		} catch (TransformerException e) {
+			throw new TemplateException(e);
+		}
+	}
+
 	private XMLEventReader xslt(InputStream in, String systemId,
 			Map<String, ?> parameters) throws XMLStreamException,
 			IOException, TransformerException {
 		if (!in.markSupported()) {
 			in = new BufferedInputStream(in);
 		}
-		String href = readXSLTSource(in);
+		in.mark(XML_BUF * 2);
+		String href = readXSLTSource(new InputStreamReader(in));
+		in.reset();
 		if (href == null)
 			return XSLTransformerFactory.getInstance().createTransformer().transform(in, systemId).asXMLEventReader();
 		String xsl = URI.create(systemId).resolve(href).toASCIIString();
 		XSLTransformer xslt = newXSLTransformer(xsl);
 		TransformBuilder transform = xslt.transform(in, systemId);
+		return asXMLEventReader(transform, systemId, parameters, xslt);
+	}
+
+	private XMLEventReader xslt(Reader in, String systemId,
+			Map<String, ?> parameters) throws XMLStreamException,
+			IOException, TransformerException {
+		if (!in.markSupported()) {
+			in = new BufferedReader(in);
+		}
+		in.mark(XML_BUF);
+		String href = readXSLTSource(in);
+		in.reset();
+		if (href == null)
+			return XSLTransformerFactory.getInstance().createTransformer().transform(in, systemId).asXMLEventReader();
+		String xsl = URI.create(systemId).resolve(href).toASCIIString();
+		XSLTransformer xslt = newXSLTransformer(xsl);
+		TransformBuilder transform = xslt.transform(in, systemId);
+		return asXMLEventReader(transform, systemId, parameters, xslt);
+	}
+
+	private XMLEventReader asXMLEventReader(TransformBuilder transform,
+			String systemId, Map<String, ?> parameters, XSLTransformer xslt)
+			throws TransformerException, IOException {
 		if (parameters == null || !parameters.containsKey("systemId")) {
 			transform = transform.with("systemId", systemId);
 		}
@@ -141,8 +184,8 @@ public class TemplateEngine {
 	 * cannot parse processing instructions.
 	 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6849942
 	 */
-	private String readXSLTSource(InputStream in) throws IOException {
-		String instructions = readInstructions(in);
+	private String readXSLTSource(Reader reader) throws IOException {
+		String instructions = readInstructions(reader);
 		if (instructions.contains("<?xml-stylesheet ")) {
 			if (TYPE_XSLT.matcher(instructions).find()) {
 				Matcher matcher = HREF_XSLT.matcher(instructions);
@@ -154,30 +197,24 @@ public class TemplateEngine {
 		return null;
 	}
 
-	private String readInstructions(InputStream in) throws IOException {
+	private String readInstructions(Reader reader) throws IOException {
 		StringBuilder sb = new StringBuilder();
-		in.mark(XML_BUF * 2);
-		try {
-			Reader reader = new InputStreamReader(in);
-			int chr;
-			boolean stylesheet = false;
-			while ((chr = reader.read()) != -1 && sb.length() < XML_BUF) {
-				sb.append((char) chr);
-				int l = sb.length();
-				if (Character.isWhitespace((char) chr) && sb.length() > XSS.length()) {
-					String endsWith = sb.substring(l - 1 - XSS.length(), l - 1);
-					if (endsWith.equals(XSS)) {
-						stylesheet = true;
-					}
-				} else if (stylesheet && ((char) chr) == '>') {
-					break;
-				} else if (((char) chr) != '?' && sb.length() > 1
-						&& sb.charAt(sb.length() - 2) == '<') {
-					break;
+		int chr;
+		boolean stylesheet = false;
+		while ((chr = reader.read()) != -1 && sb.length() < XML_BUF) {
+			sb.append((char) chr);
+			int l = sb.length();
+			if (Character.isWhitespace((char) chr) && sb.length() > XSS.length()) {
+				String endsWith = sb.substring(l - 1 - XSS.length(), l - 1);
+				if (endsWith.equals(XSS)) {
+					stylesheet = true;
 				}
+			} else if (stylesheet && ((char) chr) == '>') {
+				break;
+			} else if (((char) chr) != '?' && sb.length() > 1
+					&& sb.charAt(sb.length() - 2) == '<') {
+				break;
 			}
-		} finally {
-			in.reset();
 		}
 		return sb.toString();
 	}

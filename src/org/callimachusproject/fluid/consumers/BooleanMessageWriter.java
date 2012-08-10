@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
-import org.callimachusproject.fluid.consumers.base.MessageWriterBase;
+import org.callimachusproject.fluid.consumers.helpers.MessageWriterBase;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.query.resultio.BooleanQueryResultFormat;
 import org.openrdf.query.resultio.BooleanQueryResultWriterFactory;

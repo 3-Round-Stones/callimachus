@@ -45,6 +45,13 @@ public class Pipeline {
 		this.pipeline = resolver.parse(systemId, in);
 	}
 
+	Pipeline(Reader in, String systemId, XdmNodeURIResolver resolver, XProcConfiguration config) throws SAXException, IOException {
+		this.systemId = systemId;
+		this.config = config;
+		this.resolver = resolver;
+		this.pipeline = resolver.parse(systemId, in);
+	}
+
 	public PipelineBuilder pipe() throws SAXException, IOException {
 		return pipeSource(null);
 	}

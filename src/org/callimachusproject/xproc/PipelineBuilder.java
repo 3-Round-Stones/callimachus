@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
@@ -17,6 +19,8 @@ import javax.xml.transform.URIResolver;
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SaxonApiException;
 
+import org.apache.xmlgraphics.util.WriterOutputStream;
+import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.server.util.ChannelUtil;
@@ -102,6 +106,10 @@ public class PipelineBuilder {
 		}
 	}
 
+	public void writeTo(Writer out) throws XProcException, IOException {
+		streamTo(new WriterOutputStream(out, getEncoding()));
+	}
+
 	public InputStream asStream() throws XProcException, IOException {
 		return (InputStream) as(InputStream.class);
 	}
@@ -126,5 +134,28 @@ public class PipelineBuilder {
 		} catch (TransformerException e) {
 			throw new XProcException(e);
 		}
+	}
+
+	public String asString() throws XProcException, IOException {
+		StringWriter out = new StringWriter(8192);
+		writeTo(out);
+		try {
+			CharSequence cs = out.getBuffer();
+			Fluid fluid = fb.consume(cs, null, CharSequence.class, "text/xml");
+			return fluid.asString("text/xml");
+		} catch (TransformerConfigurationException e) {
+			throw new XProcException(e);
+		} catch (OpenRDFException e) {
+			throw new XProcException(e);
+		} catch (XMLStreamException e) {
+			throw new XProcException(e);
+		} catch (ParserConfigurationException e) {
+			throw new XProcException(e);
+		} catch (SAXException e) {
+			throw new XProcException(e);
+		} catch (TransformerException e) {
+			throw new XProcException(e);
+		}
+	
 	}
 }

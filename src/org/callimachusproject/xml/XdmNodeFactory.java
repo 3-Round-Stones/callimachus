@@ -3,6 +3,7 @@ package org.callimachusproject.xml;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
 
 import javax.xml.transform.sax.SAXSource;
 
@@ -62,6 +63,9 @@ public class XdmNodeFactory {
             DocumentBuilder builder = processor.newDocumentBuilder();
             builder.setLineNumbering(true);
             builder.setDTDValidation(false);
+            if (isource.getSystemId() != null) {
+            	builder.setBaseURI(URI.create(isource.getSystemId()));
+            }
             return builder.build(source);
         } catch (SaxonApiException e) {
         	throw new SAXException(e);

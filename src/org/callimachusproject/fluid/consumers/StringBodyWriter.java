@@ -30,6 +30,8 @@
 package org.callimachusproject.fluid.consumers;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
@@ -39,11 +41,12 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpEntity;
-import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.fluid.Vapor;
+import org.callimachusproject.fluid.consumers.helpers.CharSequenceReader;
 import org.callimachusproject.server.model.ReadableHttpEntityChannel;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
@@ -115,6 +118,27 @@ public class StringBodyWriter implements Consumer<CharSequence> {
 					ParserConfigurationException, SAXException,
 					TransformerConfigurationException, TransformerException {
 				return result;
+			}
+
+			@Override
+			protected String toReaderMedia(FluidType media) {
+				return ftype.as(media).preferred();
+			}
+
+			@Override
+			protected Reader asReader(FluidType media) throws OpenRDFException,
+					IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerConfigurationException, TransformerException {
+				return new CharSequenceReader(result);
+			}
+
+			@Override
+			protected void writeTo(Writer writer, FluidType media)
+					throws OpenRDFException, IOException, XMLStreamException,
+					ParserConfigurationException, SAXException,
+					TransformerConfigurationException, TransformerException {
+				writer.append(result);
 			}
 
 			public String toString() {

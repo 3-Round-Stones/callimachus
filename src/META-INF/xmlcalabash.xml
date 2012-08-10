@@ -1,0 +1,8 @@
+<!-- META-INF/xmlcalabash.xml -->
+<xproc-config xmlns="http://xmlcalabash.com/ns/configuration"
+	      xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+
+<implementation type="calli:render"
+		class-name="org.callimachusproject.xproc.RenderStep" />
+
+</xproc-config>

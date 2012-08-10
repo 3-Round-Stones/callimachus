@@ -34,7 +34,7 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
-import org.callimachusproject.fluid.consumers.base.MessageWriterBase;
+import org.callimachusproject.fluid.consumers.helpers.MessageWriterBase;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.query.QueryEvaluationException;

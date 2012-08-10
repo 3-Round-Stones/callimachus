@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.fluid.consumers.base;
+package org.callimachusproject.fluid.consumers.helpers;
 
 import info.aduna.lang.FileFormat;
 import info.aduna.lang.service.FileFormatServiceRegistry;

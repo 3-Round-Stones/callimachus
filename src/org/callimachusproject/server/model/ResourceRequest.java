@@ -295,9 +295,12 @@ public class ResourceRequest extends Request {
 			DatatypeConfigurationException {
 		AuditingRepositoryConnection audit = findAuditing(con);
 		if (audit != null) {
-			final ActivityFactory delegate = audit.getActivityFactory();
-			final URI activity = delegate.createActivityURI(audit.getValueFactory());
-			con.setActivityURI(activity); // use the same URI for blob version
+			ActivityFactory delegate = audit.getActivityFactory();
+			URI activity = con.getActivityURI();
+			if (activity == null) {
+				activity = delegate.createActivityURI(audit.getValueFactory());
+				con.setActivityURI(activity); // use the same URI for blob version
+			}
 			audit.setActivityFactory(new RequestActivityFactory(activity, delegate, this));
 		}
 	}

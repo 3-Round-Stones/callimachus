@@ -11,6 +11,7 @@ import org.callimachusproject.logging.trace.TracerService;
 import org.openrdf.model.URI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.auditing.ActivityFactory;
 import org.openrdf.repository.auditing.AuditingRepository;
 import org.openrdf.repository.auditing.config.AuditingRepositoryFactory;
 import org.openrdf.repository.base.RepositoryWrapper;
@@ -61,7 +62,13 @@ public class CallimachusRepository extends RepositoryWrapper {
 	}
 
 	public ObjectConnection getConnection() throws RepositoryException {
-		return object.getConnection();
+		ObjectConnection con = object.getConnection();
+		if (auditing != null && con.getActivityURI() == null) {
+			ActivityFactory factory = auditing.getActivityFactory();
+			URI activity = factory.createActivityURI(auditing.getValueFactory());
+			con.setActivityURI(activity); // use the same URI for blob version
+		}
+		return con;
 	}
 
 	private AuditingRepository findAuditingRepository(Repository repository,

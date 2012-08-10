@@ -94,6 +94,9 @@ import org.slf4j.LoggerFactory;
  */
 public class Setup {
 	private static final String CALLIMACHUS = "/callimachus/";
+	private static final String ACTIVITY_PATH = "/activity/";
+	private static final String ACTIVITY_TYPE = CALLIMACHUS + "Activity";
+	private static final String FOLDER_TYPE = CALLIMACHUS + "Folder";
 	private static final String SCHEMA_GRAPH = CALLIMACHUS + "SchemaGraph";
 	private static final String SERVICEABLE = CALLIMACHUS + "Serviceable";
 	public static final String NAME = Version.getInstance().getVersion();
@@ -537,10 +540,12 @@ public class Setup {
 		return ModelUtil.equals(g1, g2);
 	}
 
-	private boolean createOrigin(String origin,
-			CallimachusRepository repository) throws Exception {
-		boolean modified = createVirtualHost(origin, origin, repository);
-		modified |= initializeOrUpgradeStore(repository, origin);
+	private boolean createOrigin(String o, CallimachusRepository repository)
+			throws Exception {
+		repository.setActivityFolderAndType(o + ACTIVITY_PATH, o
+				+ ACTIVITY_TYPE, o + FOLDER_TYPE);
+		boolean modified = createVirtualHost(o, o, repository);
+		modified |= initializeOrUpgradeStore(repository, o);
 		return modified;
 	}
 
@@ -613,6 +618,7 @@ public class Setup {
 			ClassLoader cl) throws RepositoryException, IOException {
 		ObjectConnection con = repository.getConnection();
 		try {
+			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			URI folder = vf.createURI(origin + "/");
 			URI article = vf.createURI(origin + "/main-article.docbook");
@@ -643,6 +649,7 @@ public class Setup {
 			} finally {
 				in.close();
 			}
+			con.setAutoCommit(true);
 		} finally {
 			con.close();
 		}
@@ -841,6 +848,7 @@ public class Setup {
 		assert !vhost.endsWith("/");
 		ObjectConnection con = repository.getConnection();
 		try {
+			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			URI subj = vf.createURI(vhost + '/');
 			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_ORIGIN)))
@@ -850,6 +858,7 @@ public class Setup {
 			add(con, subj, RDF.TYPE, CALLI_ORIGIN);
 			con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(vhost)));
 			addRealm(subj, origin, con);
+			con.setAutoCommit(true);
 			return true;
 		} finally {
 			con.close();
@@ -861,6 +870,7 @@ public class Setup {
 		assert realm.endsWith("/");
 		ObjectConnection con = repository.getConnection();
 		try {
+			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			URI subj = vf.createURI(realm);
 			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_REALM)))
@@ -869,6 +879,7 @@ public class Setup {
 			con.add(subj, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Realm"));
 			con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(realm)));
 			addRealm(subj, origin, con);
+			con.setAutoCommit(true);
 			return true;
 		} finally {
 			con.close();
@@ -917,6 +928,7 @@ public class Setup {
 	private boolean setServeAllResourcesAs(String origin, CallimachusRepository repository) throws RepositoryException {
 		ObjectConnection con = repository.getConnection();
 		try {
+			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
 			URI ableUri = origin == null ? null : vf.createURI(origin + SERVICEABLE);
@@ -940,8 +952,9 @@ public class Setup {
 				logger.info("All resources are now served as {}", ableUri);
 				con.add(ableUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE, ableUri);
 				con.add(ableUri, RDF.TYPE, vf.createURI(origin + SCHEMA_GRAPH));
-				return true;
+				modified = true;
 			}
+			con.setAutoCommit(true);
 			return modified;
 		} finally {
 			con.close();
@@ -954,6 +967,7 @@ public class Setup {
 		validateName(username);
 		ObjectConnection con = repository.getConnection();
 		try {
+			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			ObjectFactory of = con.getObjectFactory();
 			boolean modified = false;
@@ -975,6 +989,7 @@ public class Setup {
 					}
 				}
 			}
+			con.setAutoCommit(true);
 			return modified;
 		} finally {
 			con.close();

@@ -173,7 +173,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 					if (charset == null) {
 						charset = Charset.defaultCharset();
 					}
-					if (!ctype.isXML()) {
+					if (!ctype.isXML() || ctype.is("text/*")) {
 						Writer writer = new OutputStreamWriter(out, charset);
 						CharBuffer cb = CharBuffer.allocate(1024);
 						while (result.read(cb) >= 0) {

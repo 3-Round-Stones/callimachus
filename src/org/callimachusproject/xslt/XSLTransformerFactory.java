@@ -18,10 +18,6 @@ public class XSLTransformerFactory {
 		super();
 	}
 
-	public XSLTransformer createTransformer() {
-		return new XSLTransformer(tfactory);
-	}
-
 	public XSLTransformer createTransformer(String systemId) {
 		return new XSLTransformer(systemId, tfactory);
 	}

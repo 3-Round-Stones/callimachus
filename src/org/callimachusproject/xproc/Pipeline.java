@@ -5,18 +5,13 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Type;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
 
 import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.xml.XdmNodeURIResolver;
-import org.openrdf.OpenRDFException;
 import org.xml.sax.SAXException;
 
 import com.xmlcalabash.core.XProcConfiguration;
@@ -89,17 +84,7 @@ public class Pipeline {
 			throws IOException {
 		try {
 			return fb.consume(source, null, type, media).asReader();
-		} catch (TransformerConfigurationException e) {
-			throw new XProcException(e);
-		} catch (OpenRDFException e) {
-			throw new XProcException(e);
-		} catch (XMLStreamException e) {
-			throw new XProcException(e);
-		} catch (ParserConfigurationException e) {
-			throw new XProcException(e);
-		} catch (SAXException e) {
-			throw new XProcException(e);
-		} catch (TransformerException e) {
+		} catch (FluidException e) {
 			throw new XProcException(e);
 		}
 	}

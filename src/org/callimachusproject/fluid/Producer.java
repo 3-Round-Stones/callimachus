@@ -16,17 +16,8 @@
  */
 package org.callimachusproject.fluid;
 
-import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.openrdf.OpenRDFException;
-import org.xml.sax.SAXException;
 
 /**
  * Interface for HTTP message body readers.
@@ -43,8 +34,5 @@ public interface Producer {
 	 * InputStream.
 	 */
 	Object produce(FluidType ftype, ReadableByteChannel in, Charset charset,
-			String base, FluidBuilder builder) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException;
+			String base, FluidBuilder builder) throws Exception;
 }

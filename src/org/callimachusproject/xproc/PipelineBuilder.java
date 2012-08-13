@@ -10,10 +10,6 @@ import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 
 import net.sf.saxon.s9api.QName;
@@ -22,12 +18,11 @@ import net.sf.saxon.s9api.SaxonApiException;
 import org.apache.xmlgraphics.util.WriterOutputStream;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.xml.AggressiveCachedURIResolver;
 import org.callimachusproject.xml.CloseableURIResolver;
-import org.openrdf.OpenRDFException;
-import org.xml.sax.SAXException;
 
 import com.xmlcalabash.core.XProcException;
 import com.xmlcalabash.core.XProcRuntime;
@@ -121,17 +116,7 @@ public class PipelineBuilder {
 		try {
 			ReadableByteChannel ch = ChannelUtil.newChannel(out.toByteArray());
 			return fb.channel(ch, null, getMediaType()).as(type, media);
-		} catch (TransformerConfigurationException e) {
-			throw new XProcException(e);
-		} catch (OpenRDFException e) {
-			throw new XProcException(e);
-		} catch (XMLStreamException e) {
-			throw new XProcException(e);
-		} catch (ParserConfigurationException e) {
-			throw new XProcException(e);
-		} catch (SAXException e) {
-			throw new XProcException(e);
-		} catch (TransformerException e) {
+		} catch (FluidException e) {
 			throw new XProcException(e);
 		}
 	}
@@ -143,17 +128,7 @@ public class PipelineBuilder {
 			CharSequence cs = out.getBuffer();
 			Fluid fluid = fb.consume(cs, null, CharSequence.class, "text/xml");
 			return fluid.asString("text/xml");
-		} catch (TransformerConfigurationException e) {
-			throw new XProcException(e);
-		} catch (OpenRDFException e) {
-			throw new XProcException(e);
-		} catch (XMLStreamException e) {
-			throw new XProcException(e);
-		} catch (ParserConfigurationException e) {
-			throw new XProcException(e);
-		} catch (SAXException e) {
-			throw new XProcException(e);
-		} catch (TransformerException e) {
+		} catch (FluidException e) {
 			throw new XProcException(e);
 		}
 	

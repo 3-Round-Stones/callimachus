@@ -28,17 +28,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.ObjectConnection;
-import org.xml.sax.SAXException;
 
 /**
  * Converts Java Objects (of supported types) to other media types.
@@ -161,30 +154,37 @@ public class FluidBuilder {
 			}
 
 			@Override
-			public Object as(FluidType ftype)
-					throws TransformerConfigurationException, OpenRDFException,
-					IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerException {
-				Charset charset = inType.getCharset();
-				FluidType outType = inType.as(ftype);
-				Producer reader = findRawReader(outType);
-				if (reader != null)
-					return reader.produce(outType, in, charset, base,
-							FluidBuilder.this);
-				if (outType.isCollection()) {
-					reader = findRawReader(outType.component());
-					if (reader == null && in == null)
-						return outType.castSet(Collections.emptySet());
+			public Object as(FluidType ftype) throws IOException,
+					FluidException {
+				try {
+					Charset charset = inType.getCharset();
+					FluidType outType = inType.as(ftype);
+					Producer reader = findRawReader(outType);
+					if (reader != null)
+						return reader.produce(outType, in, charset, base,
+								FluidBuilder.this);
+					if (outType.isCollection()) {
+						reader = findRawReader(outType.component());
+						if (reader == null && in == null)
+							return outType.castSet(Collections.emptySet());
+					}
+					if (reader == null && !outType.isPrimitive() && in == null)
+						return null;
+					if (reader == null)
+						throw new BadRequest("Cannot read " + inType + " into "
+								+ ftype);
+					Object o = reader.produce(outType.component(), in, charset,
+							base, FluidBuilder.this);
+					return outType.castComponent(o);
+				} catch (Error e) {
+					throw e;
+				} catch (RuntimeException e) {
+					throw e;
+				} catch (FluidException e) {
+					throw e;
+				} catch (Exception e) {
+					throw fluidException(e);
 				}
-				if (reader == null && !outType.isPrimitive() && in == null)
-					return null;
-				if (reader == null)
-					throw new BadRequest("Cannot read " + inType + " into "
-							+ ftype);
-				Object o = reader.produce(outType.component(), in, charset,
-						base, FluidBuilder.this);
-				return outType.castComponent(o);
 			}
 
 			private Producer findReader(FluidType mtype) {
@@ -204,12 +204,43 @@ public class FluidBuilder {
 				}
 				return null;
 			}
+
+			private FluidException fluidException(Exception e)
+					throws IOException, FluidException {
+				try {
+					Throwable cause = e;
+					while (cause instanceof IOException) {
+						cause = cause.getCause();
+					}
+					if (cause == null)
+						throw (IOException) e;
+					return new FluidException(e);
+				} finally {
+					try {
+						asVoid();
+					} catch (RuntimeException v) {
+						v.initCause(e);
+						throw v;
+					} catch (Error v) {
+						v.initCause(e);
+						throw v;
+					} catch (IOException v) {
+						v.initCause(e);
+						throw v;
+					}
+				}
+			}
 		};
 	}
 
 	public Fluid stream(final InputStream in, final String base,
 			final String... media) {
 		return channel(ChannelUtil.newChannel(in), base, media);
+	}
+
+	public Fluid read(final Readable in, final String base,
+			final String... media) {
+		return consume(in, base, Readable.class, media);
 	}
 
 	public Fluid consume(Object result, String base, Type gtype,
@@ -229,12 +260,12 @@ public class FluidBuilder {
 					fluids[i] = consume(Array.get(array, i), base,
 							mtype.component());
 				}
-				return new FluidArray(fluids, nil(mtype.component()), base, mtype);
+				return new FluidArray(fluids, nil(mtype.component()), base,
+						mtype);
 			}
 		}
 		if (writer == null)
-			throw new BadRequest("Cannot write " + result + " into "
-					+ mtype);
+			throw new BadRequest("Cannot write " + result + " into " + mtype);
 		return new ChannelFluid(writer.consume(result, base, mtype, this), this);
 	}
 

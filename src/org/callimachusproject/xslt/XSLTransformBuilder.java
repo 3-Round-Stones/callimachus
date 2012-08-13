@@ -47,7 +47,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
@@ -59,14 +58,13 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.xml.CloseableURIResolver;
 import org.callimachusproject.xml.DocumentFactory;
-import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
-import org.xml.sax.SAXException;
 
 /**
  * Helper class to run XSLT with parameters.
@@ -122,13 +120,7 @@ public class XSLTransformBuilder extends TransformBuilder {
 			FluidType ftype = new FluidType(type, media);
 			Fluid f = asFluid(ftype);
 			return f.as(ftype);
-		} catch (OpenRDFException e) {
-			throw new TransformerException(e);
-		} catch (XMLStreamException e) {
-			throw new TransformerException(e);
-		} catch (ParserConfigurationException e) {
-			throw new TransformerException(e);
-		} catch (SAXException e) {
+		} catch (FluidException e) {
 			throw new TransformerException(e);
 		}
 	}

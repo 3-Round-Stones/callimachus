@@ -44,26 +44,23 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.fluid.AbstractFluid;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
-import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.traits.RDFObjectBehaviour;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 /**
  * Executes a Java Method on the request target and response with the result.
@@ -179,11 +176,12 @@ public class InvokeHandler implements Handler {
 		return result;
 	}
 
-	private Fluid getValue(ResourceOperation req, Annotation[] anns, Fluid input, boolean typeRequired)
-			throws Exception {
+	private Fluid getValue(ResourceOperation req, Annotation[] anns,
+			Fluid input, boolean typeRequired) throws Exception {
 		for (String uri : req.getTransforms(anns)) {
 			Method transform = req.getTransform(uri);
-			if (!req.getReadableTypes(input, transform, 0, typeRequired).isEmpty()) {
+			if (!req.getReadableTypes(input, transform, 0, typeRequired)
+					.isEmpty()) {
 				Object[] args = getParameters(req, transform, input);
 				return invoke(req, transform, args, false,
 						req.getTypes(transform));
@@ -198,11 +196,13 @@ public class InvokeHandler implements Handler {
 		String[] headers = req.getHeaderNames(anns);
 		String[] types = req.getParameterMediaTypes(anns);
 		if (names == null && headers == null && types.length == 0) {
-			return getValue(req, anns, req.getFluidBuilder().media("*/*"), false);
+			return getValue(req, anns, req.getFluidBuilder().media("*/*"),
+					false);
 		} else if (names == null && headers == null) {
 			return getValue(req, anns, input, true);
 		} else if (headers != null && names != null) {
-			return getValue(req, anns, getHeaderAndQuery(req, headers, names), true);
+			return getValue(req, anns, getHeaderAndQuery(req, headers, names),
+					true);
 		} else if (headers != null) {
 			return getValue(req, anns, req.getHeader(headers), true);
 		} else if (names.length == 1 && names[0].equals("*")) {
@@ -392,10 +392,7 @@ public class InvokeHandler implements Handler {
 					&& ((Set<?>) result).isEmpty();
 		}
 
-		public Set<String> getLocations()
-				throws TransformerConfigurationException, OpenRDFException,
-				IOException, XMLStreamException, ParserConfigurationException,
-				SAXException, TransformerException {
+		public Set<String> getLocations() throws IOException, FluidException {
 			FluidType ftype = new FluidType(setOfStringType, "text/uri-list");
 			if (writer.toMedia(ftype) == null)
 				return null;
@@ -446,9 +443,7 @@ public class InvokeHandler implements Handler {
 		}
 
 		@Override
-		public void asVoid() throws OpenRDFException, IOException,
-				XMLStreamException, ParserConfigurationException, SAXException,
-				TransformerConfigurationException, TransformerException {
+		public void asVoid() throws IOException, FluidException {
 			writer.asVoid();
 		}
 
@@ -458,10 +453,7 @@ public class InvokeHandler implements Handler {
 		}
 
 		@Override
-		public Object as(FluidType ftype) throws OpenRDFException,
-				IOException, XMLStreamException, ParserConfigurationException,
-				SAXException, TransformerConfigurationException,
-				TransformerException {
+		public Object as(FluidType ftype) throws IOException, FluidException {
 			if (writer.toMedia(ftype) == null)
 				throw new ClassCastException(String.valueOf(result)
 						+ " cannot be converted into " + ftype);

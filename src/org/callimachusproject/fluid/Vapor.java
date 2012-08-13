@@ -24,21 +24,15 @@ import java.io.Writer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 /**
  * Abstract class that redirects {@link #toMedia(FluidType)} and
@@ -87,50 +81,56 @@ public abstract class Vapor extends AbstractFluid {
 		return null;
 	}
 
-	public final Object as(FluidType ftype) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	public final Object as(FluidType ftype) throws IOException, FluidException {
+		try {
+			if (ftype.is(ReadableByteChannel.class))
+				return asChannel(ftype);
 
-		if (ftype.is(ReadableByteChannel.class))
-			return asChannel(ftype);
+			if (ftype.is(InputStream.class))
+				return asStream(ftype);
 
-		if (ftype.is(InputStream.class))
-			return asStream(ftype);
+			if (ftype.is(Reader.class) || ftype.is(Readable.class))
+				return asReader(ftype);
 
-		if (ftype.is(Reader.class) || ftype.is(Readable.class))
-			return asReader(ftype);
+			if (ftype.is(CharSequence.class))
+				return asCharSequence(ftype);
 
-		if (ftype.is(CharSequence.class))
-			return asCharSequence(ftype);
+			if (ftype.is(String.class)) {
+				CharSequence cs = asCharSequence(ftype);
+				if (cs == null)
+					return null;
+				return cs.toString();
+			}
 
-		if (ftype.is(String.class)) {
-			CharSequence cs = asCharSequence(ftype);
-			if (cs == null)
-				return null;
-			return cs.toString();
+			if (ftype.is(HttpEntity.class))
+				return asHttpEntity(ftype);
+
+			if (ftype.is(HttpResponse.class))
+				return asHttpResponse(ftype);
+
+			if (ftype.is(XMLEventReader.class))
+				return asXMLEventReader(ftype);
+
+			if (ftype.is(Document.class) || ftype.is(Node.class))
+				return asDocument(ftype);
+
+			if (ftype.is(DocumentFragment.class))
+				return asDocumentFragment(ftype);
+
+			if (ftype.is(Element.class))
+				return asElement(ftype);
+
+			asVoid();
+			return null;
+		} catch (Error e) {
+			throw e;
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (FluidException e) {
+			throw e;
+		} catch (Exception e) {
+			throw fluidException(e);
 		}
-
-		if (ftype.is(HttpEntity.class))
-			return asHttpEntity(ftype);
-
-		if (ftype.is(HttpResponse.class))
-			return asHttpResponse(ftype);
-
-		if (ftype.is(XMLEventReader.class))
-			return asXMLEventReader(ftype);
-
-		if (ftype.is(Document.class) || ftype.is(Node.class))
-			return asDocument(ftype);
-
-		if (ftype.is(DocumentFragment.class))
-			return asDocumentFragment(ftype);
-
-		if (ftype.is(Element.class))
-			return asElement(ftype);
-
-		asVoid();
-		return null;
 	}
 
 	/**
@@ -140,18 +140,13 @@ public abstract class Vapor extends AbstractFluid {
 		return null;
 	}
 
-	protected ReadableByteChannel asChannel(FluidType media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+	protected ReadableByteChannel asChannel(FluidType media) throws Exception {
 		asVoid();
 		return null;
 	}
 
 	protected void transferTo(WritableByteChannel out, FluidType media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+			throws Exception {
 		ChannelUtil.transfer(asChannel(media), out);
 	}
 
@@ -162,18 +157,12 @@ public abstract class Vapor extends AbstractFluid {
 		return null;
 	}
 
-	protected InputStream asStream(FluidType media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	protected InputStream asStream(FluidType media) throws Exception {
 		asVoid();
 		return null;
 	}
 
-	protected void streamTo(OutputStream out, FluidType media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+	protected void streamTo(OutputStream out, FluidType media) throws Exception {
 		ChannelUtil.transfer(asStream(media), out);
 	}
 
@@ -184,18 +173,12 @@ public abstract class Vapor extends AbstractFluid {
 		return null;
 	}
 
-	protected Reader asReader(FluidType media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	protected Reader asReader(FluidType media) throws Exception {
 		asVoid();
 		return null;
 	}
 
-	protected void writeTo(Writer writer, FluidType media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+	protected void writeTo(Writer writer, FluidType media) throws Exception {
 		Reader reader = asReader(media);
 		if (reader == null)
 			return;
@@ -217,10 +200,7 @@ public abstract class Vapor extends AbstractFluid {
 		return null;
 	}
 
-	protected CharSequence asCharSequence(FluidType media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	protected CharSequence asCharSequence(FluidType media) throws Exception {
 		asVoid();
 		return null;
 	}
@@ -232,9 +212,7 @@ public abstract class Vapor extends AbstractFluid {
 		return null;
 	}
 
-	protected HttpEntity asHttpEntity(FluidType media) throws IOException,
-			OpenRDFException, XMLStreamException, TransformerException,
-			ParserConfigurationException, SAXException {
+	protected HttpEntity asHttpEntity(FluidType media) throws Exception {
 		asVoid();
 		return null;
 	}
@@ -246,9 +224,7 @@ public abstract class Vapor extends AbstractFluid {
 		return null;
 	}
 
-	protected HttpResponse asHttpResponse(FluidType media) throws IOException,
-			OpenRDFException, XMLStreamException, TransformerException,
-			ParserConfigurationException, SAXException {
+	protected HttpResponse asHttpResponse(FluidType media) throws Exception {
 		asVoid();
 		return null;
 	}
@@ -260,10 +236,7 @@ public abstract class Vapor extends AbstractFluid {
 		return null;
 	}
 
-	protected XMLEventReader asXMLEventReader(FluidType media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+	protected XMLEventReader asXMLEventReader(FluidType media) throws Exception {
 		asVoid();
 		return null;
 	}
@@ -275,10 +248,7 @@ public abstract class Vapor extends AbstractFluid {
 		return null;
 	}
 
-	protected Document asDocument(FluidType media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	protected Document asDocument(FluidType media) throws Exception {
 		asVoid();
 		return null;
 	}
@@ -291,9 +261,7 @@ public abstract class Vapor extends AbstractFluid {
 	}
 
 	protected DocumentFragment asDocumentFragment(FluidType media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+			throws Exception {
 		asVoid();
 		return null;
 	}
@@ -305,12 +273,40 @@ public abstract class Vapor extends AbstractFluid {
 		return null;
 	}
 
-	protected Element asElement(FluidType media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	protected Element asElement(FluidType media) throws Exception {
 		asVoid();
 		return null;
+	}
+
+	private FluidException fluidException(Exception e) throws IOException,
+			FluidException {
+		try {
+			if (e == null)
+				return null;
+			Throwable cause = e;
+			while (cause instanceof IOException && cause != e) {
+				cause = cause.getCause();
+			}
+			if (cause == null)
+				throw (IOException) e;
+			return new FluidException(e);
+		} finally {
+			try {
+				asVoid();
+			} catch (RuntimeException v) {
+				v.initCause(e);
+				throw v;
+			} catch (Error v) {
+				v.initCause(e);
+				throw v;
+			} catch (FluidException v) {
+				v.initCause(e);
+				throw v;
+			} catch (IOException v) {
+				v.initCause(e);
+				throw v;
+			}
+		}
 	}
 
 }

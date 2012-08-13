@@ -19,14 +19,6 @@ package org.callimachusproject.fluid;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.openrdf.OpenRDFException;
-import org.xml.sax.SAXException;
-
 /**
  * When a {@link Fluid} does not support a desired Java or media type, it is
  * converted into a {@link ReadableByteChannel} and parsed to the desired Java
@@ -58,9 +50,7 @@ class ChannelFluid extends AbstractFluid {
 		return fluid.toString();
 	}
 
-	public void asVoid() throws TransformerConfigurationException,
-			OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException, TransformerException {
+	public void asVoid() throws IOException, FluidException {
 		fluid.asVoid();
 	}
 
@@ -74,10 +64,7 @@ class ChannelFluid extends AbstractFluid {
 	}
 
 	@Override
-	public Object as(FluidType ftype) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	public Object as(FluidType ftype) throws IOException, FluidException {
 		try {
 			if (fluid.toMedia(ftype) != null)
 				return fluid.as(ftype);
@@ -88,19 +75,9 @@ class ChannelFluid extends AbstractFluid {
 			throw handle(e);
 		} catch (Error e) {
 			throw handle(e);
-		} catch (OpenRDFException e) {
-			throw handle(e);
-		} catch (XMLStreamException e) {
-			throw handle(e);
-		} catch (ParserConfigurationException e) {
-			throw handle(e);
-		} catch (SAXException e) {
-			throw handle(e);
-		} catch (TransformerConfigurationException e) {
-			throw handle(e);
 		} catch (IOException e) {
 			throw handle(e);
-		} catch (TransformerException e) {
+		} catch (FluidException e) {
 			throw handle(e);
 		}
 	}
@@ -112,10 +89,8 @@ class ChannelFluid extends AbstractFluid {
 		return getFluidType().media();
 	}
 
-	protected <E extends Throwable> E handle(E cause) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	protected <E extends Throwable> E handle(E cause) throws IOException,
+			FluidException {
 		try {
 			asVoid();
 			return cause;
@@ -125,25 +100,10 @@ class ChannelFluid extends AbstractFluid {
 		} catch (Error e) {
 			e.initCause(cause);
 			throw e;
-		} catch (OpenRDFException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (XMLStreamException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (ParserConfigurationException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (SAXException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (TransformerConfigurationException e) {
+		} catch (FluidException e) {
 			e.initCause(cause);
 			throw e;
 		} catch (IOException e) {
-			e.initCause(cause);
-			throw e;
-		} catch (TransformerException e) {
 			e.initCause(cause);
 			throw e;
 		}

@@ -7,11 +7,7 @@ import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.saxon.s9api.DocumentBuilder;
@@ -25,10 +21,9 @@ import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.TemplateException;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
-import org.openrdf.OpenRDFException;
 import org.openrdf.query.TupleQueryResult;
-import org.xml.sax.SAXException;
 
 import com.xmlcalabash.core.XProcException;
 import com.xmlcalabash.core.XProcRuntime;
@@ -116,35 +111,23 @@ public class RenderStep implements XProcStep {
 			}
 		} catch (SaxonApiException sae) {
 			throw new XProcException(sae);
-		} catch (TransformerConfigurationException tce) {
-			throw new XProcException(tce);
-		} catch (TransformerException te) {
-			throw new XProcException(te);
-		} catch (OpenRDFException e) {
+		} catch (FluidException e) {
 			throw new XProcException(e);
 		} catch (IOException e) {
-			throw new XProcException(e);
-		} catch (XMLStreamException e) {
-			throw new XProcException(e);
-		} catch (ParserConfigurationException e) {
-			throw new XProcException(e);
-		} catch (SAXException e) {
 			throw new XProcException(e);
 		} catch (TemplateException e) {
 			throw new XProcException(e);
 		}
 	}
 
-	public void render(XdmNode t, XdmNode s)
-			throws TransformerConfigurationException, SaxonApiException,
-			OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException, TransformerException,
-			TemplateException {
+	public void render(XdmNode t, XdmNode s) throws SaxonApiException,
+			IOException, FluidException, TemplateException {
 		String tempId = t.getBaseURI().toASCIIString();
 		Reader template = asReader(t);
 		Template tem = ENGINE.getTemplate(template, tempId);
 		TupleQueryResult source = asTupleQueryResult(s);
-		Reader result = asReader(tem.render(params, parameterBase, source), outputBase);
+		Reader result = asReader(tem.render(params, parameterBase, source),
+				outputBase);
 
 		DocumentBuilder xdmBuilder = newDocumentBuilder();
 		XdmNode xformed = xdmBuilder.build(new StreamSource(result));
@@ -163,21 +146,19 @@ public class RenderStep implements XProcStep {
 	}
 
 	private Reader asReader(XdmNode document) throws SaxonApiException,
-			OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+			IOException, FluidException {
 		String sysId = document.getBaseURI().toASCIIString();
 		StringWriter sw = new StringWriter();
 		Serializer serializer = new Serializer();
 		serializer.setOutputWriter(sw);
 		S9apiUtils.serialize(runtime, document, serializer);
-		return fb.consume(sw.getBuffer(), sysId, CharSequence.class, "text/xml").asReader();
+		return fb
+				.consume(sw.getBuffer(), sysId, CharSequence.class, "text/xml")
+				.asReader();
 	}
 
 	private TupleQueryResult asTupleQueryResult(XdmNode document)
-			throws SaxonApiException, OpenRDFException, IOException,
-			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+			throws SaxonApiException, IOException, FluidException {
 		String sysId = document.getBaseURI().toASCIIString();
 		ByteArrayOutputStream s = new ByteArrayOutputStream();
 		Serializer serializer = new Serializer();
@@ -189,9 +170,7 @@ public class RenderStep implements XProcStep {
 	}
 
 	private Reader asReader(XMLEventReader xml, String base)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+			throws IOException, FluidException {
 		Fluid fluid = fb.consume(xml, base, XMLEventReader.class,
 				"application/xml");
 		return fluid.asReader();

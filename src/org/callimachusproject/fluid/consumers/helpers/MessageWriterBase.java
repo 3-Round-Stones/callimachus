@@ -43,6 +43,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
+import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
@@ -107,9 +108,13 @@ public abstract class MessageWriterBase<FF extends FileFormat, S, T> implements
 				return ftype;
 			}
 
-			public void asVoid() throws OpenRDFException {
+			public void asVoid() throws FluidException {
 				if (result != null) {
-					close(result);
+					try {
+						close(result);
+					} catch (OpenRDFException e) {
+						throw new FluidException(e);
+					}
 				}
 			}
 

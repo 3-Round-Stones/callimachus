@@ -36,19 +36,16 @@ import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 
 import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
-import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
-import org.xml.sax.SAXException;
 
 /**
  * Helper class to run XSLT with parameters.
@@ -94,13 +91,7 @@ public abstract class TransformBuilder {
 		FluidBuilder fb = FluidFactory.getInstance().builder();
 		try {
 			return fb.consume(value, null, ftype).asDocument();
-		} catch (OpenRDFException e) {
-			throw new TransformerException(e);
-		} catch (XMLStreamException e) {
-			throw new TransformerException(e);
-		} catch (ParserConfigurationException e) {
-			throw new TransformerException(e);
-		} catch (SAXException e) {
+		} catch (FluidException e) {
 			throw new TransformerException(e);
 		}
 	}

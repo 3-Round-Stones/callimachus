@@ -21,6 +21,9 @@ import javax.xml.transform.TransformerException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHttpRequest;
+import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidException;
+import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.xslt.TransformBuilder;
@@ -124,11 +127,21 @@ public class TemplateEngine {
 		String href = readXSLTSource(new InputStreamReader(in));
 		in.reset();
 		if (href == null)
-			return XSLTransformerFactory.getInstance().createTransformer().transform(in, systemId).asXMLEventReader();
+			return asXMLEventReader(in, systemId);
 		String xsl = URI.create(systemId).resolve(href).toASCIIString();
 		XSLTransformer xslt = newXSLTransformer(xsl);
 		TransformBuilder transform = xslt.transform(in, systemId);
 		return asXMLEventReader(transform, systemId, parameters, xslt);
+	}
+
+	private XMLEventReader asXMLEventReader(InputStream in, String systemId)
+			throws IOException, TransformerException {
+		try {
+			FluidBuilder fb = FluidFactory.getInstance().builder();
+			return fb.stream(in, systemId, "application/xml").asXMLEventReader();
+		} catch (FluidException e) {
+			throw new TransformerException(e);
+		}
 	}
 
 	private XMLEventReader xslt(Reader in, String systemId,
@@ -141,11 +154,21 @@ public class TemplateEngine {
 		String href = readXSLTSource(in);
 		in.reset();
 		if (href == null)
-			return XSLTransformerFactory.getInstance().createTransformer().transform(in, systemId).asXMLEventReader();
+			return asXMLEventReader(in, systemId);
 		String xsl = URI.create(systemId).resolve(href).toASCIIString();
 		XSLTransformer xslt = newXSLTransformer(xsl);
 		TransformBuilder transform = xslt.transform(in, systemId);
 		return asXMLEventReader(transform, systemId, parameters, xslt);
+	}
+
+	private XMLEventReader asXMLEventReader(Reader in, String systemId)
+			throws IOException, TransformerException {
+		try {
+			FluidBuilder fb = FluidFactory.getInstance().builder();
+			return fb.read(in, systemId, "text/xml").asXMLEventReader();
+		} catch (FluidException e) {
+			throw new TransformerException(e);
+		}
 	}
 
 	private XMLEventReader asXMLEventReader(TransformBuilder transform,

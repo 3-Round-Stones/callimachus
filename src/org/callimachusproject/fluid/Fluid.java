@@ -25,19 +25,13 @@ import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 /**
  * Intermediate converting format.
@@ -51,146 +45,110 @@ public interface Fluid {
 
 	String getSystemId();
 
-	void asVoid() throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException;
+	void asVoid() throws IOException, FluidException;
 
 	/**
 	 * {@link ReadableByteChannel}
 	 */
 	String toChannelMedia(String... media);
 
-	ReadableByteChannel asChannel(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException;
+	ReadableByteChannel asChannel(String... media) throws IOException,
+			FluidException;
 
 	void transferTo(WritableByteChannel out, String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException;
+			throws IOException, FluidException;
 
 	/**
 	 * {@link InputStream}
 	 */
 	String toStreamMedia(String... media);
 
-	InputStream asStream(String... media) throws OpenRDFException, IOException,
-			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException;
+	InputStream asStream(String... media) throws IOException, FluidException;
 
-	void streamTo(OutputStream out, String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException;
+	void streamTo(OutputStream out, String... media) throws IOException,
+			FluidException;
 
 	/**
 	 * {@link Reader}
 	 */
 	String toReaderMedia(String... media);
 
-	Reader asReader(String... media) throws OpenRDFException, IOException,
-			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException;
+	Reader asReader(String... media) throws IOException, FluidException;
 
-	void writeTo(Writer writer, String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException;
+	void writeTo(Writer writer, String... media) throws IOException,
+			FluidException;
 
 	/**
 	 * {@link String}
 	 */
 	String toStringMedia(String... media);
 
-	String asString(String... media) throws OpenRDFException, IOException,
-			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException;
+	String asString(String... media) throws IOException, FluidException;
 
 	/**
 	 * {@link CharSequence}
 	 */
 	String toCharSequenceMedia(String... media);
 
-	CharSequence asCharSequence(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException;
+	CharSequence asCharSequence(String... media) throws IOException,
+			FluidException;
 
 	/**
 	 * {@link HttpEntity}
 	 */
 	String toHttpEntityMedia(String... media);
 
-	HttpEntity asHttpEntity(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException;
+	HttpEntity asHttpEntity(String... media) throws IOException, FluidException;
 
 	/**
 	 * {@link HttpResponse}
 	 */
 	String toHttpResponseMedia(String... media);
 
-	HttpResponse asHttpResponse(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException;
+	HttpResponse asHttpResponse(String... media) throws IOException,
+			FluidException;
 
 	/**
 	 * {@link XMLEventReader}
 	 */
 	String toXMLEventReaderMedia(String... media);
 
-	XMLEventReader asXMLEventReader(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException;
+	XMLEventReader asXMLEventReader(String... media) throws IOException,
+			FluidException;
 
 	/**
 	 * {@link Document}
 	 */
 	String toDocumentMedia(String... media);
 
-	Document asDocument(String... media) throws OpenRDFException, IOException,
-			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException;
+	Document asDocument(String... media) throws IOException, FluidException;
 
 	/**
 	 * {@link DocumentFragment}
 	 */
 	String toDocumentFragmentMedia(String... media);
 
-	DocumentFragment asDocumentFragment(String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException;
+	DocumentFragment asDocumentFragment(String... media) throws IOException,
+			FluidException;
 
 	/**
 	 * {@link Element}
 	 */
 	String toElementMedia(String... media);
 
-	Element asElement(String... media) throws OpenRDFException, IOException,
-			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException;
+	Element asElement(String... media) throws IOException, FluidException;
 
 	/**
 	 * {@link Type}
 	 */
 	String toMedia(Type gtype, String... media);
 
-	Object as(Type gtype, String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException;
+	Object as(Type gtype, String... media) throws IOException, FluidException;
 
 	/**
 	 * {@link FluidType}
 	 */
 	String toMedia(FluidType ftype);
 
-	Object as(FluidType ftype) throws OpenRDFException, IOException,
-			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException;
+	Object as(FluidType ftype) throws IOException, FluidException;
 }

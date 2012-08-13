@@ -36,7 +36,6 @@ import java.lang.reflect.Type;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -46,12 +45,12 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 
 import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.xml.AggressiveCachedURIResolver;
 import org.callimachusproject.xml.DOMSourceFactory;
 import org.callimachusproject.xml.DocumentFactory;
-import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.exceptions.ObjectCompositionException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -69,10 +68,6 @@ public class XSLTransformer {
 	private final DocumentFactory builder = DocumentFactory.newInstance();
 	private String systemSourceId;
 
-	XSLTransformer(TransformerFactory factory) {
-		this(null, factory);
-	}
-
 	XSLTransformer(String url, TransformerFactory factory) {
 		this.systemId = url;
 		tfactory = factory;
@@ -80,6 +75,7 @@ public class XSLTransformer {
 	}
 
 	XSLTransformer(InputStream in, String systemId, TransformerFactory factory) {
+		assert in != null;
 		try {
 			try {
 				this.systemId = systemId;
@@ -180,17 +176,7 @@ public class XSLTransformer {
 			FluidBuilder fb = FluidFactory.getInstance().builder();
 			FluidType xml = new FluidType(type, media).asXML();
 			return fb.consume(source, systemId, xml).asDocument();
-		} catch (TransformerConfigurationException e) {
-			throw new TransformerException(e);
-		} catch (OpenRDFException e) {
-			throw new TransformerException(e);
-		} catch (XMLStreamException e) {
-			throw new TransformerException(e);
-		} catch (ParserConfigurationException e) {
-			throw new TransformerException(e);
-		} catch (SAXException e) {
-			throw new TransformerException(e);
-		} catch (TransformerException e) {
+		} catch (FluidException e) {
 			throw new TransformerException(e);
 		}
 	}

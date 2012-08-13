@@ -5,15 +5,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
-import org.openrdf.OpenRDFException;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.traits.ObjectMessage;
 import org.xml.sax.SAXException;
@@ -70,17 +65,7 @@ public class XprocAdvice implements Advice {
 			String[] media) throws IOException, XProcException {
 		try {
 			return fb.consume(value, null, gtype, media).asString();
-		} catch (TransformerConfigurationException e) {
-			throw new XProcException(e);
-		} catch (OpenRDFException e) {
-			throw new XProcException(e);
-		} catch (XMLStreamException e) {
-			throw new XProcException(e);
-		} catch (ParserConfigurationException e) {
-			throw new XProcException(e);
-		} catch (SAXException e) {
-			throw new XProcException(e);
-		} catch (TransformerException e) {
+		} catch (FluidException e) {
 			throw new XProcException(e);
 		}
 	}

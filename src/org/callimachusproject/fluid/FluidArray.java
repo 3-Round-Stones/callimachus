@@ -2,21 +2,14 @@ package org.callimachusproject.fluid;
 
 import java.io.IOException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.openrdf.OpenRDFException;
-import org.xml.sax.SAXException;
-
 class FluidArray extends AbstractFluid {
 	private final Fluid[] fluids;
 	private final Fluid sample;
 	private final String systemId;
 	private final FluidType ftype;
 
-	public FluidArray(Fluid[] fluids, Fluid nil, String systemId, FluidType ftype) {
+	public FluidArray(Fluid[] fluids, Fluid nil, String systemId,
+			FluidType ftype) {
 		assert fluids != null;
 		this.fluids = fluids;
 		this.sample = fluids.length > 0 ? fluids[0] : nil;
@@ -35,9 +28,7 @@ class FluidArray extends AbstractFluid {
 	}
 
 	@Override
-	public void asVoid() throws OpenRDFException, IOException,
-			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+	public void asVoid() throws IOException, FluidException {
 		for (Fluid fluid : fluids) {
 			fluid.asVoid();
 		}
@@ -51,13 +42,10 @@ class FluidArray extends AbstractFluid {
 	}
 
 	@Override
-	public Object as(FluidType ftype) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	public Object as(FluidType ftype) throws IOException, FluidException {
 		if (ftype.isCollection()) {
 			Object[] result = new Object[fluids.length];
-			for (int i=0; i<result.length; i++) {
+			for (int i = 0; i < result.length; i++) {
 				result[i] = fluids[i].as(ftype.component());
 			}
 			return ftype.castArray(result);

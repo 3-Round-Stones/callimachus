@@ -25,20 +25,14 @@ import java.lang.reflect.Type;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 /**
  * Abstract class that redirects many calls to {@link #toMedia(FluidType)} and
@@ -64,17 +58,13 @@ public abstract class AbstractFluid implements Fluid {
 	}
 
 	public final ReadableByteChannel asChannel(String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+			throws IOException, FluidException {
 		return (ReadableByteChannel) as(new FluidType(
 				ReadableByteChannel.class, media));
 	}
 
 	public final void transferTo(WritableByteChannel out, String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+			throws IOException, FluidException {
 		ChannelUtil.transfer(asChannel(media), out);
 	}
 
@@ -85,17 +75,13 @@ public abstract class AbstractFluid implements Fluid {
 		return toMedia(new FluidType(InputStream.class, media));
 	}
 
-	public final InputStream asStream(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	public final InputStream asStream(String... media) throws IOException,
+			FluidException {
 		return (InputStream) as(new FluidType(InputStream.class, media));
 	}
 
 	public final void streamTo(OutputStream out, String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+			throws IOException, FluidException {
 		ChannelUtil.transfer(asStream(media), out);
 	}
 
@@ -106,17 +92,13 @@ public abstract class AbstractFluid implements Fluid {
 		return toMedia(new FluidType(Reader.class, media));
 	}
 
-	public final Reader asReader(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	public final Reader asReader(String... media) throws IOException,
+			FluidException {
 		return (Reader) as(new FluidType(Reader.class, media));
 	}
 
 	public final void writeTo(Writer writer, String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+			throws IOException, FluidException {
 		Reader reader = asReader(media);
 		if (reader == null)
 			return;
@@ -138,10 +120,8 @@ public abstract class AbstractFluid implements Fluid {
 		return toMedia(new FluidType(String.class, media));
 	}
 
-	public final String asString(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	public final String asString(String... media) throws IOException,
+			FluidException {
 		return (String) as(new FluidType(String.class, media));
 	}
 
@@ -152,10 +132,8 @@ public abstract class AbstractFluid implements Fluid {
 		return toMedia(new FluidType(CharSequence.class, media));
 	}
 
-	public CharSequence asCharSequence(String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+	public CharSequence asCharSequence(String... media) throws IOException,
+			FluidException {
 		return (CharSequence) as(new FluidType(CharSequence.class, media));
 	}
 
@@ -167,8 +145,7 @@ public abstract class AbstractFluid implements Fluid {
 	}
 
 	public final HttpEntity asHttpEntity(String... media) throws IOException,
-			OpenRDFException, XMLStreamException, TransformerException,
-			ParserConfigurationException, SAXException {
+			FluidException {
 		return (HttpEntity) as(new FluidType(HttpEntity.class, media));
 	}
 
@@ -180,8 +157,7 @@ public abstract class AbstractFluid implements Fluid {
 	}
 
 	public final HttpResponse asHttpResponse(String... media)
-			throws IOException, OpenRDFException, XMLStreamException,
-			TransformerException, ParserConfigurationException, SAXException {
+			throws IOException, FluidException {
 		return (HttpResponse) as(new FluidType(HttpResponse.class, media));
 	}
 
@@ -193,9 +169,7 @@ public abstract class AbstractFluid implements Fluid {
 	}
 
 	public final XMLEventReader asXMLEventReader(String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+			throws IOException, FluidException {
 		return (XMLEventReader) as(new FluidType(XMLEventReader.class, media));
 	}
 
@@ -206,10 +180,8 @@ public abstract class AbstractFluid implements Fluid {
 		return toMedia(new FluidType(Document.class, media));
 	}
 
-	public final Document asDocument(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	public final Document asDocument(String... media) throws IOException,
+			FluidException {
 		return (Document) as(new FluidType(Document.class, media));
 	}
 
@@ -221,9 +193,7 @@ public abstract class AbstractFluid implements Fluid {
 	}
 
 	public final DocumentFragment asDocumentFragment(String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+			throws IOException, FluidException {
 		return (DocumentFragment) as(new FluidType(DocumentFragment.class,
 				media));
 	}
@@ -235,10 +205,8 @@ public abstract class AbstractFluid implements Fluid {
 		return toMedia(new FluidType(Element.class, media));
 	}
 
-	public Element asElement(String... media) throws OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerConfigurationException,
-			TransformerException {
+	public Element asElement(String... media) throws IOException,
+			FluidException {
 		return (Element) as(new FluidType(Element.class, media));
 	}
 
@@ -249,10 +217,8 @@ public abstract class AbstractFluid implements Fluid {
 		return toMedia(new FluidType(gtype, media));
 	}
 
-	public final Object as(Type gtype, String... media)
-			throws OpenRDFException, IOException, XMLStreamException,
-			ParserConfigurationException, SAXException,
-			TransformerConfigurationException, TransformerException {
+	public final Object as(Type gtype, String... media) throws IOException,
+			FluidException {
 		return as(new FluidType(gtype, media));
 	}
 

@@ -29,7 +29,6 @@
  */
 package org.callimachusproject.fluid.producers;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -42,17 +41,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.fluid.Producer;
-import org.openrdf.OpenRDFException;
-import org.xml.sax.SAXException;
 
 /**
  * Readers a percent encoded form into a {@link Map}.
@@ -70,9 +62,7 @@ public final class FormMapMessageReader implements Producer {
 
 	public Object produce(FluidType ftype, ReadableByteChannel in,
 			Charset charset, String base, FluidBuilder builder)
-			throws TransformerConfigurationException, OpenRDFException,
-			IOException, XMLStreamException, ParserConfigurationException,
-			SAXException, TransformerException {
+			throws Exception {
 		try {
 			if (charset == null) {
 				charset = Charset.forName("ISO-8859-1");

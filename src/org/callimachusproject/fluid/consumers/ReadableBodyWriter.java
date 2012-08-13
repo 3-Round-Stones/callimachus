@@ -47,8 +47,6 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
@@ -62,7 +60,6 @@ import org.callimachusproject.server.util.ProducerStream;
 import org.callimachusproject.server.util.ProducerStream.OutputProducer;
 import org.callimachusproject.xml.DocumentFactory;
 import org.callimachusproject.xml.XMLEventReaderFactory;
-import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -106,8 +103,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 
 			@Override
 			protected ReadableByteChannel asChannel(final FluidType media)
-					throws IOException, OpenRDFException, XMLStreamException,
-					TransformerException, ParserConfigurationException {
+					throws IOException {
 				if (result == null)
 					return null;
 				return new ProducerChannel(new WritableProducer() {
@@ -142,9 +138,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 
 			@Override
 			protected InputStream asStream(final FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
+					throws IOException {
 				if (result == null)
 					return null;
 				return new ProducerStream(new OutputProducer() {
@@ -206,14 +200,12 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 			}
 
 			@Override
-			protected CharSequence asCharSequence(FluidType media) throws OpenRDFException,
-					IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
+			protected CharSequence asCharSequence(FluidType media)
+					throws IOException {
 				if (result == null)
 					return null;
 				StringWriter output = new StringWriter();
-				writeTo(output);
+				writeTo(output, media);
 				return output.getBuffer();
 			}
 
@@ -250,9 +242,7 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 
 			@Override
 			protected void writeTo(Writer writer, FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
+					throws IOException {
 				Reader reader = asReader(media);
 				if (reader == null)
 					return;
@@ -289,11 +279,9 @@ public class ReadableBodyWriter implements Consumer<Readable> {
 			}
 
 			@Override
-			protected Document asDocument(FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
-				Reader reader = asReader();
+			protected Document asDocument(FluidType media) throws SAXException,
+					IOException, ParserConfigurationException {
+				Reader reader = asReader(media);
 				if (reader == null)
 					return null;
 				try {

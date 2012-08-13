@@ -44,18 +44,15 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.xml.DocumentFactory;
 import org.callimachusproject.xml.XMLEventReaderFactory;
-import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -96,8 +93,7 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 
 			@Override
 			protected ReadableByteChannel asChannel(FluidType media)
-					throws IOException, OpenRDFException, XMLStreamException,
-					TransformerException, ParserConfigurationException {
+					throws IOException {
 				return ChannelUtil.newChannel(result);
 			}
 
@@ -107,10 +103,7 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 			}
 
 			@Override
-			protected InputStream asStream(FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
+			protected InputStream asStream(FluidType media) {
 				return result;
 			}
 
@@ -120,10 +113,8 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 			}
 
 			@Override
-			protected Reader asReader(FluidType media) throws OpenRDFException,
-					IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
+			protected Reader asReader(FluidType media) throws IOException,
+					XMLStreamException {
 				FluidType ctype = ftype.as(media);
 				if (!ctype.isXML()) {
 					Charset charset = ctype.getCharset();
@@ -144,9 +135,7 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 
 			@Override
 			protected void writeTo(Writer writer, FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
+					throws IOException, XMLStreamException {
 				if (!ftype.as(media).isXML()) {
 					Reader reader = asReader(media);
 					if (reader == null)
@@ -161,7 +150,7 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 						reader.close();
 					}
 				} else {
-					XMLEventReader reader = asXMLEventReader();
+					XMLEventReader reader = asXMLEventReader(media);
 					if (reader == null)
 						return;
 					try {
@@ -182,10 +171,8 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 
 			@Override
 			protected XMLEventReader asXMLEventReader(FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
-				InputStream in = asStream();
+					throws XMLStreamException {
+				InputStream in = asStream(media);
 				if (in == null)
 					return null;
 				if (base == null)
@@ -199,11 +186,9 @@ public class InputStreamBodyWriter implements Consumer<InputStream> {
 			}
 
 			@Override
-			protected Document asDocument(FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
-				InputStream in = asStream();
+			protected Document asDocument(FluidType media) throws SAXException,
+					IOException, ParserConfigurationException {
+				InputStream in = asStream(media);
 				if (in == null)
 					return null;
 				try {

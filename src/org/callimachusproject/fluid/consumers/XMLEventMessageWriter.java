@@ -47,19 +47,16 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
-import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.server.util.ProducerChannel;
 import org.callimachusproject.server.util.ProducerChannel.WritableProducer;
 import org.callimachusproject.xml.DocumentFactory;
-import org.openrdf.OpenRDFException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -124,10 +121,8 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			}
 
 			@Override
-			protected InputStream asStream(FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
+			protected InputStream asStream(FluidType media) throws IOException,
+					XMLStreamException {
 				if (result == null)
 					return null;
 				ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
@@ -141,9 +136,7 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 
 			@Override
 			protected void streamTo(OutputStream out, FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
+					throws XMLStreamException {
 				FluidType ctype = ftype.as(media);
 				Charset charset = ctype.getCharset();
 				if (charset == null) {
@@ -168,10 +161,8 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			}
 
 			@Override
-			protected Reader asReader(FluidType media) throws OpenRDFException,
-					IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
+			protected Reader asReader(FluidType media)
+					throws XMLStreamException {
 				if (result == null)
 					return null;
 				CharArrayWriter caw = new CharArrayWriter(8192);
@@ -185,10 +176,8 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 
 			@Override
 			protected void writeTo(Writer writer, FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
-				XMLEventReader reader = asXMLEventReader();
+					throws XMLStreamException {
+				XMLEventReader reader = asXMLEventReader(media);
 				if (reader == null)
 					return;
 				try {
@@ -206,10 +195,7 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			}
 
 			@Override
-			protected XMLEventReader asXMLEventReader(FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
+			protected XMLEventReader asXMLEventReader(FluidType media) {
 				return result;
 			}
 
@@ -219,11 +205,9 @@ public class XMLEventMessageWriter implements Consumer<XMLEventReader> {
 			}
 
 			@Override
-			protected Document asDocument(FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
-				InputStream in = asStream();
+			protected Document asDocument(FluidType media) throws IOException,
+					SAXException, ParserConfigurationException, XMLStreamException {
+				InputStream in = asStream(media);
 				if (in == null)
 					return null;
 				try {

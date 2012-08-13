@@ -1,20 +1,12 @@
 package org.callimachusproject.fluid.consumers;
 
-import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.callimachusproject.fluid.Vapor;
 import org.callimachusproject.fluid.Consumer;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidType;
-import org.openrdf.OpenRDFException;
-import org.xml.sax.SAXException;
+import org.callimachusproject.fluid.Vapor;
 
 public class VoidWriter implements Consumer<Void> {
 
@@ -36,10 +28,7 @@ public class VoidWriter implements Consumer<Void> {
 				return ftype;
 			}
 
-			public void asVoid() throws OpenRDFException, IOException,
-					XMLStreamException, ParserConfigurationException,
-					SAXException, TransformerConfigurationException,
-					TransformerException {
+			public void asVoid() {
 				// no-op
 			}
 
@@ -49,10 +38,7 @@ public class VoidWriter implements Consumer<Void> {
 			}
 
 			@Override
-			protected ReadableByteChannel asChannel(FluidType media)
-					throws OpenRDFException, IOException, XMLStreamException,
-					ParserConfigurationException, SAXException,
-					TransformerConfigurationException, TransformerException {
+			protected ReadableByteChannel asChannel(FluidType media) {
 				return null;
 			}
 		};

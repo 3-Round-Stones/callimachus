@@ -200,9 +200,14 @@ calli:transform a owl:AnnotationProperty;
     rdfs:comment "The messages that should be used to transform the parameter or response";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:copies a owl:AnnotationProperty;
-    rdfs:label "copies";
-    rdfs:comment "Target template URI that this request handler proxies to";
+calli:get a owl:AnnotationProperty;
+    rdfs:label "get";
+    rdfs:comment "This request handler should return the GET response of the given template URL";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:post a owl:AnnotationProperty;
+    rdfs:label "post";
+    rdfs:comment "This request handler should delegate a POST request to the given template URL";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:canonical a owl:AnnotationProperty;

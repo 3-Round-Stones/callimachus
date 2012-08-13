@@ -1,9 +1,6 @@
 package org.callimachusproject.rewrite;
 
-import info.aduna.net.ParsedURI;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -11,38 +8,27 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
+import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
-import org.callimachusproject.fluid.FluidType;
-import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
-import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.traits.ObjectMessage;
-import org.xml.sax.SAXException;
 
-public class CopyAdvice implements Advice {
+public abstract class RewriteAdvice implements Advice {
 	private final Substitution[] replacers;
 	private final String[] bindingNames;
 	private final Type returnType;
 	private final String[] returnMedia;
 	private final TermFactory systemId;
 
-	public CopyAdvice(String[] bindingNames, Substitution[] replacers,
+	public RewriteAdvice(String[] bindingNames, Substitution[] replacers,
 			Method method) {
 		this.replacers = replacers;
 		this.bindingNames = bindingNames;
@@ -51,7 +37,8 @@ public class CopyAdvice implements Advice {
 		this.systemId = TermFactory.newInstance(getSystemId(method));
 	}
 
-	public Object intercept(ObjectMessage message) throws Exception {
+	public Object intercept(ObjectMessage message) throws GatewayTimeout,
+			IOException, FluidException {
 		Object target = message.getTarget();
 		String uri = target.toString();
 		Object[] parameters = message.getParameters();
@@ -61,42 +48,19 @@ public class CopyAdvice implements Advice {
 			con = ((RDFObject) target).getObjectConnection();
 		}
 		FluidBuilder fb = FluidFactory.getInstance().builder(con);
-		return service(location, fb).as(returnType, returnMedia);
+		return service(location, parameters, fb).as(returnType, returnMedia);
 	}
 
-	protected Fluid service(String location, FluidBuilder fb)
-			throws GatewayTimeout, IOException,
-			TransformerConfigurationException, OpenRDFException,
-			XMLStreamException, ParserConfigurationException, SAXException,
-			TransformerException {
-		if (location == null)
-			return fb.nil(new FluidType(returnType, returnMedia));
-		String systemId = location;
-		String redirect = systemId;
-		HttpResponse resp = null;
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		for (int i = 0; i < 20 && redirect != null; i++) {
-			systemId = redirect;
-			HttpRequest req = new BasicHttpRequest("GET", redirect);
-			if (returnMedia.length > 0) {
-				for (String media : returnMedia) {
-					req.addHeader("Accept", media);
-				}
-				req.addHeader("Accept", "*/*");
-			}
-			resp = client.service(req);
-			redirect = client.redirectLocation(redirect, resp);
-		}
-		String contentType = "*/*";
-		InputStream content = null;
-		if (resp.getEntity() != null) {
-			content = resp.getEntity().getContent();
-		}
-		if (resp.getFirstHeader("Content-Type") != null) {
-			contentType = resp.getFirstHeader("Content-Type").getValue();
-		}
-		return fb.stream(content, systemId, contentType);
+	protected String getSystemId() {
+		return systemId.getSystemId();
 	}
+
+	protected String[] getReturnMedia() {
+		return returnMedia;
+	}
+
+	protected abstract Fluid service(String location, Object[] parameters,
+			FluidBuilder fb) throws GatewayTimeout, IOException, FluidException;
 
 	private String getSystemId(Method m) {
 		if (m.isAnnotationPresent(Iri.class))
@@ -144,12 +108,6 @@ public class CopyAdvice implements Advice {
 			return null;
 		for (Substitution pattern : replacers) {
 			String result = pattern.replace(uri, variables);
-			if (result != null)
-				return result;
-		}
-		String path = new ParsedURI(uri).getPath();
-		for (Substitution pattern : replacers) {
-			String result = pattern.replace(path, variables);
 			if (result != null)
 				return result;
 		}

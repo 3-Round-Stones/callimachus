@@ -61,6 +61,10 @@ public class Substitution {
 		return pattern.flags();
 	}
 
+	public boolean containsVariableName(String name) {
+		return substitution.contains("{" + name + "}");
+	}
+
 	public String replace(CharSequence input) {
 		Map<String, String> parameters = Collections.emptyMap();
 		return replace(input, parameters);

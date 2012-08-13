@@ -120,8 +120,7 @@ public class RenderStep implements XProcStep {
 		Reader template = asReader(t);
 		Template tem = ENGINE.getTemplate(template, tempId);
 		TupleQueryResult source = asTupleQueryResult(s);
-		Reader result = asReader(tem.render(source),
-				outputBase);
+		Reader result = asReader(tem.render(source), outputBase);
 
 		DocumentBuilder xdmBuilder = newDocumentBuilder();
 		XdmNode xformed = xdmBuilder.build(new StreamSource(result));

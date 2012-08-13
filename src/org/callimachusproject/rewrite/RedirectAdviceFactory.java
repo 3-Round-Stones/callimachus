@@ -38,8 +38,6 @@ public class RedirectAdviceFactory implements AdviceProvider, AdviceFactory {
 		String[] bindingNames = getBindingNames(method);
 		Substitution[] replacers = createSubstitution(getCommands(method));
 		StatusLine status = getStatusLine(method);
-		if (status == null)
-			return new CopyAdvice(bindingNames, replacers, method);
 		return new RedirectAdvice(bindingNames, replacers, status, method);
 	}
 

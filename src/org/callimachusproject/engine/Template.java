@@ -16,7 +16,6 @@ import org.callimachusproject.engine.helpers.XMLElementReader;
 import org.callimachusproject.engine.helpers.XMLEventList;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
@@ -112,7 +111,6 @@ public class Template {
 				producer.close();
 			}
 			Map<String, TermOrigin> origins = producer.getOrigins();
-			ValueFactoryImpl vf = ValueFactoryImpl.getInstance();
 			XMLEventReader xml = openSource();
 			return new RDFaProducer(xml, results, origins);
 		} catch (QueryEvaluationException e) {

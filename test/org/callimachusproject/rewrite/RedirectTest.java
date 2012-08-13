@@ -27,9 +27,6 @@ public class RedirectTest extends TestCase {
 		@alternate("http://example.com/")
 		HttpResponse literal();
 
-		@alternate("^/(.*) http://example.com/$1")
-		HttpResponse samepath();
-
 		@alternate("^http://(.*).example.com/(.*) http://example.com/$1/$2")
 		HttpResponse readDomain();
 
@@ -97,13 +94,6 @@ public class RedirectTest extends TestCase {
 		concept = con.addDesignation(con.getObject("urn:test:concept"),
 				Concept.class);
 		assertEquals("http://example.com/", concept.literal().getFirstHeader("Location").getValue());
-	}
-
-	@Test
-	public void testSamePath() throws Exception {
-		concept = con.addDesignation(con.getObject("http://www.example.com/pathinfo"),
-				Concept.class);
-		assertEquals("http://example.com/pathinfo", concept.samepath().getFirstHeader("Location").getValue());
 	}
 
 	@Test

@@ -3,43 +3,65 @@ package org.callimachusproject.rewrite;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import org.callimachusproject.annotations.copies;
+import org.callimachusproject.annotations.get;
+import org.callimachusproject.annotations.post;
 import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.advice.AdviceFactory;
 import org.openrdf.repository.object.advice.AdviceProvider;
 
-public class CopyAdviceFactory implements AdviceProvider, AdviceFactory {
+public class ProxyAdviceFactory implements AdviceProvider, AdviceFactory {
 
 	@Override
 	public AdviceFactory getAdviserFactory(Class<?> annotationType) {
-		if (copies.class.equals(annotationType))
+		if (get.class.equals(annotationType))
+			return this;
+		if (post.class.equals(annotationType))
 			return this;
 		return null;
 	}
 
 	@Override
 	public Advice createAdvice(Method method) {
-		String[] bindingNames = getBindingNames(method);
-		Substitution[] replacers = createSubstitution(getCommands(method));
-		return new CopyAdvice(bindingNames, replacers, method);
+		String m = getProxyMethod(method);
+		String[] commands = getCommands(method);
+		Substitution[] substitutions = createSubstitution(commands);
+		String[] bindingNames = getBindingNames(method, substitutions);
+		return new ProxyAdvice(bindingNames, substitutions, m, method);
 	}
 
-	private String[] getBindingNames(Method method) {
+	private String[] getBindingNames(Method method, Substitution[] substitutions) {
 		Annotation[][] anns = method.getParameterAnnotations();
 		String[] bindingNames = new String[anns.length];
 		for (int i = 0; i < bindingNames.length; i++) {
 			for (Annotation ann : anns[i]) {
 				if (Iri.class.equals(ann.annotationType())) {
-					bindingNames[i] = local(((Iri) ann).value());
+					String local = local(((Iri) ann).value());
+					for (Substitution substitution : substitutions) {
+						if (substitution.containsVariableName(local)) {
+							bindingNames[i] = local;
+						}
+					}
 				}
 			}
 		}
 		return bindingNames;
 	}
 
+	private String getProxyMethod(Method method) {
+		if (method.isAnnotationPresent(get.class))
+			return "GET";
+		if (method.isAnnotationPresent(post.class))
+			return "POST";
+		throw new AssertionError();
+	}
+
 	private String[] getCommands(Method method) {
-		return method.getAnnotation(copies.class).value();
+		if (method.isAnnotationPresent(get.class))
+			return method.getAnnotation(get.class).value();
+		if (method.isAnnotationPresent(post.class))
+			return method.getAnnotation(post.class).value();
+		throw new AssertionError();
 	}
 
 	private Substitution[] createSubstitution(String[] commands) {

@@ -1,6 +1,6 @@
 org.callimachusproject.xslt.XsltAdviceFactory
 org.callimachusproject.script.ScriptAdviceFactory
 org.callimachusproject.xproc.XprocAdviceFactory
-org.callimachusproject.rewrite.CopyAdviceFactory
+org.callimachusproject.rewrite.ProxyAdviceFactory
 org.callimachusproject.rewrite.MissingAdviceFactory
 org.callimachusproject.rewrite.RedirectAdviceFactory

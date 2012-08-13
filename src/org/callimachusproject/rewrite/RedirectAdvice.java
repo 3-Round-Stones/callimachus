@@ -8,16 +8,17 @@ import org.apache.http.message.BasicHttpResponse;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 
-public class RedirectAdvice extends CopyAdvice {
+public class RedirectAdvice extends RewriteAdvice {
 	private final StatusLine status;
 
-	public RedirectAdvice(String[] bindingNames,
-			Substitution[] replacers, StatusLine status, Method method) {
+	public RedirectAdvice(String[] bindingNames, Substitution[] replacers,
+			StatusLine status, Method method) {
 		super(bindingNames, replacers, method);
 		this.status = status;
 	}
 
-	protected Fluid service(String location, FluidBuilder fb) {
+	protected Fluid service(String location, Object[] parameters,
+			FluidBuilder fb) {
 		if (location == null)
 			return fb.consume(null, null, HttpResponse.class, "message/http");
 		HttpResponse resp = new BasicHttpResponse(status);

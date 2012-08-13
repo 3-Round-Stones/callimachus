@@ -131,3 +131,25 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xhtml+xml".
 
+# GET /page/MainPag.xhtml?template
+:GetTemplate rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "template";
+    calli:type "application/xhtml+xml";
+    calli:script """
+        return this.PostTemplate(this.openInputStream());
+    """.
+
+:PostTemplate rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:type "application/xhtml+xml";
+    calli:post <pipelines/template.xpl?result&this=$0>.
+
+:xhtmlPostTemplate a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostTemplate;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/xhtml+xml".
+

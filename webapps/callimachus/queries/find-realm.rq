@@ -1,0 +1,6 @@
+PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+SELECT ?realm {
+    ?realm calli:hasComponent* <$this>
+    FILTER EXISTS {?realm a calli:Realm}
+}
+ORDER BY desc(?realm) LIMIT 1

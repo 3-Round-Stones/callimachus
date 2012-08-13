@@ -91,7 +91,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 	AbsoluteTermFactory termFactory = AbsoluteTermFactory.newInstance();
 	Context context = new Context();
 	String skipElement = null;
-	BindingSet bindings;
 	XMLEvent previous;
 	
 	class Context {
@@ -116,17 +115,17 @@ public class RDFaProducer extends XMLEventReaderBase {
 
 	public RDFaProducer(XMLEventReader reader) throws QueryEvaluationException,
 			XMLStreamException {
-		this(reader, EMPTY_RESULT, EMPTY_MAP, null);
+		this(reader, EMPTY_RESULT, EMPTY_MAP);
 	}
 
 	public RDFaProducer(XMLEventReader reader, TupleQueryResult resultSet,
-			Map<String, TermOrigin> origins, BindingSet bindings)
+			Map<String, TermOrigin> origins)
 			throws QueryEvaluationException, XMLStreamException {
-		this(new XMLEventList(reader), resultSet, origins, bindings);
+		this(new XMLEventList(reader), resultSet, origins);
 	}
 
 	private RDFaProducer(XMLEventList list, TupleQueryResult resultSet,
-			Map<String, TermOrigin> origins, BindingSet bindings)
+			Map<String, TermOrigin> origins)
 			throws QueryEvaluationException {
 		super();
 		this.input = list;
@@ -134,7 +133,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 		this.origins = origins;
 		this.resultSet = resultSet;
 		result = nextResult();
-		this.bindings = bindings;
 
 		for (String name : resultSet.getBindingNames()) {
 			TermOrigin origin = origins.get(name);
@@ -224,11 +222,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 	}
 
 	private void processStartDocument(XMLEvent event) {
-		if (bindings!=null) {
-			for (Binding bind : bindings) {
-				context.assignments.put(bind.getName(), bind.getValue());
-			}
-		}
 		add(event);
 	}
 

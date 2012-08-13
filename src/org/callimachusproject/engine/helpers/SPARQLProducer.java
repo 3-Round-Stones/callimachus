@@ -45,8 +45,6 @@ import org.callimachusproject.engine.model.TermOrigin;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Produce SPARQL events from an RDFa event stream. 
@@ -63,7 +61,6 @@ public class SPARQLProducer extends RDFEventPipe {
 	private static final Pattern WHITE_SPACE = Pattern.compile("\\s*");
 		
 	private static boolean OPEN = true, CLOSE = false;
-	private final Logger logger = LoggerFactory.getLogger(SPARQLProducer.class);
 	private Stack<Context> stack = new Stack<Context>();	
 	private AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
 		
@@ -76,9 +73,6 @@ public class SPARQLProducer extends RDFEventPipe {
 	
 	// map variable names to template origin (path)
 	private Map<String,TermOrigin> origins = new LinkedHashMap<String,TermOrigin>();
-
-	// set of dollar parameter terms
-	private final Map<String, Term> parameters = new LinkedHashMap<String, Term>();
 		
 	// 'initial' controls placement of the 'UNION' keyword
 	private boolean initial = true;
@@ -549,7 +543,7 @@ public class SPARQLProducer extends RDFEventPipe {
 			}
 			else if (opposite.isReference()){
 				String v = opposite.asReference().getRelative();
-				if (v.startsWith("?") || v.startsWith("$")) 
+				if (isVariable(v)) 
 					label = v.substring(1) + "_" + label;
 			}
 		}
@@ -558,17 +552,17 @@ public class SPARQLProducer extends RDFEventPipe {
 			return term;
 		if (term.isLiteral() && isEmpty(term.stringValue())) {
 			String name = mapSeq(label,true);
-			if (label!=null && addOrigin) addOrigin(name, term.asLiteral(), term.getOrigin().anonymous(), false);
+			if (label!=null && addOrigin) addOrigin(name, term.asLiteral(), term.getOrigin().anonymous());
 			return new BlankOrLiteralVar(name);
 		}
 		// a non-empty literal may represent a literal variable
 		if (term.isLiteral()) {
 			String lexical = term.stringValue();
-			if (lexical.startsWith("?") || lexical.startsWith("$")) {
+			if (isVariable(lexical)) {
 				String name = lexical.substring(1);
 				VarOrTerm v = tf.var(lexical.charAt(0), name);
 				v.setOrigin(term.getOrigin());
-				if (addOrigin) addOrigin(name, term.asLiteral(), term.getOrigin(), lexical.startsWith("$"));
+				if (addOrigin) addOrigin(name, term.asLiteral(), term.getOrigin());
 				return v;
 			}
 			else return term;
@@ -576,7 +570,7 @@ public class SPARQLProducer extends RDFEventPipe {
 		
 		if (!term.isIRI()) {
 			String name = mapVar(term.stringValue(),label);
-			if (label!=null && addOrigin) addOrigin(name, (Term) term, term.getOrigin().anonymous(), false);
+			if (label!=null && addOrigin) addOrigin(name, (Term) term, term.getOrigin().anonymous());
 			return new BlankOrLiteralVar(name);
 		}
 		if (term.isCURIE())
@@ -584,13 +578,16 @@ public class SPARQLProducer extends RDFEventPipe {
 		if (!term.isReference())
 			return term;
 		String var = term.asReference().getRelative();
-		boolean parameter = var.startsWith("$") || "?this".equals(var);
-		if (!var.startsWith("?") && !parameter) return term;
+		if (!isVariable(var)) return term;
 		String name = var.substring(1);
 		if (!VAR_REGEX.matcher(name).matches())
 			throw new RDFParseException("Invalid Variable Name: " + name);
-		if (label!=null && addOrigin) addOrigin(name, term.asReference(), term.getOrigin(), parameter);
+		if (label!=null && addOrigin) addOrigin(name, term.asReference(), term.getOrigin());
 		return tf.var(var.charAt(0), name);
+	}
+
+	private boolean isVariable(String lexical) {
+		return lexical.startsWith("?");
 	}
 
 	protected boolean isEmpty(String str) {
@@ -601,20 +598,8 @@ public class SPARQLProducer extends RDFEventPipe {
 		return origins;
 	}
 
-	public Map<String, Term> getParameterTerms() {
-		return parameters;
-	}
-
-	private void addOrigin(String name, Term term, TermOrigin origin, boolean parameter) {
+	private void addOrigin(String name, Term term, TermOrigin origin) {
 		if (!origins.containsKey(name))
 			origins.put(name, origin);
-		if (parameter) {
-			if (!parameters.containsKey(name)) {
-				parameters.put(name, term);
-				if (term.isReference() && "?this".equals(term.asReference().getRelative())) {
-					logger.warn("Use $this instead of ?this in RDFa templates");
-				}
-			}
-		}
 	}
 }

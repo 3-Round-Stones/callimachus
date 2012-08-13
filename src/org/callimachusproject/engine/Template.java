@@ -4,8 +4,6 @@ import static org.callimachusproject.engine.helpers.SPARQLWriter.toSPARQL;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.Collections;
 import java.util.Map;
 
 import javax.xml.stream.XMLEventReader;
@@ -16,10 +14,8 @@ import org.callimachusproject.engine.helpers.RDFaProducer;
 import org.callimachusproject.engine.helpers.SPARQLProducer;
 import org.callimachusproject.engine.helpers.XMLElementReader;
 import org.callimachusproject.engine.helpers.XMLEventList;
-import org.callimachusproject.engine.model.Term;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
-import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -27,7 +23,7 @@ import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.impl.MapBindingSet;
+import org.openrdf.query.impl.EmptyBindingSet;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
@@ -75,20 +71,18 @@ public class Template {
 
 	public TupleQueryResult evaluate(RepositoryConnection con)
 			throws TemplateException {
-		Map<String, String> parameters = Collections.emptyMap();
-		return evaluate(parameters, null, con);
+		return evaluate(EmptyBindingSet.getInstance(), con);
 	}
 
-	public TupleQueryResult evaluate(Map<String, ?> parameters, String base, RepositoryConnection con)
+	public TupleQueryResult evaluate(BindingSet bindings, RepositoryConnection con)
 			throws TemplateException {
 		// evaluate SPARQL derived from the template
 		try {
 			RDFEventReader reader = new RDFaReader(getSystemId(), openSource(), getSystemId());
 			SPARQLProducer producer = new SPARQLProducer(reader);
 			String sparql = toSPARQL(new OrderedSparqlReader(producer));
-			ValueFactory vf = con.getValueFactory();
 			TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, getSystemId());
-			for (Binding bind : getBindings(parameters, base, producer, vf)) {
+			for (Binding bind : bindings) {
 				q.setBinding(bind.getName(), bind.getValue());
 			}
 			return q.evaluate();
@@ -107,12 +101,6 @@ public class Template {
 
 	public XMLEventReader render(TupleQueryResult results)
 			throws TemplateException {
-		Map<String, String> parameters = Collections.emptyMap();
-		return render(parameters, null, results);
-	}
-
-	public XMLEventReader render(Map<String, ?> parameters, String base, TupleQueryResult results)
-			throws TemplateException {
 		try {
 			RDFEventReader reader = new RDFaReader(getSystemId(), openSource(), getSystemId());
 			SPARQLProducer producer = new SPARQLProducer(reader);
@@ -125,9 +113,8 @@ public class Template {
 			}
 			Map<String, TermOrigin> origins = producer.getOrigins();
 			ValueFactoryImpl vf = ValueFactoryImpl.getInstance();
-			BindingSet bindings = getBindings(parameters, base, producer, vf);
 			XMLEventReader xml = openSource();
-			return new RDFaProducer(xml, results, origins, bindings);
+			return new RDFaProducer(xml, results, origins);
 		} catch (QueryEvaluationException e) {
 			throw new TemplateException(e);
 		} catch (XMLStreamException e) {
@@ -151,7 +138,7 @@ public class Template {
 			TupleQueryResult results = q.evaluate();
 			Map<String, TermOrigin> origins = producer.getOrigins();
 			XMLEventReader xml = openSource();
-			return new RDFaProducer(xml, results, origins, bindings);
+			return new RDFaProducer(xml, results, origins);
 		} catch (MalformedQueryException e) {
 			throw new TemplateException(e);
 		} catch (RepositoryException e) {
@@ -180,54 +167,6 @@ public class Template {
 		} catch (XMLStreamException e) {
 			throw new TemplateException(e);
 		}
-	}
-
-	private BindingSet getBindings(Map<String, ?> parameters, String base,
-			SPARQLProducer producer, ValueFactory vf) {
-		TermFactory tf = systemId;
-		if (base != null) {
-			TermFactory.newInstance(systemId.reference(base).stringValue());
-		}
-		MapBindingSet bs = new MapBindingSet();
-		for (Map.Entry<String, Term> e : producer.getParameterTerms().entrySet()) {
-			String name = e.getKey();
-			Term term = e.getValue();
-			String value = getString(parameters, name);
-			if (value == null) {
-				value = term.stringValue();
-			}
-			if (term.isIRI()) {
-				String uri = tf.reference(value).stringValue();
-				bs.addBinding(name, vf.createURI(uri));
-			} else if (term.isPlainLiteral()) {
-				String lang = term.asPlainLiteral().getLang();
-				if (lang == null) {
-					bs.addBinding(name, vf.createLiteral(value));
-				} else {
-					bs.addBinding(name, vf.createLiteral(value, lang));
-				}
-			} else {
-				String dt = term.asLiteral().getDatatype().stringValue();
-				bs.addBinding(name, vf.createLiteral(value, vf.createURI(dt)));
-			}
-		}
-		return bs;
-	}
-
-	private String getString(Map<String, ?> parameters, String name) {
-		if (parameters == null)
-			return null;
-		Object value = parameters.get(name);
-		if (value == null)
-			return null;
-		if (!value.getClass().isArray())
-			return value.toString();
-		for (int i = 0, n = Array.getLength(value); i < n; i++) {
-			Object element = Array.get(value, i);
-			if (element != null)
-				return element.toString();
-		}
-		return null;
 	}
 
 }

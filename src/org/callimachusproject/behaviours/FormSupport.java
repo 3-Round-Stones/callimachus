@@ -58,7 +58,6 @@ import org.callimachusproject.xslt.XSLTransformer;
 import org.callimachusproject.xslt.XSLTransformerFactory;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.impl.MapBindingSet;
@@ -74,7 +73,6 @@ import org.openrdf.repository.object.RDFObject;
  * 
  */
 public abstract class FormSupport implements Page, RDFObject {
-	private static ValueFactory vf = new ValueFactoryImpl();
 	private static final TemplateEngine ENGINE = TemplateEngine.newInstance();
 	
 	
@@ -151,10 +149,7 @@ public abstract class FormSupport implements Page, RDFObject {
 		RepositoryConnection con = getObjectConnection();
 		String sparql = toSPARQL(new OrderedSparqlReader(ed)) + "\nLIMIT 1000";
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
-		URI about = vf.createURI(base);
-		MapBindingSet bindings = new MapBindingSet();
-		bindings.addBinding("this", about);
-		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins(), bindings);
+		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins());
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
@@ -191,10 +186,7 @@ public abstract class FormSupport implements Page, RDFObject {
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
 		// The edited query may return multiple and/or empty solutions
 		TupleQueryResult results = new DeDupedResultSet(qry.evaluate(),true);
-		URI about = vf.createURI(base);
-		MapBindingSet bindings = new MapBindingSet();
-		bindings.addBinding("this", about);
-		RDFaProducer xhtml = new RDFaProducer(template.iterator(), results, rq.getOrigins(), bindings);
+		RDFaProducer xhtml = new RDFaProducer(template.iterator(), results, rq.getOrigins());
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
 	}
 
@@ -241,9 +233,7 @@ public abstract class FormSupport implements Page, RDFObject {
 			if (vt.isVar())
 				qry.setBinding(vt.asVar().stringValue(), about);
 		}
-		MapBindingSet bindings = new MapBindingSet();
-		bindings.addBinding("this", about);
-		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins(), bindings);
+		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins());
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();		
 	}
 

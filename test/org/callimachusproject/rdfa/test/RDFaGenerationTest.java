@@ -288,7 +288,7 @@ public class RDFaGenerationTest extends TestCase {
 		missing = evaluateXPaths(new XPathIterator(expectedDoc,base), actualDoc) ;
 
 		if ((unexpected!=null || missing!=null || verbose) && !show_sparql) {
-			if (!verbose) System.out.println("\nTEST: "+template);
+			if (!verbose) System.out.println("\nTEMPLATE: "+template);
 			
 			System.out.println("\nOUTPUT");
 			if (unexpected!=null) System.out.println("UNEXPECTED: "+unexpected);
@@ -402,7 +402,8 @@ public class RDFaGenerationTest extends TestCase {
 		} finally {
 			boolean ok = failed == null;
 			if (!ok || verbose || show_rdf) {
-				System.out.println("RDF (from expectedFile):");
+				System.out.println("Source File: " + sourceFile);
+				System.out.println("RDF (from Source File):");
 				write(exportGraph(source), System.out);
 			}
 			if (!ok) {

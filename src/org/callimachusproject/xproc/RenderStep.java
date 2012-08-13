@@ -4,8 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.transform.stream.StreamSource;
@@ -37,14 +35,12 @@ import com.xmlcalabash.util.S9apiUtils;
 public class RenderStep implements XProcStep {
 	private static final FluidFactory FF = FluidFactory.getInstance();
 	private static final TemplateEngine ENGINE = TemplateEngine.newInstance();
-	private final Map<String, String> params = new LinkedHashMap<String, String>();
 	private final XProcRuntime runtime;
 	private final XAtomicStep step;
 	private ReadablePipe sourcePipe = null;
 	private ReadablePipe templatePipe = null;
 	private WritablePipe resultPipe = null;
 	private String outputBase;
-	private String parameterBase;
 	private final FluidBuilder fb = FF.builder();
 
 	public RenderStep(XProcRuntime runtime, XAtomicStep step) {
@@ -54,7 +50,7 @@ public class RenderStep implements XProcStep {
 
 	@Override
 	public void setParameter(QName name, RuntimeValue value) {
-		params.put(name.getLocalName(), value.getString());
+        throw new XProcException("No parameters allowed.");
 	}
 
 	@Override
@@ -66,8 +62,6 @@ public class RenderStep implements XProcStep {
 	public void setOption(QName name, RuntimeValue value) {
 		if ("output-base-uri".equals(name.getClarkName())) {
 			outputBase = value.getString();
-		} else if ("parameter-base-uri".equals(name.getClarkName())) {
-			parameterBase = value.getString();
 		}
 	}
 
@@ -126,7 +120,7 @@ public class RenderStep implements XProcStep {
 		Reader template = asReader(t);
 		Template tem = ENGINE.getTemplate(template, tempId);
 		TupleQueryResult source = asTupleQueryResult(s);
-		Reader result = asReader(tem.render(params, parameterBase, source),
+		Reader result = asReader(tem.render(source),
 				outputBase);
 
 		DocumentBuilder xdmBuilder = newDocumentBuilder();

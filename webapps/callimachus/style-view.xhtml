@@ -11,7 +11,7 @@
     <link rel="version-history" href="?history" />
     <script type="text/javascript">
         jQuery(function($) {
-            $.get("{?this}", function(text) {
+            $.get(location.pathname, function(text) {
                 $('#pre').text(text);
             }, "text");
         });

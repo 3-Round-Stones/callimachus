@@ -12,7 +12,7 @@
     <script type="text/javascript">
         jQuery(function($) {
             $.ajax({
-                url: "{?this}",
+                url: location.pathname,
                 success: function(text) {
                     $('#pre').text(text);
                 },

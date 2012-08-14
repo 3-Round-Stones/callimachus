@@ -53,12 +53,9 @@
     calli:rel "alternate";
     calli:method "GET";
     calli:query "view";
-    calli:type "application/xhtml+xml";
+    calli:type "text/html";
     calli:header "cache-control:no-cache";
-    calli:transform <transforms/TransformPage>;
-    calli:script """
-        return this.InlineArticle(proceed());
-    """.
+    calli:post "pipelines/article-view.xpl?result&this=$0&query=view\nContent-Type: application/docbook+xml".
 
 :InlineArticle rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];

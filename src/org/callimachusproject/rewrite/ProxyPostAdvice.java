@@ -43,7 +43,7 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 	protected HttpRequest createRequest(String location, Header[] headers,
 			Object target, Object[] parameters, FluidBuilder fb)
 			throws IOException, FluidException {
-		if (bodyType == null && target instanceof FileObject) {
+		if (bodyType == null && target instanceof FileObject && contains(headers, "Content-Type")) {
 			FileObject file = (FileObject)target;
 			InputStream in = file.openInputStream();
 			if (in != null) {
@@ -66,6 +66,14 @@ public class ProxyPostAdvice extends ProxyGetAdvice {
 		Fluid fluid = fb.consume(body, getSystemId(), bodyType, bodyMedia);
 		req.setEntity(fluid.asHttpEntity());
 		return req;
+	}
+
+	private boolean contains(Header[] headers, String string) {
+		for (Header hd :headers) {
+			if (hd.getName().equalsIgnoreCase(string))
+				return true;
+		}
+		return false;
 	}
 
 }

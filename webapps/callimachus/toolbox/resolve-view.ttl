@@ -28,36 +28,19 @@
         var con = this.objectConnection;
         var vf = con.valueFactory;
 
-        function canonicalize(uri) {
-            uri = uri.normalize();
-            var sch = uri.scheme.toLowerCase();
-            var frag = uri.fragment;
-            if (uri.isOpaque()) {
-                return new java.net.URI(sch, uri.schemeSpecificPart, frag);
-            } else {
-                var auth = uri.authority.toLowerCase();
-                return new java.net.URI(sch, auth, uri.path, uri.query, frag);
-            }
-        }
-
-        function parseAbsoluteURI(string) {
+        function resolveAbsoluteURI(string) {
             try {
-                if (string.indexOf("/") == 0 || java.net.URI.create(string).isAbsolute()) {
-                    return TermFactory.newInstance(this.toString()).resolve(string);
-                } else {
-                    var uri = java.net.URI.create(string);
-                    if (uri.isAbsolute())
-                        return canonicalize(uri);
-                    return null;
-                }
+                if (string.indexOf("/") == 0 || java.net.URI.create(string).isAbsolute())
+                    return TermFactory.newInstance(diverted.toString()).resolve(string);
+                return null;
             } catch (e) {
                 throw new BadRequest(e);
             }
         }
 
-        function redirectURL(uri) {
+        function redirectURL(iri) {
+            var uri = java.net.URI.create(iri);
             var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toASCIIString() : null;
-            var iri = uri.toASCIIString();
             var viewable = con.getObject(iri) instanceof Viewable;
             var Origin = vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin");
             var authority = origin && con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
@@ -73,9 +56,9 @@
         }
 
         if (q) {
-            var uri = parseAbsoluteURI(q);
-            if (uri) //# absolute URI redirect
-                return redirectURL(uri);
+            var resolved = resolveAbsoluteURI(q);
+            if (resolved) //# absolute URI redirect
+                return redirectURL(resolved);
         }
         return null; //# 404
     """.

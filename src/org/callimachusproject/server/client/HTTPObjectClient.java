@@ -341,7 +341,7 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 				String value = location.getValue();
 				if (value.startsWith("/") || !value.contains(":")) {
 					try {
-						value = TermFactory.newInstance(base).reference(value).stringValue();
+						value = TermFactory.newInstance(base).resolve(value);
 					} catch (IllegalArgumentException e) {
 						logger.warn(e.toString(), e);
 						return value;

@@ -7,10 +7,7 @@
         xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
         xmlns:sparql="http://www.w3.org/2005/sparql-results#">
 
-    <p:option name="this" required="true" />
-
-    <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;this=', encode-for-uri($this))" />
-    <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
+    <p:option name="realm" required="true" />
 
     <p:xinclude name="xinclude" />
 

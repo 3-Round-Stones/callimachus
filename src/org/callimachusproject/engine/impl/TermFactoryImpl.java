@@ -176,9 +176,16 @@ public class TermFactoryImpl extends TermFactory {
 			if (auth != null) {
 				auth = auth.toLowerCase();
 			}
-			String qs = net.getQuery();
-			net = new java.net.URI(scheme, auth, net.getPath(), qs, frag);
-			return net.toASCIIString(); // URI
+			String qs = net.getRawQuery();
+			net = new java.net.URI(scheme, auth, net.getPath(), null, null);
+			StringBuilder sb = new StringBuilder(net.toASCIIString());
+			if (qs != null) {
+				sb.append('?').append(qs);
+			}
+			if (frag != null) {
+				sb.append('#').append(frag);
+			}
+			return sb.toString();
 		} catch (URISyntaxException x) {
 			throw new IllegalArgumentException(x);
 		}

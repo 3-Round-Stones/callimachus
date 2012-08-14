@@ -41,7 +41,7 @@ public class Base extends RDFEvent {
 		super(location);
 		assert base != null;
 		this.tf = TermFactory.newInstance(base);
-		this.base = tf.reference(base).stringValue();
+		this.base = tf.resolve(base);
 	}
 
 	public String getBase() {
@@ -56,7 +56,7 @@ public class Base extends RDFEvent {
 	}
 
 	public String resolve(String relative) {
-		return tf.reference(relative).stringValue();
+		return tf.resolve(relative);
 	}
 
 	public String toString() {

@@ -269,7 +269,7 @@ public class ParameterizedQuery {
 				return vf.createLiteral(value);
 			}
 		} else if (sample instanceof URI) {
-			return vf.createURI(tf.reference(value).stringValue());
+			return vf.createURI(tf.resolve(value));
 		} else {
 			return parseValue(value);
 		}
@@ -440,7 +440,7 @@ public class ParameterizedQuery {
 		// Unescape any escape sequences
 		try {
 			String ref = TurtleUtil.decodeString(uri);
-			return vf.createURI(tf.reference(ref).stringValue());
+			return vf.createURI(tf.resolve(ref));
 		} catch (IllegalArgumentException e) {
 			// ignore
 		}

@@ -290,7 +290,7 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 			return null;
 		try {
 			TermFactory tf = TermFactory.newInstance(getRequestURI());
-			return tf.reference(url).stringValue();
+			return tf.resolve(url);
 		} catch (IllegalArgumentException e) {
 			throw new BadRequest(e);
 		}

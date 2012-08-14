@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.fluid.Fluid;
@@ -42,13 +46,17 @@ public abstract class RewriteAdvice implements Advice {
 		Object target = message.getTarget();
 		String uri = target.toString();
 		Object[] parameters = message.getParameters();
-		String location = resolve(substitute(uri, getVariables(parameters)));
+		String substitute = substitute(uri, getVariables(parameters));
+		String[] lines = substitute.split("\\s*\n\\s*");
+		String location = resolve(lines[0]);
+		Header[] headers = readHeaders(lines);
 		ObjectConnection con = null;
 		if (target instanceof RDFObject) {
 			con = ((RDFObject) target).getObjectConnection();
 		}
 		FluidBuilder fb = FluidFactory.getInstance().builder(con);
-		return service(location, parameters, fb).as(returnType, returnMedia);
+		return service(location, headers, target, parameters, fb).as(
+				returnType, returnMedia);
 	}
 
 	protected String getSystemId() {
@@ -59,8 +67,9 @@ public abstract class RewriteAdvice implements Advice {
 		return returnMedia;
 	}
 
-	protected abstract Fluid service(String location, Object[] parameters,
-			FluidBuilder fb) throws GatewayTimeout, IOException, FluidException;
+	protected abstract Fluid service(String location, Header[] headers,
+			Object target, Object[] parameters, FluidBuilder fb)
+			throws GatewayTimeout, IOException, FluidException;
 
 	private String getSystemId(Method m) {
 		if (m.isAnnotationPresent(Iri.class))
@@ -117,7 +126,20 @@ public abstract class RewriteAdvice implements Advice {
 	private String resolve(String path) {
 		if (path == null)
 			return null;
-		return systemId.reference(path).stringValue();
+		return systemId.resolve(path);
+	}
+
+	private Header[] readHeaders(String[] lines) {
+		List<Header> headers = new ArrayList<Header>();
+		for (int i = 1; i < lines.length; i++) {
+			int colon = lines[i].indexOf(':');
+			if (colon > 0) {
+				String name = lines[i].substring(0, colon).trim();
+				String value = lines[i].substring(colon + 1).trim();
+				headers.add(new BasicHeader(name, value));
+			}
+		}
+		return headers.toArray(new Header[headers.size()]);
 	}
 
 }

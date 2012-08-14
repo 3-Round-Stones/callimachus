@@ -12,9 +12,12 @@
     <p:option name="this"  required="true"  />
     <p:option name="query" required="true" />
 
+    <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;this=', encode-for-uri($this))" />
+    <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
+
     <p:import href="template.xpl" />
     <calli:template>
-        <p:with-option name="this" select="$this" />
+        <p:with-option name="realm" select="$realm" />
     </calli:template>
 
     <p:xslt>

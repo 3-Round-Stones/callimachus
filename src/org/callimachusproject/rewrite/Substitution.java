@@ -28,7 +28,11 @@ public class Substitution {
 	}
 
 	public static Substitution compile(String command) {
-		int split = command.lastIndexOf(' ');
+		int end = command.indexOf('\n');
+		if (end < 0) {
+			end = command.length();
+		}
+		int split = command.lastIndexOf(' ', end);
 		if (split >= 0) {
 			String pattern = command.substring(0, split);
 			String replacement = command.substring(split + 1);
@@ -89,7 +93,7 @@ public class Substitution {
 		return sb.toString();
 	}
 
-	private boolean appendSubstitution(Matcher m,
+	private void appendSubstitution(Matcher m,
 			Map<String, String> variables, StringBuilder sb) {
 		boolean encode = false;
 		for (int i = 0, n = substitution.length(); i < n; i++) {
@@ -130,7 +134,6 @@ public class Substitution {
 				sb.append(chr);
 			}
 		}
-		return encode;
 	}
 
 	private void appendGroup(Matcher m, int idx, boolean encode, StringBuilder sb) {

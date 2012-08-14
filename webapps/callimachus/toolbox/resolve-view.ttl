@@ -22,6 +22,7 @@
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <java:java.net.URLEncoder>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.engine.model.TermFactory>;
     calli:imports <../Viewable>;
     calli:script """
         var con = this.objectConnection;
@@ -41,14 +42,8 @@
 
         function parseAbsoluteURI(string) {
             try {
-                if (string.indexOf("/") == 0) {
-                    var origin = java.net.URI.create(diverted.toString());
-                    var sch = origin.scheme;
-                    var auth = origin.authority;
-                    var uri = java.net.URI.create(string);
-                    var frag = uri.fragment;
-                    uri = new java.net.URI(sch, auth, uri.path, uri.query, frag);
-                    return canonicalize(uri);
+                if (string.indexOf("/") == 0 || java.net.URI.create(string).isAbsolute()) {
+                    return TermFactory.newInstance(this.toString()).resolve(string);
                 } else {
                     var uri = java.net.URI.create(string);
                     if (uri.isAbsolute())

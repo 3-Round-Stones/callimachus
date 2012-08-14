@@ -61,7 +61,7 @@ public class Relativizer {
 
 	public String relativize(String uri) {
 		// identity URI reference
-		if (uri.equals(baseURI))
+		if (uri.equals(baseURI) && uri.indexOf('#') < 0)
 			return "";
 		// opaque URI
 		if (pathURI == null)

@@ -34,6 +34,8 @@ public abstract class TermFactory extends AbsoluteTermFactory {
 
 	public abstract Reference base(String reference);
 
+	public abstract String resolve(String reference);
+
 	public abstract Reference reference(String reference);
 
 	public abstract Reference prefix(String prefix, String reference);

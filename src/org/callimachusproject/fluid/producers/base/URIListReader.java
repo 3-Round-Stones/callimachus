@@ -106,7 +106,7 @@ public abstract class URIListReader<URI> implements Producer {
 					continue;
 				URI url;
 				if (rel != null) {
-					url = create(builder.getObjectConnection(), rel.reference(str.trim()).stringValue());
+					url = create(builder.getObjectConnection(), rel.resolve(str.trim()));
 				} else {
 					url = create(builder.getObjectConnection(), canonicalize(str.trim()));
 				}

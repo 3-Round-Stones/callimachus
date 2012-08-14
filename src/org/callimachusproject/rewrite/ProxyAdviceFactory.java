@@ -23,11 +23,14 @@ public class ProxyAdviceFactory implements AdviceProvider, AdviceFactory {
 
 	@Override
 	public Advice createAdvice(Method method) {
-		String m = getProxyMethod(method);
 		String[] commands = getCommands(method);
 		Substitution[] substitutions = createSubstitution(commands);
 		String[] bindingNames = getBindingNames(method, substitutions);
-		return new ProxyAdvice(bindingNames, substitutions, m, method);
+		if (method.isAnnotationPresent(get.class))
+			return new ProxyGetAdvice(bindingNames, substitutions, method);
+		if (method.isAnnotationPresent(post.class))
+			return new ProxyPostAdvice(bindingNames, substitutions, method);
+		throw new AssertionError();
 	}
 
 	private String[] getBindingNames(Method method, Substitution[] substitutions) {
@@ -46,14 +49,6 @@ public class ProxyAdviceFactory implements AdviceProvider, AdviceFactory {
 			}
 		}
 		return bindingNames;
-	}
-
-	private String getProxyMethod(Method method) {
-		if (method.isAnnotationPresent(get.class))
-			return "GET";
-		if (method.isAnnotationPresent(post.class))
-			return "POST";
-		throw new AssertionError();
 	}
 
 	private String[] getCommands(Method method) {

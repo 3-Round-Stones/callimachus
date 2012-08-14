@@ -79,12 +79,7 @@ public class LinksHandler implements Handler {
 
 	public Response handle(ResourceOperation req) throws Exception {
 		Response rb = delegate.handle(req);
-		String method = req.getMethod();
-		int status = rb.getStatus();
-		if (("GET".equals(method) || "HEAD".equals(method)) && 200 <= status
-				&& status < 400) {
-			return addLinks(req, rb);
-		} else if ("OPTIONS".equals(method)) {
+		if ("OPTIONS".equals(req.getMethod())) {
 			return addLinks(req, rb);
 		} else {
 			return rb;

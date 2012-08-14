@@ -43,7 +43,7 @@
     calli:query "view";
     calli:type "text/html";
     calli:header "cache-control:no-cache";
-    calli:post "pipelines/page-view.xpl?result&this=$0&query=view\nContent-Type: application/xhtml+xml".
+    calli:post "pipelines/page-element.xpl?result&systemId=$0&query=view\nContent-Type: application/xhtml+xml".
 
 # GET /page/MainPage.xhtml
 :GetPageSource rdfs:subClassOf msg:Message;
@@ -128,6 +128,30 @@
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xhtml+xml".
 
+# GET /page/MainPag.xhtml?element=content/1
+:GetElement rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:query "element2";
+    calli:type "text/html";
+    calli:post "pipelines/page-element.xpl?result&element={element}&systemId=$0&this={elementTarget}&query={elementQuery}\nContent-Type: application/xhtml+xml".
+
+:element a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetElement;
+    rdfs:range xsd:string;
+    calli:query "this".
+
+:elementTarget a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetElement;
+    calli:type "text/uri-list";
+    calli:query "this".
+
+:elementQuery a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetElement;
+    rdfs:range xsd:string;
+    calli:query "query".
+
 # GET /page/MainPag.xhtml?template
 :GetTemplate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
@@ -135,7 +159,7 @@
     calli:method "GET";
     calli:query "template";
     calli:type "application/xhtml+xml";
-    calli:post "pipelines/template.xpl?result&realm={realm}\nContent-Type: application/xhtml+xml".
+    calli:post "pipelines/template.xpl?result&realm={realm}&systemId=$0\nContent-Type: application/xhtml+xml".
 
 :realm a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetTemplate;

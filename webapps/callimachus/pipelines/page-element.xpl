@@ -9,7 +9,10 @@
 
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
 
-    <p:option name="this"  required="true"  />
+    <p:option name="systemId"  required="true" />
+    <p:option name="element" select="'/1'" />
+
+    <p:option name="this" select="$systemId" />
     <p:option name="query" required="true" />
 
     <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;this=', encode-for-uri($this))" />
@@ -17,8 +20,22 @@
 
     <p:import href="template.xpl" />
     <calli:template>
+        <p:with-option name="systemId" select="$systemId" />
         <p:with-option name="realm" select="$realm" />
     </calli:template>
+
+    <p:xslt>
+        <p:input port="stylesheet">
+            <p:document href="../transforms/element.xsl" />
+        </p:input>
+        <p:with-param name="element" select="$element" />
+    </p:xslt>
+
+    <p:xslt>
+        <p:input port="stylesheet">
+            <p:document href="../transforms/flatten.xsl" />
+        </p:input>
+    </p:xslt>
 
     <p:xslt>
         <p:input port="stylesheet">
@@ -27,6 +44,7 @@
         <p:with-param name="this" select="$this"/>
         <p:with-param name="query" select="$query"/>
     </p:xslt>
+
     <p:xslt>
         <p:input port="stylesheet">
             <p:document href="../transforms/xhtml-to-html.xsl" />

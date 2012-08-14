@@ -34,13 +34,12 @@
 
 :GetEditPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Editable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:query "edit";
     calli:realm </>;
-    calli:type "application/xhtml+xml";
+    calli:type "text/html";
     calli:header "cache-control:no-cache";
-    calli:transform <../transforms/TransformPage>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:script """
         function findTemplate(obj, ann) {
@@ -49,10 +48,7 @@
                 var uri = annotated.getAnnotation(ann).value();
                 if (uri.length != 1)
                     throw new InternalServerError("Multiple templates for " + annotated.simpleName);
-                var template = obj.objectConnection.getObject(uri[0]);
-                if (template.calliConstruct)
-                    return template;
-                throw new InternalServerError("Missing template");
+                return uri[0];
             }
             throw new InternalServerError("No template");
         }
@@ -80,8 +76,30 @@
             return result;
         }
 
-        return findTemplate(this, Packages.calli.edit).calliConstruct(this);
+        var realm = this.FindRealm();
+        var template = findTemplate(this, Packages.calli.edit) + "?template&realm=" + realm;
+        var con = this.objectConnection;
+        var bindings = new org.openrdf.query.impl.MapBindingSet();
+        bindings.addBinding("this", this.resource);
+        var engine = org.callimachusproject.engine.TemplateEngine.getInstance();
+        var results = engine.getTemplate(template).evaluate(bindings, con);
+        return this.PostEditTemplateResults(template, results);
     """.
+
+:PostEditTemplateResults rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Viewable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:type "text/html";
+    calli:post <../pipelines/render-html.xpl?result&template={template}&this=$0&query=edit>.
+
+:template a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostEditTemplateResults;
+    rdfs:range xsd:string.
+
+:xml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostEditTemplateResults;
+    rdfs:range <java:org.openrdf.query.TupleQueryResult>;
+    calli:type "application/sparql-results+xml".
 
 :PostEdit rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Editable>];

@@ -166,10 +166,10 @@ public class TermFactoryImpl extends TermFactory {
 			if (scheme != null) {
 				scheme = scheme.toLowerCase();
 			}
-			String frag = net.getFragment();
+			String frag = net.getRawFragment();
 			if (net.isOpaque()) {
 				String part = net.getSchemeSpecificPart();
-				net = new java.net.URI(scheme, part, frag);
+				net = new java.net.URI(scheme, part, net.getFragment());
 				return net.toASCIIString(); // URI
 			}
 			String auth = net.getAuthority();

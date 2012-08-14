@@ -92,7 +92,7 @@ public abstract class FormSupport implements Page, RDFObject {
 	 * Extracts an element from the template (without variables).
 	 */
 	@method("GET")
-	@query("template")
+	@query("element")
 	@type("text/html")
 	public String template(@query("element") String element) throws Exception {
 		return asHtmlString(removeNestedResources(xslt(element)));

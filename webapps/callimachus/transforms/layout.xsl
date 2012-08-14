@@ -175,7 +175,7 @@
                 <!-- Called to insert another property value or node -->
                 <xsl:attribute name="data-add">
                     <xsl:value-of select="$callback" />
-                    <xsl:text>?template&amp;element=</xsl:text>
+                    <xsl:text>?element=</xsl:text>
                     <xsl:apply-templates mode="xptr-element" select="." />
                 </xsl:attribute>
             </xsl:if>

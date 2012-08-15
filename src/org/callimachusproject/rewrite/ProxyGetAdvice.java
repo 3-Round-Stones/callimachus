@@ -13,6 +13,7 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
+import org.callimachusproject.server.exceptions.ResponseException;
 
 public class ProxyGetAdvice extends RewriteAdvice {
 
@@ -43,6 +44,10 @@ public class ProxyGetAdvice extends RewriteAdvice {
 			}
 			resp = client.service(req);
 			redirect = client.redirectLocation(redirect, resp);
+		}
+		int code = resp.getStatusLine().getStatusCode();
+		if (code < 200 || 300 <= code) {
+			throw ResponseException.create(resp, systemId);
 		}
 		String contentType = "*/*";
 		InputStream content = null;

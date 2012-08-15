@@ -1,0 +1,21 @@
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+PREFIX prov:<http://www.w3.org/ns/prov#>
+SELECT REDUCED ?label ?note ?revision ?modified ?user ?name
+WHERE {
+    {
+        <$this> skos:prefLabel ?label
+    } UNION {
+        <$this> rdfs:label ?label
+    } UNION {
+        GRAPH ?revision { <$this> skos:editorialNote ?note }
+        ?revision prov:endedAtTime ?modified
+        OPTIONAL { ?revision prov:wasAssociatedWith ?user
+            OPTIONAL { ?user skos:prefLabel ?name }
+            OPTIONAL { ?user rdfs:label ?name }
+        }
+    }
+}
+ORDER BY ?modified
+LIMIT 100

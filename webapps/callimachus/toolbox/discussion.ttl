@@ -12,34 +12,11 @@
 
 :GetDiscussion rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:query "discussion";
-    calli:type "application/sparql-results+xml;q=0.1";
-    calli:transform :TransformDiscussion;
-    msg:sparql  """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-        PREFIX prov:<http://www.w3.org/ns/prov#>
-        SELECT REDUCED ?label ?note ?revision ?modified ?user ?name
-        WHERE {
-            {
-                $this skos:prefLabel ?label
-            } UNION {
-                $this rdfs:label ?label
-            } UNION {
-                GRAPH ?revision { $this skos:editorialNote ?note }
-                ?revision prov:endedAtTime ?modified
-                OPTIONAL { ?revision prov:wasAssociatedWith ?user
-                    OPTIONAL { ?user skos:prefLabel ?name }
-                    OPTIONAL { ?user rdfs:label ?name }
-                }
-            }
-        }
-        ORDER BY ?modified
-        LIMIT 100
-    """.
+    calli:type "text/html";
+    calli:get <../pipelines/discussion.xpl?result&this=$0>.
 
 skos:editorialNote a owl:AnnotationProperty.
 
@@ -61,13 +38,6 @@ skos:editorialNote a owl:AnnotationProperty.
     rdfs:domain :PostDiscussion;
     rdfs:range <java:java.util.Map>;
     calli:type "application/x-www-form-urlencoded";.
-
-:TransformDiscussion rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:type "application/xml";
-    calli:transform <../transforms/TransformLayout>;
-    calli:xslt <discussion.xhtml>.
 
 :inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :TransformDiscussion;

@@ -12,42 +12,8 @@
 
 :GetWhatLinksHere rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:query "whatlinkshere";
-    calli:type "application/sparql-results+xml;q=0.1";
-    calli:transform :TransformWhatLinksHere;
-    msg:sparql """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-        PREFIX prov:<http://www.w3.org/ns/prov#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT DISTINCT ?label ?comment ?icon ?url ?modified
-        WHERE {
-            ?url ?rel $this
-            FILTER (isIRI(?url))
-            FILTER (?rel != prov:wasAssociatedWith)
-            ?url prov:wasGeneratedBy ?revision
-            OPTIONAL { ?revision prov:endedAtTime ?modified }
-            OPTIONAL { ?url a [calli:icon ?icon] }
-            OPTIONAL { ?url skos:prefLabel ?label }
-            OPTIONAL { ?url rdfs:label ?label }
-            OPTIONAL { ?url rdfs:comment ?comment }
-        }
-        ORDER BY ?label ?url ?icon
-        LIMIT 100
-    """.
-
-:TransformWhatLinksHere rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:type "application/xml";
-    calli:transform <../transforms/TransformLayout>;
-    calli:xslt <what-links-here.xsl>.
-
-:inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
-    rdfs:domain :TransformWhatLinksHere;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "application/sparql-results+xml".
-
+    calli:type "text/html";
+    calli:get </callimachus/pipelines/what-links-here.xpl?result&this=$0>.

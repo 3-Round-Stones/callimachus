@@ -1,0 +1,31 @@
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl:<http://www.w3.org/2002/07/owl#>
+PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
+PREFIX foaf:<http://xmlns.com/foaf/0.1/>
+SELECT REDUCED ?title ?description ?resource ?label (ucase(substr(?label, 1, 1)) as ?index) (regex(?label, "^[a-zA-Z]") as ?letter) {
+    {
+        <$this> rdfs:label ?title
+        OPTIONAL {
+            <$this> rdfs:comment ?description
+        }
+    } UNION {
+        ?resource a <$this>
+        OPTIONAL {
+            ?resource skos:prefLabel ?label
+        } OPTIONAL {
+            ?resource rdfs:label ?label
+        } OPTIONAL {
+            ?resource foaf:name ?label
+        }
+    } UNION {
+        <$this> owl:equivalentClass ?type . ?resource a ?type
+        OPTIONAL {
+            ?resource skos:prefLabel ?label
+        } OPTIONAL {
+            ?resource rdfs:label ?label
+        } OPTIONAL {
+            ?resource foaf:name ?label
+        }
+    }
+} ORDER BY ?label ?resource LIMIT 101

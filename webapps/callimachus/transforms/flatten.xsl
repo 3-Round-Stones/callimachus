@@ -61,25 +61,25 @@
     <xsl:variable name="next" select="substring-after(substring-before($string,'}'),'{')" />
     <xsl:variable name="rest" select="substring-after($string,'}')" />
     <xsl:choose>
-        <xsl:when test="matches($next,'\?[a-zA-Z]\w*')">
+        <xsl:when test="matches($next,'^\?[a-zA-Z]\w*$')">
             <xsl:value-of select="$before" />
             <xsl:call-template name="remove-expressions-string">
                 <xsl:with-param name="string" select="$rest" />
             </xsl:call-template>
         </xsl:when>
-        <xsl:when test="matches($next,'&quot;([^&quot;\n]|\\&quot;)*&quot;')">
+        <xsl:when test="matches($next,'^&quot;([^&quot;\n]|\\&quot;)*&quot;$')">
             <xsl:value-of select="concat($before,substring($next,2,string-length($next)-2))" />
             <xsl:call-template name="remove-expressions-string">
                 <xsl:with-param name="string" select="$rest" />
             </xsl:call-template>
         </xsl:when>
-        <xsl:when test="matches($next,&quot;'([^'\n]|\\')*'&quot;)">
+        <xsl:when test="matches($next,&quot;^'([^'\n]|\\')*'$&quot;)">
             <xsl:value-of select="concat($before,substring($next,2,string-length($next)-2))" />
             <xsl:call-template name="remove-expressions-string">
                 <xsl:with-param name="string" select="$rest" />
             </xsl:call-template>
         </xsl:when>
-        <xsl:when test="matches($next,'[^\s,]*:[^\s,]*')">
+        <xsl:when test="matches($next,'^[^\s,]*:[^\s,]*$')">
             <xsl:value-of select="$before" />
             <xsl:call-template name="remove-expressions-string">
                 <xsl:with-param name="string" select="$rest" />

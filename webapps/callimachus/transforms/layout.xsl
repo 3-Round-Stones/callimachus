@@ -14,7 +14,7 @@
     <xsl:variable name="layout_body" select="$layout_xhtml/xhtml:html/xhtml:body|$layout_xhtml/html/body" />
     <xsl:variable name="template_body" select="/xhtml:html/xhtml:body|/html/body" />
     <xsl:variable name="origin">
-        <xsl:if test="$xsltId">
+        <xsl:if test="contains($xsltId,'://')">
             <xsl:value-of select="concat(substring-before($xsltId,'://'),'://',substring-before(substring-after($xsltId,'://'),'/'),'/')" />
         </xsl:if>
     </xsl:variable>

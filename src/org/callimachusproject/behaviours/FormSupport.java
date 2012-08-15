@@ -47,7 +47,6 @@ import org.callimachusproject.engine.helpers.OrderedSparqlReader;
 import org.callimachusproject.engine.helpers.RDFaProducer;
 import org.callimachusproject.engine.helpers.SPARQLPosteditor;
 import org.callimachusproject.engine.helpers.SPARQLProducer;
-import org.callimachusproject.engine.helpers.TemplateReader;
 import org.callimachusproject.engine.helpers.XMLEventList;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.server.client.HTTPObjectClient;
@@ -86,16 +85,6 @@ public abstract class FormSupport implements Page, RDFObject {
 		InputStream input = cl.getResourceAsStream(path);
 		InputStreamReader reader = new InputStreamReader(input);
 		HTML_XSLT = XSLTransformerFactory.getInstance().createTransformer(reader, url);
-	}
-
-	/**
-	 * Extracts an element from the template (without variables).
-	 */
-	@method("GET")
-	@query("element")
-	@type("text/html")
-	public String template(@query("element") String element) throws Exception {
-		return asHtmlString(removeNestedResources(xslt(element)));
 	}
 
 	@Override
@@ -188,10 +177,6 @@ public abstract class FormSupport implements Page, RDFObject {
 		TupleQueryResult results = new DeDupedResultSet(qry.evaluate(),true);
 		RDFaProducer xhtml = new RDFaProducer(template.iterator(), results, rq.getOrigins());
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
-	}
-
-	private XMLEventReader removeNestedResources(final XMLEventReader xslt) {
-		return new TemplateReader(xslt);
 	}
 
 	private String asHtmlString(XMLEventReader xhtml) throws Exception {

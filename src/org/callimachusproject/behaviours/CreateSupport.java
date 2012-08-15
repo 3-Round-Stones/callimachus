@@ -19,20 +19,11 @@ package org.callimachusproject.behaviours;
 
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.Set;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.events.Ask;
@@ -42,21 +33,14 @@ import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.events.Union;
 import org.callimachusproject.engine.events.Where;
 import org.callimachusproject.engine.helpers.SPARQLWriter;
-import org.callimachusproject.engine.helpers.TemplateReader;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
 import org.callimachusproject.engine.model.Var;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.form.helpers.TripleInserter;
-import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
-import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.traits.VersionedObject;
-import org.callimachusproject.xml.XMLEventReaderFactory;
-import org.openrdf.annotations.Bind;
-import org.openrdf.annotations.Sparql;
-import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BooleanQuery;
@@ -74,20 +58,7 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
  * 
  */
 public abstract class CreateSupport implements Page, RDFObject {
-	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final String HAS_COMPONENT = "http://callimachusproject.org/rdf/2009/framework#" + "hasComponent";
-
-	/**
-	 * calliConstructTemplate() is used e.g. by the create operation. It returns
-	 * the complete XHTML page.
-	 */
-	@Override
-	public XMLEventReader calliConstructTemplate(Object target)
-			throws Exception {
-		assert target instanceof RDFObject;
-		Resource about = ((RDFObject) target).getResource();
-		return new TemplateReader(xslt(findRealm(about)));
-	}
 
 	public RDFObject calliCreateResource(InputStream in, String base,
 			final RDFObject target) throws Exception {
@@ -124,42 +95,6 @@ public abstract class CreateSupport implements Page, RDFObject {
 		} finally {
 			in.close();
 		}
-	}
-
-	@Sparql(PREFIX
-			+ "SELECT ?realm { ?realm calli:hasComponent* $target FILTER EXISTS {?realm a calli:Realm} }\n"
-			+ "ORDER BY desc(?realm) LIMIT 1")
-	protected abstract RDFObject findRealm(@Bind("target") Resource about);
-
-	private XMLEventReader xslt(RDFObject realm) throws IOException,
-			XMLStreamException {
-		XMLEventReaderFactory factory = XMLEventReaderFactory.newInstance();
-		String url = url("xslt", realm);
-		InputStream in = openRequest(url);
-		return factory.createXMLEventReader(url, in);
-	}
-
-	private String url(String operation, RDFObject realm)
-			throws UnsupportedEncodingException {
-		String uri = getResource().stringValue();
-		StringBuilder sb = new StringBuilder();
-		sb.append(uri);
-		sb.append("?");
-		sb.append(URLEncoder.encode(operation, "UTF-8"));
-		if (realm != null) {
-			sb.append("&realm=");
-			sb.append(URLEncoder.encode(realm.toString(), "UTF-8"));
-		}
-		return sb.toString();
-	}
-
-	private InputStream openRequest(String url) throws IOException {
-		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpRequest request = new BasicHttpRequest("GET", url);
-		HttpResponse response = client.service(request);
-		if (response.getStatusLine().getStatusCode() >= 300)
-			throw ResponseException.create(response, url);
-		return response.getEntity().getContent();
 	}
 
 	private boolean isResourceAlreadyPresent(ObjectConnection con, String about)

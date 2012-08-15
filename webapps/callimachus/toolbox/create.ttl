@@ -34,35 +34,40 @@
 
 :GetCreatePage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:query "create";
     calli:realm </>;
-    calli:type "application/xhtml+xml";
-    calli:transform <../transforms/TransformPage>;
+    calli:type "text/html";
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:script """
-        importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
         if (!this.calliCreate || this.calliCreate.isEmpty())
             throw new InternalServerError("No create template");
         if (this.calliCreate.size() != 1)
             throw new InternalServerError("Multiple create templates");
-        return this.calliCreate.iterator().next().calliConstructTemplate(this);
+        var page = this.calliCreate.iterator().next();
+        return this.GetPageTemplate(page, page.FindRealm());
     """.
 
-:GetCreatePage2 rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
+:GetCreatorPage rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
-    calli:query "create2";
+    calli:query "create";
     calli:realm </>;
     calli:type "text/html";
+    calli:imports <../Creatable>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
-        importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
-        if (!this.calliCreate || this.calliCreate.isEmpty())
+        if (!(create instanceof Creatable))
+            throw new BadRequest("Cannot create this class here: " + create);
+        if (!create.calliCreate || create.calliCreate.isEmpty())
             throw new InternalServerError("No create template");
-        if (this.calliCreate.size() != 1)
+        if (create.calliCreate.size() != 1)
             throw new InternalServerError("Multiple create templates");
-        return this.GetPageTemplate(this.calliCreate.iterator().next(), this.FindRealm());
+        var page = create.calliCreate.iterator().next();
+        return create.GetPageTemplate(page, this.FindRealm());
     """.
 
 :GetPageTemplate rdfs:subClassOf msg:Message;
@@ -77,27 +82,6 @@
 :realm a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetPageTemplate;
     rdfs:range <../Realm>.
-
-:GetCreatorPage rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-    calli:method "GET";
-    calli:query "create";
-    calli:realm </>;
-    calli:type "application/xhtml+xml";
-    calli:transform <../transforms/TransformPage>;
-    calli:imports <../Creatable>;
-    calli:script """
-        importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
-        importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
-        if (!(create instanceof Creatable))
-            throw new BadRequest("Cannot create this class here: " + create);
-        if (!create.calliCreate || create.calliCreate.isEmpty())
-            throw new InternalServerError("No create template");
-        if (create.calliCreate.size() != 1)
-            throw new InternalServerError("Multiple create templates");
-        return create.calliCreate.iterator().next().calliConstructTemplate(this);
-    """.
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];

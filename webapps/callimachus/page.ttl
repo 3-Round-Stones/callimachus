@@ -133,7 +133,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
-    calli:query "element2";
+    calli:query "element";
     calli:type "text/html";
     calli:post "pipelines/page-element.xpl?result&element={element}&realm={elementRealm}&systemId=$0\nContent-Type: application/xhtml+xml".
 

@@ -61,7 +61,7 @@
     </xsl:template>
 
     <xsl:template match="xhtml:p[@id='resource-lastmod']|p[@id='resource-lastmod']">
-        <xsl:if test="$query='view' or $query='edit' or $query='discussion' or $query='describe' or $query='history' or $query='permissions'">
+        <xsl:if test="string-length($this) &gt; 0">
             <xsl:copy>
                 <xsl:apply-templates select="@*" />
                 <xsl:apply-templates mode="time" select="*|text()|comment()" />
@@ -89,15 +89,19 @@
     </xsl:template>
 
     <xsl:template mode="layout" match="*[@id='breadcrumbs']">
-        <xsl:call-template name="breadcrumbs">
-            <xsl:with-param name="node" select="." />
-        </xsl:call-template>
+        <xsl:if test="string-length($this) &gt; 0">
+            <xsl:call-template name="breadcrumbs">
+                <xsl:with-param name="node" select="." />
+            </xsl:call-template>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template match="*[@id='breadcrumbs']">
-        <xsl:call-template name="breadcrumbs">
-            <xsl:with-param name="node" select="." />
-        </xsl:call-template>
+        <xsl:if test="string-length($this) &gt; 0">
+            <xsl:call-template name="breadcrumbs">
+                <xsl:with-param name="node" select="." />
+            </xsl:call-template>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template name="breadcrumbs">

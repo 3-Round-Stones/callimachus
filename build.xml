@@ -434,12 +434,12 @@
 		</java>
 	</target>
 
-	<target name="reset" depends="dist">
+	<target name="reset">
 		<java classname="${main-monitor}" fork="true" resultproperty="ret">
 			<jvmarg line="${jvmargs}" />
 			<arg line="--pid ${pid} --reset" />
 			<classpath>
-				<pathelement location="${jar.file}" />
+				<pathelement location="${dist}/callimachus-${Version}.jar" />
 				<pathelement location="${tools.jar}" />
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />

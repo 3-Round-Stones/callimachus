@@ -10,8 +10,9 @@
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
 
     <p:option name="systemId" required="true" />
-    <p:option name="realm" required="true" />
-    <p:option name="element" select="'/1'" />
+
+    <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;this=', encode-for-uri($systemId))" />
+    <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
 
     <p:import href="template.xpl" />
     <calli:template>
@@ -21,21 +22,10 @@
 
     <p:xslt>
         <p:input port="stylesheet">
-            <p:document href="../transforms/element.xsl" />
-        </p:input>
-        <p:with-param name="element" select="$element" />
-    </p:xslt>
-
-    <p:xslt>
-        <p:input port="stylesheet">
-            <p:document href="../transforms/flatten.xsl" />
-        </p:input>
-    </p:xslt>
-
-    <p:xslt>
-        <p:input port="stylesheet">
             <p:document href="../transforms/page.xsl" />
         </p:input>
+        <p:with-param name="this" select="$systemId"/>
+        <p:with-param name="query" select="'view'"/>
     </p:xslt>
 
     <p:xslt>

@@ -177,6 +177,8 @@
                     <xsl:value-of select="$callback" />
                     <xsl:text>?element=</xsl:text>
                     <xsl:apply-templates mode="xptr-element" select="." />
+                    <xsl:text>&amp;realm=</xsl:text>
+                    <xsl:value-of select="$realm" />
                 </xsl:attribute>
             </xsl:if>
         </xsl:if>

@@ -49,6 +49,35 @@
         return this.calliCreate.iterator().next().calliConstructTemplate(this);
     """.
 
+:GetCreatePage2 rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:query "create2";
+    calli:realm </>;
+    calli:type "text/html";
+    calli:script """
+        importClass(Packages.org.callimachusproject.server.exceptions.InternalServerError);
+        if (!this.calliCreate || this.calliCreate.isEmpty())
+            throw new InternalServerError("No create template");
+        if (this.calliCreate.size() != 1)
+            throw new InternalServerError("Multiple create templates");
+        return this.GetPageTemplate(this.calliCreate.iterator().next(), this.FindRealm());
+    """.
+
+:GetPageTemplate rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:get "{page}?element=/1&realm={realm}".
+
+:page a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetPageTemplate;
+    rdfs:range <../Page>.
+
+:realm a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetPageTemplate;
+    rdfs:range <../Realm>.
+
 :GetCreatorPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];

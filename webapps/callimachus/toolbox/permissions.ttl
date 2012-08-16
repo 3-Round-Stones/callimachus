@@ -28,16 +28,15 @@
 
 :GetPermissions rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <permissions.xhtml>];
     calli:method "GET";
     calli:query "permissions";
     calli:realm </>;
-    calli:type "application/xhtml+xml";
+    calli:type "text/html";
     calli:header "cache-control:no-cache";
-    calli:transform <../transforms/TransformPage>;
     calli:script """
-        return permissions_xhtml.calliConstruct(this);
+        return permissions_xhtml.Construct(this, 'permissions');
     """.
 
 :permissions_xhtml a owl:FunctionalProperty, owl:ObjectProperty;

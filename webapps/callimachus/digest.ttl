@@ -107,15 +107,14 @@
 # Linked from request password email
 :GetForgotPasswordPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     rdfs:subClassOf [owl:onProperty :forgot_password_xhtml; owl:hasValue <pages/forgot-password.xhtml>];
     calli:method "GET";
     calli:query "forgotpassword";
-    calli:type "application/xhtml+xml";
+    calli:type "text/html";
     calli:header "cache-control:no-store";
-    calli:transform <transforms/TransformPage>;
     calli:script """
-        return forgot_password_xhtml.calliConstruct(this);
+        return forgot_password_xhtml.Construct(this, 'forgotpassword');
     """.
 
 :forgot_password_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
@@ -189,13 +188,12 @@
 # Linked from request password email
 :GetResetPassword rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     rdfs:subClassOf [owl:onProperty :reset_password_xhtml; owl:hasValue <pages/reset-password.xhtml>];
     calli:method "GET";
     calli:query "resetpassword";
-    calli:type "application/xhtml+xml";
+    calli:type "text/html";
     calli:header "cache-control:no-store";
-    calli:transform <transforms/TransformPage>;
     calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
@@ -207,7 +205,7 @@
         var hex = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
         if (token != hex)
             throw new BadRequest("Request is No Longer Valid");
-        return reset_password_xhtml.calliConstruct(user);
+        return reset_password_xhtml.Construct(user, 'resetpassword');
     """.
 
 :nonce a owl:FunctionalProperty, owl:DatatypeProperty;

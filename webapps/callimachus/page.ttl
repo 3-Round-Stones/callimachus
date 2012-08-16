@@ -161,3 +161,64 @@
     rdfs:range <Realm>;
     calli:type "text/uri-list";
     calli:query "realm".
+
+# Called by view.ttl, edit.ttl, and many others
+:Construct rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:type "text/html";
+    calli:script """
+        var realm = this.FindRealmOf(resource);
+        var template = this + "?template&realm=" + realm;
+        var con = this.objectConnection;
+        var bindings = new org.openrdf.query.impl.MapBindingSet();
+        bindings.addBinding("this", resource.resource);
+        var engine = org.callimachusproject.engine.TemplateEngine.getInstance();
+        var results = engine.getTemplate(template).evaluate(bindings, con);
+        return this.RenderHtml(realm, resource, resourceQuery, results);
+    """.
+
+:resource a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :Construct.
+
+:resourceQuery a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :Construct;
+    rdfs:range xsd:string.
+
+:FindRealmOf rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Realm>];
+    calli:type "text/uri-list";
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?realm {
+            ?realm calli:hasComponent* $realmResource
+            FILTER EXISTS {?realm a calli:Realm}
+        }
+        ORDER BY desc(?realm) LIMIT 1
+    """.
+
+:realmResource a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :FindRealmOf.
+
+:RenderHtml rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:type "text/html";
+    calli:post <pipelines/render-html.xpl?result&template=$0%3Ftemplate%26realm%3D{realm}&this={renderResource}&query={renderResourceQuery}>.
+
+:realm a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :RenderHtml;
+    rdfs:range <Realm>.
+
+:renderResource a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :RenderHtml.
+
+:renderResourceQuery a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :RenderHtml;
+    rdfs:range xsd:string.
+
+:xmlSparqlResults a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :RenderHtml;
+    rdfs:range <java:org.openrdf.query.TupleQueryResult>;
+    calli:type "application/sparql-results+xml".

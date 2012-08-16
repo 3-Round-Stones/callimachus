@@ -22,44 +22,8 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:query "items";
-    calli:type "application/sparql-results+xml;q=0.1";
-    calli:transform :TransformMenu;
-    msg:sparql  """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT DISTINCT ?heading ?label ?link ?group
-        WHERE {
-            {
-                $this calli:item ?item
-            } UNION {
-                $this calli:item [rdfs:label ?heading; calli:item ?item]
-            }
-            ?item rdfs:label ?label.
-            OPTIONAL {
-                ?item calli:position ?position
-            }
-            OPTIONAL {
-                ?item calli:link ?link
-            }
-            OPTIONAL {
-                ?item calli:group ?group
-            }
-        }
-        ORDER BY ?position ?label
-        LIMIT 100
-    """.
-
-:TransformMenu rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xhtml+xml";
-    calli:xslt <transforms/menu.xsl>.
-
-:xml a owl:ObjectProperty; a owl:FunctionalProperty;
-    rdfs:domain :TransformMenu;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "application/sparql-results+xml".
+    calli:get <pipelines/menu-items.xpl?result&this=$0>.
 
 :PostEditMenu owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
         [owl:onProperty msg:target; owl:allValuesFrom <Menu>]);

@@ -8,8 +8,6 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
     exclude-result-prefixes="sparql">
 
-<xsl:param name="this" />
-
 <xsl:template match="sparql:head" />
 
 <xsl:template match="sparql:variable" />

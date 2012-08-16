@@ -122,7 +122,7 @@ rdfs:comment a rdf:Property.
 
 :GetUserPasswordPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     rdfs:subClassOf [owl:onProperty :user_password_xhtml; owl:hasValue <pages/user-password.xhtml>];
     calli:realm </>;
     calli:method "GET";

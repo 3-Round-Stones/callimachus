@@ -28,7 +28,7 @@
 
 :GetPermissions rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <permissions.xhtml>];
     calli:method "GET";
     calli:query "permissions";

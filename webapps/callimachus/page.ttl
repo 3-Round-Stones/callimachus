@@ -165,7 +165,7 @@
 # Called by view.ttl, edit.ttl, and many others
 :Construct rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
     calli:script """
         var realm = this.FindRealmOf(resource);
@@ -175,7 +175,7 @@
         bindings.addBinding("this", resource.resource);
         var engine = org.callimachusproject.engine.TemplateEngine.getInstance();
         var results = engine.getTemplate(template).evaluate(bindings, con);
-        return this.RenderHtml(realm, resource, resourceQuery, results);
+        return this.Render(realm, resource, resourceQuery, results);
     """.
 
 :resource a owl:FunctionalProperty, owl:ObjectProperty;
@@ -201,24 +201,24 @@
 :realmResource a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :FindRealmOf.
 
-:RenderHtml rdfs:subClassOf msg:Message;
+:Render rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
     calli:post <pipelines/render-html.xpl?result&template=$0%3Ftemplate%26realm%3D{realm}&this={renderResource}&query={renderResourceQuery}>.
 
 :realm a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :RenderHtml;
+    rdfs:domain :Render;
     rdfs:range <Realm>.
 
 :renderResource a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :RenderHtml.
+    rdfs:domain :Render.
 
 :renderResourceQuery a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :RenderHtml;
+    rdfs:domain :Render;
     rdfs:range xsd:string.
 
 :xmlSparqlResults a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :RenderHtml;
+    rdfs:domain :Render;
     rdfs:range <java:org.openrdf.query.TupleQueryResult>;
     calli:type "application/sparql-results+xml".

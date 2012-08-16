@@ -107,7 +107,7 @@
 # Linked from request password email
 :GetForgotPasswordPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     rdfs:subClassOf [owl:onProperty :forgot_password_xhtml; owl:hasValue <pages/forgot-password.xhtml>];
     calli:method "GET";
     calli:query "forgotpassword";
@@ -148,7 +148,7 @@
             var ha2 = DigestUtils.md5Hex(user.toString());
             var token = DigestUtils.md5Hex(ha1 + ":" + nonce + ":" + ha2);
             var qs = "?resetpassword&amp;nonce=" + nonce + "&amp;token=" + token + "&amp;username=" + user.calliName;
-            var body = mail_request_password_xhtml.calliConstructHTML(user);
+            var body = mail_request_password_xhtml.Construct(user);
             body = body.replace(/\\?resetpassword/g, qs);
             user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + formEmail + ">");
         }
@@ -188,7 +188,7 @@
 # Linked from request password email
 :GetResetPassword rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     rdfs:subClassOf [owl:onProperty :reset_password_xhtml; owl:hasValue <pages/reset-password.xhtml>];
     calli:method "GET";
     calli:query "resetpassword";
@@ -253,7 +253,7 @@
         var decoded = user.calliName + ":" + this.calliAuthName + ":" + password;
         user.calliAlgorithm = "MD5";
         user.calliEncoded = DigestUtils.md5(new java.lang.String(decoded).getBytes("UTF-8"));
-        var body = mail_password_xhtml.calliConstructHTML(user);
+        var body = mail_password_xhtml.Construct(user);
         body = body.replace(/@@USERNAME@@/g, user.calliName);
         body = body.replace(/@@PASSWORD@@/g, password);
         user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + user.calliEmail + ">");

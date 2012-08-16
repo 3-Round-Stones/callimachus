@@ -266,7 +266,7 @@
 		<chmod dir="${bin}" includes="*.sh,callimachus-linux*,callimachus-darwin*" perm="ugo+rx"/>
 	</target>
 
-	<target name="dist" depends="compile" description="generate the distribution">
+	<target name="dist" depends="compile,car" description="generate the distribution">
 		<!-- Create the distribution directory and create the jar -->
 		<mkdir dir="${dist}" />
 		<property name="jar.file" value="${dist}/callimachus-${Version}.jar" />
@@ -284,10 +284,6 @@
 				<attribute name="Class-Path" value="${jar.classpath}" />
 			</manifest>
 		</jar>
-		<zip destfile="${dist}/callimachus-webapp-${Version}.car">
-			<zipfileset dir="${webapps}/callimachus" prefix="" includes="**/*.ttl" />
-			<zipfileset dir="${webapps}/callimachus" prefix="" excludes="**/*.ttl" />
-		</zip>
 		<zip destfile="${dist}/callimachus-${Version}.zip">
 			<zipfileset dir="." includes="*.txt" />
 			<zipfileset dir="${src}" prefix="src" />
@@ -298,6 +294,16 @@
 			<zipfileset dir="${lib}" prefix="lib" />
 			<zipfileset file="${jar.file}" prefix="lib" />
 			<zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="lib" />
+		</zip>
+		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
+	</target>
+
+	<target name="car">
+		<!-- Create the distribution directory and create the jar -->
+		<mkdir dir="${dist}" />
+		<zip destfile="${dist}/callimachus-webapp-${Version}.car">
+			<zipfileset dir="${webapps}/callimachus" prefix="" includes="**/*.ttl" />
+			<zipfileset dir="${webapps}/callimachus" prefix="" excludes="**/*.ttl" />
 		</zip>
 		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
 	</target>
@@ -396,7 +402,7 @@
 		</exec>
 		<unzip src="${downloads}/callimachus.car" dest="${webapps}/callimachus" />
 		<delete file="${downloads}/callimachus.car" />
-		<antcall target="dist" />
+		<antcall target="car" />
 		<touch file="${triples.file}" />
 	</target>
 

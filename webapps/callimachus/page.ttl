@@ -154,7 +154,7 @@
     calli:method "GET";
     calli:query "template";
     calli:type "application/xhtml+xml";
-    calli:post "pipelines/template.xpl?result&realm={realm}&systemId=$0\nContent-Type: application/xhtml+xml".
+    calli:post "pipelines/page-template.xpl?result&realm={realm}&systemId=$0\nContent-Type: application/xhtml+xml".
 
 :realm a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetTemplate;

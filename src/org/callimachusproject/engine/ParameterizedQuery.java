@@ -26,11 +26,16 @@ import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.algebra.TupleExpr;
 import org.openrdf.query.algebra.evaluation.QueryBindingSet;
 import org.openrdf.query.algebra.evaluation.TripleSource;
 import org.openrdf.query.algebra.evaluation.impl.EvaluationStrategyImpl;
 import org.openrdf.query.parser.sparql.SPARQLParser;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.turtle.TurtleUtil;
 
 public class ParameterizedQuery {
@@ -124,6 +129,26 @@ public class ParameterizedQuery {
 			}
 		}
 		return appendBindings(sparql, parameters);
+	}
+
+	public TupleQueryResult evaluate(Map<String, ?> parameters,
+			RepositoryConnection con) throws RepositoryException,
+			MalformedQueryException, IllegalArgumentException,
+			QueryEvaluationException {
+		TupleQuery qry = con.prepareTupleQuery(QueryLanguage.SPARQL,
+				prepare(parameters), systemId);
+		if (!isParameterPresent())
+			return qry.evaluate();
+		for (String name : bindingNames) {
+			String[] strings = getStrings(parameters, name);
+			if (strings != null && strings.length == 1) {
+				Value value = resolve(name, strings[0]);
+				if (value != null) {
+					qry.setBinding(name, value);
+				}
+			}
+		}
+		return qry.evaluate();
 	}
 
 	private boolean isExpressionPresent() {

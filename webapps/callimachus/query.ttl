@@ -197,8 +197,7 @@
             resp.setHeader("Cache-Control", control);
             if (nq && match == etag)
                 return resp;
-            var sparql = query.prepare(queryParameters);
-            var rs = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, this.toString()).evaluate();
+            var rs = query.evaluate(queryParameters, con);
             if (map.out == "html") {
                 entity = new InputStreamEntity(this.TransformIntoHtml(rs), -1);
                 entity.contentType = "text/html;charset=UTF-8";

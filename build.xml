@@ -20,6 +20,7 @@
 	<property name="logging" location="etc/logging.properties" />
 	<property name="mail" location="etc/mail.properties" />
 	<property name="tools.jar" location="${java.home}/../lib/tools.jar" />
+	<property name="triples.file" location="repositories/callimachus/triples-spoc.dat" />
 	<property file="src/META-INF/callimachusproject.properties" />
 	<property name="m2.repository" value="http://repo.aduna-software.org/maven2/snapshots" />
 	<property name="alibaba.url" value="http://downloads.sourceforge.net/project/sesame/AliBabaElmo/2.0-rc4/openrdf-alibaba-2.0-rc4.zip" />
@@ -298,7 +299,7 @@
 			<zipfileset file="${jar.file}" prefix="lib" />
 			<zipfileset file="${dist}/callimachus-webapp-${Version}.car" prefix="lib" />
 		</zip>
-		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="repositories/callimachus/triples-spoc.dat" property="repositories.uptodate" />
+		<uptodate srcfile="${dist}/callimachus-webapp-${Version}.car" targetfile="${triples.file}" property="repositories.uptodate" />
 	</target>
 
 	<target name="test-dependencies" depends="init" unless="lib.tests.present">
@@ -388,13 +389,15 @@
 		</java>
 	</target>
 
-	<target name="pull" depends="dist">
+	<target name="pull" depends="init">
 		<mkdir dir="${downloads}" />
 		<exec executable="${curl}" output="${downloads}/callimachus.car" logError="true" failonerror="true">
 			<arg line="--user ${callimachus.username}:${callimachus.password} ${curl.args}" />
 		</exec>
 		<unzip src="${downloads}/callimachus.car" dest="${webapps}/callimachus" />
 		<delete file="${downloads}/callimachus.car" />
+		<antcall target="dist" />
+		<touch file="${triples.file}" />
 	</target>
 
 	<target name="stop" depends="pull">

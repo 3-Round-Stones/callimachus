@@ -166,7 +166,7 @@
                 FILTER (?added = $this)
             } UNION {
                 GRAPH ?removed {
-                    ?added prov:wasInformedBy ?removed .
+                    ?removed prov:wasInformedBy ?added .
                     ?removed prov:qualifiedUsage ?operation .
                     ?added prov:qualifiedUsage ?operation .
                     ?operation audit:changed [

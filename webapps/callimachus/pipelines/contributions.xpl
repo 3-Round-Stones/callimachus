@@ -14,12 +14,13 @@
             select="concat('../queries/contributions.rq?results&amp;this=', encode-for-uri($this))"/>
     </p:load>
     <p:xslt>
+        <p:with-param name="this" select="$this" />
         <p:input port="stylesheet">
             <p:document href="../toolbox/contributions.xsl" />
         </p:input>
     </p:xslt>
     <calli:transform-layout>
-        <p:with-option name="this"     select="$this"  />
+        <p:with-option name="this"     select="$this" />
         <p:with-option name="query"    select="'contributions'" />
         <p:with-option name="systemId" select="resolve-uri('../toolbox/contributions.xsl')" />
     </calli:transform-layout>

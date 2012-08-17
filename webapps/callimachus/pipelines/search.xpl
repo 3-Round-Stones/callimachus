@@ -20,12 +20,13 @@
             )"/>
     </p:load>
     <p:xslt>
+        <p:with-param name="this" select="$this" />
         <p:input port="stylesheet">
             <p:document href="../toolbox/search.xsl" />
         </p:input>
     </p:xslt>
     <calli:transform-layout>
-        <p:with-option name="this"  select="$this"  />
+        <p:with-option name="this"  select="$this" />
         <p:with-option name="query" select="'q'" />
         <p:with-option name="systemId" select="resolve-uri('../toolbox/search.xsl')" />
     </calli:transform-layout>

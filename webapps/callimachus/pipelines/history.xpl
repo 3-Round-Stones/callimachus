@@ -14,6 +14,7 @@
             select="concat('../queries/history.rq?results&amp;this=', encode-for-uri($this))"/>
     </p:load>
     <p:xslt>
+        <p:with-param name="this" select="$this" />
         <p:input port="stylesheet">
             <p:document href="../toolbox/history.xsl" />
         </p:input>

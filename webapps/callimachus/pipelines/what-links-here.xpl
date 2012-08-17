@@ -14,10 +14,10 @@
             select="concat('../queries/what-links-here.rq?results&amp;this=', encode-for-uri($this))"/>
     </p:load>
     <p:xslt>
+        <p:with-param name="this" select="$this" />
         <p:input port="stylesheet">
             <p:document href="../toolbox/what-links-here.xsl" />
         </p:input>
-        <p:with-param name="this"  select="$this"  />
     </p:xslt>
     <calli:transform-layout>
         <p:with-option name="this"  select="$this"  />

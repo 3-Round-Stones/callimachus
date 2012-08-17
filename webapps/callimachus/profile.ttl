@@ -124,7 +124,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:type "application/xhtml+xml";
     calli:transform <transforms/TransformLayout>;
-    calli:xslt <profile.xhtml>.
+    calli:xslt <transforms/profile.xhtml>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformProfile;

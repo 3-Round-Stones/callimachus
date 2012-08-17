@@ -15,12 +15,12 @@
     </p:load>
     <p:xslt>
         <p:input port="stylesheet">
-            <p:document href="../toolbox/discussion.xhtml" />
+            <p:document href="../transforms/discussion.xhtml" />
         </p:input>
     </p:xslt>
     <calli:transform-layout>
         <p:with-option name="this"     select="$this"  />
         <p:with-option name="query"    select="'discussion'" />
-        <p:with-option name="systemId" select="resolve-uri('../toolbox/discussion.xhtml')" />
+        <p:with-option name="systemId" select="resolve-uri('../transforms/discussion.xhtml')" />
     </calli:transform-layout>
 </p:pipeline>

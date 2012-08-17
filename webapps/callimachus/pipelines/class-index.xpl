@@ -15,12 +15,12 @@
     </p:load>
     <p:xslt>
         <p:input port="stylesheet">
-            <p:document href="../class-index.xhtml" />
+            <p:document href="../transforms/class-index.xhtml" />
         </p:input>
     </p:xslt>
     <calli:transform-layout>
         <p:with-option name="this"  select="$this"  />
         <p:with-option name="query" select="'index'" />
-        <p:with-option name="systemId" select="resolve-uri('../class-index.xhtml')" />
+        <p:with-option name="systemId" select="resolve-uri('../transforms/class-index.xhtml')" />
     </calli:transform-layout>
 </p:pipeline>

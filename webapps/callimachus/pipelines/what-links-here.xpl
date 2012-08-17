@@ -16,12 +16,12 @@
     <p:xslt>
         <p:with-param name="this" select="$this" />
         <p:input port="stylesheet">
-            <p:document href="../toolbox/what-links-here.xsl" />
+            <p:document href="../transforms/what-links-here.xsl" />
         </p:input>
     </p:xslt>
     <calli:transform-layout>
         <p:with-option name="this"  select="$this"  />
         <p:with-option name="query" select="'whatlinkshere'" />
-        <p:with-option name="systemId" select="resolve-uri('../toolbox/what-links-here.xsl')" />
+        <p:with-option name="systemId" select="resolve-uri('../transforms/what-links-here.xsl')" />
     </calli:transform-layout>
 </p:pipeline>

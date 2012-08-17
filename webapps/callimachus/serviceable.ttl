@@ -33,3 +33,438 @@
     rdfs:label "Composite";
     rdfs:subClassOf <Serviceable>, calli:Composite;
     rdfs:isDefinedBy </callimachus>.
+
+:GetHistory rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:query "history";
+    calli:rel "version-history";
+    calli:type "text/html";
+    calli:header "cache-control:no-cache";
+    calli:get <pipelines/history.xpl?result&this=$0>.
+
+:GetDiscussion rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:query "discussion";
+    calli:type "text/html";
+    calli:get <pipelines/discussion.xpl?result&this=$0>.
+
+skos:editorialNote a owl:AnnotationProperty.
+
+:PostDiscussion rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "POST";
+    calli:query "discussion";
+    calli:realm </>;
+    calli:expect "303-see-other";
+    calli:type "text/uri-list";
+    calli:script """
+        var vf = this.objectConnection.valueFactory;
+        this.skosEditorialNote.add(form.get('note')[0]);
+        return this.resource + "?discussion";
+    """.
+
+:form a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :PostDiscussion;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded";.
+
+:inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
+    rdfs:domain :TransformDiscussion;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-results+xml".
+
+:GetRelatedChanges rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:query "relatedchanges";
+    calli:type "text/html";
+    calli:header "cache-control:no-store";
+    calli:get <pipelines/related-changes.xpl?result&this=$0>.
+
+:GetWhatLinksHere rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:query "whatlinkshere";
+    calli:type "text/html";
+    calli:get <pipelines/what-links-here.xpl?result&this=$0>.
+
+:GetIntrospect rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+    calli:method "GET";
+    calli:query "introspect";
+    calli:type "application/xhtml+xml";
+    calli:transform <transforms/TransformLayout>;
+    calli:script """
+        return this.calliIntrospect(this);
+    """.
+
+################################
+# GET describedby
+################################
+
+:GetDescription rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
+    calli:title "RDF Describe";
+    calli:rel "describedby";
+    calli:method "GET";
+    calli:query "describe";
+    calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
+    calli:transform :TransformDescription;
+    calli:script """
+        var queue = [];
+        queue.push(this.resource);
+        var con = this.objectConnection;
+        var base = this.resource.stringValue();
+        var baseIsHash = base.charAt(base.length - 1) == '#';
+        var stmts = con.getStatements(null, org.openrdf.model.vocabulary.RDFS.ISDEFINEDBY, this.resource, false, []);
+        try {
+            while (stmts.hasNext()) {
+                queue.push(stmts.next().subject);
+            }
+        } finally {
+            stmts.close();
+        }
+        return new org.openrdf.query.GraphQueryResult({
+            close: function() {
+                stmts.close();
+            },
+            getNamespaces: function() {
+                var namespaces = con.getNamespaces();
+                var map = new java.util.HashMap();
+                while (namespaces.hasNext()) {
+                    var ns = namespaces.next();
+                    map.put(ns.getPrefix(), ns.getName());
+                }
+                return map;
+            },
+            hasNext: function() {
+                while (!stmts.hasNext() && queue.length > 0) {
+                    stmts.close();
+                    stmts = con.getStatements(queue.shift(), null, null, false, []);
+                }
+                return stmts.hasNext();
+            },
+            next: function() {
+                while (!stmts.hasNext() && queue.length > 0) {
+                    stmts.close();
+                    stmts = con.getStatements(queue.shift(), null, null, false, []);
+                }
+                var st = stmts.next();
+                var uri = st.object.stringValue()
+                if (st.object instanceof org.openrdf.model.URI) {
+                    if (uri.length > base.length && uri.indexOf(base) == 0) {
+                        var chr = uri.charAt(base.length);
+                        if (baseIsHash || chr == '#') {
+                            queue.push(st.object);
+                        }
+                    }
+                } else if (st.object instanceof org.openrdf.model.Resource) {
+                    queue.push(st.object);
+                }
+                return st;
+            },
+            remove: function() {
+                stmts.remove();
+            },
+        });
+    """.
+
+:TransformDescription rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:type "application/xhtml+xml";
+    calli:transform <transforms/TransformLayout>;
+    calli:xslt <transforms/describe.xsl>.
+
+:inputStream a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :TransformDescription;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/rdf+xml".
+
+################################
+# POST INSERT DATA
+################################
+
+:PostInsertData rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Serviceable>];
+    calli:method "POST";
+    calli:query "describe";
+    calli:realm </>;
+    calli:expect "201-created";
+    calli:type "text/uri-list";
+    calli:imports <java:org.openrdf.annotations.Iri>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <Creatable>;
+    calli:imports <Editable>;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+        var of = con.objectFactory;
+
+        //# Parse INSERT DATA
+        var analyzer = new TripleAnalyzer();
+        var string = analyzer.parseInsertData(insertData, this.toString());
+        
+        //# Verify input
+        if (analyzer.isEmpty())
+            throw new BadRequest("Missing data");
+        if (!analyzer.isSingleton())
+            throw new BadRequest("Only one entity can be inserted per request");
+        if (analyzer.isDisconnectedNodePresent())
+            throw new BadRequest("Blank nodes must be connected");
+        var location = analyzer.subject;
+        if (location.toString().indexOf(this.toString()) != 0)
+            throw new BadRequest("Resource URI must start with: " + this);
+        var local = location.toString().substring(this.toString().length);
+        if (local.indexOf('/') == 0 && this.toString().lastIndexOf('/') != this.toString().length - 1) {
+            local = local.substring(1);
+        }
+        if (local.lastIndexOf('/') == local.length - 1) {
+            local = local.substring(0, local.length -1);
+        }
+        if (local.indexOf('/') >= 0)
+            throw new BadRequest("Can only created nested components here");
+        var newCopy = of.createObject(location, analyzer.getTypes(location));
+        if (this.calliHasComponent.contains(newCopy))
+            throw new Conflict("Resource already exists");
+        if (!(newCopy instanceof Editable))
+            throw new BadRequest("Resource is not Editable");
+
+        //# Execute input
+        var update = con.prepareUpdate(QueryLanguage.SPARQL, string, this.toString());
+        update.setBinding("this", this.resource);
+        update.execute();
+
+        var iter = this.FindCreator(newCopy).iterator();
+        if (!iter.hasNext())
+            throw new InternalServerError("Could not find user");
+        while (iter.hasNext()) {
+            var user = iter.next();
+            function findConcepts(klass, visited, callback) {
+                if (visited.contains(klass))
+                    return true;
+                visited.add(klass);
+                if (klass.isAnnotationPresent(Iri)) {
+                    callback(klass.getAnnotation(Iri).value());
+                }
+                var sup = klass.getSuperclass();
+                if (sup) {
+                    findConcepts(sup, visited, callback);
+                }
+                var interfaces = klass.getInterfaces();
+                for (var i = 0; i < interfaces.length; i++) {
+                    findConcepts(interfaces[i], visited, callback);
+                }
+                return false;
+            }
+            var creatable = false;
+            findConcepts(newCopy.getClass(), new java.util.HashSet(), function(type) {
+                var cls = con.getObject(type);
+                if (cls instanceof Creatable) {
+                    creatable = true;
+                    if (!cls.calliIsAuthorized(user, "POST", "create"))
+                        throw new Forbidden("You are not permitted to create " + cls + " resources");
+                }
+            });
+            if (!creatable)
+                throw new Forbidden("You are not permitted to create this type of resource");
+        }
+
+        //# Add permissions and component membership
+        newCopy.calliEditor.addAll(this.FindContributor(newCopy));
+        newCopy.calliReader.addAll(this.SelectAllReaders());
+        newCopy.calliEditor.addAll(this.SelectAllEditors());
+        newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
+        this.calliHasComponent.add(newCopy);
+        var iter = analyzer.getResources().iterator();
+        while (iter.hasNext()) {
+            var partner = iter.next();
+            if (!partner.toString().equals(this.toString())) {
+                con.getObject(partner).touchRevision(); // FIXME this shouldn't be needed
+            }
+        }
+        return newCopy;
+    """.
+
+:insertData a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PostInsertData;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-update".
+
+################################
+# PATCH DELETE INSERT
+################################
+
+:PatchDeleteInsert rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:method "PATCH";
+    calli:query "describe";
+    calli:realm </>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
+    calli:imports <Serviceable>;
+    calli:script """
+        var con = this.objectConnection;
+
+        //# Parse DELETE INSERT
+        var analyzer = new TripleAnalyzer();
+        var string = analyzer.parseUpdate(deleteInsert, this.toString());
+        
+        //# Verify input
+        if (analyzer.isEmpty())
+            throw new BadRequest("Missing data");
+        if (!analyzer.isAbout(this.resource))
+            throw new BadRequest("Can only delete or insert triples of the entity: " + this.toString());
+        if (!analyzer.getTypes(this.resource).isEmpty())
+            throw new BadRequest("Cannot change entity type");
+        if (analyzer.isDisconnectedNodePresent())
+            throw new BadRequest("Blank nodes must be connected");
+        //# FIXME possible security hole if hash or blank resources are added with a restricted type
+
+        //# Evaluate input
+        var update = con.prepareUpdate(QueryLanguage.SPARQL, string, this.toString());
+        update.setBinding("this", this.resource);
+        update.execute();
+
+        this.touchRevision();
+        //# FIXME we shouldn't need to touch anything
+        var parent = this.SelectParentComposite();
+        if (parent) {
+            parent.touchRevision();
+        }
+    """.
+
+:deleteInsert a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :PatchDeleteInsert;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-update".
+
+################################
+# Permissions
+################################
+
+:GetPermissions rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <pages/permissions.xhtml>];
+    calli:method "GET";
+    calli:query "permissions";
+    calli:realm </>;
+    calli:type "text/html";
+    calli:header "cache-control:no-cache";
+    calli:script """
+        return permissions_xhtml.Construct(this, 'permissions');
+    """.
+
+:permissions_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain [owl:unionOf (:GetPermissions :PostPermissions)].
+
+# used by permissions.xhtml
+:GetRdfTypes rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:literalSet; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "rdftype";
+    calli:type "text/uri-list";
+    calli:imports <java:org.openrdf.annotations.Iri>;
+    calli:script """
+        function addConcepts(klass, concepts, visited) {
+            if (visited.contains(klass))
+                return concepts;
+            visited.add(klass);
+            if (klass.isAnnotationPresent(Iri)) {
+                concepts.add(klass.getAnnotation(Iri).value());
+            }
+            var sup = klass.getSuperclass();
+            if (sup) {
+                addConcepts(sup, concepts, visited);
+            }
+            var interfaces = klass.getInterfaces();
+            for (var i = 0; i < interfaces.length; i++) {
+                addConcepts(interfaces[i], concepts, visited);
+            }
+            return concepts;
+        }
+        return addConcepts(this.getClass(), new java.util.TreeSet(), new java.util.HashSet());
+    """.
+
+:PostPermissions rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:cardinality 1];
+    rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <pages/permissions.xhtml>];
+    calli:method "POST";
+    calli:query "permissions";
+    calli:realm </>;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:script """
+        permissions_xhtml.calliEditResource(this, inputStream);
+        var parent = this.SelectParentComposite();
+        if (parent) {
+            parent.touchRevision();
+        }
+        return this;
+    """.
+
+:inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
+    rdfs:domain :PostPermissions;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-update".
+
+:PostClassPermissions owl:intersectionOf ( :PostPermissions
+        [owl:onProperty msg:target; owl:allValuesFrom <Class>]);
+    calli:method "POST";
+    calli:query "permissions";
+    calli:realm </>;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
+    calli:imports <SchemaGraph>;
+    calli:script """
+        var before = this.calliAdministrator.empty;
+        var ret = proceed();
+        if (!before) {
+            var obj = this.objectConnection.getObject(this.resource);
+            if (obj.calliAdministrator.empty) {
+                throw new BadRequest("Cannot remove all class administrators");
+            }
+        }
+        var con = this.objectConnection;
+        var of = con.objectFactory;
+        con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
+        con.recompileSchemaOnClose();
+        return ret;
+    """.
+
+:SelectParentComposite rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom calli:Composite];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?composite
+        WHERE {
+            ?composite calli:hasComponent $this
+        }
+        LIMIT 1
+    """.

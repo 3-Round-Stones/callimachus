@@ -361,7 +361,7 @@
                 }
             } else if (component instanceof Class) {
                 //# Export Schema
-                var triples = component.GetDescription();
+                var triples = component.GetRdfDescription();
                 try {
                     writeTo(triples, carStream.writeSchemaEntry(name, time, "application/rdf+xml"));
                 } finally {
@@ -369,7 +369,7 @@
                 }
             } else {
                 //# Export Triples
-                var triples = component.GetDescription();
+                var triples = component.GetRdfDescription();
                 try {
                     writeTo(triples, carStream.writeResourceEntry(name, time, "application/rdf+xml"));
                 } finally {

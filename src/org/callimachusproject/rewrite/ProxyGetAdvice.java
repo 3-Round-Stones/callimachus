@@ -40,7 +40,7 @@ public class ProxyGetAdvice extends RewriteAdvice {
 				for (String media : returnMedia) {
 					req.addHeader("Accept", media);
 				}
-				req.addHeader("Accept", "*/*");
+				req.addHeader("Accept", "*/*;q=0.1");
 			}
 			resp = client.service(req);
 			redirect = client.redirectLocation(redirect, resp);

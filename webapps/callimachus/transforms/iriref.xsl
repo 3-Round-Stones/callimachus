@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfa="http://www.w3.org/ns/rdfa#">
     <xsl:param name="this" />
     <xsl:template name="substring-after-last">
         <xsl:param name="string"/>
@@ -91,10 +92,10 @@
                 <xsl:text>/</xsl:text>
             </xsl:if>
         </xsl:variable>
-        <xsl:variable name="ns" select="document('/callimachus/profile')//*[@property='rdfa:uri' and @content=$namespace]" />
+        <xsl:variable name="ns" select="document('/callimachus/profile')//rdfa:uri[text()=$namespace]" />
         <xsl:choose>
             <xsl:when test="$namespace and $ns">
-                <xsl:value-of select="$ns/../*[@property='rdfa:prefix']" />
+                <xsl:value-of select="$ns/../rdfa:prefix" />
                 <xsl:value-of select="':'" />
                 <xsl:value-of select="$local" />
             </xsl:when>

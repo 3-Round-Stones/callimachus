@@ -21,8 +21,11 @@ SELECT * {
             SELECT ?id (max(?title) as ?title) (max(?updated) as ?updated) (max(?summary) as ?summary) (max(?icon) as ?icon)
                     ("entry" as ?type) (concat(str(?id),"?view") as ?link_view_href)
                     (max(?contributor_uri) as ?contributor_uri) (max(?contributor_name) as ?contributor_name)  {
-                ?id prov:used <$this>; prov:endedAtTime ?updated .
-                OPTIONAL {
+                {
+                    SELECT ?id ?updated {
+                        ?id prov:used <$this>; prov:endedAtTime ?updated
+                    }  ORDER BY desc(?updated) LIMIT 50
+                } OPTIONAL {
                     ?id prov:wasAssociatedWith ?contributor_uri
                     OPTIONAL {
                         ?contributor_uri rdfs:label ?contributor_name
@@ -42,7 +45,7 @@ SELECT * {
                 } OPTIONAL {
                     <$this> a [calli:icon ?icon]
                 }
-            } GROUP BY ?id ORDER BY desc(?updated) LIMIT 50
+            } GROUP BY ?id
         }
         FILTER bound(?id)
     }

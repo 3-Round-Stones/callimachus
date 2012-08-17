@@ -23,25 +23,27 @@ SELECT * {
             SELECT DISTINCT (max(?label) as ?title) (max(?comment) as ?summary) (max(?icon) as ?icon) (?url as ?id) (max(?modified) as ?updated) (max(?content_type) as ?content_type)
             WHERE {
                 {
-                    ?url keyword:phone ?soundex
-                    FILTER sameTerm(?soundex, keyword:soundex("$q"))
-                    FILTER (isIRI(?url))
-                    FILTER (
-                        strstarts(str(?url), str(<$this>)) ||
-                        <$this> = </> && (
-                            EXISTS {
-                                {
-                                    ?realm a <../Origin>
-                                    FILTER strstarts(str(?url), str(?realm))
-                                } UNION {
-                                    ?realm a <../Realm>
-                                    FILTER strstarts(str(?url), str(?realm))
-                                } UNION {
-                                    <../Serviceable> owl:equivalentClass rdfs:Resource
+                    SELECT * {
+                        ?url keyword:phone ?soundex
+                        FILTER sameTerm(?soundex, keyword:soundex("$q"))
+                        FILTER (isIRI(?url))
+                        FILTER (
+                            strstarts(str(?url), str(<$this>)) ||
+                            <$this> = </> && (
+                                EXISTS {
+                                    {
+                                        ?realm a <../Origin>
+                                        FILTER strstarts(str(?url), str(?realm))
+                                    } UNION {
+                                        ?realm a <../Realm>
+                                        FILTER strstarts(str(?url), str(?realm))
+                                    } UNION {
+                                        <../Serviceable> owl:equivalentClass rdfs:Resource
+                                    }
                                 }
-                            }
+                            )
                         )
-                    )
+                    } ORDER BY ?url LIMIT 100
                 } OPTIONAL {
                     ?url skos:prefLabel ?label
                 } OPTIONAL {
@@ -65,9 +67,7 @@ SELECT * {
                     ?id a [calli:type ?content_type]
                 }
             }
-            GROUP BY ?url
-            ORDER BY ?title ?id ?icon
-            LIMIT 100
+            GROUP BY ?url ORDER BY ?title ?id ?icon
         }
         FILTER (bound(?id))
         BIND ("entry" as ?type)

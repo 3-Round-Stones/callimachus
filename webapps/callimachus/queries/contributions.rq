@@ -26,9 +26,12 @@ SELECT * {
                     (?id as ?content_src) (max(?content_type) as ?content_type) ("entry" as ?type)
                     (?id as ?link_edit_media_href) (concat(str(?id),"?view") as ?link_view_href) (concat(str(?id),"?history") as ?link_history_href)
                     (concat(str(?revision),"?view") as ?link_href) (prov:wasGeneratedBy as ?link_rel) ("text/html" as ?link_type) {
-                ?revision prov:wasAssociatedWith <$this>; prov:endedAtTime ?updated .
-                ?id prov:wasGeneratedBy ?revision .
-                OPTIONAL {
+                {
+                    SELECT * {
+                        ?revision prov:wasAssociatedWith <$this>; prov:endedAtTime ?updated .
+                        ?id prov:wasGeneratedBy ?revision .
+                    } ORDER BY desc(?updated) LIMIT 50
+                } OPTIONAL {
                     ?id skos:prefLabel ?title
                 } OPTIONAL {
                     ?id foaf:name ?title
@@ -45,7 +48,7 @@ SELECT * {
                 } OPTIONAL {
                     ?id a [calli:type ?content_type]
                 }
-            } GROUP BY ?id ?revision ORDER BY desc(?updated) LIMIT 50
+            } GROUP BY ?id ?revision
         }
         FILTER bound(?id)
     }

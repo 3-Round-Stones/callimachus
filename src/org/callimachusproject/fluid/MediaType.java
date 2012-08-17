@@ -78,13 +78,13 @@ public class MediaType implements Serializable {
 		mime.removeParameter("q");
 		double quality = q == null ? 1 : Double.valueOf(q);
 		if ("*".equals(mime.getPrimaryType())) {
-			quality -= 0.00003;
+			quality *= 0.5;
 		}
 		if ("*".equals(mime.getSubType())) {
-			quality -= 0.00002;
+			quality *= 0.2;
 		}
 		if (!mime.getSubType().contains("+")) {
-			quality -= 0.00001;
+			quality *= 0.99999;
 		}
 		this.quality = quality;
 		this.parsed = mime;

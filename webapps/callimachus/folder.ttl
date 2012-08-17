@@ -235,6 +235,19 @@
     """.
 
 ################################
+# Recent Changes
+################################
+
+:GetFolderChanges rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+    calli:method "GET";
+    calli:query "changes";
+    calli:rel "alternate";
+    calli:type "text/html";
+    calli:get </callimachus/pipelines/folder-changes.xpl?result&this=$0>.
+
+################################
 # Export folder contents
 ################################
 

@@ -13,7 +13,7 @@
         <p:with-option 
             name="href" 
             select="concat(
-                '../queries/search.rq?results&amp;this=', 
+                '../queries/realm-search.rq?results&amp;this=', 
                 encode-for-uri($this),
                 '&amp;q=',
                 encode-for-uri($q)

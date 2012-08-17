@@ -48,7 +48,7 @@
     calli:script "return this.openInputStream()".
 
 # GET /article/main-article.xml?view
-:GetPage owl:intersectionOf (<toolbox/view.ttl#GetViewPage>
+:GetPage owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <Article>]);
     calli:rel "alternate";
     calli:method "GET";
@@ -69,7 +69,7 @@
     calli:type "application/xhtml+xml".
 
 # POST ?create=/callimachus/Article
-:CreateArticle owl:intersectionOf (<toolbox/create.ttl#PostCreate>
+:CreateArticle owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Article> ]);
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;

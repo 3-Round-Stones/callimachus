@@ -45,7 +45,7 @@
     calli:get </callimachus/pipelines/class-index.xpl?result&this=$0>.
 
 # when a class is created
-:CreateClass owl:intersectionOf (<toolbox/create.ttl#PostCreate>
+:CreateClass owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Class> ]);
     calli:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
@@ -59,7 +59,7 @@
         return ret;
     """.
 
-:PostClassEdit owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
+:PostClassEdit owl:intersectionOf (<editable.ttl#PostEdit>
         [owl:onProperty msg:target; owl:allValuesFrom <Class>]);
     calli:method "POST";
     calli:query "edit";

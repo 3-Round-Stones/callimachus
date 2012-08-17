@@ -25,15 +25,15 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <../SchemaGraph>.
+<> a <SchemaGraph>.
 
-<../Creatable> a owl:Class;
+<Creatable> a owl:Class;
     rdfs:label "Creatable";
-    rdfs:subClassOf <../Serviceable>;
+    rdfs:subClassOf <Serviceable>;
     rdfs:isDefinedBy </callimachus>.
 
 :GetCreatePage rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:query "create";
@@ -50,13 +50,13 @@
     """.
 
 :GetCreatorPage rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:query "create";
     calli:realm </>;
     calli:type "text/html";
-    calli:imports <../Creatable>;
+    calli:imports <Creatable>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
@@ -71,27 +71,27 @@
     """.
 
 :GetPageTemplate rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:get "{page}?element=/1&realm={realm}".
 
 :page a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetPageTemplate;
-    rdfs:range <../Page>.
+    rdfs:range <Page>.
 
 :realm a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetPageTemplate;
-    rdfs:range <../Realm>.
+    rdfs:range <Realm>.
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Serviceable>];
     calli:method "POST";
     calli:query "create";
     calli:realm </>;
     calli:expect "201-created";
     calli:type "text/uri-list";
-    calli:imports <../Creatable>;
+    calli:imports <Creatable>;
     calli:script """
         importClass(Packages.org.callimachusproject.io.MultipartParser);
         importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
@@ -161,8 +161,8 @@
 
 # POST ?create=/callimachus/File
 :LookupConstructor rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Creatable>];
     msg:sparql """
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
@@ -190,7 +190,7 @@
                 BIND (2 AS ?preference)
             } UNION {
                 # boot strap graphs before calli:type triples are loaded
-                BIND (<../GraphDocument> AS ?class)
+                BIND (<GraphDocument> AS ?class)
                 FILTER sameTerm($type,"text/turtle")
                 BIND (3 AS ?preference)
             } UNION {
@@ -202,8 +202,8 @@
 
 # override this method for subclass create methods
 :PostCreate rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <../Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Serviceable>];
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:imports <java:org.callimachusproject.server.exceptions.UnsupportedMediaType>;
     calli:script """
@@ -224,7 +224,7 @@
 
 :create a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain [owl:unionOf (:GetCreatorPage :PostFactoryCreate)];
-    rdfs:range <../Creatable>;
+    rdfs:range <Creatable>;
     calli:query "create";
     calli:type "text/uri-list".
 
@@ -245,7 +245,7 @@
 
 # find the user that will create $thing
 :FindCreator rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     msg:sparql  """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
@@ -286,7 +286,7 @@
     """.
 
 :SelectAllReaders rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
     msg:sparql  """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -303,7 +303,7 @@
     """.
 
 :SelectAllEditors rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
     msg:sparql  """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -320,7 +320,7 @@
     """.
 
 :SelectAllAdministrators rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
     msg:sparql  """
         PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>

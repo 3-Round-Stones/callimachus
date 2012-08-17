@@ -14,11 +14,11 @@
     <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;this=', encode-for-uri($systemId))" />
     <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
 
-    <p:import href="template.xpl" />
-    <calli:template>
+    <p:import href="page-template.xpl" />
+    <calli:page-template>
         <p:with-option name="systemId" select="$systemId" />
         <p:with-option name="realm" select="$realm" />
-    </calli:template>
+    </calli:page-template>
 
     <p:xslt>
         <p:input port="stylesheet">

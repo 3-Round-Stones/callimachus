@@ -48,7 +48,7 @@
     calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Pipeline
-:CreatePipeline owl:intersectionOf (<toolbox/create.ttl#PostCreate>
+:CreatePipeline owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Pipeline> ]);
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;

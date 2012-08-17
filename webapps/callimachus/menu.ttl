@@ -25,7 +25,7 @@
     calli:type "application/xhtml+xml";
     calli:get <pipelines/menu-items.xpl?result&this=$0>.
 
-:PostEditMenu owl:intersectionOf (<toolbox/edit.ttl#PostEdit>
+:PostEditMenu owl:intersectionOf (<editable.ttl#PostEdit>
         [owl:onProperty msg:target; owl:allValuesFrom <Menu>]);
     calli:method "POST";
     calli:query "edit";

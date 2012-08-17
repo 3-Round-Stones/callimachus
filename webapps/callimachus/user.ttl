@@ -37,7 +37,7 @@
 rdfs:label a rdf:Property.
 rdfs:comment a rdf:Property.
 
-:PostUserCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
+:PostUserCreate owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <User> ]);
     calli:imports <User>;
     calli:imports <java:javax.mail.util.ByteArrayDataSource>;

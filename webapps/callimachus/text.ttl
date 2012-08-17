@@ -48,7 +48,7 @@
     calli:script "return this.openReader(true)".
 
 # POST ?create=/callimachus/TextFile
-:CreateTextFile owl:intersectionOf (<toolbox/create.ttl#PostCreate>
+:CreateTextFile owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <TextFile> ]);
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;

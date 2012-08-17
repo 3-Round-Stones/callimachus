@@ -25,10 +25,130 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <../SchemaGraph>.
+<> a <SchemaGraph>.
+
+<Editable> a owl:Class;
+    rdfs:label "Editable";
+    rdfs:subClassOf <Serviceable>;
+    rdfs:isDefinedBy </callimachus>.
+
+:GetEditPage rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "edit";
+    calli:realm </>;
+    calli:type "text/html";
+    calli:header "cache-control:no-cache";
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:script """
+        function findTemplate(obj, ann) {
+            var annotated = findAnnotatedClass(obj.getClass(), ann);
+            if (annotated) {
+                var uri = annotated.getAnnotation(ann).value();
+                if (uri.length != 1)
+                    throw new InternalServerError("Multiple templates for " + annotated.simpleName);
+                var template = obj.objectConnection.getObject(uri[0]);
+                if (template.Construct)
+                    return template;
+                throw new InternalServerError("Missing template");
+            }
+            throw new InternalServerError("No template");
+        }
+
+        function findAnnotatedClass(klass, ann) {
+            if (klass.isAnnotationPresent(ann)) {
+                return klass;
+            }
+            var result;
+            if (klass.getSuperclass()) {
+                result = findAnnotatedClass(klass.getSuperclass(), ann);
+            }
+            var interfaces = klass.getInterfaces();
+            for (var i = interfaces.length; i--;) {
+                var face = findAnnotatedClass(interfaces[i], ann);
+                if (face) {
+                    if (!result || result.isAssignableFrom(face)) {
+                        result = face;
+                    } else if (!face.isAssignableFrom(result)) {
+                        throw new InternalServerError("Conflicting templates for "
+                            + result.simpleName +  " and " + face.simpleName);
+                    }
+                }
+            }
+            return result;
+        }
+
+        return findTemplate(this, Packages.calli.edit).Construct(this, 'edit');
+    """.
+
+:PostEdit rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Editable>];
+    calli:method "POST";
+    calli:query "edit";
+    calli:realm </>;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:script """
+        function findTemplate(obj, ann) {
+            var annotated = findAnnotatedClass(obj.getClass(), ann);
+            if (annotated) {
+                var uri = annotated.getAnnotation(ann).value();
+                if (uri.length != 1)
+                    throw new InternalServerError("Multiple templates for " + annotated.simpleName);
+                var template = obj.objectConnection.getObject(uri[0]);
+                if (template.Construct)
+                    return template;
+                throw new InternalServerError("Missing template");
+            }
+            throw new InternalServerError("No template");
+        }
+
+        function findAnnotatedClass(klass, ann) {
+            if (klass.isAnnotationPresent(ann)) {
+                return klass;
+            }
+            var result;
+            if (klass.getSuperclass()) {
+                result = findAnnotatedClass(klass.getSuperclass(), ann);
+            }
+            var interfaces = klass.getInterfaces();
+            for (var i = interfaces.length; i--;) {
+                var face = findAnnotatedClass(interfaces[i], ann);
+                if (face) {
+                    if (!result || result.isAssignableFrom(face)) {
+                        result = face;
+                    } else if (!face.isAssignableFrom(result)) {
+                        throw new InternalServerError("Conflicting templates for "
+                            + result.simpleName +  " and " + face.simpleName);
+                    }
+                }
+            }
+            return result;
+        }
+
+        var template = findTemplate(this, Packages.calli.edit);
+        template.calliEditResource(this, inputStream);
+        var parent = this.SelectParentComposite();
+        if (parent) {
+            parent.touchRevision();
+        }
+        return this;
+    """.
+
+:inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
+    rdfs:domain :PostEdit;
+    rdfs:range <java:java.io.InputStream>;
+    calli:type "application/sparql-update".
+
+################################
+# DELETE
+################################
 
 :Delete rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Editable>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "DELETE";
     calli:realm </>;
@@ -88,7 +208,7 @@
     """.
 
 :DeleteComposite owl:intersectionOf ( :Delete
-        [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Composite>)]]);
+        [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
     calli:method "DELETE";
     calli:realm </>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
@@ -99,7 +219,7 @@
     """.
 
 :HasComponents rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Composite>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
     msg:sparql """
@@ -110,7 +230,7 @@
     """.
 
 :DeleteCreatable owl:intersectionOf ( :Delete
-        [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<../Editable> <../Creatable>)]]);
+        [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Creatable>)]]);
     calli:method "DELETE";
     calli:realm </>;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
@@ -121,7 +241,7 @@
     """.
 
 :HasInstanceChildren rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <../Creatable>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality 1];
     msg:sparql """

@@ -112,7 +112,7 @@
     calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/ImageGraphic
-:PostImageCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
+:PostImageCreate owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:allValuesFrom [owl:oneOf (<NetworkGraphic> <VectorGraphic> <IconGraphic> <AnimatedGraphic>)] ]);
     calli:imports <java:java.net.URLEncoder>;
     calli:imports <java:javax.mail.util.ByteArrayDataSource>;

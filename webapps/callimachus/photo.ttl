@@ -49,7 +49,7 @@
     calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Photo
-:PostPhotoCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
+:PostPhotoCreate owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Photo> ]);
     calli:imports <java:java.net.URLEncoder>;
     calli:imports <java:javax.mail.util.ByteArrayDataSource>;

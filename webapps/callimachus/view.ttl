@@ -7,10 +7,10 @@
 @prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
 @prefix :<#>.
 
-<> a <../SchemaGraph>.
+<> a <SchemaGraph>.
 
 :ResolveView rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <../view>];
+    rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <view>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     rdfs:subClassOf [owl:onProperty :diverted; owl:hasValue </diverted>];
     calli:method "GET";
@@ -23,7 +23,7 @@
     calli:imports <java:java.net.URLEncoder>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.engine.model.TermFactory>;
-    calli:imports <../Viewable>;
+    calli:imports <Viewable>;
     calli:script """
         var con = this.objectConnection;
         var vf = con.valueFactory;

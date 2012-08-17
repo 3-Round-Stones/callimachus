@@ -13,11 +13,11 @@
     <p:option name="realm" required="true" />
     <p:option name="element" select="'/1'" />
 
-    <p:import href="template.xpl" />
-    <calli:template>
+    <p:import href="page-template.xpl" />
+    <calli:page-template>
         <p:with-option name="systemId" select="$systemId" />
         <p:with-option name="realm" select="$realm" />
-    </calli:template>
+    </calli:page-template>
 
     <p:xslt>
         <p:input port="stylesheet">

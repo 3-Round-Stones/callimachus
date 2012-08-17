@@ -45,7 +45,7 @@
     calli:script "return this.openInputStream()".
 
 # POST ?create=/callimachus/Font
-:PostFontCreate owl:intersectionOf (<toolbox/create.ttl#PostCreate>
+:PostFontCreate owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Font> ]);
     calli:imports <java:java.net.URLEncoder>;
     calli:imports <java:javax.mail.util.ByteArrayDataSource>;

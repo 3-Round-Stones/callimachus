@@ -92,13 +92,36 @@
     rdfs:domain :EvaluateSparql;
     rdfs:range xsd:string.
 
+:AddPrefix rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:script """
+        if (inputString.search(/^[^#]*\\bPREFIX\\b/im) >= 0)
+            return inputString;
+        var sb = new java.lang.StringBuilder();
+        var con = this.objectConnection;
+        var namespaces = con.namespaces.asList();
+        for (var i = 0; i < namespaces.size(); i++) {
+            var prefix = namespaces.get(i).prefix;
+            var uri = namespaces.get(i).name;
+            if (inputString.indexOf(prefix) >= 0) {
+                sb.append("PREFIX ").append(prefix);
+                sb.append(":<").append(uri).append(">\\n");
+            }
+        }
+        return sb.append(inputString).toString();
+    """.
+
+:inputString a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :AddPrefix;
+    rdfs:rang xsd:string.
+
 # POST application/sparql-query
 :PostQuery rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     msg:method "POST";
     msg:type "message/x-response";
-    msg:transform :TransformResult;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         if (!query)
@@ -136,41 +159,6 @@
     rdfs:range xsd:hexBinary;
     msg:type "application/sparql-update".
 
-# POST application/x-www-form-urlencoded
-:PostForm rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    calli:method "POST";
-    calli:type "message/x-response";
-    calli:transform :TransformResult;
-    calli:imports <java:org.apache.http.ProtocolVersion>;
-    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
-    calli:imports <java:org.apache.http.entity.StringEntity>;
-    calli:imports <java:org.openrdf.query.MalformedQueryException>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.openrdf.query.QueryLanguage>;
-    calli:script """
-        if (map && map.containsKey("query"))
-            return this.EvaluateSparql(map.get("query")[0]);
-        if (!map || !map.containsKey("update"))
-            throw new org.callimachusproject.server.exceptions.BadRequest("Missing query");
-        var qry = map.get("update")[0];
-        try {
-            var query = this.AddPrefix(qry);
-            var con = this.objectConnection;
-            var base = this.resource.stringValue();
-            con.prepareUpdate(QueryLanguage.SPARQL, query, base).execute();
-            return null;
-        } catch (e if e.javaException instanceof MalformedQueryException) {
-            throw new BadRequest(e.javaException.toString());
-        }
-    """.
-
-:map a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain :PostForm;
-    rdfs:range <java:java.util.Map>;
-    calli:type "application/x-www-form-urlencoded".
-
 # GET query parameter
 :GetQueryResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
@@ -197,52 +185,74 @@
     rdfs:range xsd:string;
     calli:query "query".
 
-:AddPrefix rdfs:subClassOf msg:Message;
+# POST application/x-www-form-urlencoded
+:PostPercentEncoded rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
+    calli:method "POST";
+    calli:type "message/x-response";
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:imports <java:org.apache.http.entity.StringEntity>;
+    calli:imports <java:org.openrdf.query.MalformedQueryException>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:script """
-        if (inputString.search(/^[^#]*\\bPREFIX\\b/im) >= 0)
-            return inputString;
-        var sb = new java.lang.StringBuilder();
-        var con = this.objectConnection;
-        var namespaces = con.namespaces.asList();
-        for (var i = 0; i < namespaces.size(); i++) {
-            var prefix = namespaces.get(i).prefix;
-            var uri = namespaces.get(i).name;
-            if (inputString.indexOf(prefix) >= 0) {
-                sb.append("PREFIX ").append(prefix);
-                sb.append(":<").append(uri).append(">\\n");
-            }
+        if (map && map.containsKey("query"))
+            return this.EvaluateSparql(map.get("query")[0]);
+        if (!map || !map.containsKey("update"))
+            throw new org.callimachusproject.server.exceptions.BadRequest("Missing query");
+        var qry = map.get("update")[0];
+        try {
+            var query = this.AddPrefix(qry);
+            var con = this.objectConnection;
+            var base = this.resource.stringValue();
+            con.prepareUpdate(QueryLanguage.SPARQL, query, base).execute();
+            return null;
+        } catch (e if e.javaException instanceof MalformedQueryException) {
+            throw new BadRequest(e.javaException.toString());
         }
-        return sb.append(inputString).toString();
     """.
 
-:inputString a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :AddPrefix;
-    rdfs:rang xsd:string.
+:map a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :PostPercentEncoded;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded".
 
-# Transformers
+# POST application/x-www-form-urlencoded
+:PostWebForm rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "POST";
+    calli:type "text/html";
+    calli:imports <java:org.apache.http.ProtocolVersion>;
+    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
+    calli:imports <java:org.apache.http.entity.StringEntity>;
+    calli:imports <java:org.openrdf.query.MalformedQueryException>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:script """
+        var resp = this.PostPercentEncoded(formMap);
+        var stream = resp && resp.entity ? resp.entity.content : null;
+        if (stream)
+            return this.TransformResult(stream);
+        return null;
+    """.
+
+:formMap a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain :PostWebForm;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded".
+
+# Transformer
 :TransformResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:type "application/xml";
-    calli:transform :TransformXml;
-    calli:script "return msg && msg.entity ? msg.entity.content : null".
-
-:msg a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain :TransformResult;
-    rdfs:range <java:org.apache.http.HttpResponse>;
-    calli:type "message/x-response".
-
-:TransformXml rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:type "application/xml";
-    calli:transform <transforms/TransformLayout>;
-    calli:xslt <transforms/sparql.xsl>.
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:type "text/html";
+    calli:post <pipelines/sparql.xpl?result&this=$0>.
 
 :inputStream a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain :TransformXml;
+    rdfs:domain :TransformResult;
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xml".
 

@@ -120,7 +120,7 @@ skos:editorialNote a owl:AnnotationProperty.
 # GET describedby
 ################################
 
-:GetDescription rdfs:subClassOf msg:Message;
+:GetRdfDescription rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
     calli:title "RDF Describe";
@@ -128,7 +128,6 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:method "GET";
     calli:query "describe";
     calli:type "application/rdf+xml;q=0.4", "text/turtle;q=0.5";
-    calli:transform :TransformDescription;
     calli:script """
         var queue = [];
         queue.push(this.resource);
@@ -188,16 +187,27 @@ skos:editorialNote a owl:AnnotationProperty.
         });
     """.
 
+:GetHtmlDescription rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:title "RDF Describe";
+    calli:rel "describedby";
+    calli:method "GET";
+    calli:query "describe";
+    calli:type "text/html";
+    calli:script """
+        return this.TransformDescription(this.GetRdfDescription());
+    """.
+
 :TransformDescription rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:type "application/xhtml+xml";
-    calli:transform <transforms/TransformLayout>;
-    calli:xslt <transforms/describe.xsl>.
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:type "text/html";
+    calli:post <pipelines/describe.xpl?result&this=$0>.
 
-:inputStream a owl:ObjectProperty, owl:FunctionalProperty;
+:graphResult a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformDescription;
-    rdfs:range <java:java.io.InputStream>;
+    rdfs:range <java:org.openrdf.query.GraphQueryResult>;
     calli:type "application/rdf+xml".
 
 ################################

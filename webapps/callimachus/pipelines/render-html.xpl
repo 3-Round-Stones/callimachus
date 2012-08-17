@@ -15,12 +15,10 @@
     <p:option name="query" required="true" />
     
     <p:declare-step type="calli:render">
-        <p:input port="source" sequence="true" primary="true"/>
+        <p:input port="source" sequence="true" primary="true" />
         <p:input port="template"/>
-        <p:input port="parameters" kind="parameter" />
         <p:option name="output-base-uri"/>
-        <p:option name="parameter-base-uri"/>
-        <p:output port="result" sequence="true" primary="true"/>
+        <p:output port="result" sequence="true" />
     </p:declare-step>
     
     <p:load name="template-load">

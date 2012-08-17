@@ -115,26 +115,26 @@ public class IntrospectSupport {
 			out.writeLink(params[i].getIRI(), params[i].getType(), params[i].getName());
 		}
 		out.writeCharacters(")");
-		out.writeStartElement("ul");
+		out.writeStartElement("dl");
 		for (int i = 0; i < params.length; i++) {
-			out.writeListItem("parameter type", params[i].getGenericType().toString());
+			out.writeDefinition("parameter type", params[i].getGenericType().toString());
 		}
-		out.writeListItem("return type", info.getGenericReturnType().toString());
-		out.writeEndElement(); //ul
+		out.writeDefinition("return type", info.getGenericReturnType().toString());
+		out.writeEndElement(); //dl
 	}
 
 	private void writePropertyInfo(PropertyInfo info, Object target, XHTMLInfoWriter out)
 			throws XMLStreamException {
 		out.writeAnchor(info.getIRI(), info.getName());
-		out.writeStartElement("ul");
-		out.writeListItem("return type", info.getGenericType().toString());
+		out.writeStartElement("dl");
+		out.writeDefinition("return type", info.getGenericType().toString());
 		try {
 			Object value = info.getReadMethod().invoke(target);
-			out.writeListItem("has value", String.valueOf(value));
+			out.writeDefinition("has value", String.valueOf(value));
 		} catch (Exception e) {
-			out.writeListItem("has error", e.toString());
+			out.writeDefinition("has error", e.toString());
 		}
-		out.writeEndElement(); //ul
+		out.writeEndElement(); //dl
 	}
 
 	private void writeRemoteMethodInfo(MethodInfo info, XHTMLInfoWriter out) throws XMLStreamException {
@@ -174,9 +174,9 @@ public class IntrospectSupport {
 			out.writeCharacters(": ");
 			out.writeLink(h.getIRI(), h.getType(), "{" + h.getName() + "}");
 		}
-		out.writeStartElement("ul");
-		out.writeListItem("accept", accept);
-		out.writeListItem("response type", info.getType());
-		out.writeEndElement(); //ul
+		out.writeStartElement("dl");
+		out.writeDefinition("accept", accept);
+		out.writeDefinition("response type", info.getType());
+		out.writeEndElement(); //dl
 	}
 }

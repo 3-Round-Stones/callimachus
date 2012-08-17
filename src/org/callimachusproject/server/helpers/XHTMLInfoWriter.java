@@ -77,17 +77,16 @@ public class XHTMLInfoWriter {
 		writeEndElement();
 	}
 
-	public void writeListItem(String key, String value)
+	public void writeDefinition(String key, String value)
 			throws XMLStreamException {
 		if (value != null) {
-			writeStartElement("li");
 			if (key != null) {
-				writeSubheading(key);
-				writeCharacters(" ");
+				writeStartElement("dt");
+				writeCharacters(key);
+				writeEndElement();
 			}
-			writeStartElement("span");
+			writeStartElement("dd");
 			writeCharacters(value);
-			writeEndElement();
 			writeEndElement();
 		}
 	}

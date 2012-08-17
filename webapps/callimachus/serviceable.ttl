@@ -98,14 +98,23 @@ skos:editorialNote a owl:AnnotationProperty.
 
 :GetIntrospect rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "GET";
     calli:query "introspect";
-    calli:type "application/xhtml+xml";
-    calli:transform <transforms/TransformLayout>;
+    calli:type "text/html";
     calli:script """
-        return this.calliIntrospect(this);
+        return this.TransformIntrospectLayout(this.calliIntrospect(this));
     """.
+
+:TransformIntrospectLayout rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:post <pipelines/transform-layout.xpl?result&systemId=$0&this=$0&query=introspect>.
+
+:xhtmlIntrospect a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :TransformIntrospectLayout;
+    rdfs:range <java:java.io.ByteArrayOutputStream>;
+    calli:type "application/xhtml+xml".
 
 ################################
 # GET describedby

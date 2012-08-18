@@ -5,7 +5,7 @@
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     xmlns:sparql="http://www.w3.org/2005/sparql-results#"
     exclude-result-prefixes="xhtml sparql">
-    <xsl:import href="changes.xsl" />
+    <xsl:import href="folder-changes.xsl" />
     <xsl:template match="/">
         <html>
             <head>

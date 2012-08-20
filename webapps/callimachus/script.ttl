@@ -31,7 +31,7 @@
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/staff>,</group/admin>;
     calli:icon <script.png>;
-    calli:view <script-view.xhtml>;
+    calli:view <text-view.xhtml>;
     calli:edit <script-edit.xhtml>;
     calli:create <script-create.xhtml>;
     calli:mediaType "text/javascript".

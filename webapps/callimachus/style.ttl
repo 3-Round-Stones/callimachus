@@ -31,7 +31,7 @@
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/staff>,</group/admin>;
     calli:icon <style.png>;
-    calli:view <style-view.xhtml>;
+    calli:view <text-view.xhtml>;
     calli:edit <style-edit.xhtml>;
     calli:create <style-create.xhtml>;
     calli:mediaType "text/css".

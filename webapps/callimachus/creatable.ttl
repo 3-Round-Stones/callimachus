@@ -189,15 +189,10 @@
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT REDUCED ?class {
             {
-                # xml type with correct document tag
+                # non-xml type or xml type with correct document tag
                 ?class rdfs:subClassOf+ $this; calli:mediaType $type
-                FILTER (bound($documentTag) && EXISTS { ?class calli:documentTag $documentTag })
+                FILTER (!bound($documentTag) || EXISTS { ?class calli:documentTag $documentTag })
                 BIND (1 AS ?preference)
-            } UNION {
-                # non-xml type or xml type with no particular document tag
-                ?class rdfs:subClassOf+ $this; calli:mediaType $type
-                FILTER (NOT EXISTS { ?class calli:documentTag ?tag })
-                BIND (2 AS ?preference)
             } UNION {
                 # supported media type alias (document tag not considered)
                 ?class rdfs:subClassOf+ $this; calli:mediaType ?typ2
@@ -216,15 +211,15 @@
                         && (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
                     )
                 )
-                BIND (3 AS ?preference)
+                BIND (2 AS ?preference)
             } UNION {
                 # boot strap graphs before calli:mediaType triples are loaded
                 BIND (<GraphDocument> AS ?class)
                 FILTER sameTerm($type,"text/turtle")
-                BIND (4 AS ?preference)
+                BIND (3 AS ?preference)
             } UNION {
                 BIND ($this AS ?class)
-                BIND (5 AS ?preference)
+                BIND (4 AS ?preference)
             }
         } ORDER BY ?preference LIMIT 1
     """.

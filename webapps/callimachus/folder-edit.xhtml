@@ -8,8 +8,8 @@
     <script type="text/javascript">
         // <![CDATA[
         jQuery(function($){
-            if (!$('#describedBy').length) {
-                $('#field').append('<input id="describedBy" data-var-resource="?describedBy" class="auto-expand" rel="calli:describedBy" data-expression-value="?describedBy" />');
+            if (!$('#describedby').length) {
+                $('#field').append('<input id="describedby" data-var-resource="?describedby" class="auto-expand" rel="calli:describedby" data-expression-value="?describedby" />');
             }
         });
         // ]]>
@@ -26,9 +26,9 @@
     <form method="POST" action="" enctype="application/sparql-update" resource="?this">
         <fieldset>
             <div class="control-group">
-                <label for="describedBy" class="control-label">Directory index target</label>
+                <label for="describedby" class="control-label">Directory index target</label>
                 <div id="field" class="controls">
-                    <input id="describedBy" class="auto-expand" rel="calli:describedBy" resource="?describedBy" value="{?describedBy}" />
+                    <input id="describedby" class="auto-expand" rel="calli:describedby" resource="?describedby" value="{?describedby}" />
                 </div>
             </div>
             <div class="form-actions">

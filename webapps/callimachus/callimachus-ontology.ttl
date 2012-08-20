@@ -355,12 +355,6 @@ calli:hasComponent a owl:ObjectProperty;
     rdfs:domain calli:Composite;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:describedBy a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:label "described by";
-    rdfs:comment "The target URL to use as a directory index";
-    rdfs:domain calli:Folder;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
 calli:item a owl:ObjectProperty;
     rdfs:label "item";
     rdfs:comment "A menu item that is part of this menu";

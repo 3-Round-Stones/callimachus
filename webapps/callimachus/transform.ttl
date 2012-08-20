@@ -34,7 +34,7 @@
     calli:view <transform-view.xhtml>;
     calli:edit <transform-edit.xhtml>;
     calli:create <transform-create.xhtml>;
-    calli:type "text/xsl".
+    calli:mediaType "text/xsl".
 
 # GET /transform.xsl
 :GetTransform rdfs:subClassOf msg:Message;

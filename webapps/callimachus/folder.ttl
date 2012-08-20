@@ -48,8 +48,8 @@
     calli:script """
         var http11 = new ProtocolVersion("HTTP", 1, 1);
         var resp = new BasicHttpResponse(http11, 303, "Directory Index");
-        if (this.calliDescribedBy) {
-            resp.addHeader("Location", this.calliDescribedBy.toString());
+        if (this.calliDescribedby) {
+            resp.addHeader("Location", this.calliDescribedby.toString());
         } else {
             resp.addHeader("Location", this.toString() + "?view");
         }

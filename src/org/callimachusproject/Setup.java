@@ -104,7 +104,7 @@ public class Setup {
 	private static final String MAIN_ARTICLE = "META-INF/templates/main-article.docbook";
 
 	private static final String CALLI = "http://callimachusproject.org/rdf/2009/framework#";
-	private static final String CALLI_DESCRIBEDBY = CALLI + "describedBy";
+	private static final String CALLI_DESCRIBEDBY = CALLI + "describedby";
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
 	private static final String CALLI_EDITOR = CALLI + "editor";

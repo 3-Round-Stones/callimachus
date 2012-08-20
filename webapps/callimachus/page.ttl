@@ -33,7 +33,8 @@
     calli:icon <page.png>;
     calli:edit <page-edit.xhtml>;
     calli:create <page-create.xhtml>;
-    calli:mediaType "application/xhtml+xml".
+    calli:mediaType "application/xhtml+xml";
+    calli:documentTag <http://www.w3.org/1999/xhtml#html>.
 
 # GET /page/MainPage.xhtml?view
 :GetPage owl:intersectionOf (<viewable.ttl#GetViewPage>

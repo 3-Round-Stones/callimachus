@@ -69,7 +69,8 @@
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <image.png>;
     calli:create <file-create.xhtml>;
-    calli:mediaType "image/svg+xml".
+    calli:mediaType "image/svg+xml";
+    calli:documentTag <http://www.w3.org/2000/svg#svg>.
 
 # GET /image.gif
 :GetAnimatedGraphic rdfs:subClassOf msg:Message;

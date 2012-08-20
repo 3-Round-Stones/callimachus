@@ -203,9 +203,7 @@ public class XMLEventReaderFactory {
 	private InputStream checkForVoidXML(InputStream input) throws IOException {
 		if (input == null)
 			return null;
-		if (!input.markSupported()) {
-			input = new BufferedInputStream(input);
-		}
+		input = new BufferedInputStream(input);
 		ByteBuffer buf = ByteBuffer.allocate(200);
 		input.mark(buf.limit());
 		while (buf.hasRemaining()) {

@@ -34,7 +34,8 @@
     calli:view <article-view.xhtml>;
     calli:edit <article-edit.xhtml>;
     calli:create <article-create.xhtml>;
-    calli:mediaType "application/docbook+xml".
+    calli:mediaType "application/docbook+xml";
+    calli:documentTag <http://docbook.org/ns/docbook#article>.
 
 # GET /article/main-article.xml
 :GetArticleSource rdfs:subClassOf msg:Message;

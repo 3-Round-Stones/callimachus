@@ -92,10 +92,11 @@
     calli:expect "201-created";
     calli:type "text/uri-list";
     calli:imports <Creatable>;
+    calli:imports <java:org.callimachusproject.io.MultipartParser>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
+    calli:imports <java:org.callimachusproject.xml.XMLEventReaderFactory>;
     calli:script """
-        importClass(Packages.org.callimachusproject.io.MultipartParser);
-        importClass(Packages.org.callimachusproject.server.exceptions.BadRequest);
-        importClass(Packages.org.callimachusproject.server.exceptions.Forbidden);
         if (!location)
             throw new BadRequest("No location provided");
         if (!(create instanceof Creatable))
@@ -108,36 +109,56 @@
         if (createdUri.search(/[\\s\\#\\?]/) >= 0 || createdUri.search(/^\\w+:\\/\\/\\S+/) != 0)
             throw new BadRequest("Fragement or name resources are not supported");
         var ftype = type;
+        var documentTag = null;
         var bio = new org.callimachusproject.io.LatencyInputStream(body);
-        if (type && type.indexOf("multipart/form-data") == 0) {
-            bio.mark(1024);
-            var parser = new MultipartParser(bio);
-            var file = parser.next();
-            var headers = parser.getHeaders();
-            var disposition = headers.get("content-disposition");
-            if (disposition && disposition.indexOf("filename=") >= 0) {
-                ftype = headers.get("content-type");
-                var xml = ftype == "text/xml" || ftype == "application/xml";
-                if (xml || ftype == "application/octet-stream" || ftype.indexOf("application/x-") == 0) {
-                    var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
-                    var mimetypes = new javax.activation.MimetypesFileTypeMap();
-                    var mtype = mimetypes.getContentType(fileName);
-                    if (!"application/octet-stream".equals(mtype)) {
-                        ftype = mtype;
+        try {
+            if (type && type.indexOf("multipart/form-data") == 0) {
+                bio.mark(1024);
+                var parser = new MultipartParser(bio);
+                var file = parser.next();
+                var headers = parser.getHeaders();
+                var disposition = headers.get("content-disposition");
+                if (disposition && disposition.indexOf("filename=") >= 0) {
+                    ftype = headers.get("content-type");
+                    var xml = ftype == "text/xml" || ftype == "application/xml";
+                    if (xml || ftype == "application/octet-stream" || ftype.indexOf("application/x-") == 0) {
+                        var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
+                        var mimetypes = new javax.activation.MimetypesFileTypeMap();
+                        var mtype = mimetypes.getContentType(fileName);
+                        if (!"application/octet-stream".equals(mtype)) {
+                            ftype = mtype;
+                        }
                     }
+                    bio = new org.callimachusproject.io.LatencyInputStream(file);
+                } else { // not a file upload
+                    bio.reset();
                 }
-                bio = file;
-            } else { // not a file upload
+            } else if (!ftype) {
+                var mimetypes = new javax.activation.MimetypesFileTypeMap();
+                ftype = mimetypes.getContentType(location.toString());
+            }
+            if (!ftype) {
+                ftype = "application/octet-stream";
+            } else if (ftype == "text/xml" || ftype == "application/xml" ||
+                    ftype.indexOf("+xml") > 0) {
+                bio.mark(1024);
+                var xmlFactory = XMLEventReaderFactory.newInstance();
+                var xml = xmlFactory.createXMLEventReader(createdUri, bio);
+                var qname = xml.nextTag().name;
+                if (qname.namespaceURI) {
+                    var ns = qname.namespaceURI;
+                    if (ns.indexOf('#') < 0 && ns.lastIndexOf('/') < ns.length - 1 && ns.lastIndexOf(':') < ns.length - 1) {
+                        ns = ns + '#';
+                    }
+                    var of = this.objectConnection.objectFactory;
+                    documentTag = of.createObject(ns + qname.localPart);
+                }
                 bio.reset();
             }
-        } else if (!ftype) {
-            var mimetypes = new javax.activation.MimetypesFileTypeMap();
-            ftype = mimetypes.getContentType(location.toString());
+        } catch (e if e.javaException) {
+            throw new BadRequest(e.javaException);
         }
-        if (!ftype) {
-            ftype = "application/octet-stream";
-        }
-        var construct = create.LookupConstructor(ftype);
+        var construct = create.LookupConstructor(documentTag, ftype);
         var newCopy = construct.PostCreate(bio, location, ftype);
         var iter = this.FindCreator(newCopy).iterator();
         while (iter.hasNext()) {
@@ -168,9 +189,17 @@
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT REDUCED ?class {
             {
+                # xml type with correct document tag
                 ?class rdfs:subClassOf+ $this; calli:mediaType $type
+                FILTER (bound($documentTag) && EXISTS { ?class calli:documentTag $documentTag })
                 BIND (1 AS ?preference)
             } UNION {
+                # non-xml type or xml type with no particular document tag
+                ?class rdfs:subClassOf+ $this; calli:mediaType $type
+                FILTER (NOT EXISTS { ?class calli:documentTag ?tag })
+                BIND (2 AS ?preference)
+            } UNION {
+                # supported media type alias (document tag not considered)
                 ?class rdfs:subClassOf+ $this; calli:mediaType ?typ2
                 FILTER (
                     (
@@ -187,15 +216,15 @@
                         && (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
                     )
                 )
-                BIND (2 AS ?preference)
+                BIND (3 AS ?preference)
             } UNION {
                 # boot strap graphs before calli:mediaType triples are loaded
                 BIND (<GraphDocument> AS ?class)
                 FILTER sameTerm($type,"text/turtle")
-                BIND (3 AS ?preference)
+                BIND (4 AS ?preference)
             } UNION {
                 BIND ($this AS ?class)
-                BIND (4 AS ?preference)
+                BIND (5 AS ?preference)
             }
         } ORDER BY ?preference LIMIT 1
     """.
@@ -226,6 +255,10 @@
     rdfs:domain [owl:unionOf (:GetCreatorPage :PostFactoryCreate)];
     rdfs:range <Creatable>;
     calli:query "create";
+    calli:type "text/uri-list".
+
+:documentTag a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :LookupConstructor;
     calli:type "text/uri-list".
 
 :intermediate a owl:FunctionalProperty, owl:DatatypeProperty;

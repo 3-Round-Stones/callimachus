@@ -155,6 +155,11 @@ calli:create a owl:AnnotationProperty;
     rdfs:comment "The RDFa page template used to create resources of this class using a Web browser";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:documentTag a owl:AnnotationProperty;
+    rdfs:label "document tag";
+    rdfs:comment "IRI of a tag name for an XML document element of resources of this class";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:mediaType a owl:AnnotationProperty;
     rdfs:label "media type";
     rdfs:comment "The content media type for binary or text representations of resources of this class";

@@ -38,7 +38,8 @@
     calli:author </group/admin>;
     calli:icon <graph.png>;
     calli:create <file-create.xhtml>;
-    calli:mediaType "application/rdf+xml".
+    calli:mediaType "application/rdf+xml";
+    calli:documentTag <http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF>.
 
 <GraphDocument> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, sd:NamedGraph;

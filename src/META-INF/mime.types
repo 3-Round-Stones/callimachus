@@ -74,6 +74,8 @@ application/zip zip
 application/xhtml+xml xhtml
 application/xhtml+xml xht
 application/xml xml
+application/xml rng
+application/xml xsd
 application/xml-external-parsed-entity ent
 application/xproc+xml xpl
 audio/basic au

@@ -38,7 +38,7 @@
     calli:author </group/admin>;
     calli:icon <graph.png>;
     calli:create <file-create.xhtml>;
-    calli:type "application/rdf+xml".
+    calli:mediaType "application/rdf+xml".
 
 <GraphDocument> a <Creatable>, owl:Class;
     rdfs:subClassOf <File>, sd:NamedGraph;
@@ -49,7 +49,7 @@
     calli:icon <graph.png>;
     calli:edit <graph-edit.xhtml>;
     calli:create <graph-create.xhtml>;
-    calli:type "text/turtle".
+    calli:mediaType "text/turtle".
 
 ################################
 # Graph Document

@@ -34,7 +34,7 @@
     calli:view <text-view.xhtml>;
     calli:edit <text-edit.xhtml>;
     calli:create <text-create.xhtml>;
-    calli:type "text/plain".
+    calli:mediaType "text/plain".
 
 # GET /robots.txt
 :GetTextFile rdfs:subClassOf msg:Message;

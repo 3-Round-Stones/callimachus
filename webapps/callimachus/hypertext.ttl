@@ -34,7 +34,7 @@
     calli:view <hypertext-view.xhtml>;
     calli:edit <hypertext-edit.xhtml>;
     calli:create <hypertext-create.xhtml>;
-    calli:type "text/html".
+    calli:mediaType "text/html".
 
 # GET /hypertext.html
 :GetHypertextFile rdfs:subClassOf msg:Message;

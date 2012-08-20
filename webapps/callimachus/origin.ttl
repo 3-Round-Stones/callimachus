@@ -81,7 +81,7 @@
                     BIND (concat(str(?id),"?history") as ?link_history_href)
                     BIND (?id as ?content_src)
                     OPTIONAL {
-                        ?id a [calli:type ?content_type]
+                        ?id a [calli:mediaType ?content_type]
                         BIND (?id as ?link_edit_media_href)
                     }
                 } UNION {

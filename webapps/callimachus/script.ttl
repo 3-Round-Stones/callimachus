@@ -34,7 +34,7 @@
     calli:view <script-view.xhtml>;
     calli:edit <script-edit.xhtml>;
     calli:create <script-create.xhtml>;
-    calli:type "text/javascript".
+    calli:mediaType "text/javascript".
 
 # GET /script.js
 :GetJavaScript rdfs:subClassOf msg:Message;

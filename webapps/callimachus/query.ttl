@@ -34,7 +34,7 @@
     calli:view <query-view.xhtml>;
     calli:edit <query-edit.xhtml>;
     calli:create <query-create.xhtml>;
-    calli:type "application/sparql-query".
+    calli:mediaType "application/sparql-query".
 
 # GET /query/my-query.rq
 :GetNamedQuery rdfs:subClassOf msg:Message;

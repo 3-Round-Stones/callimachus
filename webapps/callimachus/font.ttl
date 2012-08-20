@@ -32,7 +32,7 @@
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <font.png>;
     calli:create <file-create.xhtml>;
-    calli:type "application/font-woff".
+    calli:mediaType "application/font-woff".
 
 # GET /font.woff
 :GetFont rdfs:subClassOf msg:Message;

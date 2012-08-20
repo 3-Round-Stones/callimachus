@@ -168,10 +168,10 @@
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT REDUCED ?class {
             {
-                ?class rdfs:subClassOf+ $this; calli:type $type
+                ?class rdfs:subClassOf+ $this; calli:mediaType $type
                 BIND (1 AS ?preference)
             } UNION {
-                ?class rdfs:subClassOf+ $this; calli:type ?typ2
+                ?class rdfs:subClassOf+ $this; calli:mediaType ?typ2
                 FILTER (
                     (
                         (sameTerm($type,"application/javascript") || sameTerm($type,"text/javascript"))
@@ -189,7 +189,7 @@
                 )
                 BIND (2 AS ?preference)
             } UNION {
-                # boot strap graphs before calli:type triples are loaded
+                # boot strap graphs before calli:mediaType triples are loaded
                 BIND (<GraphDocument> AS ?class)
                 FILTER sameTerm($type,"text/turtle")
                 BIND (3 AS ?preference)

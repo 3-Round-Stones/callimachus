@@ -148,7 +148,7 @@
             } UNION {
                 BIND ("feed" as ?type)
                 BIND (concat(str($this),"?contents") as ?id)
-                [a <Creatable>] calli:type ?collection_accept
+                [a <Creatable>] calli:mediaType ?collection_accept
             } UNION {
                 {
                     SELECT (concat(str($this),"?contents") as ?id) (count(distinct ?part) as ?totalResults) ("feed" as ?type) {
@@ -210,7 +210,7 @@
                         $this calli:hasComponent ?id
                         BIND (?id as ?content_src)
                         OPTIONAL {
-                            ?id a [calli:type ?content_type]
+                            ?id a [calli:mediaType ?content_type]
                             BIND (?id as ?link_edit_media_href)
                         }
                     } UNION {
@@ -338,7 +338,7 @@
                 var content = component.openInputStream();
                 if (content) {
                     try {
-                        var entryStream = carStream.writeFileEntry(name, time, component.GetFileContentType());
+                        var entryStream = carStream.writeFileEntry(name, time, component.GetContentMediaType());
                         try {
                             var read;
                             while ((read = content.read(buf)) >= 0) {

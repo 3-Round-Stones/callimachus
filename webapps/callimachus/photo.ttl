@@ -36,7 +36,7 @@
     calli:view <photo-view.xhtml> ;
     calli:edit <photo-edit.xhtml> ;
     calli:create <file-create.xhtml>;
-    calli:type "image/jpeg".
+    calli:mediaType "image/jpeg".
 
 # GET /image.jpg
 :GetPhoto rdfs:subClassOf msg:Message;

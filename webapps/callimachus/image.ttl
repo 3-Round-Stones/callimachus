@@ -42,7 +42,7 @@
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <image.png>;
     calli:create <file-create.xhtml>;
-    calli:type "image/gif".
+    calli:mediaType "image/gif".
 
 <IconGraphic> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;
@@ -51,7 +51,7 @@
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <image.png>;
     calli:create <file-create.xhtml>;
-    calli:type "image/vnd.microsoft.icon".
+    calli:mediaType "image/vnd.microsoft.icon".
 
 <NetworkGraphic> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;
@@ -60,7 +60,7 @@
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <image.png>;
     calli:create <file-create.xhtml>;
-    calli:type "image/png".
+    calli:mediaType "image/png".
 
 <VectorGraphic> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;
@@ -69,7 +69,7 @@
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <image.png>;
     calli:create <file-create.xhtml>;
-    calli:type "image/svg+xml".
+    calli:mediaType "image/svg+xml".
 
 # GET /image.gif
 :GetAnimatedGraphic rdfs:subClassOf msg:Message;

@@ -34,7 +34,7 @@
     calli:view <pipeline-view.xhtml>;
     calli:edit <pipeline-edit.xhtml>;
     calli:create <pipeline-create.xhtml>;
-    calli:type "application/xproc+xml".
+    calli:mediaType "application/xproc+xml".
 
 # GET /pipeline/pipe.xpl
 :GetPipelineSource rdfs:subClassOf msg:Message;

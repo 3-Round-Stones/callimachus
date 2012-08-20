@@ -34,7 +34,7 @@
     calli:view <style-view.xhtml>;
     calli:edit <style-edit.xhtml>;
     calli:create <style-create.xhtml>;
-    calli:type "text/css".
+    calli:mediaType "text/css".
 
 # GET /style.css
 :GetStyleSheet rdfs:subClassOf msg:Message;

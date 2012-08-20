@@ -33,12 +33,12 @@
     calli:view <file-view.xhtml>;
     calli:edit <file-edit.xhtml>.
 
-:GetFileContentType rdfs:subClassOf msg:Message;
+:GetContentMediaType rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     msg:sparql """
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT DISTINCT ?type { $this a [calli:type ?type] }
+        SELECT DISTINCT ?type { $this a [calli:mediaType ?type] }
     """.
 
 :RemoveFile rdfs:subClassOf msg:Message;

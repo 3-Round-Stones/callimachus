@@ -19,6 +19,7 @@
 package org.callimachusproject.engine.helpers;
 
 import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -40,7 +41,7 @@ import org.openrdf.model.vocabulary.RDF;
  * @author Steve Battle
  *
  */
-public class SPARQLWriter implements Closeable {
+public class SPARQLWriter implements Closeable, Flushable {
 
 	private static final String RDFTYPE = RDF.TYPE.stringValue();
 
@@ -72,6 +73,11 @@ public class SPARQLWriter implements Closeable {
 		this.writer = writer;
 	}
 
+	public void flush() throws IOException {
+		flushInternalState();
+		writer.flush();
+	}
+
 	public void close() throws IOException {
 		writer.close();
 	}
@@ -92,20 +98,7 @@ public class SPARQLWriter implements Closeable {
 		} else if (event.isNamespace()) {
 			namespaces.put(event.asNamespace().getPrefix(), event.asNamespace().getNamespaceURI());
 		} else if (event.isStartConstruct()) {
-			if (base != null) {
-				writer.append("BASE <");
-				writer.append(base);
-				writer.append(">\n");
-			}
-			if (!namespaces.isEmpty()) {
-				for (Map.Entry<String, String> e : namespaces.entrySet()) {
-					writer.append("PREFIX ");
-					writer.append(e.getKey());
-					writer.append(":<");
-					writer.append(e.getValue());
-					writer.append(">\n");
-				}
-			}
+			flushInternalState();
 			indent(indent);
 			writer.append("CONSTRUCT {\n");
 			indent++;
@@ -114,37 +107,11 @@ public class SPARQLWriter implements Closeable {
 			indent(indent);
 			writer.append("}\n");
 		} else if (event.isAsk()) {
-			if (base != null) {
-				writer.append("BASE <");
-				writer.append(base);
-				writer.append(">\n");
-			}
-			if (!namespaces.isEmpty()) {
-				for (Map.Entry<String, String> e : namespaces.entrySet()) {
-					writer.append("PREFIX ");
-					writer.append(e.getKey());
-					writer.append(":<");
-					writer.append(e.getValue());
-					writer.append(">\n");
-				}
-			}
+			flushInternalState();
 			indent(indent);
 			writer.append("ASK\n");
 		} else if (event.isSelect()) {
-			if (base != null) {
-				writer.append("BASE <");
-				writer.append(base);
-				writer.append(">\n");
-			}
-			if (!namespaces.isEmpty()) {
-				for (Map.Entry<String, String> e : namespaces.entrySet()) {
-					writer.append("PREFIX ");
-					writer.append(e.getKey());
-					writer.append(":<");
-					writer.append(e.getValue());
-					writer.append(">\n");
-				}
-			}
+			flushInternalState();
 			indent(indent);
 			writer.append("SELECT REDUCED *\n");
 		} else if (event.isStartWhere()) {
@@ -233,6 +200,25 @@ public class SPARQLWriter implements Closeable {
 	private void indent(int indent) throws IOException {
 		for (int i = 0; i < indent; i++) {
 			writer.append(" ");
+		}
+	}
+
+	private void flushInternalState() throws IOException {
+		if (base != null) {
+			writer.append("BASE <");
+			writer.append(base);
+			writer.append(">\n");
+			base = null;
+		}
+		if (!namespaces.isEmpty()) {
+			for (Map.Entry<String, String> e : namespaces.entrySet()) {
+				writer.append("PREFIX ");
+				writer.append(e.getKey());
+				writer.append(":<");
+				writer.append(e.getValue());
+				writer.append(">\n");
+			}
+			namespaces.clear();
 		}
 	}
 

@@ -39,7 +39,8 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.turtle.TurtleUtil;
 
 public class ParameterizedQuery {
-	private static final Pattern CACHE_CONTROL = Pattern.compile("(?:^|\n)\\s*#\\s*@Cache-Control\\s*:\\s*([\\w ,=\\-\"]+)\\s*(?:\n|$)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern CACHE_CONTROL = Pattern.compile("(?:^|\n).*#[ \\t]*@Cache-Control[ \\t]*(?::[ \\t]*)?([\\w ,=\\-\"]+)[ \\t]*(?:$|\n)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern VIEW_TEMPLATE = Pattern.compile("(?:^|\n).*#[ \\t]*@view[ \\t]*(?::[ \\t]*)?([^\\s'\"<>]+)[ \\t]*(?:$|\n)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern PARAM_EXPRESSION = Pattern.compile("(?<!\\\\)\\$\\{([^}]*)\\}");
 	private static ValueFactory vf = ValueFactoryImpl.getInstance();
 	private final String sparql;
@@ -112,6 +113,13 @@ public class ParameterizedQuery {
 		return sb.toString();
 	}
 
+	public String getViewTemplate() {
+		Matcher matcher = VIEW_TEMPLATE.matcher(sparql);
+		if (matcher.find())
+			return tf.resolve(matcher.group(1));
+		return null;
+	}
+
 	public String prepare() throws IllegalArgumentException {
 		Map<String, ?> parameters = Collections.emptyMap();
 		return prepare(parameters);
@@ -137,6 +145,11 @@ public class ParameterizedQuery {
 			QueryEvaluationException {
 		TupleQuery qry = con.prepareTupleQuery(QueryLanguage.SPARQL,
 				prepare(parameters), systemId);
+		return evaluate(parameters, qry);
+	}
+
+	public TupleQueryResult evaluate(Map<String, ?> parameters, TupleQuery qry)
+			throws QueryEvaluationException {
 		if (!isParameterPresent())
 			return qry.evaluate();
 		for (String name : bindingNames) {

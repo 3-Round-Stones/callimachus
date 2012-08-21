@@ -55,8 +55,8 @@ public abstract class RewriteAdvice implements Advice {
 			con = ((RDFObject) target).getObjectConnection();
 		}
 		FluidBuilder fb = FluidFactory.getInstance().builder(con);
-		return service(location, headers, target, parameters, fb).as(
-				returnType, returnMedia);
+		return service(location, headers, message, fb).as(returnType,
+				returnMedia);
 	}
 
 	protected String getSystemId() {
@@ -68,8 +68,8 @@ public abstract class RewriteAdvice implements Advice {
 	}
 
 	protected abstract Fluid service(String location, Header[] headers,
-			Object target, Object[] parameters, FluidBuilder fb)
-			throws GatewayTimeout, IOException, FluidException;
+			ObjectMessage message, FluidBuilder fb) throws GatewayTimeout,
+			IOException, FluidException;
 
 	private String getSystemId(Method m) {
 		if (m.isAnnotationPresent(Iri.class))

@@ -32,6 +32,7 @@ package org.callimachusproject.server.model;
 import static java.lang.Integer.toHexString;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +83,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class ResourceOperation extends ResourceRequest {
+	private static final String SUB_CLASS_OF = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
 	private static int MAX_TRANSFORM_DEPTH = 100;
 	private Logger logger = LoggerFactory.getLogger(ResourceOperation.class);
 
@@ -580,16 +583,14 @@ public class ResourceOperation extends ResourceRequest {
 		if (methods.isEmpty())
 			return null;
 		if (methods.size() == 1) {
-			Method method = methods.iterator().next();
-			if (isAcceptable(method, 0))
-				return method;
-			return null;
+			return methods.iterator().next();
 		}
 		FluidType acceptable = getAcceptable();
 		Set<String> possible = new LinkedHashSet<String>();
 		for (Method m : methods) {
 			possible.addAll(getAllMimeTypesOf(m));
 		}
+		Map<String, Method> map = new LinkedHashMap<String, Method>();
 		String[] mediaTypes = possible.toArray(new String[possible.size()]);
 		FluidType ftype = new FluidType(acceptable.asType(), mediaTypes);
 		String preferred = ftype.as(acceptable).preferred();
@@ -597,11 +598,49 @@ public class ResourceOperation extends ResourceRequest {
 			possible.clear();
 			possible.addAll(getAllMimeTypesOf(m));
 			String[] media = possible.toArray(new String[possible.size()]);
-			if (new FluidType(acceptable.asType(), media).is(preferred))
-				return m;
+			if (new FluidType(acceptable.asType(), media).is(preferred)) {
+				String iri;
+				Iri ann = m.getAnnotation(Iri.class);
+				if (ann == null) {
+					iri = m.toString();
+				} else {
+					iri = ann.value();
+				}
+				map.put(iri, m);
+			}
 		}
-		return null;
+		if (map.size() == 1)
+			return map.values().iterator().next();
+		for (Method method : map.values().toArray(new Method[map.size()])) {
+			for (String iri : getAnnotationStringValue(method, SUB_CLASS_OF)) {
+				map.remove(iri);
+			}
+		}
+		if (map.isEmpty())
+			return null;
+		return map.values().iterator().next();
+	}
 
+	private String[] getAnnotationStringValue(Method method, String iri) {
+		for (Annotation ann : method.getAnnotations()) {
+			for (Method field : ann.annotationType().getMethods()) {
+				Iri airi = field.getAnnotation(Iri.class);
+				if (airi != null && iri.equals(airi.value()))
+					try {
+						Object arg = field.invoke(ann);
+						if (arg instanceof String[])
+							return (String[]) arg;
+						return new String[] { arg.toString() };
+					} catch (IllegalArgumentException e) {
+						logger.warn(e.toString(), e);
+					} catch (InvocationTargetException e) {
+						logger.warn(e.toString(), e);
+					} catch (IllegalAccessException e) {
+						logger.warn(e.toString(), e);
+					}
+			}
+		}
+		return new String[0];
 	}
 
 	private Collection<String> getAllMimeTypesOf(Method m) {

@@ -47,6 +47,73 @@
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".
 
+# GET /queries/my-query.rq?view
+:GetViewPage owl:intersectionOf (<viewable.ttl#GetViewPage>
+        [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>]);
+    calli:rel "alternate";
+    calli:method "GET";
+    calli:query "view";
+    calli:type "text/html";
+    calli:header "cache-control:no-store"; # TODO use cache-control from query string
+    calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
+    calli:imports <java:org.callimachusproject.engine.TemplateEngine>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:script """
+        var parser = ParameterizedQueryParser.newInstance();
+        var query = parser.parseQuery(this.openInputStream(), this.toString());
+        var uri = query.viewTemplate;
+        if (!uri)
+            return proceed();
+        var con = this.objectConnection;
+        var page = con.getObject(uri);
+        var realm = page.FindRealmOf(this);
+        var engine = TemplateEngine.getInstance();
+        var temp = engine.getTemplate(uri + "?template&realm=" + realm);
+        var sparql = temp.getQueryString(query.prepare(viewParameters));
+        var qry = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, this.toString());
+        var results = query.evaluate(viewParameters, qry);
+        return page.Render(realm, this, 'view', results);
+    """.
+
+:viewParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetViewPage;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
+
+# GET /queries/my-query.rq?sparql
+:GetSparql rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:hexBinary];
+    calli:method "GET";
+    calli:query "sparql";
+    calli:type "application/sparql-query";
+    calli:header "cache-control:no-cache";
+    calli:imports <java:org.callimachusproject.engine.ParameterizedQueryParser>;
+    calli:imports <java:org.callimachusproject.engine.TemplateEngine>;
+    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:script """
+        var parser = ParameterizedQueryParser.newInstance();
+        var query = parser.parseQuery(this.openInputStream(), this.toString());
+        var sparql = query.prepare(sparqlParameters);
+        var uri = query.viewTemplate;
+        if (uri) {
+            var con = this.objectConnection;
+            var page = con.getObject(uri);
+            var realm = page.FindRealmOf(this);
+            var engine = TemplateEngine.getInstance();
+            var temp = engine.getTemplate(uri + "?template&realm=" + realm);
+            sparql = temp.getQueryString(sparql);
+        }
+        return new java.lang.String(sparql).getBytes(java.nio.charset.Charset.forName("UTF-8"));
+    """.
+
+:sparqlParameters a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetSparql;
+    rdfs:range <java:java.util.Map>;
+    calli:query "*";
+    calli:type "application/x-www-form-urlencoded".
+
 # POST ?create=/callimachus/NamedQuery
 :CreateNamedQuery owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <NamedQuery> ]);

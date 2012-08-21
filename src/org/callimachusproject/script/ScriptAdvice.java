@@ -1,12 +1,21 @@
 package org.callimachusproject.script;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.script.SimpleBindings;
 
+import org.callimachusproject.annotations.imports;
 import org.callimachusproject.script.EmbededScriptEngine.ScriptResult;
+import org.openrdf.annotations.Iri;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
@@ -18,16 +27,25 @@ import org.openrdf.repository.object.traits.ObjectMessage;
 public class ScriptAdvice implements Advice {
 	private final EmbededScriptEngine engine;
 	private final Class<?> rty;
-	private final String[][] bindingNames;
-	private final String[] defaults;
+	private final Map<Method, String[]> bindingNames = new HashMap<Method, String[]>(1);
+	private final Map<Method, String[]> defaults = new HashMap<Method, String[]>(1);
 
-	public ScriptAdvice(EmbededScriptEngine engine, Class<?> returnClass,
-			String[][] bindingNames, String[] defaultValues) {
-		assert bindingNames.length == defaultValues.length;
+	public ScriptAdvice(EmbededScriptEngine engine, Method method) {
 		this.engine = engine;
-		this.rty = returnClass;
-		this.bindingNames = bindingNames;
-		this.defaults = defaultValues;
+		this.rty = method.getReturnType();
+		Annotation[][] panns = method.getParameterAnnotations();
+		String[] names = getBindingNames(panns);
+		this.bindingNames.put(method, names);
+		this.defaults.put(method, getDefaultValues(panns));
+		if (method.isAnnotationPresent(imports.class)) {
+			for (Class<?> imports : method.getAnnotation(imports.class).value()) {
+				engine = engine.importClass(imports.getName());
+			}
+		}
+		engine = engine.returnType(rty);
+		for (String name : names) {
+			engine = engine.binding(name);
+		}
 	}
 
 	@Override
@@ -38,6 +56,26 @@ public class ScriptAdvice implements Advice {
 	@Override
 	public Object intercept(ObjectMessage message) throws Exception {
 		return cast(engine.eval(message, getBindings(message)));
+	}
+
+	private synchronized String[] getBindingNames(Method method) {
+		String[] names = bindingNames.get(method);
+		if (names != null)
+			return names;
+		Annotation[][] panns = method.getParameterAnnotations();
+		names = getBindingNames(panns);
+		bindingNames.put(method, names);
+		return names;
+	}
+
+	private synchronized String[] getDefaults(Method method) {
+		String[] values = defaults.get(method);
+		if (values != null)
+			return values;
+		Annotation[][] panns = method.getParameterAnnotations();
+		values = getDefaultValues(panns);
+		defaults.put(method, values);
+		return values;
 	}
 
 	private SimpleBindings getBindings(ObjectMessage message)
@@ -51,19 +89,94 @@ public class ScriptAdvice implements Advice {
 		Object[] parameters = message.getParameters();
 		Class<?>[] ptypes = message.getMethod().getParameterTypes();
 		assert parameters.length == ptypes.length;
+		String[] bindingNames = getBindingNames(message.getMethod());
 		assert parameters.length == bindingNames.length;
+		String[] defaults = getDefaults(message.getMethod());
 		for (int i = 0; i < bindingNames.length; i++) {
-			for (String name : bindingNames[i]) {
-				Object value = parameters[i];
-				String defaultValue = defaults[i];
-				if (value == null && defaultValue != null && con != null) {
-					Class<?> vtype = ptypes[i];
-					value = getDefaultObject(defaultValue, vtype, con);
-				}
-				bindings.put(name, value);
+			String name = bindingNames[i];
+			Object value = parameters[i];
+			String defaultValue = defaults[i];
+			if (value == null && defaultValue != null && con != null) {
+				Class<?> vtype = ptypes[i];
+				value = getDefaultObject(defaultValue, vtype, con);
 			}
+			bindings.put(name, value);
 		}
 		return bindings;
+	}
+
+	private String[] getBindingNames(Annotation[][] anns) {
+		String[] bindingNames = new String[anns.length];
+		for (int i=0; i<anns.length; i++) {
+			for (Annotation ann : anns[i]) {
+				if (Iri.class.equals(ann.annotationType())) {
+					bindingNames[i] = local(((Iri) ann).value());
+				}
+			}
+		}
+		return bindingNames;
+	}
+
+	private String local(String iri) {
+		String string = iri;
+		if (string.lastIndexOf('#') >= 0) {
+			string = string.substring(string.lastIndexOf('#') + 1);
+		}
+		if (string.lastIndexOf('?') >= 0) {
+			string = string.substring(string.lastIndexOf('?') + 1);
+		}
+		if (string.lastIndexOf('/') >= 0) {
+			string = string.substring(string.lastIndexOf('/') + 1);
+		}
+		if (string.lastIndexOf(':') >= 0) {
+			string = string.substring(string.lastIndexOf(':') + 1);
+		}
+		return string;
+	}
+
+	private String[] getDefaultValues(Annotation[][] anns) {
+		String[] defaults = new String[anns.length];
+		for (int i=0; i<anns.length; i++) {
+			Object value = getDefaultValue(anns[i]);
+			if (value != null) {
+				defaults[i] = value.toString();
+			}
+		}
+		return defaults;
+	}
+
+	private Object getDefaultValue(Annotation[] anns) {
+		for (Annotation ann : anns) {
+			for (Method m : ann.annotationType().getDeclaredMethods()) {
+				Iri iri = m.getAnnotation(Iri.class);
+				if (iri != null && OWL.HASVALUE.stringValue().equals(iri.value()) && m.getParameterTypes().length == 0) {
+					return invoke(m, ann);
+				}
+			}
+		}
+		return null;
+	}
+
+	private Object invoke(Method m, Object obj) {
+		try {
+			return m.invoke(obj);
+		} catch (IllegalArgumentException e) {
+			throw new AssertionError(e);
+		} catch (IllegalAccessException e) {
+			IllegalAccessError error = new IllegalAccessError(e.getMessage());
+			error.initCause(e);
+			throw error;
+		} catch (InvocationTargetException e) {
+			try {
+				throw e.getCause();
+			} catch (RuntimeException cause) {
+				throw cause;
+			} catch (Error cause) {
+				throw cause;
+			} catch (Throwable cause) {
+				throw new UndeclaredThrowableException(cause);
+			}
+		}
 	}
 
 	private Object getDefaultObject(String value, Class<?> type,

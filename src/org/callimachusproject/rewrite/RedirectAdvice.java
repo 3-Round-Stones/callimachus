@@ -8,6 +8,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
+import org.openrdf.repository.object.traits.ObjectMessage;
 
 public class RedirectAdvice extends RewriteAdvice {
 	private final StatusLine status;
@@ -18,8 +19,8 @@ public class RedirectAdvice extends RewriteAdvice {
 		this.status = status;
 	}
 
-	protected Fluid service(String location, Header[] headers, Object target,
-			Object[] parameters, FluidBuilder fb) {
+	protected Fluid service(String location, Header[] headers,
+			ObjectMessage message, FluidBuilder fb) {
 		if (location == null)
 			return fb.consume(null, null, HttpResponse.class, "message/http");
 		HttpResponse resp = new BasicHttpResponse(status);

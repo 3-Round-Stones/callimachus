@@ -412,7 +412,7 @@ public class RDFaGenerationTest extends TestCase {
 			}
 			if (!ok || verbose || show_sparql) {
 				System.out.println("\nSPARQL (from template):");
-				System.out.println(temp.getQuery()+"\n");
+				System.out.println(temp.getQueryString()+"\n");
 			}
 			if (!ok || verbose || show_xml) {
 				System.out.println("\nOUTPUT:");
@@ -420,7 +420,7 @@ public class RDFaGenerationTest extends TestCase {
 			}
 			if (!ok || verbose || show_results) {
 				System.out.println("\nRESULTS:");
-				TupleQuery q = source.prepareTupleQuery(SPARQL, temp.getQuery(), base);
+				TupleQuery q = source.prepareTupleQuery(SPARQL, temp.getQueryString(), base);
 				q.setBinding("this", self);
 				TupleQueryResult results = q.evaluate();
 				results = q.evaluate();

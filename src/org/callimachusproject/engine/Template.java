@@ -4,14 +4,24 @@ import static org.callimachusproject.engine.helpers.SPARQLWriter.toSPARQL;
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 
+import org.callimachusproject.engine.events.Base;
+import org.callimachusproject.engine.events.Namespace;
+import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.helpers.OrderedSparqlReader;
+import org.callimachusproject.engine.helpers.RDFEventIterator;
+import org.callimachusproject.engine.helpers.RDFEventList;
 import org.callimachusproject.engine.helpers.RDFaProducer;
 import org.callimachusproject.engine.helpers.SPARQLProducer;
+import org.callimachusproject.engine.helpers.SPARQLWriter;
 import org.callimachusproject.engine.helpers.XMLElementReader;
 import org.callimachusproject.engine.helpers.XMLEventList;
 import org.callimachusproject.engine.model.TermFactory;
@@ -27,6 +37,7 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
 public class Template {
+	private static final Pattern PROLOGUE = Pattern.compile("#.*$|BASE\\s*<([^>\\s]*)>|PREFIX\\s+([^:\\s]*)\\s*:\\s*<([^>\\s]*)>", Pattern.CASE_INSENSITIVE);
 	private final TermFactory systemId;
 	private final XMLEventList source;
 
@@ -43,9 +54,60 @@ public class Template {
 		return systemId.getSystemId();
 	}
 
-	public String getQuery() throws TemplateException {
+	public String getQueryString() throws TemplateException {
 		try {
 			return toSPARQL(openQuery());
+		} catch (RDFParseException e) {
+			throw new TemplateException(e);
+		} catch (IOException e) {
+			throw new TemplateException(e);
+		}
+	}
+
+	public String getQueryString(String subQuery) throws TemplateException {
+		try {
+			int end = 0;
+			RDFEventList list = new RDFEventList(openQuery());
+			StringWriter str = new StringWriter();
+			SPARQLWriter writer = new SPARQLWriter(str);
+			Map<String, String> spaces = new HashMap<String, String>();
+			RDFEventIterator reader = list.iterator();
+			while (reader.hasNext()) {
+				RDFEvent next = reader.next();
+				if (next.isNamespace()) {
+					Namespace ns = next.asNamespace();
+					spaces.put(ns.getPrefix(), ns.getNamespaceURI());
+				} else if (next.isSelect() && end == 0) {
+					Matcher m = PROLOGUE.matcher(subQuery);
+					while (m.find()) {
+						String base = m.group(1);
+						String prefix = m.group(2);
+						String space = m.group(3);
+						if (base != null) {
+							writer.write(new Base(base));
+							end = m.end();
+						} else if (space != null) {
+							if (spaces.containsKey(prefix)) {
+								if (!space.equals(spaces.get(prefix)))
+									throw new IllegalArgumentException("Conflicting prefix: " + prefix);
+							} else {
+								writer.write(new Namespace(prefix, space));
+							}
+							end = m.end();
+						}
+					}
+				}
+				writer.write(next);
+				if (next.isStartWhere() && end < subQuery.length()) {
+					String select = subQuery.substring(end);
+					end = subQuery.length();
+					writer.flush();
+					str.write("{");
+					str.write(select);
+					str.write("}");
+				}
+			}
+			return str.toString();
 		} catch (RDFParseException e) {
 			throw new TemplateException(e);
 		} catch (IOException e) {

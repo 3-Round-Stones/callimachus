@@ -14,6 +14,7 @@ import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
 import org.callimachusproject.server.exceptions.ResponseException;
+import org.openrdf.repository.object.traits.ObjectMessage;
 
 public class ProxyGetAdvice extends RewriteAdvice {
 
@@ -22,8 +23,8 @@ public class ProxyGetAdvice extends RewriteAdvice {
 		super(bindingNames, replacers, method);
 	}
 
-	protected Fluid service(String location, Header[] headers, Object target,
-			Object[] parameters, FluidBuilder fb) throws GatewayTimeout,
+	protected Fluid service(String location, Header[] headers,
+			ObjectMessage message, FluidBuilder fb) throws GatewayTimeout,
 			IOException, FluidException {
 		String[] returnMedia = getReturnMedia();
 		if (location == null)
@@ -34,8 +35,7 @@ public class ProxyGetAdvice extends RewriteAdvice {
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
 		for (int i = 0; i < 20 && redirect != null; i++) {
 			systemId = redirect;
-			HttpRequest req = createRequest(redirect, headers, target,
-					parameters, fb);
+			HttpRequest req = createRequest(redirect, headers, message, fb);
 			if (returnMedia.length > 0) {
 				for (String media : returnMedia) {
 					req.addHeader("Accept", media);
@@ -61,8 +61,8 @@ public class ProxyGetAdvice extends RewriteAdvice {
 	}
 
 	protected HttpRequest createRequest(String location, Header[] headers,
-			Object target, Object[] parameters, FluidBuilder fb)
-			throws IOException, FluidException {
+			ObjectMessage message, FluidBuilder fb) throws IOException,
+			FluidException {
 		BasicHttpRequest req = new BasicHttpRequest("GET", location);
 		req.setHeaders(headers);
 		return req;

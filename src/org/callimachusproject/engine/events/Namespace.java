@@ -29,6 +29,14 @@ public class Namespace extends RDFEvent {
 	private String prefix;
 	private String namespaceURI;
 
+	public Namespace(String prefix, String namespace) {
+		super(null);
+		assert prefix != null;
+		assert namespace != null;
+		this.prefix = prefix;
+		this.namespaceURI = namespace;
+	}
+
 	public Namespace(String prefix, String namespace, Location location) {
 		super(location);
 		assert prefix != null;

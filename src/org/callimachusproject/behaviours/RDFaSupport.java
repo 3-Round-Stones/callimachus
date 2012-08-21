@@ -81,7 +81,7 @@ public abstract class RDFaSupport implements Page, RDFObject {
 			@query("element") String element) throws Exception {
 		String base = getResource().stringValue();
 		Template temp = ENGINE.getTemplate(base).getElement(element);
-		return temp.getQuery().getBytes(Charset.forName("UTF-8"));
+		return temp.getQueryString().getBytes(Charset.forName("UTF-8"));
 	}
 
 	public RDFEventReader openPatternReader(String about, String element)

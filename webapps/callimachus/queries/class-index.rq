@@ -28,4 +28,4 @@ SELECT REDUCED ?title ?description ?resource ?label (ucase(substr(?label, 1, 1))
             ?resource foaf:name ?label
         }
     }
-} ORDER BY ?label ?resource LIMIT 101
+} ORDER BY ?label ?resource LIMIT 1001

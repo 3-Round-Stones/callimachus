@@ -67,7 +67,7 @@
         <xsl:for-each select="../../sparql:head/sparql:variable">
             <xsl:variable name="name" select="@name"/>
             <xsl:if test="not($current/sparql:binding[@name=$name])">
-                <xsl:text>{v:''}</xsl:text>
+                <xsl:text>{}</xsl:text>
             </xsl:if>
             <xsl:apply-templates select="$current/sparql:binding[@name=$name]" />
             <xsl:if test="position() != last()">

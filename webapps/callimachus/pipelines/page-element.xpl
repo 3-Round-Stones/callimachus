@@ -20,10 +20,10 @@
     </calli:page-template>
 
     <p:xslt>
+        <p:with-param name="element" select="$element" />
         <p:input port="stylesheet">
             <p:document href="../transforms/element.xsl" />
         </p:input>
-        <p:with-param name="element" select="$element" />
     </p:xslt>
 
     <p:xslt>
@@ -33,8 +33,9 @@
     </p:xslt>
 
     <p:xslt>
+        <p:with-param name="target" select="$systemId" />
         <p:input port="stylesheet">
-            <p:document href="../transforms/page.xsl" />
+            <p:document href="../transforms/page-info.xsl" />
         </p:input>
     </p:xslt>
 

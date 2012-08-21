@@ -74,12 +74,12 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		repository.setActivityFolderAndType(uriSpace, activityType, folderType);
 	}
 
-	public String getErrorXSLT() {
-		return server.getErrorXSLT();
+	public String getErrorPipe() {
+		return server.getErrorPipe();
 	}
 
-	public void setErrorXSLT(String url) {
-		server.setErrorXSLT(url);
+	public void setErrorPipe(String url) {
+		server.setErrorPipe(url);
 	}
 
 	public Repository getRepository() {

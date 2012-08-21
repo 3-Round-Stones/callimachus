@@ -21,11 +21,11 @@
     </calli:page-template>
 
     <p:xslt>
-        <p:input port="stylesheet">
-            <p:document href="../transforms/page.xsl" />
-        </p:input>
-        <p:with-param name="this" select="$systemId"/>
+        <p:with-param name="target" select="$systemId"/>
         <p:with-param name="query" select="'view'"/>
+        <p:input port="stylesheet">
+            <p:document href="../transforms/page-info.xsl" />
+        </p:input>
     </p:xslt>
 
     <p:xslt>

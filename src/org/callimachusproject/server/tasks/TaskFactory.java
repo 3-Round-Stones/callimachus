@@ -29,6 +29,7 @@
  */
 package org.callimachusproject.server.tasks;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -39,8 +40,9 @@ import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.util.ManagedExecutors;
-import org.callimachusproject.xslt.XSLTransformer;
-import org.callimachusproject.xslt.XSLTransformerFactory;
+import org.callimachusproject.xproc.Pipeline;
+import org.callimachusproject.xproc.PipelineFactory;
+import org.xml.sax.SAXException;
 
 /**
  * Executes tasks in a thread pool or in the current thread.
@@ -92,7 +94,7 @@ public class TaskFactory {
 	private CallimachusRepository repo;
 	private Filter filter;
 	private Handler handler;
-	private XSLTransformer transformer;
+	private Pipeline pipeline;
 
 	public TaskFactory(CallimachusRepository repository,
 			Filter filter, Handler handler) {
@@ -101,17 +103,17 @@ public class TaskFactory {
 		this.handler = handler;
 	}
 
-	public String getErrorXSLT() {
-		return transformer.getSystemId();
+	public String getErrorPipe() {
+		return pipeline.getSystemId();
 	}
 
-	public void setErrorXSLT(String url) {
-		this.transformer = XSLTransformerFactory.getInstance().createTransformer(url);
+	public void setErrorPipe(String url) {
+		this.pipeline = PipelineFactory.getInstance().createPipeline(url);
 	}
 
 	public Task createBackgroundTask(Request req) {
 		Task task = new TriageTask(repo, req, filter, handler);
-		task.setErrorXSLT(transformer);
+		task.setErrorPipe(pipeline);
 		if (req.isStorable()) {
 			task.setExecutor(executor);
 			executor.execute(task);
@@ -124,7 +126,7 @@ public class TaskFactory {
 
 	public Task createForegroundTask(Request req) {
 		Task task = new TriageTask(repo, req, filter, handler);
-		task.setErrorXSLT(transformer);
+		task.setErrorPipe(pipeline);
 		task.setExecutor(foreground);
 		task.run();
 		return task;

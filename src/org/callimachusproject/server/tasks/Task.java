@@ -64,7 +64,8 @@ import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.xslt.XSLTransformer;
+import org.callimachusproject.xproc.Pipeline;
+import org.callimachusproject.xproc.PipelineBuilder;
 import org.openrdf.OpenRDFException;
 import org.openrdf.sail.optimistic.exceptions.ConcurrencyException;
 import org.slf4j.Logger;
@@ -102,7 +103,7 @@ public abstract class Task implements Runnable {
 	private HttpResponse resp;
 	private Filter filter;
 	private Runnable onDone;
-	private XSLTransformer transformer;
+	private Pipeline pipeline;
 
 	public Task(Request request, Filter filter) {
 		assert request != null;
@@ -111,8 +112,8 @@ public abstract class Task implements Runnable {
 		this.filter = filter;
 	}
 
-	public void setErrorXSLT(XSLTransformer transformer) {
-		this.transformer = transformer;
+	public void setErrorPipe(Pipeline pipeline) {
+		this.pipeline = pipeline;
 	}
 
 	public final boolean isStorable() {
@@ -194,8 +195,8 @@ public abstract class Task implements Runnable {
 		if (onDone != null) {
 			child.onDone(onDone);
 		}
-		if (transformer != null) {
-			child.setErrorXSLT(transformer);
+		if (pipeline != null) {
+			child.setErrorPipe(pipeline);
 		}
 		assert executor != null;
 		child.setExecutor(executor);
@@ -481,14 +482,15 @@ public abstract class Task implements Runnable {
 			print.close();
 		}
 		String body = writer.toString();
-		if (transformer != null && inError.get() == null) {
-			String id = transformer.getSystemId();
+		if (pipeline != null && inError.get() == null) {
+			String id = pipeline.getSystemId();
 			if (id == null || !req.getRequestURL().startsWith(id)) {
-				String iri = req.getIRI();
 				try {
 					inError.set(true);
-					body = transformer.transform(new StringReader(body), null).with("this", iri)
-							.with("query", req.getQueryString()).asString();
+					PipelineBuilder pb = pipeline.pipeReader(new StringReader(body));
+					pb.passOption("target", req.getIRI());
+					pb.passOption("query", req.getQueryString());
+					body = pb.asString();
 				} catch (Throwable exc) {
 					logger.error(exc.toString(), exc);
 				} finally {

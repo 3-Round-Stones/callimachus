@@ -50,8 +50,7 @@ public class PipelineFactory {
 		}
 	}
 
-	public Pipeline createPipeline(String systemId) throws SAXException,
-			IOException {
+	public Pipeline createPipeline(String systemId) {
 		return new Pipeline(systemId, resolver, config);
 	}
 

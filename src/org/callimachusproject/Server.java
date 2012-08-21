@@ -72,7 +72,7 @@ public class Server implements HTTPObjectAgentMXBean {
 	private static final String ACTIVITY_PATH = "/activity/";
 	private static final String ACTIVITY_TYPE = "/callimachus/Activity";
 	private static final String FOLDER_TYPE = "/callimachus/Folder";
-	private static final String ERROR_XSLT_PATH = "/callimachus/transforms/error.xsl";
+	private static final String ERROR_XPL_PATH = "/callimachus/pipelines/error.xpl";
 	public static final String NAME = Version.getInstance().getVersion();
 
 	private static final Options options = new Options();
@@ -409,7 +409,7 @@ public class Server implements HTTPObjectAgentMXBean {
 			for (String o : line.getOptionValues('o')) {
 				if (primary) {
 					server.setActivityFolderAndType(o + ACTIVITY_PATH, o + ACTIVITY_TYPE, o + FOLDER_TYPE);
-					server.setErrorXSLT(o + ERROR_XSLT_PATH);
+					server.setErrorPipe(o + ERROR_XPL_PATH);
 					primary = false;
 				}
 				server.addOrigin(o);

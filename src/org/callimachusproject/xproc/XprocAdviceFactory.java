@@ -1,6 +1,5 @@
 package org.callimachusproject.xproc;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -11,8 +10,6 @@ import org.openrdf.annotations.Iri;
 import org.openrdf.repository.object.advice.Advice;
 import org.openrdf.repository.object.advice.AdviceFactory;
 import org.openrdf.repository.object.advice.AdviceProvider;
-import org.openrdf.repository.object.exceptions.ObjectCompositionException;
-import org.xml.sax.SAXException;
 
 public class XprocAdviceFactory implements AdviceProvider, AdviceFactory {
 	private final PipelineFactory factory = PipelineFactory.getInstance();
@@ -35,14 +32,8 @@ public class XprocAdviceFactory implements AdviceProvider, AdviceFactory {
 			}
 		}
 		String url = resolve(m.getAnnotation(xproc.class).value(), m);
-		try {
-			Pipeline pipeline = factory.createPipeline(url);
-			return new XprocAdvice(pipeline, m, bindingNames, source);
-		} catch (SAXException e) {
-			throw new ObjectCompositionException(e);
-		} catch (IOException e) {
-			throw new ObjectCompositionException(e);
-		}
+		Pipeline pipeline = factory.createPipeline(url);
+		return new XprocAdvice(pipeline, m, bindingNames, source);
 	}
 
 	private String resolve(String ref, Method method) {

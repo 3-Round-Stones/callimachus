@@ -26,11 +26,12 @@ public class Pipeline {
 	private final String systemId;
 	private final XdmNode pipeline;
 
-	Pipeline(String systemId, XdmNodeURIResolver resolver, XProcConfiguration config) throws SAXException, IOException {
+	Pipeline(String systemId, XdmNodeURIResolver resolver, XProcConfiguration config) {
+		assert systemId != null;
 		this.systemId = systemId;
 		this.config = config;
 		this.resolver = resolver;
-		this.pipeline = resolver.resolve(systemId);
+		this.pipeline = null;
 	}
 
 	Pipeline(InputStream in, String systemId, XdmNodeURIResolver resolver, XProcConfiguration config) throws SAXException, IOException {
@@ -45,6 +46,10 @@ public class Pipeline {
 		this.config = config;
 		this.resolver = resolver;
 		this.pipeline = resolver.parse(systemId, in);
+	}
+
+	public String getSystemId() {
+		return systemId;
 	}
 
 	public PipelineBuilder pipe() throws SAXException, IOException {
@@ -65,12 +70,12 @@ public class Pipeline {
 		return pipeSource(resolver.parse(null, reader));
 	}
 
-	private PipelineBuilder pipeSource(XdmNode source) throws SAXException, XProcException {
+	private PipelineBuilder pipeSource(XdmNode source) throws SAXException, XProcException, IOException {
 		XProcRuntime runtime = new XProcRuntime(config);
 		runtime.setEntityResolver(resolver.getEntityResolver());
 		runtime.setURIResolver(resolver);
 		try {
-			XPipeline xpipeline = runtime.use(pipeline);
+			XPipeline xpipeline = runtime.use(resolvePipeline());
 			if (source != null) {
 				xpipeline.writeTo("source", source);
 			}
@@ -78,6 +83,12 @@ public class Pipeline {
 		} catch (SaxonApiException e) {
 			throw new SAXException(e);
 		}
+	}
+
+	private XdmNode resolvePipeline() throws IOException, SAXException {
+		if (pipeline != null)
+			return pipeline;
+		return resolver.resolve(systemId);
 	}
 
 	private Reader asReader(Object source, Type type, String... media)

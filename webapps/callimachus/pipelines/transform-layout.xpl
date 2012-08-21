@@ -25,10 +25,10 @@
     </p:xslt>
 
     <p:xslt>
-        <p:with-param name="this" select="$this"/>
+        <p:with-param name="target" select="$this"/>
         <p:with-param name="query" select="$query"/>
         <p:input port="stylesheet">
-            <p:document href="../transforms/page.xsl" />
+            <p:document href="../transforms/page-info.xsl" />
         </p:input>
     </p:xslt>
 

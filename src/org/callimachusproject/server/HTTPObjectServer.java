@@ -214,12 +214,12 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		});
 	}
 
-	public String getErrorXSLT() {
-		return service.getErrorXSLT();
+	public String getErrorPipe() {
+		return service.getErrorPipe();
 	}
 
-	public void setErrorXSLT(String url) {
-		service.setErrorXSLT(url);
+	public void setErrorPipe(String url) {
+		service.setErrorPipe(url);
 	}
 
 	public Repository getRepository() {

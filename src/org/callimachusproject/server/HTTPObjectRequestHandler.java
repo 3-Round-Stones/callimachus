@@ -62,7 +62,6 @@ import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.tasks.Task;
 import org.callimachusproject.server.tasks.TaskFactory;
 import org.callimachusproject.server.util.ReadableContentListener;
-import org.openrdf.repository.object.ObjectRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,12 +105,12 @@ public class HTTPObjectRequestHandler implements NHttpRequestHandler,
 		factory = new TaskFactory(repository, filter, handler);
 	}
 
-	public String getErrorXSLT() {
-		return factory.getErrorXSLT();
+	public String getErrorPipe() {
+		return factory.getErrorPipe();
 	}
 
-	public void setErrorXSLT(String url) {
-		factory.setErrorXSLT(url);
+	public void setErrorPipe(String url) {
+		factory.setErrorPipe(url);
 	}
 
 	public NHttpConnection[] getConnections() {

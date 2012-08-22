@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<xsl:stylesheet version="1.0"
+<xsl:stylesheet version="2.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:prov="http://www.w3.org/ns/prov#"
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
@@ -59,7 +59,17 @@
                         <a href="{sparql:binding[@name='subsequent']/*}">Subsequent revision→</a>
                     </xsl:for-each>
                 </p>
-                <xsl:apply-templates select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='subject']" />
+                <xsl:for-each-group select="sparql:sparql/sparql:results/sparql:result[sparql:binding/@name='subject']"
+                        group-by="sparql:binding[@name='subject']/*">
+                    <a href="{sparql:binding[@name='subject']/*}" class="view">
+                        <xsl:call-template name="iriref">
+                            <xsl:with-param name="iri" select="sparql:binding[@name='subject']/*"/>
+                        </xsl:call-template>
+                    </a>
+                    <ul>
+                        <xsl:apply-templates select="current-group()" />
+                    </ul>
+                </xsl:for-each-group>
             </body>
         </html>
     </xsl:template>
@@ -67,17 +77,6 @@
         <xsl:variable name="subject" select="sparql:binding[@name='subject']/*" />
         <xsl:variable name="predicate" select="sparql:binding[@name='predicate']/*" />
         <xsl:variable name="object" select="sparql:binding[@name='object']/*" />
-        <xsl:if test="not($subject=preceding-sibling::*[1]/sparql:binding[@name='subject']/*)">
-            <xsl:if test="preceding-sibling::*[1]/sparql:binding[@name='subject']">
-                <xsl:text disable-output-escaping="yes">&lt;/ul&gt;</xsl:text>
-            </xsl:if>
-            <a href="{$subject}" class="view">
-                <xsl:call-template name="iriref">
-                    <xsl:with-param name="iri" select="$subject"/>
-                </xsl:call-template>
-            </a>
-            <xsl:text disable-output-escaping="yes">&lt;ul&gt;</xsl:text>
-        </xsl:if>
         <li resource="{$subject}">
             <label class="predicate">
                 <xsl:call-template name="iriref">
@@ -94,9 +93,6 @@
                 <xsl:apply-templates select="sparql:binding[@name='object']" />
             </span>
         </li>
-        <xsl:if test="not(following-sibling::*[1]/sparql:binding[@name='subject'])">
-            <xsl:text disable-output-escaping="yes">&lt;/ul&gt;</xsl:text>
-        </xsl:if>
     </xsl:template>
     <xsl:template match="sparql:binding">
         <xsl:apply-templates select="*" />

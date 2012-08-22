@@ -30,7 +30,7 @@ public class MediaType implements Serializable {
 	private static final MediaType WILD;
 	static {
 		try {
-			WILD = new MediaType("*/*", new MimeType("*/*"), 1.0);
+			WILD = new MediaType("*/*", new MimeType("*/*"), new MediaType("*/*", new MimeType("*/*")).getQuality());
 		} catch (MimeTypeParseException e) {
 			throw new AssertionError(e);
 		}

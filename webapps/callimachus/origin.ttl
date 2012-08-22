@@ -47,5 +47,5 @@
     calli:rel calli:realms;
     calli:type "application/atom+xml;q=0.9";
     calli:header "cache-control:no-cache";
-    calli:get <pipelines/origin-realms-atom.xpl?result&this=$0>.
+    calli:get <pipelines/origin-realms-atom.xpl?results&this=$0>.
 

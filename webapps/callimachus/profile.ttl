@@ -78,7 +78,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
-    calli:post <pipelines/profile.xpl?result&this=$0>.
+    calli:post <pipelines/profile.xpl?results&this=$0>.
 
 :model a owl:ObjectProperty, owl:FunctionalProperty;
     rdfs:domain :TransformProfile;

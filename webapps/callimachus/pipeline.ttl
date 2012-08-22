@@ -112,12 +112,12 @@
 # Execute Pipeline             #
 ################################
 
-# GET /pipeline.xpl?result
+# GET /pipeline.xpl?results
 :GetResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     calli:method "GET";
-    calli:query "result";
+    calli:query "results";
     calli:type "message/x-response";
     calli:header "cache-control:no-store";
     calli:script """
@@ -130,12 +130,12 @@
     calli:query "*";
     calli:type "application/x-www-form-urlencoded".
 
-# POST /pipeline.xpl?result
+# POST /pipeline.xpl?results
 :PostResult rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     calli:method "POST";
-    calli:query "result";
+    calli:query "results";
     calli:type "message/x-response";
     calli:header "cache-control:no-store";
     calli:imports <java:org.callimachusproject.xproc.PipelineFactory>;

@@ -112,7 +112,7 @@
     calli:rel "contents";
     calli:type "application/sparql-results+xml;q=0.9";
     calli:header "cache-control:no-cache";
-    calli:get <pipelines/folder-contents-atom.xpl?result&this=$0>.
+    calli:get <pipelines/folder-contents-atom.xpl?results&this=$0>.
 
 ################################
 # Recent Changes
@@ -125,7 +125,7 @@
     calli:query "changes";
     calli:rel "alternate";
     calli:type "text/html";
-    calli:get </callimachus/pipelines/folder-changes-html.xpl?result&this=$0>.
+    calli:get </callimachus/pipelines/folder-changes-html.xpl?results&this=$0>.
     
 :GetFolderChangeAtom rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
@@ -134,7 +134,7 @@
     calli:query "changes";
     calli:type "application/atom+xml;q=0.9";
     calli:header "cache-control:no-store";
-    calli:get <pipelines/folder-changes-atom.xpl?result&this=$0>.
+    calli:get <pipelines/folder-changes-atom.xpl?results&this=$0>.
     
 ################################
 # Export folder contents

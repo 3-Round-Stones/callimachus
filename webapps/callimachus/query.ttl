@@ -351,19 +351,19 @@
 
 :TransformIntoHtml rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/html;charset=UTF-8";
-    calli:post <pipelines/sparql-results-html.xpl?result>.
+    calli:post <pipelines/sparql-results-html.xpl?results>.
 
 :TransformIntoCSV rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/csv;charset=UTF-8";
-    calli:post <pipelines/sparql-results-csv.xpl?result>.
+    calli:post <pipelines/sparql-results-csv.xpl?results>.
 
 :TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/tab-separated-values;charset=UTF-16LE";
-    calli:post <pipelines/sparql-results-tsv.xpl?result>.
+    calli:post <pipelines/sparql-results-tsv.xpl?results>.
 
 :TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/javascript;charset=UTF-8";
-    calli:post <pipelines/sparql-results-wire.xpl?result&handler={handler}&reqId={reqId}>.
+    calli:post <pipelines/sparql-results-wire.xpl?results&handler={handler}&reqId={reqId}>.
 
 :handler a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :TransformIntoWire;

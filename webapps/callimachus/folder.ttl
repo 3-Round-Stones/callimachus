@@ -110,129 +110,9 @@
     calli:method "GET";
     calli:query "contents";
     calli:rel "contents";
-    calli:type "application/sparql-results+xml;q=0.1";
+    calli:type "application/sparql-results+xml;q=0.9";
     calli:header "cache-control:no-cache";
-    calli:transform <transforms/TransformIntoAtom>;
-    msg:sparql """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-        PREFIX skosxl:<http://www.w3.org/2008/05/skos-xl#>
-        PREFIX dc:<http://purl.org/dc/elements/1.1/>
-        PREFIX dcterms:<http://purl.org/dc/terms/>
-        PREFIX foaf:<http://xmlns.com/foaf/0.1/>
-        PREFIX prov:<http://www.w3.org/ns/prov#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT REDUCED * {
-            {
-                $this rdfs:label ?title
-                BIND (concat(str($this),"?contents") as ?id)
-                BIND ("feed" as ?type)
-                BIND (?title as ?collection_title)
-                BIND (concat(str($this),"?contents") as ?collection_href)
-                BIND (concat(str($this),"?describe") as ?link_href)
-                BIND ("describedby" as ?link_rel)
-            } UNION {
-                { $this a <Realm> } UNION { $this a <Origin> }
-                BIND (concat(str($this),"?contents") as ?id)
-                BIND (concat(str($this),"?search") as ?link_href)
-                BIND ("search" as ?link_rel)
-                BIND ("application/opensearchdescription+xml" as ?link_type)
-            } UNION {
-                BIND ("feed" as ?type)
-                BIND (concat(str($this),"?contents") as ?id)
-                $this prov:wasGeneratedBy [prov:endedAtTime ?updated]
-                BIND (concat(str($this),"?changes") as ?link_href)
-                BIND ("alternate" as ?link_rel)
-                BIND ("application/atom+xml" as ?link_type)
-            } UNION {
-                BIND ("feed" as ?type)
-                BIND (concat(str($this),"?contents") as ?id)
-                [a <Creatable>] calli:mediaType ?collection_accept
-            } UNION {
-                {
-                    SELECT (concat(str($this),"?contents") as ?id) (count(distinct ?part) as ?totalResults) ("feed" as ?type) {
-                        $this calli:hasComponent ?part
-                    } GROUP BY $this
-                }
-            } UNION {
-                {
-                    SELECT REDUCED ?id ?title {
-                        $this calli:hasComponent ?id
-                        FILTER (isIRI(?id))
-                        OPTIONAL {
-                            ?id skos:prefLabel ?title
-                        } OPTIONAL {
-                            ?id foaf:name ?title
-                        } OPTIONAL {
-                            ?id rdfs:label ?title
-                        } OPTIONAL {
-                            ?id skosxl:literalForm ?title
-                        } OPTIONAL {
-                            ?id dcterms:title ?title
-                        }
-                    } ORDER BY ?id LIMIT 100
-                }
-                OPTIONAL {
-                    {
-                        ?id prov:wasGeneratedBy ?revision . ?revision prov:endedAtTime ?updated
-                        OPTIONAL {
-                            ?revision prov:wasAssociatedWith ?contributor_uri
-                            OPTIONAL {
-                                ?contributor_uri rdfs:label ?contributor_name
-                            }
-                        }
-                    } UNION {
-                        ?id rdfs:comment ?summary
-                    } UNION {
-                        ?id a [calli:icon ?icon]
-                    } UNION {
-                        ?id calli:reader ?link_reader_href
-                        OPTIONAL {
-                            ?link_reader_href rdfs:label ?link_reader_title
-                        }
-                    } UNION {
-                        ?id calli:contributor ?link_contributor_href
-                        OPTIONAL {
-                            ?link_contributor_href rdfs:label ?link_contributor_title
-                        }
-                    } UNION {
-                        ?id calli:editor ?link_editor_href
-                        OPTIONAL {
-                            ?link_editor_href rdfs:label ?link_editor_title
-                        }
-                    } UNION {
-                        ?id calli:administrator ?link_administrator_href
-                        OPTIONAL {
-                            ?link_administrator_href rdfs:label ?link_administrator_title
-                        }
-                    } UNION {
-                        $this calli:hasComponent ?id
-                        BIND (?id as ?content_src)
-                        OPTIONAL {
-                            ?id a [calli:mediaType ?content_type]
-                            BIND (?id as ?link_edit_media_href)
-                        }
-                    } UNION {
-                        { ?id a <Folder> } UNION { ?id a <Realm> }
-                        BIND (concat(str(?id),"?contents") as ?link_href)
-                        BIND ("contents" as ?link_rel)
-                        BIND ("application/atom+xml" as ?link_type)
-                    } UNION {
-                        { ?id a <Folder> } UNION { ?id a <Realm> }
-                        BIND (concat(str(?id),"?archive") as ?link_href)
-                        BIND (calli:archive as ?link_rel)
-                        BIND ("application/zip" as ?link_type)
-                    } UNION {
-                        $this calli:hasComponent ?id
-                        BIND (concat(str(?id),"?view") as ?link_view_href)
-                        BIND (concat(str(?id),"?describe") as ?link_describedby_href)
-                        BIND (concat(str(?id),"?history") as ?link_history_href)
-                    }
-                }
-            }
-        } ORDER BY desc(?type) ?id
-    """.
+    calli:get <pipelines/folder-contents-atom.xpl?result&this=$0>.
 
 ################################
 # Recent Changes
@@ -245,8 +125,17 @@
     calli:query "changes";
     calli:rel "alternate";
     calli:type "text/html";
-    calli:get </callimachus/pipelines/folder-changes.xpl?result&this=$0>.
-
+    calli:get </callimachus/pipelines/folder-changes-html.xpl?result&this=$0>.
+    
+:GetFolderChangeAtom rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    calli:method "GET";
+    calli:query "changes";
+    calli:type "application/atom+xml;q=0.9";
+    calli:header "cache-control:no-store";
+    calli:get <pipelines/folder-changes-atom.xpl?result&this=$0>.
+    
 ################################
 # Export folder contents
 ################################

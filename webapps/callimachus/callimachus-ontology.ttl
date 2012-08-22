@@ -205,7 +205,7 @@ calli:title a owl:AnnotationProperty;
     rdfs:comment "Labels the relationship between message target and message response such that it can be used as identification within a human-readable menu";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:transform a owl:AnnotationProperty;
+calli:transform a owl:DeprecatedProperty, owl:AnnotationProperty;
     rdfs:label "transform";
     rdfs:comment "The messages that should be used to transform the parameter or response";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.

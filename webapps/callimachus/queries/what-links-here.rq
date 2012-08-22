@@ -5,7 +5,7 @@ PREFIX prov:<http://www.w3.org/ns/prov#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 SELECT DISTINCT ?label ?comment ?icon ?url ?modified
 WHERE {
-    ?url ?rel <$this>
+    ?url ?rel <$target>
     FILTER (isIRI(?url))
     FILTER (?rel != prov:wasAssociatedWith)
     ?url prov:wasGeneratedBy ?revision

@@ -6,13 +6,13 @@
     exclude-result-prefixes="xhtml"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <xsl:import href="../transforms/graph.xsl" />
-    <xsl:param name="this" />
+    <xsl:param name="target" />
     <xsl:template match="/">
         <html>
             <head>
                 <title>
                     <xsl:call-template name="resource">
-                        <xsl:with-param name="iri" select="$this"/>
+                        <xsl:with-param name="iri" select="$target"/>
                     </xsl:call-template>
                 </title>
                 <style>
@@ -77,7 +77,7 @@
             <body>
                 <h1>
                     <xsl:call-template name="resource">
-                        <xsl:with-param name="iri" select="$this"/>
+                        <xsl:with-param name="iri" select="$target"/>
                     </xsl:call-template>
                     <xsl:text> Resource</xsl:text>
                 </h1>

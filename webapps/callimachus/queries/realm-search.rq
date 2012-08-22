@@ -11,12 +11,12 @@ PREFIX prov:<http://www.w3.org/ns/prov#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 SELECT * {
     {
-        <$this> rdfs:label ?title
-        BIND (concat(str(<$this>),"?q=",encode_for_uri("$q")) as ?id)
+        <$target> rdfs:label ?title
+        BIND (concat(str(<$target>),"?q=",encode_for_uri("$q")) as ?id)
         BIND ("feed" as ?type)
     } UNION {
-        <$this> prov:wasGeneratedBy [prov:endedAtTime ?updated]
-        BIND (concat(str(<$this>),"?q=",encode_for_uri("$q")) as ?id)
+        <$target> prov:wasGeneratedBy [prov:endedAtTime ?updated]
+        BIND (concat(str(<$target>),"?q=",encode_for_uri("$q")) as ?id)
         BIND ("feed" as ?type)
     } UNION {
         {
@@ -28,8 +28,8 @@ SELECT * {
                         FILTER sameTerm(?soundex, keyword:soundex("$q"))
                         FILTER (isIRI(?url))
                         FILTER (
-                            strstarts(str(?url), str(<$this>)) ||
-                            <$this> = </> && (
+                            strstarts(str(?url), str(<$target>)) ||
+                            <$target> = </> && (
                                 EXISTS {
                                     {
                                         ?realm a <../Origin>

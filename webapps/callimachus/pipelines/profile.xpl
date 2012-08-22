@@ -7,7 +7,7 @@
 
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
 
-    <p:option name="this" required="true"  />
+    <p:option name="target" required="true"  />
 
     <p:xslt>
         <p:input port="stylesheet">
@@ -17,7 +17,7 @@
 
     <p:import href = "transform-layout.xpl" />
     <calli:transform-layout>
-        <p:with-option name="this"     select="$this" />
+        <p:with-option name="target"     select="$target" />
         <p:with-option name="query"    select="''" />
         <p:with-option name="systemId" select="resolve-uri('../transforms/profile.xhtml')" />
     </calli:transform-layout>

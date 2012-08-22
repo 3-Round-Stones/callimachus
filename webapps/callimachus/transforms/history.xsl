@@ -6,7 +6,7 @@
     xmlns:sparql="http://www.w3.org/2005/sparql-results#"
     exclude-result-prefixes="xhtml sparql">
     <xsl:import href="../transforms/iriref.xsl" />
-    <xsl:param name="this" />
+    <xsl:param name="target" />
     <xsl:template match="/">
         <html>
             <head>
@@ -41,7 +41,7 @@
             <xsl:if test="not(sparql:binding[@name='icon']/*)">
                 <img src="/callimachus/images/rdf-icon.png" class="icon" />
             </xsl:if>
-            <a href="{$this}" class="view">
+            <a href="{$target}" class="view">
                 <xsl:apply-templates select="sparql:binding[@name='title']/*" />
                 <xsl:if test="not(sparql:binding[@name='title']/*)">
                     <xsl:call-template name="iriref">

@@ -9,12 +9,12 @@ PREFIX prov:<http://www.w3.org/ns/prov#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 SELECT * {
     {
-        <$this> rdfs:label ?title
-        BIND (concat(str(<$this>),"?relatedchanges") as ?id)
+        <$target> rdfs:label ?title
+        BIND (concat(str(<$target>),"?relatedchanges") as ?id)
         BIND ("feed" as ?type)
     } UNION {
-        <$this> prov:wasGeneratedBy [prov:endedAtTime ?updated]
-        BIND (concat(str(<$this>),"?relatedchanges") as ?id)
+        <$target> prov:wasGeneratedBy [prov:endedAtTime ?updated]
+        BIND (concat(str(<$target>),"?relatedchanges") as ?id)
         BIND ("feed" as ?type)
     } UNION {
         {
@@ -25,7 +25,7 @@ SELECT * {
                     (max(?contributor_uri) as ?contributor_uri) (max(?contributor_name) as ?contributor_name)  {
                 {
                     SELECT * {
-                        <$this> ?rel ?id .
+                        <$target> ?rel ?id .
                         ?id prov:wasGeneratedBy ?revision .
                         ?revision prov:endedAtTime ?updated .
                     } ORDER BY desc(?updated) LIMIT 50

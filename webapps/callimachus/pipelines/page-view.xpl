@@ -11,7 +11,7 @@
 
     <p:option name="systemId" required="true" />
 
-    <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;this=', encode-for-uri($systemId))" />
+    <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;target=', encode-for-uri($systemId))" />
     <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
 
     <p:import href="page-template.xpl" />

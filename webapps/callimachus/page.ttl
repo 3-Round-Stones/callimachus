@@ -206,7 +206,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Page>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:type "text/html";
-    calli:post <pipelines/page-render.xpl?results&template=$0%3Ftemplate%26realm%3D{realm}&this={renderResource}&query={renderResourceQuery}>.
+    calli:post <pipelines/page-render.xpl?results&template=$0%3Ftemplate%26realm%3D{realm}&target={renderResource}&query={renderResourceQuery}>.
 
 :realm a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :Render;

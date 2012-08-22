@@ -9,16 +9,16 @@ PREFIX prov:<http://www.w3.org/ns/prov#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 SELECT * {
     {
-        <$this> rdfs:label ?title
-        BIND (concat(str(<$this>),"?contributions") as ?id)
+        <$target> rdfs:label ?title
+        BIND (concat(str(<$target>),"?contributions") as ?id)
         BIND ("feed" as ?type)
     } UNION {
-        <$this> prov:wasGeneratedBy [prov:endedAtTime ?updated]
-        BIND (concat(str(<$this>),"?contributions") as ?id)
+        <$target> prov:wasGeneratedBy [prov:endedAtTime ?updated]
+        BIND (concat(str(<$target>),"?contributions") as ?id)
         BIND ("feed" as ?type)
     } UNION {
-        <$this> rdfs:label ?contributor_name
-        BIND (<$this> as ?contributor_uri)
+        <$target> rdfs:label ?contributor_name
+        BIND (<$target> as ?contributor_uri)
         BIND ("feed" as ?type)
     } UNION {
         {
@@ -28,7 +28,7 @@ SELECT * {
                     (concat(str(?revision),"?view") as ?link_href) (prov:wasGeneratedBy as ?link_rel) ("text/html" as ?link_type) {
                 {
                     SELECT * {
-                        ?revision prov:wasAssociatedWith <$this>; prov:endedAtTime ?updated .
+                        ?revision prov:wasAssociatedWith <$target>; prov:endedAtTime ?updated .
                         ?id prov:wasGeneratedBy ?revision .
                     } ORDER BY desc(?updated) LIMIT 50
                 } OPTIONAL {

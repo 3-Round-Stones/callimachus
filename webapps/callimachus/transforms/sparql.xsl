@@ -8,7 +8,6 @@
     exclude-result-prefixes="xhtml sparql">
     <xsl:import href="graph.xsl" />
     <xsl:output indent="no" method="xml" />
-    <xsl:param name="this" />
     <xsl:template match="/">
         <xsl:if test="*">
             <html>

@@ -7,14 +7,15 @@
     exclude-result-prefixes="xhtml">
     <xsl:import href="iriref.xsl" />
     <xsl:output indent="no" method="xml" />
-    <xsl:param name="this" />
+    <xsl:param name="target" />
+    <xsl:param name="systemId" />
     <xsl:template match="/">
         <xsl:if test="*">
             <html>
                 <head>
                     <title>
                         <xsl:call-template name="resource">
-                            <xsl:with-param name="iri" select="$this"/>
+                            <xsl:with-param name="iri" select="$target"/>
                         </xsl:call-template>
                     </title>
                     <style>
@@ -31,7 +32,7 @@
                 <body>
                     <h1>
                         <xsl:call-template name="resource">
-                            <xsl:with-param name="iri" select="$this"/>
+                            <xsl:with-param name="iri" select="$target"/>
                         </xsl:call-template>
                         <xsl:text> Graph</xsl:text>
                     </h1>
@@ -226,7 +227,7 @@
     <xsl:template match="/rdf:RDF/rdf:Description[@rdf:about]">
         <div resource="{@rdf:about}">
             <a href="{@rdf:about}" class="view uri">
-                <xsl:if test="substring-before(@rdf:about, '#')=$this">
+                <xsl:if test="substring-before(@rdf:about, '#')=$systemId">
                     <xsl:attribute name="name"><xsl:value-of select="substring-after(@rdf:about, '#')" /></xsl:attribute>
                 </xsl:if>
                 <xsl:call-template name="resource">

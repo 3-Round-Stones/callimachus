@@ -7,7 +7,7 @@
     exclude-result-prefixes="xhtml sparql">
     <xsl:import href="iriref.xsl" />
     <xsl:output indent="no" method="xml" />
-    <xsl:param name="this" />
+    <xsl:param name="taget" />
     <xsl:variable name="name">
         <xsl:choose>
             <xsl:when test="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='name']/*">
@@ -20,7 +20,7 @@
             </xsl:when>
             <xsl:otherwise>
                 <xsl:call-template name="iriref">
-                    <xsl:with-param name="iri" select="$this"/>
+                    <xsl:with-param name="iri" select="$target"/>
                 </xsl:call-template>
             </xsl:otherwise>
         </xsl:choose>
@@ -85,7 +85,7 @@
             </label>
             <xsl:text> </xsl:text>
             <span>
-                <xsl:if test="string(sparql:binding[@name='added']/*)!=$this">
+                <xsl:if test="string(sparql:binding[@name='added']/*)!=$target">
                     <xsl:attribute name="class">
                         <xsl:text>removed</xsl:text>
                     </xsl:attribute>

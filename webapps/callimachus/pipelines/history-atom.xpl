@@ -5,11 +5,11 @@
         xmlns:l="http://xproc.org/library"
         xmlns:calli ="http://callimachusproject.org/rdf/2009/framework#">
     <p:serialization port="result" media-type="application/atom+xml" method="xml" />
-    <p:option name="this"  required="true"  />
+    <p:option name="target"  required="true"  />
     <p:load>
         <p:with-option 
             name="href" 
-            select="concat('../queries/history.rq?results&amp;this=', encode-for-uri($this))"/>
+            select="concat('../queries/history.rq?results&amp;target=', encode-for-uri($target))"/>
     </p:load>
     <p:xslt>
         <p:input port="stylesheet">

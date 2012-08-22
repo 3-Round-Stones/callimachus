@@ -6,15 +6,15 @@
         xmlns:calli ="http://callimachusproject.org/rdf/2009/framework#"
         xmlns:l="http://xproc.org/library">
     <p:serialization port="result" media-type="application/atom+xml" method="xml" indent="true" />
-    <p:option name="this"  required="true"  />
+    <p:option name="target"  required="true"  />
     <p:option name="q"     required="true"  />
 
     <p:load>
         <p:with-option 
             name="href" 
             select="concat(
-                '../queries/realm-search.rq?results&amp;this=', 
-                encode-for-uri($this),
+                '../queries/realm-search.rq?results&amp;target=', 
+                encode-for-uri($target),
                 '&amp;q=',
                 encode-for-uri($q)
             )"/>

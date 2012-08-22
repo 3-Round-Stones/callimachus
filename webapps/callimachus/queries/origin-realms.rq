@@ -4,8 +4,8 @@ PREFIX prov:<http://www.w3.org/ns/prov#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 SELECT REDUCED * {
     {
-        <$this> rdfs:label ?title
-        BIND (concat(str(<$this>),"?realms") as ?id)
+        <$target> rdfs:label ?title
+        BIND (concat(str(<$target>),"?realms") as ?id)
         BIND ("feed" as ?type)
     } UNION {
         { ?id a <../Origin> } UNION { ?id a <../Realm> }

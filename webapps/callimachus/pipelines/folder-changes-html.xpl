@@ -6,21 +6,21 @@
     xmlns:calli ="http://callimachusproject.org/rdf/2009/framework#"
     xmlns:l="http://xproc.org/library">
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
-    <p:option name="this"  required="true"  />
+    <p:option name="target"  required="true"  />
     <p:import href = "transform-layout.xpl" />
     <p:load>
         <p:with-option 
             name="href" 
-            select="concat('../queries/folder-changes.rq?results&amp;this=', encode-for-uri($this))"/>
+            select="concat('../queries/folder-changes.rq?results&amp;target=', encode-for-uri($target))"/>
     </p:load>
     <p:xslt>
-        <p:with-param name="this" select="$this" />
+        <p:with-param name="systemId" select="$target" />
         <p:input port="stylesheet">
             <p:document href="../transforms/folder-changes.xsl" />
         </p:input>
     </p:xslt>
     <calli:transform-layout>
-        <p:with-option name="this"  select="$this" />
+        <p:with-option name="target"  select="$target" />
         <p:with-option name="query" select="'changes'" />
         <p:with-option name="systemId" select="resolve-uri('../transforms/folder-changes.xsl')" />
     </calli:transform-layout>

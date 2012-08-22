@@ -5,11 +5,11 @@ PREFIX prov:<http://www.w3.org/ns/prov#>
 SELECT REDUCED ?label ?note ?revision ?modified ?user ?name
 WHERE {
     {
-        <$this> skos:prefLabel ?label
+        <$target> skos:prefLabel ?label
     } UNION {
-        <$this> rdfs:label ?label
+        <$target> rdfs:label ?label
     } UNION {
-        GRAPH ?revision { <$this> skos:editorialNote ?note }
+        GRAPH ?revision { <$target> skos:editorialNote ?note }
         ?revision prov:endedAtTime ?modified
         OPTIONAL { ?revision prov:wasAssociatedWith ?user
             OPTIONAL { ?user skos:prefLabel ?name }

@@ -7,10 +7,11 @@
 
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
 
-    <p:option name="this" required="true"  />
+    <p:option name="target" required="true"  />
 
     <p:xslt>
-        <p:with-param name="this" select="$this" />
+        <p:with-param name="target"   select="$target" />
+        <p:with-param name="systemId" select="$target" />
         <p:input port="stylesheet">
             <p:document href="../transforms/sparql.xsl" />
         </p:input>
@@ -18,7 +19,7 @@
 
     <p:import href = "transform-layout.xpl" />
     <calli:transform-layout>
-        <p:with-option name="this"     select="$this" />
+        <p:with-option name="target"     select="$target" />
         <p:with-option name="query"    select="''" />
         <p:with-option name="systemId" select="resolve-uri('../transforms/sparql.xsl')" />
     </calli:transform-layout>

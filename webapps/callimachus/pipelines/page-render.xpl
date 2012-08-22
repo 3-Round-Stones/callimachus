@@ -11,7 +11,7 @@
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
 
     <p:option name="template" required="true" />
-    <p:option name="this" required="true" />
+    <p:option name="target" required="true" />
     <p:option name="query" required="true" />
     
     <p:declare-step type="calli:render">
@@ -35,7 +35,7 @@
     </calli:render>
     
     <p:xslt>
-        <p:with-param name="target" select="$this"/>
+        <p:with-param name="target" select="$target"/>
         <p:with-param name="query" select="$query"/>
         <p:input port="stylesheet">
             <p:document href="../transforms/page-info.xsl" />

@@ -7,12 +7,12 @@
 
     <p:serialization port="result" media-type="application/sparql-results+xml" method="xml" />
 
-    <p:option name="this"  required="true"  />
+    <p:option name="target"  required="true"  />
 
     <p:load>
         <p:with-option 
             name="href" 
-            select="concat('../queries/folder-contents.rq?results&amp;this=', encode-for-uri($this))"/>
+            select="concat('../queries/folder-contents.rq?results&amp;target=', encode-for-uri($target))"/>
     </p:load>
     <p:xslt>
         <p:input port="stylesheet">

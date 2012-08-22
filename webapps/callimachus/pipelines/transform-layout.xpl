@@ -8,11 +8,11 @@
 
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
 
-    <p:option   name="this"     required="true" />
-    <p:option   name="query"    required="true" />
-    <p:option   name="systemId" required="true" />
+    <p:option name="target"   required="true" />
+    <p:option name="query"    required="true" />
+    <p:option name="systemId" required="true" />
 
-    <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;this=', encode-for-uri($this))" />
+    <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;target=', encode-for-uri($target))" />
     <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
 
     <p:xslt>
@@ -25,7 +25,7 @@
     </p:xslt>
 
     <p:xslt>
-        <p:with-param name="target" select="$this"/>
+        <p:with-param name="target" select="$target"/>
         <p:with-param name="query" select="$query"/>
         <p:input port="stylesheet">
             <p:document href="../transforms/page-info.xsl" />

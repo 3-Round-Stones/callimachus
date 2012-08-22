@@ -3,7 +3,7 @@
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfa="http://www.w3.org/ns/rdfa#">
-    <xsl:param name="this" />
+    <xsl:param name="systemId" />
     <xsl:template name="substring-after-last">
         <xsl:param name="string"/>
         <xsl:param name="delimiter"/>
@@ -84,9 +84,9 @@
             </xsl:choose>
         </xsl:variable>
         <xsl:variable name="wd">
-            <xsl:if test="contains($this, '/')">
+            <xsl:if test="contains($systemId, '/')">
                 <xsl:call-template name="substring-before-last">
-                    <xsl:with-param name="string" select="$this" />
+                    <xsl:with-param name="string" select="$systemId" />
                     <xsl:with-param name="delimiter" select="'/'" />
                 </xsl:call-template>
                 <xsl:text>/</xsl:text>
@@ -99,13 +99,13 @@
                 <xsl:value-of select="':'" />
                 <xsl:value-of select="$local" />
             </xsl:when>
-            <xsl:when test="not(contains($iri, '://')) or substring-before($this, '://') != substring-before($iri, '://')">
+            <xsl:when test="not(contains($iri, '://')) or substring-before($systemId, '://') != substring-before($iri, '://')">
                 <xsl:value-of select="$iri" />
             </xsl:when>
             <xsl:when test="$wd and string-length($wd) &lt; string-length($iri) and $wd=substring($iri, 1, string-length($wd))">
                 <xsl:value-of select="substring($iri, string-length($wd) + 1, string-length($iri))" />
             </xsl:when>
-            <xsl:when test="substring-before(substring-after($this, '://'), '/') = substring-before(substring-after($iri, '://'), '/')">
+            <xsl:when test="substring-before(substring-after($systemId, '://'), '/') = substring-before(substring-after($iri, '://'), '/')">
                 <xsl:value-of select="'/'" />
                 <xsl:value-of select="substring-after(substring-after($iri, '://'), '/')" />
             </xsl:when>

@@ -12,7 +12,7 @@
 
     <p:import href = "transform-layout.xpl" />
     <calli:transform-layout>
-        <p:with-option name="this"  select="$target" />
+        <p:with-option name="target"  select="$target" />
         <p:with-option name="query" select="$query" />
         <p:with-option name="systemId" select="$target" />
     </calli:transform-layout>

@@ -9,12 +9,12 @@ PREFIX prov:<http://www.w3.org/ns/prov#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 SELECT * {
     {
-        <$this> rdfs:label ?title
-        BIND (concat(str(<$this>),"?history") as ?id)
+        <$target> rdfs:label ?title
+        BIND (concat(str(<$target>),"?history") as ?id)
         BIND ("feed" as ?type)
     } UNION {
-        <$this> prov:wasGeneratedBy [prov:endedAtTime ?updated]
-        BIND (concat(str(<$this>),"?history") as ?id)
+        <$target> prov:wasGeneratedBy [prov:endedAtTime ?updated]
+        BIND (concat(str(<$target>),"?history") as ?id)
         BIND ("feed" as ?type)
     } UNION {
         {
@@ -23,7 +23,7 @@ SELECT * {
                     (max(?contributor_uri) as ?contributor_uri) (max(?contributor_name) as ?contributor_name)  {
                 {
                     SELECT ?id ?updated {
-                        ?id prov:used <$this>; prov:endedAtTime ?updated
+                        ?id prov:used <$target>; prov:endedAtTime ?updated
                     }  ORDER BY desc(?updated) LIMIT 50
                 } OPTIONAL {
                     ?id prov:wasAssociatedWith ?contributor_uri
@@ -31,19 +31,19 @@ SELECT * {
                         ?contributor_uri rdfs:label ?contributor_name
                     }
                 } OPTIONAL {
-                    <$this> skos:prefLabel ?title
+                    <$target> skos:prefLabel ?title
                 } OPTIONAL {
-                    <$this> foaf:name ?title
+                    <$target> foaf:name ?title
                 } OPTIONAL {
-                    <$this> rdfs:label ?title
+                    <$target> rdfs:label ?title
                 } OPTIONAL {
-                    <$this> skosxl:literalForm ?title
+                    <$target> skosxl:literalForm ?title
                 } OPTIONAL {
-                    <$this> dcterms:title ?title
+                    <$target> dcterms:title ?title
                 } OPTIONAL {
-                    GRAPH ?id { <$this> skos:changeNote ?summary }
+                    GRAPH ?id { <$target> skos:changeNote ?summary }
                 } OPTIONAL {
-                    <$this> a [calli:icon ?icon]
+                    <$target> a [calli:icon ?icon]
                 }
             } GROUP BY ?id
         }

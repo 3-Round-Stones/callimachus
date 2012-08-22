@@ -42,7 +42,7 @@
     calli:method "GET";
     calli:query "index";
     calli:type "text/html";
-    calli:get </callimachus/pipelines/class-index.xpl?results&this=$0>.
+    calli:get </callimachus/pipelines/class-index.xpl?results&target=$0>.
 
 # when a class is created
 :CreateClass owl:intersectionOf (<creatable.ttl#PostCreate>

@@ -7,20 +7,20 @@ PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 SELECT REDUCED ?modified ?user ?name ?previous ?subsequent ?removed ?added ?subject ?predicate ?object
 WHERE {
     {
-        <$this> prov:endedAtTime ?modified
+        <$target> prov:endedAtTime ?modified
         OPTIONAL {
-            <$this> prov:wasAssociatedWith ?user
+            <$target> prov:wasAssociatedWith ?user
             OPTIONAL { ?user skos:prefLabel ?name }
             OPTIONAL { ?user rdfs:label ?name }
         }
     } UNION {
-        <$this> prov:wasInformedBy ?previous . ?previous prov:endedAtTime ?asof
+        <$target> prov:wasInformedBy ?previous . ?previous prov:endedAtTime ?asof
     } UNION {
-        ?subsequent prov:wasInformedBy <$this> . ?subsequent prov:endedAtTime ?asof
+        ?subsequent prov:wasInformedBy <$target> . ?subsequent prov:endedAtTime ?asof
     } UNION {
         GRAPH ?added {
             ?subject ?predicate ?object
-            FILTER (?subject != <$this>)
+            FILTER (?subject != <$target>)
             FILTER (!strstarts(str(?predicate),str(prov:)))
             FILTER (!strstarts(str(?predicate),str(audit:)))
             FILTER (?predicate != rdf:subject)
@@ -28,7 +28,7 @@ WHERE {
             FILTER (?predicate != rdf:object)
         }
         ?added prov:endedAtTime ?asof
-        FILTER (?added = <$this>)
+        FILTER (?added = <$target>)
     } UNION {
         GRAPH ?removed {
             ?removed prov:wasInformedBy ?added .
@@ -39,7 +39,7 @@ WHERE {
                 rdf:predicate ?predicate;
                 rdf:object ?object
             ]
-            FILTER (?subject != <$this>)
+            FILTER (?subject != <$target>)
             FILTER (!strstarts(str(?predicate),str(prov:)))
             FILTER (!strstarts(str(?predicate),str(audit:)))
             FILTER (?predicate != rdf:subject)
@@ -47,7 +47,7 @@ WHERE {
             FILTER (?predicate != rdf:object)
         }
         OPTIONAL { ?added prov:endedAtTime ?asof }
-        FILTER (?added = <$this> || ?removed = <$this>)
+        FILTER (?added = <$target> || ?removed = <$target>)
     }
 }
 ORDER BY ?subject ?predicate ?asof ?object

@@ -126,77 +126,10 @@
 
 :GetActivityView rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Activity>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:query "view";
     calli:rel "alternate";
-    calli:type "application/sparql-results+xml";
-    calli:transform :TransformActivityView;
-    msg:sparql  """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
-        PREFIX prov:<http://www.w3.org/ns/prov#>
-        PREFIX audit:<http://www.openrdf.org/rdf/2012/auditing#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT REDUCED ?modified ?user ?name ?previous ?subsequent ?removed ?added ?subject ?predicate ?object
-        WHERE {
-            {
-                $this prov:endedAtTime ?modified
-                OPTIONAL {
-                    $this prov:wasAssociatedWith ?user
-                    OPTIONAL { ?user skos:prefLabel ?name }
-                    OPTIONAL { ?user rdfs:label ?name }
-                }
-            } UNION {
-                $this prov:wasInformedBy ?previous . ?previous prov:endedAtTime ?asof
-            } UNION {
-                ?subsequent prov:wasInformedBy $this . ?subsequent prov:endedAtTime ?asof
-            } UNION {
-                GRAPH ?added {
-                    ?subject ?predicate ?object
-                    FILTER (?subject != $this)
-                    FILTER (!strstarts(str(?predicate),str(prov:)))
-                    FILTER (!strstarts(str(?predicate),str(audit:)))
-                    FILTER (?predicate != rdf:subject)
-                    FILTER (?predicate != rdf:predicate)
-                    FILTER (?predicate != rdf:object)
-                }
-                ?added prov:endedAtTime ?asof
-                FILTER (?added = $this)
-            } UNION {
-                GRAPH ?removed {
-                    ?removed prov:wasInformedBy ?added .
-                    ?removed prov:qualifiedUsage ?operation .
-                    ?added prov:qualifiedUsage ?operation .
-                    ?operation audit:changed [
-                        rdf:subject ?subject;
-                        rdf:predicate ?predicate;
-                        rdf:object ?object
-                    ]
-                    FILTER (?subject != $this)
-                    FILTER (!strstarts(str(?predicate),str(prov:)))
-                    FILTER (!strstarts(str(?predicate),str(audit:)))
-                    FILTER (?predicate != rdf:subject)
-                    FILTER (?predicate != rdf:predicate)
-                    FILTER (?predicate != rdf:object)
-                }
-                OPTIONAL { ?added prov:endedAtTime ?asof }
-                FILTER (?added = $this || ?removed = $this)
-            }
-        }
-        ORDER BY ?subject ?predicate ?asof ?object
-    """.
-
-:TransformActivityView rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Activity>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
-    calli:type "application/xml";
-    calli:transform <transforms/TransformLayout>;
-    calli:xslt <transforms/activity.xsl>.
-
-:inputStream a owl:ObjectProperty; a owl:FunctionalProperty;
-    rdfs:domain :TransformActivityView;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "application/sparql-results+xml".
+    calli:type "text/html";
+    calli:get <pipelines/activity-view.xpl?result&this=$0>.
 

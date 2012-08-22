@@ -25,7 +25,7 @@
 <> a <SchemaGraph>.
 
 <Profile> a owl:Class;
-    rdfs:subClassOf <Serviceable>;
+    rdfs:subClassOf <Viewable>;
     rdfs:isDefinedBy </callimachus>.
 
 <./> calli:hasComponent <profile>.
@@ -61,11 +61,12 @@
         }
         return model;
     """.
-
-:GetHtmlProfile rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+# GET /callimachus/profile?view
+:GetHtmlProfile owl:intersectionOf (<viewable.ttl#GetViewPage>
+        [owl:onProperty msg:target; owl:allValuesFrom <Profile>]);
+    calli:rel "alternate";
     calli:method "GET";
+    calli:query "view";
     calli:type "text/html";
     calli:header "cache-control:no-validate";
     calli:header "cache-control:max-age=300";

@@ -1,0 +1,48 @@
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+PREFIX prov:<http://www.w3.org/ns/prov#>
+PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+SELECT REDUCED * {
+    {
+        <$this> rdfs:label ?title
+        BIND (concat(str(<$this>),"?realms") as ?id)
+        BIND ("feed" as ?type)
+    } UNION {
+        { ?id a <../Origin> } UNION { ?id a <../Realm> }
+        {
+            ?id rdfs:label ?title
+        } UNION {
+            ?id prov:wasGeneratedBy ?revision . ?revision prov:endedAtTime ?updated
+            OPTIONAL {
+                ?revision prov:wasAssociatedWith ?contributor_uri
+                OPTIONAL {
+                    ?contributor_uri rdfs:label ?contributor_name
+                }
+            }
+        } UNION {
+            ?id rdfs:comment ?summary
+        } UNION {
+            ?id a [calli:icon ?icon]
+        } UNION {
+            { ?id a <../Origin> } UNION { ?id a <../Realm> }
+            BIND (concat(str(?id),"?view") as ?link_view_href)
+            BIND (concat(str(?id),"?describe") as ?link_describedby_href)
+            BIND (concat(str(?id),"?history") as ?link_history_href)
+            BIND (?id as ?content_src)
+            OPTIONAL {
+                ?id a [calli:type ?content_type]
+                BIND (?id as ?link_edit_media_href)
+            }
+        } UNION {
+            { ?id a <../Origin> } UNION { ?id a <../Realm> }
+            BIND (concat(str(?id),"?contents") as ?link_href)
+            BIND ("contents" as ?link_rel)
+            BIND ("application/atom+xml" as ?link_type)
+        } UNION {
+            { ?id a <../Origin> } UNION { ?id a <Realm> }
+            BIND (concat(str(?id),"?archive") as ?link_href)
+            BIND (calli:archive as ?link_rel)
+            BIND ("application/zip" as ?link_type)
+        }
+    }
+}

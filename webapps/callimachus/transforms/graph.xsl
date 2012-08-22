@@ -60,7 +60,7 @@
             <xsl:apply-templates select="*" />
         </div>
     </xsl:template>
-    <xsl:template match="*">
+    <xsl:template match="/rdf:RDF/rdf:Description/*">
         <li class="triple">
             <span class="asc predicate">
                 <xsl:call-template name="resource">
@@ -78,7 +78,7 @@
             </span>
         </li>
     </xsl:template>
-    <xsl:template match="*[@rdf:nodeID]">
+    <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:nodeID]">
         <li class="triple">
             <span class="asc predicate">
                 <xsl:call-template name="resource">
@@ -97,7 +97,7 @@
             </a>
         </li>
     </xsl:template>
-    <xsl:template match="*[@rdf:resource]">
+    <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:resource]">
         <li class="triple">
             <span class="asc predicate">
                 <xsl:call-template name="resource">
@@ -122,7 +122,7 @@
             </span>
         </li>
     </xsl:template>
-    <xsl:template match="*[@rdf:datatype]">
+    <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:datatype]">
         <li class="triple">
             <span class="asc predicate">
                 <xsl:call-template name="resource">
@@ -151,7 +151,7 @@
             </span>
         </li>
     </xsl:template>
-    <xsl:template match="*[@xml:lang]">
+    <xsl:template match="/rdf:RDF/rdf:Description/*[@xml:lang]">
         <li class="triple">
             <span class="asc predicate">
                 <xsl:call-template name="resource">
@@ -176,7 +176,7 @@
             </span>
         </li>
     </xsl:template>
-    <xsl:template match="*[@rdf:parseType='Literal']">
+    <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:parseType='Literal']">
         <li class="triple">
             <span class="asc predicate">
                 <xsl:call-template name="resource">
@@ -194,7 +194,7 @@
             </span>
         </li>
     </xsl:template>
-    <xsl:template match="*[@rdf:parseType='Resource']">
+    <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:parseType='Resource']">
         <li class="triple">
             <span class="asc predicate">
                 <xsl:call-template name="resource">
@@ -211,7 +211,7 @@
             </ul>
         </li>
     </xsl:template>
-    <xsl:template match="*[@rdf:parseType='Collection']">
+    <xsl:template match="/rdf:RDF/rdf:Description/*[@rdf:parseType='Collection']">
         <li class="triple">
             <span class="asc predicate">
                 <xsl:call-template name="resource">
@@ -223,73 +223,7 @@
             </ol>
         </li>
     </xsl:template>
-    <xsl:template match="*[@rdf:about]">
-        <div resource="{@rdf:about}">
-            <xsl:attribute name="typeof">
-                <xsl:call-template name="iriref">
-                    <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                </xsl:call-template>
-            </xsl:attribute>
-            <a href="{@rdf:about}" class="view uri">
-                <xsl:call-template name="resource">
-                    <xsl:with-param name="iri" select="@rdf:about"/>
-                </xsl:call-template>
-            </a>
-            <span> a </span>
-            <span>
-                <xsl:call-template name="resource">
-                    <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                </xsl:call-template>
-            </span>
-            <ul class="properties sorted">
-                <xsl:apply-templates select="*" />
-            </ul>
-        </div>
-    </xsl:template>
-    <xsl:template match="*[@rdf:ID]">
-        <div resource="#{@rdf:ID}">
-            <xsl:attribute name="typeof">
-                <xsl:call-template name="iriref">
-                    <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                </xsl:call-template>
-            </xsl:attribute>
-            <a href="#{@rdf:ID}" class="view uri">
-                <xsl:value-of select="@rdf:ID"/>
-            </a>
-            <span> a </span>
-            <span>
-                <xsl:call-template name="resource">
-                    <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                </xsl:call-template>
-            </span>
-            <ul class="properties sorted">
-                <xsl:apply-templates select="*" />
-            </ul>
-        </div>
-    </xsl:template>
-    <xsl:template match="*[@rdf:nodeID][*]">
-        <div resource="_:{@rdf:nodeID}">
-            <xsl:attribute name="typeof">
-                <xsl:call-template name="iriref">
-                    <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                </xsl:call-template>
-            </xsl:attribute>
-            <a name="{@rdf:nodeID}" id="{@rdf:nodeID}" class="bnode">
-                <xsl:text>_:</xsl:text>
-                <xsl:value-of select="@rdf:nodeID" />
-            </a>
-            <span> a </span>
-            <span>
-                <xsl:call-template name="resource">
-                    <xsl:with-param name="iri" select="concat(namespace-uri(),local-name())" />
-                </xsl:call-template>
-            </span>
-            <ul class="properties sorted">
-                <xsl:apply-templates select="*" />
-            </ul>
-        </div>
-    </xsl:template>
-    <xsl:template match="rdf:Description[@rdf:about]">
+    <xsl:template match="/rdf:RDF/rdf:Description[@rdf:about]">
         <div resource="{@rdf:about}">
             <a href="{@rdf:about}" class="view uri">
                 <xsl:if test="substring-before(@rdf:about, '#')=$this">
@@ -304,7 +238,7 @@
             </ul>
         </div>
     </xsl:template>
-    <xsl:template match="rdf:Description[@rdf:ID]">
+    <xsl:template match="/rdf:RDF/rdf:Description[@rdf:ID]">
         <div resource="#{@rdf:ID}">
             <a href="#{@rdf:ID}" class="view uri" name="{@rdf:ID}">
                 <xsl:value-of select="@rdf:ID"/>
@@ -314,7 +248,7 @@
             </ul>
         </div>
     </xsl:template>
-    <xsl:template match="rdf:Description[@rdf:nodeID]">
+    <xsl:template match="/rdf:RDF/rdf:Description[@rdf:nodeID]">
         <div resource="_:{@rdf:nodeID}">
             <a name="{@rdf:nodeID}" id="{@rdf:nodeID}" class="bnode">
                 <xsl:text>_:</xsl:text>

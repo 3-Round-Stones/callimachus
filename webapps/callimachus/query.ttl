@@ -273,7 +273,7 @@
                 entity.contentType = "text/csv;charset=UTF-8";
             } else if (map.out == "tsv-excel") {
                 entity = new InputStreamEntity(this.TransformIntoTSV(rs), -1);
-                entity.contentType = "text/tab-separated-values;charset=UTF-16";
+                entity.contentType = "text/tab-separated-values;charset=UTF-16LE";
             } else if (tqx) {
                 var out = this.TransformIntoWire(map.responseHandler, map.reqId, rs);
                 entity = new InputStreamEntity(out, -1);
@@ -350,20 +350,20 @@
     calli:type "application/sparql-results+xml".
 
 :TransformIntoHtml rdfs:subClassOf :TransformSparqlResult;
-    calli:type "text/csv;charset=UTF-8";
-    calli:xslt <transforms/sparql-results-html.xsl>.
+    calli:type "text/html;charset=UTF-8";
+    calli:post <pipelines/sparql-results-html.xpl?result>.
 
 :TransformIntoCSV rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/csv;charset=UTF-8";
-    calli:xslt <transforms/sparql-results-csv.xsl>.
+    calli:post <pipelines/sparql-results-csv.xpl?result>.
 
 :TransformIntoTSV rdfs:subClassOf :TransformSparqlResult;
-    calli:type "text/csv;charset=UTF-8";
-    calli:xslt <transforms/sparql-results-tsv.xsl>.
+    calli:type "text/tab-separated-values;charset=UTF-16LE";
+    calli:post <pipelines/sparql-results-tsv.xpl?result>.
 
 :TransformIntoWire rdfs:subClassOf :TransformSparqlResult;
     calli:type "text/javascript;charset=UTF-8";
-    calli:xslt <transforms/sparql-results-wire.xsl>.
+    calli:post <pipelines/sparql-results-wire.xpl?result&handler={handler}&reqId={reqId}>.
 
 :handler a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :TransformIntoWire;

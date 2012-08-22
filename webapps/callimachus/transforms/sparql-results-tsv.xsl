@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sparql="http://www.w3.org/2005/sparql-results#">
-    <xsl:output method="text" encoding="UTF-16"/>
+        xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+        xmlns:c="http://www.w3.org/ns/xproc-step"
+        xmlns:sparql="http://www.w3.org/2005/sparql-results#">
     <xsl:template match="sparql:sparql">
-        <xsl:apply-templates select="sparql:head" />
-        <xsl:apply-templates select="sparql:results" />
+        <c:data>
+            <xsl:apply-templates select="sparql:head" />
+            <xsl:apply-templates select="sparql:results" />
+        </c:data>
     </xsl:template>
     <xsl:template match="sparql:head">
         <xsl:apply-templates select="sparql:variable" />

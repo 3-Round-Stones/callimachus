@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sparql="http://www.w3.org/2005/sparql-results#">
-    <xsl:output method="text" encoding="UTF-8"/>
+        xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+        xmlns:c="http://www.w3.org/ns/xproc-step"
+        xmlns:sparql="http://www.w3.org/2005/sparql-results#">
     <xsl:param name="handler" select="'google.visualization.Query.setResponse'" />
     <xsl:param name="reqId" select="'0'" />
     <xsl:template match="sparql:sparql">
-        <xsl:value-of select="$handler" />
-        <xsl:text>({version:'0.6',reqId:'</xsl:text>
-        <xsl:value-of select="$reqId" />
-        <xsl:text>',status:'ok',table:{</xsl:text>
-        <xsl:apply-templates select="sparql:head" />
-        <xsl:text>,</xsl:text>
-        <xsl:apply-templates select="sparql:results" />
-        <xsl:text>}});</xsl:text>
+        <c:data>
+            <xsl:value-of select="$handler" />
+            <xsl:text>({version:'0.6',reqId:'</xsl:text>
+            <xsl:value-of select="$reqId" />
+            <xsl:text>',status:'ok',table:{</xsl:text>
+            <xsl:apply-templates select="sparql:head" />
+            <xsl:text>,</xsl:text>
+            <xsl:apply-templates select="sparql:results" />
+            <xsl:text>}});</xsl:text>
+        </c:data>
     </xsl:template>
     <xsl:template match="sparql:head">
         <xsl:text>cols:[</xsl:text>

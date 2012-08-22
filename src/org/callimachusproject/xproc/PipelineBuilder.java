@@ -25,6 +25,7 @@ import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.fluid.MediaType;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.callimachusproject.xml.AggressiveCachedURIResolver;
 import org.callimachusproject.xml.CloseableURIResolver;
@@ -66,14 +67,22 @@ public class PipelineBuilder implements XProcMessageListener {
 		} else {
 			this.serial = serialization;
 		}
-		String encoding = serial.getEncoding();
-		if (encoding == null) {
-			serial.setEncoding(encoding = Charset.defaultCharset().name());
-		}
 		String mediaType = serial.getMediaType();
 		if (mediaType == null) {
 			serial.setMediaType(mediaType = "application/xml");
-		} else if (mediaType.startsWith("text/")
+		}
+		MediaType media = MediaType.valueOf(mediaType);
+		String encoding = serial.getEncoding();
+		if (encoding == null) {
+			String charset = media.getParameter("charset");
+			if (mediaType.startsWith("text/") && charset != null) {
+				encoding = Charset.forName(charset).name();
+			} else {
+				encoding = Charset.defaultCharset().name();
+			}
+			serial.setEncoding(encoding);
+		}
+		if (mediaType.startsWith("text/")
 				&& !mediaType.contains("charset=")) {
 			serial.setMediaType(mediaType + ";charset=" + encoding);
 		}

@@ -15,7 +15,7 @@
     </p:load>
     <p:xslt>
         <p:input port="stylesheet">
-            <p:document href="../transforms/menu.xsl" />
+            <p:document href="../transforms/menu-items.xsl" />
         </p:input>
     </p:xslt>
 </p:pipeline>

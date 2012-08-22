@@ -39,9 +39,16 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.turtle.TurtleUtil;
 
 public class ParameterizedQuery {
-	private static final Pattern CACHE_CONTROL = Pattern.compile("(?:^|\n).*#[ \\t]*@Cache-Control[ \\t]*(?::[ \\t]*)?([\\w ,=\\-\"]+)[ \\t]*(?:$|\n)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern VIEW_TEMPLATE = Pattern.compile("(?:^|\n).*#[ \\t]*@view[ \\t]*(?::[ \\t]*)?([^\\s'\"<>]+)[ \\t]*(?:$|\n)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern PARAM_EXPRESSION = Pattern.compile("(?<!\\\\)\\$\\{([^}]*)\\}");
+	private static final Pattern CACHE_CONTROL = Pattern
+			.compile(
+					"(?:^|\n).*#[ \\t]*@Cache-Control[ \\t]*(?::[ \\t]*)?([\\w ,=\\-\"]+)[ \\t]*(?:$|\n)",
+					Pattern.CASE_INSENSITIVE);
+	private static final Pattern VIEW_TEMPLATE = Pattern
+			.compile(
+					"(?:^|\n).*#[ \\t]*@view[ \\t]*(?::[ \\t]*)?([^\\s'\"<>]+)[ \\t]*(?:$|\n)",
+					Pattern.CASE_INSENSITIVE);
+	private static final Pattern PARAM_EXPRESSION = Pattern
+			.compile("(?<!\\\\)\\$\\{([^}]*)\\}");
 	private static ValueFactory vf = ValueFactoryImpl.getInstance();
 	private final String sparql;
 	private final String systemId;
@@ -125,7 +132,8 @@ public class ParameterizedQuery {
 		return prepare(parameters);
 	}
 
-	public String prepare(Map<String, ?> parameters) throws IllegalArgumentException {
+	public String prepare(Map<String, ?> parameters)
+			throws IllegalArgumentException {
 		String sparql = this.sparql;
 		if (isExpressionPresent()) {
 			try {
@@ -153,11 +161,10 @@ public class ParameterizedQuery {
 		if (!isParameterPresent())
 			return qry.evaluate();
 		for (String name : bindingNames) {
-			String[] strings = getStrings(parameters, name);
-			if (strings != null && strings.length == 1) {
-				Value value = resolve(name, strings[0]);
-				if (value != null) {
-					qry.setBinding(name, value);
+			Value[] values = getValues(parameters, name);
+			if (values.length == 1) {
+				if (values[0] != null) {
+					qry.setBinding(name, values[0]);
 				}
 			}
 		}
@@ -168,8 +175,8 @@ public class ParameterizedQuery {
 		return this.sparql.contains("${");
 	}
 
-	private String inlineExpressions(String sparql,
-			Map<String, ?> parameters) throws QueryEvaluationException, MalformedQueryException {
+	private String inlineExpressions(String sparql, Map<String, ?> parameters)
+			throws QueryEvaluationException, MalformedQueryException {
 		StringBuilder sb = new StringBuilder();
 		Matcher m = PARAM_EXPRESSION.matcher(sparql);
 		String prologue = getPrologue();
@@ -189,14 +196,17 @@ public class ParameterizedQuery {
 			Map<String, ?> parameters) throws MalformedQueryException,
 			QueryEvaluationException {
 		Literal defaultValue = vf.createLiteral("0", XMLSchema.INTEGER);
-		String select = prologue + "SELECT (" + expression + " AS ?_value) {} LIMIT 1";
+		String select = prologue + "SELECT (" + expression
+				+ " AS ?_value) {} LIMIT 1";
 		String qry = appendBindings(select, parameters);
-		TupleExpr expr = new SPARQLParser().parseQuery(qry, systemId).getTupleExpr();
+		TupleExpr expr = new SPARQLParser().parseQuery(qry, systemId)
+				.getTupleExpr();
 		CloseableIteration<BindingSet, QueryEvaluationException> iter;
 		iter = new EvaluationStrategyImpl(new TripleSource() {
 			public ValueFactory getValueFactory() {
 				return vf;
 			}
+
 			public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(
 					Resource subj, URI pred, Value obj, Resource... contexts)
 					throws QueryEvaluationException {
@@ -224,9 +234,9 @@ public class ParameterizedQuery {
 		return sb.toString();
 	}
 
-	private String appendBindings(String sparql,
-			Map<String, ?> parameters) {
-		if (!isParameterPresent())
+	private String appendBindings(String sparql, Map<String, ?> parameters) {
+		List<String> bindingNames = getNonFunctionalParameterNames(parameters);
+		if (bindingNames.isEmpty())
 			return sparql;
 		StringBuilder sb = new StringBuilder(sparql);
 		sb.append("\nBINDINGS");
@@ -234,7 +244,8 @@ public class ParameterizedQuery {
 			sb.append(" $").append(name);
 		}
 		sb.append(" {\n");
-		for (List<Value> values : getParameterBindingValues(parameters)) {
+		for (List<Value> values : getParameterBindingValues(bindingNames,
+				parameters)) {
 			sb.append("\t(");
 			for (Value value : values) {
 				if (value == null) {
@@ -250,31 +261,51 @@ public class ParameterizedQuery {
 		return sb.toString();
 	}
 
-	private List<List<Value>> getParameterBindingValues(
+	private List<String> getNonFunctionalParameterNames(
 			Map<String, ?> parameters) {
+		if (!isParameterPresent())
+			return Collections.emptyList();
+		List<String> list = new ArrayList<String>(bindingNames.size());
+		for (String name : bindingNames) {
+			Value[] values = getValues(parameters, name);
+			if (values.length > 1) {
+				list.add(name);
+			}
+		}
+		return list;
+	}
+
+	private List<List<Value>> getParameterBindingValues(
+			List<String> bindingNames, Map<String, ?> parameters) {
 		List<List<Value>> bindingValues = Collections.singletonList(Collections
 				.<Value> emptyList());
 		for (String name : bindingNames) {
-			String[] strings = getStrings(parameters, name);
-			if (strings == null || strings.length == 0) {
-				List<List<Value>> list;
-				list = new ArrayList<List<Value>>(bindingValues.size());
-				appendBinding(bindingValues, bindings.get(name), list);
-				bindingValues = list;
-			} else {
-				List<List<Value>> list;
-				int size = bindingValues.size() + strings.length - 1;
-				list = new ArrayList<List<Value>>(size);
-				for (String string : strings) {
-					Value value = resolve(name, string);
-					if (value == null)
-						throw new IllegalArgumentException("Invalid parameter value: " + string);
-					appendBinding(bindingValues, value, list);
-				}
-				bindingValues = list;
+			Value[] values = getValues(parameters, name);
+			if (values.length == 1)
+				continue; // functional
+			List<List<Value>> list;
+			int size = bindingValues.size() + values.length - 1;
+			list = new ArrayList<List<Value>>(size);
+			for (Value value : values) {
+				appendBinding(bindingValues, value, list);
 			}
+			bindingValues = list;
 		}
 		return bindingValues;
+	}
+
+	private Value[] getValues(Map<String, ?> parameters, String name) {
+		String[] strings = getStrings(parameters, name);
+		if (strings == null || strings.length == 0)
+			return new Value[] { bindings.get(name) };
+		Value[] values = new Value[strings.length];
+		for (int i = 0; i < values.length; i++) {
+			values[i] = resolve(name, strings[i]);
+			if (values[i] == null)
+				throw new IllegalArgumentException("Invalid parameter value: "
+						+ strings[i]);
+		}
+		return values;
 	}
 
 	private String[] getStrings(Map<String, ?> parameters, String name) {

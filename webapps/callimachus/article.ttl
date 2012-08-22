@@ -58,17 +58,6 @@
     calli:header "cache-control:no-cache";
     calli:post "pipelines/article-view.xpl?result&systemId=$0\nContent-Type: application/docbook+xml".
 
-:InlineArticle rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:javax.xml.stream.XMLEventReader>];
-    calli:type "application/xhtml+xml";
-    calli:xslt <transforms/article-inline.xsl>.
-
-:xmlInput a owl:ObjectProperty; a owl:FunctionalProperty;
-    rdfs:domain :InlineArticle;
-    rdfs:range <java:javax.xml.stream.XMLEventReader>;
-    calli:type "application/xhtml+xml".
-
 # POST ?create=/callimachus/Article
 :CreateArticle owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Article> ]);

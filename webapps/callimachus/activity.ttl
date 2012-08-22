@@ -35,7 +35,7 @@
 ################################
 
 # Transaction operations must be authenticated
-<Activity> rdfs:subClassOf <Serviceable>, prov:Activity;
+<Activity> rdfs:subClassOf <Viewable>, prov:Activity;
     rdfs:isDefinedBy </callimachus>;
     calli:realm </>.
 
@@ -124,12 +124,12 @@
         }
     """.
 
-:GetActivityView rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Activity>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
+# GET /activity/t001?view
+:GetActivityView owl:intersectionOf (<viewable.ttl#GetViewPage>
+        [owl:onProperty msg:target; owl:allValuesFrom <Activity>]);
+    calli:rel "alternate";
     calli:method "GET";
     calli:query "view";
-    calli:rel "alternate";
     calli:type "text/html";
     calli:get <pipelines/activity-view.xpl?result&this=$0>.
 

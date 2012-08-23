@@ -46,7 +46,7 @@
         if (this.calliCreate.size() != 1)
             throw new InternalServerError("Multiple create templates");
         var page = this.calliCreate.iterator().next();
-        return this.GetPageTemplate(page, page.FindRealm());
+        return this.GetPageTemplate(page, page.FindRealmOf(this));
     """.
 
 :GetCreatorPage rdfs:subClassOf msg:Message;
@@ -67,7 +67,7 @@
         if (create.calliCreate.size() != 1)
             throw new InternalServerError("Multiple create templates");
         var page = create.calliCreate.iterator().next();
-        return create.GetPageTemplate(page, this.FindRealm());
+        return create.GetPageTemplate(page, page.FindRealmOf(this));
     """.
 
 :GetPageTemplate rdfs:subClassOf msg:Message;

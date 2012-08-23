@@ -80,7 +80,7 @@ import org.xml.sax.SAXException;
  */
 public abstract class Task implements Runnable {
 	private static final Pattern URL_PATTERN = Pattern
-			.compile("\\w+://(?:\\.?[^\\s}>\\)\\]])+");
+			.compile("\\w+://(?:\\.?[^\\s}>\\)\\]\\.])+");
 	private static final ProtocolVersion HTTP11 = new ProtocolVersion("HTTP",
 			1, 1);
 	private static final BasicHttpResponse _500 = new BasicHttpResponse(HTTP11,

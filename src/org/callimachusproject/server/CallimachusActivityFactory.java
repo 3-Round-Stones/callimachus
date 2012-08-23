@@ -106,6 +106,8 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 	private boolean createFolder(URI folder, RepositoryConnection con)
 			throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
+		if (uriSpace.equals(folder.stringValue()))
+			return false;
 		if (con.hasStatement(folder, RDF.TYPE, null, true))
 			return false;
 		String str = folder.stringValue();

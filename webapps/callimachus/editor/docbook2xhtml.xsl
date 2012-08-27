@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-xmlns="http://www.w3.org/1999/xhtml" xmlns:d="http://docbook.org/ns/docbook" exclude-result-prefixes="xsl d">
+<xsl:stylesheet 
+    version="1.0" 
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:d="http://docbook.org/ns/docbook" 
+    xmlns:xl   ="http://www.w3.org/1999/xlink"
+    exclude-result-prefixes="xsl d">
 <xsl:output method="xml" indent="yes" omit-xml-declaration="yes"/>
 
 <xsl:template match="comment()">
@@ -43,7 +48,7 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:d="http://docbook.org/ns/docbook" exc
 <xsl:template match="d:article">
     <html>
         <head>
-            <title><xsl:value-of select="//d:title[1]" /></title>
+            <title><xsl:value-of select="d:title[1]" /></title>
         </head>
         <body>
             <xsl:apply-templates />
@@ -100,11 +105,11 @@ xmlns="http://www.w3.org/1999/xhtml" xmlns:d="http://docbook.org/ns/docbook" exc
 </xsl:template>
 
 <!-- Hyperlinks -->
-<xsl:template match="d:ulink">
-    <a href="{@url}">
-        <xsl:if test="d:remark">
+<xsl:template match="d:ulink | d:link[not(@linkend)]">
+    <a href="{@url | @xl:href}">
+        <xsl:if test="d:remark | @xl:title">
             <xsl:attribute name="title">
-                <xsl:value-of select="d:remark" />
+                <xsl:value-of select="d:remark | @xl:title" />
             </xsl:attribute>
         </xsl:if>
         <xsl:apply-templates select="node()" />

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns="http://docbook.org/ns/docbook" version="1.0" exclude-result-prefixes="xsl xhtml">
+<xsl:stylesheet 
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+    xmlns:xhtml="http://www.w3.org/1999/xhtml" 
+    xmlns="http://docbook.org/ns/docbook" 
+    xmlns:xl   ="http://www.w3.org/1999/xlink"
+    version="1.0" 
+    exclude-result-prefixes="xsl xhtml">
 <xsl:output method="xml" indent="yes" omit-xml-declaration="yes"/>
 
 <xsl:key name="section" match="*[not(name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6')]"
@@ -43,8 +49,13 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <xsl:comment><xsl:text>&lt;/</xsl:text><xsl:value-of select="name()"/><xsl:text>&gt;</xsl:text></xsl:comment>
 </xsl:template>
 
+<xsl:template match="xhtml:title">
+    <title><xsl:value-of select="."/></title>
+</xsl:template>
+
 <xsl:template match="xhtml:html">
-    <article>
+    <article version="5.0">
+        <xsl:apply-templates select="xhtml:head/xhtml:title"/>
         <xsl:apply-templates select="xhtml:body"/>
     </article>
 </xsl:template>
@@ -165,13 +176,21 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 </xsl:template>
 
 <!-- Hyperlinks -->
+<!-- 
+    link - A hypertext link
+     - @xlink:href  - Identifies a link target with a URI.
+     - @xlink:title - Identifies the XLink title of the link.
+     - @linkend     - Points to an internal link target by identifying the value of its xml:id attribute.
+  -->
 <xsl:template match="xhtml:a">
-    <ulink url="{@href}">
-        <xsl:apply-templates select="node()" />
+    <link xl:href="{@href}">
         <xsl:if test="@title">
-            <remark><xsl:value-of select="@title" /></remark>
-        </xsl:if>
-    </ulink>
+            <xsl:attribute name="xl:title" namespace="http://www.w3.org/1999/xlink">
+                <xsl:value-of select="@title"/>
+            </xsl:attribute>
+        </xsl:if>                
+        <xsl:apply-templates select="node()" />
+    </link>
 </xsl:template>
 
 <xsl:template match="xhtml:a[starts-with(@href,'#')]">

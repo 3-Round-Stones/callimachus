@@ -70,6 +70,7 @@
     calli:expect "201-created";
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.engine.model.TermFactory>;
     calli:script """
         if (!slug)
             throw new BadRequest("Missing Slug HTTP header");
@@ -78,8 +79,13 @@
         if (!content)
             throw new BadRequest("Missing request content");
         var con = this.objectConnection;
-        var location = this.toString() + encodeURIComponent(decodeURIComponent(slug)).replace(/%20/g, '-');
-        return this.PostFactoryCreate(content, fileClass, false, con.getObject(location), contentType);
+        var name = decodeURIComponent(slug);
+        name = name.replace(/[-\\s]+/g, '-');
+        name = java.text.Normalizer.normalize(name, java.text.Normalizer.Form.NFD);
+        name = name.replace(/[^\\w-]/g, '');
+        name = name.toLowerCase();
+        var uri = TermFactory.newInstance(this.toString()).resolve(encodeURIComponent(name));
+        return this.PostFactoryCreate(content, fileClass, false, con.getObject(uri), contentType);
     """.
 
 :slug a owl:FunctionalProperty, owl:DatatypeProperty;

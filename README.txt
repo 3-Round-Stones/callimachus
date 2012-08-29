@@ -99,7 +99,8 @@ Once you have the source code checked out, you will need to provide a username
 and password. Create a build.properties file in the same directory as build.xml.
 Put the variables "callimachus.username" and "callimachus.password" followed by
 '=' and their value on their own line. You can then execute 'ant run' from a 
-command line in this top directory to run the server.
+command line in this top directory to run the server. If some files fail to
+download you may have to run "ant dist-clean" and run "ant run" again.
 
 
 Additional documentation regarding usage and application development may

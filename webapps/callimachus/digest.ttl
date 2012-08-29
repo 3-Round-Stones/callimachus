@@ -30,16 +30,12 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "GET";
-    calli:query "login", "settings", "contributions";
+    calli:query "login";
     calli:realm </>;
     calli:expect "302-found";
     calli:type "text/uri-list";
     calli:header "cache-control:max-age:3600";
     calli:script """
-        if ("settings" == query)
-            return this.findCredential(cookie) + "?edit";
-        if ("contributions" == query)
-            return this.findCredential(cookie) + "?contributions";
         return this.findCredential(cookie).toString(); //# login Deprecated
     """.
 
@@ -61,7 +57,7 @@
         ASK {
             $this calli:authNamespace [calli:hasComponent $credential]
             FILTER ($method = "GET" || $method = "HEAD")
-            FILTER ($query = "login" || $query = "settings" || $query = "contributions")
+            FILTER ($query = "login")
         }
     """.
 

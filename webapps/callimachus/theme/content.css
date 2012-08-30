@@ -166,7 +166,8 @@ label.error {
 }
 
 html.logout .protected,
-html.logout .hidden-logout {
+html.logout .hidden-logout,
+html.login  .hidden-login {
     display: none !important;
 }
 

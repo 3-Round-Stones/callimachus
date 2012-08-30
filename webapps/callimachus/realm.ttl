@@ -47,8 +47,22 @@
 :GetLogin rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :login_xhtml; owl:hasValue <pages/login.xhtml>];
     calli:method "GET";
     calli:query "login";
+    calli:type "text/html";
+    calli:script """
+        return login_xhtml.Construct(this, 'login');
+    """.
+
+:login_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetLogin.
+
+:GetProfile rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:method "GET";
+    calli:query "profile";
     calli:realm </>;
     calli:header "cache-control:max-age:3600";
     calli:type "text/html";
@@ -68,7 +82,7 @@
     """.
 
 :cookies a owl:DatatypeProperty;
-    rdfs:domain :GetLogin;
+    rdfs:domain :GetProfile;
     rdfs:range xsd:string;
     calli:header "Authorization", "Cookie".
 

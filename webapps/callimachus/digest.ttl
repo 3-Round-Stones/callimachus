@@ -24,30 +24,15 @@
 # login
 ################################
 
-# Redirection to the authorized user
 # Used to login
-:GetLoginPage rdfs:subClassOf msg:Message;
+:GetLoginSuccessPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "GET";
     calli:query "login";
     calli:realm </>;
-    calli:expect "302-found";
-    calli:type "text/uri-list";
-    calli:header "cache-control:max-age:3600";
-    calli:script """
-        return this.findCredential(cookie).toString(); //# login Deprecated
-    """.
-
-:cookie a owl:DatatypeProperty;
-    rdfs:domain :GetLoginPage;
-    rdfs:range xsd:string;
-    calli:header "Authorization", "Cookie".
-
-:query a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:domain :GetLoginPage;
-    rdfs:range xsd:string;
-    calli:query "*".
+    calli:type "text/html";
+    calli:get <pages/loggedin.xhtml?view>.
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage owl:intersectionOf (calli:IsAuthorized

@@ -21,8 +21,7 @@ $('form[enctype="application/rdf+xml"]').submit(function(event) {
 
 function submitRDFForm(form, uri) {
     try {
-        var added = readRDF(uri, form);
-        var data = added.dump({format:"application/rdf+xml",serialize:true,namespaces:$(form).xmlns()});
+        var data = getRDFXML(uri, form);
         postData(form, data, function(data, textStatus, xhr) {
             try {
                 var redirect = xhr.getResponseHeader("Location");
@@ -50,23 +49,31 @@ function submitRDFForm(form, uri) {
     }
 }
 
-function readRDF(uri, form) {
-    var subj = $.uri.base().resolve(uri);
-    var store = $(form).rdf().databank;
-    store.triples().each(function(){
-        if (this.subject.type == 'uri' && this.subject.value.toString() != subj.toString() && this.subject.value.toString().indexOf(subj.toString() + '#') != 0) {
-            store.remove(this);
-        } else if (this.subject.type == "bnode") {
-            var orphan = true;
-            $.rdf({databank: store}).where("?s ?p " + this.subject).each(function (i, bindings, triples) {
-                orphan = false;
-            });
-            if (orphan) {
-                store.remove(this);
+function getRDFXML(uri, form) {
+    var 
+        parser = new RDFaParser(),
+        serializer = new RDFXMLSerializer(),
+        formSubject = parser.parseURI(parser.getNodeBase(form)).resolve(uri),
+        usedBlanks = {},
+        isBlankS,
+        isFirstTriple = true
+    ;
+    parser.parse(form, function(s, p, o, dt, lang) {
+        isBlankS = s.indexOf('_:') === 0;
+        // keep subjects matching the form's subject and blank subjects if already introduced as objects
+        if (s == formSubject || s.indexOf(formSubject + "#") === 0 || (isBlankS && usedBlanks[s])) {
+            if (isFirstTriple) {
+                serializer.setMappings(parser.getMappings());// import prefixes encountered so far
+                isFirstTriple = false;
+            }
+            serializer.addTriple(s, p, o, dt, lang);
+            // log blank objects, they may be used as subjects in later triples
+            if (!dt && o.indexOf('_:') === 0) {
+                usedBlanks[o] = true;
             }
         }
     });
-    return store;
+    return serializer.toString();
 }
 
 function postData(form, data, callback) {

@@ -69,6 +69,10 @@ function propagate(node, expression, value) {
             disableRDFa(node);
         }
     }
+    // @value keeps its initial DOM getAttributeNode state after updates. Set it explicitly using DOM methods
+    if (node.is("input[value]")) {// node is an input field with a value attribute
+        node[0].setAttribute('value', value); // use setAttribute (not jquery) to reach through to DOM
+    }
 }
 
 function filter(set, expression) {

@@ -165,7 +165,7 @@ public class TemporaryServerFactory {
 				FileUtil.deleteDir(dir);
 			}
 			dir.delete();
-			String config = new Scanner(new File("src", "callimachus-repository.ttl")).useDelimiter("\\A").next();
+			String config = new Scanner(new File("etc", "callimachus-repository.ttl")).useDelimiter("\\A").next();
 			Setup setup = new Setup();
 			setup.connect(dir, config);
 			setup.createOrigin(origin);

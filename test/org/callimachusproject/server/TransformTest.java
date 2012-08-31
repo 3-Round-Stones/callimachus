@@ -185,12 +185,6 @@ public class TransformTest extends MetadataServerTestCase {
 		super.setUp();
 	}
 
-	public void testNoOutboundTransform() {
-		WebResource service = client.path("service").queryParam("world", "");
-		assertEquals("<echo>hello world!</echo>", service.accept("text/xml")
-				.get(String.class));
-	}
-
 	public void testOutboundTransform() {
 		WebResource service = client.path("service").queryParam("world", "");
 		assertEquals("hello world!", service.accept("text/plain").get(
@@ -220,18 +214,6 @@ public class TransformTest extends MetadataServerTestCase {
 				.queryParam("increment", "").queryParam("number",
 						Integer.toString(14, 2));
 		assertEquals("15", service.type("text/plain").get(String.class));
-	}
-
-	public void testNoIndirect() {
-		WebResource service = client.path("service").queryParam("indirect", "");
-		assertTrimEquals(TURTLE_HELLO, service.accept("application/x-turtle").get(
-				String.class));
-	}
-
-	public void testPartialIndirect() {
-		WebResource service = client.path("service").queryParam("indirect", "");
-		assertEquals("<echo>hello world!</echo>", service.accept("text/xml").get(
-				String.class));
 	}
 
 	public void testIndirect() {

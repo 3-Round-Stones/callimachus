@@ -116,7 +116,7 @@
     calli:method "GET";
     calli:query "contents";
     calli:rel "contents";
-    calli:type "application/sparql-results+xml;q=0.9";
+    calli:type "application/atom+xml;q=0.9";
     calli:header "cache-control:no-cache";
     calli:get <pipelines/folder-contents-atom.xpl?results&target=$0>.
 

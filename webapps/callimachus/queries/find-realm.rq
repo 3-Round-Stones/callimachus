@@ -1,6 +1,12 @@
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 SELECT ?realm {
-    ?realm calli:hasComponent* <$target>
-    FILTER EXISTS {?realm a calli:Realm}
+    {
+        ?realm calli:hasComponent* <$target>
+        FILTER EXISTS {?realm a calli:Realm}
+    } UNION {
+        ?realm a calli:Realm
+        FILTER (?realm = </>)
+        FILTER strstarts(str(<$target>),str(</callimachus/>))
+    }
 }
 ORDER BY desc(?realm) LIMIT 1

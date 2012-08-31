@@ -193,8 +193,14 @@
     msg:sparql """
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT ?realm {
-            ?realm calli:hasComponent* $realmResource
-            FILTER EXISTS {?realm a calli:Realm}
+            {
+                ?realm calli:hasComponent* $realmResource
+                FILTER EXISTS {?realm a calli:Realm}
+            } UNION {
+                ?realm a calli:Realm
+                FILTER (?realm = </>)
+                FILTER strstarts(str($realmResource),str(</callimachus/>))
+            }
         }
         ORDER BY desc(?realm) LIMIT 1
     """.

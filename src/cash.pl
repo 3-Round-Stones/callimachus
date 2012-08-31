@@ -83,6 +83,7 @@ my $OUT = *STDOUT;
 # Process commands from the command line.
 if ($execute) {
     process($execute);
+    exit unless ($interactive);
 }
 
 # Process interactively or via reading a script from STDIN.

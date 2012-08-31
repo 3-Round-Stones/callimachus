@@ -27,7 +27,7 @@
 	<property name="mail.jar" value="mail-1.4.1.jar" />
 	<property name="mail.url" value="http://download.java.net/maven/1/javax.mail/jars/mail-1.4.jar" />
 	<property name="jchardet.url" value="http://downloads.sourceforge.net/project/jchardet/jchardet/1.1/jchardet-1.1.zip" />
-	<property name="closure.url" value="http://closure-compiler.googlecode.com/files/compiler-20100917.zip" />
+	<property name="closure.url" value="hhttp://closure-compiler.googlecode.com/files/compiler-20120710.zip" />
 	<property name="daemon.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/commons-daemon-1.0.2-bin.zip" />
 	<property name="daemon-linux-i686.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-i386.tar.gz" />
 	<property name="download-lunix-x86_64.url" value="http://archive.apache.org/dist/commons/daemon/binaries/1.0.2/linux/commons-daemon-1.0.2-bin-linux-x86_64.tar.gz" />
@@ -254,16 +254,16 @@
 			</classpath>
 		</javac>
 		<copy todir="${build}">
-			<fileset dir="${src}" excludes="**/*.java *.run *.sh *.bat *.conf *.properties *.ttl"/>
+			<fileset dir="${src}" excludes="**/*.java *.run *.sh *.bat *.pl *.conf *.properties *.ttl"/>
 		</copy>
 		<copy todir="${etc}">
 			<fileset dir="${src}" includes="*.conf *.properties *.ttl"/>
 		</copy>
 		<copy todir="${bin}">
-			<fileset dir="${src}" includes="*.sh *.bat"/>
+			<fileset dir="${src}" includes="*.sh *.bat *.pl"/>
 		</copy>
 		<fixcrlf srcdir="${bin}" includes="*.bat" eol="crlf" />
-		<chmod dir="${bin}" includes="*.sh,callimachus-linux*,callimachus-darwin*" perm="ugo+rx"/>
+		<chmod dir="${bin}" includes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" perm="ugo+rx"/>
 	</target>
 
 	<target name="dist" depends="compile,car" description="generate the distribution">
@@ -288,8 +288,8 @@
 			<zipfileset dir="." includes="*.txt" />
 			<zipfileset dir="${src}" prefix="src" />
 			<zipfileset dir="${webapps}/callimachus" prefix="src/callimachus-webapp" />
-			<zipfileset dir="${bin}" prefix="bin" includes="*.sh,callimachus-linux*,callimachus-darwin*" filemode="755" />
-			<zipfileset dir="${bin}" prefix="bin" excludes="*.sh,callimachus-linux*,callimachus-darwin*" />
+			<zipfileset dir="${bin}" prefix="bin" includes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" filemode="755" />
+			<zipfileset dir="${bin}" prefix="bin" excludes="*.sh,*.pl,callimachus-linux*,callimachus-darwin*" />
 			<zipfileset dir="${etc}" prefix="etc" excludes="mail.properties ssl.properties" />
 			<zipfileset dir="${lib}" prefix="lib" />
 			<zipfileset file="${jar.file}" prefix="lib" />

@@ -24,6 +24,7 @@ import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.JSSourceFile;
 import com.google.javascript.jscomp.Result;
+import com.google.javascript.jscomp.SourceFile;
 
 public abstract class ScriptBundleSupport implements ScriptBundle {
 
@@ -49,7 +50,7 @@ public abstract class ScriptBundleSupport implements ScriptBundle {
 		CompilerOptions options = new CompilerOptions();
 		getCompilationLevel(minification).setOptionsForCompilationLevel(options);
 
-		List<JSSourceFile> externals = CommandLineRunner.getDefaultExterns();
+		List<SourceFile> externals = CommandLineRunner.getDefaultExterns();
 
 		Result result = compiler.compile(externals, scripts, options);
 		if (result.errors != null && result.errors.length > 0) {

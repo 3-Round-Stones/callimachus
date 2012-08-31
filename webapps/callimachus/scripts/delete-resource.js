@@ -42,12 +42,6 @@ window.calli.deleteResource = function(event, redirect) {
                     var event = jQuery.Event("calliRedirect");
                     event.location = redirect ? redirect : form.attr("data-redirect");
                     if (!event.location) {
-                        if (window.sessionStorage) {
-                            var previous = sessionStorage.getItem("Previous");
-                            if (previous) {
-                                event.location = previous.substring(0, previous.indexOf(' '));
-                            }
-                        }
                         if (!event.location) {
                             event.location = document.referrer;
                         }
@@ -68,15 +62,18 @@ window.calli.deleteResource = function(event, redirect) {
                     if (event.location) {
                         // TODO verify this location is not going to 404 on us w/o causing an calliError
                     }
+                    if (!event.location && location.pathname.match(/\//)) {
+                        event.location = '../';
+                    }
                     if (!event.location) {
-                        event.location = location.protocol + '//' + location.host + '/';
+                        event.location = './';
                     }
                     form.trigger(event)
                     if (!event.isDefaultPrevented()) {
                         if (event.location) {
-                            location.replace(event.location)
+                            location.replace(event.location);
                         } else {
-                            history.go(-1)
+                            location.replace('/');
                         }
                     }
                 } catch(e) {

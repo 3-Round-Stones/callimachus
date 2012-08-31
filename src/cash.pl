@@ -30,6 +30,10 @@ require 5.10.0;
 use feature qw(switch say);
 # TODO: Use 'eval' to trap exceptions and produce nice error messages with help.
 #       Maybe try auto-installing via 'CPAN::Shell->install("Acme::Meta");'
+#       See cpanm: https://www.metacpan.org/module/App::cpanminus
+#                  curl -L http://cpanmin.us | perl - --sudo App::cpanminus
+#                  to install it.
+#
 use Term::ReadLine;
 use LWP::UserAgent;
 use LWP::Authen::Digest;

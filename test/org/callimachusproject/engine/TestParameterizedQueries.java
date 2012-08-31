@@ -11,7 +11,6 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.repository.sail.SailRepositoryConnection;
@@ -41,14 +40,13 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testNoParameters() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label ?label } ORDER BY ?thing";
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(null);
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label ?label } ORDER BY ?thing";
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		assertEquals("urn:test:thing1", result.next().getValue("thing").stringValue());
@@ -59,29 +57,27 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testMissingParameters() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label \"$label\" }";
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(null);
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label \"$label\" }";
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertFalse(result.hasNext());
 		result.close();
 	}
 
 	public void testLiteralParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label \"$label\" }";
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label \"$label\" }";
 		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"Thing1"});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		assertEquals("urn:test:thing1", result.next().getValue("thing").stringValue());
@@ -90,15 +86,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testUriParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { <$thing> rdfs:label ?label }";
+		String sparql = PREFIX + "SELECT * { <$thing> rdfs:label ?label }";
 		Map<String, String[]> parameters = Collections.singletonMap("thing", new String[]{"urn:test:thing1"});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		assertEquals("Thing1", result.next().getValue("label").stringValue());
@@ -107,15 +102,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testSelectParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT ?thing $label { ?thing rdfs:label \"$label\" }";
+		String sparql = PREFIX + "SELECT ?thing $label { ?thing rdfs:label \"$label\" }";
 		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"Thing1"});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		BindingSet next = result.next();
@@ -126,14 +120,13 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testMissingOpenParameters() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label $label } ORDER BY ?thing";
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(null);
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label $label } ORDER BY ?thing";
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		BindingSet next = result.next();
@@ -148,10 +141,10 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testInvalidOpenParameters() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label $label } ORDER BY ?thing";
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label $label } ORDER BY ?thing";
 		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"Thing1"});
 		try {
-			parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
+			parser.parseQuery(sparql, EXAMPLE_COM).prepare(parameters);
 			fail();
 		} catch (IllegalArgumentException e) {
 			// success
@@ -159,15 +152,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testLiteralOpenParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label $label }";
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label $label }";
 		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"\"Thing1\""});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral("1", XMLSchema.INTEGER));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral("2", XMLSchema.INTEGER));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		assertEquals("urn:test:thing1", result.next().getValue("thing").stringValue());
@@ -176,15 +168,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testIntegerOpenParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdf:value $value }";
+		String sparql = PREFIX + "SELECT * { ?thing rdf:value $value }";
 		Map<String, String[]> parameters = Collections.singletonMap("value", new String[]{"1"});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral("1", XMLSchema.INTEGER));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral("2", XMLSchema.INTEGER));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "value"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		assertEquals("urn:test:thing1", result.next().getValue("thing").stringValue());
@@ -193,15 +184,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testLongLiteralOpenParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label $label }";
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label $label }";
 		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"\"\"\"Thing1\"\"\""});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		assertEquals("urn:test:thing1", result.next().getValue("thing").stringValue());
@@ -210,15 +200,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testLangStringOpenParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label $label }";
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label $label }";
 		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"\"Thing1\"@en"});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1", "en"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		assertEquals("urn:test:thing1", result.next().getValue("thing").stringValue());
@@ -227,15 +216,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testUriOpenParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { $thing rdfs:label ?label }";
+		String sparql = PREFIX + "SELECT * { $thing rdfs:label ?label }";
 		Map<String, String[]> parameters = Collections.singletonMap("thing", new String[]{"<urn:test:thing1>"});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		assertEquals("Thing1", result.next().getValue("label").stringValue());
@@ -244,15 +232,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testCurieOpenParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { $thing rdfs:label ?label }";
+		String sparql = PREFIX + "SELECT * { $thing rdfs:label ?label }";
 		Map<String, String[]> parameters = Collections.singletonMap("thing", new String[]{"test:thing1"});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		assertEquals("Thing1", result.next().getValue("label").stringValue());
@@ -261,14 +248,13 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testMissingExpressionParameters() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label ${$label} }";
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(null);
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label ${$label} }";
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(con);
 		assertEquals(Arrays.asList("thing"), result.getBindingNames());
 		assertFalse(result.hasNext());
 		result.close();
@@ -276,15 +262,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testLiteralExpressionParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label ${$label} }";
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label ${$label} }";
 		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"\"Thing1\""});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		assertEquals("urn:test:thing1", result.next().getValue("thing").stringValue());
@@ -293,15 +278,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testUriExpressionParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ${<$thing>} rdfs:label ?label }";
+		String sparql = PREFIX + "SELECT * { ${<$thing>} rdfs:label ?label }";
 		Map<String, String[]> parameters = Collections.singletonMap("thing", new String[]{"urn:test:thing1"});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		assertEquals("Thing1", result.next().getValue("label").stringValue());
@@ -310,15 +294,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testSelectExpressionParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT ?thing (${\"$label\"} AS ?string) { ?thing rdfs:label ${\"$label\"} }";
+		String sparql = PREFIX + "SELECT ?thing (${\"$label\"} AS ?string) { ?thing rdfs:label ${\"$label\"} }";
 		Map<String, String[]> parameters = Collections.singletonMap("label", new String[]{"Thing1"});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "string"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		BindingSet next = result.next();
@@ -329,15 +312,14 @@ public class TestParameterizedQueries extends TestCase {
 	}
 
 	public void testOffsetExpressionParameter() throws Exception {
-		String labelQuery = PREFIX + "SELECT * { ?thing rdfs:label ?label } ORDER BY ?thing OFFSET ${$position - 1} LIMIT 1";
+		String sparql = PREFIX + "SELECT * { ?thing rdfs:label ?label } ORDER BY ?thing OFFSET ${$position - 1} LIMIT 1";
 		Map<String, String[]> parameters = Collections.singletonMap("position", new String[]{"2"});
-		String sparql = parser.parseQuery(labelQuery, EXAMPLE_COM).prepare(parameters);
 
 		con.add(vf.createURI("urn:test:thing1"), RDFS.LABEL, vf.createLiteral("Thing1"));
 		con.add(vf.createURI("urn:test:thing2"), RDFS.LABEL, vf.createLiteral("Thing2"));
 		con.add(vf.createURI("urn:test:thing1"), RDF.VALUE, vf.createLiteral(1));
 		con.add(vf.createURI("urn:test:thing2"), RDF.VALUE, vf.createLiteral(2));
-		TupleQueryResult result = con.prepareTupleQuery(QueryLanguage.SPARQL, sparql, EXAMPLE_COM).evaluate();
+		TupleQueryResult result = parser.parseQuery(sparql, EXAMPLE_COM).evaluate(parameters, con);
 		assertEquals(Arrays.asList("thing", "label"), result.getBindingNames());
 		assertTrue(result.hasNext());
 		BindingSet next = result.next();

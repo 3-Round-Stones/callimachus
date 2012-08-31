@@ -147,6 +147,12 @@ public class ParameterizedQuery {
 		return appendBindings(sparql, parameters);
 	}
 
+	public TupleQueryResult evaluate(RepositoryConnection con) throws RepositoryException,
+			MalformedQueryException, IllegalArgumentException,
+			QueryEvaluationException {
+		return evaluate(null, con);
+	}
+
 	public TupleQueryResult evaluate(Map<String, ?> parameters,
 			RepositoryConnection con) throws RepositoryException,
 			MalformedQueryException, IllegalArgumentException,
@@ -156,15 +162,20 @@ public class ParameterizedQuery {
 		return evaluate(parameters, qry);
 	}
 
+	public TupleQueryResult evaluate(TupleQuery qry)
+			throws QueryEvaluationException {
+		return evaluate(null, qry);
+	}
+
 	public TupleQueryResult evaluate(Map<String, ?> parameters, TupleQuery qry)
 			throws QueryEvaluationException {
-		if (!isParameterPresent())
-			return qry.evaluate();
-		for (String name : bindingNames) {
-			Value[] values = getValues(parameters, name);
-			if (values.length == 1) {
-				if (values[0] != null) {
-					qry.setBinding(name, values[0]);
+		if (isParameterPresent()) {
+			for (String name : bindingNames) {
+				Value[] values = getValues(parameters, name);
+				if (values.length == 1) {
+					if (values[0] != null) {
+						qry.setBinding(name, values[0]);
+					}
 				}
 			}
 		}
@@ -201,6 +212,17 @@ public class ParameterizedQuery {
 		String qry = appendBindings(select, parameters);
 		TupleExpr expr = new SPARQLParser().parseQuery(qry, systemId)
 				.getTupleExpr();
+		QueryBindingSet bindings = new QueryBindingSet();
+		if (isParameterPresent()) {
+			for (String name : bindingNames) {
+				Value[] values = getValues(parameters, name);
+				if (values.length == 1) {
+					if (values[0] != null) {
+						bindings.setBinding(name, values[0]);
+					}
+				}
+			}
+		}
 		CloseableIteration<BindingSet, QueryEvaluationException> iter;
 		iter = new EvaluationStrategyImpl(new TripleSource() {
 			public ValueFactory getValueFactory() {
@@ -212,7 +234,7 @@ public class ParameterizedQuery {
 					throws QueryEvaluationException {
 				return new EmptyIteration<Statement, QueryEvaluationException>();
 			}
-		}).evaluate(expr, new QueryBindingSet());
+		}).evaluate(expr, bindings);
 		try {
 			if (!iter.hasNext())
 				return defaultValue;

@@ -26,7 +26,7 @@ public class RDFRetrieveTest extends TestCase {
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
         		    " prefix skos: <http://www.w3.org/2004/02/skos/core#> \n " + 
-        			" INSERT DATA {  \n <concept> a skos:Concept, </callimachus/Concept> ;  \n" +
+        			" INSERT DATA {  \n <read-concept> a skos:Concept, </callimachus/Concept> ;  \n" +
         			" skos:prefLabel \"concept\" . }",
         			"concept"
         	});
@@ -35,7 +35,7 @@ public class RDFRetrieveTest extends TestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <test/> a calli:Folder, </callimachus/Folder> ;  \n" +
+        			" INSERT DATA {  \n <read-test/> a calli:Folder, </callimachus/Folder> ;  \n" +
         			" rdfs:label \"test\" . }",
         			"test"
         	});
@@ -44,7 +44,7 @@ public class RDFRetrieveTest extends TestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <testGroup/> a calli:Party, calli:Group, </callimachus/Group> ;  \n" +
+        			" INSERT DATA {  \n <read-testGroup/> a calli:Party, calli:Group, </callimachus/Group> ;  \n" +
         			" rdfs:label \"testGroup\" . }",
         			"testGroup"
         	});
@@ -53,7 +53,7 @@ public class RDFRetrieveTest extends TestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <menu/> a calli:Menu, </callimachus/Menu> ;  \n" +
+        			" INSERT DATA {  \n <read-menu/> a calli:Menu, </callimachus/Menu> ;  \n" +
         			" rdfs:label \"menu\" . }",
         			"menu"
         	});
@@ -62,7 +62,7 @@ public class RDFRetrieveTest extends TestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <theme/> a calli:Theme, </callimachus/Theme> ;  \n" +
+        			" INSERT DATA {  \n <read-theme/> a calli:Theme, </callimachus/Theme> ;  \n" +
         			" rdfs:label \"theme\" . }",
         			"theme"
         	});
@@ -71,7 +71,7 @@ public class RDFRetrieveTest extends TestCase {
         			"prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
         		    " prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
         		    " prefix calli: <http://callimachusproject.org/rdf/2009/framework#> \n" +
-        			" INSERT DATA {  \n <user> a calli:Party, calli:User, </callimachus/User> ;  \n" +
+        			" INSERT DATA {  \n <read-user> a calli:Party, calli:User, </callimachus/User> ;  \n" +
         			" rdfs:label \"user\" . }",
         			"user"
         	});

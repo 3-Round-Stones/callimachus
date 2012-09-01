@@ -21,7 +21,7 @@ public class BLOBUpdateTest extends TestCase {
         private static final long serialVersionUID = -4308917786147773821L;
 
         {
-        	put("article", new String[] { "article.docbook", "application/docbook+xml",
+        	put("article", new String[] { "updated-article.docbook", "application/docbook+xml",
         					"<section id=\"ls\"> \n <title>LS command</title> \n " +
         					"<para>This command is a synonym for <link linkend=\"dir\"> <command>DIR</command></link> command. \n" +
         					"</para> \n </section>", //End original
@@ -30,7 +30,7 @@ public class BLOBUpdateTest extends TestCase {
         					"</para> \n </section>"
         	});
         	
-        	put("font", new String[] { "font.woff", "application/font-woff",
+        	put("font", new String[] { "updated-font.woff", "application/font-woff",
         					"@font-face { \n font-family: GentiumTest; \n" +
         					"src: url(fonts/GenR102.woff) format(\"woff\")," +
         					"url(fonts/GenR102.ttf) format(\"truetype\"); }", //End original
@@ -39,7 +39,7 @@ public class BLOBUpdateTest extends TestCase {
         					"url(fonts/GenR102.ttf) format(\"truetype\"); }"
         	});
         	
-        	put("namedQuery", new String[] { "query.sparql", "application/sparql-query",
+        	put("namedQuery", new String[] { "updated-query.rq", "application/sparql-query",
 							"SELECT ?title WHERE { \n" +
 							"<http://example.org/book/book1> <http://purl.org/dc/elements/1.1/title> ?title . \n" +
         					"}", //End original
@@ -48,7 +48,7 @@ public class BLOBUpdateTest extends TestCase {
         					"}" 
 			});
         	
-        	put("page", new String[] { "page.xhtml", "application/xhtml+xml",
+        	put("page", new String[] { "updated-page.xhtml", "application/xhtml+xml",
 							"<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\"> \n" +
 							"<head> <title> Wikipedia </title> </head> \n" +
 							"<body> <p> Wikipedia is a great website. </p> </body> </html>", //End original
@@ -59,22 +59,22 @@ public class BLOBUpdateTest extends TestCase {
 							"<body> <p> The UPDATED Wikipedia is a great website. </p> </body> </html>"
 			});
         	
-        	put("animatedGraphic", new String[] { "graphic.gif", "image/gif",
+        	put("animatedGraphic", new String[] { "updated-graphic.gif", "image/gif",
 							"binary", //End original 
 							"UPDATED BINARY" //Begin update
 			});
         	
-        	put("photo", new String[] { "photo.jpeg", "image/jpeg",
+        	put("photo", new String[] { "updated-photo.jpg", "image/jpeg",
 							"binary", //End original 
 							"UPDATED BINARY" //Begin update
 			});
         	
-        	put("networkGraphic", new String[] { "network.png", "image/png",
+        	put("networkGraphic", new String[] { "updated-network.png", "image/png",
 							"binary", //End original 
 							"UPDATED BINARY" //Begin update
 			});
         	
-        	put("vectorGraphic", new String[] { "vector.svg", "image/svg+xml",
+        	put("vectorGraphic", new String[] { "updated-vector.svg", "image/svg+xml",
 							"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">" +
 							"<circle cx=\"100\" cy=\"50\" r=\"40\" stroke=\"black\"" +
 							"stroke-width=\"2\" fill=\"red\" /> </svg> \n ", //End original
@@ -83,12 +83,12 @@ public class BLOBUpdateTest extends TestCase {
 							"stroke-width=\"2\" fill=\"red\" /> </svg> \n "
 			});
         	
-        	put("iconGraphic", new String[] { "logo.image", "image/vnd.microsoft.icon",
+        	put("iconGraphic", new String[] { "updated-logo.ico", "image/vnd.microsoft.icon",
 							"binary", //End original 
 							"UPDATED BINARY" //Begin update
 			});
         	
-        	put("style", new String[] { "style.css", "text/css",
+        	put("style", new String[] { "updated-style.css", "text/css",
 							"hr {color:sienna;} \n" +
 						    "p {margin-left:20px;} \n" +
 						    "body {background-color:blue}", //End original
@@ -97,12 +97,12 @@ public class BLOBUpdateTest extends TestCase {
 						    "body {background-color:black}"
 			});
         	
-            put("hypertext", new String[] { "file.html", "text/html",
+            put("hypertext", new String[] { "updated-file.html", "text/html",
                             "<html><head><title>Output Page</title></head><body></body></html>", //End original
                             "<html><head><title>Updated Page</title></head><body></body></html>" //Begin update
             });
             
-            put("script", new String[] { "script.js", "text/javascript",
+            put("script", new String[] { "updated-script.js", "text/javascript",
 							"if (response == true) { \n" +
 							"return true; \n" +
 							"}", //End original 
@@ -111,12 +111,12 @@ public class BLOBUpdateTest extends TestCase {
 							"}"
 			});
             
-            put("text", new String[] { "file.txt", "text/plain",
+            put("text", new String[] { "updated-file.txt", "text/plain",
             				"Body of a text document", //End original
             				"UPDATED body of a document" //Begin update
             });
             
-            put("graphDocument", new String[] { "file.txt", "text/turtle",
+            put("graphDocument", new String[] { "updated-file.ttl", "text/turtle",
 							"@prefix foaf: <http://xmlns.com/foaf/0.1/> . \n" +
 							"<http://example.org/joe#me> a foaf:Person . \n" +
 							"<http://example.org/joe#me> foaf:homepage <http://example.org/joe/INDEX.html> . \n" +
@@ -130,7 +130,7 @@ public class BLOBUpdateTest extends TestCase {
 							
             });
             
-            put("transform", new String[] { "transform.xsl", "text/xsl",
+            put("transform", new String[] { "updated-transform.xsl", "text/xsl",
 							"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \n" +
 						    "<xsl:template match=\"/\"> <html> <body> <h2>My CD Collection</h2> \n" +
 						    "<table border=\"1\"> <tr bgcolor=\"#9acd32\"> <th>Title</th> \n" +
@@ -143,7 +143,7 @@ public class BLOBUpdateTest extends TestCase {
 						    "</xsl:stylesheet>"
 			});
             
-            put("pipeline", new String[] { "pipeline.xpl", "application/xproc+xml",
+            put("pipeline", new String[] { "updated-pipeline.xpl", "application/xproc+xml",
             		"<?xml version=\"1.0\" encoding=\"UTF-8\" ?> \n" +
             	    "<p:pipeline version=\"1.0\" \n" +
                     "xmlns:p=\"http://www.w3.org/ns/xproc\" \n " + 

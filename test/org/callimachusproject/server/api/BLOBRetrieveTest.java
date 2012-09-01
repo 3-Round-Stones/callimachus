@@ -21,73 +21,73 @@ public class BLOBRetrieveTest extends TestCase {
         private static final long serialVersionUID = -4308917786147773821L;
 
         {
-        	put("article", new String[] { "article.docbook", "application/docbook+xml",
+        	put("article", new String[] { "read-article.docbook", "application/docbook+xml",
         					"<section id=\"ls\"> \n <title>LS command</title> \n " +
         					"<para>This command is a synonym for <link linkend=\"dir\"> <command>DIR</command></link> command. \n" +
         					"</para> \n </section>"
         	});
         	
-        	put("font", new String[] { "font.woff", "application/font-woff",
+        	put("font", new String[] { "read-font.woff", "application/font-woff",
         					"@font-face { \n font-family: GentiumTest; \n" +
         					"src: url(fonts/GenR102.woff) format(\"woff\")," +
         					"url(fonts/GenR102.ttf) format(\"truetype\"); }"
         	});
         	
-        	put("namedQuery", new String[] { "query.sparql", "application/sparql-query",
+        	put("namedQuery", new String[] { "read-query.rq", "application/sparql-query",
 							"SELECT ?title WHERE { \n" +
 							"<http://example.org/book/book1> <http://purl.org/dc/elements/1.1/title> ?title . \n" +
         					"}" 
 			});
         	
-        	put("page", new String[] { "page.xhtml", "application/xhtml+xml",
+        	put("page", new String[] { "read-page.xhtml", "application/xhtml+xml",
 							"<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\"> \n" +
 							"<head> <title> Wikipedia </title> </head> \n" +
 							"<body> <p> Wikipedia is a great website. </p> </body> </html>" 
 			});
         	
-        	put("animatedGraphic", new String[] { "graphic.gif", "image/gif",
+        	put("animatedGraphic", new String[] { "read-graphic.gif", "image/gif",
 							"binary" 
 			});
         	
-        	put("photo", new String[] { "photo.jpeg", "image/jpeg",
+        	put("photo", new String[] { "read-photo.jpg", "image/jpeg",
 							"binary" 
 			});
         	
-        	put("networkGraphic", new String[] { "network.png", "image/png",
+        	put("networkGraphic", new String[] { "read-network.png", "image/png",
 							"binary" 
 			});
         	
-        	put("vectorGraphic", new String[] { "vector.svg", "image/svg+xml",
+        	put("vectorGraphic", new String[] { "read-vector.svg", "image/svg+xml",
 							"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">" +
 							"<circle cx=\"100\" cy=\"50\" r=\"40\" stroke=\"black\"" +
 							"stroke-width=\"2\" fill=\"red\" /> </svg> \n " 
 			});
         	
-        	put("iconGraphic", new String[] { "logo.image", "image/vnd.microsoft.icon",
+        	put("iconGraphic", new String[] { "read-logo.ico", "image/vnd.microsoft.icon",
 							"binary" 
 			});
         	
-        	put("style", new String[] { "style.css", "text/css",
+        	put("style", new String[] { "read-style.css", "text/css",
 							"hr {color:sienna;} \n" +
 						    "p {margin-left:20px;} \n" +
 						    "body {background-color:blue}" 
 			});
         	
-            put("hypertext", new String[] { "file.html", "text/html",
+            put("hypertext", new String[] { "read-file.html", "text/html",
                             "<html><head><title>Output Page</title></head><body></body></html>",
             });
             
-            put("script", new String[] { "script.js", "text/javascript",
+            put("script", new String[] { "read-script.js", "text/javascript",
 							"if (response == true) { \n" +
 							"return true; \n" +
 							"}" 
 			});
             
-            put("text", new String[] { "file.txt", "text/plain",
+            put("text", new String[] { "read-file.txt", "text/plain",
             				"Body of a text document" 
             });
             
-            put("graphDocument", new String[] { "file.txt", "text/turtle",
+            put("graphDocument", new String[] { "read-file.ttl", "text/turtle",
 							"@prefix foaf: <http://xmlns.com/foaf/0.1/> . \n" +
 							"<http://example.org/joe#me> a foaf:Person . \n" +
 							"<http://example.org/joe#me> foaf:homepage <http://example.org/joe/INDEX.html> . \n" +
@@ -95,7 +95,7 @@ public class BLOBRetrieveTest extends TestCase {
 							"<http://example.org/joe#me> foaf:name \"Joe Lambda\" ." 
 			});
             
-            put("transform", new String[] { "transform.xsl", "text/xsl",
+            put("transform", new String[] { "read-transform.xsl", "text/xsl",
 							"<?xml version=\"1.0\"?>" +
 						    "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns=\"http://www.w3.org/1999/xhtml\" version=\"1.0\"> \n" +
 						    "<xsl:template match=\"/\"> <html> <body> <h2>My CD Collection</h2> \n" +
@@ -104,7 +104,7 @@ public class BLOBRetrieveTest extends TestCase {
 						    "</xsl:stylesheet>" 
 			});
             
-            put("pipeline", new String[] { "pipeline.xpl", "application/xproc+xml",
+            put("pipeline", new String[] { "read-pipeline.xpl", "application/xproc+xml",
             		"<?xml version=\"1.0\"?> \n" +
             	    "<p:pipeline version=\"1.0\" \n" +
                     "xmlns:p=\"http://www.w3.org/ns/xproc\" \n " + 

@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 public class NamedGraphTest extends TestCase { 
 	
 	private static TemporaryServer temporaryServer = TemporaryServerFactory.getInstance().createServer();
-	private String requestSlug = "namedGraph.xml";
+	private String requestSlug = "namedGraph.rdf";
 	private String requestContentType = "application/rdf+xml";
 	private String outputString = "<rdf:RDF \n" +
 			"xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" \n" +

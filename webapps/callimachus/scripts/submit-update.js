@@ -11,9 +11,9 @@ jQuery(function($){
 $('form[enctype="application/sparql-update"]').each(function() {
     try {
         var form = $(this);
-        var stored = readRDF(form);
+        var stored = readRDF(form[0]);
         form.bind('reset', function() {
-            stored = readRDF(form);
+            stored = readRDF(form[0]);
         });
         form.submit(function(event) {
             form.find("input").change(); // IE may not have called onchange before onsubmit
@@ -21,7 +21,7 @@ $('form[enctype="application/sparql-update"]').each(function() {
             if (!resource || resource.indexOf(':') < 0 && resource.indexOf('/') != 0 && resource.indexOf('?') != 0)
                 return true; // resource attribute not set
             event.preventDefault();
-            setTimeout(function(){submitRDFForm(form, stored);}, 0);
+            setTimeout(function(){submitRDFForm(form[0], stored);}, 0);
             return false;
         });
     } catch (e) {
@@ -31,32 +31,30 @@ $('form[enctype="application/sparql-update"]').each(function() {
 
 function submitRDFForm(form, stored) {
     var se = $.Event("calliSubmit");
-    form.trigger(se);
+    $(form).trigger(se);
     if (!se.isDefaultPrevented()) {
         try {
             var revised = readRDF(form);
-            var removed = stored.except(revised);
-            var added = revised.except(stored);
-            removed.triples().each(function(){
-                addBoundedDescription(this, stored, removed, added);
-            });
-            added.triples().each(function(){
-                addBoundedDescription(this, revised, added, removed);
-            });
-            var writer = new UpdateWriter();
-            var namespaces = form.xmlns();
-            for (var prefix in namespaces) {
-                writer.prefix(prefix, namespaces[prefix].toString());
+            var diff = diffTriples(stored, revised);
+            var removed = diff.removed;
+            var added = diff.added;
+            for (hash in removed) {
+                addBoundedDescription(removed[hash], stored, removed, added);
             }
+            for (hash in added) {
+                addBoundedDescription(added[hash], revised, added, removed);
+            }
+            
+            var writer = new UpdateWriter();
             writer.openDelete();
-            removed.triples().each(function() {
-                writer.triple(this.subject, this.property, this.object);
-            });
+            for (triple in removed) {
+                writer.push(triple);
+            }
             writer.closeDelete();
             writer.openInsert();
-            added.triples().each(function() {
-                writer.triple(this.subject, this.property, this.object);
-            });
+            for (triple in added) {
+                writer.push(triple);
+            }
             writer.closeInsert();
             writer.openWhere();
             writer.closeWhere();
@@ -73,7 +71,7 @@ function submitRDFForm(form, stored) {
                     redirect = redirect + "?view";
                     var event = $.Event("calliRedirect");
                     event.location = redirect;
-                    form.trigger(event);
+                    $(form).trigger(event);
                     if (!event.isDefaultPrevented()) {
                         if (window.parent != window && parent.postMessage) {
                             parent.postMessage('PUT src\n\n' + event.location, '*');
@@ -92,54 +90,74 @@ function submitRDFForm(form, stored) {
 }
 
 function readRDF(form) {
-    var subj = $.uri.base()
-    var resource = $(form).attr("about") || $(form).attr("resource");
-    if (resource) {
-        subj = subj.resolve(resource)
-    }
-    var store = form.rdf().databank
-    store.triples().each(function(){
-        if (this.subject.type == 'uri' && this.subject.value.toString() != subj.toString() && this.subject.value.toString().indexOf(subj.toString() + '#') != 0) {
-            store.remove(this)
-        } else if (this.subject.type == "bnode") {
-            var orphan = true
-            $.rdf({databank: store}).where("?s ?p " + this.subject).each(function (i, bindings, triples) {
-                orphan = false
-            })
-            if (orphan) {
-                store.remove(this)
+    var 
+        parser = new RDFaParser(),
+        writer = new UpdateWriter(),
+        resource = $(form).attr("about") || $(form).attr("resource"),
+        base = parser.getNodeBase(form),
+        formSubject = resource ? parser.parseURI(base).resolve(resource) : base,
+        triples = {},
+        usedBlanks = {},
+        isBlankS,
+        hash
+    ;
+    parser.parse(form, function(s, p, o, dt, lang) {
+        isBlankS = s.indexOf('_:') === 0;
+        // keep subjects matching the form's subject and blank subjects if already introduced as objects
+        if (s == formSubject || s.indexOf(formSubject + "#") === 0 || (isBlankS && usedBlanks[s])) {
+            hash = writer.reset().triple(s, p, o, dt, lang).toString();
+            triples[hash] = {subject: s, predicate: p, object: o, datatype: dt, language: lang};
+            // log blank objects, they may be used as subjects in later triples
+            if (!dt && o.indexOf('_:') === 0) {
+                usedBlanks[o] = true;
             }
         }
-    })
-    return store
+    });
+    return triples;
 }
 
+function diffTriples(oldTriples, newTriples) {
+    var 
+        added = {},
+        removed = {},
+        hash
+    ;
+    // removed
+    for (hash in oldTriples) {
+        if (!newTriples[hash]) {
+            removed[hash] = oldTriples[hash];
+        }
+    }
+    // added
+    for (hash in newTriples) {
+        if (!oldTriples[hash]) {
+            added[hash] = newTriples[hash];
+        }
+    }
+    return {added: added, removed: removed};
+}
+
+/**
+ * Makes sure blank subjects and objects get complemented with incoming and outgoing triples (transitive closure).
+ */
 function addBoundedDescription(triple, store, dest, copy) {
-    if (triple.subject.type == "bnode") {
-        var bnode = triple.subject
-        $.rdf({databank: store}).where("?s ?p " + bnode).each(function (i, bindings, triples) {
-            if (addTriple(triples[0], dest)) {
-                copy.add(triples[0])
-                addBoundedDescription(triples[0], store, dest, copy)
+    if (triple.subject.match(/^_:/)) {
+        for (hash in store) {
+            if (store[hash].object == triple.subject && !store[hash].datatype && !dest[hash]) {
+                copy[hash] = dest[hash] = store[hash];
+                addBoundedDescription(store[hash], store, dest, copy);
             }
-        })
+        }
     }
-    if (triple.object.type == "bnode") {
-        var bnode = triple.object
-        $.rdf({databank: store}).where(bnode + ' ?p ?o').each(function (i, bindings, triples) {
-            if (addTriple(triples[0], dest)) {
-                copy.add(triples[0])
-                addBoundedDescription(triples[0], store, dest, copy)
+    if (triple.object.match(/^_:/) && !removed[hash].datatype) {
+        for (hash in store) {
+            if (store[hash].subject == triple.object && !dest[hash]) {
+                copy[hash] = dest[hash] = store[hash];
+                addBoundedDescription(store[hash], store, dest, copy);
             }
-        })
+        }
     }
-}
-
-function addTriple(triple, store) {
-    var size = store.size()
-    store.add(triple)
-    return store.size() > size
-}
+}   
 
 function patchData(form, data, callback) {
     var method = form.getAttribute('method');
@@ -181,88 +199,97 @@ function getLastModified() {
 
 function UpdateWriter() {
     this.buf = [];
-}
-
-UpdateWriter.prototype = {
-    push: function(str) {
+    
+    this.push = function(str) {
         return this.buf.push(str);
-    },
-    toString: function() {
+    };
+    
+    this.reset = function() {
+        this.buf = [];
+        return this;
+    };
+    
+    this.toString = function() {
         return this.buf.join('');
-    },
-    prefix: function(prefix, uri) {
-        this.push('PREFIX ');
-        this.push(prefix);
-        this.push(':');
-        this.push('<');
-        this.push(uri);
-        this.push('>');
-        this.push('\n');
-    },
-    openDelete: function() {
+    };
+    
+    this.openDelete = function() {
         this.push('DELETE {\n');
-    },
-    closeDelete: function() {
+    };
+    
+    this.closeDelete = function() {
         this.push('}\n');
-    },
-    openInsert: function() {
+    };
+    
+    this.openInsert = function() {
         this.push('INSERT {\n');
-    },
-    closeInsert: function() {
+    };
+    
+    this.closeInsert = function() {
         this.push('}\n');
-    },
-    openWhere: function() {
+    };
+    
+    this.openWhere = function() {
         this.push('WHERE {\n');
-    },
-    closeWhere: function() {
+    };
+    
+    this.closeWhere = function() {
         this.push('}\n');
-    },
-    triple: function(subject, predicate, object) {
+    };
+    
+    this.triple = function(subject, predicate, object, datatype, language) {
         this.push('\t');
-        this.term(subject);
+        this.term(subject, null, null);
         this.push(' ');
-        this.term(predicate);
+        this.term(predicate, null, null);
         this.push(' ');
-        this.term(object);
+        this.term(object, datatype, language);
         this.push(' .\n');
-    },
-    term: function(term) {
-        if (term.type == 'uri') {
+        return this;
+    };
+    
+    this.term = function(term, datatype, language) {
+        // bnode
+        if (!datatype && term.match(/^_:/)) {
+            this.push("_:bn" + term.substring(2));
+        }
+        // uri
+        else if (!datatype) {
             this.push('<');
-            this.push(term.value.toString().replace(/\\/g, '\\\\').replace(/>/g, '\\>'));
+            this.push(term.replace(/\\/g, '\\\\').replace(/>/g, '\\>'));
             this.push('>');
-        } else if (term.type == 'bnode') {
-            this.push(term.value.toString());
-        } else if (term.type == 'literal') {
-            var s = term.value.toString();
-            if (term.datatype && term.datatype.toString() == "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral") {
+        }
+        // literal
+        else {
+            var s = term;
+            if (datatype == "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral") {
                 s = removeHtmlEntities(s);
             }
             this.push('"');
-            s = s.replace(/\\/g, "\\\\");
-            s = s.replace(/\t/g, "\\t");
-            s = s.replace(/\n/g, "\\n");
-            s = s.replace(/\r/g, "\\r");
-            s = s.replace(/"/g, '\\"');
+            s = s
+                .replace(/\\/g, "\\\\")
+                .replace(/\t/g, "\\t")
+                .replace(/\n/g, "\\n")
+                .replace(/\r/g, "\\r")
+                .replace(/"/g, '\\"')
+            ;
             this.push(s);
             this.push('"');
-            if (term.datatype !== undefined) {
+            // language
+            if (datatype == "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString" && language) {
+                this.push('@');
+                this.push(language.replace(/[^0-9a-zA-Z\-]/g, ''));
+            }
+            // datatype
+            else if (datatype != "http://www.w3.org/2001/XMLSchema#string") {
                 this.push('^^');
                 this.push('<');
-                this.push(term.datatype.toString().replace(/\\/g, '\\\\').replace(/>/g, '\\>'));
+                this.push(datatype.replace(/\\/g, '\\\\').replace(/>/g, '\\>'));
                 this.push('>');
             }
-            if (term.lang !== undefined) {
-                this.push('@');
-                this.push(term.lang.toString().replace(/[^0-9a-zA-Z\-]/g, ''));
-            }
-        } else if (!term.type) {
-            throw "Unknown term: " + term;
-        } else {
-            throw "Unknown term type: " + term.type;
         }
-    }
-};
+    };
+}
 
 function removeHtmlEntities(html) {
     html = html.replace(/&nbsp;/g,'&#160;');

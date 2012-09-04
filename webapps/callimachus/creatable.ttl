@@ -85,12 +85,11 @@
 
 :PostFactoryCreate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Serviceable>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "POST";
     calli:query "create";
     calli:realm </>;
-    calli:expect "201-created";
-    calli:type "text/uri-list";
+    calli:type "message/x-response";
     calli:imports <Creatable>;
     calli:imports <java:org.callimachusproject.io.MultipartParser>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
@@ -177,7 +176,7 @@
         } else {
             this.calliHasComponent.add(newCopy);
         }
-        return newCopy;
+        return { status:201, statusText:'Created', headers:{ location:newCopy.toString(), 'content-type':'text/plain' }, body:[newCopy.toString()] };
     """.
 
 # POST ?create=/callimachus/File

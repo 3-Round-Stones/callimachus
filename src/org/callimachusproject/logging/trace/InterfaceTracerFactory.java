@@ -3,9 +3,9 @@ package org.callimachusproject.logging.trace;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
 
 public class InterfaceTracerFactory implements TracerFactory {
 
@@ -19,7 +19,7 @@ public class InterfaceTracerFactory implements TracerFactory {
 
 		Class<? extends Object> tcls = target.getClass();
 		ClassLoader cl = tcls.getClassLoader();
-		List<Class<?>> list = getInterfaces(tcls, new ArrayList<Class<?>>());
+		Collection<Class<?>> list = getInterfaces(tcls, new HashSet<Class<?>>());
 		Class<?>[] array = list.toArray(new Class<?>[list.size()]);
 		Class<?> pc = Proxy.getProxyClass(cl, array);
 
@@ -37,7 +37,7 @@ public class InterfaceTracerFactory implements TracerFactory {
 		}
 	}
 
-	private List<Class<?>> getInterfaces(Class<?> cls, List<Class<?>> list) {
+	private Collection<Class<?>> getInterfaces(Class<?> cls, Collection<Class<?>> list) {
 		list.addAll(Arrays.asList(cls.getInterfaces()));
 		if (cls.getSuperclass() != null)
 			return getInterfaces(cls.getSuperclass(), list);

@@ -36,13 +36,14 @@ public class Tracer implements InvocationHandler {
 	public Object invoke(Object proxy, Method method, Object[] args)
 			throws Throwable {
 		if (logger.isTraceEnabled()) {
-			MethodCall call = new MethodCall(returnedFrom, method, args);
+			Method imethod = getInterfaceMethod(method);
+			MethodCall call = new MethodCall(returnedFrom, imethod, args);
 			try {
 				for (String assign : call.getAssignments()) {
 					logger.trace(assign);
 				}
 				call.calling();
-				return invokeCall(call, method, args);
+				return invokeCall(call, imethod, args);
 			} catch (Throwable t) {
 				throw call.threw(t);
 			} finally {
@@ -51,6 +52,22 @@ public class Tracer implements InvocationHandler {
 			}
 		} else {
 			return invokeCall(null, method, args);
+		}
+	}
+
+	public String toString() {
+		return target.toString();
+	}
+
+	private Method getInterfaceMethod(Method method) {
+		assert method != null;
+		if (declaredType.equals(method.getDeclaringClass()))
+			return method;
+		try {
+			Class<?>[] ptypes = method.getParameterTypes();
+			return declaredType.getMethod(method.getName(), ptypes);
+		} catch (NoSuchMethodException e) {
+			return method;
 		}
 	}
 

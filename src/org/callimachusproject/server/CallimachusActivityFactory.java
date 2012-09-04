@@ -3,12 +3,14 @@ package org.callimachusproject.server;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.callimachusproject.server.util.ManagedExecutors;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
@@ -20,8 +22,11 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.auditing.ActivityFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class CallimachusActivityFactory implements ActivityFactory {
+	private static final Executor executor = ManagedExecutors.newSingleScheduler(CallimachusActivityFactory.class.getSimpleName());
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 	private static final String ACTIVITY = "http://www.w3.org/ns/prov#Activity";
 	private static final String ENDED_AT = "http://www.w3.org/ns/prov#endedAtTime";
@@ -39,6 +44,7 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 			+ "OPTIONAL {$parent calli:editor ?editor}\n"
 			+ "OPTIONAL {$parent calli:reader ?reader}\n" + "}";
 	private static final String CALLI_HASCOMPONENT = "http://callimachusproject.org/rdf/2009/framework#hasComponent";
+	private final Logger logger = LoggerFactory.getLogger(CallimachusActivityFactory.class);
 	private final String uid = "t"
 			+ Long.toHexString(System.currentTimeMillis()) + "x";
 	private final AtomicLong seq = new AtomicLong(0);
@@ -80,7 +86,7 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 		con.add(activity, RDF.TYPE, vf.createURI(ACTIVITY), activity);
 	}
 
-	public void activityEnded(URI act, RepositoryConnection con)
+	public void activityEnded(final URI act, RepositoryConnection con)
 			throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
 		XMLGregorianCalendar now = df
@@ -93,13 +99,21 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 			throws RepositoryException {
 		if (folder == null || !folder.equals(activity.getNamespace())) {
 			folder = activity.getNamespace();
-			RepositoryConnection con = repository.getConnection();
-			try {
-				ValueFactory vf = con.getValueFactory();
-				createFolder(vf.createURI(folder), con);
-			} finally {
-				con.close();
-			}
+			executor.execute(new Runnable() {
+				public void run() {
+					try {
+						RepositoryConnection con = repository.getConnection();
+						try {
+							ValueFactory vf = con.getValueFactory();
+							createFolder(vf.createURI(folder), con);
+						} finally {
+							con.close();
+						}
+					} catch (RepositoryException e) {
+						logger.error(e.toString(), e);
+					}
+				}
+			});
 		}
 	}
 

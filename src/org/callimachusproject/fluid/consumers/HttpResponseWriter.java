@@ -66,9 +66,7 @@ import org.xml.sax.SAXException;
 public class HttpResponseWriter implements Consumer<HttpResponse> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		if (mtype.is(HttpResponse.class))
-			return true;
-		return mtype.isUnknown() && mtype.is("message/x-response");
+		return mtype.is(HttpResponse.class) && mtype.is("message/x-response");
 	}
 
 	public Fluid consume(final HttpResponse result, final String base,
@@ -98,11 +96,7 @@ public class HttpResponseWriter implements Consumer<HttpResponse> {
 			protected ReadableByteChannel asChannel(FluidType media)
 					throws IOException, OpenRDFException, XMLStreamException,
 					TransformerException, ParserConfigurationException {
-				try {
-					return write(ftype.as(toChannelMedia(media)), result, base);
-				} finally {
-					asVoid();
-				}
+				return write(ftype.as(toChannelMedia(media)), result, base);
 			}
 
 			@Override

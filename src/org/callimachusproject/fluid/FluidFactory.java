@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.script.ScriptException;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.callimachusproject.fluid.consumers.BooleanMessageWriter;
@@ -32,6 +33,7 @@ import org.callimachusproject.fluid.consumers.FormMapMessageWriter;
 import org.callimachusproject.fluid.consumers.FormStringMessageWriter;
 import org.callimachusproject.fluid.consumers.GraphMessageWriter;
 import org.callimachusproject.fluid.consumers.HttpEntityWriter;
+import org.callimachusproject.fluid.consumers.HttpJavaScriptResponseWriter;
 import org.callimachusproject.fluid.consumers.HttpMessageWriter;
 import org.callimachusproject.fluid.consumers.HttpResponseWriter;
 import org.callimachusproject.fluid.consumers.InputStreamBodyWriter;
@@ -118,7 +120,10 @@ public class FluidFactory {
 		try {
 			consumers.add(new DocumentFragmentMessageWriter());
 			consumers.add(new DOMMessageWriter());
+			consumers.add(new HttpJavaScriptResponseWriter());
 		} catch (TransformerConfigurationException e) {
+			throw new AssertionError(e);
+		} catch (ScriptException e) {
 			throw new AssertionError(e);
 		}
 		producers.add(new URIReader());

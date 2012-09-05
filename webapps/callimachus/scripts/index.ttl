@@ -27,7 +27,20 @@
     rdf:_17 <creole.js>;
     rdf:_18 <wiki.js>;
     rdf:_19 <placeholder.js>;
-    rdf:_20 <details.js>.
+    rdf:_20 <details.js>;
+    rdf:_21 <bootstrap-affix.js>;
+    rdf:_22 <bootstrap-alert.js>;
+    rdf:_23 <bootstrap-button.js>;
+    rdf:_24 <bootstrap-carousel.js>;
+    rdf:_25 <bootstrap-collapse.js>;
+    rdf:_26 <bootstrap-dropdown.js>;
+    rdf:_27 <bootstrap-modal.js>;
+    rdf:_28 <bootstrap-tooltip.js>;
+    rdf:_29 <bootstrap-scrollspy.js>;
+    rdf:_30 <bootstrap-tab.js>;
+    rdf:_31 <bootstrap-popover.js>;
+    rdf:_32 <bootstrap-transition.js>;
+    rdf:_33 <bootstrap-typeahead.js>.
 
 # IE8 can't handle any more than minification of 1 on jquery.rdfquery.rdfa.js
 <form_bundle> a calli:ScriptBundle; calli:minified 1 ;

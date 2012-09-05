@@ -129,6 +129,11 @@ sub process {
     foreach my $com (@commands) {
         $com =~ s/^\s*(.*)\s*/$1/; # Trim leading and trailing whitespace.
         processCmd($com);
+        # Exit on any error if not in interactive mode.
+        if ( $exitstatus and not $interactive) {
+            say STDERR "Exiting on error (not in interactive mode).";
+            exit($exitstatus);
+        }
     }
 }
 
@@ -137,6 +142,7 @@ sub processCmd {
     my $command = shift(@_);
     warn $@ if $@;
     
+    # TODONEXT: Fail on any error if not in interactive mode.  Check for $error in process()
     # TODONEXT: Use parseFolderPath() in deleteFile(), etc.
     # TODONEXT: Refactor chDir() and parseDirPath(). Should they be the same method??
     # TODONEXT: Delete files in the active folder (rm --files).

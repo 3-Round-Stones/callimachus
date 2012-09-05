@@ -1,0 +1,178 @@
+
+@import url("navs.less");
+
+.nav > a {
+  display: block;
+}
+.nav > a:hover {
+  text-decoration: none;
+  background-color: @grayLighter;
+}
+
+.nav a + .nav-header {
+  margin-top: 9px;
+}
+
+.nav-list > a {
+  margin-left:  -15px;
+  margin-right: -15px;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+}
+.nav-list > a {
+  padding: 3px 15px;
+}
+.nav-list > a.active,
+.nav-list > a.active:hover {
+  color: @white;
+  text-shadow: 0 -1px 0 rgba(0,0,0,.2);
+  background-color: @linkColor;
+}
+
+.nav-tabs > a,
+.nav-pills > a {
+  float: left;
+}
+.nav-tabs > a,
+.nav-pills > a {
+  padding-right: 12px;
+  padding-left: 12px;
+  margin-right: 2px;
+  line-height: 14px; // keeps the overall height an even number
+}
+
+.nav-tabs > a {
+  margin-bottom: -1px;
+}
+
+.nav-tabs > a {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  line-height: @baseLineHeight;
+  border: 1px solid transparent;
+  .border-radius(4px 4px 0 0);
+  &:hover {
+    border-color: @grayLighter @grayLighter #ddd;
+  }
+}
+// Active state, and it's :hover to override normal :hover
+.nav-tabs > a.active,
+.nav-tabs > a.active:hover {
+  color: @gray;
+  background-color: @white;
+  border: 1px solid #ddd;
+  border-bottom-color: transparent;
+  cursor: default;
+}
+
+// Links rendered as pills
+.nav-pills > a {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  .border-radius(5px);
+}
+
+// Active state
+.nav-pills > a.active,
+.nav-pills > a.active:hover {
+  color: @white;
+  background-color: @linkColor;
+}
+
+// Stacked tabs and pills
+.nav-stacked > a {
+  float: none;
+}
+.nav-stacked > a {
+  margin-right: 0; // no need for the gap between nav items
+  display: list-item;
+}
+
+.nav-tabs.nav-stacked > a {
+  border: 1px solid #ddd;
+  .border-radius(0);
+}
+.nav-tabs.nav-stacked > a:first-child {
+  .border-top-radius(4px);
+}
+.nav-tabs.nav-stacked > a:last-child {
+  .border-bottom-radius(4px);
+}
+.nav-tabs.nav-stacked > a:hover {
+  border-color: #ddd;
+  z-index: 2;
+}
+
+// Pills
+.nav-pills.nav-stacked > a {
+  margin-bottom: 3px;
+}
+.nav-pills.nav-stacked > a:last-child {
+  margin-bottom: 1px; // decrease margin to match sizing of stacked tabs
+}
+
+.tabs-below > .nav-tabs > a {
+  margin-top: -1px;
+  margin-bottom: 0;
+}
+.tabs-below > .nav-tabs > a {
+  .border-radius(0 0 4px 4px);
+  &:hover {
+    border-bottom-color: transparent;
+    border-top-color: #ddd;
+  }
+}
+.tabs-below > .nav-tabs > a.active,
+.tabs-below > .nav-tabs > a.active:hover {
+  border-color: transparent #ddd #ddd #ddd;
+}
+
+// Common styles
+.tabs-left > .nav-tabs > a,
+.tabs-right > .nav-tabs > a {
+  float: none;
+}
+.tabs-left > .nav-tabs > a,
+.tabs-right > .nav-tabs > a {
+  min-width: 74px;
+  margin-right: 0;
+  margin-bottom: 3px;
+}
+
+.tabs-left > .nav-tabs > a {
+  margin-right: -1px;
+  .border-radius(4px 0 0 4px);
+}
+.tabs-left > .nav-tabs > a:hover {
+  border-color: @grayLighter #ddd @grayLighter @grayLighter;
+}
+.tabs-left > .nav-tabs a.active,
+.tabs-left > .nav-tabs a.active:hover {
+  border-color: #ddd transparent #ddd #ddd;
+  *border-right-color: @white;
+}
+
+.tabs-right > .nav-tabs > a {
+  margin-left: -1px;
+  .border-radius(0 4px 4px 0);
+}
+.tabs-right > .nav-tabs > a:hover {
+  border-color: @grayLighter @grayLighter @grayLighter #ddd;
+}
+.tabs-right > .nav-tabs a.active,
+.tabs-right > .nav-tabs a.active:hover {
+  border-color: #ddd #ddd #ddd transparent;
+  *border-left-color: @white;
+}
+
+.nav > a.disabled {
+  color: @grayLight;
+}
+// Nuke hover effects
+.nav > a.disabled:hover {
+  text-decoration: none;
+  background-color: transparent;
+  cursor: default;
+}
+

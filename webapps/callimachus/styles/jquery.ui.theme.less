@@ -1,14 +1,20 @@
-/*
-* jQuery UI CSS Framework
-* Copyright (c) 2009 AUTHORS.txt (http://jqueryui.com/about)
-* Dual licensed under the MIT (MIT-LICENSE.txt) and GPL (GPL-LICENSE.txt) licenses.
-* To view and modify this theme, visit http://jqueryui.com/themeroller/
-*/
+/*!
+ * jQuery UI CSS Framework 1.8.23
+ *
+ * Copyright 2012, AUTHORS.txt (http://jqueryui.com/about)
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ * http://jquery.org/license
+ *
+ * http://docs.jquery.com/UI/Theming/API
+ *
+ * To view and modify this theme, visit http://jqueryui.com/themeroller/
+ */
 
 
 /* Component containers
 ----------------------------------*/
 .ui-widget { font-family: @ffDefault; font-size: @fsDefault; }
+.ui-widget .ui-widget { font-size: 1em; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: @ffDefault; font-size: 1em; }
 .ui-widget-content { border: 1px solid @borderColorContent; background: @bgColorContent @bgImgUrlContent @bgContentXPos @bgContentYPos @bgContentRepeat; color: @fcContent; }
 .ui-widget-content a { color: @fcContent; }
@@ -17,23 +23,24 @@
 
 /* Interaction states
 ----------------------------------*/
-.ui-state-default, .ui-widget-content .ui-state-default { border: 1px solid @borderColorDefault; background: @bgColorDefault @bgImgUrlDefault @bgDefaultXPos @bgDefaultYPos @bgDefaultRepeat; font-weight: @fwDefault; color: @fcDefault; outline: none; }
-.ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: @fcDefault; text-decoration: none; outline: none; }
-.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus { border: 1px solid @borderColorHover; background: @bgColorHover @bgImgUrlHover @bgHoverXPos @bgHoverYPos @bgHoverRepeat; font-weight: @fwDefault; color: @fcHover; outline: none; }
-.ui-state-hover a, .ui-state-hover a:hover { color: @fcHover; text-decoration: none; outline: none; }
-.ui-state-active, .ui-widget-content .ui-state-active { border: 1px solid @borderColorActive; background: @bgColorActive @bgImgUrlActive @bgActiveXPos @bgActiveYPos @bgActiveRepeat; font-weight: @fwDefault; color: @fcActive; outline: none; }
-.ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited { color: @fcActive; outline: none; text-decoration: none; }
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { border: 1px solid @borderColorDefault; background: @bgColorDefault @bgImgUrlDefault @bgDefaultXPos @bgDefaultYPos @bgDefaultRepeat; font-weight: @fwDefault; color: @fcDefault; }
+.ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: @fcDefault; text-decoration: none; }
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { border: 1px solid @borderColorHover; background: @bgColorHover @bgImgUrlHover @bgHoverXPos @bgHoverYPos @bgHoverRepeat; font-weight: @fwDefault; color: @fcHover; }
+.ui-state-hover a, .ui-state-hover a:hover { color: @fcHover; text-decoration: none; }
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active { border: 1px solid @borderColorActive; background: @bgColorActive @bgImgUrlActive @bgActiveXPos @bgActiveYPos @bgActiveRepeat; font-weight: @fwDefault; color: @fcActive; }
+.ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited { color: @fcActive; text-decoration: none; }
+.ui-widget :active { outline: none; }
 
 /* Interaction Cues
 ----------------------------------*/
-.ui-state-highlight, .ui-widget-content .ui-state-highlight {border: 1px solid @borderColorHighlight; background: @bgColorHighlight @bgImgUrlHighlight @bgHighlightXPos @bgHighlightYPos @bgHighlightRepeat; color: @fcHighlight; }
-.ui-state-highlight a, .ui-widget-content .ui-state-highlight a { color: @fcHighlight; }
-.ui-state-error, .ui-widget-content .ui-state-error {border: 1px solid @borderColorError; background: @bgColorError @bgImgUrlError @bgErrorXPos @bgErrorYPos @bgErrorRepeat; color: @fcError; }
-.ui-state-error a, .ui-widget-content .ui-state-error a { color: @fcError; }
-.ui-state-error-text, .ui-widget-content .ui-state-error-text { color: @fcError; }
-.ui-state-disabled, .ui-widget-content .ui-state-disabled { opacity: .35; filter:Alpha(Opacity=35); background-image: none; }
-.ui-priority-primary, .ui-widget-content .ui-priority-primary { font-weight: bold; }
-.ui-priority-secondary, .ui-widget-content .ui-priority-secondary { opacity: .7; filter:Alpha(Opacity=70); font-weight: normal; }
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight  {border: 1px solid @borderColorHighlight; background: @bgColorHighlight @bgImgUrlHighlight @bgHighlightXPos @bgHighlightYPos @bgHighlightRepeat; color: @fcHighlight; }
+.ui-state-highlight a, .ui-widget-content .ui-state-highlight a,.ui-widget-header .ui-state-highlight a { color: @fcHighlight; }
+.ui-state-error, .ui-widget-content .ui-state-error, .ui-widget-header .ui-state-error {border: 1px solid @borderColorError; background: @bgColorError @bgImgUrlError @bgErrorXPos @bgErrorYPos @bgErrorRepeat; color: @fcError; }
+.ui-state-error a, .ui-widget-content .ui-state-error a, .ui-widget-header .ui-state-error a { color: @fcError; }
+.ui-state-error-text, .ui-widget-content .ui-state-error-text, .ui-widget-header .ui-state-error-text { color: @fcError; }
+.ui-priority-primary, .ui-widget-content .ui-priority-primary, .ui-widget-header .ui-priority-primary { font-weight: bold; }
+.ui-priority-secondary, .ui-widget-content .ui-priority-secondary,  .ui-widget-header .ui-priority-secondary { opacity: .7; filter:Alpha(Opacity=70); font-weight: normal; }
+.ui-state-disabled, .ui-widget-content .ui-state-disabled, .ui-widget-header .ui-state-disabled { opacity: .35; filter:Alpha(Opacity=35); background-image: none; }
 
 /* Icons
 ----------------------------------*/
@@ -184,6 +191,8 @@
 .ui-icon-seek-next { background-position: -32px -160px; }
 .ui-icon-seek-prev { background-position: -48px -160px; }
 .ui-icon-seek-end { background-position: -64px -160px; }
+.ui-icon-seek-start { background-position: -80px -160px; }
+/* ui-icon-seek-first is deprecated, use ui-icon-seek-start instead */
 .ui-icon-seek-first { background-position: -80px -160px; }
 .ui-icon-stop { background-position: -96px -160px; }
 .ui-icon-eject { background-position: -112px -160px; }
@@ -228,16 +237,11 @@
 ----------------------------------*/
 
 /* Corner radius */
-.ui-corner-tl { -moz-border-radius-topleft: @cornerRadius; -webkit-border-top-left-radius: @cornerRadius; }
-.ui-corner-tr { -moz-border-radius-topright: @cornerRadius; -webkit-border-top-right-radius: @cornerRadius; }
-.ui-corner-bl { -moz-border-radius-bottomleft: @cornerRadius; -webkit-border-bottom-left-radius: @cornerRadius; }
-.ui-corner-br { -moz-border-radius-bottomright: @cornerRadius; -webkit-border-bottom-right-radius: @cornerRadius; }
-.ui-corner-top { -moz-border-radius-topleft: @cornerRadius; -webkit-border-top-left-radius: @cornerRadius; -moz-border-radius-topright: @cornerRadius; -webkit-border-top-right-radius: @cornerRadius; }
-.ui-corner-bottom { -moz-border-radius-bottomleft: @cornerRadius; -webkit-border-bottom-left-radius: @cornerRadius; -moz-border-radius-bottomright: @cornerRadius; -webkit-border-bottom-right-radius: @cornerRadius; }
-.ui-corner-right {  -moz-border-radius-topright: @cornerRadius; -webkit-border-top-right-radius: @cornerRadius; -moz-border-radius-bottomright: @cornerRadius; -webkit-border-bottom-right-radius: @cornerRadius; }
-.ui-corner-left { -moz-border-radius-topleft: @cornerRadius; -webkit-border-top-left-radius: @cornerRadius; -moz-border-radius-bottomleft: @cornerRadius; -webkit-border-bottom-left-radius: @cornerRadius; }
-.ui-corner-all { -moz-border-radius: @cornerRadius; -webkit-border-radius: @cornerRadius; }
+.ui-corner-all, .ui-corner-top, .ui-corner-left, .ui-corner-tl { -moz-border-radius-topleft: @cornerRadius; -webkit-border-top-left-radius: @cornerRadius; -khtml-border-top-left-radius: @cornerRadius; border-top-left-radius: @cornerRadius; }
+.ui-corner-all, .ui-corner-top, .ui-corner-right, .ui-corner-tr { -moz-border-radius-topright: @cornerRadius; -webkit-border-top-right-radius: @cornerRadius; -khtml-border-top-right-radius: @cornerRadius; border-top-right-radius: @cornerRadius; }
+.ui-corner-all, .ui-corner-bottom, .ui-corner-left, .ui-corner-bl { -moz-border-radius-bottomleft: @cornerRadius; -webkit-border-bottom-left-radius: @cornerRadius; -khtml-border-bottom-left-radius: @cornerRadius; border-bottom-left-radius: @cornerRadius; }
+.ui-corner-all, .ui-corner-bottom, .ui-corner-right, .ui-corner-br { -moz-border-radius-bottomright: @cornerRadius; -webkit-border-bottom-right-radius: @cornerRadius; -khtml-border-bottom-right-radius: @cornerRadius; border-bottom-right-radius: @cornerRadius; }
 
 /* Overlays */
 .ui-widget-overlay { background: @bgColorOverlay @bgImgUrlOverlay @bgOverlayXPos @bgOverlayYPos @bgOverlayRepeat; opacity: @opacityOverlay;filter:@opacityOverlayFilter; }
-.ui-widget-shadow { margin: @offsetTopShadow 0 0 @offsetLeftShadow; padding: @thicknessShadow; background: @bgColorShadow @bgImgUrlShadow @bgShadowXPos @bgShadowYPos @bgShadowRepeat; opacity: @opacityShadow;filter:@opacityShadowFilter; -moz-border-radius: @cornerRadiusShadow; -webkit-border-radius: @cornerRadiusShadow; }
+.ui-widget-shadow { margin: @offsetTopShadow 0 0 @offsetLeftShadow; padding: @thicknessShadow; background: @bgColorShadow @bgImgUrlShadow @bgShadowXPos @bgShadowYPos @bgShadowRepeat; opacity: @opacityShadow;filter:@opacityShadowFilter; -moz-border-radius: @cornerRadiusShadow; -khtml-border-radius: @cornerRadiusShadow; -webkit-border-radius: @cornerRadiusShadow; border-radius: @cornerRadiusShadow; }

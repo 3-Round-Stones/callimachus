@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+        xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title resource="?this">{rdfs:label} Sign Up</title>
+    <style type="text/css">
+    .password-meter {
+        position:relative;
+        width: 180px;
+    }
+    .password-meter-message {
+        text-align: right;
+        font-weight: bold;
+        font-size: x-small;
+        color: #676767;
+    }
+    .password-meter-bg, .password-meter-bar {
+        height: 4px;
+    }
+    .password-meter-bg {
+        top: 8px;
+        background: #e0e0e0;
+    }
+
+    .password-meter-message-very-weak {
+        color: #aa0033;
+    }
+    .password-meter-message-weak {
+        color: #f5ac00;
+    }
+    .password-meter-message-good {
+        color: #6699cc;
+    }
+    .password-meter-message-strong {
+        color: #008000;
+    }
+
+    .password-meter-bg .password-meter-very-weak {
+        background: #aa0033;
+        width: 30px;
+    }
+    .password-meter-bg .password-meter-weak {
+        background: #f5ac00;
+        width: 60px;
+    }
+    .password-meter-bg .password-meter-good {
+        background: #6699cc;
+        width: 135px;
+    }
+    .password-meter-bg .password-meter-strong {
+        background: #008000;
+        width: 180px;
+    }
+    </style>
+    <script type="text/javascript" src="/callimachus/scripts/jquery.validate.js">
+    </script>
+    <script type="text/javascript" src="/callimachus/scripts/jquery.validate.password.js">
+    </script>
+    <script type="text/javascript" src="/callimachus/scripts/md5.js">
+    </script>
+    <script type="text/javascript">//<![CDATA[
+        jQuery(function($) {
+            function parameter(name) {
+                var regex = new RegExp("[\\?&]"+name+"=([^&#]*)");
+                var m = regex.exec(location.search);
+                return m ? decodeURIComponent(m[1]) : null;
+            }
+            $("#form").validate({submitHandler: function(form) {
+                var email = parameter("email");
+                var authName = $("#authName").text();
+                var password = $("#password").val();
+                var hash = hex_md5(email + ':' + authName + ':' + password);
+                jQuery.ajax({type: 'POST', url: form.action,
+                    data: {
+                        nonce: parameter("nonce"),
+                        token: parameter("token"),
+                        email: email,
+                        password: hash
+                    },
+                    success: function() {
+                        window.location.replace('/?login');
+                    }
+                });
+                return false;
+               }});
+        });
+        // ]]>
+    </script>
+</head>
+<body resource="?this">
+    <hgroup>
+        <h1>{rdfs:label} Sign Up</h1>
+        <h2 id="authName">{calli:authName}</h2>
+    </hgroup>
+    <form id="form" method="POST" action="?register">
+        <div class="control-group">
+        	<label for="password" class="control-label">New password</label>
+    		<div class="controls">
+                <input id="password" type="password" password="#email" class="password" onkeyup="$(this).valid()" />
+                <div class="password-meter">
+                    <label for="password" class="password-meter-message" />
+                    <div class="password-meter-bg">
+                        <div class="password-meter-bar"></div>
+                    </div>
+                </div>
+    		</div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Yes, sign me up!</button>
+            <button type="button" onclick="location.replace('/')">I'll come back later</button>
+        </div>
+    </form>
+</body>
+</html>

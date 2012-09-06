@@ -9,7 +9,7 @@
     <title>Invite a New User</title>
     <script type="text/javascript"><![CDATA[
     jQuery(function($) {
-        $('#message').val($('#message').val() + ' ' + location.protocol + '//' + location.host + '/');
+        $('#message').val($('#message').val().replace(/@@REGISTRATION_URL@@/g, location.protocol + '//' + location.host + '/?register'));
     }); // ]]>
     </script>
 </head>
@@ -17,44 +17,48 @@
     <div id="sidebar">
         <aside>
             <p>The username cannot be changed once the user is created</p>
-            <p>E-mail address is used to send an invite password and possibly reset the password</p>
+            <p>E-mail address is used to send an invite and possibly reset the password</p>
             <p>Provide the user's full name</p>
             <p>Provide any additional contact information or affiliation information</p>
             <p>You can customize the message sent in the email here</p>
         </aside>
     </div>
     <form id="form" method="POST" action="" enctype="multipart/form-data" autocomplete="off" onsubmit="return calli.saveResourceAs(event)">
-        <fieldset class="control-group">
-            <label for="name" class="control-label">Username</label>
-            <div class="controls">
-                <input id="name" name="name" type="text" class="auto-expand" required="required" autofocus="autofocus"
-                    onchange="$('#message').val($('#message').val().replace(/username is (\S+) and /, 'username is ' + value + ' and '))" />
+        <fieldset>
+            <div class="control-group">
+                <label for="name" class="control-label">Username</label>
+                <div class="controls">
+                    <input id="name" name="name" type="text" class="auto-expand" required="required" autofocus="autofocus" />
+                </div>
             </div>
-        </fieldset>
-        <fieldset class="control-group">
-            <label for="email" class="control-label">E-mail address</label>
-            <div class="controls">
-                <input id="email" name="email" type="email" class="auto-expand" required="required" />
-            </div>
-        </fieldset>
-        <fieldset class="control-group">
-            <label for="label" class="control-label">Full name</label>
-            <div class="controls">
-                <input id="label" name="label" type="text" class="auto-expand" required="required"
-                    onchange="$('#message').val($('#message').val().replace(/Hello,/, 'Hello ' + value + ','))" />
-            </div>
-        </fieldset>
-        <fieldset class="control-group">
-            <label for="comment" class="control-label">Additional information</label>
-            <div class="controls">
-                <textarea id="comment" class="auto-expand" name="comment"></textarea>
+            <div class="control-group">
+                <label for="email" class="control-label">E-mail address</label>
+                <div class="controls">
+                    <input id="email" name="email" type="email" class="auto-expand" required="required" />
+                </div>
             </div>
         </fieldset>
         <fieldset>
             <div class="control-group">
+                <label for="label" class="control-label">Full name</label>
+                <div class="controls">
+                    <input id="label" name="label" type="text" class="auto-expand" required="required"
+                        onchange="$('#message').val($('#message').val().replace(/Hello,/, 'Hello ' + value + ','))" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="comment" class="control-label">Additional information</label>
+                <div class="controls">
+                    <textarea id="comment" class="auto-expand" name="comment"></textarea>
+                </div>
+            </div>
+        </fieldset>
+        <hr />
+        <fieldset>
+            <div class="control-group">
                 <label for="subject" class="control-label">Welcome subject</label>
                 <div class="controls">
-                    <input id="subject" name="subject" type="text" class="auto-expand" required="required" value="You have a new account" />
+                    <input id="subject" name="subject" type="text" class="auto-expand" required="required" value="Account Registration" />
                 </div>
             </div>
             <div class="control-group">
@@ -62,11 +66,13 @@
                 <div class="controls">
                     <textarea id="message" class="auto-expand" required="required" name="message">Hello,
 
-You have a new account.
+A new account has been created for you. Use the link below to pick a
+password or other authentication options.
 
-Your username is unknown and your password is "@@PASSWORD@@" (without quotes).
+@@REGISTRATION_URL@@
 
-You can sign in at:</textarea>
+Enjoy!
+</textarea>
                 </div>
             </div>
             <div class="form-actions">

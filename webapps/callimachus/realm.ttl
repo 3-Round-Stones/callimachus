@@ -36,9 +36,28 @@
     msg:sparql  """
         ASK {
             FILTER ($method = "GET" || $method = "HEAD")
-            FILTER ($query = "login" || substr($query,1,2) = "q=")
+            FILTER ($query = "profile" || substr($query,1,2) = "q=")
         }
     """.
+
+################################
+# Registration
+################################
+
+# link from invite email
+:GetRegisterUserPage rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :register_xhtml; owl:hasValue <pages/register.xhtml>];
+    calli:method "GET";
+    calli:query "register";
+    calli:type "text/html";
+    calli:script """
+        return register_xhtml.Construct(this, 'register');
+    """.
+
+:register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetRegisterUserPage.
 
 ################################
 # login
@@ -126,9 +145,12 @@
         var iter = this.calliAuthentication.iterator();
         while (iter.hasNext()) {
             var manager = iter.next();
-            var headers = manager.logout().getAllHeaders();
-            for (var i=0; i<headers.length; i++) {
-                resp.addHeadecr(headers[i]);
+            var logout = manager.logout();
+            if (logout) {
+                var headers = logout.getAllHeaders();
+                for (var i=0; i<headers.length; i++) {
+                    resp.addHeadecr(headers[i]);
+                }
             }
         }
         return resp;

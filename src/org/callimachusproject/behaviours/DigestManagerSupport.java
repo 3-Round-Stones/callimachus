@@ -19,6 +19,8 @@ package org.callimachusproject.behaviours;
 
 import info.aduna.net.ParsedURI;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,8 +28,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.tools.FileObject;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -164,10 +169,9 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		String ha2 = md5(":" + uri);
 		List<Object[]> encodings = findDigest(username);
 		for (Object[] row : encodings) {
-			byte[] a1 = (byte[]) row[1];
-			if (a1 == null)
+			String ha1 = digestHexEncoded(row);
+			if (ha1 == null)
 				continue;
-			String ha1 = new String(Hex.encodeHex(a1));
 			String rspauth = md5(ha1 + ":" + nonce + ":" + nc + ":" + cnonce
 					+ ":auth:" + ha2);
 			BasicHttpResponse resp = new BasicHttpResponse(_204);
@@ -223,6 +227,15 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 
 	@Override
 	public String findCredential(Collection<String> tokens) {
+		String username = findCredentialLabel(tokens);
+		List<Object[]> encodings = findDigest(username);
+		if (encodings.isEmpty())
+			return null;
+		return (String) encodings.get(0)[0];
+	}
+
+	@Override
+	public String findCredentialLabel(Collection<String> tokens) {
 		for (String authorization : tokens) {
 			if (authorization == null || !authorization.startsWith("Digest"))
 				continue;
@@ -231,30 +244,9 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			String username = options.get("username");
 			if (username == null)
 				throw new BadRequest("Missing username");
-			List<Object[]> encodings = findDigest(username);
-			if (encodings.isEmpty())
-				continue;
-			return (String) encodings.get(0)[0];
+			return username;
 		}
 		return null;
-	}
-
-	@Override
-	public String findCredentialLabel(Collection<String> tokens) {
-		String iri = findCredential(tokens);
-		if (iri == null)
-			return null;
-		try {
-			ObjectConnection con = getObjectConnection();
-			ValueFactory vf = con.getValueFactory();
-			List<Statement> result = con.getStatements(vf.createURI(iri), RDFS.LABEL, null).asList();
-			if (result.isEmpty())
-				return iri;
-			return result.get(0).getObject().stringValue();
-		} catch (RepositoryException e) {
-			logger.error(e.toString(), e);
-			return null;
-		}
 	}
 
 	public HttpMessage logout() {
@@ -266,12 +258,18 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 	protected abstract String protectionDomain();
 
 	@Sparql(PREFIX
-			+ "SELECT (str(?user) AS ?id) ?encoded\n"
-			+ "WHERE { ?user calli:name $name .\n"
+			+ "SELECT (str(?user) AS ?id) ?encoded ?passwordDigest {{\n"
+			+ "?user calli:name $name .\n"
 			+ "$this calli:authNamespace ?folder .\n"
 			+ "?folder calli:hasComponent ?user .\n"
 			+ "FILTER (str(?user) = concat(str(?folder), $name))\n"
-			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" } }")
+			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" }\n" +
+			"} UNION {\n"
+			+ "?user calli:email $name .\n"
+			+ "$this calli:authNamespace ?folder .\n"
+			+ "?folder calli:hasComponent ?user .\n"
+			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n" +
+			"}}")
 	protected abstract List<Object[]> findDigest(@Bind("name") String username);
 
 	private String authenticatedCredential(String method,
@@ -303,11 +301,10 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		}
 		boolean encoding = false;
 		for (Object[] row : encodings) {
-			byte[] a1 = (byte[]) row[1];
-			if (a1 == null)
+			String ha1 = digestHexEncoded(row);
+			if (ha1 == null)
 				continue;
 			encoding = true;
-			String ha1 = new String(Hex.encodeHex(a1));
 			String legacy = ha1 + ":" + nonce + ":" + ha2;
 			if (qop == null && md5(legacy).equals(response))
 				return (String) row[0];
@@ -324,6 +321,30 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			failedAttempt(username);
 		}
 		return null;
+	}
+
+	private String digestHexEncoded(Object[] row) {
+		String ha1 = null;
+		if (row[1] != null) {
+			ha1 = new String(Hex.encodeHex((byte[]) row[1]));
+		} else if (row[2] instanceof FileObject) {
+			ha1 = readString((FileObject) row[2]);
+		}
+		return ha1;
+	}
+
+	private String readString(FileObject file) {
+		try {
+			Reader reader = file.openReader(true);
+			try {
+				return new Scanner(reader).next();
+			} finally {
+				reader.close();
+			}
+		} catch (IOException e) {
+			logger.error(e.toString(), e);
+			return null;
+		}
 	}
 
 	private void failedAttempt(String username) {

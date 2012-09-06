@@ -259,11 +259,16 @@ calli:deleted a owl:AnnotationProperty;
 # Property
 ################################
 
-calli:algorithm a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:label "algorithm";
-    rdfs:comment "A value of 'MD5' indicates this Agent is uses digest authentication";
+calli:secret a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "secret";
+    rdfs:comment "A document of random bits in Base 64 encoding";
     rdfs:domain calli:User;
-    rdfs:range rdf:PlainLiteral;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:passwordDigest a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "password digest";
+    rdfs:comment "A document of the MD5 sum of email:authName:password in HEX encoding";
+    rdfs:domain calli:User;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:encoded a owl:DatatypeProperty, owl:FunctionalProperty;

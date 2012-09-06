@@ -4,7 +4,11 @@
 
 var creole = new Parse.Simple.Creole();
 
-$(document).ready(handle);
+$(document).ready(function() {
+    $("pre.wiki", document).each(function() {
+        initWiki(this);
+    })
+});
 $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {

@@ -2,7 +2,7 @@
 
 (function($){
 
-$(document).ready(handle);
+$(document).ready(hbox(select(document, ".hbox")));
 $(document).bind("DOMNodeInserted load", handle);
 $(window).resize(function(){hbox($('.hbox'))});
 

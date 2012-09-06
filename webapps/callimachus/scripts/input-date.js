@@ -2,7 +2,13 @@
 
 (function($){
 
-$(document).ready(handle);
+$(document).ready(function() {
+    select(document, "input").filter(function(){
+        return this.getAttribute('type') == "date";
+    }).each(function() {
+        addDateSelect(this);
+    });
+});
 $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {

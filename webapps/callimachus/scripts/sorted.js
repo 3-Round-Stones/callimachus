@@ -2,7 +2,11 @@
 
 (function($){
 
-$(document).ready(handle);
+$(document).ready(function() {
+    $(".asc,.desc", document).parents('.sorted').each(function() {
+        sortElements(this);
+    })
+});
 
 $(document).bind("DOMNodeInserted", handle);
 

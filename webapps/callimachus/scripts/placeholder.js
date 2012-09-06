@@ -2,10 +2,16 @@
 
 (function($){
 
-$(document).ready(function(event) {
+$(document).ready(function() {
     if (!hasPlaceholderSupport()) {
         $(document).bind("DOMNodeInserted", handle);
-        handle(event);
+		select(document, "input[placeholder]").each(function(i, input) {
+			var title = input.getAttribute("placeholder");
+			if (title) {
+				initInputPromptTitle(input, title);
+				input.removeAttribute("placeholder");
+			}
+		});
     }
 });
 

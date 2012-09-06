@@ -2,7 +2,9 @@
 
 (function($){
 
-$(document).ready(handle);
+$(document).ready(function() {
+    handle({target: document});// fake event parameter
+});
 $(document).bind("DOMNodeInserted", handle);
 
 function select(node, selector) {

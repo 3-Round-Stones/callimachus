@@ -2,7 +2,12 @@
 
 (function($){
 
-$(document).ready(handle);
+$(document).ready(function() {
+    var now = new Date();
+    $(document.getElementsByTagName('time')).each(function() {
+        changeDateLocale(this, now);
+    });
+});
 $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {

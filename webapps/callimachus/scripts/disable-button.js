@@ -2,7 +2,9 @@
 
 (function($){
 
-$(document).ready(handle);
+$(document).ready(function() {
+    $("button", document).click(flashButton);
+});
 $(document).bind("DOMNodeInserted", handle);
 
 function handle(event) {

@@ -2,7 +2,17 @@
 
 (function($){
 
-$(document).ready(handle);
+$(document).ready(function() {
+    select(document, ".optional").each(function() {
+        var node = $(this);
+        if (node.find("[about],[src],[typeof],[typeof=''],[resource],[href],[property]").length) {
+            node.show();
+        } else {
+            node.hide();
+        }
+    });
+	
+});
 $(document).bind("DOMNodeInserted", handle);
 
 function select(node, selector) {

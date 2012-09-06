@@ -2,10 +2,10 @@
 
 (function($) {
 
-$(document).ready(function(event) {
+$(document).ready(function() {
     if (!('open' in document.createElement('details'))) {
         $(document).bind("DOMNodeInserted", handle);
-        handle(event);
+        handle({target: document});// fake event parameter
     }
 });
 

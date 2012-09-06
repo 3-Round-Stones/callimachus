@@ -2,7 +2,9 @@
 
 (function($){
 
-$(document).ready(handle);
+$(document).ready(function() {
+	vbox(select(document, ".vbox"));
+});
 $(document).bind("DOMNodeInserted", handle);
 $(window).resize(function(){vbox($('.vbox'))});
 

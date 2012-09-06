@@ -2,7 +2,9 @@
 
 (function($){
 
-$(document).ready(handle);
+$(document).ready(function() {
+    breadcrumb(select(document, ".breadcrumb"));
+});
 $(document).bind("DOMNodeInserted", handle);
 
 function select(node, selector) {

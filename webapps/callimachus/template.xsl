@@ -4,7 +4,16 @@
     <xsl:param name="xsltId" />
     <xsl:param name="realm" select="'/'" />
 
-    <xsl:variable name="url" select="concat($realm,'?layout')" />
+    <xsl:variable name="url">
+        <xsl:choose>
+            <xsl:when test="string-length($realm) &gt; 0">
+                <xsl:value-of select="concat($realm,'?layout')" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="'/?layout'" />
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
     <xsl:variable name="stylesheet" select="document($url)/xsl:stylesheet" />
 
     <xsl:variable name="styles" select="$stylesheet/xsl:variable[@name='styles']/node()" />

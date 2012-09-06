@@ -103,9 +103,9 @@ function bottom(element) {
 
 function getAvailableWidth(area) {
     var parent = getParentBlock(area);
-    var margin = 0;
+    var margin = $(area).outerWidth(true) - $(area).width();
     var breakFlag = false;
-    $(area).add($(area).parents()).each(function(){
+    $(area).parents().each(function(){
         if (this == parent) {
             breakFlag = true;
         } else if (!breakFlag) {

@@ -91,6 +91,7 @@ window.calli.openDialog = function(url, title, options) {
         var previously = iframe.dialog("option", "height");
         iframe.dialog("option", "height", height);
         iframe.height(fheight);
+        iframe.css('width', '100%');
         if (outerHeight - 50 > iframe.parent().outerWidth(true) && previously < height) {
             setDialogOuterWidth(outerHeight - 50);
         }
@@ -101,6 +102,7 @@ window.calli.openDialog = function(url, title, options) {
         var width = outerWidth - iframe.parent().outerWidth(true) + iframe.parent().width();
         var previously = iframe.dialog("option", "width");
         iframe.dialog("option", "width", width);
+        iframe.css('width', '100%');
         if (outerWidth - 50 > iframe.parent().outerHeight(true) && previously < width) {
             setDialogOuterHeight(outerWidth - 50);
         }

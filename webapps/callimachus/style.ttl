@@ -178,10 +178,15 @@
                     resp = client.service(req);
                     redirect = client.redirectLocation(redirect, resp);
                 }
-                if (resp.statusLine.statusCode >= 300)
+                var code = resp.statusLine.statusCode;
+                if (code < 200 || 300 <= code && code < 400 || 500 <= code)
                     throw ResponseException.create(resp, systemId);
                 var content = '';
-                if (resp.entity && resp.entity.content) {
+                if (400 <= code) {
+                    var exception = ResponseException.create(resp, systemId);
+                    println(exception.longMessage);
+                    content = "/*\\n" + exception.longMessage.replace(/\\*/g,'_') + "\\n*/";
+                } else if (resp.entity && resp.entity.content) {
                     try {
                         var scanner = new java.util.Scanner(resp.entity.content, "UTF-8");
                         scanner = scanner.useDelimiter("\\\\A");

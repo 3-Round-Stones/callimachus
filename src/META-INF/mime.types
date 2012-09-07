@@ -75,6 +75,7 @@ application/xhtml+xml xhtml
 application/xhtml+xml xht
 application/xml xml
 application/xml rng
+application/xml sch
 application/xml xsd
 application/xml-external-parsed-entity ent
 application/xproc+xml xpl

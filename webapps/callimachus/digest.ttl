@@ -24,15 +24,35 @@
 # login
 ################################
 
+:GetLoginPage rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :digest_login_xhtml; owl:hasValue <pages/digest-login.xhtml>];
+    calli:method "GET";
+    calli:query "login";
+    calli:type "text/html";
+    calli:script """
+        return digest_login_xhtml.Construct(this, 'login');
+    """.
+
+:digest_login_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :GetLoginPage.
+
 # Used to login
 :GetLoginSuccessPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:method "GET";
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "POST";
     calli:query "login";
     calli:realm </>;
-    calli:type "text/html";
-    calli:get <pages/loggedin.xhtml?view>.
+    calli:type "message/x-response";
+    calli:script """
+        return {
+            status:303, statusText:"See Other",
+            headers:{location:"/","content-type":"text/plain"},
+            body:["welcome"]
+        };
+    """.
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage owl:intersectionOf (calli:IsAuthorized

@@ -14,7 +14,7 @@
             links.each(function(){
                 this.href = this.href + window.location.search;
             });
-            if (links.length == 1) {
+            if (links.length == 1 && links[0].href.indexOf('}') < 0) {
                 window.location.replace(links[0].href);
             }
         });

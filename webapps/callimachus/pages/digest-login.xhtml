@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+        xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title resource="?this">{rdfs:label} Sign In</title>
+    <script type="text/javascript">
+    // <![CDATA[
+    $(function(){
+        $('#form').submit(function(event){
+            var options = {type: "POST", url: "?login",
+                username: $('#email').val(),
+                password: $('#password').val(),
+                beforeSend: function(req){try{req.withCredentials=true;}catch(e){}},
+                success: function(doc) {
+                    $(document).trigger("calliLoggedIn");
+                    var return_to = /&return_to=([^&]*)/.exec(window.location.search);
+                    if (return_to && return_to[1]) {
+                        window.location.replace(decodeURIComponent(return_to[1]));
+                    }
+                }
+            };
+            try {
+                jQuery.ajax(options);
+            } catch (e) {
+                // Opera don't support spaces in ajax passwords
+                if (options.password) {
+                    delete options.password;
+                    jQuery.ajax(options);
+                }
+            }
+            event.preventDefault();
+            return false;
+        });
+    });
+    // ]]>
+    </script>
+</head>
+<body resource="?this">
+    <h1>{rdfs:label} Sign In</h1>
+    <form id="form" method="POST" action="?login">
+        <div class="control-group">
+            <label class="control-label" for="email">Email</label>
+            <div class="controls">
+                <input type="text" id="email" placeholder="Email" required="required" autofocus="autofocus" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="password">Password</label>
+            <div class="controls">
+                <input type="password" id="password" placeholder="Password" />
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Sign in</button>
+            <a href="?forgotpassword" class="btn">Send me a new password</a>
+        </div>
+    </form>
+</body>
+</html>

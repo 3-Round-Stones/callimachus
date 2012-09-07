@@ -24,6 +24,10 @@ window.calli.getUserIri = function() {
 var userName = null;
 
 $(document).bind("calliLogin", function(event) {
+    if (window.localStorage) {
+        localStorage.removeItem('UserName');
+        localStorage.removeItem('UserIri');
+    }
     var return_to = window.location.href;
     window.location = "/?login&return_to=" + encodeURIComponent(return_to);
     event.preventDefault();
@@ -33,6 +37,11 @@ $(document).bind("calliLoggedIn", function(event) {
     document.documentElement.className += ' login';
     $(document.documentElement).removeClass('logout');
     userName = event.title;
+    if (window.localStorage) {
+        if (!event.title || event.title != localStorage.getItem("UserName")) {
+            nowLoggedIn(true);
+        }
+    }
 });
 
 $(document).bind("calliLogout", function(event) {
@@ -116,9 +125,10 @@ if (window.localStorage && localStorage.getItem("UserName")) {
     });
 }
 
-function nowLoggedIn() {
+function nowLoggedIn(sync) {
     jQuery.ajax({ url: "/?profile",
         beforeSend: withCredentials,
+        async: !sync,
         success: function(doc) {
             var iri = /resource="([^" >]*)"/i.exec(doc);
             var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc);

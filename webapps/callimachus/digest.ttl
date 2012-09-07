@@ -108,9 +108,9 @@
         while (iter.hasNext()) {
             var user = iter.next();
             if (token == user.GetSecretToken(nonce)) {
-                var uuid =  java.util.UUID.randomUUID().toString();
+                var uuid = java.util.UUID.randomUUID().toString();
                 if (!user.calliPasswordDigest) {
-                    user.calliPasswordDigest = this.objectConnection.getObject("urn:uuid:" +uuid);
+                    user.calliPasswordDigest = this.objectConnection.getObject("urn:uuid:" + uuid);
                 }
                 //# write to blob identified by the uuid
                 var out = user.calliPasswordDigest.openWriter();

@@ -29,23 +29,28 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.callimachusproject.io.CarInputStream;
 import org.callimachusproject.server.CallimachusRepository;
@@ -53,10 +58,10 @@ import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
-import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.model.util.GraphUtil;
@@ -76,7 +81,6 @@ import org.openrdf.repository.config.RepositoryConfigSchema;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.repository.manager.RepositoryProvider;
 import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -126,6 +130,8 @@ public class Setup {
 	private static final String CALLI_NAME = CALLI + "name";
 	private static final String CALLI_EMAIL = CALLI + "email";
 	private static final String CALLI_ALGORITHM = CALLI + "algorithm";
+	private static final String CALLI_SECRET = CALLI + "secret";
+	private static final String CALLI_PASSWORD = CALLI + "passwordDigest";
 	private static final String CALLI_MEMBER = CALLI + "member";
 
 	private static final Options options = new Options();
@@ -153,6 +159,7 @@ public class Setup {
 				"If creating a new user use this full name");
 		options.addOption("e", "email", true,
 				"If creating a new user use this email address");
+		options.getOption("user").setOptionalArg(true);
 		options.addOption("s", "silent", false,
 				"If the repository is already setup exit successfully");
 		options.addOption("h", "help", false,
@@ -268,15 +275,18 @@ public class Setup {
 					if (line.hasOption('l') && line.getOptionValues('o').length == 1) {
 						serveAllAs = origin;
 					}
-					if (line.hasOption('u')) {
+					if (line.hasOption('u') || line.hasOption('e')) {
+						this.name = line.getOptionValue('n');
+						this.email = line.getOptionValue('e');
 						String u = line.getOptionValue('u');
 						if (u != null && u.contains(":")) {
 							username = u.substring(0, u.indexOf(':'));
 							password = u.substring(u.indexOf(':') + 1).toCharArray();
 							validateName(username);
-						} else {
-							Console console = System.console();
-							if (u != null && u.length() > 0) {
+						}
+						Console console = System.console();
+						if (username == null || username.length() < 1) {
+							if (u != null && u.length() > 0 && !u.contains(":")) {
 								username = u;
 							} else if (console == null) {
 								Reader reader = new InputStreamReader(System.in);
@@ -285,15 +295,22 @@ public class Setup {
 								username = console.readLine("Enter a username: ");
 							}
 							validateName(username);
-							if (console == null && username != null && username.length() > 0) {
-								Reader reader = new InputStreamReader(System.in);
-								password = new BufferedReader(reader).readLine().toCharArray();
-							} else if (username != null && username.length() > 0) {
-								password = console.readPassword("Enter a new password for user %s: ", username);
-							}
 						}
-						this.name = line.getOptionValue('n');
-						this.email = line.getOptionValue('e');
+						if (email == null || email.length() < 1) {
+							if (console == null) {
+								Reader reader = new InputStreamReader(System.in);
+								email = new BufferedReader(reader).readLine();
+							} else {
+								email = console.readLine("Enter an email: ");
+							}
+							validateEmail(email);
+						}
+						if (console == null && email != null && email.length() > 0) {
+							Reader reader = new InputStreamReader(System.in);
+							password = new BufferedReader(reader).readLine().toCharArray();
+						} else if (email != null && email.length() > 0) {
+							password = console.readPassword("Enter a new password for %s: ", email);
+						}
 					}
 				}
 			}
@@ -414,7 +431,7 @@ public class Setup {
 	}
 
 	public void createAdmin(String name, String email, String username, char[] password, String origin)
-			throws RepositoryException, UnsupportedEncodingException {
+			throws RepositoryException, IOException {
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
 		createAdmin(name, email, username, password, origin, repository);
@@ -963,13 +980,13 @@ public class Setup {
 
 	private boolean createAdmin(String name, String email, String username, char[] password,
 			String origin, CallimachusRepository repository)
-			throws UnsupportedEncodingException, RepositoryException {
+			throws RepositoryException, IOException {
 		validateName(username);
+		validateEmail(email);
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
-			ObjectFactory of = con.getObjectFactory();
 			boolean modified = false;
 			for (Statement st1 : con.getStatements(vf.createURI(origin + "/"),
 					vf.createURI(CALLI_AUTHENTICATION), null).asList()) {
@@ -977,15 +994,14 @@ public class Setup {
 				for (Statement st2 : con.getStatements(accounts,
 						vf.createURI(CALLI_AUTHNAME), null).asList()) {
 					String authName = st2.getObject().stringValue();
-					String decoded = username + ":" + authName + ":" + String.valueOf(password);
-					byte[] encoded = DigestUtils.md5(decoded);
-					Literal lit = of.createLiteral(encoded);
+					String decoded = email + ":" + authName + ":" + String.valueOf(password);
+					String encoded = DigestUtils.md5Hex(decoded);
 					for (Statement st3 : con.getStatements(accounts,
 							vf.createURI(CALLI_AUTHNAMESPACE), null).asList()) {
 						Resource user = (Resource) st3.getObject();
 						URI subj = vf.createURI(user.stringValue() + username);
 						modified |= changeAdminPassword(origin, user, subj,
-								name, email, username, lit, con);
+								name, email, username, encoded, con);
 					}
 				}
 			}
@@ -1005,16 +1021,22 @@ public class Setup {
 					+ "'");
 	}
 
+	private void validateEmail(String email) throws IllegalArgumentException,
+			UnsupportedEncodingException {
+		if (email == null || email.length() == 0)
+			throw new IllegalArgumentException("email is required");
+		if (!email.matches("[a-zA-Z0-9.!$%&*+/=?^_{}~-]+@[a-zA-Z0-9.-]+"))
+			throw new IllegalArgumentException("Invalid email: '" + email
+					+ "'");
+	}
+
 	private boolean changeAdminPassword(String origin, Resource folder, URI subj,
-			String name, String email, String username, Literal encoded, ObjectConnection con)
-			throws RepositoryException {
+			String name, String email, String username, String encoded, ObjectConnection con)
+			throws RepositoryException, IOException {
 		ValueFactory vf = con.getValueFactory();
-		if (con.hasStatement(subj, vf.createURI(CALLI_ENCODED), encoded))
-			return false;
 		if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_USER))) {
 			logger.info("Changing password of {}", username);
-			con.remove(subj, vf.createURI(CALLI_ENCODED), null);
-			con.add(subj, vf.createURI(CALLI_ENCODED), encoded);
+			setPassword(subj, encoded, con);
 		} else {
 			logger.info("Creating user {}", username);
 			URI staff = vf.createURI(origin + "/group/staff");
@@ -1023,9 +1045,7 @@ public class Setup {
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
 			con.add(subj, vf.createURI(CALLI_NAME), vf.createLiteral(username));
-			con.add(subj, vf.createURI(CALLI_ALGORITHM),
-					vf.createLiteral("MD5"));
-			con.add(subj, vf.createURI(CALLI_ENCODED), encoded);
+			setPassword(subj, encoded, con);
 			if (name == null || name.length() == 0) {
 				con.add(subj, RDFS.LABEL, vf.createLiteral(username));
 			} else {
@@ -1040,6 +1060,48 @@ public class Setup {
 			}
 		}
 		return true;
+	}
+
+	private void setPassword(URI subj, String encoded, ObjectConnection con)
+			throws RepositoryException, IOException {
+		ValueFactory vf = con.getValueFactory();
+		con.remove(subj, vf.createURI(CALLI_ENCODED), null);
+		con.remove(subj, vf.createURI(CALLI_ALGORITHM), null);
+		URI uuid = getPasswordURI(subj, con);
+		storeTextBlob(uuid, encoded, con);
+		if (!con.hasStatement(subj, vf.createURI(CALLI_SECRET), null)) {
+			URI secret = vf.createURI("urn:uuid:" + UUID.randomUUID());
+			con.add(subj, vf.createURI(CALLI_SECRET), secret);
+			byte[] bytes = new byte[1024];
+			new SecureRandom().nextBytes(bytes);
+			storeTextBlob(secret, Base64.encodeBase64String(bytes), con);
+		}
+	}
+
+	private URI getPasswordURI(URI subj, ObjectConnection con)
+			throws RepositoryException {
+		ValueFactory vf = con.getValueFactory();
+		List<Statement> passwords = con.getStatements(subj,
+				vf.createURI(CALLI_PASSWORD), null).asList();
+		if (!passwords.isEmpty()) {
+			Value object = passwords.get(0).getObject();
+			if (object instanceof URI) {
+				return (URI) object;
+			}
+		}
+		URI uuid = vf.createURI("urn:uuid:" + UUID.randomUUID());
+		con.add(subj, vf.createURI(CALLI_PASSWORD), uuid);
+		return uuid;
+	}
+
+	private void storeTextBlob(URI uuid, String encoded, ObjectConnection con)
+			throws RepositoryException, IOException {
+		Writer writer = con.getBlobObject(uuid).openWriter();
+		try {
+			writer.append(encoded);
+		} finally {
+			writer.close();
+		}
 	}
 
 }

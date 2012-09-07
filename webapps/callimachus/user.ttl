@@ -112,8 +112,8 @@ rdfs:comment a rdf:Property.
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:script """
         if (!this.calliSecret) {
-            var uuid =  java.util.UUID.randomUUID().toString();
-            this.calliSecret = this.objectConnection.getObject("urn:uuid:" +uuid);
+            var uuid = java.util.UUID.randomUUID().toString();
+            this.calliSecret = this.objectConnection.getObject("urn:uuid:" + uuid);
         }
         //# generate random bits
         var random = java.security.SecureRandom.getInstance("SHA1PRNG");

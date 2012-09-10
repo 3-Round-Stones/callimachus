@@ -66,7 +66,7 @@ import org.xml.sax.SAXException;
 public class HttpResponseWriter implements Consumer<HttpResponse> {
 
 	public boolean isConsumable(FluidType mtype, FluidBuilder builder) {
-		return mtype.is(HttpResponse.class) && mtype.is("message/x-response");
+		return HttpResponse.class.isAssignableFrom(mtype.asClass()) && mtype.is("message/x-response");
 	}
 
 	public Fluid consume(final HttpResponse result, final String base,

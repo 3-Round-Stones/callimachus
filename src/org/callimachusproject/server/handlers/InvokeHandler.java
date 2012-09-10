@@ -54,6 +54,7 @@ import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.FluidType;
+import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.model.Handler;
 import org.callimachusproject.server.model.ResourceOperation;
 import org.callimachusproject.server.model.Response;
@@ -378,7 +379,7 @@ public class InvokeHandler implements Handler {
 			}
 			FluidBuilder builder = ff.builder(con);
 			if (!builder.isConsumable(genericType, mimeTypes))
-				throw new ClassCastException(type.getSimpleName()
+				throw new NotAcceptable(type.getSimpleName()
 						+ " cannot be converted into " + mimeTypes);
 			this.writer = builder.consume(result, base, genericType, mimeTypes);
 		}

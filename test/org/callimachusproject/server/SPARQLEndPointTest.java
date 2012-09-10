@@ -4,13 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHeader;
@@ -62,7 +62,7 @@ public class SPARQLEndPointTest extends MetadataServerTestCase {
 		public HttpResponse post(@type("*/*") Map<String, String> parameters)
 				throws Exception {
 			ObjectConnection con = getObjectConnection();
-			ProtocolVersion ver = new ProtocolVersion("HTTP", 1, 1);
+			ProtocolVersion ver = HttpVersion.HTTP_1_1;
 			HttpResponse resp = new BasicHttpResponse(ver, 200, "OK");
 			Query query = con.prepareQuery(parameters.get("query"));
 			if (query instanceof GraphQuery) {

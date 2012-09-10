@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
@@ -28,7 +29,7 @@ public class HttpResponseTest extends MetadataServerTestCase {
 		@type("message/x-response")
 		public HttpResponse echo(@header("Content-Type") String type,
 				@type("*/*") String body) throws IOException {
-			ProtocolVersion HTTP11 = new ProtocolVersion("HTTP", 1, 1);
+			ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
 			BasicStatusLine line = new BasicStatusLine(HTTP11, 200, "OK");
 			HttpResponse resp = new BasicHttpResponse(line);;
 			NStringEntity entity = new NStringEntity(body, "UTF-8");

@@ -50,11 +50,6 @@ import org.callimachusproject.traits.VersionedObject;
 import org.callimachusproject.util.PasswordGenerator;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
-import org.openrdf.model.Statement;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,22 +106,13 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		} else if (domain.length() != 0) {
 			domain = ", domain=\"" + domain + "\"";
 		}
-		long now;
-		try {
-			now = DateUtil.parseDate(request.get("date")[0]).getTime();
-		} catch (DateParseException e) {
-			return null;
-		}
 		String nonce = nextNonce(resource, request.get("via"));
 		String authenticate = "Digest realm=\"" + realm + "\"" + domain
 				+ ", nonce=\"" + nonce
 				+ "\", algorithm=\"MD5\", qop=\"auth\"";
-		String[] auth = request.get("authorization");
-		if (auth != null && auth.length == 1 && auth[0] != null
-				&& auth[0].startsWith("Digest")) {
-			String string = auth[0].substring("Digest ".length());
-			Map<String, String> options = parseOptions(string);
-			if (!verify(options.get("nonce"), now, resource, request.get("via"))) {
+		Map<String, String> options = parseDigestAuthorization(request);
+		if (options != null) {
+			if (!isRecentDigest(options, request, resource)) {
 				authenticate += ",stale=true";
 				HttpResponse resp = new BasicHttpResponse(_401);
 				resp.setHeader("Cache-Control", "no-store");
@@ -155,23 +141,17 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 	@Override
 	public HttpMessage authenticationInfo(String method, Object resource,
 			Map<String, String[]> request) {
-		String[] auth = request.get("authorization");
-		if (auth == null || auth.length != 1 || auth[0] == null
-				|| !auth[0].startsWith("Digest"))
-			return null;
-		String string = auth[0].substring("Digest ".length());
-		Map<String, String> options = parseOptions(string);
-		String cnonce = options.get("cnonce");
-		String nc = options.get("nc");
-		String uri = options.get("uri");
-		String nonce = options.get("nonce");
-		String username = options.get("username");
-		String ha2 = md5(":" + uri);
-		List<Object[]> encodings = findDigest(username);
-		for (Object[] row : encodings) {
-			String ha1 = digestHexEncoded(row);
-			if (ha1 == null)
-				continue;
+		Map<String, String> auth = parseDigestAuthorization(request);
+		if (isRecentDigest(auth, request, resource)) {
+			Map.Entry<String, String> password = findAuthUser(method, auth);
+			if (password == null)
+				return null;
+			String cnonce = auth.get("cnonce");
+			String nc = auth.get("nc");
+			String uri = auth.get("uri");
+			String nonce = auth.get("nonce");
+			String ha1 = password.getKey();
+			String ha2 = md5(":" + uri);
 			String rspauth = md5(ha1 + ":" + nonce + ":" + nc + ":" + cnonce
 					+ ":auth:" + ha2);
 			BasicHttpResponse resp = new BasicHttpResponse(_204);
@@ -185,38 +165,29 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 
 	@Override
 	public String authenticateRequest(String method, Object resource,
-			Map<String, String[]> map) {
-		String url = map.get("request-target")[0];
-		String[] auth = map.get("authorization");
-		if (auth == null || auth.length != 1 || auth[0] == null
-				|| !auth[0].startsWith("Digest"))
-			return null;
+			Map<String, String[]> request) {
 		try {
-			String string = auth[0].substring("Digest ".length());
-			Map<String, String> options = parseOptions(string);
-			if (options == null)
-				throw new BadRequest("Invalid digest authorization header");
-			String realm = options.get("realm");
-			String uri = options.get("uri");
-			ParsedURI parsed = new ParsedURI(url);
-			String path = parsed.getPath();
-			if (parsed.getQuery() != null) {
-				path = path + "?" + parsed.getQuery();
+			Map<String, String> options = parseDigestAuthorization(request);
+			if (isRecentDigest(options, request, resource)) {
+				Map.Entry<String, String> password = findAuthUser(method, options);
+				if (password == null) {
+					failedAttempt(options.get("username"));
+					return null;
+				}
+				if (options.containsKey("qop")) {
+					boolean replayed;
+					synchronized (replay) {
+						replayed = replay.put(options, Boolean.TRUE) != null;
+					}
+					if (replayed) {
+						logger.info("Request replayed {}", options);
+						failedAttempt(options.get("username"));
+						return null;
+					}
+				}
+				return password.getValue();
 			}
-			Object realmAuth = getAuthName();
-			if (realmAuth == null) {
-				logger.warn("Missing authName in {}", getResource());
-				return null;
-			}
-			if (realm == null || !realm.equals(realmAuth.toString())
-					|| !url.equals(uri) && !path.equals(uri)) {
-				logger.info("Bad authorization on {} using {}", url, auth[0]);
-				throw new BadRequest("Bad Authorization");
-			}
-			long now = DateUtil.parseDate(map.get("date")[0]).getTime();
-			if (!verify(options.get("nonce"), now, resource, map.get("via")))
-				return null;
-			return authenticatedCredential(method, options);
+			return null;
 		} catch (BadRequest e) {
 			throw e;
 		} catch (Exception e) {
@@ -228,10 +199,10 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 	@Override
 	public String findCredential(Collection<String> tokens) {
 		String username = findCredentialLabel(tokens);
-		List<Object[]> encodings = findDigest(username);
-		if (encodings.isEmpty())
+		Map<String, String> passwords = findDigestUser(username);
+		if (passwords == null || passwords.isEmpty())
 			return null;
-		return (String) encodings.get(0)[0];
+		return passwords.values().iterator().next();
 	}
 
 	@Override
@@ -270,57 +241,61 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			+ "?folder calli:hasComponent ?user .\n"
 			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n" +
 			"}}")
-	protected abstract List<Object[]> findDigest(@Bind("name") String username);
+	protected abstract List<Object[]> findPasswordDigest(@Bind("name") String username);
 
-	private String authenticatedCredential(String method,
-			Map<String, String> options) throws UnsupportedEncodingException {
+	private Map.Entry<String, String> findAuthUser(String method,
+			Map<String, String> options) {
 		String qop = options.get("qop");
 		String uri = options.get("uri");
 		String nonce = options.get("nonce");
 		String username = options.get("username");
 		String response = options.get("response");
 		String ha2 = md5(method + ":" + uri);
-		if (username == null)
-			throw new BadRequest("Missing username");
-		List<Object[]> encodings = findDigest(username);
-		if (encodings.isEmpty()) {
+		assert username != null;
+		Map<String,String> passwords = findDigestUser(username);
+		if (passwords == null) {
 			logger.info("Account not found: {}", username);
-			failedAttempt(username);
 			return null;
 		}
-		if (qop != null) {
-			boolean replayed;
-			synchronized (replay) {
-				replayed = replay.put(options, Boolean.TRUE) != null;
-			}
-			if (replayed) {
-				logger.info("Request replayed {}", options);
-				failedAttempt(username);
-				return null;
-			}
-		}
-		boolean encoding = false;
-		for (Object[] row : encodings) {
-			String ha1 = digestHexEncoded(row);
-			if (ha1 == null)
-				continue;
-			encoding = true;
+		for (Map.Entry<String, String> e : passwords.entrySet()) {
+			String ha1 = e.getKey();
 			String legacy = ha1 + ":" + nonce + ":" + ha2;
 			if (qop == null && md5(legacy).equals(response))
-				return (String) row[0];
+				return e;
 			String expected = ha1 + ":" + nonce + ":" + options.get("nc") + ":"
 					+ options.get("cnonce") + ":" + qop + ":" + ha2;
 			if (md5(expected).equals(response))
-				return (String) row[0];
+				return e;
 		}
-		if (encoding) {
-			logger.info("Passwords don't match for: {}", username);
-			failedAttempt(username);
-		} else {
+		if (passwords.isEmpty()) {
 			logger.info("Missing password for: {}", username);
-			failedAttempt(username);
+			return null;
+		} else {
+			logger.info("Passwords don't match for: {}", username);
+			return null;
 		}
-		return null;
+	}
+
+	/**
+	 * 
+	 * @param username must not be null
+	 * @return Map of HEX encoded MD5 to user IRI
+	 */
+	private Map<String,String> findDigestUser(String username) {
+		if (username == null)
+			throw new NullPointerException();
+		List<Object[]> result = findPasswordDigest(username);
+		if (result.isEmpty())
+			return null;
+		Map<String, String> map = new HashMap<String, String>(result.size());
+		for (Object[] row : result) {
+			String iri = (String) row[0];
+			String key = digestHexEncoded(row);
+			if (key != null && iri != null) {
+				map.put(key, iri);
+			}
+		}
+		return map;
 	}
 
 	private String digestHexEncoded(Object[] row) {
@@ -393,41 +368,21 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		return "";
 	}
 
-	private String hash(String[] key) {
-		long code = 0;
-		if (key != null) {
-			for (String str : key) {
-				code = code * 31 + str.hashCode();
+	private Map<String, String> parseDigestAuthorization(
+			Map<String, String[]> request) {
+		String[] auth = request.get("authorization");
+		if (auth == null)
+			return null;
+		for (String digest : auth) {
+			if (digest != null && digest.startsWith("Digest ")) {
+				String options = digest.substring("Digest ".length());
+				Map<String, String> result = parseOptions(options);
+				if (result == null)
+					throw new BadRequest("Invalid digest authorization header");
+				return result;
 			}
 		}
-		return Long.toString(code, Character.MAX_RADIX);
-	}
-
-	private boolean verify(String nonce, long now, Object resource, String[] key) {
-		if (nonce == null)
-			return false;
-		try {
-			int first = nonce.indexOf(':');
-			int last = nonce.lastIndexOf(':');
-			if (first < 0 || last < 0)
-				return false;
-			if (!hash(key).equals(nonce.substring(last + 1)))
-				return false;
-			String revision = nonce.substring(first + 1, last);
-			if (!revision.equals(getRevisionOf(resource)))
-				return false;
-			String time = nonce.substring(0, first);
-			Long ms = Long.valueOf(time, Character.MAX_RADIX);
-			long age = now - ms;
-			return age < MAX_NONCE_AGE;
-		} catch (NumberFormatException e) {
-			logger.debug(e.toString(), e);
-			return false;
-		}
-	}
-
-	private String md5(String a2) {
-		return new String(Hex.encodeHex(DigestUtils.md5(a2)));
+		return null;
 	}
 
 	/**
@@ -453,6 +408,74 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			}
 		}
 		return result;
+	}
+
+	private boolean isRecentDigest(Map<String, String> authorization,
+			Map<String, String[]> request, Object target) {
+		if (authorization == null)
+			return false;
+		String url = request.get("request-target")[0];
+		String date = request.get("date")[0];
+		String[] via = request.get("via");
+		String realm = authorization.get("realm");
+		String uri = authorization.get("uri");
+		String username = authorization.get("username");
+		if (username == null)
+			throw new BadRequest("Missing username");
+		ParsedURI parsed = new ParsedURI(url);
+		String path = parsed.getPath();
+		if (parsed.getQuery() != null) {
+			path = path + "?" + parsed.getQuery();
+		}
+		Object realmAuth = getAuthName();
+		if (realmAuth == null) {
+			logger.warn("Missing authName in {}", getResource());
+			return false;
+		}
+		if (realm == null || !realm.equals(realmAuth.toString())
+				|| !url.equals(uri) && !path.equals(uri)) {
+			logger.info("Bad authorization on {} using {}", url, authorization);
+			throw new BadRequest("Bad Authorization");
+		}
+		try {
+			long now = DateUtil.parseDate(date).getTime();
+			String nonce = authorization.get("nonce");
+			if (nonce == null)
+				return false;
+			int first = nonce.indexOf(':');
+			int last = nonce.lastIndexOf(':');
+			if (first < 0 || last < 0)
+				return false;
+			if (!hash(via).equals(nonce.substring(last + 1)))
+				return false;
+			String revision = nonce.substring(first + 1, last);
+			if (!revision.equals(getRevisionOf(target)))
+				return false;
+			String time = nonce.substring(0, first);
+			Long ms = Long.valueOf(time, Character.MAX_RADIX);
+			long age = now - ms;
+			return age < MAX_NONCE_AGE;
+		} catch (NumberFormatException e) {
+			logger.debug(e.toString(), e);
+			return false;
+		} catch (DateParseException e) {
+			logger.warn(e.toString(), e);
+			return false;
+		}
+	}
+
+	private String hash(String[] key) {
+		long code = 0;
+		if (key != null) {
+			for (String str : key) {
+				code = code * 31 + str.hashCode();
+			}
+		}
+		return Long.toString(code, Character.MAX_RADIX);
+	}
+
+	private String md5(String a2) {
+		return new String(Hex.encodeHex(DigestUtils.md5(a2)));
 	}
 
 }

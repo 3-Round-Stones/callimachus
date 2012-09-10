@@ -1083,11 +1083,18 @@ public class Setup {
 		ValueFactory vf = con.getValueFactory();
 		List<Statement> passwords = con.getStatements(subj,
 				vf.createURI(CALLI_PASSWORD), null).asList();
-		if (!passwords.isEmpty()) {
+		if (passwords.size() == 1) {
 			Value object = passwords.get(0).getObject();
 			if (object instanceof URI) {
 				return (URI) object;
 			}
+		}
+		for (Statement st : passwords) {
+			Value object = st.getObject();
+			if (object instanceof URI) {
+				con.getBlobObject((URI) object).delete();
+			}
+			con.remove(st);
 		}
 		URI uuid = vf.createURI("urn:uuid:" + UUID.randomUUID());
 		con.add(subj, vf.createURI(CALLI_PASSWORD), uuid);

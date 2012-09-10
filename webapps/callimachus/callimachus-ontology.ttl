@@ -265,7 +265,7 @@ calli:secret a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain calli:User;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:passwordDigest a owl:FunctionalProperty, owl:ObjectProperty;
+calli:passwordDigest a owl:ObjectProperty;
     rdfs:label "password digest";
     rdfs:comment "A document of the MD5 sum of email:authName:password in HEX encoding";
     rdfs:domain calli:User;

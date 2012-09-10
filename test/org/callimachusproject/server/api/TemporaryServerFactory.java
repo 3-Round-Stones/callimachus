@@ -13,7 +13,7 @@ import org.callimachusproject.Server;
 import org.callimachusproject.Setup;
 
 public class TemporaryServerFactory {
-	private static final TemporaryServerFactory instance = new TemporaryServerFactory("http://localhost:49151", 49151, "test", "test".toCharArray());
+	private static final TemporaryServerFactory instance = new TemporaryServerFactory("http://localhost:49151", 49151, "test@example.com", "test".toCharArray());
 
 	public static TemporaryServerFactory getInstance() {
 		return instance;
@@ -21,15 +21,16 @@ public class TemporaryServerFactory {
 
 	private final String origin;
 	private final int port;
-	private final String username;
+	private final String email;
 	private final char[] password;
 	private final Map<Integer, TemporaryServer> running = new LinkedHashMap<Integer, TemporaryServer>();
 
-	public TemporaryServerFactory(String origin, int port, String username,
+	public TemporaryServerFactory(String origin, int port, String email,
 			char[] password) {
+		assert email.indexOf('@') > 0;
 		this.origin = origin;
 		this.port = port;
-		this.username = username;
+		this.email = email;
 		this.password = password;
 	}
 
@@ -144,7 +145,7 @@ public class TemporaryServerFactory {
 				}
 
 				public String getUsername() {
-					return username;
+					return email;
 				}
 
 				public char[] getPassword() {
@@ -171,7 +172,8 @@ public class TemporaryServerFactory {
 			setup.createOrigin(origin);
 			setup.importCar(car.toURI().toURL(), origin + "/callimachus/", origin);
 			setup.setServeAllResourcesAs(origin);
-			setup.createAdmin(username, null, username, password, origin);
+			String username = email.substring(0, email.indexOf('@'));
+			setup.createAdmin(email, email, username, password, origin);
 			setup.disconnect();
 		}
 		File temp = FileUtil.createTempDir(name);

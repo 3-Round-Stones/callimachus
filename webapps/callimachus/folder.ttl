@@ -62,13 +62,12 @@
 
 :PostFileSlug rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <File>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>];
     calli:method "POST";
     calli:query "contents";
     calli:realm </>;
-    calli:expect "201-created";
-    calli:type "text/uri-list";
+    calli:type "message/x-response";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.engine.model.TermFactory>;
     calli:script """

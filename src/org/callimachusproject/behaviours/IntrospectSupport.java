@@ -10,10 +10,10 @@ import javax.xml.stream.XMLStreamException;
 
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.server.helpers.ResourceInfo;
-import org.callimachusproject.server.helpers.XHTMLInfoWriter;
 import org.callimachusproject.server.helpers.ResourceInfo.MethodInfo;
 import org.callimachusproject.server.helpers.ResourceInfo.ParameterInfo;
 import org.callimachusproject.server.helpers.ResourceInfo.PropertyInfo;
+import org.callimachusproject.server.helpers.XHTMLInfoWriter;
 import org.openrdf.model.URI;
 import org.openrdf.repository.object.RDFObject;
 

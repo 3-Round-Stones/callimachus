@@ -32,6 +32,7 @@ import java.io.IOException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.message.BasicHttpResponse;
@@ -65,7 +66,7 @@ public class TraceFilter extends Filter {
 			}
 
 			sb.append(CRLF);
-			ProtocolVersion ver = new ProtocolVersion("HTTP", 1, 1);
+			ProtocolVersion ver = HttpVersion.HTTP_1_1;
 			BasicHttpResponse resp = new EntityRemovedHttpResponse(ver, 200, "OK");
 			resp.setHeader("Date", DATE_GENERATOR.getCurrentDate());
 			NStringEntity entity = new NStringEntity(sb.toString(), "ISO-8859-1");
@@ -77,7 +78,7 @@ public class TraceFilter extends Filter {
 			return resp;
 		} else if ("OPTIONS".equals(req.getMethod())
 				&& "*".equals(line.getUri())) {
-			ProtocolVersion ver = new ProtocolVersion("HTTP", 1, 1);
+			ProtocolVersion ver = HttpVersion.HTTP_1_1;
 			BasicHttpResponse resp = new BasicHttpResponse(ver, 204, "No Content");
 			resp.setHeader("Date", DATE_GENERATOR.getCurrentDate());
 			resp.setHeader("Allow", "OPTIONS, TRACE, GET, HEAD, PUT, DELETE");

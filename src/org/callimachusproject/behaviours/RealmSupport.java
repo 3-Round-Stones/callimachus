@@ -15,6 +15,7 @@ import java.util.Set;
 import org.apache.http.Header;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
@@ -40,7 +41,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 	private static final BasicStatusLine _401;
 	private static final BasicStatusLine _403;
 	static {
-		ProtocolVersion HTTP11 = new ProtocolVersion("HTTP", 1, 1);
+		ProtocolVersion HTTP11 = HttpVersion.HTTP_1_1;
 		_204 = new BasicStatusLine(HTTP11, 401, "No Content");
 		_401 = new BasicStatusLine(HTTP11, 401, "Unauthorized");
 		_403 = new BasicStatusLine(HTTP11, 403, "Forbidden");

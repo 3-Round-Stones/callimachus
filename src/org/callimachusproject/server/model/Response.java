@@ -42,6 +42,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.message.AbstractHttpMessage;
@@ -258,7 +259,7 @@ public class Response extends AbstractHttpMessage {
 	}
 
 	public ProtocolVersion getProtocolVersion() {
-		return new ProtocolVersion("HTTP", 1, 1);
+		return HttpVersion.HTTP_1_1;
 	}
 
 	private boolean isWrapper(Exception ex) {

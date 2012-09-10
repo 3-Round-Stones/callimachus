@@ -51,7 +51,7 @@ import java.util.TimeZone;
 import org.apache.http.Header;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
+import org.apache.http.HttpVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
@@ -85,7 +85,7 @@ public class AuthenticationHandler implements Handler {
 	public static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 	private static final BasicStatusLine _403 = new BasicStatusLine(
-			new ProtocolVersion("HTTP", 1, 1), 403, "Forbidden");
+			HttpVersion.HTTP_1_1, 403, "Forbidden");
 	private final Logger logger = LoggerFactory
 			.getLogger(AuthenticationHandler.class);
 	private final DateFormat dateformat;

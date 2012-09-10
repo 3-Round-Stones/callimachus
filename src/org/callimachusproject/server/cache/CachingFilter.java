@@ -56,6 +56,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -299,7 +300,7 @@ public class CachingFilter extends Filter {
 	}
 
 	private HttpResponse respond(int code, String reason) {
-		ProtocolVersion ver = new ProtocolVersion("HTTP", 1, 1);
+		ProtocolVersion ver = HttpVersion.HTTP_1_1;
 		BasicHttpResponse resp = new BasicHttpResponse(ver, code, reason);
 		resp.setHeader("Date", DATE_GENERATOR.getCurrentDate());
 		resp.setHeader("Content-Length", "0");
@@ -425,7 +426,7 @@ public class CachingFilter extends Filter {
 		}
 		int status = cached.getStatus();
 		String statusText = cached.getStatusText();
-		ProtocolVersion ver = new ProtocolVersion("HTTP", 1, 1);
+		ProtocolVersion ver = HttpVersion.HTTP_1_1;
 		BasicHttpResponse res = new EntityRemovedHttpResponse(ver, status, statusText);
 		boolean unmodifiedSince = unmodifiedSince(req, cached);
 		boolean modifiedSince = modifiedSince(req, cached);

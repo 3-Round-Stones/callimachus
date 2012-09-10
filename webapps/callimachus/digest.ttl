@@ -39,20 +39,27 @@
     rdfs:domain :GetLoginPage.
 
 # Used to login
-:GetLoginSuccessPage rdfs:subClassOf msg:Message;
+:PostLogin rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     calli:method "POST";
     calli:query "login";
     calli:realm </>;
     calli:type "message/x-response";
     calli:script """
-        return {
-            status:303, statusText:"See Other",
-            headers:{location:"/","content-type":"text/plain"},
-            body:["welcome"]
-        };
+        var persistent = loginOptions.indexOf("persistent=true") >= 0;
+        return this.login(cookies, persistent);
     """.
+
+:cookies a owl:DatatypeProperty;
+    rdfs:domain :PostLogin;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
+
+:loginOptions a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostLogin;
+    rdfs:range xsd:string;
+    calli:type "application/x-www-form-urlencoded".
 
 # anybody with credentials can login and is welcome
 :AuthorizeLoginPage owl:intersectionOf (calli:IsAuthorized

@@ -22,6 +22,10 @@ import info.aduna.net.ParsedURI;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -40,7 +44,7 @@ import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
+import org.apache.http.HttpVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
@@ -58,13 +62,18 @@ import org.slf4j.LoggerFactory;
  * Validates HTTP digest authorization.
  */
 public abstract class DigestManagerSupport implements DigestManager, RDFObject {
+	private static final String DIGEST_NONCE = "DigestNonce=";
+	private static final String USERNAME = "username=";
+	private static final long THREE_MONTHS = 3 * 30 * 24 * 60 * 60;
 	private static final Pattern TOKENS_REGEX = Pattern
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"([^\"]*)\"|([^,\"]*)))?\\s*,?");
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
 	private static final BasicStatusLine _401 = new BasicStatusLine(
-			new ProtocolVersion("HTTP", 1, 1), 401, "Unauthorized");
+			HttpVersion.HTTP_1_1, 401, "Unauthorized");
 	private static final BasicStatusLine _204 = new BasicStatusLine(
-			new ProtocolVersion("HTTP", 1, 1), 401, "No Content");
+			HttpVersion.HTTP_1_1, 204, "No Content");
+	private static final BasicStatusLine _200 = new BasicStatusLine(
+			HttpVersion.HTTP_1_1, 200, "OK");
 	private static final int MAX_NONCE_AGE = 300000; // nonce timeout of 5min
 	private static final int MAX_ENTRIES = 2048;
 	private static long resetAttempts;
@@ -112,7 +121,7 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 				+ "\", algorithm=\"MD5\", qop=\"auth\"";
 		Map<String, String> options = parseDigestAuthorization(request);
 		if (options != null) {
-			if (!isRecentDigest(options, request, resource)) {
+			if (!isRecentDigest(resource, request, options)) {
 				authenticate += ",stale=true";
 				HttpResponse resp = new BasicHttpResponse(_401);
 				resp.setHeader("Cache-Control", "no-store");
@@ -142,25 +151,24 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 	public HttpMessage authenticationInfo(String method, Object resource,
 			Map<String, String[]> request) {
 		Map<String, String> auth = parseDigestAuthorization(request);
-		if (isRecentDigest(auth, request, resource)) {
-			Map.Entry<String, String> password = findAuthUser(method, auth);
-			if (password == null)
-				return null;
-			String cnonce = auth.get("cnonce");
-			String nc = auth.get("nc");
-			String uri = auth.get("uri");
-			String nonce = auth.get("nonce");
-			String ha1 = password.getKey();
-			String ha2 = md5(":" + uri);
-			String rspauth = md5(ha1 + ":" + nonce + ":" + nc + ":" + cnonce
-					+ ":auth:" + ha2);
-			BasicHttpResponse resp = new BasicHttpResponse(_204);
-			String authenticate = "qop=auth,cnonce=\"" + cnonce + "\",nc=" + nc
-					+ ",rspauth=\"" + rspauth + "\"";
-			resp.setHeader("Authentication-Info", authenticate);
-			return resp;
-		}
-		return null;
+		Map.Entry<String, String> password = findAuthUser(method, resource, request, auth);
+		if (password == null)
+			return null;
+		String username = auth.get("username");
+		String cnonce = auth.get("cnonce");
+		String nc = auth.get("nc");
+		String uri = auth.get("uri");
+		String nonce = auth.get("nonce");
+		String ha1 = password.getKey();
+		String ha2 = md5(":" + uri);
+		String rspauth = md5(ha1 + ":" + nonce + ":" + nc + ":" + cnonce
+				+ ":auth:" + ha2);
+		BasicHttpResponse resp = new BasicHttpResponse(_204);
+		String authenticate = "qop=auth,cnonce=\"" + cnonce + "\",nc=" + nc
+				+ ",rspauth=\"" + rspauth + "\"";
+		resp.addHeader("Authentication-Info", authenticate);
+		resp.addHeader("Set-Cookie", USERNAME + encode(username));
+		return resp;
 	}
 
 	@Override
@@ -168,26 +176,25 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			Map<String, String[]> request) {
 		try {
 			Map<String, String> options = parseDigestAuthorization(request);
-			if (isRecentDigest(options, request, resource)) {
-				Map.Entry<String, String> password = findAuthUser(method, options);
-				if (password == null) {
+			Map.Entry<String, String> password = findAuthUser(method, resource, request, options);
+			if (password == null) {
+				if (isRecentDigest(resource, request, options)) {
+					failedAttempt(options.get("username"));
+				}
+				return null;
+			}
+			if (options.containsKey("qop")) {
+				boolean replayed;
+				synchronized (replay) {
+					replayed = replay.put(options, Boolean.TRUE) != null;
+				}
+				if (replayed) {
+					logger.info("Request replayed {}", options);
 					failedAttempt(options.get("username"));
 					return null;
 				}
-				if (options.containsKey("qop")) {
-					boolean replayed;
-					synchronized (replay) {
-						replayed = replay.put(options, Boolean.TRUE) != null;
-					}
-					if (replayed) {
-						logger.info("Request replayed {}", options);
-						failedAttempt(options.get("username"));
-						return null;
-					}
-				}
-				return password.getValue();
 			}
-			return null;
+			return password.getValue();
 		} catch (BadRequest e) {
 			throw e;
 		} catch (Exception e) {
@@ -198,8 +205,14 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 
 	@Override
 	public String findCredential(Collection<String> tokens) {
-		String username = findCredentialLabel(tokens);
-		Map<String, String> passwords = findDigestUser(username);
+		Map<String, String> options = parseDigestAuthorization(tokens);
+		if (options == null)
+			return null;
+		String username = options.get("username");
+		if (username == null)
+			throw new BadRequest("Missing username");
+		String realm = options.get("realm");
+		Map<String, String> passwords = findDigestUser(username, realm, tokens);
 		if (passwords == null || passwords.isEmpty())
 			return null;
 		return passwords.values().iterator().next();
@@ -207,21 +220,33 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 
 	@Override
 	public String findCredentialLabel(Collection<String> tokens) {
-		for (String authorization : tokens) {
-			if (authorization == null || !authorization.startsWith("Digest"))
-				continue;
-			String string = authorization.substring("Digest ".length());
-			Map<String, String> options = parseOptions(string);
-			String username = options.get("username");
-			if (username == null)
-				throw new BadRequest("Missing username");
-			return username;
+		Map<String, String> options = parseDigestAuthorization(tokens);
+		if (options == null)
+			return null;
+		String username = options.get("username");
+		if (username == null)
+			throw new BadRequest("Missing username");
+		return username;
+	}
+
+	public HttpResponse login(Collection<String> tokens, boolean persistent) {
+		if (persistent) {
+			String username = findCredentialLabel(tokens);
+			for (Object[] row : findPasswordDigest(username)) {
+				if (row[3] instanceof FileObject) {
+					return login((FileObject) row[3]);
+				}
+			}
 		}
-		return null;
+		return new BasicHttpResponse(_204);
 	}
 
 	public HttpMessage logout() {
-		return new BasicHttpResponse(_204);
+		BasicHttpResponse resp = new BasicHttpResponse(_204);
+		resp.addHeader("Set-Cookie", DIGEST_NONCE
+				+ ";Max-Age=0;Path=/;HttpOnly");
+		resp.addHeader("Set-Cookie", USERNAME + ";Max-Age=0;Path=/");
+		return resp;
 	}
 
 	@Sparql(PREFIX + "SELECT (group_concat(?realm;separator=' ') as ?domain)\n"
@@ -229,30 +254,33 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 	protected abstract String protectionDomain();
 
 	@Sparql(PREFIX
-			+ "SELECT (str(?user) AS ?id) ?encoded ?passwordDigest {{\n"
+			+ "SELECT (str(?user) AS ?id) ?encoded ?passwordDigest ?secret {{\n"
 			+ "?user calli:name $name .\n"
 			+ "$this calli:authNamespace ?folder .\n"
 			+ "?folder calli:hasComponent ?user .\n"
 			+ "FILTER (str(?user) = concat(str(?folder), $name))\n"
-			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" }\n" +
-			"} UNION {\n"
-			+ "?user calli:email $name .\n"
+			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" }\n"
+			+ "} UNION {\n" + "?user calli:email $name .\n"
 			+ "$this calli:authNamespace ?folder .\n"
 			+ "?folder calli:hasComponent ?user .\n"
-			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n" +
-			"}}")
+			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
+			+ "OPTIONAL { ?user calli:secret ?secret }\n"
+			+ "}}")
 	protected abstract List<Object[]> findPasswordDigest(@Bind("name") String username);
 
-	private Map.Entry<String, String> findAuthUser(String method,
-			Map<String, String> options) {
-		String qop = options.get("qop");
-		String uri = options.get("uri");
-		String nonce = options.get("nonce");
-		String username = options.get("username");
-		String response = options.get("response");
+	private Map.Entry<String, String> findAuthUser(String method, Object resource,
+			Map<String, String[]> request, Map<String, String> auth) {
+		if (!isRecentDigest(resource, request, auth))
+			return null;
+		String qop = auth.get("qop");
+		String uri = auth.get("uri");
+		String nonce = auth.get("nonce");
+		String username = auth.get("username");
+		String realm = auth.get("realm");
+		String response = auth.get("response");
 		String ha2 = md5(method + ":" + uri);
 		assert username != null;
-		Map<String,String> passwords = findDigestUser(username);
+		Map<String,String> passwords = findDigestUser(username, realm, asList(request.get("cookie")));
 		if (passwords == null) {
 			logger.info("Account not found: {}", username);
 			return null;
@@ -262,8 +290,8 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			String legacy = ha1 + ":" + nonce + ":" + ha2;
 			if (qop == null && md5(legacy).equals(response))
 				return e;
-			String expected = ha1 + ":" + nonce + ":" + options.get("nc") + ":"
-					+ options.get("cnonce") + ":" + qop + ":" + ha2;
+			String expected = ha1 + ":" + nonce + ":" + auth.get("nc") + ":"
+					+ auth.get("cnonce") + ":" + qop + ":" + ha2;
 			if (md5(expected).equals(response))
 				return e;
 		}
@@ -281,31 +309,59 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 	 * @param username must not be null
 	 * @return Map of HEX encoded MD5 to user IRI
 	 */
-	private Map<String,String> findDigestUser(String username) {
+	private Map<String,String> findDigestUser(String username, String realm, Collection<String> cookies) {
 		if (username == null)
 			throw new NullPointerException();
 		List<Object[]> result = findPasswordDigest(username);
 		if (result.isEmpty())
 			return null;
+		String nonce = getDigestNonce(cookies);
 		Map<String, String> map = new HashMap<String, String>(result.size());
 		for (Object[] row : result) {
 			String iri = (String) row[0];
-			String key = digestHexEncoded(row);
-			if (key != null && iri != null) {
-				map.put(key, iri);
+			assert iri != null;
+			if (row[1] != null) {
+				map.put(new String(Hex.encodeHex((byte[]) row[1])), iri);
+			}
+			if (row[2] instanceof FileObject) {
+				String hash = readString((FileObject) row[2]);
+				map.put(hash, iri);
+				if (nonce != null && row[3] instanceof FileObject) {
+					String secret = readString((FileObject) row[3]);
+					String password = md5(hash + ":" + md5(nonce + ":" + secret));
+					map.put(md5(username + ':' + realm + ':' + password), iri);
+				}
 			}
 		}
 		return map;
 	}
 
-	private String digestHexEncoded(Object[] row) {
-		String ha1 = null;
-		if (row[1] != null) {
-			ha1 = new String(Hex.encodeHex((byte[]) row[1]));
-		} else if (row[2] instanceof FileObject) {
-			ha1 = readString((FileObject) row[2]);
+	private String getDigestNonce(Collection<String> cookies) {
+		if (cookies == null)
+			return null;
+		for (String cookie : cookies) {
+			if (!cookie.contains(DIGEST_NONCE))
+				continue;
+			String[] pair = cookie.split("\\s*;\\s*");
+			for (String p : pair) {
+				if (p.startsWith(DIGEST_NONCE)) {
+					return p.substring(DIGEST_NONCE.length());
+				}
+			}
 		}
-		return ha1;
+		return null;
+	}
+
+	private HttpResponse login(FileObject file) {
+		String nonce = Long.toString(Math.abs(new SecureRandom().nextLong()),
+				Character.MAX_RADIX);
+		BasicHttpResponse resp = new BasicHttpResponse(_200);
+		resp.addHeader("Set-Cookie", DIGEST_NONCE + nonce + ";Max-Age="
+				+ THREE_MONTHS + ";Path=/;HttpOnly");
+		resp.setHeader("Content-Type", "text/plain;charset=UTF-8");
+		String hash = md5(nonce + ":" + readString(file));
+		resp.setEntity(new StringEntity(hash, Charset.forName("UTF-8")));
+		return resp;
 	}
 
 	private String readString(FileObject file) {
@@ -351,8 +407,8 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		}
 	}
 
-	private String nextNonce(Object resource, String[] key) {
-		String ip = hash(key);
+	private String nextNonce(Object resource, String[] via) {
+		String ip = hash(via);
 		String revision = getRevisionOf(resource);
 		long now = System.currentTimeMillis();
 		String time = Long.toString(now, Character.MAX_RADIX);
@@ -370,48 +426,44 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 
 	private Map<String, String> parseDigestAuthorization(
 			Map<String, String[]> request) {
-		String[] auth = request.get("authorization");
-		if (auth == null)
+		String[] authorization = request.get("authorization");
+		if (authorization == null)
 			return null;
-		for (String digest : auth) {
-			if (digest != null && digest.startsWith("Digest ")) {
-				String options = digest.substring("Digest ".length());
-				Map<String, String> result = parseOptions(options);
-				if (result == null)
-					throw new BadRequest("Invalid digest authorization header");
-				return result;
+		return parseDigestAuthorization(asList(authorization));
+	}
+
+	private Collection<String> asList(String[] array) {
+		if (array == null)
+			return null;
+		return Arrays.asList(array);
+	}
+
+	private Map<String, String> parseDigestAuthorization(
+			Collection<String> authorization) {
+		for (String digest : authorization) {
+			if (digest == null || !digest.startsWith("Digest "))
+				continue;
+			String options = digest.substring("Digest ".length());
+			Map<String, String> result = new HashMap<String, String>(
+					DIGEST_OPTS);
+			Matcher m = TOKENS_REGEX.matcher(options);
+			while (m.find()) {
+				String key = m.group(1);
+				if (result.containsKey(key)) {
+					if (m.group(2) != null) {
+						result.put(key, m.group(2));
+					} else if (m.group(3) != null) {
+						result.put(key, m.group(3));
+					}
+				}
 			}
+			return result;
 		}
 		return null;
 	}
 
-	/**
-	 * 
-	 * @param options
-	 *            username="Mufasa", realm="testrealm@host.com",
-	 *            nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093",
-	 *            uri="/dir/index.html", qop=auth, nc=00000001,
-	 *            cnonce="0a4f113b",
-	 *            response="6629fae49393a05397450978507c4ef1"
-	 */
-	private Map<String, String> parseOptions(String options) {
-		Map<String, String> result = new HashMap<String, String>(DIGEST_OPTS);
-		Matcher m = TOKENS_REGEX.matcher(options);
-		while (m.find()) {
-			String key = m.group(1);
-			if (result.containsKey(key)) {
-				if (m.group(2) != null) {
-					result.put(key, m.group(2));
-				} else if (m.group(3) != null){
-					result.put(key, m.group(3));
-				}
-			}
-		}
-		return result;
-	}
-
-	private boolean isRecentDigest(Map<String, String> authorization,
-			Map<String, String[]> request, Object target) {
+	private boolean isRecentDigest(Object target,
+			Map<String, String[]> request, Map<String, String> authorization) {
 		if (authorization == null)
 			return false;
 		String url = request.get("request-target")[0];
@@ -464,18 +516,26 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		}
 	}
 
-	private String hash(String[] key) {
+	private String hash(String[] via) {
 		long code = 0;
-		if (key != null) {
-			for (String str : key) {
+		if (via != null) {
+			for (String str : via) {
 				code = code * 31 + str.hashCode();
 			}
 		}
 		return Long.toString(code, Character.MAX_RADIX);
 	}
 
-	private String md5(String a2) {
-		return new String(Hex.encodeHex(DigestUtils.md5(a2)));
+	private String md5(String text) {
+		return new String(Hex.encodeHex(DigestUtils.md5(text)));
+	}
+
+	private String encode(String username) {
+		try {
+			return URLEncoder.encode(username, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError(e);
+		}
 	}
 
 }

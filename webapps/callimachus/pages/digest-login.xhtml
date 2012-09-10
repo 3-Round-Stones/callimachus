@@ -7,15 +7,28 @@
         xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label} Sign In</title>
+    <script type="text/javascript" src="/callimachus/scripts/md5.js">
+    </script>
     <script type="text/javascript">
     // <![CDATA[
     $(function(){
         $('#form').submit(function(event){
+            var email = $("#email").val();
+            var authName = $("#authName").text();
+            var password = $("#password").val();
+            var persistent = $('#persistent:checked').val();
             var options = {type: "POST", url: "?login",
-                username: $('#email').val(),
-                password: $('#password').val(),
+                username: email,
+                password: password,
                 beforeSend: function(req){try{req.withCredentials=true;}catch(e){}},
+                data: {persistent: persistent},
                 success: function(doc) {
+                    if (persistent && window.localStorage) {
+                        var hash = hex_md5(email + ':' + authName + ':' + password);
+                        var digestPassword = hex_md5(hash + ':' + doc);
+                        localStorage.setItem("username", email);
+                        localStorage.setItem("digestPassword", digestPassword);
+                    }
                     $(document).trigger("calliLoggedIn");
                     var return_to = /&return_to=([^&]*)/.exec(window.location.search);
                     if (return_to && return_to[1]) {
@@ -40,7 +53,10 @@
     </script>
 </head>
 <body resource="?this">
-    <h1>{rdfs:label} Sign In</h1>
+    <hgroup>
+        <h1>{rdfs:label} Sign In</h1>
+        <h2 id="authName">{calli:authName}</h2>
+    </hgroup>
     <form id="form" method="POST" action="?login">
         <div class="control-group">
             <label class="control-label" for="email">Email</label>
@@ -52,6 +68,13 @@
             <label class="control-label" for="password">Password</label>
             <div class="controls">
                 <input type="password" id="password" placeholder="Password" />
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <label class="checkbox">
+                    <input type="checkbox" id="persistent" value="true" /> Stay signed in
+                </label>
             </div>
         </div>
         <div class="form-actions">

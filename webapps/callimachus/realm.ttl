@@ -149,7 +149,7 @@
             if (logout) {
                 var headers = logout.getAllHeaders();
                 for (var i=0; i<headers.length; i++) {
-                    resp.addHeadecr(headers[i]);
+                    resp.addHeader(headers[i]);
                 }
             }
         }

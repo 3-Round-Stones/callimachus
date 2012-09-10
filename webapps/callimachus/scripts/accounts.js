@@ -8,7 +8,7 @@ if (!window.calli) {
 window.calli.getUserIri = function() {
     var iri = null;
     if (window.localStorage) {
-        iri = localStorage.getItem('UserIri');
+        iri = localStorage.getItem('userIri');
         if (iri)
             return iri;
     }
@@ -16,6 +16,7 @@ window.calli.getUserIri = function() {
         beforeSend: withCredentials,
         success: function(doc) {
             iri = /resource="([^" >]*)"/i.exec(doc)[1];
+            loadProfile(doc);
         }
     });
     return iri;
@@ -25,8 +26,9 @@ var userName = null;
 
 $(document).bind("calliLogin", function(event) {
     if (window.localStorage) {
-        localStorage.removeItem('UserName');
-        localStorage.removeItem('UserIri');
+        localStorage.removeItem('username');
+        localStorage.removeItem('userIri');
+        localStorage.removeItem("digestPassword");
     }
     var return_to = window.location.href;
     window.location = "/?login&return_to=" + encodeURIComponent(return_to);
@@ -38,7 +40,7 @@ $(document).bind("calliLoggedIn", function(event) {
     $(document.documentElement).removeClass('logout');
     userName = event.title;
     if (window.localStorage) {
-        if (!event.title || event.title != localStorage.getItem("UserName")) {
+        if (!event.title || event.title != localStorage.getItem("username")) {
             nowLoggedIn(true);
         }
     }
@@ -49,8 +51,9 @@ $(document).bind("calliLogout", function(event) {
         username: 'logout', password: 'please',
         success: function(data) {
             if (window.localStorage) {
-                localStorage.removeItem('UserName');
-                localStorage.removeItem('UserIri');
+                localStorage.removeItem('username');
+                localStorage.removeItem('userIri');
+                localStorage.removeItem("digestPassword");
             }
             $(document).trigger("calliLoggedOut");
             window.location = "/";
@@ -67,7 +70,7 @@ $(document).bind("calliLoggedOut", function(event) {
 
 if (window.localStorage) {
     var storageChanged = function() {
-        var newName = localStorage.getItem('UserName');
+        var newName = localStorage.getItem('username');
         if (newName != userName) {
             userName = newName;
             if (!newName) {
@@ -90,38 +93,25 @@ if (window.localStorage) {
     $(document).bind('storage', storageChanged); // IE
 }
 
-if (window.localStorage && localStorage.getItem("UserName")) {
-    // logged in already or hasn't logged out yet
-    var name = localStorage.getItem("UserName");
+if (document.cookie && /(?:^|;\s*)username\s*\=/.test(document.cookie)) {
+    // logged in already
+    var name = decodeURIComponent(document.cookie.replace(/(?:^|.*;\s*)username\s*\=\s*((?:[^;](?!;))*[^;]?).*/, "$1"));
     var e = jQuery.Event("calliLoggedIn");
     e.title = name;
     $(document).ready(function() {
         $(document).trigger(e);
     });
+} else if (window.localStorage && localStorage.getItem("digestPassword")) {
+    // stay signed in with a digest password
+    jQuery.ajax({ url: "/?profile",
+        username: localStorage.getItem("username"),
+        password: localStorage.getItem("digestPassword"),
+        success: loadProfile
+    });
 } else {
+    // not logged in yet
     $(document).ready(function() {
         $(document).trigger("calliLoggedOut");
-    });
-    // hasn't logged in using the login form; is this page protected?
-    var xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
-        beforeSend: withCredentials,
-        success: function() {
-            if (xhr.getResponseHeader("Authentication-Info")) {
-                nowLoggedIn();
-            } else if (!xhr.getAllResponseHeaders()) { // Opera sends empty response; try again w/o cache
-                xhr = jQuery.ajax({type: 'GET', url: calli.getPageUrl(),
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader('Cache-Control', 'no-cache');
-                        withCredentials(xhr);
-                    },
-                    success: function() {
-                        if (xhr.getResponseHeader("Authentication-Info")) {
-                            nowLoggedIn();
-                        }
-                    }
-                });
-            }
-        }
     });
 }
 
@@ -129,24 +119,26 @@ function nowLoggedIn(sync) {
     jQuery.ajax({ url: "/?profile",
         beforeSend: withCredentials,
         async: !sync,
-        success: function(doc) {
-            var iri = /resource="([^" >]*)"/i.exec(doc);
-            var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc);
-            if (iri && title) {
-                if (window.localStorage) {
-                    // now logged in
-                    localStorage.setItem("UserName", title[1]);
-                    localStorage.setItem("UserIri", iri[1]);
-                }
-                var e = jQuery.Event("calliLoggedIn");
-                e.title = title[1];
-                $(document).ready(function() {
-                    $(document).trigger(e);
-                });
-            }
-        }
+        success: loadProfile
     });
 };
+
+function loadProfile(doc) {
+    var iri = /resource="([^" >]*)"/i.exec(doc);
+    var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc);
+    if (iri && title) {
+        if (window.localStorage) {
+            // now logged in
+            localStorage.setItem("username", title[1]);
+            localStorage.setItem("userIri", iri[1]);
+        }
+        var e = jQuery.Event("calliLoggedIn");
+        e.title = title[1];
+        $(document).ready(function() {
+            $(document).trigger(e);
+        });
+    }
+}
 
 function withCredentials(req) {
     try {

@@ -271,13 +271,6 @@ calli:passwordDigest a owl:ObjectProperty;
     rdfs:domain calli:User;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:encoded a owl:DatatypeProperty, owl:FunctionalProperty;
-    rdfs:label "encoded";
-    rdfs:comment "The MD5 encoded username:realm:password";
-    rdfs:domain calli:User;
-    rdfs:range xsd:hexBinary;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
 calli:name a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:label "name";
     rdfs:comment "The username for this agent";

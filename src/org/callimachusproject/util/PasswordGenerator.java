@@ -27,7 +27,20 @@ import java.util.Random;
  * 
  */
 public class PasswordGenerator {
-	private static final Random rnd = new SecureRandom();
+
+	public static void main(String[] args) {
+		System.out.println(PasswordGenerator.generatePassword());
+	}
+
+	public static String generatePassword() {
+		return PasswordGenerator.getInstance().nextPassword();
+	}
+
+	public static PasswordGenerator getInstance() {
+		return instance;
+	}
+
+	private static final PasswordGenerator instance = new PasswordGenerator();
 	private static final int LENGTH_MIN = 25;
 	private static final int LENGTH_MAX = 35;
 	private static final String[] WORD_POOL = { "a", "ability", "able",
@@ -336,6 +349,28 @@ public class PasswordGenerator {
 			"wrote", "yards", "year", "years", "Yes", "yesterday", "yet",
 			"York", "you", "young", "your", "yourself", "Youth" };
 
+	private static long byteToLong(byte[] seed) {
+		long hash = 0;
+		for (byte b : seed) {
+			hash = hash * 31 + b;
+		}
+		return hash;
+	}
+
+	private final Random rnd;
+
+	public PasswordGenerator() {
+		rnd = new SecureRandom();
+	}
+
+	public PasswordGenerator(long seed) {
+		rnd = new Random(seed);
+	}
+
+	public PasswordGenerator(byte[] seed) {
+		this(byteToLong(seed));
+	}
+
 	/**
 	 * This algorithm selects from a word pool of 1916 words. This gives an
 	 * entropy of 11 bits per word. The average word length is 6. The average
@@ -345,7 +380,7 @@ public class PasswordGenerator {
 	 * 
 	 * @return a random pass-phrase
 	 */
-	public static String generatePassword() {
+	public String nextPassword() {
 		int length = LENGTH_MIN + rnd.nextInt(LENGTH_MAX - LENGTH_MIN + 1);
 		StringBuilder sb = new StringBuilder();
 		while (sb.length() < length) {
@@ -355,9 +390,5 @@ public class PasswordGenerator {
 			sb.append(WORD_POOL[rnd.nextInt(WORD_POOL.length)]);
 		}
 		return sb.toString();
-	}
-
-	public static void main(String[] args) {
-		System.out.println(generatePassword());
 	}
 }

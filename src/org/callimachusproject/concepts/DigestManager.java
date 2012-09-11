@@ -28,6 +28,9 @@
  */
 package org.callimachusproject.concepts;
 
+import java.util.Collection;
+
+import org.apache.http.HttpResponse;
 import org.openrdf.annotations.Iri;
 
 /**
@@ -51,6 +54,8 @@ public interface DigestManager extends AuthenticationManager {
 
 	@Iri("http://callimachusproject.org/rdf/2009/framework#authName")
 	void setAuthName(Object authName);
+
+	HttpResponse login(Collection<String> tokens, boolean persistent);
 
 	String generatePassword();
 }

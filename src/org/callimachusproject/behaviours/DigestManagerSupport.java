@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 
 import javax.tools.FileObject;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.util.DateParseException;
@@ -99,8 +100,9 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 	}
 	private Logger logger = LoggerFactory.getLogger(DigestManagerSupport.class);
 
-	public String generatePassword() {
-		return PasswordGenerator.generatePassword();
+	public String getDaypass(FileObject secret) {
+		long now = System.currentTimeMillis();
+		return getDaypass(getHalfDay(now), readString(secret));
 	}
 
 	@Override
@@ -328,10 +330,18 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			if (row[2] instanceof FileObject) {
 				String hash = readString((FileObject) row[2]);
 				map.put(hash, iri);
-				if (nonce != null && row[3] instanceof FileObject) {
+				if (row[3] instanceof FileObject) {
 					String secret = readString((FileObject) row[3]);
-					String password = md5(hash + ":" + md5(nonce + ":" + secret));
-					map.put(md5(username + ':' + realm + ':' + password), iri);
+					if (nonce != null) {
+						String password = md5(hash + ":" + md5(nonce + ":" + secret));
+						map.put(md5(username + ':' + realm + ':' + password), iri);
+					}
+					long now = System.currentTimeMillis();
+					short halfDay = getHalfDay(now);
+					for (short d = halfDay; d >= halfDay - 1; d--) {
+						String daypass = getDaypass(d, secret);
+						map.put(md5(username + ':' + realm + ':' + daypass), iri);
+					}
 				}
 			}
 		}
@@ -364,20 +374,6 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		String hash = md5(nonce + ":" + readString(file));
 		resp.setEntity(new StringEntity(hash, Charset.forName("UTF-8")));
 		return resp;
-	}
-
-	private String readString(FileObject file) {
-		try {
-			Reader reader = file.openReader(true);
-			try {
-				return new Scanner(reader).next();
-			} finally {
-				reader.close();
-			}
-		} catch (IOException e) {
-			logger.error(e.toString(), e);
-			return null;
-		}
 	}
 
 	private void failedAttempt(String username) {
@@ -424,6 +420,22 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 				return revision;
 		}
 		return "";
+	}
+
+	private short getHalfDay(long now) {
+		long halfDay = now / 1000 / 60 / 60 / 12;
+		return (short) halfDay;
+	}
+
+	private String getDaypass(short day, String secret) {
+		byte[] random = readBytes(secret);
+		byte[] seed = new byte[random.length + Short.SIZE / Byte.SIZE];
+		System.arraycopy(random, 0, seed, 0, random.length);
+		for (int i = random.length; i < seed.length; i++) {
+			seed[i] = (byte) day;
+			day >>= Byte.SIZE;
+		}
+		return new PasswordGenerator(seed).nextPassword();
 	}
 
 	private Map<String, String> parseDigestAuthorization(
@@ -515,6 +527,26 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		} catch (DateParseException e) {
 			logger.warn(e.toString(), e);
 			return false;
+		}
+	}
+
+	private byte[] readBytes(String string) {
+		if (Base64.isBase64(string))
+			return Base64.decodeBase64(string);
+		return string.getBytes(Charset.forName("UTF-8"));
+	}
+
+	private String readString(FileObject file) {
+		try {
+			Reader reader = file.openReader(true);
+			try {
+				return new Scanner(reader).next();
+			} finally {
+				reader.close();
+			}
+		} catch (IOException e) {
+			logger.error(e.toString(), e);
+			return null;
 		}
 	}
 

@@ -1,4 +1,4 @@
-// import-style.less
+// callimachus.less
 // Import the style rules and default values
 // -----------------------------------------------------
 
@@ -7,6 +7,10 @@
 
 // https://github.com/twitter/bootstrap
 @import url("bootstrap.less");
+
+// Callimachus bootstrap overrides
+@import "callimachus-variables.less"; // @todo test variable scope and processing order
+@import "callimachus-bootstrap.less";
 
 // handle callimachus specific style rules
 @import url("../styles/callimachus.css");

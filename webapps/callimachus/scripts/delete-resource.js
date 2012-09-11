@@ -62,7 +62,7 @@ window.calli.deleteResource = function(event, redirect) {
                     if (event.location) {
                         // TODO verify this location is not going to 404 on us w/o causing an calliError
                     }
-                    if (!event.location && location.pathname.match(/\//)) {
+                    if (!event.location && location.pathname.match(/\/$/)) {
                         event.location = '../';
                     }
                     if (!event.location) {

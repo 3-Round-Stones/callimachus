@@ -68,7 +68,7 @@
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         ASK {
             $this calli:authNamespace [calli:hasComponent $credential]
-            FILTER ($method = "GET" || $method = "HEAD")
+            FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
             FILTER ($query = "login")
         }
     """.
@@ -125,26 +125,28 @@
     calli:method "POST";
     calli:query "register";
     calli:script """
-        var nonce = regForm.get("nonce") ? regForm.get("nonce")[0] : null;
-        var token = regForm.get("token") ? regForm.get("token")[0] : null;
-        var email = regForm.get("email") ? regForm.get("email")[0] : null;
-        var password = regForm.get("password") ? regForm.get("password")[0] : null;
+        var nonce = regForm.get("nonce")[0];
+        var token = regForm.get("token")[0];
+        var email = regForm.get("email")[0];
+        var password = regForm.get("password");
         if (!token)
             throw new BadRequest("This is not a valid registration URL");
         var iter = this.FindUsersByEmail(email).iterator();
         while (iter.hasNext()) {
             var user = iter.next();
             if (token == user.GetSecretToken(nonce)) {
-                var uuid = java.util.UUID.randomUUID().toString();
-                var digest = this.objectConnection.getObject("urn:uuid:" + uuid);
-                //# write to blob identified by the uuid
-                var out = digest.openWriter();
-                try {
-                    out.write(password);
-                } finally {
-                    out.close();
+                for (var i=0; i<password.length; i++) {
+                    var uuid = java.util.UUID.randomUUID().toString();
+                    var digest = this.objectConnection.getObject("urn:uuid:" + uuid);
+                    //# write to blob identified by the uuid
+                    var out = digest.openWriter();
+                    try {
+                        out.write(password[i]);
+                    } finally {
+                        out.close();
+                    }
+                    user.calliPasswordDigest.add(digest);
                 }
-                user.calliPasswordDigest.add(digest);
                 user.GenerateNewSecret(); // invalid this invitation
                 return;
             }

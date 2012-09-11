@@ -96,7 +96,8 @@ rdfs:comment a rdf:Property.
         var random = java.security.SecureRandom.getInstance("SHA1PRNG");
         var nonce = java.lang.Integer.toHexString(random.nextInt());
         var token = newUser.GetSecretToken(nonce);
-        var queryString = "?register&token=" + token + "&nonce=" + nonce + "&email=" + encodeURIComponent(email);
+        var queryString = "?register&token=" + token + "&nonce=" + nonce +
+            "&email=" + encodeURIComponent(email) + "&username=" + encodeURIComponent(username);
         body5 = body5.replace(/\\?register/g, queryString);
 
         //# email the link to the new user

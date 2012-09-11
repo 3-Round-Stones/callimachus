@@ -61,7 +61,7 @@
             <xsl:apply-templates select="*" />
         </div>
     </xsl:template>
-    <xsl:template match="/rdf:RDF/rdf:Description/*">
+    <xsl:template match="/rdf:RDF/rdf:Description/*[not(@rdf:nodeID) and not(@rdf:resource)]">
         <li class="triple">
             <span class="asc predicate">
                 <xsl:call-template name="resource">

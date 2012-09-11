@@ -13,20 +13,20 @@
     // <![CDATA[
     $(function(){
         $('#form').submit(function(event){
-            var email = $("#email").val();
+            var username = $("#username").val();
             var authName = $("#authName").text();
             var password = $("#password").val();
             var persistent = $('#persistent:checked').val();
             var options = {type: "POST", url: "?login",
-                username: email,
+                username: username,
                 password: password,
                 beforeSend: function(req){try{req.withCredentials=true;}catch(e){}},
                 data: {persistent: persistent},
                 success: function(doc) {
                     if (persistent && window.localStorage) {
-                        var hash = hex_md5(email + ':' + authName + ':' + password);
+                        var hash = hex_md5(username + ':' + authName + ':' + password);
                         var digestPassword = hex_md5(hash + ':' + doc);
-                        localStorage.setItem("username", email);
+                        localStorage.setItem("username", username);
                         localStorage.setItem("digestPassword", digestPassword);
                     }
                     $(document).trigger("calliLoggedIn");
@@ -59,9 +59,9 @@
     </hgroup>
     <form id="form" method="POST" action="?login">
         <div class="control-group">
-            <label class="control-label" for="email">Email</label>
+            <label class="control-label" for="username">Username or email</label>
             <div class="controls">
-                <input type="text" id="email" placeholder="Email" required="required" autofocus="autofocus" />
+                <input type="text" id="username" placeholder="Username or email" required="required" autofocus="autofocus" />
             </div>
         </div>
         <div class="control-group">

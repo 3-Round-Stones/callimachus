@@ -260,6 +260,8 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			+ "?folder calli:hasComponent ?user .\n"
 			+ "FILTER (str(?user) = concat(str(?folder), $name))\n"
 			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" }\n"
+			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
+			+ "OPTIONAL { ?user calli:secret ?secret }\n"
 			+ "} UNION {\n" + "?user calli:email $name .\n"
 			+ "$this calli:authNamespace ?folder .\n"
 			+ "?folder calli:hasComponent ?user .\n"

@@ -70,16 +70,19 @@
                 return m ? decodeURIComponent(m[1]) : null;
             }
             $("#form").validate({submitHandler: function(form) {
+                var username = parameter("username");
                 var email = parameter("email");
                 var authName = $("#authName").text();
                 var password = $("#password").val();
-                var hash = hex_md5(email + ':' + authName + ':' + password);
+                var hash1 = hex_md5(username + ':' + authName + ':' + password);
+                var hash2 = hex_md5(email + ':' + authName + ':' + password);
                 jQuery.ajax({type: 'POST', url: form.action,
+                    traditional: true,
                     data: {
                         nonce: parameter("nonce"),
                         token: parameter("token"),
                         email: email,
-                        password: hash
+                        password: [hash1, hash2]
                     },
                     success: function() {
                         window.location.replace('/?login');

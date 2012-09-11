@@ -37,6 +37,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
@@ -71,6 +73,7 @@ import org.openrdf.model.vocabulary.OWL;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.query.Update;
+import org.openrdf.query.algebra.evaluation.util.ValueComparator;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -397,7 +400,8 @@ public class Setup {
 		createOrigin(origin, repository);
 	}
 
-	public void importCar(URL car, String folder, String origin) throws Exception {
+	public void importCar(URL car, String folder, String origin)
+			throws Exception {
 		validateOrigin(origin);
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
@@ -424,14 +428,16 @@ public class Setup {
 		createRealm(realm, origin, repository);
 	}
 
-	public void setServeAllResourcesAs(String origin) throws RepositoryException {
+	public void setServeAllResourcesAs(String origin)
+			throws RepositoryException {
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
 		setServeAllResourcesAs(origin, repository);
 	}
 
-	public void createAdmin(String name, String email, String username, char[] password, String origin)
-			throws RepositoryException, IOException {
+	public void createAdmin(String name, String email, String username,
+			char[] password, String origin) throws RepositoryException,
+			IOException {
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
 		createAdmin(name, email, username, password, origin, repository);
@@ -492,8 +498,9 @@ public class Setup {
 		}
 	}
 
-	private CallimachusRepository getCallimachusRepository(File baseDir, String configString)
-			throws OpenRDFException, MalformedURLException, IOException {
+	private CallimachusRepository getCallimachusRepository(File baseDir,
+			String configString) throws OpenRDFException,
+			MalformedURLException, IOException {
 		RepositoryConfig config = getRepositoryConfig(configString);
 		Repository repo = getRepository(baseDir, config);
 		if (repo == null)
@@ -577,8 +584,8 @@ public class Setup {
 		return version == null || !newVersion.equals(version);
 	}
 
-	private String getStoreVersion(CallimachusRepository repository, String origin)
-			throws RepositoryException {
+	private String getStoreVersion(CallimachusRepository repository,
+			String origin) throws RepositoryException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			ValueFactory vf = con.getValueFactory();
@@ -631,8 +638,9 @@ public class Setup {
 		}
 	}
 
-	private void uploadMainArticle(String origin, CallimachusRepository repository,
-			ClassLoader cl) throws RepositoryException, IOException {
+	private void uploadMainArticle(String origin,
+			CallimachusRepository repository, ClassLoader cl)
+			throws RepositoryException, IOException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
@@ -672,7 +680,8 @@ public class Setup {
 		}
 	}
 
-	private String upgradeStore(CallimachusRepository repository, String origin) throws IOException, OpenRDFException {
+	private String upgradeStore(CallimachusRepository repository, String origin)
+			throws IOException, OpenRDFException {
 		String version = getStoreVersion(repository, origin);
 		ClassLoader cl = getClass().getClassLoader();
 		String name = "META-INF/upgrade/callimachus-" + version + ".ru";
@@ -942,7 +951,8 @@ public class Setup {
 		con.add(subj, vf.createURI(pred), vf.createURI(resource));
 	}
 
-	private boolean setServeAllResourcesAs(String origin, CallimachusRepository repository) throws RepositoryException {
+	private boolean setServeAllResourcesAs(String origin,
+			CallimachusRepository repository) throws RepositoryException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
@@ -978,8 +988,8 @@ public class Setup {
 		}
 	}
 
-	private boolean createAdmin(String name, String email, String username, char[] password,
-			String origin, CallimachusRepository repository)
+	private boolean createAdmin(String name, String email, String username,
+			char[] password, String origin, CallimachusRepository repository)
 			throws RepositoryException, IOException {
 		validateName(username);
 		validateEmail(email);
@@ -994,14 +1004,17 @@ public class Setup {
 				for (Statement st2 : con.getStatements(accounts,
 						vf.createURI(CALLI_AUTHNAME), null).asList()) {
 					String authName = st2.getObject().stringValue();
-					String decoded = email + ":" + authName + ":" + String.valueOf(password);
-					String encoded = DigestUtils.md5Hex(decoded);
+					String decodedUser = username + ":" + authName + ":" + String.valueOf(password);
+					String encodedUser = DigestUtils.md5Hex(decodedUser);
+					String decodedEmail = email + ":" + authName + ":" + String.valueOf(password);
+					String encodedEmail = DigestUtils.md5Hex(decodedEmail);
 					for (Statement st3 : con.getStatements(accounts,
 							vf.createURI(CALLI_AUTHNAMESPACE), null).asList()) {
 						Resource user = (Resource) st3.getObject();
 						URI subj = vf.createURI(user.stringValue() + username);
 						modified |= changeAdminPassword(origin, user, subj,
-								name, email, username, encoded, con);
+								name, email, username, new String[] {
+										encodedUser, encodedEmail }, con);
 					}
 				}
 			}
@@ -1030,9 +1043,10 @@ public class Setup {
 					+ "'");
 	}
 
-	private boolean changeAdminPassword(String origin, Resource folder, URI subj,
-			String name, String email, String username, String encoded, ObjectConnection con)
-			throws RepositoryException, IOException {
+	private boolean changeAdminPassword(String origin, Resource folder,
+			URI subj, String name, String email, String username,
+			String[] encoded, ObjectConnection con) throws RepositoryException,
+			IOException {
 		ValueFactory vf = con.getValueFactory();
 		if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_USER))) {
 			logger.info("Changing password of {}", username);
@@ -1062,13 +1076,15 @@ public class Setup {
 		return true;
 	}
 
-	private void setPassword(URI subj, String encoded, ObjectConnection con)
+	private void setPassword(URI subj, String[] encoded, ObjectConnection con)
 			throws RepositoryException, IOException {
 		ValueFactory vf = con.getValueFactory();
 		con.remove(subj, vf.createURI(CALLI_ENCODED), null);
 		con.remove(subj, vf.createURI(CALLI_ALGORITHM), null);
-		URI uuid = getPasswordURI(subj, con);
-		storeTextBlob(uuid, encoded, con);
+		int i = 0;
+		for (URI uuid : getPasswordURI(subj, encoded.length, con)) {
+			storeTextBlob(uuid, encoded[i++], con);
+		}
 		if (!con.hasStatement(subj, vf.createURI(CALLI_SECRET), null)) {
 			URI secret = vf.createURI("urn:uuid:" + UUID.randomUUID());
 			con.add(subj, vf.createURI(CALLI_SECRET), secret);
@@ -1078,16 +1094,20 @@ public class Setup {
 		}
 	}
 
-	private URI getPasswordURI(URI subj, ObjectConnection con)
-			throws RepositoryException {
+	private Collection<URI> getPasswordURI(URI subj, int count,
+			ObjectConnection con) throws RepositoryException {
 		ValueFactory vf = con.getValueFactory();
 		List<Statement> passwords = con.getStatements(subj,
 				vf.createURI(CALLI_PASSWORD), null).asList();
-		if (passwords.size() == 1) {
-			Value object = passwords.get(0).getObject();
-			if (object instanceof URI) {
-				return (URI) object;
+		if (passwords.size() == count) {
+			Set<URI> list = new TreeSet<URI>(new ValueComparator());
+			for (Statement st : passwords) {
+				if (st.getObject() instanceof URI) {
+					list.add((URI) st.getObject());
+				}
 			}
+			if (list.size() == count)
+				return list;
 		}
 		for (Statement st : passwords) {
 			Value object = st.getObject();
@@ -1096,9 +1116,13 @@ public class Setup {
 			}
 			con.remove(st);
 		}
-		URI uuid = vf.createURI("urn:uuid:" + UUID.randomUUID());
-		con.add(subj, vf.createURI(CALLI_PASSWORD), uuid);
-		return uuid;
+		Set<URI> list = new TreeSet<URI>(new ValueComparator());
+		for (int i = 0; i < count; i++) {
+			URI uuid = vf.createURI("urn:uuid:" + UUID.randomUUID());
+			con.add(subj, vf.createURI(CALLI_PASSWORD), uuid);
+			list.add(uuid);
+		}
+		return list;
 	}
 
 	private void storeTextBlob(URI uuid, String encoded, ObjectConnection con)

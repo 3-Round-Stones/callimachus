@@ -135,18 +135,7 @@
         while (iter.hasNext()) {
             var user = iter.next();
             if (token == user.GetSecretToken(nonce)) {
-                for (var i=0; i<password.length; i++) {
-                    var uuid = java.util.UUID.randomUUID().toString();
-                    var digest = this.objectConnection.getObject("urn:uuid:" + uuid);
-                    //# write to blob identified by the uuid
-                    var out = digest.openWriter();
-                    try {
-                        out.write(password[i]);
-                    } finally {
-                        out.close();
-                    }
-                    user.calliPasswordDigest.add(digest);
-                }
+                user.calliPasswordDigest = this.changeDigestPassword(user.calliPasswordDigest, password);
                 user.GenerateNewSecret(); // invalid this invitation
                 return;
             }

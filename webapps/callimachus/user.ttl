@@ -195,14 +195,13 @@ rdfs:comment a rdf:Property.
         var credential = accounts.findCredential(authorization);
         //# read form
         var email = form.get("email") ? form.get("email")[0] : null;
-        var current = form.get("current") ? form.get("current")[0] : null;
-        var password = form.get("password") ? form.get("password")[0] : null;
+        var current = form.get("current");
+        var password = form.get("password");
         if (this.toString().equals(credential.toString())) {
             //# check if they know their own password
             if (!current)
                 throw new BadRequest("What is your current password?");
-            var encoded = Hex.decodeHex(new java.lang.String(current).toCharArray());
-            if (!java.util.Arrays.equals(this.calliEncoded, encoded))
+            if (!accounts.isDigestPassword(authorization, current))
                 throw new BadRequest("That is not your current password");
         }
         //# save email
@@ -210,8 +209,9 @@ rdfs:comment a rdf:Property.
             this.calliEmail = email;
         }
         //# save password
-        if (password) {
-            this.calliEncoded = Hex.decodeHex(new java.lang.String(password).toCharArray());
+        if (password && password.length) {
+            this.calliPasswordDigest = accounts.changeDigestPassword(this.calliPasswordDigest, password);
+            this.GenerateNewSecret(); // invalid previous tokens
         }
         return this + "?view";
     """.

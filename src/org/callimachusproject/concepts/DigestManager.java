@@ -28,10 +28,14 @@
  */
 package org.callimachusproject.concepts;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.Set;
 
 import org.apache.http.HttpResponse;
 import org.openrdf.annotations.Iri;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.RDFObject;
 
 /**
  * Interface for digest realms to access the calli:authName property.
@@ -54,6 +58,11 @@ public interface DigestManager extends AuthenticationManager {
 
 	@Iri("http://callimachusproject.org/rdf/2009/framework#authName")
 	void setAuthName(Object authName);
+
+	boolean isDigestPassword(Collection<String> tokens, String[] hash);
+
+	Set<?> changeDigestPassword(Set<RDFObject> files, String[] passwords)
+			throws RepositoryException, IOException;
 
 	HttpResponse login(Collection<String> tokens, boolean persistent);
 

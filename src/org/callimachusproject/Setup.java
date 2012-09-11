@@ -1129,7 +1129,7 @@ public class Setup {
 			throws RepositoryException, IOException {
 		Writer writer = con.getBlobObject(uuid).openWriter();
 		try {
-			writer.append(encoded);
+			writer.write(encoded);
 		} finally {
 			writer.close();
 		}

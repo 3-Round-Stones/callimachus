@@ -22,6 +22,7 @@ import info.aduna.net.ParsedURI;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
@@ -29,10 +30,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +60,12 @@ import org.callimachusproject.traits.VersionedObject;
 import org.callimachusproject.util.PasswordGenerator;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
+import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.query.algebra.evaluation.util.ValueComparator;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -251,6 +262,35 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		return resp;
 	}
 
+	public boolean isDigestPassword(Collection<String> tokens, String[] hash) {
+		Map<String, String> auth = parseDigestAuthorization(tokens);
+		String username = auth.get("username");
+		String realm = auth.get("realm");
+		Map<String, String> passwords = findDigestUser(username, realm, tokens);
+		for (String h : hash) {
+			if (passwords.containsKey(h))
+				return true;
+		}
+		return false;
+	}
+
+	public Set<?> changeDigestPassword(Set<RDFObject> files, String[] passwords)
+			throws RepositoryException, IOException {
+		int i = 0;
+		ObjectConnection con = this.getObjectConnection();
+		Set<Object> set = new LinkedHashSet<Object>();
+		for (URI uuid : getPasswordFiles(files, passwords.length)) {
+			Writer writer = con.getBlobObject(uuid).openWriter();
+			try {
+				writer.write(passwords[i++]);
+			} finally {
+				writer.close();
+			}
+			set.add(con.getObject(uuid));
+		}
+		return set;
+	}
+
 	@Sparql(PREFIX + "SELECT (group_concat(?realm;separator=' ') as ?domain)\n"
 			+ "WHERE { SELECT DISTINCT ?realm { ?realm calli:authentication $this } }")
 	protected abstract String protectionDomain();
@@ -327,21 +367,22 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			if (row[1] != null) {
 				map.put(new String(Hex.encodeHex((byte[]) row[1])), iri);
 			}
+			String hash = null;
 			if (row[2] instanceof FileObject) {
-				String hash = readString((FileObject) row[2]);
+				hash = readString((FileObject) row[2]);
 				map.put(hash, iri);
-				if (row[3] instanceof FileObject) {
-					String secret = readString((FileObject) row[3]);
-					if (nonce != null) {
-						String password = md5(hash + ":" + md5(nonce + ":" + secret));
-						map.put(md5(username + ':' + realm + ':' + password), iri);
-					}
-					long now = System.currentTimeMillis();
-					short halfDay = getHalfDay(now);
-					for (short d = halfDay; d >= halfDay - 1; d--) {
-						String daypass = getDaypass(d, secret);
-						map.put(md5(username + ':' + realm + ':' + daypass), iri);
-					}
+			}
+			if (row[3] instanceof FileObject) {
+				String secret = readString((FileObject) row[3]);
+				if (nonce != null && hash != null) {
+					String password = md5(hash + ":" + md5(nonce + ":" + secret));
+					map.put(md5(username + ':' + realm + ':' + password), iri);
+				}
+				long now = System.currentTimeMillis();
+				short halfDay = getHalfDay(now);
+				for (short d = halfDay; d >= halfDay - 1; d--) {
+					String daypass = getDaypass(d, secret);
+					map.put(md5(username + ':' + realm + ':' + daypass), iri);
 				}
 			}
 		}
@@ -528,6 +569,34 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			logger.warn(e.toString(), e);
 			return false;
 		}
+	}
+
+	private Set<URI> getPasswordFiles(Set<RDFObject> files, int count)
+			throws RepositoryException {
+		if (files.size() == count) {
+			Set<URI> list = new TreeSet<URI>(new ValueComparator());
+			for (RDFObject file : files) {
+				if (file.getResource() instanceof URI) {
+					list.add((URI) file.getResource());
+				}
+			}
+			if (list.size() == count)
+				return list;
+		}
+		ObjectConnection con = this.getObjectConnection();
+		ValueFactory vf = con.getValueFactory();
+		for (RDFObject file : files) {
+			Resource object = file.getResource();
+			if (object instanceof URI) {
+				con.getBlobObject((URI) object).delete();
+			}
+		}
+		Set<URI> list = new TreeSet<URI>(new ValueComparator());
+		for (int i = 0; i < count; i++) {
+			URI uuid = vf.createURI("urn:uuid:" + UUID.randomUUID());
+			list.add(uuid);
+		}
+		return list;
 	}
 
 	private byte[] readBytes(String string) {

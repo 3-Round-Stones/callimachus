@@ -99,6 +99,8 @@ public class Command {
 	}
 
 	private String[] removeBlanks(String[] values) {
+		if (values == null)
+			return null;
 		List<String> list = new ArrayList<String>(Arrays.asList(values));
 		list.remove(null);
 		list.remove("");

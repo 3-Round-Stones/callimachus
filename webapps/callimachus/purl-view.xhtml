@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="/callimachus/template.xsl"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
+<head>
+    <title resource="?this">{rdfs:label}</title>
+    <link rel="edit" href="?edit" />
+    <link rel="describedby" href="?describe" />
+    <link rel="version-history" href="?history" />
+</head>
+<body resource="?this">
+    <h1 property="rdfs:label" />
+    <pre class="wiki" property="rdfs:comment" />
+    <p property="calli:disabled" content="?disabled">Disabled (404) {?disabled}</p>
+    <p property="calli:deleted" content="?deleted">Deleted (410) {?deleted}</p>
+    <p rel="calli:get" resource="?get">GET (200) <a href="{?get}">{?get}</a></p>
+    <p rel="calli:post" resource="?post">GET (200) <a href="{?post}">{?post}</a></p>
+    <p rel="calli:canonical" resource="?canonical">Canonical (301) <a href="{?canonical}">{?canonical}</a></p>
+    <p rel="calli:alternate" resource="?alternate">Alternate (302) <a href="{?alternate}">{?alternate}</a></p>
+    <p rel="calli:describedby" resource="?describedby">Described by (303) <a href="{?describedby}">{?describedby}</a></p>
+    <p rel="calli:resides" resource="?resides">Resides (307) <a href="{?resides}">{?resides}</a></p>
+    <p rel="calli:moved" resource="?moved">Moved (308) <a href="{?moved}">{?moved}</a></p>
+</body>
+</html>

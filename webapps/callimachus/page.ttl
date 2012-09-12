@@ -197,12 +197,11 @@
                 ?realm calli:hasComponent* $realmResource
                 FILTER EXISTS {?realm a calli:Realm}
             } UNION {
-                ?realm a calli:Realm
-                FILTER (?realm = </>)
-                FILTER strstarts(str($realmResource),str(</callimachus/>))
+                BIND (</> AS ?realm)
+                BIND (true AS ?default)
             }
         }
-        ORDER BY desc(?realm) LIMIT 1
+        ORDER BY ?default desc(?realm) LIMIT 1
     """.
 
 :realmResource a owl:FunctionalProperty, owl:ObjectProperty;

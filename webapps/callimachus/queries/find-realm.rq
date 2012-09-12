@@ -4,9 +4,8 @@ SELECT ?realm {
         ?realm calli:hasComponent* <$target>
         FILTER EXISTS {?realm a calli:Realm}
     } UNION {
-        ?realm a calli:Realm
-        FILTER (?realm = </>)
-        FILTER strstarts(str(<$target>),str(</callimachus/>))
+        BIND (</> AS ?realm)
+        BIND (true AS ?default)
     }
 }
-ORDER BY desc(?realm) LIMIT 1
+ORDER BY ?default desc(?realm) LIMIT 1

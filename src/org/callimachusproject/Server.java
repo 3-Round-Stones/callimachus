@@ -42,11 +42,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
+import org.callimachusproject.cli.Command;
+import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.logging.LoggerBean;
 import org.callimachusproject.server.CallimachusServer;
 import org.callimachusproject.server.ConnectionBean;
@@ -75,48 +72,45 @@ public class Server implements HTTPObjectAgentMXBean {
 	private static final String ERROR_XPL_PATH = "/callimachus/pipelines/error.xpl";
 	public static final String NAME = Version.getInstance().getVersion();
 
-	private static final Options options = new Options();
+	private static final CommandSet commands = new CommandSet(NAME);
 	static {
-		options.addOption("n", "name", true, "Server name");
-		options.addOption("o", "origin", true,
+		commands.option("n", "name").arg("name").desc("Server name");
+		commands.option("o", "origin").arg("http").desc(
 				"The scheme, hostname and port ( http://localhost:8080 )");
-		options.addOption("p", "port", true,
+		commands.option("p", "port").arg("number").desc(
 						"Port the server should listen on");
-		options.addOption("s", "sslport", true,
+		commands.option("s", "sslport").arg("number").desc(
 				"Secure port the server should listen on");
-		options.addOption("r", "repository", true,
+		commands.require("r", "repository").arg("url").desc(
 				"The Sesame repository url (relative file: or http:)");
-		options.getOption("repository").setRequired(true);
-		options.addOption("d", "dir", true,
+		commands.option("d", "dir").arg("directory").desc(
 				"Directory used for data storage and retrieval");
-		options.addOption("trust", false,
+		commands.option("trust").desc(
 				"Allow all server code to read, write, and execute all files and directories "
 						+ "according to the file system's ACL");
-		Option fromOpt = new Option("from", true,
+		commands.option("from").optional("email").desc(
 				"Email address for the human user who controls this server");
-		fromOpt.setOptionalArg(true);
-		options.addOption(fromOpt);
-		options.addOption("pid", true,
+		commands.option("pid").arg("file").desc(
 				"File to store current process id");
-		options.addOption("q", "quiet", false,
+		commands.option("q", "quiet").desc(
 				"Don't print status messages to standard output.");
-		options.addOption("h", "help", false,
+		commands.option("h", "help").desc(
 				"Print help (this message) and exit");
-		options.addOption("v", "version", false,
+		commands.option("v", "version").desc(
 				"Print version information and exit");
 	}
 
 	public static void main(String[] args) {
 		try {
-			CommandLine line = new GnuParser().parse(options, args);
+			Command line = commands.parse(args);
 			Server server = new Server();
-			if (line.hasOption("pid")) {
-				storeProcessIdentifier(line.getOptionValue("pid"));
+			if (line.has("pid")) {
+				storeProcessIdentifier(line.get("pid"));
 			}
 			server.init(args);
 			server.start();
 			Thread.sleep(1000);
-			if (server.isRunning() && !line.hasOption('q')) {
+			if (server.isRunning() && !line.has("quiet")) {
 				System.out.println();
 				System.out.println(server.getClass().getSimpleName()
 						+ " is listening on port " + server.getPort()
@@ -266,24 +260,20 @@ public class Server implements HTTPObjectAgentMXBean {
 
 	public void init(String[] args) {
 		try {
-			CommandLine line = new GnuParser().parse(options, args);
-			if (line.hasOption('h')) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("[options]", options);
-				System.exit(0);
-				return;
-			} else if (line.getArgs().length > 0) {
-				System.err.println("Unrecognized option: " + Arrays.toString(line.getArgs()));
-				System.err.println("Arguments: " + Arrays.toString(args));
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("[options]", options);
+			Command line = commands.parse(args);
+			if (line.isParseError()) {
+				line.printParseError();
 				System.exit(2);
 				return;
-			} else if (line.hasOption('v')) {
-				System.out.println(NAME);
+			} else if (line.has("help")) {
+				line.printHelp();
 				System.exit(0);
 				return;
-			} else if (line.hasOption('q')) {
+			} else if (line.has("version")) {
+				line.printCommandName();
+				System.exit(0);
+				return;
+			} else if (line.has("quiet")) {
 				try {
 					logStdout();
 				} catch (SecurityException e) {
@@ -363,12 +353,12 @@ public class Server implements HTTPObjectAgentMXBean {
 		}, true));
 	}
 
-	private void init(CommandLine line) throws Exception {
+	private void init(Command line) throws Exception {
 		String rurl = getRepositoryUrl(line);
 		Repository repository = RepositoryProvider.getRepository(rurl);
 		File dataDir = repository.getDataDir();
-		if (line.hasOption('d')) {
-			dataDir = new File(line.getOptionValue('d')).getCanonicalFile();
+		if (line.has("dir")) {
+			dataDir = new File(line.get("dir")).getCanonicalFile();
 		}
 		if (dataDir == null) {
 			RepositoryManager manager = getRepositoryManagerOfRepository(rurl);
@@ -382,31 +372,31 @@ public class Server implements HTTPObjectAgentMXBean {
 		File cacheDir = new File(dataDir, "cache");
 		File in = new File(cacheDir, "client");
 		HTTPObjectClient.setInstance(in, 1024);
-		if (line.hasOption("from")) {
-			String from = line.getOptionValue("from");
+		if (line.has("from")) {
+			String from = line.get("from");
 			HTTPObjectClient.getInstance().setFrom(from == null ? "" : from);
 		}
 		server = new CallimachusServer(repository, dataDir);
-		if (line.hasOption('p')) {
-			String[] values = line.getOptionValues('p');
+		if (line.has("port")) {
+			String[] values = line.getAll("port");
 			ports = new int[values.length];
 			for (int i = 0; i < values.length; i++) {
 				ports[i] = Integer.parseInt(values[i]);
 			}
 		}
-		if (line.hasOption('s')) {
-			String[] values = line.getOptionValues('s');
+		if (line.has("sslport")) {
+			String[] values = line.getAll("sslport");
 			sslports = new int[values.length];
 			for (int i = 0; i < values.length; i++) {
 				sslports[i] = Integer.parseInt(values[i]);
 			}
 		}
-		if (!line.hasOption('p') && !line.hasOption('s')) {
+		if (!line.has("port") && !line.has("sslport")) {
 			ports = new int[] { 8080 };
 		}
 		boolean primary = true;
-		if (line.hasOption('o')) {
-			for (String o : line.getOptionValues('o')) {
+		if (line.has("origin")) {
+			for (String o : line.getAll("origin")) {
 				if (primary) {
 					server.setActivityFolderAndType(o + ACTIVITY_PATH, o + ACTIVITY_TYPE, o + FOLDER_TYPE);
 					server.setErrorPipe(o + ERROR_XPL_PATH);
@@ -415,10 +405,10 @@ public class Server implements HTTPObjectAgentMXBean {
 				server.addOrigin(o);
 			}
 		}
-		if (line.hasOption('n')) {
-			server.setServerName(line.getOptionValue('n'));
+		if (line.has("name")) {
+			server.setServerName(line.get("name"));
 		}
-		if (!line.hasOption("trust")) {
+		if (!line.has("trust")) {
 			applyPolicy(line, repository, dataDir);
 		}
 		server.listen(ports, sslports);
@@ -457,10 +447,10 @@ public class Server implements HTTPObjectAgentMXBean {
 		}
 	}
 
-	private String getRepositoryUrl(CommandLine line)
+	private String getRepositoryUrl(Command line)
 			throws RepositoryException, RepositoryConfigException {
-		if (line.hasOption('r')) {
-			String url = line.getOptionValue('r');
+		if (line.has("repository")) {
+			String url = line.get("repository");
 			Repository repository = RepositoryProvider.getRepository(url);
 			if (repository != null)
 				return url;
@@ -470,8 +460,8 @@ public class Server implements HTTPObjectAgentMXBean {
 		}
 	}
 
-	private void applyPolicy(CommandLine line, Repository repository, File dir) throws IOException {
-		if (!line.hasOption("trust")) {
+	private void applyPolicy(Command line, Repository repository, File dir) throws IOException {
+		if (!line.has("trust")) {
 			List<File> directories = new ArrayList<File>();
 			directories.addAll(getLoggingDirectories());
 			directories.add(dir);

@@ -48,12 +48,10 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.callimachusproject.cli.Command;
+import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.io.CarInputStream;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.CallimachusServer;
@@ -137,37 +135,31 @@ public class Setup {
 	private static final String CALLI_PASSWORD = CALLI + "passwordDigest";
 	private static final String CALLI_MEMBER = CALLI + "member";
 
-	private static final Options options = new Options();
+	private static final CommandSet commands = new CommandSet(NAME);
 	static {
-		options.addOption("d", "dir", true,
-				"Directory used for data storage and retrieval");
-		options.addOption("c", "config", true,
+		commands.option("d", "dir").arg("directory").desc("Directory used for data storage and retrieval");
+		commands.require("c", "config").arg("file").desc(
 				"A repository config url (relative file: or http:)");
-		options.getOption("config").setRequired(true);
-		options.addOption("f", "car", true,
+		commands.require("f", "car").arg("file").desc(
 				"Target and CAR URL pairs, separated by equals, that should be installed for each primary origin");
-		options.getOption("car").setRequired(true);
-		options.addOption("o", "origin", true,
+		commands.require("o", "origin").arg("http").desc(
 				"The scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
-		options.getOption("origin").setRequired(true);
-		options.addOption("v", "virtual", true,
+		commands.option("v", "virtual").arg("http").desc(
 				"Additional scheme, hostname and port ( http://localhost:8080 ) that resolves to this server");
-		options.addOption("r", "realm", true,
+		commands.option("r", "realm").arg("http").desc(
 				"The scheme, hostname, port, and path ( http://example.com:8080/ ) that does not resolve to this server");
-		options.addOption("l", "serve-all", false, "Serve all resources");
-		options.addOption("u", "user", true,
+		commands.option("l", "serve-all").desc("Serve all resources");
+		commands.option("u", "user").optional("name").desc(
 				"Create the given user and prompt for a password, or append the password separated by a colon");
-		options.getOption("user").setOptionalArg(true);
-		options.addOption("n", "name", true,
+		commands.option("n", "name").arg("name").desc(
 				"If creating a new user use this full name");
-		options.addOption("e", "email", true,
+		commands.option("e", "email").arg("addr").desc(
 				"If creating a new user use this email address");
-		options.getOption("user").setOptionalArg(true);
-		options.addOption("s", "silent", false,
+		commands.option("s", "silent").desc(
 				"If the repository is already setup exit successfully");
-		options.addOption("h", "help", false,
+		commands.option("h", "help").desc(
 				"Print help (this message) and exit");
-		options.addOption("V", "version", false,
+		commands.option("V", "version").desc(
 				"Print version information and exit");
 	}
 
@@ -218,41 +210,36 @@ public class Setup {
 
 	public void init(String[] args) {
 		try {
-			CommandLine line = new GnuParser().parse(options, args);
-			if (line.hasOption('h')) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("[options]", options);
-				System.exit(0);
-				return;
-			} else if (line.getArgs().length > 0) {
-				System.err.println("Unrecognized option: "
-						+ Arrays.toString(line.getArgs()));
-				System.err.println("Arguments: " + Arrays.toString(args));
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("[options]", options);
+			Command line = commands.parse(args);
+			if (line.isParseError()) {
+				line.printParseError();
 				System.exit(2);
 				return;
-			} else if (line.hasOption('V')) {
-				System.out.println(NAME);
+			} else if (line.has("help")) {
+				line.printHelp();
+				System.exit(0);
+				return;
+			} else if (line.has("version")) {
+				line.printCommandName();
 				System.exit(0);
 				return;
 			} else {
-				silent = line.hasOption('s');
-				if (line.hasOption('d')) {
-					dir = new File(line.getOptionValue('d')).getCanonicalFile();
+				silent = line.has("silent");
+				if (line.has("dir")) {
+					dir = new File(line.get("dir")).getCanonicalFile();
 				} else {
 					dir = new File("").getCanonicalFile();
 				}
-				if (line.hasOption('c')) {
-					config = resolve(line.getOptionValue('c'));
+				if (line.has("config")) {
+					config = resolve(line.get("config"));
 				}
-				if (line.hasOption('o')) {
-					for (String o : line.getOptionValues('o')) {
+				if (line.has("origin")) {
+					for (String o : line.getAll("origin")) {
 						validateOrigin(o);
 						origins.add(o);
 					}
-					if (line.hasOption('f')) {
-						for (String pair : line.getOptionValues('f')) {
+					if (line.has("car")) {
+						for (String pair : line.getAll("car")) {
 							int idx = pair.indexOf('=');
 							String path = pair.substring(0, idx);
 							URL url = resolve(pair.substring(idx + 1));
@@ -262,26 +249,26 @@ public class Setup {
 							}
 						}
 					}
-					String origin = line.getOptionValue('o');
-					if (line.hasOption('v')) {
-						for (String v : line.getOptionValues('v')) {
+					String origin = line.get("origin");
+					if (line.has("virtual")) {
+						for (String v : line.getAll("virtual")) {
 							validateOrigin(v);
 							vhosts.put(v, origin);
 						}
 					}
-					if (line.hasOption('r')) {
-						for (String r : line.getOptionValues('r')) {
+					if (line.has("realm")) {
+						for (String r : line.getAll("realm")) {
 							validateRealm(r);
 							realms.put(r, origin);
 						}
 					}
-					if (line.hasOption('l') && line.getOptionValues('o').length == 1) {
+					if (line.has("serve-all") && line.getAll("origin").length == 1) {
 						serveAllAs = origin;
 					}
-					if (line.hasOption('u') || line.hasOption('e')) {
-						this.name = line.getOptionValue('n');
-						this.email = line.getOptionValue('e');
-						String u = line.getOptionValue('u');
+					if (line.has("user") || line.has("email")) {
+						this.name = line.get("name");
+						this.email = line.get("email");
+						String u = line.get("user");
 						if (u != null && u.contains(":")) {
 							username = u.substring(0, u.indexOf(':'));
 							password = u.substring(u.indexOf(':') + 1).toCharArray();

@@ -43,10 +43,8 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.xml.datatype.DatatypeFactory;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
+import org.callimachusproject.cli.Command;
+import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.logging.LoggerMXBean;
 import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.client.HTTPObjectClient;
@@ -64,22 +62,20 @@ public class ServerMonitor {
 	public static final String NAME = Version.getInstance().getVersion();
 	private static final String CONNECTOR_ADDRESS = "com.sun.management.jmxremote.localConnectorAddress";
 
-	private static final Options options = new Options();
+	private static final CommandSet commands = new CommandSet(NAME);
 	static {
-		options.addOption("pid", true,
+		commands.require("pid").arg("file").desc(
 				"File to read the server process id to monitor");
-		options.getOption("pid").setRequired(true);
-		options.addOption("dump", true,
+		commands.option("dump").arg("directory").desc(
 				"Use the directory to dump the server status in the given directory");
-		options.addOption("reset", false, "Empty any cache on the server");
-		options.addOption("log", true,
+		commands.option("reset").desc("Empty any cache on the server");
+		commands.option("log").optional("name").desc(
 				"Print log statements from loggers with these names");
-		options.getOption("log").setOptionalArg(true);
-		options.addOption("stop", false,
+		commands.option("stop").desc(
 				"Use the PID file to shutdown the server");
-		options.addOption("h", "help", false,
+		commands.option("h", "help").desc(
 				"Print help (this message) and exit");
-		options.addOption("v", "version", false,
+		commands.option("v", "version").desc(
 				"Print version information and exit");
 	}
 
@@ -142,43 +138,32 @@ public class ServerMonitor {
 
 	public void init(String[] args) {
 		try {
-			CommandLine line = new GnuParser().parse(options, args);
-			if (line.hasOption('h')) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("[options]", options);
-				System.exit(0);
-				return;
-			} else if (line.hasOption('v')) {
-				System.out.println(NAME);
-				System.exit(0);
-				return;
-			} else if (line.getArgs().length > 0) {
-				System.err.println("Unrecognized option: "
-						+ Arrays.toString(line.getArgs()));
-				System.err.println("Arguments: " + Arrays.toString(args));
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("[options]", options);
+			Command line = commands.parse(args);
+			if (line.isParseError()) {
+				line.printParseError();
 				System.exit(2);
 				return;
-			} else if (!line.hasOption("pid")) {
-				System.err.println("Missing pid option");
-				System.err.println("Arguments: " + Arrays.toString(args));
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("[options]", options);
-				System.exit(2);
+			} else if (line.has("help")) {
+				line.printHelp();
+				System.exit(0);
+				return;
+			} else if (line.has("version")) {
+				line.printCommandName();
+				System.exit(0);
+				return;
 			} else {
-				if (line.hasOption("dump")) {
-					dump = line.getOptionValue("dump") + File.separatorChar;
+				if (line.has("dump")) {
+					dump = line.get("dump") + File.separatorChar;
 				}
-				if (line.hasOption("log")) {
-					log = line.getOptionValues("log");
+				if (line.has("log")) {
+					log = line.getAll("log");
 					if (log == null || log.length == 0) {
 						log = new String[]{""};
 					}
 				}
-				reset = line.hasOption("reset");
-				stop = line.hasOption("stop");
-				String pid = line.getOptionValue("pid");
+				reset = line.has("reset");
+				stop = line.has("stop");
+				String pid = line.get("pid");
 				setPidFile(pid);
 			}
 		} catch (Throwable e) {

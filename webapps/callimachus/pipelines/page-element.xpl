@@ -33,7 +33,6 @@
     </p:xslt>
 
     <p:xslt>
-        <p:with-param name="target" select="$systemId" />
         <p:input port="stylesheet">
             <p:document href="../transforms/page-info.xsl" />
         </p:input>

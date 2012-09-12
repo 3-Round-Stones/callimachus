@@ -172,7 +172,7 @@ function patchData(form, data, callback) {
         type = "application/sparql-update";
     }
     var xhr = null;
-    xhr = $.ajax({ type: method, url: calli.getFormAction(form), contentType: type, data: data, beforeSend: function(xhr){
+    xhr = $.ajax({ type: method, url: calli.getFormAction(form), contentType: type, data: data, dataType: "text", beforeSend: function(xhr){
         var lastmod = getLastModified();
         if (lastmod) {
             xhr.setRequestHeader("If-Unmodified-Since", lastmod);

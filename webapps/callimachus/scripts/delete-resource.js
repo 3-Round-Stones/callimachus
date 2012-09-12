@@ -31,7 +31,7 @@ window.calli.deleteResource = function(event, redirect) {
             if (url.indexOf('?') > 0) {
                 url = url.substring(0, url.indexOf('?'));
             }
-            var xhr = $.ajax({ type: "DELETE", url: url, beforeSend: function(xhr){
+            var xhr = $.ajax({ type: "DELETE", url: url, dataType: "text", beforeSend: function(xhr){
                 var lastmod = getLastModified();
                 if (lastmod) {
                     xhr.setRequestHeader("If-Unmodified-Since", lastmod);

@@ -94,6 +94,7 @@ function postData(form, data, callback) {
         url: calli.getFormAction(form),
         contentType: type,
         data: data,
+		dataType: "text", 
         beforeSend: withCredentials,
         success: function(data, textStatus) {
             callback(data, textStatus, xhr);

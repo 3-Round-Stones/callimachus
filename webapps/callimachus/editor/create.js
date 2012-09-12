@@ -60,6 +60,7 @@
             url: calli.getFormAction(form),
             contentType: form.getAttribute("enctype"),
             data: text,
+			dataType: "text", 
             beforeSend: withCredentials,
             complete: function(xhr) {
                 saving = false;

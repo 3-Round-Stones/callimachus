@@ -1,13 +1,13 @@
 // edit.js
 
 (function($, jQuery) {
-    $(window).ajaxSend(function(event, XMLHttpRequest, ajaxOptions) {
+    $(document).ajaxSend(function(event, XMLHttpRequest, ajaxOptions) {
         $('form[enctype]').css('background-color', 'lightyellow');
     });
-    $(window).ajaxSuccess(function(event, XMLHttpRequest, ajaxOptions) {
+    $(document).ajaxSuccess(function(event, XMLHttpRequest, ajaxOptions) {
         $('form[enctype]').css('background-color', 'inherit');
     });
-    $(window).ajaxError(function(event, XMLHttpRequest, ajaxOptions) {
+    $(document).ajaxError(function(event, XMLHttpRequest, ajaxOptions) {
         $('form[enctype]').css('background-color', '#FF9999');
         setTimeout(function() {
             $('form[enctype]').css('background-color', 'inherit');
@@ -19,8 +19,8 @@
     var editor = null;
     var etag;
     var original;
-
-    $.ajax({type: 'GET', url: location.pathname, beforeSend: withCredentials, complete: function(xhr) {
+    $.ajax({type: 'GET', dataType: "text", url: location.pathname, beforeSend: withCredentials, complete: function(xhr) {
+    
         if (xhr.status == 200 || xhr.status == 304) {
             etag = xhr.getResponseHeader('ETag');
             original = xhr.responseText;
@@ -94,6 +94,7 @@
             url: calli.getFormAction(form),
             contentType: form.getAttribute("enctype"),
             data: text,
+			dataType: "text", 
             beforeSend: function(xhr) {
                 if (etag && form.getAttribute('method') == 'PUT') {
                     xhr.setRequestHeader('If-Match', etag);

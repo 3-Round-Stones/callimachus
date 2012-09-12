@@ -11,7 +11,8 @@
                 return false;
             var xhr = $.ajax({
                 type: 'DELETE',
-                url: '?archive', 
+                url: '?archive',
+				dataType: "text", 
                 beforeSend: function(xhr){
                     var lastmod = getLastModified();
                     if (lastmod) {

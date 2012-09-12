@@ -44,6 +44,8 @@ public class HttpJavaScriptResponseWriter implements Consumer<Object> {
 			"}\n" +
 			"if (typeof resp.body == 'string') {" +
 			"	response.setEntity(new org.apache.http.entity.StringEntity(resp.body, contentType, charset));\n" +
+			"} else if (resp.body instanceof org.apache.http.HttpEntity) {\n" +
+			"	response.setEntity(resp.body);\n" +
 			"} else if (resp.body && resp.body.join) {\n" +
 			"	response.setEntity(new org.apache.http.entity.StringEntity(resp.body.join(''), contentType, charset));\n" +
 			"}\n" +

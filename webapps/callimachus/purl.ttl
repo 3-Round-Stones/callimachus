@@ -36,3 +36,116 @@
     calli:edit <purl-edit.xhtml>;
     calli:create <purl-create.xhtml>.
 
+:Redirect rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    calli:method "GET";
+    calli:type "message/x-response";
+    calli:imports <java:org.apache.http.message.BasicHttpRequest>;
+    calli:imports <java:org.callimachusproject.rewrite.Substitution>;
+    calli:imports <java:org.callimachusproject.server.client.HTTPObjectClient>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
+    calli:script """
+        var iter = this.FindPurlPattern().iterator();
+        while (iter.hasNext()) {
+            var row = iter.next();
+            var status = row[0];
+            var phrase = row[1];
+            var pattern = row[2];
+            if (pattern) {
+                var substitution = Substitution.compile(pattern);
+                var result = substitution.replace(this.toString(), query);
+                if (result) {
+                    var split = result.split("\\n");
+                    var location = split[0];
+                    if (status == 200) {
+                        var client = HTTPObjectClient.getInstance();
+                        var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
+                        var req = new BasicHttpRequest("GET", systemId);
+                        var resp = client.service(req);
+                        var headers = {'content-location': systemId};
+                        for (var i=1; i<split.length; i++) {
+                            var header = split[i].split(':');
+                            headers[header[0].toLowerCase().trim()] = header[1].trim();
+                        }
+                        if (resp.getFirstHeader('location')) {
+                            headers['location'] = resp.getFirstHeader('location').value;
+                        }
+                        return {
+                            status:resp.statusLine.statusCode,
+                            statusText:resp.statusLine.reasonPhrase,
+                            headers:headers,
+                            body:resp.entity
+                        };
+                    } else {
+                        var headers = {'content-type':"text/plain"};
+                        headers['location'] = location;
+                        for (var i=1; i<split.length; i++) {
+                            var header = split[i].split(':');
+                            headers[header[0].toLowerCase().trim()] = header[1].trim();
+                        }
+                        return {
+                            status:status,
+                            statusText:phrase,
+                            headers:headers,
+                            body:[phrase]
+                        };
+                    }
+                }
+            } else {
+                return {
+                    status:status,
+                    statusText:phrase,
+                    headers:{'content-type':"text/plain"},
+                    body:[phrase]
+                };
+            }
+        }
+        return null;
+    """.
+
+:query a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :Redirect;
+    rdfs:range <java:java.util.Map>;
+    calli:type "application/x-www-form-urlencoded";
+    calli:query "*".
+
+:FindPurlPattern rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom rdfs:Resource];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?status ?phrase (str(?resource) AS ?pattern) {
+            {
+                $this calli:get ?resource
+                BIND (200 AS ?status)
+                BIND ("OK" AS ?phrase)
+            } UNION {
+                $this calli:canonical ?resource
+                BIND (301 AS ?status)
+                BIND ("Canonical" AS ?phrase)
+            } UNION {
+                $this calli:alternate ?resource
+                BIND (302 AS ?status)
+                BIND ("Alternate" AS ?phrase)
+            } UNION {
+                $this calli:describedby ?resource
+                BIND (303 AS ?status)
+                BIND ("Described by" AS ?phrase)
+            } UNION {
+                $this calli:resides ?resource
+                BIND (307 AS ?status)
+                BIND ("Resides" AS ?phrase)
+            } UNION {
+                $this calli:moved ?resource
+                BIND (308 AS ?moved)
+                BIND ("Moved" AS ?phrase)
+            } UNION {
+                $this calli:disabled ?phrase
+                BIND (404 AS ?status)
+            } UNION {
+                $this calli:deleted ?phrase
+                BIND (410 AS ?status)
+            }
+        }
+    """.

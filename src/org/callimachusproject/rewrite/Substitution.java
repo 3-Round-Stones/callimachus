@@ -1,6 +1,7 @@
 package org.callimachusproject.rewrite;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,7 +75,7 @@ public class Substitution {
 		return replace(input, parameters);
 	}
 
-	public String replace(CharSequence input, Map<String, String> variables) {
+	public String replace(CharSequence input, Map<String, ?> variables) {
 		int dollar = substitution.indexOf('$');
 		int percent = substitution.indexOf('{');
 		if (dollar < 0 && percent < 0)
@@ -94,7 +95,7 @@ public class Substitution {
 	}
 
 	private void appendSubstitution(Matcher m,
-			Map<String, String> variables, StringBuilder sb) {
+			Map<String, ?> variables, StringBuilder sb) {
 		boolean encode = false;
 		for (int i = 0, n = substitution.length(); i < n; i++) {
 			char chr = substitution.charAt(i);
@@ -142,14 +143,25 @@ public class Substitution {
 		}
 	}
 
-	private void appendVariable(String name, Matcher m, Map<String, String> variables,
+	private void appendVariable(String name, Matcher m, Map<String, ?> variables,
 			boolean encode, StringBuilder sb) {
 		String value;
 		int g = groupNames.indexOf(name) + 1;
 		if (g > 0) {
 			value = m.group(g);
 		} else {
-			value = variables.get(name);
+			Object o = variables.get(name);
+			if (o == null) {
+				value = null;
+			} else if (o instanceof String) {
+				value = (String) o;
+			} else if (o.getClass().isArray() && Array.getLength(o) == 0) {
+				value = null;
+			} else if (o.getClass().isArray()) {
+				value = Array.get(o, 0).toString();
+			} else {
+				value = o.toString();
+			}
 		}
 		if (value != null) {
 			sb.append(inline(value, encode));

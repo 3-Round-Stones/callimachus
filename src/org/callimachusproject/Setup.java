@@ -295,11 +295,13 @@ public class Setup {
 							}
 							validateEmail(email);
 						}
-						if (console == null && email != null && email.length() > 0) {
-							Reader reader = new InputStreamReader(System.in);
-							password = new BufferedReader(reader).readLine().toCharArray();
-						} else if (email != null && email.length() > 0) {
-							password = console.readPassword("Enter a new password for %s: ", email);
+						if (password == null) {
+							if (console == null) {
+								Reader reader = new InputStreamReader(System.in);
+								password = new BufferedReader(reader).readLine().toCharArray();
+							} else  {
+								password = console.readPassword("Enter a new password for %s: ", email);
+							}
 						}
 					}
 				}
@@ -337,11 +339,14 @@ public class Setup {
 			changed |= importCar(e.getValue(), e.getKey(), origin, repository);
 		}
 		changed |= setServeAllResourcesAs(serveAllAs, repository);
-		if (password != null && password.length > 0) {
+		if (email != null && email.length() > 0) {
 			for (String origin : origins) {
 				changed |= createAdmin(name, email, username, password, origin, repository);
 			}
-			Arrays.fill(password, '*');
+			if (password != null) {
+				Arrays.fill(password, '*');
+				System.gc();
+			}
 		}
 		if (changed || silent) {
 			System.exit(0);
@@ -991,17 +996,14 @@ public class Setup {
 				for (Statement st2 : con.getStatements(accounts,
 						vf.createURI(CALLI_AUTHNAME), null).asList()) {
 					String authName = st2.getObject().stringValue();
-					String decodedUser = username + ":" + authName + ":" + String.valueOf(password);
-					String encodedUser = DigestUtils.md5Hex(decodedUser);
-					String decodedEmail = email + ":" + authName + ":" + String.valueOf(password);
-					String encodedEmail = DigestUtils.md5Hex(decodedEmail);
+					String[] encoded = encodePassword(username, email,
+							authName, password);
 					for (Statement st3 : con.getStatements(accounts,
 							vf.createURI(CALLI_AUTHNAMESPACE), null).asList()) {
 						Resource user = (Resource) st3.getObject();
 						URI subj = vf.createURI(user.stringValue() + username);
 						modified |= changeAdminPassword(origin, user, subj,
-								name, email, username, new String[] {
-										encodedUser, encodedEmail }, con);
+								name, email, username, encoded, con);
 					}
 				}
 			}
@@ -1010,6 +1012,19 @@ public class Setup {
 		} finally {
 			con.close();
 		}
+	}
+
+	private String[] encodePassword(String username, String email,
+			String authName, char[] password) {
+		if (password == null || password.length < 1)
+			return null;
+		String decodedUser = username + ":" + authName + ":" + String.valueOf(password);
+		String encodedUser = DigestUtils.md5Hex(decodedUser);
+		String decodedEmail = email + ":" + authName + ":" + String.valueOf(password);
+		String encodedEmail = DigestUtils.md5Hex(decodedEmail);
+		String[] encoded = new String[] {
+				encodedUser, encodedEmail };
+		return encoded;
 	}
 
 	private void validateName(String username) throws IllegalArgumentException,
@@ -1035,9 +1050,17 @@ public class Setup {
 			String[] encoded, ObjectConnection con) throws RepositoryException,
 			IOException {
 		ValueFactory vf = con.getValueFactory();
+		URI calliEmail = vf.createURI(CALLI_EMAIL);
 		if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_USER))) {
-			logger.info("Changing password of {}", username);
-			setPassword(subj, encoded, con);
+			if (email != null && !con.hasStatement(subj, calliEmail, vf.createLiteral(email))) {
+				logger.info("Changing email of {}", username);
+				con.remove(subj, calliEmail, null);
+				con.add(subj, calliEmail, vf.createLiteral(email));
+			}
+			if (encoded != null) {
+				logger.info("Changing password of {}", username);
+				setPassword(subj, encoded, con);
+			}
 		} else {
 			logger.info("Creating user {}", username);
 			URI staff = vf.createURI(origin + "/group/staff");
@@ -1046,7 +1069,9 @@ public class Setup {
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_PARTY));
 			con.add(subj, RDF.TYPE, vf.createURI(CALLI_USER));
 			con.add(subj, vf.createURI(CALLI_NAME), vf.createLiteral(username));
-			setPassword(subj, encoded, con);
+			if (encoded != null) {
+				setPassword(subj, encoded, con);
+			}
 			if (name == null || name.length() == 0) {
 				con.add(subj, RDFS.LABEL, vf.createLiteral(username));
 			} else {
@@ -1057,7 +1082,7 @@ public class Setup {
 			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), subj);
 			con.add(admin, vf.createURI(CALLI_MEMBER), subj);
 			if (email != null && email.length() > 2) {
-				con.add(subj, vf.createURI(CALLI_EMAIL), vf.createLiteral(email));
+				con.add(subj, calliEmail, vf.createLiteral(email));
 			}
 		}
 		return true;

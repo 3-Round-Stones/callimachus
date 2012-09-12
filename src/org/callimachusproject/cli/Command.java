@@ -1,9 +1,12 @@
 package org.callimachusproject.cli;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -33,8 +36,16 @@ public class Command {
 	}
 
 	public boolean isParseError() {
-		return exception != null || this.otherArgName == null
-				&& parsed.getArgs().length > 0;
+		if (exception != null)
+			return true;
+		if (this.otherArgName == null && parsed.getArgs().length > 0)
+			return true;
+		for (Object o : options.getRequiredOptions()) {
+			String opt = (String) o;
+			if (!options.getOption(opt).hasOptionalArg() && get(opt) == null)
+				return true;
+		}
+		return false;
 	}
 
 	public void printParseError() {
@@ -48,6 +59,13 @@ public class Command {
 				&& parsed.getArgs().length > 0) {
 			System.err.println("Unrecognized option: "
 					+ Arrays.toString(parsed.getArgs()));
+		} else {
+			for (Object o : options.getRequiredOptions()) {
+				String opt = ((Option) o).getOpt();
+				if (!((Option) o).hasOptionalArg() && get(opt) == null) {
+					System.err.println("Missing required option: " + opt);
+				}
+			}
 		}
 		printHelp();
 	}
@@ -76,7 +94,14 @@ public class Command {
 		if (parsed == null)
 			return null;
 		if (opt.equals(otherArgName))
-			return parsed.getArgs();
-		return parsed.getOptionValues(opt);
+			return removeBlanks(parsed.getArgs());
+		return removeBlanks(parsed.getOptionValues(opt));
+	}
+
+	private String[] removeBlanks(String[] values) {
+		List<String> list = new ArrayList<String>(Arrays.asList(values));
+		list.remove(null);
+		list.remove("");
+		return list.toArray(new String[list.size()]);
 	}
 }

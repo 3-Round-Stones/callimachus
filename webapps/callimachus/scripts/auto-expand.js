@@ -98,7 +98,9 @@ function getAvailableHeight(area) {
 }
 
 function bottom(element) {
-    return $(element).offset().top + $(element).outerHeight(true);
+    if ($(element).length)
+        return $(element).offset().top + $(element).outerHeight(true);
+    return null;
 }
 
 function getAvailableWidth(area) {

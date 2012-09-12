@@ -763,6 +763,23 @@ function RDFaParser() {
 				}
 			 }
 		  }
+		  
+		  // Sequence Step 12: complete incomplete triples with new subject
+		  if (newSubject && !skip) {
+			 for (i=0; i<context.incomplete.length; i++) {
+				if (context.incomplete[i].list) {
+				   //console.log("Adding subject "+newSubject+" to list for "+context.incomplete[i].predicate);
+				   // TODO: it is unclear what to do here
+				   context.incomplete[i].list.push({ type: this.objectURI, value: newSubject });
+				} else if (context.incomplete[i].forward) {
+				   //console.log(current.tagName+": completing forward triple "+context.incomplete[i].predicate+" with object="+newSubject);
+				   this.addTriple(current,context.subject,context.incomplete[i].predicate, { type: this.objectURI, value: newSubject});
+				} else {
+				   //console.log(current.tagName+": completing reverse triple with object="+context.subject);
+				   this.addTriple(current,newSubject,context.incomplete[i].predicate,{ type: this.objectURI, value: context.subject});
+				}
+			 }
+		  }
 
 		  // Step 11: Current property values
 		  if (propertyAtt) {
@@ -817,23 +834,6 @@ function RDFaParser() {
 						 //console.log(newSubject+" "+predicate+"="+content);
 					  }
 				   }
-				}
-			 }
-		  }
-
-		  // Sequence Step 12: complete incomplete triples with new subject
-		  if (newSubject && !skip) {
-			 for (i=0; i<context.incomplete.length; i++) {
-				if (context.incomplete[i].list) {
-				   //console.log("Adding subject "+newSubject+" to list for "+context.incomplete[i].predicate);
-				   // TODO: it is unclear what to do here
-				   context.incomplete[i].list.push({ type: this.objectURI, value: newSubject });
-				} else if (context.incomplete[i].forward) {
-				   //console.log(current.tagName+": completing forward triple "+context.incomplete[i].predicate+" with object="+newSubject);
-				   this.addTriple(current,context.subject,context.incomplete[i].predicate, { type: this.objectURI, value: newSubject});
-				} else {
-				   //console.log(current.tagName+": completing reverse triple with object="+context.subject);
-				   this.addTriple(current,newSubject,context.incomplete[i].predicate,{ type: this.objectURI, value: context.subject});
 				}
 			 }
 		  }

@@ -28,7 +28,7 @@
 <> a <SchemaGraph>.
 
 <Folder> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Composite>, <Viewable>, <Editable>, calli:Folder;
+    rdfs:subClassOf <Composite>, <PURL>, calli:Folder;
     rdfs:label "Folder";
     rdfs:comment "A folder of resources";
     rdfs:isDefinedBy </callimachus>;
@@ -37,24 +37,6 @@
     calli:view <folder-view.xhtml>;
     calli:edit <folder-edit.xhtml>;
     calli:create <folder-create.xhtml>.
-
-:RedirectToIndex rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Folder>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    calli:method "GET";
-    calli:type "message/x-response";
-    calli:imports <java:org.apache.http.ProtocolVersion>;
-    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
-    calli:script """
-        var http11 = new ProtocolVersion("HTTP", 1, 1);
-        var resp = new BasicHttpResponse(http11, 303, "Directory Index");
-        if (this.calliDescribedby && this.calliDescribedby.size()) {
-            resp.addHeader("Location", this.calliDescribedby.toString());
-        } else {
-            resp.addHeader("Location", this.toString() + "?view");
-        }
-        return resp;
-    """.
 
 ################################
 # POST file

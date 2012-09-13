@@ -20,7 +20,7 @@
             $('input.phrase').val('');
             $('span.location').remove();
             $('#location').parent().append('<span class="location" />');
-            $('span.location').attr('rel', value);
+            $('span.location').attr('property', value);
             $('#location').change();
         } else if (value != $('#form').attr('class')) {
             $('#form').attr('class', value);
@@ -74,13 +74,13 @@
             <div class="control-group hidden-disabled hidden-deleted">
                 <label for="location" class="control-label">Location</label>
                 <div class="controls">
-        			<input id="location" size="40" value="" onchange="$('span.location').attr('resource', value)" />
-    				<span class="location" rel="calli:get" resource="?get" />
-					<span class="location" rel="calli:canonical" resource="?canonical" />
-					<span class="location" rel="calli:alternate" resource="?alternate" />
-    				<span class="location" rel="calli:describedby" resource="?describedby" />
-    				<span class="location" rel="calli:resides" resource="?resides" />
-    				<span class="location" rel="calli:moved" resource="?moved" />
+        			<input id="location" size="40" value="" onchange="$('span.location').attr('content', value)" />
+    				<span class="location" property="calli:get" content="?get" />
+					<span class="location" property="calli:canonical" content="?canonical" />
+					<span class="location" property="calli:alternate" content="?alternate" />
+    				<span class="location" property="calli:describedby" content="?describedby" />
+    				<span class="location" property="calli:resides" content="?resides" />
+    				<span class="location" property="calli:moved" content="?moved" />
                 </div>
             </div>
             <div class="control-group hidden-deleted hidden-location">

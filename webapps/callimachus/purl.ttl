@@ -56,21 +56,27 @@
                 var substitution = Substitution.compile(pattern);
                 var result = substitution.replace(this.toString(), query);
                 if (result) {
-                    var split = result.split("\\n");
-                    var location = split[0];
                     if (status == 200) {
+                        var split = result.split("\\n");
+                        var location = split[0];
                         var client = HTTPObjectClient.getInstance();
                         var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
-                        var req = new BasicHttpRequest("GET", systemId);
-                        var resp = client.service(req);
+                        var redirect = systemId;
+                        var resp = null;
+                        for (var i = 0; i < 20 && redirect != null; i++) {
+                            systemId = redirect;
+                            var req = new BasicHttpRequest("GET", systemId);
+                            for (var i=1; i<split.length; i++) {
+                                var header = split[i].split(':');
+                                req.addHeader(header[0], header[1]);
+                            }
+                            resp = client.service(req);
+                            redirect = client.redirectLocation(redirect, resp);
+                        }
+                        var code = resp.statusLine.statusCode;
+                        if (code != 200 && code != 203)
+                            throw ResponseException.create(resp, systemId);
                         var headers = {'content-location': systemId};
-                        for (var i=1; i<split.length; i++) {
-                            var header = split[i].split(':');
-                            headers[header[0].toLowerCase().trim()] = header[1].trim();
-                        }
-                        if (resp.getFirstHeader('location')) {
-                            headers['location'] = resp.getFirstHeader('location').value;
-                        }
                         return {
                             status:resp.statusLine.statusCode,
                             statusText:resp.statusLine.reasonPhrase,
@@ -78,16 +84,10 @@
                             body:resp.entity
                         };
                     } else {
-                        var headers = {'content-type':"text/plain"};
-                        headers['location'] = location;
-                        for (var i=1; i<split.length; i++) {
-                            var header = split[i].split(':');
-                            headers[header[0].toLowerCase().trim()] = header[1].trim();
-                        }
                         return {
                             status:status,
                             statusText:phrase,
-                            headers:headers,
+                            headers:{'location':result,'content-type':"text/plain"},
                             body:[phrase]
                         };
                     }
@@ -101,7 +101,16 @@
                 };
             }
         }
-        return null;
+        if (query.empty) {
+            return {
+                status:303,
+                statusText:'See Other',
+                headers:{'location':this.toString() + "?view",'content-type':"text/plain"},
+                body:[this.toString() + "?view"]
+            };
+        } else {
+            throw new org.callimachusproject.server.exceptions.MethodNotAllowed();
+        }
     """.
 
 :query a owl:FunctionalProperty, owl:ObjectProperty;

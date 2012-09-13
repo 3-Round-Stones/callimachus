@@ -24,7 +24,6 @@ public class RedirectAdvice extends RewriteAdvice {
 		if (location == null)
 			return fb.consume(null, null, HttpResponse.class, "message/http");
 		HttpResponse resp = new BasicHttpResponse(status);
-		resp.setHeaders(headers);
 		resp.setHeader("Location", location);
 		return fb.consume(resp, null, HttpResponse.class, "message/http");
 	}

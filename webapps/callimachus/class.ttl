@@ -47,14 +47,13 @@
 # when a class is created
 :CreateClass owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Class> ]);
-    calli:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <SchemaGraph>;
     calli:script """
         var ret = proceed();
         var con = this.objectConnection;
         var of = con.objectFactory;
-        con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
+        con.addDesignation(of.createObject(con.getActivityURI()), SchemaGraph);
         con.recompileSchemaOnClose();
         return ret;
     """.
@@ -66,14 +65,13 @@
     calli:realm </>;
     calli:expect "201-modified";
     calli:type "text/uri-list";
-    calli:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <SchemaGraph>;
     calli:script """
         var ret = proceed();
         var con = this.objectConnection;
         var of = con.objectFactory;
-        con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
+        con.addDesignation(of.createObject(con.getActivityURI()), SchemaGraph);
         con.recompileSchemaOnClose();
         return ret;
     """.

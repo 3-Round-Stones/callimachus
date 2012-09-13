@@ -467,7 +467,6 @@ skos:editorialNote a owl:AnnotationProperty.
     calli:expect "201-modified";
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.openrdf.sail.auditing.vocabulary.Audit>;
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;
     calli:imports <SchemaGraph>;
     calli:script """
@@ -481,7 +480,7 @@ skos:editorialNote a owl:AnnotationProperty.
         }
         var con = this.objectConnection;
         var of = con.objectFactory;
-        con.addDesignation(of.createObject(Audit.CURRENT_TRX), SchemaGraph);
+        con.addDesignation(of.createObject(con.getActivityURI()), SchemaGraph);
         con.recompileSchemaOnClose();
         return ret;
     """.

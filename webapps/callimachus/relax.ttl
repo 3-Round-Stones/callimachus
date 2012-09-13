@@ -33,7 +33,7 @@
     calli:icon <relax.png>;
     calli:create <file-create.xhtml>;
     calli:mediaType "application/xml";
-    calli:documentTag <http://relaxng.org/ns/structure/1.0#grammer>;
+    calli:documentTag <http://relaxng.org/ns/structure/1.0#grammar>;
     calli:documentTag <http://relaxng.org/ns/structure/1.0#element>.
 
 # GET /schema.rng

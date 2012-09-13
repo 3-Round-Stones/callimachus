@@ -5,15 +5,6 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label}</title>
-    <script type="text/javascript">
-        // <![CDATA[
-        jQuery(function($){
-            if (!$('#describedby').length) {
-                $('#field').append('<input id="describedby" data-var-resource="?describedby" class="auto-expand" rel="calli:describedby" data-expression-value="?describedby" />');
-            }
-        });
-        // ]]>
-    </script>
 </head>
 <body resource="?this">
     <div id="sidebar">
@@ -28,7 +19,7 @@
             <div class="control-group">
                 <label for="describedby" class="control-label">Directory index target</label>
                 <div id="field" class="controls">
-                    <input id="describedby" class="auto-expand" rel="calli:describedby" resource="?describedby" value="{?describedby}" />
+                    <input id="describedby" class="auto-expand" value="{calli:describedby}" />
                 </div>
             </div>
             <div class="form-actions">

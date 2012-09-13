@@ -57,6 +57,7 @@
                 var result = substitution.replace(this.toString(), query);
                 if (result) {
                     if (status == 200) {
+                        // 200 and 203 responses
                         var split = result.split("\\n");
                         var location = split[0];
                         var client = HTTPObjectClient.getInstance();
@@ -76,14 +77,14 @@
                         var code = resp.statusLine.statusCode;
                         if (code != 200 && code != 203)
                             throw ResponseException.create(resp, systemId);
-                        var headers = {'content-location': systemId};
                         return {
                             status:resp.statusLine.statusCode,
                             statusText:resp.statusLine.reasonPhrase,
-                            headers:headers,
+                            headers:{'content-location': systemId},
                             body:resp.entity
                         };
                     } else {
+                        // 300 level responses
                         return {
                             status:status,
                             statusText:phrase,
@@ -93,6 +94,7 @@
                     }
                 }
             } else {
+                // 404 and 410 responses
                 return {
                     status:status,
                     statusText:phrase,
@@ -102,6 +104,7 @@
             }
         }
         if (query.empty) {
+            // default response
             return {
                 status:303,
                 statusText:'See Other',

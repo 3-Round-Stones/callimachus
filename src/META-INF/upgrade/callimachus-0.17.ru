@@ -10,11 +10,25 @@ PREFIX msg:<http://www.openrdf.org/rdf/2011/messaging#>
 PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
 
 DELETE {
-    ?resource calli:describedBy ?describedby
+    ?folder calli:describedby ?resource
 } INSERT {
-    ?resource calli:describedby ?describedby
+    ?folder calli:describedby ?content
 } WHERE {
-    ?resource calli:describedBy ?describedby
+    ?folder calli:describedby ?resource
+    FILTER isIRI(?resource)
+    FILTER strends(str(?folder),"/")
+    BIND (if(strstarts(str(?resource),str(?folder)),strafter(str(?resource),str(?folder)),str(?resource)) AS ?content)
+};
+
+DELETE {
+    ?folder calli:describedBy ?resource
+} INSERT {
+    ?folder calli:describedby ?content
+} WHERE {
+    ?folder calli:describedBy ?resource
+    FILTER isIRI(?resource)
+    FILTER strends(str(?folder),"/")
+    BIND (if(strstarts(str(?resource),str(?folder)),strafter(str(?resource),str(?folder)),str(?resource)) AS ?content)
 };
 
 

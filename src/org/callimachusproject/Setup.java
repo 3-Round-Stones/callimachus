@@ -653,7 +653,7 @@ public class Setup {
 					vf.createURI(origin + "/group/admin"));
 			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), article);
 			con.add(folder, vf.createURI(CALLI_DESCRIBEDBY),
-					vf.createURI(article.toString() + "?view"));
+					vf.createLiteral("main-article.docbook?view"));
 			InputStream in = cl.getResourceAsStream(MAIN_ARTICLE);
 			try {
 				OutputStream out = con.getBlobObject(article)

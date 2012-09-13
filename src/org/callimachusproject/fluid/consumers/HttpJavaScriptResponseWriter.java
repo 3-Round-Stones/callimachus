@@ -36,7 +36,11 @@ public class HttpJavaScriptResponseWriter implements Consumer<Object> {
 			"	contentType = resp.headers['content-type'];\n" +
 			"	for (name in resp.headers) {\n" +
 			"		var value = resp.headers[name];\n" +
-			"		response.addHeader(name.toString(), value.toString());\n" +
+			"		if (typeof value == 'string') {\n" +
+			"			response.addHeader(name.toString(), value);" +
+			"		} else if (value && value.length && value.join) {\n" +
+			"			response.addHeader(name.toString(), value.join(','));" +
+			"		}\n" +
 			"	}\n" +
 			"}\n" +
 			"if (contentType && contentType.indexOf('charset=') > 0) {\n" +
@@ -46,7 +50,7 @@ public class HttpJavaScriptResponseWriter implements Consumer<Object> {
 			"	response.setEntity(new org.apache.http.entity.StringEntity(resp.body, contentType, charset));\n" +
 			"} else if (resp.body instanceof org.apache.http.HttpEntity) {\n" +
 			"	response.setEntity(resp.body);\n" +
-			"} else if (resp.body && resp.body.join) {\n" +
+			"} else if (resp.body && resp.body.length && resp.body.join) {\n" +
 			"	response.setEntity(new org.apache.http.entity.StringEntity(resp.body.join(''), contentType, charset));\n" +
 			"}\n" +
 			"return response;\n" +

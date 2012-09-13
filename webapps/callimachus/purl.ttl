@@ -26,7 +26,7 @@
 <> a <SchemaGraph>.
 
 <PURL> a <Creatable>, owl:Class;
-    rdfs:subClassOf <Viewable>, <Editable>;
+    rdfs:subClassOf <Viewable>, <Editable>, calli:PURL;
     rdfs:label "PURL";
     rdfs:comment "Persistent Uniform Resource Location of a Web resource.";
     rdfs:isDefinedBy </callimachus>;
@@ -46,6 +46,7 @@
     calli:imports <java:org.callimachusproject.server.client.HTTPObjectClient>;
     calli:imports <java:org.callimachusproject.server.exceptions.ResponseException>;
     calli:script """
+        var cacheControl = this.calliCacheControl.toArray();
         var iter = this.FindPurlPattern().iterator();
         while (iter.hasNext()) {
             var row = iter.next();
@@ -77,10 +78,20 @@
                         var code = resp.statusLine.statusCode;
                         if (code != 200 && code != 203)
                             throw ResponseException.create(resp, systemId);
+                        var headers = {'content-location': systemId,'cache-control':cacheControl};
+                        if (resp.getFirstHeader('last-modified')) {
+                            headers['last-modified'] = resp.getFirstHeader('last-modified').value;
+                        }
+                        if (resp.getFirstHeader('etag')) {
+                            headers['etag'] = resp.getFirstHeader('etag').value;
+                        }
+                        if (resp.getFirstHeader('content-version')) {
+                            headers['content-version'] = resp.getFirstHeader('content-version').value;
+                        }
                         return {
                             status:resp.statusLine.statusCode,
                             statusText:resp.statusLine.reasonPhrase,
-                            headers:{'content-location': systemId},
+                            headers:headers,
                             body:resp.entity
                         };
                     } else {
@@ -88,7 +99,7 @@
                         return {
                             status:status,
                             statusText:phrase,
-                            headers:{'location':result,'content-type':"text/plain"},
+                            headers:{'location':result,'cache-control':cacheControl,'content-type':"text/plain"},
                             body:[phrase]
                         };
                     }
@@ -98,7 +109,7 @@
                 return {
                     status:status,
                     statusText:phrase,
-                    headers:{'content-type':"text/plain"},
+                    headers:{'cache-control':cacheControl,'content-type':"text/plain"},
                     body:[phrase]
                 };
             }

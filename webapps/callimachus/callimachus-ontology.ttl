@@ -40,13 +40,18 @@
 # Class
 ################################
 
+calli:PURL a owl:Class;
+    rdfs:label "PURL";
+    rdfs:comment "Persistent Uniform Resource Location of a Web resource";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:Composite a owl:Class;
     rdfs:label "Composite";
     rdfs:comment "Class of resources that contain nested components, where the component URIs have their parent URI as a prefix";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:Folder a owl:Class;
-    rdfs:subClassOf calli:Composite;
+    rdfs:subClassOf calli:Composite, calli:PURL;
     rdfs:label "Folder";
     rdfs:comment "A resource URI namespace ending in a slash";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
@@ -350,6 +355,13 @@ calli:member a owl:ObjectProperty;
     rdfs:comment "Agent that is part of this group";
     rdfs:domain calli:Group;
     rdfs:range calli:Agent;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:cacheControl a owl:DatatypeProperty;
+    rdfs:label "cache-control";
+    rdfs:comment "A response Cache-Control directive";
+    rdfs:domain calli:PURL;
+    rdfs:range xsd:string;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:hasComponent a owl:ObjectProperty;

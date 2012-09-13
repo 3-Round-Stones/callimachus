@@ -70,7 +70,7 @@
         .ui-grid table thead a { display: block;  }
         .ui-grid .ui-icon { float: left; }
     </style>
-    <script type="text/javascript" src="/callimachus/scripts/folder-view.js"> </script>
+    <script type="text/javascript" src="../scripts/folder-view.js"> </script>
     <script type="text/javascript">
         jQuery(function($) {
             $('#create-menu').find('a').click(function() {
@@ -117,7 +117,7 @@
                 </nav>
             </span>
             <span>
-                <a id="exploreanchor" href="/callimachus/pages/explore.xhtml?view" class="ui-icon ui-icon-lightbulb" title="Explore RDF in this folder"
+                <a id="exploreanchor" href="../pages/explore.xhtml?view" class="ui-icon ui-icon-lightbulb" title="Explore RDF in this folder"
                         onmousedown="if(this.href.indexOf('#')&lt;0)this.href+='#!'+$('body').attr('resource')" />
             </span>
             <span property="rdfs:label"/>
@@ -138,7 +138,7 @@
                 <tr resource="?folder" typeof="calli:Folder">
                     <td class="ui-widget-content filecell">
                         <a class="view" href="?folder" property="rdfs:label" content="?flabel">
-                            <img class="icon" src="/callimachus/folder.png" />
+                            <img class="icon" src="../images/folder.png" />
                             <span>{?flabel}</span>
                         </a>
                     </td>

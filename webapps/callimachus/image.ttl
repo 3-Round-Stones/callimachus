@@ -30,18 +30,18 @@
     rdfs:label "Image" ;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <image.png>;
-    calli:view <image-view.xhtml> ;
-    calli:edit <image-edit.xhtml> ;
-    calli:create <file-create.xhtml>.
+    calli:icon <images/image.png>;
+    calli:view <templates/image-view.xhtml> ;
+    calli:edit <templates/image-edit.xhtml> ;
+    calli:create <templates/file-create.xhtml>.
 
 <AnimatedGraphic> a <Creatable>, owl:Class;
     rdfs:subClassOf <Image>;
     rdfs:label "Animated Graphic" ;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <image.png>;
-    calli:create <file-create.xhtml>;
+    calli:icon <images/image.png>;
+    calli:create <templates/file-create.xhtml>;
     calli:mediaType "image/gif".
 
 <IconGraphic> a <Creatable>, owl:Class;
@@ -49,8 +49,8 @@
     rdfs:label "Icon Graphic" ;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <image.png>;
-    calli:create <file-create.xhtml>;
+    calli:icon <images/image.png>;
+    calli:create <templates/file-create.xhtml>;
     calli:mediaType "image/vnd.microsoft.icon".
 
 <NetworkGraphic> a <Creatable>, owl:Class;
@@ -58,8 +58,8 @@
     rdfs:label "Network Graphic" ;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <image.png>;
-    calli:create <file-create.xhtml>;
+    calli:icon <images/image.png>;
+    calli:create <templates/file-create.xhtml>;
     calli:mediaType "image/png".
 
 <VectorGraphic> a <Creatable>, owl:Class;
@@ -67,8 +67,8 @@
     rdfs:label "Vector Graphic" ;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <image.png>;
-    calli:create <file-create.xhtml>;
+    calli:icon <images/image.png>;
+    calli:create <templates/file-create.xhtml>;
     calli:mediaType "image/svg+xml";
     calli:documentTag <http://www.w3.org/2000/svg#svg>.
 

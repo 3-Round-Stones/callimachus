@@ -14,8 +14,8 @@
     rdfs:subClassOf <Viewable>, <Editable>, calli:Theme;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/staff>, </group/admin>;
-    calli:icon <theme.png>;
-    calli:view <theme-view.xhtml>;
-    calli:edit <theme-edit.xhtml>;
-    calli:create <theme-create.xhtml>.
+    calli:icon <images/theme.png>;
+    calli:view <templates/theme-view.xhtml>;
+    calli:edit <templates/theme-edit.xhtml>;
+    calli:create <templates/theme-create.xhtml>.
 

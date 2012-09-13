@@ -31,10 +31,10 @@
     rdfs:comment "Persistent Uniform Resource Location of a Web resource.";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <purl.png>;
-    calli:view <purl-view.xhtml>;
-    calli:edit <purl-edit.xhtml>;
-    calli:create <purl-create.xhtml>.
+    calli:icon <images/purl.png>;
+    calli:view <templates/purl-view.xhtml>;
+    calli:edit <templates/purl-edit.xhtml>;
+    calli:create <templates/purl-create.xhtml>.
 
 :Redirect rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];

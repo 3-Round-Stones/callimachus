@@ -32,8 +32,8 @@
     rdfs:label "Origin";
     rdfs:comment "Root path of an http or https authority";
     rdfs:isDefinedBy </callimachus>;
-    calli:icon <realm.png>;
-    calli:view <folder-view.xhtml>.
+    calli:icon <images/realm.png>;
+    calli:view <templates/folder-view.xhtml>.
 
 ################################
 # List realms defined by <Realm>

@@ -30,9 +30,9 @@
     rdfs:comment "New pages can be created in a folder";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/staff>,</group/admin>;
-    calli:icon <page.png>;
-    calli:edit <page-edit.xhtml>;
-    calli:create <page-create.xhtml>;
+    calli:icon <images/page.png>;
+    calli:edit <templates/page-edit.xhtml>;
+    calli:create <templates/page-create.xhtml>;
     calli:mediaType "application/xhtml+xml";
     calli:documentTag <http://www.w3.org/1999/xhtml#html>.
 

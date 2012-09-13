@@ -14,9 +14,9 @@
     rdfs:subClassOf <Folder>, calli:Realm;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/admin>;
-    calli:icon <realm.png>;
-    calli:edit <realm-edit.xhtml>;
-    calli:create <realm-create.xhtml>.
+    calli:icon <images/realm.png>;
+    calli:edit <templates/realm-edit.xhtml>;
+    calli:create <templates/realm-create.xhtml>.
 
 :GetOldTemplate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <manifest>];

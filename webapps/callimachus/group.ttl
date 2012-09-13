@@ -15,8 +15,8 @@
     rdfs:isDefinedBy </callimachus>;
     calli:realm </>;
     calli:author </group/admin>;
-    calli:icon <group.png>;
-    calli:view <group-view.xhtml>;
-    calli:edit <group-edit.xhtml>;
-    calli:create <group-create.xhtml>.
+    calli:icon <images/group.png>;
+    calli:view <templates/group-view.xhtml>;
+    calli:edit <templates/group-edit.xhtml>;
+    calli:create <templates/group-create.xhtml>.
 

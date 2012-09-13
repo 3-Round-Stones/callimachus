@@ -30,8 +30,8 @@
     rdfs:label "PDF" ;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <pdf.png>;
-    calli:create <file-create.xhtml>;
+    calli:icon <images/pdf.png>;
+    calli:create <templates/file-create.xhtml>;
     calli:mediaType "application/pdf".
 
 # GET /document.pdf

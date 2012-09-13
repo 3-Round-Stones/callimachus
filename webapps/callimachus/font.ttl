@@ -30,8 +30,8 @@
     rdfs:label "Font" ;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <font.png>;
-    calli:create <file-create.xhtml>;
+    calli:icon <images/font.png>;
+    calli:create <templates/file-create.xhtml>;
     calli:mediaType "application/font-woff".
 
 # GET /font.woff

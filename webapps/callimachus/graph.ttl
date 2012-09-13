@@ -36,8 +36,8 @@
     rdfs:label "Named Graph";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/admin>;
-    calli:icon <graph.png>;
-    calli:create <file-create.xhtml>;
+    calli:icon <images/graph.png>;
+    calli:create <templates/file-create.xhtml>;
     calli:mediaType "application/rdf+xml";
     calli:documentTag <http://www.w3.org/1999/02/22-rdf-syntax-ns#RDF>.
 
@@ -47,9 +47,9 @@
     rdfs:comment "Terse RDF Triple documents";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/admin>;
-    calli:icon <graph.png>;
-    calli:edit <graph-edit.xhtml>;
-    calli:create <graph-create.xhtml>;
+    calli:icon <images/graph.png>;
+    calli:edit <templates/graph-edit.xhtml>;
+    calli:create <templates/graph-create.xhtml>;
     calli:mediaType "text/turtle".
 
 ################################

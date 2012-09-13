@@ -30,8 +30,8 @@
     rdfs:label "XML Schema" ;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <schema.png>;
-    calli:create <file-create.xhtml>;
+    calli:icon <images/schema.png>;
+    calli:create <templates/file-create.xhtml>;
     calli:mediaType "application/xml";
     calli:documentTag <http://www.w3.org/2001/XMLSchema#schema>.
 

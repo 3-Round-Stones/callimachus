@@ -31,8 +31,8 @@
     rdfs:comment "Concepts are ideas, meanings, or categories of objects and events";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <concept.png>;
-    calli:view <concept-view.xhtml>;
-    calli:edit <concept-edit.xhtml>;
-    calli:create <concept-create.xhtml>.
+    calli:icon <images/concept.png>;
+    calli:view <templates/concept-view.xhtml>;
+    calli:edit <templates/concept-edit.xhtml>;
+    calli:create <templates/concept-create.xhtml>.
 

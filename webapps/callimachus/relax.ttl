@@ -30,8 +30,8 @@
     rdfs:label "RELAX" ;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <relax.png>;
-    calli:create <file-create.xhtml>;
+    calli:icon <images/relax.png>;
+    calli:create <templates/file-create.xhtml>;
     calli:mediaType "application/xml";
     calli:documentTag <http://relaxng.org/ns/structure/1.0#grammar>;
     calli:documentTag <http://relaxng.org/ns/structure/1.0#element>.

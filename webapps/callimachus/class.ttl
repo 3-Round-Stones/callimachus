@@ -31,10 +31,10 @@
     rdfs:comment "A class is a construct that is used as a blueprint (or template) to create and edit resources of that class";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/staff>,</group/admin>;
-    calli:icon <class.png>;
-    calli:view <class-view.xhtml>;
-    calli:edit <class-edit.xhtml>;
-    calli:create <class-create.xhtml>.
+    calli:icon <images/class.png>;
+    calli:view <templates/class-view.xhtml>;
+    calli:edit <templates/class-edit.xhtml>;
+    calli:create <templates/class-create.xhtml>.
 
 :GetClassIndex rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Class> ];

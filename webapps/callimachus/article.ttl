@@ -30,10 +30,10 @@
     rdfs:comment "New articles can be created from a folder";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <article.png>;
-    calli:view <article-view.xhtml>;
-    calli:edit <article-edit.xhtml>;
-    calli:create <article-create.xhtml>;
+    calli:icon <images/article.png>;
+    calli:view <templates/article-view.xhtml>;
+    calli:edit <templates/article-edit.xhtml>;
+    calli:create <templates/article-create.xhtml>;
     calli:mediaType "application/docbook+xml";
     calli:documentTag <http://docbook.org/ns/docbook#article>.
 

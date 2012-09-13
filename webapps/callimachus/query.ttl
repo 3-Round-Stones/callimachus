@@ -30,10 +30,10 @@
     rdfs:comment "Saved SPARQL queries";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/admin>;
-    calli:icon <query.png>;
-    calli:view <query-view.xhtml>;
-    calli:edit <query-edit.xhtml>;
-    calli:create <query-create.xhtml>;
+    calli:icon <images/query.png>;
+    calli:view <templates/query-view.xhtml>;
+    calli:edit <templates/query-edit.xhtml>;
+    calli:create <templates/query-create.xhtml>;
     calli:mediaType "application/sparql-query".
 
 # GET /query/my-query.rq

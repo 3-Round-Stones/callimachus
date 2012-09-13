@@ -30,8 +30,8 @@
     rdfs:label "Schematron" ;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <schematron.png>;
-    calli:create <file-create.xhtml>;
+    calli:icon <images/schematron.png>;
+    calli:create <templates/file-create.xhtml>;
     calli:mediaType "application/xml";
     calli:documentTag <http://purl.oclc.org/dsdl/schematron#schema>.
 

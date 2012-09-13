@@ -16,10 +16,10 @@
     rdfs:isDefinedBy </callimachus>;
     calli:realm </>;
     calli:author </group/admin>;
-    calli:icon <user.png>;
-    calli:view <user-view.xhtml>;
-    calli:edit <user-edit.xhtml>;
-    calli:create <user-create.xhtml>.
+    calli:icon <images/user.png>;
+    calli:view <templates/user-view.xhtml>;
+    calli:edit <templates/user-edit.xhtml>;
+    calli:create <templates/user-create.xhtml>.
 
 ################################
 # User create

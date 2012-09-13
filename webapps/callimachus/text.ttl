@@ -30,10 +30,10 @@
     rdfs:comment "Text files";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/staff>,</group/admin>;
-    calli:icon <text.png>;
-    calli:view <text-view.xhtml>;
-    calli:edit <text-edit.xhtml>;
-    calli:create <text-create.xhtml>;
+    calli:icon <images/text.png>;
+    calli:view <templates/text-view.xhtml>;
+    calli:edit <templates/text-edit.xhtml>;
+    calli:create <templates/text-create.xhtml>;
     calli:mediaType "text/plain".
 
 # GET /robots.txt

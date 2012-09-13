@@ -30,10 +30,10 @@
     rdfs:comment "New pipelines can be created from a folder";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:icon <pipeline.png>;
-    calli:view <pipeline-view.xhtml>;
-    calli:edit <pipeline-edit.xhtml>;
-    calli:create <pipeline-create.xhtml>;
+    calli:icon <images/pipeline.png>;
+    calli:view <templates/pipeline-view.xhtml>;
+    calli:edit <templates/pipeline-edit.xhtml>;
+    calli:create <templates/pipeline-create.xhtml>;
     calli:mediaType "application/xproc+xml";
     calli:documentTag <http://www.w3.org/ns/xproc#pipeline>.
 

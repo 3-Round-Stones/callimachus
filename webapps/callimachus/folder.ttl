@@ -33,10 +33,10 @@
     rdfs:comment "A folder of resources";
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/staff>,</group/admin>;
-    calli:icon <folder.png>;
-    calli:view <folder-view.xhtml>;
-    calli:edit <folder-edit.xhtml>;
-    calli:create <folder-create.xhtml>.
+    calli:icon <images/folder.png>;
+    calli:view <templates/folder-view.xhtml>;
+    calli:edit <templates/folder-edit.xhtml>;
+    calli:create <templates/folder-create.xhtml>.
 
 ################################
 # POST file

@@ -13,9 +13,9 @@
     rdfs:subClassOf <Viewable>, <Editable>, calli:Menu;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/staff>,</group/admin>;
-    calli:view <menu-view.xhtml>;
-    calli:edit <menu-edit.xhtml>;
-    calli:create <menu-create.xhtml>.
+    calli:view <templates/menu-view.xhtml>;
+    calli:edit <templates/menu-edit.xhtml>;
+    calli:create <templates/menu-create.xhtml>.
 
 :GetMenuItems rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Menu>];

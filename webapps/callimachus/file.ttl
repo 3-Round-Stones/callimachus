@@ -29,9 +29,9 @@
     rdfs:subClassOf <Viewable>, <Editable>, foaf:Document;
     rdfs:isDefinedBy </callimachus>;
     calli:author </group/users>,</group/staff>,</group/admin>;
-    calli:create <file-create.xhtml>;
-    calli:view <file-view.xhtml>;
-    calli:edit <file-edit.xhtml>.
+    calli:create <templates/file-create.xhtml>;
+    calli:view <templates/file-view.xhtml>;
+    calli:edit <templates/file-edit.xhtml>.
 
 :GetContentMediaType rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <File>];

@@ -16,6 +16,10 @@ public class TextReader extends Reader {
 		this(in, Charset.defaultCharset());
 	}
 
+	public TextReader(InputStream in, String charset) throws IOException {
+		this(in, Charset.forName(charset));
+	}
+
 	public TextReader(InputStream in, Charset defaultCharset) throws IOException {
 		ByteBuffer buf = ByteBuffer.allocate(64);
 		BufferedInputStream buffer = new BufferedInputStream(in, buf.limit());

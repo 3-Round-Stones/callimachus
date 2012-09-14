@@ -165,7 +165,7 @@ window.calli.openDialog = function(url, title, options) {
     });
     iframe.bind("dialogbeforeclose", function(event, ui) {
         var e = jQuery.Event("calliCloseDialog");
-        var frameElement = findFrameElement(iframe);
+        var frameElement = findFrameElement(iframe[0].contentWindow);
         $(frameElement).trigger(e);
         return !e.isDefaultPrevented();
     });

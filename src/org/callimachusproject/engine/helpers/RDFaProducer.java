@@ -234,10 +234,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 		// record the start element position in the stream
 		context.mark = reader.nextIndex()-1;
 		
-		// skip element if current result is inconsistent with assignments
-		if (skipElement==null && !consistent() && hasRDFaMarkup(context.path))
-			skipElement = context.path;
-		
 		if (skipElement==null) {
 			context.isBranch = branchPoint(start);
 			if (context.isBranch) {					
@@ -311,16 +307,6 @@ public class RDFaProducer extends XMLEventReaderBase {
 		if (text!=null) add(eventFactory.createCharacters(text));
 		else add(event);
 		return true;
-	}
-	
-	/* true for elements that participate in RDFa relationships */
-	
-	private boolean hasRDFaMarkup(String path) {
-		for (String var: origins.keySet()) {
-			// the RDFa may originate in this node or a descendant
-			if (origins.get(var).startsWith(path)) return true;
-		}
-		return false;
 	}
 	
 	/* Is the next result consumable in this context  */

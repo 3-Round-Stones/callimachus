@@ -168,7 +168,7 @@ public class XPathIterator implements Iterator<Object> {
 			}
 			// no content or text
 			else if (content==null && (text==null || text.isEmpty())) {
-				path = path + "[not(text()) or normalize-space(text())='']";
+				path = path + "[not(*) and normalize-space(text())='']";
 			}
 			// text but no content
 			else if (content==null && text!=null && !text.isEmpty()) {

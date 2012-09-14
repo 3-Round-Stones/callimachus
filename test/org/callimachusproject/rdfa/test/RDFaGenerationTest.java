@@ -253,7 +253,7 @@ public class RDFaGenerationTest extends TestCase {
 			boolean negativeTest = exp.toString().startsWith("-");
 			int solutions = result.getLength();
 			// a positive test should return exactly one solution
-			boolean failure = ((solutions!=1 && !negativeTest)
+			boolean failure = ((solutions<1 && !negativeTest)
 			// a negative test should return no solutions
 			 || (solutions>0 && negativeTest)) ;
 			if (failure) return exp; // fail

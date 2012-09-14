@@ -715,7 +715,7 @@ WYMeditor.editor.prototype.init = function() {
   else if (jQuery.browser.opera) {
     var WymClass = new WYMeditor.WymClassOpera(this);
   }
-  else if (jQuery.browser.safari) {
+  else if (jQuery.browser.safari || jQuery.browser.webkit) {
     var WymClass = new WYMeditor.WymClassSafari(this);
   }
   

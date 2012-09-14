@@ -44,6 +44,10 @@ public class CallimachusRepository extends RepositoryWrapper {
 		}
 	}
 
+	public void addSchemaGraph(URI graphURI) throws RepositoryException {
+		object.addSchemaGraph(graphURI);
+	}
+
 	public void addSchemaGraphType(URI rdfType) throws RepositoryException {
 		object.addSchemaGraphType(rdfType);
 	}

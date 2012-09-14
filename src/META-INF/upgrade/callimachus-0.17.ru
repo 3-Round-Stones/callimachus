@@ -31,4 +31,12 @@ DELETE {
     BIND (if(strstarts(str(?resource),str(?folder)),strafter(str(?resource),str(?folder)),str(?resource)) AS ?content)
 };
 
-
+DELETE {
+    GRAPH ?graph { ?graph a </callimachus/SchemaGraph> }
+} WHERE {
+    GRAPH ?graph { ?graph a </callimachus/SchemaGraph> }
+    FILTER NOT EXISTS {
+        GRAPH ?graph { ?subject ?predicate ?object }
+        FILTER (?object != </callimachus/SchemaGraph>)
+    }
+};

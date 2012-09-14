@@ -7,7 +7,7 @@
     exclude-result-prefixes="xhtml sparql">
     <xsl:import href="iriref.xsl" />
     <xsl:output indent="no" method="xml" />
-    <xsl:param name="taget" />
+    <xsl:param name="target" />
     <xsl:variable name="name">
         <xsl:choose>
             <xsl:when test="sparql:sparql/sparql:results/sparql:result[1]/sparql:binding[@name='name']/*">

@@ -423,9 +423,8 @@
                     }
                     dependency.remove(location);
                 } else if (carStream.isSchemaEntry()) {
-                    var graphURI = vf.createURI(uri + ".owl");
-                    con.clear([graphURI]);
-                    con.add(graphURI, RDF.TYPE, SchemaGraph, [graphURI]);
+                    var graphURI = vf.createURI(con.getActivityURI().stringValue() + "#schema");
+                    con.add(graphURI, RDF.TYPE, SchemaGraph, []);
                     readFrom(type, entryStream, uri, [graphURI]);
                     if (folder) {
                         folder.calliHasComponent.add(location);

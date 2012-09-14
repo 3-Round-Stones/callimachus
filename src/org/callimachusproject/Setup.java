@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -704,36 +705,27 @@ public class Setup {
 	private boolean importCar(URL car, String folder, String origin,
 			CallimachusRepository repository) throws Exception {
 		createFolder(folder, origin, repository);
-		importSchema(car, folder, origin, repository);
-		importArchive(car, folder, origin, repository);
+		Collection<URI> schemaGraphs = importSchema(car, folder, origin, repository);
+		importArchive(schemaGraphs, car, folder, origin, repository);
 		return true;
 	}
 
-	private void importSchema(URL car, String folder, String origin,
+	private Collection<URI> importSchema(URL car, String folder, String origin,
 			CallimachusRepository repository) throws RepositoryException,
 			IOException, RDFParseException {
+		Collection<URI> schemaGraphs = new LinkedHashSet<URI>();
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
-			ValueFactory vf = con.getValueFactory();
-			RepositoryResult<Statement> stmts;
-			stmts = con.getStatements(null, RDF.TYPE, vf.createURI(origin + SCHEMA_GRAPH));
-			try {
-				while (stmts.hasNext()) {
-					Resource graph = stmts.next().getSubject();
-					if (graph.stringValue().startsWith(folder)) {
-						con.clear(graph);
-					}
-				}
-			} finally {
-				stmts.close();
-			}
 			CarInputStream carin = new CarInputStream(car.openStream());
 			try {
 				String name;
 				while ((name = carin.readEntryName()) != null) {
 					try {
-						importSchemaGraphEntry(carin, folder, con);
+						URI graph = importSchemaGraphEntry(carin, folder, con);
+						if (graph != null) {
+							schemaGraphs.add(graph);
+						}
 					} catch (RDFParseException e) {
 						String msg = e.getMessage() + " in " + name;
 						RDFParseException pe = new RDFParseException(msg, e.getLineNumber(), e.getColumnNumber());
@@ -748,9 +740,10 @@ public class Setup {
 		} finally {
 			con.close();
 		}
+		return schemaGraphs;
 	}
 
-	private void importSchemaGraphEntry(CarInputStream carin, String folder,
+	private URI importSchemaGraphEntry(CarInputStream carin, String folder,
 			ObjectConnection con) throws IOException, RDFParseException,
 			RepositoryException {
 		ValueFactory vf = con.getValueFactory();
@@ -758,32 +751,42 @@ public class Setup {
 		InputStream in = carin.getEntryStream();
 		try {
 			if (carin.isSchemaEntry()) {
-				String graph = target + ".owl";
-				con.add(in, graph, RDFFormat.RDFXML, vf.createURI(graph));
+				URI graph = vf.createURI(con.getActivityURI().stringValue() + "#schema");
+				con.add(in, target, RDFFormat.RDFXML, graph);
+				return graph;
 			} else if (carin.isFileEntry()) {
+				URI graph = vf.createURI(target);
 				if (carin.getEntryType().startsWith("application/rdf+xml")) {
-					con.add(in, target, RDFFormat.RDFXML, vf.createURI(target));
+					con.clear(graph);
+					con.add(in, target, RDFFormat.RDFXML, graph);
+					return graph;
 				} else if (carin.getEntryType().startsWith("text/turtle")) {
-					con.add(in, target, RDFFormat.TURTLE, vf.createURI(target));
+					con.clear(graph);
+					con.add(in, target, RDFFormat.TURTLE, graph);
+					return graph;
 				} else {
 					byte[] buf = new byte[1024];
 					while (in.read(buf) >= 0)
 						;
+					return null;
 				}
 			} else {
 				byte[] buf = new byte[1024];
 				while (in.read(buf) >= 0)
 					;
+				return null;
 			}
 		} finally {
 			in.close();
 		}
 	}
 
-	private void importArchive(URL car, String folderUri, String origin,
-			CallimachusRepository repository) throws Exception {
-		ValueFactory vf = repository.getValueFactory();
-		repository.addSchemaGraphType(vf.createURI(origin + SCHEMA_GRAPH));
+	private void importArchive(Collection<URI> schemaGraphs, URL car,
+			String folderUri, String origin, CallimachusRepository repository)
+			throws Exception {
+		for (URI schemaGraph : schemaGraphs) {
+			repository.addSchemaGraph(schemaGraph);
+		}
 		repository.setCompileRepository(true);
 		ObjectConnection con = repository.getConnection();
 		try {
@@ -793,7 +796,8 @@ public class Setup {
 			InputStream in = car.openStream();
 			try {
 				logger.info("Importing {} into {}", car, folderUri);
-				Object[] args = new Object[UploadFolderComponents.getParameterTypes().length];
+				int argc = UploadFolderComponents.getParameterTypes().length;
+				Object[] args = new Object[argc];
 				args[0] = in;
 				UploadFolderComponents.invoke(folder, args);
 			} catch (InvocationTargetException e) {
@@ -969,8 +973,9 @@ public class Setup {
 			}
 			if (ableUri != null && !con.hasStatement(ableUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE)) {
 				logger.info("All resources are now served as {}", ableUri);
-				con.add(ableUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE, ableUri);
-				con.add(ableUri, RDF.TYPE, vf.createURI(origin + SCHEMA_GRAPH));
+				URI graph = vf.createURI(con.getActivityURI().stringValue() + "#serviceable");
+				con.add(ableUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE, graph);
+				con.add(graph, RDF.TYPE, vf.createURI(origin + SCHEMA_GRAPH));
 				modified = true;
 			}
 			con.setAutoCommit(true);

@@ -152,10 +152,14 @@
     function upload(file, callback) {
         var classFile = $('#file-class-link').attr('href');
         var formData = new FormData();
+        var name = file.name;
+        if (name == name.toUpperCase()) {
+            name = name.toLowerCase();
+        }
         formData.append(file.name, file);
         jQuery.ajax({
             type:'POST',
-            url:'?create=' + classFile + '&location=' + encodeURIComponent(encodeURI(file.name.toLowerCase()).replace(/%20/g, '-')),
+            url:'?create=' + classFile + '&location=' + encodeURIComponent(encodeURI(name).replace(/%20/g, '-')),
             contentType:"multipart/form-data",
             processData:false,
             data:formData,

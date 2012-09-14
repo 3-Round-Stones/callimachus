@@ -64,7 +64,9 @@
         name = name.replace(/[-\\s]+/g, '-');
         name = java.text.Normalizer.normalize(name, java.text.Normalizer.Form.NFD);
         name = name.replace(/[^\\w-]/g, '');
-        name = name.toLowerCase();
+        if (name == name.toUpperCase()) {
+            name = name.toLowerCase();
+        }
         var uri = TermFactory.newInstance(this.toString()).resolve(encodeURIComponent(name));
         return this.PostFactoryCreate(content, fileClass, false, con.getObject(uri), contentType);
     """.

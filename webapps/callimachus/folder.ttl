@@ -367,10 +367,11 @@
     calli:script """
         var con = this.objectConnection;
         var vf = con.getValueFactory();
-        function readFrom(entryStream, uri, graphs) {
+        function readFrom(type, entryStream, uri, graphs) {
             var inserter = new org.callimachusproject.form.helpers.TripleInserter(con);
             inserter.enforceContext(graphs);
-            var parser = new org.openrdf.rio.rdfxml.RDFXMLParser();
+    		var registry = org.openrdf.rio.RDFParserRegistry.getInstance();
+			var parser = registry.get(registry.getFileFormatForMIMEType(type)).getParser();
             parser.setValueFactory(vf);
             parser.setRDFHandler(inserter);
             parser.parse(entryStream, uri);
@@ -405,6 +406,7 @@
                 }
             }
             var entryStream = carStream.getEntryStream();
+            var type = carStream.getEntryType();
             try {
                 if (carStream.isFolderEntry()) {
                     this.DesignateAsFolder(location);
@@ -412,11 +414,10 @@
                 } else if (carStream.isFileEntry()) {
                     if (!(container instanceof Composite))
                         throw new BadRequest("Schema data about " + container + " must be imported before " + uri);
-                    var type = carStream.getEntryType();
                     container.PostFactoryCreate(entryStream, File, null, location, type);
                     dependency.remove(location);
                 } else if (carStream.isResourceEntry()) {
-                    readFrom(entryStream, uri, []);
+                    readFrom(type, entryStream, uri, []);
                     if (folder) {
                         folder.calliHasComponent.add(location);
                     }
@@ -425,7 +426,7 @@
                     var graphURI = vf.createURI(uri + ".owl");
                     con.clear([graphURI]);
                     con.add(graphURI, RDF.TYPE, SchemaGraph, [graphURI]);
-                    readFrom(entryStream, uri, [graphURI]);
+                    readFrom(type, entryStream, uri, [graphURI]);
                     if (folder) {
                         folder.calliHasComponent.add(location);
                     }

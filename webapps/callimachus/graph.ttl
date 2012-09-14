@@ -96,7 +96,7 @@
         created = con.addDesignation(created, Document);
         created = con.addDesignation(created, NamedGraph);
 
-        created.UploadGraphDocument(new java.io.InputStreamReader(body, "UTF-8"));
+        created.UploadGraphDocument(new org.callimachusproject.io.TextReader(body, "UTF-8"));
         return created;
     """.
 

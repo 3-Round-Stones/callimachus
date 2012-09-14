@@ -74,7 +74,7 @@
         created = con.addDesignation(created, this.toString());
         created = con.addDesignation(created, Document);
 
-        created.UploadHypertextFile(new java.io.InputStreamReader(body, "UTF-8"));
+        created.UploadHypertextFile(new org.callimachusproject.io.TextReader(body, "UTF-8"));
         return created;
     """.
 

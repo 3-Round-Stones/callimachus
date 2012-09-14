@@ -179,8 +179,8 @@ public class XSLTransformBuilder extends TransformBuilder {
 			toOutputStream(output);
 			ByteArrayInputStream input = new ByteArrayInputStream(
 					output.toByteArray());
-			BufferedInputStream buffer = new BufferedInputStream(input);
 			ByteBuffer buf = ByteBuffer.allocate(200);
+			BufferedInputStream buffer = new BufferedInputStream(input, buf.limit());
 			buffer.mark(buf.limit());
 			while (buf.hasRemaining()) {
 				int read = buffer.read(buf.array(), buf.position(),

@@ -51,6 +51,7 @@ public class CarInputStream implements Closeable {
 	private final FileTypeMap mimetypes;
 	private ZipArchiveEntry entry;
 	private MetaTypeExtraField entryMetaType;
+	private String entryType;
 	private BufferedInputStream entryStream;
 
 	public CarInputStream(InputStream in) throws IOException {
@@ -78,16 +79,7 @@ public class CarInputStream implements Closeable {
 	}
 
 	public synchronized String getEntryType() throws IOException {
-		if (entry == null)
-			return null;
-		String type = ContentTypeExtraField.parseExtraField(entry);
-		if (type != null)
-			return type;
-		if (isFileEntry())
-			return mimetypes.getContentType(entry.getName());
-		if (isResourceEntry() || isSchemaEntry())
-			return "application/rdf+xml";
-		return null;
+		return entryType;
 	}
 
 	public synchronized boolean isFolderEntry() throws IOException {
@@ -129,14 +121,14 @@ public class CarInputStream implements Closeable {
 				}
 			}
 		}, RDFS_PEEK_SIZE);
-		String type = ContentTypeExtraField.parseExtraField(entry);
+		entryType = readEntryType(entry, entryStream);
 		entryMetaType = MetaTypeExtraField.parseExtraField(entry);
 		if (entryMetaType == null) {
 			if (entry.isDirectory()) {
 				entryMetaType = MetaTypeExtraField.FOLDER;
 			} else if (FILE_NAME.matcher(entry.getName()).find()) {
 				entryMetaType = MetaTypeExtraField.FILE;
-			} else if (scanForClass(entryStream, type)) {
+			} else if (scanForClass(entryStream, entryType)) {
 				entryMetaType = MetaTypeExtraField.RDFS;
 			} else {
 				entryMetaType = MetaTypeExtraField.RDF;
@@ -145,10 +137,30 @@ public class CarInputStream implements Closeable {
 		return entry;
 	}
 
+	private String readEntryType(ZipArchiveEntry entry, BufferedInputStream in) throws IOException {
+		if (entry == null)
+			return null;
+		String type = ContentTypeExtraField.parseExtraField(entry);
+		if (type != null || entry.isDirectory())
+			return type;
+		if (FILE_NAME.matcher(entry.getName()).find())
+			return mimetypes.getContentType(entry.getName());
+		return detectRdfType(in);
+	}
+
+	private String detectRdfType(BufferedInputStream in) throws IOException {
+		byte[] peek = new byte[200];
+		in.mark(200);
+		int len = IOUtil.readBytes(in, peek);
+		in.reset();
+		int first = new TextReader(new ByteArrayInputStream(peek, 0, len)).read();
+		if (first == '<')
+			return "application/rdf+xml";
+		return "text/turtle";
+	}
+
 	private boolean scanForClass(BufferedInputStream in, String type) throws IOException {
-		if (type == null) {
-			type = "application/rdf+xml";
-		}
+		assert type != null;
 		byte[] peek = new byte[RDFS_PEEK_SIZE];
 		in.mark(RDFS_PEEK_SIZE);
 		int len = IOUtil.readBytes(in, peek);

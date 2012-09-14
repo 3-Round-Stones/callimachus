@@ -39,10 +39,18 @@ import org.slf4j.LoggerFactory;
  */
 public class CharsetDetector implements nsICharsetDetectionObserver {
 	static final Charset ASCII = Charset.forName("US-ASCII");
-	static final Charset DEFAULT = Charset.defaultCharset();
 	private Logger logger = LoggerFactory.getLogger(CharsetDetector.class);
 
 	private Charset charset;
+	final Charset defaultCharset;
+
+	public CharsetDetector() {
+		this.defaultCharset = Charset.defaultCharset();
+	}
+
+	public CharsetDetector(Charset defaultCharset) {
+		this.defaultCharset = defaultCharset;
+	}
 
 	public Charset detect(File file, boolean gzip) throws IOException {
 		InputStream in = new FileInputStream(file);
@@ -85,9 +93,9 @@ public class CharsetDetector implements nsICharsetDetectionObserver {
 					if (charset == null) {
 						charset = cs;
 					}
-					if (DEFAULT.contains(cs))
-						return DEFAULT;
-					if (cs.contains(DEFAULT))
+					if (defaultCharset.contains(cs))
+						return defaultCharset;
+					if (cs.contains(defaultCharset))
 						return cs;
 				} catch (IllegalCharsetNameException e) {
 					this.logger.warn(e.toString(), e);
@@ -96,8 +104,8 @@ public class CharsetDetector implements nsICharsetDetectionObserver {
 				}
 			}
 		}
-		if (charset == null || DEFAULT.contains(charset))
-			return DEFAULT;
+		if (charset == null || defaultCharset.contains(charset))
+			return defaultCharset;
 		return charset;
 	}
 

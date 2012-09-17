@@ -56,6 +56,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.callimachusproject.concepts.DigestManager;
 import org.callimachusproject.server.exceptions.BadRequest;
+import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.traits.VersionedObject;
 import org.callimachusproject.util.PasswordGenerator;
 import org.openrdf.annotations.Bind;
@@ -112,6 +113,8 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 	private Logger logger = LoggerFactory.getLogger(DigestManagerSupport.class);
 
 	public String getDaypass(FileObject secret) {
+		if (secret == null)
+			throw new InternalServerError("Temporary passwords are not enabled");
 		long now = System.currentTimeMillis();
 		return getDaypass(getHalfDay(now), readString(secret));
 	}
@@ -303,12 +306,12 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			+ "FILTER (str(?user) = concat(str(?folder), $name))\n"
 			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" }\n"
 			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
-			+ "OPTIONAL { ?user calli:secret ?secret }\n"
+			+ "OPTIONAL { ?realm calli:hasComponent* ?user; calli:secret ?secret }\n"
 			+ "} UNION {\n" + "?user calli:email $name .\n"
 			+ "$this calli:authNamespace ?folder .\n"
 			+ "?folder calli:hasComponent ?user .\n"
 			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
-			+ "OPTIONAL { ?user calli:secret ?secret }\n"
+			+ "OPTIONAL { ?realm calli:hasComponent* ?user; calli:secret ?secret }\n"
 			+ "}}")
 	protected abstract List<Object[]> findPasswordDigest(@Bind("name") String username);
 

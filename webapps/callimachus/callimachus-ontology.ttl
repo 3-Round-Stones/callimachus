@@ -267,7 +267,7 @@ calli:deleted a owl:AnnotationProperty;
 calli:secret a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:label "secret";
     rdfs:comment "A document of random bits in Base 64 encoding";
-    rdfs:domain calli:User;
+    rdfs:domain calli:Realm;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:passwordDigest a owl:ObjectProperty;

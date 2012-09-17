@@ -92,7 +92,6 @@ rdfs:comment a rdf:Property.
         }
 
         //# create registration link
-        newUser.GenerateNewSecret();
         var random = java.security.SecureRandom.getInstance("SHA1PRNG");
         var nonce = java.lang.Integer.toHexString(random.nextInt());
         var token = newUser.GetSecretToken(nonce);
@@ -108,28 +107,6 @@ rdfs:comment a rdf:Property.
         return newUser;
     """.
 
-:GenerateNewSecret rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:script """
-        if (!this.calliSecret) {
-            var uuid = java.util.UUID.randomUUID().toString();
-            this.calliSecret = this.objectConnection.getObject("urn:uuid:" + uuid);
-        }
-        //# generate random bits
-        var random = java.security.SecureRandom.getInstance("SHA1PRNG");
-        var bytes = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-        random.nextBytes(bytes);
-        var text = org.apache.commons.codec.binary.Base64.encodeBase64String(bytes);
-        //# write to blob identified by the uuid
-        var out = this.calliSecret.openWriter();
-        try {
-            out.write(text);
-        } finally {
-            out.close();
-        }
-    """.
-
 :GetSecretToken rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
@@ -139,7 +116,8 @@ rdfs:comment a rdf:Property.
         if (!nonce)
             throw new BadRequest("Missing nonce");
         var hash = DigestUtils.md5Hex(this.toString());
-        var reader = this.calliSecret.openReader(true);
+        var secret = this.FindSecret();
+        var reader = secret.openReader(true);
         var text = new java.util.Scanner(reader).useDelimiter("\\\\A").next();
         return DigestUtils.md5Hex(hash + ":" + nonce + ":" + text);
     """.
@@ -147,6 +125,18 @@ rdfs:comment a rdf:Property.
 :nonce a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetSecretToken;
     rdfs:range xsd:string.
+
+:FindSecret rdfs:subClassOf msg:Message;
+    rdfs:subClassof [owl:onProperty msg:target; owl:allValuesFrom <User>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
+    msg:sparql """
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT ?secret {
+            ?realm calli:secret ?secret
+            FILTER strstarts(str($this),str(?realm))
+        }
+        ORDER BY desc(?realm) LIMIT 1
+    """.
 
 # find the user that created $this
 :FindUserCreator rdfs:subClassOf msg:Message;

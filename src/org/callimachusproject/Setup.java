@@ -404,7 +404,7 @@ public class Setup {
 	}
 
 	public void createVirtualHost(String virtual, String origin)
-			throws RepositoryException {
+			throws RepositoryException, IOException {
 		validateOrigin(virtual);
 		validateOrigin(origin);
 		if (repository == null)
@@ -413,7 +413,7 @@ public class Setup {
 	}
 
 	public void createRealm(String realm, String origin)
-			throws RepositoryException {
+			throws RepositoryException, IOException {
 		validateRealm(realm);
 		validateOrigin(origin);
 		if (repository == null)
@@ -866,20 +866,24 @@ public class Setup {
 	}
 
 	private boolean createVirtualHost(String vhost, String origin,
-			CallimachusRepository repository) throws RepositoryException {
+			CallimachusRepository repository) throws RepositoryException, IOException {
 		assert !vhost.endsWith("/");
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			URI subj = vf.createURI(vhost + '/');
-			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_ORIGIN)))
+			if (!checkSecret(subj, con))
 				return false;
-			logger.info("Adding origin: {} for {}", vhost, origin);
-			add(con, subj, RDF.TYPE, origin + CALLIMACHUS + "Origin");
-			add(con, subj, RDF.TYPE, CALLI_ORIGIN);
-			con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(vhost)));
-			addRealm(subj, origin, con);
+			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_ORIGIN))) {
+				logger.info("Updating origin: {} for {}", vhost, origin);
+			} else {
+				logger.info("Adding origin: {} for {}", vhost, origin);
+				add(con, subj, RDF.TYPE, origin + CALLIMACHUS + "Origin");
+				add(con, subj, RDF.TYPE, CALLI_ORIGIN);
+				con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(vhost)));
+				addRealm(subj, origin, con);
+			}
 			con.setAutoCommit(true);
 			return true;
 		} finally {
@@ -888,24 +892,42 @@ public class Setup {
 	}
 
 	private boolean createRealm(String realm, String origin,
-			CallimachusRepository repository) throws RepositoryException {
+			CallimachusRepository repository) throws RepositoryException, IOException {
 		assert realm.endsWith("/");
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			URI subj = vf.createURI(realm);
-			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_REALM)))
+			if (!checkSecret(subj, con))
 				return false;
-			logger.info("Adding realm: {} for {}", realm, origin);
-			con.add(subj, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Realm"));
-			con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(realm)));
-			addRealm(subj, origin, con);
+			if (con.hasStatement(subj, RDF.TYPE, vf.createURI(CALLI_REALM))) {
+				logger.info("Updating realm: {} for {}", realm, origin);
+			} else {
+				logger.info("Adding realm: {} for {}", realm, origin);
+				con.add(subj, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Realm"));
+				con.add(subj, RDFS.LABEL, vf.createLiteral(getLabel(realm)));
+				addRealm(subj, origin, con);
+			}
 			con.setAutoCommit(true);
 			return true;
 		} finally {
 			con.close();
 		}
+	}
+
+	private boolean checkSecret(URI subj, ObjectConnection con)
+			throws RepositoryException, IOException {
+		ValueFactory vf = con.getValueFactory();
+		if (!con.hasStatement(subj, vf.createURI(CALLI_SECRET), null)) {
+			URI secret = vf.createURI("urn:uuid:" + UUID.randomUUID());
+			con.add(subj, vf.createURI(CALLI_SECRET), secret);
+			byte[] bytes = new byte[1024];
+			new SecureRandom().nextBytes(bytes);
+			storeTextBlob(secret, Base64.encodeBase64String(bytes), con);
+			return true;
+		}
+		return false;
 	}
 
 	private String getLabel(String origin) {
@@ -1101,13 +1123,6 @@ public class Setup {
 		int i = 0;
 		for (URI uuid : getPasswordURI(subj, encoded.length, con)) {
 			storeTextBlob(uuid, encoded[i++], con);
-		}
-		if (!con.hasStatement(subj, vf.createURI(CALLI_SECRET), null)) {
-			URI secret = vf.createURI("urn:uuid:" + UUID.randomUUID());
-			con.add(subj, vf.createURI(CALLI_SECRET), secret);
-			byte[] bytes = new byte[1024];
-			new SecureRandom().nextBytes(bytes);
-			storeTextBlob(secret, Base64.encodeBase64String(bytes), con);
 		}
 	}
 

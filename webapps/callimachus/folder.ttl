@@ -450,6 +450,8 @@
                         continue;
                     if ("http://www.w3.org/ns/prov#".equals(pred.namespace))
                         continue;
+                    if ("http://www.openrdf.org/rdf/2009/auditing#".equals(pred.namespace))
+                        continue;
                     throw new BadRequest("Required resource(s) not present, including: " + st.object);
                 }
             } finally {

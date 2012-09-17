@@ -40,6 +40,30 @@
         }
     """.
 
+# when a class is created
+:CreateRealm owl:intersectionOf (<creatable.ttl#PostCreate>
+        [owl:onProperty msg:target; owl:hasValue <Realm> ]);
+    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
+    calli:imports <SchemaGraph>;
+    calli:script """
+        var realm = proceed();
+        var uuid = java.util.UUID.randomUUID().toString();
+        realm.calliSecret = this.objectConnection.getObject("urn:uuid:" + uuid);
+        //# generate random bits
+        var random = java.security.SecureRandom.getInstance("SHA1PRNG");
+        var bytes = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        random.nextBytes(bytes);
+        var text = org.apache.commons.codec.binary.Base64.encodeBase64String(bytes);
+        //# write to blob identified by the uuid
+        var out = realm.calliSecret.openWriter();
+        try {
+            out.write(text);
+        } finally {
+            out.close();
+        }
+        return realm;
+    """.
+
 ################################
 # Registration
 ################################

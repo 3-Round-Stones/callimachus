@@ -33,6 +33,8 @@
                     var return_to = /&return_to=([^&]*)/.exec(window.location.search);
                     if (return_to && return_to[1]) {
                         window.location.replace(decodeURIComponent(return_to[1]));
+                    } else {
+                        window.location.replace('/');
                     }
                 }
             };

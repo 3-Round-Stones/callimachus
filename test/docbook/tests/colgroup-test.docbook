@@ -1,0 +1,23 @@
+<article 
+    xmlns      ="http://docbook.org/ns/docbook" 
+    xmlns:xl   ="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <section>
+        <title>test for informaltable docbook element</title>
+        <informaltable>
+            <caption>A table caption</caption>
+            <tgroup cols='2'>
+                <tbody>
+                    <row>
+                        <entry>foo is a meaningless word</entry>
+                        <entry>3 is a meaningless number</entry>
+                    </row>
+                    <row>
+                        <entry>bar</entry>
+                        <entry>5</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </informaltable>
+    </section>
+</article>

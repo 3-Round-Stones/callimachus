@@ -1,0 +1,4 @@
+<article xmlns='http://docbook.org/ns/docbook' version="5.0">
+    <title>Example subscript</title>
+    <para>H<subscript>2</subscript>O = water</para>        
+</article>

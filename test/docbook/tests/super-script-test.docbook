@@ -1,0 +1,4 @@
+<article xmlns='http://docbook.org/ns/docbook' version="5.0">
+    <title>Example superscript</title>
+    <para>2<superscript>2</superscript> = 4</para>        
+</article>

@@ -1,0 +1,11 @@
+<article 
+    xmlns      ="http://docbook.org/ns/docbook" 
+    xmlns:xl   ="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <title>test for link docbook element</title>
+    <para>
+        <link xl:href ="http://example.com"
+              xl:title="A link"
+            >A link</link>
+    </para>
+</article>

@@ -1,0 +1,7 @@
+<article 
+    xmlns      ="http://docbook.org/ns/docbook" 
+    xmlns:xl   ="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <title>test for blockquote docbook element</title>
+    <blockquote><para>This is a test paragraph</para></blockquote>
+</article>

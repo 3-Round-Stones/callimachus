@@ -1,0 +1,6 @@
+<article xmlns='http://docbook.org/ns/docbook' version="5.0">
+    <title>Example citetitle</title>
+    <para>
+        <citetitle>Developing SGML DTDs: From Text to Model to Markup</citetitle>
+    </para>        
+</article>

@@ -1,0 +1,17 @@
+<article 
+    xmlns      ="http://docbook.org/ns/docbook" 
+    xmlns:xl   ="http://www.w3.org/1999/xlink"
+    version="5.0">
+    <title>test for itemizedlist docbook element</title>
+    <itemizedlist>
+        <listitem>
+            <para>TeX and LaTeX</para>
+        </listitem>
+        <listitem>
+            <para>Troff</para>
+        </listitem>
+        <listitem>
+            <para>Lout</para>
+        </listitem>
+    </itemizedlist>
+</article>

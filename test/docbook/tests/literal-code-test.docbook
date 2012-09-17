@@ -1,0 +1,4 @@
+<article xmlns='http://docbook.org/ns/docbook' version="5.0">
+    <title>Example literal</title>
+    <para><literal>50</literal></para>
+</article>

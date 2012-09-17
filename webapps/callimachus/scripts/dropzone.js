@@ -32,7 +32,7 @@ function initDropArea(construct) {
     dropzone.bind('drop', function(event) {
         $(this).removeClass("drag-over");
         event.preventDefault();
-        if (typeof $(this).attr('ondrop') == 'function') {
+        if (typeof this.ondrop == 'function') {
             return false; // event registered
         } else if (typeof $(this).attr('ondrop') == 'string') {
             return eval('(function(){' + $(this).attr('ondrop') + '})()');

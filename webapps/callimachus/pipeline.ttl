@@ -121,7 +121,7 @@
     calli:type "message/x-response";
     calli:header "cache-control:no-store";
     calli:script """
-        return this.PostResult(queryGetParameters, null);
+        return this.PostResult(queryGetParameters, null, null);
     """.
 
 :queryGetParameters a owl:FunctionalProperty, owl:ObjectProperty;
@@ -145,7 +145,7 @@
     calli:script """
         var factory = PipelineFactory.getInstance();
         var pipeline = factory.createPipeline(this.openInputStream(), this.toString());
-        var pipe = pipeline.pipeStream(sourcePort);
+        var pipe = pipeline.pipeStream(sourcePort, sourceLocation);
         var iterator = queryPostParameters.keySet().iterator();
         while(iterator.hasNext()){
             var key = iterator.next();
@@ -169,6 +169,11 @@
     rdfs:range <java:java.util.Map>;
     calli:query "*";
     calli:type "application/x-www-form-urlencoded".
+
+:sourceLocation a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :PostResult;
+    rdfs:range xsd:string;
+    calli:header "Content-Location".
 
 :sourcePort a owl:ObjectProperty; a owl:FunctionalProperty;
     rdfs:domain :PostResult;

@@ -487,7 +487,7 @@ public abstract class Task implements Runnable {
 			if (id == null || !req.getRequestURL().startsWith(id)) {
 				try {
 					inError.set(true);
-					PipelineBuilder pb = pipeline.pipeReader(new StringReader(body));
+					PipelineBuilder pb = pipeline.pipeReader(new StringReader(body), null);
 					pb.passOption("target", req.getIRI());
 					pb.passOption("query", req.getQueryString());
 					body = pb.asString();

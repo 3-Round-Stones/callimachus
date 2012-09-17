@@ -56,18 +56,18 @@ public class Pipeline {
 		return pipeSource(null);
 	}
 
-	public PipelineBuilder pipe(Object source, Type type, String... media)
+	public PipelineBuilder pipe(Object source, String systemId, Type type, String... media)
 			throws SAXException, IOException, XProcException {
-		return pipeReader(asReader(source, type, media));
+		return pipeReader(asReader(source, systemId, type, media), systemId);
 	}
 
-	public PipelineBuilder pipeStream(InputStream source)
+	public PipelineBuilder pipeStream(InputStream source, String systemId)
 			throws SAXException, IOException, XProcException {
-		return pipeSource(resolver.parse(null, source));
+		return pipeSource(resolver.parse(systemId, source));
 	}
 
-	public PipelineBuilder pipeReader(Reader reader) throws SAXException, IOException, XProcException {
-		return pipeSource(resolver.parse(null, reader));
+	public PipelineBuilder pipeReader(Reader reader, String systemId) throws SAXException, IOException, XProcException {
+		return pipeSource(resolver.parse(systemId, reader));
 	}
 
 	private PipelineBuilder pipeSource(XdmNode source) throws SAXException, XProcException, IOException {
@@ -91,10 +91,10 @@ public class Pipeline {
 		return resolver.resolve(systemId);
 	}
 
-	private Reader asReader(Object source, Type type, String... media)
+	private Reader asReader(Object source, String systemId, Type type, String... media)
 			throws IOException {
 		try {
-			return fb.consume(source, null, type, media).asReader();
+			return fb.consume(source, systemId, type, media).asReader();
 		} catch (FluidException e) {
 			throw new XProcException(e);
 		}

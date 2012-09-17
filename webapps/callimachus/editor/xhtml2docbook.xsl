@@ -18,27 +18,24 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <xsl:key name="h5" match="xhtml:h5" use="generate-id(preceding::*[name()='head' or name()='h1' or name()='h2' or name()='h3' or name()='h4'][1])"/>
 <xsl:key name="h6" match="xhtml:h6" use="generate-id(preceding::*[name()='head' or name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5'][1])"/>
 
-<xsl:template match="comment()">
+<xsl:template match="text()|comment()">
     <xsl:copy />
 </xsl:template>
 
 <xsl:template match="@*">
-    <xsl:comment>
-        <xsl:value-of select="name()" />
-        <xsl:text>="</xsl:text>
-        <xsl:value-of select="." />
-        <xsl:text>"</xsl:text>
-    </xsl:comment>
-</xsl:template>
-
-<xsl:template match="@id">
-    <xsl:attribute name="id">
-        <xsl:value-of select="." />
+    <xsl:attribute name="{local-name()}">
+        <xsl:apply-templates />
     </xsl:attribute>
 </xsl:template>
 
 <xsl:template match="@lang|@xml:lang">
-    <xsl:attribute name="lang">
+    <xsl:attribute name="xml:lang">
+        <xsl:value-of select="." />
+    </xsl:attribute>
+</xsl:template>
+
+<xsl:template match="@title">
+    <xsl:attribute name="xl:title">
         <xsl:value-of select="." />
     </xsl:attribute>
 </xsl:template>
@@ -49,38 +46,30 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
     <xsl:comment><xsl:text>&lt;/</xsl:text><xsl:value-of select="name()"/><xsl:text>&gt;</xsl:text></xsl:comment>
 </xsl:template>
 
-<xsl:template match="xhtml:title">
-    <title><xsl:value-of select="."/></title>
-</xsl:template>
-
 <xsl:template match="xhtml:html">
     <article version="5.0">
-        <xsl:apply-templates select="xhtml:head/xhtml:title"/>
+        <xsl:apply-templates select="xhtml:head"/>
         <xsl:apply-templates select="xhtml:body"/>
     </article>
 </xsl:template>
 
+<xsl:template match="xhtml:head">
+    <xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="xhtml:title">
+    <title><xsl:value-of select="."/></title>
+</xsl:template>
+
 <xsl:template match="xhtml:body">
-    <xsl:variable name="before" select="*[name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6'][1]/preceding-sibling::*" />
     <xsl:choose>
         <xsl:when test="not(*[name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6'])">
-            <section>
-                <xsl:apply-templates select="node()" />
-            </section>
-        </xsl:when>
-        <xsl:when test="$before">
-            <section>
-                <xsl:apply-templates select="@*" />
-                <xsl:apply-templates select="$before" />
-                <xsl:apply-templates select="key('h6', generate-id(/xhtml:html/xhtml:head))" />
-                <xsl:apply-templates select="key('h5', generate-id(/xhtml:html/xhtml:head))" />
-                <xsl:apply-templates select="key('h4', generate-id(/xhtml:html/xhtml:head))" />
-                <xsl:apply-templates select="key('h3', generate-id(/xhtml:html/xhtml:head))" />
-                <xsl:apply-templates select="key('h2', generate-id(/xhtml:html/xhtml:head))" />
-                <xsl:apply-templates select="key('h1', generate-id(/xhtml:html/xhtml:head))" />
-            </section>
+            <!-- No sections if there are no heading elements (articles with titles and no sections)-->
+            <xsl:apply-templates />
         </xsl:when>
         <xsl:otherwise>
+            <xsl:apply-templates select="@*" />
+            <xsl:apply-templates select="*[name()='h1' or name()='h2' or name()='h3' or name()='h4' or name()='h5' or name()='h6'][1]/preceding-sibling::node()" />
             <xsl:apply-templates select="key('h6', generate-id(/xhtml:html/xhtml:head))" />
             <xsl:apply-templates select="key('h5', generate-id(/xhtml:html/xhtml:head))" />
             <xsl:apply-templates select="key('h4', generate-id(/xhtml:html/xhtml:head))" />
@@ -151,27 +140,27 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <!-- para elements -->
 <xsl:template match="xhtml:p">
     <para>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </para>
 </xsl:template>
 
 <xsl:template match="xhtml:blockquote">
     <blockquote>
         <para>
-            <xsl:apply-templates select="node()" />
+            <xsl:apply-templates />
         </para>
     </blockquote>
 </xsl:template>
 
 <xsl:template match="xhtml:pre">
     <programlisting>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </programlisting>
 </xsl:template>
 
 <xsl:template match="xhtml:code">
     <programlisting>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </programlisting>
 </xsl:template>
 
@@ -250,13 +239,13 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 <!-- LIST ELEMENTS -->
 <xsl:template match="xhtml:ul">
     <itemizedlist>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </itemizedlist>
 </xsl:template>
 
 <xsl:template match="xhtml:ol">
     <orderedlist>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </orderedlist>
 </xsl:template>
 
@@ -266,133 +255,81 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
         <xsl:for-each select="xhtml:dt">
             <varlistentry>
                 <term>
-                    <xsl:apply-templates select="node()" />
+                    <xsl:apply-templates />
                 </term>
-                <listitem>
-                    <xsl:apply-templates select="following-sibling::xhtml:dd[1]"/>
-                </listitem>
+                <xsl:apply-templates select="following-sibling::xhtml:dd[1]"/>
             </varlistentry>
         </xsl:for-each>
     </variablelist>
 </xsl:template>
 
 <xsl:template match="xhtml:dd">
-    <xsl:apply-templates select="node()" />
+    <listitem>
+        <xsl:apply-templates />
+    </listitem>
 </xsl:template>
 
 <xsl:template match="xhtml:li">
     <listitem>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </listitem>
 </xsl:template>
 
+<xsl:template match="xhtml:caption|xhtml:tbody|xhtml:tr|xhtml:thead|xhtml:tfoot|xhtml:colgroup|xhtml:col|xhtml:td|xhtml:th">
+    <xsl:element name="{local-name()}" 
+                 namespace="http://docbook.org/ns/docbook">
+        <xsl:apply-templates />
+    </xsl:element>
+</xsl:template>
+
+
 <!-- tables -->
-<xsl:template match="xhtml:table">
+<xsl:template match="xhtml:table[not(xhtml:caption)]">
     <informaltable>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </informaltable>
 </xsl:template>
 
-<xsl:template match="xhtml:caption">
-    <caption>
-        <xsl:apply-templates select="node()" />
-    </caption>
-</xsl:template>
-
-<xsl:template match="xhtml:colgroup">
-    <colgroup>
-        <xsl:apply-templates select="node()" />
-    </colgroup>
-</xsl:template>
-
-<xsl:template match="xhtml:col">
-    <col>
-        <xsl:apply-templates select="node()" />
-    </col>
-</xsl:template>
-
-<xsl:template match="xhtml:thead">
-    <thead>
-        <xsl:apply-templates select="node()" />
-    </thead>
-</xsl:template>
-
-<xsl:template match="xhtml:tr">
-    <tr>
-        <xsl:apply-templates select="node()" />
-    </tr>
-</xsl:template>
-
-<xsl:template match="xhtml:th">
-    <th>
-        <xsl:apply-templates select="node()" />
-    </th>
-</xsl:template>
-
-<xsl:template match="xhtml:tbody">
-    <tbody>
-        <xsl:apply-templates select="node()" />
-    </tbody>
-</xsl:template>
-
-<xsl:template match="xhtml:td">
-    <td>
-        <xsl:apply-templates select="node()" />
-    </td>
-</xsl:template>
-
-<xsl:template match="xhtml:tfoot">
-    <tfoot>
-        <xsl:apply-templates select="node()" />
-    </tfoot>
+<xsl:template match="xhtml:table[xhtml:caption]">
+    <table>
+        <xsl:apply-templates />
+    </table>
 </xsl:template>
 
 <!-- inline formatting -->
 <xsl:template match="xhtml:b | xhtml:strong">
     <emphasis role="bold">
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </emphasis>
 </xsl:template>
 
 <xsl:template match="xhtml:i | xhtml:em">
     <emphasis>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </emphasis>
 </xsl:template>
 
 <xsl:template match="xhtml:u | xhtml:cite">
     <citetitle>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </citetitle>
 </xsl:template>
 
 <xsl:template match="xhtml:sup">
     <superscript>
-        <xsl:value-of select="."/>
+        <xsl:apply-templates />
     </superscript>
 </xsl:template>
 
 <xsl:template match="xhtml:sub">
     <subscript>
-        <xsl:value-of select="."/>
+        <xsl:apply-templates />
     </subscript>
 </xsl:template>
 
-<xsl:template match="xhtml:p/xhtml:code">
+<xsl:template match="xhtml:p/xhtml:code | xhtml:a/xhtml:code | xhtml:li/xhtml:code">
     <literal>
-        <xsl:apply-templates select="node()" />
-    </literal>
-</xsl:template>
-
-<xsl:template match="xhtml:a/xhtml:code">
-    <literal>
-        <xsl:apply-templates select="node()" />
-    </literal>
-</xsl:template>
-
-<xsl:template match="xhtml:li/xhtml:code">
-    <literal>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </literal>
 </xsl:template>
 

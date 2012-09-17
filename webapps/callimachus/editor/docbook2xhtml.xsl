@@ -8,28 +8,13 @@
     exclude-result-prefixes="xsl d">
 <xsl:output method="xml" indent="yes" omit-xml-declaration="yes"/>
 
-<xsl:template match="comment()">
+<xsl:template match="text()|comment()">
     <xsl:copy />
 </xsl:template>
 
 <xsl:template match="@*">
-    <xsl:comment>
-        <xsl:value-of select="name()" />
-        <xsl:text>="</xsl:text>
-        <xsl:value-of select="." />
-        <xsl:text>"</xsl:text>
-    </xsl:comment>
-</xsl:template>
-
-<xsl:template match="@id">
-    <xsl:attribute name="id">
-        <xsl:value-of select="." />
-    </xsl:attribute>
-</xsl:template>
-
-<xsl:template match="@lang|@xml:lang">
-    <xsl:attribute name="lang">
-        <xsl:value-of select="." />
+    <xsl:attribute name="{local-name()}">
+        <xsl:apply-templates />
     </xsl:attribute>
 </xsl:template>
 
@@ -39,16 +24,33 @@
     </div>
 </xsl:template>
 
-<xsl:template match="d:remark">
+<xsl:template match="d:remark|d:alt">
     <xsl:comment>
         <xsl:value-of select="." />
     </xsl:comment>
 </xsl:template>
 
-<xsl:template match="d:article">
+<xsl:template match="d:info" />
+<xsl:template match="d:title" />
+<xsl:template match="d:titleabbrev" />
+<xsl:template match="d:subtitle" />
+
+<xsl:template match="d:article[d:title]">
     <html>
         <head>
+            <xsl:apply-templates select="d:title/preceding-sibling::node()" />
             <title><xsl:value-of select="d:title[1]" /></title>
+        </head>
+        <body>
+            <xsl:apply-templates select="d:title/following-sibling::node()" />
+        </body>
+    </html>
+</xsl:template>
+
+<xsl:template match="d:article[not(d:title)]">
+    <html>
+        <head>
+            <title />
         </head>
         <body>
             <xsl:apply-templates />
@@ -57,50 +59,54 @@
 </xsl:template>
 
 <xsl:template match="d:section">
-    <xsl:apply-templates select="node()" />
+    <xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="d:title">
+<xsl:template match="d:section/d:title">
     <xsl:choose>
         <xsl:when test="ancestor::d:section[6]">
-            <h6><xsl:apply-templates select="node()" /></h6>
+            <h6><xsl:apply-templates /></h6>
         </xsl:when>
         <xsl:when test="ancestor::d:section[5]">
-            <h5><xsl:apply-templates select="node()" /></h5>
+            <h5><xsl:apply-templates /></h5>
         </xsl:when>
         <xsl:when test="ancestor::d:section[4]">
-            <h4><xsl:apply-templates select="node()" /></h4>
+            <h4><xsl:apply-templates /></h4>
         </xsl:when>
         <xsl:when test="ancestor::d:section[3]">
-            <h3><xsl:apply-templates select="node()" /></h3>
+            <h3><xsl:apply-templates /></h3>
         </xsl:when>
         <xsl:when test="ancestor::d:section[2]">
-            <h2><xsl:apply-templates select="node()" /></h2>
+            <h2><xsl:apply-templates /></h2>
         </xsl:when>
         <xsl:when test="ancestor::d:section[1]">
-            <h1><xsl:apply-templates select="node()" /></h1>
+            <h1><xsl:apply-templates /></h1>
         </xsl:when>
         <xsl:otherwise>
-            <h1><xsl:apply-templates select="node()" /></h1>
+            <h1><xsl:apply-templates /></h1>
         </xsl:otherwise>
     </xsl:choose>
 </xsl:template>
 
 <xsl:template match="d:para">
     <p>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </p>
 </xsl:template>
 
 <xsl:template match="d:blockquote">
+    <xsl:apply-templates select="d:para" />
+</xsl:template>
+
+<xsl:template match="d:blockquote/d:para">
     <blockquote>
-        <xsl:apply-templates select="d:para" />
+        <xsl:apply-templates />
     </blockquote>
 </xsl:template>
 
 <xsl:template match="d:programlisting">
     <pre>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </pre>
 </xsl:template>
 
@@ -118,12 +124,12 @@
 
 <xsl:template match="d:link">
     <a href="#{linkend}">
-        <xsl:if test="d:remark">
+        <xsl:if test="d:remark and not(@xl:title)">
             <xsl:attribute name="title">
                 <xsl:value-of select="d:remark" />
             </xsl:attribute>
         </xsl:if>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </a>
 </xsl:template>
 
@@ -168,99 +174,93 @@
 <!-- LIST ELEMENTS -->
 <xsl:template match="d:itemizedlist">
     <ul>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </ul>
 </xsl:template>
 
 <xsl:template match="d:orderedlist">
     <ol>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </ol>
 </xsl:template>
 
 <!-- This template makes a DocBook variablelist out of an HTML definition list -->
 <xsl:template match="d:variablelist">
     <dl>
-        <xsl:for-each select="d:varlistentry">
-            <dt>
-                <xsl:apply-templates select="d:term" />
-            </dt>
-            <dd>
-                <xsl:apply-templates select="d:listitem/node()"/>
-            </dd>
-        </xsl:for-each>
+        <xsl:apply-templates />
     </dl>
+</xsl:template>
+
+<xsl:template match="d:varlistentry">
+    <xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="d:varlistentry/d:term">
+    <dt>
+        <xsl:apply-templates />
+    </dt>
+</xsl:template>
+
+<xsl:template match="d:varlistentry/d:listitem">
+    <dd>
+        <xsl:apply-templates />
+    </dd>
 </xsl:template>
 
 <xsl:template match="d:listitem">
     <li>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </li>
 </xsl:template>
 
 <!-- tables -->
-<xsl:template match="d:informaltable">
+<xsl:template match="d:informaltable[not(d:caption)]">
     <table>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates select="*" />
     </table>
 </xsl:template>
 
-<xsl:template match="d:caption">
-    <caption>
-        <xsl:apply-templates select="node()" />
-    </caption>
+<xsl:template match="d:table[not(d:caption)]">
+    <table>
+        <caption><xsl:apply-templates select="d:title/node()" /></caption>
+        <xsl:apply-templates />
+    </table>
 </xsl:template>
 
-<xsl:template match="d:colgroup">
-    <colgroup>
-        <xsl:apply-templates select="node()" />
-    </colgroup>
+<xsl:template match="d:table[d:caption] | d:informaltable[d:caption]">
+    <table>
+        <xsl:apply-templates />
+    </table>
 </xsl:template>
 
-<xsl:template match="d:col">
-    <col>
-        <xsl:apply-templates select="node()" />
-    </col>
+<!-- For docbook table elements (which differ from HTML5 elements 
+     only by namespace URI), copy them as is but change the namespace -->
+<xsl:template match="d:tbody|d:tr|d:thead|d:tfoot|d:caption|d:colgroup|d:td|d:th|d:col">
+    <xsl:element name="{local-name()}" 
+                 namespace="http://www.w3.org/1999/xhtml">
+        <xsl:apply-templates select="@*|node()" />
+    </xsl:element>
 </xsl:template>
 
-<xsl:template match="d:thead">
-    <thead>
-        <xsl:apply-templates select="node()" />
-    </thead>
+<!-- bypass and process children -->
+<xsl:template match="d:tgroup">
+    <xsl:apply-templates select="*" />
 </xsl:template>
 
-<xsl:template match="d:tr|d:row">
+<xsl:template match="d:row">
     <tr>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </tr>
 </xsl:template>
 
-<xsl:template match="d:th">
-    <th>
-        <xsl:apply-templates select="node()" />
-    </th>
-</xsl:template>
-
-<xsl:template match="d:tbody">
-    <tbody>
-        <xsl:apply-templates select="node()" />
-    </tbody>
-</xsl:template>
-
-<xsl:template match="d:td">
+<xsl:template match="d:entry">
     <td>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </td>
 </xsl:template>
 
-<xsl:template match="d:tfoot">
-    <tfoot>
-        <xsl:apply-templates select="node()" />
-    </tfoot>
-</xsl:template>
-
 <!-- inline formatting -->
-<xsl:template match="d:emphasis[@role='bold']">
+<xsl:template match="d:emphasis[@role='bold' or @role='strong']">
     <b>
         <xsl:apply-templates select="node()" />
     </b>
@@ -274,7 +274,7 @@
 
 <xsl:template match="d:citetitle">
     <cite>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </cite>
 </xsl:template>
 
@@ -292,7 +292,7 @@
 
 <xsl:template match="d:literal">
     <code>
-        <xsl:apply-templates select="node()" />
+        <xsl:apply-templates />
     </code>
 </xsl:template>
 

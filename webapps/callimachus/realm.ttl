@@ -43,8 +43,6 @@
 # when a class is created
 :CreateRealm owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Realm> ]);
-    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
-    calli:imports <SchemaGraph>;
     calli:script """
         var realm = proceed();
         var uuid = java.util.UUID.randomUUID().toString();
@@ -71,14 +69,30 @@
 # link from invite email
 :GetRegisterUserPage rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     rdfs:subClassOf [owl:onProperty :register_xhtml; owl:hasValue <pages/register.xhtml>];
     calli:method "GET";
     calli:query "register";
-    calli:type "text/html";
+    calli:type "message/x-response";
     calli:script """
-        return register_xhtml.Construct(this, 'register');
+        var resp = {
+            status:200,statusText:"OK",
+            headers:{'content-type':"text/html"},
+            body:[register_xhtml.Construct(this, 'register')]
+        };
+        if (this.calliAuthentication.size() == 1) {
+            var auth = this.calliAuthentication.iterator().next();
+            resp.status = 302;
+            resp.statusText = "Found";
+            resp.headers.location = auth + '?' + registerQuery;
+        }
+        return resp;
     """.
+
+:registerQuery a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetRegisterUserPage;
+    rdfs:range xsd:string;
+    calli:query "*".
 
 :register_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetRegisterUserPage.
@@ -89,14 +103,30 @@
 
 :GetLogin rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     rdfs:subClassOf [owl:onProperty :login_xhtml; owl:hasValue <pages/login.xhtml>];
     calli:method "GET";
     calli:query "login";
-    calli:type "text/html";
+    calli:type "message/x-response";
     calli:script """
-        return login_xhtml.Construct(this, 'login');
+        var resp = {
+            status:200,statusText:"OK",
+            headers:{'content-type':"text/html"},
+            body:[login_xhtml.Construct(this, 'login')]
+        };
+        if (this.calliAuthentication.size() == 1) {
+            var auth = this.calliAuthentication.iterator().next();
+            resp.status = 302;
+            resp.statusText = "Found";
+            resp.headers.location = auth + '?' + loginQuery;
+        }
+        return resp;
     """.
+
+:loginQuery a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetLogin;
+    rdfs:range xsd:string;
+    calli:query "*".
 
 :login_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetLogin.

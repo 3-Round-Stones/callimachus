@@ -183,23 +183,23 @@
     calli:imports <java:java.lang.Integer>;
     calli:imports <java:java.lang.System>;
     calli:script """
-        if (!formEmail)
+        if (!userEmail)
             throw new BadRequest("Missing Email");
-        var iter = this.FindUsersByEmail(formEmail).iterator();
+        var iter = this.FindUsersByEmail(userEmail).iterator();
         if (!iter.hasNext()) {
-            println("No users with email " + formEmail + " found");
+            println("No users with email " + userEmail + " found");
         }
         while (iter.hasNext()) {
             var user = iter.next();
             var password = this.getDaypass(user.FindSecret());
             var body = mail_digest_daypass_xhtml.Construct(user, 'daypass');
             body = body.replace(/@@PASSWORD@@/g, password);
-            user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + formEmail + ">");
+            user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + userEmail + ">");
         }
         java.lang.Thread.sleep(new java.util.Random().nextInt() % 2000 + 2000);
     """.
 
-:formEmail a owl:DatatypeProperty, owl:FunctionalProperty;
+:userEmail a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:domain :PostDaypassRequestForm;
     rdfs:range xsd:string;
     calli:type "text/plain".

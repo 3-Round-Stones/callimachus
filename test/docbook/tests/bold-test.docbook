@@ -2,10 +2,8 @@
     xmlns      ="http://docbook.org/ns/docbook" 
     xmlns:xl   ="http://www.w3.org/1999/xlink"
     version="5.0">
-    <section>
-        <title>test for emphasis docbook element</title>
-        <para>
-            <emphasis role="bold">Boldened text</emphasis>
-        </para>
-    </section>
+    <title>test for emphasis docbook element</title>
+    <para>
+        <emphasis role="bold">Boldened text</emphasis>
+    </para>
 </article>

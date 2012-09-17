@@ -27,16 +27,6 @@
             <p:load name="test-file">
                 <p:with-option name="href" select="p:resolve-uri($file, base-uri(.))"/>
             </p:load>
-            <p:validate-with-relax-ng>
-                <p:input port="schema">
-                    <p:document href="../../webapps/callimachus/schemas/docbookxi.rng" />
-                </p:input>                
-            </p:validate-with-relax-ng>            
-            <p:xslt name="stripped-original">
-                <p:input port="stylesheet">
-                    <p:document href="strip-whitespace.xsl" />
-                </p:input>
-            </p:xslt>
                         
             <!-- Escape / serialize the original docbook -->
             <calli:wrap-and-escape name   = "escape-original">
@@ -50,6 +40,19 @@
               -->
             <p:try>
                 <p:group>
+                    <p:validate-with-relax-ng>
+                        <p:input port="source">
+                            <p:pipe step="test-file" port="result"/>
+                        </p:input>      
+                        <p:input port="schema">
+                            <p:document href="../../webapps/callimachus/schemas/docbookxi.rng" />
+                        </p:input>                
+                    </p:validate-with-relax-ng>            
+                    <p:xslt name="stripped-original">
+                        <p:input port="stylesheet">
+                            <p:document href="strip-whitespace.xsl" />
+                        </p:input>
+                    </p:xslt>
                     <p:xslt>
                         <p:input port="source">
                             <p:pipe step="test-file" port="result"/>

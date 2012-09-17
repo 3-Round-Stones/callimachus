@@ -60,7 +60,7 @@ public class PipelineTest extends TestCase {
 		Pipeline pipe = pf.createPipeline(new StringReader(pipeline), "http://example.com/");
 		if (source == null)
 			return pipe.pipe().asString();
-		return pipe.pipeReader(new StringReader(source)).asString();
+		return pipe.pipeReader(new StringReader(source), "http://example.com/").asString();
 	}
 
 }

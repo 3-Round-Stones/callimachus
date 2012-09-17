@@ -26,7 +26,7 @@ html.iframe .hidden-iframe {
 }
 
 html.iframe {
-    overflow-y: auto;
+    overflow-y: hidden;
 }
 
 time {

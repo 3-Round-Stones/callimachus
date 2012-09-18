@@ -355,11 +355,39 @@ calli:rights a owl:DatatypeProperty, owl:FunctionalProperty;
     rdfs:range rdf:XMLLiteral;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
+calli:anonymousFrom a owl:DatatypeProperty;
+    rdfs:label "anonymous from";
+    rdfs:comment "Domain Name System suffix of agents that are permitted anonymous access to the resources associated with this group";
+    rdfs:domain calli:Group;
+    rdfs:range xsd:string;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:everyoneFrom a owl:DatatypeProperty;
+    rdfs:label "everyone from";
+    rdfs:comment "Domain Name System suffix of authenticated agents that are permitted to the resources associated with this group";
+    rdfs:domain calli:Group;
+    rdfs:range xsd:string;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:membersFrom a owl:DatatypeProperty;
+    rdfs:label "members from";
+    rdfs:comment "Domain Name System suffix of agents that are permitted to authorize in this group";
+    rdfs:domain calli:Group;
+    rdfs:range xsd:string;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
 calli:member a owl:ObjectProperty;
     rdfs:label "member";
     rdfs:comment "Agent that is part of this group";
     rdfs:domain calli:Group;
     rdfs:range calli:Agent;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:nobodyFrom a owl:DatatypeProperty;
+    rdfs:label "nobody from";
+    rdfs:comment "Domain Name System suffix of agents that are not permitted in this group";
+    rdfs:domain calli:Group;
+    rdfs:range xsd:string;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:cacheControl a owl:DatatypeProperty;

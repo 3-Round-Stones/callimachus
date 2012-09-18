@@ -9,6 +9,7 @@
 <head>
     <title resource="?this">{rdfs:label}</title>
     <script type="text/javascript">
+    // <![CDATA[
         function saveChangeNote() {
             var note = document.getElementById('note')
             if (note.value) {
@@ -16,6 +17,14 @@
                 note.setAttribute('content', note.value)
             }
         }
+        jQuery(function($){
+            $('.controls.auto-prompt').each(function(){
+                if (!$(this).find(':input').length) {
+                    $(this).find('a').click();
+                }
+            });
+        });
+    // ]]>
     </script>
 </head>
 <body resource="?this">
@@ -23,29 +32,66 @@
     <div id="sidebar">
         <aside>
             <p>Use Wiki text to describe the purpose of this group</p>
-            <p>Contributors can invite new users</p>
-            <p>Administrators can edit this page, invite new users, and remove users from this group</p>
+            <p>You must specify the Domain Name System suffix to enable access for this group</p>
+            <p>To allow access from any network use a single dot character '.'</p>
+            <p>The longest domain suffix overrides shorter domain suffixes</p>
             <p>Use the<a class="ui-icon ui-icon-close"/>icon to remove a user from this group without deleting the user account</p>
             <p>To delete a user account: click the user link on the view tab and use the edit tab of the user account</p>
         </aside>
     </div>
     <form id="form" method="POST" action="" enctype="application/sparql-update" resource="?this"
             onsubmit="saveChangeNote()">
-        <fieldset class="control-group">
-            <label for="comment" class="control-label">Description</label>
-            <div class="controls">
-                <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+        <fieldset>
+            <div class="control-group">
+                <label for="comment" class="control-label">Description</label>
+                <div class="controls">
+                    <textarea id="comment" class="auto-expand">{rdfs:comment}</textarea>
+                </div>
             </div>
-        </fieldset>
-        <fieldset dropzone="link s:text/uri-list" class="control-group"
-                ondrop="return calli.insertResource(event)">
-            <label class="control-label">Members <a href="/user/?create=/callimachus/User" title="Invite"
-                    onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
-            <div rel="calli:member" class="vbox controls">
-                <span resource="?member" typeof="calli:User" class="ui-state-highlight ui-corner-all">
-                    <span property="rdfs:label" />
-                    <a href="{?member}" title="Remove user from group" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
-                </span>
+            <div class="hbox">
+                <div class="control-group">
+                    <label for="anonymousFrom" class="control-label">Anonymous access from</label>
+                    <div class="controls auto-prompt vbox">
+                        <input id="anonymousFrom" property="calli:anonymousFrom" content="?anonymousFrom" value="{?anonymousFrom}" placeholder="domain.name" class="auto-expand" />
+                        <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="ui-icon ui-icon-plus" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="everyoneFrom" class="control-label">Authenticated access from</label>
+                    <div class="controls auto-prompt vbox">
+                        <input id="everyoneFrom" property="calli:everyoneFrom" content="?everyoneFrom" value="{?everyoneFrom}" placeholder="domain.name" class="auto-expand" />
+                        <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="ui-icon ui-icon-plus" />
+                    </div>
+                </div>
+            </div>
+            <div class="hbox">
+                <div>
+                    <div class="control-group">
+                        <label for="membersFrom" class="control-label">Members access from</label>
+                        <div class="controls auto-prompt vbox">
+                            <input id="membersFrom" property="calli:membersFrom" content="?membersFrom" value="{?membersFrom}" placeholder="domain.name" class="auto-expand" />
+                            <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="ui-icon ui-icon-plus" />
+                        </div>
+                    </div>
+                    <div dropzone="link s:text/uri-list" class="control-group"
+                            ondrop="return calli.insertResource(event)">
+                        <label class="control-label">Members <a href="/user/?create=/callimachus/User" title="Invite"
+                                onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                        <div rel="calli:member" class="vbox controls">
+                            <span resource="?member" typeof="calli:User" class="ui-state-highlight ui-corner-all">
+                                <span property="rdfs:label" />
+                                <a href="{?member}" title="Remove user from group" onclick="return calli.removeResource(event)" class="ui-icon ui-icon-close" />
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="nobodyFrom" class="control-label">Deny access from</label>
+                    <div class="controls auto-prompt vbox">
+                        <input id="nobodyFrom" property="calli:nobodyFrom" content="?nobodyFrom" value="{?nobodyFrom}" placeholder="domain.name" class="auto-expand" />
+                        <a href="javascript:void(0)" title="More" onclick="return calli.addResource(event)" class="ui-icon ui-icon-plus" />
+                    </div>
+                </div>
             </div>
         </fieldset>
         <hr />

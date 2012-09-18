@@ -38,10 +38,13 @@ import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.concepts.Page;
+import org.callimachusproject.engine.RDFEventReader;
+import org.callimachusproject.engine.RDFParseException;
 import org.callimachusproject.engine.RDFaReader;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.engine.events.TriplePattern;
+import org.callimachusproject.engine.helpers.ClusterCounter;
 import org.callimachusproject.engine.helpers.DeDupedResultSet;
 import org.callimachusproject.engine.helpers.OrderedSparqlReader;
 import org.callimachusproject.engine.helpers.RDFaProducer;
@@ -51,6 +54,7 @@ import org.callimachusproject.engine.helpers.XMLEventList;
 import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.BadRequest;
+import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.callimachusproject.xslt.XSLTransformer;
@@ -136,7 +140,7 @@ public abstract class FormSupport implements Page, RDFObject {
 		ed.addEditor(ed.new TriplePatternCutter());
 		
 		RepositoryConnection con = getObjectConnection();
-		String sparql = toSPARQL(new OrderedSparqlReader(ed)) + "\nLIMIT 1000";
+		String sparql = toSafeOrderedSparql(ed) + "\nLIMIT 1000";
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
 		RDFaProducer xhtml = new RDFaProducer(template.iterator(), qry.evaluate(), rq.getOrigins());
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
@@ -171,12 +175,21 @@ public abstract class FormSupport implements Page, RDFObject {
 		ed.addEditor(ed.new FilterKeywordExists(q));
 	
 		RepositoryConnection con = getObjectConnection();
-		String sparql = toSPARQL(new OrderedSparqlReader(ed));
+		String sparql = toSafeOrderedSparql(ed);
 		TupleQuery qry = con.prepareTupleQuery(SPARQL, sparql, base);
 		// The edited query may return multiple and/or empty solutions
 		TupleQueryResult results = new DeDupedResultSet(qry.evaluate(),true);
 		RDFaProducer xhtml = new RDFaProducer(template.iterator(), results, rq.getOrigins());
 		return HTML_XSLT.transform(xhtml, this.toString()).asInputStream();
+	}
+
+	private String toSafeOrderedSparql(RDFEventReader ed) throws RDFParseException,
+			IOException {
+		ClusterCounter counter = new ClusterCounter(new OrderedSparqlReader(ed));
+		String sparql = toSPARQL(counter);
+		if (counter.getNumberOfVariableClusters() > 1)
+			throw new InternalServerError("Variables not connected: " + counter.getSmallestCluster());
+		return sparql;
 	}
 
 	private String asHtmlString(XMLEventReader xhtml) throws Exception {
@@ -212,7 +225,7 @@ public abstract class FormSupport implements Page, RDFObject {
 		ed.addEditor(rec = ed.new TriplePatternRecorder());
 		
 		RepositoryConnection con = getObjectConnection();
-		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSPARQL(new OrderedSparqlReader(ed)), base);
+		TupleQuery qry = con.prepareTupleQuery(SPARQL, toSafeOrderedSparql(ed), base);
 		for (TriplePattern t: rec.getTriplePatterns()) {
 			VarOrTerm vt = t.getSubject();
 			if (vt.isVar())

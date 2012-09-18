@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,9 +17,8 @@ import javax.xml.stream.XMLStreamException;
 import org.callimachusproject.engine.events.Base;
 import org.callimachusproject.engine.events.Namespace;
 import org.callimachusproject.engine.events.RDFEvent;
+import org.callimachusproject.engine.helpers.ClusterCounter;
 import org.callimachusproject.engine.helpers.OrderedSparqlReader;
-import org.callimachusproject.engine.helpers.RDFEventIterator;
-import org.callimachusproject.engine.helpers.RDFEventList;
 import org.callimachusproject.engine.helpers.RDFaProducer;
 import org.callimachusproject.engine.helpers.SPARQLProducer;
 import org.callimachusproject.engine.helpers.SPARQLWriter;
@@ -26,6 +26,7 @@ import org.callimachusproject.engine.helpers.XMLElementReader;
 import org.callimachusproject.engine.helpers.XMLEventList;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.engine.model.TermOrigin;
+import org.callimachusproject.server.exceptions.InternalServerError;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
@@ -56,7 +57,7 @@ public class Template {
 
 	public String getQueryString() throws TemplateException {
 		try {
-			return toSPARQL(openQuery());
+			return toSafeSparql(openQuery());
 		} catch (RDFParseException e) {
 			throw new TemplateException(e);
 		} catch (IOException e) {
@@ -67,11 +68,10 @@ public class Template {
 	public String getQueryString(String subQuery) throws TemplateException {
 		try {
 			int end = 0;
-			RDFEventList list = new RDFEventList(openQuery());
+			ClusterCounter reader = new ClusterCounter(openQuery());
 			StringWriter str = new StringWriter();
 			SPARQLWriter writer = new SPARQLWriter(str);
 			Map<String, String> spaces = new HashMap<String, String>();
-			RDFEventIterator reader = list.iterator();
 			while (reader.hasNext()) {
 				RDFEvent next = reader.next();
 				if (next.isNamespace()) {
@@ -107,6 +107,17 @@ public class Template {
 					str.write("}");
 				}
 			}
+			for (Set<String> cluster : reader.getClusters()) {
+				boolean found = false;
+				for (String variable : cluster) {
+					if (subQuery.contains(variable)) {
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					throw new InternalServerError("Variables not bound: " + cluster);
+			}
 			return str.toString();
 		} catch (RDFParseException e) {
 			throw new TemplateException(e);
@@ -141,7 +152,7 @@ public class Template {
 		try {
 			RDFEventReader reader = new RDFaReader(getSystemId(), openSource(), getSystemId());
 			SPARQLProducer producer = new SPARQLProducer(reader);
-			String sparql = toSPARQL(new OrderedSparqlReader(producer));
+			String sparql = toSafeSparql(new OrderedSparqlReader(producer));
 			TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, getSystemId());
 			for (Binding bind : bindings) {
 				q.setBinding(bind.getName(), bind.getValue());
@@ -190,7 +201,7 @@ public class Template {
 		try {
 			RDFEventReader reader = new RDFaReader(getSystemId(), openSource(), getSystemId());
 			SPARQLProducer producer = new SPARQLProducer(reader);
-			String sparql = toSPARQL(new OrderedSparqlReader(producer));
+			String sparql = toSafeSparql(new OrderedSparqlReader(producer));
 			TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, getSystemId());
 			for (Binding bind : bindings) {
 				q.setBinding(bind.getName(), bind.getValue());
@@ -227,6 +238,15 @@ public class Template {
 		} catch (XMLStreamException e) {
 			throw new TemplateException(e);
 		}
+	}
+
+	private String toSafeSparql(RDFEventReader reader)
+			throws RDFParseException, IOException {
+		ClusterCounter counter = new ClusterCounter(reader);
+		String sparql = toSPARQL(counter);
+		if (counter.getNumberOfVariableClusters() > 1)
+			throw new InternalServerError("Variables not connected: " + counter.getSmallestCluster());
+		return sparql;
 	}
 
 }

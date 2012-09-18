@@ -25,13 +25,13 @@ import java.net.URISyntaxException;
 import java.util.Set;
 
 import org.callimachusproject.concepts.Page;
-import org.callimachusproject.engine.RDFEventReader;
 import org.callimachusproject.engine.events.Ask;
 import org.callimachusproject.engine.events.Group;
 import org.callimachusproject.engine.events.RDFEvent;
 import org.callimachusproject.engine.events.TriplePattern;
 import org.callimachusproject.engine.events.Union;
 import org.callimachusproject.engine.events.Where;
+import org.callimachusproject.engine.helpers.ClusterCounter;
 import org.callimachusproject.engine.helpers.SPARQLWriter;
 import org.callimachusproject.engine.model.AbsoluteTermFactory;
 import org.callimachusproject.engine.model.IRI;
@@ -40,6 +40,7 @@ import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.form.helpers.TripleInserter;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.Conflict;
+import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -100,7 +101,7 @@ public abstract class CreateSupport implements Page, RDFObject {
 	private boolean isResourceAlreadyPresent(ObjectConnection con, String about)
 			throws Exception {
 		AbsoluteTermFactory tf = AbsoluteTermFactory.newInstance();
-		RDFEventReader reader = openPatternReader(about, null);
+		ClusterCounter reader = new ClusterCounter(openPatternReader(about, null));
 		try {
 			boolean first = true;
 			StringWriter str = new StringWriter();
@@ -137,6 +138,9 @@ public abstract class CreateSupport implements Page, RDFObject {
 			}
 			writer.close();
 			String qry = str.toString();
+			if (reader.getNumberOfVariableClusters() > 1) {
+				throw new InternalServerError("Variable is not related: " + reader.getSmallestCluster());
+			}
 			ValueFactory vf = con.getValueFactory();
 			BooleanQuery query = con.prepareBooleanQuery(SPARQL, qry, this.toString());
 			query.setBinding("this", vf.createURI(about));

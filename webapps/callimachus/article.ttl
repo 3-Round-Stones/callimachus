@@ -37,7 +37,7 @@
     calli:mediaType "application/docbook+xml";
     calli:documentTag <http://docbook.org/ns/docbook#article>.
 
-# GET /article/main-article.xml
+# GET /article/main-article.docbook
 :GetArticleSource rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
@@ -48,7 +48,7 @@
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".
 
-# GET /article/main-article.xml?view
+# GET /article/main-article.docbook?view
 :GetPage owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <Article>]);
     calli:rel "alternate";
@@ -84,12 +84,22 @@
         created = con.addDesignation(created, this.toString());
         created = con.addDesignation(created, Document);
 
-        created.UploadArticle(body);
+        var read;
+        var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var out = created.openOutputStream();
+        try {
+            while ((read = body.read(buf)) >= 0) {
+                out.write(buf, 0, read);
+            }
+        } finally {
+            out.close();
+        }
+        var errorMsg = created.ValidateArticle().replace(/^\\s+|\\s+$/g,'');
+        if (errorMsg) println(errorMsg.replace(/\\s+/g,' '));
         return created;
     """.
 
-# PUT /page/MainArticle.xhtml
-# Called by client, copy operation, create operation, and MainArticle initialization
+# PUT /article/main-article.docbook
 :UploadArticle rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];

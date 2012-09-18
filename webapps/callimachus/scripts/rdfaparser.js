@@ -1085,6 +1085,9 @@ function RDFaParser() {
 		else if (object.type == this.XMLLiteralURI) {
 			datatype = object.type;
 		}
+		else if (object.type != this.objectURI) {
+			datatype = object.type;
+		}
 		this.callback.call(origin, subject, predicate, object.value, datatype, language);
 	};	
 

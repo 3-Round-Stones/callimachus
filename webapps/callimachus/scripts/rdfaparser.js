@@ -670,17 +670,6 @@ function RDFaParser() {
 			 }
 		  }
 
-		  // Sequence Step 7: generate type triple
-		  if (typedResource) {
-			 values = this.tokenize(typeofAtt.value);
-			 for (i=0; i<values.length; i++) {
-				var object = this.parseTermOrCURIEOrAbsURI(values[i],vocabulary,context.terms,prefixes,base);
-				if (object) {
-				   this.addTriple(current,typedResource,this.typeURI,{ type: this.objectURI , value: object});
-				}
-			 }
-		  }
-
 		  // Sequence Step 8: new list mappings if there is a new subject
 		  //console.log("Step 8: newSubject="+newSubject+", context.parentObject="+context.parentObject);
 		  if (newSubject && newSubject!=context.parentObject) {
@@ -777,6 +766,17 @@ function RDFaParser() {
 				} else {
 				   //console.log(current.tagName+": completing reverse triple with object="+context.subject);
 				   this.addTriple(current,newSubject,context.incomplete[i].predicate,{ type: this.objectURI, value: context.subject});
+				}
+			 }
+		  }
+
+		  // Sequence Step 7: generate type triple
+		  if (typedResource) {
+			 values = this.tokenize(typeofAtt.value);
+			 for (i=0; i<values.length; i++) {
+				var object = this.parseTermOrCURIEOrAbsURI(values[i],vocabulary,context.terms,prefixes,base);
+				if (object) {
+				   this.addTriple(current,typedResource,this.typeURI,{ type: this.objectURI , value: object});
 				}
 			 }
 		  }

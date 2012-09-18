@@ -149,7 +149,7 @@ function addBoundedDescription(triple, store, dest, copy) {
             }
         }
     }
-    if (triple.object.match(/^_:/) && !removed[hash].datatype) {
+    if (triple.object.match(/^_:/) && !triple.datatype) {
         for (hash in store) {
             if (store[hash].subject == triple.object && !dest[hash]) {
                 copy[hash] = dest[hash] = store[hash];

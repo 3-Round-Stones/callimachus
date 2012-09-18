@@ -586,6 +586,7 @@
         con.add(nonFolder.resource, RDFS.LABEL, vf.createLiteral(label), []);
         nonFolder.calliEditor.addAll(container.FindContributor(nonFolder));
         nonFolder.calliReader.addAll(container.SelectAllReaders());
+        nonFolder.calliSubscriber.addAll(container.SelectAllSubscribers());
         nonFolder.calliEditor.addAll(container.SelectAllEditors());
         nonFolder.calliAdministrator.addAll(container.SelectAllAdministrators());
         container.calliHasComponent.add(nonFolder);

@@ -79,6 +79,11 @@ SELECT REDUCED * {
                     ?link_reader_href rdfs:label ?link_reader_title
                 }
             } UNION {
+                ?id calli:subscriber ?link_subscriber_href
+                OPTIONAL {
+                    ?link_subscriber_href rdfs:label ?link_subscriber_title
+                }
+            } UNION {
                 ?id calli:contributor ?link_contributor_href
                 OPTIONAL {
                     ?link_contributor_href rdfs:label ?link_contributor_title

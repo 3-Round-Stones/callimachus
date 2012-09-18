@@ -219,6 +219,14 @@
     </link>
 </xsl:template>
 
+<xsl:template match="sparql:binding[@name='link_subscriber_href']">
+    <link rel="http://callimachusproject.org/rdf/2009/framework#subscriber" href="{*}">
+        <xsl:if test="../sparql:binding[@name='link_subscriber_title']">
+            <xsl:attribute name="title"><xsl:value-of select="../sparql:binding[@name='link_subscriber_title']/*" /></xsl:attribute>
+        </xsl:if>
+    </link>
+</xsl:template>
+
 <xsl:template match="sparql:binding[@name='link_contributor_href']">
     <link rel="http://callimachusproject.org/rdf/2009/framework#contributor" href="{*}">
         <xsl:if test="../sparql:binding[@name='link_contributor_title']">

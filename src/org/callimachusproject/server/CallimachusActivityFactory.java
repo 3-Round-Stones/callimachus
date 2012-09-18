@@ -38,10 +38,12 @@ public final class CallimachusActivityFactory implements ActivityFactory {
 			+ "rdfs:label $label;\n"
 			+ "calli:administrator ?administrator;\n"
 			+ "calli:editor ?editor;\n"
+			+ "calli:subscriber ?subscriber;\n"
 			+ "calli:reader ?reader\n"
 			+ "} WHERE {\n"
 			+ "OPTIONAL {$parent calli:administrator ?administrator}\n"
 			+ "OPTIONAL {$parent calli:editor ?editor}\n"
+			+ "OPTIONAL {$parent calli:subscriber ?subscriber}\n"
 			+ "OPTIONAL {$parent calli:reader ?reader}\n" + "}";
 	private static final String CALLI_HASCOMPONENT = "http://callimachusproject.org/rdf/2009/framework#hasComponent";
 	private final Logger logger = LoggerFactory.getLogger(CallimachusActivityFactory.class);

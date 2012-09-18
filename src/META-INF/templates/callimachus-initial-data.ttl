@@ -38,37 +38,37 @@
 </> calli:hasComponent </activity/>.
 </activity/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "activity";
-	calli:reader </group/admin>.
+	calli:subscriber </group/admin>.
 
 </> calli:hasComponent </user/>.
 </user/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "user";
-	calli:reader </group/staff>;
+	calli:subscriber </group/staff>;
 	calli:administrator </group/admin>.
 
 </> calli:hasComponent </group/>.
 </group/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label "group";
-	calli:reader </group/staff>;
+	calli:subscriber </group/staff>;
 	calli:administrator </group/admin>;
 	calli:hasComponent </group/admin>, </group/staff>, </group/users>.
 
 </group/admin> a calli:Party, calli:Group, </callimachus/Group>;
 	rdfs:label "admin";
 	rdfs:comment "The user accounts in this group have heightened privileges, including the ability to edit other user accounts and access the underlying data store";
-	calli:reader </group/staff>;
+	calli:subscriber </group/staff>;
 	calli:administrator </group/admin>.
 
 </group/staff> a calli:Party, calli:Group, </callimachus/Group>;
 	rdfs:label "staff";
 	rdfs:comment "Members of this group can design and edit resources within the system";
-	calli:reader </group/staff>;
+	calli:subscriber </group/staff>;
 	calli:administrator </group/admin>.
 
 </group/users> a calli:Party, calli:Group, </callimachus/Group>;
 	rdfs:label "users";
 	rdfs:comment "Members of this group can view and discuss resources within the system";
-	calli:reader </group/staff>;
+	calli:subscriber </group/staff>;
 	calli:administrator </group/admin>.
 
 ################################
@@ -78,7 +78,8 @@
 </> calli:hasComponent </.well-known/>.
 </.well-known/> a </callimachus/Folder>, calli:Folder;
 	rdfs:label ".well known";
-	calli:reader </group/users>,</group/staff>;
+	calli:reader </group/users>;
+	calli:subscriber </group/staff>;
 	calli:administrator </group/admin>;
 	calli:hasComponent </.well-known/void>.
 

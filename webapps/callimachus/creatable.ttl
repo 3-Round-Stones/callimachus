@@ -167,6 +167,7 @@
         }
         newCopy.calliEditor.addAll(this.FindContributor(newCopy));
         newCopy.calliReader.addAll(this.SelectAllReaders());
+        newCopy.calliSubscriber.addAll(this.SelectAllSubscribers());
         newCopy.calliEditor.addAll(this.SelectAllEditors());
         newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
         if (intermediate) {
@@ -325,6 +326,23 @@
                 $this calli:reader ?reader
             } UNION {
                 $this rdf:type/rdfs:subClassOf*/calli:reader ?reader
+            }
+        }
+    """.
+
+:SelectAllSubscribers rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
+    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
+    msg:sparql  """
+        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
+        SELECT DISTINCT ?subscriber
+        WHERE {
+            {
+                $this calli:subscriber ?subscriber
+            } UNION {
+                $this rdf:type/rdfs:subClassOf*/calli:subscriber ?subscriber
             }
         }
     """.

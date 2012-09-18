@@ -317,6 +317,7 @@ skos:editorialNote a owl:AnnotationProperty.
         //# Add permissions and component membership
         newCopy.calliEditor.addAll(this.FindContributor(newCopy));
         newCopy.calliReader.addAll(this.SelectAllReaders());
+        newCopy.calliSubscriber.addAll(this.SelectAllSubscribers());
         newCopy.calliEditor.addAll(this.SelectAllEditors());
         newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
         this.calliHasComponent.add(newCopy);

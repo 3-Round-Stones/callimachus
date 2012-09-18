@@ -122,27 +122,32 @@ calli:Page a owl:DeprecatedClass;
 
 calli:reader a owl:AnnotationProperty;
     rdfs:label "reader";
-    rdfs:comment "User or group of users that can view individual resources of this class";
+    rdfs:comment "User or group that can view this resource and individual resources of this class";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:subscriber a owl:AnnotationProperty;
+    rdfs:label "subscribe";
+    rdfs:comment "User or group that can read comments and write comments for this resource and resources of this class";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:author a owl:AnnotationProperty;
     rdfs:label "author";
-    rdfs:comment "User or group of users that can create an instance resource of this class";
+    rdfs:comment "User or group that can create an instance resource of this class";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:contributor a owl:AnnotationProperty;
     rdfs:label "contributor";
-    rdfs:comment "User or group of users that can create a resource in this namespace";
+    rdfs:comment "User or group that can create a resource in this namespace";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:editor a owl:AnnotationProperty;
     rdfs:label "editor";
-    rdfs:comment "User or group of users that can create resources in this namespace, can edit this resource, and edit members of this class";
+    rdfs:comment "User or group that can create resources in this namespace, can edit this resource, and edit members of this class";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:administrator a owl:AnnotationProperty;
     rdfs:label "administrator";
-    rdfs:comment "User or group of users that can interact, create and modify this resource and members of this class";
+    rdfs:comment "User or group that can interact, create and modify this resource and members of this class";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:edit a owl:AnnotationProperty;
@@ -264,12 +269,6 @@ calli:deleted a owl:AnnotationProperty;
 # Property
 ################################
 
-calli:secret a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:label "secret";
-    rdfs:comment "A document of random bits in Base 64 encoding";
-    rdfs:domain calli:Realm;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
 calli:passwordDigest a owl:ObjectProperty;
     rdfs:label "password digest";
     rdfs:comment "A document of the MD5 sum of email:authName:password in HEX encoding";
@@ -301,6 +300,12 @@ calli:authName a rdf:Property, owl:FunctionalProperty;
     rdfs:label "auth name";
     rdfs:comment "A string to be displayed to users so they know which username and password to use. This string should contain at least the name of the host performing the authentication and might additionally indicate the collection of users who might have access. This string is used to encode the passwords and changing it will invalidates existing encoded passwords";
     rdfs:domain calli:DigestManager;
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:secret a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:label "secret";
+    rdfs:comment "A document of random bits in Base 64 encoding";
+    rdfs:domain calli:Realm;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:forbidden a owl:ObjectProperty;

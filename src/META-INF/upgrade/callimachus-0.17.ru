@@ -40,3 +40,13 @@ DELETE {
         FILTER (?object != </callimachus/SchemaGraph>)
     }
 };
+
+DELETE {
+    ?resource calli:reader ?reader
+} INSERT {
+    ?resource calli:subscriber ?subscriber
+} WHERE {
+    ?resource calli:reader ?reader
+    FILTER NOT EXISTS { ?any calli:subscriber ?subscriber }
+};
+

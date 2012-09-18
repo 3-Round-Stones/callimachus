@@ -103,6 +103,7 @@
                             tr.append(createTextCell(title, src, type, icon));
                             tr.append(createTimeCell(entry.children('updated').text()));
                             tr.append(createPermissionCell(entry, 'reader'));
+                            tr.append(createPermissionCell(entry, 'subscriber'));
                             tr.append(createPermissionCell(entry, 'contributor'));
                             tr.append(createPermissionCell(entry, 'editor'));
                             tr.append(createPermissionCell(entry, 'administrator'));

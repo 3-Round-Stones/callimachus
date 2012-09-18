@@ -79,7 +79,10 @@ WYMeditor.editor.prototype.docbook = function(xml) {
     } else {
         var xhtml = this.xhtml();
         if (typeof xhtml != 'string') return xhtml;
-        xhtml = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title></title></head><body>' + xhtml + '</body></html>';
+        var m = xhtml.match(/<h1[^>]*>([\s\S]*)<\/h1>/);
+        var title = m ? m[1] : '';
+        xhtml = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title>'
+            + title + '</title></head><body>' + xhtml + '</body></html>';
         return xslt(calli.getCallimachusUrl("editor/xhtml2docbook.xsl"), xhtml);
     }
 };

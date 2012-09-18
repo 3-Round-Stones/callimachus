@@ -111,6 +111,8 @@
         } finally {
             out.close();
         }
+        var errorMsg = this.ValidateArticle().replace(/^\\s+|\\s+$/g,'');
+        if (errorMsg) throw new BadRequest(errorMsg.replace(/\\s+/g,' '));
         this.touchRevision();
     """.
 
@@ -118,4 +120,10 @@
     rdfs:domain :UploadArticle;
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/docbook+xml".
+
+:ValidateArticle rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:post "pipelines/article-validate.xpl?results\nContent-Location:$0\nContent-Type: application/docbook+xml".
+
 

@@ -265,13 +265,17 @@ use="generate-id(preceding-sibling::*[name()='h1' or name()='h2' or name()='h3' 
 
 <xsl:template match="xhtml:dd">
     <listitem>
-        <xsl:apply-templates />
+        <para>
+            <xsl:apply-templates />
+        </para>
     </listitem>
 </xsl:template>
 
 <xsl:template match="xhtml:li">
     <listitem>
-        <xsl:apply-templates />
+        <para>
+            <xsl:apply-templates />
+        </para>
     </listitem>
 </xsl:template>
 

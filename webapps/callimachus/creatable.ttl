@@ -170,9 +170,9 @@
         newCopy.calliEditor.addAll(this.SelectAllEditors());
         newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
         if (intermediate) {
-            var revision = this.auditRevision;
+            var revision = this.provWasGeneratedBy;
             this.calliHasComponent.add(newCopy);
-            this.auditRevision = revision; // restore the previous revision
+            this.provWasGeneratedBy = revision; // restore the previous revision
         } else {
             this.calliHasComponent.add(newCopy);
         }

@@ -25,7 +25,7 @@
               Expected docbook
               -->
             <p:load name="test-file">
-                <p:with-option name="href" select="p:resolve-uri($file, base-uri(.))"/>
+                <p:with-option name="href" select="p:resolve-uri($file, p:base-uri(.))"/>
             </p:load>
                         
             <!-- Escape / serialize the original docbook -->

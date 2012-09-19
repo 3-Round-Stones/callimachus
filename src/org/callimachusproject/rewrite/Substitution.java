@@ -96,14 +96,17 @@ public class Substitution {
 
 	private void appendSubstitution(Matcher m,
 			Map<String, ?> variables, StringBuilder sb) {
-		boolean encode = false;
+		Boolean encode = false;
 		for (int i = 0, n = substitution.length(); i < n; i++) {
 			char chr = substitution.charAt(i);
 			if (chr == '=') {
-				encode = true;
+				encode = encode == null ? null : true;
 				sb.append(chr);
 			} else if (chr == '?' || chr == '&') {
-				encode = false;
+				encode = encode == null ? null : false;
+				sb.append(chr);
+			} else if (Character.isWhitespace(chr)) {
+				encode = null;
 				sb.append(chr);
 			} else if (chr == '\\' && i + 1 < n) {
 				sb.append(substitution.charAt(++i));
@@ -113,7 +116,7 @@ public class Substitution {
 					sb.append(next);
 				} else if (next >= '0' && next <= '9' && m != null) {
 					int idx = next - '0';
-					appendGroup(m, idx, encode, sb);
+					appendGroup(m, idx, encode != null && encode, sb);
 				} else {
 					sb.append(chr);
 					--i;
@@ -125,7 +128,8 @@ public class Substitution {
 					if (name.startsWith("{")) {
 						sb.append(name);
 					} else {
-						appendVariable(name, m, variables, encode, sb);
+						boolean e = encode != null && encode;
+						appendVariable(name, m, variables, e, sb);
 					}
 					i = j;
 				} else {

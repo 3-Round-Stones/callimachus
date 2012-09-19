@@ -14,7 +14,7 @@
 
 <xsl:template match="@*">
     <xsl:attribute name="{local-name()}">
-        <xsl:apply-templates />
+        <xsl:value-of select="." />
     </xsl:attribute>
 </xsl:template>
 

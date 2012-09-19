@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<p:pipeline version="1.0" type="calli:page-template"
+<p:pipeline version="1.0" name="pipeline" type="calli:page-template"
         xmlns:p="http://www.w3.org/ns/xproc"
         xmlns:c="http://www.w3.org/ns/xproc-step"
         xmlns:l="http://xproc.org/library"
@@ -7,8 +7,10 @@
         xmlns:calli="http://callimachusproject.org/rdf/2009/framework#"
         xmlns:sparql="http://www.w3.org/2005/sparql-results#">
 
-    <p:option name="systemId" required="true" />
+    <p:option name="systemId" select="''" />
     <p:option name="realm" required="true" />
+
+    <p:variable name="systemIdOrBaseUri" select="if (string-length($systemId) &gt; 0) then $systemId else base-uri()" />
 
     <p:xinclude name="xinclude" />
 
@@ -39,10 +41,10 @@
         <p:choose>
             <p:when test="contains($xml-stylesheet, 'type=&quot;text/xsl&quot;') and string-length($xsltId) &gt; 0">
                 <p:load name="load-stylesheet">
-                    <p:with-option name="href" select="$xsltId" />
+                    <p:with-option name="href" select="p:resolve-uri($xsltId, $systemIdOrBaseUri)" />
                 </p:load>
                 <p:xslt>
-                    <p:with-param name="systemId" select="$systemId" />
+                    <p:with-param name="systemId" select="$systemIdOrBaseUri" />
                     <p:with-param name="xsltId" select="$xsltId" />
                     <p:with-param name="realm" select="$realm" />
                     <p:input port="stylesheet">

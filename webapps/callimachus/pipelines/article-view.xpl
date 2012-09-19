@@ -9,8 +9,7 @@
 
     <p:serialization port="result" media-type="text/html" method="html" doctype-system="about:legacy-compat" />
 
-    <p:option name="systemId" required="true" />
-
+    <p:variable name="systemId" select="p:base-uri()" />
     <p:variable name="find-realm-uri" select="concat('../queries/find-realm.rq?results&amp;target=', encode-for-uri($systemId))" />
     <p:variable name="realm" select="doc($find-realm-uri)//sparql:uri" />
 

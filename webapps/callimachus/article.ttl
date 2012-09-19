@@ -58,7 +58,7 @@
     calli:requires calli:reader;
     calli:type "text/html";
     calli:header "cache-control:no-cache";
-    calli:post "pipelines/article-view.xpl?results&systemId=$0\nContent-Type: application/docbook+xml".
+    calli:post "pipelines/article-view.xpl?results\nContent-Location: $0\nContent-Type: application/docbook+xml".
 
 # POST ?create=/callimachus/Article
 :CreateArticle owl:intersectionOf (<creatable.ttl#PostCreate>

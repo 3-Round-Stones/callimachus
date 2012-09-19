@@ -45,6 +45,7 @@
     calli:method "GET";
     calli:query "realms";
     calli:rel calli:realms;
+    calli:requires calli:subscriber;
     calli:type "application/atom+xml;q=0.9";
     calli:header "cache-control:no-cache";
     calli:get <pipelines/origin-realms-atom.xpl?results&target=$0>.

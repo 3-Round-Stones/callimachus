@@ -126,6 +126,7 @@ calli:reader a owl:AnnotationProperty;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:subscriber a owl:AnnotationProperty;
+    rdfs:subPropertyOf calli:reader;
     rdfs:label "subscribe";
     rdfs:comment "User or group that can read comments and write comments for this resource and resources of this class";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
@@ -136,16 +137,19 @@ calli:author a owl:AnnotationProperty;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:contributor a owl:AnnotationProperty;
+    rdfs:subPropertyOf calli:reader;
     rdfs:label "contributor";
     rdfs:comment "User or group that can create a resource in this namespace";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:editor a owl:AnnotationProperty;
+    rdfs:subPropertyOf calli:subscriber, calli:contributor, calli:author;
     rdfs:label "editor";
     rdfs:comment "User or group that can create resources in this namespace, can edit this resource, and edit members of this class";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:administrator a owl:AnnotationProperty;
+    rdfs:subPropertyOf calli:editor;
     rdfs:label "administrator";
     rdfs:comment "User or group that can interact, create and modify this resource and members of this class";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
@@ -203,6 +207,11 @@ calli:query a owl:AnnotationProperty;
 calli:realm a owl:AnnotationProperty;
     rdfs:label "realm";
     rdfs:comment "The Realm used to secure members of this class or use of this message";
+    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
+
+calli:requires a owl:AnnotationProperty;
+    rdfs:label "requires";
+    rdfs:comment "The role required to be capable of successfully requesting a message of this class";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 calli:rel a owl:AnnotationProperty;

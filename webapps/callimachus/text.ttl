@@ -42,6 +42,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:rel "edit-media";
+    calli:requires calli:reader;
     calli:type "text/plain";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";
@@ -84,6 +85,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
+    calli:requires calli:editor;
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;
     calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;

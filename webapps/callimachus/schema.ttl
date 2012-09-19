@@ -41,6 +41,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:rel "edit-media";
+    calli:requires calli:reader;
     calli:type "application/xml";
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".
@@ -85,6 +86,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
+    calli:requires calli:editor;
     calli:script """
         var out = this.openOutputStream() ;
         var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
@@ -103,4 +105,5 @@
     rdfs:domain :PutSchema ;
     rdfs:range <java:java.io.InputStream> ;
     calli:type "application/xml" .
+
 

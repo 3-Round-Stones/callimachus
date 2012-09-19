@@ -18,17 +18,6 @@
     calli:edit <templates/realm-edit.xhtml>;
     calli:create <templates/realm-create.xhtml>.
 
-:GetOldTemplate rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <manifest>];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:method "GET";
-    calli:query "template";
-    calli:expect "302-found";
-    calli:type "text/uri-list";
-    calli:script """
-        return "/callimachus/template.xsl";
-    """.
-
 # anybody with credentials can look something up
 # TODO change this to require calli:reader access
 :AuthorizeRealmAccess owl:intersectionOf (calli:IsAuthorized
@@ -73,6 +62,7 @@
     rdfs:subClassOf [owl:onProperty :register_xhtml; owl:hasValue <pages/register.xhtml>];
     calli:method "GET";
     calli:query "register";
+    calli:requires calli:reader;
     calli:type "message/x-response";
     calli:script """
         var resp = {
@@ -107,6 +97,7 @@
     rdfs:subClassOf [owl:onProperty :login_xhtml; owl:hasValue <pages/login.xhtml>];
     calli:method "GET";
     calli:query "login";
+    calli:requires calli:reader;
     calli:type "message/x-response";
     calli:script """
         var resp = {
@@ -137,6 +128,7 @@
     calli:method "GET";
     calli:query "profile";
     calli:realm </>;
+    calli:requires calli:subscriber;
     calli:header "cache-control:max-age:3600";
     calli:type "text/html";
     calli:script """
@@ -170,6 +162,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     calli:method "GET";
     calli:query "logout";
+    calli:requires calli:reader;
     calli:type "message/x-response";
     calli:imports <java:org.apache.http.ProtocolVersion>;
     calli:imports <java:org.apache.http.message.BasicHttpResponse>;
@@ -227,6 +220,7 @@
     rdfs:subClassOf [owl:onProperty :baseDir; owl:hasValue <./>];
     calli:method "GET";
     calli:query "layout";
+    calli:requires calli:reader;
     calli:type "text/xsl";
     calli:script """
         var layout = layout_xhtml;
@@ -286,6 +280,7 @@
     calli:method "POST";
     calli:query "edit";
     calli:realm </>;
+    calli:requires calli:editor;
     calli:expect "201-modified";
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
@@ -301,6 +296,7 @@
     calli:method "GET";
     calli:query "search";
     calli:rel "search";
+    calli:requires calli:subscriber;
     calli:type "application/opensearchdescription+xml";
     calli:script """
         var sb = [];
@@ -319,6 +315,7 @@
     calli:method "GET";
     calli:query "q";
     calli:realm </>;
+    calli:requires calli:subscriber;
     calli:type "text/html";
     calli:header "cache-control:no-store";
     calli:get <pipelines/realm-search-html.xpl?results&target=$0&q={qhtml}>.
@@ -334,6 +331,7 @@
     calli:method "GET";
     calli:query "q";
     calli:realm </>;
+    calli:requires calli:subscriber;
     calli:type "application/atom+xml;q=0.1";
     calli:header "cache-control:no-store";
     calli:get <pipelines/realm-search-atom.xpl?results&target=$0&q={qatom}>.
@@ -342,3 +340,4 @@
     rdfs:domain :SearchFolderAtom;
     rdfs:range xsd:string;
     calli:query "q".
+

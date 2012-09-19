@@ -15,6 +15,7 @@
     rdfs:subClassOf [owl:onProperty :diverted; owl:hasValue </diverted>];
     calli:method "GET";
     calli:query "q";
+    calli:requires calli:reader;
     calli:expect "302-found";
     calli:type "text/uri-list";
     calli:header "cache-control:no-store";

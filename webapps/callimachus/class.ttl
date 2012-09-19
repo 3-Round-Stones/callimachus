@@ -41,6 +41,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader> ];
     calli:method "GET";
     calli:query "index";
+    calli:requires calli:reader;
     calli:type "text/html";
     calli:get </callimachus/pipelines/class-index.xpl?results&target=$0>.
 
@@ -63,6 +64,7 @@
     calli:method "POST";
     calli:query "edit";
     calli:realm </>;
+    calli:requires calli:editor;
     calli:expect "201-modified";
     calli:type "text/uri-list";
     calli:imports <java:org.openrdf.model.vocabulary.RDF>;

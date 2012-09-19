@@ -62,6 +62,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:rel "edit-media";
+    calli:requires calli:reader;
     calli:type "text/turtle";
     calli:header "cache-control:no-cache";
     calli:header "cache-control:cache-range";
@@ -106,6 +107,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
+    calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:script """
@@ -152,6 +154,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.query.GraphQueryResult>];
     calli:method "GET";
     calli:rel "edit-media";
+    calli:requires calli:reader;
     calli:type "application/rdf+xml;q=0.4";
     msg:sparql "CONSTRUCT { ?s ?p ?o } WHERE { GRAPH $this { ?s ?p ?o } }".
 
@@ -197,6 +200,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
+    calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;
     calli:script """

@@ -30,6 +30,7 @@
     rdfs:subClassOf [owl:onProperty :digest_login_xhtml; owl:hasValue <pages/digest-login.xhtml>];
     calli:method "GET";
     calli:query "login";
+    calli:requires calli:reader;
     calli:type "text/html";
     calli:script """
         return digest_login_xhtml.Construct(this, 'login');
@@ -45,6 +46,7 @@
     calli:method "POST";
     calli:query "login";
     calli:realm </>;
+    calli:requires calli:subscriber;
     calli:type "message/x-response";
     calli:script """
         var persistent = loginOptions.indexOf("persistent=true") >= 0;
@@ -84,6 +86,7 @@
     rdfs:subClassOf [owl:onProperty :digest_register_xhtml; owl:hasValue <pages/digest-register.xhtml>];
     calli:method "GET";
     calli:query "register";
+    calli:requires calli:reader;
     calli:type "text/html";
     calli:header "cache-control:no-store";
     calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
@@ -125,6 +128,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "POST";
     calli:query "register";
+    calli:requires calli:reader;
     calli:script """
         var nonce = regForm.get("nonce")[0];
         var token = regForm.get("token")[0];
@@ -160,6 +164,7 @@
     rdfs:subClassOf [owl:onProperty :digest_daypass_xhtml; owl:hasValue <pages/digest-daypass.xhtml>];
     calli:method "GET";
     calli:query "daypass";
+    calli:requires calli:reader;
     calli:type "text/html";
     calli:header "cache-control:no-store";
     calli:script """
@@ -175,6 +180,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     rdfs:subClassOf [owl:onProperty :mail_digest_daypass_xhtml; owl:hasValue <pages/mail-digest-daypass.xhtml>];
     calli:method "POST";
+    calli:requires calli:reader;
     calli:query "daypass";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;

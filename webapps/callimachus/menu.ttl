@@ -22,6 +22,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:query "items";
+    calli:requires calli:reader;
     calli:type "application/xhtml+xml";
     calli:get <pipelines/menu-items.xpl?results&target=$0>.
 
@@ -30,6 +31,7 @@
     calli:method "POST";
     calli:query "edit";
     calli:realm </>;
+    calli:requires calli:editor;
     calli:expect "201-modified";
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;

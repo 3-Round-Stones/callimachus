@@ -44,6 +44,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:rel "edit-media";
+    calli:requires calli:reader;
     calli:type "image/jpeg";
     calli:header "cache-control:cache-range";
     calli:script "return this.openInputStream()".
@@ -91,6 +92,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:realm </>;
+    calli:requires calli:editor;
     calli:script """
         var out = this.openOutputStream() ;
         var buf = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
@@ -119,6 +121,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:query "large";
+    calli:requires calli:reader;
     calli:type "image/png";
     calli:script """
         return this.ResizePhoto(this.openInputStream(), 1080);
@@ -129,6 +132,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:query "medium";
+    calli:requires calli:reader;
     calli:type "image/png";
     calli:script """
         return this.ResizePhoto(this.GetPhotoLarge(), 480);
@@ -139,6 +143,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:query "small";
+    calli:requires calli:reader;
     calli:type "image/png";
     calli:script """
         return this.ResizePhoto(this.GetPhotoMedium(), 240);
@@ -149,6 +154,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.InputStream>];
     calli:method "GET";
     calli:query "thumbnail";
+    calli:requires calli:reader;
     calli:type "image/png";
     calli:script """
         return this.ResizePhoto(this.GetPhotoSmall(), 64);

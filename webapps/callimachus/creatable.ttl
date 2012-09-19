@@ -38,6 +38,7 @@
     calli:method "GET";
     calli:query "create";
     calli:realm </>;
+    calli:requires calli:author;
     calli:type "text/html";
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
     calli:script """
@@ -55,6 +56,7 @@
     calli:method "GET";
     calli:query "create";
     calli:realm </>;
+    calli:requires calli:contributor;
     calli:type "text/html";
     calli:imports <Creatable>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
@@ -89,6 +91,7 @@
     calli:method "POST";
     calli:query "create";
     calli:realm </>;
+    calli:requires calli:contributor;
     calli:type "message/x-response";
     calli:imports <Creatable>;
     calli:imports <java:org.callimachusproject.io.MultipartParser>;

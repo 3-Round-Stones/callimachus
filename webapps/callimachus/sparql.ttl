@@ -120,8 +120,9 @@
 :PostQuery rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    msg:method "POST";
-    msg:type "message/x-response";
+    calli:method "POST";
+    calli:requires calli:reader;
+    calli:type "message/x-response";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         if (!query)
@@ -138,7 +139,8 @@
 :PostUpdate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlEndPoint>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    msg:method "POST";
+    calli:method "POST";
+    calli:requires calli:administrator;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
         if (!update)
@@ -165,6 +167,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     calli:method "GET";
     calli:query "query";
+    calli:requires calli:reader;
     calli:type "message/x-response";
     calli:header "cache-control:no-validate";
     calli:imports <java:org.apache.http.ProtocolVersion>;
@@ -174,7 +177,7 @@
         if (queryStr)
             return this.EvaluateSparql(queryStr);
         var http11 = new ProtocolVersion("HTTP", 1, 1);
-        var resp = new BasicHttpResponse(http11, 302, "see-other");
+        var resp = new BasicHttpResponse(http11, 302, "See Other");
         resp.setHeader("Location", this.toString() + "?view");
         resp.setEntity(new StringEntity(""));
         return resp;
@@ -190,6 +193,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     calli:method "POST";
+    calli:requires calli:administrator;
     calli:type "message/x-response";
     calli:imports <java:org.apache.http.ProtocolVersion>;
     calli:imports <java:org.apache.http.message.BasicHttpResponse>;
@@ -224,6 +228,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <SparqlService>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "POST";
+    calli:requires calli:administrator;
     calli:type "text/html";
     calli:imports <java:org.apache.http.ProtocolVersion>;
     calli:imports <java:org.apache.http.message.BasicHttpResponse>;

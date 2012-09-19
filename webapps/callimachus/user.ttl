@@ -161,6 +161,7 @@ rdfs:comment a rdf:Property.
     calli:realm </>;
     calli:method "GET";
     calli:query "password";
+    calli:requires calli:editor;
     calli:type "text/html";
     calli:header "cache-control:no-cache";
     calli:script """
@@ -176,6 +177,7 @@ rdfs:comment a rdf:Property.
     calli:method "POST";
     calli:query "password";
     calli:realm </>;
+    calli:requires calli:editor;
     calli:expect "201-modified";
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
@@ -226,3 +228,4 @@ rdfs:comment a rdf:Property.
             ?manager calli:authNamespace ?namespace .
         } LIMIT 1
     """.
+

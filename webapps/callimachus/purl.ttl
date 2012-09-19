@@ -40,6 +40,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <PURL>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "GET";
+    calli:requires calli:reader;
     calli:type "message/x-response";
     calli:imports <java:org.apache.http.message.BasicHttpRequest>;
     calli:imports <java:org.callimachusproject.rewrite.Substitution>;

@@ -38,6 +38,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
     calli:method "GET";
+    calli:requires calli:editor;
     calli:type "application/rdf+xml;q=0.9", "text/turtle;q=0.9";
     calli:header "cache-control:no-validate";
     calli:header "cache-control:max-age=60";
@@ -67,6 +68,7 @@
     calli:rel "alternate";
     calli:method "GET";
     calli:query "view";
+    calli:requires calli:editor;
     calli:type "text/html";
     calli:header "cache-control:no-validate";
     calli:header "cache-control:max-age=300";
@@ -89,6 +91,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
     calli:method "GET";
+    calli:requires calli:reader;
     calli:type "application/json;q=0.9";
     calli:header "cache-control:no-validate";
     calli:header "cache-control:max-age=60";
@@ -119,6 +122,7 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Profile>];
     calli:method "POST";
+    calli:requires calli:editor;
     calli:expect "303-see-other";
     calli:type "text/uri-list";
     calli:realm </>;

@@ -593,11 +593,10 @@
             throw new BadRequest("Schema data about " + container + " must be imported before " + uri);
         var label = decodeURI(uri.substring(uri.lastIndexOf('/', uri.length - 2) + 1, uri.length - 1)).replace(/-/g, ' ');
         con.add(nonFolder.resource, RDFS.LABEL, vf.createLiteral(label), []);
-        nonFolder.calliEditor.addAll(container.FindContributor(nonFolder));
-        nonFolder.calliReader.addAll(container.SelectAllReaders());
-        nonFolder.calliSubscriber.addAll(container.SelectAllSubscribers());
-        nonFolder.calliEditor.addAll(container.SelectAllEditors());
-        nonFolder.calliAdministrator.addAll(container.SelectAllAdministrators());
+        nonFolder.calliReader.addAll(container.calliReader);
+        nonFolder.calliSubscriber.addAll(container.calliSubscriber);
+        nonFolder.calliEditor.addAll(container.calliEditor);
+        nonFolder.calliAdministrator.addAll(container.calliAdministrator);
         container.calliHasComponent.add(nonFolder);
         con.add(nonFolder.resource, RDF.TYPE, vf.createURI("http://callimachusproject.org/rdf/2009/framework#Folder"), []);
         return con.addDesignation(nonFolder, Folder);

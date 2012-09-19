@@ -114,6 +114,7 @@ public class Setup {
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
 	private static final String CALLI_EDITOR = CALLI + "editor";
+	private static final String CALLI_SUBSCRIBER = CALLI + "subscriber";
 	private static final String CALLI_READER = CALLI + "reader";
 	private static final String CALLI_ORIGIN = CALLI + "Origin";
 	private static final String CALLI_REALM = CALLI + "Realm";
@@ -647,6 +648,8 @@ public class Setup {
 					vf.createURI("http://xmlns.com/foaf/0.1/Document"));
 			con.add(article, RDFS.LABEL, vf.createLiteral("main article"));
 			con.add(article, vf.createURI(CALLI_READER),
+					vf.createURI(origin + "/group/public"));
+			con.add(article, vf.createURI(CALLI_SUBSCRIBER),
 					vf.createURI(origin + "/group/users"));
 			con.add(article, vf.createURI(CALLI_EDITOR),
 					vf.createURI(origin + "/group/staff"));
@@ -860,6 +863,8 @@ public class Setup {
 			con.add(uri, RDF.TYPE, vf.createURI(CALLI_FOLDER));
 			con.add(uri, RDF.TYPE, vf.createURI(origin + CALLIMACHUS + "Folder"));
 			con.add(uri, RDFS.LABEL, vf.createLiteral(label));
+			add(con, uri, CALLI_READER, origin + "/group/public");
+			add(con, uri, CALLI_READER, origin + "/group/system");
 			add(con, uri, CALLI_ADMINISTRATOR, origin + "/group/admin");
 			con.setAutoCommit(true);
 			return true;
@@ -949,7 +954,8 @@ public class Setup {
 		String c = origin + CALLIMACHUS;
 		add(con, subj, RDF.TYPE, CALLI_REALM);
 		add(con, subj, RDF.TYPE, CALLI_FOLDER);
-		add(con, subj, CALLI_READER, origin + "/group/users");
+		add(con, subj, CALLI_READER, origin + "/group/public");
+		add(con, subj, CALLI_SUBSCRIBER, origin + "/group/users");
 		add(con, subj, CALLI_EDITOR, origin + "/group/staff");
 		add(con, subj, CALLI_ADMINISTRATOR, origin + "/group/admin");
 		add(con, subj, CALLI_UNAUTHORIZED, c + "pages/unauthorized.xhtml");
@@ -1107,7 +1113,7 @@ public class Setup {
 			} else {
 				con.add(subj, RDFS.LABEL, vf.createLiteral(name));
 			}
-			con.add(subj, vf.createURI(CALLI_READER), staff);
+			con.add(subj, vf.createURI(CALLI_SUBSCRIBER), staff);
 			con.add(subj, vf.createURI(CALLI_ADMINISTRATOR), admin);
 			con.add(folder, vf.createURI(CALLI_HASCOMPONENT), subj);
 			con.add(admin, vf.createURI(CALLI_MEMBER), subj);

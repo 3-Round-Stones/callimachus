@@ -32,6 +32,9 @@
 
 <profile> a <Profile>;
     rdfs:label "profile";
+    calli:reader </group/system>;
+    calli:subscriber </group/users>;
+    calli:editor </group/staff>;
     calli:administrator </group/admin>.
 
 :GetRdfProfile rdfs:subClassOf msg:Message;

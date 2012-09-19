@@ -50,3 +50,131 @@ DELETE {
     FILTER NOT EXISTS { ?any calli:subscriber ?subscriber }
 };
 
+INSERT {
+    ?group calli:membersFrom "."
+} WHERE {
+    ?group a calli:Group
+    FILTER NOT EXISTS { ?group calli:anonymousFrom ?somewhere }
+    FILTER NOT EXISTS { ?group calli:everyoneFrom ?somewhere }
+    FILTER NOT EXISTS { ?group calli:membersFrom ?somewhere }
+};
+
+INSERT {
+    </group/> calli:hasComponent </group/everyone>, </group/system>, </group/public>.
+
+    </group/everyone> a calli:Party, calli:Group, </callimachus/Group>;
+        rdfs:label "everyone";
+        rdfs:comment "A virtual group of all authorized users";
+        calli:subscriber </group/staff>;
+        calli:administrator </group/admin>;
+        calli:everyoneFrom ".".
+
+    </group/system> a calli:Party, calli:Group, </callimachus/Group>;
+        rdfs:label "system";
+        rdfs:comment "The local computer or computer systems is the member of this group";
+        calli:subscriber </group/staff>;
+        calli:administrator </group/admin>;
+        calli:anonymousFrom "localhost".
+
+    </group/public> a calli:Party, calli:Group, </callimachus/Group>;
+        rdfs:label "public";
+        rdfs:comment "A virtual group of all agents";
+        calli:subscriber </group/staff>;
+        calli:administrator </group/admin>;
+        calli:anonymousFrom ".".
+} WHERE {
+    FILTER NOT EXISTS { </group/public> a calli:Group }
+};
+
+INSERT {
+    </accounts> calli:reader </group/public>; calli:subscriber </group/users>, </group/staff>;
+} WHERE {
+    FILTER NOT EXISTS { </accounts> calli:reader ?group }
+};
+
+INSERT {
+    </.well-known/> calli:reader </group/public> .
+    </.well-known/void> a </callimachus/Servicable>; calli:reader </group/public> .
+} WHERE {
+    FILTER NOT EXISTS { </.well-known/> calli:reader ?group }
+};
+
+INSERT {
+    </callimachus> calli:administrator </group/admin>
+} WHERE {
+    FILTER NOT EXISTS { </callimachus> calli:administrator ?group }
+};
+
+INSERT {
+    </main+menu> calli:reader </group/public>
+} WHERE {
+    FILTER NOT EXISTS { </main+menu> calli:reader ?group }
+};
+
+INSERT {
+    ?resource calli:reader </group/public>
+} WHERE {
+    {
+        ?resource a </callimachus/AnimatedGraphic>
+    } UNION {
+        ?resource a </callimachus/Article>
+    } UNION {
+        ?resource a </callimachus/Concept>
+    } UNION {
+        ?resource a </callimachus/Folder>
+    } UNION {
+        ?resource a </callimachus/Font>
+    } UNION {
+        ?resource a </callimachus/GraphDocument>
+    } UNION {
+        ?resource a </callimachus/HypertextFile>
+    } UNION {
+        ?resource a </callimachus/IconGraphic>
+    } UNION {
+        ?resource a </callimachus/NamedGraph>
+    } UNION {
+        ?resource a </callimachus/NamedQuery>
+    } UNION {
+        ?resource a </callimachus/NetworkGraphic>
+    } UNION {
+        ?resource a </callimachus/Origin>
+    } UNION {
+        ?resource a </callimachus/Page>
+    } UNION {
+        ?resource a </callimachus/Pdf>
+    } UNION {
+        ?resource a </callimachus/Pipeline>
+    } UNION {
+        ?resource a </callimachus/PURL>
+    } UNION {
+        ?resource a </callimachus/Realm>
+    } UNION {
+        ?resource a </callimachus/Relax>
+    } UNION {
+        ?resource a </callimachus/Schema>
+    } UNION {
+        ?resource a </callimachus/Schematron>
+    } UNION {
+        ?resource a </callimachus/Script>
+    } UNION {
+        ?resource a </callimachus/Style>
+    } UNION {
+        ?resource a </callimachus/TextFile>
+    } UNION {
+        ?resource a </callimachus/Theme>
+    } UNION {
+        ?resource a </callimachus/Transform>
+    } UNION {
+        ?resource a </callimachus/VectorGraphic>
+    }
+    FILTER NOT EXISTS { ?resource calli:reader ?group }
+};
+
+INSERT {
+    ?class calli:reader </group/public>
+} WHERE {
+    ?class a </callimachus/Class>
+    FILTER NOT EXISTS { ?class calli:reader ?group }
+    FILTER NOT EXISTS { ?class calli:realm ?realm }
+};
+

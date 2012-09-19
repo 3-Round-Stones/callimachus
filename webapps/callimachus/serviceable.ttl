@@ -151,6 +151,7 @@ skos:editorialNote a owl:AnnotationProperty.
         } finally {
             stmts.close();
         }
+        var last = null;
         return new org.openrdf.query.GraphQueryResult({
             close: function() {
                 stmts.close();
@@ -177,6 +178,13 @@ skos:editorialNote a owl:AnnotationProperty.
                     stmts = con.getStatements(queue.shift(), null, null, false, []);
                 }
                 var st = stmts.next();
+                while (last != null && stmts.hasNext()
+                        && st.subject == last.subject
+                        && st.predicate == last.predicate
+                        && st.object == last.object) {
+                    st = stmts.next();
+                }
+                last = st;
                 var uri = st.object.stringValue()
                 if (st.object instanceof org.openrdf.model.URI) {
                     if (uri.length > base.length && uri.indexOf(base) == 0) {

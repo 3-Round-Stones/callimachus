@@ -425,7 +425,7 @@
                 } else if (carStream.isSchemaEntry()) {
                     var graphURI = vf.createURI(con.getActivityURI().stringValue() + "#schema");
                     con.add(graphURI, RDF.TYPE, SchemaGraph, []);
-                    readFrom(type, entryStream, uri, [graphURI]);
+                    readFrom(type, entryStream, uri, [graphURI, con.getActivityURI()]);
                     if (folder) {
                         folder.calliHasComponent.add(location);
                     }

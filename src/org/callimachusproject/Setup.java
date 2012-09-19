@@ -705,12 +705,12 @@ public class Setup {
 	private boolean importCar(URL car, String folder, String origin,
 			CallimachusRepository repository) throws Exception {
 		createFolder(folder, origin, repository);
-		Collection<URI> schemaGraphs = importSchema(car, folder, origin, repository);
+		URI[] schemaGraphs = importSchema(car, folder, origin, repository);
 		importArchive(schemaGraphs, car, folder, origin, repository);
 		return true;
 	}
 
-	private Collection<URI> importSchema(URL car, String folder, String origin,
+	private URI[] importSchema(URL car, String folder, String origin,
 			CallimachusRepository repository) throws RepositoryException,
 			IOException, RDFParseException {
 		Collection<URI> schemaGraphs = new LinkedHashSet<URI>();
@@ -740,7 +740,7 @@ public class Setup {
 		} finally {
 			con.close();
 		}
-		return schemaGraphs;
+		return schemaGraphs.toArray(new URI[schemaGraphs.size()]);
 	}
 
 	private URI importSchemaGraphEntry(CarInputStream carin, String folder,
@@ -751,7 +751,7 @@ public class Setup {
 		InputStream in = carin.getEntryStream();
 		try {
 			if (carin.isSchemaEntry()) {
-				URI graph = vf.createURI(con.getActivityURI().stringValue() + "#schema");
+				URI graph = con.getActivityURI();
 				con.add(in, target, RDFFormat.RDFXML, graph);
 				return graph;
 			} else if (carin.isFileEntry()) {
@@ -781,7 +781,7 @@ public class Setup {
 		}
 	}
 
-	private void importArchive(Collection<URI> schemaGraphs, URL car,
+	private void importArchive(URI[] schemaGraphs, URL car,
 			String folderUri, String origin, CallimachusRepository repository)
 			throws Exception {
 		for (URI schemaGraph : schemaGraphs) {
@@ -791,6 +791,9 @@ public class Setup {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
+			if (schemaGraphs.length > 0) {
+				con.clear(schemaGraphs);
+			}
 			Object folder = con.getObject(folderUri);
 			Method UploadFolderComponents = findUploadFolderComponents(folder);
 			InputStream in = car.openStream();

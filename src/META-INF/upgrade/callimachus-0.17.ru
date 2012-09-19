@@ -167,6 +167,10 @@ INSERT {
     } UNION {
         ?resource a </callimachus/VectorGraphic>
     }
+    FILTER (?resource != </activity/>)
+    FILTER (?resource != </callimachus/>)
+    FILTER (?resource != </group/>)
+    FILTER (?resource != </user/>)
     FILTER NOT EXISTS { ?resource calli:reader ?group }
 };
 

@@ -1,0 +1,75 @@
+@prefix xsd:<http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#>.
+@prefix owl:<http://www.w3.org/2002/07/owl#>.
+@prefix skos:<http://www.w3.org/2004/02/skos/core#>.
+@prefix msg:<http://www.openrdf.org/rdf/2011/messaging#>.
+@prefix calli:<http://callimachusproject.org/rdf/2009/framework#>.
+@prefix :<#>.
+
+</callimachus/> calli:hasComponent </callimachus/editor/>.
+</callimachus/editor/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "editor";
+    calli:reader </group/public>, </group/system>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/images/>.
+</callimachus/images/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "images";
+    calli:reader </group/public>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/pages/>.
+</callimachus/pages/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "pages";
+    calli:reader </group/public>, </group/system>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/pipelines/>.
+</callimachus/pipelines/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "pipelines";
+    calli:reader </group/system>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/queries/>.
+</callimachus/queries/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "queries";
+    calli:reader </group/system>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/schemas/>.
+</callimachus/schemas/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "schemas";
+    calli:reader </group/system>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/scripts/>.
+</callimachus/scripts/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "scripts";
+    calli:reader </group/public>, </group/system>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/styles/>.
+</callimachus/styles/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "styles";
+    calli:reader </group/public>, </group/system>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/templates/>.
+</callimachus/templates/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "templates";
+    calli:reader </group/system>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/theme/>.
+</callimachus/theme/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "theme";
+    calli:reader </group/public>, </group/system>;
+    calli:administrator </group/admin>.
+
+</callimachus/> calli:hasComponent </callimachus/transforms/>.
+</callimachus/transforms/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "transforms";
+    calli:reader </group/system>;
+    calli:administrator </group/admin>.
+

@@ -26,17 +26,8 @@
     calli:administrator </group/admin>.
 
 ################################
-# Authorization and Groups
+# Default Folders
 ################################
-
-</> calli:hasComponent </accounts>.
-</accounts> a </callimachus/DigestManager>, calli:DigestManager;
-    rdfs:label "accounts";
-    calli:reader </group/public>;
-    calli:subscriber </group/users>, </group/staff>;
-    calli:administrator </group/admin>;
-    calli:authName </>;
-    calli:authNamespace </user/>.
 
 </> calli:hasComponent </activity/>.
 </activity/> a </callimachus/Folder>, calli:Folder;
@@ -53,9 +44,28 @@
 </group/> a </callimachus/Folder>, calli:Folder;
     rdfs:label "group";
     calli:subscriber </group/staff>;
-    calli:administrator </group/admin>;
-    calli:hasComponent </group/admin>, </group/staff>, </group/users>, </group/everyone>, </group/system>, </group/public>.
+    calli:administrator </group/admin>.
 
+</> calli:hasComponent </callimachus/>.
+</callimachus/> a </callimachus/Folder>, calli:Folder;
+    rdfs:label "callimachus";
+    calli:reader </group/public>, </group/system>;
+    calli:administrator </group/admin>.
+
+################################
+# Authorization and Groups
+################################
+
+</> calli:hasComponent </accounts>.
+</accounts> a </callimachus/DigestManager>, calli:DigestManager;
+    rdfs:label "accounts";
+    calli:reader </group/public>;
+    calli:subscriber </group/users>, </group/staff>;
+    calli:administrator </group/admin>;
+    calli:authName </>;
+    calli:authNamespace </user/>.
+
+</group/> calli:hasComponent </group/admin>.
 </group/admin> a calli:Party, calli:Group, </callimachus/Group>;
     rdfs:label "admin";
     rdfs:comment "The user accounts in this group have heightened privileges, including the ability to edit other user accounts and access the underlying data store";
@@ -63,6 +73,7 @@
     calli:administrator </group/admin>;
     calli:membersFrom ".".
 
+</group/> calli:hasComponent </group/staff>.
 </group/staff> a calli:Party, calli:Group, </callimachus/Group>;
     rdfs:label "staff";
     rdfs:comment "Members of this group can design and edit resources within the system";
@@ -70,6 +81,7 @@
     calli:administrator </group/admin>;
     calli:membersFrom ".".
 
+</group/> calli:hasComponent </group/users>.
 </group/users> a calli:Party, calli:Group, </callimachus/Group>;
     rdfs:label "users";
     rdfs:comment "Members of this group can view and discuss resources within the system";
@@ -77,6 +89,7 @@
     calli:administrator </group/admin>;
     calli:membersFrom ".".
 
+</group/> calli:hasComponent </group/everyone>.
 </group/everyone> a calli:Party, calli:Group, </callimachus/Group>;
     rdfs:label "everyone";
     rdfs:comment "A virtual group of all authorized users";
@@ -84,6 +97,7 @@
     calli:administrator </group/admin>;
     calli:everyoneFrom ".".
 
+</group/> calli:hasComponent </group/system>.
 </group/system> a calli:Party, calli:Group, </callimachus/Group>;
     rdfs:label "system";
     rdfs:comment "The local computer or computer systems is the member of this group";
@@ -91,6 +105,7 @@
     calli:administrator </group/admin>;
     calli:anonymousFrom "localhost".
 
+</group/> calli:hasComponent </group/public>.
 </group/public> a calli:Party, calli:Group, </callimachus/Group>;
     rdfs:label "public";
     rdfs:comment "A virtual group of all agents";

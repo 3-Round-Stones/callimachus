@@ -117,6 +117,7 @@ public class Setup {
 	private static final String CALLI_HASCOMPONENT = CALLI + "hasComponent";
 	private static final String CALLI_ADMINISTRATOR = CALLI + "administrator";
 	private static final String CALLI_EDITOR = CALLI + "editor";
+	private static final String CALLI_CONTRIBUTOR = CALLI + "contributor";
 	private static final String CALLI_SUBSCRIBER = CALLI + "subscriber";
 	private static final String CALLI_READER = CALLI + "reader";
 	private static final String CALLI_ORIGIN = CALLI + "Origin";
@@ -976,7 +977,8 @@ public class Setup {
 		add(con, subj, RDF.TYPE, CALLI_REALM);
 		add(con, subj, RDF.TYPE, CALLI_FOLDER);
 		add(con, subj, CALLI_READER, origin + "/group/public");
-		add(con, subj, CALLI_SUBSCRIBER, origin + "/group/users");
+		add(con, subj, CALLI_SUBSCRIBER, origin + "/group/everyone");
+		add(con, subj, CALLI_CONTRIBUTOR, origin + "/group/users");
 		add(con, subj, CALLI_EDITOR, origin + "/group/staff");
 		add(con, subj, CALLI_ADMINISTRATOR, origin + "/group/admin");
 		add(con, subj, CALLI_UNAUTHORIZED, c + "pages/unauthorized.xhtml");

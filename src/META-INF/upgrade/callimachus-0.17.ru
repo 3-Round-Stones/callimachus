@@ -112,7 +112,7 @@ INSERT {
 };
 
 INSERT {
-    </callimachus/> calli:reader </group/public>, </group/system>
+    </callimachus/> calli:reader </group/public>
 } WHERE {
     FILTER NOT EXISTS { </callimachus/> calli:reader ?group }
 };

@@ -49,7 +49,7 @@
 </> calli:hasComponent </callimachus/>.
 </callimachus/> a </callimachus/Folder>, calli:Folder;
     rdfs:label "callimachus";
-    calli:reader </group/public>, </group/system>;
+    calli:reader </group/public>;
     calli:administrator </group/admin>.
 
 ################################

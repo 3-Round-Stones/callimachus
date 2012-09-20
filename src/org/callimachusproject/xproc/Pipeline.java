@@ -48,6 +48,13 @@ public class Pipeline {
 		this.pipeline = resolver.parse(systemId, in);
 	}
 
+	@Override
+	public String toString() {
+		if (systemId != null)
+			return systemId;
+		return pipeline.toString();
+	}
+
 	public String getSystemId() {
 		return systemId;
 	}

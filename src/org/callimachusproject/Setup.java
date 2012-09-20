@@ -32,6 +32,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -56,6 +57,8 @@ import org.callimachusproject.cli.CommandSet;
 import org.callimachusproject.io.CarInputStream;
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.CallimachusServer;
+import org.callimachusproject.server.client.HTTPObjectClient;
+import org.callimachusproject.server.client.HTTPServiceUnavailable;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
@@ -787,6 +790,10 @@ public class Setup {
 	private void importArchive(URI[] schemaGraphs, URL car,
 			String folderUri, String origin, CallimachusRepository repository)
 			throws Exception {
+		InetSocketAddress host = getAuthorityAddress(origin);
+		HTTPObjectClient client = HTTPObjectClient.getInstance();
+		HTTPServiceUnavailable service = new HTTPServiceUnavailable();
+		client.setProxy(host, service);
 		for (URI schemaGraph : schemaGraphs) {
 			repository.addSchemaGraph(schemaGraph);
 		}
@@ -823,6 +830,7 @@ public class Setup {
 			con.setAutoCommit(true);
 		} finally {
 			con.close();
+			client.removeProxy(host, service);
 		}
 	}
 
@@ -866,6 +874,24 @@ public class Setup {
 		} finally {
 			con.close();
 		}
+	}
+
+	private InetSocketAddress getAuthorityAddress(String origin) {
+		InetSocketAddress host;
+		if (origin.indexOf(':') != origin.lastIndexOf(':')) {
+			int slash = origin.lastIndexOf('/');
+			int colon = origin.lastIndexOf(':');
+			int port = Integer.parseInt(origin.substring(colon + 1));
+			host = new InetSocketAddress(origin.substring(slash + 1, colon),
+					port);
+		} else if (origin.startsWith("https:")) {
+			int slash = origin.lastIndexOf('/');
+			host = new InetSocketAddress(origin.substring(slash + 1), 443);
+		} else {
+			int slash = origin.lastIndexOf('/');
+			host = new InetSocketAddress(origin.substring(slash + 1), 80);
+		}
+		return host;
 	}
 
 	private boolean createVirtualHost(String vhost, String origin,

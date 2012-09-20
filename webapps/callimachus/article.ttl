@@ -67,6 +67,7 @@
     calli:imports <java:java.net.URLDecoder>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:imports <File>;
     calli:imports foaf:Document;
     calli:script """
@@ -96,7 +97,12 @@
         } finally {
             out.close();
         }
-        var errorMsg = created.ValidateArticle().replace(/^\\s+|\\s+$/g,'');
+        var errorMsg = null;
+        try {
+            errorMsg = created.ValidateArticle().replace(/^\\s+|\\s+$/g,'');
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            println("Storing " + created);
+        }
         if (errorMsg) println(errorMsg.replace(/\\s+/g,' '));
         return created;
     """.
@@ -112,6 +118,7 @@
     calli:imports <java:java.net.URLDecoder>;
     calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:imports foaf:Document;
     calli:script """
         var read;
@@ -124,7 +131,12 @@
         } finally {
             out.close();
         }
-        var errorMsg = this.ValidateArticle().replace(/^\\s+|\\s+$/g,'');
+        var errorMsg = null;
+        try {
+            errorMsg = this.ValidateArticle().replace(/^\\s+|\\s+$/g,'');
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            println("Storing " + this);
+        }
         if (errorMsg) throw new BadRequest(errorMsg.replace(/\\s+/g,' '));
         this.touchRevision();
     """.

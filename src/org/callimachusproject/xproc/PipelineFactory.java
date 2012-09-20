@@ -6,8 +6,6 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.Enumeration;
 
-import net.sf.saxon.s9api.Processor;
-
 import org.callimachusproject.xml.XdmNodeURIResolver;
 import org.xml.sax.SAXException;
 
@@ -15,28 +13,17 @@ import com.xmlcalabash.core.XProcConfiguration;
 import com.xmlcalabash.core.XProcException;
 
 public class PipelineFactory {
-	private static final PipelineFactory instance;
-	static {
-		try {
-			instance = new PipelineFactory();
-		} catch (XProcException e) {
-			throw new AssertionError(e);
-		} catch (IOException e) {
-			throw new AssertionError(e);
-		}
-	}
 
-	public static PipelineFactory getInstance() {
-		return instance;
+	public static PipelineFactory newInstance() throws IOException {
+		return new PipelineFactory();
 	}
 
 	private final XProcConfiguration config;
 	private final XdmNodeURIResolver resolver;
 
-	private PipelineFactory() throws IOException, XProcException {
-		config = new XProcConfiguration("he", false);
-		Processor processor = config.getProcessor();
-		this.resolver = new XdmNodeURIResolver(processor);
+	private PipelineFactory() throws IOException {
+		this.config = new XProcConfiguration("he", false);
+		this.resolver = new XdmNodeURIResolver(config.getProcessor());
     	ClassLoader cl = getClass().getClassLoader();
 		Enumeration<URL> resources = cl.getResources("META-INF/xmlcalabash.xml");
 		while (resources.hasMoreElements()) {

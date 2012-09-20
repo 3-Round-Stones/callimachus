@@ -147,7 +147,7 @@
     calli:imports <java:org.apache.http.message.BasicHttpResponse>;
     calli:imports <java:org.apache.http.entity.InputStreamEntity>;
     calli:script """
-        var factory = PipelineFactory.getInstance();
+        var factory = PipelineFactory.newInstance();
         var pipeline = factory.createPipeline(this.openInputStream(), this.toString());
         var pipe = pipeline.pipeStream(sourcePort, sourceLocation);
         var iterator = queryPostParameters.keySet().iterator();

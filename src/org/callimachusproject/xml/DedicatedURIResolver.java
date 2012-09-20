@@ -20,20 +20,17 @@ import javax.xml.transform.URIResolver;
  *
  */
 public abstract class DedicatedURIResolver implements URIResolver {
-	protected static LinkedHashMap<String, Reference<URIResolver>> newStaticResolver() {
-		return new LinkedHashMap<String, Reference<URIResolver>>(
-				16, 0.75f, true) {
-			private static final long serialVersionUID = 1362917757653811798L;
 
-			protected boolean removeEldestEntry(
-					Map.Entry<String, Reference<URIResolver>> eldest) {
-				return size() > 1024;
-			}
-		};
-	}
+	private final Map<String, Reference<URIResolver>> resolverPool = new LinkedHashMap<String, Reference<URIResolver>>(
+			16, 0.75f, true) {
+		private static final long serialVersionUID = 1362917757653811798L;
 
-	private final Map<String, Reference<URIResolver>> staticResolvers;
-	private final Map<String, Reference<URIResolver>> instanceResolvers = new LinkedHashMap<String, Reference<URIResolver>>(
+		protected boolean removeEldestEntry(
+				Map.Entry<String, Reference<URIResolver>> eldest) {
+			return size() > 1024;
+		}
+	};
+	private final Map<String, Reference<URIResolver>> resolverPuddle = new LinkedHashMap<String, Reference<URIResolver>>(
 			16, 0.75f, true) {
 		private static final long serialVersionUID = 1362917757653811798L;
 
@@ -42,11 +39,6 @@ public abstract class DedicatedURIResolver implements URIResolver {
 			return size() > 16;
 		}
 	};
-
-	public DedicatedURIResolver(
-			Map<String, Reference<URIResolver>> staticResolvers) {
-		this.staticResolvers = staticResolvers;
-	}
 
 	public Source resolve(String href, String base)
 			throws TransformerException {
@@ -80,34 +72,34 @@ public abstract class DedicatedURIResolver implements URIResolver {
 	}
 
 	private URIResolver getResolver(String url) {
-		synchronized (instanceResolvers) {
-			Iterator<Entry<String, Reference<URIResolver>>> iter;
-			iter = instanceResolvers.entrySet().iterator();
-			while (iter.hasNext()) {
-				Map.Entry<String, Reference<URIResolver>> e;
-				e = iter.next();
-				if (e.getValue().get() == null) {
-					iter.remove();
-				}
-			}
-			Reference<URIResolver> ref = instanceResolvers.get(url);
-			if (ref != null) {
-				URIResolver resolver = ref.get();
-				if (resolver != null)
-					return resolver;
-			}
-			URIResolver resolver = getStaticResolver(url);
-			instanceResolvers.put(url, new SoftReference<URIResolver>(
-					resolver));
+		URIResolver resolver = get(url, resolverPuddle);
+		if (resolver != null)
 			return resolver;
-		}
-
+		resolver = getSharedResolver(url);
+		purge(resolverPuddle);
+		put(url, resolver, resolverPuddle);
+		return resolver;
 	}
 
-	private URIResolver getStaticResolver(String url) {
-		synchronized (staticResolvers) {
+	private URIResolver getSharedResolver(String url) {
+		URIResolver resolver = get(url, resolverPool);
+		if (resolver != null)
+			return resolver;
+		resolver = createURIResolver();
+		synchronized (resolverPool) {
+			URIResolver other = get(url, resolverPool);
+			if (other != null)
+				return other;
+			purge(resolverPool);
+			put(url, resolver, resolverPool);
+			return resolver;
+		}
+	}
+
+	private void purge(Map<String, Reference<URIResolver>> resolvers) {
+		synchronized (resolvers) {
 			Iterator<Entry<String, Reference<URIResolver>>> iter;
-			iter = staticResolvers.entrySet().iterator();
+			iter = resolvers.entrySet().iterator();
 			while (iter.hasNext()) {
 				Map.Entry<String, Reference<URIResolver>> e;
 				e = iter.next();
@@ -115,16 +107,23 @@ public abstract class DedicatedURIResolver implements URIResolver {
 					iter.remove();
 				}
 			}
-			Reference<URIResolver> ref = staticResolvers.get(url);
-			if (ref != null) {
-				URIResolver resolver = ref.get();
-				if (resolver != null)
-					return resolver;
-			}
-			URIResolver resolver = createURIResolver();
-			staticResolvers.put(url, new SoftReference<URIResolver>(
-					resolver));
-			return resolver;
+		}
+	}
+
+	private URIResolver get(String url,
+			Map<String, Reference<URIResolver>> resolvers) {
+		synchronized (resolvers) {
+			Reference<URIResolver> ref = resolvers.get(url);
+			if (ref == null)
+				return null;
+			return ref.get();
+		}
+	}
+
+	private void put(String url, URIResolver resolver,
+			Map<String, Reference<URIResolver>> resolvers) {
+		synchronized (resolvers) {
+			resolvers.put(url, new SoftReference<URIResolver>(resolver));
 		}
 	}
 

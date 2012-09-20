@@ -56,7 +56,7 @@ public class PipelineTest extends TestCase {
 
 	private String pipe(String source, String pipeline) throws IOException,
 			SAXException {
-		PipelineFactory pf = PipelineFactory.getInstance();
+		PipelineFactory pf = PipelineFactory.newInstance();
 		Pipeline pipe = pf.createPipeline(new StringReader(pipeline), "http://example.com/");
 		if (source == null)
 			return pipe.pipe().asString();

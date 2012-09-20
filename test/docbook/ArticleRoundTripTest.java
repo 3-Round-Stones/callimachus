@@ -66,7 +66,7 @@ public class ArticleRoundTripTest extends TestCase {
 
 	@Override
 	protected void runTest() throws Throwable {
-		PipelineFactory pf = PipelineFactory.getInstance();
+		PipelineFactory pf = PipelineFactory.newInstance();
 		String systemId = new File("test/docbook/test-harness.xpl").toURI()
 				.toASCIIString();
 		Pipeline pipeline = pf.createPipeline(systemId);

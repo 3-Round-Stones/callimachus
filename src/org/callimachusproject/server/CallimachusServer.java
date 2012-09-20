@@ -78,7 +78,7 @@ public class CallimachusServer implements HTTPObjectAgentMXBean {
 		return server.getErrorPipe();
 	}
 
-	public void setErrorPipe(String url) {
+	public void setErrorPipe(String url) throws IOException {
 		server.setErrorPipe(url);
 	}
 

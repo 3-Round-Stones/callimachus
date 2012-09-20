@@ -5,8 +5,6 @@ import info.aduna.net.ParsedURI;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.lang.ref.Reference;
-import java.util.Map;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
@@ -26,12 +24,9 @@ import org.xml.sax.SAXException;
  *
  */
 public class XdmNodeURIResolver extends DedicatedURIResolver {
-	private static final Map<String, Reference<URIResolver>> staticResolvers = newStaticResolver();
-
 	private final XdmNodeResolver resolver;
 
 	public XdmNodeURIResolver(Processor processor) {
-		super(staticResolvers);
 		resolver = new XdmNodeResolver(processor);
 	}
 

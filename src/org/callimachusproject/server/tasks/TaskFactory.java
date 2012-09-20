@@ -42,7 +42,6 @@ import org.callimachusproject.server.model.Request;
 import org.callimachusproject.server.util.ManagedExecutors;
 import org.callimachusproject.xproc.Pipeline;
 import org.callimachusproject.xproc.PipelineFactory;
-import org.xml.sax.SAXException;
 
 /**
  * Executes tasks in a thread pool or in the current thread.
@@ -107,8 +106,8 @@ public class TaskFactory {
 		return pipeline.getSystemId();
 	}
 
-	public void setErrorPipe(String url) {
-		this.pipeline = PipelineFactory.getInstance().createPipeline(url);
+	public void setErrorPipe(String url) throws IOException {
+		this.pipeline = PipelineFactory.newInstance().createPipeline(url);
 	}
 
 	public Task createBackgroundTask(Request req) {

@@ -218,7 +218,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		return service.getErrorPipe();
 	}
 
-	public void setErrorPipe(String url) {
+	public void setErrorPipe(String url) throws IOException {
 		service.setErrorPipe(url);
 	}
 

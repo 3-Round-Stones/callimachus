@@ -109,7 +109,7 @@ public class HTTPObjectRequestHandler implements NHttpRequestHandler,
 		return factory.getErrorPipe();
 	}
 
-	public void setErrorPipe(String url) {
+	public void setErrorPipe(String url) throws IOException {
 		factory.setErrorPipe(url);
 	}
 

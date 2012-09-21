@@ -112,7 +112,7 @@ function RDFXMLSerializer() {
 	};
 	
 	this.buildUri = function(uri, pname) {
-		return pname + '="' + encodeURI(uri) + '"';
+		return pname + '="' + encodeURI(uri).replace(/\&/gm, '&amp;') + '"';
 	},
 	
 	this.buildObject = function(predicate, object, datatype, language) {

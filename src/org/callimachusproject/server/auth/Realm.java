@@ -2,6 +2,7 @@ package org.callimachusproject.server.auth;
 
 import static org.openrdf.query.QueryLanguage.SPARQL;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -178,6 +179,34 @@ public class Realm {
 			}
 		}
 		return msg;
+	}
+
+	public HttpResponse logout(Collection<String> tokens, String logoutContinue) throws IOException {
+		BasicHttpResponse resp = new BasicHttpResponse(HttpVersion.HTTP_1_1,
+				303, "See Other");
+		Iterator<AuthenticationManager> iter = authentication.iterator();
+		while (iter.hasNext()) {
+			AuthenticationManager manager = iter.next();
+			HttpResponse logout = manager.logout(tokens);
+			if (logout != null) {
+				if (logout.getStatusLine().getStatusCode() >= 400) {
+					return logout;
+				}
+				Header[] headers = logout.getAllHeaders();
+				for (Header hd : headers) {
+					resp.addHeader(hd);
+				}
+				if (logout.getEntity() != null) {
+					EntityUtils.consume(logout.getEntity());
+				}
+			}
+		}
+		if (logoutContinue != null && logoutContinue.length() > 0) {
+			resp.setHeader("Location", logoutContinue);
+		} else {
+			resp.setHeader("Location", "/");
+		}
+		return resp;
 	}
 
 	private Iterable<AuthenticationManager> getAuthenticationManagers() {

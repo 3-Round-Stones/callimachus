@@ -166,7 +166,7 @@ public class DigestManager implements AuthenticationManager {
 		Object realm = getAuthName();
 		if (realm == null)
 			return null;
-		String domain = protectionDomain();
+		String domain = protectedDomains;
 		if (domain == null) {
 			domain = "";
 		} else if (domain.length() != 0) {
@@ -311,7 +311,22 @@ public class DigestManager implements AuthenticationManager {
 		return new BasicHttpResponse(_204);
 	}
 
-	public HttpMessage logout() {
+	public HttpResponse logout(Collection<String> tokens) {
+		for (String token : tokens) {
+			if (token.indexOf("username=\"logout\"") < 0) {
+				// # the browser must send invalid credentials to logout
+				BasicHttpResponse resp = new BasicHttpResponse(
+						HttpVersion.HTTP_1_1, 401, "Unauthorized");
+				String hd = "Digest realm=\""
+						+ getAuthName()
+						+ "\", domain=\""
+						+ protectedDomains
+						+ "\", nonce=\"logout\", algorithm=\"MD5\", qop=\"auth\"";
+				resp.setHeader("WWW-Authenticate", hd);
+				return resp;
+			}
+		}
+		// # bogus credentials received or not needed
 		BasicHttpResponse resp = new BasicHttpResponse(_204);
 		resp.addHeader("Set-Cookie", DIGEST_NONCE
 				+ ";Max-Age=0;Path=/;HttpOnly");
@@ -347,10 +362,6 @@ public class DigestManager implements AuthenticationManager {
 			set.add(con.getObject(uuid));
 		}
 		return set;
-	}
-
-	private String protectionDomain() {
-		return protectedDomains;
 	}
 
 	private TupleQueryResult findPasswordDigest(String username,

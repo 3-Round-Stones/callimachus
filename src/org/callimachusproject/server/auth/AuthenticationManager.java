@@ -169,7 +169,7 @@ public interface AuthenticationManager {
 	/**
 	 * Include any Set-Cookie header to clear the session
 	 * 
-	 * @return set of HTTP headers
+	 * @return set of HTTP headers in a 204 response
 	 */
-	HttpMessage logout();
+	HttpResponse logout(Collection<String> tokens);
 }

@@ -156,46 +156,15 @@
     calli:imports <java:org.apache.http.ProtocolVersion>;
     calli:imports <java:org.apache.http.message.BasicHttpResponse>;
     calli:script """
-        var ver = new ProtocolVersion("HTTP", 1, 1);
-        if (!authorization || authorization.indexOf('username="logout"') < 0) {
-            var iter = this.calliAuthentication.iterator();
-            while (iter.hasNext()) {
-                var manager = iter.next();
-                if (manager.calliAuthName) {
-                    //# the browser must send invalid credentials to logout
-                    var resp = new BasicHttpResponse(ver, 401, "Unauthorized");
-                    var hd = 'Digest realm="' + manager.calliAuthName + '", domain="'
-                        + manager.protectionDomain() + '", nonce="logout", algorithm="MD5", qop="auth"';
-                    resp.setHeader('WWW-Authenticate', hd);
-                    return resp;
-                }
-            }
-        }
-        //# bogus credentials received or not needed
-        var resp = new BasicHttpResponse(ver, 303, "See Other");
-        if (logoutContinue) {
-            resp.setHeader("Location", logoutContinue);
-        } else {
-            resp.setHeader("Location", "/");
-        }
-        var iter = this.calliAuthentication.iterator();
-        while (iter.hasNext()) {
-            var manager = iter.next();
-            var logout = manager.logout();
-            if (logout) {
-                var headers = logout.getAllHeaders();
-                for (var i=0; i<headers.length; i++) {
-                    resp.addHeader(headers[i]);
-                }
-            }
-        }
-        return resp;
+        var manager = new org.callimachusproject.server.auth.RealmManager();
+        var realm = manager.getRealm(this.toString(), this.objectConnection);
+        return realm.logout(authorization, logoutContinue);
     """.
 
-:authorization a owl:FunctionalProperty, owl:DatatypeProperty;
+:authorization a owl:DatatypeProperty;
     rdfs:domain :GetLogout;
     rdfs:range xsd:string;
-    calli:header "Authorization".
+    calli:header "Authorization", "Set-Cookie".
 
 :logoutContinue a owl:FunctionalProperty, owl:DatatypeProperty;
     rdfs:domain :GetLogout;

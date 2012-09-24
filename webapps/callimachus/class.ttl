@@ -63,7 +63,6 @@
         [owl:onProperty msg:target; owl:allValuesFrom <Class>]);
     calli:method "POST";
     calli:query "edit";
-    calli:realm </>;
     calli:requires calli:editor;
     calli:expect "201-modified";
     calli:type "text/uri-list";

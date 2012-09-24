@@ -128,7 +128,6 @@
     calli:requires calli:editor;
     calli:expect "303-see-other";
     calli:type "text/uri-list";
-    calli:realm </>;
     calli:script """
         var iter = form.entrySet().iterator();
         while (iter.hasNext()) {

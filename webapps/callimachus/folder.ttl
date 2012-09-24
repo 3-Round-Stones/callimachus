@@ -48,7 +48,6 @@
     rdfs:subClassOf [owl:onProperty :fileClass; owl:hasValue <File>];
     calli:method "POST";
     calli:query "contents";
-    calli:realm </>;
     calli:requires calli:administrator;
     calli:type "message/x-response";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
@@ -139,7 +138,6 @@
     calli:method "GET";
     calli:query "archive";
     calli:rel calli:archive;
-    calli:realm </>;
     calli:requires calli:administrator;
     calli:type "message/x-response";
     calli:header "cache-control:no-store";
@@ -211,7 +209,6 @@
     rdfs:subClassOf [owl:onProperty :folder_import_xhtml; owl:hasValue <pages/folder-import.xhtml>];
     calli:method "GET";
     calli:query "import";
-    calli:realm </>;
     calli:requires calli:administrator;
     calli:type "text/html";
     calli:header "cache-control:no-cache";
@@ -227,7 +224,6 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "POST";
     calli:query "import";
-    calli:realm </>;
     calli:requires calli:administrator;
     calli:expect "302-see-other";
     calli:type "text/uri-list";
@@ -258,7 +254,6 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "DELETE";
     calli:query "archive";
-    calli:realm </>;
     calli:requires calli:administrator;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
@@ -294,7 +289,6 @@
     rdfs:subClassOf [owl:onProperty :schemaGraphClass; owl:hasValue <SchemaGraph>];
     calli:method "PUT";
     calli:query "archive";
-    calli:realm </>;
     calli:requires calli:administrator;
     calli:imports <Composite>;
     calli:imports <java:org.openrdf.rio.RDFFormat>;

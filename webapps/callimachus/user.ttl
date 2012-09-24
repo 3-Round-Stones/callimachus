@@ -14,7 +14,6 @@
     rdfs:label "User";
     rdfs:comment "Username and password associated with an email address";
     rdfs:isDefinedBy </callimachus>;
-    calli:realm </>;
     calli:author </group/admin>;
     calli:icon <images/user.png>;
     calli:view <templates/user-view.xhtml>;
@@ -158,7 +157,6 @@ rdfs:comment a rdf:Property.
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <User>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     rdfs:subClassOf [owl:onProperty :user_password_xhtml; owl:hasValue <pages/user-password.xhtml>];
-    calli:realm </>;
     calli:method "GET";
     calli:query "password";
     calli:requires calli:editor;
@@ -176,7 +174,6 @@ rdfs:comment a rdf:Property.
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "POST";
     calli:query "password";
-    calli:realm </>;
     calli:requires calli:editor;
     calli:expect "201-modified";
     calli:type "text/uri-list";

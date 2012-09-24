@@ -36,8 +36,7 @@
 
 # Transaction operations must be authenticated
 <Activity> rdfs:subClassOf <Viewable>, prov:Activity;
-    rdfs:isDefinedBy </callimachus>;
-    calli:realm </>.
+    rdfs:isDefinedBy </callimachus>.
 
 # called from :AuthorizeTransactionView
 :ListSubjectsOfTransaction rdfs:subClassOf msg:Message;

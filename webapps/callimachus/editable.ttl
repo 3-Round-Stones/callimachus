@@ -37,7 +37,6 @@
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "GET";
     calli:query "edit";
-    calli:realm </>;
     calli:requires calli:editor;
     calli:type "text/html";
     calli:header "cache-control:no-cache";
@@ -89,7 +88,6 @@
     calli:method "POST";
     calli:query "edit";
     calli:requires calli:editor;
-    calli:realm </>;
     calli:expect "201-modified";
     calli:type "text/uri-list";
     calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
@@ -153,7 +151,6 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Editable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "DELETE";
-    calli:realm </>;
     calli:requires calli:editor;
     calli:imports <java:org.openrdf.model.BNode>;
     calli:imports <java:org.openrdf.model.URI>;
@@ -213,7 +210,6 @@
 :DeleteComposite owl:intersectionOf ( :Delete
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Composite>)]]);
     calli:method "DELETE";
-    calli:realm </>;
     calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:script """
@@ -236,7 +232,6 @@
 :DeleteCreatable owl:intersectionOf ( :Delete
         [owl:onProperty msg:target; owl:allValuesFrom [owl:intersectionOf (<Editable> <Creatable>)]]);
     calli:method "DELETE";
-    calli:realm </>;
     calli:requires calli:editor;
     calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
     calli:script """

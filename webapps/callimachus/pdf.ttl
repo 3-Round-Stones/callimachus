@@ -84,7 +84,6 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pdf> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
-    calli:realm </>;
     calli:requires calli:editor;
     calli:script """
         var out = this.openOutputStream() ;

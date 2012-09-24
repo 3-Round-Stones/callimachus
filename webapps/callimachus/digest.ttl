@@ -45,7 +45,6 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
     calli:method "POST";
     calli:query "login";
-    calli:realm </>;
     calli:requires calli:subscriber;
     calli:type "message/x-response";
     calli:imports <java:org.callimachusproject.server.auth.DigestManager>;

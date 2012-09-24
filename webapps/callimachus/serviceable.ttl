@@ -67,7 +67,6 @@ skos:editorialNote a owl:AnnotationProperty.
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
     calli:method "POST";
     calli:query "discussion";
-    calli:realm </>;
     calli:requires calli:subscriber;
     calli:expect "303-see-other";
     calli:type "text/uri-list";
@@ -240,7 +239,6 @@ skos:editorialNote a owl:AnnotationProperty.
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PATCH";
     calli:query "describe";
-    calli:realm </>;
     calli:requires calli:administrator;
     calli:imports <java:org.openrdf.query.QueryLanguage>;
     calli:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
@@ -294,7 +292,6 @@ skos:editorialNote a owl:AnnotationProperty.
     rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <pages/permissions.xhtml>];
     calli:method "GET";
     calli:query "permissions";
-    calli:realm </>;
     calli:requires calli:administrator;
     calli:type "text/html";
     calli:header "cache-control:no-cache";
@@ -341,7 +338,6 @@ skos:editorialNote a owl:AnnotationProperty.
     rdfs:subClassOf [owl:onProperty :permissions_xhtml; owl:hasValue <pages/permissions.xhtml>];
     calli:method "POST";
     calli:query "permissions";
-    calli:realm </>;
     calli:requires calli:administrator;
     calli:expect "201-modified";
     calli:type "text/uri-list";
@@ -363,7 +359,6 @@ skos:editorialNote a owl:AnnotationProperty.
         [owl:onProperty msg:target; owl:allValuesFrom <Class>]);
     calli:method "POST";
     calli:query "permissions";
-    calli:realm </>;
     calli:requires calli:administrator;
     calli:expect "201-modified";
     calli:type "text/uri-list";

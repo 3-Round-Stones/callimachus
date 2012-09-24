@@ -30,7 +30,6 @@
     rdfs:subClassOf <Image>;
     rdfs:label "Photo" ;
     rdfs:isDefinedBy </callimachus>;
-    calli:realm </>;
     calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <images/photo.png>;
     calli:view <templates/photo-view.xhtml> ;
@@ -91,7 +90,6 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Photo> ];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
-    calli:realm </>;
     calli:requires calli:editor;
     calli:script """
         var out = this.openOutputStream() ;

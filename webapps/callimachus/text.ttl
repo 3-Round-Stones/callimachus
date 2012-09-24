@@ -84,7 +84,6 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <TextFile>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
-    calli:realm </>;
     calli:requires calli:editor;
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;

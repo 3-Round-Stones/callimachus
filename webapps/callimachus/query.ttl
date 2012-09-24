@@ -153,7 +153,6 @@
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
-    calli:realm </>;
     calli:requires calli:editor;
     calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
     calli:imports <java:java.net.URLDecoder>;
@@ -195,7 +194,6 @@
 :DeleteNamedQuery owl:intersectionOf ( <editable.ttl#Delete>
         [owl:onProperty msg:target; owl:allValuesFrom <NamedQuery>]);
     calli:method "DELETE";
-    calli:realm </>;
     calli:requires calli:editor;
     calli:script """
         var con = this.objectConnection;

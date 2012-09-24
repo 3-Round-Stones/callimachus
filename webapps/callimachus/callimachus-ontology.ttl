@@ -204,11 +204,6 @@ calli:query a owl:AnnotationProperty;
     rdfs:comment "Placed on messages that should be called when the given request query parameter name is sent without a value. Placed on message properties that should be populated with request GET query parameters";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:realm a owl:AnnotationProperty;
-    rdfs:label "realm";
-    rdfs:comment "The Realm used to secure members of this class or use of this message";
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
 calli:requires a owl:AnnotationProperty;
     rdfs:label "requires";
     rdfs:comment "The role required to be capable of successfully requesting a message of this class";

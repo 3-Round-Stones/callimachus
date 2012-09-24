@@ -39,7 +39,6 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Serviceable>];
     calli:method "POST";
     calli:query "describe";
-    calli:realm </>;
     calli:requires calli:administrator;
     calli:expect "201-created";
     calli:type "text/uri-list";
@@ -159,7 +158,6 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:query "create";
-    calli:realm </>;
     calli:requires calli:contributor;
     calli:type "text/html";
     calli:imports <Creatable>;
@@ -181,7 +179,6 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
     calli:method "POST";
     calli:query "create";
-    calli:realm </>;
     calli:requires calli:contributor;
     calli:type "message/x-response";
     calli:imports <Creatable>;

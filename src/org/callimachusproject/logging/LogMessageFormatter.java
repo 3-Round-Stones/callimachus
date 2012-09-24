@@ -36,6 +36,7 @@ import org.callimachusproject.Server;
  *
  */
 public class LogMessageFormatter extends Formatter {
+	private static final long DAY_LENGTH = 24 * 60 * 60 * 1000;
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 	private static final String newline = System
 			.getProperty("line.separator");
@@ -91,8 +92,8 @@ public class LogMessageFormatter extends Formatter {
 	}
 
 	private void advanceNextDate(long now) {
-		long m = now / 1000 / 60;
-		nextDateAt = (m + 60 * 24 - 1) / 60 / 24 * 24 * 60 * 60 * 1000;
+		long today = now / DAY_LENGTH * DAY_LENGTH;
+		nextDateAt = today + DAY_LENGTH;
 	}
 
 	private StringBuilder appendDateString(StringBuilder sb, long now) {

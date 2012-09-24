@@ -9,6 +9,14 @@
 
 <> a <SchemaGraph>.
 
+<view> calli:reader </group/public>.
+
+<./> calli:hasComponent <view>.
+
+<view> a <Serviceable>;
+    rdfs:label "view";
+    calli:reader </group/public>.
+
 :ResolveView rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:hasValue <view>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];

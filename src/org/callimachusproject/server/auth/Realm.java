@@ -1,42 +1,46 @@
-package org.callimachusproject.behaviours;
+package org.callimachusproject.server.auth;
 
 import static org.openrdf.query.QueryLanguage.SPARQL;
-import info.aduna.net.ParsedURI;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.concepts.AuthenticationManager;
-import org.callimachusproject.concepts.Page;
-import org.callimachusproject.concepts.Realm;
-import org.callimachusproject.traits.SelfAuthorizingTarget;
+import org.callimachusproject.server.client.HTTPObjectClient;
 import org.openrdf.OpenRDFException;
+import org.openrdf.model.Resource;
+import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class RealmSupport implements Realm, RDFObject {
+public class Realm {
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n"
 			+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n";
+	private static final String SELECT_REALM = PREFIX
+			+ "SELECT ?forbidden ?unauthorized ?domain ?authentication ?authName (group_concat(?protected;separator=' ') as ?protected) {\n"
+			+ "{ $this calli:authentication ?authentication . ?protected calli:authentication ?authentication\n"
+			+ "OPTIONAL { ?authentication calli:authName ?authName } }"
+			+ "UNION { $this calli:forbidden ?forbidden }\n"
+			+ "UNION { $this calli:unauthorized ?unauthorized }\n"
+			+ "UNION { $this a ?realm . ?realm calli:icon ?icon . ?domain a calli:Origin\n"
+			+ "{ ?domain a ?realm } UNION { ?domain a [rdfs:subClassOf ?realm] }}\n"
+			+ "} GROUP BY ?forbidden ?unauthorized ?domain ?authentication ?authName ORDER BY desc(?authName)";
 	private static final BasicStatusLine _204;
 	private static final BasicStatusLine _401;
 	private static final BasicStatusLine _403;
@@ -46,38 +50,51 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		_401 = new BasicStatusLine(HTTP11, 401, "Unauthorized");
 		_403 = new BasicStatusLine(HTTP11, 403, "Forbidden");
 	}
-	private Logger logger = LoggerFactory.getLogger(RealmSupport.class);
 
-	public Collection<String> allowOrigin() {
-		String sparql = PREFIX
-				+ "SELECT DISTINCT ?domain WHERE { ?domain a calli:Origin, ?origin . $this a ?realm\n"
-				+ "FILTER contains(str(?realm),\"/callimachus/\")\n"
-				+ "FILTER (?origin = ?realm || EXISTS { ?origin rdfs:subClassOf ?realm }) }";
-		ObjectConnection con = getObjectConnection();
+	private Logger logger = LoggerFactory.getLogger(Realm.class);
+	private final List<AuthenticationManager> authentication = new ArrayList<AuthenticationManager>();
+	private final Collection<String> allowOrigin = new LinkedHashSet<String>();
+	private String forbidden;
+	private String unauthorized;
+
+	Realm(Resource self, ObjectConnection con) throws OpenRDFException {
+		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_REALM);
+		query.setBinding("this", self);
+		TupleQueryResult results = query.evaluate();
 		try {
-			TupleQuery tq = con.prepareTupleQuery(SPARQL, sparql);
-			tq.setBinding("this", this.getResource());
-			TupleQueryResult result = tq.evaluate();
-			try {
-				Set<String> set = new LinkedHashSet<String>();
-				while (result.hasNext()) {
-					String uri = result.next().getValue("domain").stringValue();
+			while (results.hasNext()) {
+				BindingSet result = results.next();
+				if (result.hasBinding("forbidden")) {
+					forbidden = result.getValue("forbidden").stringValue();
+				}
+				if (result.hasBinding("unauthorized")) {
+					unauthorized = result.getValue("unauthorized").stringValue();
+				}
+				if (result.hasBinding("authName")) {
+					String authName = result.getValue("authName").stringValue();
+					Resource resource = (Resource) result.getValue("authentication");
+					String domains = result.getValue("protected").stringValue();
+					authentication.add(new DigestManager(resource, authName, domains));
+				}
+				if (result.hasBinding("domain")) {
+					String uri = result.getValue("domain").stringValue();
 					if (uri.contains("://")) {
 						int idx = uri.indexOf('/', uri.indexOf("://") + 3);
-						set.add(uri.substring(0, idx));
+						if (idx > 0) {
+							allowOrigin.add(uri.substring(0, idx));
+						}
 					}
 				}
-				return set;
-			} finally {
-				result.close();
 			}
-		} catch (OpenRDFException e) {
-			logger.error(e.toString(), e);
-			return Collections.emptySet();
+		} finally {
+			results.close();
 		}
 	}
 
-	@Override
+	public Collection<String> allowOrigin() {
+		return allowOrigin;
+	}
+
 	public final boolean withAgentCredentials(String origin) {
 		for (Object script : this.allowOrigin()) {
 			String ao = script.toString();
@@ -89,36 +106,22 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		return false;
 	}
 
-	@Override
 	public final HttpResponse forbidden(String method, Object resource,
 			Map<String, String[]> request) throws Exception {
-		Page forbidden = getCalliForbidden();
 		if (forbidden == null)
 			return null;
-		String html = forbidden.calliConstructHTML(resource);
-		StringEntity entity = new StringEntity(html, "UTF-8");
-		entity.setContentType("text/html;charset=\"UTF-8\"");
+		HTTPObjectClient client = HTTPObjectClient.getInstance();
+		HttpEntity entity = client.get(forbidden, "text/html;charset=UTF-8")
+				.getEntity();
 		HttpResponse resp = new BasicHttpResponse(_403);
 		resp.setHeader("Cache-Control", "no-store");
 		resp.setEntity(entity);
 		return resp;
 	}
 
-	@Override
-	public boolean authorizeCredential(String credential, String method,
-			Object resource, Map<String, String[]> request) throws RepositoryException {
-		String query = new ParsedURI(request.get("request-target")[0]).getQuery();
-		assert resource instanceof SelfAuthorizingTarget;
-		SelfAuthorizingTarget target = (SelfAuthorizingTarget) resource;
-		Object account = getObjectConnection().getObject(credential);
-		return target.calliIsAuthorized(account, method, query);
-	}
-
-	@Override
 	public HttpResponse unauthorized(String method, Object resource,
 			Map<String, String[]> request) throws Exception {
 		HttpResponse unauth = null;
-		Page unauthorized = getCalliUnauthorized();
 		for (AuthenticationManager realm : getAuthenticationManagers()) {
 			unauth = realm.unauthorized(method, resource, request);
 			if (unauth != null)
@@ -127,7 +130,9 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		if (unauthorized == null)
 			return unauth;
 		try {
-			String html = unauthorized.calliConstructHTML(resource);
+			HTTPObjectClient client = HTTPObjectClient.getInstance();
+			HttpEntity entity = client.get(unauthorized,
+					"text/html;charset=UTF-8").getEntity();
 			BasicHttpResponse resp;
 			if (unauth == null) {
 				resp = new BasicHttpResponse(_401);
@@ -141,8 +146,6 @@ public abstract class RealmSupport implements Realm, RDFObject {
 					resp.setHeader(hd);
 				}
 			}
-			StringEntity entity = new StringEntity(html, "UTF-8");
-			entity.setContentType("text/html;charset=\"UTF-8\"");
 			resp.setHeader("Cache-Control", "no-store");
 			resp.setEntity(entity);
 			return resp;
@@ -153,23 +156,21 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		}
 	}
 
-	@Override
 	public String authenticateRequest(String method, Object resource,
-			Map<String, String[]> request) throws RepositoryException {
+			Map<String, String[]> request, ObjectConnection con) throws RepositoryException {
 		for (AuthenticationManager realm : getAuthenticationManagers()) {
-			String ret = realm.authenticateRequest(method, resource, request);
+			String ret = realm.authenticateRequest(method, resource, request, con);
 			if (ret != null)
 				return ret;
 		}
 		return null;
 	}
 
-	@Override
 	public HttpMessage authenticationInfo(String method, Object resource,
-			Map<String, String[]> request) {
+			Map<String, String[]> request, ObjectConnection con) throws OpenRDFException {
 		HttpMessage msg = new BasicHttpResponse(_204);
 		for (AuthenticationManager realm : getAuthenticationManagers()) {
-			HttpMessage resp = realm.authenticationInfo(method, resource, request);
+			HttpMessage resp = realm.authenticationInfo(method, resource, request, con);
 			if (resp != null) {
 				for (Header hd : resp.getAllHeaders()) {
 					msg.addHeader(hd);
@@ -181,7 +182,7 @@ public abstract class RealmSupport implements Realm, RDFObject {
 
 	private Iterable<AuthenticationManager> getAuthenticationManagers() {
 		List<AuthenticationManager> result = new ArrayList<AuthenticationManager>();
-		Iterator<?> iter = getCalliAuthentications().iterator();
+		Iterator<?> iter = authentication.iterator();
 		while (iter.hasNext()) {
 			Object next = iter.next();
 			if (next instanceof AuthenticationManager) {
@@ -192,5 +193,4 @@ public abstract class RealmSupport implements Realm, RDFObject {
 		}
 		return result;
 	}
-
 }

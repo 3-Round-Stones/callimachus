@@ -48,9 +48,11 @@
     calli:realm </>;
     calli:requires calli:subscriber;
     calli:type "message/x-response";
+    calli:imports <java:org.callimachusproject.server.auth.DigestManager>;
     calli:script """
         var persistent = loginOptions.indexOf("persistent=true") >= 0;
-        return this.login(cookies, persistent);
+        var manager = new DigestManager(this.resource, this.calliAuthName);
+        return manager.login(cookies, persistent, this.objectConnection);
     """.
 
 :cookies a owl:DatatypeProperty;
@@ -63,17 +65,33 @@
     rdfs:range xsd:string;
     calli:type "application/x-www-form-urlencoded".
 
-# anybody with credentials can login and is welcome
-:AuthorizeLoginPage owl:intersectionOf (calli:IsAuthorized
-        [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>]);
-    msg:sparql  """
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        ASK {
-            $this calli:authNamespace [calli:hasComponent $credential]
-            FILTER ($method = "GET" || $method = "HEAD" || $method = "POST")
-            FILTER ($query = "login")
-        }
+:FindCredential rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:imports <java:org.callimachusproject.server.auth.DigestManager>;
+    calli:script """
+        var manager = new DigestManager(this.resource, this.calliAuthName);
+        return manager.findCredential(tokens, this.objectConnection);
     """.
+
+:tokens a owl:DatatypeProperty;
+    rdfs:domain :FindCredential;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
+
+:FindCredentialLabel rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <DigestManager>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:imports <java:org.callimachusproject.server.auth.DigestManager>;
+    calli:script """
+        var manager = new DigestManager(this.resource, this.calliAuthName);
+        return manager.findCredentialLabel(tokensForLabel, this.objectConnection);
+    """.
+
+:tokensForLabel a owl:DatatypeProperty;
+    rdfs:domain :FindCredentialLabel;
+    rdfs:range xsd:string;
+    calli:header "Authorization", "Cookie".
 
 ################################
 # Registration
@@ -129,6 +147,7 @@
     calli:method "POST";
     calli:query "register";
     calli:requires calli:reader;
+    calli:imports <java:org.callimachusproject.server.auth.DigestManager>;
     calli:script """
         var nonce = regForm.get("nonce")[0];
         var token = regForm.get("token")[0];
@@ -141,7 +160,8 @@
             var user = iter.next();
             if (user.calliPasswordDigest.empty &&
                     token == user.GetSecretToken(nonce)) {
-                user.calliPasswordDigest = this.changeDigestPassword(user.calliPasswordDigest, password);
+                var manager = new DigestManager(this.resource, this.calliAuthName);
+                user.calliPasswordDigest = manager.changeDigestPassword(user.calliPasswordDigest, password, this.objectConnection);
                 return;
             }
         }
@@ -183,11 +203,7 @@
     calli:requires calli:reader;
     calli:query "daypass";
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.apache.commons.codec.digest.DigestUtils>;
-    calli:imports <java:java.io.CharArrayWriter>;
-    calli:imports <java:java.util.Random>;
-    calli:imports <java:java.lang.Integer>;
-    calli:imports <java:java.lang.System>;
+    calli:imports <java:org.callimachusproject.server.auth.DigestManager>;
     calli:script """
         if (!userEmail)
             throw new BadRequest("Missing Email");
@@ -197,7 +213,8 @@
         }
         while (iter.hasNext()) {
             var user = iter.next();
-            var password = this.getDaypass(user.FindSecret());
+            var manager = new DigestManager(this.resource, this.calliAuthName);
+            var password = manager.getDaypass(user.FindSecret());
             var body = mail_digest_daypass_xhtml.Construct(user, 'daypass');
             body = body.replace(/@@PASSWORD@@/g, password);
             user.sendMessage(body, user.rdfsLabel.iterator().next() + " <" + userEmail + ">");

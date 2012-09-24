@@ -61,6 +61,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.AsyncNHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
@@ -76,6 +77,7 @@ import org.callimachusproject.server.HTTPObjectAgentMXBean;
 import org.callimachusproject.server.cache.CachingFilter;
 import org.callimachusproject.server.exceptions.BadGateway;
 import org.callimachusproject.server.exceptions.GatewayTimeout;
+import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.server.filters.ClientGZipFilter;
 import org.callimachusproject.server.filters.ClientMD5ValidationFilter;
 import org.callimachusproject.server.model.Filter;
@@ -290,6 +292,33 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 		if (connector.getStatus() == IOReactorStatus.ACTIVE)
 			return true;
 		return sslconnector.getStatus() == IOReactorStatus.ACTIVE;
+	}
+
+	/**
+	 * Follows redirects and returns the final 200 or 203 response with the
+	 * final request URL represented as the response header Content-Location
+	 */
+	public HttpResponse get(String url, String... accept)  throws IOException, ResponseException {
+		String systemId = url;
+		String redirect = systemId;
+		HttpResponse resp = null;
+		HTTPObjectClient client = HTTPObjectClient.getInstance();
+		for (int i = 0; i < 20 && redirect != null; i++) {
+			systemId = redirect;
+			HttpRequest req = new BasicHttpRequest("GET", url);
+			if (accept != null && accept.length > 0) {
+				for (String media : accept) {
+					req.addHeader("Accept", media);
+				}
+			}
+			resp = client.service(req);
+			redirect = client.redirectLocation(redirect, resp);
+		}
+		int code = resp.getStatusLine().getStatusCode();
+		if (code != 200 && code != 203)
+			throw ResponseException.create(resp, systemId);
+		resp.setHeader("Content-Location", systemId);
+		return resp;
 	}
 
 	/**

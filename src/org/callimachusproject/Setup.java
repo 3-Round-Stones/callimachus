@@ -32,10 +32,14 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,6 +66,7 @@ import org.callimachusproject.server.client.HTTPServiceUnavailable;
 import org.callimachusproject.server.util.ChannelUtil;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -103,6 +108,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Setup {
 	private static final String CALLIMACHUS = "/callimachus/";
+	private static final String SYSTEM_GROUP = "/group/system";
 	private static final String ACTIVITY_PATH = "/activity/";
 	private static final String ACTIVITY_TYPE = CALLIMACHUS + "Activity";
 	private static final String FOLDER_TYPE = CALLIMACHUS + "Folder";
@@ -140,6 +146,7 @@ public class Setup {
 	private static final String CALLI_SECRET = CALLI + "secret";
 	private static final String CALLI_PASSWORD = CALLI + "passwordDigest";
 	private static final String CALLI_MEMBER = CALLI + "member";
+	private static final String CALLI_ANONYMOUSFROM = CALLI + "anonymousFrom";
 
 	private static final CommandSet commands = new CommandSet(NAME);
 	static {
@@ -568,6 +575,7 @@ public class Setup {
 				+ ACTIVITY_TYPE, o + FOLDER_TYPE);
 		boolean modified = createVirtualHost(o, o, repository);
 		modified |= initializeOrUpgradeStore(repository, o);
+		modified |= addSystemGroupMembers(o + SYSTEM_GROUP, repository);
 		return modified;
 	}
 
@@ -707,6 +715,63 @@ public class Setup {
 			return upgradeStore(repository, origin);
 		}
 		return newVersion;
+	}
+
+	private boolean addSystemGroupMembers(String group,
+			CallimachusRepository repository) throws SocketException, OpenRDFException {
+		ObjectConnection con = repository.getConnection();
+		try {
+			con.setAutoCommit(false);
+			ValueFactory vf = con.getValueFactory();
+			URI subj = vf.createURI(group);
+			URI pred = vf.createURI(CALLI_ANONYMOUSFROM);
+			boolean modified = false;
+			for (String host : getAllCanonicalHostNames()) {
+				Literal obj = vf.createLiteral(host);
+				if (!con.hasStatement(subj, pred, obj)) {
+					con.add(subj, pred, obj);
+					modified = true;
+				}
+			}
+			con.setAutoCommit(true);
+			return modified;
+		} finally {
+			con.close();
+		}
+	}
+
+	private Collection<String> getAllCanonicalHostNames() throws SocketException {
+		Collection<String> set = new TreeSet<String>();
+		Enumeration<NetworkInterface> ifaces = NetworkInterface
+				.getNetworkInterfaces();
+		while (ifaces.hasMoreElements()) {
+			NetworkInterface iface = ifaces.nextElement();
+			Enumeration<InetAddress> raddrs = iface.getInetAddresses();
+			while (raddrs.hasMoreElements()) {
+				InetAddress raddr = raddrs.nextElement();
+				set.add(raddr.getCanonicalHostName());
+				set.remove(raddr.getHostAddress());
+			}
+			Enumeration<NetworkInterface> virtualIfaces = iface
+					.getSubInterfaces();
+			while (virtualIfaces.hasMoreElements()) {
+				NetworkInterface viface = virtualIfaces.nextElement();
+				Enumeration<InetAddress> vaddrs = viface.getInetAddresses();
+				while (vaddrs.hasMoreElements()) {
+					InetAddress vaddr = vaddrs.nextElement();
+					set.add(vaddr.getCanonicalHostName());
+					set.remove(vaddr.getHostAddress());
+				}
+			}
+		}
+		try {
+			InetAddress local = InetAddress.getLocalHost();
+			set.add(local.getCanonicalHostName());
+			set.remove(local.getHostAddress());
+		} catch (UnknownHostException e) {
+			// strange
+		}
+		return set;
 	}
 
 	private boolean importCar(URL car, String folder, String origin,
@@ -981,8 +1046,8 @@ public class Setup {
 		add(con, subj, CALLI_CONTRIBUTOR, origin + "/group/users");
 		add(con, subj, CALLI_EDITOR, origin + "/group/staff");
 		add(con, subj, CALLI_ADMINISTRATOR, origin + "/group/admin");
-		add(con, subj, CALLI_UNAUTHORIZED, c + "pages/unauthorized.xhtml");
-		add(con, subj, CALLI_FORBIDDEN, c + "pages/forbidden.xhtml");
+		add(con, subj, CALLI_UNAUTHORIZED, c + "pages/unauthorized.xhtml?view");
+		add(con, subj, CALLI_FORBIDDEN, c + "pages/forbidden.xhtml?view");
 		add(con, subj, CALLI_AUTHENTICATION, origin + "/accounts");
 		add(con, subj, CALLI_MENU, origin + "/main+menu");
 		add(con, subj, CALLI_FAVICON, c + "images/callimachus-icon.ico");

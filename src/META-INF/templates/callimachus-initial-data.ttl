@@ -102,8 +102,7 @@
     rdfs:label "system";
     rdfs:comment "The local computer or computer systems is the member of this group";
     calli:subscriber </group/staff>;
-    calli:administrator </group/admin>;
-    calli:anonymousFrom "localhost".
+    calli:administrator </group/admin>.
 
 </group/> calli:hasComponent </group/public>.
 </group/public> a calli:Party, calli:Group, </callimachus/Group>;

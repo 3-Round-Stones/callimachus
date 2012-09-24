@@ -217,16 +217,3 @@
     rdfs:domain :ResizePhoto;
     rdfs:range xsd:int.
 
-# Users can view resized images or photos if they can view the image itself
-:AuthorizeImageResize owl:intersectionOf (calli:IsAuthorized
-        [owl:onProperty msg:target; owl:allValuesFrom <Photo>]);
-    calli:script  """
-        if (query == "large" || query == "medium" || query == "small" || query == "thumbnail") {
-            if (method == "GET" || method == "HEAD") {
-                if (this.calliIsAuthorized(credential, method, null))
-                    return true;
-            }
-        }
-        return proceed();
-    """.
-

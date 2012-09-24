@@ -26,6 +26,7 @@ import javax.xml.stream.XMLEventReader;
 
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.RDFEventReader;
@@ -53,6 +54,7 @@ public abstract class RDFaSupport implements Page, RDFObject {
 
 	@method("GET")
 	@query("xslt")
+	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 	@type("application/xml")
 	public XMLEventReader xslt(@query("element") String element, @query("realm") String realm)
 			throws IOException, TemplateException {
@@ -65,6 +67,7 @@ public abstract class RDFaSupport implements Page, RDFObject {
 
 	@method("GET")
 	@query("triples")
+	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 	@type("application/rdf+xml")
 	public XMLEventReader triples(@query("element") String element)
 			throws Exception {
@@ -76,6 +79,7 @@ public abstract class RDFaSupport implements Page, RDFObject {
 
 	@method("GET")
 	@query("sparql")
+	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 	@type("application/sparql-query")
 	public byte[] sparql(@query("resource") String about,
 			@query("element") String element) throws Exception {

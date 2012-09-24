@@ -1,31 +1,20 @@
 package org.callimachusproject.server;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.http.HttpMessage;
-import org.apache.http.HttpResponse;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.query;
-import org.callimachusproject.annotations.realm;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
-import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
 import org.openrdf.annotations.Iri;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.object.ObjectConnection;
-import org.openrdf.repository.object.RDFObject;
 
 import com.sun.jersey.api.client.WebResource;
 
 public class ResponseCacheTest extends MetadataServerTestCase {
 	private static final int PORT = 56031;
 	private static final String ORIGIN = "http://localhost:" + PORT;
-	private static final String REALM = ORIGIN + "/";
 
 	@Override
 	protected int getPort() {
@@ -95,7 +84,7 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 			return Long.toHexString(seq.incrementAndGet());
 		}
 
-		@realm(REALM)
+		@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 		@query("auth")
 		@type("text/plain")
 		@header("Cache-Control:max-age=10")
@@ -103,7 +92,7 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 			return Long.toHexString(seq.incrementAndGet());
 		}
 
-		@realm(REALM)
+		@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 		@query("private")
 		@type("text/plain")
 		@header("Cache-Control:private")
@@ -133,61 +122,12 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 		}
 	}
 
-	public static abstract class AnybodyRealm implements Realm, RDFObject {
-
-		public String protectionDomain() {
-			return null;
-		}
-
-		public Collection<String> allowOrigin() {
-			return Collections.singleton("*");
-		}
-
-		public boolean withAgentCredentials(String origin) {
-			return false;
-		}
-
-		public String authenticateRequest(String method, Object resource,
-				Map<String, String[]> request) throws RepositoryException {
-			return "urn:test:anybody";
-		}
-
-		public boolean authorizeCredential(String credential, String method,
-				Object resource, Map<String, String[]> request) {
-			return true;
-		}
-
-		public HttpMessage authenticationInfo(String method, Object resource,
-				Map<String, String[]> request) {
-			return null;
-		}
-
-		public HttpResponse forbidden(String method, Object resource,
-				Map<String, String[]> request) throws Exception {
-			return null;
-		}
-
-		public HttpResponse unauthorized(String method, Object resource,
-				Map<String, String[]> request) throws Exception {
-			return null;
-		}
-
-	}
-
 	public void setUp() throws Exception {
-		URIImpl type = new URIImpl("urn:test:AnybodyRealm");
 		config.addConcept(Seq.class);
 		config.addConcept(Clock.class);
 		config.addConcept(Display.class);
-		config.addBehaviour(AnybodyRealm.class, type);
 		config.addBehaviour(PUTSupport.class);
 		super.setUp();
-		ObjectConnection con = repository.getConnection();
-		try {
-			con.addDesignations(con.getObject(REALM), type);
-		} finally {
-			con.close();
-		}
 		seq = client.path("/seq");
 		seq.type("application/seq").put("cocky");
 		display = client.path("/display");

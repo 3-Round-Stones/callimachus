@@ -27,14 +27,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-package org.callimachusproject.concepts;
+package org.callimachusproject.server.auth;
 
 import java.util.Collection;
 import java.util.Map;
 
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
+import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
+import org.openrdf.repository.object.ObjectConnection;
 
 /**
  * Interface to authenticate user agents.
@@ -75,7 +77,7 @@ public interface AuthenticationManager {
 	 *         credentials.
 	 */
 	String authenticateRequest(String method, Object resource,
-			Map<String, String[]> request);
+			Map<String, String[]> request, ObjectConnection con);
 
 	/**
 	 * The response that should be returned when the request could not be
@@ -138,9 +140,11 @@ public interface AuthenticationManager {
 	 *            A map with the above conditional keys
 	 * 
 	 * @return Set of HTTP headers
+	 * @throws OpenRDFException
 	 */
 	HttpMessage authenticationInfo(String method, Object resource,
-			Map<String, String[]> request);
+			Map<String, String[]> request, ObjectConnection con)
+			throws OpenRDFException;
 
 	/**
 	 * Retrieve the current user credential IRI
@@ -148,8 +152,10 @@ public interface AuthenticationManager {
 	 * @param tokens
 	 *            value of both "Authorization" and "Cookie" request headers
 	 * @return unique credential identifier
+	 * @throws OpenRDFException
 	 */
-	String findCredential(Collection<String> tokens);
+	String findCredential(Collection<String> tokens, ObjectConnection con)
+			throws OpenRDFException;
 
 	/**
 	 * Retrieve the current user label
@@ -158,7 +164,7 @@ public interface AuthenticationManager {
 	 *            value of both "Authorization" and "Cookie" request headers
 	 * @return human friendly credential label
 	 */
-	String findCredentialLabel(Collection<String> tokens);
+	String findCredentialLabel(Collection<String> tokens, ObjectConnection con);
 
 	/**
 	 * Include any Set-Cookie header to clear the session

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2009, Zepheira All rights reserved.
- * Copyright (c) 2011 Talis Inc., Some rights reserved.
+ * Copyright (c) 2012 3 Round Stones Inc., Some rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,15 +36,14 @@ import java.lang.annotation.Target;
 import org.openrdf.annotations.Iri;
 
 /**
- * Set of Realms that are permitted to use this method or this type of
- * resources.
+ * Set of roles required by this message class
  * 
  * @author James Leigh
  * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
-public @interface realm {
-	@Iri("http://callimachusproject.org/rdf/2009/framework#realm")
+public @interface requires {
+	@Iri("http://callimachusproject.org/rdf/2009/framework#requires")
 	String[] value();
 }

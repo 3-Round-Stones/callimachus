@@ -30,12 +30,10 @@ import java.net.URLEncoder;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.RDFEventReader;
@@ -55,7 +53,6 @@ import org.callimachusproject.engine.model.VarOrTerm;
 import org.callimachusproject.server.client.HTTPObjectClient;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.InternalServerError;
-import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.xml.XMLEventReaderFactory;
 import org.callimachusproject.xslt.XSLTransformer;
 import org.callimachusproject.xslt.XSLTransformerFactory;
@@ -102,6 +99,7 @@ public abstract class FormSupport implements Page, RDFObject {
 	 */
 	@method("GET")
 	@query("construct")
+	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 	@type("text/html")
 	@header("cache-control:no-store")
 	public InputStream construct(
@@ -122,14 +120,13 @@ public abstract class FormSupport implements Page, RDFObject {
 	/**
 	 * See data-options, defining an HTML select/option fragment
 	 */
-
 	@method("GET")
 	@query("options")
+	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 	@type("text/html")
 	@header("cache-control:no-store")
-	
-	public InputStream options
-	(@query("element") String element) throws Exception {
+	public InputStream options(@query("element") String element)
+			throws Exception {
 		String base = getResource().stringValue();
 		XMLEventList template = new XMLEventList(xslt(element));
 		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template.iterator(), toString()));
@@ -152,12 +149,11 @@ public abstract class FormSupport implements Page, RDFObject {
 	 */
 	@method("GET")
 	@query("search")
+	@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 	@type("text/html")
 	@header("cache-control:no-validate,max-age=60")
-	
-	public InputStream constructSearch
-	(@query("element") String element, @query("q") String q)
-	throws Exception {
+	public InputStream constructSearch(@query("element") String element,
+			@query("q") String q) throws Exception {
 		String base = getResource().stringValue();
 		XMLEventList template = new XMLEventList(xslt(element));
 		SPARQLProducer rq = new SPARQLProducer(new RDFaReader(base, template.iterator(), toString()));
@@ -259,11 +255,7 @@ public abstract class FormSupport implements Page, RDFObject {
 
 	private InputStream openRequest(String url) throws IOException {
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpRequest request = new BasicHttpRequest("GET", url);
-		HttpResponse response = client.service(request);
-		if (response.getStatusLine().getStatusCode() >= 300)
-			throw ResponseException.create(response, url);
-		return response.getEntity().getContent();
+		return client.get(url).getEntity().getContent();
 	}
 
 }

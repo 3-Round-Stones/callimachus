@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,11 +54,10 @@ import org.callimachusproject.annotations.expect;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
-import org.callimachusproject.annotations.realm;
 import org.callimachusproject.annotations.rel;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
-import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.fluid.Fluid;
 import org.callimachusproject.fluid.FluidType;
 import org.callimachusproject.server.CallimachusRepository;
@@ -67,9 +65,14 @@ import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.exceptions.UnsupportedMediaType;
+import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.ParameterTypes;
+import org.openrdf.model.Value;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
@@ -93,8 +96,7 @@ public class ResourceOperation extends ResourceRequest {
 	private BadRequest badRequest;
 	private NotAcceptable notAcceptable;
 	private UnsupportedMediaType unsupportedMediaType;
-	private List<Realm> realms;
-	private String[] realmURIs;
+	private boolean isPublic;
 
 	public ResourceOperation(Request request, CallimachusRepository repository)
 			throws QueryEvaluationException, RepositoryException {
@@ -251,12 +253,12 @@ public class ResourceOperation extends ResourceRequest {
 					sb.append(", ");
 				}
 				sb.append("private");
-			} else if (isAuthenticating() && sb.indexOf("s-maxage") < 0) {
+			} else if (!isPublic() && sb.indexOf("s-maxage") < 0) {
 				if (sb.length() > 0) {
 					sb.append(", ");
 				}
 				sb.append("s-maxage=0");
-			} else if (!isAuthenticating()) {
+			} else if (isPublic()) {
 				if (sb.length() > 0) {
 					sb.append(", ");
 				}
@@ -268,48 +270,29 @@ public class ResourceOperation extends ResourceRequest {
 		return null;
 	}
 
-	public boolean isAuthenticating() throws QueryEvaluationException,
-			RepositoryException {
-		return getRealmURIs().length > 0;
-	}
-
-	public List<Realm> getRealms() throws QueryEvaluationException,
-			RepositoryException {
-		if (realms != null)
-			return realms;
-		String[] values = getRealmURIs();
-		return realms = getRealms(values);
-	}
-
-	public List<Realm> getRealms(String[] values)
-			throws QueryEvaluationException, RepositoryException {
-		if (values.length == 0)
-			return Collections.emptyList();
-		List<String> array = new ArrayList<String>(values.length);
-		String iri = getIRI();
-		for (String v : values) {
-			if (iri.startsWith(v)) {
-				array.add(v);
-			}
-		}
-		if (array.size() > 1) {
-			Collections.sort(array, new Comparator<String>() {
-				public int compare(String o1, String o2) {
-					return o2.length() < o1.length() ? -1 : (o2.length() == o1
-							.length() ? 0 : 1);
-				}
-			});
-		}
-		if (array.size() < values.length) {
-			for (String v : values) {
-				if (!iri.startsWith(v)) {
-					array.add(v);
+	public String[] getRequires() {
+		if (method == null) {
+			Set<String> list = new HashSet<String>();
+			for (Method m : getRequestedResource().getClass().getMethods()) {
+				requires ann = m.getAnnotation(requires.class);
+				if (ann != null) {
+					list.addAll(Arrays.asList(ann.value()));
 				}
 			}
+			return list.toArray(new String[list.size()]);
 		}
-		String[] a = array.toArray(new String[array.size()]);
-		ObjectConnection con = getObjectConnection();
-		return con.getObjects(Realm.class, a).asList();
+		requires ann = method.getAnnotation(requires.class);
+		if (ann == null)
+			return new String[0];
+		return ann.value();
+	}
+
+	public void setPublic(boolean isPublic) {
+		this.isPublic = isPublic;
+	}
+
+	public boolean isPublic() {
+		return isPublic;
 	}
 
 	public Set<String> getAllowedMethods() throws RepositoryException {
@@ -956,35 +939,6 @@ public class ResourceOperation extends ResourceRequest {
 			}
 			for (Class<?> face : type.getInterfaces()) {
 				setCacheControl(face, sb);
-			}
-		}
-	}
-
-	private String[] getRealmURIs() {
-		if (realmURIs != null)
-			return realmURIs;
-		RDFObject target = getRequestedResource();
-		if (method != null && method.isAnnotationPresent(realm.class)) {
-			realmURIs = method.getAnnotation(realm.class).value();
-		} else {
-			ArrayList<String> list = new ArrayList<String>();
-			addRealms(list, target.getClass());
-			realmURIs = list.toArray(new String[list.size()]);
-		}
-		return realmURIs;
-	}
-
-	private void addRealms(ArrayList<String> list, Class<?> type) {
-		if (type.isAnnotationPresent(realm.class)) {
-			for (String value : type.getAnnotation(realm.class).value()) {
-				list.add(value);
-			}
-		} else {
-			if (type.getSuperclass() != null) {
-				addRealms(list, type.getSuperclass());
-			}
-			for (Class<?> face : type.getInterfaces()) {
-				addRealms(list, face);
 			}
 		}
 	}

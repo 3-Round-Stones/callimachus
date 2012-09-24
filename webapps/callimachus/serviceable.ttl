@@ -30,11 +30,6 @@
     rdfs:comment "All resources served by this host";
     rdfs:isDefinedBy </callimachus>.
 
-<Composite> a owl:Class;
-    rdfs:label "Composite";
-    rdfs:subClassOf <Serviceable>, calli:Composite;
-    rdfs:isDefinedBy </callimachus>.
-
 :GetHistory rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Serviceable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
@@ -235,124 +230,6 @@ skos:editorialNote a owl:AnnotationProperty.
     rdfs:domain :TransformDescription;
     rdfs:range <java:org.openrdf.query.GraphQueryResult>;
     calli:type "application/rdf+xml".
-
-################################
-# POST INSERT DATA
-################################
-
-:PostInsertData rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <Serviceable>];
-    calli:method "POST";
-    calli:query "describe";
-    calli:realm </>;
-    calli:requires calli:administrator;
-    calli:expect "201-created";
-    calli:type "text/uri-list";
-    calli:imports <java:org.openrdf.annotations.Iri>;
-    calli:imports <java:org.openrdf.query.QueryLanguage>;
-    calli:imports <java:org.callimachusproject.form.helpers.TripleAnalyzer>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Conflict>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <Creatable>;
-    calli:imports <Editable>;
-    calli:script """
-        var con = this.objectConnection;
-        var vf = con.valueFactory;
-        var of = con.objectFactory;
-
-        //# Parse INSERT DATA
-        var analyzer = new TripleAnalyzer();
-        var string = analyzer.parseInsertData(insertData, this.toString());
-        
-        //# Verify input
-        if (analyzer.isEmpty())
-            throw new BadRequest("Missing data");
-        if (!analyzer.isSingleton())
-            throw new BadRequest("Only one entity can be inserted per request");
-        if (analyzer.isDisconnectedNodePresent())
-            throw new BadRequest("Blank nodes must be connected");
-        var location = analyzer.subject;
-        if (location.toString().indexOf(this.toString()) != 0)
-            throw new BadRequest("Resource URI must start with: " + this);
-        var local = location.toString().substring(this.toString().length);
-        if (local.indexOf('/') == 0 && this.toString().lastIndexOf('/') != this.toString().length - 1) {
-            local = local.substring(1);
-        }
-        if (local.lastIndexOf('/') == local.length - 1) {
-            local = local.substring(0, local.length -1);
-        }
-        if (local.indexOf('/') >= 0)
-            throw new BadRequest("Can only created nested components here");
-        var newCopy = of.createObject(location, analyzer.getTypes(location));
-        if (this.calliHasComponent.contains(newCopy))
-            throw new Conflict("Resource already exists");
-        if (!(newCopy instanceof Editable))
-            throw new BadRequest("Resource is not Editable");
-
-        //# Execute input
-        var update = con.prepareUpdate(QueryLanguage.SPARQL, string, this.toString());
-        update.setBinding("this", this.resource);
-        update.execute();
-
-        var iter = this.FindCreator(newCopy).iterator();
-        if (!iter.hasNext())
-            throw new InternalServerError("Could not find user");
-        while (iter.hasNext()) {
-            var user = iter.next();
-            function findConcepts(klass, visited, callback) {
-                if (visited.contains(klass))
-                    return true;
-                visited.add(klass);
-                if (klass.isAnnotationPresent(Iri)) {
-                    callback(klass.getAnnotation(Iri).value());
-                }
-                var sup = klass.getSuperclass();
-                if (sup) {
-                    findConcepts(sup, visited, callback);
-                }
-                var interfaces = klass.getInterfaces();
-                for (var i = 0; i < interfaces.length; i++) {
-                    findConcepts(interfaces[i], visited, callback);
-                }
-                return false;
-            }
-            var creatable = false;
-            findConcepts(newCopy.getClass(), new java.util.HashSet(), function(type) {
-                var cls = con.getObject(type);
-                if (cls instanceof Creatable) {
-                    creatable = true;
-                    if (!cls.calliIsAuthorized(user, "POST", "create"))
-                        throw new Forbidden("You are not permitted to create " + cls + " resources");
-                }
-            });
-            if (!creatable)
-                throw new Forbidden("You are not permitted to create this type of resource");
-        }
-
-        //# Add permissions and component membership
-        newCopy.calliEditor.addAll(this.FindContributor(newCopy));
-        newCopy.calliReader.addAll(this.SelectAllReaders());
-        newCopy.calliSubscriber.addAll(this.SelectAllSubscribers());
-        newCopy.calliEditor.addAll(this.SelectAllEditors());
-        newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
-        this.calliHasComponent.add(newCopy);
-        var iter = analyzer.getResources().iterator();
-        while (iter.hasNext()) {
-            var partner = iter.next();
-            if (!partner.toString().equals(this.toString())) {
-                con.getObject(partner).touchRevision(); // FIXME this shouldn't be needed
-            }
-        }
-        return newCopy;
-    """.
-
-:insertData a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :PostInsertData;
-    rdfs:range <java:java.io.InputStream>;
-    calli:type "application/sparql-update".
 
 ################################
 # PATCH DELETE INSERT

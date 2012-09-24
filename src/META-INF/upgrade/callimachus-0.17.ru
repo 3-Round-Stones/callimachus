@@ -73,8 +73,7 @@ INSERT {
         rdfs:label "system";
         rdfs:comment "The local computer or computer systems is the member of this group";
         calli:subscriber </group/staff>;
-        calli:administrator </group/admin>;
-        calli:anonymousFrom "localhost".
+        calli:administrator </group/admin>.
 
     </group/public> a calli:Party, calli:Group, </callimachus/Group>;
         rdfs:label "public";
@@ -186,5 +185,17 @@ INSERT {
     ?class a </callimachus/Class>
     FILTER NOT EXISTS { ?class calli:reader ?group }
     FILTER NOT EXISTS { ?class calli:realm ?realm }
+};
+
+INSERT {
+    ?realm calli:forbidden </callimachus/pages/forbidden.xhtml?view>
+} WHERE {
+    ?realm calli:forbidden </callimachus/pages/forbidden.xhtml>
+};
+
+INSERT {
+    ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml?view>
+} WHERE {
+    ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml>
 };
 

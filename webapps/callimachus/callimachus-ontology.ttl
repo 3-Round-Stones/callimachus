@@ -452,34 +452,3 @@ calli:layout a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain calli:Theme;
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-################################
-# Message
-################################
-
-# interface method used by ManifestSupport
-calli:IsAuthorized rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:cardinality "1"^^xsd:nonNegativeInteger];
-    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:boolean];
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-<http://callimachusproject.org/rdf/2009/framework/IsAuthorized#credential> a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain calli:IsAuthorized;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-<http://callimachusproject.org/rdf/2009/framework/IsAuthorized#method> a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain calli:IsAuthorized;
-    rdfs:range xsd:string;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-<http://callimachusproject.org/rdf/2009/framework/IsAuthorized#query> a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain calli:IsAuthorized;
-    rdfs:range xsd:string;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-
-################################
-# Thing
-################################
-
-calli:nobody a calli:NobodyRealm;
-    rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
-

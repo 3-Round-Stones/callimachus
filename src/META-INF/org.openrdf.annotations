@@ -11,7 +11,7 @@ org.callimachusproject.annotations.method = http://www.openrdf.org/rdf/2011/mess
 org.callimachusproject.annotations.moved
 org.callimachusproject.annotations.post
 org.callimachusproject.annotations.query = http://www.openrdf.org/rdf/2011/messaging#query
-org.callimachusproject.annotations.realm = http://www.openrdf.org/rdf/2011/messaging#realm
+org.callimachusproject.annotations.requires
 org.callimachusproject.annotations.rel = http://www.openrdf.org/rdf/2011/messaging#rel
 org.callimachusproject.annotations.resides
 org.callimachusproject.annotations.script = http://www.openrdf.org/rdf/2011/messaging#script

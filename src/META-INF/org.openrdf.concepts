@@ -1,9 +1,5 @@
-org.callimachusproject.concepts.AuthenticationManager
-org.callimachusproject.concepts.DigestManager
-org.callimachusproject.concepts.Realm
 org.callimachusproject.concepts.Group
 org.callimachusproject.concepts.ScriptBundle
 org.callimachusproject.concepts.Page
 org.callimachusproject.concepts.User
-org.callimachusproject.traits.SelfAuthorizingTarget = http://www.w3.org/2000/01/rdf-schema#Resource
 org.callimachusproject.concepts.Activity

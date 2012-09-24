@@ -18,17 +18,6 @@
     calli:edit <templates/realm-edit.xhtml>;
     calli:create <templates/realm-create.xhtml>.
 
-# anybody with credentials can look something up
-# TODO change this to require calli:reader access
-:AuthorizeRealmAccess owl:intersectionOf (calli:IsAuthorized
-        [owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
-    msg:sparql  """
-        ASK {
-            FILTER ($method = "GET" || $method = "HEAD")
-            FILTER ($query = "profile" || substr($query,1,2) = "q=")
-        }
-    """.
-
 # when a class is created
 :CreateRealm owl:intersectionOf (<creatable.ttl#PostCreate>
         [owl:onProperty msg:target; owl:hasValue <Realm> ]);
@@ -135,9 +124,9 @@
         var iter = this.calliAuthentication.iterator();
         while (iter.hasNext()) {
             var manager = iter.next();
-            var credential = manager.findCredential(cookies);
+            var credential = manager.FindCredential(cookies);
             if (credential) {
-                var title = manager.findCredentialLabel(cookies);
+                var title = manager.FindCredentialLabel(cookies);
                 return '<html><head><title>' + title + '</title>'
                     + '<meta http-equiv="REFRESH" content="0; url=' + credential + '"/></head>'
                     + '<body resource="' + credential + '">' + title  + '</body></html>';

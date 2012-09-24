@@ -1,26 +1,11 @@
 package org.callimachusproject.server;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.http.HttpMessage;
-import org.apache.http.HttpResponse;
-import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
-import org.callimachusproject.annotations.realm;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
-import org.callimachusproject.behaviours.RealmSupport;
-import org.callimachusproject.concepts.AuthenticationManager;
-import org.callimachusproject.concepts.Page;
-import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.openrdf.annotations.Iri;
-import org.openrdf.annotations.Matching;
-import org.openrdf.annotations.Precedes;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -29,7 +14,6 @@ import com.sun.jersey.api.client.WebResource;
 public class AuthenticationTest extends MetadataServerTestCase {
 	private static final int PORT = 59322;
 	private static final String ORIGIN = "http://localhost:" + PORT;
-	private static final String REALM = ORIGIN + "/";
 
 	@Override
 	protected int getPort() {
@@ -41,96 +25,12 @@ public class AuthenticationTest extends MetadataServerTestCase {
 		return ORIGIN;
 	}
 
-	@Matching(REALM)
-	public interface MyRealm extends Realm {}
-
-	@Precedes(RealmSupport.class)
-	public static class MyRealmSupport implements MyRealm {
-
-		public Collection<String> allowOrigin() {
-			return Collections.singleton("*");
-		}
-
-		public boolean withAgentCredentials(String origin) {
-			return false;
-		}
-
-		public String authenticateRequest(String method, Object resource,
-				Map<String, String[]> request) throws RepositoryException {
-			if (request.containsKey("authorization")
-					&& !"bad".equals(request.get("authorization")[0]))
-				return "me";
-			return null;
-		}
-
-		public boolean authorizeCredential(String credential, String method,
-				Object resource, Map<String, String[]> request) {
-			return true;
-		}
-
-		public HttpMessage authenticationInfo(String method, Object resource,
-				Map<String, String[]> request) {
-			BasicHttpRequest msg = new BasicHttpRequest("GET", "/");
-			msg.addHeader("Authentication-Info",
-					request.get("authorization")[0]);
-			return msg;
-		}
-
-		public HttpResponse forbidden(String method, Object resource,
-				Map<String, String[]> request) throws Exception {
-			return null;
-		}
-
-		public HttpResponse unauthorized(String method, Object resource,
-				Map<String, String[]> request) throws Exception {
-			return null;
-		}
-
-		@Override
-		public Set<AuthenticationManager> getCalliAuthentications() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void setCalliAuthentications(
-				Set<? extends AuthenticationManager> authentications) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public Page getCalliForbidden() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void setCalliForbidden(Page forbidden) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public Page getCalliUnauthorized() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void setCalliUnauthorized(Page unauthorized) {
-			// TODO Auto-generated method stub
-			
-		}
-
-	}
-
 	@Iri("urn:test:MyProtectedResource")
 	public static class MyProtectedResource {
 		public static String body = "body";
 
 		@method("GET")
-		@realm(REALM)
+		@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 		@type("text/plain")
 		@header("Cache-Control:max-age=5")
 		public String getResponse() {
@@ -158,8 +58,6 @@ public class AuthenticationTest extends MetadataServerTestCase {
 	public void setUp() throws Exception {
 		config.addConcept(MyResource.class);
 		config.addConcept(MyProtectedResource.class);
-		config.addConcept(MyRealm.class);
-		config.addBehaviour(MyRealmSupport.class);
 		super.setUp();
 		ObjectConnection con = repository.getConnection();
 		try {

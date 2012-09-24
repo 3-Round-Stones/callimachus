@@ -15,8 +15,9 @@
  * limitations under the License.
  *
  */
-package org.callimachusproject.behaviours;
+package org.callimachusproject.server.auth;
 
+import static org.openrdf.query.QueryLanguage.SPARQL;
 import info.aduna.net.ParsedURI;
 
 import java.io.IOException;
@@ -31,7 +32,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
@@ -54,19 +54,26 @@ import org.apache.http.HttpVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.callimachusproject.concepts.DigestManager;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.InternalServerError;
 import org.callimachusproject.traits.VersionedObject;
 import org.callimachusproject.util.PasswordGenerator;
-import org.openrdf.annotations.Bind;
-import org.openrdf.annotations.Sparql;
+import org.openrdf.OpenRDFException;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.XMLSchema;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.algebra.evaluation.util.ValueComparator;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
+import org.openrdf.repository.object.ObjectFactory;
 import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,13 +81,28 @@ import org.slf4j.LoggerFactory;
 /**
  * Validates HTTP digest authorization.
  */
-public abstract class DigestManagerSupport implements DigestManager, RDFObject {
+public class DigestManager implements AuthenticationManager {
 	private static final String DIGEST_NONCE = "DigestNonce=";
 	private static final String USERNAME = "username=";
 	private static final long THREE_MONTHS = 3 * 30 * 24 * 60 * 60;
 	private static final Pattern TOKENS_REGEX = Pattern
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"([^\"]*)\"|([^,\"]*)))?\\s*,?");
 	private static final String PREFIX = "PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>\n";
+	private static final String SELECT_PASSWORD = PREFIX
+			+ "SELECT (str(?user) AS ?id) ?encoded ?passwordDigest ?secret {{\n"
+			+ "?user calli:name $name .\n"
+			+ "$this calli:authNamespace ?folder .\n"
+			+ "?folder calli:hasComponent ?user .\n"
+			+ "FILTER (str(?user) = concat(str(?folder), $name))\n"
+			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" }\n"
+			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
+			+ "OPTIONAL { ?realm calli:hasComponent* ?user; calli:secret ?secret }\n"
+			+ "} UNION {\n" + "?user calli:email $name .\n"
+			+ "$this calli:authNamespace ?folder .\n"
+			+ "?folder calli:hasComponent ?user .\n"
+			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
+			+ "OPTIONAL { ?realm calli:hasComponent* ?user; calli:secret ?secret }\n"
+			+ "}}";
 	private static final BasicStatusLine _401 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 401, "Unauthorized");
 	private static final BasicStatusLine _204 = new BasicStatusLine(
@@ -110,7 +132,26 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		DIGEST_OPTS.put("nc", null);
 		DIGEST_OPTS.put("response", null);
 	}
-	private Logger logger = LoggerFactory.getLogger(DigestManagerSupport.class);
+	private final Logger logger = LoggerFactory.getLogger(DigestManager.class);
+	private final Resource self;
+	private final String authName;
+	private final String protectedDomains;
+
+	public DigestManager(Resource self, String authName) {
+		this(self, authName, null);
+	}
+
+	public DigestManager(Resource self, String authName, String protectedDomains) {
+		assert self != null;
+		assert authName != null;
+		this.self = self;
+		this.authName = authName;
+		this.protectedDomains = protectedDomains;
+	}
+
+	public String getAuthName() {
+		return authName;
+	}
 
 	public String getDaypass(FileObject secret) {
 		if (secret == null)
@@ -165,9 +206,11 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 
 	@Override
 	public HttpMessage authenticationInfo(String method, Object resource,
-			Map<String, String[]> request) {
+			Map<String, String[]> request, ObjectConnection con)
+			throws OpenRDFException {
 		Map<String, String> auth = parseDigestAuthorization(request);
-		Map.Entry<String, String> password = findAuthUser(method, resource, request, auth);
+		Map.Entry<String, String> password = findAuthUser(method, resource,
+				request, auth, con);
 		if (password == null)
 			return null;
 		String username = auth.get("username");
@@ -189,10 +232,10 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 
 	@Override
 	public String authenticateRequest(String method, Object resource,
-			Map<String, String[]> request) {
+			Map<String, String[]> request, ObjectConnection con) {
 		try {
 			Map<String, String> options = parseDigestAuthorization(request);
-			Map.Entry<String, String> password = findAuthUser(method, resource, request, options);
+			Map.Entry<String, String> password = findAuthUser(method, resource, request, options, con);
 			if (password == null) {
 				if (isRecentDigest(resource, request, options)) {
 					failedAttempt(options.get("username"));
@@ -220,7 +263,8 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 	}
 
 	@Override
-	public String findCredential(Collection<String> tokens) {
+	public String findCredential(Collection<String> tokens, ObjectConnection con)
+			throws OpenRDFException {
 		Map<String, String> options = parseDigestAuthorization(tokens);
 		if (options == null)
 			return null;
@@ -228,14 +272,15 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		if (username == null)
 			throw new BadRequest("Missing username");
 		String realm = options.get("realm");
-		Map<String, String> passwords = findDigestUser(username, realm, tokens);
+		Map<String, String> passwords = findDigestUser(username, realm, tokens,
+				con);
 		if (passwords == null || passwords.isEmpty())
 			return null;
 		return passwords.values().iterator().next();
 	}
 
 	@Override
-	public String findCredentialLabel(Collection<String> tokens) {
+	public String findCredentialLabel(Collection<String> tokens, ObjectConnection con) {
 		Map<String, String> options = parseDigestAuthorization(tokens);
 		if (options == null)
 			return null;
@@ -245,13 +290,22 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		return username;
 	}
 
-	public HttpResponse login(Collection<String> tokens, boolean persistent) {
+	public HttpResponse login(Collection<String> tokens, boolean persistent,
+			ObjectConnection con) throws OpenRDFException {
 		if (persistent) {
-			String username = findCredentialLabel(tokens);
-			for (Object[] row : findPasswordDigest(username)) {
-				if (row[3] instanceof FileObject) {
-					return login((FileObject) row[3]);
+			String username = findCredentialLabel(tokens, con);
+			TupleQueryResult results = findPasswordDigest(username, con);
+			try {
+				while (results.hasNext()) {
+					Value secret = results.next().getValue("secret");
+					if (secret instanceof Resource) {
+						ObjectFactory of = con.getObjectFactory();
+						RDFObject file = of.createObject((Resource) secret);
+						return login((FileObject) file);
+					}
 				}
+			} finally {
+				results.close();
 			}
 		}
 		return new BasicHttpResponse(_204);
@@ -265,11 +319,13 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		return resp;
 	}
 
-	public boolean isDigestPassword(Collection<String> tokens, String[] hash) {
+	public boolean isDigestPassword(Collection<String> tokens, String[] hash,
+			ObjectConnection con) throws OpenRDFException {
 		Map<String, String> auth = parseDigestAuthorization(tokens);
 		String username = auth.get("username");
 		String realm = auth.get("realm");
-		Map<String, String> passwords = findDigestUser(username, realm, tokens);
+		Map<String, String> passwords = findDigestUser(username, realm, tokens,
+				con);
 		for (String h : hash) {
 			if (passwords.containsKey(h))
 				return true;
@@ -277,12 +333,11 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		return false;
 	}
 
-	public Set<?> changeDigestPassword(Set<RDFObject> files, String[] passwords)
+	public Set<?> changeDigestPassword(Set<RDFObject> files, String[] passwords, ObjectConnection con)
 			throws RepositoryException, IOException {
 		int i = 0;
-		ObjectConnection con = this.getObjectConnection();
 		Set<Object> set = new LinkedHashSet<Object>();
-		for (URI uuid : getPasswordFiles(files, passwords.length)) {
+		for (URI uuid : getPasswordFiles(files, passwords.length, con)) {
 			Writer writer = con.getBlobObject(uuid).openWriter();
 			try {
 				writer.write(passwords[i++]);
@@ -294,29 +349,21 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		return set;
 	}
 
-	@Sparql(PREFIX + "SELECT (group_concat(?realm;separator=' ') as ?domain)\n"
-			+ "WHERE { SELECT DISTINCT ?realm { ?realm calli:authentication $this } }")
-	protected abstract String protectionDomain();
+	private String protectionDomain() {
+		return protectedDomains;
+	}
 
-	@Sparql(PREFIX
-			+ "SELECT (str(?user) AS ?id) ?encoded ?passwordDigest ?secret {{\n"
-			+ "?user calli:name $name .\n"
-			+ "$this calli:authNamespace ?folder .\n"
-			+ "?folder calli:hasComponent ?user .\n"
-			+ "FILTER (str(?user) = concat(str(?folder), $name))\n"
-			+ "OPTIONAL { ?user calli:encoded ?encoded; calli:algorithm \"MD5\" }\n"
-			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
-			+ "OPTIONAL { ?realm calli:hasComponent* ?user; calli:secret ?secret }\n"
-			+ "} UNION {\n" + "?user calli:email $name .\n"
-			+ "$this calli:authNamespace ?folder .\n"
-			+ "?folder calli:hasComponent ?user .\n"
-			+ "OPTIONAL { ?user calli:passwordDigest ?passwordDigest }\n"
-			+ "OPTIONAL { ?realm calli:hasComponent* ?user; calli:secret ?secret }\n"
-			+ "}}")
-	protected abstract List<Object[]> findPasswordDigest(@Bind("name") String username);
+	private TupleQueryResult findPasswordDigest(String username,
+			ObjectConnection con) throws OpenRDFException {
+		TupleQuery query = con.prepareTupleQuery(SPARQL, SELECT_PASSWORD);
+		query.setBinding("this", self);
+		return query.evaluate();
+	}
 
-	private Map.Entry<String, String> findAuthUser(String method, Object resource,
-			Map<String, String[]> request, Map<String, String> auth) {
+	private Map.Entry<String, String> findAuthUser(String method,
+			Object resource, Map<String, String[]> request,
+			Map<String, String> auth, ObjectConnection con)
+			throws OpenRDFException {
 		if (!isRecentDigest(resource, request, auth))
 			return null;
 		String qop = auth.get("qop");
@@ -327,7 +374,7 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		String response = auth.get("response");
 		String ha2 = md5(method + ":" + uri);
 		assert username != null;
-		Map<String,String> passwords = findDigestUser(username, realm, asList(request.get("cookie")));
+		Map<String,String> passwords = findDigestUser(username, realm, asList(request.get("cookie")), con);
 		if (passwords == null) {
 			logger.info("Account not found: {}", username);
 			return null;
@@ -353,43 +400,69 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 
 	/**
 	 * 
-	 * @param username must not be null
+	 * @param username
+	 *            must not be null
 	 * @return Map of HEX encoded MD5 to user IRI
+	 * @throws QueryEvaluationException
+	 * @throws RepositoryException
+	 * @throws MalformedQueryException
 	 */
-	private Map<String,String> findDigestUser(String username, String realm, Collection<String> cookies) {
+	private Map<String, String> findDigestUser(String username, String realm,
+			Collection<String> cookies, ObjectConnection con)
+			throws OpenRDFException {
 		if (username == null)
 			throw new NullPointerException();
-		List<Object[]> result = findPasswordDigest(username);
-		if (result.isEmpty())
-			return null;
-		String nonce = getDigestNonce(cookies);
-		Map<String, String> map = new HashMap<String, String>(result.size());
-		for (Object[] row : result) {
-			String iri = (String) row[0];
-			assert iri != null;
-			if (row[1] != null) {
-				map.put(new String(Hex.encodeHex((byte[]) row[1])), iri);
-			}
-			String hash = null;
-			if (row[2] instanceof FileObject) {
-				hash = readString((FileObject) row[2]);
-				map.put(hash, iri);
-			}
-			if (row[3] instanceof FileObject) {
-				String secret = readString((FileObject) row[3]);
-				if (nonce != null && hash != null) {
-					String password = md5(hash + ":" + md5(nonce + ":" + secret));
-					map.put(md5(username + ':' + realm + ':' + password), iri);
+		TupleQueryResult results = findPasswordDigest(username, con);
+		try {
+			if (!results.hasNext())
+				return null;
+			String nonce = getDigestNonce(cookies);
+			Map<String, String> map = new HashMap<String, String>();
+			while (results.hasNext()) {
+				BindingSet result = results.next();
+				String iri = result.getValue("id").stringValue();
+				assert iri != null;
+				if (result.hasBinding("encoded")) {
+					map.put(encodeHex(result.getValue("encoded")), iri);
 				}
-				long now = System.currentTimeMillis();
-				short halfDay = getHalfDay(now);
-				for (short d = halfDay; d >= halfDay - 1; d--) {
-					String daypass = getDaypass(d, secret);
-					map.put(md5(username + ':' + realm + ':' + daypass), iri);
+				String hash = null;
+				if (result.hasBinding("passwordDigest")) {
+					Resource value = (Resource) result.getValue("passwordDigest");
+					Object file = con.getObjectFactory().createObject(value);
+					hash = readString((FileObject) file);
+					map.put(hash, iri);
+				}
+				if (result.hasBinding("secret")) {
+					Resource value = (Resource) result.getValue("secret");
+					Object file = con.getObjectFactory().createObject(value);
+					String secret = readString((FileObject) file);
+					if (nonce != null && hash != null) {
+						String password = md5(hash + ":" + md5(nonce + ":" + secret));
+						map.put(md5(username + ':' + realm + ':' + password), iri);
+					}
+					long now = System.currentTimeMillis();
+					short halfDay = getHalfDay(now);
+					for (short d = halfDay; d >= halfDay - 1; d--) {
+						String daypass = getDaypass(d, secret);
+						map.put(md5(username + ':' + realm + ':' + daypass), iri);
+					}
 				}
 			}
+			return map;
+		} finally {
+			results.close();
 		}
-		return map;
+	}
+
+	private String encodeHex(Value value) {
+		Literal lit = (Literal) value;
+		if (XMLSchema.HEXBINARY.equals(lit.getDatatype()))
+			return lit.stringValue();
+		if (XMLSchema.BASE64BINARY.equals(lit.getDatatype())) {
+			byte[] bits = Base64.decodeBase64(lit.stringValue());
+			return new String(Hex.encodeHex(bits));
+		}
+		throw new AssertionError("Unexpected datatype: " + lit);
 	}
 
 	private String getDigestNonce(Collection<String> cookies) {
@@ -537,12 +610,8 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		if (parsed.getQuery() != null) {
 			path = path + "?" + parsed.getQuery();
 		}
-		Object realmAuth = getAuthName();
-		if (realmAuth == null) {
-			logger.warn("Missing authName in {}", getResource());
-			return false;
-		}
-		if (realm == null || !realm.equals(realmAuth.toString())
+		String realmAuth = getAuthName();
+		if (realm == null || !realm.equals(realmAuth)
 				|| !url.equals(uri) && !path.equals(uri)) {
 			logger.info("Bad authorization on {} using {}", url, authorization);
 			throw new BadRequest("Bad Authorization");
@@ -574,7 +643,7 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 		}
 	}
 
-	private Set<URI> getPasswordFiles(Set<RDFObject> files, int count)
+	private Set<URI> getPasswordFiles(Set<RDFObject> files, int count, ObjectConnection con)
 			throws RepositoryException {
 		if (files.size() == count) {
 			Set<URI> list = new TreeSet<URI>(new ValueComparator());
@@ -586,7 +655,6 @@ public abstract class DigestManagerSupport implements DigestManager, RDFObject {
 			if (list.size() == count)
 				return list;
 		}
-		ObjectConnection con = this.getObjectConnection();
 		ValueFactory vf = con.getValueFactory();
 		for (RDFObject file : files) {
 			Resource object = file.getResource();

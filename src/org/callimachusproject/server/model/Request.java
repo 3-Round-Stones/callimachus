@@ -44,7 +44,6 @@ import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.util.EntityUtils;
-import org.callimachusproject.concepts.Realm;
 import org.callimachusproject.engine.model.TermFactory;
 import org.callimachusproject.server.exceptions.BadRequest;
 import org.openrdf.repository.RepositoryException;
@@ -61,7 +60,6 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 	private final boolean storable;
 	private InetAddress remoteAddr;
 	private String iri;
-	private Realm realm;
 	private String credential;
 
 	public Request(Request request) {
@@ -82,14 +80,6 @@ public class Request extends EditableHttpEntityEnclosingRequest {
 		} else {
 			iri = getURIFromRequestTarget(getRequestLine().getUri());
 		}
-	}
-
-	public Realm getRealm() {
-		return realm;
-	}
-
-	public void setRealm(Realm realm) {
-		this.realm = realm;
 	}
 
 	public String getCredential() {

@@ -50,28 +50,6 @@
         return this.GetPageTemplate(page, page.FindRealmOf(this));
     """.
 
-:GetCreatorPage rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:method "GET";
-    calli:query "create";
-    calli:realm </>;
-    calli:requires calli:contributor;
-    calli:type "text/html";
-    calli:imports <Creatable>;
-    calli:imports <java:org.callimachusproject.server.exceptions.InternalServerError>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:script """
-        if (!(create instanceof Creatable))
-            throw new BadRequest("Cannot create this class here: " + create);
-        if (!create.calliCreate || create.calliCreate.isEmpty())
-            throw new InternalServerError("No create template");
-        if (create.calliCreate.size() != 1)
-            throw new InternalServerError("Multiple create templates");
-        var page = create.calliCreate.iterator().next();
-        return create.GetPageTemplate(page, page.FindRealmOf(this));
-    """.
-
 :GetPageTemplate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
@@ -85,104 +63,6 @@
     rdfs:domain :GetPageTemplate;
     rdfs:range <Realm>.
 
-:PostFactoryCreate rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom rdfs:Resource];
-    calli:method "POST";
-    calli:query "create";
-    calli:realm </>;
-    calli:requires calli:contributor;
-    calli:type "message/x-response";
-    calli:imports <Creatable>;
-    calli:imports <java:org.callimachusproject.io.MultipartParser>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.callimachusproject.server.exceptions.Forbidden>;
-    calli:imports <java:org.callimachusproject.xml.XMLEventReaderFactory>;
-    calli:script """
-        if (!location)
-            throw new BadRequest("No location provided");
-        if (!(create instanceof Creatable))
-            throw new BadRequest("Cannot create: " + create);
-        var creatorUri = this.toString();
-        var createdUri = location.toString();
-        var dest = createdUri.substring(0, createdUri.lastIndexOf('/', createdUri.length - 2) + 1);
-        if (creatorUri != dest && creatorUri != dest.substring(0, dest.length - 1))
-            throw new BadRequest("Location URI must be nested");
-        if (createdUri.search(/[\\s\\#\\?]/) >= 0 || createdUri.search(/^\\w+:\\/\\/\\S+/) != 0)
-            throw new BadRequest("Fragement or name resources are not supported");
-        var ftype = type;
-        var documentTag = null;
-        var bio = new org.callimachusproject.io.LatencyInputStream(body);
-        try {
-            if (type && type.indexOf("multipart/form-data") == 0) {
-                bio.mark(1024);
-                var parser = new MultipartParser(bio);
-                var file = parser.next();
-                var headers = parser.getHeaders();
-                var disposition = headers.get("content-disposition");
-                if (disposition && disposition.indexOf("filename=") >= 0) {
-                    ftype = headers.get("content-type");
-                    var xml = ftype == "text/xml" || ftype == "application/xml";
-                    if (xml || ftype == "application/octet-stream" || ftype.indexOf("application/x-") == 0) {
-                        var fileName = disposition.replace(/.*filename="/g, '').replace(/".*/g, '');
-                        var mimetypes = new javax.activation.MimetypesFileTypeMap();
-                        var mtype = mimetypes.getContentType(fileName);
-                        if (!"application/octet-stream".equals(mtype)) {
-                            ftype = mtype;
-                        }
-                    }
-                    bio = new org.callimachusproject.io.LatencyInputStream(file);
-                } else { // not a file upload
-                    bio.reset();
-                }
-            } else if (!ftype) {
-                var mimetypes = new javax.activation.MimetypesFileTypeMap();
-                ftype = mimetypes.getContentType(location.toString());
-            }
-            if (!ftype) {
-                ftype = "application/octet-stream";
-            } else if (ftype == "text/xml" || ftype == "application/xml" ||
-                    ftype.indexOf("+xml") > 0) {
-                bio.mark(1024);
-                var xmlFactory = XMLEventReaderFactory.newInstance();
-                var xml = xmlFactory.createXMLEventReader(createdUri, bio);
-                var qname = xml.nextTag().name;
-                if (qname.namespaceURI) {
-                    var ns = qname.namespaceURI;
-                    if (ns.indexOf('#') < 0 && ns.lastIndexOf('/') < ns.length - 1 && ns.lastIndexOf(':') < ns.length - 1) {
-                        ns = ns + '#';
-                    }
-                    var of = this.objectConnection.objectFactory;
-                    documentTag = of.createObject(ns + qname.localPart);
-                }
-                bio.reset();
-            }
-        } catch (e if e.javaException) {
-            throw new BadRequest(e.javaException);
-        }
-        var construct = create.LookupConstructor(documentTag, ftype);
-        var newCopy = construct.PostCreate(bio, location, ftype);
-        var iter = this.FindCreator(newCopy).iterator();
-        while (iter.hasNext()) {
-            var user = iter.next();
-            if (!construct.calliIsAuthorized(user, "POST", "create"))
-                throw new Forbidden("You are not permitted to create " + construct + " resources");
-        }
-        newCopy.calliEditor.addAll(this.FindContributor(newCopy));
-        newCopy.calliReader.addAll(this.SelectAllReaders());
-        newCopy.calliSubscriber.addAll(this.SelectAllSubscribers());
-        newCopy.calliEditor.addAll(this.SelectAllEditors());
-        newCopy.calliAdministrator.addAll(this.SelectAllAdministrators());
-        if (intermediate) {
-            var revision = this.provWasGeneratedBy;
-            this.calliHasComponent.add(newCopy);
-            this.provWasGeneratedBy = revision; // restore the previous revision
-        } else {
-            this.calliHasComponent.add(newCopy);
-        }
-        return { status:201, statusText:'Created', headers:{ location:newCopy.toString(), 'content-type':'text/plain' }, body:[newCopy.toString()] };
-    """.
-
 # POST ?create=/callimachus/File
 :LookupConstructor rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
@@ -193,7 +73,7 @@
         SELECT REDUCED ?class {
             {
                 # non-xml type or xml type with correct document tag
-                ?class rdfs:subClassOf+ $this; calli:mediaType $type
+                ?class rdfs:subClassOf+ $this; calli:mediaType $mediaType
                 FILTER (!bound($documentTag) || EXISTS { ?class calli:documentTag $documentTag })
                 BIND (1 AS ?preference)
             } UNION {
@@ -201,16 +81,16 @@
                 ?class rdfs:subClassOf+ $this; calli:mediaType ?typ2
                 FILTER (
                     (
-                        (sameTerm($type,"application/javascript") || sameTerm($type,"text/javascript"))
+                        (sameTerm($mediaType,"application/javascript") || sameTerm($mediaType,"text/javascript"))
                         && (sameTerm(?typ2,"application/javascript") || sameTerm(?typ2,"text/javascript"))
                     ) || (
-                        (sameTerm($type,"application/xslt+xml") || sameTerm($type,"text/xsl"))
+                        (sameTerm($mediaType,"application/xslt+xml") || sameTerm($mediaType,"text/xsl"))
                         && (sameTerm(?typ2,"application/xslt+xml") || sameTerm(?typ2,"text/xsl"))
                     ) || (
-                        (sameTerm($type,"image/x-png") || sameTerm($type,"image/png"))
+                        (sameTerm($mediaType,"image/x-png") || sameTerm($mediaType,"image/png"))
                         && (sameTerm(?typ2,"image/x-png") || sameTerm(?typ2,"image/png"))
                     ) || (
-                        (sameTerm($type,"image/pjpeg") || sameTerm($type,"image/jpeg"))
+                        (sameTerm($mediaType,"image/pjpeg") || sameTerm($mediaType,"image/jpeg"))
                         && (sameTerm(?typ2,"image/pjpeg") || sameTerm(?typ2,"image/jpeg"))
                     )
                 )
@@ -218,7 +98,7 @@
             } UNION {
                 # boot strap graphs before calli:mediaType triples are loaded
                 BIND (<GraphDocument> AS ?class)
-                FILTER sameTerm($type,"text/turtle")
+                FILTER sameTerm($mediaType,"text/turtle")
                 BIND (3 AS ?preference)
             } UNION {
                 BIND ($this AS ?class)
@@ -226,6 +106,14 @@
             }
         } ORDER BY ?preference LIMIT 1
     """.
+
+:documentTag a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :LookupConstructor;
+    calli:type "text/uri-list".
+
+:mediaType a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :LookupConstructor;
+    rdfs:range xsd:string.
 
 # override this method for subclass create methods
 :PostCreate rdfs:subClassOf msg:Message;
@@ -245,142 +133,15 @@
     """.
 
 :body a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
+    rdfs:domain :PostCreate;
     rdfs:range <java:java.io.InputStream>;
     calli:type "*/*".
 
-:create a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain [owl:unionOf (:GetCreatorPage :PostFactoryCreate)];
-    rdfs:range <Creatable>;
-    calli:query "create";
-    calli:type "text/uri-list".
-
-:documentTag a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain :LookupConstructor;
-    calli:type "text/uri-list".
-
-:intermediate a owl:FunctionalProperty, owl:DatatypeProperty;
-    rdfs:domain :PostFactoryCreate;
-    rdfs:range xsd:boolean;
-    calli:query "intermediate".
-
 :location a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain [owl:unionOf (:PostCreate :PostFactoryCreate)];
-    calli:query "location";
+    rdfs:domain :PostCreate;
     calli:type "text/uri-list".
 
 :type a owl:FunctionalProperty, owl:ObjectProperty;
-    rdfs:domain [owl:unionOf (:LookupConstructor :PostCreate :PostFactoryCreate)];
-    rdfs:range xsd:string;
-    calli:header "Content-Type".
-
-# find the user that will create $thing
-:FindCreator rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-    msg:sparql  """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX prov:<http://www.w3.org/ns/prov#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT DISTINCT ?contributor
-        WHERE {
-            $thing prov:wasGeneratedBy [prov:wasAssociatedWith ?contributor]
-        }
-    """.
-
-:thing a owl:ObjectProperty, owl:FunctionalProperty;
-    rdfs:domain :FindCreator.
-
-# find the user that created $thing if they are not otherwise editors
-:FindContributor rdfs:subClassOf :FindCreator;
-    msg:sparql  """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX prov:<http://www.w3.org/ns/prov#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT DISTINCT ?contributor
-        WHERE {
-            ?activity prov:used $thing; prov:wasAssociatedWith ?contributor
-            FILTER NOT EXISTS {
-                {
-                    $this ?editor ?contributor
-                } UNION {
-                    $this ?editor [calli:member ?contributor]
-                } UNION {
-                    $this rdf:type/rdfs:subClassOf* [?editor ?contributor]
-                } UNION {
-                    $this rdf:type/rdfs:subClassOf* [?editor [calli:member ?contributor]]
-                }
-                FILTER (?editor = calli:editor || ?editor = calli:administrator)
-            }
-        }
-    """.
-
-:SelectAllReaders rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
-    msg:sparql  """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT DISTINCT ?reader
-        WHERE {
-            {
-                $this calli:reader ?reader
-            } UNION {
-                $this rdf:type/rdfs:subClassOf*/calli:reader ?reader
-            }
-        }
-    """.
-
-:SelectAllSubscribers rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
-    msg:sparql  """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT DISTINCT ?subscriber
-        WHERE {
-            {
-                $this calli:subscriber ?subscriber
-            } UNION {
-                $this rdf:type/rdfs:subClassOf*/calli:subscriber ?subscriber
-            }
-        }
-    """.
-
-:SelectAllEditors rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
-    msg:sparql  """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT DISTINCT ?editor
-        WHERE {
-            {
-                $this calli:editor ?editor
-            } UNION {
-                $this rdf:type/rdfs:subClassOf*/calli:editor ?editor
-            }
-        }
-    """.
-
-:SelectAllAdministrators rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Composite>];
-    rdfs:subClassOf [owl:onProperty msg:objectSet; owl:allValuesFrom calli:Party];
-    msg:sparql  """
-        PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
-        SELECT DISTINCT ?admin
-        WHERE {
-            {
-                $this calli:administrator ?admin
-            } UNION {
-                $this rdf:type/rdfs:subClassOf*/calli:administrator ?admin
-            }
-        }
-    """.
+    rdfs:domain :PostCreate;
+    rdfs:range xsd:string.
 

@@ -18,14 +18,11 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.server.client.HTTPObjectClient;
-import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.xslt.TransformBuilder;
 import org.callimachusproject.xslt.XSLTransformer;
 import org.callimachusproject.xslt.XSLTransformerFactory;
@@ -66,21 +63,10 @@ public class TemplateEngine {
 	public Template getTemplate(String systemId, Map<String, ?> parameters)
 			throws IOException, TemplateException {
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpResponse response = null;
-		String url = null;
-		String redirect = systemId;
-		for (int i = 0; redirect != null && i < 20; i++) {
-			url = redirect;
-			HttpRequest request = new BasicHttpRequest("GET", redirect);
-			request.setHeader("Accept",
-					"appliaction/xhtml+xml, application/xml, text/xml");
-			response = client.service(request);
-			redirect = client.redirectLocation(redirect, response);
-		}
-		if (response.getStatusLine().getStatusCode() >= 300)
-			throw ResponseException.create(response, url);
-		InputStream in = response.getEntity().getContent();
-		return getTemplate(in, url, parameters);
+		HttpResponse resp = client.get(systemId, "appliaction/xhtml+xml, application/xml, text/xml");
+		systemId = resp.getLastHeader("Content-Location").getValue();
+		InputStream in = resp.getEntity().getContent();
+		return getTemplate(in, systemId, parameters);
 	}
 
 	public Template getTemplate(InputStream in, String systemId) throws IOException,

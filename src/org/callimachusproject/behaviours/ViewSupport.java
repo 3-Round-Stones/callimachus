@@ -27,14 +27,10 @@ import java.net.URLEncoder;
 import javax.tools.FileObject;
 import javax.xml.stream.XMLEventReader;
 
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.message.BasicHttpRequest;
 import org.callimachusproject.concepts.Page;
 import org.callimachusproject.engine.Template;
 import org.callimachusproject.engine.TemplateEngine;
 import org.callimachusproject.server.client.HTTPObjectClient;
-import org.callimachusproject.server.exceptions.ResponseException;
 import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.annotations.Bind;
 import org.openrdf.annotations.Sparql;
@@ -106,11 +102,7 @@ public abstract class ViewSupport implements Page, RDFObject, VersionedObject,
 
 	private InputStream openRequest(String url) throws IOException {
 		HTTPObjectClient client = HTTPObjectClient.getInstance();
-		HttpRequest request = new BasicHttpRequest("GET", url);
-		HttpResponse response = client.service(request);
-		if (response.getStatusLine().getStatusCode() >= 300)
-			throw ResponseException.create(response, url);
-		return response.getEntity().getContent();
+		return client.get(url).getEntity().getContent();
 	}
 
 }

@@ -135,8 +135,8 @@
         <fieldset class="hbox">
             <div id="authors" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
-                <label class="control-label">Authors <a href="/callimachus/Group" title="Select Group"
-                        onclick="return calli.createResource(event)" class="ui-icon ui-icon-newwin" /></label>
+                <label class="control-label">Authors <a href="/group/" title="Select Group"
+                        onclick="return calli.selectResource(event)" class="ui-icon ui-icon-newwin" /></label>
                 <div rel="calli:author" class="vbox controls">
                     <span resource="?author" typeof="calli:Party" class="ui-state-highlight ui-corner-all">
                         <span property="rdfs:label" />

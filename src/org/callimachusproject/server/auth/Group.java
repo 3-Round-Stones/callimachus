@@ -71,6 +71,10 @@ public class Group {
 		return isAllowed(from, anonymousFrom);
 	}
 
+	public boolean isEveryoneAllowed() {
+		return !everyoneFrom.isEmpty();
+	}
+
 	public boolean isEveryoneAllowed(String from) {
 		return isAllowed(from, everyoneFrom);
 	}

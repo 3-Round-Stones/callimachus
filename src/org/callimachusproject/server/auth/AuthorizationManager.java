@@ -293,7 +293,7 @@ public class AuthorizationManager {
 
 	private boolean isMember(String user, Set<Group> groups) {
 		for (Group group : groups) {
-			if (group.isMember(user))
+			if (group.isEveryoneAllowed() || group.isMember(user))
 				return true;
 		}
 		return false;

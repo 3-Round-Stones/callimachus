@@ -32,7 +32,7 @@
     rdfs:label "Folder";
     rdfs:comment "A folder of resources";
     rdfs:isDefinedBy </callimachus>;
-    calli:author </group/staff>,</group/admin>;
+    calli:author </group/users>,</group/staff>,</group/admin>;
     calli:icon <images/folder.png>;
     calli:view <templates/folder-view.xhtml>;
     calli:edit <templates/folder-edit.xhtml>;

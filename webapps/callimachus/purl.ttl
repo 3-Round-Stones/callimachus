@@ -90,14 +90,14 @@
                     }
                     return {
                         status:status,
-                        statusText:phrase,
+                        message:phrase,
                         headers:headers,
                         body:resp.entity
                     };
                 } else {
                     return {
                         status:status,
-                        statusText:phrase,
+                        message:phrase,
                         headers:{'location':result,'cache-control':cacheControl,'content-type':"text/plain"},
                         body:[phrase]
                     };
@@ -108,7 +108,7 @@
             // default response
             return {
                 status:303,
-                statusText:'See Other',
+                message:'See Other',
                 headers:{'location':this.toString() + "?view",'content-type':"text/plain"},
                 body:[this.toString() + "?view"]
             };

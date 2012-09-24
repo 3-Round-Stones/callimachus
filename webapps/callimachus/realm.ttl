@@ -55,14 +55,14 @@
     calli:type "message/x-response";
     calli:script """
         var resp = {
-            status:200,statusText:"OK",
+            status:200,message:"OK",
             headers:{'content-type':"text/html"},
             body:[register_xhtml.Construct(this, 'register')]
         };
         if (this.calliAuthentication.size() == 1) {
             var auth = this.calliAuthentication.iterator().next();
             resp.status = 302;
-            resp.statusText = "Found";
+            resp.message = "Found";
             resp.headers.location = auth + '?' + registerQuery;
         }
         return resp;
@@ -90,14 +90,14 @@
     calli:type "message/x-response";
     calli:script """
         var resp = {
-            status:200,statusText:"OK",
+            status:200,message:"OK",
             headers:{'content-type':"text/html"},
             body:[login_xhtml.Construct(this, 'login')]
         };
         if (this.calliAuthentication.size() == 1) {
             var auth = this.calliAuthentication.iterator().next();
             resp.status = 302;
-            resp.statusText = "Found";
+            resp.message = "Found";
             resp.headers.location = auth + '?' + loginQuery;
         }
         return resp;

@@ -270,7 +270,7 @@
         } else {
             this.calliHasComponent.add(newCopy);
         }
-        return { status:201, statusText:'Created', headers:{ location:newCopy.toString(), 'content-type':'text/plain' }, body:[newCopy.toString()] };
+        return { status:201, message:'Created', headers:{ location:newCopy.toString(), 'content-type':'text/plain' }, body:[newCopy.toString()] };
     """.
 
 :body a owl:ObjectProperty, owl:FunctionalProperty;

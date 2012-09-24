@@ -23,15 +23,15 @@ public class HttpJavaScriptResponseWriter implements Consumer<Object> {
 			"var contentType = null;\n" +
 			"var charset = 'UTF-8';\n" +
 			"var status = resp.status;\n" +
-			"var statusText = resp.statusText;" +
+			"var message = resp.message;" +
 			"if (typeof status != 'number') {\n" +
 			"	status = 200;\n" +
 			"}\n" +
-			"if (typeof statusText != 'string') {\n" +
-			"	statusText = '' + status;\n" +
+			"if (typeof message != 'string') {\n" +
+			"	message = '' + status;\n" +
 			"}\n" +
 			"var http11 = org.apache.http.HttpVersion.HTTP_1_1;\n" +
-			"var response = new org.apache.http.message.BasicHttpResponse(http11, status, statusText);\n" +
+			"var response = new org.apache.http.message.BasicHttpResponse(http11, status, message);\n" +
 			"if (typeof resp.headers == 'object') {\n" +
 			"	contentType = resp.headers['content-type'];\n" +
 			"	for (name in resp.headers) {\n" +

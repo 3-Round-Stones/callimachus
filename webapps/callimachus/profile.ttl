@@ -28,20 +28,11 @@
     rdfs:subClassOf <Viewable>;
     rdfs:isDefinedBy </callimachus>.
 
-<./> calli:hasComponent <profile>.
-
-<profile> a <Profile>;
-    rdfs:label "profile";
-    calli:reader </group/system>;
-    calli:subscriber </group/users>;
-    calli:editor </group/staff>;
-    calli:administrator </group/admin>.
-
 :GetRdfProfile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.openrdf.model.impl.LinkedHashModel>];
     calli:method "GET";
-    calli:requires calli:editor;
+    calli:requires calli:reader;
     calli:type "application/rdf+xml;q=0.9", "text/turtle;q=0.9";
     calli:header "cache-control:no-validate";
     calli:header "cache-control:max-age=60";
@@ -65,6 +56,7 @@
         }
         return model;
     """.
+
 # GET /callimachus/profile?view
 :GetHtmlProfile owl:intersectionOf (<viewable.ttl#GetViewPage>
         [owl:onProperty msg:target; owl:allValuesFrom <Profile>]);
@@ -89,37 +81,6 @@
     rdfs:domain :TransformProfile;
     rdfs:range <java:org.openrdf.model.impl.LinkedHashModel>;
     calli:type "application/rdf+xml".
-
-:GetJsonProfile rdfs:subClassOf msg:Message;
-    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];
-    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.ByteArrayOutputStream>];
-    calli:method "GET";
-    calli:requires calli:reader;
-    calli:type "application/json;q=0.9";
-    calli:header "cache-control:no-validate";
-    calli:header "cache-control:max-age=60";
-    calli:imports <java:java.io.ByteArrayOutputStream>;
-    calli:script """
-        var output = new java.io.ByteArrayOutputStream();
-        var writer = new java.io.OutputStreamWriter(output, "UTF-8");
-        var namespaces = this.objectConnection.namespaces.asList();
-        writer.write("{");
-        for (var i = 0; i < namespaces.size(); i++) {
-            var prefix = namespaces.get(i).prefix;
-            var uri = namespaces.get(i).name;
-            writer.write('"');
-            writer.write(prefix);
-            writer.write('":"');
-            writer.write(uri);
-            writer.write('"');
-            if (i < namespaces.size() - 1) {
-                writer.write(",\\n");
-            }
-        }
-        writer.write("}");
-        writer.flush();
-        return output;
-    """.
 
 :PostProfile rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Profile>];

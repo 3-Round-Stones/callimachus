@@ -149,6 +149,7 @@
             var con = this.objectConnection;
             var base = this.resource.stringValue();
             con.prepareUpdate(QueryLanguage.SPARQL, query, base).execute();
+            println(query);
             return null;
         } catch (e if e.javaException instanceof MalformedQueryException) {
             throw new BadRequest(e.javaException.toString());
@@ -211,6 +212,7 @@
             var con = this.objectConnection;
             var base = this.resource.stringValue();
             con.prepareUpdate(QueryLanguage.SPARQL, query, base).execute();
+            println(query);
             return null;
         } catch (e if e.javaException instanceof MalformedQueryException) {
             throw new BadRequest(e.javaException.toString());

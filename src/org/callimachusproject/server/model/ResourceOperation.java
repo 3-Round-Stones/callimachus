@@ -65,16 +65,10 @@ import org.callimachusproject.server.exceptions.BadRequest;
 import org.callimachusproject.server.exceptions.MethodNotAllowed;
 import org.callimachusproject.server.exceptions.NotAcceptable;
 import org.callimachusproject.server.exceptions.UnsupportedMediaType;
-import org.openrdf.OpenRDFException;
 import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.ParameterTypes;
-import org.openrdf.model.Value;
 import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.RDFObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -283,7 +277,7 @@ public class ResourceOperation extends ResourceRequest {
 		}
 		requires ann = method.getAnnotation(requires.class);
 		if (ann == null)
-			return new String[0];
+			return null;
 		return ann.value();
 	}
 

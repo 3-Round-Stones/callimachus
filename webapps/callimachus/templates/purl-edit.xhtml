@@ -7,39 +7,27 @@
     xmlns:calli="http://callimachusproject.org/rdf/2009/framework#">
 <head>
     <title resource="?this">{rdfs:label}</title>
-    <style>
-        form#form.location .hidden-location { display:none; }
-        form#form.disabled .hidden-disabled { display:none; }
-        form#form.deleted .hidden-deleted { display:none; }
-    </style>
     <script type="text/javascript">
     // <![CDATA[
-    function enable(value) {
-        if (value.indexOf(':') > 0) {
-            $('#form').attr('class', "location");
-            $('input.phrase').val('');
-            $('span.location').remove();
-            $('#location').parent().append('<span class="location" />');
-            $('span.location').attr('property', value);
-            $('#location').change();
-        } else if (value != $('#form').attr('class')) {
-            $('#form').attr('class', value);
-            $('input.phrase:hidden').val('');
-            $('span.location').remove();
-        }
-    }
     jQuery(function($){
-        $('input.phrase').each(function(){
+        $('#location').change(function(){
+             $('span.location').attr('content', this.value);
+        });
+        $('#type').change(function(){
             if (this.value) {
-                $('#type').val(this.id).change();
+                $('span.location').remove();
+                $('#location').parent().append('<span class="location" />');
+                $('span.location').attr('property', this.value);
+                $('#location').change();
             }
         });
         $('span.location[property]').each(function(){
             if (this.getAttribute('content')) {
                 $('#location').val(this.getAttribute('content'));
-                $('#type').val(this.getAttribute('property')).change();
+                $('#type').val(this.getAttribute('property'));
             }
         });
+        $('#type').change();
     });
     // ]]>
     </script>
@@ -63,40 +51,30 @@
             <div class="control-group">
                 <label for="type" class="control-label">Type</label>
                 <div class="controls">
-    				<select id="type" onchange="enable(value)">
-            			<option value="disabled">Disabled (404)</option>
-            			<option value="deleted">Deleted (410)</option>
-    					<option value="calli:get">GET (200)</option>
+    				<select id="type">
+        				<option value="calli:get">GET (200)</option>
 						<option value="calli:canonical">Canonical (301)</option>
-						<option value="calli:alternate">Alternate (302)</option>
+						<option value="calli:alternate" selected="selected">Alternate (302)</option>
 						<option value="calli:describedby">Described by (303)</option>
     					<option value="calli:resides">Resides (307)</option>
     					<option value="calli:moved">Moved (308)</option>
+                		<option value="calli:missing">Missing (404)</option>
+            			<option value="calli:gone">Gone (410)</option>
 					</select>
                 </div>
             </div>
-            <div class="control-group hidden-disabled hidden-deleted">
-                <label for="location" class="control-label">Location</label>
+            <div class="control-group">
+                <label for="location" class="control-label">Content location</label>
                 <div class="controls">
-        			<input id="location" size="40" value="" onchange="$('span.location').attr('content', value)" />
+        			<input id="location" size="40" value="" />
         			<span class="location" property="calli:get" content="?get" />
 					<span class="location" property="calli:canonical" content="?canonical" />
 					<span class="location" property="calli:alternate" content="?alternate" />
     				<span class="location" property="calli:describedby" content="?describedby" />
     				<span class="location" property="calli:resides" content="?resides" />
     				<span class="location" property="calli:moved" content="?moved" />
-                </div>
-            </div>
-            <div class="control-group hidden-deleted hidden-location">
-                <label for="disabled" class="control-label">Disabled phrase</label>
-                <div class="controls">
-        			<input class="phrase" id="disabled" value="{calli:disabled}" />
-                </div>
-            </div>
-            <div class="control-group hidden-disabled hidden-location">
-                <label for="deleted" class="control-label">Deleted phrase</label>
-                <div class="controls">
-    				<input class="phrase" id="deleted" value="{calli:deleted}" />
+        			<span class="location" property="calli:missing" content="?missing" />
+        			<span class="location" property="calli:gone" content="?gone" />
                 </div>
             </div>
             <div class="control-group">

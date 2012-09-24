@@ -70,12 +70,12 @@ public class AuthenticationHandler implements Handler {
 
 	public Response verify(ResourceOperation request) throws Exception {
 		String[] requires = request.getRequires();
-		if (requires.length == 0) {
+		if (requires != null && requires.length == 0) {
 			request.setPublic(true);
 		} else {
 			RDFObject target = request.getRequestedResource();
 			Set<Group> groups = manager.getAuthorizedParties(target, requires);
-			if (manager.isPublic(groups)) {
+			if (manager.isPublic(groups) || groups.isEmpty() && request.getJavaMethod() == null) {
 				request.setPublic(true);
 			} else {
 				HttpResponse unauthorized = manager.authorize(request, groups);

@@ -259,14 +259,14 @@ calli:moved a owl:AnnotationProperty;
     rdfs:comment "Target template URI that this request handler (308) redirects to";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:disabled a owl:AnnotationProperty;
-    rdfs:label "disabled";
-    rdfs:comment "Short user message describing that this request handler is disabled";
+calli:missing a owl:AnnotationProperty;
+    rdfs:label "missing";
+    rdfs:comment "Document describing that this resource is disabled or missing";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:deleted a owl:AnnotationProperty;
-    rdfs:label "deleted";
-    rdfs:comment "Short user message describing that this request handler is gone";
+calli:gone a owl:AnnotationProperty;
+    rdfs:label "gone";
+    rdfs:comment "Document describing that this resource is gone";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
 ################################

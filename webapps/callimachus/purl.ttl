@@ -54,65 +54,54 @@
             var status = row[0];
             var phrase = row[1];
             var pattern = row[2];
-            if (pattern) {
-                var substitution = Substitution.compile(pattern);
-                var result = substitution.replace(this.toString(), query);
-                if (result) {
-                    if (status == 200) {
-                        // 200 and 203 responses
-                        var split = result.split("\\n");
-                        var location = split[0];
-                        var client = HTTPObjectClient.getInstance();
-                        var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
-                        var redirect = systemId;
-                        var resp = null;
-                        for (var i = 0; i < 20 && redirect != null; i++) {
-                            systemId = redirect;
-                            var req = new BasicHttpRequest("GET", systemId);
-                            for (var i=1; i<split.length; i++) {
-                                var header = split[i].split(':');
-                                req.addHeader(header[0], header[1]);
-                            }
-                            resp = client.service(req);
-                            redirect = client.redirectLocation(redirect, resp);
+            var substitution = Substitution.compile(pattern);
+            var result = substitution.replace(this.toString(), query);
+            if (result) {
+                if (status < 300 || 400 <= status) {
+                    // 200, 203, 404, or 410 responses
+                    var split = result.split("\\n");
+                    var location = split[0];
+                    var client = HTTPObjectClient.getInstance();
+                    var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
+                    var redirect = systemId;
+                    var resp = null;
+                    for (var i = 0; i < 20 && redirect != null; i++) {
+                        systemId = redirect;
+                        var req = new BasicHttpRequest("GET", systemId);
+                        for (var i=1; i<split.length; i++) {
+                            var header = split[i].split(':');
+                            req.addHeader(header[0], header[1]);
                         }
-                        var code = resp.statusLine.statusCode;
-                        if (code != 200 && code != 203)
-                            throw ResponseException.create(resp, systemId);
-                        var headers = {'content-location': systemId,'cache-control':cacheControl};
-                        if (resp.getFirstHeader('last-modified')) {
-                            headers['last-modified'] = resp.getFirstHeader('last-modified').value;
-                        }
-                        if (resp.getFirstHeader('etag')) {
-                            headers['etag'] = resp.getFirstHeader('etag').value;
-                        }
-                        if (resp.getFirstHeader('content-version')) {
-                            headers['content-version'] = resp.getFirstHeader('content-version').value;
-                        }
-                        return {
-                            status:resp.statusLine.statusCode,
-                            statusText:resp.statusLine.reasonPhrase,
-                            headers:headers,
-                            body:resp.entity
-                        };
-                    } else {
-                        // 300 level responses
-                        return {
-                            status:status,
-                            statusText:phrase,
-                            headers:{'location':result,'cache-control':cacheControl,'content-type':"text/plain"},
-                            body:[phrase]
-                        };
+                        resp = client.service(req);
+                        redirect = client.redirectLocation(redirect, resp);
                     }
+                    var code = resp.statusLine.statusCode;
+                    if (code != 200 && code != 203)
+                        throw ResponseException.create(resp, systemId);
+                    var headers = {'content-location': systemId,'cache-control':cacheControl};
+                    if (resp.getFirstHeader('last-modified')) {
+                        headers['last-modified'] = resp.getFirstHeader('last-modified').value;
+                    }
+                    if (resp.getFirstHeader('etag')) {
+                        headers['etag'] = resp.getFirstHeader('etag').value;
+                    }
+                    if (resp.getFirstHeader('content-version')) {
+                        headers['content-version'] = resp.getFirstHeader('content-version').value;
+                    }
+                    return {
+                        status:status,
+                        statusText:phrase,
+                        headers:headers,
+                        body:resp.entity
+                    };
+                } else {
+                    return {
+                        status:status,
+                        statusText:phrase,
+                        headers:{'location':result,'cache-control':cacheControl,'content-type':"text/plain"},
+                        body:[phrase]
+                    };
                 }
-            } else {
-                // 404 and 410 responses
-                return {
-                    status:status,
-                    statusText:phrase,
-                    headers:{'cache-control':cacheControl,'content-type':"text/plain"},
-                    body:[phrase]
-                };
             }
         }
         if (query.empty) {
@@ -162,14 +151,16 @@
                 BIND ("Resides" AS ?phrase)
             } UNION {
                 $this calli:moved ?resource
-                BIND (308 AS ?moved)
+                BIND (308 AS ?status)
                 BIND ("Moved" AS ?phrase)
             } UNION {
-                $this calli:disabled ?phrase
+                $this calli:missing ?resource
                 BIND (404 AS ?status)
+                BIND ("Not found" AS ?phrase)
             } UNION {
-                $this calli:deleted ?phrase
+                $this calli:gone ?resource
                 BIND (410 AS ?status)
+                BIND ("Gone" AS ?phrase)
             }
         }
     """.

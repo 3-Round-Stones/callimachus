@@ -1046,8 +1046,8 @@ public class Setup {
 		add(con, subj, CALLI_CONTRIBUTOR, origin + "/group/users");
 		add(con, subj, CALLI_EDITOR, origin + "/group/staff");
 		add(con, subj, CALLI_ADMINISTRATOR, origin + "/group/admin");
-		add(con, subj, CALLI_UNAUTHORIZED, c + "pages/unauthorized.xhtml?view");
-		add(con, subj, CALLI_FORBIDDEN, c + "pages/forbidden.xhtml?view");
+		add(con, subj, CALLI_UNAUTHORIZED, c + "pages/unauthorized.xhtml?element=/1&realm=/");
+		add(con, subj, CALLI_FORBIDDEN, c + "pages/forbidden.xhtml?element=/1&realm=/");
 		add(con, subj, CALLI_AUTHENTICATION, origin + "/accounts");
 		add(con, subj, CALLI_MENU, origin + "/main+menu");
 		add(con, subj, CALLI_FAVICON, c + "images/callimachus-icon.ico");

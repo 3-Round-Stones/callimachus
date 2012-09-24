@@ -188,13 +188,13 @@ INSERT {
 };
 
 INSERT {
-    ?realm calli:forbidden </callimachus/pages/forbidden.xhtml?view>
+    ?realm calli:forbidden </callimachus/pages/forbidden.xhtml?element=/1&realm=/>
 } WHERE {
     ?realm calli:forbidden </callimachus/pages/forbidden.xhtml>
 };
 
 INSERT {
-    ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml?view>
+    ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml?element=/1&realm=/>
 } WHERE {
     ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml>
 };

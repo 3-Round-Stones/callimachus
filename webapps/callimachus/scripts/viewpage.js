@@ -64,7 +64,7 @@ window.calli.viewpage = function(uri) {
     if (url.indexOf('/diverted;') == 0) {
         url = decodeURIComponent(url.substring('/diverted;'.length));
     }
-    return calli.getCallimachusUrl('view?q=' + encodeURIComponent(url).replace(/%2F/g, '/').replace(/%3A/g, ':'));
+    return calli.getCallimachusUrl('/?go=' + encodeURIComponent(url).replace(/%2F/g, '/').replace(/%3A/g, ':'));
 }
 
 window.calli.diverted = function(uri, query) {

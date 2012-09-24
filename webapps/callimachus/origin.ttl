@@ -50,3 +50,70 @@
     calli:header "cache-control:no-cache";
     calli:get <pipelines/origin-realms-atom.xpl?results&target=$0>.
 
+################################
+# View resource
+################################
+
+:ResolveView rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Origin>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    rdfs:subClassOf [owl:onProperty :diverted; owl:hasValue </diverted>];
+    calli:method "GET";
+    calli:query "go";
+    calli:requires calli:reader;
+    calli:expect "302-found";
+    calli:type "text/uri-list";
+    calli:header "cache-control:no-store";
+    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
+    calli:imports <java:org.openrdf.model.vocabulary.RDF>;
+    calli:imports <java:java.net.URLEncoder>;
+    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.engine.model.TermFactory>;
+    calli:imports <Viewable>;
+    calli:script """
+        var con = this.objectConnection;
+        var vf = con.valueFactory;
+
+        function resolveAbsoluteURI(string) {
+            try {
+                if (string.indexOf("/") == 0 || java.net.URI.create(string).isAbsolute())
+                    return TermFactory.newInstance(diverted.toString()).resolve(string);
+                return null;
+            } catch (e) {
+                throw new BadRequest(e);
+            }
+        }
+
+        function redirectURL(iri) {
+            var uri = java.net.URI.create(iri);
+            var origin = uri.authority ? new java.net.URI(uri.scheme, uri.authority, "/", null, null).toASCIIString() : null;
+            var viewable = con.getObject(iri) instanceof Viewable;
+            var Origin = vf.createURI("http://callimachusproject.org/rdf/2009/framework#Origin");
+            var authority = origin && con.hasStatement(vf.createURI(origin), RDF.TYPE, Origin, []);
+            if (viewable && authority && (uri.query || uri.fragment)) { //# complex resource URI
+                return origin + "diverted;" + URLEncoder.encode(iri) + '?view';
+            } else if (viewable && authority) { //# Self resolving URL
+                return iri + '?view';
+            } else if (viewable) { //# Foreign IRI, but can be presented here
+                return diverted.toString() + ";" + URLEncoder.encode(iri) + '?view';
+            } else { //# Unknown resource
+                return iri;
+            }
+        }
+
+        if (viewResource) {
+            var resolved = resolveAbsoluteURI(viewResource);
+            if (resolved) //# absolute URI redirect
+                return redirectURL(resolved);
+        }
+        return null; //# 404
+    """.
+
+:viewResource a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain :ResolveView;
+    rdfs:range xsd:string;
+    calli:query "go".
+
+:diverted a owl:FunctionalProperty, owl:ObjectProperty;
+    rdfs:domain :ResolveView.
+

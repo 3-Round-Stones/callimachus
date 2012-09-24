@@ -40,6 +40,19 @@ window.calli.listResourceIRIs = function (text) {
                 uri = uri.substring(0, uri.indexOf('#'));
             }
             return decodeURIComponent(uri);
+        } else if (url.indexOf('/?go=') >= 0) {
+            var uri = url.substring(url.indexOf('/?go=') + '/?go='.length);
+            if (uri.indexOf('&') >= 0) {
+                uri = uri.substring(0, uri.indexOf('&'));
+            }
+            if (uri.indexOf('#') >= 0) {
+                uri = uri.substring(0, uri.indexOf('#'));
+            }
+            uri = decodeURIComponent(uri);
+            if (uri.indexOf('/') == 0) {
+                uri = url.substring(0, url.indexOf('/?go=')) + uri;
+            }
+            return uri;
         } else if (url.indexOf('/callimachus/view?q=') >= 0) {
             var uri = url.substring(url.indexOf('/callimachus/view?q=') + '/callimachus/view?q='.length);
             if (uri.indexOf('&') >= 0) {
@@ -50,7 +63,7 @@ window.calli.listResourceIRIs = function (text) {
             }
             uri = decodeURIComponent(uri);
             if (uri.indexOf('/') == 0) {
-                uri = url.substring(0, url.indexOf('/callimachus/view')) + uri;
+                uri = url.substring(0, url.indexOf('/callimachus/view?q=')) + uri;
             }
             return uri;
         } else if (url.indexOf('/callimachus/go?q=') >= 0) {
@@ -63,7 +76,7 @@ window.calli.listResourceIRIs = function (text) {
             }
             uri = decodeURIComponent(uri);
             if (uri.indexOf('/') == 0) {
-                uri = url.substring(0, url.indexOf('/callimachus/go')) + uri;
+                uri = url.substring(0, url.indexOf('/callimachus/go?q=')) + uri;
             }
             return uri;
         } else if (url.indexOf('?') >= 0) {

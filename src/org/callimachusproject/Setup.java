@@ -35,7 +35,6 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -726,52 +725,19 @@ public class Setup {
 			URI subj = vf.createURI(group);
 			URI pred = vf.createURI(CALLI_ANONYMOUSFROM);
 			boolean modified = false;
-			for (String host : getAllCanonicalHostNames()) {
-				Literal obj = vf.createLiteral(host);
-				if (!con.hasStatement(subj, pred, obj)) {
-					con.add(subj, pred, obj);
-					modified = true;
-				}
+			String host = InetAddress.getLocalHost().getCanonicalHostName();
+			Literal obj = vf.createLiteral(host);
+			if (!con.hasStatement(subj, pred, obj)) {
+				con.add(subj, pred, obj);
+				modified = true;
 			}
 			con.setAutoCommit(true);
 			return modified;
+		} catch (UnknownHostException e) {
+			throw new AssertionError(e);
 		} finally {
 			con.close();
 		}
-	}
-
-	private Collection<String> getAllCanonicalHostNames() throws SocketException {
-		Collection<String> set = new TreeSet<String>();
-		Enumeration<NetworkInterface> ifaces = NetworkInterface
-				.getNetworkInterfaces();
-		while (ifaces.hasMoreElements()) {
-			NetworkInterface iface = ifaces.nextElement();
-			Enumeration<InetAddress> raddrs = iface.getInetAddresses();
-			while (raddrs.hasMoreElements()) {
-				InetAddress raddr = raddrs.nextElement();
-				set.add(raddr.getCanonicalHostName());
-				set.remove(raddr.getHostAddress());
-			}
-			Enumeration<NetworkInterface> virtualIfaces = iface
-					.getSubInterfaces();
-			while (virtualIfaces.hasMoreElements()) {
-				NetworkInterface viface = virtualIfaces.nextElement();
-				Enumeration<InetAddress> vaddrs = viface.getInetAddresses();
-				while (vaddrs.hasMoreElements()) {
-					InetAddress vaddr = vaddrs.nextElement();
-					set.add(vaddr.getCanonicalHostName());
-					set.remove(vaddr.getHostAddress());
-				}
-			}
-		}
-		try {
-			InetAddress local = InetAddress.getLocalHost();
-			set.add(local.getCanonicalHostName());
-			set.remove(local.getHostAddress());
-		} catch (UnknownHostException e) {
-			// strange
-		}
-		return set;
 	}
 
 	private boolean importCar(URL car, String folder, String origin,

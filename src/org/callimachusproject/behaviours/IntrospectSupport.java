@@ -4,6 +4,7 @@ import java.beans.IntrospectionException;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
@@ -25,6 +26,7 @@ public class IntrospectSupport {
 		XHTMLInfoWriter out = new XHTMLInfoWriter(stream);
 
 		ResourceInfo info = new ResourceInfo(target.getClass());
+		Set<Class<?>> concepts = info.getConcepts();
 		MethodInfo[] operations = info.getRemoteMethodDescriptors();
 		PropertyInfo[] properties = info.getPropertyDescriptors();
 		MethodInfo[] methods = info.getMethodDescriptors();
@@ -35,6 +37,11 @@ public class IntrospectSupport {
 		// table of content
 		out.writeStartElement("div");
 		out.writeAttribute("id", "sidebar");
+
+		out.writeStartElement("aside");
+		out.writeSubheading("Classes");
+		writeConcepts(concepts, info, out);
+		out.writeEndElement(); //aside
 
 		out.writeStartElement("aside");
 		out.writeSubheading("Operations");
@@ -102,6 +109,21 @@ public class IntrospectSupport {
 
 		out.writeEndDocument();
 		return stream;
+	}
+
+	private void writeConcepts(Set<Class<?>> classes, ResourceInfo info,
+			XHTMLInfoWriter out) throws XMLStreamException {
+		out.writeStartElement("ul");
+		for (Class<?> cls : classes) {
+			out.writeStartElement("li");
+			out.writeLink(info.getConceptIri(cls), info.getConceptName(cls));
+			Set<Class<?>> set = info.getSuperConcepts(cls);
+			if (!set.isEmpty()) {
+				writeConcepts(set, info, out);
+			}
+			out.writeEndElement(); //li
+		}
+		out.writeEndElement(); //ul
 	}
 
 	private void writeMethodInfo(MethodInfo info, XHTMLInfoWriter out) throws XMLStreamException {

@@ -27,8 +27,9 @@ import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.type;
-import org.openrdf.annotations.Iri;
 import org.openrdf.annotations.Bind;
+import org.openrdf.annotations.Iri;
+import org.openrdf.model.impl.URIImpl;
 
 public class ResourceInfo {
 	public static class MethodInfo extends MethodDescriptor {
@@ -280,10 +281,12 @@ public class ResourceInfo {
 
 	}
 
-	private BeanInfo info;
+	private final Class<?> klass;
+	private final BeanInfo info;
 
 	public ResourceInfo(Class<?> klass) throws IntrospectionException {
-		info = Introspector.getBeanInfo(klass, Object.class);
+		this.klass = klass;
+		this.info = Introspector.getBeanInfo(klass, Object.class);
 	}
 
 	public ResourceInfo.MethodInfo[] getMethodDescriptors() {
@@ -349,5 +352,54 @@ public class ResourceInfo {
 			}
 		}
 		return PropertyInfo.wrap(properties);
+	}
+
+	public Set<Class<?>> getConcepts() {
+		return getSuperConcepts(klass);
+	}
+
+	public String getConceptIri(Class<?> cls) {
+		Iri ann = cls.getAnnotation(Iri.class);
+		if (ann == null)
+			return null;
+		return ann.value();
+	}
+
+	public String getConceptName(Class<?> cls) {
+		return new URIImpl(getConceptIri(cls)).getLocalName();
+	}
+
+	public Set<Class<?>> getSuperConcepts(Class<?> cls) {
+		Set<Class<?>> s1 = new TreeSet<Class<?>>(new Comparator<Class<?>>() {
+			public int compare(Class<?> o1, Class<?> o2) {
+				return String.valueOf(getConceptIri(o1)).compareTo(String.valueOf(getConceptIri(o2)));
+			}
+		});
+		getConcepts(cls, s1);
+		s1.remove(cls);
+		Set<Class<?>> s2 = new HashSet<Class<?>>(s1);
+		Iterator<Class<?>> iter = s1.iterator();
+		while (iter.hasNext()) {
+			Class<?> c1 = iter.next();
+			for (Class<?> c2 : s2) {
+				if (c1.isAssignableFrom(c2) && !c2.isAssignableFrom(c1)) {
+					iter.remove();
+					break;
+				}
+			}
+		}
+		return s1;
+	}
+
+	private void getConcepts(Class<?> klass, Set<Class<?>> set) {
+		if (klass.isAnnotationPresent(Iri.class)) {
+			set.add(klass);
+		}
+		for (Class<?> face : klass.getInterfaces()) {
+			getConcepts(face, set);
+		}
+		if (klass.getSuperclass() != null) {
+			getConcepts(klass.getSuperclass(), set);
+		}
 	}
 }

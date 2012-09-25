@@ -199,3 +199,15 @@ INSERT {
     ?realm calli:unauthorized </callimachus/pages/unauthorized.xhtml>
 };
 
+DELETE {
+    ?graph a </callimachus/SchemaGraph>
+    GRAPH ?graph { </callimachus/Serviceable> owl:equivalentClass rdfs:Resource }
+} WHERE {
+    ?graph a </callimachus/SchemaGraph>
+    GRAPH ?graph { </callimachus/Serviceable> owl:equivalentClass rdfs:Resource }
+    FILTER NOT EXISTS { GRAPH ?graph {
+        ?s ?p ?o
+        FILTER (</callimachus/Serviceable> != ?s || owl:equivalentClass != ?p || rdfs:Resource != ?o)
+    }}
+};
+

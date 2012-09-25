@@ -228,23 +228,23 @@ public class AuthorizationManager {
 	private void getAnnotationValues(Class<?> cls, Set<String> roles,
 			Set<String> set) {
 		for (Annotation ann : cls.getAnnotations()) {
-			Iri iri = ann.annotationType().getAnnotation(Iri.class);
-			if (iri != null && roles.contains(iri.value())) {
-				try {
-					Method value = ann.getClass().getMethod("value");
+			try {
+				Method value = ann.annotationType().getMethod("value");
+				Iri iri = value.getAnnotation(Iri.class);
+				if (iri != null && roles.contains(iri.value())) {
 					Object obj = value.invoke(ann);
 					if (obj instanceof String[]) {
 						set.addAll(Arrays.asList((String[]) obj));
 					}
-				} catch (NoSuchMethodException e) {
-					continue;
-				} catch (IllegalAccessException e) {
-					continue;
-				} catch (IllegalArgumentException e) {
-					logger.error(e.toString(), e);
-				} catch (InvocationTargetException e) {
-					logger.error(e.toString(), e);
 				}
+			} catch (NoSuchMethodException e) {
+				continue;
+			} catch (IllegalAccessException e) {
+				continue;
+			} catch (IllegalArgumentException e) {
+				logger.error(e.toString(), e);
+			} catch (InvocationTargetException e) {
+				logger.error(e.toString(), e);
 			}
 		}
 		for (Class<?> face : cls.getInterfaces()) {
@@ -256,7 +256,11 @@ public class AuthorizationManager {
 	}
 
 	private Realm getRealm(ResourceOperation request) throws OpenRDFException {
-		return realmManager.getRealm(request.getIRI(), request.getObjectConnection());
+		ObjectConnection con = request.getObjectConnection();
+		Realm realm = realmManager.getRealm(request.getIRI(), con);
+		if (realm == null)
+			return realmManager.getRealm(request.getRequestURI(), con);
+		return realm;
 	}
 
 	private List<String> getAgentFrom(String[] sources) {

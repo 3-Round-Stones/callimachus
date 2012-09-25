@@ -106,14 +106,15 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class Setup {
+	public static final String NAME = Version.getInstance().getVersion();
 	private static final String CALLIMACHUS = "/callimachus/";
 	private static final String SYSTEM_GROUP = "/group/system";
 	private static final String ACTIVITY_PATH = "/activity/";
 	private static final String ACTIVITY_TYPE = CALLIMACHUS + "Activity";
 	private static final String FOLDER_TYPE = CALLIMACHUS + "Folder";
-	private static final String SCHEMA_GRAPH = CALLIMACHUS + "SchemaGraph";
-	private static final String SERVICEABLE = CALLIMACHUS + "Serviceable";
-	public static final String NAME = Version.getInstance().getVersion();
+	private static final String GRAPH_DOCUMENT = CALLIMACHUS + "GraphDocument";
+	private static final String SERVE_ALL = CALLIMACHUS + "serve-all.ttl";
+	private static final String SERVE_ALL_TTL = "META-INF/templates/callimachus-serve-all.ttl";
 	private static final String INITIAL_GRAPH = "META-INF/templates/callimachus-initial-data.ttl";
 	private static final String MAIN_ARTICLE = "META-INF/templates/main-article.docbook";
 
@@ -433,7 +434,7 @@ public class Setup {
 	}
 
 	public void setServeAllResourcesAs(String origin)
-			throws RepositoryException {
+			throws OpenRDFException, IOException {
 		if (repository == null)
 			throw new IllegalStateException("Not connected");
 		setServeAllResourcesAs(origin, repository);
@@ -1033,35 +1034,62 @@ public class Setup {
 	}
 
 	private boolean setServeAllResourcesAs(String origin,
-			CallimachusRepository repository) throws RepositoryException {
+			CallimachusRepository repository) throws OpenRDFException, IOException {
 		ObjectConnection con = repository.getConnection();
 		try {
 			con.setAutoCommit(false);
 			ValueFactory vf = con.getValueFactory();
 			boolean modified = false;
-			URI ableUri = origin == null ? null : vf.createURI(origin + SERVICEABLE);
-			RepositoryResult<Statement> stmts = con.getStatements(null, OWL.EQUIVALENTCLASS, RDFS.RESOURCE);
+			URI file = origin == null ? null : vf.createURI(origin + SERVE_ALL);
+			URI hasComponent = vf.createURI(CALLI_HASCOMPONENT);
+			URI NamedGraph = vf.createURI("http://www.w3.org/ns/sparql-service-description#NamedGraph");
+			RepositoryResult<Statement> stmts = con.getStatements(null, RDF.TYPE, NamedGraph);
 			try {
 				while (stmts.hasNext()) {
 					Statement st = stmts.next();
-					String serve = st.getSubject().stringValue();
-					if (serve.endsWith(SERVICEABLE) && !serve.equals(ableUri)) {
+					Resource serve = st.getSubject();
+					if (serve.stringValue().endsWith(SERVE_ALL) && !serve.equals(file)) {
 						logger.info("All resources are no longer served as {}", st.getSubject());
-						con.remove(st, st.getContext());
-						String schemaGraph = serve.substring(0, serve.lastIndexOf(SERVICEABLE)) + SCHEMA_GRAPH;
-						con.remove(st.getContext(), RDF.TYPE, vf.createURI(schemaGraph));
+						con.clear(serve);
+						con.remove((Resource) null, hasComponent, serve);
 						modified = true;
 					}
 				}
 			} finally {
 				stmts.close();
 			}
-			if (ableUri != null && !con.hasStatement(ableUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE)) {
-				logger.info("All resources are now served as {}", ableUri);
-				URI graph = vf.createURI(con.getActivityURI().stringValue() + "#serviceable");
-				con.add(ableUri, OWL.EQUIVALENTCLASS, RDFS.RESOURCE, graph);
-				con.add(graph, RDF.TYPE, vf.createURI(origin + SCHEMA_GRAPH));
-				modified = true;
+			ClassLoader cl = getClass().getClassLoader();
+			InputStream in = cl.getResourceAsStream(SERVE_ALL_TTL);
+			try {
+				if (file != null && in != null && !con.hasStatement((Resource) null, hasComponent, file)) {
+					logger.info("All resources are now served as {}", origin);
+					OutputStream out = con.getBlobObject(file).openOutputStream();
+					try {
+						int read;
+						byte[] buf = new byte[1024];
+						while ((read = in.read(buf)) >= 0) {
+							out.write(buf, 0, read);
+						}
+					} finally {
+						out.close();
+						in.close();
+						in = con.getBlobObject(file).openInputStream();
+					}
+					con.add(in, file.stringValue(), RDFFormat.TURTLE, file);
+					con.add(file, RDFS.LABEL, vf.createLiteral("serve all"));
+					con.add(file, RDF.TYPE, NamedGraph);
+					con.add(file, RDF.TYPE, vf.createURI(origin + GRAPH_DOCUMENT));
+					con.add(file, RDF.TYPE, vf.createURI("http://xmlns.com/foaf/0.1/Document"));
+					con.add(file, vf.createURI(CALLI_READER), vf.createURI(origin + "/group/public"));
+					con.add(file, vf.createURI(CALLI_SUBSCRIBER), vf.createURI(origin + "/group/staff"));
+					con.add(file, vf.createURI(CALLI_ADMINISTRATOR), vf.createURI(origin + "/group/admin"));
+					con.add(vf.createURI(origin + CALLIMACHUS), hasComponent, file);
+					modified = true;
+				}
+			} finally {
+				if (in != null) {
+					in.close();
+				}
 			}
 			con.setAutoCommit(true);
 			return modified;

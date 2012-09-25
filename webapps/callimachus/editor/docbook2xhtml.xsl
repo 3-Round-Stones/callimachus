@@ -205,28 +205,28 @@
     <xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="d:varlistentry/d:listitem/d:para">
-    <dd>
-        <xsl:apply-templates />
-    </dd>
-</xsl:template>
-
 <xsl:template match="d:listitem/d:para">
     <li>
         <xsl:apply-templates />
     </li>
 </xsl:template>
 
-<xsl:template match="d:varlistentry/d:listitem[not(d:para)]">
+<xsl:template match="d:listitem[not(d:para)]">
+    <li>
+        <xsl:apply-templates />
+    </li>
+</xsl:template>
+
+<xsl:template match="d:varlistentry/d:listitem/d:para">
     <dd>
         <xsl:apply-templates />
     </dd>
 </xsl:template>
 
-<xsl:template match="d:listitem[not(d:para)]">
-    <li>
+<xsl:template match="d:varlistentry/d:listitem[not(d:para)]">
+    <dd>
         <xsl:apply-templates />
-    </li>
+    </dd>
 </xsl:template>
 
 <!-- tables -->

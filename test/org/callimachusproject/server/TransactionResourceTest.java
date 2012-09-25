@@ -1,6 +1,7 @@
 package org.callimachusproject.server;
 
 import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.NamedGraphSupport;
@@ -16,6 +17,7 @@ public class TransactionResourceTest extends MetadataServerTestCase {
 
 	public static class HelloWorld {
 		@method("POST")
+		@requires("urn:test:grant")
 		public String hello(@type("*/*") String input) {
 			return input + " world!";
 		}

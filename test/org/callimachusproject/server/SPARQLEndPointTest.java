@@ -16,6 +16,7 @@ import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpResponse;
 import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.NamedGraphSupport;
@@ -59,6 +60,7 @@ public class SPARQLEndPointTest extends MetadataServerTestCase {
 
 		@type("message/http")
 		@method("POST")
+		@requires("urn:test:grant")
 		public HttpResponse post(@type("*/*") Map<String, String> parameters)
 				throws Exception {
 			ObjectConnection con = getObjectConnection();

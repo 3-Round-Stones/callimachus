@@ -3,6 +3,7 @@ package org.callimachusproject.server;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.openrdf.model.vocabulary.RDFS;
 
@@ -13,24 +14,28 @@ public class ParameterTest extends MetadataServerTestCase {
 	public static abstract class Behaviour {
 		@method("GET")
 		@query("query")
+		@requires("urn:test:grant")
 		public String query(@query("q1") String q1) {
 			return "hello " + q1;
 		}
 
 		@method("GET")
 		@query("star")
+		@requires("urn:test:grant")
 		public String star(@query("*") String qs) {
 			return "hello " + qs;
 		}
 
 		@method("GET")
 		@query("header")
+		@requires("urn:test:grant")
 		public String header(@header("h1") String h1) {
 			return "hello " + h1;
 		}
 
 		@method("GET")
 		@query("either")
+		@requires("urn:test:grant")
 		public String either(@query("q1") @header("h1") String value) {
 			return "hello " + value;
 		}

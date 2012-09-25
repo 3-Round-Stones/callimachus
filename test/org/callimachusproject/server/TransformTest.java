@@ -7,6 +7,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.transform;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.annotations.xslt;
@@ -35,6 +36,7 @@ public class TransformTest extends MetadataServerTestCase {
 	@Matching("/service")
 	public static abstract class Service {
 		@query("world")
+		@requires("urn:test:grant")
 		@type("text/xml")
 		@transform("urn:test:execute")
 		public String world() {
@@ -42,6 +44,7 @@ public class TransformTest extends MetadataServerTestCase {
 		}
 
 		@query("hello")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		public String hello(
 				@transform("urn:test:execute") @type("text/plain") String world) {
@@ -54,6 +57,7 @@ public class TransformTest extends MetadataServerTestCase {
 		public abstract String execute(@type("text/xml") String xml);
 
 		@query("turtle")
+		@requires("urn:test:grant")
 		@type("application/x-turtle")
 		public Model turtle(
 				@transform("urn:test:rdfvalue") @type({ "application/rdf+xml",
@@ -76,6 +80,7 @@ public class TransformTest extends MetadataServerTestCase {
 		}
 
 		@query("increment")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		public int increment(
 				@transform("urn:test:decrypt") @query("number") int base) {
@@ -89,6 +94,7 @@ public class TransformTest extends MetadataServerTestCase {
 		}
 
 		@query("indirect")
+		@requires("urn:test:grant")
 		@type("application/x-turtle")
 		@transform("urn:test:serialize")
 		public Model indirect() {
@@ -100,12 +106,14 @@ public class TransformTest extends MetadataServerTestCase {
 
 		@transform("urn:test:execute")
 		@type("text/xml")
+		@requires("urn:test:grant")
 		@Iri("urn:test:serialize")
 		public String serialize(@type("application/x-turtle") Model model) {
 			return "<echo>" + model.objectString() + "</echo>";
 		}
 
 		@query("parse")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		public String parse(
 				@transform("urn:test:rdfvalue") @type("*/*") GraphQueryResult result)
@@ -131,6 +139,7 @@ public class TransformTest extends MetadataServerTestCase {
 		}
 
 		@query("post")
+		@requires("urn:test:grant")
 		@type("application/x-turtle")
 		@transform("urn:test:parse")
 		public Model post(@type("*/*") String input) {
@@ -141,6 +150,7 @@ public class TransformTest extends MetadataServerTestCase {
 		}
 
 		@query("toxml")
+		@requires("urn:test:grant")
 		@transform("urn:test:toxml")
 		@type("application/rdf+xml")
 		public Model toxml() {
@@ -160,6 +170,7 @@ public class TransformTest extends MetadataServerTestCase {
 
 		@method("GET")
 		@query("computeParam")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@transform("urn:test:computeParam")
 		@Iri("urn:test:computeTransformParam")

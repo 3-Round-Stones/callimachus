@@ -17,8 +17,11 @@ import junit.framework.TestCase;
 
 import org.callimachusproject.server.CallimachusRepository;
 import org.callimachusproject.server.HTTPObjectServer;
+import org.callimachusproject.server.concepts.AnyThing;
+import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.object.ObjectConnection;
 import org.openrdf.repository.object.config.ObjectRepositoryConfig;
 import org.openrdf.repository.object.config.ObjectRepositoryFactory;
@@ -94,8 +97,10 @@ public abstract class MetadataServerTestCase extends TestCase {
 		if (config.getBlobStore() == null) {
 			config.setBlobStore(dataDir.toURI().toString());
 		}
+		config.addConcept(AnyThing.class);
 		repository = createRepository();
 		vf = repository.getValueFactory();
+		initDataset(repository);
 		server = createServer();
 		server.listen(new int[] { getPort() }, new int[0]);
 		server.start();
@@ -195,6 +200,17 @@ public abstract class MetadataServerTestCase extends TestCase {
 		ObjectRepositoryFactory factory = new ObjectRepositoryFactory();
 		repo = factory.createRepository(config, repo);
 		return new CallimachusRepository(repo, dataDir);
+	}
+
+	private void initDataset(CallimachusRepository repository) throws RepositoryException {
+		ObjectConnection con = repository.getConnection();
+		try {
+			ValueFactory vf = con.getValueFactory();
+			URI anonymousFrom = vf.createURI("http://callimachusproject.org/rdf/2009/framework#anonymousFrom");
+			con.add(vf.createURI("urn:test:anybody"), anonymousFrom, vf.createLiteral("."));
+		} finally {
+			con.close();
+		}
 	}
 
 }

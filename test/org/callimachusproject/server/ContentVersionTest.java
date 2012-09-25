@@ -5,6 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.traits.VersionedObject;
@@ -28,12 +29,14 @@ public class ContentVersionTest extends MetadataServerTestCase {
 
 		@method("GET")
 		@query("no-store")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@header("Cache-Control:no-store")
 		String GetNoStoreLabel();
 
 		@method("GET")
 		@query("validated")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@header("Cache-Control:must-revalidate")
 		String GetValidatedLabel();

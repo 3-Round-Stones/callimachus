@@ -6,8 +6,10 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.Set;
 
+import org.callimachusproject.annotations.grant;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.AliasSupport;
@@ -25,11 +27,13 @@ public class DataResourceTest extends MetadataServerTestCase {
 	public static abstract class WorldFile implements HTTPFileObject {
 		@method("GET")
 		@type("text/world")
+		@requires("urn:test:grant")
 		public InputStream getInputStream() throws IOException {
 			return openInputStream();
 		}
 
 		@query("set")
+		@requires("urn:test:grant")
 		public byte[] postInputStream(@type("*/*") Set<InputStream> in) throws IOException {
 			byte[] buf = new byte[1024];
 			int read = in.iterator().next().read(buf);

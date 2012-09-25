@@ -2,6 +2,7 @@ package org.callimachusproject.server;
 
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.openrdf.model.vocabulary.RDFS;
@@ -16,12 +17,14 @@ public class TransformationTest extends MetadataServerTestCase {
 		@query("hello")
 		@type("text/plain")
 		@header("Cache-Control:no-transform")
+		@requires("urn:test:grant")
 		public String world() {
 			return "hello world!";
 		}
 
 		@query("hlo")
 		@type("text/plain")
+		@requires("urn:test:grant")
 		public String hlo() {
 			return "hello world!";
 		}

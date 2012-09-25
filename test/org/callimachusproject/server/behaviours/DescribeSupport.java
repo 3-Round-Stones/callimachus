@@ -30,6 +30,7 @@ package org.callimachusproject.server.behaviours;
 
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.rel;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.title;
 import org.callimachusproject.annotations.type;
 import org.openrdf.model.BNode;
@@ -64,6 +65,7 @@ public abstract class DescribeSupport implements RDFObject {
 	@title("RDF Describe")
 	@rel("describedby")
 	@query("describe")
+	@requires("urn:test:grant")
 	@type( { "application/rdf+xml", "application/x-turtle", "text/rdf+n3",
 		"application/trix", "application/x-trig" })
 	public Model metaDescribe() throws RepositoryException, MalformedQueryException, QueryEvaluationException {

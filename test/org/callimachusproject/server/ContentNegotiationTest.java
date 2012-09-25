@@ -7,6 +7,7 @@ import java.util.Date;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.rel;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
@@ -27,6 +28,7 @@ public class ContentNegotiationTest extends MetadataServerTestCase {
 	public static class Alternate {
 		@rel("alternate")
 		@query("boolean")
+		@requires("urn:test:grant")
 		@type("application/sparql-results+xml")
 		public boolean getBoolean() {
 			return true;
@@ -34,12 +36,14 @@ public class ContentNegotiationTest extends MetadataServerTestCase {
 
 		@rel("alternate")
 		@query("rdf")
+		@requires("urn:test:grant")
 		@type("application/rdf+xml")
 		public Model getModel() {
 			return new LinkedHashModel();
 		}
 
 		@query("my")
+		@requires("urn:test:grant")
 		@type({"application/rdf+xml", "text/turtle", "application/x-turtle"})
 		public Model getMyModel() {
 			LinkedHashModel model = new LinkedHashModel();
@@ -50,25 +54,30 @@ public class ContentNegotiationTest extends MetadataServerTestCase {
 		}
 
 		@query("my")
+		@requires("urn:test:grant")
 		public void setMyModel(@type("application/rdf+xml") Model model) {
 		}
 
 		@query("my")
+		@requires("urn:test:grant")
 		@type({"application/sparql-results+xml", "text/plain"})
 		public boolean getMyBoolean() {
 			return true;
 		}
 
 		@query("my")
+		@requires("urn:test:grant")
 		public void setMyBoolean(@type("*/*") boolean bool) {
 		}
 
 		@query("my")
+		@requires("urn:test:grant")
 		public String postRDF(@type("application/rdf+xml") InputStream in) {
 			return "rdf+xml";
 		}
 
 		@query("my")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		public String postSPARQL(
 				@type("application/sparql-results+xml") InputStream in) {
@@ -79,6 +88,7 @@ public class ContentNegotiationTest extends MetadataServerTestCase {
 	public static abstract class RDFXMLFile implements HTTPFileObject {
 		@method("GET")
 		@query({})
+		@requires("urn:test:grant")
 		@type("application/rdf+xml")
 		public InputStream getInputStream() throws IOException {
 			return openInputStream();

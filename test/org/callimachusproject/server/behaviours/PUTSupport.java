@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.concepts.Alias;
 import org.callimachusproject.server.concepts.HTTPFileObject;
@@ -24,6 +25,7 @@ public abstract class PUTSupport implements HTTPFileObject, RDFObject {
 
 	@query( {})
 	@method("PUT")
+	@requires("urn:test:grant")
 	public void putIntputStream(@header("Content-Location") String location,
 			@header("Content-Type") String mediaType, @type("*/*") InputStream in)
 			throws RepositoryException {

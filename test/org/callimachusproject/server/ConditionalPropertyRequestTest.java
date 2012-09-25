@@ -2,6 +2,7 @@ package org.callimachusproject.server;
 
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.openrdf.annotations.Iri;
@@ -16,18 +17,22 @@ public class ConditionalPropertyRequestTest extends MetadataServerTestCase {
 	@Iri(RDFS.NAMESPACE + "Resource")
 	public interface Resource {
 		@query("property")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@Iri("urn:test:property")
 		String getProperty();
 		@query("property")
+		@requires("urn:test:grant")
 		@Iri("urn:test:property")
 		void setProperty(@type("text/plain") String property);
 		@query("other")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@header("Cache-Control:no-store")
 		@Iri("urn:test:other")
 		String getOtherProperty();
 		@query("other")
+		@requires("urn:test:grant")
 		@Iri("urn:test:other")
 		void setOtherProperty(@type("text/plain") String property);
 	}

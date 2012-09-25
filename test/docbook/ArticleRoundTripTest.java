@@ -75,9 +75,9 @@ public class ArticleRoundTripTest extends TestCase {
 				"<html xmlns='http://www.w3.org/1999/xhtml'><body><details><summary>test</summary><p><a rel='source' href='"
 						+ file + "'>test</a></p></details></body></html>");
 		String result = pipeline.pipeReader(source, file).asString();
-		assertTrue(result.contains("PASS"));
-		assertFalse(result.contains("FAIL"));
-		assertFalse(result.contains("ERROR"));
+		assertFalse(result, result.contains("ERROR"));
+		assertFalse(result, result.contains("FAIL"));
+		assertTrue(result, result.contains("PASS"));
 	}
 
 }

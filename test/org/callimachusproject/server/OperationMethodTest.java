@@ -2,6 +2,7 @@ package org.callimachusproject.server;
 
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.openrdf.model.vocabulary.RDFS;
@@ -15,23 +16,27 @@ public class OperationMethodTest extends MetadataServerTestCase {
 		public static String operation;
 
 		@query("op1")
+		@requires("urn:test:grant")
 		public String getOperation1() {
 			return operation;
 		}
 
 		@query("op1")
 		@method("PUT")
+		@requires("urn:test:grant")
 		public void setOperation1(@type("*/*") String value) {
 			operation = String.valueOf(value);
 		}
 
 		@query("op1")
 		@method("DELETE")
+		@requires("urn:test:grant")
 		public void delOperation1() {
 			operation = null;
 		}
 
 		@query("op1")
+		@requires("urn:test:grant")
 		public String setAndGetOperation1(@type("*/*") String value) {
 			String pre = operation;
 			operation = value;
@@ -39,6 +44,7 @@ public class OperationMethodTest extends MetadataServerTestCase {
 		}
 
 		@method("PUT")
+		@requires("urn:test:grant")
 		public void putNothing(@type("*/*") byte[] data) {
 			assertEquals(0, data.length);
 		}
@@ -48,23 +54,27 @@ public class OperationMethodTest extends MetadataServerTestCase {
 		public static String operation;
 
 		@query("op2")
+		@requires("urn:test:grant")
 		public String getOperation2() {
 			return operation;
 		}
 
 		@query("op2")
 		@method("PUT")
+		@requires("urn:test:grant")
 		public void setOperation2(@type("text/plain") String value) {
 			operation = String.valueOf(value);
 		}
 
 		@query("op2")
 		@method("DELETE")
+		@requires("urn:test:grant")
 		public void delOperation2() {
 			operation = null;
 		}
 
 		@query("op2")
+		@requires("urn:test:grant")
 		public String setAndGetOperation2(@type("text/plain") String value) {
 			String pre = operation;
 			operation = value;

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.CharBuffer;
 
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
@@ -16,12 +17,14 @@ public class CharsetTest extends MetadataServerTestCase {
 
 	public static class Resource {
 		@query("string")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		public String hello() {
 			return "Hello World!";
 		}
 
 		@query("stream")
+		@requires("urn:test:grant")
 		@type("text/plain; charset=UTF-8")
 		public Readable stream() {
 			return new Readable() {

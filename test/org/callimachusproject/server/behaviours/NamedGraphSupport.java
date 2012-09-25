@@ -40,6 +40,7 @@ import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.method;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.rel;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.title;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.concepts.HTTPFileObject;
@@ -75,6 +76,7 @@ public abstract class NamedGraphSupport implements HTTPFileObject, RDFObject {
 	@rel("alternate")
 	@title("RDF Graph")
 	@query("graph")
+	@requires("urn:test:grant")
 	@type( { "application/rdf+xml", "application/x-turtle", "text/rdf+n3",
 			"application/trix", "application/x-trig" })
 	public GraphQueryResult exportNamedGraph() throws RepositoryException,
@@ -104,6 +106,7 @@ public abstract class NamedGraphSupport implements HTTPFileObject, RDFObject {
 
 	@query({})
 	@method("DELETE")
+	@requires("urn:test:grant")
 	public void deleteObject() throws RepositoryException {
 		ObjectConnection con = getObjectConnection();
 		con.clear(getResource());
@@ -113,6 +116,7 @@ public abstract class NamedGraphSupport implements HTTPFileObject, RDFObject {
 
 	@query( {})
 	@method("PUT")
+	@requires("urn:test:grant")
 	public void putRDFIntputStream(
 			@header("Content-Type") String mediaType,
 			@type( { "application/rdf+xml", "application/x-turtle",

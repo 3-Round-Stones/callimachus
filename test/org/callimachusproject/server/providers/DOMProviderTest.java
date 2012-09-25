@@ -6,6 +6,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.openrdf.annotations.Matching;
@@ -36,6 +37,7 @@ public class DOMProviderTest extends MetadataServerTestCase {
 		}
 
 		@query("document")
+		@requires("urn:test:grant")
 		@type("application/xml")
 		public Document document() throws ParserConfigurationException {
 			Document doc = builder.newDocumentBuilder().newDocument();
@@ -45,6 +47,7 @@ public class DOMProviderTest extends MetadataServerTestCase {
 		}
 
 		@query("element")
+		@requires("urn:test:grant")
 		@type("application/xml")
 		public Element element() throws ParserConfigurationException {
 			Document doc = builder.newDocumentBuilder().newDocument();
@@ -52,6 +55,7 @@ public class DOMProviderTest extends MetadataServerTestCase {
 		}
 
 		@query("fragment")
+		@requires("urn:test:grant")
 		@type("application/xml")
 		public DocumentFragment fragment() throws ParserConfigurationException {
 			Document doc = builder.newDocumentBuilder().newDocument();
@@ -62,16 +66,19 @@ public class DOMProviderTest extends MetadataServerTestCase {
 		}
 
 		@query("document")
+		@requires("urn:test:grant")
 		public void document(@type("*/*") Document document) throws ParserConfigurationException {
 			assert document.hasChildNodes();
 		}
 
 		@query("element")
+		@requires("urn:test:grant")
 		public void element(@type("*/*") Element element) throws ParserConfigurationException {
 			assert element.getNodeName().equals("element");
 		}
 
 		@query("fragment")
+		@requires("urn:test:grant")
 		public void fragment(@type("*/*") DocumentFragment frag) throws ParserConfigurationException {
 			assert frag.hasChildNodes();
 		}

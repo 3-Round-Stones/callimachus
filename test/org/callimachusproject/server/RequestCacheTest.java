@@ -3,6 +3,7 @@ package org.callimachusproject.server;
 import org.callimachusproject.annotations.header;
 import org.callimachusproject.annotations.query;
 import org.callimachusproject.annotations.rel;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
@@ -26,22 +27,26 @@ public class RequestCacheTest extends MetadataServerTestCase {
 		private Display display;
 
 		@query("display")
+		@requires("urn:test:grant")
 		@type("text/uri-list")
 		public Display getDisplay() {
 			return display;
 		}
 
 		@query("display")
+		@requires("urn:test:grant")
 		public void setDisplay(@type("*/*") Display display) {
 			this.display = display;
 		}
 
 		@query("date")
+		@requires("urn:test:grant")
 		public void setDate(@type("*/*") String date) {
 			display.setDate(date);
 		}
 
 		@query("time")
+		@requires("urn:test:grant")
 		public void setTime(@type("*/*") String time) {
 			display.setTime(time);
 		}
@@ -52,6 +57,7 @@ public class RequestCacheTest extends MetadataServerTestCase {
 		@query("date")
 		@header("Cache-Control:max-age=3")
 		@Iri("urn:test:date")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		String getDate();
 
@@ -59,6 +65,7 @@ public class RequestCacheTest extends MetadataServerTestCase {
 
 		@query("time")
 		@Iri("urn:test:time")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		String getTime();
 
@@ -66,12 +73,14 @@ public class RequestCacheTest extends MetadataServerTestCase {
 
 		@rel("alternate")
 		@query("construct")
+		@requires("urn:test:grant")
 		@type("application/rdf+xml")
 		@Sparql("DESCRIBE $this")
 		GraphQueryResult construct();
 
 		@rel("alternate")
 		@query("select")
+		@requires("urn:test:grant")
 		@type("application/sparql-results+xml")
 		@Sparql("SELECT ?date ?time WHERE { $this <urn:test:date> ?date ; <urn:test:time> ?time }")
 		TupleQueryResult select();

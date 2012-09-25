@@ -22,12 +22,14 @@ public class BLOBUpdateTest extends TestCase {
 
         {
         	put("article", new String[] { "updated-article.docbook", "application/docbook+xml",
-        					"<section id=\"ls\"> \n <title>LS command</title> \n " +
-        					"<para>This command is a synonym for <link linkend=\"dir\"> <command>DIR</command></link> command. \n" +
-        					"</para> \n </section>", //End original
-        					"<section id=\"ls\"> \n <title>UPDATED LS command</title> \n " + //Begin update
-        					"<para>This command (UPDATED) is a synonym for <link linkend=\"dir\"> <command>DIR</command></link> command. \n" +
-        					"</para> \n </section>"
+        					"<article version='5.0'  xmlns='http://docbook.org/ns/docbook' xmlns:xl='http://www.w3.org/1999/xlink'> \n" +
+        					"<title>LS command</title> \n " +
+        					"<para>This command is a synonym for command. \n" +
+        					"</para> \n </article>", //End original
+        					"<article version='5.0'  xmlns='http://docbook.org/ns/docbook' xmlns:xl='http://www.w3.org/1999/xlink'> \n" +
+        					"<title>UPDATED LS command</title> \n " + //Begin update
+        					"<para>This command (UPDATED) is a synonym for command. \n" +
+        					"</para> \n </article>"
         	});
         	
         	put("font", new String[] { "updated-font.woff", "application/font-woff",

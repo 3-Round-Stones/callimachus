@@ -13,6 +13,7 @@ import javax.xml.stream.events.Comment;
 import javax.xml.stream.events.XMLEvent;
 
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.xml.XMLEventReaderFactory;
@@ -24,6 +25,7 @@ public class XMLEventProviderTest extends MetadataServerTestCase {
 		private XMLEventFactory factory = XMLEventFactory.newInstance();
 
 		@query("hello")
+		@requires("urn:test:grant")
 		@type("application/xml")
 		public XMLEventReader hello() {
 			LinkedList<XMLEvent> list = new LinkedList<XMLEvent>();

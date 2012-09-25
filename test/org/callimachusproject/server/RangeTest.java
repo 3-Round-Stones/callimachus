@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.callimachusproject.annotations.method;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
@@ -17,6 +18,7 @@ public class RangeTest extends MetadataServerTestCase {
 
 	public static abstract class StringFile implements HTTPFileObject {
 		@method("GET")
+		@requires("urn:test:grant")
 		@type("application/string")
 		public InputStream getInputStream() throws IOException {
 			return openInputStream();

@@ -31,6 +31,7 @@ package org.callimachusproject.server.concepts;
 
 import javax.tools.FileObject;
 
+import org.callimachusproject.annotations.grant;
 import org.callimachusproject.traits.VersionedObject;
 import org.openrdf.annotations.Matching;
 
@@ -39,5 +40,6 @@ import org.openrdf.annotations.Matching;
  * exposes some common etag methods for internal use.
  */
 @Matching( { "http://*", "https://*" })
+@grant("urn:test:anybody")
 public interface HTTPFileObject extends VersionedObject, FileObject {
 }

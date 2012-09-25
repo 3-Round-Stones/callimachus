@@ -196,7 +196,7 @@ public class CarStreamTest {
 		CarInputStream in = new CarInputStream(new FileInputStream(car));
 		assertEquals("resource", in.readEntryName());
 		assertTrue(in.isResourceEntry());
-		assertEquals("application/rdf+xml", in.getEntryType());
+		assertEquals("text/turtle", in.getEntryType());
 		InputStream es = in.getEntryStream();
 		assertEquals(-1, es.read());
 		es.close();

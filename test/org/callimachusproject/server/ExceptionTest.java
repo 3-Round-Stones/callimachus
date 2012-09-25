@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import javax.xml.stream.XMLEventReader;
 
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.exceptions.BadRequest;
@@ -31,23 +32,27 @@ public class ExceptionTest extends MetadataServerTestCase {
 		}
 
 		@query("bad")
+		@requires("urn:test:grant")
 		public String badRequest(@type("*/*") String body) throws Exception {
 			setInvalid(true);
 			throw new BadRequest("this in a bad request");
 		}
 
 		@query("exception")
+		@requires("urn:test:grant")
 		public String throwException(@type("*/*") String body) throws Exception {
 			setInvalid(true);
 			throw new Exception("this in an exception");
 		}
 
 		@query("stream")
+		@requires("urn:test:grant")
 		public OutputStream getStream() {
 			return System.out;
 		}
 
 		@query("xml")
+		@requires("urn:test:grant")
 		public String postXML(@type("application/xml") XMLEventReader xml) {
 			return "xml";
 		}

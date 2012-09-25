@@ -1,6 +1,7 @@
 package org.callimachusproject.server;
 
 import org.callimachusproject.annotations.query;
+import org.callimachusproject.annotations.requires;
 import org.callimachusproject.annotations.type;
 import org.callimachusproject.server.base.MetadataServerTestCase;
 import org.callimachusproject.server.behaviours.PUTSupport;
@@ -15,11 +16,13 @@ public class ContentMD5Test extends MetadataServerTestCase {
 	@Iri(RDFS.NAMESPACE + "Resource")
 	public interface Resource {
 		@query("property")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@Iri("urn:test:property")
 		String getProperty();
 
 		@query("property")
+		@requires("urn:test:grant")
 		@Iri("urn:test:property")
 		void setProperty(@type("text/plain") String property);
 	}

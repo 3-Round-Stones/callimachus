@@ -36,21 +36,25 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 		private Display display;
 
 		@query("display")
+		@requires("urn:test:grant")
 		public Display getDisplay() {
 			return display;
 		}
 
 		@query("display")
+		@requires("urn:test:grant")
 		public void setDisplay(@type("*/*") Display display) {
 			this.display = display;
 		}
 
 		@query("date")
+		@requires("urn:test:grant")
 		public void setDate(@type("*/*") String date) {
 			display.setDate(date);
 		}
 
 		@query("time")
+		@requires("urn:test:grant")
 		public void setTime(@type("*/*") String time) {
 			display.setTime(time);
 		}
@@ -59,6 +63,7 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 	@Iri("urn:mimetype:application/display")
 	public interface Display {
 		@query("date")
+		@requires("urn:test:grant")
 		@header("Cache-Control:max-age=3")
 		@Iri("urn:test:date")
 		String getDate();
@@ -66,6 +71,7 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 		void setDate(String date);
 
 		@query("time")
+		@requires("urn:test:grant")
 		@Iri("urn:test:time")
 		@header("Cache-Control:no-cache")
 		String getTime();
@@ -78,22 +84,23 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 		private static AtomicLong seq = new AtomicLong();
 
 		@query("next")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@header("Cache-Control:max-age=1")
 		public String next() {
 			return Long.toHexString(seq.incrementAndGet());
 		}
 
-		@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 		@query("auth")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@header("Cache-Control:max-age=10")
 		public String auth() {
 			return Long.toHexString(seq.incrementAndGet());
 		}
 
-		@requires("http://callimachusproject.org/rdf/2009/framework#reader")
 		@query("private")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@header("Cache-Control:private")
 		public String _private() {
@@ -101,6 +108,7 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 		}
 
 		@query("number")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@header("Cache-Control:public,max-age=1")
 		public String number() {
@@ -108,6 +116,7 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 		}
 
 		@query("seq")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@header("Cache-Control:no-cache")
 		public String seq() {
@@ -115,6 +124,7 @@ public class ResponseCacheTest extends MetadataServerTestCase {
 		}
 
 		@query("add")
+		@requires("urn:test:grant")
 		@type("text/plain")
 		@header("Cache-Control:max-age=1")
 		public String add(@header("amount") int amount) {

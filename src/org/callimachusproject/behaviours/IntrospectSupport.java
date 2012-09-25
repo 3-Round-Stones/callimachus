@@ -30,18 +30,14 @@ public class IntrospectSupport {
 		MethodInfo[] operations = info.getRemoteMethodDescriptors();
 		PropertyInfo[] properties = info.getPropertyDescriptors();
 		MethodInfo[] methods = info.getMethodDescriptors();
+		String title = ((URI) target.getResource()).getLocalName()
+				+ " Introspection";
 
-		out.writeStartDocument(((URI) target.getResource()).getLocalName()
-				+ " Introspection");
+		out.writeStartDocument(title);
 
 		// table of content
 		out.writeStartElement("div");
 		out.writeAttribute("id", "sidebar");
-
-		out.writeStartElement("aside");
-		out.writeSubheading("Classes");
-		writeConcepts(concepts, info, out);
-		out.writeEndElement(); //aside
 
 		out.writeStartElement("aside");
 		out.writeSubheading("Operations");
@@ -79,6 +75,12 @@ public class IntrospectSupport {
 		out.writeEndElement(); //div#sidebar
 
 		// content
+		out.writeTitle(title);
+
+		out.writeHeading("Classes");
+		writeConcepts(concepts, info, out);
+
+		out.writeHeading("Operations");
 		out.writeStartElement("ul");
 		for (MethodInfo m : operations) {
 			out.writeStartElement("li");
@@ -89,6 +91,7 @@ public class IntrospectSupport {
 
 		out.writeEmptyElement("hr");
 
+		out.writeHeading("Properties");
 		out.writeStartElement("ul");
 		for (PropertyInfo p : properties) {
 			out.writeStartElement("li");
@@ -99,6 +102,7 @@ public class IntrospectSupport {
 
 		out.writeEmptyElement("hr");
 
+		out.writeHeading("Methods");
 		out.writeStartElement("ul");
 		for (MethodInfo m : methods) {
 			out.writeStartElement("li");

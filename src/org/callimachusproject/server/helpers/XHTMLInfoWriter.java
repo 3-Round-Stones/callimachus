@@ -55,6 +55,18 @@ public class XHTMLInfoWriter {
 		out.writeEndElement();
 	}
 
+	public void writeTitle(String label) throws XMLStreamException {
+		writeStartElement("h1");
+		writeCharacters(label);
+		writeEndElement();
+	}
+
+	public void writeHeading(String label) throws XMLStreamException {
+		writeStartElement("h2");
+		writeCharacters(label);
+		writeEndElement();
+	}
+
 	public void writeSubheading(String label) throws XMLStreamException {
 		writeStartElement("h3");
 		writeCharacters(label);

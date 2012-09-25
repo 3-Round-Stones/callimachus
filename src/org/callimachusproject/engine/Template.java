@@ -152,7 +152,7 @@ public class Template {
 		try {
 			RDFEventReader reader = new RDFaReader(getSystemId(), openSource(), getSystemId());
 			SPARQLProducer producer = new SPARQLProducer(reader);
-			String sparql = toSafeSparql(new OrderedSparqlReader(producer));
+			String sparql = toSafeSparql(new OrderedSparqlReader(producer), bindings);
 			TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, getSystemId());
 			for (Binding bind : bindings) {
 				q.setBinding(bind.getName(), bind.getValue());
@@ -201,7 +201,7 @@ public class Template {
 		try {
 			RDFEventReader reader = new RDFaReader(getSystemId(), openSource(), getSystemId());
 			SPARQLProducer producer = new SPARQLProducer(reader);
-			String sparql = toSafeSparql(new OrderedSparqlReader(producer));
+			String sparql = toSafeSparql(new OrderedSparqlReader(producer), bindings);
 			TupleQuery q = con.prepareTupleQuery(SPARQL, sparql, getSystemId());
 			for (Binding bind : bindings) {
 				q.setBinding(bind.getName(), bind.getValue());
@@ -238,6 +238,20 @@ public class Template {
 		} catch (XMLStreamException e) {
 			throw new TemplateException(e);
 		}
+	}
+
+	private String toSafeSparql(OrderedSparqlReader reader, BindingSet bindings) throws RDFParseException, IOException {
+		String[] bindingNames = bindings.getBindingNames().toArray(new String[bindings.size()]);
+		return toSafeSparql(reader, bindingNames);
+	}
+
+	private String toSafeSparql(RDFEventReader reader, String[] bindingNames)
+			throws RDFParseException, IOException {
+		ClusterCounter counter = new ClusterCounter(reader);
+		String sparql = toSPARQL(counter);
+		if (counter.getNumberOfVariableClusters(bindingNames) > 0)
+			throw new InternalServerError("Variables not connected: " + counter.getSmallestCluster(bindingNames));
+		return sparql;
 	}
 
 	private String toSafeSparql(RDFEventReader reader)

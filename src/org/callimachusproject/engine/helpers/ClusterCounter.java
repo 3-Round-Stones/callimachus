@@ -19,21 +19,33 @@ public class ClusterCounter extends RDFEventPipe {
 		super(reader);
 	}
 
-	public int getNumberOfVariableClusters() {
-		return new HashSet<Set<String>>(clusters.values()).size();
+	public int getNumberOfVariableClusters(String... excluding) {
+		HashSet<Set<String>> set = new HashSet<Set<String>>(clusters.size());
+		loop: for (Set<String> cluster : clusters.values()) {
+			for (String exclude : excluding) {
+				if (cluster.contains(exclude))
+					continue loop;
+			}
+			set.add(cluster);
+		}
+		return set.size();
 	}
 
 	public Set<Set<String>> getClusters() {
 		return new HashSet<Set<String>>(clusters.values());
 	}
 
-	public Set<String> getSmallestCluster() {
+	public Set<String> getSmallestCluster(String... excluding) {
 		if (clusters.isEmpty())
 			return Collections.emptySet();
 		Set<String> smallest = null;
-		for (Set<String> set : new HashSet<Set<String>>(clusters.values())) {
-			if (smallest == null || set.size() < smallest.size()) {
-				smallest = set;
+		loop: for (Set<String> cluster : new HashSet<Set<String>>(clusters.values())) {
+			for (String exclude : excluding) {
+				if (cluster.contains(exclude))
+					continue loop;
+			}
+			if (smallest == null || cluster.size() < smallest.size()) {
+				smallest = cluster;
 			}
 		}
 		return new TreeSet<String>(smallest);

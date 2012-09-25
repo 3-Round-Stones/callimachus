@@ -138,8 +138,8 @@ public abstract class CreateSupport implements Page, RDFObject {
 			}
 			writer.close();
 			String qry = str.toString();
-			if (reader.getNumberOfVariableClusters() > 1) {
-				throw new InternalServerError("Variable is not related: " + reader.getSmallestCluster());
+			if (reader.getNumberOfVariableClusters("this") > 0) {
+				throw new InternalServerError("Variable is not related: " + reader.getSmallestCluster("this"));
 			}
 			ValueFactory vf = con.getValueFactory();
 			BooleanQuery query = con.prepareBooleanQuery(SPARQL, qry, this.toString());

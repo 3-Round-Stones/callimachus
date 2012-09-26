@@ -23,9 +23,9 @@
                 <p:pipe step="given-schema" port="result" />
             </p:input>
         </p:validate-with-relax-ng>
-        
+
         <p:sink />
-        
+
         <p:identity>
             <p:input port="source">
                 <p:inline>
@@ -38,7 +38,7 @@
         <p:xslt>
             <p:input port="source">
                 <p:pipe step="error-state" port="error" />
-            </p:input>                                                                  
+            </p:input>
             <p:input port="stylesheet">
                 <p:inline>
                     <xsl:stylesheet version="2.0">

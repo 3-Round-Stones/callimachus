@@ -15,14 +15,14 @@
 
 <p:try>
     <p:group>
-        <p:validate-with-relax-ng>
+        <p:validate-with-xml-schema>
             <p:input port="source">
                 <p:pipe step="pipeline" port="source" />
             </p:input>
             <p:input port="schema">
                 <p:pipe step="given-schema" port="result" />
             </p:input>
-        </p:validate-with-relax-ng>
+        </p:validate-with-xml-schema>
         
         <p:sink />
         

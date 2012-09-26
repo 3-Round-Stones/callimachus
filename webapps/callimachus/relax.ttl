@@ -129,10 +129,15 @@
     calli:requires calli:reader;
     calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:script """
-        var message = this.GetValidationError(xmlToValidate).replace(/^\\s+|\\s+$/g,'');
+        var message = this.GetValidationError(sourceLocation, xmlToValidate).replace(/^\\s+|\\s+$/g,'');
         if (message)
             throw new BadRequest(message.replace(/\\s+/g,' '));
     """.
+
+:sourceLocation a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :Validate;
+    rdfs:range xsd:string;
+    calli:header "Content-Location".
 
 :xmlToValidate a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :Validate;
@@ -142,7 +147,11 @@
 :GetValidationError rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Relax>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:post "pipelines/relax-validate.xpl?results&schema=$0".
+    calli:post "pipelines/relax-validate.xpl?results&schema=$0\nContent-Location:{invalidLocation}".
+
+:invalidLocation a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetValidationError;
+    rdfs:range xsd:string.
 
 :invalidXml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetValidationError;

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 ############################################################
-#  cash
+#  cash.pl
 #
 #  David Wood (david@3roundstones.com)
 #  April 2012
@@ -12,7 +12,7 @@
 #  A shell for the Callimachus Project (http://callimachusproject.org)
 #  that implements a client for the Callimachus REST API.
 #
-#  Usage: perldoc cash
+#  Usage: perldoc cash.pl
 #
 #  Copyright 2012 3 Round Stones Inc.  Licensed under the Apache License,
 #  Version 2.0 (the "License"); you may not use this file except in compliance
@@ -41,12 +41,6 @@ use File::HomeDir;
 use Getopt::Long qw(:config gnu_getopt);
 use XML::Simple qw(:strict);
 use Data::Dumper;
-
-# TODO: Implement in this or another script the ability to do something like:
-# macadamia: $ calli cd http://demo.3roundstones.net/rdf/2012
-# macadamia: $ calli ls
-# macadamia: $ calli cat helloworld.txt | sed ... > results.txt
-# macadamia: $ cat foo.txt | calli upload foo.txt
 
 # Globals
 my $debug = 0;
@@ -78,7 +72,7 @@ my $OUT = *STDOUT;
 # Commands are processed in the following order:
 # 1. Commands provided on the command line (via -e)
 # 2. Interactive commands (via -i)
-# 3. Commands provided on STDIN
+# 3. Commands provided on STDIN if not interactive
 
 # Process commands from the command line.
 if ($execute) {
@@ -142,7 +136,6 @@ sub processCmd {
     my $command = shift(@_);
     warn $@ if $@;
     
-    # TODONEXT: Fail on any error if not in interactive mode.  Check for $error in process()
     # TODONEXT: Use parseFolderPath() in deleteFile(), etc.
     # TODONEXT: Refactor chDir() and parseDirPath(). Should they be the same method??
     # TODONEXT: Delete files in the active folder (rm --files).
@@ -285,7 +278,7 @@ sub commandhelp {
         when (/^pwd/) { say $OUT "pwd: Returns the path of the active folder." }
         when (/^rm\s+/) { say $OUT "rm <file title>: Deletes the designated file from the active folder.  The file title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
         when (/^rmdir/) { say $OUT "rmdir <folder title>: Deletes the designated folder and its contents from the active folder.  The folder title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
-        when (/^server/) { say $OUT "server <url>: Sets the Callimachus server authority.  For example, 'server http://localhost:8080/' creates a server object with that base HTTP authority.  The server URL must refer to a Callimachus instance.  Further commands will relate to the last set server authority." }
+        when (/^server/) { say $OUT "server <url> or server -p <proxy> <url>: Sets the Callimachus server authority.  For example, 'server http://localhost:8080/' creates a server object with that base HTTP authority.  The server URL must refer to a Callimachus instance.  Further commands will relate to the last set server authority.  Optionally set an HTTP proxy with -p to allow connection to a Callimachus server behind a proxy or running a DNS name different from its HTTP authority.  The <proxy> field must contain a DNS name+domain and may contain an optional port number (e.g. www.example.com:8080).  The <proxy> field must not contain 'http://'." }
         when (/^set/) { say $OUT "set <option> <value>:  Set a shell option to the specified value.  Current options are 'debug', which may be set to a non-negative integer value to cause an increasing level of additional information to be displayed, and 'autols', which may be set to 1 to cause an 'ls' command to be issued after every 'cd' command."}
         default { say $OUT "No help for term \"$term\"." };   
     }
@@ -661,7 +654,7 @@ pwd                         Return the path of the active folder.
 quit                        Exit the shell.
 rm <filename>               Delete a file from the active folder.
 rmdir <folder name>         Delete a folder and its contents from the active folder.
-server <url>                Set the Callimachus server authority.
+server <url>                Set the Callimachus server authority. Optionally set an HTTP proxy (-p <proxy>).
 set <option> <value>        Set a shell option.
 ENDOFHELP
 }
@@ -815,6 +808,7 @@ sub moveFile {
     my $basefolder = getPwd();
     # TODONEXT: Refactor to allow both locations to be full URLs.
     #           Need to save login details per server to home dir file to support multiple server mv.
+    #           $home = File::HomeDir->my_home;
     
     # Check inputs.
     unless ($oldpath and $newpath) {
@@ -1199,11 +1193,31 @@ sub saveFile {
 
 # Set the Callimachus server and get its metadata.
 sub server {
-    my $authority = shift(@_);
-    $authority .= '/' unless ($authority =~ /\/$/);
+    my @args = split(/\s/, shift(@_));
+    my $args_length = scalar(@args);
     
-    if ( checkAuthority($authority) ) {
+    my $proxy = "";
+    $ua->no_proxy(); # Unset the user agent's proxy.
+    
+    my $authority = "uninitialized";
+    if ( $args_length == 3 and $args[0] eq '-p' ) {
+        $proxy = $args[1];
+        $authority = $args[2];
+    } elsif ( $args_length == 1 ) {
+        $authority = $args[0] if $args[0];
+        $authority .= '/' unless ($authority =~ /\/$/);
+    } else {
+        say $OUT "ERROR: No server authority provided.";
+        $exitstatus++;
+        commandhelp('server');
+        return;
+    }
+    
+    if ( $authority ne "unitialized" and checkAuthority($authority) ) {
         $server->authority($authority);
+        $server->proxy($proxy); # Store the HTTP proxy in the server object.
+        $ua->proxy('http', $proxy); # Set the user agent's proxy.
+        
         my $links = getFolderLinks($server->authority); # A hash reference.
         if ( $links ) {
             say $OUT "Server set to $authority" unless $silent;
@@ -1212,6 +1226,7 @@ sub server {
             $server->folder($server->links->{contents}->{url});
             $server->homeFolder($server->links->{contents}->{url});
             $server->loggedIn(0);
+            
             chHomeDir();
         }
     } elsif ( $server->folder and $server->authority ) {
@@ -1219,6 +1234,7 @@ sub server {
         say $OUT $server->authority;
     } else {
         say $OUT "ERROR: No server authority provided.";
+        $exitstatus++;
         commandhelp('server');
     }
 }
@@ -1292,6 +1308,12 @@ sub homeFolder {
     if (@_) { $self->{HOMEFOLDER} = shift }
     return $self->{HOMEFOLDER};
 }
+# Gets/sets the value of the active server's HTTP proxy.
+sub proxy {
+    my $self = shift;
+    if (@_) { $self->{PROXY} = shift }
+    return $self->{PROXY};
+}
 # Gets/sets a hash of links for the active server (from HTTP OPTIONS).
 sub links {
     my $self = shift;
@@ -1308,7 +1330,7 @@ sub loggedIn {
 
 __END__
 
-=head1 cash
+=head1 cash.pl
 
 A shell for the Callimachus Project (http://callimachusproject.org)
 that implements a client for the Callimachus REST API.
@@ -1322,10 +1344,10 @@ When used in non-interactive mode, the shell will accept a file on
 STDIN for processing.  The file is expected to contain Callimachus
 shell commands.
 
-Usage: cash -i
-       cash [-s] -e '<command>; <command>; ...'
-       cash -u
-       cash < script-file
+Usage: cash.pl -i
+       cash.pl [-s] -e '<command>; <command>; ...'
+       cash.pl -u
+       cash.pl < script-file
 
 -e | --execute      Execute the following commands.  Commands are
                     separated with semi-colons.

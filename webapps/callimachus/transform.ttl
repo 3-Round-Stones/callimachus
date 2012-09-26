@@ -86,14 +86,8 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
-    calli:imports <java:org.openrdf.query.QueryLanguage>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:script """
-        if (!reader)
-            throw new BadRequest("Missing PUT request payload");
         var read;
         var buf = java.lang.reflect.Array.newInstance(java.lang.Character.TYPE, 1024);
         var out = this.openWriter();
@@ -104,6 +98,11 @@
         } finally {
             out.close();
         }
+        try {
+            this.ValidateTransform();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            println("Storing " + this);
+        }
         this.touchRevision();
     """.
 
@@ -112,4 +111,8 @@
     rdfs:range <java:java.io.Reader>;
     calli:type "text/xsl".
 
+:ValidateTransform rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:post "schemas/xslt.rng?validate\nContent-Location:$0\nContent-Type: application/xml".
 

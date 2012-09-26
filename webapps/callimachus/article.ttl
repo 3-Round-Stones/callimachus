@@ -97,13 +97,14 @@
         } finally {
             out.close();
         }
-        var errorMsg = null;
         try {
-            errorMsg = created.ValidateArticle().replace(/^\\s+|\\s+$/g,'');
+            this.ValidateArticle();
+            this.CheckArticle();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
-            println("Storing " + created);
+            println("Storing " + this);
+        } catch (e if e.javaException instanceof BadRequest) {
+            println(e.javaException.message);
         }
-        if (errorMsg) println(errorMsg.replace(/\\s+/g,' '));
         return created;
     """.
 
@@ -113,10 +114,6 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
     calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:imports foaf:Document;
     calli:script """
@@ -130,13 +127,12 @@
         } finally {
             out.close();
         }
-        var errorMsg = null;
         try {
-            errorMsg = this.ValidateArticle().replace(/^\\s+|\\s+$/g,'');
+            this.ValidateArticle();
+            this.CheckArticle();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
             println("Storing " + this);
         }
-        if (errorMsg) throw new BadRequest(errorMsg.replace(/\\s+/g,' '));
         this.touchRevision();
     """.
 
@@ -148,6 +144,10 @@
 :ValidateArticle rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
     rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
-    calli:post "pipelines/article-validate.xpl?results\nContent-Location:$0\nContent-Type: application/docbook+xml".
+    calli:post "schemas/docbookxi.rng?validate\nContent-Location:$0\nContent-Type: application/docbook+xml".
 
+:CheckArticle rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Article>];
+    rdfs:subClassOf [owl:onProperty msg:literal; owl:allValuesFrom xsd:string];
+    calli:post "schemas/docbook.sch?validate\nContent-Location:$0\nContent-Type: application/docbook+xml".
 

@@ -85,10 +85,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
     calli:method "PUT";
     calli:requires calli:editor;
-    calli:imports <java:org.openrdf.model.vocabulary.RDFS>;
-    calli:imports <java:java.net.URLDecoder>;
-    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-    calli:imports <java:org.callimachusproject.server.exceptions.BadRequest>;
+    calli:imports <java:org.callimachusproject.server.exceptions.ServiceUnavailable>;
     calli:imports foaf:Document;
     calli:script """
         var read;
@@ -101,6 +98,11 @@
         } finally {
             out.close();
         }
+        try {
+            this.ValidatePipeline();
+        } catch (e if e.javaException instanceof ServiceUnavailable) {
+            println("Storing " + this);
+        }
         this.touchRevision();
     """.
 
@@ -108,6 +110,11 @@
     rdfs:domain :UploadPipeline;
     rdfs:range <java:java.io.InputStream>;
     calli:type "application/xproc+xml".
+
+:ValidatePipeline rdfs:subClassOf msg:Message;
+    rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Pipeline>];
+    rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
+    calli:post "schemas/xproc.rng?validate\nContent-Location:$0\nContent-Type: application/xml".
 
 ################################
 # Execute Pipeline             #

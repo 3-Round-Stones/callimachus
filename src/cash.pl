@@ -3,7 +3,7 @@
 ############################################################
 #  cash.pl
 #
-#  David Wood (david@3roundstones.com)
+#  David Wood (david at http://3roundstones.com)
 #  April 2012
 #
 #  History:
@@ -45,6 +45,7 @@ use Data::Dumper;
 # Globals
 my $debug = 0;
 my $autols = 0;
+my $term;
 my $server = new Server;
 my $ua = new LWP::UserAgent;
 $ua->agent("CallimachusShell/0.1 " . $ua->agent);
@@ -80,23 +81,22 @@ if ($execute) {
     exit unless ($interactive);
 }
 
-# Process interactively or via reading a script from STDIN.
-my $term = new Term::ReadLine 'Callimachus Shell';
-my $prompt = "callimachus> ";
-$OUT = $term->OUT || *STDOUT;
-
-# Get features of this Readline implementation.
-# Note that "addhistory" needs to be present for history to work (it isn't on Macs)
-if ($debug > 2) {
-    say $term->ReadLine;
-    my $features = $term->Features;
-    foreach my $feature (keys %$features) {
-            say "     Feature: $feature";
-    }
-}
-
 # Process information from the user prompt.
 if ($interactive) {
+    $term = new Term::ReadLine 'Callimachus Shell';
+    my $prompt = "callimachus> ";
+    $OUT = $term->OUT || *STDOUT;
+
+    # Get features of this Readline implementation.
+    # Note that "addhistory" needs to be present for history to work (it isn't on Macs)
+    if ($debug > 2) {
+        say $term->ReadLine;
+        my $features = $term->Features;
+        foreach my $feature (keys %$features) {
+                say "     Feature: $feature";
+        }
+    }
+    
     print $OUT "Welcome to the Callimachus Shell.  Enter 'help' for a list of commands.\n";
     while ( defined ($_ = $term->readline($prompt)) ) {
         process($_);
@@ -180,7 +180,7 @@ sub processCmd {
         default { print $OUT "Command not found.  Try 'help' for suggestions.\n" unless $@; }
     }
 
-    if ($term and $_) { $term->addhistory($command) if /\S/; }
+    if ($interactive and $term and $_) { $term->addhistory($command) if /\S/; }
 }
 
 # Send the contents of a file to STDOUT.
@@ -256,8 +256,8 @@ sub chHomeDir {
 
 # Report extended help for a given command.
 sub commandhelp {
-    my $term = lc(shift(@_));
-    given ($term) {
+    my $helpterm = lc(shift(@_));
+    given ($helpterm) {
         when (/\#/) { say $OUT "Lines beginning with # are considered comments and are not processed." }
             when (/^cat/) { say $OUT "cat <file title>:  Retrieves the designated file and send it to the standard output.  The file title must be exactly as it appears in a folder listing, including spaces.  This action may require authorization (see 'help login')." }
         when (/^cd/) { say $OUT "cd <folder title>: Changes the active folder to the name given.  The title provided may be relative to the current folder (without a leading '/') or absolute to the top folder for the active server (with a leading '/').  Leading '..' characters refer to the parent folder. If the folder title is omitted, the folder will be changed to the top level ('home') folder." }
@@ -278,9 +278,9 @@ sub commandhelp {
         when (/^pwd/) { say $OUT "pwd: Returns the path of the active folder." }
         when (/^rm\s+/) { say $OUT "rm <file title>: Deletes the designated file from the active folder.  The file title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
         when (/^rmdir/) { say $OUT "rmdir <folder title>: Deletes the designated folder and its contents from the active folder.  The folder title must be exactly as it appears in a folder listing, including spaces.  This action requires authorization (see 'help login')." }
-        when (/^server/) { say $OUT "server <url> or server -p <proxy> <url>: Sets the Callimachus server authority.  For example, 'server http://localhost:8080/' creates a server object with that base HTTP authority.  The server URL must refer to a Callimachus instance.  Further commands will relate to the last set server authority.  Optionally set an HTTP proxy with -p to allow connection to a Callimachus server behind a proxy or running a DNS name different from its HTTP authority.  The <proxy> field must contain a DNS name+domain and may contain an optional port number (e.g. www.example.com:8080).  The <proxy> field must not contain 'http://'." }
+        when (/^server/) { say $OUT "server <url> or server -p <proxy> <url>: Sets the Callimachus server authority.  For example, 'server http://localhost:8080/' creates a server object with that base HTTP authority.  The server URL must refer to a Callimachus instance.  Further commands will relate to the last set server authority.  Optionally set an HTTP proxy with -p to allow connection to a Callimachus server behind a proxy or running a DNS name different from its HTTP authority.  The <proxy> field must contain a URL and may contain an optional port number (e.g. http://www.example.com:8080).  The <proxy> field must contain 'http://'." }
         when (/^set/) { say $OUT "set <option> <value>:  Set a shell option to the specified value.  Current options are 'debug', which may be set to a non-negative integer value to cause an increasing level of additional information to be displayed, and 'autols', which may be set to 1 to cause an 'ls' command to be issued after every 'cd' command."}
-        default { say $OUT "No help for term \"$term\"." };   
+        default { say $OUT "No help for term \"$helpterm\"." };   
     }
 }
 

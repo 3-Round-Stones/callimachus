@@ -226,7 +226,7 @@ public class DigestManager implements AuthenticationManager {
 		String authenticate = "qop=auth,cnonce=\"" + cnonce + "\",nc=" + nc
 				+ ",rspauth=\"" + rspauth + "\"";
 		resp.addHeader("Authentication-Info", authenticate);
-		resp.addHeader("Set-Cookie", USERNAME + encode(username));
+		resp.addHeader("Set-Cookie", USERNAME + encode(username) + ";Path=/");
 		return resp;
 	}
 
@@ -313,24 +313,22 @@ public class DigestManager implements AuthenticationManager {
 
 	public HttpResponse logout(Collection<String> tokens) {
 		for (String token : tokens) {
-			if (token.indexOf("username=\"logout\"") < 0) {
-				// # the browser must send invalid credentials to logout
-				BasicHttpResponse resp = new BasicHttpResponse(
-						HttpVersion.HTTP_1_1, 401, "Unauthorized");
-				String hd = "Digest realm=\""
-						+ getAuthName()
-						+ "\", domain=\""
-						+ protectedDomains
-						+ "\", nonce=\"logout\", algorithm=\"MD5\", qop=\"auth\"";
-				resp.setHeader("WWW-Authenticate", hd);
+			if (token.indexOf("username=\"logout\"") > 0) {
+				// # bogus credentials received
+				BasicHttpResponse resp = new BasicHttpResponse(_204);
+				resp.addHeader("Set-Cookie", DIGEST_NONCE
+						+ ";Max-Age=0;Path=/;HttpOnly");
+				resp.addHeader("Set-Cookie", USERNAME + ";Max-Age=0;Path=/");
 				return resp;
 			}
 		}
-		// # bogus credentials received or not needed
-		BasicHttpResponse resp = new BasicHttpResponse(_204);
-		resp.addHeader("Set-Cookie", DIGEST_NONCE
-				+ ";Max-Age=0;Path=/;HttpOnly");
-		resp.addHeader("Set-Cookie", USERNAME + ";Max-Age=0;Path=/");
+		// # the browser must send invalid credentials to logout
+		BasicHttpResponse resp = new BasicHttpResponse(HttpVersion.HTTP_1_1,
+				401, "Unauthorized");
+		String hd = "Digest realm=\"" + getAuthName() + "\", domain=\""
+				+ protectedDomains
+				+ "\", nonce=\"logout\", algorithm=\"MD5\", qop=\"auth\"";
+		resp.setHeader("WWW-Authenticate", hd);
 		return resp;
 	}
 

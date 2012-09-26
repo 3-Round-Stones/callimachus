@@ -27,10 +27,11 @@ import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
 import org.callimachusproject.fluid.MediaType;
 import org.callimachusproject.server.util.ChannelUtil;
-import org.callimachusproject.xml.AggressiveCachedURIResolver;
+import org.callimachusproject.xml.CloseableEntityResolver;
 import org.callimachusproject.xml.CloseableURIResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.EntityResolver;
 
 import com.xmlcalabash.core.XProcException;
 import com.xmlcalabash.core.XProcMessageListener;
@@ -48,18 +49,20 @@ public class PipelineBuilder implements XProcMessageListener {
 			.getLogger(PipelineBuilder.class);
 	private final FluidBuilder fb = FluidFactory.getInstance().builder();
 	private final XProcRuntime runtime;
-	private final CloseableURIResolver resolver;
+	private final CloseableURIResolver uriResolver;
+	private final CloseableEntityResolver entityResolver;
 	private final XPipeline pipeline;
 	private final Serialization serial;
 	private final StringBuilder errors = new StringBuilder();
 
-	PipelineBuilder(XProcRuntime runtime, URIResolver resolver,
+	PipelineBuilder(XProcRuntime runtime, URIResolver uriResolver, EntityResolver entityResolver,
 			XPipeline pipeline, String systemId) {
 		this.runtime = runtime;
 		this.pipeline = pipeline;
-		this.resolver = new CloseableURIResolver(resolver);
-		runtime.setURIResolver(new AggressiveCachedURIResolver(systemId,
-				this.resolver));
+		this.uriResolver = new CloseableURIResolver(uriResolver);
+		this.entityResolver = new CloseableEntityResolver(entityResolver);
+		runtime.setURIResolver(this.uriResolver);
+		runtime.setEntityResolver(this.entityResolver);
 		runtime.setMessageListener(this);
 		Serialization serialization = pipeline.getSerialization("result");
 		if (serialization == null) {
@@ -122,7 +125,8 @@ public class PipelineBuilder implements XProcMessageListener {
 		} catch (XProcException e) {
 			throw new XProcException(e.getMessage() + errors, e);
 		} finally {
-			resolver.close();
+			uriResolver.close();
+			entityResolver.close();
 			errors.setLength(0);
 		}
 	}

@@ -15,7 +15,7 @@ import org.xml.sax.SAXException;
  * @author James Leigh
  *
  */
-public class DOMSourceResolver extends DocumentObjectResolver<DOMSource, SAXException> {
+public class DOMSourceResolver extends ReusableDocumentResolver<DOMSource, SAXException> {
 	private DOMSourceFactory sourceFactory = DOMSourceFactory.newInstance();
 
 	public DOMSourceResolver() {
@@ -24,10 +24,6 @@ public class DOMSourceResolver extends DocumentObjectResolver<DOMSource, SAXExce
 	protected String[] getContentTypes() {
 		return new String[] { "application/xml", "application/xslt+xml",
 				"text/xml", "text/xsl" };
-	}
-
-	protected boolean isReusable() {
-		return true;
 	}
 
 	protected DOMSource create(String systemId, Reader in) throws IOException, SAXException {

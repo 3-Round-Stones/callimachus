@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author James Leigh
  **/
-public abstract class DocumentObjectResolver<T, E extends Exception> {
+public abstract class ReusableDocumentResolver<T, E extends Exception> {
 	public static void resetCache() {
 		resetCount++;
 	}
@@ -75,7 +75,7 @@ public abstract class DocumentObjectResolver<T, E extends Exception> {
 	private static volatile int invalidateCount;
 	private static volatile int resetCount;
 	private static Logger logger = LoggerFactory
-			.getLogger(DocumentObjectResolver.class);
+			.getLogger(ReusableDocumentResolver.class);
 
 	private int invalidateLastCount = invalidateCount;
 	private int resetLastCount = resetCount;
@@ -124,8 +124,6 @@ public abstract class DocumentObjectResolver<T, E extends Exception> {
 	}
 
 	protected abstract String[] getContentTypes();
-
-	protected abstract boolean isReusable();
 
 	protected abstract T create(String systemId, InputStream in)
 			throws IOException, E;
@@ -185,9 +183,7 @@ public abstract class DocumentObjectResolver<T, E extends Exception> {
 				return object; // Not Modified
 			}
 		}
-		if (isReusable()) {
-			logger.info("Compiling {}", con.getURL());
-		}
+		logger.info("Compiling {}", con.getURL());
 		tag = con.getHeaderField("ETag");
 		String base = con.getURL().toExternalForm();
 		String type = con.getContentType();
@@ -262,8 +258,6 @@ public abstract class DocumentObjectResolver<T, E extends Exception> {
 	}
 
 	private boolean isStorable(String cc) {
-		if (!isReusable())
-			return false;
 		return cc == null || !cc.contains("no-store")
 				&& (!cc.contains("private") || cc.contains("public"));
 	}
@@ -290,9 +284,7 @@ public abstract class DocumentObjectResolver<T, E extends Exception> {
 		} else if (status >= 300) {
 			throw ResponseException.create(con, systemId);
 		}
-		if (isReusable()) {
-			logger.info("Compiling {}", systemId);
-		}
+		logger.info("Compiling {}", systemId);
 		tag = getHeader(con, "ETag");
 		Matcher m = CHARSET.matcher(type);
 		if (m.find()) {

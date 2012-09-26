@@ -10,6 +10,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 
+import net.sf.saxon.om.DocumentInfo;
+
 /**
  * Aggressive caching of {@link DOMSource}s; intended to be used with a single
  * operation.
@@ -20,7 +22,7 @@ import javax.xml.transform.dom.DOMSource;
 public class AggressiveCachedURIResolver implements URIResolver {
 	private final ParsedURI systemId;
 	private final URIResolver delegate;
-	private final Map<String, DOMSource> sources = new HashMap<String, DOMSource>();
+	private final Map<String, Source> sources = new HashMap<String, Source>();
 
 	public AggressiveCachedURIResolver(String systemId, URIResolver delegate) {
 		this.systemId = systemId == null ? null : new ParsedURI(systemId);
@@ -35,6 +37,8 @@ public class AggressiveCachedURIResolver implements URIResolver {
 		Source source = delegate.resolve(url, url);
 		if (source instanceof DOMSource) {
 			sources.put(url, (DOMSource) source);
+		} else if (source instanceof DocumentInfo) {
+			sources.put(url, (DocumentInfo) source);
 		}
 		return source;
 	}

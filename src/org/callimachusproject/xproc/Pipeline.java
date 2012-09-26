@@ -11,7 +11,7 @@ import net.sf.saxon.s9api.XdmNode;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
-import org.callimachusproject.xml.XdmNodeURIResolver;
+import org.callimachusproject.xml.XdmNodeFactory;
 import org.xml.sax.SAXException;
 
 import com.xmlcalabash.core.XProcConfiguration;
@@ -21,12 +21,12 @@ import com.xmlcalabash.runtime.XPipeline;
 
 public class Pipeline {
 	private final XProcConfiguration config;
-	private final XdmNodeURIResolver resolver;
+	private final XdmNodeFactory resolver;
 	private final FluidBuilder fb = FluidFactory.getInstance().builder();
 	private final String systemId;
 	private final XdmNode pipeline;
 
-	Pipeline(String systemId, XdmNodeURIResolver resolver, XProcConfiguration config) {
+	Pipeline(String systemId, XdmNodeFactory resolver, XProcConfiguration config) {
 		assert systemId != null;
 		this.systemId = systemId;
 		this.config = config;
@@ -34,14 +34,14 @@ public class Pipeline {
 		this.pipeline = null;
 	}
 
-	Pipeline(InputStream in, String systemId, XdmNodeURIResolver resolver, XProcConfiguration config) throws SAXException, IOException {
+	Pipeline(InputStream in, String systemId, XdmNodeFactory resolver, XProcConfiguration config) throws SAXException, IOException {
 		this.systemId = systemId;
 		this.config = config;
 		this.resolver = resolver;
 		this.pipeline = resolver.parse(systemId, in);
 	}
 
-	Pipeline(Reader in, String systemId, XdmNodeURIResolver resolver, XProcConfiguration config) throws SAXException, IOException {
+	Pipeline(Reader in, String systemId, XdmNodeFactory resolver, XProcConfiguration config) throws SAXException, IOException {
 		this.systemId = systemId;
 		this.config = config;
 		this.resolver = resolver;
@@ -79,14 +79,12 @@ public class Pipeline {
 
 	private PipelineBuilder pipeSource(XdmNode source) throws SAXException, XProcException, IOException {
 		XProcRuntime runtime = new XProcRuntime(config);
-		runtime.setEntityResolver(resolver.getEntityResolver());
-		runtime.setURIResolver(resolver);
 		try {
 			XPipeline xpipeline = runtime.use(resolvePipeline());
 			if (source != null) {
 				xpipeline.writeTo("source", source);
 			}
-			return new PipelineBuilder(runtime, resolver, xpipeline, systemId);
+			return new PipelineBuilder(runtime, resolver, resolver, xpipeline, systemId);
 		} catch (SaxonApiException e) {
 			throw new SAXException(e);
 		}
@@ -95,7 +93,7 @@ public class Pipeline {
 	private XdmNode resolvePipeline() throws IOException, SAXException {
 		if (pipeline != null)
 			return pipeline;
-		return resolver.resolve(systemId);
+		return resolver.parse(systemId);
 	}
 
 	private Reader asReader(Object source, String systemId, Type type, String... media)

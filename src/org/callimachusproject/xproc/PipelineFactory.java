@@ -6,7 +6,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.Enumeration;
 
-import org.callimachusproject.xml.XdmNodeURIResolver;
+import org.callimachusproject.xml.XdmNodeFactory;
 import org.xml.sax.SAXException;
 
 import com.xmlcalabash.core.XProcConfiguration;
@@ -19,11 +19,11 @@ public class PipelineFactory {
 	}
 
 	private final XProcConfiguration config;
-	private final XdmNodeURIResolver resolver;
+	private final XdmNodeFactory resolver;
 
 	private PipelineFactory() throws IOException {
 		this.config = new XProcConfiguration("he", false);
-		this.resolver = new XdmNodeURIResolver(config.getProcessor());
+		this.resolver = new XdmNodeFactory(config.getProcessor());
     	ClassLoader cl = getClass().getClassLoader();
 		Enumeration<URL> resources = cl.getResources("META-INF/xmlcalabash.xml");
 		while (resources.hasMoreElements()) {

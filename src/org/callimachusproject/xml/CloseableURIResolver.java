@@ -10,7 +10,10 @@ import java.util.List;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
+
+import org.xml.sax.InputSource;
 
 /**
  * Force any open {@link StreamSource}; inteded to be used within an operation.
@@ -28,17 +31,27 @@ public final class CloseableURIResolver implements URIResolver, Closeable {
 
 	public Source resolve(String href, String base) throws TransformerException {
 		Source source = resolver.resolve(href, base);
-		if (source instanceof StreamSource) {
+		if (source instanceof Closeable) {
+			closeLater((Closeable) source);
+		} else if (source instanceof StreamSource) {
 			InputStream in = ((StreamSource) source).getInputStream();
 			if (in != null) {
-				synchronized (opened) {
-					opened.add(in);
-				}
+				closeLater(in);
 			}
 			Reader reader = ((StreamSource) source).getReader();
 			if (reader != null) {
-				synchronized (opened) {
-					opened.add(reader);
+				closeLater(reader);
+			}
+		} else if (source instanceof SAXSource) {
+			InputSource isource = ((SAXSource) source).getInputSource();
+			if (isource != null) {
+				InputStream in = isource.getByteStream();
+				if (in != null) {
+					closeLater(in);
+				}
+				Reader reader = isource.getCharacterStream();
+				if (reader != null) {
+					closeLater(reader);
 				}
 			}
 		}
@@ -52,6 +65,12 @@ public final class CloseableURIResolver implements URIResolver, Closeable {
 				closeable.close();
 			}
 			opened.clear();
+		}
+	}
+
+	private void closeLater(Closeable in) {
+		synchronized (opened) {
+			opened.add(in);
 		}
 	}
 }

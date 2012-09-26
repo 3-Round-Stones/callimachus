@@ -83,7 +83,7 @@ import org.callimachusproject.server.filters.ClientMD5ValidationFilter;
 import org.callimachusproject.server.model.Filter;
 import org.callimachusproject.server.util.FileUtil;
 import org.callimachusproject.server.util.ManagedExecutors;
-import org.callimachusproject.xml.DocumentObjectResolver;
+import org.callimachusproject.xml.ReusableDocumentResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,12 +229,12 @@ public class HTTPObjectClient implements HTTPService, HTTPObjectAgentMXBean {
 
 	public void invalidateCache() throws IOException, InterruptedException {
 		cache.invalidate();
-		DocumentObjectResolver.invalidateCache();
+		ReusableDocumentResolver.invalidateCache();
 	}
 
 	public void resetCache() throws IOException, InterruptedException {
 		cache.reset();
-		DocumentObjectResolver.resetCache();
+		ReusableDocumentResolver.resetCache();
 	}
 
 	public String getFrom() {

@@ -14,20 +14,16 @@ import javax.xml.transform.URIResolver;
 
 import org.callimachusproject.xml.CloseableURIResolver;
 import org.callimachusproject.xml.DOMSourceFactory;
-import org.callimachusproject.xml.DocumentObjectResolver;
+import org.callimachusproject.xml.ReusableDocumentResolver;
 import org.xml.sax.SAXException;
 
-public class TemplatesResolver extends DocumentObjectResolver<Templates, TransformerException> {
+public class TemplatesResolver extends ReusableDocumentResolver<Templates, TransformerException> {
 	private TransformerFactory delegate = TransformerFactory.newInstance();
 	private DOMSourceFactory sourceFactory = DOMSourceFactory.newInstance();
 
 	protected String[] getContentTypes() {
 		return new String[] { "application/xslt+xml", "text/xsl",
 				"application/xml", "text/xml" };
-	}
-
-	protected boolean isReusable() {
-		return true;
 	}
 
 	protected Templates create(String systemId, Reader in) throws IOException,

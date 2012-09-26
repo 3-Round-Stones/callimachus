@@ -235,6 +235,9 @@
                 bio.mark(1024);
                 var xmlFactory = XMLEventReaderFactory.newInstance();
                 var xml = xmlFactory.createXMLEventReader(createdUri, bio);
+                while (!xml.peek().isStartElement()) {
+                    xml.next();
+                }
                 var qname = xml.nextTag().name;
                 if (qname.namespaceURI) {
                     var ns = qname.namespaceURI;

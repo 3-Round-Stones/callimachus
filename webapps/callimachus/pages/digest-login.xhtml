@@ -21,6 +21,7 @@
                 username: username,
                 password: password,
                 beforeSend: function(req){try{req.withCredentials=true;}catch(e){}},
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 data: {persistent: persistent},
                 success: function(doc) {
                     if (persistent && window.localStorage) {

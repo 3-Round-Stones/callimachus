@@ -98,8 +98,8 @@
             out.close();
         }
         try {
-            this.ValidateArticle();
-            this.CheckArticle();
+            created.ValidateArticle();
+            created.CheckArticle();
         } catch (e if e.javaException instanceof ServiceUnavailable) {
             println("Storing " + this);
         } catch (e if e.javaException instanceof BadRequest) {

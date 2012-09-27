@@ -123,9 +123,9 @@
         var iter = this.calliAuthentication.iterator();
         while (iter.hasNext()) {
             var manager = iter.next();
-            var credential = manager.FindCredential(cookies);
+            var credential = manager.findCredential(cookies);
             if (credential) {
-                var title = manager.FindCredentialLabel(cookies);
+                var title = manager.findCredentialLabel(cookies);
                 return '<html><head><title>' + title + '</title>'
                     + '<meta http-equiv="REFRESH" content="0; url=' + credential + '"/></head>'
                     + '<body resource="' + credential + '">' + title  + '</body></html>';
@@ -152,12 +152,8 @@
     calli:query "logout";
     calli:requires calli:reader;
     calli:type "message/x-response";
-    calli:imports <java:org.apache.http.ProtocolVersion>;
-    calli:imports <java:org.apache.http.message.BasicHttpResponse>;
     calli:script """
-        var manager = new org.callimachusproject.server.auth.RealmManager();
-        var realm = manager.getRealm(this.toString(), this.objectConnection);
-        return realm.logout(authorization, logoutContinue);
+        return this.logout(authorization, logoutContinue);
     """.
 
 :authorization a owl:DatatypeProperty;

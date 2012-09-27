@@ -83,6 +83,7 @@ rdfs:comment a rdf:Property.
         newUser = con.addDesignation(newUser, calli + "User");
 
         //# populate resource
+        newUser.calliEditor.add(newUser);
         newUser.calliName = username;
         newUser.calliEmail = email;
         newUser.rdfsLabel.add(label);
@@ -181,7 +182,7 @@ rdfs:comment a rdf:Property.
     calli:imports <java:org.apache.commons.codec.binary.Hex>;
     calli:script """
         var accounts = this.FindAuthenticationManager();
-        var credential = accounts.FindCredential(authorization);
+        var credential = accounts.findCredential(authorization);
         //# read form
         var email = form.get("email") ? form.get("email")[0] : null;
         var current = form.get("current");
@@ -200,7 +201,6 @@ rdfs:comment a rdf:Property.
         //# save password
         if (password && password.length) {
             this.calliPasswordDigest = accounts.changeDigestPassword(this.calliPasswordDigest, password);
-            this.GenerateNewSecret(); // invalid previous tokens
         }
         return this + "?view";
     """.

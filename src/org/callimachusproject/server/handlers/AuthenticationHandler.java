@@ -61,7 +61,7 @@ public class AuthenticationHandler implements Handler {
 			"Content-Length", "Content-Encoding", "Date", "Server" };
 	private static final Set<String> PRIVATE_HEADERS = new HashSet<String>(
 			Arrays.asList("set-cookie", "set-cookie2"));
-	private final AuthorizationManager manager = new AuthorizationManager();
+	private final AuthorizationManager manager = AuthorizationManager.getInstance();
 	private final Handler delegate;
 
 	public AuthenticationHandler(Handler delegate) {

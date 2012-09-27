@@ -94,7 +94,7 @@
         var iter = this.FindCreator(newCopy).iterator();
         if (!iter.hasNext())
             throw new InternalServerError("Could not find user");
-        var authorization = new AuthorizationManager();
+        var authorization = AuthorizationManager.getInstance();
         while (iter.hasNext()) {
             var user = iter.next();
             function findConcepts(klass, visited, callback) {
@@ -254,7 +254,7 @@
         }
         var construct = create.LookupConstructor(documentTag, ftype);
         var newCopy = construct.PostCreate(bio, location, ftype);
-        var authorization = new AuthorizationManager();
+        var authorization = AuthorizationManager.getInstance();
         var iter = this.FindCreator(newCopy).iterator();
         while (iter.hasNext()) {
             var user = iter.next();

@@ -147,26 +147,6 @@ public interface AuthenticationManager {
 			throws OpenRDFException;
 
 	/**
-	 * Retrieve the current user credential IRI
-	 * 
-	 * @param tokens
-	 *            value of both "Authorization" and "Cookie" request headers
-	 * @return unique credential identifier
-	 * @throws OpenRDFException
-	 */
-	String findCredential(Collection<String> tokens, ObjectConnection con)
-			throws OpenRDFException;
-
-	/**
-	 * Retrieve the current user label
-	 * 
-	 * @param tokens
-	 *            value of both "Authorization" and "Cookie" request headers
-	 * @return human friendly credential label
-	 */
-	String findCredentialLabel(Collection<String> tokens, ObjectConnection con);
-
-	/**
 	 * Include any Set-Cookie header to clear the session
 	 * 
 	 * @return set of HTTP headers in a 204 response

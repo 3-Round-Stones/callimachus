@@ -6,8 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,11 +15,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
@@ -45,13 +43,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AuthorizationManager {
+	private static final AuthorizationManager instance = new AuthorizationManager();
+
+	public static AuthorizationManager getInstance() {
+		return instance;
+	}
+
 	public static void reset() {
 		AnnotationPropertyInferencer.reset();
 		GroupManager.reset();
 		RealmManager.reset();
 	}
 
-	public static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
 	public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 	private static final BasicStatusLine _403 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 403, "Forbidden");
@@ -60,17 +63,19 @@ public class AuthorizationManager {
 	private final AnnotationPropertyInferencer properties = new AnnotationPropertyInferencer();
 	private final GroupManager groupManager = new GroupManager();
 	private final RealmManager realmManager = new RealmManager();
-	private final DateFormat dateformat;
 
-	public AuthorizationManager() {
-		this.dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
-		this.dateformat.setTimeZone(GMT);
-	}
-
+	/**
+	 * Called from composite.ttl when creating a new resource
+	 */
 	public boolean isAuthorized(String user, RDFObject target, String[] roles)
 			throws RepositoryException, OpenRDFException {
 		Set<Group> groups = getAuthorizedParties(target, roles);
 		return isPublic(groups) || isMember(user, groups);
+	}
+
+	public Realm getRealm(String target, ObjectConnection con)
+			throws OpenRDFException {
+		return realmManager.getRealm(target, con);
 	}
 
 	public Set<Group> getAuthorizedParties(RDFObject target, String[] requires) throws OpenRDFException,
@@ -257,9 +262,9 @@ public class AuthorizationManager {
 
 	private Realm getRealm(ResourceOperation request) throws OpenRDFException {
 		ObjectConnection con = request.getObjectConnection();
-		Realm realm = realmManager.getRealm(request.getIRI(), con);
+		Realm realm = getRealm(request.getIRI(), con);
 		if (realm == null)
-			return realmManager.getRealm(request.getRequestURI(), con);
+			return getRealm(request.getRequestURI(), con);
 		return realm;
 	}
 
@@ -356,7 +361,7 @@ public class AuthorizationManager {
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		map.put("request-target", new String[] { request.getRequestTarget() });
 		map.put("request-scheme", new String[] { request.getScheme() });
-		map.put("date", new String[] { this.dateformat.format(new Date(now)) });
+		map.put("date", new String[] { DateUtil.formatDate(new Date(now)) });
 		Header[] au = request.getHeaders("Authorization");
 		if (au != null && au.length > 0) {
 			map.put("authorization", toStringArray(au));

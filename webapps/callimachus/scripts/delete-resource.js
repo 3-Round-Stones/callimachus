@@ -41,31 +41,9 @@ window.calli.deleteResource = function(event, redirect) {
                 try {
                     var event = jQuery.Event("calliRedirect");
                     event.location = redirect ? redirect : form.attr("data-redirect");
-                    if (!event.location) {
-                        if (!event.location) {
-                            event.location = document.referrer;
-                        }
-                        if (event.location) {
-                            var href = calli.getPageUrl();
-                            if (href.indexOf('?') > 0) {
-                                href = href.substring(0, href.indexOf('?'));
-                            }
-                            var referrer = event.location;
-                            if (referrer.indexOf('?') > 0) {
-                                referrer = referrer.substring(0, referrer.indexOf('?'));
-                            }
-                            if (href == referrer) {
-                                event.location = null; // don't redirect back to self
-                            }
-                        }
-                    }
-                    if (event.location) {
-                        // TODO verify this location is not going to 404 on us w/o causing an calliError
-                    }
                     if (!event.location && location.pathname.match(/\/$/)) {
                         event.location = '../';
-                    }
-                    if (!event.location) {
+                    } else if (!event.location) {
                         event.location = './';
                     }
                     form.trigger(event)

@@ -13,7 +13,7 @@ $(document).bind("DOMNodeInserted", handle);
 function handle(event) {
     $(".asc,.desc", event.target).parents('.sorted').each(function(i, node) {
         sortElements(node);
-    })
+    });
     if ($(event.target).is(".asc,.desc")) {
         sortElements($(event.target).parents('.sorted')[0]);
     }

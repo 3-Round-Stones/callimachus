@@ -94,11 +94,23 @@
             headers:{'content-type':"text/html"},
             body:[login_xhtml.Construct(this, 'login')]
         };
+        var query = loginQuery;
+        if (query.indexOf('&return_to=') < 0) {
+            if (loginReferer && loginReferer.indexOf(this.toString()) == 0) {
+                query = query + '&return_to=' + encodeURIComponent(loginReferer);
+            } else {
+                query = query + '&return_to=' + encodeURIComponent(this.toString());
+            }
+        }
         if (this.calliAuthentication.size() == 1) {
             var auth = this.calliAuthentication.iterator().next();
             resp.status = 302;
             resp.message = "Found";
-            resp.headers.location = auth + '?' + loginQuery;
+            resp.headers.location = auth + '?' + query;
+        } else if (query != loginQuery) {
+            resp.status = 302;
+            resp.message = "Found";
+            resp.headers.location = this.toString() + '?' + query;
         }
         return resp;
     """.
@@ -107,6 +119,11 @@
     rdfs:domain :GetLogin;
     rdfs:range xsd:string;
     calli:query "*".
+
+:loginReferer a owl:FunctionalProperty, owl:DatatypeProperty;
+    rdfs:domain :GetLogin;
+    rdfs:range xsd:string;
+    calli:header "Referer".
 
 :login_xhtml a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetLogin.
@@ -148,7 +165,7 @@
 :GetLogout  rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Realm>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:org.apache.http.HttpResponse>];
-    calli:method "GET";
+    calli:method "GET", "POST";
     calli:query "logout";
     calli:requires calli:reader;
     calli:type "message/x-response";

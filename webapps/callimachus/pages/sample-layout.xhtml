@@ -8,7 +8,6 @@
     <!--[if gt IE 6]><!-->
     <link rel="stylesheet" href="http://code.jquery.com/ui/jquery-ui-git.css" />
     <script type="text/javascript" src="/callimachus/scripts/discussion.js">&#160;</script>
-    <script type="text/javascript" src="/callimachus/scripts/login.js">&#160;</script>
     <!--[if lt IE 9]>
         <script>document.documentElement.className+=' ie'</script>
         <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -24,12 +23,12 @@
                 <div id="masthead">
                     <div id="branding">
                         <!-- #login element is used by the login.js script -->
-                        <a id="login-link" href="/?login" class="hidden-login">Sign in</a>
+                        <a id="login-link" rel="login" href="/?login" class="hidden-login">Sign in</a>
                         <!-- #profile-link and #logout-link is used by the login.js script -->
                         <span class="hidden-logout">
                             <a id="profile-link" href="/?profile">Profile</a>
                             <span> | </span>
-                            <a id="logout-link" href="/?logout">Sign out</a>
+                            <a id="logout-link" rel="logout" href="/?logout">Sign out</a>
                         </span>
                         <form id="search" class="form-search textarea hidden-logout" method="GET" action="/">
                             <input type="text" name="q" placeholder="Lookup..." class="search-query" />

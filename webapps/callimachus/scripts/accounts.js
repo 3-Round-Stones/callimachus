@@ -46,8 +46,44 @@ $(document).bind("calliLoggedIn", function(event) {
     }
 });
 
+$(document).bind("calliLoggedIn", function(event) {
+    $(document).ready(function() {
+        if (event.title) {
+            $("#profile-link").text(event.title);
+        }
+    });
+});
+
 $(document).bind("calliLogout", function(event) {
-    jQuery.ajax({ type: 'GET', url: "/?logout",
+    logout("/?logout");
+    event.preventDefault();
+});
+
+$(document).ready(function(){
+    $('a[rel="logout"]').click(function(event) {
+        logout(this.href);
+        event.preventDefault();
+        return false;
+    });
+});
+
+$(document).bind("DOMNodeInserted",function handle(event) {
+    $('a[rel="logout"]', event.target).click(function(event) {
+        logout(this.href);
+        event.preventDefault();
+        return false;
+    });
+    if ($(event.target).is('a[rel="logout"]')) {
+        $(event.target).click(function(event) {
+            logout(this.href);
+            event.preventDefault();
+            return false;
+        });
+    }
+});
+
+function logout(url) {
+    jQuery.ajax({ type: 'POST', url: url,
         username: 'logout', password: 'please',
         success: function(data) {
             if (window.localStorage) {
@@ -59,8 +95,7 @@ $(document).bind("calliLogout", function(event) {
             window.location = "/";
         }
     });
-    event.preventDefault();
-});
+}
 
 $(document).bind("calliLoggedOut", function(event) {
     document.documentElement.className += ' logout';

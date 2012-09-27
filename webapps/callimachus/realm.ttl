@@ -37,7 +37,23 @@
         } finally {
             out.close();
         }
+        org.callimachusproject.server.auth.RealmManager.reset();
         return realm;
+    """.
+
+:PostEditRealm owl:intersectionOf (<editable.ttl#PostEdit>
+        [owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
+    calli:method "POST";
+    calli:query "edit";
+    calli:requires calli:editor;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
+    calli:script """
+        var ret = proceed();
+        HTTPObjectServer.resetAllCache();
+        org.callimachusproject.server.auth.RealmManager.reset();
+        return ret;
     """.
 
 ################################
@@ -244,16 +260,6 @@
 
 :baseDir a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetLayout.
-
-:PostEditRealm owl:intersectionOf (<editable.ttl#PostEdit>
-        [owl:onProperty msg:target; owl:allValuesFrom <Realm>]);
-    calli:method "POST";
-    calli:query "edit";
-    calli:requires calli:editor;
-    calli:expect "201-modified";
-    calli:type "text/uri-list";
-    calli:imports <java:org.callimachusproject.server.HTTPObjectServer>;
-    calli:script "HTTPObjectServer.resetAllCache(); return proceed();".
 
 ################################
 # Search

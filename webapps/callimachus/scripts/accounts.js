@@ -12,17 +12,17 @@ window.calli.getUserIri = function() {
         if (iri)
             return iri;
     }
-    jQuery.ajax({ url: "/?profile", async: false,
-        beforeSend: withCredentials,
-        success: function(doc) {
-            iri = /resource="([^" >]*)"/i.exec(doc)[1];
-            loadProfile(doc);
-        }
-    });
+    if (isLoggedIn()) {
+        jQuery.ajax({ url: "/?profile", async: false,
+            beforeSend: withCredentials,
+            success: function(doc) {
+                iri = /resource="([^" >]*)"/i.exec(doc)[1];
+                loadProfile(doc);
+            }
+        });
+    }
     return iri;
 };
-
-var userName = null;
 
 $(document).bind("calliLogin", function(event) {
     if (window.localStorage) {
@@ -38,12 +38,6 @@ $(document).bind("calliLogin", function(event) {
 $(document).bind("calliLoggedIn", function(event) {
     document.documentElement.className += ' login';
     $(document.documentElement).removeClass('logout');
-    userName = event.title;
-    if (window.localStorage) {
-        if (!event.title || event.title != localStorage.getItem("username")) {
-            nowLoggedIn(true);
-        }
-    }
 });
 
 $(document).bind("calliLoggedIn", function(event) {
@@ -100,27 +94,23 @@ function logout(url) {
 $(document).bind("calliLoggedOut", function(event) {
     document.documentElement.className += ' logout';
     $(document.documentElement).removeClass('login');
-    userName = null;
 });
 
 if (window.localStorage) {
+    var broadcastLoggedIn = false;
+    $(document).bind("calliLoggedIn", function(event) {
+        broadcastLoggedIn = true;
+    });
+    $(document).bind("calliLoggedOut", function(event) {
+        broadcastLoggedIn = false;
+    });
     var storageChanged = function() {
-        var newName = localStorage.getItem('username');
-        if (newName != userName) {
-            userName = newName;
-            if (!newName) {
-                // now logged out
-                $(document).ready(function() {
-                    $(document).trigger("calliLoggedOut");
-                });
-            } else if (newName) {
-                // now logged in
-                var e = jQuery.Event("calliLoggedIn");
-                e.title = newName;
-                $(document).ready(function() {
-                    $(document).trigger(e);
-                });
-            }
+        if (isLoggedIn() && !broadcastLoggedIn) {
+            nowLoggedIn();
+            broadcastLoggedIn = true;
+        } else if (!isLoggedIn() && broadcastLoggedIn){
+             nowLoggedOut();
+             broadcastLoggedIn = false;
         }
         return true;
     };
@@ -128,50 +118,62 @@ if (window.localStorage) {
     $(document).bind('storage', storageChanged); // IE
 }
 
-if (document.cookie && /(?:^|;\s*)username\s*\=/.test(document.cookie)) {
+if (isLoggedIn()) {
     // logged in already
-    var name = decodeURIComponent(document.cookie.replace(/(?:^|.*;\s*)username\s*\=\s*((?:[^;](?!;))*[^;]?).*/, "$1"));
-    var e = jQuery.Event("calliLoggedIn");
-    e.title = name;
-    $(document).ready(function() {
-        $(document).trigger(e);
-    });
+    nowLoggedIn();
 } else if (window.localStorage && localStorage.getItem("digestPassword")) {
     // stay signed in with a digest password
     jQuery.ajax({ url: "/?profile",
         username: localStorage.getItem("username"),
         password: localStorage.getItem("digestPassword"),
-        success: loadProfile
+        success: function(doc) {
+            loadProfile(doc);
+            nowLoggedIn();
+        },
+        error: nowLoggedOut
     });
 } else {
     // not logged in yet
+    nowLoggedOut();
+}
+
+function nowLoggedIn() {
+    if (isLoggedIn()) {
+        var name = getUsername();
+        if (window.localStorage) {
+            localStorage.setItem("username", name);
+        }
+        var e = jQuery.Event("calliLoggedIn");
+        e.title = name;
+        $(document).ready(function() {
+            $(document).trigger(e);
+        });
+    }
+}
+
+function nowLoggedOut() {
     $(document).ready(function() {
         $(document).trigger("calliLoggedOut");
     });
 }
 
-function nowLoggedIn(sync) {
-    jQuery.ajax({ url: "/?profile",
-        beforeSend: withCredentials,
-        async: !sync,
-        success: loadProfile
-    });
-};
+function isLoggedIn() {
+    return document.cookie && /(?:^|;\s*)username\s*\=/.test(document.cookie);
+}
+
+function getUsername() {
+    if (isLoggedIn())
+        return decodeURIComponent(document.cookie.replace(/(?:^|.*;\s*)username\s*\=\s*((?:[^;](?!;))*[^;]?).*/, "$1"));
+    return null;
+}
 
 function loadProfile(doc) {
     var iri = /resource="([^" >]*)"/i.exec(doc);
-    var title = /<(?:\w*:)?title[^>]*>([^<]*)<\/(?:\w*:)?title>/i.exec(doc);
-    if (iri && title) {
+    if (iri) {
         if (window.localStorage) {
             // now logged in
-            localStorage.setItem("username", title[1]);
             localStorage.setItem("userIri", iri[1]);
         }
-        var e = jQuery.Event("calliLoggedIn");
-        e.title = title[1];
-        $(document).ready(function() {
-            $(document).trigger(e);
-        });
     }
 }
 

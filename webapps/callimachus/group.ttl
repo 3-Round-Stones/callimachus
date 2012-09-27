@@ -19,3 +19,16 @@
     calli:edit <templates/group-edit.xhtml>;
     calli:create <templates/group-create.xhtml>.
 
+:PostGroupEdit owl:intersectionOf (<editable.ttl#PostEdit>
+        [owl:onProperty msg:target; owl:allValuesFrom <Group>]);
+    calli:method "POST";
+    calli:query "edit";
+    calli:requires calli:editor;
+    calli:expect "201-modified";
+    calli:type "text/uri-list";
+    calli:script """
+        var ret = proceed();
+        org.callimachusproject.server.auth.GroupManager.reset();
+        return ret;
+    """.
+

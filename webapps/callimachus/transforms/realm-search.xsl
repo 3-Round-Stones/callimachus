@@ -14,7 +14,7 @@
                 // <![CDATA[
                 function parameter(name) {
                     var regex = new RegExp("[\\?&]"+name+"=([^&#]*)")
-                    var m = regex.exec(location.href)
+                    var m = regex.exec(window.location.href)
                     return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : null
                 }
                 function init() {

@@ -93,12 +93,12 @@ jQuery(function($){
                     if (window.parent != window && parent.postMessage) {
                         parent.postMessage('PUT src\n\n' + url + '?view', '*');
                     }
-                    location.replace(url + '?view');
+                    window.location.replace(url + '?view');
                 } else if (resource) {
                     if (window.parent != window && parent.postMessage) {
                         parent.postMessage('PUT src\n\n' + resource + '?view', '*');
                     }
-                    location.replace(resource + '?view');
+                    window.location.replace(resource + '?view');
                 }
             });
         });

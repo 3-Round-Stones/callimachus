@@ -76,7 +76,7 @@ function submitRDFForm(form, stored) {
                         if (window.parent != window && parent.postMessage) {
                             parent.postMessage('PUT src\n\n' + event.location, '*');
                         }
-                        location.replace(event.location);
+                        window.location.replace(event.location);
                     }
                 } catch(e) {
                     throw calli.error(e);

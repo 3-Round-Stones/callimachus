@@ -134,7 +134,7 @@ jQuery(function($){
                 } else if (resource) {
                     loadEditor(resource + '?edit');
                 } else {
-                    location.replace('?view');
+                    window.location.replace('?view');
                 }
             });
         });

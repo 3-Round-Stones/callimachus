@@ -12,7 +12,7 @@
     <script type="text/javascript">
         jQuery(function($) {
             $.ajax({
-                url: location.pathname,
+                url: window.location.pathname,
                 success: function(text) {
                     $('#pre').text(text);
                 },

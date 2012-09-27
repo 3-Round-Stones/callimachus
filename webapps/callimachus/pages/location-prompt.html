@@ -18,10 +18,10 @@
                 parent.postMessage('POST save', '*');
                 return false;
             });
-            if (location.hash) {
-                var i = location.hash.indexOf('!');
+            if (window.location.hash) {
+                var i = window.location.hash.indexOf('!');
                 if (i > 0) {
-                    var uri = location.hash.substring(i + 1);
+                    var uri = window.location.hash.substring(i + 1);
                     var url = calli.viewpage(uri);
                     jQuery.ajax({
                         type:"GET",
@@ -34,10 +34,10 @@
                             }
                         }
                     });
-                    var label = decodeURIComponent(location.hash.substring(1, i));
+                    var label = decodeURIComponent(window.location.hash.substring(1, i));
                     $('#label').val(label);
                 } else {
-                    var label = decodeURIComponent(location.hash.substring(1));
+                    var label = decodeURIComponent(window.location.hash.substring(1));
                     $('#label').val(label);
                     $('#iframe')[0].src = "/?view";
                 }

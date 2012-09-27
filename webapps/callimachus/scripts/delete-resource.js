@@ -49,9 +49,9 @@ window.calli.deleteResource = function(event, redirect) {
                     form.trigger(event)
                     if (!event.isDefaultPrevented()) {
                         if (event.location) {
-                            location.replace(event.location);
+                            window.location.replace(event.location);
                         } else {
-                            location.replace('/');
+                            window.location.replace('/');
                         }
                     }
                 } catch(e) {

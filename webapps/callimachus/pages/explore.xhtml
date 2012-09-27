@@ -10,7 +10,7 @@
     <script type="text/javascript">
       // <![CDATA[
       jQuery(function($) {
-         if (location.hash.indexOf('#!') == 0) {
+         if (window.location.hash.indexOf('#!') == 0) {
               var folderURL = window.location.hash.substring(2); // strip '#!'
               var authpattern = new RegExp("http.*:\/\/.*?/"); // could be 'http://' or 'https://'
               var authority = authpattern.exec(folderURL);

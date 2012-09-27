@@ -10,20 +10,20 @@
     <script type="text/javascript">
     // <![CDATA[
     jQuery(function($){
-        $('#location').change(function(){
-             $('span.location').attr('content', this.value);
+        $('#pattern').change(function(){
+             $('span.pattern').attr('content', this.value);
         });
         $('#type').change(function(){
             if (this.value) {
-                $('span.location').remove();
-                $('#location').parent().append('<span class="location" />');
-                $('span.location').attr('property', this.value);
-                $('#location').change();
+                $('span.pattern').remove();
+                $('#pattern').parent().append('<span class="pattern" />');
+                $('span.pattern').attr('property', this.value);
+                $('#pattern').change();
             }
         });
-        $('span.location[property]').each(function(){
+        $('span.pattern[property]').each(function(){
             if (this.getAttribute('content')) {
-                $('#location').val(this.getAttribute('content'));
+                $('#pattern').val(this.getAttribute('content'));
                 $('#type').val(this.getAttribute('property'));
             }
         });
@@ -64,17 +64,17 @@
                 </div>
             </div>
             <div class="control-group">
-                <label for="location" class="control-label">Content location</label>
+                <label for="pattern" class="control-label">Content location</label>
                 <div class="controls">
-        			<input id="location" size="40" value="" />
-        			<span class="location" property="calli:get" content="?get" />
-					<span class="location" property="calli:canonical" content="?canonical" />
-					<span class="location" property="calli:alternate" content="?alternate" />
-    				<span class="location" property="calli:describedby" content="?describedby" />
-    				<span class="location" property="calli:resides" content="?resides" />
-    				<span class="location" property="calli:moved" content="?moved" />
-        			<span class="location" property="calli:missing" content="?missing" />
-        			<span class="location" property="calli:gone" content="?gone" />
+        			<input id="pattern" size="40" value="" />
+        			<span class="pattern" property="calli:get" content="?get" />
+					<span class="pattern" property="calli:canonical" content="?canonical" />
+					<span class="pattern" property="calli:alternate" content="?alternate" />
+    				<span class="pattern" property="calli:describedby" content="?describedby" />
+    				<span class="pattern" property="calli:resides" content="?resides" />
+    				<span class="pattern" property="calli:moved" content="?moved" />
+        			<span class="pattern" property="calli:missing" content="?missing" />
+        			<span class="pattern" property="calli:gone" content="?gone" />
                 </div>
             </div>
             <div class="control-group">
@@ -85,7 +85,7 @@
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Save</button>
-                <button type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
+                <button type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
                 <button type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
             </div>
         </fieldset>

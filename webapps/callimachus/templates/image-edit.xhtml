@@ -9,7 +9,7 @@
 <body resource="?this">
     <img src="?this" style="max-height:50%;display:block" /><br/>
     <form method="POST" action="" enctype="application/sparql-update" resource="?this">
-        <button id="cancel" type="button" onclick="location.replace('?view')" class="btn">Cancel</button>
+        <button id="cancel" type="button" onclick="window.location.replace('?view')" class="btn">Cancel</button>
         <button id="delete" type="button" onclick="calli.deleteResource(event)" class="btn btn-danger">Delete</button>
     </form>
 </body>

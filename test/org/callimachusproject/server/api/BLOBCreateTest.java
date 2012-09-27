@@ -102,6 +102,7 @@ public class BLOBCreateTest extends TestCase {
             
             put("transform", new String[] { "created-transform.xsl", "text/xsl",
 							"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \n" +
+						    "<xsl:stylesheet version='2.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>\n" +
 						    "<xsl:template match=\"/\"> <html> <body> <h2>My CD Collection</h2> \n" +
 						    "<table border=\"1\"> <tr bgcolor=\"#9acd32\"> <th>Title</th> \n" +
 						    "<th>Artist</th>  </tr> </table> </body> </html> </xsl:template> \n" +

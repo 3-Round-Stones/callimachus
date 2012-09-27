@@ -78,11 +78,9 @@ public class BLOBUpdateTest extends TestCase {
         	
         	put("vectorGraphic", new String[] { "updated-vector.svg", "image/svg+xml",
 							"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">" +
-							"<circle cx=\"100\" cy=\"50\" r=\"40\" stroke=\"black\"" +
-							"stroke-width=\"2\" fill=\"red\" /> </svg> \n ", //End original
+							"</svg> \n ", //End original
 							"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">" + //Begin update
-							"<circle cx=\"100\" cy=\"50\" r=\"40\" stroke=\"black\"" +
-							"stroke-width=\"2\" fill=\"red\" /> </svg> \n "
+							"<!-- UPDATED --></svg> \n "
 			});
         	
         	put("iconGraphic", new String[] { "updated-logo.ico", "image/vnd.microsoft.icon",
@@ -133,12 +131,14 @@ public class BLOBUpdateTest extends TestCase {
             });
             
             put("transform", new String[] { "updated-transform.xsl", "text/xsl",
-							"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \n" +
+							"<?xml version=\"1.0\"?>" +
+						    "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns=\"http://www.w3.org/1999/xhtml\" version=\"1.0\"> \n" +
 						    "<xsl:template match=\"/\"> <html> <body> <h2>My CD Collection</h2> \n" +
 						    "<table border=\"1\"> <tr bgcolor=\"#9acd32\"> <th>Title</th> \n" +
 						    "<th>Artist</th>  </tr> </table> </body> </html> </xsl:template> \n" +
 						    "</xsl:stylesheet>", //End original
 						    "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \n" + //Begin update
+						    "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns=\"http://www.w3.org/1999/xhtml\" version=\"1.0\"> \n" +
 						    "<xsl:template match=\"/\"> <html> <body> <h2>My CD Collection</h2> \n" +
 						    "<table border=\"1\"> <tr bgcolor=\"#9acd32\"> <th>UPDATED Title</th> \n" +
 						    "<th>UPDATED Artist</th>  </tr> </table> </body> </html> </xsl:template> \n" +
@@ -154,10 +154,10 @@ public class BLOBUpdateTest extends TestCase {
                     "<p:identity /> </p:pipeline> ", //End original
                     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?> \n" + //Begin update
             	    "<p:pipeline version=\"1.0\" \n" +
-                    "xmlns:pUPDATED=\"http://www.w3.org/ns/xproc\" \n " + 
-                    "xmlns:cUPDATED=\"http://www.w3.org/ns/xproc-step\" \n" +
-                    "xmlns:lUPDATED=\"http://xproc.org/library\"> \n " +
-                    "<p:identity /> </p:pipeline> ",
+                    "xmlns:p=\"http://www.w3.org/ns/xproc\" \n " + 
+                    "xmlns:c=\"http://www.w3.org/ns/xproc-step\" \n" +
+                    "xmlns:l=\"http://xproc.org/library\"> \n " +
+                    "<p:identity /><!-- UPDATED --> </p:pipeline> ",
             });
         }
     };

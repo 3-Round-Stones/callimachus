@@ -69,7 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DigestHelper {
-	private static final String DIGEST_NONCE = "DigestNonce=";
+	private static final String DIGEST_NONCE = "digestNonce=";
 	private static final long THREE_MONTHS = 3 * 30 * 24 * 60 * 60;
 	private static final Pattern TOKENS_REGEX = Pattern
 			.compile("\\s*([\\w\\!\\#\\$\\%\\&\\'\\*\\+\\-\\.\\^\\_\\`\\~]+)(?:\\s*=\\s*(?:\"([^\"]*)\"|([^,\"]*)))?\\s*,?");
@@ -272,6 +272,10 @@ public class DigestHelper {
 
 	public String md5(String text) {
 		return new String(Hex.encodeHex(DigestUtils.md5(text)));
+	}
+
+	public String clearCookie() {
+		return DIGEST_NONCE + ";Max-Age=0;Path=/;HttpOnly";
 	}
 
 	private TupleQueryResult findPasswordDigest(String username,

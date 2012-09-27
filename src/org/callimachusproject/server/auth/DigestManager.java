@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
  * Validates HTTP digest authorization.
  */
 public class DigestManager implements AuthenticationManager {
-	private static final String DIGEST_NONCE = "DigestNonce=";
 	private static final String USERNAME = "username=";
 	private static final BasicStatusLine _401 = new BasicStatusLine(
 			HttpVersion.HTTP_1_1, 401, "Unauthorized");
@@ -192,8 +191,7 @@ public class DigestManager implements AuthenticationManager {
 			if (token.indexOf("username=\"logout\"") > 0) {
 				// # bogus credentials received
 				BasicHttpResponse resp = new BasicHttpResponse(_204);
-				resp.addHeader("Set-Cookie", DIGEST_NONCE
-						+ ";Max-Age=0;Path=/;HttpOnly");
+				resp.addHeader("Set-Cookie", helper.clearCookie());
 				resp.addHeader("Set-Cookie", USERNAME + ";Max-Age=0;Path=/");
 				return resp;
 			}

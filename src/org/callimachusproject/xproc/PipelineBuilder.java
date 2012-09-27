@@ -12,7 +12,6 @@ import java.nio.charset.Charset;
 
 import javax.xml.transform.SourceLocator;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.URIResolver;
 
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.s9api.QName;
@@ -31,7 +30,6 @@ import org.callimachusproject.xml.CloseableEntityResolver;
 import org.callimachusproject.xml.CloseableURIResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.EntityResolver;
 
 import com.xmlcalabash.core.XProcException;
 import com.xmlcalabash.core.XProcMessageListener;
@@ -55,14 +53,12 @@ public class PipelineBuilder implements XProcMessageListener {
 	private final Serialization serial;
 	private final StringBuilder errors = new StringBuilder();
 
-	PipelineBuilder(XProcRuntime runtime, URIResolver uriResolver, EntityResolver entityResolver,
+	PipelineBuilder(XProcRuntime runtime, CloseableURIResolver uriResolver, CloseableEntityResolver entityResolver,
 			XPipeline pipeline, String systemId) {
 		this.runtime = runtime;
 		this.pipeline = pipeline;
-		this.uriResolver = new CloseableURIResolver(uriResolver);
-		this.entityResolver = new CloseableEntityResolver(entityResolver);
-		runtime.setURIResolver(this.uriResolver);
-		runtime.setEntityResolver(this.entityResolver);
+		this.uriResolver = uriResolver;
+		this.entityResolver = entityResolver;
 		runtime.setMessageListener(this);
 		Serialization serialization = pipeline.getSerialization("result");
 		if (serialization == null) {

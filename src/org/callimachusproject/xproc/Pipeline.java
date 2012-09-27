@@ -11,6 +11,8 @@ import net.sf.saxon.s9api.XdmNode;
 import org.callimachusproject.fluid.FluidBuilder;
 import org.callimachusproject.fluid.FluidException;
 import org.callimachusproject.fluid.FluidFactory;
+import org.callimachusproject.xml.CloseableEntityResolver;
+import org.callimachusproject.xml.CloseableURIResolver;
 import org.callimachusproject.xml.XdmNodeFactory;
 import org.xml.sax.SAXException;
 
@@ -80,11 +82,15 @@ public class Pipeline {
 	private PipelineBuilder pipeSource(XdmNode source) throws SAXException, XProcException, IOException {
 		XProcRuntime runtime = new XProcRuntime(config);
 		try {
+			CloseableURIResolver uriResolver = new CloseableURIResolver(resolver);
+			CloseableEntityResolver entityResolver = new CloseableEntityResolver(resolver);
+			runtime.setURIResolver(uriResolver);
+			runtime.setEntityResolver(entityResolver);
 			XPipeline xpipeline = runtime.use(resolvePipeline());
 			if (source != null) {
 				xpipeline.writeTo("source", source);
 			}
-			return new PipelineBuilder(runtime, resolver, resolver, xpipeline, systemId);
+			return new PipelineBuilder(runtime, uriResolver, entityResolver, xpipeline, systemId);
 		} catch (SaxonApiException e) {
 			throw new SAXException(e);
 		}

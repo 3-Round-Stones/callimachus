@@ -3,31 +3,7 @@
     xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml"
     exclude-result-prefixes="xhtml">
 
-<xsl:template match="*[starts-with(@about,'?')]">
-    <xsl:if test="not(ancestor::*[@about or @resource or @typeof])">
-        <xsl:copy>
-            <xsl:apply-templates select="*|@*|text()|processing-instruction()|comment()"/>
-        </xsl:copy>
-    </xsl:if>
-</xsl:template>
-
-<xsl:template match="*[starts-with(@resource,'?')]">
-    <xsl:if test="not(ancestor::*[@about or @resource or @typeof])">
-        <xsl:copy>
-            <xsl:apply-templates select="*|@*|text()|processing-instruction()|comment()"/>
-        </xsl:copy>
-    </xsl:if>
-</xsl:template>
-
-<xsl:template match="*[starts-with(@content,'?')]">
-    <xsl:if test="not(ancestor::*[@about or @resource or @typeof])">
-        <xsl:copy>
-            <xsl:apply-templates select="*|@*|text()|processing-instruction()|comment()"/>
-        </xsl:copy>
-    </xsl:if>
-</xsl:template>
-
-<xsl:template match="*[@property and not(@content)]">
+<xsl:template match="*[starts-with(@about,'?') or starts-with(@resource,'?') or starts-with(@content,'?') or @property and not(@content)]">
     <xsl:if test="not(ancestor::*[@about or @resource or @typeof])">
         <xsl:copy>
             <xsl:apply-templates select="*|@*|text()|processing-instruction()|comment()"/>

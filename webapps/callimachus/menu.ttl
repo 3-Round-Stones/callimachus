@@ -24,7 +24,7 @@
     calli:query "items";
     calli:requires calli:reader;
     calli:type "application/xhtml+xml";
-    calli:get <pipelines/menu-items.xpl?results&target=$0>.
+    calli:copy <pipelines/menu-items.xpl?results&target=$0>.
 
 :PostEditMenu owl:intersectionOf (<editable.ttl#PostEdit>
         [owl:onProperty msg:target; owl:allValuesFrom <Menu>]);

@@ -9,7 +9,7 @@ import org.openrdf.annotations.Iri;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER })
-public @interface get {
-	@Iri("http://callimachusproject.org/rdf/2009/framework#get")
+public @interface copy {
+	@Iri("http://callimachusproject.org/rdf/2009/framework#copy")
 	String[] value();
 }

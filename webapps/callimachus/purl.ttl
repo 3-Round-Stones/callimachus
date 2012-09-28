@@ -57,44 +57,8 @@
             var substitution = Substitution.compile(pattern);
             var result = substitution.replace(this.toString(), query);
             if (result) {
-                if (status < 300 || 400 <= status) {
-                    // 200, 203, 404, or 410 responses
-                    var split = result.split("\\n");
-                    var location = split[0];
-                    var client = HTTPObjectClient.getInstance();
-                    var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
-                    var redirect = systemId;
-                    var resp = null;
-                    for (var i = 0; i < 20 && redirect != null; i++) {
-                        systemId = redirect;
-                        var req = new BasicHttpRequest("GET", systemId);
-                        for (var i=1; i<split.length; i++) {
-                            var header = split[i].split(':');
-                            req.addHeader(header[0], header[1]);
-                        }
-                        resp = client.service(req);
-                        redirect = client.redirectLocation(redirect, resp);
-                    }
-                    var code = resp.statusLine.statusCode;
-                    if (code != 200 && code != 203)
-                        throw ResponseException.create(resp, systemId);
-                    var headers = {'content-location': systemId,'cache-control':cacheControl};
-                    if (resp.getFirstHeader('last-modified')) {
-                        headers['last-modified'] = resp.getFirstHeader('last-modified').value;
-                    }
-                    if (resp.getFirstHeader('etag')) {
-                        headers['etag'] = resp.getFirstHeader('etag').value;
-                    }
-                    if (resp.getFirstHeader('content-version')) {
-                        headers['content-version'] = resp.getFirstHeader('content-version').value;
-                    }
-                    return {
-                        status:status,
-                        message:phrase,
-                        headers:headers,
-                        body:resp.entity
-                    };
-                } else {
+                if (300 <= status && status < 400 ) {
+                    // 301, 302, 303, 307, or 308 responses
                     return {
                         status:status,
                         message:phrase,
@@ -102,6 +66,42 @@
                         body:[phrase]
                     };
                 }
+                // 200, 203, 404, or 410 responses
+                var split = result.split("\\n");
+                var location = split[0];
+                var client = HTTPObjectClient.getInstance();
+                var systemId = new java.net.URI(this.toString()).resolve(location).normalize().toASCIIString();
+                var redirect = systemId;
+                var resp = null;
+                for (var i = 0; i < 20 && redirect != null; i++) {
+                    systemId = redirect;
+                    var req = new BasicHttpRequest("GET", systemId);
+                    for (var i=1; i<split.length; i++) {
+                        var header = split[i].split(':');
+                        req.addHeader(header[0], header[1]);
+                    }
+                    resp = client.service(req);
+                    redirect = client.redirectLocation(redirect, resp);
+                }
+                var code = resp.statusLine.statusCode;
+                if (code != 200 && code != 203)
+                    throw ResponseException.create(resp, systemId);
+                var headers = {'content-location': systemId,'cache-control':cacheControl};
+                if (resp.getFirstHeader('last-modified')) {
+                    headers['last-modified'] = resp.getFirstHeader('last-modified').value;
+                }
+                if (resp.getFirstHeader('etag')) {
+                    headers['etag'] = resp.getFirstHeader('etag').value;
+                }
+                if (resp.getFirstHeader('content-version')) {
+                    headers['content-version'] = resp.getFirstHeader('content-version').value;
+                }
+                return {
+                    status:status,
+                    message:phrase,
+                    headers:headers,
+                    body:resp.entity
+                };
             }
         }
         if (query.empty) {
@@ -130,9 +130,9 @@
         PREFIX calli:<http://callimachusproject.org/rdf/2009/framework#>
         SELECT ?status ?phrase (str(?resource) AS ?pattern) {
             {
-                $this calli:get ?resource
+                $this calli:copy ?resource
                 BIND (200 AS ?status)
-                BIND ("OK" AS ?phrase)
+                BIND ("Copy" AS ?phrase)
             } UNION {
                 $this calli:canonical ?resource
                 BIND (301 AS ?status)

@@ -224,7 +224,7 @@ calli:transform a owl:DeprecatedProperty, owl:AnnotationProperty;
     rdfs:comment "The messages that should be used to transform the parameter or response";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.
 
-calli:get a owl:AnnotationProperty;
+calli:copy a owl:AnnotationProperty;
     rdfs:label "get";
     rdfs:comment "This request handler should return the GET response of the given template URL";
     rdfs:isDefinedBy <http://callimachusproject.org/rdf/2009/framework>.

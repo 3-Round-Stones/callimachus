@@ -62,5 +62,5 @@
     calli:query "view";
     calli:requires calli:reader;
     calli:type "text/html";
-    calli:get <pipelines/activity-view.xpl?results&target=$0>.
+    calli:copy <pipelines/activity-view.xpl?results&target=$0>.
 

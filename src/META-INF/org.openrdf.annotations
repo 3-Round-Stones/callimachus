@@ -4,7 +4,7 @@ org.callimachusproject.annotations.deleted
 org.callimachusproject.annotations.describedby
 org.callimachusproject.annotations.disabled
 org.callimachusproject.annotations.expect = http://www.openrdf.org/rdf/2011/messaging#expect
-org.callimachusproject.annotations.get
+org.callimachusproject.annotations.copy
 org.callimachusproject.annotations.header = http://www.openrdf.org/rdf/2011/messaging#header
 org.callimachusproject.annotations.imports = http://www.openrdf.org/rdf/2011/messaging#imports
 org.callimachusproject.annotations.method = http://www.openrdf.org/rdf/2011/messaging#method

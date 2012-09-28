@@ -52,7 +52,7 @@
 :GetPageTemplate rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Creatable>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
-    calli:get "{page}?element=/1&realm={realm}".
+    calli:copy "{page}?element=/1&realm={realm}".
 
 :page a owl:FunctionalProperty, owl:ObjectProperty;
     rdfs:domain :GetPageTemplate;

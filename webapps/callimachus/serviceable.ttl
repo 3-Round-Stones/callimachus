@@ -56,7 +56,7 @@
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom <java:java.io.Reader>];
     calli:method "GET";
     calli:query "discussion";
-    calli:requires calli:subscriber;
+    calli:requires calli:reader;
     calli:type "text/html";
     calli:get <pipelines/discussion.xpl?results&target=$0>.
 

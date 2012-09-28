@@ -92,6 +92,10 @@ public class Realm {
 		}
 	}
 
+	public String toString() {
+		return allowOrigin.toString();
+	}
+
 	public Collection<String> allowOrigin() {
 		return allowOrigin;
 	}

@@ -32,10 +32,7 @@ public class RealmManager {
 	public Realm getRealm(String target, ObjectConnection con)
 			throws OpenRDFException {
 		TreeMap<String, Realm> realms = getRealms(con);
-		Entry<String, Realm> entry = realms.floorEntry(target);
-		if (entry == null || !target.startsWith(entry.getKey()))
-			return null;
-		return entry.getValue();
+		return get(target, realms);
 	}
 
 	private synchronized TreeMap<String, Realm> getRealms(
@@ -70,6 +67,24 @@ public class RealmManager {
 		} finally {
 			stmts.close();
 		}
+	}
+
+	private Realm get(String target, TreeMap<String, Realm> realms) {
+		Entry<String, Realm> entry = realms.floorEntry(target);
+		if (entry == null)
+			return null;
+		String key = entry.getKey();
+		if (target.startsWith(key))
+			return entry.getValue();
+		if (target.length() == 0)
+			return null;
+		int idx = 0;
+		while (idx < target.length() && idx < key.length()
+				&& target.charAt(idx) == key.charAt(idx)) {
+			idx++;
+		}
+		String prefix = target.substring(0, idx);
+		return get(prefix, realms);
 	}
 
 }

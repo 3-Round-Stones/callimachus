@@ -97,7 +97,7 @@ public abstract class TransformBuilder {
 	}
 
 	public String asString() throws TransformerException, IOException {
-		return (String) as(String.class);
+		return (String) as(String.class, "text/*");
 	}
 
 	public XMLEventReader asXMLEventReader() throws TransformerException, IOException {

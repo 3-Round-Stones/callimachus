@@ -53,6 +53,7 @@ import org.callimachusproject.xml.DOMSourceFactory;
 import org.callimachusproject.xml.DocumentFactory;
 import org.openrdf.repository.object.exceptions.ObjectCompositionException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -142,7 +143,13 @@ public class XSLTransformer {
 
 	public TransformBuilder transform() throws TransformerException,
 			IOException {
-		return transform(new DOMSource(newDocument()));
+		return transform(newDocument(), null);
+	}
+
+	public TransformBuilder transform(Node source, String systemId) throws TransformerException, IOException {
+		if (systemId == null)
+			return transform(new DOMSource(source));
+		return transform(new DOMSource(source, systemId));
 	}
 
 	public TransformBuilder transform(InputStream source, String systemId) throws TransformerException, IOException {

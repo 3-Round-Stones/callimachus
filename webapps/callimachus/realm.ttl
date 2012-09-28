@@ -219,15 +219,15 @@
             else println(e);
         }
         var sb = [];
-        sb.push('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">');
-        sb.push('<xsl:param name="systemId" />');
-        sb.push('<xsl:variable name="realm">' + this + '</xsl:variable>');
-        sb.push('<xsl:variable name="styles">' + baseDir + 'styles</xsl:variable>');
-        sb.push('<xsl:variable name="scripts">' + baseDir + 'scripts</xsl:variable>');
-        sb.push('<xsl:variable name="layout">' + layout + '</xsl:variable>');
-        sb.push('<xsl:variable name="favicon">' + (this.calliFavicon ? this.calliFavicon : '') + '</xsl:variable>');
-        sb.push('<xsl:variable name="menu">' + (this.calliMenu ? (this.calliMenu + '?items') : '') + '</xsl:variable>');
-        sb.push('<xsl:variable name="variation">' + (this.calliVariation ? this.calliVariation : '') + '</xsl:variable>');
+        sb.push('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">\\n');
+        sb.push('<xsl:param name="systemId" />\\n');
+        sb.push('<xsl:variable name="realm">' + this + '</xsl:variable>\\n');
+        sb.push('<xsl:variable name="styles">' + baseDir + 'styles</xsl:variable>\\n');
+        sb.push('<xsl:variable name="scripts">' + baseDir + 'scripts</xsl:variable>\\n');
+        sb.push('<xsl:variable name="layout">' + layout + '</xsl:variable>\\n');
+        sb.push('<xsl:variable name="favicon">' + (this.calliFavicon ? this.calliFavicon : '') + '</xsl:variable>\\n');
+        sb.push('<xsl:variable name="menu">' + (this.calliMenu ? (this.calliMenu + '?items') : '') + '</xsl:variable>\\n');
+        sb.push('<xsl:variable name="variation">' + (this.calliVariation ? this.calliVariation : '') + '</xsl:variable>\\n');
         sb.push('<xsl:variable name="rights">');
         try {
             if (this.calliRights) {
@@ -249,9 +249,9 @@
             if (e.javaException) e.javaException.printStackTrace();
             else println(e);
         }
-        sb.push('</xsl:variable>');
-        sb.push('<xsl:include href="' + baseDir + 'transforms/layout.xsl" />');
-        sb.push('</xsl:stylesheet>');
+        sb.push('</xsl:variable>\\n');
+        sb.push('<xsl:include href="' + baseDir + 'transforms/layout.xsl" />\\n');
+        sb.push('</xsl:stylesheet>\\n');
         return sb.join('');
     """.
 

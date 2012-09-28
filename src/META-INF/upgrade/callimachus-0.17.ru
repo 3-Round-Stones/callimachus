@@ -218,3 +218,10 @@ INSERT {
     FILTER NOT EXISTS { ?accounts a calli:AuthenticationManager }
 };
 
+INSERT {
+    </callimachus> a </callimachus/Serviceable>
+} WHERE {
+    </callimachus> a owl:Ontology
+    FILTER NOT EXISTS { </callimachus> a </callimachus/Serviceable> }
+};
+

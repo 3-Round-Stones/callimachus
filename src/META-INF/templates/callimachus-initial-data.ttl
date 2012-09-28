@@ -19,7 +19,7 @@
 ################################
 
 </> calli:hasComponent </callimachus>.
-</callimachus> a owl:Ontology;
+</callimachus> a </callimachus/Serviceable>, owl:Ontology;
     rdfs:label "Callimachus";
     rdfs:comment "Vocabulary used to create local Callimachus applications";
     owl:versionInfo "0.17";

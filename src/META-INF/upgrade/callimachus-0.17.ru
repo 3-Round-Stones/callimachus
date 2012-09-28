@@ -211,3 +211,10 @@ DELETE {
     }}
 };
 
+INSERT {
+    ?accounts a calli:AuthenticationManager
+} WHERE {
+    ?accounts a calli:DigestManager
+    FILTER NOT EXISTS { ?accounts a calli:AuthenticationManager }
+};
+

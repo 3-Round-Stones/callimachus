@@ -18,14 +18,24 @@
         </aside>
     </div>
     <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:Realm calli:Folder"
-            onsubmit="$('#label').val($('#label').val().toLowerCase());$(this).attr('resource',encodeURI($('#label').val()).replace(/%20/g,'-')+'/');return calli.saveResourceAs(event)">
+            onsubmit="return calli.saveResourceAs(event)">
+        <input id="localname" type="hidden" />
         <fieldset class="control-group">
             <label for="label" class="control-label">Label</label>
             <div class="controls">
-                <input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus" />
+                <input id="label" value="{rdfs:label}" class="auto-expand" required="required" autofocus="autofocus"
+                    onchange="value = value.toLowerCase();$('#localname').val(value.replace(/ /g,'-')+'/');" />
             </div>
         </fieldset>
         <fieldset class="hbox">
+            <div class="control-group">
+                <label for="theme" class="control-label">Theme</label>
+                <div class="controls">
+                    <select id="theme" rel="calli:theme">
+                        <option selected="selected" about="?theme" typeof="calli:Theme" property="rdfs:label" />
+                    </select>
+                </div>
+            </div>
             <div id="favicon-image" dropzone="link s:text/uri-list" class="control-group"
                     ondrop="return calli.insertResource(event)">
                 <label class="control-label">Icon <a href="/?view" title="Browse" onclick="return calli.selectResource(event)" class="ui-icon ui-icon-folder-open" /></label>
@@ -47,10 +57,10 @@
                 </div>
             </div>
             <div class="control-group">
-                <label for="theme" class="control-label">Theme</label>
+                <label for="authentication" class="control-label">Authentication</label>
                 <div class="controls">
-                    <select id="theme" rel="calli:theme">
-                        <option selected="selected" about="?theme" typeof="calli:Theme" property="rdfs:label" />
+                    <select id="authentication" rel="calli:authentication">
+                        <option selected="selected" about="?authentication" typeof="calli:AuthenticationManager" property="rdfs:label" />
                     </select>
                 </div>
             </div>

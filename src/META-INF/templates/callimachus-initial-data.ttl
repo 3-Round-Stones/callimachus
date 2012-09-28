@@ -57,7 +57,7 @@
 ################################
 
 </> calli:hasComponent </accounts>.
-</accounts> a </callimachus/DigestManager>, calli:DigestManager;
+</accounts> a </callimachus/DigestManager>, calli:DigestManager, calli:AuthenticationManager;
     rdfs:label "accounts";
     calli:reader </group/public>;
     calli:subscriber </group/users>, </group/staff>;

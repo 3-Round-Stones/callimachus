@@ -6,15 +6,15 @@
 
 (function($){
 
-var originalSubmit = true;
+var nestedSubmit = false;
 function resubmit(form) {
-    var previously = originalSubmit;
-    originalSubmit = false;
+    var previously = nestedSubmit;
+    nestedSubmit = true;
     try {
         overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
         $(form).submit(); // this time with a resource attribute
     } finally {
-        originalSubmit = previously;
+        nestedSubmit = previously;
     }
 }
 
@@ -28,7 +28,7 @@ window.calli.saveResourceAs = function(event, fileName, create) {
 
     $(form).find("input").change(); // IE may not have called onchange before onsubmit
     var resource = $(form).attr('about') || $(form).attr('resource');
-    if (originalSubmit && fileName) { // prompt for a new URI
+    if (!nestedSubmit && fileName) { // prompt for a new URI
         $(form).removeAttr('about');
         $(form).removeAttr('resource');
         $(form).removeAttr('action');
@@ -37,12 +37,14 @@ window.calli.saveResourceAs = function(event, fileName, create) {
             resubmit(form);
         });
         return false;
-    } else if (resource && resource.indexOf(':') < 0 && resource.indexOf('/') != 0 && resource.indexOf('?') != 0) {
-        return promptIfNeeded(form, decodeURI(resource), create, function(ns, local){
+    } else if (resource && calli.getFormAction(form).indexOf('?create=') < 0) {
+        openSaveAsDialog(form, decodeURI(resource), create, function(ns, local) {
             $(form).removeAttr('about');
             $(form).attr('resource', ns + local);
+            resubmit(form); // this time with an resource attribute
         });
-    } else if (resource) { // absolute resource attribute already set
+        return false;
+    } else if (resource) { // resource attribute already set
         overrideLocation(form, $(form).attr('about') || $(form).attr('resource'));
         return true;
     } else { // no identifier at all
@@ -153,7 +155,7 @@ function updateFormAction(form, target, create) {
         var m;
         if (create) {
             form.setAttribute("method", "POST");
-            form.action = target + '?create=' + create;
+            form.action = target + '?create=' + encodeURIComponent(create);
         } else if (m = action.match(/^([^\?]*)\?create(&.*)?$/)) {
             action = target + '?create=';
             if (create) {
@@ -182,8 +184,8 @@ function updateFormAction(form, target, create) {
 function overrideLocation(form, uri) {
     var action = calli.getFormAction(form);
     if (action.indexOf('&location=') > 0) {
-        var m = action.match(/^(.*&location=)[^&=]*(.*)$/);
-        form.action = m[1] + encodeURIComponent(uri) + m[2];
+        var m = action.match(/^(.*&location=)([^&=]*)(.*)$/);
+        form.action = m[1] + encodeURIComponent(uri) + m[3];
     } else if (action.indexOf('?create') >= 0) {
         form.action = action + '&location=' + encodeURIComponent(uri);
     }

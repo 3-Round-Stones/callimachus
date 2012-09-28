@@ -16,8 +16,8 @@
             <p>Only users in the User namespace folder are permitted to authenticate</p>
         </aside>
     </div>
-    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="owl:Class"
-            onsubmit="updateAbout();return calli.saveResourceAs(event)">
+    <form id="form" method="POST" action="" enctype="application/rdf+xml" typeof="calli:DigestManager calli:AuthenticationManager"
+            onsubmit="return calli.saveResourceAs(event)">
         <fieldset>
             <div class="control-group">
                 <label for="label" class="control-label">Label</label>

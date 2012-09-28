@@ -18,9 +18,13 @@ public class GroupManager {
 	private int revision = cache;
 	private final Map<String, Group> groups = new HashMap<String, Group>();
 
+	public synchronized void resetCache() {
+		groups.clear();
+	}
+
 	public synchronized Set<Group> getGroups(Set<String> uris, RepositoryConnection con) throws RepositoryException {
 		if (revision != cache) {
-			groups.clear();
+			resetCache();
 			revision = cache;
 		}
 		Set<Group> groups = new HashSet<Group>(uris.size());

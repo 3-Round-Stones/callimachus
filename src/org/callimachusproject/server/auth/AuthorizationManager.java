@@ -64,6 +64,12 @@ public class AuthorizationManager {
 	private final GroupManager groupManager = new GroupManager();
 	private final RealmManager realmManager = new RealmManager();
 
+	public void resetCache() {
+		properties.resetCache();
+		groupManager.resetCache();
+		realmManager.resetCache();
+	}
+
 	/**
 	 * Called from composite.ttl when creating a new resource
 	 */

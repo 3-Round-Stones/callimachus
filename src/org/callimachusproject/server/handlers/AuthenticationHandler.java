@@ -68,6 +68,10 @@ public class AuthenticationHandler implements Handler {
 		this.delegate = delegate;
 	}
 
+	public void resetCache() {
+		manager.resetCache();
+	}
+
 	public Response verify(ResourceOperation request) throws Exception {
 		String[] requires = request.getRequires();
 		if (requires != null && requires.length == 0) {

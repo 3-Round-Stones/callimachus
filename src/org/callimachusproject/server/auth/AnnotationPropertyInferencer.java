@@ -26,10 +26,14 @@ public class AnnotationPropertyInferencer {
 	private int revision = cache;
 	private final Map<String, Set<String>> expanded = new HashMap<String, Set<String>>();
 
+	public synchronized void resetCache() {
+		expanded.clear();
+	}
+
 	public synchronized Set<String> expand(String[] property,
 			RepositoryConnection con) throws OpenRDFException {
 		if (revision != cache) {
-			expanded.clear();
+			resetCache();
 			revision = cache;
 		}
 		if (property == null || property.length == 0)

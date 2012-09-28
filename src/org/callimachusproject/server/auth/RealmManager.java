@@ -25,6 +25,10 @@ public class RealmManager {
 	private int revision = cache;
 	private TreeMap<String, Realm> realms;
 
+	public synchronized void resetCache() {
+		realms = null;
+	}
+
 	public Realm getRealm(String target, ObjectConnection con)
 			throws OpenRDFException {
 		TreeMap<String, Realm> realms = getRealms(con);

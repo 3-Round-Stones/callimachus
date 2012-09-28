@@ -131,23 +131,24 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		}
 	}
 
-	private Logger logger = LoggerFactory.getLogger(HTTPObjectServer.class);
-	private ListeningIOReactor server;
-	private IOEventDispatch dispatch;
+	private final Logger logger = LoggerFactory.getLogger(HTTPObjectServer.class);
+	private final ListeningIOReactor server;
+	private final IOEventDispatch dispatch;
 	private ListeningIOReactor sslserver;
 	private IOEventDispatch ssldispatch;
-	private CallimachusRepository repository;
+	private final CallimachusRepository repository;
 	private int[] ports;
 	private int[] sslports;
-	private ServerNameFilter name;
-	private IdentityPrefix abs;
-	private HttpResponseFilter env;
+	private final ServerNameFilter name;
+	private final IdentityPrefix abs;
+	private final HttpResponseFilter env;
 	private boolean started = false;
 	private boolean stopped = true;
-	private HTTPObjectRequestHandler service;
-	private LinksHandler links;
-	private ModifiedSinceHandler remoteCache;
-	private CachingFilter cache;
+	private final HTTPObjectRequestHandler service;
+	private final LinksHandler links;
+	private final AuthenticationHandler authCache;
+	private final ModifiedSinceHandler remoteCache;
+	private final CachingFilter cache;
 	private int timeout = 0;
 
 	/**
@@ -172,7 +173,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 		handler = remoteCache = new ModifiedSinceHandler(handler);
 		handler = new UnmodifiedSinceHandler(handler);
 		handler = new ContentHeadersHandler(handler);
-		handler = new AuthenticationHandler(handler);
+		handler = authCache = new AuthenticationHandler(handler);
 		Filter filter = env = new HttpResponseFilter(null);
 		filter = new DateHeaderFilter(filter);
 		filter = new GZipFilter(filter);
@@ -330,6 +331,7 @@ public class HTTPObjectServer implements HTTPService, HTTPObjectAgentMXBean {
 					cache.reset();
 					HTTPObjectClient.getInstance().resetCache();
 					remoteCache.invalidate();
+					authCache.resetCache();
 				} catch (Error e) {
 					logger.error(e.toString(), e);
 				} catch (RuntimeException e) {

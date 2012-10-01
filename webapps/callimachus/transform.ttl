@@ -114,5 +114,5 @@
 :ValidateTransform rdfs:subClassOf msg:Message;
     rdfs:subClassOf [owl:onProperty msg:target; owl:allValuesFrom <Transform>];
     rdfs:subClassOf [owl:onProperty msg:object; owl:allValuesFrom owl:Nothing];
-    calli:post "schemas/schema-for-xslt20.xsd?validate\nContent-Location:$0\nContent-Type: application/xml".
+    calli:post "schemas/xslt.rng?validate\nContent-Location:$0\nContent-Type: application/xml".
 
